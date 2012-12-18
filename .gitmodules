@@ -1,6 +1,6 @@
 [submodule "wd"]
 	path = wd
-	url = https://github.com/admc/wd
+	url = https://github.com/admc/wd.git
 [submodule "istanbul"]
 	path = istanbul
-	url = https://github.com/gotwarlost/istanbul
+	url = https://github.com/gotwarlost/istanbul.git

@@ -1,22 +1,29 @@
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
-	require('./dojo/dojo')([ 'runner' ]);
+	var req = require('./dojo/dojo');
+	// TODO: Fix configuration
+	req.set(__dirname + '/', undefined, [ 'dojo', { name: 'teststack', location: '.' } ]);
+	req(['teststack/runner']);
 }
+else {
+	define([
+		'dojo/topic',
+		'dojo/aspect',
+		'./main',
+		'./lib/args',
+		'require'
+	], function (topic, aspect, main, args, require) {
+		aspect.after(topic, 'publish', function () {
+			console.log(arguments);
+		}, true);
 
-define([
-	'./lib/args',
-	'require'
-], function (args, require) {
-	function runTests() {
-		Array.prototype.slice.call(arguments, 0).forEach(function (suite) {
-			console.log(suite);
+		if (!args.config) {
+			throw new Error('Missing "config" argument');
+		}
+
+		require([ args.config ], function (config) {
+			require(config.deps, function () {
+				main.run();
+			});
 		});
-	}
-
-	if (!args.config) {
-		throw new Error('Missing "config" argument');
-	}
-
-	require([ args.config ], function (config) {
-		require(config.deps, runTests);
 	});
-});
+}

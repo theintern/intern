@@ -4,6 +4,10 @@
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
 		<script src="dojo/dojo.js"></script>
-		<script>require(['runner']);</script>
+		<script>
+// TODO: Fix require configuration
+require.set(location.pathname.replace(/[^\/]+$/, ''), undefined, [ 'dojo', { name: 'teststack', location: '.' } ]);
+require(['teststack/runner']);
+		</script>
 	</head>
 </html>
