@@ -1,9 +1,10 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	var req = require('./dojo/dojo');
-	// TODO: Fix configuration
-	req.set(__dirname + '/', undefined, [ 'dojo', { name: 'teststack', location: '.' } ]);
-	req(['teststack/client']);
+	req({
+		baseUrl: __dirname + '/',
+		packages: [ 'dojo', { name: 'teststack', location: '.' } ]
+	}, [ 'teststack/client' ]);
 }
 else {
 	define([

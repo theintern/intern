@@ -1,9 +1,10 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	var req = require('./dojo/dojo');
-	// TODO: Fix configuration
-	req.set(__dirname + '/', undefined, [ 'dojo', 'istanbul', 'wd', { name: 'teststack', location: '.' } ]);
-	req([ 'teststack/runner' ]);
+	req({
+		baseUrl: __dirname + '/',
+		packages: [ 'dojo', 'istanbul', 'wd', { name: 'teststack', location: '.' } ]
+	}, [ 'teststack/runner' ]);
 }
 else {
 	define([
@@ -43,7 +44,7 @@ else {
 		}
 
 		var instrumenter = new Instrumenter({ coverageVariable: '__teststackCoverage', noCompact: true, noAutoWrap: true });
-		var server = createInstrumentationServer(args.port, instrumenter, '.');
+		var server = createInstrumentationServer(config.proxyPort, instrumenter, '.');
 
 		var sessions = [];
 

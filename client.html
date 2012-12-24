@@ -6,8 +6,10 @@
 		<script src="dojo/dojo.js"></script>
 		<script>
 // TODO: Fix require configuration
-require.set(location.pathname.replace(/[^\/]+$/, ''), undefined, [ 'dojo', { name: 'teststack', location: '.' } ]);
-require(['teststack/client']);
+require({
+	baseUrl: location.pathname.replace(/[^\/]+$/, ''),
+	packages: [ 'dojo', { name: 'teststack', location: '.' } ]
+}, [ 'teststack/client' ]);
 		</script>
 	</head>
 </html>
