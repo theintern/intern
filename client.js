@@ -1,3 +1,4 @@
+/*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	var req = require('./dojo/dojo');
 	// TODO: Fix configuration
@@ -6,24 +7,25 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 }
 else {
 	define([
-		'dojo/topic',
-		'dojo/aspect',
 		'./main',
 		'./lib/args',
 		'require'
-	], function (topic, aspect, main, args, require) {
-		aspect.after(topic, 'publish', function () {
-			console.log(arguments);
-		}, true);
-
-		if (!args.config) {
-			throw new Error('Missing "config" argument');
+	], function (main, args, require) {
+		if (!args.suites) {
+			throw new Error('Missing "suites" argument');
 		}
 
-		require([ args.config ], function (config) {
-			require(config.deps, function () {
-				main.run();
-			});
+		var deps = args.suites.split(/,\s*/);
+
+		if (!args.reporter) {
+			console.info('Defaulting to "console" reporter');
+			args.reporter = 'console';
+		}
+
+		deps.push('./lib/reporters/' + args.reporter);
+
+		require(deps, function () {
+			main.run();
 		});
 	});
 }
