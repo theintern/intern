@@ -61,7 +61,7 @@ else {
 						return browser.get(config.clientHtmlLocation + '?reporter=webdriver&suites=' + testConfig.suites);
 					})
 					.then(function setAsyncTimeout() {
-						return browser.setAsyncScriptTimeout(1e10);
+						return browser.setAsyncScriptTimeout(/* 10 minutes */ 10 * 60 * 1000);
 					})
 					.then(function registerConduit() {
 						return browser.executeAsync('this.remoteTestCallback = arguments[0];');
