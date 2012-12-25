@@ -86,7 +86,7 @@ else {
 				}), '.');
 
 			browsersToTest.forEach(queue(function (browserType) {
-				runBrowser(browserType, config, testConfig).always(function (results) {
+				return runBrowser(browserType, config, testConfig).always(function (results) {
 					console.log('Test done! ' + browserType);
 					runs[browserType] = results;
 					if (++numCompletedTests === numTests) {
