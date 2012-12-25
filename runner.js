@@ -8,76 +8,92 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 }
 else {
 	define([
-		'./lib/createInstrumentationServer',
-		'./lib/createBrowserPermutations',
+		'./lib/createProxy',
+		'./lib/runBrowser',
 		'dojo/node!istanbul/lib/instrumenter',
-		'dojo/promise/all',
+		'dojo/node!istanbul/lib/collector',
+		'dojo/node!istanbul/lib/report/text-summary',
 		'./lib/args',
-		'./lib/wd',
+		'./lib/util',
 		'./config'
-	], function (createInstrumentationServer, createBrowserPermutations, Instrumenter, whenAll, args, wd, config) {
-		var _cleaningUp = false;
-		function cleanup() {
-			if (_cleaningUp) {
-				return;
-			}
-
-			_cleaningUp = true;
-			console.log('Cleaning up');
-
-			var session,
-				cleanups = [];
-			while ((session = sessions.pop())) {
-				cleanups.push(session.quit());
-			}
-
-			server && server.close();
-
-			whenAll(cleanups, function () {
-				console.log('All done!');
-				process.exit(0);
-			});
-		}
-
+	], function (createProxy, runBrowser, Instrumenter, Collector, Reporter, args, util, config) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
 
-		var instrumenter = new Instrumenter({ coverageVariable: '__teststackCoverage', noCompact: true, noAutoWrap: true });
-		var server = createInstrumentationServer(config.proxyPort, instrumenter, '.');
-
-		var sessions = [];
-
 		require([ args.config ], function (testConfig) {
-			createBrowserPermutations(config.browsers).slice(3, 4).forEach(function (browserType) {
-				console.log('Remoting');
-				var browser = wd.remote(config.webdriver);
-				sessions.push(browser);
-				console.log('Creating', browserType.browserName, browserType.version, browserType.platform);
-				browser
-					.init(browserType)
-					.then(function loadClient(sessionId) {
-						console.log('Session', sessionId, 'started');
-						return browser.get(config.clientHtmlLocation + '?reporter=webdriver&suites=' + testConfig.suites);
-					})
-					.then(function setAsyncTimeout() {
-						return browser.setAsyncScriptTimeout(/* 10 minutes */ 10 * 60 * 1000);
-					})
-					.then(function registerConduit() {
-						return browser.executeAsync('this.remoteTestCallback = arguments[0];');
-					})
-					.then(function reportResults(results) {
-						console.log(results);
-						cleanup();
-					})
-					.otherwise(function reportError(error) {
-						console.error(error);
-						cleanup();
-					});
-			});
-		});
+			function finish() {
+				console.log('All tests done!');
 
-		process.on('SIGINT', cleanup);
-		process.on('uncaughtException', cleanup);
+				var collector = new Collector(),
+					reporter = new Reporter(),
+					numRuns = 0,
+					numTests = 0,
+					numFailedTests = 0;
+
+				for (var k in runs) {
+					var run = runs[k];
+
+					if (run && run.result) {
+						var runCollector = new Collector();
+						++numRuns;
+						runCollector.add(run.result.coverage);
+						collector.add(run.result.coverage);
+						numTests += run.result.suite.numTests;
+						numFailedTests += run.result.suite.numFailedTests;
+
+						console.log('%s: %d/%d tests failed', k, run.result.suite.numFailedTests, run.result.suite.numTests);
+						reporter.writeReport(runCollector);
+
+						runCollector = null;
+					}
+					else {
+						numTests += 1;
+						numFailedTests += 1;
+						console.log('%s: execution failed: %s', k, run.message);
+					}
+				}
+
+				console.log('\n\nTOTAL: tested %d platforms, %d/%d tests failed', numRuns, numFailedTests, numTests);
+
+				try {
+					reporter.writeReport(collector);
+				}
+				catch (error) {
+					console.error(error);
+				}
+
+				server.close();
+
+				process.exit(numFailedTests > 0 ? 1 : 0);
+			}
+
+			var runs = {},
+				queue = util.createQueue(config.maxConcurrency),
+				browsersToTest = util.flattenBrowsers(config.browsers),
+				numTests = browsersToTest.length,
+				numCompletedTests = 0,
+				server = createProxy(config.proxyPort, new Instrumenter({
+					// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
+					// where the global is coming from
+					coverageVariable: '__teststackCoverage',
+
+					// compacting code makes it harder to look at but it does not really matter
+					noCompact: true,
+
+					// auto-wrap breaks code
+					noAutoWrap: true
+				}), '.');
+
+			browsersToTest.forEach(queue(function (browserType) {
+				runBrowser(browserType, config, testConfig).always(function (results) {
+					console.log('Test done! ' + browserType);
+					runs[browserType] = results;
+					if (++numCompletedTests === numTests) {
+						finish();
+					}
+				});
+			}));
+		});
 	});
 }

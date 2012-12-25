@@ -7,15 +7,15 @@ define({
 
 	// browsers to run integration testing against
 	browsers: [
-		{ browserName: 'internet explorer', version: [ 9, 10 ] },
-		{ browserName: 'firefox', platform: [ 'LINUX', 'MAC', 'WINDOWS' ] },
-		{ browserName: 'chrome', platform: [ 'LINUX', 'MAC', 'WINDOWS' ] },
-		{ browserName: 'safari', platform: 'MAC', version: [ 5.1, 6 ] },
-		{ browserName: 'opera', platform: [ 'LINUX', 'MAC', 'WINDOWS' ] }
+		{ browserName: 'internet explorer', browserVersion: [ 9, 10 ] },
+		{ browserName: 'firefox', platformName: [ 'LINUX', 'MAC', 'WINDOWS' ] },
+		{ browserName: 'chrome', platformName: [ 'LINUX', 'MAC', 'WINDOWS' ] },
+		{ browserName: 'safari', platformName: 'MAC', browserVersion: [ 5.1, 6 ] },
+		{ browserName: 'opera', platformName: [ 'LINUX', 'MAC', 'WINDOWS' ] }
 	],
 
 	// maximum number of simultaneous integration tests that can be executed on the remote WebDriver service
-	maxConcurrency: 3,
+	maxConcurrency: 2,
 
 	// connection information for the remote WebDriver service
 	webdriver: {
