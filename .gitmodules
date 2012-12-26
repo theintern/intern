@@ -1,9 +1,0 @@
-[submodule "node_modules/istanbul"]
-	path = node_modules/istanbul
-	url = https://github.com/gotwarlost/istanbul.git
-[submodule "node_modules/wd"]
-	path = node_modules/wd
-	url = https://github.com/admc/wd.git
-[submodule "node_modules/sauce-connect-launcher"]
-	path = node_modules/sauce-connect-launcher
-	url = https://github.com/csnover/sauce-connect-launcher.git
