@@ -4,3 +4,6 @@
 [submodule "node_modules/wd"]
 	path = node_modules/wd
 	url = https://github.com/admc/wd.git
+[submodule "node_modules/sauce-connect-launcher"]
+	path = node_modules/sauce-connect-launcher
+	url = https://github.com/csnover/sauce-connect-launcher.git

@@ -3,7 +3,10 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	var req = require('./dojo/dojo');
 	req({
 		baseUrl: __dirname + '/',
-		packages: [ 'dojo', { name: 'teststack', location: '.' } ]
+		packages: [
+			{ name: 'dojo-ts', location: 'dojo' },
+			{ name: 'teststack', location: '.' }
+		]
 	}, [ 'teststack/client' ]);
 }
 else {
@@ -26,7 +29,9 @@ else {
 		deps.push('./lib/reporters/' + args.reporter);
 
 		require(deps, function () {
-			main.run();
+			if (args.autoRun !== 'false') {
+				main.run();
+			}
 		});
 	});
 }

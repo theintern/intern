@@ -5,10 +5,12 @@
 		<title>Browser test runner</title>
 		<script src="dojo/dojo.js"></script>
 		<script>
-// TODO: Fix require configuration
 require({
 	baseUrl: location.pathname.replace(/[^\/]+$/, ''),
-	packages: [ 'dojo', { name: 'teststack', location: '.' } ]
+	packages: [
+		{ name: 'dojo-ts', location: 'dojo' },
+		{ name: 'teststack', location: '.' }
+	]
 }, [ 'teststack/client' ]);
 		</script>
 	</head>
