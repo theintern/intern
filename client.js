@@ -19,6 +19,10 @@ else {
 			throw new Error('Missing "suites" argument');
 		}
 
+		if (args.packages) {
+			require({ packages: JSON.parse(args.packages) });
+		}
+
 		var deps = args.suites.split(/,\s*/);
 
 		if (!args.reporter) {
