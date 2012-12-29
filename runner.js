@@ -13,9 +13,9 @@ else {
 	define([
 		'./lib/createProxy',
 		'./lib/runBrowser',
-		'dojo/node!istanbul/lib/instrumenter',
-		'dojo/node!istanbul/lib/collector',
-		'dojo/node!istanbul/lib/report/text-summary',
+		'dojo-ts/node!istanbul/lib/instrumenter',
+		'dojo-ts/node!istanbul/lib/collector',
+		'dojo-ts/node!istanbul/lib/report/text-summary',
 		'dojo-ts/node!sauce-connect-launcher',
 		'./lib/args',
 		'./lib/util'
