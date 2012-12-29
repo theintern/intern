@@ -2,10 +2,10 @@
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	var req = require('./dojo/dojo');
 	req({
-		baseUrl: __dirname + '/',
+		baseUrl: __dirname + '/../',
 		packages: [
-			{ name: 'dojo-ts', location: 'dojo' },
-			{ name: 'teststack', location: '.' }
+			{ name: 'dojo-ts', location: __dirname + '/dojo' },
+			{ name: 'teststack', location: __dirname }
 		]
 	}, [ 'teststack/client' ]);
 }

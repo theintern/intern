@@ -38,8 +38,8 @@ your preferred AMD-compatible assertion library might be.
 
 First:
 
-1. `git clone --recursive https://github.com/csnover/dojo2-teststack.git` as a child
-   directory of the project you want to test (you will be able to make it a sibling in the very near future)
+1. `git clone --recursive https://github.com/csnover/dojo2-teststack.git` as a sibling directory of the package you
+   want to test
 
 Then, for a stand-alone browser client:
 
@@ -59,6 +59,8 @@ Or, as an amazing fully-featured automated test runner:
    https://github.com/csnover/dojo2-core/blob/master/test/teststack.js
 1. `cd dojo2-teststack`
 1. `node runner.js config=mid/of/teststack/config`
+1. View console
+1. Fix bugs
 
 …plus CI support:
 
