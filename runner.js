@@ -98,7 +98,7 @@ else {
 
 					// auto-wrap breaks code
 					noAutoWrap: true
-				}), '.');
+				}), '..');
 
 			if (process.env.SAUCE_USERNAME) {
 				config.webdriver.username = process.env.SAUCE_USERNAME;
