@@ -20,7 +20,9 @@ else {
 		}
 
 		if (args.packages) {
-			require({ packages: JSON.parse(args.packages) });
+			// TODO: Use of the global require is required for this to work because config mechanics are in global
+			// require only; this should probably not be the case
+			this.require({ packages: JSON.parse(args.packages) });
 		}
 
 		var deps = args.suites.split(/,\s*/);
