@@ -25,14 +25,16 @@ else {
 			this.require({ packages: JSON.parse(args.packages) });
 		}
 
-		var deps = args.suites.split(/,\s*/);
+		var deps = [].concat(args.suites);
 
 		if (!args.reporter) {
 			console.info('Defaulting to "console" reporter');
 			args.reporter = 'console';
 		}
 
-		deps.push('./lib/reporters/' + args.reporter);
+		// Allow 3rd party reporters to be used simply by specifying a full mid, or built-in reporters by
+		// specifying the reporter name only
+		deps.push(args.reporter.indexOf('/') > -1 ? args.reporter : './lib/reporters/' + args.reporter);
 
 		require(deps, function () {
 			if (args.autoRun !== 'false') {

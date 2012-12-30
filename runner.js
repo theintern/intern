@@ -11,94 +11,126 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 }
 else {
 	define([
+		'require',
 		'./lib/createProxy',
 		'./lib/runBrowser',
 		'dojo-ts/node!istanbul/lib/instrumenter',
-		'dojo-ts/node!istanbul/lib/collector',
-		'dojo-ts/node!istanbul/lib/report/text-summary',
 		'dojo-ts/node!sauce-connect-launcher',
 		'./lib/args',
-		'./lib/util'
-	], function (createProxy, runBrowser, Instrumenter, Collector, Reporter, startConnect, args, util) {
+		'./lib/util',
+		'dojo-ts/topic',
+		'dojo-ts/Deferred',
+		'dojo-ts/io-query'
+	], function (require, createProxy, startBrowser, Instrumenter, startConnect, args, util, topic, Deferred, ioQuery) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
 
-		require([ args.config ], function (config) {
+		if (!args.reporter) {
+			console.info('Defaulting to "runner" reporter');
+			args.reporter = 'runner';
+		}
+
+		args.reporter = args.reporter.indexOf('/') > -1 ? args.reporter : './lib/reporters/' + args.reporter;
+
+		require([ args.config, args.reporter ], function (config) {
 			function testBrowsers() {
+				var numBrowsersTested = 0,
+					numBrowsersToTest = browsersToTest.length,
+					hasErrors = false;
+
+				topic.subscribe('/error, /test/fail', function () {
+					hasErrors = true;
+				});
+
+				topic.publish('/runner/start');
 				browsersToTest.forEach(queue(function (browserType) {
-					return runBrowser(browserType, config).always(function (result) {
-						console.log('(%d/%d) %s done', numCompletedTests + 1, numTests, browserType);
-						runs[browserType] = result;
-						if (++numCompletedTests === numTests) {
-							finish();
+					function finish(error) {
+						if (browser) {
+							browser.quit().always(function () {
+								topic.publish('/session/end', browser);
+								browser = null;
+								finish(error);
+							});
+							return;
 						}
-					});
+
+						if (error) {
+							topic.publish('/error', error);
+							dfd.reject(error);
+						}
+						else {
+							dfd.resolve();
+						}
+
+						if (++numBrowsersTested === numBrowsersToTest) {
+							topic.publish('/runner/end');
+
+							// TODO: This makes /runner/end incapable of performing async actions; is this a problem?
+							process.exit(hasErrors ? 1 : 0);
+						}
+					}
+
+					var dfd = new Deferred(),
+						browser;
+
+					// TODO: Rename runBrowser.js to startBrowser.js
+					startBrowser(browserType, config).then(function loadAutomatedSuite(/*browser*/) {
+						browser = arguments[0];
+						topic.publish('/session/start', browser);
+
+						// do automated tests
+						var options = {
+							sessionId: browser.sessionId,
+							reporter: 'webdriver',
+							suites: config.suites
+						};
+
+						if (config.packages) {
+							options.packages = JSON.stringify(config.packages);
+						}
+
+						return browser.get(config.clientHtmlLocation + '?' + ioQuery.objectToQuery(options));
+					}).then(function waitForSuiteToFinish() {
+						var dfd = new Deferred(),
+
+							// TODO: Use a more appropriate finalizer topic?
+							handle = topic.subscribe('/client/end', function (sessionId) {
+								if (sessionId === browser.sessionId) {
+									handle.remove();
+									dfd.resolve();
+								}
+							});
+
+						// TODO: And if the final message never comes due to an error or timeout..?
+
+						return dfd.promise;
+					}).then(function runFunctionalTests() {
+						// TODO: Functional tests
+					}).always(finish);
+
+					return dfd;
 				}));
 			}
 
-			function finish() {
-				console.log('All done!');
+			var queue = util.createQueue(config.maxConcurrency),
+				browsersToTest = util.flattenBrowsers(config.browsers);
 
-				var collector = new Collector(),
-					reporter = new Reporter(),
-					numRuns = 0,
-					numTests = 0,
-					numFailedTests = 0;
+			createProxy(config.proxyPort, new Instrumenter({
+				// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
+				// where the global is coming from
+				coverageVariable: '__teststackCoverage',
 
-				for (var k in runs) {
-					var run = runs[k];
+				// compacting code makes it harder to look at but it does not really matter
+				noCompact: true,
 
-					if (run && run.result) {
-						var runCollector = new Collector();
-						++numRuns;
-						runCollector.add(run.result.coverage);
-						collector.add(run.result.coverage);
-						numTests += run.result.suite.numTests;
-						numFailedTests += run.result.suite.numFailedTests;
+				// auto-wrap breaks code
+				noAutoWrap: true
+			}), '..');
 
-						console.log('%s: %d/%d tests failed', k, run.result.suite.numFailedTests, run.result.suite.numTests);
-						reporter.writeReport(runCollector);
-
-						runCollector = null;
-					}
-					else {
-						numTests += 1;
-						numFailedTests += 1;
-						console.log('%s: execution failed: %s', k, run.stack);
-					}
-				}
-
-				console.log('\n\nTOTAL: tested %d platforms, %d/%d tests failed', numRuns, numFailedTests, numTests);
-
-				try {
-					reporter.writeReport(collector);
-				}
-				catch (error) {
-					console.error(error);
-				}
-
-				server.close();
-
-				process.exit(numFailedTests > 0 ? 1 : 0);
+			if (args.proxyOnly) {
+				return;
 			}
-
-			var runs = {},
-				queue = util.createQueue(config.maxConcurrency),
-				browsersToTest = util.flattenBrowsers(config.browsers),
-				numTests = browsersToTest.length,
-				numCompletedTests = 0,
-				server = createProxy(config.proxyPort, new Instrumenter({
-					// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
-					// where the global is coming from
-					coverageVariable: '__teststackCoverage',
-
-					// compacting code makes it harder to look at but it does not really matter
-					noCompact: true,
-
-					// auto-wrap breaks code
-					noAutoWrap: true
-				}), '..');
 
 			if (process.env.SAUCE_USERNAME) {
 				config.webdriver.username = process.env.SAUCE_USERNAME;
@@ -107,7 +139,9 @@ else {
 				config.webdriver.accessKey = process.env.SAUCE_ACCESS_KEY;
 			}
 
-			config.packages && require({ packages: config.packages });
+			// TODO: Global require is needed because context require does not currently have config mechanics built
+			// in.
+			config.packages && this.require({ packages: config.packages });
 
 			var startup;
 			if (config.useSauceConnect) {
@@ -134,7 +168,10 @@ else {
 				username: config.webdriver.username,
 				accessKey: config.webdriver.accessKey,
 				port: config.webdriver.port
-			}).then(testBrowsers, function (error) { console.error(error); process.exit(1); });
+			}).then(testBrowsers, function (error) {
+				console.error(error);
+				process.exit(1);
+			});
 		});
 	});
 }

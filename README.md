@@ -43,13 +43,13 @@ First:
 
 Then, for a stand-alone browser client:
 
-1. Navigate to `http://path/to/dojo2-teststack/client.html?suites=mid/of/testsuite,mid/of/othersuite`
+1. Navigate to `http://path/to/dojo2-teststack/client.html?suites=mid/of/testsuite&suites=mid/of/othersuite`
 1. View console
 1. Fix bugs
 
 Or, for a stand-alone Node.js client:
 
-1. Run `node client.js suites=mid/of/testsuite,mid/of/othersuite`
+1. Run `node client.js suites=mid/of/testsuite suites=mid/of/othersuite`
 1. View console
 1. Fix bugs
 
