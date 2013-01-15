@@ -12,16 +12,19 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 else {
 	define([
 		'require',
+		'./main',
 		'./lib/createProxy',
-		'./lib/runBrowser',
 		'dojo-ts/node!istanbul/lib/instrumenter',
 		'dojo-ts/node!sauce-connect-launcher',
 		'./lib/args',
 		'./lib/util',
-		'dojo-ts/topic',
+		'./lib/Suite',
+		'./lib/Test',
+		'./lib/wd',
+		'dojo-ts/io-query',
 		'dojo-ts/Deferred',
-		'dojo-ts/io-query'
-	], function (require, createProxy, startBrowser, Instrumenter, startConnect, args, util, topic, Deferred, ioQuery) {
+		'dojo-ts/topic'
+	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, Test, wd, ioQuery, Deferred, topic) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
@@ -34,88 +37,6 @@ else {
 		args.reporter = args.reporter.indexOf('/') > -1 ? args.reporter : './lib/reporters/' + args.reporter;
 
 		require([ args.config, args.reporter ], function (config) {
-			function testBrowsers() {
-				var numBrowsersTested = 0,
-					numBrowsersToTest = browsersToTest.length,
-					hasErrors = false;
-
-				topic.subscribe('/error, /test/fail', function () {
-					hasErrors = true;
-				});
-
-				topic.publish('/runner/start');
-				browsersToTest.forEach(queue(function (browserType) {
-					function finish(error) {
-						if (browser) {
-							browser.quit().always(function () {
-								topic.publish('/session/end', browser);
-								browser = null;
-								finish(error);
-							});
-							return;
-						}
-
-						if (error) {
-							topic.publish('/error', error);
-							dfd.reject(error);
-						}
-						else {
-							dfd.resolve();
-						}
-
-						if (++numBrowsersTested === numBrowsersToTest) {
-							topic.publish('/runner/end');
-
-							// TODO: This makes /runner/end incapable of performing async actions; is this a problem?
-							process.exit(hasErrors ? 1 : 0);
-						}
-					}
-
-					var dfd = new Deferred(),
-						browser;
-
-					// TODO: Rename runBrowser.js to startBrowser.js
-					startBrowser(browserType, config).then(function loadAutomatedSuite(/*browser*/) {
-						browser = arguments[0];
-						topic.publish('/session/start', browser);
-
-						// do automated tests
-						var options = {
-							sessionId: browser.sessionId,
-							reporter: 'webdriver',
-							suites: config.suites
-						};
-
-						if (config.packages) {
-							options.packages = JSON.stringify(config.packages);
-						}
-
-						return browser.get(config.clientHtmlLocation + '?' + ioQuery.objectToQuery(options));
-					}).then(function waitForSuiteToFinish() {
-						var dfd = new Deferred(),
-
-							// TODO: Use a more appropriate finalizer topic?
-							handle = topic.subscribe('/client/end', function (sessionId) {
-								if (sessionId === browser.sessionId) {
-									handle.remove();
-									dfd.resolve();
-								}
-							});
-
-						// TODO: And if the final message never comes due to an error or timeout..?
-
-						return dfd.promise;
-					}).then(function runFunctionalTests() {
-						// TODO: Functional tests
-					}).always(finish);
-
-					return dfd;
-				}));
-			}
-
-			var queue = util.createQueue(config.maxConcurrency),
-				browsersToTest = util.flattenBrowsers(config.browsers);
-
 			createProxy(config.proxyPort, new Instrumenter({
 				// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
 				// where the global is coming from
@@ -128,15 +49,25 @@ else {
 				noAutoWrap: true
 			}), '..');
 
+			// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code coverage
+			// reporting on the client if you want
 			if (args.proxyOnly) {
 				return;
 			}
 
+			// TODO: Verify that upon using delete, it is not possible for the program to retrieve these environment
+			// variables another way.
 			if (process.env.SAUCE_USERNAME) {
 				config.webdriver.username = process.env.SAUCE_USERNAME;
+				if (!(delete process.env.SAUCE_USERNAME)) {
+					throw new Error('Failed to clear sensitive environment variable SAUCE_USERNAME');
+				}
 			}
 			if (process.env.SAUCE_ACCESS_KEY) {
 				config.webdriver.accessKey = process.env.SAUCE_ACCESS_KEY;
+				if (!(delete process.env.SAUCE_ACCESS_KEY)) {
+					throw new Error('Failed to clear sensitive environment variable SAUCE_ACCESS_KEY');
+				}
 			}
 
 			// TODO: Global require is needed because context require does not currently have config mechanics built
@@ -161,6 +92,45 @@ else {
 				};
 			}
 
+			main.maxConcurrency = config.maxConcurrency || Infinity;
+			util.flattenEnvironments(config.environments).forEach(function (environmentType) {
+				var suite = new Suite({ name: 'main', remote: wd.remote(config.webdriver, environmentType) });
+
+				// TODO: Just create some RemoteTest type instead that does this stuff?
+				// TODO: Seems timeouts are busted~
+				suite.tests.push(new Test({ name: 'client', timeout: 10 * 60 * 1000, parent: suite, test: function () {
+					var remote = this.remote,
+						options = {
+							sessionId: remote.sessionId,
+							reporter: 'webdriver',
+							suites: config.suites
+						};
+
+					if (config.packages) {
+						options.packages = JSON.stringify(config.packages);
+					}
+
+					console.log('Running automated test suite for ' + remote.type);
+					return remote.get(config.clientHtmlLocation + '?' + ioQuery.objectToQuery(options)).then(function waitForSuiteToFinish() {
+						var dfd = new Deferred();
+
+						// TODO: And if it doesn't finish..?
+						var handle = topic.subscribe('/client/end', function (sessionId) {
+							console.log('Weirdo bug occurs here where logging sessionId causes success, not logging causes silent failure', sessionId);
+							if (sessionId === remote.sessionId) {
+								console.log('Automated test suite complete for ' + remote.type + ', starting functional tests');
+								handle.remove();
+								dfd.resolve();
+							}
+						});
+
+						return dfd.promise;
+					});
+				}}));
+
+				main.suites.push(suite);
+			});
+
 			startup({
 				logger: function () {
 					console.log.apply(console, arguments);
@@ -168,7 +138,21 @@ else {
 				username: config.webdriver.username,
 				accessKey: config.webdriver.accessKey,
 				port: config.webdriver.port
-			}).then(testBrowsers, function (error) {
+			}).then(function () {
+				require(config.functionalSuites, function () {
+					var hasErrors = false;
+
+					topic.subscribe('/error, /test/fail', function () {
+						hasErrors = true;
+					});
+
+					topic.publish('/runner/start');
+					main.run().always(function () {
+						topic.publish('/runner/end');
+						process.exit(hasErrors ? 1 : 0);
+					});
+				});
+			}, function (error) {
 				console.error(error);
 				process.exit(1);
 			});
