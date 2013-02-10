@@ -23,8 +23,9 @@ else {
 		'./lib/wd',
 		'dojo-ts/io-query',
 		'dojo-ts/Deferred',
-		'dojo-ts/topic'
-	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, Test, wd, ioQuery, Deferred, topic) {
+		'dojo-ts/topic',
+		'./lib/EnvironmentType'
+	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, Test, wd, ioQuery, Deferred, topic, EnvironmentType) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
@@ -94,7 +95,30 @@ else {
 
 			main.maxConcurrency = config.maxConcurrency || Infinity;
 			util.flattenEnvironments(config.environments).forEach(function (environmentType) {
-				var suite = new Suite({ name: 'main', remote: wd.remote(config.webdriver, environmentType) });
+				var suite = new Suite({
+					name: 'main',
+					remote: wd.remote(config.webdriver, environmentType),
+					setup: function () {
+						var remote = this.remote;
+						return remote.init()
+						.then(function getEnvironmentInfo(sessionId) {
+							// wd incorrectly puts the session ID on a sessionID property
+							remote.sessionId = sessionId;
+						})
+						.sessionCapabilities()
+						.then(function (capabilities) {
+							remote.environmentType = new EnvironmentType(capabilities);
+							topic.publish('/session/start', remote);
+						});
+					},
+
+					teardown: function () {
+						var remote = this.remote;
+						return remote.quit().always(function () {
+							topic.publish('/session/end', remote);
+						});
+					}
+				});
 
 				// TODO: Just create some RemoteTest type instead that does this stuff?
 				// TODO: Seems timeouts are busted~
@@ -110,15 +134,14 @@ else {
 						options.packages = JSON.stringify(config.packages);
 					}
 
-					console.log('Running automated test suite for ' + remote.type);
+					console.log('Running automated test suite for ' + remote.environmentType);
 					return remote.get(config.clientHtmlLocation + '?' + ioQuery.objectToQuery(options)).then(function waitForSuiteToFinish() {
 						var dfd = new Deferred();
 
 						// TODO: And if it doesn't finish..?
 						var handle = topic.subscribe('/client/end', function (sessionId) {
-							console.log('Weirdo bug occurs here where logging sessionId causes success, not logging causes silent failure', sessionId);
 							if (sessionId === remote.sessionId) {
-								console.log('Automated test suite complete for ' + remote.type + ', starting functional tests');
+								console.log('Automated test suite complete for ' + remote.environmentType + ', starting functional tests');
 								handle.remove();
 								dfd.resolve();
 							}

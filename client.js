@@ -54,7 +54,7 @@ else {
 
 		// Client interface has only one environment, the current environment, and cannot run functional tests on
 		// itself
-		main.suites.push(new Suite({ name: 'main' }));
+		main.suites.push(new Suite({ name: 'main', sessionId: args.sessionId }));
 
 		require(deps, function () {
 			if (args.autoRun !== 'false') {
