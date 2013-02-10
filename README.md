@@ -23,7 +23,7 @@ as long as you can put up with some API churn until it reaches alpha.
 * Instant one-off test execution in the browser or Node.js
 * Full statement, branch, function, and line code coverage reporting with
   [Istanbul](https://github.com/gotwarlost/istanbul)
-* Functional testing using the standard [WebDriver API](http://www.w3.org/TR/webdriver/) with promises-wrapped
+* Functional testing using the standard [WebDriver API](http://www.w3.org/TR/webdriver/) with a fluid, promises-wrapped
   [WD.js](https://github.com/admc/wd)
 * Integration with [Sauce Labs](http://saucelabs.com/) for super simple continuous integration
 * Tested with [Travis CI](http://travis-ci.org/)
@@ -77,5 +77,5 @@ Or, as an amazing fully-featured automated test runner:
 
 ## License
 
-New BSD License © 2012 Colin Snover http://zetafleet.com. Released under
+New BSD License © 2012–2013 Colin Snover http://zetafleet.com. Released under
 [Dojo Foundation CLA](http://dojofoundation.org/about/cla).
