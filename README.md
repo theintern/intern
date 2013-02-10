@@ -4,6 +4,12 @@ The Dojo Test Stack is a collection of JavaScript modules designed to work toget
 high-quality test cases for your JavaScript libraries and applications.
 
 
+## Does my app need to use Dojo to use Dojo Test Stack?
+
+No! Dojo Test Stack uses Dojo but can be used to test *any* JavaScript code. Its functional testing interface can even
+be used to test non-JavaScript Web apps if you really want.
+
+
 ## This repository
 
 This repository is an experimental repository for the next major version of the Dojo Toolkit. However, at this point
