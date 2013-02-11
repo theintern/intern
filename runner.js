@@ -19,13 +19,14 @@ else {
 		'./lib/args',
 		'./lib/util',
 		'./lib/Suite',
+		'./lib/ClientSuite',
 		'./lib/Test',
 		'./lib/wd',
 		'dojo-ts/io-query',
 		'dojo-ts/Deferred',
 		'dojo-ts/topic',
 		'./lib/EnvironmentType'
-	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, Test, wd, ioQuery, Deferred, topic, EnvironmentType) {
+	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, Test, wd, ioQuery, Deferred, topic, EnvironmentType) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
@@ -120,37 +121,7 @@ else {
 					}
 				});
 
-				// TODO: Just create some RemoteTest type instead that does this stuff?
-				// TODO: Seems timeouts are busted~
-				suite.tests.push(new Test({ name: 'client', timeout: 10 * 60 * 1000, parent: suite, test: function () {
-					var remote = this.remote,
-						options = {
-							sessionId: remote.sessionId,
-							reporter: 'webdriver',
-							suites: config.suites
-						};
-
-					if (config.packages) {
-						options.packages = JSON.stringify(config.packages);
-					}
-
-					console.log('Running automated test suite for ' + remote.environmentType);
-					return remote.get(config.clientHtmlLocation + '?' + ioQuery.objectToQuery(options)).then(function waitForSuiteToFinish() {
-						var dfd = new Deferred();
-
-						// TODO: And if it doesn't finish..?
-						var handle = topic.subscribe('/client/end', function (sessionId) {
-							if (sessionId === remote.sessionId) {
-								console.log('Automated test suite complete for ' + remote.environmentType + ', starting functional tests');
-								handle.remove();
-								dfd.resolve();
-							}
-						});
-
-						return dfd.promise;
-					});
-				}}));
-
+				suite.tests.push(new ClientSuite({ parent: suite, config: config }));
 				main.suites.push(suite);
 			});
 
