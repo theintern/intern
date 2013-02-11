@@ -39,6 +39,8 @@ else {
 		args.reporter = args.reporter.indexOf('/') > -1 ? args.reporter : './lib/reporters/' + args.reporter;
 
 		require([ args.config, args.reporter ], function (config) {
+			config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
+
 			createProxy(config.proxyPort, new Instrumenter({
 				// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
 				// where the global is coming from
@@ -99,12 +101,17 @@ else {
 				var suite = new Suite({
 					name: 'main',
 					remote: wd.remote(config.webdriver, environmentType),
+					publishAfterSetup: true,
 					setup: function () {
 						var remote = this.remote;
 						return remote.init()
 						.then(function getEnvironmentInfo(sessionId) {
 							// wd incorrectly puts the session ID on a sessionID property
 							remote.sessionId = sessionId;
+
+							// the remote needs to know the proxy URL so it can munge filesystem paths passed to
+							// `get`
+							remote.proxyUrl = config.proxyUrl;
 						})
 						.sessionCapabilities()
 						.then(function (capabilities) {
