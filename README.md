@@ -12,9 +12,8 @@ be used to test non-JavaScript Web apps if you really want.
 
 ## This repository
 
-This repository is an experimental repository for the next major version of the Dojo Toolkit. However, at this point
-it is extremely likely that this project *will* be finalised and maintained, so please feel free to start using it
-as long as you can put up with some API churn until it reaches alpha.
+This repository is an experimental repository for the next major version of the Dojo Toolkit. Please feel free to start
+using it as long as you can put up with some API churn until it reaches alpha.
 
 
 ## Features
@@ -29,15 +28,14 @@ as long as you can put up with some API churn until it reaches alpha.
 * Tested with [Travis CI](http://travis-ci.org/)
 * Extensible interfaces (comes with TDD, BDD, and objects)
 * Extensible reporters (comes with basic console and WebDriver reporters, lcov and tap output planned)
+* Extensible assertions using the [Chai Assertion Library](http://chaijs.com)
 
 
 ## How to write tests
 
 dojo2-teststack currently comes with support for 3 different test interface: TDD, BDD, and object-oriented. There will
 be more instructions here soon; for now, https://github.com/csnover/dojo2-core/blob/master/test/cookie.js demonstrates
-writing both synchronous and asynchronous tests. The assertion library currently bundled is _not_ recommended and will
-be going away. Anything that throws errors will work just fine, so go nuts with [Chai](http://chaijs.com/) or whatever
-your preferred AMD-compatible assertion library might be.
+writing both synchronous and asynchronous tests.
 
 
 ## How to run
