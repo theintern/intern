@@ -11,7 +11,8 @@
 		baseUrl: basePath + '../',
 		packages: [
 			{ name: 'dojo-ts', location: basePath + 'dojo' },
-			{ name: 'teststack', location: basePath }
+			{ name: 'teststack', location: basePath },
+			{ name: 'chai', location: basePath + 'chai', main: 'chai' }
 		]
 	}, [ 'teststack/client' ]);
 })();

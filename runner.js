@@ -5,7 +5,8 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 		baseUrl: __dirname + '/../',
 		packages: [
 			{ name: 'dojo-ts', location: __dirname + '/dojo' },
-			{ name: 'teststack', location: __dirname }
+			{ name: 'teststack', location: __dirname },
+			{ name: 'chai', location: __dirname + '/chai', main: 'chai' }
 		]
 	}, [ 'teststack/runner' ]);
 }

@@ -1,3 +1,6 @@
 [submodule "dojo"]
 	path = dojo
 	url = https://github.com/csnover/dojo2-core.git
+[submodule "chai"]
+	path = chai
+	url = https://github.com/chaijs/chai
