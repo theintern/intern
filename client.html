@@ -3,12 +3,14 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
+		<script src="es5-shim/es5-shim.min.js"></script>
 		<script src="dojo/dojo.js"></script>
 		<script>
 (function () {
 	var basePath = location.pathname.replace(/[^\/]+$/, '');
 	require({
-		baseUrl: basePath + '../',
+		async: 1,
+		baseUrl: basePath + '../../',
 		packages: [
 			{ name: 'dojo-ts', location: basePath + 'dojo' },
 			{ name: 'teststack', location: basePath },
