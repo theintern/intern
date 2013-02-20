@@ -8,8 +8,12 @@
 	var basePath = location.pathname.replace(/[^\/]+$/, '');
 	dojoConfig = {
 		async: 1,
-		baseUrl: basePath + '../../',
+		baseUrl: basePath + '../',
+		tlmSiblingOfDojo: 0,
 		packages: [
+			'dojo',
+			'dijit',
+			'dojox',
 			{ name: 'dojo-ts', location: basePath + 'dojo' },
 			{ name: 'teststack', location: basePath },
 			{ name: 'chai', location: basePath + 'chai', main: 'chai' }

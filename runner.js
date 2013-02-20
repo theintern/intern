@@ -1,25 +1,23 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
-	dojoConfig = {
+	var path = require('path'),
+		basePath = path.resolve(__dirname);
+
+	global.dojoConfig = {
 		async: 1,
-		baseUrl: __dirname + '/',
+		baseUrl: path.join(basePath, '..'),
+		tlmSiblingOfDojo: 0,
 		packages: [
-			{ name: 'dojo-ts', location: __dirname + '/dojo' },
-			{ name: 'teststack', location: __dirname },
-			{ name: 'chai', location: __dirname + '/chai', main: 'chai' }
+			'dojo',
+			'dijit',
+			'dojox',
+			{ name: 'dojo-ts', location: path.join(basePath, 'dojo') },
+			{ name: 'teststack', location: basePath },
+			{ name: 'chai', location: path.join(basePath, 'chai'), main: 'chai' }
 		],
-		aliases: [
-			['dojo/main', 'dojo-ts/main']
-		],
-		// need to fix dojo/node in dojo 1.x
-		map: {
-			'dojo-ts': {
-				dojo: 'dojo-ts'
-			}
-		},
 		deps: [ 'teststack/runner' ]
 	};
-	var req = require('./dojo/dojo');
+	require('./dojo/dojo');
 }
 else {
 	define([
@@ -115,7 +113,7 @@ else {
 					remote: wd.remote(config.webdriver, environmentType),
 					publishAfterSetup: true,
 					setup: function () {
-						var remote = this.remote;
+						var remote = this.get('remote');
 						return remote.init()
 						.then(function getEnvironmentInfo(sessionId) {
 							// wd incorrectly puts the session ID on a sessionID property
@@ -133,7 +131,7 @@ else {
 					},
 
 					teardown: function () {
-						var remote = this.remote;
+						var remote = this.get('remote');
 						return remote.quit().always(function () {
 							topic.publish('/session/end', remote);
 						});
