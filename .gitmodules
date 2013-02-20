@@ -1,6 +1,3 @@
-[submodule "chai"]
-	path = chai
-	url = https://github.com/chaijs/chai
 [submodule "es5-shim"]
 	path = es5-shim
 	url = https://github.com/kriskowal/es5-shim.git

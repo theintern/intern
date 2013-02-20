@@ -12,8 +12,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			'dijit',
 			'dojox',
 			{ name: 'dojo-ts', location: path.join(basePath, 'dojo') },
-			{ name: 'teststack', location: basePath },
-			{ name: 'chai', location: path.join(basePath, 'chai'), main: 'chai' }
+			{ name: 'teststack', location: basePath }
 		],
 		deps: [ 'teststack/runner' ]
 	};
