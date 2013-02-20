@@ -4,9 +4,9 @@
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
 		<script>
-(function () {
+var dojoConfig = (function () {
 	var basePath = location.pathname.replace(/[^\/]+$/, '');
-	dojoConfig = {
+	return {
 		async: 1,
 		baseUrl: basePath + '../',
 		tlmSiblingOfDojo: 0,
