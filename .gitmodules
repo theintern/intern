@@ -3,4 +3,4 @@
 	url = https://github.com/kriskowal/es5-shim.git
 [submodule "dojo"]
 	path = dojo
-	url = https://github.com/dojo/dojo
+	url = https://github.com/dojo/dojo.git
