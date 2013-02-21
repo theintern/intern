@@ -8,9 +8,6 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 		baseUrl: path.join(basePath, '..'),
 		tlmSiblingOfDojo: 0,
 		packages: [
-			'dojo',
-			'dijit',
-			'dojox',
 			{ name: 'dojo-ts', location: path.join(basePath, 'dojo') },
 			{ name: 'teststack', location: basePath }
 		],
