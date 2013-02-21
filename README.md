@@ -1,4 +1,4 @@
-# The Dojo Test Stack
+# The Dojo Test Stack (geezer edition)
 
 The Dojo Test Stack is a collection of JavaScript modules designed to work together to help you write consistent,
 high-quality test cases for your JavaScript libraries and applications.
