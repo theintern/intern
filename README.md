@@ -16,6 +16,15 @@ This repository is an experimental repository for the next major version of the 
 using it as long as you can put up with some API churn until it reaches alpha.
 
 
+## This branch
+
+The `geezer` branch provides support for testing ancient browsers that do not support EcmaScript 5 (IE 6–8). It does
+*not* use the Chai library, as Chai also requires ES5. Instead, there is an assertion library at `teststack/assert`
+that is API-compatible[*](issues/8) with Chai’s `assert`-style API.
+
+This branch will only be maintained for as long as absolutely necessary since it is ugly and a burden.
+
+
 ## Features
 
 * 100% [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD), 100% Promises/A-based API
@@ -28,7 +37,6 @@ using it as long as you can put up with some API churn until it reaches alpha.
 * Tested with [Travis CI](http://travis-ci.org/)
 * Extensible interfaces (comes with TDD, BDD, and objects)
 * Extensible reporters (comes with basic console and WebDriver reporters, lcov and tap output planned)
-* Extensible assertions using the [Chai Assertion Library](http://chaijs.com)
 
 
 ## How to write tests
