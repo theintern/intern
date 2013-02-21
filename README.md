@@ -16,6 +16,13 @@ This repository is an experimental repository for the next major version of the 
 using it as long as you can put up with some API churn until it reaches alpha.
 
 
+## Do you hate kittens and love old IE?
+
+If you need to support IE 6–8, there is also a
+[legacy version of teststack](https://github.com/csnover/dojo2-teststack/tree/geezer "geezer branch"), but please,
+don’t use it.
+
+
 ## Features
 
 * 100% [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD), 100% Promises/A-based API
