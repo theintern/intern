@@ -1,19 +1,21 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
-	var path = require('path'),
-		basePath = path.resolve(__dirname);
+	(function () {
+		var pathUtils = require('path');
 
-	global.dojoConfig = {
-		async: 1,
-		baseUrl: path.join(basePath, '..'),
-		tlmSiblingOfDojo: 0,
-		packages: [
-			{ name: 'dojo-ts', location: path.join(basePath, 'dojo') },
-			{ name: 'teststack', location: basePath }
-		],
-		deps: [ 'teststack/client' ]
-	};
-	require('./dojo/dojo');
+		global.dojoConfig = {
+			async: 1,
+			baseUrl: pathUtils.resolve(__dirname, '..'),
+			deps: [ 'teststack/client' ],
+			packages: [
+				{ name: 'dojo-ts', location: pathUtils.resolve(__dirname, 'dojo') },
+				{ name: 'teststack', location: __dirname }
+			],
+			tlmSiblingOfDojo: 0
+		};
+
+		require('./dojo/dojo');
+	})();
 }
 else {
 	define([
