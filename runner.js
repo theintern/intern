@@ -1,20 +1,25 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
-	var req = require('./dojo/dojo');
-	req({
-		baseUrl: __dirname + '/../',
-		packages: [
-			{ name: 'dojo-ts', location: __dirname + '/dojo' },
-			{ name: 'teststack', location: __dirname },
-			{ name: 'chai', location: __dirname + '/chai', main: 'chai' }
-		]
-	}, [ 'teststack/runner' ]);
+	(function () {
+		var req = require('./dojo/dojo'),
+			pathUtils = require('path');
+
+		req({
+			baseUrl: pathUtils.resolve(__dirname, '..'),
+			packages: [
+				{ name: 'dojo-ts', location: pathUtils.resolve(__dirname, 'dojo') },
+				{ name: 'teststack', location: __dirname },
+				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' }
+			]
+		}, [ 'teststack/runner' ]);
+	})();
 }
 else {
 	define([
 		'require',
 		'./main',
 		'./lib/createProxy',
+		'dojo-ts/node!path',
 		'dojo-ts/node!istanbul/lib/instrumenter',
 		'dojo-ts/node!sauce-connect-launcher',
 		'./lib/args',
@@ -27,7 +32,7 @@ else {
 		'dojo-ts/Deferred',
 		'dojo-ts/topic',
 		'./lib/EnvironmentType'
-	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, Test, wd, ioQuery, Deferred, topic, EnvironmentType) {
+	], function (require, main, createProxy, pathUtils, Instrumenter, startConnect, args, util, Suite, ClientSuite, Test, wd, ioQuery, Deferred, topic, EnvironmentType) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
@@ -52,7 +57,7 @@ else {
 
 				// auto-wrap breaks code
 				noAutoWrap: true
-			}), '..');
+			}), global.require.baseUrl);
 
 			// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code coverage
 			// reporting on the client if you want

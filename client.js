@@ -1,14 +1,18 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
-	var req = require('./dojo/dojo');
-	req({
-		baseUrl: __dirname + '/../',
-		packages: [
-			{ name: 'dojo-ts', location: __dirname + '/dojo' },
-			{ name: 'teststack', location: __dirname },
-			{ name: 'chai', location: __dirname + '/chai', main: 'chai' }
-		]
-	}, [ 'teststack/client' ]);
+	(function () {
+		var req = require('./dojo/dojo'),
+			pathUtils = require('path');
+
+		req({
+			baseUrl: pathUtils.resolve(__dirname, '..'),
+			packages: [
+				{ name: 'dojo-ts', location: pathUtils.resolve(__dirname, 'dojo') },
+				{ name: 'teststack', location: __dirname },
+				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' }
+			]
+		}, [ 'teststack/client' ]);
+	})();
 }
 else {
 	define([
