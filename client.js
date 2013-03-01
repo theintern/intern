@@ -22,9 +22,10 @@ else {
 		'./main',
 		'./lib/args',
 		'./lib/Suite',
+		'dojo-ts/json',
 		'dojo-ts/topic',
 		'require'
-	], function (main, args, Suite, topic, require) {
+	], function (main, args, Suite, JSON, topic, require) {
 		if (!args.suites) {
 			throw new Error('Missing "suites" argument');
 		}
