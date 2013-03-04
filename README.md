@@ -54,15 +54,18 @@ First:
 
 Then, for a stand-alone browser client:
 
-1. Navigate to `http://path/to/dojo2-teststack/client.html?suites=mid/of/testsuite&suites=mid/of/othersuite`
+1. Navigate to `http://path/to/dojo2-teststack/client.html?config=mid/of/teststack/config`
 1. View console
 1. Fix bugs
 
 Or, for a stand-alone Node.js client:
 
-1. Run `node client.js suites=mid/of/testsuite suites=mid/of/othersuite`
+1. Run `node client.js config=mid/of/teststack/config`
 1. View console
 1. Fix bugs
+
+For both clients, you can specify a `reporter` and one or more `suites` options to override the options in the
+configuration file.
 
 Or, as an amazing fully-featured automated test runner:
 
