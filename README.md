@@ -19,8 +19,8 @@ using it as long as you can put up with some API churn until it reaches alpha.
 ## Do you hate kittens and love old IE?
 
 If you need to support IE 6–8, there is also a
-[legacy version of teststack](https://github.com/csnover/dojo2-teststack/tree/geezer "geezer branch"), but please,
-don’t use it.
+[version of teststack for legacy browsers](https://github.com/csnover/dojo2-teststack/tree/geezer "geezer branch"), but
+please, for the sake of the kittens, stop supporting those browsers already.
 
 
 ## Features
