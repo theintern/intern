@@ -82,7 +82,7 @@ else {
 
 			// TODO: Global require is needed because context require does not currently have config mechanics built
 			// in.
-			config.packages && this.require({ packages: config.packages });
+			this.require(config.loader);
 
 			var startup;
 			if (config.useSauceConnect) {
