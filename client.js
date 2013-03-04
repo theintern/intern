@@ -35,7 +35,8 @@ else {
 				args.suites = config.suites;
 			}
 
-			var deps = args.suites instanceof Array ? args.suites.slice(0) : [ args.suites ];
+			// args.suites might be an array or it might be a scalar value but we always need deps to be a fresh array.
+			var deps = [].concat(args.suites);
 
 			if (!args.reporter) {
 				if (config.reporter) {
