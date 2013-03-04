@@ -103,6 +103,11 @@ else {
 			}
 
 			main.maxConcurrency = config.maxConcurrency || Infinity;
+
+			if (process.env.TRAVIS_COMMIT) {
+				config.capabilities.build = process.env.TRAVIS_COMMIT;
+			}
+
 			util.flattenEnvironments(config.capabilities, config.environments).forEach(function (environmentType) {
 				var suite = new Suite({
 					name: 'main',
