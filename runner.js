@@ -103,7 +103,7 @@ else {
 			}
 
 			main.maxConcurrency = config.maxConcurrency || Infinity;
-			util.flattenEnvironments(config.environments).forEach(function (environmentType) {
+			util.flattenEnvironments(config.capabilities, config.environments).forEach(function (environmentType) {
 				var suite = new Suite({
 					name: 'main',
 					remote: wd.remote(config.webdriver, environmentType),
