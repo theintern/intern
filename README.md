@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/csnover/dojo2-teststack.png?branch=master)](https://travis-ci.org/csnover/dojo2-teststack)
+
 # The Dojo Test Stack
 
 The Dojo Test Stack is a collection of JavaScript modules designed to work together to help you write consistent,
