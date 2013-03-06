@@ -7,7 +7,7 @@ define([
 ], function (registerSuite, assert, Suite, Test, Deferred) {
 	function createSuiteThrows(method) {
 		return function () {
-			var dfd = this.async(100),
+			var dfd = this.async(250),
 				suite = new Suite(),
 				thrownError = new Error('Oops');
 
@@ -30,7 +30,7 @@ define([
 		name: 'teststack/lib/Suite',
 
 		'Suite#setup': function () {
-			var dfd = this.async(100),
+			var dfd = this.async(250),
 				suite = new Suite(),
 				called = false;
 
@@ -44,7 +44,7 @@ define([
 		},
 
 		'Suite#beforeEach': function () {
-			var dfd = this.async(100),
+			var dfd = this.async(250),
 				suite = new Suite(),
 				results = [],
 				counter = 0;
@@ -65,7 +65,7 @@ define([
 		},
 
 		'Suite#afterEach': function () {
-			var dfd = this.async(100),
+			var dfd = this.async(250),
 				suite = new Suite(),
 				results = [],
 				counter = 0;
@@ -86,7 +86,7 @@ define([
 		},
 
 		'Suite#teardown': function () {
-			var dfd = this.async(100),
+			var dfd = this.async(250),
 				suite = new Suite(),
 				called = false;
 
@@ -100,7 +100,7 @@ define([
 		},
 
 		'Suite#setup -> promise': function () {
-			var dfd = this.async(100),
+			var dfd = this.async(250),
 				suite = new Suite(),
 				waited = false;
 
@@ -121,7 +121,7 @@ define([
 		},
 
 		'Suite#beforeEach -> promise': function () {
-			var dfd = this.async(100),
+			var dfd = this.async(250),
 				suite = new Suite(),
 				results = [],
 				counter = 0;
@@ -149,7 +149,7 @@ define([
 		},
 
 		'Suite#afterEach -> promise': function () {
-			var dfd = this.async(100),
+			var dfd = this.async(250),
 				suite = new Suite(),
 				results = [],
 				counter = 0;
@@ -177,7 +177,7 @@ define([
 		},
 
 		'Suite#teardown -> promise': function () {
-			var dfd = this.async(100),
+			var dfd = this.async(250),
 				suite = new Suite(),
 				waited = false;
 
