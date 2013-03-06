@@ -53,17 +53,22 @@ else {
 			require([ args.reporter ], function () {
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				createProxy(config.proxyPort, new Instrumenter({
-					// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
-					// where the global is coming from
-					coverageVariable: '__teststackCoverage',
+				createProxy({
+					basePath: global.require.baseUrl,
+					excludeInstrumentation: config.excludeInstrumentation,
+					instrumenter: new Instrumenter({
+						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
+						// where the global is coming from
+						coverageVariable: '__teststackCoverage',
 
-					// compacting code makes it harder to look at but it does not really matter
-					noCompact: true,
+						// compacting code makes it harder to look at but it does not really matter
+						noCompact: true,
 
-					// auto-wrap breaks code
-					noAutoWrap: true
-				}), global.require.baseUrl);
+						// auto-wrap breaks code
+						noAutoWrap: true
+					}),
+					port: config.proxyPort
+				});
 
 				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code coverage
 				// reporting on the client if you want
