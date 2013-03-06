@@ -5,6 +5,27 @@ define([
 	'teststack-target/lib/Test',
 	'dojo-ts/Deferred'
 ], function (registerSuite, assert, Suite, Test, Deferred) {
+	function createSuiteThrows(method) {
+		return function () {
+			var dfd = this.async(100),
+				suite = new Suite(),
+				thrownError = new Error('Oops');
+
+			suite[method] = function () {
+				throw thrownError;
+			};
+
+			suite.tests.push(new Test({ test: function () {}, parent: suite }));
+
+			suite.run().then(function () {
+				dfd.reject(new assert.AssertionError({ message: 'Suite resolved after a fatal error in ' + method + '.' }));
+			}, dfd.callback(function (error) {
+				assert.strictEqual(suite.error, thrownError, 'Error thrown in ' + method + ' set as error for suite');
+				assert.strictEqual(error, thrownError, 'Error thrown in ' + method + ' is error used as reject');
+			}));
+		};
+	}
+
 	registerSuite({
 		name: 'teststack/lib/Suite',
 
@@ -184,6 +205,14 @@ define([
 		'Suite#id': function () {
 			var suite = new Suite({ name: 'foo', parent: new Suite({ name: 'parent' }) });
 			assert.strictEqual(suite.id, 'parent - foo', 'Suite#id is correct');
-		}
+		},
+
+		'Suite#setup throws': createSuiteThrows('setup'),
+
+		'Suite#beforeEach throws': createSuiteThrows('beforeEach'),
+
+		'Suite#afterEach throws': createSuiteThrows('afterEach'),
+
+		'Suite#teardown throws': createSuiteThrows('teardown')
 	});
 });
