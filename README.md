@@ -51,6 +51,7 @@ First:
 
 1. `git clone --recursive https://github.com/csnover/dojo2-teststack.git` as a sibling directory of the package you
    want to test
+2. `npm install --production` from the `dojo2-teststack` directory
 
 Then, for a stand-alone browser client:
 
