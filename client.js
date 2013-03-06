@@ -54,6 +54,7 @@ else {
 				window.onerror = function (message, url, lineNumber) {
 					var error = new Error(message + ' at ' + url + ':' + lineNumber);
 					topic.publish('/error', error);
+					topic.publish('/client/end', args.sessionId);
 				};
 			}
 			else if (typeof process !== 'undefined') {
