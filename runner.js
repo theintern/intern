@@ -151,7 +151,6 @@ else {
 
 				startup({
 					logger: function () {
-						console.log('logger!');
 						console.log.apply(console, arguments);
 					},
 					username: config.webdriver.username,
