@@ -21,8 +21,8 @@ define({
 	environments: [
 		{ browserName: 'internet explorer', version: '10', platform: 'Windows 2012' },
 		{ browserName: 'internet explorer', version: '9', platform: 'Windows 2008' },
-		{ browserName: 'firefox', version: '18', platform: [ 'Linux', 'Mac 10.6', 'Windows 2012' ] },
-		{ browserName: 'chrome', version: '25', platform: [ 'Linux', 'Mac 10.8', 'Windows 2008' ] },
+		{ browserName: 'firefox', version: '19', platform: [ 'Linux', 'Mac 10.6', 'Windows 2012' ] },
+		{ browserName: 'chrome', platform: [ 'Linux', 'Mac 10.8', 'Windows 2008' ] },
 		{ browserName: 'safari', version: '6', platform: 'Mac 10.8' },
 		{ browserName: 'safari', version: '5', platform: 'Mac 10.6' }
 	],
