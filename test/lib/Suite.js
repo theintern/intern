@@ -1,8 +1,8 @@
 define([
 	'teststack!object',
 	'teststack/chai!assert',
-	'teststack-target/lib/Suite',
-	'teststack-target/lib/Test',
+	'../../lib/Suite',
+	'../../lib/Test',
 	'dojo-ts/Deferred'
 ], function (registerSuite, assert, Suite, Test, Deferred) {
 	function createSuiteThrows(method) {
