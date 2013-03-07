@@ -5,29 +5,78 @@ define([
 	'../../lib/Test',
 	'dojo-ts/Deferred'
 ], function (registerSuite, assert, Suite, Test, Deferred) {
-	function createSuiteThrows(method) {
+	function createSuiteThrows(method, options) {
+		options = options || {};
 		return function () {
 			var dfd = this.async(250),
 				suite = new Suite(),
-				thrownError = new Error('Oops');
+				thrownError = new Error('Oops'),
+				finished = false;
 
 			suite[method] = function () {
-				throw thrownError;
+				if (options.async) {
+					var dfd = new Deferred();
+
+					setTimeout(function () {
+						dfd.reject(thrownError);
+					}, 20);
+
+					return dfd.promise;
+				}
+				else {
+					throw thrownError;
+				}
 			};
 
 			suite.tests.push(new Test({ test: function () {}, parent: suite }));
 
 			suite.run().then(function () {
-				dfd.reject(new assert.AssertionError({ message: 'Suite resolved after a fatal error in ' + method + '.' }));
+				finished = true;
+				dfd.reject(new assert.AssertionError({ message: 'Suite should never resolve after a fatal error in ' + method + '.' }));
 			}, dfd.callback(function (error) {
-				assert.strictEqual(suite.error, thrownError, 'Error thrown in ' + method + ' set as error for suite');
-				assert.strictEqual(error, thrownError, 'Error thrown in ' + method + ' is error used as reject');
+				finished = true;
+				assert.strictEqual(suite.error, thrownError, 'Error thrown in ' + method + ' should be the error set on suite');
+				assert.strictEqual(error, thrownError, 'Error thrown in ' + method + ' should be the error used by the promise');
 			}));
+
+			// TODO: I am not sure if this really ought to be the case!
+			if (method === 'setup' && !options.async) {
+				assert.isTrue(finished, 'Suite should finish immediately after run()');
+			}
+			else {
+				assert.isFalse(finished, 'Suite should not finish immediately after run()');
+			}
 		};
 	}
 
 	registerSuite({
 		name: 'teststack/lib/Suite',
+
+		'Suite lifecycle': function () {
+			var dfd = this.async(250),
+				suite = new Suite(),
+				results = [];
+
+			[ 'setup', 'beforeEach', 'afterEach', 'teardown' ].forEach(function (method) {
+				suite[method] = function () {
+					results.push(method);
+				};
+			});
+
+			[ 0, 1 ].forEach(function (i) {
+				suite.tests.push(new Test({
+					test: function () {
+						results.push(i);
+					},
+					parent: suite
+				}));
+			});
+
+			suite.run().then(dfd.callback(function () {
+				results.push('done');
+				assert.deepEqual(results, [ 'setup', 'beforeEach', 0, 'afterEach', 'beforeEach', 1, 'afterEach', 'teardown', 'done' ], 'Suite methods should execute in the correct order');
+			}));
+		},
 
 		'Suite#setup': function () {
 			var dfd = this.async(250),
@@ -39,8 +88,10 @@ define([
 			};
 
 			suite.run().then(dfd.callback(function () {
-				assert.ok(called, 'Synchronous setup completed');
+				assert.isTrue(called, 'Synchronous setup should be called before suite finishes');
 			}));
+
+			assert.isTrue(called, 'Suite#setup should be called immediately after run()');
 		},
 
 		'Suite#beforeEach': function () {
@@ -60,8 +111,10 @@ define([
 			};
 
 			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(results, [ 'b1', '1', 'b2', '2' ], 'beforeEach executes before each test');
+				assert.deepEqual(results, [ 'b1', '1', 'b2', '2' ], 'beforeEach should execute before each test');
 			}));
+
+			assert.strictEqual(counter, 0, 'Suite#beforeEach should not be called immediately after run()');
 		},
 
 		'Suite#afterEach': function () {
@@ -81,8 +134,10 @@ define([
 			};
 
 			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(results, [ '1', 'a1', '2', 'a2' ], 'afterEach executes after each test');
+				assert.deepEqual(results, [ '1', 'a1', '2', 'a2' ], 'afterEach should execute after each test');
 			}));
+
+			assert.strictEqual(counter, 0, 'Suite#afterEach should not be called immediately after run()');
 		},
 
 		'Suite#teardown': function () {
@@ -95,8 +150,10 @@ define([
 			};
 
 			suite.run().then(dfd.callback(function () {
-				assert.ok(called, 'Synchronous teardown completed');
+				assert.isTrue(called, 'Synchronous teardown should be called before suite finishes');
 			}));
+
+			assert.isFalse(called, 'Suite#teardown should not be called immediately after run()');
 		},
 
 		'Suite#setup -> promise': function () {
@@ -116,7 +173,7 @@ define([
 			};
 
 			suite.run().then(dfd.callback(function () {
-				assert.ok(waited, 'Asynchronous setup completed');
+				assert.isTrue(waited, 'Asynchronous setup should be called before suite finishes');
 			}));
 		},
 
@@ -144,7 +201,7 @@ define([
 			};
 
 			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(results, [ 'b1', '1', 'b2', '2' ], 'beforeEach executes before each test');
+				assert.deepEqual(results, [ 'b1', '1', 'b2', '2' ], 'beforeEach should execute before each test');
 			}));
 		},
 
@@ -172,7 +229,7 @@ define([
 			};
 
 			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(results, [ '1', 'a1', '2', 'a2' ], 'afterEach executes after each test');
+				assert.deepEqual(results, [ '1', 'a1', '2', 'a2' ], 'afterEach should execute after each test');
 			}));
 		},
 
@@ -193,18 +250,18 @@ define([
 			};
 
 			suite.run().then(dfd.callback(function () {
-				assert.ok(waited, 'Asynchronous teardown completed');
+				assert.isTrue(waited, 'Asynchronous teardown should be called before suite finishes');
 			}));
 		},
 
 		'Suite#name': function () {
 			var suite = new Suite({ name: 'foo', parent: new Suite({ name: 'parent' }) });
-			assert.strictEqual(suite.name, 'foo', 'Suite#name is correct');
+			assert.strictEqual(suite.name, 'foo', 'Suite#name should return correct suite name');
 		},
 
 		'Suite#id': function () {
 			var suite = new Suite({ name: 'foo', parent: new Suite({ name: 'parent' }) });
-			assert.strictEqual(suite.id, 'parent - foo', 'Suite#id is correct');
+			assert.strictEqual(suite.id, 'parent - foo', 'Suite#id should return correct suite id');
 		},
 
 		'Suite#setup throws': createSuiteThrows('setup'),
@@ -213,6 +270,14 @@ define([
 
 		'Suite#afterEach throws': createSuiteThrows('afterEach'),
 
-		'Suite#teardown throws': createSuiteThrows('teardown')
+		'Suite#teardown throws': createSuiteThrows('teardown'),
+
+		'Suite#setup -> promise rejects': createSuiteThrows('setup', { async: true }),
+
+		'Suite#beforeEach -> promise rejects': createSuiteThrows('beforeEach', { async: true }),
+
+		'Suite#afterEach -> promise rejects': createSuiteThrows('afterEach', { async: true }),
+
+		'Suite#teardown -> promise rejects': createSuiteThrows('teardown', { async: true })
 	});
 });
