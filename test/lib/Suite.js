@@ -3,8 +3,73 @@ define([
 	'teststack/chai!assert',
 	'../../lib/Suite',
 	'../../lib/Test',
-	'dojo-ts/Deferred'
-], function (registerSuite, assert, Suite, Test, Deferred) {
+	'dojo-ts/Deferred',
+	'dojo-ts/topic'
+], function (registerSuite, assert, Suite, Test, Deferred, topic) {
+	function createLifecycle(options) {
+		options = options || {};
+
+		var expectedLifecycle;
+
+		if (options.publishAfterSetup) {
+			expectedLifecycle = [ 'setup', 'startTopic', 'beforeEach', 0, 'afterEach', 'beforeEach', 1, 'afterEach', 'endTopic', 'teardown', 'done' ];
+		}
+		else {
+			expectedLifecycle = [ 'startTopic', 'setup', 'beforeEach', 0, 'afterEach', 'beforeEach', 1, 'afterEach', 'teardown', 'endTopic', 'done' ];
+		}
+
+		return function () {
+			var dfd = this.async(250),
+				suite = new Suite(options),
+				results = [],
+				handles = [];
+
+			[ 'setup', 'beforeEach', 'afterEach', 'teardown' ].forEach(function (method) {
+				suite[method] = function () {
+					results.push(method);
+				};
+			});
+
+			[ 0, 1 ].forEach(function (i) {
+				suite.tests.push(new Test({
+					test: function () {
+						results.push(i);
+					},
+					parent: suite
+				}));
+			});
+
+			handles = [
+				topic.subscribe('/suite/start', function () {
+					results.push('startTopic');
+					assert.deepEqual(slice.call(arguments, 0), [ suite ], 'Arguments broadcast to /suite/start should be the suite being executed');
+
+					if (options.publishAfterSetup) {
+						assert.deepEqual(results, [ 'setup', 'startTopic' ], 'Suite start topic should broadcast after suite starts');
+					}
+					else {
+						assert.deepEqual(results, [ 'startTopic' ], 'Suite start topic should broadcast before suite starts');
+					}
+				}),
+
+				topic.subscribe('/suite/end', function () {
+					results.push('endTopic');
+					assert.deepEqual(slice.call(arguments, 0), [ suite ], 'Arguments broadcast to /suite/end should be the suite being executed');
+
+					var handle;
+					while ((handle = handles.pop())) {
+						handle.remove();
+					}
+				})
+			];
+
+			suite.run().then(dfd.callback(function () {
+				results.push('done');
+				assert.deepEqual(results, expectedLifecycle, 'Suite methods should execute in the correct order');
+			}));
+		};
+	}
+
 	function createSuiteThrows(method, options) {
 		options = options || {};
 		return function () {
@@ -49,34 +114,14 @@ define([
 		};
 	}
 
+	var slice = Array.prototype.slice;
+
 	registerSuite({
 		name: 'teststack/lib/Suite',
 
-		'Suite lifecycle': function () {
-			var dfd = this.async(250),
-				suite = new Suite(),
-				results = [];
+		'Suite lifecycle': createLifecycle(),
 
-			[ 'setup', 'beforeEach', 'afterEach', 'teardown' ].forEach(function (method) {
-				suite[method] = function () {
-					results.push(method);
-				};
-			});
-
-			[ 0, 1 ].forEach(function (i) {
-				suite.tests.push(new Test({
-					test: function () {
-						results.push(i);
-					},
-					parent: suite
-				}));
-			});
-
-			suite.run().then(dfd.callback(function () {
-				results.push('done');
-				assert.deepEqual(results, [ 'setup', 'beforeEach', 0, 'afterEach', 'beforeEach', 1, 'afterEach', 'teardown', 'done' ], 'Suite methods should execute in the correct order');
-			}));
-		},
+		'Suite lifecycle + publishAfterSetup': createLifecycle({ publishAfterSetup: true }),
 
 		'Suite#setup': function () {
 			var dfd = this.async(250),
