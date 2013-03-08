@@ -38,19 +38,26 @@ else {
 		}
 
 		require([ args.config ], function (config) {
-			if (!args.reporter) {
-				if (config.reporter) {
-					args.reporter = config.reporter;
+			if (!args.reporters) {
+				if (config.reporters) {
+					args.reporters = config.reporters;
 				}
 				else {
 					console.info('Defaulting to "runner" reporter');
-					args.reporter = 'runner';
+					args.reporters = 'runner';
 				}
 			}
 
-			args.reporter = args.reporter.indexOf('/') > -1 ? args.reporter : './lib/reporters/' + args.reporter;
+			args.reporters = [].concat(args.reporters).map(function (reporterModuleId) {
+				// Allow 3rd party reporters to be used simply by specifying a full mid, or built-in reporters by
+				// specifying the reporter name only
+				if (reporterModuleId.indexOf('/') === -1) {
+					reporterModuleId = './lib/reporters/' + reporterModuleId;
+				}
+				return reporterModuleId;
+			});
 
-			require([ args.reporter ], function () {
+			require(args.reporters, function () {
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
 				createProxy({

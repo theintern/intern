@@ -38,13 +38,13 @@ else {
 			// args.suites might be an array or it might be a scalar value but we always need deps to be a fresh array.
 			var deps = [].concat(args.suites);
 
-			if (!args.reporter) {
-				if (config.reporter) {
-					args.reporter = config.reporter;
+			if (!args.reporters) {
+				if (config.reporters) {
+					args.reporters = config.reporters;
 				}
 				else {
 					console.info('Defaulting to "console" reporter');
-					args.reporter = 'console';
+					args.reporters = 'console';
 				}
 			}
 
@@ -63,9 +63,16 @@ else {
 				});
 			}
 
-			// Allow 3rd party reporters to be used simply by specifying a full mid, or built-in reporters by
-			// specifying the reporter name only
-			deps.push(args.reporter.indexOf('/') > -1 ? args.reporter : './lib/reporters/' + args.reporter);
+			args.reporters = [].concat(args.reporters).map(function (reporterModuleId) {
+				// Allow 3rd party reporters to be used simply by specifying a full mid, or built-in reporters by
+				// specifying the reporter name only
+				if (reporterModuleId.indexOf('/') === -1) {
+					reporterModuleId = './lib/reporters/' + reporterModuleId;
+				}
+				return reporterModuleId;
+			});
+
+			deps = deps.concat(args.reporters);
 
 			// Client interface has only one environment, the current environment, and cannot run functional tests on
 			// itself
