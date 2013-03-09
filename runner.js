@@ -1,17 +1,20 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var req = require('./dojo/dojo'),
-			pathUtils = require('path');
+		var pathUtils = require('path');
 
-		req({
+		global.dojoConfig = {
+			async: 1,
 			baseUrl: pathUtils.resolve(__dirname, '..'),
+			deps: [ 'teststack/runner' ],
 			packages: [
 				{ name: 'dojo-ts', location: pathUtils.resolve(__dirname, 'dojo') },
-				{ name: 'teststack', location: __dirname },
-				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' }
-			]
-		}, [ 'teststack/runner' ]);
+				{ name: 'teststack', location: __dirname }
+			],
+			tlmSiblingOfDojo: 0
+		};
+
+		require('./dojo/dojo');
 	})();
 }
 else {
@@ -132,7 +135,7 @@ else {
 						remote: wd.remote(config.webdriver, environmentType),
 						publishAfterSetup: true,
 						setup: function () {
-							var remote = this.remote;
+							var remote = this.get('remote');
 							return remote.init()
 							.then(function getEnvironmentInfo(sessionId) {
 								// wd incorrectly puts the session ID on a sessionID property
@@ -150,7 +153,7 @@ else {
 						},
 
 						teardown: function () {
-							var remote = this.remote;
+							var remote = this.get('remote');
 							return remote.quit().always(function () {
 								topic.publish('/session/end', remote);
 							});

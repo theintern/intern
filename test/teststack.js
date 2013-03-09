@@ -20,7 +20,8 @@ define({
 	// capabilities options specified for an environment will be copied as-is
 	environments: [
 		{ browserName: 'internet explorer', version: '10', platform: 'Windows 2012' },
-		{ browserName: 'internet explorer', version: '9', platform: 'Windows 2008' },
+		{ browserName: 'internet explorer', version: [ '8', '9' ], platform: 'Windows 2008' },
+		{ browserName: 'internet explorer', version: [ '6', '7' ], platform: 'Windows 2003' },
 		{ browserName: 'firefox', version: '19', platform: [ 'Linux', 'Mac 10.6', 'Windows 2012' ] },
 		{ browserName: 'chrome', platform: [ 'Linux', 'Mac 10.8', 'Windows 2008' ] },
 		{ browserName: 'safari', version: '6', platform: 'Mac 10.8' },

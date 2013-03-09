@@ -1,9 +1,10 @@
 define([
 	'require',
+	'dojo-ts/_base/array',
 	'dojo-ts/Deferred',
 	'dojo-ts/topic',
 	'./lib/util'
-], function (require, Deferred, topic, util) {
+], function (require, array, Deferred, topic, util) {
 	return {
 		/**
 		 * Maximum number of suites to run concurrently. Currently used only by the server-side runner.
@@ -24,7 +25,7 @@ define([
 				numSuitesCompleted = 0,
 				numSuitesToRun = this.suites.length;
 
-			this.suites.forEach(queue(function (suite) {
+			array.forEach(this.suites, queue(function (suite) {
 				return suite.run().always(function () {
 					if (++numSuitesCompleted === numSuitesToRun) {
 						dfd.resolve();

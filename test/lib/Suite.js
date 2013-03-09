@@ -1,11 +1,12 @@
 define([
 	'teststack!object',
-	'teststack/chai!assert',
+	'teststack/assert',
 	'../../lib/Suite',
 	'../../lib/Test',
 	'dojo-ts/Deferred',
-	'dojo-ts/topic'
-], function (registerSuite, assert, Suite, Test, Deferred, topic) {
+	'dojo-ts/topic',
+	'dojo-ts/_base/array'
+], function (registerSuite, assert, Suite, Test, Deferred, topic, array) {
 	function createLifecycle(options) {
 		options = options || {};
 
@@ -24,13 +25,13 @@ define([
 				results = [],
 				handles = [];
 
-			[ 'setup', 'beforeEach', 'afterEach', 'teardown' ].forEach(function (method) {
+			array.forEach([ 'setup', 'beforeEach', 'afterEach', 'teardown' ], function (method) {
 				suite[method] = function () {
 					results.push(method);
 				};
 			});
 
-			[ 0, 1 ].forEach(function (i) {
+			array.forEach([ 0, 1 ], function (i) {
 				suite.tests.push(new Test({
 					test: function () {
 						results.push(i);
@@ -306,7 +307,7 @@ define([
 
 		'Suite#id': function () {
 			var suite = new Suite({ name: 'foo', parent: new Suite({ name: 'parent' }) });
-			assert.strictEqual(suite.id, 'parent - foo', 'Suite#id should return correct suite id');
+			assert.strictEqual(suite.get('id'), 'parent - foo', 'Suite#id should return correct suite id');
 		},
 
 		'Suite#setup throws': createSuiteThrows('setup'),

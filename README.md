@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/csnover/dojo2-teststack.png?branch=master)](https://travis-ci.org/csnover/dojo2-teststack)
+[![Build Status](https://travis-ci.org/csnover/dojo2-teststack.png?branch=geezer)](https://travis-ci.org/csnover/dojo2-teststack)
 
-# The Dojo Test Stack
+# The Dojo Test Stack (geezer edition)
 
 The Dojo Test Stack is a collection of JavaScript modules designed to work together to help you write consistent,
 high-quality test cases for your JavaScript libraries and applications.
@@ -18,11 +18,13 @@ This repository is an experimental repository for the next major version of the 
 using it as long as you can put up with some API churn until it reaches alpha.
 
 
-## Do you hate kittens and love old IE?
+## This branch
 
-If you need to support IE 6–8, there is also a
-[version of teststack for legacy browsers](https://github.com/csnover/dojo2-teststack/tree/geezer "geezer branch"), but
-please, for the sake of the kittens, stop supporting those browsers already.
+The `geezer` branch provides support for testing ancient browsers that do not support EcmaScript 5 (IE 6–8). It does
+*not* use the Chai library, as Chai also requires ES5. Instead, there is an assertion library at `teststack/assert`
+that is API-compatible[*](issues/8) with Chai’s `assert`-style API.
+
+This branch will only be maintained for as long as absolutely necessary since it is ugly and a burden.
 
 
 ## Features
@@ -37,7 +39,6 @@ please, for the sake of the kittens, stop supporting those browsers already.
 * Tested with [Travis CI](http://travis-ci.org/)
 * Extensible interfaces (comes with TDD, BDD, and objects)
 * Extensible reporters (comes with basic console and WebDriver reporters, lcov and tap output planned)
-* Extensible assertions using the [Chai Assertion Library](http://chaijs.com)
 
 
 ## Comparison

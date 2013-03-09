@@ -3,19 +3,21 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
-		<script src="dojo/dojo.js"></script>
 		<script>
-(function () {
+var dojoConfig = (function () {
 	var basePath = location.pathname.replace(/[^\/]+$/, '');
-	require({
+	return {
+		async: 1,
 		baseUrl: basePath + '../',
+		tlmSiblingOfDojo: 0,
 		packages: [
 			{ name: 'dojo-ts', location: basePath + 'dojo' },
-			{ name: 'teststack', location: basePath },
-			{ name: 'chai', location: basePath + 'chai', main: 'chai' }
-		]
-	}, [ 'teststack/client' ]);
+			{ name: 'teststack', location: basePath }
+		],
+		deps: [ 'teststack/client' ]
+	};
 })();
 		</script>
+		<script src="dojo/dojo.js"></script>
 	</head>
 </html>

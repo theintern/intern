@@ -1,17 +1,20 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var req = require('./dojo/dojo'),
-			pathUtils = require('path');
+		var pathUtils = require('path');
 
-		req({
+		global.dojoConfig = {
+			async: 1,
 			baseUrl: pathUtils.resolve(__dirname, '..'),
+			deps: [ 'teststack/client' ],
 			packages: [
 				{ name: 'dojo-ts', location: pathUtils.resolve(__dirname, 'dojo') },
-				{ name: 'teststack', location: __dirname },
-				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' }
-			]
-		}, [ 'teststack/client' ]);
+				{ name: 'teststack', location: __dirname }
+			],
+			tlmSiblingOfDojo: 0
+		};
+
+		require('./dojo/dojo');
 	})();
 }
 else {
@@ -19,9 +22,11 @@ else {
 		'./main',
 		'./lib/args',
 		'./lib/Suite',
+		'dojo-ts/json',
 		'dojo-ts/topic',
+		'dojo-ts/_base/array',
 		'require'
-	], function (main, args, Suite, topic, require) {
+	], function (main, args, Suite, JSON, topic, array, require) {
 		if (!args.config) {
 			throw new Error('Missing "config" argument');
 		}
@@ -63,7 +68,7 @@ else {
 				});
 			}
 
-			args.reporters = [].concat(args.reporters).map(function (reporterModuleId) {
+			args.reporters = array.map([].concat(args.reporters), function (reporterModuleId) {
 				// Allow 3rd party reporters to be used simply by specifying a full mid, or built-in reporters by
 				// specifying the reporter name only
 				if (reporterModuleId.indexOf('/') === -1) {
