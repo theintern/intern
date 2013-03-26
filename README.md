@@ -182,9 +182,9 @@ be used to test non-JavaScript Web apps if you really want.
 <a name="ref4" href="#rev4">4</a>: If it throws an error on failure, it works with Test Stack.
 
 ## Let's do this!
-* [Getting started]()
-* [Documentation]()
-* [Support]()
+* [Getting started](https://github.com/bitpshr/dojo2-teststack/wiki/Getting-Started)
+* [Documentation](https://github.com/bitpshr/dojo2-teststack/wiki)
+* [Support](https://github.com/bitpshr/dojo2-teststack/wiki/Support)
 
 ## License
 
