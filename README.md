@@ -17,7 +17,7 @@ be used to test non-JavaScript Web apps if you really want.
 * Integration with [Sauce Labs](http://saucelabs.com/) for super simple continuous integration
 * Tested with [Travis CI](http://travis-ci.org/)
 * Extensible interfaces (comes with TDD, BDD, and objects)
-* Extensible reporters (comes with basic console and WebDriver reporters, lcov and tap output planned)
+* Extensible reporters (comes with basic console, WebDriver, and lcov reporters, tap output planned)
 * Extensible assertions using the [Chai Assertion Library](http://chaijs.com)
 
 ## Comparison
@@ -181,50 +181,10 @@ be used to test non-JavaScript Web apps if you really want.
 
 <a name="ref4" href="#rev4">4</a>: If it throws an error on failure, it works with Test Stack.
 
-## Do you hate kittens and love old IE?
-
-If you need to support IE 6–8, there is also a
-[version of teststack for legacy browsers](https://github.com/csnover/dojo2-teststack/tree/geezer "geezer branch"), but
-please, for the sake of the kittens, stop supporting those browsers already.
-
-
-## Getting started
-
-### Installation
-1. Clone teststack as a sibling directory of the package that's going to be tested.
-<pre>
-git clone --recursive https://github.com/csnover/dojo2-teststack.git
-</pre>
-2. Use npm to grab all production dependencies.
-<pre>
-cd dojo2-teststack
-npm install --production
-</pre>
-
-### Configuration
-
-dojo2-teststack uses a single JavaScript file for all configuration. This file should be located within the project being tested. For more information on teststack the teststack config, see a [sample configuration file](https://github.com/csnover/dojo2-teststack/blob/master/test/teststack.js) and [full documentation](https://github.com/csnover/dojo2-teststack/wiki/Configuring-Test-Stack). 
-
-### Writing tests
-
-dojo2-teststack currently comes with support for three different test interface: TDD, BDD, and object. Internally,
-all interfaces generate the same testing structures, so you can use whichever interface you feel matches your
-preference. Further, dojo2-teststack supports *functional* testing that can drive mock user interactions on a given test page. More information on each type of test can be found below.
-
-* [bdd](https://github.com/bitpshr/dojo2-teststack/wiki/BDD-Tests)
-* [tdd](https://github.com/bitpshr/dojo2-teststack/wiki/TDD-Tests)
-* [object](https://github.com/bitpshr/dojo2-teststack/wiki/Object-Tests)
-* [functional](https://github.com/bitpshr/dojo2-teststack/wiki/Functional-Tests)
-
-### Running tests
-
-dojo2-teststack tests can be run as a stanalone browser client, a standalone node client, or as a full-featured test runner for multi-platform coverage and optional continuous integration. Running tests is easy, and specific instructions on how to do so can be found below.
-
-* [browser client](https://github.com/csnover/dojo2-teststack/wiki/Running-Test-Stack#as-a-stand-alone-browser-client)
-* [node client](https://github.com/csnover/dojo2-teststack/wiki/Running-Test-Stack#as-a-stand-alone-nodejs-client)
-* [coverage proxy only](https://github.com/csnover/dojo2-teststack/wiki/Running-Test-Stack#as-an-instrumenting-proxy-for-generating-code-coverage-data)
-* [multi-platform runner](https://github.com/csnover/dojo2-teststack/wiki/Running-Test-Stack#as-a-test-runner-for-multi-platform-testing)
-* [continuous integration](https://github.com/csnover/dojo2-teststack/wiki/Running-Test-Stack#as-a-test-runner-for-continuous-integration)
+## Let's do this!
+* [Getting started]()
+* [Documentation]()
+* [Support]()
 
 ## License
 
