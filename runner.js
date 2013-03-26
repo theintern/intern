@@ -8,10 +8,10 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			baseUrl: pathUtils.resolve(__dirname, '..'),
 			packages: [
 				{ name: 'dojo-ts', location: pathUtils.resolve(__dirname, 'dojo') },
-				{ name: 'teststack', location: __dirname },
+				{ name: 'intern', location: __dirname },
 				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' }
 			]
-		}, [ 'teststack/runner' ]);
+		}, [ 'intern/runner' ]);
 	})();
 }
 else {

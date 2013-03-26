@@ -1,8 +1,8 @@
 {
-	"name": "dojo2-teststack",
-	"version":"2.0.0dev",
+	"name": "intern",
+	"version":"0.0.1",
 	"main": "main",
-	"description": "Dojo2 teststack.",
+	"description": "a collection of JavaScript modules designed to work together to help you write consistent, high-quality test cases for your JavaScript libraries and applications",
 	"licenses": [
 		{ "type": "BSD-3-Clause", "url": "http://trac.dojotoolkit.org/browser/dojo/trunk/LICENSE#L13" }
 	],
@@ -11,8 +11,8 @@
 		"istanbul": "0.1.x",
 		"sauce-connect-launcher": "git://github.com/csnover/sauce-connect-launcher.git#b8e13982"
 	},
-	"bugs": "http://bugs.dojotoolkit.org/",
-	"keywords": [ "JavaScript", "Dojo", "Toolkit", "Unit", "Testing", "CI" ],
+	"bugs": "https://github.com/theintern/intern/issues",
+	"keywords": [ "JavaScript", "Toolkit", "Unit", "Testing", "CI", "Intern" ],
 	"homepage": "http://dojotoolkit.org/",
 	"dojoBuild": "package.js"
 }
