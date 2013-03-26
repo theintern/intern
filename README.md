@@ -181,12 +181,6 @@ be used to test non-JavaScript Web apps if you really want.
 
 <a name="ref4" href="#rev4">4</a>: If it throws an error on failure, it works with Test Stack.
 
-## This repository
-
-This repository is an experimental repository for the next major version of the Dojo Toolkit. Please feel free to start
-using it as long as you can put up with some API churn until it reaches alpha.
-
-
 ## Do you hate kittens and love old IE?
 
 If you need to support IE 6–8, there is also a
