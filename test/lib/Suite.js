@@ -1,6 +1,6 @@
 define([
-	'teststack!object',
-	'teststack/chai!assert',
+	'intern!object',
+	'intern/chai!assert',
 	'../../lib/Suite',
 	'../../lib/Test',
 	'dojo-ts/Deferred',
@@ -117,7 +117,7 @@ define([
 	var slice = Array.prototype.slice;
 
 	registerSuite({
-		name: 'teststack/lib/Suite',
+		name: 'intern/lib/Suite',
 
 		'Suite lifecycle': createLifecycle(),
 

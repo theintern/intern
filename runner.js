@@ -66,7 +66,7 @@ else {
 					instrumenter: new Instrumenter({
 						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
 						// where the global is coming from
-						coverageVariable: '__teststackCoverage',
+						coverageVariable: '__internCoverage',
 
 						// compacting code makes it harder to look at but it does not really matter
 						noCompact: true,

@@ -9,7 +9,7 @@ env:
     - SAUCE_ACCESS_KEY: e92610e3-834e-4bec-a3b5-6f7b9d874601
 install:
   - git submodule update --init --recursive
-  - git clone --recursive https://github.com/csnover/dojo2-teststack.git ../teststack
-  - cd ../teststack
+  - git clone --recursive https://github.com/theintern/intern.git ../intern-master
+  - cd ../intern-master
   - npm install --production
-script: node runner.js config=dojo2-teststack/test/teststack
+script: node runner.js config=intern/test/intern
