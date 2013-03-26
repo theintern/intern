@@ -1,0 +1,18 @@
+{
+	"name": "dojo2-teststack",
+	"version":"2.0.0dev",
+	"main": "main",
+	"description": "Dojo2 teststack.",
+	"licenses": [
+		{ "type": "BSD-3-Clause", "url": "http://trac.dojotoolkit.org/browser/dojo/trunk/LICENSE#L13" }
+	],
+	"dependencies": {
+		"wd": "0.0.x",
+		"istanbul": "0.1.x",
+		"sauce-connect-launcher": "git://github.com/csnover/sauce-connect-launcher.git#b8e13982"
+	},
+	"bugs": "http://bugs.dojotoolkit.org/",
+	"keywords": [ "JavaScript", "Dojo", "Toolkit", "Unit", "Testing", "CI" ],
+	"homepage": "http://dojotoolkit.org/",
+	"dojoBuild": "package.js"
+}

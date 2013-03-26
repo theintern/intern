@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Browser test runner</title>
+		<script src="dojo/dojo.js"></script>
+		<script>
+(function () {
+	var basePath = location.pathname.replace(/[^\/]+$/, '');
+	require({
+		baseUrl: basePath + '../',
+		packages: [
+			{ name: 'dojo-ts', location: basePath + 'dojo' },
+			{ name: 'teststack', location: basePath },
+			{ name: 'chai', location: basePath + 'chai', main: 'chai' }
+		]
+	}, [ 'teststack/client' ]);
+})();
+		</script>
+	</head>
+</html>
