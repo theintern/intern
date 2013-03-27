@@ -174,7 +174,7 @@ high-quality test cases for your JavaScript libraries and applications.
 
 <sub><a name="ref3" href="#rev3">3</a>: Some older versions of QUnit can be used in conjunction with a 3rd party module to run on Node.js, but newer versions do not support Node.js and will break even with the use of 3rd party modules.</sub>
 
-<sub><a name="ref4" href="#rev4">4</a>: If it throws an error on failure, it works with Test Stack.</sub>
+<sub><a name="ref4" href="#rev4">4</a>: If it throws an error on failure, it works with Intern.</sub>
 
 ## Let's do this!
 * [Getting started](https://github.com/theintern/intern/wiki/Getting-Started)
