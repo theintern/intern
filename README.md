@@ -29,7 +29,7 @@ high-quality test cases for your JavaScript libraries and applications.
 	<th><a href="http://visionmedia.github.com/mocha/">Mocha</a></th>
 	<th><a href="http://pivotal.github.com/jasmine/">Jasmine</a></th>
 	<th><a href="http://busterjs.org">BusterJS</a></th>
-	<th><a href="http://testacular.github.com/">Testacular</a></th>
+	<th><a href="http://karma-runner.github.com/">Karma</a></th>
 </tr>
 <tr>
 	<th scope="row">Code coverage analysis</th>
