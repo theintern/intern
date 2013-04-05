@@ -6,6 +6,19 @@ define([
 	'dojo-ts/Deferred',
 	'dojo-ts/topic'
 ], function (registerSuite, assert, Suite, Test, Deferred, topic) {
+	var newSuiteTopic = 0,
+		newTestTopic = 0,
+		expectedSuites = 23,
+		expectedTests = 41;
+
+	topic.subscribe('/suite/new', function () {
+		newSuiteTopic++;
+	});
+
+	topic.subscribe('/test/new', function () {
+		newTestTopic++;
+	});
+
 	function createLifecycle(options) {
 		options = options || {};
 
@@ -323,6 +336,11 @@ define([
 
 		'Suite#afterEach -> promise rejects': createSuiteThrows('afterEach', { async: true }),
 
-		'Suite#teardown -> promise rejects': createSuiteThrows('teardown', { async: true })
+		'Suite#teardown -> promise rejects': createSuiteThrows('teardown', { async: true }),
+
+		'Suite#topic counts': function () {
+			assert.equal(newSuiteTopic, expectedSuites, 'All suites accounted for');
+			assert.equal(newTestTopic, expectedTests, 'All tests accounted for');
+		}
 	});
 });
