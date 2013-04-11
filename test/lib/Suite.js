@@ -324,6 +324,24 @@ define([
 
 		'Suite#afterEach -> promise rejects': createSuiteThrows('afterEach', { async: true }),
 
-		'Suite#teardown -> promise rejects': createSuiteThrows('teardown', { async: true })
+		'Suite#teardown -> promise rejects': createSuiteThrows('teardown', { async: true }),
+
+		'Suite#constructor topic': function () {
+			var topicFired = false,
+				actualSuite,
+				handle = topic.subscribe('/suite/new', function (suite) {
+					topicFired = true;
+					actualSuite = suite;
+				});
+
+			try {
+				var expectedSuite = new Suite({});
+				assert.isTrue(topicFired, '/suite/new topic should fire after a suite is created');
+				assert.strictEqual(actualSuite, expectedSuite, '/suite/new topic should be passed the suite that was just created');
+			}
+			finally {
+				handle.remove();
+			}
+		}
 	});
 });

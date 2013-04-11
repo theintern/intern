@@ -1,3 +1,4 @@
 define([
-	'./lib/Suite'
+	'./lib/Suite',
+	'./lib/Test'
 ], function () {});
