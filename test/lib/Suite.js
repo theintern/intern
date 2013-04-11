@@ -6,19 +6,6 @@ define([
 	'dojo-ts/Deferred',
 	'dojo-ts/topic'
 ], function (registerSuite, assert, Suite, Test, Deferred, topic) {
-	var newSuiteTopic = 0,
-		newTestTopic = 0,
-		expectedSuites = 23,
-		expectedTests = 41;
-
-	topic.subscribe('/suite/new', function () {
-		newSuiteTopic++;
-	});
-
-	topic.subscribe('/test/new', function () {
-		newTestTopic++;
-	});
-
 	function createLifecycle(options) {
 		options = options || {};
 
@@ -338,9 +325,22 @@ define([
 
 		'Suite#teardown -> promise rejects': createSuiteThrows('teardown', { async: true }),
 
-		'Suite#topic counts': function () {
-			assert.equal(newSuiteTopic, expectedSuites, 'All suites accounted for');
-			assert.equal(newTestTopic, expectedTests, 'All tests accounted for');
+		'Suite#constructor topic': function () {
+			var topicFired = false,
+				actualSuite,
+				handle = topic.subscribe('/suite/new', function (suite) {
+					topicFired = true;
+					actualSuite = suite;
+				});
+
+			try {
+				var expectedSuite = new Suite({});
+				assert.isTrue(topicFired, '/suite/new topic should fire after a suite is created');
+				assert.strictEqual(actualSuite, expectedSuite, '/suite/new topic should be passed the suite that was just created');
+			}
+			finally {
+				handle.remove();
+			}
 		}
 	});
 });
