@@ -19,20 +19,17 @@ else {
 		'require',
 		'./main',
 		'./lib/createProxy',
-		'dojo-ts/node!path',
 		'dojo-ts/node!istanbul/lib/instrumenter',
 		'dojo-ts/node!sauce-connect-launcher',
 		'./lib/args',
 		'./lib/util',
 		'./lib/Suite',
 		'./lib/ClientSuite',
-		'./lib/Test',
 		'./lib/wd',
-		'dojo-ts/io-query',
-		'dojo-ts/Deferred',
 		'dojo-ts/topic',
-		'./lib/EnvironmentType'
-	], function (require, main, createProxy, pathUtils, Instrumenter, startConnect, args, util, Suite, ClientSuite, Test, wd, ioQuery, Deferred, topic, EnvironmentType) {
+		'./lib/EnvironmentType',
+		'./lib/reporterManager'
+	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, wd, topic, EnvironmentType, reporterManager) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
@@ -58,6 +55,14 @@ else {
 			});
 
 			require(args.reporters, function () {
+				// A hash map, { reporter module ID: reporter definition }
+				var reporters = [].slice.call(arguments, 0).reduce(function (map, reporter, i) {
+					map[args.reporters[i]] = reporter;
+					return map;
+				}, {});
+
+				reporterManager.add(reporters);
+
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
 				createProxy({
