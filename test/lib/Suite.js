@@ -76,6 +76,7 @@ define([
 		return function () {
 			var dfd = this.async(250),
 				suite = new Suite(),
+				test = new Test({ test: function () {}, parent: suite }),
 				thrownError = new Error('Oops'),
 				finished = false;
 
@@ -94,7 +95,7 @@ define([
 				}
 			};
 
-			suite.tests.push(new Test({ test: function () {}, parent: suite }));
+			suite.tests.push(test);
 
 			suite.run().then(function () {
 				finished = true;
@@ -103,6 +104,10 @@ define([
 				finished = true;
 				assert.strictEqual(suite.error, thrownError, 'Error thrown in ' + method + ' should be the error set on suite');
 				assert.strictEqual(error, thrownError, 'Error thrown in ' + method + ' should be the error used by the promise');
+
+				if (method === 'beforeEach' || method === 'afterEach') {
+					assert.strictEqual(error.relatedTest, test, 'Error thrown in ' + method + ' should have the related test in the error');
+				}
 			}));
 
 			// TODO: I am not sure if this really ought to be the case!
