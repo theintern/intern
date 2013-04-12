@@ -167,7 +167,7 @@ define([
 			});
 
 			return test.run().then(function () {
-				assert.closeTo(test.timeElapsed, 100, 15, 'Test time elapsed should be accurate to ±15ms');
+				assert.closeTo(test.timeElapsed, 100, 50, 'Test time elapsed should be accurate to ±50ms');
 			});
 		},
 
