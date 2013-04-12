@@ -5,6 +5,11 @@ define([
 	'../../../lib/Test',
 	'../../../lib/reporters/console'
 ], function (registerSuite, assert, Suite, Test, reporter) {
+	if (typeof console !== 'object') {
+		// IE<10 does not provide a global console object when Developer Tools is turned off
+		return;
+	}
+
 	var hasGrouping = 'group' in console && 'groupEnd' in console;
 
 	function mockConsole(method, callback) {
