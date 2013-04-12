@@ -29,7 +29,7 @@ define([
 				suite = new Suite({ name: 'suite' }),
 				handle = mockConsole('group', function (message) {
 					called = true;
-					console.endGroup();
+					console.groupEnd();
 					assert.strictEqual(message, suite.name, 'console.group should be called with the name of the suite');
 				});
 
