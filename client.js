@@ -21,12 +21,14 @@ else {
 	define([
 		'./main',
 		'./lib/args',
+		'./lib/reporterManager',
 		'./lib/Suite',
-		'dojo-ts/json',
+		'./lib/util',
 		'dojo-ts/topic',
 		'dojo-ts/_base/array',
-		'require'
-	], function (main, args, Suite, JSON, topic, array, require) {
+		'require',
+		'dojo-ts/json'
+	], function (main, args, reporterManager, Suite, util, topic, array, require) {
 		if (!args.config) {
 			throw new Error('Missing "config" argument');
 		}
@@ -84,6 +86,14 @@ else {
 			main.suites.push(new Suite({ name: 'main', sessionId: args.sessionId }));
 
 			require(deps, function () {
+				// A hash map, { reporter module ID: reporter definition }
+				var reporters = util.reduce([].slice.call(arguments, arguments.length - args.reporters.length), function (map, reporter, i) {
+					map[args.reporters[i]] = reporter;
+					return map;
+				}, {});
+
+				reporterManager.add(reporters);
+
 				if (args.autoRun !== 'false') {
 					main.run();
 				}

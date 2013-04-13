@@ -261,14 +261,14 @@ define([
 	})();
 
 	assert.typeOf = function (value, name, message) {
-		var actualType = / [a-z]\]$/.exec(objectToString.call(value).toLowerCase())[1];
+		var actualType = / ([a-z]+)\]$/.exec(objectToString.call(value).toLowerCase())[1];
 		if (actualType !== name.toLowerCase()) {
 			fail(actualType, name, message, 'typeOf', assert.typeOf);
 		}
 	};
 
 	assert.notTypeOf = function (value, name, message) {
-		var actualType = / [a-z]\]$/.exec(objectToString.call(value).toLowerCase())[1];
+		var actualType = / ([a-z]+)\]$/.exec(objectToString.call(value).toLowerCase())[1];
 		if (actualType === name.toLowerCase()) {
 			fail(actualType, name, message, 'notTypeOf', assert.typeOf);
 		}
