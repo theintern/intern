@@ -167,7 +167,11 @@ define([
 			});
 
 			return test.run().then(function () {
-				assert.closeTo(test.timeElapsed, 100, 50, 'Test time elapsed should be accurate to ±50ms');
+				// It isn't really our job to test how accurate browsers are, and this test will randomly fail
+				// when a browser decides to be slow for no reason (or execute setTimeout too fast for no reason)
+				// so we need to be really lax with this check
+				assert.typeOf(test.timeElapsed, 'number', 'Test time elapsed should be a number');
+				assert(test.timeElapsed > 0, 'Test time elapsed for 100ms async test should be greater than zero milliseconds');
 			});
 		},
 
