@@ -1,6 +1,6 @@
 define([
-    'teststack!object',
-    'teststack/chai!assert',
+	'teststack!object',
+	'teststack/chai!assert',
 	'dojo-ts/node!istanbul/lib/collector',
 	'dojo-ts/node!istanbul/lib/report/lcovonly',
 	'dojo-ts/node!fs',

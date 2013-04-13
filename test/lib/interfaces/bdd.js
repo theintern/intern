@@ -1,8 +1,8 @@
 define([
-    'teststack!object',
-    'teststack/chai!assert',
-    '../../../main!tdd',
-    '../../../main!bdd'
+	'teststack!object',
+	'teststack/chai!assert',
+	'../../../main!tdd',
+	'../../../main!bdd'
 ], function (registerSuite, assert, tdd, bdd) {
 	registerSuite({
 		name: 'teststack/lib/interfaces/bdd',

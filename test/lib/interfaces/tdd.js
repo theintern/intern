@@ -1,8 +1,8 @@
 define([
-    'teststack!object',
-    'teststack/chai!assert',
-    '../../../main!tdd',
-    '../../../main',
+	'teststack!object',
+	'teststack/chai!assert',
+	'../../../main!tdd',
+	'../../../main',
 	'../../../lib/Suite',
 	'../../../lib/Test'
 ], function (registerSuite, assert, tdd, main, Suite, Test) {

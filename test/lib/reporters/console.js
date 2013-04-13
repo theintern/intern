@@ -1,6 +1,6 @@
 define([
-    'teststack!object',
-    'teststack/chai!assert',
+	'teststack!object',
+	'teststack/chai!assert',
 	'../../../lib/Suite',
 	'../../../lib/Test',
 	'../../../lib/reporters/console'
