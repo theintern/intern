@@ -3,27 +3,8 @@
 # The Dojo Test Stack
 
 The Dojo Test Stack is a collection of JavaScript modules designed to work together to help you write consistent,
-high-quality test cases for your JavaScript libraries and applications.
-
-
-## Does my app need to use Dojo to use Dojo Test Stack?
-
-No! Dojo Test Stack uses Dojo but can be used to test *any* JavaScript code. Its functional testing interface can even
-be used to test non-JavaScript Web apps if you really want.
-
-
-## This repository
-
-This repository is an experimental repository for the next major version of the Dojo Toolkit. Please feel free to start
-using it as long as you can put up with some API churn until it reaches alpha.
-
-
-## Do you hate kittens and love old IE?
-
-If you need to support IE 6–8, there is also a
-[version of teststack for legacy browsers](https://github.com/csnover/dojo2-teststack/tree/geezer "geezer branch"), but
-please, for the sake of the kittens, stop supporting those browsers already.
-
+high-quality test cases for your JavaScript libraries and applications. Dojo Test Stack uses Dojo but can be used to 
+test *any* JavaScript code. Its functional testing interface can even be used to test non-JavaScript Web apps if you really want.
 
 ## Features
 
@@ -36,9 +17,8 @@ please, for the sake of the kittens, stop supporting those browsers already.
 * Integration with [Sauce Labs](http://saucelabs.com/) for super simple continuous integration
 * Tested with [Travis CI](http://travis-ci.org/)
 * Extensible interfaces (comes with TDD, BDD, and objects)
-* Extensible reporters (comes with basic console and WebDriver reporters, lcov and tap output planned)
+* Extensible reporters (comes with basic console, WebDriver, and lcov reporters, tap output planned)
 * Extensible assertions using the [Chai Assertion Library](http://chaijs.com)
-
 
 ## Comparison
 
@@ -201,347 +181,40 @@ please, for the sake of the kittens, stop supporting those browsers already.
 
 <a name="ref4" href="#rev4">4</a>: If it throws an error on failure, it works with Test Stack.
 
-
-## How to write tests
-
-dojo2-teststack currently comes with support for 3 different test interface: TDD, BDD, and object. Internally,
-all interfaces generate the same testing structures, so you can use whichever interface you feel matches your
-preference.
-
-
-### TDD
-
-TDD tests using the Chai Assert API look like this:
-
-```js
-define([
-	'teststack!tdd',
-	'teststack/chai!assert',
-	'../Request'
-], function (tdd, assert, Request) {
-	with (tdd) {
-		suite('demo', function () {
-			var request,
-				url = 'https://github.com/csnover/dojo2-teststack';
-
-			// before the suite starts
-			before(function () {
-				request = new Request();
-			});
-
-			// before each test executes
-			beforeEach(function () {
-				request.reset();
-			});
-
-			// after the suite is done
-			after(function () {
-				request.cleanup();
-			});
-
-			// multiple methods can be registered and will be executed in order of registration
-			after(function () {
-				if (!request.cleaned) {
-					throw new Error('Request should have been cleaned up after suite execution.');
-				}
-
-				// these methods can be made asynchronous as well by returning a promise
-			});
-
-			// asynchronous test for Promises/A-based interfaces
-			test('#getUrl (async)', function () {
-				// `getUrl` returns a promise
-				return request.getUrl(url).then(function (result) {
-					assert.equal(result.url, url, 'Result URL should be requested URL');
-					assert.isTrue(result.data.indexOf('next-generation') > -1, 'Result data should contain term "next-generation"');
-				});
-			});
-
-			// asynchronous test for callback-based interfaces
-			test('#getUrlCallback (async)', function () {
-				// test will time out after 1 second
-				var dfd = this.async(1000);
-
-				// dfd.callback resolves the promise as long as no errors are thrown from within the callback function
-				request.getUrlCallback(url, dfd.callback(function () {
-					assert.equal(result.url, url, 'Result URL should be requested URL');
-					assert.isTrue(result.data.indexOf('next-generation') > -1, 'Result data should contain term "next-generation"');
-				});
-
-				// no need to return the promise; calling `async` makes the test async
-			});
-
-			// nested suites work too
-			suite('xhr', function () {
-				// synchronous test
-				test('sanity check', function () {
-					assert.ok(request.xhr, 'XHR interface should exist on `xhr` property');
-				});
-			});
-		});
-	}
-});
-```
-
-
-### BDD
-
-BDD tests using the Chai Expect API:
-
-```js
-define([
-	'teststack!bdd',
-	'teststack/chai!expect',
-	'../Request'
-], function (bdd, expect, Request) {
-	with (bdd) {
-		describe('demo', function () {
-			var request,
-				url = 'https://github.com/csnover/dojo2-teststack';
-
-			// before the suite starts
-			before(function () {
-				request = new Request();
-			});
-
-			// before each test executes
-			beforeEach(function () {
-				request.reset();
-			});
-
-			// after the suite is done
-			after(function () {
-				request.cleanup();
-			});
-
-			// multiple methods can be registered and will be executed in order of registration
-			after(function () {
-				if (!request.cleaned) {
-					throw new Error('Request should have been cleaned up after suite execution.');
-				}
-
-				// these methods can be made asynchronous as well by returning a promise
-			});
-
-			// asynchronous test for Promises/A-based interfaces
-			it('should demonstrate a Promises/A-based asynchronous test', function () {
-				// `getUrl` returns a promise
-				return request.getUrl(url).then(function (result) {
-					expect(result.url).to.equal(url);
-					expect(result.data.indexOf('next-generation') > -1).to.be.true;
-				});
-			});
-
-			// asynchronous test for callback-based interfaces
-			it('should demonstrate a callback-based asynchronous test', function () {
-				// test will time out after 1 second
-				var dfd = this.async(1000);
-
-				// dfd.callback resolves the promise as long as no errors are thrown from within the callback function
-				request.getUrlCallback(url, dfd.callback(function () {
-					expect(result.url).to.equal(url);
-					expect(result.data.indexOf('next-generation') > -1).to.be.true;
-				});
-
-				// no need to return the promise; calling `async` makes the test async
-			});
-
-			// nested suites work too
-			describe('xhr', function () {
-				// synchronous test
-				it('should run a synchronous test', function () {
-					expect(request.xhr).to.exist;
-				});
-			});
-		});
-	}
-});
-```
-
-
-### Object
-
-Object tests using the Chai Assert API:
-
-```js
-define([
-	'teststack!object',
-	'teststack/chai!assert',
-	'../Request'
-], function (registerSuite, assert, Request) {
-	var request,
-		url = 'https://github.com/csnover/dojo2-teststack';
-
-	registerSuite({
-		name: 'demo',
-
-		// before the suite starts
-		before: function () {
-			request = new Request();
-		},
-
-		// before each test executes
-		beforeEach: function () {
-			request.reset();
-		},
-
-		// after the suite is done
-		after: function () {
-			request.cleanup();
-
-			if (!request.cleaned) {
-				throw new Error('Request should have been cleaned up after suite execution.');
-			}
-		},
-
-		// asynchronous test for Promises/A-based interfaces
-		'#getUrl (async)': function () {
-			// `getUrl` returns a promise
-			return request.getUrl(url).then(function (result) {
-				assert.equal(result.url, url, 'Result URL should be requested URL');
-				assert.isTrue(result.data.indexOf('next-generation') > -1, 'Result data should contain term "next-generation"');
-			});
-		},
-
-		// asynchronous test for callback-based interfaces
-		'#getUrlCallback (async)': function () {
-			// test will time out after 1 second
-			var dfd = this.async(1000);
-
-			// dfd.callback resolves the promise as long as no errors are thrown from within the callback function
-			request.getUrlCallback(url, dfd.callback(function () {
-				assert.equal(result.url, url, 'Result URL should be requested URL');
-				assert.isTrue(result.data.indexOf('next-generation') > -1, 'Result data should contain term "next-generation"');
-			});
-
-			// no need to return the promise; calling `async` makes the test async
-		},
-
-		// nested suites work too
-		'xhr': {
-			// synchronous test
-			'sanity check': function () {
-				assert.ok(request.xhr, 'XHR interface should exist on `xhr` property');
-			}
-		}
-	});
-});
-```
-
-
-### Functional tests
-
-Functional tests are slightly different from normal unit tests because they are executed remotely from the test runner,
-whereas unit tests are executed directly on the browser under test.
-
-```js
-define([
-	'teststack!object',
-	'teststack/chai!assert',
-	'../Request',
-	'require'
-], function (registerSuite, assert, Request, require) {
-	var request,
-		url = 'https://github.com/csnover/dojo2-teststack';
-
-	registerSuite({
-		name: 'demo',
-
-		'submit form': function () {
-			return this.remote
-				.get(require.toUrl('./fixture.html'))
-				.elementById('operation')
-					.click()
-					.type('hello, world')
-				.end()
-				.elementById('submit')
-					.click()
-				.end()
-				.waitForElementById('result')
-				.text()
-				.then(function (resultText) {
-					assert.ok(resultText.indexOf('"hello, world" completed successfully') > -1, 'When form is submitted, operation should complete successfully');
-				});
-		}
-	});
-});
-```
-
-More details on each API can be found in the Wiki.
-
-
-## How to run
-
-First:
-
-1. `git clone --recursive https://github.com/csnover/dojo2-teststack.git` as a sibling directory of the package you
-   want to test
-2. `npm install --production` from the `dojo2-teststack` directory
-
-Then, for a stand-alone browser client:
-
-1. Navigate to `http://path/to/dojo2-teststack/client.html?config=mid/of/teststack/config`
-1. View console
-1. Fix bugs
-
-Or, for a stand-alone Node.js client:
-
-1. Run `node client.js config=mid/of/teststack/config`
-1. View console
-1. Fix bugs
-
-When running clients directly, you can specify a `reporter` and one or more `suites` options to override the options
-in the configuration file:
-
-Browser: `http://path/to/dojo2-teststack/client.html?config=mid/of/teststack/config&suites=mid/of/suite/a&suites=mid/of/suite/b&reporter=mid/of/custom/reporter`
-CLI: `node client.js config=mid/of/teststack/config suites=mid/of/suite/a suites=mid/of/suite/b reporter=mid/of/custom/reporter`
-
-Or, as an amazing fully-featured automated test runner:
-
-1. Create a teststack configuration file describing your desired test environment, like the one at
-   https://github.com/csnover/dojo2-teststack/blob/master/test/teststack.js
-1. `cd dojo2-teststack`
-1. `node runner.js config=mid/of/teststack/config`
-1. View console
-1. Fix bugs
-
-…plus CI support:
-
-1. Create a `.travis.yml` like the one at https://github.com/csnover/dojo2-teststack/blob/master/.travis.yml
-2. Enable Travis-CI for your GitHub account
-3. Make a commit
-4. That’s it! Easy continuous integration is easy.
-
+## Quick Start
+
+1. Clone teststack as a sibling directory of the package that's going to be tested.
+<pre>
+git clone --recursive https://github.com/csnover/dojo2-teststack.git
+</pre>
+2. Use npm to grab all production dependencies.
+<pre>
+cd dojo2-teststack
+npm install --production
+</pre>
+3. Create a copy of the example configuration file in your package's test directory and edit appropriately. See the [configuration documentation](https://github.com/csnover/dojo2-teststack/wiki/Configuring-Test-Stack) for available options.
+<pre>
+cp test/teststack.js ../path/to/tests
+</pre>
+4. Verify your setup.
+<pre>
+node client.js config=path/to/config
+</pre>
+5. Start writing tests! See the [writing tests](https://github.com/csnover/dojo2-teststack/wiki/Writing-Tests) documentation for more information.
+
+## Going Forward
+* [Wiki Documentation](https://github.com/csnover/dojo2-teststack/wiki)
+* [Support](https://github.com/csnover/dojo2-teststack/wiki/Support)
+
+## Do you hate kittens and love old IE?
+If you need to support IE 6–8, there is also a
+[version of teststack for legacy browsers](https://github.com/csnover/dojo2-teststack/tree/geezer "geezer branch"), but
+please, for the sake of the kittens, stop supporting those browsers already.
 
 ## License
 
-New BSD License
+dojo2-teststack is available under the [New BSD License](https://github.com/csnover/dojo2-teststack/blob/master/LICENSE) and is released under [Dojo Foundation CLA](http://dojofoundation.org/about/cla). 
 
-© 2012–2013 Colin Snover http://zetafleet.com
-© 2013 SitePen, Inc. http://sitepen.com
+© 2012–2013 Colin Snover http://zetafleet.com<br>
+© 2013 SitePen, Inc. http://sitepen.com<br>
 All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of The Intern nor the names of its contributors may
-	  be used to endorse or promote products derived from this software
-	  without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE LISTED COPYRIGHT HOLDERS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-Released under [Dojo Foundation CLA](http://dojofoundation.org/about/cla).
