@@ -1,7 +1,6 @@
 define([
 	'./lib/Suite',
 	'./lib/Test',
-	'./lib/reporterManager',
 	'./lib/interfaces/tdd',
 	'./lib/interfaces/bdd',
 	'./lib/interfaces/object',
