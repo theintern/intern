@@ -2,9 +2,10 @@ define([
 	'teststack!object',
 	'teststack/chai!assert',
 	'../../lib/Test',
+	'../../lib/Suite',
 	'dojo-ts/Deferred',
 	'dojo-ts/topic'
-], function (registerSuite, assert, Test, Deferred, topic) {
+], function (registerSuite, assert, Test, Suite, Deferred, topic) {
 	registerSuite({
 		name: 'teststack/lib/Test',
 
@@ -112,20 +113,16 @@ define([
 		},
 
 		'Test#async -> timeout': function () {
-			var dfd = this.async(250);
-			// Create a mock async test with a dfd that
-			// never resolves or issues a callback.
-			var test = new Test({
-				test: function () {
-					this.async(250);
-				}
-			});
-			// If the mock test passes, we need to error out.
+			var dfd = this.async(250),
+				test = new Test({
+					test: function () {
+						this.async(250);
+					}
+				});
+
 			test.run().then(function () {
 				dfd.reject(new Error('Test should timeout if async and the promise is never resolved'));
 			},
-			// If the mock test errors out, the timeout error
-			// was thrown as expected.
 			function (error) {
 				assert.ok(error, 'Timeout error thrown in async test');
 				dfd.resolve();
@@ -238,10 +235,21 @@ define([
 			}
 		},
 
-		'Test#remote': function () {
-			var test = new Test({ name: 'test name', parent: { remote: { mock: 'remote' } } });
-			assert.deepEqual(test.remote, { mock: 'remote' }, 'Test#remote should get the remote value from from the test\'s parent');
-		}
+		'Test#sessionId': function () {
+			var test = new Test({
+				parent: new Suite({ sessionId: 'parent' })
+			});
 
+			assert.strictEqual(test.sessionId, test.parent.sessionId, 'Test#sessionId should get the sessionId from the test\'s parent');
+		},
+
+		'Test#remote': function () {
+			var mockRemote = { sessionId: 'test' },
+				test = new Test({
+					parent: new Suite({ remote: mockRemote })
+				});
+
+			assert.strictEqual(test.remote, mockRemote, 'Test#remote should get the remote value from from the test\'s parent');
+		}
 	});
 });
