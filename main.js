@@ -1,9 +1,8 @@
 define([
 	'require',
 	'dojo-ts/Deferred',
-	'dojo-ts/topic',
 	'./lib/util'
-], function (require, Deferred, topic, util) {
+], function (require, Deferred, util) {
 	return {
 		/**
 		 * Maximum number of suites to run concurrently. Currently used only by the server-side runner.
