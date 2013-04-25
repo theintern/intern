@@ -2,10 +2,11 @@ define([
 	'teststack!object',
 	'teststack/assert',
 	'../../lib/Test',
+	'../../lib/Suite',
 	'dojo-ts/Deferred',
 	'dojo-ts/topic',
 	'dojo-ts/Stateful'
-], function (registerSuite, assert, Test, Deferred, topic, Stateful) {
+], function (registerSuite, assert, Test, Suite, Deferred, topic, Stateful) {
 	registerSuite({
 		name: 'teststack/lib/Test',
 
@@ -113,43 +114,36 @@ define([
 		},
 
 		'Test#async -> timeout': function () {
-			var dfd = this.async(250);
-			// Create a mock async test with a dfd that
-			// never resolves or issues a callback.
-			var test = new Test({
-				test: function () {
-					this.async(250);
-				}
-			});
-			// If the mock test passes, we need to error out.
+			var dfd = this.async(250),
+				test = new Test({
+					test: function () {
+						this.async(250);
+					}
+				});
+
 			test.run().then(function () {
 				dfd.reject(new Error('Test should timeout if async and the promise is never resolved'));
 			},
-			// If the mock test errors out, the timeout error
-			// was thrown as expected.
 			function (error) {
-				assert.ok(error, 'Timeout error thrown in async test.');
+				assert.ok(error, 'Timeout error thrown in async test');
 				dfd.resolve();
 			});
 		},
 
 		'Test#async -> reject': function () {
 			var dfd = this.async(250),
-				thrownError = new Error({ message: 'Error!' });
-			// create a mock async test with a dfd that
-			// gets explicitly rejected.
+				thrownError = new Error('Oops');
+
 			var test = new Test({
 				test: function () {
 					var d = this.async(250);
 					d.reject(thrownError);
 				}
 			});
-			// If the mock test passes, we need to error out
+
 			test.run().then(function () {
 				dfd.reject(new assert.AssertionError({ message: 'Test should throw if async and the promise is rejected' }));
 			},
-			// If the mock test errors out, the timeout error
-			// was thrown as expected.
 			function (error) {
 				assert.strictEqual(test.error, error, 'Error thrown in test should equal our assertion error');
 				assert.strictEqual(error, thrownError, 'Error thrown in test should be the error used by the promise');
@@ -185,13 +179,8 @@ define([
 						sessionId: 'abcd'
 					}),
 					test: function () {}
-				});
-
-			return test.run().then(function () {
-				// Elapsed time is non-deterministic, so just force it to a value we can test
-				test.timeElapsed = 100;
-
-				assert.deepEqual(test.toJSON(), {
+				}),
+				expected = {
 					error: null,
 					id: 'parent id - test name',
 					name: 'test name',
@@ -199,7 +188,16 @@ define([
 					timeElapsed: 100,
 					timeout: 30000,
 					hasPassed: true
-				}, 'Test#toJSON should return expected JSON structure for finished test');
+				};
+
+			return test.run().then(function () {
+				// Elapsed time is non-deterministic, so just force it to a value we can test
+				test.timeElapsed = 100;
+
+				assert.deepEqual(test.toJSON(), expected, 'Test#toJSON should return expected JSON structure for test with no error');
+
+				test.error = expected.error = { name: 'Oops', message: 'message', stack: 'stack' };
+				assert.deepEqual(test.toJSON(), expected, 'Test#toJSON should return expected JSON structure for test with error');
 			});
 		},
 
@@ -236,6 +234,24 @@ define([
 			finally {
 				handle.remove();
 			}
+		},
+
+		'Test#sessionId': function () {
+			var test = new Test({
+				parent: new Suite({ sessionId: 'parent' })
+			});
+
+			assert.strictEqual(test.get('sessionId'), test.parent.get('sessionId'), 'Test#sessionId should get the sessionId from the test\'s parent');
+		},
+
+		'Test#remote': function () {
+			var mockRemote = { sessionId: 'test' },
+				test = new Test({
+					parent: new Suite({ remote: mockRemote })
+				});
+
+			assert.strictEqual(test.get('remote'), mockRemote, 'Test#remote should get the remote value from from the test\'s parent');
 		}
+
 	});
 });

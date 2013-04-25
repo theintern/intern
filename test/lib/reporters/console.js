@@ -47,23 +47,59 @@ define([
 			}
 		},
 
-		'/suite/end': function () {
-			if (!hasGrouping) {
-				return;
-			}
+		'/suite/end': {
+			'successful suite': function () {
+				var actualMessage,
+					suite = new Suite({ name: 'suite', tests: [ new Test({ hasPassed: true }) ] }),
+					handle = mockConsole('info', function (message) {
+						actualMessage = message;
+					});
 
-			var called = false,
-				suite = new Suite({ name: 'suite' }),
-				handle = mockConsole('groupEnd', function () {
-					called = true;
-				});
+				try {
+					reporter['/suite/end'](suite);
+					assert.ok(actualMessage, 'console.info should be called when the reporter /suite/end method is called');
+					assert.include(actualMessage, ' ' + suite.get('numTests') - suite.get('numFailedTests') + '/' + suite.get('numTests') + ' ', 'console.info message should say how many tests passed and how many total tests existed');
+				}
+				finally {
+					handle.remove();
+				}
+			},
 
-			try {
-				reporter['/suite/end'](suite);
-				assert.isTrue(called, 'console.group should be called when the reporter /suite/end method is called');
-			}
-			finally {
-				handle.remove();
+			'failed suite': function () {
+				var actualMessage,
+					suite = new Suite({ name: 'suite', tests: [ new Test({ hasPassed: false }) ] }),
+					handle = mockConsole('warn', function (message) {
+						actualMessage = message;
+					});
+
+				try {
+					reporter['/suite/end'](suite);
+					assert.ok(actualMessage, 'console.info should be called when the reporter /suite/end method is called');
+					assert.include(actualMessage, ' ' + suite.get('numTests') - suite.get('numFailedTests') + '/' + suite.get('numTests') + ' ', 'console.info message should say how many tests passed and how many total tests existed');
+				}
+				finally {
+					handle.remove();
+				}
+			},
+
+			'grouping': function () {
+				if (!hasGrouping) {
+					return;
+				}
+
+				var called = false,
+					suite = new Suite({ name: 'suite' }),
+					handle = mockConsole('groupEnd', function () {
+						called = true;
+					});
+
+				try {
+					reporter['/suite/end'](suite);
+					assert.isTrue(called, 'console.group should be called when the reporter /suite/end method is called');
+				}
+				finally {
+					handle.remove();
+				}
 			}
 		},
 
