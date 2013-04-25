@@ -5,7 +5,7 @@ define([
 	'../../../main',
 	'../../../lib/Suite',
 	'../../../lib/Test',
-	'dojo-ts/_base/array',
+	'dojo-ts/_base/array'
 ], function (registerSuite, assert, tdd, main, Suite, Test, array) {
 	registerSuite({
 		name: 'teststack/lib/interfaces/tdd',
