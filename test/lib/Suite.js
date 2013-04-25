@@ -98,7 +98,7 @@ define([
 
 			suite.run().then(function () {
 				finished = true;
-				dfd.reject(new assert.AssertionError({ message: 'Suite should never resolve after a fatal error in ' + method + '.' }));
+				dfd.reject(new assert.AssertionError({ message: 'Suite should never resolve after a fatal error in ' + method }));
 			}, dfd.callback(function (error) {
 				finished = true;
 				assert.strictEqual(suite.error, thrownError, 'Error thrown in ' + method + ' should be the error set on suite');
@@ -346,6 +346,57 @@ define([
 			finally {
 				handle.remove();
 			}
+		},
+
+		'Suite#remote': function () {
+			var parentRemote = { sessionId: 'remote' },
+				parentSuite = new Suite({ remote: parentRemote }),
+				mockRemote = { sessionId: 'local' },
+				suite = new Suite({ remote: mockRemote }),
+				thrown = false;
+
+			assert.strictEqual(suite.remote, mockRemote, 'Suite#remote should come from suite when set');
+
+			suite.parent = parentSuite;
+
+			assert.strictEqual(suite.remote, parentRemote, 'Suite#remote from parent should override local value');
+
+			try {
+				suite.remote = mockRemote;
+			}
+			catch (e) {
+				thrown = true;
+			}
+
+			assert.isTrue(thrown, 'An error should be thrown when Suite#remote is set more than once');
+		},
+
+		'Suite#sessionId': function () {
+			var suite = new Suite({ name: 'foo' });
+			assert.strictEqual(suite.sessionId, null, 'Suite#sessionId should be null if the suite is not associated with a session');
+
+			suite.remote = { sessionId: 'remote' };
+			assert.strictEqual(suite.sessionId, 'remote', 'Suite#sessionId should come from remote if one exists');
+
+			suite.sessionId = 'local';
+			assert.strictEqual(suite.sessionId, 'local', 'Suite#sessionId from the suite itself should override remote');
+
+			suite.parent = new Suite({ sessionId: 'parent' });
+			assert.strictEqual(suite.sessionId, 'parent', 'Suite#sessionId from the parent should override the suite itself');
+		},
+
+		'Suite#numTests / numFailedTests': function () {
+			var suite = new Suite({
+				name: 'foo',
+				tests: [
+					new Suite({ tests: [ new Test({ hasPassed: false }), new Test({ hasPassed: true }) ] }),
+					new Test({ hasPassed: false }),
+					new Test({ hasPassed: true })
+				]
+			});
+
+			assert.strictEqual(suite.numTests, 4, 'Suite#numTests should return the correct number of tests, including those from nested suites');
+			assert.strictEqual(suite.numFailedTests, 2, 'Suite#numFailedTests returns the correct number of failed tests, including those from nested suites');
 		}
 	});
 });

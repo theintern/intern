@@ -9,7 +9,7 @@ define([
 	registerSuite({
 		name: 'teststack/lib/interfaces/tdd',
 
-		setup: function () {
+		beforeEach: function () {
 			// Normally, the root suites are set up once the runner or client are configured, but we do not execute
 			// the teststack under test
 			main.suites.push(
@@ -18,7 +18,7 @@ define([
 			);
 		},
 
-		teardown: function () {
+		afterEach: function () {
 			main.suites.splice(0, 2);
 		},
 
@@ -34,7 +34,7 @@ define([
 				tdd.test('test 2', function () {});
 			});
 
-			for (var i = 0, mainSuite; (mainSuite = main.suites[i]) && (mainSuite = mainSuite.tests); ++i) {
+			for (var i = 0, mainSuite; (mainSuite = main.suites[i] && main.suites[i].tests); ++i) {
 				assert.strictEqual(mainSuite[0].name, 'root suite 1', 'Root suite 1 should be the one named "root suite 1"');
 				assert.instanceOf(mainSuite[0], Suite, 'Root suite 1 should be a Suite instance');
 
@@ -59,8 +59,29 @@ define([
 				assert.strictEqual(mainSuite[1].tests[0].name, 'test 2', 'The test in root suite 2 should be the one named "test 2"');
 				assert.instanceOf(mainSuite[1].tests[0], Test, 'test 2 should be a Test instance');
 			}
-		}
+		},
 
-		// TODO: Test before, after, beforeEach, afterEach
+		'Suite lifecycle methods': function () {
+			var results = [],
+				expectedResults = [ 'before', 'before2', 'beforeEach', 'beforeEach2', 'afterEach', 'afterEach2', 'after', 'after2' ],
+				lifecycleMethods = [ 'before', 'beforeEach', 'afterEach', 'after' ];
+
+			tdd.suite('root suite', function () {
+				lifecycleMethods.forEach(function (method) {
+					tdd[method](function () {
+						results.push(method);
+					});
+					tdd[method](function () {
+						results.push(method + '2');
+					});
+				});
+
+				tdd.test('single test', function () {});
+			});
+
+			return main.suites[0].run().then(function () {
+				assert.deepEqual(results, expectedResults, 'TDD interface should correctly register special lifecycle methods on the Suite');
+			});
+		}
 	});
 });

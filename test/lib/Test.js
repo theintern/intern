@@ -127,28 +127,25 @@ define([
 			// If the mock test errors out, the timeout error
 			// was thrown as expected.
 			function (error) {
-				assert.ok(error, 'Timeout error thrown in async test.');
+				assert.ok(error, 'Timeout error thrown in async test');
 				dfd.resolve();
 			});
 		},
 
 		'Test#async -> reject': function () {
 			var dfd = this.async(250),
-				thrownError = new Error({ message: 'Error!' });
-			// create a mock async test with a dfd that
-			// gets explicitly rejected.
+				thrownError = new Error('Oops');
+
 			var test = new Test({
 				test: function () {
 					var d = this.async(250);
 					d.reject(thrownError);
 				}
 			});
-			// If the mock test passes, we need to error out
+
 			test.run().then(function () {
 				dfd.reject(new assert.AssertionError({ message: 'Test should throw if async and the promise is rejected' }));
 			},
-			// If the mock test errors out, the timeout error
-			// was thrown as expected.
 			function (error) {
 				assert.strictEqual(test.error, error, 'Error thrown in test should equal our assertion error');
 				assert.strictEqual(error, thrownError, 'Error thrown in test should be the error used by the promise');
@@ -184,13 +181,8 @@ define([
 						sessionId: 'abcd'
 					},
 					test: function () {}
-				});
-
-			return test.run().then(function () {
-				// Elapsed time is non-deterministic, so just force it to a value we can test
-				test.timeElapsed = 100;
-
-				assert.deepEqual(test.toJSON(), {
+				}),
+				expected = {
 					error: null,
 					id: 'parent id - test name',
 					name: 'test name',
@@ -198,7 +190,16 @@ define([
 					timeElapsed: 100,
 					timeout: 30000,
 					hasPassed: true
-				}, 'Test#toJSON should return expected JSON structure for finished test');
+				};
+
+			return test.run().then(function () {
+				// Elapsed time is non-deterministic, so just force it to a value we can test
+				test.timeElapsed = 100;
+
+				assert.deepEqual(test.toJSON(), expected, 'Test#toJSON should return expected JSON structure for test with no error');
+
+				test.error = expected.error = { name: 'Oops', message: 'message', stack: 'stack' };
+				assert.deepEqual(test.toJSON(), expected, 'Test#toJSON should return expected JSON structure for test with error');
 			});
 		},
 
@@ -235,6 +236,12 @@ define([
 			finally {
 				handle.remove();
 			}
+		},
+
+		'Test#remote': function () {
+			var test = new Test({ name: 'test name', parent: { remote: { mock: 'remote' } } });
+			assert.deepEqual(test.remote, { mock: 'remote' }, 'Test#remote should get the remote value from from the test\'s parent');
 		}
+
 	});
 });
