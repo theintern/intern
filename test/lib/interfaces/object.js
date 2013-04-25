@@ -4,8 +4,9 @@ define([
 	'../../../main!object',
 	'../../../main',
 	'../../../lib/Suite',
-	'../../../lib/Test'
-], function (registerSuite, assert, object, main, Suite, Test) {
+	'../../../lib/Test',
+	'dojo-ts/_base/array'
+], function (registerSuite, assert, object, main, Suite, Test, array) {
 
 	registerSuite({
 		name: 'teststack/lib/interfaces/object',
@@ -86,7 +87,7 @@ define([
 					expectedResults = ['before', 'beforeEach', 'afterEach', 'after'],
 					lifecycleMethods = ['setup', 'beforeEach', 'afterEach', 'teardown'];
 
-				expectedResults.forEach(function (method) {
+				array.forEach(expectedResults, function (method) {
 					suiteParams[method] = function () {
 						results.push(method);
 					};
@@ -94,7 +95,7 @@ define([
 
 				object(suiteParams);
 
-				lifecycleMethods.forEach(function (method) {
+				array.forEach(lifecycleMethods, function (method) {
 					main.suites[0].tests[0][method]();
 				});
 

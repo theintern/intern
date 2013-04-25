@@ -34,7 +34,6 @@ define([
 				suite = new Suite({ name: 'suite' }),
 				handle = mockConsole('group', function (message) {
 					called = true;
-					console.groupEnd();
 					assert.strictEqual(message, suite.name, 'console.group should be called with the name of the suite');
 				});
 
@@ -89,8 +88,9 @@ define([
 
 				var called = false,
 					suite = new Suite({ name: 'suite' }),
-					handle = mockConsole('groupEnd', function () {
+					handle = mockConsole('groupEnd', function (name) {
 						called = true;
+						assert.strictEqual(name, suite.name, 'console.groupEnd should be called with the name of the suite');
 					});
 
 				try {

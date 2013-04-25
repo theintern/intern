@@ -4,8 +4,9 @@ define([
 	'../../../main!tdd',
 	'../../../main',
 	'../../../lib/Suite',
-	'../../../lib/Test'
-], function (registerSuite, assert, tdd, main, Suite, Test) {
+	'../../../lib/Test',
+	'dojo-ts/_base/array',
+], function (registerSuite, assert, tdd, main, Suite, Test, array) {
 	registerSuite({
 		name: 'teststack/lib/interfaces/tdd',
 
@@ -67,7 +68,7 @@ define([
 				lifecycleMethods = [ 'before', 'beforeEach', 'afterEach', 'after' ];
 
 			tdd.suite('root suite', function () {
-				lifecycleMethods.forEach(function (method) {
+				array.forEach(lifecycleMethods, function (method) {
 					tdd[method](function () {
 						results.push(method);
 					});
