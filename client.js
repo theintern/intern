@@ -26,8 +26,7 @@ else {
 		'./lib/util',
 		'dojo-ts/topic',
 		'dojo-ts/_base/array',
-		'require',
-		'dojo-ts/json'
+		'require'
 	], function (main, args, reporterManager, Suite, util, topic, array, require) {
 		if (!args.config) {
 			throw new Error('Missing "config" argument');
