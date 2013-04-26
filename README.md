@@ -184,31 +184,31 @@ run on Node.js, but newer versions do not support Node.js and will break even wi
 
 1. Clone this repository as a sibling directory of the package (or packages) that you want to test.
 
-```bash
-cd /my/project/root
-git clone --recursive https://github.com/theintern/intern.git
-```
+   ```
+   cd /my/project/root
+   git clone --recursive https://github.com/theintern/intern.git
+   ```
 
 2. Use npm to install dependencies.
 
-```bash
-cd intern
-npm install --production
-```
+   ```
+   cd intern
+   npm install --production
+   ```
 
 3. Create a copy of the example configuration file in your package’s test directory and edit appropriately. See the
 [configuration documentation](https://github.com/theintern/intern/wiki/Configuring-Intern) for a list of all available
 options.
 
-```bash
-cp tests/example.intern.js ../package/tests/intern.js
-```
+   ```
+   cp tests/example.intern.js ../package/tests/intern.js
+   ```
 
 4. Verify your configuration works by running the Node.js client and seeing that no errors are output.
 
-```bash
-node client.js config=package/tests/intern
-```
+   ```
+   node client.js config=package/tests/intern
+   ```
 
 5. Start writing tests! See the [writing tests](https://github.com/theintern/intern/wiki/Writing-Tests) documentation
 to learn how.
