@@ -227,11 +227,6 @@ to learn how.
 * [Wiki Documentation](https://github.com/theintern/intern/wiki)
 * [Support](https://github.com/theintern/intern/wiki/Support)
 
-## Do you hate kittens and love old IE?
-
-If you need to support IE 6–8, there is also a
-[version of Intern for legacy browsers](https://github.com/theintern/intern/tree/geezer "geezer branch").
-
 ## License
 
 Intern is available under the terms of the [New BSD License](LICENSE). All code, with the exception of
