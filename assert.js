@@ -20,6 +20,15 @@ define([
 			}
 			return keys;
 		},
+		getOwnKeys = Object.keys || function (obj) {
+			var keys = [];
+			for (var k in obj) {
+				if (Object.prototype.hasOwnProperty.call(obj, k)) {
+					keys.push(k);
+				}
+			}
+			return keys;
+		},
 		objectToString = Object.prototype.toString,
 		inspect = (function () {
 			/**
@@ -251,7 +260,7 @@ define([
 						output.push('');
 					}
 				}
-				keys.forEach(function (key) {
+				arrayUtil.forEach(keys, function (key) {
 					if (!key.match(/^\d+$/)) {
 						output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
 							key, true));
@@ -280,11 +289,11 @@ define([
 						}
 						if (arrayUtil.indexOf(str, '\n') > -1) {
 							if (array) {
-								str = str.split('\n').map(function (line) {
+								str = arrayUtil.map(str.split('\n'), function (line) {
 									return '  ' + line;
 								}).join('\n').substr(2);
 							} else {
-								str = '\n' + str.split('\n').map(function (line) {
+								str = '\n' + arrayUtil.map(str.split('\n'), function (line) {
 									return '   ' + line;
 								}).join('\n');
 							}
@@ -417,7 +426,7 @@ define([
 				return str;
 			}
 			else if (type === '[object Object]') {
-				var keys = Object.keys(obj),
+				var keys = getOwnKeys(obj),
 					kstr = keys.length > 2
 						? (keys.splice(0, 2).join(', ') + ', ...') : (keys.join(', '));
 				str = '{ Object (' + kstr + ') }';
