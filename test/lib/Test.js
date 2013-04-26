@@ -1,14 +1,14 @@
 define([
-	'teststack!object',
-	'teststack/assert',
+	'intern!object',
+	'intern/assert',
 	'../../lib/Test',
 	'../../lib/Suite',
-	'dojo-ts/Deferred',
-	'dojo-ts/topic',
-	'dojo-ts/Stateful'
+	'dojo/Deferred',
+	'dojo/topic',
+	'dojo/Stateful'
 ], function (registerSuite, assert, Test, Suite, Deferred, topic, Stateful) {
 	registerSuite({
-		name: 'teststack/lib/Test',
+		name: 'intern/lib/Test',
 
 		'Test#test': function () {
 			var dfd = this.async(250),

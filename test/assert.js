@@ -1,15 +1,15 @@
 /**
  * Test cases for the assert module. These tests were based on the ChaiJS assert tests and were modified to maintain
- * dojo2-teststack styleguide conventions.
+ * Intern styleguide conventions.
  *
  * Portions of this code are from:
  * ChaiJS <http://chaijs.com> (c) 2011-2013 Jake Luer. MIT license.
  */
 
 define([
-	'teststack!tdd',
+	'intern!tdd',
 	'../assert',
-	'dojo-ts/_base/lang'
+	'dojo/_base/lang'
 ], function (tdd, assert, lang) {
 
 	/*

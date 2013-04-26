@@ -1,9 +1,9 @@
 define([
-	'teststack!object',
-	'teststack/assert',
-	'dojo-ts/node!istanbul/lib/collector',
-	'dojo-ts/node!istanbul/lib/report/lcovonly',
-	'dojo-ts/node!fs',
+	'intern!object',
+	'intern/assert',
+	'dojo/node!istanbul/lib/collector',
+	'dojo/node!istanbul/lib/report/lcovonly',
+	'dojo/node!fs',
 	'../../../lib/reporters/lcov'
 ], function (registerSuite, assert, Collector, Reporter, fs, lcov) {
 	var sessionId = 'foo',
@@ -33,7 +33,7 @@ define([
 		};
 
 	registerSuite({
-		name: 'teststack/lib/reporters/lcov',
+		name: 'intern/lib/reporters/lcov',
 
 		'/coverage': function () {
 			var collectorCalled = false,

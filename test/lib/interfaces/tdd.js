@@ -1,18 +1,18 @@
 define([
-	'teststack!object',
-	'teststack/assert',
+	'intern!object',
+	'intern/assert',
 	'../../../main!tdd',
 	'../../../main',
 	'../../../lib/Suite',
 	'../../../lib/Test',
-	'dojo-ts/_base/array'
+	'dojo/_base/array'
 ], function (registerSuite, assert, tdd, main, Suite, Test, array) {
 	registerSuite({
-		name: 'teststack/lib/interfaces/tdd',
+		name: 'intern/lib/interfaces/tdd',
 
 		beforeEach: function () {
 			// Normally, the root suites are set up once the runner or client are configured, but we do not execute
-			// the teststack under test
+			// the Intern under test
 			main.suites.push(
 				new Suite({ name: 'tdd test 1' }),
 				new Suite({ name: 'tdd test 2' })

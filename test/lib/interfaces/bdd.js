@@ -1,11 +1,11 @@
 define([
-	'teststack!object',
-	'teststack/assert',
+	'intern!object',
+	'intern/assert',
 	'../../../main!tdd',
 	'../../../main!bdd'
 ], function (registerSuite, assert, tdd, bdd) {
 	registerSuite({
-		name: 'teststack/lib/interfaces/bdd',
+		name: 'intern/lib/interfaces/bdd',
 
 		// We already test all the BDD code paths by testing TDD, so long as the methods are the same, so just
 		// make sure that they are actually the same

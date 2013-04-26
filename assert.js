@@ -8,9 +8,9 @@
  */
 
 define([
-	'dojo-ts/_base/lang',
-	'dojo-ts/_base/array',
-	'dojo-ts/json'
+	'dojo/_base/lang',
+	'dojo/_base/array',
+	'dojo/json'
 ], function (lang, arrayUtil, JSON) {
 	var sliceArray = Array.prototype.slice,
 		getObjectKeys = function (obj) {

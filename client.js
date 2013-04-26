@@ -6,11 +6,9 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 		global.dojoConfig = {
 			async: 1,
 			baseUrl: pathUtils.resolve(__dirname, '..'),
-			deps: [ 'teststack/client' ],
-			packages: [
-				{ name: 'dojo-ts', location: pathUtils.resolve(__dirname, 'dojo') },
-				{ name: 'teststack', location: __dirname }
-			],
+			deps: [ 'intern/client' ],
+			map: { intern: { dojo: 'intern/dojo' } },
+			packages: [ { name: 'intern', location: __dirname } ],
 			tlmSiblingOfDojo: 0
 		};
 
@@ -24,8 +22,8 @@ else {
 		'./lib/reporterManager',
 		'./lib/Suite',
 		'./lib/util',
-		'dojo-ts/topic',
-		'dojo-ts/_base/array',
+		'dojo/topic',
+		'dojo/_base/array',
 		'require'
 	], function (main, args, reporterManager, Suite, util, topic, array, require) {
 		if (!args.config) {

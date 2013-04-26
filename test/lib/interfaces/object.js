@@ -1,20 +1,20 @@
 define([
-	'teststack!object',
-	'teststack/assert',
+	'intern!object',
+	'intern/assert',
 	'../../../main!object',
 	'../../../main',
 	'../../../lib/Suite',
 	'../../../lib/Test',
-	'dojo-ts/_base/array'
+	'dojo/_base/array'
 ], function (registerSuite, assert, object, main, Suite, Test, array) {
 
 	registerSuite({
-		name: 'teststack/lib/interfaces/object',
+		name: 'intern/lib/interfaces/object',
 
 		'Object interface registration': {
 			setup: function () {
 				// Normally, the root suites are set up once the runner or client are configured, but we do not execute
-				// the teststack under test
+				// the Intern under test
 				main.suites.push(
 					new Suite({ name: 'object test 1' }),
 					new Suite({ name: 'object test 2' })

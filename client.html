@@ -9,12 +9,10 @@ var dojoConfig = (function () {
 	return {
 		async: 1,
 		baseUrl: basePath + '../',
-		tlmSiblingOfDojo: 0,
-		packages: [
-			{ name: 'dojo-ts', location: basePath + 'dojo' },
-			{ name: 'teststack', location: basePath }
-		],
-		deps: [ 'teststack/client' ]
+		deps: [ 'intern/client' ],
+		map: { intern: { dojo: 'intern/dojo' } },
+		packages: [ { name: 'intern', location: basePath } ],
+		tlmSiblingOfDojo: 0
 	};
 })();
 		</script>

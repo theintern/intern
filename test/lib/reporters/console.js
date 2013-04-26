@@ -1,6 +1,6 @@
 define([
-	'teststack!object',
-	'teststack/assert',
+	'intern!object',
+	'intern/assert',
 	'../../../lib/Suite',
 	'../../../lib/Test',
 	'../../../lib/reporters/console'
@@ -23,7 +23,7 @@ define([
 	}
 
 	registerSuite({
-		name: 'teststack/lib/reporters/console',
+		name: 'intern/lib/reporters/console',
 
 		'/suite/start': function () {
 			if (!hasGrouping) {

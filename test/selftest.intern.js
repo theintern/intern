@@ -2,7 +2,7 @@ define({
 	// The port on which the instrumenting proxy will listen
 	proxyPort: 9000,
 
-	// A fully qualified URL to the teststack proxy
+	// A fully qualified URL to the Intern proxy
 	proxyUrl: 'http://localhost:9000/',
 
 	// Default desired capabilities for all environments. Individual capabilities can be overridden by any of the
@@ -45,16 +45,16 @@ define({
 	// used here
 	loader: {
 		// Packages that should be registered with the loader in each testing environment
-		packages: [ 'dojo2-teststack' ],
-		map: { 'dojo2-teststack': { 'dojo-ts': 'dojo2-teststack/dojo' } }
+		packages: [ 'intern-selftest' ],
+		map: { 'intern-selftest': { dojo: 'intern-selftest/dojo' } }
 	},
 
 	// Non-functional test suite(s) to run in each browser
-	suites: [ 'dojo2-teststack/test/all' ],
+	suites: [ 'intern-selftest/test/all' ],
 
 	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: [ ],
+	functionalSuites: [],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis
-	excludeInstrumentation: /^dojo2-teststack\/(?:test\/|dojo\/)/
+	excludeInstrumentation: /^intern-selftest\/(?:test\/|dojo\/)/
 });

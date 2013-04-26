@@ -1,16 +1,15 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var pathUtils = require('path');
+		var pathUtils = require('path'),
+			basePath = pathUtils.resolve(__dirname, '..');
 
 		global.dojoConfig = {
 			async: 1,
-			baseUrl: pathUtils.resolve(__dirname, '..'),
-			deps: [ 'teststack/runner' ],
-			packages: [
-				{ name: 'dojo-ts', location: pathUtils.resolve(__dirname, 'dojo') },
-				{ name: 'teststack', location: __dirname }
-			],
+			baseUrl: basePath,
+			deps: [ 'intern/runner' ],
+			map: { intern: { dojo: 'intern/dojo' } },
+			packages: [ { name: 'intern', location: __dirname } ],
 			tlmSiblingOfDojo: 0
 		};
 
@@ -22,14 +21,14 @@ else {
 		'require',
 		'./main',
 		'./lib/createProxy',
-		'dojo-ts/node!istanbul/lib/instrumenter',
-		'dojo-ts/node!sauce-connect-launcher',
+		'dojo/node!istanbul/lib/instrumenter',
+		'dojo/node!sauce-connect-launcher',
 		'./lib/args',
 		'./lib/util',
 		'./lib/Suite',
 		'./lib/ClientSuite',
 		'./lib/wd',
-		'dojo-ts/topic',
+		'dojo/topic',
 		'./lib/EnvironmentType',
 		'./lib/reporterManager'
 	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, wd, topic, EnvironmentType, reporterManager) {
@@ -74,7 +73,7 @@ else {
 					instrumenter: new Instrumenter({
 						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
 						// where the global is coming from
-						coverageVariable: '__teststackCoverage',
+						coverageVariable: '__internCoverage',
 
 						// compacting code makes it harder to look at but it does not really matter
 						noCompact: true,
