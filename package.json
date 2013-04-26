@@ -1,18 +1,17 @@
 {
-	"name": "dojo2-teststack",
-	"version":"2.0.0dev",
+	"name": "intern",
+	"version": "1.0.0",
 	"main": "main",
-	"description": "Dojo2 teststack.",
+	"description": "Intern. A next-generation code testing stack for JavaScript.",
 	"licenses": [
-		{ "type": "BSD-3-Clause", "url": "http://trac.dojotoolkit.org/browser/dojo/trunk/LICENSE#L13" }
+		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/intern/blob/master/LICENSE" }
 	],
 	"dependencies": {
 		"wd": "0.0.x",
 		"istanbul": "0.1.x",
 		"sauce-connect-launcher": "git://github.com/csnover/sauce-connect-launcher.git#b8e13982"
 	},
-	"bugs": "http://bugs.dojotoolkit.org/",
+	"bugs": "https://github.com/theintern/intern/issues",
 	"keywords": [ "JavaScript", "Dojo", "Toolkit", "Unit", "Testing", "CI" ],
-	"homepage": "http://dojotoolkit.org/",
-	"dojoBuild": "package.js"
+	"homepage": "http://theintern.io/"
 }

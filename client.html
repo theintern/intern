@@ -10,11 +10,11 @@
 	require({
 		baseUrl: basePath + '../',
 		packages: [
-			{ name: 'dojo-ts', location: basePath + 'dojo' },
-			{ name: 'teststack', location: basePath },
+			{ name: 'intern', location: basePath },
 			{ name: 'chai', location: basePath + 'chai', main: 'chai' }
-		]
-	}, [ 'teststack/client' ]);
+		],
+		map: { intern: { dojo: basePath + 'dojo' } }
+	}, [ 'intern/client' ]);
 })();
 		</script>
 	</head>

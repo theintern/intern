@@ -7,11 +7,11 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 		req({
 			baseUrl: pathUtils.resolve(__dirname, '..'),
 			packages: [
-				{ name: 'dojo-ts', location: pathUtils.resolve(__dirname, 'dojo') },
-				{ name: 'teststack', location: __dirname },
+				{ name: 'intern', location: __dirname },
 				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' }
-			]
-		}, [ 'teststack/client' ]);
+			],
+			map: { intern: { dojo: pathUtils.resolve(__dirname, 'dojo') } }
+		}, [ 'intern/client' ]);
 	})();
 }
 else {
@@ -20,7 +20,7 @@ else {
 		'./lib/args',
 		'./lib/reporterManager',
 		'./lib/Suite',
-		'dojo-ts/topic',
+		'dojo/topic',
 		'require'
 	], function (main, args, reporterManager, Suite, topic, require) {
 		if (!args.config) {

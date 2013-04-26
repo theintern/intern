@@ -1,6 +1,6 @@
 define([
-	'teststack!object',
-	'teststack/chai!assert',
+	'intern!object',
+	'intern/chai!assert',
 	'../../../main!object',
 	'../../../main',
 	'../../../lib/Suite',
@@ -8,12 +8,12 @@ define([
 ], function (registerSuite, assert, object, main, Suite, Test) {
 
 	registerSuite({
-		name: 'teststack/lib/interfaces/object',
+		name: 'intern/lib/interfaces/object',
 
 		'Object interface registration': {
 			setup: function () {
 				// Normally, the root suites are set up once the runner or client are configured, but we do not execute
-				// the teststack under test
+				// the Intern under test
 				main.suites.push(
 					new Suite({ name: 'object test 1' }),
 					new Suite({ name: 'object test 2' })

@@ -5,5 +5,5 @@ define([
 	'./lib/interfaces/bdd',
 	'./lib/interfaces/object',
 	'./lib/reporters/console',
-	'dojo-ts/has!host-node?./lib/reporters/lcov'
+	'dojo/has!host-node?./lib/reporters/lcov'
 ], function () {});

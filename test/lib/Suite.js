@@ -1,10 +1,10 @@
 define([
-	'teststack!object',
-	'teststack/chai!assert',
+	'intern!object',
+	'intern/chai!assert',
 	'../../lib/Suite',
 	'../../lib/Test',
-	'dojo-ts/Deferred',
-	'dojo-ts/topic'
+	'dojo/Deferred',
+	'dojo/topic'
 ], function (registerSuite, assert, Suite, Test, Deferred, topic) {
 	function createLifecycle(options) {
 		options = options || {};
@@ -122,7 +122,7 @@ define([
 	var slice = Array.prototype.slice;
 
 	registerSuite({
-		name: 'teststack/lib/Suite',
+		name: 'intern/lib/Suite',
 
 		'Suite lifecycle': createLifecycle(),
 

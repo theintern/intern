@@ -1,6 +1,6 @@
 define([
 	'require',
-	'dojo-ts/Deferred',
+	'dojo/Deferred',
 	'./lib/util'
 ], function (require, Deferred, util) {
 	return {
