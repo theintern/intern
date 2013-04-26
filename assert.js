@@ -8,27 +8,422 @@
  */
 
 define([
-	'exports',
 	'dojo-ts/_base/lang',
+	'dojo-ts/_base/array',
 	'dojo-ts/json'
-], function (exports, lang, JSON) {
-	/**
-	 * Gets an object's own keys.
-	 * TODO: Not necessary with es5-shim.
-	 */
-	var getObjectKeys = Object.keys || function (obj) {
-		var keys = [];
-		for (var k in obj) {
-			if (obj.hasOwnProperty(k)) {
+], function (lang, arrayUtil, JSON) {
+	var sliceArray = Array.prototype.slice,
+		getObjectKeys = function (obj) {
+			var keys = [];
+			for (var k in obj) {
 				keys.push(k);
 			}
-		}
-		return keys;
-	};
+			return keys;
+		},
+		objectToString = Object.prototype.toString,
+		inspect = (function () {
+			/**
+			 * Gets the name of a function, in a cross-browser way.
+			 */
+			function getName(func) {
+				if (func.name) { return func.name; }
+				var match = /^\s?function ([^(]*)\(/.exec(func);
+				return match && match[1] ? match[1] : '';
+			}
 
+			/**
+			 * This allows the retrieval of enumerable property names of an object,
+			 * inherited or not.
+			 */
+			function getEnumerableProperties(object) {
+				var result = [];
+				for (var name in object) {
+					result.push(name);
+				}
+				return result;
+			}
+
+			/**
+			 * Echos the value of a value. Trys to print the value out
+			 * in the best way possible given the different types.
+			 */
+			function inspect(obj, showHidden, depth) {
+				var ctx = {
+					showHidden: showHidden,
+					seen: [],
+					stylize: function (str) { return str; }
+				};
+				return formatValue(ctx, obj, (typeof depth === 'undefined' ? 2 : depth));
+			}
+
+			// https://gist.github.com/1044128/
+			var getOuterHTML = function (element) {
+				if ('outerHTML' in element) { return element.outerHTML; }
+				var ns = 'http://www.w3.org/1999/xhtml';
+				var container = document.createElementNS(ns, '_');
+				var xmlSerializer = new XMLSerializer();
+				var html;
+				if (document.xmlVersion) {
+					return xmlSerializer.serializeToString(element);
+				} else {
+					container.appendChild(element.cloneNode(false));
+					html = container.innerHTML.replace('><', '>' + element.innerHTML + '<');
+					container.innerHTML = '';
+					return html;
+				}
+			};
+
+			// Returns true if object is a DOM element.
+			var isDOMElement = function (object) {
+				if (typeof HTMLElement === 'object') {
+					return object instanceof HTMLElement;
+				} else {
+					return object &&
+					typeof object === 'object' &&
+					object.nodeType === 1 &&
+					typeof object.nodeName === 'string';
+				}
+			};
+
+			function formatValue(ctx, value, recurseTimes) {
+				/*jshint maxcomplexity:18 */
+
+				// Provide a hook for user-specified inspect functions.
+				// Check that value is an object with an inspect function on it
+				if (value && typeof value.inspect === 'function' &&
+					// Filter out the util module, it's inspect function is special
+					value.inspect !== inspect &&
+					// Also filter out any prototype objects using the circular check.
+					!(value.constructor && value.constructor.prototype === value)) {
+					return value.inspect(recurseTimes);
+				}
+
+				// Primitive types cannot have properties
+				var primitive = formatPrimitive(ctx, value);
+				if (primitive) {
+					return primitive;
+				}
+
+				// If it's DOM elem, get outer HTML.
+				if (isDOMElement(value)) {
+					return getOuterHTML(value);
+				}
+
+				// Look up the keys of the object.
+				var visibleKeys = getEnumerableProperties(value);
+				var keys = visibleKeys;
+
+				// Some type of object without properties can be shortcutted.
+				// In IE, errors have a single `stack` property, or if they are vanilla `Error`,
+				// a `stack` plus `description` property; ignore those for consistency.
+				if (keys.length === 0 || (isError(value) && (
+					(keys.length === 1 && keys[0] === 'stack') ||
+					(keys.length === 2 && keys[0] === 'description' && keys[1] === 'stack')
+					))) {
+					if (typeof value === 'function') {
+						var name = getName(value);
+						var nameSuffix = name ? ': ' + name : '';
+						return ctx.stylize('[Function' + nameSuffix + ']', 'special');
+					}
+					if (isRegExp(value)) {
+						return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+					}
+					if (isDate(value)) {
+						return ctx.stylize(Date.prototype.toUTCString.call(value), 'date');
+					}
+					if (isError(value)) {
+						return formatError(value);
+					}
+				}
+				var base = '',
+					array = false,
+					braces = ['{', '}'];
+
+				// Make Array say that they are Array
+				if (isArray(value)) {
+					array = true;
+					braces = ['[', ']'];
+				}
+
+				// Make functions say that they are functions
+				if (typeof value === 'function') {
+					var tmpName = getName(value);
+					var tmpNameSuffix = tmpName ? ': ' + tmpName : '';
+					base = ' [Function' + tmpNameSuffix + ']';
+				}
+
+				// Make RegExps say that they are RegExps
+				if (isRegExp(value)) {
+					base = ' ' + RegExp.prototype.toString.call(value);
+				}
+
+				// Make dates with properties first say the date
+				if (isDate(value)) {
+					base = ' ' + Date.prototype.toUTCString.call(value);
+				}
+
+				// Make error with message first say the error
+				if (isError(value)) {
+					return formatError(value);
+				}
+
+				if (keys.length === 0 && (!array || value.length === 0)) {
+					return braces[0] + base + braces[1];
+				}
+
+				if (recurseTimes < 0) {
+					if (isRegExp(value)) {
+						return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+					} else {
+						return ctx.stylize('[Object]', 'special');
+					}
+				}
+
+				ctx.seen.push(value);
+
+				var output;
+				if (array) {
+					output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+				} else {
+					output = arrayUtil.map(keys, function (key) {
+						return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+					});
+				}
+
+				ctx.seen.pop();
+
+				return reduceToSingleString(output, base, braces);
+			}
+
+
+			function formatPrimitive(ctx, value) {
+				switch (typeof value) {
+				case 'undefined':
+					return ctx.stylize('undefined', 'undefined');
+
+				case 'string':
+					var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+					.replace(/'/g, '\\\'')
+					.replace(/\\"/g, '"') + '\'';
+					return ctx.stylize(simple, 'string');
+
+				case 'number':
+					return ctx.stylize('' + value, 'number');
+
+				case 'boolean':
+					return ctx.stylize('' + value, 'boolean');
+				}
+				// For some reason typeof null is "object", so special case here.
+				if (value === null) {
+					return ctx.stylize('null', 'null');
+				}
+			}
+
+
+			function formatError(value) {
+				// Normalize error string, correcting an issue with a
+				// faulty IE6/7 implementation of Error.prototype.toString
+				var errorString = value.toString();
+				if (errorString.substring(0, 7) === '[object') {
+					var name = value.name ? value.name.toString() : 'Error',
+						message = value.message ? value.message.toString() : '';
+					if (name && message) {
+						errorString = name + ': ' + message;
+					} else if (name) {
+						errorString = name;
+					} else if (message) {
+						errorString = message;
+					} else {
+						errorString = 'Error';
+					}
+				}
+				return '[' + errorString + ']';
+			}
+
+
+			function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+				var output = [];
+				for (var i = 0, l = value.length; i < l; ++i) {
+					if (Object.prototype.hasOwnProperty.call(value, String(i))) {
+						output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+							String(i), true));
+					} else {
+						output.push('');
+					}
+				}
+				keys.forEach(function (key) {
+					if (!key.match(/^\d+$/)) {
+						output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+							key, true));
+					}
+				});
+				return output;
+			}
+
+
+			function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+				/*jshint maxcomplexity:14 */
+
+				var name,
+					str;
+
+				if (arrayUtil.indexOf(visibleKeys, key) < 0) {
+					name = '[' + key + ']';
+				}
+
+				if (!str) {
+					if (arrayUtil.indexOf(ctx.seen, value[key]) < 0) {
+						if (recurseTimes === null) {
+							str = formatValue(ctx, value[key], null);
+						} else {
+							str = formatValue(ctx, value[key], recurseTimes - 1);
+						}
+						if (arrayUtil.indexOf(str, '\n') > -1) {
+							if (array) {
+								str = str.split('\n').map(function (line) {
+									return '  ' + line;
+								}).join('\n').substr(2);
+							} else {
+								str = '\n' + str.split('\n').map(function (line) {
+									return '   ' + line;
+								}).join('\n');
+							}
+						}
+					} else {
+						str = ctx.stylize('[Circular]', 'special');
+					}
+				}
+				if (typeof name === 'undefined') {
+					if (array && key.match(/^\d+$/)) {
+						return str;
+					}
+					name = JSON.stringify('' + key);
+					if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+						name = name.substr(1, name.length - 2);
+						name = ctx.stylize(name, 'name');
+					} else {
+						name = name.replace(/'/g, '\\\'')
+						.replace(/\\"/g, '"')
+						.replace(/(^"|"$)/g, '\'');
+						name = ctx.stylize(name, 'string');
+					}
+				}
+
+				return name + ': ' + str;
+			}
+
+
+			function reduceToSingleString(output, base, braces) {
+				var reduce = function (array, callback, optInitialValue) {
+					if ('function' !== typeof callback) {
+						throw new TypeError(callback + ' is not a function');
+					}
+					var index = 0, length = array.length >>> 0, value, isValueSet = false;
+					if (1 < arguments.length) {
+						value = optInitialValue;
+						isValueSet = true;
+					}
+					for (index = 0; length > index; ++index) {
+						if (!array.hasOwnProperty(index)) { continue; }
+						if (isValueSet) {
+							value = callback(value, array[index], index, array);
+						} else {
+							value = array[index];
+							isValueSet = true;
+						}
+					}
+					if (!isValueSet) {
+						throw new TypeError('Reduce of empty array with no initial value');
+					}
+					return value;
+				};
+				var numLinesEst = 0;
+				var length = reduce(output, function (prev, cur) {
+					numLinesEst++;
+					if (cur.indexOf('\n') >= 0) { numLinesEst++; }
+					return prev + cur.length + 1;
+				}, 0);
+
+				if (length > 60) {
+					return braces[0] +
+					(base === '' ? '' : base + '\n ') +
+					' ' +
+					output.join(',\n  ') +
+					' ' +
+					braces[1];
+				}
+
+				return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+			}
+
+			function isArray(ar) {
+				return ar instanceof Array ||
+				(typeof ar === 'object' && objectToString.call(ar) === '[object Array]');
+			}
+
+			function isRegExp(re) {
+				return typeof re === 'object' && objectToString.call(re) === '[object RegExp]';
+			}
+
+			function isDate(d) {
+				return typeof d === 'object' && objectToString.call(d) === '[object Date]';
+			}
+
+			function isError(e) {
+				return typeof e === 'object' && objectToString.call(e) === '[object Error]';
+			}
+
+			return inspect;
+		})();
+
+	/**
+	 * Returns an all-lowercase text value representation of an object via
+	 * Object.toString and removes any brackets.
+	 */
+	function objectType(o) {
+		return  (/[a-z]*\]$/).exec(objectToString.call(o).toLowerCase())[0].replace(/\]/g, '');
+	}
+
+	/**
+	 * Returns the declared type of a constructor as a text value
+	 */
 	function getType(fn) {
 		var match = /^\s*function\s*([^(]+)\(/.exec(fn);
 		return match && match[1] ? match[1] : 'unknown';
+	}
+
+	/**
+	 * Formats different types for clean printing per Chai expectations. This function
+	 * is ugly and bulky but necessary to match Chai's error messages exactly. It was
+	 * taken from Chai and modified a tad to match some style rules
+	 */
+	function formatValue(obj) {
+		// the `inspect` module exposes a function that checks a given value's type,
+		// and returns a formatted string-representation of this value; it was taken
+		// from Chai, who in turn took most of it straight from Node.js utils
+		// https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
+		// and it is necessary to stay true to the error messages Chai throws
+		var str = inspect(obj),
+			type = Object.prototype.toString.call(obj);
+
+		if (str.length >= 40) {
+			if (type === '[object Function]') {
+				str = (!obj.name || obj.name === '')
+					? '[Function]' : ('[Function: ' + obj.name + ']');
+				return str;
+			}
+			else if (type === '[object Array]') {
+				str = '[ Array(' + obj.length + ') ]';
+				return str;
+			}
+			else if (type === '[object Object]') {
+				var keys = Object.keys(obj),
+					kstr = keys.length > 2
+						? (keys.splice(0, 2).join(', ') + ', ...') : (keys.join(', '));
+				str = '{ Object (' + kstr + ') }';
+			}
+		}
+		return str;
 	}
 
 	/**
@@ -43,9 +438,6 @@ define([
 			stackStartFunction: stackStartFunction
 		});
 	}
-
-	var sliceArray = Array.prototype.slice,
-		objectToString = Object.prototype.toString;
 
 	function AssertionError(options) {
 		this.message = options.message;
@@ -86,35 +478,44 @@ define([
 
 	assert.fail = fail;
 
-	assert.ok = assert;
+	assert.ok = function (value, message) {
+		return assert(value, message || ('expected ' + formatValue(value) + ' to be truthy'));
+	};
 
 	assert.equal = function (actual, expected, message) {
 		/*jshint eqeqeq:false */
 		if (actual != expected) {
-			fail(actual, expected, message, '==', assert.equal);
+			fail(actual, expected, message ||
+				('expected ' + formatValue(actual) + ' to equal ' + formatValue(expected)), '==', assert.equal);
 		}
 	};
 
 	assert.notEqual = function (actual, expected, message) {
 		/*jshint eqeqeq:false */
 		if (actual == expected) {
-			fail(actual, expected, message, '!=', assert.notEqual);
+			fail(actual, expected, message ||
+				('expected ' + formatValue(actual) + ' to not equal ' + formatValue(expected)), '!=', assert.notEqual);
 		}
 	};
 
 	assert.strictEqual = function (actual, expected, message) {
 		if (actual !== expected) {
-			fail(actual, expected, message, '===', assert.strictEqual);
+			fail(actual, expected, message ||
+				('expected ' + formatValue(actual) + ' to equal ' + formatValue(expected)), '===', assert.strictEqual);
 		}
 	};
 
 	assert.notStrictEqual = function (actual, expected, message) {
 		if (actual === expected) {
-			fail(actual, expected, message, '!==', assert.notStrictEqual);
+			fail(actual, expected, message ||
+				('expected ' + formatValue(actual) + ' to not equal ' + formatValue(expected)), '!==', assert.notStrictEqual);
 		}
 	};
 
 	(function () {
+		var circularA = [],
+			circularB = [];
+
 		function checkDeepEquality(actual, expected) {
 			/*jshint eqeqeq:false */
 
@@ -203,6 +604,14 @@ define([
 				return actual == expected;
 			}
 
+			else if (arrayUtil.indexOf(circularA, actual) !== -1 && arrayUtil.indexOf(circularA, actual) === arrayUtil.indexOf(circularB, expected)) {
+				return true;
+			}
+
+			else if (arrayUtil.indexOf(circularA, actual) !== -1 || arrayUtil.indexOf(circularB, expected) !== -1) {
+				return false;
+			}
+
 			// 7.4. For all other Object pairs, including Array objects, equivalence is
 			// determined by having the same number of owned properties (as verified
 			// with Object.prototype.hasOwnProperty.call), the same set of keys
@@ -210,80 +619,100 @@ define([
 			// corresponding key, and an identical "prototype" property. Note: this
 			// accounts for both named and indexed properties on Arrays.
 			else {
-				return objEquiv(actual, expected);
+				circularA.push(actual);
+				circularB.push(expected);
+				var returnValue = objEquiv(actual, expected);
+				circularA.pop();
+				circularB.pop();
+				return returnValue;
 			}
 		}
 
 		assert.deepEqual = function (actual, expected, message) {
 			if (!checkDeepEquality(actual, expected)) {
-				fail(actual, expected, message, 'deepEqual', assert.deepEqual);
+				fail(actual, expected, message ||
+					('expected ' + formatValue(actual) + ' to deeply equal ' + formatValue(expected)), 'deepEqual', assert.deepEqual);
 			}
 		};
 
 		assert.notDeepEqual = function (actual, expected, message) {
 			if (checkDeepEquality(actual, expected)) {
-				fail(actual, expected, message, 'notDeepEqual', assert.notDeepEqual);
+				fail(actual, expected, message ||
+					('expected ' + formatValue(actual) + ' to not deeply equal ' + formatValue(expected)), 'notDeepEqual', assert.notDeepEqual);
 			}
 		};
 	})();
 
+
 	(function () {
-		function makeScalarAssertion(name, expected, invert) {
+		function makeScalarAssertion(name, expected, defaultMsg, invert) {
 			return function (value, message) {
-				if ((invert && value === expected) || value !== expected) {
-					fail(value, expected, message, invert ? '!==' : '===', assert[name]);
+				if ((invert && value === expected) || (!invert && value !== expected)) {
+					fail(value, expected, message || ('expected ' + formatValue(value) + ' ' + defaultMsg), invert ? '!==' : '===', assert[name]);
 				}
 			};
 		}
 
-		assert.isTrue = makeScalarAssertion('isTrue', true);
-		assert.isFalse = makeScalarAssertion('isFalse', false);
-		assert.isNull = makeScalarAssertion('isNull', null);
-		assert.isNotNull = makeScalarAssertion('isNotNull', null, true);
-		assert.isUndefined = makeScalarAssertion('isUndefined', void 0);
-		assert.isDefined = makeScalarAssertion('isUndefined', void 0, true);
+		assert.isTrue = makeScalarAssertion('isTrue', true, 'to be true');
+		assert.isFalse = makeScalarAssertion('isFalse', false, 'to be false');
+		assert.isNull = makeScalarAssertion('isNull', null, 'to equal null');
+		assert.isNotNull = makeScalarAssertion('isNotNull', null, 'to not equal null', true);
+		assert.isUndefined = makeScalarAssertion('isUndefined', void 0, 'to equal undefined');
+		assert.isDefined = makeScalarAssertion('isDefined', void 0, 'to not equal undefined', true);
 	})();
 
 	(function () {
-		function makeTypeAssertion(name, expected, invert) {
+		function makeTypeAssertion(name, expected, stringType, invert) {
 			return function (value, message) {
 				var type = Object.prototype.toString.call(value);
-				if ((invert && type === expected) || type !== expected) {
+				var article = ({'a': 1, 'e': 1, 'i': 1, 'o': 1, 'u': 1})[stringType.charAt(0)] ? 'an ' : 'a ';
+				if ((invert && type === expected) || (!invert && type !== expected)) {
+					message = invert ?
+						('expected ' + formatValue(value) + ' not to be ' + article + stringType) :
+						('expected ' + formatValue(value) + ' to be ' + article + stringType);
+
+
 					fail(value, expected, message, name, assert[name]);
 				}
 			};
 		}
 
 		for (var k in { Function: 1, Object: 1, Array: 1, String: 1, Number: 1, Boolean: 1 }) {
-			assert['is' + k] = makeTypeAssertion('is' + k, '[object ' + k + ']');
-			assert['isNot' + k] = makeTypeAssertion('isNot' + k, '[object ' + k + ']', true);
+			assert['is' + k] = makeTypeAssertion('is' + k, '[object ' + k + ']', k.toLowerCase());
+			assert['isNot' + k] = makeTypeAssertion('isNot' + k, '[object ' + k + ']', k.toLowerCase(), true);
 		}
 	})();
 
 	assert.typeOf = function (value, name, message) {
-		var actualType = / ([a-z]+)\]$/.exec(objectToString.call(value).toLowerCase())[1];
+		var actualType = objectType(value);
 		if (actualType !== name.toLowerCase()) {
-			fail(actualType, name, message, 'typeOf', assert.typeOf);
+			fail(actualType, name, message || ('expected ' + formatValue(value) + ' to be a ' + name), 'typeOf', assert.typeOf);
 		}
 	};
 
 	assert.notTypeOf = function (value, name, message) {
-		var actualType = / ([a-z]+)\]$/.exec(objectToString.call(value).toLowerCase())[1];
+		var actualType = objectType(value);
 		if (actualType === name.toLowerCase()) {
-			fail(actualType, name, message, 'notTypeOf', assert.typeOf);
+			fail(actualType, name, message || ('expected ' + formatValue(value) + ' not to be a ' + name), 'notTypeOf', assert.typeOf);
 		}
 	};
 
 	(function () {
+		var name = function (constructor) {
+			return constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+		};
+
 		assert.instanceOf = function (object, constructor, message) {
 			if (!(object instanceof constructor)) {
-				fail(getType(object.constructor), getType(constructor), message, 'instanceOf', assert.instanceOf);
+				fail(getType(object.constructor), getType(constructor), message ||
+					('expected ' + formatValue(object) + ' to be an instance of ' + name(constructor)), 'instanceOf', assert.instanceOf);
 			}
 		};
 
 		assert.notInstanceOf = function (object, constructor, message) {
 			if (object instanceof constructor) {
-				fail(getType(object.constructor), getType(constructor), message, 'notInstanceOf', assert.instanceOf);
+				fail(getType(object.constructor), getType(constructor), message ||
+					('expected ' + formatValue(object) + ' to not be an instance of ' + name(constructor)), 'notInstanceOf', assert.instanceOf);
 			}
 		};
 	})();
@@ -308,20 +737,21 @@ define([
 
 		assert.include = function (haystack, needle, message) {
 			if (getIndexOf(haystack, needle) === -1) {
-				fail('', needle, message, 'include', assert.include);
+				fail('', needle, message ||
+					('expected ' + formatValue(haystack) + ' to contain ' + formatValue(needle)), 'include', assert.include);
 			}
 		};
 	})();
 
 	assert.match = function (value, regexp, message) {
 		if (!regexp.test(value)) {
-			fail(value, regexp, message, 'match', assert.match);
+			fail(value, regexp, message || ('expected ' + formatValue(value) + ' to match ' + formatValue(regexp)), 'match', assert.match);
 		}
 	};
 
 	assert.notMatch = function (value, regexp, message) {
 		if (regexp.test(value)) {
-			fail(value, regexp, message, 'notMatch', assert.notMatch);
+			fail(value, regexp, message || ('expected ' + formatValue(value) + ' not to match ' + formatValue(regexp)), 'match', assert.match);
 		}
 	};
 
@@ -345,76 +775,87 @@ define([
 			}
 
 			for (i = 0; i < parts.length; ++i) {
-				if (!(parts[i] in object)) {
+				if (!object[parts[i]]) {
 					return NOT_FOUND;
 				}
 
 				object = object[parts[i]];
 			}
-
 			return object;
 		}
 
 		assert.property = function (object, property, message) {
-			if (!(property in object)) {
-				fail(false, true, message, 'in', assert.property);
+			if (!object[property]) {
+				fail(false, true, message ||
+					('expected ' + formatValue(object) + ' to have a property \'' + property + '\''), 'in', assert.property);
 			}
 		};
 
 		assert.notProperty = function (object, property, message) {
-			if (property in object) {
-				fail(true, false, message, 'notIn', assert.notProperty);
+			if (object[property]) {
+				fail(true, false, message ||
+					('expected ' + formatValue(object) + ' to not have property \'' + property + '\''), 'notIn', assert.notProperty);
 			}
 		};
 
 		assert.deepProperty = function (object, property, message) {
 			if (getProperty(object, property) === NOT_FOUND) {
-				fail(false, true, message, 'deepProperty', assert.deepProperty);
+				fail(false, true, message ||
+					('expected ' + formatValue(object) + ' to have a deep property \'' + property + '\''), 'deepProperty', assert.deepProperty);
 			}
 		};
 
 		assert.notDeepProperty = function (object, property, message) {
 			if (getProperty(object, property) !== NOT_FOUND) {
-				fail(false, true, message, 'notDeepProperty', assert.deepProperty);
+				fail(false, true, message ||
+					('expected ' + formatValue(object) + ' to not have deep property \'' + property + '\''), 'notDeepProperty', assert.deepProperty);
 			}
 		};
 
 		assert.propertyVal = function (object, property, value, message) {
 			if (object[property] !== value) {
-				fail(object[property], value, message, '===', assert.propertyVal);
+				fail(object[property], value, message ||
+					('expected ' + formatValue(object) + ' to have a property \'' + property + '\' of ' + formatValue(value) + ', but got ' + formatValue(object[property])), '===', assert.propertyVal);
 			}
 		};
 
 		assert.propertyNotVal = function (object, property, value, message) {
 			if (object[property] === value) {
-				fail(object[property], value, message, '!==', assert.propertyNotVal);
+				fail(object[property], value, message ||
+					('expected ' + formatValue(object) + ' to not have a property \'' + property + '\' of ' + formatValue(value)), '!==', assert.propertyNotVal);
 			}
 		};
 
 		assert.deepPropertyVal = function (object, property, value, message) {
 			var actual = getProperty(object, property);
 			if (actual === NOT_FOUND || actual !== value) {
-				fail(actual, value, message, '===', assert.deepPropertyVal);
+				fail(actual, value, message ||
+					('expected ' + formatValue(object) + ' to have a deep property \'' + property + '\' of ' + formatValue(value) + ', but got ' + formatValue(actual)), '===', assert.deepPropertyVal);
 			}
 		};
 
 		assert.deepPropertyNotVal = function (object, property, value, message) {
 			var actual = getProperty(object, property);
 			if (actual === NOT_FOUND || actual === value) {
-				fail(actual, value, message, '!==', assert.deepPropertyNotVal);
+				fail(actual, value, message ||
+					('expected ' + formatValue(object) + ' to not have a deep property \'' + property + '\' of ' + formatValue(value)), '!==', assert.deepPropertyNotVal);
 			}
 		};
 	})();
 
 	assert.lengthOf = function (object, length, message) {
-		if (object == null || !('length' in object) || object.length !== length) {
-			fail(object == null ? null : object.length, length, message, 'lengthOf', assert.lengthOf);
+		if (object == null || !object.length) {
+			fail(null, length, message || ('expected ' + formatValue(object) + ' to have a property \'length\''),  'lengthOf', assert.lengthOf);
+		}
+		else if (object.length !== length) {
+			fail(object.length, length, message ||
+				('expected ' + formatValue(object) + ' to have a length of ' + formatValue(length) + ' but got ' + object.length), 'lengthOf', assert.lengthOf);
 		}
 	};
 
 	(function () {
 		function throws(shouldThrow, fn, constructor, regexp, message) {
-			/*jshint maxcomplexity:12 */
+			/*jshint maxcomplexity:13 */
 
 			function regexpMatchesError() {
 				if (!error) {
@@ -425,7 +866,7 @@ define([
 					return error.message.indexOf(regexp) > -1;
 				}
 
-				return regexp.test(error.message);
+				return !regexp || regexp.test(error.message);
 			}
 
 			var error,
@@ -450,28 +891,36 @@ define([
 
 			if (shouldThrow) {
 				if (!threw) {
-					fail(threw, shouldThrow, message, 'throw', throws);
+					fail(threw, shouldThrow, message || ('expected ' + formatValue(fn) + ' to throw an error'), 'throw', throws);
 				}
 				else if (constructor && !(error instanceof constructor)) {
-					fail(getType(error.constructor), getType(constructor), message, '===', throws);
+					fail(getType(error.constructor), getType(constructor), message ||
+						('expected ' + formatValue(fn) + ' to throw \'TypeError\' but ' + formatValue(error) + ' was thrown'), '===', throws);
 				}
-				else if (!regexpMatchesError()) {
-					fail(error.message, regexp, message, 'throw', throws);
+				else if (typeof regexp === 'object' && !regexpMatchesError()) {
+					fail(error.message, regexp, message ||
+						('expected ' + formatValue(fn) + ' to throw error matching ' + formatValue(regexp) + ' but got ' + formatValue(error.message)), 'throw', throws);
+				}
+				else if (typeof regexp === 'string' && !regexpMatchesError()) {
+					fail(error.message, regexp, message ||
+						('expected ' + formatValue(fn) + ' to throw error including ' + formatValue(regexp) + ' but got ' + formatValue(error.message)), 'throw', throws);
 				}
 			}
 			else {
 				if (threw && !constructor && !regexp) {
-					fail(threw, shouldThrow, message, 'throw', throws);
+					fail(threw, shouldThrow, message ||
+						('expected ' + formatValue(fn) + ' to not throw an error but ' + formatValue(error) + ' was thrown'), 'throw', throws);
 				}
 				else if (constructor && error instanceof constructor) {
-					fail(getType(error.constructor), getType(constructor), message, '!==', throws);
+					fail(getType(error.constructor), getType(constructor), message ||
+						('expected ' + formatValue(fn) + ' to throw an error'), '!==', throws);
 				}
 				else if (regexp && regexpMatchesError()) {
 					fail(error.message, regexp, message, '===', throws);
 				}
 			}
 
-			if (threw) {
+			if (threw && !shouldThrow) {
 				throw error;
 			}
 		}
@@ -487,15 +936,22 @@ define([
 
 	assert.operator = function (val1, operator, val2, message) {
 		/*jshint evil:true */
-		var fn = new Function('val1', 'val2', 'return val1 ' + operator + ' val2;');
-		if (!fn(val1, val2)) {
-			fail(false, true, message, operator, assert.operator);
+		var result;
+		try {
+			result = new Function('return ' + val1 + operator + val2)();
 		}
+		catch (e) {
+			fail(false, true, message ||
+				('Invalid operator ' + formatValue(operator)), operator, assert.operator);
+		}
+
+		!result && fail(false, true, message || ('expected ' + formatValue(val1) + ' to be ' + operator + ' ' + formatValue(val2)), operator, assert.operator);
 	};
 
 	assert.closeTo = function (actual, expected, delta, message) {
 		if (Math.abs(actual - expected) > delta) {
-			fail(actual, (expected + delta) + ' to ' + (expected - delta), message, 'closeTo', assert.closeTo);
+			fail(actual, (expected + delta) + ' to ' + (expected - delta), message ||
+				('expected ' + formatValue(actual) + ' to be close to ' + formatValue(expected) + ' +/- ' + formatValue(delta)), 'closeTo', assert.closeTo);
 		}
 	};
 
