@@ -201,7 +201,7 @@ npm install --production
 options.
 
 ```bash
-cp test/example.intern.js ../package/tests/intern.js
+cp tests/example.intern.js ../package/tests/intern.js
 ```
 
 4. Verify your configuration works by running the Node.js client and seeing that no errors are output.
