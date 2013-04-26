@@ -177,7 +177,7 @@ else {
 					accessKey: config.webdriver.accessKey,
 					port: config.webdriver.port
 				}).then(function () {
-					require(config.functionalSuites, function () {
+					require(config.functionalSuites || [], function () {
 						var hasErrors = false;
 
 						topic.subscribe('/error, /test/fail', function () {
