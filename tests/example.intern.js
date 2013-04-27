@@ -44,10 +44,9 @@ define({
 	// used here
 	loader: {
 		// Packages that should be registered with the loader in each testing environment
-		packages: [{
-			name: 'myPackage',
-			location: 'path/to/myPackage'
-		}]
+		packages: [
+			{ name: 'myPackage', location: 'path/to/myPackage' }
+		]
 	},
 
 	// Non-functional test suite(s) to run in each browser
