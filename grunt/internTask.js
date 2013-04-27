@@ -12,7 +12,7 @@ module.exports = function (grunt) {
 			opts[option] && args.push(option + '=' + opts[option]);
 		});
 
-		grunt.file.setBase(__dirname.substring(0, __dirname.length - 6));
+		grunt.file.setBase(__dirname.replace(new RegExp('/grunt' + '$'), ''));
 
 		grunt.util.spawn({
 			cmd: process.argv[0],
