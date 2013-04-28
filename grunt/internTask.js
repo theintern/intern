@@ -2,31 +2,31 @@
 
 module.exports = function (grunt) {
 	grunt.registerMultiTask('intern', function () {
-		var opts = this.data,
-			// Add an initial argument for runner or client depending on runType.
-			// This array will eventually be passed to a process spawn call for node.
+		var done = this.async(),
+			opts = this.data,
 			args = [ opts.runType ? (opts.runType + '.js') : 'client.js' ];
 
-		// Further populate the arg array based on supported command line options.
-		['config', 'suites', 'reporters', 'proxyOnly', 'autoRun'].forEach(function (option) {
+		[ 'config', 'suites', 'reporters', 'proxyOnly', 'autoRun' ].forEach(function (option) {
 			opts[option] && args.push(option + '=' + opts[option]);
 		});
 
-		grunt.file.setBase(__dirname.replace(new RegExp('/grunt' + '$'), ''));
-
-		grunt.util.spawn({
+		var child = grunt.util.spawn({
 			cmd: process.argv[0],
-			args: args
+			args: args,
+			opts: {
+				cwd: __dirname.replace(/\/grunt$/, '')
+			}
 		},
-		function (error, result) {
-			if (result) {
-				grunt.log.write(result);
+		function (error) {
+			if (error) {
+				grunt.warn(error);
+				done(false);
 			}
-			else if (error) {
-				grunt.fail.fatal(result);
-			}
+			done();
 		});
 
-		this.async();
+		child.stdout.on('data', function (data) {
+			grunt.log.write(data);
+		});
 	});
 };
