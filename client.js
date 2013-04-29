@@ -21,8 +21,9 @@ else {
 		'./lib/reporterManager',
 		'./lib/Suite',
 		'dojo/topic',
+		'dojo/has',
 		'require'
-	], function (main, args, reporterManager, Suite, topic, require) {
+	], function (main, args, reporterManager, Suite, topic, has, require) {
 		if (!args.config) {
 			throw new Error('Missing "config" argument');
 		}
@@ -89,17 +90,21 @@ else {
 				reporterManager.add(reporters);
 
 				if (args.autoRun !== 'false') {
-					var hasErrors = false;
+					if (has('host-node')) {
+						var hasErrors = false;
 
-					topic.subscribe('/error, /test/fail', function () {
-						hasErrors = true;
-					});
+						topic.subscribe('/error, /test/fail', function () {
+							hasErrors = true;
+						});
 
-					topic.publish('/runner/start');
-					main.run().always(function () {
-						topic.publish('/runner/end');
-						process.exit(hasErrors ? 1 : 0);
-					});
+						topic.publish('/runner/start');
+						main.run().always(function () {
+							topic.publish('/runner/end');
+							process.exit(hasErrors ? 1 : 0);
+						});
+					} else {
+						main.run();
+					}
 				}
 			});
 		});
