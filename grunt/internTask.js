@@ -12,30 +12,26 @@ module.exports = function (grunt) {
 		});
 
 		if (opts.reporters) {
-			if (opts.reporters instanceof Array) {
+			if (typeof opts.reporters === 'string') {
+				args.push('reporters=' + args.reporters);
+			}
+			else {
 				opts.reporters.forEach(function (reporter) {
 					args.push('reporters=' + reporter);
 				});
 			}
-			else if (typeof opts.reporters === 'string') {
-				args.push('reporters=' + args.reporters);
-			}
 		}
 
 		if (opts.suites) {
-			if (opts.suites instanceof Array) {
+			if (typeof opts.suites === 'string') {
+				args.push('suites=' + args.suites);
+			}
+			else {
 				opts.suites.forEach(function (suite) {
 					args.push('suites=' + suite);
 				});
 			}
-			else if (typeof opts.suites === 'string') {
-				args.push('suites=' + args.suites);
-			}
 		}
-
-		opts.suites && opts.suites.forEach(function (suite) {
-			args.push('suites=' + suite);
-		});
 
 		var child = grunt.util.spawn({
 			cmd: process.argv[0],
