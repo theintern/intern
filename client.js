@@ -97,9 +97,7 @@ else {
 							hasErrors = true;
 						});
 
-						topic.publish('/runner/start');
 						main.run().always(function () {
-							topic.publish('/runner/end');
 							process.exit(hasErrors ? 1 : 0);
 						});
 					}
