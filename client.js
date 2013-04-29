@@ -89,7 +89,17 @@ else {
 				reporterManager.add(reporters);
 
 				if (args.autoRun !== 'false') {
-					main.run();
+					var hasErrors = false;
+
+					topic.subscribe('/error, /test/fail', function () {
+						hasErrors = true;
+					});
+
+					topic.publish('/runner/start');
+					main.run().always(function () {
+						topic.publish('/runner/end');
+						process.exit(hasErrors ? 1 : 0);
+					});
 				}
 			});
 		});
