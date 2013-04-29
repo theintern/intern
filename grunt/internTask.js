@@ -11,9 +11,27 @@ module.exports = function (grunt) {
 			opts[option] && args.push(option + '=' + opts[option]);
 		});
 
-		opts.reporters && opts.reporters.forEach(function (reporter) {
-			args.push('reporters=' + reporter);
-		});
+		if (opts.reporters) {
+			if (opts.reporters instanceof Array) {
+				opts.reporters.forEach(function (reporter) {
+					args.push('reporters=' + reporter);
+				});
+			}
+			else if (typeof opts.reporters === 'string') {
+				args.push('reporters=' + args.reporters);
+			}
+		}
+
+		if (opts.suites) {
+			if (opts.suites instanceof Array) {
+				opts.suites.forEach(function (suite) {
+					args.push('suites=' + suite);
+				});
+			}
+			else if (typeof opts.suites === 'string') {
+				args.push('suites=' + args.suites);
+			}
+		}
 
 		opts.suites && opts.suites.forEach(function (suite) {
 			args.push('suites=' + suite);
