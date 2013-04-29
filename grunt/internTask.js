@@ -3,11 +3,20 @@
 module.exports = function (grunt) {
 	grunt.registerMultiTask('intern', function () {
 		var done = this.async(),
-			opts = this.data,
-			args = [ opts.runType ? (opts.runType + '.js') : 'client.js' ];
+			opts = this.data.options,
+			args = [ this.data.runType ? (this.data.runType + '.js') : 'client.js' ],
+			succeeded = true;
 
-		[ 'config', 'suites', 'reporters', 'proxyOnly', 'autoRun' ].forEach(function (option) {
+		[ 'config', 'proxyOnly', 'autoRun' ].forEach(function (option) {
 			opts[option] && args.push(option + '=' + opts[option]);
+		});
+
+		opts.reporters && opts.reporters.forEach(function (reporter) {
+			args.push('reporters=' + reporter);
+		});
+
+		opts.suites && opts.suites.forEach(function (suite) {
+			args.push('suites=' + suite);
 		});
 
 		var child = grunt.util.spawn({
@@ -22,11 +31,15 @@ module.exports = function (grunt) {
 				grunt.warn(error);
 				done(false);
 			}
-			done();
+			done(succeeded);
 		});
 
 		child.stdout.on('data', function (data) {
 			grunt.log.write(data);
+		});
+		child.stderr.on('data', function (data) {
+			succeeded = false;
+			grunt.log.error(data);
 		});
 	});
 };
