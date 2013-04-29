@@ -102,7 +102,8 @@ else {
 							topic.publish('/runner/end');
 							process.exit(hasErrors ? 1 : 0);
 						});
-					} else {
+					}
+					else {
 						main.run();
 					}
 				}
