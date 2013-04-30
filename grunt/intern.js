@@ -18,7 +18,7 @@ module.exports = function (grunt) {
 		});
 
 		[ 'sauceUsername', 'sauceAccessKey' ].forEach(function (option) {
-			opts[option] && (env[option] = opts[option]);
+			opts[option] && (env[{ sauceUsername: 'SAUCE_USERNAME', sauceAccessKey: 'SAUCE_ACCESS_KEY' }[option]] = opts[option]);
 		});
 
 		var child = grunt.util.spawn({
