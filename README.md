@@ -64,7 +64,7 @@ testing capabilities can even be used to test non-JavaScript Web sites and apps,
 	<td>Yes</td>
 	<td>Build required</td>
 	<td>Build required</td>
-	<td>No</td>
+	<td>Experimental</td>
 	<td>No</td>
 </tr>
 <tr>
@@ -91,7 +91,7 @@ testing capabilities can even be used to test non-JavaScript Web sites and apps,
 	<td>TDD</td>
 	<td>TDD, BDD, object</td>
 	<td>BDD</td>
-	<td>xUnit</td>
+	<td>TDD, BDD</td>
 	<td>N/A</td>
 </tr>
 <tr>
@@ -118,7 +118,7 @@ testing capabilities can even be used to test non-JavaScript Web sites and apps,
 	<td>Globals</td>
 	<td>Callbacks</td>
 	<td>Polling</td>
-	<td>Callbacks</td>
+	<td>Callbacks, Promises</td>
 	<td>Callbacks</td>
 </tr>
 <tr>
