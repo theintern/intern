@@ -73,7 +73,7 @@ This branch will only be maintained for as long as absolutely necessary since it
 	<td>Yes</td>
 	<td>Build required</td>
 	<td>Build required</td>
-	<td>No</td>
+	<td>Experimental</td>
 	<td>No</td>
 </tr>
 <tr>
@@ -100,7 +100,7 @@ This branch will only be maintained for as long as absolutely necessary since it
 	<td>TDD</td>
 	<td>TDD, BDD, object</td>
 	<td>BDD</td>
-	<td>xUnit</td>
+	<td>TDD, BDD</td>
 	<td>N/A</td>
 </tr>
 <tr>
@@ -127,7 +127,7 @@ This branch will only be maintained for as long as absolutely necessary since it
 	<td>Globals</td>
 	<td>Callbacks</td>
 	<td>Polling</td>
-	<td>Callbacks</td>
+	<td>Callbacks, Promises</td>
 	<td>Callbacks</td>
 </tr>
 <tr>
