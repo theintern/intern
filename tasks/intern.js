@@ -1,6 +1,11 @@
 /*jshint node:true */
 
 module.exports = function (grunt) {
+	var environmentKeys = {
+		sauceUsername: 'SAUCE_USERNAME',
+		sauceAccessKey: 'SAUCE_ACCESS_KEY'
+	};
+
 	grunt.registerMultiTask('intern', function () {
 		var done = this.async(),
 			opts = this.options({ runType: 'client' }),
@@ -18,7 +23,8 @@ module.exports = function (grunt) {
 		});
 
 		[ 'sauceUsername', 'sauceAccessKey' ].forEach(function (option) {
-			opts[option] && (env[{ sauceUsername: 'SAUCE_USERNAME', sauceAccessKey: 'SAUCE_ACCESS_KEY' }[option]] = opts[option]);
+			var environmentKey = environmentKeys[option];
+			env[environmentKey] = opts[option] || process.env[environmentKey];
 		});
 
 		var child = grunt.util.spawn({
