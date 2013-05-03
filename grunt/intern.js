@@ -17,8 +17,9 @@ module.exports = function (grunt) {
 			});
 		});
 
+		var environmentVariables = { sauceUsername: 'SAUCE_USERNAME', sauceAccessKey: 'SAUCE_ACCESS_KEY' };
 		[ 'sauceUsername', 'sauceAccessKey' ].forEach(function (option) {
-			opts[option] && (env[{ sauceUsername: 'SAUCE_USERNAME', sauceAccessKey: 'SAUCE_ACCESS_KEY' }[option]] = opts[option]);
+			env[environmentVariables[option]] = opts[option] || process.env[environmentVariables[option]];
 		});
 
 		var child = grunt.util.spawn({
