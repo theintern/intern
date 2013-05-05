@@ -4,3 +4,6 @@
 [submodule "chai"]
 	path = chai
 	url = https://github.com/chaijs/chai
+[submodule "benchmark"]
+	path = benchmark
+	url = https://github.com/bestiejs/benchmark.js.git

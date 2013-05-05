@@ -8,7 +8,8 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			baseUrl: pathUtils.resolve(__dirname, '..'),
 			packages: [
 				{ name: 'intern', location: __dirname },
-				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' }
+				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' },
+				{ name: 'benchmark', location: pathUtils.resolve(__dirname, 'benchmark'), main: 'benchmark'}
 			],
 			map: { intern: { dojo: pathUtils.resolve(__dirname, 'dojo') } }
 		}, [ 'intern/runner' ]);

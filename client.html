@@ -11,7 +11,8 @@
 		baseUrl: basePath + '../',
 		packages: [
 			{ name: 'intern', location: basePath },
-			{ name: 'chai', location: basePath + 'chai', main: 'chai' }
+			{ name: 'chai', location: basePath + 'chai', main: 'chai' },
+			{ name: 'benchmark', location: basePath + 'benchmark', main: 'benchmark' }
 		],
 		map: { intern: { dojo: basePath + 'dojo' } }
 	}, [ 'intern/client' ]);

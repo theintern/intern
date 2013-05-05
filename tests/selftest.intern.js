@@ -55,5 +55,5 @@ define({
 	functionalSuites: [],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis
-	excludeInstrumentation: /^intern-selftest\/(?:tests\/|dojo\/)/
+	excludeInstrumentation: /^intern-selftest\/(?:tests\/|dojo\/|benchmark\/)/
 });

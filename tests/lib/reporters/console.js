@@ -3,14 +3,17 @@ define([
 	'intern/chai!assert',
 	'../../../lib/Suite',
 	'../../../lib/Test',
+	'../../../lib/BenchmarkSuite',
 	'../../../lib/reporters/console'
-], function (registerSuite, assert, Suite, Test, reporter) {
+], function (registerSuite, assert, Suite, Test, BenchmarkSuite, reporter) {
 	if (typeof console !== 'object') {
 		// IE<10 does not provide a global console object when Developer Tools is turned off
 		return;
 	}
 
 	var hasGrouping = 'group' in console && 'groupEnd' in console;
+
+	var noop = Function.prototype;
 
 	function mockConsole(method, callback) {
 		var oldMethod = console[method];
@@ -190,6 +193,453 @@ define([
 				while ((handle = handles.pop())) {
 					handle.remove();
 				}
+			}
+		},
+
+		'/bench/start': function () {
+			var called = false,
+				bench = new BenchmarkSuite({ name: 'bench' });
+				handle = hasGrouping ? mockConsole('group', function (message) {
+					called = true;
+					assert.strictEqual(message, bench.name, 'console.group should be called with the name of the bench');
+				}) : mockConsole('log', function (message) {
+					called = true;
+					assert.strictEqual(message, 'START: ' + bench.id, 'console.log should be called with the ID of the bench');
+				});
+
+			try {
+				reporter['/bench/start'](bench);
+				assert.isTrue(called, 'console.group || console.log should be called when the reporter /bench/start methid is called');
+			}
+			finally {
+				handle.remove();
+			}
+		},
+
+		'/bench/cycle': {
+			'benchmark': function () {
+				var result = [],
+					expectedResult = [
+						hasGrouping ? 'foo' : 'bench - foo',
+						'Operations/Sec: 99.12',
+						'Relative Margin of Error: \xb19.12%',
+						'Samples: 2'
+					],
+					bench = new BenchmarkSuite({
+						name: 'bench',
+						id: 'bench',
+						type: 'benchmark',
+						event: {
+							target: {
+								name: 'foo',
+								hz: 99.12345,
+								stats: {
+									rme: 9.1234,
+									sample: [ 1, 2 ],
+									mean: 1.234567,
+									deviation: 1.234567,
+									variance: 1.234567,
+									moe: 1.234567,
+									sem: 1.234567
+								},
+								times: {
+									cycle: 1.123457
+								}
+							}
+						}
+					}),
+					handles = [
+						mockConsole('log', function () {
+							result = result.concat([].slice.call(arguments, 0));
+						}),
+						mockConsole('group', function () {
+							result = result.concat([].slice.call(arguments, 0));
+						}),
+						mockConsole('groupEnd', noop)
+					];
+
+				try {
+					reporter['/bench/cycle'](bench);
+					assert.deepEqual(result, expectedResult, 'The console has logged the right information for /bench/cycle');
+				}
+				finally {
+					var handle;
+					while ((handle = handles.pop())) {
+						handle.remove();
+					}
+				}
+			},
+
+			'baseline': function () {
+				var result = [],
+					expectedResult = [
+						hasGrouping ? 'foo' : 'bench - foo',
+						'Operations/Sec: 99.12',
+						'Relative Margin of Error: \xb19.12%',
+						'Samples: 2',
+						'Mean: 1234.57ms',
+						'Deviation: \xb11234.57ms',
+						'Variance: \xb11234.57ms',
+						'Margin of Error: \xb11234.57ms',
+						'Standard Error of Mean: \xb11234.57ms',
+						'Cycle Time: 1123.46ms'
+					],
+					bench = new BenchmarkSuite({
+						name: 'bench',
+						id: 'bench',
+						type: 'baseline',
+						event: {
+							target: {
+								name: 'foo',
+								hz: 99.12345,
+								stats: {
+									rme: 9.1234,
+									sample: [ 1, 2 ],
+									mean: 1.234567,
+									deviation: 1.234567,
+									variance: 1.234567,
+									moe: 1.234567,
+									sem: 1.234567
+								},
+								times: {
+									cycle: 1.123457
+								}
+							}
+						}
+					}),
+					handles = [
+						mockConsole('log', function () {
+							result = result.concat([].slice.call(arguments, 0));
+						}),
+						mockConsole('group', function () {
+							result = result.concat([].slice.call(arguments, 0));
+						}),
+						mockConsole('groupEnd', noop)
+					];
+
+				try {
+					reporter['/bench/cycle'](bench);
+					assert.deepEqual(result, expectedResult, 'The console has logged the right information for /bench/cycle');
+				}
+				finally {
+					var handle;
+					while ((handle = handles.pop())) {
+						handle.remove();
+					}
+				}
+			},
+
+			'grouping': function () {
+				if (!hasGrouping) {
+					return;
+				}
+
+				var called = false,
+					bench = new BenchmarkSuite({
+						name: 'suite',
+						event: {
+							target: {
+								name: 'foo',
+								hz: 99.12345,
+								stats: {
+									rme: 9.1234,
+									sample: [ 1, 2 ],
+									mean: 1.234567,
+									deviation: 1.234567,
+									variance: 1.234567,
+									moe: 1.234567,
+									sem: 1.234567
+								},
+								times: {
+									cycle: 1.123457
+								}
+							}
+						}
+					}),
+					handles = [
+						mockConsole('groupEnd', function () {
+							called = true;
+							assert.strictEqual(arguments.length, 0, '.groupEnd() should be called with no arguments when the reporter /bench/end method is called');
+						}),
+						mockConsole('log', noop),
+						mockConsole('group', noop)
+					];
+
+				try {
+					reporter['/bench/cycle'](bench);
+					assert.isTrue(called, 'console.group should be called when the reporter /bench/cycle method is called');
+				}
+				finally {
+					var handle;
+					while ((handle = handles.pop())) {
+						handle.remove();
+					}
+				}
+			}
+		},
+
+		'/bench/end': {
+			'baseline': {
+				'successful': function () {
+					function pluck() {
+						return 'foo';
+					}
+
+					var result = [],
+						expectedResult = [
+							'Elapsed: 5 secs',
+							'2/2 tests completed'
+						],
+						bench = new BenchmarkSuite({
+							name: 'bench',
+							id: 'bench',
+							type: 'baseline',
+							event: { target: { times: { elapsed: 5 } } }
+						}),
+						handles = [
+							mockConsole('log', function () {
+								result = result.concat([].slice.call(arguments, 0));
+							}),
+							mockConsole('info', function () {
+								result = result.concat([].slice.call(arguments, 0));
+							}),
+							mockConsole('groupEnd', noop)
+						];
+
+					// During construction a suite is created, so has to be overridden after construction
+					bench.suite = {
+						length: 2,
+						filter: function (value) {
+							switch (value) {
+							case 'successful':
+								return { length: 2 };
+							case 'fastest':
+								return { pluck: pluck };
+							case 'slowest':
+								return { pluck: pluck };
+							}
+						}
+					};
+
+					try {
+						reporter['/bench/end'](bench);
+						assert.deepEqual(result, expectedResult, 'The console has logged the right information for /bench/end');
+					}
+					finally {
+						var handle;
+						while ((handle = handles.pop())) {
+							handle.remove();
+						}
+					}
+				},
+
+				'failed': function () {
+					function pluck() {
+						return 'foo';
+					}
+
+					var result = [],
+						expectedResult = [
+							'Elapsed: 5 secs',
+							'1/2 tests completed'
+						],
+						bench = new BenchmarkSuite({
+							name: 'bench',
+							id: 'bench',
+							type: 'baseline',
+							event: { target: { times: { elapsed: 5 } } }
+						}),
+						handles = [
+							mockConsole('log', function () {
+								result = result.concat([].slice.call(arguments, 0));
+							}),
+							mockConsole('warn', function () {
+								result = result.concat([].slice.call(arguments, 0));
+							}),
+							mockConsole('groupEnd', noop)
+						];
+
+					// During construction a suite is created, so has to be overridden after construction
+					bench.suite = {
+						length: 2,
+						filter: function (value) {
+							switch (value) {
+							case 'successful':
+								return { length: 1 };
+							case 'fastest':
+								return { pluck: pluck };
+							case 'slowest':
+								return { pluck: pluck };
+							}
+						}
+					};
+
+					try {
+						reporter['/bench/end'](bench);
+						assert.deepEqual(result, expectedResult, 'The console has logged the right information for /bench/end');
+					}
+					finally {
+						var handle;
+						while ((handle = handles.pop())) {
+							handle.remove();
+						}
+					}
+				}
+			},
+
+			'benchmark': {
+				'successful': function () {
+					function pluck() {
+						return 'foo';
+					}
+
+					var result = [],
+						expectedResult = [ 'Fastest: "foo" Slowest: "foo" - 2/2 tests completed' ],
+						bench = new BenchmarkSuite({
+							name: 'bench',
+							id: 'bench',
+							type: 'benchmark',
+							event: { target: { times: { elapsed: 5 } } }
+						}),
+						handles = [
+							mockConsole('log', function () {
+								result = result.concat([].slice.call(arguments, 0));
+							}),
+							mockConsole('info', function () {
+								result = result.concat([].slice.call(arguments, 0));
+							}),
+							mockConsole('groupEnd', noop)
+						];
+
+					// During construction a suite is created, so has to be overridden after construction
+					bench.suite = {
+						length: 2,
+						filter: function (value) {
+							switch (value) {
+							case 'successful':
+								return { length: 2 };
+							case 'fastest':
+								return { pluck: pluck };
+							case 'slowest':
+								return { pluck: pluck };
+							}
+						}
+					};
+
+					try {
+						reporter['/bench/end'](bench);
+						assert.deepEqual(result, expectedResult, 'The console has logged the right information for /bench/end');
+					}
+					finally {
+						var handle;
+						while ((handle = handles.pop())) {
+							handle.remove();
+						}
+					}
+				},
+
+				'failed': function () {
+					function pluck() {
+						return 'foo';
+					}
+
+					var result = [],
+						expectedResult = [ 'Fastest: "foo" Slowest: "foo" - 1/2 tests completed' ],
+						bench = new BenchmarkSuite({
+							name: 'bench',
+							id: 'bench',
+							type: 'benchmark',
+							event: { target: { times: { elapsed: 5 } } }
+						}),
+						handles = [
+							mockConsole('log', function () {
+								result = result.concat([].slice.call(arguments, 0));
+							}),
+							mockConsole('warn', function () {
+								result = result.concat([].slice.call(arguments, 0));
+							}),
+							mockConsole('groupEnd', noop)
+						];
+
+					// During construction a suite is created, so has to be overridden after construction
+					bench.suite = {
+						length: 2,
+						filter: function (value) {
+							switch (value) {
+							case 'successful':
+								return { length: 1 };
+							case 'fastest':
+								return { pluck: pluck };
+							case 'slowest':
+								return { pluck: pluck };
+							}
+						}
+					};
+
+					try {
+						reporter['/bench/end'](bench);
+						assert.deepEqual(result, expectedResult, 'The console has logged the right information for /bench/end');
+					}
+					finally {
+						var handle;
+						while ((handle = handles.pop())) {
+							handle.remove();
+						}
+					}
+				}
+			},
+
+			'grouping': function () {
+				if (!hasGrouping) {
+					return;
+				}
+
+				var called = false,
+					bench = new BenchmarkSuite({ name: 'bench' }),
+					handles = [
+						mockConsole('groupEnd', function () {
+							called = true;
+							assert.strictEqual(arguments.length, 0, '.groupEnd() should be called with no arguments when the reporter /bench/end method is called');
+						}),
+						mockConsole('log', noop),
+						mockConsole('info', noop)
+					];
+
+				try {
+					reporter['/bench/end'](bench);
+					assert.isTrue(called, 'console.group should be called when the reporter /bench/end method is called');
+				}
+				finally {
+					var handle;
+					while ((handle = handles.pop())) {
+						handle.remove();
+					}
+				}
+			}
+		},
+
+		'/bench/error': function () {
+			var result = [],
+				error = new Error('Oops'),
+				bench = new BenchmarkSuite({
+					name: 'bench',
+					id: 'bench',
+					error: error,
+					event: { target: { name: 'foo', error: error } }
+				}),
+				handle = mockConsole('error', function () {
+					result = result.concat([].slice.call(arguments, 0));
+				});
+
+			try {
+				reporter['/bench/error'](bench);
+
+				assert.strictEqual(result.length, 3, 'Reporter should log three messages for an error with a related test');
+				result = result.join('\n');
+				assert.include(result, 'ERROR: ' + (hasGrouping ? 'foo' : 'bench - foo'), 'Reporter should indicate which suite threw an error');
+			}
+			finally {
+				handle.remove();
 			}
 		}
 	});
