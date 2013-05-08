@@ -13,11 +13,19 @@ define([
 	'dojo/json'
 ], function (lang, arrayUtil, JSON) {
 	var sliceArray = Array.prototype.slice,
+		objProto = Object.prototype,
 		getObjectKeys = function (obj) {
 			var keys = [];
 			for (var k in obj) {
 				keys.push(k);
 			}
+
+			arrayUtil.forEach(lang._extraNames, function (key) {
+				if (obj[key] !== objProto[key]) {
+					keys.push(key);
+				}
+			});
+
 			return keys;
 		},
 		getOwnKeys = Object.keys || function (obj) {
