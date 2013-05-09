@@ -196,7 +196,7 @@ run on Node.js, but newer versions do not support Node.js and will break even wi
    npm install --production
    ```
 
-3. Create a copy of the example configuration file in your package’s test directory and edit appropriately. See the
+3. Create a copy of the [example configuration file](https://github.com/theintern/intern/blob/master/tests/example.intern.js) in your package’s test directory and edit appropriately. See the
 [configuration documentation](https://github.com/theintern/intern/wiki/Configuring-Intern) for a list of all available
 options.
 
