@@ -16,7 +16,7 @@ testing capabilities can even be used to test non-JavaScript Web sites and apps,
 * Tested with [Travis CI](http://travis-ci.org/)
 * Extensible interfaces (comes with TDD, BDD, and objects)
 * Extensible reporters (comes with basic console, WebDriver, and lcov reporters; tap planned)
-* Extensible assertions using the [Chai Assertion Library](http://chaijs.com) (or any other asserion library that
+* Extensible assertions using the [Chai Assertion Library](http://chaijs.com) (or any other assertion library that
   throws errors)
 
 ## Comparison
