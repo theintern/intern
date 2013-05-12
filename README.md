@@ -25,7 +25,7 @@ This branch will only be maintained for as long as absolutely necessary since it
 * Tested with [Travis CI](http://travis-ci.org/)
 * Extensible interfaces (comes with TDD, BDD, and objects)
 * Extensible reporters (comes with basic console, WebDriver, and lcov reporters; tap planned)
-* Extensible assertions using the [Chai Assertion Library](http://chaijs.com) (or any other asserion library that
+* Extensible assertions using the [Chai Assertion Library](http://chaijs.com) (or any other assertion library that
   throws errors)
 
 ## Comparison
@@ -205,7 +205,7 @@ run on Node.js, but newer versions do not support Node.js and will break even wi
    npm install --production
    ```
 
-3. Create a copy of the example configuration file in your package’s test directory and edit appropriately. See the
+3. Create a copy of the [example configuration file](https://github.com/theintern/intern/blob/master/tests/example.intern.js) in your package’s test directory and edit appropriately. See the
 [configuration documentation](https://github.com/theintern/intern/wiki/Configuring-Intern) for a list of all available
 options.
 
