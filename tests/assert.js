@@ -226,6 +226,7 @@ define([
 
 		tdd.test('notDeepEqual', function () {
 			assert.notDeepEqual({tea: 'jasmine'}, {tea: 'chai'});
+			assert.notDeepEqual({valueOf: 1}, {});
 
 			err(function () {
 				assert.notDeepEqual({tea: 'chai'}, {tea: 'chai'});
