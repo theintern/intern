@@ -552,5 +552,9 @@ define([
 				assert.closeTo(-10, 20, 29);
 			}, 'expected -10 to be close to 20 +/- 29');
 		});
+
+		tdd.test('legacy edge cases', function () {
+			assert.notDeepEqual({valueOf: 1}, {}, 'own properties that shadow non-enumerable prototype properties should not be skipped');
+		});
 	});
 });

@@ -13,11 +13,22 @@ define([
 	'dojo/json'
 ], function (lang, arrayUtil, JSON) {
 	var sliceArray = Array.prototype.slice,
+		objProto = Object.prototype,
 		getObjectKeys = function (obj) {
 			var keys = [];
 			for (var k in obj) {
 				keys.push(k);
 			}
+
+			// Fix for oldIE bug where own properties like toString are skipped
+			// because they shadow non-enumerable Object.prototype properties,
+			// for more info see https://github.com/theintern/intern/issues/26
+			arrayUtil.forEach(lang._extraNames, function (key) {
+				if (obj[key] !== objProto[key]) {
+					keys.push(key);
+				}
+			});
+
 			return keys;
 		},
 		getOwnKeys = Object.keys || function (obj) {
