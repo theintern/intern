@@ -12,8 +12,9 @@ define([
 	'dojo/_base/array',
 	'dojo/json'
 ], function (lang, arrayUtil, JSON) {
-	var sliceArray = Array.prototype.slice,
-		objProto = Object.prototype,
+	var objProto = Object.prototype,
+		sliceArray = Array.prototype.slice,
+		objectToString = objProto.toString,
 		getObjectKeys = function (obj) {
 			var keys = [];
 			for (var k in obj) {
@@ -31,16 +32,19 @@ define([
 
 			return keys;
 		},
-		getOwnKeys = Object.keys || function (obj) {
-			var keys = [];
-			for (var k in obj) {
-				if (Object.prototype.hasOwnProperty.call(obj, k)) {
-					keys.push(k);
+		getIndexOf = function (haystack, needle) {
+			if (haystack.indexOf) {
+				return haystack.indexOf(needle);
+			}
+
+			for (var i = 0; i < haystack.length; ++i) {
+				if (i in haystack && haystack[i] === needle) {
+					return i;
 				}
 			}
-			return keys;
+
+			return -1;
 		},
-		objectToString = Object.prototype.toString,
 		inspect = (function () {
 			/**
 			 * Gets the name of a function, in a cross-browser way.
@@ -287,18 +291,18 @@ define([
 				var name,
 					str;
 
-				if (arrayUtil.indexOf(visibleKeys, key) < 0) {
+				if (getIndexOf(visibleKeys, key) < 0) {
 					name = '[' + key + ']';
 				}
 
 				if (!str) {
-					if (arrayUtil.indexOf(ctx.seen, value[key]) < 0) {
+					if (getIndexOf(ctx.seen, value[key]) < 0) {
 						if (recurseTimes === null) {
 							str = formatValue(ctx, value[key], null);
 						} else {
 							str = formatValue(ctx, value[key], recurseTimes - 1);
 						}
-						if (arrayUtil.indexOf(str, '\n') > -1) {
+						if (getIndexOf(str, '\n') > -1) {
 							if (array) {
 								str = arrayUtil.map(str.split('\n'), function (line) {
 									return '  ' + line;
@@ -437,7 +441,7 @@ define([
 				return str;
 			}
 			else if (type === '[object Object]') {
-				var keys = getOwnKeys(obj),
+				var keys = getObjectKeys(obj),
 					kstr = keys.length > 2
 						? (keys.splice(0, 2).join(', ') + ', ...') : (keys.join(', '));
 				str = '{ Object (' + kstr + ') }';
@@ -624,11 +628,11 @@ define([
 				return actual == expected;
 			}
 
-			else if (arrayUtil.indexOf(circularA, actual) !== -1 && arrayUtil.indexOf(circularA, actual) === arrayUtil.indexOf(circularB, expected)) {
+			else if (getIndexOf(circularA, actual) !== -1 && getIndexOf(circularA, actual) === getIndexOf(circularB, expected)) {
 				return true;
 			}
 
-			else if (arrayUtil.indexOf(circularA, actual) !== -1 || arrayUtil.indexOf(circularB, expected) !== -1) {
+			else if (getIndexOf(circularA, actual) !== -1 || getIndexOf(circularB, expected) !== -1) {
 				return false;
 			}
 
@@ -737,31 +741,12 @@ define([
 		};
 	})();
 
-	(function () {
-		/**
-		 * TODO: Not necessary with es5-shim.
-		 */
-		function getIndexOf(haystack, needle) {
-			if (haystack.indexOf) {
-				return haystack.indexOf(needle);
-			}
-
-			for (var i = 0; i < haystack.length; ++i) {
-				if (haystack[i] === needle) {
-					return i;
-				}
-			}
-
-			return -1;
+	assert.include = function (haystack, needle, message) {
+		if (getIndexOf(haystack, needle) === -1) {
+			fail('', needle, message ||
+				('expected ' + formatValue(haystack) + ' to contain ' + formatValue(needle)), 'include', assert.include);
 		}
-
-		assert.include = function (haystack, needle, message) {
-			if (getIndexOf(haystack, needle) === -1) {
-				fail('', needle, message ||
-					('expected ' + formatValue(haystack) + ' to contain ' + formatValue(needle)), 'include', assert.include);
-			}
-		};
-	})();
+	};
 
 	assert.match = function (value, regexp, message) {
 		if (!regexp.test(value)) {
