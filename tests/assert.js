@@ -21,7 +21,8 @@ define([
 	var err = function (fn, msg) {
 		try {
 			fn();
-		} catch (err) {
+		}
+		catch (err) {
 			if ('string' === typeof msg) {
 				assert.equal(err.message, msg, 'Errors should be equal');
 			} else {
@@ -34,7 +35,19 @@ define([
 		throw new assert.AssertionError({ message: 'Expected an error' });
 	};
 
-
+	/*
+	 * Executes a function; an assertion is thrown if this executed function doesn't
+	 * throw its own assertion.
+	 */
+	var shouldThrow = function (fn, msg) {
+		try {
+			fn();
+		}
+		catch (err) {
+			return;
+		}
+		throw new assert.AssertionError({ message: msg || 'Expected an error' });
+	};
 
 	tdd.suite('assert', function () {
 		tdd.test('assert', function () {
@@ -555,6 +568,12 @@ define([
 
 		tdd.test('legacy edge cases', function () {
 			assert.notDeepEqual({valueOf: 1}, {}, 'own properties that shadow non-enumerable prototype properties should not be skipped');
+
+			shouldThrow(function () {
+				var arr = [1, 2, 3];
+				delete arr[2];
+				assert.include(arr, undefined);
+			}, 'Array#indexOf should skip holes in arrays');
 		});
 	});
 });
