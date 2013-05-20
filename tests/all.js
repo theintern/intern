@@ -1,4 +1,5 @@
 define([
+	'./order',
 	'./lib/Suite',
 	'./lib/Test',
 	'./lib/reporterManager',
