@@ -6,9 +6,11 @@
 		<script src="node_modules/dojo/dojo.js"></script>
 		<script>
 (function () {
-	var basePath = location.pathname.replace(/[^\/]+$/, '');
+	var basePath = location.pathname.replace(/[^\/]+$/, ''),
+		isNodeModule = basePath.indexOf('node_modules') !== -1;
+
 	require({
-		baseUrl: basePath + '../',
+		baseUrl: basePath + (isNodeModule ? '../../' : '../'),
 		packages: [
 			{ name: 'intern', location: basePath },
 			{ name: 'chai', location: basePath + 'node_modules/chai', main: 'chai' }

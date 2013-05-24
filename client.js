@@ -2,10 +2,11 @@
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		var req = require('./node_modules/dojo/dojo'),
-			pathUtils = require('path');
+			pathUtils = require('path'),
+			isNodeModule = __dirname.indexOf('node_modules') !== -1;
 
 		req({
-			baseUrl: pathUtils.resolve(__dirname, '..'),
+			baseUrl: pathUtils.resolve(__dirname, '..', isNodeModule && '..'),
 			packages: [
 				{ name: 'intern', location: __dirname },
 				{ name: 'chai', location: pathUtils.resolve(__dirname, 'node_modules', 'chai'), main: 'chai' }
