@@ -45,7 +45,7 @@ define({
 	loader: {
 		// Packages that should be registered with the loader in each testing environment
 		packages: [ 'intern-selftest' ],
-		map: { 'intern-selftest': { dojo: 'intern-selftest/dojo' } }
+		map: { 'intern-selftest': { dojo: 'intern-selftest/node_modules/dojo' } }
 	},
 
 	// Non-functional test suite(s) to run in each browser
@@ -55,5 +55,5 @@ define({
 	functionalSuites: [],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis
-	excludeInstrumentation: /^intern-selftest\/(?:tests\/|dojo\/)/
+	excludeInstrumentation: /^intern-selftest\/(?:tests\/|node_modules\/dojo\/)/
 });
