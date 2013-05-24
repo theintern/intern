@@ -3,10 +3,17 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		var req = require('./node_modules/dojo/dojo'),
 			pathUtils = require('path'),
-			isNodeModule = __dirname.indexOf('node_modules') !== -1;
+			isNodeModule = __dirname.indexOf('node_modules') !== -1,
+			pathArray = [__dirname, '..'];
+
+		// Keep baseUrl relative to application, regardless of whether intern is
+		// being used as a node module
+		if (isNodeModule) {
+			pathArray = pathArray.concat(['..', '..']);
+		}
 
 		req({
-			baseUrl: pathUtils.resolve(__dirname, '..', isNodeModule && '..'),
+			baseUrl: pathUtils.resolve.apply(null, pathArray),
 			packages: [
 				{ name: 'intern', location: __dirname },
 				{ name: 'chai', location: pathUtils.resolve(__dirname, 'node_modules', 'chai'), main: 'chai' }
