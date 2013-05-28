@@ -7,13 +7,13 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			baseUrlPath = isNodeModule ? [__dirname, '..', '..'] : [__dirname, '..'];
 
 		req({
-			baseUrl: pathUtils.resolve(baseUrlPath),
+			baseUrl: pathUtils.resolve.apply(null, baseUrlPath),
 			packages: [
 				{ name: 'intern', location: __dirname },
 				{ name: 'chai', location: pathUtils.resolve(__dirname, 'node_modules', 'chai'), main: 'chai' }
 			],
 			map: { intern: { dojo: pathUtils.resolve(__dirname, 'node_modules', 'dojo') } }
-		}, [ 'intern/client' ]);
+		}, [ 'intern/runner' ]);
 	})();
 }
 else {
