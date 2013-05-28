@@ -9,7 +9,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 		// Keep baseUrl relative to application, regardless of whether intern is
 		// being used as a node module
 		if (isNodeModule) {
-			pathArray = pathArray.concat(['..', '..']);
+			pathArray = pathArray.concat(['..']);
 		}
 
 		req({

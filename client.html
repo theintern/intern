@@ -10,7 +10,7 @@
 		isNodeModule = basePath.indexOf('node_modules') !== -1;
 
 	require({
-		baseUrl: basePath + (isNodeModule ? '../../../' : '../'),
+		baseUrl: basePath + (isNodeModule ? '../../' : '../'),
 		packages: [
 			{ name: 'intern', location: basePath },
 			{ name: 'chai', location: basePath + 'node_modules/chai', main: 'chai' }
