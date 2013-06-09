@@ -9,7 +9,7 @@
 	"dependencies": {
 		"wd": "0.0.x",
 		"istanbul": "0.1.x",
-		"sauce-connect-launcher": "git://github.com/csnover/sauce-connect-launcher.git#b8e13982"
+		"sauce-connect-launcher": "git://github.com/bryanforbes/sauce-connect-launcher.git#94e67ae4f4"
 	},
 	"bugs": "https://github.com/theintern/intern/issues",
 	"keywords": [ "JavaScript", "Dojo", "Toolkit", "Unit", "Testing", "CI" ],
