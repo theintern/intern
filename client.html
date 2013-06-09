@@ -6,14 +6,19 @@
 		<script src="node_modules/dojo/dojo.js"></script>
 		<script>
 (function () {
-	var basePath = location.pathname.replace(/[^\/]+$/, '');
+	var basePath = location.pathname.replace(/\/+[^\/]+$/, '/');
+
 	require({
-		baseUrl: basePath + '../',
+		baseUrl: basePath + (basePath === '/__intern/' ? '../' : '../../'),
 		packages: [
-			{ name: 'intern', location: basePath },
-			{ name: 'chai', location: basePath + 'node_modules/chai', main: 'chai' }
+			{ name: 'intern', location: basePath }
 		],
-		map: { intern: { dojo: basePath + 'node_modules/dojo' } }
+		map: {
+			intern: {
+				dojo: basePath + 'node_modules/dojo',
+				chai: basePath + 'node_modules/chai/chai'
+			}
+		}
 	}, [ 'intern/client' ]);
 })();
 		</script>

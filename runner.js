@@ -2,15 +2,20 @@
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		var req = require('dojo/dojo'),
-			pathUtils = require('path');
+			pathUtils = require('path'),
+			basePath = pathUtils.dirname(process.argv[1]);
 
 		req({
-			baseUrl: pathUtils.resolve(__dirname, '..'),
+			baseUrl: pathUtils.resolve(basePath, '..', '..'),
 			packages: [
-				{ name: 'intern', location: __dirname },
-				{ name: 'chai', location: pathUtils.resolve(__dirname, 'node_modules', 'chai'), main: 'chai' }
+				{ name: 'intern', location: basePath }
 			],
-			map: { intern: { dojo: pathUtils.resolve(__dirname, 'node_modules', 'dojo') } }
+			map: {
+				intern: {
+					dojo: pathUtils.resolve(basePath, 'node_modules', 'dojo'),
+					chai: pathUtils.resolve(basePath, 'node_modules', 'chai', 'chai')
+				}
+			}
 		}, [ 'intern/runner' ]);
 	})();
 }
@@ -35,6 +40,10 @@ else {
 		}
 
 		require([ args.config ], function (config) {
+			// TODO: Global require is needed because context require does not currently have config mechanics built
+			// in.
+			this.require(config.loader);
+
 			if (!args.reporters) {
 				if (config.reporters) {
 					args.reporters = config.reporters;
@@ -66,7 +75,7 @@ else {
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
 				createProxy({
-					basePath: global.require.baseUrl,
+					basePath: this.require.baseUrl,
 					excludeInstrumentation: config.excludeInstrumentation,
 					instrumenter: new Instrumenter({
 						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
@@ -102,10 +111,6 @@ else {
 						throw new Error('Failed to clear sensitive environment variable SAUCE_ACCESS_KEY');
 					}
 				}
-
-				// TODO: Global require is needed because context require does not currently have config mechanics built
-				// in.
-				this.require(config.loader);
 
 				var startup;
 				if (config.useSauceConnect) {
@@ -167,6 +172,7 @@ else {
 				});
 
 				startup({
+					/*jshint camelcase:false */
 					logger: function () {
 						console.log.apply(console, arguments);
 					},

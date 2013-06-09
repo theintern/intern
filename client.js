@@ -2,15 +2,20 @@
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		var req = require('dojo/dojo'),
-			pathUtils = require('path');
+			pathUtils = require('path'),
+			basePath = pathUtils.dirname(process.argv[1]);
 
 		req({
-			baseUrl: pathUtils.resolve(__dirname, '..'),
+			baseUrl: pathUtils.resolve(basePath, '..', '..'),
 			packages: [
-				{ name: 'intern', location: __dirname },
-				{ name: 'chai', location: pathUtils.resolve(__dirname, 'node_modules', 'chai'), main: 'chai' }
+				{ name: 'intern', location: basePath }
 			],
-			map: { intern: { dojo: pathUtils.resolve(__dirname, 'node_modules', 'dojo') } }
+			map: {
+				intern: {
+					dojo: pathUtils.resolve(basePath, 'node_modules', 'dojo'),
+					chai: pathUtils.resolve(basePath, 'node_modules', 'chai', 'chai')
+				}
+			}
 		}, [ 'intern/client' ]);
 	})();
 }

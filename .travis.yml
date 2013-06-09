@@ -7,11 +7,4 @@ env:
     # please get your own free key if you want to test yourself
     - SAUCE_USERNAME: dojo2-ts-ci
     - SAUCE_ACCESS_KEY: e92610e3-834e-4bec-a3b5-6f7b9d874601
-install:
-  - npm install --production
-  - cd ..
-  - mv intern intern-selftest
-  - git clone https://github.com/theintern/intern.git
-  - cd intern
-  - npm install --production
-script: node runner.js config=intern-selftest/tests/selftest.intern
+script: node node_modules/intern/runner.js config=tests/selftest.intern

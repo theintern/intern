@@ -13,6 +13,9 @@
 		"dojo": "git+https://github.com/csnover/dojo2-core.git#1a7d8fa",
 		"chai": "1.5.0"
 	},
+	"devDependencies": {
+		"intern": "git+https://github.com/theintern/intern.git"
+	},
 	"bugs": "https://github.com/theintern/intern/issues",
 	"keywords": [ "javascript", "test", "unit", "testing", "ci", "continuous integration", "bdd", "tdd", "xunit", "istanbul", "chai", "dojo", "toolkit", "selenium", "sauce labs", "code coverage" ],
 	"homepage": "http://theintern.io/"
