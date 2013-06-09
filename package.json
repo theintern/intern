@@ -13,7 +13,7 @@
 		"dojo": "git+https://github.com/dojo/dojo.git#1.8.4"
 	},
 	"devDependencies": {
-		"intern": "git+https://github.com/theintern/intern.git#geezer"
+		"intern": "git+https://github.com/theintern/intern.git#1.1.0-geezer"
 	},
 	"bugs": "https://github.com/theintern/intern/issues",
 	"keywords": [ "javascript", "test", "unit", "testing", "ci", "continuous integration", "bdd", "tdd", "xunit", "istanbul", "dojo", "toolkit", "selenium", "sauce labs", "code coverage" ],
