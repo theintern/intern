@@ -1,17 +1,21 @@
 {
 	"name": "intern",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"main": "main",
 	"description": "Intern. A next-generation code testing stack for JavaScript.",
 	"licenses": [
 		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/intern/blob/geezer/LICENSE" }
 	],
 	"dependencies": {
-		"wd": "0.0.x",
-		"istanbul": "0.1.x",
-		"sauce-connect-launcher": "git://github.com/csnover/sauce-connect-launcher.git#b8e13982"
+		"wd": "0.0.32",
+		"istanbul": "0.1.35",
+		"sauce-connect-launcher": "0.1.4",
+		"dojo": "git+https://github.com/dojo/dojo.git#1.8.4"
+	},
+	"devDependencies": {
+		"intern": "git+https://github.com/theintern/intern.git#geezer"
 	},
 	"bugs": "https://github.com/theintern/intern/issues",
-	"keywords": [ "JavaScript", "Dojo", "Toolkit", "Unit", "Testing", "CI" ],
+	"keywords": [ "javascript", "test", "unit", "testing", "ci", "continuous integration", "bdd", "tdd", "xunit", "istanbul", "dojo", "toolkit", "selenium", "sauce labs", "code coverage" ],
 	"homepage": "http://theintern.io/"
 }

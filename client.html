@@ -5,17 +5,24 @@
 		<title>Browser test runner</title>
 		<script>
 var dojoConfig = (function () {
-	var basePath = location.pathname.replace(/[^\/]+$/, '');
+	var basePath = location.pathname.replace(/\/+[^\/]+$/, '/');
+
 	return {
 		async: 1,
-		baseUrl: basePath + '../',
+		baseUrl: basePath + (basePath === '/__intern/' ? '../' : '../../'),
 		deps: [ 'intern/client' ],
-		map: { intern: { dojo: 'intern/dojo' } },
-		packages: [ { name: 'intern', location: basePath } ],
+		map: {
+			intern: {
+				dojo: 'intern/node_modules/dojo'
+			}
+		},
+		packages: [
+			{ name: 'intern', location: basePath }
+		],
 		tlmSiblingOfDojo: 0
 	};
 })();
 		</script>
-		<script src="dojo/dojo.js"></script>
+		<script src="node_modules/dojo/dojo.js"></script>
 	</head>
 </html>

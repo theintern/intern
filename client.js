@@ -1,18 +1,25 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var pathUtils = require('path');
+		var pathUtils = require('path'),
+			basePath = pathUtils.dirname(process.argv[1]);
 
 		global.dojoConfig = {
 			async: 1,
-			baseUrl: pathUtils.resolve(__dirname, '..'),
+			baseUrl: pathUtils.resolve(basePath, '..', '..'),
 			deps: [ 'intern/client' ],
-			map: { intern: { dojo: 'intern/dojo' } },
-			packages: [ { name: 'intern', location: __dirname } ],
+			map: {
+				intern: {
+					dojo: 'intern/node_modules/dojo'
+				}
+			},
+			packages: [
+				{ name: 'intern', location: basePath }
+			],
 			tlmSiblingOfDojo: 0
 		};
 
-		require('./dojo/dojo');
+		require('dojo/dojo');
 	})();
 }
 else {
@@ -55,16 +62,26 @@ else {
 
 			// TODO: This is probably a fatal condition and so we need to let the runner know that no more information
 			// will be forthcoming from this client
-			if (typeof window !== 'undefined') {
+			if (has('host-browser')) {
 				window.onerror = function (message, url, lineNumber) {
 					var error = new Error(message + ' at ' + url + ':' + lineNumber);
+
+					if (!reportersReady) {
+						console.error(error);
+					}
+
 					topic.publish('/error', error);
 					topic.publish('/client/end', args.sessionId);
 				};
 			}
-			else if (typeof process !== 'undefined') {
+			else if (has('host-node')) {
 				process.on('uncaughtException', function (error) {
+					if (!reportersReady) {
+						console.error(error.stack);
+					}
+
 					topic.publish('/error', error);
+					process.exit(1);
 				});
 			}
 
@@ -83,6 +100,7 @@ else {
 			// itself
 			main.suites.push(new Suite({ name: 'main', sessionId: args.sessionId }));
 
+			var reportersReady = false;
 			require(deps, function () {
 				// A hash map, { reporter module ID: reporter definition }
 				var reporters = util.reduce([].slice.call(arguments, arguments.length - args.reporters.length), function (map, reporter, i) {
@@ -91,6 +109,7 @@ else {
 				}, {});
 
 				reporterManager.add(reporters);
+				reportersReady = true;
 
 				if (args.autoRun !== 'false') {
 					if (has('host-node')) {

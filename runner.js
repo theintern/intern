@@ -2,18 +2,24 @@
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		var pathUtils = require('path'),
-			basePath = pathUtils.resolve(__dirname, '..');
+			basePath = pathUtils.dirname(process.argv[1]);
 
 		global.dojoConfig = {
 			async: 1,
-			baseUrl: basePath,
+			baseUrl: pathUtils.resolve(basePath, '..', '..'),
 			deps: [ 'intern/runner' ],
-			map: { intern: { dojo: 'intern/dojo' } },
-			packages: [ { name: 'intern', location: __dirname } ],
+			map: {
+				intern: {
+					dojo: 'intern/node_modules/dojo'
+				}
+			},
+			packages: [
+				{ name: 'intern', location: basePath }
+			],
 			tlmSiblingOfDojo: 0
 		};
 
-		require('./dojo/dojo');
+		require('dojo/dojo');
 	})();
 }
 else {
@@ -37,6 +43,10 @@ else {
 		}
 
 		require([ args.config ], function (config) {
+			// TODO: Global require is needed because context require does not currently have config mechanics built
+			// in.
+			this.require(config.loader);
+
 			if (!args.reporters) {
 				if (config.reporters) {
 					args.reporters = config.reporters;
@@ -68,7 +78,7 @@ else {
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
 				createProxy({
-					basePath: global.require.baseUrl,
+					basePath: this.require.baseUrl,
 					excludeInstrumentation: config.excludeInstrumentation,
 					instrumenter: new Instrumenter({
 						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
@@ -104,10 +114,6 @@ else {
 						throw new Error('Failed to clear sensitive environment variable SAUCE_ACCESS_KEY');
 					}
 				}
-
-				// TODO: Global require is needed because context require does not currently have config mechanics built
-				// in.
-				this.require(config.loader);
 
 				var startup;
 				if (config.useSauceConnect) {
@@ -169,12 +175,14 @@ else {
 				});
 
 				startup({
+					/*jshint camelcase:false */
 					logger: function () {
 						console.log.apply(console, arguments);
 					},
 					username: config.webdriver.username,
 					accessKey: config.webdriver.accessKey,
-					port: config.webdriver.port
+					port: config.webdriver.port,
+					no_progress: !process.stdout.isTTY
 				}).then(function () {
 					require(config.functionalSuites || [], function () {
 						var hasErrors = false;
