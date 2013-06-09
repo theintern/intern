@@ -186,7 +186,7 @@ run on Node.js, but newer versions do not support Node.js and will break even wi
 
    ```
    cd /my/project/root
-   git clone --recursive https://github.com/theintern/intern.git
+   git clone https://github.com/theintern/intern.git
    ```
 
 2. Use npm to install dependencies.

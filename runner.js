@@ -1,16 +1,18 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var req = require('./dojo/dojo'),
-			pathUtils = require('path');
+		var req = require('./node_modules/dojo/dojo'),
+			pathUtils = require('path'),
+			isNodeModule = __dirname.indexOf('node_modules') !== -1,
+			baseUrlPath = isNodeModule ? [__dirname, '..', '..'] : [__dirname, '..'];
 
 		req({
-			baseUrl: pathUtils.resolve(__dirname, '..'),
+			baseUrl: pathUtils.resolve.apply(null, baseUrlPath),
 			packages: [
 				{ name: 'intern', location: __dirname },
-				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' }
+				{ name: 'chai', location: pathUtils.resolve(__dirname, 'node_modules', 'chai'), main: 'chai' }
 			],
-			map: { intern: { dojo: pathUtils.resolve(__dirname, 'dojo') } }
+			map: { intern: { dojo: pathUtils.resolve(__dirname, 'node_modules', 'dojo') } }
 		}, [ 'intern/runner' ]);
 	})();
 }

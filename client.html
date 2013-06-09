@@ -3,17 +3,19 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
-		<script src="dojo/dojo.js"></script>
+		<script src="node_modules/dojo/dojo.js"></script>
 		<script>
 (function () {
-	var basePath = location.pathname.replace(/[^\/]+$/, '');
+	var basePath = location.pathname.replace(/[^\/]+$/, ''),
+		isNodeModule = basePath.indexOf('node_modules') !== -1;
+
 	require({
-		baseUrl: basePath + '../',
+		baseUrl: basePath + (isNodeModule ? '../../' : '../'),
 		packages: [
 			{ name: 'intern', location: basePath },
-			{ name: 'chai', location: basePath + 'chai', main: 'chai' }
+			{ name: 'chai', location: basePath + 'node_modules/chai', main: 'chai' }
 		],
-		map: { intern: { dojo: basePath + 'dojo' } }
+		map: { intern: { dojo: basePath + 'node_modules/dojo' } }
 	}, [ 'intern/client' ]);
 })();
 		</script>
