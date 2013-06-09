@@ -12,8 +12,8 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			],
 			map: {
 				intern: {
-					dojo: pathUtils.resolve(basePath, 'node_modules', 'dojo'),
-					chai: pathUtils.resolve(basePath, 'node_modules', 'chai', 'chai')
+					dojo: 'intern/node_modules/dojo',
+					chai: 'intern/node_modules/chai/chai'
 				}
 			}
 		}, [ 'intern/runner' ]);
