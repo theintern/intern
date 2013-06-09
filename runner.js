@@ -172,7 +172,8 @@ else {
 					},
 					username: config.webdriver.username,
 					accessKey: config.webdriver.accessKey,
-					port: config.webdriver.port
+					port: config.webdriver.port,
+					no_progress: !process.stdout.isTTY
 				}).then(function () {
 					require(config.functionalSuites || [], function () {
 						var hasErrors = false;
