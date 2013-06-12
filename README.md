@@ -195,18 +195,18 @@ run on Node.js, but newer versions do not support Node.js and will break even wi
 
    ```
    cd /my/project/root
-   npm install intern
+   npm install git+https://github.com/theintern/intern.git#1.1.0-geezer
    ```
 
    or, in your `package.json`:
 
    ```
    "devDependencies": {
-       "intern": "1.1.0"
+       "intern": "git+https://github.com/theintern/intern.git#1.1.0-geezer"
    }
    ```
 
-2. Create a copy of the [example configuration file](https://github.com/theintern/intern/blob/master/tests/example.intern.js) in your package’s test directory and edit appropriately. See the
+2. Create a copy of the [example configuration file](https://github.com/theintern/intern/blob/geezer/tests/example.intern.js) in your package’s test directory and edit appropriately. See the
 [configuration documentation](https://github.com/theintern/intern/wiki/Configuring-Intern) for a list of all available
 options.
 
