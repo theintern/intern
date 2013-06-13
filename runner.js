@@ -77,7 +77,7 @@ else {
 				createProxy({
 					basePath: this.require.baseUrl,
 					excludeInstrumentation: config.excludeInstrumentation,
-					instrumenter: new Instrumenter({
+					instrumenter: config.disableCodeCoverageAnalysis ? null : new Instrumenter({
 						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
 						// where the global is coming from
 						coverageVariable: '__internCoverage',
@@ -139,7 +139,7 @@ else {
 				util.flattenEnvironments(config.capabilities, config.environments).forEach(function (environmentType) {
 					var suite = new Suite({
 						name: 'main',
-						remote: wd.remote(config.webdriver, environmentType),
+						remote: wd.remote(config.webdriver, environmentType, !config.disableCodeCoverageAnalysis),
 						publishAfterSetup: true,
 						setup: function () {
 							var remote = this.remote;
