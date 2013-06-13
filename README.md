@@ -184,6 +184,8 @@ run on Node.js, but newer versions do not support Node.js and will break even wi
 
 1. Install from npm
 
+   (note: the install process runs git commands, so you might have to use git bash to perform the install)
+
    ```
    cd /my/project/root
    npm install intern
