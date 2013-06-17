@@ -7,11 +7,11 @@ env:
     # please get your own free key if you want to test yourself
     - SAUCE_USERNAME: dojo2-ts-ci
     - SAUCE_ACCESS_KEY: e92610e3-834e-4bec-a3b5-6f7b9d874601
+# This extra install section is only necessary if your project has already installed AMD dependencies like Dojo using
+# npm, since AMD path resolution does not follow Node.js path resolution rules but npm does not know this
 install:
-  - git submodule update --init --recursive
-  - cd ..
-  - mv intern intern-selftest
-  - git clone --recursive https://github.com/theintern/intern.git
-  - cd intern
+  - npm install
+  - cd node_modules/intern
   - npm install --production
-script: node runner.js config=intern-selftest/tests/selftest.intern
+  - cd ../..
+script: node node_modules/intern/runner.js config=tests/selftest.intern

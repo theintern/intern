@@ -1,17 +1,22 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var req = require('./dojo/dojo'),
-			pathUtils = require('path');
+		var req = require('dojo/dojo'),
+			pathUtils = require('path'),
+			basePath = pathUtils.dirname(process.argv[1]);
 
 		req({
-			baseUrl: pathUtils.resolve(__dirname, '..'),
+			baseUrl: pathUtils.resolve(basePath, '..', '..'),
 			packages: [
-				{ name: 'intern', location: __dirname },
-				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' },
-				{ name: 'benchmark', location: pathUtils.resolve(__dirname, 'benchmark'), main: 'benchmark'}
+				{ name: 'intern', location: basePath }
 			],
-			map: { intern: { dojo: pathUtils.resolve(__dirname, 'dojo') } }
+			map: {
+				intern: {
+					dojo: 'intern/node_modules/dojo',
+					chai: 'intern/node_modules/chai/chai',
+					benchmark: 'intern/node_modules/benchmark/benchmark'
+				}
+			}
 		}, [ 'intern/client' ]);
 	})();
 }
@@ -53,16 +58,26 @@ else {
 
 			// TODO: This is probably a fatal condition and so we need to let the runner know that no more information
 			// will be forthcoming from this client
-			if (typeof window !== 'undefined') {
+			if (has('host-browser')) {
 				window.onerror = function (message, url, lineNumber) {
 					var error = new Error(message + ' at ' + url + ':' + lineNumber);
+
+					if (!reportersReady) {
+						console.error(error);
+					}
+
 					topic.publish('/error', error);
 					topic.publish('/client/end', args.sessionId);
 				};
 			}
-			else if (typeof process !== 'undefined') {
+			else if (has('host-node')) {
 				process.on('uncaughtException', function (error) {
+					if (!reportersReady) {
+						console.error(error.stack);
+					}
+
 					topic.publish('/error', error);
+					process.exit(1);
 				});
 			}
 
@@ -81,6 +96,7 @@ else {
 			// itself
 			main.suites.push(new Suite({ name: 'main', sessionId: args.sessionId }));
 
+			var reportersReady = false;
 			require(deps, function () {
 				// A hash map, { reporter module ID: reporter definition }
 				var reporters = [].slice.call(arguments, arguments.length - args.reporters.length).reduce(function (map, reporter, i) {
@@ -89,6 +105,7 @@ else {
 				}, {});
 
 				reporterManager.add(reporters);
+				reportersReady = true;
 
 				if (args.autoRun !== 'false') {
 					if (has('host-node')) {

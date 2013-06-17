@@ -1,17 +1,22 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var req = require('./dojo/dojo'),
-			pathUtils = require('path');
+		var req = require('dojo/dojo'),
+			pathUtils = require('path'),
+			basePath = pathUtils.dirname(process.argv[1]);
 
 		req({
-			baseUrl: pathUtils.resolve(__dirname, '..'),
+			baseUrl: pathUtils.resolve(basePath, '..', '..'),
 			packages: [
-				{ name: 'intern', location: __dirname },
-				{ name: 'chai', location: pathUtils.resolve(__dirname, 'chai'), main: 'chai' },
-				{ name: 'benchmark', location: pathUtils.resolve(__dirname, 'benchmark'), main: 'benchmark'}
+				{ name: 'intern', location: basePath }
 			],
-			map: { intern: { dojo: pathUtils.resolve(__dirname, 'dojo') } }
+			map: {
+				intern: {
+					dojo: 'intern/node_modules/dojo',
+					chai: 'intern/node_modules/chai/chai',
+					benchmark: 'intern/node_modules/benchmark'
+				}
+			}
 		}, [ 'intern/runner' ]);
 	})();
 }
@@ -36,6 +41,10 @@ else {
 		}
 
 		require([ args.config ], function (config) {
+			// TODO: Global require is needed because context require does not currently have config mechanics built
+			// in.
+			this.require(config.loader);
+
 			if (!args.reporters) {
 				if (config.reporters) {
 					args.reporters = config.reporters;
@@ -67,7 +76,7 @@ else {
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
 				createProxy({
-					basePath: global.require.baseUrl,
+					basePath: this.require.baseUrl,
 					excludeInstrumentation: config.excludeInstrumentation,
 					instrumenter: new Instrumenter({
 						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
@@ -103,10 +112,6 @@ else {
 						throw new Error('Failed to clear sensitive environment variable SAUCE_ACCESS_KEY');
 					}
 				}
-
-				// TODO: Global require is needed because context require does not currently have config mechanics built
-				// in.
-				this.require(config.loader);
 
 				var startup;
 				if (config.useSauceConnect) {
@@ -168,12 +173,14 @@ else {
 				});
 
 				startup({
+					/*jshint camelcase:false */
 					logger: function () {
 						console.log.apply(console, arguments);
 					},
 					username: config.webdriver.username,
 					accessKey: config.webdriver.accessKey,
-					port: config.webdriver.port
+					port: config.webdriver.port,
+					no_progress: !process.stdout.isTTY
 				}).then(function () {
 					require(config.functionalSuites || [], function () {
 						var hasErrors = false;

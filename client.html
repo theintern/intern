@@ -3,18 +3,23 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
-		<script src="dojo/dojo.js"></script>
+		<script src="node_modules/dojo/dojo.js"></script>
 		<script>
 (function () {
-	var basePath = location.pathname.replace(/[^\/]+$/, '');
+	var basePath = location.pathname.replace(/\/+[^\/]+$/, '/');
+
 	require({
-		baseUrl: basePath + '../',
+		baseUrl: basePath + (basePath === '/__intern/' ? '../' : '../../'),
 		packages: [
-			{ name: 'intern', location: basePath },
-			{ name: 'chai', location: basePath + 'chai', main: 'chai' },
-			{ name: 'benchmark', location: basePath + 'benchmark', main: 'benchmark' }
+			{ name: 'intern', location: basePath }
 		],
-		map: { intern: { dojo: basePath + 'dojo' } }
+		map: {
+			intern: {
+				dojo: 'intern/node_modules/dojo',
+				chai: 'intern/node_modules/chai/chai',
+				benchmark: 'intern/node_modules/benchmark/benchmark'
+			}
+		}
 	}, [ 'intern/client' ]);
 })();
 		</script>
