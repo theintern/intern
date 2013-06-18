@@ -245,7 +245,9 @@ define([
 		'BenchmarkSuite#numTests / numFailedTests': function () {
 			var dfd = this.async(10000),
 				bench = new BenchmarkSuite({ name: 'foo' });
-			bench.addTest('0', benchFn, { maxTime: 1 });
+			bench.addTest('0', function () {
+				var x = 2 ^ 2;
+			}, { maxTime: 1 });
 			bench.addTest('1', function () {
 				throw new Error('Ooops');
 			}, { maxTime: 1 });
