@@ -114,7 +114,7 @@ define([
 		'BenchmarkSuite lifecycle + publishAfterSetup': createLifecycle({ publishAfterSetup: true }),
 
 		'BenchmarkSuite#setup': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				bench = new BenchmarkSuite({ name: 'setup' }),
 				called = false;
 
@@ -130,7 +130,7 @@ define([
 		},
 
 		'BenchmarkSuite#teardown': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				bench = new BenchmarkSuite({ name: 'teardown' }),
 				called = false;
 
@@ -146,7 +146,7 @@ define([
 		},
 
 		'BenchmarkSuite#setup -> promise': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				bench = new BenchmarkSuite({ name: 'setup -> promise' }),
 				waited = false;
 
@@ -167,7 +167,7 @@ define([
 		},
 
 		'BenchmarkSuite#teardown -> promise': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				bench = new BenchmarkSuite({ name: 'teardown -> promise'}),
 				waited = false;
 
