@@ -32,9 +32,10 @@ else {
 		'./lib/ClientSuite',
 		'./lib/wd',
 		'dojo/topic',
+		'dojo/request/util',
 		'./lib/EnvironmentType',
 		'./lib/reporterManager'
-	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, wd, topic, EnvironmentType, reporterManager) {
+	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, wd, topic, requestUtil, EnvironmentType, reporterManager) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
@@ -43,6 +44,19 @@ else {
 			// TODO: Global require is needed because context require does not currently have config mechanics built
 			// in.
 			this.require(config.loader);
+
+			// default configuration options that are required for a successful Selenium run and a run name
+			config = requestUtil.deepCopy({
+				capabilities: {
+					name: args.config
+				},
+				proxyPort: 9000,
+				proxyUrl: 'http://localhost:9000/',
+				webdriver: {
+					host: 'localhost',
+					port: 4444
+				}
+			}, config);
 
 			if (!args.reporters) {
 				if (config.reporters) {
