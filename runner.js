@@ -45,7 +45,8 @@ else {
 			// in.
 			this.require(config.loader);
 
-			// default configuration options that are required for a successful Selenium run and a run name
+			// Use request/util's deepCopy to deeply mixin default configuration options that are required for a
+			// successful Selenium run, and provide a default name a run name
 			config = requestUtil.deepCopy({
 				capabilities: {
 					name: args.config
