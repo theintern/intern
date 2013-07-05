@@ -1,6 +1,6 @@
 {
 	"name": "intern",
-	"version": "1.1.0",
+	"version": "1.2.0-pre",
 	"main": "main",
 	"description": "Intern. A next-generation code testing stack for JavaScript.",
 	"licenses": [
@@ -10,7 +10,7 @@
 		"wd": "0.0.32",
 		"istanbul": "0.1.35",
 		"sauce-connect-launcher": "0.1.4",
-		"dojo": "git+https://github.com/csnover/dojo2-core.git#1a7d8fa",
+		"dojo": "git+https://github.com/csnover/dojo2-core.git#dfc5449",
 		"chai": "1.5.0"
 	},
 	"devDependencies": {
