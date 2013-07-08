@@ -45,8 +45,10 @@ else {
 			// in.
 			this.require(config.loader);
 
-			// Use request/util's deepCopy to deeply mixin default configuration options that are required for a
-			// successful Selenium run, and provide a default name a run name
+			// Deeply mix in configuration options that are required for a successful Selenium run so that users do not
+			// have to provide options that should default as per https://github.com/theintern/intern/wiki/Configuring-Intern.
+			// Also use the module identifier of the current configuration file as a default name because Sauce Labs
+			// defaults to 'unnamed job', which is not useful.
 			config = requestUtil.deepCopy({
 				capabilities: {
 					name: args.config
