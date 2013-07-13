@@ -1,8 +1,12 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'require'
-], function (registerSuite, assert, require) {
+	'require',
+	'../../lib/Suite',
+	'../../lib/Test',
+	'dojo/Deferred',
+	'../../lib/wd',
+], function (registerSuite, assert, require, Suite, Test, Deferred, wd) {
 	registerSuite({
 		name: 'basic functional test',
 
@@ -24,6 +28,54 @@ define([
 				.then(function (executeWorks) {
 					assert.isTrue(executeWorks);
 				});
+		},
+		'tests following a failed test should be executed (and should not automatically fail)': function() {
+			var suite,
+				dfd = this.async(5000),
+				self = this,
+				arbitaryUrl = 'http://www.example.com';
+
+			suite = new Suite({
+				name: 'test suite',
+				remote: self.remote,
+				tests : [
+					new Test({
+						name : 'test that passes',
+						test : function() {
+							return self.remote.get(arbitaryUrl)
+									.then(function () {
+										assert.isTrue(true, 'true isnt true');
+									});
+						},
+						parent:suite
+					}),
+					new Test({
+						name : 'test that fails',
+						test : function() {
+							return self.remote.get(arbitaryUrl)
+									.then(function () {
+										assert.isFalse(true, 'true isnt true');
+									});
+						},
+						parent:suite
+					}),
+					new Test({
+						name : 'another test that should pass',
+						test : function() {
+							return self.remote.get(arbitaryUrl)
+									.then(function () {
+										assert.isTrue(true, 'true isnt true');
+									});
+						},
+						parent:this
+					})
+				]
+			});
+
+			suite.run()
+				.always(dfd.callback(function () {
+					assert.equal(1,  suite.numFailedTests, '1 test should be reported as failed');
+				}));
 		}
 	});
 });
