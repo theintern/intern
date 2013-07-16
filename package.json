@@ -1,6 +1,6 @@
 {
 	"name": "intern",
-	"version": "1.1.0-geezer",
+	"version": "1.2.0-pre+geezer",
 	"main": "main",
 	"description": "Intern. A next-generation code testing stack for JavaScript.",
 	"licenses": [
