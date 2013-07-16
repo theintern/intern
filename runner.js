@@ -74,7 +74,7 @@ else {
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				createProxy({
+				var proxy = createProxy({
 					basePath: this.require.baseUrl,
 					excludeInstrumentation: config.excludeInstrumentation,
 					instrumenter: new Instrumenter({
@@ -180,7 +180,7 @@ else {
 					accessKey: config.webdriver.accessKey,
 					port: config.webdriver.port,
 					no_progress: !process.stdout.isTTY
-				}).then(function () {
+				}).then(function (connectProcess) {
 					require(config.functionalSuites || [], function () {
 						var hasErrors = false;
 
@@ -188,15 +188,25 @@ else {
 							hasErrors = true;
 						});
 
+						process.on('exit', function () {
+							// calling `process.exit` after the main test loop finishes will cause any remaining
+							// in-progress operations to abort, which is undesirable if there are any asynchronous
+							// I/O operations that a reporter wants to perform once all tests are complete; calling
+							// from within the exit event avoids this problem by allowing Node.js to decide when to
+							// terminate
+							process.exit(hasErrors ? 1 : 0);
+						});
+
 						topic.publish('/runner/start');
 						main.run().always(function () {
 							topic.publish('/runner/end');
-							process.exit(hasErrors ? 1 : 0);
+							connectProcess && connectProcess.close();
+							proxy.close();
 						});
 					});
 				}, function (error) {
 					console.error(error);
-					process.exit(1);
+					proxy.close();
 				});
 			});
 		});
