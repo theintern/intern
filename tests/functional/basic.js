@@ -37,8 +37,9 @@ define([
 
 			suite = new Suite({
 				name: 'test suite',
-				remote: self.remote,
-				tests : [
+				remote: self.remote
+			});
+			suite.tests = [
 					new Test({
 						name : 'test that passes',
 						test : function() {
@@ -67,10 +68,9 @@ define([
 										assert.isTrue(true, 'true isnt true');
 									});
 						},
-						parent:this
+						parent:suite
 					})
-				]
-			});
+				];
 
 			suite.run()
 				.always(dfd.callback(function () {
