@@ -114,13 +114,17 @@ else {
 							hasErrors = true;
 						});
 
-						main.run().always(function () {
+						process.on('exit', function () {
+							// calling `process.exit` after the main test loop finishes will cause any remaining
+							// in-progress operations to abort, which is undesirable if there are any asynchronous
+							// I/O operations that a reporter wants to perform once all tests are complete; calling
+							// from within the exit event avoids this problem by allowing Node.js to decide when to
+							// terminate
 							process.exit(hasErrors ? 1 : 0);
 						});
 					}
-					else {
-						main.run();
-					}
+
+					main.run();
 				}
 			});
 		});
