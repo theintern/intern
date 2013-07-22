@@ -1,6 +1,6 @@
 define([
 	'intern!object',
-	'intern/assert',
+	'intern/chai!assert',
 	'../../lib/Test',
 	'../../lib/Suite',
 	'dojo/Deferred',

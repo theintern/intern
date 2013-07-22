@@ -1,6 +1,6 @@
 define([
 	'intern!object',
-	'intern/assert',
+	'intern/chai!assert',
 	'dojo/node!istanbul/lib/collector',
 	'dojo/node!istanbul/lib/report/lcovonly',
 	'dojo/node!fs',

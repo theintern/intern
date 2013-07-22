@@ -1,6 +1,6 @@
 define([
 	'intern!object',
-	'intern/assert',
+	'intern/chai!assert',
 	'../../../main!tdd',
 	'../../../main!bdd'
 ], function (registerSuite, assert, tdd, bdd) {

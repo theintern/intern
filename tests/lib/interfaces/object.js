@@ -1,6 +1,6 @@
 define([
 	'intern!object',
-	'intern/assert',
+	'intern/chai!assert',
 	'../../../main!object',
 	'../../../main',
 	'../../../lib/Suite',
