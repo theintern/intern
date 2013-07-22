@@ -11,7 +11,7 @@ env:
 # npm, since AMD path resolution does not follow Node.js path resolution rules but npm does not know this
 install:
   - npm install
-  - cd node_modules/intern
+  - cd node_modules/intern-geezer
   - npm install --production
   - cd ../..
-script: node node_modules/intern/runner.js config=tests/selftest.intern
+script: node node_modules/intern-geezer/runner.js config=tests/selftest.intern
