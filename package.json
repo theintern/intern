@@ -3,6 +3,10 @@
 	"version": "1.2.0-pre",
 	"main": "main",
 	"description": "Intern. A next-generation code testing stack for JavaScript.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/theintern/intern.git"
+	},
 	"licenses": [
 		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/intern/blob/master/LICENSE" }
 	],
