@@ -13,7 +13,7 @@
 	"dependencies": {
 		"wd": "0.0.32",
 		"istanbul": "0.1.35",
-		"sauce-connect-launcher": "0.1.4",
+		"sauce-connect-launcher": "0.1.10",
 		"dojo": "1.9.1"
 	},
 	"devDependencies": {
