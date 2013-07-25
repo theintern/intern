@@ -1,10 +1,11 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
+	'dojo/lang',
 	'../../../lib/Suite',
 	'../../../lib/Test',
 	'../../../lib/reporters/console'
-], function (registerSuite, assert, Suite, Test, reporter) {
+], function (registerSuite, assert, lang, Suite, Test, reporter) {
 	if (typeof console !== 'object') {
 		// IE<10 does not provide a global console object when Developer Tools is turned off
 		return;
@@ -46,62 +47,87 @@ define([
 			}
 		},
 
-		'/suite/end': {
-			'successful suite': function () {
-				var actualMessage,
-					suite = new Suite({ name: 'suite', tests: [ new Test({ hasPassed: true }) ] }),
-					handle = mockConsole('info', function (message) {
-						actualMessage = message;
-					});
+		'/suite/end': (function () {
+			var suite = {
+				'successful suite': function () {
+					var actualMessage,
+						suite = new Suite({ name: 'suite', tests: [ new Test({ hasPassed: true }) ] }),
+						handle = mockConsole('info', function (message) {
+							actualMessage = message;
+						});
 
-				try {
-					reporter['/suite/end'](suite);
-					assert.ok(actualMessage, 'console.info should be called when the reporter /suite/end method is called');
-					assert.include(actualMessage, ' ' + suite.numTests - suite.numFailedTests + '/' + suite.numTests + ' ', 'console.info message should say how many tests passed and how many total tests existed');
-				}
-				finally {
-					handle.remove();
-				}
-			},
+					try {
+						reporter['/suite/end'](suite);
+						assert.ok(actualMessage, 'console.info should be called when the reporter /suite/end method is called and there are no errors');
+						assert.include(actualMessage, ' ' + suite.numTests - suite.numFailedTests + '/' + suite.numTests + ' ', 'console.info message should say how many tests passed and how many total tests existed');
+					}
+					finally {
+						handle.remove();
+					}
+				},
 
-			'failed suite': function () {
-				var actualMessage,
-					suite = new Suite({ name: 'suite', tests: [ new Test({ hasPassed: false }) ] }),
-					handle = mockConsole('warn', function (message) {
-						actualMessage = message;
-					});
+				'failed suite': function () {
+					var actualMessage,
+						suite = new Suite({ name: 'suite', tests: [ new Test({ hasPassed: false }) ] }),
+						handle = mockConsole('warn', function (message) {
+							actualMessage = message;
+						});
 
-				try {
-					reporter['/suite/end'](suite);
-					assert.ok(actualMessage, 'console.info should be called when the reporter /suite/end method is called');
-					assert.include(actualMessage, ' ' + suite.numTests - suite.numFailedTests + '/' + suite.numTests + ' ', 'console.info message should say how many tests passed and how many total tests existed');
+					try {
+						reporter['/suite/end'](suite);
+						assert.ok(actualMessage, 'console.warn should be called when the reporter /suite/end method is called and there are errors');
+						assert.include(actualMessage, ' ' + suite.numTests - suite.numFailedTests + '/' + suite.numTests + ' ', 'console.warn message should say how many tests passed and how many total tests existed');
+					}
+					finally {
+						handle.remove();
+					}
 				}
-				finally {
-					handle.remove();
-				}
-			},
+			};
 
-			'grouping': function () {
-				if (!hasGrouping) {
-					return;
-				}
+			if (hasGrouping) {
+				var groupHandle;
+				lang.mixin(suite, {
+					setup: function () {
+						groupHandle = mockConsole('groupEnd', function () {
+							// no-op to prevent code under test from calling `console.groupEnd` to close this
+							// test group
+						});
+					},
 
-				var called = false,
-					suite = new Suite({ name: 'suite' }),
-					handle = mockConsole('groupEnd', function (name) {
-						called = true;
-						assert.strictEqual(name, suite.name, 'console.groupEnd should be called with the name of the suite');
-					});
+					teardown: function () {
+						groupHandle.remove();
+					},
 
-				try {
-					reporter['/suite/end'](suite);
-					assert.isTrue(called, 'console.group should be called when the reporter /suite/end method is called');
-				}
-				finally {
-					handle.remove();
-				}
+					'grouping': function () {
+						var called = false,
+							suite = new Suite({ name: 'suite' }),
+							handles = [
+								mockConsole('groupEnd', function (name) {
+									called = true;
+									assert.strictEqual(name, suite.name, 'console.groupEnd should be called with the name of the suite');
+								}),
+								mockConsole('info', function () {
+									// no-op to prevent code from intercepting the /group/end topic and emitting test
+									// pass information for the fake suite
+								})
+							];
+
+						try {
+							reporter['/suite/end'](suite);
+							assert.isTrue(called, 'console.group should be called when the reporter /suite/end method is called');
+						}
+						finally {
+							var handle;
+							while ((handle = handles.pop())) {
+								handle.remove();
+							}
+						}
+					}
+				});
 			}
-		},
+
+			return suite;
+		})(),
 
 		'/suite/error': function () {
 			var result = [],
