@@ -16,7 +16,8 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			packages: [
 				{ name: 'intern', location: basePath }
 			],
-			tlmSiblingOfDojo: 0
+			tlmSiblingOfDojo: 0,
+			useDeferredInstrumentation: false
 		};
 
 		require('dojo/dojo');
