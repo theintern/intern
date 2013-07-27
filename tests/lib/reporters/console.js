@@ -6,8 +6,7 @@ define([
 	'../../../lib/Test',
 	'../../../lib/BenchmarkSuite',
 	'../../../lib/reporters/console'
-], function (registerSuite, assert, lang, Suite, Test, reporter) {
-], function (registerSuite, assert, Suite, Test, BenchmarkSuite, reporter) {
+], function (registerSuite, assert, lang, Suite, Test, BenchmarkSuite, reporter) {
 	if (typeof console !== 'object') {
 		// IE<10 does not provide a global console object when Developer Tools is turned off
 		return;
