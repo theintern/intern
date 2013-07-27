@@ -1,6 +1,12 @@
 Contribution guidelines
 =======================
 
+## For end-users
+
+* The bug tracker is for bugs, not for questions. If you aren’t sure you are experiencing a bug (or you know you
+  aren’t), please [learn where to seek end-user support](https://github.com/theintern/intern/wiki/Support).
+  Help questions posted to the bug tracker will be closed.
+
 ## For contributors
 
 * Please search the [issue tracker](https://github.com/theintern/intern/issues) before submitting new issues to avoid
