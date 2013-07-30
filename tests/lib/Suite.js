@@ -20,7 +20,7 @@ define([
 		}
 
 		return function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				suite = new Suite(options),
 				results = [],
 				handles = [];
@@ -74,7 +74,7 @@ define([
 	function createSuiteThrows(method, options) {
 		options = options || {};
 		return function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				suite = new Suite(),
 				test = new Test({ test: function () {}, parent: suite }),
 				thrownError = new Error('Oops'),
@@ -130,7 +130,7 @@ define([
 		'Suite lifecycle + publishAfterSetup': createLifecycle({ publishAfterSetup: true }),
 
 		'Suite#setup': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				suite = new Suite(),
 				called = false;
 
@@ -146,7 +146,7 @@ define([
 		},
 
 		'Suite#beforeEach': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				suite = new Suite(),
 				results = [],
 				counter = 0;
@@ -169,7 +169,7 @@ define([
 		},
 
 		'Suite#afterEach': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				suite = new Suite(),
 				results = [],
 				counter = 0;
@@ -192,7 +192,7 @@ define([
 		},
 
 		'Suite#teardown': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				suite = new Suite(),
 				called = false;
 
@@ -208,7 +208,7 @@ define([
 		},
 
 		'Suite#setup -> promise': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				suite = new Suite(),
 				waited = false;
 
@@ -229,7 +229,7 @@ define([
 		},
 
 		'Suite#beforeEach -> promise': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				suite = new Suite(),
 				results = [],
 				counter = 0;
@@ -257,7 +257,7 @@ define([
 		},
 
 		'Suite#afterEach -> promise': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				suite = new Suite(),
 				results = [],
 				counter = 0;
@@ -285,7 +285,7 @@ define([
 		},
 
 		'Suite#teardown -> promise': function () {
-			var dfd = this.async(250),
+			var dfd = this.async(1000),
 				suite = new Suite(),
 				waited = false;
 
