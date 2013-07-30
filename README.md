@@ -186,15 +186,7 @@ run on Node.js, but newer versions do not support Node.js and will break even wi
 
    ```
    cd /my/project/root
-   npm install intern
-   ```
-
-   or, in your `package.json`:
-
-   ```
-   "devDependencies": {
-       "intern": "1.1.0"
-   }
+   npm install intern --save-dev
    ```
 
 2. Create a copy of the [example configuration file](https://github.com/theintern/intern/blob/master/tests/example.intern.js) in your package’s test directory and edit appropriately. See the
