@@ -195,15 +195,7 @@ run on Node.js, but newer versions do not support Node.js and will break even wi
 
    ```
    cd /my/project/root
-   npm install git+https://github.com/theintern/intern.git#1.1.0-geezer
-   ```
-
-   or, in your `package.json`:
-
-   ```
-   "devDependencies": {
-       "intern": "git+https://github.com/theintern/intern.git#1.1.0-geezer"
-   }
+   npm install intern-geezer --save-dev
    ```
 
 2. Create a copy of the [example configuration file](https://github.com/theintern/intern/blob/geezer/tests/example.intern.js) in your package’s test directory and edit appropriately. See the
@@ -211,13 +203,13 @@ run on Node.js, but newer versions do not support Node.js and will break even wi
 options.
 
    ```
-   mkdir tests ; cp node_modules/intern/tests/example.intern.js tests/intern.js
+   mkdir tests ; cp node_modules/intern-geezer/tests/example.intern.js tests/intern.js
    ```
 
 3. Verify your configuration works by running the Node.js client and seeing that no errors are output.
 
    ```
-   node node_modules/intern/client.js config=tests/intern
+   node node_modules/intern-geezer/client.js config=tests/intern
    ```
 
 4. Start writing tests! See the [writing tests](https://github.com/theintern/intern/wiki/Writing-Tests) documentation
