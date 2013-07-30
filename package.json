@@ -17,7 +17,7 @@
 		"dojo": "1.9.1"
 	},
 	"devDependencies": {
-		"intern-geezer": "git+https://github.com/theintern/intern.git#geezer"
+		"intern-geezer": "https://github.com/theintern/intern/archive/geezer.tar.gz"
 	},
 	"bugs": "https://github.com/theintern/intern/issues",
 	"keywords": [ "javascript", "test", "unit", "testing", "ci", "continuous integration", "bdd", "tdd", "xunit", "istanbul", "dojo", "toolkit", "selenium", "sauce labs", "code coverage" ],
