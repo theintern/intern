@@ -31,15 +31,31 @@ else {
 		'./lib/Suite',
 		'./lib/ClientSuite',
 		'./lib/wd',
+		'dojo/lang',
 		'dojo/topic',
 		'./lib/EnvironmentType',
 		'./lib/reporterManager'
-	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, wd, topic, EnvironmentType, reporterManager) {
+	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, wd, lang, topic, EnvironmentType, reporterManager) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
 
 		require([ args.config ], function (config) {
+			config = lang.deepCopy({
+				capabilities: {
+					'idle-timeout': 60,
+					name: args.config
+				},
+				maxConcurrency: 3,
+				proxyPort: 9000,
+				proxyUrl: 'http://localhost:9000',
+				useSauceConnect: true,
+				webdriver: {
+					host: 'localhost',
+					port: 4444
+				}
+			}, config);
+
 			// TODO: Global require is needed because context require does not currently have config mechanics built
 			// in.
 			this.require(config.loader);
