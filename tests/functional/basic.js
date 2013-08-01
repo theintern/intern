@@ -76,6 +76,36 @@ define([
 				assert.strictEqual(suite.numFailedTests, 1, 'Only tests that are designed to intentionally fail should fail');
 				assert.strictEqual(numCallbacks, 2, 'Failed test should not prevent successful test from executing');
 			}));
+		},
+
+		'nested commands': function () {
+			var remote = this.remote,
+				expected = [ 'Basic test', 'Functional test', true ],
+				actual = [];
+
+			return remote.get(require.toUrl('./data/basic.html'))
+				.title()
+				.then(function (title) {
+					assert.strictEqual(title, 'Basic test');
+					actual.push(title);
+
+					return remote.elementByTagName('h1')
+						.text()
+						.then(function (headerText) {
+							assert.strictEqual(headerText, 'Functional test');
+							actual.push(headerText);
+						})
+						.end();
+				})
+				.execute(function () {
+					return window.executeWorks;
+				})
+				.then(function (executeWorks) {
+					assert.isTrue(executeWorks);
+					actual.push(executeWorks);
+
+					assert.deepEqual(actual, expected, 'Commands should execute in the correct order');
+				});
 		}
 	});
 });
