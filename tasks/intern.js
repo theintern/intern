@@ -36,8 +36,18 @@ module.exports = function (grunt) {
 			}
 		}, done);
 
+		child.stderr.on('data', function (data) {
+			if (/\bFAIL/i.test(data)) {
+				grunt.event.emit("intern:fail", data.toString());
+			}
+		});
+
 		child.stdout.on('data', function (data) {
-			grunt.log[/\bPASS/i.test(data) ? 'ok' : /\bFAIL/i.test(data) ? 'error' : 'write'](data);
+			var result = /\bPASS/i.test(data) ? 'ok' : /\bFAIL/i.test(data) ? 'error' : 'write';
+			if (result === "ok") {
+				grunt.event.emit("intern:pass", data.toString());
+			}
+			grunt.log[result](data);
 		});
 	});
 };
