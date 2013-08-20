@@ -51,8 +51,10 @@ else {
 				proxyUrl: 'http://localhost:9000',
 				useSauceConnect: true,
 				webdriver: {
-					host: 'localhost',
-					port: 4444
+					protocol: 'http',
+					hostname: 'localhost',
+					port: 4444,
+					pathname: '/wd/hub'
 				}
 			}, config);
 
@@ -133,6 +135,8 @@ else {
 					if (!config.webdriver.username || !config.webdriver.accessKey) {
 						throw new Error('Missing Sauce username or access key. Disable Sauce Connect or provide this information.');
 					}
+
+					config.webdriver.auth = config.webdriver.username + ':' + config.webdriver.accessKey;
 
 					startup = util.adapt(startConnect);
 				}
