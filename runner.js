@@ -160,14 +160,17 @@ else {
 						setup: function () {
 							var remote = this.remote;
 							return remote.init()
-							.then(function getEnvironmentInfo(sessionId) {
-								// wd incorrectly puts the session ID on a sessionID property
-								remote.sessionId = sessionId;
+							.then(function getEnvironmentInfo(/* [ sessionId, capabilities? ] */ environmentInfo) {
+								// wd incorrectly puts the session ID on a `sessionID` property, which violates
+								// JavaScript style convention
+								remote.sessionId = environmentInfo[0];
 
 								// the remote needs to know the proxy URL so it can munge filesystem paths passed to
 								// `get`
 								remote.proxyUrl = config.proxyUrl;
 							})
+							// capabilities object is not returned from `init` by at least ChromeDriver 0.25.0;
+							// calling `sessionCapabilities` works every time
 							.sessionCapabilities()
 							.then(function (capabilities) {
 								remote.environmentType = new EnvironmentType(capabilities);
