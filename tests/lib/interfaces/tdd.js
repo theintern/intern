@@ -63,20 +63,40 @@ define([
 
 		'Suite lifecycle methods': function () {
 			var results = [],
-				expectedResults = [ 'before', 'before2', 'beforeEach', 'beforeEach2', 'afterEach', 'afterEach2', 'after', 'after2' ],
+				expectedResults = [
+					'before', 'before2',
+					'beforeEach', 'beforeEach2', 'afterEach', 'afterEach2',
+					'beforeEach', 'beforeEach2', 'afterEach', 'afterEach2',
+					'nested-before', 'nested-before2',
+					'beforeEach', 'beforeEach2', 'nested-beforeEach', 'nested-beforeEach2', 'afterEach', 'afterEach2', 'nested-afterEach', 'nested-afterEach2',
+					'nested-after', 'nested-after2',
+					'after', 'after2' ],
 				lifecycleMethods = [ 'before', 'beforeEach', 'afterEach', 'after' ];
 
-			tdd.suite('root suite', function () {
+			function defineMethods (prefix) {
 				lifecycleMethods.forEach(function (method) {
 					tdd[method](function () {
-						results.push(method);
+						results.push(prefix + method);
 					});
 					tdd[method](function () {
-						results.push(method + '2');
+						results.push(prefix + method + '2');
 					});
 				});
 
 				tdd.test('single test', function () {});
+			}
+
+			tdd.suite('root suite', function () {
+				// A suite with before, after, beforeEach and afterEach
+				defineMethods('');
+				tdd.suite('nested suite', function () {
+					// A nested suite with no before, after, beforeEach or afterEach method
+					tdd.test('single test', function () {});
+					tdd.suite('nested nested suite', function () {
+						// A nested suite with before, after, beforeEach and afterEach
+						defineMethods('nested-');
+					});
+				});
 			});
 
 			return main.suites[0].run().then(function () {
