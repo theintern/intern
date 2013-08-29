@@ -29,8 +29,8 @@ else {
 		'dojo/topic',
 		'dojo/has',
 		'require',
-		'dojo/node!istanbul/lib/hook',
-		'dojo/node!istanbul/lib/instrumenter'
+		'dojo/has!host-node?dojo/node!istanbul/lib/hook',
+		'dojo/has!host-node?dojo/node!istanbul/lib/instrumenter'
 	], function (main, args, reporterManager, Suite, topic, has, require, hook, Instrumenter) {
 		if (!args.config) {
 			throw new Error('Missing "config" argument');
@@ -127,7 +127,8 @@ else {
 				reportersReady = true;
 
 				if (args.autoRun !== 'false') {
-					if (has('host-node')) {
+					var hasNode = has('host-node');
+					if (hasNode) {
 						var hasErrors = false;
 
 						topic.subscribe('/error, /test/fail', function () {
@@ -144,11 +145,14 @@ else {
 						});
 					}
 
-					main.run().then(function(){
-						if (!hasErrors) {
-							topic.publish('/coverage', args.sessionId, __internCoverage);
-						}
-					});
+					var promise = main.run();
+					if (hasNode) {
+						promise.then(function(){
+							if (!hasErrors) {
+								topic.publish('/coverage', args.sessionId, __internCoverage);
+							}
+						});
+					}
 				}
 			});
 		});
