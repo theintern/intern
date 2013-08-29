@@ -4,8 +4,9 @@ define([
 	'../../lib/Suite',
 	'../../lib/Test',
 	'dojo/Deferred',
-	'dojo/topic'
-], function (registerSuite, assert, Suite, Test, Deferred, topic) {
+	'dojo/topic',
+	'dojo/aspect'
+], function (registerSuite, assert, Suite, Test, Deferred, topic, aspect) {
 	function createLifecycle(options) {
 		options = options || {};
 
@@ -167,6 +168,107 @@ define([
 			assert.strictEqual(counter, 0, 'Suite#beforeEach should not be called immediately after run()');
 		},
 
+		'Suite#beforeEach -> depth': function () {
+			var dfd = this.async(1000),
+				rootSuite = new Suite(),
+				suite = rootSuite,
+				results = [],
+				makeTestFunction = function(id) {
+					return function () {
+						results.push('' + id);
+					};
+				},
+				makeBeforeEachFunction = function(id) {
+					return function () {
+						results.push('b' + id);
+					};
+				};
+
+			// Test that beforeEach runs from each suite in the hierarchy and in the correct order.
+			for (var i = 1; i < 5; ++i) {
+				var newSuite = new Suite({parent: suite});
+				suite.tests.push(newSuite);
+				newSuite.tests.push(new Test({ test: makeTestFunction(i), parent: newSuite }));
+				aspect.after(newSuite, 'beforeEach', makeBeforeEachFunction(i));
+				suite = newSuite;
+			}
+
+			rootSuite.run().then(dfd.callback(function () {
+				assert.deepEqual(results, [ 'b1', '1', 'b1', 'b2', '2', 'b1', 'b2', 'b3', '3', 'b1', 'b2', 'b3', 'b4', '4'],
+					'beforeEach should execute before each test');
+			}));
+		},
+
+		'Suite#beforeEach -> undefined': function () {
+			var dfd = this.async(1000),
+				rootSuite = new Suite(),
+				suite = rootSuite,
+				results = [],
+				makeTestFunction = function(id) {
+					return function () {
+						results.push('' + id);
+					};
+				},
+				makeBeforeEachFunction = function(id) {
+					return function () {
+						results.push('b' + id);
+					};
+				};
+
+			// Test that beforeEach runs when not all suites have a beforeEach function.
+			rootSuite.beforeEach = undefined;
+			for (var i = 1; i < 5; ++i) {
+				var newSuite = new Suite({parent: suite});
+				suite.tests.push(newSuite);
+				newSuite.tests.push(new Test({ test: makeTestFunction(i), parent: newSuite }));
+				if (i%2){
+					// odd ones, define a beforeEach
+					aspect.after(newSuite, 'beforeEach', makeBeforeEachFunction(i));
+				} else {
+					// even ones, remove beforeEach completely
+					newSuite.beforeEach = undefined;
+				}
+				suite = newSuite;
+			}
+			rootSuite.run().then(dfd.callback(function () {
+				assert.deepEqual(results, [ 'b1', '1', '2', 'b3', '3', '4' ],
+					'beforeEach should execute before each test');
+			}));
+		},
+
+		'Suite#beforeEach -> incomplete': function () {
+			var dfd = this.async(1000),
+				rootSuite = new Suite(),
+				suite = rootSuite,
+				results = [],
+				makeTestFunction = function(id) {
+					return function () {
+						results.push('' + id);
+					};
+				},
+				makeBeforeEachFunction = function(id) {
+					return function () {
+						results.push('b' + id);
+					};
+				};
+
+			// Test that beforeEach runs when not all suites have a beforeEach advice.
+			for (var i = 1; i < 5; ++i) {
+				var newSuite = new Suite({parent: suite});
+				suite.tests.push(newSuite);
+				newSuite.tests.push(new Test({ test: makeTestFunction(i), parent: newSuite }));
+				if (i%2){
+					// odd ones, define a beforeEach
+					aspect.after(newSuite, 'beforeEach', makeBeforeEachFunction(i));
+				}
+				suite = newSuite;
+			}
+			rootSuite.run().then(dfd.callback(function () {
+				assert.deepEqual(results, [ 'b1', '1', 'b1', '2', 'b1', 'b3', '3', 'b1', 'b3', '4' ],
+					'beforeEach should execute before each test');
+			}));
+		},
+
 		'Suite#afterEach': function () {
 			var dfd = this.async(1000),
 				suite = new Suite(),
@@ -188,6 +290,107 @@ define([
 			}));
 
 			assert.strictEqual(counter, 0, 'Suite#afterEach should not be called immediately after run()');
+		},
+
+		'Suite#afterEach -> depth': function () {
+			var dfd = this.async(1000),
+				rootSuite = new Suite(),
+				suite = rootSuite,
+				results = [],
+				makeTestFunction = function(id) {
+					return function () {
+						results.push('' + id);
+					};
+				},
+				makeAfterEachFunction = function(id) {
+					return function () {
+						results.push('a' + id);
+					};
+				};
+
+			// Test that afterEach runs from each suite in the hierarchy and in the correct order.
+			for (var i = 1; i < 5; ++i) {
+				var newSuite = new Suite({parent: suite});
+				suite.tests.push(newSuite);
+				newSuite.tests.push(new Test({ test: makeTestFunction(i), parent: newSuite }));
+				aspect.after(newSuite, 'afterEach', makeAfterEachFunction(i));
+				suite = newSuite;
+			}
+
+			rootSuite.run().then(dfd.callback(function () {
+				assert.deepEqual(results, [ '1', 'a1', '2', 'a1', 'a2', '3', 'a1', 'a2', 'a3', '4', 'a1', 'a2', 'a3', 'a4'],
+					'afterEach should execute after each test');
+			}));
+		},
+
+		'Suite#afterEach -> undefined': function () {
+			var dfd = this.async(1000),
+				rootSuite = new Suite(),
+				suite = rootSuite,
+				results = [],
+				makeTestFunction = function(id) {
+					return function () {
+						results.push('' + id);
+					};
+				},
+				makeAfterEachFunction = function(id) {
+					return function () {
+						results.push('a' + id);
+					};
+				};
+
+			// Test that afterEach runs when not all suites have an afterEach function.
+			rootSuite.afterEach = undefined;
+			for (var i = 1; i < 5; ++i) {
+				var newSuite = new Suite({parent: suite});
+				suite.tests.push(newSuite);
+				newSuite.tests.push(new Test({ test: makeTestFunction(i), parent: newSuite }));
+				if (i%2){
+					// odd ones, define a afterEach
+					aspect.after(newSuite, 'afterEach', makeAfterEachFunction(i));
+				} else {
+					// even ones, remove afterEach completely
+					newSuite.afterEach = undefined;
+				}
+				suite = newSuite;
+			}
+			rootSuite.run().then(dfd.callback(function () {
+				assert.deepEqual(results, [ '1', 'a1', '2', '3', 'a3', '4' ],
+					'afterEach should execute before each test');
+			}));
+		},
+
+		'Suite#afterEach -> incomplete': function () {
+			var dfd = this.async(1000),
+				rootSuite = new Suite(),
+				suite = rootSuite,
+				results = [],
+				makeTestFunction = function(id) {
+					return function () {
+						results.push('' + id);
+					};
+				},
+				makeAfterEachFunction = function(id) {
+					return function () {
+						results.push('a' + id);
+					};
+				};
+
+			// Test that afterEach runs when not all suites have an afterEach advice.
+			for (var i = 1; i < 5; ++i) {
+				var newSuite = new Suite({parent: suite});
+				suite.tests.push(newSuite);
+				newSuite.tests.push(new Test({ test: makeTestFunction(i), parent: newSuite }));
+				if (i%2){
+					// odd ones, define a afterEach
+					aspect.after(newSuite, 'afterEach', makeAfterEachFunction(i));
+				}
+				suite = newSuite;
+			}
+			rootSuite.run().then(dfd.callback(function () {
+				assert.deepEqual(results, [ '1', 'a1', '2', 'a1', '3', 'a1', 'a3', '4', 'a1', 'a3' ],
+					'afterEach should execute before each test');
+			}));
 		},
 
 		'Suite#teardown': function () {

@@ -64,13 +64,13 @@ define([
 		'Suite lifecycle methods': function () {
 			var results = [],
 				expectedResults = [
-					'before', 'before2',
-					'beforeEach', 'beforeEach2', 'afterEach', 'afterEach2',
-					'beforeEach', 'beforeEach2', 'afterEach', 'afterEach2',
-					'nested-before', 'nested-before2',
-					'beforeEach', 'beforeEach2', 'nested-beforeEach', 'nested-beforeEach2', 'afterEach', 'afterEach2', 'nested-afterEach', 'nested-afterEach2',
-					'nested-after', 'nested-after2',
-					'after', 'after2' ],
+					'outer-before', 'outer-before2',
+					'outer-beforeEach', 'outer-beforeEach2', 'outer-test', 'outer-afterEach', 'outer-afterEach2',
+					'outer-beforeEach', 'outer-beforeEach2', 'middle-test', 'outer-afterEach', 'outer-afterEach2',
+					'inner-before', 'inner-before2',
+					'outer-beforeEach', 'outer-beforeEach2', 'inner-beforeEach', 'inner-beforeEach2', 'inner-test', 'outer-afterEach', 'outer-afterEach2', 'inner-afterEach', 'inner-afterEach2',
+					'inner-after', 'inner-after2',
+					'outer-after', 'outer-after2' ],
 				lifecycleMethods = [ 'before', 'beforeEach', 'afterEach', 'after' ];
 
 			function defineMethods (prefix) {
@@ -83,18 +83,22 @@ define([
 					});
 				});
 
-				tdd.test('single test', function () {});
+				tdd.test('single test', function () {
+					results.push(prefix + 'test');
+				});
 			}
 
-			tdd.suite('root suite', function () {
+			tdd.suite('Outer', function () {
 				// A suite with before, after, beforeEach and afterEach
-				defineMethods('');
-				tdd.suite('nested suite', function () {
+				defineMethods('outer-');
+				tdd.suite('Middle', function () {
 					// A nested suite with no before, after, beforeEach or afterEach method
-					tdd.test('single test', function () {});
-					tdd.suite('nested nested suite', function () {
+					tdd.test('single test', function () {
+						results.push('middle-test');
+					});
+					tdd.suite('Inner', function () {
 						// A nested suite with before, after, beforeEach and afterEach
-						defineMethods('nested-');
+						defineMethods('inner-');
 					});
 				});
 			});
