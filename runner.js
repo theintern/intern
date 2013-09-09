@@ -44,7 +44,8 @@ else {
 			config = lang.deepCopy({
 				capabilities: {
 					'idle-timeout': 60,
-					name: args.config
+					name: args.config,
+					'tunnel-identifier': util.generateUUID()
 				},
 				maxConcurrency: 3,
 				proxyPort: 9000,
@@ -195,6 +196,7 @@ else {
 					logger: function () {
 						console.log.apply(console, arguments);
 					},
+					tunnelIdentifier: config.capabilities['tunnel-identifier'],
 					username: config.webdriver.username,
 					accessKey: config.webdriver.accessKey,
 					port: config.webdriver.port,
