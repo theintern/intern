@@ -43,9 +43,9 @@ else {
 		require([ args.config ], function (config) {
 			config = lang.deepCopy({
 				capabilities: {
-					'idle-timeout': 60,
 					name: args.config,
-					'tunnel-identifier': util.generateUUID()
+					'idle-timeout': 60,
+					'tunnel-identifier': util.generateTimestamp()
 				},
 				maxConcurrency: 3,
 				proxyPort: 9000,
