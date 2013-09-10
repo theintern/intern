@@ -43,8 +43,9 @@ else {
 		require([ args.config ], function (config) {
 			config = lang.deepCopy({
 				capabilities: {
+					name: args.config,
 					'idle-timeout': 60,
-					name: args.config
+					'tunnel-identifier': '' + Date.now()
 				},
 				maxConcurrency: 3,
 				proxyPort: 9000,
@@ -195,6 +196,7 @@ else {
 					logger: function () {
 						console.log.apply(console, arguments);
 					},
+					tunnelIdentifier: config.capabilities['tunnel-identifier'],
 					username: config.webdriver.username,
 					accessKey: config.webdriver.accessKey,
 					port: config.webdriver.port,
