@@ -45,7 +45,7 @@ else {
 				capabilities: {
 					name: args.config,
 					'idle-timeout': 60,
-					'tunnel-identifier': util.generateTimestamp()
+					'tunnel-identifier': '' + Date.now()
 				},
 				maxConcurrency: 3,
 				proxyPort: 9000,
