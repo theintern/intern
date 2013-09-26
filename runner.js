@@ -1,14 +1,12 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var req = require('dojo/dojo'),
-			pathUtils = require('path'),
-			basePath = pathUtils.dirname(process.argv[1]);
+		var req = require('dojo/dojo')
 
 		req({
-			baseUrl: pathUtils.resolve(basePath, '..', '..'),
+			baseUrl: process.cwd(),
 			packages: [
-				{ name: 'intern', location: basePath }
+				{ name: 'intern', location: __dirname }
 			],
 			map: {
 				intern: {
