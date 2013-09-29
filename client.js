@@ -127,10 +127,11 @@ else {
 			var reportersReady = false;
 			require(deps, function () {
 				// A hash map, { reporter module ID: reporter definition }
-				var reporters = [].slice.call(arguments, arguments.length - args.reporters.length).reduce(function (map, reporter, i) {
-					map[args.reporters[i]] = reporter;
-					return map;
-				}, {});
+				var firstReporterIndex = arguments.length - args.reporters.length,
+					reporters = [].slice.call(arguments, firstReporterIndex).reduce(function (map, reporter, i) {
+						map[args.reporters[i]] = reporter;
+						return map;
+					}, {});
 
 				reporterManager.add(reporters);
 				reportersReady = true;

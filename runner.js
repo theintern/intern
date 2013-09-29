@@ -95,6 +95,8 @@ else {
 			});
 
 			require(args.reporters, function () {
+				/*jshint maxcomplexity:11 */
+
 				// A hash map, { reporter module ID: reporter definition }
 				var reporters = [].slice.call(arguments, 0).reduce(function (map, reporter, i) {
 					map[args.reporters[i]] = reporter;
@@ -109,8 +111,8 @@ else {
 					basePath: this.require.baseUrl,
 					excludeInstrumentation: config.excludeInstrumentation,
 					instrumenter: new Instrumenter({
-						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
-						// where the global is coming from
+						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it
+						// clearer where the global is coming from
 						coverageVariable: '__internCoverage',
 
 						// compacting code makes it harder to look at but it does not really matter
@@ -122,8 +124,8 @@ else {
 					port: config.proxyPort
 				});
 
-				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code coverage
-				// reporting on the client if you want
+				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code
+				// coverage reporting on the client if you want
 				if (args.proxyOnly) {
 					return;
 				}
@@ -146,7 +148,8 @@ else {
 				var startup;
 				if (config.useSauceConnect) {
 					if (!config.webdriver.username || !config.webdriver.accessKey) {
-						throw new Error('Missing Sauce username or access key. Disable Sauce Connect or provide this information.');
+						throw new Error('Missing Sauce username or access key. Disable Sauce Connect or provide ' +
+							'this information.');
 					}
 
 					if (!config.capabilities['tunnel-identifier']) {
