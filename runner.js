@@ -26,6 +26,9 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 				intern: {
 					dojo: 'intern/node_modules/dojo',
 					chai: 'intern/node_modules/chai/chai'
+				},
+				'*': {
+					'intern/dojo': 'intern/node_modules/dojo'
 				}
 			}
 		});
