@@ -3,23 +3,38 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
-		<script src="node_modules/dojo/dojo.js"></script>
 		<script>
 (function () {
-	var basePath = location.pathname.replace(/\/+[^\/]+$/, '/');
-
-	require({
-		baseUrl: basePath + (basePath === '/__intern/' ? '../' : '../../'),
-		packages: [
-			{ name: 'intern', location: basePath }
-		],
-		map: {
-			intern: {
-				dojo: 'intern/node_modules/dojo',
-				chai: 'intern/node_modules/chai/chai'
-			}
+	var loaderUrl = (function () {
+		var url;
+		if ((url = /^[?&]loaderUrl=([^&]+)/.exec(location.search))) {
+			return decodeURIComponent(url[1]);
 		}
-	}, [ 'intern/client' ]);
+
+		return 'node_modules/dojo/dojo.js';
+	})();
+
+	var script = document.createElement('script');
+	script.onload = function () {
+		var basePath = location.pathname.replace(/\/+[^\/]+$/, '/');
+
+		require.config({
+			baseUrl: basePath + (basePath === '/__intern/' ? '../' : '../../'),
+			packages: [
+				{ name: 'intern', location: basePath }
+			],
+			map: {
+				intern: {
+					dojo: 'intern/node_modules/dojo',
+					chai: 'intern/node_modules/chai/chai'
+				}
+			}
+		});
+
+		require([ 'intern/client' ]);
+	};
+	script.src = loaderUrl;
+	document.head.appendChild(script);
 })();
 		</script>
 	</head>

@@ -2,11 +2,21 @@
 /*global __internCoverage */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var req = require('dojo/dojo'),
+		var loader = (function () {
+			for (var i = 2, mid; i < process.argv.length; ++i) {
+				if ((mid = /^-{0,2}loader=(.*)/.exec(process.argv[i]))) {
+					return mid[1];
+				}
+			}
+
+			return 'dojo/dojo';
+		})();
+
+		var req = this.require = require(loader),
 			pathUtils = require('path'),
 			basePath = pathUtils.dirname(process.argv[1]);
 
-		req({
+		req.config({
 			baseUrl: pathUtils.resolve(basePath, '..', '..'),
 			packages: [
 				{ name: 'intern', location: basePath }
@@ -17,7 +27,9 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 					chai: 'intern/node_modules/chai/chai'
 				}
 			}
-		}, [ 'intern/client' ]);
+		});
+
+		req([ 'intern/client' ]);
 	})();
 }
 else {
@@ -37,10 +49,7 @@ else {
 		}
 
 		require([ args.config ], function (config) {
-			// TODO: Use of the global require is required for this to work because config mechanics are in global
-			// require only in the Dojo loader; this should probably not be the case
-			var globalRequire = this.require;
-			globalRequire(config.loader);
+			this.require.config(config.loader);
 
 			if (!args.suites) {
 				args.suites = config.suites;

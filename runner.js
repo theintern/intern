@@ -1,11 +1,23 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var req = require('dojo/dojo'),
+		var loader = (function () {
+			for (var i = 2, mid; i < process.argv.length; ++i) {
+				if ((mid = /^-{0,2}loader=(.*)/.exec(process.argv[i]))) {
+					return mid[1];
+				}
+			}
+
+			return 'dojo/dojo';
+		})();
+
+		var req = this.require = require(loader),
 			pathUtils = require('path'),
 			basePath = pathUtils.dirname(process.argv[1]);
 
-		req({
+		this.__basePath = pathUtils.normalize(pathUtils.resolve(basePath, '..', '..'));
+
+		req.config({
 			baseUrl: pathUtils.resolve(basePath, '..', '..'),
 			packages: [
 				{ name: 'intern', location: basePath }
@@ -16,7 +28,9 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 					chai: 'intern/node_modules/chai/chai'
 				}
 			}
-		}, [ 'intern/runner' ]);
+		});
+
+		req([ 'intern/runner' ]);
 	})();
 }
 else {
@@ -51,6 +65,8 @@ else {
 		EnvironmentType,
 		reporterManager
 	) {
+		var basePath = this.__basePath;
+
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
@@ -71,9 +87,7 @@ else {
 				}
 			}, config);
 
-			// TODO: Global require is needed because context require does not currently have config mechanics built
-			// in.
-			this.require(config.loader);
+			this.require.config(config.loader);
 
 			if (!args.reporters) {
 				if (config.reporters) {
@@ -108,7 +122,7 @@ else {
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
 				var proxy = createProxy({
-					basePath: this.require.baseUrl,
+					basePath: basePath,
 					excludeInstrumentation: config.excludeInstrumentation,
 					instrumenter: new Instrumenter({
 						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it
@@ -187,9 +201,10 @@ else {
 								// JavaScript style convention
 								remote.sessionId = environmentInfo[0];
 
-								// the remote needs to know the proxy URL so it can munge filesystem paths passed to
-								// `get`
+								// the remote needs to know the proxy URL and base filesystem path length so it can
+								// munge filesystem paths passed to `get`
 								remote.proxyUrl = config.proxyUrl;
+								remote.proxyBasePathLength = basePath.length;
 							})
 							// capabilities object is not returned from `init` by at least ChromeDriver 0.25.0;
 							// calling `sessionCapabilities` works every time

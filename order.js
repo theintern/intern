@@ -23,6 +23,10 @@ define([
 
 				return dfd;
 			})();
+		},
+
+		normalize: function (id, normalize) {
+			return normalize(id.replace(/\.js$/, ''));
 		}
 	};
 });
