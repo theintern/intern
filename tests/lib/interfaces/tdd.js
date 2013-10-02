@@ -63,20 +63,44 @@ define([
 
 		'Suite lifecycle methods': function () {
 			var results = [],
-				expectedResults = [ 'before', 'before2', 'beforeEach', 'beforeEach2', 'afterEach', 'afterEach2', 'after', 'after2' ],
+				expectedResults = [
+					'outer-before', 'outer-before2',
+					'outer-beforeEach', 'outer-beforeEach2', 'outer-test', 'outer-afterEach', 'outer-afterEach2',
+					'outer-beforeEach', 'outer-beforeEach2', 'middle-test', 'outer-afterEach', 'outer-afterEach2',
+					'inner-before', 'inner-before2',
+					'outer-beforeEach', 'outer-beforeEach2', 'inner-beforeEach', 'inner-beforeEach2', 'inner-test', 'outer-afterEach', 'outer-afterEach2', 'inner-afterEach', 'inner-afterEach2',
+					'inner-after', 'inner-after2',
+					'outer-after', 'outer-after2' ],
 				lifecycleMethods = [ 'before', 'beforeEach', 'afterEach', 'after' ];
 
-			tdd.suite('root suite', function () {
+			function defineMethods (prefix) {
 				lifecycleMethods.forEach(function (method) {
 					tdd[method](function () {
-						results.push(method);
+						results.push(prefix + method);
 					});
 					tdd[method](function () {
-						results.push(method + '2');
+						results.push(prefix + method + '2');
 					});
 				});
 
-				tdd.test('single test', function () {});
+				tdd.test('single test', function () {
+					results.push(prefix + 'test');
+				});
+			}
+
+			tdd.suite('Outer', function () {
+				// A suite with before, after, beforeEach and afterEach
+				defineMethods('outer-');
+				tdd.suite('Middle', function () {
+					// A nested suite with no before, after, beforeEach or afterEach method
+					tdd.test('single test', function () {
+						results.push('middle-test');
+					});
+					tdd.suite('Inner', function () {
+						// A nested suite with before, after, beforeEach and afterEach
+						defineMethods('inner-');
+					});
+				});
 			});
 
 			return main.suites[0].run().then(function () {
