@@ -2,9 +2,10 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'require',
+	'dojo/Deferred',
 	'../../lib/Suite',
 	'../../lib/Test'
-], function (registerSuite, assert, require, Suite, Test) {
+], function (registerSuite, assert, require, Deferred, Suite, Test) {
 	// TODO: These tests are wrong because they exercise the WebDriver code from the copy of Intern being used to run
 	// the tests, not the code of the copy of Intern under test. The remote API needs to be improved to be correctly
 	// testable in isolation.
@@ -106,6 +107,21 @@ define([
 
 					assert.deepEqual(actual, expected, 'Commands should execute in the correct order');
 				});
+		},
+
+		'promise return values': function () {
+			var remote = this.remote,
+				expected = 'later';
+
+			return remote.get(require.toUrl('./data/basic.html')).then(function () {
+				var dfd = new Deferred();
+				setTimeout(function () {
+					dfd.resolve(expected);
+				}, 10);
+				return dfd.promise;
+			}).then(function (actual) {
+				assert.equal(actual, expected, 'Returned promises should resolve before the next callback');
+			});
 		}
 	});
 });
