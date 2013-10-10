@@ -1,4 +1,5 @@
 /*jshint node:true */
+/*global __internCoverage */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		var req = require('dojo/dojo'),
@@ -27,8 +28,10 @@ else {
 		'./lib/Suite',
 		'dojo/topic',
 		'dojo/has',
-		'require'
-	], function (main, args, reporterManager, Suite, topic, has, require) {
+		'require',
+		'dojo/has!host-node?dojo/node!istanbul/lib/hook',
+		'dojo/has!host-node?dojo/node!istanbul/lib/instrumenter'
+	], function (main, args, reporterManager, Suite, topic, has, require, hook, Instrumenter) {
 		if (!args.config) {
 			throw new Error('Missing "config" argument');
 		}
@@ -78,6 +81,23 @@ else {
 					topic.publish('/error', error);
 					process.exit(1);
 				});
+				// Hook up the instrumenter
+				var instrumentor = new Instrumenter({
+					// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
+					// where the global is coming from
+					coverageVariable: '__internCoverage',
+
+					// compacting code makes it harder to look at but it does not really matter
+					noCompact: true,
+
+					// auto-wrap breaks code
+					noAutoWrap: true
+				});
+				hook.hookRunInThisContext(function(file) {
+					return !config.excludeInstrumentation || !config.excludeInstrumentation.test(file);
+				}, function(code, filename) {
+					return instrumentor.instrumentSync(code, filename);
+				});
 			}
 
 			args.reporters = [].concat(args.reporters).map(function (reporterModuleId) {
@@ -107,7 +127,8 @@ else {
 				reportersReady = true;
 
 				if (args.autoRun !== 'false') {
-					if (has('host-node')) {
+					var hasNode = has('host-node');
+					if (hasNode) {
 						var hasErrors = false;
 
 						topic.subscribe('/error, /test/fail', function () {
@@ -124,7 +145,14 @@ else {
 						});
 					}
 
-					main.run();
+					var promise = main.run();
+					if (hasNode) {
+						promise.then(function(){
+							if (!hasErrors) {
+								topic.publish('/coverage', args.sessionId, __internCoverage);
+							}
+						});
+					}
 				}
 			});
 		});
