@@ -1,4 +1,5 @@
 /*jshint node:true */
+/*global __internCoverage */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		var req = require('dojo/dojo'),
@@ -27,8 +28,10 @@ else {
 		'./lib/Suite',
 		'dojo/topic',
 		'dojo/has',
-		'require'
-	], function (main, args, reporterManager, Suite, topic, has, require) {
+		'require',
+		'dojo/has!host-node?dojo/node!istanbul/lib/hook',
+		'dojo/has!host-node?dojo/node!istanbul/lib/instrumenter'
+	], function (main, args, reporterManager, Suite, topic, has, require, hook, Instrumenter) {
 		if (!args.config) {
 			throw new Error('Missing "config" argument');
 		}
@@ -36,7 +39,8 @@ else {
 		require([ args.config ], function (config) {
 			// TODO: Use of the global require is required for this to work because config mechanics are in global
 			// require only in the Dojo loader; this should probably not be the case
-			this.require(config.loader);
+			var globalRequire = this.require;
+			globalRequire(config.loader);
 
 			if (!args.suites) {
 				args.suites = config.suites;
@@ -95,6 +99,30 @@ else {
 			// itself
 			main.suites.push(new Suite({ name: 'main', sessionId: args.sessionId }));
 
+			if (has('host-node')) {
+				// Hook up the instrumenter before any code dependencies are loaded
+				var instrumentor = new Instrumenter({
+					// coverage variable is changed primarily to avoid any jshint complaints, but also to make it
+					// clearer where the global is coming from
+					coverageVariable: '__internCoverage',
+
+					// compacting code makes it harder to look at but it does not really matter
+					noCompact: true,
+
+					// auto-wrap breaks code
+					noAutoWrap: true
+				});
+
+				hook.hookRunInThisContext(function (filename) {
+					return !config.excludeInstrumentation ||
+						// if the string passed to `excludeInstrumentation` changes here, it must also change in
+						// `lib/createProxy.js`
+						!config.excludeInstrumentation.test(filename.slice(globalRequire.baseUrl.length));
+				}, function (code, filename) {
+					return instrumentor.instrumentSync(code, filename);
+				});
+			}
+
 			var reportersReady = false;
 			require(deps, function () {
 				// A hash map, { reporter module ID: reporter definition }
@@ -106,25 +134,28 @@ else {
 				reporterManager.add(reporters);
 				reportersReady = true;
 
+				if (has('host-node')) {
+					var hasErrors = false;
+
+					topic.subscribe('/error, /test/fail', function () {
+						hasErrors = true;
+					});
+
+					process.on('exit', function () {
+						// calling `process.exit` after the main test loop finishes will cause any remaining
+						// in-progress operations to abort, which is undesirable if there are any asynchronous
+						// I/O operations that a reporter wants to perform once all tests are complete; calling
+						// from within the exit event avoids this problem by allowing Node.js to decide when to
+						// terminate
+						process.exit(hasErrors ? 1 : 0);
+					});
+				}
+
 				if (args.autoRun !== 'false') {
-					if (has('host-node')) {
-						var hasErrors = false;
-
-						topic.subscribe('/error, /test/fail', function () {
-							hasErrors = true;
-						});
-
-						process.on('exit', function () {
-							// calling `process.exit` after the main test loop finishes will cause any remaining
-							// in-progress operations to abort, which is undesirable if there are any asynchronous
-							// I/O operations that a reporter wants to perform once all tests are complete; calling
-							// from within the exit event avoids this problem by allowing Node.js to decide when to
-							// terminate
-							process.exit(hasErrors ? 1 : 0);
-						});
-					}
-
-					main.run();
+					main.run().then(function () {
+						typeof __internCoverage !== 'undefined' &&
+							topic.publish('/coverage', args.sessionId, __internCoverage);
+					});
 				}
 			});
 		});
