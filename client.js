@@ -62,8 +62,9 @@ else {
 			// TODO: This is probably a fatal condition and so we need to let the runner know that no more information
 			// will be forthcoming from this client
 			if (has('host-browser')) {
-				window.onerror = function (message, url, lineNumber) {
-					var error = new Error(message + ' at ' + url + ':' + lineNumber);
+				window.onerror = function (message, url, lineNumber, columnNumber, error) {
+					error = error || new Error(message + ' at ' + url + ':' + lineNumber +
+						(columnNumber !== undefined ? ':' + columnNumber : ''));
 
 					if (!reportersReady) {
 						console.error(error);
