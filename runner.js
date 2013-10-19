@@ -13,7 +13,8 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			map: {
 				intern: {
 					dojo: 'intern/node_modules/dojo',
-					chai: 'intern/node_modules/chai/chai'
+					chai: 'intern/node_modules/chai/chai',
+					benchmark: 'intern/node_modules/benchmark'
 				}
 			}
 		}, [ 'intern/runner' ]);
