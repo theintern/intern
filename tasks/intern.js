@@ -1,6 +1,14 @@
 /*jshint node:true */
 
 module.exports = function (grunt) {
+	function readOutput(data) {
+		var state = /\bPASS/i.test(data) ? 'ok' : /\bFAIL/i.test(data) ? 'error' : 'write';
+
+		state === 'error' && grunt.event.emit('intern.fail', data);
+		state === 'ok' && grunt.event.emit('intern.pass', data);
+		grunt.log[state](data);
+	}
+
 	var environmentKeys = {
 		sauceUsername: 'SAUCE_USERNAME',
 		sauceAccessKey: 'SAUCE_ACCESS_KEY'
@@ -36,8 +44,7 @@ module.exports = function (grunt) {
 			}
 		}, done);
 
-		child.stdout.on('data', function (data) {
-			grunt.log[/\bPASS/i.test(data) ? 'ok' : /\bFAIL/i.test(data) ? 'error' : 'write'](data);
-		});
+		child.stdout.on('data', readOutput);
+		child.stderr.on('data', readOutput);
 	});
 };

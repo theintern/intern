@@ -44,8 +44,9 @@ else {
 		require([ args.config ], function (config) {
 			config = lang.deepCopy({
 				capabilities: {
+					name: args.config,
 					'idle-timeout': 60,
-					name: args.config
+					'tunnel-identifier': '' + Date.now()
 				},
 				maxConcurrency: 3,
 				proxyPort: 9000,
@@ -161,14 +162,17 @@ else {
 						setup: function () {
 							var remote = this.remote;
 							return remote.init()
-							.then(function getEnvironmentInfo(sessionId) {
-								// wd incorrectly puts the session ID on a sessionID property
-								remote.sessionId = sessionId;
+							.then(function getEnvironmentInfo(/* [ sessionId, capabilities? ] */ environmentInfo) {
+								// wd incorrectly puts the session ID on a `sessionID` property, which violates
+								// JavaScript style convention
+								remote.sessionId = environmentInfo[0];
 
 								// the remote needs to know the proxy URL so it can munge filesystem paths passed to
 								// `get`
 								remote.proxyUrl = config.proxyUrl;
 							})
+							// capabilities object is not returned from `init` by at least ChromeDriver 0.25.0;
+							// calling `sessionCapabilities` works every time
 							.sessionCapabilities()
 							.then(function (capabilities) {
 								remote.environmentType = new EnvironmentType(capabilities);
@@ -193,6 +197,7 @@ else {
 					logger: function () {
 						console.log.apply(console, arguments);
 					},
+					tunnelIdentifier: config.capabilities['tunnel-identifier'],
 					username: config.webdriver.username,
 					accessKey: config.webdriver.accessKey,
 					port: config.webdriver.port,

@@ -397,6 +397,102 @@ define([
 
 			assert.strictEqual(suite.numTests, 4, 'Suite#numTests should return the correct number of tests, including those from nested suites');
 			assert.strictEqual(suite.numFailedTests, 2, 'Suite#numFailedTests returns the correct number of failed tests, including those from nested suites');
+		},
+
+		'Suite#beforeEach and #afterEach nesting': function () {
+			var dfd = this.async(1000),
+				suite = new Suite({
+					setup: function () {
+						actualLifecycle.push('outerSetup');
+					},
+					beforeEach: function () {
+						var dfd = new Deferred();
+						setTimeout(function () {
+							actualLifecycle.push('outerBeforeEach');
+							dfd.resolve();
+						}, 100);
+						return dfd.promise;
+					},
+					tests: [ new Test({ test: function () {
+						actualLifecycle.push('outerTest');
+					} }) ],
+					afterEach: function () {
+						actualLifecycle.push('outerAfterEach');
+					},
+					teardown: function () {
+						actualLifecycle.push('outerTeardown');
+					}
+				}),
+				childSuite = new Suite({
+					parent: suite,
+					setup: function () {
+						actualLifecycle.push('innerSetup');
+					},
+					beforeEach: function () {
+						actualLifecycle.push('innerBeforeEach');
+					},
+					tests: [ new Test({ test: function () {
+						actualLifecycle.push('innerTest');
+					} }) ],
+					afterEach: function () {
+						var dfd = new Deferred();
+						setTimeout(function () {
+							actualLifecycle.push('innerAfterEach');
+							dfd.resolve();
+						}, 100);
+						return dfd.promise;
+					},
+					teardown: function () {
+						actualLifecycle.push('innerTeardown');
+					}
+				}),
+				expectedLifecycle = [
+					'outerSetup',
+					'outerBeforeEach', 'outerTest', 'outerAfterEach',
+					'innerSetup',
+					'outerBeforeEach', 'innerBeforeEach',
+					'innerTest',
+					'innerAfterEach', 'outerAfterEach',
+					'innerTeardown',
+					'outerTeardown'
+				],
+				actualLifecycle = [];
+
+			suite.tests.push(childSuite);
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(actualLifecycle, expectedLifecycle, 'Nested beforeEach and afterEach should execute in a pyramid');
+			}, function () {
+				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
+			}));
+		},
+
+		'Suite#afterEach nesting with errors': function () {
+			var dfd = this.async(1000),
+				suite = new Suite({
+					afterEach: function () {
+						actualLifecycle.push('outerAfterEach');
+					}
+				}),
+				childSuite = new Suite({
+					parent: suite,
+					tests: [ new Test({ test: function () {
+						actualLifecycle.push('test');
+					} }) ],
+					afterEach: function () {
+						actualLifecycle.push('innerAfterEach');
+						throw new Error('Oops');
+					}
+				}),
+				expectedLifecycle = [ 'test', 'innerAfterEach', 'outerAfterEach' ],
+				actualLifecycle = [];
+
+			suite.tests.push(childSuite);
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(actualLifecycle, expectedLifecycle, 'Outer afterEach should execute even though inner afterEach threw an error');
+				assert.strictEqual(childSuite.error.message, 'Oops', 'Suite with afterEach failure should hold the last error from afterEach');
+			}, function () {
+				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
+			}));
 		}
 	});
 });
