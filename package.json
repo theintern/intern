@@ -11,7 +11,7 @@
 		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/intern/blob/master/LICENSE" }
 	],
 	"dependencies": {
-		"wd": "0.1.0",
+		"wd": "0.2.0",
 		"istanbul": "0.1.35",
 		"sauce-connect-launcher": "0.1.11",
 		"dojo": "https://github.com/csnover/dojo2-core/archive/2.0.tar.gz",
