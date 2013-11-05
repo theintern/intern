@@ -105,6 +105,30 @@ define([
 			reporterManager.stop('test');
 			reporterManager.remove('test');
 			assert.strictEqual(numTimesStopped, 1, 'Trying to stop an already-stopped reporter should do nothing');
+		},
+
+		'clear': function () {
+			var expected = [ 'start test', 'start test2', 'stop test', 'stop test2' ],
+				actual = [];
+
+			function createReporter(name) {
+				return {
+					start: function () {
+						actual.push('start ' + name);
+					},
+					stop: function () {
+						actual.push('stop ' + name);
+					}
+				};
+			}
+
+			reporterManager.add({
+				'test': createReporter('test'),
+				'test2': createReporter('test2')
+			});
+			reporterManager.clear();
+
+			assert.deepEqual(actual, expected, 'All reporters should be stopped when the reporter manager is cleared');
 		}
 	});
 });
