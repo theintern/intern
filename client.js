@@ -162,6 +162,8 @@ else {
 					main.run().then(function () {
 						typeof __internCoverage !== 'undefined' &&
 							topic.publish('/coverage', args.sessionId, __internCoverage);
+					}).always(function () {
+						reporterManager.clear();
 					});
 				}
 			});

@@ -245,6 +245,7 @@ else {
 							topic.publish('/runner/end');
 							connectProcess && connectProcess.close();
 							proxy.close();
+							reporterManager.clear();
 						});
 					});
 				}, function (error) {
