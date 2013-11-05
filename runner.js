@@ -39,7 +39,22 @@ else {
 		'dojo/topic',
 		'./lib/EnvironmentType',
 		'./lib/reporterManager'
-	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, wd, requestUtil, topic, EnvironmentType, reporterManager) {
+	], function (
+		require,
+		main,
+		createProxy,
+		Instrumenter,
+		startConnect,
+		args,
+		util,
+		Suite,
+		ClientSuite,
+		wd,
+		requestUtil,
+		topic,
+		EnvironmentType,
+		reporterManager
+	) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
@@ -48,8 +63,7 @@ else {
 			config = requestUtil.deepCopy({
 				capabilities: {
 					name: args.config,
-					'idle-timeout': 60,
-					'tunnel-identifier': '' + Date.now()
+					'idle-timeout': 60
 				},
 				maxConcurrency: 3,
 				proxyPort: 9000,
@@ -137,6 +151,10 @@ else {
 				if (config.useSauceConnect) {
 					if (!config.webdriver.username || !config.webdriver.accessKey) {
 						throw new Error('Missing Sauce username or access key. Disable Sauce Connect or provide this information.');
+					}
+
+					if (!config.capabilities['tunnel-identifier']) {
+						config.capabilities['tunnel-identifier'] = '' + Date.now();
 					}
 
 					startup = util.adapt(startConnect);
