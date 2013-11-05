@@ -35,7 +35,22 @@ else {
 		'dojo/topic',
 		'./lib/EnvironmentType',
 		'./lib/reporterManager'
-	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, wd, lang, topic, EnvironmentType, reporterManager) {
+	], function (
+		require,
+		main,
+		createProxy,
+		Instrumenter,
+		startConnect,
+		args,
+		util,
+		Suite,
+		ClientSuite,
+		wd,
+		lang,
+		topic,
+		EnvironmentType,
+		reporterManager
+	) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
