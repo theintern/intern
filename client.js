@@ -2,26 +2,48 @@
 /*global __internCoverage */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var pathUtils = require('path'),
-			basePath = pathUtils.dirname(process.argv[1]);
+		var loader = (function () {
+			for (var i = 2, mid; i < process.argv.length; ++i) {
+				if ((mid = /^-{0,2}loader=(.*)/.exec(process.argv[i]))) {
+					return mid[1];
+				}
+			}
 
-		global.dojoConfig = {
-			async: 1,
-			baseUrl: pathUtils.resolve(basePath, '..', '..'),
-			deps: [ 'intern/client' ],
+			return 'dojo/dojo';
+		})();
+
+		var config = {
+			baseUrl: process.cwd(),
+			packages: [
+				{ name: 'intern', location: __dirname }
+			],
 			map: {
 				intern: {
-					dojo: 'intern/node_modules/dojo'
+					dojo: 'intern/node_modules/dojo',
+					chai: 'intern/node_modules/chai/chai'
+				},
+				'*': {
+					'intern/dojo': 'intern/node_modules/dojo'
 				}
-			},
-			packages: [
-				{ name: 'intern', location: basePath }
-			],
-			tlmSiblingOfDojo: 0,
-			useDeferredInstrumentation: false
+			}
 		};
 
-		require('dojo/dojo');
+		if (loader === 'dojo/dojo') {
+			config.async = 1;
+			config.deps = [ 'intern/client' ];
+			config.tlmSiblingOfDojo = 0;
+			config.useDeferredInstrumentation = false;
+			global.dojoConfig = config;
+		}
+
+		// this.require must be exposed explicitly in order to allow the loader to be
+		// reconfigured from the configuration file
+		var req = this.require = require(loader);
+
+		if (loader !== 'dojo/dojo') {
+			req.config(config);
+			req([ 'intern/client' ]);
+		}
 	})();
 }
 else {
@@ -43,16 +65,25 @@ else {
 		}
 
 		require([ args.config ], function (config) {
-			// TODO: Use of the global require is required for this to work because config mechanics are in global
-			// require only in the Dojo loader; this should probably not be the case
-			var globalRequire = this.require;
-			globalRequire(config.loader);
+			if (!config.loader) {
+				config.loader = {};
+			}
+
+			// if a `baseUrl` is specified in the arguments for the page, it should have priority over what came from
+			// the configuration file. this is especially important for the runner proxy, which serves `baseUrl`
+			// as the root path and so `baseUrl` must become `/` in the client even if it was something else in the
+			// config originally
+			if (args.baseUrl) {
+				config.loader.baseUrl = args.baseUrl;
+			}
+
+			(this.require ? this.require.config || this.require : require)(config.loader);
 
 			if (!args.suites) {
 				args.suites = config.suites;
 			}
 
-			// args.suites might be an array or it might be a scalar value but we always need deps to be a fresh array.
+			// args.suites might be an array or it might be a scalar value but we always need deps to be a fresh array
 			var deps = [].concat(args.suites);
 
 			if (!args.reporters) {
@@ -108,23 +139,24 @@ else {
 
 			if (has('host-node')) {
 				// Hook up the instrumenter before any code dependencies are loaded
-				var instrumentor = new Instrumenter({
-					// coverage variable is changed primarily to avoid any jshint complaints, but also to make it
-					// clearer where the global is coming from
-					coverageVariable: '__internCoverage',
+				var basePath = (config.loader.baseUrl || process.cwd()).replace(/\/*$/, '/'),
+					instrumentor = new Instrumenter({
+						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it
+						// clearer where the global is coming from
+						coverageVariable: '__internCoverage',
 
-					// compacting code makes it harder to look at but it does not really matter
-					noCompact: true,
+						// compacting code makes it harder to look at but it does not really matter
+						noCompact: true,
 
-					// auto-wrap breaks code
-					noAutoWrap: true
-				});
+						// auto-wrap breaks code
+						noAutoWrap: true
+					});
 
 				hook.hookRunInThisContext(function (filename) {
 					return !config.excludeInstrumentation ||
 						// if the string passed to `excludeInstrumentation` changes here, it must also change in
 						// `lib/createProxy.js`
-						!config.excludeInstrumentation.test(filename.slice(globalRequire.baseUrl.length));
+						!config.excludeInstrumentation.test(filename.slice(basePath.length));
 				}, function (code, filename) {
 					return instrumentor.instrumentSync(code, filename);
 				});
@@ -133,10 +165,11 @@ else {
 			var reportersReady = false;
 			require(deps, function () {
 				// A hash map, { reporter module ID: reporter definition }
-				var reporters = util.reduce([].slice.call(arguments, arguments.length - args.reporters.length), function (map, reporter, i) {
-					map[args.reporters[i]] = reporter;
-					return map;
-				}, {});
+				var firstReporterIndex = arguments.length - args.reporters.length,
+					reporters = util.reduce([].slice.call(arguments, firstReporterIndex), function (map, reporter, i) {
+						map[args.reporters[i]] = reporter;
+						return map;
+					}, {});
 
 				reporterManager.add(reporters);
 				reportersReady = true;

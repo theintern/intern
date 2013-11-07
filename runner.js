@@ -1,26 +1,48 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var pathUtils = require('path'),
-			basePath = pathUtils.dirname(process.argv[1]);
+		var loader = (function () {
+			for (var i = 2, mid; i < process.argv.length; ++i) {
+				if ((mid = /^-{0,2}loader=(.*)/.exec(process.argv[i]))) {
+					return mid[1];
+				}
+			}
 
-		global.dojoConfig = {
-			async: 1,
-			baseUrl: pathUtils.resolve(basePath, '..', '..'),
-			deps: [ 'intern/runner' ],
+			return 'dojo/dojo';
+		})();
+
+		var config = {
+			baseUrl: process.cwd(),
+			packages: [
+				{ name: 'intern', location: __dirname }
+			],
 			map: {
 				intern: {
-					dojo: 'intern/node_modules/dojo'
+					dojo: 'intern/node_modules/dojo',
+					chai: 'intern/node_modules/chai/chai'
+				},
+				'*': {
+					'intern/dojo': 'intern/node_modules/dojo'
 				}
-			},
-			packages: [
-				{ name: 'intern', location: basePath }
-			],
-			tlmSiblingOfDojo: 0,
-			useDeferredInstrumentation: false
+			}
 		};
 
-		require('dojo/dojo');
+		if (loader === 'dojo/dojo') {
+			config.async = 1;
+			config.deps = [ 'intern/runner' ];
+			config.tlmSiblingOfDojo = 0;
+			config.useDeferredInstrumentation = false;
+			global.dojoConfig = config;
+		}
+
+		// this.require must be exposed explicitly in order to allow the loader to be
+		// reconfigured from the configuration file
+		var req = this.require = require(loader);
+
+		if (loader !== 'dojo/dojo') {
+			req.config(config);
+			req([ 'intern/runner' ]);
+		}
 	})();
 }
 else {
@@ -65,6 +87,7 @@ else {
 					name: args.config,
 					'idle-timeout': 60
 				},
+				loader: {},
 				maxConcurrency: 3,
 				proxyPort: 9000,
 				proxyUrl: 'http://localhost:9000',
@@ -75,9 +98,7 @@ else {
 				}
 			}, config);
 
-			// TODO: Global require is needed because context require does not currently have config mechanics built
-			// in.
-			this.require(config.loader);
+			(this.require ? this.require.config || this.require : require)(config.loader);
 
 			if (!args.reporters) {
 				if (config.reporters) {
@@ -99,6 +120,8 @@ else {
 			});
 
 			require(args.reporters, function () {
+				/*jshint maxcomplexity:13 */
+
 				// A hash map, { reporter module ID: reporter definition }
 				var reporters = [].slice.call(arguments, 0).reduce(function (map, reporter, i) {
 					map[args.reporters[i]] = reporter;
@@ -109,25 +132,26 @@ else {
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				var proxy = createProxy({
-					basePath: this.require.baseUrl,
-					excludeInstrumentation: config.excludeInstrumentation,
-					instrumenter: new Instrumenter({
-						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
-						// where the global is coming from
-						coverageVariable: '__internCoverage',
+				var basePath = (config.loader.baseUrl || process.cwd()).replace(/\/*$/, '/'),
+					proxy = createProxy({
+						basePath: basePath,
+						excludeInstrumentation: config.excludeInstrumentation,
+						instrumenter: new Instrumenter({
+							// coverage variable is changed primarily to avoid any jshint complaints, but also to make
+							// it clearer where the global is coming from
+							coverageVariable: '__internCoverage',
 
-						// compacting code makes it harder to look at but it does not really matter
-						noCompact: true,
+							// compacting code makes it harder to look at but it does not really matter
+							noCompact: true,
 
-						// auto-wrap breaks code
-						noAutoWrap: true
-					}),
-					port: config.proxyPort
-				});
+							// auto-wrap breaks code
+							noAutoWrap: true
+						}),
+						port: config.proxyPort
+					});
 
-				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code coverage
-				// reporting on the client if you want
+				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code
+				// coverage reporting on the client if you want
 				if (args.proxyOnly) {
 					return;
 				}
@@ -150,7 +174,8 @@ else {
 				var startup;
 				if (config.useSauceConnect) {
 					if (!config.webdriver.username || !config.webdriver.accessKey) {
-						throw new Error('Missing Sauce username or access key. Disable Sauce Connect or provide this information.');
+						throw new Error('Missing Sauce username or access key. Disable Sauce Connect or provide ' +
+							'this information.');
 					}
 
 					if (!config.capabilities['tunnel-identifier']) {
@@ -188,11 +213,12 @@ else {
 								// JavaScript style convention
 								remote.sessionId = environmentInfo[0];
 
-								// the remote needs to know the proxy URL so it can munge filesystem paths passed to
-								// `get`
+								// the remote needs to know the proxy URL and base filesystem path length so it can
+								// munge filesystem paths passed to `get`
 								remote.proxyUrl = config.proxyUrl;
+								remote.proxyBasePathLength = basePath.length;
 							})
-							// capabilities object is not returned from `init` by at least ChromeDriver 0.25.0;
+							// capabilities object is not returned from `init` by at least ChromeDriver 2.25.0;
 							// calling `sessionCapabilities` works every time
 							.sessionCapabilities()
 							.then(function (capabilities) {

@@ -16,9 +16,6 @@ define([
 			queue(function () {
 				var dfd = new Deferred();
 
-				// Dojo 1 loader does not normalize IDs ending in '.js'
-				id = parentRequire.toUrl(id);
-
 				parentRequire([ id ], function (value) {
 					callback(value);
 					dfd.resolve();
@@ -26,6 +23,10 @@ define([
 
 				return dfd;
 			})();
+		},
+
+		normalize: function (id, normalize) {
+			return normalize(id.replace(/\.js$/, ''));
 		}
 	};
 });
