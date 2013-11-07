@@ -7,6 +7,10 @@
 		"type": "git",
 		"url": "https://github.com/theintern/intern.git"
 	},
+	"bin": {
+		"intern-client": "bin/intern-client",
+		"intern-runner": "bin/intern-runner"
+	},
 	"licenses": [
 		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/intern/blob/master/LICENSE" }
 	],
