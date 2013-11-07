@@ -9,7 +9,7 @@
 	var allowXss = false;
 
 	function findArgument(name, defaultValue) {
-		var expression = new RegExp('^[?&]' + name + '=([^&]+)'),
+		var expression = new RegExp('[?&]' + name + '=([^&]+)'),
 			result;
 
 		if ((result = expression.exec(location.search))) {
