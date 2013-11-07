@@ -12,14 +12,14 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			return 'dojo/dojo';
 		})();
 
-		var req = this.require = require(loader),
-			pathUtils = require('path'),
-			basePath = pathUtils.dirname(process.argv[1]);
+		// this.require must be exposed explicitly in order to allow the loader to be
+		// reconfigured from the configuration file
+		var req = this.require = require(loader);
 
 		req.config({
-			baseUrl: pathUtils.resolve(basePath, '..', '..'),
+			baseUrl: process.cwd(),
 			packages: [
-				{ name: 'intern', location: basePath }
+				{ name: 'intern', location: __dirname }
 			],
 			map: {
 				intern: {
@@ -52,13 +52,25 @@ else {
 		}
 
 		require([ args.config ], function (config) {
+			if (!config.loader) {
+				config.loader = {};
+			}
+
+			// if a `baseUrl` is specified in the arguments for the page, it should have priority over what came from
+			// the configuration file. this is especially important for the runner proxy, which serves `baseUrl`
+			// as the root path and so `baseUrl` must become `/` in the client even if it was something else in the
+			// config originally
+			if (args.baseUrl) {
+				config.loader.baseUrl = args.baseUrl;
+			}
+
 			this.require.config(config.loader);
 
 			if (!args.suites) {
 				args.suites = config.suites;
 			}
 
-			// args.suites might be an array or it might be a scalar value but we always need deps to be a fresh array.
+			// args.suites might be an array or it might be a scalar value but we always need deps to be a fresh array
 			var deps = [].concat(args.suites);
 
 			if (!args.reporters) {
@@ -114,23 +126,24 @@ else {
 
 			if (has('host-node')) {
 				// Hook up the instrumenter before any code dependencies are loaded
-				var instrumentor = new Instrumenter({
-					// coverage variable is changed primarily to avoid any jshint complaints, but also to make it
-					// clearer where the global is coming from
-					coverageVariable: '__internCoverage',
+				var basePath = (config.loader.baseUrl || process.cwd()).replace(/\/*$/, '/'),
+					instrumentor = new Instrumenter({
+						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it
+						// clearer where the global is coming from
+						coverageVariable: '__internCoverage',
 
-					// compacting code makes it harder to look at but it does not really matter
-					noCompact: true,
+						// compacting code makes it harder to look at but it does not really matter
+						noCompact: true,
 
-					// auto-wrap breaks code
-					noAutoWrap: true
-				});
+						// auto-wrap breaks code
+						noAutoWrap: true
+					});
 
 				hook.hookRunInThisContext(function (filename) {
 					return !config.excludeInstrumentation ||
 						// if the string passed to `excludeInstrumentation` changes here, it must also change in
 						// `lib/createProxy.js`
-						!config.excludeInstrumentation.test(filename.slice(globalRequire.baseUrl.length));
+						!config.excludeInstrumentation.test(filename.slice(basePath.length));
 				}, function (code, filename) {
 					return instrumentor.instrumentSync(code, filename);
 				});

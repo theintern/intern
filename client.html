@@ -5,21 +5,32 @@
 		<title>Browser test runner</title>
 		<script>
 (function () {
-	var loaderUrl = (function () {
-		var url;
-		if ((url = /^[?&]loaderUrl=([^&]+)/.exec(location.search))) {
-			return decodeURIComponent(url[1]);
+	// change this if you want to use a loader from another domain
+	var allowXss = false;
+
+	function findArgument(name, defaultValue) {
+		var expression = new RegExp('^[?&]' + name + '=([^&]+)'),
+			result;
+
+		if ((result = expression.exec(location.search))) {
+			var value = decodeURIComponent(result[1]);
+
+			if (!allowXss && /^(?:https?:)?\/\//.test(value)) {
+				throw new Error('Attempted cross-domain script injection, but allowXss is false');
+			}
+
+			return value;
 		}
 
-		return 'node_modules/dojo/dojo.js';
-	})();
+		return defaultValue;
+	}
 
 	var script = document.createElement('script');
 	script.onload = function () {
-		var basePath = location.pathname.replace(/\/+[^\/]+$/, '/');
+		var basePath = location.pathname.replace(/\/+[^\/]*$/, '/');
 
 		require.config({
-			baseUrl: basePath + (basePath === '/__intern/' ? '../' : '../../'),
+			baseUrl: findArgument('baseUrl', basePath + (basePath === '/__intern/' ? '../' : '../../')),
 			packages: [
 				{ name: 'intern', location: basePath }
 			],
@@ -36,7 +47,7 @@
 
 		require([ 'intern/client' ]);
 	};
-	script.src = loaderUrl;
+	script.src = findArgument('loaderUrl', 'node_modules/dojo/dojo.js');
 	document.head.appendChild(script);
 })();
 		</script>

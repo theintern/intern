@@ -11,16 +11,14 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			return 'dojo/dojo';
 		})();
 
-		var req = this.require = require(loader),
-			pathUtils = require('path'),
-			basePath = pathUtils.dirname(process.argv[1]);
-
-		this.__basePath = pathUtils.normalize(pathUtils.resolve(basePath, '..', '..'));
+		// this.require must be exposed explicitly in order to allow the loader to be
+		// reconfigured from the configuration file
+		var req = this.require = require(loader);
 
 		req.config({
-			baseUrl: pathUtils.resolve(basePath, '..', '..'),
+			baseUrl: process.cwd(),
 			packages: [
-				{ name: 'intern', location: basePath }
+				{ name: 'intern', location: __dirname }
 			],
 			map: {
 				intern: {
@@ -68,8 +66,6 @@ else {
 		EnvironmentType,
 		reporterManager
 	) {
-		var basePath = this.__basePath;
-
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
@@ -80,6 +76,7 @@ else {
 					name: args.config,
 					'idle-timeout': 60
 				},
+				loader: {},
 				maxConcurrency: 3,
 				proxyPort: 9000,
 				proxyUrl: 'http://localhost:9000',
@@ -112,7 +109,7 @@ else {
 			});
 
 			require(args.reporters, function () {
-				/*jshint maxcomplexity:11 */
+				/*jshint maxcomplexity:13 */
 
 				// A hash map, { reporter module ID: reporter definition }
 				var reporters = [].slice.call(arguments, 0).reduce(function (map, reporter, i) {
@@ -124,22 +121,23 @@ else {
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				var proxy = createProxy({
-					basePath: basePath,
-					excludeInstrumentation: config.excludeInstrumentation,
-					instrumenter: new Instrumenter({
-						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it
-						// clearer where the global is coming from
-						coverageVariable: '__internCoverage',
+				var basePath = (config.loader.baseUrl || process.cwd()).replace(/\/*$/, '/'),
+					proxy = createProxy({
+						basePath: basePath,
+						excludeInstrumentation: config.excludeInstrumentation,
+						instrumenter: new Instrumenter({
+							// coverage variable is changed primarily to avoid any jshint complaints, but also to make
+							// it clearer where the global is coming from
+							coverageVariable: '__internCoverage',
 
-						// compacting code makes it harder to look at but it does not really matter
-						noCompact: true,
+							// compacting code makes it harder to look at but it does not really matter
+							noCompact: true,
 
-						// auto-wrap breaks code
-						noAutoWrap: true
-					}),
-					port: config.proxyPort
-				});
+							// auto-wrap breaks code
+							noAutoWrap: true
+						}),
+						port: config.proxyPort
+					});
 
 				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code
 				// coverage reporting on the client if you want
@@ -209,7 +207,7 @@ else {
 								remote.proxyUrl = config.proxyUrl;
 								remote.proxyBasePathLength = basePath.length;
 							})
-							// capabilities object is not returned from `init` by at least ChromeDriver 0.25.0;
+							// capabilities object is not returned from `init` by at least ChromeDriver 2.25.0;
 							// calling `sessionCapabilities` works every time
 							.sessionCapabilities()
 							.then(function (capabilities) {
