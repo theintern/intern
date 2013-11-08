@@ -1,18 +1,10 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var loader = (function () {
-			for (var i = 2, mid; i < process.argv.length; ++i) {
-				if ((mid = /^-{0,2}loader=(.*)/.exec(process.argv[i]))) {
-					return mid[1];
-				}
-			}
-
-			return 'dojo/dojo';
-		})();
-
-		var config = {
+		this.dojoConfig = {
+			async: true,
 			baseUrl: process.cwd(),
+			deps: [ 'intern/runner' ],
 			packages: [
 				{ name: 'intern', location: __dirname }
 			],
@@ -24,25 +16,12 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 				'*': {
 					'intern/dojo': 'intern/node_modules/dojo'
 				}
-			}
+			},
+			tlmSiblingOfDojo: false,
+			useDeferredInstrumentation: false
 		};
 
-		if (loader === 'dojo/dojo') {
-			config.async = 1;
-			config.deps = [ 'intern/runner' ];
-			config.tlmSiblingOfDojo = 0;
-			config.useDeferredInstrumentation = false;
-			global.dojoConfig = config;
-		}
-
-		// this.require must be exposed explicitly in order to allow the loader to be
-		// reconfigured from the configuration file
-		var req = this.require = require(loader);
-
-		if (loader !== 'dojo/dojo') {
-			req.config(config);
-			req([ 'intern/runner' ]);
-		}
+		require('dojo/dojo');
 	})();
 }
 else {
@@ -98,7 +77,7 @@ else {
 				}
 			}, config);
 
-			(this.require ? this.require.config || this.require : require)(config.loader);
+			this.require(config.loader);
 
 			if (!args.reporters) {
 				if (config.reporters) {
