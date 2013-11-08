@@ -3,15 +3,16 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
+		<script>
+var dojoConfig = {
+	async: true,
+	tlmSiblingOfDojo: false,
+	useDeferredInstrumentation: false
+};
+		</script>
 		<script src="node_modules/dojo/dojo.js"></script>
 		<script>
 (function () {
-	this.dojoConfig = {
-		async: true,
-		tlmSiblingOfDojo: false,
-		useDeferredInstrumentation: false
-	};
-
 	var basePath = location.pathname.replace(/\/+[^\/]*$/, '/'),
 		internConfig = this.__internConfig = {
 			baseUrl: basePath,
