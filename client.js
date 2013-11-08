@@ -30,6 +30,10 @@ else {
 			throw new Error('Missing "config" argument');
 		}
 
+		if (/^(?:\w+:)?\/\//.test(args.config)) {
+			throw new Error('Cross-origin loading of configuration data is not allowed for security reasons');
+		}
+
 		parentRequire([ args.config ], function (config) {
 			util.swapLoader(config.useLoader).then(function (require) {
 				if (!config.loader) {
