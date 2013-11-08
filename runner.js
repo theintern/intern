@@ -1,21 +1,11 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var loader = (function () {
-			for (var i = 2, mid; i < process.argv.length; ++i) {
-				if ((mid = /^-{0,2}loader=(.*)/.exec(process.argv[i]))) {
-					return mid[1];
-				}
-			}
-
-			return 'dojo/dojo';
-		})();
-
 		// this.require must be exposed explicitly in order to allow the loader to be
 		// reconfigured from the configuration file
-		var req = this.require = require(loader);
+		var req = this.require = require('dojo/dojo');
 
-		req.config({
+		req({
 			baseUrl: process.cwd(),
 			packages: [
 				{ name: 'intern', location: __dirname }
@@ -29,9 +19,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 					'intern/dojo': 'intern/node_modules/dojo'
 				}
 			}
-		});
-
-		req([ 'intern/runner' ]);
+		}, [ 'intern/runner' ]);
 	})();
 }
 else {
@@ -87,7 +75,7 @@ else {
 				}
 			}, config);
 
-			this.require.config(config.loader);
+			this.require(config.loader);
 
 			if (!args.reporters) {
 				if (config.reporters) {

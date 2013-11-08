@@ -3,34 +3,12 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
+		<script src="node_modules/dojo/dojo.js"></script>
 		<script>
 (function () {
-	// change this if you want to use a loader from another domain
-	var allowXss = false;
-
-	function findArgument(name, defaultValue) {
-		var expression = new RegExp('[?&]' + name + '=([^&]+)'),
-			result;
-
-		if ((result = expression.exec(location.search))) {
-			var value = decodeURIComponent(result[1]);
-
-			if (!allowXss && /^(?:https?:)?\/\//.test(value)) {
-				throw new Error('Attempted cross-domain script injection, but allowXss is false');
-			}
-
-			return value;
-		}
-
-		return defaultValue;
-	}
-
-	var script = document.createElement('script');
-	script.onload = function () {
-		var basePath = location.pathname.replace(/\/+[^\/]*$/, '/');
-
-		require.config({
-			baseUrl: findArgument('baseUrl', basePath + (basePath === '/__intern/' ? '../' : '../../')),
+	var basePath = location.pathname.replace(/\/+[^\/]*$/, '/'),
+		internConfig = this.__internConfig = {
+			baseUrl: basePath,
 			packages: [
 				{ name: 'intern', location: basePath }
 			],
@@ -43,12 +21,9 @@
 					'intern/dojo': 'intern/node_modules/dojo'
 				}
 			}
-		});
+		};
 
-		require([ 'intern/client' ]);
-	};
-	script.src = findArgument('loaderUrl', 'node_modules/dojo/dojo.js');
-	document.head.appendChild(script);
+	require(internConfig, [ 'intern/client' ]);
 })();
 		</script>
 	</head>
