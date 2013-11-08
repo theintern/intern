@@ -8,7 +8,13 @@
 (function () {
 	var basePath = location.pathname.replace(/\/+[^\/]*$/, '/'),
 		internConfig = this.__internConfig = {
-			baseUrl: basePath,
+			// For users running client.html directly, assume that the base path
+			// is two levels up (the parent of node_modules); this is most common.
+			// Users that need something special should provide an absolute module
+			// path for the config module (e.g. `/path/to/intern/config`) and
+			// then set `baseUrl` correctly in the `loader` configuration object
+			// of the config module
+			baseUrl: basePath === '/__intern/' ? '/' : (basePath + '../../'),
 			packages: [
 				{ name: 'intern', location: basePath }
 			],
