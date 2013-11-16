@@ -217,6 +217,12 @@ else {
 							var remote = this.remote;
 							return remote.quit().always(function () {
 								topic.publish('/session/end', remote);
+
+								if (config.webdriver.accessKey) {
+									return remote.sauceJobUpdate({
+										passed: suite.numFailedTests === 0
+									});
+								}
 							});
 						}
 					});
