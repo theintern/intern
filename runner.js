@@ -29,6 +29,7 @@ else {
 		'./lib/createProxy',
 		'dojo/node!istanbul/lib/instrumenter',
 		'dojo/node!sauce-connect-launcher',
+		'dojo/node!path',
 		'./lib/args',
 		'./lib/util',
 		'./lib/Suite',
@@ -44,6 +45,7 @@ else {
 		createProxy,
 		Instrumenter,
 		startConnect,
+		path,
 		args,
 		util,
 		Suite,
@@ -109,7 +111,7 @@ else {
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				var basePath = (config.loader.baseUrl || process.cwd()).replace(/\/*$/, '/'),
+				var basePath = path.resolve(config.loader.baseUrl || process.cwd()) + '/',
 					proxy = createProxy({
 						basePath: basePath,
 						excludeInstrumentation: config.excludeInstrumentation,
