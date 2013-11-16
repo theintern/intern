@@ -220,7 +220,7 @@ else {
 
 								if (config.webdriver.accessKey) {
 									return remote.sauceJobUpdate({
-										passed: suite.numFailedTests === 0
+										passed: suite.numFailedTests === 0 && !suite.error
 									});
 								}
 							});
