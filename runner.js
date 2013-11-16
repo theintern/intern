@@ -77,6 +77,13 @@ else {
 				}
 			}, config);
 
+			// If the `baseUrl` passed to the loader is a relative path, it will cause `require.toUrl` to generate
+			// non-absolute paths, which will break the URL remapping code in the `get` method of `lib/wd` (it will
+			// slice too much data)
+			if (config.loader.baseUrl) {
+				config.loader.baseUrl = path.resolve(config.loader.baseUrl);
+			}
+
 			this.require(config.loader);
 
 			if (!args.reporters) {
@@ -111,7 +118,7 @@ else {
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				var basePath = path.resolve(config.loader.baseUrl || process.cwd()) + '/',
+				var basePath = (config.loader.baseUrl || process.cwd()) + '/',
 					proxy = createProxy({
 						basePath: basePath,
 						excludeInstrumentation: config.excludeInstrumentation,
