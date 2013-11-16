@@ -31,6 +31,7 @@ else {
 		'./lib/createProxy',
 		'dojo/node!istanbul/lib/instrumenter',
 		'dojo/node!sauce-connect-launcher',
+		'dojo/node!path',
 		'./lib/args',
 		'./lib/util',
 		'./lib/Suite',
@@ -46,6 +47,7 @@ else {
 		createProxy,
 		Instrumenter,
 		startConnect,
+		path,
 		args,
 		util,
 		Suite,
@@ -76,6 +78,13 @@ else {
 					port: 4444
 				}
 			}, config);
+
+			// If the `baseUrl` passed to the loader is a relative path, it will cause `require.toUrl` to generate
+			// non-absolute paths, which will break the URL remapping code in the `get` method of `lib/wd` (it will
+			// slice too much data)
+			if (config.loader.baseUrl) {
+				config.loader.baseUrl = path.resolve(config.loader.baseUrl);
+			}
 
 			this.require(config.loader);
 
@@ -111,7 +120,7 @@ else {
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				var basePath = (config.loader.baseUrl || process.cwd()).replace(/\/*$/, '/'),
+				var basePath = (config.loader.baseUrl || process.cwd()) + '/',
 					proxy = createProxy({
 						basePath: basePath,
 						excludeInstrumentation: config.excludeInstrumentation,
