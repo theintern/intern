@@ -139,6 +139,24 @@ define([
 				.then(function (text) {
 					assert.strictEqual(text, 'touched');
 				});
+		},
+
+		'keys': function () {
+			return this.remote.get(require.toUrl('./data/basic.html'))
+				.elementById('input')
+				.click()
+				.type('hello')
+				.getAttribute('value')
+				.then(function (value) {
+					assert.strictEqual(value, 'hello', 'Typing into a form field should put data in the field');
+				})
+				.end();
+		},
+
+		'wait for condition sanity check': function () {
+			return this.remote.get(require.toUrl('./data/basic.html'))
+				.waitForCondition('true')
+				.waitForConditionInBrowser('true');
 		}
 	});
 });
