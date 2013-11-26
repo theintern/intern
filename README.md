@@ -212,7 +212,7 @@ options.
    node node_modules/intern-geezer/client.js config=tests/intern
    ```
 
-4. Start writing tests! See the [writing tests](https://github.com/theintern/intern/wiki/Writing-Tests) documentation
+4. Start writing tests! See the [writing tests](https://github.com/theintern/intern/wiki/Writing-Tests-With-Intern) documentation
 to learn how.
 
 ## More information
