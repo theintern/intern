@@ -17,8 +17,11 @@ module.exports = function (grunt) {
 	grunt.registerMultiTask('intern', function () {
 		var done = this.async(),
 			opts = this.options({ runType: 'client' }),
-			args = [ require('path').join(__dirname, '..') + '/' + opts.runType + '.js' ],
-			env = {};
+			path = require('path'),
+			args = [ path.join(__dirname, '..') + '/' + opts.runType + '.js' ],
+			env = {
+				NODE_PATH: path.resolve(__dirname, '../node_modules') + (process.env.NODE_PATH ? path.delimiter + process.env.NODE_PATH : '')
+			};
 
 		[ 'config', 'proxyOnly', 'autoRun' ].forEach(function (option) {
 			opts[option] && args.push(option + '=' + opts[option]);
