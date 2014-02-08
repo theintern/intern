@@ -1,20 +1,23 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var req = require('dojo/dojo'),
-			pathUtils = require('path'),
-			basePath = pathUtils.dirname(process.argv[1]);
+		// this.require must be exposed explicitly in order to allow the loader to be
+		// reconfigured from the configuration file
+		var req = this.require = require('dojo/dojo');
 
 		req({
-			baseUrl: pathUtils.resolve(basePath, '..', '..'),
+			baseUrl: process.cwd(),
 			packages: [
-				{ name: 'intern', location: basePath }
+				{ name: 'intern', location: __dirname }
 			],
 			map: {
 				intern: {
 					dojo: 'intern/node_modules/dojo',
 					chai: 'intern/node_modules/chai/chai',
-					benchmark: 'intern/node_modules/benchmark'
+					benchmark: 'intern/node_modules/benchmark/benchmark'
+				},
+				'*': {
+					'intern/dojo': 'intern/node_modules/dojo'
 				}
 			}
 		}, [ 'intern/runner' ]);
@@ -27,6 +30,7 @@ else {
 		'./lib/createProxy',
 		'dojo/node!istanbul/lib/instrumenter',
 		'dojo/node!sauce-connect-launcher',
+		'dojo/node!path',
 		'./lib/args',
 		'./lib/util',
 		'./lib/Suite',
@@ -36,7 +40,23 @@ else {
 		'dojo/topic',
 		'./lib/EnvironmentType',
 		'./lib/reporterManager'
-	], function (require, main, createProxy, Instrumenter, startConnect, args, util, Suite, ClientSuite, wd, lang, topic, EnvironmentType, reporterManager) {
+	], function (
+		require,
+		main,
+		createProxy,
+		Instrumenter,
+		startConnect,
+		path,
+		args,
+		util,
+		Suite,
+		ClientSuite,
+		wd,
+		lang,
+		topic,
+		EnvironmentType,
+		reporterManager
+	) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
 		}
@@ -45,9 +65,9 @@ else {
 			config = lang.deepCopy({
 				capabilities: {
 					name: args.config,
-					'idle-timeout': 60,
-					'tunnel-identifier': '' + Date.now()
+					'idle-timeout': 60
 				},
+				loader: {},
 				maxConcurrency: 3,
 				proxyPort: 9000,
 				proxyUrl: 'http://localhost:9000',
@@ -58,8 +78,13 @@ else {
 				}
 			}, config);
 
-			// TODO: Global require is needed because context require does not currently have config mechanics built
-			// in.
+			// If the `baseUrl` passed to the loader is a relative path, it will cause `require.toUrl` to generate
+			// non-absolute paths, which will break the URL remapping code in the `get` method of `lib/wd` (it will
+			// slice too much data)
+			if (config.loader.baseUrl) {
+				config.loader.baseUrl = path.resolve(config.loader.baseUrl);
+			}
+
 			this.require(config.loader);
 
 			if (!args.reporters) {
@@ -82,6 +107,8 @@ else {
 			});
 
 			require(args.reporters, function () {
+				/*jshint maxcomplexity:13 */
+
 				// A hash map, { reporter module ID: reporter definition }
 				var reporters = [].slice.call(arguments, 0).reduce(function (map, reporter, i) {
 					map[args.reporters[i]] = reporter;
@@ -92,25 +119,26 @@ else {
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				var proxy = createProxy({
-					basePath: this.require.baseUrl,
-					excludeInstrumentation: config.excludeInstrumentation,
-					instrumenter: new Instrumenter({
-						// coverage variable is changed primarily to avoid any jshint complaints, but also to make it clearer
-						// where the global is coming from
-						coverageVariable: '__internCoverage',
+				var basePath = (config.loader.baseUrl || process.cwd()) + '/',
+					proxy = createProxy({
+						basePath: basePath,
+						excludeInstrumentation: config.excludeInstrumentation,
+						instrumenter: new Instrumenter({
+							// coverage variable is changed primarily to avoid any jshint complaints, but also to make
+							// it clearer where the global is coming from
+							coverageVariable: '__internCoverage',
 
-						// compacting code makes it harder to look at but it does not really matter
-						noCompact: true,
+							// compacting code makes it harder to look at but it does not really matter
+							noCompact: true,
 
-						// auto-wrap breaks code
-						noAutoWrap: true
-					}),
-					port: config.proxyPort
-				});
+							// auto-wrap breaks code
+							noAutoWrap: true
+						}),
+						port: config.proxyPort
+					});
 
-				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code coverage
-				// reporting on the client if you want
+				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code
+				// coverage reporting on the client if you want
 				if (args.proxyOnly) {
 					return;
 				}
@@ -133,7 +161,12 @@ else {
 				var startup;
 				if (config.useSauceConnect) {
 					if (!config.webdriver.username || !config.webdriver.accessKey) {
-						throw new Error('Missing Sauce username or access key. Disable Sauce Connect or provide this information.');
+						throw new Error('Missing Sauce username or access key. Disable Sauce Connect or provide ' +
+							'this information.');
+					}
+
+					if (!config.capabilities['tunnel-identifier']) {
+						config.capabilities['tunnel-identifier'] = '' + Date.now();
 					}
 
 					startup = util.adapt(startConnect);
@@ -167,11 +200,12 @@ else {
 								// JavaScript style convention
 								remote.sessionId = environmentInfo[0];
 
-								// the remote needs to know the proxy URL so it can munge filesystem paths passed to
-								// `get`
+								// the remote needs to know the proxy URL and base filesystem path length so it can
+								// munge filesystem paths passed to `get`
 								remote.proxyUrl = config.proxyUrl;
+								remote.proxyBasePathLength = basePath.length;
 							})
-							// capabilities object is not returned from `init` by at least ChromeDriver 0.25.0;
+							// capabilities object is not returned from `init` by at least ChromeDriver 2.25.0;
 							// calling `sessionCapabilities` works every time
 							.sessionCapabilities()
 							.then(function (capabilities) {
@@ -184,6 +218,12 @@ else {
 							var remote = this.remote;
 							return remote.quit().always(function () {
 								topic.publish('/session/end', remote);
+
+								if (config.webdriver.accessKey) {
+									return remote.sauceJobUpdate({
+										passed: suite.numFailedTests === 0 && !suite.error
+									});
+								}
 							});
 						}
 					});
@@ -224,6 +264,7 @@ else {
 							topic.publish('/runner/end');
 							connectProcess && connectProcess.close();
 							proxy.close();
+							reporterManager.clear();
 						});
 					});
 				}, function (error) {

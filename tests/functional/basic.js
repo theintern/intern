@@ -122,6 +122,41 @@ define([
 			}).then(function (actual) {
 				assert.equal(actual, expected, 'Returned promises should resolve before the next callback');
 			});
+		},
+
+		'execute accepts references to remote nodes': function () {
+			var remote = this.remote;
+
+			return remote.get(require.toUrl('./data/basic.html'))
+				.elementByTagName('h1')
+				.then(function (h1Element) {
+					return remote.execute(function (node) {
+						node.innerHTML = 'touched';
+						return node;
+					}, [ h1Element ]);
+				})
+				.text()
+				.then(function (text) {
+					assert.strictEqual(text, 'touched');
+				});
+		},
+
+		'keys': function () {
+			return this.remote.get(require.toUrl('./data/basic.html'))
+				.elementById('input')
+				.click()
+				.type('hello')
+				.getAttribute('value')
+				.then(function (value) {
+					assert.strictEqual(value, 'hello', 'Typing into a form field should put data in the field');
+				})
+				.end();
+		},
+
+		'wait for condition sanity check': function () {
+			return this.remote.get(require.toUrl('./data/basic.html'))
+				.waitForCondition('true')
+				.waitForConditionInBrowser('true');
 		}
 	});
 });

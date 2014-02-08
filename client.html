@@ -6,21 +6,31 @@
 		<script src="node_modules/dojo/dojo.js"></script>
 		<script>
 (function () {
-	var basePath = location.pathname.replace(/\/+[^\/]+$/, '/');
-
-	require({
-		baseUrl: basePath + (basePath === '/__intern/' ? '../' : '../../'),
-		packages: [
-			{ name: 'intern', location: basePath }
-		],
-		map: {
-			intern: {
-				dojo: 'intern/node_modules/dojo',
-				chai: 'intern/node_modules/chai/chai',
-				benchmark: 'intern/node_modules/benchmark/benchmark'
+	var basePath = location.pathname.replace(/\/+[^\/]*$/, '/'),
+		internConfig = this.__internConfig = {
+			// For users running client.html directly, assume that the base path
+			// is two levels up (the parent of node_modules); this is most common.
+			// Users that need something special should provide an absolute module
+			// path for the config module (e.g. `/path/to/intern/config`) and
+			// then set `baseUrl` correctly in the `loader` configuration object
+			// of the config module
+			baseUrl: basePath === '/__intern/' ? '/' : (basePath + '../../'),
+			packages: [
+				{ name: 'intern', location: basePath }
+			],
+			map: {
+				intern: {
+					dojo: 'intern/node_modules/dojo',
+					chai: 'intern/node_modules/chai/chai',
+					benchmark: 'intern/node_modules/benchmark/benchmark'
+				},
+				'*': {
+					'intern/dojo': 'intern/node_modules/dojo'
+				}
 			}
-		}
-	}, [ 'intern/client' ]);
+		};
+
+	require(internConfig, [ 'intern/client' ]);
 })();
 		</script>
 	</head>
