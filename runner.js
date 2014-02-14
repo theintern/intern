@@ -82,6 +82,7 @@ else {
 			// slice too much data)
 			if (config.loader.baseUrl) {
 				config.loader.baseUrl = path.resolve(config.loader.baseUrl);
+				args.config = path.relative(config.loader.baseUrl, path.resolve(args.config));
 			}
 
 			this.require(config.loader);
