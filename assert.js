@@ -846,7 +846,7 @@ define([
 			}
 
 			for (i = 0; i < parts.length; ++i) {
-				if (!object[parts[i]]) {
+				if (object[parts[i]] === undefined || (object[parts[i]] === null && i < (parts.length - 1))) {
 					return NOT_FOUND;
 				}
 
@@ -856,7 +856,7 @@ define([
 		}
 
 		assert.property = function (object, property, message) {
-			if (!object[property]) {
+			if (object[property] === undefined) {
 				fail(false, true, message ||
 					('expected ' + formatValue(object) + ' to have a property \'' + property + '\''), 'in', assert.property);
 			}

@@ -498,8 +498,11 @@ define([
 		tdd.test('property', function () {
 			var obj = { foo: { bar: 'baz' } };
 			var simpleObj = { foo: 'bar' };
+			var falsyPropObj = { foo: { falsyProperty: '' }, falsyProperty: '' };
 			assert.property(obj, 'foo');
+			assert.property(falsyPropObj, 'falsyProperty');
 			assert.deepProperty(obj, 'foo.bar');
+			assert.deepProperty(falsyPropObj, 'foo.falsyProperty');
 			assert.notProperty(obj, 'baz');
 			assert.notProperty(obj, 'foo.bar');
 			assert.notDeepProperty(obj, 'foo.baz');
