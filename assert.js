@@ -831,6 +831,7 @@ define([
 
 		function getProperty(object, name) {
 			var parts = [],
+				part,
 				i,
 				match;
 
@@ -846,17 +847,18 @@ define([
 			}
 
 			for (i = 0; i < parts.length; ++i) {
-				if (!object[parts[i]]) {
+				part = parts[i];
+				if (object[part] === undefined || (object[part] === null && i < (parts.length - 1))) {
 					return NOT_FOUND;
 				}
 
-				object = object[parts[i]];
+				object = object[part];
 			}
 			return object;
 		}
 
 		assert.property = function (object, property, message) {
-			if (!object[property]) {
+			if (object[property] === undefined) {
 				fail(false, true, message ||
 					('expected ' + formatValue(object) + ' to have a property \'' + property + '\''), 'in', assert.property);
 			}
