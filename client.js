@@ -12,6 +12,10 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 					chai: 'intern/node_modules/chai/chai',
 					benchmark: 'intern/node_modules/benchmark/benchmark'
 				},
+				'intern-selftest/node_modules/benchmark/benchmark': {
+					lodash: 'intern/node_modules/benchmark/node_modules/lodash/lodash',
+					platform: 'intern/node_modules/benchmark/node_modules/platform/platform'
+				},
 				'*': {
 					'intern/dojo': 'intern/node_modules/dojo'
 				}
