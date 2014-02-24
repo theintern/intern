@@ -53,7 +53,7 @@ define([
 			}
 		},
 
-		'/runner/end': function () {
+		'stop': function () {
 			var writeReportCalled = false,
 				oldWriteReport = Reporter.prototype.writeReport;
 
@@ -63,7 +63,7 @@ define([
 			};
 
 			try {
-				lcov['/runner/end']();
+				lcov.stop();
 				assert.isTrue(writeReportCalled, 'Reporter#writeReport should be called when the /runner/end method is called');
 			}
 			finally {
@@ -74,7 +74,7 @@ define([
 		'File output': function () {
 			try {
 				lcov['/coverage'](sessionId, mockCoverage);
-				lcov['/runner/end']();
+				lcov.stop();
 				assert.isTrue(fs.existsSync('lcov.info'), 'lcov.info file was written to disk');
 				assert(fs.statSync('lcov.info').size > 0, 'lcov.info contains data');
 			}
