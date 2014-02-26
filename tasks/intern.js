@@ -1,12 +1,46 @@
 /*jshint node:true */
 
 module.exports = function (grunt) {
-	function readOutput(data) {
-		var state = /\bPASS/i.test(data) ? 'ok' : /\bFAIL/i.test(data) ? 'error' : 'write';
+	function logOutput(line) {
+		var state = 'write';
 
-		state === 'error' && grunt.event.emit('intern.fail', data);
-		state === 'ok' && grunt.event.emit('intern.pass', data);
-		grunt.log[state](data);
+		if (/(\d+)\/(\d+) tests (pass|fail)/.test(line)) {
+			var match = /(\d+)\/(\d+) tests (pass|fail)/.exec(line),
+				count = Number(match[1]),
+				total = Number(match[2]);
+			if (match[3] === 'pass') {
+				state = (count === total) ? 'ok' : 'error';
+			}
+			else {
+				state = count ? 'error' : 'ok';
+			}
+		}
+		else if (/\bPASS/.test(line)) {
+			state = 'ok';
+		}
+		else if (/\bFAIL/.test(line)) {
+			state = 'error';
+		}
+
+		state === 'error' && grunt.event.emit('intern.fail', line);
+		state === 'ok' && grunt.event.emit('intern.pass', line);
+		grunt.log[state](line);
+	}
+
+	function readOutput(data) {
+		var start = 0,
+			next;
+		
+		data = String(data);
+		next = data.indexOf('\n', start);
+
+		while (next !== -1) {
+			logOutput(data.substring(start, next) + '\n');
+			start = next + 1;
+			next = data.indexOf('\n', start);
+		}
+
+		logOutput(data.substring(start));
 	}
 
 	var environmentKeys = {
