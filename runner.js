@@ -73,16 +73,11 @@ else {
 				proxyPort: 9000,
 				proxyUrl: 'http://localhost:9000',
 				useSauceConnect: true,
-				waitAfterComplete: false,
 				webdriver: {
 					host: 'localhost',
 					port: 4444
 				}
 			}, config);
-
-			if (args.waitAfterComplete) {
-				config.waitAfterComplete = String(args.waitAfterComplete) === 'true';
-			}
 
 			// If the `baseUrl` passed to the loader is a relative path, it will cause `require.toUrl` to generate
 			// non-absolute paths, which will break the URL remapping code in the `get` method of `lib/wd` (it will
@@ -220,27 +215,25 @@ else {
 								topic.publish('/session/start', remote);
 							});
 						},
-						endSession: function () {
-							var remote = this.get('remote');
-							topic.publish('/session/end', remote);
-
-							if (config.webdriver.accessKey) {
-								return remote.sauceJobUpdate({
-									passed: suite.get('numFailedTests') === 0 && !suite.error
-								});
-							}
-						},
 						teardown: function () {
-							if (config.waitAfterComplete) {
-								if (!config.webdriver.accessKey) {
-									console.log('Waiting for browser to be closed...');
+							function endSession() {
+								topic.publish('/session/end', remote);
+
+								if (config.webdriver.accessKey) {
+									return remote.sauceJobUpdate({
+										passed: suite.get('numFailedTests') === 0 && !suite.error
+									});
 								}
-								return this.endSession();
+							}
+
+							var remote = this.get('remote');
+
+							if (args.leaveRemoteOpen) {
+								return endSession();
 							}
 							else {
-								var self = this;
-								return this.get('remote').quit().always(function () {
-									return self.endSession();
+								return remote.quit().always(function () {
+									return endSession();
 								});
 							}
 						}
