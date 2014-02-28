@@ -229,11 +229,8 @@ else {
 							if (args.leaveRemoteOpen) {
 								return endSession();
 							}
-							else {
-								return remote.quit().always(function () {
-									return endSession();
-								});
-							}
+
+							return remote.quit().always(endSession);
 						}
 					});
 
