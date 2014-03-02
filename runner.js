@@ -218,10 +218,8 @@ else {
 								topic.publish('/session/start', remote);
 							});
 						},
-
 						teardown: function () {
-							var remote = this.remote;
-							return remote.quit().always(function () {
+							function endSession() {
 								topic.publish('/session/end', remote);
 
 								if (config.webdriver.accessKey) {
@@ -229,7 +227,15 @@ else {
 										passed: suite.numFailedTests === 0 && !suite.error
 									});
 								}
-							});
+							}
+
+							var remote = this.remote;
+
+							if (args.leaveRemoteOpen) {
+								return endSession();
+							}
+
+							return remote.quit().always(endSession);
 						}
 					});
 
