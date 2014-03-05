@@ -40,7 +40,7 @@ module.exports = function (grunt) {
 			next = data.indexOf('\n', start);
 		}
 
-		logOutput(data.substring(start));
+		logOutput(data.slice(start));
 	}
 
 	var environmentKeys = {
