@@ -200,15 +200,15 @@ options.
 3. Verify your configuration works by running the Node.js client and seeing that no errors are output.
 
    ```
-   node node_modules/intern/client.js config=tests/intern
+   node_modules/.bin/intern-client config=tests/intern
    ```
 
 4. Start writing tests! See the [writing tests](https://github.com/theintern/intern/wiki/Writing-Tests-With-Intern) documentation
-to learn how.
+and the [Intern tutorial](https://github.com/theintern/intern-tutorial) to learn how.
 
 ## More information
 
-* [Wiki Documentation](https://github.com/theintern/intern/wiki)
+* [Documentation](https://github.com/theintern/intern/wiki)
 * [Support](https://github.com/theintern/intern/wiki/Support)
 
 ## Do you hate kittens and love old IE?
