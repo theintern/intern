@@ -49,7 +49,12 @@ define({
 	loader: {
 		// Packages that should be registered with the loader in each testing environment
 		packages: [ { name: 'intern-selftest', location: '.' } ],
-		map: { 'intern-selftest': { dojo: 'intern-selftest/node_modules/dojo' } }
+		map: {
+			'intern-selftest': {
+				dojo: 'intern-selftest/node_modules/dojo',
+				benchmark: 'intern-selftest/node_modules/benchmark/benchmark'
+			}
+		}
 	},
 
 	// Non-functional test suite(s) to run in each browser
