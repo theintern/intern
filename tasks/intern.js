@@ -43,30 +43,33 @@ module.exports = function (grunt) {
 		logOutput(data.slice(start));
 	}
 
-	var environmentKeys = {
-		sauceUsername: 'SAUCE_USERNAME',
-		sauceAccessKey: 'SAUCE_ACCESS_KEY'
-	};
-
 	grunt.registerMultiTask('intern', function () {
 		var done = this.async(),
 			opts = this.options({ runType: 'client' }),
 			args = [ require('path').join(__dirname, '..') + '/' + opts.runType + '.js' ],
-			env = {};
+			env = Object.create(process.env),
+			skipOptions = { runType: true, sauceUsername: true, sauceAccessKey: true };
 
 		Object.keys(opts).forEach(function (option) {
+			if (skipOptions[option]) {
+				return;
+			}
+
 			if (Array.isArray(option)) {
 				opts[option].forEach(function (value) {
 					args.push(option + '=' + value);
 				});
-			} else {
+			}
+			else {
 				args.push(option + '=' + opts[option]);
 			}
 		});
 
 		[ 'sauceUsername', 'sauceAccessKey' ].forEach(function (option) {
-			var environmentKey = environmentKeys[option];
-			env[environmentKey] = opts[option] || process.env[environmentKey];
+			var value = opts[option];
+			if (value) {
+				env[option.replace(/[A-Z]/g, '_$&').toUpperCase()] = value;
+			}
 		});
 
 		var child = grunt.util.spawn({
