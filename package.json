@@ -11,9 +11,9 @@
 		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/intern/blob/geezer/LICENSE" }
 	],
 	"dependencies": {
-		"wd": "0.2.2",
+		"wd": "0.2.11",
 		"istanbul": "0.1.35",
-		"sauce-connect-launcher": "0.1.11",
+		"sauce-connect-launcher": "0.3.1",
 		"dojo": "1.9.3"
 	},
 	"devDependencies": {
