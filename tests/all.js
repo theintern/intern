@@ -2,6 +2,7 @@ define([
 	'./order',
 	'./lib/Suite',
 	'./lib/Test',
+	'./lib/args',
 	'./lib/reporterManager',
 	'./lib/interfaces/tdd',
 	'./lib/interfaces/bdd',

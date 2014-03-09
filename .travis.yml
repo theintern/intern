@@ -15,4 +15,4 @@ install:
   # are actually being tested
   - rm -rf node_modules/intern-geezer
   - ln -s .. node_modules/intern-geezer
-script: node node_modules/intern-geezer/runner.js config=tests/selftest.intern
+script: tests/selftest.sh
