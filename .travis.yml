@@ -15,4 +15,4 @@ install:
   # are actually being tested
   - rm -rf node_modules/intern
   - ln -s .. node_modules/intern
-script: node node_modules/intern/runner.js config=tests/selftest.intern
+script: tests/selftest.sh

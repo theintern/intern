@@ -30,7 +30,7 @@ module.exports = function (grunt) {
 	function readOutput(data) {
 		var start = 0,
 			next;
-		
+
 		data = String(data);
 		next = data.indexOf('\n', start);
 
@@ -54,14 +54,14 @@ module.exports = function (grunt) {
 			args = [ require('path').join(__dirname, '..') + '/' + opts.runType + '.js' ],
 			env = {};
 
-		[ 'config', 'proxyOnly', 'autoRun' ].forEach(function (option) {
-			opts[option] && args.push(option + '=' + opts[option]);
-		});
-
-		[ 'reporters', 'suites' ].forEach(function (option) {
-			opts[option] && opts[option].forEach(function (value) {
-				args.push(option + '=' + value);
-			});
+		Object.keys(opts).forEach(function (option) {
+			if (Array.isArray(option)) {
+				opts[option].forEach(function (value) {
+					args.push(option + '=' + value);
+				});
+			} else {
+				args.push(option + '=' + opts[option]);
+			}
 		});
 
 		[ 'sauceUsername', 'sauceAccessKey' ].forEach(function (option) {
