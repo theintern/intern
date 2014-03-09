@@ -6,6 +6,11 @@ define([
 ], function (require, array, Deferred, util) {
 	return {
 		/**
+		 * The configuration data in use for the current test run.
+		 */
+		config: null,
+
+		/**
 		 * Maximum number of suites to run concurrently. Currently used only by the server-side runner.
 		 */
 		maxConcurrency: Infinity,

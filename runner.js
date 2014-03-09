@@ -37,6 +37,7 @@ else {
 		'./lib/Suite',
 		'./lib/ClientSuite',
 		'./lib/wd',
+		'dojo/_base/lang',
 		'dojo/request/util',
 		'dojo/topic',
 		'./lib/EnvironmentType',
@@ -53,6 +54,7 @@ else {
 		Suite,
 		ClientSuite,
 		wd,
+		lang,
 		requestUtil,
 		topic,
 		EnvironmentType,
@@ -78,6 +80,22 @@ else {
 					port: 4444
 				}
 			}, config);
+
+			// Need to create a completely new config object and mix in data in order to avoid exposure of potentially
+			// sensitive data (Sauce Labs username and access key) to tests
+			main.config = (function () {
+				var exposedConfig = lang.mixin({}, config),
+					webdriver = exposedConfig.webdriver = {};
+
+				for (var k in config.webdriver) {
+					if (k === 'username' || k === 'accessKey') {
+						continue;
+					}
+					webdriver[k] = config.webdriver[k];
+				}
+
+				return exposedConfig;
+			})();
 
 			// If the `baseUrl` passed to the loader is a relative path, it will cause `require.toUrl` to generate
 			// non-absolute paths, which will break the URL remapping code in the `get` method of `lib/wd` (it will
