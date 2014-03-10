@@ -2,9 +2,15 @@ define([
 	'require',
 	'dojo/_base/array',
 	'dojo/Deferred',
+	'./lib/args',
 	'./lib/util'
-], function (require, array, Deferred, util) {
+], function (require, array, Deferred, args, util) {
 	return {
+		/**
+		 * The arguments received from the environment for the current test run.
+		 */
+		args: args,
+
 		/**
 		 * The configuration data in use for the current test run.
 		 */
