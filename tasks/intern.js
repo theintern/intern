@@ -55,7 +55,7 @@ module.exports = function (grunt) {
 				return;
 			}
 
-			if (Array.isArray(option)) {
+			if (Array.isArray(opts[option])) {
 				opts[option].forEach(function (value) {
 					args.push(option + '=' + value);
 				});
