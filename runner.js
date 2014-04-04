@@ -281,6 +281,11 @@ else {
 							process.exit(hasErrors ? 1 : 0);
 						});
 
+						process.on('uncaughtException', function (error) {
+							topic.publish('/error', error);
+							process.exit(1);
+						});
+
 						topic.publish('/runner/start');
 						main.run().always(function () {
 							topic.publish('/runner/end');
