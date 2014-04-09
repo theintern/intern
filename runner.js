@@ -60,7 +60,7 @@ else {
 			throw new Error('Required option "config" not specified');
 		}
 
-		require([ args.config ], function (config) {
+		this.require([ args.config ], function (config) {
 			config = lang.deepCopy({
 				capabilities: {
 					name: args.config,
