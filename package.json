@@ -1,6 +1,6 @@
 {
 	"name": "intern",
-	"version": "1.6.1",
+	"version": "1.6.2",
 	"main": "main",
 	"description": "Intern. A next-generation code testing stack for JavaScript.",
 	"repository": {
@@ -18,7 +18,7 @@
 		"chai": "1.9.0"
 	},
 	"devDependencies": {
-		"intern": "1.6.1"
+		"intern": "1.6.2"
 	},
 	"bugs": "https://github.com/theintern/intern/issues",
 	"keywords": [ "javascript", "test", "unit", "testing", "ci", "continuous integration", "bdd", "tdd", "xunit", "istanbul", "chai", "dojo", "toolkit", "selenium", "sauce labs", "code coverage" ],
