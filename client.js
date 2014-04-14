@@ -1,7 +1,7 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		// set cucumber context
+		// ensure there's a "window" name for Cucumber to use as its global context
 		global.window = global.window || {};
 
 		var internConfig = this.__internConfig = {
