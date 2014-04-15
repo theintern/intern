@@ -14,6 +14,7 @@
 		"wd": "0.2.2",
 		"istanbul": "https://github.com/jason0x43/istanbul/archive/sourcemap.tar.gz",
 		"sauce-connect-launcher": "0.4.2",
+		"source-map": "0.1.33",
 		"dojo": "https://github.com/csnover/dojo2-core/archive/2.0.tar.gz",
 		"chai": "1.9.1"
 	},
