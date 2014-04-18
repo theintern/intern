@@ -1,6 +1,6 @@
 {
 	"name": "intern-geezer",
-	"version": "1.6.2",
+	"version": "1.6.3",
 	"main": "main",
 	"description": "Intern: geezer edition. A next-generation code testing stack for last-generation JavaScript code.",
 	"repository": {
@@ -17,7 +17,7 @@
 		"dojo": "1.9.3"
 	},
 	"devDependencies": {
-		"intern-geezer": "1.6.2"
+		"intern-geezer": "1.6.3"
 	},
 	"bugs": "https://github.com/theintern/intern/issues",
 	"keywords": [ "javascript", "test", "unit", "testing", "ci", "continuous integration", "bdd", "tdd", "xunit", "istanbul", "dojo", "toolkit", "selenium", "sauce labs", "code coverage" ],
