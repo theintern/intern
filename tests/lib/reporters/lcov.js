@@ -45,6 +45,7 @@ define([
 			};
 
 			try {
+				lcov.start();
 				lcov['/coverage'](sessionId, mockCoverage);
 				assert.isTrue(collectorCalled, 'Collector#add should be called when the reporter /coverage method is called');
 			}
@@ -63,6 +64,7 @@ define([
 			};
 
 			try {
+				lcov.start();
 				lcov.stop();
 				assert.isTrue(writeReportCalled, 'Reporter#writeReport should be called when the /runner/end method is called');
 			}
@@ -73,6 +75,7 @@ define([
 
 		'File output': function () {
 			try {
+				lcov.start();
 				lcov['/coverage'](sessionId, mockCoverage);
 				lcov.stop();
 				assert.isTrue(fs.existsSync('lcov.info'), 'lcov.info file was written to disk');
@@ -81,6 +84,28 @@ define([
 			finally {
 				fs.existsSync('lcov.info') && fs.unlinkSync('lcov.info');
 			}
+		},
+
+		'File output to configured location': function () {
+			var config = {
+				dir: 'tmp/'
+			}, 
+			fn = config.dir + 'lcov.info';
+
+			try {
+				lcov.start(config);
+				lcov['/coverage'](sessionId, mockCoverage);
+				lcov.stop();
+				assert.isTrue(fs.existsSync(fn), fn + ' file was written to disk');
+				assert(fs.statSync(fn).size > 0, fn + ' contains data');
+			}
+			finally {
+				if (fs.existsSync(fn)) {
+					fs.unlinkSync(fn);
+					fs.rmdirSync(config.dir);
+				}
+			}
 		}
+
 	});
 });

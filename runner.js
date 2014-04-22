@@ -113,23 +113,13 @@ else {
 				}
 			}
 
-			args.reporters = [].concat(args.reporters).map(function (reporterModuleId) {
-				// Allow 3rd party reporters to be used simply by specifying a full mid, or built-in reporters by
-				// specifying the reporter name only
-				if (reporterModuleId.indexOf('/') === -1) {
-					reporterModuleId = './lib/reporters/' + reporterModuleId;
-				}
-				return reporterModuleId;
-			});
+			args.reporters = [].concat(args.reporters).map(util.normalizeReporterId('./lib/reporters/'));
 
-			require(args.reporters, function () {
+			require(args.reporters.map(function(mc){ return mc.id;}), function () {
 				/*jshint maxcomplexity:13 */
 
 				// A hash map, { reporter module ID: reporter definition }
-				var reporters = [].slice.call(arguments, 0).reduce(function (map, reporter, i) {
-					map[args.reporters[i]] = reporter;
-					return map;
-				}, {});
+				var reporters = [].slice.call(arguments, 0).reduce(util.normalizeReporterConfig(args.reporters), {});
 
 				reporterManager.add(reporters);
 

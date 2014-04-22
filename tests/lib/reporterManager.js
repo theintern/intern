@@ -20,14 +20,16 @@ define([
 
 			reporterManager.add({
 				'test': {
-					start: function () {
-						actual.push('start1');
-					},
-					'/some/topic': function () {
-						actual.push('topic1');
-					},
-					stop: function () {
-						actual.push('stop1');
+					definition: {
+						start: function () {
+							actual.push('start1');
+						},
+						'/some/topic': function () {
+							actual.push('topic1');
+						},
+						stop: function () {
+							actual.push('stop1');
+						}
 					}
 				}
 			});
@@ -41,14 +43,16 @@ define([
 
 			reporterManager.add({
 				'test': {
-					start: function () {
-						actual.push('start2');
-					},
-					'/some/topic': function () {
-						actual.push('topic2');
-					},
-					stop: function () {
-						actual.push('stop2');
+					definition: {
+						start: function () {
+							actual.push('start2');
+						},
+						'/some/topic': function () {
+							actual.push('topic2');
+						},
+						stop: function () {
+							actual.push('stop2');
+						}
 					}
 				}
 			});
@@ -84,20 +88,27 @@ define([
 
 		'start/stop lifecycle': function () {
 			var numTimesStarted = 0,
-				numTimesStopped = 0;
+				numTimesStopped = 0,
+				expectedConfig = {expected: 'value'},
+				actualConfig;
 
 			reporterManager.add({
 				'test': {
-					start: function () {
-						++numTimesStarted;
-					},
-					stop: function () {
-						++numTimesStopped;
+					config: expectedConfig,
+					definition: {
+						start: function (config) {
+							++numTimesStarted;
+							actualConfig = config;
+						},
+						stop: function () {
+							++numTimesStopped;
+						}
 					}
 				}
 			});
 
 			reporterManager.start('test');
+			assert.strictEqual(actualConfig, expectedConfig, 'Passes reporter config to start');
 			reporterManager.start('test');
 			assert.strictEqual(numTimesStarted, 1, 'Trying to start an already-started reporter should do nothing');
 
@@ -113,11 +124,13 @@ define([
 
 			function createReporter(name) {
 				return {
-					start: function () {
-						actual.push('start ' + name);
-					},
-					stop: function () {
-						actual.push('stop ' + name);
+					definition: {
+						start: function () {
+							actual.push('start ' + name);
+						},
+						stop: function () {
+							actual.push('stop ' + name);
+						}
 					}
 				};
 			}
