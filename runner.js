@@ -38,7 +38,8 @@ else {
 		'dojo/lang',
 		'dojo/topic',
 		'./lib/EnvironmentType',
-		'./lib/reporterManager'
+		'./lib/reporterManager',
+		'./lib/thresholdCheck'
 	], function (
 		require,
 		main,
@@ -54,7 +55,8 @@ else {
 		lang,
 		topic,
 		EnvironmentType,
-		reporterManager
+		reporterManager,
+		coverageThresholdCheck
 	) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
@@ -258,7 +260,7 @@ else {
 					require(config.functionalSuites || [], function () {
 						var hasErrors = false;
 
-						topic.subscribe('/error, /test/fail', function () {
+						topic.subscribe('/error, /test/fail, /coverage/error', function () {
 							hasErrors = true;
 						});
 
@@ -275,6 +277,9 @@ else {
 							topic.publish('/error', error);
 							process.exit(1);
 						});
+
+						//TODO handle coverage thresholds
+						coverageThresholdCheck(topic, config.coverageThresholds, true);
 
 						topic.publish('/runner/start');
 						main.run().always(function () {
