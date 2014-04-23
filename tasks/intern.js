@@ -1,46 +1,69 @@
 /*jshint node:true */
 
 module.exports = function (grunt) {
-	function logOutput(line) {
-		var state = 'write';
+	var readBuf = '';
 
-		if (/(\d+)\/(\d+) tests (pass|fail)/.test(line)) {
-			var match = /(\d+)\/(\d+) tests (pass|fail)/.exec(line),
-				count = Number(match[1]),
-				total = Number(match[2]);
-			if (match[3] === 'pass') {
-				state = (count === total) ? 'ok' : 'error';
-			}
-			else {
-				state = count ? 'error' : 'ok';
-			}
-		}
-		else if (/\bPASS/.test(line)) {
-			state = 'ok';
-		}
-		else if (/\bFAIL/.test(line)) {
-			state = 'error';
-		}
+	/**
+	 * Log a message to the console
+	 */
+	function logLine(line) {
+		var message;
 
-		state === 'error' && grunt.event.emit('intern.fail', line);
-		state === 'ok' && grunt.event.emit('intern.pass', line);
-		grunt.log[state](line);
+		try {
+			message = JSON.parse(line);
+
+			switch (message.topic) {
+				case '/test/pass':
+					grunt.log.ok(message.message);
+					break;
+				case '/test/fail':
+					grunt.log.error(message.message);
+					break;
+				case '/suite/end':
+					if (message.suite.numFailedTests === 0) {
+						grunt.log.ok(message.message);
+					} else {
+						grunt.log.error(message.message);
+					}
+					break;
+				case '/session/start':
+					grunt.log.write(message.message + '\n');
+					break;
+				case '/session/end':
+					grunt.log.write(message.message + '\n');
+					break;
+				case '/error':
+					grunt.log.error(message.message);
+					break;
+			}
+		}
+		catch (e) {
+			grunt.log.error('GRUNT: Unexpected Intern message: ', e);
+		}
 	}
 
-	function readOutput(data) {
+	/**
+	 * Read output from a child process's stdout
+	 */
+	function readOutput(data, flush) {
 		var start = 0,
 			next;
 
-		data = String(data);
-		next = data.indexOf('\n', start);
+		readBuf += String(data);
+		next = readBuf.indexOf(grunt.util.linefeed, start);
 
 		while (next !== -1) {
-			logOutput(data.substring(start, next) + '\n');
+			logLine(readBuf.slice(start, next));
 			start = next + 1;
-			next = data.indexOf('\n', start);
+			next = readBuf.indexOf(grunt.util.linefeed, start);
 		}
 
-		logOutput(data.slice(start));
+		readBuf = readBuf.slice(start);
+
+		if (flush) {
+			logLine(readBuf);
+			readBuf = '';
+		}
 	}
 
 	grunt.registerMultiTask('intern', function () {
@@ -49,6 +72,8 @@ module.exports = function (grunt) {
 			args = [ require('path').join(__dirname, '..') + '/' + opts.runType + '.js' ],
 			env = Object.create(process.env),
 			skipOptions = { runType: true, sauceUsername: true, sauceAccessKey: true };
+
+		args.push([ 'reporters=json' ]);
 
 		Object.keys(opts).forEach(function (option) {
 			if (skipOptions[option]) {
@@ -79,9 +104,19 @@ module.exports = function (grunt) {
 				cwd: process.cwd(),
 				env: env
 			}
-		}, done);
+		}, function (error, result, code) {
+			if (code) {
+				done(new Error('Intern exited with code ' + code + '.'));
+			}
+			else {
+				done(true);
+			}
+		});
 
+		// parse messages from stdout -- assume the json reporter is being used
 		child.stdout.on('data', readOutput);
-		child.stderr.on('data', readOutput);
+
+		// just output data received on stderr
+		child.stderr.on('data', grunt.log.write);
 	});
 };
