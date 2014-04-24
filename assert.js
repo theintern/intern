@@ -658,7 +658,7 @@ define([
 			else if (typeof actual !== 'object' && typeof expected !== 'object') {
 				return actual == expected;
 			}
-			
+
 			// two objects with different constructors are not equal.
 			else if (actual.constructor !== expected.constructor) {
 				return false;
@@ -917,7 +917,7 @@ define([
 	})();
 
 	assert.lengthOf = function (object, length, message) {
-		if (object == null || !object.length) {
+		if (object == null || object.length === undefined) {
 			fail(null, length, message || ('expected ' + formatValue(object) + ' to have a property \'length\''),  'lengthOf', assert.lengthOf);
 		}
 		else if (object.length !== length) {

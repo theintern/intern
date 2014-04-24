@@ -480,6 +480,8 @@ define([
 			err(function () {
 				assert.lengthOf(1, 5);
 			}, 'expected 1 to have a property \'length\'');
+
+			assert.lengthOf([], 0, 'Zero-length arrays should not be detected as non-array');
 		});
 
 		tdd.test('match', function () {
