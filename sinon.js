@@ -1,17 +1,18 @@
 define([
 	'sinon',
-	'require',
-	'sinon/assert',
-	'sinon/behavior',
-	'sinon/call',
-	'sinon/collection',
-	'sinon/match',
-	'sinon/spy',
-	'sinon/sandbox',
-	'sinon/stub',
-	'sinon/test',
-	'sinon/test_case'
-], function (sinon, require) {
+	// need to use intern/order to handle inter-dependencies in sinon modules
+	'intern/order!sinon/assert',
+	'intern/order!sinon/behavior',
+	'intern/order!sinon/call',
+	'intern/order!sinon/collection',
+	'intern/order!sinon/match',
+	'intern/order!sinon/spy',
+	'intern/order!sinon/mock',
+	'intern/order!sinon/sandbox',
+	'intern/order!sinon/stub',
+	'intern/order!sinon/test',
+	'intern/order!sinon/test_case'
+], function (sinon) {
 	return {
 		/**
 		 * AMD plugin API interface for easy loading of sinon interfaces.
@@ -21,10 +22,7 @@ define([
 				id = 'spyCall';
 			}
 
-			// mock uses spy properties during its initialization, so we have to load it after spy
-			require([ 'sinon/mock' ], function () {
-				callback(id ? sinon[id] : sinon);
-			});
+			callback(id ? sinon[id] : sinon);
 		}
 	};
 });
