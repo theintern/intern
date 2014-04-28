@@ -5,6 +5,15 @@ define({
 	// The port on which the instrumenting proxy will listen
 	proxyPort: 9000,
 
+	//Configure the test runner to fail if coverage falls below the configured
+	//thresholds.
+	coverageThresholds: {
+		statements: 74,
+		branches: 62,
+		functions: 76,
+		lines: 74
+	},
+
 	// A fully qualified URL to the Intern proxy
 	proxyUrl: 'http://localhost:9000/',
 

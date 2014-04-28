@@ -38,7 +38,8 @@ else {
 		'dojo/lang',
 		'dojo/topic',
 		'./lib/EnvironmentType',
-		'./lib/reporterManager'
+		'./lib/reporterManager',
+		'./lib/thresholdCheck'
 	], function (
 		require,
 		main,
@@ -54,7 +55,8 @@ else {
 		lang,
 		topic,
 		EnvironmentType,
-		reporterManager
+		reporterManager,
+		coverageThresholdCheck
 	) {
 		if (!args.config) {
 			throw new Error('Required option "config" not specified');
@@ -113,23 +115,13 @@ else {
 				}
 			}
 
-			args.reporters = [].concat(args.reporters).map(function (reporterModuleId) {
-				// Allow 3rd party reporters to be used simply by specifying a full mid, or built-in reporters by
-				// specifying the reporter name only
-				if (reporterModuleId.indexOf('/') === -1) {
-					reporterModuleId = './lib/reporters/' + reporterModuleId;
-				}
-				return reporterModuleId;
-			});
+			args.reporters = [].concat(args.reporters).map(util.normalizeReporterId('./lib/reporters/'));
 
-			require(args.reporters, function () {
+			require(args.reporters.map(function(mc){ return mc.id;}), function () {
 				/*jshint maxcomplexity:13 */
 
 				// A hash map, { reporter module ID: reporter definition }
-				var reporters = [].slice.call(arguments, 0).reduce(function (map, reporter, i) {
-					map[args.reporters[i]] = reporter;
-					return map;
-				}, {});
+				var reporters = [].slice.call(arguments, 0).reduce(util.normalizeReporterConfig(args.reporters), {});
 
 				reporterManager.add(reporters);
 
@@ -268,7 +260,7 @@ else {
 					require(config.functionalSuites || [], function () {
 						var hasErrors = false;
 
-						topic.subscribe('/error, /test/fail', function () {
+						topic.subscribe('/error, /test/fail, /coverage/error', function () {
 							hasErrors = true;
 						});
 
@@ -285,6 +277,8 @@ else {
 							topic.publish('/error', error);
 							process.exit(1);
 						});
+
+						coverageThresholdCheck(topic, config.coverageThresholds, true);
 
 						topic.publish('/runner/start');
 						main.run().always(function () {
