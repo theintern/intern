@@ -16,8 +16,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			map: {
 				intern: {
 					dojo: 'intern/node_modules/dojo',
-					chai: 'intern/node_modules/chai/chai',
-					cucumber: 'intern/node_modules/cucumber/release/cucumber'
+					chai: 'intern/node_modules/chai/chai'
 				},
 				'*': {
 					'intern/dojo': 'intern/node_modules/dojo'
