@@ -278,7 +278,6 @@ else {
 							process.exit(1);
 						});
 
-						//TODO handle coverage thresholds
 						coverageThresholdCheck(topic, config.coverageThresholds, true);
 
 						topic.publish('/runner/start');
