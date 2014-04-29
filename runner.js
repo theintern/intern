@@ -297,6 +297,7 @@ else {
 				}, function (error) {
 					console.error(error);
 					proxy.close();
+					process.exit(1);
 				});
 			});
 		});
