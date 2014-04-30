@@ -328,6 +328,7 @@ else {
 				}, function (error) {
 					console.error(error.stack || error);
 					proxy.close();
+					process.exit(1);
 				});
 			});
 		});
