@@ -6,6 +6,11 @@ define([
 ], function (require, Deferred, args, util) {
 	return {
 		/**
+		 * The mode in which Intern is currently running. Either 'client' or 'runner'.
+		 */
+		mode: null,
+
+		/**
 		 * The arguments received from the environment for the current test run.
 		 */
 		args: args,
