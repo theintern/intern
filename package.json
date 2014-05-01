@@ -15,7 +15,7 @@
 		"istanbul": "0.2.7",
 		"sauce-connect-launcher": "0.4.2",
 		"dojo": "https://github.com/csnover/dojo2-core/archive/2.0.tar.gz",
-		"chai": "1.9.0"
+		"chai": "1.9.1"
 	},
 	"devDependencies": {
 		"intern": "https://github.com/theintern/intern/archive/master.tar.gz"
