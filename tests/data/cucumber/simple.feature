@@ -1,16 +1,17 @@
-Feature: App
-  In order to test the fibonacci app
-  I want to be able to manipulate the browser
+Feature: simple external suite
+  I should be able to load a simple test suite
 
-  Scenario: Loading the app
-    Given the relative url ../app/app.html
-	When I open the page
-	And I click "next"
-    Then I should see "Fibonacci" as the page title
+  Scenario: assert equal
+	Given x = 5
+	And y = 5
+	Then I can assert that x == y
 
-  Scenario: Clicking next
-    Given a running app
-	When I click "next"
-	When I click "next"
-	When I click "next"
-	Then I should see "3" in the output field
+  Scenario Outline: assert not equal
+	Given x = <x>
+	And y = <y>
+	Then I can assert that x != y
+
+	Examples:
+	  | x | y |
+      | 0 | 1 |
+      | 5 | 3 |
