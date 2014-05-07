@@ -1,4 +1,5 @@
 define([
+	'require',
 	'intern!object',
 	'intern/chai!assert',
 	'../../../main!cucumber',
@@ -7,14 +8,15 @@ define([
 	'../../../lib/Suite',
 	'../../../lib/Test',
 	'dojo/topic'
-], function (registerSuite, assert, cucumber1, cucumber2, main, Suite, Test, topic) {
+], function (require, registerSuite, assert, cucumber1, cucumber2, main, Suite, Test, topic) {
 	var feature = ''
-		+ 'Feature: simple suite\n'
-		+ '  I should be able to use features in a string\n'
-		+ '  Scenario: do something\n'
-		+ '	   Given step 1\n'
-		+ '	   And step 2\n'
-		+ '	   Then profit';
+			+ 'Feature: simple suite\n'
+			+ '  I should be able to use features in a string\n'
+			+ '  Scenario: do something\n'
+			+ '	   Given step 1\n'
+			+ '	   And step 2\n'
+			+ '	   Then profit',
+		handles;
 
 	registerSuite({
 		name: 'intern/lib/interfaces/cucumber',
@@ -25,6 +27,14 @@ define([
 		
 		afterEach: function () {
 			main.suites.splice(0, 1);
+
+			if (handles) {
+				var handle;
+				while ((handle = handles.pop())) {
+					handle.remove();
+				}
+				handles = null;
+			}
 		},
 
 		'Register feature suite': function () {
@@ -64,54 +74,53 @@ define([
 			}
 		},
 
-		'passing lifecycle': function () {
+		'passing suite': function () {
 			var dfd = this.async(),
+				suite = main.suites[0],
 				steps = 0,
 				suitesStarted = 0,
 				suitesEnded = 0,
 				testsStarted = 0,
 				testsEnded = 0;
 
-			cucumber1(function () {
-				this.Given('step $step', function (value, callback) {
+			cucumber2(function () {
+				this.Given('x = $value', function (value, callback) {
+					// will be called once for 'assert equal' test and twice for 'assert not equal' outline
 					steps++;
+					callback();
+				});
+
+				this.Given('y = $value', function (value, callback) {
+					callback();
+				});
+
+				this.Then(/^I can/, function (callback) {
 					callback();
 				});
 			}, feature);
 
-			topic.subscribe('/suite/start', function () {
-				suitesStarted++;
-			});
-
-			topic.subscribe('/suite/end', function () {
-				suitesEnded++;
-			});
-
-			topic.subscribe('/test/start', function () {
-				testsStarted++;
-			});
-
-			topic.subscribe('/test/end', function () {
-				testsEnded++;
-			});
+			handles = [
+				topic.subscribe('/suite/start', function () { suitesStarted++; }),
+				topic.subscribe('/suite/end', function () { suitesEnded++; }),
+				topic.subscribe('/test/start', function () { testsStarted++; }),
+				topic.subscribe('/test/end', function () { testsEnded++; })
+			];
 
 			main.suites[0].tests[0].run().always(dfd.callback(function () {
 				assert.strictEqual(suitesStarted, 1, 'One suite should have started');
-				assert.strictEqual(testsStarted, 1, 'One test should have started');
-				assert.strictEqual(steps, 2, 'Support step should have been called twice');
-				assert.strictEqual(testsEnded, 1, 'One test should have ended');
+				assert.strictEqual(testsStarted, 2, 'One test should have started');
+				assert.strictEqual(steps, 3, 'Support step should have been called three times');
+				assert.strictEqual(suite.numFailedTests, 0, 'No tests should have failed');
+				assert.strictEqual(testsEnded, 2, 'One test should have ended');
 				assert.strictEqual(suitesEnded, 1, 'One suite should have ended');
 			}));
 		},
 
-		'failing lifecycle': function () {
+		'failing step': function () {
 			var dfd = this.async(),
+				suite = main.suites[0],
 				steps = 0,
-				suitesStarted = 0,
-				suitesEnded = 0,
-				testsStarted = 0,
-				testsFailed = 0,
-				testsEnded = 0;
+				testsFailed = 0;
 
 			cucumber1(function () {
 				this.Given('step $step', function (value, callback) {
@@ -120,33 +129,33 @@ define([
 				});
 			}, feature);
 
-			topic.subscribe('/suite/start', function () {
-				suitesStarted++;
-			});
-
-			topic.subscribe('/suite/end', function () {
-				suitesEnded++;
-			});
-
-			topic.subscribe('/test/start', function () {
-				testsStarted++;
-			});
-
-			topic.subscribe('/test/end', function () {
-				testsEnded++;
-			});
-
-			topic.subscribe('/test/fail', function () {
-				testsFailed++;
-			});
+			handles = [
+				topic.subscribe('/test/fail', function () { testsFailed++; })
+			];
 
 			main.suites[0].tests[0].run().always(dfd.callback(function () {
-				assert.strictEqual(suitesStarted, 1, 'One suite should have started');
-				assert.strictEqual(testsStarted, 1, 'One test should have started');
 				assert.strictEqual(steps, 1, 'Support step should have been called once');
-				assert.strictEqual(testsEnded, 1, 'One test should have ended');
 				assert.strictEqual(testsFailed, 1, 'One test should have failed');
-				assert.strictEqual(suitesEnded, 1, 'One suite should have ended');
+				assert.strictEqual(suite.numFailedTests, 1, 'Suite should report one failed test');
+			}));
+		}, 
+
+		'undefined step': function () {
+			var dfd = this.async(),
+				steps = 0,
+				suite = main.suites[0];
+
+			cucumber1(function () {
+				// "step 1" is undefined, so the test will fail and step 2 will be skipped
+				this.Given('step 2', function (callback) {
+					steps++;
+					callback();
+				});
+			}, feature);
+
+			main.suites[0].tests[0].run().always(dfd.callback(function () {
+				assert.strictEqual(suite.numFailedTests, 1, 'One test should have failed');
+				assert.strictEqual(steps, 0, 'No steps should have been run');
 			}));
 		}, 
 
@@ -159,6 +168,10 @@ define([
 			cucumber1(function () {
 				this.Given('step $step', function (value, callback) {
 					remoteValue = this.remote;
+					callback();
+				});
+
+				this.Then('profit', function (callback) {
 					callback();
 				});
 			}, feature);
@@ -185,6 +198,13 @@ define([
 
 			main.suites[0].tests[0].run().always(dfd.callback(function () {
 				assert.strictEqual(main.suites[0].tests[0].numFailedTests, 1, 'One test should have failed');
+			}));
+		},
+
+		'missing feature': function () {
+			var dfd = this.async();
+			require([ 'intern!cucumber!missing' ], dfd.callback(function (feature) {
+				assert.instanceOf(feature, Error, 'require missing feature should resolve to error');
 			}));
 		}
 	});
