@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>Dimensions &amp; positioning</title>
+		<style>
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	padding: 2000px 0;
+}
+
+#a {
+	background-color: purple;
+	border: 1px solid black;
+	height: 200px;
+	padding: 10px;
+	width: 200px;
+}
+
+#b {
+	background-color: lime;
+	height: 10px;
+	margin: 100px;
+	width: 10px;
+}
+
+#c {
+	background-color: silver;
+	left: 20px;
+	position: relative;
+	top: 20px;
+}
+
+#d {
+	background-color: orange;
+	height: 40px;
+	left: 350px;
+	position: absolute;
+	top: 80px;
+	width: 80px;
+}
+
+#e {
+	background-color: aqua;
+	height: 40px;
+	-ms-transform: translate(3px, 3px) scale(0.5);
+	-moz-transform: translate(3px, 3px) scale(0.5);
+	-webkit-transform: translate(3px, 3px) scale(0.5);
+	transform: translate(3px, 3px) scale(0.5);
+	width: 40px;
+}
+		</style>
+	</head>
+	<body>
+		<div id="a"></div>
+		<div id="b"></div>
+		<div id="c"><div id="d"></div></div>
+		<div id="e"></div>
+		<div id="f"></div>
+
+		<p>A chubby, obnoxious kid from some foreign country said something heartrending...<br>
+			So, I'm healing my wounds in the hot springs.</p>
+		<script>window.scrollTo(0, 2000);</script>
+	</body>
+</html>
