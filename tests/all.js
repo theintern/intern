@@ -9,6 +9,7 @@ define([
 	'./lib/interfaces/bdd',
 	'./lib/interfaces/object',
 	'./lib/reporters/console',
+	'./lib/reporters/json',
 	'dojo/has!host-node?./lib/reporters/teamcity',
 	'dojo/has!host-node?./lib/reporters/lcov'
 ], function () {});
