@@ -42,7 +42,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	 */
 	automateOnly: true,
 
-	directory: require.toUrl('./browserstack/'),
+	directory: './browserstack/',
 
 	/**
 	 * If true, any other tunnels running on the account will be killed.
@@ -77,7 +77,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	},
 
 	get executable() {
-		return this.platform === 'win32' ? './BrowserStackLocal.exe' : './BrowserStackLocal';
+		return './BrowserStackLocal' + (this.platform === 'win32' ? '.exe' : '');
 	},
 
 	get extraCapabilities() {
@@ -97,7 +97,9 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 		var architecture = this.architecture;
 		var url = 'https://www.browserstack.com/browserstack-local/BrowserStackLocal-';
 
-		if (platform === 'darwin' || platform === 'win32') {
+		if (platform === 'darwin' && architecture === 'x64') {
+			url += platform + '-' + architecture;
+		} else if (platform === 'win32') {
 			url += platform;
 		}
 		else if (platform === 'linux' && (architecture === 'ia32' || architecture === 'x64')) {

@@ -42,7 +42,8 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 */
 	apiSecret: null,
 
-	directory: require.toUrl('./testingbot/'),
+	directory: './testingbot/',
+
 	executable: 'java',
 
 	/**

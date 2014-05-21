@@ -3,14 +3,14 @@
  */
 
 var util = require('./util');
-var Deferred = require('dojo/Promise').Deferred;
+var Promise = require('dojo/Promise');
 var Evented = require('dojo/Evented');
 var spawnUtil = require('child_process');
-var fs = require('fs');
 var urlUtil = require('url');
-var pathUtil = require('path');
 var http = require('http');
 var https = require('https');
+var fs = require('fs');
+var pathUtil = require('path');
 var decompress = require('decompress');
 
 // TODO: Spawned processes are not getting cleaned up if there is a crash
@@ -37,7 +37,7 @@ function get(url) {
 	url = urlUtil.parse(url);
 	url.method = 'GET';
 
-	var dfd = new Deferred(function () {
+	var dfd = new Promise.Deferred(function () {
 		request && request.abort();
 		request = null;
 	});
@@ -143,7 +143,8 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	directory: null,
 
 	/**
-	 * The executable to spawn in order to create a tunnel.
+	 * The executable to spawn in order to create a tunnel. This property will be null if the tunnel's executable does
+	 * not exist.
 	 *
 	 * @type {string}
 	 */
@@ -240,7 +241,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * @readonly
 	 */
 	get isDownloaded() {
-		return fs.existsSync(pathUtil.join(this.directory, this.executable));
+		return fs.exists(pathUtil.join(this.directory, this.executable));
 	},
 
 	/**
@@ -253,7 +254,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * @returns {Promise.<void>} A promise that resolves once the download and extraction process has completed.
 	 */
 	download: function (forceDownload) {
-		var dfd = new Deferred(function (reason) {
+		var dfd = new Promise.Deferred(function (reason) {
 			request && request.cancel(reason);
 			request = null;
 		});
@@ -294,11 +295,12 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 					});
 
 					response.on('end', function () {
-						var error = new Error('Server error: ' + (responseData || 'status ' + response.statusCode));
+						var error = new Error('Server error: [' + response.statusCode + '] ' + (responseData || ''));
 						dfd.reject(error);
 					});
 				}
-			}).otherwise(function (error) {
+			},
+			function (error) {
 				dfd.reject(error);
 			});
 		}
@@ -334,11 +336,15 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * successfully.
 	 */
 	_makeChild: function () {
+		function handleExit() {
+			dfd.reject(new Error(errorMessage || 'Tunnel failed to start: Exit code ' + exitCode));
+		}
+
 		var command = this.executable;
 		var args = this._makeArgs.apply(this, arguments);
 		var options = this._makeOptions.apply(this, arguments);
 
-		var dfd = new Deferred();
+		var dfd = new Promise.Deferred();
 		var process = spawnUtil.spawn(command, args, options);
 
 		process.stdout.setEncoding('utf8');
@@ -347,25 +353,32 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 		// Detect and reject on common errors, but only until the promise is fulfilled, at which point we should
 		// no longer be managing any events since it means the process has started successfully and is underway
 		var errorMessage = '';
-		var errorCode = 0;
+		var exitCode = null;
+		var stderrClosed = false;
 		var handles = [
 			util.on(process, 'error', dfd.reject.bind(dfd)),
 			util.on(process.stderr, 'data', function (data) {
 				errorMessage += data;
 			}),
 			util.on(process, 'exit', function (code) {
-				errorCode = code;
+				exitCode = code;
+				if (stderrClosed) {
+					handleExit();
+				}
 			}),
 			// stderr might still have data in buffer at the time the exit event is sent, so we have to store data
 			// from stderr and the exit code and reject only once stderr closes
 			util.on(process.stderr, 'close', function () {
-				if (errorCode > 0) {
-					dfd.reject(new Error(errorMessage || 'Unknown error: Exit code ' + errorCode));
+				stderrClosed = true;
+				if (exitCode !== null) {
+					handleExit();
 				}
 			})
 		];
 
-		dfd.promise.always(function () {
+		dfd.promise.then(function () {
+			clearHandles(handles);
+		}).catch(function () {
 			clearHandles(handles);
 		});
 
@@ -398,7 +411,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * @param {JobState} data Data to send to the tunnel provider about the job.
 	 */
 	sendJobState: function () {
-		var dfd = new Deferred();
+		var dfd = new Promise.Deferred();
 		dfd.reject(new Error('Job state is not supported by this tunnel.'));
 		return dfd.promise;
 	},
@@ -436,7 +449,11 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 				self._process = process;
 				self._handles.push(
 					util.on(process.stdout, 'data', proxyEvent(self, 'stdout')),
-					util.on(process.stderr, 'data', proxyEvent(self, 'stderr'))
+					util.on(process.stderr, 'data', proxyEvent(self, 'stderr')),
+					util.on(process, 'exit', function () {
+						self.isStarting = false;
+						self.isRunning = false;
+					})
 				);
 				return child.deferred.promise;
 			})
@@ -529,7 +546,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * @returns {Promise.<void>} A promise that resolves once the tunnel has shut down.
 	 */
 	_stop: function () {
-		var dfd = new Deferred();
+		var dfd = new Promise.Deferred();
 		var process = this._process;
 
 		process.once('exit', function (code) {

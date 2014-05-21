@@ -9,6 +9,7 @@ var fs = require('fs');
 var os = require('os');
 var urlUtil = require('url');
 var pathUtil = require('path');
+var SC_VERSION = '4.2';
 
 /**
  * A Sauce Labs tunnel. This tunnel uses Sauce Connect 4 on platforms where it is supported, and Sauce Connect 3
@@ -148,7 +149,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		var architecture = this.architecture;
 
 		if (platform === 'osx' || platform === 'win32' || (platform === 'linux' && architecture === 'x64')) {
-			return './sc-4.1-' + platform + '/bin/sc' + (platform === 'win32' ? '.exe' : '');
+			return './sc-' + SC_VERSION + '-' + platform + '/bin/sc' + (platform === 'win32' ? '.exe' : '');
 		}
 		else {
 			return 'java';
@@ -175,7 +176,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	get url() {
 		var platform = this.platform === 'darwin' ? 'osx' : this.platform;
 		var architecture = this.architecture;
-		var url = 'https://d2nkw87yt5k0to.cloudfront.net/downloads/sc-latest-';
+		var url = 'https://d2nkw87yt5k0to.cloudfront.net/downloads/sc-' + SC_VERSION + '-';
 
 		if (platform === 'osx' || platform === 'win32') {
 			url += platform + '.zip';
@@ -190,63 +191,78 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		return url;
 	},
 
+	download: function () {
+		var self = this;
+		var executable = this.executable;
+		return _super.download.apply(this, arguments).then(function () {
+			if (self.executable !== 'java') {
+				fs.chmodSync(pathUtil.join(self.directory, executable), parseInt('0755', 8));
+			}
+		});
+	},
+
+	_makeNativeArgs: function (proxy) {
+		var args = [
+			'-u', this.username,
+			'-k', this.accessKey
+		];
+
+		if (proxy) {
+			if (proxy.host) {
+				args.push('-p', proxy.host);
+			}
+
+			if (proxy.auth) {
+				args.push('-w', proxy.auth);
+			}
+			else if (proxy.username) {
+				args.push('-w', proxy.username + ':' + proxy.password);
+			}
+		}
+
+		if (this.domainAuthentication.length) {
+			this.domainAuthentication.forEach(function (domain) {
+				domain = urlUtil.parse(domain);
+				args.push('-a', domain.hostname + ':' + domain.port + ':' + domain.auth);
+			});
+		}
+
+		this.logTrafficStats && args.push('-z', Math.floor(this.logTrafficStats / 1000));
+
+		return args;
+	},
+
+	_makeJavaArgs: function (proxy) {
+		var args = [
+			'-jar', 'Sauce-Connect.jar',
+			this.username,
+			this.accessKey
+		];
+
+		this.logFileSize && args.push('-g', this.logFileSize);
+		this.squidOptions && args.push('-S', this.squidOptions);
+		this.vmVersion && args.push('-V', this.vmVersion);
+		this.restUrl && args.push('-x', this.restUrl);
+
+		if (proxy) {
+			proxy.hostname && args.push('-p', proxy.hostname + (proxy.port ? ':' + proxy.port : ''));
+
+			if (proxy.auth) {
+				var auth = proxy.auth.split(':');
+				args.push('-u', auth[0], '-X', auth[1]);
+			}
+			else {
+				proxy.username && args.push('-u', proxy.username);
+				proxy.password && args.push('-X', proxy.password);
+			}
+		}
+
+		return args;
+	},
+
 	_makeArgs: function (readyFile) {
-		/*jshint maxcomplexity:11 */
-		var args;
 		var proxy = this.proxy ? urlUtil.parse(this.proxy) : undefined;
-		if (this.executable === 'java') {
-			args = [
-				'-jar', 'Sauce-Connect.jar',
-				this.username,
-				this.accessKey
-			];
-
-			this.logFileSize && args.push('-g', this.logFileSize);
-			this.squidOptions && args.push('-S', this.squidOptions);
-			this.vmVersion && args.push('-V', this.vmVersion);
-			this.restUrl && args.push('-x', this.restUrl);
-
-			if (proxy) {
-				proxy.hostname && args.push('-p', proxy.hostname + (proxy.port ? ':' + proxy.port : ''));
-
-				if (proxy.auth) {
-					var auth = proxy.auth.split(':');
-					args.push('-u', auth[0], '-X', auth[1]);
-				}
-				else {
-					proxy.username && args.push('-u', proxy.username);
-					proxy.password && args.push('-X', proxy.password);
-				}
-			}
-		}
-		else {
-			args = [
-				'-u', this.username,
-				'-k', this.accessKey
-			];
-
-			if (proxy) {
-				if (proxy.host) {
-					args.push('-p', proxy.host);
-				}
-
-				if (proxy.auth) {
-					args.push('-w', proxy.auth);
-				}
-				else if (proxy.username) {
-					args.push('-w', proxy.username + ':' + proxy.password);
-				}
-			}
-
-			if (this.domainAuthentication.length) {
-				this.domainAuthentication.forEach(function (domain) {
-					domain = urlUtil.parse(domain);
-					args.push('-a', domain.hostname + ':' + domain.port + ':' + domain.auth);
-				});
-			}
-
-			this.logTrafficStats && args.push('-z', Math.floor(this.logTrafficStats / 1000));
-		}
+		var args = this.executable === 'java' ? this._makeJavaArgs(proxy) : this._makeNativeArgs(proxy);
 
 		args.push(
 			'-P', this.port,
@@ -321,10 +337,60 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			}
 		}
 
-		var readyFile = pathUtil.join(os.tmpdir(), 'saucelabs-' + Date.now());
-		var child = this._makeChild(readyFile);
-		var process = child.process;
-		var dfd = child.deferred;
+		function readStartupMessage(message) {
+			function reject(message) {
+				dfd.reject(new Error(message));
+				return true;
+			}
+
+			// These messages contain structured data we can try to consume
+			if (message.indexOf('Error: response: ') === 0) {
+				try {
+					var error = /(\{[\s\S]*\})/.exec(message);
+					if (error) {
+						error = JSON.parse(error[1]);
+						return reject(error.error);
+					}
+				}
+				catch (error) {
+					// It seems parsing did not work so well; fall through to the normal error handler
+				}
+			}
+
+			if (message.indexOf('Error: ') === 0) {
+				// skip known warnings
+				if (
+					/open file limit \d+ is too low/.test(message) ||
+					/Sauce Labs recommends setting it/.test(message) ||
+					/HTTP response code indicated failure/.test(message)
+				) {
+					return;
+				}
+				return reject(message.slice('Error: '.length));
+			}
+
+			readStatus(message);
+		}
+
+		function readRunningMessage(message) {
+			// Sauce Connect 3
+			if (message.indexOf('Problem connecting to Sauce Labs REST API') > -1) {
+				// It will just keep trying and trying and trying for a while, but it is a failure, so force it
+				// to stop
+				process.kill('SIGTERM');
+			}
+
+			readStatus(message);
+		}
+
+		try {
+			var readyFile = pathUtil.join(os.tmpdir(), 'saucelabs-' + Date.now());
+			var child = this._makeChild(readyFile);
+			var process = child.process;
+			var dfd = child.deferred;
+		} catch (e) {
+			throw e;
+		}
 
 		// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
 		// `fs.watch` API has extra restrictions which are best avoided
@@ -338,46 +404,14 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			dfd.resolve();
 		});
 
-		var readMessage = function (message) {
-			// The next chunk of data will contain a JSON object we can parse for real error data from the
-			// server, so ignore the rest of this one
-			if (message.indexOf('HTTP response code indicated failure.') > -1) {
-				return true;
-			}
+		var readMessage = readStartupMessage;
 
-			// These messages contain structured data we can try to consume
-			if (message.indexOf('Error: response: ') === 0) {
-				try {
-					var error = /(\{[\s\S]*\})/.exec(message);
-					if (error) {
-						error = JSON.parse(error[1]);
-						dfd.reject(new Error(error.error));
-					}
-				}
-				catch (error) {
-					// It seems parsing did not work so well; fall through to the normal error handler
-				}
-			}
-
-			if (message.indexOf('Error: ') === 0) {
-				dfd.reject(new Error(message.slice('Error: '.length)));
-				return true;
-			}
-
-			// Sauce Connect 3
-			if (message.indexOf('Problem connecting to Sauce Labs REST API') > -1) {
-				// It will just keep trying and trying and trying for a while, but it is a failure, so force it
-				// to stop
-				process.kill('SIGTERM');
-				dfd.reject(message);
-				return true;
-			}
-
-			return readStatus(message);
-		};
+		dfd.promise.then(function () {
+			readMessage = readRunningMessage();
+		});
 
 		// Sauce Connect exits with a zero status code when there is a failure, and outputs error messages to
-		// stdout, like a boss
+		// stdout, like a boss. Even better, it uses the "Error:" tag for warnings.
 		this._handles.push(util.on(process.stdout, 'data', function (data) {
 			data.split('\n').some(function (message) {
 				// Get rid of the date/time prefix on each message
@@ -385,10 +419,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 				if (delimiter > -1) {
 					message = message.slice(delimiter + 3);
 				}
-
-				message = message.trim();
-
-				readMessage(message);
+				return readMessage(message.trim());
 			});
 		}));
 
