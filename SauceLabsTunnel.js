@@ -5,6 +5,7 @@
 var Tunnel = require('./Tunnel');
 var util = require('./util');
 var request = require('dojo/request');
+var Promise = require('dojo/Promise');
 var fs = require('fs');
 var os = require('os');
 var urlUtil = require('url');
@@ -339,7 +340,9 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 
 		function readStartupMessage(message) {
 			function reject(message) {
-				dfd.reject(new Error(message));
+				if (dfd.promise.state === Promise.State.PENDING) {
+					dfd.reject(new Error(message));
+				}
 				return true;
 			}
 

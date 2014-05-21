@@ -337,7 +337,9 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 */
 	_makeChild: function () {
 		function handleExit() {
-			dfd.reject(new Error(errorMessage || 'Tunnel failed to start: Exit code ' + exitCode));
+			if (dfd.promise.state === Promise.State.PENDING) {
+				dfd.reject(new Error(errorMessage || 'Tunnel failed to start: Exit code ' + exitCode));
+			}
 		}
 
 		var command = this.executable;
