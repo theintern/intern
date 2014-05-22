@@ -15,6 +15,10 @@ h2 {
 	text-align: right;
 }
 
+td {
+	padding: 4px;
+}
+
 table.report {
 	background-color: rgb(104, 120, 136);
 	border-collapse: collapse;
@@ -28,6 +32,10 @@ table.report th,
 	font-weight: bold;
 }
 
+table.report .failed {
+	background-color: rgb(172, 55, 55);
+}
+
 table.report th,
 table.report .suite {
 	background-color: rgb(49, 102, 150);
@@ -36,19 +44,24 @@ table.report .suite {
 table.report th,
 table.report td {
 	border: 1px solid #DEDEDE;
-	padding: 4px;
-}
-
-table.report .suite td {
-	border-bottom-color: rgb(194, 194, 194);
-	border-bottom-width: 2px;
-}
-
-table.report .failed .column-info,
-table.report .failed .duration {
-	background-color: rgb(172, 55, 55);
 }
 
 .duration {
 	width: 100px;
+}
+
+.indent1 {
+	padding-left: 2em;
+}
+.indent2 {
+	padding-left: 4em;
+}
+.indent3 {
+	padding-left: 6em;
+}
+.indent4 {
+	padding-left: 8em;
+}
+.indent5 {
+	padding-left: 10em;
 }
