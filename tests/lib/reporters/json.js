@@ -6,6 +6,8 @@ define([
 	'../../../lib/Test',
 	'../../../lib/reporters/json'
 ], function (registerSuite, assert, lang, Suite, Test, reporter) {
+	var consoleLog = console.log;
+
 	if (typeof console !== 'object') {
 		// IE<10 does not provide a global console object when Developer Tools is turned off
 		return;
@@ -20,8 +22,7 @@ define([
 	}
 
 	function runWithMockConsole(callback) {
-		var realConsole = console.log,
-			messages = [];
+		var messages = [];
 
 		console.log = function (msg) {
 			messages.push(parseMessage(msg));
@@ -31,7 +32,7 @@ define([
 			callback();
 		}
 		finally {
-			console.log = realConsole;
+			console.log = consoleLog;
 		}
 
 		return messages;
@@ -39,7 +40,13 @@ define([
 
 	function testReporterTopic(topic, argument) {
 		var messages = runWithMockConsole(function () {
-			reporter[topic](argument);
+			reporter.start();
+			try {
+				reporter[topic](argument);
+			}
+			finally {
+				reporter.remove();
+			}
 		});
 		assert.strictEqual(messages.length, 1, '1 message should have been logged');
 		assert.strictEqual(messages[0].topic, topic, 'Message should have expected topic property');

@@ -285,7 +285,7 @@ else {
 				startup({
 					/*jshint camelcase:false */
 					logger: function () {
-						console.error.apply(console, arguments);
+						console.log.apply(console, arguments);
 					},
 					tunnelIdentifier: config.capabilities['tunnel-identifier'],
 					username: config.webdriver.username,

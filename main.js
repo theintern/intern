@@ -45,7 +45,7 @@ define([
 						dfd.resolve();
 					}
 					else {
-						console.error('%d environments left to test', numSuitesToRun - numSuitesCompleted);
+						console.log('%d environments left to test', numSuitesToRun - numSuitesCompleted);
 					}
 				});
 			}));
