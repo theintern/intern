@@ -2,14 +2,20 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'../../lib/util',
+	'dojo/has',
 	'dojo/has!host-node?dojo/node!fs'
-], function (registerSuite, assert, util, fs) {
+], function (registerSuite, assert, util, has, fs) {
 	function runWithMockConsole(func) {
 		var consoleError = console.error;
 		var messages = [];
 
-		console.error = function (message) {
-			messages.push(message);
+		console.error = function () {
+			if (arguments.length === 1) {
+				messages.push(arguments[0]);
+			}
+			else {
+				messages.push(arguments);
+			}
 		};
 
 		try {
@@ -77,7 +83,7 @@ define([
 						});
 					});
 					assert.lengthOf(messages, 1, 'Should have posted error messages');
-					assert.equal(messages[0], 'Error: fail\nat foo.js:2:10\nNo stack');
+					assert.equal(messages[0], 'Error: fail\n  at foo.js:2:10\nNo stack');
 				},
 
 				'no location': function () {
@@ -91,7 +97,7 @@ define([
 		})()
 	};
 
-	if (fs) {
+	if (has('host-node')) {
 		suite.instrument = (function () {
 			var data = fs.readFileSync('./main.js', { encoding: 'utf-8' });
 
