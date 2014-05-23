@@ -172,14 +172,7 @@ else {
 					noAutoWrap: true
 				});
 
-				hook.hookRunInThisContext(function (filename) {
-					return !config.excludeInstrumentation ||
-						// if the string passed to `excludeInstrumentation` changes here, it must also change in
-						// `lib/createProxy.js`
-						!config.excludeInstrumentation.test(filename.slice(basePath.length));
-				}, function (code, filename) {
-					return instrumenter.instrumentSync(code, path.resolve(filename));
-				});
+				util.setInstrumentationHooks(config, instrumenter, basePath);
 
 				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code
 				// coverage reporting on the client if you want
