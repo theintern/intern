@@ -192,6 +192,10 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		return url;
 	},
 
+	get sauceConnectVersion() {
+		return SC_VERSION;
+	},
+
 	download: function () {
 		var self = this;
 		var executable = this.executable;

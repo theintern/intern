@@ -9,8 +9,12 @@ define({
 			{ name: 'dojo', location: './node_modules/intern/node_modules/dojo' }
 		]
 	},
+	environments: [
+		{ browserName: 'chrome' }
+	],
 	reporters: [ 'console' ],
 	suites: [ 'digdug/tests/all' ],
 	functionalSuites: [],
+	useSauceConnect: false,
 	excludeInstrumentation: /^(?:tests|node_modules)\//
 });
