@@ -32,10 +32,12 @@ tunnel.start().then(function () {
 });
 ```
 
-Once a tunnel has been started, it may be interacted with directly at the configured port on localhost using the WebDriver protocol. The tunnel classes also provide a `sendJobState` convenience method to let the remote service know whether a test session passed or failed. This method accepts a session ID and an object containing service-specific data, and it returns a Promise that resolves if the job state was successfully updated.
+Once a tunnel has been started, a test runner interacts with it as described in the service's documentation. The Sauce Labs and TestingBot executables start a WebDriver server on localhost that the test client communicates with. To interact with BrowserStack, a test client will connect to `hub.browserstack.com` after the tunnel has started.
+
+The tunnel classes also provide a `sendJobState` convenience method to let the remote service know whether a test session passed or failed. This method accepts a session ID and an object containing service-specific data, and it returns a Promise that resolves if the job state was successfully updated.
 
 ```js
-tunnel.sendJobSate(sessionId, { success: true });
+tunnel.sendJobState(sessionId, { success: true });
 ```
 
 When testing is finished, call the tunnel's `stop` method to cleanly shut it down. This method returns a Promise that is resolved when the service tunnel executable has exited.
