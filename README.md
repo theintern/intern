@@ -8,3 +8,40 @@ The following services are currently supported:
 * [BrowserStack](http://www.browserstack.com)
 * [Sauce Labs](http://www.saucelabs.com)
 * [TestingBot](http://www.testingbot.com)
+
+## Configuration
+
+In many cases, the only configuration you'll need to do is provide authentication data. The tunnels use the following environment variables:
+
+Tunnel class         | Environment variables
+---------------------|----------------------------------------------------
+`BrowserStackTunnel` | `BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`
+`SauceLabsTunnel`    | `SAUCE_USERNAME`, `SAUCE_ACCESS_KEY`
+`TestingBotTunnel`   | `TESTINGBOT_KEY`, `TESTINGBOT_SECRET`
+
+
+## Usage
+
+To create a new tunnel, import the desired tunnel class, create a new instance, and call its `start` method. `start` returns a Promise that resolves when the tunnel has successfully started. For example, to create a new Sauce Labs tunnel:
+
+```js
+var SauceLabsTunnel = require('digdug/SauceLabsTunnel');
+var tunnel = new SauceLabsTunnel();
+tunnel.start().then(function () {
+	// interact with the WebDriver server on tunnel.port of localhost
+});
+```
+
+Once a tunnel has been started, it may be interacted with directly at the configured port on localhost using the WebDriver protocol. The tunnel classes also provide a `sendJobState` convenience method to let the remote service know whether a test session passed or failed. This method accepts a session ID and an object containing service-specific data, and it returns a Promise that resolves if the job state was successfully updated.
+
+```js
+tunnel.sendJobSate(sessionId, { success: true });
+```
+
+When testing is finished, call the tunnel's `stop` method to cleanly shut it down. This method returns a Promise that is resolved when the service tunnel executable has exited.
+
+```js
+tunnel.stop().then(function () {
+	// the tunnel has been shut down
+});
+```
