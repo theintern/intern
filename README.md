@@ -11,7 +11,7 @@ The following services are currently supported:
 
 ## Configuration
 
-In many cases, the only configuration you'll need to do is provide authentication data. The tunnels use the following environment variables:
+In many cases, the only configuration you'll need to do is provide authentication data. This can be provided by setting properties on tunnels or via environment variables. The tunnels use the following environment variables:
 
 Tunnel class         | Environment variables
 ---------------------|----------------------------------------------------
