@@ -10,7 +10,7 @@
 		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/digdug/blob/master/LICENSE" }
 	],
 	"dependencies": {
-		"dojo": "https://github.com/csnover/core/archive/master.tar.gz",
+		"dojo": "https://github.com/csnover/core/archive/compiled.tar.gz",
 		"decompress": "0.2.3"
 	},
 	"devDependencies": {
