@@ -336,7 +336,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * successfully.
 	 */
 	_makeChild: function () {
-		function handleExit() {
+		function handleChildExit() {
 			if (dfd.promise.state === Promise.State.PENDING) {
 				dfd.reject(new Error(errorMessage || 'Tunnel failed to start: Exit code ' + exitCode));
 			}
@@ -347,33 +347,34 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 		var options = this._makeOptions.apply(this, arguments);
 
 		var dfd = new Promise.Deferred();
-		var process = spawnUtil.spawn(command, args, options);
+		var child = spawnUtil.spawn(command, args, options);
 
-		process.stdout.setEncoding('utf8');
-		process.stderr.setEncoding('utf8');
+		child.stdout.setEncoding('utf8');
+		child.stderr.setEncoding('utf8');
 
 		// Detect and reject on common errors, but only until the promise is fulfilled, at which point we should
 		// no longer be managing any events since it means the process has started successfully and is underway
 		var errorMessage = '';
 		var exitCode = null;
 		var stderrClosed = false;
+
 		var handles = [
-			util.on(process, 'error', dfd.reject.bind(dfd)),
-			util.on(process.stderr, 'data', function (data) {
+			util.on(child, 'error', dfd.reject.bind(dfd)),
+			util.on(child.stderr, 'data', function (data) {
 				errorMessage += data;
 			}),
-			util.on(process, 'exit', function (code) {
+			util.on(child, 'exit', function (code) {
 				exitCode = code;
 				if (stderrClosed) {
-					handleExit();
+					handleChildExit();
 				}
 			}),
 			// stderr might still have data in buffer at the time the exit event is sent, so we have to store data
 			// from stderr and the exit code and reject only once stderr closes
-			util.on(process.stderr, 'close', function () {
+			util.on(child.stderr, 'close', function () {
 				stderrClosed = true;
 				if (exitCode !== null) {
-					handleExit();
+					handleChildExit();
 				}
 			})
 		];
@@ -385,7 +386,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 		});
 
 		return {
-			process: process,
+			process: child,
 			deferred: dfd
 		};
 	},
@@ -446,18 +447,18 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 				self._handles = [];
 				return self._start();
 			})
-			.then(function (child) {
-				var process = child.process;
-				self._process = process;
+			.then(function (childHandle) {
+				var child = childHandle.process;
+				self._process = child;
 				self._handles.push(
-					util.on(process.stdout, 'data', proxyEvent(self, 'stdout')),
-					util.on(process.stderr, 'data', proxyEvent(self, 'stderr')),
-					util.on(process, 'exit', function () {
+					util.on(child.stdout, 'data', proxyEvent(self, 'stdout')),
+					util.on(child.stderr, 'data', proxyEvent(self, 'stderr')),
+					util.on(child, 'exit', function () {
 						self.isStarting = false;
 						self.isRunning = false;
 					})
 				);
-				return child.deferred.promise;
+				return childHandle.deferred.promise;
 			})
 			.then(function (returnValue) {
 				self.emit('status', 'Ready');
@@ -490,19 +491,19 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 			dfd.resolve();
 		}
 
-		var child = this._makeChild();
-		var process = child.process;
-		var dfd = child.deferred;
+		var childHandle = this._makeChild();
+		var child = childHandle.process;
+		var dfd = childHandle.deferred;
 		var handles = [
-			util.on(process.stdout, 'data', resolve),
-			util.on(process.stderr, 'data', resolve),
-			util.on(process, 'error', function (error) {
+			util.on(child.stdout, 'data', resolve),
+			util.on(child.stderr, 'data', resolve),
+			util.on(child, 'error', function (error) {
 				clearHandles(handles);
 				dfd.reject(error);
 			})
 		];
 
-		return child;
+		return childHandle;
 	},
 
 	/**
