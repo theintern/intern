@@ -18,7 +18,7 @@ else
 	BANCH=$1
 fi
 
-ROOT_DIR=$(cd $(dirname $0) && pwd)
+ROOT_DIR=$(cd $(dirname $0) && cd .. && pwd)
 BUILD_DIR="$ROOT_DIR/build"
 
 if [ -d "$BUILD_DIR" ]; then
@@ -37,6 +37,7 @@ if [ "$REPLY" != "y" ]; then
 	exit 0
 fi
 
+cd "$ROOT_DIR"
 mkdir "$BUILD_DIR"
 git clone --recursive git@github.com:theintern/digdug.git "$BUILD_DIR"
 
