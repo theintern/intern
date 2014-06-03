@@ -19,6 +19,7 @@ git clone -b gh-pages . "$BUILD_DIR"
 jsdoc -d "$BUILD_DIR" *.js README.md
 
 cd "$BUILD_DIR"
+git add .
 git commit -a -m "Rebuild documentation"
 git push origin gh-pages
 
