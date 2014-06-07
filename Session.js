@@ -470,7 +470,7 @@ Session.prototype = /** @lends module:leadfoot/Session# */ {
 		var promise = this._post('timeouts', {
 			type: type,
 			ms: ms
-		}).otherwise(function (error) {
+		}).catch(function (error) {
 			// Appium as of April 2014 complains that `timeouts` is unsupported, so try the more specific
 			// endpoints if they exist
 			if (error.name === 'UnknownCommand') {
@@ -753,7 +753,7 @@ Session.prototype = /** @lends module:leadfoot/Session# */ {
 	 */
 	switchToParentFrame: function () {
 		var self = this;
-		return this._post('frame/parent').otherwise(function (error) {
+		return this._post('frame/parent').catch(function (error) {
 			// At least FirefoxDriver 2.40.0 does not implement this command, but we can fake it by retrieving
 			// the parent frame element using JavaScript and switching to it directly by reference
 			// At least Selendroid 0.9.0 also does not support this command, but unfortunately throws an incorrect
@@ -788,7 +788,7 @@ Session.prototype = /** @lends module:leadfoot/Session# */ {
 	 */
 	closeCurrentWindow: function () {
 		var self = this;
-		return this._delete('window').otherwise(function (error) {
+		return this._delete('window').catch(function (error) {
 			// ios-driver 0.6.6-SNAPSHOT April 2014 does not implement close window command
 			if (error.name === 'UnknownCommand') {
 				return self.getCurrentWindowHandle().then(function (name) {
@@ -965,7 +965,7 @@ Session.prototype = /** @lends module:leadfoot/Session# */ {
 
 		return this._post('cookie', {
 			cookie: cookie
-		}).otherwise(function (error) {
+		}).catch(function (error) {
 			// At least ios-driver 0.6.0-SNAPSHOT April 2014 does not know how to set cookies
 			if (error.name === 'UnknownCommand') {
 				// Per RFC6265 section 4.1.1, cookie names must match `token` (any US-ASCII character except for

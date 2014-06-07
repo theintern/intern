@@ -1,9 +1,10 @@
+/* jshint dojo:true */
 define([
 	'intern!object',
 	'intern/chai!assert',
 	'./support/util',
 	'require',
-	'../../../../lib/leadfoot/ProxiedSession',
+	'dojo/node!../../../ProxiedSession',
 	'dojo/topic'
 ], function (registerSuite, assert, util, require, ProxiedSession, topic) {
 	registerSuite(function () {
@@ -32,7 +33,7 @@ define([
 						'Code coverage data retrieved from session should be broadcasted');
 
 					handle.remove();
-				}).otherwise(function (error) {
+				}).catch(function (error) {
 					handle.remove();
 					throw error;
 				});
@@ -40,7 +41,7 @@ define([
 		}
 
 		return {
-			name: 'lib/leadfoot/ProxiedSession',
+			name: 'ProxiedSession',
 
 			setup: function () {
 				return util.createSessionFromRemote(this.remote, ProxiedSession, false).then(function () {

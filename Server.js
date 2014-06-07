@@ -47,7 +47,8 @@ function createHttpRequest(method) {
 				// anyway)
 				'Accept': 'application/json,text/plain;q=0.9'
 			},
-			method: method
+			method: method,
+			streamEncoding: 'utf8'
 		};
 
 		if (requestData) {
@@ -61,36 +62,41 @@ function createHttpRequest(method) {
 		var trace = {};
 		Error.captureStackTrace(trace);
 
-		return request(url, kwArgs).response.then(function handleResponse(response) {
-			/*jshint maxcomplexity:23 */
+		return request(url, kwArgs).then(function handleResponse(response) {
+			/*jshint maxcomplexity:24 */
 			// The JsonWireProtocol specification prior to June 2013 stated that creating a new session should
 			// perform a 3xx redirect to the session capabilities URL, instead of simply returning the returning
 			// data about the session; as a result, we need to follow all redirects to get consistent data
-			if (response.status >= 300 && response.status < 400 && response.getHeader('Location')) {
+			if (response.statusCode >= 300 && response.statusCode < 400 && response.getHeader('Location')) {
 				return request(response.getHeader('Location'), {
 					method: 'GET'
-				}).response.always(handleResponse);
+				}).then(handleResponse, handleResponse);
 			}
 
 			var responseType = response.getHeader('Content-Type');
 			var data;
 
-			if (responseType && responseType.indexOf('application/json') === 0 && response.text) {
-				data = JSON.parse(response.text);
+			if (responseType && responseType.indexOf('application/json') === 0 && response.data) {
+				try {
+					data = JSON.parse(response.data);
+				} catch (e) {
+					console.log('error parsing response data ' + response.text);
+					throw e;
+				}
 			}
 
 			// Some drivers will respond to a DELETE request with 204; in this case, we know the operation
 			// completed successfully, so just create an expected response data structure for a successful
 			// operation to avoid any special conditions elsewhere in the code caused by different HTTP return
 			// values
-			if (response.status === 204) {
+			if (response.statusCode === 204) {
 				data = {
 					status: 0,
 					sessionId: null,
 					value: null
 				};
 			}
-			else if (response.status >= 400 || (data && data.status > 0)) {
+			else if (response.statusCode >= 400 || (data && data.status > 0)) {
 				var error = new Error();
 
 				// "The client should interpret a 404 Not Found response from the server as an "Unknown command"
@@ -99,7 +105,7 @@ function createHttpRequest(method) {
 				// - http://code.google.com/p/selenium/wiki/JsonWireProtocol#Response_Status_Codes
 				if (!data) {
 					data = {
-						status: response.status === 404 || response.status === 501 ? 9 : 13,
+						status: response.statusCode === 404 || response.statusCode === 501 ? 9 : 13,
 						value: {
 							message: response.text
 						}
@@ -109,7 +115,7 @@ function createHttpRequest(method) {
 				// error data on the `value` key, and does not return the correct HTTP status for unknown commands
 				else if (!data.value && ('message' in data)) {
 					data = {
-						status: response.status === 404 || response.status === 501 ||
+						status: response.statusCode === 404 || response.statusCode === 501 ||
 							data.message.indexOf('cannot find command') > -1 ? 9 : 13,
 						value: data
 					};
@@ -119,7 +125,7 @@ function createHttpRequest(method) {
 				// status UnknownError for commands that are not implemented; these errors are more properly
 				// represented to end-users using the Selenium status UnknownCommand, so we make the appropriate
 				// coercion here
-				if (response.status === 501 && data.status === 13) {
+				if (response.statusCode === 501 && data.status === 13) {
 					data.status = 9;
 				}
 
@@ -137,7 +143,7 @@ function createHttpRequest(method) {
 				// At least InternetExplorerDriver 2.41.0 & SafariDriver 2.41.0 respond with HTTP status codes
 				// other than Not Implemented and a Selenium status UnknownError for commands that are not
 				// implemented; like FirefoxDriver they provide a reliable indicator of unsupported commands
-				if (response.status === 500 && data.value &&
+				if (response.statusCode === 500 && data.value &&
 					(
 						data.value.message.indexOf('Command not found') > -1 ||
 						data.value.message.indexOf('Unknown command') > -1
@@ -148,7 +154,7 @@ function createHttpRequest(method) {
 
 				// At least GhostDriver 1.1.0 incorrectly responds with HTTP 405 instead of HTTP 501 for
 				// unimplemented commands
-				if (response.status === 405 && data.value &&
+				if (response.statusCode === 405 && data.value &&
 					data.value.message.indexOf('Invalid Command Method') > -1
 				) {
 					data.status = 9;
@@ -299,7 +305,6 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 		 */
 		function addCapabilities(testedCapabilities) {
 			var dfd = new Promise.Deferred();
-
 			var keys = Object.keys(testedCapabilities);
 			var i = 0;
 
@@ -317,7 +322,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 					value().then(function (value) {
 						capabilities[key] = value;
 						next();
-					}, lang.hitch(dfd, 'reject'));
+					}, lang.bind(dfd, 'reject'));
 				}
 				else {
 					capabilities[key] = value;
@@ -409,7 +414,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 			testedCapabilities.takesScreenshot = session.takeScreenshot().then(supported, unsupported);
 
 			// At least ios-driver 0.6.6-SNAPSHOT April 2014 does not support execute_async
-			testedCapabilities.supportsExecuteAsync = session.executeAsync('arguments[0](true);').otherwise(unsupported);
+			testedCapabilities.supportsExecuteAsync = session.executeAsync('arguments[0](true);').catch(unsupported);
 
 			// Some additional, currently-non-standard capabilities are needed in order to know about supported
 			// features of a given platform
@@ -435,7 +440,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 					return session.getPageTitle();
 				}).then(function (pageTitle) {
 					return pageTitle === 'a';
-				}).otherwise(unsupported);
+				}).catch(unsupported);
 			};
 			testedCapabilities.supportsCssTransforms = function () {
 				// It is not possible to test this since the feature tests runs in quirks-mode on IE<10, but we
@@ -450,7 +455,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 						var bbox = document.getElementById('a').getBoundingClientRect();
 						return bbox.right - bbox.left === 4;
 					});
-				}).otherwise(unsupported);
+				}).catch(unsupported);
 			};
 
 			testedCapabilities.shortcutKey = (function () {
@@ -520,11 +525,11 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 						return session.getCookies();
 					}).then(function (cookies) {
 						return cookies.length > 0;
-					}).otherwise(function () {
+					}).catch(function () {
 						return true;
 					}).then(function (isBroken) {
 						return session.clearCookies().always(function () {
-							return isBroken;
+							return isBroken();
 						});
 					});
 				};
@@ -536,7 +541,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 				return element.getTagName();
 			}).then(function (tagName) {
 				return tagName !== 'html';
-			}).otherwise(broken);
+			}).catch(broken);
 
 			// At least ios-driver 0.6.6-SNAPSHOT incorrectly returns empty string instead of null for attributes
 			// that do not exist
@@ -544,7 +549,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 				return element.getAttribute('nonexisting');
 			}).then(function (value) {
 				return value !== null;
-			}).otherwise(broken);
+			}).catch(broken);
 
 			// At least Selendroid 0.9.0 always returns invalid element handles from JavaScript
 			testedCapabilities.brokenExecuteElementReturn = function () {
@@ -561,7 +566,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 					return session.getElementById('a');
 				}).then(function (element) {
 					return element.isDisplayed();
-				}).otherwise(broken);
+				}).catch(broken);
 			};
 
 			// At least ChromeDriver 2.9 treats elements that are offscreen as displayed, but others do not
@@ -570,7 +575,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 					return session.getElementById('a');
 				}).then(function (element) {
 					return element.isDisplayed();
-				}).otherwise(broken);
+				}).catch(broken);
 			};
 
 			// There is inconsistency across all drivers as to whether or not submitting a form button should cause
@@ -587,7 +592,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 					return session.getCurrentUrl();
 				}).then(function (url) {
 					return url.indexOf('a=a') === -1;
-				}).otherwise(broken);
+				}).catch(broken);
 			};
 
 			// At least Selendroid 0.9.0 has a bug where it catastrophically fails to retrieve available types;
@@ -638,7 +643,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 						}
 
 						return counter !== 6;
-					}).otherwise(broken);
+					}).catch(broken);
 				};
 			}
 
@@ -674,7 +679,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 							return session.execute('return window.scrollY !== 3000;');
 						});
 					})
-					.otherwise(broken);
+					.catch(broken);
 				};
 
 				// Touch flick in ios-driver 0.6.6-SNAPSHOT is broken, does not scroll at all except in very
@@ -685,7 +690,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 					}).then(function () {
 						return session.execute('return window.scrollY === 0;');
 					})
-					.otherwise(broken);
+					.catch(broken);
 				};
 
 				// ios-driver 0.6.6-SNAPSHOT April 2014 calculates position based on a bogus origin and does not
@@ -697,7 +702,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 						return element.getPosition();
 					}).then(function (position) {
 						return position.x !== 3000 || position.y !== 3000;
-					}).otherwise(broken);
+					}).catch(broken);
 				};
 
 				// At least ios-driver 0.6.6-SNAPSHOT April 2014 will never complete a refresh call
@@ -724,7 +729,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 						}, 2000);
 
 						return dfd.promise;
-					}).otherwise(broken);
+					}).catch(broken);
 				};
 			}
 
@@ -737,7 +742,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 						}).then(function (dimensions) {
 							return dimensions.width !== 4 || dimensions.height !== 4;
 						});
-					}).otherwise(broken);
+					}).catch(broken);
 				};
 			}
 
@@ -753,7 +758,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 			.then(discoverDefects)
 			.then(addCapabilities)
 			.always(function () {
-				return session.get('about:blank').always(function () {
+				return session.get('about:blank').always(function() {
 					return session;
 				});
 			});

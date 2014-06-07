@@ -1,12 +1,13 @@
+/* jshint dojo:true */
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'dojo/Promise',
+	'dojo/promise/all',
 	'./support/util',
-	'../../strategies',
-	'../../Element',
+	'dojo/node!../../strategies',
+	'dojo/node!../../Element',
 	'require'
-], function (registerSuite, assert, Promise, util, strategies, Element, require) {
+], function (registerSuite, assert, whenAll, util, strategies, Element, require) {
 	function createStubbedSuite(stubbedMethodName, testMethodName, placeholders, firstArguments) {
 		var originalMethod;
 		var calledWith;
@@ -52,7 +53,7 @@ define([
 		var resetBrowserState = true;
 
 		return {
-			name: 'lib/leadfoot/Element',
+			name: 'Element',
 
 			setup: function () {
 				return util.createSessionFromRemote(this.remote).then(function () {
@@ -161,7 +162,7 @@ define([
 							' should look like an element object');
 					});
 
-					return Promise.all(elements.map(function (element) {
+					return whenAll(elements.map(function (element) {
 						return element.getAttribute('id');
 					}));
 				}

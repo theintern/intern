@@ -17,18 +17,19 @@ module.exports = {
 
 				(function poll() {
 					if (Date.now() - startTime > originalTimeout) {
-						session.setTimeout('implicit', originalTimeout).always(function () {
+						var always = function () {
 							var error = new Error();
 							error.status = 21;
 							error.name = statusCodes[error.status][0];
 							error.message = statusCodes[error.status][1];
 							dfd.reject(error);
-						});
+						};
+						session.setTimeout('implicit', originalTimeout).then(always, always);
 						return;
 					}
 
 					self.getElement(strategy, value).then(poll, function (error) {
-						session.setTimeout('implicit', originalTimeout).always(function () {
+						var always = function () {
 							/* istanbul ignore else: other errors should never occur during normal operation */
 							if (error.name === 'NoSuchElement') {
 								dfd.resolve();
@@ -36,7 +37,8 @@ module.exports = {
 							else {
 								dfd.reject(error);
 							}
-						});
+						};
+						session.setTimeout('implicit', originalTimeout).then(always, always);
 					});
 				})();
 

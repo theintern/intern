@@ -63,11 +63,11 @@ function deprecateElementAndStandardSig(fromMethod, toMethod) {
 }
 
 function elementIfExists(using, value) {
-	return this.getElement(using, value).otherwise(function () {});
+	return this.getElement(using, value).catch(function () {});
 }
 
 function elementOrNull(using, value) {
-	return this.getElement(using, value).otherwise(function () {
+	return this.getElement(using, value).catch(function () {
 		return null;
 	});
 }
@@ -452,7 +452,7 @@ var methods = {
 		if (arguments.length === 2) {
 			var using = arguments[0];
 			var value = arguments[1];
-			return this.getElement(using, value).isDisplayed().otherwise(function () {
+			return this.getElement(using, value).isDisplayed().catch(function () {
 				return false;
 			});
 		}

@@ -1,9 +1,11 @@
+/* jshint dojo:true */
+/* jshint browser:true */
 define([
 	'intern!object',
 	'intern/chai!assert',
 	'dojo/promise/all',
 	'./support/util',
-	'../../../../lib/leadfoot/strategies',
+	'dojo/node!../../../strategies',
 	'require'
 ], function (registerSuite, assert, whenAll, util, strategies, require) {
 	registerSuite(function () {
@@ -95,7 +97,7 @@ define([
 				}).then(function (keys) {
 					assert.deepEqual(keys, [ 'bar' ], 'Deleting existing key should reduce size of storage');
 					return session[clear]();
-				}).otherwise(function (error) {
+				}).catch(function (error) {
 					return session[clear]().then(function () {
 						throw error;
 					});
@@ -122,7 +124,7 @@ define([
 		}
 
 		return {
-			name: 'lib/leadfoot/Session',
+			name: 'Session',
 
 			setup: function () {
 				return util.createSessionFromRemote(this.remote).then(function () {
@@ -606,7 +608,7 @@ define([
 				}).then(function (cookies) {
 					assert.lengthOf(cookies, 0);
 					return session.clearCookies();
-				}).otherwise(function (error) {
+				}).catch(function (error) {
 					return session.clearCookies().then(function () {
 						throw error;
 					});

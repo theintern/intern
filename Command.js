@@ -103,13 +103,14 @@ function Command(parent, initialiser, errback) {
 
 	Error.captureStackTrace(this, Command);
 
-	this._promise = (parent ? parent.promise : util.createPromise(undefined)).then(function (returnValue) {
+	console.log('creating a promise; parent.promise is ' + (parent && parent.promise && parent.promise.state));
+	this._promise = (parent ? parent.promise : util.createPromise(undefined, function () {})).then(function (returnValue) {
 		self._context = parent ? parent.context : [];
 		return returnValue;
 	}).then(
 		initialiser && initialiser.bind(this, setContext),
 		errback && errback.bind(this, setContext)
-	).otherwise(function (error) {
+	).catch(function (error) {
 		// The first line of a stack trace from V8 is the string representation of the object holding the stack
 		// trace; in this case, the Command object holds the stack trace, and has no string representation, so we
 		// remove it from the output
@@ -232,7 +233,8 @@ Command.prototype = /** @lends module:leadfoot/Command# */ {
 	 * @returns {module:leadfoot/Command.<void>}
 	 */
 	cancel: function () {
-		this._promise.cancel.apply(this._promise, arguments);
+		console.log('cancelling promise ', this._promise.id);
+		this._promise.abort.apply(this._promise, arguments);
 		return this;
 	},
 

@@ -26,8 +26,10 @@ exports.sleep = function (ms) {
  * @param {any} value The pre-resolved value.
  * @returns {Promise.<any>}
  */
-exports.createPromise = function (value) {
-	return Promise.resolve(value);
+exports.createPromise = function (value, aborter) {
+	var dfd = new Promise.Deferred(aborter);
+	dfd.resolve(value);
+	return dfd.promise;
 };
 
 /**

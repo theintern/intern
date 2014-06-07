@@ -1,15 +1,16 @@
+/* jshint dojo:true */
 define([
 	'intern!object',
 	'intern/chai!assert',
 	'intern/main',
 	'./support/util',
-	'../../../../lib/leadfoot/Server'
+	'dojo/node!../../../Server'
 ], function (registerSuite, assert, intern, util, Server) {
 	registerSuite(function () {
 		var server;
 
 		return {
-			name: 'lib/leadfoot/Server',
+			name: 'Server',
 
 			setup: function () {
 				server = util.createServerFromRemote(this.remote);
@@ -76,7 +77,7 @@ define([
 					assert.isTrue(result.some(function (session) {
 						return currentSessionId === session.id;
 					}));
-				}).otherwise(function (error) {
+				}).catch(function (error) {
 					// Some servers do not support retrieving sessions; this is OK, another server test will verify
 					// that this code is working
 					if (error.name !== 'UnknownCommand') {

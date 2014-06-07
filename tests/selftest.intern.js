@@ -1,3 +1,4 @@
+/* jshint dojo:true */
 define({
 	// The port on which the instrumenting proxy will listen
 	proxyPort: 9000,
@@ -34,6 +35,8 @@ define({
 	// Whether or not to start Sauce Connect before running tests
 	launcher: 'SauceLabsLauncher',
 
+	useSauceConnect: false,
+
 	webdriver: {
 		hostname: 'localhost',
 		port: 4444
@@ -43,7 +46,10 @@ define({
 	// used here
 	loader: {
 		// Packages that should be registered with the loader in each testing environment
-		packages: [ { name: 'leadfoot', location: '.' } ]
+		packages: [
+			{ name: 'leadfoot', location: '.' },
+			{ name: 'dojo', location: './node_modules/intern/node_modules/dojo' }
+		]
 	},
 
 	// Non-functional test suite(s) to run in each browser

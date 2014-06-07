@@ -288,7 +288,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 	equals: function (other) {
 		var elementId = other.elementId || other;
 		var self = this;
-		return this._get('equals/$0', null, [ elementId ]).otherwise(function (error) {
+		return this._get('equals/$0', null, [ elementId ]).catch(function (error) {
 			// At least Selendroid 0.9.0 does not support this command;
 			// At least ios-driver 0.6.6-SNAPSHOT April 2014 fails
 			if (error.name === 'UnknownCommand' ||
@@ -383,7 +383,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 			return getUsingExecute();
 		}
 
-		return this._get('size').otherwise(function (error) {
+		return this._get('size').catch(function (error) {
 			// At least ios-driver 0.6.0-SNAPSHOT April 2014 does not support this command
 			if (error.name === 'UnknownCommand') {
 				return getUsingExecute();
@@ -406,7 +406,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 	 */
 	getComputedStyle: function (propertyName) {
 		var self = this;
-		return this._get('css/$0', null, [ propertyName ]).otherwise(function (error) {
+		return this._get('css/$0', null, [ propertyName ]).catch(function (error) {
 			// At least Selendroid 0.9.0 does not support this command
 			if (error.name === 'UnknownCommand') {
 				return self.session.execute(/* istanbul ignore next */ function (element, propertyName) {
