@@ -528,7 +528,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 					}).catch(function () {
 						return true;
 					}).then(function (isBroken) {
-						return session.clearCookies().always(function () {
+						return session.clearCookies().finally(function () {
 							return isBroken();
 						});
 					});
@@ -757,8 +757,8 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 			})
 			.then(discoverDefects)
 			.then(addCapabilities)
-			.always(function () {
-				return session.get('about:blank').always(function() {
+			.finally(function () {
+				return session.get('about:blank').finally(function() {
 					return session;
 				});
 			});

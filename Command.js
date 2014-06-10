@@ -103,8 +103,12 @@ function Command(parent, initialiser, errback) {
 
 	Error.captureStackTrace(this, Command);
 
-	console.log('creating a promise; parent.promise is ' + (parent && parent.promise && parent.promise.state));
-	this._promise = (parent ? parent.promise : util.createPromise(undefined, function () {})).then(function (returnValue) {
+	function aborter() {
+		throw new Error('Cancelled');
+	}
+
+	/* jshint maxlen:130 */
+	this._promise = (parent ? parent.promise : util.createPromise(undefined, aborter)).then(function (returnValue) {
 		self._context = parent ? parent.context : [];
 		return returnValue;
 	}).then(
@@ -228,12 +232,11 @@ Command.prototype = /** @lends module:leadfoot/Command# */ {
 
 	/**
 	 * Cancels all outstanding chained operations of the Command. Calling this method will cause all chained
-	 * operations to fail with a CancelError.
+	 * operations to fail with an AbortError.
 	 *
 	 * @returns {module:leadfoot/Command.<void>}
 	 */
 	cancel: function () {
-		console.log('cancelling promise ', this._promise.id);
 		this._promise.abort.apply(this._promise, arguments);
 		return this;
 	},
