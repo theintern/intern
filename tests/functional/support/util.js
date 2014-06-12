@@ -1,11 +1,10 @@
 /* jshint dojo:true */
 define([
-	'dojo/lang',
-	'dojo/Deferred',
+	'dojo/node!dojo/lang',
 	'dojo/node!../../../../util',
 	'dojo/node!../../../../Server',
 	'dojo/node!../../../../Session'
-], function (lang, Deferred, util, Server, Session) {
+], function (lang, util, Server, Session) {
 	return lang.delegate(util, {
 		createServer: function (config) {
 			return new Server(config);

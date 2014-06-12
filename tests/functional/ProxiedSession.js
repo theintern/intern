@@ -5,7 +5,7 @@ define([
 	'./support/util',
 	'require',
 	'dojo/node!../../../ProxiedSession',
-	'dojo/topic'
+	'dojo/node!dojo/topic'
 ], function (registerSuite, assert, util, require, ProxiedSession, topic) {
 	registerSuite(function () {
 		var proxyUrl = 'https://example.invalid/';

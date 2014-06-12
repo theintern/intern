@@ -2,12 +2,12 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'dojo/promise/all',
+	'dojo/node!dojo/Promise',
 	'./support/util',
 	'dojo/node!../../strategies',
 	'dojo/node!../../Element',
 	'require'
-], function (registerSuite, assert, whenAll, util, strategies, Element, require) {
+], function (registerSuite, assert, Promise, util, strategies, Element, require) {
 	function createStubbedSuite(stubbedMethodName, testMethodName, placeholders, firstArguments) {
 		var originalMethod;
 		var calledWith;
@@ -162,7 +162,7 @@ define([
 							' should look like an element object');
 					});
 
-					return whenAll(elements.map(function (element) {
+					return Promise.all(elements.map(function (element) {
 						return element.getAttribute('id');
 					}));
 				}
