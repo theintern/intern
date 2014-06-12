@@ -232,9 +232,12 @@ define([
 				var sleepCommand = command.sleep(5000);
 				sleepCommand.cancel();
 
+				var startTime = Date.now();
+
 				return sleepCommand.then(function () {
 					throw new Error('Sleep command should have been cancelled');
 				}, function (error) {
+					assert.operator(Date.now() - startTime, '<', 4000, 'Cancel should not wait for sleep to complete');
 					assert.strictEqual(error.name, 'CancelError');
 				});
 			},

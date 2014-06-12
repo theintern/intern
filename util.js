@@ -13,11 +13,16 @@ var Promise = require('dojo/Promise');
  * @returns {Promise.<void>}
  */
 exports.sleep = function (ms) {
-	var dfd = new Promise.Deferred();
-	setTimeout(function () {
-		dfd.resolve();
-	}, ms);
-	return dfd.promise;
+	return new Promise(function (resolve, reject, progress, setCanceller) {
+		setCanceller(function (reason) {
+			clearTimeout(timer);
+			throw reason;
+		});
+
+		var timer = setTimeout(function () {
+			resolve();
+		}, ms);
+	});
 };
 
 /**
@@ -26,10 +31,8 @@ exports.sleep = function (ms) {
  * @param {any} value The pre-resolved value.
  * @returns {Promise.<any>}
  */
-exports.createPromise = function (value, aborter) {
-	var dfd = new Promise.Deferred(aborter);
-	dfd.resolve(value);
-	return dfd.promise;
+exports.createPromise = function (value) {
+	return Promise.resolve(value);
 };
 
 /**
