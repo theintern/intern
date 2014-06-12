@@ -1,12 +1,12 @@
 /* jshint dojo:true */
 define([
-	'dojo/node!../Tunnel',
-	'dojo/node!../SauceLabsTunnel',
-	'dojo/node!../BrowserStackTunnel',
-	'dojo/node!../TestingBotTunnel',
-	'dojo/node!../NullTunnel',
-	'dojo/node!fs',
-	'dojo/node!path',
+	'intern/dojo/node!../Tunnel',
+	'intern/dojo/node!../SauceLabsTunnel',
+	'intern/dojo/node!../BrowserStackTunnel',
+	'intern/dojo/node!../TestingBotTunnel',
+	'intern/dojo/node!../NullTunnel',
+	'intern/dojo/node!fs',
+	'intern/dojo/node!path',
 	'intern!object',
 	'intern/chai!assert',
 	'intern/lib/args'

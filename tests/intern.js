@@ -5,8 +5,8 @@ define({
 	maxConcurrency: 3,
 	loader: {
 		packages: [
-			{ name: 'digdug', location: '.' },
-			{ name: 'dojo', location: './node_modules/intern/node_modules/dojo' }
+			{ name: 'digdug', location: '.' }
+			//{ name: 'dojo', location: './node_modules/dojo' }
 		]
 	},
 	environments: [
