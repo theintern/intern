@@ -42,8 +42,8 @@ define({
 	// publishing this configuration file somewhere
 	webdriver: {
 		host: 'localhost',
-		port: 4444,
-		httpProxy: "http://example.com:8080"
+		port: 4444
+		//httpProxy: "http://example.com:8080"
 	},
 
 	// The desired AMD loader to use when running unit tests (client.html/client.js). Omit to use the default Dojo
