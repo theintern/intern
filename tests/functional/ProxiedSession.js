@@ -4,8 +4,8 @@ define([
 	'intern/chai!assert',
 	'./support/util',
 	'require',
-	'dojo/node!../../../ProxiedSession',
-	'dojo/node!dojo/topic'
+	'intern/dojo/node!../../../ProxiedSession',
+	'intern/dojo/node!dojo/topic'
 ], function (registerSuite, assert, util, require, ProxiedSession, topic) {
 	registerSuite(function () {
 		var proxyUrl = 'https://example.invalid/';

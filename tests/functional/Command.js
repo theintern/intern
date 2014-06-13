@@ -2,10 +2,10 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'dojo/node!dojo/Promise',
+	'intern/dojo/node!dojo/Promise',
 	'./support/util',
-	'dojo/node!../../strategies',
-	'dojo/node!../../Command',
+	'intern/dojo/node!../../strategies',
+	'intern/dojo/node!../../Command',
 	'require'
 ], function (registerSuite, assert, Promise, util, strategies, Command, require) {
 	/*jshint maxlen:140 */

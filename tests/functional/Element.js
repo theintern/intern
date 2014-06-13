@@ -2,10 +2,10 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'dojo/node!dojo/Promise',
+	'intern/dojo/node!dojo/Promise',
 	'./support/util',
-	'dojo/node!../../strategies',
-	'dojo/node!../../Element',
+	'intern/dojo/node!../../strategies',
+	'intern/dojo/node!../../Element',
 	'require'
 ], function (registerSuite, assert, Promise, util, strategies, Element, require) {
 	function createStubbedSuite(stubbedMethodName, testMethodName, placeholders, firstArguments) {

@@ -4,7 +4,7 @@ define([
 	'intern/chai!assert',
 	'intern/main',
 	'./support/util',
-	'dojo/node!../../../Server'
+	'intern/dojo/node!../../../Server'
 ], function (registerSuite, assert, intern, util, Server) {
 	registerSuite(function () {
 		var server;
