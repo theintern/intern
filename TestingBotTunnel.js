@@ -146,9 +146,9 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 			},
 			password: this.apiSecret,
 			username: this.apiKey
-		}).response.then(function (response) {
-			if (response.text) {
-				var data = JSON.parse(response.text);
+		}).then(function (response) {
+			if (response.data) {
+				var data = JSON.parse(response.data);
 
 				if (data.error) {
 					throw new Error(data.error);
@@ -156,9 +156,12 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 				else if (!data.success) {
 					throw new Error('Job data failed to save.');
 				}
+				else if (response.statusCode !== 200) {
+					throw new Error('Server reported ' + response.statusCode + ' with: ' + response.data);
+				}
 			}
 			else {
-				throw new Error('Server reported ' + response.status + ' with no other data.');
+				throw new Error('Server reported ' + response.statusCode + ' with no other data.');
 			}
 		});
 	},
@@ -166,7 +169,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	_start: function () {
 		var readyFile = pathUtil.join(os.tmpdir(), 'testingbot-' + Date.now());
 		var child = this._makeChild(readyFile);
-		var process = child.process;
+		var childProcess = child.process;
 		var dfd = child.deferred;
 
 		// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
@@ -179,7 +182,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 		var self = this;
 		var lastMessage;
 		this._handles.push(
-			util.on(process.stderr, 'data', function (data) {
+			util.on(childProcess.stderr, 'data', function (data) {
 				data.split('\n').forEach(function (message) {
 					if (message.indexOf('INFO: ') === 0) {
 						message = message.slice('INFO: '.length);

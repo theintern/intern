@@ -168,12 +168,12 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 			},
 			password: this.accessKey,
 			username: this.username
-		}).response.then(function (response) {
-			if (response.status >= 200 && response.status < 300) {
+		}).then(function (response) {
+			if (response.statusCode >= 200 && response.statusCode < 300) {
 				return true;
 			}
 			else {
-				throw new Error(response.text || 'Server reported ' + response.status + ' with no other data.');
+				throw new Error(response.data || 'Server reported ' + response.statusCode + ' with no other data.');
 			}
 		});
 	},

@@ -18,6 +18,7 @@ function NullTunnel() {
 
 var _super = Tunnel.prototype;
 NullTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/NullTunnel */ {
+	clientAuth: '',
 	isDownloaded: true,
 	download: success,
 	start: function () {
@@ -27,7 +28,8 @@ NullTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdu
 	stop: function () {
 		this.isRunning = false;
 		return success();
-	}
+	},
+	sendJobState: function () {}
 });
 
 module.exports = NullTunnel;

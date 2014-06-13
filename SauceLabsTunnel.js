@@ -300,7 +300,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			tags: data.tags
 		});
 
-		return request.put(url, {
+		return request.put(urlUtil.format(url), {
 			data: payload,
 			handleAs: 'text',
 			headers: {
@@ -309,19 +309,20 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			},
 			password: this.apiSecret,
 			username: this.apiKey
-		}).response.then(function (response) {
-			if (response.text) {
-				var data = JSON.parse(response.text);
+		}).then(function (response) {
+			if (response.data) {
+				var data = JSON.parse(response.data);
 
 				if (data.error) {
 					throw new Error(data.error);
 				}
-				else if (!data.success) {
-					throw new Error('Job data failed to save.');
+
+				if (response.statusCode !== 200) {
+					throw new Error('Server reported ' + response.statusCode + ' with: ' + response.data);
 				}
 			}
 			else {
-				throw new Error('Server reported ' + response.status + ' with no other data.');
+				throw new Error('Server reported ' + response.statusCode + ' with no other data.');
 			}
 		});
 	},
@@ -384,7 +385,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			if (message.indexOf('Problem connecting to Sauce Labs REST API') > -1) {
 				// It will just keep trying and trying and trying for a while, but it is a failure, so force it
 				// to stop
-				process.kill('SIGTERM');
+				childProcess.kill('SIGTERM');
 			}
 
 			readStatus(message);
@@ -393,7 +394,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		try {
 			var readyFile = pathUtil.join(os.tmpdir(), 'saucelabs-' + Date.now());
 			var child = this._makeChild(readyFile);
-			var process = child.process;
+			var childProcess = child.process;
 			var dfd = child.deferred;
 		} catch (e) {
 			throw e;
@@ -419,7 +420,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 
 		// Sauce Connect exits with a zero status code when there is a failure, and outputs error messages to
 		// stdout, like a boss. Even better, it uses the "Error:" tag for warnings.
-		this._handles.push(util.on(process.stdout, 'data', function (data) {
+		this._handles.push(util.on(childProcess.stdout, 'data', function (data) {
 			data.split('\n').some(function (message) {
 				// Get rid of the date/time prefix on each message
 				var delimiter = message.indexOf(' - ');
