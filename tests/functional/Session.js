@@ -443,7 +443,7 @@ define([
 
 			'frame switching (#switchToFrame, #switchToParentFrame)': function () {
 				return session.get(require.toUrl('./data/window.html')).then(function () {
-					return session.getElementById('child');
+					return session.findById('child');
 				})
 				.then(function (child) {
 					return child.getVisibleText();
@@ -453,7 +453,7 @@ define([
 					return session.switchToFrame('inlineFrame');
 				})
 				.then(function () {
-					return session.getElementById('child');
+					return session.findById('child');
 				})
 				.then(function (child) {
 					return child.getVisibleText();
@@ -468,7 +468,7 @@ define([
 					return session.switchToParentFrame();
 				})
 				.then(function () {
-					return session.getElementById('child');
+					return session.findById('child');
 				})
 				.then(function (child) {
 					return child.getVisibleText();
@@ -488,7 +488,7 @@ define([
 					return session.getCurrentWindowHandle();
 				}).then(function (handle) {
 					mainHandle = handle;
-					return session.getElementById('windowOpener');
+					return session.findById('windowOpener');
 				}).then(function (opener) {
 					return opener.click();
 				}).then(function () {
@@ -634,7 +634,7 @@ define([
 				});
 			},
 
-			'#getElement': (function () {
+			'#find': (function () {
 				function getId(element) {
 					assert.property(element, 'elementId', 'Returned object should look like an element object');
 					return element.getAttribute('id');
@@ -642,37 +642,37 @@ define([
 
 				return function () {
 					return session.get(require.toUrl('./data/elements.html')).then(function () {
-						return session.getElement('id', 'a');
+						return session.find('id', 'a');
 					}).then(getId).then(function (id) {
 						assert.strictEqual(id, 'a');
-						return session.getElement('class name', 'b');
+						return session.find('class name', 'b');
 					}).then(getId).then(function (id) {
 						assert.strictEqual(id, 'b2', 'Returned element should be the first in the document');
-						return session.getElement('css selector', '#c span.b');
+						return session.find('css selector', '#c span.b');
 					}).then(getId).then(function (id) {
 						assert.strictEqual(id, 'b3');
-						return session.getElement('name', 'makeD');
+						return session.find('name', 'makeD');
 					}).then(getId).then(function (id) {
 						assert.strictEqual(id, 'makeD');
-						return session.getElement('link text', 'What a cute, yellow backpack.');
+						return session.find('link text', 'What a cute, yellow backpack.');
 					}).then(getId).then(function (id) {
 						assert.strictEqual(id, 'c');
-						return session.getElement('partial link text', 'cute, yellow');
+						return session.find('partial link text', 'cute, yellow');
 					}).then(getId).then(function (id) {
 						assert.strictEqual(id, 'c');
-						return session.getElement('link text', 'What a cute backpack.');
+						return session.find('link text', 'What a cute backpack.');
 					}).then(getId).then(function (id) {
 						assert.strictEqual(id, 'c3');
-						return session.getElement('partial link text', 'cute backpack');
+						return session.find('partial link text', 'cute backpack');
 					}).then(getId).then(function (id) {
 						assert.strictEqual(id, 'c3');
-						return session.getElement('tag name', 'span');
+						return session.find('tag name', 'span');
 					}).then(getId).then(function (id) {
 						assert.strictEqual(id, 'b3');
-						return session.getElement('xpath', 'id("e")/span[1]');
+						return session.find('xpath', 'id("e")/span[1]');
 					}).then(getId).then(function (id) {
 						assert.strictEqual(id, 'f');
-						return session.getElement('id', 'does-not-exist');
+						return session.find('id', 'does-not-exist');
 					}).then(function () {
 						throw new Error('Requesting non-existing element should throw error');
 					}, function (error) {
@@ -681,25 +681,25 @@ define([
 				};
 			})(),
 
-			'#getElement (with implicit timeout)': (function () {
+			'#find (with implicit timeout)': (function () {
 				var startTime;
 				return function () {
 					return session.get(require.toUrl('./data/elements.html')).then(function () {
 						return session.setTimeout('implicit', 2000);
 					}).then(function () {
 						startTime = Date.now();
-						return session.getElement('id', 'd');
+						return session.find('id', 'd');
 					}).then(function () {
 						throw new Error('Requesting non-existing element should throw error');
 					}, function () {
 						assert.operator(Date.now(), '>=', startTime + 2000,
 							'Driver should wait for implicit timeout before continuing');
-						return session.getElement('id', 'makeD');
+						return session.find('id', 'makeD');
 					}).then(function (element) {
 						return element.click();
 					}).then(function () {
 						startTime = Date.now();
-						return session.getElement('id', 'd');
+						return session.find('id', 'd');
 					}).then(function (element) {
 						assert.closeTo(Date.now(), startTime + 250, 500,
 							'Driver should not wait until end of implicit timeout once element is available');
@@ -711,7 +711,7 @@ define([
 				};
 			})(),
 
-			'#getElements': (function () {
+			'#findAll': (function () {
 				function getIds(elements) {
 					elements.forEach(function (element, index) {
 						assert.property(element, 'elementId', 'Returned object ' + index +
@@ -725,53 +725,53 @@ define([
 
 				return function () {
 					return session.get(require.toUrl('./data/elements.html')).then(function () {
-						return session.getElements('id', 'a');
+						return session.findAll('id', 'a');
 					}).then(getIds).then(function (ids) {
 						assert.deepEqual(ids, [ 'a' ]);
-						return session.getElements('class name', 'b');
+						return session.findAll('class name', 'b');
 					}).then(getIds).then(function (ids) {
 						assert.deepEqual(ids, [ 'b2', 'b1', 'b3', 'b4' ]);
-						return session.getElements('css selector', '#c span.b');
+						return session.findAll('css selector', '#c span.b');
 					}).then(getIds).then(function (ids) {
 						assert.deepEqual(ids, [ 'b3', 'b4' ]);
-						return session.getElements('name', 'makeD');
+						return session.findAll('name', 'makeD');
 					}).then(getIds).then(function (ids) {
 						assert.deepEqual(ids, [ 'makeD', 'killE' ]);
-						return session.getElements('link text', 'What a cute, yellow backpack.');
+						return session.findAll('link text', 'What a cute, yellow backpack.');
 					}).then(getIds).then(function (ids) {
 						assert.deepEqual(ids, [ 'c', 'c2' ]);
-						return session.getElements('partial link text', 'cute, yellow');
+						return session.findAll('partial link text', 'cute, yellow');
 					}).then(getIds).then(function (ids) {
 						assert.deepEqual(ids, [ 'c', 'c2' ]);
-						return session.getElements('link text', 'What a cute backpack.');
+						return session.findAll('link text', 'What a cute backpack.');
 					}).then(getIds).then(function (ids) {
 						assert.deepEqual(ids, [ 'c3' ]);
-						return session.getElements('partial link text', 'cute backpack');
+						return session.findAll('partial link text', 'cute backpack');
 					}).then(getIds).then(function (ids) {
 						assert.deepEqual(ids, [ 'c3' ]);
-						return session.getElements('tag name', 'span');
+						return session.findAll('tag name', 'span');
 					}).then(getIds).then(function (ids) {
 						assert.deepEqual(ids, [ 'b3', 'b4', 'f', 'g' ]);
-						return session.getElements('xpath', 'id("e")/span');
+						return session.findAll('xpath', 'id("e")/span');
 					}).then(getIds).then(function (ids) {
 						assert.deepEqual(ids, [ 'f', 'g' ]);
-						return session.getElements('id', 'does-not-exist');
+						return session.findAll('id', 'does-not-exist');
 					}).then(function (elements) {
 						assert.deepEqual(elements, []);
 					});
 				};
 			})(),
 
-			'#getElement convenience methods': createStubbedSuite(
-				'getElement',
-				'getElementBy_',
+			'#find convenience methods': createStubbedSuite(
+				'find',
+				'findBy_',
 				strategies.suffixes,
 				strategies
 			),
 
-			'#getElements convenience methods': createStubbedSuite(
-				'getElements',
-				'getElementsBy_',
+			'#findAll convenience methods': createStubbedSuite(
+				'findAll',
+				'findAllBy_',
 				strategies.suffixes.filter(function (suffix) { return suffix !== 'Id'; }),
 				strategies.filter(function (strategy) { return strategy !== 'id'; })
 			),
@@ -781,11 +781,11 @@ define([
 
 				return session.get(require.toUrl('./data/elements.html')).then(function () {
 					// Verifies element to be deleted exists at the start of the test
-					return session.getElementById('e');
+					return session.findById('e');
 				}).then(function () {
 					return session.setImplicitTimeout(5000);
 				}).then(function () {
-					return session.getElementById('killE');
+					return session.findById('killE');
 				}).then(function (element) {
 					startTime = Date.now();
 					return element.click();
@@ -805,7 +805,7 @@ define([
 
 				return session.get(require.toUrl('./data/elements.html')).then(function () {
 					// Verifies element to be deleted exists at the start of the test
-					return session.getElementById('e');
+					return session.findById('e');
 				}).then(function () {
 					return session.setImplicitTimeout(200);
 				}).then(function () {
@@ -850,7 +850,7 @@ define([
 
 				// TODO: Complex characters, tabs and arrows, copy and paste
 				return session.get(require.toUrl('./data/form.html')).then(function () {
-					return session.getElementById('input');
+					return session.findById('input');
 				}).then(function (element) {
 					formElement = element;
 					return element.click();
@@ -889,7 +889,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/prompts.html')).then(function () {
-					return session.getElementById('alert');
+					return session.findById('alert');
 				}).then(function (element) {
 					return element.click();
 				}).then(function () {
@@ -910,7 +910,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/prompts.html')).then(function () {
-					return session.getElementById('prompt');
+					return session.findById('prompt');
 				}).then(function (element) {
 					return element.click();
 				}).then(function () {
@@ -933,7 +933,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/prompts.html')).then(function () {
-					return session.getElementById('prompt');
+					return session.findById('prompt');
 				}).then(function (element) {
 					return element.click();
 				}).then(function () {
@@ -956,7 +956,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/prompts.html')).then(function () {
-					return session.getElementById('confirm');
+					return session.findById('confirm');
 				}).then(function (element) {
 					return element.click();
 				}).then(function () {
@@ -977,7 +977,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/prompts.html')).then(function () {
-					return session.getElementById('confirm');
+					return session.findById('confirm');
 				}).then(function (element) {
 					return element.click();
 				}).then(function () {
@@ -1011,7 +1011,7 @@ define([
 				}).then(function (event) {
 					assert.strictEqual(event.clientX, 200);
 					assert.strictEqual(event.clientY, 53);
-					return session.getElementById('c');
+					return session.findById('c');
 				}).then(function (element) {
 					return session.moveMouseTo(element).then(function () {
 						return session.execute('return result.mousemove.c && result.mousemove.c[result.mousemove.c.length - 1];');
@@ -1053,7 +1053,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return session.moveMouseTo(element);
 				}).then(click(0));
@@ -1067,13 +1067,13 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return session.moveMouseTo(element);
 				}).then(function () {
 					return session.pressMouseButton();
 				}).then(function () {
-					return session.getElementById('b');
+					return session.findById('b');
 				}).then(function (element) {
 					return session.moveMouseTo(element);
 				}).then(function () {
@@ -1095,7 +1095,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return session.moveMouseTo(element);
 				}).then(function () {
@@ -1124,7 +1124,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return session.tap(element);
 				}).then(function () {
@@ -1171,7 +1171,7 @@ define([
 					}).then(getScrollPosition)
 					.then(function (position) {
 						assert.deepEqual(position, { x: 20, y: 40 });
-						return session.getElementById('viewport');
+						return session.findById('viewport');
 					}).then(function (viewport) {
 						return session.touchScroll(viewport, 100, 200);
 					}).then(getScrollPosition).then(function (position) {
@@ -1185,7 +1185,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return session.doubleTap(element);
 				}).then(function () {
@@ -1202,7 +1202,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return session.longTap(element);
 				}).then(function () {
@@ -1223,14 +1223,14 @@ define([
 				.then(getScrollPosition)
 				.then(function (originalPosition) {
 					assert.deepEqual(originalPosition, { x: 0, y: 0 });
-					return session.getElementByTagName('body').then(function (element) {
+					return session.findByTagName('body').then(function (element) {
 						return session.flickFinger(element, -100, -100, 100);
 					}).then(getScrollPosition).then(function (position) {
 						assert.operator(originalPosition.x, '<', position.x);
 						assert.operator(originalPosition.y, '<', position.y);
 					});
 				}).then(function () {
-					return session.getElementById('viewport');
+					return session.findById('viewport');
 				}).then(function (element) {
 					return getScrollPosition(element).then(function (originalPosition) {
 						return session.flickFinger(element, -100, -100, 100).then(function () {

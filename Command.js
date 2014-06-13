@@ -29,7 +29,7 @@ function createElementMethod(method) {
 				promise = Promise.all(parentContext.map(function (element) {
 					return element[method].apply(element, args);
 				})).then(function (elements) {
-					// getElements against an array context will result in arrays of arrays; flatten into a single
+					// findAll against an array context will result in arrays of arrays; flatten into a single
 					// array of elements. It would also be possible to resort in document order but other parallel
 					// operations could not be sorted so we just don't do it anywhere and say not to rely in
 					// a particular return order for results
@@ -237,8 +237,8 @@ Command.prototype = /** @lends module:leadfoot/Command# */ {
 		return this;
 	},
 
-	getElement: createElementMethod('getElement'),
-	getElements: createElementMethod('getElements')
+	find: createElementMethod('find'),
+	findAll: createElementMethod('findAll')
 };
 
 /**
@@ -358,7 +358,7 @@ Command.addElementMethod = function (target, key) {
 };
 
 // Element retrieval strategies must be applied directly to Command because it has its own custom
-// getElement/getElements methods that operate based on the Command’s context, so can’t simply be delegated to the
+// find/findAll methods that operate based on the Command’s context, so can’t simply be delegated to the
 // underlying session
 strategies.applyTo(Command.prototype);
 

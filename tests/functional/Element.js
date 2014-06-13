@@ -74,7 +74,7 @@ define([
 				assert.deepEqual(element.toJSON(), { ELEMENT: 'test' });
 			},
 
-			'#getElement': (function () {
+			'#find': (function () {
 				function getId(element) {
 					assert.property(element, 'elementId', 'Returned object should look like an element object');
 					return element.getAttribute('id');
@@ -82,38 +82,38 @@ define([
 
 				return function () {
 					return session.get(require.toUrl('./data/elements.html')).then(function () {
-						return session.getElement('id', 'h');
+						return session.find('id', 'h');
 					}).then(function (element) {
 						return getId(element).then(function (id) {
 							assert.strictEqual(id, 'h');
-							return element.getElement('class name', 'i');
+							return element.find('class name', 'i');
 						}).then(getId).then(function (id) {
 							assert.strictEqual(id, 'i2', 'Returned element should be the first in the document');
-							return element.getElement('css selector', '#j b.i');
+							return element.find('css selector', '#j b.i');
 						}).then(getId).then(function (id) {
 							assert.strictEqual(id, 'i2');
-							return element.getElement('name', 'nothing');
+							return element.find('name', 'nothing');
 						}).then(getId).then(function (id) {
 							assert.strictEqual(id, 'nothing1');
-							return element.getElement('link text', 'What a cute, red cap.');
+							return element.find('link text', 'What a cute, red cap.');
 						}).then(getId).then(function (id) {
 							assert.strictEqual(id, 'j');
-							return element.getElement('partial link text', 'cute, red');
+							return element.find('partial link text', 'cute, red');
 						}).then(getId).then(function (id) {
 							assert.strictEqual(id, 'j');
-							return element.getElement('link text', 'What a cap.');
+							return element.find('link text', 'What a cap.');
 						}).then(getId).then(function (id) {
 							assert.strictEqual(id, 'k');
-							return element.getElement('partial link text', 'a cap');
+							return element.find('partial link text', 'a cap');
 						}).then(getId).then(function (id) {
 							assert.strictEqual(id, 'k');
-							return element.getElement('tag name', 'b');
+							return element.find('tag name', 'b');
 						}).then(getId).then(function (id) {
 							assert.strictEqual(id, 'i2');
-							return element.getElement('xpath', 'id("h")/a[2]');
+							return element.find('xpath', 'id("h")/a[2]');
 						}).then(getId).then(function (id) {
 							assert.strictEqual(id, 'i1');
-							return element.getElement('id', 'does-not-exist');
+							return element.find('id', 'does-not-exist');
 						}).then(function () {
 							throw new Error('Requesting non-existing element should throw error');
 						}, function (error) {
@@ -123,26 +123,26 @@ define([
 				};
 			})(),
 
-			'#getElement (with implicit timeout)': (function () {
+			'#find (with implicit timeout)': (function () {
 				var startTime;
 				return function () {
 					return session.get(require.toUrl('./data/elements.html')).then(function () {
 						return session.setTimeout('implicit', 2000);
 					}).then(function () {
-						return session.getElement('id', 'h');
+						return session.find('id', 'h');
 					}).then(function (element) {
 						startTime = Date.now();
-						return element.getElement('id', 'd').then(function () {
+						return element.find('id', 'd').then(function () {
 							throw new Error('Requesting non-existing element should throw error');
 						}, function () {
 							assert.operator(Date.now(), '>=', startTime + 2000,
 								'Driver should wait for implicit timeout before continuing');
-							return session.getElement('id', 'makeD');
+							return session.find('id', 'makeD');
 						}).then(function (makeElement) {
 							return makeElement.click();
 						}).then(function () {
 							startTime = Date.now();
-							return element.getElement('id', 'd');
+							return element.find('id', 'd');
 						}).then(function (child) {
 							assert.closeTo(Date.now(), startTime + 250, 500,
 								'Driver should not wait until end of implicit timeout once element is available');
@@ -155,7 +155,7 @@ define([
 				};
 			})(),
 
-			'#getElements': (function () {
+			'#findAll': (function () {
 				function getIds(elements) {
 					elements.forEach(function (element, index) {
 						assert.property(element, 'elementId', 'Returned object ' + index +
@@ -169,38 +169,38 @@ define([
 
 				return function () {
 					return session.get(require.toUrl('./data/elements.html')).then(function () {
-						return session.getElement('id', 'h');
+						return session.find('id', 'h');
 					}).then(function (element) {
-						return element.getElements('id', 'j').then(getIds).then(function (ids) {
+						return element.findAll('id', 'j').then(getIds).then(function (ids) {
 							assert.deepEqual(ids, [ 'j' ]);
-							return element.getElements('class name', 'i');
+							return element.findAll('class name', 'i');
 						}).then(getIds).then(function (ids) {
 							assert.deepEqual(ids, [ 'i2', 'i3', 'i1' ]);
-							return element.getElements('css selector', '#j b.i');
+							return element.findAll('css selector', '#j b.i');
 						}).then(getIds).then(function (ids) {
 							assert.deepEqual(ids, [ 'i2', 'i3' ]);
-							return element.getElements('name', 'nothing');
+							return element.findAll('name', 'nothing');
 						}).then(getIds).then(function (ids) {
 							assert.deepEqual(ids, [ 'nothing1', 'nothing2' ]);
-							return element.getElements('link text', 'What a cute, red cap.');
+							return element.findAll('link text', 'What a cute, red cap.');
 						}).then(getIds).then(function (ids) {
 							assert.deepEqual(ids, [ 'j', 'i1' ]);
-							return element.getElements('partial link text', 'cute, red');
+							return element.findAll('partial link text', 'cute, red');
 						}).then(getIds).then(function (ids) {
 							assert.deepEqual(ids, [ 'j', 'i1' ]);
-							return element.getElements('link text', 'What a cap.');
+							return element.findAll('link text', 'What a cap.');
 						}).then(getIds).then(function (ids) {
 							assert.deepEqual(ids, [ 'k' ]);
-							return element.getElements('partial link text', 'a cap');
+							return element.findAll('partial link text', 'a cap');
 						}).then(getIds).then(function (ids) {
 							assert.deepEqual(ids, [ 'k' ]);
-							return element.getElements('tag name', 'b');
+							return element.findAll('tag name', 'b');
 						}).then(getIds).then(function (ids) {
 							assert.deepEqual(ids, [ 'i2', 'i3', 'l' ]);
-							return element.getElements('xpath', 'id("j")/b');
+							return element.findAll('xpath', 'id("j")/b');
 						}).then(getIds).then(function (ids) {
 							assert.deepEqual(ids, [ 'i2', 'i3' ]);
-							return element.getElements('id', 'does-not-exist');
+							return element.findAll('id', 'does-not-exist');
 						}).then(function (elements) {
 							assert.deepEqual(elements, []);
 						});
@@ -208,16 +208,16 @@ define([
 				};
 			})(),
 
-			'#getElement convenience methods': createStubbedSuite(
-				'getElement',
-				'getElementBy_',
+			'#find convenience methods': createStubbedSuite(
+				'find',
+				'findBy_',
 				strategies.suffixes,
 				strategies
 			),
 
-			'#getElements convenience methods': createStubbedSuite(
-				'getElements',
-				'getElementsBy_',
+			'#findAll convenience methods': createStubbedSuite(
+				'findAll',
+				'findAllBy_',
 				strategies.suffixes.filter(function (suffix) { return suffix !== 'Id'; }),
 				strategies.filter(function (strategy) { return strategy !== 'id'; })
 			),
@@ -237,7 +237,7 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return element.click();
 				}).then(function () {
@@ -256,10 +256,10 @@ define([
 				return session.get(require.toUrl('./data/form.html')).then(function () {
 					return session.getCurrentUrl();
 				}).then(function (expectedUrl) {
-					return session.getElementById('input').then(function (element) {
+					return session.findById('input').then(function (element) {
 						return element.type('hello');
 					}).then(function () {
-						return session.getElementById('submit2');
+						return session.findById('submit2');
 					}).then(function (element) {
 						return element.submit();
 					}).then(function () {
@@ -275,10 +275,10 @@ define([
 				return session.get(require.toUrl('./data/form.html')).then(function () {
 					return session.getCurrentUrl();
 				}).then(function (expectedUrl) {
-					return session.getElementById('input').then(function (element) {
+					return session.findById('input').then(function (element) {
 						return element.type('hello');
 					}).then(function () {
-						return session.getElementById('form');
+						return session.findById('form');
 					}).then(function (element) {
 						return element.submit();
 					}).then(function () {
@@ -292,7 +292,7 @@ define([
 
 			'#getVisibleText': function () {
 				return session.get(require.toUrl('./data/elements.html')).then(function () {
-					return session.getElementById('c3');
+					return session.findById('c3');
 				}).then(function (element) {
 					return element.getVisibleText();
 				}).then(function (text) {
@@ -302,7 +302,7 @@ define([
 
 			'#getVisibleText (multi-line)': function () {
 				return session.get(require.toUrl('./data/elements.html')).then(function () {
-					return session.getElementById('i4');
+					return session.findById('i4');
 				}).then(function (element) {
 					return element.getVisibleText();
 				}).then(function (text) {
@@ -322,7 +322,7 @@ define([
 			'#type': function () {
 				// TODO: Complex characters, tabs and arrows, copy and paste
 				return session.get(require.toUrl('./data/form.html')).then(function () {
-					return session.getElementById('input');
+					return session.findById('input');
 				}).then(function (element) {
 					return element.type('hello, world').then(function () {
 						return element.getAttribute('value');
@@ -334,7 +334,7 @@ define([
 
 			'#getTagName': function () {
 				return session.get(require.toUrl('./data/default.html')).then(function () {
-					return session.getElementByTagName('body');
+					return session.findByTagName('body');
 				}).then(function (element) {
 					return element.getTagName();
 				}).then(function (tagName) {
@@ -344,7 +344,7 @@ define([
 
 			'#clearValue': function () {
 				return session.get(require.toUrl('./data/form.html')).then(function () {
-					return session.getElementById('input2');
+					return session.findById('input2');
 				}).then(function (element) {
 					return element.getAttribute('value').then(function (value) {
 						assert.strictEqual(value, 'default');
@@ -359,11 +359,11 @@ define([
 
 			'#isSelected (radio button)': function () {
 				return session.get(require.toUrl('./data/form.html')).then(function () {
-					return session.getElementById('radio1');
+					return session.findById('radio1');
 				}).then(function (element) {
 					return element.isSelected().then(function (isSelected) {
 						assert.isTrue(isSelected, 'Default checked element should be selected');
-						return session.getElementById('radio2').then(function (element2) {
+						return session.findById('radio2').then(function (element2) {
 							return element2.isSelected().then(function (isSelected) {
 								assert.isFalse(isSelected, 'Default unchecked element should not be selected');
 								return element2.click();
@@ -382,7 +382,7 @@ define([
 
 			'#isSelected (checkbox)': function () {
 				return session.get(require.toUrl('./data/form.html')).then(function () {
-					return session.getElementById('checkbox');
+					return session.findById('checkbox');
 				}).then(function (element) {
 					return element.isSelected().then(function (isSelected) {
 						assert.isFalse(isSelected, 'Default unchecked element should not be selected');
@@ -402,14 +402,14 @@ define([
 
 			'#isSelected (drop-down)': function () {
 				return session.get(require.toUrl('./data/form.html')).then(function () {
-					return session.getElementById('option2');
+					return session.findById('option2');
 				}).then(function (element) {
 					return element.isSelected().then(function (isSelected) {
 						assert.isTrue(isSelected, 'Default selected element should be selected');
-						return session.getElementById('option1').then(function (element2) {
+						return session.findById('option1').then(function (element2) {
 							return element2.isSelected().then(function (isSelected) {
 								assert.isFalse(isSelected, 'Default unselected element should not be selected');
-								return session.getElementById('select');
+								return session.findById('select');
 							}).then(function (select) {
 								return select.click();
 							}).then(function () {
@@ -429,12 +429,12 @@ define([
 
 			'#isEnabled': function () {
 				return session.get(require.toUrl('./data/form.html')).then(function () {
-					return session.getElementById('input');
+					return session.findById('input');
 				}).then(function (element) {
 					return element.isEnabled();
 				}).then(function (isEnabled) {
 					assert.isTrue(isEnabled);
-					return session.getElementById('disabled');
+					return session.findById('disabled');
 				}).then(function (element) {
 					return element.isEnabled();
 				}).then(function (isEnabled) {
@@ -445,7 +445,7 @@ define([
 			'#getAttribute': function () {
 				/*jshint maxlen:140 */
 				return session.get(require.toUrl('./data/form.html')).then(function () {
-					return session.getElementById('input2');
+					return session.findById('input2');
 				}).then(function (element) {
 					return element.getAttribute('value').then(function (value) {
 						assert.strictEqual(value, 'default', 'Default value of input should be returned when value is unchanged');
@@ -465,14 +465,14 @@ define([
 						assert.isNull(value, 'Non-existing attributes should not return a value');
 					});
 				}).then(function () {
-					return session.getElementById('disabled');
+					return session.findById('disabled');
 				}).then(function (element) {
 					return element.getAttribute('disabled');
 				}).then(function (isDisabled) {
 					assert.strictEqual(isDisabled, 'true', 'True boolean attributes must return string value per the spec');
 					return session.get(require.toUrl('./data/elements.html'));
 				}).then(function () {
-					return session.getElementById('c');
+					return session.findById('c');
 				}).then(function (element) {
 					return element.getAttribute('href');
 				}).then(function (href) {
@@ -485,9 +485,9 @@ define([
 
 			'#equals': function () {
 				return session.get(require.toUrl('./data/elements.html')).then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
-					return session.getElementById('z').then(function (element2) {
+					return session.findById('z').then(function (element2) {
 						return element.equals(element2).then(function (isEqual) {
 							assert.isFalse(isEqual);
 							return element2.equals(element);
@@ -495,7 +495,7 @@ define([
 							assert.isFalse(isEqual);
 						});
 					}).then(function () {
-						return session.getElementById('a');
+						return session.findById('a');
 					}).then(function (element2) {
 						return element.equals(element2).then(function (isEqual) {
 							assert.isTrue(isEqual);
@@ -532,7 +532,7 @@ define([
 				for (var id in visibilities) {
 					(function (id, expected) {
 						suite[id] = function () {
-							return session.getElementById(id).then(function (element) {
+							return session.findById(id).then(function (element) {
 								return element.isDisplayed();
 							}).then(function (isDisplayed) {
 								assert.strictEqual(isDisplayed, expected);
@@ -569,7 +569,7 @@ define([
 				for (var id in positions) {
 					(function (id, expected) {
 						suite[id] = function () {
-							return session.getElementById(id).then(function (element) {
+							return session.findById(id).then(function (element) {
 								return element.getPosition();
 							}).then(function (position) {
 								assert.deepEqual(position, expected);
@@ -608,7 +608,7 @@ define([
 				for (var id in dimensions) {
 					(function (id, expected) {
 						suite[id] = function () {
-							return session.getElementById(id).then(function (element) {
+							return session.findById(id).then(function (element) {
 								return element.getSize();
 							}).then(function (dimensions) {
 								if (expected.width === -1) {
@@ -632,7 +632,7 @@ define([
 
 				// TODO: Spec: pseudo-elements?
 				return session.get(require.toUrl('./data/dimensions.html')).then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return element.getComputedStyle('backgroundColor').then(function (style) {
 						assert.strictEqual(style, 'rgba(128, 0, 128, 1)', 'Background colour should be rgba');

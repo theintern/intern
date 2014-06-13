@@ -1065,7 +1065,7 @@ Session.prototype = /** @lends module:leadfoot/Session# */ {
 	 * Gets the first element from the focused window/frame that matches the given query.
 	 *
 	 * @see {@link module:leadfoot/Session#setImplicitTimeout} to set the amount of time it the remote environment
-	 * should spend waiting for an element that does not exist at the time of the `getElement` call before timing
+	 * should spend waiting for an element that does not exist at the time of the `find` call before timing
 	 * out.
 	 *
 	 * @param {string} using
@@ -1078,7 +1078,7 @@ Session.prototype = /** @lends module:leadfoot/Session# */ {
 	 *
 	 * @returns {Promise.<module:leadfoot/Element>}
 	 */
-	getElement: function (using, value) {
+	find: function (using, value) {
 		var self = this;
 		return this._post('element', {
 			using: using,
@@ -1092,14 +1092,14 @@ Session.prototype = /** @lends module:leadfoot/Session# */ {
 	 * Gets an array of elements from the focused window/frame that match the given query.
 	 *
 	 * @param {string} using
-	 * The element retrieval strategy to use. See {@link module:leadfoot/Session#getElement} for options.
+	 * The element retrieval strategy to use. See {@link module:leadfoot/Session#find} for options.
 	 *
 	 * @param {string} value
-	 * The strategy-specific value to search for. See {@link module:leadfoot/Session#getElement} for details.
+	 * The strategy-specific value to search for. See {@link module:leadfoot/Session#find} for details.
 	 *
 	 * @returns {Promise.<module:leadfoot/Element[]>}
 	 */
-	getElements: function (using, value) {
+	findAll: function (using, value) {
 		var self = this;
 		return this._post('elements', {
 			using: using,
@@ -1797,7 +1797,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets the first element in the currently active window/frame matching the given CSS class name.
  *
- * @method getElementByClassName
+ * @method findByClassName
  * @memberOf module:leadfoot/Session#
  * @param {string} className The CSS class name to search for.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -1806,7 +1806,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets the first element in the currently active window/frame matching the given CSS selector.
  *
- * @method getElementByCssSelector
+ * @method findByCssSelector
  * @memberOf module:leadfoot/Session#
  * @param {string} selector The CSS selector to search for.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -1815,7 +1815,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets the first element in the currently active window/frame matching the given ID.
  *
- * @method getElementById
+ * @method findById
  * @memberOf module:leadfoot/Session#
  * @param {string} id The ID of the element.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -1824,7 +1824,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets the first element in the currently active window/frame matching the given name attribute.
  *
- * @method getElementByName
+ * @method findByName
  * @memberOf module:leadfoot/Session#
  * @param {string} name The name of the element.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -1833,7 +1833,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets the first element in the currently active window/frame matching the given case-insensitive link text.
  *
- * @method getElementByLinkText
+ * @method findByLinkText
  * @memberOf module:leadfoot/Session#
  * @param {string} text The link text of the element.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -1843,7 +1843,7 @@ storage.applyTo(Session.prototype, 'session');
  * Gets the first element in the currently active window/frame partially matching the given case-insensitive
  * link text.
  *
- * @method getElementByPartialLinkText
+ * @method findByPartialLinkText
  * @memberOf module:leadfoot/Session#
  * @param {string} text The partial link text of the element.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -1852,7 +1852,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets the first element in the currently active window/frame matching the given HTML tag name.
  *
- * @method getElementByTagName
+ * @method findByTagName
  * @memberOf module:leadfoot/Session#
  * @param {string} tagName The tag name of the element.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -1861,7 +1861,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets the first element in the currently active window/frame matching the given XPath selector.
  *
- * @method getElementByXpath
+ * @method findByXpath
  * @memberOf module:leadfoot/Session#
  * @param {string} path The XPath selector to search for.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -1870,7 +1870,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets all elements in the currently active window/frame matching the given CSS class name.
  *
- * @method getElementsByClassName
+ * @method findAllByClassName
  * @memberOf module:leadfoot/Session#
  * @param {string} className The CSS class name to search for.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -1879,7 +1879,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets all elements in the currently active window/frame matching the given CSS selector.
  *
- * @method getElementsByCssSelector
+ * @method findAllByCssSelector
  * @memberOf module:leadfoot/Session#
  * @param {string} selector The CSS selector to search for.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -1888,7 +1888,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets all elements in the currently active window/frame matching the given name attribute.
  *
- * @method getElementsByName
+ * @method findAllByName
  * @memberOf module:leadfoot/Session#
  * @param {string} name The name of the element.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -1897,7 +1897,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets all elements in the currently active window/frame matching the given case-insensitive link text.
  *
- * @method getElementsByLinkText
+ * @method findAllByLinkText
  * @memberOf module:leadfoot/Session#
  * @param {string} text The link text of the element.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -1907,7 +1907,7 @@ storage.applyTo(Session.prototype, 'session');
  * Gets all elements in the currently active window/frame partially matching the given case-insensitive
  * link text.
  *
- * @method getElementsByPartialLinkText
+ * @method findAllByPartialLinkText
  * @memberOf module:leadfoot/Session#
  * @param {string} text The partial link text of the element.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -1916,7 +1916,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets all elements in the currently active window/frame matching the given HTML tag name.
  *
- * @method getElementsByTagName
+ * @method findAllByTagName
  * @memberOf module:leadfoot/Session#
  * @param {string} tagName The tag name of the element.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -1925,7 +1925,7 @@ storage.applyTo(Session.prototype, 'session');
 /**
  * Gets all elements in the currently active window/frame matching the given XPath selector.
  *
- * @method getElementsByXpath
+ * @method findAllByXpath
  * @memberOf module:leadfoot/Session#
  * @param {string} path The XPath selector to search for.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -1939,10 +1939,10 @@ strategies.applyTo(Session.prototype);
  * @memberOf module:leadfoot/Session#
  *
  * @param {string} using
- * The element retrieval strategy to use. See {@link module:leadfoot/Session#getElement} for options.
+ * The element retrieval strategy to use. See {@link module:leadfoot/Session#find} for options.
  *
  * @param {string} value
- * The strategy-specific value to search for. See {@link module:leadfoot/Session#getElement} for details.
+ * The strategy-specific value to search for. See {@link module:leadfoot/Session#find} for details.
  *
  * @returns {Promise.<void>}
  */
@@ -2043,7 +2043,7 @@ waitForDeleted.applyTo(Session.prototype);
  */
 
 /**
- * Gets the timeout for {@link module:leadfoot/Session#getElement} calls.
+ * Gets the timeout for {@link module:leadfoot/Session#find} calls.
  *
  * @method getImplicitTimeout
  * @memberOf module:leadfoot/Session#
@@ -2051,7 +2051,7 @@ waitForDeleted.applyTo(Session.prototype);
  */
 
 /**
- * Sets the timeout for {@link module:leadfoot/Session#getElement} calls.
+ * Sets the timeout for {@link module:leadfoot/Session#find} calls.
  *
  * @method setImplicitTimeout
  * @memberOf module:leadfoot/Session#

@@ -37,8 +37,8 @@ function deprecate(fromMethod, toMethod) {
 function deprecateElementSig(fromMethod, toMethod, fn) {
 	return function (element) {
 		if (element && element.elementId) {
-			warn('Command#' + fromMethod + '(element)', 'Command#getElement then Command#' + fromMethod + ', or ' +
-				'Command#getElement then Command#then(function (element) { return element.' +
+			warn('Command#' + fromMethod + '(element)', 'Command#find then Command#' + fromMethod + ', or ' +
+				'Command#find then Command#then(function (element) { return element.' +
 				(toMethod || fromMethod) + '(); }');
 
 			var args = Array.prototype.slice.call(arguments, 1);
@@ -63,17 +63,17 @@ function deprecateElementAndStandardSig(fromMethod, toMethod) {
 }
 
 function elementIfExists(using, value) {
-	return this.getElement(using, value).catch(function () {});
+	return this.find(using, value).catch(function () {});
 }
 
 function elementOrNull(using, value) {
-	return this.getElement(using, value).catch(function () {
+	return this.find(using, value).catch(function () {
 		return null;
 	});
 }
 
 function hasElement(using, value) {
-	return this.getElement(using, value).then(function () {
+	return this.find(using, value).then(function () {
 		return true;
 	}, function () {
 		return false;
@@ -83,7 +83,7 @@ function hasElement(using, value) {
 function waitForElement(using, value, timeout) {
 	return this.getImplicitWaitTimeout().then(function (originalTimeout) {
 		return this.setImplicitWaitTimeout(timeout)
-			.getElement(using, value)
+			.find(using, value)
 			.then(function (element) {
 				return this.setImplicitWaitTimeout(originalTimeout).then(function () {
 					return element;
@@ -100,7 +100,7 @@ function waitForVisible(using, value, timeout) {
 	var startTime = Date.now();
 	return this.getImplicitWaitTimeout().then(function (originalTimeout) {
 		return this.setImplicitWaitTimeout(timeout)
-			.getElement(using, value)
+			.find(using, value)
 			.then(function (element) {
 				return this.executeAsync(/* istanbul ignore next */ function (element, timeout, done) {
 					var startTime = +new Date();
@@ -244,39 +244,39 @@ var methods = {
 	deleteAllCookies: deprecate('deleteAllCookies', 'clearCookies'),
 	source: deprecate('source', 'getPageSource'),
 	title: deprecate('title', 'getPageTitle'),
-	element: deprecate('element', 'getElement'),
-	elementByClassName: deprecate('elementByClassName', 'getElementByClassName'),
-	elementByCssSelector: deprecate('elementByCssSelector', 'getElementByCssSelector'),
-	elementById: deprecate('elementById', 'getElementById'),
-	elementByName: deprecate('elementByName', 'getElementByName'),
-	elementByLinkText: deprecate('elementByLinkText', 'getElementByLinkText'),
-	elementByPartialLinkText: deprecate('elementByPartialLinkText', 'getElementByPartialLinkText'),
-	elementByTagName: deprecate('elementByTagName', 'getElementByTagName'),
-	elementByXPath: deprecate('elementByXPath', 'getElementByXpath'),
-	elementByCss: deprecate('elementByCss', 'getElementByCssSelector'),
-	elements: deprecate('elements', 'getElements'),
-	elementsByClassName: deprecate('elementsByClassName', 'getElementsByClassName'),
-	elementsByCssSelector: deprecate('elementsByCssSelector', 'getElementsByCssSelector'),
+	element: deprecate('element', 'find'),
+	elementByClassName: deprecate('elementByClassName', 'findByClassName'),
+	elementByCssSelector: deprecate('elementByCssSelector', 'findByCssSelector'),
+	elementById: deprecate('elementById', 'findById'),
+	elementByName: deprecate('elementByName', 'findByName'),
+	elementByLinkText: deprecate('elementByLinkText', 'findByLinkText'),
+	elementByPartialLinkText: deprecate('elementByPartialLinkText', 'findByPartialLinkText'),
+	elementByTagName: deprecate('elementByTagName', 'findByTagName'),
+	elementByXPath: deprecate('elementByXPath', 'findByXpath'),
+	elementByCss: deprecate('elementByCss', 'findByCssSelector'),
+	elements: deprecate('elements', 'findAll'),
+	elementsByClassName: deprecate('elementsByClassName', 'findAllByClassName'),
+	elementsByCssSelector: deprecate('elementsByCssSelector', 'findAllByCssSelector'),
 	elementsById: function (value) {
-		warn('Command#elementsById', 'Command#getElementById');
-		return this.getElements('id', value);
+		warn('Command#elementsById', 'Command#findById');
+		return this.findAll('id', value);
 	},
-	elementsByName: deprecate('elementsByName', 'getElementsByName'),
-	elementsByLinkText: deprecate('elementsByLinkText', 'getElementsByLinkText'),
-	elementsByPartialLinkText: deprecate('elementsByPartialLinkText', 'getElementsByPartialLinkText'),
-	elementsByTagName: deprecate('elementsByTagName', 'getElementsByTagName'),
-	elementsByXPath: deprecate('elementsByXPath', 'getElementsByXpath'),
-	elementsByCss: deprecate('elementsByCss', 'getElementsByCssSelector'),
+	elementsByName: deprecate('elementsByName', 'findAllByName'),
+	elementsByLinkText: deprecate('elementsByLinkText', 'findAllByLinkText'),
+	elementsByPartialLinkText: deprecate('elementsByPartialLinkText', 'findAllByPartialLinkText'),
+	elementsByTagName: deprecate('elementsByTagName', 'findAllByTagName'),
+	elementsByXPath: deprecate('elementsByXPath', 'findAllByXpath'),
+	elementsByCss: deprecate('elementsByCss', 'findAllByCssSelector'),
 	elementOrNull: function () {
-		warn('Command#elementOrNull', 'Command#getElement and Command#always, or Command#getElements');
+		warn('Command#elementOrNull', 'Command#find and Command#always, or Command#findAll');
 		return elementOrNull.apply(this, arguments);
 	},
 	elementIfExists: function () {
-		warn('Command#elementIfExists', 'Command#getElement and Command#always, or Command#getElements');
+		warn('Command#elementIfExists', 'Command#find and Command#always, or Command#findAll');
 		return elementIfExists.apply(this, arguments);
 	},
 	hasElement: function () {
-		warn('Command#hasElement', 'Command#getElement and Command#then(exists, doesNotExist)');
+		warn('Command#hasElement', 'Command#find and Command#then(exists, doesNotExist)');
 		return hasElement.apply(this, arguments);
 	},
 	active: deprecate('active', 'getActiveElement'),
@@ -316,8 +316,8 @@ var methods = {
 	getAttribute: deprecateElementSig('getAttribute'),
 	getValue: function (element) {
 		if (element && element.elementId) {
-			warn('Command#getValue(element)', 'Command#getElement then Command#getAttribute(\'value\'), or ' +
-				'Command#getElement then Command#then(function (element) { ' +
+			warn('Command#getValue(element)', 'Command#find then Command#getAttribute(\'value\'), or ' +
+				'Command#find then Command#then(function (element) { ' +
 				'return element.getAttribute(\'value\'); }');
 
 			return new Command(this, function () {
@@ -428,7 +428,7 @@ var methods = {
 	waitForElement: function () {
 		warn(
 			'Command#waitForElement',
-			'Command#setImplicitWaitTimeout and Command#getElement',
+			'Command#setImplicitWaitTimeout and Command#find',
 			'This command is implemented using implicit timeouts, which may not match the prior behaviour.'
 		);
 		return waitForElement.apply(this, arguments);
@@ -452,7 +452,7 @@ var methods = {
 		if (arguments.length === 2) {
 			var using = arguments[0];
 			var value = arguments[1];
-			return this.getElement(using, value).isDisplayed().catch(function () {
+			return this.find(using, value).isDisplayed().catch(function () {
 				return false;
 			});
 		}
@@ -522,7 +522,7 @@ strategies.suffixes.forEach(function (suffix, index) {
 
 	var wdSuffix = suffix === 'XPath' ? 'XPath' : suffix;
 	var method = 'elementBy' + wdSuffix;
-	var toMethod = 'getElementBy' + suffix;
+	var toMethod = 'findBy' + suffix;
 	var using = strategies[index];
 	addStrategy(method, toMethod, suffix, wdSuffix, using);
 	if (suffix === 'CssSelector') {

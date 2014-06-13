@@ -114,7 +114,7 @@ define([
 
 			'child is a separate command': function () {
 				var parent = new Command(session).get(require.toUrl('./data/default.html'));
-				var child = parent.getElementByTagName('p');
+				var child = parent.findByTagName('p');
 
 				return child.then(function (element) {
 						assert.notStrictEqual(child, parent, 'Getting an element should cause a new Command to be created');
@@ -128,7 +128,7 @@ define([
 			'basic form interaction': function () {
 				var command = new Command(session);
 				return command.get(require.toUrl('./data/form.html'))
-					.getElementById('input')
+					.findById('input')
 						.clickElement()
 						.type('hello')
 						.getAttribute('value')
@@ -137,40 +137,40 @@ define([
 						});
 			},
 
-			'#getElements': function () {
+			'#findAll': function () {
 				return new Command(session).get(require.toUrl('./data/elements.html'))
-					.getElementsByClassName('b')
+					.findAllByClassName('b')
 					.getAttribute('id')
 					.then(function (ids) {
 						assert.deepEqual(ids, [ 'b2', 'b1', 'b3', 'b4' ]);
 					});
 			},
 
-			'#getElements chain': function () {
+			'#findAll chain': function () {
 				return new Command(session).get(require.toUrl('./data/elements.html'))
-					.getElementById('c')
-						.getElementsByClassName('b')
+					.findById('c')
+						.findAllByClassName('b')
 							.getAttribute('id')
 							.then(function (ids) {
 								assert.deepEqual(ids, [ 'b3', 'b4' ]);
 							})
-							.getElementsByClassName('a')
+							.findAllByClassName('a')
 								.then(function (elements) {
 									assert.lengthOf(elements, 0);
 								})
 						.end(2)
 					.end()
-					.getElementsByClassName('b')
+					.findAllByClassName('b')
 						.getAttribute('id')
 						.then(function (ids) {
 							assert.deepEqual(ids, [ 'b2', 'b1', 'b3', 'b4' ]);
 						});
 			},
 
-			'#getElements + #getElements': function () {
+			'#findAll + #findAll': function () {
 				return new Command(session).get(require.toUrl('./data/elements.html'))
-					.getElementsByTagName('div')
-						.getElementsByCssSelector('span, a')
+					.findAllByTagName('div')
+						.findAllByCssSelector('span, a')
 							.getAttribute('id')
 							.then(function (ids) {
 								assert.deepEqual(ids, [ 'f', 'g', 'j', 'i1', 'k', 'zz' ]);

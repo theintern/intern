@@ -537,7 +537,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 
 			// At least Selendroid 0.9.0 incorrectly returns HTML tag names in uppercase, which is a violation
 			// of the JsonWireProtocol spec
-			testedCapabilities.brokenHtmlTagName = session.getElementByTagName('html').then(function (element) {
+			testedCapabilities.brokenHtmlTagName = session.findByTagName('html').then(function (element) {
 				return element.getTagName();
 			}).then(function (tagName) {
 				return tagName !== 'html';
@@ -545,7 +545,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 
 			// At least ios-driver 0.6.6-SNAPSHOT incorrectly returns empty string instead of null for attributes
 			// that do not exist
-			testedCapabilities.brokenNullGetAttribute = session.getElementByTagName('html').then(function (element) {
+			testedCapabilities.brokenNullGetAttribute = session.findByTagName('html').then(function (element) {
 				return element.getAttribute('nonexisting');
 			}).then(function (value) {
 				return value !== null;
@@ -563,7 +563,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 			// At least Selendroid 0.9.0 treats fully transparent elements as displayed, but all others do not
 			testedCapabilities.brokenElementDisplayedOpacity = function () {
 				return get('<!DOCTYPE html><div id="a" style="opacity: 0;">a</div>').then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return element.isDisplayed();
 				}).catch(broken);
@@ -572,7 +572,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 			// At least ChromeDriver 2.9 treats elements that are offscreen as displayed, but others do not
 			testedCapabilities.brokenElementDisplayedOffscreen = function () {
 				return get('<!DOCTYPE html><div id="a" style="left: 0; position: absolute; top: -1000px;">a</div>').then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return element.isDisplayed();
 				}).catch(broken);
@@ -585,7 +585,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 			testedCapabilities.brokenSubmitElement = function () {
 				/*jshint maxlen:200 */
 				return get('<!DOCTYPE html><form method="get" action="about:blank"><input id="a" type="submit" name="a" value="a"></form>').then(function () {
-					return session.getElementById('a');
+					return session.findById('a');
 				}).then(function (element) {
 					return element.submit();
 				}).then(function () {
@@ -626,7 +626,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 					}
 
 					return get('<!DOCTYPE html><script>counter = 0; var d = document; d.onclick = d.onmousedown = d.onmouseup = function () { counter++; };</script>').then(function () {
-						return session.getElementByTagName('html');
+						return session.findByTagName('html');
 					}).then(function (element) {
 						return session.moveMouseTo(element);
 					}).then(function () {
@@ -649,7 +649,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 
 			if (capabilities.touchEnabled) {
 				// At least Selendroid 0.9.0 fails to perform a long tap due to an INJECT_EVENTS permission failure
-				testedCapabilities.brokenLongTap = session.getElementByTagName('body').then(function (element) {
+				testedCapabilities.brokenLongTap = session.findByTagName('body').then(function (element) {
 					return session.longTap(element);
 				}).then(works, broken);
 
@@ -673,7 +673,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 							return true;
 						}
 
-						return session.getElementById('a').then(function (element) {
+						return session.findById('a').then(function (element) {
 							return session.touchScroll(element, 0, 0);
 						}).then(function () {
 							return session.execute('return window.scrollY !== 3000;');
@@ -697,7 +697,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 				// account for scrolling
 				testedCapabilities.brokenElementPosition = function () {
 					return get(scrollTestUrl).then(function () {
-						return session.getElementById('a');
+						return session.findById('a');
 					}).then(function (element) {
 						return element.getPosition();
 					}).then(function (position) {
@@ -758,7 +758,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 			.then(discoverDefects)
 			.then(addCapabilities)
 			.finally(function () {
-				return session.get('about:blank').finally(function() {
+				return session.get('about:blank').finally(function () {
 					return session;
 				});
 			});

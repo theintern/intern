@@ -20,8 +20,8 @@ STRATEGIES.applyTo = function (prototype) {
 	STRATEGIES.forEach(function (strategy, index) {
 		var suffix = SUFFIXES[index];
 
-		prototype['getElementBy' + suffix] = function (value) {
-			return this.getElement(strategy, value);
+		prototype['findBy' + suffix] = function (value) {
+			return this.find(strategy, value);
 		};
 
 		prototype['waitForDeletedElementBy' + suffix] = function (value) {
@@ -29,8 +29,8 @@ STRATEGIES.applyTo = function (prototype) {
 		};
 
 		if (strategy !== 'id') {
-			prototype['getElementsBy' + suffix] = function (value) {
-				return this.getElements(strategy, value);
+			prototype['findAllBy' + suffix] = function (value) {
+				return this.findAll(strategy, value);
 			};
 		}
 	});

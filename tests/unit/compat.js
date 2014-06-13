@@ -68,7 +68,7 @@ define([
 					return command[fromMethod](element, 'c', 'd');
 				}).then(function (value) {
 					assert.deepEqual(value, [ 'c', 'd' ]);
-					assertWarn('Command#' + fromMethod + '(element)', 'Command#getElement then Command#' + fromMethod);
+					assertWarn('Command#' + fromMethod + '(element)', 'Command#find then Command#' + fromMethod);
 					assertWarn('Command#' + fromMethod + '(element)', 'element.' + (toMethod || fromMethod));
 				});
 			}
@@ -129,7 +129,7 @@ strategies.suffixes.forEach(function (suffix, index) {
 
 	var wdSuffix = suffix === 'XPath' ? 'XPath' : suffix;
 	var method = 'elementBy' + wdSuffix;
-	var toMethod = 'getElementBy' + suffix;
+	var toMethod = 'findBy' + suffix;
 	var using = strategies[index];
 	addStrategy(method, toMethod, suffix, wdSuffix, using);
 	if (suffix === 'CssSelector') {
@@ -259,28 +259,28 @@ strategies.suffixes.forEach(function (suffix, index) {
 		'#deleteAllCookies': deprecate('deleteAllCookies', 'clearCookies'),
 		'#source': deprecate('source', 'getPageSource'),
 		'#title': deprecate('title', 'getPageTitle'),
-		'#element': deprecate('element', 'getElement'),
-		'#elementByClassName': deprecate('elementByClassName', 'getElementByClassName'),
-		'#elementByCssSelector': deprecate('elementByCssSelector', 'getElementByCssSelector'),
-		'#elementById': deprecate('elementById', 'getElementById'),
-		'#elementByName': deprecate('elementByName', 'getElementByName'),
-		'#elementByLinkText': deprecate('elementByLinkText', 'getElementByLinkText'),
-		'#elementByPartialLinkText': deprecate('elementByPartialLinkText', 'getElementByPartialLinkText'),
-		'#elementByTagName': deprecate('elementByTagName', 'getElementByTagName'),
-		'#elementByXPath': deprecate('elementByXPath', 'getElementByXpath'),
-		'#elementByCss': deprecate('elementByCss', 'getElementByCssSelector'),
-		'#elements': deprecate('elements', 'getElements'),
-		'#elementsByClassName': deprecate('elementsByClassName', 'getElementsByClassName'),
-		'#elementsByCssSelector': deprecate('elementsByCssSelector', 'getElementsByCssSelector'),
+		'#element': deprecate('element', 'find'),
+		'#elementByClassName': deprecate('elementByClassName', 'findByClassName'),
+		'#elementByCssSelector': deprecate('elementByCssSelector', 'findByCssSelector'),
+		'#elementById': deprecate('elementById', 'findById'),
+		'#elementByName': deprecate('elementByName', 'findByName'),
+		'#elementByLinkText': deprecate('elementByLinkText', 'findByLinkText'),
+		'#elementByPartialLinkText': deprecate('elementByPartialLinkText', 'findByPartialLinkText'),
+		'#elementByTagName': deprecate('elementByTagName', 'findByTagName'),
+		'#elementByXPath': deprecate('elementByXPath', 'findByXpath'),
+		'#elementByCss': deprecate('elementByCss', 'findByCssSelector'),
+		'#elements': deprecate('elements', 'findAll'),
+		'#elementsByClassName': deprecate('elementsByClassName', 'findAllByClassName'),
+		'#elementsByCssSelector': deprecate('elementsByCssSelector', 'findAllByCssSelector'),
 		'#elementsById': function () {
 			throw new Error('TODO');
 		},
-		'#elementsByName': deprecate('elementsByName', 'getElementsByName'),
-		'#elementsByLinkText': deprecate('elementsByLinkText', 'getElementsByLinkText'),
-		'#elementsByPartialLinkText': deprecate('elementsByPartialLinkText', 'getElementsByPartialLinkText'),
-		'#elementsByTagName': deprecate('elementsByTagName', 'getElementsByTagName'),
-		'#elementsByXPath': deprecate('elementsByXPath', 'getElementsByXpath'),
-		'#elementsByCss': deprecate('elementsByCss', 'getElementsByCssSelector'),
+		'#elementsByName': deprecate('elementsByName', 'findAllByName'),
+		'#elementsByLinkText': deprecate('elementsByLinkText', 'findAllByLinkText'),
+		'#elementsByPartialLinkText': deprecate('elementsByPartialLinkText', 'findAllByPartialLinkText'),
+		'#elementsByTagName': deprecate('elementsByTagName', 'findAllByTagName'),
+		'#elementsByXPath': deprecate('elementsByXPath', 'findAllByXpath'),
+		'#elementsByCss': deprecate('elementsByCss', 'findAllByCssSelector'),
 		'#elementOrNull': function () {
 			throw new Error('TODO');
 		},

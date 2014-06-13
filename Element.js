@@ -77,18 +77,18 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 	 * Gets the first element within this element that matches the given query.
 	 *
 	 * @see {@link module:leadfoot/Session#setImplicitTimeout} to set the amount of time it the remote environment
-	 * should spend waiting for an element that does not exist at the time of the `getElement` call before timing
+	 * should spend waiting for an element that does not exist at the time of the `find` call before timing
 	 * out.
 	 *
 	 * @param {string} using
-	 * The element retrieval strategy to use. See {@link module:leadfoot/Session#getElement} for options.
+	 * The element retrieval strategy to use. See {@link module:leadfoot/Session#find} for options.
 	 *
 	 * @param {string} value
-	 * The strategy-specific value to search for. See {@link module:leadfoot/Session#getElement} for details.
+	 * The strategy-specific value to search for. See {@link module:leadfoot/Session#find} for details.
 	 *
 	 * @returns {Promise.<module:leadfoot/Element>}
 	 */
-	getElement: function (using, value) {
+	find: function (using, value) {
 		var session = this._session;
 		return this._post('element', {
 			using: using,
@@ -102,14 +102,14 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 	 * Gets all elements within this element that match the given query.
 	 *
 	 * @param {string} using
-	 * The element retrieval strategy to use. See {@link module:leadfoot/Session#getElement} for options.
+	 * The element retrieval strategy to use. See {@link module:leadfoot/Session#find} for options.
 	 *
 	 * @param {string} value
-	 * The strategy-specific value to search for. See {@link module:leadfoot/Session#getElement} for details.
+	 * The strategy-specific value to search for. See {@link module:leadfoot/Session#find} for details.
 	 *
 	 * @returns {Promise.<module:leadfoot/Element[]>}
 	 */
-	getElements: function (using, value) {
+	findAll: function (using, value) {
 		var session = this._session;
 		return this._post('elements', {
 			using: using,
@@ -437,7 +437,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets the first element inside this element matching the given CSS class name.
  *
- * @method getElementByClassName
+ * @method findByClassName
  * @memberOf module:leadfoot/Element#
  * @param {string} className The CSS class name to search for.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -446,7 +446,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets the first element inside this element matching the given CSS selector.
  *
- * @method getElementByCssSelector
+ * @method findByCssSelector
  * @memberOf module:leadfoot/Element#
  * @param {string} selector The CSS selector to search for.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -455,7 +455,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets the first element inside this element matching the given ID.
  *
- * @method getElementById
+ * @method findById
  * @memberOf module:leadfoot/Element#
  * @param {string} id The ID of the element.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -464,7 +464,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets the first element inside this element matching the given name attribute.
  *
- * @method getElementByName
+ * @method findByName
  * @memberOf module:leadfoot/Element#
  * @param {string} name The name of the element.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -473,7 +473,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets the first element inside this element matching the given case-insensitive link text.
  *
- * @method getElementByLinkText
+ * @method findByLinkText
  * @memberOf module:leadfoot/Element#
  * @param {string} text The link text of the element.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -482,7 +482,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets the first element inside this element partially matching the given case-insensitive link text.
  *
- * @method getElementByPartialLinkText
+ * @method findByPartialLinkText
  * @memberOf module:leadfoot/Element#
  * @param {string} text The partial link text of the element.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -491,7 +491,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets the first element inside this element matching the given HTML tag name.
  *
- * @method getElementByTagName
+ * @method findByTagName
  * @memberOf module:leadfoot/Element#
  * @param {string} tagName The tag name of the element.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -500,7 +500,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets the first element inside this element matching the given XPath selector.
  *
- * @method getElementByXpath
+ * @method findByXpath
  * @memberOf module:leadfoot/Element#
  * @param {string} path The XPath selector to search for.
  * @returns {Promise.<module:leadfoot/Element>}
@@ -509,7 +509,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets all elements inside this element matching the given CSS class name.
  *
- * @method getElementsByClassName
+ * @method findAllByClassName
  * @memberOf module:leadfoot/Element#
  * @param {string} className The CSS class name to search for.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -518,7 +518,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets all elements inside this element matching the given CSS selector.
  *
- * @method getElementsByCssSelector
+ * @method findAllByCssSelector
  * @memberOf module:leadfoot/Element#
  * @param {string} selector The CSS selector to search for.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -527,7 +527,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets all elements inside this element matching the given name attribute.
  *
- * @method getElementsByName
+ * @method findAllByName
  * @memberOf module:leadfoot/Element#
  * @param {string} name The name of the element.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -536,7 +536,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets all elements inside this element matching the given case-insensitive link text.
  *
- * @method getElementsByLinkText
+ * @method findAllByLinkText
  * @memberOf module:leadfoot/Element#
  * @param {string} text The link text of the element.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -545,7 +545,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets all elements inside this element partially matching the given case-insensitive link text.
  *
- * @method getElementsByPartialLinkText
+ * @method findAllByPartialLinkText
  * @memberOf module:leadfoot/Element#
  * @param {string} text The partial link text of the element.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -554,7 +554,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets all elements inside this element matching the given HTML tag name.
  *
- * @method getElementsByTagName
+ * @method findAllByTagName
  * @memberOf module:leadfoot/Element#
  * @param {string} tagName The tag name of the element.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -563,7 +563,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 /**
  * Gets all elements inside this element matching the given XPath selector.
  *
- * @method getElementsByXpath
+ * @method findAllByXpath
  * @memberOf module:leadfoot/Element#
  * @param {string} path The XPath selector to search for.
  * @returns {Promise.<module:leadfoot/Element[]>}
@@ -577,10 +577,10 @@ strategies.applyTo(Element.prototype);
  * @memberOf module:leadfoot/Element#
  *
  * @param {string} using
- * The element retrieval strategy to use. See {@link module:leadfoot/Session#getElement} for options.
+ * The element retrieval strategy to use. See {@link module:leadfoot/Session#find} for options.
  *
  * @param {string} value
- * The strategy-specific value to search for. See {@link module:leadfoot/Session#getElement} for details.
+ * The strategy-specific value to search for. See {@link module:leadfoot/Session#find} for details.
  *
  * @returns {Promise.<void>}
  */

@@ -28,7 +28,7 @@ module.exports = {
 						return;
 					}
 
-					self.getElement(strategy, value).then(poll, function (error) {
+					self.find(strategy, value).then(poll, function (error) {
 						var always = function () {
 							/* istanbul ignore else: other errors should never occur during normal operation */
 							if (error.name === 'NoSuchElement') {
