@@ -61,6 +61,8 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 */
 	logFile: null,
 
+	port: 4445,
+
 	url: 'http://testingbot.com/downloads/testingbot-tunnel.zip',
 
 	/**
@@ -145,8 +147,8 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
 			password: this.apiSecret,
-			proxy: this.proxy,
-			username: this.apiKey
+			user: this.apiKey,
+			proxy: this.proxy
 		}).then(function (response) {
 			if (response.data) {
 				var data = JSON.parse(response.data);
@@ -189,7 +191,11 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 						message = message.slice('INFO: '.length);
 						// the tunnel produces a lot of repeating messages during setup when the status is pending;
 						// deduplicate them for sanity
-						if (message !== lastMessage) {
+						if (
+							message !== lastMessage &&
+							message.indexOf('>> [') === -1 &&
+							message.indexOf('<< [') === -1
+						) {
 							self.emit('status', message);
 							lastMessage = message;
 						}

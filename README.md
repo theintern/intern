@@ -9,9 +9,10 @@ The following services are currently supported:
 * [Sauce Labs](http://www.saucelabs.com)
 * [TestingBot](http://www.testingbot.com)
 
+
 ## Configuration
 
-In many cases, the only configuration you'll need to do is provide authentication data. This can be provided by setting properties on tunnels or via environment variables. The tunnels use the following environment variables:
+In many cases, the only configuration you'll need to do to create a tunnel is provide authentication data. This can be provided by setting properties on tunnels or via environment variables. The tunnels use the following environment variables:
 
 Tunnel class         | Environment variables
 ---------------------|----------------------------------------------------

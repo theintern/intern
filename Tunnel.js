@@ -151,6 +151,13 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	executable: null,
 
 	/**
+	 * The hostname where the WebDriver server should be exposed by the tunnel.
+	 *
+	 * @type {string}
+	 */
+	hostname: 'localhost',
+
+	/**
 	 * Whether or not the tunnel is currently running.
 	 *
 	 * @type {boolean}
@@ -338,7 +345,8 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	_makeChild: function () {
 		function handleChildExit() {
 			if (dfd.promise.state === Promise.State.PENDING) {
-				dfd.reject(new Error(errorMessage || 'Tunnel failed to start: Exit code ' + exitCode));
+				var message = 'Tunnel failed to start: ' + (errorMessage || ('Exit code: ' + exitCode));
+				dfd.reject(new Error(message));
 			}
 		}
 
@@ -447,18 +455,18 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 				self._handles = [];
 				return self._start();
 			})
-			.then(function (childHandle) {
-				var child = childHandle.process;
-				self._process = child;
+			.then(function (child) {
+				var childProcess = child.process;
+				self._process = childProcess;
 				self._handles.push(
-					util.on(child.stdout, 'data', proxyEvent(self, 'stdout')),
-					util.on(child.stderr, 'data', proxyEvent(self, 'stderr')),
-					util.on(child, 'exit', function () {
+					util.on(childProcess.stdout, 'data', proxyEvent(self, 'stdout')),
+					util.on(childProcess.stderr, 'data', proxyEvent(self, 'stderr')),
+					util.on(childProcess, 'exit', function () {
 						self.isStarting = false;
 						self.isRunning = false;
 					})
 				);
-				return childHandle.deferred.promise;
+				return child.deferred.promise;
 			})
 			.then(function (returnValue) {
 				self.emit('status', 'Ready');
@@ -550,12 +558,12 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 */
 	_stop: function () {
 		var dfd = new Promise.Deferred();
-		var process = this._process;
+		var childProcess = this._process;
 
-		process.once('exit', function (code) {
+		childProcess.once('exit', function (code) {
 			dfd.resolve(code);
 		});
-		process.kill('SIGINT');
+		childProcess.kill('SIGINT');
 
 		return dfd.promise;
 	}

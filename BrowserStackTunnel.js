@@ -44,6 +44,8 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 
 	directory: './browserstack/',
 
+	hostname: 'hub.browserstack.com',
+
 	/**
 	 * If true, any other tunnels running on the account will be killed.
 	 *
@@ -167,8 +169,8 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 				'Content-Type': 'application/json'
 			},
 			password: this.accessKey,
-			proxy: this.proxy,
-			username: this.username
+			user: this.username,
+			proxy: this.proxy
 		}).then(function (response) {
 			if (response.statusCode >= 200 && response.statusCode < 300) {
 				return true;
@@ -181,10 +183,11 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 
 	_start: function () {
 		var child = this._makeChild();
-		var process = child.process;
+		var childProcess = child.process;
 		var dfd = child.deferred;
+		var self = this;
 
-		var handle = util.on(process.stdout, 'data', function (data) {
+		var handle = util.on(childProcess.stdout, 'data', function (data) {
 			var error = /\s*\*\*\* Error: (.*)$/m.exec(data);
 			if (error) {
 				handle.remove();
@@ -193,6 +196,16 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 			else if (data.indexOf('You can now access your local server(s) in our remote browser') > -1) {
 				handle.remove();
 				dfd.resolve();
+			}
+			else {
+				var line = data.replace(/^\s+/, '').replace(/\s+$/, '');
+				if (
+					/^BrowserStackLocal v/.test(line) ||
+					/^Connecting to BrowserStack/.test(line) ||
+					/^Connected/.test(line)
+				) {
+					self.emit('status', line);
+				}
 			}
 		});
 
