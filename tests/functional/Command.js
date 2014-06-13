@@ -4,7 +4,7 @@ define([
 	'intern/chai!assert',
 	'intern/dojo/node!dojo/Promise',
 	'./support/util',
-	'intern/dojo/node!../../strategies',
+	'intern/dojo/node!../../lib/strategies',
 	'intern/dojo/node!../../Command',
 	'require'
 ], function (registerSuite, assert, Promise, util, strategies, Command, require) {
@@ -78,7 +78,7 @@ define([
 				var dfd = this.async();
 				var parent = new Command(session, function (setContext) {
 					setContext('foo');
-					return util.createPromise('bar');
+					return Promise.resolve('bar');
 				});
 
 				var expectedContext = [ 'foo' ];
@@ -248,7 +248,7 @@ define([
 				});
 
 				Command.addSessionMethod(command, 'newContext', util.forCommand(function () {
-					return util.createPromise('b');
+					return Promise.resolve('b');
 				}, { createsContext: true }));
 
 				return command.newContext().then(function () {
@@ -265,7 +265,7 @@ define([
 					setContext({
 						elementId: 'farts',
 						newContext: util.forCommand(function () {
-							return util.createPromise('b');
+							return Promise.resolve('b');
 						}, { createsContext: true })
 					});
 				});

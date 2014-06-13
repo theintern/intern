@@ -4,9 +4,9 @@
  * @module leadfoot/Element
  */
 
-var strategies = require('./strategies');
-var waitForDeleted = require('./waitForDeleted');
-var util = require('./util');
+var strategies = require('./lib/strategies');
+var waitForDeleted = require('./lib/waitForDeleted');
+var util = require('./lib/util');
 /**
  * Delegates the HTTP request for a method to the underlying {@link module:leadfoot/Session} object.
  *

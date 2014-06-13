@@ -1,10 +1,11 @@
 /* jshint dojo:true */
 define([
+	'intern/dojo/node!dojo/Promise',
 	'intern/dojo/node!dojo/lang',
-	'intern/dojo/node!../../../../util',
+	'intern/dojo/node!../../../../lib/util',
 	'intern/dojo/node!../../../../Server',
 	'intern/dojo/node!../../../../Session'
-], function (lang, util, Server, Session) {
+], function (Promise, lang, util, Server, Session) {
 	return lang.delegate(util, {
 		createServer: function (config) {
 			return new Server(config);
@@ -43,7 +44,7 @@ define([
 			if (remote.session) {
 				session = new SessionCtor(remote.session.sessionId, server, remote.session.capabilities);
 				fixGet(session);
-				return this.createPromise(session);
+				return Promise.resolve(session);
 			}
 			// Intern 1
 			else if (remote.sessionId && remote.environmentType) {

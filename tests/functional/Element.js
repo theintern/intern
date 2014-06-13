@@ -4,7 +4,7 @@ define([
 	'intern/chai!assert',
 	'intern/dojo/node!dojo/Promise',
 	'./support/util',
-	'intern/dojo/node!../../strategies',
+	'intern/dojo/node!../../lib/strategies',
 	'intern/dojo/node!../../Element',
 	'require'
 ], function (registerSuite, assert, Promise, util, strategies, Element, require) {

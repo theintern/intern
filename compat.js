@@ -1,6 +1,10 @@
+/**
+ * @module leadfoot/compat
+ */
+
 var Command = require('./Command');
 var Promise = require('dojo/Promise');
-var strategies = require('./strategies');
+var strategies = require('./lib/strategies');
 var topic = require('dojo/topic');
 
 /**

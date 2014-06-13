@@ -4,14 +4,15 @@
 
 var Element = require('./Element');
 var Promise = require('dojo/Promise');
-var strategies = require('./strategies');
+var strategies = require('./lib/strategies');
 var Session = require('./Session');
-var util = require('./util');
+var util = require('./lib/util');
 
 /**
  * Creates a function that, when called, creates a new Command that retrieves elements from the parent context and
  * uses them as the context for the newly created Command.
  *
+ * @private
  * @param {string} method
  * @returns {Function}
  */
@@ -104,7 +105,7 @@ function Command(parent, initialiser, errback) {
 	Error.captureStackTrace(this, Command);
 
 	/* jshint maxlen:130 */
-	this._promise = (parent ? parent.promise : util.createPromise(undefined)).then(function (returnValue) {
+	this._promise = (parent ? parent.promise : Promise.resolve(undefined)).then(function (returnValue) {
 		self._context = parent ? parent.context : [];
 		return returnValue;
 	}).then(

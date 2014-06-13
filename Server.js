@@ -8,9 +8,9 @@ var lang = require('dojo/lang');
 var Promise = require('dojo/Promise');
 var request = require('dojo/request');
 var Session = require('./Session');
-var statusCodes = require('./statusCodes');
+var statusCodes = require('./lib/statusCodes');
 var urlUtil = require('url');
-var util = require('./util');
+var util = require('./lib/util');
 
 /**
  * Creates a function that performs an HTTP request to a JsonWireProtocol endpoint.
@@ -440,7 +440,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 				// It is not possible to test this since the feature tests runs in quirks-mode on IE<10, but we
 				// know that IE9 supports CSS transforms
 				if (capabilities.browserName === 'internet explorer' && parseFloat(capabilities.version) === 9) {
-					return util.createPromise(true);
+					return Promise.resolve(true);
 				}
 
 				/*jshint maxlen:240 */
@@ -616,7 +616,7 @@ Server.prototype = /** @lends module:leadfoot/Server# */ {
 					// tests in standards-mode in IE<10, force the value to false since it is not broken in this
 					// browser
 					if (capabilities.browserName === 'internet explorer' && capabilities.version === '9') {
-						return util.createPromise(false);
+						return Promise.resolve(false);
 					}
 
 					return get('<!DOCTYPE html><script>counter = 0; var d = document; d.onclick = d.onmousedown = d.onmouseup = function () { counter++; };</script>').then(function () {

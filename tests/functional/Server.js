@@ -4,8 +4,9 @@ define([
 	'intern/chai!assert',
 	'intern/main',
 	'./support/util',
+	'intern/dojo/node!dojo/Promise',
 	'intern/dojo/node!../../../Server'
-], function (registerSuite, assert, intern, util, Server) {
+], function (registerSuite, assert, intern, util, Promise, Server) {
 	registerSuite(function () {
 		var server;
 
@@ -137,7 +138,7 @@ define([
 							assert.strictEqual(data.desiredCapabilities, desiredCapabilities);
 							assert.strictEqual(data.requiredCapabilities, requiredCapabilities);
 
-							return util.createPromise({
+							return Promise.resolve({
 								sessionId: 'test',
 								value: mockCapabilities
 							});
@@ -166,7 +167,7 @@ define([
 				server._delete = function (command, data, pathData) {
 					assert.strictEqual(command, 'session/$0');
 					assert.deepEqual(pathData, [ 'test' ]);
-					return util.createPromise(null);
+					return Promise.resolve(null);
 				};
 
 				try {

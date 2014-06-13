@@ -5,11 +5,12 @@
 
 var Element = require('./Element');
 var lang = require('dojo/lang');
-var statusCodes = require('./statusCodes');
-var storage = require('./storage');
-var strategies = require('./strategies');
-var util = require('./util');
-var waitForDeleted = require('./waitForDeleted');
+var Promise = require('dojo/Promise');
+var statusCodes = require('./lib/statusCodes');
+var storage = require('./lib/storage');
+var strategies = require('./lib/strategies');
+var util = require('./lib/util');
+var waitForDeleted = require('./lib/waitForDeleted');
 
 /**
  * An object that describes an HTTP cookie.
@@ -386,9 +387,9 @@ function Session(sessionId, server, capabilities) {
 	this._capabilities = capabilities;
 	this._closedWindows = {};
 	this._timeouts = {
-		script: util.createPromise(0),
-		implicit: util.createPromise(0),
-		'page load': util.createPromise(Infinity)
+		script: Promise.resolve(0),
+		implicit: Promise.resolve(0),
+		'page load': Promise.resolve(Infinity)
 	};
 }
 
@@ -1658,7 +1659,7 @@ Session.prototype = /** @lends module:leadfoot/Session# */ {
 	 */
 	getAvailableLogTypes: function () {
 		if (this.capabilities.fixedLogTypes) {
-			return util.createPromise(this.capabilities.fixedLogTypes);
+			return Promise.resolve(this.capabilities.fixedLogTypes);
 		}
 
 		return this._get('log/types');
