@@ -64,7 +64,8 @@ lang.mixin(ProxiedSession.prototype, /** @lends module:leadfoot/ProxiedSession# 
 		var self = this,
 			args = Array.prototype.slice.call(arguments, 0);
 
-		if (!/^[A-Za-z0-9+.-]+:/.test(args[0])) {
+		// At least two letters are required in the scheme to avoid Windows paths being misinterpreted as URLs
+		if (!/^[A-Za-z][A-Za-z0-9+.-]+:/.test(args[0])) {
 			args[0] = this.proxyUrl + args[0].slice(this.proxyBasePathLength);
 		}
 

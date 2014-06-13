@@ -31,7 +31,7 @@ define([
 			function fixGet(session) {
 				var oldGet = session.get;
 				session.get = function (url) {
-					if (!/^[A-Za-z0-9+.-]+:/.test(url)) {
+					if (!/^[A-Za-z][A-Za-z0-9+.-]+:/.test(url)) {
 						url = self.convertPathToUrl(remote, url);
 					}
 
