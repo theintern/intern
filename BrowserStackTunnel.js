@@ -167,6 +167,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 				'Content-Type': 'application/json'
 			},
 			password: this.accessKey,
+			proxy: this.proxy,
 			username: this.username
 		}).then(function (response) {
 			if (response.statusCode >= 200 && response.statusCode < 300) {

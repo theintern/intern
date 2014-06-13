@@ -310,6 +310,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
 			password: this.apiSecret,
+			proxy: this.proxy,
 			username: this.apiKey
 		}).then(function (response) {
 			if (response.data) {
