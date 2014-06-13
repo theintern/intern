@@ -11,12 +11,13 @@ if [ "$REPLY" != "y" ]; then
 	exit 0
 fi
 
-ROOT_DIR=$(cd $(dirname $0) && cd .. && pwd)
+SUPPORT_DIR=$(cd $(dirname $0) && pwd)
+ROOT_DIR="$SUPPORT_DIR/.."
 BUILD_DIR="$ROOT_DIR/build_doc"
 
 cd "$ROOT_DIR"
 git clone -b gh-pages . "$BUILD_DIR"
-jsdoc -d "$BUILD_DIR" *.js README.md
+jsdoc -c "$SUPPORT_DIR/jsdoc.conf" -d "$BUILD_DIR" *.js README.md
 
 cd "$BUILD_DIR"
 git add .
