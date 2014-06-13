@@ -61,7 +61,6 @@ define({
 	functionalSuites: [
 		'leadfoot/tests/functional/Server',
 		'leadfoot/tests/functional/Session',
-		'leadfoot/tests/functional/ProxiedSession',
 		'leadfoot/tests/functional/Element',
 		'leadfoot/tests/functional/Command'
 	],
