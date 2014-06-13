@@ -17,7 +17,7 @@ BUILD_DIR="$ROOT_DIR/build_doc"
 
 cd "$ROOT_DIR"
 git clone -b gh-pages . "$BUILD_DIR"
-jsdoc -c "$SUPPORT_DIR/jsdoc.conf" -d "$BUILD_DIR" *.js README.md
+jsdoc -c "$SUPPORT_DIR/jsdoc.conf" -d "$BUILD_DIR" --verbose *.js README.md
 
 cd "$BUILD_DIR"
 git add .
