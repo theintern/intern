@@ -47,8 +47,7 @@ function createHttpRequest(method) {
 				// anyway)
 				'Accept': 'application/json,text/plain;q=0.9'
 			},
-			method: method,
-			streamEncoding: 'utf8'
+			method: method
 		};
 
 		if (requestData) {
@@ -80,7 +79,7 @@ function createHttpRequest(method) {
 				try {
 					data = JSON.parse(response.data);
 				} catch (e) {
-					console.log('error parsing response data ' + response.text);
+					console.log('error parsing response data: ' + response.data);
 					throw e;
 				}
 			}
