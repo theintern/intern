@@ -2,14 +2,15 @@
  * @module digdug/SauceLabsTunnel
  */
 
-var Tunnel = require('./Tunnel');
-var util = require('./util');
-var request = require('dojo/request');
-var Promise = require('dojo/Promise');
 var fs = require('fs');
 var os = require('os');
-var urlUtil = require('url');
 var pathUtil = require('path');
+var Promise = require('dojo/Promise');
+var request = require('dojo/request');
+var Tunnel = require('./Tunnel');
+var urlUtil = require('url');
+var util = require('./util');
+
 var SC_VERSION = '4.2';
 
 /**
@@ -177,7 +178,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	get url() {
 		var platform = this.platform === 'darwin' ? 'osx' : this.platform;
 		var architecture = this.architecture;
-		var url = 'https://d2nkw87yt5k0to.cloudfront.net/downloads/sc-' + SC_VERSION + '-';
+		var url = 'https://saucelabs.com/downloads/sc-' + SC_VERSION + '-';
 
 		if (platform === 'osx' || platform === 'win32') {
 			url += platform + '.zip';
@@ -185,6 +186,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		else if (platform === 'linux' && architecture === 'x64') {
 			url += platform + '.tar.gz';
 		}
+		// Sauce Connect 3 uses Java so should be able to run on other platforms that Sauce Connect 4 does not support
 		else {
 			url = 'https://saucelabs.com/downloads/Sauce-Connect-3.1-r32.zip';
 		}

@@ -2,16 +2,20 @@
  * @module digdug/NullTunnel
  */
 
-var Deferred = require('dojo/Promise').Deferred;
-var util = require('./util');
+var Promise = require('dojo/Promise');
 var Tunnel = require('./Tunnel');
+var util = require('./util');
 
 function success() {
-	var dfd = new Deferred();
-	dfd.resolve();
-	return dfd.promise;
+	return Promise.resolve();
 }
 
+/**
+ * A no-op tunnel.
+ *
+ * @constructor module:digdug/NullTunnel
+ * @extends module:digdug/Tunnel
+ */
 function NullTunnel() {
 	Tunnel.apply(this, arguments);
 }
@@ -29,7 +33,7 @@ NullTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdu
 		this.isRunning = false;
 		return success();
 	},
-	sendJobState: function () {}
+	sendJobState: success
 });
 
 module.exports = NullTunnel;

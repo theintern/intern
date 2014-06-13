@@ -2,14 +2,14 @@
  * @module digdug/TestingBotTunnel
  */
 
-var Tunnel = require('./Tunnel');
-var util = require('./util');
-var request = require('dojo/request');
-var ioQuery = require('dojo/io-query');
 var fs = require('fs');
+var ioQuery = require('dojo/io-query');
 var os = require('os');
-var urlUtil = require('url');
 var pathUtil = require('path');
+var request = require('dojo/request');
+var Tunnel = require('./Tunnel');
+var urlUtil = require('url');
+var util = require('./util');
 
 /**
  * A TestingBot tunnel.

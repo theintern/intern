@@ -2,16 +2,16 @@
  * @module digdug/Tunnel
  */
 
-var util = require('./util');
-var Promise = require('dojo/Promise');
+var decompress = require('decompress');
 var Evented = require('dojo/Evented');
-var spawnUtil = require('child_process');
-var urlUtil = require('url');
+var fs = require('fs');
 var http = require('http');
 var https = require('https');
-var fs = require('fs');
 var pathUtil = require('path');
-var decompress = require('decompress');
+var Promise = require('dojo/Promise');
+var spawnUtil = require('child_process');
+var urlUtil = require('url');
+var util = require('./util');
 
 // TODO: Spawned processes are not getting cleaned up if there is a crash
 
