@@ -76,12 +76,7 @@ function createHttpRequest(method) {
 			var data;
 
 			if (responseType && responseType.indexOf('application/json') === 0 && response.data) {
-				try {
-					data = JSON.parse(response.data);
-				} catch (e) {
-					console.log('error parsing response data: ' + response.data);
-					throw e;
-				}
+				data = JSON.parse(response.data);
 			}
 
 			// Some drivers will respond to a DELETE request with 204; in this case, we know the operation
