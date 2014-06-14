@@ -12,16 +12,17 @@ if [ "$REPLY" != "y" ]; then
 fi
 
 SUPPORT_DIR=$(cd $(dirname $0) && pwd)
-ROOT_DIR="$SUPPORT_DIR/.."
+ROOT_DIR=$(cd "$SUPPORT_DIR/.." && pwd)
 BUILD_DIR="$ROOT_DIR/build_doc"
 
 cd "$ROOT_DIR"
 git clone -b gh-pages . "$BUILD_DIR"
-
 cd "$BUILD_DIR"
-git pull origin origin/gh-pages
-jsdoc -c "$SUPPORT_DIR/jsdoc.conf" -d "$BUILD_DIR" --verbose "$ROOT_DIR" "$ROOT_DIR/README.md"
-git add .
+git rm -r '*'
+cd "$ROOT_DIR"
+jsdoc -c "$SUPPORT_DIR/jsdoc.conf" -d "$BUILD_DIR" --verbose *.js README.md
+cd "$BUILD_DIR"
+git add -A
 git commit -a -m "Rebuild documentation"
 git push origin gh-pages
 
