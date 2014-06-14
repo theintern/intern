@@ -10,6 +10,7 @@ var util = require('./lib/util');
 /**
  * Delegates the HTTP request for a method to the underlying {@link module:leadfoot/Session} object.
  *
+ * @private
  * @param {string} method
  * @returns {Promise.<any>}
  */
@@ -41,7 +42,10 @@ function Element(elementId, session) {
 	this._session = session;
 }
 
-Element.prototype = /** @lends module:leadfoot/Element# */ {
+/**
+ * @lends module:leadfoot/Element#
+ */
+Element.prototype = {
 	constructor: Element,
 
 	/**
@@ -76,7 +80,7 @@ Element.prototype = /** @lends module:leadfoot/Element# */ {
 	/**
 	 * Gets the first element within this element that matches the given query.
 	 *
-	 * @see {@link module:leadfoot/Session#setImplicitTimeout} to set the amount of time it the remote environment
+	 * @see {@link module:leadfoot/Session#setFindTimeout} to set the amount of time it the remote environment
 	 * should spend waiting for an element that does not exist at the time of the `find` call before timing
 	 * out.
 	 *
@@ -573,7 +577,7 @@ strategies.applyTo(Element.prototype);
 /**
  * Waits for all elements inside this element that match the given query to be destroyed.
  *
- * @method waitForDeletedElement
+ * @method waitForDeleted
  * @memberOf module:leadfoot/Element#
  *
  * @param {string} using
@@ -588,7 +592,7 @@ strategies.applyTo(Element.prototype);
 /**
  * Waits for all elements inside this element matching the given CSS class name to be destroyed.
  *
- * @method waitForDeletedElementByClassName
+ * @method waitForDeletedByClassName
  * @memberOf module:leadfoot/Element#
  * @param {string} className The CSS class name to search for.
  * @returns {Promise.<void>}
@@ -597,7 +601,7 @@ strategies.applyTo(Element.prototype);
 /**
  * Waits for all elements inside this element matching the given CSS selector to be destroyed.
  *
- * @method waitForDeletedElementByCssSelector
+ * @method waitForDeletedByCssSelector
  * @memberOf module:leadfoot/Element#
  * @param {string} selector The CSS selector to search for.
  * @returns {Promise.<void>}
@@ -606,7 +610,7 @@ strategies.applyTo(Element.prototype);
 /**
  * Waits for all elements inside this element matching the given ID to be destroyed.
  *
- * @method waitForDeletedElementById
+ * @method waitForDeletedById
  * @memberOf module:leadfoot/Element#
  * @param {string} id The ID of the element.
  * @returns {Promise.<void>}
@@ -615,7 +619,7 @@ strategies.applyTo(Element.prototype);
 /**
  * Waits for all elements inside this element matching the given name attribute to be destroyed.
  *
- * @method waitForDeletedElementByName
+ * @method waitForDeletedByName
  * @memberOf module:leadfoot/Element#
  * @param {string} name The name of the element.
  * @returns {Promise.<void>}
@@ -624,7 +628,7 @@ strategies.applyTo(Element.prototype);
 /**
  * Waits for all elements inside this element matching the given case-insensitive link text to be destroyed.
  *
- * @method waitForDeletedElementByLinkText
+ * @method waitForDeletedByLinkText
  * @memberOf module:leadfoot/Element#
  * @param {string} text The link text of the element.
  * @returns {Promise.<void>}
@@ -634,7 +638,7 @@ strategies.applyTo(Element.prototype);
  * Waits for all elements inside this element partially matching the given case-insensitive link text to be
  * destroyed.
  *
- * @method waitForDeletedElementByPartialLinkText
+ * @method waitForDeletedByPartialLinkText
  * @memberOf module:leadfoot/Element#
  * @param {string} text The partial link text of the element.
  * @returns {Promise.<void>}
@@ -643,7 +647,7 @@ strategies.applyTo(Element.prototype);
 /**
  * Waits for all elements inside this element matching the given HTML tag name to be destroyed.
  *
- * @method waitForDeletedElementByTagName
+ * @method waitForDeletedByTagName
  * @memberOf module:leadfoot/Element#
  * @param {string} tagName The tag name of the element.
  * @returns {Promise.<void>}
@@ -652,7 +656,7 @@ strategies.applyTo(Element.prototype);
 /**
  * Waits for all elements inside this element matching the given XPath selector to be destroyed.
  *
- * @method waitForDeletedElementByXpath
+ * @method waitForDeletedByXpath
  * @memberOf module:leadfoot/Element#
  * @param {string} path The XPath selector to search for.
  * @returns {Promise.<void>}

@@ -163,14 +163,14 @@ define([
 			'#getTimeout convenience methods': createStubbedSuite(
 				'getTimeout',
 				'get_Timeout',
-				[ 'ExecuteAsync', 'Implicit', 'PageLoad' ],
+				[ 'ExecuteAsync', 'Find', 'PageLoad' ],
 				[ 'script', 'implicit', 'page load' ]
 			),
 
 			'#setTimeout convenience methods': createStubbedSuite(
 				'setTimeout',
 				'set_Timeout',
-				[ 'ExecuteAsync', 'Implicit', 'PageLoad' ],
+				[ 'ExecuteAsync', 'Find', 'PageLoad' ],
 				[ 'script', 'implicit', 'page load' ]
 			),
 
@@ -776,21 +776,21 @@ define([
 				strategies.filter(function (strategy) { return strategy !== 'id'; })
 			),
 
-			'#waitForDeletedElement': function () {
+			'#waitForDeleted': function () {
 				var startTime;
 
 				return session.get(require.toUrl('./data/elements.html')).then(function () {
 					// Verifies element to be deleted exists at the start of the test
 					return session.findById('e');
 				}).then(function () {
-					return session.setImplicitTimeout(5000);
+					return session.setFindTimeout(5000);
 				}).then(function () {
 					return session.findById('killE');
 				}).then(function (element) {
 					startTime = Date.now();
 					return element.click();
 				}).then(function () {
-					return session.waitForDeletedElement('id', 'e');
+					return session.waitForDeleted('id', 'e');
 				}).then(function () {
 					var timeSpent = Date.now() - startTime;
 					assert.operator(timeSpent, '>', 250,
@@ -800,17 +800,17 @@ define([
 				});
 			},
 
-			'#waitForDeletedElement -> timeout': function () {
+			'#waitForDeleted -> timeout': function () {
 				var startTime;
 
 				return session.get(require.toUrl('./data/elements.html')).then(function () {
 					// Verifies element to be deleted exists at the start of the test
 					return session.findById('e');
 				}).then(function () {
-					return session.setImplicitTimeout(200);
+					return session.setFindTimeout(200);
 				}).then(function () {
 					startTime = Date.now();
-					return session.waitForDeletedElement('id', 'e');
+					return session.waitForDeleted('id', 'e');
 				}).then(function () {
 					throw new Error('Waiting for deleted element that never disappears should time out');
 				}, function () {
@@ -819,9 +819,9 @@ define([
 				});
 			},
 
-			'#waitForDeletedElement convenience methods': createStubbedSuite(
-				'waitForDeletedElement',
-				'waitForDeletedElementBy_',
+			'#waitForDeleted convenience methods': createStubbedSuite(
+				'waitForDeleted',
+				'waitForDeletedBy_',
 				strategies.suffixes,
 				strategies
 			),

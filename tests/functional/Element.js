@@ -222,11 +222,11 @@ define([
 				strategies.filter(function (strategy) { return strategy !== 'id'; })
 			),
 
-			// TODO: waitForDeletedElement
+			// TODO: waitForDeleted
 
-			'#waitForDeletedElement convenience methods': createStubbedSuite(
-				'waitForDeletedElement',
-				'waitForDeletedElementBy_',
+			'#waitForDeleted convenience methods': createStubbedSuite(
+				'waitForDeleted',
+				'waitForDeletedBy_',
 				strategies.suffixes,
 				strategies
 			),

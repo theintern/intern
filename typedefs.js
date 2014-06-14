@@ -1,4 +1,53 @@
 /**
+ * An object that describes an HTTP cookie.
+ * @typedef {Object} WebDriverCookie
+ *
+ * @property {string} name
+ * The name of the cookie.
+ *
+ * @property {string} value
+ * The value of the cookie.
+ *
+ * @property {string=} path
+ * The registered path for the cookie.
+ *
+ * @property {string=} domain
+ * The registered domain for the cookie.
+ *
+ * @property {boolean=} secure
+ * True if the cookie should only be transmitted over HTTPS.
+ *
+ * @property {boolean=} httpOnly
+ * True if the cookie should be inaccessible to client-side scripting.
+ *
+ * @property {Date=} expiry
+ * The expiration date of the cookie.
+ */
+
+/**
+ * An object that describes a geographical location.
+ * @typedef {Object} Geolocation
+ *
+ * @property {number} latitude Latitude in WGS84 decimal coordinate system.
+ * @property {number} longitude Longitude in WGS84 decimal coordinate system.
+ * @property {number=} altitude Altitude in meters above the WGS84 ellipsoid.
+ */
+
+/**
+ * A remote log entry.
+ * @typedef {Object} LogEntry
+ *
+ * @property {number} timestamp
+ * The timestamp of the entry.
+ *
+ * @property {string} level
+ * The severity level of the entry. This level is not currently normalised.
+ *
+ * @property {string} message
+ * The log entry message.
+ */
+
+/**
  * A list of possible capabilities for a remote WebDriver environment.
  * @typedef {Object} Capabilities
  *

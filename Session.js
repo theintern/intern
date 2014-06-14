@@ -13,38 +13,9 @@ var util = require('./lib/util');
 var waitForDeleted = require('./lib/waitForDeleted');
 
 /**
- * An object that describes an HTTP cookie.
- * @typedef {{
- *   name: string,
- *   value: string,
- *   path: string=,
- *   domain: string=,
- *   secure: boolean=,
- *   httpOnly: boolean=,
- *   expiry: Date=
- * }} WebDriverCookie
- */
-
-/**
- * An object that describes a geographical location.
- * @typedef {{
- *   latitude: number,
- *   longitude: number,
- *   altitude: number=
- * }} Geolocation
- */
-
-/**
- * A remote log entry.
- * @typedef {{
- *   timestamp: number,
- *   level: string,
- *   message: string
- * }} LogEntry
- */
-
-/**
  * Finds and converts serialised DOM element objects into fully-featured typed Elements.
+ *
+ * @private
  * @param session The session from which the Element was retrieved.
  * @param value An object or array that may be, or may contain, serialised DOM element objects.
  * @returns The input value, with all serialised DOM element objects converted to typed Elements.
@@ -76,6 +47,7 @@ function convertToElements(session, value) {
 /**
  * Delegates the HTTP request for a method to the underlying {@link module:leadfoot/Server} object.
  *
+ * @private
  * @param {string} method
  * @returns {Promise.<{ sessionId: string, status: number, value: any }>}
  */
@@ -90,6 +62,8 @@ function delegateToServer(method) {
  * As of Selenium 2.40.0 (March 2014), all drivers incorrectly transmit an UnknownError instead of a
  * JavaScriptError when user code fails to execute correctly. This method corrects this status code, under the
  * assumption that drivers will follow the spec in future.
+ *
+ * @private
  */
 function fixExecuteError(error) {
 	if (error.name === 'UnknownError') {
@@ -112,6 +86,7 @@ function noop() {
  * information (`source`), and pushes the properties from the source object onto the target array as properly
  * escaped key-value strings.
  *
+ * @private
  * @param {Array} target
  * @param {Object} source
  */
@@ -147,6 +122,7 @@ function pushCookieProperties(target, source) {
 /**
  * Returns the actual response value from the remote environment.
  *
+ * @private
  * @param {Object} response JsonWireProtocol response object.
  * @returns {any} The actual response value.
  */
@@ -158,6 +134,7 @@ function returnValue(response) {
 /**
  * Simulates a keyboard event as it would occur on Safari 7.
  *
+ * @private
  * @param {Array.<string>} keys Keys to type.
  */
 function simulateKeys(keys) {
@@ -224,6 +201,7 @@ function simulateKeys(keys) {
 /**
  * Simulates a mouse event as it would occur on Safari 7.
  *
+ * @private
  * @param {Object} kwArgs Parameters for the mouse event.
  */
 function simulateMouse(kwArgs) {
@@ -357,6 +335,7 @@ function simulateMouse(kwArgs) {
 /**
  * Converts a function to a string representation suitable for use with the `execute` API endpoint.
  *
+ * @private
  * @param {Function|string} fn
  * @returns {string}
  */
@@ -393,7 +372,10 @@ function Session(sessionId, server, capabilities) {
 	};
 }
 
-Session.prototype = /** @lends module:leadfoot/Session# */ {
+/**
+ * @lends module:leadfoot/Session#
+ */
+Session.prototype = {
 	constructor: Session,
 
 	_movedToElement: false,
@@ -1065,7 +1047,7 @@ Session.prototype = /** @lends module:leadfoot/Session# */ {
 	/**
 	 * Gets the first element from the focused window/frame that matches the given query.
 	 *
-	 * @see {@link module:leadfoot/Session#setImplicitTimeout} to set the amount of time it the remote environment
+	 * @see {@link module:leadfoot/Session#setFindTimeout} to set the amount of time it the remote environment
 	 * should spend waiting for an element that does not exist at the time of the `find` call before timing
 	 * out.
 	 *
@@ -1936,7 +1918,7 @@ strategies.applyTo(Session.prototype);
 /**
  * Waits for all elements in the currently active window/frame to be destroyed.
  *
- * @method waitForDeletedElement
+ * @method waitForDeleted
  * @memberOf module:leadfoot/Session#
  *
  * @param {string} using
@@ -1952,7 +1934,7 @@ strategies.applyTo(Session.prototype);
  * Waits for all elements in the currently active window/frame matching the given CSS class name to be
  * destroyed.
  *
- * @method waitForDeletedElementByClassName
+ * @method waitForDeletedByClassName
  * @memberOf module:leadfoot/Session#
  * @param {string} className The CSS class name to search for.
  * @returns {Promise.<void>}
@@ -1961,7 +1943,7 @@ strategies.applyTo(Session.prototype);
 /**
  * Waits for all elements in the currently active window/frame matching the given CSS selector to be destroyed.
  *
- * @method waitForDeletedElementByCssSelector
+ * @method waitForDeletedByCssSelector
  * @memberOf module:leadfoot/Session#
  * @param {string} selector The CSS selector to search for.
  * @returns {Promise.<void>}
@@ -1970,7 +1952,7 @@ strategies.applyTo(Session.prototype);
 /**
  * Waits for all elements in the currently active window/frame matching the given ID to be destroyed.
  *
- * @method waitForDeletedElementById
+ * @method waitForDeletedById
  * @memberOf module:leadfoot/Session#
  * @param {string} id The ID of the element.
  * @returns {Promise.<void>}
@@ -1980,7 +1962,7 @@ strategies.applyTo(Session.prototype);
  * Waits for all elements in the currently active window/frame matching the given name attribute to be
  * destroyed.
  *
- * @method waitForDeletedElementByName
+ * @method waitForDeletedByName
  * @memberOf module:leadfoot/Session#
  * @param {string} name The name of the element.
  * @returns {Promise.<void>}
@@ -1990,7 +1972,7 @@ strategies.applyTo(Session.prototype);
  * Waits for all elements in the currently active window/frame matching the given case-insensitive link text
  * to be destroyed.
  *
- * @method waitForDeletedElementByLinkText
+ * @method waitForDeletedByLinkText
  * @memberOf module:leadfoot/Session#
  * @param {string} text The link text of the element.
  * @returns {Promise.<void>}
@@ -2000,7 +1982,7 @@ strategies.applyTo(Session.prototype);
  * Waits for all elements in the currently active window/frame partially matching the given case-insensitive
  * link text to be destroyed.
  *
- * @method waitForDeletedElementByPartialLinkText
+ * @method waitForDeletedByPartialLinkText
  * @memberOf module:leadfoot/Session#
  * @param {string} text The partial link text of the element.
  * @returns {Promise.<void>}
@@ -2009,7 +1991,7 @@ strategies.applyTo(Session.prototype);
 /**
  * Waits for all elements in the currently active window/frame matching the given HTML tag name to be destroyed.
  *
- * @method waitForDeletedElementByTagName
+ * @method waitForDeletedByTagName
  * @memberOf module:leadfoot/Session#
  * @param {string} tagName The tag name of the element.
  * @returns {Promise.<void>}
@@ -2019,7 +2001,7 @@ strategies.applyTo(Session.prototype);
  * Waits for all elements in the currently active window/frame matching the given XPath selector to be
  * destroyed.
  *
- * @method waitForDeletedElementByXpath
+ * @method waitForDeletedByXpath
  * @memberOf module:leadfoot/Session#
  * @param {string} path The XPath selector to search for.
  * @returns {Promise.<void>}
@@ -2046,7 +2028,7 @@ waitForDeleted.applyTo(Session.prototype);
 /**
  * Gets the timeout for {@link module:leadfoot/Session#find} calls.
  *
- * @method getImplicitTimeout
+ * @method getFindTimeout
  * @memberOf module:leadfoot/Session#
  * @returns {Promise.<number>}
  */
@@ -2054,7 +2036,7 @@ waitForDeleted.applyTo(Session.prototype);
 /**
  * Sets the timeout for {@link module:leadfoot/Session#find} calls.
  *
- * @method setImplicitTimeout
+ * @method setFindTimeout
  * @memberOf module:leadfoot/Session#
  * @param {number} ms The length of the timeout, in milliseconds.
  * @returns {Promise.<void>}
@@ -2079,7 +2061,7 @@ waitForDeleted.applyTo(Session.prototype);
 (function (prototype) {
 	var timeouts = {
 		script: 'ExecuteAsync',
-		implicit: 'Implicit',
+		implicit: 'Find',
 		'page load': 'PageLoad'
 	};
 

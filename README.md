@@ -7,8 +7,8 @@ and works around inconsistencies in WebDriver server implementations, so you can
 work—not bugs in WebDriver servers.
 
 Enhanced capabilities are also exposed to end-users about which features and APIs a remote environment supports, so
-you don’t have to browser sniff to decide whether you’re testing a touch-device or a mouse-device. Optional convenience
-methods are also available for use, and support for chai-as-promised is built in.
+you don’t have to browser sniff to decide whether (for example) you’re testing a touch-device or a mouse-device.
+Optional convenience methods are also available for use, and support for chai-as-promised is built in.
 
 Leadfoot is also the only WebDriver client library that includes an exhaustive unit test suite that verifies that
 results are consistently returned from *all remote drivers*. Through this test suite we have discovered and reported
@@ -27,8 +27,11 @@ Leadfoot is tested against IE8+ and all other modern browsers.
 
 ## Using Leadfoot
 
-Leadfoot is currently bundled with the [Intern testing framework](http://theintern.io). Follow the instructions on
-writing functional tests with Intern to learn how to use Leadfoot in your own tests.
+Leadfoot can be installed and used as a stand-alone WebDriver library from npm by running `npm install leadfoot`.
+However, we recommend using Leadfoot through the [Intern testing framework](http://theintern.io), which provides you
+with all of the tools you need to write robust unit and functional tests. Follow the instructions on
+[writing functional tests with Intern](https://github.com/theintern/intern/wiki/Writing-Tests-with-Intern#functional-testing)
+to learn how to use Leadfoot.
 
 ## WD.js compatibility
 

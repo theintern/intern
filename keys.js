@@ -1,13 +1,16 @@
 /**
- * A list of special keys that can be used with the `type` function.
- *
- * @see {@link module:leadfoot/Session#type} for usage details.
  * @module leadfoot/keys
  */
 
 // http://code.google.com/p/selenium/wiki/JsonWireProtocol#/session/:sessionId/element/:id/value
 // https://dvcs.w3.org/hg/webdriver/raw-file/default/webdriver-spec.html#character-types
 
+/**
+ * A list of special keys that can be used with the `type` function.
+ *
+ * @see {@link module:leadfoot/Session#type} for usage details.
+ * @enum {string}
+ */
 module.exports = {
 	/** Releases all held modifier keys. */
 	'NULL': '\uE000',

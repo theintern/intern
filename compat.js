@@ -1,4 +1,7 @@
 /**
+ * The compat module adds support for WD.js 0.2.2 APIs to Leadfoot.
+ *
+ * @deprecated Use the standard Leadfoot APIs.
  * @module leadfoot/compat
  */
 
@@ -10,6 +13,7 @@ var topic = require('dojo/topic');
 /**
  * Deprecates `fromMethod` for `toMethod` and returns the correct call to `toMethod`.
  *
+ * @private
  * @param {string} fromMethod
  * @param {string} toMethod
  * @returns {Function}
@@ -25,6 +29,7 @@ function deprecate(fromMethod, toMethod) {
  * Deprecates the element context signature of a method and returns a new command with the correct call to
  * `toMethod` on the element.
  *
+ * @private
  * @param {string} fromMethod
  * The name of the old method.
  *
@@ -58,6 +63,7 @@ function deprecateElementSig(fromMethod, toMethod, fn) {
 /**
  * Deprecates the element context signature of a method as well as its non-element signature to go to `toMethod`.
  *
+ * @private
  * @param {string} fromMethod
  * @param {string} toMethod
  * @returns {Function}
@@ -85,15 +91,15 @@ function hasElement(using, value) {
 }
 
 function waitForElement(using, value, timeout) {
-	return this.getImplicitWaitTimeout().then(function (originalTimeout) {
-		return this.setImplicitWaitTimeout(timeout)
+	return this.getFindTimeout().then(function (originalTimeout) {
+		return this.setFindTimeout(timeout)
 			.find(using, value)
 			.then(function (element) {
-				return this.setImplicitWaitTimeout(originalTimeout).then(function () {
+				return this.setFindTimeout(originalTimeout).then(function () {
 					return element;
 				});
 			}, function (error) {
-				return this.setImplicitWaitTimeout(originalTimeout).then(function () {
+				return this.setFindTimeout(originalTimeout).then(function () {
 					throw error;
 				});
 			});
@@ -102,8 +108,8 @@ function waitForElement(using, value, timeout) {
 
 function waitForVisible(using, value, timeout) {
 	var startTime = Date.now();
-	return this.getImplicitWaitTimeout().then(function (originalTimeout) {
-		return this.setImplicitWaitTimeout(timeout)
+	return this.getFindTimeout().then(function (originalTimeout) {
+		return this.setFindTimeout(timeout)
 			.find(using, value)
 			.then(function (element) {
 				return this.executeAsync(/* istanbul ignore next */ function (element, timeout, done) {
@@ -121,13 +127,13 @@ function waitForVisible(using, value, timeout) {
 					})();
 				}, [ element, timeout - (startTime - Date.now()) ]);
 			}).then(function (isVisible) {
-				return this.setImplicitWaitTimeout(originalTimeout).then(function () {
+				return this.setFindTimeout(originalTimeout).then(function () {
 					if (!isVisible) {
 						throw new Error('Element didn\'t become visible');
 					}
 				});
 			}, function (error) {
-				return this.setImplicitWaitTimeout(originalTimeout).then(function () {
+				return this.setFindTimeout(originalTimeout).then(function () {
 					throw error;
 				});
 			});
@@ -137,6 +143,7 @@ function waitForVisible(using, value, timeout) {
 /**
  * Warns a user once that the method given by `name` is deprecated.
  *
+ * @private
  * @method
  * @param {string} name The name of the old method.
  * @param {string=} replacement Replacement instructions, if a direct replacement for the old method exists.
@@ -200,8 +207,8 @@ var methods = {
 		});
 	},
 	setAsyncScriptTimeout: deprecate('setAsyncScriptTimeout', 'setExecuteAsyncTimeout'),
-	setWaitTimeout: deprecate('setWaitTimeout', 'setImplicitTimeout'),
-	setImplicitWaitTimeout: deprecate('setImplicitWaitTimeout', 'setImplicitTimeout'),
+	setWaitTimeout: deprecate('setWaitTimeout', 'setFindTimeout'),
+	setImplicitWaitTimeout: deprecate('setImplicitWaitTimeout', 'setFindTimeout'),
 	windowHandle: deprecate('windowHandle', 'getCurrentWindowHandle'),
 	windowHandles: deprecate('windowHandles', 'getAllWindowHandles'),
 	url: deprecate('url', 'getCurrentUrl'),
@@ -432,7 +439,7 @@ var methods = {
 	waitForElement: function () {
 		warn(
 			'Command#waitForElement',
-			'Command#setImplicitWaitTimeout and Command#find',
+			'Command#setFindTimeout and Command#find',
 			'This command is implemented using implicit timeouts, which may not match the prior behaviour.'
 		);
 		return waitForElement.apply(this, arguments);
@@ -507,7 +514,7 @@ strategies.suffixes.forEach(function (suffix, index) {
 		method['waitForElement' + wdSuffix] = function (value, timeout) {
 			warn(
 				'Command#waitForElement' + wdSuffix,
-				'Command#setImplicitWaitTimeout and Command#' + toMethod,
+				'Command#setFindTimeout and Command#' + toMethod,
 				'This command is implemented using implicit timeouts, which may not match the prior behaviour.'
 			);
 			return waitForElement.call(this, using, value, timeout);
@@ -535,6 +542,11 @@ strategies.suffixes.forEach(function (suffix, index) {
 });
 
 module.exports = {
+	/**
+	 * Applies the methods from compat to a {@link module:leadfoot/Command} prototype or instance.
+	 *
+	 * @param {module:leadfoot/Command} prototype A {@link module:leadfoot/Command} prototype or instance.
+	 */
 	applyTo: function (prototype) {
 		for (var key in methods) {
 			Object.defineProperty(prototype, key, Object.getOwnPropertyDescriptor(methods, key));

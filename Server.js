@@ -222,7 +222,10 @@ function Server(url) {
 	this.url = urlUtil.format(url).replace(/\/*$/, '/');
 }
 
-Server.prototype = /** @lends module:leadfoot/Server# */ {
+/**
+ * @lends module:leadfoot/Server#
+ */
+Server.prototype = {
 	constructor: Server,
 
 	/**
