@@ -217,11 +217,11 @@ var methods = {
 	safeExecute: deprecate('safeExecute', 'execute'),
 	eval: function (code) {
 		warn('Command#eval', 'Command#execute with a return call');
-		return this.execute('return (' + code + ')');
+		return this.execute('return eval(arguments[0]);', [ code ]);
 	},
 	safeEval: function (code) {
 		warn('Command#safeEval', 'Command#execute with a return call');
-		return this.execute('return (' + code + ')');
+		return this.execute('return eval(arguments[0]);', [ code ]);
 	},
 	safeExecuteAsync: deprecate('safeExecuteAsync', 'executeAsync'),
 	frame: deprecate('frame', 'switchToFrame'),
@@ -232,7 +232,7 @@ var methods = {
 		var args = Array.prototype.slice.call(arguments, 0);
 
 		if (args.length === 3 && typeof args[0] === 'number') {
-			deprecate('Command#setWindowSize(width, height, handle)',
+			warn('Command#setWindowSize(width, height, handle)',
 				'Command#setWindowSize(handle, width, height)');
 			args.unshift(args.pop());
 		}
@@ -243,8 +243,8 @@ var methods = {
 		var args = Array.prototype.slice.call(arguments, 0);
 
 		if (args.length === 3 && typeof args[0] === 'number') {
-			deprecate('Command#setWindowPosition(x, y, handle)',
-				'Command#setWindowSize(handle, x, y)');
+			warn('Command#setWindowPosition(x, y, handle)',
+				'Command#setWindowPosition(handle, x, y)');
 			args.unshift(args.pop());
 		}
 
@@ -486,7 +486,9 @@ var methods = {
 				}));
 			}
 		});
-	}
+	},
+	otherwise: deprecate('otherwise', 'catch'),
+	always: deprecate('always', 'finally')
 };
 
 // TODO: type -> typeElement

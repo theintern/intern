@@ -8,71 +8,65 @@ define([
 	'intern/dojo/node!dojo/topic'
 ], function (registerSuite, assert, Promise, Session, Command, compat, topic) {
 	function assertWarn() {
+		assert.isNotNull(lastNotice);
 		for (var i = 0, j = arguments.length; i < j; ++i) {
 			arguments[i] && assert.include(lastNotice[i], arguments[i]);
 		}
 	}
 
-	function deprecate(method, replacement) {
+	function mockCommand(object, method, testName, test) {
 		var originalMethod;
-
-		return {
+		var suite = {
 			setup: function () {
-				originalMethod = command[replacement];
-				command[replacement] = function () {
+				originalMethod = object[method];
+				object[method] = function () {
 					var args = Array.prototype.slice.call(arguments, 0);
 					return new Command(this, function () {
+						if (args[0] instanceof Error) {
+							return Promise.reject(args[0]);
+						}
+
 						return Promise.resolve(args);
 					});
 				};
 			},
 			teardown: function () {
-				command[replacement] = originalMethod;
-			},
-			'deprecate': function () {
-				return command[method]('a', 'b').then(function (value) {
-					assert.deepEqual(value, [ 'a', 'b' ], 'Replacement method should be invoked with same arguments');
-					assertWarn('Command#' + method, 'Command#' + replacement);
-				});
+				object[method] = originalMethod;
 			}
 		};
+
+		suite[testName] = test;
+		return suite;
+	}
+
+	function deprecate(method, replacement) {
+		return mockCommand(command, replacement, 'deprecate', function () {
+			return command[method]('a', 'b').then(function (value) {
+				assert.deepEqual(value, [ 'a', 'b' ], 'Replacement method should be invoked with same arguments');
+				assertWarn('Command#' + method, 'Command#' + replacement);
+			});
+		});
 	}
 
 	function deprecateElementSig(fromMethod, toMethod) {
-		var originalMethod;
+		return mockCommand(Command.prototype, fromMethod, 'deprecateElementSig', function () {
+			var element = {
+				elementId: 'test'
+			};
+			element[toMethod || fromMethod] = function () {
+				return Promise.resolve(Array.prototype.slice.call(arguments, 0));
+			};
 
-		var element = {
-			elementId: 'test',
-		};
-		element[toMethod || fromMethod] = function () {
-			return Promise.resolve(Array.prototype.slice.call(arguments, 0));
-		};
-
-		return {
-			setup: function () {
-				originalMethod = Command.prototype[fromMethod];
-				Command.prototype[fromMethod] = function () {
-					var args = Array.prototype.slice.call(arguments, 0);
-					return new Command(this, function () {
-						return Promise.resolve(args);
-					});
-				};
-			},
-			teardown: function () {
-				Command.prototype[fromMethod] = originalMethod;
-			},
-			'deprecateElementSig': function () {
-				return command[fromMethod]('a', 'b').then(function (value) {
-					assert.deepEqual(value, [ 'a', 'b' ], 'Unmodified method should be invoked with same arguments');
-					assert.isNull(lastNotice);
-					return command[fromMethod](element, 'c', 'd');
-				}).then(function (value) {
-					assert.deepEqual(value, [ 'c', 'd' ]);
-					assertWarn('Command#' + fromMethod + '(element)', 'Command#find then Command#' + fromMethod);
-					assertWarn('Command#' + fromMethod + '(element)', 'element.' + (toMethod || fromMethod));
-				});
-			}
-		};
+			return command[fromMethod]('a', 'b').then(function (value) {
+				assert.deepEqual(value, [ 'a', 'b' ], 'Unmodified method should be invoked with same arguments');
+				assert.isNull(lastNotice);
+				return command[fromMethod](element, 'c', 'd');
+			}).then(function (value) {
+				assert.deepEqual(value, [ 'c', 'd' ]);
+				assertWarn('Command#' + fromMethod + '(element)', 'Command#find then Command#' + fromMethod);
+				assertWarn('Command#' + fromMethod + '(element)', 'element.' + (toMethod || fromMethod));
+			});
+		});
 	}
 
 	function deprecateElementAndStandardSig(method, replacement) {
@@ -81,10 +75,32 @@ define([
 		};
 	}
 
-	var command;
-	var handle;
-	var lastNotice;
 	var capabilities = {};
+	var command = new Command(new Session('test', {
+		getStatus: function () {
+			return Promise.resolve('hapy');
+		},
+		getSessions: function () {
+			return Promise.resolve('many things');
+		},
+		_get: function () {
+			return Promise.resolve(arguments);
+		},
+		_post: function () {
+			return Promise.resolve(arguments);
+		},
+		_delete: function () {
+			return Promise.resolve(arguments);
+		}
+	}, capabilities));
+
+	compat.applyTo(command);
+
+	var handle = topic.subscribe('/deprecated', function () {
+		lastNotice = arguments;
+	});
+
+	var lastNotice;
 
 /*
 strategies.suffixes.forEach(function (suffix, index) {
@@ -141,26 +157,6 @@ strategies.suffixes.forEach(function (suffix, index) {
 	registerSuite({
 		name: 'leadfoot/compat',
 
-		setup: function () {
-			command = new Command(new Session('test', {
-				getStatus: function () {
-					return Promise.resolve('hapy');
-				},
-				getSessions: function () {
-					return Promise.resolve('many things');
-				},
-				_get: function () {},
-				_post: function () {},
-				_delete: function () {}
-			}, capabilities));
-
-			compat.applyTo(command);
-
-			handle = topic.subscribe('/deprecated', function () {
-				lastNotice = arguments;
-			});
-		},
-
 		beforeEach: function () {
 			lastNotice = null;
 		},
@@ -175,6 +171,17 @@ strategies.suffixes.forEach(function (suffix, index) {
 				assertWarn('a');
 			});
 		},
+
+		'mockCommand sanity check': mockCommand(command, 'test', 'sanity check', function () {
+			return command.test('a', 'b').then(function (args) {
+				assert.deepEqual(args, [ 'a', 'b' ]);
+				return command.test(new Error('Should reject'));
+			}).then(function () {
+				throw new Error('Should have rejected');
+			}, function (error) {
+				assert.strictEqual(error.message, 'Should reject');
+			});
+		}),
 
 		'#sessionID': function () {
 			assert.strictEqual(command.sessionID, command.session.sessionId);
@@ -229,31 +236,62 @@ strategies.suffixes.forEach(function (suffix, index) {
 		},
 
 		'#setAsyncScriptTimeout': deprecate('setAsyncScriptTimeout', 'setExecuteAsyncTimeout'),
-		'#setWaitTimeout': deprecate('setWaitTimeout', 'setImplicitTimeout'),
-		'#setImplicitWaitTimeout': deprecate('setImplicitWaitTimeout', 'setImplicitTimeout'),
+		'#setWaitTimeout': deprecate('setWaitTimeout', 'setFindTimeout'),
+		'#setImplicitWaitTimeout': deprecate('setImplicitWaitTimeout', 'setFindTimeout'),
 		'#windowHandle': deprecate('windowHandle', 'getCurrentWindowHandle'),
 		'#windowHandles': deprecate('windowHandles', 'getAllWindowHandles'),
 		'#url': deprecate('url', 'getCurrentUrl'),
 		'#forward': deprecate('forward', 'goForward'),
 		'#back': deprecate('back', 'goBack'),
 		'#safeExecute': deprecate('safeExecute', 'execute'),
-		'#eval': function () {
-			throw new Error('TODO');
-		},
-		safeEval: function () {
-			throw new Error('TODO');
-		},
+		'#eval': mockCommand(command, 'execute', 'eval', function () {
+			/* jshint evil:true */
+			return command.eval('test').then(function (args) {
+				assert.strictEqual(args[0], 'return eval(arguments[0]);');
+				assert.deepEqual(args[1], [ 'test' ]);
+				assertWarn('Command#eval', 'Command#execute');
+			});
+		}),
+		'#safeEval': mockCommand(command, 'execute', 'eval', function () {
+			return command.safeEval('test').then(function (args) {
+				assert.strictEqual(args[0], 'return eval(arguments[0]);');
+				assert.deepEqual(args[1], [ 'test' ]);
+				assertWarn('Command#safeEval', 'Command#execute');
+			});
+		}),
 		'#safeExecuteAsync': deprecate('safeExecuteAsync', 'executeAsync'),
 		'#frame': deprecate('frame', 'switchToFrame'),
 		'#window': deprecate('window', 'switchToWindow'),
 		'#close': deprecate('close', 'closeCurrentWindow'),
 		'#windowSize': deprecate('windowSize', 'setWindowSize'),
-		'#setWindowSize': function () {
-			throw new Error('TODO');
-		},
-		'#setWindowPosition': function () {
-			throw new Error('TODO');
-		},
+		'#setWindowSize': mockCommand(Command.prototype, 'setWindowSize', 'setWindowSize', function () {
+			return command.setWindowSize(1, 2).then(function (args) {
+				assert.deepEqual(args, [ 1, 2 ]);
+				assert.isNull(lastNotice);
+				return command.setWindowSize('foo', 2, 3);
+			}).then(function (args) {
+				assert.deepEqual(args, [ 'foo', 2, 3 ]);
+				assert.isNull(lastNotice);
+				return command.setWindowSize(3, 4, 'bar');
+			}).then(function (args) {
+				assert.deepEqual(args, [ 'bar', 3, 4 ]);
+				assertWarn('Command#setWindowSize(width, height, handle)', 'Command#setWindowSize(handle, width, height)');
+			});
+		}),
+		'#setWindowPosition': mockCommand(Command.prototype, 'setWindowPosition', 'setWindowPosition', function () {
+			return command.setWindowPosition(1, 2).then(function (args) {
+				assert.deepEqual(args, [ 1, 2 ]);
+				assert.isNull(lastNotice);
+				return command.setWindowPosition('foo', 2, 3);
+			}).then(function (args) {
+				assert.deepEqual(args, [ 'foo', 2, 3 ]);
+				assert.isNull(lastNotice);
+				return command.setWindowPosition(3, 4, 'bar');
+			}).then(function (args) {
+				assert.deepEqual(args, [ 'bar', 3, 4 ]);
+				assertWarn('Command#setWindowPosition(x, y, handle)', 'Command#setWindowPosition(handle, x, y)');
+			});
+		}),
 		'#maximize': deprecate('maximize', 'maximizeWindow'),
 		'#allCookies': deprecate('allCookies', 'getCookies'),
 		'#deleteAllCookies': deprecate('deleteAllCookies', 'clearCookies'),
@@ -272,21 +310,34 @@ strategies.suffixes.forEach(function (suffix, index) {
 		'#elements': deprecate('elements', 'findAll'),
 		'#elementsByClassName': deprecate('elementsByClassName', 'findAllByClassName'),
 		'#elementsByCssSelector': deprecate('elementsByCssSelector', 'findAllByCssSelector'),
-		'#elementsById': function () {
-			throw new Error('TODO');
-		},
+		'#elementsById': mockCommand(command, 'findAll', 'elementsById', function () {
+			return command.elementsById('a').then(function (args) {
+				assert.deepEqual(args, [ 'id', 'a' ]);
+				assertWarn('Command#elementsById', 'Command#findById');
+			});
+		}),
 		'#elementsByName': deprecate('elementsByName', 'findAllByName'),
 		'#elementsByLinkText': deprecate('elementsByLinkText', 'findAllByLinkText'),
 		'#elementsByPartialLinkText': deprecate('elementsByPartialLinkText', 'findAllByPartialLinkText'),
 		'#elementsByTagName': deprecate('elementsByTagName', 'findAllByTagName'),
 		'#elementsByXPath': deprecate('elementsByXPath', 'findAllByXpath'),
 		'#elementsByCss': deprecate('elementsByCss', 'findAllByCssSelector'),
-		'#elementOrNull': function () {
-			throw new Error('TODO');
-		},
-		'#elementIfExists': function () {
-			throw new Error('TODO');
-		},
+		'#elementOrNull': mockCommand(command, 'find', 'elementOrNull', function () {
+			return command.elementOrNull('a', 'b').then(function (args) {
+				assert.deepEqual(args, [ 'a', 'b' ]);
+				return command.elementOrNull(new Error('Should resolve to null, not reject'));
+			}).then(function (result) {
+				assert.isNull(result);
+			});
+		}),
+		'#elementIfExists': mockCommand(command, 'find', 'elementIfExists', function () {
+			return command.elementIfExists('a', 'b').then(function (args) {
+				assert.deepEqual(args, [ 'a', 'b' ]);
+				return command.elementIfExists(new Error('Should resolve to undefined, not reject'));
+			}).then(function (result) {
+				assert.isUndefined(result);
+			});
+		}),
 		'#hasElement': function () {
 			throw new Error('TODO');
 		},
@@ -353,16 +404,25 @@ strategies.suffixes.forEach(function (suffix, index) {
 			throw new Error('TODO');
 		},
 		'#uploadFile': function () {
-			assert.strictEqual(command.uploadFile(), command);
-			assertWarn('Command#uploadFile', 'Command#type');
+			var uploadCommand = command.uploadFile();
+			return uploadCommand.then(function () {
+				assert.strictEqual(uploadCommand, command);
+				assertWarn('Command#uploadFile', 'Command#type');
+			});
 		},
 		sauceJobUpdate: function () {
-			assert.strictEqual(command.sauceJobUpdate(), command);
-			assertWarn('Command#sauceJobUpdate');
+			var updateCommand = command.sauceJobUpdate();
+			return updateCommand.then(function () {
+				assert.strictEqual(updateCommand, command);
+				assertWarn('Command#sauceJobUpdate');
+			});
 		},
 		sauceJobStatus: function () {
-			assert.strictEqual(command.sauceJobStatus(), command);
-			assertWarn('Command#sauceJobStatus');
+			var updateCommand = command.sauceJobStatus();
+			return updateCommand.then(function () {
+				assert.strictEqual(updateCommand, command);
+				assertWarn('Command#sauceJobStatus');
+			});
 		},
 		waitForElement: function () {
 			throw new Error('TODO');

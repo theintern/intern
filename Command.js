@@ -333,7 +333,7 @@ Command.prototype = {
 	 * @param {Function} errback
 	 * @returns {module:leadfoot/Command.<any>}
 	 */
-	otherwise: function (errback) {
+	catch: function (errback) {
 		return this.then(null, errback);
 	},
 
@@ -343,7 +343,7 @@ Command.prototype = {
 	 * @param {Function} callback
 	 * @returns {module:leadfoot/Command.<any>}
 	 */
-	always: function (callback) {
+	finally: function (callback) {
 		return this.then(callback, callback);
 	},
 
