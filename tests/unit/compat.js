@@ -48,8 +48,16 @@ define([
 		});
 	}
 
-	function deprecateElementSig(fromMethod, toMethod) {
+	function deprecateElementSig(fromMethod, toMethod, standardSigAlsoDeprecated) {
 		return mockCommand(Command.prototype, fromMethod, 'deprecateElementSig', function () {
+			function testElementSig() {
+				return command[fromMethod](element, 'c', 'd').then(function (value) {
+					assert.deepEqual(value, [ 'c', 'd' ]);
+					assertWarn('Command#' + fromMethod + '(element)', 'Command#find then Command#' + fromMethod);
+					assertWarn('Command#' + fromMethod + '(element)', 'element.' + (toMethod || fromMethod));
+				});
+			}
+
 			var element = {
 				elementId: 'test'
 			};
@@ -57,21 +65,22 @@ define([
 				return Promise.resolve(Array.prototype.slice.call(arguments, 0));
 			};
 
+			if (standardSigAlsoDeprecated) {
+				return testElementSig();
+			}
+
 			return command[fromMethod]('a', 'b').then(function (value) {
 				assert.deepEqual(value, [ 'a', 'b' ], 'Unmodified method should be invoked with same arguments');
 				assert.isNull(lastNotice);
-				return command[fromMethod](element, 'c', 'd');
-			}).then(function (value) {
-				assert.deepEqual(value, [ 'c', 'd' ]);
-				assertWarn('Command#' + fromMethod + '(element)', 'Command#find then Command#' + fromMethod);
-				assertWarn('Command#' + fromMethod + '(element)', 'element.' + (toMethod || fromMethod));
+				return testElementSig();
 			});
 		});
 	}
 
 	function deprecateElementAndStandardSig(method, replacement) {
-		return function () {
-			throw new Error('TODO ' + method + ' ' + replacement);
+		return {
+			'element signature': deprecateElementSig(method, replacement, true),
+			'standard signature': deprecate(method, replacement)
 		};
 	}
 
@@ -338,17 +347,59 @@ strategies.suffixes.forEach(function (suffix, index) {
 				assert.isUndefined(result);
 			});
 		}),
-		'#hasElement': function () {
-			throw new Error('TODO');
-		},
+		'#hasElement': mockCommand(command, 'find', 'hasElement', function () {
+			return command.hasElement('a', 'b').then(function (hasElement) {
+				assert.isTrue(hasElement);
+				assertWarn('Command#hasElement', 'Command#find');
+				return command.hasElement(new Error('Should resolve to false, not reject'));
+			}).then(function (hasElement) {
+				assert.isFalse(hasElement);
+			});
+		}),
 		'#active': deprecate('active', 'getActiveElement'),
 		'#clickElement': deprecateElementSig('clickElement', 'click'),
 		'#submit': deprecateElementSig('submit'),
 		'#text': deprecateElementAndStandardSig('text', 'getVisibleText'),
 
-		'#textPresent': function () {
-			throw new Error('TODO');
-		},
+		'#textPresent': (function () {
+			var originalMethod;
+			return {
+				setup: function () {
+					originalMethod = command.getVisibleText;
+					command.getVisibleText = function () {
+						return new Command(this, function () {
+							return Promise.resolve('foo');
+						});
+					};
+				},
+				teardown: function () {
+					command.getVisibleText = originalMethod;
+				},
+				'pass-through': function () {
+					return command.textPresent('foo').then(function (result) {
+						assert.isTrue(result);
+						assertWarn('Command#textPresent', 'Command#getVisibleText');
+						return command.textPresent('bar');
+					}).then(function (result) {
+						assert.isFalse(result);
+					});
+				},
+				'with element': function () {
+					var element = {
+						getVisibleText: function () {
+							return Promise.resolve('baz');
+						}
+					};
+
+					return command.textPresent('foo', element).then(function (result) {
+						assert.isFalse(result);
+						return command.textPresent('baz', element);
+					}).then(function (result) {
+						assert.isTrue(result);
+					});
+				}
+			};
+		})(),
 
 		// This is not backwards-compatible because it is impossible to know whether someone is expecting this to
 		// work like the old element `type` because they have not converted their code yet, or like the new session
