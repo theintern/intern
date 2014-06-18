@@ -11,8 +11,9 @@ env:
 # npm, since AMD path resolution does not follow Node.js path resolution rules but npm does not know this
 install:
   - travis_retry npm install
-  # Until #72 is fixed, symlink Intern to itself to ensure pull requests that make changes to functional tests
-  # are actually being tested
-  - rm -rf node_modules/intern
-  - ln -s .. node_modules/intern
+  - cd node_modules/intern
+  # Chai is loaded as an AMD module but npm does not install it for the copy of Intern being used to test because
+  # the same version is currently installed as a dependency for this package as well
+  - travis_retry npm install chai
+  - cd ../..
 script: tests/selftest.sh
