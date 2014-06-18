@@ -333,26 +333,6 @@ function simulateMouse(kwArgs) {
 }
 
 /**
- * Converts a function to a string representation suitable for use with the `execute` API endpoint.
- *
- * @private
- * @param {Function|string} fn
- * @returns {string}
- */
-function toString(fn) {
-	if (typeof fn === 'function') {
-		// If someone runs code through Istanbul in the test runner, inline functions that are supposed to execute
-		// on the client will contain code coverage variables that will cause script execution failure. These
-		// statements are very simple and are generated in a consistent manner, so we can get rid of them easily
-		// with a regular expression
-		fn = fn.toString().replace(/\b__cov_[^,;]+[,;]/g, '');
-		fn = 'return (' + fn + ').apply(this, arguments);';
-	}
-
-	return fn;
-}
-
-/**
  * A Session represents a connection to a remote environment that can be driven programmatically.
  *
  * @constructor module:leadfoot/Session
@@ -593,7 +573,7 @@ Session.prototype = {
 		}
 
 		return this._post('execute', {
-			script: toString(script),
+			script: util.toExecuteString(script),
 			args: args || []
 		}).then(lang.partial(convertToElements, this), fixExecuteError);
 	},
@@ -627,7 +607,7 @@ Session.prototype = {
 		}
 
 		return this._post('execute_async', {
-			script: toString(script),
+			script: util.toExecuteString(script),
 			args: args || []
 		}).then(lang.partial(convertToElements, this), fixExecuteError);
 	},

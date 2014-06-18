@@ -499,7 +499,18 @@ strategies.suffixes.forEach(function (suffix, index) {
 			});
 		},
 		'#getPageIndex': function () {
-			throw new Error('TODO');
+			var args;
+			return command.getPageIndex({
+				elementId: 'test',
+				_get: function () {
+					args = Array.prototype.slice.call(arguments, 0);
+					return Promise.resolve('1');
+				}
+			}).then(function (result) {
+				assert.strictEqual(result, '1');
+				assertWarn('Command#getPageIndex');
+				assert.deepEqual(args, [ 'pageIndex' ]);
+			});
 		},
 		'#uploadFile': function () {
 			var uploadCommand = command.uploadFile();
@@ -508,12 +519,24 @@ strategies.suffixes.forEach(function (suffix, index) {
 				assertWarn('Command#uploadFile', 'Command#type');
 			});
 		},
-		'#waitForCondition': function () {
-			throw new Error('TODO');
-		},
-		'#waitForConditionInBrowser': function () {
-			throw new Error('TODO');
-		},
+		'#waitForCondition': mockCommand(command.session, 'executeAsync', 'deprecate', function () {
+			return command.waitForCondition('true', 1000, 500).then(function (args) {
+				assert.isArray(args);
+				assert.isFunction(args[0]);
+				assert.deepEqual(args[1], [ 'return eval(arguments[0]) ? true : null;', [ 'true' ], 1000, 500 ]);
+				assertWarn('Command#waitForCondition', 'Command#executeAsync');
+				assertWarn('Command#waitForCondition', 'leadfoot/helpers/pollUntil');
+			});
+		}),
+		'#waitForConditionInBrowser': mockCommand(command.session, 'executeAsync', 'deprecate', function () {
+			return command.waitForConditionInBrowser('true', 1000, 500).then(function (args) {
+				assert.isArray(args);
+				assert.isFunction(args[0]);
+				assert.deepEqual(args[1], [ 'return eval(arguments[0]) ? true : null;', [ 'true' ], 1000, 500 ]);
+				assertWarn('Command#waitForConditionInBrowser', 'Command#executeAsync');
+				assertWarn('Command#waitForConditionInBrowser', 'leadfoot/helpers/pollUntil');
+			});
+		}),
 		'#sauceJobUpdate': function () {
 			var updateCommand = command.sauceJobUpdate();
 			return updateCommand.then(function () {

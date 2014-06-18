@@ -7,6 +7,7 @@
 
 var Command = require('./Command');
 var Promise = require('dojo/Promise');
+var pollUntil = require('./helpers/pollUntil');
 var strategies = require('./lib/strategies');
 var topic = require('dojo/topic');
 
@@ -423,82 +424,21 @@ var methods = {
 
 		return this;
 	},
-	waitForCondition: function (expression, timeout, pollFrequency) {
+	waitForCondition: function (expression, timeout, pollInterval) {
 		timeout = timeout || 1000;
-		pollFrequency = pollFrequency || 100;
+		pollInterval = pollInterval || 100;
 
-		warn('Command#waitForCondition', null);
+		warn('Command#waitForCondition', 'Command#executeAsync or leadfoot/helpers/pollUntil');
 
-		return new Command(this, function () {
-			var session = this.session;
-			var endTime = Date.now() + timeout;
-
-			return new Promise(function (resolve, reject, _, setCanceler) {
-				var timer;
-				var request;
-				setCanceler(function (reason) {
-					request && request.cancel();
-					clearTimeout(timer);
-					throw reason;
-				});
-
-				(function poll() {
-					request = session.execute('return eval(arguments[0]);', expression).then(function (result) {
-						if (result) {
-							resolve(true);
-						}
-						else if (Date.now() < endTime) {
-							timer = setTimeout(poll, pollFrequency);
-						}
-						else {
-							reject(new Error('waitForCondition failure for: ' + expression));
-						}
-					});
-				})();
-			});
-		});
+		return this.then(pollUntil('return eval(arguments[0]) ? true : null;', [ expression ], timeout, pollInterval));
 	},
-	waitForConditionInBrowser: function (expression, timeout, pollFrequency) {
+	waitForConditionInBrowser: function (expression, timeout, pollInterval) {
 		timeout = timeout || 1000;
-		pollFrequency = pollFrequency || 100;
+		pollInterval = pollInterval || 100;
 
-		warn('Command#waitForConditionInBrowser', null);
+		warn('Command#waitForConditionInBrowser', 'Command#executeAsync or leadfoot/helpers/pollUntil');
 
-		return new Command(this, function () {
-			var session = this.session;
-
-			return session.getExecuteAsyncTimeout().then(function (originalTimeout) {
-				return session.setExecuteAsyncTimeout(timeout).then(function () {
-					return session.executeAsync(/* istanbul ignore next */ function (expression, timeout, pollFrequency, done) {
-						var endTime = Number(new Date()) + timeout;
-						(function poll() {
-							/*jshint evil:true */
-							if (eval(expression)) {
-								done(true);
-							}
-							else if (Number(new Date()) < endTime) {
-								setTimeout(poll, pollFrequency);
-							}
-							else {
-								done(false);
-							}
-						})();
-					}, [ expression, timeout, pollFrequency ]).then(function (result) {
-						return session.setExecuteAsyncTimeout(originalTimeout).then(function () {
-							if (!result) {
-								throw new Error('waitForConditionInBrowser failure for: ' + expression);
-							}
-
-							return result;
-						});
-					}, function (error) {
-						return session.setExecuteAsyncTimeout(originalTimeout).then(function () {
-							throw error;
-						});
-					});
-				});
-			});
-		});
+		return this.then(pollUntil('return eval(arguments[0]) ? true : null;', [ expression ], timeout, pollInterval));
 	},
 	sauceJobUpdate: function () {
 		warn(
