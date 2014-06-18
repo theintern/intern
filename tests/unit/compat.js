@@ -492,7 +492,11 @@ strategies.suffixes.forEach(function (suffix, index) {
 			});
 		}),
 		'#setHTTPInactivityTimeout': function () {
-			throw new Error('TODO');
+			var inactivityCommand = command.setHTTPInactivityTimeout();
+			return inactivityCommand.then(function () {
+				assert.strictEqual(inactivityCommand, command);
+				assertWarn('Command#setHTTPInactivityTimeout');
+			});
 		},
 		'#getPageIndex': function () {
 			throw new Error('TODO');
