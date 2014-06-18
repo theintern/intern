@@ -4,7 +4,7 @@ define([
 	'dojo/node!istanbul/lib/collector',
 	'dojo/node!istanbul/lib/report/lcovonly',
 	'dojo/node!fs',
-	'../../../lib/reporters/lcov'
+	'../../../../lib/reporters/lcov'
 ], function (registerSuite, assert, Collector, Reporter, fs, lcov) {
 	var sessionId = 'foo',
 		mockCoverage = {

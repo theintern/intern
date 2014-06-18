@@ -1,8 +1,8 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../../lib/Test',
-	'../../lib/Suite',
+	'../../../lib/Test',
+	'../../../lib/Suite',
 	'dojo/Deferred',
 	'dojo/topic'
 ], function (registerSuite, assert, Test, Suite, Deferred, topic) {

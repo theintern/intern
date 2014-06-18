@@ -1,10 +1,10 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../../../main!object',
-	'../../../main',
-	'../../../lib/Suite',
-	'../../../lib/Test'
+	'../../../../main!object',
+	'../../../../main',
+	'../../../../lib/Suite',
+	'../../../../lib/Test'
 ], function (registerSuite, assert, object, main, Suite, Test) {
 
 	registerSuite({

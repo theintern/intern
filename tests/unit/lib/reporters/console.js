@@ -2,9 +2,9 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'dojo/lang',
-	'../../../lib/Suite',
-	'../../../lib/Test',
-	'../../../lib/reporters/console'
+	'../../../../lib/Suite',
+	'../../../../lib/Test',
+	'../../../../lib/reporters/console'
 ], function (registerSuite, assert, lang, Suite, Test, reporter) {
 	if (typeof console !== 'object') {
 		// IE<10 does not provide a global console object when Developer Tools is turned off

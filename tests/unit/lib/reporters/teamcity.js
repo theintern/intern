@@ -1,9 +1,9 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../../../lib/Suite',
-	'../../../lib/Test',
-	'../../../lib/reporters/teamcity'
+	'../../../../lib/Suite',
+	'../../../../lib/Test',
+	'../../../../lib/reporters/teamcity'
 ], function (registerSuite, assert, Suite, Test, reporter) {
 	if (typeof console !== 'object') {
 		// IE<10 does not provide a global console object when Developer Tools is turned off

@@ -52,10 +52,10 @@ define({
 	},
 
 	// Non-functional test suite(s) to run in each browser
-	suites: [ 'intern-selftest/tests/all' ],
+	suites: [ 'intern-selftest/tests/unit/all' ],
 
 	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: [ 'intern-selftest/tests/functional/basic' ],
+	functionalSuites: [],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis
 	excludeInstrumentation: /^(?:tests|node_modules)\//,

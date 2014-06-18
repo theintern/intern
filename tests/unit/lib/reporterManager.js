@@ -1,7 +1,7 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../../lib/reporterManager',
+	'../../../lib/reporterManager',
 	'dojo/topic'
 ], function (registerSuite, assert, reporterManager, topic) {
 	registerSuite({

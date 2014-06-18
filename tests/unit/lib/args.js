@@ -2,7 +2,7 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'dojo/has',
-	'../../lib/args'
+	'../../../lib/args'
 ], function (registerSuite, assert, has, args) {
 	registerSuite({
 		name: 'args',
