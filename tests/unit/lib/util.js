@@ -44,6 +44,11 @@ define([
 		},
 
 		'.logError': function () {
+			// Some environments do not have a console to log to
+			if (typeof console === 'undefined') {
+				return;
+			}
+
 			var oldConsoleError = console.error;
 			var lastMessage;
 			console.error = function (error) {
