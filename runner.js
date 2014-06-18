@@ -233,6 +233,7 @@ else {
 							var server = new Server(config.webdriver);
 							server.sessionConstructor = ProxiedSession;
 							return server.createSession(environmentType).then(function (session) {
+								session.coverageEnabled = true;
 								session.proxyUrl = config.proxyUrl;
 								session.proxyBasePathLength = basePath.length;
 
