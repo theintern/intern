@@ -9,6 +9,15 @@ define([
 
 		'custom arguments': function () {
 			assert.strictEqual(args.selftest, 'true');
+		},
+
+		'boolean arguments': function () {
+			assert.isTrue(args.selftest2);
+		},
+
+		'multiple arguments': function () {
+			assert.isArray(args.selftest3);
+			assert.deepEqual(args.selftest3, [ 'a', 'b', 'c' ]);
 		}
 	});
 });

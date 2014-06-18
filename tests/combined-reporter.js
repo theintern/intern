@@ -36,6 +36,7 @@ define([
 		},
 
 		'/test/fail': function (test) {
+			console.error('FAIL: ' + test.id);
 			util.logError(test.error);
 		},
 
