@@ -120,7 +120,6 @@ else {
 					args.reporters = config.reporters;
 				}
 				else {
-					console.info('Defaulting to "runner" reporter');
 					args.reporters = 'runner';
 				}
 			}

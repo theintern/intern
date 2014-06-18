@@ -44,9 +44,6 @@ define([
 					if (++numSuitesCompleted === numSuitesToRun) {
 						dfd.resolve();
 					}
-					else {
-						console.log('%d environments left to test', numSuitesToRun - numSuitesCompleted);
-					}
 				});
 			}));
 
