@@ -1,3 +1,6 @@
 lcov.info
 html-report
 node_modules
+saucelabs
+testingbot
+browserstack
