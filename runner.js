@@ -1,4 +1,4 @@
-/*jshint node:true */
+/*jshint node:true, es3:false */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		// this.require must be exposed explicitly in order to allow the loader to be
