@@ -35,9 +35,12 @@ else {
 		'./lib/util',
 		'./lib/Suite',
 		'./lib/ClientSuite',
-		'./lib/wd',
+		'dojo/node!leadfoot/Server',
+		'dojo/node!leadfoot/ProxiedSession',
+		'dojo/node!leadfoot/Command',
 		'dojo/lang',
 		'dojo/topic',
+		'dojo/request',
 		'./lib/EnvironmentType',
 		'./lib/reporterManager'
 	], function (
@@ -52,9 +55,12 @@ else {
 		util,
 		Suite,
 		ClientSuite,
-		wd,
+		Server,
+		ProxiedSession,
+		Command,
 		lang,
 		topic,
+		request,
 		EnvironmentType,
 		reporterManager
 	) {
@@ -76,8 +82,10 @@ else {
 				proxyUrl: 'http://localhost:9000',
 				useSauceConnect: true,
 				webdriver: {
-					host: 'localhost',
-					port: 4444
+					hostname: 'localhost',
+					pathname: '/wd/hub/',
+					port: 4444,
+					protocol: 'http'
 				}
 			}, config);
 
@@ -227,41 +235,53 @@ else {
 				util.flattenEnvironments(config.capabilities, config.environments).forEach(function (environmentType) {
 					var suite = new Suite({
 						name: 'main',
-						remote: wd.remote(config.webdriver, environmentType),
 						publishAfterSetup: true,
 						setup: function () {
-							var remote = this.remote;
-							return remote.init()
-							.then(function getEnvironmentInfo(/* [ sessionId, capabilities? ] */ environmentInfo) {
-								// wd incorrectly puts the session ID on a `sessionID` property, which violates
-								// JavaScript style convention
-								remote.sessionId = environmentInfo[0];
+							var server = new Server(config.webdriver);
+							server.sessionConstructor = ProxiedSession;
+							return server.createSession(environmentType).then(function (session) {
+								session.proxyUrl = config.proxyUrl;
+								session.proxyBasePathLength = basePath.length;
 
-								// the remote needs to know the proxy URL and base filesystem path length so it can
-								// munge filesystem paths passed to `get`
-								remote.proxyUrl = config.proxyUrl;
-								remote.proxyBasePathLength = basePath.length;
-							})
-							// capabilities object is not returned from `init` by at least ChromeDriver 2.25.0;
-							// calling `sessionCapabilities` works every time
-							.sessionCapabilities()
-							.then(function (capabilities) {
-								remote.environmentType = new EnvironmentType(capabilities);
-								topic.publish('/session/start', remote);
+								var command = new Command(session);
+								// TODO: Stop using remote.sessionId throughout the system
+								command.sessionId = session.sessionId;
+								suite.remote = command;
+
+								command.environmentType = new EnvironmentType(session.capabilities);
+								topic.publish('/session/start', command);
 							});
 						},
 						teardown: function () {
+							var remote = this.remote;
+
 							function endSession() {
 								topic.publish('/session/end', remote);
 
 								if (config.webdriver.accessKey) {
-									return remote.sauceJobUpdate({
-										passed: suite.numFailedTests === 0 && !suite.error
+									var url = 'https://{username}:{password}@saucelabs.com/' +
+										'rest/v1/{username}/jobs/{sessionId}';
+
+									var options = {
+										username: config.webdriver.username,
+										password: config.webdriver.password,
+										sessionId: remote.session.sessionId
+									};
+
+									url.replace(/\{([^}]+)\}/g, function (_, key) {
+										return encodeURIComponent(options[key]);
+									});
+
+									return request.put(url, {
+										data: JSON.stringify({
+											passed: suite.numFailedTests === 0 && !suite.error
+										}),
+										headers: {
+											'Content-Type': 'application/json'
+										}
 									});
 								}
 							}
-
-							var remote = this.remote;
 
 							if (args.leaveRemoteOpen) {
 								return endSession();

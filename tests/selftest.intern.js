@@ -39,7 +39,7 @@ define({
 	// in the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables unless you are sure you will NEVER be
 	// publishing this configuration file somewhere
 	webdriver: {
-		host: 'localhost',
+		hostname: 'localhost',
 		port: 4444
 	},
 
