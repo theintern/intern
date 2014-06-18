@@ -31,13 +31,8 @@ define({
 	// Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
 	maxConcurrency: 3,
 
-	// The name of the tunnel class that will be used to connect to the WebDriver service
+	// Name of the tunnel class to use for WebDriver tests
 	tunnel: 'SauceLabsTunnel',
-
-	webdriver: {
-		hostname: 'localhost',
-		port: 4444
-	},
 
 	// Configuration options for the module loader; any AMD configuration options supported by the Dojo loader can be
 	// used here

@@ -84,9 +84,7 @@ else {
 				proxyUrl: 'http://localhost:9000',
 				useSauceConnect: true,
 				webdriver: {
-					hostname: 'localhost',
 					pathname: '/wd/hub/',
-					port: 4444,
 					protocol: 'http'
 				}
 			}, config);
@@ -114,7 +112,6 @@ else {
 				config.tunnel = 'dojo/node!digdug/' + config.tunnel;
 			}
 
-			config.tunnelOptions.port = config.webdriver.port;
 			config.tunnelOptions.servers = (config.tunnelOptions.servers || []).concat(config.proxyUrl);
 
 			// Using concat to convert to an array since `args.reporters` might be an array or a scalar
@@ -137,6 +134,9 @@ else {
 				tunnel.on('status', function (status) {
 					topic.publish('/tunnel/status', tunnel, status);
 				});
+
+				config.webdriver.port = config.webdriver.port || tunnel.port;
+				config.webdriver.hostname = config.webdriver.hostname || tunnel.hostname;
 
 				if (!config.webdriver.username) {
 					// TODO: Must use username/password, not auth, because of restrictions in the dojo/request API;
