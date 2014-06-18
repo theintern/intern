@@ -10,7 +10,7 @@ env:
 # This extra install section is only necessary if your project has already installed AMD dependencies like Dojo using
 # npm, since AMD path resolution does not follow Node.js path resolution rules but npm does not know this
 install:
-  - npm install
+  - travis_retry npm install
   # Until #72 is fixed, symlink Intern to itself to ensure pull requests that make changes to functional tests
   # are actually being tested
   - rm -rf node_modules/intern
