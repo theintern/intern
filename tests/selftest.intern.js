@@ -31,12 +31,9 @@ define({
 	// Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
 	maxConcurrency: 3,
 
-	// Whether or not to start Sauce Connect before running tests
-	useSauceConnect: true,
+	// The name of the tunnel class that will be used to connect to the WebDriver service
+	tunnel: 'SauceLabsTunnel',
 
-	// Connection information for the remote WebDriver service. If using Sauce Labs, keep your username and password
-	// in the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables unless you are sure you will NEVER be
-	// publishing this configuration file somewhere
 	webdriver: {
 		hostname: 'localhost',
 		port: 4444

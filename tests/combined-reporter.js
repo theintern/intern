@@ -35,6 +35,18 @@ define([
 			util.logError(error);
 		},
 
+		'/tunnel/start': function () {
+			console.log('Starting tunnel');
+		},
+
+		'/tunnel/download/progress': function (tunnel, progress) {
+			console.log('Download ' + (progress.received / progress.total * 100) + '% complete');
+		},
+
+		'/tunnel/status': function (tunnel, status) {
+			console.log('Tunnel: ' + status);
+		},
+
 		'/test/fail': function (test) {
 			console.error('FAIL: ' + test.id);
 			util.logError(test.error);

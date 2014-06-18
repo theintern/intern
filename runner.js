@@ -29,7 +29,6 @@ else {
 		'./lib/createProxy',
 		'dojo/has!host-node?dojo/node!istanbul/lib/hook',
 		'dojo/node!istanbul/lib/instrumenter',
-		'dojo/node!sauce-connect-launcher',
 		'dojo/node!path',
 		'./lib/args',
 		'./lib/util',
@@ -49,7 +48,6 @@ else {
 		createProxy,
 		hook,
 		Instrumenter,
-		startConnect,
 		path,
 		args,
 		util,
@@ -71,10 +69,14 @@ else {
 		main.mode = 'runner';
 
 		this.require([ args.config ], function (config) {
-			config = lang.deepCopy({
+			main.config = config = lang.deepCopy({
 				capabilities: {
 					name: args.config,
 					'idle-timeout': 60
+				},
+				tunnel: 'NullTunnel',
+				tunnelOptions: {
+					tunnelId: '' + Date.now()
 				},
 				loader: {},
 				maxConcurrency: 3,
@@ -88,22 +90,6 @@ else {
 					protocol: 'http'
 				}
 			}, config);
-
-			// Need to create a completely new config object and mix in data in order to avoid exposure of potentially
-			// sensitive data (Sauce Labs username and access key) to tests
-			main.config = (function () {
-				var exposedConfig = lang.mixin({}, config),
-					webdriver = exposedConfig.webdriver = {};
-
-				for (var k in config.webdriver) {
-					if (k === 'username' || k === 'accessKey') {
-						continue;
-					}
-					webdriver[k] = config.webdriver[k];
-				}
-
-				return exposedConfig;
-			})();
 
 			// If the `baseUrl` passed to the loader is a relative path, it will cause `require.toUrl` to generate
 			// non-absolute paths, which will break the URL remapping code in the `get` method of `lib/wd` (it will
@@ -124,6 +110,14 @@ else {
 				}
 			}
 
+			if (config.tunnel.indexOf('/') === -1) {
+				config.tunnel = 'dojo/node!digdug/' + config.tunnel;
+			}
+
+			config.tunnelOptions.port = config.webdriver.port;
+			config.tunnelOptions.servers = (config.tunnelOptions.servers || []).concat(config.proxyUrl);
+
+			// Using concat to convert to an array since `args.reporters` might be an array or a scalar
 			args.reporters = [].concat(args.reporters).map(function (reporterModuleId) {
 				// Allow 3rd party reporters to be used simply by specifying a full mid, or built-in reporters by
 				// specifying the reporter name only
@@ -133,16 +127,54 @@ else {
 				return reporterModuleId;
 			});
 
-			require(args.reporters, function () {
+			require([ config.tunnel ].concat(args.reporters), function (Tunnel) {
 				/*jshint maxcomplexity:13 */
 
+				var tunnel = new Tunnel(config.tunnelOptions);
+				tunnel.on('downloadprogress', function (progress) {
+					topic.publish('/tunnel/download/progress', tunnel, progress);
+				});
+				tunnel.on('status', function (status) {
+					topic.publish('/tunnel/status', tunnel, status);
+				});
+
+				if (!config.webdriver.username) {
+					// TODO: Must use username/password, not auth, because of restrictions in the dojo/request API;
+					// fix the restriction, then fix this.
+					var auth = tunnel.clientAuth.split(':');
+					config.webdriver.username = auth[0];
+					config.webdriver.password = auth[1];
+				}
+
+				config.capabilities = lang.deepCopy(tunnel.extraCapabilities, config.capabilities);
+
 				// A hash map, { reporter module ID: reporter definition }
-				var reporters = [].slice.call(arguments, 0).reduce(function (map, reporter, i) {
+				var reporters = Array.prototype.slice.call(arguments, 1).reduce(function (map, reporter, i) {
 					map[args.reporters[i]] = reporter;
 					return map;
 				}, {});
 
 				reporterManager.add(reporters);
+
+				(function () {
+					var hasErrors = false;
+					topic.subscribe('/error, /test/fail', function () {
+						hasErrors = true;
+					});
+					process.on('exit', function () {
+						// calling `process.exit` after the main test loop finishes will cause any remaining
+						// in-progress operations to abort, which is undesirable if there are any asynchronous
+						// I/O operations that a reporter wants to perform once all tests are complete; calling
+						// from within the exit event avoids this problem by allowing Node.js to decide when to
+						// terminate
+						process.exit(hasErrors ? 1 : 0);
+					});
+
+					process.on('uncaughtException', function (error) {
+						topic.publish('/error', error);
+						process.exit(1);
+					});
+				})();
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
@@ -187,44 +219,6 @@ else {
 					return;
 				}
 
-				// TODO: Verify that upon using delete, it is not possible for the program to retrieve these environment
-				// variables another way.
-				if (process.env.SAUCE_USERNAME) {
-					config.webdriver.username = process.env.SAUCE_USERNAME;
-					if (!(delete process.env.SAUCE_USERNAME)) {
-						throw new Error('Failed to clear sensitive environment variable SAUCE_USERNAME');
-					}
-				}
-				if (process.env.SAUCE_ACCESS_KEY) {
-					config.webdriver.accessKey = process.env.SAUCE_ACCESS_KEY;
-					if (!(delete process.env.SAUCE_ACCESS_KEY)) {
-						throw new Error('Failed to clear sensitive environment variable SAUCE_ACCESS_KEY');
-					}
-				}
-
-				var startup;
-				if (config.useSauceConnect) {
-					if (!config.webdriver.username || !config.webdriver.accessKey) {
-						throw new Error('Missing Sauce username or access key. Disable Sauce Connect or provide ' +
-							'this information.');
-					}
-
-					if (!config.capabilities['tunnel-identifier']) {
-						config.capabilities['tunnel-identifier'] = '' + Date.now();
-					}
-
-					startup = util.adapt(startConnect);
-				}
-				else {
-					startup = function () {
-						return {
-							then: function (callback) {
-								callback();
-							}
-						};
-					};
-				}
-
 				main.maxConcurrency = config.maxConcurrency || Infinity;
 
 				if (process.env.TRAVIS_COMMIT) {
@@ -257,29 +251,9 @@ else {
 							function endSession() {
 								topic.publish('/session/end', remote);
 
-								if (config.webdriver.accessKey) {
-									var url = 'https://{username}:{password}@saucelabs.com/' +
-										'rest/v1/{username}/jobs/{sessionId}';
-
-									var options = {
-										username: config.webdriver.username,
-										password: config.webdriver.password,
-										sessionId: remote.session.sessionId
-									};
-
-									url.replace(/\{([^}]+)\}/g, function (_, key) {
-										return encodeURIComponent(options[key]);
-									});
-
-									return request.put(url, {
-										data: JSON.stringify({
-											passed: suite.numFailedTests === 0 && !suite.error
-										}),
-										headers: {
-											'Content-Type': 'application/json'
-										}
-									});
-								}
+								return tunnel.sendJobState(remote.session.sessionId, {
+									success: suite.numFailedTests === 0 && !suite.error
+								});
 							}
 
 							if (args.leaveRemoteOpen) {
@@ -294,53 +268,27 @@ else {
 					main.suites.push(suite);
 				});
 
-				startup({
-					/*jshint camelcase:false */
-					logger: function () {
-						console.log.apply(console, arguments);
-					},
-					tunnelIdentifier: config.capabilities['tunnel-identifier'],
-					username: config.webdriver.username,
-					accessKey: config.webdriver.accessKey,
-					port: config.webdriver.port,
-					no_progress: !process.stdout.isTTY
-				}).then(function (connectProcess) {
+				topic.publish('/tunnel/start', tunnel);
+				tunnel.start().then(function () {
 					require(config.functionalSuites || [], function () {
-						var hasErrors = false;
-
-						topic.subscribe('/error, /test/fail', function () {
-							hasErrors = true;
-						});
-
-						process.on('exit', function () {
-							// calling `process.exit` after the main test loop finishes will cause any remaining
-							// in-progress operations to abort, which is undesirable if there are any asynchronous
-							// I/O operations that a reporter wants to perform once all tests are complete; calling
-							// from within the exit event avoids this problem by allowing Node.js to decide when to
-							// terminate
-							process.exit(hasErrors ? 1 : 0);
-						});
-
-						process.on('uncaughtException', function (error) {
-							topic.publish('/error', error);
-							process.exit(1);
-						});
-
 						topic.publish('/runner/start');
 						main.run().always(function () {
 							/*global __internCoverage */
 							typeof __internCoverage !== 'undefined' &&
 								topic.publish('/coverage', '', __internCoverage);
 							topic.publish('/runner/end');
-							connectProcess && connectProcess.close();
 							proxy.close();
 							reporterManager.clear();
+
+							return tunnel.stop().then(function () {
+								topic.publish('/tunnel/stop', tunnel);
+							});
 						}).otherwise(function (error) {
 							console.error(error.stack || error);
 						});
 					});
 				}, function (error) {
-					console.error(error.stack || error);
+					topic.publish('/error', error);
 					proxy.close();
 					process.exit(1);
 				});
