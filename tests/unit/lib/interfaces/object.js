@@ -35,10 +35,12 @@ define([
 					'regular test': function () {}
 				});
 
-				object({
-					name: 'root suite 2',
+				object(function () {
+					return {
+						name: 'root suite 2',
 
-					'test 2': function () {}
+						'test 2': function () {}
+					};
 				});
 
 				for (var i = 0, mainSuite; (mainSuite = main.suites[i]) && (mainSuite = mainSuite.tests); ++i) {
