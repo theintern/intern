@@ -113,12 +113,12 @@ function waitForVisible(using, value, timeout) {
 			.find(using, value)
 			.then(function (element) {
 				return this.executeAsync(/* istanbul ignore next */ function (element, timeout, done) {
-					var startTime = +new Date();
+					var startTime = Number(new Date());
 					(function poll() {
 						if (element.offsetWidth && element.offsetHeight) {
 							done(true);
 						}
-						else if (+new Date() - startTime > timeout) {
+						else if (Number(new Date()) - startTime > timeout) {
 							done(false);
 						}
 						else {
@@ -336,14 +336,19 @@ var methods = {
 			});
 		}
 
+		warn('Command#getValue', 'Command#find then Command#getAttribute(\'value\')');
 		return this.getAttribute('value');
 	},
 	equalsElement: function (element, other) {
-		warn('Command#equalsElement');
+		if (other && other.elementId) {
+			warn('Command#equalsElement(element, other)', 'element.equals(other)');
+			return new Command(this, function () {
+				return element.equals(other);
+			});
+		}
 
-		return new Command(this, function () {
-			return element.equals(other);
-		});
+		warn('Command#equalsElement', 'Command#equals');
+		return this.equals(element);
 	},
 	isDisplayed: deprecateElementSig('isDisplayed'),
 	displayed: deprecateElementAndStandardSig('displayed', 'isDisplayed'),
@@ -351,7 +356,7 @@ var methods = {
 	getLocationInView: function () {
 		warn(
 			'Command#getLocationInView',
-			'Command#getLocation',
+			'Command#getPosition',
 			'This command is defined in the spec as internal and should never have been exposed to end users. ' +
 			'The returned value of this command will be the same as Command#getPosition, which may not match ' +
 			'prior behaviour.'
@@ -417,6 +422,83 @@ var methods = {
 		);
 
 		return this;
+	},
+	waitForCondition: function (expression, timeout, pollFrequency) {
+		timeout = timeout || 1000;
+		pollFrequency = pollFrequency || 100;
+
+		warn('Command#waitForCondition', null);
+
+		return new Command(this, function () {
+			var session = this.session;
+			var endTime = Date.now() + timeout;
+
+			return new Promise(function (resolve, reject, _, setCanceler) {
+				var timer;
+				var request;
+				setCanceler(function (reason) {
+					request && request.cancel();
+					clearTimeout(timer);
+					throw reason;
+				});
+
+				(function poll() {
+					request = session.execute('return eval(arguments[0]);', expression).then(function (result) {
+						if (result) {
+							resolve(true);
+						}
+						else if (Date.now() < endTime) {
+							timer = setTimeout(poll, pollFrequency);
+						}
+						else {
+							reject(new Error('waitForCondition failure for: ' + expression));
+						}
+					});
+				})();
+			});
+		});
+	},
+	waitForConditionInBrowser: function (expression, timeout, pollFrequency) {
+		timeout = timeout || 1000;
+		pollFrequency = pollFrequency || 100;
+
+		warn('Command#waitForConditionInBrowser', null);
+
+		return new Command(this, function () {
+			var session = this.session;
+
+			return session.getExecuteAsyncTimeout().then(function (originalTimeout) {
+				return session.setExecuteAsyncTimeout(timeout).then(function () {
+					return session.executeAsync(/* istanbul ignore next */ function (expression, timeout, pollFrequency, done) {
+						var endTime = Number(new Date()) + timeout;
+						(function poll() {
+							/*jshint evil:true */
+							if (eval(expression)) {
+								done(true);
+							}
+							else if (Number(new Date()) < endTime) {
+								setTimeout(poll, pollFrequency);
+							}
+							else {
+								done(false);
+							}
+						})();
+					}, [ expression, timeout, pollFrequency ]).then(function (result) {
+						return session.setExecuteAsyncTimeout(originalTimeout).then(function () {
+							if (!result) {
+								throw new Error('waitForConditionInBrowser failure for: ' + expression);
+							}
+
+							return result;
+						});
+					}, function (error) {
+						return session.setExecuteAsyncTimeout(originalTimeout).then(function () {
+							throw error;
+						});
+					});
+				});
+			});
+		});
 	},
 	sauceJobUpdate: function () {
 		warn(

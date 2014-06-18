@@ -413,18 +413,55 @@ strategies.suffixes.forEach(function (suffix, index) {
 		'#isEnabled': deprecateElementSig('isEnabled'),
 		'#enabled': deprecateElementAndStandardSig('enabled', 'isEnabled'),
 		'#getAttribute': deprecateElementSig('getAttribute'),
-		'#getValue': function () {
-			throw new Error('TODO');
-		},
-		'#equalsElement': function () {
-			throw new Error('TODO');
-		},
+		'#getValue': mockCommand(command, 'getAttribute', 'deprecate', function () {
+			return command.getValue().then(function (args) {
+				assert.deepEqual(args, [ 'value' ]);
+				assertWarn('Command#getValue', 'Command#getAttribute(\'value\')');
+
+				var element = {
+					elementId: 'test',
+					getAttribute: function () {
+						return Promise.resolve(Array.prototype.slice.call(arguments, 0).concat('fromElement'));
+					}
+				};
+
+				return command.getValue(element).then(function (args) {
+					assert.deepEqual(args, [ 'value', 'fromElement' ]);
+					assertWarn('Command#getValue(element)', 'Command#getAttribute(\'value\')');
+				});
+			});
+		}),
+		'#equalsElement': mockCommand(command, 'equals', 'deprecate', function () {
+			var otherElement = {
+				elementId: 'other'
+			};
+
+			return command.equalsElement(otherElement).then(function (args) {
+				assert.deepEqual(args, [ otherElement ]);
+				assertWarn('Command#equalsElement', 'Command#equals');
+
+				var element = {
+					elementId: 'test',
+					equals: function (other) {
+						return Promise.resolve([ other, 'fromElement' ]);
+					}
+				};
+
+				return command.equalsElement(element, otherElement).then(function (args) {
+					assert.deepEqual(args, [ otherElement, 'fromElement' ]);
+					assertWarn('Command#equalsElement', 'element.equals(other)');
+				});
+			});
+		}),
 		'#isDisplayed': deprecateElementSig('isDisplayed'),
 		'#displayed': deprecateElementAndStandardSig('displayed', 'isDisplayed'),
 		'#getLocation': deprecateElementAndStandardSig('getLocation', 'getPosition'),
-		'#getLocationInView': function () {
-			throw new Error('TODO');
-		},
+		'#getLocationInView': mockCommand(command, 'getPosition', 'deprecate', function () {
+			return command.getLocationInView('a', 'b').then(function (args) {
+				assert.deepEqual(args, [ 'a', 'b' ]);
+				assertWarn('Command#getLocationInView', 'Command#getPosition');
+			});
+		}),
 		'#getSize': deprecateElementSig('getSize'),
 		'#getComputedCss': deprecateElementAndStandardSig('getComputedCss', 'getComputedStyle'),
 		'#getComputedCSS': deprecateElementAndStandardSig('getComputedCSS', 'getComputedStyle'),
@@ -442,12 +479,18 @@ strategies.suffixes.forEach(function (suffix, index) {
 		'#removeLocalStorageKey': deprecate('removeLocalStorageKey', 'deleteLocalStorageItem'),
 		'#log': deprecate('log', 'getLogsFor'),
 		'#logTypes': deprecate('logTypes', 'getAvailableLogTypes'),
-		'#newWindow': function () {
-			throw new Error('TODO');
-		},
-		'#windowName': function () {
-			throw new Error('TODO');
-		},
+		'#newWindow': mockCommand(command, 'execute', 'deprecate', function () {
+			return command.newWindow('a', 'b').then(function (args) {
+				assert.deepEqual(args, [ 'window.open(arguments[0], arguments[1]);', [ 'a', 'b' ] ]);
+				assertWarn('Command#newWindow', 'Command#execute');
+			});
+		}),
+		'#windowName': mockCommand(command, 'execute', 'deprecate', function () {
+			return command.windowName().then(function (args) {
+				assert.deepEqual(args, [ 'return window.name;' ]);
+				assertWarn('Command#windowName', 'Command#execute');
+			});
+		}),
 		'#setHTTPInactivityTimeout': function () {
 			throw new Error('TODO');
 		},
@@ -461,27 +504,33 @@ strategies.suffixes.forEach(function (suffix, index) {
 				assertWarn('Command#uploadFile', 'Command#type');
 			});
 		},
-		sauceJobUpdate: function () {
+		'#waitForCondition': function () {
+			throw new Error('TODO');
+		},
+		'#waitForConditionInBrowser': function () {
+			throw new Error('TODO');
+		},
+		'#sauceJobUpdate': function () {
 			var updateCommand = command.sauceJobUpdate();
 			return updateCommand.then(function () {
 				assert.strictEqual(updateCommand, command);
 				assertWarn('Command#sauceJobUpdate');
 			});
 		},
-		sauceJobStatus: function () {
+		'#sauceJobStatus': function () {
 			var updateCommand = command.sauceJobStatus();
 			return updateCommand.then(function () {
 				assert.strictEqual(updateCommand, command);
 				assertWarn('Command#sauceJobStatus');
 			});
 		},
-		waitForElement: function () {
+		'#waitForElement': function () {
 			throw new Error('TODO');
 		},
-		waitForVisible: function () {
+		'#waitForVisible': function () {
 			throw new Error('TODO');
 		},
-		isVisible: function () {
+		'#isVisible': function () {
 			throw new Error('TODO');
 		}
 	});
