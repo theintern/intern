@@ -233,7 +233,7 @@ else {
 								topic.publish('/session/end', remote);
 
 								return tunnel.sendJobState(remote.session.sessionId, {
-									success: suite.numFailedTests === 0 && !suite.error
+									success: suite.get('numFailedTests') === 0 && !suite.error
 								});
 							}
 

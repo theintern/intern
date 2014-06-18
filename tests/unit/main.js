@@ -24,6 +24,7 @@ define([
 		'.run': function () {
 			var actual = [];
 			var expected = [ 'run1', 'run2', 'run3' ];
+			var mainSuites = main.suites;
 
 			function makeSuite(result) {
 				return {
@@ -36,12 +37,12 @@ define([
 				};
 			}
 
-			main.suites.push(makeSuite('run1'), makeSuite('run2'), makeSuite('run3'));
+			main.suites = [ makeSuite('run1'), makeSuite('run2'), makeSuite('run3') ];
 			return main.run().then(function () {
-				main.suites.splice(0, Infinity);
+				main.suites = mainSuites;
 				assert.deepEqual(actual, expected);
 			}).otherwise(function (error) {
-				main.suites.splice(0, Infinity);
+				main.suites = mainSuites;
 				throw error;
 			});
 		}

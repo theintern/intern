@@ -8,7 +8,7 @@
 
 define([
 	'intern!tdd',
-	'../assert',
+	'../../assert',
 	'dojo/_base/lang'
 ], function (tdd, assert, lang) {
 
