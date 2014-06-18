@@ -1,5 +1,3 @@
-.gitignore
-.jsdoc.conf
 # We want to keep tests/example.intern.js but npm
 # does not seem to allow us to unignore files
 tests/all.js
