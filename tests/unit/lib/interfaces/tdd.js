@@ -1,10 +1,10 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../../../main!tdd',
-	'../../../main',
-	'../../../lib/Suite',
-	'../../../lib/Test',
+	'../../../../main!tdd',
+	'../../../../main',
+	'../../../../lib/Suite',
+	'../../../../lib/Test',
 	'dojo/_base/array'
 ], function (registerSuite, assert, tdd, main, Suite, Test, array) {
 	registerSuite({

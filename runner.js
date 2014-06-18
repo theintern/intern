@@ -1,4 +1,4 @@
-/*jshint node:true */
+/*jshint node:true, es3:false */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		this.dojoConfig = {
@@ -29,36 +29,38 @@ else {
 		'require',
 		'./main',
 		'./lib/createProxy',
-		'dojo/has!host-node?dojo/node!istanbul/lib/hook',
 		'dojo/node!istanbul/lib/instrumenter',
-		'dojo/node!sauce-connect-launcher',
 		'dojo/node!path',
 		'./lib/args',
 		'./lib/util',
 		'./lib/Suite',
 		'./lib/ClientSuite',
-		'./lib/wd',
+		'./lib/ProxiedSession',
+		'dojo/node!leadfoot/Server',
+		'dojo/node!leadfoot/Command',
 		'dojo/_base/lang',
 		'dojo/request/util',
 		'dojo/topic',
+		'dojo/request',
 		'./lib/EnvironmentType',
 		'./lib/reporterManager'
 	], function (
 		require,
 		main,
 		createProxy,
-		hook,
 		Instrumenter,
-		startConnect,
 		path,
 		args,
 		util,
 		Suite,
 		ClientSuite,
-		wd,
+		ProxiedSession,
+		Server,
+		Command,
 		lang,
 		requestUtil,
 		topic,
+		request,
 		EnvironmentType,
 		reporterManager
 	) {
@@ -69,10 +71,14 @@ else {
 		main.mode = 'runner';
 
 		this.require([ args.config ], function (config) {
-			config = requestUtil.deepCopy({
+			main.config = config = requestUtil.deepCopy({
 				capabilities: {
 					name: args.config,
 					'idle-timeout': 60
+				},
+				tunnel: 'NullTunnel',
+				tunnelOptions: {
+					tunnelId: '' + Date.now()
 				},
 				loader: {},
 				maxConcurrency: 3,
@@ -80,26 +86,10 @@ else {
 				proxyUrl: 'http://localhost:9000',
 				useSauceConnect: true,
 				webdriver: {
-					host: 'localhost',
-					port: 4444
+					pathname: '/wd/hub/',
+					protocol: 'http'
 				}
 			}, config);
-
-			// Need to create a completely new config object and mix in data in order to avoid exposure of potentially
-			// sensitive data (Sauce Labs username and access key) to tests
-			main.config = (function () {
-				var exposedConfig = lang.mixin({}, config),
-					webdriver = exposedConfig.webdriver = {};
-
-				for (var k in config.webdriver) {
-					if (k === 'username' || k === 'accessKey') {
-						continue;
-					}
-					webdriver[k] = config.webdriver[k];
-				}
-
-				return exposedConfig;
-			})();
 
 			// If the `baseUrl` passed to the loader is a relative path, it will cause `require.toUrl` to generate
 			// non-absolute paths, which will break the URL remapping code in the `get` method of `lib/wd` (it will
@@ -116,11 +106,17 @@ else {
 					args.reporters = config.reporters;
 				}
 				else {
-					console.info('Defaulting to "runner" reporter');
 					args.reporters = 'runner';
 				}
 			}
 
+			if (config.tunnel.indexOf('/') === -1) {
+				config.tunnel = 'dojo/node!digdug/' + config.tunnel;
+			}
+
+			config.tunnelOptions.servers = (config.tunnelOptions.servers || []).concat(config.proxyUrl);
+
+			// Using concat to convert to an array since `args.reporters` might be an array or a scalar
 			args.reporters = [].concat(args.reporters).map(function (reporterModuleId) {
 				// Allow 3rd party reporters to be used simply by specifying a full mid, or built-in reporters by
 				// specifying the reporter name only
@@ -130,16 +126,57 @@ else {
 				return reporterModuleId;
 			});
 
-			require(args.reporters, function () {
+			require([ config.tunnel ].concat(args.reporters), function (Tunnel) {
 				/*jshint maxcomplexity:13 */
 
+				var tunnel = new Tunnel(config.tunnelOptions);
+				tunnel.on('downloadprogress', function (progress) {
+					topic.publish('/tunnel/download/progress', tunnel, progress);
+				});
+				tunnel.on('status', function (status) {
+					topic.publish('/tunnel/status', tunnel, status);
+				});
+
+				config.webdriver.port = config.webdriver.port || tunnel.port;
+				config.webdriver.hostname = config.webdriver.hostname || tunnel.hostname;
+
+				if (!config.webdriver.username) {
+					// TODO: Must use username/password, not auth, because of restrictions in the dojo/request API;
+					// fix the restriction, then fix this.
+					var auth = tunnel.clientAuth.split(':');
+					config.webdriver.username = auth[0];
+					config.webdriver.password = auth[1];
+				}
+
+				config.capabilities = requestUtil.deepCopy(tunnel.extraCapabilities, config.capabilities);
+
 				// A hash map, { reporter module ID: reporter definition }
-				var reporters = [].slice.call(arguments, 0).reduce(function (map, reporter, i) {
+				var reporters = Array.prototype.slice.call(arguments, 1).reduce(function (map, reporter, i) {
 					map[args.reporters[i]] = reporter;
 					return map;
 				}, {});
 
 				reporterManager.add(reporters);
+
+				(function () {
+					var hasErrors = false;
+					topic.subscribe('/error, /test/fail', function () {
+						hasErrors = true;
+					});
+					process.on('exit', function () {
+						// calling `process.exit` after the main test loop finishes will cause any remaining
+						// in-progress operations to abort, which is undesirable if there are any asynchronous
+						// I/O operations that a reporter wants to perform once all tests are complete; calling
+						// from within the exit event avoids this problem by allowing Node.js to decide when to
+						// terminate
+						process.exit(hasErrors ? 1 : 0);
+					});
+
+					process.on('uncaughtException', function (error) {
+						topic.publish('/error', error);
+						process.exit(1);
+					});
+				})();
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
@@ -147,79 +184,19 @@ else {
 				var proxy = createProxy({
 					basePath: basePath,
 					excludeInstrumentation: config.excludeInstrumentation,
-					instrumenter: new Instrumenter({
-						// coverage variable is changed primarily to avoid any jshint complaints, but also to make
-						// it clearer where the global is coming from
-						coverageVariable: '__internCoverage',
-
-						// compacting code makes it harder to look at but it does not really matter
-						noCompact: true,
-
-						// auto-wrap breaks code
-						noAutoWrap: true
-					}),
+					instrument: true,
 					port: config.proxyPort
 				});
 
 				// Code in the runner should also provide instrumentation data; this is not normally necessary since
 				// there shouldn’t typically be code under test running in the runner, but we do need this functionality
 				// for testing leadfoot to avoid having to create the tunnel and proxy and so on ourselves
-				var instrumenter = new Instrumenter({
-					// coverage variable is changed primarily to avoid any jshint complaints, but also to make
-					// it clearer where the global is coming from
-					coverageVariable: '__internCoverage',
-
-					// compacting code makes it harder to look at but it does not really matter
-					noCompact: true,
-
-					// auto-wrap breaks code
-					noAutoWrap: true
-				});
-
-				util.setInstrumentationHooks(config, instrumenter, basePath);
+				util.setInstrumentationHooks(config, basePath);
 
 				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code
 				// coverage reporting on the client if you want
 				if (args.proxyOnly) {
 					return;
-				}
-
-				// TODO: Verify that upon using delete, it is not possible for the program to retrieve these environment
-				// variables another way.
-				if (process.env.SAUCE_USERNAME) {
-					config.webdriver.username = process.env.SAUCE_USERNAME;
-					if (!(delete process.env.SAUCE_USERNAME)) {
-						throw new Error('Failed to clear sensitive environment variable SAUCE_USERNAME');
-					}
-				}
-				if (process.env.SAUCE_ACCESS_KEY) {
-					config.webdriver.accessKey = process.env.SAUCE_ACCESS_KEY;
-					if (!(delete process.env.SAUCE_ACCESS_KEY)) {
-						throw new Error('Failed to clear sensitive environment variable SAUCE_ACCESS_KEY');
-					}
-				}
-
-				var startup;
-				if (config.useSauceConnect) {
-					if (!config.webdriver.username || !config.webdriver.accessKey) {
-						throw new Error('Missing Sauce username or access key. Disable Sauce Connect or provide ' +
-							'this information.');
-					}
-
-					if (!config.capabilities['tunnel-identifier']) {
-						config.capabilities['tunnel-identifier'] = '' + Date.now();
-					}
-
-					startup = util.adapt(startConnect);
-				}
-				else {
-					startup = function () {
-						return {
-							then: function (callback) {
-								callback();
-							}
-						};
-					};
 				}
 
 				main.maxConcurrency = config.maxConcurrency || Infinity;
@@ -231,47 +208,40 @@ else {
 				util.flattenEnvironments(config.capabilities, config.environments).forEach(function (environmentType) {
 					var suite = new Suite({
 						name: 'main',
-						remote: wd.remote(config.webdriver, environmentType),
 						publishAfterSetup: true,
 						setup: function () {
-							var remote = this.get('remote');
-							return remote.init()
-							.then(function getEnvironmentInfo(/* [ sessionId, capabilities? ] */ environmentInfo) {
-								// wd incorrectly puts the session ID on a `sessionID` property, which violates
-								// JavaScript style convention
-								remote.sessionId = environmentInfo[0];
+							var server = new Server(config.webdriver);
+							server.sessionConstructor = ProxiedSession;
+							return server.createSession(environmentType).then(function (session) {
+								session.coverageEnabled = true;
+								session.proxyUrl = config.proxyUrl;
+								session.proxyBasePathLength = basePath.length;
 
-								// the remote needs to know the proxy URL and base filesystem path length so it can
-								// munge filesystem paths passed to `get`
-								remote.proxyUrl = config.proxyUrl;
-								remote.proxyBasePathLength = basePath.length;
-							})
-							// capabilities object is not returned from `init` by at least ChromeDriver 2.25.0;
-							// calling `sessionCapabilities` works every time
-							.sessionCapabilities()
-							.then(function (capabilities) {
-								remote.environmentType = new EnvironmentType(capabilities);
-								topic.publish('/session/start', remote);
+								var command = new Command(session);
+								// TODO: Stop using remote.sessionId throughout the system
+								command.sessionId = session.sessionId;
+								suite.set('remote', command);
+
+								command.environmentType = new EnvironmentType(session.capabilities);
+								topic.publish('/session/start', command);
 							});
 						},
 						teardown: function () {
+							var remote = this.get('remote');
+
 							function endSession() {
 								topic.publish('/session/end', remote);
 
-								if (config.webdriver.accessKey) {
-									return remote.sauceJobUpdate({
-										passed: suite.get('numFailedTests') === 0 && !suite.error
-									});
-								}
+								return tunnel.sendJobState(remote.session.sessionId, {
+									success: suite.numFailedTests === 0 && !suite.error
+								});
 							}
-
-							var remote = this.get('remote');
 
 							if (args.leaveRemoteOpen) {
 								return endSession();
 							}
 
-							return remote.quit().always(endSession);
+							return remote.quit().finally(endSession);
 						}
 					});
 
@@ -279,53 +249,27 @@ else {
 					main.suites.push(suite);
 				});
 
-				startup({
-					/*jshint camelcase:false */
-					logger: function () {
-						console.log.apply(console, arguments);
-					},
-					tunnelIdentifier: config.capabilities['tunnel-identifier'],
-					username: config.webdriver.username,
-					accessKey: config.webdriver.accessKey,
-					port: config.webdriver.port,
-					no_progress: !process.stdout.isTTY
-				}).then(function (connectProcess) {
+				topic.publish('/tunnel/start', tunnel);
+				tunnel.start().then(function () {
 					require(config.functionalSuites || [], function () {
-						var hasErrors = false;
-
-						topic.subscribe('/error, /test/fail', function () {
-							hasErrors = true;
-						});
-
-						process.on('exit', function () {
-							// calling `process.exit` after the main test loop finishes will cause any remaining
-							// in-progress operations to abort, which is undesirable if there are any asynchronous
-							// I/O operations that a reporter wants to perform once all tests are complete; calling
-							// from within the exit event avoids this problem by allowing Node.js to decide when to
-							// terminate
-							process.exit(hasErrors ? 1 : 0);
-						});
-
-						process.on('uncaughtException', function (error) {
-							topic.publish('/error', error);
-							process.exit(1);
-						});
-
 						topic.publish('/runner/start');
 						main.run().always(function () {
 							/*global __internCoverage */
 							typeof __internCoverage !== 'undefined' &&
 								topic.publish('/coverage', '', __internCoverage);
 							topic.publish('/runner/end');
-							connectProcess && connectProcess.close();
 							proxy.close();
 							reporterManager.clear();
+
+							return tunnel.stop().then(function () {
+								topic.publish('/tunnel/stop', tunnel);
+							});
 						}).otherwise(function (error) {
 							console.error(error.stack || error);
 						});
 					});
 				}, function (error) {
-					console.error(error.stack || error);
+					topic.publish('/error', error);
 					proxy.close();
 					process.exit(1);
 				});

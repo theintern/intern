@@ -12,7 +12,7 @@ define({
 	// Note that the `build` capability will be filled in with the current commit ID from the Travis CI environment
 	// automatically
 	capabilities: {
-		'selenium-version': '2.39.0',
+		'selenium-version': '2.41.0',
 		'idle-timeout': 30
 	},
 
@@ -24,25 +24,16 @@ define({
 		{ browserName: 'internet explorer', version: '10', platform: 'Windows 8' },
 		{ browserName: 'internet explorer', version: [ '8', '9' ], platform: 'Windows 7' },
 		{ browserName: 'internet explorer', version: [ '6', '7' ], platform: 'Windows XP' },
-		{ browserName: 'firefox', version: '27', platform: [ 'OS X 10.6', 'Windows 7', 'Linux' ] },
-		{ browserName: 'chrome', version: '32', platform: [ 'OS X 10.6', 'Windows 7', 'Linux' ] },
-		{ browserName: 'safari', version: '6', platform: 'OS X 10.8' },
+		{ browserName: 'firefox', version: '28', platform: [ 'OS X 10.9', 'Windows 7', 'Linux' ] },
+		{ browserName: 'chrome', version: '34', platform: [ 'OS X 10.9', 'Windows 7', 'Linux' ] },
 		{ browserName: 'safari', version: '7', platform: 'OS X 10.9' }
 	],
 
 	// Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
 	maxConcurrency: 3,
 
-	// Whether or not to start Sauce Connect before running tests
-	useSauceConnect: true,
-
-	// Connection information for the remote WebDriver service. If using Sauce Labs, keep your username and password
-	// in the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables unless you are sure you will NEVER be
-	// publishing this configuration file somewhere
-	webdriver: {
-		host: 'localhost',
-		port: 4444
-	},
+	// Name of the tunnel class to use for WebDriver tests
+	tunnel: 'SauceLabsTunnel',
 
 	// Configuration options for the module loader; any AMD configuration options supported by the Dojo loader can be
 	// used here
@@ -53,10 +44,12 @@ define({
 	},
 
 	// Non-functional test suite(s) to run in each browser
-	suites: [ 'intern-selftest/tests/all' ],
+	suites: [
+		'intern-selftest/tests/unit/all'
+	],
 
 	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: [ 'intern-selftest/tests/functional/basic' ],
+	functionalSuites: [ 'intern-selftest/tests/functional/lib/ProxiedSession' ],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis
 	excludeInstrumentation: /^(?:tests|node_modules)\//,

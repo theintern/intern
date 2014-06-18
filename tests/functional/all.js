@@ -1,4 +1,0 @@
-define([
-	'./basic',
-	'./contexts'
-], function () {});

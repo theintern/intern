@@ -1,8 +1,8 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../../lib/Suite',
-	'../../lib/Test',
+	'../../../lib/Suite',
+	'../../../lib/Test',
 	'dojo/Deferred',
 	'dojo/topic',
 	'dojo/_base/array'

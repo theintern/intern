@@ -1,13 +1,12 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../../../main!object',
-	'../../../main',
-	'../../../lib/Suite',
-	'../../../lib/Test',
+	'../../../../main!object',
+	'../../../../main',
+	'../../../../lib/Suite',
+	'../../../../lib/Test',
 	'dojo/_base/array'
 ], function (registerSuite, assert, object, main, Suite, Test, array) {
-
 	registerSuite({
 		name: 'intern/lib/interfaces/object',
 
@@ -36,10 +35,12 @@ define([
 					'regular test': function () {}
 				});
 
-				object({
-					name: 'root suite 2',
+				object(function () {
+					return {
+						name: 'root suite 2',
 
-					'test 2': function () {}
+						'test 2': function () {}
+					};
 				});
 
 				for (var i = 0, mainSuite; (mainSuite = main.suites[i]) && (mainSuite = mainSuite.tests); ++i) {
