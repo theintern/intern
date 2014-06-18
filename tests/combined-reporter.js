@@ -23,6 +23,10 @@ define([
 			console.log('Running ' + intern.mode + ' tests…');
 		},
 
+		'/session/start': function (remote) {
+			console.log('Testing ' + remote.environmentType);
+		},
+
 		'/coverage': function (sessionId, coverage) {
 			collector.add(coverage);
 		},
