@@ -35,6 +35,10 @@ define([
 			util.logError(error);
 		},
 
+		'/test/fail': function (test) {
+			util.logError(test.error);
+		},
+
 		stop: function () {
 			if (intern.mode === 'runner' && fs.existsSync('coverage-final.json')) {
 				collector.add(JSON.parse(fs.readFileSync('coverage-final.json')));
