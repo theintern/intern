@@ -15,5 +15,6 @@ install:
   # Chai is loaded as an AMD module but npm does not install it for the copy of Intern being used to test because
   # the same version is currently installed as a dependency for this package as well
   - travis_retry npm install chai
+  - travis_retry npm install dojo
   - cd ../..
 script: tests/selftest.sh
