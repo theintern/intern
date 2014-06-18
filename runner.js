@@ -27,7 +27,6 @@ else {
 		'require',
 		'./main',
 		'./lib/createProxy',
-		'dojo/has!host-node?dojo/node!istanbul/lib/hook',
 		'dojo/node!istanbul/lib/instrumenter',
 		'dojo/node!path',
 		'./lib/args',
@@ -46,7 +45,6 @@ else {
 		require,
 		main,
 		createProxy,
-		hook,
 		Instrumenter,
 		path,
 		args,
@@ -182,36 +180,14 @@ else {
 				var proxy = createProxy({
 					basePath: basePath,
 					excludeInstrumentation: config.excludeInstrumentation,
-					instrumenter: new Instrumenter({
-						// coverage variable is changed primarily to avoid any jshint complaints, but also to make
-						// it clearer where the global is coming from
-						coverageVariable: '__internCoverage',
-
-						// compacting code makes it harder to look at but it does not really matter
-						noCompact: true,
-
-						// auto-wrap breaks code
-						noAutoWrap: true
-					}),
+					instrument: true,
 					port: config.proxyPort
 				});
 
 				// Code in the runner should also provide instrumentation data; this is not normally necessary since
 				// there shouldn’t typically be code under test running in the runner, but we do need this functionality
 				// for testing leadfoot to avoid having to create the tunnel and proxy and so on ourselves
-				var instrumenter = new Instrumenter({
-					// coverage variable is changed primarily to avoid any jshint complaints, but also to make
-					// it clearer where the global is coming from
-					coverageVariable: '__internCoverage',
-
-					// compacting code makes it harder to look at but it does not really matter
-					noCompact: true,
-
-					// auto-wrap breaks code
-					noAutoWrap: true
-				});
-
-				util.setInstrumentationHooks(config, instrumenter, basePath);
+				util.setInstrumentationHooks(config, basePath);
 
 				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code
 				// coverage reporting on the client if you want

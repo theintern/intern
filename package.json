@@ -11,7 +11,8 @@
 		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/intern/blob/master/LICENSE" }
 	],
 	"dependencies": {
-		"istanbul": "0.2.7",
+		"istanbul": "0.2.11",
+		"source-map": "0.1.33",
 		"dojo": "https://github.com/csnover/dojo2-core/archive/2.0.tar.gz",
 		"chai": "1.9.1",
 		"leadfoot": "https://github.com/theintern/leadfoot/archive/master.tar.gz",
