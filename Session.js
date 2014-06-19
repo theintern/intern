@@ -427,8 +427,13 @@ Session.prototype = {
 	 * @returns {Promise.<void>}
 	 */
 	setTimeout: function (type, ms) {
-		// TODO: Test Infinity timeouts to see if they actually will be sent to the server or if we need to just
-		// use a really big number.
+		// Infinity cannot be serialised by JSON
+		if (ms === Infinity) {
+			// It seems that at least ChromeDriver 2.10 has a limit here that is near the 32-bit signed integer limit;
+			// 24 days should be infinite enough for testing
+			ms = Math.pow(2, 31) - 1;
+		}
+
 		var self = this;
 		var promise = this._post('timeouts', {
 			type: type,

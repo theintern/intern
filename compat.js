@@ -1,5 +1,5 @@
 /**
- * The compat module adds support for WD.js 0.2.2 APIs to Leadfoot.
+ * The compat module adds support for Intern 1.x functional testing APIs based on WD.js 0.2.2 to Leadfoot.
  *
  * @deprecated Use the standard Leadfoot APIs.
  * @module leadfoot/compat
@@ -52,7 +52,7 @@ function deprecateElementSig(fromMethod, toMethod, fn) {
 				(toMethod || fromMethod) + '(); }');
 
 			var args = Array.prototype.slice.call(arguments, 1);
-			return new Command(this, function () {
+			return new this.constructor(this, function () {
 				return element[toMethod || fromMethod].apply(this, args);
 			});
 		}
@@ -71,63 +71,6 @@ function deprecateElementSig(fromMethod, toMethod, fn) {
  */
 function deprecateElementAndStandardSig(fromMethod, toMethod) {
 	return deprecateElementSig(fromMethod, toMethod, deprecate(fromMethod, toMethod));
-}
-
-function elementIfExists(using, value) {
-	return this.find(using, value).catch(function () {});
-}
-
-function elementOrNull(using, value) {
-	return this.find(using, value).catch(function () {
-		return null;
-	});
-}
-
-function hasElement(using, value) {
-	return this.find(using, value).then(function () {
-		return true;
-	}, function () {
-		return false;
-	});
-}
-
-function waitForElement(using, value, timeout) {
-	return this.getFindTimeout().then(function (originalTimeout) {
-		return this.setFindTimeout(timeout)
-			.find(using, value)
-			.then(function (element) {
-				return this.setFindTimeout(originalTimeout).then(function () {
-					return element;
-				});
-			}, function (error) {
-				return this.setFindTimeout(originalTimeout).then(function () {
-					throw error;
-				});
-			});
-	});
-}
-
-function waitForVisible(using, value, timeout) {
-	var startTime = Date.now();
-	return this.getFindTimeout().then(function (originalTimeout) {
-		return this.setFindTimeout(timeout)
-			.find(using, value)
-			.then(function (element) {
-				return pollUntil(function (element) {
-					return element.offsetWidth && element.offsetHeight ? true : null;
-				}, [ element ], timeout - (startTime - Date.now())).call(this);
-			}).then(function (isVisible) {
-				return this.setFindTimeout(originalTimeout).then(function () {
-					if (!isVisible) {
-						throw new Error('Element didn\'t become visible');
-					}
-				});
-			}, function (error) {
-				return this.setFindTimeout(originalTimeout).then(function () {
-					throw error;
-				});
-			});
-	});
 }
 
 /**
@@ -158,7 +101,7 @@ var methods = {
 	},
 	status: function () {
 		warn('Command#status');
-		return new Command(this, function () {
+		return new this.constructor(this, function () {
 			return this.session.server.getStatus();
 		});
 	},
@@ -168,31 +111,31 @@ var methods = {
 	},
 	sessions: function () {
 		warn('Command#sessions');
-		return new Command(this, function () {
+		return new this.constructor(this, function () {
 			return this.session.server.getSessions();
 		});
 	},
 	sessionCapabilities: function () {
 		warn('Command#sessionCapabilities', 'the Command#session.capabilities property');
-		return new Command(this, function () {
+		return new this.constructor(this, function () {
 			return this.session.capabilities;
 		});
 	},
 	altSessionCapabilities: function () {
 		warn('Command#altSessionCapabilities', 'the Command#session.capabilities property');
-		return new Command(this, function () {
+		return new this.constructor(this, function () {
 			return this.session.capabilities;
 		});
 	},
 	getSessionId: function () {
 		warn('Command#getSessionId', 'the Command#session.sessionId property');
-		return new Command(this, function () {
+		return new this.constructor(this, function () {
 			return this.session.sessionId;
 		});
 	},
 	getSessionID: function () {
 		warn('Command#getSessionID', 'the Command#session.sessionId property');
-		return new Command(this, function () {
+		return new this.constructor(this, function () {
 			return this.session.sessionId;
 		});
 	},
@@ -268,17 +211,23 @@ var methods = {
 	elementsByTagName: deprecate('elementsByTagName', 'findAllByTagName'),
 	elementsByXPath: deprecate('elementsByXPath', 'findAllByXpath'),
 	elementsByCss: deprecate('elementsByCss', 'findAllByCssSelector'),
-	elementOrNull: function () {
-		warn('Command#elementOrNull', 'Command#find and Command#always, or Command#findAll');
-		return elementOrNull.apply(this, arguments);
+	elementOrNull: function (using, value) {
+		warn('Command#elementOrNull', 'Command#find and Command#finally, or Command#findAll');
+		return this.find(using, value).catch(function () {
+			return null;
+		});
 	},
-	elementIfExists: function () {
-		warn('Command#elementIfExists', 'Command#find and Command#always, or Command#findAll');
-		return elementIfExists.apply(this, arguments);
+	elementIfExists: function (using, value) {
+		warn('Command#elementIfExists', 'Command#find and Command#finally, or Command#findAll');
+		return this.find(using, value).catch(function () {});
 	},
-	hasElement: function () {
+	hasElement: function (using, value) {
 		warn('Command#hasElement', 'Command#find and Command#then(exists, doesNotExist)');
-		return hasElement.apply(this, arguments);
+		return this.find(using, value).then(function () {
+			return true;
+		}, function () {
+			return false;
+		});
 	},
 	active: deprecate('active', 'getActiveElement'),
 	clickElement: deprecateElementSig('clickElement', 'click'),
@@ -295,7 +244,7 @@ var methods = {
 		}
 
 		if (element) {
-			return new Command(this, function () {
+			return new this.constructor(this, function () {
 				return element.getVisibleText().then(test);
 			});
 		}
@@ -321,7 +270,7 @@ var methods = {
 				'Command#find then Command#then(function (element) { ' +
 				'return element.getAttribute(\'value\'); }');
 
-			return new Command(this, function () {
+			return new this.constructor(this, function () {
 				return element.getAttribute('value');
 			});
 		}
@@ -332,7 +281,7 @@ var methods = {
 	equalsElement: function (element, other) {
 		if (other && other.elementId) {
 			warn('Command#equalsElement(element, other)', 'element.equals(other)');
-			return new Command(this, function () {
+			return new this.constructor(this, function () {
 				return element.equals(other);
 			});
 		}
@@ -388,12 +337,12 @@ var methods = {
 	getPageIndex: function (element) {
 		warn('Command#getPageIndex', null, 'This command is not part of any specification.');
 		if (element && element.elementId) {
-			return new Command(this, function () {
+			return new this.constructor(this, function () {
 				return element._get('pageIndex');
 			});
 		}
 
-		return new Command(this, function () {
+		return new this.constructor(this, function () {
 			if (this.context.isSingle) {
 				return this.context[0]._get('pageIndex');
 			}
@@ -447,22 +396,69 @@ var methods = {
 
 		return this;
 	},
-	waitForElement: function () {
+	waitForElement: function (using, value, timeout) {
 		warn(
 			'Command#waitForElement',
 			'Command#setFindTimeout and Command#find',
 			'This command is implemented using implicit timeouts, which may not match the prior behaviour.'
 		);
-		return waitForElement.apply(this, arguments);
+
+		// This is effectively what the WD.js code does, though there it's because the property is never validated,
+		// so the end date becomes NaN; not an intentional design choice
+		if (typeof timeout === 'undefined') {
+			timeout = Infinity;
+		}
+
+		var command = this;
+		return this.getFindTimeout().then(function (originalTimeout) {
+			return command.setFindTimeout(timeout)
+				.find(using, value)
+				.then(function () {
+					return command.setFindTimeout(originalTimeout).then(function () {
+						return null;
+					});
+				}, function (error) {
+					return command.setFindTimeout(originalTimeout).then(function () {
+						throw error;
+					});
+				});
+		});
 	},
-	waitForVisible: function () {
+	waitForVisible: function (using, value, timeout) {
 		warn(
 			'Command#waitForVisible',
 			null,
 			'This command is partially implemented using implicit timeouts, which may not match the prior ' +
 			'behaviour.'
 		);
-		return waitForVisible.apply(this, arguments);
+
+		// This is effectively what the WD.js code does, though there it's because the property is never validated,
+		// so the end date becomes NaN; not an intentional design choice
+		if (typeof timeout === 'undefined') {
+			timeout = Infinity;
+		}
+
+		var startTime = Date.now();
+		var command = this;
+		return this.getFindTimeout().then(function (originalTimeout) {
+			return command.setFindTimeout(timeout)
+				.find(using, value)
+				.then(function (element) {
+					return pollUntil(function (element) {
+						return element.offsetWidth && element.offsetHeight ? true : null;
+					}, [ element ], timeout - (startTime - Date.now())).call(this);
+				}).then(function (isVisible) {
+					return command.setFindTimeout(originalTimeout).then(function () {
+						if (!isVisible) {
+							throw new Error('Element didn\'t become visible');
+						}
+					});
+				}, function (error) {
+					return command.setFindTimeout(originalTimeout).then(function () {
+						throw error;
+					});
+				});
+		});
 	},
 	isVisible: function () {
 		warn(
@@ -481,13 +477,13 @@ var methods = {
 		else if (arguments.length === 1) {
 			var element = arguments[0];
 			if (element && element.elementId) {
-				return new Command(this, function () {
+				return new this.constructor(this, function () {
 					return element.isDisplayed();
 				});
 			}
 		}
 
-		return new Command(this, function () {
+		return new this.constructor(this, function () {
 			if (this.context.isSingle) {
 				return this.context[0].isDisplayed();
 			}

@@ -61,7 +61,8 @@ define({
 		'leadfoot/tests/functional/Server',
 		'leadfoot/tests/functional/Session',
 		'leadfoot/tests/functional/Element',
-		'leadfoot/tests/functional/Command'
+		'leadfoot/tests/functional/Command',
+		'leadfoot/tests/functional/compat'
 	],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis

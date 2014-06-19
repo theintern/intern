@@ -19,7 +19,7 @@ var util = require('./lib/util');
 function createElementMethod(method) {
 	return function () {
 		var args = arguments;
-		return new Command(this, function (setContext) {
+		return new this.constructor(this, function (setContext) {
 			var parentContext = this._context;
 			var promise;
 
@@ -280,7 +280,7 @@ Command.prototype = {
 	 * @returns {module:leadfoot/Command.<void>}
 	 */
 	sleep: function (ms) {
-		return new Command(this, function () {
+		return new this.constructor(this, function () {
 			return util.sleep(ms);
 		});
 	},
@@ -295,7 +295,7 @@ Command.prototype = {
 	end: function (numCommandsToPop) {
 		numCommandsToPop = numCommandsToPop || 1;
 
-		return new Command(this, function (setContext) {
+		return new this.constructor(this, function (setContext) {
 			var command = this;
 
 			while (numCommandsToPop && command.parent) {
@@ -320,10 +320,27 @@ Command.prototype = {
 	 * @returns {module:leadfoot/Command.<any>}
 	 */
 	then: function (callback, errback) {
-		return new Command(this, callback && function (setContext, value) {
-			return callback.call(this, value, setContext);
+		function runCallback(command, callback, value, setContext) {
+			var returnValue = callback.call(command, value, setContext);
+
+			// If someone returns `this` (or a chain starting from `this`) from the callback, it will cause a deadlock
+			// where the child command is waiting for the child command to resolve
+			if (returnValue instanceof command.constructor) {
+				var maybeCommand = returnValue;
+				do {
+					if (maybeCommand === command) {
+						throw new Error('Deadlock: do not use `return this` from a Command callback');
+					}
+				} while ((maybeCommand = maybeCommand.parent));
+			}
+
+			return returnValue;
+		}
+
+		return new this.constructor(this, callback && function (setContext, value) {
+			return runCallback(this, callback, value, setContext);
 		}, errback && function (setContext, value) {
-			return errback.call(this, value, setContext);
+			return runCallback(this, errback, value, setContext);
 		});
 	},
 
@@ -387,7 +404,7 @@ Command.addSessionMethod = function (target, key, originalFn) {
 		target[key] = function () {
 			var args = arguments;
 
-			return new Command(this, function (setContext) {
+			return new this.constructor(this, function (setContext) {
 				var parentContext = this._context;
 				var session = this._session;
 				// The function may have come from a session object prototype but have been overridden on the actual
@@ -451,7 +468,7 @@ Command.addElementMethod = function (target, key) {
 		target[targetKey] = function () {
 			var args = arguments;
 
-			return new Command(this, function (setContext) {
+			return new this.constructor(this, function (setContext) {
 				var parentContext = this._context;
 				var promise;
 				var fn = parentContext[0] && parentContext[0][key];

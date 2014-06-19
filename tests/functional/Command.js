@@ -195,7 +195,7 @@ define([
 					});
 			},
 
-			'#otherwise': function () {
+			'#catch': function () {
 				var command = new Command(session);
 				var callback;
 				var errback;
@@ -205,13 +205,13 @@ define([
 					errback = arguments[1];
 					return 'thenCalled';
 				};
-				var result = command.otherwise(expectedErrback);
+				var result = command.catch(expectedErrback);
 				assert.strictEqual(result, 'thenCalled');
 				assert.isNull(callback);
 				assert.strictEqual(errback, expectedErrback);
 			},
 
-			'#always': function () {
+			'#finally': function () {
 				var command = new Command(session);
 				var callback;
 				var errback;
@@ -221,7 +221,7 @@ define([
 					errback = arguments[1];
 					return 'thenCalled';
 				};
-				var result = command.always(expected);
+				var result = command.finally(expected);
 				assert.strictEqual(result, 'thenCalled');
 				assert.strictEqual(callback, expected);
 				assert.strictEqual(errback, expected);
