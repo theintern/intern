@@ -118,7 +118,7 @@ define([
 						util.logError();
 					} catch (e) {
 						util.logError(e);
-						assert.include(lastMessage, '/lib/util.js:379');
+						assert.include(lastMessage, '/lib/util.js:415');
 					}
 				}
 			}
