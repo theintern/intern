@@ -113,20 +113,9 @@ function waitForVisible(using, value, timeout) {
 		return this.setFindTimeout(timeout)
 			.find(using, value)
 			.then(function (element) {
-				return this.executeAsync(/* istanbul ignore next */ function (element, timeout, done) {
-					var startTime = Number(new Date());
-					(function poll() {
-						if (element.offsetWidth && element.offsetHeight) {
-							done(true);
-						}
-						else if (Number(new Date()) - startTime > timeout) {
-							done(false);
-						}
-						else {
-							setTimeout(poll, 200);
-						}
-					})();
-				}, [ element, timeout - (startTime - Date.now()) ]);
+				return pollUntil(function (element) {
+					return element.offsetWidth && element.offsetHeight ? true : null;
+				}, [ element ], timeout - (startTime - Date.now())).call(this);
 			}).then(function (isVisible) {
 				return this.setFindTimeout(originalTimeout).then(function () {
 					if (!isVisible) {
@@ -518,44 +507,27 @@ var methods = {
 strategies.suffixes.forEach(function (suffix, index) {
 	function addStrategy(method, toMethod, suffix, wdSuffix, using) {
 		methods[method + 'OrNull'] = function (value) {
-			warn('Command#' + method + 'OrNull', 'Command#' + toMethod +
-				' and Command#always, or Command#elementsBy' + suffix);
-			return elementOrNull.call(this, using, value);
+			return this.elementOrNull(using, value);
 		};
 
 		methods[method + 'IfExists'] = function (value) {
-			warn('Command#' + method + 'IfExists', 'Command#' + toMethod +
-				' and Command#always, or Command#elementsBy' + suffix);
-			return elementIfExists.call(this, using, value);
+			return this.elementIfExists(using, value);
 		};
 
 		methods['hasElementBy' + wdSuffix] = function (value) {
-			warn('Command#hasElementBy' + wdSuffix, 'Command#' + toMethod +
-				' and Command#then(exists, doesNotExist)');
-			return hasElement.call(this, using, value);
+			return this.hasElement(using, value);
 		};
 
-		method['waitForElement' + wdSuffix] = function (value, timeout) {
-			warn(
-				'Command#waitForElement' + wdSuffix,
-				'Command#setFindTimeout and Command#' + toMethod,
-				'This command is implemented using implicit timeouts, which may not match the prior behaviour.'
-			);
-			return waitForElement.call(this, using, value, timeout);
+		methods['waitForElementBy' + wdSuffix] = function (value, timeout) {
+			return this.waitForElement(using, value, timeout);
 		};
 
-		method['waitForVisible' + wdSuffix] = function (value, timeout) {
-			warn(
-				'Command#waitForVisible' + wdSuffix,
-				null,
-				'This command is partially implemented using implicit timeouts, which may not match the prior ' +
-				'behaviour.'
-			);
-			return waitForVisible.call(this, using, value, timeout);
+		methods['waitForVisibleBy' + wdSuffix] = function (value, timeout) {
+			return this.waitForVisible(using, value, timeout);
 		};
 	}
 
-	var wdSuffix = suffix === 'XPath' ? 'XPath' : suffix;
+	var wdSuffix = suffix === 'Xpath' ? 'XPath' : suffix;
 	var method = 'elementBy' + wdSuffix;
 	var toMethod = 'findBy' + suffix;
 	var using = strategies[index];

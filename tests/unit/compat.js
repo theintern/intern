@@ -5,8 +5,9 @@ define([
 	'intern/dojo/node!../../Session',
 	'intern/dojo/node!../../Command',
 	'intern/dojo/node!../../compat',
+	'intern/dojo/node!../../lib/strategies',
 	'intern/dojo/node!dojo/topic'
-], function (registerSuite, assert, Promise, Session, Command, compat, topic) {
+], function (registerSuite, assert, Promise, Session, Command, compat, strategies, topic) {
 	function assertWarn() {
 		assert.isNotNull(lastNotice);
 		for (var i = 0, j = arguments.length; i < j; ++i) {
@@ -163,7 +164,7 @@ strategies.suffixes.forEach(function (suffix, index) {
 });
 */
 
-	registerSuite({
+	var suite = {
 		name: 'leadfoot/compat',
 
 		beforeEach: function () {
@@ -520,12 +521,18 @@ strategies.suffixes.forEach(function (suffix, index) {
 			});
 		},
 		'#waitForCondition': mockCommand(command.session, 'executeAsync', 'deprecate', function () {
-			return command.waitForCondition('true', 1000, 500).then(function (args) {
+			return command.waitForCondition('true', 1, 2).then(function (args) {
 				assert.isArray(args);
 				assert.isFunction(args[0]);
-				assert.deepEqual(args[1], [ 'return eval(arguments[0]) ? true : null;', [ 'true' ], 1000, 500 ]);
+				assert.deepEqual(args[1], [ 'return eval(arguments[0]) ? true : null;', [ 'true' ], 1, 2 ]);
 				assertWarn('Command#waitForCondition', 'Command#executeAsync');
 				assertWarn('Command#waitForCondition', 'leadfoot/helpers/pollUntil');
+
+				return command.waitForCondition('true').then(function (args) {
+					assert.isArray(args);
+					assert.isFunction(args[0]);
+					assert.deepEqual(args[1], [ 'return eval(arguments[0]) ? true : null;', [ 'true' ], 1000, 100 ]);
+				});
 			});
 		}),
 		'#waitForConditionInBrowser': mockCommand(command.session, 'executeAsync', 'deprecate', function () {
@@ -535,6 +542,12 @@ strategies.suffixes.forEach(function (suffix, index) {
 				assert.deepEqual(args[1], [ 'return eval(arguments[0]) ? true : null;', [ 'true' ], 1000, 500 ]);
 				assertWarn('Command#waitForConditionInBrowser', 'Command#executeAsync');
 				assertWarn('Command#waitForConditionInBrowser', 'leadfoot/helpers/pollUntil');
+
+				return command.waitForConditionInBrowser('true').then(function (args) {
+					assert.isArray(args);
+					assert.isFunction(args[0]);
+					assert.deepEqual(args[1], [ 'return eval(arguments[0]) ? true : null;', [ 'true' ], 1000, 100 ]);
+				});
 			});
 		}),
 		'#sauceJobUpdate': function () {
@@ -550,15 +563,51 @@ strategies.suffixes.forEach(function (suffix, index) {
 				assert.strictEqual(updateCommand, command);
 				assertWarn('Command#sauceJobStatus');
 			});
-		},
-		'#waitForElement': function () {
-			throw new Error('TODO');
-		},
-		'#waitForVisible': function () {
-			throw new Error('TODO');
-		},
-		'#isVisible': function () {
-			throw new Error('TODO');
+		}
+	};
+
+	strategies.suffixes.forEach(function (suffix, index) {
+		function addStrategy(method, toMethod, suffix, wdSuffix, using) {
+			suite['#' + method + 'OrNull'] = mockCommand(command, 'elementOrNull', 'deprecate', function () {
+				return command[method + 'OrNull']('a').then(function (args) {
+					assert.deepEqual(args, [ using, 'a' ]);
+				});
+			});
+
+			suite['#' + method + 'IfExists'] = mockCommand(command, 'elementIfExists', 'deprecate', function () {
+				return command[method + 'IfExists']('a').then(function (args) {
+					assert.deepEqual(args, [ using, 'a' ]);
+				});
+			});
+
+			suite['#hasElementBy' + wdSuffix] = mockCommand(command, 'hasElement', 'deprecate', function () {
+				return command['hasElementBy' + wdSuffix]('a').then(function (args) {
+					assert.deepEqual(args, [ using, 'a' ]);
+				});
+			});
+
+			suite['#waitForElementBy' + wdSuffix] = mockCommand(command, 'waitForElement', 'deprecate', function () {
+				return command['waitForElementBy' + wdSuffix]('a', 123).then(function (args) {
+					assert.deepEqual(args, [ using, 'a', 123 ]);
+				});
+			});
+
+			suite['#waitForVisibleBy' + wdSuffix] = mockCommand(command, 'waitForVisible', 'deprecate', function () {
+				return command['waitForVisibleBy' + wdSuffix]('a', 123).then(function (args) {
+					assert.deepEqual(args, [ using, 'a', 123 ]);
+				});
+			});
+		}
+
+		var wdSuffix = suffix === 'Xpath' ? 'XPath' : suffix;
+		var method = 'elementBy' + wdSuffix;
+		var toMethod = 'findBy' + suffix;
+		var using = strategies[index];
+		addStrategy(method, toMethod, suffix, wdSuffix, using);
+		if (suffix === 'CssSelector') {
+			addStrategy('elementByCss', toMethod, suffix, 'Css', using);
 		}
 	});
+
+	registerSuite(suite);
 });
