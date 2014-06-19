@@ -444,7 +444,7 @@ var methods = {
 			return command.setFindTimeout(timeout)
 				.find(using, value)
 				.then(function (element) {
-					return pollUntil(function (element) {
+					return pollUntil(/* istanbul ignore next */ function (element) {
 						return element.offsetWidth && element.offsetHeight ? true : null;
 					}, [ element ], timeout - (startTime - Date.now())).call(this);
 				}).then(function (isVisible) {
