@@ -1,0 +1,24 @@
+diff --git a/lib/args.js b/lib/args.js
+index cc4c0f3..896955c 100644
+--- a/lib/args.js
++++ b/lib/args.js
+@@ -1,7 +1,8 @@
+ /*jshint node:true */
+ define([
+-	'dojo/_base/array'
+-], function (array) {
++	'dojo/_base/array',
++	'dojo/_base/lang'
++], function (array, lang) {
+ 	var rawArgs,
+ 
+ 		/**
+@@ -44,7 +45,7 @@ define([
+ 
+ 		// Support multiple arguments with the same name
+ 		if (arg[0] in args) {
+-			if (!Array.isArray(args[arg[0]])) {
++			if (!lang.isArray(args[arg[0]])) {
+ 				args[arg[0]] = [ args[arg[0]] ];
+ 			}
+ 
