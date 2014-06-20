@@ -1,12 +1,15 @@
 define([
+	'intern',
 	'intern!object',
 	'intern/chai!assert',
 	'../../../lib/util',
 	'../../../lib/EnvironmentType',
 	'dojo/has',
+	'require',
 	'dojo/has!host-node?dojo/node!fs',
-	'dojo/has!host-node?dojo/node!path'
-], function (registerSuite, assert, util, EnvironmentType, has, fs, pathUtil) {
+	'dojo/has!host-node?dojo/node!path',
+	'dojo/has!host-node?dojo/node!istanbul/lib/hook'
+], function (intern, registerSuite, assert, util, EnvironmentType, has, require, fs, pathUtil, hook) {
 	/* jshint maxlen:140 */
 	registerSuite({
 		name: 'intern/lib/util',
@@ -52,8 +55,8 @@ define([
 				return;
 			}
 
-			var oldConsoleError = console.error;
 			var lastMessage;
+			var oldConsoleError = console.error;
 			console.error = function (error) {
 				lastMessage = error.toString();
 			};
@@ -102,23 +105,55 @@ define([
 					stack: 'Foo@http://localhost:8080/test.js:2:8\nhttp://localhost:8080/test.html:7:5\nfail'
 				});
 				assert.strictEqual(lastMessage, 'OopsError: Unknown error\n  at Foo  <test.js:2:8>\n  at <test.html:7:5>\nfail');
-
-				// check that sourcemap resolution is working
-				if (has('host-node')) {
-					var testfile = pathUtil.resolve('lib/util.js');
-					var testdata = fs.readFileSync(testfile).toString('utf-8');
-					util.instrument(testdata, testfile);
-					try {
-						// should throw an error at the first line of logError
-						util.logError();
-					} catch (e) {
-						util.logError(e);
-						assert.include(lastMessage, '/lib/util.js:379');
-					}
-				}
 			}
 			finally {
 				console.error = oldConsoleError;
+			}
+
+			// check that sourcemap resolution is working
+			if (has('host-node')) {
+				var dfd = this.async();
+				var wasInstrumented = false;
+
+				// save any existing coverage data
+				/* jshint node:true */
+				var existingCoverage = global.__internCoverage;
+				global.__internCoverage = undefined;
+
+				oldConsoleError = console.error;
+				console.error = function (error) {
+					lastMessage = error.toString();
+				};
+
+				// setup a hook to instrument our test module
+				hook.hookRunInThisContext(function () {
+					return true;
+				}, function (code, file) {
+					wasInstrumented = true;
+					return util.instrument(code, file);
+				});
+
+				// restore everything
+				dfd.promise.always(function (error) {
+					console.error = oldConsoleError;
+					global.__internCoverage = existingCoverage;
+					hook.unhookRunInThisContext();
+					if (error) {
+						throw error;
+					}
+				});
+
+				require([ '../data/lib/util/foo' ], dfd.callback(function (foo) {
+					assert.ok(wasInstrumented, 'Test module should have been instrumented');
+
+					try {
+						foo.run();
+					}
+					catch (e) {
+						util.logError(e);
+						assert.include(lastMessage, 'util/foo.js:4');
+					}
+				}));
 			}
 		}
 	});
