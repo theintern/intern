@@ -40,7 +40,17 @@ define({
 	loader: {
 		// Packages that should be registered with the loader in each testing environment
 		packages: [ { name: 'intern-selftest', location: '.' } ],
-		map: { 'intern-selftest': { dojo: 'intern-selftest/node_modules/dojo' } }
+		map: {
+			'intern-selftest': {
+				dojo: 'intern-selftest/node_modules/dojo',
+
+				// TODO: This is a hack -- it should be replaced when the Dojo loader has been fixed.
+				// We need to load a custom dojo/node for dependencies like
+				// "dojo/has!host-node?dojo/node!istanbul/lib/hook", but the current 1.9.3 loader won't do that with a
+				// simple 'dojo/node' mapping.
+				'intern-selftest/node_modules/dojo/node': 'intern-selftest/lib/node'
+			}
+		}
 	},
 
 	// Non-functional test suite(s) to run in each browser
