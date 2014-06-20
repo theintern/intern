@@ -48,3 +48,10 @@ tunnel.stop().then(function () {
 	// the tunnel has been shut down
 });
 ```
+
+## License
+
+Dig Dug is available under the terms of the [New BSD License](LICENSE). All code is developed under the terms of the
+[Dojo Foundation CLA](http://dojofoundation.org/about/cla).
+
+© 2013–2014 SitePen, Inc. http://sitepen.com
