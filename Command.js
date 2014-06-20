@@ -676,7 +676,7 @@ strategies.applyTo(Command.prototype);
 })();
 
 try {
-	var chaiAsPromised = require.nodeRequire('chai-as-promised');
+	var chaiAsPromised = require('chai-as-promised');
 }
 catch (error) {}
 
@@ -684,7 +684,7 @@ catch (error) {}
 if (chaiAsPromised) {
 	chaiAsPromised.transferPromiseness = function (assertion, promise) {
 		assertion.then = promise.then.bind(promise);
-		Object.keys(Command.prototype).forEach(function (method) {
+		Object.keys(promise.constructor.prototype).forEach(function (method) {
 			if (typeof promise[method] === 'function') {
 				assertion[method] = promise[method].bind(promise);
 			}
