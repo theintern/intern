@@ -1,7 +1,7 @@
 /*jshint node:true */
 var fs = require('fs');
 var path = require('path');
-var expected = path.join(__dirname, 'node_modules');
+var expected = path.join(__dirname, '..', 'node_modules');
 
 // AMD-loaded dependencies need to exist in Intern's node_modules directory,
 // regardless of whether or not they were deduped by npm
