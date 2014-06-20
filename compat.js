@@ -396,6 +396,14 @@ var methods = {
 
 		return this;
 	},
+	reset: function () {
+		warn(
+			'Command#reset',
+			'a previously stored Command instance'
+		);
+
+		return this;
+	},
 	waitForElement: function (using, value, timeout) {
 		warn(
 			'Command#waitForElement',
@@ -495,7 +503,8 @@ var methods = {
 		});
 	},
 	otherwise: deprecate('otherwise', 'catch'),
-	always: deprecate('always', 'finally')
+	always: deprecate('always', 'finally'),
+	wait: deprecate('wait', 'sleep')
 };
 
 // TODO: type -> typeElement

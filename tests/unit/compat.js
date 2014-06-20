@@ -563,6 +563,14 @@ strategies.suffixes.forEach(function (suffix, index) {
 				assert.strictEqual(updateCommand, command);
 				assertWarn('Command#sauceJobStatus');
 			});
+		},
+		'#wait': deprecate('wait', 'sleep'),
+		'#reset': function () {
+			var resetCommand = command.reset();
+			return resetCommand.then(function () {
+				assert.strictEqual(resetCommand, command);
+				assertWarn('Command#reset');
+			});
 		}
 	};
 
