@@ -50,8 +50,138 @@ function createElementMethod(method) {
 }
 
 /**
- * A Command is a chainable object that can be used to execute commands serially against a remote environment using
- * a fluid interface.
+ * The Command class is a chainable, subclassable object type that can be used to execute commands serially against a
+ * remote WebDriver environment. The standard Command class includes methods from the {@link module:leadfoot/Session}
+ * and {@link module:leadfoot/Element} classes, so you can perform all standard session and element operations that
+ * come with Leadfoot without being forced to author long promise chains.
+ *
+ * ***Important*: Due to a documentation tool limitation, the documentation on this page currently lists return values
+ * of all methods as being of type `Promise`. All command methods actually return a new object of type `Command`. This
+ * issue will be addressed in future versions of the documentation.**
+ *
+ * In order to use the Command class, you first need to pass it a {@link module:leadfoot/Session} instance for it to
+ * use:
+ *
+ * ```js
+ * var command = new Command(session);
+ * ```
+ *
+ * Once you have created the Command, you can then start chaining methods, and they will execute in order one after
+ * another:
+ *
+ * ```js
+ * command.get('http://example.com')
+ *   .findByTagName('h1')
+ *   .getVisibleText()
+ *   .then(function (text) {
+ *       assert.strictEqual(text, 'Example Domain');
+ *   });
+ * ```
+ *
+ * Because these operations are asynchronous, you need to use a `then` callback in order to retrieve the value from the
+ * last method. Command objects are Thenables, which means that they can be used with any Promises/A+ or ES6-confirmant
+ * Promises implementation, though there are some specific differences in the arguments and context that are provided
+ * to callbacks; see {@link module:leadfoot/Command#then} for more details.
+ *
+ * ---
+ *
+ * Each call on a Command generates a new Command object, which means that certain operations can be parallelised:
+ *
+ * ```js
+ * command = command.get('http://example.com');
+ * Promise.all([
+ *   command.getPageTitle(),
+ *   command.findByTagName('h1').getVisibleText()
+ * ]).then(function (results) {
+ *   assert.strictEqual(results[0], results[1]);
+ * });
+ * ```
+ *
+ * In this example, the commands on line 3 and 4 both depend upon the `get` call completing successfully but are
+ * otherwise independent of each other and so execute here in parallel. This is different from commands in Intern 1
+ * which were always chained onto the last called method within a given test.
+ *
+ * ---
+ *
+ * Command objects actually encapsulate two different types of interaction: *session* interactions, which operate
+ * against the entire browser session, and *element* interactions, which operate against specific elements taken from
+ * the currently loaded page. Things like navigating the browser, moving the mouse cursor, and executing scripts are
+ * session interactions; things like getting text displayed on the page, typing into form fields, and getting element
+ * attributes are element interactions.
+ *
+ * Session interactions can be performed at any time, from any Command. On the other hand, to perform element
+ * interactions, you first need to retrieve one or more elements to interact with. This can be done using any of the
+ * `find` or `findAll` methods, by the `getActiveElement` method, or by returning elements from `execute` or
+ * `executeAsync` calls. The retrieved elements are stored internally as the *element context* of all chained
+ * Commands. When an element method is called on a chained Command with a single element context, the result will be
+ * returned as-is:
+ *
+ * ```js
+ * command = command.get('http://example.com')
+ *   // finds one element -> single element context
+ *   .findByTagName('h1')
+ *   .getVisibleText()
+ *   .then(function (text) {
+ *     // `text` is the text from the element context
+ *     assert.strictEqual(text, 'Example Domain');
+ *   });
+ * ```
+ *
+ * When an element method is called on a chained Command with a multiple element context, the result will be returned
+ * as an array:
+ *
+ * ```js
+ * command = command.get('http://example.com')
+ *   // finds multiple elements -> multiple element context
+ *   .findAllByTagName('p')
+ *   .getVisibleText()
+ *   .then(function (texts) {
+ *     // `texts` is an array of text from each of the `p` elements
+ *     assert.deepEqual(texts, [
+ *       'This domain is established to be used for […]',
+ *       'More information...'
+ *     ]);
+ *   });
+ * ```
+ *
+ * The `find` and `findAll` methods are special and change their behaviour based on the current element filtering state
+ * of a given command. If a command has been filtered by element, the `find` and `findAll` commands will only find
+ * elements *within* the currently filtered set of elements. Otherwise, they will find elements throughout the page.
+ *
+ * Some method names, like `click`, are identical for both Session and Element APIs; in this case, the element APIs
+ * are suffixed with the word `Element` in order to identify them uniquely.
+ *
+ * ---
+ *
+ * Commands can be subclassed in order to add additional functionality without making direct modifications to the
+ * default Command prototype that might break other parts of the system:
+ *
+ * ```js
+ * function CustomCommand() {
+ *   Command.apply(this, arguments);
+ * }
+ * CustomCommand.prototype = Object.create(Command.prototype);
+ * CustomCommand.prototype.constructor = CustomCommand;
+ * CustomCommand.prototype.login = function (username, password) {
+ *   return new this.constructor(this, function () {
+ *     return this.parent
+ *       .findById('username')
+ *         .clickElement()
+ *         .type(username)
+ *         .end()
+ *       .findById('password')
+ *         .clickElement()
+ *         .type(password)
+ *         .end()
+ *       .findById('login')
+ *         .clickElement()
+ *         .end();
+ *   });
+ * };
+ * ```
+ *
+ * Note that returning `this`, or a command chain starting from `this`, from a callback or command initialiser will
+ * deadlock the Command, as it waits for itself to settle before settling.
  *
  * @constructor module:leadfoot/Command
  * @param {module:leadfoot/Command|module:leadfoot/Session} parent
@@ -244,7 +374,7 @@ Command.prototype = {
 	constructor: Command,
 
 	/**
-	 * The parent Command of the command, if one exists.
+	 * The parent Command of the Command, if one exists.
 	 *
 	 * @member {module:leadfoot/Command=} parent
 	 * @memberOf module:leadfoot/Command#
@@ -255,7 +385,7 @@ Command.prototype = {
 	},
 
 	/**
-	 * The parent Session of the command.
+	 * The parent Session of the Command.
 	 *
 	 * @member {module:leadfoot/Session} session
 	 * @memberOf module:leadfoot/Command#
@@ -265,10 +395,25 @@ Command.prototype = {
 		return this._session;
 	},
 
+	/**
+	 * The filtered elements that will be used if an element-specific method is invoked. Note that this property is not
+	 * valid until the parent Command has been settled.
+	 *
+	 * @member {module:leadfoot/Element[]} context
+	 * @memberOf module:leadfoot/Command#
+	 * @readonly
+	 */
 	get context() {
 		return this._context;
 	},
 
+	/**
+	 * The underlying Promise for the Command.
+	 *
+	 * @member {Promise.<any>} promise
+	 * @memberOf module:leadfoot/Command#
+	 * @readonly
+	 */
 	get promise() {
 		return this._promise;
 	},
@@ -286,8 +431,19 @@ Command.prototype = {
 	},
 
 	/**
-	 * Ends the most recent filtering operation in the current Command chain and returns the most recent Command
-	 * with a different element match state.
+	 * Ends the most recent filtering operation in the current Command chain and returns the set of matched elements
+	 * to the previous state. This is equivalent to the `jQuery#end` method.
+	 *
+	 * @example
+	 * command
+	 *   .findById('parent') // sets filter to #parent
+	 *     .findByClassName('child') // sets filter to all .child inside #parent
+	 *       .getVisibleText()
+	 *       .then(function (visibleTexts) {
+	 *         // all the visible texts from the children
+	 *       })
+	 *       .end() // resets filter to #parent
+	 *     .end(); // resets filter to nothing (the whole document)
 	 *
 	 * @param {number=} numCommandsToPop The number of element contexts to pop. Defaults to 1.
 	 * @returns {module:leadfoot/Command.<void>}
@@ -311,9 +467,17 @@ Command.prototype = {
 	},
 
 	/**
-	 * Adds a callback to be invoked once the previously chained operation has completed. Command callbacks
-	 * receive a second non-standard argument, `setContext`, which allows callbacks to create new contexts for
-	 * subsequent chained commands.
+	 * Adds a callback to be invoked once the previously chained operation has completed.
+	 *
+	 * This method is compatible with the `Promise#then` API, with two important differences:
+	 *
+	 * 1. The context (`this`) of the callback is set to the Command object, rather than being `undefined`. This allows
+	 *    promise helpers to be created that can retrieve the appropriate session and element contexts for execution.
+	 * 2. A second non-standard `setContext` argument is passed to the callback. This `setContext` function can be
+	 *    called at any time before the callback fulfills its return value and expects either a single
+	 *    {@link module:leadfoot/Element} or an array of Elements to be provided as its only argument. The provided
+	 *    element(s) will be used as the context for subsequent element method invocations (`clickElement`, etc.). If
+	 *    the `setContext` method is not called, the element context from the parent will be passed through unmodified.
 	 *
 	 * @param {Function=} callback
 	 * @param {Function=} errback
