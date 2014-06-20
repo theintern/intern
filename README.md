@@ -38,3 +38,10 @@ to learn how to use Leadfoot.
 A compatibility layer is provided to expose APIs that are signature-compatible with WD.js 0.2.2, the last version of
 WD.js used by Intern. Use of these APIs will emit deprecation warnings. This compatibility layer will be removed in a
 future release.
+
+## License
+
+Leadfoot is available under the terms of the [New BSD License](LICENSE). All code is developed under the terms of the
+[Dojo Foundation CLA](http://dojofoundation.org/about/cla).
+
+© 2014 SitePen, Inc. http://sitepen.com
