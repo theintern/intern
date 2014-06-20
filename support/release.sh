@@ -24,7 +24,7 @@ else
 	GEEZER_BRANCH="$NORMAL_BRANCH-geezer"
 fi
 
-ROOT_DIR=$(cd $(dirname $0) && pwd)
+ROOT_DIR=$(cd $(dirname $0) && cd .. && pwd)
 BUILD_DIR="$ROOT_DIR/build"
 
 if [ -d "$BUILD_DIR" ]; then
