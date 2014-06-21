@@ -123,7 +123,7 @@ else {
 			require([ config.tunnel ].concat(args.reporters), function (Tunnel) {
 				/*jshint maxcomplexity:13 */
 
-				var tunnel = new Tunnel(config.tunnelOptions);
+				var tunnel = main.tunnel = new Tunnel(config.tunnelOptions);
 				tunnel.on('downloadprogress', function (progress) {
 					topic.publish('/tunnel/download/progress', tunnel, progress);
 				});

@@ -31,6 +31,11 @@ define([
 		suites: [],
 
 		/**
+		 * The tunnel for the current Selenium provider.
+		 */
+		tunnel: null,
+
+		/**
 		 * Runs all environmental suites concurrently, with a concurrency limit.
 		 */
 		run: function () {
