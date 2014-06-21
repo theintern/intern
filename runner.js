@@ -35,6 +35,7 @@ else {
 		'./lib/ProxiedSession',
 		'dojo/node!leadfoot/Server',
 		'dojo/node!leadfoot/Command',
+		'dojo/node!leadfoot/compat',
 		'dojo/lang',
 		'dojo/topic',
 		'dojo/request',
@@ -52,6 +53,7 @@ else {
 		ProxiedSession,
 		Server,
 		Command,
+		compat,
 		lang,
 		topic,
 		request,
@@ -199,6 +201,13 @@ else {
 					config.capabilities.build = process.env.TRAVIS_COMMIT;
 				}
 
+				// Intern 1.x-compatible command
+				function CompatCommand() {
+					Command.apply(this, arguments);
+				}
+				CompatCommand.prototype = Object.create(Command.prototype);
+				CompatCommand.prototype.constructor = CompatCommand;
+
 				util.flattenEnvironments(config.capabilities, config.environments).forEach(function (environmentType) {
 					var suite = new Suite({
 						name: 'main',
@@ -211,7 +220,7 @@ else {
 								session.proxyUrl = config.proxyUrl;
 								session.proxyBasePathLength = basePath.length;
 
-								var command = new Command(session);
+								var command = new CompatCommand(session);
 								// TODO: Stop using remote.sessionId throughout the system
 								command.sessionId = session.sessionId;
 								suite.remote = command;
