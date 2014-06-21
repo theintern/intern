@@ -207,6 +207,7 @@ else {
 				}
 				CompatCommand.prototype = Object.create(Command.prototype);
 				CompatCommand.prototype.constructor = CompatCommand;
+				compat.applyTo(CompatCommand.prototype);
 
 				util.flattenEnvironments(config.capabilities, config.environments).forEach(function (environmentType) {
 					var suite = new Suite({
