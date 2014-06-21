@@ -131,8 +131,8 @@ else {
 					topic.publish('/tunnel/status', tunnel, status);
 				});
 
-				config.webdriver.port = config.webdriver.port || tunnel.port;
-				config.webdriver.hostname = config.webdriver.hostname || tunnel.hostname;
+				config.webdriver.port = config.webdriver.port || tunnel.port || 4444;
+				config.webdriver.hostname = config.webdriver.hostname || tunnel.hostname || 'localhost';
 
 				if (!config.webdriver.username) {
 					// TODO: Must use username/password, not auth, because of restrictions in the dojo/request API;
