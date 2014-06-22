@@ -90,6 +90,31 @@ define([
 					.then(function (isVisible) {
 						assert.isFalse(isVisible);
 					});
+			},
+
+			'#text': function () {
+				var expected = 'Frame\nPi pi pi pi pi\n(I\'m just a faint memory. You don\'t usually remember me.\n' +
+					'But you\'ve heard my song in the back of your mind.)';
+
+				return command
+					.get(require.toUrl('./data/frame.html'))
+					.text()
+					.then(function (text) {
+						assert.strictEqual(
+							text,
+							expected,
+							'Should retrieve all body text if no context element'
+						);
+					})
+					.text('body')
+					.then(function (text) {
+						assert.strictEqual(text, expected);
+					})
+					.findById('child')
+						.text()
+						.then(function (text) {
+							assert.strictEqual(text, 'Frame');
+						});
 			}
 		};
 	});

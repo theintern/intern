@@ -86,7 +86,15 @@ define([
 	}
 
 	var capabilities = {};
-	var command = new Command(new Session('test', {
+
+	function CompatCommand() {
+		Command.apply(this, arguments);
+	}
+	CompatCommand.prototype = Object.create(Command.prototype);
+	CompatCommand.prototype.constructor = CompatCommand;
+	compat.applyTo(CompatCommand.prototype);
+
+	var command = new CompatCommand(new Session('test', {
 		getStatus: function () {
 			return Promise.resolve('hapy');
 		},
@@ -103,8 +111,6 @@ define([
 			return Promise.resolve(arguments);
 		}
 	}, capabilities));
-
-	compat.applyTo(command);
 
 	var handle = topic.subscribe('/deprecated', function () {
 		lastNotice = arguments;
@@ -360,7 +366,6 @@ strategies.suffixes.forEach(function (suffix, index) {
 		'#active': deprecate('active', 'getActiveElement'),
 		'#clickElement': deprecateElementSig('clickElement', 'click'),
 		'#submit': deprecateElementSig('submit'),
-		'#text': deprecateElementAndStandardSig('text', 'getVisibleText'),
 
 		'#textPresent': (function () {
 			var originalMethod;
@@ -469,7 +474,35 @@ strategies.suffixes.forEach(function (suffix, index) {
 		'#alertText': deprecate('alertText', 'getAlertText'),
 		'#alertKeys': deprecate('alertKeys', 'typeInPrompt'),
 		'#moveTo': deprecateElementAndStandardSig('moveTo', 'moveMouseTo'),
-		'#click': deprecateElementSig('click'),
+		'#click': function () {
+			var element = {
+				elementId: 'test',
+				click: function () {
+					return Promise.resolve('fromElement');
+				}
+			};
+
+			var originalMethod = command.session.click;
+			command.session.click = function (button) {
+				return Promise.resolve(button);
+			};
+
+			return command.click(2).then(function (result, setContext) {
+				assert.strictEqual(result, 2);
+				setContext(element);
+			}).click().then(function (result, setContext) {
+				assert.deepEqual(result, 'fromElement');
+				assertWarn('Command#click on a retrieved element', 'Command#clickElement');
+				setContext([ element, element ]);
+			}).click().then(function (result) {
+				assert.deepEqual(result, [ 'fromElement', 'fromElement' ]);
+			}).then(function () {
+				command.session.click = originalMethod;
+			}, function (error) {
+				command.session.click = originalMethod;
+				throw error;
+			});
+		},
 		'#buttonDown': deprecate('buttonDown', 'pressMouseButton'),
 		'#buttonUp': deprecate('buttonUp', 'releaseMouseButton'),
 		'#doubleclick': deprecate('doubleclick', 'doubleClick'),

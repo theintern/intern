@@ -232,7 +232,38 @@ var methods = {
 	active: deprecate('active', 'getActiveElement'),
 	clickElement: deprecateElementSig('clickElement', 'click'),
 	submit: deprecateElementSig('submit'),
-	text: deprecateElementAndStandardSig('text', 'getVisibleText'),
+	text: function (element) {
+		return new this.constructor(this, function () {
+			if ((!element || element === 'body') && !this.context.length) {
+				if (element === 'body') {
+					warn('Command#text(\'body\')', 'Command#findByTagName(\'body\') then Command#getVisibleText');
+				}
+				else {
+					warn('Command#text with no element', 'Command#findByTagName(\'body\') then Command#getVisibleText');
+				}
+
+				return this.session.findByTagName('body').then(function (body) {
+					return body.getVisibleText();
+				});
+			}
+			else if (element && element.elementId) {
+				warn('Command#text(element)', 'Command#find then Command#getVisibleText, or ' +
+					'Command#find then Command#then(function (element) { return element.getVisibleText(); }');
+				return element.getVisibleText();
+			}
+			else {
+				warn('Command#text', 'Command#getVisibleText');
+				if (this.context.isSingle) {
+					return this.context[0].getVisibleText();
+				}
+				else {
+					return Promise.all(this.context.map(function (element) {
+						return element.getVisibleText();
+					}));
+				}
+			}
+		});
+	},
 
 	// This method had a two-argument version according to the WD.js docs but they inexplicably swapped the first
 	// and second arguments so it probably never would have worked properly in Intern
@@ -309,7 +340,29 @@ var methods = {
 	alertText: deprecate('alertText', 'getAlertText'),
 	alertKeys: deprecate('alertKeys', 'typeInPrompt'),
 	moveTo: deprecateElementAndStandardSig('moveTo', 'moveMouseTo'),
-	click: deprecateElementSig('click'),
+	click: function (button) {
+		return new this.constructor(this, function () {
+			if (this.context.length) {
+				warn(
+					'Command#click on a retrieved element',
+					'Command#clickElement',
+					'This is necessary to disambiguate between a click at the current mouse position, ' +
+					'or a click on the element.'
+				);
+
+				if (this.context.isSingle) {
+					return this.context[0].click();
+				}
+				else {
+					return Promise.all(this.context.map(function (element) {
+						return element.click();
+					}));
+				}
+			}
+
+			return this.session.click(button);
+		});
+	},
 	buttonDown: deprecate('buttonDown', 'pressMouseButton'),
 	buttonUp: deprecate('buttonUp', 'releaseMouseButton'),
 	doubleclick: deprecate('doubleclick', 'doubleClick'),
