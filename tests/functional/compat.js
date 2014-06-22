@@ -41,6 +41,15 @@ define([
 					});
 			},
 
+			'#waitForElement context': function () {
+				return command
+					.get(require.toUrl('./data/default.html'))
+					.waitForElementByTagName('p')
+					.then(function () {
+						assert.lengthOf(this.context, 0, 'waitForElement should not generate an element context');
+					});
+			},
+
 			'#waitForVisible': function () {
 				return command
 					.get(require.toUrl('./data/default.html'))
