@@ -83,6 +83,7 @@ define([
 
 				var expectedContext = [ 'foo' ];
 				expectedContext.isSingle = true;
+				expectedContext.depth = 0;
 
 				var command = parent.then(function (returnValue) {
 					var self = this;
@@ -188,11 +189,28 @@ define([
 			},
 
 			'#end beyond the top of the command list': function () {
+				var expected = [ 'a' ];
+				expected.depth = 0;
+
 				return new Command(session, function (setContext) { setContext([ 'a' ]); })
 					.end(20)
 					.then(function () {
-						assert.deepEqual(this.context, [ 'a' ], 'Calling #end when there is nowhere else to go should be a no-op');
+						assert.deepEqual(this.context, expected, 'Calling #end when there is nowhere else to go should be a no-op');
 					});
+			},
+
+			'#end in a long chain': function () {
+				return new Command(session).then(function (_, setContext) {
+					setContext([ 'a' ]);
+				})
+				.end()
+				.then(function () {
+					assert.lengthOf(this.context, 0);
+				})
+				.end()
+				.then(function () {
+					assert.lengthOf(this.context, 0, '#end should not ascend to higher depths earlier in the command chain');
+				});
 			},
 
 			'#catch': function () {
@@ -254,6 +272,7 @@ define([
 				return command.newContext().then(function () {
 					var expected = [ 'b' ];
 					expected.isSingle = true;
+					expected.depth = 1;
 
 					assert.deepEqual(this.context, expected,
 						'Function that returns a value that has been annotated with createsContext should generate a new context');
@@ -275,6 +294,7 @@ define([
 				return command.newContext().then(function () {
 					var expected = [ 'b' ];
 					expected.isSingle = true;
+					expected.depth = 1;
 
 					assert.deepEqual(this.context, expected,
 						'Function that returns a value that has been annotated with createsContext should generate a new context');

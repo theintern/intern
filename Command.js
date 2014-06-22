@@ -49,6 +49,10 @@ function createElementMethod(method) {
 	};
 }
 
+var TOP_CONTEXT = [];
+TOP_CONTEXT.isSingle = true;
+TOP_CONTEXT.depth = 0;
+
 /**
  * The Command class is a chainable, subclassable object type that can be used to execute commands serially against a
  * remote WebDriver environment. The standard Command class includes methods from the {@link module:leadfoot/Session}
@@ -325,6 +329,12 @@ function Command(parent, initialiser, errback) {
 			context.isSingle = true;
 		}
 
+		// If the context being set has depth, then it is coming from `Command#end`,
+		// or someone smart knows what they are doing; do not change the depth
+		if (!('depth' in context)) {
+			context.depth = parent ? parent.context.depth + 1 : 0;
+		}
+
 		self._context = context;
 	}
 
@@ -353,7 +363,7 @@ function Command(parent, initialiser, errback) {
 
 	/* jshint maxlen:130 */
 	this._promise = (parent ? parent.promise : Promise.resolve(undefined)).then(function (returnValue) {
-		self._context = parent ? parent.context : [];
+		self._context = parent ? parent.context : TOP_CONTEXT;
 		return returnValue;
 	}).then(
 		initialiser && initialiser.bind(this, setContext),
@@ -397,7 +407,13 @@ Command.prototype = {
 
 	/**
 	 * The filtered elements that will be used if an element-specific method is invoked. Note that this property is not
-	 * valid until the parent Command has been settled.
+	 * valid until the parent Command has been settled. The context array also has two additional properties:
+	 *
+	 * - isSingle (boolean): If true, the context will always contain a single element. This is used to differentiate
+	 *   between methods that should still return scalar values (`find`) and methods that should return arrays of
+	 *   values even if there is only one element in the context (`findAll`).
+	 * - depth (number): The depth of the context within the command chain. This is used to prevent traversal into
+	 *   higher filtering levels by {@link module:leadfoot/Command#end}.
 	 *
 	 * @member {module:leadfoot/Element[]} context
 	 * @memberOf module:leadfoot/Command#
@@ -453,13 +469,13 @@ Command.prototype = {
 
 		return new this.constructor(this, function (setContext) {
 			var command = this;
+			var depth = this.context.depth;
 
-			while (numCommandsToPop && command.parent) {
-				if (command.context !== command.parent.context) {
+			while (depth && numCommandsToPop && (command = command.parent)) {
+				if (command.context.depth < depth) {
 					--numCommandsToPop;
+					depth = command.context.depth;
 				}
-
-				command = command.parent;
 			}
 
 			setContext(command.context);
