@@ -202,13 +202,13 @@ function returnValue(response) {
 }
 
 /**
- * A Server represents a remote HTTP server implementing the JsonWireProtocol that can be used to generate new
- * remote control sessions.
+ * The Server class represents a remote HTTP server implementing the WebDriver wire protocol that can be used to
+ * generate new remote control sessions.
  *
  * @constructor module:leadfoot/Server
  * @param {(Object|string)} url
  * The fully qualified URL to the JsonWireProtocol endpoint on the server. The default endpoint for a
- * JsonWireProtocol HTTP server is [http://localhost:4444/wd/hub]. You may also pass a parsed URL object which will
+ * JsonWireProtocol HTTP server is http://localhost:4444/wd/hub. You may also pass a parsed URL object which will
  * be converted to a string.
  */
 function Server(url) {

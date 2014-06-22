@@ -31,13 +31,13 @@ Leadfoot can be installed and used as a stand-alone WebDriver library from npm b
 However, we recommend using Leadfoot through the [Intern testing framework](http://theintern.io), which provides you
 with all of the tools you need to write robust unit and functional tests. Follow the instructions on
 [writing functional tests with Intern](https://github.com/theintern/intern/wiki/Writing-Tests-with-Intern#functional-testing)
-to learn how to use Leadfoot.
+to learn how to use Leadfoot with Intern.
 
 ## WD.js compatibility
 
-A compatibility layer is provided to expose APIs that are signature-compatible with WD.js 0.2.2, the last version of
-WD.js used by Intern. Use of these APIs will emit deprecation warnings. This compatibility layer will be removed in a
-future release.
+A compatibility layer is provided to expose APIs that are signature-compatible with the variant of WD.js 0.2.2 used by
+Intern 1. Use of these APIs will emit deprecation warnings. This compatibility layer will be removed in a future
+release.
 
 ## License
 

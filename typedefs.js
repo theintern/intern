@@ -1,4 +1,32 @@
 /**
+ * An error from the remote WebDriver server.
+ * @typedef {Object} WebDriverError
+ * @extends Error
+ *
+ * @property {string} name
+ * The human-readable error type returned by the WebDriver server. See {@link module:leadfoot/lib/statusCodes} for a
+ * list of error types.
+ *
+ * @property {string} message
+ * A human-readable message describing the error.
+ *
+ * @property {number} status
+ * The raw error status code returned by the WebDriver server.
+ *
+ * @property {Object} detail
+ * The raw detail of the error returned by the WebDriver server.
+ *
+ * @property {{ url: string, method: string, requestData: string }} request
+ * The parameters for the request.
+ *
+ * @property {module:dojo/request.IResponse} response
+ * The response object for the request.
+ *
+ * @property {string} stack
+ * The stack trace for the request.
+ */
+
+/**
  * An object that describes an HTTP cookie.
  * @typedef {Object} WebDriverCookie
  *
