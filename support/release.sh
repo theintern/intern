@@ -3,9 +3,11 @@
 set -e
 
 usage() {
-	echo "Usage: $0 [branch]"
+	echo "Usage: $0 [branch] [version]"
 	echo
 	echo "Branch defaults to 'master'."
+	echo "Version defaults to what is listed in package.json in the branch."
+	echo "Version should only be specified for pre-releases."
 	exit 1
 }
 
@@ -15,8 +17,10 @@ if [ "$1" == "--help" ]; then
 elif [ "$1" == "" ]; then
 	BRANCH="master"
 else
-	BANCH=$1
+	BRANCH=$1
 fi
+
+VERSION=$2
 
 ROOT_DIR=$(cd $(dirname $0) && cd .. && pwd)
 BUILD_DIR="$ROOT_DIR/build"
@@ -28,7 +32,12 @@ if [ -d "$BUILD_DIR" ]; then
 fi
 
 echo "This is an internal Leadfoot release script!"
-echo "Press 'y' to create a new Leadfoot release from branch ($BRANCH)."
+echo -n "Press 'y' to create a new Leadfoot release from branch $BRANCH"
+if [ "$VERSION" == "" ]; then
+	echo "."
+else
+	echo -e "\nwith version override $VERSION."
+fi
 echo "(You can abort pushing upstream later on if something goes wrong.)"
 read -s -n 1
 
@@ -46,39 +55,46 @@ cd "$BUILD_DIR"
 # Store the newly created tags and all updated branches outside of the loop so we can push/publish them all at once
 # at the end instead of having to guess that the second loop will run successfully after the first one
 RELEASE_TAG=
-PUSH_BRANCHES="$BANCH"
+PUSH_BRANCHES="$BRANCH"
 
 echo -e "\nBuilding $BRANCH branch...\n"
 
 git checkout $BRANCH
 
 # Get the version number for this release from package.json
-VERSION=$(grep -o '"version": "[^"]*"' package.json | grep -o "[0-9][0-9.]*")
+if [ "$VERSION" == "" ]; then
+	VERSION=$(grep -o '"version": "[^"]*"' package.json | grep -o "[0-9][0-9.]*")
 
-# Convert the version number to an array that we can use to generate the next release version number
-OLDIFS=$IFS
-IFS="."
-PRE_VERSION=($VERSION)
-IFS=$OLDIFS
+	# Convert the version number to an array that we can use to generate the next release version number
+	OLDIFS=$IFS
+	IFS="."
+	PRE_VERSION=($VERSION)
+	IFS=$OLDIFS
 
-# This is a new major/minor release
-if [[ $VERSION =~ \.0$ ]]; then
-	# We'll be creating a new minor release branch for this version for any future patch releases
-	MAKE_BRANCH="${PRE_VERSION[0]}.${PRE_VERSION[1]}"
-	BRANCH_VERSION="${PRE_VERSION[0]}.${PRE_VERSION[1]}.$((PRE_VERSION[2] + 1))-pre"
+	# This is a new major/minor release
+	if [[ $VERSION =~ \.0$ ]]; then
+		# We'll be creating a new minor release branch for this version for any future patch releases
+		MAKE_BRANCH="${PRE_VERSION[0]}.${PRE_VERSION[1]}"
+		BRANCH_VERSION="${PRE_VERSION[0]}.${PRE_VERSION[1]}.$((PRE_VERSION[2] + 1))-pre"
 
-	# The next release is usually going to be a minor release; if the next version is to be a major release,
-	# the package version will need to be manually updated in Git before release
-	PRE_VERSION="${PRE_VERSION[0]}.$((PRE_VERSION[1] + 1)).0-pre"
+		# The next release is usually going to be a minor release; if the next version is to be a major release,
+		# the package version will need to be manually updated in Git before release
+		PRE_VERSION="${PRE_VERSION[0]}.$((PRE_VERSION[1] + 1)).0-pre"
 
-# This is a new patch release
+	# This is a new patch release
+	else
+		# Patch releases do not get a branch
+		MAKE_BRANCH=
+		BRANCH_VERSION=
+
+		# The next release version will always be another patch version
+		PRE_VERSION="${PRE_VERSION[0]}.${PRE_VERSION[1]}.$((PRE_VERSION[2] + 1))-pre"
+	fi
 else
-	# Patch releases do not get a branch
 	MAKE_BRANCH=
 	BRANCH_VERSION=
-
-	# The next release version will always be another patch version
-	PRE_VERSION="${PRE_VERSION[0]}.${PRE_VERSION[1]}.$((PRE_VERSION[2] + 1))-pre"
+	PRE_VERSION=$(grep -o '"version": "[^"]*"' package.json | grep -o "[0-9][0-9.]*")
+	PRE_VERSION="$PRE_VERSION-pre"
 fi
 
 TAG_VERSION=$VERSION
