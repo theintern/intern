@@ -20,7 +20,12 @@ else
 	BRANCH=$1
 fi
 
-VERSION=$2
+NPM_TAG=latest
+
+if [ "$2" != "" ]; then
+	VERSION=$2
+	NPM_TAG=beta
+fi
 
 ROOT_DIR=$(cd $(dirname $0) && cd .. && pwd)
 BUILD_DIR="$ROOT_DIR/build"
@@ -185,7 +190,7 @@ done
 git push origin --tags
 
 git checkout $RELEASE_TAG
-npm publish
+npm publish --tag $NPM_TAG
 
 cd "$ROOT_DIR"
 rm -rf "$BUILD_DIR"
