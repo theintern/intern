@@ -2,12 +2,12 @@
  * @module digdug/BrowserStackTunnel
  */
 
-var Tunnel = require('./Tunnel');
-var util = require('./util');
-var request = require('dojo/request');
 var fs = require('fs');
-var urlUtil = require('url');
 var pathUtil = require('path');
+var request = require('dojo/request');
+var Tunnel = require('./Tunnel');
+var urlUtil = require('url');
+var util = require('./util');
 
 /**
  * A BrowserStack tunnel.
@@ -42,7 +42,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	 */
 	automateOnly: true,
 
-	directory: './browserstack/',
+	directory: pathUtil.join(__dirname, 'browserstack'),
 
 	hostname: 'hub.browserstack.com',
 

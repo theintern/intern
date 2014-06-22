@@ -48,7 +48,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 */
 	directDomains: null,
 
-	directory: './saucelabs/',
+	directory: pathUtil.join(__dirname, 'saucelabs'),
 
 	/**
 	 * A list of URLs that require additional HTTP authentication. Only the hostname, port, and auth are used.

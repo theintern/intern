@@ -42,7 +42,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 */
 	apiSecret: null,
 
-	directory: './testingbot/',
+	directory: pathUtil.join(__dirname, 'testingbot'),
 
 	executable: 'java',
 
