@@ -365,6 +365,9 @@ function Command(parent, initialiser, errback) {
 	this._promise = (parent ? parent.promise : Promise.resolve(undefined)).then(function (returnValue) {
 		self._context = parent ? parent.context : TOP_CONTEXT;
 		return returnValue;
+	}, function (error) {
+		self._context = parent ? parent.context : TOP_CONTEXT;
+		throw error;
 	}).then(
 		initialiser && initialiser.bind(this, setContext),
 		errback && errback.bind(this, setContext)

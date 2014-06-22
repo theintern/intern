@@ -66,6 +66,18 @@ define([
 							assert.include(error.stack, 'tests/functional/Command.js:53',
 								'Stack trace should point back to the async method call that eventually threw the error');
 						});
+				},
+
+				'catch recovery': function () {
+					return new Command(session)
+						.then(function () {
+							throw new Error('Boom');
+						}).catch(function () {
+							var expected = [];
+							expected.isSingle = true;
+							expected.depth = 0;
+							assert.deepEqual(this.context, expected, 'Context should be copied in error path');
+						});
 				}
 			},
 
