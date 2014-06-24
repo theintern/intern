@@ -699,15 +699,15 @@ try {
 }
 catch (error) {}
 
-// TODO: Test
+// TODO: Add unit test
 if (chaiAsPromised) {
 	chaiAsPromised.transferPromiseness = function (assertion, promise) {
 		assertion.then = promise.then.bind(promise);
-		Object.keys(promise.constructor.prototype).forEach(function (method) {
+		for (var method in promise) {
 			if (typeof promise[method] === 'function') {
 				assertion[method] = promise[method].bind(promise);
 			}
-		});
+		}
 	};
 }
 
