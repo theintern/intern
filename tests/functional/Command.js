@@ -142,9 +142,9 @@ define([
 				var command = new Command(session);
 				return command.get(require.toUrl('./data/form.html'))
 					.findById('input')
-						.clickElement()
+						.click()
 						.type('hello')
-						.getAttribute('value')
+						.getProperty('value')
 						.then(function (value) {
 							assert.strictEqual(value, 'hello', 'Typing into a form field should put data in the field');
 						});

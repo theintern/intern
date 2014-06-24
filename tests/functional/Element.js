@@ -325,7 +325,7 @@ define([
 					return session.findById('input');
 				}).then(function (element) {
 					return element.type('hello, world').then(function () {
-						return element.getAttribute('value');
+						return element.getProperty('value');
 					});
 				}).then(function (value) {
 					assert.strictEqual(value, 'hello, world');
@@ -346,11 +346,11 @@ define([
 				return session.get(require.toUrl('./data/form.html')).then(function () {
 					return session.findById('input2');
 				}).then(function (element) {
-					return element.getAttribute('value').then(function (value) {
+					return element.getProperty('value').then(function (value) {
 						assert.strictEqual(value, 'default');
 						return element.clearValue();
 					}).then(function () {
-						return element.getAttribute('value');
+						return element.getProperty('value');
 					});
 				}).then(function (value) {
 					assert.strictEqual(value, '');
@@ -442,44 +442,82 @@ define([
 				});
 			},
 
-			'#getAttribute': function () {
+			'#getSpecAttribute': function () {
 				/*jshint maxlen:140 */
 				return session.get(require.toUrl('./data/form.html')).then(function () {
 					return session.findById('input2');
 				}).then(function (element) {
-					return element.getAttribute('value').then(function (value) {
+					return element.getSpecAttribute('value').then(function (value) {
 						assert.strictEqual(value, 'default', 'Default value of input should be returned when value is unchanged');
 						return element.type('foo');
 					}).then(function () {
-						return element.getAttribute('value');
+						return element.getSpecAttribute('value');
 					}).then(function (value) {
 						assert.strictEqual(value, 'defaultfoo', 'Current value of input should be returned');
-						return element.getAttribute('defaultValue');
+						return element.getSpecAttribute('defaultValue');
 					}).then(function (defaultValue) {
 						assert.strictEqual(defaultValue, 'default', 'Default value should be returned');
-						return element.getAttribute('data-html5');
+						return element.getSpecAttribute('data-html5');
 					}).then(function (value) {
 						assert.strictEqual(value, 'true', 'Value of custom attributes should be returned');
-						return element.getAttribute('nonexisting');
+						return element.getSpecAttribute('nonexisting');
 					}).then(function (value) {
 						assert.isNull(value, 'Non-existing attributes should not return a value');
 					});
 				}).then(function () {
 					return session.findById('disabled');
 				}).then(function (element) {
-					return element.getAttribute('disabled');
+					return element.getSpecAttribute('disabled');
 				}).then(function (isDisabled) {
 					assert.strictEqual(isDisabled, 'true', 'True boolean attributes must return string value per the spec');
 					return session.get(require.toUrl('./data/elements.html'));
 				}).then(function () {
 					return session.findById('c');
 				}).then(function (element) {
-					return element.getAttribute('href');
+					return element.getSpecAttribute('href');
 				}).then(function (href) {
 					return session.getCurrentUrl().then(function (baseUrl) {
 						var expected = baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1) + 'default.html';
 						assert.strictEqual(href, expected, 'Link href value should be absolute');
 					});
+				});
+			},
+
+			'#getAttribute': function () {
+				return session.get(require.toUrl('./data/form.html')).then(function () {
+					return session.findById('form');
+				}).then(function (element) {
+					return element.getAttribute('action');
+				}).then(function (action) {
+					assert.strictEqual(action, 'form.html');
+					return session.findById('disabled');
+				}).then(function (element) {
+					return Promise.all({
+						'non-existing': element.getAttribute('non-existing'),
+						disabled: element.getAttribute('disabled')
+					});
+				}).then(function (result) {
+					assert.isNotNull(result.disabled);
+					assert.isNull(result['non-existing']);
+				});
+			},
+
+			'#getProperty': function () {
+				return session.get(require.toUrl('./data/form.html')).then(function () {
+					return session.findById('form');
+				}).then(function (element) {
+					return element.getProperty('action');
+				}).then(function (action) {
+					assert.operator(action.indexOf('http'), '===', 0);
+					return session.findById('disabled');
+				}).then(function (element) {
+					return Promise.all({
+						'non-existing': element.getProperty('non-existing'),
+						disabled: element.getProperty('disabled')
+					});
+				}).then(function (result) {
+					assert.isTrue(result.disabled);
+					assert.isNull(result['non-existing']);
 				});
 			},
 

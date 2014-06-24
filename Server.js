@@ -489,7 +489,7 @@ Server.prototype = {
 					brokenCssTransformedSize: true,
 					fixedLogTypes: false,
 					brokenHtmlTagName: false,
-					brokenNullGetAttribute: false,
+					brokenNullGetSpecAttribute: false,
 
 					// SafariDriver-specific
 					brokenNavigation: true,
@@ -542,8 +542,8 @@ Server.prototype = {
 
 			// At least ios-driver 0.6.6-SNAPSHOT incorrectly returns empty string instead of null for attributes
 			// that do not exist
-			testedCapabilities.brokenNullGetAttribute = session.findByTagName('html').then(function (element) {
-				return element.getAttribute('nonexisting');
+			testedCapabilities.brokenNullGetSpecAttribute = session.findByTagName('html').then(function (element) {
+				return element.getSpecAttribute('nonexisting');
 			}).then(function (value) {
 				return value !== null;
 			}).catch(broken);

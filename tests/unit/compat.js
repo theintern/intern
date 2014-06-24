@@ -9,9 +9,9 @@ define([
 	'intern/dojo/node!dojo/topic'
 ], function (registerSuite, assert, Promise, Session, Command, compat, strategies, topic) {
 	function assertWarn() {
-		assert.isNotNull(lastNotice);
+		assert.isNotNull(lastWarning);
 		for (var i = 0, j = arguments.length; i < j; ++i) {
-			arguments[i] && assert.include(lastNotice[i], arguments[i]);
+			arguments[i] && assert.include(lastWarning[i], arguments[i]);
 		}
 	}
 
@@ -72,7 +72,7 @@ define([
 
 			return command[fromMethod]('a', 'b').then(function (value) {
 				assert.deepEqual(value, [ 'a', 'b' ], 'Unmodified method should be invoked with same arguments');
-				assert.isNull(lastNotice);
+				assert.isNull(lastWarning);
 				return testElementSig();
 			});
 		});
@@ -113,73 +113,21 @@ define([
 	}, capabilities));
 
 	var handle = topic.subscribe('/deprecated', function () {
-		lastNotice = arguments;
+		lastWarning = arguments;
 	});
 
-	var lastNotice;
-
-/*
-strategies.suffixes.forEach(function (suffix, index) {
-	function addStrategy(method, toMethod, suffix, wdSuffix, using) {
-		methods[method + 'OrNull'] = function (value) {
-			warn('Command#' + method + 'OrNull', 'Command#' + toMethod +
-				' and Command#always, or Command#elementsBy' + suffix);
-			return elementOrNull.call(this, using, value);
-		};
-
-		methods[method + 'IfExists'] = function (value) {
-			warn('Command#' + method + 'IfExists', 'Command#' + toMethod +
-				' and Command#always, or Command#elementsBy' + suffix);
-			return elementIfExists.call(this, using, value);
-		};
-
-		methods['hasElementBy' + wdSuffix] = function (value) {
-			warn('Command#hasElementBy' + wdSuffix, 'Command#' + toMethod +
-				' and Command#then(exists, doesNotExist)');
-			return hasElement.call(this, using, value);
-		};
-
-		method['waitForElement' + wdSuffix] = function (value, timeout) {
-			warn(
-				'Command#waitForElement' + wdSuffix,
-				'Command#setImplicitWaitTimeout and Command#' + toMethod,
-				'This command is implemented using implicit timeouts, which may not match the prior behaviour.'
-			);
-			return waitForElement.call(this, using, value, timeout);
-		};
-
-		method['waitForVisible' + wdSuffix] = function (value, timeout) {
-			warn(
-				'Command#waitForVisible' + wdSuffix,
-				null,
-				'This command is partially implemented using implicit timeouts, which may not match the prior ' +
-				'behaviour.'
-			);
-			return waitForVisible.call(this, using, value, timeout);
-		};
-	}
-
-	var wdSuffix = suffix === 'XPath' ? 'XPath' : suffix;
-	var method = 'elementBy' + wdSuffix;
-	var toMethod = 'findBy' + suffix;
-	var using = strategies[index];
-	addStrategy(method, toMethod, suffix, wdSuffix, using);
-	if (suffix === 'CssSelector') {
-		addStrategy('elementByCss', toMethod, suffix, 'Css', using);
-	}
-});
-*/
+	var lastWarning;
 
 	var suite = {
 		name: 'leadfoot/compat',
 
 		beforeEach: function () {
-			lastNotice = null;
+			lastWarning = null;
 		},
 
 		teardown: function () {
 			handle.remove();
-			lastNotice = command = handle = null;
+			lastWarning = command = handle = null;
 		},
 
 		'assertion sanity check': function () {
@@ -283,25 +231,28 @@ strategies.suffixes.forEach(function (suffix, index) {
 		'#setWindowSize': mockCommand(Command.prototype, 'setWindowSize', 'setWindowSize', function () {
 			return command.setWindowSize(1, 2).then(function (args) {
 				assert.deepEqual(args, [ 1, 2 ]);
-				assert.isNull(lastNotice);
+				assert.isNull(lastWarning);
 				return command.setWindowSize('foo', 2, 3);
 			}).then(function (args) {
 				assert.deepEqual(args, [ 'foo', 2, 3 ]);
-				assert.isNull(lastNotice);
+				assert.isNull(lastWarning);
 				return command.setWindowSize(3, 4, 'bar');
 			}).then(function (args) {
 				assert.deepEqual(args, [ 'bar', 3, 4 ]);
-				assertWarn('Command#setWindowSize(width, height, handle)', 'Command#setWindowSize(handle, width, height)');
+				assertWarn(
+					'Command#setWindowSize(width, height, handle)',
+					'Command#setWindowSize(handle, width, height)'
+				);
 			});
 		}),
 		'#setWindowPosition': mockCommand(Command.prototype, 'setWindowPosition', 'setWindowPosition', function () {
 			return command.setWindowPosition(1, 2).then(function (args) {
 				assert.deepEqual(args, [ 1, 2 ]);
-				assert.isNull(lastNotice);
+				assert.isNull(lastWarning);
 				return command.setWindowPosition('foo', 2, 3);
 			}).then(function (args) {
 				assert.deepEqual(args, [ 'foo', 2, 3 ]);
-				assert.isNull(lastNotice);
+				assert.isNull(lastWarning);
 				return command.setWindowPosition(3, 4, 'bar');
 			}).then(function (args) {
 				assert.deepEqual(args, [ 'bar', 3, 4 ]);
@@ -364,7 +315,7 @@ strategies.suffixes.forEach(function (suffix, index) {
 			});
 		}),
 		'#active': deprecate('active', 'getActiveElement'),
-		'#clickElement': deprecateElementSig('clickElement', 'click'),
+		'#clickElement': deprecate('clickElement', 'click'),
 		'#submit': deprecateElementSig('submit'),
 
 		'#textPresent': (function () {
@@ -407,33 +358,29 @@ strategies.suffixes.forEach(function (suffix, index) {
 			};
 		})(),
 
-		// This is not backwards-compatible because it is impossible to know whether someone is expecting this to
-		// work like the old element `type` because they have not converted their code yet, or like the new session
-		// `type` because they have
-		'#type': deprecateElementSig('type', 'type'),
-
-		'#keys': deprecate('keys', 'type'),
+		'#type': deprecateElementSig('type'),
+		'#keys': deprecate('keys', 'pressKeys'),
 		'#getTagName': deprecateElementSig('getTagName'),
 		'#clear': deprecateElementAndStandardSig('clear', 'clearValue'),
 		'#isSelected': deprecateElementSig('isSelected'),
 		'#isEnabled': deprecateElementSig('isEnabled'),
 		'#enabled': deprecateElementAndStandardSig('enabled', 'isEnabled'),
 		'#getAttribute': deprecateElementSig('getAttribute'),
-		'#getValue': mockCommand(command, 'getAttribute', 'deprecate', function () {
+		'#getValue': mockCommand(command, 'getProperty', 'deprecate', function () {
 			return command.getValue().then(function (args) {
 				assert.deepEqual(args, [ 'value' ]);
-				assertWarn('Command#getValue', 'Command#getAttribute(\'value\')');
+				assertWarn('Command#getValue', 'Command#getProperty(\'value\')');
 
 				var element = {
 					elementId: 'test',
-					getAttribute: function () {
+					getProperty: function () {
 						return Promise.resolve(Array.prototype.slice.call(arguments, 0).concat('fromElement'));
 					}
 				};
 
 				return command.getValue(element).then(function (args) {
 					assert.deepEqual(args, [ 'value', 'fromElement' ]);
-					assertWarn('Command#getValue(element)', 'Command#getAttribute(\'value\')');
+					assertWarn('Command#getValue(element)', 'Command#getProperty(\'value\')');
 				});
 			});
 		}),
@@ -474,35 +421,18 @@ strategies.suffixes.forEach(function (suffix, index) {
 		'#alertText': deprecate('alertText', 'getAlertText'),
 		'#alertKeys': deprecate('alertKeys', 'typeInPrompt'),
 		'#moveTo': deprecateElementAndStandardSig('moveTo', 'moveMouseTo'),
-		'#click': function () {
-			var element = {
-				elementId: 'test',
-				click: function () {
-					return Promise.resolve('fromElement');
-				}
-			};
-
-			var originalMethod = command.session.click;
-			command.session.click = function (button) {
-				return Promise.resolve(button);
-			};
-
-			return command.click(2).then(function (result, setContext) {
-				assert.strictEqual(result, 2);
-				setContext(element);
-			}).click().then(function (result, setContext) {
-				assert.deepEqual(result, 'fromElement');
-				assertWarn('Command#click on a retrieved element', 'Command#clickElement');
-				setContext([ element, element ]);
-			}).click().then(function (result) {
-				assert.deepEqual(result, [ 'fromElement', 'fromElement' ]);
-			}).then(function () {
-				command.session.click = originalMethod;
-			}, function (error) {
-				command.session.click = originalMethod;
-				throw error;
+		'#click(button)': mockCommand(command, 'clickMouseButton', 'deprecate signature', function () {
+			return command.click(0).then(function (args) {
+				assert.deepEqual(args, [ 0 ]);
+				assertWarn('Command#click(button)', 'Command#clickMouseButton(button)');
 			});
-		},
+		}),
+		'#click': mockCommand(Command.prototype, 'click', 'pass-through', function () {
+			return command.click().then(function (args) {
+				assert.deepEqual(args, []);
+				assert.isNull(lastWarning);
+			});
+		}),
 		'#buttonDown': deprecate('buttonDown', 'pressMouseButton'),
 		'#buttonUp': deprecate('buttonUp', 'releaseMouseButton'),
 		'#doubleclick': deprecate('doubleclick', 'doubleClick'),

@@ -170,15 +170,15 @@ TOP_CONTEXT.depth = 0;
  *   return new this.constructor(this, function () {
  *     return this.parent
  *       .findById('username')
- *         .clickElement()
+ *         .click()
  *         .type(username)
  *         .end()
  *       .findById('password')
- *         .clickElement()
+ *         .click()
  *         .type(password)
  *         .end()
  *       .findById('login')
- *         .clickElement()
+ *         .click()
  *         .end();
  *   });
  * };
@@ -237,7 +237,7 @@ TOP_CONTEXT.depth = 0;
  * @borrows module:leadfoot/Session#find as module:leadfoot/Command#find
  * @borrows module:leadfoot/Session#findAll as module:leadfoot/Command#findAll
  * @borrows module:leadfoot/Session#getActiveElement as module:leadfoot/Command#getActiveElement
- * @borrows module:leadfoot/Session#type as module:leadfoot/Command#type
+ * @borrows module:leadfoot/Session#pressKeys as module:leadfoot/Command#pressKeys
  * @borrows module:leadfoot/Session#getOrientation as module:leadfoot/Command#getOrientation
  * @borrows module:leadfoot/Session#setOrientation as module:leadfoot/Command#setOrientation
  * @borrows module:leadfoot/Session#getAlertText as module:leadfoot/Command#getAlertText
@@ -245,7 +245,7 @@ TOP_CONTEXT.depth = 0;
  * @borrows module:leadfoot/Session#acceptAlert as module:leadfoot/Command#acceptAlert
  * @borrows module:leadfoot/Session#dismissAlert as module:leadfoot/Command#dismissAlert
  * @borrows module:leadfoot/Session#moveMouseTo as module:leadfoot/Command#moveMouseTo
- * @borrows module:leadfoot/Session#click as module:leadfoot/Command#click
+ * @borrows module:leadfoot/Session#clickMouseButton as module:leadfoot/Command#clickMouseButton
  * @borrows module:leadfoot/Session#pressMouseButton as module:leadfoot/Command#pressMouseButton
  * @borrows module:leadfoot/Session#releaseMouseButton as module:leadfoot/Command#releaseMouseButton
  * @borrows module:leadfoot/Session#doubleClick as module:leadfoot/Command#doubleClick
@@ -304,15 +304,17 @@ TOP_CONTEXT.depth = 0;
  * @borrows module:leadfoot/Session#setFindTimeout as module:leadfoot/Command#setFindTimeout
  * @borrows module:leadfoot/Session#getPageLoadTimeout as module:leadfoot/Command#getPageLoadTimeout
  * @borrows module:leadfoot/Session#setPageLoadTimeout as module:leadfoot/Command#setPageLoadTimeout
- * @borrows module:leadfoot/Element#click as module:leadfoot/Command#clickElement
+ * @borrows module:leadfoot/Element#click as module:leadfoot/Command#click
  * @borrows module:leadfoot/Element#submit as module:leadfoot/Command#submit
  * @borrows module:leadfoot/Element#getVisibleText as module:leadfoot/Command#getVisibleText
- * @borrows module:leadfoot/Element#type as module:leadfoot/Command#typeElement
+ * @borrows module:leadfoot/Element#type as module:leadfoot/Command#type
  * @borrows module:leadfoot/Element#getTagName as module:leadfoot/Command#getTagName
  * @borrows module:leadfoot/Element#clearValue as module:leadfoot/Command#clearValue
  * @borrows module:leadfoot/Element#isSelected as module:leadfoot/Command#isSelected
  * @borrows module:leadfoot/Element#isEnabled as module:leadfoot/Command#isEnabled
+ * @borrows module:leadfoot/Element#getSpecAttribute as module:leadfoot/Command#getSpecAttribute
  * @borrows module:leadfoot/Element#getAttribute as module:leadfoot/Command#getAttribute
+ * @borrows module:leadfoot/Element#getProperty as module:leadfoot/Command#getProperty
  * @borrows module:leadfoot/Element#equals as module:leadfoot/Command#equals
  * @borrows module:leadfoot/Element#isDisplayed as module:leadfoot/Command#isDisplayed
  * @borrows module:leadfoot/Element#getPosition as module:leadfoot/Command#getPosition
@@ -495,7 +497,7 @@ Command.prototype = {
 	 * 2. A second non-standard `setContext` argument is passed to the callback. This `setContext` function can be
 	 *    called at any time before the callback fulfills its return value and expects either a single
 	 *    {@link module:leadfoot/Element} or an array of Elements to be provided as its only argument. The provided
-	 *    element(s) will be used as the context for subsequent element method invocations (`clickElement`, etc.). If
+	 *    element(s) will be used as the context for subsequent element method invocations (`click`, etc.). If
 	 *    the `setContext` method is not called, the element context from the parent will be passed through unmodified.
 	 *
 	 * @param {Function=} callback

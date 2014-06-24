@@ -230,7 +230,7 @@ var methods = {
 		});
 	},
 	active: deprecate('active', 'getActiveElement'),
-	clickElement: deprecateElementSig('clickElement', 'click'),
+	clickElement: deprecateElementAndStandardSig('clickElement', 'click'),
 	submit: deprecateElementSig('submit'),
 	text: function (element) {
 		return new this.constructor(this, function () {
@@ -283,12 +283,8 @@ var methods = {
 		return this.getVisibleText().then(test);
 	},
 
-	// This is not backwards-compatible because it is impossible to know whether someone is expecting this to
-	// work like the old element `type` because they have not converted their code yet, or like the new session
-	// `type` because they have
-	type: deprecateElementSig('type', 'type'),
-
-	keys: deprecate('keys', 'type'),
+	type: deprecateElementSig('type'),
+	keys: deprecate('keys', 'pressKeys'),
 	getTagName: deprecateElementSig('getTagName'),
 	clear: deprecateElementAndStandardSig('clear', 'clearValue'),
 	isSelected: deprecateElementSig('isSelected'),
@@ -297,17 +293,17 @@ var methods = {
 	getAttribute: deprecateElementSig('getAttribute'),
 	getValue: function (element) {
 		if (element && element.elementId) {
-			warn('Command#getValue(element)', 'Command#find then Command#getAttribute(\'value\'), or ' +
+			warn('Command#getValue(element)', 'Command#find then Command#getProperty(\'value\'), or ' +
 				'Command#find then Command#then(function (element) { ' +
-				'return element.getAttribute(\'value\'); }');
+				'return element.getProperty(\'value\'); }');
 
 			return new this.constructor(this, function () {
-				return element.getAttribute('value');
+				return element.getProperty('value');
 			});
 		}
 
-		warn('Command#getValue', 'Command#find then Command#getAttribute(\'value\')');
-		return this.getAttribute('value');
+		warn('Command#getValue', 'Command#find then Command#getProperty(\'value\')');
+		return this.getProperty('value');
 	},
 	equalsElement: function (element, other) {
 		if (other && other.elementId) {
@@ -341,27 +337,12 @@ var methods = {
 	alertKeys: deprecate('alertKeys', 'typeInPrompt'),
 	moveTo: deprecateElementAndStandardSig('moveTo', 'moveMouseTo'),
 	click: function (button) {
-		return new this.constructor(this, function () {
-			if (this.context.length) {
-				warn(
-					'Command#click on a retrieved element',
-					'Command#clickElement',
-					'This is necessary to disambiguate between a click at the current mouse position, ' +
-					'or a click on the element.'
-				);
+		if (typeof button === 'number') {
+			warn('Command#click(button)', 'Command#clickMouseButton(button)');
+			return this.clickMouseButton(button);
+		}
 
-				if (this.context.isSingle) {
-					return this.context[0].click();
-				}
-				else {
-					return Promise.all(this.context.map(function (element) {
-						return element.click();
-					}));
-				}
-			}
-
-			return this.session.click(button);
-		});
+		return Command.prototype.click.apply(this, arguments);
 	},
 	buttonDown: deprecate('buttonDown', 'pressMouseButton'),
 	buttonUp: deprecate('buttonUp', 'releaseMouseButton'),
@@ -559,8 +540,6 @@ var methods = {
 	always: deprecate('always', 'finally'),
 	wait: deprecate('wait', 'sleep')
 };
-
-// TODO: type -> typeElement
 
 strategies.suffixes.forEach(function (suffix, index) {
 	function addStrategy(method, toMethod, suffix, wdSuffix, using) {

@@ -775,7 +775,7 @@ Session.prototype = {
 	/**
 	 * Sets the dimensions of a window.
 	 *
-	 * @param {?string} windowHandle
+	 * @param {string=} windowHandle
 	 * The name of the window to resize. See {@link module:leadfoot/Session#switchToWindow} to learn about valid
 	 * window names. Omit this argument to resize the currently focused window.
 	 *
@@ -803,7 +803,7 @@ Session.prototype = {
 	/**
 	 * Gets the dimensions of a window.
 	 *
-	 * @param {?string} windowHandle
+	 * @param {string=} windowHandle
 	 * The name of the window to query. See {@link module:leadfoot/Session#switchToWindow} to learn about valid
 	 * window names. Omit this argument to query the currently focused window.
 	 *
@@ -821,7 +821,7 @@ Session.prototype = {
 	/**
 	 * Sets the position of a window.
 	 *
-	 * @param {?string} windowHandle
+	 * @param {string=} windowHandle
 	 * The name of the window to move. See {@link module:leadfoot/Session#switchToWindow} to learn about valid
 	 * window names. Omit this argument to move the currently focused window.
 	 *
@@ -849,7 +849,7 @@ Session.prototype = {
 	/**
 	 * Gets the position of a window.
 	 *
-	 * @param {?string} windowHandle
+	 * @param {string=} windowHandle
 	 * The name of the window to query. See {@link module:leadfoot/Session#switchToWindow} to learn about valid
 	 * window names. Omit this argument to query the currently focused window.
 	 *
@@ -872,7 +872,7 @@ Session.prototype = {
 	/**
 	 * Maximises a window according to the platform’s window system behaviour.
 	 *
-	 * @param {?string} windowHandle
+	 * @param {string=} windowHandle
 	 * The name of the window to resize. See {@link module:leadfoot/Session#switchToWindow} to learn about valid
 	 * window names. Omit this argument to resize the currently focused window.
 	 *
@@ -1120,7 +1120,7 @@ Session.prototype = {
 	 *
 	 * @returns {Promise.<void>}
 	 */
-	type: function (keys) {
+	pressKeys: function (keys) {
 		if (!Array.isArray(keys)) {
 			keys = [ keys ];
 		}
@@ -1207,16 +1207,16 @@ Session.prototype = {
 	 * Moves the remote environment’s mouse cursor to the specified element or relative position. If the element is
 	 * outside of the viewport, the remote driver will attempt to scroll it into view automatically.
 	 *
-	 * @param {?Element} element
+	 * @param {Element=} element
 	 * The element to move the mouse to. If x-offset and y-offset are not specified, the mouse will be moved to the
 	 * centre of the element.
 	 *
-	 * @param {?number} xOffset
+	 * @param {number=} xOffset
 	 * The x-offset of the cursor, maybe in CSS pixels, relative to the left edge of the specified element’s
 	 * bounding client rectangle. If no element is specified, the offset is relative to the previous position of the
 	 * mouse, or to the left edge of the page’s root element if the mouse was never moved before.
 	 *
-	 * @param {?number} yOffset
+	 * @param {number=} yOffset
 	 * The y-offset of the cursor, maybe in CSS pixels, relative to the top edge of the specified element’s bounding
 	 * client rectangle. If no element is specified, the offset is relative to the previous position of the mouse,
 	 * or to the top edge of the page’s root element if the mouse was never moved before.
@@ -1267,15 +1267,16 @@ Session.prototype = {
 	},
 
 	/**
-	 * Clicks a mouse button.
+	 * Clicks a mouse button at the point where the mouse cursor is currently positioned. This method may fail to
+	 * execute with an error if the mouse has not been moved anywhere since the page was loaded.
 	 *
-	 * @param {?number} button
+	 * @param {number=} button
 	 * The button to click. 0 corresponds to the primary mouse button, 1 to the middle mouse button, 2 to the
 	 * secondary mouse button. Numbers above 2 correspond to any additional buttons a mouse might provide.
 	 *
 	 * @returns {Promise.<void>}
 	 */
-	click: function (button) {
+	clickMouseButton: function (button) {
 		if (this.capabilities.brokenMouseEvents) {
 			return this.execute(simulateMouse, [ {
 				action: 'click',
@@ -1299,7 +1300,7 @@ Session.prototype = {
 	/**
 	 * Depresses a mouse button without releasing it.
 	 *
-	 * @param {?number} button The button to press. See {@link module:leadfoot/Session#click} for available options.
+	 * @param {number=} button The button to press. See {@link module:leadfoot/Session#click} for available options.
 	 * @returns {Promise.<void>}
 	 */
 	pressMouseButton: function (button) {
@@ -1319,7 +1320,7 @@ Session.prototype = {
 	/**
 	 * Releases a previously depressed mouse button.
 	 *
-	 * @param {?number} button The button to press. See {@link module:leadfoot/Session#click} for available options.
+	 * @param {number=} button The button to press. See {@link module:leadfoot/Session#click} for available options.
 	 * @returns {Promise.<void>}
 	 */
 	releaseMouseButton: function (button) {
@@ -1427,15 +1428,15 @@ Session.prototype = {
 	 * Scrolls the currently focused window on a touch screen device.
 	 *
 	 * @method
-	 * @param {?Element} element
+	 * @param {Element=} element
 	 * An element to scroll to. The window will be scrolled so the element is as close to the top-left corner of the
 	 * window as possible.
 	 *
-	 * @param {?number} xOffset
+	 * @param {number=} xOffset
 	 * An optional x-offset, relative to the left edge of the element, in CSS pixels. If no element is specified,
 	 * the offset is relative to the previous scroll position of the window.
 	 *
-	 * @param {?number} yOffset
+	 * @param {number=} yOffset
 	 * An optional y-offset, relative to the top edge of the element, in CSS pixels. If no element is specified,
 	 * the offset is relative to the previous scroll position of the window.
 	 *

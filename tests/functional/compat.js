@@ -33,7 +33,7 @@ define([
 						assert.strictEqual(error.name, 'NoSuchElement');
 						return command.get(require.toUrl('./data/elements.html'))
 							.findById('makeD')
-								.clickElement()
+								.click()
 								.end()
 							// The test will simply time out if this fails; this is in order to exercise the default
 							// code path that sets the timeout to Infinity
@@ -60,7 +60,7 @@ define([
 						assert.strictEqual(error.name, 'NoSuchElement');
 						return command.get(require.toUrl('./data/elements.html'))
 							.findById('makeD')
-								.clickElement()
+								.click()
 								.end()
 							.waitForVisible('id', 'd');
 					});

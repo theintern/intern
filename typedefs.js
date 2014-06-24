@@ -136,9 +136,9 @@
  * Environments with this capability do not support browser navigation functions (back, forward, refresh). This issue
  * cannot be corrected.
  *
- * @property {boolean} brokenNullGetAttribute
+ * @property {boolean} brokenNullGetSpecAttribute
  * Environments with this capability incorrectly return an empty string instead of `null` for attributes that do not
- * exist. This issue is automatically corrected.
+ * exist when using the `getSpecAttribute` retrieval method. This issue is automatically corrected.
  *
  * @property {boolean} brokenRefresh
  * Environments with this capability fail to complete calls to refresh a page through the standard WebDriver API. This

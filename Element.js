@@ -172,11 +172,11 @@ Element.prototype = {
 	},
 
 	/**
-	 * Types into the element. This method works the same as the {@link module:leadfoot/Session#type} method
+	 * Types into the element. This method works the same as the {@link module:leadfoot/Session#pressKeys} method
 	 * except that any modifier keys are automatically released at the end of the command.
 	 *
 	 * @param {string|string[]} value
-	 * The text to type in the remote environment. See {@link module:leadfoot/Session#type} for more information.
+	 * The text to type in the remote environment. See {@link module:leadfoot/Session#pressKeys} for more information.
 	 *
 	 * @returns {Promise.<void>}
 	 */
@@ -239,7 +239,11 @@ Element.prototype = {
 	},
 
 	/**
-	 * Gets a property or attribute of the element, using the following algorithm:
+	 * Gets a property or attribute of the element according to the WebDriver specification algorithm. Use of this
+	 * method is not recommended; instead, use {@link module:leadfoot/Element#getAttribute} to retrieve DOM attributes
+	 * and {@link module:leadfoot/Element#getProperty} to retrieve DOM properties.
+	 *
+	 * This method uses the following algorithm on the server to determine what value to return:
 	 *
 	 * 1. If `name` is 'style', returns the `style.cssText` property of the element.
 	 * 2. If the attribute exists and is a boolean attribute, returns 'true' if the attribute is true, or null
@@ -260,10 +264,10 @@ Element.prototype = {
 	 * @returns {Promise.<string>} The value of the attribute as a string, or `null` if no such property or
 	 * attribute exists.
 	 */
-	getAttribute: function (name) {
+	getSpecAttribute: function (name) {
 		var self = this;
 		return this._get('attribute/$0', null, [ name ]).then(function (value) {
-			if (self.session.capabilities.brokenNullGetAttribute && (value === '' || value === undefined)) {
+			if (self.session.capabilities.brokenNullGetSpecAttribute && (value === '' || value === undefined)) {
 				return self.session.execute(/* istanbul ignore next */ function (element, name) {
 					return element.hasAttribute(name);
 				}, [ self, name ]).then(function (hasAttribute) {
@@ -281,6 +285,28 @@ Element.prototype = {
 
 			return value;
 		});
+	},
+
+	/**
+	 * Gets an attribute of the element.
+	 *
+	 * @see Element#getProperty to retrieve an element property.
+	 * @param {string} name The name of the attribute.
+	 * @returns {Promise.<string>} The value of the attribute, or `null` if no such attribute exists.
+	 */
+	getAttribute: function (name) {
+		return this.session.execute('return arguments[0].getAttribute(arguments[1]);', [ this, name ]);
+	},
+
+	/**
+	 * Gets a property of the element.
+	 *
+	 * @see Element#getAttribute to retrieve an element attribute.
+	 * @param {string} name The name of the property.
+	 * @returns {Promise.<any>} The value of the property.
+	 */
+	getProperty: function (name) {
+		return this.session.execute('return arguments[0][arguments[1]];', [ this, name ]);
 	},
 
 	/**

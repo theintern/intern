@@ -845,7 +845,7 @@ define([
 				});
 			},
 
-			'#type': function () {
+			'#pressKeys': function () {
 				var formElement;
 
 				// TODO: Complex characters, tabs and arrows, copy and paste
@@ -855,9 +855,9 @@ define([
 					formElement = element;
 					return element.click();
 				}).then(function () {
-					return session.type('hello, world');
+					return session.pressKeys('hello, world');
 				}).then(function () {
-					return formElement.getAttribute('value');
+					return formElement.getProperty('value');
 				}).then(function (value) {
 					assert.strictEqual(value, 'hello, world');
 				});
@@ -1028,7 +1028,7 @@ define([
 				});
 			},
 
-			'#click': function () {
+			'#clickMouseButton': function () {
 				if (!session.capabilities.mouseEnabled) {
 					return;
 				}
@@ -1036,7 +1036,7 @@ define([
 				function click(button) {
 					/*jshint maxlen:140 */
 					return function () {
-						return session.click(button).then(function () {
+						return session.clickMouseButton(button).then(function () {
 							return session.execute('return result.click.a && result.click.a[0];');
 						}).then(function (event) {
 							assert.strictEqual(event.button, button);
