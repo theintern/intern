@@ -4,7 +4,7 @@ define([
 	'intern/chai!assert',
 	'dojo/node!leadfoot/compat',
 	'dojo/topic',
-	// require the runner reporter so it will have a subscription on the same sub/pub hub that our dojo/topic is using
+	// require the runner reporter to hook up a /deprecated topic listener
 	'../../lib/reporters/runner'
 ], function (registerSuite, assert, compat, topic) {
 	var deprecatedMethod;
@@ -22,8 +22,15 @@ define([
 		// Verify that leadfoot/compat deprecation messages are received by the runner reporter. This test is only
 		// meaningful the first time it's run; every other time it uses the result captured in the first run.
 		deprecation: function () {
-			command.setImplicitWaitTimeout();
-			assert.equal(deprecatedMethod, 'Command#setImplicitWaitTimeout');
+			var consoleWarn = console.warn;
+			console.warn = function() {};
+			try {
+				command.setImplicitWaitTimeout();
+				assert.equal(deprecatedMethod, 'Command#setImplicitWaitTimeout');
+			}
+			finally {
+				console.warn = consoleWarn;
+			}
 		}
 	});
 });
