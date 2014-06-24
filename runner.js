@@ -36,6 +36,7 @@ else {
 		'dojo/node!leadfoot/Server',
 		'dojo/node!leadfoot/Command',
 		'dojo/node!leadfoot/compat',
+		'dojo/node!leadfoot/node_modules/dojo/topic',
 		'dojo/lang',
 		'dojo/topic',
 		'dojo/request',
@@ -54,6 +55,7 @@ else {
 		Server,
 		Command,
 		compat,
+		leadfootTopic,
 		lang,
 		topic,
 		request,
@@ -131,6 +133,9 @@ else {
 				});
 				tunnel.on('status', function (status) {
 					topic.publish('/tunnel/status', tunnel, status);
+				});
+				leadfootTopic.subscribe('/deprecated', function (name, replacement, extra) {
+					topic.publish('/deprecated', name, replacement, extra);
 				});
 
 				config.webdriver.port = config.webdriver.port || tunnel.port || 4444;
