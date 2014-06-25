@@ -85,12 +85,7 @@ else {
 				loader: {},
 				maxConcurrency: 3,
 				proxyPort: 9000,
-				proxyUrl: 'http://localhost:9000',
-				useSauceConnect: true,
-				webdriver: {
-					pathname: '/wd/hub/',
-					protocol: 'http'
-				}
+				proxyUrl: 'http://localhost:9000'
 			}, config);
 
 			// If the `baseUrl` passed to the loader is a relative path, it will cause `require.toUrl` to generate
@@ -141,17 +136,6 @@ else {
 				leadfootTopic.subscribe('/deprecated', function (name, replacement, extra) {
 					topic.publish('/deprecated', name, replacement, extra);
 				});
-
-				config.webdriver.port = config.webdriver.port || tunnel.port || 4444;
-				config.webdriver.hostname = config.webdriver.hostname || tunnel.hostname || 'localhost';
-
-				if (!config.webdriver.username) {
-					// TODO: Must use username/password, not auth, because of restrictions in the dojo/request API;
-					// fix the restriction, then fix this.
-					var auth = tunnel.clientAuth.split(':');
-					config.webdriver.username = auth[0];
-					config.webdriver.password = auth[1];
-				}
 
 				config.capabilities = requestUtil.deepCopy(tunnel.extraCapabilities, config.capabilities);
 
@@ -223,7 +207,7 @@ else {
 						name: 'main',
 						publishAfterSetup: true,
 						setup: function () {
-							var server = new Server(config.webdriver);
+							var server = new Server(tunnel.clientUrl);
 							server.sessionConstructor = ProxiedSession;
 							return server.createSession(environmentType).then(function (session) {
 								session.coverageEnabled = true;
