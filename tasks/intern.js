@@ -48,7 +48,15 @@ module.exports = function (grunt) {
 			opts = this.options({ runType: 'client' }),
 			args = [ require('path').join(__dirname, '..') + '/' + opts.runType + '.js' ],
 			env = Object.create(process.env),
-			skipOptions = { runType: true, sauceUsername: true, sauceAccessKey: true };
+			skipOptions = {
+				browserstackAccessKey: true,
+				browserstackUsername: true,
+				runType: true,
+				sauceAccessKey: true,
+				sauceUsername: true,
+				testingbotKey: true,
+				testingbotSecret: true
+			};
 
 		Object.keys(opts).forEach(function (option) {
 			if (skipOptions[option]) {
@@ -65,7 +73,14 @@ module.exports = function (grunt) {
 			}
 		});
 
-		[ 'sauceUsername', 'sauceAccessKey' ].forEach(function (option) {
+		[
+			'browserstackAccessKey',
+			'browserstackUsername',
+			'sauceAccessKey',
+			'sauceUsername',
+			'testingbotKey',
+			'testingbotSecret'
+		].forEach(function (option) {
 			var value = opts[option];
 			if (value) {
 				env[option.replace(/[A-Z]/g, '_$&').toUpperCase()] = value;
