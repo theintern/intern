@@ -142,7 +142,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 */
 	vmVersion: null,
 
-	get clientAuth() {
+	get auth() {
 		return this.username + ':' + this.accessKey;
 	},
 

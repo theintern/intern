@@ -132,7 +132,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 *
 	 * @type {string}
 	 */
-	clientAuth: null,
+	auth: null,
 
 	/**
 	 * The directory where the tunnel software will be extracted. If the directory does not exist, it will be
@@ -151,7 +151,8 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	executable: null,
 
 	/**
-	 * The hostname where the WebDriver server should be exposed by the tunnel.
+	 * The host on which a WebDriver client can access the service provided by this tunnel. This may or may not be
+	 * the host where the tunnel application is running.
 	 *
 	 * @type {string}
 	 */
@@ -182,6 +183,11 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	isStopping: false,
 
 	/**
+	 * The path that a WebDriver client should use to access the service provided by this tunnel.
+	 */
+	pathname: '/wd/hub/',
+
+	/**
 	 * The operating system the tunnel will run on. This information is automatically retrieved for the current
 	 * system at runtime.
 	 *
@@ -195,6 +201,11 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * @type {number}
 	 */
 	port: 4444,
+
+	/**
+	 * The protocol (e.g., http) that a WebDriver client should use to access the service provided by this tunnel.
+	 */
+	protocol: 'http',
 
 	/**
 	 * The URL of a proxy server for the tunnel to go through. Only the hostname, port, and auth are used.
@@ -226,6 +237,13 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 
 	_handles: null,
 	_process: null,
+
+	/**
+	 * The URL that a WebDriver client should used to interact with this service.
+	 */
+	get clientUrl() {
+		return urlUtil.format(this);
+	},
 
 	/**
 	 * A map of additional capabilities that need to be sent to the provider when a new session is being created.

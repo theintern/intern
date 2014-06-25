@@ -93,7 +93,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 */
 	useSsl: false,
 
-	get clientAuth() {
+	get auth() {
 		return this.apiKey + ':' + this.apiSecret;
 	},
 

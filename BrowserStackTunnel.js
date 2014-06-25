@@ -74,7 +74,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	 */
 	username: null,
 
-	get clientAuth() {
+	get auth() {
 		return this.username + ':' + this.accessKey;
 	},
 
