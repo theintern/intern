@@ -12,7 +12,7 @@ var util = require('../lib/util');
  * The poller function to execute on an interval. The function should return `null` or `undefined` if there is not a
  * result. If the poller function throws, polling will halt.
  *
- * @param {any[]=} args
+ * @param {Array.<any>=} args
  * An array of arguments to pass to the poller function when it is invoked.
  *
  * @param {number=} timeout
