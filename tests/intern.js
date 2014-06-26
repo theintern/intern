@@ -6,15 +6,12 @@ define({
 	loader: {
 		packages: [
 			{ name: 'digdug', location: '.' }
-			//{ name: 'dojo', location: './node_modules/dojo' }
 		]
 	},
-	environments: [
-		{ browserName: 'chrome' }
-	],
 	reporters: [ 'console' ],
-	suites: [ 'digdug/tests/all' ],
+	suites: [
+		'dojo/has!host-node?digdug/tests/all'
+	],
 	functionalSuites: [],
-	useSauceConnect: false,
 	excludeInstrumentation: /^(?:tests|node_modules)\//
 });

@@ -92,10 +92,10 @@ define([
 					});
 				},
 
-				'#clientAuth': function () {
+				'#auth': function () {
 					tunnel.username = 'foo';
 					tunnel.accessKey = 'bar';
-					assert.equal(tunnel.clientAuth, 'foo:bar');
+					assert.equal(tunnel.auth, 'foo:bar');
 				},
 
 				'#executable': function () {
@@ -104,20 +104,19 @@ define([
 
 					tunnel.platform = 'osx';
 					tunnel.architecture = 'foo';
-					var version = tunnel.sauceConnectVersion;
-					var executable = './sc-' + version + '-osx/bin/sc';
-					assert.equal(tunnel.executable, executable);
+					var executable = /\.\/sc-\d+\.\d+-osx\/bin\/sc/;
+					assert.match(tunnel.executable, executable);
 
 					tunnel.platform = 'linux';
 					assert.equal(tunnel.executable, 'java');
 
 					tunnel.architecture = 'x64';
-					executable = './sc-' + version + '-linux/bin/sc';
-					assert.equal(tunnel.executable, executable);
+					executable = /\.\/sc-\d+\.\d+-linux\/bin\/sc/;
+					assert.match(tunnel.executable, executable);
 
 					tunnel.platform = 'win32';
-					executable = './sc-' + version + '-win32/bin/sc.exe';
-					assert.equal(tunnel.executable, executable);
+					executable = /\.\/sc-\d+\.\d+-win32\/bin\/sc\.exe/;
+					assert.match(tunnel.executable, executable);
 				},
 
 				'#extraCapabilities': function () {
@@ -137,14 +136,13 @@ define([
 					assert.equal(tunnel.url, 'https://saucelabs.com/downloads/Sauce-Connect-3.1-r32.zip');
 
 					tunnel.platform = 'darwin';
-					var version = tunnel.sauceConnectVersion;
-					var url = 'https://d2nkw87yt5k0to.cloudfront.net/downloads/sc-' + version + '-osx.zip';
-					assert.equal(tunnel.url, url);
+					var url = /https:\/\/saucelabs\.com\/downloads\/sc-\d+\.\d+-osx\.zip/;
+					assert.match(tunnel.url, url);
 
 					tunnel.platform = 'linux';
 					tunnel.architecture = 'x64';
-					url = 'https://d2nkw87yt5k0to.cloudfront.net/downloads/sc-' + version + '-linux.tar.gz';
-					assert.equal(tunnel.url, url);
+					url = /https:\/\/saucelabs\.com\/downloads\/sc-\d+\.\d+-linux\.tar\.gz/;
+					assert.match(tunnel.url, url);
 				}
 			};
 		})(),
@@ -161,10 +159,10 @@ define([
 					});
 				},
 
-				'#clientAuth': function () {
+				'#auth': function () {
 					tunnel.username = 'foo';
 					tunnel.accessKey = 'bar';
-					assert.equal(tunnel.clientAuth, 'foo:bar');
+					assert.equal(tunnel.auth, 'foo:bar');
 				},
 
 				'#executable': function () {
@@ -220,10 +218,10 @@ define([
 					});
 				},
 
-				'#clientAuth': function () {
+				'#auth': function () {
 					tunnel.apiKey = 'foo';
 					tunnel.apiSecret = 'bar';
-					assert.equal(tunnel.clientAuth, 'foo:bar');
+					assert.equal(tunnel.auth, 'foo:bar');
 				}
 			};
 		})(),
@@ -239,6 +237,14 @@ define([
 			return {
 				beforeEach: function () {
 					tunnel = new Tunnel({ foo: 'bar' });
+				},
+
+				'#clientUrl': function () {
+					tunnel.port = 4446;
+					tunnel.hostname = 'foo.com';
+					tunnel.protocol = 'https';
+					tunnel.pathname = 'bar/baz/';
+					assert.strictEqual(tunnel.clientUrl, 'https://foo.com:4446/bar/baz/');
 				},
 
 				'#extraCapabilities': function () {

@@ -28,7 +28,8 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	constructor: BrowserStackTunnel,
 
 	/**
-	 * The BrowserStack access key.
+	 * The BrowserStack access key. This will be initialized with the value of the <code>BROWSERSTACK_ACCESS_KEY</code>
+	 * environment variable.
 	 *
 	 * @type {string}
 	 */
@@ -47,7 +48,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	hostname: 'hub.browserstack.com',
 
 	/**
-	 * If true, any other tunnels running on the account will be killed.
+	 * If true, any other tunnels running on the account will be killed when the tunnel is started.
 	 *
 	 * @type {boolean}
 	 */
@@ -68,7 +69,8 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	skipServerValidation: true,
 
 	/**
-	 * The BrowserStack username.
+	 * The BrowserStack username. This will be initialized with the value of the <code>BROWSERSTACK_USERNAME</code>
+	 * environment variable.
 	 *
 	 * @type {string}
 	 */

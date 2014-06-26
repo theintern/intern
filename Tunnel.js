@@ -128,7 +128,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	architecture: process.arch,
 
 	/**
-	 * An HTTP authorization string to use when initiating connections to this tunnel.
+	 * An HTTP authorization string to use when initiating connections to the tunnel.
 	 *
 	 * @type {string}
 	 */
@@ -151,7 +151,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	executable: null,
 
 	/**
-	 * The host on which a WebDriver client can access the service provided by this tunnel. This may or may not be
+	 * The host on which a WebDriver client can access the service provided by the tunnel. This may or may not be
 	 * the host where the tunnel application is running.
 	 *
 	 * @type {string}
@@ -183,7 +183,9 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	isStopping: false,
 
 	/**
-	 * The path that a WebDriver client should use to access the service provided by this tunnel.
+	 * The path that a WebDriver client should use to access the service provided by the tunnel.
+	 *
+	 * @type {string}
 	 */
 	pathname: '/wd/hub/',
 
@@ -203,7 +205,9 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	port: 4444,
 
 	/**
-	 * The protocol (e.g., http) that a WebDriver client should use to access the service provided by this tunnel.
+	 * The protocol (e.g., http) that a WebDriver client should use to access the service provided by the tunnel.
+	 *
+	 * @type {string}
 	 */
 	protocol: 'http',
 
@@ -240,6 +244,11 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 
 	/**
 	 * The URL that a WebDriver client should used to interact with this service.
+	 *
+	 * @member {string} clientUrl
+	 * @memberOf module:digdug/Tunnel#
+	 * @type {string}
+	 * @readonly
 	 */
 	get clientUrl() {
 		return urlUtil.format(this);
