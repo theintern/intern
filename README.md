@@ -20,6 +20,8 @@ Tunnel class         | Environment variables
 `SauceLabsTunnel`    | `SAUCE_USERNAME`, `SAUCE_ACCESS_KEY`
 `TestingBotTunnel`   | `TESTINGBOT_KEY`, `TESTINGBOT_SECRET`
 
+Other properties, such as the local port the tunnel should serve on or the URL of a proxy server the tunnel should go through, can be passed to a tunnel constructor or set on a tunnel instance. See the pages for [Tunnel](Tunnel.html) and the tunnel subclasses for available properties.
+
 
 ## Usage
 
@@ -29,7 +31,7 @@ To create a new tunnel, import the desired tunnel class, create a new instance, 
 var SauceLabsTunnel = require('digdug/SauceLabsTunnel');
 var tunnel = new SauceLabsTunnel();
 tunnel.start().then(function () {
-	// interact with the WebDriver server on tunnel.port of localhost
+	// interact with the WebDriver server at tunnel.clientUrl
 });
 ```
 

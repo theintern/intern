@@ -143,8 +143,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	directory: null,
 
 	/**
-	 * The executable to spawn in order to create a tunnel. This property will be null if the tunnel's executable does
-	 * not exist.
+	 * The executable to spawn in order to create a tunnel.
 	 *
 	 * @type {string}
 	 */
