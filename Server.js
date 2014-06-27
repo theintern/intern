@@ -233,12 +233,14 @@ Server.prototype = {
 	 * one is not provided.
 	 *
 	 * @type {module:leadfoot/Session}
+	 * @default Session
 	 */
 	sessionConstructor: Session,
 
 	/**
 	 * Whether or not to perform capabilities testing and correction when creating a new Server.
 	 * @type {boolean}
+	 * @default
 	 */
 	fixSessionCapabilities: true,
 
