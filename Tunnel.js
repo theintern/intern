@@ -446,6 +446,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 *
 	 * @param {string} jobId The job to send data about. This is usually a session ID.
 	 * @param {JobState} data Data to send to the tunnel provider about the job.
+	 * @returns {Promise.<void>} A promise that resolves once the job state request is complete.
 	 */
 	sendJobState: function () {
 		var dfd = new Promise.Deferred();
