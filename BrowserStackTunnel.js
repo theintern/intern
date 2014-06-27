@@ -28,10 +28,11 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	constructor: BrowserStackTunnel,
 
 	/**
-	 * The BrowserStack access key. This will be initialized with the value of the <code>BROWSERSTACK_ACCESS_KEY</code>
+	 * The BrowserStack access key. This will be initialized with the value of the `BROWSERSTACK_ACCESS_KEY`
 	 * environment variable.
 	 *
 	 * @type {string}
+	 * @default the value of the BROWSERSTACK_ACCESS_KEY environment variable
 	 */
 	accessKey: null,
 
@@ -40,6 +41,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	 * supported.
 	 *
 	 * @type {boolean}
+	 * @default
 	 */
 	automateOnly: true,
 
@@ -51,6 +53,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	 * If true, any other tunnels running on the account will be killed when the tunnel is started.
 	 *
 	 * @type {boolean}
+	 * @default
 	 */
 	killOtherTunnels: false,
 
@@ -58,6 +61,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	 * A list of server URLs that should be proxied by the tunnel. Only the hostname, port, and protocol are used.
 	 *
 	 * @type {string[]}
+	 * @default
 	 */
 	servers: null,
 
@@ -65,14 +69,16 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	 * Skip verification that the proxied servers are online and responding at the time the tunnel starts.
 	 *
 	 * @type {boolean}
+	 * @default
 	 */
 	skipServerValidation: true,
 
 	/**
-	 * The BrowserStack username. This will be initialized with the value of the <code>BROWSERSTACK_USERNAME</code>
+	 * The BrowserStack username. This will be initialized with the value of the `BROWSERSTACK_USERNAME`
 	 * environment variable.
 	 *
 	 * @type {string}
+	 * @default the value of the BROWSERSTACK_USERNAME environment variable
 	 */
 	username: null,
 

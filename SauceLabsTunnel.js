@@ -38,6 +38,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * The Sauce Labs access key.
 	 *
 	 * @type {string}
+	 * @default the value of the SAUCE_ACCESS_KEY environment variable
 	 */
 	accessKey: null,
 
@@ -45,6 +46,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * A list of domains that should not be proxied by the tunnel on the remote VM.
 	 *
 	 * @type {string[]}
+	 * @default
 	 */
 	directDomains: null,
 
@@ -55,6 +57,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 4 tunnels.
 	 *
 	 * @type {string[]}
+	 * @default
 	 */
 	domainAuthentication: null,
 
@@ -63,6 +66,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * attempts to make a connection to them.
 	 *
 	 * @type {string[]}
+	 * @default
 	 */
 	fastFailDomains: null,
 
@@ -70,6 +74,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * Allows the tunnel to also be used by sub-accounts of the user that started the tunnel.
 	 *
 	 * @type {boolean}
+	 * @default
 	 */
 	isSharedTunnel: false,
 
@@ -77,6 +82,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * A filename where additional logs from the tunnel should be output.
 	 *
 	 * @type {string}
+	 * @default
 	 */
 	logFile: null,
 
@@ -85,6 +91,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 3 tunnels.
 	 *
 	 * @type {number}
+	 * @default
 	 */
 	logFileSize: null,
 
@@ -93,6 +100,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 4 tunnels.
 	 *
 	 * @type {number}
+	 * @default
 	 */
 	logTrafficStats: 0,
 
@@ -101,6 +109,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 3 tunnels.
 	 *
 	 * @type {string}
+	 * @default
 	 */
 	restUrl: null,
 
@@ -108,6 +117,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * A list of domains that should not have their SSL connections re-encrypted when going through the tunnel.
 	 *
 	 * @type {string[]}
+	 * @default
 	 */
 	skipSslDomains: null,
 
@@ -116,6 +126,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 3 tunnels.
 	 *
 	 * @type {string}
+	 * @default
 	 */
 	squidOptions: null,
 
@@ -124,6 +135,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * itself.
 	 *
 	 * @type {boolean}
+	 * @default
 	 */
 	useProxyForTunnel: false,
 
@@ -131,6 +143,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * The Sauce Labs username.
 	 *
 	 * @type {string}
+	 * @default the value of the SAUCE_USERNAME environment variable
 	 */
 	username: null,
 
@@ -139,6 +152,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 3 tunnels.
 	 *
 	 * @type {string}
+	 * @default
 	 */
 	vmVersion: null,
 

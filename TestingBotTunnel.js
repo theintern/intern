@@ -32,6 +32,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 * The TestingBot API key.
 	 *
 	 * @type {string}
+	 * @default the value of the TESTINGBOT_API_KEY environment variable
 	 */
 	apiKey: null,
 
@@ -39,6 +40,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 * The TestingBot API secret.
 	 *
 	 * @type {string}
+	 * @default the value of the TESTINGBOT_API_SECRET environment variable
 	 */
 	apiSecret: null,
 
@@ -51,6 +53,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 * attempts to make a connection to them.
 	 *
 	 * @type {string[]}
+	 * @default
 	 */
 	fastFailDomains: null,
 
@@ -58,6 +61,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 * A filename where additional logs from the tunnel should be output.
 	 *
 	 * @type {string}
+	 * @default
 	 */
 	logFile: null,
 
@@ -69,6 +73,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 * Whether or not to use rabbIT compression for the tunnel connection.
 	 *
 	 * @type {boolean}
+	 * @default
 	 */
 	useCompression: false,
 
@@ -76,6 +81,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 * Whether or not to use the default local Jetty proxy for the tunnel.
 	 *
 	 * @type {boolean}
+	 * @default
 	 */
 	useJettyProxy: true,
 
@@ -83,6 +89,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 * Whether or not to use the default remote Squid proxy for the VM.
 	 *
 	 * @type {boolean}
+	 * @default
 	 */
 	useSquidProxy: true,
 
@@ -90,6 +97,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 * Whether or not to re-encrypt data encrypted by self-signed certificates.
 	 *
 	 * @type {boolean}
+	 * @default
 	 */
 	useSsl: false,
 

@@ -128,7 +128,8 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	architecture: process.arch,
 
 	/**
-	 * An HTTP authorization string to use when initiating connections to the tunnel.
+	 * An HTTP authorization string to use when initiating connections to the tunnel. This value of this property is
+	 * defined by Tunnel subclasses.
 	 *
 	 * @type {string}
 	 */
@@ -136,14 +137,14 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 
 	/**
 	 * The directory where the tunnel software will be extracted. If the directory does not exist, it will be
-	 * created.
+	 * created. This value is set by the tunnel subclasses.
 	 *
 	 * @type {string}
 	 */
 	directory: null,
 
 	/**
-	 * The executable to spawn in order to create a tunnel.
+	 * The executable to spawn in order to create a tunnel. This value is set by the tunnel subclasses.
 	 *
 	 * @type {string}
 	 */
@@ -154,6 +155,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * the host where the tunnel application is running.
 	 *
 	 * @type {string}
+	 * @default
 	 */
 	hostname: 'localhost',
 
@@ -185,6 +187,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * The path that a WebDriver client should use to access the service provided by the tunnel.
 	 *
 	 * @type {string}
+	 * @default
 	 */
 	pathname: '/wd/hub/',
 
@@ -200,13 +203,15 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * The local port where the WebDriver server should be exposed by the tunnel.
 	 *
 	 * @type {number}
+	 * @default
 	 */
 	port: 4444,
 
 	/**
-	 * The protocol (e.g., http) that a WebDriver client should use to access the service provided by the tunnel.
+	 * The protocol (e.g., 'http') that a WebDriver client should use to access the service provided by the tunnel.
 	 *
 	 * @type {string}
+	 * @default
 	 */
 	protocol: 'http',
 
@@ -214,6 +219,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * The URL of a proxy server for the tunnel to go through. Only the hostname, port, and auth are used.
 	 *
 	 * @type {string}
+	 * @default
 	 */
 	proxy: null,
 
@@ -221,6 +227,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * A unique identifier for the newly created tunnel.
 	 *
 	 * @type {string=}
+	 * @default
 	 */
 	tunnelId: null,
 
@@ -235,6 +242,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * Whether or not to tell the tunnel to provide verbose logging output.
 	 *
 	 * @type {boolean}
+	 * @default
 	 */
 	verbose: false,
 
