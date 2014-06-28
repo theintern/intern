@@ -79,7 +79,7 @@ function proxyEvent(target, type) {
  * testing within the service provider’s network.
  *
  * @constructor module:digdug/Tunnel
- * @param {Object} kwArgs
+ * @param {Object} kwArgs A map of properties that should be set on the new instance.
  */
 function Tunnel(kwArgs) {
 	Evented.apply(this, arguments);
