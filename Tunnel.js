@@ -19,6 +19,7 @@ var util = require('./util');
  * Clears an array of remover handles.
  *
  * @param {Handle[]} handles
+ * @private
  */
 function clearHandles(handles) {
 	var handle;
@@ -32,6 +33,7 @@ function clearHandles(handles) {
  *
  * @param {string} url The target URL.
  * @returns {Promise.<module:http.IncomingMessage>} A promise that resolves to the response object for the request.
+ * @private
  */
 function get(url) {
 	url = urlUtil.parse(url);
@@ -64,6 +66,7 @@ function get(url) {
  * @param {module:dojo/Evented} target A target event emitter.
  * @param {string} type The type of event to emit.
  * @returns {Function} The function to call to trigger an event.
+ * @private
  */
 function proxyEvent(target, type) {
 	return function (data) {
@@ -219,7 +222,6 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * The URL of a proxy server for the tunnel to go through. Only the hostname, port, and auth are used.
 	 *
 	 * @type {string}
-	 * @default
 	 */
 	proxy: null,
 
@@ -227,7 +229,6 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * A unique identifier for the newly created tunnel.
 	 *
 	 * @type {string=}
-	 * @default
 	 */
 	tunnelId: null,
 

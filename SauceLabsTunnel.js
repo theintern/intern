@@ -46,7 +46,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * A list of domains that should not be proxied by the tunnel on the remote VM.
 	 *
 	 * @type {string[]}
-	 * @default
 	 */
 	directDomains: null,
 
@@ -57,7 +56,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 4 tunnels.
 	 *
 	 * @type {string[]}
-	 * @default
 	 */
 	domainAuthentication: null,
 
@@ -66,7 +64,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * attempts to make a connection to them.
 	 *
 	 * @type {string[]}
-	 * @default
 	 */
 	fastFailDomains: null,
 
@@ -82,7 +79,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * A filename where additional logs from the tunnel should be output.
 	 *
 	 * @type {string}
-	 * @default
 	 */
 	logFile: null,
 
@@ -91,7 +87,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 3 tunnels.
 	 *
 	 * @type {number}
-	 * @default
 	 */
 	logFileSize: null,
 
@@ -109,7 +104,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 3 tunnels.
 	 *
 	 * @type {string}
-	 * @default
 	 */
 	restUrl: null,
 
@@ -117,7 +111,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * A list of domains that should not have their SSL connections re-encrypted when going through the tunnel.
 	 *
 	 * @type {string[]}
-	 * @default
 	 */
 	skipSslDomains: null,
 
@@ -126,7 +119,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 3 tunnels.
 	 *
 	 * @type {string}
-	 * @default
 	 */
 	squidOptions: null,
 
@@ -152,7 +144,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * This property is only supported by Sauce Connect 3 tunnels.
 	 *
 	 * @type {string}
-	 * @default
 	 */
 	vmVersion: null,
 

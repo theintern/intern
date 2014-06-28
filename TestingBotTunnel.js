@@ -53,7 +53,6 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 * attempts to make a connection to them.
 	 *
 	 * @type {string[]}
-	 * @default
 	 */
 	fastFailDomains: null,
 
@@ -61,7 +60,6 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 * A filename where additional logs from the tunnel should be output.
 	 *
 	 * @type {string}
-	 * @default
 	 */
 	logFile: null,
 
