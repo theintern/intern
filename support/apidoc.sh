@@ -20,7 +20,7 @@ git clone -b gh-pages . "$BUILD_DIR"
 cd "$BUILD_DIR"
 git rm -r '*'
 cd "$ROOT_DIR"
-jsdoc -c "$SUPPORT_DIR/jsdoc.conf" -d "$BUILD_DIR" --verbose *.js helpers/*.js README.md
+jsdoc -c "$SUPPORT_DIR/jsdoc.conf" -t "../jsdoc-theme/catalyst/" -d "$BUILD_DIR" --verbose *.js helpers/*.js README.md
 cd "$BUILD_DIR"
 git add -A
 git commit -a -m "Rebuild documentation"
