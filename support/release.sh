@@ -3,9 +3,11 @@
 set -e
 
 usage() {
-	echo "Usage: $0 [branch]"
+	echo "Usage: $0 [branch] [version]"
 	echo
 	echo "Branch defaults to 'master'."
+	echo "Version defaults to what is listed in package.json in the branch."
+	echo "Version should only be specified for pre-releases."
 	exit 1
 }
 
@@ -66,43 +68,57 @@ if [ $(git branch --merged|grep -c "^ *$NORMAL_BRANCH$") -eq 0 ]; then
 	exit 1
 fi
 
+NPM_TAG=latest
+
+if [ "$2" != "" ]; then
+	NPM_TAG=beta
+fi
+
 for BRANCH in $NORMAL_BRANCH $GEEZER_BRANCH; do
 	echo "Building $BRANCH branch..."
 
 	git checkout $BRANCH
 
-	# Get the version number for this release from package.json
-	VERSION=$(grep -o '"version": "[^"]*"' package.json |grep -o "[0-9.]*")
+	if [ "$2" == "" ]; then
+		# Get the version number for this release from package.json
+		VERSION=$(grep -o '"version": "[^"]*"' package.json |grep -o "[0-9.]*")
 
-	# Convert the version number to an array that we can use to generate the next release version number
-	OLDIFS=$IFS
-	IFS="."
-	PRE_VERSION=($VERSION)
-	IFS=$OLDIFS
+		# Convert the version number to an array that we can use to generate the next release version number
+		OLDIFS=$IFS
+		IFS="."
+		PRE_VERSION=($VERSION)
+		IFS=$OLDIFS
 
-	# This is a new major/minor release
-	if [[ $VERSION =~ \.0$ ]]; then
-		# We'll be creating a new minor release branch for this version for any future patch releases
-		MAKE_BRANCH="${PRE_VERSION[0]}.${PRE_VERSION[1]}"
-		BRANCH_VERSION="${PRE_VERSION[0]}.${PRE_VERSION[1]}.$((PRE_VERSION[2] + 1))-pre"
+		# This is a new major/minor release
+		if [[ $VERSION =~ \.0$ ]]; then
+			# We'll be creating a new minor release branch for this version for any future patch releases
+			MAKE_BRANCH="${PRE_VERSION[0]}.${PRE_VERSION[1]}"
+			BRANCH_VERSION="${PRE_VERSION[0]}.${PRE_VERSION[1]}.$((PRE_VERSION[2] + 1))-pre"
 
-		# The branch name for the geezer version is suffixed with -geezer
-		if [ "$BRANCH" == "$GEEZER_BRANCH" ]; then
-			MAKE_BRANCH="$MAKE_BRANCH-geezer"
+			# The branch name for the geezer version is suffixed with -geezer
+			if [ "$BRANCH" == "$GEEZER_BRANCH" ]; then
+				MAKE_BRANCH="$MAKE_BRANCH-geezer"
+			fi
+
+			# The next release is usually going to be a minor release; if the next version is to be a major release,
+			# the package version will need to be manually updated in Git before release
+			PRE_VERSION="${PRE_VERSION[0]}.$((PRE_VERSION[1] + 1)).0-pre"
+
+		# This is a new patch release
+		else
+			# Patch releases do not get a branch
+			MAKE_BRANCH=
+			BRANCH_VERSION=
+
+			# The next release version will always be another patch version
+			PRE_VERSION="${PRE_VERSION[0]}.${PRE_VERSION[1]}.$((PRE_VERSION[2] + 1))-pre"
 		fi
-
-		# The next release is usually going to be a minor release; if the next version is to be a major release,
-		# the package version will need to be manually updated in Git before release
-		PRE_VERSION="${PRE_VERSION[0]}.$((PRE_VERSION[1] + 1)).0-pre"
-
-	# This is a new patch release
 	else
-		# Patch releases do not get a branch
+		VERSION=$2
 		MAKE_BRANCH=
 		BRANCH_VERSION=
-
-		# The next release version will always be another patch version
-		PRE_VERSION="${PRE_VERSION[0]}.${PRE_VERSION[1]}.$((PRE_VERSION[2] + 1))-pre"
+		PRE_VERSION=$(grep -o '"version": "[^"]*"' package.json | grep -o "[0-9][0-9.]*")
+		PRE_VERSION="$PRE_VERSION-pre"
 	fi
 
 	# The Git tag for the geezer version is suffixed with -geezer
@@ -220,9 +236,9 @@ done
 git push origin --tags
 
 git checkout $NORMAL_TAG
-npm publish
+npm publish --tag $NPM_TAG
 git checkout $GEEZER_TAG
-npm publish
+npm publish --tag $NPM_TAG
 
 cd "$ROOT_DIR"
 rm -rf "$BUILD_DIR"
