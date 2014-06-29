@@ -1,6 +1,6 @@
 {
 	"name": "intern",
-	"version": "2.0.0-pre",
+	"version": "2.0.0",
 	"main": "main",
 	"description": "Intern. A next-generation code testing stack for JavaScript.",
 	"repository": {
@@ -13,7 +13,7 @@
 	"dependencies": {
 		"istanbul": "0.2.11",
 		"source-map": "0.1.33",
-		"dojo": "https://github.com/csnover/dojo2-core/archive/2.0.tar.gz",
+		"dojo": "https://github.com/csnover/dojo2-core/archive/7378ade167380ff86e8a530b6259db263800dbf9.tar.gz",
 		"chai": "1.9.1",
 		"leadfoot": "1.0.0",
 		"digdug": "1.0.0"
