@@ -15,8 +15,8 @@
 		"source-map": "0.1.33",
 		"dojo": "https://github.com/csnover/dojo2-core/archive/2.0.tar.gz",
 		"chai": "1.9.1",
-		"leadfoot": "https://github.com/theintern/leadfoot/archive/master.tar.gz",
-		"digdug": "https://github.com/theintern/digdug/archive/master.tar.gz"
+		"leadfoot": "1.0.0",
+		"digdug": "1.0.0"
 	},
 	"devDependencies": {
 		"intern": "1.7.0"
