@@ -14,8 +14,8 @@
 		"istanbul": "0.2.11",
 		"source-map": "0.1.33",
 		"dojo": "1.9.3",
-		"leadfoot": "https://github.com/theintern/leadfoot/archive/master.tar.gz",
-		"digdug": "https://github.com/theintern/digdug/archive/master.tar.gz"
+		"leadfoot": "1.0.0",
+		"digdug": "1.0.0"
 	},
 	"devDependencies": {
 		"intern-geezer": "1.7.0"
