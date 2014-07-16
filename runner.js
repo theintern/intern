@@ -94,6 +94,10 @@ else {
 
 			this.require(config.loader);
 
+			if (args.grep || config.grep) {
+				main.grep = new RegExp((args.grep || config.grep));
+			}
+
 			if (!args.reporters) {
 				if (config.reporters) {
 					args.reporters = config.reporters;

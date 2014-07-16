@@ -35,6 +35,11 @@ define([
 		 */
 		tunnel: null,
 
+		/*
+		 * Regular expression to use for test filtering.
+		 */
+		grep: /.*/,
+
 		/**
 		 * Runs all environmental suites concurrently, with a concurrency limit.
 		 */

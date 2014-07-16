@@ -186,7 +186,8 @@ define([
 					sessionId: 'abcd',
 					timeElapsed: 100,
 					timeout: 30000,
-					hasPassed: true
+					hasPassed: true,
+					wasSkipped: false
 				};
 
 			return test.run().then(function () {
