@@ -59,7 +59,10 @@ define([
 					try {
 						reporter['/suite/end'](suite);
 						assert.ok(actualMessage, 'console.info should be called when the reporter /suite/end method is called and there are no errors');
-						assert.include(actualMessage, ' ' + suite.numTests - suite.numFailedTests + '/' + suite.numTests + ' ', 'console.info message should say how many tests passed and how many total tests existed');
+						assert.match(
+							actualMessage,
+							new RegExp('^' + suite.numFailedTests + '/' + suite.numTests + ' '),
+							'console.info message should say how many tests failed and how many total tests existed');
 					}
 					finally {
 						handle.remove();
@@ -76,7 +79,10 @@ define([
 					try {
 						reporter['/suite/end'](suite);
 						assert.ok(actualMessage, 'console.warn should be called when the reporter /suite/end method is called and there are errors');
-						assert.include(actualMessage, ' ' + suite.numTests - suite.numFailedTests + '/' + suite.numTests + ' ', 'console.warn message should say how many tests passed and how many total tests existed');
+						assert.match(
+							actualMessage,
+							new RegExp('^' + suite.numFailedTests + '/' + suite.numTests + ' '),
+							'console.warn message should say how many tests passed and how many total tests existed');
 					}
 					finally {
 						handle.remove();
