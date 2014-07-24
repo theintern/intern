@@ -102,6 +102,10 @@ else {
 					args.reporters = 'runner';
 				}
 			}
+			
+			if (args.functionalSuites) {
+				config.functionalSuites = args.functionalSuites;
+			}
 
 			if (config.tunnel.indexOf('/') === -1) {
 				config.tunnel = 'dojo/node!digdug/' + config.tunnel;
