@@ -283,7 +283,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * @readonly
 	 */
 	get isDownloaded() {
-		return fs.exists(pathUtil.join(this.directory, this.executable));
+		return fs.existsSync(pathUtil.join(this.directory, this.executable));
 	},
 
 	/**
