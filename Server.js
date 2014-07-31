@@ -57,6 +57,9 @@ function createHttpRequest(method) {
 			// provided. (It is a good idea to provide one anyway)
 			kwArgs.headers['Content-Length'] = Buffer.byteLength(kwArgs.data, 'utf8');
 		}
+		else {
+			kwArgs.headers['Content-Length'] = 0;
+		}
 
 		var trace = {};
 		Error.captureStackTrace(trace);
