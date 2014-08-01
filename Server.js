@@ -58,6 +58,9 @@ function createHttpRequest(method) {
 			kwArgs.headers['Content-Length'] = Buffer.byteLength(kwArgs.data, 'utf8');
 		}
 		else {
+			// At least Selenium 2.41.0 - 2.42.2 running as a grid hub will throw an exception and drop the current
+			// session if a Content-Length header is not provided with a DELETE or POST request, regardless of whether
+			// the request actually contains any request data.
 			kwArgs.headers['Content-Length'] = 0;
 		}
 
