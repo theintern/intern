@@ -236,6 +236,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		}
 
 		this.logTrafficStats && args.push('-z', Math.floor(this.logTrafficStats / 1000));
+		this.verbose && args.push('-v');
 
 		return args;
 	},
@@ -251,6 +252,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		this.squidOptions && args.push('-S', this.squidOptions);
 		this.vmVersion && args.push('-V', this.vmVersion);
 		this.restUrl && args.push('-x', this.restUrl);
+		this.verbose && args.push('-d');
 
 		if (proxy) {
 			proxy.hostname && args.push('-p', proxy.hostname + (proxy.port ? ':' + proxy.port : ''));
@@ -284,7 +286,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		this.skipSslDomains.length && args.push('-B', this.skipSslDomains.join(','));
 		this.tunnelId && args.push('-i', this.tunnelId);
 		this.useProxyForTunnel && args.push('-T');
-		this.verbose && args.push('-d');
 
 		return args;
 	},
