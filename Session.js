@@ -564,7 +564,8 @@ Session.prototype = {
 	 * The code to execute. If a string value is passed, it will be converted to a function on the remote end.
 	 *
 	 * @param {any[]} args
-	 * An array of arguments that will be passed to the executed code.
+	 * An array of arguments that will be passed to the executed code. Only values that can be serialised to JSON, plus
+	 * {@link module:leadfoot/Element} objects, can be specified as arguments.
 	 *
 	 * @returns {Promise.<any>}
 	 * The value returned by the remote code. Only values that can be serialised to JSON, plus DOM elements, can be
@@ -595,10 +596,11 @@ Session.prototype = {
 	 * The code to execute. If a string value is passed, it will be converted to a function on the remote end.
 	 *
 	 * @param {any[]} args
-	 * An array of arguments that will be passed to the executed code. In addition to these arguments, a callback
-	 * function will always be passed as the final argument to the script. This callback function must be invoked
-	 * in order to signal that execution has completed. The return value of the script, if any, should be passed to
-	 * this callback function.
+	 * An array of arguments that will be passed to the executed code. Only values that can be serialised to JSON, plus
+	 * {@link module:leadfoot/Element} objects, can be specified as arguments. In addition to these arguments, a
+	 * callback function will always be passed as the final argument to the script. This callback function must be
+	 * invoked in order to signal that execution has completed. The return value of the script, if any, should be passed
+	 * to this callback function.
 	 *
 	 * @returns {Promise.<any>}
 	 * The value returned by the remote code. Only values that can be serialised to JSON, plus DOM elements, can be

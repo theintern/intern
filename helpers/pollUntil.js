@@ -13,7 +13,8 @@ var util = require('../lib/util');
  * result. If the poller function throws, polling will halt.
  *
  * @param {Array.<any>=} args
- * An array of arguments to pass to the poller function when it is invoked.
+ * An array of arguments to pass to the poller function when it is invoked. Only values that can be serialised to JSON,
+ * plus {@link module:leadfoot/Element} objects, can be specified as arguments.
  *
  * @param {number=} timeout
  * The maximum amount of time to wait for a successful result, in milliseconds. If not specified, the current
