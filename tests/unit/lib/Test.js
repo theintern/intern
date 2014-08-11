@@ -187,7 +187,7 @@ define([
 					timeElapsed: 100,
 					timeout: 30000,
 					hasPassed: true,
-					wasSkipped: false
+					skipped: null
 				};
 
 			return test.run().then(function () {
@@ -251,6 +251,40 @@ define([
 				});
 
 			assert.strictEqual(test.remote, mockRemote, 'Test#remote should get the remote value from from the test\'s parent');
+		},
+
+		'Test#skip': function () {
+			var topicFired = false,
+				actualTest,
+				handle = topic.subscribe('/test/skip', function (test) {
+					topicFired = true;
+					actualTest = test;
+				}),
+				dfd = this.async();
+
+			dfd.promise.always(function () {
+				handle.remove();
+			});
+
+			var expectedTest = new Test({});
+			expectedTest.skip('reason', true);
+			assert.isTrue(topicFired, '/test/skip topic should fire when a test is skipped');
+			assert.strictEqual(actualTest, expectedTest, '/test/skip topic should be passed the test that was skipped');
+			assert.propertyVal(actualTest, 'skipped', 'reason', 'test should have `skipped` property with expected value');
+
+			expectedTest = new Test({
+				test: function () {
+					this.skip('skipping');
+				}
+			});
+
+			topicFired = false;
+			actualTest = null;
+			expectedTest.run().always(dfd.callback(function () {
+				assert.isTrue(topicFired, '/test/skip topic should fire when a test is skipped');
+				assert.strictEqual(actualTest, expectedTest, '/test/skip topic should be passed the test that was skipped');
+				assert.propertyVal(actualTest, 'skipped', 'skipping', 'test should have `skipped` property with expected value');
+			}));
 		}
 	});
 });

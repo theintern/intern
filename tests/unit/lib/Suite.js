@@ -404,11 +404,11 @@ define([
 				name: 'foo',
 				tests: [
 					new Suite({ tests: [
-						new Test({ wasSkipped: false, hasPassed: true }),
-						new Test({ wasSkipped: true, hasPassed: true })
+						new Test({ skipped: null, hasPassed: true }),
+						new Test({ skipped: 'skipped', hasPassed: true })
 					] }),
-					new Test({ wasSkipped: false, hasPassed: true }),
-					new Test({ wasSkipped: true, hasPassed: false })
+					new Test({ skipped: null, hasPassed: true }),
+					new Test({ skipped: 'skipped', hasPassed: false })
 				]
 			});
 

@@ -36,7 +36,7 @@ define([
 		tunnel: null,
 
 		/*
-		 * Regular expression to use for test filtering.
+		 * Regular expression to use for test filtering; will be matched against test IDs.
 		 */
 		grep: /.*/,
 
