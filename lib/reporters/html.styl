@@ -1,0 +1,203 @@
+@import ('//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css');
+
+$bodyBackground = #F7F6F5;
+$bodyTextColor = #DEDEDE;
+$headingColor = #717171;
+$sectionHeadingBackground = #D7E0E9;
+$failedBackground = #FDBDBC;
+$cellBorderColor = #DEDEDE;
+$reportTextColor = #3C3C3C;
+
+$suitesColor = #4B95A8;
+$testsColor = #59B0C6;
+$failedColor = #FD3F3E;
+$passedColor = #2AC644;
+$durationColor = #343A40;
+
+
+body {
+	background: $bodyBackground;
+	color: $bodyTextColor;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	padding-top:2em;
+	padding-bottom:2em;
+}
+
+.internReportContainer {
+	margin:0 auto;
+	width:75%;
+}
+
+h1,
+h2 {
+	color:$headingColor;
+	font-weight: normal;
+}
+
+
+.summary {
+	border-collapse: collapse;
+	margin-bottom:2.5em;
+	width:100%;
+
+	.numeric {
+		color:#fff;
+		font-size:3em;
+		padding-left:0;
+		text-align: center;
+		&.success,
+		&.duration {
+			font-size:2em;
+		}
+	}
+
+	th {
+		border-radius:6px 6px 0 0;
+		border-right:3px solid $bodyBackground;
+		color:#fff;
+		font-size:1.25em;
+		font-weight:normal;
+		padding:0.5em 0 0.5em 0;
+
+		&.suites {
+			background:darken($suitesColor, 20%);
+		}
+		&.tests {
+			background:darken($testsColor, 20%);
+		}
+		&.failed {
+			background:darken($failedColor, 20%);
+		}
+		&.success {
+			background:darken($passedColor, 20%);
+		}
+		&.duration {
+			background:darken($durationColor, 20%);
+		}
+	}
+
+	td {
+		border-radius:0 0 6px 6px;
+		border-right:3px solid $bodyBackground;
+		color:#fff;
+		padding-left:30px;
+		padding-bottom:0.25em;
+		position:relative;
+		width:20%;
+
+		&.suites {
+			background:$suitesColor;
+		}
+		&.tests {
+			background:$testsColor;
+		}
+		&.failed {
+			background:$failedColor;
+		}
+		&.success {
+			background:$passedColor;
+		}
+		&.duration {
+			background:$durationColor;
+		}
+	}
+
+
+}
+
+.report {
+	background-color: #fff;
+	border-collapse: collapse;
+	color:$reportTextColor;
+	width: 100%;
+
+	tr {
+
+	}
+	td {
+		padding: 0.7em;
+	}
+
+	th,
+	td {
+		border: 1px solid $cellBorderColor;
+	}
+
+	th,
+	.title {
+		font-size: 15px;
+		font-weight: bold;
+	}
+
+	.passed,
+	.failed {
+		td:first-child {
+			position:relative;
+			padding-left:30px;
+			&:before {
+			    font-family: FontAwesome;
+			    font-style: normal;
+			    font-weight: normal;
+			    text-decoration: inherit;
+			    font-size: 18px;
+			    padding-left:10px;
+			    padding-right: 0.5em;
+			    position: absolute;
+			    top: 10px;
+			    left: 0;
+			}
+		}
+	}
+
+	.passed {
+		td:first-child:before{
+			content: "\f058";
+			color: $passedColor;
+		}
+	}
+
+	.failed {
+		td:first-child:before {
+			content: "\f06a";
+			color: $failedColor;
+		}
+
+		background-color: $failedBackground;
+		border-left:$failedBorder;
+	}
+
+	th,
+	.suite {
+		&.failed td:first-child {
+			padding-left:10px;
+			&:before {
+				content: "";
+				padding-left:0;
+			}
+		}
+		background-color: $sectionHeadingBackground;
+		border-left:0;
+	}
+}
+
+
+.duration {
+	width: 100px;
+}
+
+.indent1 {
+	padding-left: 2em;
+}
+.indent2 {
+	padding-left: 4em;
+}
+.indent3 {
+	padding-left: 6em;
+}
+.indent4 {
+	padding-left: 8em;
+}
+.indent5 {
+	padding-left: 10em;
+}
