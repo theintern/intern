@@ -206,6 +206,7 @@ else {
 					var suite = new Suite({
 						name: 'main',
 						publishAfterSetup: true,
+						grep: main.grep,
 						setup: function () {
 							var server = new Server(tunnel.clientUrl);
 							server.sessionConstructor = ProxiedSession;
