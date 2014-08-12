@@ -247,7 +247,10 @@ else {
 						}
 					});
 
-					suite.tests.push(new ClientSuite({ parent: suite, config: config }));
+					if (config.suites) {
+						suite.tests.push(new ClientSuite({ parent: suite, config: config }));
+					}
+
 					main.suites.push(suite);
 				});
 
