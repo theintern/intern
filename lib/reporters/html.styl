@@ -14,6 +14,28 @@ $failedColor = #FD3F3E;
 $passedColor = #2AC644;
 $durationColor = #343A40;
 
+fontAwesome($content="") {
+	position:relative;
+	&:before {
+		content:$content;
+		display:block;
+		font-family: FontAwesome;
+	    font-style: normal;
+	    font-weight: normal;
+	    text-decoration: inherit;
+	    font-size: 18px;
+	    padding: 0.5em;
+	    position: absolute;
+	    top: 0px;
+	    left: 0px;
+	}
+	&:after {
+		content:"";
+		display:block;
+		width:10px;
+	}
+}
+
 
 body {
 	background: $bodyBackground;
@@ -112,19 +134,11 @@ h2 {
 	color:$reportTextColor;
 	width: 100%;
 
-	tr {
-
-	}
 	td {
 		padding: 0.7em;
-	}
-
-	th,
-	td {
 		border: 1px solid $cellBorderColor;
 	}
 
-	th,
 	.title {
 		font-size: 15px;
 		font-weight: bold;
@@ -132,60 +146,48 @@ h2 {
 
 	.passed,
 	.failed {
-		td:first-child {
-			position:relative;
-			padding-left:30px;
-			&:before {
-			    font-family: FontAwesome;
-			    font-style: normal;
-			    font-weight: normal;
-			    text-decoration: inherit;
-			    font-size: 18px;
-			    padding-right: 0.5em;
-			    padding-top:0.5em;
-			    position: absolute;
-			    top: 0px;
-			    left: 22px;
-			}
-		}
+		transition:background 0.3s ease;
 	}
 
 	.passed {
 		.testStatus {
-			width:20px;
 			background:lighten($passedColor, 70%);
-		}
-		td:first-child:before{
-			content: "\f058";
 			color: $passedColor;
+			fontAwesome("\f058");
+		}
+		&:hover {
+			background:lighten($passedColor, 90%);
 		}
 	}
 
 	.failed {
-		.testStatus {
-			width:20px;
-			background:lighten($failedColor, 70%);
-		}
-		td:first-child:before {
-			content: "\f06a";
-			color: $failedColor;
-		}
-
 		background-color: $failedBackground;
-		border-left:$failedBorder;
+		.testStatus {
+			background:lighten($failedColor, 70%);
+			color: $failedColor;
+			fontAwesome("\f058");
+		}
+		&:hover {
+			background:lighten($failedColor, 90%);
+		}
 	}
 
-	th,
 	.suite {
-		&.failed td:first-child {
-			padding-left:10px;
-			&:before {
-				content: "";
-				padding-left:0;
+		background-color: $sectionHeadingBackground;
+
+		td {
+			border-color:$bodyBackground;
+			border-width:1px;
+			&.testStatus {
+				background:darken($sectionHeadingBackground, 20%);
+				border-right:1px solid darken($sectionHeadingBackground, 20%);
+				color:darken($sectionHeadingBackground, 60%);
+				fontAwesome("\f03a");
+				&:before {
+					top:2px;
+				}
 			}
 		}
-		background-color: $sectionHeadingBackground;
-		border-left:0;
 	}
 }
 
