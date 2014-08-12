@@ -3,8 +3,7 @@
 $bodyBackground = #F7F6F5;
 $bodyTextColor = #DEDEDE;
 $headingColor = #717171;
-$sectionHeadingBackground = #D7E0E9;
-$failedBackground = #FDBDBC;
+$sectionHeadingBackground = #C4E5E5;
 $cellBorderColor = #DEDEDE;
 $reportTextColor = #3C3C3C;
 
@@ -14,25 +13,31 @@ $failedColor = #FD3F3E;
 $passedColor = #2AC644;
 $durationColor = #343A40;
 
+
 fontAwesome($content="") {
 	position:relative;
 	&:before {
 		content:$content;
-		display:block;
 		font-family: FontAwesome;
 	    font-style: normal;
 	    font-weight: normal;
 	    text-decoration: inherit;
 	    font-size: 18px;
-	    padding: 0.5em;
 	    position: absolute;
-	    top: 0px;
-	    left: 0px;
+	    top: 10px;
+	    left: 12px;
+	    width:20px;
 	}
-	&:after {
-		content:"";
-		display:block;
-		width:10px;
+}
+
+testStatusIcon($bg, $color, $fa) {
+	.testStatus {
+		background:$bg;
+		border-color:darken($bg, 20%);
+		border-style:solid;
+		border-width:1px;
+		color:$color;
+		fontAwesome($fa);
 	}
 }
 
@@ -42,7 +47,7 @@ body {
 	color: $bodyTextColor;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	font-size: 14px;
-	padding-top:2em;
+	padding-top:0;
 	padding-bottom:2em;
 }
 
@@ -136,61 +141,69 @@ h2 {
 
 	td {
 		padding: 0.7em;
-		border: 1px solid $cellBorderColor;
-	}
-
-	.title {
-		font-size: 15px;
-		font-weight: bold;
-	}
-
-	.passed,
-	.failed {
-		transition:background 0.3s ease;
-	}
-
-	.passed {
-		.testStatus {
-			background:lighten($passedColor, 70%);
-			color: $passedColor;
-			fontAwesome("\f058");
-		}
-		&:hover {
-			background:lighten($passedColor, 90%);
-		}
-	}
-
-	.failed {
-		background-color: $failedBackground;
-		.testStatus {
-			background:lighten($failedColor, 70%);
-			color: $failedColor;
-			fontAwesome("\f058");
-		}
-		&:hover {
-			background:lighten($failedColor, 90%);
-		}
+		border-left: 1px solid $cellBorderColor;
+		border-right: 1px solid $cellBorderColor;
 	}
 
 	.suite {
-		background-color: $sectionHeadingBackground;
+		background: $sectionHeadingBackground;
 
 		td {
-			border-color:$bodyBackground;
+			border:1px solid darken(@background, 20%);
+			&.title {
+				font-size: 15px;
+				font-weight: bold;
+			}
+		}
+		testStatusIcon(darken($sectionHeadingBackground, 20%), darken($sectionHeadingBackground, 70%), "\f03a");
+	}
+
+	.testResult {
+		transition:background 0.3s ease;
+
+		td {
 			border-width:1px;
-			&.testStatus {
-				background:darken($sectionHeadingBackground, 20%);
-				border-right:1px solid darken($sectionHeadingBackground, 20%);
-				color:darken($sectionHeadingBackground, 60%);
-				fontAwesome("\f03a");
-				&:before {
-					top:2px;
-				}
+			border-style: solid;
+			border-color:$cellBorderColor;
+		}
+
+		&.passed {
+			testStatusIcon(lighten($passedColor, 70%), $passedColor, "\f058")
+
+			&:hover {
+				background:lighten($passedColor, 90%);
+			}
+		}
+
+		&.failed {
+			background: lighten($failedColor, 65%);
+			testStatusIcon(lighten($failedColor, 70%), $failedColor, "\f05e");
+			td {
+				border-color:lighten($failedColor, 40%);
+				border-bottom:0;
+			}
+			.testStatus {
+				border-bottom:0;
+				border-color:lighten($failedColor, 40%);
+			}
+			&:hover {
+				background:lighten(@background, 20%);
+			}
+		}
+
+		&.lastTest {
+			td,
+			.testStatus {
+				border-bottom:0;
 			}
 		}
 	}
 }
 
+.testStatus {
+	width:20px;
+	border-bottom:0;
+}
 
 .duration {
 	width: 100px;
