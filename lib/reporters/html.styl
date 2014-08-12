@@ -53,6 +53,8 @@ h2 {
 	}
 
 	th {
+		border-color:$bodyBackground;
+		border-width:1px;
 		border-radius:6px 6px 0 0;
 		border-right:3px solid $bodyBackground;
 		color:#fff;
@@ -102,8 +104,6 @@ h2 {
 			background:$durationColor;
 		}
 	}
-
-
 }
 
 .report {
@@ -141,16 +141,20 @@ h2 {
 			    font-weight: normal;
 			    text-decoration: inherit;
 			    font-size: 18px;
-			    padding-left:10px;
 			    padding-right: 0.5em;
+			    padding-top:0.5em;
 			    position: absolute;
-			    top: 10px;
-			    left: 0;
+			    top: 0px;
+			    left: 22px;
 			}
 		}
 	}
 
 	.passed {
+		.testStatus {
+			width:20px;
+			background:lighten($passedColor, 70%);
+		}
 		td:first-child:before{
 			content: "\f058";
 			color: $passedColor;
@@ -158,6 +162,10 @@ h2 {
 	}
 
 	.failed {
+		.testStatus {
+			width:20px;
+			background:lighten($failedColor, 70%);
+		}
 		td:first-child:before {
 			content: "\f06a";
 			color: $failedColor;
