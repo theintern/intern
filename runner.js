@@ -198,6 +198,8 @@ else {
 				CompatCommand.prototype.constructor = CompatCommand;
 				compat.applyTo(CompatCommand.prototype);
 
+				var hasClientSuites = config.suites && config.suites.length;
+
 				util.flattenEnvironments(config.capabilities, config.environments).forEach(function (environmentType) {
 					var suite = new Suite({
 						name: 'main',
@@ -238,7 +240,10 @@ else {
 						}
 					});
 
-					suite.tests.push(new ClientSuite({ parent: suite, config: config }));
+					// avoid connecting to the proxy if not needed
+					if (hasClientSuites) {
+						suite.tests.push(new ClientSuite({ parent: suite, config: config }));
+					}
 					main.suites.push(suite);
 				});
 
