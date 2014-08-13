@@ -1,6 +1,9 @@
 /*jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
+		// ensure there's a "window" name for Cucumber to use as its global context
+		global.window = global.window || {};
+
 		var internConfig = this.__internConfig = {
 			baseUrl: process.cwd(),
 			packages: [
@@ -9,7 +12,8 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			map: {
 				intern: {
 					dojo: 'intern/node_modules/dojo',
-					chai: 'intern/node_modules/chai/chai'
+					chai: 'intern/node_modules/chai/chai',
+					cucumberjs: 'intern/node_modules/cucumber/release/cucumber'
 				},
 				'*': {
 					'intern/dojo': 'intern/node_modules/dojo'
