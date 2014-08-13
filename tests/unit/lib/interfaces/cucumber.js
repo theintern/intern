@@ -2,21 +2,21 @@ define([
 	'require',
 	'intern!object',
 	'intern/chai!assert',
-	'../../../main!cucumber',
-	'../../../main!cucumber!tests/data/cucumber/simple',
-	'../../../main',
-	'../../../lib/Suite',
-	'../../../lib/Test',
+	'../../../../main!cucumber',
+	'../../../../main!cucumber!tests/data/cucumber/simple',
+	'../../../../main',
+	'../../../../lib/Suite',
+	'../../../../lib/Test',
 	'dojo/topic'
 ], function (require, registerSuite, assert, cucumber1, cucumber2, main, Suite, Test, topic) {
-	var feature = ''
-			+ 'Feature: simple suite\n'
-			+ '  I should be able to use features in a string\n'
-			+ '  Scenario: do something\n'
-			+ '	   Given step 1\n'
-			+ '	   And step 2\n'
-			+ '	   Then profit',
-		handles;
+	var feature = '' +
+		'Feature: simple suite\n' +
+		'  I should be able to use features in a string\n' +
+		'  Scenario: do something\n' +
+		'	   Given step 1\n' +
+		'	   And step 2\n' +
+		'	   Then profit';
+	var handles;
 
 	registerSuite({
 		name: 'intern/lib/interfaces/cucumber',
@@ -42,13 +42,13 @@ define([
 			cucumber1(function () {}, feature);
 
 			var suite = main.suites[0];
-			assert.strictEqual(suite.tests.length, 1, 'Main suite should have 1 sub-suite');
+			assert.strictEqual(suite.tests.length, 1, 'Main suite should have expected number of sub-suites');
 			assert.instanceOf(suite.tests[0], Suite, 'Sub-suite should be a Suite');
 
 			suite = suite.tests[0];
 			assert.strictEqual(suite.name, 'simple suite', 'Cucumber suite should have expected name');
 			assert.strictEqual(suite.id, 'cucumber - simple suite', 'Cucumber suite should have expected name');
-			assert.strictEqual(suite.tests.length, 1, 'Cucumber suite should have 2 tests');
+			assert.strictEqual(suite.tests.length, 1, 'Cucumber suite should have expected number of tests');
 
 			assert.instanceOf(suite.tests[0], Test, 'Test should be a Test');
 			assert.strictEqual(suite.tests[0].name, 'do something', 'Test should have expected name');
@@ -59,13 +59,13 @@ define([
 			cucumber2(function () {});
 
 			var suite = main.suites[0];
-			assert.strictEqual(suite.tests.length, 1, 'Main suite should have 1 sub-suite');
+			assert.strictEqual(suite.tests.length, 1, 'Main suite should have expected number of sub-suites');
 			assert.instanceOf(suite.tests[0], Suite, 'Sub-suite should be a Suite');
 
 			suite = suite.tests[0];
 			assert.strictEqual(suite.name, 'simple external suite', 'Cucumber suite should have expected name');
 			assert.strictEqual(suite.id, 'cucumber - simple external suite', 'Cucumber suite should have expected name');
-			assert.strictEqual(suite.tests.length, 2, 'Cucumber suite should have 2 tests');
+			assert.strictEqual(suite.tests.length, 2, 'Cucumber suite should have expected number of tests');
 
 			var names = [ 'assert equal', 'assert not equal' ];
 			for (var i = 0; i < suite.tests.length; i++) {
@@ -75,13 +75,13 @@ define([
 		},
 
 		'passing suite': function () {
-			var dfd = this.async(),
-				suite = main.suites[0],
-				steps = 0,
-				suitesStarted = 0,
-				suitesEnded = 0,
-				testsStarted = 0,
-				testsEnded = 0;
+			var dfd = this.async();
+			var	suite = main.suites[0];
+			var	steps = 0;
+			var	suitesStarted = 0;
+			var	suitesEnded = 0;
+			var	testsStarted = 0;
+			var	testsEnded = 0;
 
 			cucumber2(function () {
 				this.Given('x = $value', function (value, callback) {
@@ -117,10 +117,10 @@ define([
 		},
 
 		'failing step': function () {
-			var dfd = this.async(),
-				suite = main.suites[0],
-				steps = 0,
-				testsFailed = 0;
+			var dfd = this.async();
+			var	suite = main.suites[0];
+			var	steps = 0;
+			var	testsFailed = 0;
 
 			cucumber1(function () {
 				this.Given('step $step', function (value, callback) {
@@ -141,9 +141,9 @@ define([
 		}, 
 
 		'undefined step': function () {
-			var dfd = this.async(),
-				steps = 0,
-				suite = main.suites[0];
+			var dfd = this.async();
+			var	steps = 0;
+			var	suite = main.suites[0];
 
 			cucumber1(function () {
 				// "step 1" is undefined, so the test will fail and step 2 will be skipped
@@ -160,8 +160,8 @@ define([
 		}, 
 
 		'with remote': function () {
-			var dfd = this.async(),
-				remoteValue;
+			var dfd = this.async();
+			var	remoteValue;
 
 			main.suites[0].remote = 'remote';
 

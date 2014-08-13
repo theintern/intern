@@ -13,7 +13,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 				intern: {
 					dojo: 'intern/node_modules/dojo',
 					chai: 'intern/node_modules/chai/chai',
-					cucumber: 'intern/node_modules/cucumber/release/cucumber'
+					cucumberjs: 'intern/node_modules/cucumber/release/cucumber'
 				},
 				'*': {
 					'intern/dojo': 'intern/node_modules/dojo'
