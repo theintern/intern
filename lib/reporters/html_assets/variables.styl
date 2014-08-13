@@ -1,0 +1,82 @@
+@import url("//fonts.googleapis.com/css?family=Open+Sans:400,300");
+
+@font-face {
+	font-family: 'Pe-icon-7-stroke';
+	src:url('html_assets/fonts/Pe-icon-7-stroke.eot?-2irksn');
+	src:url('html_assets/fonts/Pe-icon-7-stroke.eot?#iefix-2irksn') format('embedded-opentype'),
+		url('html_assets/fonts/Pe-icon-7-stroke.woff?-2irksn') format('woff'),
+		url('html_assets/fonts/Pe-icon-7-stroke.ttf?-2irksn') format('truetype'),
+		url('html_assets/fonts/Pe-icon-7-stroke.svg?-2irksn#Pe-icon-7-stroke') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+
+$bodyBackground = #F7F6F5;
+$bodyTextColor = #DEDEDE;
+$headingColor = #717171;
+$sectionHeadingBackground = #C4E5E5;
+$cellBorderColor = #DEDEDE;
+$reportTextColor = #3C3C3C;
+
+
+$summaryBorderColor = #DFDFDF;
+$summaryBottomBackground = #fff;
+$summaryTextColor = #777;
+$summaryTopBackground = #F1F0EF;
+
+
+
+$testsColor = #59B0C6;
+$failedColor = #F15064;
+$passedColor = #41C645;
+
+$suiteIcon = "\e67d";
+$testIcon = "\e650";
+$passedIcon = "\e66c";
+$failedIcon = "\e681";
+$durationIcon = "\e610";
+
+
+summaryIcon($content="") {
+	&:before {
+		content: $content;
+		display:block;
+		font-family: 'Pe-icon-7-stroke';
+		font-size:50px;
+		font-style: normal;
+		font-weight: normal;
+		font-variant: normal;
+		line-height: 1;
+		margin-top:10px;
+		text-transform: none;
+		speak: none;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+}
+
+testStatusIcon($bg, $color, $content) {
+	.testStatus {
+		background:$bg;
+		border-color:darken($bg, 20%);
+		border-style:solid;
+		border-width:1px;
+		color:$color;
+		position:relative;
+		text-align:center;
+
+		&:before {
+			content:$content;
+			display:block;
+			font-family: 'Pe-icon-7-stroke';
+		    font-style: normal;
+		    font-weight: bold;
+		    text-decoration: inherit;
+		    font-size: 20px;
+		    -webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+		}
+	}
+}
