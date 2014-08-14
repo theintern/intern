@@ -266,18 +266,21 @@ define([
 				handle.remove();
 			});
 
+			// setting the skipped property on a test should cause it to be skipped
 			var expectedTest = new Test({});
-			expectedTest.skip('reason', true);
-			assert.isTrue(topicFired, '/test/skip topic should fire when a test is skipped');
-			assert.strictEqual(actualTest, expectedTest, '/test/skip topic should be passed the test that was skipped');
-			assert.propertyVal(actualTest, 'skipped', 'reason', 'test should have `skipped` property with expected value');
+			expectedTest.skipped = 'reason';
+			expectedTest.run().always(dfd.callback(function () {
+				assert.isTrue(topicFired, '/test/skip topic should fire when a test is skipped');
+				assert.strictEqual(actualTest, expectedTest, '/test/skip topic should be passed the test that was skipped');
+				assert.propertyVal(actualTest, 'skipped', 'reason', 'test should have `skipped` property with expected value');
+			}));
 
+			// calling skip from within a test should cause it to be skipped
 			expectedTest = new Test({
 				test: function () {
 					this.skip('skipping');
 				}
 			});
-
 			topicFired = false;
 			actualTest = null;
 			expectedTest.run().always(dfd.callback(function () {
