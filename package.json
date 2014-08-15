@@ -17,7 +17,7 @@
 		"chai": "1.9.1",
 		"leadfoot": "1.0.1",
 		"digdug": "1.0.0",
-		"cucumber": "0.4.2"
+		"cucumber": "https://github.com/jason0x43/cucumber-js/archive/ie-compat.tar.gz"
 	},
 	"devDependencies": {
 		"intern": "1.7.0"

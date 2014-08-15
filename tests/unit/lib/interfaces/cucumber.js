@@ -24,7 +24,7 @@ define([
 		beforeEach: function () {
 			main.suites.push(new Suite({ name: 'cucumber' }));
 		},
-		
+
 		afterEach: function () {
 			main.suites.splice(0, 1);
 
@@ -38,7 +38,7 @@ define([
 		},
 
 		'Register feature suite': function () {
-			// register a cucumber suite 
+			// register a cucumber suite
 			cucumber1(function () {}, feature);
 
 			var suite = main.suites[0];
@@ -55,7 +55,7 @@ define([
 		},
 
 		'Register automatically loaded feature suite': function () {
-			// register a cucumber suite 
+			// register a cucumber suite
 			cucumber2(function () {});
 
 			var suite = main.suites[0];
@@ -138,7 +138,7 @@ define([
 				assert.strictEqual(testsFailed, 1, 'One test should have failed');
 				assert.strictEqual(suite.numFailedTests, 1, 'Suite should report one failed test');
 			}));
-		}, 
+		},
 
 		'undefined step': function () {
 			var dfd = this.async();
@@ -157,7 +157,7 @@ define([
 				assert.strictEqual(suite.numFailedTests, 1, 'One test should have failed');
 				assert.strictEqual(steps, 0, 'No steps should have been run');
 			}));
-		}, 
+		},
 
 		'with remote': function () {
 			var dfd = this.async();
@@ -203,7 +203,7 @@ define([
 
 		'missing feature': function () {
 			var dfd = this.async();
-			require([ 'intern!cucumber!missing' ], dfd.callback(function (feature) {
+			require([ '../../../../main!cucumber!missing' ], dfd.callback(function (feature) {
 				assert.instanceOf(feature, Error, 'require missing feature should resolve to error');
 			}));
 		}
