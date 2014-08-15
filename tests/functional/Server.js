@@ -5,8 +5,9 @@ define([
 	'intern/main',
 	'./support/util',
 	'intern/dojo/node!dojo/Promise',
-	'intern/dojo/node!../../../Server'
-], function (registerSuite, assert, intern, util, Promise, Server) {
+	'intern/dojo/node!../../../Server',
+	'intern/dojo/node!url'
+], function (registerSuite, assert, intern, util, Promise, Server, urlUtil) {
 	registerSuite(function () {
 		var server;
 
@@ -61,6 +62,25 @@ define([
 					throw new Error('Request to invalid command should not be successful');
 				}, function (error) {
 					assert.strictEqual(error.name, 'UnknownCommand', 'Unknown command should throw error');
+				});
+			},
+
+			'error output security': function () {
+				var url = urlUtil.parse(server.url);
+				if (!url.auth) {
+					url.auth = 'user:pass';
+				}
+
+				var testServer = new Server(url);
+
+				return testServer._get('invalidCommand').then(function () {
+					throw new Error('Request to invalid command should not be successful');
+				}, function (error) {
+					assert.notInclude(error.message, url.auth,
+						'HTTP auth credentials should not be displayed in errors');
+
+					url.auth = '(redacted)';
+					assert.include(error.message, urlUtil.format(url), 'Redacted URL should be displayed in error');
 				});
 			},
 

@@ -184,7 +184,9 @@ function createHttpRequest(method) {
 				error.response = response;
 
 				// TODO: Possibly remove this extra debugging stuff from the error message
-				error.message = '[' + method + ' ' + url +
+				error.message = '[' + method + ' ' +
+					// Avoid exposing HTTP credentials in default error message
+					url.replace(/^([A-Za-z][A-Za-z0-9+.-]+:\/*)[^@]+@/, '$1(redacted)@') +
 					(requestData ? ' / ' + JSON.stringify(requestData) : '') +
 					'] ' + error.message;
 				error.stack = error.message + trace.stack.replace(/^[^\n]+/, '');
