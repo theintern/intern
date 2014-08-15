@@ -158,6 +158,18 @@ body {
 		}
 		testStatusIcon(darken($sectionHeadingBackground, 20%), darken($sectionHeadingBackground, 70%), $suiteIcon);
 
+		.column-info {
+			span {
+				margin-right:1em;
+			}
+			.success {
+				color:darken($passedColor, 30%);
+			}
+			.failed {
+				color:darken($failedColor, 30%);
+			}
+		}
+
 		&.indent {
 			background: lighten($sectionHeadingBackground, 60%);
 			td {
