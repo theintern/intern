@@ -14,7 +14,7 @@
 		"istanbul": "0.2.16",
 		"source-map": "0.1.33",
 		"dojo": "1.9.3",
-		"leadfoot": "1.0.1",
+		"leadfoot": "1.0.2",
 		"digdug": "1.0.0"
 	},
 	"devDependencies": {
