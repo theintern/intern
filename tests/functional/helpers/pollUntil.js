@@ -29,6 +29,18 @@ define([
 					});
 			},
 
+			'without args': function () {
+				return command
+					.get(require.toUrl('../data/elements.html'))
+					.findById('makeD')
+					.click()
+					.end()
+					.then(pollUntil('return document.getElementById("d");', 1000))
+					.then(function (result) {
+						assert.property(result, 'elementId', 'Returned value should be an element');
+					});
+			},
+
 			'early timeout': function () {
 				return command
 					.get(require.toUrl('../data/elements.html'))

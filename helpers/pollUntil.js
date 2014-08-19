@@ -56,7 +56,7 @@ var util = require('../lib/util');
  *     });
  */
 module.exports = function (poller, args, timeout, pollInterval) {
-	if (arguments.length === 3 && typeof args === 'number') {
+	if (typeof args === 'number') {
 		pollInterval = timeout;
 		timeout = args;
 		args = [];
