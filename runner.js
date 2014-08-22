@@ -106,6 +106,10 @@ else {
 					args.reporters = 'runner';
 				}
 			}
+			
+			if (args.functionalSuites) {
+				config.functionalSuites = args.functionalSuites;
+			}
 
 			if (args.functionalSuites) {
 				config.functionalSuites = args.functionalSuites;
