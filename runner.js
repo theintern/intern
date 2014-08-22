@@ -98,6 +98,10 @@ else {
 
 			this.require(config.loader);
 
+			if (args.grep || config.grep) {
+				main.grep = (args.grep && new RegExp(args.grep)) || config.grep;
+			}
+
 			if (!args.reporters) {
 				if (config.reporters) {
 					args.reporters = config.reporters;
@@ -206,6 +210,7 @@ else {
 					var suite = new Suite({
 						name: 'main',
 						publishAfterSetup: true,
+						grep: main.grep,
 						setup: function () {
 							var server = new Server(tunnel.clientUrl);
 							server.sessionConstructor = ProxiedSession;

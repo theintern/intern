@@ -24,6 +24,7 @@ define([
 		'/suite/start': '^##teamcity\\[testSuiteStarted name=\'{id}\'',
 		'/suite/end': '^##teamcity\\[testSuiteFinished name=\'{id}\' duration=\'\\d+\'',
 		'/test/start': '^##teamcity\\[testStarted name=\'{id}\'',
+		'/test/skip': '^##teamcity\\[testIgnored name=\'{id}\'',
 		'/test/end': '^##teamcity\\[testFinished name=\'{id}\' duration=\'\\d+\'',
 		'/test/fail': '^##teamcity\\[testFailed name=\'{id}\' message=\'{message}\''
 	};
@@ -106,6 +107,16 @@ define([
 					error: new Error('Oops')
 				});
 			testTest(test, '/test/start', 'testStarted');
+		},
+
+		'/test/skip': function () {
+			var test = new Test({
+					name: 'test',
+					timeElapsed: 123,
+					parent: { name: 'parent', id: 'parent' },
+					error: new Error('Oops')
+				});
+			testTest(test, '/test/skip', 'testIgnored');
 		},
 
 		'/test/end': function () {
