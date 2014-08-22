@@ -190,6 +190,21 @@ define([
 							});
 			},
 
+			'#moveMouseTo usesElement': function () {
+				/* jshint maxlen:150 */
+				return new Command(session).get(require.toUrl('./data/pointer.html'))
+					.findById('a')
+						.moveMouseTo()
+						.pressMouseButton()
+						.moveMouseTo(100, 40)
+						.releaseMouseButton()
+						.end()
+					.execute('return Boolean(result.mousedown.a && result.mousedown.a.length && result.mouseup.b && result.mouseup.b.length);')
+					.then(function (success) {
+						assert.isTrue(success, 'Mouse moves with an element context should be relative to the context');
+					});
+			},
+
 			'#sleep': function () {
 				var startTime = Date.now();
 				return new Command(session)

@@ -1225,7 +1225,7 @@ Session.prototype = {
 	 *
 	 * @returns {Promise.<void>}
 	 */
-	moveMouseTo: function (element, xOffset, yOffset) {
+	moveMouseTo: util.forCommand(function (element, xOffset, yOffset) {
 		var self = this;
 
 		if (typeof yOffset === 'undefined' && typeof xOffset !== 'undefined') {
@@ -1266,7 +1266,7 @@ Session.prototype = {
 		}).then(function () {
 			self._movedToElement = true;
 		});
-	},
+	}, { usesElement: true }),
 
 	/**
 	 * Clicks a mouse button at the point where the mouse cursor is currently positioned. This method may fail to
