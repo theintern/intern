@@ -14,7 +14,7 @@
 			// path for the config module (e.g. `/path/to/intern/config`) and
 			// then set `baseUrl` correctly in the `loader` configuration object
 			// of the config module
-			baseUrl: basePath === '/__intern/' ? '/' : (basePath + '../../'),
+			baseUrl: basePath.slice(-10) === '/__intern/' ? basePath.slice(0, -9) : (basePath + '../../'),
 			packages: [
 				{ name: 'intern', location: basePath }
 			],
