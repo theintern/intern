@@ -35,6 +35,12 @@ define([
 		 */
 		tunnel: null,
 
+		/*
+		 * A regular expression that will be used to filter tests. Only tests with IDs matching the expression will be
+		 * executed. By default, all tests will be executed.
+		 */
+		grep: /.*/,
+
 		/**
 		 * Runs all environmental suites concurrently, with a concurrency limit.
 		 */

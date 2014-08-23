@@ -399,6 +399,24 @@ define([
 			assert.strictEqual(suite.numFailedTests, 2, 'Suite#numFailedTests returns the correct number of failed tests, including those from nested suites');
 		},
 
+		'Suite#numSkippedTests': function () {
+			var suite = new Suite({
+				name: 'foo',
+				tests: [
+					new Suite({ tests: [
+						new Test({ skipped: null, hasPassed: true }),
+						new Test({ skipped: 'skipped', hasPassed: true })
+					] }),
+					new Test({ skipped: null, hasPassed: true }),
+					new Test({ skipped: 'skipped', hasPassed: false })
+				]
+			});
+
+			assert.strictEqual(suite.numTests, 4, 'Suite#numTests should return the correct number of tests, including those from nested suites');
+			assert.strictEqual(suite.numSkippedTests, 2, 'Suite#numSkippedTests returns the correct number of skipped tests, including those from nested suites');
+			assert.strictEqual(suite.numFailedTests, 0, 'Suite#numFailedTests returns the correct number of failed tests, including those from nested suites');
+		},
+
 		'Suite#beforeEach and #afterEach nesting': function () {
 			var dfd = this.async(1000),
 				suite = new Suite({
@@ -490,6 +508,47 @@ define([
 			suite.run().then(dfd.callback(function () {
 				assert.deepEqual(actualLifecycle, expectedLifecycle, 'Outer afterEach should execute even though inner afterEach threw an error');
 				assert.strictEqual(childSuite.error.message, 'Oops', 'Suite with afterEach failure should hold the last error from afterEach');
+			}, function () {
+				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
+			}));
+		},
+
+		'Suite#run skip': function () {
+			var dfd = this.async(1000);
+			var grep = /foo/;
+			var suite = new Suite({
+				grep: grep
+			});
+			var testsRun = [];
+			var fooTest = new Test({
+				name: 'foo',
+				test: function () { testsRun.push(this); }
+			});
+			var barSuite = new Suite({
+				name: 'bar',
+				grep: grep,
+				tests: [
+					new Test({
+						name: 'foo',
+						test: function () { testsRun.push(this); }
+					}),
+					new Test({
+						name: 'baz',
+						test: function () { testsRun.push(this); }
+					})
+				]
+			});
+			var foodTest = new Test({
+				name: 'food',
+				test: function () { testsRun.push(this); }
+			});
+
+			suite.tests.push(fooTest);
+			suite.tests.push(barSuite);
+			suite.tests.push(foodTest);
+
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ], 'Only test matching grep regex should have run');
 			}, function () {
 				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
 			}));
