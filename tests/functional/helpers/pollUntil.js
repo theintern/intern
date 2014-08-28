@@ -56,15 +56,20 @@ define([
 			},
 
 			'iteration check': function () {
+				/* jshint browser:true */
 				return command
 					.get(require.toUrl('../data/default.html'))
-					.then(pollUntil(function (counter) {
-						if ((++counter.count) === 4) {
-							return counter;
+					.then(pollUntil(function () {
+						if (!window.counter) {
+							window.counter = 0;
 						}
-					}, [ { count: 0 } ], 1000, 25))
+
+						if ((++window.counter) === 4) {
+							return window.counter;
+						}
+					}, [], 1000, 25))
 					.then(function (counter) {
-						assert.deepEqual(counter, { count: 4 });
+						assert.strictEqual(counter, 4);
 					});
 			}
 		};
