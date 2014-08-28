@@ -429,9 +429,9 @@ Session.prototype = {
 	setTimeout: function (type, ms) {
 		// Infinity cannot be serialised by JSON
 		if (ms === Infinity) {
-			// It seems that at least ChromeDriver 2.10 has a limit here that is near the 32-bit signed integer limit;
-			// 24 days should be infinite enough for testing
-			ms = Math.pow(2, 31) - 1;
+			// It seems that at least ChromeDriver 2.10 has a limit here that is near the 32-bit signed integer limit,
+			// and IEDriverServer 2.42.2 has an even lower limit; 2.33 hours should be infinite enough for testing
+			ms = Math.pow(2, 23) - 1;
 		}
 
 		var self = this;

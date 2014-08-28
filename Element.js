@@ -381,9 +381,13 @@ Element.prototype = {
 	 */
 	getPosition: function () {
 		if (this.session.capabilities.brokenElementPosition) {
+			/* jshint browser:true */
 			return this.session.execute(/* istanbul ignore next */ function (element) {
 				var bbox = element.getBoundingClientRect();
-				return { x: window.scrollX + bbox.left, y: window.scrollY + bbox.top };
+				var scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
+				var scrollY = document.documentElement.scrollTop || document.body.scrollTop;
+
+				return { x: scrollX + bbox.left, y: scrollY + bbox.top };
 			}, [ this ]);
 		}
 
