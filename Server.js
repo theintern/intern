@@ -718,9 +718,7 @@ Server.prototype = {
 						var dfd = new Promise.Deferred();
 						function cleanup() {
 							clearTimeout(timer);
-							if (!refresh.isFulfilled()) {
-								refresh.cancel();
-							}
+							refresh.cancel();
 						}
 
 						var refresh = session.refresh().then(function () {
