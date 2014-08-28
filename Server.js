@@ -4,7 +4,6 @@
  */
 
 var keys = require('./keys');
-var lang = require('dojo/lang');
 var Promise = require('dojo/Promise');
 var request = require('dojo/request');
 var Session = require('./Session');
@@ -311,33 +310,32 @@ Server.prototype = {
 		 * be executed serially in order to resolve the correct value of that particular capability.
 		 */
 		function addCapabilities(testedCapabilities) {
-			var dfd = new Promise.Deferred();
-			var keys = Object.keys(testedCapabilities);
-			var i = 0;
+			return new Promise(function (resolve, reject) {
+				var keys = Object.keys(testedCapabilities);
+				var i = 0;
 
-			(function next() {
-				var key = keys[i++];
+				(function next() {
+					var key = keys[i++];
 
-				if (!key) {
-					dfd.resolve();
-					return;
-				}
+					if (!key) {
+						resolve();
+						return;
+					}
 
-				var value = testedCapabilities[key];
+					var value = testedCapabilities[key];
 
-				if (typeof value === 'function') {
-					value().then(function (value) {
+					if (typeof value === 'function') {
+						value().then(function (value) {
+							capabilities[key] = value;
+							next();
+						}, reject);
+					}
+					else {
 						capabilities[key] = value;
 						next();
-					}, lang.bind(dfd, 'reject'));
-				}
-				else {
-					capabilities[key] = value;
-					next();
-				}
-			})();
-
-			return dfd.promise;
+					}
+				})();
+			});
 		}
 
 		function get(page) {
@@ -619,6 +617,46 @@ Server.prototype = {
 			testedCapabilities.brokenWindowSwitch = capabilities.browserName === 'Safari' &&
 				capabilities.platformName === 'IOS';
 
+			var scrollTestUrl = '<!DOCTYPE html><div id="a" style="margin: 3000px;"></div>';
+
+			// ios-driver 0.6.6-SNAPSHOT April 2014 calculates position based on a bogus origin and does not
+			// account for scrolling
+			testedCapabilities.brokenElementPosition = function () {
+				return get(scrollTestUrl).then(function () {
+					return session.findById('a');
+				}).then(function (element) {
+					return element.getPosition();
+				}).then(function (position) {
+					return position.x !== 3000 || position.y !== 3000;
+				}).catch(broken);
+			};
+
+			// At least ios-driver 0.6.6-SNAPSHOT April 2014 will never complete a refresh call
+			testedCapabilities.brokenRefresh = function () {
+				return session.get('about:blank?1').then(function () {
+					return new Promise(function (resolve, reject, progress, setCanceler) {
+						function cleanup() {
+							clearTimeout(timer);
+							refresh.cancel();
+						}
+
+						setCanceler(cleanup);
+
+						var refresh = session.refresh().then(function () {
+							cleanup();
+							resolve(false);
+						}, function () {
+							cleanup();
+							resolve(true);
+						});
+
+						var timer = setTimeout(function () {
+							cleanup();
+						}, 2000);
+					});
+				}).catch(broken);
+			};
+
 			if (capabilities.mouseEnabled) {
 				// At least ChromeDriver 2.9.248307 does not correctly emit the entire sequence of events that would
 				// normally occur during a double-click
@@ -666,8 +704,6 @@ Server.prototype = {
 					return error.name === 'UnknownCommand' || error.message.indexOf('need to specify the JS') > -1;
 				});
 
-				var scrollTestUrl = '<!DOCTYPE html><div id="a" style="margin: 3000px;"></div>';
-
 				// Touch scroll in ios-driver 0.6.6-SNAPSHOT is broken, does not scroll at all;
 				// in selendroid 0.9.0 it ignores the element argument
 				testedCapabilities.brokenTouchScroll = function () {
@@ -698,43 +734,6 @@ Server.prototype = {
 						return session.execute('return window.scrollY === 0;');
 					})
 					.catch(broken);
-				};
-
-				// ios-driver 0.6.6-SNAPSHOT April 2014 calculates position based on a bogus origin and does not
-				// account for scrolling
-				testedCapabilities.brokenElementPosition = function () {
-					return get(scrollTestUrl).then(function () {
-						return session.findById('a');
-					}).then(function (element) {
-						return element.getPosition();
-					}).then(function (position) {
-						return position.x !== 3000 || position.y !== 3000;
-					}).catch(broken);
-				};
-
-				// At least ios-driver 0.6.6-SNAPSHOT April 2014 will never complete a refresh call
-				testedCapabilities.brokenRefresh = function () {
-					return session.get('about:blank?1').then(function () {
-						var dfd = new Promise.Deferred();
-						function cleanup() {
-							clearTimeout(timer);
-							refresh.cancel();
-						}
-
-						var refresh = session.refresh().then(function () {
-							cleanup();
-							dfd.resolve(false);
-						}, function () {
-							cleanup();
-							dfd.resolve(true);
-						});
-
-						var timer = setTimeout(function () {
-							cleanup();
-						}, 2000);
-
-						return dfd.promise;
-					}).catch(broken);
 				};
 			}
 
