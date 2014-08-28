@@ -1209,6 +1209,7 @@ Session.prototype = {
 	 * Moves the remote environment’s mouse cursor to the specified element or relative position. If the element is
 	 * outside of the viewport, the remote driver will attempt to scroll it into view automatically.
 	 *
+	 * @method
 	 * @param {Element=} element
 	 * The element to move the mouse to. If x-offset and y-offset are not specified, the mouse will be moved to the
 	 * centre of the element.
