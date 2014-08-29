@@ -8,14 +8,14 @@ define([
 
 	function deleteReport() {
 		try {
-			fs.unlinkSync(reporter.reportFileName);
+			fs.unlinkSync('report.xml');
 		} catch (e) {
 			// ignore
 		}
 	}
 
 	function loadReport() {
-		return fs.readFileSync(reporter.reportFileName, { encoding: 'utf-8' });
+		return fs.readFileSync('report.xml', { encoding: 'utf-8' });
 	}
 
 	registerSuite({
@@ -43,20 +43,6 @@ define([
 			deleteReport();
 		},
 
-		'/client/end': function () {
-			// var suite = new Suite({ name: 'suite' });
-			reporter.reportFileName = 'selftest-client-end.xml';
-			reporter['/client/end']();
-			assert.ok(fs.existsSync(reporter.reportFileName), 'report file should exist');
-		},
-
-		'/runner/end': function () {
-			// var suite = new Suite({ name: 'suite' });
-			reporter.reportFileName = 'selftest-runner-end.xml';
-			reporter['/runner/end']();
-			assert.ok(fs.existsSync(reporter.reportFileName), 'report file should exist');
-		},
-
 		'simple session': function () {
 			var remote = {
 				sessionId: 'foo',
@@ -74,12 +60,11 @@ define([
 				numFailedTests: 0
 			};
 
-			reporter.reportFileName = 'selftest-simple-session.xml';
 			reporter['/session/start'](remote);
 			reporter['/suite/start'](suite);
 			reporter['/suite/end'](suite);
-			reporter['/runner/end']();
-			assert.ok(fs.existsSync(reporter.reportFileName), 'report file should exist');
+			reporter.stop();
+			assert.ok(fs.existsSync('report.xml'), 'report file should exist');
 
 			var report = loadReport();
 			assert.include(report, 'testsuite name="bar" tests="0"', 'report should contain bar test suite');
@@ -94,12 +79,11 @@ define([
 			};
 
 			function doTest(test) {
-				reporter.reportFileName = 'selftest-test-end.xml';
 				reporter['/suite/start'](suite);
 				reporter['/test/end'](test);
 				reporter['/suite/end'](suite);
-				reporter['/runner/end']();
-				assert.ok(fs.existsSync(reporter.reportFileName), 'report file should exist');
+				reporter.stop();
+				assert.ok(fs.existsSync('report.xml'), 'report file should exist');
 
 				var report = loadReport();
 				assert.include(report, 'testsuite name="bar" tests="0"', 'report should contain bar test suite');
@@ -142,12 +126,11 @@ define([
 			};
 
 			function doTest(suite, errorType, message) {
-				reporter.reportFileName = 'selftest-error-session.xml';
 				reporter['/session/start'](remote);
 				reporter['/suite/start'](suite);
 				reporter['/suite/error'](suite);
-				reporter['/runner/end']();
-				assert.ok(fs.existsSync(reporter.reportFileName), 'report file should exist');
+				reporter.stop();
+				assert.ok(fs.existsSync('report.xml'), 'report file should exist');
 
 				var report = loadReport();
 				var text = 'failure type="' + errorType + '"';
@@ -196,4 +179,3 @@ define([
 		})()
 	});
 });
-
