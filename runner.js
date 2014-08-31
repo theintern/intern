@@ -173,7 +173,7 @@ else {
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				var basePath = (config.loader.baseUrl || process.cwd()) + '/';
+				var basePath = path.normalize((config.loader.baseUrl || process.cwd()) + '/');
 				var proxy = createProxy({
 					basePath: basePath,
 					excludeInstrumentation: config.excludeInstrumentation,
