@@ -352,8 +352,8 @@ Element.prototype = {
 				self.session.capabilities.brokenElementDisplayedOffscreen
 			)) {
 				return self.session.execute(/* istanbul ignore next */ function (element) {
-					var scrollX = window.scrollX;
-					var scrollY = window.scrollY;
+					var scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
+					var scrollY = document.documentElement.scrollTop || document.body.scrollTop;
 					do {
 						if (window.getComputedStyle(element, null).opacity === '0') {
 							return false;

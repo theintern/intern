@@ -567,10 +567,22 @@ Server.prototype = {
 
 			// At least Selendroid 0.9.0 treats fully transparent elements as displayed, but all others do not
 			testedCapabilities.brokenElementDisplayedOpacity = function () {
-				return get('<!DOCTYPE html><div id="a" style="opacity: 0;">a</div>').then(function () {
-					return session.findById('a');
-				}).then(function (element) {
-					return element.isDisplayed();
+				return get('<!DOCTYPE html><div id="a" style="opacity: .1;">a</div>').then(function () {
+					// IE<9 do not support CSS opacity so should not be involved in this test
+					return session.execute('var o = document.getElementById("a").style.opacity; return o && o.charAt(0) === "0";');
+				}).then(function (supportsOpacity) {
+					if (!supportsOpacity) {
+						return works();
+					}
+					else {
+						return session.execute('document.getElementById("a").style.opacity = "0";')
+							.then(function () {
+								return session.findById('a');
+							})
+							.then(function (element) {
+								return element.isDisplayed();
+							});
+					}
 				}).catch(broken);
 			};
 
