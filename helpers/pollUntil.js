@@ -23,8 +23,9 @@ var util = require('../lib/util');
  * @param {number=} pollInterval
  * The amount of time to wait between calls to the poller function, in milliseconds. If not specified, defaults to 67ms.
  *
- * @returns {Promise.<any>}
- * A promise that resolves to the value returned by the poller function on success and rejects on failure.
+ * @returns {function(): Promise.<any>}
+ * A {@link module:leadfoot/Command#then} callback function that, when called, returns a promise that resolves to the
+ * value returned by the poller function on success and rejects on failure.
  *
  * @example
  * var Command = require('leadfoot/Command');
