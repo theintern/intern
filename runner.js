@@ -49,7 +49,7 @@ else {
 		require,
 		main,
 		createProxy,
-		path,
+		pathUtil,
 		args,
 		util,
 		Suite,
@@ -92,8 +92,8 @@ else {
 			// non-absolute paths, which will break the URL remapping code in the `get` method of `lib/wd` (it will
 			// slice too much data)
 			if (config.loader.baseUrl) {
-				config.loader.baseUrl = path.resolve(config.loader.baseUrl);
-				args.config = path.relative(config.loader.baseUrl, path.resolve(args.config));
+				config.loader.baseUrl = pathUtil.resolve(config.loader.baseUrl);
+				args.config = pathUtil.relative(config.loader.baseUrl, pathUtil.resolve(args.config));
 			}
 
 			this.require(config.loader);
@@ -177,7 +177,7 @@ else {
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				var basePath = (config.loader.baseUrl || process.cwd()) + '/';
+				var basePath = pathUtil.join(config.loader.baseUrl || process.cwd(), '/');
 				var proxy = createProxy({
 					basePath: basePath,
 					excludeInstrumentation: config.excludeInstrumentation,
@@ -251,7 +251,10 @@ else {
 						}
 					});
 
-					suite.tests.push(new ClientSuite({ parent: suite, config: config }));
+					if (config.suites) {
+						suite.tests.push(new ClientSuite({ parent: suite, config: config }));
+					}
+
 					main.suites.push(suite);
 				});
 
