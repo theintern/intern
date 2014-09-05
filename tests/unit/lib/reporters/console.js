@@ -135,13 +135,9 @@ define([
 			return suite;
 		})(),
 
-		'/suite/error': function () {
+		'/error': function () {
 			var result = [],
 				error = new Error('Oops'),
-				suite = new Suite({
-					name: 'suite',
-					error: error
-				}),
 				handles = [
 					mockConsole('warn', function () {
 						result = result.concat([].slice.call(arguments, 0));
@@ -151,17 +147,14 @@ define([
 					})
 				];
 
-			error.relatedTest = new Test({ name: 'related test', parent: suite });
-
 			try {
-				reporter['/suite/error'](suite);
+				reporter['/error'](error);
 
-				assert.strictEqual(result.length, 3, 'Reporter should log three messages for an error with a related test');
+				assert.strictEqual(result.length, 2, 'Reporter should log two messages for a fatal error');
 				result = result.join('\n');
-				assert.match(result, /\bSUITE ERROR\b/, 'Reporter should indicate that a suite error occurred');
-				assert.include(result, suite.id, 'Reporter should indicate which suite threw an error');
-				assert.match(result, /\bRelated test\b/, 'Reporter should indicate there was a related test for the suite error');
-				assert.include(result, hasGrouping ? error.relatedTest.name : error.relatedTest.id, 'Reporter should indicate the name of the related test');
+				assert.match(result, /\bFATAL ERROR\b/, 'Reporter should indicate that a fatal error occurred');
+				assert.include(result, 'Oops', 'Reporter should include the message from the error');
+				assert.include(result, 'tests/unit/lib/reporters/console.js:140:13', 'Reporter should indicate the location of the error');
 			}
 			finally {
 				var handle;
