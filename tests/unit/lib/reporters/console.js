@@ -154,7 +154,10 @@ define([
 				result = result.join('\n');
 				assert.match(result, /\bFATAL ERROR\b/, 'Reporter should indicate that a fatal error occurred');
 				assert.include(result, 'Oops', 'Reporter should include the message from the error');
-				assert.include(result, 'tests/unit/lib/reporters/console.js:140:13', 'Reporter should indicate the location of the error');
+
+				if (result.indexOf('No stack or location') === -1) {
+					assert.include(result, 'tests/unit/lib/reporters/console.js:140', 'Reporter should indicate the location of the error');
+				}
 			}
 			finally {
 				var handle;
