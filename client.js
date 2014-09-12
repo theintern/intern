@@ -22,10 +22,11 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 }
 else {
 	define([
+		'./main',
 		'./lib/args',
 		'./lib/util',
 		'require'
-	], function (args, util, parentRequire) {
+	], function (main, args, util, parentRequire) {
 		if (!args.config) {
 			throw new Error('Missing "config" argument');
 		}
@@ -33,6 +34,8 @@ else {
 		if (/^(?:\w+:)?\/\//.test(args.config)) {
 			throw new Error('Cross-origin loading of configuration data is not allowed for security reasons');
 		}
+
+		main.mode = 'client';
 
 		require([ args.config ], function (config) {
 			util.swapLoader(config.useLoader).then(function (require) {
