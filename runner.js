@@ -247,7 +247,7 @@ else {
 						}
 					});
 
-					if (config.suites) {
+					if (args.suites || typeof args.suites === "undefined" && config.suites && config.suites.length) {
 						suite.tests.push(new ClientSuite({ parent: suite, config: config }));
 					}
 
