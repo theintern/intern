@@ -111,6 +111,10 @@ else {
 				config.functionalSuites = args.functionalSuites;
 			}
 
+			if (args.suites) {
+				config.suites = args.suites;
+			}
+
 			if (config.tunnel.indexOf('/') === -1) {
 				config.tunnel = 'dojo/node!digdug/' + config.tunnel;
 			}
@@ -247,7 +251,7 @@ else {
 						}
 					});
 
-					if (args.suites || typeof args.suites === "undefined" && config.suites && config.suites.length) {
+					if (config.suites) {
 						suite.tests.push(new ClientSuite({ parent: suite, config: config }));
 					}
 
