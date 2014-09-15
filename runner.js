@@ -107,7 +107,7 @@ else {
 				}
 			}
 
-			if (args.functionalSuites) {
+			if (typeof args.functionalSuites !== 'undefined') {
 				config.functionalSuites = args.functionalSuites;
 			}
 
