@@ -183,10 +183,16 @@ function createHttpRequest(method) {
 				};
 				error.response = response;
 
-				// TODO: Possibly remove this extra debugging stuff from the error message
-				error.message = '[' + method + ' ' +
-					// Avoid exposing HTTP credentials in default error message
-					url.replace(/^([A-Za-z][A-Za-z0-9+.-]+:\/*)[^@]+@/, '$1(redacted)@') +
+				var sanitizedUrl = (function () {
+					var parsedUrl = urlUtil.parse(url);
+					if (parsedUrl.auth) {
+						parsedUrl.auth = '(redacted)';
+					}
+
+					return urlUtil.format(parsedUrl);
+				})();
+
+				error.message = '[' + method + ' ' + sanitizedUrl +
 					(requestData ? ' / ' + JSON.stringify(requestData) : '') +
 					'] ' + error.message;
 				error.stack = error.message + trace.stack.replace(/^[^\n]+/, '');
