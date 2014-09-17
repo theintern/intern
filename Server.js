@@ -39,6 +39,7 @@ function createHttpRequest(method) {
 		});
 
 		var kwArgs = {
+			followRedirects: false,
 			handleAs: 'text',
 			headers: {
 				// At least FirefoxDriver on Selenium 2.40.0 will throw a NullPointerException when retrieving
