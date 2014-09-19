@@ -5,33 +5,36 @@
 		<title>Browser test runner</title>
 		<script src="node_modules/dojo/dojo.js"></script>
 		<script>
-(function () {
-	var basePath = location.pathname.replace(/\/+[^\/]*$/, '/'),
-		internConfig = this.__internConfig = {
-			// For users running client.html directly, assume that the base path
-			// is two levels up (the parent of node_modules); this is most common.
-			// Users that need something special should provide an absolute module
-			// path for the config module (e.g. `/path/to/intern/config`) and
-			// then set `baseUrl` correctly in the `loader` configuration object
-			// of the config module
-			baseUrl: basePath.slice(-10) === '/__intern/' ? basePath.slice(0, -9) : (basePath + '../../'),
-			packages: [
-				{ name: 'intern', location: basePath }
-			],
-			map: {
-				intern: {
-					dojo: 'intern/node_modules/dojo',
-					chai: 'intern/node_modules/chai/chai',
-					sinon: 'intern/node_modules/sinon/lib/sinon'
-				},
-				'*': {
-					'intern/dojo': 'intern/node_modules/dojo'
-				}
-			}
-		};
+			// Added for modules like sinon that expect it to exist.
+			var global = window;
 
-	require(internConfig, [ 'intern/client' ]);
-})();
+			(function () {
+				var basePath = location.pathname.replace(/\/+[^\/]*$/, '/'),
+					internConfig = this.__internConfig = {
+						// For users running client.html directly, assume that the base path
+						// is two levels up (the parent of node_modules); this is most common.
+						// Users that need something special should provide an absolute module
+						// path for the config module (e.g. `/path/to/intern/config`) and
+						// then set `baseUrl` correctly in the `loader` configuration object
+						// of the config module
+						baseUrl: basePath.slice(-10) === '/__intern/' ? basePath.slice(0, -9) : (basePath + '../../'),
+						packages: [
+							{ name: 'intern', location: basePath }
+						],
+						map: {
+							intern: {
+								dojo: 'intern/node_modules/dojo',
+								chai: 'intern/node_modules/chai/chai',
+								sinonjs: 'intern/node_modules/sinon/lib/sinon'
+							},
+							'*': {
+								'intern/dojo': 'intern/node_modules/dojo'
+							}
+						}
+					};
+
+				require(internConfig, [ 'intern/client' ]);
+			})();
 		</script>
 	</head>
 </html>
