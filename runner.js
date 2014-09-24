@@ -73,6 +73,7 @@ else {
 		main.mode = 'runner';
 
 		this.require([ args.config ], function (config) {
+			/*jshint maxcomplexity:11 */
 			main.config = config = requestUtil.deepCopy({
 				capabilities: {
 					name: args.config,
@@ -111,8 +112,11 @@ else {
 				}
 			}
 
-			if (args.functionalSuites) {
-				config.functionalSuites = [].concat(args.functionalSuites);
+			if (args.functionalSuites === '') {
+				args.functionalSuites = [];
+			}
+			else if (args.functionalSuites === undefined) {
+				args.functionalSuites = config.functionalSuites;
 			}
 
 			if (config.tunnel.indexOf('/') === -1) {
@@ -267,7 +271,9 @@ else {
 
 				topic.publish('/tunnel/start', tunnel);
 				tunnel.start().then(function () {
-					require(config.functionalSuites || [], function () {
+					// args.functionalSuites might be an array or it might be a scalar value; we always need deps to be
+					// an array
+					require([].concat(args.functionalSuites || []), function () {
 						topic.publish('/runner/start');
 						main.run().always(function () {
 							/*global __internCoverage */
