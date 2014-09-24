@@ -3,7 +3,7 @@ Contribution guidelines
 
 ## Hi!
 
-* The bug tracker is for **bugs and feature enhancement requests only**, not questions. If you aren’t sure if your
+* The issues tab is for **bugs and feature enhancement requests only**, not questions. If you aren’t sure if your
   problem is a bug (or you know that it isn’t), please ask in one of the
   [support forums](https://github.com/theintern/intern/wiki/Support) instead. Any help questions posted to the bug
   tracker will normally be closed without a good answer in order to keep the bug tracker focused only on the development
