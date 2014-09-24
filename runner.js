@@ -115,6 +115,10 @@ else {
 				args.functionalSuites = config.functionalSuites;
 			}
 
+			if (args.suites) {
+				config.suites = args.suites;
+			}
+
 			if (config.tunnel.indexOf('/') === -1) {
 				config.tunnel = 'dojo/node!digdug/' + config.tunnel;
 			}
