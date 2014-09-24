@@ -251,7 +251,14 @@ else {
 						}
 					});
 
-					if (args.suites || config.suites) {
+					// The `suites` flag specified on the command-line as an empty string will just get converted to an
+					// empty array in the client, which means we can skip the client tests entirely. Otherwise, if no
+					// suites were specified on the command-line, we rely on the existence of `config.suites` to decide
+					// whether or not to client suites. If `config.suites` is truthy, it may be an empty array on the
+					// Node.js side but could be a populated array when it gets to the browser side (conditional based
+					// on environment), so we require users to explicitly set it to a falsy value to assure the test
+					// system that it should not run the client
+					if (args.suites !== undefined ? args.suites !== '' : config.suites) {
 						suite.tests.push(new ClientSuite({ parent: suite, config: config }));
 					}
 
