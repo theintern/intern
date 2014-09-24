@@ -108,11 +108,12 @@ else {
 				}
 			}
 
-			if (args.functionalSuites === '') {
-				args.functionalSuites = [];
-			}
-			else if (args.functionalSuites === undefined) {
+			if (args.functionalSuites === undefined) {
 				args.functionalSuites = config.functionalSuites;
+			}
+
+			if (args.suites === undefined) {
+				args.suites = config.suites;
 			}
 
 			if (config.tunnel.indexOf('/') === -1) {
@@ -258,7 +259,7 @@ else {
 					// Node.js side but could be a populated array when it gets to the browser side (conditional based
 					// on environment), so we require users to explicitly set it to a falsy value to assure the test
 					// system that it should not run the client
-					if (args.suites !== undefined ? args.suites !== '' : config.suites) {
+					if (args.suites) {
 						suite.tests.push(new ClientSuite({ parent: suite, config: config }));
 					}
 
