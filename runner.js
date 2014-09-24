@@ -108,7 +108,7 @@ else {
 			}
 
 			if (args.functionalSuites) {
-				config.functionalSuites = args.functionalSuites;
+				config.functionalSuites = [].concat(args.functionalSuites);
 			}
 
 			if (config.tunnel.indexOf('/') === -1) {
