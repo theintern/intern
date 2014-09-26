@@ -34,7 +34,7 @@ define([
 			var result = new Results(100, 10);
 			result.recordPassed();
 			assert.strictEqual(result.passed, 1);
-			assert.strictEqual(result.getStatus(0), Results.status.PASS);
+			assert.strictEqual(result.getStatus(0), 'pass');
 			assert.strictEqual(result.complete, 1);
 		},
 
@@ -42,7 +42,7 @@ define([
 			var result = new Results(100, 10);
 			result.recordFailed();
 			assert.strictEqual(result.failed, 1);
-			assert.strictEqual(result.getStatus(0), Results.status.FAIL);
+			assert.strictEqual(result.getStatus(0), 'fail');
 			assert.strictEqual(result.complete, 1);
 		},
 
@@ -50,7 +50,7 @@ define([
 			var result = new Results(100, 10);
 			result.recordSkipped();
 			assert.strictEqual(result.skipped, 1);
-			assert.strictEqual(result.getStatus(0), Results.status.SKIP);
+			assert.strictEqual(result.getStatus(0), 'skip');
 			assert.strictEqual(result.complete, 1);
 		},
 
@@ -62,19 +62,19 @@ define([
 
 			return {
 				'reports passed': function () {
-					assert.strictEqual(result.getStatus(0), Results.status.PASS);
+					assert.strictEqual(result.getStatus(0), 'pass');
 				},
 
 				'reports skipped': function () {
-					assert.strictEqual(result.getStatus(1), Results.status.SKIP);
+					assert.strictEqual(result.getStatus(1), 'skip');
 				},
 
 				'reports failed': function () {
-					assert.strictEqual(result.getStatus(2), Results.status.FAIL);
+					assert.strictEqual(result.getStatus(2), 'fail');
 				},
 
 				'reports pending': function () {
-					assert.strictEqual(result.getStatus(3), Results.status.PENDING);
+					assert.strictEqual(result.getStatus(3), 'pending');
 				}
 			};
 		})(),
