@@ -1385,14 +1385,14 @@ Session.prototype = {
 
 	/**
 	 * Depresses a new finger at the given point on a touch screen device without releasing it.
-	 * TODO: If someone specifies the same coordinates as as an existing finger, will it switch the active finger
-	 * back to that finger instead of adding a new one?
 	 *
 	 * @param {number} x The screen x-coordinate to press, maybe in device pixels.
 	 * @param {number} y The screen y-coordinate to press, maybe in device pixels.
 	 * @returns {Promise.<void>}
 	 */
 	pressFinger: function (x, y) {
+		// TODO: If someone specifies the same coordinates as as an existing finger, will it switch the active finger
+		// back to that finger instead of adding a new one?
 		return this._post('touch/down', {
 			x: x,
 			y: y
@@ -1566,7 +1566,6 @@ Session.prototype = {
 
 	/**
 	 * Sets the geographical location of the remote environment.
-	 * TODO: Is it weird that this accepts an object argument? `setCookie` does too, but nothing else does.
 	 *
 	 * @param {Geolocation} location
 	 * Latitude and longitude are specified using standard WGS84 decimal latitude/longitude. Altitude is specified
@@ -1575,6 +1574,7 @@ Session.prototype = {
 	 * @returns {Promise.<void>}
 	 */
 	setGeolocation: function (location) {
+		// TODO: Is it weird that this accepts an object argument? `setCookie` does too, but nothing else does.
 		if (location.altitude !== undefined) {
 			this._lastAltitude = location.altitude;
 		}
@@ -1585,11 +1585,13 @@ Session.prototype = {
 	},
 
 	/**
-	 * Gets all logs from the remote environment of the given type. The logs are destroyed after they have been
-	 * retrieved.
+	 * Gets all logs from the remote environment of the given type. The logs in the remote environment are cleared
+	 * once they have been retrieved.
 	 *
 	 * @param {string} type
-	 * The type of log entries to retrieve. Available log types differ between remote environments.
+	 * The type of log entries to retrieve. Available log types differ between remote environments. Use
+	 * {@link module:leadfoot/Session#getAvailableLogTypes} to learn what log types are currently available. Not all
+	 * environments support all possible log types.
 	 *
 	 * @returns {Promise.<LogEntry[]>}
 	 * An array of log entry objects. Timestamps in log entries are Unix timestamps, in seconds.

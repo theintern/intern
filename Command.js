@@ -260,7 +260,7 @@ TOP_CONTEXT.depth = 0;
  * @borrows module:leadfoot/Session#getGeolocation as module:leadfoot/Command#getGeolocation
  * @borrows module:leadfoot/Session#setGeolocation as module:leadfoot/Command#setGeolocation
  * @borrows module:leadfoot/Session#getLogsFor as module:leadfoot/Command#getLogsFor
- * @borrows module:leadfoot/Session#getAvailableLogTimes as module:leadfoot/Command#getAvailableLogTimes
+ * @borrows module:leadfoot/Session#getAvailableLogTypes as module:leadfoot/Command#getAvailableLogTypes
  * @borrows module:leadfoot/Session#getApplicationCacheStatus as module:leadfoot/Command#getApplicationCacheStatus
  * @borrows module:leadfoot/Session#quit as module:leadfoot/Command#quit
  * @borrows module:leadfoot/Session#getLocalStorageKeys as module:leadfoot/Command#getLocalStorageKeys
