@@ -23,6 +23,7 @@ var SC_VERSION = '4.3';
 function SauceLabsTunnel() {
 	this.accessKey = process.env.SAUCE_ACCESS_KEY;
 	this.directDomains = [];
+	this.tunnelDomains = [];
 	this.domainAuthentication = [];
 	this.fastFailDomains = [];
 	this.skipSslDomains = [];
@@ -48,6 +49,13 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 * @type {string[]}
 	 */
 	directDomains: null,
+
+	/**
+	 * A list of domains that will be proxied by the tunnel on the remote VM.
+	 *
+	 * @type {string[]}
+	 */
+	tunnelDomains: null,
 
 	directory: pathUtil.join(__dirname, 'saucelabs'),
 
@@ -287,6 +295,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		);
 
 		this.directDomains.length && args.push('-D', this.directDomains.join(','));
+		this.tunnelDomains.length && args.push('-t', this.tunnelDomains.join(','));
 		this.fastFailDomains.length && args.push('-F', this.fastFailDomains.join(','));
 		this.isSharedTunnel && args.push('-s');
 		this.logFile && args.push('-l', this.logFile);
