@@ -83,6 +83,13 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	logFile: null,
 
 	/**
+	 * A filename where Sauce Connect stores its process information.
+	 *
+	 * @type {string}
+	 */
+	pidFile: null,
+
+	/**
 	 * Specifies the maximum log filesize before rotation, in bytes.
 	 * This property is only supported by Sauce Connect 3 tunnels.
 	 *
@@ -283,6 +290,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		this.fastFailDomains.length && args.push('-F', this.fastFailDomains.join(','));
 		this.isSharedTunnel && args.push('-s');
 		this.logFile && args.push('-l', this.logFile);
+		this.pidFile && args.push('--pidfile', this.pidFile);
 		this.skipSslDomains.length && args.push('-B', this.skipSslDomains.join(','));
 		this.tunnelId && args.push('-i', this.tunnelId);
 		this.useProxyForTunnel && args.push('-T');
