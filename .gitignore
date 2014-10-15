@@ -4,3 +4,4 @@ node_modules
 saucelabs
 testingbot
 browserstack
+coverage-final.json
