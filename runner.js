@@ -70,6 +70,7 @@ else {
 		main.mode = 'runner';
 
 		this.require([ args.config ], function (config) {
+			/*jshint maxcomplexity:11 */
 			main.config = config = lang.deepCopy({
 				capabilities: {
 					name: args.config,
@@ -108,8 +109,12 @@ else {
 				}
 			}
 
-			if (args.functionalSuites) {
-				config.functionalSuites = args.functionalSuites;
+			if (args.functionalSuites === undefined) {
+				args.functionalSuites = config.functionalSuites;
+			}
+
+			if (args.suites === undefined) {
+				args.suites = config.suites;
 			}
 
 			if (config.tunnel.indexOf('/') === -1) {
@@ -248,7 +253,14 @@ else {
 						}
 					});
 
-					if (config.suites) {
+					// The `suites` flag specified on the command-line as an empty string will just get converted to an
+					// empty array in the client, which means we can skip the client tests entirely. Otherwise, if no
+					// suites were specified on the command-line, we rely on the existence of `config.suites` to decide
+					// whether or not to client suites. If `config.suites` is truthy, it may be an empty array on the
+					// Node.js side but could be a populated array when it gets to the browser side (conditional based
+					// on environment), so we require users to explicitly set it to a falsy value to assure the test
+					// system that it should not run the client
+					if (args.suites) {
 						suite.tests.push(new ClientSuite({ parent: suite, config: config }));
 					}
 
@@ -257,7 +269,9 @@ else {
 
 				topic.publish('/tunnel/start', tunnel);
 				tunnel.start().then(function () {
-					require(config.functionalSuites || [], function () {
+					// args.functionalSuites might be an array or it might be a scalar value; we always need deps to be
+					// an array
+					require([].concat(args.functionalSuites || []), function () {
 						topic.publish('/runner/start');
 						main.run().always(function () {
 							/*global __internCoverage */
