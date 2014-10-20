@@ -169,10 +169,9 @@ else {
 						// terminate
 						process.exit(hasErrors ? 1 : 0);
 					});
-
 					process.on('uncaughtException', function (error) {
 						topic.publish('/error', error);
-						process.exit(1);
+						process.exit();
 					});
 				})();
 
@@ -287,10 +286,6 @@ else {
 							console.error(error.stack || error);
 						});
 					});
-				}, function (error) {
-					topic.publish('/error', error);
-					proxy.close();
-					process.exit(1);
 				});
 			});
 		});
