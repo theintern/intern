@@ -17,7 +17,7 @@
 		"chai": "1.9.1",
 		"leadfoot": "1.1.1",
 		"digdug": "1.1.0",
-		"sinon": "1.10.3"
+		"sinon": "1.11.0"
 	},
 	"devDependencies": {
 		"intern": "1.7.0"

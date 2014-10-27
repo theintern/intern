@@ -10,7 +10,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 				intern: {
 					dojo: 'intern/node_modules/dojo',
 					chai: 'intern/node_modules/chai/chai',
-					sinonjs: 'intern/node_modules/sinon/lib/sinon'
+					sinon: 'intern/node_modules/sinon/lib/sinon'
 				},
 				'*': {
 					'intern/dojo': 'intern/node_modules/dojo'
