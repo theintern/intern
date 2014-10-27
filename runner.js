@@ -156,6 +156,14 @@ else {
 
 				reporterManager.add(reporters);
 
+				// Publish an error, close the proxy if it's been started, and exit. The onExit handler will set the
+				// exit code to the proper value.
+				function exitWithError(error) {
+					topic.publish('/error', error);
+					proxy && proxy.close();
+					process.exit();
+				}
+
 				(function () {
 					var hasErrors = false;
 					topic.subscribe('/error, /test/fail', function () {
@@ -169,11 +177,7 @@ else {
 						// terminate
 						process.exit(hasErrors ? 1 : 0);
 					});
-
-					process.on('uncaughtException', function (error) {
-						topic.publish('/error', error);
-						process.exit(1);
-					});
+					process.on('uncaughtException', exitWithError);
 				})();
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
@@ -283,15 +287,9 @@ else {
 							return tunnel.stop().then(function () {
 								topic.publish('/tunnel/stop', tunnel);
 							});
-						}).otherwise(function (error) {
-							console.error(error.stack || error);
-						});
+						}).otherwise(exitWithError);
 					});
-				}, function (error) {
-					topic.publish('/error', error);
-					proxy.close();
-					process.exit(1);
-				});
+				}).catch(exitWithError);
 			});
 		});
 	});
