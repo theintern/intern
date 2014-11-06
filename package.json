@@ -16,7 +16,8 @@
 		"dojo": "https://github.com/csnover/dojo2-core/archive/2.0.tar.gz",
 		"chai": "1.9.1",
 		"leadfoot": "1.1.1",
-		"digdug": "1.1.0"
+		"digdug": "1.1.0",
+		"charm": "0.2.0"
 	},
 	"devDependencies": {
 		"intern": "2.1.0"
