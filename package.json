@@ -18,7 +18,7 @@
 		"digdug": "1.1.0"
 	},
 	"devDependencies": {
-		"intern-geezer": "1.7.0"
+		"intern-geezer": "2.1.0"
 	},
 	"scripts": {
 		"install": "node support/fixdeps.js",

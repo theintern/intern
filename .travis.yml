@@ -13,7 +13,5 @@ install:
   - travis_retry npm install
   - cd node_modules/intern-geezer
   - travis_retry npm install dojo
-  # patch to fix Intern 1.7.0's array args handling; remove when updating to Intern 2
-  - patch -p1 < ../../support/lib_args_array.patch
   - cd ../..
 script: tests/selftest.sh
