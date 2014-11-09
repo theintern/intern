@@ -19,7 +19,7 @@
 		"digdug": "1.1.0"
 	},
 	"devDependencies": {
-		"intern": "1.7.0"
+		"intern": "2.1.0"
 	},
 	"scripts": {
 		"install": "node support/fixdeps.js",
