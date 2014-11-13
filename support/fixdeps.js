@@ -3,6 +3,12 @@ var fs = require('fs');
 var path = require('path');
 var expected = path.join(__dirname, '..', 'node_modules');
 
+// Create the node_modules directory if it doesn't yet exist, such as when all of
+// Intern's dependencies were already installed by a parent package.
+if (!fs.existsSync(expected)) {
+	fs.mkdirSync(expected);
+}
+
 // AMD-loaded dependencies need to exist in Intern's node_modules directory,
 // regardless of whether or not they were deduped by npm
 [ 'dojo', 'chai' ].forEach(function (dependency) {
