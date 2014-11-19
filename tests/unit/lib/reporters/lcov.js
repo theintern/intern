@@ -4,33 +4,10 @@ define([
 	'dojo/node!istanbul/lib/collector',
 	'dojo/node!istanbul/lib/report/lcovonly',
 	'dojo/node!fs',
+	'./support/mocks',
 	'../../../../lib/reporters/lcov'
-], function (registerSuite, assert, Collector, Reporter, fs, lcov) {
-	var sessionId = 'foo',
-		mockCoverage = {
-			'test.js': {
-				'path': 'test.js',
-				's': {
-					'1': 1
-				},
-				'b': {},
-				'f': {},
-				'fnMap': {},
-				'statementMap': {
-					'1': {
-						'start': {
-							'line': 1,
-							'column': 0
-						},
-						'end': {
-							'line': 60,
-							'column': 3
-						}
-					}
-				},
-				'branchMap': {}
-			}
-		};
+], function (registerSuite, assert, Collector, Reporter, fs, mock, lcov) {
+	var sessionId = 'foo';
 
 	registerSuite({
 		name: 'intern/lib/reporters/lcov',
@@ -41,11 +18,11 @@ define([
 
 			Collector.prototype.add = function (coverage) {
 				collectorCalled = true;
-				assert.deepEqual(coverage, mockCoverage, 'Collector#add should be called with the correct mockCoverage object');
+				assert.deepEqual(coverage, mock.coverage, 'Collector#add should be called with the correct mockCoverage object');
 			};
 
 			try {
-				lcov['/coverage'](sessionId, mockCoverage);
+				lcov['/coverage'](sessionId, mock.coverage);
 				assert.isTrue(collectorCalled, 'Collector#add should be called when the reporter /coverage method is called');
 			}
 			finally {
@@ -73,7 +50,7 @@ define([
 
 		'File output': function () {
 			try {
-				lcov['/coverage'](sessionId, mockCoverage);
+				lcov['/coverage'](sessionId, mock.coverage);
 				lcov.stop();
 				assert.isTrue(fs.existsSync('lcov.info'), 'lcov.info file was written to disk');
 				assert(fs.statSync('lcov.info').size > 0, 'lcov.info contains data');
