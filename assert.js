@@ -16,6 +16,17 @@ define([
 		sliceArray = Array.prototype.slice,
 		objectToString = objProto.toString,
 		getObjectKeys = function (obj) {
+			// Detect an explicitly assigned constructor property.
+			function hasAssignedConstructorProperty(obj) {
+				if (!(obj instanceof obj.constructor)) {
+					return true;
+				}
+				if (obj.constructor !== Object) {
+					return hasAssignedConstructorProperty(obj.constructor.prototype);
+				}
+				return false;
+			}
+
 			var keys = [];
 			for (var k in obj) {
 				keys.push(k);
@@ -26,7 +37,12 @@ define([
 			// for more info see https://github.com/theintern/intern/issues/26
 			arrayUtil.forEach(lang._extraNames, function (key) {
 				if (obj[key] !== objProto[key]) {
-					keys.push(key);
+					// Handle the construtor property specially. In modern browsers the constructor
+					// property is only enumerated if it's explicitly assigned, not if it's just
+					// different than the base object constructor.
+					if (key !== 'constructor' || !hasAssignedConstructorProperty(obj)) {
+						keys.push(key);
+					}
 				}
 			});
 
@@ -641,12 +657,18 @@ define([
 			}
 
 			// equivalent if it is also a Date object that refers to the same time.
-			else if (actual instanceof Date && expected instanceof Date) {
+			else if (actual instanceof Date) {
+				if (!(expected instanceof Date)) {
+					return false;
+				}
 				return actual.getTime() === expected.getTime();
 			}
 
 			// equivalent if key RegExp properties are equal.
-			else if (actual instanceof RegExp && expected instanceof RegExp) {
+			else if (actual instanceof RegExp) {
+				if (!(expected instanceof RegExp)) {
+					return false;
+				}
 				return actual.source === expected.source &&
 					actual.global === expected.global &&
 					actual.ignoreCase === expected.ignoreCase &&
@@ -657,11 +679,6 @@ define([
 			// equivalence is determined by ==.
 			else if (typeof actual !== 'object' && typeof expected !== 'object') {
 				return actual == expected;
-			}
-
-			// two objects with different constructors are not equal.
-			else if (actual.constructor !== expected.constructor) {
-				return false;
 			}
 
 			else if (getIndexOf(circularA, actual) !== -1 && getIndexOf(circularA, actual) === getIndexOf(circularB, expected)) {
