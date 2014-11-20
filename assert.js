@@ -478,7 +478,8 @@ define([
 			actual: actual,
 			expected: expected,
 			operator: operator,
-			stackStartFunction: stackStartFunction
+			stackStartFunction: stackStartFunction,
+			showDiff: assert.config.showDiff
 		});
 	}
 
@@ -487,6 +488,7 @@ define([
 		this.actual = options.actual;
 		this.expected = options.expected;
 		this.operator = options.operator;
+		this.showDiff = options.showDiff || false;
 
 		if (Error.captureStackTrace) {
 			Error.captureStackTrace(this, options.stackStartFunction || fail);
@@ -518,6 +520,8 @@ define([
 	}
 
 	assert.AssertionError = AssertionError;
+
+	assert.config = { showDiff: true };
 
 	assert.fail = fail;
 
