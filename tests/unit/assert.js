@@ -720,5 +720,37 @@ define([
 				assert.include(arr, undefined);
 			}, 'Array#indexOf should skip holes in arrays');
 		});
+
+		tdd.test('showDiff', function () {
+			// showDiff is true by default
+			try {
+				assert.equal(1, 2);
+			}
+			catch (error) {
+				assert.isTrue(error.showDiff);
+			}
+
+			assert.config.showDiff = false;
+			try {
+				try {
+					assert.equal(1, 2);
+				}
+				catch (error) {
+					assert.isFalse(error.showDiff);
+				}
+
+				// showDiff should be false by default
+				assert.config.showDiff = undefined;
+				try {
+					assert.equal(1, 2);
+				}
+				catch (error) {
+					assert.isFalse(error.showDiff);
+				}
+			}
+			finally {
+				assert.config.showDiff = true;
+			}
+		});
 	});
 });
