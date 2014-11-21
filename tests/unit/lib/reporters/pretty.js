@@ -283,7 +283,7 @@ define([
 					0: '✓ internet explorer on WINDOWS - test',
 					1: '~ internet explorer on WINDOWS - test: Skipped',
 					2: '× internet explorer on WINDOWS - test\nError: Oops'
-				}
+				};
 
 				function assertTestResult(handlerName, result) {
 					var suite = new Suite({ name: 'main' });
