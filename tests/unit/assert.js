@@ -243,7 +243,7 @@ define([
 			var obja = lang.delegate({ tea: 'chai' });
 			var objb = lang.delegate({ tea: 'chai' });
 
-			assert.deepEqual(obja, objb);
+			assert.deepEqual(obja, objb, 'expected objects with same properties to be equal');
 
 			var obj1 = lang.delegate({tea: 'chai'});
 			var obj2 = lang.delegate({tea: 'black'});
@@ -251,6 +251,16 @@ define([
 			err(function () {
 				assert.deepEqual(obj1, obj2);
 			}, 'expected { tea: \'chai\' } to deeply equal { tea: \'black\' }');
+
+			// not explicitly tested in chai
+			function Ctor() { this.foo = 'bar'; }
+			assert.deepEqual(new Ctor(), { foo: 'bar' },
+				'expected objects with same properties but different constructors to be equal');
+
+			// not explicitly tested in chai
+			function Dtor() { this.foo = 'bar'; this.constructor = 'baz'; }
+			assert.notDeepEqual(new Dtor(), { foo: 'bar' },
+				'expected objects with different explicitly assigned constructors to not be equal');
 		});
 
 		tdd.test('deepEqual (ordering)', function () {
