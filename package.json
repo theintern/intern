@@ -15,7 +15,8 @@
 		"source-map": "0.1.33",
 		"dojo": "1.9.4",
 		"leadfoot": "1.1.1",
-		"digdug": "1.1.0"
+		"digdug": "1.1.0",
+		"charm": "0.2.0"
 	},
 	"devDependencies": {
 		"intern-geezer": "2.1.0"
