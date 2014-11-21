@@ -69,7 +69,7 @@ else {
 		main.mode = 'runner';
 
 		this.require([ args.config ], function (config) {
-			/*jshint maxcomplexity:11 */
+			/*jshint maxcomplexity:12 */
 			main.config = config = lang.deepCopy({
 				capabilities: {
 					name: args.config,
@@ -85,12 +85,17 @@ else {
 				proxyUrl: 'http://localhost:9000'
 			}, config);
 
+			// ensure that basePath is absolute
+			config.basePath = pathUtil.resolve(config.basePath || process.cwd());
+
 			// If the `baseUrl` passed to the loader is a relative path, it will cause `require.toUrl` to generate
 			// non-absolute paths, which will break the URL remapping code in the `get` method of `lib/wd` (it will
 			// slice too much data)
 			if (config.loader.baseUrl) {
 				config.loader.baseUrl = pathUtil.resolve(config.loader.baseUrl);
-				args.config = pathUtil.relative(config.loader.baseUrl, pathUtil.resolve(args.config));
+
+				// baseUrl is always relative to basePath; a baseUrl of '/' refers to basePath
+				args.config = pathUtil.relative(config.basePath, pathUtil.resolve(args.config));
 			}
 
 			this.require(config.loader);
@@ -182,9 +187,8 @@ else {
 
 				config.proxyUrl = config.proxyUrl.replace(/\/*$/, '/');
 
-				var basePath = pathUtil.join(config.loader.baseUrl || process.cwd(), '/');
 				var proxy = createProxy({
-					basePath: basePath,
+					basePath: config.basePath,
 					excludeInstrumentation: config.excludeInstrumentation,
 					instrument: true,
 					port: config.proxyPort
@@ -193,7 +197,7 @@ else {
 				// Code in the runner should also provide instrumentation data; this is not normally necessary since
 				// there shouldn’t typically be code under test running in the runner, but we do need this functionality
 				// for testing leadfoot to avoid having to create the tunnel and proxy and so on ourselves
-				util.setInstrumentationHooks(config, basePath);
+				util.setInstrumentationHooks(config);
 
 				// Running just the proxy and aborting is useful mostly for debugging, but also lets you get code
 				// coverage reporting on the client if you want
@@ -226,7 +230,7 @@ else {
 							return server.createSession(environmentType).then(function (session) {
 								session.coverageEnabled = true;
 								session.proxyUrl = config.proxyUrl;
-								session.proxyBasePathLength = basePath.length;
+								session.proxyBasePathLength = config.basePath.length;
 
 								var command = new CompatCommand(session);
 								// TODO: Stop using remote.sessionId throughout the system
