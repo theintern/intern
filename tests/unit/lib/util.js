@@ -49,69 +49,74 @@ define([
 				'Browser, version, platform, platform version environment properties should be permutated');
 		},
 
-		'.logError': function () {
-			// Some environments do not have a console to log to
-			if (typeof console === 'undefined') {
-				return;
-			}
+		'.logError': {
+			'basic error logging': function () {
+				// Some environments do not have a console to log to
+				if (typeof console === 'undefined') {
+					return;
+				}
 
-			var lastMessage;
-			var oldConsoleError = console.error;
-			console.error = function (error) {
-				lastMessage = error.toString();
-			};
+				var lastMessage;
+				var oldConsoleError = console.error;
+				console.error = function (error) {
+					lastMessage = error.toString();
+				};
 
-			try {
-				util.logError('oops');
-				assert.strictEqual(lastMessage, 'oops');
+				try {
+					util.logError('oops');
+					assert.strictEqual(lastMessage, 'oops');
 
-				util.logError({ name: 'OopsError', message: 'oops2' });
-				assert.strictEqual(lastMessage, 'OopsError: oops2\nNo stack or location');
+					util.logError({ name: 'OopsError', message: 'oops2' });
+					assert.strictEqual(lastMessage, 'OopsError: oops2\nNo stack or location');
 
-				util.logError({ name: 'OopsError', message: 'oops3', fileName: 'did-it-again.js' });
-				assert.strictEqual(lastMessage, 'OopsError: oops3\n  at did-it-again.js\nNo stack');
+					util.logError({ name: 'OopsError', message: 'oops3', fileName: 'did-it-again.js' });
+					assert.strictEqual(lastMessage, 'OopsError: oops3\n  at did-it-again.js\nNo stack');
 
-				util.logError({ name: 'OopsError', message: 'oops4', fileName: 'did-it-again.js', lineNumber: '1' });
-				assert.strictEqual(lastMessage, 'OopsError: oops4\n  at did-it-again.js:1\nNo stack');
+					util.logError({ name: 'OopsError', message: 'oops4', fileName: 'did-it-again.js', lineNumber: '1' });
+					assert.strictEqual(lastMessage, 'OopsError: oops4\n  at did-it-again.js:1\nNo stack');
 
-				util.logError({ name: 'OopsError', message: 'oops5', fileName: 'did-it-again.js', lineNumber: '1', columnNumber: '0' });
-				assert.strictEqual(lastMessage, 'OopsError: oops5\n  at did-it-again.js:1:0\nNo stack');
+					util.logError({ name: 'OopsError', message: 'oops5', fileName: 'did-it-again.js', lineNumber: '1', columnNumber: '0' });
+					assert.strictEqual(lastMessage, 'OopsError: oops5\n  at did-it-again.js:1:0\nNo stack');
 
-				util.logError({ name: 'OopsError', message: 'oops6', stack: 'OopsError: oops6\nat did-it-again.js:1:0' });
-				assert.strictEqual(lastMessage, 'OopsError: oops6\n  at <did-it-again.js:1:0>');
+					util.logError({ name: 'OopsError', message: 'oops6', stack: 'OopsError: oops6\nat did-it-again.js:1:0' });
+					assert.strictEqual(lastMessage, 'OopsError: oops6\n  at <did-it-again.js:1:0>');
 
-				util.logError({ name: 'OopsError', message: 'oops7', stack: 'oops7\nat did-it-again.js:1:0' });
-				assert.strictEqual(lastMessage, 'OopsError: oops7\n  at <did-it-again.js:1:0>');
+					util.logError({ name: 'OopsError', message: 'oops7', stack: 'oops7\nat did-it-again.js:1:0' });
+					assert.strictEqual(lastMessage, 'OopsError: oops7\n  at <did-it-again.js:1:0>');
 
-				util.logError({ name: 'OopsError', message: 'oops8', stack: 'at did-it-again.js:1:0' });
-				assert.strictEqual(lastMessage, 'OopsError: oops8\n  at <did-it-again.js:1:0>');
+					util.logError({ name: 'OopsError', message: 'oops8', stack: 'at did-it-again.js:1:0' });
+					assert.strictEqual(lastMessage, 'OopsError: oops8\n  at <did-it-again.js:1:0>');
 
-				util.logError({ name: 'OopsError', message: 'oops9', stack: '\nat did-it-again.js:1:0' });
-				assert.strictEqual(lastMessage, 'OopsError: oops9\n  at <did-it-again.js:1:0>');
+					util.logError({ name: 'OopsError', message: 'oops9', stack: '\nat did-it-again.js:1:0' });
+					assert.strictEqual(lastMessage, 'OopsError: oops9\n  at <did-it-again.js:1:0>');
 
-				util.logError({ name: 'OopsError', stack: 'OopsError: oops10\nat did-it-again.js:1:0' });
-				assert.strictEqual(lastMessage, 'OopsError: Unknown error\nOopsError: oops10\n  at <did-it-again.js:1:0>');
+					util.logError({ name: 'OopsError', stack: 'OopsError: oops10\nat did-it-again.js:1:0' });
+					assert.strictEqual(lastMessage, 'OopsError: Unknown error\nOopsError: oops10\n  at <did-it-again.js:1:0>');
 
-				// Chrome/IE stack
-				util.logError({
-					name: 'OopsError',
-					stack: '    at Foo (http://localhost:8080/test.js:2:8)\n    at http://localhost:8080/test.html:7:5'
-				});
-				assert.strictEqual(lastMessage, 'OopsError: Unknown error\n  at Foo  <test.js:2:8>\n  at <test.html:7:5>');
+					// Chrome/IE stack
+					util.logError({
+						name: 'OopsError',
+						stack: '    at Foo (http://localhost:8080/test.js:2:8)\n    at http://localhost:8080/test.html:7:5'
+					});
+					assert.strictEqual(lastMessage, 'OopsError: Unknown error\n  at Foo  <test.js:2:8>\n  at <test.html:7:5>');
 
-				// Safari/Firefox stack
-				util.logError({
-					name: 'OopsError',
-					stack: 'Foo@http://localhost:8080/test.js:2:8\nhttp://localhost:8080/test.html:7:5\nfail'
-				});
-				assert.strictEqual(lastMessage, 'OopsError: Unknown error\n  at Foo  <test.js:2:8>\n  at <test.html:7:5>\nfail');
-			}
-			finally {
-				console.error = oldConsoleError;
-			}
+					// Safari/Firefox stack
+					util.logError({
+						name: 'OopsError',
+						stack: 'Foo@http://localhost:8080/test.js:2:8\nhttp://localhost:8080/test.html:7:5\nfail'
+					});
+					assert.strictEqual(lastMessage, 'OopsError: Unknown error\n  at Foo  <test.js:2:8>\n  at <test.html:7:5>\nfail');
+				}
+				finally {
+					console.error = oldConsoleError;
+				}
+			},
 
-			// check that sourcemap resolution is working
-			if (has('host-node')) {
+			'source map from instrumentation': function () {
+				if (!has('host-node')) {
+					this.skip();
+				}
+
 				var dfd = this.async();
 				var wasInstrumented = false;
 
@@ -120,7 +125,8 @@ define([
 				var existingCoverage = global.__internCoverage;
 				global.__internCoverage = undefined;
 
-				oldConsoleError = console.error;
+				var oldConsoleError = console.error;
+				var lastMessage;
 				console.error = function (error) {
 					lastMessage = error.toString();
 				};
@@ -151,8 +157,42 @@ define([
 					}
 					catch (e) {
 						util.logError(e);
-						assert.include(lastMessage, 'util/foo.js:4');
+						assert.include(lastMessage, 'util/foo.js:4'); }
+				}));
+			},
+
+			'source map from file': function () {
+				if (!has('host-node')) {
+					this.skip();
+				}
+
+				var dfd = this.async();
+
+				// save any existing coverage data
+				/* jshint node:true */
+
+				var oldConsoleError = console.error;
+				var lastMessage;
+				console.error = function (error) {
+					lastMessage = error.toString();
+				};
+
+				// restore everything
+				dfd.promise.always(function (error) {
+					console.error = oldConsoleError;
+					if (error) {
+						throw error;
 					}
+				});
+
+				require([ '../data/lib/util/bar' ], dfd.callback(function (Bar) {
+					var bar = new Bar();
+					try {
+						bar.run();
+					}
+					catch (e) {
+						util.logError(e);
+						assert.match(lastMessage, /\bbar.ts:5\b/); }
 				}));
 			}
 		}
