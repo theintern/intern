@@ -25,8 +25,10 @@ else {
 		'./main',
 		'./lib/args',
 		'./lib/util',
-		'require'
-	], function (main, args, util, parentRequire) {
+		'require',
+		'dojo/has',
+		'dojo/has!host-node?dojo/node!path'
+	], function (main, args, util, parentRequire, has, pathUtil) {
 		if (!args.config) {
 			throw new Error('Missing "config" argument');
 		}
@@ -38,17 +40,33 @@ else {
 		main.mode = 'client';
 
 		require([ args.config ], function (config) {
+			// jshint maxcomplexity:12
 			util.swapLoader(config.useLoader).then(function (require) {
 				if (!config.loader) {
 					config.loader = {};
 				}
 
-				// if a `baseUrl` is specified in the arguments for the page, it should have priority over what came
-				// from the configuration file. this is especially important for the runner proxy, which serves
-				// `baseUrl` as the root path and so `baseUrl` must become `/` in the client even if it was something
-				// else in the config originally (for the server-side loader)
+				if (args.basePath) {
+					config.basePath = args.basePath;
+				}
+
 				if (args.baseUrl) {
 					config.loader.baseUrl = args.baseUrl;
+				}
+
+				if (has('host-node')) {
+					// if the client is running under Node.js, make baseUrl relative to basePath
+					config.basePath = pathUtil.resolve(config.basePath || process.cwd());
+					if (config.loader.baseUrl) {
+						config.loader.baseUrl = pathUtil.resolve(pathUtil.join(config.basePath, config.loader.baseUrl));
+					}
+				}
+				else {
+					// if the client is running in a browser, make relative baseUrls relative to the baseUrl
+					// specified in client.html, which is the directory containing node_modules
+					if (config.loader.baseUrl && config.loader.baseUrl.charAt(0) !== '/') {
+						config.loader.baseUrl = this.__internConfig.baseUrl + config.loader.baseUrl;
+					}
 				}
 
 				// Most loaders expose `require.config` for configuration, but the Dojo 1 loader does not
