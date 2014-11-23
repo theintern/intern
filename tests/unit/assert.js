@@ -708,7 +708,11 @@ define([
 		});
 
 		tdd.test('legacy edge cases', function () {
-			assert.notDeepEqual({valueOf: 1}, {}, 'own properties that shadow non-enumerable prototype properties should not be skipped');
+			assert.notDeepEqual(
+				{ valueOf: 1 },
+				{},
+				'own properties that shadow non-enumerable prototype properties should not be skipped'
+			);
 
 			shouldThrow(function () {
 				var arr = [1, 2, 3];
