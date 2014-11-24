@@ -283,15 +283,13 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 			}
 
 			var request = sendRequest(self.url, options);
-			request.then(null, function (error) {
+			request.then(resolve, function (error) {
 				if (error.response && error.response.statusCode >= 400) {
 					error = new Error('Download server returned status code ' + error.response.statusCode);
 				}
 
 				reject(error);
 			}, progress);
-
-			decompressor.on('close', resolve);
 		});
 	},
 
