@@ -3,22 +3,35 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Browser test runner</title>
+		<style>
+			.clientError {
+				padding: 0 20px;
+				border: solid 1px transparent;
+				font-family: sans-serif;
+			}
+			.clientError h2 {
+				background: #ffe0e0;
+				padding: .5em 1em;
+			}
+			.clientError .errorMessage {
+				padding: 4px 8px;
+				background: #efefef;
+				display: inline-block;
+			}
+		</style>
 		<script src="node_modules/dojo/dojo.js"></script>
 		<script>
 			(function () {
 				var existingOnError = window.onerror;
 				window.onerror = function (message, url, lineNumber) {
 					document.write(
-						'<div style="font-family:sans-serif;padding:0 20px;border:solid 1px transparent">' +
-						'<h2 style="background:#ffe0e0;padding:.5em 1em">Error</h2>' +
-						'<p>An error occurred while loading your tests:</p>' +
-						'<div><pre style="padding:4px 8px;background:#efefef;display:inline-block">' +
-						message +
-						'</pre></div>' +
-						'<p>' + url + ':' + lineNumber + '</p>' +
-						'</div>'
-					);
-					
+						'<div class="clientError">' +
+							'<h2>Error</h2>' +
+							'<p>An error occurred while loading your tests at <a class="errorUrl" href="' +
+								url + '">' + url + ':' + lineNumber + '</a>:</p>' +
+							'<div><pre class="errorMessage">' + message + '</pre></div>' +
+						'</div>');
+
 					if (existingOnError) {
 						return existingOnError.apply(null, arguments);
 					}
@@ -27,7 +40,7 @@
 				};
 
 				var basePath = location.pathname.replace(/\/+[^\/]*$/, '/');
-				var	internConfig = this.__internConfig = {
+				var internConfig = this.__internConfig = {
 					// For users running client.html directly, assume that the base path
 					// is two levels up (the parent of node_modules); this is most common.
 					// Users that need something special should provide an absolute module
