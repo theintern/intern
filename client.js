@@ -25,8 +25,9 @@ else {
 		'./main',
 		'./lib/args',
 		'./lib/util',
+		'dojo/has',
 		'require'
-	], function (main, args, util, parentRequire) {
+	], function (main, args, util, has, parentRequire) {
 		if (!args.config) {
 			throw new Error('Missing "config" argument');
 		}
@@ -36,6 +37,18 @@ else {
 		}
 
 		main.mode = 'client';
+
+		if (has('host-browser')) {
+			window.onerror = function (message, url, lineNumber, columnNumber, error) {
+				var div = document.createElement('div');
+				div.innerHTML = '<h2>Error!</h2>' +
+					'<p>An unhandled error occurred during testing at ' +
+					'<a href="'+ url + '">' + url + ':' +
+					lineNumber + (columnNumber ? ':' + columnNumber : '') +
+					'</a>:</p><div><pre>' + (error || message) + '</pre></div>';
+				document.body.appendChild(div);
+			};
+		}
 
 		require([ args.config ], function (config) {
 			util.swapLoader(config.useLoader).then(function (require) {
