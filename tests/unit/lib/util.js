@@ -200,10 +200,11 @@ define([
 
 				error.actual = {};
 				error.expected = {};
+				error.stack = '';
 
 				assert.include(
 					util.getErrorMessage(error),
-					'Error: oops\n  at ',
+					'Error: oops\nNo stack',
 					'No diff should exist for identical objects'
 				);
 			}
@@ -238,19 +239,28 @@ define([
 			object = function fn() {};
 			object.foo = 'foo';
 
-			assert.strictEqual(
-				util.serialize(object),
-				'fn({\n  "foo": "foo"\n})',
-				'Functions should be displayed with the function name and static properties'
-			);
+			if (has('function-name')) {
+				assert.strictEqual(
+					util.serialize(object),
+					'fn({\n  "foo": "foo"\n})',
+					'Functions should be displayed with the function name and static properties'
+				);
 
-			object = function () {};
+				object = function () {};
 
-			assert.strictEqual(
-				util.serialize(object),
-				'<anonymous>({})',
-				'Functions without names should be given an anonymous name'
-			);
+				assert.strictEqual(
+					util.serialize(object),
+					'<anonymous>({})',
+					'Functions without names should be given an anonymous name'
+				);
+			}
+			else {
+				assert.strictEqual(
+					util.serialize(object),
+					'<function>({\n  "foo": "foo"\n})',
+					'Functions should be displayed as a function with static properties'
+				);
+			}
 
 			object = { s: 'string', n: 1.23, b: true, o: null, u: undefined, r: /foo/im, d: new Date(0) };
 			assert.strictEqual(
