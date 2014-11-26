@@ -184,15 +184,12 @@ define([
 			},
 
 			'object diff': function () {
-				var actual = { foo: [] };
-				var expected = {};
-
 				var error = {
 					name: 'Error',
 					message: 'Oops',
 					showDiff: true,
-					actual: actual,
-					expected: expected,
+					actual: { foo: [] },
+					expected: {},
 					stack: ''
 				};
 
@@ -209,6 +206,16 @@ define([
 					util.getErrorMessage(error),
 					'Error: Oops\nNo stack',
 					'No diff should exist for identical objects'
+				);
+
+				error.actual = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ];
+				error.expected = [ 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 32 ];
+
+				assert.include(
+					util.getErrorMessage(error),
+					'Error: Oops\n\n  [\nE   0: 0,\nA   0: 1,\n    1: 2,\n    2: 3,\n    3: 4,\n    4: 5,\n[...]\n' +
+					'    11: 12,\n    12: 13,\n    13: 14,\n    14: 15,\nE   15: 32,\nA   15: 16,\n    length: 16\n  ]\n\n',
+					'Splits in long diffs should be indicated by an ellipsis'
 				);
 			}
 		},
@@ -237,6 +244,16 @@ define([
 				util.serialize(object),
 				'[\n  0: "zero",\n  "foo": "foo",\n  length: 1\n]',
 				'Arrays should be displayed with square brackets, non-numeric keys, and length'
+			);
+
+			object = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ];
+			object.$foo = '$foo';
+
+			assert.strictEqual(
+				util.serialize(object),
+				'[\n  0: 1,\n  1: 2,\n  2: 3,\n  3: 4,\n  4: 5,\n  5: 6,\n  6: 7,\n  7: 8,\n  8: 9,\n  9: 10,\n' +
+				'  10: 11,\n  11: 12,\n  12: 13,\n  13: 14,\n  14: 15,\n  15: 16,\n  "$foo": "$foo",\n  length: 16\n]',
+				'Numeric keys should be sorted in natural order and placed before properties'
 			);
 
 			object = function fn() {};
