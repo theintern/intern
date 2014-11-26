@@ -39,10 +39,13 @@ define({
 	// used here
 	loader: {
 		// Packages that should be registered with the loader in each testing environment
-		packages: [ { name: 'intern-selftest', location: '.' } ],
+		packages: [
+			{ name: 'intern-selftest', location: '.' }
+		],
 		map: {
 			'intern-selftest': {
 				dojo: 'intern-selftest/node_modules/dojo',
+				diff: 'intern-selftest/node_modules/diff/diff',
 
 				// TODO: This is a hack -- it should be replaced when the Dojo loader has been fixed.
 				// We need to load a custom dojo/node for dependencies like

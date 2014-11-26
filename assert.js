@@ -10,57 +10,13 @@
 define([
 	'dojo/_base/lang',
 	'dojo/_base/array',
+	'./lib/util',
 	'dojo/json'
-], function (lang, arrayUtil, JSON) {
-	var objProto = Object.prototype,
-		sliceArray = Array.prototype.slice,
-		objectToString = objProto.toString,
-		getObjectKeys = function (obj) {
-			// Detect an explicitly assigned constructor property.
-			function hasAssignedConstructorProperty(obj) {
-				if (!(obj instanceof obj.constructor)) {
-					return true;
-				}
-				if (obj.constructor !== Object) {
-					return hasAssignedConstructorProperty(obj.constructor.prototype);
-				}
-				return false;
-			}
-
-			var keys = [];
-			for (var k in obj) {
-				keys.push(k);
-			}
-
-			// Fix for oldIE bug where own properties like toString are skipped
-			// because they shadow non-enumerable Object.prototype properties,
-			// for more info see https://github.com/theintern/intern/issues/26
-			arrayUtil.forEach(lang._extraNames, function (key) {
-				if (obj[key] !== objProto[key]) {
-					// Handle the construtor property specially. In modern browsers the constructor
-					// property is only enumerated if it's explicitly assigned, not if it's just
-					// different than the base object constructor.
-					if (key !== 'constructor' || !hasAssignedConstructorProperty(obj)) {
-						keys.push(key);
-					}
-				}
-			});
-
-			return keys;
-		},
-		getIndexOf = function (haystack, needle) {
-			if (haystack.indexOf) {
-				return haystack.indexOf(needle);
-			}
-
-			for (var i = 0; i < haystack.length; ++i) {
-				if (i in haystack && haystack[i] === needle) {
-					return i;
-				}
-			}
-
-			return -1;
-		},
+], function (lang, arrayUtil, util, JSON) {
+	var sliceArray = Array.prototype.slice,
+		objectToString = Object.prototype.toString,
+		getObjectKeys = util.getObjectKeys,
+		getIndexOf = util.getIndexOf,
 		inspect = (function () {
 			/**
 			 * Gets the name of a function, in a cross-browser way.
