@@ -260,6 +260,10 @@ define([
 			Ctor = function () { this.foo = 'bar'; this.constructor = function () {}; };
 			assert.notDeepEqual(new Ctor(), { foo: 'bar' },
 				'expected objects with different explicitly assigned constructors to not be equal');
+			var Child = function () {};
+			Child.prototype = new Ctor();
+			assert.notDeepEqual(new Child(), { foo: 'bar' },
+				'expected objects with different explicitly assigned constructors in prototype to not be equal');
 		});
 
 		tdd.test('deepEqual (ordering)', function () {
