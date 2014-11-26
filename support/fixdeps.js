@@ -11,7 +11,7 @@ if (!fs.existsSync(expected)) {
 
 // AMD-loaded dependencies need to exist in Intern's node_modules directory,
 // regardless of whether or not they were deduped by npm
-[ 'dojo', 'chai' ].forEach(function (dependency) {
+[ 'dojo', 'chai', 'diff' ].forEach(function (dependency) {
 	var expectedPath = path.join(expected, dependency);
 
 	// Reset any existing dependency symlinks in case the location of the
