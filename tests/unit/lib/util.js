@@ -198,7 +198,7 @@ define([
 
 				assert.include(
 					util.getErrorMessage(error),
-					'Error: Oops\n\nE {}\nA {\nA   "foo": [\nA     length: 0\nA   ]\nA }\n',
+					'Error: Oops\n\nE {}\nA {\nA   "foo": [\nA     length: 0\nA   ]\nA }\n\n',
 					'Object diff should be included in message'
 				);
 
