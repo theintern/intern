@@ -33,7 +33,7 @@ define([
 			return;
 		}
 
-		throw new assert.AssertionError({ message: 'Expected an error' });
+		throw new assert.AssertionError({ message: 'Expected an error: ' + msg });
 	};
 
 	/*

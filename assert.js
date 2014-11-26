@@ -28,18 +28,6 @@ define([
 			}
 
 			/**
-			 * This allows the retrieval of enumerable property names of an object,
-			 * inherited or not.
-			 */
-			function getEnumerableProperties(object) {
-				var result = [];
-				for (var name in object) {
-					result.push(name);
-				}
-				return result;
-			}
-
-			/**
 			 * Echos the value of a value. Trys to print the value out
 			 * in the best way possible given the different types.
 			 */
@@ -111,7 +99,7 @@ define([
 				}
 
 				// Look up the keys of the object.
-				var visibleKeys = getEnumerableProperties(value);
+				var visibleKeys = getObjectKeys(value, true);
 				var keys = visibleKeys;
 
 				// Some type of object without properties can be shortcutted.
@@ -432,7 +420,7 @@ define([
 				return str;
 			}
 			else if (type === '[object Object]') {
-				var keys = getObjectKeys(obj),
+				var keys = getObjectKeys(obj, true),
 					kstr = keys.length > 2
 						? (keys.splice(0, 2).join(', ') + ', ...') : (keys.join(', '));
 				str = '{ Object (' + kstr + ') }';
@@ -575,8 +563,8 @@ define([
 					i;
 
 				try {
-					aKeys = getObjectKeys(a);
-					bKeys = getObjectKeys(b);
+					aKeys = getObjectKeys(a, true);
+					bKeys = getObjectKeys(b, true);
 				}
 				// happens when one is a string literal and the other isn't
 				catch (e) {
