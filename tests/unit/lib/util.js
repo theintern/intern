@@ -187,24 +187,27 @@ define([
 				var actual = { foo: [] };
 				var expected = {};
 
-				var error = new Error('oops');
-				error.showDiff = true;
-				error.actual = actual;
-				error.expected = expected;
+				var error = {
+					name: 'Error',
+					message: 'Oops',
+					showDiff: true,
+					actual: actual,
+					expected: expected,
+					stack: ''
+				};
 
 				assert.include(
 					util.getErrorMessage(error),
-					'Error: oops\n\nE {}\nA {\nA   "foo": [\nA     length: 0\nA   ]\nA }\n',
+					'Error: Oops\n\nE {}\nA {\nA   "foo": [\nA     length: 0\nA   ]\nA }\n',
 					'Object diff should be included in message'
 				);
 
 				error.actual = {};
 				error.expected = {};
-				error.stack = '';
 
 				assert.include(
 					util.getErrorMessage(error),
-					'Error: oops\nNo stack',
+					'Error: Oops\nNo stack',
 					'No diff should exist for identical objects'
 				);
 			}
