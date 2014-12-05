@@ -14,8 +14,8 @@
 		"istanbul": "0.2.16",
 		"source-map": "0.1.33",
 		"dojo": "1.9.4",
-		"leadfoot": "1.1.1",
-		"digdug": "1.1.0",
+		"leadfoot": "1.2.0",
+		"digdug": "1.2.0",
 		"charm": "0.2.0",
 		"diff": "1.1.0"
 	},
