@@ -10,7 +10,7 @@
 		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/leadfoot/blob/master/LICENSE" }
 	],
 	"dependencies": {
-		"dojo": "2.0.0-alpha3"
+		"dojo": "2.0.0-alpha4"
 	},
 	"devDependencies": {
 		"intern": "1.7.0"
