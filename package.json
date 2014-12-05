@@ -14,7 +14,7 @@
 		"decompress": "0.2.3"
 	},
 	"devDependencies": {
-		"intern": "1.7.0"
+		"intern": "2.1.1"
 	},
 	"scripts": {
 		"test": "./node_modules/.bin/intern-client config=tests/intern"
