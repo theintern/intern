@@ -20,7 +20,7 @@
 		"diff": "1.1.0"
 	},
 	"devDependencies": {
-		"intern-geezer": "2.2.1"
+		"intern-geezer": "2.2.2"
 	},
 	"scripts": {
 		"install": "node support/fixdeps.js",
