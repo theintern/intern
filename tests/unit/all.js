@@ -4,7 +4,6 @@ define([
 	'./lib/EnvironmentType',
 	'./lib/Suite',
 	'./lib/Test',
-	'./lib/args',
 	'./lib/util',
 	'./lib/reporterManager',
 	'./lib/interfaces/tdd',

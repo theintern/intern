@@ -23,45 +23,21 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 }
 else {
 	define([
-		'./main',
-		'./lib/args',
-		'./lib/util',
-		'require'
-	], function (main, args, util, parentRequire) {
-		if (!args.config) {
-			throw new Error('Missing "config" argument');
-		}
-
-		if (/^(?:\w+:)?\/\//.test(args.config)) {
-			throw new Error('Cross-origin loading of configuration data is not allowed for security reasons');
-		}
-
-		main.mode = 'client';
-
-		require([ args.config ], function (config) {
-			util.swapLoader(config.useLoader).then(function (require) {
-				if (!config.loader) {
-					config.loader = {};
-				}
-
-				// if a `baseUrl` is specified in the arguments for the page, it should have priority over what came
-				// from the configuration file. this is especially important for the runner proxy, which serves
-				// `baseUrl` as the root path and so `baseUrl` must become `/` in the client even if it was something
-				// else in the config originally (for the server-side loader)
-				if (args.baseUrl) {
-					config.loader.baseUrl = args.baseUrl;
-				}
-
-				// Most loaders expose `require.config` for configuration, but the Dojo 1 loader does not
-				(require.config || require)(this.__internConfig);
-				(require.config || require)(config.loader);
-
-				require([ parentRequire.toAbsMid('./lib/realClient') ], function (realClient) {
-					realClient.run(args, config);
-				});
-			}, function (error) {
-				console.error(error);
-			});
+		'./lib/executors/PreExecutor'
+	], function (PreExecutor) {
+		var executor = new PreExecutor({
+			defaultLoaderConfig: (function () { return this; })().__internConfig,
+			executorId: 'client'
 		});
+
+		var promise = executor.run();
+
+		if (typeof process !== 'undefined') {
+			promise.then(function () {
+				process.exit(0);
+			}, function () {
+				process.exit(1);
+			});
+		}
 	});
 }
