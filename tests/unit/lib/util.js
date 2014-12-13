@@ -49,27 +49,6 @@ define([
 				'Browser, version, platform, platform version environment properties should be permutated');
 		},
 
-		'.logError': function () {
-			// Some environments do not have a console to log to
-			if (typeof console === 'undefined') {
-				this.skip('Environment has no console');
-			}
-
-			var lastMessage;
-			var oldConsoleError = console.error;
-			console.error = function (error) {
-				lastMessage = error.toString();
-			};
-
-			try {
-				util.logError('oops');
-				assert.strictEqual(lastMessage, 'oops', 'Error messages should be logged to the console');
-			}
-			finally {
-				console.error = oldConsoleError;
-			}
-		},
-
 		'.getErrorMessage': {
 			'basic error logging': function () {
 				var message;
@@ -83,17 +62,20 @@ define([
 				message = util.getErrorMessage({ name: 'OopsError', message: 'oops3', fileName: 'did-it-again.js' });
 				assert.strictEqual(message, 'OopsError: oops3\n  at did-it-again.js\nNo stack');
 
-				message = util.getErrorMessage({ name: 'OopsError', message: 'oops4', fileName: 'did-it-again.js', lineNumber: '1' });
+				message = util.getErrorMessage({ name: 'OopsError', message: 'oops4', fileName: 'did-it-again.js',
+					lineNumber: '1' });
 				assert.strictEqual(message, 'OopsError: oops4\n  at did-it-again.js:1\nNo stack');
 
-				message = util.getErrorMessage({ name: 'OopsError', message: 'oops5', fileName: 'did-it-again.js', lineNumber: '1', columnNumber: '0' });
+				message = util.getErrorMessage({ name: 'OopsError', message: 'oops5', fileName: 'did-it-again.js', lineNumber: '1',
+					columnNumber: '0' });
 				assert.strictEqual(message, 'OopsError: oops5\n  at did-it-again.js:1:0\nNo stack');
 			},
 
 			'stack traces': function () {
 				var message;
 
-				message = util.getErrorMessage({ name: 'OopsError', message: 'oops6', stack: 'OopsError: oops6\nat did-it-again.js:1:0' });
+				message = util.getErrorMessage({ name: 'OopsError', message: 'oops6',
+					stack: 'OopsError: oops6\nat did-it-again.js:1:0' });
 				assert.strictEqual(message, 'OopsError: oops6\n  at <did-it-again.js:1:0>');
 
 				message = util.getErrorMessage({ name: 'OopsError', message: 'oops7', stack: 'oops7\nat did-it-again.js:1:0' });
@@ -125,7 +107,7 @@ define([
 
 			'source map from instrumentation': function () {
 				if (!has('host-node')) {
-					this.skip();
+					this.skip('requires Node.js');
 				}
 
 				var dfd = this.async();
@@ -145,7 +127,7 @@ define([
 				});
 
 				// restore everything
-				dfd.promise.always(function (error) {
+				dfd.promise.finally(function (error) {
 					global.__internCoverage = existingCoverage;
 					hook.unhookRunInThisContext();
 					if (error) {
@@ -167,7 +149,7 @@ define([
 
 			'source map from file': function () {
 				if (!has('host-node')) {
-					this.skip();
+					this.skip('requires Node.js');
 				}
 
 				var dfd = this.async();
@@ -285,7 +267,8 @@ define([
 			object = { s: 'string', n: 1.23, b: true, o: null, u: undefined, r: /foo/im, d: new Date(0) };
 			assert.strictEqual(
 				util.serialize(object),
-				'{\n  "b": true,\n  "d": 1970-01-01T00:00:00.000Z,\n  "n": 1.23,\n  "o": null,\n  "r": /foo/im,\n  "s": "string",\n  "u": undefined\n}',
+				'{\n  "b": true,\n  "d": 1970-01-01T00:00:00.000Z,\n  "n": 1.23,\n  "o": null,\n  "r": /foo/im,' +
+				'\n  "s": "string",\n  "u": undefined\n}',
 				'All primitive JavaScript types should be represented accurately in the output'
 			);
 		}

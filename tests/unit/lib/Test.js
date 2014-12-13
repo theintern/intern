@@ -3,15 +3,25 @@ define([
 	'intern/chai!assert',
 	'../../../lib/Test',
 	'../../../lib/Suite',
-	'dojo/Deferred',
-	'dojo/topic'
-], function (registerSuite, assert, Test, Suite, Deferred, topic) {
+	'dojo/Promise'
+], function (registerSuite, assert, Test, Suite, Promise) {
+	function createTest(options) {
+		if (!options.parent) {
+			options.parent = {
+				reporterManager: {
+					emit: options.reporterManagerEmit || function () {}
+				}
+			};
+		}
+		return new Test(options);
+	}
+
 	registerSuite({
 		name: 'intern/lib/Test',
 
 		'Test#test': function () {
-			var dfd = this.async(250),
-				executed = false;
+			var dfd = this.async(250);
+			var executed = false;
 
 			var test = new Test({
 				test: function () {
@@ -25,13 +35,13 @@ define([
 		},
 
 		'Test#test throws': function () {
-			var dfd = this.async(250),
-				thrownError = new Error('Oops'),
-				test = new Test({
-					test: function () {
-						throw thrownError;
-					}
-				});
+			var dfd = this.async(250);
+			var thrownError = new Error('Oops');
+			var test = new Test({
+				test: function () {
+					throw thrownError;
+				}
+			});
 
 			test.run().then(function () {
 				dfd.reject(new assert.AssertionError({ message: 'Test should not resolve when it throws an error' }));
@@ -42,83 +52,89 @@ define([
 		},
 
 		'Test#async implicit': function () {
-			var dfd = this.async(),
-				resolved = false,
-				test = new Test({
-					test: function () {
-						var dfd = this.async(250);
-						setTimeout(function () {
-							resolved = true;
-							dfd.resolve();
-						}, 0);
-					}
-				});
+			var dfd = this.async();
+			var resolved = false;
+			var test = new Test({
+				test: function () {
+					var dfd = this.async(250);
+					setTimeout(function () {
+						resolved = true;
+						dfd.resolve();
+					}, 0);
+				}
+			});
 
 			test.run().then(dfd.callback(function () {
 				assert.isTrue(resolved, 'Test promise should have been resolved by the asynchronous code in the test');
 			}),
 			function () {
-				dfd.reject(new assert.AssertionError({ message: 'Test promise should resolve successfully, without any timeout' }));
+				dfd.reject(new assert.AssertionError({ message:
+					'Test promise should resolve successfully, without any timeout' }));
 			});
 
 			assert.isFalse(resolved, 'Test promise should not resolve immediately after calling run');
 		},
 
 		'Test#async explicit': function () {
-			var dfd = this.async(),
-				resolved = false,
-				test = new Test({
-					test: function () {
-						var dfd = new Deferred();
-						setTimeout(function () {
-							resolved = true;
-							dfd.resolve();
-						}, 0);
-						return dfd.promise;
-					}
-				});
+			var dfd = this.async();
+			var resolved = false;
+			var test = new Test({
+				test: function () {
+					var dfd = new Promise.Deferred();
+					setTimeout(function () {
+						resolved = true;
+						dfd.resolve();
+					}, 0);
+					return dfd.promise;
+				}
+			});
 
 			test.run().then(dfd.callback(function () {
 				assert.isTrue(resolved, 'Test promise should have been resolved by the asynchronous code in the test');
 			}),
 			function () {
-				dfd.reject(new assert.AssertionError({ message: 'Test promise should resolve successfully, without any timeout' }));
+				dfd.reject(new assert.AssertionError({
+					message: 'Test promise should resolve successfully, without any timeout'
+				}));
 			});
 
 			assert.isFalse(resolved, 'Test promise should not resolve immediately after calling run');
 		},
 
 		'Test#async callback + numCallsUntilResolution': function () {
-			var dfd = this.async(),
-				numCalls = 0,
-				test = new Test({
-					test: function () {
-						var dfd = this.async(250, 3);
+			var dfd = this.async();
+			var numCalls = 0;
+			var test = new Test({
+				test: function () {
+					var dfd = this.async(250, 3);
 
-						for (var i = 0; i < 3; ++i) {
-							dfd.callback(function () {
-								++numCalls;
-							})();
-						}
+					for (var i = 0; i < 3; ++i) {
+						dfd.callback(function () {
+							++numCalls;
+						})();
 					}
-				});
+				}
+			});
 
 			test.run().then(function () {
-				assert.strictEqual(numCalls, 3, 'Callback method should have been invoked three times before test completed');
+				assert.strictEqual(numCalls, 3,
+					'Callback method should have been invoked three times before test completed');
 				dfd.resolve();
 			},
 			function () {
-				dfd.reject(new assert.AssertionError({ message: 'Test should pass if specified number of callbacks are triggered on the promise' }));
+				dfd.reject(new assert.AssertionError({
+					message: 'Test should pass if specified number of callbacks are triggered on the promise'
+				}));
 			});
 		},
 
 		'Test#async -> timeout': function () {
-			var dfd = this.async(250),
-				test = new Test({
-					test: function () {
-						this.async(250);
-					}
-				});
+			var dfd = this.async(500);
+			var test = new Test({
+				test: function () {
+					this.async(250);
+				}
+			});
 
 			test.run().then(function () {
 				dfd.reject(new Error('Test should timeout if async and the promise is never resolved'));
@@ -130,8 +146,8 @@ define([
 		},
 
 		'Test#async -> reject': function () {
-			var dfd = this.async(250),
-				thrownError = new Error('Oops');
+			var dfd = this.async(250);
+			var thrownError = new Error('Oops');
 
 			var test = new Test({
 				test: function () {
@@ -141,7 +157,9 @@ define([
 			});
 
 			test.run().then(function () {
-				dfd.reject(new assert.AssertionError({ message: 'Test should throw if async and the promise is rejected' }));
+				dfd.reject(new assert.AssertionError({
+					message: 'Test should throw if async and the promise is rejected'
+				}));
 			},
 			function (error) {
 				assert.strictEqual(test.error, error, 'Error thrown in test should equal our assertion error');
@@ -165,128 +183,138 @@ define([
 				// when a browser decides to be slow for no reason (or execute setTimeout too fast for no reason)
 				// so we need to be really lax with this check
 				assert.typeOf(test.timeElapsed, 'number', 'Test time elapsed should be a number');
-				assert(test.timeElapsed > 0, 'Test time elapsed for 100ms async test should be greater than zero milliseconds');
+				assert(test.timeElapsed > 0,
+					'Test time elapsed for 100ms async test should be greater than zero milliseconds');
 			});
 		},
 
 		'Test#toJSON': function () {
 			var test = new Test({
-					name: 'test name',
-					parent: {
-						id: 'parent id',
-						name: 'parent id',
-						sessionId: 'abcd'
-					},
-					test: function () {}
-				}),
-				expected = {
-					error: null,
-					id: 'parent id - test name',
-					name: 'test name',
-					sessionId: 'abcd',
-					timeElapsed: 100,
-					timeout: 30000,
-					hasPassed: true,
-					skipped: null
-				};
+				name: 'test name',
+				parent: {
+					id: 'parent id',
+					name: 'parent id',
+					sessionId: 'abcd'
+				},
+				test: function () {}
+			});
+			var expected = {
+				error: null,
+				id: 'parent id - test name',
+				name: 'test name',
+				sessionId: 'abcd',
+				timeElapsed: 100,
+				timeout: 30000,
+				hasPassed: true,
+				skipped: null
+			};
 
 			return test.run().then(function () {
 				// Elapsed time is non-deterministic, so just force it to a value we can test
 				test.timeElapsed = 100;
 
-				assert.deepEqual(test.toJSON(), expected, 'Test#toJSON should return expected JSON structure for test with no error');
+				assert.deepEqual(test.toJSON(), expected,
+					'Test#toJSON should return expected JSON structure for test with no error');
 
 				test.error = expected.error = { name: 'Oops', message: 'message', stack: 'stack' };
-				assert.deepEqual(test.toJSON(), expected, 'Test#toJSON should return expected JSON structure for test with error');
+				assert.deepEqual(test.toJSON(), expected,
+					'Test#toJSON should return expected JSON structure for test with error');
 			});
 		},
 
 		'Test#hasPassed': function () {
-			var dfd = this.async(null, 2),
-				thrownError = new Error('Oops'),
-				goodTest = new Test({ test: function () {} }),
-				badTest = new Test({ test: function () { throw thrownError; } });
+			var dfd = this.async(null, 2);
+			var thrownError = new Error('Oops');
+			var goodTest = new Test({ test: function () {} });
+			var badTest = new Test({ test: function () {
+				throw thrownError;
+			} });
 
 			assert.isFalse(goodTest.hasPassed, 'Good test should not have passed if it has not been executed');
 			assert.isFalse(badTest.hasPassed, 'Bad test should not have passed if it has not been executed');
-			goodTest.run().always(dfd.callback(function () {
+			goodTest.run().finally(dfd.callback(function () {
 				assert.isTrue(goodTest.hasPassed, 'Good test should have passed after execution without error');
 			}));
-			badTest.run().always(dfd.callback(function () {
+			badTest.run().finally(dfd.callback(function () {
 				assert.isFalse(badTest.hasPassed, 'Bad test should not have passed after execution with error');
 				assert.strictEqual(badTest.error, thrownError, 'Bad test error should be the error which was thrown');
 			}));
 		},
 
 		'Test#constructor topic': function () {
-			var topicFired = false,
-				actualTest,
-				handle = topic.subscribe('/test/new', function (test) {
-					topicFired = true;
-					actualTest = test;
-				});
-
-			try {
-				var expectedTest = new Test({});
-				assert.isTrue(topicFired, '/test/new topic should fire after a test is created');
-				assert.strictEqual(actualTest, expectedTest, '/test/new topic should be passed the test that was just created');
-			}
-			finally {
-				handle.remove();
-			}
+			var topicFired = false;
+			var actualTest;
+			var expectedTest = createTest({
+				reporterManagerEmit: function (topic, test) {
+					if (topic === 'newTest') {
+						topicFired = true;
+						actualTest = test;
+					}
+				}
+			});
+			assert.isTrue(topicFired, 'newTest topic should fire after a test is created');
+			assert.strictEqual(actualTest, expectedTest,
+				'newTest topic should be passed the test that was just created');
 		},
 
 		'Test#sessionId': function () {
 			var test = new Test({
 				parent: new Suite({ sessionId: 'parent' })
 			});
-
-			assert.strictEqual(test.sessionId, test.parent.sessionId, 'Test#sessionId should get the sessionId from the test\'s parent');
+			assert.strictEqual(test.sessionId, test.parent.sessionId,
+				'Test#sessionId should get the sessionId from the test\'s parent');
 		},
 
 		'Test#remote': function () {
-			var mockRemote = { sessionId: 'test' },
-				test = new Test({
-					parent: new Suite({ remote: mockRemote })
-				});
-
-			assert.strictEqual(test.remote, mockRemote, 'Test#remote should get the remote value from from the test\'s parent');
+			var mockRemote = { sessionId: 'test' };
+			var test = new Test({
+				parent: new Suite({ remote: mockRemote })
+			});
+			assert.strictEqual(test.remote, mockRemote,
+				'Test#remote should get the remote value from from the test\'s parent');
 		},
 
 		'Test#skip': function () {
-			var topicFired = false,
-				actualTest,
-				handle = topic.subscribe('/test/skip', function (test) {
-					topicFired = true;
-					actualTest = test;
-				}),
-				dfd = this.async();
-
-			dfd.promise.always(function () {
-				handle.remove();
-			});
+			var actualTests = {};
+			var expectedTests = {};
+			var dfd = this.async();
 
 			// setting the skipped property on a test should cause it to be skipped
-			var expectedTest = new Test({});
-			expectedTest.skipped = 'reason';
-			expectedTest.run().always(dfd.callback(function () {
-				assert.isTrue(topicFired, '/test/skip topic should fire when a test is skipped');
-				assert.strictEqual(actualTest, expectedTest, '/test/skip topic should be passed the test that was skipped');
-				assert.propertyVal(actualTest, 'skipped', 'reason', 'test should have `skipped` property with expected value');
+			expectedTests.first = createTest({
+				reporterManagerEmit: function (topic, test) {
+					if (topic === 'testSkip') {
+						actualTests.first = test;
+					}
+				}
+			});
+			expectedTests.first.skipped = 'reason';
+			expectedTests.first.run().finally(dfd.callback(function () {
+				assert.property(actualTests, 'first', 'testSkip topic should fire when a test is skipped');
+				assert.strictEqual(actualTests.first, expectedTests.first,
+					'testSkip topic should be passed the test that was skipped');
+				assert.propertyVal(actualTests.first, 'skipped', 'reason',
+					'test should have `skipped` property with expected value');
 			}));
 
 			// calling skip from within a test should cause it to be skipped
-			expectedTest = new Test({
+			expectedTests.second = createTest({
 				test: function () {
 					this.skip('skipping');
+				},
+				reporterManagerEmit: function (topic, test) {
+					if (topic === 'testSkip') {
+						if (topic === 'testSkip') {
+							actualTests.second = test;
+						}
+					}
 				}
 			});
-			topicFired = false;
-			actualTest = null;
-			expectedTest.run().always(dfd.callback(function () {
-				assert.isTrue(topicFired, '/test/skip topic should fire when a test is skipped');
-				assert.strictEqual(actualTest, expectedTest, '/test/skip topic should be passed the test that was skipped');
-				assert.propertyVal(actualTest, 'skipped', 'skipping', 'test should have `skipped` property with expected value');
+			expectedTests.second.run().finally(dfd.callback(function () {
+				assert.property(actualTests, 'second', 'testSkip topic should fire when a test is skipped');
+				assert.strictEqual(actualTests.second, expectedTests.second,
+					'testSkip topic should be passed the test that was skipped');
+				assert.propertyVal(actualTests.second, 'skipped', 'reason',
+					'test should have `skipped` property with expected value');
 			}));
 		}
 	});

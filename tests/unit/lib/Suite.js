@@ -3,9 +3,8 @@ define([
 	'intern/chai!assert',
 	'../../../lib/Suite',
 	'../../../lib/Test',
-	'dojo/Deferred',
-	'dojo/topic'
-], function (registerSuite, assert, Suite, Test, Deferred, topic) {
+	'dojo/Promise'
+], function (registerSuite, assert, Suite, Test, Promise) {
 	function createLifecycle(options) {
 		options = options || {};
 
@@ -43,10 +42,9 @@ define([
 		}
 
 		return function () {
-			var dfd = this.async(1000),
-				suite = new Suite(options),
-				results = [],
-				handles = [];
+			var dfd = this.async(1000);
+			var suite = new Suite(options);
+			var results = [];
 
 			[ 'setup', 'beforeEach', 'afterEach', 'teardown' ].forEach(function (method) {
 				suite[method] = function () {
@@ -63,33 +61,29 @@ define([
 				}));
 			});
 
-			handles = [
-				topic.subscribe('/suite/start', function () {
-					results.push('startTopic');
-					assert.deepEqual(slice.call(arguments, 0), [ suite ],
-						'Arguments broadcast to /suite/start should be the suite being executed');
+			suite.reporterManager = {
+				emit: dfd.rejectOnError(function (topic) {
+					if (topic === 'suiteStart') {
+						results.push('startTopic');
+						assert.deepEqual(slice.call(arguments, 1), [ suite ],
+							'Arguments broadcast to /suite/start should be the suite being executed');
 
-					if (options.publishAfterSetup) {
-						assert.deepEqual(results, [ 'setup', 'startTopic' ],
-							'Suite start topic should broadcast after suite starts');
+						if (options.publishAfterSetup) {
+							assert.deepEqual(results, [ 'setup', 'startTopic' ],
+								'Suite start topic should broadcast after suite starts');
+						}
+						else {
+							assert.deepEqual(results, [ 'startTopic' ],
+								'Suite start topic should broadcast before suite starts');
+						}
 					}
-					else {
-						assert.deepEqual(results, [ 'startTopic' ],
-							'Suite start topic should broadcast before suite starts');
-					}
-				}),
-
-				topic.subscribe('/suite/end', function () {
-					results.push('endTopic');
-					assert.deepEqual(slice.call(arguments, 0), [ suite ],
-						'Arguments broadcast to /suite/end should be the suite being executed');
-
-					var handle;
-					while ((handle = handles.pop())) {
-						handle.remove();
+					else if (topic === 'suiteEnd') {
+						results.push('endTopic');
+						assert.deepEqual(slice.call(arguments, 1), [ suite ],
+							'Arguments broadcast to suiteEnd should be the suite being executed');
 					}
 				})
-			];
+			};
 
 			suite.run().then(dfd.callback(function () {
 				results.push('done');
@@ -98,18 +92,40 @@ define([
 		};
 	}
 
+	function createSuite(options) {
+		options = options || {};
+
+		options.reporterManager = options.reporterManager || {
+			emit: function () {}
+		};
+
+		var suite = new Suite(options);
+
+		// tests need to have a parent suite or their attempts to emit topics
+		// through their reporterManager will fail
+		if (options.tests) {
+			options.tests.forEach(function (test) {
+				if (!test.parent) {
+					test.parent = suite;
+				}
+			});
+		}
+
+		return suite;
+	}
+
 	function createSuiteThrows(method, options) {
 		options = options || {};
 		return function () {
-			var dfd = this.async(1000),
-				suite = new Suite(),
-				test = new Test({ test: function () {}, parent: suite }),
-				thrownError = new Error('Oops'),
-				finished = false;
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var test = new Test({ test: function () {}, parent: suite });
+			var thrownError = new Error('Oops');
+			var finished = false;
 
 			suite[method] = function () {
 				if (options.async) {
-					var dfd = new Deferred();
+					var dfd = new Promise.Deferred();
 
 					setTimeout(function () {
 						dfd.reject(thrownError);
@@ -126,29 +142,21 @@ define([
 
 			suite.run().then(function () {
 				finished = true;
-				dfd.reject(new assert.AssertionError({
-					message: 'Suite should never resolve after a fatal error in ' + method
-				}));
+				dfd.reject(new assert.AssertionError('Suite should never resolve after a fatal error in ' + method));
 			}, dfd.callback(function (error) {
 				finished = true;
-				assert.strictEqual(suite.error, thrownError,
-					'Error thrown in ' + method + ' should be the error set on suite');
-				assert.strictEqual(error, thrownError,
-					'Error thrown in ' + method + ' should be the error used by the promise');
+				assert.strictEqual(suite.error, thrownError, 'Error thrown in ' + method +
+					' should be the error set on suite');
+				assert.strictEqual(error, thrownError, 'Error thrown in ' + method +
+					' should be the error used by the promise');
 
 				if (method === 'beforeEach' || method === 'afterEach') {
-					assert.strictEqual(error.relatedTest, test,
-						'Error thrown in ' + method + ' should have the related test in the error');
+					assert.strictEqual(error.relatedTest, test, 'Error thrown in ' + method +
+						' should have the related test in the error');
 				}
 			}));
 
-			// TODO: I am not sure if this really ought to be the case!
-			if (method === 'setup' && !options.async) {
-				assert.isTrue(finished, 'Suite should finish immediately after run()');
-			}
-			else {
-				assert.isFalse(finished, 'Suite should not finish immediately after run()');
-			}
+			assert.isFalse(finished, 'Suite should not finish immediately after run()');
 		};
 	}
 
@@ -162,9 +170,9 @@ define([
 		'Suite lifecycle + publishAfterSetup': createLifecycle({ publishAfterSetup: true }),
 
 		'Suite#setup': function () {
-			var dfd = this.async(1000),
-				suite = new Suite(),
-				called = false;
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var called = false;
 
 			suite.setup = function () {
 				called = true;
@@ -178,15 +186,17 @@ define([
 		},
 
 		'Suite#beforeEach': function () {
-			var dfd = this.async(1000),
-				suite = new Suite(),
-				results = [],
-				counter = 0;
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var results = [];
+			var counter = 0;
+
+			function updateCount() {
+				results.push('' + counter);
+			}
 
 			for (var i = 0; i < 2; ++i) {
-				suite.tests.push(new Test({ test: function () {
-					results.push('' + counter);
-				}, parent: suite }));
+				suite.tests.push(new Test({ test: updateCount, parent: suite }));
 			}
 
 			suite.beforeEach = function () {
@@ -201,15 +211,17 @@ define([
 		},
 
 		'Suite#afterEach': function () {
-			var dfd = this.async(1000),
-				suite = new Suite(),
-				results = [],
-				counter = 0;
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var results = [];
+			var counter = 0;
+
+			function updateCount() {
+				results.push('' + (++counter));
+			}
 
 			for (var i = 0; i < 2; ++i) {
-				suite.tests.push(new Test({ test: function () {
-					results.push('' + (++counter));
-				}, parent: suite }));
+				suite.tests.push(new Test({ test: updateCount, parent: suite }));
 			}
 
 			suite.afterEach = function () {
@@ -224,9 +236,9 @@ define([
 		},
 
 		'Suite#teardown': function () {
-			var dfd = this.async(1000),
-				suite = new Suite(),
-				called = false;
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var called = false;
 
 			suite.teardown = function () {
 				called = true;
@@ -240,12 +252,12 @@ define([
 		},
 
 		'Suite#setup -> promise': function () {
-			var dfd = this.async(1000),
-				suite = new Suite(),
-				waited = false;
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var waited = false;
 
 			suite.setup = function () {
-				var setupDfd = new Deferred();
+				var setupDfd = new Promise.Deferred();
 
 				setTimeout(function () {
 					waited = true;
@@ -261,19 +273,21 @@ define([
 		},
 
 		'Suite#beforeEach -> promise': function () {
-			var dfd = this.async(1000),
-				suite = new Suite(),
-				results = [],
-				counter = 0;
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var results = [];
+			var counter = 0;
+
+			function updateCount() {
+				results.push('' + counter);
+			}
 
 			for (var i = 0; i < 2; ++i) {
-				suite.tests.push(new Test({ test: function () {
-					results.push('' + counter);
-				}, parent: suite }));
+				suite.tests.push(new Test({ test: updateCount, parent: suite }));
 			}
 
 			suite.beforeEach = function () {
-				var beforeEachDfd = new Deferred();
+				var beforeEachDfd = new Promise.Deferred();
 
 				setTimeout(function () {
 					results.push('b' + (++counter));
@@ -289,19 +303,21 @@ define([
 		},
 
 		'Suite#afterEach -> promise': function () {
-			var dfd = this.async(1000),
-				suite = new Suite(),
-				results = [],
-				counter = 0;
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var results = [];
+			var counter = 0;
+
+			function updateCount() {
+				results.push('' + (++counter));
+			}
 
 			for (var i = 0; i < 2; ++i) {
-				suite.tests.push(new Test({ test: function () {
-					results.push('' + (++counter));
-				}, parent: suite }));
+				suite.tests.push(new Test({ test: updateCount, parent: suite }));
 			}
 
 			suite.afterEach = function () {
-				var afterEachDfd = new Deferred();
+				var afterEachDfd = new Promise.Deferred();
 
 				setTimeout(function () {
 					results.push('a' + counter);
@@ -317,12 +333,12 @@ define([
 		},
 
 		'Suite#teardown -> promise': function () {
-			var dfd = this.async(1000),
-				suite = new Suite(),
-				waited = false;
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var waited = false;
 
 			suite.teardown = function () {
-				var teardownDfd = new Deferred();
+				var teardownDfd = new Promise.Deferred();
 
 				setTimeout(function () {
 					waited = true;
@@ -364,30 +380,28 @@ define([
 		'Suite#teardown -> promise rejects': createSuiteThrows('teardown', { async: true }),
 
 		'Suite#constructor topic': function () {
-			var topicFired = false,
-				actualSuite,
-				handle = topic.subscribe('/suite/new', function (suite) {
-					topicFired = true;
-					actualSuite = suite;
-				});
+			var topicFired = false;
+			var actualSuite;
+			var reporterManager = {
+				emit: function (topic, suite) {
+					if (topic === 'newSuite') {
+						topicFired = true;
+						actualSuite = suite;
+					}
+				}
+			};
 
-			try {
-				var expectedSuite = new Suite({});
-				assert.isTrue(topicFired, '/suite/new topic should fire after a suite is created');
-				assert.strictEqual(actualSuite, expectedSuite,
-					'/suite/new topic should be passed the suite that was just created');
-			}
-			finally {
-				handle.remove();
-			}
+			var expectedSuite = new Suite({ reporterManager: reporterManager });
+			assert.isTrue(topicFired, 'newSuite should be reported after a suite is created');
+			assert.strictEqual(actualSuite, expectedSuite, 'newSuite should be passed the suite that was just created');
 		},
 
 		'Suite#remote': function () {
-			var parentRemote = { sessionId: 'remote' },
-				parentSuite = new Suite({ remote: parentRemote }),
-				mockRemote = { sessionId: 'local' },
-				suite = new Suite({ remote: mockRemote }),
-				thrown = false;
+			var parentRemote = { session: { sessionId: 'remote' } };
+			var parentSuite = new Suite({ remote: parentRemote });
+			var mockRemote = { session: { sessionId: 'local' } };
+			var suite = new Suite({ remote: mockRemote });
+			var thrown = false;
 
 			assert.strictEqual(suite.remote, mockRemote, 'Suite#remote should come from suite when set');
 
@@ -410,7 +424,7 @@ define([
 			assert.strictEqual(suite.sessionId, null,
 				'Suite#sessionId should be null if the suite is not associated with a session');
 
-			suite.remote = { sessionId: 'remote' };
+			suite.remote = { session: { sessionId: 'remote' } };
 			assert.strictEqual(suite.sessionId, 'remote', 'Suite#sessionId should come from remote if one exists');
 
 			suite.sessionId = 'local';
@@ -426,7 +440,7 @@ define([
 			var suite = new Suite({
 				name: 'foo',
 				tests: [
-					new Suite({ tests: [ new Test({ hasPassed: false }), new Test({ hasPassed: true }) ] }),
+					createSuite({ tests: [ new Test({ hasPassed: false }), new Test({ hasPassed: true }) ] }),
 					new Test({ hasPassed: false }),
 					new Test({ hasPassed: true })
 				]
@@ -454,7 +468,8 @@ define([
 			assert.strictEqual(suite.numTests, 4,
 				'Suite#numTests should return the correct number of tests, including those from nested suites');
 			assert.strictEqual(suite.numSkippedTests, 2,
-				'Suite#numSkippedTests returns the correct number of skipped tests, including those from nested suites');
+				'Suite#numSkippedTests returns the correct number of skipped tests, ' +
+				'including those from nested suites');
 			assert.strictEqual(suite.numFailedTests, 0,
 				'Suite#numFailedTests returns the correct number of failed tests, including those from nested suites');
 		},
@@ -478,7 +493,7 @@ define([
 					actualLifecycle.push('outerSetup');
 				},
 				beforeEach: function (test) {
-					var dfd = new Deferred();
+					var dfd = new Promise.Deferred();
 					setTimeout(function () {
 						actualLifecycle.push(test.name + 'OuterBeforeEach');
 						dfd.resolve();
@@ -493,7 +508,7 @@ define([
 					actualLifecycle.push('outerTeardown');
 				}
 			});
-			var childSuite = new Suite({
+			var childSuite = createSuite({
 				parent: suite,
 				setup: function () {
 					actualLifecycle.push('innerSetup');
@@ -503,7 +518,7 @@ define([
 				},
 				tests: [ innerTest ],
 				afterEach: function (test) {
-					var dfd = new Deferred();
+					var dfd = new Promise.Deferred();
 					setTimeout(function () {
 						actualLifecycle.push(test.name + 'InnerAfterEach');
 						dfd.resolve();
@@ -535,29 +550,29 @@ define([
 					'with the test passed to beforeEach and afterEach'
 				);
 			}, function () {
-				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
 			}));
 		},
 
 		'Suite#afterEach nesting with errors': function () {
-			var dfd = this.async(1000),
-				suite = new Suite({
-					afterEach: function () {
-						actualLifecycle.push('outerAfterEach');
-					}
-				}),
-				childSuite = new Suite({
-					parent: suite,
-					tests: [ new Test({ test: function () {
-						actualLifecycle.push('test');
-					} }) ],
-					afterEach: function () {
-						actualLifecycle.push('innerAfterEach');
-						throw new Error('Oops');
-					}
-				}),
-				expectedLifecycle = [ 'test', 'innerAfterEach', 'outerAfterEach' ],
-				actualLifecycle = [];
+			var dfd = this.async(1000);
+			var suite = createSuite({
+				afterEach: function () {
+					actualLifecycle.push('outerAfterEach');
+				}
+			});
+			var childSuite = createSuite({
+				parent: suite,
+				tests: [ new Test({ test: function () {
+					actualLifecycle.push('test');
+				} }) ],
+				afterEach: function () {
+					actualLifecycle.push('innerAfterEach');
+					throw new Error('Oops');
+				}
+			});
+			var expectedLifecycle = [ 'test', 'innerAfterEach', 'outerAfterEach' ];
+			var actualLifecycle = [];
 
 			suite.tests.push(childSuite);
 			suite.run().then(dfd.callback(function () {
@@ -566,38 +581,49 @@ define([
 				assert.strictEqual(childSuite.error.message, 'Oops',
 					'Suite with afterEach failure should hold the last error from afterEach');
 			}, function () {
-				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
 			}));
 		},
 
 		'Suite#run skip': function () {
 			var dfd = this.async(1000);
 			var grep = /foo/;
-			var suite = new Suite({
+			var suite = createSuite({
 				grep: grep
 			});
 			var testsRun = [];
 			var fooTest = new Test({
 				name: 'foo',
-				test: function () { testsRun.push(this); }
+				parent: suite,
+				test: function () {
+					testsRun.push(this);
+				}
 			});
-			var barSuite = new Suite({
+			var barSuite = createSuite({
 				name: 'bar',
+				parent: suite,
 				grep: grep,
 				tests: [
 					new Test({
 						name: 'foo',
-						test: function () { testsRun.push(this); }
+						test: function () {
+							testsRun.push(this);
+						}
 					}),
 					new Test({
 						name: 'baz',
-						test: function () { testsRun.push(this); }
+						test: function () {
+							testsRun.push(this);
+						}
 					})
 				]
 			});
 			var foodTest = new Test({
 				name: 'food',
-				test: function () { testsRun.push(this); }
+				parent: suite,
+				test: function () {
+					testsRun.push(this);
+				}
 			});
 
 			suite.tests.push(fooTest);
@@ -608,7 +634,7 @@ define([
 				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ],
 					'Only test matching grep regex should have run');
 			}, function () {
-				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
 			}));
 		}
 	});

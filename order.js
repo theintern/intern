@@ -1,7 +1,7 @@
 define([
 	'./lib/util',
-	'dojo/Deferred'
-], function (util, Deferred) {
+	'dojo/Promise'
+], function (util, Promise) {
 	var queue = util.createQueue(1);
 
 	return {
@@ -14,14 +14,12 @@ define([
 		 */
 		load: function (id, parentRequire, callback) {
 			queue(function () {
-				var dfd = new Deferred();
-
-				parentRequire([ id ], function (value) {
-					callback(value);
-					dfd.resolve();
+				return new Promise(function (resolve) {
+					parentRequire([ id ], function (value) {
+						callback(value);
+						resolve();
+					});
 				});
-
-				return dfd;
 			})();
 		},
 

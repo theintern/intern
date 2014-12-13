@@ -18,7 +18,7 @@ define({
 	maxConcurrency: 3,
 	tunnel: 'SauceLabsTunnel',
 
-	loader: {
+	loaderConfig: {
 		// Packages that should be registered with the loader in each testing environment
 		packages: [
 			{ name: 'intern-selftest', location: '.' }
@@ -39,7 +39,7 @@ define({
 		'intern-selftest/tests/functional/lib/ProxiedSession'
 	],
 
-	excludeInstrumentation: /^(?:tests|node_modules)\//,
+	excludeInstrumentation: /(?:tests|node_modules)\//,
 
 	isSelfTestConfig: true
 });
