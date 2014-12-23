@@ -18,7 +18,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			}
 		};
 
-		require('dojo/loader')(internConfig, [ 'intern/client' ]);
+		require('dojo')(internConfig, [ 'intern/client' ]);
 	})();
 }
 else {

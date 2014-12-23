@@ -3,7 +3,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		// this.require must be exposed explicitly in order to allow the loader to be
 		// reconfigured from the configuration file
-		var req = this.require = require('dojo/dojo');
+		var req = this.require = require('dojo');
 
 		req({
 			baseUrl: process.cwd(),
