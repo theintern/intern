@@ -12,10 +12,34 @@ define([
 		var expectedLifecycle;
 
 		if (options.publishAfterSetup) {
-			expectedLifecycle = [ 'setup', 'startTopic', 'beforeEach', 0, 'afterEach', 'beforeEach', 1, 'afterEach', 'endTopic', 'teardown', 'done' ];
+			expectedLifecycle = [
+				'setup',
+				'startTopic',
+				'beforeEach',
+				0,
+				'afterEach',
+				'beforeEach',
+				1,
+				'afterEach',
+				'endTopic',
+				'teardown',
+				'done'
+			];
 		}
 		else {
-			expectedLifecycle = [ 'startTopic', 'setup', 'beforeEach', 0, 'afterEach', 'beforeEach', 1, 'afterEach', 'teardown', 'endTopic', 'done' ];
+			expectedLifecycle = [
+				'startTopic',
+				'setup',
+				'beforeEach',
+				0,
+				'afterEach',
+				'beforeEach',
+				1,
+				'afterEach',
+				'teardown',
+				'endTopic',
+				'done'
+			];
 		}
 
 		return function () {
@@ -42,19 +66,23 @@ define([
 			handles = [
 				topic.subscribe('/suite/start', function () {
 					results.push('startTopic');
-					assert.deepEqual(slice.call(arguments, 0), [ suite ], 'Arguments broadcast to /suite/start should be the suite being executed');
+					assert.deepEqual(slice.call(arguments, 0), [ suite ],
+						'Arguments broadcast to /suite/start should be the suite being executed');
 
 					if (options.publishAfterSetup) {
-						assert.deepEqual(results, [ 'setup', 'startTopic' ], 'Suite start topic should broadcast after suite starts');
+						assert.deepEqual(results, [ 'setup', 'startTopic' ],
+							'Suite start topic should broadcast after suite starts');
 					}
 					else {
-						assert.deepEqual(results, [ 'startTopic' ], 'Suite start topic should broadcast before suite starts');
+						assert.deepEqual(results, [ 'startTopic' ],
+							'Suite start topic should broadcast before suite starts');
 					}
 				}),
 
 				topic.subscribe('/suite/end', function () {
 					results.push('endTopic');
-					assert.deepEqual(slice.call(arguments, 0), [ suite ], 'Arguments broadcast to /suite/end should be the suite being executed');
+					assert.deepEqual(slice.call(arguments, 0), [ suite ],
+						'Arguments broadcast to /suite/end should be the suite being executed');
 
 					var handle;
 					while ((handle = handles.pop())) {
@@ -98,14 +126,19 @@ define([
 
 			suite.run().then(function () {
 				finished = true;
-				dfd.reject(new assert.AssertionError({ message: 'Suite should never resolve after a fatal error in ' + method }));
+				dfd.reject(new assert.AssertionError({
+					message: 'Suite should never resolve after a fatal error in ' + method
+				}));
 			}, dfd.callback(function (error) {
 				finished = true;
-				assert.strictEqual(suite.error, thrownError, 'Error thrown in ' + method + ' should be the error set on suite');
-				assert.strictEqual(error, thrownError, 'Error thrown in ' + method + ' should be the error used by the promise');
+				assert.strictEqual(suite.error, thrownError,
+					'Error thrown in ' + method + ' should be the error set on suite');
+				assert.strictEqual(error, thrownError,
+					'Error thrown in ' + method + ' should be the error used by the promise');
 
 				if (method === 'beforeEach' || method === 'afterEach') {
-					assert.strictEqual(error.relatedTest, test, 'Error thrown in ' + method + ' should have the related test in the error');
+					assert.strictEqual(error.relatedTest, test,
+						'Error thrown in ' + method + ' should have the related test in the error');
 				}
 			}));
 
@@ -341,7 +374,8 @@ define([
 			try {
 				var expectedSuite = new Suite({});
 				assert.isTrue(topicFired, '/suite/new topic should fire after a suite is created');
-				assert.strictEqual(actualSuite, expectedSuite, '/suite/new topic should be passed the suite that was just created');
+				assert.strictEqual(actualSuite, expectedSuite,
+					'/suite/new topic should be passed the suite that was just created');
 			}
 			finally {
 				handle.remove();
@@ -373,16 +407,19 @@ define([
 
 		'Suite#sessionId': function () {
 			var suite = new Suite({ name: 'foo' });
-			assert.strictEqual(suite.sessionId, null, 'Suite#sessionId should be null if the suite is not associated with a session');
+			assert.strictEqual(suite.sessionId, null,
+				'Suite#sessionId should be null if the suite is not associated with a session');
 
 			suite.remote = { sessionId: 'remote' };
 			assert.strictEqual(suite.sessionId, 'remote', 'Suite#sessionId should come from remote if one exists');
 
 			suite.sessionId = 'local';
-			assert.strictEqual(suite.sessionId, 'local', 'Suite#sessionId from the suite itself should override remote');
+			assert.strictEqual(suite.sessionId, 'local',
+				'Suite#sessionId from the suite itself should override remote');
 
 			suite.parent = new Suite({ sessionId: 'parent' });
-			assert.strictEqual(suite.sessionId, 'parent', 'Suite#sessionId from the parent should override the suite itself');
+			assert.strictEqual(suite.sessionId, 'parent',
+				'Suite#sessionId from the parent should override the suite itself');
 		},
 
 		'Suite#numTests / numFailedTests': function () {
@@ -395,8 +432,10 @@ define([
 				]
 			});
 
-			assert.strictEqual(suite.numTests, 4, 'Suite#numTests should return the correct number of tests, including those from nested suites');
-			assert.strictEqual(suite.numFailedTests, 2, 'Suite#numFailedTests returns the correct number of failed tests, including those from nested suites');
+			assert.strictEqual(suite.numTests, 4,
+				'Suite#numTests should return the correct number of tests, including those from nested suites');
+			assert.strictEqual(suite.numFailedTests, 2,
+				'Suite#numFailedTests returns the correct number of failed tests, including those from nested suites');
 		},
 
 		'Suite#numSkippedTests': function () {
@@ -412,9 +451,12 @@ define([
 				]
 			});
 
-			assert.strictEqual(suite.numTests, 4, 'Suite#numTests should return the correct number of tests, including those from nested suites');
-			assert.strictEqual(suite.numSkippedTests, 2, 'Suite#numSkippedTests returns the correct number of skipped tests, including those from nested suites');
-			assert.strictEqual(suite.numFailedTests, 0, 'Suite#numFailedTests returns the correct number of failed tests, including those from nested suites');
+			assert.strictEqual(suite.numTests, 4,
+				'Suite#numTests should return the correct number of tests, including those from nested suites');
+			assert.strictEqual(suite.numSkippedTests, 2,
+				'Suite#numSkippedTests returns the correct number of skipped tests, including those from nested suites');
+			assert.strictEqual(suite.numFailedTests, 0,
+				'Suite#numFailedTests returns the correct number of failed tests, including those from nested suites');
 		},
 
 		'Suite#beforeEach and #afterEach nesting': function () {
@@ -519,8 +561,10 @@ define([
 
 			suite.tests.push(childSuite);
 			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(actualLifecycle, expectedLifecycle, 'Outer afterEach should execute even though inner afterEach threw an error');
-				assert.strictEqual(childSuite.error.message, 'Oops', 'Suite with afterEach failure should hold the last error from afterEach');
+				assert.deepEqual(actualLifecycle, expectedLifecycle,
+					'Outer afterEach should execute even though inner afterEach threw an error');
+				assert.strictEqual(childSuite.error.message, 'Oops',
+					'Suite with afterEach failure should hold the last error from afterEach');
 			}, function () {
 				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
 			}));
@@ -561,7 +605,8 @@ define([
 			suite.tests.push(foodTest);
 
 			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ], 'Only test matching grep regex should have run');
+				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ],
+					'Only test matching grep regex should have run');
 			}, function () {
 				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
 			}));
