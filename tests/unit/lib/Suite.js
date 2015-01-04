@@ -418,67 +418,80 @@ define([
 		},
 
 		'Suite#beforeEach and #afterEach nesting': function () {
-			var dfd = this.async(1000),
-				suite = new Suite({
-					setup: function () {
-						actualLifecycle.push('outerSetup');
-					},
-					beforeEach: function () {
-						var dfd = new Deferred();
-						setTimeout(function () {
-							actualLifecycle.push('outerBeforeEach');
-							dfd.resolve();
-						}, 100);
-						return dfd.promise;
-					},
-					tests: [ new Test({ test: function () {
-						actualLifecycle.push('outerTest');
-					} }) ],
-					afterEach: function () {
-						actualLifecycle.push('outerAfterEach');
-					},
-					teardown: function () {
-						actualLifecycle.push('outerTeardown');
-					}
-				}),
-				childSuite = new Suite({
-					parent: suite,
-					setup: function () {
-						actualLifecycle.push('innerSetup');
-					},
-					beforeEach: function () {
-						actualLifecycle.push('innerBeforeEach');
-					},
-					tests: [ new Test({ test: function () {
-						actualLifecycle.push('innerTest');
-					} }) ],
-					afterEach: function () {
-						var dfd = new Deferred();
-						setTimeout(function () {
-							actualLifecycle.push('innerAfterEach');
-							dfd.resolve();
-						}, 100);
-						return dfd.promise;
-					},
-					teardown: function () {
-						actualLifecycle.push('innerTeardown');
-					}
-				}),
-				expectedLifecycle = [
-					'outerSetup',
-					'outerBeforeEach', 'outerTest', 'outerAfterEach',
-					'innerSetup',
-					'outerBeforeEach', 'innerBeforeEach',
-					'innerTest',
-					'innerAfterEach', 'outerAfterEach',
-					'innerTeardown',
-					'outerTeardown'
-				],
-				actualLifecycle = [];
+			var dfd = this.async(1000);
+			var outerTest = new Test({
+				name: 'outerTest',
+				test: function () {
+					actualLifecycle.push('outerTest');
+				}
+			});
+			var innerTest = new Test({
+				name: 'innerTest',
+				test: function () {
+					actualLifecycle.push('innerTest');
+				}
+			});
+			var suite = new Suite({
+				setup: function () {
+					actualLifecycle.push('outerSetup');
+				},
+				beforeEach: function (test) {
+					var dfd = new Deferred();
+					setTimeout(function () {
+						actualLifecycle.push(test.name + 'OuterBeforeEach');
+						dfd.resolve();
+					}, 100);
+					return dfd.promise;
+				},
+				tests: [ outerTest ],
+				afterEach: function (test) {
+					actualLifecycle.push(test.name + 'OuterAfterEach');
+				},
+				teardown: function () {
+					actualLifecycle.push('outerTeardown');
+				}
+			});
+			var childSuite = new Suite({
+				parent: suite,
+				setup: function () {
+					actualLifecycle.push('innerSetup');
+				},
+				beforeEach: function (test) {
+					actualLifecycle.push(test.name + 'InnerBeforeEach');
+				},
+				tests: [ innerTest ],
+				afterEach: function (test) {
+					var dfd = new Deferred();
+					setTimeout(function () {
+						actualLifecycle.push(test.name + 'InnerAfterEach');
+						dfd.resolve();
+					}, 100);
+					return dfd.promise;
+				},
+				teardown: function () {
+					actualLifecycle.push('innerTeardown');
+				}
+			});
+			var expectedLifecycle = [
+				'outerSetup',
+				'outerTestOuterBeforeEach', 'outerTest', 'outerTestOuterAfterEach',
+				'innerSetup',
+				'innerTestOuterBeforeEach', 'innerTestInnerBeforeEach',
+				'innerTest',
+				'innerTestInnerAfterEach', 'innerTestOuterAfterEach',
+				'innerTeardown',
+				'outerTeardown'
+			];
+			var actualLifecycle = [];
 
 			suite.tests.push(childSuite);
 			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(actualLifecycle, expectedLifecycle, 'Nested beforeEach and afterEach should execute in a pyramid');
+				assert.deepEqual(
+					actualLifecycle,
+					expectedLifecycle,
+					'Nested beforeEach and afterEach should execute in a pyramid, ' +
+					'with the test passed to beforeEach and afterEach'
+				);
 			}, function () {
 				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
 			}));
