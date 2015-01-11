@@ -8,8 +8,9 @@ define([
 	'require',
 	'dojo/has!host-node?dojo/node!fs',
 	'dojo/has!host-node?dojo/node!path',
-	'dojo/has!host-node?dojo/node!istanbul/lib/hook'
-], function (intern, registerSuite, assert, util, EnvironmentType, has, require, fs, pathUtil, hook) {
+	'dojo/has!host-node?dojo/node!istanbul/lib/hook',
+    '../../selftest.intern'
+], function (intern, registerSuite, assert, util, EnvironmentType, has, require, fs, pathUtil, hook, testConfig) {
 	/* jshint maxlen:140 */
 	registerSuite({
 		name: 'intern/lib/util',
@@ -131,10 +132,12 @@ define([
 				var dfd = this.async();
 				var wasInstrumented = false;
 
+                var coverageName = testConfig.coverageVariable;
+
 				// save any existing coverage data
 				/* jshint node:true */
-				var existingCoverage = global.__internCoverage;
-				global.__internCoverage = undefined;
+				var existingCoverage = global[coverageName];
+				global[coverageName] = undefined;
 
 				// setup a hook to instrument our test module
 				hook.hookRunInThisContext(function () {
@@ -146,7 +149,7 @@ define([
 
 				// restore everything
 				dfd.promise.always(function (error) {
-					global.__internCoverage = existingCoverage;
+					global[coverageName] = existingCoverage;
 					hook.unhookRunInThisContext();
 					if (error) {
 						throw error;

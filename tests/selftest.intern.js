@@ -39,6 +39,7 @@ define({
 		'intern-selftest/tests/functional/lib/ProxiedSession'
 	],
 
+	coverageVariable: '__internTestCoverage',
 	excludeInstrumentation: /^(?:tests|node_modules)\//,
 
 	isSelfTestConfig: true
