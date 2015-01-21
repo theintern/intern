@@ -125,7 +125,7 @@ define([
 
 			'source map from instrumentation': function () {
 				if (!has('host-node')) {
-					this.skip();
+					this.skip('source map processing is node-only');
 				}
 
 				var dfd = this.async();
@@ -167,7 +167,7 @@ define([
 
 			'source map from file': function () {
 				if (!has('host-node')) {
-					this.skip();
+					this.skip('source map processing is node-only');
 				}
 
 				var dfd = this.async();
