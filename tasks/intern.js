@@ -55,7 +55,8 @@ module.exports = function (grunt) {
 				sauceAccessKey: true,
 				sauceUsername: true,
 				testingbotKey: true,
-				testingbotSecret: true
+				testingbotSecret: true,
+				nodeEnv: true
 			};
 
 		Object.keys(opts).forEach(function (option) {
@@ -79,7 +80,8 @@ module.exports = function (grunt) {
 			'sauceAccessKey',
 			'sauceUsername',
 			'testingbotKey',
-			'testingbotSecret'
+			'testingbotSecret',
+			'nodeEnv'
 		].forEach(function (option) {
 			var value = opts[option];
 			if (value) {
