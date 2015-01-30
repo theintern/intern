@@ -283,11 +283,8 @@ else {
 						topic.publish('/runner/start');
 						main.run().always(function () {
 
-                            var global = (function () {	return this; })();
-                            var coverageName = args.coverageVariable;
-
-							typeof global[coverageName] !== 'undefined' &&
-								topic.publish('/coverage', '', global[coverageName]);
+							typeof global[config.coverageVariable] !== 'undefined' &&
+								topic.publish('/coverage', '', global[config.coverageVariable]);
 
 							topic.publish('/runner/end');
 							proxy.close();

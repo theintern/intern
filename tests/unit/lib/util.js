@@ -132,12 +132,10 @@ define([
 				var dfd = this.async();
 				var wasInstrumented = false;
 
-                var coverageName = testConfig.coverageVariable;
-
 				// save any existing coverage data
 				/* jshint node:true */
-				var existingCoverage = global[coverageName];
-				global[coverageName] = undefined;
+				var existingCoverage = global[testConfig.coverageVariable];
+				global[testConfig.coverageVariable] = undefined;
 
 				// setup a hook to instrument our test module
 				hook.hookRunInThisContext(function () {
@@ -149,7 +147,7 @@ define([
 
 				// restore everything
 				dfd.promise.always(function (error) {
-					global[coverageName] = existingCoverage;
+					global[testConfig.coverageVariable] = existingCoverage;
 					hook.unhookRunInThisContext();
 					if (error) {
 						throw error;
