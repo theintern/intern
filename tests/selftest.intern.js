@@ -33,9 +33,7 @@ define({
 	},
 
 	suites: [
-		//'intern-selftest/tests/unit/all'
-		// Don't run all the tests until they've been updated
-		'intern-selftest/tests/unit/order'
+		'intern-selftest/tests/unit/all'
 	],
 	functionalSuites: [
 		'intern-selftest/tests/functional/lib/ProxiedSession'

@@ -4,6 +4,7 @@ define([
 	return {
 		/**
 		 * Registers a test with the test system. Executors are responsible for replacing this method prior to
+		 * test registration.
 		 */
 		register: function () {
 			throw new Error('Attempt to register tests too early');

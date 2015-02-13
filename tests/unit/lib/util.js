@@ -145,7 +145,7 @@ define([
 				});
 
 				// restore everything
-				dfd.promise.always(function (error) {
+				dfd.promise.finally(function (error) {
 					global.__internCoverage = existingCoverage;
 					hook.unhookRunInThisContext();
 					if (error) {

@@ -26,7 +26,9 @@ else {
 		'./lib/executors/PreExecutor'
 	], function (PreExecutor) {
 		var executor = new PreExecutor({
-			defaultLoaderConfig: (function () { return this; })().__internConfig,
+			defaultLoaderConfig: (function () {
+				return this;
+			})().__internConfig,
 			executorId: 'client'
 		});
 
@@ -35,7 +37,8 @@ else {
 		if (typeof process !== 'undefined') {
 			promise.then(function () {
 				process.exit(0);
-			}, function () {
+			},
+			function () {
 				process.exit(1);
 			});
 		}

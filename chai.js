@@ -1,4 +1,7 @@
 define([ 'chai' ], function (chai) {
+	// ensure that chai-generated errors always include a stack
+	chai.config.includeStack = true;
+
 	return {
 		/**
 		 * AMD plugin API interface for easy loading of chai assertion interfaces.
