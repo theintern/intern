@@ -1,5 +1,5 @@
 define([
-	// './main',  // OBE
+	'./main',
 	'./order',
 	'./lib/EnvironmentType',
 	'./lib/Suite',
@@ -9,9 +9,9 @@ define([
 	'./lib/interfaces/tdd',
 	'./lib/interfaces/bdd',
 	'./lib/interfaces/object',
-	'./lib/reporters/console',
-	// 'dojo/has!host-node?./lib/reporters/pretty',
-	// 'dojo/has!host-node?./lib/reporters/teamcity',
-	// 'dojo/has!host-node?./lib/reporters/junit',
-	// 'dojo/has!host-node?./lib/reporters/lcov'
+	'./lib/reporters/Console',
+	'dojo/has!host-node?./lib/reporters/Pretty',
+	'dojo/has!host-node?./lib/reporters/teamcity',
+	'dojo/has!host-node?./lib/reporters/junit',
+	'dojo/has!host-node?./lib/reporters/lcov'
 ], function () {});

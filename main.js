@@ -9,7 +9,6 @@ define([
 		register: function () {
 			throw new Error('Attempt to register tests too early');
 		},
-
 		/**
 		 * AMD plugin API interface for easy loading of test interfaces.
 		 */

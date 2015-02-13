@@ -2,14 +2,14 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../../../../lib/reporters/pretty',
+	'../../../../lib/reporters/Pretty',
 	'../../../../lib/EnvironmentType',
 	'../../../../lib/Suite',
 	'../../../../lib/Test',
 	'./support/mocks',
 	'dojo/node!istanbul/lib/collector',
 	'dojo/has!host-node?dojo/node!istanbul/lib/report/text'
-], function (registerSuite, assert, pretty, EnvironmentType, Suite, Test, mock, Collector, Reporter) {
+], function (registerSuite, assert, Pretty, EnvironmentType, Suite, Test, mock, Collector, Reporter) {
 	/* globals process */
 
 	function bar(results) {
@@ -24,61 +24,59 @@ define([
 		});
 	}
 
+	function createReport(results, total, type) {
+		var report = new pretty._Report(type);
+		results.forEach(function (value) {
+			report.record(value);
+		});
+		if (typeof total !== 'undefined') {
+			report.numTotal = total;
+		}
+		return report;
+	}
+
+	function createStub(callback) {
+		var func = function () {
+			func.args.push(arguments);
+			callback && callback.apply(this, arguments);
+		};
+		func.args = [];
+		return func;
+	}
+
+	function fluentMockCharmFunc() {
+		return mockCharm;
+	}
+
+	var mockCharm = {
+		write: function (str) {
+			mockCharm.out += str;
+		},
+		erase: fluentMockCharmFunc,
+		position: fluentMockCharmFunc,
+		foreground: fluentMockCharmFunc,
+		display: fluentMockCharmFunc,
+		pipe: createStub()
+	};
+
+	var pretty;
+
 	registerSuite(function () {
-		var mockCharm;
-
-		function createReport(results, total, type) {
-			var report = new pretty._Report(type);
-			results && results.forEach(function (value) {
-				report.record(value);
-			});
-			total && (report.numTotal = total);
-			return report;
-		}
-
-		function createStub(callback) {
-			var func = function () {
-				func.args.push(arguments);
-				callback && callback.apply(this, arguments);
-			};
-			func.args = [];
-			return func;
-		}
-
 		return {
-			name: 'intern/lib/reporters/pretty',
+			name: 'intern/lib/reporters/Pretty',
 
-			'beforeEach': function () {
-				function fluentMockCharmFunc() {
-					return mockCharm;
-				}
-
-				mockCharm = {
-					write: function (str) {
-						mockCharm.out += str;
-					},
-					erase: fluentMockCharmFunc,
-					position: fluentMockCharmFunc,
-					foreground: fluentMockCharmFunc,
-					display: fluentMockCharmFunc,
-					pipe: createStub()
-				};
+			beforeEach: function () {
 				mockCharm.out = '';
-				pretty.header = '';
-				pretty.tunnelStatus = '';
+				pretty = new Pretty({
+					dimensions: {
+						width: 80,
+						height: 24
+					}
+				});
 				pretty.charm = mockCharm;
-				pretty.dimensions = {
-					width: 80,
-					height: 24
-				};
-				pretty.total = createReport();
-				pretty.reporters = {};
-				pretty.sessions = [];
-				pretty.log = [];
-				pretty.spinnerOffset = 0;
 			},
 
-			'_Report': function () {
+			_Report: function () {
 				var report = createReport([0, 1, 2]);
 				assert.deepEqual(report.type, '');
 				assert.deepEqual(report.numPassed, 1);
@@ -92,16 +90,15 @@ define([
 				assert.deepEqual(report.getCompressedResults(4), [0, 1, 2]);
 			},
 
-			'_render': {
-				'empty': function () {
+			_render: {
+				empty: function () {
 					pretty._render();
 					assert.equal(mockCharm.out, 'Total: Pending\nPassed: 0  Failed: 0  Skipped: 0\n');
 				},
 
-				'simple': function () {
+				simple: function () {
 					pretty.total = createReport([0, 0, 0, 0, 1, 2, 0, 0, 0], 30);
 					pretty._render();
-
 					var expected = 'Total: [' + bar(pretty.total.results) + '-                    ]  9/30\n' +
 						'Passed: 7   Failed: 1   Skipped: 1\n';
 					assert.equal(mockCharm.out, expected);
@@ -110,19 +107,19 @@ define([
 				'without logs': function () {
 					pretty.total = createReport([0, 0, 0, 0, 1, 2, 0, 0, 0], 30);
 					pretty.reporters = {
-						'1': createReport(
+						1: createReport(
 							[ 0, 0, 1 ], 10,
 							new EnvironmentType({ browserName: 'chrome' })
 						),
-						'2': createReport(
+						2: createReport(
 							[ 0, 0, 0 ], 10,
 							new EnvironmentType({ browserName: 'firefox', version: '24.0.1' })
 						),
-						'3': createReport(
+						3: createReport(
 							[ 2, 0, 0 ], 10,
-							new EnvironmentType({ browserName: 'internet explorer', version: '11'})
+							new EnvironmentType({ browserName: 'internet explorer', version: '11' })
 						),
-						'4': createReport(
+						4: createReport(
 							[], 5,
 							new EnvironmentType({ browserName: 'Unknown', platform: 'Windows' })
 						)
@@ -147,7 +144,8 @@ define([
 						'⚠ expected line',
 						'× expected line',
 						'× expected line\nsecond line',
-						'! expected really long line with some really important stuff to say but we will never know because it is going to be truncated',
+						'! expected really long line with some really important stuff to say but we will never know ' +
+							'because it is going to be truncated',
 						'✓ line',
 						'! expected line',
 						'~ line'
@@ -160,14 +158,15 @@ define([
 						pretty.options.colorReplacement['⚠'] + '⚠ expected line\x1b[0m\n' +
 						pretty.options.colorReplacement['×'] + '× expected line\x1b[0m\n' +
 						pretty.options.colorReplacement['×'] + '× expected line\x1b[0m\n' +
-						pretty.options.colorReplacement['!'] + '! expected really long line with some really important stuff to say but we will \x1b[0m\n' +
+						pretty.options.colorReplacement['!'] + '! expected really long line with some really important ' +
+						'stuff to say but we will \x1b[0m\n' +
 						pretty.options.colorReplacement['!'] + '! expected line\x1b[0m';
 					assert.equal(mockCharm.out, expected);
 				},
 
 				'with tunnel status and header': function () {
 					pretty.total = createReport([0, 0, 0, 0, 0], 30);
-					pretty.tunnelStatus = 'tunnel';
+					pretty.tunnelState = 'tunnel';
 					pretty.header = 'header';
 					pretty._render();
 
@@ -222,28 +221,22 @@ define([
 				}
 			},
 
-			'start': function () {
-				var stdoutOn = process.stdout.on;
-
+			start: function () {
 				try {
-					process.stdout.on = createStub();
 					pretty.dimensions = {};
-
+					pretty.config = { intern: { config: 'foo' } };
 					pretty.start();
 
-					assert.lengthOf(process.stdout.on.args, 1);
-					assert.lengthOf(mockCharm.pipe.args, 1);
 					assert.isDefined(pretty.dimensions.width);
 					assert.isDefined(pretty.dimensions.height);
 					assert.isDefined(pretty._renderTimeout);
 				}
 				finally {
-					process.stdout.on = stdoutOn;
 					clearTimeout(pretty._renderTimeout);
 				}
 			},
 
-			'stop': function () {
+			stop: function () {
 				var expected = pretty.options.colorReplacement['✓'] + '✓ 0\n' +
 					pretty.options.colorReplacement['⚠'] + '⚠ 1\n' +
 					pretty.options.colorReplacement['~'] + '~ 2\n' +
@@ -319,7 +312,7 @@ define([
 
 				return {
 					beforeEach: function () {
-						pretty['/session/start'](remote);
+						pretty.sessionStart(remote);
 						oldCollectorAdd = Collector.prototype.add;
 					},
 
@@ -327,70 +320,70 @@ define([
 						Collector.prototype.add = oldCollectorAdd;
 					},
 
-					'/session/start': function () {
+					sessionStart: function () {
 						assert.lengthOf(pretty.sessions, 1);
 						assert.instanceOf(pretty.reporters[sessionId], pretty._Report);
 					},
 
-					'/coverage': function () {
+					coverage: function () {
 						Collector.prototype.add = createStub(function (coverage) {
 							assert.deepEqual(coverage, mock.coverage,
 								'Collector#add should be called with the correct mockCoverage object');
 						});
-						pretty['/coverage'](sessionId, mock.coverage);
+						pretty.coverage(sessionId, mock.coverage);
 						assert.lengthOf(Collector.prototype.add.args, 2);
-						pretty['/coverage']('', mock.coverage);
+						pretty.coverage('', mock.coverage);
 						assert.lengthOf(Collector.prototype.add.args, 3);
 					},
 
-					'/suite/start': function () {
+					suiteStart: function () {
 						var suite = {
 							name: 'main',
 							numTests: 10
 						};
 						// client unit tests
-						pretty['/suite/start'](suite);
+						pretty.suiteStart(suite);
 						assert.strictEqual(pretty.total.numTotal, 10);
 
 						// runner tests
 						suite.sessionId = sessionId;
-						pretty['/suite/start'](suite);
+						pretty.suiteStart(suite);
 						assert.strictEqual(pretty.reporters[sessionId].numTotal, 10);
 						assert.strictEqual(pretty.total.numTotal, 20);
 					},
 
-					'/test/skip': assertTestResult('/test/skip', 1),
-					'/test/fail': assertTestResult('/test/fail', 2),
-					'/test/pass': assertTestResult('/test/pass', 0),
+					testSkip: assertTestResult('testSkip', 1),
+					testFail: assertTestResult('testFail', 2),
+					testPass: assertTestResult('testPass', 0),
 
-					'/tunnel/start': function () {
-						pretty['/tunnel/start']();
-						assert.strictEqual(pretty.tunnelStatus, 'Starting');
+					tunnelStart: function () {
+						pretty.tunnelStart();
+						assert.strictEqual(pretty.tunnelState, 'Starting');
 					},
 
-					'/tunnel/download/progress': function () {
-						pretty['/tunnel/download/progress'](undefined, {
+					tunnelDownloadProgress: function () {
+						pretty.tunnelDownloadProgress(undefined, {
 							received: 99,
 							numTotal: 100
 						});
-						assert.strictEqual(pretty.tunnelStatus, 'Downloading 99.00%');
+						assert.strictEqual(pretty.tunnelState, 'Downloading 99.00%');
 					},
 
-					'/tunnel/status': function () {
+					tunnelStatus: function () {
 						var status = 'hello world!';
-						pretty['/tunnel/status'](undefined, status);
-						assert.strictEqual(pretty.tunnelStatus, status);
+						pretty.tunnelStatus(undefined, status);
+						assert.strictEqual(pretty.tunnelState, status);
 					},
 
-					'/error': function () {
+					error: function () {
 						var error = new Error('error');
-						pretty['/error'](error);
+						pretty.error(error);
 						assert.lengthOf(pretty.log, 1);
 						assert.strictEqual(pretty.log[0], '! error');
 					},
 
-					'/deprecated': function () {
-						pretty['/deprecated']('java', 'javascript');
+					deprecated: function () {
+						pretty.deprecated('java', 'javascript');
 						assert.lengthOf(pretty.log, 1);
 						assert.strictEqual(pretty.log[0], '⚠ java is deprecated. Use javascript instead.');
 					}
