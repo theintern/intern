@@ -1,0 +1,843 @@
+@import 'nib/reset';
+@import 'nib/vendor';
+@import 'fonts/entypo';
+
+/*
+ * vertical rhythm: 32px (~1.77rem)
+ * minimum width: 320px
+ * maximum width: 1170px (65rem)
+ * breakpoints: 490 570 680 892 920 1080 1180
+ */
+
+$lh = 32px;
+
+$backgroundColor = #FFF;
+$color = #000;
+$internTeal = #318565;
+$internTealInvert = #FFF;
+$internOrange = #F06800;
+$internBlue = #315F9C;
+$internBlueInvert = #FFF;
+$internGrey = #808080;
+$mediumGrey = #A0A0A0;
+$internLightGrey = #F0F0F0;
+$primaryFont = aktiv-grotesk-std, sans-serif;
+$secondaryFont = jubilat, serif;
+
+pushout() {
+	margin-left: -2rem;
+	margin-right: -2rem;
+	padding-left: 2rem;
+	padding-right: 2rem;
+}
+
+global-reset();
+reset-html5();
+
+input,
+select,
+textarea {
+	box-sizing: content-box;
+}
+
+html,
+body {
+	background-color: $backgroundColor;
+	color: $color;
+	font: 300 18px/$lh $primaryFont;
+	text-rendering: optimizeLegibility;
+}
+
+.no-sticky body {
+	padding-top: $lh * 3;
+}
+
+@media (max-width: 680px) {
+	.hide-680 {
+		display: none;
+	}
+}
+
+::selection {
+	background-color: $internTeal;
+	color: $internTealInvert;
+}
+::-moz-selection {
+	background-color: $internTeal;
+	color: $internTealInvert;
+}
+
+strong,
+.bold,
+strong code,
+strong tt,
+.bold code,
+.bold tt {
+	font-weight: normal;
+}
+
+em {
+	font-style: italic;
+}
+
+code,
+samp,
+var,
+kbd {
+	font: 20px/1 prestige-elite-std, monospace;
+	letter-spacing: -1.25px;
+
+	a & {
+		line-height: 0.7em;
+	}
+}
+
+abbr {
+	border-bottom: 1px dotted $color;
+	cursor: help;
+	display: inline-block;
+	font-size: 1.166666rem;
+	font-variant: small-caps;
+	line-height: 0.619047em;
+	text-transform: lowercase;
+}
+
+a {
+	border-bottom: 1px solid $internTeal;
+	color: $internTeal;
+	display: inline-block;
+	line-height: 0.9em;
+	transition: color 0.2s, border-bottom-color 0.2s;
+	text-decoration: none;
+	text-shadow: $backgroundColor 1px 0, $backgroundColor -1px 0;
+
+	&:hover {
+		color: $color;
+		border-bottom-color: transparent;
+		text-decoration: none; // for instances where text-decoration still must be used
+	}
+
+	&:focus {
+		outline: 1px dotted;
+	}
+}
+
+.wrapper {
+	margin: 0 auto;
+	max-width: 65rem;
+	min-width: calc(320px - 4rem);
+	padding: 0 4rem;
+
+	@media (max-width: 570px) {
+		padding: 0 2rem;
+	}
+}
+
+.hljs {
+	.hljs-keyword, .hljs-title { color: $internBlue; font-weight: bold; }
+	.hljs-built_in, .hljs-attribute { color: $internTeal; }
+	.hljs-string, .hljs-value { color: #C41A16; }
+	.hljs-comment { color: #006A00; }
+}
+
+.icon-menu {
+	color: $internTeal;
+	cursor: pointer;
+	display: none;
+	font-size: 0;
+	left: 0.6rem;
+	line-height: 1em;
+	margin: 0;
+	padding: 0;
+	position: fixed;
+	top: 0;
+	z-index: 3;
+
+	&:before {
+		font-size: 1.25rem;
+		padding: 0.25rem;
+		margin: 0;
+	}
+
+	@media (max-width: 920px) {
+		display: block;
+	}
+
+	@media (max-width: 570px) {
+		left: 0.1rem;
+	}
+
+	@media (max-width: 490px) {
+		left: 1.5rem;
+	}
+}
+
+.header {
+	background-color: $backgroundColor;
+	border-bottom: 1px solid $mediumGrey;
+	margin-bottom: $lh * 2;
+	position: -webkit-sticky;
+	position: sticky;
+	top: $lh * -1;
+	width: 100%;
+	z-index: 2;
+
+	.no-sticky & {
+		position: fixed;
+	}
+
+	@media (max-width: 490px) {
+		top: 0;
+	}
+
+	.search {
+		border: 1px solid $internTeal;
+		border-left-width: 4px;
+		cursor: text;
+		float: right;
+		height: $lh * 0.75;
+		line-height: @height;
+		margin-top: $lh * 0.25 * 0.33; // TODO: wrong formula
+		padding: 0 4px 0 6px;
+
+		> * {
+			display: inline-block;
+			line-height: normal;
+			padding: 0;
+			vertical-align: top;
+		}
+
+		.icon-search:before {
+			color: $internTeal;
+			margin-right: 0;
+		}
+
+		[type='text'] {
+			-webkit-appearance: none;
+			background: transparent;
+			border: none;
+			color: $internTeal;
+			// 'normal' line-height for inputs must be used for cross-browser consistency
+			font: 14px/normal $primaryFont;
+			margin: 2px 0 0;
+			text-overflow: ellipsis;
+			width: 10rem;
+
+			&:focus {
+				text-overflow: clip;
+				outline: none;
+			}
+
+			@media (min-width: 920px) {
+				transition: width 0.2s;
+
+				&:focus {
+					width: 20rem;
+				}
+			}
+
+			@media (max-width: 490px) {
+				width: calc(100% - 1.3rem);
+			}
+		}
+
+		@media (max-width: 490px) {
+			width: calc(100% - 2rem);
+		}
+	}
+
+	.title {
+		display: inline-block;
+		font-family: $secondaryFont;
+		font-weight: normal;
+		line-height: 1;
+
+		@media (max-width: 490px) {
+			display: block;
+			height: $lh * 2;
+			line-height: $lh * 1.15;
+			text-align: center;
+		}
+	}
+
+	a {
+		color: $internTeal;
+	}
+
+	.logo {
+		border-bottom: none;
+
+		img {
+			max-height: $lh;
+			vertical-align: middle;
+		}
+	}
+
+	@media (max-width: 490px) {
+		.preTitle {
+			display: none;
+		}
+	}
+
+	nav {
+		display: inline-block;
+		height: $lh;
+		float: right;
+
+		ul {
+			display: inline;
+		}
+
+		li {
+			display: inline-block;
+			font-size: 0.75rem;
+			padding-left: 1rem;
+			padding-top: 0.2rem;
+		}
+	}
+}
+
+.nav {
+	float: left;
+	font-family: $secondaryFont;
+	font-weight: 300;
+	max-width: 12rem;
+	position: -webkit-sticky;
+	position: sticky;
+	top: $lh * 2;
+
+	// To fix text rendering in at least Safari 7
+	background-color: $backgroundColor;
+	-webkit-font-smoothing: subpixel-antialiased;
+
+	.no-sticky & {
+		position: fixed;
+		top: $lh * 3;
+	}
+
+	a {
+		border-bottom: none;
+		color: $internGrey;
+		display: block;
+		line-height: $lh * 0.5;
+		margin-bottom: 0;
+		padding-top: $lh * 0.5;
+		transition: color 0.25s;
+
+		&:hover {
+			color: $internTeal;
+		}
+	}
+
+	> ul > .active {
+		margin-bottom: $lh * 0.5;
+
+		a {
+			font-weight: normal;
+			color: $internTeal;
+
+			&:hover {
+				color: $color;
+			}
+		}
+
+		.subsections {
+			max-height: 10rem;
+			overflow: visible;
+
+			a {
+				font-weight: 300;
+			}
+		}
+	}
+
+	.subsections {
+		max-height: 0;
+		overflow: hidden;
+		transition: max-height 0.25s;
+
+		a {
+			text-transform: none;
+		}
+
+		.active a {
+			text-indent: -1rem;
+
+			* {
+				text-indent: 0;
+			}
+
+			&:before {
+				@extend [class^='icon-']:before, [class*=' icon-']:before;
+				@extend .icon-right-open:before;
+				margin-right: 0;
+				// Icon font is taller than body font so generates extra line spacing which is not desired and causes
+				// popping when the icon moves from one line to the next; attempting to zero out the line-height causes
+				// incorrect alignment in at least Safari 7, but negative top margin works OK everywhere
+				margin-top: -1em;
+				text-decoration: none;
+			}
+		}
+	}
+
+	.support {
+		margin-top: $lh;
+
+		a {
+			text-indent: -1rem;
+
+			&:hover {
+				color: $internOrange;
+			}
+
+			* {
+				text-indent: 0;
+			}
+
+			&:before {
+				@extend [class^='icon-']:before, [class*=' icon-']:before;
+				@extend .icon-lifebuoy:before;
+
+				color: inherit;
+				line-height: inherit;
+				margin-right: 0;
+				text-decoration: none;
+			}
+		}
+	}
+
+	@media (max-width: 920px) {
+		background-color: $backgroundColor;
+		bottom: 0;
+		display: none;
+		left: 0;
+		overflow: auto;
+		-webkit-overflow-scrolling: touch;
+		padding: $lh 2rem;
+		position: fixed;
+		top: $lh;
+		z-index: 1;
+
+		.no-sticky & {
+			top: $lh;
+		}
+
+		&.open {
+			display: block;
+		}
+
+		.support {
+			margin-bottom: $lh * 2;
+		}
+	}
+
+	@media (max-width: 490px) {
+		max-width: none;
+		right: 0;
+		top: $lh * 2;
+
+		.no-sticky & {
+			top: $lh * 2;
+		}
+	}
+}
+
+.main {
+	margin-left: auto;
+	margin-right: 0;
+	max-width: 44rem;
+	padding-left: 16rem;
+
+	@media (max-width: 920px) {
+		padding-left: 0;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	p,
+	pre,
+	ol,
+	ul,
+	figure {
+		margin-bottom: $lh;
+	}
+
+	article {
+		margin-bottom: $lh * 8.25;
+		position: relative;
+
+		&:last-child {
+			&:after {
+				content: 'fin ◇';
+			}
+		}
+
+		&:after {
+			bottom: $lh * -4.5;
+			color: $internGrey;
+			content: 'take a breath ◇';
+			display: block;
+			left: 0;
+			position: absolute;
+			right: 0;
+			text-align: center;
+		}
+	}
+
+	.a {
+		position: relative;
+		top: $lh * -2;
+
+		&.half {
+			top: $lh * -1.5;
+		}
+
+		.no-sticky & {
+			top: $lh * -3;
+
+			&.half {
+				top: $lh * -2.5;
+			}
+		}
+
+		@media (max-width: 920px) {
+			top: $lh * -1.625;
+
+			&.half {
+				top: $lh * -1.125;
+			}
+
+			.no-sticky & {
+				top: $lh * -1.625;
+
+				&.half {
+					top: $lh * -1.125;
+				}
+			}
+		}
+
+		@media (max-width: 490px) {
+			top: $lh * -2.75;
+
+			&.half {
+				top: $lh * -2.25;
+			}
+
+			.no-sticky & {
+				top: $lh * -2.75;
+
+				&.half {
+					top: $lh * -2.25;
+				}
+			}
+		}
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: $secondaryFont;
+		font-weight: normal;
+	}
+
+	h2 {
+		font-size: 1.2rem;
+		font-style: italic;
+		padding-top: $lh * 0.25;
+		margin-bottom: $lh * 0.5;
+	}
+
+	h3 {
+		font-size: 1.8rem;
+		margin-bottom: $lh * 0.25;
+		padding-top: $lh * 1.75;
+	}
+
+	h4 {
+		font-size: 1.1rem;
+		margin-bottom: $lh * -0.25;
+		padding-top: $lh * 0.25;
+	}
+
+	p,
+	ul,
+	ol,
+	table {
+		padding-top: $lh * 0.25;
+		margin-bottom: $lh * 0.75;
+	}
+
+	p {
+		hyphens: auto;
+	}
+
+	pre {
+		pushout();
+		background-color: $internLightGrey;
+		line-height: $lh * 0.625; // 8 lines / rhythm
+		margin-bottom: $lh * 0.53125;
+		overflow: auto;
+		-webkit-overflow-scrolling: touch;
+		padding-bottom: $lh * 0.4375;
+		padding-top: $lh * 0.4375;
+		tab-size: 2;
+	}
+
+	ul > li {
+		hyphens: auto;
+		text-indent: -1rem;
+
+		* {
+			text-indent: 0;
+		}
+
+		&:before {
+			@extend [class^='icon-']:before, [class*=' icon-']:before;
+			@extend .icon-right-open:before;
+			margin-right: 0;
+		}
+	}
+
+	ol {
+		counter-reset: list;
+
+		> li {
+			counter-increment: list;
+
+			&:before {
+				content: counter(list) '.';
+				display: inline-block;
+				-webkit-font-feature-settings: 'tnum';
+				-moz-font-feature-settings: 'tnum';
+				font-feature-settings: 'tnum';
+				font-weight: bold;
+				margin-left: -2rem;
+				padding-right: 0.5rem;
+				text-align: right;
+				width: 1.5rem;
+			}
+		}
+	}
+
+	table {
+		pushout();
+		padding-left: 0;
+		padding-right: 0;
+
+		tr:nth-child(2n) {
+			background-color: $internLightGrey;
+		}
+
+		td,
+		th {
+			font-weight: 300;
+			padding-left: 1rem;
+
+			&:first-child {
+				padding-left: 2rem;
+			}
+
+			&:last-child {
+				padding-right: 2rem;
+			}
+		}
+
+		th {
+			font-weight: normal;
+		}
+	}
+
+	figcaption {
+		font-family: $secondaryFont;
+		font-style: italic;
+
+		code {
+			font-style: italic;
+		}
+	}
+
+	figure {
+		pushout();
+
+		margin-bottom: $lh * 1.625;
+		padding-top: $lh * 0.9375;
+
+		pre {
+			margin-top: $lh * -0.4375;
+			margin-bottom: $lh;
+		}
+
+		img {
+			display: block;
+			margin-bottom: $lh;
+			max-width: 100%;
+			min-width: 100%;
+		}
+
+		figcaption {
+			pushout();
+
+			border-left: 6px solid $internBlue;
+			padding-bottom: $lh * 0.1250;
+			padding-left: calc(2rem - 6px);
+			padding-top: $lh * 0.1875;
+		}
+	}
+
+	dfn,
+	.sc {
+		font-variant: small-caps;
+		text-transform: lowercase;
+	}
+
+	dfn,
+	code,
+	.abbr,
+	.sc {
+		hyphens: manual;
+	}
+
+	.m1 { margin-bottom: $lh; }
+	.m2 { margin-bottom: $lh * 0.5; }
+}
+
+.codeMirror {
+	pushout();
+	background-color: $internLightGrey;
+	display: table;
+	margin-bottom: $lh * 0.53125;
+	padding-left: 0;
+	padding-right: 0;
+	table-layout: fixed;
+	width: calc(100% + 4rem);
+
+	pre {
+		display: table-cell;
+
+		&:first-child {
+			border-right: 0.5rem solid $backgroundColor;
+			padding-left: 2rem;
+			padding-right: $lh * 0.4375;
+			width: 60%;
+		}
+
+		&:last-child {
+			padding-left: $lh * 0.4375;
+			padding-right: 2rem;
+			width: 40%;
+		}
+
+		&:first-child:last-child {
+			padding-left: 2rem;
+			border: none;
+		}
+	}
+
+	.align-bottom {
+		vertical-align: bottom;
+	}
+
+	@media (min-width: 920px) and (max-width: 1180px), (max-width: 892px) {
+		background-color: transparent;
+		display: block;
+		margin: 0;
+		padding: 0;
+		width: auto;
+
+		pre {
+			display: block;
+
+			&:first-child,
+			&:last-child {
+				margin-bottom: $lh * 0.25;
+				border-right: none;
+				padding-left: 2rem;
+				padding-right: 2rem;
+				width: auto;
+			}
+
+			&:last-child:before {
+				pushout();
+
+				background-color: $backgroundColor;
+				content: 'Output:';
+				display: block;
+				font-style: italic;
+				margin-top: $lh * -0.4375; // .main pre padding-top
+				margin-bottom: $lh * 0.5;
+				padding-bottom: $lh * 0.125;
+				padding-top: $lh * 0.4375;
+			}
+
+			&:first-child:last-child {
+				border-bottom: none;
+
+				&:before {
+					display: none;
+				}
+			}
+		}
+
+		.align-bottom {
+			vertical-align: baseline;
+		}
+	}
+}
+
+.tip,
+.deprecated,
+.whatAreYouCrazy {
+	pushout();
+
+	border-left: 6px solid $internBlue;
+	padding-left: calc(2rem - 6px);
+
+	:first-child {
+		text-indent: -1rem;
+
+		* {
+			text-indent: 0;
+		}
+
+		&:before {
+			@extend [class^='icon-']:before, [class*=' icon-']:before;
+
+			color: $internBlue;
+			font-size: 1rem;
+			margin-right: 0;
+			padding: 0 0.05rem 0 0.45rem;
+			width: 0.5rem;
+		}
+	}
+}
+
+.tip {
+	> :first-child:before {
+		@extend .icon-lamp:before;
+	}
+}
+
+.deprecated {
+	border-left-color: $internGrey;
+
+	> :first-child:before {
+		@extend .icon-thumbs-down:before;
+		color: $internGrey;
+	}
+}
+
+.whatAreYouCrazy {
+	border-left-color: $internOrange;
+
+	> :first-child:before {
+		@extend .icon-alert:before;
+		color: $internOrange;
+	}
+}

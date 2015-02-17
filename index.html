@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<title>Intern. The user guide</title>
+		<script src="//use.typekit.net/cbd5jmj.js"></script>
+		<script>try{Typekit.load();}catch(e){}</script>
+		<link rel="stylesheet" href="css/main.css">
+		<script>
+(function () {
+	var test = document.createElement('b');
+	for (var prefix in { '': 1, '-webkit-': 1 }) {
+		var position = prefix + 'sticky';
+		test.style.position = position;
+		if (test.style.position === position) {
+			return;
+		}
+	}
+	document.documentElement.classList.add('no-sticky');
+})();
+		</script>
+	</head>
+	<body>
+		<span role="button" id="showMenu" class="icon-menu"
+			aria-controls="tableOfContents"
+			aria-expanded="false"
+			tabindex="0"
+			title="Table of contents">Menu</span>
+		<header class="header">
+			<div class="wrapper">
+				<div class="preTitle">
+					<a class="logo" href="https://theintern.github.io/intern/"></a>
+					<nav id="mainMenu">
+						<ul>
+							<li><a href="http://theintern.io">About</a></li>
+							<li><a href="https://theintern.github.io/leadfoot/">Leadfoot</a></li>
+							<li><a href="https://theintern.github.io/digdug/">Dig Dug</a></li>
+							<li><a href="https://github.com/theintern/intern/">GitHub</a></li>
+						</ul>
+					</nav>
+				</div>
+				<div id="initialScrollPoint">
+					<form action="https://duckduckgo.com/" role="search">
+						<input type="hidden" name="sites" value="theintern.github.io">
+						<label class="search">
+							<input type="text" name="q">
+							<span class="icon-search"></span>
+						</label>
+					</form>
+					<h1 class="title">Intern. The user guide</h1>
+				</div>
+				<script>
+(function () {
+	if (window.scrollY === 0 && !location.hash && !document.documentElement.classList.contains('no-sticky')) {
+		document.documentElement.style.minHeight = (window.innerHeight + /* $lh */ 32) + 'px';
+		var scrollTo = document.getElementById('initialScrollPoint');
+		window.scrollTo(window.scrollX, scrollTo.getBoundingClientRect().top);
+	}
+})();
+				</script>
+			</div>
+		</header>
+
+		<div class="content">
+			<div class="wrapper">
+				<nav class="nav" id="tableOfContents">
+					<ul>
+						<li data-id="getting-started">
+							<a href="#getting-started">Getting started</a>
+							<ul class="subsections">
+								<li data-id="what-is-intern"><a href="#what-is-intern">What is Intern?</a></li>
+								<li data-id="system-requirements"><a href="#system-requirements">System requirements</a></li>
+								<li data-id="installation"><a href="#installation">Installation</a></li>
+								<li data-id="reading-guide"><a href="#reading-guide">Reading this guide</a></li>
+								<li data-id="first-app"><a href="#first-app">Testing your first app</a></li>
+							</ul>
+						</li>
+						<li data-id="fundamentals">
+							<a href="#fundamentals">Fundamentals</a>
+							<ul class="subsections">
+								<li data-id="fundamentals-overview"><a href="#fundamentals-overview">Overview</a></li>
+								<li data-id="conventions"><a href="#conventions">Conventions</a></li>
+								<li data-id="executors"><a href="#executors">Running Intern</a></li>
+							</ul>
+						</li>
+						<li data-id="configuration">
+							<a href="#configuration">Configuration</a>
+							<ul class="subsections">
+								<li data-id="common-config"><a href="#common-config">Common configuration</a></li>
+								<li data-id="client-config"><a href="#client-config">Client-specific configuration</a></li>
+								<li data-id="runner-config"><a href="#runner-config">Runner-specific configuration</a></li>
+							</ul>
+						</li>
+						<li data-id="unit-testing">
+							<a href="#unit-testing">Unit testing</a>
+							<ul class="subsections">
+								<li data-id="writing-unit-test"><a href="#writing-unit-test">Writing a unit test</a></li>
+								<li data-id="testing-commonjs-code"><a href="#testing-commonjs-code">Testing non-AMD code</a></li>
+								<li data-id="testing-global-code"><a href="#testing-global-code">Testing non-modular code</a></li>
+								<li data-id="testing-other-module"><a href="#testing-other-module">Testing other transpiled code</a></li>
+							</ul>
+						</li>
+						<li data-id="functional-testing">
+							<a href="#functional-testing">Functional testing</a>
+							<ul class="subsections">
+								<li data-id="writing-functional-test"><a href="#writing-functional-test">Writing a functional test</a></li>
+								<li data-id="leadfoot-api"><a href="#leadfoot-api">The Leadfoot API</a></li>
+								<li data-id="page-objects"><a href="#page-objects">Page objects</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="#customisation">Customisation</a>
+							<ul class="subsections">
+								<li data-id="custom-interfaces"><a href="#custom-interfaces">Custom interfaces</a></li>
+								<li data-id="custom-executors"><a href="#custom-executors">Custom executors</a></li>
+								<li data-id="custom-reporters"><a href="#custom-reporters">Custom reporters</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="#internals">Internals</a>
+							<ul class="subsections">
+								<li data-id="suite-object"><a href="#suite-object">The Suite object</a></li>
+								<li data-id="test-object"><a href="#test-object">The Test object</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="#community">Community</a>
+							<ul class="subsections">
+								<li data-id="getting-help"><a href="#getting-help">Getting help</a></li>
+								<li data-id="contributing"><a href="#contributing">Contributing</a></li>
+							</ul>
+						</li>
+					</ul>
+
+					<p class="support"><a href="https://sitepen.com/support/index.html">Commercial support</a></p>
+				</nav>
+
+				<main class="main" id="main">
+					<article>
+						<div class="a" id="getting-started"></div>
+						<h2 data-id="getting-started">Getting started</h2>
+
+						<div class="a half" id="what-is-intern"></div>
+						<h3 data-id="what-is-intern">What is Intern?</h3>
+
+						<p>Intern is a complete framework for testing Web sites and applications. It’s built around standards like WebDriver and was designed from the ground up to be the most powerful, flexible, and reliable JavaScript testing framework in the world.</p>
+
+						<p>Intern can test all sorts of things:</p>
+
+						<ul>
+							<li>Plain JavaScript code, in any module format (or no module format!)</li>
+							<li>Web pages generated by server-side languages (like Java, PHP, or Ruby)</li>
+							<li>Native or hybrid iOS and Android applications</li>
+						</ul>
+
+						<p>Intern is minimally prescriptive and enforces only a basic set of best practices designed to ensure your tests stay maintainable over time. Its extensible architecture allows you to easily write custom test interfaces, executors, and reporters to influence how your tests run &amp; to integrate with your existing systems.</p>
+
+						<p>Intern also comes with Grunt tasks to integrate easily with existing Grunt-based workflows, and is designed to work out-of-the-box with many popular continuous integration services like Jenkins and Travis-CI.</p>
+
+						<p>Intern is used by companies large and small, including some you may have heard of, like Aerohive Networks, Esri, HSBC, IBM, ING, Intuit, Marriott, Mozilla, Stripe, and Twitter. We hope you’ll enjoy working with it too!</p>
+
+						<h4>Who is Intern best for?</h4>
+
+						<p>Intern is designed for development teams that want to spend their time Getting Things Done instead of cobbling together and maintaining a hodgepodge of different testing tools, but without losing any of the flexibility that comes with hand-curating a specific set of tools. It works best for testing JavaScript-based Web applications, but it can also be an excellent tool to add functional testing to server-generated Web pages and native mobile apps.</p>
+
+						<p>Intern is a great choice if you’re looking to migrate from another testing framework, since its extensible interfaces make it possible to transition without needing to rewrite all tests or learn a totally new set of APIs. It’s an even better choice for teams that have don’t have any tests at all, since the built-in code coverage analysis makes adding tests much faster and more precise than with any other test framework.</p>
+
+						<p>Intern’s execution model is especially well-suited to those that follow a test-last development approach, but it has also been used successfully by teams that follow all sorts of different testing process, including test-driven development, and the Intern team is working on improving workflows for TDD users.</p>
+
+						<p>Because of its strong architectural patterns, conventions, and expansive feature set, Intern is especially well-suited for testing extremely large, “enterprise-level” applications that must be maintained by large teams of developers with varying skill levels.</p>
+
+						<div class="a half" id="system-requirements"></div>
+						<h3 data-id="system-requirements">System requirements</h3>
+
+						<p>Intern can run unit tests in any of the following environments:</p>
+
+						<table>
+							<tr>
+								<td>Android Browser</td>
+								<td>4.1+</td>
+							</tr>
+							<tr>
+								<td>Chrome</td>
+								<td>31+</td>
+							</tr>
+							<tr>
+								<td>Firefox</td>
+								<td>17+</td>
+							</tr>
+							<tr>
+								<td>Internet Explorer</td>
+								<td>9+</td>
+							</tr>
+							<tr>
+								<td>Node.js/io.js</td>
+								<td>0.10+</td>
+							</tr>
+							<tr>
+								<td>Opera</td>
+								<td>26+</td>
+							</tr>
+							<tr>
+								<td>Safari (iOS)</td>
+								<td>6.1+</td>
+							</tr>
+							<tr>
+								<td>Safari (Mac OS)</td>
+								<td>6.0+</td>
+							</tr>
+						</table>
+
+						<p>Intern can run functional tests in any of the following environments:</p>
+
+						<table>
+							<tr>
+								<td>Android (browser, hybrid, native)</td>
+								<td>4.1+</td>
+							</tr>
+							<tr>
+								<td>Chrome</td>
+								<td>31+</td>
+							</tr>
+							<tr>
+								<td>Firefox</td>
+								<td>17+</td>
+							</tr>
+							<tr>
+								<td>Internet Explorer</td>
+								<td>8+</td>
+							</tr>
+							<tr>
+								<td>iOS (browser, hybrid, native)</td>
+								<td>6.1+</td>
+							</tr>
+							<tr>
+								<td>Opera</td>
+								<td>26+</td>
+							</tr>
+							<tr>
+								<td>Safari (Mac OS)</td>
+								<td>6+</td>
+							</tr>
+						</table>
+
+						<p>All other environments are not currently officially supported, but should work as long as they correctly implement EcmaScript 5 (for unit tests) and WebDriver (for functional tests).</p>
+
+						<p>In order to execute functional tests, or to execute tests against multiple browsers at the same time, Intern also requires Node.js/io.js 0.10+ plus a WebDriver-compatible server.</p>
+
+						<p>The following WebDriver servers are compatible with Intern:</p>
+
+						<table>
+							<tr>
+								<td>Appium</td>
+								<td>1.3.0+</td>
+							</tr>
+							<tr>
+								<td>ChromeDriver</td>
+								<td>2.9+</td>
+							</tr>
+							<tr>
+								<td>FirefoxDriver (Selenium)</td>
+								<td>2.41.0+</td>
+							</tr>
+							<tr>
+								<td>InternetExplorerDriver (Selenium)</td>
+								<td>2.41.0+</td>
+							</tr>
+							<tr>
+								<td>ios-driver</td>
+								<td>0.6.6+</td>
+							</tr>
+							<tr>
+								<td>SafariDriver (Selenium)</td>
+								<td>2.41.0+</td>
+							</tr>
+							<tr>
+								<td>Selendroid</td>
+								<td>0.9.0+</td>
+							</tr>
+						</table>
+
+						<p>Intern is also fully compatible with cloud hosted services from <a href="https://browserstack.com">BrowserStack</a>, <a href="https://saucelabs.com">Sauce Labs</a>, and <a href="https://testingbot.com">TestingBot</a>.</p>
+
+						<div class="a half" id="installation"></div>
+						<h3 data-id="installation">Installation</h3>
+
+						<p>Intern can be installed simply by running <kbd>npm install intern</kbd>. Once installed, a sample configuration can be copied from <code>intern/tests/example.intern.js</code> and modified.</p>
+
+						<div class="a half" id="reading-guide"></div>
+						<h3 data-id="reading-guide">Reading this guide</h3>
+
+						<p>Throughout this guide, you will find certain pieces of information are called out specifically, as we have found them to be especially important or problematic for users.</p>
+
+						<aside class="tip">
+							<p>Sections that look like this contain advanced tips and tricks that can help you get the most out of Intern.</p>
+						</aside>
+
+						<aside class="deprecated">
+							<p>Sections that look like this tell you about functionality that is deprecated and will be removed from a future version of Intern.</p>
+						</aside>
+
+						<aside class="whatAreYouCrazy">
+							<p>Sections that look like this tell you about dangerous anti-patterns that can break, slow down, or make your code less maintainable.</p>
+						</aside>
+
+						<p>Later sections of this guide are designed to be built upon knowledge presented in earlier parts. If you jump into the middle and feel confused, step back a section or two until you find the information you need to move forward. We also accept <a href="https://github.com/theintern/intern/pulls?q=is%3Aopen+label%3Adocumentation+is%3Apr">pull requests</a> to the documentation in order to improve its flow and clarity.</p>
+
+						<div class="a half" id="first-app"></div>
+						<h3 data-id="first-app">Testing your first app</h3>
+
+						<p>TODO: Take content from intern-tutorial.</p>
+					</article>
+
+					<article>
+						<div class="a" id="fundamentals"></div>
+						<h2 data-id="fundamentals">Fundamentals</h2>
+
+						<div class="a half" id="fundamentals-overview"></div>
+						<h3 data-id="fundamentals-overview">Overview</h3>
+
+						<figure>
+							<img src="http://placekitten.com/1000/608">
+							<figcaption>The architecture of Intern</figcaption>
+						</figure>
+
+						<p>Intern supports two types of tests: unit tests and functional tests. <dfn>Unit tests</dfn> work by executing code directly and inspecting the result, such as calling a function and then checking that it returns an expected value. <dfn>Functional tests</dfn> mimic user interaction and work by issuing commands to browsers via a WebDriver browser extension. As such, they require an external server that sends these commands to the browser and processes the result. This is a powerful notion: Intern allows us to test code with regular unit tests, but also allows us to test functionality by mimicking user interaction within real browsers.</p>
+
+						<div class="a half" id="conventions"></div>
+						<h3 data-id="conventions">Conventions</h3>
+
+						<p>TODO</p>
+
+						<pre><code class="javascript">function TODO() {}</code></pre>
+
+						<figure>
+							<pre><code class="javascript">function TODO() {}</code></pre>
+							<figcaption>TODO</figcaption>
+						</figure>
+
+						<div class="codeMirror">
+							<pre><code class="typescript">function TODO() {}</code></pre>
+							<pre class="align-bottom"><code class="javascript">output</code></pre>
+						</div>
+
+						<div class="a half" id="executors"></div>
+						<h3 data-id="executors">Running Intern</h3>
+
+						<p>TODO</p>
+					</article>
+
+					<article>
+						<div class="a" id="configuration"></div>
+						<h2 data-id="configuration">Configuration</h2>
+
+						<div class="a half" id="common-config"></div>
+						<h3 data-id="common-config">Common configuration</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="client-config"></div>
+						<h3 data-id="client-config">Client-specific configuration</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="runner-config"></div>
+						<h3 data-id="runner-config">Runner-specific configuration</h3>
+
+						<p>TODO</p>
+					</article>
+
+					<article>
+						<div class="a" id="unit-testing"></div>
+						<h2 data-id="unit-testing">Unit testing</h2>
+
+						<div class="a half" id="writing-unit-test"></div>
+						<h3 data-id="writing-unit-test">Writing a unit test</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="testing-commonjs-code"></div>
+						<h3 data-id="testing-commonjs-code">Testing CommonJS modules</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="testing-global-code"></div>
+						<h3 data-id="testing-global-code">Testing non-modular code</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="testing-other-module"></div>
+						<h3 data-id="testing-other-module">Testing other transpiled code</h3>
+
+						<p>TODO</p>
+					</article>
+
+					<article>
+						<div class="a" id="functional-testing"></div>
+						<h2 data-id="functional-testing">Functional testing</h2>
+
+						<div class="a half" id="writing-functional-test"></div>
+						<h3 data-id="writing-functional-test">Writing a functional test</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="leadfoot-api"></div>
+						<h3 data-id="leadfoot-api">The remote object API</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="page-objects"></div>
+						<h3 data-id="page-objects">Page objects</h3>
+
+						<p>TODO</p>
+					</article>
+
+					<article>
+						<div class="a" id="customisation"></div>
+						<h2 data-id="customisation">Customisation</h2>
+
+						<div class="a half" id="custom-interfaces"></div>
+						<h3 data-id="custom-interfaces">Custom interfaces</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="custom-executors"></div>
+						<h3 data-id="custom-executors">Custom executors</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="custom-reporters"></div>
+						<h3 data-id="custom-reporters">Custom reporters</h3>
+
+						<p>TODO</p>
+					</article>
+
+					<article>
+						<div class="a" id="internals"></div>
+						<h2 data-id="internals">Internals</h2>
+
+						<div class="a half" id="suite-object"></div>
+						<h3 data-id="suite-object">The Suite object</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="test-object"></div>
+						<h3 data-id="test-object">The Test object</h3>
+
+						<p>TODO</p>
+					</article>
+
+					<article>
+						<div class="a" id="community"></div>
+						<h2 data-id="community">Community</h2>
+
+						<div class="a half" id="getting-help"></div>
+						<h3 data-id="getting-help">Getting help</h3>
+
+						<p>The Intern team wants to help people like you write tests more quickly and easily than ever before. As such, we offer two different ways you can get help with Intern:</p>
+
+						<h4>Community support</h4>
+
+						<p>The Intern community is available to assist you with basic questions, advice, and general guidance. There are two primary ways to get community support:</p>
+
+						<ul>
+							<li>Post on Stack Overflow using the tag <a href="http://stackoverflow.com/questions/ask?tags=intern">[intern]</a>. Please make sure to follow the <a href="http://stackoverflow.com/help/how-to-ask">Stack Overflow guidelines</a> when asking your question in order to have the greatest chance of receiving a response!</li>
+							<li>Join us on IRC at <a href="irc://irc.freenode.net/intern">#intern on Freenode</a>. Please make sure to follow the rules outlined in <a href="https://rurounijones.github.io/blog/2009/03/17/how-to-ask-for-help-on-irc/">How to Ask for Help on IRC</a> when asking your question in order to have the greatest chance of receiving a response!</li>
+						</ul>
+
+						<h4>Commercial support</h4>
+
+						<p>Some problems are too complicated, specific, time-sensitive, or confidential to be solved through free community support. In these cases, the creators of Intern, SitePen, offer <a href="http://www.sitepen.com/support/index.html">commercial support services</a> for you or your company. Commercial support has several advantages over community support:</p>
+
+						<ul>
+							<li>Guaranteed response</li>
+							<li>24 hours maximum response time</li>
+							<li>Priority bug fix and enhancement requests</li>
+							<li>Total confidentiality for your next big idea</li>
+							<li>Provides direct financial support for ongoing development of Intern</li>
+						</ul>
+
+						<p>If you aren’t sure if commercial support is right for you, we’re happy to take a few minutes to talk through your needs in greater detail. <a href="https://www.sitepen.com/site/contact.html">Get in touch</a> to schedule a time!</p>
+
+						<div class="a half" id="contributing"></div>
+						<h3 data-id="contributing">Contributing</h3>
+
+						<p>We’re always excited to receive contributions from the community. If you think you’ve discovered a bug, want to submit a patch, or would like to request a new feature, take a look at our <a href="https://github.com/theintern/intern/blob/master/CONTRIBUTING.md">contribution guidelines on GitHub</a> to learn how you can contribute.</p>
+					</article>
+				</main>
+			</div>
+		</div>
+		<script src="css/highlight.pack.js"></script>
+		<script src="css/main.js"></script>
+	</body>
+</html>

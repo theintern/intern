@@ -1,0 +1,44 @@
+/*
+ * To update this file:
+ * 1. http://fontello.com/
+ * 2. Load entypo-config.json config
+ * 3. Choose desired icons and download
+ * 4. Overwrite entypo.woff
+ * 5. Replace list of icon rules below with contents from entypo-codes.css
+ */
+
+@font-face {
+	font-family: 'Entypo';
+	font-style: normal;
+	font-weight: normal;
+	src: url('fonts/entypo.woff') format('woff');
+}
+
+[class^='icon-']:before, [class*=' icon-']:before {
+	font-family: 'Entypo';
+	font-style: normal;
+	font-weight: normal;
+	speak: none;
+
+	display: inline-block;
+	text-decoration: inherit;
+	width: 1em;
+	margin-right: .2em;
+	text-align: center;
+
+	/* For safety - reset parent styles, that can break glyph codes*/
+	font-variant: normal;
+	text-transform: none;
+
+	/* fix buttons height, for twitter bootstrap */
+	line-height: 1em;
+	height: 0;
+}
+
+.icon-menu:before { content: '\e800'; } /* '' */
+.icon-lifebuoy:before { content: '\e801'; } /* '' */
+.icon-thumbs-down:before { content: '\e809'; } /* '' */
+.icon-alert:before { content: '\e80a'; } /* '' */
+.icon-lamp:before { content: '\e80b'; } /* '' */
+.icon-search:before { content: '\e810'; } /* '' */
+.icon-right-open:before { content: '\e811'; } /* '' */
