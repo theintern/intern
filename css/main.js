@@ -67,7 +67,7 @@
 	window.addEventListener('scroll', findActiveSection, false);
 
 	var selectorsToFind = hljs.listLanguages().map(function (language) {
-		return 'code.' + language;
+		return 'code.' + language + ', samp.' + language;
 	});
 
 	Array.prototype.slice.call(document.querySelectorAll(selectorsToFind.join(',')), 0).forEach(function (block) {

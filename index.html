@@ -81,6 +81,7 @@
 							<ul class="subsections">
 								<li data-id="fundamentals-overview"><a href="#fundamentals-overview">Overview</a></li>
 								<li data-id="conventions"><a href="#conventions">Conventions</a></li>
+								<li data-id="directory-structure"><a href="#directory-structure">Recommended directory structure</a></li>
 								<li data-id="execution-modes"><a href="#execution-modes">Running Intern</a></li>
 							</ul>
 						</li>
@@ -289,7 +290,7 @@
 						<div class="a half" id="installation"></div>
 						<h3 data-id="installation">Installation</h3>
 
-						<p>Intern can be installed simply by running <kbd>npm install intern</kbd>. Once installed, a sample configuration can be copied from <code>intern/tests/example.intern.js</code> and modified.</p>
+						<p>Intern can be installed simply by running <kbd>npm install intern</kbd>.</p>
 
 						<div class="a half" id="reading-guide"></div>
 						<h3 data-id="reading-guide">Reading this guide</h3>
@@ -343,9 +344,39 @@
 						</figure>
 
 						<div class="codeMirror">
-							<pre><code class="typescript">function TODO() {}</code></pre>
-							<pre class="align-bottom"><code class="javascript">output</code></pre>
+							<pre><code class="javascript">function TODO() {}</code></pre>
+							<pre class="align-bottom"><samp class="javascript">output</samp></pre>
 						</div>
+
+						<div class="a half" id="directory-structure"></div>
+						<h3 data-id="directory-structure">Recommended directory structure</h3>
+
+						<p>While Intern can be used to test code using nearly any directory structure, if you are starting a new project or have the ability to modify the directory structure of your existing project, a few small changes can help make Intern integration a lot easier.</p>
+
+						<p>The recommended directory structure for a front-end or front+back-end project using Intern looks like this:</p>
+
+						<pre>project_root/
+	dist/         – (optional) Built code; mirrors the `src` directory
+	node_modules/ – Node.js dependencies, including Intern
+		intern/
+	src/          – Front-end source code (+ browser dependencies)
+		app/        – Your application code
+		index.html  – Your application entry point
+	tests/        – Intern tests
+		functional/ – Functional tests
+		support/    – Test support files
+		              (custom interfaces, reporters, mocks, etc.)
+		unit/       – Unit tests
+		intern.js   – Intern configuration
+	</pre>
+
+						<p>Using this directory structure provides a few benefits:</p>
+
+						<ul>
+							<li>It lets you easily switch from testing source and built code simply by changing the location of your packages from <kbd>src</kbd> to <kbd>dist</kbd> in your Intern configuration</li>
+							<li>It lets you use the default loader <code>baseUrl</code> configuration setting without worrying about path differences between Node.js and browser</li>
+							<li>It adds another layer of assurance that your tests and other private server-side code won’t be accidentally deployed along with the rest of your application</li>
+						</ul>
 
 						<div class="a half" id="execution-modes"></div>
 						<h3 data-id="execution-modes">Running Intern</h3>
@@ -360,7 +391,7 @@
 						<div class="a half" id="common-config"></div>
 						<h3 data-id="common-config">Common configuration</h3>
 
-						<p>Intern’s configuration files are actually <a href="http://dojotoolkit.org/documentation/tutorials/1.10/modules/">standard AMD modules</a> that export a configuration object. This allows simple inheritance of parent configurations and enables test configurations to be optionally generated at runtime.</p>
+						<p>Intern’s configuration files are actually <a href="http://dojotoolkit.org/documentation/tutorials/1.10/modules/">standard AMD modules</a> that export a configuration object. This allows simple inheritance of parent configurations and enables test configurations to be generated programmatically at runtime.</p>
 						<p>The module ID to load is specified using the <a href="#argument-config"><kbd>config</kbd> argument</a> on the command-line (for Node.js) or the <kbd>config</kbd> argument in the URL query-string (for browsers).</p>
 
 						<aside class="tip"><p>Take a look at the <a href="https://github.com/theintern/intern/blob/master/tests/example.intern.js">example configuration file</a> that comes with Intern to learn what a valid configuration looks like.</p></aside>
@@ -685,19 +716,22 @@
 
 						<p>The tunnel to use to establish a WebDriver server for testing. The tunnel can either be a <a href="https://theintern.github.io/digdug/">built-in tunnel name</a> (like <code class="javascript">'NullTunnel'</code> or <code class="javascript">'BrowserStackTunnel'</code>), or an absolute AMD module ID (like <code class="javascript">'tests/support/CustomTunnel'</code>) when using a custom tunnel.</p>
 
+
+						<p>The following tunnels are built in to Intern:</p>
+
+						<ul>
+							<li><a href="https://theintern.github.io/digdug/BrowserStackTunnel.html">BrowserStackTunnel</a> – For use with <a href="https://browserstack.com">BrowserStack</a></li>
+							<li><a href="https://theintern.github.io/digdug/NullTunnel.html">NullTunnel</a> – For use with any other WebDriver server</li>
+							<li><a href="https://theintern.github.io/digdug/SauceLabsTunnel.html">SauceLabsTunnel</a> – For use with <a href="https://saucelabs.com">Sauce Labs</a></li>
+							<li><a href="https://theintern.github.io/digdug/TestingBotTunnel.html">TestingBotTunnel</a> – For use with <a href="https://testingbot.com">TestingBot</a></li>
+						</ul>
+
 						<p>When you are using your own Selenium server or Selenium grid, you will typically use the <code class="javascript">'NullTunnel'</code> tunnel and specify the <code>host</code>, <code>port</code>, and/or <code>path</code> to the Selenium server in <a href="#option-tunnelOptions">tunnelOptions</a>.</p>
 
 						<div class="a half" id="option-tunnelOptions"></div>
 						<h4>tunnelOptions (Object)</h4>
 
-						<p>Options to pass to the WebDriver server tunnel. Valid options for each of the built-in tunnels can be found in the <a href="https://theintern.github.io/digdug/">Dig Dug documentation</a>:</p>
-
-						<ul>
-							<li><a href="https://theintern.github.io/digdug/BrowserStackTunnel.html">BrowserStackTunnel</a></li>
-							<li><a href="https://theintern.github.io/digdug/NullTunnel.html">NullTunnel</a></li>
-							<li><a href="https://theintern.github.io/digdug/SauceLabsTunnel.html">SauceLabsTunnel</a></li>
-							<li><a href="https://theintern.github.io/digdug/TestingBotTunnel.html">TestingBotTunnel</a></li>
-						</ul>
+						<p>Options to pass to the WebDriver server tunnel. Valid options for each of the built-in tunnels can be found in the <a href="https://theintern.github.io/digdug/">Dig Dug documentation</a>, linked to from <a href="#option-tunnel">the list above</a>.</p>
 					</article>
 
 					<article>
