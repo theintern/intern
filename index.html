@@ -335,7 +335,13 @@
 							<figcaption>The architecture of Intern</figcaption>
 						</figure>
 
-						<p>Intern supports two types of tests: unit tests and functional tests. <dfn>Unit tests</dfn> work by executing code directly and inspecting the result, such as calling a function and then checking that it returns an expected value. <dfn>Functional tests</dfn> mimic user interaction and work by issuing commands to browsers via a WebDriver browser extension. As such, they require an external server that sends these commands to the browser and processes the result. This is a powerful notion: Intern allows us to test code with regular unit tests, but also allows us to test functionality by mimicking user interaction within real browsers.</p>
+						<p>Intern provides two strategies for automated testing: unit testing and functional testing.</p>
+
+						<p><dfn>Unit testing</dfn> works by executing a piece of code directly and inspecting the result. For example, calling a function and then checking that it returns an expected value is a form of unit testing. This is the most common and most useful form of testing for day-to-day development, since it’s very fast and allows very small units of code to be tested in isolation. However, unit tests are limited to only testing certain testable code designs, and can also be limited by the constraints of the execution environment (like browser sandboxes).</p>
+
+						<p><dfn>Functional testing</dfn> works by issuing commands to a device that mimic actual user interactions. Once an interaction has occurred, these tests verify that the expected information is displayed by the user interface. Because these interactions come from outside the application being tested, they are not restricted by the execution environment. They also allow application code to be treated as a black box, which means functional tests can be written to test pages and applications written in any language. Because functional tests don’t call any APIs directly, code that is unable to be unit tested can still be successfully exercised. Functional tests allow the automation of UI &amp; integration testing that would otherwise need to be performed manually.</p>
+
+						<p>By understanding &amp; combining both of these testing strategies when testing an application, it becomes possible to effectively automate nearly all of the QA process, enabling much faster development cycles and significantly reducing software defects.</p>
 
 						<div class="a half" id="conventions"></div>
 						<h3 data-id="conventions">Conventions</h3>
