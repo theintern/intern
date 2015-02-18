@@ -96,7 +96,10 @@
 						<li data-id="unit-testing">
 							<a href="#unit-testing">Unit testing</a>
 							<ul class="subsections">
+								<li data-id="interface-object"><a href="#interface-object">The Object interface</a></li>
+								<li data-id="interface-tdd"><a href="#interface-tdd">The TDD &amp; BDD interfaces</a></li>
 								<li data-id="writing-unit-test"><a href="#writing-unit-test">Writing a unit test</a></li>
+								<li data-id="async-lifecycle"><a href="#async-lifecycle">Asynchronous lifecycle methods</a></li>
 								<li data-id="testing-commonjs-code"><a href="#testing-commonjs-code">Testing non-AMD code</a></li>
 								<li data-id="testing-global-code"><a href="#testing-global-code">Testing non-modular code</a></li>
 								<li data-id="testing-other-module"><a href="#testing-other-module">Testing other transpiled code</a></li>
@@ -108,6 +111,7 @@
 								<li data-id="writing-functional-test"><a href="#writing-functional-test">Writing a functional test</a></li>
 								<li data-id="leadfoot-api"><a href="#leadfoot-api">The Leadfoot API</a></li>
 								<li data-id="page-objects"><a href="#page-objects">Page objects</a></li>
+								<li data-id="native-apps"><a href="#native-apps">Testing native apps</a></li>
 							</ul>
 						</li>
 						<li>
@@ -149,7 +153,7 @@
 
 						<aside class="whatAreYouCrazy"><p>Hey, you found the new user guide! This document is still a work in progress as we try to migrate and expand upon the content already in the <a href="https://github.com/theintern/intern/wiki">Intern wiki</a>. Not everything here is accurate yet, and there’s a lot that’s still missing, but please feel free to take a look!</p></aside>
 
-						<p>Intern is a complete framework for testing Web sites and applications. It’s built around standards like WebDriver and was designed from the ground up to be the most powerful, flexible, and reliable JavaScript testing framework in the world.</p>
+						<p>Intern is a complete framework for testing Web sites and applications. It’s built around standards like WebDriver and was designed from the ground up to be the most powerful, flexible, and reliable JavaScript testing system in the world.</p>
 
 						<p>Intern can test all sorts of things:</p>
 
@@ -159,26 +163,28 @@
 							<li>Native or hybrid iOS and Android applications</li>
 						</ul>
 
-						<p>Intern is minimally prescriptive and enforces only a basic set of best practices designed to ensure your tests stay maintainable over time. Its extensible architecture allows you to easily write custom test interfaces, executors, and reporters to influence how your tests run &amp; to integrate with your existing systems.</p>
+						<p>Intern is minimally prescriptive and enforces only a basic set of best practices designed to ensure your tests stay maintainable over time. Its extensible architecture allows you to write custom test interfaces, executors, and reporters to influence how your tests run &amp; easily integrate with your existing coding environment.</p>
 
-						<p>Intern also comes with Grunt tasks to integrate easily with existing Grunt-based workflows, and is designed to work out-of-the-box with many popular continuous integration services like Jenkins and Travis-CI.</p>
+						<p>Intern also comes with Grunt tasks so it can be quickly added to existing Grunt-based workflows, and is designed to work out-of-the-box with many popular continuous integration services like Jenkins and Travis-CI.</p>
 
 						<p>Intern is used by companies large and small, including some you may have heard of, like Aerohive Networks, Esri, HSBC, IBM, ING, Intuit, Marriott, Mozilla, Stripe, and Twitter. We hope you’ll enjoy working with it too!</p>
 
 						<h4>Who is Intern best for?</h4>
 
-						<p>Intern is designed for development teams that want to spend their time Getting Things Done instead of cobbling together and maintaining a hodgepodge of different testing tools, but without losing any of the flexibility that comes with hand-curating a specific set of tools. It works best for testing JavaScript-based Web applications, but it can also be an excellent tool to add functional testing to server-generated Web pages and native mobile apps.</p>
+						<p>Intern is best for development teams that want a complete, flexible, <a href="TODO">standards-based</a>, high-quality testing solution that Just Works. It’s best for testing JavaScript code, but it is also an excellent tool for testing server-generated Web pages or native mobile apps. Its built-in <a href="TODO">support for source maps</a> makes it uniquely well-suited for developers that compile their code to JavaScript from another language, or that run tests against production-ready built/minified code.</p>
 
-						<p>Intern is a great choice if you’re looking to migrate from another testing framework, since its extensible interfaces make it possible to transition without needing to rewrite all tests or learn a totally new set of APIs. It’s an even better choice for teams that have don’t have any tests at all, since the built-in code coverage analysis makes adding tests much faster and more precise than with any other test framework.</p>
+						<p>Intern is excellent for teams that are just beginning to write tests; its built-in <a href="TODO">code coverage analysis</a> makes thorough testing fast and precise, and its <a href="TODO">functional testing system</a> enables testing of highly procedural code that’s other impossible to test.</p>
 
-						<p>Intern’s execution model is especially well-suited to those that follow a test-last development approach, but it has also been used successfully by teams that follow all sorts of different testing process, including test-driven development, and the Intern team is working on improving workflows for TDD users.</p>
+						<p>Intern is a great choice if you’re hoping to transition away from your current testing library but already have a lot of tests, since its <a href="TODO">extensible interfaces</a> make it possible to transition without needing to rewrite tests or learn a totally new set of APIs.</p>
 
-						<p>Because of its strong architectural patterns, conventions, and expansive feature set, Intern is especially well-suited for testing extremely large, “enterprise-level” applications that must be maintained by large teams of developers with varying skill levels.</p>
+						<p>Intern’s execution model is especially well-suited to those that follow a test-last development approach and want to prevent regressions using continuous integration. It has also been used very successfully by teams that follow a test-driven development approach.</p>
+
+						<p>Finally, because of its strong architectural patterns, conventions, and expansive feature set, Intern is especially well-suited for testing extremely large, “enterprise-level” applications that must be maintained by large teams of developers with varying skill levels.</p>
 
 						<div class="a half" id="system-requirements"></div>
 						<h3 data-id="system-requirements">System requirements</h3>
 
-						<p>Intern can run unit tests in any of the following environments:</p>
+						<p>Intern can be used to run unit tests in any of the following environments:</p>
 
 						<table>
 							<tr>
@@ -215,7 +221,7 @@
 							</tr>
 						</table>
 
-						<p>Intern can run functional tests in any of the following environments:</p>
+						<p>Intern can be used to run functional tests in any of the following environments:</p>
 
 						<table>
 							<tr>
@@ -248,7 +254,7 @@
 							</tr>
 						</table>
 
-						<p>All other environments are not currently officially supported, but should work as long as they correctly implement EcmaScript 5 (for unit tests) and WebDriver (for functional tests).</p>
+						<p>All other environments are not currently officially supported, but should work as long as they correctly implement EcmaScript 5 (for unit tests) and/or WebDriver (for functional tests).</p>
 
 						<p>In order to execute functional tests, or to execute tests against multiple browsers at the same time, Intern also requires Node.js/io.js 0.10+ plus a WebDriver-compatible server.</p>
 
@@ -285,7 +291,7 @@
 							</tr>
 						</table>
 
-						<p>Intern is also fully compatible with cloud hosted services from <a href="https://browserstack.com">BrowserStack</a>, <a href="https://saucelabs.com">Sauce Labs</a>, and <a href="https://testingbot.com">TestingBot</a>.</p>
+						<p>Intern also integrates with cloud hosted services from <a href="https://browserstack.com">BrowserStack</a>, <a href="https://saucelabs.com">Sauce Labs</a>, and <a href="https://testingbot.com">TestingBot</a>.</p>
 
 						<div class="a half" id="installation"></div>
 						<h3 data-id="installation">Installation</h3>
@@ -738,8 +744,245 @@
 						<div class="a" id="unit-testing"></div>
 						<h2 data-id="unit-testing">Unit testing</h2>
 
+						<div class="a half" id="interface-object"></div>
+						<h3 data-id="interface-object">The Object interface</h3>
+
+						<p>The Object interface is the most basic API for writing tests. It exposes a single function, usually referenced as <code>registerSuite</code>. This function is used to register a series of tests by passing in a plain JavaScript object containing test functions:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var registerSuite = require('intern!object');
+
+	registerSuite({
+		name: 'Suite name',
+
+		setup: function () {
+			// executes before suite starts;
+			// can also be called `before` instead of `setup`
+		},
+
+		teardown: function () {
+			// executes after suite ends;
+			// can also be called `after` instead of `teardown`
+		},
+
+		beforeEach: function () {
+			// executes before each test
+		},
+
+		afterEach: function () {
+			// executes after each test
+		},
+
+		'Test foo': function () {
+			// a test case
+		},
+
+		'Test bar': function () {
+			// another test case
+		},
+
+		/* … */
+	});
+});</code></pre>
+
+						<aside class="whatAreYouCrazy"><p>If you need to hold variables that are modified by test suites, it’s important to pass a function to <code>registerSuite</code> and create the variables inside that function, instead of putting the variables directly inside the factory:</p></aside>
+
+						<pre><code class="javascript">define(function (require) {
+	var assert = require('intern/chai!assert');
+	var registerSuite = require('intern!object');
+
+	// Don't put this here! This variable is shared!
+	var counter = 0;
+
+	registerSuite({
+		name: 'Anti-pattern',
+
+		setup: function () {
+			app = {
+				id: counter++
+			};
+		},
+
+		'Test the id': function () {
+			// May or may not be true! The value of `counter`
+			// may have been modified by another suite execution!
+			assert.strictEqual(app.id, counter - 1);
+		}
+	});
+});</code></pre>
+
+						<pre><code class="javascript">define(function (require) {
+	var assert = require('intern/chai!assert');
+	var registerSuite = require('intern!object');
+
+	registerSuite(function () {
+		// Do put this here! This variable is unique for each environment!
+		var counter = 0;
+
+		return {
+			name: 'Correct pattern',
+
+			setup: function () {
+				app = {
+					id: counter++
+				};
+			},
+
+			'Test the id': function () {
+				// The value of `counter` will always be what is expected
+				assert.strictEqual(app.id, counter - 1);
+			}
+		};
+	});
+});</code></pre>
+
+						<p>This is necessary because functional tests may execute against multiple environments in parallel, which means that variables held in the factory function would be shared unsafely across simultaneous executions.</p>
+
+						<p>It is also possible to nest suites by using an object as a value instead of a function:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var registerSuite = require('intern!object');
+
+	registerSuite({
+		name: 'Suite name',
+
+		'Test foo': function () {
+			// a test case
+		},
+
+		// this is a sub-suite, not a test
+		'Sub-suite name': {
+			// it can also have its own suite lifecycle methods
+			setup: function () { /* … */ },
+			teardown: function () { /* … */ },
+			beforeEach: function () { /* … */ },
+			afterEach: function () { /* … */ },
+
+			'Sub-suite test': function () {
+				// a test case inside the sub-suite
+			},
+
+			'Sub-sub-suite name': {
+				// and so on…
+			}
+		},
+
+		/* … */
+	});
+});</code></pre>
+
+						<div class="a half" id="interface-tdd"></div>
+						<h3 data-id="interface-tdd">The TDD &amp; BDD interfaces</h3>
+
+						<p>The TDD &amp; BDD interfaces are nearly identical to each other, differing only slightly in the names of the properties that they expose. Registering suites and tests using the TDD &amp; BDD interfaces is more procedural than the <a href="#interface-object">Object interface</a>:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var tdd = require('intern!tdd');
+
+	tdd.suite('Suite name', function () {
+		tdd.before(function () {
+			// executes before suite starts
+		});
+
+		tdd.after(function () {
+			// executes after suite ends
+		});
+
+		tdd.beforeEach(function () {
+			// executes before each test
+		});
+
+		tdd.afterEach(function () {
+			// executes after each test
+		});
+
+		tdd.test('Test foo', function () {
+			// a test case
+		});
+
+		tdd.test('Test bar', function () {
+			// another test case
+		});
+
+		// …
+	});
+</code></pre>
+
+						<p>The BDD interface attempts to enforce a more literary, behaviour-describing convention for suites and tests by using different names for its registration functions:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var bdd = require('intern!bdd');
+
+	bdd.describe('the thing being tested', function () {
+		bdd.before(function () {
+			// executes before suite starts
+		});
+
+		bdd.after(function () {
+			// executes after suite ends
+		});
+
+		bdd.beforeEach(function () {
+			// executes before each test
+		});
+
+		bdd.afterEach(function () {
+			// executes after each test
+		});
+
+		bdd.it('should do foo', function () {
+			// a test case
+		});
+
+		bdd.it('should do bar', function () {
+			// another test case
+		});
+
+		// …
+	});
+});</code></pre>
+
+						<aside class="tip"><p>Both interfaces work the same, so just pick which style you prefer and stick with it!</p></aside>
+
+						<p>Just like the Object interface, the TDD &amp; BDD interfaces allow suites to be nested by calling <code>tdd.suite</code> or <code>bdd.describe</code> from within a parent suite:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var tdd = require('intern!tdd');
+
+	tdd.suite('Suite name', function () {
+		tdd.test('Test foo', function () {
+			// a test case
+		});
+
+		tdd.suite('Sub-suite name', function () {
+			// it can also have its own suite lifecycle methods
+			tdd.before(function () { /* … */ });
+			tdd.after(function () { /* … */ });
+			tdd.beforeEach(function () { /* … */ });
+			tdd.afterEach(function () { /* … */ });
+
+			tdd.test('Sub-test name', function () {
+				// a test case inside the sub-suite
+			});
+
+			tdd.suite('Sub-sub-suite', function () {
+				// and so on…
+			})
+		});
+
+		// …
+	});
+</code></pre>
+
+						<aside class="whatAreYouCrazy"><p>Don’t try to call <code>tdd.suite</code> or <code>bdd.describe</code> from inside a test case; it’s not supported.</p></aside>
+
 						<div class="a half" id="writing-unit-test"></div>
 						<h3 data-id="writing-unit-test">Writing a unit test</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="async-lifecycle"></div>
+						<h3 data-id="async-lifecycle">Asynchronous lifecycle methods</h3>
 
 						<p>TODO</p>
 
@@ -775,6 +1018,11 @@
 
 						<div class="a half" id="page-objects"></div>
 						<h3 data-id="page-objects">Page objects</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="native-apps"></div>
+						<h3 data-id="native-apps">Testing native apps</h3>
 
 						<p>TODO</p>
 					</article>
