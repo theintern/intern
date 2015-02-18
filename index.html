@@ -81,7 +81,7 @@
 							<ul class="subsections">
 								<li data-id="fundamentals-overview"><a href="#fundamentals-overview">Overview</a></li>
 								<li data-id="conventions"><a href="#conventions">Conventions</a></li>
-								<li data-id="executors"><a href="#executors">Running Intern</a></li>
+								<li data-id="execution-modes"><a href="#execution-modes">Running Intern</a></li>
 							</ul>
 						</li>
 						<li data-id="configuration">
@@ -347,8 +347,8 @@
 							<pre class="align-bottom"><code class="javascript">output</code></pre>
 						</div>
 
-						<div class="a half" id="executors"></div>
-						<h3 data-id="executors">Running Intern</h3>
+						<div class="a half" id="execution-modes"></div>
+						<h3 data-id="execution-modes">Running Intern</h3>
 
 						<p>TODO</p>
 					</article>
@@ -360,17 +360,344 @@
 						<div class="a half" id="common-config"></div>
 						<h3 data-id="common-config">Common configuration</h3>
 
-						<p>TODO</p>
+						<p>Intern’s configuration files are actually <a href="http://dojotoolkit.org/documentation/tutorials/1.10/modules/">standard AMD modules</a> that export a configuration object. This allows simple inheritance of parent configurations and enables test configurations to be optionally generated at runtime.</p>
+						<p>The module ID to load is specified using the <a href="#argument-config"><kbd>config</kbd> argument</a> on the command-line (for Node.js) or the <kbd>config</kbd> argument in the URL query-string (for browsers).</p>
+
+						<aside class="tip"><p>Take a look at the <a href="https://github.com/theintern/intern/blob/master/tests/example.intern.js">example configuration file</a> that comes with Intern to learn what a valid configuration looks like.</p></aside>
+
+						<p>The following configuration options are common to <a href="#execution-modes">all execution modes</a> in Intern:</p>
+
+						<table>
+							<thead>
+								<tr>
+									<th>Option</th>
+									<th>Type</th>
+									<th>Default</th>
+								</tr>
+							</thead>
+							<tr>
+								<th scope="row"><a href="#option-grep">grep</a></th>
+								<td>A regular expression that filters which tests should run.</td>
+								<td><code class="javascript">/.*/</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-loader">loader</a></th>
+								<td>Configuration options for the AMD loader.</td>
+								<td><code class="javascript">{ … }</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-reporters">reporters</a></th>
+								<td>An array of reporters to use to report test results.</td>
+								<td><code class="javascript">[ 'runner' ]</code> (runner)<br><code class="javascript">[ 'console' ]</code> (client)</td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-suites">suites</a></th>
+								<td>An array of of unit test module IDs to load.</td>
+								<td><code class="javascript">[]</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-useLoader">useLoader</a></th>
+								<td>An alternative module loader to use in place of the built-in AMD loader.</td>
+								<td><code class="javascript">{}</code></td>
+							</tr>
+						</table>
+
+						<div class="a half" id="option-grep"></div>
+						<h4>grep (RegExp)</h4>
+
+						<p>A regular expression that filters which tests should run. <code>grep</code> should be used whenever you want to run only a subset of all available tests.</p>
+
+						<p>When using <code>grep</code>, its value is matched against the ID of each registered test, and tests that don’t match are skipped with a skip message of “grep”.</p>
+
+						<p>The ID of a test is a concatenation of the test’s name, plus the names of its parent suites, separated by <code>' - '</code>. In other words, a test registered like this:</p>
+
+						<pre><code class="javascript">tdd.suite('FooComponent', function () {
+	tdd.test('startup', function () {
+		// ...
+	});
+});</code></pre>
+
+						<p>…would have the ID <code>'FooComponent - startup'</code>. In this case, all of the following <code>grep</code> values would match and cause this test to run:</p>
+
+						<ul>
+							<li><code class="javascript">/FooComponent/</code></li>
+							<li><code class="javascript">/startup/</code></li>
+							<li><code class="javascript">/FooComponent - startup/</code></li>
+							<li><code class="javascript">/foocomponent/i</code></li>
+							<li><code class="javascript">/start/</code></li>
+						</ul>
+
+						<p>The following <code>grep</code> values would <em>not</em> match and cause this test to be skipped:</p>
+
+						<ul>
+							<li><code class="javascript">/BarComponent/</code> – “BarComponent” is not in the full name of the test</li>
+							<li><code class="javascript">/foocomponent/</code> – this regular expression is case sensitive</li>
+							<li><code class="javascript">/^startup/</code> – the full ID of the test is matched, not just the name part</li>
+						</ul>
+
+						<div class="a half" id="option-loader"></div>
+						<h4>loader (Object)</h4>
+
+						<p>Configuration options for the module loader. Any <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md">configuration options</a> that are supported by the active loader can be used here. By default, the <a href="https://github.com/dojo/dojo2">Dojo 2</a> AMD loader is used; this can be changed to another loader that provides an AMD-compatible API with <a href="#config-useLoader"><code>useLoader</code></a>.</p>
+
+						<p>AMD configuration options supported by the built-in loader are <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#map-"><code>map</code></a>, <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#packages-"><code>packages</code></a>, and <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#paths-"><code>paths</code></a>.</p>
+
+						<p><a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#baseurl-"><code>baseUrl</code></a> is automatically set according to the current environment:</p>
+
+						<ul>
+							<li>In Node.js client mode and runner mode, <code>baseUrl</code> is set to the current working directory specified by <code>process.cwd()</code></li>
+							<li>In browser client mode, <code>baseUrl</code> is set to the directory two path segments above the directory containing client.html</li>
+						</ul>
+
+						<p>When following the <a href="TODO">recommended filesystem layout</a>, a typical loader configuration will look like this:</p>
+
+						<pre><code class="javascript">{
+	loader: {
+		packages: [
+			{ name: 'app', location: 'src/' },
+			{ name: 'tests', location: 'tests/' }
+		]
+	}
+}</code></pre>
+
+						<p>If you are testing an AMD application and need to use stub modules for testing, the <code>map</code> configuration option is the correct way to do this:</p>
+
+						<pre><code class="javascript">{
+	loader: {
+		map: {
+			app: {
+				// When any module inside 'app' tries to load 'app/foo',
+				// it will receive 'tests/stubs/app/foo' instead
+				'app/foo': 'tests/stubs/app/foo'
+			}
+		}
+	}
+}</code></pre>
+
+						<div class="a half" id="option-reporters"></div>
+						<h4>reporters (Array&lt;string>)</h4>
+
+						<p>An array of reporters to use to report test results. Reporters in this list can either be <a href="TODO">built-in reporter names</a> (like <code class="javascript">'console'</code> or <code class="javascript">'junit'</code>), or absolute AMD module IDs (like <code class="javascript">'tests/support/customReporter'</code>) when using <a href="TODO">custom reporters</a>.</p>
+
+						<p>If reporters are not specified in the configuration, Intern will pick defaults that are most suitable for the current execution mode.</p>
+
+						<div class="a half" id="option-suites"></div>
+						<h4>suites (Array&lt;string>)</h4>
+
+						<p>An array of unit test module IDs to load. For example:</p>
+
+						<pre><code class="javascript">{
+	suites: [
+		'tests/unit/foo',
+		'tests/unit/bar'
+	]
+}</code></pre>
+
+						<p>Because the same configuration file is used on the client, where there is no filesystem access, there is currently no built-in way to glob for test modules. Future versions of Intern will not have this restriction when running in Node.js client or runner mode.</p>
+
+						<p><code>suites</code> can also be set to <code class="javascript">null</code> to skip loading the unit testing system when in runner mode.</p>
+
+						<div class="a half" id="option-useLoader"></div>
+						<h4>useLoader (Object)</h4>
+
+						<p>An alternative module loader to use in place of the built-in AMD loader. When <code>useLoader</code> is specified, Intern will swap out the built-in loader with the loader you’ve specified before loading reporters and test modules.</p>
+
+						<p>The alternative loader you use must implement the AMD API and must support the <code>baseUrl</code>, <code>map</code>, and <code>packages</code> configuration options.</p>
+
+						<p>There are two different keys that may be specified so that the correct path to the loader can be provided in each environment:</p>
+
+						<ul>
+							<li><code>host-node</code> specifies the loader to use in Node.js. This should be a Node.js module ID.</li>
+							<li><code>host-browser</code> specifies the loader to use in browsers. This should be a URL to a script file.</li>
+						</ul>
+
+						<p>Loader paths are relative to the directory where Intern is installed.</p>
+
+						<p>For example, to use a copy of RequireJS installed to the same project as Intern:</p>
+
+						<pre><code class="javascript">useLoader: {
+	'host-node': 'requirejs',
+	'host-browser': '../../node_modules/requirejs/require.js'
+}</code></pre>
 
 						<div class="a half" id="client-config"></div>
 						<h3 data-id="client-config">Client-specific configuration</h3>
 
-						<p>TODO</p>
+						<p>There are currently no client-specific configuration options in Intern.</p>
 
 						<div class="a half" id="runner-config"></div>
 						<h3 data-id="runner-config">Runner-specific configuration</h3>
 
-						<p>TODO</p>
+						<p>Certain configuration options only apply when in runner mode. These options are ignored when running in client mode.</p>
+
+						<table>
+							<thead>
+								<tr>
+									<th>Option</th>
+									<th>Type</th>
+									<th>Default</th>
+								</tr>
+							</thead>
+							<tr>
+								<th scope="row"><a href="#option-capabilities">capabilities</a></th>
+								<td>Default capabilities for all test environments.</td>
+								<td>
+									<code class="javascript">{ name: configModuleId,<br>  'idle-timeout': 60 }</code>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-environments">environments</a></th>
+								<td>An array of capabilities objects, one for each desired test environment.</td>
+								<td><code class="javascript">[]</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-excludeInstrumentation">excludeInstrumentation</a></th>
+								<td>A regular expression matching paths to exclude from code coverage.</td>
+								<td><code class="javascript">null</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-functionalSuites">functionalSuites</a></th>
+								<td>An array of functional test module IDs to load.</td>
+								<td><code class="javascript">[]</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-maxConcurrency">maxConcurrency</a></th>
+								<td>The maximum number of environments to test simultaneously.</td>
+								<td><code class="javascript">3</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-proxyPort">proxyPort</a></th>
+								<td>The port where the Intern HTTP server will listen for requests.</td>
+								<td><code class="javascript">9000</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-proxyUrl">proxyUrl</a></th>
+								<td>The external URL to the Intern HTTP server.</td>
+								<td><code class="javascript">'http://localhost:9000/'</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-tunnel">tunnel</a></th>
+								<td>The tunnel to use to establish a WebDriver server for testing.</td>
+								<td><code class="javascript">'NullTunnel'</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-tunnelOptions">tunnelOptions</a></th>
+								<td>Options to pass to the WebDriver server tunnel.</td>
+								<td><code class="javascript">{}</code></td>
+							</tr>
+						</table>
+
+						<div class="a half" id="option-capabilities"></div>
+						<h4>capabilities (Object)</h4>
+
+						<p>Default capabilities for all test environments. These baseline capabilities are extended for each environment by the <a href="#option-environments"><code>environments</code></a> array.</p>
+
+						<p>Different services like BrowserStack and Sauce Labs may have different sets of available capabilities. In order for Intern to work correctly, it’s important that you use the appropriate capabilities for WebDriver server you are interacting with:</p>
+
+						<ul>
+							<li><a href="https://code.google.com/p/selenium/wiki/DesiredCapabilities">Selenium capabilities</a></li>
+							<li><a href="https://www.browserstack.com/automate/capabilities">BrowserStack capabilities</a></li>
+							<li><a href="https://docs.saucelabs.com/reference/test-configuration/#webdriver-api">Sauce Labs capabilities</a> and <a href="https://saucelabs.com/platforms">environments</a></li>
+							<li><a href="https://testingbot.com/support/other/test-options">TestingBot capabilities</a> and <a href="https://testingbot.com/support/getting-started/browsers.html">environments</a></li>
+						</ul>
+
+						<p>Extra <a href="https://sites.google.com/a/chromium.org/chromedriver/capabilities">options for ChromeDriver</a> are specified on the <code>chromeOptions</code> capability.</p>
+
+						<p>Intern will automatically fill certain capabilities fields in order to provide better feedback within cloud service dashboards:</p>
+
+						<ul>
+							<li><code>name</code> will be set to the ID of the configuration file being used</li>
+							<li><code>build</code> will be set to the commit ID from the <code>TRAVIS_COMMIT</code> environment variable, if it exists</li>
+						</ul>
+
+						<div class="a half" id="option-environments"></div>
+						<h4>environments (Array&lt;Object>)</h4>
+
+						<p>An array of capabilities objects, one for each desired test environment. The same options from <a href="#option-capabilities">capabilities</a> are used for each environment specified in the array. To delete an option from the default capabilities, explicitly set its value to <code class="javascript">undefined</code>.</p>
+
+						<p>If arrays are provided for <code>browserName</code>, <code>version</code>, <code>platform</code>, or <code>platformVersion</code>, all possible option permutations will be generated. For example:</p>
+
+						<pre><code class="javascript">{
+	environments: [
+		{
+			browserName: 'chrome',
+			version: [ '23', '24' ],
+			platform: [ 'Linux', 'Mac OS 10.8' ]
+		}
+	]
+}</code></pre>
+
+						<p>This configuration will generate 4 environments: Chrome 23 on Linux, Chrome 23 on Mac OS 10.8, Chrome 24 on Linux, and Chrome 24 on Mac OS 10.8.</p>
+
+						<p>All other capabilities are not permuted, but are simply passed as-is to the WebDriver server.</p>
+
+						<p>Different cloud testing services use different capability values when specifying environment capabilities. For example, Sauce Labs uses 'Windows XP' to specify the Windows XP platform while BrowserStack uses 'XP'. Check <a href="#options-capabilities">the list above</a> to find the right capabilities for your chosen platform.</p>
+
+						<div class="a half" id="option-excludeInstrumentation"></div>
+						<h4>excludeInstrumentation (RegExp)</h4>
+
+						<p>A regular expression matching paths to exclude from code coverage. The regular expression matches the path-part of URLs (starting from the end of <a href="#option-proxyUrl">proxyUrl</a>, excluding any trailing slash) that should not be instrumented for code coverage during testing.</p>
+
+						<p>This option should be used when you want to exclude dependencies from being reported in your code coverage results. (Intern code—that is, anything that loads from {{proxyUrl}}/__intern/—is always excluded from code coverage results.) For example, to exclude tests and Node.js dependencies from being reported in your application’s code coverage analysis:</p>
+
+						<pre><code class="javascript">{
+	excludeInstrumentation: /^(?:tests|node_modules)\//
+}</code></pre>
+
+						<div class="a half" id="option-functionalSuites"></div>
+						<h4>functionalSuites (Array&lt;string>)</h4>
+
+						<p>An array of functional test module IDs to load. <a href="TODO">Functional tests</a> are different from unit tests because they are executed on the local (Node.js) side, not the remote (browser) side, so they are specified separately from the list of unit test modules.</p>
+
+						<pre><code class="javascript">{
+	functionalSuites: [
+		'tests/functional/foo',
+		'tests/functional/bar'
+	]
+}</code></pre>
+
+						<div class="a half" id="option-maxConcurrency"></div>
+						<h4>maxConcurrency (number)</h4>
+
+						<p>The maximum number of environments to test simultaneously. Set this to <code class="javascript">Infinity</code> to run tests against all environments at once. You may want to reduce this if you have a limited number of test machines available, or are using a shared hosted account.</p>
+
+						<div class="a half" id="option-proxyPort"></div>
+						<h4>proxyPort (number)</h4>
+
+						<p>The port where the Intern HTTP server will listen for requests. Intern’s HTTP server performs two critical tasks:</p>
+
+						<ul>
+							<li>Automatically adds instrumentation to your JavaScript code so that it can be analysed for completeness by the code coverage reporter</li>
+							<li>Provides a communication conduit for the unit testing system to provide live test results in runner mode</li>
+						</ul>
+
+						<p>Any JavaScript code that you want to evaluate for code coverage must either pass through the code coverage proxy or be <a href="TODO">pre-instrumented</a> for Intern. The HTTP server must also be accessible to the environment (browser) being tested in runner mode in order for unit testing results to be transmitted back to the test runner successfully.</p>
+
+						<div class="a half" id="option-proxyUrl"></div>
+						<h4>proxyUrl (string)</h4>
+
+						<p>The external URL to the Intern HTTP server. You will need to change this value only if you are running Intern’s HTTP server through a reverse proxy, or if Intern’s HTTP server needs to be reached through a public interface that your Selenium servers can access directly.</p>
+
+						<p>TODO: Link to more info about reverse proxying/testing dynamic endpoints/CORS</p>
+
+						<div class="a half" id="option-tunnel"></div>
+						<h4>tunnel (string)</h4>
+
+						<p>The tunnel to use to establish a WebDriver server for testing. The tunnel can either be a <a href="https://theintern.github.io/digdug/">built-in tunnel name</a> (like <code class="javascript">'NullTunnel'</code> or <code class="javascript">'BrowserStackTunnel'</code>), or an absolute AMD module ID (like <code class="javascript">'tests/support/CustomTunnel'</code>) when using a custom tunnel.</p>
+
+						<p>When you are using your own Selenium server or Selenium grid, you will typically use the <code class="javascript">'NullTunnel'</code> tunnel and specify the <code>host</code>, <code>port</code>, and/or <code>path</code> to the Selenium server in <a href="#option-tunnelOptions">tunnelOptions</a>.</p>
+
+						<div class="a half" id="option-tunnelOptions"></div>
+						<h4>tunnelOptions (Object)</h4>
+
+						<p>Options to pass to the WebDriver server tunnel. Valid options for each of the built-in tunnels can be found in the <a href="https://theintern.github.io/digdug/">Dig Dug documentation</a>:</p>
+
+						<ul>
+							<li><a href="https://theintern.github.io/digdug/BrowserStackTunnel.html">BrowserStackTunnel</a></li>
+							<li><a href="https://theintern.github.io/digdug/NullTunnel.html">NullTunnel</a></li>
+							<li><a href="https://theintern.github.io/digdug/SauceLabsTunnel.html">SauceLabsTunnel</a></li>
+							<li><a href="https://theintern.github.io/digdug/TestingBotTunnel.html">TestingBotTunnel</a></li>
+						</ul>
 					</article>
 
 					<article>

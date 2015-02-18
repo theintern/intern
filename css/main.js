@@ -66,6 +66,13 @@
 	}, false);
 	window.addEventListener('scroll', findActiveSection, false);
 
-	hljs.initHighlighting();
+	var selectorsToFind = hljs.listLanguages().map(function (language) {
+		return 'code.' + language;
+	});
+
+	Array.prototype.slice.call(document.querySelectorAll(selectorsToFind.join(',')), 0).forEach(function (block) {
+		hljs.highlightBlock(block);
+	});
+
 	findActiveSection();
 })();

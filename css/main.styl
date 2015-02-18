@@ -86,9 +86,15 @@ var,
 kbd {
 	font: 20px/1 prestige-elite-std, monospace;
 	letter-spacing: -1.25px;
+	text-rendering: auto;
+	white-space: pre-wrap;
 
 	a & {
 		line-height: 0.7em;
+	}
+
+	pre & {
+		white-space: inherit;
 	}
 }
 
