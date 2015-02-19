@@ -343,6 +343,25 @@ a {
 		}
 	}
 
+	// avoids visually overlapping text during transitions
+	> ul > li {
+		background-color: $backgroundColor;
+		background-clip: padding-box;
+		// prevent clipping of text descenders overflowing outside their block box
+		border-top: 2px solid transparent;
+		position: relative;
+
+		for $i in (1..20) {
+			&:nth-child($i) {
+				z-index: 20 - $i;
+			}
+		}
+
+		> a {
+			padding-top: $lh * 0.5 - 2px;
+		}
+	}
+
 	> ul > .active {
 		margin-bottom: $lh * 0.5;
 
