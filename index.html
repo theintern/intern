@@ -820,7 +820,7 @@
 	});
 });</code></pre>
 
-						<aside class="whatAreYouCrazy"><p>If you need to hold variables that are modified by test suites, it’s important to pass a function to <code>registerSuite</code> and create the variables inside that function, instead of putting the variables directly inside the factory:</p></aside>
+						<p>If you need to hold variables that are modified by test suites, it’s important to pass a function to <code>registerSuite</code> and create the variables inside that function, instead of putting the variables directly inside the factory:</p>
 
 						<pre><code class="javascript">define(function (require) {
 	var assert = require('intern/chai!assert');
@@ -871,7 +871,7 @@
 	});
 });</code></pre>
 
-						<p>This is necessary because functional tests may execute against multiple environments in parallel, which means that variables held in the factory function would be shared unsafely across simultaneous executions.</p>
+						<aside class="whatAreYouCrazy"><p>Failure to follow this guidance will cause extremely unpredictable test execution, but <em>only</em> once you start running functional tests against multiple environments concurrently using the <a href="#test-runner">test runner</a>! This defect will be invisible when running tests against a single environment or when running with <a href="#option-maxConcurrency">maxConcurrency</a> set to 1.</p></aside>
 
 						<p>It is also possible to nest suites by using an object as a value instead of a function:</p>
 
