@@ -39,32 +39,36 @@
 		for (; (header = headers[i]); --i) {
 			if (header.getBoundingClientRect().top < foldPoint) {
 				var id = header.dataset.id;
-				activeSubsection && activeSubsection.classList.remove('active');
-				activeSubsection = menu.querySelector('[data-id="' + id + '"]');
-				if (activeSubsection) {
-					document.title = defaultTitle + ': ' + activeSubsection.textContent;
-					activeSubsection.classList.add('active');
-					var anchor = document.getElementById(id);
-					anchor.id = '';
-					location.replace('#' + id);
-					anchor.id = id;
-				}
-				var newActiveSection = activeSubsection && activeSubsection.parentNode.parentNode;
-				if (newActiveSection !== activeSection) {
-					if (activeSection) {
-						activeSection.classList.remove('active');
-						activeSection.querySelector('.subsections').style.maxHeight = '';
-					}
-
-					activeSection = newActiveSection;
-
-					if (activeSection) {
-						activeSection.classList.add('active');
-						var activeSubsections = activeSection.querySelector('.subsections');
-						activeSubsections.style.maxHeight = activeSubsections.scrollHeight + 'px';
-					}
-				}
+				setActiveSection(id);
 				return;
+			}
+		}
+	}
+
+	function setActiveSection(id) {
+		activeSubsection && activeSubsection.classList.remove('active');
+		activeSubsection = menu.querySelector('[data-id="' + id + '"]');
+		if (activeSubsection) {
+			document.title = defaultTitle + ': ' + activeSubsection.textContent;
+			activeSubsection.classList.add('active');
+			var anchor = document.getElementById(id);
+			anchor.id = '';
+			location.replace('#' + id);
+			anchor.id = id;
+		}
+		var newActiveSection = activeSubsection && activeSubsection.parentNode.parentNode;
+		if (newActiveSection !== activeSection) {
+			if (activeSection) {
+				activeSection.classList.remove('active');
+				activeSection.querySelector('.subsections').style.maxHeight = '';
+			}
+
+			activeSection = newActiveSection;
+
+			if (activeSection) {
+				activeSection.classList.add('active');
+				var activeSubsections = activeSection.querySelector('.subsections');
+				activeSubsections.style.maxHeight = activeSubsections.scrollHeight + 'px';
 			}
 		}
 	}
@@ -83,5 +87,22 @@
 		hljs.highlightBlock(block);
 	});
 
-	findActiveSection();
+	// At least Chrome does not scroll to the initial fragment position until some point after this script executes,
+	// so we will do it for it
+	if (location.hash) {
+		(function () {
+			var initialId = location.hash.slice(1);
+			var initialSectionElement = document.getElementById(initialId);
+			if (initialSectionElement) {
+				initialSectionElement.scrollIntoView();
+				setActiveSection(initialId);
+			}
+			else {
+				findActiveSection();
+			}
+		})();
+	}
+	else {
+		findActiveSection();
+	}
 })();
