@@ -51,9 +51,18 @@
 				}
 				var newActiveSection = activeSubsection && activeSubsection.parentNode.parentNode;
 				if (newActiveSection !== activeSection) {
-					activeSection && activeSection.classList.remove('active');
+					if (activeSection) {
+						activeSection.classList.remove('active');
+						activeSection.querySelector('.subsections').style.maxHeight = '';
+					}
+
 					activeSection = newActiveSection;
-					activeSection && activeSection.classList.add('active');
+
+					if (activeSection) {
+						activeSection.classList.add('active');
+						var activeSubsections = activeSection.querySelector('.subsections');
+						activeSubsections.style.maxHeight = activeSubsections.scrollHeight + 'px';
+					}
 				}
 				return;
 			}
