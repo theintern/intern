@@ -344,11 +344,13 @@ a {
 	}
 
 	> ul {
+		margin-left: /* arrow icon width */ -1.2rem;
 		max-height: 'calc(100vh - %s)' % /* .nav top + .support margin-top + .support height + some white space after .support */ ($lh * 5.5);
 		overflow: auto;
 		// due to messing with borders in the code to avoid overlapping text?
-		// without this extra padding, scrollbars always appear
+		// without this extra padding-bottom, scrollbars always appear
 		padding-bottom: 2px * 2;
+		padding-left: -@margin-left;
 
 		// avoids visually overlapping text during transitions
 		> li {
