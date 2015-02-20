@@ -352,6 +352,10 @@ a {
 		padding-bottom: 2px * 2;
 		padding-left: -@margin-left;
 
+		.no-sticky & {
+			max-height: 'calc(100vh - %s)' % ($lh * 6.5);
+		}
+
 		// avoids visually overlapping text during transitions
 		> li {
 			background-color: $backgroundColor;
