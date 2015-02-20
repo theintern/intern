@@ -343,43 +343,51 @@ a {
 		}
 	}
 
-	// avoids visually overlapping text during transitions
-	> ul > li {
-		background-color: $backgroundColor;
-		background-clip: padding-box;
-		// prevent clipping of text descenders overflowing outside their block box
-		border-top: 2px solid transparent;
-		position: relative;
+	> ul {
+		max-height: 'calc(100vh - %s)' % /* .nav top + .support margin-top + .support height + some white space after .support */ ($lh * 5.5);
+		overflow: auto;
+		// due to messing with borders in the code to avoid overlapping text?
+		// without this extra padding, scrollbars always appear
+		padding-bottom: 2px * 2;
 
-		for $i in (1..20) {
-			&:nth-child($i) {
-				z-index: 20 - $i;
+		// avoids visually overlapping text during transitions
+		> li {
+			background-color: $backgroundColor;
+			background-clip: padding-box;
+			// prevent clipping of text descenders overflowing outside their block box
+			border-top: 2px solid transparent;
+			position: relative;
+
+			for $i in (1..20) {
+				&:nth-child($i) {
+					z-index: 20 - $i;
+				}
+			}
+
+			> a {
+				padding-top: $lh * 0.5 - 2px;
 			}
 		}
 
-		> a {
-			padding-top: $lh * 0.5 - 2px;
-		}
-	}
-
-	> ul > .active {
-		margin-bottom: $lh * 0.5;
-
-		a {
-			font-weight: normal;
-			color: $internTeal;
-
-			&:hover {
-				color: $color;
-			}
-		}
-
-		.subsections {
-			max-height: 100vh;
-			overflow: visible;
+		> .active {
+			margin-bottom: $lh * 0.5;
 
 			a {
-				font-weight: 300;
+				font-weight: normal;
+				color: $internTeal;
+
+				&:hover {
+					color: $color;
+				}
+			}
+
+			.subsections {
+				max-height: 100vh;
+				overflow: visible;
+
+				a {
+					font-weight: 300;
+				}
 			}
 		}
 	}
@@ -457,6 +465,11 @@ a {
 
 		&.open {
 			display: block;
+		}
+
+		> ul {
+			max-height: none;
+			overflow: visible;
 		}
 
 		.support {
