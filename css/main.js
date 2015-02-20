@@ -28,11 +28,32 @@
 
 	var main = document.getElementById('main');
 	var headers = main.querySelectorAll('h3');
+
+	/**
+	 * The fold point represents a line on the viewport y-axis. The nearest section above the top of this line is
+	 * considered the currently active section. Change this value to change how far up the viewport a section needs to
+	 * be scrolled before it becomes the active section.
+	 */
 	var foldPoint = window.innerHeight * 0.3;
+
+	/**
+	 * @type HTMLElement
+	 */
 	var activeSection;
+
+	/**
+	 * @type HTMLElement
+	 */
 	var activeSubsection;
+
+	/**
+	 * @const
+	 */
 	var defaultTitle = document.title;
 
+	/**
+	 * Finds the currently active section of the document according to the current scroll position.
+	 */
 	function findActiveSection() {
 		var i = headers.length - 1;
 		var header;
@@ -45,11 +66,18 @@
 		}
 	}
 
+	/**
+	 * Sets the height of the currently active section’s list of subsections in the main menu so that CSS transitions
+	 * on height can be performed correctly (CSS does not currently allow animation to/from auto).
+	 */
 	function fixSubsectionHeight() {
 		var activeSubsections = activeSection.querySelector('.subsections');
 		activeSubsections.style.maxHeight = activeSubsections.scrollHeight + 'px';
 	}
 
+	/**
+	 * Sets the correct state of the sidebar, document title, and page hash to match the provided section ID.
+	 */
 	function setActiveSection(id) {
 		activeSubsection && activeSubsection.classList.remove('active');
 		activeSubsection = menu.querySelector('[data-id="' + id + '"]');
@@ -88,13 +116,15 @@
 	}, false);
 	window.addEventListener('scroll', findActiveSection, false);
 
-	var selectorsToFind = hljs.listLanguages().map(function (language) {
-		return 'code.' + language + ', samp.' + language;
-	});
+	(function highlightCode() {
+		var selectorsToFind = hljs.listLanguages().map(function (language) {
+			return 'code.' + language + ', samp.' + language;
+		});
 
-	Array.prototype.slice.call(document.querySelectorAll(selectorsToFind.join(',')), 0).forEach(function (block) {
-		hljs.highlightBlock(block);
-	});
+		Array.prototype.slice.call(document.querySelectorAll(selectorsToFind.join(',')), 0).forEach(function (block) {
+			hljs.highlightBlock(block);
+		});
+	})();
 
 	// At least Chrome does not scroll to the initial fragment position until some point after this script executes,
 	// so we will do it for it
