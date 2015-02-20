@@ -599,7 +599,29 @@
 						<div class="a half" id="client-config"></div>
 						<h3 data-id="client-config">Client-specific configuration</h3>
 
-						<p>There are currently no client-specific configuration options in Intern.</p>
+						<p>Certain configuration options only apply when in client mode. These options are ignored when running in runner mode.</p>
+
+						<table>
+							<thead>
+								<tr>
+									<th>Option</th>
+									<th>Type</th>
+									<th>Default</th>
+								</tr>
+							</thead>
+							<tr>
+								<th scope="row"><a href="#option-baseUrl">baseUrl</a></th>
+								<td>The path to use when converting module IDs to URLs, relative to client.html.</td>
+								<td><code class="javascript">'../..'</code></td>
+							</tr>
+						</table>
+
+						<div class="a half" id="option-capabilities"></div>
+						<h4>baseUrl (string)</h4>
+
+						<p>The path to use when converting module IDs to URLs, relative to client.html. Since browsers do not have any concept of a current working directory, using this argument allows a pseudo-cwd to be specified for the browser client in order to match up file paths with what exists on the underlying filesystem.</p>
+
+						<aside class="tip"><p>This argument is only available when loading the browser client; for the Node.js client, the current working directory is always used as the base path for loading modules.</p></aside>
 
 						<div class="a half" id="runner-config"></div>
 						<h3 data-id="runner-config">Runner-specific configuration</h3>
