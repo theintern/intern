@@ -3,10 +3,11 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-		<title>Intern. The user guide</title>
+		<title>Intern: The user guide</title>
+		<link rel="shortcut icon" href="images/favicon.png">
+		<link rel="stylesheet" href="css/main.css">
 		<script src="//use.typekit.net/cbd5jmj.js"></script>
 		<script>try{Typekit.load();}catch(e){}</script>
-		<link rel="stylesheet" href="css/main.css">
 		<script>
 (function () {
 	var test = document.createElement('b');
@@ -133,6 +134,14 @@
 								<li data-id="browser-client"><a href="#browser-client">The browser client</a></li>
 								<li data-id="node-client"><a href="#node-client">The Node.js client</a></li>
 								<li data-id="test-runner"><a href="#test-runner">The test runner</a></li>
+							</ul>
+						</li>
+						<li data-id="reporters">
+							<a href="#reporters">Getting test results</a>
+							<ul class="subsections">
+								<li data-id="reporter-overview"><a href="#reporter-overview">Overview</a></li>
+								<li data-id="reporter-results"><a href="#reporter-results">Test results reporters</a></li>
+								<li data-id="reporter-lcov"><a href="#reporter-lcov">Code coverage reporters</a></li>
 							</ul>
 						</li>
 						<li>
@@ -544,7 +553,7 @@
 						<div class="a half" id="option-reporters"></div>
 						<h4>reporters (Array&lt;string>)</h4>
 
-						<p>An array of reporters to use to report test results. Reporters in this list can either be <a href="TODO">built-in reporter names</a> (like <code class="javascript">'console'</code> or <code class="javascript">'junit'</code>), or absolute AMD module IDs (like <code class="javascript">'tests/support/customReporter'</code>) when using <a href="TODO">custom reporters</a>.</p>
+						<p>An array of reporters to use to report test results. Reporters in this list can either be <a href="#reporters">built-in reporter names</a> (like <code class="javascript">'console'</code> or <code class="javascript">'junit'</code>), or absolute AMD module IDs (like <code class="javascript">'tests/support/customReporter'</code>) when using <a href="#custom-reporters">custom reporters</a>.</p>
 
 						<p>If reporters are not specified in the configuration, Intern will pick defaults that are most suitable for the current execution mode.</p>
 
@@ -1186,6 +1195,26 @@
 						<pre><samp class="bash">intern-runner config=tests/intern proxyOnly</samp></pre>
 
 						<p>Once the server is running, it can be accessed at the port specified by <a href="#option-proxyPort">proxyPort</a> in the configuration file. The current working directory will be served as the root of the server.</p>
+					</article>
+
+					<article>
+						<div class="a" id="reporters"></div>
+						<h2 data-id="reporters">Getting test results</h2>
+
+						<div class="a half" id="reporter-overview"></div>
+						<h3 data-id="reporter-overview">Overview</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="reporter-results"></div>
+						<h3 data-id="reporter-results">Test results reporters</h3>
+
+						<p>TODO</p>
+
+						<div class="a half" id="reporter-lcov"></div>
+						<h3 data-id="reporter-lcov">Code coverage reporters</h3>
+
+						<p>TODO</p>
 					</article>
 
 					<article>
