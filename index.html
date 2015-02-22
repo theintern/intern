@@ -106,6 +106,7 @@
 							<a href="#unit-testing">Unit testing</a>
 							<ul class="subsections">
 								<li data-id="writing-unit-test"><a href="#writing-unit-test">Writing a unit test</a></li>
+								<li data-id="skipping-tests"><a href="#skipping-tests">Skipping a test at runtime</a></li>
 								<li data-id="async-lifecycle"><a href="#async-lifecycle">Asynchronous lifecycle methods</a></li>
 								<li data-id="testing-commonjs-code"><a href="#testing-commonjs-code">Testing non-AMD code</a></li>
 								<li data-id="testing-global-code"><a href="#testing-global-code">Testing non-modular code</a></li>
@@ -484,8 +485,7 @@
 
 						<p>Once the <a href="http://jrburke.com/2015/02/13/how-to-know-when-es-modules-are-done/">outstanding issues with native ES modules</a> have been addressed, and a native module loader with equivalent capabilities to a standard AMD loader is available on all the platforms supported by Intern, it will be rewritten to use the native module format, but no earlier.</p>
 
-						<pre><code class="javascript">function TODO() {}</code></pre>
-
+<!-- TODO: Use these templates for part of the document or remove them
 						<figure>
 							<pre><code class="javascript">function TODO() {}</code></pre>
 							<figcaption>TODO</figcaption>
@@ -495,11 +495,14 @@
 							<pre><code class="javascript">function TODO() {}</code></pre>
 							<pre class="align-bottom"><samp class="javascript">output</samp></pre>
 						</div>
+-->
 
 						<div class="a half" id="first-app"></div>
 						<h3 data-id="first-app">Testing your first app</h3>
 
-						<p>TODO: Take content from intern-tutorial.</p>
+						<p>In order to quickly get started with Intern, we’ve created a basic <a href="https://github.com/theintern/intern-tutorial">tutorial</a> that walks through the steps required to install, configure, and run basic tests against a very simple demo application.</p>
+
+						<p>Once you’ve run through the tutorial, continue reading the user guide to learn about all the advanced functionality available within Intern that you can use test your own code better and faster.</p>
 					</article>
 
 					<article>
@@ -881,7 +884,11 @@
 						<div class="a half" id="interface-overview"></div>
 						<h3 data-id="interface-overview">Overview</h3>
 
-						<p>TODO</p>
+						<p>Test interfaces are the way in which your tests make it into Intern. You can use one of the standard interfaces that come with Intern, or you can <a href="#custom-interfaces">create your own custom interface</a> if you don’t like the available defaults.</p>
+
+						<aside class="tip"><p>If you already have a suite of tests written for a different testing framework, you don’t have to rewrite all of your tests! Just create a custom interface that provides the same API as your old test system.</p></aside>
+
+						<aside class="whatAreYouCrazy"><p>Because test interfaces are independent from the rest of the testing system, you can use more than one test interface at the same time in a single project. Just be careful not to introduce unnecessary inconsistencies by doing this!</p></aside>
 
 						<div class="a half" id="interface-object"></div>
 						<h3 data-id="interface-object">The Object interface</h3>
@@ -1123,27 +1130,150 @@
 						<div class="a half" id="writing-unit-test"></div>
 						<h3 data-id="writing-unit-test">Writing a unit test</h3>
 
-						<p>TODO</p>
+						<p>TODO. Lifecycle, basic tests. Describe all of the properties that are available within a test (maybe just link to the internals section on Test).</p>
+
+						<div class="a half" id="skipping-tests"></div>
+						<h3 data-id="skipping-tests">Skipping a test at runtime</h3>
+
+						<p>All tests have a <code>this.skip</code> method that can be used to skip the test if it should not be executed for some reason:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var registerSuite = require('intern!object');
+	var assert = require('intern/chai!assert');
+
+	registerSuite({
+		name: 'skip demo',
+
+		'skip test': function () {
+			if (typeof window === 'undefined') {
+				this.skip('Browser-only test');
+			}
+
+			// …
+		}
+	});
+});</code></pre>
+
+						<aside class="tip"><p>Calling <code>this.skip</code> halts execution of the rest of the function, so it is not necessary to <code>return</code> after calling it.</p></aside>
+
+						<p>The <a href="#option-grep">grep configuration option</a> can also be used to skip tests whose IDs don’t match a regular expression.</p>
 
 						<div class="a half" id="async-lifecycle"></div>
 						<h3 data-id="async-lifecycle">Asynchronous lifecycle methods</h3>
 
-						<p>TODO</p>
+						<p>When writing tests, it is sometimes necessary to perform asynchronous setup or teardown TODO</p>
 
 						<div class="a half" id="testing-commonjs-code"></div>
 						<h3 data-id="testing-commonjs-code">Testing CommonJS modules</h3>
 
-						<p>TODO</p>
+						<p>CommonJS modules, including Node.js built-ins, can be loaded as dependencies to a test module using the <code>dojo/node</code> loader plugin that comes with Intern:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var registerSuite = require('intern!object');
+	var assert = require('intern/chai!assert');
+	var path = require('intern/dojo/node!path');
+
+	registerSuite({
+		name: 'path',
+
+		'basic tests': function () {
+			var ab = path.join('a', 'b');
+
+			// …
+		}
+	});
+});</code></pre>
+
+						<aside class="tip"><p>CommonJS modules will be loaded using the native Node.js loader. This means they will follow the Node.js module path resolution rules. It also means that AMD loader features like <code>map</code> cannot be used when testing CommonJS modules to mock their dependencies.</p></aside>
 
 						<div class="a half" id="testing-global-code"></div>
 						<h3 data-id="testing-global-code">Testing non-modular code</h3>
 
-						<p>TODO</p>
+						<p>Browser code that doesn’t support any module system and expects to be loaded along with other dependencies in a specific order can be loaded using the <code>intern/order</code> loader plugin:</p>
+
+						<pre><code class="javascript">define([
+	'intern!object',
+	'intern/chai!assert',
+	'intern/order!../jquery.js',
+	'intern/order!../plugin.jquery.js'
+], function (registerSuite, assert) {
+	registerSuite({
+		name: 'plugin.jquery.js',
+
+		'basic tests': function () {
+			jQuery('&lt;div>').plugin();
+			// …
+		}
+	});
+});</code></pre>
+
+						<p>It is also possible to use the <a href="https://github.com/tbranyen/use-amd">use-amd</a> loader plugin to load non-modular code:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var registerSuite = require('intern!object');
+	var assert = require('intern/chai!assert');
+	var jQuery = require('use!plugin.jquery');
+
+	registerSuite({
+		name: 'plugin.jquery.js',
+
+		'basic tests': function () {
+			jQuery('&lt;div>').plugin();
+			// …
+		}
+	});
+});</code></pre>
+
+						<p>In this case, the dependency ordering is handled by use-amd instead.</p>
+
+						<aside class="whatAreYouCrazy"><p>Authoring non-modular code that pollutes the global scope is strongly discouraged. Any code using this style should be upgraded… just as soon as you have a good test suite you can use to prevent regressions!</p></aside>
 
 						<div class="a half" id="testing-other-module"></div>
 						<h3 data-id="testing-other-module">Testing other transpiled code</h3>
 
-						<p>TODO</p>
+						<p>Other transpiled code can be tested without requiring a build step by first writing a <a href="https://github.com/amdjs/amdjs-api/blob/master/LoaderPlugins.md">loader plugin</a> that performs code compilation for you:</p>
+
+						<pre><code class="javascript">// in tests/support/customscript.js
+define(function (require) {
+	var compiler = require('customscript');
+	var getText = require('intern/dojo/request');
+
+	return {
+		load: function (resourceId, require, load) {
+			// Get the raw source code…
+			request(require.toUrl(resourceId)).then(function (sourceCode) {
+				// …then compile it into JavaScript code…
+				compiler.compile(sourceCode).then(function (javascriptCode) {
+					// …then execute the compiled function. In this case,
+					// the compiled code returns its value. An AMD module would
+					// call a `define` function, and a CJS module would set its
+					// values on `exports` or `module.exports`.
+					load(new Function(javascriptCode)());
+				});
+			});
+		}
+	};
+});</code></pre>
+
+						<p>Once you have a suitable loader plugin, just load your code through the loader plugin like any other dependency:</p>
+
+						<pre><code class="javascript">// in tests/unit/foo.js
+define(function (require) {
+	var registerSuite = require('intern!object');
+	var assert = require('intern/chai!assert');
+	var foo = require('../support/customscript!app/foo.cs');
+
+	registerSuite({
+		name: 'app/foo',
+
+		'basic tests': function () {
+			foo.doSomething();
+			// …
+		}
+	});
+});</code></pre>
+
+						<aside class="tip"><p>This same mechanism can be used to write the test modules themselves in a different language or module format by referencing a loader plugin ID in the <a href="#option-suites">suites</a> and <a href="#option-functionalSuites">functionalSuites</a> arrays.</p></aside>
 					</article>
 
 					<article>
