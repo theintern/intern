@@ -1293,7 +1293,92 @@ define(function (require) {
 						<div class="a half" id="page-objects"></div>
 						<h3 data-id="page-objects">Page objects</h3>
 
-						<p>TODO</p>
+						<p>Page objects are just plain objects that allow you to define an API for interaction with a specific page, instead of performing low-level interaction calls from within your test code.</p>
+
+						<p>After writing a page object, you would interact with that object to perform high-level page operations and then perform assertions on the return values of those functions instead of interacting directly with the remote server. This allows the details of how a particular operation is completed to be abstracted away from the test code.</p>
+
+						<p>For example, a page object that tests the index page of a Web site could be written by doing something like this:</p>
+
+						<pre><code class="javascript">// in tests/support/pages/IndexPage.js
+define(function (require) {
+  // the page object is created as a constructor
+  // so we can provide the remote Command object
+  // at runtime
+	function IndexPage(remote) {
+		this.remote = remote;
+	}
+
+	IndexPage.prototype = {
+		constructor: IndexPage,
+
+		// the login function accepts username and password
+		// and returns a promise that resolves to `true` on
+		// success or rejects with an error on failure
+		login: function (username, password) {
+			return this.remote
+				// first, we perform the login action, using the
+				// specified username and password
+				.findById('login')
+				.click()
+				.type(username)
+				.end()
+				.findById('password')
+				.click()
+				.type(password)
+				.end()
+				.findById('loginButton')
+				.click()
+				.end()
+				// then, we verify the success of the action by
+				// looking for a login success marker on the page
+				.setFindTimeout(5000)
+				.findById('loginSuccess')
+				.then(function () {
+					// if it succeeds, resolve to `true`; otherwise
+					// allow the error from whichever previous
+					// operation failed to reject the final promise
+					return true;
+				});
+		},
+
+		// ... additional page interaction tasks ...
+	};
+
+	return IndexPage;
+});</code></pre>
+
+						<p>Then, use the page object in tests instead of the <a href="TODO"><code>this.remote</code></a> object:</p>
+
+						<pre><code class="javascript">// in tests/functional/index.js
+define([
+	'intern!object',
+	'intern/chai!assert',
+	'../support/pages/IndexPage'
+], function (registerSuite, assert, IndexPage) {
+	registerSuite(function () {
+		var indexPage;
+		return {
+			// on setup, we create an IndexPage instance
+			// that we will use for all the tests
+			setup: function () {
+				indexPage = new IndexPage(this.remote);
+			},
+
+			'successful login': function () {
+				// then from the tests themselves we simply call
+				// methods on the page object and then verify
+				// that the expected result is returned
+				return indexPage
+					.login('test', 'test')
+					.then(function (loggedIn) {
+						assert.isTrue(loggedIn, 'Valid username and password should log in successfully');
+					});
+			},
+
+			// ... additional tests ...
+		};
+	});
+});</code></pre>
 
 						<div class="a half" id="native-apps"></div>
 						<h3 data-id="native-apps">Testing native apps</h3>
