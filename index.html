@@ -466,7 +466,7 @@
 
 						<h4>Asynchronous operations</h4>
 
-						<p>Intern always uses <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a> objects whenever an asynchonous operation is required to complete an action. All <a href="TODO">suite</a>, <a href="TODO">test</a>, and <a href="TODO">reporter</a> functions can return a Promise, which will pause the test system until the Promise resolves (or until a timeout occurs, whichever happens first).</p>
+						<p>Intern always uses <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a> objects whenever an asynchonous operation needs to occur. All <a href="TODO">suite</a>, <a href="TODO">test</a>, and <a href="TODO">reporter</a> functions can return a Promise, which will pause the test system until the Promise resolves (or until a timeout occurs, whichever happens first).</p>
 
 						<h4 id="amd">Module loader &amp; format</h4>
 
@@ -1226,6 +1226,35 @@
 
 						<aside class="tip"><p>The browser client is also used by the <a href="#test-runner">test runner</a> to run unit tests in each browser.</p></aside>
 
+						<p>The browser client supports the following arguments:</p>
+
+						<table>
+							<tr>
+								<th>Argument</th>
+								<th>Description</th>
+							</tr>
+							<tr>
+								<th scope="row">baseUrl</th>
+								<td>Overrides the <code>baseUrl</code> specified in the <a href="#option-loader">loader configuration</a>.</td>
+							</tr>
+							<tr>
+								<th scope="row">config</th>
+								<td>The module ID of the Intern configuration file that should be used. Relative to <code>baseUrl</code>. This argument is required.</td>
+							</tr>
+							<tr>
+								<th scope="row">grep</th>
+								<td>Overrides the <a href="#option-grep">grep</a> configuration option. Pass a string that looks like a RegExp literal like <code>/foo/</code> and it will be converted to a regular expression. Any other string will be converted to a case-insensitive RegExp.</td>
+							</tr>
+							<tr>
+								<th scope="row">reporters</th>
+								<td>Overrides the <a href="#option-reporters">reporters</a> configuration option. You can pass this argument more than once to load multiple reporters. Reporters overridden in this way will always use their default configurations.</td>
+							</tr>
+							<tr>
+								<th scope="row">suites</th>
+								<td>Overrides the <a href="#option-suites">suites</a> configuration option. You can pass this argument more than once to load multiple modules.</td>
+							</tr>
+						</table>
+
 						<div class="a half" id="node-client"></div>
 						<h3 data-id="node-client">The Node.js client</h3>
 
@@ -1247,6 +1276,31 @@
 	suites=tests/unit/animation \
 	reporters=console \
 	reporters=lcovhtml</samp></pre>
+
+						<p>The Node.js client supports the following arguments:</p>
+
+						<table>
+							<tr>
+								<th>Argument</th>
+								<th>Description</th>
+							</tr>
+							<tr>
+								<th scope="row">config</th>
+								<td>The module ID of the Intern configuration file that should be used. Relative to the current working directory. This argument is required.</td>
+							</tr>
+							<tr>
+								<th scope="row">grep</th>
+								<td>Overrides the <a href="#option-grep">grep</a> configuration option. Pass a string that looks like a RegExp literal like <code>/foo/</code> and it will be converted to a regular expression. Any other string will be converted to a case-insensitive RegExp.</td>
+							</tr>
+							<tr>
+								<th scope="row">reporters</th>
+								<td>Overrides the <a href="#option-reporters">reporters</a> configuration option. You can pass this argument more than once to load multiple reporters. Reporters overridden in this way will always use their default configurations.</td>
+							</tr>
+							<tr>
+								<th scope="row">suites</th>
+								<td>Overrides the <a href="#option-suites">suites</a> configuration option. You can pass this argument more than once to load multiple modules.</td>
+							</tr>
+						</table>
 
 						<div class="a half" id="test-runner"></div>
 						<h3 data-id="test-runner">The test runner</h3>
@@ -1280,16 +1334,42 @@
 
 						<aside class="tip"><p>The test runner is the <em>only</em> executor that runs functional tests.</p></aside>
 
-						<div class="a half" id="test-runner-code-coverage"></div>
-						<h4>Using the test runner as a code coverage instrumenting HTTP server</h4>
+						<p>The test runner supports the following arguments:</p>
 
-						<p>The test runner always creates an HTTP server to provide a conduit for communication with browsers, and to instrument code for code coverage analysis on-the-fly. The test runner can be set to Proxy Only mode, which causes it to simply start the instrumenting server and then wait until it is killed by <kbd>Ctrl+C</kbd>. This can be useful when you want to run the <a href="#browser-client">browser client</a> manually and get access to code coverage information, which is not available when running the browser client directly from a normal HTTP server.</p>
-
-						<p>To run in Proxy Only mode, simply run <kbd>intern-runner</kbd> with the <a href="TODO">proxyOnly</a> flag:</p>
-
-						<pre><samp class="bash">intern-runner config=tests/intern proxyOnly</samp></pre>
-
-						<p>Once the server is running, it can be accessed at the port specified by <a href="#option-proxyPort">proxyPort</a> in the configuration file. The current working directory will be served as the root of the server.</p>
+						<table>
+							<tr>
+								<th>Argument</th>
+								<th>Description</th>
+							</tr>
+							<tr>
+								<th scope="row">config</th>
+								<td>The module ID of the Intern configuration file that should be used. Relative to the current working directory. This argument is required.</td>
+							</tr>
+							<tr>
+								<th scope="row">functionalSuites</th>
+								<td>Overrides the <a href="#option-functionalSuites">suites</a> configuration option. You can pass this argument more than once to load multiple modules.</td>
+							</tr>
+							<tr>
+								<th scope="row">grep</th>
+								<td>Overrides the <a href="#option-grep">grep</a> configuration option. Pass a string that looks like a RegExp literal like <code>/foo/</code> and it will be converted to a regular expression. Any other string will be converted to a case-insensitive RegExp.</td>
+							</tr>
+							<tr>
+								<th scope="row">leaveRemoteOpen</th>
+								<td>Leaves the remote environment running at the end of the test run. This makes it easier to investigate a browser’s state when debugging failing tests.</td>
+							</tr>
+							<tr>
+								<th scope="row">proxyOnly</th>
+								<td>Starts Intern’s instrumenting HTTP proxy but performs no other work. The current working directory will be served as the root of the server. This can be useful when you want to run the <a href="#browser-client">browser client</a> manually and get access to code coverage information, which is not available when running the browser client directly from a normal HTTP server. The browser client is available from <a href="#option-proxyUrl">{proxyUrl}</a>/__intern/client.html.</td>
+							</tr>
+							<tr>
+								<th scope="row">reporters</th>
+								<td>Overrides the <a href="#option-reporters">reporters</a> configuration option. You can pass this argument more than once to load multiple reporters. Reporters overridden in this way will always use their default configurations.</td>
+							</tr>
+							<tr>
+								<th scope="row">suites</th>
+								<td>Overrides the <a href="#option-suites">suites</a> configuration option. You can pass this argument more than once to load multiple modules.</td>
+							</tr>
+						</table>
 					</article>
 
 					<article>
