@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 		<title>Intern: The user guide</title>
-		<link rel="shortcut icon" href="images/favicon.png">
+		<link rel="shortcut icon" href="images/favicon.png" type="image/png">
 		<link rel="stylesheet" href="css/main.css">
 		<script src="//use.typekit.net/cbd5jmj.js"></script>
 		<script>try{Typekit.load({active:function(){window.fontsActivated=true;window.onTypekitActive&&window.onTypekitActive();}});}catch(e){}</script>
@@ -81,6 +81,7 @@
 							<ul class="subsections">
 								<li data-id="fundamentals-overview"><a href="#fundamentals-overview">Overview</a></li>
 								<li data-id="installation"><a href="#installation">Installation</a></li>
+								<li data-id="terminology"><a href="#terminology">Terminology</a></li>
 								<li data-id="conventions"><a href="#conventions">Conventions</a></li>
 								<li data-id="first-app"><a href="#first-app">Testing your first app</a></li>
 							</ul>
@@ -405,10 +406,83 @@
 
 						<p>Intern can be installed simply by running <kbd>npm install intern</kbd>.</p>
 
+						<div class="a half" id="terminology"></div>
+						<h3 data-id="terminology">Terminology</h3>
+
+						<p>Intern uses certain standard terminology in order to make it easier to understand each part of the system.</p>
+
+						<ul>
+							<li>An <dfn><a href="TODO">assertion</a></dfn> is a function call that verifies that a variable contains (or a function returns) an expected, correct, value (e.g. <code>assert.isTrue(someVariable, 'someVariable should be true')</code>)</li>
+							<li>A <dfn>test <a href="#interfaces">interface</a></dfn> is a programming interface for registering tests with Intern</li>
+							<li>A <dfn>test case</dfn> (or, just <dfn>test</dfn>) is a function that makes calls to application code and makes assertions about what it should have done</li>
+							<li>A <dfn>test suite</dfn> is a collection of tests (and, optionally, sub–test-suites) that are related to each other in some logical way</li>
+							<li>A <dfn>test module</dfn> is a JavaScript module, usually in <a href="#amd">AMD format</a>, that contains test suites</li>
+						</ul>
+
+						<p>These pieces can be visualized in a hierarchy, like this:</p>
+
+						<ul>
+							<li>
+								test module
+								<ul>
+									<li>
+										test suite
+										<ul>
+											<li>
+												test suite
+												<ul>
+													<li>
+														test case
+														<ul>
+															<li>...</li>
+														</ul>
+													</li>
+													<li>...</li>
+												</ul>
+											</li>
+											<li>
+												test case
+												<ul>
+													<li>assertion</li>
+													<li>assertion</li>
+													<li>...</li>
+												</ul>
+											</li>
+											<li>...</li>
+										</ul>
+									</li>
+									<li>test suite</li>
+									<li>...</li>
+								</ul>
+							</li>
+							<li>test module</li>
+							<li>...</li>
+						</ul>
+
 						<div class="a half" id="conventions"></div>
 						<h3 data-id="conventions">Conventions</h3>
 
-						<p>TODO</p>
+						<p>Intern follows certain conventions in order to make testing easier and more reliable. Understanding these fundamental concepts will help you get the most out of testing with Intern.</p>
+
+						<h4>Asynchronous operations</h4>
+
+						<p>Intern always uses <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a> objects whenever an asynchonous operation is required to complete an action. All <a href="TODO">suite</a>, <a href="TODO">test</a>, and <a href="TODO">reporter</a> functions can return a Promise, which will pause the test system until the Promise resolves (or until a timeout occurs, whichever happens first).</p>
+
+						<h4 id="amd">Module loader &amp; format</h4>
+
+						<p>Intern is built on top of a standard <abbr title="Asynchronous Module Definition">AMD</abbr> loader, which means that its modules are also normally written in the AMD module format. Using an AMD loader instead of something like the built-in Node.js loader + Browserify is, in fact, critical to providing a highly stable and flexible testing system.</p>
+
+						<p>AMD is the only stable standard for module loading that has all of these traits:</p>
+
+						<ul>
+							<li>Allows modules to be written for the browser without <em>requiring</em> an intermediate compilation step;</li>
+							<li>Allows modules and other assets to be <em>asynchronously</em> or <em>conditionally</em> resolved by writing simple <a href="https://github.com/amdjs/amdjs-api/blob/master/LoaderPlugins.md">loader plugins</a>;</li>
+							<li>Allows “hard-coded” dependencies of modules under test to be <a href="TODO">mocked</a> without messing with the internals of the module loader</li>
+						</ul>
+
+						<p>Because the AMD standard includes the ability to run loader plugins, it’s not necessary for your test modules to be written as AMD modules if you don’t want. Just write a loader plugin that understands the module format you prefer and you’re ready to go!</p>
+
+						<p>Once the <a href="http://jrburke.com/2015/02/13/how-to-know-when-es-modules-are-done/">outstanding issues with native ES modules</a> have been addressed, and a native module loader with equivalent capabilities to a standard AMD loader is available on all the platforms supported by Intern, it will be rewritten to use the native module format, but no earlier.</p>
 
 						<pre><code class="javascript">function TODO() {}</code></pre>
 
