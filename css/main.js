@@ -116,6 +116,16 @@
 	}, false);
 	window.addEventListener('scroll', findActiveSection, false);
 
+	// Hack to deal with https://bugzilla.mozilla.org/show_bug.cgi?id=1134098
+	// and https://code.google.com/p/chromium/issues/detail?id=459476 without
+	// spending the time right now to rewrite all the documentation to use
+	// soft tabs or a markdown-to-html generator
+	(function fixTabs() {
+		Array.prototype.slice.call(document.querySelectorAll('pre'), 0).forEach(function (pre) {
+			pre.innerHTML = pre.innerHTML.replace(/\t/g, '  ');
+		});
+	})();
+
 	(function highlightCode() {
 		var selectorsToFind = hljs.listLanguages().map(function (language) {
 			return 'code.' + language + ', samp.' + language;
