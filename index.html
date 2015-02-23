@@ -1935,17 +1935,27 @@ define([
 						<div class="a half" id="reporter-overview"></div>
 						<h3 data-id="reporter-overview">Overview</h3>
 
-						<p>TODO</p>
+						<p>Information about the state of a test run needs to be published in many different formats in order to properly integrate with different systems. To faciliate this, Intern allows reporters to be registered. A <dfn>reporter</dfn> is a simple object that receives messages from the rest of the test system and forwards that information, in the correct format, to a destination, like a file, console, or HTTP server.</p>
+
+						<p>There are two primary kinds of reporters: reporters for <em>test results</em>, and reporters for <em>code coverage results</em>.</p>
+
+						<p>Reporters for a test run are defined using the <a href="#option-reporters">reporters</a> configuration option.</p>
 
 						<div class="a half" id="reporter-results"></div>
 						<h3 data-id="reporter-results">Test results reporters</h3>
 
-						<p>TODO</p>
+						<p>Test results reporters provide information about the tests themselves—whether or not they passed, how long they took to run, and so on.</p>
+
+						<p>Intern comes with several different test results reporters:</p>
+
+						<table>
+							<tr></tr>
+						</table>
 
 						<div class="a half" id="reporter-lcov"></div>
 						<h3 data-id="reporter-lcov">Code coverage reporters</h3>
 
-						<p>TODO</p>
+						<p>Code coverage reporters provide information about the state of code coverage—how many lines of code, functions, code branches, and statements were executed across the entire codebase.</p>
 					</article>
 
 					<article>
@@ -2177,6 +2187,10 @@ define([
 								<td>The number of skipped tests in this suite and its sub-suites.</td>
 							</tr>
 							<tr>
+								<th scope="row">parent</th>
+								<td>The parent suite, if this suite is a sub-suite.</td>
+							</tr>
+							<tr>
 								<th scope="row">publishAfterSetup</th>
 								<td>When set to <code class="javascript">false</code> (the default), the suiteStart event is sent before the setup method runs and the suiteEnd event is sent after the teardown method has finished running. Setting this value to <code class="javascript">true</code> flips when the suiteStart and suiteEnd events are sent to reporters so suiteStart is sent <em>after</em> setup is finished and suiteEnd is sent <em>before</em> teardown is finished.</td>
 							</tr>
@@ -2217,14 +2231,90 @@ define([
 							</tr>
 							<tr>
 								<th scope="row">run(): Promise&lt;number></th>
-								<td>Runs the test suite. Returns a promise that resolves to the number of failed tests.</td>
+								<td>Runs the test suite. Returns a Promise that resolves to the number of failed tests after all tests in the suite have finished running.</td>
 							</tr>
 						</table>
 
 						<div class="a half" id="test-object"></div>
 						<h3 data-id="test-object">The Test object</h3>
 
-						<p>TODO</p>
+						<p>The <a href="https://github.com/theintern/intern/blob/master/lib/Test.js"><dfn>Test object</dfn></a> represents a single test within a test run. When inside a test function, the <code class="javascript">this</code> object will be the Test object that represents that test.</p>
+
+						<p>The following properties and methods are available on all Test objects:</p>
+
+						<table class="api">
+							<tr>
+								<th>Property</th>
+								<th>Description</th>
+							</tr>
+							<tr>
+								<th scope="row">error</th>
+								<td>If a test fails, the error that caused the failure will be available here.</td>
+							</tr>
+							<tr>
+								<th scope="row">id</th>
+								<td>The unique identifier string for this test. This property is read-only.</td>
+							</tr>
+							<tr>
+								<th scope="row">isAsync</th>
+								<td>A flag representing whether or not this test is asynchronous. This flag will not be set until the test function actually runs.</td>
+							</tr>
+							<tr>
+								<th scope="row">name</th>
+								<td>A string representing the human-readable name of the suite.</td>
+							</tr>
+							<tr>
+								<th scope="row">parent</th>
+								<td>The parent suite for the test. This property must be set by the test interface that instantiates the Test object.</td>
+							</tr>
+							<tr>
+								<th scope="row">remote</th>
+								<td>A <a href="https://theintern.github.io/leadfoot/Command.html">Leadfoot Command object</a> that can be used to drive a remote environment. This value will be inherited from the parent suite. Only available to suites that are loaded from <a href="#option-functionalSuites">functionalSuites</a>.</td>
+							</tr>
+							<tr>
+								<th scope="row">reporterManager <span class="versionBadge">3.0</span></th>
+								<td>The <a href="#TODO">reporter manager</a> conduit that can be used to send result data and other information to reporters. This value will be inherited from the parent suite.</td>
+							</tr>
+							<tr>
+								<th scope="row">sessionId</th>
+								<td>A unique identifier for a remote environment session. This value will be inherited from the parent suite. Only available to suites that are loaded from <a href="#option-functionalSuites">functionalSuites</a>.</td>
+							</tr>
+							<tr>
+								<th scope="row">skipped</th>
+								<td>If a test is skipped, the reason for the skip will be available here.</td>
+							</tr>
+							<tr>
+								<th scope="row">timeElapsed</th>
+								<td>Time, in milliseconds, that the test took to execute. Only available once the test has finished running.</td>
+							</tr>
+							<tr>
+								<th scope="row">timeout</th>
+								<td>Time, in milliseconds, that the suite took to execute. Once the test function has finished executing, changing this value has no effect.</td>
+							</tr>
+							<tr>
+								<th scope="row">test</th>
+								<td>The test function for this test.</td>
+							</tr>
+						</table>
+
+						<table class="api">
+							<tr>
+								<th>Method</th>
+								<th>Description</th>
+							</tr>
+							<tr>
+								<th scope="row">async(<br>&nbsp;&nbsp;timeout?: number,<br>&nbsp;&nbsp;numCallsUntilResolution?: number<br>): Deferred</th>
+								<td>Makes the test asynchronous. This method is idempotent and will always return the same Deferred object. See <a href="#async-tests">asynchronous tests</a> for more information.</td>
+							</tr>
+							<tr>
+								<th scope="row">skip(reason?: string): void</th>
+								<td>Causes the test to be skipped.</td>
+							</tr>
+							<tr>
+								<th scope="row">run(): Promise&lt;void></th>
+								<td>Runs the test. Returns a Promise that resolves to <code>undefined</code> after the test finishes successfully, or rejects with an error if the test failed.</td>
+							</tr>
+						</table>
 					</article>
 
 					<article>
