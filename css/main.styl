@@ -149,7 +149,7 @@ a {
 
 .hljs {
 	.hljs-keyword, .hljs-title { color: $internBlue; font-weight: bold; }
-	.hljs-built_in, .hljs-attribute { color: $internTeal; }
+	.hljs-number, .hljs-built_in, .hljs-attribute { color: $internTeal; }
 	.hljs-string, .hljs-value { color: #C41A16; }
 	.hljs-comment { color: #006A00; }
 }
@@ -309,6 +309,14 @@ a {
 			padding-top: 0.2rem;
 		}
 	}
+}
+
+.versionBadge {
+	background-color: lighten($internBlue, 75%);
+	border-radius: 0.5em;
+	padding: 0 0.4em;
+	font-size: 0.8rem;
+	font-weight: 300;
 }
 
 .nav {
@@ -633,7 +641,7 @@ a {
 	pre {
 		pushout();
 		background-color: $internLightGrey;
-		line-height: $lh * 0.625; // 8 lines / rhythm
+		line-height: $lh * 0.75; // 4 lines / rhythm
 		margin-bottom: $lh * 0.53125;
 		overflow: auto;
 		-webkit-overflow-scrolling: touch;
@@ -655,12 +663,15 @@ a {
 			@extend .icon-right-open:before;
 			margin-right: 0;
 		}
+	}
 
-		ul {
-			margin-bottom: 0;
-			margin-left: 1rem;
-			padding-top: 0;
-		}
+	ul ul,
+	ul ol,
+	ol ul,
+	ol ol {
+		margin-bottom: 0;
+		margin-left: 1rem;
+		padding-top: 0;
 	}
 
 	ol {
@@ -713,6 +724,18 @@ a {
 
 		th {
 			font-weight: normal;
+		}
+
+		&.api {
+			th,
+			td {
+				vertical-align: top;
+			}
+
+			th:first-child,
+			td:nth-child(3) {
+				white-space: nowrap;
+			}
 		}
 	}
 
