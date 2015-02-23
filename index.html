@@ -703,7 +703,7 @@
 							</tr>
 						</table>
 
-						<div class="a half" id="option-capabilities"></div>
+						<div class="a half" id="option-baseUrl"></div>
 						<h4>baseUrl (string)</h4>
 
 						<p>The path to use when converting module IDs to URLs, relative to client.html. Since browsers do not have any concept of a current working directory, using this argument allows a pseudo-cwd to be specified for the browser client in order to match up file paths with what exists on the underlying filesystem.</p>
@@ -1541,9 +1541,9 @@ define(function (require) {
 	server_name proxy.example;
 
 	location /web-service/ {
-		# This will proxy to http://www.web-service.example/web-service/<rest of url>;
+		# This will proxy to http://www.web-service.example/web-service/&lt;rest of url>;
 		# use `proxy_pass http://www.web-service.example/` to proxy to
-		# http://www.web-service.example/<rest of url> instead
+		# http://www.web-service.example/&lt;rest of url> instead
 		proxy_pass http://www.web-service.example;
 	}
 
