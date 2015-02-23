@@ -164,7 +164,7 @@ a {
 	margin: 0;
 	padding: 0;
 	position: fixed;
-	top: 0;
+	top: 0.7rem;
 	z-index: 3;
 
 	&:before {
@@ -188,8 +188,8 @@ a {
 
 .header {
 	background-color: $backgroundColor;
-	border-bottom: 1px solid $mediumGrey;
 	margin-bottom: $lh * 2;
+	padding-bottom: 4px;
 	position: -webkit-sticky;
 	position: sticky;
 	top: $lh * -1;
@@ -261,15 +261,19 @@ a {
 	}
 
 	.title {
+		border-bottom: 2px solid $internTeal;
 		display: inline-block;
 		font-family: $secondaryFont;
 		font-weight: normal;
 		line-height: 1;
+		padding-bottom: 4px;
 
 		@media (max-width: 490px) {
+			border-bottom: none;
 			display: block;
 			height: $lh * 2;
 			line-height: $lh * 1.15;
+			padding-bottom: 0;
 			text-align: center;
 		}
 	}
