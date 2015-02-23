@@ -90,8 +90,8 @@
 							<a href="#configuration">Configuration</a>
 							<ul class="subsections">
 								<li data-id="common-config"><a href="#common-config">Common configuration</a></li>
-								<li data-id="client-config"><a href="#client-config">Client-specific configuration</a></li>
-								<li data-id="runner-config"><a href="#runner-config">Runner-specific configuration</a></li>
+								<li data-id="client-config"><a href="#client-config">Client configuration</a></li>
+								<li data-id="runner-config"><a href="#runner-config">Test runner configuration</a></li>
 							</ul>
 						</li>
 						<li data-id="interfaces">
@@ -412,7 +412,7 @@
 						<p>Intern uses certain standard terminology in order to make it easier to understand each part of the system.</p>
 
 						<ul>
-							<li>An <dfn><a href="TODO">assertion</a></dfn> is a function call that verifies that a variable contains (or a function returns) an expected, correct, value (e.g. <code>assert.isTrue(someVariable, 'someVariable should be true')</code>)</li>
+							<li>An <dfn><a href="TODO">assertion</a></dfn> is a function call that verifies that an expression (like a variable or function call) returns an expected, correct, value (e.g. <code>assert.isTrue(someVariable, 'someVariable should be true')</code>)</li>
 							<li>A <dfn>test <a href="#interfaces">interface</a></dfn> is a programming interface for registering tests with Intern</li>
 							<li>A <dfn>test case</dfn> (or, just <dfn>test</dfn>) is a function that makes calls to application code and makes assertions about what it should have done</li>
 							<li>A <dfn>test suite</dfn> is a collection of tests (and, optionally, sub–test-suites) that are related to each other in some logical way</li>
@@ -470,9 +470,7 @@
 
 						<h4 id="amd">Module loader &amp; format</h4>
 
-						<p>Intern is built on top of a standard <abbr title="Asynchronous Module Definition">AMD</abbr> loader, which means that its modules are also normally written in the AMD module format. Using an AMD loader instead of something like the built-in Node.js loader + Browserify is, in fact, critical to providing a highly stable and flexible testing system.</p>
-
-						<p>AMD is the only stable standard for module loading that has all of these traits:</p>
+						<p>Intern is built on top of a standard <abbr title="Asynchronous Module Definition">AMD</abbr> loader, which means that its modules are also normally written in the AMD module format. Using an AMD loader instead of something like the built-in Node.js loader + Browserify is critical to providing a highly stable and flexible testing system, because AMD is the only stable standard for module loading that has all of these traits:</p>
 
 						<ul>
 							<li>Allows modules to be written for the browser without <em>requiring</em> an intermediate compilation step;</li>
@@ -672,7 +670,7 @@
 }</code></pre>
 
 						<div class="a half" id="client-config"></div>
-						<h3 data-id="client-config">Client-specific configuration</h3>
+						<h3 data-id="client-config">Client configuration</h3>
 
 						<p>Certain configuration options only apply when in client mode. These options are ignored when running in runner mode.</p>
 
@@ -699,7 +697,7 @@
 						<aside class="tip"><p>This argument is only available when loading the browser client; for the Node.js client, the current working directory is always used as the base path for loading modules.</p></aside>
 
 						<div class="a half" id="runner-config"></div>
-						<h3 data-id="runner-config">Runner-specific configuration</h3>
+						<h3 data-id="runner-config">Test runner configuration</h3>
 
 						<p>Certain configuration options only apply when in runner mode. These options are ignored when running in client mode.</p>
 

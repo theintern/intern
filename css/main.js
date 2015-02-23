@@ -51,6 +51,8 @@
 	 */
 	var defaultTitle = document.title;
 
+	var ignoreNextScroll = false;
+
 	/**
 	 * Finds the currently active section of the document according to the current scroll position.
 	 */
@@ -82,6 +84,12 @@
 		activeSubsection && activeSubsection.classList.remove('active');
 		activeSubsection = menu.querySelector('[data-id="' + id + '"]');
 		if (activeSubsection) {
+			// `id` is a main section; find the first subsection
+			if (activeSubsection.querySelector('.subsections')) {
+				activeSubsection = activeSubsection.querySelector('.subsections').firstElementChild;
+				id = activeSubsection.getAttribute('data-id');
+			}
+
 			document.title = defaultTitle + ': ' + activeSubsection.textContent;
 			activeSubsection.classList.add('active');
 			var anchor = document.getElementById(id);
@@ -110,11 +118,22 @@
 		}
 	}
 
+	window.addEventListener('hashchange', function () {
+		ignoreNextScroll = true;
+		setActiveSection(location.hash.slice(1));
+	}, false);
 	window.addEventListener('resize', function () {
 		foldPoint = window.innerHeight * 0.3;
 		findActiveSection();
 	}, false);
-	window.addEventListener('scroll', findActiveSection, false);
+	window.addEventListener('scroll', function () {
+		if (!ignoreNextScroll) {
+			findActiveSection();
+		}
+		else {
+			ignoreNextScroll = false;
+		}
+	}, false);
 
 	// Hack to deal with https://bugzilla.mozilla.org/show_bug.cgi?id=1134098
 	// and https://code.google.com/p/chromium/issues/detail?id=459476 without
