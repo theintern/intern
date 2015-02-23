@@ -74,7 +74,6 @@
 								<li data-id="what-is-intern"><a href="#what-is-intern">What is Intern?</a></li>
 								<li data-id="system-requirements"><a href="#system-requirements">System requirements</a></li>
 								<li data-id="reading-guide"><a href="#reading-guide">Reading this guide</a></li>
-								<li data-id="directory-structure"><a href="#directory-structure">Recommended directory structure</a></li>
 							</ul>
 						</li>
 						<li data-id="getting-started">
@@ -82,6 +81,7 @@
 							<ul class="subsections">
 								<li data-id="fundamentals-overview"><a href="#fundamentals-overview">Overview</a></li>
 								<li data-id="installation"><a href="#installation">Installation</a></li>
+								<li data-id="directory-structure"><a href="#directory-structure">Recommended directory structure</a></li>
 								<li data-id="terminology"><a href="#terminology">Terminology</a></li>
 								<li data-id="conventions"><a href="#conventions">Conventions</a></li>
 								<li data-id="first-app"><a href="#first-app">Testing your first app</a></li>
@@ -353,6 +353,34 @@
 						</aside>
 
 						<p>Later sections of this guide are designed to be built upon knowledge presented in earlier parts. If you jump into the middle and feel confused, step back a section or two until you find the information you need to move forward. We also accept <a href="https://github.com/theintern/intern/pulls?q=is%3Aopen+label%3Adocumentation+is%3Apr">pull requests</a> to the documentation in order to improve its flow and clarity.</p>
+					</article>
+
+					<article>
+						<div class="a" id="getting-started"></div>
+						<h2 data-id="getting-started">Getting started</h2>
+
+						<div class="a half" id="fundamentals-overview"></div>
+						<h3 data-id="fundamentals-overview">Overview</h3>
+
+<!--TODO: Diagram
+						<figure>
+							<img src="http://placekitten.com/1000/608">
+							<figcaption>The architecture of Intern</figcaption>
+						</figure>-->
+
+						<p>Intern provides two strategies for automated testing: unit testing and functional testing.</p>
+
+						<p><dfn>Unit testing</dfn> works by executing a piece of code directly and inspecting the result. For example, calling a function and then checking that it returns an expected value is a form of unit testing. This is the most common and most useful form of testing for day-to-day development, since it’s very fast and allows very small units of code to be tested in isolation. However, unit tests are limited to only testing certain testable code designs, and can also be limited by the constraints of the execution environment (like browser sandboxes).</p>
+
+						<p><dfn>Functional testing</dfn> works by issuing commands to a device that mimic actual user interactions. Once an interaction has occurred, these tests verify that the expected information is displayed by the user interface. Because these interactions come from outside the application being tested, they are not restricted by the execution environment. They also allow application code to be treated as a black box, which means functional tests can be written to test pages and applications written in any language. Because functional tests don’t call any APIs directly, code that is unable to be unit tested can still be successfully exercised. Functional tests allow the automation of UI &amp; integration testing that would otherwise need to be performed manually.</p>
+
+						<p>By understanding &amp; combining both of these testing strategies when testing an application, it becomes possible to effectively automate nearly all of the QA process, enabling much faster development cycles and significantly reducing software defects.</p>
+
+						<div class="a half" id="installation"></div>
+						<h3 data-id="installation">Installation</h3>
+
+						<p>Intern can be installed simply by running <kbd>npm install intern</kbd>.</p>
+
 
 						<div class="a half" id="directory-structure"></div>
 						<h3 data-id="directory-structure">Recommended directory structure</h3>
@@ -382,33 +410,6 @@
 							<li>It lets you use the default loader <code>baseUrl</code> configuration setting without worrying about path differences between Node.js and browser</li>
 							<li>It adds another layer of assurance that your tests and other private server-side code won’t be accidentally deployed along with the rest of your application</li>
 						</ul>
-					</article>
-
-					<article>
-						<div class="a" id="getting-started"></div>
-						<h2 data-id="getting-started">Getting started</h2>
-
-						<div class="a half" id="fundamentals-overview"></div>
-						<h3 data-id="fundamentals-overview">Overview</h3>
-
-<!--TODO: Diagram
-						<figure>
-							<img src="http://placekitten.com/1000/608">
-							<figcaption>The architecture of Intern</figcaption>
-						</figure>-->
-
-						<p>Intern provides two strategies for automated testing: unit testing and functional testing.</p>
-
-						<p><dfn>Unit testing</dfn> works by executing a piece of code directly and inspecting the result. For example, calling a function and then checking that it returns an expected value is a form of unit testing. This is the most common and most useful form of testing for day-to-day development, since it’s very fast and allows very small units of code to be tested in isolation. However, unit tests are limited to only testing certain testable code designs, and can also be limited by the constraints of the execution environment (like browser sandboxes).</p>
-
-						<p><dfn>Functional testing</dfn> works by issuing commands to a device that mimic actual user interactions. Once an interaction has occurred, these tests verify that the expected information is displayed by the user interface. Because these interactions come from outside the application being tested, they are not restricted by the execution environment. They also allow application code to be treated as a black box, which means functional tests can be written to test pages and applications written in any language. Because functional tests don’t call any APIs directly, code that is unable to be unit tested can still be successfully exercised. Functional tests allow the automation of UI &amp; integration testing that would otherwise need to be performed manually.</p>
-
-						<p>By understanding &amp; combining both of these testing strategies when testing an application, it becomes possible to effectively automate nearly all of the QA process, enabling much faster development cycles and significantly reducing software defects.</p>
-
-						<div class="a half" id="installation"></div>
-						<h3 data-id="installation">Installation</h3>
-
-						<p>Intern can be installed simply by running <kbd>npm install intern</kbd>.</p>
 
 						<div class="a half" id="terminology"></div>
 						<h3 data-id="terminology">Terminology</h3>
