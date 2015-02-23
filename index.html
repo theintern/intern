@@ -106,11 +106,13 @@
 							<a href="#unit-testing">Unit testing</a>
 							<ul class="subsections">
 								<li data-id="writing-unit-test"><a href="#writing-unit-test">Writing a unit test</a></li>
+								<li data-id="test-lifecycle"><a href="#test-lifecycle">The test lifecycle</a></li>
 								<li data-id="async-tests"><a href="#async-tests">Asynchronous tests</a></li>
 								<li data-id="skipping-tests"><a href="#skipping-tests">Skipping a test at runtime</a></li>
-								<li data-id="testing-commonjs-code"><a href="#testing-commonjs-code">Testing non-AMD code</a></li>
+								<li data-id="testing-commonjs-code"><a href="#testing-commonjs-code">Testing CommonJS modules</a></li>
 								<li data-id="testing-global-code"><a href="#testing-global-code">Testing non-modular code</a></li>
 								<li data-id="testing-other-module"><a href="#testing-other-module">Testing other transpiled code</a></li>
+								<li data-id="testing-cors"><a href="#testing-cors">Testing non-CORS APIs</a></li>
 							</ul>
 						</li>
 						<li data-id="functional-testing">
@@ -135,6 +137,8 @@
 								<li data-id="browser-client"><a href="#browser-client">The browser client</a></li>
 								<li data-id="node-client"><a href="#node-client">The Node.js client</a></li>
 								<li data-id="test-runner"><a href="#test-runner">The test runner</a></li>
+								<li data-id="custom-args"><a href="#custom-args">Using custom arguments</a></li>
+								<li data-id="grunt"><a href="#grunt">Using Grunt</a></li>
 							</ul>
 						</li>
 						<li data-id="reporters">
@@ -157,7 +161,7 @@
 							<a href="#customisation">Customisation</a>
 							<ul class="subsections">
 								<li data-id="custom-interfaces"><a href="#custom-interfaces">Custom interfaces</a></li>
-								<li data-id="custom-executors"><a href="#custom-executors">Custom executors</a></li>
+								<li data-id="custom-executors"><a href="#custom-executors">Custom executors <span class="versionBadge">3.0</span></a></li>
 								<li data-id="custom-reporters"><a href="#custom-reporters">Custom reporters</a></li>
 							</ul>
 						</li>
@@ -188,10 +192,6 @@
 						<div class="a half" id="what-is-intern"></div>
 						<h3 data-id="what-is-intern">What is Intern?</h3>
 
-						<p></p>
-
-						<aside class="whatAreYouCrazy"><p>Hey, you found the new user guide! This document is still a work in progress as we try to migrate and expand upon the content already in the <a href="https://github.com/theintern/intern/wiki">Intern wiki</a>. Not everything here is accurate yet, and there’s a lot that’s still missing, but please feel free to take a look!</p></aside>
-
 						<p>Intern is a complete framework for testing Web sites and applications. It’s built around standards like WebDriver and was designed from the ground up to be the most powerful, flexible, and reliable JavaScript testing system in the world.</p>
 
 						<p>Intern can test all sorts of things:</p>
@@ -210,11 +210,11 @@
 
 						<h4>Who is Intern best for?</h4>
 
-						<p>Intern is best for development teams that want a complete, flexible, <a href="TODO">standards-based</a>, high-quality testing solution that Just Works. It’s best for testing JavaScript code, but it is also an excellent tool for testing server-generated Web pages or native mobile apps. Its built-in <a href="TODO">support for source maps</a> makes it uniquely well-suited for developers that compile their code to JavaScript from another language, or that run tests against production-ready built/minified code.</p>
+						<p>Intern is best for development teams that want a complete, flexible, <a href="http://www.w3.org/TR/webdriver/">standards-based</a>, high-quality testing solution that Just Works. It’s best for testing JavaScript code, but it is also an excellent tool for testing server-generated Web pages or native mobile apps. Its built-in support for <a href="http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/">source maps</a> makes it uniquely well-suited for developers that compile their code to JavaScript from another language, or that run tests against production-ready built/minified code.</p>
 
-						<p>Intern is excellent for teams that are just beginning to write tests; its built-in <a href="TODO">code coverage analysis</a> makes thorough testing fast and precise, and its <a href="TODO">functional testing system</a> enables testing of highly procedural code that’s other impossible to test.</p>
+						<p>Intern is excellent for teams that are just beginning to write tests; its built-in <a href="#reporter-lcov">code coverage analysis</a> makes thorough testing fast and precise, and its <a href="#writing-functional-test">functional testing system</a> enables testing of highly procedural code that’s other impossible to test.</p>
 
-						<p>Intern is a great choice if you’re hoping to transition away from your current testing library but already have a lot of tests, since its <a href="TODO">extensible interfaces</a> make it possible to transition without needing to rewrite tests or learn a totally new set of APIs.</p>
+						<p>Intern is a great choice if you’re hoping to transition away from your current testing library but already have a lot of tests, since its <a href="#interface-overview">extensible interfaces</a> make it possible to transition without needing to rewrite tests or learn a totally new set of APIs.</p>
 
 						<p>Intern’s execution model is especially well-suited to those that follow a test-last development approach and want to prevent regressions using continuous integration. It has also been used very successfully by teams that follow a test-driven development approach.</p>
 
@@ -337,6 +337,8 @@
 
 						<p>Throughout this guide, you will find certain pieces of information are called out specifically, as we have found them to be especially important or problematic for users.</p>
 
+						<p>Features marked with a <span class="versionBadge">3.0</span> indicate that the feature is only available starting in that particular version of Intern.</p>
+
 						<aside class="tip">
 							<p>Sections that look like this contain advanced tips and tricks that can help you get the most out of Intern.</p>
 						</aside>
@@ -412,7 +414,7 @@
 						<p>Intern uses certain standard terminology in order to make it easier to understand each part of the system.</p>
 
 						<ul>
-							<li>An <dfn><a href="TODO">assertion</a></dfn> is a function call that verifies that an expression (like a variable or function call) returns an expected, correct, value (e.g. <code>assert.isTrue(someVariable, 'someVariable should be true')</code>)</li>
+							<li>An <dfn><a href="#writing-unit-test">assertion</a></dfn> is a function call that verifies that an expression (like a variable or function call) returns an expected, correct, value (e.g. <code>assert.isTrue(someVariable, 'someVariable should be true')</code>)</li>
 							<li>A <dfn>test <a href="#interfaces">interface</a></dfn> is a programming interface for registering tests with Intern</li>
 							<li>A <dfn>test case</dfn> (or, just <dfn>test</dfn>) is a function that makes calls to application code and makes assertions about what it should have done</li>
 							<li>A <dfn>test suite</dfn> is a collection of tests (and, optionally, sub–test-suites) that are related to each other in some logical way</li>
@@ -466,7 +468,7 @@
 
 						<h4>Asynchronous operations</h4>
 
-						<p>Intern always uses <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a> objects whenever an asynchonous operation needs to occur. All <a href="TODO">suite</a>, <a href="TODO">test</a>, and <a href="TODO">reporter</a> functions can return a Promise, which will pause the test system until the Promise resolves (or until a timeout occurs, whichever happens first).</p>
+						<p>Intern always uses <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a> objects whenever an asynchonous operation needs to occur. All <a href="#suite-object">suite</a>, <a href="#test-object">test</a>, and <a href="#custom-reporters">reporter</a> functions can return a Promise, which will pause the test system until the Promise resolves (or until a timeout occurs, whichever happens first).</p>
 
 						<h4 id="amd">Module loader &amp; format</h4>
 
@@ -475,7 +477,7 @@
 						<ul>
 							<li>Allows modules to be written for the browser without <em>requiring</em> an intermediate compilation step;</li>
 							<li>Allows modules and other assets to be <em>asynchronously</em> or <em>conditionally</em> resolved by writing simple <a href="https://github.com/amdjs/amdjs-api/blob/master/LoaderPlugins.md">loader plugins</a>;</li>
-							<li>Allows “hard-coded” dependencies of modules under test to be <a href="TODO">mocked</a> without messing with the internals of the module loader</li>
+							<li>Allows “hard-coded” dependencies of modules under test to be <a href="https://www.sitepen.com/blog/2014/07/14/mocking-data-with-intern/#mocking-amd-dependencies">mocked</a> without messing with the internals of the module loader</li>
 						</ul>
 
 						<p>Because the AMD standard includes the ability to run loader plugins, it’s not necessary for your test modules to be written as AMD modules if you don’t want. Just write a loader plugin that understands the module format you prefer and you’re ready to go!</p>
@@ -499,7 +501,11 @@
 
 						<p>In order to quickly get started with Intern, we’ve created a basic <a href="https://github.com/theintern/intern-tutorial">tutorial</a> that walks through the steps required to install, configure, and run basic tests against a very simple demo application.</p>
 
-						<p>Once you’ve run through the tutorial, continue reading the user guide to learn about all the advanced functionality available within Intern that you can use test your own code better and faster.</p>
+						<p>Once you’ve run through the tutorial, you may also want to look at some of the <a href="https://github.com/theintern/intern-examples">example integrations</a> for popular libraries and frameworks if you are using AngularJS, Backbone.js, Dojo, Ember, or jQuery.</p>
+
+						<aside class="whatAreYouCrazy"><p>Some of the example integrations are outdated and don’t represent modern best practices when using Intern. We’d love it if you’d <a href="https://github.com/theintern/intern-examples/fork">submit your own examples</a> following the patterns outlined in this document to make Intern easier to use for new users!</p></aside>
+
+						<p>After that, continue reading the user guide to learn about all the advanced functionality available within Intern that you can use test your own code better and faster!</p>
 					</article>
 
 					<article>
@@ -598,7 +604,7 @@
 							<li>In browser client mode, <code>baseUrl</code> is set to the directory two path segments above the directory containing client.html</li>
 						</ul>
 
-						<p>When following the <a href="TODO">recommended filesystem layout</a>, a typical loader configuration will look like this:</p>
+						<p>When following the <a href="#directory-structure">recommended directory structure</a>, a typical loader configuration will look like this:</p>
 
 						<pre><code class="javascript">{
 	loader: {
@@ -624,9 +630,17 @@
 }</code></pre>
 
 						<div class="a half" id="option-reporters"></div>
-						<h4>reporters (Array&lt;string>)</h4>
+						<h4>reporters (Array&lt;Object<span class="versionBadge">3.0</span> | string>)</h4>
 
 						<p>An array of reporters to use to report test results. Reporters in this list can either be <a href="#reporters">built-in reporter names</a> (like <code class="javascript">'console'</code> or <code class="javascript">'junit'</code>), or absolute AMD module IDs (like <code class="javascript">'tests/support/customReporter'</code>) when using <a href="#custom-reporters">custom reporters</a>.</p>
+
+						<p><span class="versionBadge">3.0</span> Reporters can also be configured by passing an object with extra configuration options valid for the given reporter. In this case, the ID of the reporter should be given by the <code>id</code> key of the reporter configuration:</p>
+
+						<pre><code class="javascript">{
+	reporters: [
+		{ id: 'junit', filename: 'report.xml' }
+	]
+}</code></pre>
 
 						<p>If reporters are not specified in the configuration, Intern will pick defaults that are most suitable for the current execution mode.</p>
 
@@ -818,7 +832,7 @@
 						<div class="a half" id="option-functionalSuites"></div>
 						<h4>functionalSuites (Array&lt;string>)</h4>
 
-						<p>An array of functional test module IDs to load. <a href="TODO">Functional tests</a> are different from unit tests because they are executed on the local (Node.js) side, not the remote (browser) side, so they are specified separately from the list of unit test modules.</p>
+						<p>An array of functional test module IDs to load. <a href="#writing-functional-test">Functional tests</a> are different from unit tests because they are executed on the local (Node.js) side, not the remote (browser) side, so they are specified separately from the list of unit test modules.</p>
 
 						<pre><code class="javascript">{
 	functionalSuites: [
@@ -842,14 +856,12 @@
 							<li>Provides a communication conduit for the unit testing system to provide live test results in runner mode</li>
 						</ul>
 
-						<p>Any JavaScript code that you want to evaluate for code coverage must either pass through the code coverage proxy or be <a href="TODO">pre-instrumented</a> for Intern. The HTTP server must also be accessible to the environment (browser) being tested in runner mode in order for unit testing results to be transmitted back to the test runner successfully.</p>
+						<p>Any JavaScript code that you want to evaluate for code coverage must either pass through the code coverage proxy or be <!--<a href="TODO">-->pre-instrumented<!--</a>--> for Intern. The HTTP server must also be accessible to the environment (browser) being tested in runner mode in order for unit testing results to be transmitted back to the test runner successfully.</p>
 
 						<div class="a half" id="option-proxyUrl"></div>
 						<h4>proxyUrl (string)</h4>
 
 						<p>The external URL to the Intern HTTP server. You will need to change this value only if you are running Intern’s HTTP server through a reverse proxy, or if Intern’s HTTP server needs to be reached through a public interface that your Selenium servers can access directly.</p>
-
-						<p>TODO: Link to more info about reverse proxying/testing dynamic endpoints/CORS</p>
 
 						<div class="a half" id="option-tunnel"></div>
 						<h4>tunnel (string)</h4>
@@ -908,11 +920,11 @@
 			// can also be called `after` instead of `teardown`
 		},
 
-		beforeEach: function () {
+		beforeEach: function (test <span class="versionBadge">3.0</span>) {
 			// executes before each test
 		},
 
-		afterEach: function () {
+		afterEach: function (test <span class="versionBadge">3.0</span>) {
 			// executes after each test
 		},
 
@@ -1127,12 +1139,156 @@
 						<div class="a half" id="writing-unit-test"></div>
 						<h3 data-id="writing-unit-test">Writing a unit test</h3>
 
-						<p>TODO. Lifecycle, basic tests. assertions. Describe all of the properties that are available within a test (maybe just link to the internals section on Test).</p>
+						<p>As described in the <a href="#fundamentals-overview">fundamentals overview</a>, unit tests are the cornerstone of every test suite. Unit tests allow us to test applications by loading and interacting directly with application code.</p>
+
+						<p>In order to write a unit test, you first need to pick an <a href="#interface-overview">interface</a> to use. For the sake of clarity, this guide uses the <a href="#interface-object">Object interface</a>, but all the test and suite lifecycle functions themselves are written the same way, and have the same functionality, no matter which interface you use.</p>
+
+						<p>A unit test function, at its most basic level, is simply a function that throws an error when a test failure occurs, or throws no errors when a test passes:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var registerSuite = require('intern!object');
+
+	registerSuite({
+		'passing test': function () {},
+		'failing test': function () {
+			throw new Error('Oops');
+		}
+	});
+});</code></pre>
+
+						<p>The <code class="javascript">this</code> keyword within a test function in Intern refers to the internal <a href="#test-object">Test object</a>. This object provides functionality for <a href="#async-tests">asynchronous testing</a> and <a href="#skipping-tests">skipping tests</a>.</p>
+
+						<p>In order to facilitate testing, the <a href="http://chaijs.com/">Chai Assertion Library</a> is bundled with Intern. Chai allows us to easily verify that certain operations perform as expected by comparing expected and actual values and throwing useful errors when they don’t match:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var registerSuite = require('intern!object');
+	var assert = require('intern/chai!assert');
+
+	registerSuite({
+		'passing test': function () {
+			var result = 2 + 3;
+
+			assert.equal(result, 5,
+				'Addition operator should add numbers together');
+		},
+		'failing test': function () {
+			var result = 2 * 3;
+
+			assert.equal(result, 5,
+				'Addition operator should add numbers together');
+		}
+	});
+});</code></pre>
+
+						<aside class="tip"><p>Good code comments describe <em>why</em> code is doing something and not <em>what</em> it is doing. Similarly, good assertion messages describe <em>why</em> the assertion exists and not <em>what</em> it is asserting. Keep this in mind as you write your tests!</p></aside>
+
+						<p>Chai provides its own set of different interfaces for providing assertions. They all do the same things, so just like Intern’s test interfaces, pick the one whose syntax you prefer:</p>
+
+						<ul>
+							<li>The <a href="http://chaijs.com/guide/styles/#assert">assert</a> API, loaded from <code class="javascript">'intern/chai!assert'</code>, looks like <code class="javascript">assert.isTrue(value)</code></li>
+							<li>The <a href="http://chaijs.com/guide/styles/#expect">expect</a> API, loaded from <code class="javascript">'intern/chai!expect'</code>, looks like <code class="javascript">expect(value).to.be.true</code></li>
+							<li>The <a href="http://chaijs.com/guide/styles/#should">should</a> API, loaded from <code class="javascript">'intern/chai!should'</code>, looks like <code class="javascript">value.should.be.true</code></li>
+						</ul>
+
+						<aside class="tip"><p>When using the assert API, an easy way to remember the order of arguments is that they are alphabetical: <em>a</em>ctual, <em>e</em>xpected, <em>m</em>essage.</p></aside>
+
+						<aside class="whatAreYouCrazy"><p>The should-style API pollutes the global <code>Object.prototype</code> and doesn’t work with null/undefined values or objects that don’t inherit from <code>Object.prototype</code>. It is recommended that this style of assertion be avoided.</p></aside>
+
+						<div class="a half" id="test-lifecycle"></div>
+						<h3 data-id="test-lifecycle">The test lifecycle</h3>
+
+						<p>When tests are executed, the test system follows a specific lifecycle:</p>
+
+						<!-- TODO: Diagram is better? -->
+						<ul>
+							<li>For <em>each registered root suite</em>:
+								<ul>
+									<li>The <a href="#suite-object-setup">setup</a> method of the suite is called, if it exists</li>
+									<li>For <em>each test</em> within the suite:
+										<ul>
+											<li>The <a href="#suite-object-beforeEach">beforeEach</a> method of the suite is called, if it exists</li>
+											<li>The test function is called</li>
+											<li>The <a href="#suite-object-afterEach">afterEach</a> method of the suite is called, if it exists</li>
+										</ul>
+									</li>
+									<li>The <a href="#suite-object-teardown">teardown</a> method of the suite is called, if it exists</li>
+								</ul>
+							</li>
+						</ul>
+
+						<p>So, given the this test module:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var registerSuite = require('intern!object');
+
+	registerSuite({
+		setup: function () {
+			console.log('outer setup');
+		},
+		beforeEach: function () {
+			console.log('outer beforeEach');
+		},
+		afterEach: function () {
+			console.log('outer afterEach');
+		},
+		teardown: function () {
+			console.log('outer teardown');
+		},
+
+		'test C': function () {
+			console.log('outer test C');
+		},
+
+		'inner suite': {
+			setup: function () {
+				console.log('inner setup');
+			},
+			beforeEach: function () {
+				console.log('inner beforeEach');
+			},
+			afterEach: function () {
+				console.log('inner afterEach');
+			},
+			teardown: function () {
+				console.log('inner teardown');
+			},
+
+			'test A': function () {
+				console.log('outer test A');
+			},
+			'test B': function () {
+				console.log('outer test B');
+			}
+		}
+	});
+});</code></pre>
+
+						<p>…the resulting console output would be:</p>
+
+						<pre><samp>outer setup
+inner setup
+outer beforeEach
+inner beforeEach
+inner test A
+inner afterEach
+outer afterEach
+outer beforeEach
+inner beforeEach
+inner test B
+inner afterEach
+outer afterEach
+inner teardown
+outer beforeEach
+outer test C
+outer afterEach
+outer teardown</samp></pre>
+
+						<p>The <code class="javascript">this</code> keyword inside of the suite lifecycle methods (setup, beforeEach, afterEach, teardown) refers to the internal <a href="#suite-object">Suite object</a>.</p>
 
 						<div class="a half" id="async-tests"></div>
 						<h3 data-id="async-tests">Asynchronous tests</h3>
 
-						<p>As mentioned in <a href="#conventions">conventions</a>, asynchronous testing in Intern is based on Promises. When writing a test, you may either return a Promise from your test function (convenient for interfaces that already use Promises), or call <code>this.async</code> from within a test function to create a promise for that test.</p>
+						<p>As mentioned in the earlier section on <a href="#conventions">conventions</a>, asynchronous testing in Intern is based on Promises. When writing a test, you may either return a Promise from your test function (convenient for interfaces that already use Promises), or call <code>this.async</code> from within a test function to create a promise for that test.</p>
 
 						<h4>Returning a Promise</h4>
 
@@ -1361,6 +1517,66 @@ define(function (require) {
 });</code></pre>
 
 						<aside class="tip"><p>This same mechanism can be used to write the test modules themselves in a different language or module format by referencing a loader plugin ID in the <a href="#option-suites">suites</a> and <a href="#option-functionalSuites">functionalSuites</a> arrays.</p></aside>
+
+						<div class="a half" id="testing-cors"></div>
+						<h3 data-id="testing-cors">Testing non-CORS APIs</h3>
+
+						<p>When writing unit tests with Intern, occasionally you will need to interact with a Web service using XMLHttpRequest. However, because the <a href="#test-runner">test runner</a> serves code at http://localhost:9000 by default, any cross-origin requests will fail.</p>
+
+						<p>In order to test Ajax requests without using CORS or JSONP, the solution is to set up a reverse proxy to Intern and tell the test runner to load from that URL instead by setting the <a href="#option-proxyUrl">proxyUrl</a> configuration option.</p>
+
+						<p>You can either set up the Web server to only send requests to Intern for your JavaScript files, or you can set up the Web server to send all requests to Intern except for the Web services you’re trying to access.</p>
+
+						<h4>Option 1: All traffic except Web services to Intern</h4>
+
+						<ol>
+							<li>Modify <a href="#option-proxyUrl">proxyUrl</a> in your Intern configuration to point to the URL where the Web server lives</li>
+							<li>Set up the Web server to reverse proxy to http://localhost:9000/ by default</li>
+							<li>Add <code>location</code> directives to pass the more specific Web service URLs to the Web service instead</li>
+						</ol>
+
+						<p>An nginx configuration implementing this pattern might look like this:</p>
+
+						<pre><code class="nginx">server {
+	server_name proxy.example;
+
+	location /web-service/ {
+		# This will proxy to http://www.web-service.example/web-service/<rest of url>;
+		# use `proxy_pass http://www.web-service.example/` to proxy to
+		# http://www.web-service.example/<rest of url> instead
+		proxy_pass http://www.web-service.example;
+	}
+
+	location / {
+		proxy_pass http://localhost:9000;
+	}
+}</code></pre>
+
+					<h4>Option 2: Only JavaScript traffic to Intern</h4>
+
+					<ol>
+						<li>Modify <a href="#option-proxyUrl">proxyUrl</a> in your Intern configuration to point to the URL where the Web server lives</li>
+						<li>Set up the Web server to reverse proxy to http://localhost:9000/ for the special /__intern/ location, plus any directories that contain JavaScript</li>
+					</ol>
+
+					<p>An nginx configuration implementing this pattern might look like this:</p>
+
+					<pre><code class="nginx">server {
+	server_name proxy.example;
+	root /var/www/;
+
+	location /js/ {
+		proxy_pass http://localhost:9000;
+	}
+
+	location /__intern/ {
+		proxy_pass http://localhost:9000;
+	}
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+}</code></pre>
 					</article>
 
 					<article>
@@ -1678,10 +1894,25 @@ define([
 							<li><a href="http://chromedriver.storage.googleapis.com/index.html" title="ChromeDriver downloads">Download</a> the latest version of <a href="https://sites.google.com/a/chromium.org/chromedriver/">ChromeDriver</a></li>
 							<li>Set <a href="#option-tunnel">tunnel</a> to <code class="javascript">'NullTunnel'</code></li>
 							<li>Run <kbd class="bash">chromedriver --port=4444 --url-base=wd/hub</kbd></li>
+							<li>Set your <a href="#option-environments">environments</a> capabilities to <code class="javascript">[ { browserName: 'chrome' } ]</code></li>
 							<li>Run <a href="#test-runner">the test runner</a></li>
 						</ol>
 
 						<aside class="tip"><p>If you are having trouble starting the server or getting Intern to communicate with it, verify the server is running correctly by going to <a href="http://localhost:4444/wd/hub/status">http://localhost:4444/wd/hub/status</a>. It should return a JSON response with a <code>status</code> field of 0.</p></aside>
+
+						<h4>Using PhantomJS 2</h4>
+
+						<p>If you want to use a fake browser to develop your tests, PhantomJS 2 is an option.</p>
+
+						<ol>
+							<li><a href="http://phantomjs.org/download.html">Download</a> the latest version of <a href="http://phantomjs.org">PhantomJS</a></li>
+							<li>Set <a href="#option-tunnel">tunnel</a> to <code class="javascript">'NullTunnel'</code></li>
+							<li>Run <kbd class="bash">phantomjs --webdriver=4444</kbd></li>
+							<li>Set your <a href="#option-environments">environments</a> capabilities to <code class="javascript">[ { browserName: 'phantomjs' } ]</code></li>
+							<li>Run <a href="#test-runner">the test runner</a></li>
+						</ol>
+
+						<aside class="whatAreYouCrazy"><p>Since PhantomJS is not a real browser that your users will ever actually use, it’s not the best idea to rely on it for testing unless you have a <a href="#ci">continuous integration</a> system set up to test with real browsers.</p></aside>
 
 						<h4>Using Selenium (all browsers)</h4>
 
@@ -1926,6 +2157,138 @@ define([
 								<td>Overrides the <a href="#option-suites">suites</a> configuration option. You can pass this argument more than once to load multiple modules.</td>
 							</tr>
 						</table>
+
+						<div class="a half" id="custom-args"></div>
+						<h3 data-id="custom-args">Using custom arguments</h3>
+
+						<p>Intern allows arbitrary arguments to be passed on the command-line that can then be retrieved through the <!--<a href="TODO">-->main Intern object<!--</a>-->. This is useful for cases where you want to be able to pass things like custom ports, WebDriver servers, reporter configurations, etc. dynamically:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var intern = require('intern');
+
+	// arguments object
+	intern.args;
+
+	// configuration object
+	intern.config;
+
+	// the current executor
+	intern.executor;
+});</code></pre>
+
+
+						<aside class="tip"><p>In Intern 2, the execution mode was exposed on the <code>mode</code> property of as either <code class="javascript">'client'</code> or <code class="javascript">'runner'</code>. Because Intern 3 enables additional execution modes, this property is no longer available, and the <code>executor</code> should be checked instead, if necessary.</p></aside>
+
+						<p>This makes it possible to, for example, define a dynamic proxy URL from the command-line or Grunt task:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var intern = require('intern');
+
+	return {
+		proxyUrl: intern.args.proxyUrl,
+
+		// …additional configuration…
+	};
+});</code></pre>
+
+						<pre><kbd class="bash">intern-runner config=tests/config proxyUrl=http://www.example.com:1234/</kbd></pre>
+
+						<aside class="whatAreYouCrazy"><p>The information above is partially speculative.<!--TODO make sure it is correct for the final release.--></p></aside>
+
+						<div class="a half" id="grunt"></div>
+						<h3 data-id="grunt">Using Grunt</h3>
+
+						<p>Grunt support is built into Intern. Install Intern and load the Grunt task into your Gruntfile using <code class="javascript">grunt.loadNpmTasks('intern')</code>:</p>
+
+						<pre><code class="javascript">module.exports = function (grunt) {
+	// Load the Intern task
+	grunt.loadNpmTasks('intern');
+
+	// Configure tasks
+	grunt.initConfig({
+		intern: {
+			someReleaseTarget: {
+				options: {
+					runType: 'runner', // defaults to 'client'
+					config: 'tests/intern',
+					reporters: [ 'console', 'lcov' ],
+					suites: [ 'tests/unit/all' ]
+				}
+			},
+			anotherReleaseTarget: { /* … */ }
+		}
+	});
+
+	// Register a test task that uses Intern
+	grunt.registerTask('test', [ 'intern' ]);
+
+	// By default we just test
+	grunt.registerTask('default', [ 'test' ]);
+};</code></pre>
+
+						<p>The following task options are available:</p>
+
+						<table class="api">
+							<tr>
+								<th>Name</th>
+								<th>Description</th>
+								<th>Default</th>
+							</tr>
+							<tr>
+								<th scope="row">browserstackAccessKey</th>
+								<td>The access key for authentication with BrowserStack.</td>
+								<td>none</td>
+							</tr>
+							<tr>
+								<th scope="row">browserstackUsername</th>
+								<td>The username for authentication with BrowserStack.</td>
+								<td>none</td>
+							</tr>
+							<tr>
+								<th scope="row">runType</th>
+								<td>The execution mode in which Intern should run. This may be <code class="javascript">'runner'</code> for the <a href="#test-runner">test runner</a>, or <code class="javascript">'client'</code> for the <a href="#node-client">Node.js client</a>.</td>
+								<td><code class="javascript">'client'</code></td>
+							</tr>
+							<tr>
+								<th scope="row">sauceAccessKey</th>
+								<td>The access key for authentication with Sauce Labs.</td>
+								<td>none</td>
+							</tr>
+							<tr>
+								<th scope="row">sauceUsername</th>
+								<td>The username for authentication with Sauce Labs.</td>
+								<td>none</td>
+							</tr>
+							<tr>
+								<th scope="row">testingbotKey</th>
+								<td>The API key for authentication with TestingBot.</td>
+								<td>none</td>
+							</tr>
+							<tr>
+								<th scope="row">testingbotSecret</th>
+								<td>The API key for authentication with TestingBot.</td>
+								<td>none</td>
+							</tr>
+						</table>
+
+						<p>The following events are available:</p>
+
+						<table class="api">
+							<tr>
+								<th>Event</th>
+								<th>Description</th>
+							</tr>
+							<tr>
+								<th scope="row">intern.pass(message: string)</th>
+								<td>This event is emitted when a test passes.</td>
+							</tr>
+							<tr>
+								<th scope="row">intern.fail(message: string)</th>
+								<td>This event is emitted when a test fails.</td>
+							</tr>
+						</table>
+
+						<aside class="tip"><p>The current Grunt events are rudimentary, based on the output of the default <a href="#reporter-results">console reporter</a>, and do not provide much detail into the actual state of the test runner to Grunt tasks. Future versions of Intern are likely to improve to provide first-class event support, if sufficient demand exists for this feature.</p></aside>
 					</article>
 
 					<article>
@@ -2104,7 +2467,7 @@ define([
 	- <span class="hljs-string">'0.10'</span>
 <span class="hljs-attribute">script:</span> <span class="hljs-value">node_modules/.bin/intern-runner config=tests/intern</span></code></pre>
 
-						<aside class="tip"><p>If you are using a cloud hosting provider like BrowserStack, Sauce Labs, or TestingBot, you can add <a href="TODO">environment variables</a> holding your access credentials either through the Travis CI Web site by going to the repository’s settings page, or by <a href="http://docs.travis-ci.com/user/environment-variables/">adding an <code>env</code> list</a> to your .travis.yml configuration.</p></aside>
+						<aside class="tip"><p>If you are using a cloud hosting provider like BrowserStack, Sauce Labs, or TestingBot, you can add <a href="#hosted-selenium">environment variables</a> holding your access credentials either through the Travis CI Web site by going to the repository’s settings page, or by <a href="http://docs.travis-ci.com/user/environment-variables/">adding an <code>env</code> list</a> to your .travis.yml configuration.</p></aside>
 
 						<p>Once you have a Travis configuration, you just need to actually start the thing:</p>
 
@@ -2178,7 +2541,7 @@ define([
 						<p>TODO</p>
 
 						<div class="a half" id="custom-executors"></div>
-						<h3 data-id="custom-executors">Custom executors</h3>
+						<h3 data-id="custom-executors">Custom executors <span class="versionBadge">3.0</span></h3>
 
 						<p>TODO</p>
 
@@ -2187,7 +2550,121 @@ define([
 
 						<p>If none of the <a href="#reporter-overview">built-in reporters</a> provide the information you need, you can write a custom reporter and reference it using an absolute module ID (i.e. <code class="javascript">'tests/support/CustomReporter'</code>).</p>
 
-						<p>In Intern 3, reporters are:</p>
+						<p><span class="versionBadge">3.0</span> Reporters in Intern are JavaScript constructors. When instantiated, a reporter receives the configuration data provided by the user in their <a href="#option-reporters">reporters</a> configuration, along with the following special properties:</p>
+
+						<table class="api">
+							<tr>
+								<th>Property</th>
+								<th>Description</th>
+							</tr>
+							<tr>
+								<th scope="row">console</th>
+								<td>An object that provides the basic <a href="https://developer.mozilla.org/en-US/docs/Web/API/console">Console API</a> for reporters that want to provide enhanced console-based output.</td>
+							</tr>
+							<tr>
+								<th scope="row">output</th>
+								<td>A Writable stream where output data should be sent by calling <code>output.write(data)</code>. This stream will automatically be closed by Intern at the end of the test run. Most reporters should use this mechanism for outputting data.</td>
+							</tr>
+						</table>
+
+						<p>Reporters should implement one or more of the following methods, which will be called by Intern when an event occurs:</p>
+
+						<table class="api">
+							<tr>
+								<th>Method</th>
+								<th>Description</th>
+							</tr>
+							<tr>
+								<th scope="row">coverage(<br>&nbsp;&nbsp;sessionId: string,<br>&nbsp;&nbsp;data: Object<br>)</th>
+								<td>This method is called when code coverage data has been retrieved from an environment. This will occur once per remote environment when all unit tests have completed, and again any time a new page is loaded. Each unique <code>sessionId</code> corresponds to a single remote environment. <code>sessionId</code> will be <code>null</code> for a local environment (for example, in the Node.js client).</td>
+							</tr>
+							<tr>
+								<th scope="row">deprecated(<br>&nbsp;&nbsp;name: string,<br>&nbsp;&nbsp;replacement?: string,<br>&nbsp;&nbsp;extra?: string<br>)</th>
+								<td>This method is called when a deprecated function is called.</td>
+							</tr>
+							<tr>
+								<th scope="row">fatalError(error: Error)</th>
+								<td>This method is called when an error occurs within the test system that is non-recoverable (for example, a bug within Intern).</td>
+							</tr>
+							<tr>
+								<th scope="row">newSuite(suite: Suite)</th>
+								<td>This method is called when a new test suite is created.</td>
+							</tr>
+							<tr>
+								<th scope="row">newTest(test: Test)</th>
+								<td>This method is called when a new test is created.</td>
+							</tr>
+							<tr>
+								<th scope="row">proxyEnd(config: Object)</th>
+								<td>This method is called once the built-in HTTP server has finished shutting down.</td>
+							</tr>
+							<tr>
+								<th scope="row">proxyStart(config: Object)</th>
+								<td>This method is called once the built-in HTTP server has finished starting up.</td>
+							</tr>
+							<tr>
+								<th scope="row">runEnd(executor: Executor)</th>
+								<td>This method is called after all test suites have finished running and the test system is preparing to shut down.</td>
+							</tr>
+							<tr>
+								<th scope="row">runStart(executor: Executor)</th>
+								<td>This method is called after all tests have been registered and the test system is about to begin running tests.</td>
+							</tr>
+							<tr>
+								<th scope="row">suiteEnd(suite: Suite)</th>
+								<td>This method is called when a test suite has finished running.</td>
+							</tr>
+							<tr>
+								<th scope="row">suiteError(suite: Suite)</th>
+								<td>This method is called when an error occurs within one of the suite’s lifecycle methods (setup, beforeEach, afterEach, or teardown).</td>
+							</tr>
+							<tr>
+								<th scope="row">suiteStart(suite: Suite)</th>
+								<td>This method is called when a test suite starts running.</td>
+							</tr>
+							<tr>
+								<th scope="row">testEnd(test: Test)</th>
+								<td>This method is called when a test has finished running.</td>
+							</tr>
+							<tr>
+								<th scope="row">testFail(test: Test)</th>
+								<td>This method is called when a test has failed.</td>
+							</tr>
+							<tr>
+								<th scope="row">testPass(test: Test)</th>
+								<td>This method is called when a test has passed.</td>
+							</tr>
+							<tr>
+								<th scope="row">testSkip(test: Test)</th>
+								<td>This method is called when a test has been skipped.</td>
+							</tr>
+							<tr>
+								<th scope="row">testStart(test: Test)</th>
+								<td>This method is called when a test starts running.</td>
+							</tr>
+							<tr>
+								<th scope="row">testFail(test: Test)</th>
+								<td>This method is called when a test has failed.</td>
+							</tr>
+							<tr>
+								<th scope="row">tunnelDownloadProgress(<br>&nbsp;&nbsp;tunnel: Tunnel,<br>&nbsp;&nbsp;progress: Object<br>)</th>
+								<td>This method is called every time a tunnel download has progressed. The <code>progress</code> object contains <code>received</code> (bytes received) and <code>total</code> (bytes to download) properties.</td>
+							</tr>
+							<tr>
+								<th scope="row">tunnelEnd(tunnel: Tunnel)</th>
+								<td>This method is called after the WebDriver server tunnel has shut down.</td>
+							</tr>
+							<tr>
+								<th scope="row">tunnelStart(tunnel: Tunnel)</th>
+								<td>This method is called immediately before the WebDriver server tunnel is started.</td>
+							</tr>
+							<tr>
+								<th scope="row">tunnelStatus(<br>&nbsp;&nbsp;tunnel: Tunnel,<br>&nbsp;&nbsp;status: string<br>)</th>
+								<td>This method is called whenever the WebDriver server tunnel reports a status change.</td>
+							</tr>
+						</table>
+
+						<p>A reporter can return a Promise from any of these methods, which will cause the test system to pause at that point until the Promise has been resolved. The behaviour of a rejected reporter Promise is currently undefined.</p>
 
 						<p>For backwards-compatibility, you can also create reporters using the deprecated Intern 2 format, where the reporter itself is a single JavaScript object that uses topic names as keys and functions as values:</p>
 
@@ -2202,7 +2679,7 @@ define([
 	};
 });</code></pre>
 
-						<p>Reporters can also include optional start and stop methods for performing any additional arbitrary work when a reporter is started or stopped:</p>
+						<p>Legacy reporters can also include optional <code>start</code> and <code>stop</code> methods for performing any additional arbitrary work when a reporter is started or stopped:</p>
 
 						<pre><code class="javascript">define(function (require) {
 	var aspect = require('dojo/aspect');
@@ -2226,6 +2703,95 @@ define([
 		}
 	}
 });</code></pre>
+
+						<p>Events from the list above will be converted to topics for legacy reporters as follows:</p>
+
+						<table>
+							<tr>
+								<th>Event</th>
+								<th>Topic</th>
+							</tr>
+							<tr>
+								<td>coverage</td>
+								<td>/coverage</td>
+							</tr>
+							<tr>
+								<td>deprecated</td>
+								<td>/deprecated</td>
+							</tr>
+							<tr>
+								<td>fatalError</td>
+								<td>/error</td>
+							</tr>
+							<tr>
+								<td>newSuite</td>
+								<td>/suite/new</td>
+							</tr>
+							<tr>
+								<td>newTest</td>
+								<td>/test/new</td>
+							</tr>
+							<tr>
+								<td>runEnd</td>
+								<td>/client/end<br>/runner/end<br>stop (method)</td>
+							</tr>
+							<tr>
+								<td>runStart</td>
+								<td>/runner/start<br>start (method)</td>
+							</tr>
+							<tr>
+								<td>suiteEnd</td>
+								<td>/suite/end</td>
+							</tr>
+							<tr>
+								<td>suiteError</td>
+								<td>/suite/error</td>
+							</tr>
+							<tr>
+								<td>suiteStart</td>
+								<td>/suite/start</td>
+							</tr>
+							<tr>
+								<td>testEnd</td>
+								<td>/test/end</td>
+							</tr>
+							<tr>
+								<td>testFail</td>
+								<td>/test/fail</td>
+							</tr>
+							<tr>
+								<td>testPass</td>
+								<td>/test/pass</td>
+							</tr>
+							<tr>
+								<td>testSkip</td>
+								<td>/test/skip</td>
+							</tr>
+							<tr>
+								<td>testStart</td>
+								<td>/test/start</td>
+							</tr>
+							<tr>
+								<td>testFail</td>
+								<td>/test/fail</td>
+							</tr>
+							<tr>
+								<td>tunnelDownloadProgress</td>
+								<td>/tunnel/download/progress</td>
+							</tr>
+							<tr>
+								<td>tunnelEnd</td>
+								<td>/tunnel/stop</td>
+							</tr>
+							<tr>
+								<td>tunnelStart</td>
+								<td>/tunnel/start</td>
+							</tr>
+							<tr>
+								<td>tunnelStatus</td>
+								<td>/tunnel/status</td>
+							</tr>
+						</table>
 					</article>
 
 					<article>
@@ -2235,7 +2801,7 @@ define([
 						<div class="a half" id="suite-object"></div>
 						<h3 data-id="suite-object">The Suite object</h3>
 
-						<p>The <a href="https://github.com/theintern/intern/blob/master/lib/Suite.js"><dfn>Suite object</dfn></a> represents a logical grouping of tests within a test run. When inside a setup (before), beforeEach, afterEach, or teardown (after) method, the <code class="javascript">this</code> object will be the Suite object that represents that suite.</p>
+						<p>The <a href="https://github.com/theintern/intern/blob/master/lib/Suite.js"><dfn>Suite object</dfn></a> represents a logical grouping of tests within a test run. When inside a setup (a.k.a. “before”), beforeEach, afterEach, or teardown (a.k.a. “after”) method, the <code class="javascript">this</code> object will be the Suite object that represents that suite.</p>
 
 						<p>The following properties and methods are available on all Suite objects:</p>
 
@@ -2243,14 +2809,6 @@ define([
 							<tr>
 								<th>Property</th>
 								<th>Description</th>
-							</tr>
-							<tr>
-								<th scope="row">afterEach</th>
-								<td>A function which will be executed after each test in the suite, including nested, skipped, and failed tests.</td>
-							</tr>
-							<tr>
-								<th scope="row">beforeEach</th>
-								<td>A function which will be executed before each test in the suite, including nested tests.</td>
 							</tr>
 							<tr>
 								<th scope="row">error</th>
@@ -2294,19 +2852,11 @@ define([
 							</tr>
 							<tr>
 								<th scope="row">reporterManager <span class="versionBadge">3.0</span></th>
-								<td>The <a href="#TODO">reporter manager</a> conduit that can be used to send result data and other information to reporters. This value will be inherited from the parent suite.</td>
-							</tr>
-							<tr>
-								<th scope="row">setup</th>
-								<td>A function which will be executed once when the suite starts running.</td>
+								<td>The event hub that can be used to send result data and other information to <a href="#reporter-overview">reporters</a>. This value will be inherited from the parent suite.</td>
 							</tr>
 							<tr>
 								<th scope="row">sessionId</th>
 								<td>A unique identifier for a remote environment session. This value will be inherited from the parent suite. Only available to suites that are loaded from <a href="#option-functionalSuites">functionalSuites</a>.</td>
-							</tr>
-							<tr>
-								<th scope="row">teardown</th>
-								<td>A function which will be executed once after all tests in the suite have finished running.</td>
 							</tr>
 							<tr>
 								<th scope="row">timeElapsed</th>
@@ -2323,13 +2873,29 @@ define([
 								<th>Method</th>
 								<th>Description</th>
 							</tr>
-							<tr>
-								<th scope="row">toJSON(): Object</th>
-								<td>Returns an object that can be safely serialised to JSON. This method normally does not need to be called directly; <code>JSON.stringify</code> will use the <code>toJSON</code> method automatically if you try to serialise the Suite object.</td>
+							<tr id="suite-object-afterEach">
+								<th scope="row">afterEach(test: Test <span class="versionBadge">3.0</span>):<br>&nbsp;&nbsp;Promise&lt;void></th>
+								<td>A function which will be executed after each test in the suite, including nested, skipped, and failed tests. If a Promise is returned, the suite will wait until the Promise is resolved before continuing. If the Promise rejects, the test will be considered failed and the error from the Promise will be used as the error for the Test.</td>
+							</tr>
+							<tr id="suite-object-beforeEach">
+								<th scope="row">beforeEach(test: Test <span class="versionBadge">3.0</span>):<br>&nbsp;&nbsp;Promise&lt;void></th>
+								<td>A function which will be executed before each test in the suite, including nested tests. If a Promise is returned, the suite will wait until the Promise is resolved before continuing. If the Promise rejects, the test will be considered failed and the error from the Promise will be used as the error for the Test.</td>
 							</tr>
 							<tr>
 								<th scope="row">run(): Promise&lt;number></th>
 								<td>Runs the test suite. Returns a Promise that resolves to the number of failed tests after all tests in the suite have finished running.</td>
+							</tr>
+							<tr id="suite-object-setup">
+								<th scope="row">setup(): Promise&lt;void></th>
+								<td>A function which will be executed once when the suite starts running. If a Promise is returned, the suite will wait until the Promise is resolved before continuing. If the Promise rejects, the suite will be considered failed and the error from the Promise will be used as the error for the Suite.</td>
+							</tr>
+							<tr id="suite-object-teardown">
+								<th scope="row">teardown(): Promise&lt;void></th>
+								<td>A function which will be executed once after all tests in the suite have finished running. If a Promise is returned, the suite will wait until the Promise is resolved before continuing. If the Promise rejects, the suite will be considered failed and the error from the Promise will be used as the error for the Suite.</td>
+							</tr>
+							<tr>
+								<th scope="row">toJSON(): Object</th>
+								<td>Returns an object that can be safely serialised to JSON. This method normally does not need to be called directly; <code>JSON.stringify</code> will use the <code>toJSON</code> method automatically if you try to serialise the Suite object.</td>
 							</tr>
 						</table>
 
@@ -2371,7 +2937,7 @@ define([
 							</tr>
 							<tr>
 								<th scope="row">reporterManager <span class="versionBadge">3.0</span></th>
-								<td>The <a href="#TODO">reporter manager</a> conduit that can be used to send result data and other information to reporters. This value will be inherited from the parent suite.</td>
+								<td>The event hub that can be used to send result data and other information to <a href="#reporter-overview">reporters</a>. This value will be inherited from the parent suite.</td>
 							</tr>
 							<tr>
 								<th scope="row">sessionId</th>
@@ -2389,10 +2955,6 @@ define([
 								<th scope="row">timeout</th>
 								<td>Time, in milliseconds, that the suite took to execute. Once the test function has finished executing, changing this value has no effect.</td>
 							</tr>
-							<tr>
-								<th scope="row">test</th>
-								<td>The test function for this test.</td>
-							</tr>
 						</table>
 
 						<table class="api">
@@ -2407,6 +2969,10 @@ define([
 							<tr>
 								<th scope="row">skip(reason?: string): void</th>
 								<td>Causes the test to be skipped.</td>
+							</tr>
+							<tr id="test-object-test">
+								<th scope="row">test(): Promise&lt;void></th>
+								<td>The test function for this test. If a Promise is returned, the test will wait until the Promise is resolved before passing. If the Promise rejects, the test will be considered failed and the error from the Promise will be used as the error for the Test.</td>
 							</tr>
 							<tr>
 								<th scope="row">toJSON(): Object</th>

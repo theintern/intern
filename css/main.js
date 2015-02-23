@@ -51,7 +51,8 @@
 	 */
 	var defaultTitle = document.title;
 
-	var ignoreNextScroll = false;
+	var lastHash;
+	var requestId;
 
 	/**
 	 * Finds the currently active section of the document according to the current scroll position.
@@ -61,9 +62,7 @@
 		var header;
 		for (; (header = headers[i]); --i) {
 			if (header.getBoundingClientRect().top < foldPoint) {
-				var id = header.dataset.id;
-				setActiveSection(id);
-				return;
+				return header.dataset.id;
 			}
 		}
 	}
@@ -77,10 +76,20 @@
 		activeSubsections.style.maxHeight = activeSubsections.scrollHeight + 'px';
 	}
 
+	function resetSection() {
+		setActiveSection(findActiveSection());
+	}
+
 	/**
 	 * Sets the correct state of the sidebar, document title, and page hash to match the provided section ID.
+	 * TODO: Split this so that the menu state can be set independently from the scroll/hash, for cases where we are
+	 * linking to non-sections within the document.
 	 */
 	function setActiveSection(id) {
+		if (lastHash === id) {
+			return;
+		}
+
 		activeSubsection && activeSubsection.classList.remove('active');
 		activeSubsection = menu.querySelector('[data-id="' + id + '"]');
 		if (activeSubsection) {
@@ -119,20 +128,23 @@
 	}
 
 	window.addEventListener('hashchange', function () {
-		ignoreNextScroll = true;
-		setActiveSection(location.hash.slice(1));
+		if (requestId) {
+			cancelAnimationFrame(requestId);
+			requestId = null;
+		}
+
+		var newHash = location.hash.slice(1);
+		setActiveSection(newHash);
 	}, false);
 	window.addEventListener('resize', function () {
 		foldPoint = window.innerHeight * 0.3;
-		findActiveSection();
+		resetSection();
 	}, false);
 	window.addEventListener('scroll', function () {
-		if (!ignoreNextScroll) {
-			findActiveSection();
-		}
-		else {
-			ignoreNextScroll = false;
-		}
+		// scroll event happens before hashchange event when someone clicks on a link or uses back/forward buttons
+		// and does not identify what the scroll initiator was, so defer until the next render frame to avoid
+		// accidentally moving the user to the wrong hash when linking to a non-section in the document
+		requestId = requestAnimationFrame(resetSection);
 	}, false);
 
 	// Hack to deal with https://bugzilla.mozilla.org/show_bug.cgi?id=1134098
@@ -166,11 +178,11 @@
 				setActiveSection(initialId);
 			}
 			else {
-				findActiveSection();
+				resetSection();
 			}
 		})();
 	}
 	else {
-		findActiveSection();
+		resetSection();
 	}
 })();
