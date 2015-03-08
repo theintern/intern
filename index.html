@@ -534,6 +534,11 @@
 								</tr>
 							</thead>
 							<tr>
+								<th scope="row"><a href="#option-excludeInstrumentation">excludeInstrumentation</a></th>
+								<td>A regular expression matching paths to exclude from code coverage.</td>
+								<td><code class="javascript">null</code></td>
+							</tr>
+							<tr>
 								<th scope="row"><a href="#option-grep">grep</a></th>
 								<td>A regular expression that filters which tests should run.</td>
 								<td><code class="javascript">/.*/</code></td>
@@ -559,6 +564,19 @@
 								<td><code class="javascript">{}</code></td>
 							</tr>
 						</table>
+
+						<div class="a half" id="option-excludeInstrumentation"></div>
+						<h4>excludeInstrumentation (RegExp)</h4>
+
+						<p>A regular expression matching paths to exclude from code coverage. The regular expression matches the path-part of URLs (starting from the end of <a href="#option-proxyUrl">proxyUrl</a>, excluding any trailing slash) or paths (starting from the end of <code>process.cwd()</code>) that should not be instrumented for code coverage during testing in browsers and the Node.js client.</p>
+
+						<p>This option should be used when you want to exclude dependencies from being reported in your code coverage results. (Intern code—that is, anything that loads from {{proxyUrl}}/__intern/—is always excluded from code coverage results.) For example, to exclude tests and Node.js dependencies from being reported in your application’s code coverage analysis:</p>
+
+						<pre><code class="javascript">{
+	excludeInstrumentation: /^(?:tests|node_modules)\//
+}</code></pre>
+
+						<aside class="tip"><p>If you are running on Windows, you will need to use <code>[\\/]</code> instead of <code>\/</code> to match the path separator used by that OS. This limitation will be removed in <a href="https://github.com/theintern/intern/issues/360">a future version of Intern</a>.</p></aside>
 
 						<div class="a half" id="option-grep"></div>
 						<h4>grep (RegExp)</h4>
@@ -743,11 +761,6 @@
 								<td><code class="javascript">[]</code></td>
 							</tr>
 							<tr>
-								<th scope="row"><a href="#option-excludeInstrumentation">excludeInstrumentation</a></th>
-								<td>A regular expression matching paths to exclude from code coverage.</td>
-								<td><code class="javascript">null</code></td>
-							</tr>
-							<tr>
 								<th scope="row"><a href="#option-functionalSuites">functionalSuites</a></th>
 								<td>An array of functional test module IDs to load.</td>
 								<td><code class="javascript">[]</code></td>
@@ -824,19 +837,6 @@
 						<p>All other capabilities are not permuted, but are simply passed as-is to the WebDriver server.</p>
 
 						<p>Different cloud testing services use different capability values when specifying environment capabilities. For example, Sauce Labs uses 'Windows XP' to specify the Windows XP platform while BrowserStack uses 'XP'. Check <a href="#options-capabilities">the list above</a> to find the right capabilities for your chosen platform.</p>
-
-						<div class="a half" id="option-excludeInstrumentation"></div>
-						<h4>excludeInstrumentation (RegExp)</h4>
-
-						<p>A regular expression matching paths to exclude from code coverage. The regular expression matches the path-part of URLs (starting from the end of <a href="#option-proxyUrl">proxyUrl</a>, excluding any trailing slash) that should not be instrumented for code coverage during testing.</p>
-
-						<p>This option should be used when you want to exclude dependencies from being reported in your code coverage results. (Intern code—that is, anything that loads from {{proxyUrl}}/__intern/—is always excluded from code coverage results.) For example, to exclude tests and Node.js dependencies from being reported in your application’s code coverage analysis:</p>
-
-						<pre><code class="javascript">{
-	excludeInstrumentation: /^(?:tests|node_modules)\//
-}</code></pre>
-
-						<aside class="tip"><p>If you are running on Windows, you will need to use <code>[\\/]</code> instead of <code>\/</code> to match the path separator used by that OS. This limitation will be removed in <a href="https://github.com/theintern/intern/issues/360">a future version of Intern</a>.</p></aside>
 
 						<div class="a half" id="option-functionalSuites"></div>
 						<h4>functionalSuites (Array&lt;string>)</h4>
