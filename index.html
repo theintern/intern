@@ -659,7 +659,11 @@
 	]
 }</code></pre>
 
-						<p>Because the same configuration file is used on the client, where there is no filesystem access, there is currently no built-in way to glob for test modules. Future versions of Intern will not have this restriction when running in Node.js client or runner mode.</p>
+						<p>Because the same configuration file is used on the client, where there is no filesystem access, there is currently no built-in way to glob for test modules. You can use the following one-liner to create a roll-up module before running Intern:</p>
+
+						<pre><code class="javascript">require('fs').writeFileSync('tests/unit/all.js', 'define(' + JSON.stringify(require('glob').sync('tests/unit/**/!(all).js').map(function (filename) { return filename.replace(/\.js$/, ''); })) + ');\n', { encoding: 'utf-8' });</code></pre>
+
+						<aside class="tip"><p>Future versions of Intern will remove this restriction when running in Node.js client or runner mode.</p></aside>
 
 						<p><code>suites</code> can also be set to <code class="javascript">null</code> to skip loading the unit testing system when in runner mode.</p>
 
