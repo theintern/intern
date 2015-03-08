@@ -663,7 +663,7 @@
 
 						<pre><code class="javascript">require('fs').writeFileSync('tests/unit/all.js', 'define(' + JSON.stringify(require('glob').sync('tests/unit/**/!(all).js').map(function (filename) { return filename.replace(/\.js$/, ''); })) + ');\n', { encoding: 'utf-8' });</code></pre>
 
-						<aside class="tip"><p>Future versions of Intern will remove this restriction when running in Node.js client or runner mode.</p></aside>
+						<aside class="tip"><p><a href="https://github.com/theintern/intern/issues/359">Future versions of Intern</a> will remove this restriction when running in Node.js client or runner mode.</p></aside>
 
 						<p><code>suites</code> can also be set to <code class="javascript">null</code> to skip loading the unit testing system when in runner mode.</p>
 
@@ -835,6 +835,8 @@
 						<pre><code class="javascript">{
 	excludeInstrumentation: /^(?:tests|node_modules)\//
 }</code></pre>
+
+						<aside class="tip"><p>If you are running on Windows, you will need to use <code>[\\/]</code> instead of <code>\/</code> to match the path separator used by that OS. This limitation will be removed in <a href="https://github.com/theintern/intern/issues/360">a future version of Intern</a>.</p></aside>
 
 						<div class="a half" id="option-functionalSuites"></div>
 						<h4>functionalSuites (Array&lt;string>)</h4>
