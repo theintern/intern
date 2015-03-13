@@ -1,11 +1,7 @@
-/*jshint node:true, es3:false */
+/* jshint node:true, es3:false */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		// this.require must be exposed explicitly in order to allow the loader to be
-		// reconfigured from the configuration file
-		var req = this.require = require('dojo');
-
-		req({
+		require('dojo')((this.__internConfig = {
 			baseUrl: process.cwd(),
 			packages: [
 				{ name: 'intern', location: __dirname }
@@ -20,7 +16,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 					'intern/dojo': 'intern/node_modules/dojo'
 				}
 			}
-		}, [ 'intern/runner' ]);
+		}), [ 'intern/runner' ]);
 	})();
 }
 else {

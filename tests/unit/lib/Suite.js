@@ -120,9 +120,7 @@ define([
 
 			suite.run().then(function () {
 				finished = true;
-				dfd.reject(new assert.AssertionError({
-					message: 'Suite should never resolve after a fatal error in ' + method
-				}));
+				dfd.reject(new assert.AssertionError('Suite should never resolve after a fatal error in ' + method));
 			}, dfd.callback(function (error) {
 				finished = true;
 				assert.strictEqual(suite.error, thrownError, 'Error thrown in ' + method +
@@ -377,9 +375,9 @@ define([
 		},
 
 		'Suite#remote': function () {
-			var parentRemote = { sessionId: 'remote' };
+			var parentRemote = { session: { sessionId: 'remote' } };
 			var parentSuite = new Suite({ remote: parentRemote });
-			var mockRemote = { sessionId: 'local' };
+			var mockRemote = { session: { sessionId: 'local' } };
 			var suite = new Suite({ remote: mockRemote });
 			var thrown = false;
 
@@ -404,7 +402,7 @@ define([
 			assert.strictEqual(suite.sessionId, null,
 				'Suite#sessionId should be null if the suite is not associated with a session');
 
-			suite.remote = { sessionId: 'remote' };
+			suite.remote = { session: { sessionId: 'remote' } };
 			assert.strictEqual(suite.sessionId, 'remote', 'Suite#sessionId should come from remote if one exists');
 
 			suite.sessionId = 'local';
@@ -518,7 +516,7 @@ define([
 				assert.deepEqual(actualLifecycle, expectedLifecycle,
 					'Nested beforeEach and afterEach should execute in a pyramid');
 			}, function () {
-				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
 			}));
 		},
 
@@ -549,7 +547,7 @@ define([
 				assert.strictEqual(childSuite.error.message, 'Oops',
 						'Suite with afterEach failure should hold the last error from afterEach');
 			}, function () {
-				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
 			}));
 		},
 
@@ -602,7 +600,7 @@ define([
 				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ],
 					'Only test matching grep regex should have run');
 			}, function () {
-				dfd.reject(new assert.AssertionError({ message: 'Suite should not fail' }));
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
 			}));
 		}
 	});

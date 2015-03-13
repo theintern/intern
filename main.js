@@ -3,12 +3,10 @@ define([
 ], function (require) {
 	return {
 		/**
-		 * Registers a test with the test system. Executors are responsible for replacing this method prior to
-		 * test registration.
+		 * The executor for the current test run.
 		 */
-		register: function () {
-			throw new Error('Attempt to register tests too early');
-		},
+		executor: null,
+
 		/**
 		 * AMD plugin API interface for easy loading of test interfaces.
 		 */

@@ -1,7 +1,7 @@
-/*jshint node:true */
+/* jshint node:true, es3:false */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		var internConfig = this.__internConfig = {
+		require('dojo')((this.__internConfig = {
 			baseUrl: process.cwd(),
 			packages: [
 				{ name: 'intern', location: __dirname }
@@ -16,9 +16,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 					'intern/dojo': 'intern/node_modules/dojo'
 				}
 			}
-		};
-
-		require('dojo')(internConfig, [ 'intern/client' ]);
+		}), [ 'intern/client' ]);
 	})();
 }
 else {

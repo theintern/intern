@@ -6,20 +6,22 @@ define([
 	'../../../../lib/Suite',
 	'../../../../lib/Test'
 ], function (registerSuite, assert, object, main, Suite, Test) {
-	var originalRegister = main.register;
+	var originalExecutor = main.executor;
 	var rootSuites;
 
 	registerSuite({
 		name: 'intern/lib/interfaces/object',
 
 		setup: function () {
-			main.register = function (callback) {
-				rootSuites.forEach(callback);
+			main.executor = {
+				register: function (callback) {
+					rootSuites.forEach(callback);
+				}
 			};
 		},
 
 		teardown: function () {
-			main.register = originalRegister;
+			main.executor = originalExecutor;
 		},
 
 		'Object interface registration': {

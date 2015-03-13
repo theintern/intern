@@ -78,12 +78,12 @@ define([
 			}
 		},
 
-		error: function () {
+		fatalError: function () {
 			var mockConsole = new MockConsole();
 			var reporter = new Console({ console: mockConsole });
 			var error = new Error('Oops');
 
-			reporter.error(error);
+			reporter.fatalError(error);
 
 			assert.lengthOf(mockConsole.messages.warn, 1,
 				'console.warn should be called once for a fatal error');

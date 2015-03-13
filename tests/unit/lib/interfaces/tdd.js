@@ -6,7 +6,7 @@ define([
 	'../../../../lib/Suite',
 	'../../../../lib/Test'
 ], function (registerSuite, assert, tdd, main, Suite, Test) {
-	var originalRegister = main.register;
+	var originalExecutor = main.executor;
 	var rootSuites;
 
 	registerSuite({
@@ -19,13 +19,15 @@ define([
 				new Suite({ name: 'tdd test 1' }),
 				new Suite({ name: 'tdd test 2' })
 			];
-			main.register = function (callback) {
-				rootSuites.forEach(callback);
+			main.executor = {
+				register: function (callback) {
+					rootSuites.forEach(callback);
+				}
 			};
 		},
 
 		teardown: function () {
-			main.register = originalRegister;
+			main.executor = originalExecutor;
 		},
 
 		'Basic registration': function () {

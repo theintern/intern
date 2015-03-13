@@ -5,9 +5,9 @@ define([
 	'require',
 	'../../../lib/ProxiedSession',
 	'dojo/node!leadfoot/Server',
-	'dojo/Deferred',
+	'dojo/Promise',
 	'dojo/topic'
-], function (registerSuite, assert, require, ProxiedSession, Server, Deferred, topic) {
+], function (registerSuite, assert, require, ProxiedSession, Server, Promise, topic) {
 	registerSuite(function () {
 		var proxyUrl = 'https://example.invalid/';
 		var proxyBasePathLength = require.toUrl('./').length;
@@ -20,13 +20,13 @@ define([
 		var mockCoverage = { isMockCoverage: true };
 
 		function createPromise(value) {
-			var dfd = new Deferred();
+			var dfd = new Promise.Deferred();
 			dfd.resolve(value);
 			return dfd.promise;
 		}
 
 		function sleep(ms) {
-			var dfd = new Deferred();
+			var dfd = new Promise.Deferred();
 			setTimeout(function () {
 				dfd.resolve();
 			}, ms);
@@ -78,23 +78,21 @@ define([
 		function createCoverageTest(method) {
 			return function () {
 				var coverageArgs;
-				var handle = topic.subscribe('/coverage', function () {
-					coverageArgs = arguments;
-				});
 				var oldCoverage = session.coverageEnabled;
 				session.coverageEnabled = true;
+				session.reporterManager = { emit: function (topic) {
+					if (topic === 'coverage') {
+						coverageArgs = Array.prototype.slice.call(arguments, 1);
+					}
+				} };
 
-				var promise = session[method](method === 'get' ? 'http://example.invalid/' : undefined).then(function () {
+				var url = method === 'get' ? 'http://example.invalid/' : undefined;
+				var promise = session[method](url).then(function () {
 					assert.ok(coverageArgs);
 					assert.strictEqual(coverageArgs[0], session.sessionId,
 						'Correct session ID should be provided when broadcasting coverage data');
 					assert.deepEqual(coverageArgs[1], mockCoverage,
 						'Code coverage data retrieved from session should be broadcasted');
-
-					handle.remove();
-				}).otherwise(function (error) {
-					handle.remove();
-					throw error;
 				});
 
 				session.coverageEnabled = oldCoverage;

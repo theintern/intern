@@ -7,14 +7,11 @@ define([
 	'../../../../lib/Suite',
 	'../../../../lib/Test',
 	'./support/mocks',
-	'dojo/node!istanbul/lib/collector',
 	'dojo/has!host-node?dojo/node!istanbul/lib/report/text'
-], function (registerSuite, assert, Pretty, EnvironmentType, Suite, Test, mock, Collector, Reporter) {
-	/* globals process */
-
+], function (registerSuite, assert, Pretty, EnvironmentType, Suite, Test, mock, Reporter) {
 	function bar(results) {
 		return results.map(function (result) {
-			return pretty.options.colorReplacement[result] || result;
+			return pretty.colorReplacement[result] || result;
 		}).join('');
 	}
 
@@ -77,17 +74,17 @@ define([
 			},
 
 			_Report: function () {
-				var report = createReport([0, 1, 2]);
-				assert.deepEqual(report.type, '');
+				var report = createReport([ 0, 1, 2 ]);
+				assert.isUndefined(report.environmenet);
 				assert.deepEqual(report.numPassed, 1);
 				assert.deepEqual(report.numSkipped, 1);
 				assert.deepEqual(report.numFailed, 1);
 				assert.lengthOf(report.results, 3);
-				assert.deepEqual(report.results, [0, 1, 2]);
-				assert.deepEqual(report.getCompressedResults(1), [2]);
-				assert.deepEqual(report.getCompressedResults(2), [1, 2]);
-				assert.deepEqual(report.getCompressedResults(3), [0, 1, 2]);
-				assert.deepEqual(report.getCompressedResults(4), [0, 1, 2]);
+				assert.deepEqual(report.results, [ 0, 1, 2 ]);
+				assert.deepEqual(report.getCompressedResults(1), [ 2 ]);
+				assert.deepEqual(report.getCompressedResults(2), [ 1, 2 ]);
+				assert.deepEqual(report.getCompressedResults(3), [ 0, 1, 2 ]);
+				assert.deepEqual(report.getCompressedResults(4), [ 0, 1, 2 ]);
 			},
 
 			_render: {
@@ -97,7 +94,7 @@ define([
 				},
 
 				simple: function () {
-					pretty.total = createReport([0, 0, 0, 0, 1, 2, 0, 0, 0], 30);
+					pretty.total = createReport([ 0, 0, 0, 0, 1, 2, 0, 0, 0 ], 30);
 					pretty._render();
 					var expected = 'Total: [' + bar(pretty.total.results) + '-                    ]  9/30\n' +
 						'Passed: 7   Failed: 1   Skipped: 1\n';
@@ -105,7 +102,7 @@ define([
 				},
 
 				'without logs': function () {
-					pretty.total = createReport([0, 0, 0, 0, 1, 2, 0, 0, 0], 30);
+					pretty.total = createReport([ 0, 0, 0, 0, 1, 2, 0, 0, 0 ], 30);
 					pretty.reporters = {
 						1: createReport(
 							[ 0, 0, 1 ], 10,
@@ -139,7 +136,7 @@ define([
 
 				'with logs': function () {
 					/* jshint maxlen: 160 */
-					pretty.total = createReport([2, 2, 2, 2], 30);
+					pretty.total = createReport([ 2, 2, 2, 2 ], 30);
 					pretty.log = [
 						'⚠ expected line',
 						'× expected line',
@@ -155,12 +152,12 @@ define([
 					var expected = 'Total: [' + bar(pretty.total.results) + '-                         ]  4/30\n' +
 						'Passed: 0   Failed: 4   Skipped: 0\n' +
 						'\n' +
-						pretty.options.colorReplacement['⚠'] + '⚠ expected line\x1b[0m\n' +
-						pretty.options.colorReplacement['×'] + '× expected line\x1b[0m\n' +
-						pretty.options.colorReplacement['×'] + '× expected line\x1b[0m\n' +
-						pretty.options.colorReplacement['!'] + '! expected really long line with some really important ' +
+						pretty.colorReplacement['⚠'] + '⚠ expected line\x1b[0m\n' +
+						pretty.colorReplacement['×'] + '× expected line\x1b[0m\n' +
+						pretty.colorReplacement['×'] + '× expected line\x1b[0m\n' +
+						pretty.colorReplacement['!'] + '! expected really long line with some really important ' +
 						'stuff to say but we will \x1b[0m\n' +
-						pretty.options.colorReplacement['!'] + '! expected line\x1b[0m';
+						pretty.colorReplacement['!'] + '! expected line\x1b[0m';
 					assert.equal(mockCharm.out, expected);
 				},
 
@@ -179,9 +176,9 @@ define([
 				},
 
 				'large progress bar becomes compressed': function () {
-					var expected = 'Total: [' + pretty.options.colorReplacement[2] + '- ]   5/100\n' +
+					var expected = 'Total: [' + pretty.colorReplacement[2] + '- ]   5/100\n' +
 						'Passed: 2    Failed: 1    Skipped: 2\n';
-					pretty.total = createReport([0, 1, 2, 1, 0], 100);
+					pretty.total = createReport([ 0, 1, 2, 1, 0 ], 100);
 					pretty.dimensions = {
 						width: 20,
 						height: 5
@@ -224,7 +221,7 @@ define([
 			start: function () {
 				try {
 					pretty.dimensions = {};
-					pretty.config = { intern: { config: 'foo' } };
+					pretty.intern = { config: 'foo' };
 					pretty.start();
 
 					assert.isDefined(pretty.dimensions.width);
@@ -237,11 +234,11 @@ define([
 			},
 
 			stop: function () {
-				var expected = pretty.options.colorReplacement['✓'] + '✓ 0\n' +
-					pretty.options.colorReplacement['⚠'] + '⚠ 1\n' +
-					pretty.options.colorReplacement['~'] + '~ 2\n' +
-					pretty.options.colorReplacement['×'] + '× 3\n' +
-					pretty.options.colorReplacement['!'] + '! 4\n\n' +
+				var expected = pretty.colorReplacement['✓'] + '✓ 0\n' +
+					pretty.colorReplacement['⚠'] + '⚠ 1\n' +
+					pretty.colorReplacement['~'] + '~ 2\n' +
+					pretty.colorReplacement['×'] + '× 3\n' +
+					pretty.colorReplacement['!'] + '! 4\n\n' +
 					'Total: Pending\n' +
 					'Passed: 0  Failed: 0  Skipped: 0\n\n';
 				var oldReporterWriteReport = Reporter.prototype.writeReport;
@@ -260,16 +257,15 @@ define([
 
 			'session based tests': (function () {
 				var sessionId = 'sessionId';
-				var remote = {
-					sessionId: sessionId,
-					environmentType: new EnvironmentType({ browserName: 'internet explorer', platform: 'WINDOWS' })
-				};
-				var oldCollectorAdd;
+				var sessionSuite = new Suite({
+					environmentType: new EnvironmentType({ browserName: 'internet explorer', platform: 'WINDOWS' }),
+					sessionId: sessionId
+				});
 
 				var expectedLog = {
-					0: '✓ main - test',
-					1: '~ main - test: Skipped',
-					2: '× main - test\nError: Oops'
+					0: '✓ test',
+					1: '~ test: Skipped',
+					2: '× test\nError: Oops'
 				};
 
 				var expectedRunnerLog = {
@@ -279,7 +275,9 @@ define([
 				};
 
 				function assertTestResult(handlerName, result) {
-					var suite = new Suite({ name: 'main' });
+					var suite = new Suite({
+						environmentType: new EnvironmentType({ browserName: 'internet explorer', platform: 'WINDOWS' })
+					});
 					var test = new Test({
 						name: 'test',
 						parent: suite,
@@ -299,7 +297,8 @@ define([
 
 						// runner tests
 						var reporter = pretty.reporters[sessionId];
-						suite.remote = remote;
+						// set the suite's sessionId so the reporter will treat it as a session suite
+						suite.sessionId = sessionId;
 						pretty[handlerName](test);
 						assert.lengthOf(pretty.total.results, 2);
 						assert.lengthOf(pretty.log, 2);
@@ -312,33 +311,34 @@ define([
 
 				return {
 					beforeEach: function () {
-						pretty.sessionStart(remote);
-						oldCollectorAdd = Collector.prototype.add;
-					},
-
-					afterEach: function () {
-						Collector.prototype.add = oldCollectorAdd;
-					},
-
-					sessionStart: function () {
-						assert.lengthOf(pretty.sessions, 1);
-						assert.instanceOf(pretty.reporters[sessionId], pretty._Report);
+						pretty.suiteStart(sessionSuite);
 					},
 
 					coverage: function () {
-						Collector.prototype.add = createStub(function (coverage) {
-							assert.deepEqual(coverage, mock.coverage,
-								'Collector#add should be called with the correct mockCoverage object');
-						});
+						var sessionCoverageArgs = [];
+						var totalCoverageArgs = [];
+						pretty.reporters[sessionSuite.sessionId].coverage = {
+							add: function (coverage) {
+								sessionCoverageArgs.push(coverage);
+							}
+						};
+						pretty.total.coverage = {
+							add: function (coverage) {
+								totalCoverageArgs.push(coverage);
+							}
+						};
+
 						pretty.coverage(sessionId, mock.coverage);
-						assert.lengthOf(Collector.prototype.add.args, 2);
+						assert.lengthOf(sessionCoverageArgs, 1, 'Collector#add should have been called once');
+						assert.strictEqual(sessionCoverageArgs[0], mock.coverage,
+							'Collector#add should be called with the correct mockCoverage object');
 						pretty.coverage('', mock.coverage);
-						assert.lengthOf(Collector.prototype.add.args, 3);
+						assert.lengthOf(sessionCoverageArgs, 1);
+						assert.lengthOf(totalCoverageArgs, 2);
 					},
 
-					suiteStart: function () {
+					'new session': function () {
 						var suite = {
-							name: 'main',
 							numTests: 10
 						};
 						// client unit tests
@@ -347,6 +347,8 @@ define([
 
 						// runner tests
 						suite.sessionId = sessionId;
+						suite.environmentType = new EnvironmentType({ browserName: 'internet explorer',
+							platform: 'WINDOWS' });
 						pretty.suiteStart(suite);
 						assert.strictEqual(pretty.reporters[sessionId].numTotal, 10);
 						assert.strictEqual(pretty.total.numTotal, 20);
@@ -375,11 +377,11 @@ define([
 						assert.strictEqual(pretty.tunnelState, status);
 					},
 
-					error: function () {
+					fatalError: function () {
 						var error = new Error('error');
-						pretty.error(error);
+						pretty.fatalError(error);
 						assert.lengthOf(pretty.log, 1);
-						assert.strictEqual(pretty.log[0], '! error');
+						assert.match(pretty.log[0], /^! error\nError: error/);
 					},
 
 					deprecated: function () {
