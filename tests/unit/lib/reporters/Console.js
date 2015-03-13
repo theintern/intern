@@ -27,7 +27,7 @@ define([
 			var mockConsole = new MockConsole(true);
 			var reporter = new Console({ console: mockConsole });
 
-			var suite = new Suite({ name: 'suite' });
+			var suite = new Suite({ name: 'suite', parent: {} });
 
 			reporter.suiteStart(suite);
 			assert.lengthOf(mockConsole.messages.group, 1,
