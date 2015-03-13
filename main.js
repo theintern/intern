@@ -3,6 +3,12 @@ define([
 ], function (require) {
 	return {
 		/**
+		 * The arguments Intern was started with, post-processing (e.g.,
+		 * repeated arguments are converted to arrays).
+		 */
+		args: null,
+
+		/**
 		 * The executor for the current test run.
 		 */
 		executor: null,
