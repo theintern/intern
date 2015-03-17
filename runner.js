@@ -76,6 +76,9 @@ else {
 					name: args.config,
 					'idle-timeout': 60
 				},
+				// coverage variable is changed primarily to avoid any jshint complaints, but also to make
+				// it clearer where the global is coming from
+                coverageVariable: '__internCoverage',
 				tunnel: 'NullTunnel',
 				tunnelOptions: {
 					tunnelId: '' + Date.now()
@@ -226,6 +229,7 @@ else {
 							server.sessionConstructor = ProxiedSession;
 							return server.createSession(environmentType).then(function (session) {
 								session.coverageEnabled = true;
+                                session.coverageVariable = config.coverageVariable;
 								session.proxyUrl = config.proxyUrl;
 								session.proxyBasePathLength = basePath.length;
 
@@ -278,9 +282,10 @@ else {
 					require([].concat(args.functionalSuites || []), function () {
 						topic.publish('/runner/start');
 						main.run().always(function () {
-							/*global __internCoverage */
-							typeof __internCoverage !== 'undefined' &&
-								topic.publish('/coverage', '', __internCoverage);
+
+							typeof global[config.coverageVariable] !== 'undefined' &&
+								topic.publish('/coverage', '', global[config.coverageVariable]);
+
 							topic.publish('/runner/end');
 							proxy.close();
 							reporterManager.clear();

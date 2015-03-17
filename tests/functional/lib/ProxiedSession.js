@@ -124,7 +124,7 @@ define([
 						if (path === 'url') {
 							lastUrl = data.url;
 						}
-						else if (path === 'execute' && data.script.indexOf('__internCoverage') > -1) {
+						else if (path === 'execute' && data.script.indexOf(session.coverageVariable) > -1) {
 							return createPromise(JSON.stringify(mockCoverage));
 						}
 
