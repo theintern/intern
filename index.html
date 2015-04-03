@@ -1488,7 +1488,7 @@ outer teardown</samp></pre>
 						<pre><code class="javascript">// in tests/support/customscript.js
 define(function (require) {
 	var compiler = require('customscript');
-	var getText = require('intern/dojo/request');
+	var request = require('intern/dojo/request');
 
 	return {
 		load: function (resourceId, require, load) {
