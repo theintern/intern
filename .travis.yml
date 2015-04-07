@@ -3,10 +3,9 @@ node_js:
   - 0.10
 env:
   global:
-    # Sauce Labs are OK with this and it is currently necessary to expose this information for testing pull requests;
-    # please get your own free key if you want to test yourself
-    - SAUCE_USERNAME: dojo2-ts-ci
-    - SAUCE_ACCESS_KEY: e92610e3-834e-4bec-a3b5-6f7b9d874601
+    # Please get your own free key if you want to test yourself
+    - BROWSERSTACK_USERNAME: sitepenlabs1
+    - BROWSERSTACK_ACCESS_KEY: 836y5xDYPeFudz5HvZyp
 # This extra install section is only necessary if your project has already installed AMD dependencies like Dojo using
 # npm, since AMD path resolution does not follow Node.js path resolution rules but npm does not know this
 install:
