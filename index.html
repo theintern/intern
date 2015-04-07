@@ -483,7 +483,13 @@
 							<li>Allows “hard-coded” dependencies of modules under test to be <a href="https://www.sitepen.com/blog/2014/07/14/mocking-data-with-intern/#mocking-amd-dependencies">mocked</a> without messing with the internals of the module loader</li>
 						</ul>
 
-						<p>Because the AMD standard includes the ability to run loader plugins, it’s not necessary for your test modules to be written as AMD modules if you don’t want. Just write a loader plugin that understands the module format you prefer and you’re ready to go!</p>
+						<p>For users that are only familiar with Node.js modules, AMD modules are exactly the same with one extra line of wrapper code to enable asynchronous loading:</p>
+
+						<pre><code class="javascript">define(function (require, exports, module) {
+/* Node.js module code here! */
+});</code></pre>
+
+						<aside class="tip"><p>Because the AMD standard includes the ability to run loader plugins, it’s not necessary for your test modules to be written as AMD modules if you don’t want. Just write a loader plugin that understands the module format you prefer and you’re ready to go!</p></aside>
 
 						<aside class="tip"><p>Once the <a href="http://jrburke.com/2015/02/13/how-to-know-when-es-modules-are-done/">outstanding issues with native ES modules</a> have been addressed, and a native module loader with equivalent capabilities to a standard AMD loader is available on all the <a href="#system-requirements">platforms supported by Intern</a>, Intern will be updated to use the native ES module format.</p></aside>
 
