@@ -1,0 +1,41 @@
+Execution lifecycle
+===================
+
+Bootstrap file
+--------------
+
+1. Configures the default AMD loader with default loader settings
+1. Reloads itself into the AMD loader
+1. Loads, instantiates, and runs the pre-executor with hard-coded properties
+
+Pre-executor
+------------
+
+1. Registers an early error handler that displays bare-bones error information if future pre-executor initialisation fails
+1. Loads the requested Intern configuration and mixes in environment argument overrides
+1. Swaps out the default AMD loader with replacement loader, if specified in configuration
+1. Loads the actual test executor into the replacement loader
+1. Instantiates and runs the actual executor, passing in previously loaded configuration + itself
+
+Executor
+--------
+
+1. Loads and instantiates reporters (notifies: ??? just call run on them directly if it exists?)
+1. Replaces the early error handler with an error handler that sends errors to reporters
+1. Enables code instrumentation
+1. Creates main suites for the test run (executor-specific)
+1. Sets test registration function on global Intern object so test modules can register themselves
+1. Loads test modules from the config (executor-specific) (notifies: newTest, newSuite)
+1. Creates and starts instrumenting proxy (runner executor-specific) (notifies: proxyStart)
+1. Creates and starts a WebDriver tunnel (runner executor-specific) (notifies: tunnelStart, tunnelStatus, tunnelDownloadProgress)
+1. ** IN WRONG POSITION NOW ** Runs configuration preloading code (for user-defined servers, etc.)
+1. Notifies that the test run is starting (notifies: runStart)
+1. Runs each main suite (notifies: suiteEnd, suiteError, suiteStart, testEnd, testFail, testPass, testSkip, testStart)
+1. Notifies that the test run has finished (notifies: runEnd)
+1. Stops the proxy (runner executor-specific) (notifies: proxyEnd)
+1. Stops the tunnel (runner executor-specific) (notifies: tunnelEnd)
+1. ** MISSING NOW ** Unloads all test modules from the loader which is being inappropriately used as a DI mechanism :)
+1. ** MISSING NOW ** Resets the global
+1. ** MISSING NOW ** Unloads the reporters ??? (notifies: ???)
+
+Missing: Cancelling test run in the middle

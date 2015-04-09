@@ -1,7 +1,7 @@
 /* jshint node:true */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		require('dojo')((this.__internConfig = {
+		require('dojo/loader')((this.__internConfig = {
 			baseUrl: process.cwd(),
 			packages: [
 				{ name: 'intern', location: __dirname }

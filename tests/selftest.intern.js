@@ -15,8 +15,8 @@ define({
 		{ browserName: 'safari', version: '8', platform: 'OS X 10.10' }
 	],
 
-	maxConcurrency: 3,
-	tunnel: 'SauceLabsTunnel',
+	maxConcurrency: 2,
+	tunnel: 'BrowserStackTunnel',
 
 	loaderConfig: {
 		// Packages that should be registered with the loader in each testing environment
