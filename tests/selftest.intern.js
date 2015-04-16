@@ -7,12 +7,12 @@ define({
 		'idle-timeout': 30
 	},
 	environments: [
-		{ browserName: 'internet explorer', version: '11', platform: 'Windows 8.1' },
-		{ browserName: 'internet explorer', version: '10', platform: 'Windows 8' },
-		{ browserName: 'internet explorer', version: '9', platform: 'Windows 7' },
-		{ browserName: 'firefox', version: '33', platform: [ 'Windows 7', 'OS X 10.10', 'Linux' ] },
-		{ browserName: 'chrome', version: '38', platform: [ 'Windows 7', 'OS X 10.10', 'Linux' ] },
-		{ browserName: 'safari', version: '8', platform: 'OS X 10.10' }
+		{ browserName: 'internet explorer', version: '11', platform: 'WIN8' },
+		{ browserName: 'internet explorer', version: '10', platform: 'WIN8' },
+		{ browserName: 'internet explorer', version: '9', platform: 'WINDOWS' },
+		{ browserName: 'firefox', version: '33', platform: [ 'WINDOWS', 'MAC' ] },
+		{ browserName: 'chrome', version: '38', platform: [ 'WINDOWS', 'MAC' ] },
+		{ browserName: 'safari', version: '8', platform: 'MAC' }
 	],
 
 	maxConcurrency: 2,

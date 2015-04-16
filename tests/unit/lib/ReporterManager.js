@@ -46,7 +46,7 @@ define([
 				someTopic: function () {
 					actual.push('topic1');
 				},
-				stop: function () {
+				destroy: function () {
 					actual.push('stopped');
 				}
 			};

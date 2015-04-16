@@ -30,8 +30,8 @@ else {
 			executorId: 'runner'
 		});
 
-		executor.run().then(function () {
-			process.exit(0);
+		executor.run().then(function (numFailedTests) {
+			process.exit(numFailedTests ? 1 : 0);
 		},
 		function () {
 			process.exit(1);

@@ -33,8 +33,8 @@ else {
 		var promise = executor.run();
 
 		if (typeof process !== 'undefined') {
-			promise.then(function () {
-				process.exit(0);
+			promise.then(function (numFailedTests) {
+				process.exit(numFailedTests ? 1 : 0);
 			},
 			function () {
 				process.exit(1);
