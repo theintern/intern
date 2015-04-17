@@ -9,7 +9,10 @@ define([
 		if (!options.parent) {
 			options.parent = {
 				reporterManager: {
-					emit: options.reporterManagerEmit || function () {}
+					emit: function () {
+						options.reporterManagerEmit && options.reporterManagerEmit.apply(this, arguments);
+						return Promise.resolve();
+					}
 				}
 			};
 		}
@@ -275,47 +278,59 @@ define([
 		},
 
 		'Test#skip': function () {
-			var actualTests = {};
-			var expectedTests = {};
-			var dfd = this.async();
-
-			// setting the skipped property on a test should cause it to be skipped
-			expectedTests.first = createTest({
-				reporterManagerEmit: function (topic, test) {
-					if (topic === 'testSkip') {
-						actualTests.first = test;
-					}
-				}
-			});
-			expectedTests.first.skipped = 'reason';
-			expectedTests.first.run().finally(dfd.callback(function () {
-				assert.property(actualTests, 'first', 'testSkip topic should fire when a test is skipped');
-				assert.strictEqual(actualTests.first, expectedTests.first,
-					'testSkip topic should be passed the test that was skipped');
-				assert.propertyVal(actualTests.first, 'skipped', 'reason',
-					'test should have `skipped` property with expected value');
-			}));
-
-			// calling skip from within a test should cause it to be skipped
-			expectedTests.second = createTest({
+			var actual;
+			var expected = createTest({
 				test: function () {
-					this.skip('skipping');
+					this.skip('IT’S A TRAP');
 				},
 				reporterManagerEmit: function (topic, test) {
 					if (topic === 'testSkip') {
-						if (topic === 'testSkip') {
-							actualTests.second = test;
-						}
+						actual = test;
 					}
 				}
 			});
-			expectedTests.second.run().finally(dfd.callback(function () {
-				assert.property(actualTests, 'second', 'testSkip topic should fire when a test is skipped');
-				assert.strictEqual(actualTests.second, expectedTests.second,
-					'testSkip topic should be passed the test that was skipped');
-				assert.propertyVal(actualTests.second, 'skipped', 'reason',
+
+			return expected.run().then(function () {
+				assert.strictEqual(actual, expected, 'testSkip topic should fire when a test is skipped');
+				assert.strictEqual(actual.skipped, 'IT’S A TRAP',
 					'test should have `skipped` property with expected value');
-			}));
+			});
+		},
+
+		'Test#restartTimeout': function () {
+			var test = createTest({
+				timeout: 100,
+				test: function () {
+					var dfd = this.async();
+					setTimeout(dfd.resolve.bind(dfd), 200);
+				}
+			});
+
+			setTimeout(function () {
+				test.restartTimeout(1000);
+			}, 10);
+
+			return test.run().catch(function () {
+				assert(false, 'Test should not timeout before it is resolved');
+			});
+		},
+
+		'Test timeout using Promise with no cancel': function () {
+			this.timeout = 250;
+
+			var test = createTest({
+				test: function () {
+					this.timeout = 1;
+					return { then: function () {} };
+				}
+			});
+
+			return test.run().then(function () {
+				assert(false, 'Test should timeout');
+			}, function (error) {
+				assert.include(error.message, 'Timeout reached',
+					'Timeout should occur when using a Promise with no cancel');
+			});
 		}
 	});
 });
