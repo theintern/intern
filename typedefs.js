@@ -171,6 +171,10 @@
  * @property {boolean} dynamicViewport
  * Environments with this capability have viewports that can be resized.
  *
+ * @property {boolean} fixSessionCapabilities
+ * Set this desired capability to false to disable Leadfoot’s feature detection code. This will speed up startup but
+ * will disable most Leadfoot fixes, so some environments may stop working correctly.
+ *
  * @property {(boolean|string[])} fixedLogTypes
  * Environments with this capability break when the `getLogTypes` method is called. The list of log types provided here
  * are used in lieu of the values provided by the server when calling `getLogTypes`.

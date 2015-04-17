@@ -4,6 +4,7 @@
  */
 
 var keys = require('./keys');
+var lang = require('dojo/lang');
 var Promise = require('dojo/Promise');
 var request = require('dojo/request');
 var Session = require('./Session');
@@ -287,12 +288,20 @@ Server.prototype = {
 	 */
 	createSession: function (desiredCapabilities, requiredCapabilities) {
 		var self = this;
+
+		var fixSessionCapabilities = desiredCapabilities.fixSessionCapabilities !== false &&
+			self.fixSessionCapabilities;
+
+		// Don’t send `fixSessionCapabilities` to the server
+		desiredCapabilities = lang.mixin({}, desiredCapabilities);
+		desiredCapabilities.fixSessionCapabilities = undefined;
+
 		return this._post('session', {
 			desiredCapabilities: desiredCapabilities,
 			requiredCapabilities: requiredCapabilities
 		}).then(function (response) {
 			var session = new self.sessionConstructor(response.sessionId, self, response.value);
-			if (self.fixSessionCapabilities) {
+			if (fixSessionCapabilities) {
 				return self._fillCapabilities(session);
 			}
 			else {
