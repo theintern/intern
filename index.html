@@ -2382,7 +2382,7 @@ define([
 								<td>This reporter generates an lcov.info from collated coverage data that can be fed to another program that understands the standard lcov data format.</td>
 							</tr>
 							<tr>
-								<th scope="row">lcovinfo</th>
+								<th scope="row">lcovhtml</th>
 								<td>This reporter generates a set of illustrated HTML reports from collated coverage data.</td>
 							</tr>
 						</table>
@@ -2610,11 +2610,11 @@ define([
 								<td>This method is called when a new test is created.</td>
 							</tr>
 							<tr>
-								<th scope="row">proxyEnd(config: Object)</th>
+								<th scope="row">proxyEnd(config: Proxy)</th>
 								<td>This method is called once the built-in HTTP server has finished shutting down.</td>
 							</tr>
 							<tr>
-								<th scope="row">proxyStart(config: Object)</th>
+								<th scope="row">proxyStart(config: Proxy)</th>
 								<td>This method is called once the built-in HTTP server has finished starting up.</td>
 							</tr>
 							<tr>
@@ -2656,10 +2656,6 @@ define([
 							<tr>
 								<th scope="row">testStart(test: Test)</th>
 								<td>This method is called when a test starts running.</td>
-							</tr>
-							<tr>
-								<th scope="row">testFail(test: Test)</th>
-								<td>This method is called when a test has failed.</td>
 							</tr>
 							<tr>
 								<th scope="row">tunnelDownloadProgress(<br>&nbsp;&nbsp;tunnel: Tunnel,<br>&nbsp;&nbsp;progress: Object<br>)</th>
@@ -2855,7 +2851,7 @@ define([
 							</tr>
 							<tr>
 								<th scope="row">parent</th>
-								<td>The parent suite, if this suite is a sub-suite.</td>
+								<td>The parent suite, if this suite is a sub-suite. This property will be <code class="javascript">null</code> for unit tests that have been sent from a client back to the test runner.</td>
 							</tr>
 							<tr>
 								<th scope="row">publishAfterSetup</th>
@@ -2944,7 +2940,7 @@ define([
 							</tr>
 							<tr>
 								<th scope="row">parent</th>
-								<td>The parent suite for the test. This property must be set by the test interface that instantiates the Test object.</td>
+								<td>The parent suite for the test. This property must be set by the test interface that instantiates the Test object. This property will be <code class="javascript">null</code> for unit tests that have been sent from a client back to the test runner.</td>
 							</tr>
 							<tr>
 								<th scope="row">remote</th>
