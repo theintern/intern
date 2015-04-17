@@ -82,6 +82,8 @@ define([
 						assert.deepEqual(slice.call(arguments, 1), [ suite ],
 							'Arguments broadcast to suiteEnd should be the suite being executed');
 					}
+
+					return Promise.resolve();
 				})
 			};
 
@@ -96,7 +98,7 @@ define([
 		options = options || {};
 
 		options.reporterManager = options.reporterManager || {
-			emit: function () {}
+			emit: function () { return Promise.resolve(); }
 		};
 
 		var suite = new Suite(options);
@@ -179,10 +181,8 @@ define([
 			};
 
 			suite.run().then(dfd.callback(function () {
-				assert.isTrue(called, 'Synchronous setup should be called before suite finishes');
+				assert.isTrue(called, 'Setup should be called before suite finishes');
 			}));
-
-			assert.isTrue(called, 'Suite#setup should be called immediately after run()');
 		},
 
 		'Suite#beforeEach': function () {
