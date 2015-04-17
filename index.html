@@ -1250,10 +1250,6 @@
 			console.log('outer teardown');
 		},
 
-		'test C': function () {
-			console.log('outer test C');
-		},
-
 		'inner suite': {
 			setup: function () {
 				console.log('inner setup');
@@ -1269,16 +1265,20 @@
 			},
 
 			'test A': function () {
-				console.log('outer test A');
+				console.log('inner test A');
 			},
 			'test B': function () {
-				console.log('outer test B');
+				console.log('inner test B');
 			}
+		},
+
+		'test C': function () {
+			console.log('outer test C');
 		}
 	});
 });</code></pre>
 
-						<p>…the resulting console output would be:</p>
+						<p>…the resulting console output would be in this order:</p>
 
 						<pre><samp>outer setup
 inner setup
