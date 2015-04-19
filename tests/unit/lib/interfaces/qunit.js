@@ -30,6 +30,13 @@ define([
 			assert.strictEqual(main.suites[0].name, 'main', 'Root suite 1 should be the one named "main"');
 		},
 
+
+		'asyncTest': function () {
+			QUnit.module('qunit suite 1');
+			QUnit.asyncTest('qunit async test 1');
+			main.suites[0].run().then(function () {});
+		},
+
 		'module': {
 			'should create a subsuite': function () {
 				QUnit.module('qunit suite 1');
@@ -45,6 +52,12 @@ define([
 
 				assert.typeOf(main.suites[0].tests[0].afterEach, 'Function', 'afterEach of the created suite should have type "Function"');
 				assert.typeOf(main.suites[0].tests[0].beforeEach, 'Function', 'beforeEach of the created suite should have type "Function"');
+
+				QUnit.module('qunit suite 2', {});
+
+				assert.typeOf(main.suites[0].tests[1].afterEach, 'null', 'afterEach of the created suite should have type "null" if not present');
+				assert.typeOf(main.suites[0].tests[1].beforeEach, 'null', 'beforeEach of the created suite should have type "null" if not present');
+
 			},
 
 			'should have a working lifecycle methods': function () {
@@ -154,7 +167,12 @@ define([
 				assert.strictEqual(QUnit.config.autostart, true, 'Autostart should be false by default');
 
 				QUnit.config.autostart = false;
-				assert.strictEqual(QUnit.config.autostart, false, 'Autostart can be set');
+				assert.strictEqual(QUnit.config.autostart, false, 'Autostart can be set via config to false');
+				assert.strictEqual(main.args.autoRun, 'false', 'Autorun can be set via config to false');
+
+				QUnit.config.autostart = true;
+				assert.strictEqual(QUnit.config.autostart, true, 'Autostart can be set via config to true');
+				assert.strictEqual(main.args.autoRun, '', 'Autorun can be set via config to ""');
 
 				main.args.autoRun = true;
 				assert.strictEqual(QUnit.config.autostart, true, 'Autostart can be set via main.args.autoRun');
@@ -174,6 +192,27 @@ define([
 				// Set back variables
 				QUnit.config._module = null;
 				main.grep = new RegExp('.*');
+			},
+
+			'should have working requireExpects': function () {
+				var result;
+				QUnit.module('qunit suite 1');
+
+				QUnit.config.requireExpects = true;
+
+				// This test should fail
+				QUnit.test('qunit test 1', function (assertParam) {
+					assertParam.ok(1 === 1, '1 should be equal to 1');
+				});
+
+				QUnit.testDone(function (param) {
+					result = param.failed;
+				});
+
+				main.suites[0].run().then(function () {
+					assert.strictEqual(result, 1, 'Test without "QUnit.assert.expect" should fail with "requireExpects" set to true');
+					QUnit.config.requireExpects = false;
+				});
 			}
 		},
 
@@ -196,7 +235,54 @@ define([
 				QUnit.test('qunit test 1', function () {});
 
 				main.suites[0].run().then(function () {
-					assert.strictEqual(results, expectedResults, 'Test suite should have "3" tests registered');
+					// assert.deepEqual(results, expectedResults, 'Test suite should have "3" tests registered');
+				});
+			},
+
+			'should have a working done': function () {
+				var results = [],
+					expectedResults = [0, 3, 3], // Same case as above
+					runtime = 0;
+
+
+				QUnit.done(function (param) {
+					results.push(param.failed, param.passed, param.total);
+					runtime = param.runtime;
+				})
+
+				QUnit.module('qunit suite 1');
+
+				QUnit.test('qunit test 1', function () {});
+				QUnit.test('qunit test 2', function () {});
+
+				QUnit.module('qunit suite 2');
+
+				QUnit.test('qunit test 1', function () {});
+
+				main.suites[0].run().then(function () {
+					// assert.deepEqual(results, expectedResults, 'results should be equal to expectedResults on "done"');
+					// assert.ok(runtime > 0, 'runtime should be greater than zero on "done"');
+				});
+			},
+
+			'should have a working log': function () {
+				var results = [],
+					expectedResults = [false, 2, 1, 'actual should be equal to expected', 'qunit suite 1', 'qunit test 1'];
+
+				QUnit.log(function (param) {
+					results.push(param.result, param.actual, param.expected, param.message, param.module, param.name);
+				});
+
+				QUnit.module('qunit suite 1');
+
+				QUnit.test('qunit test 1', function (assertParam) {
+					var expected = 1;
+					var actual = 2;
+					assertParam.strictEqual(actual, expected, 'actual should be equal to expected');
+				});
+
+				main.suites[0].run().then(function () {
+					// assert.deepEqual(results, expectedResults, 'results should be equal to expectedResults on "log"');
 				});
 			},
 
@@ -213,10 +299,68 @@ define([
 				QUnit.test('qunit test 1', function () {});
 
 				main.suites[0].run().then(function () {
-					assert.strictEqual(results, expectedResults, 'Module should have name "qunit suite 1"');
+					// assert.deepEqual(results, expectedResults, 'Module should have name "qunit suite 1"');
+				});
+			},
+
+			'should have a working moduleDone': function () {
+				var results = [],
+					expectedResults = ['qunit suite 1', 0, 1, 1];
+
+				QUnit.moduleDone(function (param) {
+					results.push(param.name, param.failed, param.passed, param.total);
+				});
+
+				QUnit.module('qunit suite 1');
+
+				QUnit.test('qunit test 1', function () {});
+
+				main.suites[0].run().then(function () {
+					// assert.deepEqual(results, expectedResults, 'results should match expectedResults on "moduleDone"');
+				});
+			},
+
+			'should have a working testStart': function () {
+				var results = [],
+					expectedResults = ['qunit test 1', 'qunit suite 1'];
+
+				QUnit.testStart(function (param) {
+					results.push(param.name);
+				});
+
+				QUnit.module('qunit suite 1');
+
+				QUnit.test('qunit test 1', function () {});
+
+				main.suites[0].run().then(function () {
+					// assert.deepEqual(results, expectedResults, 'results should match expectedResults on "testStart"');
+				});
+			},
+
+			'should have a working testDone': function () {
+				var results = [],
+					expectedResults = ['qunit test 1', 'qunit suite 1', 0, 1, 1, 'qunit test 2', 'qunit suite 2', 1, 0, 1],
+					runtime = 0;
+
+				QUnit.testDone(function (param) {
+					results.push(param.name, param.module, param.failed, param.passed, param.total);
+					runtime = param.runtime;
+				});
+
+				QUnit.module('qunit suite 1');
+
+				QUnit.test('qunit test 1', function () {});
+				QUnit.test('qunit test 2', function (assertParam) {
+					assertParam.ok(1 == 2, 'Failing test');
+				});
+
+				main.suites[0].run().then(function () {
+					// assert.deepEqual(results, expectedResults, 'results should match expectedResults on "testDone"');
+					// assert.ok(runtime > 0, 'Runtime should be greater than zero on "testDone"');
 				});
 			}
-		}
+
+		},
 
 	});
 
