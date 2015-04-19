@@ -146,6 +146,29 @@ define([
 					assert.strictEqual(QUnit.assert.isPrototypeOf(results[0]), true, 'Assert passed to QUnit test should be instance of QUnit.assert');
 				});
 			}
+		},
+
+		'config': {
+			'should have working autostart': function () {
+				// Default when main.args.autoRun is undefined?
+				assert.strictEqual(QUnit.config.autostart, true, 'Autostart should be false by default');
+
+				QUnit.config.autostart = false;
+				assert.strictEqual(QUnit.config.autostart, false, 'Autostart can be set');
+
+				main.args.autoRun = true;
+				assert.strictEqual(QUnit.config.autostart, true, 'Autostart can be set via main.args.autoRun');
+			},
+
+			'should have working module filter': function () {
+				shouldInstance.not.exist(QUnit.config.module, 'There should not be any module in config by default');
+
+				QUnit.config.module = 'suite 1';
+
+				assert.strictEqual(QUnit.config.module, 'suite 1', 'Module filter can be set through config');
+				assert.instanceOf(main.grep, RegExp, 'Main grep is set through config module');
+				assert.strictEqual(main.grep.toString(), '/ - suite 1 - /i', 'Main grep should be / - suite 1 - /i');
+			}
 		}
 
 	});
