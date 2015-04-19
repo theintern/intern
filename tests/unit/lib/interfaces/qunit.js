@@ -16,7 +16,7 @@ define([
 
 		beforeEach: function () {
 			main.suites.push(
-				new Suite({ name: 'qunit root suite 1'})
+				new Suite({ name: 'main'})
 			);
 		},
 
@@ -27,14 +27,14 @@ define([
 		'should have a root suite': function () {
 			assert.strictEqual(main.suites.length, 1, 'There should be exactly one root suite');
 			assert.instanceOf(main.suites[0], Suite, 'Root suite 1 should be a suite instance');
-			assert.strictEqual(main.suites[0].name, 'qunit root suite 1', 'Root suite 1 should be the one named "qunit root suite 1"');
+			assert.strictEqual(main.suites[0].name, 'main', 'Root suite 1 should be the one named "main"');
 		},
 
 		'module': {
 			'should create a subsuite': function () {
 				QUnit.module('qunit suite 1');
 				assert.strictEqual(main.suites[0].tests[0].name, 'qunit suite 1', 'First registered module should have name "qunit suite 1');
-				assert.strictEqual(main.suites[0].tests[0].parent.name, 'qunit root suite 1', 'First registered module\'s parent name should be "qunit root suite 1"');
+				assert.strictEqual(main.suites[0].tests[0].parent.name, 'main', 'First registered module\'s parent name should be "main"');
 			},
 
 			'should add setup and teardown methods': function () {
@@ -158,6 +158,8 @@ define([
 
 				main.args.autoRun = true;
 				assert.strictEqual(QUnit.config.autostart, true, 'Autostart can be set via main.args.autoRun');
+
+				delete main.args.autoRun;
 			},
 
 			'should have working module filter': function () {
@@ -168,6 +170,51 @@ define([
 				assert.strictEqual(QUnit.config.module, 'suite 1', 'Module filter can be set through config');
 				assert.instanceOf(main.grep, RegExp, 'Main grep is set through config module');
 				assert.strictEqual(main.grep.toString(), '/ - suite 1 - /i', 'Main grep should be / - suite 1 - /i');
+
+				// Set back variables
+				QUnit.config._module = null;
+				main.grep = new RegExp('.*');
+			}
+		},
+
+		'lifecycle': {
+			'should have a working begin': function () {
+				var results = [],
+					expectedResults = [3]; // Needs 3, 1, probably /topic/start is called everytime a new module begins
+
+				QUnit.begin(function (totalTests) {
+					results.push(totalTests);
+				})
+
+				QUnit.module('qunit suite 1');
+
+				QUnit.test('qunit test 1', function () {});
+				QUnit.test('qunit test 2', function () {});
+
+				QUnit.module('qunit suite 2');
+
+				QUnit.test('qunit test 1', function () {});
+
+				main.suites[0].run().then(function () {
+					assert.strictEqual(results, expectedResults, 'Test suite should have "3" tests registered');
+				});
+			},
+
+			'should have a working moduleStart': function () {
+				var results = [],
+					expectedResults = ['qunit suite 1'];
+
+				QUnit.moduleStart(function (param) {
+					results.push(param.name);
+				});
+
+				QUnit.module('qunit suite 1');
+
+				QUnit.test('qunit test 1', function () {});
+
+				main.suites[0].run().then(function () {
+					assert.strictEqual(results, expectedResults, 'Module should have name "qunit suite 1"');
+				});
 			}
 		}
 
