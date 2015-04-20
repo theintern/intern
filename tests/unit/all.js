@@ -10,6 +10,7 @@ define([
 	'./lib/interfaces/tdd',
 	'./lib/interfaces/bdd',
 	'./lib/interfaces/object',
+	'./lib/interfaces/qunit',
 	'./lib/reporters/console',
 	'dojo/has!host-node?./lib/reporters/pretty',
 	'dojo/has!host-node?./lib/reporters/teamcity',
