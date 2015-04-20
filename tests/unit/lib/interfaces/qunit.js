@@ -29,31 +29,49 @@ define([
 
 
 		'asyncTest': function () {
-			var asyncCalled1 = 0,
-				asyncCalled2 = 0;
 
 			QUnit.module('qunit suite 1');
 
-			assert.throws(function () {
-					QUnit.asyncTest('qunit async test 1', function (assertParam) {
-						QUnit.start();
-						assertParam.ok(false, 'Should throw an error');
-					});
-			}, assert.AssertionError, 'Async test should throw an error on failing to call test');
+			QUnit.config.testTimeout = 100;
 
-			QUnit.asyncTest('qunit async test 2', function () {
+			QUnit.asyncTest('qunit async test 1', function (assertParam) {
+				assertParam.ok(false);
 				QUnit.start();
-				asyncCalled1 = 1;
 			});
 
-			QUnit.asyncTest('qunit async test 2', function () {
+			QUnit.asyncTest('qunit async test 2', function (assertParam) {
+				setTimeout(function () {
+					assertParam.ok(true);
+				}, 100);
+			});
+
+			QUnit.asyncTest('qunit async test 3', function (assertParam) {
+				setTimeout(function () {
+					assertParam.ok(true);
+					QUnit.start();
+				}, 100);
+			});
+
+			QUnit.asyncTest('qunit async test 4', function (assertParam) {
 				QUnit.stop();
-				asyncCalled2 = 1;
+				setTimeout(function () {
+					assertParam.ok(true);
+					QUnit.start();
+				}, 100);
+
+				setTimeout(function () {
+					assertParam.ok(true);
+					QUnit.start();
+				}, 100);
 			});
 
 			return main.suites[0].run().then(function () {
-				assert.strictEqual(asyncCalled1, 1, 'Test should run after QUnit.start');
-				assert.strictEqual(asyncCalled2, 0, 'Test should stop after QUnit.stop');
+				assert.isDefined(main.suites[0].tests[0].tests[0].error, 'async test should throw an error on failed assertion');
+				assert.isDefined(main.suites[0].tests[0].tests[1].error, 1, 'async test should fail without QUnit.start');
+				assert.strictEqual(main.suites[0].tests[0].tests[1].error.message, 'Timeout reached on main - qunit suite 1 - qunit async test 2', 'async test should fail without QUnit.start with a timeout message');
+				assert.strictEqual(main.suites[0].tests[0].tests[2].hasPassed, true, 'async test should work with QUnit.start');
+				assert.strictEqual(main.suites[0].tests[0].tests[3].hasPassed, true, 'async test should handle QUnit.start according to number of calls to QUnit.stop');
+				QUnit.config.testTimeout = Infinity;
 			});
 		},
 
