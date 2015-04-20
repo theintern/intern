@@ -24,7 +24,8 @@ define([
 		'should have a root suite': function () {
 			assert.strictEqual(main.suites.length, 1, 'There should be exactly one root suite');
 			assert.instanceOf(main.suites[0], Suite, 'Root suite 1 should be a suite instance');
-			assert.strictEqual(main.suites[0].name, 'main', 'Root suite 1 should be the one named "main"');
+			assert.strictEqual(main.suites[0].name, 'main',
+				'Root suite 1 should be the one named "main"');
 		},
 
 
@@ -66,11 +67,17 @@ define([
 			});
 
 			return main.suites[0].run().then(function () {
-				assert.isDefined(main.suites[0].tests[0].tests[0].error, 'async test should throw an error on failed assertion');
-				assert.isDefined(main.suites[0].tests[0].tests[1].error, 1, 'async test should fail without QUnit.start');
-				assert.strictEqual(main.suites[0].tests[0].tests[1].error.message, 'Timeout reached on main - qunit suite 1 - qunit async test 2', 'async test should fail without QUnit.start with a timeout message');
-				assert.strictEqual(main.suites[0].tests[0].tests[2].hasPassed, true, 'async test should work with QUnit.start');
-				assert.strictEqual(main.suites[0].tests[0].tests[3].hasPassed, true, 'async test should handle QUnit.start according to number of calls to QUnit.stop');
+				assert.isDefined(main.suites[0].tests[0].tests[0].error,
+					'async test should throw an error on failed assertion');
+				assert.isDefined(main.suites[0].tests[0].tests[1].error, 1,
+					'async test should fail without QUnit.start');
+				assert.strictEqual(main.suites[0].tests[0].tests[1].error.message,
+					'Timeout reached on main - qunit suite 1 - qunit async test 2',
+					'async test should fail without QUnit.start with a timeout message');
+				assert.strictEqual(main.suites[0].tests[0].tests[2].hasPassed, true,
+					'async test should work with QUnit.start');
+				assert.strictEqual(main.suites[0].tests[0].tests[3].hasPassed, true,
+					'async test should handle QUnit.start according to number of calls to QUnit.stop');
 				QUnit.config.testTimeout = Infinity;
 			});
 		},
@@ -78,8 +85,10 @@ define([
 		'module': {
 			'should create a subsuite': function () {
 				QUnit.module('qunit suite 1');
-				assert.strictEqual(main.suites[0].tests[0].name, 'qunit suite 1', 'First registered module should have name "qunit suite 1');
-				assert.strictEqual(main.suites[0].tests[0].parent.name, 'main', 'First registered module\'s parent name should be "main"');
+				assert.strictEqual(main.suites[0].tests[0].name, 'qunit suite 1',
+					'First registered module should have name "qunit suite 1');
+				assert.strictEqual(main.suites[0].tests[0].parent.name, 'main',
+					'First registered module\'s parent name should be "main"');
 			},
 
 			'should add setup and teardown methods': function () {
@@ -88,13 +97,17 @@ define([
 					teardown: function () {}
 				});
 
-				assert.typeOf(main.suites[0].tests[0].afterEach, 'Function', 'afterEach of the created suite should have type "Function"');
-				assert.typeOf(main.suites[0].tests[0].beforeEach, 'Function', 'beforeEach of the created suite should have type "Function"');
+				assert.typeOf(main.suites[0].tests[0].afterEach, 'Function',
+					'afterEach of the created suite should have type "Function"');
+				assert.typeOf(main.suites[0].tests[0].beforeEach, 'Function',
+					'beforeEach of the created suite should have type "Function"');
 
 				QUnit.module('qunit suite 2', {});
 
-				assert.typeOf(main.suites[0].tests[1].afterEach, 'null', 'afterEach of the created suite should have type "null" if not present');
-				assert.typeOf(main.suites[0].tests[1].beforeEach, 'null', 'beforeEach of the created suite should have type "null" if not present');
+				assert.typeOf(main.suites[0].tests[1].afterEach, 'null',
+					'afterEach of the created suite should have type "null" if not present');
+				assert.typeOf(main.suites[0].tests[1].beforeEach, 'null',
+					'beforeEach of the created suite should have type "null" if not present');
 
 			},
 
@@ -116,7 +129,8 @@ define([
 					main.suites[0].tests[0][method]();
 				});
 
-				assert.deepEqual(results, expectedResults, 'QUnit interface methods should get called when ' + 'corrosponding Suite methods all called');
+				assert.deepEqual(results, expectedResults,
+					'QUnit interface methods should get called when ' + 'corrosponding Suite methods all called');
 			}
 		},
 
@@ -134,7 +148,8 @@ define([
 
 				return main.suites[0].run().then(function () {
 					assert.strictEqual(results[0], 1, 'Base assert should have "1" expected assertions');
-					assert.strictEqual(results[1], 1, 'Expect should return number of expected assertions if 0 or > 1 argument(s) is(are) passed');
+					assert.strictEqual(results[1], 1,
+						'Expect should return number of expected assertions if 0 or > 1 argument(s) is(are) passed');
 				});
 			},
 
@@ -170,8 +185,10 @@ define([
 
 				QUnit.test('qunit test 1');
 
-				assert.strictEqual(main.suites[0].tests[0].tests[0].name, 'qunit test 1', 'Module should register a test named "qunit test 1"');
-				assert.strictEqual(main.suites[0].tests[0].tests[0].parent.name, 'qunit suite 1', 'Test should be registered in module named "qunit suite 1"');
+				assert.strictEqual(main.suites[0].tests[0].tests[0].name, 'qunit test 1',
+					'Module should register a test named "qunit test 1"');
+				assert.strictEqual(main.suites[0].tests[0].tests[0].parent.name, 'qunit suite 1',
+					'Test should be registered in module named "qunit suite 1"');
 			},
 
 			'should be added to latest module': function () {
@@ -180,10 +197,14 @@ define([
 
 				QUnit.test('qunit test 1');
 
-				assert.isUndefined(main.suites[0].tests[0].tests[0], 'There should not be any tests registered in module named "qunit suite 1"');
-				assert.isDefined(main.suites[0].tests[1].tests[0], 'There be a test registered in module named "qunit suite 1"');
-				assert.strictEqual(main.suites[0].tests[1].tests[0].name, 'qunit test 1', 'Module 2 should register a test named "qunit test 1"');
-				assert.strictEqual(main.suites[0].tests[1].tests[0].parent.name, 'qunit suite 2', 'Test should be registered under module named "qunit suite 2"');
+				assert.isUndefined(main.suites[0].tests[0].tests[0],
+					'There should not be any tests registered in module named "qunit suite 1"');
+				assert.isDefined(main.suites[0].tests[1].tests[0],
+					'There be a test registered in module named "qunit suite 1"');
+				assert.strictEqual(main.suites[0].tests[1].tests[0].name, 'qunit test 1',
+					'Module 2 should register a test named "qunit test 1"');
+				assert.strictEqual(main.suites[0].tests[1].tests[0].parent.name, 'qunit suite 2',
+					'Test should be registered under module named "qunit suite 2"');
 			},
 
 			'should call the test function': function () {
@@ -195,40 +216,52 @@ define([
 					results.push(assertParam);
 				});
 
-				assert.instanceOf(main.suites[0].tests[0].tests[0], Test, 'test 1 should be a Test Instance');
+				assert.instanceOf(main.suites[0].tests[0].tests[0], Test,
+					'test 1 should be a Test Instance');
 
 				return main.suites[0].run().then(function () {
-					assert.strictEqual(QUnit.assert.isPrototypeOf(results[0]), true, 'Assert passed to QUnit test should be instance of QUnit.assert');
+					assert.strictEqual(QUnit.assert.isPrototypeOf(results[0]), true,
+						'Assert passed to QUnit test should be instance of QUnit.assert');
 				});
 			}
 		},
 
 		'config': {
 			'should have working autostart': function () {
-				assert.strictEqual(QUnit.config.autostart, true, 'Autostart should be false by default');
+				assert.strictEqual(QUnit.config.autostart, true,
+					'Autostart should be false by default');
 
 				QUnit.config.autostart = false;
-				assert.strictEqual(QUnit.config.autostart, false, 'Autostart can be set via config to false');
-				assert.strictEqual(main.args.autoRun, 'false', 'Autorun can be set via config to false');
+				assert.strictEqual(QUnit.config.autostart, false,
+					'Autostart can be set via config to false');
+				assert.strictEqual(main.args.autoRun, 'false',
+					'Autorun can be set via config to false');
 
 				QUnit.config.autostart = true;
-				assert.strictEqual(QUnit.config.autostart, true, 'Autostart can be set via config to true');
-				assert.strictEqual(main.args.autoRun, '', 'Autorun can be set via config to ""');
+				assert.strictEqual(QUnit.config.autostart, true,
+					'Autostart can be set via config to true');
+				assert.strictEqual(main.args.autoRun, '',
+					'Autorun can be set via config to ""');
 
 				main.args.autoRun = true;
-				assert.strictEqual(QUnit.config.autostart, true, 'Autostart can be set via main.args.autoRun');
+				assert.strictEqual(QUnit.config.autostart, true,
+					'Autostart can be set via main.args.autoRun');
 
 				delete main.args.autoRun;
 			},
 
 			'should have working module filter': function () {
-				assert.isNull(QUnit.config.module, 'There should not be any module in config by default');
+				assert.isNull(QUnit.config.module,
+					'There should not be any module in config by default');
 
 				QUnit.config.module = 'suite 1';
 
-				assert.strictEqual(QUnit.config.module, 'suite 1', 'Module filter can be set through config');
-				assert.instanceOf(main.grep, RegExp, 'Main grep is set through config module');
-				assert.strictEqual(main.grep.toString(), '/ - suite 1 - /i', 'Main grep should be / - suite 1 - /i');
+				assert.strictEqual(QUnit.config.module, 'suite 1',
+					'Module filter can be set through config');
+				assert.instanceOf(main.grep, RegExp,
+					'Main grep is set through config module');
+				assert.strictEqual(main.grep.toString(),
+					'/ - suite 1 - /i', 'Main grep should be / - suite 1 - /i');
 
 				// Set back variables
 				QUnit.config._module = null;
@@ -251,7 +284,8 @@ define([
 				});
 
 				return main.suites[0].run().then(function () {
-					assert.strictEqual(result, 1, 'Test without "QUnit.assert.expect" should fail with "requireExpects" set to true');
+					assert.strictEqual(result, 1,
+						'Test without "QUnit.assert.expect" should fail with "requireExpects" set to true');
 					QUnit.config.requireExpects = false;
 				});
 			}
@@ -276,7 +310,8 @@ define([
 				QUnit.test('qunit test 1', function () {});
 
 				return main.suites[0].run().then(function () {
-					assert.deepEqual(results, expectedResults, 'Test suite should have "3" tests registered');
+					assert.deepEqual(results, expectedResults,
+						'Test suite should have "3" tests registered');
 				});
 			},
 
@@ -301,17 +336,21 @@ define([
 				QUnit.test('qunit test 1', function () {});
 
 				return main.suites[0].run().then(function () {
-					assert.deepEqual(results, expectedResults, 'results should be equal to expectedResults on "done"');
+					assert.deepEqual(results, expectedResults,
+						'results should be equal to expectedResults on "done"');
 					assert.isDefined(runtime, 'runtime should be defined on "done"');
 				});
 			},
 
 			'should have a working log': function () {
 				var results = [],
-					expectedResults = [false, 2, 1, 'actual should be equal to expected: expected 2 to equal 1', 'qunit suite 1', 'qunit test 1'];
+					expectedResults = [false, 2, 1,
+					'actual should be equal to expected: expected 2 to equal 1',
+					'qunit suite 1', 'qunit test 1'];
 
 				QUnit.log(function (param) {
-					results.push(param.result, param.actual, param.expected, param.message, param.module, param.name);
+					results.push(param.result, param.actual, param.expected,
+						param.message, param.module, param.name);
 				});
 
 				QUnit.module('qunit suite 1');
@@ -319,11 +358,13 @@ define([
 				QUnit.test('qunit test 1', function (assertParam) {
 					var expected = 1;
 					var actual = 2;
-					assertParam.strictEqual(actual, expected, 'actual should be equal to expected');
+					assertParam.strictEqual(actual, expected,
+						'actual should be equal to expected');
 				});
 
 				return main.suites[0].run().then(function () {
-					assert.deepEqual(results, expectedResults, 'results should be equal to expectedResults on "log"');
+					assert.deepEqual(results, expectedResults,
+						'results should be equal to expectedResults on "log"');
 				});
 			},
 
@@ -340,7 +381,8 @@ define([
 				QUnit.test('qunit test 1', function () {});
 
 				return main.suites[0].run().then(function () {
-					assert.deepEqual(results, expectedResults, 'Module should have name "qunit suite 1"');
+					assert.deepEqual(results, expectedResults,
+						'Module should have name "qunit suite 1"');
 				});
 			},
 
@@ -359,8 +401,10 @@ define([
 				QUnit.test('qunit test 1', function () {});
 
 				return main.suites[0].run().then(function () {
-					assert.deepEqual(results, expectedResults, 'results should match expectedResults on "moduleDone"');
-					assert.isDefined(runtime, 'Runtime should be defined on "moduleDone"');
+					assert.deepEqual(results, expectedResults,
+						'results should match expectedResults on "moduleDone"');
+					assert.isDefined(runtime,
+						'Runtime should be defined on "moduleDone"');
 				});
 			},
 
@@ -377,13 +421,15 @@ define([
 				QUnit.test('qunit test 1', function () {});
 
 				return main.suites[0].run().then(function () {
-					assert.deepEqual(results, expectedResults, 'results should match expectedResults on "testStart"');
+					assert.deepEqual(results, expectedResults,
+						'results should match expectedResults on "testStart"');
 				});
 			},
 
 			'should have a working testDone': function () {
 				var results = [],
-					expectedResults = ['qunit test 1', 'qunit suite 1', 0, 1, 1, 'qunit test 2', 'qunit suite 1', 1, 0, 1],
+					expectedResults = ['qunit test 1', 'qunit suite 1', 0, 1, 1,
+					'qunit test 2', 'qunit suite 1', 1, 0, 1],
 					runtime = [];
 
 				QUnit.testDone(function (param) {
@@ -399,9 +445,12 @@ define([
 				});
 
 				return main.suites[0].run().then(function () {
-					assert.deepEqual(results, expectedResults, 'results should match expectedResults on "testDone"');
-					assert.isDefined(runtime[0], 'Runtime for "qunit test 1" should exist');
-					assert.isDefined(runtime[1], 'Runtime for "qunit test 2" should exist');
+					assert.deepEqual(results, expectedResults, '
+						results should match expectedResults on "testDone"');
+					assert.isDefined(runtime[0],
+						'Runtime for "qunit test 1" should exist');
+					assert.isDefined(runtime[1],
+						'Runtime for "qunit test 2" should exist');
 				});
 			}
 
