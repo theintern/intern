@@ -445,8 +445,8 @@ define([
 				});
 
 				return main.suites[0].run().then(function () {
-					assert.deepEqual(results, expectedResults, '
-						results should match expectedResults on "testDone"');
+					assert.deepEqual(results, expectedResults,
+						'results should match expectedResults on "testDone"');
 					assert.isDefined(runtime[0],
 						'Runtime for "qunit test 1" should exist');
 					assert.isDefined(runtime[1],
