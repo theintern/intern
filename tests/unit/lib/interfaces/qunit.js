@@ -29,9 +29,32 @@ define([
 
 
 		'asyncTest': function () {
+			var asyncCalled1 = 0,
+				asyncCalled2 = 0;
+
 			QUnit.module('qunit suite 1');
-			QUnit.asyncTest('qunit async test 1');
-			return main.suites[0].run().then(function () {});
+
+			assert.throws(function () {
+					QUnit.asyncTest('qunit async test 1', function (assertParam) {
+						QUnit.start();
+						assertParam.ok(false, 'Should throw an error');
+					});
+			}, assert.AssertionError, 'Async test should throw an error on failing to call test');
+
+			QUnit.asyncTest('qunit async test 2', function () {
+				QUnit.start();
+				asyncCalled1 = 1;
+			});
+
+			QUnit.asyncTest('qunit async test 2', function () {
+				QUnit.stop();
+				asyncCalled2 = 1;
+			});
+
+			return main.suites[0].run().then(function () {
+				assert.strictEqual(asyncCalled1, 1, 'Test should run after QUnit.start');
+				assert.strictEqual(asyncCalled2, 0, 'Test should stop after QUnit.stop');
+			});
 		},
 
 		'module': {
@@ -108,6 +131,8 @@ define([
 
 					assertParam.push( actual === expected, actual, expected, '"actual" should be equal to "expected"');
 					results.push(assertParam._numAssertions);
+
+					actual = 2;
 
 					assert.throws(
 						function () {
@@ -259,7 +284,7 @@ define([
 
 				return main.suites[0].run().then(function () {
 					assert.deepEqual(results, expectedResults, 'results should be equal to expectedResults on "done"');
-					assert.ok(runtime > 0, 'runtime should be greater than zero on "done"');
+					assert.isDefined(runtime, 'runtime should be defined on "done"');
 				});
 			},
 
@@ -317,7 +342,7 @@ define([
 
 				return main.suites[0].run().then(function () {
 					assert.deepEqual(results, expectedResults, 'results should match expectedResults on "moduleDone"');
-					assert.ok(runtime > 0, 'Runtime should be greater than zero on "moduleDone"');
+					assert.isDefined(runtime, 'Runtime should be defined on "moduleDone"');
 				});
 			},
 
