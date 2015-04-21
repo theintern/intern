@@ -413,14 +413,10 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			readStatus(message);
 		}
 
-		try {
-			var readyFile = pathUtil.join(os.tmpdir(), 'saucelabs-' + Date.now());
-			var child = this._makeChild(readyFile);
-			var childProcess = child.process;
-			var dfd = child.deferred;
-		} catch (e) {
-			throw e;
-		}
+		var readyFile = pathUtil.join(os.tmpdir(), 'saucelabs-' + Date.now());
+		var child = this._makeChild(readyFile);
+		var childProcess = child.process;
+		var dfd = child.deferred;
 
 		// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
 		// `fs.watch` API has extra restrictions which are best avoided
