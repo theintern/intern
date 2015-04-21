@@ -21,8 +21,9 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 }
 else {
 	define([
-		'./lib/executors/PreExecutor'
-	], function (PreExecutor) {
+		'./lib/executors/PreExecutor',
+		'./lib/exitHandler'
+	], function (PreExecutor, exitHandler) {
 		var executor = new PreExecutor({
 			defaultLoaderConfig: (function () {
 				return this;
@@ -30,11 +31,6 @@ else {
 			executorId: 'runner'
 		});
 
-		executor.run().then(function (numFailedTests) {
-			process.exit(numFailedTests ? 1 : 0);
-		},
-		function () {
-			process.exit(1);
-		});
+		exitHandler(process, executor.run(), 10000);
 	});
 }

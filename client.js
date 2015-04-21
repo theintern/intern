@@ -21,8 +21,9 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 }
 else {
 	define([
-		'./lib/executors/PreExecutor'
-	], function (PreExecutor) {
+		'./lib/executors/PreExecutor',
+		'dojo/has!host-node?./lib/exitHandler'
+	], function (PreExecutor, exitHandler) {
 		var executor = new PreExecutor({
 			defaultLoaderConfig: (function () {
 				return this;
@@ -32,13 +33,8 @@ else {
 
 		var promise = executor.run();
 
-		if (typeof process !== 'undefined') {
-			promise.then(function (numFailedTests) {
-				process.exit(numFailedTests ? 1 : 0);
-			},
-			function () {
-				process.exit(1);
-			});
+		if (exitHandler) {
+			exitHandler(process, promise, 10000);
 		}
 	});
 }

@@ -475,7 +475,7 @@ define([
 		},
 
 		'Suite#beforeEach and #afterEach nesting': function () {
-			var dfd = this.async(1000);
+			var dfd = this.async(5000);
 			var outerTest = new Test({
 				name: 'outerTest',
 				test: function () {
@@ -586,7 +586,7 @@ define([
 		},
 
 		'Suite#run skip': function () {
-			var dfd = this.async(1000);
+			var dfd = this.async(5000);
 			var grep = /foo/;
 			var suite = createSuite({
 				grep: grep

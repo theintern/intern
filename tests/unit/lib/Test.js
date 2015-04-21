@@ -306,11 +306,9 @@ define([
 				}
 			});
 
-			setTimeout(function () {
-				test.restartTimeout(1000);
-			}, 10);
-
-			return test.run().catch(function () {
+			var run = test.run();
+			test.restartTimeout(1000);
+			return run.catch(function () {
 				assert(false, 'Test should not timeout before it is resolved');
 			});
 		},
