@@ -330,7 +330,14 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 		var args = this._makeArgs.apply(this, arguments);
 		var options = this._makeOptions.apply(this, arguments);
 
-		var dfd = new Promise.Deferred();
+		var dfd = new Promise.Deferred(function (reason) {
+			child.kill('SIGINT');
+			return new Promise(function (resolve, reject) {
+				child.once('exit', function () {
+					reject(reason);
+				});
+			});
+		});
 		var child = spawnUtil.spawn(command, args, options);
 
 		child.stdout.setEncoding('utf8');
@@ -417,13 +424,13 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 			throw new Error('Previous tunnel is still terminating');
 		}
 		else if (this.isStarting) {
-			throw new Error('Tunnel is already launching');
+			return this._startTask;
 		}
 
 		this.isStarting = true;
 
 		var self = this;
-		return this
+		this._startTask = this
 			.download()
 			.then(null, null, function (progress) {
 				self.emit('downloadprogress', progress);
@@ -444,17 +451,20 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 					})
 				);
 				return child.deferred.promise;
-			})
-			.then(function (returnValue) {
-				self.emit('status', 'Ready');
-				self.isStarting = false;
-				self.isRunning = true;
-				return returnValue;
-			}, function (error) {
-				self.emit('status', String(error));
-				self.isStarting = false;
-				throw error;
 			});
+
+		this._startTask.then(function () {
+			self._startTask = null;
+			self.isStarting = false;
+			self.isRunning = true;
+			self.emit('status', 'Ready');
+		}, function (error) {
+			self._startTask = null;
+			self.isStarting = false;
+			self.emit('status', error.name === 'CancelError' ? 'Start cancelled' : 'Failed to start tunnel');
+		});
+
+		return this._startTask;
 	},
 
 	/**
@@ -502,7 +512,8 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 			throw new Error('Tunnel is already terminating');
 		}
 		else if (this.isStarting) {
-			throw new Error('Tunnel is still launching');
+			this._startTask.cancel();
+			return;
 		}
 		else if (!this.isRunning) {
 			throw new Error('Tunnel is not running');
