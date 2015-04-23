@@ -141,10 +141,12 @@ define([
 						}).then(function (makeElement) {
 							return makeElement.click();
 						}).then(function () {
+							return session.setTimeout('implicit', 10000);
+						}).then(function () {
 							startTime = Date.now();
 							return element.find('id', 'd');
 						}).then(function (child) {
-							assert.closeTo(Date.now(), startTime + 250, 500,
+							assert.operator(Date.now(), '<', startTime + 9000,
 								'Driver should not wait until end of implicit timeout once element is available');
 							assert.property(child, 'elementId');
 							return child.getAttribute('id');

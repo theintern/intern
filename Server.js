@@ -293,8 +293,10 @@ Server.prototype = {
 			self.fixSessionCapabilities;
 
 		// Don’t send `fixSessionCapabilities` to the server
-		desiredCapabilities = lang.mixin({}, desiredCapabilities);
-		desiredCapabilities.fixSessionCapabilities = undefined;
+		if ('fixSessionCapabilities' in desiredCapabilities) {
+			desiredCapabilities = lang.mixin({}, desiredCapabilities);
+			desiredCapabilities.fixSessionCapabilities = undefined;
+		}
 
 		return this._post('session', {
 			desiredCapabilities: desiredCapabilities,

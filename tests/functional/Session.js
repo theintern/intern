@@ -698,10 +698,12 @@ define([
 					}).then(function (element) {
 						return element.click();
 					}).then(function () {
+						return session.setTimeout('implicit', 10000);
+					}).then(function () {
 						startTime = Date.now();
 						return session.find('id', 'd');
 					}).then(function (element) {
-						assert.closeTo(Date.now(), startTime + 250, 500,
+						assert.operator(Date.now(), '<', startTime + 9000,
 							'Driver should not wait until end of implicit timeout once element is available');
 						assert.property(element, 'elementId');
 						return element.getAttribute('id');
@@ -1003,12 +1005,14 @@ define([
 				}).then(function () {
 					return session.execute('return result.mousemove.a && result.mousemove.a[result.mousemove.a.length - 1];');
 				}).then(function (event) {
+					assert.isObject(event);
 					assert.strictEqual(event.clientX, 100);
 					assert.strictEqual(event.clientY, 12);
 					return session.moveMouseTo(100, 41);
 				}).then(function () {
 					return session.execute('return result.mousemove.b && result.mousemove.b[result.mousemove.b.length - 1];');
 				}).then(function (event) {
+					assert.isObject(event);
 					assert.strictEqual(event.clientX, 200);
 					assert.strictEqual(event.clientY, 53);
 					return session.findById('c');
@@ -1016,6 +1020,7 @@ define([
 					return session.moveMouseTo(element).then(function () {
 						return session.execute('return result.mousemove.c && result.mousemove.c[result.mousemove.c.length - 1];');
 					}).then(function (event) {
+						assert.isObject(event);
 						assert.closeTo(event.clientX, 450, 4);
 						assert.closeTo(event.clientY, 90, 4);
 						return session.moveMouseTo(element, 2, 4);
@@ -1023,6 +1028,7 @@ define([
 				}).then(function () {
 					return session.execute('return result.mousemove.c && result.mousemove.c[result.mousemove.c.length - 1];');
 				}).then(function (event) {
+					assert.isObject(event);
 					assert.closeTo(event.clientX, 352, 4);
 					assert.closeTo(event.clientY, 80, 4);
 				});
