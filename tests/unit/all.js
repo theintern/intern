@@ -12,6 +12,6 @@ define([
 	'./lib/reporters/Console',
 	'dojo/has!host-node?./lib/reporters/Pretty',
 	'dojo/has!host-node?./lib/reporters/teamcity',
-	'dojo/has!host-node?./lib/reporters/junit',
+	'dojo/has!host-node?./lib/reporters/JUnit',
 	'dojo/has!host-node?./lib/reporters/lcov'
 ], function () {});

@@ -127,13 +127,15 @@ define([
 				});
 
 				// restore everything
-				dfd.promise.finally(function (error) {
+				// TODO: Use dfd.promise.finally in Intern 3
+				function restore(error) {
 					global.__internCoverage = existingCoverage;
 					hook.unhookRunInThisContext();
 					if (error) {
 						throw error;
 					}
-				});
+				}
+				dfd.promise.then(restore, restore);
 
 				require([ '../data/lib/util/foo' ], dfd.callback(function (foo) {
 					assert.ok(wasInstrumented, 'Test module should have been instrumented');

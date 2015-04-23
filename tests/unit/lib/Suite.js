@@ -61,30 +61,36 @@ define([
 				}));
 			});
 
+			// TODO: Wrap function in dfd.rejectOnError once updated to Intern 3 instead of using inline try/catch
 			suite.reporterManager = {
-				emit: dfd.rejectOnError(function (topic) {
-					if (topic === 'suiteStart') {
-						results.push('startTopic');
-						assert.deepEqual(slice.call(arguments, 1), [ suite ],
-							'Arguments broadcast to /suite/start should be the suite being executed');
+				emit: function (topic) {
+					try {
+						if (topic === 'suiteStart') {
+							results.push('startTopic');
+							assert.deepEqual(slice.call(arguments, 1), [ suite ],
+								'Arguments broadcast to /suite/start should be the suite being executed');
 
-						if (options.publishAfterSetup) {
-							assert.deepEqual(results, [ 'setup', 'startTopic' ],
-								'Suite start topic should broadcast after suite starts');
+							if (options.publishAfterSetup) {
+								assert.deepEqual(results, [ 'setup', 'startTopic' ],
+									'Suite start topic should broadcast after suite starts');
+							}
+							else {
+								assert.deepEqual(results, [ 'startTopic' ],
+									'Suite start topic should broadcast before suite starts');
+							}
 						}
-						else {
-							assert.deepEqual(results, [ 'startTopic' ],
-								'Suite start topic should broadcast before suite starts');
+						else if (topic === 'suiteEnd') {
+							results.push('endTopic');
+							assert.deepEqual(slice.call(arguments, 1), [ suite ],
+								'Arguments broadcast to suiteEnd should be the suite being executed');
 						}
 					}
-					else if (topic === 'suiteEnd') {
-						results.push('endTopic');
-						assert.deepEqual(slice.call(arguments, 1), [ suite ],
-							'Arguments broadcast to suiteEnd should be the suite being executed');
+					catch (error) {
+						dfd.reject(error);
 					}
 
 					return Promise.resolve();
-				})
+				}
 			};
 
 			suite.run().then(dfd.callback(function () {

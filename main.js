@@ -18,6 +18,11 @@ define([
 		 */
 		load: function (id, parentRequire, callback) {
 			require([ './lib/interfaces/' + id ], callback);
-		}
+		},
+
+		/**
+		 * The planned execution mode. One of 'client', 'runner', or 'custom'.
+		 */
+		mode: null
 	};
 });
