@@ -225,7 +225,7 @@ function returnValue(response) {
  * The fully qualified URL to the JsonWireProtocol endpoint on the server. The default endpoint for a
  * JsonWireProtocol HTTP server is http://localhost:4444/wd/hub. You may also pass a parsed URL object which will
  * be converted to a string.
- * @param {{ proxy: string }} options
+ * @param {{ proxy: string }=} options
  * Additional request options to be used for requests to the server.
  */
 function Server(url, options) {
