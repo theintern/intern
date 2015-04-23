@@ -550,9 +550,14 @@
 								<td><code class="javascript">/.*/</code></td>
 							</tr>
 							<tr>
-								<th scope="row"><a href="#option-loader">loader</a></th>
+								<th scope="row"><span class="versionBadge">3.0</span> <a href="#option-loader">loaderConfig</a><br><span class="versionBadge">2.0</span> <a href="#option-loader">loader</a></th>
 								<td>Configuration options for the AMD loader.</td>
 								<td><code class="javascript">{ … }</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><span class="versionBadge">3.0</span> <a href="#option-useLoader">loaders</a><br><span class="versionBadge">2.0</span> <a href="#option-useLoader">useLoader</a></th>
+								<td>An alternative module loader to use in place of the built-in AMD loader.</td>
+								<td><code class="javascript">{}</code></td>
 							</tr>
 							<tr>
 								<th scope="row"><a href="#option-reporters">reporters</a></th>
@@ -563,11 +568,6 @@
 								<th scope="row"><a href="#option-suites">suites</a></th>
 								<td>An array of of unit test module IDs to load.</td>
 								<td><code class="javascript">[]</code></td>
-							</tr>
-							<tr>
-								<th scope="row"><a href="#option-useLoader">useLoader</a></th>
-								<td>An alternative module loader to use in place of the built-in AMD loader.</td>
-								<td><code class="javascript">{}</code></td>
 							</tr>
 						</table>
 
@@ -618,9 +618,9 @@
 						</ul>
 
 						<div class="a half" id="option-loader"></div>
-						<h4>loader (Object)</h4>
+						<h4><span class="versionBadge">3.0</span> loaderConfig (Object) / <span class="versionBadge">2.0</span> loader (Object)</h4>
 
-						<p>Configuration options for the module loader. Any <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md">configuration options</a> that are supported by the active loader can be used here. By default, the <a href="https://github.com/dojo/dojo2">Dojo 2</a> AMD loader is used; this can be changed to another loader that provides an AMD-compatible API with <a href="#config-useLoader"><code>useLoader</code></a>.</p>
+						<p>Configuration options for the module loader. Any <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md">configuration options</a> that are supported by the active loader can be used here. By default, the <a href="https://github.com/dojo/dojo2">Dojo 2</a> AMD loader is used; this can be changed to another loader that provides an AMD-compatible API with <a href="#config-useLoader"><code>loaders</code></a>.</p>
 
 						<p>AMD configuration options supported by the built-in loader are <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#map-"><code>map</code></a>, <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#packages-"><code>packages</code></a>, and <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#paths-"><code>paths</code></a>.</p>
 
@@ -634,7 +634,7 @@
 						<p>When following the <a href="#directory-structure">recommended directory structure</a>, a typical loader configuration will look like this:</p>
 
 						<pre><code class="javascript">{
-	loader: {
+	loaderConfig: {
 		packages: [
 			{ name: 'app', location: 'src/' },
 			{ name: 'tests', location: 'tests/' }
@@ -645,7 +645,7 @@
 						<p>If you are testing an AMD application and need to use stub modules for testing, the <code>map</code> configuration option is the correct way to do this:</p>
 
 						<pre><code class="javascript">{
-	loader: {
+	loaderConfig: {
 		map: {
 			app: {
 				// When any module inside 'app' tries to load 'app/foo',
@@ -654,6 +654,29 @@
 			}
 		}
 	}
+}</code></pre>
+
+						<div class="a half" id="option-useLoader"></div>
+						<h4><span class="versionBadge">3.0</span> loaders (Object) / <span class="versionBadge">2.0</span> useLoader (Object)</h4>
+
+						<p>An alternative module loader to use in place of the built-in AMD loader. When <code>loaders</code> is specified, Intern will swap out the built-in loader with the loader you’ve specified before loading reporters and test modules.</p>
+
+						<p>The alternative loader you use must implement the AMD API and must support the <code>baseUrl</code>, <code>map</code>, and <code>packages</code> configuration options.</p>
+
+						<p>There are two different keys that may be specified so that the correct path to the loader can be provided in each environment:</p>
+
+						<ul>
+							<li><code>host-node</code> specifies the loader to use in Node.js. This should be a Node.js module ID.</li>
+							<li><code>host-browser</code> specifies the loader to use in browsers. This should be a URL to a script file.</li>
+						</ul>
+
+						<p>Loader paths are relative to the directory where Intern is installed.</p>
+
+						<p>For example, to use a copy of RequireJS installed to the same project as Intern:</p>
+
+						<pre><code class="javascript">loaders: {
+	'host-node': 'requirejs',
+	'host-browser': '../../node_modules/requirejs/require.js'
 }</code></pre>
 
 						<div class="a half" id="option-reporters"></div>
@@ -690,29 +713,6 @@
 						<aside class="tip"><p><a href="https://github.com/theintern/intern/issues/359">Future versions of Intern</a> will remove this restriction when running in Node.js client or runner mode.</p></aside>
 
 						<p><code>suites</code> can also be set to <code class="javascript">null</code> to skip loading the unit testing system when in runner mode.</p>
-
-						<div class="a half" id="option-useLoader"></div>
-						<h4>useLoader (Object)</h4>
-
-						<p>An alternative module loader to use in place of the built-in AMD loader. When <code>useLoader</code> is specified, Intern will swap out the built-in loader with the loader you’ve specified before loading reporters and test modules.</p>
-
-						<p>The alternative loader you use must implement the AMD API and must support the <code>baseUrl</code>, <code>map</code>, and <code>packages</code> configuration options.</p>
-
-						<p>There are two different keys that may be specified so that the correct path to the loader can be provided in each environment:</p>
-
-						<ul>
-							<li><code>host-node</code> specifies the loader to use in Node.js. This should be a Node.js module ID.</li>
-							<li><code>host-browser</code> specifies the loader to use in browsers. This should be a URL to a script file.</li>
-						</ul>
-
-						<p>Loader paths are relative to the directory where Intern is installed.</p>
-
-						<p>For example, to use a copy of RequireJS installed to the same project as Intern:</p>
-
-						<pre><code class="javascript">useLoader: {
-	'host-node': 'requirejs',
-	'host-browser': '../../node_modules/requirejs/require.js'
-}</code></pre>
 
 						<div class="a half" id="client-config"></div>
 						<h3 data-id="client-config">Client configuration</h3>
@@ -2630,8 +2630,8 @@ define([
 								<td>This method is called when a test suite has finished running.</td>
 							</tr>
 							<tr>
-								<th scope="row">suiteError(suite: Suite)</th>
-								<td>This method is called when an error occurs within one of the suite’s lifecycle methods (setup, beforeEach, afterEach, or teardown).</td>
+								<th scope="row">suiteError(<br>&nbsp;&nbsp;suite: Suite,<br>&nbsp;&nbsp;error: Error<br>)</th>
+								<td>This method is called when an error occurs within one of the suite’s lifecycle methods (setup, beforeEach, afterEach, or teardown), or when an error occurs when a suite attempts to run a child test.</td>
 							</tr>
 							<tr>
 								<th scope="row">suiteStart(suite: Suite)</th>
