@@ -27,7 +27,7 @@ if (!fs.existsSync(expected)) {
 		}
 	}
 
-	var actualPath = path.dirname(require.resolve(dependency));
+	var actualPath = path.dirname(require.resolve(path.join(dependency, 'package.json')));
 
 	if (actualPath.indexOf(expectedPath) !== 0) {
 		fs.symlinkSync(actualPath, expectedPath, 'dir');
