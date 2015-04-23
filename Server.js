@@ -39,7 +39,7 @@ function createHttpRequest(method) {
 			return encodeURIComponent(pathParts[index]);
 		});
 
-		var kwArgs = {
+		var kwArgs = lang.delegate(this.requestOptions, {
 			followRedirects: false,
 			handleAs: 'text',
 			headers: {
@@ -49,7 +49,7 @@ function createHttpRequest(method) {
 				'Accept': 'application/json,text/plain;q=0.9'
 			},
 			method: method
-		};
+		});
 
 		if (requestData) {
 			kwArgs.data = JSON.stringify(requestData);
@@ -225,8 +225,10 @@ function returnValue(response) {
  * The fully qualified URL to the JsonWireProtocol endpoint on the server. The default endpoint for a
  * JsonWireProtocol HTTP server is http://localhost:4444/wd/hub. You may also pass a parsed URL object which will
  * be converted to a string.
+ * @param {{ proxy: string }} options
+ * Additional request options to be used for requests to the server.
  */
-function Server(url) {
+function Server(url, options) {
 	if (typeof url === 'object') {
 		url = Object.create(url);
 		if (url.username || url.password || url.accessKey) {
@@ -235,6 +237,7 @@ function Server(url) {
 	}
 
 	this.url = urlUtil.format(url).replace(/\/*$/, '/');
+	this.requestOptions = options || {};
 }
 
 /**
