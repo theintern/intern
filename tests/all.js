@@ -264,11 +264,6 @@ define([
 							tunnel.start();
 						});
 						tunnel.isStopping = false;
-
-						tunnel.isStarting = true;
-						assert.throws(function () {
-							tunnel.start();
-						});
 					}
 					finally {
 						tunnel.isRunning = false;
