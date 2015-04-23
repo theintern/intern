@@ -10,10 +10,10 @@
 		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/leadfoot/blob/master/LICENSE" }
 	],
 	"dependencies": {
-		"dojo": "2.0.0-alpha4"
+		"dojo": "2.0.0-alpha.5"
 	},
 	"devDependencies": {
-		"intern": "1.7.0"
+		"intern": "2.2.2"
 	},
 	"bugs": "https://github.com/theintern/leadfoot/issues",
 	"keywords": [ "javascript", "test", "functional", "selenium", "webdriver", "sauce labs", "browserstack", "testingbot" ],
