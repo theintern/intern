@@ -68,7 +68,8 @@ define([
 					dimensions: {
 						width: 80,
 						height: 24
-					}
+					},
+					internConfig: {}
 				});
 				pretty.charm = mockCharm;
 			},
@@ -218,11 +219,11 @@ define([
 				}
 			},
 
-			start: function () {
+			run: function () {
 				try {
 					pretty.dimensions = {};
 					pretty.intern = { config: 'foo' };
-					pretty.start();
+					pretty.run();
 
 					assert.isDefined(pretty.dimensions.width);
 					assert.isDefined(pretty.dimensions.height);
@@ -233,7 +234,7 @@ define([
 				}
 			},
 
-			stop: function () {
+			destroy: function () {
 				var expected = pretty.colorReplacement['✓'] + '✓ 0\n' +
 					pretty.colorReplacement['⚠'] + '⚠ 1\n' +
 					pretty.colorReplacement['~'] + '~ 2\n' +
@@ -246,7 +247,7 @@ define([
 
 				try {
 					pretty.log = ['! 4', '~ 2', '× 3', '⚠ 1', '✓ 0'];
-					pretty.stop();
+					pretty.destroy();
 					assert.equal(mockCharm.out, expected);
 					assert.lengthOf(Reporter.prototype.writeReport.args, 1);
 				}

@@ -2,24 +2,11 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'dojo/lang',
+	'./support/MockConsole',
 	'../../../../lib/Suite',
 	'../../../../lib/Test',
 	'../../../../lib/reporters/Console'
-], function (registerSuite, assert, lang, Suite, Test, Console) {
-	function MockConsole(hasGrouping) {
-		this.messages = {};
-		var methods = [ 'log', 'info', 'warn', 'error', 'group' ];
-		if (hasGrouping) {
-			methods.push('groupEnd');
-		}
-		methods.forEach(function (method) {
-			this.messages[method] = [];
-			this[method] = function () {
-				this.messages[method].push(Array.prototype.slice.call(arguments, 0).join(' '));
-			};
-		}, this);
-	}
-
+], function (registerSuite, assert, lang, MockConsole, Suite, Test, Console) {
 	registerSuite({
 		name: 'intern/lib/reporters/Console',
 
@@ -96,7 +83,7 @@ define([
 			if (result.indexOf('No stack or location') === -1) {
 				// the line number in the message should be the same as the line where the new Error
 				// was created above
-				assert.include(result, 'tests/unit/lib/reporters/Console.js:84',
+				assert.include(result, 'tests/unit/lib/reporters/Console.js:71',
 					'Reporter should indicate the location of the error');
 			}
 		},
