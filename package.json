@@ -1,5 +1,5 @@
 {
-	"name": "intern",
+	"name": "intern-latest",
 	"version": "2.2.3-pre",
 	"main": "main",
 	"description": "Intern. A next-generation code testing stack for JavaScript.",
