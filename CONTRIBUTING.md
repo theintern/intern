@@ -12,6 +12,11 @@ In order to keep the GitHub issue tracker focused on development tasks, our team
 Stack Overflow or IRC instead of GitHub**. The [Getting help](https://theintern.github.io/intern/#getting-help) section
 of the user guide goes into detail about where and how to ask questions to get the best response!
 
+If you’re in a hurry, here are some direct links:
+
+* [Post a question to Stack Overflow](http://stackoverflow.com/questions/ask?tags=intern)
+* [Join #intern on Freenode](https://webchat.freenode.net/?channels=intern)
+
 ## Reporting bugs & feature requests
 
 For bugs, please [open a ticket](https://github.com/theintern/intern/issues/new?body=Description:%0A%0ASteps+to+reproduce:%0A%0A1.%20%E2%80%A6%0A2.%20%E2%80%A6%0A3.%20%E2%80%A6%0A%0AExpected%20result:%0AActual%20result:%0A%0AIntern%20version:%0A%0AAny%20additional%20information:),
