@@ -197,7 +197,8 @@ define([
 				parent: {
 					id: 'parent id',
 					name: 'parent id',
-					sessionId: 'abcd'
+					sessionId: 'abcd',
+					timeout: 30000
 				},
 				test: function () {}
 			});
