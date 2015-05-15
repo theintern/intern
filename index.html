@@ -2819,9 +2819,14 @@ define(function () {
 
 						<pre><code class="javascript">// in intern.js
 define({
-	// load `tests/unit/test.java` using `tests/support/javaInterface`
-	suites: [ 'tests/support/javaInterface!tests/unit/test.java' ],
-	functionalSuites: [ 'tests/support/javaInterface!tests/functional/test.java' ]
+	suites: [
+		// load `tests/unit/test.java` using `tests/support/javaInterface`
+		'tests/support/javaInterface!tests/unit/test.java'
+	],
+	functionalSuites: [
+		// load `tests/functional/test.java` using `tests/support/javaInterface`
+		'tests/support/javaInterface!tests/functional/test.java'
+	]
 });</code></pre>
 
 						<div class="a half" id="custom-executors"></div>
