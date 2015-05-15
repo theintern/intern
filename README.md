@@ -51,9 +51,12 @@ tunnel.stop().then(function () {
 });
 ```
 
+## API documentation
+
+[View API documentation](https://theintern.github.io/digdug/)
+
 ## License
 
-Dig Dug is available under the terms of the [New BSD License](LICENSE). All code is developed under the terms of the
-[Dojo Foundation CLA](http://dojofoundation.org/about/cla).
+Dig Dug is a Dojo Foundation project offered under the [New BSD](LICENSE) license.
 
-© 2013–2014 SitePen, Inc. http://sitepen.com
+© [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/digdug/graphs/contributors)
