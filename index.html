@@ -540,6 +540,11 @@
 								</tr>
 							</thead>
 							<tr>
+								<th scope="row"><span class="versionBadge">3.0</span> <a href="#option-defaultTimeout">defaultTimeout</a></th>
+								<td>The amount of time, in milliseconds, an asynchronous test can take before it is considered timed out.</td>
+								<td><code class="javascript">30000</code></td>
+							</tr>
+							<tr>
 								<th scope="row"><a href="#option-excludeInstrumentation">excludeInstrumentation</a></th>
 								<td>A boolean (<span class="versionBadge">3.0</span>) or regular expression matching paths to exclude from code coverage.</td>
 								<td><code class="javascript">null</code></td>
@@ -570,6 +575,14 @@
 								<td><code class="javascript">[]</code></td>
 							</tr>
 						</table>
+
+
+						<div class="a half" id="option-defaultTimeout"></div>
+						<h4><span class="versionBadge">3.0</span> defaultTimeout (number)</h4>
+
+						<p>The amount of time, in milliseconds, an asynchronous test can run before it is considered timed out. By default this value is 30 seconds.</p>
+
+						<p>Timeouts can be set for an individual test by setting the <code>timeout</code> property of the test, or for all tests within a test suite by setting the <code>timeout</code> property of the suite.</p>
 
 						<div class="a half" id="option-excludeInstrumentation"></div>
 						<h4>excludeInstrumentation (RegExp | <span class="versionBadge">3.0</span> boolean)</h4>
