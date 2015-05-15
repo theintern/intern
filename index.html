@@ -2577,7 +2577,7 @@ define([
 
 						<p>A very basic custom interface that lets users register test functions by calling <code>addTest</code> looks like this:</p>
 
-						<pre><code class="javascript">// in my/custom/interface.js
+						<pre><code class="javascript">// in tests/support/customInterface.js
 define(function (require) {
 	var intern = require('intern');
 	var Test = require('intern/lib/Test');
@@ -2602,9 +2602,9 @@ define(function (require) {
 
 						<p>This custom interface can then be used by any test module simply by requiring and using it the same way you’d use one of the built-in test interfaces:</p>
 
-						<pre><code class="javascript">// in my/unit/test.js
+						<pre><code class="javascript">// in tests/unit/test.js
 define(function (require) {
-	var interface = require('my/custom/interface');
+	var interface = require('../support/customInterface');
 	var assert = require('intern/chai!assert');
 
 	interface.addTest('my test', function () {
@@ -2614,7 +2614,7 @@ define(function (require) {
 
 						<p>Interfaces can also create nested suites by creating Suite objects:</p>
 
-						<pre><code class="javascript">// in my/suite/interface.js
+						<pre><code class="javascript">// in tests/support/suiteInterface.js
 define(function (require) {
 	var intern = require('intern');
 	var Suite = require('intern/lib/Suite');
@@ -2653,9 +2653,9 @@ define(function (require) {
 
 						<p>This custom interface would then be used like this:</p>
 
-						<pre><code class="javascript">// in my/unit/test2.js
+						<pre><code class="javascript">// in tests/unit/test2.js
 define(function (require) {
-	var interface = require('my/suite/interface');
+	var interface = require('../support/suiteInterface');
 	var assert = require('intern/chai!assert');
 
 	var suite = interface.createSuite('my suite');
@@ -2668,8 +2668,9 @@ define(function (require) {
 
 						<p>As a more practical (but incomplete) example, to convert a Jasmine test suite to an Intern test suite using a custom Jasmine interface, you’d simply run a script to wrap all of your existing Jasmine spec files like this:</p>
 
-						<pre><code class="javascript">define(function (require) {
-	var jasmine = require('tests/support/customJasmineInterface');
+						<pre><code class="javascript">// in tests/unit/jasmineTest.js
+define(function (require) {
+	var jasmine = require('../support/jasmineInterface');
 
 	// you could also just use `with (jasmine) {}` if you want
 	var describe = jasmine.describe, it = jasmine.it, expect = jasmine.expect, beforeEach = jasmine.beforeEach, afterEach = jasmine.afterEach, xdescribe = jasmine.xdescribe, xit = jasmine.xit, fdescribe = jasmine.fdescribe, fit = jasmine.fit;
@@ -2679,7 +2680,8 @@ define(function (require) {
 
 						<p>Then, you’d only need to write a custom Jasmine test interface that creates Intern Suite and Test objects and registers them with the current executor. In this case, since the Jasmine API is so similar to Intern’s TDD API, it’s possible to leverage one of the built-in interfaces instead of having to do it all ourselves:</p>
 
-						<pre><code class="javascript">define(function (require) {
+						<pre><code class="javascript">// in tests/support/jasmineInterface.js
+define(function (require) {
 	var tdd = require('intern!tdd');
 
 	// This function creates an object that looks like a Jasmine Suite and
@@ -2777,7 +2779,7 @@ define(function (require) {
 
 						<p>For tests written in other languages, an AMD <a href="https://github.com/amdjs/amdjs-api/blob/master/LoaderPlugins.md">loader plugin</a> can be used instead of a normal module to asynchronously parse and compile the foreign source code into a JavaScript function that can be called by an Intern Test object:</p>
 
-						<pre><code class="javascript">// in my/plugin/interface.js
+						<pre><code class="javascript">// in tests/support/javaInterface.js
 define(function () {
 	var text = require('intern/dojo/text');
 	var parser = require('my/test/parser');
@@ -2817,9 +2819,9 @@ define(function () {
 
 						<pre><code class="javascript">// in intern.js
 define({
-	// load `my/test.feature` using `my/plugin/interface`
-	suites: [ 'my/plugin/interface!my/test.java' ],
-	functionalSuites: [ 'my/plugin/interface!functional/test.java' ]
+	// load `tests/unit/test.java` using `tests/support/javaInterface`
+	suites: [ 'tests/support/javaInterface!tests/unit/test.java' ],
+	functionalSuites: [ 'tests/support/javaInterface!tests/functional/test.java' ]
 });</code></pre>
 
 						<div class="a half" id="custom-executors"></div>
