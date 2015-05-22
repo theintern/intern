@@ -109,19 +109,8 @@ define([
 
 			'#getSessionCapabilities': function () {
 				// Intern 2 has remote.session; Intern 1 does not
-				var sessionId;
-				var remoteCapabilities;
-
-				// Intern 2
-				if (this.remote.session) {
-					sessionId = this.remote.session.sessionId;
-					remoteCapabilities = this.remote.session.capabilities;
-				}
-				// Intern 1
-				else {
-					sessionId = this.remote.sessionId;
-					remoteCapabilities = this.remote.environmentType;
-				}
+				var sessionId = this.remote.session.sessionId;
+				var remoteCapabilities = this.remote.session.capabilities;
 
 				return server.getSessionCapabilities(sessionId).then(function (capabilities) {
 					assert.isObject(capabilities);
