@@ -34,7 +34,7 @@ function createHttpRequest(method) {
 	 *
 	 * @returns {Promise.<Object>}
 	 */
-	return function (path, requestData, pathParts) {
+	return function sendRequest(path, requestData, pathParts) {
 		var url = this.url + path.replace(/\$(\d)/, function (_, index) {
 			return encodeURIComponent(pathParts[index]);
 		});
@@ -66,7 +66,7 @@ function createHttpRequest(method) {
 		}
 
 		var trace = {};
-		Error.captureStackTrace(trace);
+		Error.captureStackTrace(trace, sendRequest);
 
 		return request(url, kwArgs).then(function handleResponse(response) {
 			/*jshint maxcomplexity:24 */
@@ -196,12 +196,15 @@ function createHttpRequest(method) {
 				error.message = '[' + method + ' ' + sanitizedUrl +
 					(requestData ? ' / ' + JSON.stringify(requestData) : '') +
 					'] ' + error.message;
-				error.stack = error.message + trace.stack.replace(/^[^\n]+/, '');
+				error.stack = error.message + util.trimStack(trace.stack);
 
 				throw error;
 			}
 
 			return data;
+		}, function (error) {
+			error.stack = error.message + util.trimStack(trace.stack);
+			throw error;
 		});
 	};
 }

@@ -19,6 +19,7 @@ var util = require('./lib/util');
 function createElementMethod(method) {
 	return function () {
 		var args = arguments;
+
 		return new this.constructor(this, function (setContext) {
 			var parentContext = this._context;
 			var promise;
@@ -340,6 +341,11 @@ function Command(parent, initialiser, errback) {
 		self._context = context;
 	}
 
+	function fixStack(error) {
+		error.stack = error.stack + util.trimStack(trace.stack);
+		throw error;
+	}
+
 	if (parent && parent.session) {
 		this._parent = parent;
 		session = this._session = parent.session;
@@ -361,9 +367,9 @@ function Command(parent, initialiser, errback) {
 		}
 	}
 
-	Error.captureStackTrace(this, Command);
+	var trace = {};
+	Error.captureStackTrace(trace, Command);
 
-	/* jshint maxlen:130 */
 	this._promise = (parent ? parent.promise : Promise.resolve(undefined)).then(function (returnValue) {
 		self._context = parent ? parent.context : TOP_CONTEXT;
 		return returnValue;
@@ -371,15 +377,17 @@ function Command(parent, initialiser, errback) {
 		self._context = parent ? parent.context : TOP_CONTEXT;
 		throw error;
 	}).then(
-		initialiser && initialiser.bind(this, setContext),
-		errback && errback.bind(this, setContext)
-	).catch(function (error) {
-		// The first line of a stack trace from V8 is the string representation of the object holding the stack
-		// trace; in this case, the Command object holds the stack trace, and has no string representation, so we
-		// remove it from the output
-		error.stack = error.stack + self.stack.replace(/^[^\n]+/, '');
-		throw error;
-	});
+		initialiser && function (returnValue) {
+			return Promise.resolve(returnValue)
+				.then(initialiser.bind(self, setContext))
+				.catch(fixStack);
+		},
+		errback && function (error) {
+			return Promise.reject(error)
+				.catch(errback.bind(self, setContext))
+				.catch(fixStack);
+		}
+	);
 }
 
 /**
