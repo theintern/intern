@@ -175,7 +175,12 @@ Element.prototype = {
 
 	/**
 	 * Types into the element. This method works the same as the {@link module:leadfoot/Session#pressKeys} method
-	 * except that any modifier keys are automatically released at the end of the command.
+	 * except that any modifier keys are automatically released at the end of the command. This method should be used
+	 * instead of {@link module:leadfoot/Session#pressKeys} to type filenames into file upload fields.
+	 *
+	 * Since 1.5, if the WebDriver server supports remote file uploads, and you type a path to a file on your local
+	 * computer, that file will be transparently uploaded to the remote server and the remote filename will be typed
+	 * instead. If you do not want to upload local files, use {@link module:leadfoot/Session#pressKeys} instead.
 	 *
 	 * @param {string|string[]} value
 	 * The text to type in the remote environment. See {@link module:leadfoot/Session#pressKeys} for more information.
