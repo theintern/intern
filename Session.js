@@ -3,7 +3,9 @@
  * @module leadfoot/Session
  */
 
+var AdmZip = require('adm-zip');
 var Element = require('./Element');
+var fs = require('fs');
 var lang = require('dojo/lang');
 var Promise = require('dojo/Promise');
 var statusCodes = require('./lib/statusCodes');
@@ -1656,6 +1658,28 @@ Session.prototype = {
 	 */
 	quit: function () {
 		return this._server.deleteSession(this._sessionId).then(noop);
+	},
+
+	/**
+	 * Uploads a file to a remote Selenium server for use when testing file uploads. This API is not part of the
+	 * WebDriver specification and should not be used directly. To send a file to a server that supports file uploads,
+	 * use {@link module:leadfoot/Element#type} to type the name of the local file into a file input field and the file
+	 * will be transparently transmitted and used by the server.
+	 *
+	 * @private
+	 * @returns {Promise.<string>}
+	 */
+	_uploadFile: function (filename) {
+		var self = this;
+
+		return new Promise(function (resolve) {
+			var zip = new AdmZip();
+			zip.addLocalFile(filename);
+			var data = zip.toBuffer().toString('base64');
+			zip = null;
+
+			resolve(self._post('file', { file: data }));
+		});
 	}
 };
 

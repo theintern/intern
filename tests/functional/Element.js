@@ -334,6 +334,29 @@ define([
 				});
 			},
 
+			'#type -> file upload': function () {
+				if (!session.capabilities.remoteFiles) {
+					this.skip('Remote file uploads not supported by server');
+				}
+
+				return session.get(require.toUrl('./data/upload.html')).then(function () {
+					return session.findById('file');
+				}).then(function (element) {
+					return element.type(require.toUrl('./data/upload.txt'));
+				}).then(function () {
+					/* global document:false */
+					return session.execute(function () {
+						var file = document.getElementById('file').files[0];
+						return { name: file.name, size: file.size };
+					});
+				}).then(function (file) {
+					assert.deepEqual(file, {
+						name: 'upload.txt',
+						size: 19
+					});
+				});
+			},
+
 			'#getTagName': function () {
 				return session.get(require.toUrl('./data/default.html')).then(function () {
 					return session.findByTagName('body');

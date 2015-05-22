@@ -196,6 +196,9 @@
  * @property {string} platform
  * The name of the platform on which the current environment is running.
  *
+ * @property {boolean} remoteFiles
+ * Environments with this capability allow files to be uploaded from a remote client.
+ *
  * @property {boolean} rotatable
  * Environments with this capability allow the rotation of the device to be set and retrieved using the WebDriver API.
  *

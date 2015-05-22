@@ -789,7 +789,24 @@ Server.prototype = {
 			return Promise.all(testedCapabilities);
 		}
 
+		function discoverServerFeatures() {
+			var testedCapabilities = {};
+
+			/* jshint maxlen:300 */
+			testedCapabilities.remoteFiles = function () {
+				return session._post('file', {
+					file: 'UEsDBAoAAAAAAD0etkYAAAAAAAAAAAAAAAAIABwAdGVzdC50eHRVVAkAA2WnXlVlp15VdXgLAAEE8gMAAATyAwAAUEsBAh4DCgAAAAAAPR62RgAAAAAAAAAAAAAAAAgAGAAAAAAAAAAAAKSBAAAAAHRlc3QudHh0VVQFAANlp15VdXgLAAEE8gMAAATyAwAAUEsFBgAAAAABAAEATgAAAEIAAAAAAA=='
+				}).then(function (filename) {
+					return filename && filename.indexOf('test.txt') > -1;
+				}).catch(unsupported);
+			};
+
+			return Promise.all(testedCapabilities);
+		}
+
 		return session.get('about:blank')
+			.then(discoverServerFeatures)
+			.then(addCapabilities)
 			.then(discoverFeatures)
 			.then(addCapabilities)
 			.then(function () {

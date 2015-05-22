@@ -4,9 +4,11 @@
  * @module leadfoot/Element
  */
 
+var fs = require('fs');
 var strategies = require('./lib/strategies');
 var waitForDeleted = require('./lib/waitForDeleted');
 var util = require('./lib/util');
+
 /**
  * Delegates the HTTP request for a method to the underlying {@link module:leadfoot/Session} object.
  *
@@ -183,6 +185,14 @@ Element.prototype = {
 	type: function (value) {
 		if (!Array.isArray(value)) {
 			value = [ value ];
+		}
+
+		if (this.session.capabilities.remoteFiles) {
+			var filename = value.join('');
+
+			if (fs.existsSync(filename)) {
+				return this.session._uploadFile(filename).then(this.type.bind(this));
+			}
 		}
 
 		return this._post('value', {
