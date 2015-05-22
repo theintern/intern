@@ -219,11 +219,11 @@ define([
 				}
 			},
 
-			run: function () {
+			runStart: function () {
 				try {
 					pretty.dimensions = {};
 					pretty.intern = { config: 'foo' };
-					pretty.run();
+					pretty.runStart();
 
 					assert.isDefined(pretty.dimensions.width);
 					assert.isDefined(pretty.dimensions.height);
@@ -234,7 +234,7 @@ define([
 				}
 			},
 
-			destroy: function () {
+			runEnd: function () {
 				var expected = pretty.colorReplacement['✓'] + '✓ 0\n' +
 					pretty.colorReplacement['⚠'] + '⚠ 1\n' +
 					pretty.colorReplacement['~'] + '~ 2\n' +
@@ -247,7 +247,7 @@ define([
 
 				try {
 					pretty.log = ['! 4', '~ 2', '× 3', '⚠ 1', '✓ 0'];
-					pretty.destroy();
+					pretty.runEnd();
 					assert.equal(mockCharm.out, expected);
 					assert.lengthOf(Reporter.prototype.writeReport.args, 1);
 				}
