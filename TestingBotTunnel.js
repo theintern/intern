@@ -183,7 +183,12 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 
 		// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
 		// `fs.watch` API has extra restrictions which are best avoided
-		fs.watchFile(readyFile, { persistent: false, interval: 1007 }, function () {
+		fs.watchFile(readyFile, { persistent: false, interval: 1007 }, function (current, previous) {
+			if (Number(current.mtime) === Number(previous.mtime)) {
+				// readyFile hasn't been modified, so ignore the event
+				return;
+			}
+
 			fs.unwatchFile(readyFile);
 			dfd.resolve();
 		});
