@@ -9,6 +9,7 @@ define([
 	'./lib/interfaces/tdd',
 	'./lib/interfaces/bdd',
 	'./lib/interfaces/object',
+	'./lib/interfaces/qunit',
 	'./lib/reporters/Console',
 	'dojo/has!host-node?./lib/reporters/Pretty',
 	'dojo/has!host-node?./lib/reporters/TeamCity',
