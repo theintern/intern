@@ -540,6 +540,11 @@
 								</tr>
 							</thead>
 							<tr>
+								<th scope="row"><a href="#option-coverageVariable">coverageVariable</a> <span class="versionBadge">3.0</span></th>
+								<td>The name of the global variable used to store and retrieve code coverage data.</td>
+								<td><code class="javascript">'__internCoverage'</code></td>
+							</tr>
+							<tr>
 								<th scope="row"><a href="#option-defaultTimeout">defaultTimeout</a> <span class="versionBadge">3.0</span></th>
 								<td>The amount of time, in milliseconds, an asynchronous test can take before it is considered timed out.</td>
 								<td><code class="javascript">30000</code></td>
@@ -576,6 +581,10 @@
 							</tr>
 						</table>
 
+						<div class="a half" id="option-coverageVariable"></div>
+						<h4>coverageVariable (string) <span class="versionBadge">3.0</span></h4>
+
+						<p>The name of the global variable used to store and retrieve code coverage data. Change this only if you have code that is pre-instrumented by a compatible version of Istanbul with a different global variable name.</p>
 
 						<div class="a half" id="option-defaultTimeout"></div>
 						<h4>defaultTimeout (number) <span class="versionBadge">3.0</span></h4>
