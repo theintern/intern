@@ -1,8 +1,9 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'../../../lib/ReporterManager'
-], function (registerSuite, assert, ReporterManager) {
+	'../../../lib/ReporterManager',
+	'dojo/Promise'
+], function (registerSuite, assert, ReporterManager, Promise) {
 	registerSuite({
 		name: 'intern/lib/ReporterManager',
 
@@ -38,8 +39,8 @@ define([
 		},
 
 		'add/remove Reporter': function () {
-			function MockReporter() {
-				actual.push('created');
+			function MockReporter(config) {
+				actual.push(config.option);
 			}
 
 			MockReporter.prototype = {
@@ -57,8 +58,8 @@ define([
 			var handle;
 
 			expected.push('created');
-			handle = reporterManager.add(MockReporter, { option: 'foo' });
-			assert.deepEqual(actual, expected, 'Reporter instance should have been instantiated');
+			handle = reporterManager.add(MockReporter, { option: 'created' });
+			assert.deepEqual(actual, expected, 'Reporter instance should have been instantiated with config arguments');
 
 			reporterManager.emit('someTopic');
 			expected.push('topic1');
@@ -74,6 +75,38 @@ define([
 			assert.doesNotThrow(function () {
 				handle.remove();
 			}, Error, 'Removing an removed reporter should not throw');
+		},
+
+		'reporterError': function () {
+			var reporterManager = new ReporterManager();
+
+			var firstError = new Error('Oops');
+			var secondError = new Error('Oops again!');
+			var reporter;
+			var actual;
+
+			function MockReporter() {
+				reporter = this;
+			}
+			MockReporter.prototype.runStart = function () {
+				throw firstError;
+			};
+			MockReporter.prototype.runEnd = function () {
+				return Promise.reject(secondError);
+			};
+			MockReporter.prototype.reporterError = function () {
+				actual = Array.prototype.slice.call(arguments, 0);
+				throw new Error('Throwing this error should not cause reporterError to be called again');
+			};
+
+			reporterManager.add(MockReporter, {});
+
+			return reporterManager.emit('runStart').then(function () {
+				assert.deepEqual(actual, [ reporter, firstError ]);
+				return reporterManager.emit('runEnd');
+			}).then(function () {
+				assert.deepEqual(actual, [ reporter, secondError ]);
+			});
 		}
 	});
 });
