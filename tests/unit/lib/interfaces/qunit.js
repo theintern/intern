@@ -144,7 +144,7 @@ define([
 		},
 
 		'asserts': {
-			'should have a working expect': function () {
+			'.expect': function () {
 				var results = [];
 
 				QUnit.module('qunit suite 1');
@@ -162,7 +162,7 @@ define([
 				});
 			},
 
-			'should have a working push': function () {
+			'.push': function () {
 				var results = [];
 
 				QUnit.module('qunit suite 1');
@@ -189,6 +189,32 @@ define([
 				return rootSuite.run().then(function () {
 					assert.strictEqual(results[0], 1, 'Base assert should have "1" assertion');
 				});
+			},
+
+			'.throws': function () {
+				assert.throws(function () {
+					QUnit.assert.throws(function () {}, function () {});
+				}, 'expected [Function] to throw');
+
+				assert.throws(function () {
+					QUnit.assert.throws(function () {}, function () {}, 'foo');
+				}, 'foo: expected [Function] to throw');
+
+				assert.doesNotThrow(function () {
+					QUnit.assert.throws(function () {
+						throw new Error('Oops');
+					}, function (error) {
+						return error.message === 'Oops';
+					});
+				}, 'Error should be passed to test function, and matching test function should not throw');
+
+				assert.throws(function () {
+					QUnit.assert.throws(function () {
+						throw new Error('Oops');
+					}, function () {
+						return false;
+					}, 'foo');
+				}, 'foo: expected [Function] to throw error matching [Function] but got Error: Oops');
 			}
 		},
 
