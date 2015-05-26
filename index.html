@@ -784,6 +784,11 @@
 								<td><code class="javascript">[]</code></td>
 							</tr>
 							<tr>
+								<th scope="row"><a href="#option-environmentRetries">environmentRetries</a> <span class="versionBadge">3.0</span></th>
+								<td>The number of times to retry creating a session for a remote environment.</td>
+								<td><code class="javascript">3</code></td>
+							</tr>
+							<tr>
 								<th scope="row"><a href="#option-functionalSuites">functionalSuites</a></th>
 								<td>An array of functional test module IDs to load.</td>
 								<td><code class="javascript">[]</code></td>
@@ -860,6 +865,11 @@
 						<p>All other capabilities are not permuted, but are simply passed as-is to the WebDriver server.</p>
 
 						<p>Different cloud testing services use different capability values when specifying environment capabilities. For example, Sauce Labs uses 'Windows XP' to specify the Windows XP platform while BrowserStack uses 'XP'. Check <a href="#options-capabilities">the list above</a> to find the right capabilities for your chosen platform.</p>
+
+						<div class="a half" id="option-environmentRetries"></div>
+						<h4>environmentRetries (number) <span class="versionBadge">3.0</span></h4>
+
+						<p>The number of times to retry creating a session for a remote environment. Occasionally, hosted VM services will experience temporary failures when creating a new session; specifying <code>environmentRetries</code> avoids false positives caused by transient session creation failures.</p>
 
 						<div class="a half" id="option-functionalSuites"></div>
 						<h4>functionalSuites (Array&lt;string>)</h4>
