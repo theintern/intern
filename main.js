@@ -20,6 +20,12 @@ define([
 			require([ './lib/interfaces/' + id ], callback);
 		},
 
+		normalize: function (interfaceId) {
+			// The loader should not attempt to normalize values passed to the
+			// loader plugin as module IDs, since they are not module IDs.
+			return interfaceId;
+		},
+
 		/**
 		 * The planned execution mode. One of 'client', 'runner', or 'custom'.
 		 */
