@@ -103,6 +103,9 @@ define([
 					stack: 'Foo@http://localhost:8080/test.js:2:8\nhttp://localhost:8080/test.html:7:5\nfail'
 				});
 				assert.strictEqual(message, 'OopsError: Unknown error\n  at Foo  <test.js:2:8>\n  at <test.html:7:5>\nfail');
+
+				message = util.getErrorMessage({ stack: 'undefined\nat did-it-again.js:1:0' });
+				assert.strictEqual(message, 'Error: Unknown error\n  at <did-it-again.js:1:0>');
 			},
 
 			'source map from instrumentation': function () {
