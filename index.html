@@ -540,13 +540,13 @@
 								</tr>
 							</thead>
 							<tr>
-								<th scope="row"><span class="versionBadge">3.0</span> <a href="#option-defaultTimeout">defaultTimeout</a></th>
+								<th scope="row"><a href="#option-defaultTimeout">defaultTimeout</a> <span class="versionBadge">3.0</span></th>
 								<td>The amount of time, in milliseconds, an asynchronous test can take before it is considered timed out.</td>
 								<td><code class="javascript">30000</code></td>
 							</tr>
 							<tr>
 								<th scope="row"><a href="#option-excludeInstrumentation">excludeInstrumentation</a></th>
-								<td>A boolean (<span class="versionBadge">3.0</span>) or regular expression matching paths to exclude from code coverage.</td>
+								<td>A boolean <span class="versionBadge">3.0</span> or regular expression matching paths to exclude from code coverage.</td>
 								<td><code class="javascript">null</code></td>
 							</tr>
 							<tr>
@@ -555,12 +555,12 @@
 								<td><code class="javascript">/.*/</code></td>
 							</tr>
 							<tr>
-								<th scope="row"><span class="versionBadge">3.0</span> <a href="#option-loader">loaderConfig</a><br><span class="versionBadge">2.0</span> <a href="#option-loader">loader</a></th>
+								<th scope="row"><a href="#option-loader">loaderConfig</a> <span class="versionBadge">3.0</span><br><a href="#option-loader">loader</a> <span class="versionBadge">2.0</span></th>
 								<td>Configuration options for the AMD loader.</td>
 								<td><code class="javascript">{ … }</code></td>
 							</tr>
 							<tr>
-								<th scope="row"><span class="versionBadge">3.0</span> <a href="#option-useLoader">loaders</a><br><span class="versionBadge">2.0</span> <a href="#option-useLoader">useLoader</a></th>
+								<th scope="row"><a href="#option-useLoader">loaders</a> <span class="versionBadge">3.0</span><br><a href="#option-useLoader">useLoader</a> <span class="versionBadge">2.0</span></th>
 								<td>An alternative module loader to use in place of the built-in AMD loader.</td>
 								<td><code class="javascript">{}</code></td>
 							</tr>
@@ -578,14 +578,14 @@
 
 
 						<div class="a half" id="option-defaultTimeout"></div>
-						<h4><span class="versionBadge">3.0</span> defaultTimeout (number)</h4>
+						<h4>defaultTimeout (number) <span class="versionBadge">3.0</span></h4>
 
 						<p>The amount of time, in milliseconds, an asynchronous test can run before it is considered timed out. By default this value is 30 seconds.</p>
 
 						<p>Timeouts can be set for an individual test by setting the <code>timeout</code> property of the test, or for all tests within a test suite by setting the <code>timeout</code> property of the suite.</p>
 
 						<div class="a half" id="option-excludeInstrumentation"></div>
-						<h4>excludeInstrumentation (RegExp | <span class="versionBadge">3.0</span> boolean)</h4>
+						<h4>excludeInstrumentation (RegExp | boolean <span class="versionBadge">3.0</span>)</h4>
 
 						<p>The <code>excludeInstrumentation</code> option can be either a regular expression or the boolean value <code>true</code>.</p>
 
@@ -635,7 +635,7 @@
 						</ul>
 
 						<div class="a half" id="option-loader"></div>
-						<h4><span class="versionBadge">3.0</span> loaderConfig (Object) / <span class="versionBadge">2.0</span> loader (Object)</h4>
+						<h4>loaderConfig (Object) <span class="versionBadge">3.0</span> / loader (Object) <span class="versionBadge">2.0</span></h4>
 
 						<p>Configuration options for the module loader. Any <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md">configuration options</a> that are supported by the active loader can be used here. By default, the <a href="https://github.com/dojo/dojo2">Dojo 2</a> AMD loader is used; this can be changed to another loader that provides an AMD-compatible API with <a href="#config-useLoader"><code>loaders</code></a>.</p>
 
@@ -674,7 +674,7 @@
 }</code></pre>
 
 						<div class="a half" id="option-useLoader"></div>
-						<h4><span class="versionBadge">3.0</span> loaders (Object) / <span class="versionBadge">2.0</span> useLoader (Object)</h4>
+						<h4>loaders (Object) <span class="versionBadge">3.0</span> / useLoader (Object) <span class="versionBadge">2.0</span></h4>
 
 						<p>An alternative module loader to use in place of the built-in AMD loader. When <code>loaders</code> is specified, Intern will swap out the built-in loader with the loader you’ve specified before loading reporters and test modules.</p>
 
@@ -697,7 +697,7 @@
 }</code></pre>
 
 						<div class="a half" id="option-reporters"></div>
-						<h4>reporters (Array&lt;Object<span class="versionBadge">3.0</span> | string>)</h4>
+						<h4>reporters (Array&lt;Object <span class="versionBadge">3.0</span> | string>)</h4>
 
 						<p>An array of reporters to use to report test results. Reporters in this list can either be <a href="#reporters">built-in reporter names</a> (like <code class="javascript">'console'</code> or <code class="javascript">'junit'</code>), or absolute AMD module IDs (like <code class="javascript">'tests/support/customReporter'</code>) when using <a href="#custom-reporters">custom reporters</a>.</p>
 
