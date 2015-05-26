@@ -14,14 +14,18 @@ declare module 'intern/main' {
 
 	export interface Config {
 		capabilities?: any;
+		coverageVariable?: string;
+		defaultTimeout?: number;
 		environments?: any[];
+		environmentRetries?: number;
 		excludeInstrumentation?: RegExp;
 		functionalSuites?: string[];
 		grep?: RegExp;
-		loader?: {
-			baseUrl?: string;
-			packages?: { name: string; location: string; main?: string; }[];
-			map?: { [remapModulePart: string]: { [sourceModulePart: string]: string; }; };
+		loader?: any;
+		loaderConfig?: any;
+		loaders?: {
+			'host-browser'?: string;
+			'host-node'?: string;
 		};
 		maxConcurrency?: number;
 		proxyPort?: number;
