@@ -6,9 +6,8 @@ define([
 	'../../../../main',
 	'../../../../lib/executors/Executor',
 	'../../../../lib/Suite',
-	'../../../../lib/Test',
-	'../../../../lib/ReporterManager'
-], function (registerSuite, assert, tdd, QUnit, main, Executor, Suite, Test, ReporterManager) {
+	'../../../../lib/Test'
+], function (registerSuite, assert, tdd, QUnit, main, Executor, Suite, Test) {
 	var originalExecutor;
 	var rootSuite;
 
