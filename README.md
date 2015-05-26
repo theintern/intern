@@ -1,4 +1,8 @@
-# Intern testing framework [![Build Status](https://travis-ci.org/theintern/intern.png?branch=master)](https://travis-ci.org/theintern/intern)
+# ![Intern testing framework](https://theintern.github.io/intern/images/readme-logo.png)
+
+[![Build Status](https://travis-ci.org/theintern/intern.png?branch=master)](https://travis-ci.org/theintern/intern)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/intern.svg)](http://isitmaintained.com/project/theintern/intern "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/intern.svg)](http://isitmaintained.com/project/theintern/intern "Percentage of issues still open")
 
 Intern is a complete test system for JavaScript designed to help you write and run consistent, high-quality test
 cases for your JavaScript libraries and applications. It can be used to test *any* JavaScript code. It can even be used
