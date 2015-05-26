@@ -5,9 +5,8 @@ define([
 	'require',
 	'../../../lib/ProxiedSession',
 	'dojo/node!leadfoot/Server',
-	'dojo/Promise',
-	'dojo/topic'
-], function (registerSuite, assert, require, ProxiedSession, Server, Promise, topic) {
+	'dojo/Promise'
+], function (registerSuite, assert, require, ProxiedSession, Server, Promise) {
 	registerSuite(function () {
 		var proxyUrl = 'https://example.invalid/';
 		var proxyBasePathLength = require.toUrl('./').length;
@@ -79,24 +78,28 @@ define([
 			return function () {
 				var coverageArgs;
 				var oldCoverage = session.coverageEnabled;
+				var oldCoverageVariable = session.coverageVariable;
 				session.coverageEnabled = true;
-				session.reporterManager = { emit: function (topic) {
-					if (topic === 'coverage') {
-						coverageArgs = Array.prototype.slice.call(arguments, 1);
+				session.coverageVariable = '__testCoverage';
+				session.reporterManager = {
+					emit: function (eventName) {
+						if (eventName === 'coverage') {
+							coverageArgs = Array.prototype.slice.call(arguments, 1);
+						}
 					}
-				} };
+				};
 
 				var url = method === 'get' ? 'http://example.invalid/' : undefined;
-				var promise = session[method](url).then(function () {
+				return session[method](url).then(function () {
 					assert.ok(coverageArgs);
 					assert.strictEqual(coverageArgs[0], session.sessionId,
 						'Correct session ID should be provided when broadcasting coverage data');
 					assert.deepEqual(coverageArgs[1], mockCoverage,
 						'Code coverage data retrieved from session should be broadcasted');
+				}).finally(function () {
+					session.coverageEnabled = oldCoverage;
+					session.coverageVariable = oldCoverageVariable;
 				});
-
-				session.coverageEnabled = oldCoverage;
-				return promise;
 			};
 		}
 
@@ -122,7 +125,7 @@ define([
 						if (path === 'url') {
 							lastUrl = data.url;
 						}
-						else if (path === 'execute' && data.script.indexOf('__internCoverage') > -1) {
+						else if (path === 'execute' && data.args && data.args[0] === '__testCoverage') {
 							return createPromise(JSON.stringify(mockCoverage));
 						}
 
