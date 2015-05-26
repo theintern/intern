@@ -2915,6 +2915,10 @@ define({
 								<td>This method is called once the built-in HTTP server has finished starting up.</td>
 							</tr>
 							<tr>
+								<th scope="row">reporterError(reporter: Reporter, error: Error)</th>
+								<td>This method is called when a reporter throws an error during execution of a command. If a reporter throws an error in response to a <code>reporterError</code> call, it will not be called again to avoid infinite recursion.</td>
+							</tr>
+							<tr>
 								<th scope="row">runEnd(executor: Executor)</th>
 								<td>This method is called after all test suites have finished running and the test system is preparing to shut down.</td>
 							</tr>
