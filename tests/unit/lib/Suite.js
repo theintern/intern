@@ -42,7 +42,7 @@ define([
 		}
 
 		return function () {
-			var dfd = this.async(1000);
+			var dfd = this.async(2000);
 			var suite = new Suite(options);
 			var results = [];
 
