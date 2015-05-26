@@ -21,6 +21,10 @@ define([ 'chai' ], function (chai) {
 			}
 
 			callback(chai[id]);
+		},
+
+		normalize: function (id) {
+			return id;
 		}
 	};
 });
