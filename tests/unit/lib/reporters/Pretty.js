@@ -259,7 +259,9 @@ define([
 			'session based tests': (function () {
 				var sessionId = 'sessionId';
 				var sessionSuite = new Suite({
-					environmentType: new EnvironmentType({ browserName: 'internet explorer', platform: 'WINDOWS' }),
+					remote: {
+						environmentType: new EnvironmentType({ browserName: 'internet explorer', platform: 'WINDOWS' })
+					},
 					sessionId: sessionId
 				});
 
@@ -269,16 +271,8 @@ define([
 					2: '× test\nError: Oops'
 				};
 
-				var expectedRunnerLog = {
-					0: '✓ internet explorer on WINDOWS - test',
-					1: '~ internet explorer on WINDOWS - test: Skipped',
-					2: '× internet explorer on WINDOWS - test\nError: Oops'
-				};
-
 				function assertTestResult(handlerName, result) {
-					var suite = new Suite({
-						environmentType: new EnvironmentType({ browserName: 'internet explorer', platform: 'WINDOWS' })
-					});
+					var suite = new Suite();
 					var test = new Test({
 						name: 'test',
 						parent: suite,
@@ -298,12 +292,20 @@ define([
 
 						// runner tests
 						var reporter = pretty.reporters[sessionId];
-						// set the suite's sessionId so the reporter will treat it as a session suite
+
+						// set the suite's remote & sessionId so the reporter will treat it as a session suite
+						suite.remote = {
+							environmentType: new EnvironmentType({
+								browserName: 'internet explorer',
+								platform: 'WINDOWS'
+							})
+						};
 						suite.sessionId = sessionId;
+
 						pretty[handlerName](test);
 						assert.lengthOf(pretty.total.results, 2);
 						assert.lengthOf(pretty.log, 2);
-						assert.strictEqual(pretty.log[1].split('\n', 2).join('\n'), expectedRunnerLog[result]);
+						assert.strictEqual(pretty.log[1].split('\n', 2).join('\n'), expectedLog[result]);
 						assert.strictEqual(pretty.total.results[1], result);
 						assert.lengthOf(reporter.results, 1);
 						assert.strictEqual(reporter.results[0], result);
@@ -347,9 +349,13 @@ define([
 						assert.strictEqual(pretty.total.numTotal, 10);
 
 						// runner tests
+						suite.remote = {
+							environmentType: new EnvironmentType({
+								browserName: 'internet explorer',
+								platform: 'WINDOWS'
+							})
+						};
 						suite.sessionId = sessionId;
-						suite.environmentType = new EnvironmentType({ browserName: 'internet explorer',
-							platform: 'WINDOWS' });
 						pretty.suiteStart(suite);
 						assert.strictEqual(pretty.reporters[sessionId].numTotal, 10);
 						assert.strictEqual(pretty.total.numTotal, 20);
