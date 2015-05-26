@@ -5,11 +5,12 @@ define([
 	'../../../lib/util',
 	'../../../lib/EnvironmentType',
 	'dojo/has',
+	'dojo/Promise',
 	'require',
 	'dojo/has!host-node?dojo/node!fs',
 	'dojo/has!host-node?dojo/node!path',
 	'dojo/has!host-node?dojo/node!istanbul/lib/hook'
-], function (intern, registerSuite, assert, util, EnvironmentType, has, require, fs, pathUtil, hook) {
+], function (intern, registerSuite, assert, util, EnvironmentType, has, Promise, require, fs, pathUtil, hook) {
 	/* jshint maxlen:140 */
 	registerSuite({
 		name: 'intern/lib/util',
@@ -204,6 +205,38 @@ define([
 					'    11: 12,\n    12: 13,\n    13: 14,\n    14: 15,\nE   15: 32,\nA   15: 16,\n    length: 16\n  ]\n\n',
 					'Splits in long diffs should be indicated by an ellipsis'
 				);
+			}
+		},
+
+		'.retry': {
+			'until failure': function () {
+				var numAttempts = 0;
+				var expected = new Error('Oops');
+
+				return util.retry(function () {
+					++numAttempts;
+					return Promise.reject(expected);
+				}, 3).then(function () {
+					assert.ok(false, 'Retry should reject after the final attempt ends in failure');
+				}, function (error) {
+					assert.strictEqual(error, expected, 'Retry should reject with the error from the callback');
+					assert.strictEqual(numAttempts, 4, 'Retry should retry numRetries times after the first failure');
+				});
+			},
+			'until success': function () {
+				var numAttempts = 0;
+				var expected = new Error('Oops');
+
+				return util.retry(function () {
+					if (++numAttempts < 2) {
+						return Promise.reject(expected);
+					}
+
+					return Promise.resolve('ok');
+				}, 3).then(function (result) {
+					assert.strictEqual(result, 'ok', 'Retry should pass the resolved value');
+					assert.strictEqual(numAttempts, 2, 'Retry should stop retrying once the callback resolves');
+				});
 			}
 		},
 
