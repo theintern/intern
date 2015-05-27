@@ -6,31 +6,43 @@
 		<script src="node_modules/dojo/loader.js"></script>
 		<script>
 			(function () {
-				var basePath = location.pathname.replace(/\/+[^\/]*$/, '/'),
-					internConfig = this.__internConfig = {
-						// For users running client.html directly, assume that the base path
-						// is two levels up (the parent of node_modules); this is most common.
-						// Users that need something special should provide an absolute module
-						// path for the config module (e.g. `/path/to/intern/config`) and
-						// then set `baseUrl` correctly in the `loader` configuration object
-						// of the config module
-						baseUrl: basePath.slice(-10) === '/__intern/' ? basePath.slice(0, -9) : (basePath + '../../'),
-						packages: [
-							{ name: 'intern', location: basePath }
-						],
-						map: {
-							intern: {
-								dojo: 'intern/node_modules/dojo',
-								chai: 'intern/node_modules/chai/chai',
-								diff: 'intern/node_modules/diff/diff'
-							},
-							'*': {
-								'intern/dojo': 'intern/node_modules/dojo'
-							}
-						}
-					};
+				var internPath = location.pathname.replace(/\/+[^\/]*$/, '/');
+				var initialBaseUrl = (function () {
+					var result = /[?&]initialBaseUrl=([^&]*)/.exec(location.search);
+					if (result) {
+						var baseUrl = decodeURIComponent(result[1]);
 
-					require(internConfig, [ 'intern/client' ]);
+						if (/^(?:\w+:)?\/\//.test(baseUrl)) {
+							throw new Error('Cross-origin loading of test modules is not allowed for security reasons');
+						}
+						return baseUrl;
+					}
+					else {
+						// For users running client.html directly, assume that the initial base URL is two levels up
+						// (the parent directory of node_modules/intern); this is most common.
+						// Users that need something special can provide a different `initialBaseUrl`.
+						return internPath.replace(/(?:\/+[^\/]*){2}\/?$/, '/');
+					}
+				})();
+
+				var internConfig = this.__internConfig = {
+					baseUrl: initialBaseUrl,
+					packages: [
+						{ name: 'intern', location: internPath }
+					],
+					map: {
+						intern: {
+							dojo: 'intern/node_modules/dojo',
+							chai: 'intern/node_modules/chai/chai',
+							diff: 'intern/node_modules/diff/diff'
+						},
+						'*': {
+							'intern/dojo': 'intern/node_modules/dojo'
+						}
+					}
+				};
+
+				require(internConfig, [ 'intern/client' ]);
 			})();
 		</script>
 	</head>
