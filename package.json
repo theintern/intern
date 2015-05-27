@@ -14,8 +14,8 @@
 		"istanbul": "0.2.16",
 		"source-map": "0.1.33",
 		"dojo": "2.0.0-alpha.5",
-		"chai": "2.3.0",
-		"leadfoot": "1.4.1",
+		"chai": "https://github.com/csnover/chai/archive/browserify.zip",
+		"leadfoot": "1.5.0",
 		"digdug": "1.3.0",
 		"charm": "0.2.0",
 		"diff": "1.1.0"
