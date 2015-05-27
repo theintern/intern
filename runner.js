@@ -25,7 +25,7 @@ else {
 		'./lib/exitHandler'
 	], function (PreExecutor, exitHandler) {
 		var executor = new PreExecutor({
-			defaultLoaderConfig: (function () {
+			defaultLoaderOptions: (function () {
 				return this;
 			})().__internConfig,
 			executorId: 'runner'
