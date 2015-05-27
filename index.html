@@ -148,6 +148,7 @@
 								<li data-id="reporter-overview"><a href="#reporter-overview">Overview</a></li>
 								<li data-id="reporter-results"><a href="#reporter-results">Test results reporters</a></li>
 								<li data-id="reporter-lcov"><a href="#reporter-lcov">Code coverage reporters</a></li>
+								<li data-id="reporter-options"><a href="#reporter-options">Reporter options <span class="versionBadge">3.0</span></a></li>
 							</ul>
 						</li>
 						<li data-id="ci">
@@ -525,7 +526,7 @@
 						<h3 data-id="common-config">Common configuration</h3>
 
 						<p>Intern’s configuration files are actually <a href="http://dojotoolkit.org/documentation/tutorials/1.10/modules/">standard AMD modules</a> that export a configuration object. This allows simple inheritance of parent configurations and enables test configurations to be generated programmatically at runtime.</p>
-						<p>The module ID to load is specified using the <a href="#argument-config"><kbd>config</kbd> argument</a> on the command-line (for Node.js) or the <kbd>config</kbd> argument in the URL query-string (for browsers).</p>
+						<p>The configuration file is specified using the <a href="#execution-modes"><kbd>config</kbd> argument</a> on the command-line (for Node.js) or the <kbd>config</kbd> argument in the URL query-string (for browsers).</p>
 
 						<aside class="tip"><p>Take a look at the <a href="https://github.com/theintern/intern/blob/master/tests/example.intern.js">example configuration file</a> that comes with Intern to learn what a valid configuration looks like.</p></aside>
 
@@ -560,7 +561,7 @@
 								<td><code class="javascript">/.*/</code></td>
 							</tr>
 							<tr>
-								<th scope="row"><a href="#option-loader">loaderConfig</a> <span class="versionBadge">3.0</span><br><a href="#option-loader">loader</a> <span class="versionBadge">2.0</span></th>
+								<th scope="row"><a href="#option-loader">loaderOptions</a> <span class="versionBadge">3.0</span><br><a href="#option-loader">loader</a> <span class="versionBadge">2.0</span></th>
 								<td>Configuration options for the AMD loader.</td>
 								<td><code class="javascript">{ … }</code></td>
 							</tr>
@@ -572,7 +573,7 @@
 							<tr>
 								<th scope="row"><a href="#option-reporters">reporters</a></th>
 								<td>An array of reporters to use to report test results.</td>
-								<td><code class="javascript">[ 'runner' ]</code> (runner)<br><code class="javascript">[ 'console' ]</code> (client)</td>
+								<td><code class="javascript">[ 'Runner' ]</code> (runner)<br><code class="javascript">[ 'Console' ]</code> (client)</td>
 							</tr>
 							<tr>
 								<th scope="row"><a href="#option-suites">suites</a></th>
@@ -644,7 +645,7 @@
 						</ul>
 
 						<div class="a half" id="option-loader"></div>
-						<h4>loaderConfig (Object) <span class="versionBadge">3.0</span> / loader (Object) <span class="versionBadge">2.0</span></h4>
+						<h4>loaderOptions (Object) <span class="versionBadge">3.0</span> / loader (Object) <span class="versionBadge">2.0</span></h4>
 
 						<p>Configuration options for the module loader. Any <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md">configuration options</a> that are supported by the active loader can be used here. By default, the <a href="https://github.com/dojo/dojo2">Dojo 2</a> AMD loader is used; this can be changed to another loader that provides an AMD-compatible API with <a href="#config-useLoader"><code>loaders</code></a>.</p>
 
@@ -660,7 +661,7 @@
 						<p>When following the <a href="#directory-structure">recommended directory structure</a>, a typical loader configuration will look like this:</p>
 
 						<pre><code class="javascript">{
-	loaderConfig: {
+	loaderOptions: {
 		packages: [
 			{ name: 'app', location: 'src/' },
 			{ name: 'tests', location: 'tests/' }
@@ -671,7 +672,7 @@
 						<p>If you are testing an AMD application and need to use stub modules for testing, the <code>map</code> configuration option is the correct way to do this:</p>
 
 						<pre><code class="javascript">{
-	loaderConfig: {
+	loaderOptions: {
 		map: {
 			app: {
 				// When any module inside 'app' tries to load 'app/foo',
@@ -708,17 +709,19 @@
 						<div class="a half" id="option-reporters"></div>
 						<h4>reporters (Array&lt;Object <span class="versionBadge">3.0</span> | string>)</h4>
 
-						<p>An array of reporters to use to report test results. Reporters in this list can either be <a href="#reporters">built-in reporter names</a> (like <code class="javascript">'console'</code> or <code class="javascript">'junit'</code>), or absolute AMD module IDs (like <code class="javascript">'tests/support/customReporter'</code>) when using <a href="#custom-reporters">custom reporters</a>.</p>
+						<p>An array of reporters to use to report test results. Reporters in this list can either be <a href="#reporters">built-in reporter names</a> (like <code class="javascript">'Console'</code> or <code class="javascript">'JUnit'</code>), or absolute AMD module IDs (like <code class="javascript">'tests/support/customReporter'</code>) when using <a href="#custom-reporters">custom reporters</a>.</p>
 
 						<p><span class="versionBadge">3.0</span> Reporters can also be configured by passing an object with extra configuration options valid for the given reporter. In this case, the ID of the reporter should be given by the <code>id</code> key of the reporter configuration:</p>
 
 						<pre><code class="javascript">{
 	reporters: [
-		{ id: 'junit', filename: 'report.xml' }
+		{ id: 'JUnit', filename: 'report.xml' }
 	]
 }</code></pre>
 
 						<p>If reporters are not specified in the configuration, Intern will pick defaults that are most suitable for the current execution mode.</p>
+
+						<aside class="tip"><p>In Intern 2, reporter IDs are all lowercase. In Intern 3, reporter IDs are UpperCamelCase (because they are now constructors).</p></aside>
 
 						<div class="a half" id="option-suites"></div>
 						<h4>suites (Array&lt;string>)</h4>
@@ -803,9 +806,19 @@
 								<td><code class="javascript">[]</code></td>
 							</tr>
 							<tr>
+								<th scope="row"><a href="#option-leaveRemoteOpen">leaveRemoteOpen</a> <span class="versionBadge">3.0</span></th>
+								<td>Leaves the remote environment running at the end of the test run.</td>
+								<td><code class="javascript">false</code></td>
+							</tr>
+							<tr>
 								<th scope="row"><a href="#option-maxConcurrency">maxConcurrency</a></th>
 								<td>The maximum number of environments to test simultaneously.</td>
 								<td><code class="javascript">3</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-proxyOnly">proxyOnly</a> <span class="versionBadge">3.0</span></th>
+								<td>Starts Intern’s instrumenting HTTP proxy but performs no other work.</td>
+								<td><code class="javascript">false</code></td>
 							</tr>
 							<tr>
 								<th scope="row"><a href="#option-proxyPort">proxyPort</a></th>
@@ -892,10 +905,23 @@
 	]
 }</code></pre>
 
+						<div class="a half" id="option-leaveRemoteOpen"></div>
+						<h4>leaveRemoteOpen (boolean | string) <span class="versionBadge">3.0</span></h4>
+						<p>Leaves the remote environment running at the end of the test run. This makes it easier to investigate a browser’s state when debugging failing tests. This can also be set to <code>fail</code> to only keep the remote environment running when a test failure has occurred.</p>
+
+						<p>In Intern 2, this option is available, but only as a command-line flag.</p>
+
 						<div class="a half" id="option-maxConcurrency"></div>
 						<h4>maxConcurrency (number)</h4>
 
 						<p>The maximum number of environments to test simultaneously. Set this to <code class="javascript">Infinity</code> to run tests against all environments at once. You may want to reduce this if you have a limited number of test machines available, or are using a shared hosted account.</p>
+
+						<div class="a half" id="option-proxyOnly"></div>
+						<h4>proxyOnly (boolean) <span class="versionBadge">3.0</span></h4>
+
+						<p>Starts Intern’s instrumenting HTTP proxy but performs no other work. The current working directory will be served as the root of the server. This can be useful when you want to run the <a href="#browser-client">browser client</a> manually and get access to code coverage information, which is not available when running the browser client directly from a normal HTTP server. The browser client is available from <a href="#option-proxyUrl">{proxyUrl}</a>/__intern/client.html.</p>
+
+						<p>In Intern 2, this option is available, but only as a command-line flag.</p>
 
 						<div class="a half" id="option-proxyPort"></div>
 						<h4>proxyPort (number)</h4>
@@ -2043,7 +2069,7 @@ define([
 						<pre><samp>http://localhost/my-project/node_modules/intern/client.html?
 	config=tests/intern</samp></pre>
 
-						<aside class="whatAreYouCrazy"><p>The <code>config</code> argument is a module ID, not a file path. Providing a file path may cause confusing or unpredictable results.</p></aside>
+						<aside class="whatAreYouCrazy"><p>The <code>config</code> argument is an absolute module ID, not a file path or relative ID. Providing a file path or relative ID may cause confusing or unpredictable results.</p></aside>
 
 						<p>As can be seen from this example, because there is no concept of a “working directory” in URLs, the browser client chooses the directory two levels above <code>client.html</code> to be the root directory for the current test run. This can be overridden by specifying a <code>baseUrl</code> argument:</p>
 
@@ -2059,8 +2085,8 @@ define([
 	config=tests/intern&amp;
 	suites=tests/unit/request&amp;
 	suites=tests/unit/animation&amp;
-	reporters=console&amp;
-	reporters=html</samp></pre>
+	reporters=Console&amp;
+	reporters=Html</samp></pre>
 
 						<aside class="tip"><p>The browser client is also used by the <a href="#test-runner">test runner</a> to run unit tests in each browser.</p></aside>
 
@@ -2079,19 +2105,9 @@ define([
 								<th scope="row">config</th>
 								<td>The module ID of the Intern configuration file that should be used. Relative to <code>baseUrl</code>. This argument is required.</td>
 							</tr>
-							<tr>
-								<th scope="row">grep</th>
-								<td>Overrides the <a href="#option-grep">grep</a> configuration option. Pass a string that looks like a RegExp literal like <code>/foo/</code> and it will be converted to a regular expression. Any other string will be converted to a case-insensitive RegExp.</td>
-							</tr>
-							<tr>
-								<th scope="row">reporters</th>
-								<td>Overrides the <a href="#option-reporters">reporters</a> configuration option. You can pass this argument more than once to load multiple reporters. Reporters overridden in this way will always use their default configurations.</td>
-							</tr>
-							<tr>
-								<th scope="row">suites</th>
-								<td>Overrides the <a href="#option-suites">suites</a> configuration option. You can pass this argument more than once to load multiple modules.</td>
-							</tr>
 						</table>
+
+						<p>You can also specify any valid <a href="#configuration">configuration option</a> in the query string.</p>
 
 						<div class="a half" id="node-client"></div>
 						<h3 data-id="node-client">The Node.js client</h3>
@@ -2112,8 +2128,8 @@ define([
 
 						<pre><samp class="bash">intern-client config=tests/intern suites=tests/unit/request \
 	suites=tests/unit/animation \
-	reporters=console \
-	reporters=lcovhtml</samp></pre>
+	reporters=Console \
+	reporters=LcovHtml</samp></pre>
 
 						<p>The Node.js client supports the following arguments:</p>
 
@@ -2126,19 +2142,9 @@ define([
 								<th scope="row">config</th>
 								<td>The module ID of the Intern configuration file that should be used. Relative to the current working directory. This argument is required.</td>
 							</tr>
-							<tr>
-								<th scope="row">grep</th>
-								<td>Overrides the <a href="#option-grep">grep</a> configuration option. Pass a string that looks like a RegExp literal like <code>/foo/</code> and it will be converted to a regular expression. Any other string will be converted to a case-insensitive RegExp.</td>
-							</tr>
-							<tr>
-								<th scope="row">reporters</th>
-								<td>Overrides the <a href="#option-reporters">reporters</a> configuration option. You can pass this argument more than once to load multiple reporters. Reporters overridden in this way will always use their default configurations.</td>
-							</tr>
-							<tr>
-								<th scope="row">suites</th>
-								<td>Overrides the <a href="#option-suites">suites</a> configuration option. You can pass this argument more than once to load multiple modules.</td>
-							</tr>
 						</table>
+
+						<p>You can also specify any valid <a href="#configuration">configuration option</a> as an argument on the command-line.</p>
 
 						<div class="a half" id="test-runner"></div>
 						<h3 data-id="test-runner">The test runner</h3>
@@ -2166,7 +2172,7 @@ define([
 						<p>A more complex execution that overrides the <a href="#option-reporters">reporters</a> and <a href="#option-functionalSuites">functionalSuites</a> properties from the configuration file might look like this:</p>
 
 						<pre><samp class="bash">intern-runner config=tests/intern \
-	reporters=runner reporters=lcovhtml \
+	reporters=Runner reporters=LcovHtml \
 	functionalSuites=tests/functional/home \
 	functionalSuites=tests/functional/cart</samp></pre>
 
@@ -2183,68 +2189,42 @@ define([
 								<th scope="row">config</th>
 								<td>The module ID of the Intern configuration file that should be used. Relative to the current working directory. This argument is required.</td>
 							</tr>
-							<tr>
-								<th scope="row">functionalSuites</th>
-								<td>Overrides the <a href="#option-functionalSuites">suites</a> configuration option. You can pass this argument more than once to load multiple modules.</td>
-							</tr>
-							<tr>
-								<th scope="row">grep</th>
-								<td>Overrides the <a href="#option-grep">grep</a> configuration option. Pass a string that looks like a RegExp literal like <code>/foo/</code> and it will be converted to a regular expression. Any other string will be converted to a case-insensitive RegExp.</td>
-							</tr>
-							<tr>
-								<th scope="row">leaveRemoteOpen</th>
-								<td>Leaves the remote environment running at the end of the test run. This makes it easier to investigate a browser’s state when debugging failing tests. In Intern 3, this can be set to <code>fail</code> to only keep the remote environment running when a test failure has occurred.</td>
-							</tr>
-							<tr>
-								<th scope="row">proxyOnly</th>
-								<td>Starts Intern’s instrumenting HTTP proxy but performs no other work. The current working directory will be served as the root of the server. This can be useful when you want to run the <a href="#browser-client">browser client</a> manually and get access to code coverage information, which is not available when running the browser client directly from a normal HTTP server. The browser client is available from <a href="#option-proxyUrl">{proxyUrl}</a>/__intern/client.html.</td>
-							</tr>
-							<tr>
-								<th scope="row">reporters</th>
-								<td>Overrides the <a href="#option-reporters">reporters</a> configuration option. You can pass this argument more than once to load multiple reporters. Reporters overridden in this way will always use their default configurations.</td>
-							</tr>
-							<tr>
-								<th scope="row">suites</th>
-								<td>Overrides the <a href="#option-suites">suites</a> configuration option. You can pass this argument more than once to load multiple modules.</td>
-							</tr>
 						</table>
+
+						<p>You can also specify any valid <a href="#configuration">configuration option</a> as an argument on the command-line.</p>
 
 						<div class="a half" id="custom-args"></div>
 						<h3 data-id="custom-args">Using custom arguments</h3>
 
-						<p>Intern allows arbitrary arguments to be passed on the command-line that can then be retrieved through the <!--<a href="TODO">-->main Intern object<!--</a>-->. This is useful for cases where you want to be able to pass things like custom ports, WebDriver servers, reporter configurations, etc. dynamically:</p>
+						<p>Intern allows arbitrary arguments to be passed on the command-line that can then be retrieved through the <!--<a href="TODO">-->main Intern object<!--</a>-->. This is useful for cases where you want to be able to pass things like custom ports, servers, etc. dynamically:</p>
 
 						<pre><code class="javascript">define(function (require) {
 	var intern = require('intern');
 
 	// arguments object
 	intern.args;
-
-	// configuration object
-	intern.config;
-
-	// the current executor
-	intern.executor;
 });</code></pre>
-
-
-						<aside class="tip"><p>In Intern 2, the execution mode was exposed on the <code>mode</code> property of as either <code class="javascript">'client'</code> or <code class="javascript">'runner'</code>. Because Intern 3 enables additional execution modes, this property is no longer available, and the <code>executor</code> should be checked instead, if necessary.</p></aside>
 
 						<p>This makes it possible to, for example, define a dynamic proxy URL from the command-line or Grunt task:</p>
 
 						<pre><code class="javascript">define(function (require) {
 	var intern = require('intern');
 
+	var SERVERS = {
+		id1: 'http://id1.example/',
+		id2: 'http://id2.example/'
+	};
+
 	return {
-		proxyUrl: intern.args.proxyUrl,
+		proxyUrl: SERVERS[intern.args.serverId],
 
 		// …additional configuration…
 	};
 });</code></pre>
 
-						<pre><kbd class="bash">intern-runner config=tests/config proxyUrl=http://www.example.com:1234/</kbd></pre>
+						<pre><kbd class="bash">intern-runner config=tests/intern serverId=id1</kbd></pre>
 
-						<aside class="whatAreYouCrazy"><p>The information above is partially speculative.<!--TODO make sure it is correct for the final release.--></p></aside>
+						<aside class="tip"><p>In Intern 3, all arguments from the command-line are automatically added to the configuration object, so default configuration properties can be changed without needing to use custom arguments. For instance, in the previous example, <kbd class="bash">intern-runner config=tests/intern proxyUrl=http://id1.example/</kbd> could have been used instead of a custom argument.</p></aside>
 
 						<div class="a half" id="grunt"></div>
 						<h3 data-id="grunt">Using Grunt</h3>
@@ -2262,7 +2242,7 @@ define([
 				options: {
 					runType: 'runner', // defaults to 'client'
 					config: 'tests/intern',
-					reporters: [ 'console', 'lcov' ],
+					reporters: [ 'Console', 'Lcov' ],
 					suites: [ 'tests/unit/all' ]
 				}
 			},
@@ -2366,37 +2346,44 @@ define([
 							<tr>
 								<th>Reporter</th>
 								<th>Description</th>
+								<th>Options</th>
 							</tr>
 							<tr>
-								<th scope="row">console</th>
+								<th scope="row">Console</th>
 								<td>This reporter outputs test pass/fail messages to the console or stdout, grouped by suite. It’s recommended that this reporter only be used by the browser and Node.js clients, and not the test runner, since it does not understand how to group results received from multiple different clients simultaneously.</td>
+								<td>watermarks</td>
 							</tr>
 							<tr>
-								<th scope="row">html</th>
-								<td>This reporter generates a basic HTML report of unit test results. It can only be used in the browser client.</td>
+								<th scope="row">Html</th>
+								<td>This reporter generates a basic HTML report of unit test results. It is designed to be used in the browser client, but can also generate reports in Node.js if a DOM-compatible document object is passed in.</td>
+								<td>document</td>
 							</tr>
 							<tr>
-								<th scope="row">junit</th>
+								<th scope="row">JUnit</th>
 								<td>This reporter generates a JUnit “compatible” XML file of unit test results.</td>
+								<td>filename</td>
 							</tr>
 							<tr>
-								<th scope="row">pretty</th>
+								<th scope="row">Pretty</th>
 								<td>This reporter displays test progress across one or more environments with progress bars while testing is in progress. After all tests are finished, a sorted list of all tests is output along with an overall code coverage summary.</td>
+								<td>watermarks</td>
 							</tr>
 							<tr>
-								<th scope="row">runner</th>
+								<th scope="row">Runner</th>
 								<td>This reporter outputs information to the console about the current state of the runner, code coverage and test results for each environment tested, and a total test result. It can only be used in the test runner.</td>
+								<td>filename,<br>watermarks</td>
 							</tr>
 							<tr>
-								<th scope="row">teamcity</th>
-								<td>This reporter outputs test result information to stdout in a TeamCity-compatible format.</td>
+								<th scope="row">TeamCity</th>
+								<td>This reporter outputs test result information in a TeamCity-compatible format.</td>
+								<td>filename</td>
 							</tr>
 						</table>
 
 						<div class="a half" id="reporter-lcov"></div>
 						<h3 data-id="reporter-lcov">Code coverage reporters</h3>
 
-						<p>Code coverage reporters provide information about the state of code coverage—how many lines of code, functions, code branches, and statements were executed across the entire codebase.</p>
+						<p>Code coverage reporters provide information about the state of code coverage—how many lines of code, functions, code branches, and statements were executed by the test system.</p>
 
 						<p>Intern comes with several different test results reporters:</p>
 
@@ -2404,26 +2391,69 @@ define([
 							<tr>
 								<th>Reporter</th>
 								<th>Description</th>
+								<th>Options</th>
 							</tr>
 							<tr>
-								<th scope="row">cobertura</th>
+								<th scope="row">Cobertura</th>
 								<td>This reporter generates a Cobertura-compatible XML report from collated coverage data.</td>
+								<td>filename,<br>watermarks</td>
 							</tr>
 							<tr>
-								<th scope="row">combined</th>
+								<th scope="row">Combined</th>
 								<td>This reporter stores coverage data generated by the Node.js client in an intermediate file, and then merges in data generated by the WebDriver runner to generate a combined coverage report.</td>
+								<td>directory,<br>watermarks</td>
 							</tr>
 							<tr>
-								<th scope="row">lcov</th>
+								<th scope="row">Lcov</th>
 								<td>This reporter generates an lcov.info from collated coverage data that can be fed to another program that understands the standard lcov data format.</td>
+								<td>filename,<br>watermarks</td>
 							</tr>
 							<tr>
-								<th scope="row">lcovhtml</th>
+								<th scope="row">LcovHtml</th>
 								<td>This reporter generates a set of illustrated HTML reports from collated coverage data.</td>
+								<td>directory,<br>watermarks</td>
 							</tr>
 						</table>
 
-						<aside class="tip"><p>Generally speaking, code coverage reporters will never work in the browser client because they require code to be instrumented in order to collect coverage data.</p></aside>
+						<aside class="tip"><p>Generally speaking, code coverage reporters will never work directly from the browser client because they require code to be instrumented in order to collect coverage data.</p></aside>
+
+						<div class="a half" id="reporter-options"></div>
+						<h3 data-id="reporter-options">Reporter options</h3>
+
+						<p>As noted in the tables above, each reporter supports one or more different configuration options.</p>
+
+						<table class="api">
+							<tr>
+								<th>Option</th>
+								<th>Description</th>
+								<th>Default</th>
+							</tr>
+							<tr>
+								<th scope="row">directory</th>
+								<td>The directory where output files should be written. This option is only used by reporters that need to write multiple files.</td>
+								<td>varies by reporter</td>
+							</tr>
+							<tr>
+								<th scope="row">document</th>
+								<td>A DOM document.</td>
+								<td><code class="javascript">window.document</code></td>
+							</tr>
+							<tr>
+								<th scope="row">filename</th>
+								<td>A filename where output should be written. If a filename is not provided, output will be sent to stdout.</td>
+								<td>stdout</td>
+							</tr>
+							<tr>
+								<th scope="row">watermarks</th>
+								<td>The low &amp; high watermarks for code coverage results. Watermarks can be specified for statements, lines, functions, and branches. Normally, code coverage values below the low watermark appear in red, and code coverage values above the high watermark appear in green.</td>
+								<td><code class="javascript" style="white-space: nowrap">{<br>
+									&nbsp;&nbsp;statements: [ 50, 80 ],<br>
+									&nbsp;&nbsp;lines: [ 50, 80 ],<br>
+									&nbsp;&nbsp;functions: [ 50, 80 ],<br>
+									&nbsp;&nbsp;branches: [ 50, 80 ]<br>
+								}</code></td>
+							</tr>
+						</table>
 					</article>
 
 					<article>
