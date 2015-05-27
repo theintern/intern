@@ -42,7 +42,7 @@ define([
 		'.asyncTest': function () {
 			QUnit.module('qunit suite 1');
 
-			QUnit.config.testTimeout = 100;
+			QUnit.config.testTimeout = 500;
 
 			QUnit.asyncTest('qunit async test 1', function (assertParam) {
 				assertParam.ok(false);
