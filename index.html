@@ -541,6 +541,11 @@
 								</tr>
 							</thead>
 							<tr>
+								<th scope="row"><a href="#option-basePath">basePath</a> <span class="versionBadge">3.0</span></th>
+								<td>The common base path for all files in an application.</td>
+								<td><code class="javascript">process.cwd()</code> (Node.js)<br><code class="javascript">'node_modules/intern/../../'</code> (browser)</td>
+							</tr>
+							<tr>
 								<th scope="row"><a href="#option-coverageVariable">coverageVariable</a> <span class="versionBadge">3.0</span></th>
 								<td>The name of the global variable used to store and retrieve code coverage data.</td>
 								<td><code class="javascript">'__internCoverage'</code></td>
@@ -581,6 +586,21 @@
 								<td><code class="javascript">[]</code></td>
 							</tr>
 						</table>
+
+						<div class="a half" id="option-basePath"></div>
+						<h4>basePath (string) <span class="versionBadge">3.0</span></h4>
+
+						<p>The common base path for all files in an application. If <code>basePath</code> is a relative path, it is resolved differently depending upon where Intern is executing:</p>
+
+						<ul>
+							<li>In Node.js, <code>basePath</code> is relative to <code>process.cwd()</code></li>
+							<li>In a browser with an <a href="#option-baseUrl"><code>initialBaseUrl</code></a> argument in the query-string, <code>basePath</code> is relative to <code>initialBaseUrl</code></li>
+							<li>In a browser with no <code>initialBaseUrl</code> argument, <code>basePath</code> is relative to two directories above the Intern directory (i.e. <code>node_modules/intern/../../</code>)</li>
+						</ul>
+
+						<p>If a <code>basePath</code> is not provided, these directories are used as the <code>basePath</code>.</p>
+
+						<aside class="whatAreYouCrazy"><p><code>basePath</code> is the directory that is served by the test runner’s instrumenting proxy HTTP server. If it is not set properly for your application, the test runner will not work correctly.</p></aside>
 
 						<div class="a half" id="option-coverageVariable"></div>
 						<h4>coverageVariable (string) <span class="versionBadge">3.0</span></h4>
@@ -651,23 +671,9 @@
 
 						<p>AMD configuration options supported by the built-in loader are <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#map-"><code>map</code></a>, <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#packages-"><code>packages</code></a>, and <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#paths-"><code>paths</code></a>.</p>
 
-						<p><a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#baseurl-"><code>baseUrl</code></a> is automatically set according to the current environment:</p>
+						<p><span class="versionBadge">3.0</span> If <a href="https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#baseurl-"><code>baseUrl</code></a> is not explicitly defined, it is automatically set to be equivalent to the <a href="#option-basePath"><code>basePath</code></a>. Relative <code>baseUrl</code>s are relative to <code>basePath</code>.</p>
 
-						<ul>
-							<li>In Node.js client mode and runner mode, <code>baseUrl</code> is set to the current working directory specified by <code>process.cwd()</code></li>
-							<li>In browser client mode, <code>baseUrl</code> is set to the directory two path segments above the directory containing client.html</li>
-						</ul>
-
-						<p>When following the <a href="#directory-structure">recommended directory structure</a>, a typical loader configuration will look like this:</p>
-
-						<pre><code class="javascript">{
-	loaderOptions: {
-		packages: [
-			{ name: 'app', location: 'src/' },
-			{ name: 'tests', location: 'tests/' }
-		]
-	}
-}</code></pre>
+						<p>When following the <a href="#directory-structure">recommended directory structure</a>, no extra loader configuration is needed.</p>
 
 						<p>If you are testing an AMD application and need to use stub modules for testing, the <code>map</code> configuration option is the correct way to do this:</p>
 
@@ -694,16 +700,16 @@
 
 						<ul>
 							<li><code>host-node</code> specifies the loader to use in Node.js. This should be a Node.js module ID.</li>
-							<li><code>host-browser</code> specifies the loader to use in browsers. This should be a URL to a script file.</li>
+							<li><code>host-browser</code> specifies the loader to use in browsers. This should be a path or URL to a script file.</li>
 						</ul>
 
-						<p>Loader paths are relative to the directory where Intern is installed.</p>
+						<p>In Intern 2, loader paths are relative to the directory where Intern is installed. In Intern 3, loader paths are relative to <a href="#option-basePath"><code>basePath</code></a>.</p>
 
 						<p>For example, to use a copy of RequireJS installed to the same project as Intern:</p>
 
 						<pre><code class="javascript">loaders: {
 	'host-node': 'requirejs',
-	'host-browser': '../../node_modules/requirejs/require.js'
+	'host-browser': 'node_modules/requirejs/require.js'
 }</code></pre>
 
 						<div class="a half" id="option-reporters"></div>
@@ -746,29 +752,7 @@
 						<div class="a half" id="client-config"></div>
 						<h3 data-id="client-config">Client configuration</h3>
 
-						<p>Certain configuration options only apply when in client mode. These options are ignored when running in runner mode.</p>
-
-						<table class="api">
-							<thead>
-								<tr>
-									<th>Option</th>
-									<th>Type</th>
-									<th>Default</th>
-								</tr>
-							</thead>
-							<tr>
-								<th scope="row"><a href="#option-baseUrl">baseUrl</a></th>
-								<td>The path to use when converting module IDs to URLs, relative to client.html.</td>
-								<td><code class="javascript">'../..'</code></td>
-							</tr>
-						</table>
-
-						<div class="a half" id="option-baseUrl"></div>
-						<h4>baseUrl (string)</h4>
-
-						<p>The path to use when converting module IDs to URLs, relative to client.html. Since browsers do not have any concept of a current working directory, using this argument allows a pseudo-cwd to be specified for the browser client in order to match up file paths with what exists on the underlying filesystem.</p>
-
-						<aside class="tip"><p>This argument is only available when loading the browser client; for the Node.js client, the current working directory is always used as the base path for loading modules.</p></aside>
+						<p>There are currently no options that only apply when running in client mode.</p>
 
 						<div class="a half" id="runner-config"></div>
 						<h3 data-id="runner-config">Test runner configuration</h3>
@@ -1815,6 +1799,8 @@ define([
 
 						<p>Native mobile application UIs can be tested by Intern using an <a href="http://appium.io/">Appium</a>, <a href="http://ios-driver.github.io/ios-driver/">ios-driver</a>, or <a href="http://selendroid.io/">Selendroid</a> server. Each server has slightly different support for WebDriver, so make sure to read each project’s documentation to pick the right one for you.</p>
 
+						<aside class="whatAreYouCrazy"><p>Always be sure to set <code>fixSessionCapabilities: false</code> in your environment capabilities when testing a native app to bypass feature detection code that only works for Web apps.</p></aside>
+
 						<h4>Appium</h4>
 
 						<p>To test a native app with Appium, one method is to pass the path to a valid IPA or APK using the <code>app</code> key in your <a href="#option-environments">environments</a> configuration:</p>
@@ -1823,7 +1809,8 @@ define([
 	environments: [
 		{
 			platformName: 'iOS',
-			app: 'testapp.ipa'
+			app: 'testapp.ipa',
+			fixSessionCapabilities: false
 		}
 	]
 }</code></pre>
@@ -1835,12 +1822,14 @@ define([
 		{
 			platformName: 'iOS',
 			bundleId: 'com.example.TestApp',
-			udid: 'da39a3ee5e…'
+			udid: 'da39a3ee5e…',
+			fixSessionCapabilities: false
 		},
 		{
 			platformName: 'Android',
 			appActivity: 'MainActivity',
-			appPackage: 'com.example.TestApp'
+			appPackage: 'com.example.TestApp',
+			fixSessionCapabilities: false
 		}
 	]
 }</code></pre>
@@ -1864,7 +1853,8 @@ define([
 			CFBundleName: 'TestApp',
 			CFBundleVersion: '1.0.0',
 			// required for ios-driver to use iOS Simulator
-			simulator: true
+			simulator: true,
+			fixSessionCapabilities: false
 		}
 	]
 }</code></pre>
@@ -1883,7 +1873,8 @@ define([
 	environments: [
 		{
 			automationName: 'selendroid',
-			aut: 'com.example.testapp:1.0.0'
+			aut: 'com.example.testapp:1.0.0',
+			fixSessionCapabilities: false
 		}
 	]
 }</code></pre>
@@ -2071,13 +2062,11 @@ define([
 
 						<aside class="whatAreYouCrazy"><p>The <code>config</code> argument is an absolute module ID, not a file path or relative ID. Providing a file path or relative ID may cause confusing or unpredictable results.</p></aside>
 
-						<p>As can be seen from this example, because there is no concept of a “working directory” in URLs, the browser client chooses the directory two levels above <code>client.html</code> to be the root directory for the current test run. This can be overridden by specifying a <code>baseUrl</code> argument:</p>
+						<p>As can be seen from this example, because there is no concept of a “working directory” in URLs, the browser client chooses the directory two levels above <code>client.html</code> to be the root directory for the current test run. This can be overridden by specifying an <code>initialBaseUrl</code> argument:</p>
 
 						<pre><samp>http://localhost/my-project/node_modules/intern/client.html?
-	baseUrl=/&amp;
+	initialBaseUrl=/&amp;
 	config=my-project/tests/intern</samp></pre>
-
-						<aside class="whatAreYouCrazy"><p>Modifying the <code>baseUrl</code> anywhere within the test system can lead to confusing path problems. For best results, use the <a href="#directory-structure">recommended directory structure</a>.</p></aside>
 
 						<p>Additional arguments to the browser client can be put in the query string. A more complex execution with arguments overriding the <a href="#option-suites">suites</a> and <a href="#option-reporters">reporters</a> properties from the configuration file might look like this:</p>
 
@@ -2093,19 +2082,29 @@ define([
 						<p>The browser client supports the following arguments:</p>
 
 						<table class="api">
-							<tr>
-								<th>Argument</th>
-								<th>Description</th>
-							</tr>
-							<tr>
-								<th scope="row">baseUrl</th>
-								<td>Overrides the <code>baseUrl</code> specified in the <a href="#option-loader">loader configuration</a>.</td>
-							</tr>
+							<thead>
+								<tr>
+									<th>Argument</th>
+									<th>Description</th>
+									<th>Default</th>
+								</tr>
+							</thead>
 							<tr>
 								<th scope="row">config</th>
-								<td>The module ID of the Intern configuration file that should be used. Relative to <code>baseUrl</code>. This argument is required.</td>
+								<td>The module ID of the Intern configuration file that should be used. Relative to <code>initialBaseUrl</code>. This argument is required.</td>
+								<td>none</td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-baseUrl">initialBaseUrl</a></th>
+								<td>The path to use when resolving the <code>basePath</code> in a browser.</td>
+								<td><code class="javascript">'node_modules/intern/../../'</code></td>
 							</tr>
 						</table>
+
+						<div class="a half" id="option-baseUrl"></div>
+						<h4>initialBaseUrl (string) <span class="versionBadge">3.0</span></h4>
+
+						<p>The path to use when resolving the <code>basePath</code> in a browser. Since browsers do not have any concept of a current working directory, using this argument allows a pseudo-cwd to be specified for the browser client in order to match up file paths with what exists on the underlying filesystem. This argument should always be an absolute path (i.e. it should be the entire path that comes after the domain name).</p>
 
 						<p>You can also specify any valid <a href="#configuration">configuration option</a> in the query string.</p>
 
