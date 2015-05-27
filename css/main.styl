@@ -117,18 +117,17 @@ abbr {
 }
 
 a {
-	border-bottom: 1px solid $internTeal;
+	// Chrome and Firefox render text boxes differently so this box-shadow is always wrong in one place or another;
+	// it looks less wrong two pixels away from the text in Firefox than zero pixels away in Chrome
+	box-shadow: 0 -0.1em #fff inset, 0 calc(-0.1em - 1px) $internTeal inset;
 	color: $internTeal;
-	display: inline-block;
-	line-height: 0.9em;
-	transition: color 0.2s, border-bottom-color 0.2s;
+	transition: color 0.2s, box-shadow 0.2s;
 	text-decoration: none;
 	text-shadow: $backgroundColor 1px 0, $backgroundColor -1px 0;
 
 	&:hover {
 		color: $color;
-		border-bottom-color: transparent;
-		text-decoration: none; // for instances where text-decoration still must be used
+		box-shadow: 0 -3px #fff inset, 0 -4px #fff inset;
 	}
 
 	&:focus {
@@ -279,7 +278,14 @@ a {
 	}
 
 	a {
+		box-shadow: none;
 		color: $internTeal;
+		display: inline-block;
+
+		&:hover {
+			box-shadow: none;
+			color: $color;
+		}
 	}
 
 	.logo {
@@ -346,7 +352,7 @@ a {
 	}
 
 	a {
-		border-bottom: none;
+		box-shadow: none;
 		color: $internGrey;
 		display: block;
 		line-height: $lh * 0.5;
@@ -355,6 +361,7 @@ a {
 		transition: color 0.25s;
 
 		&:hover {
+			box-shadow: none;
 			color: $internTeal;
 		}
 	}
