@@ -7,9 +7,7 @@
 		"type": "git",
 		"url": "https://github.com/theintern/intern.git"
 	},
-	"licenses": [
-		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/intern/blob/master/LICENSE" }
-	],
+	"license": "BSD-3-Clause",
 	"dependencies": {
 		"istanbul": "0.2.16",
 		"source-map": "0.1.33",
