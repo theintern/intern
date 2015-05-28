@@ -101,6 +101,7 @@
 								<li data-id="interface-overview"><a href="#interface-overview">Overview</a></li>
 								<li data-id="interface-object"><a href="#interface-object">The Object interface</a></li>
 								<li data-id="interface-tdd"><a href="#interface-tdd">The TDD &amp; BDD interfaces</a></li>
+								<li data-id="interface-qunit"><a href="#interface-qunit">The QUnit interface <span class="versionBadge">3.0</span></a></li>
 							</ul>
 						</li>
 						<li data-id="unit-testing">
@@ -1191,6 +1192,27 @@
 </code></pre>
 
 						<aside class="whatAreYouCrazy"><p>Don’t try to call <code>tdd.suite</code> or <code>bdd.describe</code> from inside a test case; it’s not supported.</p></aside>
+
+						<div class="a half" id="interface-qunit"></div>
+						<h3 data-id="interface-qunit">The QUnit interface</h3>
+
+						<p>The QUnit interface provides a test interface that is compatible with the QUnit 1 API. This interface allows you to easily take existing QUnit tests and run them with Intern, or apply your existing QUnit knowledge to writing tests with Intern.</p>
+
+						<p>Converting existing QUnit tests to use Intern is as simple as wrapping your test files to expose Intern’s QUnit interface:</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var QUnit = require('intern!qunit');
+
+	QUnit.module('Suite name');
+	QUnit.test('Test foo', function (assert) {
+		assert.expects(1);
+		assert.ok(true, 'Everything is OK');
+	});
+
+	// … other tests …
+});</code></pre>
+
+						<aside class="whatAreYouCrazy"><p>The QUnit interface has been successfully used by multiple jQuery projects to convert their tests to Intern, but there may be some edge cases where its behaviour differs. Please <a href="https://github.com/theintern/intern/issues/new?body=Description:%0A%0ASteps+to+reproduce:%0A%0A1.%20%E2%80%A6%0A2.%20%E2%80%A6%0A3.%20%E2%80%A6%0A%0AExpected%20result:%0AActual%20result:%0A%0AIntern%20version:%0A%0AAny%20additional%20information:">let us know</a> if you run into any in your own projects!</p></aside>
 					</article>
 
 					<article>
