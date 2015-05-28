@@ -1,3 +1,4 @@
+sudo: false
 language: node_js
 node_js:
   - "0.12"
@@ -6,14 +7,7 @@ env:
     # Please get your own free key if you want to test yourself
     - BROWSERSTACK_USERNAME: sitepenlabs1
     - BROWSERSTACK_ACCESS_KEY: 836y5xDYPeFudz5HvZyp
-# This extra install section is only necessary if your project has already installed AMD dependencies like Dojo using
-# npm, since AMD path resolution does not follow Node.js path resolution rules but npm does not know this
-install:
-  - travis_retry npm install
-  - cd node_modules/intern
-  # Chai is loaded as an AMD module but npm does not install it for the copy of Intern being used to test because
-  # the same version is currently installed as a dependency for this package as well
-  - travis_retry npm install chai
-  - travis_retry npm install dojo
-  - cd ../..
+cache:
+  directories:
+    - node_modules
 script: tests/selftest.sh
