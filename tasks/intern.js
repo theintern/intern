@@ -64,13 +64,20 @@ module.exports = function (grunt) {
 				return;
 			}
 
-			if (Array.isArray(opts[option])) {
-				opts[option].forEach(function (value) {
+			var value = opts[option];
+
+			if (Array.isArray(value)) {
+				value.forEach(function (value) {
 					args.push(option + '=' + value);
 				});
 			}
+			else if (typeof value === 'boolean') {
+				if (value) {
+					args.push(option);
+				}
+			}
 			else {
-				args.push(option + '=' + opts[option]);
+				args.push(option + '=' + value);
 			}
 		});
 
