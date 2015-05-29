@@ -96,7 +96,11 @@ module.exports = function (grunt) {
 				cwd: process.cwd(),
 				env: env
 			}
-		}, done);
+		}, function (error) {
+			// The error object from grunt.util.spawn contains information
+			// that we already logged, so hide it from the user
+			done(error ? new Error('Test failure; check output above for details.') : null);
+		});
 
 		child.stdout.on('data', readOutput);
 		child.stderr.on('data', readOutput);
