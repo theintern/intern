@@ -310,7 +310,15 @@ Server.prototype = {
 		}).then(function (response) {
 			var session = new self.sessionConstructor(response.sessionId, self, response.value);
 			if (fixSessionCapabilities) {
-				return self._fillCapabilities(session);
+				return self._fillCapabilities(session).catch(function (error) {
+					// The session was started on the server, but we did not resolve the Promise yet. If a failure
+					// occurs during capabilities filling, we should quit the session on the server too since the
+					// caller will not be aware that it ever got that far and will have no access to the session to
+					// quit itself.
+					return session.quit().finally(function () {
+						throw error;
+					});
+				});
 			}
 			else {
 				return session;
