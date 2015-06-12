@@ -174,8 +174,9 @@ fi
 
 echo -e "\nDone!\n"
 
-echo "Please confirm packaging success, then press 'y', ENTER to publish to npm, push"
-echo "tags, and upload, or any other key to bail."
+echo "Please confirm packaging success, then press 'y', ENTER to publish to"
+echo "npm $NPM_TAG, push tags $RELEASE_TAG, and upload,"
+echo "or any other key to bail."
 read -p "> "
 
 if [ "$REPLY" != "y" ]; then
