@@ -353,13 +353,21 @@ define([
 
 		'extend': {
 			'should have a working expect': function () {
-				QUnit.extend( QUnit.assert, {
-					isGreater: function (actual, expected, message) {
-						this.push(actual > expected, actual, expected, message);
-					}
+				var testObject = { a: 1 };
+				QUnit.extend(testObject, {
+					b: { c: 1 }
 				});
 
-				assert.equal(QUnit.assert.isGreater(2, 1, "2 should be greater than 1", true, "QUnit extend should work"));
+				assert.deepEqual(testObject, { a: 1, b: { c: 1 } }, "Extended Object should be equal to expected one");
+
+				QUnit.extend(testObject, { b: undefined });
+
+				assert.deepEqual(testObject, { a: 1 }, "Extended object should delete undefined props");
+
+				QUnit.extend(testObject, { a: 2, b: 2 }, true);
+
+				assert.deepEqual(testObject, { a: 1, b: 2 },
+					"Extended object should set undefined props only if undef option is set");
 			}
 		},
 
