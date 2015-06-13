@@ -351,6 +351,18 @@ define([
 			}
 		},
 
+		'extend': {
+			'should have a working expect': function () {
+				QUnit.extend( QUnit.assert, {
+					isGreater: function (actual, expected, message) {
+						this.push(actual > expected, actual, expected, message);
+					}
+				});
+
+				assert.equal(QUnit.assert.isGreater(2, 1, "2 should be greater than 1", true, "QUnit extend should work"));
+			}
+		},
+
 		'events': {
 			'begin': function () {
 				var results = [];
