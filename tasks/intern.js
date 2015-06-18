@@ -43,6 +43,14 @@ module.exports = function (grunt) {
 		logOutput(data.slice(start));
 	}
 
+	function serialize(data) {
+		if (typeof data === 'object') {
+			return JSON.stringify(data);
+		}
+
+		return data;
+	}
+
 	grunt.registerMultiTask('intern', function () {
 		var done = this.async(),
 			opts = this.options({ runType: 'client' }),
@@ -68,7 +76,7 @@ module.exports = function (grunt) {
 
 			if (Array.isArray(value)) {
 				value.forEach(function (value) {
-					args.push(option + '=' + value);
+					args.push(option + '=' + serialize(value));
 				});
 			}
 			else if (typeof value === 'boolean') {
@@ -77,7 +85,7 @@ module.exports = function (grunt) {
 				}
 			}
 			else {
-				args.push(option + '=' + value);
+				args.push(option + '=' + serialize(value));
 			}
 		});
 
