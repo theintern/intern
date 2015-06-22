@@ -16,10 +16,6 @@ define({
 
 	maxConcurrency: 2,
 	tunnel: 'BrowserStackTunnel',
-	tunnelOptions: {
-		username: 'sitepenlabs1',
-		accessKey: '836y5xDYPeFudz5HvZyp'
-	},
 
 	loader: {
 		// Packages that should be registered with the loader in each testing environment
