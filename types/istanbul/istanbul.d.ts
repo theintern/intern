@@ -173,8 +173,13 @@ declare module 'istanbul/lib/report/text-summary' {
 
 declare module 'istanbul/lib/report/json' {
 	import Report from 'istanbul/lib/report';
+	import { FileWriter } from 'istanbul';
+	import { FileCoverage } from 'istanbul';
 
-	class JsonReport extends Report {}
+	class JsonReport extends Report {
+		constructor(opts?: any);
+		writeFileCoverage(writer: FileWriter, fc: FileCoverage): void;
+	}
 
 	export = JsonReport;
 }
