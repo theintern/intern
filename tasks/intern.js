@@ -104,6 +104,9 @@ module.exports = function (grunt) {
 			}
 		});
 
+		// force colored output for istanbul report
+		env.FORCE_COLOR = true;
+		
 		var child = grunt.util.spawn({
 			cmd: process.argv[0],
 			args: args,
