@@ -351,6 +351,26 @@ define([
 			}
 		},
 
+		'extend': {
+			'should have a working expect': function () {
+				var testObject = { a: 1 };
+				QUnit.extend(testObject, {
+					b: { c: 1 }
+				});
+
+				assert.deepEqual(testObject, { a: 1, b: { c: 1 } }, "Extended Object should be equal to expected one");
+
+				QUnit.extend(testObject, { b: undefined });
+
+				assert.deepEqual(testObject, { a: 1 }, "Extended object should delete undefined props");
+
+				QUnit.extend(testObject, { a: 2, b: 2 }, true);
+
+				assert.deepEqual(testObject, { a: 1, b: 2 },
+					"Extended object should set undefined props only if undef option is set");
+			}
+		},
+
 		'events': {
 			'begin': function () {
 				var results = [];
