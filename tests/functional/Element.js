@@ -224,6 +224,14 @@ define([
 				strategies.filter(function (strategy) { return strategy !== 'id'; })
 			),
 
+			'#findDisplayed convenience methods': createStubbedSuite(
+				'findDisplayed',
+				'findDisplayedBy_',
+				strategies.suffixes.filter(function (suffix) { return suffix !== 'Id'; }),
+				strategies.filter(function (strategy) { return strategy !== 'id'; })
+			),
+
+			// TODO: findDisplayed
 			// TODO: waitForDeleted
 
 			'#waitForDeleted convenience methods': createStubbedSuite(

@@ -190,6 +190,15 @@ define([
 							});
 			},
 
+			'#findDisplayed': function () {
+				return new Command(session).get(require.toUrl('./data/visibility.html'))
+					.findDisplayedByClassName('multipleVisible')
+					.getVisibleText()
+					.then(function (text) {
+						assert.strictEqual(text, 'b', 'The first visible element should be returned');
+					});
+			},
+
 			'#moveMouseTo usesElement': function () {
 				/* jshint maxlen:150 */
 				return new Command(session).get(require.toUrl('./data/pointer.html'))

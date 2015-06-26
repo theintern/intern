@@ -6,15 +6,13 @@
 		"type": "git",
 		"url": "https://github.com/theintern/leadfoot.git"
 	},
-	"licenses": [
-		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/leadfoot/blob/master/LICENSE" }
-	],
+	"license": "BSD-3-Clause",
 	"dependencies": {
 		"adm-zip": "^0.4.3",
 		"dojo": "2.0.0-alpha.6"
 	},
 	"devDependencies": {
-		"intern": "2.2.2"
+		"intern": "3.0.0-rc.2"
 	},
 	"bugs": "https://github.com/theintern/leadfoot/issues",
 	"keywords": [ "javascript", "test", "functional", "selenium", "webdriver", "sauce labs", "browserstack", "testingbot" ],

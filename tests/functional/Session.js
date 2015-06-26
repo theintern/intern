@@ -764,6 +764,44 @@ define([
 				};
 			})(),
 
+			'#findDisplayed': function () {
+				return session.get(require.toUrl('./data/visibility.html')).then(function () {
+					return session.findDisplayed('id', 'does-not-exist').then(function () {
+						throw new Error('findDisplayed should not find non-existing elements');
+					}, function (error) {
+						assert.strictEqual(error.name, 'NoSuchElement',
+							'Non-existing element should throw NoSuchElement error after timeout');
+					});
+				}).then(function () {
+					return session.findDisplayed('id', 'noDisplay').then(function () {
+						throw new Error('findDisplayed should not find hidden elements');
+					}, function (error) {
+						assert.strictEqual(error.name, 'ElementNotVisible',
+							'Existing but hidden element should throw ElementNotVisible error after timeout');
+					});
+				}).then(function () {
+					return session.findDisplayed('class name', 'multipleVisible');
+				}).then(function (element) {
+					return element.getVisibleText();
+				}).then(function (text) {
+					assert.strictEqual(text, 'b',
+						'The first visible element should be returned, even if it is not the first' +
+						' element of any visibility that matches the query');
+
+					return session.setFindTimeout(2000);
+				}).then(function () {
+					return session.findById('makeVisible');
+				}).then(function (element) {
+					return element.click();
+				}).then(function () {
+					return session.findDisplayed('id', 'noDisplay');
+				}).then(function (element) {
+					return element.getProperty('id');
+				}).then(function (id) {
+					assert.strictEqual(id, 'noDisplay');
+				});
+			},
+
 			'#find convenience methods': createStubbedSuite(
 				'find',
 				'findBy_',
@@ -776,6 +814,13 @@ define([
 				'findAllBy_',
 				strategies.suffixes.filter(function (suffix) { return suffix !== 'Id'; }),
 				strategies.filter(function (strategy) { return strategy !== 'id'; })
+			),
+
+			'#findDisplayed convenience methods': createStubbedSuite(
+				'findDisplayed',
+				'findDisplayedBy_',
+				strategies.suffixes,
+				strategies
 			),
 
 			'#waitForDeleted': function () {

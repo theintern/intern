@@ -4,6 +4,7 @@
  * @module leadfoot/Element
  */
 
+var findDisplayed = require('./lib/findDisplayed');
 var fs = require('fs');
 var strategies = require('./lib/strategies');
 var waitForDeleted = require('./lib/waitForDeleted');
@@ -618,6 +619,122 @@ Element.prototype = {
  * @returns {Promise.<module:leadfoot/Element[]>}
  */
 strategies.applyTo(Element.prototype);
+
+/**
+ * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
+ * matching the given query. This is inherently slower than {@link module:leadfoot/Element#find}, so should only be
+ * used in cases where the visibility of an element cannot be ensured in advance.
+ *
+ * @method findDisplayed
+ * @memberOf module:leadfoot/Element#
+ * @since 1.6
+ *
+ * @param {string} using
+ * The element retrieval strategy to use. See {@link module:leadfoot/Session#find} for options.
+ *
+ * @param {string} value
+ * The strategy-specific value to search for. See {@link module:leadfoot/Session#find} for details.
+ *
+ * @returns {Promise.<module:leadfoot/Element>}
+ */
+
+/**
+ * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
+ * matching the given CSS class name. This is inherently slower than {@link module:leadfoot/Element#find}, so should
+ * only be used in cases where the visibility of an element cannot be ensured in advance.
+ *
+ * @method findDisplayedByClassName
+ * @memberOf module:leadfoot/Element#
+ * @since 1.6
+ * @param {string} className The CSS class name to search for.
+ * @returns {Promise.<module:leadfoot/Element>}
+ */
+
+/**
+ * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
+ * matching the given CSS selector. This is inherently slower than {@link module:leadfoot/Element#find}, so should
+ * only be used in cases where the visibility of an element cannot be ensured in advance.
+ *
+ * @method findDisplayedByCssSelector
+ * @memberOf module:leadfoot/Element#
+ * @since 1.6
+ * @param {string} selector The CSS selector to search for.
+ * @returns {Promise.<module:leadfoot/Element>}
+ */
+
+/**
+ * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
+ * matching the given ID. This is inherently slower than {@link module:leadfoot/Element#find}, so should
+ * only be used in cases where the visibility of an element cannot be ensured in advance.
+ *
+ * @method findDisplayedById
+ * @memberOf module:leadfoot/Element#
+ * @since 1.6
+ * @param {string} id The ID of the element.
+ * @returns {Promise.<module:leadfoot/Element>}
+ */
+
+/**
+ * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
+ * matching the given name attribute. This is inherently slower than {@link module:leadfoot/Element#find}, so should
+ * only be used in cases where the visibility of an element cannot be ensured in advance.
+ *
+ * @method findDisplayedByName
+ * @memberOf module:leadfoot/Element#
+ * @since 1.6
+ * @param {string} name The name of the element.
+ * @returns {Promise.<module:leadfoot/Element>}
+ */
+
+/**
+ * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
+ * matching the given case-insensitive link text. This is inherently slower than {@link module:leadfoot/Element#find},
+ * so should only be used in cases where the visibility of an element cannot be ensured in advance.
+ *
+ * @method findDisplayedByLinkText
+ * @memberOf module:leadfoot/Element#
+ * @since 1.6
+ * @param {string} text The link text of the element.
+ * @returns {Promise.<module:leadfoot/Element>}
+ */
+
+/**
+ * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
+ * partially matching the given case-insensitive link text. This is inherently slower than
+ * {@link module:leadfoot/Element#find}, so should only be used in cases where the visibility of an element cannot be
+ * ensured in advance.
+ *
+ * @method findDisplayedByPartialLinkText
+ * @memberOf module:leadfoot/Element#
+ * @since 1.6
+ * @param {string} text The partial link text of the element.
+ * @returns {Promise.<module:leadfoot/Element>}
+ */
+
+/**
+ * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
+ * matching the given HTML tag name. This is inherently slower than {@link module:leadfoot/Element#find}, so should
+ * only be used in cases where the visibility of an element cannot be ensured in advance.
+ *
+ * @method findDisplayedByTagName
+ * @memberOf module:leadfoot/Element#
+ * @since 1.6
+ * @param {string} tagName The tag name of the element.
+ * @returns {Promise.<module:leadfoot/Element>}
+ */
+
+/**
+ * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
+ * matching the given XPath selector. This is inherently slower than {@link module:leadfoot/Element#find}, so should
+ * only be used in cases where the visibility of an element cannot be ensured in advance.
+ *
+ * @method findDisplayedByXpath
+ * @memberOf module:leadfoot/Element#
+ * @since 1.6
+ * @param {string} path The XPath selector to search for.
+ * @returns {Promise.<module:leadfoot/Element>}
+ */
+findDisplayed.applyTo(Element.prototype);
 
 /**
  * Waits for all elements inside this element that match the given query to be destroyed.

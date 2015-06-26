@@ -291,6 +291,15 @@ TOP_CONTEXT.depth = 0;
  * @borrows module:leadfoot/Session#findAllByPartialLinkText as module:leadfoot/Command#findAllByPartialLinkText
  * @borrows module:leadfoot/Session#findAllByTagName as module:leadfoot/Command#findAllByTagName
  * @borrows module:leadfoot/Session#findAllByXpath as module:leadfoot/Command#findAllByXpath
+ * @borrows module:leadfoot/Session#findDisplayed as module:leadfoot/Command#findDisplayed
+ * @borrows module:leadfoot/Session#findDisplayedByClassName as module:leadfoot/Command#findDisplayedByClassName
+ * @borrows module:leadfoot/Session#findDisplayedByCssSelector as module:leadfoot/Command#findDisplayedByCssSelector
+ * @borrows module:leadfoot/Session#findDisplayedById as module:leadfoot/Command#findDisplayedById
+ * @borrows module:leadfoot/Session#findDisplayedByName as module:leadfoot/Command#findDisplayedByName
+ * @borrows module:leadfoot/Session#findDisplayedByLinkText as module:leadfoot/Command#findDisplayedByLinkText
+ * @borrows module:leadfoot/Session#findDisplayedByPartialLinkText as module:leadfoot/Command#findDisplayedByPartialLinkText
+ * @borrows module:leadfoot/Session#findDisplayedByTagName as module:leadfoot/Command#findDisplayedByTagName
+ * @borrows module:leadfoot/Session#findDisplayedByXpath as module:leadfoot/Command#findDisplayedByXpath
  * @borrows module:leadfoot/Session#waitForDeletedByClassName as module:leadfoot/Command#waitForDeletedByClassName
  * @borrows module:leadfoot/Session#waitForDeletedByCssSelector as module:leadfoot/Command#waitForDeletedByCssSelector
  * @borrows module:leadfoot/Session#waitForDeletedById as module:leadfoot/Command#waitForDeletedById
@@ -569,7 +578,8 @@ Command.prototype = {
 	},
 
 	find: createElementMethod('find'),
-	findAll: createElementMethod('findAll')
+	findAll: createElementMethod('findAll'),
+	findDisplayed: createElementMethod('findDisplayed')
 };
 
 /**
