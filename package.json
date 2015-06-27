@@ -13,7 +13,7 @@
 		"source-map": "0.1.33",
 		"dojo": "2.0.0-alpha.6",
 		"chai": "3.0.0",
-		"leadfoot": "1.5.2",
+		"leadfoot": "1.6.0-rc.1",
 		"digdug": "1.3.2",
 		"charm": "0.2.0",
 		"diff": "1.1.0"
