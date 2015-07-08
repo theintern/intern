@@ -2024,8 +2024,8 @@ define([
 						<p>To use ChromeDriver and IEDriver with a Selenium server, the driver executables must either be placed somewhere in the environment PATH, or their locations must be given explicitly to the Selenium server using the <kbd>-Dwebdriver.chrome.driver</kbd> (ChromeDriver) and <kbd>-Dwebdriver.ie.driver</kbd> (IEDriver) flags upon starting the Selenium server:</p>
 
 						<pre><kbd class="bash">java -jar selenium-server-standalone-{version}.jar \
--Dwebdriver.chrome.driver /path/to/chromedriver \
--Dwebdriver.ie.driver C:/path/to/IEDriverServer.exe</kbd></pre>
+-Dwebdriver.chrome.driver=/path/to/chromedriver \
+-Dwebdriver.ie.driver=C:/path/to/IEDriverServer.exe</kbd></pre>
 
 						<p>Once the server is running, simply configure Intern to point to the server by setting <a href="#option-tunnel">tunnel</a> to <code class="javascript">'NullTunnel'</code>, then run the <a href="#test-runner">test runner</a>.</p>
 
