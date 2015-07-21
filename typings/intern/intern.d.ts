@@ -91,16 +91,16 @@ declare module 'intern!tdd' {
 }
 
 declare module 'intern/chai!' {
-	export = chai;
+	export = Chai;
 }
 
 declare module 'intern/chai!assert' {
-	var assert: chai.Assert;
+	var assert: Chai.AssertStatic;
 	export = assert;
 }
 
 declare module 'intern/chai!expect' {
-	var expect: chai.Expect;
+	var expect: Chai.ExpectStatic;
 	export = expect;
 }
 
