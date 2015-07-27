@@ -9,7 +9,7 @@
 	},
 	"license": "BSD-3-Clause",
 	"dependencies": {
-		"istanbul": "0.3.16",
+		"istanbul": "0.3.17",
 		"source-map": "0.1.33",
 		"dojo": "2.0.0-alpha.6",
 		"chai": "3.0.0",
