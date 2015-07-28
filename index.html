@@ -816,6 +816,11 @@
 								<td><code class="javascript">'http://localhost:9000/'</code></td>
 							</tr>
 							<tr>
+								<th scope="row"><a href="#option-runnerClientReporter">runnerClientReporter</a> <span class="versionBadge">3.0</span></th>
+								<td>The reporter used to send data from the unit testing system back to the test runner.</td>
+								<td><code class="javascript">{ id: 'WebDriver' }</code></td>
+							</tr>
+							<tr>
 								<th scope="row"><a href="#option-tunnel">tunnel</a></th>
 								<td>The tunnel to use to establish a WebDriver server for testing.</td>
 								<td><code class="javascript">'NullTunnel'</code></td>
@@ -924,6 +929,33 @@
 						<h4>proxyUrl (string)</h4>
 
 						<p>The external URL to the Intern HTTP server. You will need to change this value only if you are running Intern’s HTTP server through a reverse proxy, or if Intern’s HTTP server needs to be reached through a public interface that your Selenium servers can access directly.</p>
+
+						<div class="a half" id="option-runnerClientReporter"></div>
+						<h4>runnerClientReporter (string | Object) <span class="versionBadge">3.0</span></h4>
+
+						<p>The reporter used to send data from the unit testing system back to the test runner. The default reporter is the built-in WebDriver reporter, which can be configured by setting <code>runnerClientReporter</code> to an object with one or more properties:</p>
+
+						<table class="api">
+							<thead>
+								<tr>
+									<th>Option</th>
+									<th>Type</th>
+									<th>Default</th>
+								</tr>
+							</thead>
+							<tr>
+								<th scope="row">waitForRunner</th>
+								<td>Whether or not events transmitted from the unit testing system to the test runner should cause the unit testing system to pause until a response is received from the test runner. This is necessary if you expect to be able to do things like take screenshots of the browser before/after each unit test executes from a custom reporter. This property can be set to <code class="javascript">true</code> to always wait for the test runner after each event from the test system, or <code class="javascript">'fail'</code> to only wait if the event was a test failure or other error.</td>
+								<td><code class="javascript">false</code></td>
+							</tr>
+							<tr>
+								<th scope="row">writeHtml</th>
+								<td>Whether or not test status should be written to the screen during the test run. This is useful for debugging test hangs when running on a cloud provider, but can also interfere with tests that rely on scrolling/positioning or code which indiscriminately destroys the content of the DOM.</td>
+								<td><code class="javascript">true</code></td>
+							</tr>
+						</table>
+
+						<aside class="whatAreYouCrazy"><p>You can swap out the client reporter with a completely different reporter if you want by specifying its ID, but doing so will break the test runner if you don’t know what you are doing.</p></aside>
 
 						<div class="a half" id="option-tunnel"></div>
 						<h4>tunnel (string)</h4>
