@@ -2114,8 +2114,6 @@ define([
 						<pre><samp>http://localhost/my-project/node_modules/intern/client.html?
 	config=tests/intern</samp></pre>
 
-						<aside class="whatAreYouCrazy"><p>The <code>config</code> argument is an absolute module ID, not a file path or relative ID. Providing a file path or relative ID may cause confusing or unpredictable results.</p></aside>
-
 						<p>As can be seen from this example, because there is no concept of a “working directory” in URLs, the browser client chooses the directory two levels above <code>client.html</code> to be the root directory for the current test run. This can be overridden by specifying an <code>initialBaseUrl</code> argument:</p>
 
 						<pre><samp>http://localhost/my-project/node_modules/intern/client.html?
