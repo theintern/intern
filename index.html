@@ -543,7 +543,7 @@
 							</thead>
 							<tr>
 								<th scope="row"><a href="#option-basePath">basePath</a> <span class="versionBadge">3.0</span></th>
-								<td>The common base path for all files in an application.</td>
+								<td>The common base path for all files that need to be loaded during testing.</td>
 								<td><code class="javascript">process.cwd()</code> (Node.js)<br><code class="javascript">'node_modules/intern/../../'</code> (browser)</td>
 							</tr>
 							<tr>
@@ -591,15 +591,15 @@
 						<div class="a half" id="option-basePath"></div>
 						<h4>basePath (string) <span class="versionBadge">3.0</span></h4>
 
-						<p>The common base path for all files in an application. If <code>basePath</code> is a relative path, it is resolved differently depending upon where Intern is executing:</p>
+						<p>The common base path for all files that need to be loaded during testing. If <code>basePath</code> is specified using a relative path, that path is resolved differently depending upon where Intern is executing:</p>
 
 						<ul>
-							<li>In Node.js, <code>basePath</code> is relative to <code>process.cwd()</code></li>
-							<li>In a browser with an <a href="#option-baseUrl"><code>initialBaseUrl</code></a> argument in the query-string, <code>basePath</code> is relative to <code>initialBaseUrl</code></li>
-							<li>In a browser with no <code>initialBaseUrl</code> argument, <code>basePath</code> is relative to two directories above the Intern directory (i.e. <code>node_modules/intern/../../</code>)</li>
+							<li>In Node.js, <code>basePath</code> is resolved relative to <code>process.cwd()</code></li>
+							<li>In a browser with an <a href="#option-baseUrl"><code>initialBaseUrl</code></a> argument in the query-string, <code>basePath</code> is resolved relative to <code>initialBaseUrl</code></li>
+							<li>In a browser with no <code>initialBaseUrl</code> argument, <code>basePath</code> is resolved relative to two directories above the Intern directory (i.e. <code>node_modules/intern/../../</code>)</li>
 						</ul>
 
-						<p>If a <code>basePath</code> is not provided, these directories are used as the <code>basePath</code>.</p>
+						<p>If <code>basePath</code> is not explicitly provided, it is set to <code>.</code> and is resolved according to the rules above.</p>
 
 						<aside class="whatAreYouCrazy"><p><code>basePath</code> is the directory that is served by the test runner’s instrumenting proxy HTTP server. If it is not set properly for your application, the test runner will not work correctly.</p></aside>
 
