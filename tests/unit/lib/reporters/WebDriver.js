@@ -274,7 +274,7 @@ define([
 				'Test should include its duration');
 			assert.strictEqual(reporter.testNode.style.color, 'red',
 				'Test node should be red');
-			assert.strictEqual(errorMessage.firstChild.wholeText, test.error.stack || test.error,
+			assert.strictEqual(errorMessage.firstChild.wholeText, test.error.stack || test.error.toString(),
 				'The reporter error message should match the test error message');
 		},
 
