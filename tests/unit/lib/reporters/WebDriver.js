@@ -154,6 +154,39 @@ define([
 
 				assert.strictEqual(reporter.reporterNode.parentNode, document.body,
 					'The reporterNode should be a child of the body');
+			},
+
+			'contained suites': function () {
+				var reporter = new WebDriver({
+					internConfig: {
+						sessionId: 'foo'
+					}
+				});
+
+				var test = new Test({
+					name: 'test',
+					timeElapsed: 123,
+					parent: { name: 'parent', id: 'parent' },
+					hasPassed: true
+				});
+				var parentSuite = new Suite({ name: 'parentSuite' });
+				var suite = new Suite({ name: 'suite', parent: parentSuite });
+
+				reporter.suiteStart(parentSuite);
+				reporter.suiteStart(suite);
+				assert.strictEqual(reporter.reporterNode.lastChild, reporter.suiteNode.parentNode.parentNode);
+				assert.strictEqual(suite.name, reporter.suiteNode.parentNode.firstChild.innerText,
+					'Title of section should be name of suite');
+				assert.strictEqual(reporter.suiteNode.parentNode.tagName, 'LI',
+					'Suite Node parent should be a <li> element');
+				reporter.testStart(test);
+				reporter.testPass(test);
+				reporter.suiteEnd(suite);
+				assert.strictEqual(reporter.suiteNode.parentNode, reporter.reporterNode,
+					'suiteNode parent should equal reporterNode');
+				reporter.suiteEnd(parentSuite);
+				assert.strictEqual(reporter.reporterNode, reporter.suiteNode,
+					'reporterNode and suiteNode should be equal');
 			}
 		},
 
@@ -320,6 +353,67 @@ define([
 				'Reporter should not have added any nodes to the DOM');
 			assert.strictEqual(mockRequest._callStack.length, callStackDepth + 7,
 				'The appropriate number of events were posted.');
+		},
+
+		'config.waitForRunner': {
+			'is true': function () {
+				var dfd = this.async(250);
+				var reporter = new WebDriver({
+					internConfig: {
+						sessionId: 'foo'
+					},
+					waitForRunner: true
+				});
+				var tests = [];
+				var suite = new Suite({ name: 'suite', parent: {}, tests: tests });
+
+				var suiteStartResult = reporter.suiteStart(suite);
+				assert.isFunction(suiteStartResult.then, 'Promise should be returned');
+				suiteStartResult.then(dfd.callback(function () {
+					var suiteEndResult = reporter.suiteEnd(suite);
+					assert.isFunction(suiteEndResult.then, 'Promise should be returned');
+				}));
+			},
+			'is fail': function () {
+				var reporter = new WebDriver({
+					internConfig: {
+						sessionId: 'foo'
+					},
+					waitForRunner: 'fail'
+				});
+				var suite = new Suite({ name: 'suite', parent: {}});
+				var test = new Test({
+					name: 'test',
+					timeElapsed: 123,
+					parent: suite,
+					error: new Error('Ooops')
+				});
+				suite.tests = [ test ];
+
+				assert.isUndefined(reporter.suiteStart(suite),
+					'Should not return a Promise');
+				assert.isUndefined(reporter.testStart(test),
+					'Should not return a Promise');
+				assert.isFunction(reporter.testFail(test).then,
+					'Promise should be returned');
+				assert.isUndefined(reporter.suiteEnd(suite),
+					'Should not return a Promise');
+			}
+		},
+
+		'$others': function () {
+			var callStackDepth = mockRequest._callStack.length;
+			var reporter = new WebDriver({
+				internConfig: {
+					sessionId: 'foo'
+				}
+			});
+
+			reporter.$others('coverage', {});
+			reporter.$others('run', {});
+			reporter.$others('foo', {});
+			assert.strictEqual(mockRequest._callStack.length, callStackDepth + 1,
+				'Only one event should have been dispatched.');
 		}
 	});
 });
