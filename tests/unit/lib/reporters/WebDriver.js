@@ -175,7 +175,8 @@ define([
 				reporter.suiteStart(parentSuite);
 				reporter.suiteStart(suite);
 				assert.strictEqual(reporter.reporterNode.lastChild, reporter.suiteNode.parentNode.parentNode);
-				assert.strictEqual(suite.name, reporter.suiteNode.parentNode.firstChild.innerText,
+				assert.strictEqual(suite.name, reporter.suiteNode.parentNode.firstChild.innerText ||
+					reporter.suiteNode.parentNode.firstChild.textContent,
 					'Title of section should be name of suite');
 				assert.strictEqual(reporter.suiteNode.parentNode.tagName, 'LI',
 					'Suite Node parent should be a <li> element');
@@ -260,6 +261,12 @@ define([
 				hasPassed: true,
 				skipped: 'Because'
 			});
+			var test2 = new Test({
+				name: 'test2',
+				timeElapsed: 123,
+				parent: { name: 'parent', id: 'parent' },
+				hasPassed: true
+			});
 
 			reporter.testSkip(test);
 			var req = mockRequest._callStack.pop();
@@ -275,6 +282,10 @@ define([
 				'Test should include the reason why it was skipped');
 			assert.strictEqual(reporter.testNode.style.color, 'gray',
 				'Test node should be gray');
+
+			reporter.testSkip(test2);
+			assert.notInclude(reporter.testNode.lastChild.wholeText, '(',
+				'Should not include a skipped reason');
 		},
 
 		testFail: function () {
