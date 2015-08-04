@@ -75,7 +75,7 @@ module.exports = function (grunt) {
 			var value = opts[option];
 
 			if (Array.isArray(value)) {
-				value.forEach(function (value) {
+				grunt.util._.flatten(value).forEach(function (value) {
 					args.push(option + '=' + serialize(value));
 				});
 			}
