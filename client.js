@@ -2,9 +2,9 @@
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
 		require('dojo/loader')((this.__internConfig = {
-			baseUrl: process.cwd(),
+			baseUrl: process.cwd().replace(/\\/g, '/'),
 			packages: [
-				{ name: 'intern', location: __dirname }
+				{ name: 'intern', location: __dirname.replace(/\\/g, '/') }
 			],
 			map: {
 				intern: {
