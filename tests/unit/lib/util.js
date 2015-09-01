@@ -148,7 +148,11 @@ define([
 						foo.run();
 					}
 					catch (error) {
-						assert.include(util.getErrorMessage(error), 'util/foo.js:4');
+						var expected = 'util/foo.js:4';
+						if (pathUtil && pathUtil.sep !== '/') {
+							expected = expected.replace(/\//g, pathUtil.sep);
+						}
+						assert.include(util.getErrorMessage(error), expected);
 					}
 				}));
 			},
