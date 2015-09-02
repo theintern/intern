@@ -5,7 +5,10 @@
 		<title>Browser test runner</title>
 		<script src="node_modules/dojo/loader.js"></script>
 		<script>
-			(function () {
+			// At least FirefoxDriver 2.46.0 will time out the page load detection and cause the page to reload in the
+			// middle of test module initialisation if a large number of tests are loaded before the onload event for
+			// the page has fired. See theintern/intern#466.
+			window.onload = function () {
 				var internPath = location.pathname.replace(/\/+[^\/]*$/, '/');
 				var initialBaseUrl = (function () {
 					var result = /[?&]initialBaseUrl=([^&]*)/.exec(location.search);
@@ -43,7 +46,7 @@
 				};
 
 				require(internConfig, [ 'intern/client' ]);
-			})();
+			};
 		</script>
 	</head>
 	<body></body>
