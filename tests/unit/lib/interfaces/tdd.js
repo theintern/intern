@@ -78,17 +78,21 @@ define([
 
 		'Suite lifecycle methods': function () {
 			var results = [];
-			var expectedResults = [ 'before', 'before2', 'beforeEach', 'beforeEach2',
-				'afterEach', 'afterEach2', 'after', 'after2' ];
+			var expectedResults = [
+				'before', undefined, 'before2', undefined,
+				'beforeEach', 'single test', 'beforeEach2', 'single test',
+				'afterEach', 'single test', 'afterEach2', 'single test',
+				'after', undefined, 'after2', undefined
+			];
 			var lifecycleMethods = [ 'before', 'beforeEach', 'afterEach', 'after' ];
 
 			tdd.suite('root suite', function () {
 				lifecycleMethods.forEach(function (method) {
-					tdd[method](function () {
-						results.push(method);
+					tdd[method](function (test) {
+						results.push(method, test && test.name);
 					});
-					tdd[method](function () {
-						results.push(method + '2');
+					tdd[method](function (test) {
+						results.push(method + '2', test && test.name);
 					});
 				});
 
