@@ -197,7 +197,12 @@ Element.prototype = {
 			var filename = value.join('');
 
 			if (fs.existsSync(filename)) {
-				return this.session._uploadFile(filename).then(this.type.bind(this));
+				var self = this;
+				return this.session._uploadFile(filename).then(function(uploadedFilename) {
+					return self._post('value', {
+						value: [ uploadedFilename ]
+					}).then(noop);
+				});
 			}
 		}
 
