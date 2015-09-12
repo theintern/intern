@@ -98,19 +98,19 @@ define([
 			'lifecycle methods': function () {
 				var suiteParams = { name: 'root suite' };
 				var results = [];
-				var expectedResults = ['before', 'beforeEach', 'afterEach', 'after'];
+				var expectedResults = ['before', 'arg', 'beforeEach', 'arg', 'afterEach', 'arg', 'after', 'arg'];
 				var lifecycleMethods = ['setup', 'beforeEach', 'afterEach', 'teardown'];
 
 				expectedResults.forEach(function (method) {
-					suiteParams[method] = function () {
-						results.push(method);
+					suiteParams[method] = function (arg) {
+						results.push(method, arg);
 					};
 				});
 
 				object(suiteParams);
 
 				lifecycleMethods.forEach(function (method) {
-					rootSuites[0].tests[0][method]();
+					rootSuites[0].tests[0][method]('arg');
 				});
 
 				assert.deepEqual(results, expectedResults, 'object interface methods should get called when ' +

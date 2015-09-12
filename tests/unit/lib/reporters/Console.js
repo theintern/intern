@@ -5,8 +5,9 @@ define([
 	'./support/MockConsole',
 	'../../../../lib/Suite',
 	'../../../../lib/Test',
-	'../../../../lib/reporters/Console'
-], function (registerSuite, assert, lang, MockConsole, Suite, Test, Console) {
+	'../../../../lib/reporters/Console',
+	'dojo/has!host-node?dojo/node!path'
+], function (registerSuite, assert, lang, MockConsole, Suite, Test, Console, pathUtil) {
 	registerSuite({
 		name: 'intern/lib/reporters/Console',
 
@@ -83,7 +84,11 @@ define([
 			if (result.indexOf('No stack or location') === -1) {
 				// the line number in the message should be the same as the line where the new Error
 				// was created above
-				assert.include(result, 'tests/unit/lib/reporters/Console.js:71',
+				var expected = 'tests/unit/lib/reporters/Console.js:72';
+				if (pathUtil && pathUtil.sep !== '/') {
+					expected = expected.replace(/\//g, pathUtil.sep);
+				}
+				assert.include(result, expected,
 					'Reporter should indicate the location of the error');
 			}
 		},
