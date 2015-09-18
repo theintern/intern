@@ -713,6 +713,8 @@
 	'host-browser': 'node_modules/requirejs/require.js'
 }</code></pre>
 
+						<aside class="whatAreYouCrazy"><p>When using RequireJS in Node.js, you <em>must</em> use <code class="javascript">'requirejs'</code>, which actually loads <code>r.js</code>. The file <code>require.js</code> is for Web browsers <em>only</em> and will not work.</aside>
+
 						<div class="a half" id="option-reporters"></div>
 						<h4>reporters (Array&lt;Object <span class="versionBadge">3.0</span> | string>)</h4>
 
