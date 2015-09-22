@@ -1,7 +1,7 @@
 /*jshint node:true */
 var fs = require('fs');
 var path = require('path');
-var expected = path.join(__dirname, '..', 'node_modules');
+var expected = path.normalize(path.join(__dirname, '..', 'node_modules'));
 
 // Create the node_modules directory if it doesn't yet exist, such as when all of
 // Intern's dependencies were already installed by a parent package.
@@ -27,7 +27,7 @@ if (!fs.existsSync(expected)) {
 		}
 	}
 
-	var actualPath = path.dirname(require.resolve(path.join(dependency, 'package.json')));
+	var actualPath = path.normalize(path.dirname(require.resolve(path.join(dependency, 'package.json'))));
 
 	if (actualPath.indexOf(expectedPath) !== 0) {
 		fs.symlinkSync(actualPath, expectedPath, 'dir');
