@@ -19,7 +19,7 @@
 		"diff": "1.1.0"
 	},
 	"devDependencies": {
-		"intern": "3.0.1"
+		"intern": "3.0.3"
 	},
 	"scripts": {
 		"install": "node support/fixdeps.js",
