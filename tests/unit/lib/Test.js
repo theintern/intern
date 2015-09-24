@@ -315,8 +315,6 @@ define([
 		},
 
 		'Test timeout using Promise with no cancel': function () {
-			this.timeout = 250;
-
 			var test = createTest({
 				test: function () {
 					this.timeout = 1;
