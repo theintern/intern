@@ -3,10 +3,12 @@
  * @module leadfoot/Session
  */
 
-var AdmZip = require('adm-zip');
 var Element = require('./Element');
 var findDisplayed = require('./lib/findDisplayed');
+var fs = require('fs');
+var JsZip = require('jszip');
 var lang = require('dojo/lang');
+var path = require('path');
 var Promise = require('dojo/Promise');
 var statusCodes = require('./lib/statusCodes');
 var storage = require('./lib/storage');
@@ -1679,9 +1681,11 @@ Session.prototype = {
 		var self = this;
 
 		return new Promise(function (resolve) {
-			var zip = new AdmZip();
-			zip.addLocalFile(filename);
-			var data = zip.toBuffer().toString('base64');
+			var content = fs.readFileSync(filename);
+
+			var zip = new JsZip();
+			zip.file(path.basename(filename), content);
+			var data = zip.generate({ type: 'base64' });
 			zip = null;
 
 			resolve(self._post('file', { file: data }));
