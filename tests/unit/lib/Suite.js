@@ -258,7 +258,7 @@ define([
 		},
 
 		'Suite#setup -> promise': function () {
-			var dfd = this.async(1000);
+			var dfd = this.async();
 			var suite = createSuite();
 			var waited = false;
 
@@ -279,7 +279,7 @@ define([
 		},
 
 		'Suite#beforeEach -> promise': function () {
-			var dfd = this.async(1000);
+			var dfd = this.async();
 			var suite = createSuite();
 			var results = [];
 			var counter = 0;
@@ -309,7 +309,7 @@ define([
 		},
 
 		'Suite#afterEach -> promise': function () {
-			var dfd = this.async(1000);
+			var dfd = this.async();
 			var suite = createSuite();
 			var results = [];
 			var counter = 0;
@@ -339,7 +339,7 @@ define([
 		},
 
 		'Suite#teardown -> promise': function () {
-			var dfd = this.async(1000);
+			var dfd = this.async();
 			var suite = createSuite();
 			var waited = false;
 
