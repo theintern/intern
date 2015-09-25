@@ -118,7 +118,8 @@
  * be corrected.
  *
  * @property {boolean} brokenHtmlMouseMove
- * Environments with this capability throw an error when using `moveMouseTo` on the root document (`<html>`) element.
+ * (Since 1.6.1) Environments with this capability throw an error when using `moveMouseTo` on the root document
+ * (`<html>`) element. This issue is automatically corrected.
  *
  * @property {boolean} brokenHtmlTagName
  * Environments with this capability return HTML tag names with the incorrect case. This issue is automatically
