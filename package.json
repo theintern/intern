@@ -12,7 +12,7 @@
 		"jszip": "2.5.0"
 	},
 	"devDependencies": {
-		"intern": "3.0.0-rc.2"
+		"intern": "3.0.3"
 	},
 	"bugs": "https://github.com/theintern/leadfoot/issues",
 	"keywords": [ "javascript", "test", "functional", "selenium", "webdriver", "sauce labs", "browserstack", "testingbot" ],

@@ -117,6 +117,9 @@
  * Environments with this capability do not operate correctly when the `flickFinger` method is called. This issue cannot
  * be corrected.
  *
+ * @property {boolean} brokenHtmlMouseMove
+ * Environments with this capability throw an error when using `moveMouseTo` on the root document (`<html>`) element.
+ *
  * @property {boolean} brokenHtmlTagName
  * Environments with this capability return HTML tag names with the incorrect case. This issue is automatically
  * corrected.

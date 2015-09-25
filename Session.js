@@ -56,9 +56,34 @@ function convertToElements(session, value) {
  * @returns {Promise.<{ sessionId: string, status: number, value: any }>}
  */
 function delegateToServer(method) {
+	// At least ChromeDriver 2.19 will just hard close connections if parallel requests are made to the server,
+	// so any request sent to the server for a given session must be serialised. Other servers like Selendroid have
+	// been known to have issues with parallel requests as well, so serialisation is applied universally, even though
+	// it has negative performance implications
 	return function (path, requestData, pathParts) {
+		var self = this;
+		var thisRequest;
+
+		function clearNextRequest() {
+			if (self._nextRequest === thisRequest) {
+				self._nextRequest = null;
+			}
+		}
+
+		function runRequest() {
+			return self._server[method](path, requestData, pathParts).then(returnValue).finally(clearNextRequest);
+		}
+
 		path = 'session/' + this._sessionId + (path ? ('/' + path) : '');
-		return this._server[method](path, requestData, pathParts).then(returnValue);
+
+		if (this._nextRequest) {
+			thisRequest = this._nextRequest = this._nextRequest.finally(runRequest);
+		}
+		else {
+			thisRequest = this._nextRequest = runRequest();
+		}
+
+		return thisRequest;
 	};
 }
 
@@ -1265,9 +1290,18 @@ Session.prototype = {
 		// to the "previous" position; in this case, we just assume that the mouse position defaults to the
 		// top-left corner of the document
 		else if (!this._movedToElement) {
-			return this.execute('return document.documentElement;').then(function (element) {
-				return self.moveMouseTo(element, xOffset, yOffset);
-			});
+			if (this.capabilities.brokenHtmlMouseMove) {
+				return this.execute('return document.body;').then(function (element) {
+					return element.getPosition().then(function (position) {
+						return self.moveMouseTo(element, xOffset - position.x, yOffset - position.y);
+					});
+				});
+			}
+			else {
+				return this.execute('return document.documentElement;').then(function (element) {
+					return self.moveMouseTo(element, xOffset, yOffset);
+				});
+			}
 		}
 
 		return this._post('moveto', {

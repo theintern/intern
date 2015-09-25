@@ -435,7 +435,7 @@ define([
 				return session.takeScreenshot().then(function (screenshot) {
 					/*jshint node:true */
 					assert.isTrue(Buffer.isBuffer(screenshot), 'Screenshot should be a Buffer');
-					assert.deepEqual(screenshot.slice(0, 8).toJSON(), magic, 'Screenshot should be a PNG file');
+					assert.deepEqual(screenshot.slice(0, 8).toJSON().data, magic, 'Screenshot should be a PNG file');
 				});
 			},
 
@@ -1313,12 +1313,12 @@ define([
 				}
 
 				return session.get(require.toUrl('./data/default.html')).then(function () {
-					return session.setGeolocation({ latitude: 123, longitude: -22.334455, altitude: 1000 });
+					return session.setGeolocation({ latitude: 12, longitude: -22.334455, altitude: 1000 });
 				}).then(function () {
 					return session.getGeolocation();
 				}).then(function (location) {
 					assert.isObject(location);
-					assert.strictEqual(location.latitude, 123);
+					assert.strictEqual(location.latitude, 12);
 					assert.strictEqual(location.longitude, -22.334455);
 
 					// Geolocation implementations that cannot provide altitude information shall return `null`,

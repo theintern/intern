@@ -17,6 +17,7 @@
 		<a href="about:blank" id="c3">What a cute<div style="display: none;">, yellow</div> backpack.</a>
 
 		<button id="makeD" name="makeD" type="button">Make d in 250ms</button>
+		<button id="makeDSlowly" name="makeDSlowly" type="button">Make d in 2500ms</button>
 		<button id="killE" name="makeD" type="button">Destroy e in 250ms</button>
 
 		<div id="e">
@@ -44,22 +45,30 @@
 			It's coming “Neglected Class.”</p>
 
 		<script>
-document.getElementById('makeD').onclick = function () {
-	this.onclick = null;
-	setTimeout(function () {
+(function () {
+	function makeD() {
 		var element = document.createElement('div');
 		element.id = 'd';
 		element.appendChild(document.createTextNode('d'));
 		document.getElementById('h').appendChild(element);
-	}, 250);
-};
-document.getElementById('killE').onclick = function () {
-	this.onclick = null;
-	setTimeout(function () {
-		var element = document.getElementById('e');
-		element.parentNode.removeChild(element);
-	}, 250);
-};
+	}
+
+	document.getElementById('makeD').onclick = function () {
+		this.onclick = null;
+		setTimeout(makeD, 250);
+	};
+	document.getElementById('makeDSlowly').onclick = function () {
+		this.onclick = null;
+		setTimeout(makeD, 2500);
+	};
+	document.getElementById('killE').onclick = function () {
+		this.onclick = null;
+		setTimeout(function () {
+			var element = document.getElementById('e');
+			element.parentNode.removeChild(element);
+		}, 250);
+	};
+})();
 		</script>
 	</body>
 </html>

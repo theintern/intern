@@ -461,8 +461,13 @@ Server.prototype = {
 			}
 
 			if (!('touchEnabled' in capabilities)) {
-				testedCapabilities.touchEnabled = session.longTap()
+				testedCapabilities.touchEnabled = session.doubleTap()
 					.then(supported, maybeSupported);
+			}
+			// ChromeDriver 2.19 claims that it supports touch but it does not implement all of the touch endpoints
+			// from JsonWireProtocol
+			else if (capabilities.browserName === 'chrome') {
+				testedCapabilities.touchEnabled = false;
 			}
 
 			if (!('dynamicViewport' in capabilities)) {
@@ -702,6 +707,16 @@ Server.prototype = {
 			};
 
 			if (capabilities.mouseEnabled) {
+				// At least ChromeDriver 2.12 through 2.19 will throw an error if mouse movement relative to the <html>
+				// element is attempted
+				testedCapabilities.brokenHtmlMouseMove = function () {
+					return get('<!DOCTYPE html><html></html>').then(function () {
+						return session.findByTagName('html').then(function (element) {
+							return session.moveMouseTo(element, 0, 0);
+						});
+					}).then(works, broken);
+				};
+
 				// At least ChromeDriver 2.9.248307 does not correctly emit the entire sequence of events that would
 				// normally occur during a double-click
 				testedCapabilities.brokenDoubleClick = function retry() {
@@ -835,7 +850,17 @@ Server.prototype = {
 	 * @returns {Promise.<Object[]>}
 	 */
 	getSessions: function () {
-		return this._get('sessions').then(returnValue);
+		return this._get('sessions').then(returnValue).then(function (sessions) {
+			// At least ChromeDriver 2.19 uses the wrong keys
+			// https://code.google.com/p/chromedriver/issues/detail?id=1229
+			sessions.forEach(function (session) {
+				if (session.sessionId && !session.id) {
+					session.id = session.sessionId;
+				}
+			});
+
+			return sessions;
+		});
 	},
 
 	/**

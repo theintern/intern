@@ -44,7 +44,7 @@ define([
 			'early timeout': function () {
 				return command
 					.get(require.toUrl('../data/elements.html'))
-					.findById('makeD')
+					.findById('makeDSlowly')
 						.click()
 						.end()
 					.then(pollUntil('return document.getElementById("d");', [], 100, 25))
