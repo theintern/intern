@@ -39,15 +39,17 @@ function createHttpRequest(method) {
 			return encodeURIComponent(pathParts[index]);
 		});
 
+		var defaultRequestHeaders = {
+			// At least FirefoxDriver on Selenium 2.40.0 will throw a NullPointerException when retrieving
+			// session capabilities if an Accept header is not provided. (It is a good idea to provide one
+			// anyway)
+			'Accept': 'application/json,text/plain;q=0.9'
+		};
+
 		var kwArgs = lang.delegate(this.requestOptions, {
 			followRedirects: false,
 			handleAs: 'text',
-			headers: {
-				// At least FirefoxDriver on Selenium 2.40.0 will throw a NullPointerException when retrieving
-				// session capabilities if an Accept header is not provided. (It is a good idea to provide one
-				// anyway)
-				'Accept': 'application/json,text/plain;q=0.9'
-			},
+			headers: defaultRequestHeaders,
 			method: method
 		});
 
@@ -75,7 +77,8 @@ function createHttpRequest(method) {
 			// data about the session; as a result, we need to follow all redirects to get consistent data
 			if (response.statusCode >= 300 && response.statusCode < 400 && response.getHeader('Location')) {
 				return request(response.getHeader('Location'), {
-					method: 'GET'
+					method: 'GET',
+					headers: defaultRequestHeaders
 				}).then(handleResponse, handleResponse);
 			}
 
