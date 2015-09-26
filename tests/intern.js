@@ -16,9 +16,9 @@ define({
 	maxConcurrency: 2,
 	tunnel: 'BrowserStackTunnel',
 
-	reporters: [ 'combined' ],
+	reporters: [ 'Combined' ],
 
-	loader: {
+	loaderOptions: {
 		packages: [
 			{ name: 'leadfoot', location: '.' },
 			{ name: 'dojo', location: './node_modules/dojo' }
