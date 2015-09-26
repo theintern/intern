@@ -963,7 +963,7 @@ Session.prototype = {
 	/**
 	 * Gets all cookies set on the current page.
 	 *
-	 * @returns {Promise.<WebDriverCookie>}
+	 * @returns {Promise.<WebDriverCookie[]>}
 	 */
 	getCookies: function () {
 		return this._get('cookie').then(function (cookies) {
