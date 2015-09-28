@@ -9,6 +9,20 @@ define([
 
 	var WebDriver;
 
+	/* A helper function to reassemble, decode and order the data sent to the request mock */
+	function collectAndOrder(callStack) {
+		var data = [];
+		callStack.forEach(function (item) {
+			var reqData = JSON.parse(item[1].data);
+			reqData = reqData.map(JSON.parse);
+			data = data.concat(reqData);
+		});
+		data.sort(function (a, b) {
+			return a.sequence > b.sequence ? 1 : a.sequence < b.sequence ? -1 : 0;
+		});
+		return data;
+	}
+
 	registerSuite({
 		name: 'intern/lib/reporters/WebDriver',
 
@@ -242,10 +256,10 @@ define([
 			/* first message dispatched in same turn, second one next turn */
 
 			setTimeout(function () {
-				var req = mockRequest._callStack.pop();
-				var data = JSON.parse(JSON.parse(req[1].data)[0]);
-				assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
-				assert.strictEqual(data.payload[0], 'testPass',
+				var callStack = collectAndOrder(mockRequest._callStack);
+				assert.strictEqual(callStack[0].payload[0], 'testStart',
+					'The type of the first payload should be "testStart"');
+				assert.strictEqual(callStack[1].payload[0], 'testPass',
 					'The type of the payload should be "testPass"');
 				assert.include(reporter.testNode.lastChild.wholeText, test.timeElapsed + 'ms',
 					'Test text should include duration of the test');
@@ -256,7 +270,7 @@ define([
 				assert.strictEqual(reporter.testNode.style.color, 'green',
 					'Test node should be green');
 				dfd.resolve();
-			}, 1);
+			}, 100); /* sometimes IE doesn't resolve requests by just 1ms timeouts */
 		},
 
 		testSkip: function () {
@@ -319,10 +333,8 @@ define([
 			/* first message dispatched in same turn, second one next turn */
 
 			setTimeout(function () {
-				var req = mockRequest._callStack.pop();
-				var data = JSON.parse(JSON.parse(req[1].data)[0]);
-				assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
-				assert.strictEqual(data.payload[0], 'testFail',
+				var callStack = collectAndOrder(mockRequest._callStack);
+				assert.strictEqual(callStack[1].payload[0], 'testFail',
 					'The type of the payload should be "testFail"');
 				var errorMessage = reporter.testNode.lastChild;
 				var testTextNode = errorMessage.previousSibling;
@@ -337,7 +349,7 @@ define([
 				assert.strictEqual(errorMessage.firstChild.wholeText, test.error.stack || test.error.toString(),
 					'The reporter error message should match the test error message');
 				dfd.resolve();
-			}, 1);
+			}, 100); /* sometimes IE doesn't resolve requests by just 1ms timeouts */
 
 		},
 
@@ -386,13 +398,11 @@ define([
 			/* first message dispatched in same turn, the remaining messages in the next turn */
 
 			setTimeout(function () {
-				assert.strictEqual(mockRequest._callStack.length, callStackDepth + 2,
-					'The appropriate number of events were posted.');
-				var req = mockRequest._callStack.pop();
-				assert.strictEqual(JSON.parse(req[1].data).length, 6,
+				var callStack = collectAndOrder(mockRequest._callStack);
+				assert.strictEqual(callStack.length, 7,
 					'The appropriate number of events were posted.');
 				dfd.resolve();
-			}, 1);
+			}, 100); /* sometimes IE doesn't resolve requests by just 1ms timeouts */
 		},
 
 		'config.waitForRunner': {
