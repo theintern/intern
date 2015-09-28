@@ -28,6 +28,10 @@ define([
 			});
 		},
 
+		beforeEach: function () {
+			mockRequest._callStack = [];
+		},
+
 		runStart: function () {
 			var reporter = new WebDriver({
 				internConfig: {
@@ -38,7 +42,7 @@ define([
 			reporter.runStart();
 
 			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(req[1].data);
+			var data = JSON.parse(JSON.parse(req[1].data)[0]);
 			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
 			assert.strictEqual(data.payload[0], 'runStart',
 				'The type of the payload should be "runStart"');
@@ -54,7 +58,7 @@ define([
 			reporter.runEnd();
 
 			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(req[1].data);
+			var data = JSON.parse(JSON.parse(req[1].data)[0]);
 			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
 			assert.strictEqual(data.payload[0], 'runEnd',
 				'The type of the payload should be "runEnd"');
@@ -71,7 +75,7 @@ define([
 			reporter.suiteStart(suite);
 
 			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(req[1].data);
+			var data = JSON.parse(JSON.parse(req[1].data)[0]);
 			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
 			assert.strictEqual(data.payload[0], 'suiteStart',
 				'The type of the payload should be "suiteStart"');
@@ -94,7 +98,7 @@ define([
 
 				reporter.suiteEnd(suite);
 				var req = mockRequest._callStack.pop();
-				var data = JSON.parse(req[1].data);
+				var data = JSON.parse(JSON.parse(req[1].data)[0]);
 				assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
 				assert.strictEqual(data.payload[0], 'suiteEnd',
 					'The type of the payload should be "suiteEnd"');
@@ -120,7 +124,7 @@ define([
 
 				reporter.suiteEnd(suite);
 				var req = mockRequest._callStack.pop();
-				var data = JSON.parse(req[1].data);
+				var data = JSON.parse(JSON.parse(req[1].data)[0]);
 				assert.strictEqual(data.payload[1].numFailedTests, 1,
 					'There should be one failed tests');
 				assert.strictEqual(this.suiteNode, this.reporterNode,
@@ -206,7 +210,7 @@ define([
 
 			reporter.testStart(test);
 			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(req[1].data);
+			var data = JSON.parse(JSON.parse(req[1].data)[0]);
 			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
 			assert.strictEqual(data.payload[0], 'testStart',
 				'The type of the payload should be "testStart"');
@@ -219,6 +223,7 @@ define([
 		},
 
 		testPass: function () {
+			var dfd = this.async();
 			var reporter = new WebDriver({
 				internConfig: {
 					sessionId: 'foo'
@@ -233,19 +238,25 @@ define([
 
 			reporter.testStart(test);
 			reporter.testPass(test);
-			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(req[1].data);
-			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
-			assert.strictEqual(data.payload[0], 'testPass',
-				'The type of the payload should be "testPass"');
-			assert.include(reporter.testNode.lastChild.wholeText, test.timeElapsed + 'ms',
-				'Test text should include duration of the test');
-			assert.include(reporter.testNode.lastChild.wholeText, test.name,
-				'Test should include the name of the test');
-			assert.include(reporter.testNode.lastChild.wholeText, 'passed',
-				'Test should include that it passed');
-			assert.strictEqual(reporter.testNode.style.color, 'green',
-				'Test node should be green');
+
+			/* first message dispatched in same turn, second one next turn */
+
+			setTimeout(function () {
+				var req = mockRequest._callStack.pop();
+				var data = JSON.parse(JSON.parse(req[1].data)[0]);
+				assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
+				assert.strictEqual(data.payload[0], 'testPass',
+					'The type of the payload should be "testPass"');
+				assert.include(reporter.testNode.lastChild.wholeText, test.timeElapsed + 'ms',
+					'Test text should include duration of the test');
+				assert.include(reporter.testNode.lastChild.wholeText, test.name,
+					'Test should include the name of the test');
+				assert.include(reporter.testNode.lastChild.wholeText, 'passed',
+					'Test should include that it passed');
+				assert.strictEqual(reporter.testNode.style.color, 'green',
+					'Test node should be green');
+				dfd.resolve();
+			}, 1);
 		},
 
 		testSkip: function () {
@@ -270,7 +281,7 @@ define([
 
 			reporter.testSkip(test);
 			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(req[1].data);
+			var data = JSON.parse(JSON.parse(req[1].data)[0]);
 			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
 			assert.strictEqual(data.payload[0], 'testSkip',
 				'The type of the payload should be "testSkip"');
@@ -289,6 +300,7 @@ define([
 		},
 
 		testFail: function () {
+			var dfd = this.async();
 			var reporter = new WebDriver({
 				internConfig: {
 					sessionId: 'foo'
@@ -303,26 +315,34 @@ define([
 
 			reporter.testStart(test);
 			reporter.testFail(test);
-			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(req[1].data);
-			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
-			assert.strictEqual(data.payload[0], 'testFail',
-				'The type of the payload should be "testFail"');
-			var errorMessage = reporter.testNode.lastChild;
-			var testTextNode = errorMessage.previousSibling;
-			assert.include(testTextNode.wholeText, test.name,
-				'Test should include the name of the test');
-			assert.include(testTextNode.wholeText, 'failed',
-				'Test should include that it skipped');
-			assert.include(testTextNode.wholeText, test.timeElapsed + 'ms',
-				'Test should include its duration');
-			assert.strictEqual(reporter.testNode.style.color, 'red',
-				'Test node should be red');
-			assert.strictEqual(errorMessage.firstChild.wholeText, test.error.stack || test.error.toString(),
-				'The reporter error message should match the test error message');
+
+			/* first message dispatched in same turn, second one next turn */
+
+			setTimeout(function () {
+				var req = mockRequest._callStack.pop();
+				var data = JSON.parse(JSON.parse(req[1].data)[0]);
+				assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
+				assert.strictEqual(data.payload[0], 'testFail',
+					'The type of the payload should be "testFail"');
+				var errorMessage = reporter.testNode.lastChild;
+				var testTextNode = errorMessage.previousSibling;
+				assert.include(testTextNode.wholeText, test.name,
+					'Test should include the name of the test');
+				assert.include(testTextNode.wholeText, 'failed',
+					'Test should include that it skipped');
+				assert.include(testTextNode.wholeText, test.timeElapsed + 'ms',
+					'Test should include its duration');
+				assert.strictEqual(reporter.testNode.style.color, 'red',
+					'Test node should be red');
+				assert.strictEqual(errorMessage.firstChild.wholeText, test.error.stack || test.error.toString(),
+					'The reporter error message should match the test error message');
+				dfd.resolve();
+			}, 1);
+
 		},
 
 		'config.writeHtml false': function () {
+			var dfd = this.async();
 			var numberOfChildNodes = document.querySelectorAll('body > *').length;
 			var callStackDepth = mockRequest._callStack.length;
 
@@ -362,8 +382,17 @@ define([
 
 			assert.strictEqual(document.querySelectorAll('body > *').length, numberOfChildNodes,
 				'Reporter should not have added any nodes to the DOM');
-			assert.strictEqual(mockRequest._callStack.length, callStackDepth + 7,
-				'The appropriate number of events were posted.');
+
+			/* first message dispatched in same turn, the remaining messages in the next turn */
+
+			setTimeout(function () {
+				assert.strictEqual(mockRequest._callStack.length, callStackDepth + 2,
+					'The appropriate number of events were posted.');
+				var req = mockRequest._callStack.pop();
+				assert.strictEqual(JSON.parse(req[1].data).length, 6,
+					'The appropriate number of events were posted.');
+				dfd.resolve();
+			}, 1);
 		},
 
 		'config.waitForRunner': {
