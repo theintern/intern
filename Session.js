@@ -53,37 +53,62 @@ function convertToElements(session, value) {
  *
  * @private
  * @param {string} method
- * @returns {Promise.<{ sessionId: string, status: number, value: any }>}
+ * @returns {function(string, Object, Array.<string>=): Promise.<{ sessionId: string, status: number, value: any }>}
  */
 function delegateToServer(method) {
-	// At least ChromeDriver 2.19 will just hard close connections if parallel requests are made to the server,
-	// so any request sent to the server for a given session must be serialised. Other servers like Selendroid have
-	// been known to have issues with parallel requests as well, so serialisation is applied universally, even though
-	// it has negative performance implications
 	return function (path, requestData, pathParts) {
 		var self = this;
-		var thisRequest;
-
-		function clearNextRequest() {
-			if (self._nextRequest === thisRequest) {
-				self._nextRequest = null;
-			}
-		}
-
-		function runRequest() {
-			return self._server[method](path, requestData, pathParts).then(returnValue).finally(clearNextRequest);
-		}
-
 		path = 'session/' + this._sessionId + (path ? ('/' + path) : '');
 
-		if (this._nextRequest) {
-			thisRequest = this._nextRequest = this._nextRequest.finally(runRequest);
-		}
-		else {
-			thisRequest = this._nextRequest = runRequest();
-		}
+		return new Promise(function (resolve, reject, progress, setCanceller) {
+			var cancelled = false;
+			setCanceller(function (reason) {
+				cancelled = true;
+				throw reason;
+			});
 
-		return thisRequest;
+			// The promise is cleared from `_nextRequest` once it has been resolved in order to avoid
+			// infinitely long chains of promises retaining values that are not used any more
+			var thisRequest;
+			function clearNextRequest() {
+				if (self._nextRequest === thisRequest) {
+					self._nextRequest = null;
+				}
+			}
+
+			function runRequest() {
+				// `runRequest` is normally called once the previous request is finished. If this request
+				// is cancelled before the previous request is finished, then it should simply never run.
+				// (This Promise will have been rejected already by the cancellation.)
+				if (cancelled) {
+					clearNextRequest();
+					return;
+				}
+
+				var response = self._server[method](path, requestData, pathParts).then(returnValue);
+				response.finally(clearNextRequest);
+
+				// The value of the response always needs to be taken directly from the server call
+				// rather than from the chained `_nextRequest` promise, since if an undefined value is
+				// returned by the server call and that value is returned through `finally(runRequest)`,
+				// the *previous* Promise’s resolved value will be used as the resolved value, which is
+				// wrong
+				resolve(response);
+
+				return response;
+			}
+
+			// At least ChromeDriver 2.19 will just hard close connections if parallel requests are made to the server,
+			// so any request sent to the server for a given session must be serialised. Other servers like Selendroid
+			// have been known to have issues with parallel requests as well, so serialisation is applied universally,
+			// even though it has negative performance implications
+			if (self._nextRequest) {
+				thisRequest = self._nextRequest = self._nextRequest.finally(runRequest);
+			}
+			else {
+				thisRequest = self._nextRequest = runRequest();
+			}
+		});
 	};
 }
 
