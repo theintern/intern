@@ -333,6 +333,19 @@ define([
 					});
 			},
 
+			'#execute -> undefined': function () {
+				return session.get(require.toUrl('./data/scripting.html'))
+					.then(function () {
+						return Promise.all([
+							session.execute('return "not undefined";'),
+							session.execute('return undefined;')
+						]);
+					})
+					.then(function (values) {
+						assert.deepEqual(values, [ 'not undefined', null ]);
+					});
+			},
+
 			'#execute non-array args': function () {
 				assert.throws(function () {
 					session.execute('return window;', 'oops');

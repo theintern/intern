@@ -610,10 +610,22 @@ Session.prototype = {
 			throw new Error('Arguments passed to execute must be an array');
 		}
 
-		return this._post('execute', {
+		var result = this._post('execute', {
 			script: util.toExecuteString(script),
 			args: args || []
 		}).then(lang.partial(convertToElements, this), fixExecuteError);
+
+		if (this.capabilities.brokenExecuteUndefinedReturn) {
+			result = result.then(function (value) {
+				if (value === undefined) {
+					value = null;
+				}
+
+				return value;
+			});
+		}
+
+		return result;
 	},
 
 	/**

@@ -529,6 +529,7 @@ Server.prototype = {
 				return {
 					brokenDeleteCookie: false,
 					brokenExecuteElementReturn: false,
+					brokenExecuteUndefinedReturn: false,
 					brokenElementDisplayedOpacity: false,
 					brokenElementDisplayedOffscreen: false,
 					brokenSubmitElement: true,
@@ -595,6 +596,12 @@ Server.prototype = {
 			}).then(function (value) {
 				return value !== null;
 			}).catch(broken);
+
+			// At least Selendroid 0.16.0 incorrectly returns `undefined` instead of `null` when an undefined
+			// value is returned by an `execute` call
+			testedCapabilities.brokenExecuteUndefinedReturn = session.execute('return undefined;').then(function (value) {
+				return value !== null;
+			}, broken);
 
 			// At least Selendroid 0.9.0 always returns invalid element handles from JavaScript
 			testedCapabilities.brokenExecuteElementReturn = function () {
