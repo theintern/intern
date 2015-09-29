@@ -102,8 +102,8 @@
  * around.
  *
  * @property {boolean} brokenExecuteUndefinedReturn
- * Environments with this capability return `undefined` (which is not valid JSON) instead of `null` when an undefined
- * value is returned from the server. This issue is automatically corrected.
+ * (Since 1.6.3) Environments with this capability return `undefined` (which is not valid JSON) instead of `null` when
+ * an undefined value is returned from the server. This issue is automatically corrected.
  *
  * @property {boolean} brokenElementDisplayedOpacity
  * Environments with this capability claim fully transparent elements are non-hidden. This issue is automatically
