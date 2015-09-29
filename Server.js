@@ -837,6 +837,10 @@ Server.prototype = {
 			return Promise.all(testedCapabilities);
 		}
 
+		if (capabilities._filled) {
+			return Promise.resolve(session);
+		}
+
 		return session.get('about:blank')
 			.then(discoverServerFeatures)
 			.then(addCapabilities)
@@ -848,6 +852,10 @@ Server.prototype = {
 			.then(discoverDefects)
 			.then(addCapabilities)
 			.finally(function () {
+				Object.defineProperty(capabilities, '_filled', {
+					value: true,
+					configurable: true
+				});
 				return session.get('about:blank').finally(function () {
 					return session;
 				});
