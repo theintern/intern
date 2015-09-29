@@ -147,7 +147,7 @@ function createHttpRequest(method) {
 				// At least InternetExplorerDriver 2.41.0 & SafariDriver 2.41.0 respond with HTTP status codes
 				// other than Not Implemented and a Selenium status UnknownError for commands that are not
 				// implemented; like FirefoxDriver they provide a reliable indicator of unsupported commands
-				if (response.statusCode === 500 && data.value &&
+				if (response.statusCode === 500 && data.value && data.value.message &&
 					(
 						data.value.message.indexOf('Command not found') > -1 ||
 						data.value.message.indexOf('Unknown command') > -1
@@ -158,7 +158,7 @@ function createHttpRequest(method) {
 
 				// At least GhostDriver 1.1.0 incorrectly responds with HTTP 405 instead of HTTP 501 for
 				// unimplemented commands
-				if (response.statusCode === 405 && data.value &&
+				if (response.statusCode === 405 && data.value && data.value.message &&
 					data.value.message.indexOf('Invalid Command Method') > -1
 				) {
 					data.status = 9;
