@@ -49,7 +49,7 @@ function createHttpRequest(method) {
 		var kwArgs = lang.delegate(this.requestOptions, {
 			followRedirects: false,
 			handleAs: 'text',
-			headers: defaultRequestHeaders,
+			headers: lang.mixin({}, defaultRequestHeaders),
 			method: method
 		});
 
