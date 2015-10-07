@@ -79,7 +79,7 @@ function createHttpRequest(method) {
 				return request(response.getHeader('Location'), {
 					method: 'GET',
 					headers: defaultRequestHeaders
-				}).then(handleResponse, handleResponse);
+				}).then(handleResponse);
 			}
 
 			var responseType = response.getHeader('Content-Type');
@@ -205,7 +205,7 @@ function createHttpRequest(method) {
 			}
 
 			return data;
-		}, function (error) {
+		}).catch(function (error) {
 			error.stack = error.message + util.trimStack(trace.stack);
 			throw error;
 		});
