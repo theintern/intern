@@ -30,6 +30,6 @@ if (!fs.existsSync(expected)) {
 	var actualPath = path.dirname(require.resolve(path.join(dependency, 'package.json')));
 
 	if (actualPath.indexOf(expectedPath) !== 0) {
-		fs.symlinkSync(actualPath, expectedPath, 'junction');
+		fs.symlinkSync(path.relative(path.dirname(expectedPath), actualPath), expectedPath, 'junction');
 	}
 });
