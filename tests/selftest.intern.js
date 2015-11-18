@@ -14,7 +14,7 @@ define({
 		{ browserName: 'chrome', version: '38', platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false }
 	],
 
-	maxConcurrency: 2,
+	maxConcurrency: 1,
 	tunnel: 'BrowserStackTunnel',
 
 	loaderOptions: {
