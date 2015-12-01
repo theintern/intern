@@ -175,6 +175,24 @@ define([
 				}));
 			},
 
+			'source map from inline': function () {
+				if (!has('host-node')) {
+					this.skip('requires Node.js');
+				}
+
+				var dfd = this.async();
+
+				require([ '../data/lib/util/baz' ], dfd.callback(function (Baz) {
+					var baz = new Baz();
+					try {
+						baz.run();
+					}
+					catch (error) {
+						assert.match(util.getErrorMessage(error), /\bbaz.ts:5\b/);
+					}
+				}));
+			},
+
 			'object diff': function () {
 				var error = {
 					name: 'Error',

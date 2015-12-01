@@ -30,6 +30,43 @@ if (!fs.existsSync(expected)) {
 	var actualPath = path.dirname(require.resolve(path.join(dependency, 'package.json')));
 
 	if (actualPath.indexOf(expectedPath) !== 0) {
-		fs.symlinkSync(path.relative(path.dirname(expectedPath), actualPath), expectedPath, 'junction');
+		try {
+			fs.symlinkSync(path.relative(path.dirname(expectedPath), actualPath), expectedPath, 'junction');
+		}
+		catch (error) {
+			console.warn('Symlinking %s to %s failed with %s. Copying instead...', actualPath, expectedPath, error.code);
+			copy(actualPath, expectedPath);
+		}
 	}
 });
+
+function copy(source, target) {
+	try {
+		var stats = fs.statSync(source);
+	}
+	catch (error) {
+		if (error.code !== 'ENOENT') {
+			throw error;
+		}
+
+		return;
+	}
+
+	if (stats.isDirectory()) {
+		try {
+			fs.mkdirSync(target);
+		}
+		catch (error) {
+			if (error.code !== 'EEXIST') {
+				throw error;
+			}
+		}
+
+		fs.readdirSync(source).forEach(function (filename) {
+			copy(path.join(source, filename), path.join(target, filename));
+		});
+	}
+	else if (stats.isFile()) {
+		fs.writeFileSync(target, fs.readFileSync(source), { mode: stats.mode });
+	}
+}
