@@ -64,7 +64,8 @@ module.exports = function (grunt) {
 				sauceUsername: true,
 				testingbotKey: true,
 				testingbotSecret: true,
-				nodeEnv: true
+				nodeEnv: true,
+				resultParser: true
 			};
 
 		Object.keys(opts).forEach(function (option) {
@@ -96,7 +97,8 @@ module.exports = function (grunt) {
 			'sauceUsername',
 			'testingbotKey',
 			'testingbotSecret',
-			'nodeEnv'
+			'nodeEnv',
+			'resultParser'
 		].forEach(function (option) {
 			var value = opts[option];
 			if (value) {
@@ -114,10 +116,18 @@ module.exports = function (grunt) {
 				cwd: process.cwd(),
 				env: env
 			}
-		}, function (error) {
-			// The error object from grunt.util.spawn contains information
-			// that we already logged, so hide it from the user
-			done(error ? new Error('Test failure; check output above for details.') : null);
+		}, function (error, result) {
+			// The stdout and stderr of grunt.util.spawn are already being logged
+			// If error then return an error object to grunt
+			if (error) {
+				return done(new Error('Test failure; check output above for details.'));
+			}
+			// If a result parser function was passed in return result of function call
+			if (typeof env.RESULT_PARSER === 'function') {
+				return done(env.RESULT_PARSER(result));
+			}
+			// Return grunt callback with no error
+			return done(null);
 		});
 
 		child.stdout.on('data', readOutput);
