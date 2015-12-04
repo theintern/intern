@@ -303,6 +303,54 @@ define([
 			});
 		},
 
+		'using remote in a test': {
+			'fails if test is synchronous': function () {
+				var temp;
+				var test = createTest({
+					test: function () {
+						var remote = this.remote;
+						temp = remote;
+					}
+				});
+
+				return test.run().then(
+					function () {
+						assert.fail('test should not have passed');
+					},
+					function (error) {
+						assert.match(error.message, /^Remote used in synchronous test/, 'unexpected error message');
+					}
+				);
+			},
+
+			'works if test returns a promise': function () {
+				var temp;
+				var test = createTest({
+					test: function () {
+						var remote = this.remote;
+						temp = remote;
+						return Promise.resolve();
+					}
+				});
+
+				return test.run();
+			},
+
+			'works if test resolves async dfd': function () {
+				var temp;
+				var test = createTest({
+					test: function () {
+						var dfd = this.async();
+						var remote = this.remote;
+						temp = remote;
+						dfd.resolve();
+					}
+				});
+
+				return test.run();
+			}
+		},
+
 		'Test#restartTimeout': function () {
 			var test = createTest({
 				timeout: 100,
