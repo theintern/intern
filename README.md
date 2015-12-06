@@ -53,6 +53,6 @@ If you need to support IE 6–8, there is also a
 
 ## License
 
-Intern is a Dojo Foundation project offered under the [New BSD](LICENSE) license.
+Intern is a [jQuery Foundation](https://jquery.org) project offered under the [New BSD](LICENSE) license.
 
-© [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/intern/graphs/contributors)
+© [Colin Snover](http://zetafleet.com), [SitePen, Inc.](http://sitepen.com), and [other contributors](https://github.com/theintern/intern/graphs/contributors)
