@@ -1,5 +1,5 @@
 import { on } from 'dojo/aspect';
-import * as main from '../../main';
+import { executor } from '../../main';
 import Promise = require('dojo/Promise');
 import Suite from '../Suite';
 import Test from '../Test';
@@ -56,7 +56,7 @@ function registerSuite(descriptor: Descriptor, parentSuite: Suite) {
 }
 
 export default function (mainDescriptor: Descriptor | (() => Descriptor)) {
-	main.executor.register(function (suite: Suite) {
+	executor.register(function (suite: Suite) {
 		let descriptor: Descriptor;
 
 		// enable per-suite closure, to match feature parity with other interfaces like tdd/bdd more closely;
