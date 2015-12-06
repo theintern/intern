@@ -1,5 +1,4 @@
 {
-	"version": "1.7.3",
 	"compilerOptions": {
 		"experimentalDecorators": true,
 		"module": "umd",
@@ -33,6 +32,9 @@
 		"./src/lib/executors/Executor.ts",
 		"./src/lib/executors/PreExecutor.ts",
 		"./src/lib/executors/Runner.ts",
+		"./src/lib/interfaces/object.ts",
+		"./src/lib/reporters/Console.ts",
+		"./src/lib/reporters/Html.ts",
 		"./typings/chai/chai.d.ts",
 		"./typings/diff/diff.d.ts",
 		"./typings/digdug/digdug.d.ts",
@@ -42,5 +44,6 @@
 		"./typings/mime/mime.d.ts",
 		"./typings/node/node.d.ts",
 		"./typings/source-map/source-map.d.ts"
-	]
+	],
+	"version": "1.7.3"
 }

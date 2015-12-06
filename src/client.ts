@@ -1,15 +1,16 @@
+import { AmdLoaderConfig } from './lib/util';
 import PreExecutor from './lib/executors/PreExecutor';
 import _exitHandlerType from './lib/exitHandler';
 import has = require('dojo/has');
 
-if (has('host-node')) {
- 	/* tslint:disable:no-var-keyword */
- 	var exitHandler: typeof _exitHandlerType = require('./lib/exitHandler').default;
- 	/* tslint:enable:no-var-keyword */
-}
+let defaultLoaderOptions: AmdLoaderConfig;
 
-const executor = new PreExecutor({
-	defaultLoaderOptions: {
+if (has('host-node')) {
+	/* tslint:disable:no-var-keyword */
+	var exitHandler: typeof _exitHandlerType = require('./lib/exitHandler').default;
+	/* tslint:enable:no-var-keyword */
+
+	defaultLoaderOptions = {
 		baseUrl: process.cwd().replace(/\\/g, '/'),
 		packages: [
 			{ name: 'intern', location: __dirname.replace(/\\/g, '/') }
@@ -24,7 +25,14 @@ const executor = new PreExecutor({
 				'intern/dojo': 'intern/node_modules/dojo'
 			}
 		}
-	},
+	};
+}
+else {
+	defaultLoaderOptions = (function () { return this; })().__internConfig;
+}
+
+const executor = new PreExecutor({
+	defaultLoaderOptions: defaultLoaderOptions,
 	executorId: 'client'
 });
 

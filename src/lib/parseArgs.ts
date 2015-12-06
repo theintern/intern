@@ -11,7 +11,7 @@ function parseArguments(rawArgs: string[], decode: (string: string) => any): { [
 			value = true;
 		}
 		else {
-			value = decode(arg[1]);
+			value = decode(pair[1]);
 
 			// Support JSON-encoded properties for reporter configuration
 			if (value.charAt(0) === '{') {

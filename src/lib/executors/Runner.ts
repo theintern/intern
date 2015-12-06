@@ -16,7 +16,7 @@ import Tunnel = require('digdug/Tunnel');
 declare var require: AmdRequire;
 
 export default class Runner extends Executor {
-	config: InternConfig = deepDelegate(this.config, {
+	config: InternConfig = deepDelegate(this.config, <InternConfig> {
 		capabilities: {
 			'idle-timeout': 60
 		},

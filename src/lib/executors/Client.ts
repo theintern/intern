@@ -16,10 +16,11 @@ interface InternClientConfig extends InternConfig {
  * @extends module:intern/lib/executors/Executor
  */
 export default class Client extends Executor {
-	config: InternClientConfig = deepDelegate(this.config, {
-		reporters: [ 'Console' ]
+	static defaultConfig: InternClientConfig = deepDelegate(Executor.defaultConfig, <InternClientConfig> {
+		reporters: has('host-browser') ? [ { id: 'Console' }, { id: 'Html' } ] : [ { id: 'Console' } ]
 	});
 
+	config: InternClientConfig;
 	mode = 'client';
 
 	protected _afterRun() {
@@ -50,10 +51,6 @@ export default class Client extends Executor {
 			return self._loadTestModules(config.suites);
 		}
 
-		return super._beforeRun.apply(this, arguments).then(loadTestModules);
+		return super._beforeRun().then(loadTestModules);
 	}
-}
-
-if (has('host-browser')) {
-	Client.prototype.config.reporters.push({ id: 'Html' });
 }

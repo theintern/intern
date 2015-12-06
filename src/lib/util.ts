@@ -638,6 +638,7 @@ export function getErrorMessage(error: StackError) {
 export interface AmdLoaderConfig {
 	baseUrl?: string;
 	map?: { [prefix: string]: { [from: string]: string; }; };
+	packages?: Array<string | { name: string; location: string; main?: string; }>;
 }
 
 export interface AmdRequire {
@@ -656,21 +657,34 @@ export interface AmdRequire {
 	toAbsMid?(id: string): string;
 }
 
-export function getModule<T>(moduleId: string, loader?: AmdRequire): Promise<T> {
-	return this.getModules([ moduleId ], loader).then(function (modules: T[]) {
+export function getModule<T>(moduleId: string, loader?: AmdRequire, returnDefault: boolean = true): Promise<T> {
+	return this.getModules([ moduleId ], loader, returnDefault).then(function (modules: T[]) {
 		return modules[0];
 	});
 }
 
-export function getModules<T>(moduleIds: string[], loader?: AmdRequire): Promise<T[]> {
+export function getModules<T>(moduleIds: string[], loader?: AmdRequire, returnDefaults: boolean = true): Promise<T[]> {
 	/* global require:false */
 	if (!loader) {
 		loader = <any> require;
 	}
 
+	type EsModule = { __esModule: boolean; default: T; };
+
 	return new Promise<T[]>(function (resolve, reject) {
-		loader(moduleIds, function () {
-			resolve(Array.prototype.slice.call(arguments, 0));
+		loader(moduleIds, function (...modules: T[]) {
+			if (returnDefaults) {
+				resolve(modules.map(function (module: T | EsModule) {
+					if ((<EsModule> module).__esModule) {
+						return (<EsModule> module).default;
+					}
+
+					return <T> module;
+				}));
+			}
+			else {
+				resolve(modules);
+			}
 		}, reject);
 	});
 }

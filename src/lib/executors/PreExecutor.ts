@@ -126,7 +126,7 @@ const sendErrorToConduit = (function () {
 })();
 
 export interface KwArgs {
-	defaultLoaderOptions?: TODO;
+	defaultLoaderOptions?: AmdLoaderConfig;
 	executorId: string;
 }
 
@@ -152,10 +152,8 @@ export default class PreExecutor {
 
 	/**
 	 * Default loader configuration that needs to be passed to the new loader.
-	 *
-	 * @type {Object}
 	 */
-	defaultLoaderOptions: TODO;
+	defaultLoaderOptions: AmdLoaderConfig;
 
 	_earlyErrorHandle: { remove(): void; };
 	_earlyEvents: TODO[];
@@ -334,9 +332,7 @@ export default class PreExecutor {
 	 * @returns {Promise.<Function>} Executor constructor.
 	 */
 	protected _loadExecutorWithLoader(executorId: string, require: AmdRequire) {
-		return new Promise<typeof Executor>(function (resolve, reject) {
-			require([ executorId ], resolve, reject);
-		});
+		return util.getModule(executorId, require);
 	}
 
 	/**
@@ -476,7 +472,7 @@ export default class PreExecutor {
 			return this;
 		})();
 
-		return new Promise(function (resolve, reject) {
+		return new Promise<AmdRequire>(function (resolve, reject) {
 			if (has('host-node') && loaders['host-node']) {
 				const require = global.require.nodeRequire;
 
@@ -493,7 +489,7 @@ export default class PreExecutor {
 				global.require = global.define = undefined;
 
 				let id = loaders['host-node'];
-				const moduleUtil = require('module');
+				const moduleUtil: any = require('module');
 				if (moduleUtil._findPath && moduleUtil._nodeModulePaths) {
 					const localModulePath = moduleUtil._findPath(id, moduleUtil._nodeModulePaths(basePath));
 					if (localModulePath !== false) {
@@ -501,7 +497,7 @@ export default class PreExecutor {
 					}
 				}
 
-				let amdRequire = require(id);
+				let amdRequire: AmdRequire = require(id);
 
 				// The Dojo 1 loader does not export itself, it only exposes itself globally; in this case
 				// `amdRequire` is an empty object, not a function. Other loaders return themselves and do not

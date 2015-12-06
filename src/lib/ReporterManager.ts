@@ -56,7 +56,7 @@ export interface ReporterConstructor {
 export interface Reporter {
 	$others?(eventName: string, ...args: any[]): MaybePromise;
 	coverage?(sessionId: string, data: _instrumenterType.Coverage): MaybePromise;
-	deprecated(name: string, replacement?: string, extra?: string): MaybePromise;
+	deprecated?(name: string, replacement?: string, extra?: string): MaybePromise;
 	destroy?(): MaybePromise;
 	fatalError?(error: Error): MaybePromise;
 	newSuite?(suite: Suite): MaybePromise;

@@ -15,19 +15,21 @@ type TODO = any;
 type MaybePromise = void | Promise.Thenable<void>;
 
 export default class Executor {
+	static defaultConfig: InternConfig = {
+		coverageVariable: '__internCoverage',
+		defaultTimeout: 30000,
+		reporters: []
+	};
+
 	constructor(config: InternConfig, preExecutor: PreExecutor) {
-		this.config = deepDelegate(this.config, config);
+		this.config = deepDelegate((<typeof Executor> this.constructor).defaultConfig, config);
 		this.preExecutor = preExecutor;
 	}
 
 	/**
 	 * The resolved configuration for this executor.
 	 */
-	config: InternConfig = {
-		coverageVariable: '__internCoverage',
-		defaultTimeout: 30000,
-		reporters: []
-	};
+	config: InternConfig;
 
 	_hasSuiteErrors = false;
 
@@ -177,39 +179,32 @@ export default class Executor {
 			return id;
 		});
 
-		return new Promise<void>(function (resolve, reject) {
-			require(reporterModuleIds, function (...args: ReporterConstructor[]) {
-				try {
-					for (let i = 0, Reporter: ReporterConstructor; (Reporter = args[i]); ++i) {
-						let kwArgs: ReporterKwArgs;
+		return util.getModules<ReporterConstructor>(reporterModuleIds, require).then(function (args) {
+			for (let i = 0, Reporter: ReporterConstructor; (Reporter = args[i]); ++i) {
+				let kwArgs: ReporterKwArgs;
 
-						const userConfig = reporters[i];
+				const userConfig = reporters[i];
 
-						// reporter was simply specified as a string
-						if (typeof userConfig === 'string') {
-							const replacementReporter = LEGACY_REPORTERS[<string> userConfig];
-							if (replacementReporter && typeof replacementReporter !== 'string') {
-								kwArgs = replacementReporter;
-							}
-							else {
-								kwArgs = <ReporterConfig> {};
-							}
-						}
-						else {
-							kwArgs = userConfig;
-						}
-
-						// pass each reporter the full intern config as well as its own options
-						kwArgs.internConfig = self.config;
-						reporterManager.add(Reporter, kwArgs);
+				// reporter was simply specified as a string
+				if (typeof userConfig === 'string') {
+					const replacementReporter = LEGACY_REPORTERS[<string> userConfig];
+					if (replacementReporter && typeof replacementReporter !== 'string') {
+						kwArgs = replacementReporter;
 					}
+					else {
+						kwArgs = <ReporterConfig> {};
+					}
+				}
+				else {
+					kwArgs = userConfig;
+				}
 
-					resolve(reporterManager.run());
-				}
-				catch (error) {
-					reject(error);
-				}
-			});
+				// pass each reporter the full intern config as well as its own options
+				kwArgs.internConfig = self.config;
+				reporterManager.add(Reporter, kwArgs);
+			}
+
+			return reporterManager.run();
 		});
 	}
 

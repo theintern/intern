@@ -16,8 +16,32 @@ declare module 'istanbul/lib/hook' {
 	export function unloadRequireCache(matcher: Matcher): void;
 }
 
+declare module 'istanbul/lib/collector' {
+	import { Coverage } from 'istanbul/lib/instrumenter';
+
+	// TODO
+	type Store = any;
+
+	namespace Collector {
+		export interface Options {
+			store?: Store;
+		}
+	}
+
+	class Collector {
+		constructor(options?: Collector.Options);
+		add(coverage: Coverage, testName?: string): void;
+		dispose(): void;
+		fileCoverageFor(fileName: string): Coverage;
+		files(): string[];
+		getFinalCoverage(): Coverage;
+	}
+
+	export = Collector;
+}
+
 declare module 'istanbul/lib/instrumenter' {
-	module Instrumenter {
+	namespace Instrumenter {
 		export interface Options {
 			codeGenerationOptions?: {};
 			coverageVariable?: string;
@@ -82,6 +106,212 @@ declare module 'istanbul/lib/instrumenter' {
 	}
 
 	export = Instrumenter;
+}
+
+declare module 'istanbul/lib/report/index' {
+	import Collector = require('istanbul/lib/collector');
+
+	namespace Report {
+		export interface Options {}
+	}
+
+	abstract class Report {
+		static TYPE: string;
+
+		constructor(options?: Report.Options);
+		abstract writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = Report;
+}
+
+declare module 'istanbul/lib/report/cobertura' {
+	import Collector = require('istanbul/lib/collector');
+	import Report = require('istanbul/lib/report/index');
+	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+
+	namespace CoberturaReport {
+		export interface Options extends Report.Options {
+			dir?: string;
+			file?: string;
+		}
+	}
+
+	class CoberturaReport extends Report {
+		constructor(options?: CoberturaReport.Options);
+		writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = CoberturaReport;
+}
+
+declare module 'istanbul/lib/report/json' {
+	import Collector = require('istanbul/lib/collector');
+	import Report = require('istanbul/lib/report/index');
+	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+
+	namespace JsonReport {
+		export interface Options extends Report.Options {
+			dir?: string;
+			writer?: any;
+		}
+	}
+
+	class JsonReport extends Report {
+		constructor(options?: JsonReport.Options);
+		writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = JsonReport;
+}
+
+declare module 'istanbul/lib/report/html' {
+	import Collector = require('istanbul/lib/collector');
+	import Report = require('istanbul/lib/report/index');
+	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+
+	namespace HtmlReport {
+		export interface Options extends Report.Options {
+			dir?: string;
+			linkMapper?: any;
+			sourceStore?: any;
+			watermarks?: Watermarks;
+			writer?: any;
+		}
+	}
+
+	class HtmlReport extends Report {
+		constructor(options?: HtmlReport.Options);
+		writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = HtmlReport;
+}
+
+declare module 'istanbul/lib/report/lcov' {
+	import Collector = require('istanbul/lib/collector');
+	import Report = require('istanbul/lib/report/index');
+	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+
+	namespace LcovReport {
+		export interface Options extends Report.Options {
+			dir?: string;
+			sourceStore?: any;
+			watermarks?: Watermarks;
+		}
+	}
+
+	class LcovReport extends Report {
+		constructor(options?: LcovReport.Options);
+		writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = LcovReport;
+}
+
+declare module 'istanbul/lib/report/lcovonly' {
+	import Collector = require('istanbul/lib/collector');
+	import Report = require('istanbul/lib/report/index');
+	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+
+	namespace LcovOnlyReport {
+		export interface Options extends Report.Options {
+			dir?: string;
+			writer?: any;
+		}
+	}
+
+	class LcovOnlyReport extends Report {
+		constructor(options?: LcovOnlyReport.Options);
+		writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = LcovOnlyReport;
+}
+
+declare module 'istanbul/lib/report/none' {
+	import Collector = require('istanbul/lib/collector');
+	import Report = require('istanbul/lib/report/index');
+	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+
+	namespace NoneReport {
+		export interface Options extends Report.Options {
+			dir?: string;
+			sourceStore?: any;
+			watermarks?: Watermarks;
+		}
+	}
+
+	class NoneReport extends Report {
+		constructor(options?: NoneReport.Options);
+		writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = NoneReport;
+}
+
+declare module 'istanbul/lib/report/teamcity' {
+	import Collector = require('istanbul/lib/collector');
+	import Report = require('istanbul/lib/report/index');
+	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+
+	namespace TeamcityReport {
+		export interface Options extends Report.Options {
+			dir?: string;
+			file?: string;
+		}
+	}
+
+	class TeamcityReport extends Report {
+		constructor(options?: TeamcityReport.Options);
+		writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = TeamcityReport;
+}
+
+declare module 'istanbul/lib/report/text' {
+	import Collector = require('istanbul/lib/collector');
+	import Report = require('istanbul/lib/report/index');
+	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+
+	namespace TextReport {
+		export interface Options extends Report.Options {
+			dir?: string;
+			file?: string;
+			summary?: string;
+			maxCols?: number;
+			watermarks?: Watermarks;
+		}
+	}
+
+	class TextReport extends Report {
+		constructor(options?: TextReport.Options);
+		writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = TextReport;
+}
+
+declare module 'istanbul/lib/report/text-summary' {
+	import Collector = require('istanbul/lib/collector');
+	import Report = require('istanbul/lib/report/index');
+	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+
+	namespace TextSummaryReport {
+		export interface Options extends Report.Options {
+			dir?: string;
+			file?: string;
+			watermarks?: Watermarks;
+		}
+	}
+
+	class TextSummaryReport extends Report {
+		constructor(options?: TextSummaryReport.Options);
+		writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = TextSummaryReport;
 }
 
 declare module 'istanbul/lib/report/common/defaults' {
