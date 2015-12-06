@@ -7,13 +7,13 @@ declare module 'istanbul/lib/hook' {
 		(code: string, filePath: string): string;
 	}
 
-	export function hookRequire(matcher: Matcher, transformer: Transformer, options?: {});
-	export function unhookRequire();
-	export function hookCreateScript(matcher: Matcher, transformer: Transformer, options?: {});
-	export function unhookCreateScript();
-	export function hookRunInThisContext(matcher: Matcher, transformer: Transformer, options?: {});
-	export function unhookRunInThisContext();
-	export function unloadRequireCache(matcher: Matcher);
+	export function hookRequire(matcher: Matcher, transformer: Transformer, options?: {}): void;
+	export function unhookRequire(): void;
+	export function hookCreateScript(matcher: Matcher, transformer: Transformer, options?: {}): void;
+	export function unhookCreateScript(): void;
+	export function hookRunInThisContext(matcher: Matcher, transformer: Transformer, options?: {}): void;
+	export function unhookRunInThisContext(): void;
+	export function unloadRequireCache(matcher: Matcher): void;
 }
 
 declare module 'istanbul/lib/instrumenter' {

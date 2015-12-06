@@ -2,12 +2,11 @@ import { deepDelegate, deepMixin } from 'dojo/lang';
 import Promise = require('dojo/Promise');
 import Server = require('leadfoot/Server');
 import Command = require('leadfoot/Command');
-import Session = require('leadfoot/Session');
 import ClientSuite from '../ClientSuite';
 import Proxy from '../Proxy';
 import EnvironmentType from '../EnvironmentType';
 import Executor from './Executor';
-import ProxiedSession from '../ProxiedSession';
+import { default as ProxiedSession, Command as ProxiedCommand } from '../ProxiedSession';
 import Suite from '../Suite';
 import * as util from '../util';
 import { AmdRequire } from '../util';
@@ -176,7 +175,7 @@ export default class Runner extends Executor {
 						session.proxyBasePathLength = config.basePath.length;
 						session.reporterManager = reporterManager;
 
-						const command = new Command<void>(session);
+						const command = <ProxiedCommand<void>> new Command<void>(session);
 						command.environmentType = new EnvironmentType(session.capabilities);
 
 						suite.remote = command;

@@ -297,7 +297,7 @@ export default class Test {
 		throw SKIP;
 	}
 
-	toJSON() {
+	toJSON(): Json {
 		return {
 			name: this.name,
 			sessionId: this.sessionId,
@@ -313,6 +313,17 @@ export default class Test {
 			} : null
 		};
 	}
+}
+
+export interface Json {
+	name: string;
+	sessionId: string;
+	id: string;
+	timeout: number;
+	timeElapsed: number;
+	hasPassed: boolean;
+	skipped: string;
+	error: StackError;
 }
 
 export interface KwArgs {

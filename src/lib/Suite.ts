@@ -1,7 +1,7 @@
-import Command = require('leadfoot/Command');
+import { Command } from './ProxiedSession';
 import Promise = require('dojo/Promise');
 import ReporterManager from './ReporterManager';
-import Test from './Test';
+import { default as Test, Json as TestJson } from './Test';
 import { StackError } from './util';
 
 interface TestRelatedError extends StackError {
@@ -50,7 +50,7 @@ export default class Suite {
 	 */
 	get id() {
 		const name: string[] = [];
-		let object = this;
+		let object: Suite = this;
 
 		do {
 			object.name != null && name.unshift(object.name);
@@ -62,7 +62,7 @@ export default class Suite {
 	/**
 	 * The total number of tests in this test suite and any sub-suites that have failed.
 	 */
-	get numFailedTests() {
+	get numFailedTests(): number {
 		function reduce(numFailedTests: number, test: Suite | Test): number {
 			return (<Suite> test).tests ?
 				(<Suite> test).tests.reduce(reduce, numFailedTests) :
@@ -75,7 +75,7 @@ export default class Suite {
 	/**
 	 * The total number of tests in this test suite and any sub-suites that were skipped.
 	 */
-	get numSkippedTests() {
+	get numSkippedTests(): number {
 		function reduce(numSkippedTests: number, test: Suite | Test): number {
 			return (<Suite> test).tests ?
 				(<Suite> test).tests.reduce(reduce, numSkippedTests) :
@@ -89,7 +89,7 @@ export default class Suite {
 	 * The total number of tests in this suite and any sub-suites. To get only the number of tests for this suite,
 	 * look at `this.tests.length`.
 	 */
-	get numTests() {
+	get numTests(): number {
 		function reduce(numTests: number, test: Suite | Test): number {
 			return (<Suite> test).tests ? (<Suite> test).tests.reduce(reduce, numTests) : numTests + 1;
 		}
@@ -192,7 +192,7 @@ export default class Suite {
 	 * If setup, beforeEach, afterEach, or teardown throw, the suite itself will be marked as failed
 	 * and no further tests in the suite will be executed.
 	 */
-	run() {
+	run(): Promise<number> {
 		const reporterManager = this.reporterManager;
 		const self = this;
 		let startTime: number;
@@ -224,7 +224,7 @@ export default class Suite {
 		function runTestLifecycle(name: string, test: Test) {
 			// LIFO queue
 			const suiteQueue: Suite[] = [];
-			let suite = self;
+			let suite: Suite = self;
 
 			// beforeEach executes in order parent -> child;
 			// afterEach executes in order child -> parent
@@ -408,16 +408,13 @@ export default class Suite {
 		});
 	}
 
-	toJSON() {
+	toJSON(): Json {
 		return {
 			name: this.name,
 			id: this.id,
 			sessionId: this.sessionId,
 			hasParent: Boolean(this.parent),
-			// `Test` only isn’t right, but the compiler cannot deal with creating the correct
-			// return type for `toJSON` automatically if it references `Suite`, and it is not worth
-			// manually creating the return type.
-			tests: this.tests.map(function (test: Test) {
+			tests: this.tests.map(function (test) {
 				return test.toJSON();
 			}),
 			timeElapsed: this.timeElapsed,
@@ -432,6 +429,19 @@ export default class Suite {
 			} : null
 		};
 	}
+}
+
+export interface Json {
+	name: string;
+	id: string;
+	sessionId: string;
+	hasParent: boolean;
+	tests: Array<TestJson | Json>;
+	timeElapsed: number;
+	numTests: number;
+	numFailedTests: number;
+	numSkippedTests: number;
+	error: StackError & TestRelatedError;
 }
 
 export interface KwArgs {

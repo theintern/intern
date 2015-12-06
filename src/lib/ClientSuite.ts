@@ -5,7 +5,6 @@ import { default as Suite, KwArgs as SuiteKwArgs } from './Suite';
 import pathUtil = require('path');
 import urlUtil = require('url');
 import Proxy from './Proxy';
-import ReporterConfig from './ReporterManager';
 import { InternConfig } from './executors/PreExecutor';
 
 type MaybePromise = void | Promise.Thenable<void>;
@@ -159,7 +158,7 @@ export default class ClientSuite extends Suite {
 
 		remote
 			.get(config.proxyUrl + '__intern/client.html?' + objectToQuery(options))
-			.catch(function (error) {
+			.catch(function (error: Error) {
 				handle.remove();
 				remote.setHeartbeatInterval(0).then(function () {
 					handleError(error);

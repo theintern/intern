@@ -1,8 +1,6 @@
-lcov.info
-html-report
-node_modules
-saucelabs
-testingbot
-browserstack
-coverage-final.json
 .vscode
+build
+coverage-final.json
+html-report
+lcov.info
+node_modules

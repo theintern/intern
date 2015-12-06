@@ -1,6 +1,13 @@
+import _Command = require('leadfoot/Command');
+import EnvironmentType from './EnvironmentType';
 import Promise = require('dojo/Promise');
-import Session = require('leadfoot/Session');
 import ReporterManager from './ReporterManager';
+import Session = require('leadfoot/Session');
+
+export interface Command<T> extends _Command<T> {
+	environmentType: EnvironmentType;
+	setHeartbeatInterval(interval: number): Command<void>;
+}
 
 /* tslint:disable:no-var-keyword */
 /* istanbul ignore next: client-side code */
