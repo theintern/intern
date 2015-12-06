@@ -10,4 +10,3 @@ env:
 cache:
   directories:
     - node_modules
-script: tests/selftest.sh
