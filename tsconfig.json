@@ -1,0 +1,43 @@
+{
+	"version": "1.7.3",
+	"compilerOptions": {
+		"experimentalDecorators": true,
+		"module": "umd",
+		"moduleResolution": "node",
+		"newLine": "LF",
+		"noImplicitAny": true,
+		"outDir": "_build/",
+		"removeComments": false,
+		"rootDir": ".",
+		"sourceMap": true,
+		"target": "es5"
+	},
+	"files": [
+		"./interfaces.d.ts",
+		"./client.ts",
+		"./main.ts",
+		"./runner.ts",
+		"./lib/ClientSuite.ts",
+		"./lib/EnvironmentType.ts",
+		"./lib/exitHandler.ts",
+		"./lib/parseArgs.ts",
+		"./lib/ProxiedSession.ts",
+		"./lib/Proxy.ts",
+		"./lib/ReporterManager.ts",
+		"./lib/Suite.ts",
+		"./lib/Test.ts",
+		"./lib/util.ts",
+		"./lib/executors/Client.ts",
+		"./lib/executors/Executor.ts",
+		"./lib/executors/PreExecutor.ts",
+		"./lib/executors/Runner.ts",
+		"./typings/diff/diff.d.ts",
+		"./typings/digdug/digdug.d.ts",
+		"./typings/dojo2/dojo.d.ts",
+		"./typings/istanbul/istanbul.d.ts",
+		"./typings/leadfoot/leadfoot.d.ts",
+		"./typings/mime/mime.d.ts",
+		"./typings/node/node.d.ts",
+		"./typings/source-map/source-map.d.ts"
+	]
+}
