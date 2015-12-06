@@ -79,7 +79,7 @@ export default class HtmlReporter implements Reporter {
 		this.fragment = this.document.createDocumentFragment();
 	}
 
-	start() {
+	run() {
 		this.reportContainer = this.document.createElement('div');
 		const headerNode = this.document.createElement('h1');
 		let tableNode: HTMLTableElement;
@@ -245,11 +245,16 @@ export default class HtmlReporter implements Reporter {
 			const style = this.document.createElement('style');
 			style.innerHTML = 'body { visibility: hidden; }';
 
-			const link = this.document.createElement('link');
+			let link = this.document.createElement('link');
 			link.rel = 'stylesheet';
 			link.href = require.toUrl('./html/html.css');
 
 			this.document.head.appendChild(style);
+			this.document.head.appendChild(link);
+
+			link = this.document.createElement('link');
+			link.rel = 'stylesheet';
+			link.href = '//fonts.googleapis.com/css?family=Open+Sans:700,400,300';
 			this.document.head.appendChild(link);
 		}
 

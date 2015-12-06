@@ -64,10 +64,9 @@ export interface Reporter {
 	proxyEnd?(proxy: Proxy): MaybePromise;
 	proxyStart?(proxy: Proxy): MaybePromise;
 	reporterError?(reporter: Reporter, error: Error): MaybePromise;
+	run?(): MaybePromise;
 	runEnd?(executor: Executor): MaybePromise;
 	runStart?(executor: Executor): MaybePromise;
-	start?(): MaybePromise;
-	stop?(): MaybePromise;
 	suiteEnd?(suite: Suite): MaybePromise;
 	suiteError?(suite: Suite, error: Error): MaybePromise;
 	suiteStart?(suite: Suite): MaybePromise;
@@ -201,10 +200,9 @@ export default class ReporterManager {
 	emit(name: 'proxyEnd', proxy: Proxy): Promise<void>;
 	emit(name: 'proxyStart', proxy: Proxy): Promise<void>;
 	emit(name: 'reporterError', reporter: Reporter, error: Error): Promise<void>;
+	emit(name: 'run'): Promise<void>;
 	emit(name: 'runEnd', executor: Executor): Promise<void>;
 	emit(name: 'runStart', executor: Executor): Promise<void>;
-	emit(name: 'start'): Promise<void>;
-	emit(name: 'stop'): Promise<void>;
 	emit(name: 'suiteEnd', suite: Suite): Promise<void>;
 	emit(name: 'suiteError', suite: Suite, error: Error): Promise<void>;
 	emit(name: 'suiteStart', suite: Suite): Promise<void>;
@@ -276,10 +274,9 @@ export default class ReporterManager {
 	on(name: 'proxyEnd', listener: (proxy: Proxy) => MaybePromise): void;
 	on(name: 'proxyStart', listener: (proxy: Proxy) => MaybePromise): void;
 	on(name: 'reporterError', listener: (reporter: Reporter, error: Error) => MaybePromise): void;
+	on(name: 'run', listener: () => MaybePromise): void;
 	on(name: 'runEnd', listener: (executor: Executor) => MaybePromise): void;
 	on(name: 'runStart', listener: (executor: Executor) => MaybePromise): void;
-	on(name: 'start', listener: () => MaybePromise): void;
-	on(name: 'stop', listener: () => MaybePromise): void;
 	on(name: 'suiteEnd', listener: (suite: Suite) => MaybePromise): void;
 	on(name: 'suiteError', listener: (suite: Suite, error: Error) => MaybePromise): void;
 	on(name: 'suiteStart', listener: (suite: Suite) => MaybePromise): void;

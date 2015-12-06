@@ -23,6 +23,7 @@
 		"grunt": "0.4.5",
 		"grunt-contrib-clean": "0.7.0",
 		"grunt-contrib-copy": "0.8.2",
+		"grunt-contrib-stylus": "0.22.0",
 		"grunt-contrib-symlink": "0.3.0",
 		"grunt-contrib-watch": "0.6.1",
 		"grunt-ts": "5.2.0",
