@@ -1,3 +1,4 @@
+.tscache
 .vscode
 build
 coverage-final.json

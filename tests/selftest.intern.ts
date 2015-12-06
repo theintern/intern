@@ -1,4 +1,10 @@
-define({
+import { Config as RawInternConfig } from 'intern/main';
+
+export interface Config extends RawInternConfig {
+	isSelfTestConfig: boolean;
+}
+
+export default <Config> {
 	proxyPort: 9000,
 	proxyUrl: 'http://localhost:9000/',
 
@@ -41,4 +47,4 @@ define({
 	excludeInstrumentation: /(?:tests|node_modules)\//,
 
 	isSelfTestConfig: true
-});
+};
