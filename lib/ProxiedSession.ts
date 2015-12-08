@@ -143,6 +143,6 @@ export default class ProxiedSession extends Session {
 			})();
 		}
 
-		return Promise.resolve(null);
+		return Promise.resolve(undefined);
 	}
 }

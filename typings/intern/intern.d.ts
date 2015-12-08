@@ -91,7 +91,7 @@ declare module 'intern!tdd' {
 }
 
 declare module 'intern/chai!' {
-	export = Chai;
+	export = chai;
 }
 
 declare module 'intern/chai!assert' {

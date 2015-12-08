@@ -436,7 +436,7 @@ export default class PreExecutor {
 			return self.swapLoader(config.basePath, config.loaders, config.loaderOptions);
 		}
 
-		const promise = Promise.resolve(null)
+		const promise = Promise.resolve(undefined)
 			.then(getConfig)
 			.then(swapLoader)
 			.then(populateMainModule)

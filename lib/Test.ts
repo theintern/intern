@@ -21,7 +21,7 @@ export default class Test {
 	test: () => MaybePromise;
 	timeElapsed: number;
 
-	constructor(kwArgs: KwArgs) {
+	constructor(kwArgs?: KwArgs) {
 		for (let k in kwArgs) {
 			(<any> this)[k] = (<any> kwArgs)[k];
 		}
@@ -196,13 +196,13 @@ export default class Test {
 			return report('testEnd');
 		}
 
-		function report(eventName: string) {
+		function report(eventName: string, ...args: any[]) {
 			if (reporterManager) {
-				const args = [ eventName, self ].concat(Array.prototype.slice.call(arguments, 1));
-				return reporterManager.emit.apply(reporterManager, args).catch(function () {});
+				const sendArgs = [ eventName, self, ...args ];
+				return reporterManager.emit.apply(reporterManager, sendArgs);
 			}
 			else {
-				return Promise.resolve(null);
+				return Promise.resolve(undefined);
 			}
 		}
 

@@ -1,7 +1,7 @@
 import has = require('dojo/has');
 import { mixin } from 'dojo/lang';
 import Promise = require('dojo/Promise');
-import EnvironmentType from './EnvironmentType';
+import { default as EnvironmentType, KwArgs as EnvironmentTypeKwArgs } from './EnvironmentType';
 import { createPatch } from 'diff';
 
 import _fsType = require('fs');
@@ -516,13 +516,6 @@ export function escapeRegExp(string: string) {
 	return String(string).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 }
 
-interface Environment {
-	browserName?: string;
-	version?: string;
-	platform?: string;
-	platformVersion?: string;
-}
-
 /**
  * Flattens an array of environment definition objects with maybe-array browserName, browserVersion,
  * platformName, and platformVersion properties into an array of EnvironmentType objects with scalar values
@@ -530,7 +523,7 @@ interface Environment {
  *
  * @returns Flattened list of browser criteria.
  */
-export function flattenEnvironments(capabilities: {}, environments: Environment[]) {
+export function flattenEnvironments(capabilities: {}, environments: EnvironmentTypeKwArgs[]) {
 	// TODO: Allow arbitrary permutations
 
 	const permutations: EnvironmentType[] = [];

@@ -6,15 +6,18 @@ import Test from '../Test';
 
 type MaybePromise = void | Promise.Thenable<void>;
 
-export interface Descriptor {
-	[key: string]: any;
+export interface StaticKeys {
 	name: string;
 	timeout?: number;
+	after?: () => MaybePromise;
 	afterEach?: (test: Test) => MaybePromise;
+	before?: () => MaybePromise;
 	beforeEach?: (test: Test) => MaybePromise;
 	setup?: () => MaybePromise;
 	teardown?: () => MaybePromise;
 }
+
+type Descriptor = { [key: string]: Descriptor | (() => MaybePromise); } & StaticKeys;
 
 function registerSuite(descriptor: Descriptor, parentSuite: Suite) {
 	const suite = new Suite({ parent: parentSuite });
@@ -22,34 +25,50 @@ function registerSuite(descriptor: Descriptor, parentSuite: Suite) {
 
 	parentSuite.tests.push(suite);
 
+	if ('name' in descriptor) {
+		suite.name = descriptor.name;
+	}
+	if ('timeout' in descriptor) {
+		suite.timeout = descriptor.timeout;
+	}
+	if ('after' in descriptor) {
+		on(suite, 'teardown', descriptor.after);
+	}
+	if ('afterEach' in descriptor) {
+		on(suite, 'afterEach', descriptor.afterEach);
+	}
+	if ('before' in descriptor) {
+		on(suite, 'setup', descriptor.before);
+	}
+	if ('beforeEach' in descriptor) {
+		on(suite, 'beforeEach', descriptor.beforeEach);
+	}
+	if ('setup' in descriptor) {
+		on(suite, 'setup', descriptor.setup);
+	}
+	if ('teardown' in descriptor) {
+		on(suite, 'teardown', descriptor.teardown);
+	}
+
 	for (let k in descriptor) {
 		let test = descriptor[k];
-
-		if (k === 'before') {
-			k = 'setup';
-		}
-		if (k === 'after') {
-			k = 'teardown';
-		}
-
 		switch (k) {
 		case 'name':
 		case 'timeout':
-			(<any> suite)[k] = test;
-			break;
+		case 'after':
+		case 'before':
 		case 'setup':
 		case 'beforeEach':
 		case 'afterEach':
 		case 'teardown':
-			on(suite, k, test);
 			break;
 		default:
 			if (typeof test !== 'function') {
-				test.name = test.name || k;
-				registerSuite(test, suite);
+				(<Descriptor> test).name = (<Descriptor> test).name || k;
+				registerSuite(<Descriptor> test, suite);
 			}
 			else {
-				tests.push(new Test({ name: k, test: test, parent: suite }));
+				tests.push(new Test({ name: k, test: <() => MaybePromise> test, parent: suite }));
 			}
 		}
 	}

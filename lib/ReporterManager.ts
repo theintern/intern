@@ -220,7 +220,7 @@ export default class ReporterManager {
 	emit(name: string, ...args: any[]): Promise<void> {
 		if (!this._reporters.length) {
 			this._earlyEvents.push(Array.prototype.slice.call(arguments, 0));
-			return Promise.resolve(null);
+			return Promise.resolve(undefined);
 		}
 
 		const self = this;

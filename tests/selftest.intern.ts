@@ -1,10 +1,12 @@
 import { Config as RawInternConfig } from 'intern/main';
 
-export interface Config extends RawInternConfig {
-	isSelfTestConfig: boolean;
+namespace config {
+	export interface Config extends RawInternConfig {
+		isSelfTestConfig: boolean;
+	}
 }
 
-export default <Config> {
+const config = <config.Config> {
 	proxyPort: 9000,
 	proxyUrl: 'http://localhost:9000/',
 
@@ -48,3 +50,5 @@ export default <Config> {
 
 	isSelfTestConfig: true
 };
+
+export = config;

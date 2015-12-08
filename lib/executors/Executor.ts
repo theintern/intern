@@ -55,11 +55,9 @@ export default class Executor {
 
 	/**
 	 * Code to execute after the main test run has finished to shut down the test system.
-	 *
-	 * @returns Promise.<void>
 	 */
 	protected _afterRun() {
-		return Promise.resolve(null);
+		return Promise.resolve(undefined);
 	}
 
 	/**
@@ -92,7 +90,7 @@ export default class Executor {
 			return self.preExecutor.registerErrorHandler(self._handleError.bind(self));
 		}
 
-		return Promise.resolve(null)
+		return Promise.resolve(undefined)
 			.then(loadReporters)
 			.then(registerErrorHandler)
 			.then(enableInstrumentation);
@@ -216,7 +214,7 @@ export default class Executor {
 	 */
 	_loadTestModules(moduleIds: string[]) {
 		if (!moduleIds || !moduleIds.length) {
-			return Promise.resolve(null);
+			return Promise.resolve(undefined);
 		}
 
 		if (has('host-browser')) {

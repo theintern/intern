@@ -1,5 +1,13 @@
+export interface KwArgs {
+	[key: string]: any;
+	browserName?: string | string[];
+	version?: string | string[];
+	platform?: string | string[];
+	platformVersion?: string | string[];
+}
+
 export default class EnvironmentType {
-	constructor(kwArgs: EnvironmentType.KwArgs) {
+	constructor(kwArgs: KwArgs) {
 		for (let k in kwArgs) {
 			(<any> this)[k] = (<any> kwArgs)[k];
 		}
@@ -19,14 +27,5 @@ export default class EnvironmentType {
 		this.platformVersion && parts.push(this.platformVersion);
 
 		return parts.join(' ');
-	}
-}
-
-namespace EnvironmentType {
-	export interface KwArgs {
-		browserName?: string;
-		version?: string;
-		platform?: string;
-		platformVersion?: string;
 	}
 }
