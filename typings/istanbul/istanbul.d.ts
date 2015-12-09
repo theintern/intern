@@ -138,31 +138,16 @@ declare module 'istanbul/lib/report/cobertura' {
 	}
 
 	class CoberturaReport extends Report {
+		dir: string;
+		file: string;
+		opts: CoberturaReport.Options;
+		projectRoot: string;
+
 		constructor(options?: CoberturaReport.Options);
 		writeReport(collector: Collector, sync: boolean): void;
 	}
 
 	export = CoberturaReport;
-}
-
-declare module 'istanbul/lib/report/json' {
-	import Collector = require('istanbul/lib/collector');
-	import Report = require('istanbul/lib/report/index');
-	import { Watermarks } from 'istanbul/lib/report/common/defaults';
-
-	namespace JsonReport {
-		export interface Options extends Report.Options {
-			dir?: string;
-			writer?: any;
-		}
-	}
-
-	class JsonReport extends Report {
-		constructor(options?: JsonReport.Options);
-		writeReport(collector: Collector, sync: boolean): void;
-	}
-
-	export = JsonReport;
 }
 
 declare module 'istanbul/lib/report/html' {
@@ -181,6 +166,8 @@ declare module 'istanbul/lib/report/html' {
 	}
 
 	class HtmlReport extends Report {
+		opts: HtmlReport.Options;
+
 		constructor(options?: HtmlReport.Options);
 		writeReport(collector: Collector, sync: boolean): void;
 	}
@@ -188,10 +175,34 @@ declare module 'istanbul/lib/report/html' {
 	export = HtmlReport;
 }
 
+declare module 'istanbul/lib/report/json' {
+	import Collector = require('istanbul/lib/collector');
+	import Report = require('istanbul/lib/report/index');
+	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+
+	namespace JsonReport {
+		export interface Options extends Report.Options {
+			dir?: string;
+			writer?: any;
+		}
+	}
+
+	class JsonReport extends Report {
+		opts: JsonReport.Options;
+
+		constructor(options?: JsonReport.Options);
+		writeReport(collector: Collector, sync: boolean): void;
+	}
+
+	export = JsonReport;
+}
+
 declare module 'istanbul/lib/report/lcov' {
 	import Collector = require('istanbul/lib/collector');
 	import Report = require('istanbul/lib/report/index');
 	import { Watermarks } from 'istanbul/lib/report/common/defaults';
+	import LcovOnlyReport = require('istanbul/lib/report/lcovonly');
+	import HtmlReport = require('istanbul/lib/report/html');
 
 	namespace LcovReport {
 		export interface Options extends Report.Options {
@@ -202,6 +213,9 @@ declare module 'istanbul/lib/report/lcov' {
 	}
 
 	class LcovReport extends Report {
+		lcov: LcovOnlyReport;
+		html: HtmlReport;
+
 		constructor(options?: LcovReport.Options);
 		writeReport(collector: Collector, sync: boolean): void;
 	}
@@ -216,12 +230,15 @@ declare module 'istanbul/lib/report/lcovonly' {
 
 	namespace LcovOnlyReport {
 		export interface Options extends Report.Options {
+			file?: string;
 			dir?: string;
 			writer?: any;
 		}
 	}
 
 	class LcovOnlyReport extends Report {
+		opts: LcovOnlyReport.Options;
+
 		constructor(options?: LcovOnlyReport.Options);
 		writeReport(collector: Collector, sync: boolean): void;
 	}
@@ -257,12 +274,17 @@ declare module 'istanbul/lib/report/teamcity' {
 
 	namespace TeamcityReport {
 		export interface Options extends Report.Options {
+			blockName?: string;
 			dir?: string;
 			file?: string;
 		}
 	}
 
 	class TeamcityReport extends Report {
+		blockName: string;
+		dir: string;
+		file: string;
+
 		constructor(options?: TeamcityReport.Options);
 		writeReport(collector: Collector, sync: boolean): void;
 	}
@@ -286,6 +308,12 @@ declare module 'istanbul/lib/report/text' {
 	}
 
 	class TextReport extends Report {
+		dir: string;
+		file: string;
+		summary: string;
+		maxCols: number;
+		watermarks: Watermarks;
+
 		constructor(options?: TextReport.Options);
 		writeReport(collector: Collector, sync: boolean): void;
 	}
@@ -307,6 +335,10 @@ declare module 'istanbul/lib/report/text-summary' {
 	}
 
 	class TextSummaryReport extends Report {
+		dir: string;
+		file: string;
+		watermarks: Watermarks;
+
 		constructor(options?: TextSummaryReport.Options);
 		writeReport(collector: Collector, sync: boolean): void;
 	}
