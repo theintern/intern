@@ -87,7 +87,9 @@ export default class Executor {
 			self.reporterManager.on('suiteError', function () {
 				self._hasSuiteErrors = true;
 			});
-			return self.preExecutor.registerErrorHandler(self._handleError.bind(self));
+			if (self.preExecutor) {
+				return self.preExecutor.registerErrorHandler(self._handleError.bind(self));
+			}
 		}
 
 		return Promise.resolve(undefined)

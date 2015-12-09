@@ -2252,6 +2252,16 @@ declare module 'leadfoot/Server' {
 		constructor(url: {} | string, options?: { proxy?: string; });
 
 		/**
+		 * The URL of the server.
+		 */
+		url: string;
+
+		/**
+		 * Additional options to use when making a request to the server.
+		 */
+		requestOptions: { proxy?: string; };
+
+		/**
 		 * An alternative session constructor. Defaults to the standard {@link module:leadfoot/Session} constructor if
 		 * one is not provided.
 		 */

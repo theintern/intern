@@ -6,7 +6,7 @@ import Test from '../Test';
 
 type MaybePromise = void | Promise.Thenable<void>;
 
-export interface StaticKeys {
+interface StaticKeys {
 	name: string;
 	timeout?: number;
 	after?: () => MaybePromise;
@@ -17,7 +17,11 @@ export interface StaticKeys {
 	teardown?: () => MaybePromise;
 }
 
-type Descriptor = { [key: string]: Descriptor | (() => MaybePromise); } & StaticKeys;
+interface Tests {
+	[key: string]: Descriptor | (() => MaybePromise);
+}
+
+export type Descriptor = Tests | StaticKeys;
 
 function registerSuite(descriptor: Descriptor, parentSuite: Suite) {
 	const suite = new Suite({ parent: parentSuite });
@@ -26,32 +30,32 @@ function registerSuite(descriptor: Descriptor, parentSuite: Suite) {
 	parentSuite.tests.push(suite);
 
 	if ('name' in descriptor) {
-		suite.name = descriptor.name;
+		suite.name = (<StaticKeys> descriptor).name;
 	}
 	if ('timeout' in descriptor) {
-		suite.timeout = descriptor.timeout;
+		suite.timeout = (<StaticKeys> descriptor).timeout;
 	}
 	if ('after' in descriptor) {
-		on(suite, 'teardown', descriptor.after);
+		on(suite, 'teardown', (<StaticKeys> descriptor).after);
 	}
 	if ('afterEach' in descriptor) {
-		on(suite, 'afterEach', descriptor.afterEach);
+		on(suite, 'afterEach', (<StaticKeys> descriptor).afterEach);
 	}
 	if ('before' in descriptor) {
-		on(suite, 'setup', descriptor.before);
+		on(suite, 'setup', (<StaticKeys> descriptor).before);
 	}
 	if ('beforeEach' in descriptor) {
-		on(suite, 'beforeEach', descriptor.beforeEach);
+		on(suite, 'beforeEach', (<StaticKeys> descriptor).beforeEach);
 	}
 	if ('setup' in descriptor) {
-		on(suite, 'setup', descriptor.setup);
+		on(suite, 'setup', (<StaticKeys> descriptor).setup);
 	}
 	if ('teardown' in descriptor) {
-		on(suite, 'teardown', descriptor.teardown);
+		on(suite, 'teardown', (<StaticKeys> descriptor).teardown);
 	}
 
 	for (let k in descriptor) {
-		let test = descriptor[k];
+		let test = (<Tests> descriptor)[k];
 		switch (k) {
 		case 'name':
 		case 'timeout':
@@ -64,7 +68,7 @@ function registerSuite(descriptor: Descriptor, parentSuite: Suite) {
 			break;
 		default:
 			if (typeof test !== 'function') {
-				(<Descriptor> test).name = (<Descriptor> test).name || k;
+				(<StaticKeys> test).name = (<StaticKeys> test).name || k;
 				registerSuite(<Descriptor> test, suite);
 			}
 			else {

@@ -5,10 +5,10 @@ import './lib/Suite';
 import './lib/Test';
 import './lib/util';
 import './lib/ReporterManager';
-// import './lib/interfaces/tdd';
-// import './lib/interfaces/bdd';
-// import './lib/interfaces/object';
-// import './lib/interfaces/qunit';
+import './lib/interfaces/tdd';
+import './lib/interfaces/bdd';
+import './lib/interfaces/object';
+import './lib/interfaces/qunit';
 // import './lib/reporters/Console';
 import has = require('dojo/has');
 
