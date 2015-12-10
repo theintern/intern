@@ -42,7 +42,7 @@ export default class Proxy {
 		this.config = config;
 	}
 
-	private config: KwArgs;
+	config: KwArgs;
 	private codeCache: { [wholePath: string]: string; };
 	private sessions: { [sessionId: string]: Session; };
 	private server: HttpServer;

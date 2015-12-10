@@ -13,7 +13,7 @@ interface TestDeferred<T> extends Promise.Deferred<T> {
 
 export default class Test {
 	name: string;
-	error: Error;
+	error: StackError;
 	hasPassed: boolean = false;
 	isAsync: boolean = false;
 	parent: Suite;
@@ -309,7 +309,7 @@ export default class Test {
 			error: this.error ? {
 				name: this.error.name,
 				message: this.error.message,
-				stack: (<StackError> this.error).stack
+				stack: this.error.stack
 			} : null
 		};
 	}

@@ -9,9 +9,17 @@ import { Coverage } from 'istanbul/lib/instrumenter';
 import TextReporter = require('istanbul/lib/report/text');
 import IstanbulReporter = require('istanbul/lib/report/index');
 import { Reporter, ReporterKwArgs } from '../ReporterManager';
+import Suite from '../Suite';
+import Test from '../Test';
+import Tunnel = require('digdug/Tunnel');
+import { Command } from '../ProxiedSession';
 
 // TODO: Is this really necessary?
 import 'istanbul/index';
+
+export interface KwArgs extends ReporterKwArgs {
+	directory?: string;
+}
 
 export default class Combined implements Reporter {
 	private _collector: Collector;
@@ -19,7 +27,7 @@ export default class Combined implements Reporter {
 	private output: NodeJS.WritableStream;
 	private _reporters: IstanbulReporter[];
 
-	constructor(config: ReporterKwArgs = {}) {
+	constructor(config: KwArgs = {}) {
 		this._collector = new Collector();
 		this._hasDot = false;
 		this.output = config.output;
@@ -70,7 +78,7 @@ export default class Combined implements Reporter {
 		const collector = this._collector;
 
 		if (mode === 'runner' && fs.existsSync('coverage-final.json')) {
-			collector.add(JSON.parse(fs.readFileSync('coverage-final.json')));
+			collector.add(JSON.parse(fs.readFileSync('coverage-final.json', 'utf8')));
 		}
 
 		this._writeLine();
@@ -79,7 +87,7 @@ export default class Combined implements Reporter {
 		});
 	}
 
-	sessionStart(remote) {
+	sessionStart(remote: Command<void>) {
 		this._writeLine();
 		this.output.write('Testing ' + remote.environmentType + '\n');
 	}
@@ -89,7 +97,7 @@ export default class Combined implements Reporter {
 		this.output.write(getErrorMessage(error) + '\n');
 	}
 
-	tunnelDownloadProgress(tunnel: Tunnel, progress: { loaded: number; total: number; }) {
+	tunnelDownloadProgress(tunnel: Tunnel, progress: Tunnel.Progress) {
 		const total = progress.loaded / progress.total;
 
 		if (isNaN(total)) {
@@ -108,7 +116,7 @@ export default class Combined implements Reporter {
 		this.output.write('\r\x1b[KTunnel started\n');
 	}
 
-	tunnelStatus(tunnel, status) {
+	tunnelStatus(tunnel: Tunnel, status: string) {
 		this.output.write('\r\x1b[KTunnel: ' + status);
 	}
 

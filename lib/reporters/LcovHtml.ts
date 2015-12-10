@@ -13,7 +13,7 @@ export default class LcovHtmlReporter implements Reporter {
 
 	constructor(config: KwArgs = {}) {
 		this._collector = new Collector();
-		this._reporter = new Reporter({
+		this._reporter = new IstanbulReporter({
 			dir: config.directory,
 			watermarks: config.watermarks
 		});

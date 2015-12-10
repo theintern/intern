@@ -14,7 +14,7 @@ export default class Suite {
 	afterEach: (test: Test) => MaybePromise;
 	beforeEach: (test: Test) => MaybePromise;
 	name: string;
-	error: Error;
+	error: StackError;
 	parent: Suite;
 	/**
 	 * If true, the suite will only publish its start topic after the setup callback has finished,

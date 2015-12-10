@@ -1196,7 +1196,7 @@ declare module "crypto" {
 declare module "stream" {
     import events = require("events");
 
-    export interface Stream extends events.EventEmitter {
+    export class Stream extends events.EventEmitter {
         pipe<T extends NodeJS.WritableStream>(destination: T, options?: { end?: boolean; }): T;
     }
 

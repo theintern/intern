@@ -4,7 +4,7 @@ import Executor from './Executor';
 import Suite from '../Suite';
 import { InternConfig } from './PreExecutor';
 
-interface InternClientConfig extends InternConfig {
+export interface InternClientConfig extends InternConfig {
 	rootSuiteName?: string;
 	sessionId?: string;
 }

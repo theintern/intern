@@ -69,6 +69,7 @@
 		"./tests/unit/lib/reporters/support/mocks.ts",
 		"./tests/unit/lib/reporters/support/MockStream.ts",
 		"./typings/chai/chai.d.ts",
+		"./typings/charm/charm.d.ts",
 		"./typings/diff/diff.d.ts",
 		"./typings/digdug/digdug.d.ts",
 		"./typings/dojo2/dojo.d.ts",

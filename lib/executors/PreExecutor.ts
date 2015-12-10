@@ -8,6 +8,7 @@ import * as parseArgs from '../parseArgs';
 import { AmdLoaderConfig, AmdRequire, StackError } from '../util';
 import * as util from '../util';
 import Executor from './Executor';
+import { Watermarks } from 'istanbul/lib/report/common/defaults';
 type _ExecutorType = typeof Executor;
 
 import _requestType = require('dojo/request');
@@ -19,7 +20,7 @@ declare var request: _requestType;
 declare var require: AmdRequire;
 
 type TODO = any;
-type MaybePromise = void | Promise.Thenable<void>;
+type MaybePromise = any | Promise.Thenable<any>;
 
 if (has('host-node')) {
 	/* tslint:disable:no-var-keyword */
@@ -35,7 +36,8 @@ interface LoaderConfig {
 export interface ReporterConfig {
 	id: string;
 	filename?: string;
-	watermarks?: TODO;
+	// TODO: Should not be on all reporters, only coverage reporters
+	watermarks?: Watermarks;
 }
 
 interface ClientReporterConfig extends ReporterConfig {

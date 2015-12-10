@@ -785,11 +785,16 @@ declare module 'digdug/Tunnel' {
 			verbose?: boolean;
 		}
 
+		export interface Progress {
+			loaded: number;
+			total: number;
+		}
+
 		export interface Events {
 			/**
 			 * Part of the tunnel has been downloaded from the server.
 			 */
-			(eventName: 'downloadprogress', listener: digdug.Listener<{ received: number; total: number; }>): digdug.Handle;
+			(eventName: 'downloadprogress', listener: digdug.Listener<Progress>): digdug.Handle;
 
 			/**
 			 * A chunk of raw string data output by the tunnel software to stdout.

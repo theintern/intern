@@ -37,8 +37,7 @@ function defineLazyProperty(object: {}, property: string, getter: () => any) {
 
 function noop() {}
 
-type TODO = any;
-type MaybePromise = void | Promise<void>;
+type MaybePromise = any | Promise.Thenable<any>;
 
 export interface ReporterKwArgs {
 	console?: Console;
@@ -56,7 +55,7 @@ export interface ReporterConstructor {
 export interface Reporter {
 	$others?(eventName: string, ...args: any[]): MaybePromise;
 	coverage?(sessionId: string, data: _instrumenterType.Coverage): MaybePromise;
-	deprecated?(name: string, replacement?: string, extra?: string): MaybePromise;
+	deprecated?(name: string, replacement: string, extra: string): MaybePromise;
 	destroy?(): MaybePromise;
 	fatalError?(error: Error): MaybePromise;
 	newSuite?(suite: Suite): MaybePromise;
@@ -74,7 +73,7 @@ export interface Reporter {
 	testPass?(test: Test): MaybePromise;
 	testSkip?(test: Test): MaybePromise;
 	testStart?(test: Test): MaybePromise;
-	tunnelDownloadProgress?(tunnel: Tunnel, progress?: { loaded: number; total: number; }): MaybePromise;
+	tunnelDownloadProgress?(tunnel: Tunnel, progress: Tunnel.Progress): MaybePromise;
 	tunnelEnd?(tunnel: Tunnel): MaybePromise;
 	tunnelStart?(tunnel: Tunnel): MaybePromise;
 	tunnelStatus?(tunnel: Tunnel, status: string): MaybePromise;
