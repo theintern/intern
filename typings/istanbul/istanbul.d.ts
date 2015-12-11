@@ -17,7 +17,7 @@ declare module 'istanbul/lib/hook' {
 }
 
 declare module 'istanbul/lib/collector' {
-	import { Coverage } from 'istanbul/lib/instrumenter';
+	import { Coverage, CoverageMap } from 'istanbul/lib/instrumenter';
 
 	// TODO
 	type Store = any;
@@ -30,11 +30,11 @@ declare module 'istanbul/lib/collector' {
 
 	class Collector {
 		constructor(options?: Collector.Options);
-		add(coverage: Coverage, testName?: string): void;
+		add(coverage: CoverageMap, testName?: string): void;
 		dispose(): void;
 		fileCoverageFor(fileName: string): Coverage;
 		files(): string[];
-		getFinalCoverage(): Coverage;
+		getFinalCoverage(): CoverageMap;
 	}
 
 	export = Collector;
@@ -64,9 +64,13 @@ declare module 'istanbul/lib/instrumenter' {
 			branchMap: { [bName: string]: Branch; };
 		}
 
+		export interface CoverageMap {
+			[path: string]: Coverage;
+		}
+
 		export interface Location {
-			start: number;
-			end: number;
+			start: { line: number; column: number; };
+			end: { line: number; column: number; };
 			skip?: boolean;
 		}
 

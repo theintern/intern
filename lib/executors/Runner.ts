@@ -165,7 +165,7 @@ export default class Runner extends Executor {
 				publishAfterSetup: true,
 				grep: config.grep,
 				timeout: config.defaultTimeout,
-				setup: function () {
+				setup() {
 					return util.retry(function () {
 						return server.createSession(environmentType);
 					}, config.environmentRetries).then(function (session: ProxiedSession) {
@@ -183,7 +183,7 @@ export default class Runner extends Executor {
 						return reporterManager.emit('sessionStart', command);
 					});
 				},
-				teardown: function () {
+				teardown() {
 					const remote = this.remote;
 
 					function endSession(): Promise<void> {

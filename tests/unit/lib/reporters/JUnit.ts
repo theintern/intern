@@ -1,31 +1,11 @@
 import registerSuite = require('intern!object');
 import { assert } from 'intern/chai!';
 
-import { default as Suite, KwArgs as SuiteKwArgs } from '../../../../lib/Suite';
-import { default as Test, KwArgs as TestKwArgs } from '../../../../lib/Test';
+import Suite from './support/MockableSuite';
+import Test from './support/MockableTest';
 import Executor from '../../../../lib/executors/Executor';
 import JUnit from '../../../../lib/reporters/JUnit';
 import fs = require('fs');
-
-interface MockTestKwArgs extends TestKwArgs {
-	error?: Error;
-	hasPassed?: boolean;
-	skipped?: string;
-	timeElapsed?: number;
-}
-class MockTest extends Test {
-	constructor(kwArgs?: MockTestKwArgs) {
-		super(kwArgs);
-	}
-}
-interface MockSuiteKwArgs extends SuiteKwArgs {
-	timeElapsed?: number;
-}
-class MockSuite extends Suite {
-	constructor(kwArgs?: MockSuiteKwArgs) {
-		super(kwArgs);
-	}
-}
 
 registerSuite({
 	name: 'intern/lib/reporters/JUnit',
@@ -41,43 +21,43 @@ registerSuite({
 		const assertionError = new Error('Expected 1 + 1 to equal 3');
 		assertionError.name = 'AssertionError';
 
-		const suite = new MockSuite({
+		const suite = new Suite({
 			sessionId: 'foo',
 			name: 'chrome 32 on Mac',
 			timeElapsed: 1234,
 			tests: [
-				new MockSuite({
+				new Suite({
 					name: 'suite1',
 					timeElapsed: 1234,
 					tests: [
-						new MockTest({
+						new Test({
 							name: 'test1',
 							hasPassed: true,
 							timeElapsed: 45
 						}),
-						new MockTest({
+						new Test({
 							name: 'test2',
 							hasPassed: false,
 							error: new Error('Oops'),
 							timeElapsed: 45
 						}),
-						new MockTest({
+						new Test({
 							name: 'test3',
 							hasPassed: false,
 							error: assertionError,
 							timeElapsed: 45
 						}),
-						new MockTest({
+						new Test({
 							name: 'test4',
 							hasPassed: false,
 							skipped: 'No time for that',
 							timeElapsed: 45
 						}),
-						new MockSuite({
+						new Suite({
 							name: 'suite5',
 							timeElapsed: 45,
 							tests: [
-								new MockTest({ name: 'test5.1', hasPassed: true, timeElapsed: 40 })
+								new Test({ name: 'test5.1', hasPassed: true, timeElapsed: 40 })
 							]
 						})
 					]

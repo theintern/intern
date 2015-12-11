@@ -5,7 +5,7 @@ import { getErrorMessage } from '../util';
 import Collector = require('istanbul/lib/collector');
 import IstanbulReporter = require('istanbul/lib/report/text');
 import { Reporter, ReporterKwArgs } from '../ReporterManager';
-import { Coverage } from 'istanbul/lib/instrumenter';
+import { CoverageMap } from 'istanbul/lib/instrumenter';
 import { Watermarks } from 'istanbul/lib/report/common/defaults';
 import Suite from '../Suite';
 import Test from '../Test';
@@ -16,7 +16,7 @@ import { InternConfig } from '../executors/PreExecutor';
 
 const PAD = new Array(100).join(' ');
 const SPINNER_STATES = [ '/', '-', '\\', '|' ];
-const enum Result {
+export const enum Result {
 	Pass = 0,
 	Skip = 1,
 	Fail = 2
@@ -134,9 +134,9 @@ export default class Pretty implements Reporter {
 	reporters: { [sessionId: string]: Report; };
 	log: string[];
 	total: Report;
-	watermarks: Watermarks;
 	tunnelState: string;
 	private _renderTimeout: NodeJS.Timer;
+	private _reporter: IstanbulReporter;
 	charm: charm.Charm;
 
 	consructor(config: KwArgs = {}) {
@@ -159,9 +159,11 @@ export default class Pretty implements Reporter {
 		this.reporters = {};
 		this.log = [];
 		this.total = new Report(null);
-		this.watermarks = config.watermarks;
 		this.tunnelState = '';
 		this._renderTimeout = undefined;
+		this._reporter = new IstanbulReporter({
+			watermarks: config.watermarks
+		});
 	}
 
 	runStart() {
@@ -207,12 +209,10 @@ export default class Pretty implements Reporter {
 
 		// Display coverage information
 		charm.write('\n');
-		(new IstanbulReporter({
-			watermarks: this.watermarks
-		})).writeReport(this.total.coverage, true);
+		this._reporter.writeReport(this.total.coverage, true);
 	}
 
-	coverage(sessionId: string, coverage: Coverage) {
+	coverage(sessionId: string, coverage: CoverageMap) {
 		const reporter = this.reporters[sessionId];
 		reporter && reporter.coverage.add(coverage);
 		this.total.coverage.add(coverage);
@@ -275,7 +275,7 @@ export default class Pretty implements Reporter {
 		clearTimeout(this._renderTimeout);
 	}
 
-	deprecated(name: string, replacement: string, extra: string) {
+	deprecated(name: string, replacement?: string, extra?: string) {
 		let message = '⚠ ' + name + ' is deprecated.';
 
 		if (replacement) {

@@ -1,7 +1,7 @@
 import { Reporter, ReporterKwArgs } from '../ReporterManager';
 import Collector = require('istanbul/lib/collector');
 import IstanbulReporter = require('istanbul/lib/report/lcovonly');
-import { Coverage } from 'istanbul/lib/instrumenter';
+import { CoverageMap } from 'istanbul/lib/instrumenter';
 
 export default class LcovReporter implements Reporter {
 	private _collector: Collector;
@@ -14,7 +14,7 @@ export default class LcovReporter implements Reporter {
 		});
 	}
 
-	coverage(sessionId: string, coverage: Coverage) {
+	coverage(sessionId: string, coverage: CoverageMap) {
 		this._collector.add(coverage);
 	}
 

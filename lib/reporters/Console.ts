@@ -1,6 +1,6 @@
 import * as util from '../util';
 import has = require('dojo/has');
-import { Coverage } from 'istanbul/lib/instrumenter';
+import { CoverageMap } from 'istanbul/lib/instrumenter';
 import { Reporter, ReporterKwArgs } from '../ReporterManager';
 import Suite from '../Suite';
 import Test from '../Test';
@@ -35,7 +35,7 @@ export default class ConsoleReporter implements Reporter {
 		}
 	}
 
-	coverage(sessionId: string, coverage: Coverage) {
+	coverage(sessionId: string, coverage: CoverageMap) {
 		if (has('host-node')) {
 			const collector = new Collector();
 			collector.add(coverage);

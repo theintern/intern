@@ -2,7 +2,7 @@ import { resolve as resolvePath } from 'path';
 import Collector = require('istanbul/lib/collector');
 import CoberturaReporter = require('istanbul/lib/report/cobertura');
 import { Reporter, ReporterKwArgs } from '../ReporterManager';
-import { Coverage } from 'istanbul/lib/instrumenter';
+import { CoverageMap } from 'istanbul/lib/instrumenter';
 
 export interface KwArgs extends ReporterKwArgs {
 	projectRoot?: string;
@@ -23,7 +23,7 @@ export default class Cobertura implements Reporter {
 	private _collector: Collector;
 	private _reporter: CoberturaReporter;
 
-	coverage(sessionId: string, coverage: Coverage) {
+	coverage(sessionId: string, coverage: CoverageMap) {
 		this._collector.add(coverage);
 	}
 

@@ -7,7 +7,7 @@ import DetailedReporter = require('istanbul/lib/report/text');
 import { mode } from '../../main';
 import { getErrorMessage } from '../util';
 import { Reporter, ReporterKwArgs } from '../ReporterManager';
-import { Coverage } from 'istanbul/lib/instrumenter';
+import { CoverageMap } from 'istanbul/lib/instrumenter';
 import Proxy from '../Proxy';
 import Test from '../Test';
 import Suite from '../Suite';
@@ -38,11 +38,11 @@ export default class Runner implements Reporter {
 		});
 
 		this.charm = charm();
-		this.charm.pipe(config.output);
+		this.charm.pipe(<NodeJS.WritableStream> config.output);
 		this.charm.display('reset');
 	}
 
-	coverage(sessionId: string, coverage: Coverage) {
+	coverage(sessionId: string, coverage: CoverageMap) {
 		// coverage will be called for the runner host, which has no session ID -- ignore that
 		if (mode === 'client' || sessionId) {
 			const session = this.sessions[sessionId || ''];

@@ -1,5 +1,5 @@
 import { getErrorMessage } from '../util';
-import { Reporter, ReporterKwArgs } from '../ReporterManager';
+import { Reporter, ReporterKwArgs, OutputStream } from '../ReporterManager';
 import Suite from '../Suite';
 import Test from '../Test';
 
@@ -11,7 +11,7 @@ import Test from '../Test';
  * https://github.com/pifantastic/teamcity-service-messages.
  */
 export default class TeamCity implements Reporter {
-	output: NodeJS.WritableStream;
+	output: OutputStream;
 
 	constructor(config: ReporterKwArgs = {}) {
 		this.output = config.output;

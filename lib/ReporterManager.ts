@@ -7,9 +7,9 @@ import Suite from './Suite';
 import Test from './Test';
 import Tunnel = require('digdug/Tunnel');
 import { InternConfig } from './executors/PreExecutor';
+import { CoverageMap } from 'istanbul/lib/instrumenter';
 
 import _fsType = require('fs');
-import _instrumenterType = require('istanbul/lib/instrumenter');
 import _istanbulDefaultsType = require('istanbul/lib/report/common/defaults');
 
 if (has('host-node')) {
@@ -21,7 +21,7 @@ if (has('host-node')) {
 
 function defineLazyProperty(object: {}, property: string, getter: () => any) {
 	Object.defineProperty(object, property, {
-		get: function () {
+		get() {
 			const value = getter.apply(this, arguments);
 			Object.defineProperty(object, property, {
 				value: value,
@@ -39,11 +39,16 @@ function noop() {}
 
 type MaybePromise = any | Promise.Thenable<any>;
 
+export interface OutputStream {
+	write(buffer: Buffer | string): boolean;
+	end(buffer?: Buffer | string): void;
+}
+
 export interface ReporterKwArgs {
 	console?: Console;
 	filename?: string;
 	internConfig?: InternConfig;
-	output?: NodeJS.WritableStream;
+	output?: OutputStream;
 	watermarks?: _istanbulDefaultsType.Watermarks;
 }
 
@@ -54,8 +59,8 @@ export interface ReporterConstructor {
 
 export interface Reporter {
 	$others?(eventName: string, ...args: any[]): MaybePromise;
-	coverage?(sessionId: string, data: _instrumenterType.Coverage): MaybePromise;
-	deprecated?(name: string, replacement: string, extra: string): MaybePromise;
+	coverage?(sessionId: string, data: CoverageMap): MaybePromise;
+	deprecated?(name: string, replacement?: string, extra?: string): MaybePromise;
 	destroy?(): MaybePromise;
 	fatalError?(error: Error): MaybePromise;
 	newSuite?(suite: Suite): MaybePromise;
@@ -111,14 +116,14 @@ export default class ReporterManager {
 			if (config.filename) {
 				// Lazily create the writable stream so we do not open an extra fd for reporters that use
 				// `filename` directly and never touch `config.output`
-				defineLazyProperty(config, 'output', function () {
+				defineLazyProperty(config, 'output', function (): OutputStream {
 					return fs.createWriteStream(config.filename);
 				});
 			}
 			else {
 				// See theintern/intern#454; all \r must be replaced by \x1b[1G (cursor move to column 1)
 				// on Windows due to a libuv bug
-				let write: typeof process.stdout.write;
+				let write: (data: Buffer | string) => void;
 				if (process.platform === 'win32') {
 					write = function (data: Buffer | string) {
 						let args: IArguments | any[];
@@ -130,7 +135,7 @@ export default class ReporterManager {
 							args = arguments;
 						}
 
-						return process.stdout.write.apply(process.stdout, args);
+						process.stdout.write.apply(process.stdout, args);
 					};
 				}
 				else {
@@ -146,18 +151,17 @@ export default class ReporterManager {
 			}
 		}
 		else if (has('host-browser')) {
-			defineLazyProperty(config, 'output', function () {
+			defineLazyProperty(config, 'output', function (): OutputStream {
 				const element = document.createElement('pre');
 
 				return {
-					write: function (chunk: string, encoding: string, callback: () => void) {
-						element.appendChild(document.createTextNode(chunk));
-						callback();
+					write(chunk: Buffer | string) {
+						element.appendChild(document.createTextNode(String(chunk)));
+						return true;
 					},
-					end: function (chunk: string, encoding: string, callback: () => void) {
-						element.appendChild(document.createTextNode(chunk));
+					end(chunk?: Buffer | string) {
+						element.appendChild(document.createTextNode(String(chunk)));
 						document.body.appendChild(element);
-						callback();
 					}
 				};
 			});
@@ -169,7 +173,7 @@ export default class ReporterManager {
 		reporters.push(reporter);
 
 		return {
-			remove: function () {
+			remove() {
 				this.remove = noop;
 				pullFromArray(reporters, reporter);
 				return reporter.destroy && reporter.destroy();
@@ -191,7 +195,7 @@ export default class ReporterManager {
 	 * @param {string} name event name to emit
 	 * @returns {Promise.<void>}
 	 */
-	emit(name: 'coverage', sessionId: string, data: _instrumenterType.Coverage): Promise<void>;
+	emit(name: 'coverage', sessionId: string, data: CoverageMap): Promise<void>;
 	emit(name: 'deprecated', replacement?: string, extra?: string): Promise<void>;
 	emit(name: 'fatalError', error: Error): Promise<void>;
 	emit(name: 'newSuite', suite: Suite): Promise<void>;
@@ -265,7 +269,7 @@ export default class ReporterManager {
 		})).then(noop, noop);
 	}
 
-	on(name: 'coverage', listener: (sessionId: string, data: _instrumenterType.Coverage) => MaybePromise): void;
+	on(name: 'coverage', listener: (sessionId: string, data: CoverageMap) => MaybePromise): void;
 	on(name: 'deprecated', listener: (replacement?: string, extra?: string) => MaybePromise): void;
 	on(name: 'fatalError', listener: (error: Error) => MaybePromise): void;
 	on(name: 'newSuite', listener: (suite: Suite) => MaybePromise): void;
@@ -297,7 +301,7 @@ export default class ReporterManager {
 		reporters.push(reporter);
 
 		return {
-			remove: function () {
+			remove() {
 				this.remove = function () {};
 				pullFromArray(reporters, reporter);
 				reporters = reporter = null;

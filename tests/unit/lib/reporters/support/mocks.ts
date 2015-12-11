@@ -1,4 +1,6 @@
-export var coverage = {
+import { CoverageMap } from 'istanbul/lib/instrumenter';
+
+export var coverage = <CoverageMap> {
 	'test.js': {
 		'path': 'test.js',
 		's': {

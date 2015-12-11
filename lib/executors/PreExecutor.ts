@@ -363,7 +363,7 @@ export default class PreExecutor {
 				handler(error);
 			});
 			return {
-				remove: function () {
+				remove() {
 					this.remove = function () {};
 					process.removeListener('uncaughtException', handler);
 				}

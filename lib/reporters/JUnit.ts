@@ -2,7 +2,7 @@ import { getErrorMessage } from '../util';
 import Executor from '../executors/Executor';
 import Suite from '../Suite';
 import Test from '../Test';
-import { Reporter, ReporterKwArgs } from '../ReporterManager';
+import { Reporter, ReporterKwArgs, OutputStream } from '../ReporterManager';
 
 /**
  * There is no formal spec for this format and everyone does it differently, so good luck! We've mashed as many of the
@@ -125,11 +125,11 @@ function createTestNode(testOrSuite: Suite | Test): XmlNode {
 }
 
 export default class JUnit implements Reporter {
+	output: OutputStream;
+
 	constructor(config: ReporterKwArgs = {}) {
 		this.output = config.output;
 	}
-
-	output: NodeJS.WritableStream;
 
 	runEnd(executor: Executor) {
 		const rootNode = new XmlNode('testsuites');

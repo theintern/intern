@@ -292,7 +292,7 @@ export default class Proxy {
 		const listeners = this.getSession(sessionId).listeners;
 		listeners.push(listener);
 		return {
-			remove: function () {
+			remove() {
 				this.remove = function () {};
 				pullFromArray(listeners, listener);
 			}

@@ -146,7 +146,7 @@ registerSuite({
 					assert.include(util.getErrorMessage(error), expected);
 				}
 			}).finally(function () {
-				delete global[coverageVariable];
+				delete (<any> global)[coverageVariable];
 				hook.unhookRunInThisContext();
 			});
 		},

@@ -5,10 +5,10 @@ import fs = require('fs');
 import Collector = require('istanbul/lib/collector');
 import JsonReporter = require('istanbul/lib/report/json');
 import LcovHtmlReporter = require('istanbul/lib/report/html');
-import { Coverage } from 'istanbul/lib/instrumenter';
+import { CoverageMap } from 'istanbul/lib/instrumenter';
 import TextReporter = require('istanbul/lib/report/text');
 import IstanbulReporter = require('istanbul/lib/report/index');
-import { Reporter, ReporterKwArgs } from '../ReporterManager';
+import { Reporter, ReporterKwArgs, OutputStream } from '../ReporterManager';
 import Suite from '../Suite';
 import Test from '../Test';
 import Tunnel = require('digdug/Tunnel');
@@ -24,7 +24,7 @@ export interface KwArgs extends ReporterKwArgs {
 export default class Combined implements Reporter {
 	private _collector: Collector;
 	private _hasDot: boolean;
-	private output: NodeJS.WritableStream;
+	private output: OutputStream;
 	private _reporters: IstanbulReporter[];
 
 	constructor(config: KwArgs = {}) {
@@ -50,7 +50,7 @@ export default class Combined implements Reporter {
 		}
 	}
 
-	coverage(sessionId: string, coverage: Coverage) {
+	coverage(sessionId: string, coverage: CoverageMap) {
 		this._collector.add(coverage);
 	}
 

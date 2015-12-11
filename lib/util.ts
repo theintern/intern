@@ -791,7 +791,7 @@ export function setInstrumentationHooks(
 	hook.hookRequire(hookMatcher, hookTransformer);
 
 	return {
-		remove: function () {
+		remove() {
 			this.remove = function () {};
 			hook.unhookRunInThisContext();
 			hook.unhookRequire();

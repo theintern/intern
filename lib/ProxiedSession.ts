@@ -129,7 +129,7 @@ export default class ProxiedSession extends Session {
 				const startTime = Date.now();
 
 				self._heartbeatIntervalHandle = {
-					remove: function () {
+					remove() {
 						cancelled = true;
 						clearTimeout(timeoutId);
 					}
