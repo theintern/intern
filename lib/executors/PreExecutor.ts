@@ -40,7 +40,7 @@ type MaybePromise = any | Promise.Thenable<any>;
 
 if (has('host-node')) {
 	/* tslint:disable:no-var-keyword */
-	var pathUtil: typeof _pathType = require('util');
+	var pathUtil: typeof _pathType = require('path');
 	/* tslint:enable:no-var-keyword */
 }
 
@@ -308,15 +308,7 @@ export default class PreExecutor {
 	static normalizeConfigLoaderOptions(config: { basePath?: string; loaderOptions?: { baseUrl?: string; }; }) {
 		const isAbsoluteBaseUrl = (function () {
 			if (has('host-node')) {
-				// The crappy fallback function is for Node 0.10; remove it when Node 0.10 is officially dropped
-				return pathUtil.isAbsolute || function (path) {
-					if (pathUtil.sep === '/') {
-						return path.charAt(0) === '/';
-					}
-					else {
-						return /^\w+:/.test(path);
-					}
-				};
+				return pathUtil.isAbsolute;
 			}
 			else if (has('host-browser')) {
 				return function (url: string) {
@@ -344,7 +336,14 @@ export default class PreExecutor {
 	}
 
 	static buildFinalConfig(rawConfig: RawInternConfig, args: Hash<any>, defaults: RawInternConfig) {
-		let config = deepMixin(deepMixin(deepMixin({}, defaults), <RawInternConfig> rawConfig), args);
+		let config: RawInternConfig = deepMixin(deepMixin(deepMixin({}, defaults), <RawInternConfig> rawConfig), args);
+
+		// deepMixin normally overrides entries in arrays, but packages configuration needs to be *merged*
+		// between the defaults and the user configuration
+		config.loaderOptions.packages = defaults.loaderOptions.packages.slice(0);
+		if (rawConfig.loaderOptions && rawConfig.loaderOptions.packages) {
+			config.loaderOptions.packages.push(...rawConfig.loaderOptions.packages);
+		}
 
 		PreExecutor.normalizeConfigBasePath(config);
 		PreExecutor.normalizeConfigLoaderOptions(config);

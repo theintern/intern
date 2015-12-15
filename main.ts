@@ -1,7 +1,7 @@
 import Executor from './lib/executors/Executor';
 import { AmdRequire } from './lib/util';
 import { InternConfig } from './lib/executors/PreExecutor';
-import { getModule } from './lib/util';
+import { getDefault, getModule } from './lib/util';
 
 declare var require: AmdRequire;
 
@@ -23,7 +23,13 @@ export var executor: Executor;
  */
 // TODO: Preload interface modules into non-AMD loaders.
 export function load<T>(id: string, parentRequire: AmdRequire, callback: (value: T) => void) {
-	getModule('./lib/interfaces/' + id, require).then(callback);
+	// For the Node.js loader, this function must resolve synchronously
+	if (require.length === 1) {
+		callback(getDefault(require('./lib/interfaces/' + id)));
+	}
+	else {
+		getModule('./lib/interfaces/' + id, require).then(callback);
+	}
 }
 
 export function normalize(interfaceId: string) {

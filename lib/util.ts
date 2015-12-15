@@ -660,7 +660,7 @@ type EsModule<T> = {
 };
 
 export function getDefault<T>(value: EsModule<T> | T) {
-	if (value && (<EsModule<T>> value).__esModule) {
+	if (value && (<EsModule<T>> value).__esModule && 'default' in (<EsModule<T>> value)) {
 		value = (<EsModule<T>> value).default;
 	}
 

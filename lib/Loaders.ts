@@ -384,7 +384,7 @@ export class NodeLoader implements Loader {
 			plugin.load(resourceId, <AmdRequire> fakeParentRequire, loadCallback);
 
 			if (!callbackInvoked) {
-				throw new Error('Due to the design limitations of the Node.js module system, only synchronously-resolving plugins can be used without installing a real AMD loader.');
+				throw new Error('Due to the design limitations of the Node.js module system, only synchronously-resolving plugins can be used without installing a real AMD loader. "' + moduleIds[1] + '!" does not resolve synchronously.');
 			}
 		};
 	}
@@ -398,13 +398,19 @@ export class NodeLoader implements Loader {
 				return request + '.amdplugin';
 			}
 			else {
+				let resolvedPath = request;
+
+				if (parent.id && resolvedPath[0] === '.') {
+					resolvedPath = pathUtil.join(pathUtil.dirname(parent.id), resolvedPath);
+				}
+
 				if (self.maps) {
 					mapping:
 					for (const map of self.maps) {
 						if (map.matcher.test(parent ? parent.id : '')) {
 							for (const source of map.replacements) {
-								if (source.matcher.test(request)) {
-									request = pathUtil.join(source.replacement, request.slice(source.length));
+								if (source.matcher.test(resolvedPath)) {
+									resolvedPath = pathUtil.join(source.replacement, resolvedPath.slice(source.length));
 									break mapping;
 								}
 							}
@@ -412,14 +418,16 @@ export class NodeLoader implements Loader {
 					}
 				}
 
+				let pathRemapped = false;
 				if (self.packages) {
 					for (const definition of self.packages) {
-						if (definition.matcher.test(request)) {
-							if (request.length === definition.length) {
-								request = pathUtil.join(definition.location, definition.main);
+						if (definition.matcher.test(resolvedPath)) {
+							pathRemapped = true;
+							if (resolvedPath.length === definition.length) {
+								resolvedPath = pathUtil.join(definition.location, definition.main);
 							}
 							else {
-								request = pathUtil.join(definition.location, request.slice(definition.length));
+								resolvedPath = pathUtil.join(definition.location, resolvedPath.slice(definition.length));
 							}
 
 							break;
@@ -428,29 +436,28 @@ export class NodeLoader implements Loader {
 				}
 
 				if (self.paths) {
-					let pathRemapped = false;
 					for (const path of self.paths) {
-						if (path.matcher.test(request)) {
+						if (path.matcher.test(resolvedPath)) {
 							pathRemapped = true;
-							request = pathUtil.join(path.replacement, request.slice(path.length));
+							resolvedPath = pathUtil.join(path.replacement, resolvedPath.slice(path.length));
 							break;
 						}
 					}
-
-					if (pathRemapped) {
-						if (!pathUtil.isAbsolute(request)) {
-							request = pathUtil.join(self.baseUrl, request);
-						}
-
-						if (request.slice(-3) !== '.js') {
-							request += '.js';
-						}
-
-						return request;
-					}
 				}
 
-				return defaultResolver.call(this, request, parent);
+				if (pathRemapped) {
+					if (!pathUtil.isAbsolute(resolvedPath)) {
+						resolvedPath = pathUtil.join(self.baseUrl, resolvedPath);
+					}
+
+					if (resolvedPath.slice(-3) !== '.js') {
+						resolvedPath += '.js';
+					}
+
+					return resolvedPath;
+				}
+
+				return defaultResolver.call(this, resolvedPath, parent);
 			}
 		};
 	}
