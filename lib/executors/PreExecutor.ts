@@ -1,25 +1,41 @@
 import { before as aspectBefore } from 'dojo/aspect';
-import has = require('dojo/has');
 import { deepMixin } from 'dojo/lang';
+import has = require('dojo/has');
 import Promise = require('dojo/Promise');
+
+// TODO: Remove main module entirely
 import * as main from '../../main';
 type _mainType = typeof main;
+
 import * as parseArgs from '../parseArgs';
-import { AmdLoaderConfig, AmdRequire, StackError } from '../util';
-import * as util from '../util';
+// TODO: AMD definitions should not be coming from util!
+import { assertSafeModuleId, AmdLoaderConfig, AmdRequire, getErrorMessage, getModule, normalizePath, StackError } from '../util';
+
 import Executor from './Executor';
+type ExecutorConstructor = typeof Executor;
+
 import { Watermarks } from 'istanbul/lib/report/common/defaults';
-type _ExecutorType = typeof Executor;
+import { Loader, NodeLoader, AmdLoader } from '../Loaders';
+import { ReportableError } from '../ReporterManager';
 
 import _requestType = require('dojo/request');
 import _pathType = require('path');
 
+// TODO: Properly define type and move elsewhere
+declare var define: any;
+has.add('loader-amd', typeof define !== 'undefined' && Boolean(define.amd));
+
 /// <amd-dependency name="request" path="dojo/has!host-browser?dojo/request" />
 declare var request: _requestType;
 
-declare var require: AmdRequire;
+// TODO: Move to higher scope
+type Require = AmdRequire | NodeRequire;
+export interface Hash<T> {
+	[key: string]: T;
+}
 
-type TODO = any;
+declare var require: Require;
+
 type MaybePromise = any | Promise.Thenable<any>;
 
 if (has('host-node')) {
@@ -31,6 +47,7 @@ if (has('host-node')) {
 interface LoaderConfig {
 	'host-browser'?: string;
 	'host-node'?: string;
+	'host-worker'?: string;
 }
 
 export interface ReporterConfig {
@@ -44,19 +61,35 @@ interface ClientReporterConfig extends ReporterConfig {
 	waitForRunner?: boolean | string | string[];
 }
 
+/**
+ * A fully processed Intern configuration object, ready for use by the rest of the test system.
+ */
 export interface InternConfig extends RawInternConfig {
 	config?: string;
+	executor?: string;
 	grep?: RegExp;
 }
 
+export interface Capabilities extends leadfoot.Capabilities {
+	name?: string;
+	build?: string;
+	'idle-timeout'?: number;
+}
+
+/**
+ * RawInternConfig is an incomplete configuration object that is created by the test system
+ * while merging command-line arguments into the configuration file provided by the user.
+ * Once all processing is complete, the resulting configuration object is of type InternConfig.
+ */
 export interface RawInternConfig {
 	basePath?: string;
-	capabilities?: TODO;
+	capabilities?: Capabilities;
 	coverageVariable?: string;
 	defaultTimeout?: number;
-	environments?: TODO[];
+	environments?: Capabilities[];
 	environmentRetries?: number;
 	excludeInstrumentation?: boolean | RegExp;
+	executor?: string;
 	functionalSuites?: string[];
 	grep?: string | RegExp;
 
@@ -79,31 +112,24 @@ export interface RawInternConfig {
 	setup?: (executor: Executor) => MaybePromise;
 	suites?: string[];
 	tunnel?: string;
-	tunnelOptions?: TODO;
-}
-
-export interface ReportableError {
-	reported?: boolean;
+	tunnelOptions?: any;
 }
 
 /**
  * For testing sessions running through the Intern proxy, tells the remote test system that an error occured when
  * attempting to set up this environment.
- *
- * @function
- * @param {Error} error
  */
 const sendErrorToConduit = (function () {
 	let sequence = 0;
 
-	return function (error: StackError) {
+	return function (url: string, error: StackError) {
 		const sessionIdFromUrl = /[?&]sessionId=([^&]+)/.exec(location.search);
 		if (!sessionIdFromUrl) {
 			return;
 		}
 
 		const sessionId = decodeURIComponent(sessionIdFromUrl[1]);
-		request(require.toUrl('intern/'), {
+		request(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -127,105 +153,163 @@ const sendErrorToConduit = (function () {
 	};
 })();
 
-export interface KwArgs {
-	defaultLoaderOptions?: AmdLoaderConfig;
-	executorId: string;
-}
-
 /**
  * The PreExecutor executor handles loading the user’s configuration and setting up the environment with the proper
- * AMD loader.
- *
- * @constructor
- * @param {Object} kwArgs
+ * loader.
  */
 export default class PreExecutor {
-	constructor(kwArgs: KwArgs) {
-		this.defaultLoaderOptions = kwArgs.defaultLoaderOptions;
-
-		let executorId = kwArgs.executorId;
-		if (executorId.indexOf('/') === -1) {
-			executorId = executorId.charAt(0).toUpperCase() + executorId.slice(1);
-			executorId = require.toAbsMid('./' + executorId);
-		}
-
-		this.executorId = executorId;
-	}
-
 	/**
-	 * Default loader configuration that needs to be passed to the new loader.
+	 * Reads arguments from the current environment and ensures that any specified arguments that
+	 * are known to be array values are explicitly converted to arrays.
 	 */
-	defaultLoaderOptions: AmdLoaderConfig;
-
-	_earlyErrorHandle: { remove(): void; };
-	_earlyEvents: TODO[];
-
-	/**
-	 * The module ID of the executor to load.
-	 */
-	executorId: string;
-
-	/**
-	 * Gets arguments from the command-line/query-string.
-	 */
-	getArguments() {
-		let kwArgs: { [key: string]: any; };
+	static getArguments() {
+		let args: Hash<any>;
 		if (has('host-browser')) {
-			kwArgs = parseArgs.fromQueryString(location.search);
+			args = parseArgs.fromQueryString(location.search);
 		}
 		else if (has('host-node')) {
-			kwArgs = parseArgs.fromCommandLine(process.argv.slice(2));
+			args = parseArgs.fromCommandLine(process.argv.slice(2));
 		}
 
-		[ 'environments', 'functionalSuites', 'reporters', 'suites' ].forEach(function (name) {
-			const value = kwArgs[name];
+		// Configuration values that are arrays, but which are specified only once in arguments,
+		// need to be explicitly converted from single scalar values to arrays
+		for (const name of [ 'environments', 'functionalSuites', 'reporters', 'suites' ]) {
+			const value = args[name];
 			if (value != null && !Array.isArray(value)) {
-				kwArgs[name] = value === '' ? [] : [ value ];
+				args[name] = value === '' ? [] : [ value ];
 			}
-		});
+		}
 
-		this.getArguments = function () {
-			return kwArgs;
-		};
+		PreExecutor.validateArguments(args);
 
-		return kwArgs;
+		return args;
 	}
 
 	/**
-	 * Gets the user’s configuration.
+	 * Module IDs and paths may be provided in arguments passed to Intern, which are
+	 * then mixed into the main Intern configuration for this run. While extremely
+	 * unlikely, this could pose a potential security risk to anyone that exposes an
+	 * installation of Intern to the world on a domain that can request sensitive
+	 * resources, since arguments could be passed to Intern to load arbitrary
+	 * JavaScript from third-party domains. To avoid this problem, module IDs and
+	 * paths are validated to ensure only same-domain resources can be requested.
 	 */
-	getConfig(args: { [key: string]: any; }) {
-		const moduleId: string = args['config'];
+	static validateArguments(args: Hash<any>) {
+		if (has('host-browser') || has('host-worker')) {
+			assertSafeModuleId(args['basePath']);
+			assertSafeModuleId(args['config']);
+			assertSafeModuleId(args['executor']);
+			assertSafeModuleId(args['initialBaseUrl']);
 
-		if (!moduleId) {
-			throw new Error('Missing required argument "config"');
+			if (args['loaders']) {
+				assertSafeModuleId(args['loaders']['host-browser']);
+				assertSafeModuleId(args['loaders']['host-worker']);
+			}
+
+			// Since any loader can be used with Intern, it is not possible to know
+			// exactly which loader options might be a security risk. So, we simply
+			// disallow any configuration of the loader options through arguments
+			if (args['loaderOptions']) {
+				throw new Error('For security reasons, loader options cannot be configured by passing arguments. Please set loader options in your configuration file.');
+			}
+
+			if (args['reporters']) {
+				for (const reporter of args['reporters']) {
+					if (typeof reporter === 'string') {
+						assertSafeModuleId(reporter);
+					}
+					else if (reporter) {
+						assertSafeModuleId(reporter.id);
+					}
+				}
+			}
+
+			if (args['suites']) {
+				args['suites'].forEach(assertSafeModuleId);
+			}
+		}
+	}
+
+	/**
+	 * Retrieves raw Intern configuration from the configuration module. If the configuration
+	 * module exports a configuration factory, `args` will be passed to the configuration
+	 * factory in order to generate the raw configuration.
+	 */
+	static getConfig(moduleId: string, args: Hash<any>) {
+		type ConfigFactory = (args: Hash<any>) => RawInternConfig;
+		type MaybeConfig = RawInternConfig | ConfigFactory;
+
+		return getModule<MaybeConfig>(moduleId, require).then(function (userConfig) {
+			if (typeof userConfig === 'function') {
+				return (<ConfigFactory> userConfig)(args);
+			}
+
+			return <RawInternConfig> userConfig;
+		});
+	}
+
+	static normalizeConfigGrep(config: { grep?: string | RegExp; }) {
+		let value = config.grep;
+
+		if (value instanceof RegExp) {
+			return;
 		}
 
-		util.assertSafeModuleId(moduleId);
+		if (value == null) {
+			config.grep = new RegExp('');
+			return;
+		}
 
-		const promise = util.getModule<RawInternConfig>(
-			this.defaultLoaderOptions.baseUrl.replace(/\/?$/, '/' + moduleId.replace(/(?:\.js)?$/, '.js'))
-		).then(function (config) {
-			/* jshint maxcomplexity:14 */
-			config = deepMixin(config, args);
+		const regExpString = /^\/(.*)\/([gim]*)$/.exec(<string> value);
 
-			config.loaderOptions = config.loaderOptions || {};
+		if (regExpString) {
+			config.grep = new RegExp(regExpString[1], regExpString[2]);
+		}
+		else {
+			config.grep = new RegExp(<string> value, 'i');
+		}
+	}
 
-			let isAbsoluteBaseUrl: (url: string) => boolean;
+	static normalizeConfigBasePath(config: { basePath?: string; initialBaseUrl?: string; }) {
+		let basePath: string = config.basePath;
 
+		if (has('host-node')) {
+			if (basePath == null) {
+				basePath = process.cwd();
+			}
+
+			basePath = normalizePath(basePath);
+
+			if (basePath.charAt(basePath.length - 1) !== '/') {
+				basePath += '/';
+			}
+		}
+		else if (has('host-browser')) {
+			const defaultBasePath = config.initialBaseUrl ||
+				// replacing `/node_modules/intern/client.html` with `/`, allowing for directory name
+				// derivatives
+				normalizePath(location.pathname.replace(/(?:\/+[^\/]*){3}\/?$/, '/'));
+
+			if (basePath == null) {
+				basePath = defaultBasePath;
+			}
+			else if (basePath.charAt(0) === '.') {
+				basePath = normalizePath(defaultBasePath + basePath);
+			}
+
+			if (basePath.charAt(basePath.length - 1) !== '/') {
+				basePath += '/';
+			}
+		}
+
+		config.basePath = basePath;
+	}
+
+	static normalizeConfigLoaderOptions(config: { basePath?: string; loaderOptions?: { baseUrl?: string; }; }) {
+		const isAbsoluteBaseUrl = (function () {
 			if (has('host-node')) {
-				if (config.basePath == null) {
-					config.basePath = process.cwd();
-				}
-
-				config.basePath = util.normalizePath(config.basePath);
-
-				if (config.basePath.charAt(config.basePath.length - 1) !== '/') {
-					config.basePath += '/';
-				}
-
 				// The crappy fallback function is for Node 0.10; remove it when Node 0.10 is officially dropped
-				isAbsoluteBaseUrl = pathUtil.isAbsolute || function (path) {
+				return pathUtil.isAbsolute || function (path) {
 					if (pathUtil.sep === '/') {
 						return path.charAt(0) === '/';
 					}
@@ -235,66 +319,97 @@ export default class PreExecutor {
 				};
 			}
 			else if (has('host-browser')) {
-				(function () {
-					const defaultBasePath = config.initialBaseUrl ||
-						// replacing `/node_modules/intern/client.html` with `/`, allowing for directory name
-						// derivatives
-						util.normalizePath(location.pathname.replace(/(?:\/+[^\/]*){3}\/?$/, '/'));
-
-					if (config.basePath == null) {
-						config.basePath = defaultBasePath;
-					}
-					else if (config.basePath.charAt(0) === '.') {
-						config.basePath = util.normalizePath(defaultBasePath + config.basePath);
-					}
-
-					if (config.basePath.charAt(config.basePath.length - 1) !== '/') {
-						config.basePath += '/';
-					}
-				})();
-
-				isAbsoluteBaseUrl = function (url) {
+				return function (url: string) {
 					return /^\w+:/.test(url);
 				};
 			}
+		})();
 
-			// If the baseUrl is unset, then it will be the default from client.html or the cwd, which would be
-			// inconsistent
-			if (!config.loaderOptions.baseUrl) {
-				config.loaderOptions.baseUrl = config.basePath;
-			}
-			// non-absolute loader baseUrl needs to be fixed up to be relative to the defined basePath, not to
-			// client.html or process.cwd()
-			else if (!isAbsoluteBaseUrl(config.loaderOptions.baseUrl)) {
-				config.loaderOptions.baseUrl = util.normalizePath(config.basePath + config.loaderOptions.baseUrl);
-			}
+		let loaderOptions = config.loaderOptions;
 
-			if (config.grep == null) {
-				config.grep = new RegExp('');
-			}
-			else {
-				const grep = /^\/(.*)\/([gim]*)$/.exec(<string> config.grep);
+		if (!loaderOptions) {
+			loaderOptions = config.loaderOptions = {};
+		}
 
-				if (grep) {
-					config.grep = new RegExp(grep[1], grep[2]);
-				}
-				else {
-					config.grep = new RegExp(<string> config.grep, 'i');
-				}
-			}
+		// If the baseUrl is unset, then it will be the default from client.html or the cwd, which would be
+		// inconsistent
+		if (!loaderOptions.baseUrl) {
+			loaderOptions.baseUrl = config.basePath;
+		}
+		// non-absolute loader baseUrl needs to be fixed up to be relative to the defined basePath, not to
+		// client.html or process.cwd()
+		else if (!isAbsoluteBaseUrl(loaderOptions.baseUrl)) {
+			loaderOptions.baseUrl = normalizePath(config.basePath + loaderOptions.baseUrl);
+		}
+	}
 
-			if (has('host-browser') && args['loaders'] && args['loaders']['host-browser']) {
-				util.assertSafeModuleId(<string> args['loaders']['host-browser']);
-			}
+	static buildFinalConfig(rawConfig: RawInternConfig, args: Hash<any>, defaults: RawInternConfig) {
+		let config = deepMixin(deepMixin(deepMixin({}, defaults), <RawInternConfig> rawConfig), args);
 
-			return <InternConfig> config;
+		PreExecutor.normalizeConfigBasePath(config);
+		PreExecutor.normalizeConfigLoaderOptions(config);
+		PreExecutor.normalizeConfigGrep(config);
+
+		return <InternConfig> config;
+	}
+
+	protected defaultConfig: RawInternConfig;
+
+	protected _earlyErrorHandle: { remove(): void; };
+	protected _earlyEvents: IArguments[];
+
+	protected _loader: Loader;
+
+	constructor(defaultConfig: RawInternConfig) {
+		this.defaultConfig = defaultConfig;
+	}
+
+	/**
+	 * Gets arguments from the command-line/query-string.
+	 */
+	getArguments() {
+		const args = PreExecutor.getArguments();
+
+		this.getArguments = function () {
+			return args;
+		};
+
+		return args;
+	}
+
+	/**
+	 * Gets the final configuration for the test system.
+	 */
+	getConfig(args: Hash<any>) {
+		const moduleId: string = args['config'];
+
+		if (!moduleId) {
+			throw new Error('Missing required argument "config". Please specify the Intern configuration file you want to use.');
+		}
+
+		// To avoid a configuration module named 'intern.js' in the base directory from being interpreted by the
+		// loader as a request to load the 'intern' package as a configuration file, the base path is explicitly
+		// prepended to the module prior to loading
+		const modulePath = this.defaultConfig.basePath.replace(/\/?$/, '/' + moduleId.replace(/(?:\.js)?$/, '.js'));
+
+		const self = this;
+		const config = PreExecutor.getConfig(modulePath, args).then(function (rawConfig) {
+			return PreExecutor.buildFinalConfig(rawConfig, args, self.defaultConfig);
 		});
 
 		this.getConfig = function () {
-			return promise;
+			return config;
 		};
 
-		return promise;
+		return config;
+	}
+
+	getModule<T>(moduleId: string, require?: Require): Promise<T> {
+		if (!this._loader) {
+			return Promise.reject(new Error('No module loader has been created yet for this execution environment. Do not call getModule until after swapLoader is done.'));
+		}
+
+		return this._loader.import<T>(moduleId, require);
 	}
 
 	/**
@@ -305,10 +420,10 @@ export default class PreExecutor {
 	protected _handleError(error: Error) {
 		if (has('host-browser')) {
 			if (location.pathname.replace(/\/+[^\/]*$/, '/').slice(-10) === '/__intern/') {
-				sendErrorToConduit(error);
+				sendErrorToConduit('/__intern/', error);
 			}
 
-			const htmlError = util.getErrorMessage(error).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+			const htmlError = getErrorMessage(error).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 			const errorNode = document.createElement('div');
 			errorNode.style.cssText = 'color: red; font-family: sans-serif;';
 			errorNode.innerHTML = '<h1>Fatal error during pre-execution stage</h1>' +
@@ -316,7 +431,7 @@ export default class PreExecutor {
 			document.body.appendChild(errorNode);
 		}
 		else /* istanbul ignore else */ if (typeof console !== 'undefined') {
-			console.error(util.getErrorMessage(error));
+			console.error(getErrorMessage(error));
 
 			// TODO: The loader needs to be fixed to allow errbacks to `require` calls so we don’t just exit on
 			// early error but can instead propagate loader errors through the `PreExecutor#run` promise chain
@@ -324,17 +439,6 @@ export default class PreExecutor {
 				process.exit(1);
 			}
 		}
-	}
-
-	/**
-	 * Loads the constructor for the real executor for this test run via the final loader environment.
-	 *
-	 * @param {string} executorId The module ID of the executor.
-	 * @param {Function} require An AMD loader `require` function.
-	 * @returns {Promise.<Function>} Executor constructor.
-	 */
-	protected _loadExecutorWithLoader(executorId: string, require: AmdRequire) {
-		return util.getModule(executorId, require);
 	}
 
 	/**
@@ -350,7 +454,6 @@ export default class PreExecutor {
 		}
 
 		if (has('host-browser')) {
-			/* jshint browser:true */
 			return aspectBefore(window, 'onerror', function (message: string, url: string, lineNumber: number, columnNumber: number, error: Error) {
 				error = error || new Error(message + ' at ' + url + ':' + lineNumber +
 					(columnNumber !== undefined ? ':' + columnNumber : ''));
@@ -358,7 +461,6 @@ export default class PreExecutor {
 			});
 		}
 		else if (has('host-node')) {
-			/* jshint node:true */
 			process.on('uncaughtException', function (error: Error) {
 				handler(error);
 			});
@@ -385,48 +487,28 @@ export default class PreExecutor {
 		this._earlyErrorHandle = this.registerErrorHandler(earlyErrorHandler);
 		this._earlyEvents = [];
 
-		// TODO: Eliminate main.args, main.config, and main.mode in a future release
-		const executionMode = (function (id: string) {
-			if (id === require.toAbsMid('./Client')) {
-				return 'client';
-			}
-			else if (id === require.toAbsMid('./Runner')) {
-				return 'runner';
-			}
-			else {
-				return 'custom';
-			}
-		})(this.executorId);
-
-		// These values must be populated on the main module prior to loading the configuration module because
-		// the configuration module may depend on them in order to perform configuration
-		main.args = args;
-		main.mode = executionMode;
-		main.config = config;
-
 		function getConfig() {
 			return self.getConfig(args).then(function (_config) {
 				config = _config;
 			});
 		}
 
-		function loadExecutorWithLoader(loader: AmdRequire) {
-			return self._loadExecutorWithLoader(self.executorId, loader);
+		function loadExecutorWithLoader(loader: Loader) {
+			let executorId = config.executor;
+
+			if (!executorId) {
+				throw new Error('The type of executor to be used by the test system is missing. Please specify the module ID of an executor in the "executor" configuration option.');
+			}
+
+			// Client or Runner
+			if (executorId.indexOf('/') === -1) {
+				executorId = './' + executorId;
+			}
+
+			return loader.import(executorId, require);
 		}
 
-		function populateMainModule(loader: AmdRequire) {
-			return util.getModule('intern/main').then(function (main: _mainType) {
-				// The main module needs to be repopulated here because a loader swap may have occurred,
-				// in which case this main module is not the same as the main module loaded as a dependency of
-				// PreExecutor
-				main.args = args;
-				main.mode = executionMode;
-				main.config = config;
-				return loader;
-			});
-		}
-
-		function runExecutor(Executor: _ExecutorType) {
+		function runExecutor(Executor: ExecutorConstructor) {
 			executor = new Executor(config, self);
 			self._earlyEvents.forEach(function (event) {
 				executor.reporterManager.emit.apply(executor.reporterManager, event);
@@ -435,16 +517,18 @@ export default class PreExecutor {
 		}
 
 		function swapLoader() {
-			return self.swapLoader(config.basePath, config.loaders, config.loaderOptions);
+			return self.swapLoader(config.basePath, config.loaders, config.loaderOptions).then(function (loader) {
+				self._loader = loader;
+				return loader;
+			});
 		}
 
-		const promise = Promise.resolve(undefined)
+		const promise: Promise<number> = Promise.resolve(undefined)
 			.then(getConfig)
 			.then(swapLoader)
-			.then(populateMainModule)
 			.then(loadExecutorWithLoader)
 			.then(runExecutor)
-			.catch<number>(function (error: ReportableError): any {
+			.catch(function (error: ReportableError): any {
 				// a fatal error hasn't been reported -- ensure the user is notified
 				if (!error.reported) {
 					earlyErrorHandler(error);
@@ -467,99 +551,38 @@ export default class PreExecutor {
 	 * @param {Object} loaderOptions AMD loader configuration object.
 	 * @returns {Promise.<Function>} A promise that resolves to an AMD `require` function.
 	 */
-	swapLoader(basePath: string, loaders: LoaderConfig, loaderOptions: AmdLoaderConfig) {
-		loaders = loaders || {};
-		const self = this;
-		const global = (function () {
-			return this;
-		})();
-
-		return new Promise<AmdRequire>(function (resolve, reject) {
+	swapLoader(basePath: string, loaders: LoaderConfig = {}, loaderOptions: AmdLoaderConfig) {
+		return new Promise<Loader>(function (resolve, reject) {
 			if (has('host-node') && loaders['host-node']) {
-				const require = global.require.nodeRequire;
-
-				// Someone is attempting to use the loader module that has already been loaded. If we were to try
-				// loading again without deleting it from `require.cache`, Node.js would not re-execute the loader
-				// code (the module is cached), so the global `define` that is being undefined below will never be
-				// redefined. There is no reason to do anything more in this case; just use the already loaded
-				// loader as-is
-				if (require.cache[require.resolve(loaders['host-node'])]) {
-					resolve(global.require);
-					return;
-				}
-
-				global.require = global.define = undefined;
-
-				let id = loaders['host-node'];
+				let loaderId = loaders['host-node'];
 				const moduleUtil: any = require('module');
 				if (moduleUtil._findPath && moduleUtil._nodeModulePaths) {
-					const localModulePath = moduleUtil._findPath(id, moduleUtil._nodeModulePaths(basePath));
+					const localModulePath = moduleUtil._findPath(loaderId, moduleUtil._nodeModulePaths(basePath));
 					if (localModulePath !== false) {
-						id = localModulePath;
+						loaderId = localModulePath;
 					}
 				}
 
-				let amdRequire: AmdRequire = require(id);
-
-				// The Dojo 1 loader does not export itself, it only exposes itself globally; in this case
-				// `amdRequire` is an empty object, not a function. Other loaders return themselves and do not
-				// expose globally. This hopefully covers all known loader cases
-				amdRequire = typeof amdRequire === 'function' ? amdRequire : global.require;
-
-				// Expose the require globally so dojo/node can hopefully find the original Node.js require;
-				// this is needed for at least RequireJS 2.1, which does not expose the global require
-				// to child modules
-				if (!global.require) {
-					global.require = amdRequire;
-				}
-
-				resolve(amdRequire);
+				resolve(AmdLoader.create(loaderId, loaderOptions, require));
 			}
 			else if (has('host-browser') && loaders['host-browser']) {
-				global.require = global.define = undefined;
-				const script = document.createElement('script');
-				script.onload = function () {
-					this.onload = this.onerror = null;
-					resolve(global.curl || global.requirejs || global.require);
-				};
-				script.onerror = function () {
-					this.parentNode.removeChild(this);
-					this.onload = this.onerror = null;
-					reject(new Error('Failed to load AMD loader from ' + script.src));
-				};
-
-				let loaderUrl = loaders['host-browser'];
-				if (!util.isAbsoluteUrl(loaderUrl)) {
-					loaderUrl = basePath + loaderUrl;
-				}
-				script.src = loaderUrl;
-				document.head.appendChild(script);
+				resolve(AmdLoader.create(loaders['host-browser'], loaderOptions, document));
+			}
+			else if (has('host-worker') && loaders['host-worker']) {
+				resolve(AmdLoader.create(loaders['host-worker'], loaderOptions, importScripts));
+			}
+			else if (has('host-node')) {
+				resolve(new NodeLoader(loaderOptions, <NodeRequire> require));
+			}
+			else if (has('host-browser')) {
+				resolve(AmdLoader.create(null, loaderOptions, document));
+			}
+			else if (has('host-worker')) {
+				resolve(AmdLoader.create(null, loaderOptions, importScripts));
 			}
 			else {
-				resolve(global.require);
+				throw new Error('Unknown environment. Please open a ticket at https://github.com/theintern/intern for support.');
 			}
-		}).then(function (loader: AmdRequire) {
-			const setConfig = loader.config ? loader.config.bind(loader) : loader;
-			setConfig(self.defaultLoaderOptions);
-
-			if (loaderOptions) {
-				if (
-					loaderOptions.map && loaderOptions.map['*'] &&
-					self.defaultLoaderOptions && self.defaultLoaderOptions.map && self.defaultLoaderOptions.map['*']
-				) {
-					const userStarMap = loaderOptions.map['*'];
-					const defaultStarMap = self.defaultLoaderOptions.map['*'];
-					for (const key in defaultStarMap) {
-						if (!(key in userStarMap)) {
-							userStarMap[key] = defaultStarMap[key];
-						}
-					}
-				}
-
-				setConfig(loaderOptions);
-			}
-
-			return loader;
 		});
 	}
 }

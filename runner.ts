@@ -1,9 +1,12 @@
 import PreExecutor from './lib/executors/PreExecutor';
 import exitHandler from './lib/exitHandler';
 
+const basePath = process.cwd().replace(/\\/g, '/');
 const executor = new PreExecutor({
-	defaultLoaderOptions: {
-		baseUrl: process.cwd().replace(/\\/g, '/'),
+	basePath,
+	executor: 'Runner',
+	loaderOptions: {
+		baseUrl: basePath,
 		packages: [
 			{ name: 'intern', location: __dirname.replace(/\\/g, '/') }
 		],
@@ -17,8 +20,7 @@ const executor = new PreExecutor({
 				'intern/dojo': 'intern/node_modules/dojo'
 			}
 		}
-	},
-	executorId: 'runner'
+	}
 });
 
 exitHandler(process, executor.run(), 10000);

@@ -264,7 +264,7 @@ declare module leadfoot {
 		/**
 		 * The name of the current environment.
 		 */
-		browserName: string;
+		browserName?: string;
 
 		/**
 		 * Environments with this capability can use CSS selectors to find elements.
@@ -307,7 +307,12 @@ declare module leadfoot {
 		/**
 		 * The name of the platform on which the current environment is running.
 		 */
-		platform: string;
+		platform?: string;
+
+		/**
+		 * The version number of the platform on which the current environment is running.
+		 */
+		platformVersion?: string;
 
 		/**
 		 * Environments with this capability allow the rotation of the device to be set and retrieved using the WebDriver API.
@@ -347,7 +352,7 @@ declare module leadfoot {
 		/**
 		 * The version number of the current environment.
 		 */
-		version: string;
+		version?: string;
 
 		/**
 		 * Environments with this capability allow local storage and session storage to be set and retrieved using the

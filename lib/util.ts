@@ -11,6 +11,8 @@ type Instrumenter = _InstrumenterType;
 import _pathType = require('path');
 import _sourceMapType = require('source-map');
 
+declare var require: NodeRequire | AmdRequire;
+
 if (has('host-node')) {
 	/* tslint:disable:no-var-keyword */
 	var fs: typeof _fsType = require('fs');
@@ -635,6 +637,7 @@ export interface AmdLoaderConfig {
 }
 
 export interface AmdRequire {
+	(config: AmdLoaderConfig): void;
 	(moduleId: string): any;
 	(
 		moduleIds: string[],
@@ -645,42 +648,64 @@ export interface AmdRequire {
 		...moduleIds: string[]
 	): Promise.Thenable<any>;
 
-	config?(config: AmdLoaderConfig): void;
+	config?(config: AmdLoaderConfig): AmdRequire;
 	toUrl?(id: string): string;
 	toAbsMid?(id: string): string;
 }
 
-export function getModule<T>(moduleId: string, loader?: AmdRequire, returnDefault: boolean = true): Promise<T> {
-	return this.getModules([ moduleId ], loader, returnDefault).then(function (modules: T[]) {
-		return modules[0];
-	});
-}
+// TODO: Move to higher scope
+type EsModule<T> = {
+	__esModule: boolean;
+	default: T;
+};
 
-export function getModules<T>(moduleIds: string[], loader?: AmdRequire, returnDefaults: boolean = true): Promise<T[]> {
-	/* global require:false */
-	if (!loader) {
-		loader = <any> require;
+export function getDefault<T>(value: EsModule<T> | T) {
+	if (value && (<EsModule<T>> value).__esModule) {
+		value = (<EsModule<T>> value).default;
 	}
 
-	type EsModule = { __esModule: boolean; default: T; };
+	return <T> value;
+}
 
-	return new Promise<T[]>(function (resolve, reject) {
-		loader(moduleIds, function (...modules: T[]) {
-			if (returnDefaults) {
-				resolve(modules.map(function (module: T | EsModule) {
-					if ((<EsModule> module).__esModule) {
-						return (<EsModule> module).default;
+/**
+ * Retrieves a module from the default module loader that existed at the time when
+ * the util module was loaded. This should not be used except by code that runs
+ * prior to the PreExecutor, or code that does not have direct access to a PreExecutor
+ * instance. All other code should use PreExecutor#getModule.
+ */
+export const getModule = (function (): <T>(moduleId: string, parent?: NodeRequire | AmdRequire, returnDefault?: boolean) => Promise<T> {
+	if (require.length === 1) {
+		// TODO: Handle `define`
+		return function <T>(moduleId: string, parent?: NodeRequire, returnDefault = true) {
+			const loader = parent || <NodeRequire> require;
+
+			return new Promise<T>(function (resolve) {
+				let value = loader(moduleId);
+
+				if (returnDefault) {
+					value = getDefault(value);
+				}
+
+				resolve(value);
+			});
+		};
+	}
+	else {
+		return function <T>(moduleId: string, parent?: AmdRequire, returnDefault = true) {
+			const loader = parent || <AmdRequire> require;
+
+			return new Promise<T>(function (resolve, reject) {
+				loader([ moduleId ], function (value) {
+					if (returnDefault) {
+						value = getDefault(value);
 					}
 
-					return <T> module;
-				}));
-			}
-			else {
-				resolve(modules);
-			}
-		}, reject);
-	});
-}
+					resolve(value);
+				}, reject);
+			});
+		};
+	}
+})();
 
 export function getShouldWait(waitMode: boolean | string | string[], eventName: string) {
 	let shouldWait = false;

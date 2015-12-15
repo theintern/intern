@@ -20,6 +20,7 @@
 		"./lib/ClientSuite.ts",
 		"./lib/EnvironmentType.ts",
 		"./lib/exitHandler.ts",
+		"./lib/Loaders.ts",
 		"./lib/parseArgs.ts",
 		"./lib/ProxiedSession.ts",
 		"./lib/Proxy.ts",

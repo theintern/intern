@@ -8,9 +8,8 @@ import EnvironmentType from '../EnvironmentType';
 import Executor from './Executor';
 import { default as ProxiedSession, Command as ProxiedCommand } from '../ProxiedSession';
 import Suite from '../Suite';
-import * as util from '../util';
-import { AmdRequire } from '../util';
-import { default as PreExecutor, InternConfig } from './PreExecutor';
+import { AmdRequire, flattenEnvironments, retry } from '../util';
+import { default as PreExecutor, Capabilities, InternConfig } from './PreExecutor';
 import Tunnel = require('digdug/Tunnel');
 
 declare var require: AmdRequire;
@@ -158,7 +157,7 @@ export default class Runner extends Executor {
 		});
 		server.sessionConstructor = ProxiedSession;
 
-		return util.flattenEnvironments(config.capabilities, config.environments).map(function (environmentType) {
+		return flattenEnvironments(config.capabilities, config.environments).map(function (environmentType) {
 			const suite = new Suite({
 				name: String(environmentType),
 				reporterManager: reporterManager,
@@ -166,7 +165,7 @@ export default class Runner extends Executor {
 				grep: config.grep,
 				timeout: config.defaultTimeout,
 				setup() {
-					return util.retry(function () {
+					return retry(function () {
 						return server.createSession(environmentType);
 					}, config.environmentRetries).then(function (session: ProxiedSession) {
 						session.coverageEnabled = config.excludeInstrumentation !== true;
@@ -277,7 +276,7 @@ export default class Runner extends Executor {
 	 */
 	protected _loadTunnel(config: InternConfig) {
 		const reporterManager = this.reporterManager;
-		return util.getModule<typeof Tunnel>(config.tunnel, require).then(function (Tunnel) {
+		return this.preExecutor.getModule<typeof Tunnel>(config.tunnel, require).then(function (Tunnel) {
 			// Tunnel only copies own property values from the config object, so make a flat
 			// copy of config.tunnelOptions (it's a delegate)
 			const tunnelOptions = deepMixin({}, config.tunnelOptions);

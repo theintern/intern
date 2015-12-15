@@ -1,17 +1,19 @@
-import has = require('dojo/has');
 import { deepDelegate, pullFromArray } from 'dojo/lang';
+import has = require('dojo/has');
 import Promise = require('dojo/Promise');
+
+// TODO: Get rid of main module
 import * as intern from '../../main';
-import PreExecutor from './PreExecutor';
-import { InternConfig, ReporterConfig } from './PreExecutor';
+
+import { default as PreExecutor, InternConfig, ReporterConfig } from './PreExecutor';
 import { default as ReporterManager, ReporterConstructor, ReporterKwArgs } from '../ReporterManager';
 import Suite from '../Suite';
-import * as util from '../util';
-import { AmdRequire } from '../util';
+import { AmdRequire, createQueue, setInstrumentationHooks } from '../util';
 
+// TODO: Change to generic Require type used in PreExecutor
 declare var require: AmdRequire;
 
-type TODO = any;
+// TODO: Move somewhere else
 type MaybePromise = void | Promise.Thenable<void>;
 
 export default class Executor {
@@ -109,7 +111,7 @@ export default class Executor {
 	 */
 	enableInstrumentation(basePath: string, excludePaths: boolean | RegExp, coverageVariable: string) {
 		if (has('host-node')) {
-			return util.setInstrumentationHooks(excludePaths, basePath, coverageVariable);
+			return setInstrumentationHooks(excludePaths, basePath, coverageVariable);
 		}
 	}
 
@@ -172,15 +174,13 @@ export default class Executor {
 				id = '../reporters/' + id;
 			}
 
-			if (has('host-browser')) {
-				util.assertSafeModuleId(id);
-			}
-
 			return id;
 		});
 
-		return util.getModules<ReporterConstructor>(reporterModuleIds, require).then(function (args) {
-			for (let i = 0, Reporter: ReporterConstructor; (Reporter = args[i]); ++i) {
+		return Promise.all<ReporterConstructor>(reporterModuleIds.map(function (moduleId) {
+			return self.preExecutor.getModule(moduleId, require);
+		})).then(function (constructors) {
+			for (let i = 0, Reporter: ReporterConstructor; (Reporter = constructors[i]); ++i) {
 				let kwArgs: ReporterKwArgs;
 
 				const userConfig = reporters[i];
@@ -219,16 +219,10 @@ export default class Executor {
 			return Promise.resolve(undefined);
 		}
 
-		if (has('host-browser')) {
-			moduleIds.forEach(util.assertSafeModuleId);
-		}
-
-		return new Promise(function (resolve, reject) {
-			require(moduleIds, function () {
-				// resolve should receive no arguments
-				resolve();
-			}, reject);
-		});
+		const self = this;
+		return Promise.all(moduleIds.map(function (moduleId) {
+			return self.preExecutor.getModule(moduleId, require);
+		})).then(function () {});
 	}
 
 	/**
@@ -311,7 +305,7 @@ export default class Executor {
 		const suites = this.suites;
 		let numSuitesCompleted = 0;
 		const numSuitesToRun = suites.length;
-		const queue = util.createQueue(maxConcurrency);
+		const queue = createQueue(maxConcurrency);
 		let hasError = false;
 
 		return new Promise(function (resolve, reject, progress, setCanceler) {

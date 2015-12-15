@@ -39,6 +39,10 @@ function noop() {}
 
 type MaybePromise = any | Promise.Thenable<any>;
 
+export interface ReportableError {
+	reported?: boolean;
+}
+
 export interface OutputStream {
 	write(buffer: Buffer | string): boolean;
 	end(buffer?: Buffer | string): void;
@@ -243,7 +247,7 @@ export default class ReporterManager {
 				// the pre-executor will make a hail mary pass to try to get the information out by sending it to
 				// the early error reporter if the error does not have a `reported` property
 				if (name === 'fatalError' && args[0]) {
-					args[0].reported = true;
+					(<ReportableError> args[0]).reported = true;
 				}
 
 				try {
