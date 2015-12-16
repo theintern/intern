@@ -501,10 +501,15 @@ export default class PreExecutor {
 
 			// Client or Runner
 			if (executorId.indexOf('/') === -1) {
-				executorId = './' + executorId;
+				// The executor needs to be an absolute module ID that can be processed by normal AMD loader
+				// semantics; passing a path, like what you would get by combining executorId with `module.id`
+				// in Node.js, will cause the AMD loader to fail to find the module (treating it as a path)
+				// and fail back to the Node.js loader, which will then cause all other modules to be loaded
+				// in a Node.js context instead of AMD context
+				executorId = 'intern/lib/executors/' + executorId;
 			}
 
-			return loader.import(executorId, require);
+			return loader.import(executorId);
 		}
 
 		function runExecutor(Executor: ExecutorConstructor) {

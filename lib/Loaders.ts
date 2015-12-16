@@ -397,12 +397,11 @@ export class NodeLoader implements Loader {
 			if (request.indexOf('!') !== -1) {
 				return request + '.amdplugin';
 			}
+			else if (request[0] === '.') {
+				return defaultResolver.call(this, request, parent);
+			}
 			else {
 				let resolvedPath = request;
-
-				if (parent.id && resolvedPath[0] === '.') {
-					resolvedPath = pathUtil.join(pathUtil.dirname(parent.id), resolvedPath);
-				}
 
 				if (self.maps) {
 					mapping:

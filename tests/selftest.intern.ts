@@ -25,6 +25,9 @@ const config = <config.Config> {
 	maxConcurrency: 2,
 	tunnel: 'BrowserStackTunnel',
 
+	loaders: {
+		'host-node': 'requirejs'
+	},
 	loaderOptions: {
 		// Packages that should be registered with the loader in each testing environment
 		packages: [

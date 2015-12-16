@@ -139,7 +139,7 @@ export default class Pretty implements Reporter {
 	private _reporter: IstanbulReporter;
 	charm: charm.Charm;
 
-	consructor(config: KwArgs = {}) {
+	constructor(config: KwArgs = {}) {
 		this.internConfig = config.internConfig;
 		this.spinnerOffset = 0;
 		this.dimensions = config.dimensions || { width: 80, height: 24 };
