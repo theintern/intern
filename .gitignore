@@ -1,7 +1,17 @@
+# Ignore NPM generated files
+node_modules/
+npm-debug.log
+
+# Ignore OS generated files
+.DS_Store*
+Thumbs.db
+
+# Ignore Istanbul generated files
 lcov.info
 html-report
-node_modules
+coverage-final.json
+
+# Ignore Cloud Service generated files
 saucelabs
 testingbot
 browserstack
-coverage-final.json
