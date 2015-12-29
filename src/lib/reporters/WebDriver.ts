@@ -25,7 +25,7 @@ export class WebDriver implements Reporter {
 	writeHtml: boolean;
 	sessionId: string;
 	waitForRunner: boolean;
-	suiteNode: Element;
+	suiteNode: HTMLElement;
 	testNode: HTMLElement;
 
 	constructor(config: WebDriverReporterConfig = {}) {
@@ -60,7 +60,7 @@ export class WebDriver implements Reporter {
 
 	suiteEnd(_suite: Suite) {
 		if (this.writeHtml) {
-			this.suiteNode = <Element> (this.suiteNode.parentNode.parentNode || document.body);
+			this.suiteNode = <HTMLElement> (this.suiteNode.parentNode.parentNode || document.body);
 		}
 		return this._sendEvent('suiteEnd', arguments);
 	}
@@ -87,6 +87,20 @@ export class WebDriver implements Reporter {
 		}
 
 		return this._sendEvent('suiteStart', arguments);
+	}
+
+	suiteError(suite: Suite, error: Error) {
+		if (this.writeHtml) {
+			this.suiteNode.appendChild(document.createTextNode('Suite "' + suite.id + '" failed'));
+			this.suiteNode.style.color = 'red';
+
+			const errorNode = document.createElement('pre');
+			errorNode.appendChild(document.createTextNode(util.getErrorMessage(error)));
+			this.suiteNode.appendChild(errorNode);
+			scroll();
+		}
+
+		return this._sendEvent('suiteError', arguments);
 	}
 
 	testStart(test: Test) {
@@ -129,7 +143,7 @@ export class WebDriver implements Reporter {
 			this.testNode.style.color = 'red';
 
 			const errorNode = document.createElement('pre');
-			errorNode.appendChild(document.createTextNode(<string> (test.error.stack || test.error)));
+			errorNode.appendChild(document.createTextNode(<string> (util.getErrorMessage(test.error))));
 			this.testNode.appendChild(errorNode);
 			scroll();
 		}
