@@ -158,6 +158,8 @@
 								<li data-id="ci-jenkins"><a href="#ci-jenkins">Jenkins</a></li>
 								<li data-id="ci-travis"><a href="#ci-travis">Travis CI</a></li>
 								<li data-id="ci-teamcity"><a href="#ci-teamcity">TeamCity</a></li>
+								<li data-id="ci-codeship"><a href="#ci-codeship">Codeship</a></li>
+								<li data-id="ci-bamboo"><a href="#ci-bamboo">Bamboo</a></li>
 							</ul>
 						</li>
 						<li data-id="customisation">
@@ -2663,6 +2665,123 @@ define([
 							<li>Check “Trigger after successful build only”.</li>
 							<li>Click “Save”.</li>
 						</ol>
+
+						<div class="a half" id="ci-codeship"></div>
+						<h3 data-id="ci-codeship">Codeship</h3>
+
+						<p>To integrate with <a href="https://codeship.com/">Codeship</a> you can follow the below steps to configure a test pipeline.</p>
+
+						<h4>For a new project:</h4>
+
+						<ol>
+							<li>In the upper-left corner, once logged in, click "Select Project..."</li>
+							<li>Click the "Create a new project" button.</li>
+							<li>Connect your GitHub or Bitbucket account as required.</li>
+							<li>Choose the repository you'd like to test.</li>
+							<li>Select "I want to create my own custom commands" from the dropdown box labeled "Select your technology to prepopulate basic commands".</li>
+							<li>The following steps are the same as for an existing project.</li>
+							<li>Once completed, click "Save and go to dashboard" and then push a commit to see your build tested.</li>
+						</ol>
+
+						<h4>For an existing project:</h4>
+
+						<ol>
+							<li>In the upper-left corner, once logged-in, click "Select Project...".</li>
+							<li>Select the gear icon to the right of your project's name.</li>
+							<li>From the "Test" Project Settings page, select "I want to create my own custom commands" from the dropdown box labeled "Select your technology to prepopulate basic commands".</li>
+							<li>The remaining steps are identical to creating any new project with Codeship.</li>
+						</ol>
+
+						<h4>Setup Commands</h4>
+
+						<p>Setup Commands are those that allow you to set up your environment. For testing a project with Intern, you must install node and your project's dependencies:
+							<pre><code>
+# Install the version of node specified in your package.json
+nvm install node
+
+# Install project requirements
+npm install
+							</code></pre>
+						</p>
+
+						<h4>Configure Test Pipelines</h4>
+
+						<p>The test pipeline is what actually runs your specified test commands. This is equivalent to running the tests on your local development environment. For example, to run the Intern self-tests with the <code>intern-client</code>, you would enter the following command:
+							<pre><code>
+# run the intern-client with the specified configuration
+node_modules/.bin/intern-client config=tests/selftest.intern.js
+							</code></pre>
+						</p>
+
+						<p>If you wanted to run tests on Selenium, Codeship supports this as well! You just need to <a href="https://github.com/codeship/scripts/blob/master/packages/selenium_server.sh">curl and run this script</a> before calling the <code>intern-runner</code> with a <code>NullTunnel</code>.
+							<pre><code>
+curl -sSL https://raw.githubusercontent.com/codeship/scripts/master/packages/selenium_server.sh | bash -s
+node_modules/.bin/intern-runner config=tests/selftest.intern.js tunnel=NullTunnel
+							</code></pre>
+					</p>
+
+					<div class="a half" id="ci-bamboo"></div>
+					<h3 data-id="ci-bamboo">Bamboo</h3>
+
+					<p>These instructions were tested using Bamboo Cloud edition; build plan task configuration should work similarly using a local agent.</p>
+
+					<h4>Manage elastic instances</h4>
+
+					<p>By default, if you run a build on Bamboo and an agent isn't available, an Elastic Bamboo image is started as a Windows Server instance. Intern behavior is more consistent running in a POSIX compliant environment, so follow the steps below to create a Linux instance:</p>
+
+					<ol>
+						<li>From the gear icon menu in the upper-right corner of any Bamboo administration page, select "Elastic instances".</li>
+						<li>Click the "Start new elastic instances" button in the upper-right corner of the page.</li>
+						<li>Under the "Elastic image configuration name" dropdown, select "Ubuntu stock image".</li>
+						<li>Click the "Submit" button.</li>
+					</ol>
+
+					<p>You will be taken to the "Manage elastic instances" page, where you will see your image and its current state. Once the image status is "Running", the Elastic Agent starts. Once the agent has started and is either "Pending" or "Idle", you may begin your build.</p>
+
+					<h4>Create a build plan</h4>
+
+					<ol>
+						<li>Click the "Create" dropdown button at the top-middle of any Bamboo administration page.</li>
+						<li>Select "Create a new plan" from the menu.</li>
+						<li>Select or create a Project to house the build plan.</li>
+						<li>Give the build plan a name and key, for your reference, and provide an optional description.</li>
+						<li>Link the build plan to a previously linked or new repository.</li>
+						<li>Click "Configure plan".</li>
+					</ol>
+
+					<h4>Configure your build plan</h4>
+
+					<p>By default, the plan starts with an initial task of "Source Code Checkout", which you can leave configured as is, because you linked the repository in a previous step.</p>
+
+					<ol>
+						<li>Add a task of "npm".</li>
+						<li>Use Node.js executable "Node.js 0.12" or "Node.js 4.2".</li>
+						<li>Provide it with a Command of "install" and save the task.</li>
+						<li>Add a task of "Script".</li>
+						<li>In the script body, write the following (exchange "node-0.12" for "node-4.2" if appropriate):
+							<pre><code>
+/opt/node-0.12/bin/node ${bamboo.build.working.directory}/node_modules/.bin/intern-client \
+	config=tests/selftest.intern \
+	reporters=JUnit \
+	> results.xml
+							</code></pre>
+						</li>
+						<li>Save the Script task.</li>
+						<li>Add a task of "JUnit Parser".</li>
+						<li>Enter "*" in the "Specify custom results directories" field and save the task.</li>
+						<li>Below the task configuration interface, make sure "Yes please!" is checked under the "Enable this plan?" heading.</li>
+						<li>Click the "Create" button to create your build plan.</li>
+					</ol>
+
+					<h4>Running your build plan and verifying its output</h4>
+
+					<ol>
+						<li>Click the "Build" dropdown menu item from the Bamboo administration page top menu and select "All build plans".</li>
+						<li>Select your plan from those shown.</li>
+						<li>Click "Run" and then "Run plan" in the upper-right corner of the page.</li>
+						<li>Once your plan has finished running, you will see a "Tests" tab on the page, which you can click through and see details of every test.</li>
+					</ol>
+
 					</article>
 
 					<article>
