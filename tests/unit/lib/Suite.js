@@ -591,7 +591,7 @@ define([
 			}));
 		},
 
-		'Suite#run skip': function () {
+		'Suite#run grep': function () {
 			var dfd = this.async(5000);
 			var grep = /foo/;
 			var suite = createSuite({
@@ -639,6 +639,76 @@ define([
 			suite.run().then(dfd.callback(function () {
 				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ],
 					'Only test matching grep regex should have run');
+			}, function () {
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
+			}));
+		},
+
+		'Suite#run skip': function () {
+			var dfd = this.async(5000);
+			var suite = createSuite();
+			var testsRun = [];
+			var fooTest = new Test({
+				name: 'foo',
+				parent: suite,
+				test: function () {
+					testsRun.push(this);
+				}
+			});
+			var barSuite = createSuite({
+				name: 'bar',
+				parent: suite,
+				setup: function () {
+					this.skip('skip foo');
+				},
+				tests: [
+					new Test({
+						name: 'foo',
+						test: function () {
+							testsRun.push(this);
+						}
+					}),
+					new Test({
+						name: 'baz',
+						test: function () {
+							testsRun.push(this);
+						}
+					})
+				]
+			});
+			var bazSuite = createSuite({
+				name: 'baz',
+				parent: suite,
+				tests: [
+					new Test({
+						name: 'foo',
+						test: function () {
+							testsRun.push(this);
+						}
+					}),
+					new Test({
+						name: 'bar',
+						test: function () {
+							this.parent.skip();
+							testsRun.push(this);
+						}
+					}),
+					new Test({
+						name: 'baz',
+						test: function () {
+							testsRun.push(this);
+						}
+					})
+				]
+			});
+
+			suite.tests.push(fooTest);
+			suite.tests.push(barSuite);
+			suite.tests.push(bazSuite);
+
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(testsRun, [ fooTest, bazSuite.tests[0] ],
+					'Skipped suite should not have run');
 			}, function () {
 				dfd.reject(new assert.AssertionError('Suite should not fail'));
 			}));
