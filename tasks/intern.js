@@ -64,7 +64,8 @@ module.exports = function (grunt) {
 				sauceUsername: true,
 				testingbotKey: true,
 				testingbotSecret: true,
-				nodeEnv: true
+				nodeEnv: true,
+				cwd: true
 			};
 
 		Object.keys(opts).forEach(function (option) {
@@ -111,7 +112,7 @@ module.exports = function (grunt) {
 			cmd: process.argv[0],
 			args: args,
 			opts: {
-				cwd: process.cwd(),
+				cwd: opts.cwd || process.cwd(),
 				env: env
 			}
 		}, function (error) {
