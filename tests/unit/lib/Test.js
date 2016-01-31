@@ -298,6 +298,43 @@ define([
 			});
 		},
 
+    'Test marked as skipped if `remote` is used without marking as async': function () {
+			var actual;
+			var expected = createTest({
+				test: function () {
+          var remote = this.remote;
+				},
+				reporterManagerEmit: function (topic, test) {
+					if (topic === 'testSkip') {
+						actual = test;
+					}
+				}
+			});
+
+			return expected.run().then(function () {
+				assert.strictEqual(actual, expected, 'testSkip topic should fire when remote is used without marking as async');
+			});
+    },
+
+    'Test marked as run normally if `remote` is used with marking as async': function () {
+			var actual;
+			var expected = createTest({
+				test: function () {
+          var remote = this.remote;
+          return Promise.resolve();
+				},
+				reporterManagerEmit: function (topic, test) {
+					if (topic === 'testPass') {
+						actual = test;
+					}
+				}
+			});
+
+			return expected.run().then(function () {
+				assert.strictEqual(actual, expected, 'testPass topic should fire when remote is used and test is async');
+			});
+    },
+
 		'Test#restartTimeout': function () {
 			var test = createTest({
 				timeout: 100,
