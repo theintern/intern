@@ -222,7 +222,12 @@ define([
 
 				test.error = expected.error = { name: 'Oops', message: 'message', stack: 'stack' };
 				assert.deepEqual(test.toJSON(), expected,
-					'Test#toJSON should return expected JSON structure for test with error');
+					'Test#toJSON should return expected JSON structure for test with error not including diff info');
+
+				test.error = expected.error = { name: 'Oops', message: 'message', stack: 'stack', showDiff: true,
+					expected: 'foo', actual: 'bar' };
+				assert.deepEqual(test.toJSON(), expected,
+					'Test#toJSON should return expected JSON structure for test with error including diff info');
 			});
 		},
 
