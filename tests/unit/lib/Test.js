@@ -135,7 +135,7 @@ define([
 			var dfd = this.async(500);
 			var test = new Test({
 				test: function () {
-					this.async(250);
+					this.async(100);
 				}
 			});
 
