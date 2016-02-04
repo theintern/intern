@@ -141,6 +141,7 @@
 								<li data-id="test-runner"><a href="#test-runner">The test runner</a></li>
 								<li data-id="custom-args"><a href="#custom-args">Using custom arguments</a></li>
 								<li data-id="grunt"><a href="#grunt">Using Grunt</a></li>
+								<li data-id="gulp"><a href="#gulp">Using Gulp</a></li>
 							</ul>
 						</li>
 						<li data-id="reporters">
@@ -2371,6 +2372,44 @@ define([
 						</table>
 
 						<aside class="tip"><p>The current Grunt events are rudimentary, based on the output of the default <a href="#reporter-results">console reporter</a>, and do not provide much detail into the actual state of the test runner to Grunt tasks. Future versions of Intern are likely to improve to provide first-class event support, if sufficient demand exists for this feature.</p></aside>
+
+						<div class="a half" id="gulp"></div>
+						<h3 data-id="gulp">Using Gulp</h3>
+
+						<p>Intern does not provide a gulp plugin, but running Intern with gulp is much like running it with Grunt. The key difference is that Intern is run explicitly in gulp rather than through a plugin. The following example shows one way to do this</p>
+
+						<pre><code class="javascript">gulp.task('test', function (done) {
+	// Define the Intern command line
+	var command = [
+		'./node_modules/intern/runner.js',
+		'config=tests/intern'
+	];
+
+	// Add environment variables, such as service keys
+	var env = Object.create(process.env);
+	env.BROWSERSTACK_ACCESS_KEY = '123456';
+	env.BROWSERSTACK_USERNAME = 'foo@nowhere.com';
+
+	// Spawn the Intern process
+	var child = require('child_process').spawn('node', command, {
+		// Allow Intern to write directly to the gulp process's stdout and
+		// stderr.
+		stdio: 'inherit',
+		env: env
+	});
+
+	// Let gulp know when the child process exits
+	child.on('close', function (code) {
+		if (code) {
+			done(new Error('Intern exited with code ' + code));
+		}
+		else {
+			done();
+		}
+	});
+});</code></pre>
+
+						<p>Additional configuration options, such as <code>suites</code> and <code>reporters</code>, can be specified just as they would for a typical Intern <a href="#node-client">client</a> or <a href="#test-runner">runner</a> command line. Also, the use of <code>spawn</code> is not mandatory; the only requirement is that the gulp task run Intern and either wait for it to finish or notify gulp asychronously when it is finished.</p>
 					</article>
 
 					<article>
