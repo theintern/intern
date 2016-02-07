@@ -644,10 +644,10 @@ define([
 			}));
 		},
 
-		'Suite#run failFast': function () {
+		'Suite#run bail': function () {
 			var dfd = this.async(5000);
 			var suite = createSuite({
-				failFast: true
+				bail: true
 			});
 			var testsRun = [];
 			var fooTest = new Test({
