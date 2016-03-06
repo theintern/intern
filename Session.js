@@ -1095,7 +1095,7 @@ Session.prototype = {
 	},
 
 	/**
-	 * Gets the title of the focused window/frame.
+	 * Gets the title of the top-level browsing context of the current window or tab.
 	 *
 	 * @returns {Promise.<string>}
 	 */
