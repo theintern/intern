@@ -8,12 +8,12 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			],
 			map: {
 				intern: {
-					dojo: 'intern/node_modules/dojo',
-					chai: 'intern/node_modules/chai/chai',
-					diff: 'intern/node_modules/diff/diff'
+					dojo: 'intern/browser_modules/dojo',
+					chai: 'intern/browser_modules/chai/chai',
+					diff: 'intern/browser_modules/diff/diff'
 				},
 				'*': {
-					'intern/dojo': 'intern/node_modules/dojo'
+					'intern/dojo': 'intern/browser_modules/dojo'
 				}
 			}
 		}), [ 'intern/client' ]);
