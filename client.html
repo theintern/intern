@@ -15,7 +15,7 @@
 	\__/_/ /_/_/____/  /_/ /_/_/\___(_)  of the test suite that needs those things. NEVER do it here!
 		-->
 		<title>Browser test runner</title>
-		<script src="node_modules/dojo/loader.js"></script>
+		<script src="node_modules/dojo-loader/loader.js"></script>
 		<script>
 			// At least FirefoxDriver 2.46.0 will time out the page load detection and cause the page to reload in the
 			// middle of test module initialisation if a large number of tests are loaded before the onload event for
@@ -57,7 +57,8 @@
 					}
 				};
 
-				require(internConfig, [ 'intern/client' ]);
+				require.config(internConfig)
+				require([ 'intern/client' ]);
 			};
 		</script>
 	</head>
