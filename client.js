@@ -19,7 +19,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 		}
 		
 		var AMDRequire = require('dojo-loader/loader');
-		AMDRequire.config(this.__interConfig);
+		AMDRequire.config(this.__internConfig);
 		AMDRequire([ 'intern/client' ]);
 	})();
 }
