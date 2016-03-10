@@ -4,8 +4,9 @@ define([
 	'./support/MockStream',
 	'../../../../lib/Suite',
 	'../../../../lib/Test',
-	'../../../../lib/reporters/TeamCity'
-], function (registerSuite, assert, MockStream, Suite, Test, TeamCity) {
+	'../../../../lib/reporters/TeamCity',
+	'../../../../lib/util'
+], function (registerSuite, assert, MockStream, Suite, Test, TeamCity, util) {
 	var messagePatterns = {
 		suiteStart: '^##teamcity\\[testSuiteStarted name=\'{id}\'',
 		suiteEnd: '^##teamcity\\[testSuiteFinished name=\'{id}\' duration=\'\\d+\'',
@@ -34,7 +35,9 @@ define([
 		var expected = messagePatterns[topic].replace('{id}', test.id);
 
 		if (test.error) {
-			expected = expected.replace('{message}', test.error.message);
+			// n.b., only the `testFail` messagePattern has a `{message}` placeholder
+			var errorMessage = reporter._escapeString(util.getErrorMessage(test.error));
+			expected = expected.replace('{message}', errorMessage);
 		}
 
 		reporter[topic](test);
