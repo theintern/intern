@@ -591,7 +591,7 @@ define([
 			}));
 		},
 
-		'Suite#run skip': function () {
+		'Suite#run grep': function () {
 			var dfd = this.async(5000);
 			var grep = /foo/;
 			var suite = createSuite({
@@ -639,6 +639,175 @@ define([
 			suite.run().then(dfd.callback(function () {
 				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ],
 					'Only test matching grep regex should have run');
+			}, function () {
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
+			}));
+		},
+
+		'Suite#run bail': function () {
+			var dfd = this.async(5000);
+			var suite = createSuite({
+				bail: true
+			});
+			var testsRun = [];
+			var fooTest = new Test({
+				name: 'foo',
+				parent: suite,
+				test: function () {
+					testsRun.push(this);
+				}
+			});
+			var barSuite = createSuite({
+				name: 'bar',
+				parent: suite,
+				tests: [
+					new Test({
+						name: 'foo',
+						test: function () {
+							testsRun.push(this);
+							// Fail this test; everything after this should not run
+							throw new Error('fail');
+						}
+					}),
+					new Test({
+						name: 'baz',
+						test: function () {
+							testsRun.push(this);
+						}
+					})
+				]
+			});
+			var foodTest = new Test({
+				name: 'food',
+				parent: suite,
+				test: function () {
+					testsRun.push(this);
+				}
+			});
+
+			suite.tests.push(fooTest);
+			suite.tests.push(barSuite);
+			suite.tests.push(foodTest);
+
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0] ],
+					'Only tests before failing test should have run');
+			}, function () {
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
+			}));
+		},
+
+		'Suite#run retry': function () {
+			var dfd = this.async(5000);
+			var suite = createSuite({
+				retries: 4
+			});
+			var testsRun = { foo: 0, bar: 0, baz: 0 };
+			var fooTest = new Test({
+				name: 'foo',
+				parent: suite,
+				test: function () {
+					testsRun.foo++;
+					throw new Error('foo');
+				}
+			});
+			var barTest = new Test({
+				name: 'bar',
+				parent: suite,
+				test: function () {
+					testsRun.bar++;
+					// Simulate a test that passes the second time it's run
+					if (testsRun.bar < 2) {
+						throw new Error('bar');
+					}
+				}
+			});
+			var bazTest = new Test({
+				name: 'baz',
+				parent: suite,
+				test: function () {
+					testsRun.baz++;
+				}
+			});
+			var expectedRuns = { foo: 5, bar: 2, baz: 1 };
+
+			suite.tests.push(fooTest);
+			suite.tests.push(barTest);
+			suite.tests.push(bazTest);
+
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(testsRun, expectedRuns,
+					'Tests should have run expected number of times');
+			}, function () {
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
+			}));
+		},
+
+		'Suite#run skip': function () {
+			var dfd = this.async(5000);
+			var suite = createSuite();
+			var testsRun = [];
+			var fooTest = new Test({
+				name: 'foo',
+				parent: suite,
+				test: function () {
+					testsRun.push(this);
+				}
+			});
+			var barSuite = createSuite({
+				name: 'bar',
+				parent: suite,
+				setup: function () {
+					this.skip('skip foo');
+				},
+				tests: [
+					new Test({
+						name: 'foo',
+						test: function () {
+							testsRun.push(this);
+						}
+					}),
+					new Test({
+						name: 'baz',
+						test: function () {
+							testsRun.push(this);
+						}
+					})
+				]
+			});
+			var bazSuite = createSuite({
+				name: 'baz',
+				parent: suite,
+				tests: [
+					new Test({
+						name: 'foo',
+						test: function () {
+							testsRun.push(this);
+						}
+					}),
+					new Test({
+						name: 'bar',
+						test: function () {
+							this.parent.skip();
+							testsRun.push(this);
+						}
+					}),
+					new Test({
+						name: 'baz',
+						test: function () {
+							testsRun.push(this);
+						}
+					})
+				]
+			});
+
+			suite.tests.push(fooTest);
+			suite.tests.push(barSuite);
+			suite.tests.push(bazSuite);
+
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(testsRun, [ fooTest, bazSuite.tests[0] ],
+					'Skipped suite should not have run');
 			}, function () {
 				dfd.reject(new assert.AssertionError('Suite should not fail'));
 			}));
