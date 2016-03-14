@@ -5,6 +5,69 @@ define([
 	'../../../lib/Test',
 	'dojo/Promise'
 ], function (registerSuite, assert, Suite, Test, Promise) {
+	function createAsyncAndPromiseTest(testWrapper) {
+		return testWrapper(function (done) {
+			return function () {
+				this.async();
+				var setupDfd = new Promise.Deferred();
+				setTimeout(function () {
+					done();
+					setupDfd.resolve();
+				}, 20);
+				return setupDfd.promise;
+			};
+		});
+	}
+
+	function createAsyncCallbackTest(testWrapper) {
+		return testWrapper(function (done) {
+			return function () {
+				var setupDfd = this.async();
+				setTimeout(function () {
+					done();
+					setupDfd.callback(function () {})();
+				}, 20);
+			};
+		});
+	}
+
+	function createAsyncRejectOnErrorTest(method) {
+		return function () {
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var test = new Test({ test: function () {}, parent: suite });
+
+			suite.tests.push(test);
+
+			suite[method] = function () {
+				var dfd = this.async(20);
+				dfd.rejectOnError(function () {})();
+			};
+
+			suite.run().then(
+				function () {
+					dfd.reject(new assert.AssertionError('Suite should not have resolved'));
+				},
+				dfd.callback(function () {
+					assert.match(suite.error.message, new RegExp('^Timeout reached .*' + method + '$'),
+						'Error should have been a timeout error for ' + method);
+				})
+			);
+		};
+	}
+
+	function createAsyncTest(testWrapper) {
+		return testWrapper(function (done) {
+			return function () {
+				var setupDfd = this.async();
+				setTimeout(function () {
+					done();
+					setupDfd.resolve();
+				}, 20);
+			};
+		});
+	}
+
 	function createLifecycle(options) {
 		options = options || {};
 
@@ -100,6 +163,19 @@ define([
 		};
 	}
 
+	function createPromiseTest(testWrapper) {
+		return testWrapper(function (done) {
+			return function () {
+				var dfd = new Promise.Deferred();
+				setTimeout(function () {
+					done();
+					dfd.resolve();
+				}, 20);
+				return dfd.promise;
+			};
+		});
+	}
+
 	function createSuite(options) {
 		options = options || {};
 
@@ -122,7 +198,7 @@ define([
 		return suite;
 	}
 
-	function createSuiteThrows(method, options) {
+	function createThrowsTest(method, options) {
 		options = options || {};
 		return function () {
 			var dfd = this.async(1000);
@@ -132,14 +208,16 @@ define([
 			var finished = false;
 
 			suite[method] = function () {
-				if (options.async) {
-					var dfd = new Promise.Deferred();
+				if (options.promise || options.async) {
+					var dfd = options.async ? this.async() : new Promise.Deferred();
 
 					setTimeout(function () {
 						dfd.reject(thrownError);
 					}, 20);
 
-					return dfd.promise;
+					if (options.promise) {
+						return dfd.promise;
+					}
 				}
 				else {
 					throw thrownError;
@@ -148,21 +226,62 @@ define([
 
 			suite.tests.push(test);
 
-			suite.run().then(function () {
-				finished = true;
-				dfd.reject(new assert.AssertionError('Suite should never resolve after a fatal error in ' + method));
-			}, dfd.callback(function (error) {
-				finished = true;
-				assert.strictEqual(suite.error, thrownError, 'Error thrown in ' + method +
-					' should be the error set on suite');
-				assert.strictEqual(error, thrownError, 'Error thrown in ' + method +
-					' should be the error used by the promise');
+			suite.run().then(
+				function () {
+					finished = true;
+					dfd.reject(new assert.AssertionError('Suite should never resolve after a fatal error in ' +
+						method));
+				},
+				dfd.callback(function (error) {
+					finished = true;
+					assert.strictEqual(suite.error, thrownError, 'Error thrown in ' + method +
+						' should be the error set on suite');
+					assert.strictEqual(error, thrownError, 'Error thrown in ' + method +
+						' should be the error used by the promise');
 
-				if (method === 'beforeEach' || method === 'afterEach') {
-					assert.strictEqual(error.relatedTest, test, 'Error thrown in ' + method +
-						' should have the related test in the error');
-				}
-			}));
+					if (method === 'beforeEach' || method === 'afterEach') {
+						assert.strictEqual(error.relatedTest, test, 'Error thrown in ' + method +
+							' should have the related test in the error');
+					}
+				})
+			);
+
+			assert.isFalse(finished, 'Suite should not finish immediately after run()');
+		};
+	}
+
+	function createTimeoutTest(method) {
+		return function () {
+			var dfd = this.async(1000);
+			var suite = createSuite();
+			var test = new Test({ test: function () {}, parent: suite });
+			var finished = false;
+
+			suite[method] = function () {
+				var dfd = this.async(10);
+				setTimeout(function () {
+					dfd.resolve();
+				}, 20);
+			};
+
+			suite.tests.push(test);
+
+			suite.run().then(
+				function () {
+					finished = true;
+					dfd.reject(new assert.AssertionError('Suite should never resolve after a fatal error in ' +
+						method));
+				},
+				dfd.callback(function () {
+					finished = true;
+					assert.match(suite.error.message, new RegExp('^Timeout reached .*' + method + '$'),
+						'Error should have been a timeout error for ' + method);
+					if (method === 'beforeEach' || method === 'afterEach') {
+						assert.strictEqual(suite.error.relatedTest, test, 'Error thrown in ' + method +
+							' should have the related test in the error');
+					}
+				})
+			);
 
 			assert.isFalse(finished, 'Suite should not finish immediately after run()');
 		};
@@ -177,187 +296,249 @@ define([
 
 		'Suite lifecycle + publishAfterSetup': createLifecycle({ publishAfterSetup: true }),
 
-		'Suite#setup': function () {
-			var dfd = this.async(1000);
-			var suite = createSuite();
-			var called = false;
+		'Suite#setup': (function () {
+			function asyncTest(createSetup) {
+				return function () {
+					var dfd = this.async();
+					var suite = createSuite();
+					var waited = false;
 
-			suite.setup = function () {
-				called = true;
-			};
+					suite.setup = createSetup(function () {
+						waited = true;
+					});
 
-			suite.run().then(dfd.callback(function () {
-				assert.isTrue(called, 'Setup should be called before suite finishes');
-			}));
-		},
-
-		'Suite#beforeEach': function () {
-			var dfd = this.async(1000);
-			var suite = createSuite();
-			var results = [];
-			var counter = 0;
-
-			function updateCount() {
-				results.push('' + counter);
+					suite.run().then(dfd.callback(function () {
+						assert.isTrue(waited, 'Asynchronous setup should be called before suite finishes');
+					}));
+				};
 			}
 
-			for (var i = 0; i < 2; ++i) {
-				suite.tests.push(new Test({ test: updateCount, parent: suite }));
+			return {
+				synchronous: function () {
+					var dfd = this.async(1000);
+					var suite = createSuite();
+					var called = false;
+
+					suite.setup = function () {
+						called = true;
+					};
+
+					suite.run().then(dfd.callback(function () {
+						assert.isTrue(called, 'Setup should be called before suite finishes');
+					}));
+				},
+
+				promise: createPromiseTest(asyncTest),
+
+				async: createAsyncTest(asyncTest),
+
+				'async with promise': createAsyncAndPromiseTest(asyncTest),
+
+				'throws': createThrowsTest('setup'),
+
+				'async callback': createAsyncCallbackTest(asyncTest),
+
+				'async rejectOnError': createAsyncRejectOnErrorTest('setup'),
+
+				'async rejects': createThrowsTest('setup', { async: true }),
+
+				'async timeout': createTimeoutTest('setup'),
+
+				'promise rejects': createThrowsTest('setup', { promise: true })
+			};
+		})(),
+
+		'Suite#beforeEach': (function () {
+			function asyncTest(createBeforeEach) {
+				return function () {
+					var dfd = this.async();
+					var suite = createSuite();
+					var results = [];
+					var counter = 0;
+
+					function updateCount() {
+						results.push('' + counter);
+					}
+
+					for (var i = 0; i < 2; ++i) {
+						suite.tests.push(new Test({ test: updateCount, parent: suite }));
+					}
+
+					suite.beforeEach = createBeforeEach(function () {
+						results.push('b' + (++counter));
+					});
+
+					suite.run().then(dfd.callback(function () {
+						assert.deepEqual(results, [ 'b1', '1', 'b2', '2' ],
+							'beforeEach should execute before each test');
+					}));
+				};
 			}
 
-			suite.beforeEach = function () {
-				results.push('b' + (++counter));
+			return {
+				synchronous: function () {
+					var dfd = this.async(1000);
+					var suite = createSuite();
+					var results = [];
+					var counter = 0;
+
+					function updateCount() {
+						results.push('' + counter);
+					}
+
+					for (var i = 0; i < 2; ++i) {
+						suite.tests.push(new Test({ test: updateCount, parent: suite }));
+					}
+
+					suite.beforeEach = function () {
+						results.push('b' + (++counter));
+					};
+
+					suite.run().then(dfd.callback(function () {
+						assert.deepEqual(results, [ 'b1', '1', 'b2', '2' ],
+							'beforeEach should execute before each test');
+					}));
+
+					assert.strictEqual(counter, 0, 'Suite#beforeEach should not be called immediately after run()');
+				},
+
+				promise: createPromiseTest(asyncTest),
+
+				async: createAsyncTest(asyncTest),
+
+				'async with promise': createAsyncAndPromiseTest(asyncTest),
+
+				'throws': createThrowsTest('beforeEach'),
+
+				'async rejects': createThrowsTest('beforeEach', { async: true }),
+
+				'async rejectOnError': createAsyncRejectOnErrorTest('beforeEach'),
+
+				'async timeout': createTimeoutTest('beforeEach'),
+
+				'promise rejects': createThrowsTest('beforeEach', { promise: true })
 			};
+		})(),
 
-			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(results, [ 'b1', '1', 'b2', '2' ], 'beforeEach should execute before each test');
-			}));
+		'Suite#afterEach': (function () {
+			function asyncTest(createAfterEach) {
+				return function () {
+					var dfd = this.async();
+					var suite = createSuite();
+					var results = [];
+					var counter = 0;
 
-			assert.strictEqual(counter, 0, 'Suite#beforeEach should not be called immediately after run()');
-		},
+					function updateCount() {
+						results.push('' + (++counter));
+					}
 
-		'Suite#afterEach': function () {
-			var dfd = this.async(1000);
-			var suite = createSuite();
-			var results = [];
-			var counter = 0;
+					for (var i = 0; i < 2; ++i) {
+						suite.tests.push(new Test({ test: updateCount, parent: suite }));
+					}
 
-			function updateCount() {
-				results.push('' + (++counter));
+					suite.afterEach = createAfterEach(function () {
+						results.push('a' + counter);
+					});
+
+					suite.run().then(dfd.callback(function () {
+						assert.deepEqual(results, [ '1', 'a1', '2', 'a2' ], 'afterEach should execute after each test');
+					}));
+				};
 			}
 
-			for (var i = 0; i < 2; ++i) {
-				suite.tests.push(new Test({ test: updateCount, parent: suite }));
+			return {
+				synchronous: function () {
+					var dfd = this.async(1000);
+					var suite = createSuite();
+					var results = [];
+					var counter = 0;
+
+					function updateCount() {
+						results.push('' + (++counter));
+					}
+
+					for (var i = 0; i < 2; ++i) {
+						suite.tests.push(new Test({ test: updateCount, parent: suite }));
+					}
+
+					suite.afterEach = function () {
+						results.push('a' + counter);
+					};
+
+					suite.run().then(dfd.callback(function () {
+						assert.deepEqual(results, [ '1', 'a1', '2', 'a2' ], 'afterEach should execute after each test');
+					}));
+
+					assert.strictEqual(counter, 0, 'Suite#afterEach should not be called immediately after run()');
+				},
+
+				promise: createPromiseTest(asyncTest),
+
+				async: createAsyncTest(asyncTest),
+
+				'async with promise': createAsyncAndPromiseTest(asyncTest),
+
+				'throws': createThrowsTest('afterEach'),
+
+				'async rejects': createThrowsTest('afterEach', { async: true }),
+
+				'async rejectOnError': createAsyncRejectOnErrorTest('afterEach'),
+
+				'promise rejects': createThrowsTest('afterEach', { promise: true })
+			};
+		})(),
+
+		'Suite#teardown': (function () {
+			function asyncTest(createTeardown) {
+				return function () {
+					var dfd = this.async();
+					var suite = createSuite();
+					var waited = false;
+
+					suite.teardown = createTeardown(function () {
+						waited = true;
+					});
+
+					suite.run().then(dfd.callback(function () {
+						assert.isTrue(waited, 'Asynchronous teardown should be called before suite finishes');
+					}));
+				};
 			}
 
-			suite.afterEach = function () {
-				results.push('a' + counter);
+			return {
+				synchronous: function () {
+					var dfd = this.async(1000);
+					var suite = createSuite();
+					var called = false;
+
+					suite.teardown = function () {
+						called = true;
+					};
+
+					suite.run().then(dfd.callback(function () {
+						assert.isTrue(called, 'Synchronous teardown should be called before suite finishes');
+					}));
+
+					assert.isFalse(called, 'Suite#teardown should not be called immediately after run()');
+				},
+
+				promise: createPromiseTest(asyncTest),
+
+				async: createAsyncTest(asyncTest),
+
+				'async with promise': createAsyncAndPromiseTest(asyncTest),
+
+				'throws': createThrowsTest('teardown'),
+
+				'async rejects': createThrowsTest('teardown', { async: true }),
+
+				'async rejectOnError': createAsyncRejectOnErrorTest('teardown'),
+
+				'async timeout': createTimeoutTest('teardown'),
+
+				'promise rejects': createThrowsTest('teardown', { promise: true })
 			};
-
-			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(results, [ '1', 'a1', '2', 'a2' ], 'afterEach should execute after each test');
-			}));
-
-			assert.strictEqual(counter, 0, 'Suite#afterEach should not be called immediately after run()');
-		},
-
-		'Suite#teardown': function () {
-			var dfd = this.async(1000);
-			var suite = createSuite();
-			var called = false;
-
-			suite.teardown = function () {
-				called = true;
-			};
-
-			suite.run().then(dfd.callback(function () {
-				assert.isTrue(called, 'Synchronous teardown should be called before suite finishes');
-			}));
-
-			assert.isFalse(called, 'Suite#teardown should not be called immediately after run()');
-		},
-
-		'Suite#setup -> promise': function () {
-			var dfd = this.async();
-			var suite = createSuite();
-			var waited = false;
-
-			suite.setup = function () {
-				var setupDfd = new Promise.Deferred();
-
-				setTimeout(function () {
-					waited = true;
-					setupDfd.resolve();
-				}, 20);
-
-				return setupDfd.promise;
-			};
-
-			suite.run().then(dfd.callback(function () {
-				assert.isTrue(waited, 'Asynchronous setup should be called before suite finishes');
-			}));
-		},
-
-		'Suite#beforeEach -> promise': function () {
-			var dfd = this.async();
-			var suite = createSuite();
-			var results = [];
-			var counter = 0;
-
-			function updateCount() {
-				results.push('' + counter);
-			}
-
-			for (var i = 0; i < 2; ++i) {
-				suite.tests.push(new Test({ test: updateCount, parent: suite }));
-			}
-
-			suite.beforeEach = function () {
-				var beforeEachDfd = new Promise.Deferred();
-
-				setTimeout(function () {
-					results.push('b' + (++counter));
-					beforeEachDfd.resolve();
-				}, 20);
-
-				return beforeEachDfd.promise;
-			};
-
-			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(results, [ 'b1', '1', 'b2', '2' ], 'beforeEach should execute before each test');
-			}));
-		},
-
-		'Suite#afterEach -> promise': function () {
-			var dfd = this.async();
-			var suite = createSuite();
-			var results = [];
-			var counter = 0;
-
-			function updateCount() {
-				results.push('' + (++counter));
-			}
-
-			for (var i = 0; i < 2; ++i) {
-				suite.tests.push(new Test({ test: updateCount, parent: suite }));
-			}
-
-			suite.afterEach = function () {
-				var afterEachDfd = new Promise.Deferred();
-
-				setTimeout(function () {
-					results.push('a' + counter);
-					afterEachDfd.resolve();
-				}, 20);
-
-				return afterEachDfd.promise;
-			};
-
-			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(results, [ '1', 'a1', '2', 'a2' ], 'afterEach should execute after each test');
-			}));
-		},
-
-		'Suite#teardown -> promise': function () {
-			var dfd = this.async();
-			var suite = createSuite();
-			var waited = false;
-
-			suite.teardown = function () {
-				var teardownDfd = new Promise.Deferred();
-
-				setTimeout(function () {
-					waited = true;
-					teardownDfd.resolve();
-				}, 20);
-
-				return teardownDfd.promise;
-			};
-
-			suite.run().then(dfd.callback(function () {
-				assert.isTrue(waited, 'Asynchronous teardown should be called before suite finishes');
-			}));
-		},
+		})(),
 
 		'Suite#name': function () {
 			var suite = new Suite({ name: 'foo', parent: new Suite({ name: 'parent' }) });
@@ -368,22 +549,6 @@ define([
 			var suite = new Suite({ name: 'foo', parent: new Suite({ name: 'parent' }) });
 			assert.strictEqual(suite.id, 'parent - foo', 'Suite#id should return correct suite id');
 		},
-
-		'Suite#setup throws': createSuiteThrows('setup'),
-
-		'Suite#beforeEach throws': createSuiteThrows('beforeEach'),
-
-		'Suite#afterEach throws': createSuiteThrows('afterEach'),
-
-		'Suite#teardown throws': createSuiteThrows('teardown'),
-
-		'Suite#setup -> promise rejects': createSuiteThrows('setup', { async: true }),
-
-		'Suite#beforeEach -> promise rejects': createSuiteThrows('beforeEach', { async: true }),
-
-		'Suite#afterEach -> promise rejects': createSuiteThrows('afterEach', { async: true }),
-
-		'Suite#teardown -> promise rejects': createSuiteThrows('teardown', { async: true }),
 
 		'Suite#constructor topic': function () {
 			var topicFired = false;
@@ -581,14 +746,17 @@ define([
 			var actualLifecycle = [];
 
 			suite.tests.push(childSuite);
-			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(actualLifecycle, expectedLifecycle,
-					'Outer afterEach should execute even though inner afterEach threw an error');
-				assert.strictEqual(childSuite.error.message, 'Oops',
-					'Suite with afterEach failure should hold the last error from afterEach');
-			}, function () {
-				dfd.reject(new assert.AssertionError('Suite should not fail'));
-			}));
+			suite.run().then(
+				dfd.callback(function () {
+					assert.deepEqual(actualLifecycle, expectedLifecycle,
+						'Outer afterEach should execute even though inner afterEach threw an error');
+					assert.strictEqual(childSuite.error.message, 'Oops',
+						'Suite with afterEach failure should hold the last error from afterEach');
+				},
+				function () {
+					dfd.reject(new assert.AssertionError('Suite should not fail'));
+				})
+			);
 		},
 
 		'Suite#run skip': function () {
@@ -636,12 +804,15 @@ define([
 			suite.tests.push(barSuite);
 			suite.tests.push(foodTest);
 
-			suite.run().then(dfd.callback(function () {
-				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ],
-					'Only test matching grep regex should have run');
-			}, function () {
-				dfd.reject(new assert.AssertionError('Suite should not fail'));
-			}));
+			suite.run().then(
+				dfd.callback(function () {
+					assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ],
+						'Only test matching grep regex should have run');
+				},
+				function () {
+					dfd.reject(new assert.AssertionError('Suite should not fail'));
+				})
+			);
 		}
 	});
 });
