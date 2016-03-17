@@ -1,21 +1,18 @@
 /*jshint node:true */
 var fs = require('fs');
 var path = require('path');
-var expected = path.join(__dirname, '..', 'node_modules');
+var expected = path.join(__dirname, '..', 'browser_modules');
 
-// Create the node_modules directory if it doesn't yet exist, such as when all of
-// Intern's dependencies were already installed by a parent package.
 if (!fs.existsSync(expected)) {
 	fs.mkdirSync(expected);
 }
 
-// AMD-loaded dependencies need to exist in Intern's node_modules directory,
-// regardless of whether or not they were deduped by npm
+// AMD-loaded dependencies need to exist in a known location, so they're symlinked from the path resolved by the node
+// loader into browser_modules
 [ 'dojo', 'chai', 'diff' ].forEach(function (dependency) {
 	var expectedPath = path.join(expected, dependency);
 
-	// Reset any existing dependency symlinks in case the location of the
-	// deduplicated package has changed
+	// Reset any existing dependency symlinks in case the location of the deduplicated package has changed
 	try {
 		if (fs.lstatSync(expectedPath).isSymbolicLink()) {
 			fs.unlinkSync(expectedPath);
@@ -34,7 +31,8 @@ if (!fs.existsSync(expected)) {
 			fs.symlinkSync(path.relative(path.dirname(expectedPath), actualPath), expectedPath, 'junction');
 		}
 		catch (error) {
-			console.warn('Symlinking %s to %s failed with %s. Copying instead...', actualPath, expectedPath, error.code);
+			console.warn('Symlinking %s to %s failed with %s. Copying instead...', actualPath, expectedPath,
+				error.code);
 			copy(actualPath, expectedPath);
 		}
 	}

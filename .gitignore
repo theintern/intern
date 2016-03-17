@@ -1,5 +1,6 @@
 lcov.info
 html-report
+browser_modules
 node_modules
 saucelabs
 testingbot
