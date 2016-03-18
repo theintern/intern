@@ -110,7 +110,7 @@
 								<li data-id="writing-unit-test"><a href="#writing-unit-test">Writing a unit test</a></li>
 								<li data-id="test-lifecycle"><a href="#test-lifecycle">The test lifecycle</a></li>
 								<li data-id="async-tests"><a href="#async-tests">Asynchronous tests</a></li>
-								<li data-id="skipping-tests"><a href="#skipping-tests">Skipping a test at runtime</a></li>
+								<li data-id="skipping-tests"><a href="#skipping-tests">Skipping tests at runtime</a></li>
 								<li data-id="testing-commonjs-code"><a href="#testing-commonjs-code">Testing CommonJS modules</a></li>
 								<li data-id="testing-global-code"><a href="#testing-global-code">Testing non-modular code</a></li>
 								<li data-id="testing-other-module"><a href="#testing-other-module">Testing other transpiled code</a></li>
@@ -1501,9 +1501,9 @@ outer teardown</samp></pre>
 						<p>If the data is correct, the Promise associated with <code>dfd</code> will be resolved, and the test will pass; otherwise, it will be rejected (because an error is thrown), and the test will fail.</p>
 
 						<div class="a half" id="skipping-tests"></div>
-						<h3 data-id="skipping-tests">Skipping a test at runtime</h3>
+						<h3 data-id="skipping-tests">Skipping tests at runtime</h3>
 
-						<p>All tests have a <code>this.skip</code> method that can be used to skip the test if it should not be executed for some reason:</p>
+						<p>All tests have a <code>skip</code> method that can be used to skip the test if it should not be executed for some reason:</p>
 
 						<pre><code class="javascript">define(function (require) {
 	var registerSuite = require('intern!object');
@@ -1517,7 +1517,7 @@ outer teardown</samp></pre>
 				this.skip('Browser-only test');
 			}
 
-			// …
+			// ...
 		}
 	});
 });</code></pre>
@@ -1525,6 +1525,40 @@ outer teardown</samp></pre>
 						<aside class="tip"><p>Calling <code>this.skip</code> halts execution of the rest of the function, so it is not necessary to <code>return</code> after calling it.</p></aside>
 
 						<p>The <a href="#option-grep">grep configuration option</a> can also be used to skip tests whose IDs don’t match a regular expression.</p>
+
+						<p>Suites also have a <code>skip</code> method. Calling <code>this.skip()</code> from a suite lifecycle method, or calling <code>this.parent.skip()</code> from a test, will cause all remaining tests in a suite to be skipped.</p>
+
+						<pre><code class="javascript">define(function (require) {
+	var registerSuite = require('intern!object');
+	var assert = require('intern/chai!assert');
+
+	registerSuite({
+		name: 'skip demo',
+
+		setup: function () {
+			// Skip entire suite if not running in a browser
+			if (typeof window === 'undefined') {
+				this.skip('Browser-only suite');
+			}
+		},
+
+		'test 1': function () {
+			// test code
+		},
+
+		'test 2': function () {
+			// Skip remainder of suite if `someVar` isn't defined
+			if (window.someVar == null) {
+				this.parent.skip('somVar not defined');
+			}
+			// test code
+		},
+
+		// tests ...
+	});
+});</code></pre>
+
+						<aside class="tip"><p>When a test is skipped because <code>this.skip()</code> or <code>this.parent.skip()</code> was called from within the test, the <code>beforeEach</code> and <code>afterEach</code> lifecycle methods are still executed for that test. However, when tests are skipped due to <code>grep</code> or because <code>skip</code> was called on a suite (either in a lifecycle method or in a previous test), <code>beforeEach</code> and <code>afterEach</code> are <em>not</em> executed for the skipped test(s).</p></aside>
 
 						<div class="a half" id="testing-commonjs-code"></div>
 						<h3 data-id="testing-commonjs-code">Testing CommonJS modules</h3>
