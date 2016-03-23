@@ -3521,6 +3521,18 @@ define({
 							</tr>
 						</table>
 
+						<p><span class="versionBadge">3.1</span> Within the lifecycle methods (<code>setup/before</code>, <code>beforeEach</code>, <code>afterEach</code>, <code>teardown/after</code>), an <code>async</code> method is available that can be used in lieu of returning a Promise. For example:</p>
+
+						<pre><code class="javascript">setup: function () {
+	var dfd = this.async(1000); 
+	fs.readFile(filename, function (data) {
+		testData = data;
+		dfd.resolve();
+	});
+}</code></pre>
+						
+						<p><code>async</code> returns an augmented Deferred object (see <a href="#async-tests">asynchronous tests</a> for more information). The lifecycle method in which <code>async</code> was called will wait for the Deferred to resolve, just as if a Promise were returned. The main difference between using the <code>async</code> method and returning a Promise is that <code>async</code> allows the method’s timeout to be configured with an optional number of milliseconds.</p>
+
 						<div class="a half" id="test-object"></div>
 						<h3 data-id="test-object">The Test object</h3>
 
