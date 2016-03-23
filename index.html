@@ -545,6 +545,11 @@
 								</tr>
 							</thead>
 							<tr>
+								<th scope="row"><a href="#option-bail">bail</a> <span class="versionBadge">3.1</span></th>
+								<td>If this value is set to <code class="javascript">true</code>, a failing test will cause all following tests in all suites to be skipped.</td>
+								<td><code class="javascript">false</code></td>
+							</tr>
+							<tr>
 								<th scope="row"><a href="#option-basePath">basePath</a> <span class="versionBadge">3.0</span></th>
 								<td>The common base path for all files that need to be loaded during testing.</td>
 								<td><code class="javascript">process.cwd()</code> (Node.js)<br><code class="javascript">'node_modules/intern/../../'</code> (browser)</td>
@@ -586,10 +591,15 @@
 							</tr>
 							<tr>
 								<th scope="row"><a href="#option-suites">suites</a></th>
-								<td>An array of unit test module IDs to load. These may include glob patterns.</td>
+								<td>An array of unit test module IDs to load. These may include glob patterns. <span class="versionBadge">3.1</span></td>
 								<td><code class="javascript">[]</code></td>
 							</tr>
 						</table>
+
+						<div class="a half" id="option-bail"></div>
+						<h4>bail (boolean) <span class="versionBadge">3.1</span></h4>
+
+						<p>The <code>bail</code> option controls Intern's “fail fast” behavior. When <code>bail</code> is set to <code class="javascript">true</code> and a test fails, all remaining tests, both unit and functional, will be skipped. Other than the cleanup methods for the failing test and its containing suite, no other test or suite lifecycle methods (<code class="javascript">setup/before</code>, <code class="javascript">beforeEach</code>, <code class="javascript">afterEach</code>, <code class="javascript">teardown/after</code>) will be run.</p>
 
 						<div class="a half" id="option-basePath"></div>
 						<h4>basePath (string) <span class="versionBadge">3.0</span></h4>
