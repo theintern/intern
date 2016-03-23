@@ -644,6 +644,65 @@ define([
 			}));
 		},
 
+		'Suite#run bail': function () {
+			var dfd = this.async(5000);
+			var suite = createSuite({
+				bail: true
+			});
+			var testsRun = [];
+			var fooTest = new Test({
+				name: 'foo',
+				parent: suite,
+				test: function () {
+					testsRun.push(this);
+				}
+			});
+			var barSuite = createSuite({
+				name: 'bar',
+				parent: suite,
+				tests: [
+					new Test({
+						name: 'foo',
+						test: function () {
+							testsRun.push(this);
+							// Fail this test; everything after this should not run
+							throw new Error('fail');
+						}
+					}),
+					new Test({
+						name: 'baz',
+						test: function () {
+							testsRun.push(this);
+						}
+					})
+				]
+			});
+			var foodTest = new Test({
+				name: 'food',
+				parent: suite,
+				test: function () {
+					testsRun.push(this);
+				}
+			});
+
+			var teardownRan = false;
+			barSuite.teardown = function () {
+				teardownRan = true;
+			};
+
+			suite.tests.push(fooTest);
+			suite.tests.push(barSuite);
+			suite.tests.push(foodTest);
+
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0] ],
+					'Only tests before failing test should have run');
+				assert.isTrue(teardownRan, 'teardown should have run for bailing suite');
+			}, function () {
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
+			}));
+		},
+
 		'Suite#run skip': function () {
 			var dfd = this.async(5000);
 			var suite = createSuite();
