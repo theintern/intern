@@ -703,6 +703,52 @@ define([
 			}));
 		},
 
+		'Suite#run retry': function () {
+			var dfd = this.async(5000);
+			var suite = createSuite({
+				retries: 4
+			});
+			var testsRun = { foo: 0, bar: 0, baz: 0 };
+			var fooTest = new Test({
+				name: 'foo',
+				parent: suite,
+				test: function () {
+					testsRun.foo++;
+					throw new Error('foo');
+				}
+			});
+			var barTest = new Test({
+				name: 'bar',
+				parent: suite,
+				test: function () {
+					testsRun.bar++;
+					// Simulate a test that passes the second time it's run
+					if (testsRun.bar < 2) {
+						throw new Error('bar');
+					}
+				}
+			});
+			var bazTest = new Test({
+				name: 'baz',
+				parent: suite,
+				test: function () {
+					testsRun.baz++;
+				}
+			});
+			var expectedRuns = { foo: 5, bar: 2, baz: 1 };
+
+			suite.tests.push(fooTest);
+			suite.tests.push(barTest);
+			suite.tests.push(bazTest);
+
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(testsRun, expectedRuns,
+					'Tests should have run expected number of times');
+			}, function () {
+				dfd.reject(new assert.AssertionError('Suite should not fail'));
+			}));
+		},
+
 		'Suite#run skip': function () {
 			var dfd = this.async(5000);
 			var suite = createSuite();
