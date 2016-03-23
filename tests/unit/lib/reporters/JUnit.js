@@ -18,6 +18,8 @@ define([
 				report += data;
 			}
 
+			expected = expected.replace(/\r\n/g, "\n");
+
 			var assertionError = new Error('Expected 1 + 1 to equal 3');
 			assertionError.name = 'AssertionError';
 
