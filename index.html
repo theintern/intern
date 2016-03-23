@@ -586,7 +586,7 @@
 							</tr>
 							<tr>
 								<th scope="row"><a href="#option-suites">suites</a></th>
-								<td>An array of of unit test module IDs to load.</td>
+								<td>An array of unit test module IDs to load. These may include glob patterns.</td>
 								<td><code class="javascript">[]</code></td>
 							</tr>
 						</table>
@@ -747,13 +747,27 @@
 	]
 }</code></pre>
 
-						<p>Because the same configuration file is used on the client, where there is no filesystem access, there is currently no built-in way to glob for test modules. You can use the following one-liner to create a roll-up module before running Intern:</p>
+						<p>Suite specifiers may also include glob patterns using syntax supported by <a href="https://github.com/isaacs/node-glob#glob-primer">node-glob</a>:</p>
 
-						<pre><code class="javascript">require('fs').writeFileSync('tests/unit/all.js', 'define(' + JSON.stringify(require('glob').sync('tests/unit/**/!(all).js').map(function (filename) { return filename.replace(/\.js$/, ''); })) + ');\n', { encoding: 'utf-8' });</code></pre>
+						<pre><code class="javascript">{
+	suites: [
+		'tests/unit/foo/*',
+		'tests/unit/{bar,baz}/*'
+	]
+}</code></pre>
 
-						<aside class="tip"><p><a href="https://github.com/theintern/intern/issues/359">Future versions of Intern</a> will remove this restriction when running in Node.js client or runner mode.</p></aside>
+						<p>Like simple suite specifiers, specifiers with glob patterns refer to module IDs, not file paths. Glob patterns must resolve to individual test modules, not packages. For example, given the following project structure, <code>'tests/u*'</code> would not be a valid glob, but <code>'tests/unit/f*'</code> would be:</p>
 
-						<p><code>suites</code> can also be set to <code class="javascript">null</code> to skip loading the unit testing system when in runner mode.</p>
+						<pre>project_root/
+	tests/
+		unit/
+			foo.js
+			bar.js
+		intern.js</pre>
+
+						<aside class="tip"><p>When running tests via <code>client.html</code>, globbing is only available when tests are served by the Intern proxy.</p></aside>
+
+						<p><code>suites</code> can be set to <code class="javascript">null</code> to skip loading the unit testing system when in runner mode. From the command line, this is done by passing the argument <code>suites=</code>.</p>
 
 						<div class="a half" id="client-config"></div>
 						<h3 data-id="client-config">Client configuration</h3>
@@ -792,7 +806,7 @@
 							</tr>
 							<tr>
 								<th scope="row"><a href="#option-functionalSuites">functionalSuites</a></th>
-								<td>An array of functional test module IDs to load.</td>
+								<td>An array of functional test module IDs to load. These may include glob patterns.</td>
 								<td><code class="javascript">[]</code></td>
 							</tr>
 							<tr>
@@ -899,6 +913,8 @@
 		'tests/functional/bar'
 	]
 }</code></pre>
+
+						<p>As with <code>suites</code>, functional suite specifiers may also include <a href="#option-suites">glob patterns</a>.</p>
 
 						<div class="a half" id="option-leaveRemoteOpen"></div>
 						<h4>leaveRemoteOpen (boolean | string) <span class="versionBadge">3.0</span></h4>
@@ -2212,7 +2228,7 @@ define([
 
 						<aside class="tip"><p>The commands shown above rely on npm being installed and configured properly. If your environment PATH is not set properly, you may need to run <kbd>node_modules/.bin/intern-client</kbd> instead of <kbd>intern-client</kbd>.</p></aside>
 
-						<p>A more complex execution with arguments overriding the <a href="#options-suites">suites</a> and <a href="#option-reporters">reporters</a> properties from the configuration file might look like this:</p>
+						<p>A more complex execution with arguments overriding the <a href="#option-suites">suites</a> and <a href="#option-reporters">reporters</a> properties from the configuration file might look like this:</p>
 
 						<pre><samp class="bash">intern-client config=tests/intern suites=tests/unit/request \
 	suites=tests/unit/animation \
