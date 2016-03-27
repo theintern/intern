@@ -76,7 +76,14 @@ function createHttpRequest(method) {
 			// perform a 3xx redirect to the session capabilities URL, instead of simply returning the returning
 			// data about the session; as a result, we need to follow all redirects to get consistent data
 			if (response.statusCode >= 300 && response.statusCode < 400 && response.getHeader('Location')) {
-				return request(response.getHeader('Location'), {
+				var redirectUrl = response.getHeader('Location');
+
+				// If redirectUrl isn't an absolute URL, resolve it based on the orignal URL used to create the session
+				if (!/^\w+:/.test(redirectUrl)) {
+					redirectUrl = urlUtil.resolve(url, redirectUrl);
+				}
+
+				return request(redirectUrl, {
 					method: 'GET',
 					headers: defaultRequestHeaders
 				}).then(handleResponse);
