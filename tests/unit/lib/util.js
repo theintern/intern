@@ -230,6 +230,68 @@ define([
 			}
 		},
 
+		'.resolveModuleIds': {
+			'non-glob': function () {
+				if (!has('host-node')) {
+					this.skip('requires Node.js');
+				}
+
+				var moduleIds = [
+					'intern-selftest/tests/unit/lib/util'
+				];
+				var expected = [
+					'intern-selftest/tests/unit/lib/util',
+				];
+				var actual = util.resolveModuleIds(moduleIds);
+				assert.deepEqual(actual, expected, 'Non-glob MID should have been returned unchanged');
+			},
+
+			'single-level': function () {
+				if (!has('host-node')) {
+					this.skip('requires Node.js');
+				}
+
+				var moduleIds = [
+					'intern-selftest/tests/unit/*'
+				];
+				var expected = [
+					'intern-selftest/tests/unit/all',
+					'intern-selftest/tests/unit/main',
+					'intern-selftest/tests/unit/order'
+				];
+				var actual = util.resolveModuleIds(moduleIds);
+				assert.deepEqual(actual, expected, 'Unexpected resolution for single-level glob');
+			},
+
+			'multi-level': function () {
+				if (!has('host-node')) {
+					this.skip('requires Node.js');
+				}
+
+				var moduleIds = [
+					'intern-selftest/tests/functional/**/*'
+				];
+				var expected = [
+					'intern-selftest/tests/functional/lib/ProxiedSession'
+				];
+				var actual = util.resolveModuleIds(moduleIds);
+				assert.deepEqual(actual, expected, 'Unexpected resolution for multi-level glob');
+			},
+
+			'non-JS files': function () {
+				if (!has('host-node')) {
+					this.skip('requires Node.js');
+				}
+
+				var moduleIds = [
+					'intern-selftest/tests/unit/lib/data/repoters/**/*'
+				];
+				var expected = [];
+				var actual = util.resolveModuleIds(moduleIds);
+				assert.deepEqual(actual, expected, 'Non-JS files should not be include in resolved values');
+			}
+		},
+
 		'.retry': {
 			'until failure': function () {
 				var numAttempts = 0;
