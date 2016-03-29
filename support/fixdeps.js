@@ -9,7 +9,7 @@ if (!fs.existsSync(expected)) {
 
 // AMD-loaded dependencies need to exist in a known location, so they're symlinked from the path resolved by the node
 // loader into browser_modules
-[ 'dojo', 'chai', 'diff' ].forEach(function (dependency) {
+[ 'dojo', 'chai', 'diff', 'dojo-loader' ].forEach(function (dependency) {
 	var expectedPath = path.join(expected, dependency);
 
 	// Reset any existing dependency symlinks in case the location of the deduplicated package has changed

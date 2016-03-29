@@ -16,11 +16,6 @@ define({
 
 	maxConcurrency: 2,
 	tunnel: 'SauceLabsTunnel',
-	
-	loaders: {
-		'host-node': 'dojo-loader/loader.js',
-		'host-browser': 'node_modules/dojo-loader/loader.js'
-	},
 
 	loaderOptions: {
 		// Packages that should be registered with the loader in each testing environment
