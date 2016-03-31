@@ -775,7 +775,9 @@
 			bar.js
 		intern.js</pre>
 
-						<aside class="tip"><p>When running tests via <code>client.html</code>, globbing is only available when tests are served by the Intern proxy.</p></aside>
+						<aside class="whatAreYouCrazy"><p>Glob expressions aren’t evaluated in module IDs involving loader plugins, so the following won’t work: 'dojo/node!cjsmodules/*'.</p></aside>
+
+						<aside class="tip"><p>When running tests with <code>client.html</code>, tests must be served by the Intern proxy to use globbing.</p></aside>
 
 						<p><code>suites</code> can be set to <code class="javascript">null</code> to skip loading the unit testing system when in runner mode. From the command line, this is done by passing the argument <code>suites=</code>.</p>
 
