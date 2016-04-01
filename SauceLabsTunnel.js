@@ -11,7 +11,7 @@ var Tunnel = require('./Tunnel');
 var urlUtil = require('url');
 var util = require('./util');
 
-var SC_VERSION = '4.3';
+var SC_VERSION = '4.3.14';
 
 /**
  * A Sauce Labs tunnel. This tunnel uses Sauce Connect 4 on platforms where it is supported, and Sauce Connect 3
@@ -22,6 +22,7 @@ var SC_VERSION = '4.3';
  */
 function SauceLabsTunnel() {
 	this.accessKey = process.env.SAUCE_ACCESS_KEY;
+	this.scVersion = SC_VERSION;
 	this.directDomains = [];
 	this.tunnelDomains = [];
 	this.domainAuthentication = [];
@@ -171,7 +172,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		var architecture = this.architecture;
 
 		if (platform === 'osx' || platform === 'win32' || (platform === 'linux' && architecture === 'x64')) {
-			return './sc-' + SC_VERSION + '-' + platform + '/bin/sc' + (platform === 'win32' ? '.exe' : '');
+			return './sc-' + this.scVersion + '-' + platform + '/bin/sc' + (platform === 'win32' ? '.exe' : '');
 		}
 		else {
 			return 'java';
@@ -198,7 +199,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	get url() {
 		var platform = this.platform === 'darwin' ? 'osx' : this.platform;
 		var architecture = this.architecture;
-		var url = 'https://saucelabs.com/downloads/sc-' + SC_VERSION + '-';
+		var url = 'https://saucelabs.com/downloads/sc-' + this.scVersion + '-';
 
 		if (platform === 'osx' || platform === 'win32') {
 			url += platform + '.zip';
@@ -265,8 +266,6 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 
 		this.logFileSize && args.push('-g', this.logFileSize);
 		this.squidOptions && args.push('-S', this.squidOptions);
-		this.vmVersion && args.push('-V', this.vmVersion);
-		this.restUrl && args.push('-x', this.restUrl);
 		this.verbose && args.push('-d');
 
 		if (proxy) {
@@ -300,9 +299,11 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		this.isSharedTunnel && args.push('-s');
 		this.logFile && args.push('-l', this.logFile);
 		this.pidFile && args.push('--pidfile', this.pidFile);
+		this.restUrl && args.push('-x', this.restUrl);
 		this.skipSslDomains.length && args.push('-B', this.skipSslDomains.join(','));
 		this.tunnelId && args.push('-i', this.tunnelId);
 		this.useProxyForTunnel && args.push('-T');
+		this.vmVersion && args.push('-V', this.vmVersion);
 
 		return args;
 	},
