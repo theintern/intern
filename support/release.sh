@@ -53,7 +53,7 @@ fi
 
 cd "$ROOT_DIR"
 mkdir "$BUILD_DIR"
-git clone --recursive git@github.com:theintern/leadfoot.git "$BUILD_DIR"
+git clone --recursive . "$BUILD_DIR"
 
 cd "$BUILD_DIR"
 
@@ -119,7 +119,7 @@ if [ $(git tag |grep -c "^$TAG_VERSION$") -gt 0 ]; then
 fi
 
 # Set the package version to release version
-sed -i -e "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" package.json
+sed -i '' -e "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" package.json
 
 # Fix the Git-based dependencies to specific commit IDs
 echo -e "\nFixing dependency commits...\n"
@@ -138,7 +138,7 @@ for DEP in dojo; do
 			rm -rf "$BUILD_DIR/.dep"
 			DEP_URL=$(echo $DEP_URL |sed -e 's/[\/&]/\\&/g')
 			echo -e "\nFixing dependency $DEP to commit $COMMIT...\n"
-			sed -i -e "s/\(\"$DEP\":\) \"[^\"]*\"/\1 \"$DEP_URL\/archive\/$COMMIT.tar.gz\"/" package.json
+			sed -i '' -e "s/\(\"$DEP\":\) \"[^\"]*\"/\1 \"$DEP_URL\/archive\/$COMMIT.tar.gz\"/" package.json
 		fi
 	fi
 done
@@ -152,7 +152,7 @@ git checkout HEAD^ package.json
 git reset package.json
 
 # Set the package version to next pre-release version
-sed -i -e "s/\"version\": \"[^\"]*\"/\"version\": \"$PRE_VERSION\"/" package.json
+sed -i '' -e "s/\"version\": \"[^\"]*\"/\"version\": \"$PRE_VERSION\"/" package.json
 
 # Commit the pre-release to Git
 git commit -m "Updating source version to $PRE_VERSION" package.json
@@ -163,7 +163,7 @@ if [ "$MAKE_BRANCH" != "" ]; then
 	git checkout -b $MAKE_BRANCH $TAG_VERSION
 
 	# Set the package version to the next patch pre-release version
-	sed -i -e "s/\"version\": \"[^\"]*\"/\"version\": \"$BRANCH_VERSION\"/" package.json
+	sed -i '' -e "s/\"version\": \"[^\"]*\"/\"version\": \"$BRANCH_VERSION\"/" package.json
 
 	# Commit the pre-release to Git
 	git commit -m "Updating source version to $BRANCH_VERSION" package.json
@@ -171,6 +171,8 @@ if [ "$MAKE_BRANCH" != "" ]; then
 	# Store the branch as one that needs to be pushed when we are ready to deploy the release
 	PUSH_BRANCHES="$PUSH_BRANCHES $MAKE_BRANCH"
 fi
+
+git checkout $RELEASE_TAG
 
 echo -e "\nDone!\n"
 
@@ -183,14 +185,13 @@ if [ "$REPLY" != "y" ]; then
 	exit 0
 fi
 
+npm publish --tag $NPM_TAG
+
 for BRANCH in $PUSH_BRANCHES; do
 	git push origin $BRANCH
 done
 
 git push origin --tags
-
-git checkout $RELEASE_TAG
-npm publish --tag $NPM_TAG
 
 cd "$ROOT_DIR"
 rm -rf "$BUILD_DIR"
