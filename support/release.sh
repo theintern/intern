@@ -187,17 +187,17 @@ if [ "$REPLY" != "y" ]; then
 	exit 0
 fi
 
-echo npm publish --tag $NPM_TAG
+npm publish --tag $NPM_TAG
 
 cd "$ROOT_DIR"
 git fetch "$BUILD_DIR" --tags
 
 for BRANCH in $PUSH_BRANCHES; do
-	echo git checkout $BRANCH
-	echo git pull "$BUILD_REMOTE"
+	git checkout $BRANCH
+	git pull "$BUILD_REMOTE" "$BRANCH"
 done
 
 rm -rf "$BUILD_DIR"
-echo git remote remove "$BUILD_REMOTE"
+git remote remove "$BUILD_REMOTE"
 
 echo -e "\nAll done! Yay!"
