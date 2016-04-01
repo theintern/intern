@@ -42,7 +42,9 @@ define([
 						}
 					}
 					catch (error) {
-						console.warn('Unable to delete ' + path, error);
+						if (error.code !== 'ENOENT') {
+							console.warn('Unable to delete ' + path, error);
+						}
 					}
 				});
 				fs.rmdirSync(dir);
