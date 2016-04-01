@@ -20,8 +20,7 @@ define({
 
 	loaderOptions: {
 		packages: [
-			{ name: 'leadfoot', location: '.' },
-			{ name: 'dojo', location: './node_modules/dojo' }
+			{ name: 'leadfoot', location: '.' }
 		]
 	},
 
