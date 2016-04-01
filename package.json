@@ -6,15 +6,13 @@
 		"type": "git",
 		"url": "https://github.com/theintern/digdug.git"
 	},
-	"licenses": [
-		{ "type": "BSD-3-Clause", "url": "https://github.com/theintern/digdug/blob/master/LICENSE" }
-	],
+	"license": "BSD-3-Clause",
 	"dependencies": {
 		"dojo": "2.0.0-alpha.6",
 		"decompress": "0.2.3"
 	},
 	"devDependencies": {
-		"intern": "2.2.2"
+		"intern": "3.0.6"
 	},
 	"scripts": {
 		"test": "./node_modules/.bin/intern-client config=tests/intern"

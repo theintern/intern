@@ -3,12 +3,12 @@ define({
 	proxyPort: 9000,
 	proxyUrl: 'http://localhost:9000/',
 	maxConcurrency: 3,
-	loader: {
+	loaderOptions: {
 		packages: [
 			{ name: 'digdug', location: '.' }
 		]
 	},
-	reporters: [ 'console' ],
+	reporters: [ 'Console' ],
 	suites: [
 		'dojo/has!host-node?digdug/tests/all'
 	],

@@ -9,7 +9,7 @@ define([
 	'intern/dojo/node!path',
 	'intern!object',
 	'intern/chai!assert',
-	'intern/lib/args'
+	'intern'
 ], function (
 	Tunnel,
 	SauceLabsTunnel,
@@ -20,10 +20,10 @@ define([
 	pathUtil,
 	registerSuite,
 	assert,
-	args
+	intern
 ) {
 	function cleanup(tunnel) {
-		if (args.noClean) {
+		if (intern.args.noClean) {
 			return;
 		}
 
@@ -33,11 +33,16 @@ define([
 				files = fs.readdirSync(dir);
 				files.forEach(function(file) {
 					var path = pathUtil.join(dir, file);
-					if (fs.lstatSync(path).isDirectory()) {
-						deleteRecursive(path);
+					try {
+						if (fs.lstatSync(path).isDirectory()) {
+							deleteRecursive(path);
+						}
+						else {
+							fs.unlinkSync(path);
+						}
 					}
-					else {
-						fs.unlinkSync(path);
+					catch (error) {
+						console.warn('Unable to delete ' + path, error);
 					}
 				});
 				fs.rmdirSync(dir);
@@ -50,7 +55,7 @@ define([
 	function tunnelTest(dfd, tunnel, check) {
 		cleanup(tunnel);
 
-		if (args.showStdout) {
+		if (intern.args.showStdout) {
 			tunnel.on('stdout', console.log);
 			tunnel.on('stderr', console.log);
 		}
@@ -104,18 +109,18 @@ define([
 
 					tunnel.platform = 'osx';
 					tunnel.architecture = 'foo';
-					var executable = /\.\/sc-\d+\.\d+-osx\/bin\/sc/;
+					var executable = /\.\/sc-\d+\.\d+(?:\.\d+)?-osx\/bin\/sc/;
 					assert.match(tunnel.executable, executable);
 
 					tunnel.platform = 'linux';
 					assert.equal(tunnel.executable, 'java');
 
 					tunnel.architecture = 'x64';
-					executable = /\.\/sc-\d+\.\d+-linux\/bin\/sc/;
+					executable = /\.\/sc-\d+\.\d+(?:\.\d+)?-linux\/bin\/sc/;
 					assert.match(tunnel.executable, executable);
 
 					tunnel.platform = 'win32';
-					executable = /\.\/sc-\d+\.\d+-win32\/bin\/sc\.exe/;
+					executable = /\.\/sc-\d+\.\d+(?:\.\d+)?-win32\/bin\/sc\.exe/;
 					assert.match(tunnel.executable, executable);
 				},
 
@@ -136,12 +141,12 @@ define([
 					assert.equal(tunnel.url, 'https://saucelabs.com/downloads/Sauce-Connect-3.1-r32.zip');
 
 					tunnel.platform = 'darwin';
-					var url = /https:\/\/saucelabs\.com\/downloads\/sc-\d+\.\d+-osx\.zip/;
+					var url = /https:\/\/saucelabs\.com\/downloads\/sc-\d+\.\d+(?:\.\d+)?-osx\.zip/;
 					assert.match(tunnel.url, url);
 
 					tunnel.platform = 'linux';
 					tunnel.architecture = 'x64';
-					url = /https:\/\/saucelabs\.com\/downloads\/sc-\d+\.\d+-linux\.tar\.gz/;
+					url = /https:\/\/saucelabs\.com\/downloads\/sc-\d+\.\d+(?:\.\d+)?-linux\.tar\.gz/;
 					assert.match(tunnel.url, url);
 				}
 			};
@@ -213,7 +218,7 @@ define([
 				},
 
 				'#start': function () {
-					tunnelTest(this.async(), tunnel, function (error) {
+					tunnelTest(this.async(120000), tunnel, function (error) {
 						return /Could not get tunnel info/.test(error.message);
 					});
 				},
