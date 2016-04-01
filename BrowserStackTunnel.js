@@ -4,6 +4,7 @@
 
 var fs = require('fs');
 var pathUtil = require('path');
+var Promise = require('dojo/Promise');
 var request = require('dojo/request');
 var Tunnel = require('./Tunnel');
 var urlUtil = require('url');
@@ -226,6 +227,27 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 		});
 
 		return child;
+	},
+
+	_stop: function () {
+		var dfd = new Promise.Deferred();
+		var childProcess = this._process;
+
+		childProcess.once('exit', function (code) {
+			dfd.resolve(code);
+		});
+		childProcess.kill('SIGINT');
+
+		// As of at least version 5.1, BrowserStackLocal spawns a secondary process. This is the one that needs to
+		// receive the CTRL-C, but Node doesn't provide an easy way to get the PID of the secondary process, so we'll
+		// just wait a few seconds, then kill the process if it hasn't ended cleanly.
+		setTimeout(function () {
+			if (typeof childProcess.code === 'undefined') {
+				childProcess.kill('SIGTERM');
+			}
+		}, 5000);
+
+		return dfd.promise;
 	}
 });
 
