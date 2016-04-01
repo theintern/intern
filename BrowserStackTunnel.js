@@ -232,8 +232,10 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	_stop: function () {
 		var dfd = new Promise.Deferred();
 		var childProcess = this._process;
+		var exited = false;
 
 		childProcess.once('exit', function (code) {
+			exited = true;
 			dfd.resolve(code);
 		});
 		childProcess.kill('SIGINT');
@@ -242,7 +244,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 		// receive the CTRL-C, but Node doesn't provide an easy way to get the PID of the secondary process, so we'll
 		// just wait a few seconds, then kill the process if it hasn't ended cleanly.
 		setTimeout(function () {
-			if (typeof childProcess.code === 'undefined') {
+			if (!exited) {
 				childProcess.kill('SIGTERM');
 			}
 		}, 5000);
