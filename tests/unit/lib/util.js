@@ -262,6 +262,14 @@ define([
 		},
 
 		'.resolveModuleIds': {
+			'null or undefined': function () {
+				var nullActual = util.resolveModuleIds(null);
+				assert.isNull(nullActual, 'Unexpected resolution for null');
+
+				var undefinedActual = util.resolveModuleIds(undefined);
+				assert.isUndefined(undefinedActual, 'Unexpected resolution for undefined');
+			},
+
 			'non-glob': function () {
 				if (!has('host-node')) {
 					this.skip('requires Node.js');
