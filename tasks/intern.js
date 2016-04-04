@@ -66,15 +66,15 @@ module.exports = function (grunt) {
 				testingbotSecret: true,
 				nodeEnv: true,
 				cwd: true,
-				nodeFlags: true
+				nodeOptions: true
 			};
 
-		if (opts.nodeFlags) {
-			// Node Flags need to go at the beginning
-			if (Array.isArray(opts.nodeFlags)) {
-				Array.prototype.unshift.apply(args, opts.nodeFlags);
+		if (opts.nodeOptions) {
+			// Node Options need to go at the beginning
+			if (Array.isArray(opts.nodeOptions)) {
+				Array.prototype.unshift.apply(args, opts.nodeOptions);
 			} else {
-				args.unshift(opts.nodeFlags);
+				args.unshift(opts.nodeOptions);
 			}
 		}
 
