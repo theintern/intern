@@ -7,9 +7,9 @@ define([
 	'dojo/has',
 	'dojo/Promise',
 	'require',
-	'dojo/has!host-node?dojo/node!fs',
-	'dojo/has!host-node?dojo/node!path',
-	'dojo/has!host-node?dojo/node!istanbul/lib/hook'
+	'dojo-core/has!host-node?dojo/node!fs',
+	'dojo-core/has!host-node?dojo/node!path',
+	'dojo-core/has!host-node?dojo/node!istanbul/lib/hook'
 ], function (intern, registerSuite, assert, util, EnvironmentType, has, Promise, require, fs, pathUtil, hook) {
 	/* jshint maxlen:140 */
 	registerSuite({

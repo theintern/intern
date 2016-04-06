@@ -6,7 +6,7 @@ define([
 	'../../../../lib/Suite',
 	'../../../../lib/Test',
 	'../../../../lib/reporters/Console',
-	'dojo/has!host-node?dojo/node!path'
+	'dojo-core/has!host-node?dojo/node!path'
 ], function (registerSuite, assert, lang, MockConsole, Suite, Test, Console, pathUtil) {
 	registerSuite({
 		name: 'intern/lib/reporters/Console',

@@ -17,7 +17,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 				}
 			}
 		}
-		
+
 		var AMDRequire = require('dojo-loader/loader');
 		AMDRequire.config(this.__internConfig);
 		AMDRequire([ 'intern/client' ]);
@@ -26,7 +26,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 else {
 	define([
 		'./lib/executors/PreExecutor',
-		'dojo/has!host-node?./lib/exitHandler'
+		'dojo-core/has!host-node?./lib/exitHandler'
 	], function (PreExecutor, exitHandler) {
 		var executor = new PreExecutor({
 			defaultLoaderOptions: (function () {
