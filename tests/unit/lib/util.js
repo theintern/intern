@@ -230,7 +230,46 @@ define([
 			}
 		},
 
+		'.isGlobModuleId': function () {
+			var globs = [
+				'tests/unit/a*',
+				'tests/unit/a*/*b',
+				'tests/unit/a*/**/*',
+				'tests/unit/**/*',
+				'tests/[uU]nit/foo',
+				'tests/unit/!(foo|bar)',
+				'tests/unit/?(foo|bar)',
+				'tests/unit/+(foo|bar)',
+				'tests/unit/*(foo|bar)',
+				'tests/unit/@(foo|bar)',
+				'tests/unit/{foo,bar}'
+			];
+			var notGlobs = [
+				'tests/unit/a',
+				'tests/unit!',
+				'tests/unit!()',
+				'tests/unit!fs',
+				'http://tests/unit?someArg'
+			];
+
+			globs.forEach(function (mid) {
+				assert.isTrue(util.isGlobModuleId(mid), 'Expected ' + mid + ' to be classified as a glob');
+			});
+
+			notGlobs.forEach(function (mid) {
+				assert.isFalse(util.isGlobModuleId(mid), 'Expected ' + mid + ' to not be classified as a glob');
+			});
+		},
+
 		'.resolveModuleIds': {
+			'null or undefined': function () {
+				var nullActual = util.resolveModuleIds(null);
+				assert.isNull(nullActual, 'Unexpected resolution for null');
+
+				var undefinedActual = util.resolveModuleIds(undefined);
+				assert.isUndefined(undefinedActual, 'Unexpected resolution for undefined');
+			},
+
 			'non-glob': function () {
 				if (!has('host-node')) {
 					this.skip('requires Node.js');
