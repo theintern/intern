@@ -102,7 +102,7 @@ declare module 'dojo/CallbackQueue' {
 
 }
 declare module 'dojo/loader' {
-	import has = require('dojo/has');
+	import has = require('dojo-core/has');
 	export interface IConfig {
 	    baseUrl?: string;
 	    map?: IModuleMap;
@@ -202,7 +202,7 @@ declare module 'dojo/loader' {
 	}
 
 }
-declare module 'dojo/has' {
+declare module 'dojo-core/has' {
 	import loader = require('dojo/loader'); module has {
 	    interface IHas {
 	        (name: string): any;

@@ -109,7 +109,7 @@ declare module 'intern/chai!should' {
 	export = should;
 }
 
-declare module 'intern/dojo/has' {
+declare module 'intern/dojo-core/has' {
 	function has(name: string): any;
 	export = has;
 }
