@@ -123,6 +123,7 @@
 								<li data-id="writing-functional-test"><a href="#writing-functional-test">Writing a functional test</a></li>
 								<li data-id="page-objects"><a href="#page-objects">Page objects</a></li>
 								<li data-id="native-apps"><a href="#native-apps">Testing native apps</a></li>
+								<li data-id="debugging"><a href="#debugging">Debugging</a></li>
 							</ul>
 						</li>
 						<li data-id="webdriver-server">
@@ -183,6 +184,14 @@
 							<ul class="subsections">
 								<li data-id="getting-help"><a href="#getting-help">Getting help</a></li>
 								<li data-id="contributing"><a href="#contributing">Contributing</a></li>
+							</ul>
+						</li>
+						<li data-id="faq">
+							<a href="#faq">FAQ</a>
+							<ul class="subsections">
+								<li data-id="modifier-keys"><a href="#modifier-keys">Using Modifier Keys</a></li>
+								<li data-id="test-page-open"><a href="#test-page-open">Keeping the Test Page Open</a></li>
+								<li data-id="multiple-browsers"><a href="#multiple-browsers">Testing Locally with Multiple Browsers</a></li>
 							</ul>
 						</li>
 					</ul>
@@ -2003,6 +2012,29 @@ define([
 }</code></pre>
 
 						<p>Once the application has started successfully, you can interact with it using any of the <a href="http://selendroid.io/native.html">supported WebDriver APIs</a>.</p>
+
+						<div class="a half" id="debugging"></div>
+						<h3 data-id="debugging">Debugging</h3>
+
+						<p>Keep in mind that JavaScript code is running in two separate environments: your test suites are run in Node.js, while the page loaded by functional tests runs in a web browser. Functional tests can be debugged with Node.js’s built-in debugger, or with the more user-friendly <a href="https://github.com/node-inspector/node-inspector">node-inspector</a>. Note that these instructions are for debugging functional tests, which run in Node.js; debugging code on the test page itself should be done using the browser's debugging tools.</p>
+
+						<ol>
+							<li><kbd class="bash">npm install -g node-inspector</kbd></li>
+							<li>Set a breakpoint in your test code by adding a <code>debugger</code> statement. Since test modules are loaded dynamically by Intern, they will likely not show up in the debugger’s file list, so you won’t be able use the debugger to set an initial breakpoint.</li>
+							<li>Launch Node.js with debugging enabled, set to pause on the first line of code:
+								<ul>
+									<li><kbd class="bash">node --debug-brk node_modules/intern/runner config=myPackage/test/intern</kbd></li>
+								</ul>
+							</li>
+							<li>Launch node-inspector by running <kbd class="bash">node-inspector</kbd>.</li>
+							<li>Open Chrome (you must use Chrome as node-inspector leverages Chrome's developer tools) to:
+								<ul>
+									<li><kbd class="bash">http://127.0.0.1:8080/debug?port=5858</kbd></li>
+								</ul>
+							</li>
+							<li>Continue code execution (F8). The tests will run until your debugger statement.</li>
+							<li>Debug!</li>
+						</ol>
 					</article>
 
 					<article>
@@ -3659,6 +3691,57 @@ define({
 						<h3 data-id="contributing">Contributing</h3>
 
 						<p>We’re always excited to receive contributions from the community. If you think you’ve discovered a bug, want to submit a patch, or would like to request a new feature, take a look at our <a href="https://github.com/theintern/intern/blob/master/CONTRIBUTING.md">contribution guidelines on GitHub</a> to learn how you can contribute.</p>
+					</article>
+
+					<article>
+						<div class="a" id="faq"></div>
+						<h2 data-id="faq">FAQ</h2>
+
+						<div class="a half" id="modifier-keys"></div>
+						<h3 data-id="modifier-keys">How do I use modifier keys?</h3>
+
+						<p>Import the <a href="https://theintern.github.io/leadfoot/module-leadfoot_keys.html"><code>leadfoot/keys</code></a> module and use its constants with the <code>pressKeys</code> method. For example, to send <code>Shift + Click</code> to the browser:</p>
+
+						<pre><code class="javascript">require([
+	'intern!object',
+	'chai!assert',
+	'intern/dojo/node!leadfoot/keys'
+], function (registerSuite, assert, keys) {
+	registerSuite({
+		name: 'test',
+		'test1': function () {
+			var remote = this.remote();
+			return remote.get('testpage.html')
+				.elementById('testLink')
+				.pressKeys(keys.SHIFT)
+				.clickElement()
+				// Release all currently pressed modifier keys
+				.pressKeys(keys.NULL)
+				.end();
+		}
+	});
+});</code></pre>
+
+						<div class="a half" id="test-page-open"></div>
+						<h3 data-id="test-page-open">How can I keep the test page open?</h3>
+
+						<p>Use Intern’s <code>leaveRemoteOpen</code> command line option to keep the browser open after testing is complete:</p> 
+
+						<pre>intern-runner config=myPackage/test/intern leaveRemoteOpen</pre>
+
+						<div class="a half" id="multiple-browsers"></div>
+						<h3 data-id="multiple-browsers">How do I test locally with multiple browsers?</h3>
+
+						<ol>
+							<li>Setup a <a href="#local-selenium">local WebDriver server</a>.</li>
+							<li>Configure the <a href="#option-environments"><code>environments</code></a> section of your Intern config to use multiple target browsers:
+								<pre><code class="javascript">environments: [
+	{ browserName: 'chrome' },
+	{ browserName: 'internet explorer' }
+]</code></pre></li>
+							<li>Start your WebDriver server: <kbd>java -jar selenium-server-standalone-2.53.0.jar</kbd></li>
+							<li>Run Intern: <kbd>intern-runner config=myPackage/test/intern<kbd></li>
+						</ol>
 					</article>
 				</main>
 			</div>
