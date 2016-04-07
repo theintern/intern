@@ -687,6 +687,10 @@ Server.prototype = {
 			testedCapabilities.brokenWindowSwitch = capabilities.browserName === 'Safari' &&
 				capabilities.platformName === 'IOS';
 
+			// At least selendroid 0.12.0-SNAPSHOT doesn't support switching to the parent frame
+			testedCapabilities.brokenParentFrameSwitch = capabilities.browserName === 'android' &&
+				capabilities.deviceName === 'Android Emulator';
+
 			var scrollTestUrl = '<!DOCTYPE html><div id="a" style="margin: 3000px;"></div>';
 
 			// ios-driver 0.6.6-SNAPSHOT April 2014 calculates position based on a bogus origin and does not
