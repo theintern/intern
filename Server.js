@@ -470,7 +470,11 @@ Server.prototype = {
 					.then(supported, maybeSupported);
 			}
 
-			if (!('touchEnabled' in capabilities)) {
+			// Don't check for touch support if the environment reports that no touchscreen is available
+			if (capabilities.hasTouchScreen === false) {
+				testedCapabilities.touchEnabled = false;
+			}
+			else if (!('touchEnabled' in capabilities)) {
 				testedCapabilities.touchEnabled = session.doubleTap()
 					.then(supported, maybeSupported);
 			}
