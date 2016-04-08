@@ -216,15 +216,15 @@
 
 						<h4>Who is Intern best for?</h4>
 
-						<p>Intern is best for development teams that want a complete, flexible, <a href="http://www.w3.org/TR/webdriver/">standards-based</a>, high-quality testing solution that Just Works. It’s best for testing JavaScript code, but it is also an excellent tool for testing server-generated Web pages or native mobile apps. Its built-in support for <a href="http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/">source maps</a> makes it uniquely well-suited for developers that compile their code to JavaScript from another language, or that run tests against production-ready built/minified code.</p>
+						<p>Intern is best for development teams that want a complete, flexible, <a href="http://www.w3.org/TR/webdriver/">standards-based</a>, high-quality testing solution that Just Works. It’s best for testing JavaScript code, but it is also an excellent tool for testing server-generated Web pages or native mobile apps. Its built-in support for <a href="http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/">source maps</a> makes it uniquely well-suited for developers that compile their code to JavaScript from another language, such as TypeScript, or that run tests against production-ready built/minified code.</p>
 
 						<p>Intern is excellent for teams that are just beginning to write tests; its built-in <a href="#reporter-lcov">code coverage analysis</a> makes thorough testing fast and precise, and its <a href="#writing-functional-test">functional testing system</a> enables testing of highly procedural code that’s otherwise impossible to test.</p>
 
 						<p>Intern is a great choice if you’re hoping to transition away from your current testing library but already have a lot of tests, since its <a href="#interface-overview">extensible interfaces</a> make it possible to transition without needing to rewrite tests or learn a totally new set of APIs.</p>
 
-						<p>Intern’s execution model is especially well-suited to those that follow a test-last development approach and want to prevent regressions using continuous integration. It has also been used very successfully by teams that follow a test-driven development approach.</p>
+						<p>Intern’s execution model is well-suited to those that follow a test-last development approach and want to prevent regressions using continuous integration. It has also been used very successfully by teams that follow a test-driven development approach.</p>
 
-						<p>Finally, because of its strong architectural patterns, conventions, and expansive feature set, Intern is especially well-suited for testing extremely large, “enterprise-level” applications that must be maintained by large teams of developers with varying skill levels.</p>
+						<p>Finally, because of its strong architectural patterns, conventions, and expansive feature set, Intern is well-suited for testing extremely large, “enterprise-level” applications that must be maintained by large teams of developers with varying skill levels.</p>
 
 						<div class="a half" id="system-requirements"></div>
 						<h3 data-id="system-requirements">System requirements</h3>
@@ -249,7 +249,7 @@
 								<td>9+</td>
 							</tr>
 							<tr>
-								<td>Node.js/io.js</td>
+								<td>Node.js</td>
 								<td>0.10+</td>
 							</tr>
 							<tr>
@@ -301,7 +301,7 @@
 
 						<p>All other environments are not currently officially supported, but should work as long as they correctly implement EcmaScript 5 (for unit tests) and/or WebDriver (for functional tests).</p>
 
-						<p>In order to execute functional tests, or to execute tests against multiple browsers at the same time, Intern also requires Node.js/io.js 0.10+ plus a WebDriver-compatible server.</p>
+						<p>In order to execute functional tests, or to execute tests against multiple browsers at the same time, Intern also requires Node.js 0.10+ plus a WebDriver-compatible server.</p>
 
 						<p>The following WebDriver servers are compatible with Intern:</p>
 
@@ -336,7 +336,7 @@
 							</tr>
 						</table>
 
-						<p>Intern also integrates with cloud hosted services from <a href="https://browserstack.com">BrowserStack</a>, <a href="https://saucelabs.com">Sauce Labs</a>, and <a href="https://testingbot.com">TestingBot</a>.</p>
+						<p>Intern also has built-in support for cloud hosted services from <a href="https://browserstack.com">BrowserStack</a>, <a href="https://saucelabs.com">Sauce Labs</a>, and <a href="https://testingbot.com">TestingBot</a>.</p>
 
 						<div class="a half" id="reading-guide"></div>
 						<h3 data-id="reading-guide">Reading this guide</h3>
@@ -444,6 +444,8 @@
 													<li
 														>test case
 														<ul>
+															<li>assertion</li>
+															<li>assertion</li>
 															<li>…</li>
 														</ul>
 													</li>
@@ -2228,7 +2230,7 @@ define([
 						<div class="a half" id="node-client"></div>
 						<h3 data-id="node-client">The Node.js client</h3>
 
-						<p>The Node.js client allows unit tests to be run directly within a local Node.js or io.js environment. This is useful when you are writing unit tests for code that runs in Node.js/io.js. It is invoked by running <kbd>intern-client</kbd> on the command-line.</p>
+						<p>The Node.js client allows unit tests to be run directly within a local Node.js environment. This is useful when you are writing unit tests for code that runs in Node.js. It is invoked by running <kbd>intern-client</kbd> on the command-line.</p>
 
 						<p>A typical execution that runs all tests and outputs results to the console would look like this:</p>
 
