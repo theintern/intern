@@ -123,6 +123,7 @@
 								<li data-id="writing-functional-test"><a href="#writing-functional-test">Writing a functional test</a></li>
 								<li data-id="page-objects"><a href="#page-objects">Page objects</a></li>
 								<li data-id="native-apps"><a href="#native-apps">Testing native apps</a></li>
+								<li data-id="debugging"><a href="#debugging">Debugging</a></li>
 							</ul>
 						</li>
 						<li data-id="webdriver-server">
@@ -183,6 +184,14 @@
 							<ul class="subsections">
 								<li data-id="getting-help"><a href="#getting-help">Getting help</a></li>
 								<li data-id="contributing"><a href="#contributing">Contributing</a></li>
+							</ul>
+						</li>
+						<li data-id="faq">
+							<a href="#faq">FAQ</a>
+							<ul class="subsections">
+								<li data-id="modifier-keys"><a href="#modifier-keys">Using Modifier Keys</a></li>
+								<li data-id="test-page-open"><a href="#test-page-open">Keeping the Test Page Open</a></li>
+								<li data-id="multiple-browsers"><a href="#multiple-browsers">Testing with Multiple Browsers</a></li>
 							</ul>
 						</li>
 					</ul>
@@ -2003,6 +2012,28 @@ define([
 }</code></pre>
 
 						<p>Once the application has started successfully, you can interact with it using any of the <a href="http://selendroid.io/native.html">supported WebDriver APIs</a>.</p>
+
+						<div class="a half" id="debugging"></div>
+						<h3 data-id="debugging">Debugging</h3>
+
+						<p>Keep in mind that JavaScript code is running in two separate environments: your test suites are run in Node.js, while the page loaded by functional tests runs in a web browser. Debugging code on the test page should be done prior to testing time by opening it directly and using the browser's debugging tools. Debugging can be done with <a href="https://github.com/node-inspector/node-inspector">node-inspector</a>.</p>
+
+						<ol>
+							<li><kbd class="bash">npm install -g node-inspector</kbd></li>
+							<li>Your test modules are loaded dynamically by Intern, so they will likely not show up in the debugger's file list. In order to set a break point you will need to add a debugger statement in your test code.</li>
+							<li>Launch Node.js with debugging enabled, set to pause on the first line of code:
+								<ul>
+									<li><kbd class="bash">node --debug-brk node_modules/intern/runner config=myPackage/test/intern</kbd></li>
+								</ul>
+							</li>
+							<li>Launch node-inspector by running <kbd class="bash">node-inspector</kbd>.</li>
+							<li>Open Chrome (you must use Chrome as node-inspector leverages Chrome's developer tools) to:
+								<ul>
+									<li><kbd class="bash">http://127.0.0.1:8080/debug?port=5858</kbd></li>
+								</ul>
+							</li>
+							<li>Continue code execution (F8) until your debugger statement.</li>
+						</ol>
 					</article>
 
 					<article>
@@ -3659,6 +3690,64 @@ define({
 						<h3 data-id="contributing">Contributing</h3>
 
 						<p>We’re always excited to receive contributions from the community. If you think you’ve discovered a bug, want to submit a patch, or would like to request a new feature, take a look at our <a href="https://github.com/theintern/intern/blob/master/CONTRIBUTING.md">contribution guidelines on GitHub</a> to learn how you can contribute.</p>
+					</article>
+
+					<article>
+						<div class="a" id="faq"></div>
+						<h2 data-id="faq">FAQ</h2>
+
+						<div class="a half" id="modifier-keys"></div>
+						<h3 data-id="modifier-keys">How do I use modifier keys?</h3>
+
+						<p>We recommend using Leadfoot to provide cross-browser consistency to the WebDriver API. To send <kbd class="bash">Shift</kbd> + Click to the browser you need to import the <kbd class="bash">leadfoot/keys</kbd> module, documented within <a href="https://theintern.github.io/leadfoot/module-leadfoot_keys.html">Leadfoot's API</a>:</p>
+
+						<pre><code class="javascript">require([
+	'intern!object',
+	'chai!assert',
+	'intern/dojo/node!leadfoot/keys'
+], function (registerSuite, assert, keys) {
+	registerSuite({
+		name: 'test',
+		'test1': function () {
+			var remote = this.remote();
+			return remote.get('testpage.html')
+				.elementById('testLink')
+				.pressKeys(keys.SHIFT)
+				.clickElement()
+				.pressKeys(keys.NULL)
+				.end();
+		}
+	});
+});</code></pre>
+
+						<div class="a half" id="test-page-open"></div>
+						<h3 data-id="test-page-open">How can I keep the test page open?</h3>
+
+						<p>After the tests are done the browser is closed. This makes sense and is ideal for running automated tests but sometimes during test development you want to inspect the page to make adjustments or troubleshoot the cause of a failure. You can use Intern's <kbd class="bash">leaveRemoteOpen</kbd> command line option to keep the browser open after testing is complete. To use it just include it on the command line:</p>
+
+						<pre><kbd class="bash">node node_modules/intern/runner/config=myPackage/test/intern leaveRemoteOpen</kbd></pre>
+
+						<div class="a half" id="multiple-browsers"></div>
+						<h3 data-id="multiple-browsers">How do I test with multiple browsers?</h3>
+
+						<p>Once you've developed your tests and are satisfied with their quality and functionality, you may want to do additional local testing before using a remote testing service like Sauce Labs. In your Intern config, you can change the <kbd class="bash">browserName</kbd> value in <kbd class="bash">environments</kbd>, or you can specify multiple browsers:</p>
+
+						<pre><code class="javascript">{
+	environments: [
+		{ browserName: 'chrome' },
+		{ browserName: 'firefox' },
+		{ browserName: 'internet explorer' },
+		{ browserName: 'safari' }
+	]
+}</code></pre>
+
+						<p>Selenium server includes drivers for Firefox and Safari, and drivers are available for <a href="https://sites.google.com/a/chromium.org/chromedriver/">Chrome</a> and <a href="https://developer.microsoft.com/en-us/microsoft-edge/platform/status/webdriver">IE11/Edge</a>. The <a href="https://github.com/seleniumhq/selenium/wiki">Selenium wiki</a> includes documentation for each driver. If you're using IEDriver or ChromeDriver, be sure the executables are in a directory in your environment's PATH.</p>
+
+						<ol>
+							<li>Download <a href="http://docs.seleniumhq.org/download/">Selenium server</a> (the standalone .jar)</li>
+							<li>Launch Selenium server: <kbd class="bash">java -jar selenium-server-standalone-2.53.0.jar</kbd></li>
+							<li>Run your Intern tests: <kbd class="bash">node node_modules/intern/runner config=myPackage/test/intern</kbd></li>
+						</ol>
 					</article>
 				</main>
 			</div>
