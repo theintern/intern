@@ -65,8 +65,18 @@ module.exports = function (grunt) {
 				testingbotKey: true,
 				testingbotSecret: true,
 				nodeEnv: true,
-				cwd: true
+				cwd: true,
+				nodeOptions: true
 			};
+
+		if (opts.nodeOptions) {
+			// Node Options need to go at the beginning
+			if (Array.isArray(opts.nodeOptions)) {
+				Array.prototype.unshift.apply(args, opts.nodeOptions);
+			} else {
+				args.unshift(opts.nodeOptions);
+			}
+		}
 
 		Object.keys(opts).forEach(function (option) {
 			if (skipOptions[option]) {
@@ -107,7 +117,7 @@ module.exports = function (grunt) {
 
 		// force colored output for istanbul report
 		env.FORCE_COLOR = true;
-		
+
 		var child = grunt.util.spawn({
 			cmd: process.argv[0],
 			args: args,
