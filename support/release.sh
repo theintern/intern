@@ -29,6 +29,7 @@ fi
 
 ROOT_DIR=$(cd $(dirname $0) && cd .. && pwd)
 BUILD_DIR="$ROOT_DIR/build"
+BUILD_REMOTE="_build_"
 
 if [ -d "$BUILD_DIR" ]; then
 	echo "Existing build directory detected at $BUILD_DIR"
@@ -53,7 +54,8 @@ fi
 
 cd "$ROOT_DIR"
 mkdir "$BUILD_DIR"
-git clone --recursive git@github.com:theintern/intern.git "$BUILD_DIR"
+git clone --recursive . "$BUILD_DIR"
+git remote add "$BUILD_REMOTE" "$BUILD_DIR"
 
 cd "$BUILD_DIR"
 
@@ -119,7 +121,7 @@ if [ $(git tag |grep -c "^$TAG_VERSION$") -gt 0 ]; then
 fi
 
 # Set the package version to release version
-sed -i -e "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" package.json
+sed -i '' -e "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" package.json
 
 # Fix the Git-based dependencies to specific commit IDs
 echo -e "\nFixing dependency commits...\n"
@@ -138,7 +140,7 @@ for DEP in dojo; do
 			rm -rf "$BUILD_DIR/.dep"
 			DEP_URL=$(echo $DEP_URL |sed -e 's/[\/&]/\\&/g')
 			echo -e "\nFixing dependency $DEP to commit $COMMIT...\n"
-			sed -i -e "s/\(\"$DEP\":\) \"[^\"]*\"/\1 \"$DEP_URL\/archive\/$COMMIT.tar.gz\"/" package.json
+			sed -i '' -e "s/\(\"$DEP\":\) \"[^\"]*\"/\1 \"$DEP_URL\/archive\/$COMMIT.tar.gz\"/" package.json
 		fi
 	fi
 done
@@ -152,7 +154,7 @@ git checkout HEAD^ package.json
 git reset package.json
 
 # Set the package version to next pre-release version
-sed -i -e "s/\"version\": \"[^\"]*\"/\"version\": \"$PRE_VERSION\"/" package.json
+sed -i '' -e "s/\"version\": \"[^\"]*\"/\"version\": \"$PRE_VERSION\"/" package.json
 
 # Commit the pre-release to Git
 git commit -m "Updating source version to $PRE_VERSION" package.json
@@ -163,7 +165,7 @@ if [ "$MAKE_BRANCH" != "" ]; then
 	git checkout -b $MAKE_BRANCH $TAG_VERSION
 
 	# Set the package version to the next patch pre-release version
-	sed -i -e "s/\"version\": \"[^\"]*\"/\"version\": \"$BRANCH_VERSION\"/" package.json
+	sed -i '' -e "s/\"version\": \"[^\"]*\"/\"version\": \"$BRANCH_VERSION\"/" package.json
 
 	# Commit the pre-release to Git
 	git commit -m "Updating source version to $BRANCH_VERSION" package.json
@@ -172,11 +174,12 @@ if [ "$MAKE_BRANCH" != "" ]; then
 	PUSH_BRANCHES="$PUSH_BRANCHES $MAKE_BRANCH"
 fi
 
+git checkout $RELEASE_TAG
+
 echo -e "\nDone!\n"
 
-echo "Please confirm packaging success, then press 'y', ENTER to publish to"
-echo "npm $NPM_TAG, push tags $RELEASE_TAG, and upload,"
-echo "or any other key to bail."
+echo "Please confirm packaging success, then press 'y', ENTER to publish to npm "
+echo "$NPM_TAG, push tags $RELEASE_TAG, and upload, or any other key to bail."
 read -p "> "
 
 if [ "$REPLY" != "y" ]; then
@@ -184,16 +187,17 @@ if [ "$REPLY" != "y" ]; then
 	exit 0
 fi
 
-for BRANCH in $PUSH_BRANCHES; do
-	git push origin $BRANCH
-done
-
-git push origin --tags
-
-git checkout $RELEASE_TAG
 npm publish --tag $NPM_TAG
 
 cd "$ROOT_DIR"
+git fetch "$BUILD_DIR" --tags
+
+for BRANCH in $PUSH_BRANCHES; do
+	git checkout $BRANCH
+	git pull "$BUILD_REMOTE" "$BRANCH"
+done
+
 rm -rf "$BUILD_DIR"
+git remote remove "$BUILD_REMOTE"
 
 echo -e "\nAll done! Yay!"

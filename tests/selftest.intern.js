@@ -7,15 +7,15 @@ define({
 		'idle-timeout': 30
 	},
 	environments: [
-		{ browserName: 'internet explorer', version: '11', platform: 'WIN8', fixSessionCapabilities: false },
-		{ browserName: 'internet explorer', version: '10', platform: 'WIN8', fixSessionCapabilities: false },
-		{ browserName: 'internet explorer', version: '9', platform: 'WINDOWS', fixSessionCapabilities: false },
-		{ browserName: 'firefox', version: '33', platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
-		{ browserName: 'chrome', version: '38', platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false }
+		{ browserName: 'internet explorer', version: '11.0', platform: 'Windows 10', fixSessionCapabilities: false },
+		{ browserName: 'internet explorer', version: '10.0', platform: 'Windows 8', fixSessionCapabilities: false },
+		{ browserName: 'internet explorer', version: '9.0', platform: 'Windows 7', fixSessionCapabilities: false },
+		{ browserName: 'firefox', version: '33.0', platform: [ 'Windows 7', 'OS X 10.11' ], fixSessionCapabilities: false },
+		{ browserName: 'chrome', version: '38.0', platform: [ 'Windows 7', 'OS X 10.11' ], fixSessionCapabilities: false }
 	],
 
 	maxConcurrency: 2,
-	tunnel: 'BrowserStackTunnel',
+	tunnel: 'SauceLabsTunnel',
 
 	loaderOptions: {
 		// Packages that should be registered with the loader in each testing environment

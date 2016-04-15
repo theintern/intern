@@ -1,6 +1,6 @@
 // Learn more about configuring this file at <https://theintern.github.io/intern/#configuration>.
-// These default settings work OK for most people. The options that *must* be changed below are the
-// packages, suites, excludeInstrumentation, and (if you want functional tests) functionalSuites
+// These default settings work OK for most people. The options that *must* be changed below are the packages, suites,
+// excludeInstrumentation, and (if you want functional tests) functionalSuites
 define({
 	// Default desired capabilities for all environments. Individual capabilities can be overridden by any of the
 	// specified browser environments in the `environments` array below as well. See
@@ -13,9 +13,9 @@ define({
 		'browserstack.selenium_version': '2.45.0'
 	},
 
-	// Browsers to run integration testing against. Note that version numbers must be strings if used with Sauce
-	// OnDemand. Options that will be permutated are browserName, version, platform, and platformVersion; any other
-	// capabilities options specified for an environment will be copied as-is
+	// Browsers to run integration testing against. Options that will be permutated are browserName, version, platform,
+	// and platformVersion; any other capabilities options specified for an environment will be copied as-is. Note that
+	// browser and platform names, and version number formats, may differ between cloud testing systems.
 	environments: [
 		{ browserName: 'internet explorer', version: '11', platform: 'WIN8' },
 		{ browserName: 'internet explorer', version: '10', platform: 'WIN8' },
@@ -35,18 +35,19 @@ define({
 	// Configuration options for the module loader; any AMD configuration options supported by the AMD loader in use
 	// can be used here.
 	// If you want to use a different loader than the default loader, see
-	// <https://theintern.github.io/intern/#option-useLoader> for instruction
+	// <https://theintern.github.io/intern/#option-useLoader> for more information.
 	loaderOptions: {
 		// Packages that should be registered with the loader in each testing environment
 		packages: [ { name: 'myPackage', location: '.' } ]
 	},
 
-	// Non-functional test suite(s) to run in each browser
+	// Unit test suite(s) to run in each browser
 	suites: [ /* 'myPackage/tests/foo', 'myPackage/tests/bar' */ ],
 
-	// Functional test suite(s) to execute against each browser once non-functional tests are completed
+	// Functional test suite(s) to execute against each browser once unit tests are completed
 	functionalSuites: [ /* 'myPackage/tests/functional' */ ],
 
-	// A regular expression matching URLs to files that should not be included in code coverage analysis
+	// A regular expression matching URLs to files that should not be included in code coverage analysis. Set to `true`
+	// to completely disable code coverage.
 	excludeInstrumentation: /^(?:tests|node_modules)\//
 });

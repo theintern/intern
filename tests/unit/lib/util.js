@@ -175,6 +175,24 @@ define([
 				}));
 			},
 
+			'source map from inline': function () {
+				if (!has('host-node')) {
+					this.skip('requires Node.js');
+				}
+
+				var dfd = this.async();
+
+				require([ '../data/lib/util/baz' ], dfd.callback(function (Baz) {
+					var baz = new Baz();
+					try {
+						baz.run();
+					}
+					catch (error) {
+						assert.match(util.getErrorMessage(error), /\bbaz.ts:5\b/);
+					}
+				}));
+			},
+
 			'object diff': function () {
 				var error = {
 					name: 'Error',
@@ -209,6 +227,107 @@ define([
 					'    11: 12,\n    12: 13,\n    13: 14,\n    14: 15,\nE   15: 32,\nA   15: 16,\n    length: 16\n  ]\n\n',
 					'Splits in long diffs should be indicated by an ellipsis'
 				);
+			}
+		},
+
+		'.isGlobModuleId': function () {
+			var globs = [
+				'tests/unit/a*',
+				'tests/unit/a*/*b',
+				'tests/unit/a*/**/*',
+				'tests/unit/**/*',
+				'tests/[uU]nit/foo',
+				'tests/unit/!(foo|bar)',
+				'tests/unit/?(foo|bar)',
+				'tests/unit/+(foo|bar)',
+				'tests/unit/*(foo|bar)',
+				'tests/unit/@(foo|bar)',
+				'tests/unit/{foo,bar}'
+			];
+			var notGlobs = [
+				'tests/unit/a',
+				'tests/unit!',
+				'tests/unit!()',
+				'tests/unit!fs',
+				'http://tests/unit?someArg'
+			];
+
+			globs.forEach(function (mid) {
+				assert.isTrue(util.isGlobModuleId(mid), 'Expected ' + mid + ' to be classified as a glob');
+			});
+
+			notGlobs.forEach(function (mid) {
+				assert.isFalse(util.isGlobModuleId(mid), 'Expected ' + mid + ' to not be classified as a glob');
+			});
+		},
+
+		'.resolveModuleIds': {
+			'null or undefined': function () {
+				var nullActual = util.resolveModuleIds(null);
+				assert.isNull(nullActual, 'Unexpected resolution for null');
+
+				var undefinedActual = util.resolveModuleIds(undefined);
+				assert.isUndefined(undefinedActual, 'Unexpected resolution for undefined');
+			},
+
+			'non-glob': function () {
+				if (!has('host-node')) {
+					this.skip('requires Node.js');
+				}
+
+				var moduleIds = [
+					'intern-selftest/tests/unit/lib/util'
+				];
+				var expected = [
+					'intern-selftest/tests/unit/lib/util',
+				];
+				var actual = util.resolveModuleIds(moduleIds);
+				assert.deepEqual(actual, expected, 'Non-glob MID should have been returned unchanged');
+			},
+
+			'single-level': function () {
+				if (!has('host-node')) {
+					this.skip('requires Node.js');
+				}
+
+				var moduleIds = [
+					'intern-selftest/tests/unit/*'
+				];
+				var expected = [
+					'intern-selftest/tests/unit/all',
+					'intern-selftest/tests/unit/main',
+					'intern-selftest/tests/unit/order'
+				];
+				var actual = util.resolveModuleIds(moduleIds);
+				assert.deepEqual(actual, expected, 'Unexpected resolution for single-level glob');
+			},
+
+			'multi-level': function () {
+				if (!has('host-node')) {
+					this.skip('requires Node.js');
+				}
+
+				var moduleIds = [
+					'intern-selftest/tests/functional/**/*'
+				];
+				var expected = [
+					'intern-selftest/tests/functional/lib/ProxiedSession'
+				];
+				var actual = util.resolveModuleIds(moduleIds);
+				assert.deepEqual(actual, expected, 'Unexpected resolution for multi-level glob');
+			},
+
+			'non-JS files': function () {
+				if (!has('host-node')) {
+					this.skip('requires Node.js');
+				}
+
+				var moduleIds = [
+					'intern-selftest/tests/unit/lib/data/repoters/**/*'
+				];
+				var expected = [];
+				var actual = util.resolveModuleIds(moduleIds);
+				assert.deepEqual(actual, expected, 'Non-JS files should not be include in resolved values');
 			}
 		},
 
