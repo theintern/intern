@@ -1,6 +1,6 @@
 {
 	"name": "intern",
-	"version": "3.1.0-pre",
+	"version": "3.2.0-pre",
 	"main": "main",
 	"description": "Intern. A next-generation code testing stack for JavaScript.",
 	"repository": {
@@ -11,16 +11,17 @@
 	"dependencies": {
 		"istanbul": "0.4.1",
 		"source-map": "0.1.33",
-		"dojo": "2.0.0-alpha.6",
-		"chai": "3.0.0",
+		"dojo": "2.0.0-alpha.7",
+		"chai": "3.5.0",
 		"mimetype": "0.0.8",
-		"leadfoot": "1.6.4",
-		"digdug": "1.3.2",
+		"leadfoot": "1.6.6",
+		"digdug": "1.4.0",
 		"charm": "0.2.0",
-		"diff": "1.1.0"
+		"diff": "1.1.0",
+		"glob": "7.0.3"
 	},
 	"devDependencies": {
-		"intern": "3.0.3"
+		"intern": "3.0.6"
 	},
 	"scripts": {
 		"install": "node support/fixdeps.js",
