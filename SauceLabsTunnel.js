@@ -163,6 +163,11 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 */
 	vmVersion: null,
 
+	/**
+	 * The URL of a service that provides a list of environments supported by Sauce Labs.
+	 */
+	environmentUrl: 'https://saucelabs.com/rest/v1/info/platforms/webdriver',
+
 	get auth() {
 		return this.username + ':' + this.accessKey;
 	},
@@ -456,6 +461,64 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		}));
 
 		return child;
+	},
+
+	/**
+	 * Attempt to normalize a SauceLabs described environment with the standard Selenium capabilities
+	 *
+	 * SauceLabs returns a list of environments that looks like:
+	 *
+	 * {
+	 *     "short_version": "25",
+	 *     "long_name": "Firefox",
+	 *     "api_name": "firefox",
+	 *     "long_version": "25.0b2.",
+	 *     "latest_stable_version": "",
+	 *     "automation_backend": "webdriver",
+	 *     "os": "Windows 2003"
+	 * }
+	 *
+	 * @param {Object} environment a SauceLabs environment descriptor
+	 * @returns a normalized descriptor
+	 * @private
+	 */
+	_normalizeEnvironment: function (environment) {
+		var windowsMap = {
+			'Windows 2003': 'Windows XP',
+			'Windows 2008': 'Windows 7',
+			'Windows 2012': 'Windows 8',
+			'Windows 2012 R2': 'Windows 8.1',
+			'Windows 10': 'Windows 10'
+		};
+
+		var browserMap = {
+			'microsoftedge': 'MicrosoftEdge'
+		};
+
+		var os = environment.os;
+		var platformName = os;
+		var platformVersion;
+		if (os.indexOf('Windows') === 0) {
+			os = windowsMap[os] || os;
+			platformName = 'Windows';
+			platformVersion = os.slice('Windows '.length);
+		}
+		else if (os.indexOf('Mac') === 0) {
+			platformName = 'OS X';
+			platformVersion = os.slice('Mac '.length);
+		}
+
+		return {
+			platform: platformName + (platformVersion ? ' ' + platformVersion : ''),
+			platformName: platformName,
+			platformVersion: platformVersion,
+
+			browserName: browserMap[environment.api_name] || environment.api_name,
+			browserVersion: environment.short_version,
+			version: environment.short_version,
+
+			descriptor: environment
+		};
 	}
 });
 

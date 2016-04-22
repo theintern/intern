@@ -9,7 +9,8 @@ define([
 	'intern/dojo/node!path',
 	'intern!object',
 	'intern/chai!assert',
-	'intern'
+	'intern',
+	'intern/dojo/Promise'
 ], function (
 	Tunnel,
 	SauceLabsTunnel,
@@ -99,7 +100,7 @@ define([
 					tunnel = new SauceLabsTunnel();
 				},
 
-				'#start': function() {
+				'#start': function() { // TODO move this to integration tests
 					tunnelTest(this.async(120000), tunnel, function (error) {
 						return /Not authorized/.test(error.message);
 					});
@@ -166,7 +167,7 @@ define([
 					tunnel = new BrowserStackTunnel();
 				},
 
-				'#start': function () {
+				'#start': function () {  // TODO move this to integration tests
 					tunnelTest(this.async(), tunnel, function (error) {
 						return /The tunnel reported:/.test(error.message);
 					});
@@ -225,7 +226,7 @@ define([
 					tunnel = new TestingBotTunnel();
 				},
 
-				'#start': function () {
+				'#start': function () {  // TODO move this to integration tests
 					tunnelTest(this.async(120000), tunnel, function (error) {
 						return /Could not get tunnel info/.test(error.message);
 					});

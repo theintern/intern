@@ -10,7 +10,8 @@ define({
 	},
 	reporters: [ 'Console' ],
 	suites: [
-		'dojo/has!host-node?digdug/tests/all'
+		'dojo/has!host-node?digdug/tests/unit',
+		'dojo/has!host-node?digdug/tests/integration/all'
 	],
 	functionalSuites: [],
 	excludeInstrumentation: /^(?:tests|node_modules)\//

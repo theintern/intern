@@ -99,6 +99,11 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	 */
 	useSsl: false,
 
+	/**
+	 * The URL of a service that provides a list of environments supported by TestingBot.
+	 */
+	environmentUrl: 'https://api.testingbot.com/v1/browsers',
+
 	get auth() {
 		return this.apiKey + ':' + this.apiSecret;
 	},
@@ -216,6 +221,36 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 		);
 
 		return child;
+	},
+
+	/**
+	 * Attempt to normalize a TestingBot described environment with the standard Selenium capabilities
+	 *
+	 * TestingBot returns a list of environments that looks like:
+	 *
+	 * {
+	 *     "selenium_name": "Chrome36",
+	 *     "name": "googlechrome",
+	 *     "platform": "CAPITAN",
+	 *     "version":"36"
+	 * }
+	 *
+	 * @param {Object} environment a TestingBot environment descriptor
+	 * @returns a normalized descriptor
+	 * @private
+	 */
+	_normalizeEnvironment: function (environment) {
+		var browserMap = {
+			googlechrome: 'chrome',
+			iexplore: 'internet explorer'
+		};
+
+		return {
+			platform: environment.platform,
+			browserName: browserMap[environment.name] || environment.name,
+			version: environment.version,
+			descriptor: environment
+		};
 	}
 });
 

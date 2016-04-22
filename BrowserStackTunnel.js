@@ -94,6 +94,11 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	 */
 	username: null,
 
+	/**
+	 * The URL of a service that provides a list of environments supported by BrowserStack.
+	 */
+	environmentUrl: 'https://www.browserstack.com/automate/browsers.json',
+
 	get auth() {
 		return this.username + ':' + this.accessKey;
 	},
@@ -254,6 +259,59 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 		}, 5000);
 
 		return dfd.promise;
+	},
+
+	/**
+	 * Attempt to normalize a BrowserStack described environment with the standard Selenium capabilities
+	 * 
+	 * BrowserStack returns a list of environments that looks like:
+	 *
+	 * {
+	 *     "browser": "opera",
+	 *     "os_version": "Lion",
+	 *     "browser_version":"12.15",
+	 *     "device": null,
+	 *     "os": "OS X"
+	 * }
+	 * 
+	 * @param {Object} environment a BrowserStack environment descriptor
+	 * @returns a normalized descriptor
+	 * @private
+	 */
+	_normalizeEnvironment: function (environment) {
+		var platformMap = {
+			Windows: {
+				'10': 'WINDOWS',
+				'8.1': 'WIN8',
+				'8': 'WIN8',
+				'7': 'WINDOWS',
+				'XP': 'XP'
+			},
+
+			'OS X': 'MAC'
+		};
+
+		var browserMap = {
+			ie: 'internet explorer'
+		};
+
+		// Create the BS platform name for a given os + version
+		var platform = platformMap[environment.os] || environment.os;
+		if (typeof platform === 'object') {
+			platform = platform[environment.os_version];
+		}
+
+		return {
+			platform: platform,
+			platformName: environment.os,
+			platformVersion: environment.os_version,
+
+			browserName: browserMap[environment.browser] || environment.browser,
+			browserVersion: environment.browser_version,
+			version: environment.browser_version,
+
+			descriptor: environment
+		};
 	}
 });
 
