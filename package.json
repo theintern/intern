@@ -9,7 +9,7 @@
 	"license": "BSD-3-Clause",
 	"dependencies": {
 		"dojo": "2.0.0-alpha.7",
-		"decompress": "0.2.3"
+		"decompress": "3.0.0"
 	},
 	"devDependencies": {
 		"intern": "3.0.6"

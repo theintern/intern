@@ -80,11 +80,17 @@ define([
 		name: 'digdug',
 
 		afterEach: function () {
-			if (tunnel.isRunning) {
-				tunnel.stop();
+			function _cleanup() {
+				cleanup(tunnel);
+				tunnel = null;
 			}
-			cleanup(tunnel);
-			tunnel = null;
+
+			if (tunnel.isRunning) {
+				return tunnel.stop().finally(_cleanup);
+			}
+			else {
+				_cleanup();
+			}
 		},
 
 		'SauceLabsTunnel': (function () {
@@ -94,7 +100,7 @@ define([
 				},
 
 				'#start': function() {
-					tunnelTest(this.async(), tunnel, function (error) {
+					tunnelTest(this.async(120000), tunnel, function (error) {
 						return /Not authorized/.test(error.message);
 					});
 				},

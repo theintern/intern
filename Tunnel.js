@@ -2,7 +2,7 @@
  * @module digdug/Tunnel
  */
 
-var decompress = require('decompress');
+var Decompress = require('decompress');
 var Evented = require('dojo/Evented');
 var fs = require('fs');
 var pathUtil = require('path');
@@ -270,26 +270,38 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 				request && request.cancel(reason);
 			});
 
-			var decompressor = decompress({ ext: self.url, path: self.directory });
-			var options = {
-				streamData: true,
-				streamTarget: decompressor,
-				proxy: self.proxy
-			};
-
 			if (!forceDownload && self.isDownloaded) {
 				resolve();
 				return;
 			}
 
-			var request = sendRequest(self.url, options);
-			request.then(resolve, function (error) {
-				if (error.response && error.response.statusCode >= 400) {
-					error = new Error('Download server returned status code ' + error.response.statusCode);
-				}
+			var request = sendRequest(self.url, { proxy: self.proxy });
+			request.then(
+				function (response) {
+					var decompressor = new Decompress();
+					decompressor.src(response.data)
+						.use(Decompress.zip())
+						.use(Decompress.targz())
+						.dest(self.directory)
+						.run(function (error) {
+							if (error) {
+								reject(error);
+							}
+							else {
+								resolve();
+							}
+						});
+				},
+				function (error) {
+					if (error.response && error.response.statusCode >= 400) {
+						error = new Error('Download server returned status code ' + error.response.statusCode);
+					}
+					reject(error);
+				},
+				progress
+			);
 
-				reject(error);
-			}, progress);
+			return request;
 		});
 	},
 
