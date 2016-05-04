@@ -232,7 +232,7 @@ define([
 		},
 
 		'.instrument': function () {
-			if (!has('host-node')) {
+			if (!has.default('host-node')) {
 				this.skip('requires Node.js');
 			}
 
