@@ -6,7 +6,7 @@ define([
 	'../../../../lib/Suite',
 	'../../../../lib/Test',
 	'../../../../lib/reporters/JUnit',
-	'dojo/text!../../data/lib/reporters/JUnit/expected.xml'
+	'dojo-core/text!../../data/lib/reporters/JUnit/expected.xml'
 ], function (registerSuite, fs, assert, EnvironmentType, Suite, Test, JUnit, expected) {
 	registerSuite({
 		name: 'intern/lib/reporters/JUnit',

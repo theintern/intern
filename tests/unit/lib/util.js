@@ -4,13 +4,13 @@ define([
 	'intern/chai!assert',
 	'../../../lib/util',
 	'../../../lib/EnvironmentType',
-	'dojo/has',
+	'dojo-core/has',
 	'dojo/Promise',
 	'require',
-	'dojo/has!host-node?dojo/node!fs',
-	'dojo/has!host-node?dojo/node!path',
-	'dojo/has!host-node?dojo/node!vm',
-	'dojo/has!host-node?dojo/node!istanbul/lib/hook'
+	'dojo-core/has!host-node?dojo/node!fs',
+	'dojo-core/has!host-node?dojo/node!path',
+	'dojo-core/has!host-node?dojo/node!vm',
+	'dojo-core/has!host-node?dojo/node!istanbul/lib/hook'
 ], function (intern, registerSuite, assert, util, EnvironmentType, has, Promise, require, fs, pathUtil, vm, hook) {
 	/* jshint maxlen:140 */
 	registerSuite({
@@ -111,7 +111,7 @@ define([
 			},
 
 			'source map from instrumentation': function () {
-				if (!has('host-node')) {
+				if (!has.default('host-node')) {
 					this.skip('requires Node.js');
 				}
 
@@ -159,7 +159,7 @@ define([
 			},
 
 			'source map from file': function () {
-				if (!has('host-node')) {
+				if (!has.default('host-node')) {
 					this.skip('requires Node.js');
 				}
 
@@ -177,7 +177,7 @@ define([
 			},
 
 			'source map from inline': function () {
-				if (!has('host-node')) {
+				if (!has.default('host-node')) {
 					this.skip('requires Node.js');
 				}
 
@@ -232,7 +232,7 @@ define([
 		},
 
 		'.instrument': function () {
-			if (!has('host-node')) {
+			if (!has.default('host-node')) {
 				this.skip('requires Node.js');
 			}
 
@@ -287,7 +287,7 @@ define([
 			},
 
 			'non-glob': function () {
-				if (!has('host-node')) {
+				if (!has.default('host-node')) {
 					this.skip('requires Node.js');
 				}
 
@@ -302,7 +302,7 @@ define([
 			},
 
 			'single-level': function () {
-				if (!has('host-node')) {
+				if (!has.default('host-node')) {
 					this.skip('requires Node.js');
 				}
 
@@ -319,7 +319,7 @@ define([
 			},
 
 			'multi-level': function () {
-				if (!has('host-node')) {
+				if (!has.default('host-node')) {
 					this.skip('requires Node.js');
 				}
 
@@ -334,7 +334,7 @@ define([
 			},
 
 			'non-JS files': function () {
-				if (!has('host-node')) {
+				if (!has.default('host-node')) {
 					this.skip('requires Node.js');
 				}
 
@@ -418,7 +418,7 @@ define([
 			object = function fn() {};
 			object.foo = 'foo';
 
-			if (has('function-name')) {
+			if (has.default('function-name')) {
 				assert.strictEqual(
 					util.serialize(object),
 					'fn({\n  "foo": "foo"\n})',

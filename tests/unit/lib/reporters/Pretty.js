@@ -7,7 +7,7 @@ define([
 	'../../../../lib/Suite',
 	'../../../../lib/Test',
 	'./support/mocks',
-	'dojo/has!host-node?dojo/node!istanbul/lib/report/text'
+	'dojo-core/has!host-node?dojo/node!istanbul/lib/report/text'
 ], function (registerSuite, assert, Pretty, EnvironmentType, Suite, Test, mock, Reporter) {
 	function bar(results) {
 		return results.map(function (result) {

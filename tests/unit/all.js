@@ -12,9 +12,9 @@ define([
 	'./lib/interfaces/object',
 	'./lib/interfaces/qunit',
 	'./lib/reporters/Console',
-	'dojo/has!host-node?./lib/Proxy',
-	'dojo/has!host-node?./lib/reporters/Pretty',
-	'dojo/has!host-node?./lib/reporters/TeamCity',
-	'dojo/has!host-node?./lib/reporters/JUnit',
-	'dojo/has!host-node?./lib/reporters/Lcov'
+	'dojo-core/has!host-node?./lib/Proxy',
+	'dojo-core/has!host-node?./lib/reporters/Pretty',
+	'dojo-core/has!host-node?./lib/reporters/TeamCity',
+	'dojo-core/has!host-node?./lib/reporters/JUnit',
+	'dojo-core/has!host-node?./lib/reporters/Lcov'
 ], function () {});

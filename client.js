@@ -1,7 +1,7 @@
 /* jshint node:true, es3:false */
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
 	(function () {
-		require('dojo/loader')((this.__internConfig = {
+		this.__internConfig = {
 			baseUrl: process.cwd().replace(/\\/g, '/'),
 			packages: [
 				{ name: 'intern', location: __dirname.replace(/\\/g, '/') }
@@ -10,19 +10,24 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 				intern: {
 					dojo: 'intern/browser_modules/dojo',
 					chai: 'intern/browser_modules/chai/chai',
-					diff: 'intern/browser_modules/diff/diff'
+					diff: 'intern/browser_modules/diff/diff',
+					'dojo-core': 'intern/browser_modules/dojo-core'
 				},
 				'*': {
 					'intern/dojo': 'intern/browser_modules/dojo'
 				}
 			}
-		}), [ 'intern/client' ]);
+		}
+
+		var AMDRequire = require('dojo-loader/loader');
+		AMDRequire.config(this.__internConfig);
+		AMDRequire([ 'intern/client' ]);
 	})();
 }
 else {
 	define([
 		'./lib/executors/PreExecutor',
-		'dojo/has!host-node?./lib/exitHandler'
+		'dojo-core/has!host-node?./lib/exitHandler'
 	], function (PreExecutor, exitHandler) {
 		var executor = new PreExecutor({
 			defaultLoaderOptions: (function () {
