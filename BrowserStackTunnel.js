@@ -58,6 +58,10 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	 */
 	killOtherTunnels: false,
 
+	port: 443,
+
+	protocol: 'https',
+
 	/**
 	 * A list of server URLs that should be proxied by the tunnel. Only the hostname, port, and protocol are used.
 	 *
