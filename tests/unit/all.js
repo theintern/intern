@@ -6,6 +6,7 @@ define([
 	'./lib/Test',
 	'./lib/util',
 	'./lib/ReporterManager',
+	'./lib/executors/PreExecutor',
 	'./lib/interfaces/tdd',
 	'./lib/interfaces/bdd',
 	'./lib/interfaces/object',

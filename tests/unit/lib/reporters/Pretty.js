@@ -241,7 +241,7 @@ define([
 					pretty.colorReplacement['×'] + '× 3\n' +
 					pretty.colorReplacement['!'] + '! 4\n\n' +
 					'Total: Pending\n' +
-					'Passed: 0  Failed: 0  Skipped: 0\n\n';
+					'Passed: 0  Failed: 0  Skipped: 0\n';
 				var oldReporterWriteReport = Reporter.prototype.writeReport;
 				Reporter.prototype.writeReport = createStub();
 
@@ -249,7 +249,9 @@ define([
 					pretty.log = ['! 4', '~ 2', '× 3', '⚠ 1', '✓ 0'];
 					pretty.runEnd();
 					assert.equal(mockCharm.out, expected);
-					assert.lengthOf(Reporter.prototype.writeReport.args, 1);
+					// writeReport won't be called with any args since no files were reported for coverage
+					assert.lengthOf(Reporter.prototype.writeReport.args, 0,
+						'Expected writeReport to be called with no args');
 				}
 				finally {
 					Reporter.prototype.writeReport = oldReporterWriteReport;
