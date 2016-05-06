@@ -80,46 +80,104 @@ define([
 					return element.getAttribute('id');
 				}
 
-				return function () {
-					return session.get(require.toUrl('./data/elements.html')).then(function () {
-						return session.find('id', 'h');
-					}).then(function (element) {
-						return getId(element).then(function (id) {
-							assert.strictEqual(id, 'h');
-							return element.find('class name', 'i');
-						}).then(getId).then(function (id) {
-							assert.strictEqual(id, 'i2', 'Returned element should be the first in the document');
-							return element.find('css selector', '#j b.i');
-						}).then(getId).then(function (id) {
-							assert.strictEqual(id, 'i2');
-							return element.find('name', 'nothing');
-						}).then(getId).then(function (id) {
-							assert.strictEqual(id, 'nothing1');
-							return element.find('link text', 'What a cute, red cap.');
-						}).then(getId).then(function (id) {
-							assert.strictEqual(id, 'j');
-							return element.find('partial link text', 'cute, red');
-						}).then(getId).then(function (id) {
-							assert.strictEqual(id, 'j');
-							return element.find('link text', 'What a cap.');
-						}).then(getId).then(function (id) {
-							assert.strictEqual(id, 'k');
-							return element.find('partial link text', 'a cap');
-						}).then(getId).then(function (id) {
-							assert.strictEqual(id, 'k');
-							return element.find('tag name', 'b');
-						}).then(getId).then(function (id) {
-							assert.strictEqual(id, 'i2');
-							return element.find('xpath', 'id("h")/a[2]');
-						}).then(getId).then(function (id) {
-							assert.strictEqual(id, 'i1');
-							return element.find('id', 'does-not-exist');
-						}).then(function () {
-							throw new Error('Requesting non-existing element should throw error');
-						}, function (error) {
-							assert.strictEqual(error.name, 'NoSuchElement');
+				var element;
+
+				return {
+					setup: function () {
+						resetBrowserState = false;
+						return session.get(require.toUrl('./data/elements.html')).then(function () {
+							return session.find('id', 'h');
+						}).then(function (_element) {
+							element = _element;
 						});
-					});
+					},
+
+					teardown: function () {
+						resetBrowserState = true;
+					},
+
+					'by class name': function () {
+						return element.find('class name', 'i')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'i2', 'Returned element should be the first in the document');
+							});
+					},
+
+					'by css selector': function () {
+						return element.find('css selector', '#j b.i')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'i2');
+							});
+					},
+
+					'by name': function () {
+						return element.find('name', 'nothing')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'nothing1');
+							});
+					},
+
+					'by link text': function () {
+						return element.find('link text', 'What a cute, red cap.')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'j');
+							});
+					},
+
+					'by partial link text': function () {
+						return element.find('partial link text', 'cute, red')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'j');
+							});
+					},
+
+					'by link text (hidden text)': function () {
+						return element.find('link text', 'What a cap.')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'k');
+							});
+					},
+
+					'by partial link text (hidden text)': function () {
+						return element.find('partial link text', 'a cap')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'k');
+							});
+					},
+
+					'by tag name': function () {
+						return element.find('tag name', 'b')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'i2');
+							});
+					},
+
+					'by xpath': function () {
+						return element.find('xpath', 'id("h")/a[2]')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'i1');
+							});
+					},
+
+					'non-existent': function () {
+						return element.find('id', 'does-not-exist').then(
+							function () {
+								throw new Error('Requesting non-existing element should throw error');
+							},
+							function (error) {
+								assert.strictEqual(error.name, 'NoSuchElement');
+							}
+						);
+					}
 				};
 			})(),
 
@@ -169,44 +227,108 @@ define([
 					}));
 				}
 
-				return function () {
-					return session.get(require.toUrl('./data/elements.html')).then(function () {
-						return session.find('id', 'h');
-					}).then(function (element) {
-						return element.findAll('id', 'j').then(getIds).then(function (ids) {
-							assert.deepEqual(ids, [ 'j' ]);
-							return element.findAll('class name', 'i');
-						}).then(getIds).then(function (ids) {
-							assert.deepEqual(ids, [ 'i2', 'i3', 'i1' ]);
-							return element.findAll('css selector', '#j b.i');
-						}).then(getIds).then(function (ids) {
-							assert.deepEqual(ids, [ 'i2', 'i3' ]);
-							return element.findAll('name', 'nothing');
-						}).then(getIds).then(function (ids) {
-							assert.deepEqual(ids, [ 'nothing1', 'nothing2' ]);
-							return element.findAll('link text', 'What a cute, red cap.');
-						}).then(getIds).then(function (ids) {
-							assert.deepEqual(ids, [ 'j', 'i1' ]);
-							return element.findAll('partial link text', 'cute, red');
-						}).then(getIds).then(function (ids) {
-							assert.deepEqual(ids, [ 'j', 'i1' ]);
-							return element.findAll('link text', 'What a cap.');
-						}).then(getIds).then(function (ids) {
-							assert.deepEqual(ids, [ 'k' ]);
-							return element.findAll('partial link text', 'a cap');
-						}).then(getIds).then(function (ids) {
-							assert.deepEqual(ids, [ 'k' ]);
-							return element.findAll('tag name', 'b');
-						}).then(getIds).then(function (ids) {
-							assert.deepEqual(ids, [ 'i2', 'i3', 'l' ]);
-							return element.findAll('xpath', 'id("j")/b');
-						}).then(getIds).then(function (ids) {
-							assert.deepEqual(ids, [ 'i2', 'i3' ]);
-							return element.findAll('id', 'does-not-exist');
-						}).then(function (elements) {
-							assert.deepEqual(elements, []);
+				var element;
+
+				return {
+					setup: function () {
+						resetBrowserState = false;
+						return session.get(require.toUrl('./data/elements.html')).then(function () {
+							return session.find('id', 'h');
+						}).then(function (_element) {
+							element = _element;
 						});
-					});
+					},
+
+					teardown: function () {
+						resetBrowserState = true;
+					},
+
+					'by id': function () {
+						return element.findAll('id', 'j')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'j' ]);
+							});
+					},
+
+					'by class name': function () {
+						return element.findAll('class name', 'i')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'i2', 'i3', 'i1' ]);
+							});
+					},
+
+					'by css selector': function () {
+						return element.findAll('css selector', '#j b.i')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'i2', 'i3' ]);
+							});
+					},
+
+					'by name': function () {
+						return element.findAll('name', 'nothing')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'nothing1', 'nothing2' ]);
+							});
+					},
+
+					'by link text': function () {
+						return element.findAll('link text', 'What a cute, red cap.')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'j', 'i1' ]);
+							});
+					},
+
+					'by partial link text': function () {
+						return element.findAll('partial link text', 'cute, red')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'j', 'i1' ]);
+							});
+					},
+
+					'by link text (hidden text)': function () {
+						return element.findAll('link text', 'What a cap.')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'k' ]);
+							});
+					},
+
+					'by partial link text (hidden text)': function () {
+						return element.findAll('partial link text', 'a cap')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'k' ]);
+							});
+					},
+
+					'by tag name': function () {
+						return element.findAll('tag name', 'b')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'i2', 'i3', 'l' ]);
+							});
+					},
+
+					'by xpath': function () {
+						return element.findAll('xpath', 'id("j")/b')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'i2', 'i3' ]);
+							});
+					},
+
+					'non-existent': function () {
+						return element.findAll('id', 'does-not-exist')
+							.then(function (elements) {
+								assert.deepEqual(elements, []);
+							});
+					}
 				};
 			})(),
 
@@ -243,7 +365,7 @@ define([
 
 			'#click': function () {
 				if (!session.capabilities.mouseEnabled) {
-					return;
+					this.skip('mouse not enabled');
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
@@ -343,7 +465,7 @@ define([
 			},
 
 			'#type -> file upload': function () {
-				if (!session.capabilities.remoteFiles) {
+				if (!session.capabilities.remoteFiles || session.capabilities.brokenFileSendKeys) {
 					this.skip('Remote file uploads not supported by server');
 				}
 
@@ -413,51 +535,88 @@ define([
 				});
 			},
 
-			'#isSelected (checkbox)': function () {
-				return session.get(require.toUrl('./data/form.html')).then(function () {
-					return session.findById('checkbox');
-				}).then(function (element) {
-					return element.isSelected().then(function (isSelected) {
+			'#isSelected (checkbox)': {
+				setup: function () {
+					resetBrowserState = false;
+					return session.get(require.toUrl('./data/form.html'));
+				},
+
+				teardown: function () {
+					resetBrowserState = true;
+				},
+
+				'initial selection': function () {
+					return session.findById('checkbox').then(function (element) {
+						return element.isSelected();
+					}).then(function (isSelected) {
 						assert.isFalse(isSelected, 'Default unchecked element should not be selected');
-						return element.click();
-					}).then(function () {
-						return element.isSelected();
-					}).then(function (isSelected) {
-						assert.isTrue(isSelected, 'Newly checked element should be selected');
-						return element.click();
-					}).then(function () {
-						return element.isSelected();
-					}).then(function (isSelected) {
-						assert.isFalse(isSelected, 'Newly unchecked element should not be selected');
 					});
-				});
+				},
+
+				'change selection': function () {
+					return session.findById('checkbox').then(function (element) {
+						return element.click().then(function () {
+							return element.isSelected();
+						}).then(function (isSelected) {
+							assert.isTrue(isSelected, 'Newly checked element should be selected');
+							return element.click();
+						}).then(function () {
+							return element.isSelected();
+						}).then(function (isSelected) {
+							assert.isFalse(isSelected, 'Newly unchecked element should not be selected');
+						});
+					});
+				}
 			},
 
-			'#isSelected (drop-down)': function () {
-				return session.get(require.toUrl('./data/form.html')).then(function () {
-					return session.findById('option2');
-				}).then(function (element) {
-					return element.isSelected().then(function (isSelected) {
+			'#isSelected (drop-down)': {
+				setup: function () {
+					resetBrowserState = false;
+					return session.get(require.toUrl('./data/form.html'));
+				},
+
+				teardown: function () {
+					resetBrowserState = true;
+				},
+
+				'initial selection': function () {
+					return session.findById('option2').then(function (element) {
+						return element.isSelected();
+					}).then(function (isSelected) {
 						assert.isTrue(isSelected, 'Default selected element should be selected');
-						return session.findById('option1').then(function (element2) {
-							return element2.isSelected().then(function (isSelected) {
-								assert.isFalse(isSelected, 'Default unselected element should not be selected');
-								return session.findById('select');
-							}).then(function (select) {
-								return select.click();
-							}).then(function () {
-								return element2.click();
-							}).then(function () {
+					}).then(function () {
+						return session.findById('option1');
+					}).then(function (element) {
+						return element.isSelected();
+					}).then(function (isSelected) {
+						assert.isFalse(isSelected, 'Default unselected element should not be selected');
+					});
+				},
+
+				'change selection': function () {
+					if (session.capabilities.brokenOptionSelect) {
+						this.skip('broken option select');
+					}
+
+					return session.findById('select').then(function (select) {
+						return select.click();
+					}).then(function () {
+						return session.findById('option1');
+					}).then(function (element) {
+						return element.click()
+							.then(function () {
 								return element.isSelected();
-							}).then(function (isSelected) {
-								assert.isFalse(isSelected, 'Newly unselected element should not be selected');
-								return element2.isSelected();
 							}).then(function (isSelected) {
 								assert.isTrue(isSelected, 'Newly selected element should be selected');
 							});
-						});
+					}).then(function () {
+						return session.findById('option2');
+					}).then(function (element) {
+						return element.isSelected();
+					}).then(function (isSelected) {
+						assert.isFalse(isSelected, 'Newly unselected element should not be selected');
 					});
-				});
+				}
 			},
 
 			'#isEnabled': function () {

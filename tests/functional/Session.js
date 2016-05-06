@@ -10,6 +10,7 @@ define([
 ], function (registerSuite, assert, Promise, util, strategies, require) {
 	registerSuite(function () {
 		var session;
+		var resetBrowserState = true;
 
 		function createStubbedSuite(stubbedMethodName, testMethodName, placeholders, firstArguments) {
 			var originalMethod;
@@ -60,7 +61,7 @@ define([
 
 			return function () {
 				if (!session.capabilities.webStorageEnabled) {
-					return;
+					this.skip('web storage not enabled');
 				}
 
 				return session.get(require.toUrl('./data/default.html')).then(function () {
@@ -133,14 +134,16 @@ define([
 			},
 
 			beforeEach: function () {
-				return session.get('about:blank').then(function () {
-					return session.setTimeout('implicit', 0);
-				});
+				if (resetBrowserState) {
+					return session.get('about:blank').then(function () {
+						return session.setTimeout('implicit', 0);
+					});
+				}
 			},
 
 			'#getTimeout script': function () {
 				if (!session.capabilities.supportsExecuteAsync) {
-					return;
+					this.skip('executeAsync not supported');
 				}
 
 				return session.getTimeout('script').then(function (value) {
@@ -221,7 +224,7 @@ define([
 
 			'navigation (#goBack, #goForward, #refresh)': function () {
 				if (session.capabilities.brokenNavigation) {
-					return;
+					this.skip('navigation is broken');
 				}
 
 				var expectedUrl = util.convertPathToUrl(this.remote, require.toUrl('./data/default.html?second'));
@@ -276,7 +279,7 @@ define([
 
 			'#execute -> element': function () {
 				if (session.capabilities.brokenExecuteElementReturn) {
-					return;
+					this.skip('execute element broken');
 				}
 
 				return session.get(require.toUrl('./data/scripting.html'))
@@ -295,7 +298,7 @@ define([
 
 			'#execute -> elements': function () {
 				if (session.capabilities.brokenExecuteElementReturn) {
-					return;
+					this.skip('execute element broken');
 				}
 
 				return session.get(require.toUrl('./data/scripting.html'))
@@ -364,7 +367,7 @@ define([
 				return {
 					setup: function () {
 						if (!session.capabilities.supportsExecuteAsync) {
-							return;
+							this.skip('executeAsync not supported');
 						}
 
 						return session.getTimeout('script').then(function (value) {
@@ -374,14 +377,15 @@ define([
 					},
 					'string': function () {
 						if (!session.capabilities.supportsExecuteAsync) {
-							return;
+							this.skip('executeAsync not supported');
 						}
 
 						return session.get(require.toUrl('./data/scripting.html'))
 							.then(function () {
 								/*jshint maxlen:140 */
 								return session.executeAsync(
-									'var args = arguments; setTimeout(function () { args[2](interns[args[0]] + interns[args[1]]); }, 100);',
+									'var args = arguments; setTimeout(function () { args[2](interns[args[0]] + ' +
+										'interns[args[1]]); }, 100);',
 									[ 'ness', 'paula' ]
 								);
 							})
@@ -391,7 +395,7 @@ define([
 					},
 					'function': function () {
 						if (!session.capabilities.supportsExecuteAsync) {
-							return;
+							this.skip('executeAsync not supported');
 						}
 
 						return session.get(require.toUrl('./data/scripting.html'))
@@ -408,7 +412,7 @@ define([
 					},
 					' -> error': function () {
 						if (!session.capabilities.supportsExecuteAsync) {
-							return;
+							this.skip('executeAsync not supported');
 						}
 
 						return session.get(require.toUrl('./data/scripting.html'))
@@ -430,7 +434,7 @@ define([
 					},
 					teardown: function () {
 						if (!session.capabilities.supportsExecuteAsync) {
-							return;
+							this.skip('executeAsync not supported');
 						}
 
 						return session.setTimeout('script', originalTimeout);
@@ -440,10 +444,12 @@ define([
 
 			'#takeScreenshot': function () {
 				if (!session.capabilities.takesScreenshot) {
-					return;
+					this.skip('screenshots not supported');
 				}
 
 				var magic = [ 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a ];
+
+				this.async(30000);
 
 				return session.takeScreenshot().then(function (screenshot) {
 					/*jshint node:true */
@@ -455,6 +461,10 @@ define([
 			// TODO: There appear to be no drivers that support IME input to actually test IME commands
 
 			'frame switching (#switchToFrame, #switchToParentFrame)': function () {
+				if (session.capabilities.brokenParentFrameSwitch) {
+					this.skip('switch to parent frame not supported');
+				}
+
 				return session.get(require.toUrl('./data/window.html')).then(function () {
 					return session.findById('child');
 				})
@@ -493,11 +503,20 @@ define([
 
 			'window switching (#switchToWindow, #closeCurrentWindow)': function () {
 				if (session.capabilities.brokenWindowSwitch) {
-					return;
+					this.skip('window switching is broken');
 				}
 
+				if (session.capabilities.brokenWindowClose) {
+					this.skip('window closing is broken');
+				}
 				var mainHandle;
+				var popupHandle;
+				var allHandles;
+
 				return session.get(require.toUrl('./data/window.html')).then(function () {
+					return session.getAllWindowHandles();
+				}).then(function (handles) {
+					allHandles = handles;
 					return session.getCurrentWindowHandle();
 				}).then(function (handle) {
 					mainHandle = handle;
@@ -505,11 +524,28 @@ define([
 				}).then(function (opener) {
 					return opener.click();
 				}).then(function () {
-					return session.switchToWindow('popup');
+					// Give the new window time to open
+					return new Promise(function (resolve) {
+						setTimeout(resolve, 500);
+					});
+				}).then(function () {
+					return session.getAllWindowHandles().then(function (handles) {
+						assert.lengthOf(handles, allHandles.length + 1, 'New handle should have been created');
+
+						// Return the new handle
+						for (var i = 0; i < handles.length; i++) {
+							if (allHandles.indexOf(handles[i]) === -1) {
+								return handles[i];
+							}
+						}
+					});
+				}).then(function (newHandle) {
+					popupHandle = newHandle;
+					return session.switchToWindow(newHandle);
 				}).then(function () {
 					return session.getCurrentWindowHandle();
-				}).then(function (popupHandle) {
-					assert.notStrictEqual(popupHandle, mainHandle, 'Window handle should have switched to pop-up');
+				}).then(function (handle) {
+					assert.strictEqual(handle, popupHandle, 'Window handle should have switched to pop-up');
 					return session.closeCurrentWindow();
 				}).then(function () {
 					return session.getCurrentWindowHandle().then(function () {
@@ -526,6 +562,10 @@ define([
 			},
 
 			'window sizing (#getWindowSize, #setWindowSize)': function () {
+				if (session.capabilities.brokenWindowSize) {
+					this.skip('window size commands are broken');
+				}
+
 				var originalSize;
 				var resizedSize;
 				return session.getWindowSize().then(function (size) {
@@ -554,8 +594,11 @@ define([
 			},
 
 			'window positioning (#getWindowPosition, #setWindowPosition)': function () {
-				if (!session.capabilities.dynamicViewport || session.capabilities.brokenWindowPosition) {
-					return;
+				if (!session.capabilities.dynamicViewport) {
+					this.skip('dynamic viewport not supported');
+				}
+				if (session.capabilities.brokenWindowPosition) {
+					this.skip('window position is broken');
 				}
 
 				var originalPosition;
@@ -574,7 +617,7 @@ define([
 
 			'cookies (#getCookies, #setCookie, #clearCookies, #deleteCookie)': function () {
 				if (session.capabilities.brokenCookies) {
-					return;
+					this.skip('cookies are broken');
 				}
 
 				return session.get(require.toUrl('./data/default.html')).then(function () {
@@ -653,44 +696,108 @@ define([
 					return element.getAttribute('id');
 				}
 
-				return function () {
-					return session.get(require.toUrl('./data/elements.html')).then(function () {
-						return session.find('id', 'a');
-					}).then(getId).then(function (id) {
-						assert.strictEqual(id, 'a');
-						return session.find('class name', 'b');
-					}).then(getId).then(function (id) {
-						assert.strictEqual(id, 'b2', 'Returned element should be the first in the document');
-						return session.find('css selector', '#c span.b');
-					}).then(getId).then(function (id) {
-						assert.strictEqual(id, 'b3');
-						return session.find('name', 'makeD');
-					}).then(getId).then(function (id) {
-						assert.strictEqual(id, 'makeD');
-						return session.find('link text', 'What a cute, yellow backpack.');
-					}).then(getId).then(function (id) {
-						assert.strictEqual(id, 'c');
-						return session.find('partial link text', 'cute, yellow');
-					}).then(getId).then(function (id) {
-						assert.strictEqual(id, 'c');
-						return session.find('link text', 'What a cute backpack.');
-					}).then(getId).then(function (id) {
-						assert.strictEqual(id, 'c3');
-						return session.find('partial link text', 'cute backpack');
-					}).then(getId).then(function (id) {
-						assert.strictEqual(id, 'c3');
-						return session.find('tag name', 'span');
-					}).then(getId).then(function (id) {
-						assert.strictEqual(id, 'b3');
-						return session.find('xpath', 'id("e")/span[1]');
-					}).then(getId).then(function (id) {
-						assert.strictEqual(id, 'f');
-						return session.find('id', 'does-not-exist');
-					}).then(function () {
-						throw new Error('Requesting non-existing element should throw error');
-					}, function (error) {
-						assert.strictEqual(error.name, 'NoSuchElement');
-					});
+				return {
+					setup: function () {
+						resetBrowserState = false;
+						return session.get(require.toUrl('./data/elements.html'));
+					},
+
+					teardown: function () {
+						resetBrowserState = true;
+					},
+
+					'by id': function () {
+						return session.find('id', 'a')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'a');
+							});
+					},
+
+					'by class name': function () {
+						return session.find('class name', 'b')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'b2', 'Returned element should be the first in the document');
+							});
+					},
+
+					'by css selector': function () {
+						return session.find('css selector', '#c span.b')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'b3');
+							});
+					},
+
+					'by name': function () {
+						return session.find('name', 'makeD')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'makeD');
+							});
+					},
+
+					'by link text': function () {
+						return session.find('link text', 'What a cute, yellow backpack.')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'c');
+							});
+					},
+
+					'by partial link text': function () {
+						return session.find('partial link text', 'cute, yellow')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'c');
+							});
+					},
+
+					'by link text (hidden text)': function () {
+						return session.find('link text', 'What a cute backpack.')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'c3');
+							});
+					},
+
+					'by partial link text (hidden text)': function () {
+						return session.find('partial link text', 'cute backpack')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'c3');
+							});
+					},
+
+					'by tag name': function () {
+						return session.find('tag name', 'span')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'b3');
+							});
+					},
+
+					'by xpath': function () {
+						return session.find('xpath', 'id("e")/span[1]')
+							.then(getId)
+							.then(function (id) {
+								assert.strictEqual(id, 'f');
+							});
+					},
+
+					'non-existent element': function () {
+						return session.find('id', 'does-not-exist').then(
+							function () {
+								throw new Error('Requesting non-existing element should throw error');
+							},
+							function (error) {
+								if (error.name !== 'NoSuchElement') {
+									throw error;
+								}
+							}
+						);
+					}
 				};
 			})(),
 
@@ -701,12 +808,16 @@ define([
 						return session.setTimeout('implicit', 2000);
 					}).then(function () {
 						startTime = Date.now();
-						return session.find('id', 'd');
+						return session.find('id', 'd').then(
+							function () {
+								throw new Error('Requesting non-existing element should throw error');
+							},
+							function () {
+								assert.operator(Date.now(), '>=', startTime + 2000,
+									'Driver should wait for implicit timeout before continuing');
+							}
+						);
 					}).then(function () {
-						throw new Error('Requesting non-existing element should throw error');
-					}, function () {
-						assert.operator(Date.now(), '>=', startTime + 2000,
-							'Driver should wait for implicit timeout before continuing');
 						return session.find('id', 'makeD');
 					}).then(function (element) {
 						return element.click();
@@ -738,60 +849,130 @@ define([
 					}));
 				}
 
-				return function () {
-					return session.get(require.toUrl('./data/elements.html')).then(function () {
-						return session.findAll('id', 'a');
-					}).then(getIds).then(function (ids) {
-						assert.deepEqual(ids, [ 'a' ]);
-						return session.findAll('class name', 'b');
-					}).then(getIds).then(function (ids) {
-						assert.deepEqual(ids, [ 'b2', 'b1', 'b3', 'b4' ]);
-						return session.findAll('css selector', '#c span.b');
-					}).then(getIds).then(function (ids) {
-						assert.deepEqual(ids, [ 'b3', 'b4' ]);
-						return session.findAll('name', 'makeD');
-					}).then(getIds).then(function (ids) {
-						assert.deepEqual(ids, [ 'makeD', 'killE' ]);
-						return session.findAll('link text', 'What a cute, yellow backpack.');
-					}).then(getIds).then(function (ids) {
-						assert.deepEqual(ids, [ 'c', 'c2' ]);
-						return session.findAll('partial link text', 'cute, yellow');
-					}).then(getIds).then(function (ids) {
-						assert.deepEqual(ids, [ 'c', 'c2' ]);
-						return session.findAll('link text', 'What a cute backpack.');
-					}).then(getIds).then(function (ids) {
-						assert.deepEqual(ids, [ 'c3' ]);
-						return session.findAll('partial link text', 'cute backpack');
-					}).then(getIds).then(function (ids) {
-						assert.deepEqual(ids, [ 'c3' ]);
-						return session.findAll('tag name', 'span');
-					}).then(getIds).then(function (ids) {
-						assert.deepEqual(ids, [ 'b3', 'b4', 'f', 'g' ]);
-						return session.findAll('xpath', 'id("e")/span');
-					}).then(getIds).then(function (ids) {
-						assert.deepEqual(ids, [ 'f', 'g' ]);
-						return session.findAll('id', 'does-not-exist');
-					}).then(function (elements) {
-						assert.deepEqual(elements, []);
-					});
+				return {
+					setup: function () {
+						resetBrowserState = false;
+						return session.get(require.toUrl('./data/elements.html'));
+					},
+
+					teardown: function () {
+						resetBrowserState = true;
+					},
+
+					'by id': function () {
+						return session.findAll('id', 'a')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'a' ]);
+							});
+					},
+
+					'by class name': function () {
+						return session.findAll('class name', 'b')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'b2', 'b1', 'b3', 'b4' ]);
+							});
+					},
+
+					'by css selecctor': function () {
+						return session.findAll('css selector', '#c span.b')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'b3', 'b4' ]);
+							});
+					},
+
+					'by name': function () {
+						return session.findAll('name', 'makeD')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'makeD', 'killE' ]);
+							});
+					},
+
+					'by link text': function () {
+						return session.findAll('link text', 'What a cute, yellow backpack.')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'c', 'c2' ]);
+							});
+					},
+
+					'by partial link text': function () {
+						return session.findAll('partial link text', 'cute, yellow')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'c', 'c2' ]);
+							});
+					},
+
+					'by link text (hidden text)': function () {
+						return session.findAll('link text', 'What a cute backpack.')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'c3' ]);
+							});
+					},
+
+					'by partial link text (hidden text)': function () {
+						return session.findAll('partial link text', 'cute backpack')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'c3' ]);
+							});
+					},
+
+					'by tag name': function () {
+						return session.findAll('tag name', 'span')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'b3', 'b4', 'f', 'g' ]);
+							});
+					},
+
+					'by xpath': function () {
+						return session.findAll('xpath', 'id("e")/span')
+							.then(getIds)
+							.then(function (ids) {
+								assert.deepEqual(ids, [ 'f', 'g' ]);
+							});
+					},
+
+					'non-existent': function () {
+						return session.findAll('id', 'does-not-exist')
+							.then(function (elements) {
+								assert.deepEqual(elements, []);
+							});
+					}
 				};
 			})(),
 
 			'#findDisplayed': function () {
+				if (session.capabilities.brokenElementSerialization) {
+					this.skip('element serialization is broken');
+				}
+
 				return session.get(require.toUrl('./data/visibility.html')).then(function () {
-					return session.findDisplayed('id', 'does-not-exist').then(function () {
-						throw new Error('findDisplayed should not find non-existing elements');
-					}, function (error) {
-						assert.strictEqual(error.name, 'NoSuchElement',
-							'Non-existing element should throw NoSuchElement error after timeout');
-					});
+					return session.findDisplayed('id', 'does-not-exist').then(
+						function () {
+							throw new Error('findDisplayed should not find non-existing elements');
+						},
+						function (error) {
+							assert.strictEqual(error.name, 'NoSuchElement',
+								'Non-existing element should throw NoSuchElement error after timeout');
+						}
+					);
 				}).then(function () {
-					return session.findDisplayed('id', 'noDisplay').then(function () {
-						throw new Error('findDisplayed should not find hidden elements');
-					}, function (error) {
-						assert.strictEqual(error.name, 'ElementNotVisible',
-							'Existing but hidden element should throw ElementNotVisible error after timeout');
-					});
+					return session.findDisplayed('id', 'noDisplay').then(
+						function () {
+							throw new Error('findDisplayed should not find hidden elements');
+						},
+						function (error) {
+							assert.strictEqual(error.name, 'ElementNotVisible',
+								'Existing but hidden element should throw ElementNotVisible error after timeout');
+						}
+					);
 				}).then(function () {
 					return session.findDisplayed('class name', 'multipleVisible');
 				}).then(function (element) {
@@ -887,6 +1068,10 @@ define([
 			),
 
 			'#getActiveElement': function () {
+				if (session.capabilities.brokenElementSerialization) {
+					this.skip('element serialization is broken');
+				}
+
 				return session.get(require.toUrl('./data/form.html')).then(function () {
 					return session.getActiveElement();
 				}).then(function (element) {
@@ -925,7 +1110,7 @@ define([
 
 			'#getOrientation': function () {
 				if (!session.capabilities.rotatable) {
-					return;
+					this.skip('not rotatable');
 				}
 
 				return session.getOrientation().then(function (value) {
@@ -935,7 +1120,7 @@ define([
 
 			'#setOrientation': function () {
 				if (!session.capabilities.rotatable) {
-					return;
+					this.skip('not rotatable');
 				}
 
 				return session.setOrientation('LANDSCAPE').then(function () {
@@ -945,7 +1130,7 @@ define([
 
 			'#getAlertText': function () {
 				if (!session.capabilities.handlesAlerts) {
-					return;
+					this.skip('cannot handle alerts');
 				}
 
 				return session.get(require.toUrl('./data/prompts.html')).then(function () {
@@ -966,7 +1151,7 @@ define([
 
 			'#typeInPrompt': function () {
 				if (!session.capabilities.handlesAlerts) {
-					return;
+					this.skip('cannot handle alerts');
 				}
 
 				return session.get(require.toUrl('./data/prompts.html')).then(function () {
@@ -989,7 +1174,7 @@ define([
 
 			'#typeInPrompt array': function () {
 				if (!session.capabilities.handlesAlerts) {
-					return;
+					this.skip('cannot handle alerts');
 				}
 
 				return session.get(require.toUrl('./data/prompts.html')).then(function () {
@@ -1012,7 +1197,7 @@ define([
 
 			'#acceptAlert': function () {
 				if (!session.capabilities.handlesAlerts) {
-					return;
+					this.skip('cannot handle alerts');
 				}
 
 				return session.get(require.toUrl('./data/prompts.html')).then(function () {
@@ -1033,7 +1218,7 @@ define([
 
 			'#dismissAlert': function () {
 				if (!session.capabilities.handlesAlerts) {
-					return;
+					this.skip('cannot handle alerts');
 				}
 
 				return session.get(require.toUrl('./data/prompts.html')).then(function () {
@@ -1055,20 +1240,22 @@ define([
 			'#moveMouseTo': function () {
 				/*jshint maxlen:140 */
 				if (!session.capabilities.mouseEnabled) {
-					return;
+					this.skip('mouse not enabled');
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
 					return session.moveMouseTo(100, 12);
 				}).then(function () {
-					return session.execute('return result.mousemove.a && result.mousemove.a[result.mousemove.a.length - 1];');
+					return session.execute(
+						'return result.mousemove.a && result.mousemove.a[result.mousemove.a.length - 1];');
 				}).then(function (event) {
 					assert.isObject(event);
 					assert.strictEqual(event.clientX, 100);
 					assert.strictEqual(event.clientY, 12);
 					return session.moveMouseTo(100, 41);
 				}).then(function () {
-					return session.execute('return result.mousemove.b && result.mousemove.b[result.mousemove.b.length - 1];');
+					return session.execute(
+						'return result.mousemove.b && result.mousemove.b[result.mousemove.b.length - 1];');
 				}).then(function (event) {
 					assert.isObject(event);
 					assert.strictEqual(event.clientX, 200);
@@ -1076,7 +1263,8 @@ define([
 					return session.findById('c');
 				}).then(function (element) {
 					return session.moveMouseTo(element).then(function () {
-						return session.execute('return result.mousemove.c && result.mousemove.c[result.mousemove.c.length - 1];');
+						return session.execute(
+							'return result.mousemove.c && result.mousemove.c[result.mousemove.c.length - 1];');
 					}).then(function (event) {
 						assert.isObject(event);
 						assert.closeTo(event.clientX, 450, 4);
@@ -1084,7 +1272,8 @@ define([
 						return session.moveMouseTo(element, 2, 4);
 					});
 				}).then(function () {
-					return session.execute('return result.mousemove.c && result.mousemove.c[result.mousemove.c.length - 1];');
+					return session.execute(
+						'return result.mousemove.c && result.mousemove.c[result.mousemove.c.length - 1];');
 				}).then(function (event) {
 					assert.isObject(event);
 					assert.closeTo(event.clientX, 352, 4);
@@ -1094,7 +1283,7 @@ define([
 
 			'#clickMouseButton': function () {
 				if (!session.capabilities.mouseEnabled) {
-					return;
+					this.skip('mouse not enabled');
 				}
 
 				function click(button) {
@@ -1104,7 +1293,9 @@ define([
 							return session.execute('return result.click.a && result.click.a[0];');
 						}).then(function (event) {
 							assert.strictEqual(event.button, button);
-							return session.execute('return result.mousedown.a && result.mousedown.a[0];').then(function (mouseDownEvent) {
+							return session.execute(
+								'return result.mousedown.a && result.mousedown.a[0];'
+							).then(function (mouseDownEvent) {
 								assert.closeTo(event.timeStamp, mouseDownEvent.timeStamp, 300);
 								assert.operator(mouseDownEvent.timeStamp, '<=', event.timeStamp);
 								return session.execute('return result.mouseup.a && result.mouseup.a[0];');
@@ -1127,7 +1318,7 @@ define([
 
 			'#pressMouseButton, #releaseMouseButton': function () {
 				if (!session.capabilities.mouseEnabled) {
-					return;
+					this.skip('mouse not enabled');
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
@@ -1155,7 +1346,7 @@ define([
 
 			'#doubleClick': function () {
 				if (!session.capabilities.mouseEnabled) {
-					return;
+					this.skip('mouse not enabled');
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
@@ -1184,7 +1375,7 @@ define([
 
 			'#tap': function () {
 				if (!session.capabilities.touchEnabled) {
-					return;
+					this.skip('touch not supported');
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
@@ -1202,8 +1393,11 @@ define([
 			},
 
 			'#pressFinger, #releaseFinger, #moveFinger': function () {
-				if (!session.capabilities.touchEnabled || session.capabilities.brokenMoveFinger) {
-					return;
+				if (!session.capabilities.touchEnabled) {
+					this.skip('touch not supported');
+				}
+				if (session.capabilities.brokenMoveFinger) {
+					this.skip('move finger support is broken');
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
@@ -1224,7 +1418,7 @@ define([
 
 			'#touchScroll': function () {
 				if (!session.capabilities.touchEnabled) {
-					return;
+					this.skip('touch is not enabled');
 				}
 
 				return session.get(require.toUrl('./data/scrollable.html'))
@@ -1245,7 +1439,7 @@ define([
 
 			'#doubleTap': function () {
 				if (!session.capabilities.touchEnabled) {
-					return;
+					this.skip('touch is not enabled');
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
@@ -1261,8 +1455,11 @@ define([
 			},
 
 			'#longTap': function () {
-				if (!session.capabilities.touchEnabled || session.capabilities.brokenLongTap) {
-					return;
+				if (!session.capabilities.touchEnabled) {
+					this.skip('touch is not enabled');
+				}
+				if (session.capabilities.brokenLongTap) {
+					this.skip('long tap is broken');
 				}
 
 				return session.get(require.toUrl('./data/pointer.html')).then(function () {
@@ -1279,8 +1476,11 @@ define([
 			},
 
 			'#flickFinger (element)': function () {
-				if (!session.capabilities.touchEnabled || session.capabilities.brokenFlickFinger) {
-					return;
+				if (!session.capabilities.touchEnabled) {
+					this.skip('touch is not enabled');
+				}
+				if (session.capabilities.brokenFlickFinger) {
+					this.skip('flick finger is broken');
 				}
 
 				return session.get(require.toUrl('./data/scrollable.html'))
@@ -1308,8 +1508,11 @@ define([
 			},
 
 			'#flickFinger (no element)': function () {
-				if (!session.capabilities.touchEnabled || session.capabilities.brokenFlickFinger) {
-					return;
+				if (!session.capabilities.touchEnabled) {
+					this.skip('touch is not enabled');
+				}
+				if (session.capabilities.brokenFlickFinger) {
+					this.skip('flick finger is broken');
 				}
 
 				return session.get(require.toUrl('./data/scrollable.html')).then(function () {
@@ -1322,7 +1525,7 @@ define([
 
 			'geolocation (#getGeolocation, #setGeolocation)': function () {
 				if (!session.capabilities.locationContextEnabled) {
-					return;
+					this.skip('location context not enabled');
 				}
 
 				return session.get(require.toUrl('./data/default.html')).then(function () {
@@ -1377,7 +1580,7 @@ define([
 
 			'#getApplicationCacheStatus': function () {
 				if (!session.capabilities.applicationCacheEnabled) {
-					return;
+					this.skip('application cache is not enabled');
 				}
 
 				return session.get(require.toUrl('./data/default.html')).then(function () {

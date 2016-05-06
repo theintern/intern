@@ -385,12 +385,18 @@ Server.prototype = {
 				return session.get('data:text/html;charset=utf-8,' + encodeURIComponent(page));
 			}
 
-			// Internet Explorer 9 and earlier hang when attempting to do navigate after a `document.write` is
-			// performed to reset the tab content; we can still do some limited testing in these browsers by using
-			// the initial browser URL page and injecting some content through innerHTML, though it is unfortunately
-			// a quirks-mode file so testing is limited
-			if (capabilities.browserName === 'internet explorer' && parseFloat(capabilities.version) < 10) {
-				return session.get(capabilities.initialBrowserUrl).then(function () {
+			// Internet Explorer 9 and earlier, and Microsoft Edge build 10240 and earlier, hang when attempting to do
+			// navigate after a `document.write` is performed to reset the tab content; we can still do some limited
+			// testing in these browsers by using the initial browser URL page and injecting some content through
+			// innerHTML, though it is unfortunately a quirks-mode file so testing is limited
+			if (
+				(capabilities.browserName === 'internet explorer' && parseFloat(capabilities.version) < 10) ||
+				capabilities.browserName === 'MicrosoftEdge'
+			) {
+				// Edge driver doesn't provide an initialBrowserUrl
+				var initialUrl = capabilities.browserName === 'internet explorer' ? capabilities.initialBrowserUrl : 'about:blank';
+
+				return session.get(initialUrl).then(function () {
 					return session.execute('document.body.innerHTML = arguments[0];', [
 						// The DOCTYPE does not apply, for obvious reasons, but also old IE will discard invisible
 						// elements like `<script>` and `<style>` if they are the first elements injected with
@@ -410,7 +416,11 @@ Server.prototype = {
 
 			// SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
-			if (capabilities.browserName === 'safari' && capabilities.platform === 'MAC') {
+			if (
+				capabilities.browserName === 'safari' &&
+				capabilities.platform === 'MAC' &&
+				capabilities.platformName !== 'ios'
+			) {
 				return {
 					nativeEvents: false,
 					rotatable: false,
@@ -425,6 +435,16 @@ Server.prototype = {
 					dynamicViewport: true,
 					shortcutKey: keys.COMMAND
 				};
+			}
+
+
+			// At least MS Edge 14316 supports alerts but does not specify the capability
+			if (
+				capabilities.browserName === 'MicrosoftEdge' &&
+				parseFloat(capabilities.browserVersion) >= 37.14316 &&
+				!('handlesAlerts' in capabilities)
+			) {
+				testedCapabilities.handlesAlerts = true;
 			}
 
 			// Appium iOS as of April 2014 supports rotation but does not specify the capability
@@ -456,9 +476,15 @@ Server.prototype = {
 					.then(supported, maybeSupported);
 			}
 
+			// IE11 will take screenshots, but it's very slow
+			if (capabilities.browserName === 'internet explorer' && capabilities.version == '11') {
+				testedCapabilities.takesScreenshot = true;
+			}
 			// At least Selendroid 0.9.0 will fail to take screenshots in certain device configurations, usually
 			// emulators with hardware acceleration enabled
-			testedCapabilities.takesScreenshot = session.takeScreenshot().then(supported, unsupported);
+			else {
+				testedCapabilities.takesScreenshot = session.takeScreenshot().then(supported, unsupported);
+			}
 
 			// At least ios-driver 0.6.6-SNAPSHOT April 2014 does not support execute_async
 			testedCapabilities.supportsExecuteAsync = session.executeAsync('arguments[0](true);').catch(unsupported);
@@ -536,7 +562,11 @@ Server.prototype = {
 
 			// SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
-			if (capabilities.browserName === 'safari' && capabilities.platform === 'MAC') {
+			if (
+				capabilities.browserName === 'safari' &&
+				capabilities.platform === 'MAC' &&
+				capabilities.platformName !== 'ios'
+			) {
 				return {
 					brokenDeleteCookie: false,
 					brokenExecuteElementReturn: false,
@@ -566,6 +596,11 @@ Server.prototype = {
 			// frame via script, so never even attempt to do so
 			testedCapabilities.scriptedParentFrameCrashesBrowser =
 				capabilities.browserName === 'internet explorer' && parseFloat(capabilities.version) < 9;
+
+			// At least ChromeDriver 2.9 and MS Edge 10240 does not implement /element/active
+			testedCapabilities.brokenActiveElement = session.getActiveElement().then(works, function (error) {
+				return error.name === 'UnknownCommand';
+			});
 
 			// At least Selendroid 0.9.0 has broken cookie deletion; nobody else has broken cookie deletion but
 			// this test is very hard to get working properly in other environments so only test when Selendroid
@@ -608,9 +643,24 @@ Server.prototype = {
 				return value !== null;
 			}).catch(broken);
 
+			// At least MS Edge 10240 doesn't properly deserialize web elements passed as `execute` arguments
+			testedCapabilities.brokenElementSerialization = function () {
+				return get('<!DOCTYPE html><div id="a"></div>').then(function () {
+					return session.findById('a')
+				}).then(function (element) {
+					return session.execute(function (element) {
+						return element.getAttribute('id');
+					}, [ element ]);
+				}).then(function (attribute) {
+					return attribute !== 'a';
+				}).catch(broken);
+			};
+
 			// At least Selendroid 0.16.0 incorrectly returns `undefined` instead of `null` when an undefined
 			// value is returned by an `execute` call
-			testedCapabilities.brokenExecuteUndefinedReturn = session.execute('return undefined;').then(function (value) {
+			testedCapabilities.brokenExecuteUndefinedReturn = session.execute(
+				'return undefined;'
+			).then(function (value) {
 				return value !== null;
 			}, broken);
 
@@ -653,22 +703,114 @@ Server.prototype = {
 				}).catch(broken);
 			};
 
-			// There is inconsistency across all drivers as to whether or not submitting a form button should cause
-			// the form button to be submitted along with the rest of the form; it seems most likely that tests
-			// do want the specified button to act as though someone clicked it when it is submitted, so the
-			// behaviour needs to be normalised
-			testedCapabilities.brokenSubmitElement = function () {
-				/*jshint maxlen:200 */
-				return get('<!DOCTYPE html><form method="get" action="about:blank"><input id="a" type="submit" name="a" value="a"></form>').then(function () {
-					return session.findById('a');
-				}).then(function (element) {
-					return element.submit();
-				}).then(function () {
-					return session.getCurrentUrl();
-				}).then(function (url) {
-					return url.indexOf('a=a') === -1;
-				}).catch(broken);
+			// At least MS Edge Driver 14316 doesn't allow typing into file inputs
+			testedCapabilities.brokenFileSendKeys = function () {
+				return get('<!DOCTYPE html><input type="file" id="i1">').then(function () {
+					var element;
+					return session.findById('i1')
+						.then(function (element) {
+							return element.type('./Server.js');
+						}).then(function () {
+							return session.execute(function () {
+								return document.getElementById('i1').value;
+							});
+						}).then(function (text) {
+							if (!/Server.js$/.test(text)) {
+								throw new Error('mismatch');
+							}
+						});
+				}).then(works, broken);
 			};
+
+			// At least MS Edge Driver 14316 doesn't normalize whitespace properly when retrieving text. Text may contain
+			// "\r\n" pairs rather than "\n", and there may be extraneous whitespace adjacent to "\r\n" pairs and at the
+			// start and end of the text.
+			testedCapabilities.brokenWhitespaceNormalization = function () {
+				return get('<!DOCTYPE html><div id="d">This is\n<br>a test</div>').then(function () {
+					return session.findById('d')
+						.then(function (element) {
+							return element.getVisibleText();
+						}).then(function (text) {
+							if (/\r\n/.test(text)) {
+								throw new Error('invalid whitespace');
+							}
+						});
+				}).then(works, broken);
+			};
+
+			// At least MS Edge Driver 14316 doesn't return elements' computed styles
+			testedCapabilities.brokenComputedStyles = function () {
+				return get('<!DOCTYPE html><style>a { background: purple }</style><a id="a1">foo</a>').then(function () {
+					return session.findById('a1');
+				}).then(function (element) {
+					return element.getComputedStyle('backgroundColor');
+				}).then(function (value) {
+					if (!value) {
+						throw new Error('empty style');
+					}
+				}).then(works, broken);
+			};
+
+			// IE11 will hang during this check, although option selection does work with it
+			if (capabilities.browserName !== 'internet explorer' && capabilities.version !== '11') {
+				// At least MS Edge Driver 14316 doesn't allow selection option elements to be clicked.
+				testedCapabilities.brokenOptionSelect = function () {
+					return get(
+						'<!DOCTYPE html><select id="d"><option id="o1" value="foo">foo</option>' +
+						'<option id="o2" value="bar" selected>bar</option></select>'
+					).then(function () {
+						return session.findById('d');
+					}).then(function (element) {
+						return element.click();
+					}).then(function () {
+						return session.findById('o1');
+					}).then(function (element) {
+						return element.click();
+					}).then(works, broken);
+				};
+			}
+
+			// At least MS Edge driver 10240 doesn't support getting the page source
+			testedCapabilities.brokenPageSource = session.getPageSource().then(works, broken);
+
+			// IE11 will hang during this check if nativeEvents are enabled
+			if (capabilities.browserName !== 'internet explorer' && capabilities.version !== '11') {
+				testedCapabilities.brokenSubmitElement = true;
+			}
+			else {
+				// There is inconsistency across all drivers as to whether or not submitting a form button should cause
+				// the form button to be submitted along with the rest of the form; it seems most likely that tests
+				// do want the specified button to act as though someone clicked it when it is submitted, so the
+				// behaviour needs to be normalised
+				testedCapabilities.brokenSubmitElement = function () {
+					/*jshint maxlen:200 */
+					return get(
+						'<!DOCTYPE html><form method="get" action="about:blank">' +
+						'<input id="a" type="submit" name="a" value="a"></form>'
+					).then(function () {
+						return session.findById('a');
+					}).then(function (element) {
+						return element.submit();
+					}).then(function () {
+						return session.getCurrentUrl();
+					}).then(function (url) {
+						return url.indexOf('a=a') === -1;
+					}).catch(broken);
+				};
+			}
+
+			// At least MS Edge 10586 becomes unresponsive after calling DELETE window, and window.close() requires user
+			// interaction. This capability is distinct from brokenDeleteWindow as this capability indicates that there
+			// is no way to close a Window.
+			if (
+				capabilities.browserName === 'MicrosoftEdge' &&
+				parseFloat(capabilities.browserVersion) <= 25.10586
+			) {
+				testedCapabilities.brokenWindowClose = true;
+			}
+
+			// At least MS Edge driver 10240 doesn't support window sizing commands
+			testedCapabilities.brokenWindowSize = session.getWindowSize().then(works, broken);
 
 			// At least Selendroid 0.9.0 has a bug where it catastrophically fails to retrieve available types;
 			// they have tried to hardcode the available log types in this version so we can just return the
@@ -682,14 +824,27 @@ Server.prototype = {
 				return [];
 			});
 
+			// At least Microsoft Edge 10240 doesn't support timeout values of 0.
+			testedCapabilities.brokenZeroTimeout = session.setTimeout('implicit', 0).then(works, broken);
+
 			// At least ios-driver 0.6.6-SNAPSHOT April 2014 corrupts its internal state when performing window
 			// switches and gets permanently stuck; we cannot feature detect, so platform sniffing it is
-			testedCapabilities.brokenWindowSwitch = capabilities.browserName === 'Safari' &&
-				capabilities.platformName === 'IOS';
+			if (capabilities.browserName === 'Safari' && capabilities.platformName === 'IOS') {
+				testedCapabilities.brokenWindowSwitch = true;
+			}
+			else {
+				testedCapabilities.brokenWindowSwitch = session.getCurrentWindowHandle().then(function (handle) {
+					return session.switchToWindow(handle);
+				}).then(works, broken);
+			}
 
 			// At least selendroid 0.12.0-SNAPSHOT doesn't support switching to the parent frame
-			testedCapabilities.brokenParentFrameSwitch = capabilities.browserName === 'android' &&
-				capabilities.deviceName === 'Android Emulator';
+			if (capabilities.browserName === 'android' && capabilities.deviceName === 'Android Emulator') {
+				testedCapabilities.brokenParentFrameSwitch = true;
+			}
+			else {
+				testedCapabilities.brokenParentFrameSwitch = session.switchToParentFrame().then(works, broken);
+			}
 
 			var scrollTestUrl = '<!DOCTYPE html><div id="a" style="margin: 3000px;"></div>';
 
@@ -841,6 +996,8 @@ Server.prototype = {
 			var testedCapabilities = {};
 
 			/* jshint maxlen:300 */
+			// Check that the remote server will accept file uploads. There is a secondary test in discoverDefects that
+			// checks whether the server allows typing into file inputs.
 			testedCapabilities.remoteFiles = function () {
 				return session._post('file', {
 					file: 'UEsDBAoAAAAAAD0etkYAAAAAAAAAAAAAAAAIABwAdGVzdC50eHRVVAkAA2WnXlVlp15VdXgLAAEE8gMAAATyAwAAUEsBAh4DCgAAAAAAPR62RgAAAAAAAAAAAAAAAAgAGAAAAAAAAAAAAKSBAAAAAHRlc3QudHh0VVQFAANlp15VdXgLAAEE8gMAAATyAwAAUEsFBgAAAAABAAEATgAAAEIAAAAAAA=='
@@ -848,6 +1005,25 @@ Server.prototype = {
 					return filename && filename.indexOf('test.txt') > -1;
 				}).catch(unsupported);
 			};
+
+			// The window sizing commands in the W3C standard don't use window handles, but they do under the
+			// JsonWireProtocol. By default, Session assumes handles are used. When the result of this check is added to
+			// capabilities, Session will take it into account.
+			testedCapabilities.implicitWindowHandles = session.getWindowSize().then(unsupported, function (error) {
+				return error.name === 'UnknownCommand';
+			});
+
+			// At least MS Edge 14316 returns immediately from a click request wather than waiting for default action to
+			// occur.
+			if (
+				capabilities.browserName === 'MicrosoftEdge' &&
+				parseFloat(capabilities.browserVersion) <= 37.14316
+			) {
+				testedCapabilities.returnsFromClickImmediately = true;
+			}
+
+			// The W3C WebDriver standard does not support the session-level /keys command, but JsonWireProtocol does.
+			testedCapabilities.supportsSessionKeys = session.pressKeys('a').then(supported, unsupported);
 
 			return Promise.all(testedCapabilities);
 		}
@@ -866,7 +1042,7 @@ Server.prototype = {
 			})
 			.then(discoverDefects)
 			.then(addCapabilities)
-			.finally(function () {
+			.then(function () {
 				Object.defineProperty(capabilities, '_filled', {
 					value: true,
 					configurable: true

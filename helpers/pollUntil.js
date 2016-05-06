@@ -71,6 +71,10 @@ module.exports = function (poller, args, timeout, pollInterval) {
 		var originalTimeout;
 
 		return session.getExecuteAsyncTimeout().then(function () {
+			function storeResult(result) {
+				resultOrError = result;
+			}
+
 			if (!isNaN(timeout)) {
 				originalTimeout = arguments[0];
 			}
@@ -78,51 +82,52 @@ module.exports = function (poller, args, timeout, pollInterval) {
 				timeout = arguments[0];
 			}
 
-			return session.setExecuteAsyncTimeout(timeout).then(function () {
-				/* jshint maxlen:140 */
-				return session.executeAsync(/* istanbul ignore next */ function (poller, args, timeout, pollInterval, done) {
-					/* jshint evil:true */
-					poller = new Function(poller);
+			var resultOrError;
 
-					var endTime = Number(new Date()) + timeout;
+			return session.setExecuteAsyncTimeout(timeout)
+				.then(function () {
+					/* jshint maxlen:140 */
+					return session.executeAsync(/* istanbul ignore next */ function (poller, args, timeout, pollInterval, done) {
+						/* jshint evil:true */
+						poller = new Function(poller);
 
-					(function poll() {
-						var result = poller.apply(this, args);
+						var endTime = Number(new Date()) + timeout;
 
-						/*jshint evil:true */
-						if (result != null) {
-							done(result);
+						(function poll() {
+							var result = poller.apply(this, args);
+
+							/*jshint evil:true */
+							if (result != null) {
+								done(result);
+							}
+							else if (Number(new Date()) < endTime) {
+								setTimeout(poll, pollInterval);
+							}
+							else {
+								done(null);
+							}
+						})();
+					}, [ util.toExecuteString(poller), args, timeout, pollInterval ]);
+				})
+				.then(storeResult, storeResult)
+				.finally(function () {
+					function finish() {
+						if (resultOrError instanceof Error) {
+							throw resultOrError;
 						}
-						else if (Number(new Date()) < endTime) {
-							setTimeout(poll, pollInterval);
+						if (resultOrError === null) {
+							var error = new Error('Polling timed out with no result');
+							error.name = 'ScriptTimeout';
+							throw error;
 						}
-						else {
-							done(null);
-						}
-					})();
-				}, [ util.toExecuteString(poller), args, timeout, pollInterval ]);
-			}).finally(function (result) {
-				function finish() {
-					if (result instanceof Error) {
-						throw result;
+						return resultOrError;
 					}
-					else if (result === null) {
-						var error = new Error('Polling timed out with no result');
-						error.name = 'ScriptTimeout';
-						throw error;
-					}
-					else {
-						return result;
-					}
-				}
 
-				if (!isNaN(originalTimeout)) {
-					return session.setExecuteAsyncTimeout(originalTimeout).then(finish);
-				}
-				else {
+					if (!isNaN(originalTimeout)) {
+						return session.setExecuteAsyncTimeout(originalTimeout).then(finish);
+					}
 					return finish();
-				}
-			});
+				});
 		});
 	};
 };

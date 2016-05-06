@@ -97,6 +97,20 @@ Element.prototype = {
 	 */
 	find: function (using, value) {
 		var session = this._session;
+
+		if (using.indexOf('link text') !== -1 && this.session.capabilities.brokenWhitespaceNormalization) {
+			return this.session.execute(/* istanbul ignore next */ this.session._manualFindByLinkText, [
+				using, value, false, this
+			]).then(function (element) {
+				if (!element) {
+					var error = new Error();
+					error.name = 'NoSuchElement';
+					throw error;
+				}
+				return new Element(element, session);
+			});
+		}
+
 		return this._post('element', {
 			using: using,
 			value: value
@@ -118,6 +132,17 @@ Element.prototype = {
 	 */
 	findAll: function (using, value) {
 		var session = this._session;
+
+		if (using.indexOf('link text') !== -1 && this.session.capabilities.brokenWhitespaceNormalization) {
+			return this.session.execute(/* istanbul ignore next */ this.session._manualFindByLinkText, [
+				using, value, true, this
+			]).then(function (elements) {
+				return elements.map(function (element) {
+					return new Element(element, session);
+				});
+			});
+		}
+
 		return this._post('elements', {
 			using: using,
 			value: value
@@ -136,10 +161,10 @@ Element.prototype = {
 	click: function () {
 		var self = this;
 		return this._post('click').then(function () {
-			// ios-driver 0.6.6-SNAPSHOT April 2014 does not wait until the default action for a click event occurs
-			// before returning
-			if (self.session.capabilities.touchEnabled) {
-				return util.sleep(300);
+			// ios-driver 0.6.6-SNAPSHOT April 2014 and MS Edge Driver 14316 do not wait until the default action for
+			// a click event occurs before returning
+			if (self.session.capabilities.touchEnabled || self.session.capabilities.returnsFromClickImmediately) {
+				return util.sleep(500);
 			}
 		});
 	},
@@ -171,7 +196,16 @@ Element.prototype = {
 	 * @returns {Promise.<string>}
 	 */
 	getVisibleText: function () {
-		return this._get('text');
+		var result = this._get('text');
+
+		if (this.session.capabilities.brokenWhitespaceNormalization) {
+			var self = this;
+			return result.then(function (text) {
+				return self.session._normalizeWhitespace(text);
+			});
+		}
+
+		return result;
 	},
 
 	/**
@@ -460,22 +494,35 @@ Element.prototype = {
 	 * @returns {Promise.<string>}
 	 */
 	getComputedStyle: function (propertyName) {
+		function manualGetStyle() {
+			return self.session.execute(/* istanbul ignore next */ function (element, propertyName) {
+				return window.getComputedStyle(element, null)[propertyName];
+			}, [ self, propertyName ]);
+		}
+
 		var self = this;
-		return this._get('css/$0', null, [ propertyName ]).catch(function (error) {
-			// At least Selendroid 0.9.0 does not support this command
-			if (error.name === 'UnknownCommand') {
-				return self.session.execute(/* istanbul ignore next */ function (element, propertyName) {
-					return window.getComputedStyle(element, null)[propertyName];
-				}, [ self, propertyName ]);
-			}
+		var promise;
 
-			// At least ChromeDriver 2.9 incorrectly returns an error for property names it does not understand
-			else if (error.name === 'UnknownError' && error.message.indexOf('failed to parse value') > -1) {
-				return '';
-			}
+		if (this.session.capabilities.brokenComputedStyles) {
+			promise = manualGetStyle();
+		}
+		else {
+			promise = this._get('css/$0', null, [ propertyName ]).catch(function (error) {
+				// At least Selendroid 0.9.0 does not support this command
+				if (error.name === 'UnknownCommand') {
+					return manualGetStyle();
+				}
 
-			throw error;
-		}).then(function (value) {
+				// At least ChromeDriver 2.9 incorrectly returns an error for property names it does not understand
+				else if (error.name === 'UnknownError' && error.message.indexOf('failed to parse value') > -1) {
+					return '';
+				}
+
+				throw error;
+			});
+		}
+
+		return promise.then(function (value) {
 			// At least ChromeDriver 2.9 and Selendroid 0.9.0 returns colour values as rgb instead of rgba
 			if (value) {
 				value = value.replace(/(.*\b)rgb\((\d+,\s*\d+,\s*\d+)\)(.*)/g, function (_, prefix, rgb, suffix) {

@@ -82,6 +82,10 @@
  * @property {boolean} applicationCacheEnabled
  * Environments with this capability expose the state of the browser’s offline application cache via the WebDriver API.
  *
+ * @property {boolean} brokenActiveElement
+ * Environments with this capability are incapable of returning the active element using the standard WebDriver API.
+ * This issue is automatically corrected;
+ *
  * @property {boolean} brokenCookies
  * Environments with this capability are incapable of clearing or deleting cookies. This issue cannot be worked around.
  *
@@ -92,6 +96,10 @@
  * @property {boolean} brokenDeleteCookie
  * Environments with this capability do not correctly delete cookies. This issue is automatically corrected for cookies
  * that are accessible via JavaScript.
+ *
+ * @property {boolean} brokenDeleteWindow
+ * Environments with this capability do not support window deletion through the WebDriver API. This issue is
+ * automatically corrected.
  *
  * @property {boolean} brokenDoubleClick
  * Environments with this capability do not follow the correct event order when double-clicking. This issue is
@@ -116,6 +124,13 @@
  * @property {boolean} brokenElementPosition
  * Environments with this capability do not correctly retrieve the position of a CSS transformed element. This issue is
  * automatically corrected.
+ *
+ * @property {boolean} brokenElementSerialization
+ * Environments with this capability do not correctly serialize and/or deserialize elements between Intern and the
+ * remote browser. This issue cannot be corrected.
+ *
+ * @property {boolean} brokenFileSendKeys
+ * Environments with this capability do not allow typing into file inputs. This issue cannot be corrected.
  *
  * @property {boolean} brokenFlickFinger
  * Environments with this capability do not operate correctly when the `flickFinger` method is called. This issue cannot
@@ -148,6 +163,10 @@
  * Environments with this capability incorrectly return an empty string instead of `null` for attributes that do not
  * exist when using the `getSpecAttribute` retrieval method. This issue is automatically corrected.
  *
+ * @property {boolean} brokenPageSource
+ * Environments with this capability are not able to return the page source using the standard WebDriver API. This
+ * issue is automatically corrected.
+ *
  * @property {boolean} brokenParentFrameSwitch
  * Environments with this capability cannot switch to a parent frame. This issue cannot be corrected.
  *
@@ -167,11 +186,24 @@
  * Environments with this capability do not operate correctly when the `touchScroll` method is called. This issue is
  * automatically corrected.
  *
- * @property {boolean} brokenWindowSwitch
- * Environments with this capability cannot switch between windows. This issue cannot be corrected.
+ * @property {boolean} brokenWhitespace
+ * Environments with this capability do not properly normalize whitespace values. This can cause findByLinkText to fail
+ * and getVisibleText to return unexpected results. This issue is automatically corrected.
+ *
+ * @property {boolean} brokenWindowClose
+ * Environments with this capability break when a window is closed. This issue cannot be corrected.
  *
  * @property {boolean} brokenWindowPosition
  * Environments with this capability break when `setWindowPosition` is called. This issue cannot be corrected.
+ *
+ * @property {boolean} brokenWindowSize
+ * Environments with this capability do not support getting or setting window sizes. Thsi issue cannot be corrected.
+ *
+ * @property {boolean} brokenWindowSwitch
+ * Environments with this capability cannot switch between windows. This issue cannot be corrected.
+ *
+ * @property {boolean} brokenZeroTimeout
+ * Environments with this capability do not handle timeouts of 0. This issue is automatically corrected.
  *
  * @property {string} browserName
  * The name of the current environment.
@@ -189,6 +221,10 @@
  * @property {(boolean|string[])} fixedLogTypes
  * Environments with this capability break when the `getLogTypes` method is called. The list of log types provided here
  * are used in lieu of the values provided by the server when calling `getLogTypes`.
+ *
+ * @property {boolean} implicitWindowHandles
+ * Environments with this capability implicitly use the current window for all window-based commands. The W3C WebDriver
+ * specification currently works this way, while JsonWireProtocol uses explicit window handles.
  *
  * @property {boolean} javascriptEnabled
  * Environments with this capability have JavaScript enabled. Leadfoot does not operate in environments without
@@ -224,6 +260,9 @@
  *
  * @property {boolean} supportsNavigationDataUris
  * Environments with this capability support navigation to `data:` URIs.
+ *
+ * @property {boolean} supportsSessionKeys
+ * Environments with this capability support the /keys command, which implicitly sends keystrokes to the active element.
  *
  * @property {boolean} takesScreenshot
  * Environments with this capability allow screenshots of the current screen to be taken.

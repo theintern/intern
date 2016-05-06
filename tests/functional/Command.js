@@ -199,17 +199,21 @@ define([
 					});
 			},
 
+			// Check that when the mouse is pressed on one element and is moved over another element before being
+			// released, the mousedown event is generated for the first element and the mouseup event is generated for
+			// the second.
 			'#moveMouseTo usesElement': function () {
 				/* jshint maxlen:150 */
 				return new Command(session).get(require.toUrl('./data/pointer.html'))
 					.findById('a')
-						.moveMouseTo()
-						.pressMouseButton()
-						.moveMouseTo(100, 40)
-						.releaseMouseButton()
-						.end()
-					.execute('return Boolean(result.mousedown.a && result.mousedown.a.length && result.mouseup.b && result.mouseup.b.length);')
-					.then(function (success) {
+					.moveMouseTo()
+					.pressMouseButton()
+					.moveMouseTo(110, 50)
+					.releaseMouseButton()
+					.execute('return result;')
+					.then(function (result) {
+						var success = Boolean(result.mousedown.a && result.mousedown.a.length && result.mouseup.b &&
+							result.mouseup.b.length);
 						assert.isTrue(success, 'Mouse moves with an element context should be relative to the context');
 					});
 			},

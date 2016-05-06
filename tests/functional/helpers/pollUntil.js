@@ -21,8 +21,7 @@ define([
 				return command
 					.get(require.toUrl('../data/elements.html'))
 					.findById('makeD')
-						.click()
-						.end()
+					.click()
 					.then(pollUntil('return document.getElementById("d");', [], 1000))
 					.then(function (result) {
 						assert.property(result, 'elementId', 'Returned value should be an element');
@@ -34,7 +33,6 @@ define([
 					.get(require.toUrl('../data/elements.html'))
 					.findById('makeD')
 					.click()
-					.end()
 					.then(pollUntil('return document.getElementById("d");', 1000))
 					.then(function (result) {
 						assert.property(result, 'elementId', 'Returned value should be an element');
@@ -45,14 +43,16 @@ define([
 				return command
 					.get(require.toUrl('../data/elements.html'))
 					.findById('makeDSlowly')
-						.click()
-						.end()
+					.click()
 					.then(pollUntil('return document.getElementById("d");', [], 100, 25))
-					.then(function () {
-						throw new Error('Polling should fail after a timeout');
-					}, function (error) {
-						assert.strictEqual(error.name, 'ScriptTimeout');
-					});
+					.then(
+						function () {
+							throw new Error('Polling should fail after a timeout');
+						},
+						function (error) {
+							assert.strictEqual(error.name, 'ScriptTimeout');
+						}
+					);
 			},
 
 			'iteration check': function () {

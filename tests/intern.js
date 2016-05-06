@@ -5,7 +5,8 @@ define({
 	},
 
 	environments: [
-		{ browserName: 'internet explorer', version: '11', platform: 'WIN8', fixSessionCapabilities: false },
+		// IE11 behaves significantly better with nativeEvents disabled
+		{ browserName: 'internet explorer', version: '11', platform: 'WIN8', fixSessionCapabilities: false, nativeEvents: false },
 		{ browserName: 'internet explorer', version: '10', platform: 'WIN8', fixSessionCapabilities: false },
 		{ browserName: 'internet explorer', version: '9', platform: 'WINDOWS', fixSessionCapabilities: false },
 		{ browserName: 'firefox', version: '33', platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },

@@ -488,6 +488,11 @@ Session.prototype = {
 			ms = Math.pow(2, 23) - 1;
 		}
 
+		// If the target doesn't support a timeout of 0, use 1.
+		if (this.capabilities.brokenZeroTimeout && ms === 0) {
+			ms = 1;
+		}
+
 		var self = this;
 		var promise = this._post('timeouts', {
 			type: type,
@@ -521,8 +526,8 @@ Session.prototype = {
 	 */
 	getCurrentWindowHandle: function () {
 		var self = this;
-		return this._get('window_handle').then(function (name) {
-			if (self.capabilities.brokenDeleteWindow && self._closedWindows[name]) {
+		return this._get('window_handle').then(function (handle) {
+			if (self.capabilities.brokenDeleteWindow && self._closedWindows[handle]) {
 				var error = new Error();
 				error.status = 23;
 				error.name = statusCodes[error.status][0];
@@ -530,7 +535,7 @@ Session.prototype = {
 				throw error;
 			}
 
-			return name;
+			return handle;
 		});
 	},
 
@@ -541,12 +546,12 @@ Session.prototype = {
 	 */
 	getAllWindowHandles: function () {
 		var self = this;
-		return this._get('window_handles').then(function (names) {
+		return this._get('window_handles').then(function (handles) {
 			if (self.capabilities.brokenDeleteWindow) {
-				return names.filter(function (name) { return !self._closedWindows[name]; });
+				return handles.filter(function (handle) { return !self._closedWindows[handle]; });
 			}
 
-			return names;
+			return handles;
 		});
 	},
 
@@ -775,16 +780,18 @@ Session.prototype = {
 	/**
 	 * Switches the currently focused window to a new window.
 	 *
-	 * @param {string} name
-	 * The name of the window to switch to. In most environments, this value corresponds to the `window.name`
-	 * property of a window; however, this is not the case in mobile environments. In mobile environments, use
-	 * {@link module:leadfoot/Session#getAllWindowHandles} to learn what window names can be used.
+	 * @param {string} handle
+	 * The handle of the window to switch to. In mobile environments and environments based on the W3C WebDriver
+	 * standard, this should be a handle as returned by {@link module:leadfoot/Session#getAllWindowHandles}.
+	 *
+	 * In environments using the JsonWireProtocol, this value corresponds to the `window.name` property of a window.
 	 *
 	 * @returns {Promise.<void>}
 	 */
-	switchToWindow: function (name) {
+	switchToWindow: function (handle) {
 		return this._post('window', {
-			name: name
+			// TODO: Note that in the W3C standard, the property is 'handle'
+			name: handle
 		}).then(noop);
 	},
 
@@ -829,17 +836,25 @@ Session.prototype = {
 	 * @returns {Promise.<void>}
 	 */
 	closeCurrentWindow: function () {
+		function manualClose() {
+			return self.getCurrentWindowHandle().then(function (handle) {
+				return self.execute('window.close();').then(function () {
+					self._closedWindows[handle] = true;
+				});
+			});
+		}
+
 		var self = this;
+
+		if (self.capabilities.brokenDeleteWindow) {
+			return manualClose();
+		}
+
 		return this._delete('window').catch(function (error) {
 			// ios-driver 0.6.6-SNAPSHOT April 2014 does not implement close window command
 			if (error.name === 'UnknownCommand') {
-				return self.getCurrentWindowHandle().then(function (name) {
-					return self.execute('window.close();').then(function () {
-						if (self.capabilities.brokenDeleteWindow) {
-							self._closedWindows[name] = true;
-						}
-					});
-				});
+				self.capabilities.brokenDeleteWindow = true;
+				return manualClose();
 			}
 
 			throw error;
@@ -865,13 +880,47 @@ Session.prototype = {
 		if (typeof height === 'undefined') {
 			height = width;
 			width = windowHandle;
-			windowHandle = 'current';
+			windowHandle = null;
 		}
 
-		return this._post('window/$0/size', {
+		var data = {
 			width: width,
 			height: height
-		}, [ windowHandle ]).then(noop);
+		};
+
+		if (this.capabilities.implicitWindowHandles) {
+			if (windowHandle == null) {
+				return this._post('window/size', data);
+			}
+			else {
+				// User provided a window handle; get the current handle, switch to the new one, get the size, then
+				// switch back to the original handle.
+				var self = this;
+				var error;
+				return this.getCurrentWindowHandle().then(function (originalHandle) {
+					return self.switchToWindow(windowHandle).then(function () {
+						return this._post('window/size', data);
+					}).catch(function (_error) {
+						error = error;
+					}).then(function () {
+						return self.switchToWindow(originalHandle);
+					}).then(function () {
+						if (error) {
+							throw error;
+						}
+					});
+				});
+			}
+		}
+		else {
+			if (windowHandle == null) {
+				windowHandle = 'current';
+			}
+			return this._post('window/$0/size', {
+				width: width,
+				height: height
+			}, [ windowHandle ]).then(noop);
+		}
 	},
 
 	/**
@@ -885,15 +934,46 @@ Session.prototype = {
 	 * An object describing the width and height of the window, in CSS pixels.
 	 */
 	getWindowSize: function (windowHandle) {
-		if (typeof windowHandle === 'undefined') {
-			windowHandle = 'current';
+		if (this.capabilities.implicitWindowHandles) {
+			if (windowHandle == null) {
+				return this._get('window/size');
+			}
+			else {
+				// User provided a window handle; get the current handle, switch to the new one, get the size, then
+				// switch back to the original handle.
+				var self = this;
+				var error;
+				var size;
+				return this.getCurrentWindowHandle().then(function (originalHandle) {
+					return self.switchToWindow(windowHandle).then(function () {
+						return self._get('window/size');
+					}).then(function (_size) {
+						size = _size;
+					}, function (_error) {
+						error = _error;
+					}).then(function () {
+						return self.switchToWindow(originalHandle);
+					}).then(function () {
+						if (error) {
+							throw error;
+						}
+						return size;
+					});
+				});
+			}
 		}
-
-		return this._get('window/$0/size', null, [ windowHandle ]);
+		else {
+			if (typeof windowHandle === 'undefined') {
+				windowHandle = 'current';
+			}
+			return this._get('window/$0/size', null, [ windowHandle ]);
+		}
 	},
 
 	/**
 	 * Sets the position of a window.
+	 *
+	 * Note that this method is not part of the W3C WebDriver standard.
 	 *
 	 * @param {string=} windowHandle
 	 * The name of the window to move. See {@link module:leadfoot/Session#switchToWindow} to learn about valid
@@ -922,6 +1002,8 @@ Session.prototype = {
 
 	/**
 	 * Gets the position of a window.
+	 *
+	 * Note that this method is not part of the W3C WebDriver standard.
 	 *
 	 * @param {string=} windowHandle
 	 * The name of the window to query. See {@link module:leadfoot/Session#switchToWindow} to learn about valid
@@ -1091,7 +1173,14 @@ Session.prototype = {
 	 * @returns {Promise.<string>}
 	 */
 	getPageSource: function () {
-		return this._get('source');
+		if (this.capabilities.brokenPageSource) {
+			return this.execute(/* istanbul ignore next */ function () {
+				return document.documentElement.outerHTML;
+			});
+		}
+		else {
+			return this._get('source');
+		}
 	},
 
 	/**
@@ -1122,6 +1211,19 @@ Session.prototype = {
 	 */
 	find: function (using, value) {
 		var self = this;
+
+		if (using.indexOf('link text') !== -1 && this.capabilities.brokenWhitespaceNormalization) {
+			return this.execute(/* istanbul ignore next */ this._manualFindByLinkText, [ using, value ])
+				.then(function (element) {
+					if (!element) {
+						var error = new Error();
+						error.name = 'NoSuchElement';
+						throw error;
+					}
+					return new Element(element, self);
+				});
+		}
+
 		return this._post('element', {
 			using: using,
 			value: value
@@ -1143,6 +1245,16 @@ Session.prototype = {
 	 */
 	findAll: function (using, value) {
 		var self = this;
+
+		if (using.indexOf('link text') !== -1 && this.capabilities.brokenWhitespaceNormalization) {
+			return this.execute(/* istanbul ignore next */ this._manualFindByLinkText, [ using, value, true ])
+				.then(function (elements) {
+					return elements.map(function (element) {
+						return new Element(element, self);
+					});
+				});
+		}
+
 		return this._post('elements', {
 			using: using,
 			value: value
@@ -1160,25 +1272,27 @@ Session.prototype = {
 	 * @returns {Promise.<module:leadfoot/Element>}
 	 */
 	getActiveElement: util.forCommand(function () {
-		var self = this;
-		return this._get('element/active').then(function (element) {
-			if (element) {
-				return new Element(element, self);
-			}
-			// The driver will return `null` if the active element is the body element; for consistency with how
-			// the DOM `document.activeElement` property works, we’ll diverge and always return an element
-			else {
-				return self.execute('return document.activeElement;');
-			}
-		}, function (error) {
-			// At least ChromeDriver 2.9 does not implement this command, but we can fake it by retrieving
-			// the active element using JavaScript
-			if (error.name === 'UnknownCommand') {
-				return self.execute('return document.activeElement;');
-			}
+		function getDocumentActiveElement() {
+			return self.execute('return document.activeElement;');
+		}
 
-			throw error;
-		});
+		var self = this;
+
+		if (this.capabilities.brokenActiveElement) {
+			return getDocumentActiveElement();
+		}
+		else {
+			return this._get('element/active').then(function (element) {
+				if (element) {
+					return new Element(element, self);
+				}
+				// The driver will return `null` if the active element is the body element; for consistency with how
+				// the DOM `document.activeElement` property works, we’ll diverge and always return an element
+				else {
+					return getDocumentActiveElement();
+				}
+			});
+		}
 	}, { createsContext: true }),
 
 	/**
@@ -1203,9 +1317,15 @@ Session.prototype = {
 			return this.execute(simulateKeys, [ keys ]);
 		}
 
-		return this._post('keys', {
-			value: keys
-		}).then(noop);
+		if (this.capabilities.supportsSessionKeys) {
+			return this._post('keys', {
+				value: keys
+			}).then(noop);
+		}
+
+		return this.getActiveElement().then(function (element) {
+			return element.type(keys);
+		});
 	},
 
 	/**
@@ -1737,6 +1857,70 @@ Session.prototype = {
 	 */
 	quit: function () {
 		return this._server.deleteSession(this._sessionId).then(noop);
+	},
+
+	/**
+	 * Searches a document or element subtree for links with the given normalized text. This method works for 'link text'
+	 * and 'partial link text' search strategies.
+	 *
+	 * Note that this method should be passed to an `execute` call, not called directly.
+	 *
+	 * @param {string} using The strategy in use ('link text' or 'partial link text')
+	 * @param {string} value The link text to search for
+	 * @param {boolean} multiple If true, return all matching links
+	 * @param {Element?} element A context element
+	 * @returns {Element|Element[]} The found element or elements
+	 */
+	_manualFindByLinkText: function (using, value, multiple, element) {
+		var check = using === 'link text' ? function (linkText, text) {
+			return linkText === text;
+		} : function (linkText, text) {
+			return linkText.indexOf(text) !== -1;
+		};
+
+		var links = (element || document).getElementsByTagName('a');
+		var linkText;
+		if (multiple) {
+			var found = [];
+		}
+
+		for (var i = 0; i < links.length; i++) {
+			// Normalize the link text whitespace
+			linkText = links[i].innerText
+				.replace(/^\s+/, '')
+				.replace(/\s+$/, '')
+				.replace(/\s*\r\n\s*/g, '\n')
+				.replace(/ +/g, ' ');
+			if (check(linkText, value)) {
+				if (!multiple) {
+					return links[i];
+				}
+				found.push(links[i]);
+			}
+		}
+
+		if (multiple) {
+			return found;
+		}
+	},
+
+	/**
+	 * Normalize whitespace in the same way that most browsers generate innerText.
+	 *
+	 * @param {string} text 
+	 * @returns {string} Text with leading and trailing whitespace removed, with inner runs of spaces changed to a
+	 * single space, and with "\r\n" pairs converted to "\n".
+	 */
+	_normalizeWhitespace: function (text) {
+		if (text) {
+			text = text
+				.replace(/^\s+/, '')
+				.replace(/\s+$/, '')
+				.replace(/\s*\r\n\s*/g, '\n')
+				.replace(/ +/g, ' ');
+		}
+
+		return text;
 	},
 
 	/**
