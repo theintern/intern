@@ -704,23 +704,31 @@ Server.prototype = {
 			};
 
 			// At least MS Edge Driver 14316 doesn't allow typing into file inputs
-			testedCapabilities.brokenFileSendKeys = function () {
-				return get('<!DOCTYPE html><input type="file" id="i1">').then(function () {
-					var element;
-					return session.findById('i1')
-						.then(function (element) {
-							return element.type('./Server.js');
-						}).then(function () {
-							return session.execute(function () {
-								return document.getElementById('i1').value;
-							});
-						}).then(function (text) {
-							if (!/Server.js$/.test(text)) {
-								throw new Error('mismatch');
-							}
-						});
-				}).then(works, broken);
-			};
+			if (
+				capabilities.browserName === 'MicrosoftEdge' &&
+				parseFloat(capabilities.browserVersion) <= 37.14316
+			) {
+				testedCapabilities.brokenFileSendKeys = true;
+			}
+
+			// TODO: Re-enable this after further testing
+			// testedCapabilities.brokenFileSendKeys = function () {
+			// 	return get('<!DOCTYPE html><input type="file" id="i1">').then(function () {
+			// 		var element;
+			// 		return session.findById('i1')
+			// 			.then(function (element) {
+			// 				return element.type('./Server.js');
+			// 			}).then(function () {
+			// 				return session.execute(function () {
+			// 					return document.getElementById('i1').value;
+			// 				});
+			// 			}).then(function (text) {
+			// 				if (!/Server.js$/.test(text)) {
+			// 					throw new Error('mismatch');
+			// 				}
+			// 			});
+			// 	}).then(works, broken);
+			// };
 
 			// At least MS Edge Driver 14316 doesn't normalize whitespace properly when retrieving text. Text may contain
 			// "\r\n" pairs rather than "\n", and there may be extraneous whitespace adjacent to "\r\n" pairs and at the
