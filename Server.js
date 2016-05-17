@@ -140,6 +140,13 @@ function createHttpRequest(method) {
 					data.status = 9;
 				}
 
+				// At least BrowserStack in May 2016 responds with HTTP 500 and a message value of "Invalid Command" for
+				// at least some unknown commands. These errors are more properly represented to end-users using the
+				// Selenium status UnknownCommand, so we make the appropriate coercion here
+				if (response.statusCode === 500 && data.value && data.value.message === 'Invalid Command') {
+					data.status = 9;
+				}
+
 				// At least FirefoxDriver 2.40.0 responds with HTTP status codes other than Not Implemented and a
 				// Selenium status UnknownError for commands that are not implemented; however, it provides a
 				// reliable indicator that the operation was unsupported by the type of the exception that was
@@ -582,6 +589,7 @@ Server.prototype = {
 					brokenNullGetSpecAttribute: false,
 
 					// SafariDriver-specific
+					brokenActiveElement: true,
 					brokenNavigation: true,
 					brokenMouseEvents: true,
 					brokenWindowPosition: true,
@@ -597,10 +605,19 @@ Server.prototype = {
 			testedCapabilities.scriptedParentFrameCrashesBrowser =
 				capabilities.browserName === 'internet explorer' && parseFloat(capabilities.version) < 9;
 
-			// At least ChromeDriver 2.9 and MS Edge 10240 does not implement /element/active
-			testedCapabilities.brokenActiveElement = session.getActiveElement().then(works, function (error) {
-				return error.name === 'UnknownCommand';
-			});
+			// At least IE 10 and 11 on Sauce Labs will stop responding if /element/active is called
+			if (
+				capabilities.browserName === 'internet explorer' &&
+				(capabilities.version === '10' || capabilities.version === '11')
+			) {
+				testedCapabilities.brokenActiveElement = true;
+			}
+			else {
+				// At least ChromeDriver 2.9 and MS Edge 10240 does not implement /element/active
+				testedCapabilities.brokenActiveElement = session.getActiveElement().then(works, function (error) {
+					return error.name === 'UnknownCommand';
+				});
+			}
 
 			// At least Selendroid 0.9.0 has broken cookie deletion; nobody else has broken cookie deletion but
 			// this test is very hard to get working properly in other environments so only test when Selendroid
@@ -895,6 +912,28 @@ Server.prototype = {
 			};
 
 			if (capabilities.mouseEnabled) {
+				// At least IE 10 and 11 on SauceLabs don't fire native mouse events consistently even though they
+				// support moveMouseTo
+				testedCapabilities.brokenMouseEvents = function () {
+					return get(
+						'<!DOCTYPE html><div id="foo">foo</div>' +
+						'<script>counter = 0; var d = document; d.onmousemove = function () { counter++; };</script>'
+					).then(function () {
+						return session.findById('foo');
+					}).then(function (element) {
+						return session.moveMouseTo(element, 20, 20);
+					}).then(function () {
+						return util.sleep(100);
+					}).then(function () {
+						return session.execute('return counter;');
+					}).then(
+						function (counter) {
+							return counter > 0 ? works() : broken();
+						},
+						broken
+					);
+				};
+
 				// At least ChromeDriver 2.12 through 2.19 will throw an error if mouse movement relative to the <html>
 				// element is attempted
 				testedCapabilities.brokenHtmlMouseMove = function () {
@@ -1031,7 +1070,7 @@ Server.prototype = {
 			}
 
 			// The W3C WebDriver standard does not support the session-level /keys command, but JsonWireProtocol does.
-			testedCapabilities.supportsSessionKeys = session.pressKeys('a').then(supported, unsupported);
+			testedCapabilities.supportsSessionKeys = session._post('keys', { value: 'a' }).then(supported, unsupported);
 
 			return Promise.all(testedCapabilities);
 		}
@@ -1067,7 +1106,12 @@ Server.prototype = {
 	 * @returns {Promise.<Object[]>}
 	 */
 	getSessions: function () {
-		return this._get('sessions').then(returnValue).then(function (sessions) {
+		return this._get('sessions').then(function (sessions) {
+			// At least BrowserStack is now returning an array for the sessions response
+			if (sessions && !Array.isArray(sessions)) {
+				sessions = returnValue(sessions);
+			}
+
 			// At least ChromeDriver 2.19 uses the wrong keys
 			// https://code.google.com/p/chromedriver/issues/detail?id=1229
 			sessions.forEach(function (session) {
