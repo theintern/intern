@@ -19,37 +19,251 @@ define([
 		// TODO
 		'.createQueue': function () {},
 
-		'.flattenEnvironments': function () {
-			var capabilities = { isCapabilities: true };
-			var environments = [ {
-				browserName: [ 'a', 'b' ],
-				version: [ '1', '2' ],
-				platform: [ 'c', 'd' ],
-				platformVersion: [ '3', '4' ]
-			} ];
+		'.createPermutations': (function () {
+			var base = {
+				platformName: 'windows',
+				platformVersion: 8
+			};
 
-			var expectedEnvironments = [
-				new EnvironmentType({ browserName: 'a', version: '1', platform: 'c', platformVersion: '3', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'a', version: '1', platform: 'c', platformVersion: '4', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'a', version: '1', platform: 'd', platformVersion: '3', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'a', version: '1', platform: 'd', platformVersion: '4', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'a', version: '2', platform: 'c', platformVersion: '3', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'a', version: '2', platform: 'c', platformVersion: '4', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'a', version: '2', platform: 'd', platformVersion: '3', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'a', version: '2', platform: 'd', platformVersion: '4', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'b', version: '1', platform: 'c', platformVersion: '3', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'b', version: '1', platform: 'c', platformVersion: '4', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'b', version: '1', platform: 'd', platformVersion: '3', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'b', version: '1', platform: 'd', platformVersion: '4', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'b', version: '2', platform: 'c', platformVersion: '3', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'b', version: '2', platform: 'c', platformVersion: '4', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'b', version: '2', platform: 'd', platformVersion: '3', isCapabilities: true }),
-				new EnvironmentType({ browserName: 'b', version: '2', platform: 'd', platformVersion: '4', isCapabilities: true })
-			];
+			return {
+				'just a base; returns an empty list': function () {
+					var actual = util.createPermutations(base, []);
+					assert.lengthOf(actual, 0);
+				},
 
-			assert.deepEqual(util.flattenEnvironments(capabilities, environments), expectedEnvironments,
-				'Browser, version, platform, platform version environment properties should be permutated');
-		},
+				'single source without permutations; returns base + source': function () {
+					var sources = [
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest'
+						}
+					];
+					var actual = util.createPermutations(base, sources);
+					var expected = [
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest',
+							platformName: 'windows',
+							platformVersion: 8
+						}
+					];
+
+					assert.lengthOf(actual, 1, 'one instance should be created');
+					assert.deepEqual(actual, expected, 'their contents should be equal');
+				},
+
+				'single source overriding base property': function () {
+					var sources = [
+						{
+							platformName: 'linux'
+						}
+					];
+					var actual = util.createPermutations(base, sources);
+					var expected = [
+						{
+							platformName: 'linux',
+							platformVersion: 8
+						}
+					];
+
+					assert.lengthOf(actual, 1, 'one instance should be created');
+					assert.deepEqual(actual, expected, 'their contents should be equal');
+				},
+
+				'single permutation (n); returns n * (base + source)': function () {
+					var sources = [
+						{
+							browserName: 'chrome',
+							browserVersion: [ 'latest', 'latest-1' ]
+						}
+					];
+					var actual = util.createPermutations(base, sources);
+					var expected = [
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest',
+							platformName: 'windows',
+							platformVersion: 8
+						},
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest-1',
+							platformName: 'windows',
+							platformVersion: 8
+						}
+					];
+					assert.lengthOf(actual, 2, 'two instances should be created');
+					assert.deepEqual(actual, expected, 'their contents should be equal');
+				},
+
+				'multiple permutations (n, m); returns n * m * (base + source)': function () {
+					var sources = [
+						{
+							browserName: [ 'chrome', 'ie' ],
+							browserVersion: [ 'latest', 'latest-1' ]
+						}
+					];
+					var actual = util.createPermutations(base, sources);
+					var expected = [
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest',
+							platformName: 'windows',
+							platformVersion: 8
+						},
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest-1',
+							platformName: 'windows',
+							platformVersion: 8
+						},
+						{
+							browserName: 'ie',
+							browserVersion: 'latest',
+							platformName: 'windows',
+							platformVersion: 8
+						},
+						{
+							browserName: 'ie',
+							browserVersion: 'latest-1',
+							platformName: 'windows',
+							platformVersion: 8
+						}
+					];
+					assert.lengthOf(actual, expected.length, 'four instances should be created');
+					assert.deepEqual(actual, expected, 'their contents should be equal');
+				},
+
+				'multiple sources (s), single permutation; returns all sources mixed into base': function () {
+					var sources = [
+						{
+							browserName: 'chrome',
+							browserVersion: [ 'latest', 'latest-1' ]
+						},
+						{
+							browserName: 'ie',
+							browserVersion: [ 'latest', 'latest-1' ]
+						}
+					];
+					var actual = util.createPermutations(base, sources);
+					var expected = [
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest',
+							platformName: 'windows',
+							platformVersion: 8
+						},
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest-1',
+							platformName: 'windows',
+							platformVersion: 8
+						},
+						{
+							browserName: 'ie',
+							browserVersion: 'latest',
+							platformName: 'windows',
+							platformVersion: 8
+						},
+						{
+							browserName: 'ie',
+							browserVersion: 'latest-1',
+							platformName: 'windows',
+							platformVersion: 8
+						}
+					];
+					assert.lengthOf(actual, expected.length, 'four instances should be created');
+					assert.deepEqual(actual, expected, 'their contents should be equal');
+				},
+
+				'multiple sources (s), multiple permutations (n, m); returns s * n * m permutations': function () {
+					var sources = [
+						{
+							browserName: 'chrome',
+							browserVersion: [ 'latest', 'latest-1' ],
+							platformName: [ 'windows', 'mac' ]
+						},
+						{
+							browserName: 'ie',
+							browserVersion: [ 'latest', 'latest-1' ]
+						}
+					];
+					var actual = util.createPermutations(base, sources);
+					var expected = [
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest',
+							platformName: 'windows',
+							platformVersion: 8
+						},
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest',
+							platformName: 'mac',
+							platformVersion: 8
+						},
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest-1',
+							platformName: 'windows',
+							platformVersion: 8
+						},
+						{
+							browserName: 'chrome',
+							browserVersion: 'latest-1',
+							platformName: 'mac',
+							platformVersion: 8
+						},
+						{
+							browserName: 'ie',
+							browserVersion: 'latest',
+							platformName: 'windows',
+							platformVersion: 8
+						},
+						{
+							browserName: 'ie',
+							browserVersion: 'latest-1',
+							platformName: 'windows',
+							platformVersion: 8
+						}
+					];
+					assert.lengthOf(actual, expected.length, 'four instances should be created');
+					assert.deepEqual(actual, expected, 'their contents should be equal');
+				},
+				
+				'from flattenEnvironments': function () {
+					var base = { isCapabilities: true };
+					var sources = [ {
+						browserName: [ 'a', 'b' ],
+						version: [ '1', '2' ],
+						platform: [ 'c', 'd' ],
+						platformVersion: [ '3', '4' ]
+					} ];
+					var actual = util.createPermutations(base, sources);
+					var expected = [
+						{ browserName: 'a', version: '1', platform: 'c', platformVersion: '3', isCapabilities: true },
+						{ browserName: 'a', version: '1', platform: 'c', platformVersion: '4', isCapabilities: true },
+						{ browserName: 'a', version: '1', platform: 'd', platformVersion: '3', isCapabilities: true },
+						{ browserName: 'a', version: '1', platform: 'd', platformVersion: '4', isCapabilities: true },
+						{ browserName: 'a', version: '2', platform: 'c', platformVersion: '3', isCapabilities: true },
+						{ browserName: 'a', version: '2', platform: 'c', platformVersion: '4', isCapabilities: true },
+						{ browserName: 'a', version: '2', platform: 'd', platformVersion: '3', isCapabilities: true },
+						{ browserName: 'a', version: '2', platform: 'd', platformVersion: '4', isCapabilities: true },
+						{ browserName: 'b', version: '1', platform: 'c', platformVersion: '3', isCapabilities: true },
+						{ browserName: 'b', version: '1', platform: 'c', platformVersion: '4', isCapabilities: true },
+						{ browserName: 'b', version: '1', platform: 'd', platformVersion: '3', isCapabilities: true },
+						{ browserName: 'b', version: '1', platform: 'd', platformVersion: '4', isCapabilities: true },
+						{ browserName: 'b', version: '2', platform: 'c', platformVersion: '3', isCapabilities: true },
+						{ browserName: 'b', version: '2', platform: 'c', platformVersion: '4', isCapabilities: true },
+						{ browserName: 'b', version: '2', platform: 'd', platformVersion: '3', isCapabilities: true },
+						{ browserName: 'b', version: '2', platform: 'd', platformVersion: '4', isCapabilities: true }
+					];
+
+					assert.lengthOf(actual, expected.length);
+					assert.deepEqual(actual, expected, 'their contents should be equal');
+				}
+			};
+		}()),
 
 		'.getErrorMessage': {
 			'basic error logging': function () {
