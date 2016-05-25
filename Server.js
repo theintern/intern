@@ -421,7 +421,7 @@ Server.prototype = {
 		function discoverFeatures() {
 			var testedCapabilities = {};
 
-			// SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
+			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
 			if (
 				capabilities.browserName === 'safari' &&
@@ -567,7 +567,7 @@ Server.prototype = {
 		function discoverDefects() {
 			var testedCapabilities = {};
 
-			// SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
+			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
 			if (
 				capabilities.browserName === 'safari' &&
@@ -594,6 +594,7 @@ Server.prototype = {
 					brokenMouseEvents: true,
 					brokenWindowPosition: true,
 					brokenSendKeys: true,
+					brokenExecuteForNonHttpUrl: true,
 
 					// SafariDriver 2.41.0 cannot delete cookies, at all, ever
 					brokenCookies: true
