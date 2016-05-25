@@ -1282,7 +1282,7 @@ Session.prototype = {
 			return getDocumentActiveElement();
 		}
 		else {
-			return this._get('element/active').then(function (element) {
+			return this._post('element/active').then(function (element) {
 				if (element) {
 					return new Element(element, self);
 				}

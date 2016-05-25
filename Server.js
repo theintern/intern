@@ -605,19 +605,10 @@ Server.prototype = {
 			testedCapabilities.scriptedParentFrameCrashesBrowser =
 				capabilities.browserName === 'internet explorer' && parseFloat(capabilities.version) < 9;
 
-			// At least IE 10 and 11 on Sauce Labs will stop responding if /element/active is called
-			if (
-				capabilities.browserName === 'internet explorer' &&
-				(capabilities.version === '10' || capabilities.version === '11')
-			) {
-				testedCapabilities.brokenActiveElement = true;
-			}
-			else {
-				// At least ChromeDriver 2.9 and MS Edge 10240 does not implement /element/active
-				testedCapabilities.brokenActiveElement = session.getActiveElement().then(works, function (error) {
-					return error.name === 'UnknownCommand';
-				});
-			}
+			// At least ChromeDriver 2.9 and MS Edge 10240 does not implement /element/active
+			testedCapabilities.brokenActiveElement = session.getActiveElement().then(works, function (error) {
+				return error.name === 'UnknownCommand';
+			});
 
 			// At least Selendroid 0.9.0 has broken cookie deletion; nobody else has broken cookie deletion but
 			// this test is very hard to get working properly in other environments so only test when Selendroid
