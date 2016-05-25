@@ -109,6 +109,10 @@
  * Environments with this capability return invalid element handles from execute functions. This issue cannot be worked
  * around.
  *
+ * @property {boolean} brokenExecuteForNonHttpUrl
+ * Environments with this capability don't support script injection when the current browser URL is not an http/https
+ * URL. This issue cannot be worked around.
+ *
  * @property {boolean} brokenExecuteUndefinedReturn
  * (Since 1.6.3) Environments with this capability return `undefined` (which is not valid JSON) instead of `null` when
  * an undefined value is returned from the server. This issue is automatically corrected.
@@ -258,11 +262,11 @@
  * @property {boolean} supportsExecuteAsync
  * Environments with this capability support asynchronous JavaScript execution.
  *
+ * @property {boolean} supportsKeysCommand
+ * Environments with this capability support the /keys command, which implicitly sends keystrokes to the active element.
+ *
  * @property {boolean} supportsNavigationDataUris
  * Environments with this capability support navigation to `data:` URIs.
- *
- * @property {boolean} supportsSessionKeys
- * Environments with this capability support the /keys command, which implicitly sends keystrokes to the active element.
  *
  * @property {boolean} takesScreenshot
  * Environments with this capability allow screenshots of the current screen to be taken.

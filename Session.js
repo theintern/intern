@@ -1313,19 +1313,13 @@ Session.prototype = {
 			keys = [ keys ];
 		}
 
-		if (this.capabilities.brokenSendKeys) {
+		if (this.capabilities.brokenSendKeys || !this.capabilites.supportsKeysCommand) {
 			return this.execute(simulateKeys, [ keys ]);
 		}
 
-		if (this.capabilities.supportsSessionKeys) {
-			return this._post('keys', {
-				value: keys
-			}).then(noop);
-		}
-
-		return this.getActiveElement().then(function (element) {
-			return element.type(keys);
-		});
+		return this._post('keys', {
+			value: keys
+		}).then(noop);
 	},
 
 	/**

@@ -1062,7 +1062,7 @@ Server.prototype = {
 			}
 
 			// The W3C WebDriver standard does not support the session-level /keys command, but JsonWireProtocol does.
-			testedCapabilities.supportsSessionKeys = session._post('keys', { value: 'a' }).then(supported, unsupported);
+			testedCapabilities.supportsKeysCommand = session._post('keys', { value: 'a' }).then(supported, unsupported);
 
 			return Promise.all(testedCapabilities);
 		}
