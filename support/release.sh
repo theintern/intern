@@ -29,7 +29,6 @@ fi
 
 ROOT_DIR=$(cd $(dirname $0) && cd .. && pwd)
 BUILD_DIR="$ROOT_DIR/build"
-BUILD_REMOTE="_build_"
 
 if [ -d "$BUILD_DIR" ]; then
 	echo "Existing build directory detected at $BUILD_DIR"
@@ -55,7 +54,6 @@ fi
 cd "$ROOT_DIR"
 mkdir "$BUILD_DIR"
 git clone --recursive . "$BUILD_DIR"
-git remote add "$BUILD_REMOTE" "$BUILD_DIR"
 
 cd "$BUILD_DIR"
 
@@ -189,15 +187,13 @@ fi
 
 npm publish --tag $NPM_TAG
 
-cd "$ROOT_DIR"
-git fetch "$BUILD_DIR" --tags
-
 for BRANCH in $PUSH_BRANCHES; do
-	git checkout $BRANCH
-	git pull "$BUILD_REMOTE" "$BRANCH"
+	git push origin $BRANCH
 done
 
+git push origin --tags
+
+cd "$ROOT_DIR"
 rm -rf "$BUILD_DIR"
-git remote remove "$BUILD_REMOTE"
 
 echo -e "\nAll done! Yay!"
