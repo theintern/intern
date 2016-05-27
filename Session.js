@@ -1313,7 +1313,7 @@ Session.prototype = {
 			keys = [ keys ];
 		}
 
-		if (this.capabilities.brokenSendKeys || !this.capabilites.supportsKeysCommand) {
+		if (this.capabilities.brokenSendKeys || !this.capabilities.supportsKeysCommand) {
 			return this.execute(simulateKeys, [ keys ]);
 		}
 
