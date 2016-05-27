@@ -16,7 +16,7 @@
     "dojo": "2.0.0-alpha.7",
     "glob": "7.0.3",
     "istanbul": "0.4.1",
-    "leadfoot": "1.6.9",
+    "leadfoot": "1.6.10",
     "mimetype": "0.0.8",
     "source-map": "0.1.33"
   },
