@@ -22,7 +22,7 @@ declare module 'intern/main' {
 		functionalSuites?: string[];
 		grep?: RegExp;
 		loader?: any;
-		loaderConfig?: any;
+		loaderOptions?: any;
 		loaders?: {
 			'host-browser'?: string;
 			'host-node'?: string;
