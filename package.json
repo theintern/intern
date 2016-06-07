@@ -25,7 +25,8 @@
   },
   "scripts": {
     "install": "node support/fixdeps.js",
-    "update": "node support/fixdeps.js"
+    "update": "node support/fixdeps.js",
+    "test": "intern-client config=tests/selftest.intern reporters=Combined selftest=true selftest2 selftest3=a selftest3=b selftest3=c"
   },
   "bugs": "https://github.com/theintern/intern/issues",
   "keywords": [
