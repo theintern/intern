@@ -103,6 +103,32 @@ define([
 				assert.deepEqual(results, expectedResults,
 					'TDD interface should correctly register special lifecycle methods on the Suite');
 			});
+		},
+
+		'Async test case with callback function': function () {
+			var error = new Error();
+
+			tdd.suite('root suite', function () {
+				tdd.test('async test', function (done) {
+					setTimeout(function () {
+						done();
+					}, 0);
+				});
+
+				tdd.test('async test with error', function (done) {
+					setTimeout(function () {
+						done(error);
+					}, 0);
+				});
+			});
+
+			return rootSuites[0].run().then(function () {
+				assert.strictEqual(rootSuites[0].tests[0].tests[0].isAsync, true);
+				assert.strictEqual(rootSuites[0].tests[0].tests[0].error, null);
+
+				assert.strictEqual(rootSuites[0].tests[0].tests[1].isAsync, true);
+				assert.strictEqual(rootSuites[0].tests[0].tests[1].error, error);
+			});
 		}
 	});
 });
