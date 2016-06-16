@@ -333,6 +333,19 @@ define([
 				assert.include(error.message, 'Timeout reached',
 					'Timeout should occur when using a Promise with no cancel');
 			});
+		},
+
+		'Test sandboxing': function () {
+			var test = createTest({
+				sandbox: true,
+				test: function () {
+					delete Number.prototype.toString;
+				}
+			});
+
+			return test.run().then(function () {
+				assert.strictEqual((42).toString(), '42');
+			})
 		}
 	});
 });
