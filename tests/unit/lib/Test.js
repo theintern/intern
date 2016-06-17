@@ -346,6 +346,23 @@ define([
 			return test.run().then(function () {
 				assert.strictEqual((42).toString(), '42');
 			})
+		},
+
+		'Test sandboxing with fails': function () {
+			var dfd = this.async(250);
+			var test = createTest({
+				sandbox: true,
+				test: function () {
+					throw new Error('Oops');
+				}
+			});
+
+			test.run().then(function () {
+				dfd.reject();
+			}, dfd.callback(function (error) {
+				assert.strictEqual(test.error.message, 'Oops');
+				assert.strictEqual(error.message, 'Oops');
+			}));
 		}
 	});
 });
