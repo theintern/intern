@@ -9,8 +9,9 @@ define([
 	'require',
 	'dojo/has!host-node?dojo/node!fs',
 	'dojo/has!host-node?dojo/node!path',
+	'dojo/has!host-node?dojo/node!vm',
 	'dojo/has!host-node?dojo/node!istanbul/lib/hook'
-], function (intern, registerSuite, assert, util, EnvironmentType, has, Promise, require, fs, pathUtil, hook) {
+], function (intern, registerSuite, assert, util, EnvironmentType, has, Promise, require, fs, pathUtil, vm, hook) {
 	/* jshint maxlen:140 */
 	registerSuite({
 		name: 'intern/lib/util',
@@ -228,6 +229,21 @@ define([
 					'Splits in long diffs should be indicated by an ellipsis'
 				);
 			}
+		},
+
+		'.instrument': function () {
+			if (!has('host-node')) {
+				this.skip('requires Node.js');
+			}
+
+			var code = util.instrument('console.log("\\u200C");', 'foo.js', {
+				coverageVariable: 'foobaz',
+				codeGenerationOptions: {
+					verbatim: 'raw'
+				}
+			});
+			assert.match(code, /__cov_\w+\.foobaz\b/, 'Expected specified coverage variable to be used for instrumentation');
+			assert.match(code, /console\.log\(\("\\u200C"\)\)/, 'Expected unicode entity to be present in instrumented code');
 		},
 
 		'.isGlobModuleId': function () {

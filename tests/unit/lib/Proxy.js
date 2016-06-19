@@ -42,7 +42,10 @@ define([
 			// WritableStream interface methods
 			on: function () {},
 			once: function () {},
-			emit: function () {}
+			emit: function () {},
+
+			// EventEmitter interface methods
+			prependListener: function () {}
 		};
 	}
 

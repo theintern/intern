@@ -1,37 +1,54 @@
 {
-	"name": "intern",
-	"version": "3.2.0-pre",
-	"main": "main",
-	"description": "Intern. A next-generation code testing stack for JavaScript.",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/theintern/intern.git"
-	},
-	"license": "BSD-3-Clause",
-	"dependencies": {
-		"istanbul": "0.4.1",
-		"source-map": "0.1.33",
-		"dojo": "2.0.0-alpha.7",
-		"chai": "3.5.0",
-		"mimetype": "0.0.8",
-		"leadfoot": "1.6.6",
-		"digdug": "1.4.0",
-		"charm": "0.2.0",
-		"diff": "1.1.0",
-		"glob": "7.0.3"
-	},
-	"devDependencies": {
-		"intern": "3.0.6"
-	},
-	"scripts": {
-		"install": "node support/fixdeps.js",
-		"update": "node support/fixdeps.js"
-	},
-	"bugs": "https://github.com/theintern/intern/issues",
-	"keywords": [ "javascript", "test", "unit", "testing", "ci", "continuous integration", "bdd", "tdd", "xunit", "istanbul", "chai", "dojo", "toolkit", "selenium", "sauce labs", "code coverage" ],
-	"homepage": "http://theintern.io/",
-	"bin": {
-		"intern-client": "./bin/intern-client.js",
-		"intern-runner": "./bin/intern-runner.js"
-	}
+  "name": "intern",
+  "version": "3.3.0-pre",
+  "main": "main",
+  "description": "Intern. A next-generation code testing stack for JavaScript.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/intern.git"
+  },
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "chai": "3.5.0",
+    "charm": "0.2.0",
+    "diff": "1.1.0",
+    "digdug": "1.4.1",
+    "dojo": "2.0.0-alpha.7",
+    "glob": "7.0.3",
+    "istanbul": "0.4.1",
+    "leadfoot": "1.6.8",
+    "mimetype": "0.0.8",
+    "source-map": "0.1.33"
+  },
+  "devDependencies": {
+    "intern": "3.0.6"
+  },
+  "scripts": {
+    "install": "node support/fixdeps.js",
+    "update": "node support/fixdeps.js"
+  },
+  "bugs": "https://github.com/theintern/intern/issues",
+  "keywords": [
+    "javascript",
+    "test",
+    "unit",
+    "testing",
+    "ci",
+    "continuous integration",
+    "bdd",
+    "tdd",
+    "xunit",
+    "istanbul",
+    "chai",
+    "dojo",
+    "toolkit",
+    "selenium",
+    "sauce labs",
+    "code coverage"
+  ],
+  "homepage": "http://theintern.io/",
+  "bin": {
+    "intern-client": "./bin/intern-client.js",
+    "intern-runner": "./bin/intern-runner.js"
+  }
 }

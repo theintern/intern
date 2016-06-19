@@ -2,8 +2,12 @@ define([
 	'intern!object',
 	'intern/chai!assert',
 	'../../../lib/ReporterManager',
-	'dojo/Promise'
-], function (registerSuite, assert, ReporterManager, Promise) {
+	'../../../lib/reporters/JUnit',
+	'dojo/Promise',
+	'dojo/has',
+	'dojo/has!host-node?dojo/node!fs',
+	'dojo/has!host-node?dojo/node!path'
+], function (registerSuite, assert, ReporterManager, JUnit, Promise, has, fs, pathUtil) {
 	registerSuite({
 		name: 'intern/lib/ReporterManager',
 
@@ -75,6 +79,45 @@ define([
 			assert.doesNotThrow(function () {
 				handle.remove();
 			}, Error, 'Removing an removed reporter should not throw');
+		},
+
+		'add Reporter with output file': function () {
+			function unlink(pathname) {
+				if (!pathname || pathname === '.') {
+					return;
+				}
+
+				try {
+					if (fs.statSync(pathname).isDirectory()) {
+						fs.rmdirSync(pathname);
+					}
+					else {
+						fs.unlinkSync(pathname);
+					}
+				}
+				catch (error) { /* ignored */ }
+
+				unlink(pathUtil.dirname(pathname));
+			}
+
+			if (!has('host-node')) {
+				this.skip();
+			}
+
+			var simpleName = 'test.result';
+			var dirName = 'report/dir/test.result';
+			var reporterManager = new ReporterManager();
+			reporterManager.add(JUnit, { filename: simpleName });
+			reporterManager.add(JUnit, { filename: dirName });
+
+			try {
+				assert.isTrue(fs.statSync(simpleName).isFile(), 'Report file should exist');
+				assert.isTrue(fs.statSync(dirName).isFile(), 'Report directory and file should exist');
+			}
+			finally {
+				unlink(simpleName);
+				unlink(dirName);
+			}
 		},
 
 		'reporterError': function () {
