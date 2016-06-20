@@ -378,6 +378,27 @@ define([
 			});
 
 			return test.run();
+		},
+
+		'fixtures remains the same after test run': function () {
+			var dfd = this.async(250);
+			var obj = {bar: 42};
+			var test = createTest({
+				sandbox: true,
+				fixtures: {foo: obj},
+				test: function () {
+					if (foo.bar !== 42) {
+						throw new Error();
+					}
+					foo.bar = 100;
+				}
+			});
+
+			test.run().then(dfd.callback(function () {
+				assert.strictEqual(obj.bar, 42);
+			}), function () {
+				dfd.reject();
+			});
 		}
 	});
 });
