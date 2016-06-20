@@ -363,6 +363,21 @@ define([
 				assert.strictEqual(test.error.message, 'Oops');
 				assert.strictEqual(error.message, 'Oops');
 			}));
+		},
+
+		'Test sandboxing fixtures': function () {
+			var dfd = this.async(250);
+			var test = createTest({
+				sandbox: true,
+				fixtures: {foo: 42},
+				test: function () {
+					if (foo !== 42) {
+						throw new Error();
+					}
+				}
+			});
+
+			return test.run();
 		}
 	});
 });
