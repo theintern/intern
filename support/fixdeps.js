@@ -11,11 +11,13 @@ if (!fs.existsSync(expected)) {
 // loader into browser_modules
 [ 'dojo', 'chai', 'diff' ].forEach(function (dependency) {
 	var expectedPath = path.join(expected, dependency);
+	var packageJson = require.resolve(path.join(dependency, 'package.json'));
+	var actualPath = path.dirname(packageJson);
 
-	// Reset any existing dependency symlinks in case the location of the deduplicated package has changed
+	// Check for presence of package; if it's there but older than the node-installed package, replace it
 	try {
-		if (fs.lstatSync(expectedPath).isSymbolicLink()) {
-			fs.unlinkSync(expectedPath);
+		if (fs.statSync(expectedPath).isDirectory()) {
+			var existingPackageJson = fs.readFileSync(path.join(expectedPath, 'package.json'), { encoding: 'utf8' });
 		}
 	}
 	catch (error) {
@@ -23,8 +25,6 @@ if (!fs.existsSync(expected)) {
 			throw error;
 		}
 	}
-
-	var actualPath = path.dirname(require.resolve(path.join(dependency, 'package.json')));
 
 	if (actualPath.indexOf(expectedPath) !== 0) {
 		try {
