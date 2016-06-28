@@ -584,6 +584,10 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * @returns An object containing the response and helper functions
 	 */
 	getEnvironments: function () {
+		if (!this.environmentUrl) {
+			return Promise.resolve([]);
+		}
+
 		var normalizeEnvironment = this._normalizeEnvironment.bind(this);
 
 		return sendRequest(this.environmentUrl, {
