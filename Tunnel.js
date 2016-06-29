@@ -67,6 +67,23 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 */
 
 	/**
+	 * Part of a tunnel file has been downloaded from the server
+	 *
+	 * @event module:digdug/Tunnel#filedownloadprogress
+	 * @type {Object}
+	 * @property {string} url The url of the file being downloaded
+	 * @property {Object} progress an object with received and total parameters
+	 */
+
+	/**
+	 * Part of the tunnel has been downloaded from the server.
+	 *
+	 * @event module:digdug/Tunnel#postdownload
+	 * @type {Object}
+	 * @property {string} url the url of the file in post-download processing
+	 */
+
+	/**
 	 * A chunk of raw string data output by the tunnel software to stdout.
 	 *
 	 * @event module:digdug/Tunnel#stdout
@@ -263,6 +280,14 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * @returns {Promise.<void>} A promise that resolves once the download and extraction process has completed.
 	 */
 	download: function (forceDownload) {
+		if (!forceDownload && this.isDownloaded) {
+			return Promise.resolve();
+		}
+
+		return this._downloadFile(this);
+	},
+
+	_downloadFile: function (options) {
 		var self = this;
 
 		return new Promise(function (resolve, reject, progress, setCanceler) {
@@ -270,27 +295,9 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 				request && request.cancel(reason);
 			});
 
-			if (!forceDownload && self.isDownloaded) {
-				resolve();
-				return;
-			}
-
-			var request = sendRequest(self.url, { proxy: self.proxy });
-			request.then(
-				function (response) {
-					var decompressor = new Decompress();
-					decompressor.src(response.data)
-						.use(Decompress.zip())
-						.use(Decompress.targz())
-						.dest(self.directory)
-						.run(function (error) {
-							if (error) {
-								reject(error);
-							}
-							else {
-								resolve();
-							}
-						});
+			var request = sendRequest(options.url, { proxy: options.proxy });
+			return request.then(function (response) {
+					resolve(self._postDownload(response, options));
 				},
 				function (error) {
 					if (error.response && error.response.statusCode >= 400) {
@@ -298,10 +305,37 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 					}
 					reject(error);
 				},
-				progress
+				function (info) {
+					self.emit('filedownloadprogress', {
+						url: options.url,
+						progress: info
+					});
+					progress(info);
+				}
 			);
-
-			return request;
+		});
+	},
+	
+	_postDownload: function (response, options) {
+		this.emit('postdownload', options.url);
+		return this._decompressData(response.data, options);
+	},
+	
+	_decompressData: function (data, options) {
+		return new Promise(function (resolve, reject) {
+			var decompressor = new Decompress();
+			decompressor.src(data)
+				.use(Decompress.zip())
+				.use(Decompress.targz())
+				.dest(options.directory)
+				.run(function (error) {
+					if (error) {
+						reject(error);
+					}
+					else {
+						resolve();
+					}
+				});
 		});
 	},
 

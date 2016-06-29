@@ -140,9 +140,9 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 		return url;
 	},
 
-	download: function () {
+	_postDownload: function () {
 		var executable = pathUtil.join(this.directory, this.executable);
-		return _super.download.apply(this, arguments).then(function () {
+		return _super._postDownload.apply(this, arguments).then(function () {
 			fs.chmodSync(executable, parseInt('0755', 8));
 		});
 	},

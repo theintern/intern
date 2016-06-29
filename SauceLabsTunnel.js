@@ -220,11 +220,11 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		return url;
 	},
 
-	download: function () {
+	_postDownload: function () {
 		var self = this;
 		var executable = this.executable;
-		return _super.download.apply(this, arguments).then(function () {
-			if (self.executable !== 'java') {
+		return _super._postDownload.apply(this, arguments).then(function () {
+			if (executable !== 'java') {
 				fs.chmodSync(pathUtil.join(self.directory, executable), parseInt('0755', 8));
 			}
 		});

@@ -1,16 +1,17 @@
 /* jshint dojo:true */
 define([
-	'intern/dojo/node!digdug/Tunnel',
-	'intern/dojo/node!digdug/SauceLabsTunnel',
-	'intern/dojo/node!digdug/BrowserStackTunnel',
-	'intern/dojo/node!digdug/TestingBotTunnel',
-	'intern/dojo/node!digdug/NullTunnel',
+	'intern/dojo/node!../../Tunnel',
+	'intern/dojo/node!../../SauceLabsTunnel',
+	'intern/dojo/node!../../BrowserStackTunnel',
+	'intern/dojo/node!../../TestingBotTunnel',
+	'intern/dojo/node!../../NullTunnel',
 	'intern/dojo/node!fs',
 	'intern/dojo/node!path',
 	'intern!object',
 	'intern/chai!assert',
 	'intern',
-	'intern/dojo/Promise'
+	'../support/cleanup',
+	'../support/tunnelTest'
 ], function (
 	Tunnel,
 	SauceLabsTunnel,
@@ -21,77 +22,19 @@ define([
 	pathUtil,
 	registerSuite,
 	assert,
-	intern
+	intern,
+	cleanup,
+	tunnelTest
 ) {
-	function cleanup(tunnel) {
-		if (intern.args.noClean) {
-			return;
-		}
-
-		function deleteRecursive(dir) {
-			var files = [];
-			if (fs.existsSync(dir)) {
-				files = fs.readdirSync(dir);
-				files.forEach(function(file) {
-					var path = pathUtil.join(dir, file);
-					try {
-						if (fs.lstatSync(path).isDirectory()) {
-							deleteRecursive(path);
-						}
-						else {
-							fs.unlinkSync(path);
-						}
-					}
-					catch (error) {
-						if (error.code !== 'ENOENT') {
-							console.warn('Unable to delete ' + path, error);
-						}
-					}
-				});
-				fs.rmdirSync(dir);
-			}
-		}
-
-		deleteRecursive(tunnel.directory);
-	}
-
-	function tunnelTest(dfd, tunnel, check) {
-		cleanup(tunnel);
-
-		if (intern.args.showStdout) {
-			tunnel.on('stdout', console.log);
-			tunnel.on('stderr', console.log);
-		}
-
-		tunnel.start().then(function () {
-			dfd.resolve();
-		}).catch(function (error) {
-			if (check(error)) {
-				dfd.resolve();
-			}
-			else {
-				dfd.reject(error);
-			}
-		});
-	}
-
 	var tunnel;
 
 	registerSuite({
 		name: 'digdug',
 
 		afterEach: function () {
-			function _cleanup() {
-				cleanup(tunnel);
-				tunnel = null;
-			}
-
-			if (tunnel.isRunning) {
-				return tunnel.stop().finally(_cleanup);
-			}
-			else {
-				_cleanup();
-			}
+			var promise = cleanup(tunnel);
+			tunnel = null;
+			return promise;
 		},
 
 		'SauceLabsTunnel': (function () {
