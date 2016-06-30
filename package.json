@@ -1,0 +1,32 @@
+{
+  "name": "intern-cli",
+  "version": "0.1.0",
+  "description": "The command-line interface for Intern.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/intern-cli.git"
+  },
+  "license": "BSD-3-Clause",
+  "dependencies": {
+	"commander": "2.9.0",
+	"opn": "4.0.2",
+	"resolve": "1.1.7",
+	"semver": "5.2.0"
+  },
+  "bugs": "https://github.com/theintern/intern-cli/issues",
+  "keywords": [
+    "javascript",
+    "test",
+    "unit",
+    "testing",
+    "intern"
+  ],
+  "homepage": "http://theintern.io/",
+  "preferGlobal": true,
+  "bin": {
+    "intern": "./bin/intern.js"
+  },
+  "engines": {
+    "node": ">0.12"
+  }
+}
