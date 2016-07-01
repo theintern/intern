@@ -186,7 +186,7 @@ program
 	.command('init')
 	.description('Setup a project for testing with Intern')
 	.option('-b, --browser <browser>', 'browser to use for functional tests',
-		enumArg, [ 'chrome', 'firefox', 'safari', 'internet explorer' ])
+		enumArg, [ 'chrome', 'firefox', 'safari', 'internet explorer', 'microsoftedge' ])
 	.action(function (options) {
 		try {
 			fs.statSync(TESTS_DIR);
@@ -199,33 +199,41 @@ program
 			// ignore
 		}
 
-		if (options.browser === null) {
-			console.error();
-			console.error('  error: Browser must be one of "chrome", "firefox", "safari", or "internet explorer"');
-			console.error();
-
-		}
-
 		try {
-			vlog('Creating %s...', TESTS_DIR);
-
 			fs.mkdirSync(TESTS_DIR);
 
-			var configFile = path.join(TESTS_DIR, 'intern.js');
+			vlog('Created test directory %s', TESTS_DIR);
 
-			vlog('Creating %s...', configFile);
+			var configFile = path.join(TESTS_DIR, 'intern.js');
 
 			var data = fs.readFileSync(path.join(internDir, 'tests', 'example.intern.js'), { encoding: 'utf8' });
 			data = data.replace(/myPackage/g, 'app');
 			data = data.replace(/suites: \[.*?],/, 'suites: [ \'app/tests/unit/*\' ],');
 			data = data.replace(/'BrowserStackTunnel'/, '\'NullTunnel\'');
 			data = data.replace(/capabilities: {[\s\S]*?}/, 'capabilities: {}');
-			data = data.replace(/environments: \[[\s\S]*?],/, 'environments: [ { browserName: \'' + options.browser +
-				'\' } ],');
+
+			vlog('Created config file %s', configFile);
+
+			if (options.browser === null) {
+				// TODO: Possibly choose a platform-specific default rather than Chrome
+				vlog('Defaulting to "chrome"');
+				options.browser = 'chrome';
+			}
+
+			var environment;
+			if (options.browser === 'firefox') {
+				environment = '{ browserName: \'firefox\', marionette: true }';
+			}
+			else {
+				environment = '{ browserName: \'' + options.browser + '\' }';
+			}
+			data = data.replace(/environments: \[[\s\S]*?],/, 'environments: [ ' + environment + ' ],');
+
 			fs.writeFileSync(configFile, data);
 
-			vlog('Copying test files...');
 			copy(path.join(__dirname, '..', 'init'), path.join(TESTS_DIR));
+
+			vlog('Copied test files');
 
 			console.log();
 			console.log([
@@ -236,6 +244,40 @@ program
 				'  run `intern run -w`. The functional tests assume ' + options.browser + ' is installed.',
 				''
 			].join('\n'));
+
+			if (options.browser === 'safari') {
+				console.log([
+					'  Note that Safari currently requires that the Safari WebDriver extension be manually',
+					'  installed. See https://github.com/SeleniumHQ/selenium/wiki/SafariDriver for more',
+					'  information.',
+					''
+				].join('\n'));
+			}
+			else if (options.browser === 'firefox') {
+				console.log([
+					'  Note that Firefox 47+ requires GeckoDriver to be available in the system path. See',
+					'  https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver for more',
+					'  information.',
+					''
+				].join('\n'));
+			}
+			else if (options.browser === 'internet explorer') {
+				console.log([
+					'  Note that Internet Explorer requires IEDriverServer to be available in the system',
+					'  path. See https://github.com/SeleniumHQ/selenium/wiki/InternetExplorerDriver for more',
+					'  information.',
+					''
+				].join('\n'));
+			}
+			else if (options.browser === 'microsoftedge') {
+				console.log([
+					'  Note that Microsft Edge requires MicrosoftWebDriver to be available in the system path. See',
+					'  https://developer.microsoft.com/en-us/microsoft-edge/platform/documentation/dev-guide' +
+					  '/tools/webdriver/',
+					'  for more information.',
+					''
+				].join('\n'));
+			}
 		}
 		catch (error) {
 			console.log();
