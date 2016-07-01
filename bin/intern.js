@@ -141,12 +141,14 @@ program
 	.option('-b, --bail', 'quit after the first failing test')
 	.option('-c, --config <module ID|file>', 'config file to use (default is ' + TESTS_DIR + '/intern.js)')
 	.option('-g, --grep <regex>', 'filter tests by ID')
+	.option('-l, --leaveRemoteOpen', 'leave the remote browser open after tests finish')
 	.option('-r, --reporters <name|module ID>', 'specify a reporter (can be used multiple times)', collect, [])
 	.option('-s, --suites <module ID>', 'specify a suite to run (can be used multiple times)', collect, [])
-	.option('-t, --timeout <int>', 'set the default timeout for async tests', intArg)
 	.option('-w, --webdriver', 'use the WebDriver runner (default is Node client)')
 	.option('-I, --noInstrument', 'disable instrumentation')
-	.option('-P, --proxyOnly', 'start Intern\'s test server, but don\'t run any tests')
+	.option('--proxyOnly', 'start Intern\'s test server, but don\'t run any tests')
+	.option('--timeout <int>', 'set the default timeout for async tests', intArg)
+	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
 	.action(function (options) {
 		var config = options.config || path.join(TESTS_DIR, 'intern.js');
 		var mode = options.webdriver ? 'runner' : 'client';
@@ -173,8 +175,16 @@ program
 			internArgs.push('defaultTimeout=' + program.timeout);
 		}
 
+		if (options.tunnel) {
+			internArgs.push('tunnel=' + program.tunnel);
+		}
+
 		if (options.noInstrument) {
 			internArgs.push('excludeInstrumentation');
+		}
+
+		if (options.leaveRemoteOpen) {
+			internArgs.push('leaveRemoteOpen');
 		}
 
 		var nodeArgs = [];
@@ -213,10 +223,21 @@ program
 		}).forEach(function (name) {
 			reporters.push(path.basename(name, '.js'));
 		});
-
 		console.log('  Reporters:');
 		console.log();
 		console.log('    ' + reporters.join(', '));
+		console.log();
+
+		var tunnels = [];
+		var digdugDir = path.dirname(require('resolve').sync('digdug/Tunnel', { basedir: process.cwd() }));
+		fs.readdirSync(digdugDir).filter(function (name) {
+			return /\wTunnel/.test(name);
+		}).forEach(function (name) {
+			tunnels.push(path.basename(name, '.js'));
+		});
+		console.log('  Tunnels:');
+		console.log();
+		console.log('    ' + tunnels.join(', '));
 		console.log();
 	});
 
