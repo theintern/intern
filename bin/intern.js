@@ -413,17 +413,25 @@ program
 			process.stdout.write(data);
 
 			if (/Listening on/.test(data)) {
-				var address = data.split(' on ')[1].replace(/^\s*/, '').replace(/\s*$/, '');
 				var internPath = '/node_modules/intern/client.html?config=' + TESTS_DIR + '/intern';
+
+				// Get the address. Convert 0.0.0.0 to 'localhost' for Windows compatibility.
+				var address = data.split(' on ')[1].replace(/^\s*/, '').replace(/\s*$/, '');
+				var parts = address.split(':');
+				if (parts[0] === '0.0.0.0') {
+					parts[0] = 'localhost';
+				}
+				address = parts.join(':');
 
 				if (options.open) {
 					require('opn')('http://' + address + internPath);
 				}
 				else {
-					console.log();
-					console.log('To run unit tests, browse to:');
-					console.log();
-					console.log('  http://' + address + internPath);
+					console.log([
+						'To run unit tests, browse to:',
+						'',
+						'  http://' + address + internPath
+					].join('\n'));
 				}
 
 				console.log();
