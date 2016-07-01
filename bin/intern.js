@@ -315,9 +315,10 @@ program
 	.option('--proxyOnly', 'start Intern\'s test server, but don\'t run any tests')
 	.option('--timeout <int>', 'set the default timeout for async tests', intArg)
 	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
-	.action(function (options) {
+	.action(function () {
 		//jshint maxcomplexity:11
 
+		var options = arguments[arguments.length - 1];
 		var config = options.config || path.join(TESTS_DIR, 'intern.js');
 
 		try {
@@ -335,7 +336,11 @@ program
 
 		var mode = options.webdriver ? 'runner' : 'client';
 		var internCmd = path.join(internDir, mode);
-		var internArgs = [ 'config=' + config ];
+
+		// Allow user-specified args in the standard intern format to be passed through
+		var internArgs = Array.prototype.slice.call(arguments).slice(0, arguments.length - 1);
+
+		internArgs.push('config=' + config);
 
 		options.suites.forEach(function (suite) {
 			internArgs.push('suites=' + suite);
@@ -346,7 +351,7 @@ program
 		});
 
 		if (options.grep) {
-			internArgs.push('grep=' + program.grep);
+			internArgs.push('grep=' + options.grep);
 		}
 
 		if (options.bail) {
@@ -354,11 +359,11 @@ program
 		}
 
 		if (options.timeout) {
-			internArgs.push('defaultTimeout=' + program.timeout);
+			internArgs.push('defaultTimeout=' + options.timeout);
 		}
 
 		if (options.tunnel) {
-			internArgs.push('tunnel=' + program.tunnel);
+			internArgs.push('tunnel=' + options.tunnel);
 		}
 
 		if (options.noInstrument) {
@@ -439,7 +444,8 @@ program
 	.option('-c, --config <module ID|file>', 'config file to use (default is ' + TESTS_DIR + '/intern.js)')
 	.option('-o, --open', 'open the test runner URL when the server starts')
 	.option('-I, --noInstrument', 'disable instrumentation')
-	.action(function (options) {
+	.action(function () {
+		var options = arguments[arguments.length - 1];
 		var config = options.config || path.join(TESTS_DIR, 'intern.js');
 		var internCmd = path.join(internDir, 'runner');
 		var internArgs = [ 'config=' + config, 'proxyOnly' ];
