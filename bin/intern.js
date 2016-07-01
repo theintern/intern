@@ -137,7 +137,7 @@ program
 
 program 
 	.command('run')
-	.description('Run tests')
+	.description('Run tests in Node or in a browser using WebDriver')
 	.option('-b, --bail', 'quit after the first failing test')
 	.option('-c, --config <module ID|file>', 'config file to use (default is ' + TESTS_DIR + '/intern.js)')
 	.option('-g, --grep <regex>', 'filter tests by ID')
@@ -243,7 +243,7 @@ program
 
 program 
 	.command('serve')
-	.description('Start a simple web server for running browser unit tests')
+	.description('Start a simple web server for running unit tests in a browser on your system')
 	.option('-c, --config <module ID|file>', 'config file to use (default is ' + TESTS_DIR + '/intern.js)')
 	.option('-o, --open', 'open the test URL when the server starts')
 	.option('-I, --noInstrument', 'disable instrumentation')
@@ -265,36 +265,35 @@ program
 		// TODO: pipe output and watch for listen address. convert 0.0.0.0 to localhost, then use for message or open.
 		var spawn = require('child_process').spawn;
 		var intern = spawn(process.execPath, nodeArgs.concat(internCmd).concat(internArgs), {
-			stdio: 'inherit'
+			stdio: [ process.stdin, 'pipe', process.stdout ]
+		});
+
+		intern.stdout.on('data', function (data) {
+			data = String(data);
+			process.stdout.write(data);
+
+			if (/Listening on/.test(data)) {
+				var address = data.split(' on ')[1].replace(/^\s*/, '').replace(/\s*$/, '');
+				var internPath = '/node_modules/intern/client.html?config=' + TESTS_DIR + '/intern';
+
+				if (options.open) {
+					require('opn')('http://' + address + internPath);
+				}
+				else {
+					console.log();
+					console.log('To run unit tests, browse to:');
+					console.log();
+					console.log('  http://' + address + internPath);
+				}
+
+				console.log();
+				console.log('Press CTRL-C to stop serving.');
+			}
 		});
 
 		process.on('SIGINT', function () {
 			intern.kill('SIGINT');
 		});
-
-		process.on('exit', function () {
-			if (messageTimer) {
-				clearTimeout(messageTimer);
-			}
-		});
-
-		var messageTimer = setTimeout(function () {
-			messageTimer = null;
-			var internPath = '/node_modules/intern/client.html?config=' + TESTS_DIR + '/intern';
-
-			if (options.open) {
-				require('opn')('http://localhost:9000' + internPath);
-			}
-			else {
-				console.log();
-				console.log('To run unit tests, browse to:');
-				console.log();
-				console.log('  <address:port>' + internPath);
-			}
-
-			console.log();
-			console.log('Press CTRL-C to stop serving.');
-		}, 1000);
 	})
 	.on('--help', function () {
 		console.log('  When running WebDriver tests, Intern runs a local server to serve itself and the test');
@@ -303,6 +302,7 @@ program
 		console.log();
 	});
 
+// Handle any unknown commands
 program
 	.command('*', null, { noHelp: true })
 	.action(function (command) {
@@ -313,6 +313,7 @@ program
 
 program.parse(process.argv);
 
+// If no command was given, show the help message
 if (process.argv.length === 2) {
 	program.outputHelp();
 }

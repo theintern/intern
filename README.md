@@ -7,3 +7,10 @@ This module gives Intern a friendly command line interface that works like any o
 ```
 $ intern run
 ```
+
+Help is available!
+
+```
+$ intern help
+$ intern help run
+```
