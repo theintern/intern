@@ -3,7 +3,7 @@
 /**
  * enumArg ensures a value is part of an enum
  */
-function enumArg(val, choices) {
+function enumArg(choices, val) {
 	if (choices.indexOf(val) === -1) {
 		console.error();
 		console.error('  error: expected "' + val + '" to be one of {' + choices.join(', ') + '}');
@@ -186,7 +186,7 @@ program
 	.command('init')
 	.description('Setup a project for testing with Intern')
 	.option('-b, --browser <browser>', 'browser to use for functional tests',
-		enumArg, [ 'chrome', 'firefox', 'safari', 'internet explorer', 'microsoftedge' ])
+		enumArg.bind(null, [ 'chrome', 'firefox', 'safari', 'internet explorer', 'microsoftedge' ]))
 	.action(function (options) {
 		try {
 			fs.statSync(TESTS_DIR);
@@ -202,7 +202,7 @@ program
 		try {
 			fs.mkdirSync(TESTS_DIR);
 
-			vlog('Created test directory %s', TESTS_DIR);
+			vlog('Created test directory %s/', TESTS_DIR);
 
 			var configFile = path.join(TESTS_DIR, 'intern.js');
 
@@ -214,7 +214,7 @@ program
 
 			vlog('Created config file %s', configFile);
 
-			if (options.browser === null) {
+			if (!options.browser) {
 				// TODO: Possibly choose a platform-specific default rather than Chrome
 				vlog('Defaulting to "chrome"');
 				options.browser = 'chrome';
@@ -237,8 +237,10 @@ program
 
 			console.log();
 			console.log([
-				'  Intern initialized! See ' + configFile + ' for configuration options.  Run the sample',
-				'  unit test with `intern run`.',
+				'  Intern initialized! A test directory containing example unit and functional tests has been',
+				'  created at ' + TESTS_DIR + '/. See ' + configFile + ' for configuration options.',
+				'',
+				'  Run the sample unit test with `intern run`.',
 				'',
 				'  To run the sample functional test, first start a WebDriver server (e.g., Selenium), then',
 				'  run `intern run -w`. The functional tests assume ' + options.browser + ' is installed.',
@@ -253,30 +255,38 @@ program
 					''
 				].join('\n'));
 			}
-			else if (options.browser === 'firefox') {
-				console.log([
-					'  Note that Firefox 47+ requires GeckoDriver to be available in the system path. See',
-					'  https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver for more',
-					'  information.',
-					''
-				].join('\n'));
-			}
-			else if (options.browser === 'internet explorer') {
-				console.log([
-					'  Note that Internet Explorer requires IEDriverServer to be available in the system',
-					'  path. See https://github.com/SeleniumHQ/selenium/wiki/InternetExplorerDriver for more',
-					'  information.',
-					''
-				].join('\n'));
-			}
-			else if (options.browser === 'microsoftedge') {
-				console.log([
-					'  Note that Microsft Edge requires MicrosoftWebDriver to be available in the system path. See',
-					'  https://developer.microsoft.com/en-us/microsoft-edge/platform/documentation/dev-guide' +
-					  '/tools/webdriver/',
-					'  for more information.',
-					''
-				].join('\n'));
+			else {
+				var info;
+
+				if (options.browser === 'chrome') {
+					info = [ 'Chrome', 'ChromeDriver', 'https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver'];
+				}
+				else if (options.browser === 'firefox') {
+					info = [ 'Firefox 47+', 'GeckoDriver',
+						'https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver'];
+				}
+				else if (options.browser === 'internet explorer') {
+					info = [ 'Internet Explorer', 'IEDriverServer',
+						'https://github.com/SeleniumHQ/selenium/wiki/InternetExplorerDriver'];
+				}
+				else if (options.browser === 'microsoftedge') {
+					info = [ 'Microsft Edge', 'MicrosoftWebDriver',
+						'https://developer.microsoft.com/en-us/microsoft-edge/platform/documentation/dev-guide' +
+						'/tools/webdriver/'];
+				}
+
+				if (info) {
+					console.log([
+						'  Note that running WebDriver tests with ' + info[0] + ' requires ' + info[1] +
+							' to be',
+						'  available in the system path. See',
+						'',
+						'    ' + info[2],
+						'',
+						'  for more information.',
+						''
+					].join('\n'));
+				}
 			}
 		}
 		catch (error) {
