@@ -358,7 +358,9 @@ define([
 			});
 
 			test.run().then(function () {
-				dfd.reject();
+				dfd.reject(new assert.AssertionError({
+					message: 'Test should fail'
+				}));
 			}, dfd.callback(function (error) {
 				assert.strictEqual(test.error.message, 'Oops');
 				assert.strictEqual(error.message, 'Oops');
@@ -398,6 +400,26 @@ define([
 				assert.strictEqual(obj.bar, 42);
 			}), function () {
 				dfd.reject();
+			});
+		},
+
+		'Test sandbox with Promise return value': function () {
+			var dfd = this.async(250);
+			var resolved = false;
+			var test = new Test({
+				sandbox: true,
+				fixtures: {dfd: dfd},
+				test: function () {
+					setTimeout(function () {
+						dfd.resolve('foobar');
+					}, 0);
+
+					return dfd;
+				}
+			});
+
+			return test.run().then(function (message) {
+				assert.strictEqual(message, 'foobar');
 			});
 		}
 	});
