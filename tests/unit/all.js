@@ -101,6 +101,10 @@ define([
 				},
 
 				'#start': function() { // TODO move this to integration tests
+					if (!process.env.SAUCE_USERNAME && !process.env.SAUCE_ACCESS_KEY) {
+						this.skip('auth data not present');
+					}
+
 					tunnelTest(this.async(120000), tunnel, function (error) {
 						return /Not authorized/.test(error.message);
 					});
@@ -168,6 +172,10 @@ define([
 				},
 
 				'#start': function () {  // TODO move this to integration tests
+					if (!process.env.BROWSERSTACK_USERNAME && !process.env.BROWSERSTACK_ACCESS_KEY) {
+						this.skip('auth data not present');
+					}
+
 					tunnelTest(this.async(), tunnel, function (error) {
 						return /The tunnel reported:/.test(error.message);
 					});
@@ -227,6 +235,10 @@ define([
 				},
 
 				'#start': function () {  // TODO move this to integration tests
+					if (!process.env.TESTINGBOT_KEY && !process.env.TESTINGBOT_SECRET) {
+						this.skip('auth data not present');
+					}
+
 					tunnelTest(this.async(120000), tunnel, function (error) {
 						return /Could not get tunnel info/.test(error.message);
 					});
