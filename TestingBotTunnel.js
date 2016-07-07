@@ -65,7 +65,7 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 
 	port: 4445,
 
-	url: 'http://testingbot.com/downloads/testingbot-tunnel.zip',
+	url: 'https://testingbot.com/downloads/testingbot-tunnel.zip',
 
 	/**
 	 * Whether or not to use rabbIT compression for the tunnel connection.
