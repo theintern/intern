@@ -1,10 +1,10 @@
 /* jshint dojo:true */
 define([
-	'intern/dojo/node!../Tunnel',
-	'intern/dojo/node!../SauceLabsTunnel',
-	'intern/dojo/node!../BrowserStackTunnel',
-	'intern/dojo/node!../TestingBotTunnel',
-	'intern/dojo/node!../NullTunnel',
+	'intern/dojo/node!digdug/Tunnel',
+	'intern/dojo/node!digdug/SauceLabsTunnel',
+	'intern/dojo/node!digdug/BrowserStackTunnel',
+	'intern/dojo/node!digdug/TestingBotTunnel',
+	'intern/dojo/node!digdug/NullTunnel',
 	'intern/dojo/node!fs',
 	'intern/dojo/node!path',
 	'intern!object',

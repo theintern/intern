@@ -1,5 +1,8 @@
 # ディグダグ
 
+[![Build Status](https://travis-ci.org/theintern/digdug.svg?branch=master)](https://travis-ci.org/theintern/digdug)
+[![npm version](https://badge.fury.io/js/digdug.svg)](https://badge.fury.io/js/digdug)
+
 Dig Dug is a simple abstraction library for downloading and launching WebDriver service tunnels and interacting with
 the REST APIs of these services.
 
