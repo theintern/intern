@@ -28,5 +28,11 @@
   },
   "engines": {
     "node": ">0.12"
+  },
+  "devDependencies": {
+    "intern": "3.2.3"
+  },
+  "scripts": {
+	"test": "node node_modules/intern/client.js config=tests/intern"
   }
 }
