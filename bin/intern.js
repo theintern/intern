@@ -6,7 +6,7 @@ var cli = require('../lib/cli');
 var program = require('commander');
 var vlog = cli.getLogger();
 var print = cli.print;
-var error = cli.error;
+var die = cli.die;
 
 var internDir;
 var internPackage;
@@ -51,7 +51,7 @@ try {
 	internPackage = JSON.parse(fs.readFileSync(path.join(internDir, 'package.json'), { encoding: 'utf8' }));
 }
 catch (error) {
-	error([
+	die([
 		'You\'ll need a local install of Intern before you can use this command. Install it with',
 		'',
 		'  npm install --save-dev intern',
@@ -60,10 +60,8 @@ catch (error) {
 
 // Verify the installed Intern is a version this script can work with
 if (!cli.acceptVersion(internPackage.version, MIN_VERSION)) {
-	error([
-		'This command requires Intern ' + MIN_VERSION + ' or newer (' + internPackage.version +
-		' is installed).',
-	]);
+	die('This command requires Intern ' + MIN_VERSION + ' or newer (' + internPackage.version +
+		' is installed).');
 }
 
 // Override commander's helpInformation to show the description above commands. Remove this if
@@ -162,7 +160,7 @@ program
 		// jshint maxcomplexity:11
 		try {
 			fs.statSync(TESTS_DIR);
-			error('error: A file or directory named "' + TESTS_DIR + '" already exists.');
+			die('error: A file or directory named "' + TESTS_DIR + '" already exists.');
 		}
 		catch (error) {
 			// ignore
@@ -229,7 +227,7 @@ program
 			]);
 		}
 		catch (error) {
-			error('error initializing: ' + error);
+			die('error initializing: ' + error);
 		}
 	})
 	.on('--help', function () {
@@ -266,7 +264,7 @@ program
 			fs.statSync(config);
 		}
 		catch (error) {
-			error([
+			die([
 				'There isn\'t a test config at ' + config + '. You can specify a different test config ' +
 				'with the --config option, or run `intern init` to setup a project for testing.',
 			]);
@@ -452,7 +450,7 @@ program
 program
 	.command('*', null, { noHelp: true })
 	.action(function (command) {
-		error('unknown command: ' + command);
+		die('unknown command: ' + command);
 	});
 
 program.parse(process.argv);
