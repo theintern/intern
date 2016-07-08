@@ -8,10 +8,10 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-	"commander": "2.9.0",
-	"opn": "4.0.2",
-	"resolve": "1.1.7",
-	"semver": "5.2.0"
+    "commander": "2.9.0",
+    "opn": "4.0.2",
+    "resolve": "1.1.7",
+    "semver": "5.2.0"
   },
   "bugs": "https://github.com/theintern/intern-cli/issues",
   "keywords": [
