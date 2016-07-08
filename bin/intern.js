@@ -1,78 +1,49 @@
 #!/usr/bin/env node
 
-/**
- * enumArg ensures a value is part of an enum
- */
-function enumArg(choices, val) {
-	if (choices.indexOf(val) === -1) {
-		console.error();
-		console.error('  error: expected "' + val + '" to be one of {' + choices.join(', ') + '}');
-		console.error();
-		process.exit(1);
-	}
-	return val;
-}
-
-/**
- * collect collects values into an array
- */
-function collect(val, arr) {
-	arr.push(val);
-}
-
-/**
- * copy synchronously copies files or directories
- */
-function copy(src, dst) {
-	if (fs.statSync(src).isDirectory()) {
-		try {
-			fs.mkdirSync(dst);
-		}
-		catch (error) {
-			if (error.code !== 'EEXIST') {
-				throw error;
-			}
-		}
-
-		fs.readdirSync(src).forEach(function (filename) {
-			copy(path.join(src, filename), path.join(dst, filename));
-		});
-	}
-	else {
-		var data = fs.readFileSync(src);
-		fs.writeFileSync(dst, data);
-	}
-}
-
-/**
- * intArg ensures a value is a number and returns its int value
- */
-function intArg(val) {
-	if (isNaN(val)) {
-		console.error();
-		console.error('  error: expected "' + val + '" to be a number');
-		console.error();
-		process.exit(1);
-	}
-	return Number.parseInt(val, 10);
-}
-
-/**
- * vlog prints log messages if verbose mode is enabled
- */
-function vlog() {
-	if (program.verbose) {
-		process.stdout.write('>> ');
-		console.log.apply(console, arguments);
-	}
-}
-
 var fs = require('fs');
 var path = require('path');
+var cli = require('../lib/cli');
 var program = require('commander');
+var vlog = cli.getLogger();
+var print = cli.print;
+var error = cli.error;
+
 var internDir;
 var internPackage;
+
 var TESTS_DIR = 'tests';
+var MIN_VERSION = '3.0.0';
+var BROWSERS = {
+	'chrome': {
+		name: 'Chrome',
+		driver: 'ChromeDriver',
+		url: 'https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver'
+	},
+	'firefox': {
+		environment: { marionette: true },
+		name: 'Firefox 47+',
+		driver: 'GeckoDriver',
+		url: 'https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver'
+	},
+	'safari': {
+		note: 'Note that Safari currently requires that the Safari WebDriver extension be manually ' +
+			'installed.',
+		name: 'Safari',
+		driver: 'SafariDriver',
+		url: 'https://github.com/SeleniumHQ/selenium/wiki/SafariDriver'
+	},
+	'internet explorer': {
+		name: 'Internet Explorer',
+		driver: 'IEDriverServer',
+		url: 'https://github.com/SeleniumHQ/selenium/wiki/InternetExplorerDriver'
+	},
+	'microsoftedge': {
+		name: 'Microsft Edge',
+		driver: 'MicrosoftWebDriver',
+		url: 'https://developer.microsoft.com/en-us/microsoft-edge/platform/documentation/dev-guide' +
+			'/tools/webdriver/'
+	}
+};
 
 // Load the local Intern's package.json
 try {
@@ -80,22 +51,19 @@ try {
 	internPackage = JSON.parse(fs.readFileSync(path.join(internDir, 'package.json'), { encoding: 'utf8' }));
 }
 catch (error) {
-	console.log([
+	error([
+		'You\'ll need a local install of Intern before you can use this command. Install it with',
 		'',
-		'  You\'ll need a local install of Intern before you can use this command. Install it with',
-		'',
-		'    npm install --save-dev intern',
-		''
-	].join('\n'));
-	process.exit(1);
+		'  npm install --save-dev intern',
+	]);
 }
 
 // Verify the installed Intern is a version this script can work with
-if (!require('semver').satisfies(internPackage.version.replace('-pre', ''), '>=3.0.0')) {
-	console.log();
-	console.error('  This command requires Intern 3.0.0 or newer (' + internPackage.version + ' is installed).');
-	console.log();
-	process.exit(1);
+if (!cli.acceptVersion(internPackage.version, MIN_VERSION)) {
+	error([
+		'This command requires Intern ' + MIN_VERSION + ' or newer (' + internPackage.version +
+		' is installed).',
+	]);
 }
 
 // Override commander's helpInformation to show the description above commands. Remove this if
@@ -145,12 +113,15 @@ program
 	.option('-V, --version', 'output the version')
 	.option('--debug', 'enable the Node debugger')
 	.on('version', function () {
-		console.log();
-		console.log('  intern-cli: ' + require('../package.json').version);
+		print();
+		print('intern-cli: ' + require('../package.json').version);
 		if (internDir) {
-			console.log('  intern: ' + internPackage.version);
+			print('intern: ' + internPackage.version);
 		}
-		console.log();
+		print();
+	})
+	.on('verbose', function () {
+		vlog = cli.getLogger(true);
 	})
 	.on('help', function (args) {
 		var commandName = args[0];
@@ -166,34 +137,32 @@ program
 			command.help();
 		}
 		else {
-			console.log();
+			print();
 
 			if (commandName) {
-				console.log('  unknown command: ' + commandName + '\n');
+				print('unknown command: ' + commandName + '\n');
 			}
 
-			console.log([
-				'  To get started with Intern, run `intern init` to setup a "' + TESTS_DIR + '" directory and then',
-				'  run `intern run` to start testing!'
-			].join('\n'));
+			print([
+				'To get started with Intern, run `intern init` to setup a "' + TESTS_DIR + '" directory and then',
+				'run `intern run` to start testing!'
+			]);
 			program.help();
 		}
 
-		console.log();
+		print();
 	});
 
 program 
 	.command('init')
 	.description('Setup a project for testing with Intern')
 	.option('-b, --browser <browser>', 'browser to use for functional tests',
-		enumArg.bind(null, [ 'chrome', 'firefox', 'safari', 'internet explorer', 'microsoftedge' ]))
+		cli.enumArg.bind(null, Object.keys(BROWSERS)), 'chrome')
 	.action(function (options) {
+		// jshint maxcomplexity:11
 		try {
 			fs.statSync(TESTS_DIR);
-			console.log();
-			console.error('  error: A file or directory named "' + TESTS_DIR + '" already exists.');
-			console.log();
-			process.exit(1);
+			error('error: A file or directory named "' + TESTS_DIR + '" already exists.');
 		}
 		catch (error) {
 			// ignore
@@ -212,13 +181,8 @@ program
 			data = data.replace(/'BrowserStackTunnel'/, '\'NullTunnel\'');
 			data = data.replace(/capabilities: {[\s\S]*?}/, 'capabilities: {}');
 
+			vlog('Using browser: %s', options.browser);
 			vlog('Created config file %s', configFile);
-
-			if (!options.browser) {
-				// TODO: Possibly choose a platform-specific default rather than Chrome
-				vlog('Defaulting to "chrome"');
-				options.browser = 'chrome';
-			}
 
 			var environment;
 			if (options.browser === 'firefox') {
@@ -231,74 +195,51 @@ program
 
 			fs.writeFileSync(configFile, data);
 
-			copy(path.join(__dirname, '..', 'init'), path.join(TESTS_DIR));
+			cli.copy(path.join(__dirname, '..', 'init'), path.join(TESTS_DIR));
 
 			vlog('Copied test files');
 
-			console.log();
-			console.log([
-				'  Intern initialized! A test directory containing example unit and functional tests has been',
-				'  created at ' + TESTS_DIR + '/. See ' + configFile + ' for configuration options.',
+			print();
+			print([
+				'Intern initialized! A test directory containing example unit and functional tests has been ' +
+				'created at ' + TESTS_DIR + '/. See ' + configFile + ' for configuration options.',
 				'',
-				'  Run the sample unit test with `intern run`.',
+				'Run the sample unit test with `intern run`.',
 				'',
-				'  To run the sample functional test, first start a WebDriver server (e.g., Selenium), then',
-				'  run `intern run -w`. The functional tests assume ' + options.browser + ' is installed.',
+				'To run the sample functional test, first start a WebDriver server (e.g., Selenium), then ' +
+				'run `intern run -w`. The functional tests assume ' + options.browser + ' is installed.',
 				''
-			].join('\n'));
+			]);
 
-			if (options.browser === 'safari') {
-				console.log([
-					'  Note that Safari currently requires that the Safari WebDriver extension be manually',
-					'  installed. See https://github.com/SeleniumHQ/selenium/wiki/SafariDriver for more',
-					'  information.',
-					''
-				].join('\n'));
+			var info = BROWSERS[options.browser];
+			var note = info.note;
+
+			if (!note) {
+				note = 'Note that running WebDriver tests with ' + info.name + ' requires ' + info.driver +
+				' to be available in the system path.';
 			}
-			else {
-				var info;
 
-				if (options.browser === 'chrome') {
-					info = [ 'Chrome', 'ChromeDriver', 'https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver'];
-				}
-				else if (options.browser === 'firefox') {
-					info = [ 'Firefox 47+', 'GeckoDriver',
-						'https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver'];
-				}
-				else if (options.browser === 'internet explorer') {
-					info = [ 'Internet Explorer', 'IEDriverServer',
-						'https://github.com/SeleniumHQ/selenium/wiki/InternetExplorerDriver'];
-				}
-				else if (options.browser === 'microsoftedge') {
-					info = [ 'Microsft Edge', 'MicrosoftWebDriver',
-						'https://developer.microsoft.com/en-us/microsoft-edge/platform/documentation/dev-guide' +
-						'/tools/webdriver/'];
-				}
-
-				if (info) {
-					console.log([
-						'  Note that running WebDriver tests with ' + info[0] + ' requires ' + info[1] +
-							' to be',
-						'  available in the system path. See',
-						'',
-						'    ' + info[2],
-						'',
-						'  for more information.',
-						''
-					].join('\n'));
-				}
-			}
+			print([
+				note + ' See',
+				'',
+				'  ' + info.url,
+				'',
+				'for more information.',
+				''
+			]);
 		}
 		catch (error) {
-			console.log();
-			console.error('  error initializing: ' + error);
-			console.log();
-			process.exit(1);
+			error('error initializing: ' + error);
 		}
 	})
 	.on('--help', function () {
-		console.log('  Creates a "' + TESTS_DIR + '" directory with a default Intern config file.');
-		console.log();
+		print('This command creates a "' + TESTS_DIR + '" directory with a default Intern config file ' +
+			'and some sample tests.');
+		print();
+		print('Browser names:');
+		print();
+		print('  ' + Object.keys(BROWSERS).join(', '));
+		print();
 	});
 
 program 
@@ -308,12 +249,12 @@ program
 	.option('-c, --config <module ID|file>', 'config file to use (default is ' + TESTS_DIR + '/intern.js)')
 	.option('-g, --grep <regex>', 'filter tests by ID')
 	.option('-l, --leaveRemoteOpen', 'leave the remote browser open after tests finish')
-	.option('-r, --reporters <name|module ID>', 'specify a reporter (can be used multiple times)', collect, [])
-	.option('-s, --suites <module ID>', 'specify a suite to run (can be used multiple times)', collect, [])
+	.option('-r, --reporters <name|module ID>', 'specify a reporter (can be used multiple times)', cli.collect, [])
+	.option('-s, --suites <module ID>', 'specify a suite to run (can be used multiple times)', cli.collect, [])
 	.option('-w, --webdriver', 'use the WebDriver runner (default is Node client)')
 	.option('-I, --noInstrument', 'disable instrumentation')
 	.option('--proxyOnly', 'start Intern\'s test server, but don\'t run any tests')
-	.option('--timeout <int>', 'set the default timeout for async tests', intArg)
+	.option('--timeout <int>', 'set the default timeout for async tests', cli.intArg)
 	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
 	.action(function () {
 		//jshint maxcomplexity:11
@@ -325,13 +266,10 @@ program
 			fs.statSync(config);
 		}
 		catch (error) {
-			console.error([
-				'',
-				'  There isn\'t a test config at ' + config + '. You can specify a different test config',
-				'  with the --config option, or run `intern init` to setup a project for testing.',
-				''
-			].join('\n'));
-			process.exit(1);
+			error([
+				'There isn\'t a test config at ' + config + '. You can specify a different test config ' +
+				'with the --config option, or run `intern init` to setup a project for testing.',
+			]);
 		}
 
 		var mode = options.webdriver ? 'runner' : 'client';
@@ -394,19 +332,19 @@ program
 		});
 	})
 	.on('--help', function () {
-		console.log([
-			'  Tests may be run purely in Node using the Node client, or in a browser using the WebDriver',
-			'  runner.',
+		print([
+			'Tests may be run purely in Node using the Node client, or in a browser using the WebDriver ' +
+			'runner.',
 			'',
-			'  The Node client runs tests purely in Node rather than in a browser. This makes it well',
-			'  suited for quickly running tests that do not involve the DOM, and and for testing code',
-			'  meant to run in a server environment.',
+			'The Node client runs tests purely in Node rather than in a browser. This makes it well ' +
+			'suited for quickly running tests that do not involve the DOM, and and for testing code ' +
+			'meant to run in a server environment.',
 			'',
-			'  The WebDriver runner starts and controls a browser using the WebDriver protocol. This',
-			'  requires that either a local instance of Selenium is running or that Intern has been',
-			'  configured to run tests on a cloud testing service.',
+			'The WebDriver runner starts and controls a browser using the WebDriver protocol. This ' +
+			'requires that either a local instance of Selenium is running or that Intern has been ' +
+			'configured to run tests on a cloud testing service.',
 			''
-		].join('\n'));
+		]);
 
 		var reporters = [];
 		var reporterDir = path.join(internDir, 'lib', 'reporters');
@@ -416,12 +354,12 @@ program
 		}).forEach(function (name) {
 			reporters.push(path.basename(name, '.js'));
 		});
-		console.log([
-			'  Reporters:',
+		print([
+			'Reporters:',
 			'',
-			'    ' + reporters.join(', '),
+			'  ' + reporters.join(', '),
 			''
-		].join('\n'));
+		]);
 
 		var tunnels = [];
 		var digdugDir = path.dirname(require('resolve').sync('digdug/Tunnel', { basedir: process.cwd() }));
@@ -430,12 +368,12 @@ program
 		}).forEach(function (name) {
 			tunnels.push(path.basename(name, '.js'));
 		});
-		console.log([
-			'  Tunnels:',
+		print([
+			'Tunnels:',
 			'',
-			'    ' + tunnels.join(', '),
+			'  ' + tunnels.join(', '),
 			''
-		].join('\n'));
+		]);
 	});
 
 program 
@@ -485,15 +423,17 @@ program
 					require('opn')('http://' + address + internPath);
 				}
 				else {
-					console.log([
+					print([
+						'',
 						'To run unit tests, browse to:',
 						'',
 						'  http://' + address + internPath
-					].join('\n'));
+					]);
 				}
 
-				console.log();
-				console.log('Press CTRL-C to stop serving.');
+				print();
+				print('Press CTRL-C to stop serving.');
+				print();
 			}
 		});
 
@@ -502,21 +442,17 @@ program
 		});
 	})
 	.on('--help', function () {
-		console.log([
-			'  When running WebDriver tests, Intern runs a local server to serve itself and the test',
-			'  files to the browser(s) running the tests. This server can also be used instead of a',
-			'  dedicated web server such as nginx or Apache for running unit tests locally.',
-			''
-		].join('\n'));
+		print('When running WebDriver tests, Intern runs a local server to serve itself and the test ' +
+			'files to the browser(s) running the tests. This server can also be used instead of a ' +
+			'dedicated web server such as nginx or Apache for running unit tests locally.');
+		print();
 	});
 
 // Handle any unknown commands
 program
 	.command('*', null, { noHelp: true })
 	.action(function (command) {
-		console.log();
-		console.error('  unknown command: ' + command);
-		console.log();
+		error('unknown command: ' + command);
 	});
 
 program.parse(process.argv);
