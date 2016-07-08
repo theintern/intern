@@ -1,5 +1,3 @@
-![Intern logo](https://theintern.github.io/css/images/logo.png)
-
 # intern-cli
 
 > The command line interface for [Intern](https://github.com/theintern/intern)
