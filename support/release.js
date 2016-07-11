@@ -41,7 +41,6 @@ function printUsage() {
 	print('Branch defaults to "master".\n');
 	print('Version defaults to what is listed in package.json in the branch.\n');
 	print('Version should only be specified for pre-releases.\n');
-	process.exit(1);
 }
 
 function prompt() {
@@ -80,6 +79,7 @@ var shouldRun = true;
 
 if (args[0] === '--help') {
 	printUsage();
+	process.exit(0);
 }
 
 if (args[0] === '-n') {
@@ -88,7 +88,7 @@ if (args[0] === '-n') {
 }
 
 var rootDir = path.dirname(__dirname);
-var buildDir = path.join(rootDir, 'build');
+var buildDir = path.join(rootDir, '_build');
 var branch = args[0] || 'master';
 var pushBranches = [ branch ];
 var npmTag = 'latest';
@@ -129,14 +129,17 @@ prompt(question).then(function (answer) {
 		}
 	});
 }).then(function () {
+	// Create a package build directory and clone this repo into it
 	process.chdir(rootDir);
 	fs.mkdirSync(buildDir);
 	return run('git clone --recursive . ' + buildDir);
 }).then(function () {
+	// Cd into the build dir and checkout the branch that's being released
 	process.chdir(buildDir);
 	print('\nBuilding branch "' + branch + '"...\n');
 	return run('git checkout ' + branch);
 }).then(function () {
+	// Determine the proper version numbers for release and for repo post-release
 	if (!version) {
 		version = packageJson.version.replace('-pre', '');
 		preVersion = version.split('.').map(Number);
@@ -172,7 +175,7 @@ prompt(question).then(function (answer) {
 	//   `version` is the version of the package that is being released;
 	//   `tagVersion` is the name that will be used for the Git tag for the release
 	//   `preVersion` is the next pre-release version that will be set on the original branch after tagging
-	//   `makeBranch` is the name of the new minor release branch that should be created (if this is not a patch release)
+	//   `makeBranch` is the name of the new release branch that should be created if this is not a patch release
 	//   `branchVersion` is the pre-release version that will be set on the minor release branch
 
 	return run('git tag').then(function (tags) {
@@ -214,6 +217,7 @@ prompt(question).then(function (answer) {
 	// Checkout the new release in preparation for publishing
 	return run('git checkout ' + releaseTag);
 }).then(function () {
+	// Give the user a chance to verify everything is good before making any updates
 	print('\nDone!\n\n');
 
 	question = 'Please confirm packaging success, then enter "y" to publish to npm\n' +
@@ -234,7 +238,7 @@ prompt(question).then(function (answer) {
 	// Publish the package
 	return run('npm publish --tag ' + npmTag);
 }).then(function () {
-	// Update the origianl repo with the new branch and tag pointers
+	// Update the original repo with the new branch and tag pointers
 	return Promise.all(pushBranches.map(function (branch) {
 		return run('git push origin ' + branch);
 	})).then(function () {
