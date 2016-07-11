@@ -408,19 +408,26 @@ define([
 			var resolved = false;
 			var test = new Test({
 				sandbox: true,
-				fixtures: {dfd: dfd},
+				fixtures: {Promise: Promise},
 				test: function () {
+					var dfd = new Promise.Deferred();
+
 					setTimeout(function () {
-						dfd.resolve('foobar');
+						dfd.reject(new Error('Oops'));
 					}, 0);
 
-					return dfd;
+					return dfd.promise;
 				}
 			});
 
-			return test.run().then(function (message) {
-				assert.strictEqual(message, 'foobar');
-			});
+			test.run().then(function () {
+				dfd.reject(new assert.AssertionError({
+					message: 'Test should fail'
+				}));
+			}, dfd.callback(function (error) {
+				assert.strictEqual(test.error.message, 'Oops');
+				assert.strictEqual(error.message, 'Oops');
+			}));
 		}
 	});
 });
