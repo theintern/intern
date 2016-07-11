@@ -396,7 +396,6 @@ program
 			nodeArgs.push('--debug');
 		}
 
-		// TODO: pipe output and watch for listen address. convert 0.0.0.0 to localhost, then use for message or open.
 		var spawn = require('child_process').spawn;
 		var intern = spawn(process.execPath, nodeArgs.concat(internCmd).concat(internArgs), {
 			stdio: [ process.stdin, 'pipe', process.stdout ]
@@ -407,7 +406,7 @@ program
 			process.stdout.write(data);
 
 			if (/Listening on/.test(data)) {
-				var internPath = '/node_modules/intern/client.html?config=' + TESTS_DIR + '/intern';
+				var internPath = '/node_modules/intern/client.html?config=' + config;
 
 				// Get the address. Convert 0.0.0.0 to 'localhost' for Windows compatibility.
 				var address = data.split(' on ')[1].replace(/^\s*/, '').replace(/\s*$/, '');
