@@ -33,6 +33,7 @@ function SauceLabsTunnel() {
 }
 
 var _super = Tunnel.prototype;
+
 SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/SauceLabsTunnel# */ {
 	constructor: SauceLabsTunnel,
 
@@ -169,7 +170,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	environmentUrl: 'https://saucelabs.com/rest/v1/info/platforms/webdriver',
 
 	get auth() {
-		return this.username + ':' + this.accessKey;
+		return (this.username || '') + ':' + (this.accessKey || '');
 	},
 
 	get executable() {
@@ -195,7 +196,7 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	},
 
 	get isDownloaded() {
-		return fs.existsSync(this.executable === 'java' ?
+		return util.fileExists(this.executable === 'java' ?
 			pathUtil.join(this.directory, 'Sauce-Connect.jar') :
 			pathUtil.join(this.directory, this.executable)
 		);
@@ -220,12 +221,11 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		return url;
 	},
 
-	_postDownload: function () {
+	_postDownloadFile: function (response) {
 		var self = this;
-		var executable = this.executable;
-		return _super._postDownload.apply(this, arguments).then(function () {
-			if (executable !== 'java') {
-				fs.chmodSync(pathUtil.join(self.directory, executable), parseInt('0755', 8));
+		return util.decompress(response.data, this.directory).then(function () {
+			if (self.executable !== 'java') {
+				fs.chmodSync(pathUtil.join(self.directory, self.executable), parseInt('0755', 8));
 			}
 		});
 	},

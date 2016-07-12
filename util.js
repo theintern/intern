@@ -1,3 +1,21 @@
+var Decompress = require('decompress');
+var Promise = require('dojo/Promise');
+var fs = require('fs');
+var mkdirp = require('mkdirp');
+var pathUtil = require('path');
+
+/**
+ * Convenience function for internally resolving a Promise
+ */
+function resolver(resolve, reject, error, value) {
+	if (error) {
+		reject(error);
+	}
+	else {
+		resolve(value);
+	}
+}
+
 module.exports = {
 	/**
 	 * Adds properties from source objects to a target object using ES5 `Object.defineProperty` instead of
@@ -36,5 +54,65 @@ module.exports = {
 				emitter.removeListener(event, listener);
 			}
 		};
+	},
+
+	/**
+	 * Returns true if a file or directory exists
+	 *
+	 * @param {string} filename
+	 * @returns {bool} true if filename exists, false otherwise
+	 */
+	fileExists: function (filename) {
+		try {
+			fs.statSync(filename);
+			return true;
+		}
+		catch (error) {
+			return false;
+		}
+	},
+
+	/**
+	 * Decompresses archive data into a given directory
+	 *
+	 * @param {Buffer} data 
+	 * @param {string} directory
+	 * @returns {Promise.<void>} A Promise that resolves when the data is decompressed
+	 */
+	decompress: function (data, directory) {
+		return new Promise(function (resolve, reject) {
+			var decompressor = new Decompress();
+			decompressor.src(data)
+				.use(Decompress.zip())
+				.use(Decompress.targz())
+				.dest(directory)
+				.run(function (error) {
+					resolver(resolve, reject, error);
+				});
+		});
+	},
+
+	/**
+	 * Writes data to a file.
+	 *
+	 * The file's parent directories will be created if they do not already exist.
+	 *
+	 * @param {Buffer} data 
+	 * @param {string} filename
+	 * @returns {Promise.<void>} A Promise that resolves when the file has been written
+	 */
+	writeFile: function (data, filename) {
+		return new Promise(function (resolve, reject) {
+			mkdirp(pathUtil.dirname(filename), function (error) {
+				if (error) {
+					reject(error);
+				}
+				else {
+					fs.writeFile(filename, data, function (error) {
+						resolver(resolve, reject, error);
+					});
+				}
+			});
+		});
 	}
 };

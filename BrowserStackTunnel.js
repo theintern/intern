@@ -100,7 +100,7 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	environmentUrl: 'https://www.browserstack.com/automate/browsers.json',
 
 	get auth() {
-		return this.username + ':' + this.accessKey;
+		return (this.username || '') + ':' + (this.accessKey || '');
 	},
 
 	get executable() {
@@ -140,9 +140,10 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 		return url;
 	},
 
-	_postDownload: function () {
-		var executable = pathUtil.join(this.directory, this.executable);
-		return _super._postDownload.apply(this, arguments).then(function () {
+	_postDownloadFile: function (response) {
+		var self = this;
+		return util.decompress(response.data, this.directory).then(function () {
+			var executable = pathUtil.join(self.directory, self.executable);
 			fs.chmodSync(executable, parseInt('0755', 8));
 		});
 	},

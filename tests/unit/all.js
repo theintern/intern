@@ -8,10 +8,7 @@ define([
 	'intern/dojo/node!fs',
 	'intern/dojo/node!path',
 	'intern!object',
-	'intern/chai!assert',
-	'intern',
-	'../support/cleanup',
-	'../support/tunnelTest'
+	'intern/chai!assert'
 ], function (
 	Tunnel,
 	SauceLabsTunnel,
@@ -21,10 +18,7 @@ define([
 	fs,
 	pathUtil,
 	registerSuite,
-	assert,
-	intern,
-	cleanup,
-	tunnelTest
+	assert
 ) {
 	var tunnel;
 
@@ -32,25 +26,13 @@ define([
 		name: 'digdug',
 
 		afterEach: function () {
-			var promise = cleanup(tunnel);
 			tunnel = null;
-			return promise;
 		},
 
 		'SauceLabsTunnel': (function () {
 			return {
 				beforeEach: function() {
 					tunnel = new SauceLabsTunnel();
-				},
-
-				'#start': function() { // TODO move this to integration tests
-					if (!process.env.SAUCE_USERNAME && !process.env.SAUCE_ACCESS_KEY) {
-						this.skip('auth data not present');
-					}
-
-					tunnelTest(this.async(120000), tunnel, function (error) {
-						return /Not authorized/.test(error.message);
-					});
 				},
 
 				'#auth': function () {
@@ -114,16 +96,6 @@ define([
 					tunnel = new BrowserStackTunnel();
 				},
 
-				'#start': function () {  // TODO move this to integration tests
-					if (!process.env.BROWSERSTACK_USERNAME && !process.env.BROWSERSTACK_ACCESS_KEY) {
-						this.skip('auth data not present');
-					}
-
-					tunnelTest(this.async(), tunnel, function (error) {
-						return /The tunnel reported:/.test(error.message);
-					});
-				},
-
 				'#auth': function () {
 					tunnel.username = 'foo';
 					tunnel.accessKey = 'bar';
@@ -177,16 +149,6 @@ define([
 					tunnel = new TestingBotTunnel();
 				},
 
-				'#start': function () {  // TODO move this to integration tests
-					if (!process.env.TESTINGBOT_KEY && !process.env.TESTINGBOT_SECRET) {
-						this.skip('auth data not present');
-					}
-
-					tunnelTest(this.async(120000), tunnel, function (error) {
-						return /Could not get tunnel info/.test(error.message);
-					});
-				},
-
 				'#auth': function () {
 					tunnel.apiKey = 'foo';
 					tunnel.apiSecret = 'bar';
@@ -194,13 +156,6 @@ define([
 				}
 			};
 		})(),
-
-		'NullTunnel': function () {
-			tunnel = new NullTunnel();
-			tunnelTest(this.async(), tunnel, function (error) {
-				return /Could not get tunnel info/.test(error.message);
-			});
-		},
 
 		'Tunnel': (function () {
 			return {

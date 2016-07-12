@@ -105,11 +105,11 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 	environmentUrl: 'https://api.testingbot.com/v1/browsers',
 
 	get auth() {
-		return this.apiKey + ':' + this.apiSecret;
+		return (this.apiKey || '') + ':' + (this.apiSecret || '');
 	},
 
 	get isDownloaded() {
-		return fs.existsSync(pathUtil.join(this.directory, 'testingbot-tunnel/testingbot-tunnel.jar'));
+		return util.fileExists(pathUtil.join(this.directory, 'testingbot-tunnel/testingbot-tunnel.jar'));
 	},
 
 	_makeArgs: function (readyFile) {
@@ -215,6 +215,9 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 							self.emit('status', message);
 							lastMessage = message;
 						}
+					}
+					else if (message.indexOf('SEVERE: ') === 0) {
+						dfd.reject(message);
 					}
 				});
 			})

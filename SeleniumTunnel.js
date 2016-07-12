@@ -4,57 +4,24 @@
 
 var format = require('util').format;
 var fs = require('fs');
-var mkdirp = require('mkdirp');
 var pathUtil = require('path');
 var Promise = require('dojo/Promise');
 var request = require('dojo/request');
 var Tunnel = require('./Tunnel');
 var util = require('./util');
 
-/**
- * Artifact configuration information for the Selenium standalone jar
- * @param config {String|Object} a selenium version number or mixin properties
- * @constructor
+/*
+ * For the three included driver configs, the `platform` and `arch` properties are assumed to use values from the same
+ * sets as Node's `os.platform` and `os.arch` properties.
  */
-function SeleniumConfig(config) {
-	if (typeof config === 'string') {
-		this.version = config;
-	}
-	else {
-		util.mixin(this, config);
-	}
-}
-
-SeleniumConfig.prototype = {
-	constructor: SeleniumConfig,
-	version: '2.53.0',
-	baseUrl: 'https://selenium-release.storage.googleapis.com',
-	dontExtract: true,
-	get artifact() {
-		return 'selenium-server-standalone-' + this.version + '.jar';
-	},
-	get url() {
-		var majorMinorVersion = this.version.slice(0, this.version.lastIndexOf('.'));
-
-		return format(
-			'%s/%s/%s',
-			this.baseUrl,
-			majorMinorVersion,
-			this.artifact
-		);
-	},
-	get executable() {
-		return 'selenium-server-' + this.version + '-server.jar';
-	}
-};
 
 /**
- * Artifact configuration information for the Chrome driver
- * @param config {Object} mixin properties
+ * Configuration information for the Chrome driver
+ * @param {Object} options mixin properties
  * @constructor
  */
-function ChromeConfig(config) {
-	util.mixin(this, config);
+function ChromeConfig(options) {
+	util.mixin(this, options);
 }
 
 ChromeConfig.prototype = {
@@ -64,24 +31,17 @@ ChromeConfig.prototype = {
 	platform: process.platform,
 	arch: process.arch,
 	get artifact() {
-		var platform = 'win32';
-
-		if (this.platform === 'linux') {
+		var platform = this.platform;
+		if (platform === 'linux') {
 			platform = 'linux' + (this.arch === 'x64' ? '64' : '32');
 		}
-		else if (this.platform === 'darwin') {
+		else if (platform === 'darwin') {
 			platform = 'mac32';
 		}
-
-		return 'chromedriver_' + platform + '.zip';
+		return format('chromedriver_%s.zip', platform);
 	},
 	get url() {
-		return format(
-			'%s/%s/%s',
-			this.baseUrl,
-			this.version,
-			this.artifact
-		);
+		return format('%s/%s/%s', this.baseUrl, this.version, this.artifact);
 	},
 	get executable() {
 		return this.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
@@ -92,12 +52,12 @@ ChromeConfig.prototype = {
 };
 
 /**
- * Artifact configuration information for Internet Explorer driver
- * @param config {Object} mixin properties
+ * Configuration information for Internet Explorer driver
+ * @param {Object} options mixin properties
  * @constructor
  */
-function IeConfig(config) {
-	util.mixin(this, config);
+function IeConfig(options) {
+	util.mixin(this, options);
 }
 
 IeConfig.prototype = {
@@ -107,22 +67,11 @@ IeConfig.prototype = {
 	arch: process.arch,
 	get artifact() {
 		var architecture = this.arch === 'x64' ? 'x64' : 'Win32';
-
-		return format(
-			'IEDriverServer_%s_%s.zip',
-			architecture,
-			this.version
-		);
+		return format('IEDriverServer_%s_%s.zip', architecture, this.version);
 	},
 	get url() {
 		var majorMinorVersion = this.version.slice(0, this.version.lastIndexOf('.'));
-
-		return format(
-			'%s/%s/%s',
-			this.baseUrl,
-			majorMinorVersion,
-			this.artifact
-		);
+		return format('%s/%s/%s', this.baseUrl, majorMinorVersion, this.artifact);
 	},
 	get executable() {
 		return 'IEDriverServer.exe';
@@ -133,12 +82,12 @@ IeConfig.prototype = {
 };
 
 /**
- * Artifact configuration information for the Firefox driver
- * @param config {Object} mixin properties
+ * Configuration information for the Firefox driver
+ * @param {Object} options mixin properties
  * @constructor
  */
-function FirefoxConfig(config) {
-	util.mixin(this, config);
+function FirefoxConfig(options) {
+	util.mixin(this, options);
 }
 
 FirefoxConfig.prototype = {
@@ -147,24 +96,21 @@ FirefoxConfig.prototype = {
 	baseUrl: 'https://github.com/mozilla/geckodriver/releases/download',
 	platform: process.platform,
 	get artifact() {
-		var platform = (this.platform === 'linux' ? 'linux64'
-			: this.platform === 'darwin' ? 'mac' : 'win64');
-		var type = (this.platform === 'win32' ? '.zip' : '.tar.gz');
-
-		return format(
-			'geckodriver-v%s-%s%s',
-			this.version,
-			platform,
-			type
-		);
+		var platform = this.platform;
+		if (platform === 'linux') {
+			platform = 'linux64';
+		}
+		else if (platform === 'win32') {
+			platform = 'win64';
+		}
+		else if (platform === 'darwin') {
+			platform = 'mac';
+		}
+		var extension = (platform === 'win64' ? '.zip' : '.tar.gz');
+		return format('geckodriver-v%s-%s%s', this.version, platform, extension);
 	},
 	get url() {
-		return format(
-			'%s/v%s/%s',
-			this.baseUrl,
-			this.version,
-			this.artifact
-		);
+		return format('%s/v%s/%s', this.baseUrl, this.version, this.artifact);
 	},
 	get executable() {
 		return this.platform === 'win32' ? 'geckodriver.exe' : 'geckodriver';
@@ -187,13 +133,14 @@ var driverNameMap = {
 function SeleniumTunnel() {
 	Tunnel.apply(this, arguments);
 	
-	if (this.seleniumDrivers === null) {
-		this.seleniumDrivers = [ 'chrome' ];
+	if (this.drivers === null) {
+		this.drivers = [ 'chrome' ];
 	}
 }
 
 var _super = Tunnel.prototype;
-SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/SauceLabsTunnel# */ {
+
+SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/SeleniumTunnel# */ {
 	constructor: SeleniumTunnel,
 
 	/**
@@ -204,43 +151,57 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 	seleniumArgs: null,
 
 	/**
-	 * The desired selenium drivers to install. This is a list of driver definitions that may either be a basic string
-	 * or an object.
+	 * The desired Selenium drivers to install. Each entry may be a string or an object. Strings must be the names of
+	 * existing drivers in SeleniumTunnel. An object with a 'name' property is a configuration object -- the name must
+	 * be the name of an existing driver in SeleniumTunnel, and the remaining properties will be used to configure that
+	 * driver. An object without a 'name' property is a driver definition. It must contain three properties:
+	 *
+	 *   executable - the name of the driver executable
+	 *   url - the URL where the driver can be downloaded from
+	 *   seleniumProperty - the name of the Java property used to tell Selenium where the driver is
 	 *
 	 * example:
 	 * 	[
-	 * 		'chrome',
-	 * 		{
-	 * 			name: 'firefox',
-	 * 			version: '0.8.0',
-	 * 			baseUrl: 'https://github.com/mozilla/geckodriver/releases/download'
-	 * 		}
+	 *      'chrome',
+	 *      {
+	 *          name: 'firefox',
+	 *          version: '0.8.0'
+	 *      },
+	 *      {
+	 *          url: 'https://github.com/operasoftware/operachromiumdriver/releases/.../operadriver_mac64.zip',
+	 *          executable: 'operadriver',
+	 *          seleniumProperty: 'webdriver.opera.driver'
+	 *      }
 	 * 	]
 	 *
 	 * @type {Array}
 	 * @default [ 'chrome' ]
 	 */
-	seleniumDrivers: null,
+	drivers: null,
 
 	/**
-	 * The desired version of selenium to install. This can be defined using a version number or an object containing a
-	 * version number and baseUrl.
+	 * The base address where Selenium artifacts may be found.
 	 *
-	 * example:
-	 * 	{
-	 * 		version: '2.53.0',
-	 * 		baseUrl: 'https://selenium-release.storage.googleapis.com'
-	 * 	}
+	 * @type {string}
+	 */
+	baseUrl: 'https://selenium-release.storage.googleapis.com',
+
+	/**
+	 * The desired version of selenium to install.
 	 *
-	 * @type {string|object}
+	 * @type {string}
 	 * @default
 	 */
-	seleniumVersion: SeleniumConfig.prototype.version,
+	version: '2.53.0',
 
 	/**
 	 * Timeout for communicating with Selenium Services
 	 */
 	serviceTimeout: 5000,
+
+	get artifact() {
+		return 'selenium-server-standalone-' + this.version + '.jar';
+	},
 
 	get directory() {
 		return pathUtil.join(__dirname, 'selenium-standalone');
@@ -252,30 +213,14 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 
 	get isDownloaded() {
 		var directory = this.directory;
-		return this._getConfigs().every(function (config) {
-			return fs.existsSync(pathUtil.join(directory, config.executable));
-		});
+		return this._getDriverConfigs().every(function (config) {
+			return util.fileExists(pathUtil.join(directory, config.executable));
+		}, this) && util.fileExists(pathUtil.join(directory, this.artifact));
 	},
 
-	_getDriverConfigs: function () {
-		return this.seleniumDrivers.map(function (data) {
-			var Constructor;
-			if (typeof data === 'string') {
-				Constructor = driverNameMap[data];
-				return new Constructor();
-			}
-			if (typeof data === 'object' && data.name) {
-				Constructor = driverNameMap[data];
-				return new Constructor(data);
-			}
-			return data;
-		});
-	},
-
-	_getConfigs: function () {
-		var configs = this._getDriverConfigs();
-		configs.push(new SeleniumConfig(this.seleniumVersion));
-		return configs;
+	get url() {
+		var majorMinorVersion = this.version.slice(0, this.version.lastIndexOf('.'));
+		return format('%s/%s/%s', this.baseUrl, majorMinorVersion, this.artifact);
 	},
 
 	download: function (forceDownload) {
@@ -284,65 +229,65 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 		}
 
 		var self = this;
-		var tasks = this._getConfigs().map(function (config) {
-			var executable = config.executable;
-			var path = pathUtil.join(self.directory, executable);
-
-			if (fs.existsSync(path)) {
-				return Promise.resolve();
-			}
-
-			var options = util.mixin({}, SeleniumTunnel.prototype, self, {
-				url: config.url,
-				executable: executable,
-				dontExtract: !!config.dontExtract
-			});
-			
-			return self._downloadFile(options);
-		});
-		
-		return Promise.all(tasks);
-	},
-
-	_postDownload: function (response, options) {
-		this.emit('postdownload', options.url);
-		if (options.dontExtract) {
-			return this._writeFile(response.data, options);
-		}
-		else {
-			return this._decompressData(response.data, options);
-		}
-	},
-	
-	_writeFile: function (data, options) {
-		return new Promise(function (resolve, reject) {
-			var target = pathUtil.join(options.directory, options.executable);
-
-			mkdirp(options.directory, function (error) {
-				if (error) {
-					reject(error);
-					return;
-				}
-
-				fs.writeFile(target, data, function (error) {
-					if (error) {
-						reject(error);
-						return;
-					}
-					
-					resolve();
+		return new Promise(function (resolve, reject, progress, setCanceler) {
+			setCanceler(function (reason) {
+				tasks && tasks.forEach(function (task) {
+					task.cancel(reason);
 				});
 			});
+
+			var configs = [ { url: self.url, executable: self.artifact } ];
+			configs = configs.concat(self._getDriverConfigs());
+
+			var tasks = configs.map(function (config) {
+				var executable = config.executable;
+				if (fs.existsSync(pathUtil.join(self.directory, executable))) {
+					return Promise.resolve();
+				}
+
+				return self._downloadFile(config.url, self.proxy, {
+					executable: executable
+				}).then(null, null, progress);
+			});
+		
+			resolve(Promise.all(tasks));
 		});
 	},
-	
+
+	sendJobState: function () {
+		// This is a noop for Selenium
+		return Promise.resolve();
+	},
+
+	_getDriverConfigs: function () {
+		function getDriverConfig(name, options) {
+			var Constructor = driverNameMap[name];
+			if (!Constructor) {
+				throw new Error('Invalid driver name "' + name + '"');
+			}
+			return new Constructor(options);
+		}
+
+		return this.drivers.map(function (data) {
+			if (typeof data === 'string') {
+				return getDriverConfig(data);
+			}
+
+			if (typeof data === 'object' && data.name) {
+				return getDriverConfig(data.name, data);
+			}
+
+			// data is a driver definition
+			return data;
+		});
+	},
+
 	_makeArgs: function () {
 		var directory = this.directory;
-		var seleniumConfig = new SeleniumConfig(this.seleniumVersion);
 		var driverConfigs = this._getDriverConfigs();
 		var args = [
 			'-jar',
-			pathUtil.join(this.directory, seleniumConfig.executable),
+			pathUtil.join(this.directory, this.artifact),
 			'-port',
 			this.port
 		];
@@ -365,6 +310,13 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 		return args;
 	},
 
+	_postDownloadFile: function (response, options) {
+		if (pathUtil.extname(options.executable) === '.jar') {
+			return util.writeFile(response.data, pathUtil.join(this.directory, options.executable));
+		}
+		return util.decompress(response.data, this.directory);
+	},
+	
 	_start: function () {
 		var self = this;
 		var childHandle = this._makeChild();
@@ -393,29 +345,29 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 	},
 
 	_stop: function () {
-		var self = this;
+		var dfd = new Promise.Deferred();
+		var childProcess = this._process;
+		var timeout;
 
-		return request('http://' + this.hostname + ':' + this.port +
-			'/selenium-server/driver/?cmd=shutDownSeleniumServer', {
-			timeout: this.serviceTimeout,
-			handleAs: 'text'
-		}).then(function (response) {
-			var text = response.data.toString();
-			if (text !== 'OKOK') {
-				throw new Error('Tunnel not shut down');
-			}
-			return _super._stop.apply(self);
+		childProcess.once('exit', function (code) {
+			dfd.resolve(code);
+			clearTimeout(timeout);
 		});
-	},
-	
-	sendJobState: function () {
-		// This is a noop for Selenium
-		return Promise.resolve();
+
+		// Nicely ask the Selenium server to shutdown
+		request('http://' + this.hostname + ':' + this.port +
+			'/selenium-server/driver/?cmd=shutDownSeleniumServer', {
+			timeout: this.seleniumTimeout,
+			handleAs: 'text'
+		});
+
+		// Give Selenium a few seconds, then forcefully tell it to shutdown
+		timeout = setTimeout(function () {
+			childProcess.kill('SIGTERM');
+		}, 5000);
+
+		return dfd.promise;
 	}
 });
 
-SeleniumTunnel.SeleniumConfig = SeleniumConfig;
-SeleniumTunnel.ChromeConfig = ChromeConfig;
-SeleniumTunnel.FirefoxConfig = FirefoxConfig;
-SeleniumTunnel.IeConfig = IeConfig;
 module.exports = SeleniumTunnel;

@@ -1,24 +1,27 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'./common',
+	'../support/integration',
 	'intern/dojo/node!../../TestingBotTunnel'
 ], function (
 	registerSuite,
 	assert,
-	createCommonTests,
+	support,
 	TestingBotTunnel
 ) {
-	registerSuite(createCommonTests({
-		name: 'integration/TestingBotTunnel',
+	function checkEnvironment(environment) {
+		assert.property(environment, 'selenium_name');
+		assert.property(environment, 'name');
+		assert.property(environment, 'platform');
+		assert.property(environment, 'version');
+	}
 
-		tunnelClass: TestingBotTunnel,
+	var suite = {
+		name: 'integration/TestingBotTunnel'
+	};
 
-		assertDescriptor: function (environment) {
-			assert.property(environment, 'selenium_name');
-			assert.property(environment, 'name');
-			assert.property(environment, 'platform');
-			assert.property(environment, 'version');
-		}
-	}));
+	support.addEnvironmentTest(suite, TestingBotTunnel, checkEnvironment);
+	support.addStartStopTest(suite, TestingBotTunnel);
+
+	registerSuite(suite);
 });

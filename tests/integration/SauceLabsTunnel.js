@@ -1,23 +1,28 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'./common',
+	'../support/integration',
 	'intern/dojo/node!../../SauceLabsTunnel'
 ], function (
 	registerSuite,
 	assert,
-	createCommonTests,
+	support,
 	SauceLabsTunnel
 ) {
-	registerSuite(createCommonTests({
-		name: 'integration/SauceLabsTunnel',
+	function checkEnvironment(environment) {
+		assert.property(environment, 'short_version');
+		assert.property(environment, 'api_name');
+		assert.property(environment, 'os');
+	}
 
-		tunnelClass: SauceLabsTunnel,
+	var suite = {
+		name: 'integration/SauceLabsTunnel'
+	};
 
-		assertDescriptor: function (environment) {
-			assert.property(environment, 'short_version');
-			assert.property(environment, 'api_name');
-			assert.property(environment, 'os');
-		}
-	}));
+	support.addEnvironmentTest(suite, SauceLabsTunnel, checkEnvironment);
+	support.addStartStopTest(suite, SauceLabsTunnel, {
+		timeout: 120000
+	});
+
+	registerSuite(suite);
 });

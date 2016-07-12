@@ -2,13 +2,11 @@
  * @module digdug/Tunnel
  */
 
-var Decompress = require('decompress');
 var Evented = require('dojo/Evented');
-var fs = require('fs');
 var pathUtil = require('path');
 var Promise = require('dojo/Promise');
 var sendRequest = require('dojo/request');
-var spawnUtil = require('child_process');
+var childProcess = require('child_process');
 var urlUtil = require('url');
 var util = require('./util');
 
@@ -56,6 +54,7 @@ function Tunnel(kwArgs) {
 }
 
 var _super = Evented.prototype;
+
 Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tunnel# */ {
 	/**
 	 * Part of the tunnel has been downloaded from the server.
@@ -64,23 +63,6 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * @type {Object}
 	 * @property {number} received The number of bytes received so far.
 	 * @property {number} total The total number of bytes to download.
-	 */
-
-	/**
-	 * Part of a tunnel file has been downloaded from the server
-	 *
-	 * @event module:digdug/Tunnel#filedownloadprogress
-	 * @type {Object}
-	 * @property {string} url The url of the file being downloaded
-	 * @property {Object} progress an object with received and total parameters
-	 */
-
-	/**
-	 * Part of the tunnel has been downloaded from the server.
-	 *
-	 * @event module:digdug/Tunnel#postdownload
-	 * @type {Object}
-	 * @property {string} url the url of the file in post-download processing
 	 */
 
 	/**
@@ -267,7 +249,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 	 * @readonly
 	 */
 	get isDownloaded() {
-		return fs.existsSync(pathUtil.join(this.directory, this.executable));
+		return util.fileExists(pathUtil.join(this.directory, this.executable));
 	},
 
 	/**
@@ -283,11 +265,10 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 		if (!forceDownload && this.isDownloaded) {
 			return Promise.resolve();
 		}
-
-		return this._downloadFile(this);
+		return this._downloadFile(this.url, this.proxy);
 	},
 
-	_downloadFile: function (options) {
+	_downloadFile: function (url, proxy, options) {
 		var self = this;
 
 		return new Promise(function (resolve, reject, progress, setCanceler) {
@@ -295,9 +276,10 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 				request && request.cancel(reason);
 			});
 
-			var request = sendRequest(options.url, { proxy: options.proxy });
-			return request.then(function (response) {
-					resolve(self._postDownload(response, options));
+			var request = sendRequest(url, { proxy: proxy });
+			request.then(
+				function (response) {
+					resolve(self._postDownloadFile(response, options));
 				},
 				function (error) {
 					if (error.response && error.response.statusCode >= 400) {
@@ -306,39 +288,22 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 					reject(error);
 				},
 				function (info) {
-					self.emit('filedownloadprogress', {
-						url: options.url,
-						progress: info
-					});
+					self.emit('downloadprogress', util.mixin({}, info, { url: url }));
 					progress(info);
 				}
-			);
+			).catch(function (error) {
+				reject(error);
+			});
 		});
 	},
 	
-	_postDownload: function (response, options) {
-		this.emit('postdownload', options.url);
-		return this._decompressData(response.data, options);
+	/**
+	 * Called with the response after a file download has completed
+	 */
+	_postDownloadFile: function (response) {
+		return util.decompress(response.data, this.directory);
 	},
 	
-	_decompressData: function (data, options) {
-		return new Promise(function (resolve, reject) {
-			var decompressor = new Decompress();
-			decompressor.src(data)
-				.use(Decompress.zip())
-				.use(Decompress.targz())
-				.dest(options.directory)
-				.run(function (error) {
-					if (error) {
-						reject(error);
-					}
-					else {
-						resolve();
-					}
-				});
-		});
-	},
-
 	/**
 	 * Creates the list of command-line arguments to be passed to the spawned tunnel. Implementations should
 	 * override this method to provide the appropriate command-line arguments.
@@ -384,7 +349,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 				});
 			});
 		});
-		var child = spawnUtil.spawn(command, args, options);
+		var child = childProcess.spawn(command, args, options);
 
 		child.stdout.setEncoding('utf8');
 		child.stderr.setEncoding('utf8');
@@ -478,9 +443,6 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 		var self = this;
 		this._startTask = this
 			.download()
-			.then(null, null, function (progress) {
-				self.emit('downloadprogress', progress);
-			})
 			.then(function () {
 				self._handles = [];
 				return self._start();
@@ -499,16 +461,19 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 				return child.deferred.promise;
 			});
 
-		this._startTask.then(function () {
-			self._startTask = null;
-			self.isStarting = false;
-			self.isRunning = true;
-			self.emit('status', 'Ready');
-		}, function (error) {
-			self._startTask = null;
-			self.isStarting = false;
-			self.emit('status', error.name === 'CancelError' ? 'Start cancelled' : 'Failed to start tunnel');
-		});
+		this._startTask.then(
+			function () {
+				self._startTask = null;
+				self.isStarting = false;
+				self.isRunning = true;
+				self.emit('status', 'Ready');
+			},
+			function (error) {
+				self._startTask = null;
+				self.isStarting = false;
+				self.emit('status', error.name === 'CancelError' ? 'Start cancelled' : 'Failed to start tunnel');
+			}
+		);
 
 		return this._startTask;
 	},
@@ -569,16 +534,19 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 		this.isStopping = true;
 
 		var self = this;
-		return this._stop().then(function (returnValue) {
-			clearHandles(self._handles);
-			self._process = self._handles = null;
-			self.isRunning = self.isStopping = false;
-			return returnValue;
-		}, function (error) {
-			self.isRunning = true;
-			self.isStopping = false;
-			throw error;
-		});
+		return this._stop().then(
+			function (returnValue) {
+				clearHandles(self._handles);
+				self._process = self._handles = null;
+				self.isRunning = self.isStopping = false;
+				return returnValue;
+			},
+			function (error) {
+				self.isRunning = true;
+				self.isStopping = false;
+				throw error;
+			}
+		);
 	},
 
 	/**
