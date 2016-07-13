@@ -310,6 +310,11 @@ program
 			internArgs.push('leaveRemoteOpen');
 		}
 
+		// 'verbose' is a top-level option
+		if (options.parent.verbose) {
+			internArgs.push('verbose');
+		}
+
 		var nodeArgs = [];
 
 		if (options.debug) {
