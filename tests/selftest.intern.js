@@ -7,15 +7,19 @@ define({
 		'idle-timeout': 30
 	},
 	environments: [
-		{ browserName: 'internet explorer', version: '11.0', platform: 'Windows 10', fixSessionCapabilities: false },
-		{ browserName: 'internet explorer', version: '10.0', platform: 'Windows 8', fixSessionCapabilities: false },
-		{ browserName: 'internet explorer', version: '9.0', platform: 'Windows 7', fixSessionCapabilities: false },
-		{ browserName: 'firefox', version: '33.0', platform: [ 'Windows 7', 'OS X 10.11' ], fixSessionCapabilities: false },
-		{ browserName: 'chrome', version: '38.0', platform: [ 'Windows 7', 'OS X 10.11' ], fixSessionCapabilities: false }
+//		{ browserName: 'internet explorer', version: '11.0', platform: 'Windows 10', fixSessionCapabilities: false },
+//		{ browserName: 'internet explorer', version: '10.0', platform: 'Windows 8', fixSessionCapabilities: false },
+//		{ browserName: 'internet explorer', version: '9.0', platform: 'Windows 7', fixSessionCapabilities: false },
+//		{ browserName: 'firefox', version: '33.0', platform: [ 'Windows 7', 'OS X 10.11' ], fixSessionCapabilities: false },
+		{ browserName: 'chrome', version: '38.0', platform: [ 'OS X 10.11' ], fixSessionCapabilities: false }
 	],
 
 	maxConcurrency: 2,
 	tunnel: 'SauceLabsTunnel',
+	tunnelOptions: {
+		accessKey: '3a98d41b-bf82-4727-9043-4a15966a1605',
+		username: 'rhpr'
+	},
 
 	loaderOptions: {
 		// Packages that should be registered with the loader in each testing environment
@@ -26,7 +30,8 @@ define({
 			'intern-selftest': {
 				dojo: 'intern-selftest/node_modules/dojo',
 				chai: 'intern-selftest/node_modules/chai/chai',
-				diff: 'intern-selftest/node_modules/diff/diff'
+				diff: 'intern-selftest/node_modules/diff/diff',
+				cucumber: 'intern-selftest/node_modules/cucumber/release/cucumber'
 			}
 		}
 	},
