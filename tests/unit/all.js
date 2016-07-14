@@ -10,6 +10,7 @@ define([
 	'./lib/interfaces/tdd',
 	'./lib/interfaces/bdd',
 	'./lib/interfaces/object',
+	'./lib/interfaces/cucumber',
 	'./lib/interfaces/qunit',
 	'./lib/reporters/Console',
 	'./lib/resolveEnvironments',
