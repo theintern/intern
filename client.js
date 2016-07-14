@@ -8,6 +8,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			],
 			map: {
 				intern: {
+					cucumber: 'intern/browser_modules/cucumber/release/cucumber',
 					dojo: 'intern/browser_modules/dojo',
 					chai: 'intern/browser_modules/chai/chai',
 					diff: 'intern/browser_modules/diff/diff'

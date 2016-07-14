@@ -10,7 +10,8 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 				intern: {
 					dojo: 'intern/browser_modules/dojo',
 					chai: 'intern/browser_modules/chai/chai',
-					diff: 'intern/browser_modules/diff/diff'
+					diff: 'intern/browser_modules/diff/diff',
+					cucumber: 'intern/browser_modules/cucumber/release/cucumber'
 				},
 				'*': {
 					'intern/dojo': 'intern/browser_modules/dojo'

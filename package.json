@@ -12,13 +12,14 @@
     "chai": "3.5.0",
     "charm": "0.2.0",
     "diff": "1.1.0",
-	"digdug": "https://github.com/theintern/digdug.git#96aa488a631f608c14c1a3c337bc048bc8099bd9",
+    "digdug": "1.4.1",
     "dojo": "2.0.0-alpha.7",
     "glob": "7.0.3",
     "istanbul": "0.4.1",
     "leadfoot": "1.6.10",
     "mimetype": "0.0.8",
-    "source-map": "0.1.33"
+    "source-map": "0.1.33",
+    "cucumber": "1.2.1"
   },
   "devDependencies": {
     "intern": "3.0.6"
