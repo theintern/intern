@@ -448,6 +448,44 @@ define([
 				'\n  "s": "string",\n  "u": undefined\n}',
 				'All primitive JavaScript types should be represented accurately in the output'
 			);
+		},
+
+		'.deepClone': {
+			'basic object': function () {
+				var original = {a: 42, foo: 'bar'};
+				var clone = util.deepClone(original);
+
+				assert.deepEqual(clone, {a: 42, foo: 'bar'});
+
+				clone.a = 123;
+				delete clone.foo;
+				clone.b = 0;
+
+				assert.deepEqual(original, {a: 42, foo: 'bar'});
+			},
+			'basic array': function () {
+				var original = [1, 2, 3];
+				var clone = util.deepClone(original);
+
+				assert.deepEqual(clone, [1, 2, 3]);
+
+				clone[1] = 0;
+				clone.push(4);
+
+				assert.deepEqual(original, [1, 2, 3]);
+			},
+			'deep object': function () {
+				var original = {obj: {a: 1}, arr: ['a', 'b', 'c']};
+				var clone = util.deepClone(original);
+
+				assert.deepEqual(clone, {obj: {a: 1}, arr: ['a', 'b', 'c']});
+
+				clone.obj.a = 2;
+				clone.obj = {};
+				clone.arr.push('d');
+
+				assert.deepEqual(original, {obj: {a: 1}, arr: ['a', 'b', 'c']});
+			}
 		}
 	});
 });
