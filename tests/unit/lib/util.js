@@ -485,6 +485,30 @@ define([
 				clone.arr.push('d');
 
 				assert.deepEqual(original, {obj: {a: 1}, arr: ['a', 'b', 'c']});
+			},
+			'date': function () {
+				var original = new Date('2015-10-21T07:28:00.000Z');
+				var clone = util.deepClone(original);
+
+				assert.instanceOf(clone, Date);
+				assert.strictEqual(clone.toString(), '2015-10-21T07:28:00.000Z');
+
+				clone.setYear(1985);
+				clone.setDate(26);
+
+				assert.strictEqual(original.toString(), '2015-10-21T07:28:00.000Z');
+			},
+			'RegExp': function () {
+				var original = new RegExp('re', 'ig');
+				var clone = util.deepClone(original);
+
+				assert.instanceOf(clone, RegExp);
+				assert.strictEqual(clone.toString(), '/re/ig');
+
+				clone.global = false;
+				clone.source = 'blah';
+
+				assert.strictEqual(original.toString(), '/re/ig');
 			}
 		}
 	});
