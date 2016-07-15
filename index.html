@@ -884,7 +884,7 @@
 						<ul>
 							<li><a href="https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities">Selenium capabilities</a></li>
 							<li><a href="https://www.browserstack.com/automate/capabilities">BrowserStack capabilities</a></li>
-							<li><a href="https://docs.saucelabs.com/reference/test-configuration/#webdriver-api">Sauce Labs capabilities</a> and <a href="https://saucelabs.com/platforms">environments</a></li>
+							<li><a href="https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-Selenium-SpecificOptions">Sauce Labs capabilities</a> and <a href="https://saucelabs.com/platforms">environments</a></li>
 							<li><a href="https://testingbot.com/support/other/test-options">TestingBot capabilities</a> and <a href="https://testingbot.com/support/getting-started/browsers.html">environments</a></li>
 						</ul>
 
@@ -918,7 +918,24 @@
 
 						<p>All other capabilities are not permuted, but are simply passed as-is to the WebDriver server.</p>
 
-						<p>Different cloud testing services use different capability values when specifying environment capabilities. For example, Sauce Labs uses 'Windows XP' to specify the Windows XP platform while BrowserStack uses 'XP'. Check <a href="#options-capabilities">the list above</a> to find the right capabilities for your chosen platform.</p>
+						<p><span class="versionBadge">3.3</span> When using one of the supported cloud services (Sauce Labs, BrowserStack, or TestingBot), the browser version may also use <i>range</i> expressions and the <i>“latest” alias</i>. A range expression consists of two versions separated by “..”. Intern will request a list of all supported platform + browser + version combinations from the service and will expand the range using the versions available from the service. The range is inclusive, so for the range expression “23..26”, Intern will include versions 23 and 26 in the expanded version list.</p>
+
+						<pre><code class="javascript">{
+	environments: [
+		{ browserName: 'chrome', version: '23..26', platform: 'Linux' }
+	]
+}</code></pre>
+
+						<p>The “latest” alias represents the most recent version of a browser (the most recent verison available on the relevant cloud service). An integer may be subtracted from the latest value, like “latest-1”; this represents the next-to-latest version. The “latest” alias, including the subtraction form, may be used in version ranges or by itself.</p>
+
+						<pre><code class="javascript">{
+	environments: [
+		{ browserName: 'firefox', version: 'latest', platform: 'Linux' },
+		{ browserName: 'chrome', version: '24..latest-1', platform: 'Linux' }
+	]
+}</code></pre>
+
+						<aside class="tip"><p>Different cloud testing services use different capability values when specifying environment capabilities. For example, Sauce Labs uses 'Windows XP' to specify the Windows XP platform while BrowserStack uses 'XP'. Check <a href="#option-capabilities">the list above</a> to find the right capabilities for your chosen platform.</p></aside>
 
 						<div class="a half" id="option-environmentRetries"></div>
 						<h4>environmentRetries (number) <span class="versionBadge">3.0</span></h4>
