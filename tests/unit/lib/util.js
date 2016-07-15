@@ -509,6 +509,20 @@ define([
 				clone.source = 'blah';
 
 				assert.strictEqual(original.toString(), '/re/ig');
+			},
+			'circular reference': function () {
+				var original = {prop: 1};
+				original.original = original;
+				var clone = util.deepClone(original);
+
+				assert.strictEqual(clone.prop, 1);
+				assert.strictEqual(clone.original, clone);
+
+				clone.original.prop = 999;
+				clone.original = null
+
+				assert.strictEqual(original.prop, 1);
+				assert.strictEqual(original.original, original);
 			}
 		}
 	});
