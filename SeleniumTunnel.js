@@ -15,11 +15,6 @@ var util = require('./util');
  * sets as Node's `os.platform` and `os.arch` properties.
  */
 
-/**
- * Configuration information for the Chrome driver
- * @param {Object} options mixin properties
- * @constructor
- */
 function ChromeConfig(options) {
 	util.mixin(this, options);
 }
@@ -51,11 +46,6 @@ ChromeConfig.prototype = {
 	}
 };
 
-/**
- * Configuration information for Internet Explorer driver
- * @param {Object} options mixin properties
- * @constructor
- */
 function IeConfig(options) {
 	util.mixin(this, options);
 }
@@ -81,11 +71,6 @@ IeConfig.prototype = {
 	}
 };
 
-/**
- * Configuration information for the Firefox driver
- * @param {Object} options mixin properties
- * @constructor
- */
 function FirefoxConfig(options) {
 	util.mixin(this, options);
 }
@@ -127,8 +112,16 @@ var driverNameMap = {
 };
 
 /**
- * The Selenium Tunnel responsible for downloading, starting and stopping Selenium standalone
- * @constructor
+ * A Selenium tunnel. This tunnel downloads the {@link http://www.seleniumhq.org/download/ Selenium-standalone server}
+ * and any necessary WebDriver executables, and handles starting and stopping Selenium.
+ *
+ * The primary configuration option is {@linkcode module:digdug/SeleniumTunnel#drivers drivers}, which determines which
+ * browsers the Selenium tunnel will support.
+ *
+ * Note that Java must be installed and in the system path to use this tunnel.
+ *
+ * @constructor module:digdug/SeleniumTunnel
+ * @extends module:digdug/Tunnel
  */
 function SeleniumTunnel() {
 	Tunnel.apply(this, arguments);
@@ -144,9 +137,9 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 	constructor: SeleniumTunnel,
 
 	/**
-	 * Additional arguments to send to Selenium standalone on start
+	 * Additional arguments to send to the Selenium server at startup
 	 *
-	 * @type {Array}
+	 * @type {Array.<string>}
 	 */
 	seleniumArgs: null,
 
@@ -156,11 +149,11 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 	 * be the name of an existing driver in SeleniumTunnel, and the remaining properties will be used to configure that
 	 * driver. An object without a 'name' property is a driver definition. It must contain three properties:
 	 *
-	 *   executable - the name of the driver executable
-	 *   url - the URL where the driver can be downloaded from
-	 *   seleniumProperty - the name of the Java property used to tell Selenium where the driver is
+	 *   - executable - the name of the driver executable
+	 *   - url - the URL where the driver can be downloaded from
+	 *   - seleniumProperty - the name of the Java property used to tell Selenium where the driver is
 	 *
-	 * example:
+	 * @example
 	 * 	[
 	 *      'chrome',
 	 *      {
@@ -174,7 +167,7 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 	 *      }
 	 * 	]
 	 *
-	 * @type {Array}
+	 * @type {Array.<string|Object>}
 	 * @default [ 'chrome' ]
 	 */
 	drivers: null,
@@ -183,6 +176,7 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 	 * The base address where Selenium artifacts may be found.
 	 *
 	 * @type {string}
+	 * @default https://selenium-release.storage.googleapis.com
 	 */
 	baseUrl: 'https://selenium-release.storage.googleapis.com',
 
@@ -190,14 +184,17 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 	 * The desired version of selenium to install.
 	 *
 	 * @type {string}
-	 * @default
+	 * @default 2.53.1
 	 */
-	version: '2.53.0',
+	version: '2.53.1',
 
 	/**
-	 * Timeout for communicating with Selenium Services
+	 * Timeout in milliseconds for communicating with the Selenium server
+	 *
+	 * @type {number}
+	 * @default 5000
 	 */
-	serviceTimeout: 5000,
+	seleniumTimeout: 5000,
 
 	get artifact() {
 		return 'selenium-server-standalone-' + this.version + '.jar';
