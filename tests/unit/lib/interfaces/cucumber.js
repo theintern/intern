@@ -84,6 +84,24 @@ define([
 			});
 		},
 
+		'it is possible to pass multiple step definition functions': function() {
+			registerCucumber(
+				'Feature: ...\nScenario: A scenario\nGiven x = 5\nThen x == 5',
+				function() { this.Given('x = 5', function() {}); },
+				function() { this.Then('x == 5', function() {}); }
+			);
+			return rootSuite.run().then(function () {
+				var parentSuite = rootSuite.tests[0];
+				assert.strictEqual(parentSuite.tests.length, 1, 'Parent suite 1 should have one test');
+				var test = parentSuite.tests[0];
+				assert.instanceOf(test, Test, 'Test 1 should be a test instance');
+				assert.strictEqual(test.name, 'A scenario', 'Test 1 should have the right name');
+				assert.strictEqual(test.hasPassed, true, 'Test 1 should have passed');
+				assert.strictEqual(parentSuite.numTests, 1, 'numTests shoud be 1');
+				assert.strictEqual(parentSuite.numFailedTests, 0, 'numFailedTests shoud be 0');
+			});
+		},
+
 		'failing steps should give error': function() {
 			registerCucumber(
 				'Feature: ...\nScenario: A failing test step\nGiven x = 5\nAnd y = 5',
