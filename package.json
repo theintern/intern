@@ -1,7 +1,7 @@
 {
   "name": "intern-cli",
   "version": "0.1.0-pre",
-  "description": "The command-line interface for Intern.",
+  "description": "The command line interface for Intern",
   "repository": {
     "type": "git",
     "url": "https://github.com/theintern/intern-cli.git"
@@ -21,7 +21,7 @@
     "testing",
     "intern"
   ],
-  "homepage": "http://theintern.io/",
+  "homepage": "http://theintern.github.io/",
   "preferGlobal": true,
   "bin": {
     "intern": "./bin/intern.js"
