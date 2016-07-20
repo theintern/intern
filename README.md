@@ -8,7 +8,7 @@ This module gives Intern a friendly command line interface that works like a typ
 
 Install it globally:
 
-	$ npm install -g https://github.com/theintern/intern-cli
+	$ npm install -g intern-cli
 
 You can then run Intern unit tests with:
 
