@@ -401,7 +401,8 @@ Server.prototype = {
 				capabilities.browserName === 'MicrosoftEdge'
 			) {
 				// Edge driver doesn't provide an initialBrowserUrl
-				var initialUrl = capabilities.browserName === 'internet explorer' ? capabilities.initialBrowserUrl : 'about:blank';
+				var initialUrl = capabilities.browserName === 'internet explorer' ? capabilities.initialBrowserUrl :
+					'about:blank';
 
 				return session.get(initialUrl).then(function () {
 					return session.execute('document.body.innerHTML = arguments[0];', [
@@ -419,6 +420,8 @@ Server.prototype = {
 		}
 
 		function discoverFeatures() {
+			// jshint maxcomplexity:13
+
 			var testedCapabilities = {};
 
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
@@ -705,22 +708,24 @@ Server.prototype = {
 
 			// At least ChromeDriver 2.9 treats elements that are offscreen as displayed, but others do not
 			testedCapabilities.brokenElementDisplayedOffscreen = function () {
-				return get('<!DOCTYPE html><div id="a" style="left: 0; position: absolute; top: -1000px;">a</div>').then(function () {
+				var pageText = '<!DOCTYPE html><div id="a" style="left: 0; position: absolute; top: -1000px;">a</div>';
+				return get(pageText).then(function () {
 					return session.findById('a');
 				}).then(function (element) {
 					return element.isDisplayed();
 				}).catch(broken);
 			};
 
-			// At least MS Edge Driver 14316 doesn't allow typing into file inputs
+			// At least MS Edge Driver 14316 doesn't support sending keys to a file input. See
+			// https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7194303/
+			//
+			// The existing feature test for this caused some browsers to hang, so just flag it for Edge for now.
 			if (
 				capabilities.browserName === 'MicrosoftEdge' &&
-				parseFloat(capabilities.browserVersion) <= 37.14316
+				parseFloat(capabilities.browserVersion) <= 38.14366
 			) {
 				testedCapabilities.brokenFileSendKeys = true;
 			}
-
-			// TODO: Re-enable this after further testing
 			// testedCapabilities.brokenFileSendKeys = function () {
 			// 	return get('<!DOCTYPE html><input type="file" id="i1">').then(function () {
 			// 		var element;
@@ -739,16 +744,16 @@ Server.prototype = {
 			// 	}).then(works, broken);
 			// };
 
-			// At least MS Edge Driver 14316 doesn't normalize whitespace properly when retrieving text. Text may contain
-			// "\r\n" pairs rather than "\n", and there may be extraneous whitespace adjacent to "\r\n" pairs and at the
-			// start and end of the text.
+			// At least MS Edge Driver 14316 doesn't normalize whitespace properly when retrieving text. Text may
+			// contain "\r\n" pairs rather than "\n", and there may be extraneous whitespace adjacent to "\r\n" pairs
+			// and at the start and end of the text.
 			testedCapabilities.brokenWhitespaceNormalization = function () {
-				return get('<!DOCTYPE html><div id="d">This is\n<br>a test</div>').then(function () {
+				return get('<!DOCTYPE html><div id="d">This is\n<br>a test\n</div>').then(function () {
 					return session.findById('d')
 						.then(function (element) {
 							return element.getVisibleText();
 						}).then(function (text) {
-							if (/\r\n/.test(text)) {
+							if (/\r\n/.test(text) || /\s+$/.test(text)) {
 								throw new Error('invalid whitespace');
 							}
 						});
@@ -757,7 +762,8 @@ Server.prototype = {
 
 			// At least MS Edge Driver 14316 doesn't return elements' computed styles
 			testedCapabilities.brokenComputedStyles = function () {
-				return get('<!DOCTYPE html><style>a { background: purple }</style><a id="a1">foo</a>').then(function () {
+				var pageText = '<!DOCTYPE html><style>a { background: purple }</style><a id="a1">foo</a>';
+				return get(pageText).then(function () {
 					return session.findById('a1');
 				}).then(function (element) {
 					return element.getComputedStyle('backgroundColor');
@@ -1052,17 +1058,41 @@ Server.prototype = {
 				return error.name === 'UnknownCommand';
 			});
 
-			// At least MS Edge 14316 returns immediately from a click request wather than waiting for default action to
-			// occur.
-			if (
-				capabilities.browserName === 'MicrosoftEdge' &&
-				parseFloat(capabilities.browserVersion) <= 37.14316
-			) {
-				testedCapabilities.returnsFromClickImmediately = true;
-			}
+			// At least MS Edge 14316 returns immediately from a click request immediately rather than waiting for
+			// default action to occur.
+			testedCapabilities.returnsFromClickImmediately = function () {
+				function assertSelected(expected) {
+					return function (actual) {
+						if (expected !== actual) {
+							throw new Error('unexpected selection state');
+						}
+					};
+				}
+
+				return get(
+					'<!DOCTYPE html><input type="checkbox" id="c">'
+				).then(function () {
+					return session.findById('c');
+				}).then(function (element) {
+					return element.click().then(function () {
+						return element.isSelected();
+					}).then(assertSelected(true))
+					.then(function () {
+						return element.click().then(function () {
+							return element.isSelected();
+						});
+					}).then(assertSelected(false))
+					.then(function () {
+						return element.click().then(function () {
+							return element.isSelected();
+						});
+					}).then(assertSelected(true));
+				}).then(works, broken);
+			};
 
 			// The W3C WebDriver standard does not support the session-level /keys command, but JsonWireProtocol does.
-			testedCapabilities.supportsKeysCommand = session._post('keys', { value: [ 'a' ] }).then(supported, unsupported);
+			testedCapabilities.supportsKeysCommand = session._post('keys', { value: [ 'a' ] }).then(supported,
+				unsupported);
 
 			return Promise.all(testedCapabilities);
 		}
