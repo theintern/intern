@@ -109,7 +109,6 @@ program
 	.description('Run JavaScript tests')
 	.option('-v, --verbose', 'show more information about what Intern is doing')
 	.option('-V, --version', 'output the version')
-	.option('--debug', 'enable the Node debugger')
 	.on('version', function () {
 		print();
 		print('intern-cli: ' + require('../package.json').version);
@@ -251,6 +250,7 @@ program
 	.option('-s, --suites <module ID>', 'specify a suite to run (can be used multiple times)', cli.collect, [])
 	.option('-w, --webdriver', 'use the WebDriver runner (default is Node client)')
 	.option('-I, --noInstrument', 'disable instrumentation')
+	.option('--debug', 'enable the Node debugger')
 	.option('--proxyOnly', 'start Intern\'s test server, but don\'t run any tests')
 	.option('--timeout <int>', 'set the default timeout for async tests', cli.intArg)
 	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
@@ -318,7 +318,7 @@ program
 		var nodeArgs = [];
 
 		if (options.debug) {
-			nodeArgs.push('--debug');
+			nodeArgs.push('debug');
 		}
 
 		var spawnArgs = nodeArgs.concat(internCmd).concat(internArgs);
@@ -398,7 +398,7 @@ program
 		var nodeArgs = [];
 
 		if (options.debug) {
-			nodeArgs.push('--debug');
+			nodeArgs.push('debug');
 		}
 
 		var spawn = require('child_process').spawn;
