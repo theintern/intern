@@ -451,6 +451,15 @@ define([
 		},
 
 		'.deepClone': {
+			'basic values': function () {
+				assert.strictEqual(util.deepClone(999), 999);
+				assert.isTrue(isNaN(util.deepClone(NaN)));
+				assert.strictEqual(util.deepClone(Infinity), Infinity);
+				assert.strictEqual(util.deepClone(null), null);
+				assert.strictEqual(util.deepClone(undefined), undefined);
+				assert.strictEqual(util.deepClone('intern'), 'intern');
+				assert.strictEqual(util.deepClone(Math.abs), Math.abs);
+			},
 			'basic object': function () {
 				var original = {a: 42, foo: 'bar'};
 				var clone = util.deepClone(original);
