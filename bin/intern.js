@@ -244,6 +244,8 @@ program
 	.description('Run tests in Node or in a browser using WebDriver')
 	.option('-b, --bail', 'quit after the first failing test')
 	.option('-c, --config <module ID|file>', 'config file to use (default is ' + TESTS_DIR + '/intern.js)')
+	.option('-f, --fsuites <module ID>', 'specify a functional suite to run (can be used multiple times)', cli.collect,
+		[])
 	.option('-g, --grep <regex>', 'filter tests by ID')
 	.option('-l, --leaveRemoteOpen', 'leave the remote browser open after tests finish')
 	.option('-r, --reporters <name|module ID>', 'specify a reporter (can be used multiple times)', cli.collect, [])
@@ -255,7 +257,7 @@ program
 	.option('--timeout <int>', 'set the default timeout for async tests', cli.intArg)
 	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
 	.action(function () {
-		//jshint maxcomplexity:11
+		//jshint maxcomplexity:12
 
 		var options = arguments[arguments.length - 1];
 		var config = options.config || path.join(TESTS_DIR, 'intern.js');
@@ -280,6 +282,10 @@ program
 
 		options.suites.forEach(function (suite) {
 			internArgs.push('suites=' + suite);
+		});
+
+		options.fsuites.forEach(function (suite) {
+			internArgs.push('functionalSuites=' + suite);
 		});
 
 		options.reporters.forEach(function (reporter) {
@@ -341,11 +347,13 @@ program
 			'',
 			'The Node client runs tests purely in Node rather than in a browser. This makes it well ' +
 			'suited for quickly running tests that do not involve the DOM, and and for testing code ' +
-			'meant to run in a server environment.',
+			'meant to run in a server environment. Only unit tests will be run when using the Node ' +
+			'client.',
 			'',
 			'The WebDriver runner starts and controls a browser using the WebDriver protocol. This ' +
 			'requires that either a local instance of Selenium is running or that Intern has been ' +
-			'configured to run tests on a cloud testing service.',
+			'configured to run tests on a cloud testing service. Both unit and functional tests will ' +
+			'be run when using the WebDriver runner.',
 			''
 		]);
 
