@@ -1,6 +1,6 @@
 {
   "name": "intern-cli",
-  "version": "0.1.0-pre",
+  "version": "0.1.0",
   "description": "The command line interface for Intern",
   "repository": {
     "type": "git",
@@ -33,6 +33,6 @@
     "intern": "3.2.3"
   },
   "scripts": {
-	"test": "node node_modules/intern/client.js config=tests/intern"
+    "test": "node node_modules/intern/client.js config=tests/intern"
   }
 }
