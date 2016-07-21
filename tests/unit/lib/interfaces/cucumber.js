@@ -102,6 +102,28 @@ define([
 			});
 		},
 
+		'in functional tests "remote" is part of the World': function() {
+			registerCucumber(
+				'Feature: ...\nScenario: A scenario\nGiven x = 5',
+				function() {
+					this.Given(
+						'x = 5',
+						function() {
+							assert.isDefined(this.remote, '"remote" should be part of the World');
+							assert.deepEqual(this.remote, { fake: 'fake remote' });
+						}
+					);
+				}
+			);
+			// Fake this.remote"
+			rootSuite.remote = { fake: 'fake remote' };
+			return rootSuite.run().then(function() {
+				assert.strictEqual(rootSuite.tests[0].tests[0].hasPassed, true, 'Test 1 should have passed');
+				assert.strictEqual(rootSuite.tests[0].numTests, 1, 'numTests shoud be 1');
+				assert.strictEqual(rootSuite.tests[0].numFailedTests, 0, 'numFailedTests shoud be 0');
+			});
+		},
+
 		'failing steps should give error': function() {
 			registerCucumber(
 				'Feature: ...\nScenario: A failing test step\nGiven x = 5\nAnd y = 5',
