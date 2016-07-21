@@ -63,16 +63,16 @@ export class TeamCity implements Reporter {
 	}
 
 	testStart(test: Test) {
-		this._sendMessage('testStarted', { name: test.id, flowId: test.sessionId });
+		this._sendMessage('testStarted', { name: test.name, flowId: test.sessionId });
 	}
 
 	testSkip(test: Test) {
-		this._sendMessage('testIgnored', { name: test.id, flowId: test.sessionId });
+		this._sendMessage('testIgnored', { name: test.name, flowId: test.sessionId });
 	}
 
 	testEnd(test: Test) {
 		this._sendMessage('testFinished', {
-			name: test.id,
+			name: test.name,
 			duration: test.timeElapsed,
 			flowId: test.sessionId
 		});
@@ -80,7 +80,7 @@ export class TeamCity implements Reporter {
 
 	testFail(test: Test) {
 		const message: any = {
-			name: test.id,
+			name: test.name,
 			message: util.getErrorMessage(test.error),
 			flowId: test.sessionId
 		};
@@ -95,24 +95,16 @@ export class TeamCity implements Reporter {
 	}
 
 	suiteStart(suite: Suite) {
-		if (!suite.parent) {
-			return;
-		}
-
 		this._sendMessage('testSuiteStarted', {
-			name: suite.id,
+			name: suite.name,
 			startDate: new Date(),
 			flowId: suite.sessionId
 		});
 	}
 
 	suiteEnd(suite: Suite) {
-		if (!suite.parent) {
-			return;
-		}
-
 		this._sendMessage('testSuiteFinished', {
-			name: suite.id,
+			name: suite.name,
 			duration: suite.timeElapsed,
 			flowId: suite.sessionId
 		});
@@ -120,7 +112,7 @@ export class TeamCity implements Reporter {
 
 	suiteError(suite: Suite) {
 		this._sendMessage('message', {
-			name: suite.id,
+			name: suite.name,
 			flowId: suite.sessionId,
 			text: 'SUITE ERROR',
 			errorDetails: util.getErrorMessage(suite.error),
