@@ -8,18 +8,18 @@ define([
 	'../../../../lib/util'
 ], function (registerSuite, assert, MockStream, Suite, Test, TeamCity, util) {
 	var messagePatterns = {
-		suiteStart: '^##teamcity\\[testSuiteStarted name=\'{id}\'',
-		suiteEnd: '^##teamcity\\[testSuiteFinished name=\'{id}\' duration=\'\\d+\'',
-		testStart: '^##teamcity\\[testStarted name=\'{id}\'',
-		testSkip: '^##teamcity\\[testIgnored name=\'{id}\'',
-		testEnd: '^##teamcity\\[testFinished name=\'{id}\' duration=\'\\d+\'',
-		testFail: '^##teamcity\\[testFailed name=\'{id}\' message=\'{message}\''
+		suiteStart: '^##teamcity\\[testSuiteStarted name=\'{name}\'',
+		suiteEnd: '^##teamcity\\[testSuiteFinished name=\'{name}\' duration=\'\\d+\'',
+		testStart: '^##teamcity\\[testStarted name=\'{name}\'',
+		testSkip: '^##teamcity\\[testIgnored name=\'{name}\'',
+		testEnd: '^##teamcity\\[testFinished name=\'{name}\' duration=\'\\d+\'',
+		testFail: '^##teamcity\\[testFailed name=\'{name}\' message=\'{message}\''
 	};
 
 	function testSuite(suite, topic, type) {
 		var output = new MockStream();
 		var reporter = new TeamCity({ output: output });
-		var expected = messagePatterns[topic].replace('{id}', suite.id);
+		var expected = messagePatterns[topic].replace('{name}', suite.name);
 
 		reporter[topic](suite);
 		assert.ok(output.data, 'Data should be output when the reporter ' + topic + ' method is called');
@@ -32,7 +32,7 @@ define([
 	function testTest(test, topic, type) {
 		var output = new MockStream();
 		var reporter = new TeamCity({ output: output });
-		var expected = messagePatterns[topic].replace('{id}', test.id);
+		var expected = messagePatterns[topic].replace('{name}', test.name);
 
 		if (test.error) {
 			// n.b., only the `testFail` messagePattern has a `{message}` placeholder
