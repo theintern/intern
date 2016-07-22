@@ -408,7 +408,7 @@ define([
 			var resolved = false;
 			var test = new Test({
 				sandbox: true,
-				fixtures: {Promise: Promise},
+				fixtures: {Promise: Promise, setTimeout: setTimeout},
 				test: function () {
 					var dfd = new Promise.Deferred();
 
