@@ -532,6 +532,22 @@ define([
 
 				assert.strictEqual(original.prop, 1);
 				assert.strictEqual(original.original, original);
+			},
+			'buffer': function () {
+				if (typeof Buffer === 'undefined') {
+					this.skip('Buffer is not supported on this platform');
+				}
+
+				var original = new Buffer('deadbeef', 'hex');
+				var clone = util.deepClone(original);
+
+				assert.isTrue(Buffer.isBuffer(clone));
+				assert.isTrue(clone.equals(new Buffer('deadbeef', 'hex')));
+
+				clone.write('a');
+				clone[2] = 0;
+
+				assert.isTrue(original.equals(new Buffer('deadbeef', 'hex')));
 			}
 		}
 	});
