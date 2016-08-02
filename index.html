@@ -1783,7 +1783,7 @@ define(function (require) {
 
 						<p>Functional tests are registered using the same interfaces as <a href="#writing-unit-tests">unit tests</a>, and use the same internal <a href="#suite-object">Suite</a> and <a href="#test-object">Test</a> objects, but are loaded using the <a href="#option-functionalSuites">functionalSuites</a> configuration option instead of the <a href="#option-suites">suites</a> option and run inside the test runner instead of inside the environment being tested.</p>
 
-						<p>When writing a functional test, instead of executing application code directly, use the <a href="https://theintern.github.io/leadfoot/Command.html">Leadfoot Command object</a> at <code>this.remote</code> to automate interactions that you’d normally perform manually to test an application:</p>
+						<p>When writing a functional test, instead of executing application code directly, use the <a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html">Leadfoot Command object</a> at <code>this.remote</code> to automate interactions that you’d normally perform manually to test an application:</p>
 
 						<pre><code class="javascript">define(function (require) {
 	var registerSuite = require('intern!object');
