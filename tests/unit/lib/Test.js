@@ -345,7 +345,7 @@ define([
 
 			return test.run().then(function () {
 				assert.strictEqual((42).toString(), '42');
-			})
+			});
 		},
 
 		'Test sandboxing with fails': function () {
@@ -368,10 +368,9 @@ define([
 		},
 
 		'Test sandboxing fixtures': function () {
-			var dfd = this.async(250);
 			var test = createTest({
 				sandbox: true,
-				fixtures: {foo: 42},
+				fixtures: { foo: 42 },
 				test: function () {
 					if (foo !== 42) {
 						throw new Error();
@@ -384,10 +383,10 @@ define([
 
 		'fixtures remains the same after test run': function () {
 			var dfd = this.async(250);
-			var obj = {bar: 42};
+			var obj = { bar: 42 };
 			var test = createTest({
 				sandbox: true,
-				fixtures: {foo: obj},
+				fixtures: { foo: obj },
 				test: function () {
 					if (foo.bar !== 42) {
 						throw new Error();
@@ -405,7 +404,6 @@ define([
 
 		'Test sandbox with Promise return value': function () {
 			var dfd = this.async(250);
-			var resolved = false;
 			var test = new Test({
 				sandbox: true,
 				fixtures: {Promise: Promise, setTimeout: setTimeout},

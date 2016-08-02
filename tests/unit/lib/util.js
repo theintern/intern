@@ -461,39 +461,39 @@ define([
 				assert.strictEqual(util.deepClone(Math.abs), Math.abs);
 			},
 			'basic object': function () {
-				var original = {a: 42, foo: 'bar'};
+				var original = { a: 42, foo: 'bar' };
 				var clone = util.deepClone(original);
 
-				assert.deepEqual(clone, {a: 42, foo: 'bar'});
+				assert.deepEqual(clone, { a: 42, foo: 'bar' });
 
 				clone.a = 123;
 				delete clone.foo;
 				clone.b = 0;
 
-				assert.deepEqual(original, {a: 42, foo: 'bar'});
+				assert.deepEqual(original, { a: 42, foo: 'bar' });
 			},
 			'basic array': function () {
-				var original = [1, 2, 3];
+				var original = [ 1, 2, 3 ];
 				var clone = util.deepClone(original);
 
-				assert.deepEqual(clone, [1, 2, 3]);
+				assert.deepEqual(clone, [ 1, 2, 3 ]);
 
 				clone[1] = 0;
 				clone.push(4);
 
-				assert.deepEqual(original, [1, 2, 3]);
+				assert.deepEqual(original, [ 1, 2, 3 ]);
 			},
 			'deep object': function () {
-				var original = {obj: {a: 1}, arr: ['a', 'b', 'c']};
+				var original = { obj: { a: 1 }, arr: [ 'a', 'b', 'c' ] };
 				var clone = util.deepClone(original);
 
-				assert.deepEqual(clone, {obj: {a: 1}, arr: ['a', 'b', 'c']});
+				assert.deepEqual(clone, { obj: { a: 1 }, arr: [ 'a', 'b', 'c' ] });
 
 				clone.obj.a = 2;
 				clone.obj = {};
 				clone.arr.push('d');
 
-				assert.deepEqual(original, {obj: {a: 1}, arr: ['a', 'b', 'c']});
+				assert.deepEqual(original, { obj: { a: 1 }, arr: [ 'a', 'b', 'c' ]});
 			},
 			'date': function () {
 				var original = new Date('2015-10-21T07:28:00.000Z');
@@ -528,7 +528,7 @@ define([
 				assert.strictEqual(clone.original, clone);
 
 				clone.original.prop = 999;
-				clone.original = null
+				clone.original = null;
 
 				assert.strictEqual(original.prop, 1);
 				assert.strictEqual(original.original, original);
