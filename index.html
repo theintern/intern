@@ -1794,19 +1794,19 @@ define(function (require) {
 
 		'greeting form': function () {
 			return this.remote
-				.<a href="https://theintern.github.io/leadfoot/Command.html#get">get</a>(require.toUrl('index.html'))
-				.<a href="https://theintern.github.io/leadfoot/Command.html#setFindTimeout">setFindTimeout</a>(5000)
-				.<a href="https://theintern.github.io/leadfoot/Command.html#findByCssSelector">findByCssSelector</a>('body.loaded')
-				.<a href="https://theintern.github.io/leadfoot/Command.html#findById">findById</a>('nameField')
-					.<a href="https://theintern.github.io/leadfoot/Command.html#click">click</a>()
-					.<a href="https://theintern.github.io/leadfoot/Command.html#type">type</a>('Elaine')
-					.<a href="https://theintern.github.io/leadfoot/Command.html#end">end</a>()
-				.<a href="https://theintern.github.io/leadfoot/Command.html#findByCssSelector">findByCssSelector</a>('#loginForm input[type=submit]')
-					.<a href="https://theintern.github.io/leadfoot/Command.html#click">click</a>()
-					.<a href="https://theintern.github.io/leadfoot/Command.html#end">end</a>()
-				.<a href="https://theintern.github.io/leadfoot/Command.html#findById">findById</a>('greeting')
-					.<a href="https://theintern.github.io/leadfoot/Command.html#getVisibleText">getVisibleText</a>()
-					.<a href="https://theintern.github.io/leadfoot/Command.html#then">then</a>(function (text) {
+				.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#get">get</a>(require.toUrl('index.html'))
+				.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#setFindTimeout">setFindTimeout</a>(5000)
+				.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#findByCssSelector">findByCssSelector</a>('body.loaded')
+				.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#findById">findById</a>('nameField')
+					.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#click">click</a>()
+					.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#type">type</a>('Elaine')
+					.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#end">end</a>()
+				.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#findByCssSelector">findByCssSelector</a>('#loginForm input[type=submit]')
+					.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#click">click</a>()
+					.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#end">end</a>()
+				.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#findById">findById</a>('greeting')
+					.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#getVisibleText">getVisibleText</a>()
+					.<a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html#then">then</a>(function (text) {
 						assert.strictEqual(text, 'Hello, Elaine!',
 							'Greeting should be displayed when the form is submitted');
 					});
@@ -3506,7 +3506,7 @@ define({
 							</tr>
 							<tr>
 								<th scope="row">remote</th>
-								<td>A <a href="https://theintern.github.io/leadfoot/Command.html">Leadfoot Command object</a> that can be used to drive a remote environment. This value will be inherited from the parent suite. Only available to suites that are loaded from <a href="#option-functionalSuites">functionalSuites</a>.</td>
+								<td>A <a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html">Leadfoot Command object</a> that can be used to drive a remote environment. This value will be inherited from the parent suite. Only available to suites that are loaded from <a href="#option-functionalSuites">functionalSuites</a>.</td>
 							</tr>
 							<tr>
 								<th scope="row">reporterManager <span class="versionBadge">3.0</span></th>
@@ -3603,7 +3603,7 @@ define({
 							</tr>
 							<tr>
 								<th scope="row">remote</th>
-								<td>A <a href="https://theintern.github.io/leadfoot/Command.html">Leadfoot Command object</a> that can be used to drive a remote environment. This value will be inherited from the parent suite. Only available to suites that are loaded from <a href="#option-functionalSuites">functionalSuites</a>.</td>
+								<td>A <a href="https://theintern.github.io/leadfoot/module-leadfoot_Command.html">Leadfoot Command object</a> that can be used to drive a remote environment. This value will be inherited from the parent suite. Only available to suites that are loaded from <a href="#option-functionalSuites">functionalSuites</a>.</td>
 							</tr>
 							<tr>
 								<th scope="row">reporterManager <span class="versionBadge">3.0</span></th>
