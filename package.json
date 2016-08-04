@@ -13,7 +13,7 @@
 		"mkdirp": "0.5.1"
 	},
 	"devDependencies": {
-		"intern": "3.0.6"
+		"intern": "3.2.3"
 	},
 	"scripts": {
 		"test": "./node_modules/.bin/intern-client config=tests/intern"
