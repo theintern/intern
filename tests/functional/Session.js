@@ -509,6 +509,7 @@ define([
 				if (session.capabilities.brokenWindowClose) {
 					this.skip('window closing is broken');
 				}
+
 				var mainHandle;
 				var popupHandle;
 				var allHandles;
@@ -526,7 +527,7 @@ define([
 				}).then(function () {
 					// Give the new window time to open
 					return new Promise(function (resolve) {
-						setTimeout(resolve, 500);
+						setTimeout(resolve, 1000);
 					});
 				}).then(function () {
 					return session.getAllWindowHandles().then(function (handles) {
