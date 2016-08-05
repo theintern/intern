@@ -1,32 +1,32 @@
 {
-	"name": "digdug",
-	"version": "1.5.0-pre",
-	"description": "Dig Dug. A simple abstraction library for downloading and launching WebDriver service tunnels.",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/theintern/digdug.git"
-	},
-	"license": "BSD-3-Clause",
-	"dependencies": {
-		"dojo": "2.0.0-alpha.7",
-		"decompress": "4.0.0"
-	},
-	"devDependencies": {
-		"intern": "3.2.3"
-	},
-	"scripts": {
-		"test": "./node_modules/.bin/intern-client config=tests/intern"
-	},
-	"bugs": "https://github.com/theintern/digdug/issues",
-	"keywords": [
-		"javascript",
-		"test",
-		"functional",
-		"selenium",
-		"webdriver",
-		"sauce labs",
-		"browserstack",
-		"testingbot"
-	],
-	"homepage": "https://github.com/theintern/digdug"
+  "name": "digdug",
+  "version": "1.5.0",
+  "description": "Dig Dug. A simple abstraction library for downloading and launching WebDriver service tunnels.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/digdug.git"
+  },
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "dojo": "2.0.0-alpha.7",
+    "decompress": "4.0.0"
+  },
+  "devDependencies": {
+    "intern": "3.2.3"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/intern-client config=tests/intern"
+  },
+  "bugs": "https://github.com/theintern/digdug/issues",
+  "keywords": [
+    "javascript",
+    "test",
+    "functional",
+    "selenium",
+    "webdriver",
+    "sauce labs",
+    "browserstack",
+    "testingbot"
+  ],
+  "homepage": "https://github.com/theintern/digdug"
 }
