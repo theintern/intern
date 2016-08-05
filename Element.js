@@ -230,16 +230,24 @@ Element.prototype = {
 		if (this.session.capabilities.remoteFiles) {
 			var filename = value.join('');
 
-			if (fs.existsSync(filename)) {
-				var self = this;
-				return this.session._uploadFile(filename).then(function(uploadedFilename) {
-					return self._post('value', {
-						value: [ uploadedFilename ]
-					}).then(noop);
-				});
+			// Check to see if the input is a filename; if so, upload the file and then post it's remote name into the
+			// field
+			try {
+				if (fs.statSync(filename).isFile()) {
+					var self = this;
+					return this.session._uploadFile(filename).then(function(uploadedFilename) {
+						return self._post('value', {
+							value: [ uploadedFilename ]
+						}).then(noop);
+					});
+				}
+			}
+			catch (error) {
+				// ignore
 			}
 		}
 
+		// If the input isn't a filename, just post the value directly
 		return this._post('value', {
 			value: value
 		}).then(noop);
