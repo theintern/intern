@@ -1,20 +1,7 @@
-var Decompress = require('decompress');
+var decompress = require('decompress');
 var Promise = require('dojo/Promise');
 var fs = require('fs');
-var mkdirp = require('mkdirp');
-var pathUtil = require('path');
-
-/**
- * Convenience function for internally resolving a Promise
- */
-function resolver(resolve, reject, error, value) {
-	if (error) {
-		reject(error);
-	}
-	else {
-		resolve(value);
-	}
-}
+var path = require('path');
 
 module.exports = {
 	/**
@@ -80,16 +67,7 @@ module.exports = {
 	 * @returns {Promise.<void>} A Promise that resolves when the data is decompressed
 	 */
 	decompress: function (data, directory) {
-		return new Promise(function (resolve, reject) {
-			var decompressor = new Decompress();
-			decompressor.src(data)
-				.use(Decompress.zip())
-				.use(Decompress.targz())
-				.dest(directory)
-				.run(function (error) {
-					resolver(resolve, reject, error);
-				});
-		});
+		return decompress(data, directory);
 	},
 
 	/**
@@ -103,14 +81,35 @@ module.exports = {
 	 */
 	writeFile: function (data, filename) {
 		return new Promise(function (resolve, reject) {
-			mkdirp(pathUtil.dirname(filename), function (error) {
+			function mkdirp(dir) {
+				if (!dir) {
+					return;
+				}
+
+				try {
+					fs.mkdirSync(dir);
+				}
+				catch (error) {
+					// A parent directory didn't exist, create it
+					if (error.code === 'ENOENT') {
+						mkdirp(path.dirname(dir));
+						mkdirp(dir);
+					}
+					else {
+						if (!fs.statSync(dir).isDirectory()) {
+							throw error;
+						}
+					}
+				}
+			}
+
+			mkdirp(path.dirname(filename));
+			fs.writeFile(filename, data, function (error) {
 				if (error) {
 					reject(error);
 				}
 				else {
-					fs.writeFile(filename, data, function (error) {
-						resolver(resolve, reject, error);
-					});
+					resolve();
 				}
 			});
 		});
