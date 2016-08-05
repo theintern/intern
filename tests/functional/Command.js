@@ -203,7 +203,6 @@ define([
 			// released, the mousedown event is generated for the first element and the mouseup event is generated for
 			// the second.
 			'#moveMouseTo usesElement': function () {
-				/* jshint maxlen:150 */
 				return new Command(session).get(require.toUrl('./data/pointer.html'))
 					.findById('a')
 					.moveMouseTo()
@@ -212,9 +211,8 @@ define([
 					.releaseMouseButton()
 					.execute('return result;')
 					.then(function (result) {
-						var success = Boolean(result.mousedown.a && result.mousedown.a.length && result.mouseup.b &&
-							result.mouseup.b.length);
-						assert.isTrue(success, 'Mouse moves with an element context should be relative to the context');
+						assert.isTrue(result.mousedown.a && result.mousedown.a.length > 0, 'Expected mousedown event in element a');
+						assert.isTrue(result.mouseup.b && result.mouseup.b.length > 0, 'Expected mouseup event in element b');
 					});
 			},
 
