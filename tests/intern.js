@@ -16,8 +16,6 @@ define({
 	maxConcurrency: 2,
 	tunnel: 'BrowserStackTunnel',
 
-	reporters: [ 'Combined' ],
-
 	loaderOptions: {
 		packages: [
 			{ name: 'leadfoot', location: '.' }
