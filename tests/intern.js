@@ -5,6 +5,7 @@ define({
 	},
 
 	environments: [
+		{ browserName: 'microsoftedge', fixSessionCapabilities: false },
 		{ browserName: 'internet explorer', version: '11', platform: 'WIN8', fixSessionCapabilities: false },
 		{ browserName: 'internet explorer', version: '10', platform: 'WIN8', fixSessionCapabilities: false },
 		{ browserName: 'internet explorer', version: '9', platform: 'WINDOWS', fixSessionCapabilities: false },
