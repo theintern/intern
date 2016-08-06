@@ -11,7 +11,7 @@ define({
 		{ browserName: 'internet explorer', version: '9', platform: 'WINDOWS', fixSessionCapabilities: false },
 		{ browserName: 'firefox', version: '33', platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
 		{ browserName: 'chrome', version: '38', platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
-		{ browserName: 'safari', version: '8', platform: 'MAC', fixSessionCapabilities: false }
+		{ browserName: 'safari', version: '9', platform: 'MAC', fixSessionCapabilities: false }
 	],
 
 	maxConcurrency: 2,

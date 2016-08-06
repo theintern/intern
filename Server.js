@@ -12,6 +12,12 @@ var statusCodes = require('./lib/statusCodes');
 var urlUtil = require('url');
 var util = require('./lib/util');
 
+function isMacSafari(capabilities) {
+	return capabilities.browserName === 'safari' &&
+		capabilities.platform === 'MAC' &&
+		capabilities.platformName !== 'ios';
+}
+
 /**
  * Creates a function that performs an HTTP request to a JsonWireProtocol endpoint.
  *
@@ -426,11 +432,7 @@ Server.prototype = {
 
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
-			if (
-				capabilities.browserName === 'safari' &&
-				capabilities.platform === 'MAC' &&
-				capabilities.platformName !== 'ios'
-			) {
+			if (isMacSafari(capabilities)) {
 				return {
 					nativeEvents: false,
 					rotatable: false,
@@ -572,11 +574,7 @@ Server.prototype = {
 
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
-			if (
-				capabilities.browserName === 'safari' &&
-				capabilities.platform === 'MAC' &&
-				capabilities.platformName !== 'ios'
-			) {
+			if (isMacSafari(capabilities)) {
 				return {
 					brokenDeleteCookie: false,
 					brokenExecuteElementReturn: false,
@@ -1058,37 +1056,41 @@ Server.prototype = {
 				return error.name === 'UnknownCommand';
 			});
 
-			// At least MS Edge 14316 returns immediately from a click request immediately rather than waiting for
-			// default action to occur.
-			testedCapabilities.returnsFromClickImmediately = function () {
-				function assertSelected(expected) {
-					return function (actual) {
-						if (expected !== actual) {
-							throw new Error('unexpected selection state');
-						}
-					};
-				}
+			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
+			// scripts for URLs that are not http/https
+			if (!isMacSafari(capabilities)) {
+				// At least MS Edge 14316 returns immediately from a click request immediately rather than waiting for
+				// default action to occur.
+				testedCapabilities.returnsFromClickImmediately = function () {
+					function assertSelected(expected) {
+						return function (actual) {
+							if (expected !== actual) {
+								throw new Error('unexpected selection state');
+							}
+						};
+					}
 
-				return get(
-					'<!DOCTYPE html><input type="checkbox" id="c">'
-				).then(function () {
-					return session.findById('c');
-				}).then(function (element) {
-					return element.click().then(function () {
-						return element.isSelected();
-					}).then(assertSelected(true))
-					.then(function () {
+					return get(
+						'<!DOCTYPE html><input type="checkbox" id="c">'
+					).then(function () {
+						return session.findById('c');
+					}).then(function (element) {
 						return element.click().then(function () {
 							return element.isSelected();
-						});
-					}).then(assertSelected(false))
-					.then(function () {
-						return element.click().then(function () {
-							return element.isSelected();
-						});
-					}).then(assertSelected(true));
-				}).then(works, broken);
-			};
+						}).then(assertSelected(true))
+						.then(function () {
+							return element.click().then(function () {
+								return element.isSelected();
+							});
+						}).then(assertSelected(false))
+						.then(function () {
+							return element.click().then(function () {
+								return element.isSelected();
+							});
+						}).then(assertSelected(true));
+					}).then(works, broken);
+				};
+			}
 
 			// The W3C WebDriver standard does not support the session-level /keys command, but JsonWireProtocol does.
 			testedCapabilities.supportsKeysCommand = session._post('keys', { value: [ 'a' ] }).then(supported,
