@@ -9,7 +9,7 @@
  * breakpoints: 490 570 680 892 920 1080 1180
  */
 
-$lh = 32px;
+$lh = 26px;
 
 $backgroundColor = #FFF;
 $color = #000;
@@ -85,7 +85,7 @@ code,
 samp,
 var,
 kbd {
-	font: 20px/1 prestige-elite-std, monospace;
+	font: 18px/1 prestige-elite-std, monospace;
 	letter-spacing: -1.25px;
 	text-rendering: auto;
 }
@@ -367,12 +367,17 @@ a {
 	}
 
 	> ul {
-		margin-left: /* arrow icon width */ -1.2rem;
-		max-height: 'calc(100vh - %s)' % /* .nav top + .support margin-top + .support height + some white space after .support */ ($lh * 5.5);
+		// arrow icon width
+		margin-left: -1.2rem;
+
+		// .nav top + .support margin-top + .support height + some white space after .support
+		max-height: 'calc(100vh - %s)' % ($lh * 5.5);
 		overflow: auto;
+
 		// due to messing with borders in the code to avoid overlapping text?
 		// without this extra padding-bottom, scrollbars always appear
 		padding-bottom: 2px * 2;
+
 		padding-left: -@margin-left;
 
 		.no-sticky & {
@@ -636,9 +641,15 @@ a {
 	}
 
 	h4 {
+		font-size: 1.4rem;
+		margin-bottom: $lh * 0.25;
+		padding-top: $lh * 0.25;
+	}
+
+	h5 {
 		font-size: 1.1rem;
 		margin-bottom: $lh * -0.25;
-		padding-top: $lh * 0.25;
+		margin-top: $lh;
 	}
 
 	p,
@@ -654,19 +665,22 @@ a {
 	}
 
 	pre {
-		pushout();
 		background-color: $internLightGrey;
 		line-height: $lh * 0.75; // 4 lines / rhythm
 		margin-bottom: $lh * 0.53125;
 		overflow: auto;
 		-webkit-overflow-scrolling: touch;
-		padding-bottom: $lh * 0.4375;
-		padding-top: $lh * 0.4375;
+		padding: $lh * 0.4375;
 		tab-size: 2;
 
 		a {
 			text-shadow: $internLightGrey 1px 0, $internLightGrey -1px 0;
 		}
+	}
+
+	ul,
+	ol {
+		margin-left: 1.25rem;
 	}
 
 	ul > li {
@@ -715,7 +729,6 @@ a {
 	}
 
 	table {
-		pushout();
 		padding-left: 0;
 		padding-right: 0;
 
@@ -731,6 +744,8 @@ a {
 		th {
 			font-weight: 300;
 			padding-left: 1rem;
+			padding-top: $lh * 0.25;
+			padding-bottom: $lh * 0.25;
 
 			&:first-child {
 				padding-left: 2rem;
@@ -743,6 +758,10 @@ a {
 
 		th {
 			font-weight: normal;
+		}
+
+		thead tr:last-child th {
+			border-bottom: solid 1px;
 		}
 
 		&.api {
@@ -902,6 +921,7 @@ a {
 
 	border-left: 6px solid $internBlue;
 	padding-left: calc(2rem - 6px);
+	margin-bottom: $lh * 0.25;
 
 	:first-child {
 		text-indent: -1rem;

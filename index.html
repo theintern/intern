@@ -9,17 +9,17 @@
 		<script src="//use.typekit.net/cbd5jmj.js"></script>
 		<script>try{Typekit.load({active:function(){window.fontsActivated=true;window.onTypekitActive&&window.onTypekitActive();}});}catch(e){}</script>
 		<script>
-(function () {
-	var test = document.createElement('b');
-	for (var prefix in { '': 1, '-webkit-': 1 }) {
-		var position = prefix + 'sticky';
-		test.style.position = position;
-		if (test.style.position === position) {
-			return;
-		}
-	}
-	document.documentElement.classList.add('no-sticky');
-})();
+			(function () {
+				var test = document.createElement('b');
+				for (var prefix in { '': 1, '-webkit-': 1 }) {
+					var position = prefix + 'sticky';
+					test.style.position = position;
+					if (test.style.position === position) {
+						return;
+					}
+				}
+				document.documentElement.classList.add('no-sticky');
+			})();
 		</script>
 	</head>
 	<body>
@@ -53,13 +53,13 @@
 					<h1 class="title">Intern. The user guide</h1>
 				</div>
 				<script>
-(function () {
-	if (window.scrollY === 0 && !location.hash && !document.documentElement.classList.contains('no-sticky')) {
-		document.documentElement.style.minHeight = (window.innerHeight + /* $lh */ 32) + 'px';
-		var scrollTo = document.getElementById('initialScrollPoint');
-		window.scrollTo(window.scrollX, scrollTo.getBoundingClientRect().top);
-	}
-})();
+					(function () {
+						if (window.scrollY === 0 && !location.hash && !document.documentElement.classList.contains('no-sticky')) {
+							document.documentElement.style.minHeight = (window.innerHeight + /* $lh */ 32) + 'px';
+							var scrollTo = document.getElementById('initialScrollPoint');
+							window.scrollTo(window.scrollX, scrollTo.getBoundingClientRect().top);
+						}
+					})();
 				</script>
 			</div>
 		</header>
@@ -2061,7 +2061,7 @@ define([
 						<div class="a half" id="hosted-selenium"></div>
 						<h3 data-id="hosted-selenium">Cloud hosting</h3>
 
-						<p>Using cloud hosting is the fastest way to get an operational Selenium server. Intern natively provides support for all three major cloud hosting providers:</p>
+						<p>Using cloud hosting is the fastest way to get an operational Selenium server. Intern natively provides support for three major cloud hosting providers:</p>
 
 						<ul>
 							<li><a href="https://browserstack.com/">BrowserStack</a></li>
@@ -2124,7 +2124,11 @@ define([
 
 						<p>Depending upon which browsers you want to test locally, a few options are available.</p>
 
-						<h4>Using ChromeDriver (Chrome-only)</h4>
+						<h4>Using a WebDriver directly</h4>
+
+						<p>It's possible to run a browser-specific WebDriver in standalone-mode and use Intern with it.</p>
+
+						<h5>Using ChromeDriver (Chrome-only)</h5>
 
 						<p>If you’re just looking to have a local environment for developing functional tests, a stand-alone ChromeDriver installation works great.</p>
 
@@ -2138,7 +2142,7 @@ define([
 
 						<aside class="tip"><p>If you are having trouble starting the server or getting Intern to communicate with it, verify the server is running correctly by going to <a href="http://localhost:4444/wd/hub/status">http://localhost:4444/wd/hub/status</a>. It should return a JSON response with a <code>status</code> field of 0.</p></aside>
 
-						<h4>Using PhantomJS 2</h4>
+						<h5>Using PhantomJS 2</h5>
 
 						<p>If you want to use a fake browser to develop your tests, PhantomJS 2 is an option.</p>
 
@@ -2154,7 +2158,24 @@ define([
 
 						<h4>Using Selenium (all browsers)</h4>
 
-						<p>If you want to test against more than just Chrome, start by downloading the servers for each platform you want to test:</p>
+						<p>If you want to test against more than just Chrome, or you want to use multiple browsers at once, you can run a local copy of Selenium. You can do this manually, or using SeleniumTunnel.</p>
+
+						<h5><span class="versionBadge">3.3</span> SeleniumTunnel</h5>
+
+						<p>If Java (JRE or JDK) is installed on the testing system, you can set the tunnel class to <code>SeleniumTunnel</code> to have Intern automatically download and run Selenium. Use the <code>drivers</code> tunnel option to tell the tunnel which WebDrivers to download:</p>
+
+						<pre><code class="javascript">tunnel: 'SeleniumTunnel',
+tunnelOptions: {
+	drivers: [ 'chrome', 'firefox' ]
+}</code></pre>
+
+						<p>Intern will download and start Selenium at the beginning of the functional tests, and will shut it down when the testing process has finished.</p>
+
+						<aside class="tip"><p>Note that to use Selenium with Firefox 47+, you will need to include <code class="javascript">marionette: true</code> in the <a href="#option-environments">environment object</a>, and code coverage will need to be disabled by setting <code class="javascript">excludeInstrumentation: true</code>.</p></aside>
+
+						<h5>Manually running Selenium</h5>
+
+						<p>Start by downloading the servers for each platform you want to test:</p>
 
 						<ul>
 							<li>All platforms: <a href="http://selenium-release.storage.googleapis.com/index.html">Selenium server standalone</a> (selenium-server-standalone-{version}.jar)</li>
@@ -2870,7 +2891,7 @@ node_modules/.bin/intern-client config=tests/selftest.intern.js
 curl -sSL https://raw.githubusercontent.com/codeship/scripts/master/packages/selenium_server.sh | bash -s
 node_modules/.bin/intern-runner config=tests/selftest.intern.js tunnel=NullTunnel
 							</code></pre>
-					</p>
+						</p>
 
 					<div class="a half" id="ci-bamboo"></div>
 					<h3 data-id="ci-bamboo">Bamboo</h3>
@@ -3757,7 +3778,7 @@ define({
 	{ browserName: 'internet explorer' }
 ]</code></pre></li>
 							<li>Start your WebDriver server: <kbd>java -jar selenium-server-standalone-2.53.0.jar</kbd></li>
-							<li>Run Intern: <kbd>intern-runner config=myPackage/test/intern<kbd></li>
+							<li>Run Intern: <kbd>intern-runner config=myPackage/test/intern</kbd></li>
 						</ol>
 					</article>
 				</main>
