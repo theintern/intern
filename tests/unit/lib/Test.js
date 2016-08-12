@@ -353,7 +353,7 @@ define([
 			var test = createTest({
 				sandbox: true,
 				test: function () {
-					throw new Error('Oops');
+					throw new SyntaxError();
 				}
 			});
 
@@ -362,8 +362,8 @@ define([
 					message: 'Test should fail'
 				}));
 			}, dfd.callback(function (error) {
-				assert.strictEqual(test.error.message, 'Oops');
-				assert.strictEqual(error.message, 'Oops');
+				assert.strictEqual(error.name, 'SyntaxError');
+				assert.strictEqual(test.error.name, 'SyntaxError');
 			}));
 		},
 
