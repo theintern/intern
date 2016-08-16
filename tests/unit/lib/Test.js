@@ -338,6 +338,7 @@ define([
 		'Test sandboxing': function () {
 			var test = createTest({
 				sandbox: true,
+				timeout: 250,
 				test: function () {
 					delete Number.prototype.toString;
 				}
@@ -352,6 +353,7 @@ define([
 			var dfd = this.async(250);
 			var test = createTest({
 				sandbox: true,
+				timeout: 250,
 				test: function () {
 					throw new SyntaxError();
 				}
@@ -370,6 +372,7 @@ define([
 		'Test sandboxing fixtures': function () {
 			var test = createTest({
 				sandbox: true,
+				timeout: 250,
 				fixtures: { foo: 42 },
 				test: function () {
 					if (foo !== 42) {
@@ -386,6 +389,7 @@ define([
 			var obj = { bar: 42 };
 			var test = createTest({
 				sandbox: true,
+				timeout: 250,
 				fixtures: { foo: obj },
 				test: function () {
 					if (foo.bar !== 42) {
@@ -406,6 +410,7 @@ define([
 			var dfd = this.async(250);
 			var test = new Test({
 				sandbox: true,
+				timeout: 250,
 				fixtures: {Promise: Promise, setTimeout: setTimeout},
 				test: function () {
 					var dfd = new Promise.Deferred();
