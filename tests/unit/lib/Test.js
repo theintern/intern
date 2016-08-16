@@ -349,7 +349,7 @@ define([
 			});
 		},
 
-		'Test sandboxing with fails': function () {
+		'Test sandboxing with fail': function () {
 			var dfd = this.async(250);
 			var test = createTest({
 				sandbox: true,
