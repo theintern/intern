@@ -497,7 +497,7 @@ Element.prototype = {
 	 * Gets a CSS computed property value for the element.
 	 *
 	 * @param {string} propertyName
-	 * The CSS property to retrieve. This argument must be camel-case, *not* hyphenated.
+	 * The CSS property to retrieve. This argument must be hyphenated, *not* camel-case.
 	 *
 	 * @returns {Promise.<string>}
 	 */

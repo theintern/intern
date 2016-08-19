@@ -764,7 +764,7 @@ Server.prototype = {
 				return get(pageText).then(function () {
 					return session.findById('a1');
 				}).then(function (element) {
-					return element.getComputedStyle('backgroundColor');
+					return element.getComputedStyle('background-color');
 				}).then(function (value) {
 					if (!value) {
 						throw new Error('empty style');
