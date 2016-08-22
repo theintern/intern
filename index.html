@@ -601,9 +601,19 @@
 								<td><code class="javascript">[ 'Runner' ]</code> (runner)<br><code class="javascript">[ 'Console' ]</code> (client)</td>
 							</tr>
 							<tr>
+								<th scope="row"><a href="#option-setup">setup</a> <span class="versionBadge">3.0</span></th>
+								<td>A function that will be run before the testing process starts.</td>
+								<td><code class="javascript">undefined</code></td>
+							</tr>
+							<tr>
 								<th scope="row"><a href="#option-suites">suites</a></th>
 								<td>An array of unit test module IDs to load. These may include glob patterns. <span class="versionBadge">3.1</span></td>
 								<td><code class="javascript">[]</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-teardown">teardown</a> <span class="versionBadge">3.0</span></th>
+								<td>A function that will be run after the testing process ends.</td>
+								<td><code class="javascript">undefined</code></td>
 							</tr>
 						</table>
 
@@ -756,6 +766,11 @@
 
 						<aside class="tip"><p>In Intern 2, reporter IDs are all lowercase. In Intern 3, reporter IDs are UpperCamelCase (because they are now constructors).</p></aside>
 
+						<div class="a half" id="option-setup"></div>
+						<h4>setup (Function)</h4>
+
+						<p>A function that will be run before the testing process starts. If this function returns a Promise, Intern will wait for the Promise to resolve before continuing. If the function throws an exception or rejects a returned Promise, the testing process will terminate with an error. This can be a good place to initialize testing resources needed by all tests, such as database connections.</p>
+
 						<div class="a half" id="option-suites"></div>
 						<h4>suites (Array&lt;string>)</h4>
 
@@ -791,6 +806,11 @@
 						<aside class="tip"><p>When running tests with <code>client.html</code>, tests must be served by the Intern proxy to use globbing.</p></aside>
 
 						<p><code>suites</code> can be set to <code class="javascript">null</code> to skip loading the unit testing system when in runner mode. From the command line, this is done by passing the argument <code>suites=</code>.</p>
+
+						<div class="a half" id="option-teardown"></div>
+						<h4>teardown (Function)</h4>
+
+						<p>A function that will be run after the testing process completes. If this function returns a Promise, Intern will wait for the Promise to resolve before continuing. If the function throws an exception or rejects a returned Promise, the testing process will terminate with an error. This is generally where resources opened in <a href="#option-setup"><code class="javascript">config.setup</code></a> should be cleaned up.</p>
 
 						<div class="a half" id="client-config"></div>
 						<h3 data-id="client-config">Client configuration</h3>
