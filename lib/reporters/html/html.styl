@@ -156,6 +156,15 @@ body {
 
 		testStatusIcon(darken($sectionHeadingBackground, 20%), darken($sectionHeadingBackground, 70%), $suiteIcon);
 
+		.testStatus:after {
+			bottom: 0;
+			content: '\25bc';
+			display: block;
+			font-size: 60%;
+			position: absolute;
+			right: 1px;
+		}
+
 		td {
 			border: 1px solid darken($sectionHeadingBackground, 20%);
 
@@ -180,6 +189,12 @@ body {
 
 			.failed {
 				color: darken($failedColor, 30%);
+			}
+		}
+
+		&.collapsed {
+			.testStatus:after {
+				content: '\25b6';
 			}
 		}
 
