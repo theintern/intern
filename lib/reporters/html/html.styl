@@ -52,7 +52,7 @@ body {
 		text-align: center;
 		text-transform: uppercase;
 		vertical-align: top;
-		width: 20%;
+		width: 16.6%;
 
 		.summaryContent {
 			background: $summaryTopBackground;
@@ -103,6 +103,10 @@ body {
 				background: $summaryTopBackground;
 
 				summaryIcon($durationIcon);
+			}
+
+			&.skipped {
+				summaryIcon($passedIcon);
 			}
 
 			.summaryTitle {
@@ -237,6 +241,10 @@ body {
 				border-bottom:0;
 				border-color:lighten($failedColor, 40%);
 			}
+		}
+
+		&.skipped {
+			background: darken($summaryTopBackground, 20%);
 		}
 
 		&.lastTest {
