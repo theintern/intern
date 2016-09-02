@@ -169,7 +169,6 @@ body {
 }
 .failedFilter {
   color: #3c3c3c;
-  padding: 0 0 1em;
 }
 .failedFilter input {
   margin-right: 0.5em;
@@ -229,6 +228,9 @@ body {
 }
 .report .suite .column-info .failed {
   color: #d01128;
+}
+.report .suite .column-info .skipped {
+  color: #7b7b7b;
 }
 .report .suite.collapsed .testStatus:after {
   content: '\25b6';
@@ -342,7 +344,31 @@ body {
   border-bottom: 0;
   width: 20px;
 }
-.hidePassed .passed,
-.hidePassed .skipped {
+.hidePassed .report .passed,
+.hidePassed .report .skipped {
   display: none;
+}
+.reportControls {
+  margin-bottom: 0.75em;
+  color: #777;
+}
+.reportControls > * {
+  width: 50%;
+  display: inline-block;
+}
+.reportControls > :last-child {
+  text-align: right;
+}
+.linkButton {
+  padding: 1px 4px 3px 4px;
+  border-radius: 4px;
+  background: #f1f0ef;
+  border: 1px solid #dfdfdf;
+  display: inline-block;
+  font-size: 0.8em;
+  cursor: pointer;
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
 }

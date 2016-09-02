@@ -136,8 +136,6 @@ body {
 
 .failedFilter {
 	color: $reportTextColor;
-	padding: 0 0 1em;
-
 	input {
 		margin-right: 0.5em;
 	}
@@ -193,6 +191,10 @@ body {
 
 			.failed {
 				color: darken($failedColor, 30%);
+			}
+
+			.skipped {
+				color: darken($skippedColor, 30%);
 			}
 		}
 
@@ -283,7 +285,33 @@ body {
 	width: 20px;
 }
 
-.hidePassed .passed,
-.hidePassed .skipped {
-	display: none;
+.hidePassed .report {
+	.passed, .skipped {
+		display: none;
+	}
+}
+
+.reportControls {
+	margin-bottom: 0.75em;
+	color: $summaryTextColor;
+
+	> * {
+		width: 50%;
+		display: inline-block;
+	}
+
+	> :last-child {
+		text-align: right;
+	}
+}
+
+.linkButton {
+	padding: 1px 4px 3px 4px;
+	border-radius: 4px;
+	background: $summaryTopBackground;
+	border: 1px solid $summaryBorderColor;
+	display: inline-block;
+	font-size: 0.8em;
+	cursor: pointer;
+	userSelect(none);
 }
