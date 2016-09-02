@@ -175,6 +175,7 @@ program
 			var data = fs.readFileSync(path.join(internDir, 'tests', 'example.intern.js'), { encoding: 'utf8' });
 			data = data.replace(/myPackage/g, 'app');
 			data = data.replace(/suites: \[.*?],/, 'suites: [ \'app/tests/unit/*\' ],');
+			data = data.replace(/functionalSuites: \[.*?],/, 'suites: [ \'app/tests/functional/*\' ],');
 			data = data.replace(/'BrowserStackTunnel'/, '\'NullTunnel\'');
 			data = data.replace(/capabilities: {[\s\S]*?}/, 'capabilities: {}');
 
