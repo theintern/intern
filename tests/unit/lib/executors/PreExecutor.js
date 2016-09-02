@@ -76,6 +76,65 @@ define([
 						'Expected excludeInstrumentation to be a regExp');
 				}
 			};
+		})(),
+
+		'#getConfig': (function () {
+			var executor;
+			var loadedConfig;
+
+			return {
+				beforeEach: function () {
+					executor = new PreExecutor({
+						executorId: 'runner',
+						defaultLoaderOptions: {
+							baseUrl: 'intern-selftest'
+						}
+					});
+				},
+
+				afterEach: function () {
+					for (var key in loadedConfig) {
+						delete loadedConfig[key];
+					}
+				},
+
+				proxyUrl: {
+					'default': function () {
+						return executor.getConfig({
+							config: 'tests/unit/data/lib/executors/intern',
+						}).then(function (config) {
+							loadedConfig = config;
+							assert.propertyVal(config, 'proxyPort', 9000);
+							assert.propertyVal(config, 'proxyUrl', 'http://localhost:9000/');
+						});
+					},
+
+					'proxyPort arg': function () {
+						return executor.getConfig({
+							config: 'tests/unit/data/lib/executors/intern',
+							proxyPort: '9004'
+						}).then(function (config) {
+							loadedConfig = config;
+							assert.propertyVal(config, 'proxyPort', 9004);
+							assert.propertyVal(config, 'proxyUrl', 'http://localhost:9004/');
+						});
+					},
+
+					'invalid proxyPort': function () {
+						return executor.getConfig({
+							config: 'tests/unit/data/lib/executors/intern',
+							proxyPort: '900q'
+						}).then(
+							function () {
+								assert.fail('expected getConfig to fail');
+							},
+							function (error) {
+								assert.match(error.message, /must be a number/);
+							}
+						);
+					}
+				}
+			};
 		})()
 	});
 });
