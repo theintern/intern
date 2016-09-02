@@ -395,11 +395,16 @@ define([
 
 				object = function () {};
 
-				assert.strictEqual(
-					util.serialize(object),
-					'<anonymous>({})',
-					'Functions without names should be given an anonymous name'
-				);
+				if (object.name === '') {
+					// Browsers supporting ES2016 semantics will infer the name of an anonymous function from the
+					// surrounding syntax, while pre-ES2016 browsers will leave it as an empty string (and serialize will
+					// convert that to '<anonymous>').
+					assert.strictEqual(
+						util.serialize(object),
+						'<anonymous>({})',
+						'Functions without names should be given an anonymous name'
+					);
+				}
 			}
 			else {
 				assert.strictEqual(
