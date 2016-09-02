@@ -392,12 +392,22 @@ program
 	.description('Start a simple web server for running unit tests in a browser on your system')
 	.option('-c, --config <module ID|file>', 'config file to use (default is ' + TESTS_DIR + '/intern.js)')
 	.option('-o, --open', 'open the test runner URL when the server starts')
+	.option('-p, --port <port>', 'port to serve on', cli.intArg)
 	.option('-I, --noInstrument', 'disable instrumentation')
 	.action(function () {
 		var options = arguments[arguments.length - 1];
 		var config = options.config || path.join(TESTS_DIR, 'intern.js');
 		var internCmd = path.join(internDir, 'runner');
-		var internArgs = [ 'config=' + config, 'proxyOnly' ];
+
+		// Allow user-specified args in the standard intern format to be passed through
+		var internArgs = Array.prototype.slice.call(arguments).slice(0, arguments.length - 1);
+
+		internArgs.push('config=' + config);
+		internArgs.push('proxyOnly');
+
+		if (options.port) {
+			internArgs.push('proxyPort=' + options.port);
+		}
 
 		if (options.noInstrument) {
 			internArgs.push('excludeInstrumentation');
