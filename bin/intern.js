@@ -249,6 +249,7 @@ program
 	.option('-g, --grep <regex>', 'filter tests by ID')
 	.option('-l, --leaveRemoteOpen', 'leave the remote browser open after tests finish')
 	.option('-r, --reporters <name|module ID>', 'specify a reporter (can be used multiple times)', cli.collect, [])
+	.option('-p, --port <port>', 'port that test proxy should serve on', cli.intArg)
 	.option('-s, --suites <module ID>', 'specify a suite to run (can be used multiple times)', cli.collect, [])
 	.option('-w, --webdriver', 'use the WebDriver runner (default is Node client)')
 	.option('-I, --noInstrument', 'disable instrumentation')
@@ -298,6 +299,10 @@ program
 
 		if (options.bail) {
 			internArgs.push('bail');
+		}
+
+		if (options.port) {
+			internArgs.push('proxyPort=' + options.port);
 		}
 
 		if (options.timeout) {
