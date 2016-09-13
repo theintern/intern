@@ -345,6 +345,18 @@ program
 		process.on('SIGINT', function () {
 			intern.kill('SIGINT');
 		});
+
+		intern.on('close', function (code, signal) {
+			if (process.exitCode == null) {
+				process.exitCode = code != null ? code : cli.exitCodeForSignal(signal);
+			}
+		});
+
+		intern.on('error', function () {
+			if (process.exitCode == null) {
+				process.exitCode = 1;
+			}
+		});
 	})
 	.on('--help', function () {
 		print([
