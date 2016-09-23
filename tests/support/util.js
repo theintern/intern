@@ -57,7 +57,7 @@ define([
 			}
 		}
 
-		if (!tunnel || intern.args.noClean) {
+		if (!tunnel || !tunnel.directory || intern.args.noClean) {
 			return;
 		}
 
