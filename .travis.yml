@@ -2,20 +2,20 @@ sudo: false
 language: node_js
 # Test minimal, LTS, and latest
 node_js:
-	- '0.12'
-	- 4
-	- 6
+  - '0.12'
+  - 4
+  - 6
 env:
-	global:
-		# Please get your own free key if you want to test yourself
-		- SAUCE_USERNAME: dojo2-ts-ci
-		- SAUCE_ACCESS_KEY: e92610e3-834e-4bec-a3b5-6f7b9d874601
-		- BROWSERSTACK_USERNAME: sitepenlabs1
-		- BROWSERSTACK_ACCESS_KEY: 836y5xDYPeFudz5HvZyp
+  global:
+    # Please get your own free key if you want to test yourself
+    - SAUCE_USERNAME: dojo2-ts-ci
+    - SAUCE_ACCESS_KEY: e92610e3-834e-4bec-a3b5-6f7b9d874601
+    - BROWSERSTACK_USERNAME: sitepenlabs1
+    - BROWSERSTACK_ACCESS_KEY: 836y5xDYPeFudz5HvZyp
 cache:
-	directories:
-		- node_modules
+    directories:
+      - node_modules
 script: tests/selftest.sh
 notifications:
-	slack:
-		secure: RvW7LoV4mBzNz481eqfhLB/QNuJYht9Fpz7F+vtVjD/RacDJfc7397/8pJcl2yP+Ft2X7yJsM6bx3Uq22CfMiZ7HTVOfb+tYQNBQ5vcluUvd3fYV72M4oWe/TTFTlAulC04vWs4/QRHqbvmsXXr8Rn8Jj2LjsxnKvP0UNr0aLxk=
+    slack:
+      secure: RvW7LoV4mBzNz481eqfhLB/QNuJYht9Fpz7F+vtVjD/RacDJfc7397/8pJcl2yP+Ft2X7yJsM6bx3Uq22CfMiZ7HTVOfb+tYQNBQ5vcluUvd3fYV72M4oWe/TTFTlAulC04vWs4/QRHqbvmsXXr8Rn8Jj2LjsxnKvP0UNr0aLxk=
