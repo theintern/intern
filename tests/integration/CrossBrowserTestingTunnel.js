@@ -10,9 +10,8 @@ define([
 	CrossBrowserTestingTunnel
 ) {
 	function checkEnvironment(environment) {
-		assert.property(environment, 'short_version');
 		assert.property(environment, 'api_name');
-		assert.property(environment, 'os');
+		assert.deepProperty(environment, 'browsers.0.api_name');
 	}
 
 	var suite = {

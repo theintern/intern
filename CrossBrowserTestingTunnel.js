@@ -65,7 +65,7 @@ CrossBrowserTestingTunnel.prototype = util.mixin(Object.create(_super), /** @len
 	port: 80,
 
 	get auth() {
-		return this.username + ':' + this.apiKey;
+		return (this.username || '') + ':' + (this.apiKey || '');
 	},
 
 	get extraCapabilities() {

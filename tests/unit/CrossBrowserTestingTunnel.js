@@ -27,7 +27,8 @@ define([
 		},
 
 		'#extraCapabilities': function () {
-			assert.deepEqual(tunnel.extraCapabilities, {});
+			assert.property(tunnel.extraCapabilities, 'username');
+			assert.property(tunnel.extraCapabilities, 'password');
 		}
 	});
 });
