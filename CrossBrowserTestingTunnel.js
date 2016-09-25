@@ -68,6 +68,13 @@ CrossBrowserTestingTunnel.prototype = util.mixin(Object.create(_super), /** @len
 		return this.username + ':' + this.apiKey;
 	},
 
+	get extraCapabilities() {
+		return {
+			username: this.username,
+			password: this.apiKey
+		};
+	},
+
 	get isDownloaded() {
 		try {
 			require('cbt_tunnels');
@@ -143,7 +150,6 @@ CrossBrowserTestingTunnel.prototype = util.mixin(Object.create(_super), /** @len
 		var child = this._makeChild(readyFile);
 		var childProcess = child.process;
 		var dfd = child.deferred;
-		var started = false;
 		var stdout = [];
 
 		// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
@@ -155,25 +161,63 @@ CrossBrowserTestingTunnel.prototype = util.mixin(Object.create(_super), /** @len
 			}
 
 			fs.unwatchFile(readyFile);
-			started = true;
+			readHandle.remove();
+			exitHandle.remove();
 			stdout = null;
 			dfd.resolve();
 		});
 
 		// The cbt tunnel outputs its startup error messages on stdout. Capture any data on stdout and display it if the
 		// process exits early.
-		this._handles.push(
-			util.on(childProcess.stdout, 'data', function (data) {
-				stdout.push(data);
-			}),
-			util.on(childProcess, 'exit', function () {
-				if (!started) {
-					process.stderr.write(stdout.join(''));
-				}
-			})
-		);
+		var readHandle = util.on(childProcess.stdout, 'data', function (data) {
+			stdout.push(data);
+		});
+		var exitHandle = util.on(childProcess, 'exit', function () {
+			process.stderr.write(stdout.join(''));
+		});
+
+		this._handles.push(readHandle);
+		this._handles.push(exitHandle);
 
 		return child;
+	},
+
+	/**
+	 * Attempt to normalize a TestingBot described environment with the standard Selenium capabilities
+	 *
+	 * TestingBot returns a list of environments that looks like:
+	 *
+	 * {
+	 *     "selenium_name": "Chrome36",
+	 *     "name": "googlechrome",
+	 *     "platform": "CAPITAN",
+	 *     "version":"36"
+	 * }
+	 *
+	 * @param {Object} environment a TestingBot environment descriptor
+	 * @returns a normalized descriptor
+	 * @private
+	 */
+	_normalizeEnvironment: function (environment) {
+		var platform = environment.api_name;
+
+		return environment.browsers.map(function (browser) {
+			var browserName = browser.type.toLowerCase();
+
+			return {
+				platform: platform,
+				browserName: browserName,
+				version: browser.version,
+
+				descriptor: environment,
+
+				intern: {
+					browserName: browserName,
+					browser_api_name: browser.api_name,
+					os_api_name: platform
+				}
+			};
+		});
 	}
 });
 

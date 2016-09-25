@@ -302,16 +302,25 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 			platform = platform[environment.os_version];
 		}
 
+		var browserName = browserMap[environment.browser] || environment.browser;
+		var version = environment.browser_version;
+
 		return {
 			platform: platform,
 			platformName: environment.os,
 			platformVersion: environment.os_version,
 
-			browserName: browserMap[environment.browser] || environment.browser,
-			browserVersion: environment.browser_version,
+			browserName: browserName,
+			browserVersion: version,
 			version: environment.browser_version,
 
-			descriptor: environment
+			descriptor: environment,
+
+			intern: {
+				platform: platform,
+				browserName: browserName,
+				version: version
+			}
 		};
 	}
 });

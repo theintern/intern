@@ -590,7 +590,7 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 			return Promise.resolve([]);
 		}
 
-		var normalizeEnvironment = this._normalizeEnvironment.bind(this);
+		var self = this;
 
 		return sendRequest(this.environmentUrl, {
 			password: this.accessKey,
@@ -598,7 +598,9 @@ Tunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/Tu
 			proxy: this.proxy
 		}).then(function (response) {
 			if (response.statusCode >= 200 && response.statusCode < 400) {
-				return JSON.parse(response.data.toString()).map(normalizeEnvironment);
+				return JSON.parse(response.data.toString()).reduce(function (environments, environment) {
+					return environments.concat(self._normalizeEnvironment(environment));
+				}, []);
 			}
 			else {
 				throw new Error('Server replied with a status of ' + response.statusCode);

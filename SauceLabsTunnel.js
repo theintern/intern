@@ -508,16 +508,26 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			platformVersion = os.slice('Mac '.length);
 		}
 
+		var platform = platformName + (platformVersion ? ' ' + platformVersion : '');
+		var browserName = browserMap[environment.api_name] || environment.api_name;
+		var version = environment.short_version;
+
 		return {
-			platform: platformName + (platformVersion ? ' ' + platformVersion : ''),
+			platform: platform,
 			platformName: platformName,
 			platformVersion: platformVersion,
 
-			browserName: browserMap[environment.api_name] || environment.api_name,
-			browserVersion: environment.short_version,
-			version: environment.short_version,
+			browserName: browserName,
+			browserVersion: version,
+			version: version,
 
-			descriptor: environment
+			descriptor: environment,
+
+			intern: {
+				platform: platform,
+				browserName: browserName,
+				version: version
+			}
 		};
 	}
 });

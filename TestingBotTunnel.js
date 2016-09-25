@@ -248,11 +248,21 @@ TestingBotTunnel.prototype = util.mixin(Object.create(_super), /** @lends module
 			iexplore: 'internet explorer'
 		};
 
+		var platform = environment.platform;
+		var browserName = browserMap[environment.name] || environment.name;
+		var version = environment.version;
+
 		return {
-			platform: environment.platform,
-			browserName: browserMap[environment.name] || environment.name,
-			version: environment.version,
-			descriptor: environment
+			platform: platform,
+			browserName: browserName,
+			version: version,
+			descriptor: environment,
+
+			intern: {
+				platform: platform,
+				browserName: browserName,
+				version: version
+			}
 		};
 	}
 });
