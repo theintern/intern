@@ -1,4 +1,4 @@
-var decompress = require('decompress');
+var Decompress = require('decompress');
 var Promise = require('dojo/Promise');
 var fs = require('fs');
 var path = require('path');
@@ -67,7 +67,21 @@ module.exports = {
 	 * @returns {Promise.<void>} A Promise that resolves when the data is decompressed
 	 */
 	decompress: function (data, directory) {
-		return decompress(data, directory);
+		return new Promise(function (resolve, reject) {
+			var decompressor = new Decompress()
+				.src(data)
+				.dest(directory)
+				.use(Decompress.zip())
+				.use(Decompress.targz());
+			decompressor.run(function (error, files) {
+				if (error) {
+					reject(error);
+				}
+				else {
+					resolve(files);
+				}
+			});
+		});
 	},
 
 	/**
