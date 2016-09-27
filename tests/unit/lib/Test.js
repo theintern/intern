@@ -305,6 +305,8 @@ define([
 
 		'using remote in a test': {
 			'fails if test is synchronous': function () {
+				// Increase timeout for IE11
+				this.timeout = 5000;
 				var temp;
 				var test = createTest({
 					test: function () {
@@ -324,6 +326,8 @@ define([
 			},
 
 			'works if test returns a promise': function () {
+				// Increase timeout for IE11
+				this.timeout = 5000;
 				var temp;
 				var test = createTest({
 					test: function () {
@@ -337,6 +341,8 @@ define([
 			},
 
 			'works if test resolves async dfd': function () {
+				// Increase timeout for IE11
+				this.timeout = 5000;
 				var temp;
 				var test = createTest({
 					test: function () {
