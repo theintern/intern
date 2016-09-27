@@ -26,7 +26,7 @@
   "scripts": {
     "install": "node support/fixdeps.js",
     "update": "node support/fixdeps.js",
-    "test": "node node_modules/.bin/intern-client config=tests/selftest.intern.js"
+    "test": "node support/test.js"
   },
   "bugs": "https://github.com/theintern/intern/issues",
   "keywords": [
