@@ -1,7 +1,8 @@
 {
   "name": "intern",
   "version": "3.4.0-pre",
-  "main": "main",
+  "main": "./main.js",
+  "types": "./typings/intern/intern.d.ts",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
   "repository": {
     "type": "git",
