@@ -1,4 +1,3 @@
-/// <reference path="../node/node.d.ts" />
 declare module 'dojo/interfaces' {
 	export interface IArrayObserver<T> {
 		(index:number, inserted:IObservableArray<T>, removedItems:IObservableArray<T>):void;
