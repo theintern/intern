@@ -11,6 +11,7 @@ the REST APIs of these services.
 Dig Dug can run a local Selenium server, and it supports the following cloud testing services:
 
 * [BrowserStack](http://www.browserstack.com)
+* [CrossBrowserTesting](http://www.crossbrowsertesting.com)
 * [Sauce Labs](http://www.saucelabs.com)
 * [TestingBot](http://www.testingbot.com)
 
@@ -18,11 +19,12 @@ Dig Dug can run a local Selenium server, and it supports the following cloud tes
 
 In many cases, the only configuration you'll need to do to create a tunnel is provide authentication data. This can be provided by setting properties on tunnels or via environment variables. The tunnels use the following environment variables:
 
-Tunnel class         | Environment variables
----------------------|----------------------------------------------------
-`BrowserStackTunnel` | `BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`
-`SauceLabsTunnel`    | `SAUCE_USERNAME`, `SAUCE_ACCESS_KEY`
-`TestingBotTunnel`   | `TESTINGBOT_KEY`, `TESTINGBOT_SECRET`
+Tunnel class                | Environment variables
+----------------------------|----------------------------------------------------
+`BrowserStackTunnel`        | `BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`
+`CrossBrowserTestingTunnel` | `CBT_USERNAME`, `CBT_APIKEY`
+`SauceLabsTunnel`           | `SAUCE_USERNAME`, `SAUCE_ACCESS_KEY`
+`TestingBotTunnel`          | `TESTINGBOT_KEY`, `TESTINGBOT_SECRET`
 
 Other properties, such as the local port the tunnel should serve on or the URL of a proxy server the tunnel should go through, can be passed to a tunnel constructor or set on a tunnel instance. See the pages for [Tunnel](Tunnel.html) and the tunnel subclasses for available properties.
 
