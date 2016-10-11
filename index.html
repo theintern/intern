@@ -345,7 +345,7 @@
 							</tr>
 						</table>
 
-						<p>Intern also has built-in support for cloud hosted services from <a href="https://browserstack.com">BrowserStack</a>, <a href="https://saucelabs.com">Sauce Labs</a>, and <a href="https://testingbot.com">TestingBot</a>.</p>
+						<p>Intern also has built-in support for cloud hosted services from <a href="https://browserstack.com">BrowserStack</a>, <a href="https://crossbrowsertesting.com">CrossBrowserTesting</a>, <a href="https://saucelabs.com">Sauce Labs</a>, and <a href="https://testingbot.com">TestingBot</a>.</p>
 
 						<div class="a half" id="reading-guide"></div>
 						<h3 data-id="reading-guide">Reading this guide</h3>
@@ -904,6 +904,7 @@
 						<ul>
 							<li><a href="https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities">Selenium capabilities</a></li>
 							<li><a href="https://www.browserstack.com/automate/capabilities">BrowserStack capabilities</a></li>
+							<li><span class="versionBadge">3.4</span><a href="https://help.crossbrowsertesting.com/selenium-testing/automation-capabilities">CrossBrowserTesting capabilities</a></li>
 							<li><a href="https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-Selenium-SpecificOptions">Sauce Labs capabilities</a> and <a href="https://saucelabs.com/platforms">environments</a></li>
 							<li><a href="https://testingbot.com/support/other/test-options">TestingBot capabilities</a> and <a href="https://testingbot.com/support/getting-started/browsers.html">environments</a></li>
 						</ul>
@@ -938,7 +939,7 @@
 
 						<p>All other capabilities are not permuted, but are simply passed as-is to the WebDriver server.</p>
 
-						<p><span class="versionBadge">3.3</span> When using one of the supported cloud services (Sauce Labs, BrowserStack, or TestingBot), the browser version may also use <i>range</i> expressions and the <i>“latest” alias</i>. A range expression consists of two versions separated by “..”. Intern will request a list of all supported platform + browser + version combinations from the service and will expand the range using the versions available from the service. The range is inclusive, so for the range expression “23..26”, Intern will include versions 23 and 26 in the expanded version list.</p>
+						<p><span class="versionBadge">3.3</span> When using one of the supported cloud services (BrowserStack, CrossBrowserTesting, Sauce Labs, or TestingBot), the browser version may also use <i>range</i> expressions and the <i>“latest” alias</i>. A range expression consists of two versions separated by “..”. Intern will request a list of all supported platform + browser + version combinations from the service and will expand the range using the versions available from the service. The range is inclusive, so for the range expression “23..26”, Intern will include versions 23 and 26 in the expanded version list.</p>
 
 						<pre><code class="javascript">{
 	environments: [
@@ -1048,8 +1049,10 @@
 
 						<ul>
 							<li><a href="https://theintern.github.io/digdug/BrowserStackTunnel.html">BrowserStackTunnel</a> – For use with <a href="https://browserstack.com">BrowserStack</a></li>
+							<li><span class="versionBadge">3.4</span><a href="https://theintern.github.io/digdug/CrossBrowserTestingTunnel.html">CrossBrowserTestingTunnel</a> – For use with <a href="https://crossbrowsertesting.com">CrossBrowserTesting</a></li>
 							<li><a href="https://theintern.github.io/digdug/NullTunnel.html">NullTunnel</a> – For use with any other WebDriver server</li>
 							<li><a href="https://theintern.github.io/digdug/SauceLabsTunnel.html">SauceLabsTunnel</a> – For use with <a href="https://saucelabs.com">Sauce Labs</a></li>
+							<li><span class="versionBadge">3.3</span><a href="https://theintern.github.io/digdug/SeleniumTunnel.html">SeleniumTunnel</a> – For loading and managing a local standalone Selenium server</li>
 							<li><a href="https://theintern.github.io/digdug/TestingBotTunnel.html">TestingBotTunnel</a> – For use with <a href="https://testingbot.com">TestingBot</a></li>
 						</ul>
 
@@ -2081,10 +2084,11 @@ define([
 						<div class="a half" id="hosted-selenium"></div>
 						<h3 data-id="hosted-selenium">Cloud hosting</h3>
 
-						<p>Using cloud hosting is the fastest way to get an operational Selenium server. Intern natively provides support for three major cloud hosting providers:</p>
+						<p>Using cloud hosting is the fastest way to get an operational Selenium server. Intern natively provides support for four major cloud hosting providers:</p>
 
 						<ul>
 							<li><a href="https://browserstack.com/">BrowserStack</a></li>
+							<li><a href="https://crossbrowsertesting.com/">CrossBrowserTesting</a></li>
 							<li><a href="https://saucelabs.com/">Sauce Labs</a></li>
 							<li><a href="https://testingbot.com/">TestingBot</a></li>
 						</ul>
@@ -2101,6 +2105,22 @@ define([
 									<li>Define <kbd>BROWSERSTACK_USERNAME</kbd> and <kbd>BROWSERSTACK_ACCESS_KEY</kbd> environment variables</li>
 									<li>Set <code>browserstackUsername</code> and <code>browserstackAccessKey</code> in your Gruntfile’s intern task options</li>
 									<li>Set <code>username</code> and <code>accessKey</code> on your <a href="#option-tunnelOptions">tunnelOptions</a> configuration option</li>
+								</ul>
+							</li>
+						</ol>
+
+						<h4>CrossBrowserTesting</h4>
+
+						<ol>
+							<li><a href="https://www.crossbrowsertesting.com/freetrial">Sign up</a> for a trial account</li>
+							<li>Get your authkey from your account settings page</li>
+							<li>Set <a href="#option-tunnel">tunnel</a> to <code class="javascript">'CrossBrowserTestingTunnel'</code></li>
+							<li
+								>Set your username and access key in one of these ways:
+								<ul>
+									<li>Define <kbd>CBT_USERNAME</kbd> and <kbd>CBT_APIKEY</kbd> environment variables</li>
+									<li>Set <code>cbtUsername</code> and <code>cbtApikey</code> in your Gruntfile’s intern task options</li>
+									<li>Set <code>username</code> and <code>apiKey</code> on your <a href="#option-tunnelOptions">tunnelOptions</a> configuration option</li>
 								</ul>
 							</li>
 						</ol>
@@ -2481,6 +2501,16 @@ tunnelOptions: {
 							<tr>
 								<th scope="row">browserstackUsername</th>
 								<td>The username for authentication with BrowserStack.</td>
+								<td>none</td>
+							</tr>
+							<tr>
+								<th scope="row">cbtApikey</th>
+								<td>The API key for authentication with CrossBrowserTesting.</td>
+								<td>none</td>
+							</tr>
+							<tr>
+								<th scope="row">cbtUsername</th>
+								<td>The username for authentication with CrossBrowserTesting.</td>
 								<td>none</td>
 							</tr>
 							<tr>
