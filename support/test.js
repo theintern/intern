@@ -5,7 +5,11 @@ var spawn = require('child_process').spawnSync
 
 function run() {
 	var args = Array.prototype.slice.call(arguments);
-	spawn(args[0], args.slice(1), { stdio: 'inherit' });
+	var script = args[0];
+	if (/^win/.test(process.platform)) {
+		script += '.cmd';
+	}
+	spawn(script, args.slice(1), { stdio: 'inherit' });
 }
 
 switch (mode) {
