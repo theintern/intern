@@ -6,6 +6,32 @@ import { Suite } from '../Suite';
 
 declare const require: IRequire;
 
+function containsClass(node: Element, cls: string) {
+	const classes = node.className.split(/\s+/);
+	return classes.indexOf(cls) !== -1;
+}
+
+function addClass(node: Element, cls: string) {
+	const classes = node.className.split(/\s+/);
+	if (classes.indexOf(cls) !== -1) {
+		return;
+	}
+
+	classes.push(cls);
+	node.className = classes.join(' ');
+}
+
+function removeClass(node: Element, cls: string) {
+	const classes = node.className.split(/\s+/);
+	const index = classes.indexOf(cls);
+	if (index === -1) {
+		return;
+	}
+
+	classes.splice(index, 1);
+	node.className = classes.join(' ');
+}
+
 function pad(value: string | number, size: number): string {
 	let padded = String(value);
 
@@ -36,11 +62,11 @@ function formatDuration(duration: number): string {
 	return formattedValue;
 }
 
-export interface HtmlReporterConfig extends ReporterConfig {
+export interface HtmlConfig extends ReporterConfig {
 	document?: Document;
 }
 
-export class HtmlReporter implements Reporter {
+export class Html implements Reporter {
 	document: Document;
 	reportContainer: Element = null;
 
@@ -85,7 +111,7 @@ export class HtmlReporter implements Reporter {
 
 	runningSuites: any = {};
 
-	constructor(config: HtmlReporterConfig = {}) {
+	constructor(config: HtmlConfig = {}) {
 		this.document = config.document || window.document;
 	}
 
@@ -171,12 +197,12 @@ export class HtmlReporter implements Reporter {
 		let initialIndent = this._getIndentLevel(node);
 
 		// Use the given collapsed state or toggle the existing state
-		collapsed = collapsed == null ? !node.classList.contains('collapsed') : collapsed;
+		collapsed = collapsed == null ? !containsClass(node, 'collapsed') : collapsed;
 		if (collapsed) {
-			node.classList.add('collapsed');
+			addClass(node, 'collapsed');
 		}
 		else {
-			node.classList.remove('collapsed');
+			removeClass(node, 'collapsed');
 		}
 
 		// node won't exist after the last test in a suite
@@ -189,8 +215,8 @@ export class HtmlReporter implements Reporter {
 			}
 
 			// Child suites of the suite being updated should always be collapsed
-			if (node.classList.contains('suite')) {
-				node.classList.add('collapsed');
+			if (containsClass(node, 'suite')) {
+				addClass(node, 'collapsed');
 			}
 
 			// Only show children one level under the suite being updated when expanding
@@ -377,7 +403,7 @@ export class HtmlReporter implements Reporter {
 		const numPassedTests = numTests - numFailedTests - numSkippedTests;
 
 		// Mark a suite as failed if any of its child tests failed, and 
-		rowNode.classList.add(numFailedTests > 0 ? 'failed' : 'passed');
+		addClass(rowNode, numFailedTests > 0 ? 'failed' : 'passed');
 
 		// Only suites with failed tests will be initially expanded
 		this._setCollapsed(rowNode, numFailedTests === 0);
