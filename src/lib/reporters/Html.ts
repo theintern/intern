@@ -220,7 +220,7 @@ export class Html implements Reporter {
 			}
 
 			// Only show children one level under the suite being updated when expanding
-			(<HTMLElement> node).style.display = (!collapsed && indentDelta === 1) ? null : 'none';
+			(<HTMLElement> node).style.display = (!collapsed && indentDelta === 1) ? '' : 'none';
 		}
 	}
 
