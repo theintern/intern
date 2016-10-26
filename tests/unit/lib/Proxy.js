@@ -93,6 +93,12 @@ define([
 
 			var dfd = new Promise.Deferred();
 			var url = require.toUrl('../../../lib/util.js');
+
+			// Strip drive letter from Windows URL
+			if (/^\w:\//.test(url)) {
+				url = url.slice(2);
+			}
+
 			var expected = fs.readFileSync(url, { encoding: 'utf8' });
 			var request = createRequest();
 
