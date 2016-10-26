@@ -104,19 +104,34 @@ registerSuite({
 		}
 
 		const simpleName = 'test.result';
-		const dirName = 'report/dir/test.result';
+		const dirName = pathUtil.join('report', 'dir', 'test.result');
 		const reporterManager = new ReporterManager();
 		reporterManager.add(JUnit, { filename: simpleName });
 		reporterManager.add(JUnit, { filename: dirName });
 
-		try {
-			assert.isTrue(fs.statSync(simpleName).isFile(), 'Report file should exist');
-			assert.isTrue(fs.statSync(dirName).isFile(), 'Report directory and file should exist');
-		}
-		finally {
+		return new Promise(function (resolve, reject) {
+			// At least Windows 7 experiences race conditions when sync file functions are used on a created write
+			// stream. Make the first stat async to avoid this.
+			fs.stat(simpleName, function (error, stats) {
+				if (error) {
+					reject(error);
+				}
+				else {
+					try {
+						assert.isTrue(stats.isFile(), 'Report file should exist');
+						assert.isTrue(fs.statSync(dirName).isFile(), 'Report directory and file should exist');
+						resolve();
+					}
+					catch (error) {
+						reject(error);
+					}
+				}
+			});
+		}).finally(function () {
 			unlink(simpleName);
+		}).finally(function () {
 			unlink(dirName);
-		}
+		});
 	},
 
 	'reporterError'() {

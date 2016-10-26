@@ -85,7 +85,13 @@ registerSuite({
 		proxy.server = <any> true;
 
 		const dfd = new Promise.Deferred();
-		const url = require.toUrl('../../../src/lib/util.js');
+		let url = require.toUrl('../../../src/lib/util.js');
+
+		// Strip drive letter from Windows URL
+		if (/^\w:\//.test(url)) {
+			url = url.slice(2);
+		}
+
 		const expected = fs.readFileSync(url, { encoding: 'utf8' });
 		const request = createRequest();
 
