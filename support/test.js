@@ -1,25 +1,36 @@
 #!/usr/bin/env node
 
-var mode = process.argv[2];
 var spawn = require('child_process').spawnSync
 
-function run() {
-	var args = Array.prototype.slice.call(arguments);
-	var script = args[0];
+function run(script, extra) {
 	if (/^win/.test(process.platform)) {
 		script += '.cmd';
 	}
-	spawn(script, args.slice(1), { stdio: 'inherit' });
+	var args = [ 'config=tests/selftest.intern.js' ];
+	if (extra) {
+		args = args.concat(extra);
+	}
+	spawn(script, args, { stdio: 'inherit' });
 }
 
-switch (mode) {
-case 'all':
-	run('intern-client', 'config=tests/selftest.intern.js');
-	run('intern-runner', 'config=tests/selftest.intern.js');
-	break;
-case 'remote':
-	run('intern-runner', 'config=tests/selftest.intern.js');
-	break;
-default:
-	run('intern-client', 'config=tests/selftest.intern.js');
+var mode = 'local';
+var args = process.argv.slice(2);
+var modes = {
+	all: function (args) {
+		run('intern-client', args);
+		run('intern-runner', args);
+	},
+	remote: function (args) {
+		run('intern-runner', args);
+	},
+	local: function (args) {
+		run('intern-client', args);
+	}
+};
+
+if (args[0] in modes) {
+	mode = args[0];
+	args = args.slice(1);
 }
+
+modes[mode](args);
