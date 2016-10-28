@@ -83,7 +83,8 @@ define([
 				{ name: 'chrome', platform: 'win32' },
 				{ name: 'chrome', platform: 'linux', arch: 'x64' },
 				{ name: 'chrome', platform: 'linux', arch: 'x86' },
-				{ name: 'chrome', platform: 'darwin' },
+				{ name: 'chrome', platform: 'darwin', version: '2.22' },
+				{ name: 'chrome', platform: 'darwin', version: '2.23' },
 				{ name: 'ie', arch: 'x64' },
 				{ name: 'ie', arch: 'x86' },
 				{ name: 'firefox', platform: 'linux' },
@@ -96,6 +97,9 @@ define([
 				}
 				if (config.arch) {
 					testName += '-' + config.arch;
+				}
+				if (config.version) {
+					testName += '-' + config.version;
 				}
 				tests[testName] = createDownloadTest({
 					// We don't want to download selenium every time so we're going to change the Selenium configuration

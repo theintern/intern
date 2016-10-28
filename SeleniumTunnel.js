@@ -31,7 +31,11 @@ ChromeConfig.prototype = {
 			platform = 'linux' + (this.arch === 'x64' ? '64' : '32');
 		}
 		else if (platform === 'darwin') {
-			platform = 'mac32';
+			var parts = String(this.version).split('.').map(Number);
+			var isGreater = [ 2, 22 ].some(function (part, i) {
+				return parts[i] > part;
+			});
+			platform = isGreater ? 'mac64' : 'mac32';
 		}
 		return format('chromedriver_%s.zip', platform);
 	},
