@@ -282,12 +282,7 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 	_makeArgs: function () {
 		var directory = this.directory;
 		var driverConfigs = this._getDriverConfigs();
-		var args = [
-			'-jar',
-			pathUtil.join(this.directory, this.artifact),
-			'-port',
-			this.port
-		];
+		var args = [];
 		
 		driverConfigs.reduce(function (args, config) {
 			var file = pathUtil.join(directory, config.executable);
@@ -298,6 +293,13 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 		if (this.seleniumArgs) {
 			args = args.concat(this.seleniumArgs);
 		}
+
+		args = args.concat([
+			'-jar',
+			pathUtil.join(this.directory, this.artifact),
+			'-port',
+			this.port
+		]);
 
 		if (this.verbose) {
 			args.push('-debug');
@@ -331,7 +333,7 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 				dfd.resolve();
 			}
 			if (self.verbose) {
-				console.log(data);
+				process.stderr.write(data);
 			}
 		});
 		var removeHandle = handle.remove.bind(handle);
