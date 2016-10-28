@@ -81,21 +81,22 @@ function FirefoxConfig(options) {
 
 FirefoxConfig.prototype = {
 	constructor: FirefoxConfig,
-	version: '0.9.0',
+	version: '0.11.1',
 	baseUrl: 'https://github.com/mozilla/geckodriver/releases/download',
+	arch: process.arch,
 	platform: process.platform,
 	get artifact() {
 		var platform = this.platform;
 		if (platform === 'linux') {
-			platform = 'linux64';
+			platform = 'linux' + (this.arch === 'x64' ? '64' : '32');
 		}
 		else if (platform === 'win32') {
-			platform = 'win64';
+			platform = 'win' + (this.arch === 'x64' ? '64' : '32');
 		}
 		else if (platform === 'darwin') {
-			platform = 'mac';
+			platform = 'macos';
 		}
-		var extension = (platform === 'win64' ? '.zip' : '.tar.gz');
+		var extension = /^win/.test(platform) ? '.zip' : '.tar.gz';
 		return format('geckodriver-v%s-%s%s', this.version, platform, extension);
 	},
 	get url() {
