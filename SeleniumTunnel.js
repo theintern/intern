@@ -21,7 +21,7 @@ function ChromeConfig(options) {
 
 ChromeConfig.prototype = {
 	constructor: ChromeConfig,
-	version: '2.22',
+	version: '2.25',
 	baseUrl: 'https://chromedriver.storage.googleapis.com',
 	platform: process.platform,
 	arch: process.arch,
@@ -56,7 +56,7 @@ function IeConfig(options) {
 
 IeConfig.prototype = {
 	constructor: IeConfig,
-	version: '2.53.0',
+	version: '2.53.1',
 	baseUrl: 'https://selenium-release.storage.googleapis.com',
 	arch: process.arch,
 	get artifact() {
