@@ -21,7 +21,7 @@ define([
 	};
 
 	support.addEnvironmentTest(suite, TestingBotTunnel, checkEnvironment);
-	support.addStartStopTest(suite, TestingBotTunnel);
+	support.addStartStopTest(suite, TestingBotTunnel, { timeout: 30000 });
 
 	registerSuite(suite);
 });
