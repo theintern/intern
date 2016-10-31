@@ -56,7 +56,7 @@ function IeConfig(options) {
 
 IeConfig.prototype = {
 	constructor: IeConfig,
-	version: '2.53.1',
+	version: '3.0.0',
 	baseUrl: 'https://selenium-release.storage.googleapis.com',
 	arch: process.arch,
 	get artifact() {
@@ -189,9 +189,9 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 	 * The desired version of selenium to install.
 	 *
 	 * @type {string}
-	 * @default 2.53.1
+	 * @default 3.0.1
 	 */
-	version: '2.53.1',
+	version: '3.0.1',
 
 	/**
 	 * Timeout in milliseconds for communicating with the Selenium server
