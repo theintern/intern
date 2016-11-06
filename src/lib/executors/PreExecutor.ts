@@ -1,5 +1,6 @@
 import * as parseArgs from '../parseArgs';
 import * as util from '../util';
+import * as sendData from '../sendData';
 import { CommandLineArguments, Config, Removable } from '../../interfaces';
 import { Executor } from './Executor';
 
@@ -541,42 +542,21 @@ export class PreExecutor {
  * For testing sessions running through the Intern proxy, tells the remote test system that an error occured when
  * attempting to set up this environment.
  */
-const sendErrorToConduit = (function () {
-	let sequence = 0;
+function sendErrorToConduit(error: Error) {
+	const sessionIdFromUrl = /[?&]sessionId=([^&]+)/.exec(location.search);
+	if (!sessionIdFromUrl) {
+		return;
+	}
 
-	return function (error: Error) {
-		const sessionIdFromUrl = /[?&]sessionId=([^&]+)/.exec(location.search);
-		if (!sessionIdFromUrl) {
-			return;
-		}
+	const sessionId = decodeURIComponent(sessionIdFromUrl[1]);
 
-		const sessionId = decodeURIComponent(sessionIdFromUrl[1]);
+	// Proxy expects data to be an array of serialized objects
+	const data = [
+		'fatalError',
+		// Non-standard `sessionId` property is used by ClientSuite in the test runner to associate a fatal error
+		// with a particular environment
+		{ name: error.name, message: error.message, stack: error.stack, sessionId: sessionId }
+	];
 
-		// Proxy expects data to be an array of serialized objects
-		const data = [
-			JSON.stringify({
-				sequence: sequence,
-				sessionId: sessionId,
-				payload: [
-					'fatalError',
-					// Non-standard `sessionId` property is used by ClientSuite in the test runner to associate
-					// a fatal error with a particular environment
-					{ name: error.name, message: error.message, stack: error.stack, sessionId: sessionId }
-				]
-			})
-		];
-
-		request(require.toUrl('intern/'), {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			data: JSON.stringify(data)
-		});
-
-		// The sequence must not be incremented until after the data is successfully serialised, since an error
-		// during serialisation might occur, which would mean the request is never sent, which would mean the
-		// dispatcher on the server-side will stall because the sequence numbering will be wrong
-		++sequence;
-	};
-})();
+	sendData.send(require.toUrl('intern/'), data, sessionId);
+}
