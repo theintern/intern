@@ -136,7 +136,7 @@ export class Runner {
 			.foreground(numFailedTests > 0 || this.hasErrors ? 'red' : 'green')
 			.write(nodeUtil.format(message, numEnvironments, numFailedTests, numTests))
 			.display('reset')
-			.write('\n');
+			.write('\n\n');
 	}
 
 	suiteEnd(suite: Suite): void {
@@ -196,7 +196,7 @@ export class Runner {
 				.write(numFailedTests || hasError > 0 ? LIGHT_RED : LIGHT_GREEN)
 				.write(summary)
 				.display('reset')
-				.write('\n\n');
+				.write('\n');
 		}
 	}
 
