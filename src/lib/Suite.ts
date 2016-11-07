@@ -562,7 +562,10 @@ export class Suite {
 				name: this.error.name,
 				message: this.error.message,
 				stack: this.error.stack,
-				relatedTest: this.error.relatedTest
+				// relatedTest can be the Suite itself in the case of nested suites (a nested Suite's error is
+				// caught by a parent Suite, which assigns the nested Suite as the relatedTest, resulting in
+				// nestedSuite.relatedTest === nestedSuite); in that case, don't serialize it
+				relatedTest: this.error.relatedTest === <any> this ? undefined : this.error.relatedTest
 			} : null
 		};
 	}

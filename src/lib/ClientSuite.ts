@@ -103,6 +103,7 @@ export class ClientSuite extends Suite {
 				break;
 
 			case 'fatalError':
+				// A fatalError in a suite is only fatal to the suite, so it's still basically a suiteError
 				handle.remove();
 				return handleError(arguments[1]);
 
