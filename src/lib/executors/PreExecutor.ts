@@ -1,6 +1,6 @@
 import * as parseArgs from '../parseArgs';
 import * as util from '../util';
-import * as sendData from '../sendData';
+import * as _sendData from '../sendData';
 import { CommandLineArguments, Config, Removable } from '../../interfaces';
 import { Executor } from './Executor';
 
@@ -24,6 +24,8 @@ import main = require('../../main');
 declare const require: IRequire;
 
 const _global = (function (this: any) { return this; })();
+
+let sendData = _sendData;
 
 export interface ExecutorOptions {
 	defaultLoaderOptions: Object;
@@ -531,6 +533,17 @@ export class PreExecutor {
 				}
 
 				setConfig(loaderOptions);
+			}
+
+			if (has('host-browser') && loaders['host-browser']) {
+				// Replace PreExecutor's sendData with one loaded from the new loader
+				return new Promise(function (resolve) {
+					loader([ 'intern/lib/sendData' ], function (otherSendData) {
+						otherSendData.setSequence(sendData.getSequence());
+						sendData = otherSendData;
+						resolve(loader);
+					});
+				});
 			}
 
 			return loader;

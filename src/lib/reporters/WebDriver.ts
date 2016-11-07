@@ -21,7 +21,6 @@ export interface WebDriverReporterConfig extends ReporterConfig {
 }
 
 export class WebDriver implements Reporter {
-	sequence: number;
 	url: string;
 	writeHtml: boolean;
 	sessionId: string;
@@ -30,7 +29,6 @@ export class WebDriver implements Reporter {
 	testNode: HTMLElement;
 
 	constructor(config: WebDriverReporterConfig = {}) {
-		this.sequence = 0;
 		this.url = require.toUrl('intern/');
 		this.writeHtml = config.writeHtml !== false;
 		this.sessionId = config.internConfig.sessionId;
