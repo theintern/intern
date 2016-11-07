@@ -88,10 +88,14 @@ export class ClientSuite extends Suite {
 
 			case 'runEnd':
 				handle.remove();
-				// get about:blank to always collect code coverage data from the page in case it is
-				// navigated away later by some other process; this happens during self-testing when
-				// the new Leadfoot library takes over
-				remote.setHeartbeatInterval(0).get('about:blank').then(function () {
+				let promise = remote.setHeartbeatInterval(0);
+				if (config.excludeInstrumentation !== true) {
+					// get about:blank to always collect code coverage data from the page in case it is
+					// navigated away later by some other process; this happens during self-testing when
+					// the new Leadfoot library takes over
+					promise = promise.get('about:blank');
+				}
+				promise.then(function () {
 					return reporterManager.emit('suiteEnd', self);
 				}).then(function () {
 					dfd.resolve();
@@ -100,8 +104,7 @@ export class ClientSuite extends Suite {
 
 			case 'fatalError':
 				handle.remove();
-				var error = arguments[1];
-				return handleError(error);
+				return handleError(arguments[1]);
 
 			default:
 				return forward();
