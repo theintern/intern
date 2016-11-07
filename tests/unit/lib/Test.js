@@ -306,7 +306,7 @@ define([
 		'using remote in a test': {
 			'fails if test is synchronous': function () {
 				// Increase timeout for IE11
-				this.timeout = 10000;
+				this.timeout = 30000;
 				var temp;
 				var test = createTest({
 					test: function () {
