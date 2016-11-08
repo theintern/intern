@@ -54,7 +54,10 @@ define([
 				lcov.coverage(sessionId, mock.coverage);
 				lcov.runEnd();
 				assert.isTrue(fs.existsSync('lcov.info'), 'lcov.info file was written to disk');
-				assert(fs.statSync('lcov.info').size > 0, 'lcov.info contains data');
+
+				var actual = fs.readFileSync('lcov.info', { encoding: 'utf8' });
+				var expected = 'TN:\nSF:test.js\nFNF:0\nFNH:0\nDA:1,1\nLF:1\nLH:1\nBRF:0\nBRH:0\nend_of_record\n';
+				assert.equal(actual, expected);
 			}
 			finally {
 				fs.existsSync('lcov.info') && fs.unlinkSync('lcov.info');
