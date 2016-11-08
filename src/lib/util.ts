@@ -832,6 +832,7 @@ function normalizeStackTrace(stack: string, filterStack: boolean) {
 		stackLines = stackLines.filter(function (line) {
 			return !(
 				/internal\/process\//.test(line) ||
+				/browser_modules\//.test(line) ||
 				/node_modules\//.test(line)
 			);
 		});
