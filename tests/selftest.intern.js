@@ -3,8 +3,7 @@ define({
 	proxyUrl: 'http://localhost:9000/',
 
 	capabilities: {
-		'selenium-version': '2.43.0',
-		'idle-timeout': 30
+		'idle-timeout': 60
 	},
 	environments: [
 		{ browserName: 'internet explorer', version: '11.0', platform: 'Windows 10', fixSessionCapabilities: false },
