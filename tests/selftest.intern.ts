@@ -2,8 +2,7 @@ export const proxyPort = 9000;
 export const proxyUrl = 'http://localhost:9000/';
 
 export const capabilities = {
-	'selenium-version': '2.43.0',
-	'idle-timeout': 30
+	'idle-timeout': 60
 };
 export const environments = [
 	{ browserName: 'internet explorer', version: '11.0', platform: 'Windows 10', fixSessionCapabilities: false },
