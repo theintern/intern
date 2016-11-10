@@ -6,10 +6,16 @@ var buildDir = tsconfig.compilerOptions.outDir;
 var mode = 'local';
 
 function run(runner, config, userArgs) {
-	spawn('node', [
-		'node_modules/intern/' + runner,
-		'config=' + path.join(buildDir, 'tests', config + '.js')
-	].concat(userArgs), { stdio: 'inherit' });
+	var args = [ 'node_modules/intern/' + runner ].concat(userArgs);
+
+	var hasConfig = userArgs.some(function (arg) {
+		return arg.indexOf('config=') === 0;
+	});
+	if (!hasConfig) {
+		args.push('config=' + path.join(buildDir, 'tests', config + '.js'));
+	}
+
+	spawn('node', args, { stdio: 'inherit' });
 }
 
 var modes = {
