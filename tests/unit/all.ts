@@ -1,5 +1,6 @@
 import './main';
 import './order';
+import './lib/BenchmarkTest';
 import './lib/EnvironmentType';
 import './lib/Suite';
 import './lib/Test';
@@ -8,6 +9,7 @@ import './lib/ReporterManager';
 import './lib/executors/PreExecutor';
 import './lib/interfaces/tdd';
 import './lib/interfaces/bdd';
+import './lib/interfaces/benchmark';
 import './lib/interfaces/object';
 import './lib/interfaces/qunit';
 import './lib/reporters/Console';

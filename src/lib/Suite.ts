@@ -118,6 +118,16 @@ export class Suite {
 	}
 
 	/**
+	 * The unique identifier of the suite's parent.
+	 */
+	get parentId() {
+		const parent = this.parent;
+		if (parent) {
+			return parent.id;
+		}
+	}
+
+	/**
 	 * The WebDriver interface for driving a remote environment. This value is only guaranteed to exist from the
 	 * setup/beforeEach/afterEach/teardown and test methods, since environments are not instantiated until they are
 	 * actually ready to be tested against.
@@ -548,6 +558,7 @@ export class Suite {
 		return {
 			name: this.name,
 			id: this.id,
+			parentId: this.parentId,
 			sessionId: this.sessionId,
 			hasParent: Boolean(this.parent),
 			tests: this.tests.map(function (test) {

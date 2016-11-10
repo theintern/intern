@@ -4,13 +4,13 @@ import { InternError, Remote, Deferred } from '../interfaces';
 import { Suite } from './Suite';
 
 export interface TestFunction {
-	(test: Test): void | Promise<any>;
+	(): void | Promise<any>;
 }
 
 export interface TestDescriptor {
 	name: string;
-	parent: Suite;
-	test: TestFunction;
+	parent?: Suite;
+	test?: TestFunction;
 	hasPassed?: boolean;
 	skipped?: string;
 }
@@ -26,7 +26,7 @@ export class Test {
 
 	timeElapsed: number;
 
-	hasPassed: boolean = false;
+	hasPassed = false;
 
 	skipped: string;
 
@@ -61,6 +61,13 @@ export class Test {
 		} while ((object = object.parent));
 
 		return name.join(' - ');
+	}
+
+	/**
+	 * The unique identifier of the test's parent.
+	 */
+	get parentId() {
+		return this.parent.id;
 	}
 
 	/**
@@ -294,7 +301,7 @@ export class Test {
 				name: this.error.name,
 				message: this.error.message,
 				stack: this.error.stack,
-				showDiff: !!this.error.showDiff
+				showDiff: Boolean(this.error.showDiff)
 			};
 
 			if (this.error.showDiff) {
@@ -306,6 +313,7 @@ export class Test {
 		return {
 			error: error,
 			id: this.id,
+			parentId: this.parentId,
 			name: this.name,
 			sessionId: this.sessionId,
 			timeElapsed: this.timeElapsed,

@@ -12,6 +12,8 @@ import Promise = require('dojo/Promise');
 export interface Config {
 	bail?: boolean;
 	basePath?: string;
+	benchmark?: boolean;
+	benchmarkConfig?: ReporterDescriptor;
 	capabilities?: {
 		name?: string,
 		build?: string,
@@ -75,7 +77,11 @@ export interface CommandLineArguments {
 	[key: string]: any;
 }
 
-export interface InternError extends Chai.AssertionError {
+export interface InternError {
+	name: string;
+	message: string;
+	stack?: string;
+	showDiff?: boolean;
 	actual?: string;
 	expected?: string;
 	relatedTest?: Test;

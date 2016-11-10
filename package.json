@@ -10,6 +10,7 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
+    "benchmark": "2.1.1",
     "chai": "3.5.0",
     "charm": "0.2.0",
     "diff": "1.1.0",
@@ -18,10 +19,13 @@
     "glob": "7.0.3",
     "istanbul": "0.4.1",
     "leadfoot": "1.6.12",
+    "lodash-amd": "4.16.4",
     "mimetype": "0.0.8",
+    "platform": "1.3.1",
     "source-map": "0.1.33"
   },
   "devDependencies": {
+    "@types/benchmark": "~1.0.30",
     "@types/chai": "~3.4.34",
     "@types/diff": "~0.0.31",
     "@types/es6-promise": "~0.0.31",
@@ -39,8 +43,8 @@
   "scripts": {
     "install": "node support/fixdeps.js",
     "update": "node support/fixdeps.js",
-    "test": "node support/test.js",
-    "build": "node support/build.js",
+    "test": "node support/build.js && node support/test.js",
+    "build": "node support/lint.js && node support/build.js",
     "lint": "node support/lint.js",
     "clean": "node support/clean.js"
   },

@@ -1,6 +1,6 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import object = require('../../../../src/lib/interfaces/object');
+import { registerSuite as testRegisterSuite } from '../../../../src/lib/interfaces/object';
 import * as main from '../../../../src/main';
 import { Suite } from '../../../../src/lib/Suite';
 import { Test } from '../../../../src/lib/Test';
@@ -34,7 +34,7 @@ registerSuite({
 		},
 
 		registration() {
-			object({
+			testRegisterSuite({
 				name: 'root suite 1',
 
 				'nested suite': {
@@ -44,7 +44,7 @@ registerSuite({
 				'regular test': function () {}
 			});
 
-			object(function () {
+			testRegisterSuite(function () {
 				return {
 					name: 'root suite 2',
 
@@ -107,7 +107,7 @@ registerSuite({
 				};
 			});
 
-			object(suiteParams);
+			testRegisterSuite(suiteParams);
 
 			lifecycleMethods.forEach(function (method: string) {
 				(<{ [key: string]: any }> (<Suite> rootSuites[0]).tests[0])[method]('arg');

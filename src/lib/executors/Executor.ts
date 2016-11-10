@@ -44,6 +44,17 @@ export class Executor {
 		this.config = lang.deepDelegate(this.config, config);
 		this.reporterManager = new ReporterManager();
 		this.preExecutor = preExecutor;
+
+		if (has('host-node') && this.config.benchmark) {
+			this.config.benchmarkConfig.id = 'Benchmark';
+
+			if (!this.config.reporters || !this.config.reporters.length) {
+				this.config.reporters = [ this.config.benchmarkConfig ];
+			}
+			else if (!this.config.reporters.some(reporter => reporter === 'Benchmark' || (<ReporterDescriptor> reporter).id === 'Benchmark')) {
+				this.config.reporters.push(this.config.benchmarkConfig);
+			}
+		}
 	}
 
 	/**

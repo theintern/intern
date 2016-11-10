@@ -8,3 +8,5 @@ browserstack
 coverage-final.json
 _build/
 src/**/*.js
+benchmark.json
+baselines.json

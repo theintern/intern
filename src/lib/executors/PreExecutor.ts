@@ -229,6 +229,30 @@ export class PreExecutor {
 				config.proxyUrl = 'http://localhost:' + config.proxyPort + '/';
 			}
 
+			let benchmarkConfig = config.benchmarkConfig = lang.deepMixin({
+				filename: 'baseline.json',
+				mode: 'test',
+				thresholds: {
+					warn: { rme: 3, mean: 5 },
+					fail: { rme: 6, mean: 10 }
+				},
+				verbosity: 0
+			}, config.benchmarkConfig);
+
+			if (has('host-node')) {
+				benchmarkConfig.filename = pathUtil.join(config.basePath, benchmarkConfig.filename);
+			}
+
+			if (config.benchmark) {
+				if (config.baseline) {
+					benchmarkConfig.mode = 'baseline';
+				}
+
+				config.suites = config.benchmarkSuites || [];
+				config.functionalSuites = [];
+				config.excludeInstrumentation = true;
+			}
+
 			return config;
 		});
 

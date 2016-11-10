@@ -214,6 +214,7 @@ registerSuite({
 		const expected = {
 			error: <any> null,
 			id: 'parent id - test name',
+			parentId: 'parent id',
 			name: 'test name',
 			sessionId: 'abcd',
 			timeElapsed: 100,
