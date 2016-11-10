@@ -1,0 +1,29 @@
+{
+    "thresholds": {
+        "warn": {
+            "rme": 1,
+            "hz": 1
+        },
+        "fail": {
+            "rme": 5,
+            "hz": 5
+        }
+    },
+    "tests": [
+        "test1", "test2"
+    ],
+    "environmentTypes": {
+        "nodejs": {
+            "environmentType": {
+            },
+            "hz": [ 99846896, 8375488 ]
+        },
+        "IE11": {
+            "environmentType": {
+                "version": "11",
+                "browserName": "internet explorer"
+            },
+            "hz": [ 99846896, 8375488 ]
+        }
+    }
+}

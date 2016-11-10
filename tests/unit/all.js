@@ -1,6 +1,7 @@
 define([
 	'./main',
 	'./order',
+	'./lib/BenchmarkTest',
 	'./lib/EnvironmentType',
 	'./lib/Suite',
 	'./lib/Test',
@@ -9,6 +10,7 @@ define([
 	'./lib/executors/PreExecutor',
 	'./lib/interfaces/tdd',
 	'./lib/interfaces/bdd',
+	'./lib/interfaces/benchmark',
 	'./lib/interfaces/object',
 	'./lib/interfaces/qunit',
 	'./lib/reporters/Console',

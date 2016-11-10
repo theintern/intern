@@ -6,4 +6,6 @@ saucelabs
 testingbot
 browserstack
 coverage-final.json
+benchmark.json
+baselines.json
 *.tgz

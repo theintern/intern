@@ -14,7 +14,7 @@ if (!fs.existsSync(browserModules)) {
 
 // AMD-loaded dependencies need to exist in a known location, but npm's deduplication process can make final package
 // locations unpredictable, so copy the currently installed versions of required packages into browser_modules.
-[ 'dojo', 'chai', 'diff' ].forEach(function (dependency) {
+[ 'dojo', 'chai', 'diff', 'benchmark', 'lodash-amd', 'platform' ].forEach(function (dependency) {
 	var packageJson = require.resolve(path.join(dependency, 'package.json'));
 	var installedPath = path.dirname(packageJson);
 	var expectedPath = path.join(browserModules, dependency);

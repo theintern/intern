@@ -27,7 +27,10 @@ define({
 			'intern-selftest': {
 				dojo: 'intern-selftest/node_modules/dojo',
 				chai: 'intern-selftest/node_modules/chai/chai',
-				diff: 'intern-selftest/node_modules/diff/diff'
+				diff: 'intern-selftest/node_modules/diff/diff',
+				benchmark: 'intern-selftest/node_modules/benchmark/benchmark',
+				lodash: 'intern-selftest/node_modules/lodash-amd/main',
+				platform: 'intern-selftest/node_modules/platform/platform'
 			}
 		}
 	},
