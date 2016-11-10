@@ -1,15 +1,24 @@
 #!/usr/bin/env node
 
-var spawn = require('child_process').spawnSync
+var spawn = require('child_process').spawnSync;
 
 function run(script, extra) {
 	if (/^win/.test(process.platform)) {
 		script += '.cmd';
 	}
-	var args = [ 'config=tests/selftest.intern.js' ];
+
+	var args = [];
 	if (extra) {
 		args = args.concat(extra);
 	}
+
+	var hasConfig = args.some(function (arg) {
+		return arg.indexOf('config=') === 0;
+	});
+	if (!hasConfig) {
+		args.push('config=tests/selftest.intern.js');
+	}
+
 	spawn(script, args, { stdio: 'inherit' });
 }
 
