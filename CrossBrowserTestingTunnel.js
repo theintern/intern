@@ -213,6 +213,7 @@ CrossBrowserTestingTunnel.prototype = util.mixin(Object.create(_super), /** @len
 
 				intern: {
 					browserName: browserName,
+					version: browser.version,
 					browser_api_name: browser.api_name,
 					os_api_name: platform
 				}

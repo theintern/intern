@@ -10,7 +10,6 @@ var tunnels = fs.readdirSync('.').filter(function (name) {
 	return name.slice(0, name.length - 3);
 });
 
-
 if (process.argv.length !== 3) {
 	console.log('usage: environments TUNNEL');
 	console.log();
