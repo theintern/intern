@@ -1,15 +1,13 @@
-#!/usr/bin/env node
-
 /* global Promise */
 
-var exec = require('child_process').exec;
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
-var rl = require('readline').createInterface({
-	input: process.stdin,
-	output: process.stdout
-});
+var _util = require('./_util');
+
+var print = _util.print;
+var prompt = _util.prompt;
+var run = _util.run;
 
 function cleanup() {
 	// Cleanup
@@ -30,42 +28,12 @@ function cleanup() {
 	rm(buildDir);
 }
 
-function print() {
-	rl.write(util.format.apply(util, arguments));
-}
-
 function printUsage() {
 	print('Usage: %s [options] [branch] [version]\n', process.argv[1]);
 	print('\n');
 	print('Branch defaults to "master".\n');
 	print('Version defaults to what is listed in package.json in the branch.\n');
 	print('Version should only be specified for pre-releases.\n');
-}
-
-function prompt() {
-	var question = util.format.apply(util, arguments);
-	return new Promise(function (resolve) {
-		rl.question(question, resolve);
-	});
-}
-
-function run(cmd) {
-	return new Promise(function (resolve, reject) {
-		if (shouldRun) {
-			exec(cmd, function (error, stdout) {
-				if (error) {
-					reject(error);
-				}
-				else {
-					resolve(stdout);
-				}
-			});
-		}
-		else {
-			print(cmd + '\n');
-			resolve('');
-		}
-	});
 }
 
 function loadPackageJson() {
@@ -79,7 +47,6 @@ function updatePackageVersion(version) {
 }
 
 var args = process.argv.slice(2);
-var shouldRun = true;
 
 if (args[0] === '--help') {
 	printUsage();
@@ -87,7 +54,7 @@ if (args[0] === '--help') {
 }
 
 if (args[0] === '-n') {
-	shouldRun = false;
+	_util.shouldRun = false;
 	args.shift();
 }
 
@@ -237,11 +204,7 @@ run('git config receive.denyCurrentBranch').then(
 		npmTag + ', push tags ' + releaseTag + ', and upload. Enter any other key to bail.\n' +
 		'> ';
 
-	return new Promise(function (resolve) {
-		rl.question(question, function (answer) {
-			resolve(answer);
-		});
-	}).then(function (answer) {
+	return prompt(question).then(function (answer) {
 		if (answer !== 'y') {
 			cleanup();
 			process.exit(0);

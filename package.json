@@ -12,10 +12,12 @@
     "decompress": "3.0.0"
   },
   "devDependencies": {
-    "intern": "3.2.3"
+    "intern": "3.2.3",
+    "rimraf": "2.5.4"
   },
   "scripts": {
-    "test": "./node_modules/.bin/intern-client config=tests/intern"
+    "test": "./node_modules/.bin/intern-client config=tests/intern",
+    "build:doc": "node support/apidoc.js"
   },
   "bugs": "https://github.com/theintern/digdug/issues",
   "keywords": [
