@@ -28,5 +28,8 @@
     "browserstack",
     "testingbot"
   ],
-  "homepage": "https://github.com/theintern/digdug"
+  "homepage": "https://github.com/theintern/digdug",
+  "bin": {
+    "digdugEnvironments": "./bin/digdugEnvironments.js"
+  }
 }
