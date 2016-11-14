@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 var fs = require('fs');
-var tunnels = fs.readdirSync('.').filter(function (name) {
+var path = require('path');
+var digdugPath = path.dirname(require.resolve('digdug/Tunnel'));
+var tunnels = fs.readdirSync(digdugPath).filter(function (name) {
 	return /[A-Z]\w+Tunnel\.js/.test(name) &&
 		name !== 'NullTunnel.js' &&
 		name !== 'Tunnel.js' &&
