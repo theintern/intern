@@ -57,6 +57,24 @@ tunnel.stop().then(function () {
 });
 ```
 
+## Utilities
+
+Dig Dug includes a utility script, `digdugEnvironmnents`. After the digdug package has been installed, run this script to get a list of environments provided by a particular testing service.
+
+```
+$ ./node_modules/.bin/digdugEnvironments SauceLabsTunnel
+{"platform":"OS X 10.9","browserName":"firefox","version":"4"}
+{"platform":"OS X 10.9","browserName":"firefox","version":"5"}
+{"platform":"OS X 10.9","browserName":"firefox","version":"6"}
+{"platform":"OS X 10.9","browserName":"firefox","version":"7"}
+{"platform":"OS X 10.9","browserName":"firefox","version":"8"}
+{"platform":"OS X 10.9","browserName":"firefox","version":"9"}
+{"platform":"OS X 10.9","browserName":"firefox","version":"10"}
+...
+```
+
+Note that BrowserStackTunnel requires that the `BROWSERSTACK_ACCESS_KEY` and `BROWSERSTACK_USERNAME` environment variables exist and are set to a user's account access key and username. The other tunnels do not (currently) require authentication to request an environment list.
+
 ## API documentation
 
 [View API documentation](https://theintern.github.io/digdug/)
