@@ -20,6 +20,27 @@ var CBT_VERSION = '0.0.27';
  *   1. The capabilities must include the username, API key, browser_api_name, and os_api_name properties
  *   2. The Intern proxyUrl must use 'local' instead of 'localhost'
  *
+ * An Intern config using this tunnel might be look like:
+ *
+ * ```js
+ * define({
+ * 	proxyUrl: 'http://local:9000',
+ * 
+ * 	tunnel: 'CrossBrowserTesting',
+ * 
+ * 	environments: [
+ * 		{
+ * 			browserName: 'chrome',
+ * 			// os_api_name and browser_api_name
+ * 			os_api_name: 'Win10',
+ * 			browser_api_name: 'Chrome52'
+ * 		}
+ * 	]
+ * 
+ * 	// Other Intern config options...
+ * });
+ * ```
+ *
  * @constructor module:digdug/CrossBrowserTestingTunnel
  * @extends module:digdug/Tunnel
  */
