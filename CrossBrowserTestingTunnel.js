@@ -31,7 +31,6 @@ var CBT_VERSION = '0.0.27';
  * 	environments: [
  * 		{
  * 			browserName: 'chrome',
- * 			// os_api_name and browser_api_name
  * 			os_api_name: 'Win10',
  * 			browser_api_name: 'Chrome52'
  * 		}
