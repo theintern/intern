@@ -1133,6 +1133,29 @@ Session.prototype = {
 	 * @returns {Promise.<void>}
 	 */
 	clearCookies: function () {
+		if (this.capabilities.brokenDeleteCookie) {
+			var self = this;
+			return this.getCookies().then(function (cookies) {
+				return cookies.reduce(function (promise, cookie) {
+					var expiredCookie = [
+						cookie.name + '=',
+						'expires=Thu, 01 Jan 1970 00:00:00 GMT'
+					];
+
+					pushCookieProperties(expiredCookie, cookie);
+
+					return promise.then(function () {
+						return self.execute(/* istanbul ignore next */ function (expiredCookie) {
+							document.cookie = expiredCookie + '; domain=' + encodeURIComponent(document.domain) +
+								// Assume the cookie was created by Selenium, so it's path is '/'; at least MS Edge
+								// requires a path to delete a cookie
+								'; path=/';
+						}, [ expiredCookie.join(';') ]);
+					});
+				}, Promise.resolve());
+			});
+		}
+
 		return this._delete('cookie').then(noop);
 	},
 
@@ -1161,7 +1184,10 @@ Session.prototype = {
 					pushCookieProperties(expiredCookie, cookie);
 
 					return self.execute(/* istanbul ignore next */ function (expiredCookie) {
-						document.cookie = expiredCookie + ';domain=' + encodeURIComponent(document.domain);
+						document.cookie = expiredCookie + '; domain=' + encodeURIComponent(document.domain) +
+							// Assume the cookie was created by Selenium, so it's path is '/'; at least MS Edge requires
+							// a path to delete a cookie
+							'; path=/';
 					}, [ expiredCookie.join(';') ]);
 				}
 			});
