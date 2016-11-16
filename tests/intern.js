@@ -1,6 +1,5 @@
 define({
 	capabilities: {
-		'selenium-version': '2.43.0',
 		'idle-timeout': 30
 	},
 
@@ -9,9 +8,9 @@ define({
 		{ browserName: 'internet explorer', version: '11', platform: 'WIN8', fixSessionCapabilities: false },
 		{ browserName: 'internet explorer', version: '10', platform: 'WIN8', fixSessionCapabilities: false },
 		{ browserName: 'internet explorer', version: '9', platform: 'WINDOWS', fixSessionCapabilities: false },
-		{ browserName: 'firefox', version: '33', platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
-		{ browserName: 'chrome', version: '38', platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
-		{ browserName: 'safari', version: '9', platform: 'MAC', fixSessionCapabilities: false }
+		{ browserName: 'firefox', version: [ '33', '49' ], platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
+		{ browserName: 'chrome', version: [ '38', '52' ], platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
+		{ browserName: 'safari', version: [ '9', '10' ], platform: 'MAC', fixSessionCapabilities: false }
 	],
 
 	maxConcurrency: 2,
