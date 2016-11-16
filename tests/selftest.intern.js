@@ -6,16 +6,18 @@ define({
 		'idle-timeout': 60
 	},
 	environments: [
-		{ browserName: 'internet explorer', version: '11.0', platform: 'Windows 10', fixSessionCapabilities: false },
-		{ browserName: 'internet explorer', version: '10.0', platform: 'Windows 8', fixSessionCapabilities: false },
-		{ browserName: 'internet explorer', version: '9.0', platform: 'Windows 7', fixSessionCapabilities: false },
-		{ browserName: 'firefox', version: '33.0', platform: [ 'Windows 7', 'OS X 10.11' ], fixSessionCapabilities: false },
-		{ browserName: 'chrome', version: '38.0', platform: [ 'Windows 7', 'OS X 10.11' ], fixSessionCapabilities: false },
-		{ browserName: 'safari', version: '9.0', platform: 'OS X 10.11', fixSessionCapabilities: false }
+		{ browserName: 'internet explorer', version: '11.0', platform: 'WINDOWS', fixSessionCapabilities: false },
+		{ browserName: 'internet explorer', version: '10.0', platform: 'WIN8', fixSessionCapabilities: false },
+		{ browserName: 'internet explorer', version: '9.0', platform: 'WINDOWS', fixSessionCapabilities: false },
+		{ browserName: 'firefox', version: [ '33', '49' ], platform: [ 'WINDOWS', 'MAC' ],
+			fixSessionCapabilities: false },
+		{ browserName: 'chrome', version: [ '38', '52' ], platform: [ 'WINDOWS', 'MAC' ],
+			fixSessionCapabilities: false },
+		{ browserName: 'safari', version: [ '9', '10' ], fixSessionCapabilities: false }
 	],
 
 	maxConcurrency: 2,
-	tunnel: 'SauceLabsTunnel',
+	tunnel: 'BrowserStackTunnel',
 
 	loaderOptions: {
 		// Packages that should be registered with the loader in each testing environment
