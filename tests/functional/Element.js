@@ -645,10 +645,21 @@ define([
 					}).then(function () {
 						return element.getSpecAttribute('value');
 					}).then(function (value) {
-						assert.strictEqual(value, 'defaultfoo', 'Current value of input should be returned');
+						if (session.capabilities.isWebDriver) {
+							assert.strictEqual(value, 'default', 'Initial value of input should be returned');
+						}
+						else {
+							assert.strictEqual(value, 'defaultfoo', 'Current value of input should be returned');
+						}
 						return element.getSpecAttribute('defaultValue');
 					}).then(function (defaultValue) {
-						assert.strictEqual(defaultValue, 'default', 'Default value should be returned');
+						// WebDriver's /attribute is like getAttribute, for which there is no 'defaultValue'
+						if (session.capabilities.isWebDriver) {
+							assert.isNull(defaultValue, 'No defaultValue attribute should exist');
+						}
+						else {
+							assert.strictEqual(defaultValue, 'default', 'Initial value should be returned');
+						}
 						return element.getSpecAttribute('data-html5');
 					}).then(function (value) {
 						assert.strictEqual(value, 'true', 'Value of custom attributes should be returned');
@@ -668,10 +679,15 @@ define([
 				}).then(function (element) {
 					return element.getSpecAttribute('href');
 				}).then(function (href) {
-					return session.getCurrentUrl().then(function (baseUrl) {
-						var expected = baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1) + 'default.html';
-						assert.strictEqual(href, expected, 'Link href value should be absolute');
-					});
+					if (session.capabilities.isWebDriver) {
+						assert.strictEqual(href, 'default.html', 'Unexpected link href value');
+					}
+					else {
+						return session.getCurrentUrl().then(function (baseUrl) {
+							var expected = baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1) + 'default.html';
+							assert.strictEqual(href, expected, 'Link href value should be absolute');
+						});
+					}
 				});
 			},
 
