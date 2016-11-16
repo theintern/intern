@@ -12,12 +12,14 @@
     "jszip": "2.5.0"
   },
   "devDependencies": {
-    "intern": "3.3.2"
+    "intern": "3.3.2",
+    "rimraf": "2.5.4"
   },
   "bugs": "https://github.com/theintern/leadfoot/issues",
   "keywords": [ "javascript", "test", "functional", "selenium", "webdriver", "sauce labs", "browserstack", "testingbot" ],
   "homepage": "http://github.com/theintern/leadfoot",
   "scripts": {
-    "test": "intern-runner config=tests/intern"
+    "test": "intern-runner config=tests/intern",
+    "apidoc": "node support/apidoc.js"
   }
 }
