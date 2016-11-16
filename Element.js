@@ -123,6 +123,14 @@ Element.prototype = {
 			value: value
 		}).then(function (element) {
 			return new Element(element, session);
+		}).catch(function (error) {
+			// At least Firefox 49 + geckodriver returns an UnknownCommand error when unable to find elements.
+			if (error.name === 'UnknownCommand' && error.message.indexOf('Unable to locate element:') !== -1) {
+				var newError = new Error();
+				newError.name = 'NoSuchElement';
+				newError.message = error.message;
+				throw newError;
+			}
 		});
 	},
 
@@ -172,6 +180,12 @@ Element.prototype = {
 	 * @returns {Promise.<void>}
 	 */
 	click: function () {
+		if (this.session.capabilities.brokenClick) {
+			return this.session.execute(function (element) {
+				element.click();
+			}, [ this ]);
+		}
+
 		var self = this;
 		return this._post('click').then(function () {
 			// ios-driver 0.6.6-SNAPSHOT April 2014 and MS Edge Driver 14316 do not wait until the default action for

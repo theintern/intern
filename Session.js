@@ -60,6 +60,10 @@ function delegateToServer(method) {
 		var self = this;
 		path = 'session/' + this._sessionId + (path ? ('/' + path) : '');
 
+		if (method === '_post' && !requestData && this.capabilities.brokenEmptyPost) {
+			requestData = {};
+		}
+
 		return new Promise(function (resolve, reject, progress, setCanceller) {
 			var cancelled = false;
 			setCanceller(function (reason) {
