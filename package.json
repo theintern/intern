@@ -1,6 +1,6 @@
 {
   "name": "leadfoot",
-  "version": "1.7.0-pre",
+  "version": "1.7.0",
   "description": "Leadfoot. A JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.",
   "repository": {
     "type": "git",
@@ -16,7 +16,16 @@
     "rimraf": "2.5.4"
   },
   "bugs": "https://github.com/theintern/leadfoot/issues",
-  "keywords": [ "javascript", "test", "functional", "selenium", "webdriver", "sauce labs", "browserstack", "testingbot" ],
+  "keywords": [
+    "javascript",
+    "test",
+    "functional",
+    "selenium",
+    "webdriver",
+    "sauce labs",
+    "browserstack",
+    "testingbot"
+  ],
   "homepage": "http://github.com/theintern/leadfoot",
   "scripts": {
     "test": "intern-runner config=tests/intern",
