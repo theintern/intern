@@ -199,25 +199,43 @@ function simulateKeys(keys) {
 	var target = document.activeElement;
 
 	function dispatch(kwArgs) {
-		var event = document.createEvent('KeyboardEvent');
-		event.initKeyboardEvent(
-			kwArgs.type,
-			kwArgs.bubbles || true,
-			kwArgs.cancelable || false,
-			window,
-			kwArgs.key || '',
-			kwArgs.location || 3,
-			kwArgs.modifiers || '',
-			kwArgs.repeat || 0,
-			kwArgs.locale || ''
-		);
+		var event;
+		if (typeof KeyboardEvent === 'function') {
+			event = new KeyboardEvent(kwArgs.type, {
+				bubbles: true,
+				cancelable: kwArgs.cancelable || false,
+				view: window,
+				key: kwArgs.key || '',
+				location: 3
+			});
+		}
+		else {
+			event = document.createEvent('KeyboardEvent');
+			event.initKeyboardEvent(
+				kwArgs.type,
+				true,
+				kwArgs.cancelable || false,
+				window,
+				kwArgs.key || '',
+				3,
+				'',
+				0,
+				''
+			);
+		}
 
 		return target.dispatchEvent(event);
 	}
 
 	function dispatchInput() {
-		var event = document.createEvent('Event');
-		event.initEvent('input', true, false);
+		var event;
+		if (typeof Event === 'function') {
+			event = new Event('input', { bubbles: true, cancelable: false });
+		}
+		else {
+			event = document.createEvent('Event');
+			event.initEvent('input', true, false);
+		}
 		return target.dispatchEvent(event);
 	}
 
@@ -266,24 +284,45 @@ function simulateMouse(kwArgs) {
 	var position = kwArgs.position;
 
 	function dispatch(kwArgs) {
-		var event = document.createEvent('MouseEvents');
-		event.initMouseEvent(
-			kwArgs.type,
-			kwArgs.bubbles || true,
-			kwArgs.cancelable || false,
-			window,
-			kwArgs.detail || 0,
-			window.screenX + position.x,
-			window.screenY + position.y,
-			position.x,
-			position.y,
-			kwArgs.ctrlKey || false,
-			kwArgs.altKey || false,
-			kwArgs.shiftKey || false,
-			kwArgs.metaKey || false,
-			kwArgs.button || 0,
-			kwArgs.relatedTarget || null
-		);
+		var event;
+		if (typeof MouseEvent === 'function') {
+			event = new MouseEvent(kwArgs.type, {
+				bubbles: 'bubbles' in kwArgs ? kwArgs.bubbles : true,
+				cancelable: kwArgs.cancelable || false,
+				view: window,
+				detail: kwArgs.detail || 0,
+				screenX: window.screenX + position.x,
+				screenY: window.screenY + position.y,
+				clientX: position.x,
+				clientY: position.y,
+				ctrlKey: kwArgs.ctrlKey || false,
+				shiftKey: kwArgs.shiftKey || false,
+				altKey: kwArgs.altKey || false,
+				metaKey: kwArgs.metaKey || false,
+				button: kwArgs.button || 0,
+				relatedTarget: kwArgs.relatedTarget
+			});
+		}
+		else {
+			event = document.createEvent('MouseEvents');
+			event.initMouseEvent(
+				kwArgs.type,
+				kwArgs.bubbles || true,
+				kwArgs.cancelable || false,
+				window,
+				kwArgs.detail || 0,
+				window.screenX + position.x,
+				window.screenY + position.y,
+				position.x,
+				position.y,
+				kwArgs.ctrlKey || false,
+				kwArgs.altKey || false,
+				kwArgs.shiftKey || false,
+				kwArgs.metaKey || false,
+				kwArgs.button || 0,
+				kwArgs.relatedTarget || null
+			);
+		}
 
 		return kwArgs.target.dispatchEvent(event);
 	}
