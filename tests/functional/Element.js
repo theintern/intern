@@ -864,15 +864,15 @@ define([
 				return session.get(require.toUrl('./data/dimensions.html')).then(function () {
 					return session.findById('a');
 				}).then(function (element) {
-					return element.getComputedStyle('backgroundColor').then(function (style) {
+					return element.getComputedStyle('background-color').then(function (style) {
 						assert.strictEqual(style, 'rgba(128, 0, 128, 1)', 'Background colour should be rgba');
-						return element.getComputedStyle('borderLeftWidth');
+						return element.getComputedStyle('border-left-width');
 					}).then(function (style) {
 						assert.strictEqual(style, '1px', 'Left border width should be in pixels');
 						return element.getComputedStyle('display');
 					}).then(function (style) {
 						assert.strictEqual(style, 'block', 'Display mode should be the correct non-overridden style');
-						return element.getComputedStyle('notAProperty');
+						return element.getComputedStyle('not-a-property');
 					}).then(function (style) {
 						// Empty string is used by necessity since this is what FirefoxDriver returns and we cannot
 						// list all possible invalid style names
