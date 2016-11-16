@@ -1212,6 +1212,12 @@ Session.prototype = {
 	find: function (using, value) {
 		var self = this;
 
+		if (this.capabilities.isWebDriver) {
+			var locator = strategies.toW3cLocator(using, value);
+			using = locator.using;
+			value = locator.value;
+		}
+
 		if (using.indexOf('link text') !== -1 && this.capabilities.brokenWhitespaceNormalization) {
 			return this.execute(/* istanbul ignore next */ this._manualFindByLinkText, [ using, value ])
 				.then(function (element) {
@@ -1245,6 +1251,12 @@ Session.prototype = {
 	 */
 	findAll: function (using, value) {
 		var self = this;
+
+		if (this.capabilities.isWebDriver) {
+			var locator = strategies.toW3cLocator(using, value);
+			using = locator.using;
+			value = locator.value;
+		}
 
 		if (using.indexOf('link text') !== -1 && this.capabilities.brokenWhitespaceNormalization) {
 			return this.execute(/* istanbul ignore next */ this._manualFindByLinkText, [ using, value, true ])

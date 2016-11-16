@@ -41,7 +41,8 @@ function noop() {
  * The session that the element belongs to.
  */
 function Element(elementId, session) {
-	this._elementId = elementId.ELEMENT || elementId.elementId || elementId;
+	this._elementId = elementId.ELEMENT || elementId.elementId || elementId['element-6066-11e4-a52e-4f735466cecf'] ||
+		elementId;
 	this._session = session;
 }
 
@@ -98,6 +99,12 @@ Element.prototype = {
 	find: function (using, value) {
 		var session = this._session;
 
+		if (session.capabilities.isWebDriver) {
+			var locator = strategies.toW3cLocator(using, value);
+			using = locator.using;
+			value = locator.value;
+		}
+
 		if (using.indexOf('link text') !== -1 && this.session.capabilities.brokenWhitespaceNormalization) {
 			return this.session.execute(/* istanbul ignore next */ this.session._manualFindByLinkText, [
 				using, value, false, this
@@ -132,6 +139,12 @@ Element.prototype = {
 	 */
 	findAll: function (using, value) {
 		var session = this._session;
+
+		if (session.capabilities.isWebDriver) {
+			var locator = strategies.toW3cLocator(using, value);
+			using = locator.using;
+			value = locator.value;
+		}
 
 		if (using.indexOf('link text') !== -1 && this.session.capabilities.brokenWhitespaceNormalization) {
 			return this.session.execute(/* istanbul ignore next */ this.session._manualFindByLinkText, [
@@ -223,6 +236,15 @@ Element.prototype = {
 	 * @returns {Promise.<void>}
 	 */
 	type: function (value) {
+		function getPostData(arrayValue) {
+			if (self.session.capabilities.isWebDriver) {
+				return { value: arrayValue.join('').split('') };
+			}
+			return { value: arrayValue };
+		}
+
+		var self = this;
+
 		if (!Array.isArray(value)) {
 			value = [ value ];
 		}
@@ -234,11 +256,8 @@ Element.prototype = {
 			// field
 			try {
 				if (fs.statSync(filename).isFile()) {
-					var self = this;
 					return this.session._uploadFile(filename).then(function(uploadedFilename) {
-						return self._post('value', {
-							value: [ uploadedFilename ]
-						}).then(noop);
+						return self._post('value', getPostData([ uploadedFilename ])).then(noop);
 					});
 				}
 			}
@@ -248,9 +267,7 @@ Element.prototype = {
 		}
 
 		// If the input isn't a filename, just post the value directly
-		return this._post('value', {
-			value: value
-		}).then(noop);
+		return this._post('value', getPostData(value)).then(noop);
 	},
 
 	/**
