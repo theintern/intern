@@ -102,6 +102,7 @@
 								<li data-id="interface-object"><a href="#interface-object">The Object interface</a></li>
 								<li data-id="interface-tdd"><a href="#interface-tdd">The TDD &amp; BDD interfaces</a></li>
 								<li data-id="interface-qunit"><a href="#interface-qunit">The QUnit interface <span class="versionBadge">3.0</span></a></li>
+								<li data-id="interface-benchmark"><a href="#interface-benchmark">The Benchmark interface <span class="versionBadge">3.4</span></a></li>
 							</ul>
 						</li>
 						<li data-id="unit-testing">
@@ -115,6 +116,13 @@
 								<li data-id="testing-global-code"><a href="#testing-global-code">Testing non-modular code</a></li>
 								<li data-id="testing-other-module"><a href="#testing-other-module">Testing other transpiled code</a></li>
 								<li data-id="testing-cors"><a href="#testing-cors">Testing non-CORS APIs</a></li>
+							</ul>
+						</li>
+						<li data-id="benchmark-testing">
+							<a href="#benchmark-testing">Benchmark testing</a>
+							<ul class="subsections">
+								<li data-id="writing-benchmark-test"><a href="#writing-benchmark-test">Writing a benchmark test</a></li>
+								<li data-id="benchmark-lifecycle"><a href="#benchmark-lifecycle">The benchmark test lifecycle</a></li>
 							</ul>
 						</li>
 						<li data-id="functional-testing">
@@ -177,6 +185,7 @@
 							<ul class="subsections">
 								<li data-id="suite-object"><a href="#suite-object">The Suite object</a></li>
 								<li data-id="test-object"><a href="#test-object">The Test object</a></li>
+								<li data-id="benchmarkTest-object"><a href="#benchmarkTest-object">The BenchmarkTest object</a></li>
 							</ul>
 						</li>
 						<li data-id="community">
@@ -561,12 +570,32 @@
 								<td><code class="javascript">false</code></td>
 							</tr>
 							<tr>
+								<th scope="row"><a href="#option-baseline">baseline</a> <span class="versionBadge">3.4</span></th>
+								<td>If true, and if <code>benchmark</code> is also true, benchmarking will run in "baseline" mode.</td>
+								<td><code class="javascript">false</code></td>
+							</tr>
+							<tr>
 								<th scope="row"><a href="#option-basePath">basePath</a> <span class="versionBadge">3.0</span></th>
 								<td>The common base path for all files that need to be loaded during testing.</td>
 								<td><code class="javascript">process.cwd()</code> (Node.js)<br><code class="javascript">'node_modules/intern/../../'</code> (browser)</td>
 							</tr>
 							<tr>
-								<th scope="row"><a href="#option-coverageVariable">coverageVariable</a> <span class="versionBadge">3.0</span></th>
+								<th scope="row"><a href="#option-benchmark">benchmark</a> <span class="versionBadge">3.4</span></th>
+								<td>If true, enable benchmarking mode.</td>
+								<td><code class="javascript">false</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-benchmarkConfig">benchmarkConfig</a> <span class="versionBadge">3.4</span></th>
+								<td>An object containing options for the benchmarking system.</td>
+								<td><code class="javascript">undefined</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-benchmarkSuites">benchmarkSuites</a> <span class="versionBadge">3.4</span></th>
+								<td>An array of benchmark test module IDs to load. These may include glob patterns.</td>
+								<td><code class="javascript">[]</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-coverageVariable">coverageVariable</a> <span class="versionbadge">3.0</span></th>
 								<td>The name of the global variable used to store and retrieve code coverage data.</td>
 								<td><code class="javascript">'__internCoverage'</code></td>
 							</tr>
@@ -579,6 +608,11 @@
 								<th scope="row"><a href="#option-excludeInstrumentation">excludeInstrumentation</a></th>
 								<td>A boolean <span class="versionBadge">3.0</span> or regular expression matching paths to exclude from code coverage.</td>
 								<td><code class="javascript">null</code></td>
+							</tr>
+							<tr>
+								<th scope="row"><a href="#option-filterErrorStack">filterErrorStack</a> <span class="versionBadge">3.4</span></th>
+								<td>If this value is set to <code class="javascript">true</code>, stack trace lines for non-application code will be pruned from error messages.</td>
+								<td><code class="javascript">false</code></td>
 							</tr>
 							<tr>
 								<th scope="row"><a href="#option-grep">grep</a></th>
@@ -620,7 +654,12 @@
 						<div class="a half" id="option-bail"></div>
 						<h4>bail (boolean) <span class="versionBadge">3.1</span></h4>
 
-						<p>The <code>bail</code> option controls Intern's “fail fast” behavior. When <code>bail</code> is set to <code class="javascript">true</code> and a test fails, all remaining tests, both unit and functional, will be skipped. Other than the cleanup methods for the failing test and its containing suite, no other test or suite lifecycle methods (<code class="javascript">setup/before</code>, <code class="javascript">beforeEach</code>, <code class="javascript">afterEach</code>, <code class="javascript">teardown/after</code>) will be run.</p>
+						<p>The <code class="javascript">bail</code> option controls Intern's “fail fast” behavior. When <code>bail</code> is set to <code class="javascript">true</code> and a test fails, all remaining tests, both unit and functional, will be skipped. Other than the cleanup methods for the failing test and its containing suite, no other test or suite lifecycle methods (<code class="javascript">setup/before</code>, <code class="javascript">beforeEach</code>, <code class="javascript">afterEach</code>, <code class="javascript">teardown/after</code>) will be run.</p>
+
+						<div class="a half" id="option-baseline"></div>
+						<h4>baseline (boolean) <span class="versionBadge">3.4</span></h4>
+
+						<p>If this value is true, and if Intern is running in benchmarking mode, it will record baseline data rather than evaluating benchmarks against existing baseline data. Intern will automatically run in baseline mode if no benchmark data exists when a benchmarking run is started.</p>
 
 						<div class="a half" id="option-basePath"></div>
 						<h4>basePath (string) <span class="versionBadge">3.0</span></h4>
@@ -636,6 +675,30 @@
 						<p>If <code>basePath</code> is not explicitly provided, it is set to <code>.</code> and is resolved according to the rules above.</p>
 
 						<aside class="whatAreYouCrazy"><p><code>basePath</code> is the directory that is served by the test runner’s instrumenting proxy HTTP server. If it is not set properly for your application, the test runner will not work correctly.</p></aside>
+
+						<div class="a half" id="option-benchmark"></div>
+						<h4>benchmark (boolean) <span class="versionBadge">3.4</span></h4>
+
+						<p>If this value is true, Intern will run in benchmarking mode. In this mode, only suites in the <code class="javascript">benchmarkSuites</code> will be executed. By default, benchmarking mode will compare benchmark results against previously recorded results and flag deviations. Set the <code class="javascript">baseline</code> option to <code>true</code> to record new baseline results.</p>
+
+						<div class="a half" id="option-benchmarkConfig"></div>
+						<h4>benchmarkConfig (object) <span class="versionBadge">3.4</span></h4>
+
+						<p>This value contains options for the Benchmark reporter. The default values are:</p>
+
+						<pre><code class="javascript">benchmarkConfig: {
+	filename: 'baseline.json',
+	thresholds: {
+		warn: { rme: 5, mean: 3 },
+		fail: { rme: 6, mean: 10 }
+	},
+	verbosity: 0
+}</code></pre>
+
+						<div class="a half" id="option-benchmarkSuites"></div>
+						<h4>benchmarkSuites (array) <span class="versionBadge">3.4</span></h4>
+
+						<p>An array of benchmark test module IDs to load. See <a href="#option-suites">suites</a> for supported syntax.</p>
 
 						<div class="a half" id="option-coverageVariable"></div>
 						<h4>coverageVariable (string) <span class="versionBadge">3.0</span></h4>
@@ -665,6 +728,37 @@
 }</code></pre>
 
 						<aside class="tip"><p>If you are running Intern 2 on Windows, you will need to use <code>[\\/]</code> instead of <code>\/</code> to match the path separator used by that OS. In Intern 3, forward-slashes should always be used regardless of platform.</p></aside>
+
+						<div class="a half" id="option-filterErrorStack"></div>
+						<h4>filterErrorStack (boolean) <span class="versionBadge">3.4</span></h4>
+
+						<p>The <code>filterErrorStack</code> option tells Intern to clean up error stack traces by removing non-application code. For example, by default a stack trace for a WebDriver test error might look like this:</p>
+
+						<pre>UnknownError: [GET http://localhost:4444/.../text] Element reference not seen before: %5Bobject%20Object%5D
+  at runRequest  &lt;node_modules/leadfoot/Session.js:88:40>
+  at &lt;node_modules/leadfoot/Session.js:109:39>
+  at new Promise  &lt;node_modules/dojo/Promise.ts:411:3>
+  at ProxiedSession._get  &lt;node_modules/leadfoot/Session.js:63:10>
+  at Element._get  &lt;node_modules/leadfoot/Element.js:23:31>
+  at Element.getVisibleText  &lt;node_modules/leadfoot/Element.js:199:21>
+  at Command.&lt;anonymous>  &lt;node_modules/leadfoot/Command.js:680:19>
+  at &lt;node_modules/dojo/Promise.ts:393:15>
+  at run  &lt;node_modules/dojo/Promise.ts:237:7>
+  at &lt;node_modules/dojo/nextTick.ts:44:3>
+  at Command.target.(anonymous function) [as getVisibleText]  &lt;node_modules/leadfoot/Command.js:674:11>
+  at Test.check contents [as test]  &lt;tests/functional/hello.js:21:6>
+  at &lt;node_modules/intern/lib/Test.js:191:24>
+  at &lt;node_modules/intern/browser_modules/dojo/Promise.ts:393:15>
+  at runCallbacks  &lt;node_modules/intern/browser_modules/dojo/Promise.ts:11:11>
+  at &lt;node_modules/intern/browser_modules/dojo/Promise.ts:317:4>
+  at run  &lt;node_modules/intern/browser_modules/dojo/Promise.ts:237:7>
+  at &lt;node_modules/intern/browser_modules/dojo/nextTick.ts:44:3>
+  at _combinedTickCallback  &lt;internal/process/next_tick.js:67:7></pre>
+
+						<p>With <code>filterErrorStack</code> set to true, it would look like this:</p>
+
+						<pre>UnknownError: [GET http://localhost:4444/.../text] Element reference not seen before: %5Bobject%20Object%5D
+  at Test.check contents [as test]  &lt;tests/functional/hello.js:21:6></pre>
 
 						<div class="a half" id="option-grep"></div>
 						<h4>grep (RegExp)</h4>
@@ -1329,6 +1423,52 @@
 });</code></pre>
 
 						<aside class="whatAreYouCrazy"><p>The QUnit interface has been successfully used by multiple jQuery projects to convert their tests to Intern, but there may be some edge cases where its behaviour differs. Please <a href="https://github.com/theintern/intern/issues/new?body=Description:%0A%0ASteps+to+reproduce:%0A%0A1.%20%E2%80%A6%0A2.%20%E2%80%A6%0A3.%20%E2%80%A6%0A%0AExpected%20result:%0AActual%20result:%0A%0AIntern%20version:%0A%0AAny%20additional%20information:">let us know</a> if you run into any in your own projects!</p></aside>
+
+						<div class="a half" id="interface-benchmark"></div>
+						<h3 data-id="interface-benchmark">The Benchmark interface</h3>
+
+						<p>The benchmark interface is a specialized version of the object interface used to write benchmarking tests. It's usage is similar to that of the object interface, with a few key differences. One is that asynchronous tests must be declared using an <code>async</code> wrapper function, and tests that will be explicitly skipped also need to use a wrapper function (<code>skip</code>). The <code>this.async()</code> and <code>this.skip()</code> methods are not supported for benchmark tests.</p> 
+
+						<pre><code class="javascript">define([ 'intern!benchmark' ], function (registerSuite) {
+	var async = registerSuite.async; 
+	var skip = registerSuite.skip; 
+
+	registerSuite({
+		name: 'a suite',
+
+		'basic test': function () {
+			// benchmark
+		},
+
+		'skipped test': skip(function () {
+			// benchmark
+		}),
+
+		'async test': async(function (dfd) {
+			// benchmark that returns a Promise or resolves the passed in deferred object
+		})
+	});
+}</code></pre>
+
+						<p>Intern's benchmarking support is based on <a href="https://benchmarkjs.com">Benchmark.js</a>, which accepts configuration options beyond the standard ones provided through Intern. To pass additional options directly to Benchmark.js, attach them as an "options" property to the test function.</p>
+
+						<pre><code class="javascript">registerSuite({
+	'basic test': (function () {
+		function test() {
+			// benchmark
+		}
+
+		test.options = {
+			// benchmark.js options
+		};
+
+		return test;
+	})()
+});</code></pre>
+
+						<p>The benchmark interface also adds two new lifecycle functions: <code>beforeEachLoop</code> and <code>afterEachLoop</code>. These are similar to Benchmark.js's <code>setup</code> and <code>teardown</code> methods, in that they will be called each time of the test function is called. (The existing <code>beforeEach</code> and <code>afterEach</code> methods will be called before and after the benchmarking process for a particular test, which will involve calling the test function multiple times.) Like Intern's existing lifecycle functions, these methods support nested suites.</p>
+
+						<aside class="tip"><p>Note that providing <code>setup</code> and <code>teardown</code> functions on benchmark test "options" object is not supported. Intern will always override these functions with its own lifecycle code. Instead, use <code>beforeEachLoop</code> and <code>afterEachLoop</code>.</p></aside>
 					</article>
 
 					<article>
@@ -1810,6 +1950,42 @@ define(function (require) {
 		try_files $uri $uri/ =404;
 	}
 }</code></pre>
+					</article>
+
+					<article>
+						<div class="a" id="benchmark-testing"></div>
+						<h2 data-id="benchmark-testing">Benchmark testing</h2>
+
+						<div class="a half" id="writing-benchmark-test"></div>
+						<h3 data-id="writing-benchmark-test">Writing a benchmark test</h3>
+
+						<p>Tests are created using an interface very much like the unit test <code class="javascript">object</code> interface, and follow a similar lifecycle. The main differences are in how <code class="javascript">before/afterEach</code> behave and the requirement to use <code class="javascript">async</code> and <code class="javascript">skip</code> wrappers rather than <code class="javascript">this.async()</code> and <code class="javascript">this.skip()</code>.
+
+						<div class="a half" id="benchmark-lifecycle"></div>
+						<h3 data-id="benchmark-lifecycle">The benchmark test lifecycle</h3>
+
+						<p>The benchmark test lifcycle is very similar to standard tests.</p>
+
+						<ul>
+							<li>For <em>each registered root suite</em>:
+								<ul>
+									<li>The <a href="#suite-object-setup">setup</a> method of the suite is called, if it exists</li>
+									<li>For <em>each test</em> within the suite:
+										<ul>
+											<li>The <a href="#suite-object-beforeEach">beforeEach</a> method of the suite is called, if it exists</li>
+											<li>The benchmark is started, which involves calling the test function itself many times. For each call of the test function:
+											<ul>
+												<li>The <a href="#suite-object-beforeEachLoop">beforeEachLoop</a> method of the suite is called, if it exists</li>
+												<li>The test function is called</li>
+												<li>The <a href="#suite-object-afterEachLoop">afterEachLoop</a> method of the suite is called, if it exists</li>
+											</ul>
+											<li>The <a href="#suite-object-afterEach">afterEach</a> method of the suite is called, if it exists</li>
+										</ul>
+									</li>
+									<li>The <a href="#suite-object-teardown">teardown</a> method of the suite is called, if it exists</li>
+								</ul>
+							</li>
+						</ul>
 					</article>
 
 					<article>
@@ -3623,9 +3799,17 @@ define({
 								<th scope="row">afterEach(test: Test <span class="versionBadge">3.0</span>):<br>&nbsp;&nbsp;Promise&lt;void></th>
 								<td>A function which will be executed after each test in the suite, including nested, skipped, and failed tests. If a Promise is returned, the suite will wait until the Promise is resolved before continuing. If the Promise rejects, the test will be considered failed and the error from the Promise will be used as the error for the Test.</td>
 							</tr>
+							<tr id="suite-object-afterEachLoop">
+								<th scope="row">afterEachLoop(test: Test):<br>&nbsp;&nbsp;Promise&lt;void> <span class="versionBadge">3.4</span></th>
+								<td>A function added to suites of BenchmarkTests that will be executed after each execution of the test function during a benchmarking run.</td>
+							</tr>
 							<tr id="suite-object-beforeEach">
 								<th scope="row">beforeEach(test: Test <span class="versionBadge">3.0</span>):<br>&nbsp;&nbsp;Promise&lt;void></th>
 								<td>A function which will be executed before each test in the suite, including nested tests. If a Promise is returned, the suite will wait until the Promise is resolved before continuing. If the Promise rejects, the test will be considered failed and the error from the Promise will be used as the error for the Test.</td>
+							</tr>
+							<tr id="suite-object-beforeEachLoop">
+								<th scope="row">beforeEachLoop(test: Test):<br>&nbsp;&nbsp;Promise&lt;void> <span class="versionBadge">3.4</span></th>
+								<td>A function added to suites of BenchmarkTests that will be executed before each execution of the test function during a benchmarking run.</td>
 							</tr>
 							<tr>
 								<th scope="row">run(): Promise&lt;number></th>
@@ -3741,6 +3925,11 @@ define({
 								<td>Runs the test. Returns a Promise that resolves to <code>undefined</code> after the test finishes successfully, or rejects with an error if the test failed.</td>
 							</tr>
 						</table>
+
+						<div class="a half" id="benchmarkTest-object"></div>
+						<h3 data-id="benchmarkTest-object">The BenchmarkTest object</h3>
+
+						<p>The <a href="https://github.com/theintern/intern/blob/master/lib/BenchmarkTest.js"><dfn>BenchmarkTest object</dfn></a> is an extension of the <a href="#test-object">Test object</a> that represents a single benchmark test within a test run. It manages the execution of benchmark its test using the <a href="https://benchmarkjs.com">Benchmark.js</a> library. It supports the Test API, barring the <code class="javascript">async<code> and <code class="javascript">skip</code> methods.</p>
 					</article>
 
 					<article>
