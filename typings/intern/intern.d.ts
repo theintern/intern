@@ -1,4 +1,4 @@
-/// <reference path="../chai/chai.d.ts" />
+/// <reference types="chai" />
 /// <reference path="../digdug/digdug.d.ts" />
 /// <reference path="../leadfoot/leadfoot.d.ts" />
 /// <reference path="../dojo2/dojo.d.ts" />
@@ -22,7 +22,7 @@ declare module 'intern/main' {
 		functionalSuites?: string[];
 		grep?: RegExp;
 		loader?: any;
-		loaderOptions?: any;
+		loaderConfig?: any;
 		loaders?: {
 			'host-browser'?: string;
 			'host-node'?: string;
@@ -90,22 +90,38 @@ declare module 'intern!tdd' {
 	export = tdd;
 }
 
+declare module 'intern/lib/interfaces/bdd' {
+	import * as bdd from 'intern!bdd';
+	export = bdd;
+}
+
+declare module 'intern/lib/interfaces/object' {
+	import * as object from 'intern!object';
+	export = object;
+}
+
+declare module 'intern/lib/interfaces/tdd' {
+	import * as tdd from 'intern!tdd';
+	export = tdd;
+}
+
 declare module 'intern/chai!' {
-	export = Chai;
+	const chai: Chai.ChaiStatic;
+	export = chai;
 }
 
 declare module 'intern/chai!assert' {
-	var assert: Chai.AssertStatic;
+	const assert: Chai.AssertStatic;
 	export = assert;
 }
 
 declare module 'intern/chai!expect' {
-	var expect: Chai.ExpectStatic;
+	const expect: Chai.ExpectStatic;
 	export = expect;
 }
 
 declare module 'intern/chai!should' {
-	function should(): void;
+	const should: Chai.Should;
 	export = should;
 }
 
@@ -359,4 +375,15 @@ declare module 'intern/lib/Test' {
 	}
 
 	export = Test;
+}
+
+// Declaring a module for intern/dojo/topic so that our echo server
+// can listen for intern's internal event signalling that the runner
+// is terminating.
+declare module 'intern/dojo/topic' {
+	var topic: {
+		subscribe(name: string, callback: () => void):  void;
+	};
+
+	export = topic;
 }

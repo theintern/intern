@@ -22,7 +22,9 @@
     "lodash-amd": "4.16.4",
     "mimetype": "0.0.8",
     "platform": "1.3.1",
-    "source-map": "0.1.33"
+    "source-map": "0.1.33",
+    "@types/chai": "3.4.34",
+    "@types/node": "6.0.48"
   },
   "devDependencies": {
     "intern": "3.2.3"
