@@ -1956,10 +1956,14 @@ define(function (require) {
 						<div class="a" id="benchmark-testing"></div>
 						<h2 data-id="benchmark-testing">Benchmark testing</h2>
 
+						<p>Intern's benchmark testing mode is used to evaluate the performance of code. Test functions will be run many times in a loop, and Intern will record how long each test function takes to run on average. This information can be saved and used during later test runs to see if performance has deviated from acceptable values.</p>
+
+						<p>The benchmarking functionality is driven by <a href="https://benchmarkjs.com">Benchmark.js</a>.</p>
+
 						<div class="a half" id="writing-benchmark-test"></div>
 						<h3 data-id="writing-benchmark-test">Writing a benchmark test</h3>
 
-						<p>Tests are created using an interface very much like the unit test <code class="javascript">object</code> interface, and follow a similar lifecycle. The main differences are in how <code class="javascript">before/afterEach</code> behave and the requirement to use <code class="javascript">async</code> and <code class="javascript">skip</code> wrappers rather than <code class="javascript">this.async()</code> and <code class="javascript">this.skip()</code>.
+						<p>Tests are created using the <a href="#interface-benchmark">benchmark interface</a>, which is very much like the unit test <a href="#interface-object">object interface</a>, and follow a similar lifecycle. The main differences are in how <code class="javascript">before/afterEach</code> behave and the requirement to use <code class="javascript">async</code> and <code class="javascript">skip</code> wrappers rather than <code class="javascript">this.async()</code> and <code class="javascript">this.skip()</code>.
 
 						<div class="a half" id="benchmark-lifecycle"></div>
 						<h3 data-id="benchmark-lifecycle">The benchmark test lifecycle</h3>
