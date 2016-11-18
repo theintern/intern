@@ -166,23 +166,4 @@
 			hljs.highlightBlock(block);
 		});
 	})();
-
-	// At least Chrome does not scroll to the initial fragment position until some point after this script executes,
-	// so we will do it for it
-	if (location.hash) {
-		(function () {
-			var initialId = location.hash.slice(1);
-			var initialSectionElement = document.getElementById(initialId);
-			if (initialSectionElement) {
-				initialSectionElement.scrollIntoView();
-				setActiveSection(initialId);
-			}
-			else {
-				resetSection();
-			}
-		})();
-	}
-	else {
-		resetSection();
-	}
 })();
