@@ -1,8 +1,8 @@
 {
   "name": "intern",
-  "version": "3.4.0-pre",
-  "main": "./dist/src/main.js",
-  "types": "./dist/src/index.d.ts",
+  "version": "4.0.0-pre",
+  "main": "src/main.js",
+  "types": "src/index.d.ts",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
   "repository": {
     "type": "git",
@@ -32,7 +32,8 @@
     "chokidar": "~1.6.0",
     "intern": "~3.2.0",
     "shelljs": "~0.7.0",
-    "typescript": "~2.0.0"
+    "typescript": "~2.0.0",
+    "semver": "~5.3.0"
   },
   "scripts": {
     "install": "node support/fixdeps.js",

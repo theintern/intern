@@ -1,12 +1,14 @@
-#!/usr/bin/env node
-
-var mode = process.argv[2] || 'local';
-var spawn = require('child_process').spawnSync
+var args = process.argv.slice(2);
+var spawn = require('child_process').spawnSync;
+var path = require('path');
+var tsconfig = require('../tsconfig.json');
+var buildDir = tsconfig.compilerOptions.outDir;
+var mode = 'local';
 
 function run(runner, config, userArgs) {
 	spawn('node', [
 		'node_modules/intern/' + runner,
-		'config=dist/tests/' + config + '.js'
+		'config=' + path.join(buildDir, 'tests', config + '.js')
 	].concat(userArgs), { stdio: 'inherit' });
 }
 
@@ -24,8 +26,7 @@ var modes = {
 };
 
 if (args[0] in modes) {
-	mode = args[0];
-	args = args.slice(1);
+	mode = args.shift();
 }
 
 modes[mode]();

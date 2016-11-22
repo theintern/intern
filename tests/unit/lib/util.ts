@@ -7,6 +7,7 @@ import Promise = require('dojo/Promise');
 import { IRequire } from 'dojo/loader';
 import * as pathUtil from 'dojo/has!host-node?dojo/node!path';
 import * as hook from 'dojo/has!host-node?dojo/node!istanbul/lib/hook';
+import * as fs from 'dojo/node!fs';
 
 declare const require: IRequire;
 declare const global: any;
@@ -273,13 +274,16 @@ registerSuite({
 				this.skip('requires Node.js');
 			}
 
+			const tsconfig = JSON.parse(fs.readFileSync('tsconfig.json', { encoding: 'utf8' }));
+			const buildDir = tsconfig.compilerOptions.outDir;
+
 			const moduleIds = [
-				'intern-selftest/dist/tests/unit/*'
+				`intern-selftest/${buildDir}/tests/unit/*`
 			];
 			const expected = [
-				'intern-selftest/dist/tests/unit/all',
-				'intern-selftest/dist/tests/unit/main',
-				'intern-selftest/dist/tests/unit/order'
+				`intern-selftest/${buildDir}/tests/unit/all`,
+				`intern-selftest/${buildDir}/tests/unit/main`,
+				`intern-selftest/${buildDir}/tests/unit/order`
 			];
 			const actual = util.resolveModuleIds(moduleIds);
 			assert.deepEqual(actual, expected, 'Unexpected resolution for single-level glob');
@@ -290,11 +294,14 @@ registerSuite({
 				this.skip('requires Node.js');
 			}
 
+			const tsconfig = JSON.parse(fs.readFileSync('tsconfig.json', { encoding: 'utf8' }));
+			const buildDir = tsconfig.compilerOptions.outDir;
+
 			const moduleIds = [
-				'intern-selftest/dist/tests/functional/**/*'
+				`intern-selftest/${buildDir}/tests/functional/**/*`
 			];
 			const expected = [
-				'intern-selftest/dist/tests/functional/lib/ProxiedSession'
+				`intern-selftest/${buildDir}/tests/functional/lib/ProxiedSession`
 			];
 			const actual = util.resolveModuleIds(moduleIds);
 			assert.deepEqual(actual, expected, 'Unexpected resolution for multi-level glob');

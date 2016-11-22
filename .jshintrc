@@ -32,7 +32,7 @@
 	"multistr": false,
 	"newcap": true,
 	"noarg": true,
-	"node": false,
+	"node": true,
 	"noempty": false,
 	"nonew": true,
 	"nonstandard": false,
@@ -67,7 +67,7 @@
 	"maxlen": 120,
 	"indent": 4,
 	"maxerr": 250,
-	"predef": [ "require", "define" ],
+	"predef": [ "require", "define", "Promise" ],
 	"quotmark": "single",
 	"maxcomplexity": 10
 }

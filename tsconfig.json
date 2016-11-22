@@ -9,7 +9,7 @@
     "preserveConstEnums": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "_build",
     "target": "ES5"
   },
   "files": [

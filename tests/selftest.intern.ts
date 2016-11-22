@@ -32,10 +32,10 @@ export const loaderOptions = {
 };
 
 export const suites = [
-	'intern-selftest/dist/tests/unit/all'
+	'intern-selftest/_build/tests/unit/all'
 ];
 export const functionalSuites = [
-	'intern-selftest/dist/tests/functional/lib/ProxiedSession'
+	'intern-selftest/_build/tests/functional/lib/ProxiedSession'
 ];
 
 export const excludeInstrumentation = /(?:tests|node_modules)\//;

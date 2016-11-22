@@ -122,16 +122,18 @@ registerSuite({
 
 		'valid package'() {
 			const proxy = new Proxy();
+			const tsconfig = JSON.parse(fs.readFileSync('tsconfig.json', { encoding: 'utf8' }));
+			const buildDir = tsconfig.compilerOptions.outDir;
 			const query = querystring.stringify({ suites: JSON.stringify([
-				'intern-selftest/dist/tests/unit/*',
-				'intern-selftest/dist/tests/functional/**/*'
+				`intern-selftest/${buildDir}/tests/unit/*`,
+				`intern-selftest/${buildDir}/tests/functional/**/*`
 			]) });
 			const request = createRequest('/__intern/__resolveSuites__?' + query);
 			const expected = [
-				'intern-selftest/dist/tests/unit/all',
-				'intern-selftest/dist/tests/unit/main',
-				'intern-selftest/dist/tests/unit/order',
-				'intern-selftest/dist/tests/functional/lib/ProxiedSession'
+				`intern-selftest/${buildDir}/tests/unit/all`,
+				`intern-selftest/${buildDir}/tests/unit/main`,
+				`intern-selftest/${buildDir}/tests/unit/order`,
+				`intern-selftest/${buildDir}/tests/functional/lib/ProxiedSession`
 			];
 			const response = createResponse();
 
