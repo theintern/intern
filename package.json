@@ -1,8 +1,7 @@
 {
   "name": "intern",
-  "version": "3.5.0-pre",
-  "main": "./main.js",
-  "types": "./typings/intern/intern.d.ts",
+  "version": "4.0.0-pre",
+  "main": "main.js",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
   "repository": {
     "type": "git",
@@ -10,11 +9,14 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
+    "@types/source-map": "~0.1.28",
+    "@types/benchmark": "~1.0.30",
+    "@types/chai": "~3.4.34",
     "benchmark": "2.1.1",
     "chai": "3.5.0",
     "charm": "0.2.0",
     "diff": "1.1.0",
-    "digdug": "~1.6.0",
+    "digdug": "https://github.com/jason0x43/digdug/releases/download/2.0.0-pre/digdug-2.0.0-pre.tgz",
     "dojo": "2.0.0-alpha.7",
     "glob": "7.0.3",
     "istanbul": "0.4.1",
@@ -27,13 +29,27 @@
     "@types/node": "6.0.48"
   },
   "devDependencies": {
-    "intern": "3.2.3"
+    "@types/chokidar": "~1.4.29",
+    "@types/diff": "~0.0.31",
+    "@types/glob": "~5.0.30",
+    "@types/grunt": "~0.4.20",
+    "@types/node": "~6.0.0",
+    "intern": "~3.4.2",
+    "intern-dev": "https://github.com/theintern/intern-dev/releases/download/0.1.2/intern-dev-0.1.2.tgz"
+  },
+  "peerDependencies": {
+    "typescript": "~2.1.4",
+    "tslint": "~4.0.0"
   },
   "scripts": {
+    "build": "intern-dev-clean && intern-dev-build",
+    "clean": "intern-dev-clean",
     "install": "node support/fixdeps.js",
+    "lint": "intern-dev-lint",
+    "release": "intern-dev-release",
+    "test": "intern-dev-build && intern-dev-test",
     "update": "node support/fixdeps.js",
-    "release": "node support/release.js",
-    "test": "node support/test.js"
+    "watch": "intern-dev-watch"
   },
   "bugs": "https://github.com/theintern/intern/issues",
   "files": [
@@ -72,5 +88,17 @@
   "bin": {
     "intern-client": "./bin/intern-client.js",
     "intern-runner": "./bin/intern-runner.js"
+  },
+  "internDev": {
+    "resources": {
+      "src": [
+        "tests/example.intern.js"
+      ],
+      ".": [
+        "tests/**/*.xml",
+        "tests/**/*.js"
+      ]
+    },
+    "testConfig": "tests/selftest.intern.js"
   }
 }

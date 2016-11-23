@@ -1,9 +1,14 @@
-/// <reference path="../dojo2/dojo.d.ts" />
-
-declare module digdug {
+declare module 'digdug' {
 	export interface Handle {
 		remove(): void;
 	}
+
+	export interface ServiceEnvironment {
+		version: string;
+		[key: string]: any;
+	}
+
+	export type NormalizedEnvironment = ServiceEnvironment;
 
 	/**
 	 * Data that can be passed to tunnel providers to update the state of a job being executed on their service.
@@ -533,6 +538,8 @@ declare module 'digdug/TestingBotTunnel' {
 declare module 'digdug/Tunnel' {
 	import childProcess = require('child_process');
 	import Promise = require('dojo/Promise');
+	import { ServiceEnvironment } from 'digdug';
+	import * as digdug from 'digdug';
 
 	class Tunnel {
 		/**
@@ -676,6 +683,23 @@ declare module 'digdug/Tunnel' {
 		download(forceDownload: boolean): Promise<void>;
 
 		/**
+		 * Get a list of environments available on the service.
+		 *
+		 * This method should be overridden and use a specific implementation that returns normalized
+		 * environments from the service. E.g.
+		 *
+		 * {
+		 *     browserName: 'firefox',
+		 *     version: '12',
+		 *     platform: 'windows',
+		 *     descriptor: { <original returned environment> }
+		 * }
+		 *
+		 * @returns An array of environment descriptors
+		 */
+		getEnvironments(): Promise<ServiceEnvironment[]>;
+
+		/**
 		 * Creates the list of command-line arguments to be passed to the spawned tunnel. Implementations should
 		 * override this method to provide the appropriate command-line arguments.
 		 *
@@ -810,12 +834,17 @@ declare module 'digdug/Tunnel' {
 			 */
 			(eventName: string, listener: digdug.Listener<any>): digdug.Handle;
 		}
+
+		// Stub export for unit tests
+		export interface NormalizedEnvironment {}
 	}
 
 	export = Tunnel;
 }
 
 declare module 'digdug/util' {
+	import * as digdug from 'digdug';
+
 	/**
 	 * Adds properties from source objects to a target object using ES5 `Object.defineProperty` instead of
 	 * `[[Set]]`. This is necessary when copying properties that are ES5 accessor/mutators.

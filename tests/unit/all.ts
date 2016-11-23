@@ -1,28 +1,26 @@
-define([
-	'./main',
-	'./order',
-	'./lib/BenchmarkTest',
-	'./lib/EnvironmentType',
-	'./lib/Suite',
-	'./lib/Test',
-	'./lib/util',
-	'./lib/ReporterManager',
-	'./lib/executors/PreExecutor',
-	'./lib/interfaces/tdd',
-	'./lib/interfaces/bdd',
-	'./lib/interfaces/benchmark',
-	'./lib/interfaces/object',
-	'./lib/interfaces/qunit',
-	'./lib/reporters/Console',
-	'./lib/resolveEnvironments',
+import './main';
+import './order';
+import './lib/BenchmarkTest';
+import './lib/EnvironmentType';
+import './lib/Suite';
+import './lib/Test';
+import './lib/util';
+import './lib/ReporterManager';
+import './lib/executors/PreExecutor';
+import './lib/interfaces/tdd';
+import './lib/interfaces/bdd';
+import './lib/interfaces/benchmark';
+import './lib/interfaces/object';
+import './lib/interfaces/qunit';
+import './lib/reporters/Console';
+import './lib/resolveEnvironments';
 
-	'dojo/has!host-node?./lib/Proxy',
-	'dojo/has!host-node?./lib/reporters/Pretty',
-	'dojo/has!host-node?./lib/reporters/TeamCity',
-	'dojo/has!host-node?./lib/reporters/JUnit',
-	'dojo/has!host-node?./lib/reporters/Lcov',
-	'dojo/has!host-node?./lib/reporters/JsonCoverage',
-	'dojo/has!host-node?./lib/reporters/WebDriver',
+import 'dojo/has!host-node?./lib/Proxy';
+import 'dojo/has!host-node?./lib/reporters/Pretty';
+import 'dojo/has!host-node?./lib/reporters/TeamCity';
+import 'dojo/has!host-node?./lib/reporters/JUnit';
+import 'dojo/has!host-node?./lib/reporters/Lcov';
+import 'dojo/has!host-node?./lib/reporters/JsonCoverage';
+import 'dojo/has!host-node?./lib/reporters/WebDriver';
 
-	'dojo/has!host-browser?./lib/reporters/Html'
-], function () {});
+import 'dojo/has!host-browser?./lib/reporters/Html';

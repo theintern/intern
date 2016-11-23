@@ -1,21 +1,23 @@
-define([
-	'./object',
-	'../BenchmarkTest',
-	'dojo/aspect'
-], function (registerSuite, BenchmarkTest, aspect) {
-	function propertyHandler(property, value, suite) {
-		if (property === 'beforeEachLoop' || property === 'afterEachLoop') {
-			aspect.on(suite, property, value);
-			return true;
-		}
+import objectRegisterSuite, { ObjectSuiteConfig } from './object';
+import Suite from '../Suite';
+import BenchmarkTest from '../BenchmarkTest';
+import aspect = require('dojo/aspect');
+
+function propertyHandler(property: string, value: any, suite: Suite) {
+	if (property === 'beforeEachLoop' || property === 'afterEachLoop') {
+		aspect.on(suite, property, value);
+		return true;
 	}
+}
 
-	function benchmark(mainDescriptor) {
-		registerSuite(mainDescriptor, BenchmarkTest, propertyHandler);
-	}
+export default function registerSuite(mainDescriptor: ObjectSuiteConfig) {
+	objectRegisterSuite(mainDescriptor, BenchmarkTest, propertyHandler);
+};
 
-	benchmark.async = BenchmarkTest.async;
-	benchmark.skip = BenchmarkTest.skip;
+const async = BenchmarkTest.async;
+export { async as async };
 
-	return benchmark;
-});
+const skip = BenchmarkTest.skip;
+export { skip as skip };
+
+export { BenchmarkTestFunction } from '../BenchmarkTest';

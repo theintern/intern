@@ -1,8 +1,3 @@
-/// <reference types="chai" />
-/// <reference path="../digdug/digdug.d.ts" />
-/// <reference path="../leadfoot/leadfoot.d.ts" />
-/// <reference path="../dojo2/dojo.d.ts" />
-
 declare module 'intern' {
 	import main = require('intern/main');
 	export = main;
@@ -40,20 +35,19 @@ declare module 'intern/main' {
 		};
 	}
 
-	export var args: any;
-	export var executor: {
+	export const args: any;
+	export const executor: {
 		register(fn: (suite: Suite) => void): void;
 		run(): Promise<number>;
 		suites: Suite[];
 	};
-	export var mode: string;
+	export const mode: string;
 }
 
 declare module 'intern!bdd' {
-	import Promise = require('dojo/Promise');
 	import Test = require('intern/lib/Test');
 
-	var bdd: {
+	const bdd: {
 		after(fn: () => any): void;
 		afterEach(fn: (test: Test) => any): void;
 		before(fn: () => any): void;
@@ -66,19 +60,18 @@ declare module 'intern!bdd' {
 }
 
 declare module 'intern!object' {
-	var createSuite: {
+	const createSuite: {
 		(definition: {}): void;
-		(definition:() => {}): void;
+		(definition: () => {}): void;
 	};
 
 	export = createSuite;
 }
 
 declare module 'intern!tdd' {
-	import Promise = require('dojo/Promise');
 	import Test = require('intern/lib/Test');
 
-	var tdd: {
+	const tdd: {
 		after(fn: () => any): void;
 		afterEach(fn: (test: Test) => any): void;
 		before(fn: () => any): void;
@@ -106,8 +99,7 @@ declare module 'intern/lib/interfaces/tdd' {
 }
 
 declare module 'intern/chai!' {
-	const chai: Chai.ChaiStatic;
-	export = chai;
+	export = Chai;
 }
 
 declare module 'intern/chai!assert' {
@@ -223,20 +215,20 @@ declare module 'intern/lib/Suite' {
 		numSkippedTests: number;
 
 		/**
-		* Runs test suite in order:
-		*
-		* * setup
-		* * for each test:
-		*   * beforeEach
-		*   * test
-		*   * afterEach
-		* * teardown
-		*
-		* If setup, beforeEach, afterEach, or teardown throw, the suite itself will be marked as failed
-		* and no further tests in the suite will be executed.
-		*
-		* @returns {dojo/promise/Promise}
-		*/
+		 * Runs test suite in order:
+		 *
+		 * * setup
+		 * * for each test:
+		 *   * beforeEach
+		 *   * test
+		 *   * afterEach
+		 * * teardown
+		 *
+		 * If setup, beforeEach, afterEach, or teardown throw, the suite itself will be marked as failed
+		 * and no further tests in the suite will be executed.
+		 *
+		 * @returns {dojo/promise/Promise}
+		 */
 		run(): Promise<number>;
 
 		toJSON(): Suite.Serialized;
@@ -270,7 +262,7 @@ declare module 'intern/lib/Suite' {
 				message: string;
 				stack: string;
 				relatedTest: Test;
-			}
+			};
 		}
 	}
 
@@ -381,8 +373,8 @@ declare module 'intern/lib/Test' {
 // can listen for intern's internal event signalling that the runner
 // is terminating.
 declare module 'intern/dojo/topic' {
-	var topic: {
-		subscribe(name: string, callback: () => void):  void;
+	const topic: {
+		subscribe(name: string, callback: () => void): void;
 	};
 
 	export = topic;

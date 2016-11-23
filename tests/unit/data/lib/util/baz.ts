@@ -1,5 +1,5 @@
 class Baz {
-	hasRun:boolean = false;
+	hasRun: boolean = false;
 
 	run() {
 		throw new Error('foo');

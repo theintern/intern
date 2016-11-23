@@ -1,9 +1,9 @@
 class Bar {
-	hasRun:boolean = false;
+	hasRun: boolean = false;
 
 	run() {
 		throw new Error('foo');
 	}
 }
 
-export = Bar
+export = Bar;

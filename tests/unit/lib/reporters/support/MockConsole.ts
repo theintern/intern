@@ -1,17 +1,17 @@
-define([], function () {
-	function MockConsole(hasGrouping) {
-		this.messages = {};
-		var methods = [ 'log', 'info', 'warn', 'error' ];
+export default class MockConsole {
+	messages: { [key: string]: string[] } = {};
+	constructor(hasGrouping?: boolean) {
+		const methods = [ 'log', 'info', 'warn', 'error' ];
+		const anyThis = <any> this;
+
 		if (hasGrouping) {
 			methods.push('group', 'groupEnd');
 		}
-		methods.forEach(function (method) {
+		methods.forEach(method => {
 			this.messages[method] = [];
-			this[method] = function () {
-				this.messages[method].push(Array.prototype.slice.call(arguments, 0).join(' '));
+			anyThis[method] = (...args: any[]) => {
+				this.messages[method].push(Array.prototype.slice.call(args, 0).join(' '));
 			};
-		}, this);
+		});
 	}
-
-	return MockConsole;
-});
+}

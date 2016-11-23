@@ -1,3 +1,1 @@
-define([
-	'./example'
-], function () {});
+import './example';

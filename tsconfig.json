@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+	"lib": [ "ES5", "ES2015.Promise", "ES2015.Symbol", "ES2015.Iterable", "DOM" ],
+    "module": "umd",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "./_build",
+    "preserveConstEnums": true,
+    "removeComments": true,
+    "rootDir": ".",
+    "sourceMap": true,
+    "target": "ES5"
+  },
+  "include": [
+    "./types/**/*.d.ts",
+    "./src/**/*.ts"
+  ]
+}

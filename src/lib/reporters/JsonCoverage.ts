@@ -1,24 +1,26 @@
-define([
-	'dojo/node!istanbul/lib/collector',
-	'dojo/node!istanbul/lib/report/json'
-], function (Collector, Reporter) {
-	function JsonCoverageReporter(config) {
+import Collector = require('dojo/node!istanbul/lib/collector');
+import JsonReporter = require('dojo/node!istanbul/lib/report/json');
+import { Reporter, ReporterConfig } from '../../common';
+
+export default class JsonCoverage implements Reporter {
+	_collector: Collector;
+	_reporter: JsonReporter;
+
+	constructor(config: ReporterConfig = {}) {
 		config = config || {};
 
 		this._collector = new Collector();
-		this._reporter = new Reporter({
+		this._reporter = new JsonReporter({
 			file: config.filename,
 			watermarks: config.watermarks
 		});
 	}
 
-	JsonCoverageReporter.prototype.coverage = function (sessionId, coverage) {
+	coverage(_sessionId: string, coverage: Object): void {
 		this._collector.add(coverage);
-	};
+	}
 
-	JsonCoverageReporter.prototype.runEnd = function () {
+	runEnd(): void {
 		this._reporter.writeReport(this._collector, true);
-	};
-
-	return JsonCoverageReporter;
-});
+	}
+}

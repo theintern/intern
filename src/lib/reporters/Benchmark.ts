@@ -9,7 +9,7 @@
  *     'baseline': Benchmark data will be written to a baseline file when testing is finished
  *     'test': Benchmark is compared to a baseline read from a file when testing starts
  *
- * Baseline data is stored hierarchically by environment and then by test. 
+ * Baseline data is stored hierarchically by environment and then by test.
  *
  * Notation
  * --------
@@ -17,35 +17,115 @@
  * mean: mean execution time per function run
  * hz: Hertz (number of executions of a function per second). 1/Hz is the mean execution time of function.
  */
-define([ 'dojo/node!fs', '../util' ], function (fs, util) {
-	// jshint node:true
-	function formatSeconds(value) {
-		var places;
-		var units = 's';
-		if (value < 1) {
-			places = Math.ceil(Math.log(value) / Math.log(10)) - 1;
-			if (places < -9) {
-				value *= Math.pow(10, 12);
-				units = 'ps';
-			}
-			else if (places < -6) {
-				value *= Math.pow(10, 9);
-				units = 'ns';
-			}
-			else if (places < -3) {
-				value *= Math.pow(10, 6);
-				units = 'µs';
-			}
-			else if (places < 0) {
-				value *= Math.pow(10, 3);
-				units = 'ms';
-			}
-		}
+import * as fs from 'fs';
+import * as util from '../util';
+import { Reporter, ReporterConfig } from '../../common';
+import Test from '../Test';
+import Suite from '../Suite';
+import _Benchmark = require('benchmark');
 
-		return value.toFixed(3) + units;
+export interface BenchmarkData {
+	times: _Benchmark.Times;
+	hz: number;
+	stats: {
+		rme: number;
+		moe: number;
+		mean: number;
+	};
+}
+
+export interface BenchmarkThresholds {
+	warn?: {
+		rme?: number;
+		hz?: number;
+		mean?: number;
+	};
+	fail?: {
+		rme?: number;
+		hz?: number;
+		mean?: number;
+	};
+}
+
+export interface BenchmarkEnvironment {
+	client: string;
+	version: string;
+	platform: string;
+	id?: string;
+	tests?: { [testId: string]: BenchmarkData };
+	stats?: _Benchmark.Stats;
+}
+
+export interface BenchmarkBaseline {
+	environments?: { [key: string]: BenchmarkEnvironment };
+	[key: string]: any;
+}
+
+// jshint node:true
+function formatSeconds(value: number) {
+	let units = 's';
+	if (value < 1) {
+		const places = Math.ceil(Math.log(value) / Math.log(10)) - 1;
+		if (places < -9) {
+			value *= Math.pow(10, 12);
+			units = 'ps';
+		}
+		else if (places < -6) {
+			value *= Math.pow(10, 9);
+			units = 'ns';
+		}
+		else if (places < -3) {
+			value *= Math.pow(10, 6);
+			units = 'µs';
+		}
+		else if (places < 0) {
+			value *= Math.pow(10, 3);
+			units = 'ms';
+		}
 	}
 
-	function Benchmark(config) {
+	return value.toFixed(3) + units;
+}
+
+export interface BenchmarkReporterConfig extends ReporterConfig {
+	mode?: string;
+	thresholds?: BenchmarkThresholds;
+	verbosity?: number;
+}
+
+export default class Benchmark implements Reporter {
+	baseline: BenchmarkBaseline;
+
+	config: ReporterConfig;
+
+	mode: string;
+
+	debug: (...args: any[]) => void;
+
+	log: (...args: any[]) => void;
+
+	warn: (...args: any[]) => void;
+
+	error: (...args: any[]) => void;
+
+	sessions: {
+		[sessionId: string]: {
+			suites: {
+				[suiteId: string]: {
+					numBenchmarks: number;
+					numFailedBenchmarks: number;
+				}
+			};
+			environment?: BenchmarkEnvironment;
+			[key: string]: any;
+		}
+	};
+
+	verbosity: number;
+
+	thresholds: BenchmarkThresholds;
+
+	constructor(config: BenchmarkReporterConfig = {}) {
 		this.config = config;
 
 		this.mode = config.mode;
@@ -53,17 +133,17 @@ define([ 'dojo/node!fs', '../util' ], function (fs, util) {
 		this.verbosity = config.verbosity;
 
 		// Logging levels
-		this.debug = this.verbosity > 0 ? function () {
-			config.console.log.apply(config.console, arguments);
+		this.debug = this.verbosity > 0 ? function (...args: any[]) {
+			config.console.log.apply(config.console, args);
 		} : function () {};
-		this.log = function () {
-			config.console.log.apply(config.console, arguments);
+		this.log = function (...args: any[]) {
+			config.console.log.apply(config.console, args);
 		};
-		this.warn = function () {
-			config.console.warn.apply(config.console, arguments);
+		this.warn = function (...args: any[]) {
+			config.console.warn.apply(config.console, args);
 		};
-		this.error = function () {
-			config.console.error.apply(config.console, arguments);
+		this.error = function (...args: any[]) {
+			config.console.error.apply(config.console, args);
 		};
 
 		// In test mode, try to load benchmark data for comparison
@@ -88,202 +168,201 @@ define([ 'dojo/node!fs', '../util' ], function (fs, util) {
 		this.sessions = {};
 	}
 
-	Benchmark.prototype = {
-		constructor: Benchmark,
+	_getSession(testOrSuite: Test | Suite) {
+		const sessionId = testOrSuite.sessionId || 'local';
+		let session = this.sessions[sessionId];
 
-		_getSession: function (testOrSuite) {
-			var sessionId = testOrSuite.sessionId || 'local';
-			var session = this.sessions[sessionId];
+		if (!session) {
+			let environment: BenchmarkEnvironment;
+			session = this.sessions[sessionId] = {
+				suites: {}
+			};
 
-			if (!session) {
-				var environment;
-				session = this.sessions[sessionId] = {
-					suites: {}
+			if (testOrSuite.sessionId) {
+				environment = session.environment = {
+					client: testOrSuite.remote.environmentType.browserName,
+					version: testOrSuite.remote.environmentType.version,
+					platform: testOrSuite.remote.environmentType.platform
 				};
-
-				if (testOrSuite.sessionId) {
-					environment = testOrSuite.remote.environmentType;
-					environment = session.environment = {
-						client: environment.browserName,
-						version: environment.version,
-						platform: environment.platform
-					};
-				}
-				else {
-					environment = session.environment = {
-						client: process.title,
-						version: process.version,
-						platform: process.platform
-					};
-				}
-
-				session.environment.id = environment.client + ':' + environment.version + ':' + environment.platform;
-			}
-
-			return session;
-		},
-
-		runEnd: function () {
-			if (this.mode === 'baseline') {
-				var existingBaseline;
-				try {
-					existingBaseline = JSON.parse(fs.readFileSync(this.config.filename, { encoding: 'utf8' }));
-				}
-				catch (error) {
-					existingBaseline = { environments: {} };
-				}
-
-				// Merge the newly recorded baseline data into the existing baseline data and write it back out to
-				// output file.
-				var baseline = this.baseline;
-				Object.keys(baseline.environments).forEach(function (environmentId) {
-					existingBaseline.environments[environmentId] = baseline.environments[environmentId];
-				});
-				fs.writeFileSync(this.config.filename, JSON.stringify(existingBaseline, null, '    '));
-			}
-		},
-
-		suiteEnd: function (suite) {
-			var session = this._getSession(suite);
-
-			if (!suite.hasParent) {
-				var environment = session.environment;
-				this.log('Finished ' + environment.client + ' ' + environment.version + ' on ' + environment.platform);
-			}
-			else if (this.mode === 'test') {
-				var suiteInfo = session.suites[suite.id];
-				var numTests = suiteInfo.numBenchmarks;
-				if (numTests > 0) {
-					var numFailedTests = suiteInfo.numFailedBenchmarks;
-					var message = numFailedTests + '/' + numTests + ' benchmarks failed in ' + suite.id;
-					this[numFailedTests > 0 ? 'warn' : 'log'](message);
-				}
-			}
-		},
-
-		suiteStart: function (suite) {
-			var session = this._getSession(suite);
-
-			// This is a session root suite
-			if (!suite.hasParent) {
-				var environment = session.environment;
-				var environmentName = environment.client + ' ' + environment.version + ' on ' + environment.platform;
-				this.log((this.mode === 'baseline' ? 'Baselining' : 'Benchmark testing') + ' ' + environmentName);
-
-				if (this.mode === 'baseline') {
-					this.baseline.environments[environment.id] = {
-						client: environment.client,
-						version: environment.version,
-						platform: environment.platform,
-						tests: {}
-					};
-				}
-				else if (!this.baseline.environments[environment.id]) {
-					this.warn('No baseline data for ' + environmentName + '!');
-				}
 			}
 			else {
-				var suiteInfo = session.suites[suite.id] = {};
-				suiteInfo.numBenchmarks = 0;
-				suiteInfo.numFailedBenchmarks = 0;
-			}
-		},
-
-		testPass: function (test, benchmark) {
-			function checkTest() {
-				var warn = [];
-				var fail = [];
-				var list;
-
-				var baselineMean = baseline.stats.mean;
-				var percentDifference = 100 * (benchmark.stats.mean - baselineMean) / baselineMean;
-				if (Math.abs(percentDifference) > self.thresholds.warn.mean) {
-					list = warn;
-					if (Math.abs(percentDifference) > self.thresholds.fail.mean) {
-						list = fail;
-					}
-					list.push('Execution time is ' + percentDifference.toFixed(1) + '% off');
-				}
-
-				var baselineRme = baseline.stats.rme;
-				// RME is already a percent
-				percentDifference = benchmark.stats.rme - baselineRme;
-				if (Math.abs(percentDifference) > self.thresholds.warn.rme) {
-					list = warn;
-					if (Math.abs(percentDifference) > self.thresholds.fail.rme) {
-						list = fail;
-					}
-					list.push('RME is ' + percentDifference.toFixed(1) + '% off');
-				}
-
-				if (fail.length) {
-					self.error('FAIL ' + test.id + ' (' + fail.join(', ') + ')');
-					return false;
-				}
-				else if (warn.length) {
-					self.warn('WARN ' + test.id + ' (' + warn.join(', ') + ')');
-				}
-				else {
-					self.log('PASS ' + test.id);
-				}
-
-				return true;
-			}
-
-			// Ignore non-benchmark tests
-			if (!benchmark) {
-				this.debug('Ignoring non-benchmark test ' + test.id);
-				return;
-			}
-
-			var self = this;
-			var session = this._getSession(test);
-			var environment = session.environment;
-
-			var suiteInfo = session.suites[test.parentId];
-			suiteInfo.numBenchmarks++;
-
-			if (this.mode === 'baseline') {
-				this.baseline.environments[environment.id].tests[test.id] = {
-					hz: benchmark.hz,
-					times: benchmark.times,
-					stats: {
-						rme: benchmark.stats.rme,
-						moe: benchmark.stats.moe,
-						mean: benchmark.stats.mean
-					}
+				environment = session.environment = {
+					client: process.title,
+					version: process.version,
+					platform: process.platform
 				};
-				this.log('Baselined ' + test.name);
-				this.debug('  Time per run: ' + formatSeconds(benchmark.stats.mean) + ' \xb1 ' +
-					benchmark.stats.rme.toFixed(2) + '%');
 			}
-			else {
-				var baseline = this.baseline.environments[environment.id];
-				if (baseline) {
-					baseline = baseline.tests[test.id];
-					var result = checkTest();
-					this.debug('  Expected time per run: ' + formatSeconds(baseline.stats.mean) + ' \xb1 ' +
-						baseline.stats.rme.toFixed(2) + '%');
-					this.debug('  Actual time per run:   ' + formatSeconds(benchmark.stats.mean) + ' \xb1 ' +
-						benchmark.stats.rme.toFixed(2) + '%');
 
-					if (!result) {
-						suiteInfo.numFailedBenchmarks++;
-					}
-				}
-			}
-		},
-
-		testFail: function (test, error) {
-			var session = this._getSession(test);
-			var suiteInfo = session.suites[test.parentId];
-			suiteInfo.numBenchmarks++;
-			suiteInfo.numFailedBenchmarks++;
-
-			this.error('ERROR: ' + test.id);
-			this.error(util.getErrorMessage(error));
+			session.environment.id = environment.client + ':' + environment.version + ':' + environment.platform;
 		}
-	};
 
-	return Benchmark;
-});
+		return session;
+	}
+
+	runEnd() {
+		if (this.mode === 'baseline') {
+			let existingBaseline: BenchmarkBaseline;
+			try {
+				existingBaseline = JSON.parse(fs.readFileSync(this.config.filename, { encoding: 'utf8' }));
+			}
+			catch (error) {
+				existingBaseline = { environments: {} };
+			}
+
+			// Merge the newly recorded baseline data into the existing baseline data and write it back out to
+			// output file.
+			const baseline = this.baseline;
+			Object.keys(baseline.environments).forEach(function (environmentId) {
+				existingBaseline.environments[environmentId] = baseline.environments[environmentId];
+			});
+			fs.writeFileSync(this.config.filename, JSON.stringify(existingBaseline, null, '    '));
+		}
+	}
+
+	suiteEnd(suite: Suite) {
+		const session = this._getSession(suite);
+
+		if (!suite.hasParent) {
+			const environment = session.environment;
+			this.log('Finished ' + environment.client + ' ' + environment.version + ' on ' + environment.platform);
+		}
+		else if (this.mode === 'test') {
+			const suiteInfo = session.suites[suite.id];
+			const numTests = suiteInfo.numBenchmarks;
+			if (numTests > 0) {
+				const numFailedTests = suiteInfo.numFailedBenchmarks;
+				const message = numFailedTests + '/' + numTests + ' benchmarks failed in ' + suite.id;
+				if (numFailedTests > 0) {
+					this.warn(message);
+				}
+				else {
+					this.log(message);
+				}
+			}
+		}
+	}
+
+	suiteStart(suite: Suite) {
+		const session = this._getSession(suite);
+
+		// This is a session root suite
+		if (!suite.hasParent) {
+			const environment = session.environment;
+			const environmentName = environment.client + ' ' + environment.version + ' on ' + environment.platform;
+			this.log((this.mode === 'baseline' ? 'Baselining' : 'Benchmark testing') + ' ' + environmentName);
+
+			if (this.mode === 'baseline') {
+				this.baseline.environments[environment.id] = {
+					client: environment.client,
+					version: environment.version,
+					platform: environment.platform,
+					tests: {}
+				};
+			}
+			else if (!this.baseline.environments[environment.id]) {
+				this.warn('No baseline data for ' + environmentName + '!');
+			}
+		}
+		else {
+			session.suites[suite.id] = {
+				numBenchmarks: 0,
+				numFailedBenchmarks: 0
+			};
+		}
+	}
+
+	testPass(test: Test, benchmark?: BenchmarkData) {
+		function checkTest(baseline: BenchmarkData) {
+			let warn: string[] = [];
+			let fail: string[] = [];
+			let list: string[];
+
+			const baselineMean = baseline.stats.mean;
+			let percentDifference = 100 * (benchmark.stats.mean - baselineMean) / baselineMean;
+			if (Math.abs(percentDifference) > self.thresholds.warn.mean) {
+				list = warn;
+				if (Math.abs(percentDifference) > self.thresholds.fail.mean) {
+					list = fail;
+				}
+				list.push('Execution time is ' + percentDifference.toFixed(1) + '% off');
+			}
+
+			const baselineRme = baseline.stats.rme;
+			// RME is already a percent
+			percentDifference = benchmark.stats.rme - baselineRme;
+			if (Math.abs(percentDifference) > self.thresholds.warn.rme) {
+				list = warn;
+				if (Math.abs(percentDifference) > self.thresholds.fail.rme) {
+					list = fail;
+				}
+				list.push('RME is ' + percentDifference.toFixed(1) + '% off');
+			}
+
+			if (fail.length) {
+				self.error('FAIL ' + test.id + ' (' + fail.join(', ') + ')');
+				return false;
+			}
+			else if (warn.length) {
+				self.warn('WARN ' + test.id + ' (' + warn.join(', ') + ')');
+			}
+			else {
+				self.log('PASS ' + test.id);
+			}
+
+			return true;
+		}
+
+		// Ignore non-benchmark tests
+		if (!benchmark) {
+			this.debug('Ignoring non-benchmark test ' + test.id);
+			return;
+		}
+
+		const self = this;
+		const session = this._getSession(test);
+		const environment = session.environment;
+
+		const suiteInfo = session.suites[test.parentId];
+		suiteInfo.numBenchmarks++;
+
+		if (this.mode === 'baseline') {
+			this.baseline.environments[environment.id].tests[test.id] = {
+				hz: benchmark.hz,
+				times: benchmark.times,
+				stats: {
+					rme: benchmark.stats.rme,
+					moe: benchmark.stats.moe,
+					mean: benchmark.stats.mean
+				}
+			};
+			this.log('Baselined ' + test.name);
+			this.debug('  Time per run: ' + formatSeconds(benchmark.stats.mean) + ' \xb1 ' +
+				benchmark.stats.rme.toFixed(2) + '%');
+		}
+		else {
+			let baseline = this.baseline.environments[environment.id];
+			if (baseline) {
+				const testData = baseline.tests[test.id];
+				const result = checkTest(testData);
+				this.debug('  Expected time per run: ' + formatSeconds(baseline.stats.mean) + ' \xb1 ' +
+					baseline.stats.rme.toFixed(2) + '%');
+				this.debug('  Actual time per run:   ' + formatSeconds(benchmark.stats.mean) + ' \xb1 ' +
+					benchmark.stats.rme.toFixed(2) + '%');
+
+				if (!result) {
+					suiteInfo.numFailedBenchmarks++;
+				}
+			}
+		}
+	}
+
+	testFail(test: Test) {
+		const session = this._getSession(test);
+		const suiteInfo = session.suites[test.parentId];
+		suiteInfo.numBenchmarks++;
+		suiteInfo.numFailedBenchmarks++;
+
+		this.error('ERROR: ' + test.id);
+		this.error(util.getErrorMessage(test.error));
+	}
+}

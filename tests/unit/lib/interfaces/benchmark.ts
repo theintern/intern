@@ -1,98 +1,109 @@
-define([
-	'intern!object',
-	'intern/chai!assert',
-	'../../../../main!benchmark',
-	'../../../../main',
-	'../../../../lib/BenchmarkTest',
-	'../../../../lib/Suite'
-], function (registerSuite, assert, benchmark, main, BenchmarkTest, Suite) {
-	var originalExecutor = main.executor;
-	var rootSuites;
+import registerSuite = require('intern!object');
+import assert = require('intern/chai!assert');
+import Executor from 'src/lib/executors/Executor';
+import benchmark from 'src/lib/interfaces/benchmark';
+import { setExecutor, executor as originalExecutor } from 'src/main';
+import BenchmarkTest, { BenchmarkTestFunction } from 'src/lib/BenchmarkTest';
+import Suite from 'src/lib/Suite';
+import Test from 'src/lib/Test';
 
-	registerSuite({
-		name: 'intern/lib/interfaces/benchmark',
+let rootSuites: Suite[];
 
-		setup: function () {
-			main.executor = {
-				register: function (callback) {
-					rootSuites.forEach(callback);
-				}
-			};
-		},
+registerSuite({
+	name: 'intern/lib/interfaces/benchmark',
 
-		teardown: function () {
-			main.executor = originalExecutor;
-		},
-
-		'benchmark interface registration': {
-			setup: function () {
-				rootSuites = [
-					new Suite({ name: 'benchmark test 1' }),
-					new Suite({ name: 'benchmark test 2' })
-				];
-			},
-
-			registration: function () {
-				benchmark({
-					name: 'suite 1',
-					'test1': function() {},
-					'test2': {
-						fn: function () {}
-					}
-				});
-
-				benchmark(function () {
-					return {
-						name: 'suite 2',
-						'test1': function () {}
-					};
-				});
-
-				for (var i = 0, mainSuite; (mainSuite = rootSuites[i]) && (mainSuite = mainSuite.tests); ++i) {
-					assert.lengthOf(mainSuite[0].tests, 2, 'suite should have 2 tests');
-
-					assert.instanceOf(mainSuite[0].tests[0], BenchmarkTest, 'test should be instance of BenchmarkTest');
-					assert.strictEqual(mainSuite[0].tests[0].name, 'test1', 'test should have expected name');
-
-					assert.instanceOf(mainSuite[0].tests[1], Suite, 'test should be instance of Suite');
-					assert.strictEqual(mainSuite[0].tests[1].name, 'test2', 'test should have expected name');
-
-					assert.instanceOf(mainSuite[0].tests[1].tests[0], BenchmarkTest,
-						'test should be instance of BenchmarkTest');
-					assert.strictEqual(mainSuite[0].tests[1].tests[0].name, 'fn', 'test should have expected name');
-
-					assert.lengthOf(mainSuite[1].tests, 1, 'suite should have 1 test');
-					assert.instanceOf(mainSuite[1].tests[0], BenchmarkTest, 'test should be instance of BenchmarkTest');
-					assert.strictEqual(mainSuite[1].tests[0].name, 'test1', 'test should have expected name');
-				}
+	setup() {
+		setExecutor(<Executor> {
+			register: function (callback: (value: Suite) => void) {
+				rootSuites.forEach(callback);
 			}
+		});
+	},
+
+	teardown() {
+		setExecutor(originalExecutor);
+	},
+
+	'benchmark interface registration': {
+		setup() {
+			rootSuites = [
+				new Suite({ name: 'benchmark test 1' }),
+				new Suite({ name: 'benchmark test 2' })
+			];
 		},
 
-		'register a test with Benchmark options': {
-			setup: function () {
-				rootSuites = [
-					new Suite({ name: 'benchmark test 1' })
-				];
-			},
-			registerTest: function () {
-				benchmark({
-					name: 'suite 1',
-					'test1': (function () {
-						function testFunction() {}
-						testFunction.options = {
-							foo: 'bar'
-						};
-						return testFunction;
-					})()
-				});
+		registration() {
+			benchmark({
+				name: 'suite 1',
+				'test1': function() {},
+				'test2': {
+					fn: function () {}
+				}
+			});
 
-				var mainSuite = rootSuites[0].tests;
-				assert.lengthOf(mainSuite[0].tests, 1, 'suite should have 1 test');
+			benchmark(function () {
+				return {
+					name: 'suite 2',
+					'test1': function () {}
+				};
+			});
 
-				var test = mainSuite[0].tests[0];
-				assert.propertyVal(test.benchmark, 'foo', 'bar',
-					'expected test option to have been passed to Benchmark');
+			let i = 0;
+			let mainSuite = rootSuites[i++];
+			let mainSuiteTests: (Suite | Test)[];
+			while (mainSuite && mainSuite.tests) {
+				mainSuiteTests = mainSuite.tests;
+
+				let suite: Suite = <Suite> mainSuiteTests[0];
+
+				assert.lengthOf(suite.tests, 2, 'suite should have 2 tests');
+
+				assert.instanceOf(suite.tests[0], BenchmarkTest, 'test should be instance of BenchmarkTest');
+				assert.strictEqual(suite.tests[0].name, 'test1', 'test should have expected name');
+
+				assert.instanceOf(suite.tests[1], Suite, 'test should be instance of Suite');
+				assert.strictEqual(suite.tests[1].name, 'test2', 'test should have expected name');
+
+				assert.instanceOf((<Suite> suite.tests[1]).tests[0], BenchmarkTest,
+					'test should be instance of BenchmarkTest');
+				assert.strictEqual((<Suite> suite.tests[1]).tests[0].name, 'fn', 'test should have expected name');
+
+				suite = <Suite> mainSuiteTests[1];
+
+				assert.lengthOf(suite.tests, 1, 'suite should have 1 test');
+				assert.instanceOf(suite.tests[0], BenchmarkTest, 'test should be instance of BenchmarkTest');
+				assert.strictEqual(suite.tests[0].name, 'test1', 'test should have expected name');
+
+				mainSuite = rootSuites[i++];
 			}
 		}
-	});
+	},
+
+	'register a test with Benchmark options': {
+		setup() {
+			rootSuites = [
+				new Suite({ name: 'benchmark test 1' })
+			];
+		},
+
+		registerTest() {
+			benchmark({
+				name: 'suite 1',
+				test1: (function () {
+					let testFunction: BenchmarkTestFunction = function () {};
+					testFunction.options = {
+						initCount: 5
+					};
+					return testFunction;
+				})()
+			});
+
+			const mainSuite = <Suite> rootSuites[0].tests[0];
+			assert.lengthOf(mainSuite.tests, 1, 'suite should have 1 test');
+
+			const test = <BenchmarkTest> mainSuite.tests[0];
+			assert.propertyVal(test.benchmark, 'initCount', 5,
+				'expected test option to have been passed to Benchmark');
+		}
+	}
 });

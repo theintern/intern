@@ -1,60 +1,55 @@
-define([
-	'intern!object',
-	'intern/chai!assert',
-	'../../../../lib/Suite',
-	'../../../../lib/Test',
-	'../../../../lib/reporters/Html',
-	'../../../../lib/util'
-], function (registerSuite, assert, Suite, Test, Html, util) {
-	var createdNodes;
+import registerSuite = require('intern!object');
+import * as assert from 'intern/chai!assert';
+import Html from 'src/lib/reporters/Html';
 
-	var doc = {
-		createElement: function () {
-			var elem = document.createElement.apply(document, arguments);
-			createdNodes.push(elem);
-			return elem;
-		},
-		createTextNode: function () {
-			var elem = document.createTextNode.apply(document, arguments);
-			createdNodes.push(elem);
-			return elem;
-		},
-		createDocumentFragment: function () {
-			return document.createDocumentFragment();
-		},
-		body: document.body
-	};
+let createdNodes: Element[];
 
-	registerSuite({
-		name: 'intern/lib/reporters/Html',
+const doc: any = {
+	createElement() {
+		const elem = document.createElement.apply(document, arguments);
+		createdNodes.push(elem);
+		return elem;
+	},
+	createTextNode() {
+		const elem = document.createTextNode.apply(document, arguments);
+		createdNodes.push(elem);
+		return elem;
+	},
+	createDocumentFragment() {
+		return document.createDocumentFragment();
+	},
+	body: document.body
+};
 
-		beforeEach: function () {
-			createdNodes = [];
-		},
+registerSuite({
+	name: 'intern/lib/reporters/Html',
 
-		afterEach: function () {
-			createdNodes.forEach(function (node) {
-				if (node.parentNode) {
-					node.parentNode.removeChild(node);
-				}
-			});
-			createdNodes = null;
-		},
+	beforeEach() {
+		createdNodes = [];
+	},
 
-		suiteStart: function () {
-			var suite = {
-				parent: {},
-				tests: [ {} ],
-				name: 'foo',
-				id: 'foo'
-			};
+	afterEach() {
+		createdNodes.forEach(node => {
+			if (node.parentNode) {
+				node.parentNode.removeChild(node);
+			}
+		});
+		createdNodes = null;
+	},
 
-			// Check that the reporter isn't doing anything with the DOM that target browsers can't handle
-			assert.doesNotThrow(function () {
-				var reporter = new Html({ document: doc });
-				reporter.run();
-				reporter.suiteStart(suite);
-			});
-		}
-	});
+	suiteStart() {
+		const suite: any = {
+			parent: {},
+			tests: [ {} ],
+			name: 'foo',
+			id: 'foo'
+		};
+
+		// Check that the reporter isn't doing anything with the DOM that target browsers can't handle
+		assert.doesNotThrow(function () {
+			const reporter = new Html({ document: doc });
+			reporter.run();
+			reporter.suiteStart(suite);
+		});
+	}
 });

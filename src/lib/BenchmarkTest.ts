@@ -1,55 +1,144 @@
+import Test, { TestConfig } from './Test';
+import { InternError, Deferred } from '../common';
+import Benchmark = require('benchmark');
+import Promise = require('dojo/Promise');
+import * as lang from 'dojo/lang';
+import * as string from 'dojo/string';
+
+const createLifecycle = (function () {
+	const template = [
+		'(function (benchmark) {',
+			'\tvar queue = benchmark.intern${queueName}EachLoopQueue;',
+			'\tvar suite;',
+			'\tif (!queue) {',
+				'\t\tsuite = benchmark.internTest;',
+				'\t\tbenchmark.intern${queueName}EachLoopQueue = queue = [];',
+				'\t\twhile ((suite = suite.parent)) {',
+					'\t\t\tif (suite.${methodName}EachLoop) {',
+					'\t\t\tqueue.${queueMethod}(suite);',
+					'\t\t\t}',
+				'\t\t}',
+			'\t}',
+			'\tvar i = queue.length;',
+			'\twhile((suite = queue[--i])) {',
+				'\t\tsuite.${methodName}EachLoop();',
+			'\t}',
+		'})(this.benchmark || this);\n'
+	].join('\n');
+
+	function createLifecycle(before: boolean) {
+		return string.substitute(template, {
+			queueName: before ? 'Before' : 'After',
+			queueMethod: before ? 'push' : 'unshift',
+			methodName: before ? 'before' : 'after'
+		});
+	}
+
+	return createLifecycle;
+})();
+
+/* istanbul ignore next */
+function noop() {}
+
+function createDeferred(benchmark: Benchmark, deferred: Deferred<any>, numCallsUntilResolution?: number) {
+	if (!numCallsUntilResolution) {
+		numCallsUntilResolution = 1;
+	}
+
+	return {
+		resolve() {
+			--numCallsUntilResolution;
+			if (numCallsUntilResolution === 0) {
+				deferred.resolve();
+			}
+			else if (numCallsUntilResolution < 0) {
+				throw new Error('resolve called too many times');
+			}
+		},
+
+		reject(error: InternError) {
+			benchmark.error = error;
+			benchmark.abort();
+			deferred.resolve();
+		},
+
+		progress: noop,
+
+		rejectOnError(this: any, callback: Function) {
+			const self = this;
+			return function (this: any) {
+				try {
+					return callback.apply(this, arguments);
+				}
+				catch (error) {
+					self.reject(error);
+				}
+			};
+		},
+
+		callback: function (this: any, callback: Function) {
+			const self = this;
+			return self.rejectOnError(function (this: any) {
+				const returnValue = callback.apply(this, arguments);
+				self.resolve();
+				return returnValue;
+			});
+		}
+	};
+}
+
+export interface BenchmarkTestFunction {
+	(): void | Promise<any>;
+	options?: BenchmarkOptions;
+}
+
+export interface BenchmarkDeferredTestFunction {
+	(deferred: Deferred<any>): void | Promise<any>;
+	options?: BenchmarkOptions;
+}
+
+export interface BenchmarkTestConfig extends TestConfig {
+	test: BenchmarkTestFunction;
+}
+
+export interface BenchmarkOptions extends Benchmark.Options {
+	skip?: string;
+	numCallsUntilResolution?: number;
+}
+
+export interface InternBenchmark extends Benchmark {
+	internTest?: BenchmarkTest;
+}
+
 /**
  * A wrapper around a Benchmark.js Benchmark that maps its API to that used by Test.
  */
-define([
-	'./Test',
-	'benchmark',
-	'dojo/Promise',
-	'dojo/lang',
-	'dojo/string'
-], function (
-	Test,
-	Benchmark,
-	Promise,
-	lang,
-	string
-) {
-	var createLifecycle = (function () {
-		var template = [
-			'(function (benchmark) {',
-				'\tvar queue = benchmark.intern${queueName}EachLoopQueue;',
-				'\tvar suite;',
-				'\tif (!queue) {',
-					'\t\tsuite = benchmark.internTest;',
-					'\t\tbenchmark.intern${queueName}EachLoopQueue = queue = [];',
-					'\t\twhile ((suite = suite.parent)) {',
-						'\t\t\tif (suite.${methodName}EachLoop) {',
-							'\t\t\tqueue.${queueMethod}(suite);',
-						'\t\t\t}',
-					'\t\t}',
-				'\t}',
-				'\tvar i = queue.length;',
-				'\twhile((suite = queue[--i])) {',
-					'\t\tsuite.${methodName}EachLoop();',
-				'\t}',
-			'})(this.benchmark || this);\n'
-		].join('\n');
+export default class BenchmarkTest extends Test {
+	test: BenchmarkTestFunction;
 
-		function createLifecycle(before) {
-			return string.substitute(template, {
-				queueName: before ? 'Before' : 'After',
-				queueMethod: before ? 'push' : 'unshift',
-				methodName: before ? 'before' : 'after'
-			});
+	benchmark: InternBenchmark;
+
+	constructor(descriptor: BenchmarkTestConfig) {
+		// Call the superclass constructor with the set of descriptor keys not specific to BenchmarkTest
+		let args: any = {};
+		for (let key in descriptor) {
+			switch (key) {
+			case 'test':
+			case 'options':
+				break;
+			default:
+				args[key] = (<any> descriptor)[key];
+			}
 		}
-		return createLifecycle;
-	})();
 
-	function BenchmarkTest(kwArgs) {
+		super(args);
+
 		// `options`, if present, will be a property on the test function
-		this.test = (kwArgs && kwArgs.test) || /* istanbul ignore next */ function () {};
-		var self = this;
-		var options = lang.mixin({}, this.test.options, {
+		this.test = (descriptor && descriptor.test) || /* istanbul ignore next */ function () {};
+
+		const self = this;
+
+		const options: BenchmarkOptions = lang.mixin({}, this.test.options, {
 			async: true,
 			setup: createLifecycle(true),
 			teardown: createLifecycle(false)
@@ -61,20 +150,21 @@ define([
 		else {
 			if (options.defer) {
 				this.test = (function (testFunction) {
-					return function (deferred) {
-						var dfd = createDeferred(this.benchmark, deferred, options.numCallsUntilResolution);
+					return function (this: BenchmarkTest, deferred?: Deferred<any>) {
+						const dfd = createDeferred(this.benchmark, deferred,
+							options.numCallsUntilResolution);
 						testFunction.call(this, dfd);
 					};
 				})(this.test);
 			}
 
 			this.benchmark = new Benchmark(
-				kwArgs.name,
+				descriptor.name,
 				options.defer ?
 					'this.benchmark.internTest.test.call(this.benchmark.internTest, deferred);' :
 					'this.internTest.test.call(this.internTest);',
 				options
-			); 
+			);
 
 			Object.defineProperty(this.benchmark, 'name', {
 				get: function () {
@@ -87,178 +177,102 @@ define([
 
 			this.benchmark.internTest = this;
 		}
-
-		// Call the superclass constructor with the set of kwArgs not specific to BenchmarkTest
-		var args = {};
-		for (var key in kwArgs) {
-			switch (key) {
-			case 'test':
-			case 'options':
-				break;
-			default:
-				args[key] = kwArgs[key];
-			}
-		}
-		Test.call(this, args);
 	}
 
-	BenchmarkTest.prototype = Object.create(Test.prototype, {
-		constructor: { value: BenchmarkTest },
-
-		error: {
-			get: function () {
-				if (this.benchmark) {
-					return this.benchmark.error;
-				}
-				return null;
-			}
-		},
-
-		timeElapsed: {
-			get: function () {
-				if (this.benchmark && this.benchmark.times) {
-					return this.benchmark.times.elapsed;
-				}
-				return 0;
-			}
-		},
-
-		async: {
-			value: function () {
-				throw new Error('Benchmark tests must be marked as asynchronous and use the deferred passed to them rather than call `this.async()`.');
-			}
-		},
-
-		skip: {
-			value: function () {
-				throw new Error('Benchmark tests must be marked as skipped rather than call `this.skip()`.');
-			}
-		},
-
-		run: {
-			value: function () {
-				function report(eventName) {
-					if (reporterManager) {
-						var args = [ eventName, self ].concat(Array.prototype.slice.call(arguments, 1));
-						return reporterManager.emit.apply(reporterManager, args).catch(function () {});
-					}
-					else {
-						return Promise.resolve();
-					}
-				}
-
-				var reporterManager = this.reporterManager;
-
-				this.hasPassed = false;
-
-				var self = this;
-				var benchmark = this.benchmark;
-
-				return new Promise(function (resolve, reject, progress, setCanceler) {
-					setCanceler(function (reason) {
-						benchmark.error = reason;
-						benchmark.abort();
-
-						throw reason;
-					});
-
-					benchmark.on('abort', function () {
-						reject(benchmark.error);
-					});
-
-					benchmark.on('error', function () {
-						reject(benchmark.error);
-					});
-
-					benchmark.on('complete', function () {
-						resolve();
-					});
-
-					report('testStart').then(function () {
-						benchmark.run();
-					});
-				}).finally(function () {
-					// Stop listening for benchmark events once the test is finished
-					benchmark.off();
-				}).then(function () {
-					self.hasPassed = true;
-
-					return report('testPass', {
-						times: self.benchmark.times,
-						hz: self.benchmark.hz,
-						stats: self.benchmark.stats
-					});
-				}, function (error) {
-					return report('testFail', error).then(function () {
-						throw error;
-					});
-				}).finally(function () {
-					return report('testEnd');
-				});
-			}
+	get error() {
+		if (this.benchmark) {
+			return <InternError> this.benchmark.error;
 		}
-	});
+		return null;
+	}
 
-	/* istanbul ignore next */
-	function noop() {}
-
-	function createDeferred(benchmark, deferred, numCallsUntilResolution) {
-		if (!numCallsUntilResolution) {
-			numCallsUntilResolution = 1;
+	get timeElapsed() {
+		if (this.benchmark && this.benchmark.times) {
+			return this.benchmark.times.elapsed;
 		}
+		return 0;
+	}
 
-		return {
-			resolve: function () {
-				--numCallsUntilResolution;
-				if (numCallsUntilResolution === 0) {
-					deferred.resolve();
-				}
-				else if (numCallsUntilResolution < 0) {
-					throw new Error('resolve called too many times');
-				}
-			},
+	async(_timeout?: number, _numCallsUntilResolution?: number): Deferred<any> {
+		throw new Error('Benchmark tests must be marked as asynchronous and use the deferred ' +
+			'passed to them rather than call `this.async()`.');
+	}
 
-			reject: function (error) {
-				benchmark.error = error;
+	skip(_message: string = '') {
+		throw new Error('Benchmark tests must be marked as skipped rather than call `this.skip()`.');
+	}
+
+	run() {
+		this.hasPassed = false;
+
+		const benchmark = this.benchmark;
+
+		return new Promise((resolve, reject, _progress, setCanceler) => {
+			setCanceler(function (reason) {
+				benchmark.error = reason;
 				benchmark.abort();
-				deferred.resolve();
+				throw reason;
+			});
+
+			benchmark.on('abort', function () {
+				reject(benchmark.error);
+			});
+
+			benchmark.on('error', function () {
+				reject(benchmark.error);
+			});
+
+			benchmark.on('complete', function () {
+				resolve();
+			});
+
+			this._report('testStart').then(function () {
+				benchmark.run();
+			});
+		}).finally(function () {
+			// Stop listening for benchmark events once the test is finished
+			benchmark.off();
+		}).then(
+			() => {
+				this.hasPassed = true;
+
+				return this._report('testPass', {
+					times: this.benchmark.times,
+					hz: this.benchmark.hz,
+					stats: this.benchmark.stats
+				});
 			},
-
-			progress: noop,
-
-			rejectOnError: function (callback) {
-				var self = this;
-				return function () {
-					try {
-						return callback.apply(this, arguments);
-					}
-					catch (error) {
-						self.reject(error);
-					}
-				};
-			},
-
-			callback: function (callback) {
-				var self = this;
-				return self.rejectOnError(function () {
-					var returnValue = callback.apply(this, arguments);
-					self.resolve();
-					return returnValue;
+			(error) => {
+				return this._report('testFail', error).then(function () {
+					throw error;
 				});
 			}
-		};
+		).finally(() => {
+			return this._report('testEnd');
+		});
 	}
 
-	BenchmarkTest.async = function (testFunction, numCallsUntilResolution) {
+	private _report(eventName: string, ...args: any[]) {
+		const reporterManager = this.reporterManager;
+		if (reporterManager) {
+			args = [ eventName, this ].concat(args);
+			return reporterManager.emit.apply(reporterManager, args).catch(function () {});
+		}
+		else {
+			return Promise.resolve();
+		}
+	}
+
+	static async(testFunction: BenchmarkDeferredTestFunction, numCallsUntilResolution?: number) {
 		testFunction.options = lang.mixin({}, testFunction.options, {
 			defer: true,
 			numCallsUntilResolution: numCallsUntilResolution
 		});
 
 		return testFunction;
-	};
+	}
 
-	BenchmarkTest.skip = function (testFunction, reason) {
+	static skip(testFunction: BenchmarkTestFunction, reason?: string) {
 		if (reason == null) {
 			reason = 'skipped';
 		}
@@ -268,7 +282,5 @@ define([
 		});
 
 		return testFunction;
-	};
-
-	return BenchmarkTest;
-});
+	}
+}
