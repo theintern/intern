@@ -1,12 +1,16 @@
-define([], function () {
-	function MockStream() {
-		this.data = '';
-	}
+export default class MockStream {
+	data: string = '';
 
-	MockStream.prototype.end = MockStream.prototype.write = function (data, encoding, callback) {
+	private _mockAction(data: string, encoding?: string, callback?: Function) {
 		this.data += data;
 		callback && callback();
-	};
+	}
 
-	return MockStream;
-});
+	end(data: string, encoding?: string, callback?: Function): void {
+		this._mockAction(data, encoding, callback);
+	}
+
+	write(data: string, encoding?: string, callback?: Function): void {
+		this._mockAction(data, encoding, callback);
+	}
+}

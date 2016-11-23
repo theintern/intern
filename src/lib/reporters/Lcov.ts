@@ -1,24 +1,24 @@
-define([
-	'dojo/node!istanbul/lib/collector',
-	'dojo/node!istanbul/lib/report/lcovonly'
-], function (Collector, Reporter) {
-	function LcovReporter(config) {
-		config = config || {};
+import Collector = require('dojo/node!istanbul/lib/collector');
+import LcovOnlyReport = require('dojo/node!istanbul/lib/report/lcovonly');
+import { Reporter, ReporterConfig } from '../../interfaces';
 
+export class LcovReporter implements Reporter {
+	/* private */ _collector: Collector;
+	/* private */ _reporter: LcovOnlyReport;
+
+	constructor(config: ReporterConfig = {}) {
 		this._collector = new Collector();
-		this._reporter = new Reporter({
+		this._reporter = new LcovOnlyReport({
 			file: config.filename,
 			watermarks: config.watermarks
 		});
 	}
 
-	LcovReporter.prototype.coverage = function (sessionId, coverage) {
+	coverage(sessionId: string, coverage: Object): void {
 		this._collector.add(coverage);
-	};
+	}
 
-	LcovReporter.prototype.runEnd = function () {
+	runEnd(): void {
 		this._reporter.writeReport(this._collector, true);
-	};
-
-	return LcovReporter;
-});
+	}
+}

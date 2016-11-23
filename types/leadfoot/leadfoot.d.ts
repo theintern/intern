@@ -40,7 +40,7 @@ declare module leadfoot {
 		/**
 		 * The response object for the request.
 		 */
-//		response: request.IResponse;
+		// response: request.IResponse;
 		response: any;
 
 		/**
@@ -166,6 +166,12 @@ declare module leadfoot {
 		 * around.
 		 */
 		brokenExecuteElementReturn?: boolean;
+
+		/**
+		 * Environments with this capability don't support script injection when the current browser URL is not an http/https
+		 * URL. This issue cannot be worked around.
+		 */
+		brokenExecuteForNonHttpUrl?: boolean;
 
 		/**
 		 * Environments with this capability claim fully transparent elements are non-hidden. This issue is automatically
@@ -571,8 +577,8 @@ declare module 'leadfoot/Command' {
 		 */
 		constructor(
 			parent: Command<any> | Session,
-			initialiser: (setContext: Command.ContextSetter, value: any) => Promise.Thenable<T> | T,
-			errback: (setContext: Command.ContextSetter, error: Error) => Promise.Thenable<T> | T
+			initialiser?: (setContext: Command.ContextSetter, value: any) => Promise.Thenable<T> | T,
+			errback?: (setContext: Command.ContextSetter, error: Error) => Promise.Thenable<T> | T
 		);
 
 		/**
@@ -2248,7 +2254,7 @@ declare module 'leadfoot/Server' {
 		 * JsonWireProtocol HTTP server is http://localhost:4444/wd/hub. You may also pass a parsed URL object which will
 		 * be converted to a string.
 		 */
-		constructor(url: {} | string);
+		constructor(url: ({}|string), options: { [key: string]: any });
 
 		/**
 		 * An alternative session constructor. Defaults to the standard {@link module:leadfoot/Session} constructor if
@@ -2332,7 +2338,7 @@ declare module 'leadfoot/Server' {
 		/**
 		 * Adds additional capabilities data on the `capabilities` key of the passed session.
 		 */
-		protected _fillCapabilities(session: Session): Session;
+		/* protected */ _fillCapabilities(session: Session): Session;
 
 		/**
 		 * Gets a list of all currently active remote control sessions on this server.

@@ -1,30 +1,35 @@
-define([ 'chai' ], function (chai) {
-	// ensure that chai-generated errors always include a stack
-	chai.config.includeStack = true;
+/**
+ * AMD plugin API interface for easy loading of chai assertion interfaces.
+ */
 
-	return {
-		/**
-		 * AMD plugin API interface for easy loading of chai assertion interfaces.
-		 */
-		load: function (id, parentRequire, callback) {
-			if (!id) {
-				callback(chai);
-				return;
-			}
+import * as chai from 'chai';
+import { IRequire } from 'dojo/loader';
 
-			if (!chai[id]) {
-				throw new Error('Invalid chai interface "' + id + '"');
-			}
+// Ensure that chai-generated errors always include a stack
+chai.config.includeStack = true;
 
-			if (!chai[id].AssertionError) {
-				chai[id].AssertionError = chai.AssertionError;
-			}
+// Assumes we're running under an AMD loader
+declare const require: IRequire;
 
-			callback(chai[id]);
-		},
+export function load(id: string, pluginRequire: IRequire, callback: Function) {
+	if (!id) {
+		callback(chai);
+		return;
+	}
 
-		normalize: function (id) {
-			return id;
-		}
-	};
-});
+	const iface: any = (<any> chai)[id];
+
+	if (!iface) {
+		throw new Error('Invalid chai interface "' + id + '"');
+	}
+
+	if (!iface.AssertionError) {
+		iface.AssertionError = chai.AssertionError;
+	}
+
+	callback(iface);
+}
+
+export function normalize(id: string) {
+	return id;
+}

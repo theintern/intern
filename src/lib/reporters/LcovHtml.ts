@@ -1,25 +1,24 @@
-define([
-	'dojo/node!istanbul/lib/collector',
-	'dojo/node!istanbul/lib/report/html',
-	'dojo/node!istanbul/index'
-], function (Collector, Reporter) {
-	function LcovHtmlReporter(config) {
-		config = config || {};
+import Collector = require('dojo/node!istanbul/lib/collector');
+import HtmlReport = require('dojo/node!istanbul/lib/report/html');
+import { Reporter, ReporterConfig } from '../../interfaces';
 
+export class LcovHtmlReporter implements Reporter {
+	private _collector: Collector;
+	private _reporter: HtmlReport;
+
+	constructor(config: ReporterConfig = {}) {
 		this._collector = new Collector();
-		this._reporter = new Reporter({
+		this._reporter = new HtmlReport({
 			dir: config.directory,
 			watermarks: config.watermarks
 		});
 	}
 
-	LcovHtmlReporter.prototype.coverage = function (sessionId, coverage) {
+	coverage(sessionId: string, coverage: Object): void {
 		this._collector.add(coverage);
-	};
+	}
 
-	LcovHtmlReporter.prototype.runEnd = function () {
+	runEnd(): void {
 		this._reporter.writeReport(this._collector, true);
-	};
-
-	return LcovHtmlReporter;
-});
+	}
+}

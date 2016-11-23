@@ -1,14 +1,12 @@
-define([
-	'intern!object',
-	'intern/chai!assert',
-	'../../main'
-], function (registerSuite, assert, main) {
-	registerSuite({
-		name: 'intern/main',
+import registerSuite = require('intern!object');
+import * as assert from 'intern/chai!assert';
+import * as main from '../../src/main';
 
-		'initial state': function () {
-			assert.isFunction(main.load, 'main.load should be a function');
-			assert.property(main, 'executor', 'main should have an executor property');
-		}
-	});
+registerSuite({
+	name: 'intern/main',
+
+	'initial state'() {
+		assert.isFunction(main.load, 'main.load should be a function');
+		assert.property(main, 'executor', 'main should have an executor property');
+	}
 });

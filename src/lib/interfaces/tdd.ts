@@ -1,55 +1,50 @@
-define([
-	'dojo/aspect',
-	'../../main',
-	'../Suite',
-	'../Test'
-], function (aspect, main, Suite, Test) {
-	var currentSuite;
-	var suites = [];
+import { on } from 'dojo/aspect';
+import * as main from '../../main';
+import { Suite, SuiteLifecycleFunction } from '../Suite';
+import { Test, TestFunction } from '../Test';
 
-	function registerSuite(name, factory) {
-		var parentSuite = currentSuite;
+let currentSuite: Suite;
+const suites: Suite[] = [];
 
-		currentSuite = new Suite({ name: name, parent: parentSuite });
-		parentSuite.tests.push(currentSuite);
+function registerSuite(name: string, factory: TestFunction): void {
+	const parentSuite = currentSuite;
 
-		suites.push(parentSuite);
-		factory.call(currentSuite);
-		currentSuite = suites.pop();
+	currentSuite = new Suite({ name: name, parent: parentSuite });
+	parentSuite.tests.push(currentSuite);
+
+	suites.push(parentSuite);
+	factory.call(currentSuite);
+	currentSuite = suites.pop();
+}
+
+export function suite(name: string, factory: TestFunction): void {
+	if (!currentSuite) {
+		main.executor.register(suite => {
+			currentSuite = suite;
+			registerSuite(name, factory);
+			currentSuite = null;
+		});
+	} else {
+		registerSuite(name, factory);
 	}
+}
 
-	return {
-		suite: function (name, factory) {
-			if (/* is a root suite */ !currentSuite) {
-				main.executor.register(function (suite) {
-					currentSuite = suite;
-					registerSuite(name, factory);
-					currentSuite = null;
-				});
-			}
-			else {
-				registerSuite(name, factory);
-			}
-		},
+export function test (name: string, test: TestFunction): void {
+	currentSuite.tests.push(new Test({ name, test, parent: currentSuite }));
+}
 
-		test: function (name, test) {
-			currentSuite.tests.push(new Test({ name: name, test: test, parent: currentSuite }));
-		},
+export function before(fn: SuiteLifecycleFunction): void {
+	on(currentSuite, 'setup', fn);
+}
 
-		before: function (fn) {
-			aspect.on(currentSuite, 'setup', fn);
-		},
+export function after(fn: SuiteLifecycleFunction): void {
+	on(currentSuite, 'teardown', fn);
+}
 
-		after: function (fn) {
-			aspect.on(currentSuite, 'teardown', fn);
-		},
+export function beforeEach(fn: SuiteLifecycleFunction): void {
+	on(currentSuite, 'beforeEach', fn);
+}
 
-		beforeEach: function (fn) {
-			aspect.on(currentSuite, 'beforeEach', fn);
-		},
-
-		afterEach: function (fn) {
-			aspect.on(currentSuite, 'afterEach', fn);
-		}
-	};
-});
+export function afterEach(fn: SuiteLifecycleFunction): void {
+	on(currentSuite, 'afterEach', fn);
+}

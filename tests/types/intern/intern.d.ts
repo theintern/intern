@@ -1,8 +1,3 @@
-/// <reference path="../chai/chai.d.ts" />
-/// <reference path="../digdug/digdug.d.ts" />
-/// <reference path="../leadfoot/leadfoot.d.ts" />
-/// <reference path="../dojo2/dojo.d.ts" />
-
 declare module 'intern' {
 	import main = require('intern/main');
 	export = main;

@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "umd",
+    "moduleResolution": "node",
+    "declaration": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "target": "ES5"
+  },
+  "files": [
+    "./types/dojo2/dojo.d.ts",
+    "./types/leadfoot/leadfoot.d.ts",
+    "./types/digdug/digdug.d.ts",
+    "./types/istanbul/istanbul.d.ts",
+    "./types/charm/charm.d.ts",
+    "./tests/types/intern/intern.d.ts"
+  ],
+  "include": [
+    "./src/**/*.ts",
+    "./tests/**/*.ts"
+  ]
+}

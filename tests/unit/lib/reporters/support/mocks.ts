@@ -1,4 +1,4 @@
-define([], function () {
+export default function getMock() {
 	return {
 		coverage: {
 			'test.js': {
@@ -25,4 +25,4 @@ define([], function () {
 			}
 		}
 	};
-});
+}

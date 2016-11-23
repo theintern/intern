@@ -1,72 +1,56 @@
-define([
-	'dojo/has',
-	'dojo/lang',
-	'dojo/Promise',
-	'./Executor',
-	'../Suite'
-], function (
-	has,
-	lang,
-	Promise,
-	Executor,
-	Suite
-) {
-	/**
-	 * The Client executor is used to run unit tests in the local environment.
-	 *
-	 * @constructor module:intern/lib/executors/Client
-	 * @extends module:intern/lib/executors/Executor
-	 */
-	function Client() {
-		Executor.apply(this, arguments);
-	}
+import { Config } from '../../interfaces';
+import { Executor } from './Executor';
+import { PreExecutor } from './PreExecutor';
+import { Suite } from '../Suite';
 
-	var _super = Executor.prototype;
-	Client.prototype = lang.mixin(Object.create(_super), /** @lends module:intern/lib/executors/Client# */ {
-		constructor: Client,
+// AMD modules
+import * as has from 'dojo/has';
+import * as lang from 'dojo/lang';
+import * as Promise from 'dojo/Promise';
 
-		config: lang.deepDelegate(_super.config, {
+/**
+ * The Client executor is used to run unit tests in the local environment.
+ *
+ * @constructor module:intern/lib/executors/Client
+ * @extends module:intern/lib/executors/Executor
+ */
+export class Client extends Executor {
+	mode: 'client';
+
+	constructor(config: Config, preExecutor: PreExecutor) {
+		super(config, preExecutor)
+
+		this.config = lang.deepDelegate(this.config, {
 			reporters: [ 'Console' ]
-		}),
+		});
 
-		mode: 'client',
-
-		_afterRun: function () {
-			var self = this;
-
-			function unloadReporters() {
-				self.reporterManager.empty();
-			}
-
-			return _super._afterRun.apply(this, arguments).finally(unloadReporters);
-		},
-
-		_beforeRun: function () {
-			var self = this;
-			var config = this.config;
-			var suite = new Suite({
-				// rootSuiteName is provided by ClientSuite
-				name: config.rootSuiteName || null,
-				grep: config.grep,
-				sessionId: config.sessionId,
-				timeout: config.defaultTimeout,
-				reporterManager: this.reporterManager,
-				bail: config.bail
-			});
-
-			this.suites = [ suite ];
-
-			function loadTestModules() {
-				return self._loadTestModules(config.suites);
-			}
-
-			return _super._beforeRun.apply(this, arguments).then(loadTestModules);
+		if (has('host-browser')) {
+			this.config.reporters.push('Html');
 		}
-	});
-
-	if (has('host-browser')) {
-		Client.prototype.config.reporters.push('Html');
 	}
 
-	return Client;
-});
+	_afterRun() {
+		return super._afterRun.apply(this, arguments).finally(() => {
+			this.reporterManager.empty();
+		});
+	}
+
+	_beforeRun() {
+		const config = this.config;
+		const suite = new Suite({
+			// rootSuiteName is provided by ClientSuite
+			name: config.rootSuiteName || null,
+			grep: config.grep,
+			sessionId: config.sessionId,
+			timeout: config.defaultTimeout,
+			reporterManager: this.reporterManager,
+			bail: config.bail
+		});
+
+		this.suites = [ suite ];
+
+		return super._beforeRun.apply(this, arguments).then(() => {
+			return this._loadTestModules(config.suites);
+		});
+	}
+}

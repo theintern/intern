@@ -1,6 +1,9 @@
-/* jshint node:true */
+import { IDefine } from 'dojo/loader'
+
+declare const define: IDefine;
+
 if (typeof process !== 'undefined' && typeof define === 'undefined') {
-	(function () {
+	(function (this: any) {
 		require('dojo/loader')((this.__internConfig = {
 			baseUrl: process.cwd().replace(/\\/g, '/'),
 			packages: [
@@ -25,7 +28,7 @@ else {
 		'./lib/exitHandler'
 	], function (PreExecutor, exitHandler) {
 		var executor = new PreExecutor({
-			defaultLoaderOptions: (function () {
+			defaultLoaderOptions: (function (this: any) {
 				return this;
 			})().__internConfig,
 			executorId: 'runner'

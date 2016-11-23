@@ -1,155 +1,155 @@
-define([
-	'intern!object',
-	'intern/chai!assert',
-	'../../../lib/ReporterManager',
-	'../../../lib/reporters/JUnit',
-	'dojo/Promise',
-	'dojo/has',
-	'dojo/has!host-node?dojo/node!fs',
-	'dojo/has!host-node?dojo/node!path'
-], function (registerSuite, assert, ReporterManager, JUnit, Promise, has, fs, pathUtil) {
-	registerSuite({
-		name: 'intern/lib/ReporterManager',
+import registerSuite = require('intern!object');
+import * as assert from 'intern/chai!assert';
+import { ReporterManager } from '../../../src/lib/ReporterManager';
+import { JUnit } from '../../../src/lib/reporters/JUnit';
+import Promise = require('dojo/Promise');
+import has = require('dojo/has');
+import * as fs from 'dojo/has!host-node?dojo/node!fs';
+import * as pathUtil from 'dojo/has!host-node?dojo/node!path';
 
-		'add/remove legacy reporter': function () {
-			var actual = [];
-			var expected = [];
-			var reporterManager = new ReporterManager();
+registerSuite({
+	name: 'intern/lib/ReporterManager',
 
-			// legacy reporter
-			var handle = reporterManager.add({
-				'/some/topic': function () {
-					actual.push('topic1');
-				},
-				stop: function () {
-					actual.push('stopped');
-				}
-			});
+	'add/remove legacy reporter'() {
+		const actual: string[] = [];
+		const expected: string[] = [];
+		const reporterManager = new ReporterManager();
 
-			reporterManager.emit('someTopic');
-			expected.push('topic1');
-			assert.deepEqual(actual, expected, 'Reporter should respond to topics automatically when added');
+		// legacy reporter
+		const handle = reporterManager.add({
+			'/some/topic': function () {
+				actual.push('topic1');
+			},
+			stop: function () {
+				actual.push('stopped');
+			}
+		});
 
+		reporterManager.emit('someTopic');
+		expected.push('topic1');
+		assert.deepEqual(actual, expected, 'Reporter should respond to topics automatically when added');
+
+		handle.remove();
+		expected.push('stopped');
+		assert.deepEqual(actual, expected, 'Reporter should be stopped when it is removed');
+
+		reporterManager.emit('someTopic');
+		assert.deepEqual(actual, expected, 'Reporter should not respond to topics once it has been removed');
+
+		assert.doesNotThrow(function () {
 			handle.remove();
-			expected.push('stopped');
-			assert.deepEqual(actual, expected, 'Reporter should be stopped when it is removed');
+		}, Error, 'Removing an removed reporter should not throw');
+	},
 
-			reporterManager.emit('someTopic');
-			assert.deepEqual(actual, expected, 'Reporter should not respond to topics once it has been removed');
+	'add/remove Reporter'() {
+		function MockReporter(config: { option?: any }): void {
+			actual.push(config.option);
+		}
 
-			assert.doesNotThrow(function () {
-				handle.remove();
-			}, Error, 'Removing an removed reporter should not throw');
-		},
-
-		'add/remove Reporter': function () {
-			function MockReporter(config) {
-				actual.push(config.option);
+		MockReporter.prototype = {
+			someTopic: function () {
+				actual.push('topic1');
+			},
+			destroy: function () {
+				actual.push('stopped');
 			}
+		};
 
-			MockReporter.prototype = {
-				someTopic: function () {
-					actual.push('topic1');
-				},
-				destroy: function () {
-					actual.push('stopped');
-				}
-			};
+		const actual: string[] = [];
+		const expected: string[] = [];
+		const reporterManager = new ReporterManager();
+		let handle: any;
 
-			var actual = [];
-			var expected = [];
-			var reporterManager = new ReporterManager();
-			var handle;
+		expected.push('created');
+		handle = reporterManager.add(MockReporter, <any> { option: 'created' });
+		assert.deepEqual(actual, expected, 'Reporter instance should have been instantiated with config arguments');
 
-			expected.push('created');
-			handle = reporterManager.add(MockReporter, { option: 'created' });
-			assert.deepEqual(actual, expected, 'Reporter instance should have been instantiated with config arguments');
+		reporterManager.emit('someTopic');
+		expected.push('topic1');
+		assert.deepEqual(actual, expected, 'Reporter should respond to topics automatically when added');
 
-			reporterManager.emit('someTopic');
-			expected.push('topic1');
-			assert.deepEqual(actual, expected, 'Reporter should respond to topics automatically when added');
+		handle.remove();
+		expected.push('stopped');
+		assert.deepEqual(actual, expected, 'Reporter should be stopped when it is removed');
 
+		reporterManager.emit('someTopic');
+		assert.deepEqual(actual, expected, 'Reporter should not respond to topics after removal');
+
+		assert.doesNotThrow(function () {
 			handle.remove();
-			expected.push('stopped');
-			assert.deepEqual(actual, expected, 'Reporter should be stopped when it is removed');
+		}, Error, 'Removing an removed reporter should not throw');
+	},
 
-			reporterManager.emit('someTopic');
-			assert.deepEqual(actual, expected, 'Reporter should not respond to topics after removal');
-
-			assert.doesNotThrow(function () {
-				handle.remove();
-			}, Error, 'Removing an removed reporter should not throw');
-		},
-
-		'add Reporter with output file': function () {
-			function unlink(pathname) {
-				if (!pathname || pathname === '.') {
-					return;
-				}
-
-				try {
-					if (fs.statSync(pathname).isDirectory()) {
-						fs.rmdirSync(pathname);
-					}
-					else {
-						fs.unlinkSync(pathname);
-					}
-				}
-				catch (error) { /* ignored */ }
-
-				unlink(pathUtil.dirname(pathname));
+	'add Reporter with output file'(this: any) {
+		function unlink(pathname: string) {
+			if (!pathname || pathname === '.') {
+				return;
 			}
-
-			if (!has('host-node')) {
-				this.skip();
-			}
-
-			var simpleName = 'test.result';
-			var dirName = 'report/dir/test.result';
-			var reporterManager = new ReporterManager();
-			reporterManager.add(JUnit, { filename: simpleName });
-			reporterManager.add(JUnit, { filename: dirName });
 
 			try {
-				assert.isTrue(fs.statSync(simpleName).isFile(), 'Report file should exist');
-				assert.isTrue(fs.statSync(dirName).isFile(), 'Report directory and file should exist');
+				if (fs.statSync(pathname).isDirectory()) {
+					fs.rmdirSync(pathname);
+				}
+				else {
+					fs.unlinkSync(pathname);
+				}
 			}
-			finally {
-				unlink(simpleName);
-				unlink(dirName);
-			}
-		},
+			catch (error) { /* ignored */ }
 
-		'reporterError': function () {
-			var reporterManager = new ReporterManager();
+			unlink(pathUtil.dirname(pathname));
+		}
 
-			var firstError = new Error('Oops');
-			var secondError = new Error('Oops again!');
-			var reporter;
-			var actual;
+		if (!has('host-node')) {
+			this.skip();
+		}
 
-			function MockReporter() {
+		const simpleName = 'test.result';
+		const dirName = 'report/dir/test.result';
+		const reporterManager = new ReporterManager();
+		reporterManager.add(JUnit, { filename: simpleName });
+		reporterManager.add(JUnit, { filename: dirName });
+
+		try {
+			assert.isTrue(fs.statSync(simpleName).isFile(), 'Report file should exist');
+			assert.isTrue(fs.statSync(dirName).isFile(), 'Report directory and file should exist');
+		}
+		finally {
+			unlink(simpleName);
+			unlink(dirName);
+		}
+	},
+
+	'reporterError'() {
+		const reporterManager = new ReporterManager();
+
+		const firstError = new Error('Oops');
+		const secondError = new Error('Oops again!');
+		let reporter: any;
+		let actual: any;
+
+		class MockReporter {
+			constructor() {
 				reporter = this;
 			}
-			MockReporter.prototype.runStart = function () {
+			runStart() {
 				throw firstError;
-			};
-			MockReporter.prototype.runEnd = function () {
+			}
+			runEnd() {
 				return Promise.reject(secondError);
-			};
-			MockReporter.prototype.reporterError = function () {
+			}
+			reporterError() {
 				actual = Array.prototype.slice.call(arguments, 0);
 				throw new Error('Throwing this error should not cause reporterError to be called again');
-			};
-
-			reporterManager.add(MockReporter, {});
-
-			return reporterManager.emit('runStart').then(function () {
-				assert.deepEqual(actual, [ reporter, firstError ]);
-				return reporterManager.emit('runEnd');
-			}).then(function () {
-				assert.deepEqual(actual, [ reporter, secondError ]);
-			});
+			}
 		}
-	});
+
+		reporterManager.add(MockReporter, {});
+
+		return reporterManager.emit('runStart').then(function () {
+			assert.deepEqual(actual, [ reporter, firstError ]);
+			return reporterManager.emit('runEnd');
+		}).then(function () {
+			assert.deepEqual(actual, [ reporter, secondError ]);
+		});
+	}
 });

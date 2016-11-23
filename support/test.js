@@ -1,21 +1,31 @@
 #!/usr/bin/env node
 
-var mode = process.argv[2];
+var mode = process.argv[2] || 'local';
 var spawn = require('child_process').spawnSync
 
-function run() {
-	var args = Array.prototype.slice.call(arguments);
-	spawn(args[0], args.slice(1), { stdio: 'inherit' });
+function run(runner, config, userArgs) {
+	spawn('node', [
+		'node_modules/intern/' + runner,
+		'config=dist/tests/' + config + '.js'
+	].concat(userArgs), { stdio: 'inherit' });
 }
 
-switch (mode) {
-case 'all':
-	run('intern-client', 'config=tests/selftest.intern.js');
-	run('intern-runner', 'config=tests/selftest.intern.js');
-	break;
-case 'remote':
-	run('intern-runner', 'config=tests/selftest.intern.js');
-	break;
-default:
-	run('intern-client', 'config=tests/selftest.intern.js');
+var modes = {
+	all: function () {
+		run('client', 'selftest.intern', args);
+		run('runner', 'selftest.intern', args);
+	},
+	local: function () {
+		run('client', 'selftest.intern', args);
+	},
+	remote: function () {
+		run('runner', 'selftest.intern', args);
+	}
+};
+
+if (args[0] in modes) {
+	mode = args[0];
+	args = args.slice(1);
 }
+
+modes[mode]();

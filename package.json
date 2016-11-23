@@ -1,8 +1,8 @@
 {
   "name": "intern",
   "version": "3.4.0-pre",
-  "main": "./main.js",
-  "types": "./typings/intern/intern.d.ts",
+  "main": "./dist/src/main.js",
+  "types": "./dist/src/index.d.ts",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
   "repository": {
     "type": "git",
@@ -22,12 +22,24 @@
     "source-map": "0.1.33"
   },
   "devDependencies": {
-    "intern": "3.0.6"
+    "@types/chai": "~3.4.34",
+    "@types/diff": "~0.0.31",
+    "@types/es6-promise": "~0.0.31",
+    "@types/glob": "~5.0.30",
+    "@types/node": "~6.0.0",
+    "@types/shelljs": "~0.3.32",
+    "@types/source-map": "~0.1.28",
+    "chokidar": "~1.6.0",
+    "intern": "~3.2.0",
+    "shelljs": "~0.7.0",
+    "typescript": "~2.0.0"
   },
   "scripts": {
     "install": "node support/fixdeps.js",
     "update": "node support/fixdeps.js",
-    "test": "node support/test.js"
+    "test": "node support/test.js",
+    "build": "node support/build.js",
+    "clean": "node support/clean.js"
   },
   "bugs": "https://github.com/theintern/intern/issues",
   "keywords": [

@@ -1,27 +1,27 @@
-define([], function () {
-	function EnvironmentType(kwArgs) {
-		for (var k in kwArgs) {
-			this[k] = kwArgs[k];
+export class EnvironmentType {
+	browserName: string = undefined;
+
+	version: string = undefined;
+
+	platform: string = undefined;
+
+	platformVersion: string = undefined;
+
+	constructor(kwArgs: { [key: string]: any }) {
+		const anyThis = <any> this;
+		for (let k in kwArgs) {
+			anyThis[k] = kwArgs[k];
 		}
 	}
 
-	EnvironmentType.prototype = {
-		constructor: EnvironmentType,
-		browserName: undefined,
-		version: undefined,
-		platform: undefined,
-		platformVersion: undefined,
-		toString: function () {
-			var parts = [];
+	toString() {
+		let parts: string[] = [];
 
-			parts.push(this.browserName || 'Any browser');
-			this.version && parts.push(this.version);
-			parts.push('on ' + (this.platform || 'any platform'));
-			this.platformVersion && parts.push(this.platformVersion);
+		parts.push(this.browserName || 'Any browser');
+		this.version && parts.push(this.version);
+		parts.push('on ' + (this.platform || 'any platform'));
+		this.platformVersion && parts.push(this.platformVersion);
 
-			return parts.join(' ');
-		}
-	};
-
-	return EnvironmentType;
-});
+		return parts.join(' ');
+	}
+}
