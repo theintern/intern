@@ -1,19 +1,26 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var path = require('path');
-var cli = require('../lib/cli');
-var program = require('commander');
-var vlog = cli.getLogger();
-var print = cli.print;
-var die = cli.die;
+import * as fs from 'fs';
+import * as path from 'path';
+import * as cli from '../lib/cli';
+import { Command } from 'commander';
+import * as resolve from 'resolve';
+import { spawn } from 'child_process';
+import opn = require('opn');
+const pkg = require('../../../package.json');
 
-var internDir;
-var internPackage;
+const program = new Command();
 
-var TESTS_DIR = 'tests';
-var MIN_VERSION = '3.0.0';
-var BROWSERS = {
+let vlog = cli.getLogger();
+const print = cli.print;
+const die = cli.die;
+
+let internDir: string;
+let internPackage: any;
+
+const TESTS_DIR = 'tests';
+const MIN_VERSION = '3.0.0';
+const BROWSERS = {
 	'chrome': {
 		name: 'Chrome',
 		driver: 'ChromeDriver',
@@ -47,14 +54,14 @@ var BROWSERS = {
 
 // Load the local Intern's package.json
 try {
-	internDir = path.dirname(require('resolve').sync('intern', { basedir: process.cwd() }));
+	internDir = path.dirname(resolve.sync('intern', { basedir: process.cwd() }));
 	internPackage = JSON.parse(fs.readFileSync(path.join(internDir, 'package.json'), { encoding: 'utf8' }));
 }
 catch (error) {
 	die([
 		'You\'ll need a local install of Intern before you can use this command. Install it with',
 		'',
-		'  npm install --save-dev intern',
+		'  npm install --save-dev intern'
 	]);
 }
 
@@ -66,31 +73,31 @@ if (!cli.acceptVersion(internPackage.version, MIN_VERSION)) {
 
 // Override commander's helpInformation to show the description above commands. Remove this if
 // https://github.com/tj/commander.js/issues/500 gets taken care of.
-program.helpInformation = function() {
-	var desc = [];
+program.helpInformation = function(this: any) {
+	let desc: string[] = [];
 	if (this._description) {
 		desc = [
 			'',
-			'  ' + this._description,
+			'  ' + this._description
 		];
 	}
 
-	var cmdName = this._name;
+	let cmdName = this._name;
 	if (this._alias) {
-		cmdName = cmdName + '|' + this._alias;
+		cmdName = `${cmdName}|${this._alias}`;
 	}
-	var usage = [
+	const usage = [
 		'',
-		'  Usage: ' + cmdName + ' ' + this.usage(),
+		`  Usage: ${cmdName} ${this.usage()}`
 	];
 
-	var cmds = [];
-	var commandHelp = this.commandHelp();
+	const cmds: string[] = [];
+	const commandHelp = this.commandHelp();
 	if (commandHelp) {
-		cmds = [commandHelp];
+		cmds.push(commandHelp);
 	}
 
-	var options = [
+	const options = [
 		'  Options:',
 		'',
 		'' + this.optionHelp().replace(/^/gm, '    '),
@@ -111,7 +118,7 @@ program
 	.option('-V, --version', 'output the version')
 	.on('version', function () {
 		print();
-		print('intern-cli: ' + require('../package.json').version);
+		print('intern-cli: ' + pkg.version);
 		if (internDir) {
 			print('intern: ' + internPackage.version);
 		}
@@ -120,13 +127,14 @@ program
 	.on('verbose', function () {
 		vlog = cli.getLogger(true);
 	})
-	.on('help', function (args) {
-		var commandName = args[0];
-		var command;
+	.on('help', function (args: any[]) {
+		const commandName = args[0];
+		let command: any;
+		const commands: any[] = (<any> program).commands;
 
-		for (var i = 0; i < program.commands.length; i++) {
-			if (program.commands[i].name() === commandName) {
-				command = program.commands[i];
+		for (let i = 0; i < commands.length; i++) {
+			if (commands[i].name() === commandName) {
+				command = commands[i];
 			}
 		}
 
@@ -150,7 +158,7 @@ program
 		print();
 	});
 
-program 
+program
 	.command('init')
 	.description('Setup a project for testing with Intern')
 	.option('-b, --browser <browser>', 'browser to use for functional tests',
@@ -170,9 +178,9 @@ program
 
 			vlog('Created test directory %s/', TESTS_DIR);
 
-			var configFile = path.join(TESTS_DIR, 'intern.js');
+			const configFile = path.join(TESTS_DIR, 'intern.js');
 
-			var data = fs.readFileSync(path.join(internDir, 'tests', 'example.intern.js'), { encoding: 'utf8' });
+			let data = fs.readFileSync(path.join(internDir, 'tests', 'example.intern.js'), { encoding: 'utf8' });
 			data = data.replace(/myPackage/g, 'app');
 			data = data.replace(/suites: \[.*?],/, 'suites: [ \'app/tests/unit/*\' ],');
 			data = data.replace(/functionalSuites: \[.*?],/, 'functionalSuites: [ \'app/tests/functional/*\' ],');
@@ -182,7 +190,7 @@ program
 			vlog('Using browser: %s', options.browser);
 			vlog('Created config file %s', configFile);
 
-			var environment;
+			let environment: string;
 			if (options.browser === 'firefox') {
 				environment = '{ browserName: \'firefox\', marionette: true }';
 			}
@@ -193,7 +201,7 @@ program
 
 			fs.writeFileSync(configFile, data);
 
-			cli.copy(path.join(__dirname, '..', 'init'), path.join(TESTS_DIR));
+			cli.copy(path.join(__dirname, '..', '..', '..', 'init'), path.join(TESTS_DIR));
 
 			vlog('Copied test files');
 
@@ -209,8 +217,8 @@ program
 				''
 			]);
 
-			var info = BROWSERS[options.browser];
-			var note = info.note;
+			const info = (<any> BROWSERS)[options.browser];
+			let note = info.note;
 
 			if (!note) {
 				note = 'Note that running WebDriver tests with ' + info.name + ' requires ' + info.driver +
@@ -240,7 +248,7 @@ program
 		print();
 	});
 
-program 
+program
 	.command('run')
 	.description('Run tests in Node or in a browser using WebDriver')
 	.option('-b, --bail', 'quit after the first failing test')
@@ -258,11 +266,11 @@ program
 	.option('--proxyOnly', 'start Intern\'s test server, but don\'t run any tests')
 	.option('--timeout <int>', 'set the default timeout for async tests', cli.intArg)
 	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
-	.action(function () {
-		//jshint maxcomplexity:12
+	.action(function (...args: any[]) {
+		// jshint maxcomplexity:12
 
-		var options = arguments[arguments.length - 1];
-		var config = options.config || path.join(TESTS_DIR, 'intern.js');
+		const options = args[args.length - 1];
+		const config = options.config || path.join(TESTS_DIR, 'intern.js');
 
 		try {
 			fs.statSync(config);
@@ -270,27 +278,27 @@ program
 		catch (error) {
 			die([
 				'There isn\'t a test config at ' + config + '. You can specify a different test config ' +
-				'with the --config option, or run `intern init` to setup a project for testing.',
+				'with the --config option, or run `intern init` to setup a project for testing.'
 			]);
 		}
 
-		var mode = options.webdriver ? 'runner' : 'client';
-		var internCmd = path.join(internDir, mode);
+		const mode = options.webdriver ? 'runner' : 'client';
+		const internCmd = path.join(internDir, mode);
 
 		// Allow user-specified args in the standard intern format to be passed through
-		var internArgs = Array.prototype.slice.call(arguments).slice(0, arguments.length - 1);
+		const internArgs = args.slice(0, args.length - 1);
 
 		internArgs.push('config=' + config);
 
-		options.suites.forEach(function (suite) {
+		options.suites.forEach(function (suite: string) {
 			internArgs.push('suites=' + suite);
 		});
 
-		options.fsuites.forEach(function (suite) {
+		options.fsuites.forEach(function (suite: string) {
 			internArgs.push('functionalSuites=' + suite);
 		});
 
-		options.reporters.forEach(function (reporter) {
+		options.reporters.forEach(function (reporter: string) {
 			internArgs.push('reporters=' + reporter);
 		});
 
@@ -327,18 +335,17 @@ program
 			internArgs.push('verbose');
 		}
 
-		var nodeArgs = [];
+		const nodeArgs: string[] = [];
 
 		if (options.debug) {
 			nodeArgs.push('debug');
 		}
 
-		var spawnArgs = nodeArgs.concat(internCmd).concat(internArgs);
+		const spawnArgs = nodeArgs.concat(internCmd).concat(internArgs);
 
 		vlog('Running %s %s', process.execPath, spawnArgs.join(' '));
 
-		var spawn = require('child_process').spawn;
-		var intern = spawn(process.execPath, spawnArgs, {
+		const intern = spawn(process.execPath, spawnArgs, {
 			stdio: 'inherit'
 		});
 
@@ -346,7 +353,7 @@ program
 			intern.kill('SIGINT');
 		});
 
-		intern.on('close', function (code, signal) {
+		intern.on('close', function (code: number, signal: string) {
 			if (process.exitCode == null) {
 				process.exitCode = code != null ? code : cli.exitCodeForSignal(signal);
 			}
@@ -375,10 +382,10 @@ program
 			''
 		]);
 
-		var reporters = [];
-		var reporterDir = path.join(internDir, 'lib', 'reporters');
-		fs.readdirSync(reporterDir).filter(function (name) {
-			var fullPath = path.join(reporterDir, name);
+		const reporters: string[] = [];
+		const reporterDir = path.join(internDir, 'lib', 'reporters');
+		fs.readdirSync(reporterDir).filter(function (name: string) {
+			const fullPath = path.join(reporterDir, name);
 			return fs.statSync(fullPath).isFile();
 		}).forEach(function (name) {
 			reporters.push(path.basename(name, '.js'));
@@ -390,8 +397,8 @@ program
 			''
 		]);
 
-		var tunnels = [];
-		var digdugDir = path.dirname(require('resolve').sync('digdug/Tunnel', { basedir: process.cwd() }));
+		const tunnels: string[] = [];
+		const digdugDir = path.dirname(resolve.sync('digdug/Tunnel', { basedir: process.cwd() }));
 		fs.readdirSync(digdugDir).filter(function (name) {
 			return /\wTunnel/.test(name);
 		}).forEach(function (name) {
@@ -405,20 +412,20 @@ program
 		]);
 	});
 
-program 
+program
 	.command('serve')
 	.description('Start a simple web server for running unit tests in a browser on your system')
 	.option('-c, --config <module ID|file>', 'config file to use (default is ' + TESTS_DIR + '/intern.js)')
 	.option('-o, --open', 'open the test runner URL when the server starts')
 	.option('-p, --port <port>', 'port to serve on', cli.intArg)
 	.option('-I, --noInstrument', 'disable instrumentation')
-	.action(function () {
-		var options = arguments[arguments.length - 1];
-		var config = options.config || path.join(TESTS_DIR, 'intern.js');
-		var internCmd = path.join(internDir, 'runner');
+	.action(function (...args: any[]) {
+		const options = args[args.length - 1];
+		const config = options.config || path.join(TESTS_DIR, 'intern.js');
+		const internCmd = path.join(internDir, 'runner');
 
 		// Allow user-specified args in the standard intern format to be passed through
-		var internArgs = Array.prototype.slice.call(arguments).slice(0, arguments.length - 1);
+		const internArgs = args.slice(0, args.length - 1);
 
 		internArgs.push('config=' + config);
 		internArgs.push('proxyOnly');
@@ -431,34 +438,33 @@ program
 			internArgs.push('excludeInstrumentation');
 		}
 
-		var nodeArgs = [];
+		const nodeArgs: string[] = [];
 
 		if (options.debug) {
 			nodeArgs.push('debug');
 		}
 
-		var spawn = require('child_process').spawn;
-		var intern = spawn(process.execPath, nodeArgs.concat(internCmd).concat(internArgs), {
+		const intern = spawn(process.execPath, nodeArgs.concat(internCmd).concat(internArgs), {
 			stdio: [ process.stdin, 'pipe', process.stdout ]
 		});
 
-		intern.stdout.on('data', function (data) {
+		intern.stdout.on('data', function (data: any) {
 			data = String(data);
 			process.stdout.write(data);
 
 			if (/Listening on/.test(data)) {
-				var internPath = '/node_modules/intern/client.html?config=' + config;
+				const internPath = '/node_modules/intern/client.html?config=' + config;
 
 				// Get the address. Convert 0.0.0.0 to 'localhost' for Windows compatibility.
-				var address = data.split(' on ')[1].replace(/^\s*/, '').replace(/\s*$/, '');
-				var parts = address.split(':');
+				let address = data.split(' on ')[1].replace(/^\s*/, '').replace(/\s*$/, '');
+				const parts = address.split(':');
 				if (parts[0] === '0.0.0.0') {
 					parts[0] = 'localhost';
 				}
 				address = parts.join(':');
 
 				if (options.open) {
-					require('opn')('http://' + address + internPath);
+					opn('http://' + address + internPath);
 				}
 				else {
 					print([

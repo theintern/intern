@@ -1,108 +1,98 @@
-define([
-	'require',
-	'intern!object',
-	'intern/chai!assert',
-	'intern/dojo/node!../../lib/cli',
-	'intern/dojo/node!fs',
-	'intern/dojo/node!path'
-], function (
-	require,
-	registerSuite,
-	assert,
-	cli,
-	fs,
-	path
-) {
-	registerSuite({
-		name: 'lib/cli',
+import registerSuite = require('intern!object');
+import * as assert from 'intern/chai!assert';
+import * as cli from '../../src/lib/cli';
+import * as fs from 'fs';
+import * as path from 'path';
 
-		acceptVersion: function () {
-			assert.isTrue(cli.acceptVersion('3.3.0-pre', '3.0.0'));
-			assert.isTrue(cli.acceptVersion('3.3.2', '3.0.0'));
-			assert.isFalse(cli.acceptVersion('2.3.2', '3.0.0'));
-		},
+registerSuite({
+	name: 'lib/cli',
 
-		collect: function () {
-			var input = [];
-			cli.collect('5', input);
-			assert.deepEqual(input, [ '5' ]);
+	acceptVersion() {
+		assert.isTrue(cli.acceptVersion('3.3.0-pre', '3.0.0'));
+		assert.isTrue(cli.acceptVersion('3.3.2', '3.0.0'));
+		assert.isFalse(cli.acceptVersion('2.3.2', '3.0.0'));
+	},
 
-			cli.collect('6', input);
-			assert.deepEqual(input, [ '5', '6' ]);
-		},
+	collect() {
+		const input: string[] = [];
+		cli.collect('5', input);
+		assert.deepEqual(input, [ '5' ]);
 
-		copy: (function () {
-			function rm(name) {
-				if (fs.statSync(name).isDirectory()) {
-					fs.readdirSync(name).forEach(function (filename) {
-						rm(path.join(name, filename));
-					});
-					fs.rmdirSync(name);
-				}
-				else {
-					fs.unlinkSync(name);
-				}
+		cli.collect('6', input);
+		assert.deepEqual(input, [ '5', '6' ]);
+	},
+
+	copy: (function () {
+		function rm(name: string) {
+			if (fs.statSync(name).isDirectory()) {
+				fs.readdirSync(name).forEach(function (filename) {
+					rm(path.join(name, filename));
+				});
+				fs.rmdirSync(name);
 			}
+			else {
+				fs.unlinkSync(name);
+			}
+		}
 
-			var tempdir;
+		let tempdir: string;
 
-			return {
-				setup: function () {
-					fs.mkdirSync('.testtmp');
-					tempdir = '.testtmp';
-				},
+		return {
+			setup() {
+				fs.mkdirSync('.testtmp');
+				tempdir = '.testtmp';
+			},
 
-				afterEach: function () {
-					fs.readdirSync(tempdir).forEach(function (filename) {
-						rm(path.join(tempdir, filename));
-					});
-				},
+			afterEach() {
+				fs.readdirSync(tempdir).forEach(function (filename: string) {
+					rm(path.join(tempdir, filename));
+				});
+			},
 
-				teardown: function () {
-					rm(tempdir);
-				},
+			teardown() {
+				rm(tempdir);
+			},
 
-				'copy file': function () {
-					cli.copy('./tests/unit/all.js', path.join(tempdir, 'all.js'));
-					assert.isTrue(fs.statSync(path.join(tempdir, 'all.js')).isFile());
-				},
+			'copy file'() {
+				cli.copy('./tests/unit/all.ts', path.join(tempdir, 'all.js'));
+				assert.isTrue(fs.statSync(path.join(tempdir, 'all.js')).isFile());
+			},
 
-				'copy dir': function () {
-					cli.copy('./tests', tempdir);
-					assert.isTrue(fs.statSync(path.join(tempdir, 'unit', 'all.js')).isFile());
-				}
-			};
-		})(),
+			'copy dir'() {
+				cli.copy('./tests', tempdir);
+				assert.isTrue(fs.statSync(path.join(tempdir, 'unit', 'all.ts')).isFile());
+			}
+		};
+	})(),
 
-		enumArg: (function () {
-			var oldDie = cli.die;
-			var message;
+	enumArg: (function () {
+		const oldDie = cli.die;
+		let message: string;
 
-			return {
-				setup: function () {
-					cli.die = function (msg) {
-						message = msg;
-					};
-				},
+		return {
+			setup() {
+				cli._setDieMethod(function (msg: string) {
+					message = msg;
+				});
+			},
 
-				beforeEach: function () {
-					message = null;
-				},
+			beforeEach() {
+				message = null;
+			},
 
-				teardown: function () {
-					cli.die = oldDie;
-				},
+			teardown() {
+				cli._setDieMethod(oldDie);
+			},
 
-				good: function () {
-					assert.strictEqual(cli.enumArg([ 'a', 'b' ], 'a'), 'a');
-					assert.isNull(message);
-				},
+			good() {
+				assert.strictEqual(cli.enumArg([ 'a', 'b' ], 'a'), 'a');
+				assert.isNull(message);
+			},
 
-				bad: function () {
-					cli.enumArg([ 'a', 'b' ], 'c');
-					assert.isNotNull(message);
-				}
-			};
-		})()
-	});
+			bad() {
+				cli.enumArg([ 'a', 'b' ], 'c');
+				assert.isNotNull(message);
+			}
+		};
+	})()
 });

@@ -24,15 +24,25 @@
   "homepage": "http://theintern.github.io/",
   "preferGlobal": true,
   "bin": {
-    "intern": "./bin/intern.js"
-  },
-  "engines": {
-    "node": ">0.12"
-  },
-  "devDependencies": {
-    "intern": "3.2.3"
+    "intern": "./_build/src/bin/intern.js"
   },
   "scripts": {
-    "test": "node node_modules/intern/client.js config=tests/intern"
+    "build": "tsc",
+    "test": "node node_modules/intern/client.js config=_build/tests/intern",
+	"lint": "tslint --project ./tsconfig.json"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "devDependencies": {
+    "@types/commander": "^2.3.31",
+    "@types/node": "0.0.2",
+    "@types/opn": "^3.0.28",
+    "@types/resolve": "0.0.4",
+    "@types/semver": "^5.3.30",
+    "dojo-loader": "^2.0.0-beta.7",
+    "intern": "^3.4.1",
+    "tslint": "^4.0.2",
+    "typescript": "^2.0.10"
   }
 }

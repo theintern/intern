@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"declaration": true,
+		"experimentalDecorators": true,
+		"module": "umd",
+		"moduleResolution": "node",
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"outDir": "./_build",
+		"preserveConstEnums": true,
+		"removeComments": true,
+		"sourceMap": true,
+		"target": "ES5"
+	},
+	"files": [
+		"./node_modules/intern/typings/intern/intern.d.ts"
+	],
+	"include": [
+		"./src/**/*.ts",
+		"./tests/**/*.ts"
+	]
+}
