@@ -8,10 +8,6 @@ import Test from '../Test';
 
 declare const require: IRequire;
 
-function scroll(): void {
-	window.scrollTo(0, document.documentElement.scrollHeight || document.body.scrollHeight);
-}
-
 export interface WebDriverReporterConfig extends ReporterConfig {
 	writeHtml?: boolean;
 	sessionId?: string;
@@ -43,7 +39,7 @@ export default class WebDriver implements Reporter {
 		}
 	}
 
-	$others(name: string, ...args: any[]): Promise<any> {
+	$others(name: string, ...args: any[]): Promise<any> | void {
 		if (name !== 'coverage' && name !== 'run') {
 			return this._sendEvent(name, args);
 		}
@@ -83,7 +79,7 @@ export default class WebDriver implements Reporter {
 				oldSuiteNode.appendChild(outerSuiteNode);
 			}
 
-			scroll();
+			this._scroll();
 		}
 
 		return this._sendEvent('suiteStart', arguments);
@@ -97,7 +93,7 @@ export default class WebDriver implements Reporter {
 			const errorNode = document.createElement('pre');
 			errorNode.appendChild(document.createTextNode(util.getErrorMessage(error)));
 			this.suiteNode.appendChild(errorNode);
-			scroll();
+			this._scroll();
 		}
 
 		return this._sendEvent('suiteError', arguments);
@@ -108,7 +104,7 @@ export default class WebDriver implements Reporter {
 			this.testNode = document.createElement('li');
 			this.testNode.appendChild(document.createTextNode(test.name));
 			this.suiteNode.appendChild(this.testNode);
-			scroll();
+			this._scroll();
 		}
 
 		return this._sendEvent('testStart', arguments);
@@ -118,7 +114,7 @@ export default class WebDriver implements Reporter {
 		if (this.writeHtml) {
 			this.testNode.appendChild(document.createTextNode(' passed (' + test.timeElapsed + 'ms)'));
 			this.testNode.style.color = 'green';
-			scroll();
+			this._scroll();
 		}
 
 		return this._sendEvent('testPass', arguments);
@@ -131,7 +127,7 @@ export default class WebDriver implements Reporter {
 				(test.skipped ? ' (' + test.skipped + ')' : '')));
 			testNode.style.color = 'gray';
 			this.suiteNode.appendChild(testNode);
-			scroll();
+			this._scroll();
 		}
 
 		return this._sendEvent('testSkip', arguments);
@@ -145,13 +141,13 @@ export default class WebDriver implements Reporter {
 			const errorNode = document.createElement('pre');
 			errorNode.appendChild(document.createTextNode(<string> (util.getErrorMessage(test.error))));
 			this.testNode.appendChild(errorNode);
-			scroll();
+			this._scroll();
 		}
 
 		return this._sendEvent('testFail', arguments);
 	}
 
-	private _sendEvent(name: string, args: IArguments | any[]) {
+	private _sendEvent(name: string, args: IArguments | any[]): Promise<any> | void {
 		const data = [ name ].concat(Array.prototype.slice.call(args, 0));
 		const shouldWait = util.getShouldWait(this.waitForRunner, data);
 		const promise = sendData.send(this.url, data, this.sessionId);
@@ -159,5 +155,9 @@ export default class WebDriver implements Reporter {
 		if (shouldWait) {
 			return promise;
 		}
+	}
+
+	private _scroll() {
+		window.scrollTo(0, document.documentElement.scrollHeight || document.body.scrollHeight);
 	}
 }

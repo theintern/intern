@@ -13,6 +13,7 @@ import './lib/interfaces/benchmark';
 import './lib/interfaces/object';
 import './lib/interfaces/qunit';
 import './lib/reporters/Console';
+import './lib/reporters/WebDriver';
 import './lib/resolveEnvironments';
 
 import 'dojo/has!host-node?./lib/Proxy';
