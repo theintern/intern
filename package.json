@@ -32,6 +32,7 @@
   "scripts": {
     "install": "node support/fixdeps.js",
     "update": "node support/fixdeps.js",
+    "release": "node support/release.js",
     "test": "node support/test.js"
   },
   "bugs": "https://github.com/theintern/intern/issues",
