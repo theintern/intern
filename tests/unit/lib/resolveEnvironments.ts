@@ -17,7 +17,7 @@ const availableIe = [
 ];
 
 function versionSort(a: any, b: any): number {
-	return parseInt(b.version) - parseInt(a.version);
+	return parseInt(b.version, 10) - parseInt(a.version, 10);
 }
 
 function assertResolve(capabilities: { [key: string]: any }, environments: Environment[], available?: ServiceEnvironment[], expected?: any, message?: string) {

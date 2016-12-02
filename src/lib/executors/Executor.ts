@@ -304,7 +304,7 @@ export class Executor {
 		const queue = util.createQueue(maxConcurrency);
 		let hasError = false;
 
-		return new Promise(function (resolve, reject, progress, setCanceler) {
+		return new Promise(function (resolve, _reject, _progress, setCanceler) {
 			const runningSuites: Promise<any>[] = [];
 
 			setCanceler(function (reason) {

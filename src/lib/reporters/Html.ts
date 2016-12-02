@@ -350,7 +350,7 @@ export class HtmlReporter implements Reporter {
 			expandToggle.textContent = 'Expand/collapse all';
 			this.reportControls.firstElementChild.appendChild(expandToggle);
 
-			expandToggle.addEventListener('click', event => {
+			expandToggle.addEventListener('click', () => {
 				const shouldExpand = this.reportNode.querySelector('.collapsed') != null;
 				const suites = this.reportNode.querySelectorAll('.suite');
 				for (let i = 0; i < suites.length; i++) {

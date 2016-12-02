@@ -6,7 +6,6 @@ import { Suite } from '../Suite';
 // AMD modules
 import * as has from 'dojo/has';
 import * as lang from 'dojo/lang';
-import * as Promise from 'dojo/Promise';
 
 /**
  * The Client executor is used to run unit tests in the local environment.
@@ -18,7 +17,7 @@ export class Client extends Executor {
 	mode: 'client';
 
 	constructor(config: Config, preExecutor: PreExecutor) {
-		super(config, preExecutor)
+		super(config, preExecutor);
 
 		this.config = lang.deepDelegate(this.config, {
 			reporters: [ 'Console' ]

@@ -12,7 +12,7 @@ import TextReporter = require('dojo/node!istanbul/lib/report/text');
 import Report = require('dojo/node!istanbul/lib/report');
 import * as Tunnel from 'digdug/Tunnel';
 
-class Combined implements Reporter {
+export class Combined implements Reporter {
 	private _collector: Collector;
 	private _hasDot: boolean;
 	private _reporters: Report[];
@@ -43,7 +43,7 @@ class Combined implements Reporter {
 		}
 	}
 
-	coverage(sessionId: string, coverage: Object): void {
+	coverage(_sessionId: string, coverage: Object): void {
 		this._collector.add(coverage);
 	}
 
@@ -85,12 +85,12 @@ class Combined implements Reporter {
 		this.output.write(`Testing ${remote.environmentType}\n`);
 	}
 
-	suiteError(suite: Suite, error: Error): void {
+	suiteError(_suite: Suite, error: Error): void {
 		this._writeLine();
 		this.output.write(util.getErrorMessage(error) + '\n');
 	}
 
-	tunnelDownloadProgress(tunnel: Tunnel, progress: { loaded: number, total: number }): void {
+	tunnelDownloadProgress(_tunnel: Tunnel, progress: { loaded: number, total: number }): void {
 		const total = progress.loaded / progress.total;
 
 		if (isNaN(total)) {
@@ -109,7 +109,7 @@ class Combined implements Reporter {
 		this.output.write('\r\x1b[KTunnel started\n');
 	}
 
-	tunnelStatus(tunnel: Tunnel, status: string): void {
+	tunnelStatus(_tunnel: Tunnel, status: string): void {
 		this.output.write(`\r\x1b[KTunnel:${status}`);
 	}
 

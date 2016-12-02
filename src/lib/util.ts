@@ -809,17 +809,6 @@ function loadSourceMap(data: any) {
 }
 
 /**
- * Normalize a pathname for use by coverage instrumentation
- */
-function normalizePathForInstrumentation(filename: string) {
-	filename = pathUtil.normalize(filename);
-	if (pathUtil.sep === '\\') {
-		filename = filename.replace(/\\/g, '/');
-	}
-	return filename;
-}
-
-/**
  * Parse a stack trace, apply any source mappings, and normalize its format.
  */
 function normalizeStackTrace(stack: string, filterStack: boolean) {

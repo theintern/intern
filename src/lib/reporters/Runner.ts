@@ -89,7 +89,7 @@ export class Runner {
 		this.charm.write('Listening on 0.0.0.0:' + proxy.config.port + '\n');
 	}
 
-	reporterError(reporter: Reporter, error: Error): void {
+	reporterError(_reporter: Reporter, error: Error): void {
 		this.charm
 			.foreground('red')
 			.write('Reporter error!\n')
@@ -254,7 +254,7 @@ export class Runner {
 			.write('\n');
 	}
 
-	tunnelDownloadProgress(tunnel: Tunnel, progress: { loaded: number, total: number }) {
+	tunnelDownloadProgress(_tunnel: Tunnel, progress: { loaded: number, total: number }) {
 		this.charm.write('Tunnel download: ' + (progress.loaded / progress.total * 100).toFixed(3) + '%\r');
 	}
 
@@ -262,7 +262,7 @@ export class Runner {
 		this.charm.write('Tunnel started\n');
 	}
 
-	tunnelStatus(tunnel: Tunnel, status: string): void {
+	tunnelStatus(_tunnel: Tunnel, status: string): void {
 		this.charm.write(status + '\x1b[K\r');
 	}
 }

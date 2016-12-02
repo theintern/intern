@@ -132,14 +132,14 @@ export class ReporterManager {
 			}
 			else if (has('host-browser')) {
 				defineLazyProperty(config, 'output', function () {
-					var element = document.createElement('pre');
+					const element = document.createElement('pre');
 
 					return {
-						write: function (chunk: string, encoding: string, callback: Function) {
+						write: function (chunk: string, _encoding: string, callback: Function) {
 							element.appendChild(document.createTextNode(chunk));
 							callback();
 						},
-						end: function (chunk: string, encoding: string, callback: Function) {
+						end: function (chunk: string, _encoding: string, callback: Function) {
 							element.appendChild(document.createTextNode(chunk));
 							document.body.appendChild(element);
 							callback();
@@ -151,7 +151,7 @@ export class ReporterManager {
 			reporter = new Reporter(config);
 		}
 
-		var reporters = this._reporters;
+		const reporters = this._reporters;
 		reporters.push(reporter);
 
 		return {

@@ -2,9 +2,7 @@ import * as Promise from 'dojo/Promise';
 import * as util from './lib/util';
 import { IRequire } from 'dojo/loader';
 
-declare const require: IRequire;
-
-var queue = util.createQueue(1);
+const queue = util.createQueue(1);
 
 /**
  * AMD plugin for in-order loading of non-AMD JavaScript. Use this when you need to test modules that do not

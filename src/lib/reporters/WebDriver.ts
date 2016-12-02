@@ -66,7 +66,7 @@ export class WebDriver implements Reporter {
 		return this._sendEvent('runStart', []);
 	}
 
-	suiteEnd(suite: Suite): VoidOrPromise {
+	suiteEnd(_suite: Suite): VoidOrPromise {
 		if (this.writeHtml) {
 			this.suiteNode = <Element> (this.suiteNode.parentNode.parentNode || document.body);
 		}

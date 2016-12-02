@@ -1,4 +1,4 @@
-import { IDefine } from 'dojo/loader'
+import { IDefine } from 'dojo/loader';
 
 declare const define: IDefine;
 
@@ -27,7 +27,7 @@ else {
 		'./lib/executors/PreExecutor',
 		'./lib/exitHandler'
 	], function (PreExecutor, exitHandler) {
-		var executor = new PreExecutor({
+		const executor = new PreExecutor({
 			defaultLoaderOptions: (function (this: any) {
 				return this;
 			})().__internConfig,

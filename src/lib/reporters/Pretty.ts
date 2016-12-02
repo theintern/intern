@@ -251,11 +251,11 @@ export class PrettyReporter implements Reporter {
 		this.tunnelState = 'Starting';
 	}
 
-	tunnelDownloadProgress(tunnel: Tunnel, progress: any): void {
+	tunnelDownloadProgress(_tunnel: Tunnel, progress: any): void {
 		this.tunnelState = 'Downloading ' + (progress.received / progress.numTotal * 100).toFixed(2) + '%';
 	}
 
-	tunnelStatus(tunnel: Tunnel, status: string): void {
+	tunnelStatus(_tunnel: Tunnel, status: string): void {
 		this.tunnelState = status;
 	}
 

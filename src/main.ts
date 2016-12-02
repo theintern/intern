@@ -23,7 +23,7 @@ export let executor: Executor = null;
 /**
  * AMD plugin API interface for easy loading of test interfaces.
  */
-export function load(id: string, pluginRequire: IRequire, callback: (module: string) => void) {
+export function load(id: string, _pluginRequire: IRequire, callback: (module: string) => void) {
 	require([ './lib/interfaces/' + id ], callback);
 }
 

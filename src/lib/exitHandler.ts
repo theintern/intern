@@ -34,8 +34,8 @@ export = function (process: NodeJS.Process, task: Promise<any>, timeout: number)
 	})
 	.finally(function () {
 		let ref = setTimeout(function () {
-			console.warn('Node.js hang detected; make sure to close all sockets, timers, and ' +
-						 'servers you opened during testing!');
+			console.warn('Node.js hang detected; make sure to close all sockets, timers, ' +
+				'and servers you opened during testing!');
 			process.exit();
 		}, timeout);
 		ref.unref();

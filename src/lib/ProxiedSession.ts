@@ -57,7 +57,7 @@ export class ProxiedSession extends Session {
 	 * Navigates the browser to a new URL like {@link module:leadfoot/Session#get}, but retrieves any code coverage
 	 * data recorded by the browser prior to navigation.
 	 */
-	get(url: string): Promise<any> {
+	get(_url: string): Promise<any> {
 		let args = Array.prototype.slice.call(arguments, 0);
 
 		// At least two letters are required in the scheme to avoid Windows paths being misinterpreted as URLs

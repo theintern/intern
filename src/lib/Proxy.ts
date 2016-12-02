@@ -24,7 +24,7 @@ export type ProxyConfig = {
 	instrumenterOptions?: any;
 	port?: number;
 	waitForRunner?: boolean;
-}
+};
 
 export class Proxy {
 	config: ProxyConfig;

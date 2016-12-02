@@ -42,7 +42,7 @@ export class Console implements Reporter {
 		this.console.error(util.getErrorMessage(error));
 	}
 
-	reporterError(reporter: Reporter, error: Error): void {
+	reporterError(_reporter: Reporter, error: Error): void {
 		this.console.error('REPORTER ERROR');
 		this.console.error(util.getErrorMessage(error));
 	}
@@ -92,7 +92,7 @@ export class Console implements Reporter {
 		this.console.log('SKIP: ' + (<{ [key: string]: any }> test)[this.testId] + (test.skipped ? ' (' + test.skipped + ')' : ''));
 	}
 
-	coverage(sessionId: string, coverage: Object): void {
+	coverage(_sessionId: string, coverage: Object): void {
 		if (!has('host-node')) {
 			return;
 		}

@@ -25,7 +25,7 @@ declare const require: IRequire;
  * The Runner executor is used to run unit & functional tests in remote environments loaded through a WebDriver
  * conduit.
  */
-class Runner extends Executor {
+export class Runner extends Executor {
 	mode: 'runner';
 
 	proxy: Proxy;
@@ -33,7 +33,7 @@ class Runner extends Executor {
 	tunnel: Tunnel;
 
 	constructor(config: Config, preExecutor: PreExecutor) {
-		super(config, preExecutor)
+		super(config, preExecutor);
 
 		this.config = lang.deepDelegate(this.config, {
 			capabilities: {
@@ -105,7 +105,7 @@ class Runner extends Executor {
 		const reporterManager = this.reporterManager;
 
 		function createAndStartProxy() {
-			var proxy = self._createProxy(config);
+			const proxy = self._createProxy(config);
 			return proxy.start().then(function () {
 				self.proxy = proxy;
 				return reporterManager.emit('proxyStart', proxy);
@@ -126,7 +126,7 @@ class Runner extends Executor {
 		}
 
 		function startTunnel() {
-			var tunnel = self.tunnel;
+			const tunnel = self.tunnel;
 			return tunnel.start().then(function () {
 				return reporterManager.emit('tunnelStart', tunnel);
 			});
@@ -178,7 +178,7 @@ class Runner extends Executor {
 				config.environments,
 				tunnelEnvironments
 			).map(function (environmentType) {
-				var suite = new Suite({
+				const suite = new Suite({
 					name: String(environmentType),
 					reporterManager: reporterManager,
 					publishAfterSetup: true,
@@ -274,13 +274,13 @@ class Runner extends Executor {
 	 */
 	protected _fixConfig() {
 		/* jshint node:true */
-		var config = this.config;
+		const config = this.config;
 
 		if (!config.capabilities.name) {
 			config.capabilities.name = config.config;
 		}
 
-		var buildId = process.env.TRAVIS_COMMIT || process.env.BUILD_TAG;
+		const buildId = process.env.TRAVIS_COMMIT || process.env.BUILD_TAG;
 		if (buildId) {
 			config.capabilities.build = buildId;
 		}
@@ -301,12 +301,12 @@ class Runner extends Executor {
 	 * @returns {module:digdug/Tunnel} A Dig Dug tunnel.
 	 */
 	protected _loadTunnel(config: Config) {
-		var reporterManager = this.reporterManager;
+		const reporterManager = this.reporterManager;
 		return util.getModule(config.tunnel, <IRequire> require).then(function (Tunnel) {
 			// Tunnel only copies own property values from the config object, so make a flat
 			// copy of config.tunnelOptions (it's a delegate)
-			var tunnelOptions = lang.deepMixin({}, config.tunnelOptions);
-			var tunnel = new Tunnel(tunnelOptions);
+			const tunnelOptions = lang.deepMixin({}, config.tunnelOptions);
+			const tunnel = new Tunnel(tunnelOptions);
 
 			tunnel.on('downloadprogress', function (progress: any) {
 				reporterManager.emit('tunnelDownloadProgress', tunnel, progress);
@@ -319,56 +319,5 @@ class Runner extends Executor {
 
 			return tunnel;
 		});
-	}
-
-	protected _startTunnel() {
-		const self = this;
-		const config = this.config;
-
-		function createAndStartProxy() {
-			var proxy = self._createProxy(config);
-			return proxy.start().then(function () {
-				self.proxy = proxy;
-				return self.reporterManager.emit('proxyStart', proxy);
-			});
-		}
-
-		function loadTunnel() {
-			return self._loadTunnel(config).then(function (tunnel) {
-				self.tunnel = tunnel;
-			});
-		}
-
-		function loadTestModules() {
-			return self._createSuites(config, self.tunnel, self.preExecutor.getArguments()).then(function (suites) {
-				self.suites = suites;
-				return self._loadTestModules(config.functionalSuites);
-			});
-		}
-
-		function startTunnel() {
-			var tunnel = self.tunnel;
-			return tunnel.start().then(function () {
-				return self.reporterManager.emit('tunnelStart', tunnel);
-			});
-		}
-
-		var promise = super._beforeRun().then(createAndStartProxy);
-
-		if (config.proxyOnly) {
-			return promise.then(function () {
-				return Promise.resolve(self.config.setup && self.config.setup(self))
-					.then(function () {
-						// TODO: This seems redundant
-						return new Promise(function () {});
-					})
-					.finally(function () {
-						return Promise.resolve(self.config.teardown && self.config.teardown(self));
-					})
-					.finally(function () {
-						return self.proxy && self.proxy.stop();
-					});
-			});
-		}
 	}
 }

@@ -4,7 +4,6 @@ import { InternError } from '../interfaces';
 // AMD modules
 import * as lang from 'dojo/lang';
 import * as Promise from 'dojo/Promise';
-import * as aspect from 'dojo/aspect';
 import * as ioQuery from 'dojo/io-query';
 
 // Node modules
@@ -118,7 +117,7 @@ export class ClientSuite extends Suite {
 
 		const proxyBasePath = urlUtil.parse(config.proxyUrl).pathname;
 
-		var clientReporter = this.config.runnerClientReporter;
+		let clientReporter = this.config.runnerClientReporter;
 		if (typeof clientReporter === 'object') {
 			// Need to mixin the properties of `clientReporter` to a new object before stringify because
 			// stringify only serialises an object’s own properties

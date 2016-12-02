@@ -1,6 +1,6 @@
 import * as Promise from 'dojo/Promise';
 
-import { Test, TestFunction } from './Test';
+import { Test } from './Test';
 import { InternError, Remote } from '../interfaces';
 import * as util from './util';
 
@@ -63,8 +63,6 @@ export class Suite {
 	private _grep: RegExp;
 
 	private _remote: Remote;
-
-	private _environmentType: any;
 
 	private _reporterManager: any;
 
@@ -275,7 +273,7 @@ export class Suite {
 					// If a timeout was set, async was called, so we should use the dfd created by the call to
 					// manage the timeout.
 					if (timeout) {
-						var timer = setTimeout(function () {
+						let timer = setTimeout(function () {
 							dfd.reject(new Error('Timeout reached on ' + suite.id + '#' + name));
 						}, timeout);
 
@@ -317,7 +315,7 @@ export class Suite {
 
 		function report(eventName: string, ...args: any[]) {
 			if (reporterManager) {
-				const args = [ eventName, self ].concat(Array.prototype.slice.call(arguments, 1));
+				args = [ eventName, self ].concat(args);
 				return reporterManager.emit.apply(reporterManager, args);
 			}
 			else {
@@ -346,7 +344,7 @@ export class Suite {
 			}
 			while ((suite = suite.parent));
 
-			return new Promise(function (resolve, reject, progress, setCanceler) {
+			return new Promise(function (resolve, reject, _progress, setCanceler) {
 				let current: Promise<any>;
 				let firstError: Error;
 
@@ -395,7 +393,7 @@ export class Suite {
 			let i = 0;
 			let tests = self.tests;
 
-			return new Promise(function (resolve, reject, progress, setCanceler) {
+			return new Promise(function (resolve, reject, _progress, setCanceler) {
 				let current: Promise<any>;
 				let firstError: Error;
 

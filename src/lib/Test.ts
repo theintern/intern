@@ -67,7 +67,7 @@ export class Test {
 	 * The WebDriver interface for driving a remote environment.
 	 * @see Suite#remote
 	 */
-	get remote() {
+	get remote(): Remote {
 		this._usesRemote = true;
 		return this.parent.remote;
 	}
@@ -221,7 +221,7 @@ export class Test {
 
 					// The `result` promise is wrapped in order to allow timeouts to work when a user returns a
 					// Promise from somewhere else that does not support cancellation
-					self._runTask = new Promise(function (resolve, reject, progress, setCanceler) {
+					self._runTask = new Promise(function (resolve, reject, _progress, setCanceler) {
 						setCanceler(function (reason) {
 							// Dojo 2 promises are designed to allow extra signalling if a task has to perform
 							// cleanup when it is cancelled; some others, including Dojo 1 promises, do not. In

@@ -19,7 +19,7 @@ export class Cobertura implements Reporter {
 		}
 	}
 
-	coverage(sessionId: string, coverage: Object): void {
+	coverage(_sessionId: string, coverage: Object): void {
 		this._collector.add(coverage);
 	}
 

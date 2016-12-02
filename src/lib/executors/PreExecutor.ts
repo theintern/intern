@@ -316,7 +316,7 @@ export class PreExecutor {
 		const args = this.getArguments();
 
 		let config: Config;
-		let earlyErrorHandler  = <(error: Error) => void> lang.bind(this, '_handleError');
+		let earlyErrorHandler = (error: Error) => this._handleError(error);
 		let executor: Executor;
 
 		this._earlyErrorHandle = this.registerErrorHandler(earlyErrorHandler);
@@ -535,11 +535,6 @@ export class PreExecutor {
 			return loader;
 		});
 	}
-}
-
-interface LoaderOptions {
-	map?: { [key: string]: any };
-	[key: string]: any;
 }
 
 /**
