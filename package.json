@@ -14,13 +14,13 @@
 		"istanbul": "0.2.16",
 		"source-map": "0.1.33",
 		"dojo": "1.9.4",
-		"leadfoot": "1.6.6",
-		"digdug": "1.4.0",
+		"leadfoot": "1.7.0",
+		"digdug": "1.6.2",
 		"charm": "0.2.0",
 		"diff": "1.1.0"
 	},
 	"devDependencies": {
-		"intern-geezer": "2.1.0"
+		"intern-geezer": "2.2.3"
 	},
 	"scripts": {
 		"install": "node support/fixdeps.js",
