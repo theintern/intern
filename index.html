@@ -1427,7 +1427,7 @@
 						<div class="a half" id="interface-benchmark"></div>
 						<h3 data-id="interface-benchmark">The Benchmark interface</h3>
 
-						<p>The benchmark interface is a specialized version of the object interface used to write benchmarking tests. It's usage is similar to that of the object interface, with a few key differences. One is that asynchronous tests must be declared using an <code>async</code> wrapper function, and tests that will be explicitly skipped also need to use a wrapper function (<code>skip</code>). The <code>this.async()</code> and <code>this.skip()</code> methods are not supported for benchmark tests.</p> 
+						<p>The benchmark interface is a specialized version of the object interface used to write benchmarking tests. Its usage is similar to that of the object interface, with a few key differences. One is that asynchronous tests must be declared using an <code class="javascript">async</code> wrapper function, and tests that will be explicitly skipped also need to use a wrapper function (<code class="javascript">skip</code>). The <code class="javascript">this.async()</code> and <code class="javascript">this.skip()</code> methods are not supported for benchmark tests.</p> 
 
 						<pre><code class="javascript">define([ 'intern!benchmark' ], function (registerSuite) {
 	var async = registerSuite.async; 
@@ -1466,9 +1466,9 @@
 	})()
 });</code></pre>
 
-						<p>The benchmark interface also adds two new lifecycle functions: <code>beforeEachLoop</code> and <code>afterEachLoop</code>. These are similar to Benchmark.js's <code>setup</code> and <code>teardown</code> methods, in that they will be called each time of the test function is called. (The existing <code>beforeEach</code> and <code>afterEach</code> methods will be called before and after the benchmarking process for a particular test, which will involve calling the test function multiple times.) Like Intern's existing lifecycle functions, these methods support nested suites.</p>
-
-						<aside class="tip"><p>Note that providing <code>setup</code> and <code>teardown</code> functions on benchmark test "options" object is not supported. Intern will always override these functions with its own lifecycle code. Instead, use <code>beforeEachLoop</code> and <code>afterEachLoop</code>.</p></aside>
+						<p>The benchmark interface also adds two new lifecycle functions: <code class="javascript">beforeEachLoop</code> and <code class="javascript">afterEachLoop</code>. These are similar to Benchmark.js's <code class="javascript">setup</code> and <code class="javascript">teardown</code> methods, in that they will be called for each execution of Benchmark.js's test loop. (The existing <code class="javascript">beforeEach</code> and <code class="javascript">afterEach</code> methods will be called before and after the benchmarking process for a particular test, which will involve calling the test function multiple times.) Like Intern's existing lifecycle functions, these methods support nested suites.</p>
+						<aside class="whatAreYouCrazy"><p>Note that because of limitations in Benchmark.js, <code class="javascript">beforeEachLoop</code> and <code class="javascript">afterEachLoop</code> <em>must</em> be synchronous and <em>cannot</em> use <code class="javascript">this.async()</code>, return a Promise, or be wrapped with <code class="javascript">async</code>.</p></aside>
+						<aside class="tip"><p>Note that providing <code class="javascript">setup</code> and <code class="javascript">teardown</code> functions on benchmark test "options" object is not supported. Intern will always override these functions with its own lifecycle code. Instead, use <code class="javascript">beforeEachLoop</code> and <code class="javascript">afterEachLoop</code>.</p></aside>
 					</article>
 
 					<article>
@@ -1977,10 +1977,10 @@ define(function (require) {
 									<li>For <em>each test</em> within the suite:
 										<ul>
 											<li>The <a href="#suite-object-beforeEach">beforeEach</a> method of the suite is called, if it exists</li>
-											<li>The benchmark is started, which involves calling the test function itself many times. For each call of the test function:
+											<li>The benchmark is started. This involves calling the test function itself many times in a "test loop". For each execution of the test loop, the following steps take place:
 											<ul>
 												<li>The <a href="#suite-object-beforeEachLoop">beforeEachLoop</a> method of the suite is called, if it exists</li>
-												<li>The test function is called</li>
+												<li>The test function is called at least once</li>
 												<li>The <a href="#suite-object-afterEachLoop">afterEachLoop</a> method of the suite is called, if it exists</li>
 											</ul>
 											<li>The <a href="#suite-object-afterEach">afterEach</a> method of the suite is called, if it exists</li>
