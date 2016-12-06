@@ -1,11 +1,11 @@
 import 'chai';
 import * as Tunnel from 'digdug/Tunnel';
-import { Executor } from './lib/executors/Executor';
+import Executor from './lib/executors/Executor';
 import { ReporterDescriptor } from './lib/ReporterManager';
-import { EnvironmentType } from './lib/EnvironmentType';
+import EnvironmentType from './lib/EnvironmentType';
 import { IConfig } from 'dojo/loader';
-import { Test } from './lib/Test';
-import { Suite, SuiteConfig, SuiteLifecycleFunction } from './lib/Suite';
+import Test from './lib/Test';
+import { default as Suite, SuiteConfig, SuiteLifecycleFunction } from './lib/Suite';
 import Command = require('leadfoot/Command');
 import Promise = require('dojo/Promise');
 

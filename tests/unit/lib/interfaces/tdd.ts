@@ -2,8 +2,8 @@ import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import * as tdd from '../../../../src/lib/interfaces/tdd';
 import * as main from '../../../../src/main';
-import { Suite } from '../../../../src/lib/Suite';
-import { Test } from '../../../../src/lib/Test';
+import Suite from '../../../../src/lib/Suite';
+import Test from '../../../../src/lib/Test';
 
 let originalExecutor = main.executor;
 let rootSuites: Suite[];

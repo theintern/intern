@@ -1,6 +1,5 @@
-import * as Promise from 'dojo/Promise';
-
-import { Test } from './Test';
+import Promise = require('dojo/Promise');
+import Test from './Test';
 import { InternError, Remote } from '../interfaces';
 import * as util from './util';
 
@@ -29,7 +28,7 @@ export interface SuiteConfig {
 	[name: string]: any;
 }
 
-export class Suite {
+export default class Suite {
 	async: (timeout?: number) => Promise.Deferred<void>;
 
 	afterEach: TestLifecycleFunction = null;
@@ -433,6 +432,7 @@ export class Suite {
 						if (!error.relatedTest) {
 							error.relatedTest = <Test> test;
 						}
+						return report('suiteError', error);
 					}
 
 					function runWithCatch() {

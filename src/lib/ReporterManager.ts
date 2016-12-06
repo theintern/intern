@@ -64,7 +64,7 @@ export type Listener = (...args: any[]) => (void|Promise<any>);
  *     tunnelStart
  *     tunnelStatus
  */
-export class ReporterManager {
+export default class ReporterManager {
 	private _earlyEvents: any[] = [];
 
 	private _reporters: Reporter[] = [];

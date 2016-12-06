@@ -3,7 +3,7 @@ import * as assert from 'intern/chai!assert';
 import Collector = require('dojo/node!istanbul/lib/collector');
 import * as fs from 'dojo/node!fs';
 import getMock from './support/mocks';
-import { LcovReporter as Lcov } from '../../../../src/lib/reporters/Lcov';
+import Lcov from '../../../../src/lib/reporters/Lcov';
 
 const sessionId = 'foo';
 
@@ -15,7 +15,7 @@ registerSuite({
 	coverage() {
 		const lcov = new Lcov();
 		let collectorCalled = false;
-		lcov._collector.add = function (coverage) {
+		lcov['_collector'].add = function (coverage) {
 			collectorCalled = true;
 			assert.deepEqual(
 				coverage,
@@ -35,7 +35,7 @@ registerSuite({
 		const lcov = new Lcov();
 
 		let writeReportCalled = false;
-		lcov._reporter.writeReport = function (collector) {
+		lcov['_reporter'].writeReport = function (collector) {
 			writeReportCalled = true;
 			assert.instanceOf(collector, Collector, 'Reporter#writeReport should be called with a Collector');
 		};

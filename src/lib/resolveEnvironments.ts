@@ -1,5 +1,5 @@
 import * as lang from 'dojo/lang';
-import { EnvironmentType } from './EnvironmentType';
+import EnvironmentType from './EnvironmentType';
 import { ServiceEnvironment } from 'digdug';
 
 export type Environment = { version?: (string|string[]|number|number[]), [key: string]: any };
@@ -13,7 +13,7 @@ export type FlatEnvironment = { version?: string, [key: string]: any };
  * @param available a list of available environments
  * @returns a list of flattened service environments
  */
-export function resolveEnvironments(capabilities: { [key: string]: any }, environments: Environment[], available?: ServiceEnvironment[]) {
+export default function resolveEnvironments(capabilities: { [key: string]: any }, environments: Environment[], available?: ServiceEnvironment[]) {
 	// flatEnviroments will have non-array versions
 	const flatEnvironments = createPermutations(capabilities, environments);
 

@@ -1,7 +1,7 @@
 import { Config } from '../../interfaces';
-import { Executor } from './Executor';
-import { PreExecutor } from './PreExecutor';
-import { Suite } from '../Suite';
+import Executor from './Executor';
+import PreExecutor from './PreExecutor';
+import Suite from '../Suite';
 
 // AMD modules
 import * as has from 'dojo/has';
@@ -13,15 +13,15 @@ import * as lang from 'dojo/lang';
  * @constructor module:intern/lib/executors/Client
  * @extends module:intern/lib/executors/Executor
  */
-export class Client extends Executor {
+export default class Client extends Executor {
 	mode: 'client';
 
 	constructor(config: Config, preExecutor: PreExecutor) {
-		super(config, preExecutor);
-
-		this.config = lang.deepDelegate(this.config, {
+		config = lang.deepMixin({
 			reporters: [ 'Console' ]
-		});
+		}, config);
+
+		super(config, preExecutor);
 
 		if (has('host-browser')) {
 			this.config.reporters.push('Html');

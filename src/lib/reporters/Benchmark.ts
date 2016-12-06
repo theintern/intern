@@ -20,8 +20,8 @@
 import * as fs from 'fs';
 import * as util from '../util';
 import { Reporter, ReporterConfig } from '../../interfaces';
-import { Test } from '../Test';
-import { Suite } from '../Suite';
+import Test from '../Test';
+import Suite from '../Suite';
 import _Benchmark = require('benchmark');
 
 export interface BenchmarkData {
@@ -93,7 +93,7 @@ export interface BenchmarkReporterConfig extends ReporterConfig {
 	verbosity?: number;
 }
 
-export class Benchmark implements Reporter {
+export default class Benchmark implements Reporter {
 	baseline: BenchmarkBaseline;
 
 	config: ReporterConfig;

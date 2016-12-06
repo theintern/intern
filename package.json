@@ -46,7 +46,8 @@
     "test": "node support/build.js && node support/test.js",
     "build": "node support/lint.js && node support/build.js",
     "lint": "node support/lint.js",
-    "clean": "node support/clean.js"
+    "clean": "node support/clean.js",
+    "watch": "node support/watch.js"
   },
   "bugs": "https://github.com/theintern/intern/issues",
   "keywords": [

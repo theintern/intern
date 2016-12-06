@@ -3,7 +3,7 @@ import * as assert from 'intern/chai!assert';
 import Collector = require('dojo/node!istanbul/lib/collector');
 import * as fs from 'dojo/node!fs';
 import getMock from './support/mocks';
-import { JsonCoverage } from '../../../../src/lib/reporters/JsonCoverage';
+import JsonCoverage from '../../../../src/lib/reporters/JsonCoverage';
 
 const sessionId = 'foo';
 

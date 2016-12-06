@@ -2,7 +2,7 @@ import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import {IRequire } from 'dojo/loader';
 import * as parseArgs from '../../../../src/lib/parseArgs';
-import { PreExecutor } from '../../../../src/lib/executors/PreExecutor';
+import PreExecutor from '../../../../src/lib/executors/PreExecutor';
 
 declare const require: IRequire;
 

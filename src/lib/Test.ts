@@ -1,7 +1,7 @@
 import * as Promise from 'dojo/Promise';
 import * as util from './util';
 import { InternError, Remote, Deferred } from '../interfaces';
-import { Suite } from './Suite';
+import Suite from './Suite';
 
 export interface TestFunction {
 	(): void | Promise<any>;
@@ -15,7 +15,7 @@ export interface TestDescriptor {
 	skipped?: string;
 }
 
-export class Test {
+export default class Test {
 	name: string;
 
 	test: Function;

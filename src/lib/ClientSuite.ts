@@ -1,4 +1,5 @@
-import { Suite } from './Suite';
+import { default as Suite, SuiteConfig } from './Suite';
+import { Config } from '../interfaces';
 import { InternError } from '../interfaces';
 
 // AMD modules
@@ -10,16 +11,26 @@ import * as ioQuery from 'dojo/io-query';
 import * as urlUtil from 'dojo/node!url';
 import * as pathUtil from 'dojo/node!path';
 
-export class ClientSuite extends Suite {
-	config: any = {};
-
-	name: 'unit tests';
+export default class ClientSuite extends Suite {
+	config: Config;
 
 	args: any[];
 
-	timeout: number = Infinity;
-
 	proxy: any;
+
+	constructor(config: SuiteConfig)  {
+		super(config);
+
+		this.config = this.config || {};
+
+		if (this.timeout == null) {
+			this.timeout = Infinity;
+		}
+
+		if (this.name == null) {
+			this.name = 'unit tests';
+		}
+	}
 
 	// TODO: Change this from using Selenium-provided sessionId to self-generated constant identifier so that
 	// sessions can be safely reset in the middle of a test run

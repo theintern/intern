@@ -2,7 +2,7 @@ import Collector = require('dojo/node!istanbul/lib/collector');
 import JsonReporter = require('dojo/node!istanbul/lib/report/json');
 import { Reporter, ReporterConfig } from '../../interfaces';
 
-export class JsonCoverage implements Reporter {
+export default class JsonCoverage implements Reporter {
 	_collector: Collector;
 	_reporter: JsonReporter;
 

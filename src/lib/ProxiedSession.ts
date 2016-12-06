@@ -1,6 +1,6 @@
 import * as Promise from 'dojo/Promise';
 
-import Session = require('dojo/has!host-node?dojo/node!leadfoot/Session');
+import Session = require('dojo/node!leadfoot/Session');
 
 /* istanbul ignore next: client-side code */
 function getCoverageData(coverageVariable: string) {
@@ -19,7 +19,7 @@ function getCoverageData(coverageVariable: string) {
  * @param {module:leadfoot/Server} server The server that the session belongs to.
  * @param {Object} capabilities A map of bugs and features that the remote environment exposes.
  */
-export class ProxiedSession extends Session {
+export default class ProxiedSession extends Session {
 	/**
 	 * Indicate whether coverage data should be requested before performing a request.
 	 *

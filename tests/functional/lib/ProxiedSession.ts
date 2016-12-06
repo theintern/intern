@@ -1,8 +1,8 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import { IRequire } from 'dojo/loader';
-import { ProxiedSession } from '../../../src/lib/ProxiedSession';
-import { Test } from '../../../src/lib/Test';
+import ProxiedSession from '../../../src/lib/ProxiedSession';
+import Test from '../../../src/lib/Test';
 import Server = require('dojo/node!leadfoot/Server');
 import Promise = require('dojo/Promise');
 

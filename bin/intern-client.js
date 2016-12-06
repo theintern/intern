@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../client');
+require('../src/client');

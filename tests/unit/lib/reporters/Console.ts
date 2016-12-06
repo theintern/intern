@@ -1,9 +1,9 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import MockConsole from './support/MockConsole';
-import { Suite } from '../../../../src/lib/Suite';
-import { Test } from '../../../../src/lib/Test';
-import { Console } from '../../../../src/lib/reporters/Console';
+import Suite from '../../../../src/lib/Suite';
+import Test from '../../../../src/lib/Test';
+import Console from '../../../../src/lib/reporters/Console';
 import * as pathUtil from 'dojo/has!host-node?dojo/node!path';
 import has = require('dojo/has');
 

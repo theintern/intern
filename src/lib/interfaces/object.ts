@@ -1,7 +1,7 @@
 import * as aspect from 'dojo/aspect';
 import * as main from '../../main';
-import { Suite } from '../Suite';
-import { Test } from '../Test';
+import Suite from '../Suite';
+import Test from '../Test';
 import { ObjectSuiteConfig } from '../../interfaces';
 
 export interface PropertyHandler {
@@ -71,7 +71,7 @@ function defaultPropertyHandler(property: string, value: any, suite: Suite) {
  * @param TestClass Class to use to construct individual tests
  * @param propertyHandler Function to handle any properties that shouldn't be used as tests
  */
-export function registerSuite(mainDescriptor: ObjectSuiteConfig, TestClass?: typeof Test, propertyHandler?: PropertyHandler): void {
+export default function registerSuite(mainDescriptor: ObjectSuiteConfig, TestClass?: typeof Test, propertyHandler?: PropertyHandler): void {
 	TestClass = TestClass || Test;
 
 	main.executor.register(function (suite: Suite) {

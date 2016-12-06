@@ -2,17 +2,17 @@
 import * as intern from '../../main';
 import * as util from '../util';
 import * as fs from 'dojo/node!fs';
-import { Suite } from '../Suite';
-import { Test } from '../Test';
+import Suite from '../Suite';
+import Test from '../Test';
 import { Reporter, ReporterConfig, ReporterOutput, Remote } from '../../interfaces';
 import Collector = require('dojo/node!istanbul/lib/collector');
 import JsonReporter = require('dojo/node!istanbul/lib/report/json');
 import LcovHtmlReporter = require('dojo/node!istanbul/lib/report/html');
 import TextReporter = require('dojo/node!istanbul/lib/report/text');
 import Report = require('dojo/node!istanbul/lib/report');
-import * as Tunnel from 'digdug/Tunnel';
+import Tunnel = require('digdug/Tunnel');
 
-export class Combined implements Reporter {
+export default class Combined implements Reporter {
 	private _collector: Collector;
 	private _hasDot: boolean;
 	private _reporters: Report[];

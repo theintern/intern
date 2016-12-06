@@ -1,8 +1,8 @@
 import { IRequire } from 'dojo/loader';
 import * as util from '../util';
 import { Reporter, ReporterConfig } from '../../interfaces';
-import { Test } from '../Test';
-import { Suite } from '../Suite';
+import Test from '../Test';
+import Suite from '../Suite';
 
 declare const require: IRequire;
 
@@ -66,7 +66,7 @@ export interface HtmlConfig extends ReporterConfig {
 	document?: Document;
 }
 
-export class Html implements Reporter {
+export default class Html implements Reporter {
 	document: Document;
 	reportContainer: Element = null;
 

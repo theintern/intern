@@ -1,7 +1,7 @@
-import { ReporterDescriptor, ReporterManager, ReporterConstructor } from '../ReporterManager';
+import { default as ReporterManager, ReporterDescriptor } from '../ReporterManager';
 import { Config } from '../../interfaces';
-import { PreExecutor } from './PreExecutor';
-import { Suite } from '../Suite';
+import PreExecutor from './PreExecutor';
+import Suite from '../Suite';
 import * as util from '../util';
 
 // Legacy imports
@@ -17,15 +17,9 @@ declare const require: IRequire;
 
 const globalOrWindow = Function('return this')();
 
-export class Executor {
+export default class Executor {
 	/** The resolved configuration for this executor. */
-	config: Config = {
-		instrumenterOptions: {
-			coverageVariable: '__internCoverage'
-		},
-		defaultTimeout: 30000,
-		reporters: []
-	};
+	config: Config;
 
 	/** The type of the executor. */
 	mode: string;
@@ -41,7 +35,14 @@ export class Executor {
 	protected _hasSuiteErrors = false;
 
 	constructor(config: Config, preExecutor: PreExecutor) {
-		this.config = lang.deepDelegate(this.config, config);
+		this.config = lang.deepMixin({
+			instrumenterOptions: {
+				coverageVariable: '__internCoverage'
+			},
+			defaultTimeout: 30000,
+			reporters: []
+		}, config);
+
 		this.reporterManager = new ReporterManager();
 		this.preExecutor = preExecutor;
 
@@ -249,7 +250,7 @@ export class Executor {
 
 			require(reporterModuleIds, function () {
 				try {
-					Array.prototype.slice.call(arguments).forEach(function (Reporter: (ReporterConstructor|Object), i: number) {
+					Array.prototype.slice.call(arguments).forEach(function (Reporter: any, i: number) {
 						const rawArgs = reporters[i];
 						let kwArgs: ReporterDescriptor;
 
@@ -263,6 +264,13 @@ export class Executor {
 							else {
 								kwArgs = <ReporterDescriptor> {};
 							}
+						}
+						else {
+							kwArgs = <ReporterDescriptor> rawArgs;
+						}
+
+						if (Reporter.default && typeof Reporter.default === 'function') {
+							Reporter = Reporter.default;
 						}
 
 						// pass each reporter the full intern config as well as its own options

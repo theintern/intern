@@ -1,7 +1,7 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import {IRequire } from 'dojo/loader';
-import { Proxy } from '../../../src/lib/Proxy';
+import Proxy from '../../../src/lib/Proxy';
 import Promise = require('dojo/Promise');
 import * as fs from 'dojo/node!fs';
 import * as querystring from 'dojo/node!querystring';
@@ -48,10 +48,10 @@ registerSuite({
 	_handle: {
 		'correct handler called'() {
 			const proxy = new Proxy({ instrument: false });
-			proxy._resolveSuites = function () {
+			proxy['_resolveSuites'] = function () {
 				calls.push('resolveSuites');
 			};
-			proxy._handleFile = function () {
+			proxy['_handleFile'] = function () {
 				calls.push('handleFile');
 			};
 			const request = createRequest();
@@ -60,17 +60,17 @@ registerSuite({
 
 			let calls: any[] = [];
 			request.url = '/__intern/__resolveSuites__?' + query;
-			proxy._handler(<any> request, <any> response);
+			proxy['_handler'](<any> request, <any> response);
 			assert.deepEqual(calls, [ 'resolveSuites' ], '__resolveSuites__ request sent to unexpected handler');
 
 			calls = [];
 			request.url = '/__intern/package/module.js';
-			proxy._handler(<any> request, <any> response);
+			proxy['_handler'](<any> request, <any> response);
 			assert.deepEqual(calls, [ 'handleFile' ], 'File request sent to unexpected handler');
 
 			calls = [];
 			request.url = '/__intern/package/module';
-			proxy._handler(<any> request, <any> response);
+			proxy['_handler'](<any> request, <any> response);
 			assert.deepEqual(calls, [ 'handleFile' ], 'Module ID request sent to unexpected handler');
 		}
 	},
@@ -100,7 +100,7 @@ registerSuite({
 		});
 
 		request.url = url;
-		proxy._handleFile(<any> request, <any> response);
+		proxy['_handleFile'](<any> request, <any> response);
 
 		return dfd.promise.then(function (data) {
 			assert.equal(data, expected);
@@ -114,7 +114,7 @@ registerSuite({
 			const request = createRequest('/__intern/__resolveSuites__?' + query);
 			const response = createResponse();
 
-			proxy._resolveSuites(<any> request, <any> response);
+			proxy['_resolveSuites'](<any> request, <any> response);
 
 			// Ensure returned value is JSON
 			let resolvedSuites: any;
@@ -143,7 +143,7 @@ registerSuite({
 			];
 			const response = createResponse();
 
-			proxy._resolveSuites(<any> request, <any> response);
+			proxy['_resolveSuites'](<any> request, <any> response);
 
 			// Ensure returned value is JSON
 			let resolvedSuites: any;

@@ -3,9 +3,9 @@ import * as assert from 'intern/chai!assert';
 import { AssertionError } from 'chai';
 import { QUnit, QUnitBaseAssert } from '../../../../src/lib/interfaces/qunit';
 import * as main from '../../../../src/main';
-import { Executor } from '../../../../src/lib/executors/Executor';
-import { Suite } from '../../../../src/lib/Suite';
-import { Test } from '../../../../src/lib/Test';
+import Executor from '../../../../src/lib/executors/Executor';
+import Suite from '../../../../src/lib/Suite';
+import Test from '../../../../src/lib/Test';
 import { InternError } from '../../../../src/interfaces';
 
 let originalExecutor: Executor;

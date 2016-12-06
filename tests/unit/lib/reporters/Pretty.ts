@@ -1,9 +1,9 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import { PrettyReporter as Pretty, Report } from '../../../../src/lib/reporters/Pretty';
-import { EnvironmentType } from '../../../../src/lib/EnvironmentType';
-import { Suite } from '../../../../src/lib/Suite';
-import { Test } from '../../../../src/lib/Test';
+import { default as Pretty, Report } from '../../../../src/lib/reporters/Pretty';
+import EnvironmentType from '../../../../src/lib/EnvironmentType';
+import Suite from '../../../../src/lib/Suite';
+import Test from '../../../../src/lib/Test';
 import getMock from './support/mocks';
 import Reporter = require('dojo/has!host-node?dojo/node!istanbul/lib/report/text');
 
@@ -91,13 +91,13 @@ registerSuite(function () {
 
 		_render: {
 			empty() {
-				pretty._render();
+				pretty['_render']();
 				assert.equal(mockCharm.out, 'Total: Pending\nPassed: 0  Failed: 0  Skipped: 0\n');
 			},
 
 			simple() {
 				pretty.total = createReport([ 0, 0, 0, 0, 1, 2, 0, 0, 0 ], 30);
-				pretty._render();
+				pretty['_render']();
 				const expected = 'Total: [' + bar(pretty.total.results) + '-                    ]  9/30\n' +
 					'Passed: 7   Failed: 1   Skipped: 1\n';
 				assert.equal(mockCharm.out, expected);
@@ -124,7 +124,7 @@ registerSuite(function () {
 					)
 				};
 				// pretty.sessions = ['1', '2', '3', '4'];
-				pretty._render();
+				pretty['_render']();
 
 				const expected = 'Total: [' + bar(pretty.total.results) + '-                    ]  9/30\n' +
 					'Passed: 7   Failed: 1   Skipped: 1\n' +
@@ -149,7 +149,7 @@ registerSuite(function () {
 					'! expected line',
 					'~ line'
 				];
-				pretty._render();
+				pretty['_render']();
 
 				const expected = 'Total: [' + bar(pretty.total.results) + '-                         ]  4/30\n' +
 					'Passed: 0   Failed: 4   Skipped: 0\n' +
@@ -167,7 +167,7 @@ registerSuite(function () {
 				pretty.total = createReport([0, 0, 0, 0, 0], 30);
 				pretty.tunnelState = 'tunnel';
 				pretty.header = 'header';
-				pretty._render();
+				pretty['_render']();
 
 				const expected = 'header\n' +
 					'Tunnel: tunnel\n' +
@@ -185,7 +185,7 @@ registerSuite(function () {
 					width: 20,
 					height: 5
 				};
-				pretty._render();
+				pretty['_render']();
 				assert.equal(mockCharm.out, expected);
 			},
 
@@ -197,13 +197,13 @@ registerSuite(function () {
 					width: 100,
 					height: 5
 				};
-				pretty._render();
+				pretty['_render']();
 				assert.equal(mockCharm.out, expected);
 			},
 
 			'spinner advances on each render'() {
 				function assertSpinner(spinner: string) {
-					pretty._render();
+					pretty['_render']();
 
 					const expected = 'Total: [' + bar(pretty.total.results) + spinner + '    ]  5/10\n' +
 						'Passed: 5   Failed: 0   Skipped: 0\n';
@@ -228,10 +228,10 @@ registerSuite(function () {
 
 				assert.isDefined(pretty.dimensions.width);
 				assert.isDefined(pretty.dimensions.height);
-				assert.isDefined(pretty._renderTimeout);
+				assert.isDefined(pretty['_renderTimeout']);
 			}
 			finally {
-				clearTimeout(pretty._renderTimeout);
+				clearTimeout(pretty['_renderTimeout']);
 			}
 		},
 

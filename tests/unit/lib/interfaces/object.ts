@@ -1,9 +1,9 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import { registerSuite as testRegisterSuite } from '../../../../src/lib/interfaces/object';
+import testRegisterSuite from '../../../../src/lib/interfaces/object';
 import * as main from '../../../../src/main';
-import { Suite } from '../../../../src/lib/Suite';
-import { Test } from '../../../../src/lib/Test';
+import Suite from '../../../../src/lib/Suite';
+import Test from '../../../../src/lib/Test';
 
 const originalExecutor = main.executor;
 let rootSuites: Suite[];

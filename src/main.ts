@@ -1,5 +1,5 @@
 import { IRequire } from 'dojo/loader';
-import { Executor } from './lib/executors/Executor';
+import Executor from './lib/executors/Executor';
 import { CommandLineArguments, Config } from './interfaces';
 
 declare const require: IRequire;
@@ -24,7 +24,10 @@ export let executor: Executor = null;
  * AMD plugin API interface for easy loading of test interfaces.
  */
 export function load(id: string, _pluginRequire: IRequire, callback: (module: string) => void) {
-	require([ './lib/interfaces/' + id ], callback);
+	require([ './lib/interfaces/' + id ], function (iface) {
+		// Return the default export since an AMD consumer will expect that
+		callback(iface.default);
+	});
 }
 
 export function normalize(interfaceId: string) {

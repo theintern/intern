@@ -1,13 +1,13 @@
 import { after } from 'dojo/aspect';
 import { delegate } from 'dojo/lang';
 import * as Promise from 'dojo/Promise';
-import { Suite } from '../Suite';
-import { Test } from '../Test';
+import Suite from '../Suite';
+import Test from '../Test';
 import { escapeRegExp } from '../util';
 import { assert, AssertionError } from 'chai';
 import { Removable } from '../../interfaces';
 import * as main from '../../main';
-import { Executor } from '../../lib/executors/Executor';
+import Executor from '../../lib/executors/Executor';
 
 export interface QUnitTestFunction {
 	(assert: QUnitBaseAssert): void;

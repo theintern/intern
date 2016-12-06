@@ -36,7 +36,17 @@ declare module 'dojo/node!querystring' {
 	export * from 'querystring';
 }
 
-declare module 'dojo/has!host-node?dojo/node!leadfoot/Session' {
+declare module 'dojo/node!digdug/Tunnel' {
+	import Tunnel = require('digdug/Tunnel');
+	export = Tunnel;
+}
+
+declare module 'dojo/node!leadfoot/Command' {
+	import Command = require('leadfoot/Command');
+	export = Command;
+}
+
+declare module 'dojo/node!leadfoot/Session' {
 	import Session = require('leadfoot/Session');
 	export = Session;
 }

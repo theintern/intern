@@ -41,6 +41,6 @@ export const functionalSuites = [
 	'intern-selftest/_build/tests/functional/lib/ProxiedSession'
 ];
 
-export const excludeInstrumentation = /(?:tests|node_modules)\//;
+export const excludeInstrumentation = /(?:tests|node_modules|browser_modules)\//;
 
 export const isSelfTestConfig = true;

@@ -1,4 +1,4 @@
-import { Test, TestDescriptor } from './Test';
+import { default as Test, TestDescriptor } from './Test';
 import { InternError, Deferred } from '../interfaces';
 import Benchmark = require('benchmark');
 import Promise = require('dojo/Promise');
@@ -113,13 +113,13 @@ export interface InternBenchmark extends Benchmark {
 /**
  * A wrapper around a Benchmark.js Benchmark that maps its API to that used by Test.
  */
-export class BenchmarkTest extends Test {
+export default class BenchmarkTest extends Test {
 	test: BenchmarkTestFunction;
 
 	benchmark: InternBenchmark;
 
 	constructor(descriptor: BenchmarkTestDescriptor) {
-		// Call the superclass constructor with the set of kwArgs not specific to BenchmarkTest
+		// Call the superclass constructor with the set of descriptor keys not specific to BenchmarkTest
 		let args: any = {};
 		for (let key in descriptor) {
 			switch (key) {

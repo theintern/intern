@@ -2,7 +2,7 @@ import * as parseArgs from '../parseArgs';
 import * as util from '../util';
 import * as _sendData from '../sendData';
 import { CommandLineArguments, Config, Removable } from '../../interfaces';
-import { Executor } from './Executor';
+import Executor from './Executor';
 
 // AMD modules
 import * as aspect from 'dojo/aspect';
@@ -23,7 +23,7 @@ import main = require('../../main');
 
 declare const require: IRequire;
 
-const _global = (function (this: any) { return this; })();
+const _global = (1, eval)('this');
 
 let sendData = _sendData;
 
@@ -36,7 +36,7 @@ export interface ExecutorOptions {
  * The PreExecutor executor handles loading the user’s configuration and setting up the environment with the proper
  * AMD loader.
  */
-export class PreExecutor {
+export default class PreExecutor {
 	/** Default loader configuration that needs to be passed to the new loader. */
 	defaultLoaderOptions: any;
 
@@ -299,8 +299,9 @@ export class PreExecutor {
 	 */
 	private _loadExecutorWithLoader(executorId: string, require: IRequire) {
 		return new Promise(function (resolve, reject) {
-			// TODO: require doesn't handle failures this way...
-			(<any> require)([ executorId ], resolve, reject);
+			(<any> require)([ executorId ], (ExecutorModule: any) => {
+				resolve(ExecutorModule.default || ExecutorModule);
+			}, reject);
 		});
 	}
 
@@ -403,7 +404,6 @@ export class PreExecutor {
 					resolve();
 				});
 			}
-			// Only try to g
 			else if (has('host-browser') && config.suites.some(util.isGlobModuleId)) {
 				let query = ioQuery.objectToQuery({ suites: JSON.stringify(config.suites) });
 				let url = require.toUrl('intern/__resolveSuites__') + '?' + query;

@@ -1,7 +1,7 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import { Test } from '../../../src/lib/Test';
-import { Suite } from '../../../src/lib/Suite';
+import Test from '../../../src/lib/Test';
+import Suite from '../../../src/lib/Suite';
 import Promise = require('dojo/Promise');
 import { AssertionError } from 'chai';
 

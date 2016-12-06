@@ -1,7 +1,7 @@
-import { registerSuite as objectRegisterSuite } from './object';
+import objectRegisterSuite from './object';
 import { ObjectSuiteConfig } from '../../interfaces';
-import { Suite } from '../Suite';
-import { BenchmarkTest } from '../BenchmarkTest';
+import Suite from '../Suite';
+import BenchmarkTest from '../BenchmarkTest';
 import aspect = require('dojo/aspect');
 
 function propertyHandler(property: string, value: any, suite: Suite) {
@@ -11,7 +11,7 @@ function propertyHandler(property: string, value: any, suite: Suite) {
 	}
 }
 
-export function registerSuite(mainDescriptor: ObjectSuiteConfig) {
+export default function registerSuite(mainDescriptor: ObjectSuiteConfig) {
 	objectRegisterSuite(mainDescriptor, BenchmarkTest, propertyHandler);
 };
 

@@ -1,7 +1,7 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import { IRequire } from 'dojo/loader';
-import { Test } from '../../src/lib/Test';
+import Test from '../../src/lib/Test';
 
 declare const require: IRequire;
 

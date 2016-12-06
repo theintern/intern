@@ -26,7 +26,7 @@ export type ProxyConfig = {
 	waitForRunner?: boolean;
 };
 
-export class Proxy {
+export default class Proxy {
 	config: ProxyConfig;
 
 	server: http.Server;
@@ -106,7 +106,7 @@ export class Proxy {
 		return session;
 	}
 
-	/* private */ _handler(request: http.IncomingMessage, response: http.ServerResponse) {
+	private _handler(request: http.IncomingMessage, response: http.ServerResponse) {
 		if (request.method === 'GET') {
 			if (/\/__resolveSuites__\?/.test(request.url)) {
 				this._resolveSuites(request, response);
@@ -172,7 +172,7 @@ export class Proxy {
 		}
 	}
 
-	/* private */ _handleFile(request: http.IncomingMessage, response: http.ServerResponse, instrument?: boolean, omitContent?: boolean) {
+	private _handleFile(request: http.IncomingMessage, response: http.ServerResponse, instrument?: boolean, omitContent?: boolean) {
 		function send(contentType: string, data: string) {
 			response.writeHead(200, {
 				'Content-Type': contentType,
@@ -185,7 +185,8 @@ export class Proxy {
 		let wholePath: string;
 
 		if (/^__intern\//.test(file)) {
-			wholePath = path.join(require.toUrl('intern/'), file.replace(/^__intern\//, ''));
+			const basePath = path.resolve(path.join(require.toUrl('intern/'), '..'));
+			wholePath = path.join(basePath, file.replace(/^__intern\//, ''));
 			instrument = false;
 		}
 		else {
@@ -305,7 +306,7 @@ export class Proxy {
 		return triggerMessage.resolver.promise;
 	}
 
-	/* private*/ _resolveSuites(request: http.IncomingMessage, response: http.ServerResponse) {
+	private _resolveSuites(request: http.IncomingMessage, response: http.ServerResponse) {
 		const query = url.parse(request.url, true).query;
 		const suites = JSON.parse(query.suites);
 		const resolvedSuites = JSON.stringify(util.resolveModuleIds(suites));

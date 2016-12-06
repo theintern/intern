@@ -1,7 +1,7 @@
 import { Reporter, ReporterConfig, ReporterOutput } from '../../interfaces';
 import * as util from '../util';
-import { Test } from '../Test';
-import { Suite } from '../Suite';
+import Test from '../Test';
+import Suite from '../Suite';
 
 /**
  * This reporter enables Intern to interact with TeamCity.
@@ -10,7 +10,7 @@ import { Suite } from '../Suite';
  * Portions of this module are based on functions from teamcity-service-messages:
  * https://github.com/pifantastic/teamcity-service-messages.
  */
-export class TeamCity implements Reporter {
+export default class TeamCity implements Reporter {
 	output: ReporterOutput;
 
 	constructor(config: ReporterConfig = {}) {
@@ -25,7 +25,7 @@ export class TeamCity implements Reporter {
 	 *
 	 * Based on Message.prototype.escape from teamcity-service-messages
 	 */
-	/* private */ _escapeString(str: string): string {
+	private _escapeString(str: string): string {
 		const replacer = /['\n\r\|\[\]\u0100-\uffff]/g;
 		const map = {
 			'\'': '|\'',

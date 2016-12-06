@@ -1,8 +1,8 @@
 import * as util from '../util';
-import { Suite } from '../Suite';
-import { Test } from '../Test';
+import Suite from '../Suite';
+import Test from '../Test';
 import { Reporter, ReporterConfig } from '../../interfaces';
-import { Executor } from '../../lib/executors/Executor';
+import Executor from '../../lib/executors/Executor';
 
 /**
  * There is no formal spec for this format and everyone does it differently, so good luck! We've mashed as many of the
@@ -120,7 +120,7 @@ function createTestNode(test: Suite|Test): XmlNode {
 	return node;
 }
 
-export class JUnit implements Reporter {
+export default class JUnit implements Reporter {
 	output: any;
 	constructor(config: ReporterConfig = {}) {
 		this.output = config.output;

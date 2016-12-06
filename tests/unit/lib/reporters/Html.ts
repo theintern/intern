@@ -1,6 +1,6 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import { Html } from '../../../../src/lib/reporters/Html';
+import Html from '../../../../src/lib/reporters/Html';
 
 let createdNodes: Element[];
 

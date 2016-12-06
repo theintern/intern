@@ -1,9 +1,9 @@
 import { Reporter, ReporterConfig, Config } from '../../interfaces';
-import { Suite } from '../Suite';
-import { Test } from '../Test';
-import * as Tunnel from 'digdug/Tunnel';
-import * as charm from 'dojo/node!charm';
-import * as encode from 'dojo/node!charm/lib/encode';
+import Suite from '../Suite';
+import Test from '../Test';
+import Tunnel = require('digdug/Tunnel');
+import charm = require('dojo/node!charm');
+import encode = require('dojo/node!charm/lib/encode');
 import * as nodeUtil from 'dojo/node!util';
 import * as lang from 'dojo/lang';
 import * as internUtil from '../util';
@@ -114,7 +114,7 @@ export interface PrettyReporterConfig extends ReporterConfig {
 	colorReplacement?: any;
 }
 
-export class PrettyReporter implements Reporter {
+export default class Pretty implements Reporter {
 	internConfig: Config;
 	spinnerOffset: number;
 	dimensions: any;
@@ -128,8 +128,8 @@ export class PrettyReporter implements Reporter {
 	watermarks: any;
 	tunnelState: string;
 	charm: Charm;
-	/* private */ _renderTimeout: NodeJS.Timer;
-	/* private */ _Report = Report;
+
+	private _renderTimeout: NodeJS.Timer;
 
 	constructor(config: PrettyReporterConfig = {}) {
 		this.internConfig = config.internConfig;
@@ -378,7 +378,7 @@ export class PrettyReporter implements Reporter {
 		return result.join(' ');
 	}
 
-	/* private */ _render(omitLogs: boolean = false) {
+	private _render(omitLogs: boolean = false) {
 		const charm = this.charm;
 		const numReporters = Object.keys(this.reporters).length;
 		const logLength = this.dimensions.height - numReporters - 4 /* last line & total */ -

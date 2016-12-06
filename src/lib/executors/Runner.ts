@@ -1,13 +1,13 @@
-import { ClientSuite } from '../ClientSuite';
-import { PreExecutor } from './PreExecutor';
+import ClientSuite from '../ClientSuite';
+import PreExecutor from './PreExecutor';
 import { Config, Remote } from '../../interfaces';
-import { EnvironmentType } from '../EnvironmentType';
-import { Executor } from './Executor';
-import { ProxiedSession } from '../ProxiedSession';
-import { Proxy } from '../Proxy';
-import { Suite } from '../Suite';
+import EnvironmentType from '../EnvironmentType';
+import Executor from './Executor';
+import ProxiedSession from '../ProxiedSession';
+import Proxy from '../Proxy';
+import Suite from '../Suite';
 import * as util from '../util';
-import { resolveEnvironments } from '../resolveEnvironments';
+import resolveEnvironments from '../resolveEnvironments';
 import { IRequire } from 'dojo/loader';
 
 // AMD modules
@@ -15,9 +15,9 @@ import * as lang from 'dojo/lang';
 import * as Promise from 'dojo/Promise';
 
 // Legacy imports
-import Server = require('leadfoot/Server');
-import Command = require('leadfoot/Command');
-import Tunnel = require('digdug/Tunnel');
+import Server = require('dojo/node!leadfoot/Server');
+import Command = require('dojo/node!leadfoot/Command');
+import Tunnel = require('dojo/node!digdug/Tunnel');
 
 declare const require: IRequire;
 
@@ -25,7 +25,7 @@ declare const require: IRequire;
  * The Runner executor is used to run unit & functional tests in remote environments loaded through a WebDriver
  * conduit.
  */
-export class Runner extends Executor {
+export default class Runner extends Executor {
 	mode: 'runner';
 
 	proxy: Proxy;
@@ -33,9 +33,7 @@ export class Runner extends Executor {
 	tunnel: Tunnel;
 
 	constructor(config: Config, preExecutor: PreExecutor) {
-		super(config, preExecutor);
-
-		this.config = lang.deepDelegate(this.config, {
+		config = lang.deepMixin({
 			capabilities: {
 				'idle-timeout': 60
 			},
@@ -50,7 +48,9 @@ export class Runner extends Executor {
 			tunnelOptions: {
 				tunnelId: String(Date.now())
 			}
-		});
+		}, config);
+
+		super(config, preExecutor);
 
 		this._fixConfig();
 	}

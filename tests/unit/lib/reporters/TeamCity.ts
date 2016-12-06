@@ -1,9 +1,9 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import MockStream from './support/MockStream';
-import { Suite } from '../../../../src/lib/Suite';
-import { Test } from '../../../../src/lib/Test';
-import { TeamCity } from '../../../../src/lib/reporters/TeamCity';
+import Suite from '../../../../src/lib/Suite';
+import Test from '../../../../src/lib/Test';
+import TeamCity from '../../../../src/lib/reporters/TeamCity';
 import * as util from '../../../../src/lib/util';
 
 const messagePatterns: any = {

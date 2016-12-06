@@ -1,7 +1,7 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import * as util from '../../../src/lib/util';
-import { Test} from '../../../src/lib/Test';
+import Test from '../../../src/lib/Test';
 import has = require('dojo/has');
 import Promise = require('dojo/Promise');
 import { IRequire } from 'dojo/loader';

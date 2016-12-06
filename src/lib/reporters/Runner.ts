@@ -5,8 +5,8 @@ import TextSummaryReport = require('dojo/has!host-node?dojo/node!istanbul/lib/re
 import TextReport = require('dojo/has!host-node?dojo/node!istanbul/lib/report/text');
 import * as intern from '../../main';
 import * as util from '../util';
-import { Test } from '../Test';
-import { Suite } from '../Suite';
+import Test from '../Test';
+import Suite from '../Suite';
 import { Reporter, ReporterConfig, Config, Proxy } from '../../interfaces';
 import { Writable } from 'stream';
 import * as Tunnel from 'digdug/Tunnel';
@@ -21,7 +21,7 @@ export interface RunnerConfig extends ReporterConfig {
 	internConfig?: Config;
 }
 
-export class Runner {
+export default class Runner implements Reporter {
 	sessions: { [sessionId: string]: any };
 	hasErrors: boolean;
 	proxyOnly: boolean;

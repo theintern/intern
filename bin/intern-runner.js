@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../runner');
+require('../src/runner');

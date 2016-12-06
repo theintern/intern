@@ -3,8 +3,8 @@ import * as sendData from '../sendData';
 import * as util from '../util';
 import { IRequire } from 'dojo/loader';
 import { Reporter, ReporterConfig, Config } from '../../interfaces';
-import { Suite } from '../Suite';
-import { Test } from '../Test';
+import Suite from '../Suite';
+import Test from '../Test';
 
 declare const require: IRequire;
 
@@ -20,7 +20,7 @@ export interface WebDriverReporterConfig extends ReporterConfig {
 	maxPostSize?: number;
 }
 
-export class WebDriver implements Reporter {
+export default class WebDriver implements Reporter {
 	url: string;
 	writeHtml: boolean;
 	sessionId: string;

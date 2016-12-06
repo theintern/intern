@@ -1,4 +1,4 @@
-export class EnvironmentType {
+export default class EnvironmentType {
 	browserName: string = undefined;
 
 	version: string = undefined;

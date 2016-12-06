@@ -1,9 +1,9 @@
 import registerSuite = require('intern!object');
 import assert = require('intern/chai!assert');
-import { BenchmarkTest, BenchmarkTestDescriptor, BenchmarkTestFunction, BenchmarkDeferredTestFunction } from '../../../src/lib/BenchmarkTest';
+import { default as BenchmarkTest, BenchmarkTestDescriptor, BenchmarkTestFunction, BenchmarkDeferredTestFunction } from '../../../src/lib/BenchmarkTest';
 import { BenchmarkData } from '../../../src/lib/reporters/Benchmark';
-import { Test } from '../../../src/lib/Test';
-import { Suite } from '../../../src/lib/Suite';
+import Test from '../../../src/lib/Test';
+import Suite from '../../../src/lib/Suite';
 import Promise = require('dojo/Promise');
 import { Deferred } from '../../../src/interfaces';
 

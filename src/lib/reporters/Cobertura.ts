@@ -3,7 +3,7 @@ import Collector = require('dojo/node!istanbul/lib/collector');
 import CoberturaReport = require('dojo/node!istanbul/lib/report/cobertura');
 import { Reporter, ReporterConfig } from '../../interfaces';
 
-export class Cobertura implements Reporter {
+export default class Cobertura implements Reporter {
 	private _collector: Collector;
 	private _reporter: CoberturaReport;
 
