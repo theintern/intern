@@ -7,7 +7,7 @@ import Promise = require('dojo/Promise');
 import { IRequire } from 'dojo/loader';
 import * as pathUtil from 'dojo/has!host-node?dojo/node!path';
 import * as hook from 'dojo/has!host-node?dojo/node!istanbul/lib/hook';
-import * as fs from 'dojo/node!fs';
+import * as fs from 'dojo/has!host-node?dojo/node!fs';
 
 declare const require: IRequire;
 declare const global: any;
