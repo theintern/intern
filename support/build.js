@@ -5,7 +5,7 @@ var tsconfig = require('../tsconfig.json');
 var buildDir = tsconfig.compilerOptions.outDir;
 
 var mode = null;
-var modes = [ 'dist', 'copy' ];
+var modes = [ 'dist', 'copyOnly' ];
 
 var arg = process.argv[2];
 if (arg) {
@@ -18,45 +18,44 @@ if (arg) {
 	mode = arg;
 }
 
-if (shell.test('-d', buildDir)) {
-	shell.rm('-r', buildDir);
-}
+if (mode !== 'copyOnly') {
+	console.log('>> Removing existing build directory');
+	if (shell.test('-d', buildDir)) {
+		shell.rm('-r', buildDir);
+	}
 
-if (mode !== 'copy') {
+	console.log('>> Compiling source');
 	if (shell.exec('node ./node_modules/.bin/tsc').code) {
 		process.exit(1);
 	}
 }
 
-function copyResource(resource) {
-	var dst = path.join(buildDir, resource);
-	var dstDir = path.dirname(dst);
-	if (!shell.test('-d', dstDir)) {
-		shell.mkdir(dstDir);
-	}
-	shell.cp(resource, dst);
-}
-
-glob.sync('src/**/*.{html,json,css}').forEach(copyResource);
+console.log('>> Copying resources');
+[
+	'.npmignore',
+	'./*.{md,html}',
+	'package.json',
+	'support/fixdeps.js',
+	'bin/*.js',
+	'src/**/*.{html,json,css}',
+	'tests/**/*.{html,json}',
+	'tests/example.*'
+].forEach(function (pattern) {
+	glob.sync(pattern).forEach(function (resource) {
+		var dst = path.join(buildDir, resource);
+		var dstDir = path.dirname(dst);
+		if (!shell.test('-d', dstDir)) {
+			shell.mkdir(dstDir);
+		}
+		shell.cp(resource, dst);
+	});
+});
 
 if (mode === 'dist') {
-	[
-		'CONTRIBUTING.md',
-		'README.md',
-		'LICENSE',
-		'package.json',
-		'client.html'
-	].forEach(function (filename) {
-		shell.cp(filename, buildDir);
+	console.log('>> Removing tests');
+	glob.sync(buildDir + '/tests/!(example.intern.js)').forEach(function (resource) {
+		shell.rm('-r', resource);
 	});
-
-	shell.mkdir(path.join(buildDir, 'support'));
-	shell.cp(path.join('support', 'fixdeps.js'), path.join(buildDir, 'support'));
-
-	shell.cp('-r', 'bin', buildDir);
-
-	shell.rm('-rf', path.join(buildDir, 'tests'));
 }
-else {
-	glob.sync('tests/**/*.{html,json}').forEach(copyResource);
-}
+
+console.log('>> Done building');

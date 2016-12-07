@@ -9,21 +9,20 @@ function scheduleBuild() {
 
 	buildTimer = setTimeout(function () {
 		buildTimer = null;
-		console.log('Copying support files...');
-		shell.exec('node ./support/build.js copy');
-		console.log('Done.');
+		shell.exec('node ./support/build.js copyOnly');
 	}, 500);
 }
 
-console.log('Starting tsc watcher...');
+console.log('>> Starting tsc watcher...');
 shell.exec('tsc --watch', { async: true });
 
 var watcher = chokidar.watch([
 	'tests/**/*.html',
 	'tests/**/*.json',
+	'src/**/*.{html,json,css}',
 	'package.json'
 ]).on('ready', function () {
-	console.log('Watching support files...');
+	console.log('>> Watching support files...');
 	watcher.on('add', scheduleBuild);
 	watcher.on('change', scheduleBuild);
 	watcher.on('unlink', scheduleBuild);
