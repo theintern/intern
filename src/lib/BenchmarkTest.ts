@@ -1,4 +1,4 @@
-import { default as Test, TestDescriptor } from './Test';
+import { default as Test, TestConfig } from './Test';
 import { InternError, Deferred } from '../interfaces';
 import Benchmark = require('benchmark');
 import Promise = require('dojo/Promise');
@@ -97,7 +97,7 @@ export interface BenchmarkDeferredTestFunction {
 	options?: BenchmarkOptions;
 }
 
-export interface BenchmarkTestDescriptor extends TestDescriptor {
+export interface BenchmarkTestConfig extends TestConfig {
 	test?: BenchmarkTestFunction;
 }
 
@@ -118,7 +118,7 @@ export default class BenchmarkTest extends Test {
 
 	benchmark: InternBenchmark;
 
-	constructor(descriptor: BenchmarkTestDescriptor) {
+	constructor(descriptor: BenchmarkTestConfig) {
 		// Call the superclass constructor with the set of descriptor keys not specific to BenchmarkTest
 		let args: any = {};
 		for (let key in descriptor) {

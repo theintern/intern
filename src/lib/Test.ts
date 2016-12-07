@@ -7,7 +7,7 @@ export interface TestFunction {
 	(): void | Promise<any>;
 }
 
-export interface TestDescriptor {
+export interface TestConfig {
 	name: string;
 	parent?: Suite;
 	test?: TestFunction;
@@ -42,9 +42,9 @@ export default class Test {
 
 	private _usesRemote = false;
 
-	constructor(descriptor: TestDescriptor) {
-		for (let key in descriptor) {
-			(<{ [key: string]: any }> this)[key] = (<{ [key: string]: any }> descriptor)[key];
+	constructor(config: TestConfig) {
+		for (let key in config) {
+			(<{ [key: string]: any }> this)[key] = (<{ [key: string]: any }> config)[key];
 		}
 		this.reporterManager && this.reporterManager.emit('newTest', this);
 	}

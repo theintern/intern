@@ -1,6 +1,6 @@
 import registerSuite = require('intern!object');
 import assert = require('intern/chai!assert');
-import { default as BenchmarkTest, BenchmarkTestDescriptor, BenchmarkTestFunction, BenchmarkDeferredTestFunction } from '../../../src/lib/BenchmarkTest';
+import { default as BenchmarkTest, BenchmarkTestConfig, BenchmarkTestFunction, BenchmarkDeferredTestFunction } from '../../../src/lib/BenchmarkTest';
 import { BenchmarkData } from '../../../src/lib/reporters/Benchmark';
 import Test from '../../../src/lib/Test';
 import Suite from '../../../src/lib/Suite';
@@ -25,7 +25,7 @@ interface TestOptions {
 	reporterManagerEmit: any;
 }
 
-function createTest(descriptor: BenchmarkTestDescriptor, options: TestOptions) {
+function createTest(descriptor: BenchmarkTestConfig, options: TestOptions) {
 	if (!descriptor.parent) {
 		descriptor.parent = <Suite> {
 			reporterManager: {
