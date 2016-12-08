@@ -275,7 +275,7 @@ registerSuite({
 			}
 
 			const tsconfig = JSON.parse(fs.readFileSync('tsconfig.json', { encoding: 'utf8' }));
-			const buildDir = tsconfig.compilerOptions.outDir;
+			const buildDir = pathUtil.normalize(tsconfig.compilerOptions.outDir);
 
 			const moduleIds = [
 				`intern-selftest/${buildDir}/tests/unit/*`
@@ -295,7 +295,7 @@ registerSuite({
 			}
 
 			const tsconfig = JSON.parse(fs.readFileSync('tsconfig.json', { encoding: 'utf8' }));
-			const buildDir = tsconfig.compilerOptions.outDir;
+			const buildDir = pathUtil.normalize(tsconfig.compilerOptions.outDir);
 
 			const moduleIds = [
 				`intern-selftest/${buildDir}/tests/functional/**/*`

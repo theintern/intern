@@ -3,6 +3,7 @@ import * as assert from 'intern/chai!assert';
 import {IRequire } from 'dojo/loader';
 import Proxy from '../../../src/lib/Proxy';
 import Promise = require('dojo/Promise');
+import * as path from 'dojo/node!path';
 import * as fs from 'dojo/node!fs';
 import * as querystring from 'dojo/node!querystring';
 
@@ -129,7 +130,7 @@ registerSuite({
 		'valid package'() {
 			const proxy = new Proxy();
 			const tsconfig = JSON.parse(fs.readFileSync('tsconfig.json', { encoding: 'utf8' }));
-			const buildDir = tsconfig.compilerOptions.outDir;
+			const buildDir = path.normalize(tsconfig.compilerOptions.outDir);
 			const query = querystring.stringify({ suites: JSON.stringify([
 				`intern-selftest/${buildDir}/tests/unit/*`,
 				`intern-selftest/${buildDir}/tests/functional/**/*`
