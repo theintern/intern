@@ -23,7 +23,7 @@ import main = require('../../main');
 
 declare const require: IRequire;
 
-const _global = (1, eval)('this');
+const _global = (new Function('return this'))();
 
 let sendData = _sendData;
 

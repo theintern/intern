@@ -150,7 +150,7 @@ export default class Html implements Reporter {
 			failedFilter.appendChild(failedToggle);
 			failedFilter.appendChild(failedLabel);
 
-			failedToggle.onclick = function () {
+			failedToggle.onclick = function (this: HTMLInputElement) {
 				if (this.checked) {
 					document.body.className += ' hidePassed';
 				}
