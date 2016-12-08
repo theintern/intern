@@ -132,7 +132,7 @@ declare module 'dojo/node!istanbul/lib/report/text-summary' {
 }
 
 declare module 'dojo/node!istanbul/lib/report/lcovonly' {
-	import LcovOnlyReport from 'istanbul/lib/report/lcovonly';
+	import LcovOnlyReport = require('istanbul/lib/report/lcovonly');
 	export = LcovOnlyReport;
 }
 

@@ -1,7 +1,7 @@
 import * as util from '../util';
 import Suite from '../Suite';
 import Test from '../Test';
-import { Reporter, ReporterConfig } from '../../interfaces';
+import { Reporter, ReporterConfig } from '../../common';
 import Executor from '../../lib/executors/Executor';
 
 /**

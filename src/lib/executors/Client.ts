@@ -1,4 +1,4 @@
-import { Config } from '../../interfaces';
+import { Config } from '../../common';
 import Executor from './Executor';
 import PreExecutor from './PreExecutor';
 import Suite from '../Suite';

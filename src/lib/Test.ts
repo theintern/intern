@@ -1,6 +1,6 @@
 import * as Promise from 'dojo/Promise';
 import * as util from './util';
-import { InternError, Remote, Deferred } from '../interfaces';
+import { InternError, Remote, Deferred } from '../common';
 import Suite from './Suite';
 
 export interface TestFunction {

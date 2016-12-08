@@ -1,7 +1,7 @@
 import { resolve } from 'dojo/node!path';
 import Collector = require('dojo/node!istanbul/lib/collector');
 import CoberturaReport = require('dojo/node!istanbul/lib/report/cobertura');
-import { Reporter, ReporterConfig } from '../../interfaces';
+import { Reporter, ReporterConfig } from '../../common';
 
 export default class Cobertura implements Reporter {
 	private _collector: Collector;

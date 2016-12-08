@@ -1,6 +1,6 @@
 import ClientSuite from '../ClientSuite';
 import PreExecutor from './PreExecutor';
-import { Config, Remote } from '../../interfaces';
+import { Config, Remote } from '../../common';
 import EnvironmentType from '../EnvironmentType';
 import Executor from './Executor';
 import ProxiedSession from '../ProxiedSession';

@@ -1,4 +1,4 @@
-import { Reporter, ReporterConfig, ReporterOutput } from '../../interfaces';
+import { Reporter, ReporterConfig, ReporterOutput } from '../../common';
 import * as util from '../util';
 import Test from '../Test';
 import Suite from '../Suite';

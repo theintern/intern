@@ -2,7 +2,7 @@ import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import Suite from '../../../src/lib/Suite';
 import Test from '../../../src/lib/Test';
-import { InternError } from '../../../src/interfaces';
+import { InternError } from '../../../src/common';
 import Promise = require('dojo/Promise');
 import { AssertionError } from 'chai';
 

@@ -35,20 +35,20 @@ declare module 'intern/main' {
 		};
 	}
 
-	export var args: any;
-	export var executor: {
+	export let args: any;
+	export let executor: {
 		register(fn: (suite: Suite) => void): void;
 		run(): Promise<number>;
 		suites: Suite[];
 	};
-	export var mode: string;
+	export let mode: string;
 }
 
 declare module 'intern!bdd' {
 	import Promise = require('dojo/Promise');
 	import Test = require('intern/lib/Test');
 
-	var bdd: {
+	let bdd: {
 		after(fn: () => any): void;
 		afterEach(fn: (test: Test) => any): void;
 		before(fn: () => any): void;
@@ -61,7 +61,7 @@ declare module 'intern!bdd' {
 }
 
 declare module 'intern!object' {
-	var createSuite: {
+	let createSuite: {
 		(definition: {}): void;
 		(definition:() => {}): void;
 	};
@@ -73,7 +73,7 @@ declare module 'intern!tdd' {
 	import Promise = require('dojo/Promise');
 	import Test = require('intern/lib/Test');
 
-	var tdd: {
+	let tdd: {
 		after(fn: () => any): void;
 		afterEach(fn: (test: Test) => any): void;
 		before(fn: () => any): void;
@@ -90,12 +90,12 @@ declare module 'intern/chai!' {
 }
 
 declare module 'intern/chai!assert' {
-	var assert: Chai.AssertStatic;
+	let assert: Chai.AssertStatic;
 	export = assert;
 }
 
 declare module 'intern/chai!expect' {
-	var expect: Chai.ExpectStatic;
+	let expect: Chai.ExpectStatic;
 	export = expect;
 }
 

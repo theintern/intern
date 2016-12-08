@@ -2,7 +2,6 @@
   "name": "intern",
   "version": "4.0.0-pre",
   "main": "src/main.js",
-  "types": "src/index.d.ts",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
   "repository": {
     "type": "git",
@@ -10,6 +9,9 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
+    "@types/source-map": "~0.1.28",
+    "@types/benchmark": "~1.0.30",
+    "@types/chai": "~3.4.34",
     "benchmark": "2.1.1",
     "chai": "3.5.0",
     "charm": "0.2.0",
@@ -25,29 +27,30 @@
     "source-map": "0.1.33"
   },
   "devDependencies": {
-    "@types/benchmark": "~1.0.30",
-    "@types/chai": "~3.4.34",
+    "@types/chokidar": "~1.4.29",
     "@types/diff": "~0.0.31",
-    "@types/es6-promise": "~0.0.31",
     "@types/glob": "~5.0.30",
-    "@types/node": "~6.0.0",
+    "@types/semver": "~5.3.30",
     "@types/shelljs": "~0.3.32",
-    "@types/source-map": "~0.1.28",
+    "@types/es6-shim": "~0.0.31",
+    "@types/node": "~6.0.0",
     "chokidar": "~1.6.0",
     "intern": "~3.4.2",
+    "semver": "~5.3.0",
     "shelljs": "~0.7.0",
-    "typescript": "~2.1.0",
+    "ts-node": "~1.7.0",
     "tslint": "~4.0.0",
-    "semver": "~5.3.0"
+    "typescript": "~2.1.0"
   },
   "scripts": {
+    "build": "ts-node support/build.ts",
+    "clean": "ts-node support/clean.ts",
     "install": "node support/fixdeps.js",
+    "lint": "ts-node support/lint.ts",
+    "release": "ts-node support/release.ts",
+    "test": "ts-node support/build.ts && ts-node support/test.ts",
     "update": "node support/fixdeps.js",
-    "test": "node support/build.js && node support/test.js",
-    "build": "node support/lint.js && node support/build.js",
-    "lint": "node support/lint.js",
-    "clean": "node support/clean.js",
-    "watch": "node support/watch.js"
+    "watch": "ts-node support/watch.ts"
   },
   "bugs": "https://github.com/theintern/intern/issues",
   "keywords": [

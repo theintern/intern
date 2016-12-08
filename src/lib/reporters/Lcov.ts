@@ -1,6 +1,6 @@
 import Collector = require('dojo/node!istanbul/lib/collector');
 import LcovOnlyReport = require('dojo/node!istanbul/lib/report/lcovonly');
-import { Reporter, ReporterConfig } from '../../interfaces';
+import { Reporter, ReporterConfig } from '../../common';
 
 export default class Lcov implements Reporter {
 	private _collector: Collector;

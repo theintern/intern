@@ -1,6 +1,6 @@
 import * as intern from '../main';
 import * as diffUtil from 'diff';
-import { Deferred, InternError } from '../interfaces';
+import { Deferred, InternError } from '../common';
 
 // AMD imports
 import has = require('dojo/has');

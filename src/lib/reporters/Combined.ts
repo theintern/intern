@@ -4,7 +4,7 @@ import * as util from '../util';
 import * as fs from 'dojo/node!fs';
 import Suite from '../Suite';
 import Test from '../Test';
-import { Reporter, ReporterConfig, ReporterOutput, Remote } from '../../interfaces';
+import { Reporter, ReporterConfig, ReporterOutput, Remote } from '../../common';
 import Collector = require('dojo/node!istanbul/lib/collector');
 import JsonReporter = require('dojo/node!istanbul/lib/report/json');
 import LcovHtmlReporter = require('dojo/node!istanbul/lib/report/html');

@@ -1,6 +1,6 @@
 import Collector = require('dojo/node!istanbul/lib/collector');
 import HtmlReport = require('dojo/node!istanbul/lib/report/html');
-import { Reporter, ReporterConfig } from '../../interfaces';
+import { Reporter, ReporterConfig } from '../../common';
 
 export default class LcovHtmlReporter implements Reporter {
 	private _collector: Collector;

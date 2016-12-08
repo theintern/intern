@@ -1,22 +1,23 @@
-var chokidar = require('chokidar');
-var shell = require('shelljs');
-var buildTimer;
+import { watch } from 'chokidar';
+import { exec } from 'shelljs';
+
+let buildTimer: any;
 
 function scheduleBuild() {
 	if (buildTimer) {
-		clearTimeout(buildTimer);
+		return;
 	}
 
 	buildTimer = setTimeout(function () {
 		buildTimer = null;
-		shell.exec('node ./support/build.js copyOnly');
+		exec('node ./support/build.js copyOnly');
 	}, 500);
 }
 
 console.log('>> Starting tsc watcher...');
-shell.exec('tsc --watch', { async: true });
+exec('tsc --watch', { async: true });
 
-var watcher = chokidar.watch([
+const watcher = watch([
 	'tests/**/*.html',
 	'tests/**/*.json',
 	'src/**/*.{html,json,css}',

@@ -1,6 +1,5 @@
 import { default as Suite, SuiteConfig } from './Suite';
-import { Config } from '../interfaces';
-import { InternError } from '../interfaces';
+import { Config, InternError } from '../common';
 
 // AMD modules
 import * as lang from 'dojo/lang';

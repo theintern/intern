@@ -1,4 +1,4 @@
-import { CommandLineArguments } from '../interfaces';
+import { CommandLineArguments } from '../common';
 
 export let fromCommandLine = function(rawArgs: string[]) {
 	return parseArguments(rawArgs || process.argv.slice(2), function (str: string) {

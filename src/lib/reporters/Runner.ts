@@ -7,7 +7,7 @@ import * as intern from '../../main';
 import * as util from '../util';
 import Test from '../Test';
 import Suite from '../Suite';
-import { Reporter, ReporterConfig, Config, Proxy } from '../../interfaces';
+import { Reporter, ReporterConfig, Config, Proxy } from '../../common';
 import { Writable } from 'stream';
 import * as Tunnel from 'digdug/Tunnel';
 
@@ -25,18 +25,20 @@ export default class Runner implements Reporter {
 	sessions: { [sessionId: string]: any };
 	hasErrors: boolean;
 	proxyOnly: boolean;
-	reporter: TextSummaryReport;
-	detailedReporter: TextReport;
-	charm: Charm;
+
+	private _summaryReporter: TextSummaryReport;
+	private _detailedReporter: TextReport;
+
+	protected charm: Charm;
 
 	constructor(config: RunnerConfig = {}) {
 		this.sessions = {};
 		this.hasErrors = false;
 		this.proxyOnly = Boolean(config.internConfig.proxyOnly);
-		this.reporter = new TextSummaryReport({
+		this._summaryReporter = new TextSummaryReport({
 			watermarks: config.watermarks
 		});
-		this.detailedReporter = new TextReport({
+		this._detailedReporter = new TextReport({
 			watermarks: config.watermarks
 		});
 
@@ -118,7 +120,7 @@ export default class Runner implements Reporter {
 		this.charm.write('\n');
 
 		if (collector.files().length > 0) {
-			this.detailedReporter.writeReport(collector);
+			this._detailedReporter.writeReport(collector);
 		}
 
 		let message = 'TOTAL: tested %d platforms, %d/%d tests failed';
@@ -166,7 +168,7 @@ export default class Runner implements Reporter {
 			const session = this.sessions[suite.sessionId];
 
 			if (session.coverage) {
-				this.reporter.writeReport(session.coverage);
+				this._summaryReporter.writeReport(session.coverage);
 			}
 			else {
 				this.charm

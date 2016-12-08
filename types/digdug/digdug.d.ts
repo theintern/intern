@@ -1,5 +1,3 @@
-/// <reference path="../dojo2/dojo.d.ts" />
-
 declare module 'digdug' {
 	export interface Handle {
 		remove(): void;

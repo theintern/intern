@@ -2,7 +2,7 @@ import * as Promise from 'dojo/Promise';
 import * as sendData from '../sendData';
 import * as util from '../util';
 import { IRequire } from 'dojo/loader';
-import { Reporter, ReporterConfig, Config } from '../../interfaces';
+import { Reporter, ReporterConfig, Config } from '../../common';
 import Suite from '../Suite';
 import Test from '../Test';
 

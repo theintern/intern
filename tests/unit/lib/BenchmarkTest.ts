@@ -5,7 +5,7 @@ import { BenchmarkData } from '../../../src/lib/reporters/Benchmark';
 import Test from '../../../src/lib/Test';
 import Suite from '../../../src/lib/Suite';
 import Promise = require('dojo/Promise');
-import { Deferred } from '../../../src/interfaces';
+import { Deferred } from '../../../src/common';
 
 function getTestFunction(this: any, testFunc: BenchmarkTestFunction | BenchmarkDeferredTestFunction, isAsync?: boolean) {
 	if (isAsync) {

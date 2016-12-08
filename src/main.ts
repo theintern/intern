@@ -1,6 +1,6 @@
 import { IRequire } from 'dojo/loader';
 import Executor from './lib/executors/Executor';
-import { CommandLineArguments, Config } from './interfaces';
+import { CommandLineArguments, Config } from './common';
 
 declare const require: IRequire;
 

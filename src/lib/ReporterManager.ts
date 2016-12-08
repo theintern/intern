@@ -1,4 +1,4 @@
-import { Config } from '../interfaces';
+import { Config, Reporter } from '../common';
 
 // AMD modules
 import * as has from 'dojo/has';
@@ -19,12 +19,6 @@ export interface ReporterConfig {
 	output?: NodeJS.WritableStream;
 }
 
-export interface Reporter {
-	[eventName: string]: Listener;
-	destroy?: () => void;
-	$others?: Listener;
-}
-
 export interface ReporterDescriptor {
 	id: string;
 	filename?: string;
@@ -37,6 +31,10 @@ export interface ReporterConstructor {
 }
 
 export type Listener = (...args: any[]) => (void|Promise<any>);
+
+interface EventReporter extends Reporter {
+	[eventName: string]: (...args: any[]) => Promise<any> | void;
+}
 
 /**
  * A class that manages a set of reporters
@@ -225,7 +223,7 @@ export default class ReporterManager {
 	}
 
 	on(eventName: string, listener: Listener) {
-		let reporter: Reporter = {};
+		let reporter: EventReporter = {};
 		reporter[eventName] = listener;
 
 		let reporters = this._reporters;

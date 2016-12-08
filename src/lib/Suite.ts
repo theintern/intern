@@ -1,6 +1,6 @@
 import Promise = require('dojo/Promise');
 import Test from './Test';
-import { InternError, Remote } from '../interfaces';
+import { InternError, Remote } from '../common';
 import * as util from './util';
 
 // BAIL_REASON needs to be a string so that Intern can tell when a remote has bailed during unit tests so that it

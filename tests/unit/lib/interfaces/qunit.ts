@@ -6,7 +6,7 @@ import * as main from '../../../../src/main';
 import Executor from '../../../../src/lib/executors/Executor';
 import Suite from '../../../../src/lib/Suite';
 import Test from '../../../../src/lib/Test';
-import { InternError } from '../../../../src/interfaces';
+import { InternError } from '../../../../src/common';
 
 let originalExecutor: Executor;
 let rootSuite: Suite;

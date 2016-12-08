@@ -1,6 +1,6 @@
 import { IRequire } from 'dojo/loader';
 import * as util from '../util';
-import { Reporter, ReporterConfig } from '../../interfaces';
+import { Reporter, ReporterConfig } from '../../common';
 import Test from '../Test';
 import Suite from '../Suite';
 

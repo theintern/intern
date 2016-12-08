@@ -1,8 +1,12 @@
 import * as aspect from 'dojo/aspect';
 import * as main from '../../main';
-import Suite from '../Suite';
+import { default as Suite, SuiteConfig, SuiteLifecycleFunction } from '../Suite';
 import Test from '../Test';
-import { ObjectSuiteConfig } from '../../interfaces';
+
+export interface ObjectSuiteConfig extends SuiteConfig {
+	after?: SuiteLifecycleFunction;
+	before?: SuiteLifecycleFunction;
+}
 
 export interface PropertyHandler {
 	(property: string, value: any, suite: Suite): boolean;

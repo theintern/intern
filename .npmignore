@@ -1,4 +1,5 @@
 tests/*
+!tests/types/*
 !tests/example.intern.js
 *.tgz
 .npmignore

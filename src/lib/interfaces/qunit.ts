@@ -5,7 +5,7 @@ import Suite from '../Suite';
 import Test from '../Test';
 import { escapeRegExp } from '../util';
 import { assert, AssertionError } from 'chai';
-import { Removable } from '../../interfaces';
+import { Removable } from '../../common';
 import * as main from '../../main';
 import Executor from '../../lib/executors/Executor';
 

@@ -1,5 +1,5 @@
 import { default as Test, TestConfig } from './Test';
-import { InternError, Deferred } from '../interfaces';
+import { InternError, Deferred } from '../common';
 import Benchmark = require('benchmark');
 import Promise = require('dojo/Promise');
 import * as lang from 'dojo/lang';

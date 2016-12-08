@@ -1,7 +1,7 @@
 import * as parseArgs from '../parseArgs';
 import * as util from '../util';
 import * as _sendData from '../sendData';
-import { CommandLineArguments, Config, Removable } from '../../interfaces';
+import { CommandLineArguments, Config, Removable } from '../../common';
 import Executor from './Executor';
 
 // AMD modules
