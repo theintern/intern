@@ -8,10 +8,14 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			],
 			map: {
 				intern: {
-					cucumber: 'intern/browser_modules/cucumber/release/cucumber',
 					dojo: 'intern/browser_modules/dojo',
+					cucumber: 'intern/browser_modules/cucumber/release/cucumber',
 					chai: 'intern/browser_modules/chai/chai',
-					diff: 'intern/browser_modules/diff/diff'
+					diff: 'intern/browser_modules/diff/diff',
+					// benchmark requires lodash and platform
+					benchmark: 'intern/browser_modules/benchmark/benchmark',
+					lodash: 'intern/browser_modules/lodash-amd/main',
+					platform: 'intern/browser_modules/platform/platform'
 				},
 				'*': {
 					'intern/dojo': 'intern/browser_modules/dojo'

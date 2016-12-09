@@ -56,3 +56,6 @@ If you need to support IE 6–8, there is also a
 Intern is a Dojo Foundation project offered under the [New BSD](LICENSE) license.
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/intern/graphs/contributors)
+
+<p align="center">Intern's selftests run on<br>
+<a href="https://browserstack.com"><img alt="BrowserStack logo" src="https://theintern.github.io/images/browserstack.svg" height="32" align="middle"></a></p>

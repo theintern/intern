@@ -68,7 +68,7 @@ define([
 			reporter.runEnd({ suites: [ suite ] });
 
 			// make sure slight changes in the stack trace does not cause the test to start failing
-			report = report.replace(/(at Test\.registerSuite\.basic tests )[^<]*/g, '$1...');
+			report = report.replace(/(at Test\.)(?:registerSuite\.)?(basic tests )[^<]*/g, '$1$2...');
 			assert.strictEqual(report, expected, 'Report should match expected result');
 		}
 	});

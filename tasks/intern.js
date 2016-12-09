@@ -59,6 +59,8 @@ module.exports = function (grunt) {
 			skipOptions = {
 				browserstackAccessKey: true,
 				browserstackUsername: true,
+				cbtApikey: true,
+				cbtUsername: true,
 				runType: true,
 				sauceAccessKey: true,
 				sauceUsername: true,
@@ -105,6 +107,8 @@ module.exports = function (grunt) {
 		[
 			'browserstackAccessKey',
 			'browserstackUsername',
+			'cbtApikey',
+			'cbtUsername',
 			'sauceAccessKey',
 			'sauceUsername',
 			'testingbotKey',

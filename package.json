@@ -1,7 +1,8 @@
 {
   "name": "intern",
-  "version": "3.3.0-pre",
-  "main": "main",
+  "version": "3.5.0-pre",
+  "main": "./main.js",
+  "types": "./typings/intern/intern.d.ts",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
   "repository": {
     "type": "git",
@@ -9,24 +10,31 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
+    "benchmark": "2.1.1",
     "chai": "3.5.0",
     "charm": "0.2.0",
+    "cucumber": "1.2.1",
     "diff": "1.1.0",
-    "digdug": "1.4.1",
+    "digdug": "~1.6.0",
     "dojo": "2.0.0-alpha.7",
     "glob": "7.0.3",
     "istanbul": "0.4.1",
-    "leadfoot": "1.6.10",
+    "leadfoot": "~1.7.0",
+    "lodash-amd": "4.16.4",
     "mimetype": "0.0.8",
+    "platform": "1.3.1",
     "source-map": "0.1.33",
-    "cucumber": "1.2.1"
+    "@types/chai": "3.4.34",
+    "@types/node": "6.0.48"
   },
   "devDependencies": {
-    "intern": "3.0.6"
+    "intern": "3.2.3"
   },
   "scripts": {
     "install": "node support/fixdeps.js",
-    "update": "node support/fixdeps.js"
+    "update": "node support/fixdeps.js",
+    "release": "node support/release.js",
+    "test": "node support/test.js"
   },
   "bugs": "https://github.com/theintern/intern/issues",
   "keywords": [

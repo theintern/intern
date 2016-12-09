@@ -205,6 +205,7 @@ define([
 			var expected = {
 				error: null,
 				id: 'parent id - test name',
+				parentId: 'parent id',
 				name: 'test name',
 				sessionId: 'abcd',
 				timeElapsed: 100,
@@ -301,6 +302,60 @@ define([
 				assert.strictEqual(actual.skipped, 'IT’S A TRAP',
 					'test should have `skipped` property with expected value');
 			});
+		},
+
+		'using remote in a test': {
+			'fails if test is synchronous': function () {
+				// Increase timeout for IE11
+				this.timeout = 30000;
+				var temp;
+				var test = createTest({
+					test: function () {
+						var remote = this.remote;
+						temp = remote;
+					}
+				});
+
+				return test.run().then(
+					function () {
+						assert.fail('test should not have passed');
+					},
+					function (error) {
+						assert.match(error.message, /^Remote used in synchronous test/, 'unexpected error message');
+					}
+				);
+			},
+
+			'works if test returns a promise': function () {
+				// Increase timeout for IE11
+				this.timeout = 10000;
+				var temp;
+				var test = createTest({
+					test: function () {
+						var remote = this.remote;
+						temp = remote;
+						return Promise.resolve();
+					}
+				});
+
+				return test.run();
+			},
+
+			'works if test resolves async dfd': function () {
+				// Increase timeout for IE11
+				this.timeout = 10000;
+				var temp;
+				var test = createTest({
+					test: function () {
+						var dfd = this.async();
+						var remote = this.remote;
+						temp = remote;
+						dfd.resolve();
+					}
+				});
+
+				return test.run();
+			}
 		},
 
 		'Test#restartTimeout': function () {

@@ -1,15 +1,25 @@
 sudo: false
 language: node_js
 node_js:
-- '0.12'
+  - '0.12'
+  - '6.5.0'
 env:
   global:
-  # Please get your own free key if you want to test yourself
-  - SAUCE_USERNAME: dojo2-ts-ci
-  - SAUCE_ACCESS_KEY: e92610e3-834e-4bec-a3b5-6f7b9d874601
+    # Please get your own free key if you want to test yourself
+    - BROWSERSTACK_USERNAME=sitepenlabs1
+    - BROWSERSTACK_ACCESS_KEY=836y5xDYPeFudz5HvZyp
+  matrix:
+    - INTERN_NODE_ONLY=1
+    - INTERN_NODE_ONLY=0
+matrix:
+  exclude:
+    - node_js: '0.12'
+      env: INTERN_NODE_ONLY=0
+    - node_js: '6.5.0'
+      env: INTERN_NODE_ONLY=1
 cache:
   directories:
-  - node_modules
+    - node_modules
 script: tests/selftest.sh
 notifications:
   slack:

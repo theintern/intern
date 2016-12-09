@@ -52,7 +52,7 @@ body {
 		text-align: center;
 		text-transform: uppercase;
 		vertical-align: top;
-		width: 20%;
+		width: 16.6%;
 
 		.summaryContent {
 			background: $summaryTopBackground;
@@ -105,6 +105,10 @@ body {
 				summaryIcon($durationIcon);
 			}
 
+			&.skipped {
+				summaryIcon($skippedIcon);
+			}
+
 			.summaryTitle {
 				background: #fff;
 				border: 1px solid $summaryBorderColor;
@@ -132,8 +136,6 @@ body {
 
 .failedFilter {
 	color: $reportTextColor;
-	padding: 0 0 1em;
-
 	input {
 		margin-right: 0.5em;
 	}
@@ -155,6 +157,15 @@ body {
 		background: $sectionHeadingBackground;
 
 		testStatusIcon(darken($sectionHeadingBackground, 20%), darken($sectionHeadingBackground, 70%), $suiteIcon);
+
+		.testStatus:after {
+			bottom: 0;
+			content: '\25bc';
+			display: block;
+			font-size: 60%;
+			position: absolute;
+			right: 1px;
+		}
 
 		td {
 			border: 1px solid darken($sectionHeadingBackground, 20%);
@@ -180,6 +191,16 @@ body {
 
 			.failed {
 				color: darken($failedColor, 30%);
+			}
+
+			.skipped {
+				color: darken($skippedColor, 30%);
+			}
+		}
+
+		&.collapsed {
+			.testStatus:after {
+				content: '\25b6';
 			}
 		}
 
@@ -239,6 +260,11 @@ body {
 			}
 		}
 
+		&.skipped {
+			testStatusIcon(lighten($skippedColor, 80%), $skippedColor, $skippedIcon)
+			color: $skippedColor;
+		}
+
 		&.lastTest {
 			td,
 			.testStatus {
@@ -259,7 +285,33 @@ body {
 	width: 20px;
 }
 
-.hidePassed .passed,
-.hidePassed .skipped {
-	display: none;
+.hidePassed .report {
+	.passed, .skipped {
+		display: none;
+	}
+}
+
+.reportControls {
+	margin-bottom: 0.75em;
+	color: $summaryTextColor;
+
+	> * {
+		width: 50%;
+		display: inline-block;
+	}
+
+	> :last-child {
+		text-align: right;
+	}
+}
+
+.linkButton {
+	padding: 1px 4px 3px 4px;
+	border-radius: 4px;
+	background: $summaryTopBackground;
+	border: 1px solid $summaryBorderColor;
+	display: inline-block;
+	font-size: 0.8em;
+	cursor: pointer;
+	userSelect(none);
 }
