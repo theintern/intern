@@ -1,7 +1,7 @@
 {
   "name": "intern",
   "version": "4.0.0-pre",
-  "main": "src/main.js",
+  "main": "main.js",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
   "repository": {
     "type": "git",
@@ -30,9 +30,10 @@
     "@types/chokidar": "~1.4.29",
     "@types/diff": "~0.0.31",
     "@types/glob": "~5.0.30",
+    "@types/grunt": "~0.4.20",
     "@types/semver": "~5.3.30",
     "@types/shelljs": "~0.3.32",
-    "@types/es6-shim": "~0.0.31",
+    "@types/es6-promise": "~0.0.32",
     "@types/node": "~6.0.0",
     "chokidar": "~1.6.0",
     "intern": "~3.4.2",

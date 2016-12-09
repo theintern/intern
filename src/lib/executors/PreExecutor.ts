@@ -1,6 +1,7 @@
 import * as parseArgs from '../parseArgs';
 import * as util from '../util';
 import * as _sendData from '../sendData';
+import * as main from '../../main';
 import { CommandLineArguments, Config, Removable } from '../../common';
 import Executor from './Executor';
 
@@ -17,9 +18,6 @@ import * as ioQuery from 'dojo/has!host-browser?dojo/io-query';
 
 // Node modules
 import * as pathUtil from 'dojo/has!host-node?dojo/node!path';
-
-// Legacy imports
-import main = require('../../main');
 
 declare const require: IRequire;
 
@@ -365,9 +363,9 @@ export default class PreExecutor {
 
 		// These values must be populated on the main module prior to loading the configuration module because
 		// the configuration module may depend on them in order to perform configuration
-		main.args = args;
-		main.mode = executionMode;
-		main.config = config;
+		main.setArgs(args);
+		main.setMode(executionMode);
+		main.setConfig(config);
 
 		function getConfig() {
 			return self.getConfig(args).then(function (_config) {

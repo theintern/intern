@@ -1,13 +1,26 @@
-/*jshint node:true */
+/// <reference types="grunt"/>
 
-module.exports = function (grunt) {
-	function logOutput(line) {
-		var state = 'write';
+interface TaskOptions extends grunt.task.ITaskOptions {
+	cwd?: string;
+	nodeOptions?: any;
+	runType?: string;
+	[key: string]: any;
+}
+
+interface SpawnedChild extends grunt.util.ISpawnedChild {
+	stdout?: NodeJS.EventEmitter;
+	stderr?: NodeJS.EventEmitter;
+}
+
+function internTask(grunt: IGrunt) {
+	function logOutput(line: string) {
+		let state: keyof grunt.log.CommonLogging<any> = 'write';
 
 		if (/(\d+)\/(\d+) tests (pass|fail)/.test(line)) {
-			var match = /(\d+)\/(\d+) tests (pass|fail)/.exec(line),
-				count = Number(match[1]),
-				total = Number(match[2]);
+			const match = /(\d+)\/(\d+) tests (pass|fail)/.exec(line);
+			const count = Number(match[1]);
+			const total = Number(match[2]);
+
 			if (match[3] === 'pass') {
 				state = (count === total) ? 'ok' : 'error';
 			}
@@ -24,15 +37,15 @@ module.exports = function (grunt) {
 
 		state === 'error' && grunt.event.emit('intern.fail', line);
 		state === 'ok' && grunt.event.emit('intern.pass', line);
+
 		grunt.log[state](line);
 	}
 
-	function readOutput(data) {
-		var start = 0,
-			next;
-
+	function readOutput(data: any) {
 		data = String(data);
-		next = data.indexOf('\n', start);
+
+		let start = 0;
+		let next = data.indexOf('\n', start);
 
 		while (next !== -1) {
 			logOutput(data.substring(start, next) + '\n');
@@ -43,7 +56,7 @@ module.exports = function (grunt) {
 		logOutput(data.slice(start));
 	}
 
-	function serialize(data) {
+	function serialize(data: any) {
 		if (typeof data === 'object') {
 			return JSON.stringify(data);
 		}
@@ -51,26 +64,26 @@ module.exports = function (grunt) {
 		return data;
 	}
 
-	grunt.registerMultiTask('intern', function () {
-		var done = this.async(),
-			opts = this.options({ runType: 'client' }),
-			args = [ require('path').join(__dirname, '..') + '/' + opts.runType + '.js' ],
-			env = Object.create(process.env),
-			skipOptions = {
-				browserstackAccessKey: true,
-				browserstackUsername: true,
-				cbtApikey: true,
-				cbtUsername: true,
-				runType: true,
-				sauceAccessKey: true,
-				sauceUsername: true,
-				testingbotKey: true,
-				testingbotSecret: true,
-				nodeEnv: true,
-				cwd: true,
-				// --harmony, etc.
-				nodeOptions: true
-			};
+	grunt.registerMultiTask('intern', function (this: grunt.task.ITask) {
+		const done = this.async();
+		const opts = <TaskOptions> this.options({ runType: 'client' });
+		const args = [ require('path').join(__dirname, '..', opts.runType + '.js') ];
+		const env = Object.create(process.env);
+		const skipOptions: { [key: string]: boolean } = {
+			browserstackAccessKey: true,
+			browserstackUsername: true,
+			cbtApikey: true,
+			cbtUsername: true,
+			runType: true,
+			sauceAccessKey: true,
+			sauceUsername: true,
+			testingbotKey: true,
+			testingbotSecret: true,
+			nodeEnv: true,
+			cwd: true,
+			// --harmony, etc.
+			nodeOptions: true
+		};
 
 		if (opts.nodeOptions) {
 			// Node Options need to go at the beginning
@@ -87,10 +100,10 @@ module.exports = function (grunt) {
 				return;
 			}
 
-			var value = opts[option];
+			const value = opts[option];
 
 			if (Array.isArray(value)) {
-				grunt.util._.flatten(value).forEach(function (value) {
+				(<any> grunt.util)._.flatten(value).forEach(function (value: any) {
 					args.push(option + '=' + serialize(value));
 				});
 			}
@@ -115,7 +128,7 @@ module.exports = function (grunt) {
 			'testingbotSecret',
 			'nodeEnv'
 		].forEach(function (option) {
-			var value = opts[option];
+			const value = opts[option];
 			if (value) {
 				env[option.replace(/[A-Z]/g, '_$&').toUpperCase()] = value;
 			}
@@ -124,14 +137,14 @@ module.exports = function (grunt) {
 		// force colored output for istanbul report
 		env.FORCE_COLOR = true;
 
-		var child = grunt.util.spawn({
+		const child: SpawnedChild = grunt.util.spawn({
 			cmd: process.argv[0],
 			args: args,
 			opts: {
 				cwd: opts.cwd || process.cwd(),
 				env: env
 			}
-		}, function (error) {
+		}, function (error: Error) {
 			// The error object from grunt.util.spawn contains information
 			// that we already logged, so hide it from the user
 			done(error ? new Error('Test failure; check output above for details.') : null);
@@ -140,4 +153,6 @@ module.exports = function (grunt) {
 		child.stdout.on('data', readOutput);
 		child.stderr.on('data', readOutput);
 	});
-};
+}
+
+export = internTask;

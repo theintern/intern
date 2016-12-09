@@ -10,16 +10,16 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 		],
 		map: {
 			intern: {
-				dojo: 'intern/../browser_modules/dojo',
-				chai: 'intern/../browser_modules/chai/chai',
-				diff: 'intern/../browser_modules/diff/diff',
+				dojo: 'intern/browser_modules/dojo',
+				chai: 'intern/browser_modules/chai/chai',
+				diff: 'intern/browser_modules/diff/diff',
 				// benchmark requires lodash and platform
-				benchmark: 'intern/../browser_modules/benchmark/benchmark',
-				lodash: 'intern/../browser_modules/lodash-amd/main',
-				platform: 'intern/../browser_modules/platform/platform'
+				benchmark: 'intern/browser_modules/benchmark/benchmark',
+				lodash: 'intern/browser_modules/lodash-amd/main',
+				platform: 'intern/browser_modules/platform/platform'
 			},
 			'*': {
-				'intern/dojo': 'intern/../browser_modules/dojo'
+				'intern/dojo': 'intern/browser_modules/dojo'
 			}
 		}
 	}), [ 'intern/client' ]);

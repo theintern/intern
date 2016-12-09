@@ -43,21 +43,20 @@
 				var internConfig = this.__internConfig = {
 					baseUrl: initialBaseUrl,
 					packages: [
-						{ name: 'intern', location: internPath + 'src/' },
-						{ name: 'browser_modules', location: 'browser_modules' }
+						{ name: 'intern', location: internPath }
 					],
 					map: {
 						intern: {
-							dojo: 'browser_modules/dojo',
-							chai: 'browser_modules/chai/chai',
-							diff: 'browser_modules/diff/diff',
+							dojo: 'intern/browser_modules/dojo',
+							chai: 'intern/browser_modules/chai/chai',
+							diff: 'intern/browser_modules/diff/diff',
                             // benchmark requires lodash and platform
-                            benchmark: 'browser_modules/benchmark/benchmark',
-                            lodash: 'browser_modules/lodash-amd/main',
-                            platform: 'browser_modules/platform/platform'
+                            benchmark: 'intern/browser_modules/benchmark/benchmark',
+                            lodash: 'intern/browser_modules/lodash-amd/main',
+                            platform: 'intern/browser_modules/platform/platform'
 						},
 						'*': {
-							'intern/dojo': 'browser_modules/dojo'
+							'intern/dojo': 'intern/browser_modules/dojo'
 						}
 					}
 				};

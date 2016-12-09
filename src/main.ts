@@ -10,15 +10,27 @@ declare const require: IRequire;
  */
 export let args: CommandLineArguments;
 
+export function setArgs(value: CommandLineArguments) {
+	args = value;
+}
+
 /**
  * The current Intern configuration.
  */
 export let config: Config;
 
+export function setConfig(value?: Config) {
+	config = value;
+}
+
 /**
  * The executor for the current test run.
  */
 export let executor: Executor = null;
+
+export function setExecutor(ex?: Executor): void {
+	executor = ex;
+}
 
 /**
  * AMD plugin API interface for easy loading of test interfaces.
@@ -41,8 +53,8 @@ export function normalize(interfaceId: string) {
  */
 export let mode: ExecutionMode = null;
 
-export type ExecutionMode = 'client' | 'runner' | 'custom';
-
-export function setExecutor(ex?: Executor): void {
-	executor = ex;
+export function setMode(value: ExecutionMode) {
+	mode = value;
 }
+
+export type ExecutionMode = 'client' | 'runner' | 'custom';

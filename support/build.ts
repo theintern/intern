@@ -36,6 +36,11 @@ if (mode !== 'copyOnly') {
 		process.exit(1);
 	}
 
+	console.log('>> Compiling grunt task');
+	if (exec('node ./node_modules/.bin/tsc -p tasks/tsconfig.json').code) {
+		process.exit(1);
+	}
+
 	if (mode !== 'dist') {
 		console.log('>> Compiling tests');
 		if (exec('node ./node_modules/.bin/tsc -p tests/tsconfig.json').code) {
@@ -45,35 +50,36 @@ if (mode !== 'copyOnly') {
 }
 
 console.log('>> Copying resources');
-let patterns = [
+
+let copyAll = function (patterns: string[], outDir: string) {
+	patterns.forEach(function (pattern) {
+		glob.sync(pattern).filter(function (resource) {
+			return test('-f', resource);
+		}).forEach(function (filename) {
+			const dst = join(outDir, filename);
+			const dstDir = dirname(dst);
+			if (!test('-d', dstDir)) {
+				mkdir('-p', dstDir);
+			}
+			cp(filename, dst);
+		});
+	});
+};
+
+copyAll([
 	'.npmignore',
 	'./*.{md,html}',
 	'package.json',
 	'support/fixdeps.js',
 	'types/**',
 	'bin/*.js',
+	'tests/types/intern/**',
+	'tests/example.*'
+], join(buildDir, 'src'));
+
+copyAll([
 	'src/**/*.{html,json,css,d.ts}',
-	'tests/types/intern/**'
-];
-
-if (mode === 'dist') {
-	patterns.push('tests/example.*');
-}
-else {
-	patterns.push('tests/**/*.{html,json}');
-}
-
-patterns.forEach(function (pattern) {
-	glob.sync(pattern).forEach(function (resource) {
-		const dst = join(buildDir, resource);
-		const dstDir = dirname(dst);
-		if (!test('-d', dstDir)) {
-			mkdir('-p', dstDir);
-		}
-		if (!test('-d', resource)) {
-			cp(resource, dst);
-		}
-	});
-});
+	'tests/**/*.{html,json}'
+], buildDir);
 
 console.log('>> Done building');
