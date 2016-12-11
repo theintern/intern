@@ -1,4 +1,4 @@
-import { default as Test, TestConfig } from './Test';
+import Test, { TestConfig } from './Test';
 import { InternError, Deferred } from '../common';
 import Benchmark = require('benchmark');
 import Promise = require('dojo/Promise');

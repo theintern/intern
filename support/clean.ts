@@ -1,13 +1,12 @@
-import { rm } from 'shelljs';
-import { buildDir } from './tsconfig';
+import { echo, rm } from 'shelljs';
+import { buildDir } from './common';
 
-console.log(`>> Removing ${buildDir}`);
+echo(`>> Cleaning`);
+
 rm('-rf', buildDir);
-
 if (process.argv[2] === 'all') {
-	console.log(`>> Removing installed modules`);
 	rm('-rf', 'node_modules');
 	rm('-rf', 'browser_modules');
 }
 
-console.log('>> Done cleaning');
+echo('>> Done cleaning');

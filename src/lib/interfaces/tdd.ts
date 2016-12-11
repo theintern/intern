@@ -1,7 +1,7 @@
 import { on } from 'dojo/aspect';
 import * as main from '../../main';
-import { default as Suite, SuiteLifecycleFunction } from '../Suite';
-import { default as Test, TestFunction } from '../Test';
+import Suite, { SuiteLifecycleFunction } from '../Suite';
+import Test, { TestFunction } from '../Test';
 
 let currentSuite: Suite;
 const suites: Suite[] = [];

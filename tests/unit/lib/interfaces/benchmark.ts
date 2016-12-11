@@ -3,7 +3,7 @@ import assert = require('intern/chai!assert');
 import Executor from '../../../../src/lib/executors/Executor';
 import benchmark from '../../../../src/lib/interfaces/benchmark';
 import { setExecutor, executor as originalExecutor } from '../../../../src/main';
-import { default as BenchmarkTest, BenchmarkTestFunction } from '../../../../src/lib/BenchmarkTest';
+import BenchmarkTest, { BenchmarkTestFunction } from '../../../../src/lib/BenchmarkTest';
 import Suite from '../../../../src/lib/Suite';
 import Test from '../../../../src/lib/Test';
 

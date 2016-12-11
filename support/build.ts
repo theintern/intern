@@ -1,7 +1,7 @@
-import { cp, exec, mkdir, rm, test } from 'shelljs';
+import { cp, echo, mkdir, rm, test } from 'shelljs';
 import { join, dirname } from 'path';
 import * as glob from 'glob';
-import { buildDir } from './tsconfig';
+import { buildDir, exec } from './common';
 
 let mode: string;
 const modes = [ 'dist', 'copyOnly' ];
@@ -9,10 +9,10 @@ const modes = [ 'dist', 'copyOnly' ];
 const arg = process.argv[2];
 if (arg) {
 	if (modes.indexOf(arg) === -1) {
-		console.log('usage: build [dist|copyOnly]');
-		console.log('  <default> - build for testing');
-		console.log('  dist      - build for distribution');
-		console.log('  copyOnly  - copy resources, but don\'t build typescript');
+		echo('usage: build [dist|copyOnly]');
+		echo('  <default> - build for testing');
+		echo('  dist      - build for distribution');
+		echo('  copyOnly  - copy resources, but don\'t build typescript');
 		process.exit(1);
 	}
 	mode = arg;
@@ -20,36 +20,28 @@ if (arg) {
 
 if (mode !== 'copyOnly') {
 	if (mode === 'dist') {
-		console.log('>> Linting source');
-		if (exec('node ./node_modules/.bin/tslint --project tsconfig.json').code) {
-			process.exit(1);
-		}
+		echo('>> Linting source');
+		exec('node ./node_modules/.bin/tslint --project tsconfig.json');
 	}
 
-	console.log('>> Removing existing build directory');
+	echo('>> Removing existing build directory');
 	if (test('-d', buildDir)) {
 		rm('-r', buildDir);
 	}
 
-	console.log('>> Compiling source');
-	if (exec('node ./node_modules/.bin/tsc').code) {
-		process.exit(1);
-	}
+	echo('>> Compiling source');
+	exec('node ./node_modules/.bin/tsc');
 
-	console.log('>> Compiling grunt task');
-	if (exec('node ./node_modules/.bin/tsc -p tasks/tsconfig.json').code) {
-		process.exit(1);
-	}
+	echo('>> Compiling grunt task');
+	exec('node ./node_modules/.bin/tsc -p tasks/tsconfig.json');
 
 	if (mode !== 'dist') {
-		console.log('>> Compiling tests');
-		if (exec('node ./node_modules/.bin/tsc -p tests/tsconfig.json').code) {
-			process.exit(1);
-		}
+		echo('>> Compiling tests');
+		exec('node ./node_modules/.bin/tsc -p tests/tsconfig.json');
 	}
 }
 
-console.log('>> Copying resources');
+echo('>> Copying resources');
 
 let copyAll = function (patterns: string[], outDir: string) {
 	patterns.forEach(function (pattern) {
@@ -82,4 +74,4 @@ copyAll([
 	'tests/**/*.{html,json}'
 ], buildDir);
 
-console.log('>> Done building');
+echo('>> Done building');

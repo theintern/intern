@@ -1,6 +1,6 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import { default as resolveEnvironments, Environment } from '../../../src/lib/resolveEnvironments';
+import resolveEnvironments, { Environment } from '../../../src/lib/resolveEnvironments';
 import EnvironmentType from '../../../src/lib/EnvironmentType';
 import { ServiceEnvironment } from 'digdug';
 

@@ -1,6 +1,6 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import { default as Pretty, Report } from '../../../../src/lib/reporters/Pretty';
+import Pretty, { Report } from '../../../../src/lib/reporters/Pretty';
 import EnvironmentType from '../../../../src/lib/EnvironmentType';
 import Suite from '../../../../src/lib/Suite';
 import Test from '../../../../src/lib/Test';

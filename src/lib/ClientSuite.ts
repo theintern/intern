@@ -1,4 +1,4 @@
-import { default as Suite, SuiteConfig } from './Suite';
+import Suite, { SuiteConfig } from './Suite';
 import { Config, InternError } from '../common';
 
 // AMD modules

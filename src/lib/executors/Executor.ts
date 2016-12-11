@@ -1,4 +1,4 @@
-import { default as ReporterManager, ReporterDescriptor } from '../ReporterManager';
+import ReporterManager, { ReporterDescriptor } from '../ReporterManager';
 import { Config } from '../../common';
 import PreExecutor from './PreExecutor';
 import Suite from '../Suite';

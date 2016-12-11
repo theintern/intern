@@ -1,13 +1,10 @@
-import { exec } from 'shelljs';
+import { echo } from 'shelljs';
+import { exec } from './common';
 
-console.log('>> Linting source');
-const code1 = exec('node ./node_modules/.bin/tslint --project tsconfig.json').code;
+echo('>> Linting source');
+exec('node ./node_modules/.bin/tslint --project tsconfig.json');
 
-console.log('>> Linting tests');
-const code2 = exec('node ./node_modules/.bin/tslint --project tests/tsconfig.json').code;
+echo('>> Linting tests');
+exec('node ./node_modules/.bin/tslint --project tests/tsconfig.json');
 
-console.log('>> Done linting');
-
-if (code1 || code2) {
-	process.exit(1);
-}
+echo('>> Done linting');

@@ -1,6 +1,6 @@
 import * as aspect from 'dojo/aspect';
 import * as main from '../../main';
-import { default as Suite, SuiteConfig, SuiteLifecycleFunction } from '../Suite';
+import Suite, { SuiteConfig, SuiteLifecycleFunction } from '../Suite';
 import Test from '../Test';
 
 export interface ObjectSuiteConfig extends SuiteConfig {

@@ -1,6 +1,6 @@
-import { spawnSync as spawn } from 'child_process';
+import { echo } from 'shelljs';
 import { join } from 'path';
-import { buildDir } from './tsconfig';
+import { buildDir, exec } from './tsconfig';
 
 const args = process.argv.slice(2);
 let mode = 'local';
@@ -12,9 +12,9 @@ function run(runner: string, config: string, userArgs: string[]) {
 		args.push('config=' + join(buildDir, 'tests', `${config}.js`));
 	}
 
-	console.log('>> Running tests');
-	spawn('node', args, { stdio: 'inherit' });
-	console.log('>> Done testing');
+	echo('>> Running tests');
+	exec(`node ${args.join(' ')}`);
+	echo('>> Done testing');
 }
 
 const modes: { [key: string]: () => void } = {

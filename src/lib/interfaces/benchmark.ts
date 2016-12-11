@@ -1,4 +1,4 @@
-import { default as objectRegisterSuite, ObjectSuiteConfig } from './object';
+import objectRegisterSuite, { ObjectSuiteConfig } from './object';
 import Suite from '../Suite';
 import BenchmarkTest from '../BenchmarkTest';
 import aspect = require('dojo/aspect');

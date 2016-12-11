@@ -1,6 +1,6 @@
 import registerSuite = require('intern!object');
 import assert = require('intern/chai!assert');
-import { default as BenchmarkTest, BenchmarkTestConfig, BenchmarkTestFunction, BenchmarkDeferredTestFunction } from '../../../src/lib/BenchmarkTest';
+import BenchmarkTest, { BenchmarkTestConfig, BenchmarkTestFunction, BenchmarkDeferredTestFunction } from '../../../src/lib/BenchmarkTest';
 import { BenchmarkData } from '../../../src/lib/reporters/Benchmark';
 import Test from '../../../src/lib/Test';
 import Suite from '../../../src/lib/Suite';
