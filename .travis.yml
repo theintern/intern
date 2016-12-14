@@ -2,7 +2,8 @@ sudo: false
 language: node_js
 node_js:
   - '0.12'
-  - '6.5.0'
+  - '6'
+  - 'node'
 env:
   global:
     # Please get your own free key if you want to test yourself
@@ -15,7 +16,9 @@ matrix:
   exclude:
     - node_js: '0.12'
       env: INTERN_NODE_ONLY=0
-    - node_js: '6.5.0'
+    - node_js: '6'
+      env: INTERN_NODE_ONLY=0
+    - node_js: 'node'
       env: INTERN_NODE_ONLY=1
 cache:
   directories:
