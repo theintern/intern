@@ -21,6 +21,7 @@ Learn more about Intern at https://theintern.github.io.
 
    ```
    cd /my/project/root
+   npm init
    npm install intern --save-dev
    ```
 
