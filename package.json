@@ -27,31 +27,23 @@
     "source-map": "0.1.33"
   },
   "devDependencies": {
-    "@types/chokidar": "~1.4.29",
     "@types/diff": "~0.0.31",
     "@types/glob": "~5.0.30",
     "@types/grunt": "~0.4.20",
-    "@types/semver": "~5.3.30",
-    "@types/shelljs": "~0.3.32",
     "@types/es6-promise": "~0.0.32",
     "@types/node": "~6.0.0",
-    "chokidar": "~1.6.0",
     "intern": "~3.4.2",
-    "semver": "~5.3.0",
-    "shelljs": "~0.7.0",
-    "ts-node": "~1.7.0",
-    "tslint": "~4.0.0",
-    "typescript": "~2.1.0"
+    "intern-dev": "https://github.com/jason0x43/intern-dev/releases/download/0.1.0-pre/intern-dev-0.1.0-pre.tgz"
   },
   "scripts": {
-    "build": "ts-node support/build.ts",
-    "clean": "ts-node support/clean.ts",
+    "build": "intern-dev-clean && intern-dev-build",
+    "clean": "intern-dev-clean",
     "install": "node support/fixdeps.js",
-    "lint": "ts-node support/lint.ts",
-    "release": "ts-node support/release.ts",
-    "test": "ts-node support/build.ts && ts-node support/test.ts",
+    "lint": "intern-dev-lint",
+    "release": "intern-dev-release",
+    "test": "intern-dev-build && intern-dev-test",
     "update": "node support/fixdeps.js",
-    "watch": "ts-node support/watch.ts"
+    "watch": "intern-dev-watch"
   },
   "bugs": "https://github.com/theintern/intern/issues",
   "keywords": [
@@ -76,5 +68,13 @@
   "bin": {
     "intern-client": "./bin/intern-client.js",
     "intern-runner": "./bin/intern-runner.js"
+  },
+  "internDev": {
+    "resources": {
+      "src": [
+        "tests/example.intern.js"
+      ]
+    },
+    "testConfig": "tests/selftest.intern.js"
   }
 }

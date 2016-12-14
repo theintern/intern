@@ -1,5 +1,11 @@
 tests/*
 !tests/types/*
 !tests/example.intern.js
+
+support/*
+!support/fixdeps.js
+
+tsconfig.json
+tslint.json
 *.tgz
 .npmignore
