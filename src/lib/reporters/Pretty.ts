@@ -1,7 +1,7 @@
 import { Reporter, ReporterConfig, Config } from '../../common';
 import Suite from '../Suite';
 import Test from '../Test';
-import Tunnel = require('digdug/Tunnel');
+import Tunnel from 'digdug/Tunnel';
 import charm = require('dojo/node!charm');
 import encode = require('dojo/node!charm/lib/encode');
 import * as nodeUtil from 'dojo/node!util';

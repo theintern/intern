@@ -16,7 +16,7 @@
     "chai": "3.5.0",
     "charm": "0.2.0",
     "diff": "1.1.0",
-    "digdug": "~1.6.0",
+    "digdug": "https://github.com/jason0x43/digdug/releases/download/2.0.0-pre/digdug-2.0.0-pre.tgz",
     "dojo": "2.0.0-alpha.7",
     "glob": "7.0.3",
     "istanbul": "0.4.1",

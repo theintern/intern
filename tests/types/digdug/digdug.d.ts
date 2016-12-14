@@ -8,6 +8,8 @@ declare module 'digdug' {
 		[key: string]: any;
 	}
 
+	export type NormalizedEnvironment = ServiceEnvironment;
+
 	/**
 	 * Data that can be passed to tunnel providers to update the state of a job being executed on their service.
 	 */

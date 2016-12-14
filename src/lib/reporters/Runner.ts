@@ -9,7 +9,7 @@ import Test from '../Test';
 import Suite from '../Suite';
 import { Reporter, ReporterConfig, Config, Proxy } from '../../common';
 import { Writable } from 'stream';
-import * as Tunnel from 'digdug/Tunnel';
+import Tunnel from 'digdug/Tunnel';
 
 const LIGHT_RED = '\x1b[91m';
 const LIGHT_GREEN = '\x1b[92m';

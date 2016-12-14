@@ -1,6 +1,6 @@
 import * as lang from 'dojo/lang';
 import EnvironmentType from './EnvironmentType';
-import { ServiceEnvironment } from 'digdug';
+import { NormalizedEnvironment } from 'digdug';
 
 export type Environment = { version?: (string|string[]|number|number[]), [key: string]: any };
 export type FlatEnvironment = { version?: string, [key: string]: any };
@@ -13,7 +13,7 @@ export type FlatEnvironment = { version?: string, [key: string]: any };
  * @param available a list of available environments
  * @returns a list of flattened service environments
  */
-export default function resolveEnvironments(capabilities: { [key: string]: any }, environments: Environment[], available?: ServiceEnvironment[]) {
+export default function resolveEnvironments(capabilities: { [key: string]: any }, environments: Environment[], available?: NormalizedEnvironment[]) {
 	// flatEnviroments will have non-array versions
 	const flatEnvironments = createPermutations(capabilities, environments);
 
@@ -126,7 +126,7 @@ function splitVersions(versionSpec: string) {
  * @param available a list of available environments
  * @returns a list of version numbers from available filtered by the current environment
  */
-function getVersions(environment: Environment, available: ServiceEnvironment[]): string[] {
+function getVersions(environment: Environment, available: NormalizedEnvironment[]): string[] {
 	let versions: { [key: string]: boolean } = {};
 
 	available.filter(function (availableEnvironment) {
@@ -151,7 +151,7 @@ function getVersions(environment: Environment, available: ServiceEnvironment[]):
  * @param available a list of environment available on the target service
  * @returns the environment with resolved version aliases
  */
-function resolveVersions(environment: FlatEnvironment, available: ServiceEnvironment[]): string|string[] {
+function resolveVersions(environment: FlatEnvironment, available: NormalizedEnvironment[]): string|string[] {
 	let versionSpec = environment.version;
 	let versions: string[];
 	available = available || [];

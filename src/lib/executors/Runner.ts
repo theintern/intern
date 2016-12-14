@@ -9,15 +9,15 @@ import Suite from '../Suite';
 import * as util from '../util';
 import resolveEnvironments from '../resolveEnvironments';
 import { IRequire } from 'dojo/loader';
+import Tunnel from 'digdug/Tunnel';
 
 // AMD modules
 import * as lang from 'dojo/lang';
-import * as Promise from 'dojo/Promise';
+import * as DojoPromise from 'dojo/Promise';
 
 // Legacy imports
 import Server = require('dojo/node!leadfoot/Server');
 import Command = require('dojo/node!leadfoot/Command');
-import Tunnel = require('dojo/node!digdug/Tunnel');
 
 declare const require: IRequire;
 
@@ -86,7 +86,7 @@ export default class Runner extends Executor {
 
 		return super._afterRun()
 			.finally<any>(function () {
-				return Promise.all([
+				return DojoPromise.all([
 					stopProxy(),
 					stopTunnel()
 				])
@@ -136,13 +136,13 @@ export default class Runner extends Executor {
 
 		if (config.proxyOnly) {
 			return promise.then(function () {
-				return Promise.resolve(config.setup && config.setup.call(config, self))
+				return DojoPromise.resolve(config.setup && config.setup.call(config, self))
 					.then(function () {
 						// Pause indefinitely until canceled
-						return new Promise(function () {});
+						return new DojoPromise(function () {});
 					})
 					.finally<any>(function () {
-						return Promise.resolve(config.teardown && config.teardown.call(config, self));
+						return DojoPromise.resolve(config.teardown && config.teardown.call(config, self));
 					})
 					.finally<any>(function () {
 						return self.proxy && self.proxy.stop();
@@ -205,7 +205,7 @@ export default class Runner extends Executor {
 						});
 					},
 
-					teardown: function (this: Suite): Promise<any> {
+					teardown: function (this: Suite): DojoPromise<any> {
 						const remote = this.remote;
 
 						function endSession() {

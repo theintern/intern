@@ -37,8 +37,7 @@ declare module 'dojo/node!querystring' {
 }
 
 declare module 'dojo/node!digdug/Tunnel' {
-	import Tunnel = require('digdug/Tunnel');
-	export = Tunnel;
+	export { default } from 'digdug/Tunnel';
 }
 
 declare module 'dojo/node!leadfoot/Command' {

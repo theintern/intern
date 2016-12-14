@@ -1,5 +1,5 @@
 import 'chai';
-import * as Tunnel from 'digdug/Tunnel';
+import Tunnel from 'digdug/Tunnel';
 import Executor from './lib/executors/Executor';
 import { ReporterDescriptor } from './lib/ReporterManager';
 import EnvironmentType from './lib/EnvironmentType';
