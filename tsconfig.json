@@ -23,7 +23,6 @@
     "./tests/types/intern/intern.d.ts"
   ],
   "include": [
-    "./src/**/*.ts",
-    "./tests/**/*.ts"
+    "./src/**/*.ts"
   ]
 }

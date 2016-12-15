@@ -17,6 +17,8 @@ declare const require: IRequire;
 
 const globalOrWindow = Function('return this')();
 
+export type ExecutionMode = 'node' | 'webdriver' | 'browser' | 'custom';
+
 export default class Executor {
 	/** The resolved configuration for this executor. */
 	config: Config;

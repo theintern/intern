@@ -1,4 +1,3 @@
-import * as intern from '../main';
 import * as diffUtil from 'diff';
 import { Deferred, InternError } from '../interfaces';
 
@@ -172,9 +171,10 @@ export function escapeRegExp(str: any) {
  * caused by different opinions on what a stack trace should look like.
  *
  * @param error An object describing the error.
+ * @param filterErrorStack if the error stack should be normalized
  * @returns A string message describing the error.
  */
-export function getErrorMessage(error: string|Error|InternError): string {
+export function getErrorMessage(error: string|Error|InternError, filterErrorStack: boolean = false): string {
 	/* jshint maxcomplexity:14 */
 	if (typeof error !== 'string' && (error.message || error.stack)) {
 		let message = (error.name || 'Error') + ': ' + (error.message || 'Unknown error');
@@ -190,8 +190,7 @@ export function getErrorMessage(error: string|Error|InternError): string {
 				stack = stack.slice(String(error.message).length);
 			}
 
-			const filterStack = intern && intern.config && intern.config.filterErrorStack;
-			stack = normalizeStackTrace(stack, filterStack);
+			stack = normalizeStackTrace(stack, filterErrorStack);
 		}
 
 		const anyError: any = error;

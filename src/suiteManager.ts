@@ -1,11 +1,14 @@
 import Suite from './Suite';
+import Executor from './executors/Executor';
+import Test from './Test';
 
-export interface RootSuite {
-
+export interface RootContext {
+	executor: Executor;
+	tests: (Suite | Test)[]
 }
 
 export interface SuiteFactory {
-	(suite: RootSuite): void;
+	(suite: RootContext): void;
 }
 
 export class SuiteManager {
@@ -22,7 +25,7 @@ export class SuiteManager {
 	/**
 	 * Attach tests to the provided parent Suite
 	 */
-	attach(parent: RootSuite): void {
+	attach(parent: RootContext): void {
 		for (let factory of this.factories) {
 			factory(parent);
 		}
