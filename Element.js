@@ -129,8 +129,9 @@ Element.prototype = {
 				var newError = new Error();
 				newError.name = 'NoSuchElement';
 				newError.message = error.message;
-				throw newError;
+				error = newError;
 			}
+			throw error;
 		});
 	},
 
