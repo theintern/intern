@@ -627,7 +627,9 @@ function getModules(moduleIds: string[], loader: IRequire) {
 
 	return new Promise(function (resolve, reject) {
 		(<any> loader)(moduleIds, <IRequireCallback> function () {
-			resolve(Array.prototype.slice.call(arguments, 0));
+			resolve(Array.prototype.slice.call(arguments, 0).map((module: any) => {
+				return (module && module.__esModule) ? module.default : module;
+			}));
 		}, reject);
 	});
 }
