@@ -432,7 +432,6 @@ export default class Suite {
 						if (!error.relatedTest) {
 							error.relatedTest = <Test> test;
 						}
-						return report('suiteError', error);
 					}
 
 					function runWithCatch() {
