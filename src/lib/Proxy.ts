@@ -185,7 +185,7 @@ export default class Proxy {
 		let wholePath: string;
 
 		if (/^__intern\//.test(file)) {
-			const basePath = path.resolve(path.join(require.toUrl('intern/'), '..'));
+			const basePath = path.resolve(path.join(require.toUrl('intern/'), ''));
 			wholePath = path.join(basePath, file.replace(/^__intern\//, ''));
 			instrument = false;
 		}
