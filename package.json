@@ -34,6 +34,10 @@
     "intern": "~3.4.2",
     "intern-dev": "https://github.com/theintern/intern-dev/releases/download/0.1.2/intern-dev-0.1.2.tgz"
   },
+  "peerDependencies": {
+    "typescript": "~2.1.4",
+    "tslint": "~4.0.0"
+  },
   "scripts": {
     "build": "intern-dev-clean && intern-dev-build",
     "clean": "intern-dev-clean",
