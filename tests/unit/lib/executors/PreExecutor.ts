@@ -1,8 +1,8 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import {IRequire } from 'dojo/loader';
-import * as parseArgs from '../../../../src/lib/parseArgs';
-import PreExecutor from '../../../../src/lib/executors/PreExecutor';
+import * as parseArgs from 'src/lib/parseArgs';
+import PreExecutor from 'src/lib/executors/PreExecutor';
 
 declare const require: IRequire;
 
@@ -11,7 +11,7 @@ registerSuite({
 
 	'#constructor - executorId'() {
 		const executor = new PreExecutor(<any> { executorId: 'runner' });
-		const runnerMid = require.toAbsMid('../../../../src/lib/executors/Runner');
+		const runnerMid = require.toAbsMid('src/lib/executors/Runner');
 		assert.strictEqual(executor.executorId, runnerMid, 'Expected executorId to be a module ID');
 	},
 
@@ -88,7 +88,7 @@ registerSuite({
 				executor = new PreExecutor({
 					executorId: 'runner',
 					defaultLoaderOptions: {
-						baseUrl: 'intern-selftest'
+						baseUrl: 'tests'
 					}
 				});
 			},
@@ -102,7 +102,7 @@ registerSuite({
 			proxyUrl: {
 				'default'() {
 					return executor.getConfig({
-						config: 'tests/unit/data/lib/executors/intern'
+						config: 'unit/data/lib/executors/intern'
 					}).then(function (config) {
 						loadedConfig = config;
 						assert.propertyVal(config, 'proxyPort', 9000);
@@ -112,7 +112,7 @@ registerSuite({
 
 				'proxyPort arg'() {
 					return executor.getConfig({
-						config: 'tests/unit/data/lib/executors/intern',
+						config: 'unit/data/lib/executors/intern',
 						proxyPort: '9004'
 					}).then(function (config) {
 						loadedConfig = config;
@@ -123,7 +123,7 @@ registerSuite({
 
 				'invalid proxyPort'() {
 					return executor.getConfig({
-						config: 'tests/unit/data/lib/executors/intern',
+						config: 'unit/data/lib/executors/intern',
 						proxyPort: '900q'
 					}).then(
 						function () {

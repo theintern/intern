@@ -1,7 +1,7 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import ReporterManager from '../../../src/lib/ReporterManager';
-import JUnit from '../../../src/lib/reporters/JUnit';
+import ReporterManager from 'src/lib/ReporterManager';
+import JUnit from 'src/lib/reporters/JUnit';
 import Promise = require('dojo/Promise');
 import has = require('dojo/has');
 import * as fs from 'dojo/has!host-node?dojo/node!fs';

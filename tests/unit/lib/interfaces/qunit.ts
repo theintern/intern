@@ -1,12 +1,12 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import { AssertionError } from 'chai';
-import { QUnit, QUnitBaseAssert } from '../../../../src/lib/interfaces/qunit';
-import * as main from '../../../../src/main';
-import Executor from '../../../../src/lib/executors/Executor';
-import Suite from '../../../../src/lib/Suite';
-import Test from '../../../../src/lib/Test';
-import { InternError } from '../../../../src/common';
+import { QUnit, QUnitBaseAssert } from 'src/lib/interfaces/qunit';
+import * as main from 'src/main';
+import Executor from 'src/lib/executors/Executor';
+import Suite from 'src/lib/Suite';
+import Test from 'src/lib/Test';
+import { InternError } from 'src/common';
 
 let originalExecutor: Executor;
 let rootSuite: Suite;

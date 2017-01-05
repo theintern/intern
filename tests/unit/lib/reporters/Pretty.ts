@@ -1,9 +1,9 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import Pretty, { Report } from '../../../../src/lib/reporters/Pretty';
-import EnvironmentType from '../../../../src/lib/EnvironmentType';
-import Suite from '../../../../src/lib/Suite';
-import Test from '../../../../src/lib/Test';
+import Pretty, { Report } from 'src/lib/reporters/Pretty';
+import EnvironmentType from 'src/lib/EnvironmentType';
+import Suite from 'src/lib/Suite';
+import Test from 'src/lib/Test';
 import getMock from './support/mocks';
 import Reporter = require('dojo/has!host-node?dojo/node!istanbul/lib/report/text');
 

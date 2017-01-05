@@ -1,7 +1,7 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import * as tdd from '../../../../src/lib/interfaces/tdd';
-import * as bdd from '../../../../src/lib/interfaces/bdd';
+import * as tdd from 'src/lib/interfaces/tdd';
+import * as bdd from 'src/lib/interfaces/bdd';
 
 registerSuite({
 	name: 'intern/lib/interfaces/bdd',

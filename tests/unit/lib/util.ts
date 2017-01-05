@@ -1,13 +1,12 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import * as util from '../../../src/lib/util';
-import Test from '../../../src/lib/Test';
+import * as util from 'src/lib/util';
+import Test from 'src/lib/Test';
 import has = require('dojo/has');
 import Promise = require('dojo/Promise');
 import { IRequire } from 'dojo/loader';
 import * as pathUtil from 'dojo/has!host-node?dojo/node!path';
 import * as hook from 'dojo/has!host-node?dojo/node!istanbul/lib/hook';
-import * as fs from 'dojo/has!host-node?dojo/node!fs';
 
 declare const require: IRequire;
 declare const global: any;
@@ -110,7 +109,7 @@ registerSuite({
 			}
 			dfd.promise.then(restore, restore);
 
-			require([ '../../../../tests/unit/data/lib/util/foo' ], dfd.callback(function (foo) {
+			require([ 'tests/unit/data/lib/util/foo' ], dfd.callback(function (foo) {
 				assert.ok(wasInstrumented, 'Test module should have been instrumented');
 
 				try {
@@ -133,7 +132,7 @@ registerSuite({
 
 			const dfd = this.async();
 
-			require([ '../../../../tests/unit/data/lib/util/bar' ], dfd.callback(function (Bar: any) {
+			require([ 'tests/unit/data/lib/util/bar' ], dfd.callback(function (Bar: any) {
 				const bar = new Bar();
 				try {
 					bar.run();
@@ -151,7 +150,7 @@ registerSuite({
 
 			const dfd = this.async();
 
-			require([ '../data/lib/util/baz' ], dfd.callback(function (Baz: any) {
+			require([ 'tests/unit/data/lib/util/baz' ], dfd.callback(function (Baz: any) {
 				const baz = new Baz();
 				try {
 					baz.run();
@@ -260,10 +259,10 @@ registerSuite({
 			}
 
 			const moduleIds = [
-				'intern-selftest/tests/unit/lib/util'
+				'tests/unit/lib/util'
 			];
 			const expected = [
-				'intern-selftest/tests/unit/lib/util'
+				'tests/unit/lib/util'
 			];
 			const actual = util.resolveModuleIds(moduleIds);
 			assert.deepEqual(actual, expected, 'Non-glob MID should have been returned unchanged');
@@ -274,16 +273,13 @@ registerSuite({
 				this.skip('requires Node.js');
 			}
 
-			const tsconfig = JSON.parse(fs.readFileSync('tsconfig.json', { encoding: 'utf8' }));
-			const buildDir = pathUtil.normalize(tsconfig.compilerOptions.outDir);
-
 			const moduleIds = [
-				`intern-selftest/${buildDir}/tests/unit/*`
+				`tests/unit/*`
 			];
 			const expected = [
-				`intern-selftest/${buildDir}/tests/unit/all`,
-				`intern-selftest/${buildDir}/tests/unit/main`,
-				`intern-selftest/${buildDir}/tests/unit/order`
+				`tests/unit/all`,
+				`tests/unit/main`,
+				`tests/unit/order`
 			];
 			const actual = util.resolveModuleIds(moduleIds);
 			assert.deepEqual(actual, expected, 'Unexpected resolution for single-level glob');
@@ -294,14 +290,11 @@ registerSuite({
 				this.skip('requires Node.js');
 			}
 
-			const tsconfig = JSON.parse(fs.readFileSync('tsconfig.json', { encoding: 'utf8' }));
-			const buildDir = pathUtil.normalize(tsconfig.compilerOptions.outDir);
-
 			const moduleIds = [
-				`intern-selftest/${buildDir}/tests/functional/**/*`
+				`tests/functional/**/*`
 			];
 			const expected = [
-				`intern-selftest/${buildDir}/tests/functional/lib/ProxiedSession`
+				`tests/functional/lib/ProxiedSession`
 			];
 			const actual = util.resolveModuleIds(moduleIds);
 			assert.deepEqual(actual, expected, 'Unexpected resolution for multi-level glob');

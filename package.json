@@ -73,6 +73,10 @@
     "resources": {
       "src": [
         "tests/example.intern.js"
+      ],
+      ".": [
+        "tests/**/*.xml",
+        "tests/**/*.js"
       ]
     },
     "testConfig": "tests/selftest.intern.js"

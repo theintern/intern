@@ -1,4 +1,4 @@
-import registerSuite, { async, skip, BenchmarkTestFunction } from '../../src/lib/interfaces/benchmark';
+import registerSuite, { async, skip, BenchmarkTestFunction } from 'src/lib/interfaces/benchmark';
 
 let counter = 0;
 

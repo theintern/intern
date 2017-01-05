@@ -1,11 +1,11 @@
 import registerSuite = require('intern!object');
 import assert = require('intern/chai!assert');
-import BenchmarkTest, { BenchmarkTestConfig, BenchmarkTestFunction, BenchmarkDeferredTestFunction } from '../../../src/lib/BenchmarkTest';
-import { BenchmarkData } from '../../../src/lib/reporters/Benchmark';
-import Test from '../../../src/lib/Test';
-import Suite from '../../../src/lib/Suite';
+import BenchmarkTest, { BenchmarkTestConfig, BenchmarkTestFunction, BenchmarkDeferredTestFunction } from 'src/lib/BenchmarkTest';
+import { BenchmarkData } from 'src/lib/reporters/Benchmark';
+import Test from 'src/lib/Test';
+import Suite from 'src/lib/Suite';
 import Promise = require('dojo/Promise');
-import { Deferred } from '../../../src/common';
+import { Deferred } from 'src/common';
 
 function getTestFunction(this: any, testFunc: BenchmarkTestFunction | BenchmarkDeferredTestFunction, isAsync?: boolean) {
 	if (isAsync) {

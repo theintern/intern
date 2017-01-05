@@ -1,8 +1,8 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import Suite, { SuiteConfig } from '../../../../src/lib/Suite';
-import Test, { TestConfig } from '../../../../src/lib/Test';
-import WebDriver from '../../../../src/lib/reporters/WebDriver';
+import Suite, { SuiteConfig } from 'src/lib/Suite';
+import Test, { TestConfig } from 'src/lib/Test';
+import WebDriver from 'src/lib/reporters/WebDriver';
 
 let reporter: WebDriver;
 let messages: { name: string, args: IArguments | any[] }[];

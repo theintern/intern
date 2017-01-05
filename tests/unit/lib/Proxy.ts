@@ -1,9 +1,8 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import {IRequire } from 'dojo/loader';
-import Proxy from '../../../src/lib/Proxy';
+import Proxy from 'src/lib/Proxy';
 import Promise = require('dojo/Promise');
-import * as path from 'dojo/node!path';
 import * as fs from 'dojo/node!fs';
 import * as querystring from 'dojo/node!querystring';
 
@@ -57,7 +56,7 @@ registerSuite({
 			};
 			const request = createRequest();
 			const response = createResponse();
-			const query = querystring.stringify({ suites: [ 'intern-selftest/tests/unit/*' ] });
+			const query = querystring.stringify({ suites: [ 'tests/unit/*' ] });
 
 			let calls: any[] = [];
 			request.url = '/__intern/__resolveSuites__?' + query;
@@ -111,11 +110,11 @@ registerSuite({
 	_resolveSuites: {
 		'invalid package'() {
 			const proxy = new Proxy();
-			const query = querystring.stringify({ suites: JSON.stringify([ 'intern-selftests/tests/unit/*' ]) });
+			const query = querystring.stringify({ suites: JSON.stringify([ 'missing-tests/unit/*' ]) });
 			const request = createRequest('/__intern/__resolveSuites__?' + query);
 			const response = createResponse();
 
-			proxy['_resolveSuites'](<any> request, <any> response);
+			proxy['_resolveSuites'](request, response);
 
 			// Ensure returned value is JSON
 			let resolvedSuites: any;
@@ -129,18 +128,16 @@ registerSuite({
 
 		'valid package'() {
 			const proxy = new Proxy();
-			const tsconfig = JSON.parse(fs.readFileSync('tsconfig.json', { encoding: 'utf8' }));
-			const buildDir = path.normalize(tsconfig.compilerOptions.outDir);
 			const query = querystring.stringify({ suites: JSON.stringify([
-				`intern-selftest/${buildDir}/tests/unit/*`,
-				`intern-selftest/${buildDir}/tests/functional/**/*`
+				`tests/unit/*`,
+				`tests/functional/**/*`
 			]) });
 			const request = createRequest('/__intern/__resolveSuites__?' + query);
 			const expected = [
-				`intern-selftest/${buildDir}/tests/unit/all`,
-				`intern-selftest/${buildDir}/tests/unit/main`,
-				`intern-selftest/${buildDir}/tests/unit/order`,
-				`intern-selftest/${buildDir}/tests/functional/lib/ProxiedSession`
+				`tests/unit/all`,
+				`tests/unit/main`,
+				`tests/unit/order`,
+				`tests/functional/lib/ProxiedSession`
 			];
 			const response = createResponse();
 

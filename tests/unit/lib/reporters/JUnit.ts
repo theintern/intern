@@ -1,9 +1,9 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import Suite from '../../../../src/lib/Suite';
-import Test from '../../../../src/lib/Test';
-import JUnit from '../../../../src/lib/reporters/JUnit';
-import expected = require ('dojo/text!../../../../../tests/unit/data/lib/reporters/JUnit/expected.xml');
+import Suite from 'src/lib/Suite';
+import Test from 'src/lib/Test';
+import JUnit from 'src/lib/reporters/JUnit';
+import expected = require ('dojo/text!../../data/lib/reporters/JUnit/expected.xml');
 
 registerSuite({
 	name: 'intern/lib/reporters/JUnit',

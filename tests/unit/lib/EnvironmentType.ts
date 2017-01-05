@@ -1,6 +1,6 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import EnvironmentType from '../../../src/lib/EnvironmentType';
+import EnvironmentType from 'src/lib/EnvironmentType';
 
 registerSuite({
 	name: 'intern/lib/EnvironmentType',

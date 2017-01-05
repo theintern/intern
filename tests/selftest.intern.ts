@@ -16,28 +16,34 @@ export const environments = [
 export const maxConcurrency = 2;
 export const tunnel = 'BrowserStackTunnel';
 
+function getPackageMap() {
+	return {
+		dojo: 'node_modules/dojo',
+		chai: 'node_modules/chai/chai',
+		diff: 'node_modules/diff/diff',
+		benchmark: 'node_modules/benchmark/benchmark'
+	};
+}
+
 export const loaderOptions = {
 	// Packages that should be registered with the loader in each testing environment
 	packages: [
-		{ name: 'intern-selftest', location: '.' }
+		{ name: 'tests', location: '_build/tests' },
+		{ name: 'src', location: '_build/src' },
+		{ name: 'lodash', location: 'node_modules/lodash-amd' },
+		{ name: 'platform', location: 'node_modules/platform', main: 'platform' }
 	],
 	map: {
-		'intern-selftest': {
-			dojo: 'intern-selftest/node_modules/dojo',
-			chai: 'intern-selftest/node_modules/chai/chai',
-			diff: 'intern-selftest/node_modules/diff/diff',
-			benchmark: 'intern-selftest/node_modules/benchmark/benchmark',
-			lodash: 'intern-selftest/node_modules/lodash-amd/main',
-			platform: 'intern-selftest/node_modules/platform/platform'
-		}
+		'tests': getPackageMap(),
+		'src': getPackageMap()
 	}
 };
 
 export const suites = [
-	'intern-selftest/_build/tests/unit/all'
+	'tests/unit/all'
 ];
 export const functionalSuites = [
-	'intern-selftest/_build/tests/functional/lib/ProxiedSession'
+	'tests/functional/lib/ProxiedSession'
 ];
 
 export const excludeInstrumentation = /(?:tests|node_modules|browser_modules)\//;
