@@ -834,6 +834,9 @@ declare module 'digdug/Tunnel' {
 			 */
 			(eventName: string, listener: digdug.Listener<any>): digdug.Handle;
 		}
+
+		// Stub export for unit tests
+		export interface NormalizedEnvironment {}
 	}
 
 	export = Tunnel;

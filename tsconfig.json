@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "declaration": true,
+	"lib": [ "ES5", "ES2015.Promise", "ES2015.Symbol", "ES2015.Iterable", "DOM" ],
     "module": "umd",
     "moduleResolution": "node",
     "noImplicitAny": true,

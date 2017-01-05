@@ -172,12 +172,14 @@ export default class Runner extends Executor {
 		});
 		server.sessionConstructor = ProxiedSession;
 
-		return tunnel.getEnvironments().then(function (tunnelEnvironments) {
+		// TODO: The Promise.resolve check is just to get around some Task-related typing issues with
+		// Tunnel#getEnvironments.
+		return Promise.resolve(tunnel.getEnvironments()).then(function (tunnelEnvironments) {
 			return resolveEnvironments(
 				config.capabilities,
 				config.environments,
 				tunnelEnvironments
-			).map(function (environmentType) {
+			).map(function (environmentType): Suite {
 				const suite = new Suite({
 					name: String(environmentType),
 					reporterManager: reporterManager,

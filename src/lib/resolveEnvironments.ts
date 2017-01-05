@@ -1,6 +1,6 @@
 import * as lang from 'dojo/lang';
 import EnvironmentType from './EnvironmentType';
-import { NormalizedEnvironment } from 'digdug';
+import { NormalizedEnvironment } from 'digdug/Tunnel';
 
 export type Environment = { version?: (string|string[]|number|number[]), [key: string]: any };
 export type FlatEnvironment = { version?: string, [key: string]: any };
@@ -133,7 +133,7 @@ function getVersions(environment: Environment, available: NormalizedEnvironment[
 		// Return true if there are no mismatching keys
 		return !Object.keys(environment).filter(function (key) {
 			return key !== 'version';
-		}).some(function (key) {
+		}).some(function (key: keyof NormalizedEnvironment) {
 			return (key in availableEnvironment) && availableEnvironment[key] !== environment[key];
 		});
 	}).forEach(function (availableEnvironment) {

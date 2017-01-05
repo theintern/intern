@@ -30,7 +30,6 @@
     "@types/diff": "~0.0.31",
     "@types/glob": "~5.0.30",
     "@types/grunt": "~0.4.20",
-    "@types/es6-promise": "~0.0.32",
     "@types/node": "~6.0.0",
     "intern": "~3.4.2",
     "intern-dev": "https://github.com/theintern/intern-dev/releases/download/0.1.2/intern-dev-0.1.2.tgz"
