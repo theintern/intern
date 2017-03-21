@@ -3,6 +3,7 @@ language: node_js
 node_js:
   - '0.12'
   - '6.5.0'
+  - node
 env:
   global:
     # Please get your own free key if you want to test yourself
