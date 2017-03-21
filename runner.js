@@ -11,6 +11,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 					dojo: 'intern/browser_modules/dojo',
 					benchmark: 'intern/browser_modules/benchmark/benchmark',
 					chai: 'intern/browser_modules/chai/chai',
+					cucumber: 'intern/browser_modules/cucumber/release/cucumber',
 					diff: 'intern/browser_modules/diff/diff',
 					lodash: 'intern/browser_modules/lodash-amd/main',
 					platform: 'intern/browser_modules/platform/platform'

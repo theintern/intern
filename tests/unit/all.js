@@ -12,6 +12,7 @@ define([
 	'./lib/interfaces/bdd',
 	'./lib/interfaces/benchmark',
 	'./lib/interfaces/object',
+	'./lib/interfaces/cucumber',
 	'./lib/interfaces/qunit',
 	'./lib/reporters/Console',
 	'./lib/resolveEnvironments',

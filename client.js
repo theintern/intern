@@ -9,6 +9,7 @@ if (typeof process !== 'undefined' && typeof define === 'undefined') {
 			map: {
 				intern: {
 					dojo: 'intern/browser_modules/dojo',
+					cucumber: 'intern/browser_modules/cucumber/release/cucumber',
 					chai: 'intern/browser_modules/chai/chai',
 					diff: 'intern/browser_modules/diff/diff',
 					// benchmark requires lodash and platform
