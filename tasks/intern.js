@@ -129,7 +129,8 @@ module.exports = function (grunt) {
 			args: args,
 			opts: {
 				cwd: opts.cwd || process.cwd(),
-				env: env
+				env: env,
+				stdio: opts.rawIO ? 'inherit' : 'pipe'
 			}
 		}, function (error) {
 			// The error object from grunt.util.spawn contains information
@@ -137,7 +138,9 @@ module.exports = function (grunt) {
 			done(error ? new Error('Test failure; check output above for details.') : null);
 		});
 
-		child.stdout.on('data', readOutput);
-		child.stderr.on('data', readOutput);
+		if (!opts.rawIO) {
+			child.stdout.on('data', readOutput);
+			child.stderr.on('data', readOutput);
+		}
 	});
 };
