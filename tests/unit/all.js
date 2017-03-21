@@ -22,6 +22,7 @@ define([
 	'dojo/has!host-node?./lib/reporters/JUnit',
 	'dojo/has!host-node?./lib/reporters/Lcov',
 	'dojo/has!host-node?./lib/reporters/JsonCoverage',
+	'dojo/has!host-node?./lib/reporters/WebDriver',
 
 	'dojo/has!host-browser?./lib/reporters/Html'
 ], function () {});
