@@ -380,7 +380,15 @@ Server.prototype = {
 
 		function supported() { return true; }
 		function unsupported() { return false; }
-		function maybeSupported(error) { return error.name !== 'UnknownCommand'; }
+		function maybeSupported(error) {
+			if (error.name === 'UnknownCommand') {
+				return false;
+			}
+			if (/\bunimplemented command\b/.test(error.message)) {
+				return false;
+			}
+			return true;
+		}
 		var broken = supported;
 		var works = unsupported;
 
@@ -535,8 +543,7 @@ Server.prototype = {
 				}
 				else {
 					testedCapabilities.mouseEnabled = function () {
-						return session.doubleClick()
-							.then(supported, maybeSupported);
+						return session.doubleClick().then(supported, maybeSupported);
 					};
 				}
 			}
@@ -546,8 +553,13 @@ Server.prototype = {
 				testedCapabilities.touchEnabled = false;
 			}
 			else if (!('touchEnabled' in capabilities)) {
-				testedCapabilities.touchEnabled = session.doubleTap()
-					.then(supported, maybeSupported);
+				testedCapabilities.touchEnabled = function () {
+					return get('<!DOCTYPE html><button id="clicker">Click me</button>').then(function () {
+						return session.findById('clicker');
+					}).then(function (button) {
+						return button.doubleTap().then(supported, maybeSupported);
+					}).catch(unsupported);
+				};
 			}
 			// ChromeDriver 2.19 claims that it supports touch but it does not implement all of the touch endpoints
 			// from JsonWireProtocol
