@@ -10,7 +10,7 @@ var Tunnel = require('./Tunnel');
 var util = require('./util');
 var Promise = require('dojo/Promise');
 
-var CBT_VERSION = '0.0.27';
+var CBT_VERSION = '0.0.34';
 
 /**
  * A CrossBrowserTesting tunnel.
