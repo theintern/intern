@@ -1,469 +1,107 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'dojo/Promise',
 	'../../../../lib/Suite',
 	'../../../../lib/Test',
-	'./support/mockRequest'
-], function (registerSuite, assert, Promise, Suite, Test, mockRequest) {
+	'../../../../lib/reporters/WebDriver'
+], function (
+	registerSuite,
+	assert,
+	Suite,
+	Test,
+	WebDriver
+) {
+	var reporter;
+	var messages;
+	var documentAdded = false;
 
-	var WebDriver;
+	function messageTest(name, object) {
+		if (reporter[name]) {
+			reporter[name](object);
+		}
+		else {
+			reporter.$others(name, object);
+		}
+		assert.lengthOf(messages, 1, 'expected a message to be sent');
+		assert.strictEqual(messages[0].name, name, 'unexpected message name ' + messages[0].name);
+		if (object) {
+			assert.strictEqual(messages[0].args[0], object, 'unexpected message args');
+		}
+	}
 
-	/* A helper function to reassemble, decode and order the data sent to the request mock */
-	function collectAndOrder(callStack) {
-		var data = [];
-		callStack.forEach(function (item) {
-			var reqData = JSON.parse(item[1].data);
-			reqData = reqData.map(JSON.parse);
-			data = data.concat(reqData);
-		});
-		data.sort(function (a, b) {
-			return a.sequence > b.sequence ? 1 : a.sequence < b.sequence ? -1 : 0;
-		});
-		return data;
+	function createSuiteMessageTest(name) {
+		return function () {
+			var suite = new Suite({ name: 'suite', parent: {} });
+			return messageTest(name, suite);
+		};
+	}
+
+	function createTestMessageTest(name) {
+		return function () {
+			var test = new Test({ name: 'test', parent: {} });
+			return messageTest(name, test);
+		};
+	}
+
+	function createMessageTest(name) {
+		return function () {
+			return messageTest(name);
+		};
 	}
 
 	registerSuite({
 		name: 'intern/lib/reporters/WebDriver',
 
 		setup: function () {
-			return new Promise(function (resolve) {
-				require({
-					map: {
-						'intern-selftest/lib/reporters/WebDriver': {
-							'dojo': 'intern-selftest/node_modules/dojo',
-							'dojo/request': 'intern-selftest/tests/unit/lib/reporters/support/mockRequest'
-						}
-					}
-				}, [ 'intern-selftest/lib/reporters/WebDriver' ], function (_WebDriver) {
-					WebDriver = _WebDriver;
-					resolve();
-				});
-			});
+			if (typeof document === 'undefined') {
+				/* globals global */
+				global.document = {};
+				documentAdded = true;
+			}
 		},
 
 		beforeEach: function () {
-			mockRequest._callStack = [];
-		},
-
-		runStart: function () {
-			var reporter = new WebDriver({
+			reporter = new WebDriver({
+				writeHtml: false,
 				internConfig: {
 					sessionId: 'foo'
 				}
 			});
+			messages = [];
 
-			reporter.runStart();
+			reporter._sendEvent = function (name, args) {
+				messages.push({
+					name: name,
+					args: args
+				});
+			};
 
-			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(JSON.parse(req[1].data)[0]);
-			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
-			assert.strictEqual(data.payload[0], 'runStart',
-				'The type of the payload should be "runStart"');
+			reporter._scroll = function () {};
 		},
 
-		runEnd: function () {
-			var reporter = new WebDriver({
-				internConfig: {
-					sessionId: 'foo'
-				}
-			});
-
-			reporter.runEnd();
-
-			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(JSON.parse(req[1].data)[0]);
-			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
-			assert.strictEqual(data.payload[0], 'runEnd',
-				'The type of the payload should be "runEnd"');
+		afterEach: function () {
+			messages = null;
+			reporter = null;
 		},
 
-		suiteStart: function () {
-			var reporter = new WebDriver({
-				internConfig: {
-					sessionId: 'foo'
-				}
-			});
-			var suite = new Suite({ name: 'suite', parent: {} });
-
-			reporter.suiteStart(suite);
-
-			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(JSON.parse(req[1].data)[0]);
-			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
-			assert.strictEqual(data.payload[0], 'suiteStart',
-				'The type of the payload should be "suiteStart"');
-			assert.strictEqual(reporter.suiteNode, reporter.reporterNode.lastChild,
-				'The suiteNode should be the lastChild of the reporterNode');
-			assert.strictEqual(reporter.suiteNode.tagName, 'OL',
-				'The suiteNode should be an <ol> element');
-		},
-
-		suiteEnd: {
-			'successful suite': function () {
-				var reporter = new WebDriver({
-					internConfig: {
-						sessionId: 'foo'
-					}
-				});
-				var test = new Test({ hasPassed: true });
-				var suite = new Suite({ name: 'suite', tests: [ test ] });
-				test.parent = suite;
-
-				reporter.suiteEnd(suite);
-				var req = mockRequest._callStack.pop();
-				var data = JSON.parse(JSON.parse(req[1].data)[0]);
-				assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
-				assert.strictEqual(data.payload[0], 'suiteEnd',
-					'The type of the payload should be "suiteEnd"');
-				assert.strictEqual(data.payload[1].name, suite.name,
-					'The name of the suite should match the payload');
-				assert.strictEqual(data.payload[1].numTests, 1,
-					'The number of tests should be correct');
-				assert.strictEqual(data.payload[1].numFailedTests, 0,
-					'There should be no failed tests');
-				assert.strictEqual(this.suiteNode, this.reporterNode,
-					'The suiteNode should have been reset');
-			},
-
-			'failed suite': function () {
-				var reporter = new WebDriver({
-					internConfig: {
-						sessionId: 'foo'
-					}
-				});
-				var test = new Test({ hasPassed: false });
-				var suite = new Suite({ name: 'suite', tests: [ test ] });
-				test.parent = suite;
-
-				reporter.suiteEnd(suite);
-				var req = mockRequest._callStack.pop();
-				var data = JSON.parse(JSON.parse(req[1].data)[0]);
-				assert.strictEqual(data.payload[1].numFailedTests, 1,
-					'There should be one failed tests');
-				assert.strictEqual(this.suiteNode, this.reporterNode,
-					'The suiteNode should have been reset');
-			},
-
-			'reset of body': function () {
-				var reporter = new WebDriver({
-					internConfig: {
-						sessionId: 'foo'
-					}
-				});
-				var test = new Test({
-					name: 'test',
-					timeElapsed: 123,
-					parent: { name: 'parent', id: 'parent' },
-					hasPassed: true
-				});
-				var suite = new Suite({ name: 'suite', tests: [ test ] });
-
-				reporter.suiteStart(suite);
-				reporter.testStart(test);
-
-				while (document.body.firstChild) {
-					document.body.removeChild(document.body.firstChild);
-				}
-
-				reporter.testPass(test);
-
-				reporter.suiteEnd(suite);
-
-				assert.strictEqual(reporter.reporterNode.parentNode, document.body,
-					'The reporterNode should be a child of the body');
-			},
-
-			'contained suites': function () {
-				var reporter = new WebDriver({
-					internConfig: {
-						sessionId: 'foo'
-					}
-				});
-
-				var test = new Test({
-					name: 'test',
-					timeElapsed: 123,
-					parent: { name: 'parent', id: 'parent' },
-					hasPassed: true
-				});
-				var parentSuite = new Suite({ name: 'parentSuite' });
-				var suite = new Suite({ name: 'suite', parent: parentSuite });
-
-				reporter.suiteStart(parentSuite);
-				reporter.suiteStart(suite);
-				assert.strictEqual(reporter.reporterNode.lastChild, reporter.suiteNode.parentNode.parentNode);
-				assert.strictEqual(suite.name, reporter.suiteNode.parentNode.firstChild.innerText ||
-					reporter.suiteNode.parentNode.firstChild.textContent,
-					'Title of section should be name of suite');
-				assert.strictEqual(reporter.suiteNode.parentNode.tagName, 'LI',
-					'Suite Node parent should be a <li> element');
-				reporter.testStart(test);
-				reporter.testPass(test);
-				reporter.suiteEnd(suite);
-				assert.strictEqual(reporter.suiteNode.parentNode, reporter.reporterNode,
-					'suiteNode parent should equal reporterNode');
-				reporter.suiteEnd(parentSuite);
-				assert.strictEqual(reporter.reporterNode, reporter.suiteNode,
-					'reporterNode and suiteNode should be equal');
+		teardown: function () {
+			if (documentAdded) {
+				delete global.document;
 			}
 		},
 
-		testStart: function () {
-			var reporter = new WebDriver({
-				internConfig: {
-					sessionId: 'foo'
-				}
-			});
-			var test = new Test({
-				name: 'test',
-				timeElapsed: 123,
-				parent: { name: 'parent', id: 'parent' },
-				hasPassed: true
-			});
+		suiteStart: createSuiteMessageTest('suiteStart'),
+		suiteEnd: createSuiteMessageTest('suiteEnd'),
+		suiteError: createSuiteMessageTest('suiteError'),
 
-			reporter.testStart(test);
-			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(JSON.parse(req[1].data)[0]);
-			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
-			assert.strictEqual(data.payload[0], 'testStart',
-				'The type of the payload should be "testStart"');
-			assert.strictEqual(data.payload[1].id, test.id,
-				'IDs of the test and the payload should match');
-			assert.strictEqual(reporter.testNode.tagName, 'LI',
-				'testNode should be <li> element');
-			assert.strictEqual(reporter.testNode, reporter.suiteNode.lastChild,
-				'testNode should be the last child of the suiteNode');
-		},
+		runStart: createMessageTest('runStart'),
+		runEnd: createMessageTest('runEnd'),
 
-		testPass: function () {
-			var dfd = this.async();
-			var reporter = new WebDriver({
-				internConfig: {
-					sessionId: 'foo'
-				}
-			});
-			var test = new Test({
-				name: 'test',
-				timeElapsed: 123,
-				parent: { name: 'parent', id: 'parent' },
-				hasPassed: true
-			});
-
-			reporter.testStart(test);
-			reporter.testPass(test);
-
-			/* first message dispatched in same turn, second one next turn */
-
-			setTimeout(function () {
-				var callStack = collectAndOrder(mockRequest._callStack);
-				assert.strictEqual(callStack[0].payload[0], 'testStart',
-					'The type of the first payload should be "testStart"');
-				assert.strictEqual(callStack[1].payload[0], 'testPass',
-					'The type of the payload should be "testPass"');
-				assert.include(reporter.testNode.lastChild.wholeText, test.timeElapsed + 'ms',
-					'Test text should include duration of the test');
-				assert.include(reporter.testNode.lastChild.wholeText, test.name,
-					'Test should include the name of the test');
-				assert.include(reporter.testNode.lastChild.wholeText, 'passed',
-					'Test should include that it passed');
-				assert.strictEqual(reporter.testNode.style.color, 'green',
-					'Test node should be green');
-				dfd.resolve();
-			}, 100); /* sometimes IE doesn't resolve requests by just 1ms timeouts */
-		},
-
-		testSkip: function () {
-			var reporter = new WebDriver({
-				internConfig: {
-					sessionId: 'foo'
-				}
-			});
-			var test = new Test({
-				name: 'test',
-				timeElapsed: 123,
-				parent: { name: 'parent', id: 'parent' },
-				hasPassed: true,
-				skipped: 'Because'
-			});
-			var test2 = new Test({
-				name: 'test2',
-				timeElapsed: 123,
-				parent: { name: 'parent', id: 'parent' },
-				hasPassed: true
-			});
-
-			reporter.testSkip(test);
-			var req = mockRequest._callStack.pop();
-			var data = JSON.parse(JSON.parse(req[1].data)[0]);
-			assert.strictEqual(req[0], reporter.url, 'Data posted to an URI');
-			assert.strictEqual(data.payload[0], 'testSkip',
-				'The type of the payload should be "testSkip"');
-			assert.include(reporter.testNode.lastChild.wholeText, test.name,
-				'Test should include the name of the test');
-			assert.include(reporter.testNode.lastChild.wholeText, 'skipped',
-				'Test should include that it skipped');
-			assert.include(reporter.testNode.lastChild.wholeText, '(' + test.skipped + ')',
-				'Test should include the reason why it was skipped');
-			assert.strictEqual(reporter.testNode.style.color, 'gray',
-				'Test node should be gray');
-
-			reporter.testSkip(test2);
-			assert.notInclude(reporter.testNode.lastChild.wholeText, '(',
-				'Should not include a skipped reason');
-		},
-
-		testFail: function () {
-			var dfd = this.async();
-			var reporter = new WebDriver({
-				internConfig: {
-					sessionId: 'foo'
-				}
-			});
-			var test = new Test({
-				name: 'test',
-				timeElapsed: 123,
-				parent: { name: 'parent', id: 'parent' },
-				error: new Error('Ooops')
-			});
-
-			reporter.testStart(test);
-			reporter.testFail(test);
-
-			/* first message dispatched in same turn, second one next turn */
-
-			setTimeout(function () {
-				var callStack = collectAndOrder(mockRequest._callStack);
-				assert.strictEqual(callStack[1].payload[0], 'testFail',
-					'The type of the payload should be "testFail"');
-				var errorMessage = reporter.testNode.lastChild;
-				var testTextNode = errorMessage.previousSibling;
-				assert.include(testTextNode.wholeText, test.name,
-					'Test should include the name of the test');
-				assert.include(testTextNode.wholeText, 'failed',
-					'Test should include that it skipped');
-				assert.include(testTextNode.wholeText, test.timeElapsed + 'ms',
-					'Test should include its duration');
-				assert.strictEqual(reporter.testNode.style.color, 'red',
-					'Test node should be red');
-				assert.strictEqual(errorMessage.firstChild.wholeText, test.error.stack || test.error.toString(),
-					'The reporter error message should match the test error message');
-				dfd.resolve();
-			}, 100); /* sometimes IE doesn't resolve requests by just 1ms timeouts */
-
-		},
-
-		'config.writeHtml false': function () {
-			var dfd = this.async();
-			var numberOfChildNodes = document.querySelectorAll('body > *').length;
-			var callStackDepth = mockRequest._callStack.length;
-
-			var reporter = new WebDriver({
-				internConfig: {
-					sessionId: 'foo'
-				},
-				writeHtml: false
-			});
-			var test = new Test({
-				name: 'test',
-				timeElapsed: 123,
-				parent: { name: 'parent', id: 'parent' },
-				hasPassed: true
-			});
-			var test2 = new Test({
-				name: 'test2',
-				timeElapsed: 123,
-				parent: { name: 'parent', id: 'parent' },
-				hasPassed: false
-			});
-			var test3 = new Test({
-				name: 'test3',
-				timeElapsed: 123,
-				parent: { name: 'parent', id: 'parent' },
-				error: new Error('Ooops')
-			});
-			var suite = new Suite({ name: 'suite', tests: [ test ] });
-
-			reporter.suiteStart(suite);
-			reporter.testStart(test);
-			reporter.testPass(test);
-			reporter.testSkip(test2);
-			reporter.testStart(test3);
-			reporter.testFail(test3);
-			reporter.suiteEnd(suite);
-
-			assert.strictEqual(document.querySelectorAll('body > *').length, numberOfChildNodes,
-				'Reporter should not have added any nodes to the DOM');
-
-			/* first message dispatched in same turn, the remaining messages in the next turn */
-
-			setTimeout(function () {
-				var callStack = collectAndOrder(mockRequest._callStack);
-				assert.strictEqual(callStack.length, 7,
-					'The appropriate number of events were posted.');
-				dfd.resolve();
-			}, 100); /* sometimes IE doesn't resolve requests by just 1ms timeouts */
-		},
-
-		'config.waitForRunner': {
-			'is true': function () {
-				var dfd = this.async(250);
-				var reporter = new WebDriver({
-					internConfig: {
-						sessionId: 'foo'
-					},
-					waitForRunner: true
-				});
-				var tests = [];
-				var suite = new Suite({ name: 'suite', parent: {}, tests: tests });
-
-				var suiteStartResult = reporter.suiteStart(suite);
-				assert.isFunction(suiteStartResult.then, 'Promise should be returned');
-				suiteStartResult.then(dfd.callback(function () {
-					var suiteEndResult = reporter.suiteEnd(suite);
-					assert.isFunction(suiteEndResult.then, 'Promise should be returned');
-				}));
-			},
-			'is fail': function () {
-				var reporter = new WebDriver({
-					internConfig: {
-						sessionId: 'foo'
-					},
-					waitForRunner: 'fail'
-				});
-				var suite = new Suite({ name: 'suite', parent: {}});
-				var test = new Test({
-					name: 'test',
-					timeElapsed: 123,
-					parent: suite,
-					error: new Error('Ooops')
-				});
-				suite.tests = [ test ];
-
-				assert.isUndefined(reporter.suiteStart(suite),
-					'Should not return a Promise');
-				assert.isUndefined(reporter.testStart(test),
-					'Should not return a Promise');
-				assert.isFunction(reporter.testFail(test).then,
-					'Promise should be returned');
-				assert.isUndefined(reporter.suiteEnd(suite),
-					'Should not return a Promise');
-			}
-		},
-
-		'$others': function () {
-			var callStackDepth = mockRequest._callStack.length;
-			var reporter = new WebDriver({
-				internConfig: {
-					sessionId: 'foo'
-				}
-			});
-
-			reporter.$others('coverage', {});
-			reporter.$others('run', {});
-			reporter.$others('foo', {});
-			assert.strictEqual(mockRequest._callStack.length, callStackDepth + 1,
-				'Only one event should have been dispatched.');
-		}
+		testStart: createTestMessageTest('testStart'),
+		testPass: createTestMessageTest('testPass'),
+		testSkip: createTestMessageTest('testSkip'),
+		testEnd: createTestMessageTest('testEnd'),
+		testFail: createTestMessageTest('testFail')
 	});
 });
+

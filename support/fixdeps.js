@@ -1,22 +1,28 @@
 /*jshint node:true */
 var fs = require('fs');
 var path = require('path');
-var expected = path.join(__dirname, '..', 'browser_modules');
+var browserModules = path.join(__dirname, '..', 'browser_modules');
 
-if (!fs.existsSync(expected)) {
-	fs.mkdirSync(expected);
+function getPackageVersion(packageJsonPath) {
+	var packageJson = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
+	return JSON.parse(packageJson).version;
 }
 
-// AMD-loaded dependencies need to exist in a known location, so they're symlinked from the path resolved by the node
-// loader into browser_modules
-[ 'dojo', 'chai', 'diff' ].forEach(function (dependency) {
-	var expectedPath = path.join(expected, dependency);
+if (!fs.existsSync(browserModules)) {
+	fs.mkdirSync(browserModules);
+}
 
-	// Reset any existing dependency symlinks in case the location of the deduplicated package has changed
+// AMD-loaded dependencies need to exist in a known location, but npm's deduplication process can make final package
+// locations unpredictable, so copy the currently installed versions of required packages into browser_modules.
+[ 'dojo', 'chai', 'diff', 'benchmark', 'lodash-amd', 'platform' ].forEach(function (dependency) {
+	var packageJson = require.resolve(path.join(dependency, 'package.json'));
+	var installedPath = path.dirname(packageJson);
+	var expectedPath = path.join(browserModules, dependency);
+	var installedVersion = getPackageVersion(packageJson);
+	var existingVersion;
+
 	try {
-		if (fs.lstatSync(expectedPath).isSymbolicLink()) {
-			fs.unlinkSync(expectedPath);
-		}
+		existingVersion = getPackageVersion(path.join(expectedPath, 'package.json'));
 	}
 	catch (error) {
 		if (error.code !== 'ENOENT') {
@@ -24,17 +30,15 @@ if (!fs.existsSync(expected)) {
 		}
 	}
 
-	var actualPath = path.dirname(require.resolve(path.join(dependency, 'package.json')));
+	// The package in browser_modules is older than the installed version; delete it
+	if (existingVersion && existingVersion !== installedVersion) {
+		unlink(expectedPath);
+		existingVersion = null;
+	}
 
-	if (actualPath.indexOf(expectedPath) !== 0) {
-		try {
-			fs.symlinkSync(path.relative(path.dirname(expectedPath), actualPath), expectedPath, 'junction');
-		}
-		catch (error) {
-			console.warn('Symlinking %s to %s failed with %s. Copying instead...', actualPath, expectedPath,
-				error.code);
-			copy(actualPath, expectedPath);
-		}
+	// The package isn't in browser_modules, so copy the installed one
+	if (!existingVersion) {
+		copy(installedPath, expectedPath);
 	}
 });
 
@@ -66,5 +70,28 @@ function copy(source, target) {
 	}
 	else if (stats.isFile()) {
 		fs.writeFileSync(target, fs.readFileSync(source), { mode: stats.mode });
+	}
+}
+
+function unlink(target) {
+	try {
+		var stats = fs.statSync(target);
+	}
+	catch (error) {
+		if (error.code !== 'ENOENT') {
+			throw error;
+		}
+
+		return;
+	}
+
+	if (stats.isDirectory()) {
+		fs.readdirSync(target).forEach(function (filename) {
+			unlink(path.join(target, filename));
+		});
+		fs.rmdirSync(target);
+	}
+	else if (stats.isFile()) {
+		fs.unlinkSync(target);
 	}
 }
