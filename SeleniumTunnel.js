@@ -21,7 +21,7 @@ function ChromeConfig(options) {
 
 ChromeConfig.prototype = {
 	constructor: ChromeConfig,
-	version: '2.25',
+	version: '2.28',
 	baseUrl: 'https://chromedriver.storage.googleapis.com',
 	platform: process.platform,
 	arch: process.arch,
@@ -56,7 +56,7 @@ function IeConfig(options) {
 
 IeConfig.prototype = {
 	constructor: IeConfig,
-	version: '3.0.0',
+	version: '3.3.0',
 	baseUrl: 'https://selenium-release.storage.googleapis.com',
 	arch: process.arch,
 	get artifact() {
@@ -81,7 +81,7 @@ function FirefoxConfig(options) {
 
 FirefoxConfig.prototype = {
 	constructor: FirefoxConfig,
-	version: '0.11.1',
+	version: '0.15.0',
 	baseUrl: 'https://github.com/mozilla/geckodriver/releases/download',
 	arch: process.arch,
 	platform: process.platform,
@@ -189,9 +189,9 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 	 * The desired version of selenium to install.
 	 *
 	 * @type {string}
-	 * @default 3.0.1
+	 * @default 3.3.1
 	 */
-	version: '3.0.1',
+	version: '3.3.1',
 
 	/**
 	 * Timeout in milliseconds for communicating with the Selenium server
