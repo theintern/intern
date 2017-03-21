@@ -1287,7 +1287,9 @@ Session.prototype = {
 			value = locator.value;
 		}
 
-		if (using.indexOf('link text') !== -1 && this.capabilities.brokenWhitespaceNormalization) {
+		if (using.indexOf('link text') !== -1 && (
+			this.capabilities.brokenWhitespaceNormalization || this.capabilities.brokenLinkTextLocator 
+		)) {
 			return this.execute(/* istanbul ignore next */ this._manualFindByLinkText, [ using, value ])
 				.then(function (element) {
 					if (!element) {
@@ -1327,7 +1329,9 @@ Session.prototype = {
 			value = locator.value;
 		}
 
-		if (using.indexOf('link text') !== -1 && this.capabilities.brokenWhitespaceNormalization) {
+		if (using.indexOf('link text') !== -1 && (
+			this.capabilities.brokenWhitespaceNormalization || this.capabilities.brokenLinkTextLocator 
+		)) {
 			return this.execute(/* istanbul ignore next */ this._manualFindByLinkText, [ using, value, true ])
 				.then(function (elements) {
 					return elements.map(function (element) {

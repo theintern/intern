@@ -30,17 +30,17 @@ function isMsEdge(capabilities, minVersion, maxVersion) {
 
 function isMacSafari(capabilities) {
 	return capabilities.browserName === 'safari' &&
-		capabilities.platform === 'MAC' &&
+		capabilities.platformName === 'MAC' &&
 		capabilities.platformName !== 'ios';
 }
 
 function isGeckodriver(capabilities) {
 	return capabilities.browserName === 'firefox' &&
-		parseFloat(capabilities.version) >= 49;
+		parseFloat(capabilities.browserVersion) >= 49;
 }
 
 function isMacGeckodriver(capabilities) {
-	return isGeckodriver(capabilities) && capabilities.platform === 'MAC';
+	return isGeckodriver(capabilities) && capabilities.platformName === 'MAC';
 }
 
 /**
@@ -356,6 +356,11 @@ Server.prototype = {
 			desiredCapabilities: desiredCapabilities,
 			requiredCapabilities: requiredCapabilities
 		}).then(function (response) {
+			// At least geckodriver 0.15.0 returns the response data in a 'value' property, whereas Selenium does not.
+			if (response.value && response.value.sessionId) {
+				response = response.value;
+			}
+
 			var session = new self.sessionConstructor(response.sessionId, self, response.value);
 			if (fixSessionCapabilities) {
 				return self._fillCapabilities(session).catch(function (error) {
@@ -377,6 +382,15 @@ Server.prototype = {
 	_fillCapabilities: function (session) {
 		/*jshint maxlen:140 */
 		var capabilities = session.capabilities;
+
+		// At least geckodriver 0.15.0 only returns platformName (not platform) and browserVersion (not version) in its
+		// capabilities.
+		if (capabilities.platform && !capabilities.platformName) {
+			capabilities.platformName = capabilities.platform;
+		}
+		if (capabilities.version && !capabilities.browserVersion) {
+			capabilities.browserVersion = capabilities.version;
+		}
 
 		function supported() { return true; }
 		function unsupported() { return false; }
@@ -436,7 +450,7 @@ Server.prototype = {
 			// testing in these browsers by using the initial browser URL page and injecting some content through
 			// innerHTML, though it is unfortunately a quirks-mode file so testing is limited
 			if (
-				(capabilities.browserName === 'internet explorer' && parseFloat(capabilities.version) < 10) ||
+				(capabilities.browserName === 'internet explorer' && parseFloat(capabilities.browserVersion) < 10) ||
 				isMsEdge(capabilities) 
 			) {
 				// Edge driver doesn't provide an initialBrowserUrl
@@ -522,7 +536,7 @@ Server.prototype = {
 			}
 
 			// IE11 will take screenshots, but it's very slow
-			if (capabilities.browserName === 'internet explorer' && capabilities.version == '11') {
+			if (capabilities.browserName === 'internet explorer' && capabilities.browserVersion == '11') {
 				testedCapabilities.takesScreenshot = true;
 			}
 			// At least Selendroid 0.9.0 will fail to take screenshots in certain device configurations, usually
@@ -584,7 +598,7 @@ Server.prototype = {
 			testedCapabilities.supportsCssTransforms = function () {
 				// It is not possible to test this since the feature tests runs in quirks-mode on IE<10, but we
 				// know that IE9 supports CSS transforms
-				if (capabilities.browserName === 'internet explorer' && parseFloat(capabilities.version) === 9) {
+				if (capabilities.browserName === 'internet explorer' && parseFloat(capabilities.browserVersion) === 9) {
 					return Promise.resolve(true);
 				}
 
@@ -598,7 +612,7 @@ Server.prototype = {
 			};
 
 			testedCapabilities.shortcutKey = (function () {
-				var platform = capabilities.platform.toLowerCase();
+				var platform = capabilities.platformName.toLowerCase();
 
 				if (platform.indexOf('mac') === 0) {
 					return keys.COMMAND;
@@ -650,7 +664,7 @@ Server.prototype = {
 			// Internet Explorer 8 and earlier will simply crash the server if we attempt to return the parent
 			// frame via script, so never even attempt to do so
 			testedCapabilities.scriptedParentFrameCrashesBrowser =
-				capabilities.browserName === 'internet explorer' && parseFloat(capabilities.version) < 9;
+				capabilities.browserName === 'internet explorer' && parseFloat(capabilities.browserVersion) < 9;
 
 			// At least ChromeDriver 2.9 and MS Edge 10240 does not implement /element/active
 			testedCapabilities.brokenActiveElement = session.getActiveElement().then(works, function (error) {
@@ -813,6 +827,21 @@ Server.prototype = {
 				}).then(works, broken);
 			};
 
+			// At least geckodriver 0.15.0 and Firefox 51.0.1 don't properly normalize link text when using the 'link
+			// text' locator strategy.
+			testedCapabilities.brokenLinkTextLocator = function () {
+				return get('<!DOCTYPE html><a id="d">What a cute<span style="display:none">, yellow</span> backpack</a><a id="e">What a cute, yellow backpack</a>').then(function () {
+					return session.findByLinkText('What a cute, yellow backpack')
+						.then(function (element) {
+							return element.getVisibleText();
+						}).then(function (text) {
+							if (text !== 'What a cute, yellow backpack') {
+								throw new Error('incorrect link was found');
+							}
+						});
+				}).then(works, broken);
+			};
+
 			// At least MS Edge Driver 14316 doesn't return elements' computed styles
 			testedCapabilities.brokenComputedStyles = function () {
 				var pageText = '<!DOCTYPE html><style>a { background: purple }</style><a id="a1">foo</a>';
@@ -828,7 +857,7 @@ Server.prototype = {
 			};
 
 			// IE11 will hang during this check, although option selection does work with it
-			if (capabilities.browserName !== 'internet explorer' && capabilities.version !== '11') {
+			if (capabilities.browserName !== 'internet explorer' && capabilities.browserVersion !== '11') {
 				// At least MS Edge Driver 14316 doesn't allow selection option elements to be clicked.
 				testedCapabilities.brokenOptionSelect = function () {
 					return get(
@@ -850,7 +879,7 @@ Server.prototype = {
 			testedCapabilities.brokenPageSource = session.getPageSource().then(works, broken);
 
 			// IE11 will hang during this check if nativeEvents are enabled
-			if (capabilities.browserName !== 'internet explorer' && capabilities.version !== '11') {
+			if (capabilities.browserName !== 'internet explorer' && capabilities.browserVersion !== '11') {
 				testedCapabilities.brokenSubmitElement = true;
 			}
 			else {
@@ -906,9 +935,14 @@ Server.prototype = {
 			// At least Microsoft Edge 10240 doesn't support timeout values of 0.
 			testedCapabilities.brokenZeroTimeout = session.setTimeout('implicit', 0).then(works, broken);
 
-			// At least ios-driver 0.6.6-SNAPSHOT April 2014 corrupts its internal state when performing window
-			// switches and gets permanently stuck; we cannot feature detect, so platform sniffing it is
-			if (capabilities.browserName === 'Safari' && capabilities.platformName === 'IOS') {
+			if (
+				// At least ios-driver 0.6.6-SNAPSHOT April 2014 corrupts its internal state when performing window
+				// switches and gets permanently stuck; we cannot feature detect, so platform sniffing it is
+				(capabilities.browserName === 'Safari' && capabilities.platformName === 'IOS') ||
+				// At least geckodriver 0.15.0 and Firefox 51 will stop responding to commands when performing window
+				// switches.
+				isGeckodriver(capabilities)
+			) {
 				testedCapabilities.brokenWindowSwitch = true;
 			}
 			else {
@@ -1011,7 +1045,7 @@ Server.prototype = {
 					// InternetExplorerDriver is not buggy, but IE9 in quirks-mode is; since we cannot do feature
 					// tests in standards-mode in IE<10, force the value to false since it is not broken in this
 					// browser
-					if (capabilities.browserName === 'internet explorer' && capabilities.version === '9') {
+					if (capabilities.browserName === 'internet explorer' && capabilities.browserVersion === '9') {
 						return Promise.resolve(false);
 					}
 
