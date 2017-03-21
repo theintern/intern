@@ -81,6 +81,6 @@ Note that BrowserStackTunnel requires that the `BROWSERSTACK_ACCESS_KEY` and `BR
 
 ## License
 
-Dig Dug is a Dojo Foundation project offered under the [New BSD](LICENSE) license.
+Dig Dug is a JS Foundation project offered under the [New BSD](LICENSE) license.
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/digdug/graphs/contributors)
