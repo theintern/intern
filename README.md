@@ -23,7 +23,7 @@ Leadfoot currently detects and corrects known defects in the following remote dr
 * Selendroid 0.9.0+
 * ios-driver 0.6.6+
 
-Leadfoot is tested against IE8+ and all other modern browsers.
+Leadfoot is tested against IE9+ and all other modern browsers.
 
 ## Using Leadfoot
 
@@ -45,6 +45,6 @@ release.
 
 ## License
 
-Leadfoot is a Dojo Foundation project offered under the [New BSD](LICENSE) license.
+Leadfoot is a JS Foundation project offered under the [New BSD](LICENSE) license.
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/leadfoot/graphs/contributors)
