@@ -1,23 +1,44 @@
-import objectRegisterSuite, { ObjectSuiteConfig } from './object';
-import Suite from '../Suite';
-import BenchmarkTest from '../BenchmarkTest';
-import aspect = require('dojo/aspect');
+/**
+ * Interface for registering benchmark suites
+ */
 
-function propertyHandler(property: string, value: any, suite: Suite) {
-	if (property === 'beforeEachLoop' || property === 'afterEachLoop') {
-		aspect.on(suite, property, value);
-		return true;
-	}
+import Executor from '../executors/Executor';
+import { isSuiteDescriptorFactory, registerSuite } from './object';
+import BenchmarkTest, { BenchmarkDeferredTestFunction, BenchmarkTestFunction } from '../BenchmarkTest';
+import BenchmarkSuite, { BenchmarkSuiteProperties } from '../BenchmarkSuite';
+
+export default function getInterface(executor: Executor) {
+	return {
+		registerSuite(descriptor: BenchmarkSuiteDescriptor | BenchmarkSuiteFactory) {
+			// Only register benchmark suites if we're in benchmark mode
+			if (!executor.config.benchmark) {
+				return;
+			}
+
+			if (isSuiteDescriptorFactory<BenchmarkSuiteFactory>(descriptor)) {
+				descriptor = descriptor();
+			}
+
+			registerSuite(executor, descriptor, BenchmarkSuite, BenchmarkTest);
+		},
+
+		async: BenchmarkTest.async
+	};
 }
 
-export default function registerSuite(mainDescriptor: ObjectSuiteConfig) {
-	objectRegisterSuite(mainDescriptor, BenchmarkTest, propertyHandler);
+export interface BenchmarkInterface {
+	registerSuite(descriptor: BenchmarkSuiteDescriptor): void;
+	async: (testFunction: BenchmarkDeferredTestFunction, numCallsUntilResolution?: number) => BenchmarkTestFunction;
+}
+
+export type NestedBenchmarkSuiteDescriptor = Partial<BenchmarkSuiteProperties> & {
+	tests: { [name: string]: NestedBenchmarkSuiteDescriptor | BenchmarkTestFunction };
 };
 
-const async = BenchmarkTest.async;
-export { async as async };
+export type BenchmarkSuiteDescriptor = NestedBenchmarkSuiteDescriptor & {
+	name: string;
+};
 
-const skip = BenchmarkTest.skip;
-export { skip as skip };
-
-export { BenchmarkTestFunction } from '../BenchmarkTest';
+export interface BenchmarkSuiteFactory {
+	(): BenchmarkSuiteDescriptor;
+}

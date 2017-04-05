@@ -3,7 +3,6 @@ import { delegate } from 'dojo/lang';
 import * as Promise from 'dojo/Promise';
 import Suite from '../Suite';
 import Test from '../Test';
-import { escapeRegExp } from '../util';
 import { assert, AssertionError } from 'chai';
 import { Removable } from '../../common';
 import * as main from '../../main';
@@ -365,3 +364,11 @@ export const QUnit = {
 		});
 	}
 };
+
+/**
+ * Escape special characters in a regexp string
+ */
+function escapeRegExp(str: any) {
+	return String(str).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+

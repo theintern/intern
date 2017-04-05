@@ -13,49 +13,52 @@ If you’re into name-dropping, Intern gets used every day by teams at Twitter, 
 Zenput, Alfresco, Esri, HSBC, ING, Intuit, and more. It’s also the testing framework of choice for
 [growing numbers of open-source projects](https://github.com/search?p=2&q=tests+filename%3Aintern.js&ref=searchresults&type=Code&utf8=%E2%9C%93).
 
-Learn more about Intern at https://theintern.github.io.
-
 ## Quick start
 
 1. Install from npm
 
-   ```
-   cd /my/project/root
-   npm install intern --save-dev
-   ```
+    ```sh
+    $ cd /my/project/root
+    $ npm install intern --save-dev
+    ```
 
-2. Create a copy of the [example configuration file](https://github.com/theintern/intern/blob/master/tests/example.intern.js) in your package’s test directory and edit appropriately. See the
-[configuration documentation](https://theintern.github.io/intern/#common-config) for a list of all available options.
+2. Create an `intern.json` file in your project root.
 
-   ```
-   mkdir tests ; cp node_modules/intern/tests/example.intern.js tests/intern.js
-   ```
+    ```js
+    {
+      "suites": "tests/unit/**/*.js"
+    }
+    ```
 
-3. Verify your configuration works by running the Node.js client and seeing that no errors are output.
+3. Verify that your configuration works by running Intern and checking that no errors are output.
 
-   ```
-   node_modules/.bin/intern-client config=tests/intern
-   ```
+    ```sh
+    $ node_modules/.bin/intern
+    ```
 
-4. Start writing tests! Read [writing tests](https://theintern.github.io/intern/#writing-unit-test) in the user guide
-and the [Intern tutorial](https://github.com/theintern/intern-tutorial) to learn more!
+4. Start writing tests! Read [writing tests](docs/writing_tests.md) in the user guide and see the [Intern
+   tutorial](https://github.com/theintern/intern-tutorial) to learn more!
 
 ## More information
 
-* [Web site](https://theintern.github.io)
-* [Documentation](https://theintern.github.io/intern)
-* [Contributing/support](https://github.com/theintern/intern/blob/master/CONTRIBUTING.md)
+* [Architecture](docs/architecture.md)
+* [Writing Tests](docs/writing_tests.md)
+* [Configuration](docs/configuration.md)
+* [Running](docs/running.md)
+* [Developing](docs/developing.md)
+* [Contributing](https://github.com/theintern/intern/blob/master/CONTRIBUTING.md)
 
-## Do you hate kittens and love old IE?
+## Get help
 
-If you need to support IE 6–8, there is also a
-[version of Intern for legacy browsers](https://github.com/theintern/intern/tree/geezer "geezer branch").
+The best place to ask questions and get answers about Intern is Stack Overflow. Just tag your question with `intern`.
+If you have more immediate questions, or just want to chat with other people interested in Intern, there’s an `#intern`
+IRC channel on freenode, and a Gitter room at [theintern/intern](https://gitter.im/theintern/intern).
 
 ## License
 
-Intern is a Dojo Foundation project offered under the [New BSD](LICENSE) license.
+Intern is a JS Foundation project offered under the [New BSD](LICENSE) license.
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/intern/graphs/contributors)
 
-<p align="center">Intern's selftests run on<br>
+<p align="center">Intern’s self-tests run on<br>
 <a href="https://browserstack.com"><img alt="BrowserStack logo" src="https://theintern.github.io/images/browserstack.svg" height="32" align="middle"></a></p>

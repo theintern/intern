@@ -1,106 +1,71 @@
-import * as util from '../util';
-import has = require('dojo/has');
+import Executor from '../executors/Executor';
 import Suite from '../Suite';
 import Test from '../Test';
-import Collector = require('dojo/has!host-node?dojo/node!istanbul/lib/collector');
-import TextReporter = require('dojo/has!host-node?dojo/node!istanbul/lib/report/text');
-import { Reporter, ReporterConfig } from '../../common';
+import Reporter, { eventHandler, ReporterOptions } from './Reporter';
 
 /**
- * The console reporter outputs to the current environment's console.
+ * The console reporter outputs to the browser console.
  */
-export default class Console implements Reporter {
-	console: any; // TODO: fix
-	hasGrouping: boolean;
-	testId: string;
-	private _coverageReporter: TextReporter;
+export default class ConsoleReporter extends Reporter {
+	private _hasGrouping: boolean;
+	private _testId: keyof Test;
 
-	constructor(config: ReporterConfig = {}) {
-		this.console = config.console;
-		this.hasGrouping = 'group' in this.console && 'groupEnd' in this.console;
-		this.testId = this.hasGrouping ? 'name' : 'id';
-
-		if (has('host-node')) {
-			this._coverageReporter = new TextReporter({
-				watermarks: config.watermarks
-			});
-		}
+	constructor(executor: Executor, options: ReporterOptions = {}) {
+		super(executor, options);
+		this._hasGrouping = 'group' in this.console && 'groupEnd' in this.console;
+		this._testId = this._hasGrouping ? 'name' : 'id';
 	}
 
-	deprecated(name: string, replacement: string, extra: string): void {
-		this.console.warn(name + ' is deprecated.' +
-			(replacement ?
-				' Use ' + replacement + ' instead.' :
-				' Please open a ticket at https://github.com/theintern/intern/issues if you still require access ' +
-				'to this feature.') +
-			(extra ? ' ' + extra : '')
-		);
-	}
-
-	fatalError(error: Error): void {
+	@eventHandler()
+	error(error: Error) {
 		this.console.warn('FATAL ERROR');
-		this.console.error(util.getErrorMessage(error));
+		this.console.error(this.formatter.format(error));
 	}
 
-	reporterError(_reporter: Reporter, error: Error): void {
-		this.console.error('REPORTER ERROR');
-		this.console.error(util.getErrorMessage(error));
-	}
-
-	suiteEnd(suite: Suite): void {
+	@eventHandler()
+	suiteEnd(suite: Suite) {
 		// IE<10 does not provide a global console object when Developer Tools is turned off
 		if (!this.console) {
 			return;
 		}
 
-		const numTests = suite.numTests;
-		const numFailedTests = suite.numFailedTests;
-		const numSkippedTests = suite.numSkippedTests;
-		let message = numFailedTests + '/' + numTests + ' tests failed';
+		if (suite.error) {
+			this.console.warn('SUITE ERROR');
+			this.console.error(this.formatter.format(suite.error));
+		}
+		else {
+			const numTests = suite.numTests;
+			const numFailedTests = suite.numFailedTests;
+			const numSkippedTests = suite.numSkippedTests;
+			let message = numFailedTests + '/' + numTests + ' tests failed';
 
-		if (numSkippedTests > 0) {
-			message += ' (' + numSkippedTests + ' skipped)';
+			if (numSkippedTests > 0) {
+				message += ' (' + numSkippedTests + ' skipped)';
+			}
+
+			this.console[numFailedTests ? 'warn' : 'info'](message);
 		}
 
-		this.console[numFailedTests ? 'warn' : 'info'](message);
-		this.hasGrouping && this.console.groupEnd(suite.name);
+		this._hasGrouping && this.console.groupEnd();
 	}
 
-	suiteError(suite: Suite): void {
-		if (!this.console) {
-			return;
-		}
-		this.console.warn('SUITE ERROR');
-		this.console.error(util.getErrorMessage(suite.error));
-	}
-
-	suiteStart(suite: Suite): void {
+	@eventHandler()
+	suiteStart(suite: Suite) {
 		// only start group for non-root suite
-		this.hasGrouping && suite.hasParent && this.console.group(suite.name);
+		this._hasGrouping && suite.hasParent && this.console.group(suite.name);
 	}
 
-	testFail(test: Test): void {
-		this.console.error('FAIL: ' + (<{ [key: string]: any }> test)[this.testId] + ' (' + test.timeElapsed + 'ms)');
-		this.console.error(util.getErrorMessage(test.error));
-	}
-
-	testPass(test: Test): void {
-		this.console.log('PASS: ' + (<{ [key: string]: any }> test)[this.testId] + ' (' + test.timeElapsed + 'ms)');
-	}
-
-	testSkip(test: Test): void {
-		this.console.log('SKIP: ' + (<{ [key: string]: any }> test)[this.testId] + (test.skipped ? ' (' + test.skipped + ')' : ''));
-	}
-
-	coverage(_sessionId: string, coverage: Object): void {
-		if (!has('host-node')) {
-			return;
+	@eventHandler()
+	testEnd(test: Test) {
+		if (test.error) {
+			this.console.error(`FAIL: ${test[this._testId]} (${test.timeElapsed}ms)`);
+			this.console.error(this.formatter.format(test.error));
 		}
-		const collector = new Collector();
-		collector.add(coverage);
-
-		// add a newline between test results and coverage results for prettier output
-		this.console.log('');
-		this._coverageReporter.writeReport(collector, true);
+		else if (test.skipped) {
+			this.console.log(`SKIP: ${test[this._testId]} (${test.skipped})`);
+		}
+		else {
+			this.console.log(`PASS: ${test[this._testId]} (${test.timeElapsed})ms)`);
+		}
 	}
 }

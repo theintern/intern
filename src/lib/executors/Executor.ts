@@ -1,383 +1,723 @@
-import ReporterManager, { ReporterDescriptor } from '../ReporterManager';
-import { Config } from '../../common';
-import PreExecutor from './PreExecutor';
-import Suite from '../Suite';
-import * as util from '../util';
+import Suite, { isSuiteOptions, SuiteOptions } from '../Suite';
+import Test, { isTestOptions, TestOptions } from '../Test';
+import { deepMixin } from '@dojo/core/lang';
+import { Handle } from '@dojo/interfaces/core';
+import Task from '@dojo/core/async/Task';
+import Formatter from '../common/Formatter';
+import { normalizePath, parseValue, pullFromArray } from '../common/util';
+import Reporter, { ReporterOptions } from '../reporters/Reporter';
+import getObjectInterface, { ObjectInterface } from '../interfaces/object';
+import getTddInterface, { TddInterface } from '../interfaces/tdd';
+import getBddInterface, { BddInterface } from '../interfaces/bdd';
+import getBenchmarkInterface, { BenchmarkInterface } from '../interfaces/benchmark';
+import Promise from '@dojo/shim/Promise';
+import * as chai from 'chai';
+import global from '@dojo/core/global';
+import Deferred from '../Deferred';
 
-// Legacy imports
-import * as intern from '../../main';
+export abstract class GenericExecutor<E extends Events, C extends Config> {
+	protected _assertions: { [name: string]: any };
 
-// AMD modules
-import * as has from 'dojo/has';
-import * as lang from 'dojo/lang';
-import * as Promise from 'dojo/Promise';
-import { IRequire } from 'dojo/loader';
+	protected _availableReporters: { [name: string]: typeof Reporter };
 
-declare const require: IRequire;
-
-const globalOrWindow = Function('return this')();
-
-export default class Executor {
 	/** The resolved configuration for this executor. */
-	config: Config;
+	protected _config: C;
 
-	/** The type of the executor. */
-	mode: string;
+	protected _formatter: Formatter;
 
-	preExecutor: PreExecutor;
-
-	/** The reporter manager for this test execution. */
-	reporterManager: ReporterManager;
-
-	/** The root suites managed by this executor. */
-	suites: Suite[];
+	/**
+	 * The root suites managed by this executor. Currently only the WebDriver executor will have more than one root
+	 * suite.
+	 */
+	protected _rootSuite: Suite;
 
 	protected _hasSuiteErrors = false;
 
-	constructor(config: Config, preExecutor: PreExecutor) {
-		this.config = lang.deepMixin({
+	protected _interfaces: { [name: string]: any };
+
+	protected _loader: Loader;
+
+	protected _listeners: { [event: string]: Listener<any>[] };
+
+	protected _reporters: Reporter[];
+
+	protected _runTask: Task<void>;
+
+	constructor(config: C) {
+		this._config = <C>{
 			instrumenterOptions: {
 				coverageVariable: '__internCoverage'
 			},
 			defaultTimeout: 30000,
-			reporters: []
-		}, config);
+			excludeInstrumentation: /(?:node_modules|browser|tests)\//
+		};
 
-		this.reporterManager = new ReporterManager();
-		this.preExecutor = preExecutor;
+		this._availableReporters = {};
+		this._listeners = {};
+		this._reporters = [];
+		this._assertions = {};
+		this._interfaces = {};
 
-		if (has('host-node') && this.config.benchmark) {
-			this.config.benchmarkConfig.id = 'Benchmark';
+		this.registerInterface('object', getObjectInterface(this));
+		this.registerInterface('tdd', getTddInterface(this));
+		this.registerInterface('bdd', getBddInterface(this));
+		this.registerInterface('benchmark', getBenchmarkInterface(this));
 
-			if (!this.config.reporters || !this.config.reporters.length) {
-				this.config.reporters = [ this.config.benchmarkConfig ];
-			}
-			else if (!this.config.reporters.some(function (reporter) { return reporter === 'Benchmark' || (<ReporterDescriptor>reporter).id === 'Benchmark'; })) {
-				this.config.reporters.push(this.config.benchmarkConfig);
-			}
+		this.registerAssertions('assert', chai.assert);
+		this.registerAssertions('expect', chai.expect);
+		this.registerAssertions('should', chai.should);
+
+		if (config) {
+			this.configure(config);
 		}
+
+		this._rootSuite = new Suite({
+			executor: this,
+			name: this.config.name
+		});
+	}
+
+	abstract get environment(): string;
+
+	get config() {
+		return this._config;
+	}
+
+	get formatter() {
+		if (!this._formatter) {
+			this._formatter = new Formatter(this.config);
+		}
+		return this._formatter;
 	}
 
 	/**
-	 * Enables instrumentation for all code loaded into the current environment.
+	 * Load a script or scripts. This is a convenience method for loading and evaluating simple scripts, not modules. If
+	 * multiple script paths are provided, scripts will be loaded sequentially in the order given.
 	 *
-	 * @param basePath The base path to use to calculate absolute paths for use by lcov.
-	 * @param excludePaths A regular expression matching paths, relative to `basePath`, that should not be
-	 * instrumented.
-	 * @param instrumenterOptions Extra options for the instrumenter
+	 * @param script a path to a script
 	 */
-	enableInstrumentation(basePath: string, excludePaths: RegExp, instrumenterOptions: { [key: string]: string }) {
-		if (has('host-node')) {
-			return util.setInstrumentationHooks(excludePaths, basePath, instrumenterOptions);
+	abstract loadScript(script: string | string[]): Task<void>;
+
+	/**
+	 * Add a test or suite of tests to the set of tests that will be run when `run` is called.
+	 */
+	addTest(suiteOrTest: Suite | Test | SuiteOptions | TestOptions) {
+		// Check if suiteOrTest is an instance or a simple Object
+		if (!(suiteOrTest instanceof Test) && !(suiteOrTest instanceof Suite)) {
+			if (isTestOptions(suiteOrTest)) {
+				suiteOrTest = new Test(suiteOrTest);
+			}
+			else if (isSuiteOptions(suiteOrTest)) {
+				suiteOrTest = new Suite(suiteOrTest);
+			}
+			else {
+				throw new Error('InvalidTest: argument is not a valid suite or test');
+			}
 		}
+		this._rootSuite.add(<Suite | Test>suiteOrTest);
 	}
 
 	/**
-	 * Register tests on the root suites.
+	 * Update this executor's configuration with a Config object.
+	 *
+	 * Note that non-object properties will replace existing properties. Object propery values will be deeply mixed into
+	 * any existing value.
 	 */
-	register(callback: (suite: Suite) => void) {
-		this.suites.forEach(callback);
+	configure(config: C | {[key in keyof Config]: string | string[] | true }) {
+		Object.keys(config).forEach((key: keyof Config) => {
+			this._processOption(key, config[key]);
+		});
 	}
 
 	/**
-	 * Sets up the environment for test execution with instrumentation, reporting, and error handling. Subclasses
-	 * should typically override `_runTests` to execute tests.
+	 * Create a Deferred object that can be used in enviroments without native Promises
 	 */
-	run() {
-		const self = this;
+	createDeferred<T>() {
+		return new Deferred<T>();
+	}
 
-		function emitFatalError(error: Error) {
-			return self._handleError(error).then(function () {
-				throw error;
+	/**
+	 * Emit an event to all registered listeners.
+	 *
+	 * Event listeners may execute async code, and a failing handler (one that rejects or throws an error) will cause the
+	 * emit to fail.
+	 */
+	emit(eventName: 'afterRun'): Task<any>;
+	emit(eventName: 'beforeRun'): Task<any>;
+	emit(eventName: 'runStart'): Task<any>;
+	emit(eventName: 'runEnd'): Task<any>;
+	emit<T extends keyof E>(eventName: T, data: E[T]): Task<any>;
+	emit<T extends keyof E>(eventName: T, data?: E[T]): Task<any> {
+		if (eventName === 'suiteEnd' && (<any>data).error) {
+			this._hasSuiteErrors = true;
+		}
+
+		const notifications: Promise<any>[] = [];
+
+		(this._listeners[eventName] || []).forEach(listener => {
+			notifications.push(Promise.resolve(listener(data)));
+		});
+
+		const starListeners = this._listeners['*'] || [];
+		if (starListeners.length > 0) {
+			const starEvent = { name: eventName, data };
+			starListeners.forEach(listener => {
+				notifications.push(Promise.resolve(listener(starEvent)));
 			});
 		}
 
-		function emitRunEnd() {
-			return self.reporterManager.emit('runEnd', self);
+		if (notifications.length === 0) {
+			// Report an error when no error listeners are registered
+			if (eventName === 'error') {
+				console.error('ERROR:', this.formatter.format(<any>data));
+			}
+
+			return resolvedTask;
 		}
 
-		function emitRunStart() {
-			return self.reporterManager.emit('runStart', self);
+		return Task.all(notifications).catch(error => {
+			console.error(`Error emitting ${eventName}: ${this.formatter.format(error)}`);
+		});
+	}
+
+	getAssertions(name: 'assert'): Chai.AssertStatic;
+	getAssertions(name: 'expect'): Chai.ExpectStatic;
+	getAssertions(name: 'should'): Chai.Should;
+	getAssertions(name: string): any;
+	getAssertions(name: string): any {
+		const assertions = this._assertions[name];
+
+		// `should` is a weird case because it extends Object
+		if (name === 'should') {
+			return assertions();
 		}
 
-		function runConfigSetup() {
-			return Promise.resolve(self.config.setup && self.config.setup(self));
-		}
+		return assertions;
+	}
 
-		function runConfigTeardown() {
-			return Promise.resolve(self.config.teardown && self.config.teardown(self));
-		}
+	/**
+	 * Return a testing interface
+	 */
+	getInterface(name: 'object'): ObjectInterface;
+	getInterface(name: 'tdd'): TddInterface;
+	getInterface(name: 'bdd'): BddInterface;
+	getInterface(name: 'benchmark'): BenchmarkInterface;
+	getInterface(name: string): any;
+	getInterface(name: string): any {
+		return this._interfaces[name];
+	}
 
-		function runTests() {
-			return self._runTests(self.config.maxConcurrency);
-		}
-
-		const promise = this._beforeRun()
-			.then(function () {
-				return runConfigSetup().then(function () {
-					return emitRunStart()
-						.then(runTests)
-						.finally(emitRunEnd);
-				})
-				.finally(runConfigTeardown);
-			})
-			.finally(function () {
-				return self._afterRun();
-			})
-			.then(function () {
-				if (self._hasSuiteErrors) {
-					throw new Error('One or more suite errors occurred during testing');
+	/**
+	 * Convenience method for emitting log events
+	 */
+	log(...args: any[]) {
+		if (this.config.debug) {
+			const message = args.map(arg => {
+				const type = typeof arg;
+				if (type === 'string') {
+					return arg;
 				}
+				if (type === 'function' || arg instanceof RegExp) {
+					return arg.toString();
+				}
+				if (arg instanceof Error) {
+					arg = { name: arg.name, message: arg.message, stack: arg.stack };
+				}
+				return JSON.stringify(arg);
+			}).join(' ');
+			return this.emit('log', message);
+		}
+		else {
+			return resolvedTask;
+		}
+	}
 
-				return self.suites.reduce(function (numFailedTests, suite) {
-					return numFailedTests + suite.numFailedTests;
-				}, 0);
-			})
-			.catch(emitFatalError);
+	/**
+	 * Add a listener for a test event. When an event is emitted, the executor will wait for all Promises returned by
+	 * listener callbacks to resolve before continuing.
+	 */
+	on<T extends keyof E>(eventName: T, listener: Listener<E[T]>): Handle {
+		let listeners = this._listeners[eventName];
+		if (!listeners) {
+			listeners = this._listeners[eventName] = [];
+		}
 
-		this.run = function () {
-			return promise;
+		if (listeners.indexOf(listener) === -1) {
+			listeners.push(listener);
+		}
+
+		const handle: Handle = {
+			destroy(this: any) {
+				this.destroy = function () { };
+				pullFromArray(listeners, listener);
+			}
 		};
+		return handle;
+	}
 
-		return promise;
+	/**
+	 * Register an assertion library.
+	 */
+	registerAssertions(name: string, assertions: any) {
+		this._assertions[name] = assertions;
+	}
+
+	/**
+	 * Register an interface.
+	 */
+	registerInterface(name: string, iface: any) {
+		this._interfaces[name] = iface;
+	}
+
+	/**
+	 * Register a loader script that will be loaded at the beginning of the testing process. Intern assumes this script
+	 * will handle the loading of test suites.
+	 */
+	registerLoader(loader: Loader) {
+		this._loader = loader;
+	}
+
+	/**
+	 * Install a reporter constructor
+	 */
+	registerReporter(name: string, Class: typeof Reporter) {
+		this._availableReporters[name] = Class;
+	}
+
+	/**
+	 * Run tests. This method sets up the environment for test execution, runs the tests, and runs any finalization code
+	 * afterwards. Subclasses should override `_beforeRun`, `_runTests`, and `_afterRun` to alter how tests are run.
+	 */
+	run() {
+		// Only allow the executor to be started once
+		if (!this._runTask) {
+			try {
+				this._runTask = this._preloadScripts()
+					.then(() => this._resolveConfig())
+					.then(() => this.emit('beforeRun'))
+					.then(() => this._beforeRun())
+					.then(() => this._loadSuites())
+					.then(() => {
+						return this.emit('runStart')
+							.then(() => this._runTests())
+							.finally(() => this.emit('runEnd'));
+					})
+					.finally(() => this._afterRun())
+					.finally(() => this.emit('afterRun'))
+					.then(() => {
+						if (this._hasSuiteErrors) {
+							throw new Error('One or more suite errors occurred during testing');
+						}
+					})
+					.catch(error => {
+						this.emit('error', error);
+						throw error;
+					});
+			}
+			catch (error) {
+				this._runTask = this.emit('error', error).then(() => {
+					return Task.reject<void>(error);
+				});
+			}
+		}
+
+		return this._runTask;
+	}
+
+	/**
+	 * Register a testing interface on this executor. A testing interface can be anything that will allow a test to
+	 * register tests on the executor. For example, the 'object' interface is a single method, `registerSuite`, that a
+	 * test can call to register a suite.
+	 */
+	setInterface(name: string, iface: any) {
+		this._interfaces[name] = iface;
 	}
 
 	/**
 	 * Code to execute after the main test run has finished to shut down the test system.
 	 */
 	protected _afterRun() {
-		return Promise.resolve();
+		return resolvedTask;
 	}
 
 	/**
-	 * Code to execute before the main test run has started to set up the test system.
+	 * Code to execute before the main test run has started to set up the test system. This is where Executors can do
+	 * any last-minute configuration before the testing process begins.
 	 */
-	protected _beforeRun() {
-		const self = this;
-		intern.setExecutor(this);
-		const config = this.config;
-
-		function enableInstrumentation() {
-			if (config.excludeInstrumentation !== true) {
-				return self.enableInstrumentation(
-					config.basePath,
-					(<RegExp> config.excludeInstrumentation),
-					config.instrumenterOptions
-				);
-			}
-		}
-
-		function registerErrorHandler() {
-			self.reporterManager.on('suiteError', function () {
-				self._hasSuiteErrors = true;
-			});
-			return self.preExecutor.registerErrorHandler((error: Error) => {
-				return self._handleError(error);
-			});
-		}
-
-		return this._loadReporters(config.reporters)
-			.then(registerErrorHandler)
-			.then(enableInstrumentation);
-	}
-
-	/**
-	 * The error handler for fatal errors (uncaught exceptions and errors within the test system itself).
-	 *
-	 * @returns A promise that resolves once the error has been sent to all registered error handlers.
-	 */
-	protected _handleError(error: Error) {
-		return Promise.resolve(this.reporterManager && this.reporterManager.emit('fatalError', error));
-	}
-
-	/**
-	 * Loads reporters into the reporter manager.
-	 *
-	 * @param reporters An array of reporter configuration objects.
-	 */
-	protected _loadReporters(reporters: (ReporterDescriptor|String)[]) {
-		const reporterManager = this.reporterManager;
-
-		const LEGACY_REPORTERS: { [name: string]: (string|ReporterDescriptor) } = {
-			'cobertura': { id: 'Cobertura', filename: 'cobertura-coverage.xml' },
-			'combined': 'Combined',
-			'console': 'Console',
-			'html': 'Html',
-			'junit': { id: 'JUnit', filename: 'report.xml' },
-			'lcov': { id: 'Lcov', filename: 'lcov.info' },
-			'lcovhtml': { id: 'LcovHtml', directory: 'html-report' },
-			'pretty': 'Pretty',
-			'runner': 'Runner',
-			'teamcity': 'TeamCity',
-			'webdriver': 'WebDriver'
-		};
-
-		const reporterModuleIds = reporters.map(function (reporter) {
-			let id: string;
-
+	protected _beforeRun(): Task<any> {
+		this.config.reporters.forEach(reporter => {
 			if (typeof reporter === 'string') {
-				const replacementReporter = LEGACY_REPORTERS[<string> reporter];
-				if (replacementReporter) {
-					id = (<ReporterDescriptor> replacementReporter).id || (<string> replacementReporter);
-
-					reporterManager.emit(
-						'deprecated',
-						'The reporter ID "' + reporter + '"',
-						JSON.stringify(replacementReporter)
-					);
-				}
-				else {
-					id = reporter;
-				}
+				const ReporterClass = this._getReporter(reporter);
+				this._reporters.push(new ReporterClass(this));
 			}
 			else {
-				id = (<ReporterDescriptor> reporter).id;
+				const ReporterClass = this._getReporter(reporter.reporter);
+				this._reporters.push(new ReporterClass(this, reporter.options));
 			}
-
-			if (id.indexOf('/') === -1) {
-				id = '../reporters/' + id;
-			}
-
-			if (has('host-browser')) {
-				util.assertSafeModuleId(id);
-			}
-
-			return id;
 		});
 
-		return new Promise((resolve, reject) => {
-			const config = this.config;
+		return resolvedTask;
+	}
 
-			require(reporterModuleIds, function () {
-				try {
-					Array.prototype.slice.call(arguments).forEach(function (Reporter: any, i: number) {
-						const rawArgs = reporters[i];
-						let kwArgs: ReporterDescriptor;
-
-						// reporter was simply specified as a string
-						if (typeof rawArgs === 'string') {
-							const reporterName = <string> rawArgs;
-							const replacementReporter = LEGACY_REPORTERS[reporterName];
-							if (replacementReporter && typeof replacementReporter !== 'string') {
-								kwArgs = <ReporterDescriptor> LEGACY_REPORTERS[reporterName];
-							}
-							else {
-								kwArgs = <ReporterDescriptor> {};
-							}
-						}
-						else {
-							kwArgs = <ReporterDescriptor> rawArgs;
-						}
-
-						if (Reporter.default && typeof Reporter.default === 'function') {
-							Reporter = Reporter.default;
-						}
-
-						// pass each reporter the full intern config as well as its own options
-						kwArgs.internConfig = config;
-						reporterManager.add(Reporter, kwArgs);
-					});
-
-					resolve(reporterManager.run());
-				}
-				catch (error) {
-					reject(error);
-				}
-			});
-		});
+	protected _emitCoverage() {
+		const coverage = global[this.config.instrumenterOptions.coverageVariable];
+		if (coverage) {
+			return this.emit('coverage', { coverage, sessionId: this.config.sessionId });
+		}
 	}
 
 	/**
-	 * Loads test modules, which register suites for testing within the test system.
-	 *
-	 * @param moduleIds The IDs of the test modules to load.
+	 * Return a reporter constructor corresponding to the given name
 	 */
-	protected _loadTestModules(moduleIds: string[]) {
-		if (!moduleIds || !moduleIds.length) {
-			return Promise.resolve();
+	protected _getReporter(name: string): typeof Reporter {
+		if (!this._availableReporters[name]) {
+			throw new Error(`A reporter named "${name}" has not been registered`);
+		}
+		return this._availableReporters[name];
+	}
+
+	/**
+	 * Load suites
+	 */
+	protected _loadSuites(config?: Config) {
+		config = config || this.config;
+
+		const loader = config.loader.script;
+		switch (loader) {
+			case 'default':
+			case 'dojo':
+			case 'dojo2':
+			case 'systemjs':
+				config.loader.script = `${this.config.internPath}loaders/${loader}.js`;
 		}
 
-		if (has('host-browser')) {
-			moduleIds.forEach(util.assertSafeModuleId);
-		}
-
-		return new Promise(function (resolve, reject) {
-			// TODO: require doesn't support reject
-			(<any> require)(moduleIds, function () {
-				// resolve should receive no arguments
-				resolve();
-			}, reject);
+		return this.loadScript(config.loader.script).then(() => {
+			if (!this._loader) {
+				throw new Error(`Loader script ${config.loader.script} did not register a loader callback`);
+			}
+			return Task.resolve(this._loader(config || this.config));
 		});
+	}
+
+	protected _preloadScripts() {
+		if (this.config.preload) {
+			return this.loadScript(this.config.preload);
+		}
+		return resolvedTask;
+	}
+
+	/**
+	 * Process an arbitrary config value. Subclasses can override this method to pre-process arguments or handle them
+	 * instead of allowing Executor to.
+	 */
+	protected _processOption(name: keyof Config, value: any) {
+		switch (name) {
+			case 'loader':
+				if (typeof value === 'string') {
+					try {
+						value = parseValue(name, value, 'object');
+					}
+					catch (error) {
+						value = { script: value };
+					}
+				}
+
+				if (!value.script) {
+					throw new Error(`Invalid value "${value}" for ${name}`);
+				}
+
+				this.config[name] = value;
+				break;
+
+			case 'bail':
+			case 'baseline':
+			case 'benchmark':
+			case 'debug':
+			case 'filterErrorStack':
+				this.config[name] = parseValue(name, value, 'boolean');
+				break;
+
+			case 'internPath':
+				this.config[name] = parseValue(name, value, 'string');
+				break;
+
+			case 'defaultTimeout':
+				this.config[name] = parseValue(name, value, 'number');
+				break;
+
+			case 'excludeInstrumentation':
+				if (value === true) {
+					this.config[name] = value;
+				}
+				else if (typeof value === 'string' || value instanceof RegExp) {
+					this.config[name] = parseValue(name, value, 'regexp');
+				}
+				else {
+					throw new Error(`Invalid value "${value}" for ${name}; must be (string | RegExp | true)`);
+				}
+				break;
+
+			case 'grep':
+				this.config[name] = parseValue(name, value, 'regexp');
+				break;
+
+			case 'instrumenterOptions':
+				this.config[name] = deepMixin(this.config[name] || {}, parseValue(name, value, 'object'));
+				break;
+
+			case 'reporters':
+				this.config[name] = (Array.isArray(value) ? value : [value]).map(reporter => {
+					if (typeof reporter === 'string') {
+						try {
+							reporter = JSON.parse(reporter);
+						}
+						catch (error) {
+							reporter = { reporter };
+						}
+					}
+
+					if (!reporter.script) {
+						throw new Error(`Invalid value "${value}" for ${name}`);
+					}
+
+					return reporter;
+				});
+				break;
+
+			case 'name':
+				this.config[name] = parseValue(name, value, 'string');
+				break;
+
+			case 'benchmarkSuites':
+			case 'preload':
+			case 'suites':
+				this.config[name] = parseValue(name, value, 'string[]');
+				break;
+
+			default:
+				this.config[name] = value;
+		}
+	}
+
+	/**
+	 * Resolve the config object
+	 */
+	protected _resolveConfig() {
+		const config = this.config;
+
+		if (config.internPath != null) {
+			config.internPath = normalizePath(config.internPath);
+		}
+
+		if (!config.loader) {
+			config.loader = { script: 'default' };
+		}
+
+		if (config.grep == null) {
+			config.grep = new RegExp('');
+		}
+
+		if (config.suites == null) {
+			config.suites = [];
+		}
+
+		if (config.benchmarkSuites == null) {
+			config.benchmarkSuites = [];
+		}
+
+		if (config.reporters == null) {
+			config.reporters = [];
+		}
+
+		if (config.benchmark) {
+			config.benchmarkConfig = deepMixin({
+				id: 'Benchmark',
+				filename: 'baseline.json',
+				mode: 'test',
+				thresholds: {
+					warn: { rme: 3, mean: 5 },
+					fail: { rme: 6, mean: 10 }
+				},
+				verbosity: 0
+			}, config.benchmarkConfig);
+		}
+
+		if (!config.reporters) {
+			config.reporters = [];
+		}
+
+		return resolvedTask;
 	}
 
 	/**
 	 * Runs each of the root suites, limited to a certain number of suites at the same time by `maxConcurrency`.
 	 */
-	protected _runTests(maxConcurrency: number) {
-		maxConcurrency = maxConcurrency || Infinity;
-
-		const self = this;
-		const suites = this.suites;
-		let numSuitesCompleted = 0;
-		const numSuitesToRun = suites.length;
-		const queue = util.createQueue(maxConcurrency);
-		let hasError = false;
-
-		return new Promise(function (resolve, _reject, _progress, setCanceler) {
-			const runningSuites: Promise<any>[] = [];
-
-			setCanceler(function (reason) {
-				queue.empty();
-
-				let cancellations: any[] = [];
-				let task: Promise<any>;
-				while ((task = runningSuites.pop())) {
-					cancellations.push(task.cancel && task.cancel(reason));
-				}
-
-				return Promise.all(cancellations).then(function () {
-					throw reason;
-				});
-			});
-
-			function emitLocalCoverage() {
-				let error = new Error('Run failed due to one or more suite errors');
-
-				let coverageData = globalOrWindow[self.config.instrumenterOptions.coverageVariable];
-				if (coverageData) {
-					return self.reporterManager.emit('coverage', null, coverageData).then(function () {
-						if (hasError) {
-							throw error;
-						}
-					});
-				}
-				else if (hasError) {
-					return Promise.reject(error);
-				}
-			}
-
-			function finishSuite() {
-				if (++numSuitesCompleted === numSuitesToRun) {
-					resolve(emitLocalCoverage());
-				}
-			}
-
-			if (suites && suites.length) {
-				suites.forEach(queue(function (suite: Suite) {
-					let runTask = suite.run().then(finishSuite, function () {
-						hasError = true;
-						finishSuite();
-					});
-					runningSuites.push(runTask);
-					runTask.finally(function () {
-						lang.pullFromArray(runningSuites, runTask);
-					});
-					return runTask;
-				}));
-			}
-			else {
-				resolve(emitLocalCoverage());
-			}
-		});
+	protected _runTests() {
+		return this._rootSuite.run().finally(() => this._emitCoverage());
 	}
 }
+
+export function initialize<E extends Events, C extends Config, T extends GenericExecutor<E, C>>(
+	ExecutorClass: ExecutorConstructor<E, C, T>,
+	config?: C
+): T {
+	if (global['intern']) {
+		throw new Error('Intern has already been initialized in this environment');
+	}
+	const executor = new ExecutorClass(config);
+	global.intern = executor;
+	return executor;
+}
+
+/**
+ * This is the default executor class.
+ */
+export abstract class Executor extends GenericExecutor<Events, Config> { }
+export default Executor;
+
+export interface ExecutorConstructor<E extends Events, C extends Config, T extends GenericExecutor<E, C>> {
+	new (config: C): T;
+}
+
+export { Handle };
+
+export interface Config {
+	/** If true, Intern will exit as soon as any test fails. */
+	bail?: boolean;
+
+	baseline?: boolean;
+	benchmark?: boolean;
+	benchmarkConfig?: {
+		id: string;
+		filename: string;
+		mode: 'test' | 'baseline',
+		thresholds: {
+			warn: { rme: number, mean: number },
+			fail: { rme: number, mean: number }
+		};
+		verbosity: number;
+	};
+
+	/** If true, emit and display debug messages. */
+	debug?: boolean;
+
+	/** The default timeout for async tests, in ms. */
+	defaultTimeout?: number;
+
+	/** A regexp matching file names that shouldn't be instrumented, or `true` to disable instrumentation. */
+	excludeInstrumentation?: true | RegExp;
+
+	/** If true, filter external library calls and runtime calls out of error stacks. */
+	filterErrorStack?: boolean;
+
+	/** A regexp matching tests that should be run. It defaults to `/./` (which matches everything). */
+	grep?: RegExp;
+
+	instrumenterOptions?: any;
+
+	/**
+	 * A loader to run before testing.
+	 * The `loader` property can be a string with a loader name or the path to a loader script. It may also be an object
+	 * with `script` and `config` properties. Intern provides built-in loader scripts for Dojo and Dojo2, which can be
+	 * specified with the IDs 'dojo' and 'dojo2'.
+	 *
+	 * ```ts
+	 * loader: 'dojo2'
+	 * loader: 'tests/loader.js'
+	 * loader: { script: 'dojo', config: { packages: [ { name: 'app', location: './js' } ] } }
+	 * ```
+	 */
+	loader?: { script: string, config?: { [key: string]: any } };
+
+	/** A top-level name for this configuration. */
+	name?: string;
+
+	/**
+	 * A list of scripts to load before suites are loaded. These must be simple scripts, not modules, as a module loader
+	 * may not be available when these are loaded. Also, these scripts should be synchronous. If they need to run async
+	 * actions, they can register listeners for the 'runBefore' or 'runAfter' executor events.
+	 */
+	preload?: string[];
+
+	/**
+	 * A list of reporter names or descriptors. These reporters will be loaded and instantiated before testing begins.
+	 */
+	reporters?: { reporter: string, options?: ReporterOptions }[];
+
+	/** A list of paths to suite scripts (or some other suite identifier usable by the suite loader). */
+	suites?: string[];
+
+	[key: string]: any;
+}
+
+export interface Listener<T> {
+	(arg: T): void | Promise<void>;
+}
+
+export interface CoverageMessage {
+	sessionId?: string;
+	coverage: any;
+}
+
+export interface DeprecationMessage {
+	original: string;
+	replacement?: string;
+	message?: string;
+}
+
+export interface ExecutorEvent {
+	name: string;
+	data: any;
+}
+
+export interface Events {
+	'*': ExecutorEvent;
+
+	/** Emitted after the local executor has finished running suites */
+	afterRun: never;
+
+	/** Emitted before the local executor loads suites */
+	beforeRun: never;
+
+	/** Coverage info has been gathered */
+	coverage: CoverageMessage;
+
+	/** A deprecated method was called */
+	deprecated: DeprecationMessage;
+
+	/** An unhandled error occurs */
+	error: Error;
+
+	/** The path to Intern */
+	internPath: string;
+
+	/** A debug log event */
+	log: string;
+
+	/** All tests have finished running */
+	runEnd: never;
+
+	/** Emitted just before tests start running  */
+	runStart: never;
+
+	/** A suite has fininshed running */
+	suiteEnd: Suite;
+
+	/** A suite has started running */
+	suiteStart: Suite;
+
+	/** A test has finished */
+	testEnd: Test;
+
+	/** A test has started */
+	testStart: Test;
+}
+
+/**
+ * An async loader callback. Intern will wait for the done callback to be called before proceeding.
+ */
+export interface Loader {
+	(config: Config): Promise<void> | void;
+}
+
+const resolvedTask = Task.resolve();

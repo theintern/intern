@@ -1,16 +1,16 @@
 /* jshint node:true */
 import * as intern from '../../main';
-import * as util from '../util';
-import * as fs from 'dojo/node!fs';
+import { getErrorMessage } from '../node/util';
+import * as fs from 'fs';
 import Suite from '../Suite';
 import Test from '../Test';
 import Tunnel from 'digdug/Tunnel';
 import { Reporter, ReporterConfig, ReporterOutput, Remote } from '../../common';
-import Collector = require('dojo/node!istanbul/lib/collector');
-import JsonReporter = require('dojo/node!istanbul/lib/report/json');
-import LcovHtmlReporter = require('dojo/node!istanbul/lib/report/html');
-import TextReporter = require('dojo/node!istanbul/lib/report/text');
-import Report = require('dojo/node!istanbul/lib/report');
+import Collector = require('istanbul/lib/collector');
+import JsonReporter = require('istanbul/lib/report/json');
+import LcovHtmlReporter = require('istanbul/lib/report/html');
+import TextReporter = require('istanbul/lib/report/text');
+import Report = require('istanbul/lib/report');
 
 export default class Combined implements Reporter {
 	private _collector: Collector;
@@ -60,7 +60,7 @@ export default class Combined implements Reporter {
 
 	fatalError(error: Error): void {
 		this._writeLine();
-		this.output.write(util.getErrorMessage(error) + '\n');
+		this.output.write(getErrorMessage(error) + '\n');
 	}
 
 	run(): void {
@@ -87,7 +87,7 @@ export default class Combined implements Reporter {
 
 	suiteError(_suite: Suite, error: Error): void {
 		this._writeLine();
-		this.output.write(util.getErrorMessage(error) + '\n');
+		this.output.write(getErrorMessage(error) + '\n');
 	}
 
 	tunnelDownloadProgress(_tunnel: Tunnel, progress: { loaded: number, total: number }): void {
@@ -116,7 +116,7 @@ export default class Combined implements Reporter {
 	testFail(test: Test): void {
 		this._writeLine();
 		this.output.write(`FAIL: ${test.id}\n`);
-		this.output.write(util.getErrorMessage(test.error) + '\n');
+		this.output.write(getErrorMessage(test.error) + '\n');
 	}
 
 	testPass(): void {

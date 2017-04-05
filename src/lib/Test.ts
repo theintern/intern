@@ -1,52 +1,47 @@
-import * as Promise from 'dojo/Promise';
-import * as util from './util';
-import { InternError, Remote, Deferred } from '../common';
+import Executor from './executors/Executor';
+import Deferred from './Deferred';
+import Task, { isTask, isThenable } from '@dojo/core/async/Task';
+import { Thenable } from '@dojo/shim/interfaces';
+import { InternError } from './types';
+import { Remote } from './executors/WebDriver';
 import Suite from './Suite';
+import { mixin } from '@dojo/core/lang';
 
-export interface TestFunction {
-	(test: Test): void | Promise<any>;
-}
+export default class Test implements TestProperties {
+	hasPassed = false;
 
-export interface TestConfig {
-	name: string;
-	parent: Suite;
-	test: TestFunction;
-	hasPassed?: boolean;
-	skipped?: string;
-}
-
-export default class Test {
 	name: string;
 
-	test: Function;
-
 	parent: Suite;
-
-	isAsync = false;
-
-	timeElapsed: number;
-
-	hasPassed: boolean = false;
 
 	skipped: string;
 
+	test: TestFunction;
+
+	isAsync = false;
+
+	timeElapsed = 0;
+
 	error: InternError;
 
-	static SKIP: Object = {};
+	protected _timeout: number;
 
-	private _timeout: number;
+	protected _runTask: Task<any>;
 
-	private _runTask: Promise<any>;
+	protected _timer: number;
 
-	private _timer: number;
+	protected _usesRemote = false;
 
-	private _usesRemote = false;
-
-	constructor(config: TestConfig) {
-		for (let key in config) {
-			(<{ [key: string]: any }> this)[key] = (<{ [key: string]: any }> config)[key];
+	constructor(options: TestOptions) {
+		if (!options.name && !options.test) {
+			throw new Error('A Test requires a name and a test function');
 		}
-		this.reporterManager && this.reporterManager.emit('newTest', this);
+
+		mixin(this, options);
+	}
+
+	get executor(): Executor {
+		return this.parent && this.parent.executor;
 	}
 
 	/**
@@ -54,7 +49,7 @@ export default class Test {
 	 */
 	get id() {
 		let name: string[] = [];
-		let object: (Suite|Test) = this;
+		let object: (Suite | Test) = this;
 
 		do {
 			object.name != null && name.unshift(object.name);
@@ -77,10 +72,6 @@ export default class Test {
 	get remote(): Remote {
 		this._usesRemote = true;
 		return this.parent.remote;
-	}
-
-	get reporterManager() {
-		return this.parent && this.parent.reporterManager;
 	}
 
 	get sessionId() {
@@ -110,10 +101,7 @@ export default class Test {
 	 * promise will always be used as the implied return value if a promise is not returned by the test function).
 	 *
 	 * @param timeout If provided, the amount of time to wait before rejecting the test with a timeout error, in milliseconds.
-	 *
 	 * @param numCallsUntilResolution The number of times that resolve needs to be called before the Deferred is actually resolved.
-	 *
-	 * @returns {module:dojo/Promise.Deferred}
 	 */
 	async(timeout?: number, numCallsUntilResolution?: number): Deferred<any> {
 		this.isAsync = true;
@@ -126,7 +114,7 @@ export default class Test {
 			numCallsUntilResolution = 1;
 		}
 
-		const dfd = util.createDeferred();
+		const dfd = new Deferred();
 		const oldResolve = dfd.resolve;
 
 		/**
@@ -161,12 +149,10 @@ export default class Test {
 			clearTimeout(this._timer);
 			const timer = setTimeout(() => {
 				if (this._runTask) {
-					let reason = new Error('Timeout reached on ' + this.id);
-					reason.name = 'CancelError';
-					this._runTask.cancel(reason);
+					this._runTask.cancel();
 				}
 			}, timeout);
-			this._timer = <number> (<any> timer);
+			this._timer = <number>(<any>timer);
 		}
 		else {
 			this.timeout = timeout;
@@ -175,113 +161,101 @@ export default class Test {
 
 	/**
 	 * Runs the test.
-	 * @returns {dojo/promise/Promise}
 	 */
 	run() {
-		const reporterManager = this.reporterManager;
-		const self = this;
 		let startTime: number;
-
-		function end() {
-			return report('testEnd');
-		}
-
-		function report(eventName: string) {
-			if (reporterManager) {
-				let args = [ eventName, self ].concat(Array.prototype.slice.call(arguments, 1));
-				return reporterManager.emit.apply(reporterManager, args).catch(function () {});
-			}
-			else {
-				return Promise.resolve();
-			}
-		}
-
-		function start() {
-			return report('testStart').then(function () {
-				startTime = Date.now();
-			});
-		}
 
 		// Reset some state in case someone tries to re-run the same test
 		// TODO: Cancel any previous outstanding test run
 		// TODO: Test
 		this.async = Object.getPrototypeOf(this).async;
 		this._usesRemote = false;
-		this.hasPassed = this.isAsync = false;
-		this.error = this.skipped = this.timeElapsed = null;
+		this.hasPassed = false;
+		this.isAsync = false;
+		this.error = null;
+		this.skipped = null;
+		this.timeElapsed = null;
 
-		return start()
-			.then(function () {
-				let result = self.test();
+		return this.executor.emit('testStart', this)
+			.then(() => {
+				startTime = Date.now();
+			})
+			.then(() => {
+				let result: Thenable<void> | void = this.test(this);
 
 				// Someone called `this.async`, so this test is async; we have to prefer one or the other, so
 				// prefer the promise returned from the test function if it exists, otherwise get the one that was
 				// generated by `Test#async`
-				if (self.isAsync && (!result || !result.then)) {
-					result = self.async().promise;
+				if (this.isAsync) {
+					if (!isThenable(result)) {
+						result = this.async().promise;
+					}
+					else {
+						// If the user called this.async and returned a thenable, wait for the first one to resolve or
+						// reject.
+						result = Task.race<Task<void>, void>([this.async().promise, result]);
+					}
 				}
 
-				if (result && result.then) {
+				if (isThenable(result)) {
 					// If a user did not call `this.async` but returned a promise we still want to mark this
 					// test as asynchronous for informational purposes
-					self.isAsync = true;
+					this.isAsync = true;
 
 					// The `result` promise is wrapped in order to allow timeouts to work when a user returns a
 					// Promise from somewhere else that does not support cancellation
-					self._runTask = new Promise(function (resolve, reject, _progress, setCanceler) {
-						setCanceler(function (reason) {
-							// Dojo 2 promises are designed to allow extra signalling if a task has to perform
-							// cleanup when it is cancelled; some others, including Dojo 1 promises, do not. In
-							// order to ensure that a timed out test is never accidentally resolved, always throw
-							// or re-throw the cancel reason
-							if (result.cancel) {
-								let returnValue = result.cancel(reason);
-								if (returnValue && returnValue.finally) {
-									return returnValue.finally(function () {
-										throw reason;
-									});
-								}
+					this._runTask = new Task(
+						(resolve, reject) => {
+							if (isThenable(result)) {
+								result.then(resolve, reject);
 							}
 
-							throw reason;
-						});
+							// Most promise implementations that allow cancellation don't signal that a promise was
+							// canceled. In order to ensure that a timed out test is never accidentally resolved, reject
+							// a canceled test.
+							if (isTask(result)) {
+								result.finally(reject).catch(_error => {});
+							}
+						},
+						() => {
+							if (isTask(result)) {
+								result.cancel();
+							}
+						}
+					);
 
-						result.then(resolve, reject);
-					});
-
-					self.restartTimeout();
-					return self._runTask;
+					this.restartTimeout();
+					return this._runTask;
 				}
 			})
-			.finally(function () {
-				self.timeElapsed = Date.now() - startTime;
-				clearTimeout(self._timer);
-				self._timer = self._runTask = null;
+			.finally(() => {
+				this.timeElapsed = Date.now() - startTime;
+				clearTimeout(this._timer);
+				this._timer = this._runTask = null;
 			})
 			.then(
-				function () {
-					self.hasPassed = true;
-					if (self._usesRemote && !self.isAsync) {
-						throw new Error('Remote used in synchronous test! Tests using this.remote must return a ' +
-							'promise or resolve a this.async deferred.');
+				// Test completed successfully -- potentially passed
+				() => {
+					if (this._usesRemote && !this.isAsync) {
+						throw new Error('Remote used in synchronous test! Tests using this.remote must ' +
+							'return a promise or resolve a this.async deferred.');
 					}
-					return report('testPass');
+					this.hasPassed = true;
 				},
-				function (error: any) {
-					if (error === Test.SKIP) {
-						return report('testSkip');
+				// There was an error running the test; could be a skip, could be an assertion failure
+				error => {
+					if (error === SKIP) {
+						if (!this.skipped) {
+							this.skipped = error.message;
+						}
 					}
 					else {
-						self.error = error;
-						// TODO: If a test fails it probably should not reject the `run` promise unless the failure
-						// was inside the test system itself (and not just a test failure)
-						return report('testFail').then(function () {
-							throw error;
-						});
+						this.error = error;
+						throw error;
 					}
 				}
 			)
-			.finally(end);
+			.finally(() => this.executor.emit('testEnd', this));
 	}
 
 	/**
@@ -289,9 +263,9 @@ export default class Test {
 	 *
 	 * @param message If provided, will be stored in this test's `skipped` property.
 	 */
-	skip(message: string = '') {
+	skip(message: string = 'skipped') {
 		this.skipped = message;
-		throw Test.SKIP;
+		throw SKIP;
 	}
 
 	toJSON() {
@@ -323,3 +297,30 @@ export default class Test {
 		};
 	}
 }
+
+export function isTest(value: any): value is Test {
+	return typeof value.hasPassed === 'boolean' && typeof value.timeElapsed === 'number';
+}
+
+export function isTestOptions(value: any): value is TestOptions {
+	return !(value instanceof Test) && value.name != null && value.test != null;
+}
+
+export interface TestFunction {
+	(this: Test, test: Test): void | Promise<any>;
+}
+
+export interface TestProperties {
+	hasPassed: boolean;
+	name: string;
+	parent: Suite;
+	skipped: string;
+	test: TestFunction;
+}
+
+export type TestOptions = Partial<TestProperties> & {
+	name: string,
+	test: TestFunction
+};
+
+export const SKIP: any = {};

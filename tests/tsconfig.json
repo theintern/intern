@@ -1,18 +1,26 @@
 {
   "compilerOptions": {
     "baseUrl": "..",
-    "module": "umd",
+    "declaration": false,
+    "outDir": "../_tests",
     "paths": {
       "src/*": [
-        "./_build/src/*",
-        "./src/*"
+        "_build/src/*",
+        "src/*"
       ]
-    },
-    "rootDir": ".."
+    }
   },
   "extends": "../tsconfig.json",
   "include": [
-    "../types/**/*.d.ts",
-    "./**/*.ts"
+    "./node.ts",
+	"./loader.ts",
+	"./pre.ts",
+	"./benchmark/example.ts",
+	"./unit/lib/Environment.ts",
+	"./unit/lib/BenchmarkTest.ts",
+	"./functional/lib/ProxiedSession.ts",
+	"../src/loaders/*.ts",
+    "../src/browser/*.ts",
+    "../src/bin/*.ts"
   ]
 }

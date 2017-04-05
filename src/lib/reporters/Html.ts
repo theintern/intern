@@ -1,10 +1,7 @@
-import { IRequire } from 'dojo/loader';
-import * as util from '../util';
-import { Reporter, ReporterConfig } from '../../common';
+import Browser from '../executors/Browser';
+import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Test from '../Test';
 import Suite from '../Suite';
-
-declare const require: IRequire;
 
 function containsClass(node: Element, cls: string) {
 	const classes = node.className.split(/\s+/);
@@ -62,82 +59,93 @@ function formatDuration(duration: number): string {
 	return formattedValue;
 }
 
-export interface HtmlReporterConfig extends ReporterConfig {
-	document?: Document;
+export interface HtmlProperties extends ReporterProperties {
+	document: Document;
 }
 
-export default class Html implements Reporter {
+export type HtmlOptions = Partial<HtmlProperties>;
+
+export default class Html extends Reporter implements HtmlProperties {
+	readonly executor: Browser;
+
 	document: Document;
-	reportContainer: Element = null;
+
+	protected _reportContainer: Element = null;
 
 	// Div element to hold buttons above the summary table
-	reportControls: Element;
+	protected _reportControls: Element;
 
 	// tbody element to append report rows to
-	reportNode: Element;
+	protected _reportNode: Element;
 
 	// tr element containing summary info
-	summaryNode: Element;
+	protected _summaryNode: Element;
 
 	// Array of td elements in 'summaryNode'
-	summaryNodes: Element[] = [];
+	protected _summaryNodes: Element[] = [];
 
 	// Accumulator for total number of suites
-	suiteCount: number = 0;
+	protected _suiteCount = 0;
 
 	// Accumulator for total number of tests
-	testCount: number = 0;
+	protected _testCount = 0;
 
 	// Tests in the current suite
-	testsInSuite: number = 0;
+	protected _testsInSuite = 0;
 
 	// Current test index
-	testIndex: number = 0;
+	protected _testIndex = 0;
 
 	// ID's of tests that have been processed
-	processedTests: any = {};
+	protected _processedTests: any = {};
 
 	// Accumulator for total number of skipped tests
-	skippedCount: number = 0;
+	protected _skippedCount = 0;
 
 	// Accumulator for total number of failed tests
-	failCount: number = 0;
+	protected _failCount = 0;
 
-	failedFilter: any = null;
+	protected _failedFilter: any = null;
 
-	fragment: DocumentFragment = document.createDocumentFragment();
+	protected _fragment: DocumentFragment = document.createDocumentFragment();
 
-	indentLevel = 0;
+	protected _indentLevel = 0;
 
-	runningSuites: any = {};
+	protected _runningSuites: any = {};
 
-	constructor(config: HtmlReporterConfig = {}) {
-		this.document = config.document || window.document;
+	constructor(executor: Browser, options: HtmlOptions = {}) {
+		super(executor, options);
+
+		if (!this.document) {
+			this.document = window.document;
+		}
 	}
 
-	private _generateSummary(suite: Suite): void {
-		if (this.summaryNodes.length === 0) {
+	protected _generateSummary(suite: Suite): void {
+		const document = this.document;
+
+		if (this._summaryNodes.length === 0) {
 			return;
 		}
 
 		let duration = suite.timeElapsed;
-		let percentPassed = Math.round((1 - (this.failCount / this.testCount || 0)) * 10000) / 100;
+		let percentPassed = Math.round((1 - (this._failCount / this._testCount || 0)) * 10000) / 100;
 		let rowInfo = [
-			this.suiteCount,
-			this.testCount,
+			this._suiteCount,
+			this._testCount,
 			formatDuration(duration),
-			this.skippedCount,
-			this.failCount,
+			this._skippedCount,
+			this._failCount,
 			percentPassed + '%'
 		];
 
 		for (let i = 0; i < rowInfo.length; ++i) {
-			this.summaryNodes[i].appendChild(document.createTextNode(<string> rowInfo[i]));
+			this._summaryNodes[i].appendChild(document.createTextNode(<string> rowInfo[i]));
 		}
 
 		// Create a toggle to only show failed tests
-		if (this.failCount) {
-			let failedFilter = this.failedFilter = document.createElement('div');
+		if (this._failCount) {
+			let failedFilter = this._failedFilter = document.createElement('div');
 			failedFilter.className = 'failedFilter';
 			let failedToggle = document.createElement('input');
 			failedToggle.id = 'failedToggle';
@@ -161,20 +169,21 @@ export default class Html implements Reporter {
 		}
 	}
 
-	_injectCSS(): void {
+	protected _injectCSS() {
+		const document = this.document;
 		// Prevent FOUC
 		const style = document.createElement('style');
 		style.innerHTML = 'body { visibility: hidden; }';
 
 		const link = document.createElement('link');
 		link.rel = 'stylesheet';
-		link.href = require.toUrl('./html/html.css');
+		link.href = this.executor.config.internPath + 'lib/reporters/html/html.css';
 
 		document.head.appendChild(style);
 		document.head.appendChild(link);
 	}
 
-	private _getIndentLevel(node: Element): number {
+	protected _getIndentLevel(node: Element) {
 		// second child always has a class of indentN
 		const child: Element = node.children[1];
 
@@ -192,7 +201,7 @@ export default class Html implements Reporter {
 	 * @param {DOMNode} node A suite node
 	 * @param {boolean} collapsed Set the collapsed state, or toggle if undefined
 	 */
-	private _setCollapsed(node: Element, collapsed: boolean = false): void {
+	protected _setCollapsed(node: Element, collapsed: boolean = false) {
 		let indentDelta: number;
 		let initialIndent = this._getIndentLevel(node);
 
@@ -224,19 +233,21 @@ export default class Html implements Reporter {
 		}
 	}
 
-	fatalError(error: Error): void {
-		let htmlError = util.getErrorMessage(error).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+	@eventHandler()
+	error(error: Error) {
+		const document = this.document;
+		let htmlError = this.formatter.format(error).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 		let errorNode = document.createElement('div');
 		errorNode.style.cssText = 'color: red; font-family: sans-serif;';
 		errorNode.innerHTML = '<h1>Fatal error</h1>' +
 			'<pre style="padding: 1em; background-color: #f0f0f0;">' + htmlError + '</pre>';
 		document.body.appendChild(errorNode);
-	};
+	}
 
-	run(): void {
-		/* jshint maxlen:false */
-
-		this.reportContainer = document.createElement('div');
+	@eventHandler()
+	runStart() {
+		const document = this.document;
+		this._reportContainer = document.createElement('div');
 		const headerNode = document.createElement('h1');
 		let tableNode: Element;
 		let tmpNode: Element;
@@ -251,7 +262,7 @@ export default class Html implements Reporter {
 			'Success Rate'
 		];
 
-		const fragment = this.fragment;
+		const fragment = this._fragment;
 
 		// Page header
 		const headerTitle = document.createElement('span');
@@ -268,13 +279,13 @@ export default class Html implements Reporter {
 		fragment.appendChild(headerNode);
 
 		// Report container
-		this.reportContainer.className = 'internReportContainer';
-		this.fragment.appendChild(this.reportContainer);
+		this._reportContainer.className = 'internReportContainer';
+		this._fragment.appendChild(this._reportContainer);
 
 		// Summary table
 		tableNode = document.createElement('table');
 		tableNode.className = 'summary';
-		this.summaryNode = document.createElement('div');
+		this._summaryNode = document.createElement('div');
 
 		tmpNode = document.createElement('thead');
 		rowNode = document.createElement('tr');
@@ -294,10 +305,10 @@ export default class Html implements Reporter {
 			const cellData = document.createElement('div');
 			cellData.className = 'summaryData';
 
-			this.summaryNodes[i] = document.createElement('span');
-			this.summaryNode.appendChild(this.summaryNodes[i]);
+			this._summaryNodes[i] = document.createElement('span');
+			this._summaryNode.appendChild(this._summaryNodes[i]);
 
-			cellData.appendChild(this.summaryNodes[i]);
+			cellData.appendChild(this._summaryNodes[i]);
 			cellContent.appendChild(cellTitle);
 			cellContent.appendChild(cellData);
 			cellNode.appendChild(cellContent);
@@ -306,34 +317,36 @@ export default class Html implements Reporter {
 
 		tmpNode.appendChild(rowNode);
 		tableNode.appendChild(tmpNode);
-		this.reportContainer.appendChild(tableNode);
+		this._reportContainer.appendChild(tableNode);
 
 		// Controls
-		this.reportControls = document.createElement('div');
-		this.reportControls.className = 'reportControls';
-		this.reportControls.appendChild(document.createElement('div'));
-		this.reportControls.appendChild(document.createElement('div'));
-		this.reportContainer.appendChild(this.reportControls);
+		this._reportControls = document.createElement('div');
+		this._reportControls.className = 'reportControls';
+		this._reportControls.appendChild(document.createElement('div'));
+		this._reportControls.appendChild(document.createElement('div'));
+		this._reportContainer.appendChild(this._reportControls);
 
 		// Report table
 		tableNode = document.createElement('table');
 		tableNode.className = 'report';
-		this.reportNode = document.createElement('tbody');
-		tableNode.appendChild(this.reportNode);
-		this.reportContainer.appendChild(tableNode);
+		this._reportNode = document.createElement('tbody');
+		tableNode.appendChild(this._reportNode);
+		this._reportContainer.appendChild(tableNode);
 	}
 
-	suiteStart(suite: Suite): void {
+	@eventHandler()
+	suiteStart(suite: Suite) {
 		// There's a top-level Suite that contains all user-created suites
 		// We want to skip it
 		if (!suite.parent) {
 			return;
 		}
 
-		this.testsInSuite = suite.tests.length;
-		this.testIndex = 0;
-		this.processedTests = {};
+		this._testsInSuite = suite.tests.length;
+		this._testIndex = 0;
+		this._processedTests = {};
 
+		const document = this.document;
 		const rowNode = document.createElement('tr');
 
 		// Status cell
@@ -343,49 +356,51 @@ export default class Html implements Reporter {
 
 		cellNode = document.createElement('td');
 
-		this.suiteCount++;
+		this._suiteCount++;
 
 		cellNode.className = 'title';
 		cellNode.appendChild(document.createTextNode(suite.name));
 		rowNode.className = 'suite';
 		rowNode.appendChild(cellNode);
-		this.reportNode.appendChild(rowNode);
+		this._reportNode.appendChild(rowNode);
 
-		if (this.indentLevel) {
-			cellNode.className += ' indent' + Math.min(this.indentLevel, 5);
+		if (this._indentLevel) {
+			cellNode.className += ' indent' + Math.min(this._indentLevel, 5);
 			rowNode.className += ' indent';
 		}
 
-		this.runningSuites[suite.id] = { node: rowNode };
-		++this.indentLevel;
+		this._runningSuites[suite.id] = { node: rowNode };
+		++this._indentLevel;
 	}
 
-	suiteEnd(suite: Suite): void {
+	@eventHandler()
+	suiteEnd(suite: Suite) {
 		const document = this.document;
-		if (!suite.parent) {
+
+		if (!suite.hasParent) {
 			this._generateSummary(suite);
 
 			this._injectCSS();
 
 			document.body.innerHTML = '';
 			document.body.className = '';
-			document.body.appendChild(this.fragment);
+			document.body.appendChild(this._fragment);
 
 			const expandToggle = document.createElement('div');
 			expandToggle.className = 'linkButton';
 			expandToggle.textContent = 'Expand/collapse all';
-			this.reportControls.firstElementChild.appendChild(expandToggle);
+			this._reportControls.firstElementChild.appendChild(expandToggle);
 
 			expandToggle.addEventListener('click', () => {
-				const shouldExpand = this.reportNode.querySelector('.collapsed') != null;
-				const suites = this.reportNode.querySelectorAll('.suite');
+				const shouldExpand = this._reportNode.querySelector('.collapsed') != null;
+				const suites = this._reportNode.querySelectorAll('.suite');
 				for (let i = 0; i < suites.length; i++) {
 					this._setCollapsed(suites[i], !shouldExpand);
 				}
 			});
 
-			if (this.failedFilter) {
-				this.reportControls.lastElementChild.appendChild(this.failedFilter);
+			if (this._failedFilter) {
+				this._reportControls.lastElementChild.appendChild(this._failedFilter);
 			}
 			else {
 				const failedNode = document.querySelector('.failed');
@@ -396,7 +411,7 @@ export default class Html implements Reporter {
 			return;
 		}
 
-		const rowNode = this.runningSuites[suite.id].node;
+		const rowNode = this._runningSuites[suite.id].node;
 		const numTests = suite.numTests;
 		const numFailedTests = suite.numFailedTests;
 		const numSkippedTests = suite.numSkippedTests;
@@ -446,27 +461,29 @@ export default class Html implements Reporter {
 		cellNode.appendChild(document.createTextNode(formatDuration(suite.timeElapsed)));
 		rowNode.appendChild(cellNode);
 
-		--this.indentLevel;
+		--this._indentLevel;
 
 		// Only update the global tracking variables for top-level suites
-		if (!this.indentLevel) {
-			this.testCount += numTests;
-			this.failCount += numFailedTests;
-			this.skippedCount += numSkippedTests;
+		if (!this._indentLevel) {
+			this._testCount += numTests;
+			this._failCount += numFailedTests;
+			this._skippedCount += numSkippedTests;
 		}
 
-		this.runningSuites[suite.id] = null;
+		this._runningSuites[suite.id] = null;
 	}
 
-	testEnd(test: Test): void {
-		if (test.id in this.processedTests) {
+	@eventHandler()
+	testEnd(test: Test) {
+		if (test.id in this._processedTests) {
 			return;
 		}
 
-		this.processedTests[test.id] = true;
+		this._processedTests[test.id] = true;
 
-		this.testIndex++;
+		this._testIndex++;
 
+		const document = this.document;
 		const rowNode = document.createElement('tr');
 
 		// Status cell
@@ -476,8 +493,8 @@ export default class Html implements Reporter {
 
 		cellNode = document.createElement('td');
 
-		if (this.indentLevel) {
-			cellNode.className += ' indent' + this.indentLevel;
+		if (this._indentLevel) {
+			cellNode.className += ' indent' + this._indentLevel;
 		}
 
 		cellNode.appendChild(document.createTextNode(test.name));
@@ -498,7 +515,7 @@ export default class Html implements Reporter {
 			rowNode.className = 'testResult passed';
 		}
 
-		if (this.testIndex === this.testsInSuite) {
+		if (this._testIndex === this._testsInSuite) {
 			rowNode.className = rowNode.className + ' lastTest';
 		}
 
@@ -509,10 +526,6 @@ export default class Html implements Reporter {
 		cellNode.appendChild(document.createTextNode(test.skipped ? 'Skipped' : formatDuration(test.timeElapsed)));
 		rowNode.appendChild(cellNode);
 
-		this.reportNode.appendChild(rowNode);
-	}
-
-	testSkip(test: Test): void {
-		return this.testEnd(test);
+		this._reportNode.appendChild(rowNode);
 	}
 }

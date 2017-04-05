@@ -1,5 +1,5 @@
 import { Reporter, ReporterConfig, ReporterOutput } from '../../common';
-import * as util from '../util';
+import { getErrorMessage } from '../node/util';
 import Test from '../Test';
 import Suite from '../Suite';
 
@@ -81,7 +81,7 @@ export default class TeamCity implements Reporter {
 	testFail(test: Test) {
 		const message: any = {
 			name: test.name,
-			message: util.getErrorMessage(test.error),
+			message: getErrorMessage(test.error),
 			flowId: test.sessionId
 		};
 
@@ -115,7 +115,7 @@ export default class TeamCity implements Reporter {
 			name: suite.name,
 			flowId: suite.sessionId,
 			text: 'SUITE ERROR',
-			errorDetails: util.getErrorMessage(suite.error),
+			errorDetails: getErrorMessage(suite.error),
 			status: 'ERROR'
 		});
 	}

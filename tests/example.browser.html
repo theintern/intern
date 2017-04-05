@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+	</head>
+
+	<body>
+		<script src="../browser/runner.js"></script>
+		<script>
+			intern.configure({ reporters: [ 'console' ] });
+		</script>
+		<script src="../../node_modules/dojo-loader/loader.js"></script>
+		<script>
+			require([ './unit/all' ], function () {
+				intern.run();
+			});
+		</script>
+	</body>
+</html>

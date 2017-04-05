@@ -1,56 +1,9 @@
 {
   "name": "intern",
   "version": "4.0.0-pre",
-  "main": "main.js",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/theintern/intern.git"
-  },
+  "homepage": "http://theintern.io/",
   "license": "BSD-3-Clause",
-  "dependencies": {
-    "@types/source-map": "~0.1.28",
-    "@types/benchmark": "~1.0.30",
-    "@types/chai": "~3.4.34",
-    "benchmark": "2.1.1",
-    "chai": "3.5.0",
-    "charm": "0.2.0",
-    "diff": "1.1.0",
-    "digdug": "https://github.com/jason0x43/digdug/releases/download/2.0.0-pre/digdug-2.0.0-pre.tgz",
-    "dojo": "2.0.0-alpha.7",
-    "glob": "7.0.3",
-    "istanbul": "0.4.1",
-    "leadfoot": "~1.7.0",
-    "lodash-amd": "4.16.4",
-    "mimetype": "0.0.8",
-    "platform": "1.3.1",
-    "source-map": "0.1.33",
-    "@types/chai": "3.4.34",
-    "@types/node": "6.0.48"
-  },
-  "devDependencies": {
-    "@types/chokidar": "~1.4.29",
-    "@types/diff": "~0.0.31",
-    "@types/glob": "~5.0.30",
-    "@types/grunt": "~0.4.20",
-    "@types/node": "~6.0.0",
-    "intern": "~3.4.2",
-    "intern-dev": "https://github.com/theintern/intern-dev/releases/download/0.1.2/intern-dev-0.1.2.tgz"
-  },
-  "peerDependencies": {
-    "typescript": "~2.1.4",
-    "tslint": "~4.0.0"
-  },
-  "scripts": {
-    "build": "intern-dev-clean && intern-dev-build",
-    "clean": "intern-dev-clean",
-    "install": "node support/fixdeps.js",
-    "lint": "intern-dev-lint",
-    "release": "intern-dev-release",
-    "test": "intern-dev-build && intern-dev-test",
-    "update": "node support/fixdeps.js",
-    "watch": "intern-dev-watch"
-  },
   "bugs": "https://github.com/theintern/intern/issues",
   "files": [
     "bin",
@@ -84,21 +37,100 @@
     "sauce labs",
     "code coverage"
   ],
-  "homepage": "http://theintern.io/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/intern.git"
+  },
+  "files": [
+    "Node.*",
+    "WebDriver.*",
+    "index.*",
+    "bin/*.js",
+    "browser",
+    "lib",
+    "loaders",
+    "tasks",
+    "tests",
+    "types"
+  ],
   "bin": {
-    "intern-client": "./bin/intern-client.js",
-    "intern-runner": "./bin/intern-runner.js"
+    "intern": "./bin/intern.js"
+  },
+  "scripts": {
+    "build": "intern-dev-clean && stylus src/lib/reporters/html/html.styl && intern-dev-build",
+    "postbuild": "intern-dev-browserify",
+    "browserify": "intern-dev-browserify",
+    "clean": "intern-dev-clean",
+    "lint": "intern-dev-lint",
+    "release": "intern-dev-release",
+    "test": "node _tests/src/bin/intern.js"
+  },
+  "dependencies": {
+    "@dojo/core": "https://github.com/jason0x43/core/releases/download/v2.0.0-alpha.29/dojo-core-2.0.0-alpha.29.tgz",
+    "@dojo/interfaces": "beta1",
+    "@types/benchmark": "~1.0.30",
+    "@types/chai": "~3.4.34",
+    "@types/charm": "~1.0.0",
+    "@types/source-map": "~0.1.28",
+    "@types/ws": "~0.0.38",
+    "benchmark": "~2.1.1",
+    "chai": "~3.5.0",
+    "charm": "~0.2.0",
+    "diff": "~1.1.0",
+    "digdug": "~2.0.0-beta.0",
+    "glob": "~7.0.3",
+    "istanbul": "~0.4.1",
+    "leadfoot": "~2.0.0-beta.0",
+    "lodash-amd": "~4.17.4",
+    "mime-types": "~2.1.13",
+    "platform": "~1.3.1",
+    "source-map": "~0.5.6",
+    "ws": "~2.2.0"
+  },
+  "devDependencies": {
+    "@types/chalk": "^0.4.31",
+    "@types/chokidar": "^1.4.29",
+    "@types/diff": "^0.0.31",
+    "@types/glob": "^5.0.30",
+    "@types/grunt": "^0.4.20",
+    "@types/node": "^6.0.0",
+    "@types/shelljs": "^0.3.32",
+    "@types/systemjs": "^0.20.2",
+    "browserify": "^14.1.0",
+    "@dojo/loader": "beta1",
+    "@dojo/has": "beta1",
+    "@dojo/shim": "beta1",
+    "intern-dev": "~0.2.0",
+    "systemjs": "^0.20.11"
   },
   "internDev": {
     "resources": {
-      "src": [
-        "tests/example.intern.js"
+      "_build": [
+        "src/**/*.{css,d.ts,html,js,png}",
+        "src/**/!(tsconfig).json"
       ],
-      ".": [
+      "_build/src": [
+        "types/**",
+        "bin/**"
+      ],
+      "_tests": [
         "tests/**/*.xml",
-        "tests/**/*.js"
+        "src/**/*.{css,d.ts,html,js,png}"
       ]
     },
-    "testConfig": "tests/selftest.intern.js"
+    "browserify": {
+      "_build/src/browser/intern.js": [
+        "_build/src/browser/intern.js"
+      ],
+      "_build/src/browser/remote.js": [
+        "_build/src/browser/remote.js"
+      ],
+      "_tests/src/browser/intern.js": [
+        "_tests/src/browser/intern.js"
+      ],
+      "_tests/src/browser/remote.js": [
+        "_tests/src/browser/remote.js"
+      ]
+    }
   }
 }

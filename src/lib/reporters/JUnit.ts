@@ -1,4 +1,4 @@
-import * as util from '../util';
+import { getErrorMessage } from '../node/util';
 import Suite from '../Suite';
 import Test from '../Test';
 import { Reporter, ReporterConfig } from '../../common';
@@ -106,7 +106,7 @@ function createTestNode(test: Suite|Test): XmlNode {
 
 	if (test.error) {
 		node.createNode(test.error.name === 'AssertionError' ? 'failure' : 'error', {
-			childNodes: [ util.getErrorMessage(test.error) ],
+			childNodes: [ getErrorMessage(test.error) ],
 			message: test.error.message,
 			type: test.error.name
 		});

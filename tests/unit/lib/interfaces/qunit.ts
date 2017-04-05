@@ -24,7 +24,7 @@ registerSuite({
 	},
 
 	beforeEach() {
-		main.setExecutor(new Executor({ reporters: [] }, <any> { registerErrorHandler: function () {} }));
+		main.setExecutor(new Executor({ reporters: [] }));
 		rootSuite = new Suite({ name: null, reporterManager: main.executor.reporterManager });
 		main.executor.suites = [ rootSuite ];
 	},

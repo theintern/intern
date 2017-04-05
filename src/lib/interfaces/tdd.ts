@@ -1,50 +1,69 @@
-import { on } from 'dojo/aspect';
-import * as main from '../../main';
+import { on } from '@dojo/core/aspect';
 import Suite, { SuiteLifecycleFunction } from '../Suite';
 import Test, { TestFunction } from '../Test';
+import Executor from '../executors/Executor';
 
-let currentSuite: Suite;
-const suites: Suite[] = [];
-
-function registerSuite(name: string, factory: TestFunction): void {
-	const parentSuite = currentSuite;
-
-	currentSuite = new Suite({ name: name, parent: parentSuite });
-	parentSuite.tests.push(currentSuite);
-
-	suites.push(parentSuite);
-	factory.call(currentSuite);
-	currentSuite = suites.pop();
+export interface TddInterface {
+	suite(name: string, factory: SuiteLifecycleFunction): void;
+	test(name: string, test: TestFunction): void;
+	before(fn: SuiteLifecycleFunction): void;
+	after(fn: SuiteLifecycleFunction): void;
+	beforeEach(fn: SuiteLifecycleFunction): void;
+	afterEach(fn: SuiteLifecycleFunction): void;
 }
 
-export function suite(name: string, factory: TestFunction): void {
-	if (!currentSuite) {
-		main.executor.register(suite => {
+export default function getInterface(executor: Executor): TddInterface {
+	let currentSuite: Suite;
+
+	return {
+		suite(name: string, factory: (suite: Suite) => void) {
+			const parent = currentSuite;
+			const suite = new Suite({ name });
+			if (!parent) {
+				// This is a new top-level suite, not a nested suite
+				executor.addTest(suite);
+			}
+			else {
+				parent.add(suite);
+			}
 			currentSuite = suite;
-			registerSuite(name, factory);
-			currentSuite = null;
-		});
-	} else {
-		registerSuite(name, factory);
-	}
-}
+			factory.call(suite, suite);
+			currentSuite = parent;
+		},
 
-export function test (name: string, test: TestFunction): void {
-	currentSuite.tests.push(new Test({ name, test, parent: currentSuite }));
-}
+		test(name: string, test: TestFunction) {
+			if (!currentSuite) {
+				throw new Error('A test must be declared within a suite');
+			}
+			currentSuite.add(new Test({ name, test, parent: currentSuite }));
+		},
 
-export function before(fn: SuiteLifecycleFunction): void {
-	on(currentSuite, 'setup', fn);
-}
+		before(fn: SuiteLifecycleFunction) {
+			if (!currentSuite) {
+				throw new Error(`A suite lifecycle method must be declared within a suite`);
+			}
+			on(currentSuite, 'before', fn);
+		},
 
-export function after(fn: SuiteLifecycleFunction): void {
-	on(currentSuite, 'teardown', fn);
-}
+		after(fn: SuiteLifecycleFunction) {
+			if (!currentSuite) {
+				throw new Error(`A suite lifecycle method must be declared within a suite`);
+			}
+			on(currentSuite, 'after', fn);
+		},
 
-export function beforeEach(fn: SuiteLifecycleFunction): void {
-	on(currentSuite, 'beforeEach', fn);
-}
+		beforeEach(fn: SuiteLifecycleFunction) {
+			if (!currentSuite) {
+				throw new Error(`A suite lifecycle method must be declared within a suite`);
+			}
+			on(currentSuite, 'beforeEach', fn);
+		},
 
-export function afterEach(fn: SuiteLifecycleFunction): void {
-	on(currentSuite, 'afterEach', fn);
+		afterEach(fn: SuiteLifecycleFunction) {
+			if (!currentSuite) {
+				throw new Error(`A suite lifecycle method must be declared within a suite`);
+			}
+			on(currentSuite, 'afterEach', fn);
+		}
+	};
 }

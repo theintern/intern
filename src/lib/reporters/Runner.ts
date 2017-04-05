@@ -1,15 +1,16 @@
-import * as charm from 'dojo/node!charm';
-import * as nodeUtil from 'dojo/node!util';
-import Collector = require('dojo/has!host-node?dojo/node!istanbul/lib/collector');
-import TextSummaryReport = require('dojo/has!host-node?dojo/node!istanbul/lib/report/text-summary');
-import TextReport = require('dojo/has!host-node?dojo/node!istanbul/lib/report/text');
-import * as intern from '../../main';
-import * as util from '../util';
+import * as charm from 'charm';
+import * as nodeUtil from 'util';
+import Collector = require('istanbul/lib/collector');
+import TextSummaryReport = require('istanbul/lib/report/text-summary');
+import TextReport = require('istanbul/lib/report/text');
 import Test from '../Test';
 import Suite from '../Suite';
-import { Reporter, ReporterConfig, Config, Proxy } from '../../common';
+import { createEventHandler } from './Reporter';
+import Coverage, { CoverageProperties } from './Coverage';
 import { Writable } from 'stream';
-import Tunnel from 'digdug/Tunnel';
+import Server from '../Server';
+import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
+import WebDriver, { Events, TunnelMessage } from '../executors/WebDriver';
 
 const LIGHT_RED = '\x1b[91m';
 const LIGHT_GREEN = '\x1b[92m';
@@ -17,104 +18,108 @@ const LIGHT_YELLOW = '\x1b[93m';
 const LIGHT_MAGENTA = '\x1b[95m';
 export type Charm = charm.Charm;
 
-export interface RunnerConfig extends ReporterConfig {
-	internConfig?: Config;
-}
+const eventHandler = createEventHandler<Events>();
 
-export default class Runner implements Reporter {
+export default class Runner extends Coverage {
 	sessions: { [sessionId: string]: any };
+
 	hasErrors: boolean;
-	proxyOnly: boolean;
+
+	serveOnly: boolean;
 
 	private _summaryReporter: TextSummaryReport;
 	private _detailedReporter: TextReport;
 
 	protected charm: Charm;
 
-	constructor(config: RunnerConfig = {}) {
+	constructor(executor: WebDriver, config: Partial<CoverageProperties> = {}) {
+		super(executor, config);
+
 		this.sessions = {};
 		this.hasErrors = false;
-		this.proxyOnly = Boolean(config.internConfig.proxyOnly);
+		this.serveOnly = executor.config.serveOnly;
 		this._summaryReporter = new TextSummaryReport({
-			watermarks: config.watermarks
+			watermarks: this.watermarks
 		});
 		this._detailedReporter = new TextReport({
-			watermarks: config.watermarks
+			watermarks: this.watermarks
 		});
 
 		this.charm = charm();
-		this.charm.pipe(<Writable> config.output);
+		this.charm.pipe(<Writable>this.output);
 		this.charm.display('reset');
 	}
 
-	coverage(sessionId: string, coverage: Object): void {
+	@eventHandler()
+	coverage(message: CoverageMessage) {
 		// coverage will be called for the runner host, which has no session ID -- ignore that
-		if (intern.mode === 'client' || sessionId) {
-			const session = this.sessions[sessionId || ''];
+		if (message.sessionId) {
+			const session = this.sessions[message.sessionId || ''];
 			session.coverage = session.coverage || new Collector();
-			session.coverage.add(coverage);
+			session.coverage.add(message.coverage);
 		}
 	}
 
-	deprecated(name: string, replacement: string, extra: string): void {
+	@eventHandler()
+	deprecated(message: DeprecationMessage) {
 		this.charm
 			.write(LIGHT_YELLOW)
-			.write('⚠︎ ' + name + ' is deprecated. ');
+			.write('⚠︎ ' + message.original + ' is deprecated. ');
 
-		if (replacement) {
-			this.charm.write('Use ' + replacement + ' instead.');
+		if (message.replacement) {
+			this.charm.write('Use ' + message.replacement + ' instead.');
 		}
 		else {
 			this.charm.write('Please open a ticket at https://github.com/theintern/intern/issues if you still ' +
 				'require access to this function.');
 		}
 
-		if (extra) {
-			this.charm.write(' ' + extra);
+		if (message.message) {
+			this.charm.write(' ' + message.message);
 		}
 
 		this.charm.write('\n').display('reset');
 	}
 
-	fatalError(error: Error): void {
+	@eventHandler()
+	error(error: Error) {
 		this.charm
 			.foreground('red')
 			.write('(ノಠ益ಠ)ノ彡┻━┻\n')
-			.write(util.getErrorMessage(error))
+			.write(this.formatter.format(error))
 			.display('reset')
 			.write('\n');
 
 		this.hasErrors = true;
 	}
 
-	proxyStart(proxy: Proxy): void {
-		this.charm.write('Listening on 0.0.0.0:' + proxy.config.port + '\n');
+	@eventHandler()
+	log(message: string) {
+		message.split('\n').forEach(line => {
+			console.log(`DEBUG: ${line}`);
+		});
 	}
 
-	reporterError(_reporter: Reporter, error: Error): void {
-		this.charm
-			.foreground('red')
-			.write('Reporter error!\n')
-			.write(util.getErrorMessage(error))
-			.display('reset')
-			.write('\n');
-	}
-
-	runEnd(): void {
+	@eventHandler()
+	runEnd() {
 		let collector = new Collector();
-		let numEnvironments = 0;
 		let numTests = 0;
 		let numFailedTests = 0;
 		let numSkippedTests = 0;
 
-		for (let sessionId in this.sessions) {
-			let session = this.sessions[sessionId];
-			session.coverage && collector.add(session.coverage.getFinalCoverage());
-			++numEnvironments;
+		const sessionIds = Object.keys(this.sessions);
+		const numEnvironments = sessionIds.length;
+
+		sessionIds.forEach(sessionId => {
+			const session = this.sessions[sessionId];
+			if (session.coverage) {
+				const finalCoverage = session.coverage.getFinalCoverage();
+				collector.add(finalCoverage);
+			}
 			numTests += session.suite.numTests;
 			numFailedTests += session.suite.numFailedTests;
 			numSkippedTests += session.suite.numSkippedTests;
-		}
+		});
 
 		// add a newline between test results and coverage results for prettier output
 		this.charm.write('\n');
@@ -141,20 +146,37 @@ export default class Runner implements Reporter {
 			.write('\n');
 	}
 
-	suiteEnd(suite: Suite): void {
-		if (!suite.hasParent) {
-			// runEnd will report all of this information, so do not repeat it
-			if (intern.mode === 'client') {
-				return;
-			}
+	@eventHandler()
+	serverStart(server: Server) {
+		let message = `Listening on localhost:${server.port}`;
+		if (server.socketPort) {
+			message += ` (ws ${server.socketPort})`;
+		}
+		this.charm.write(`${message}\n`);
+	}
 
+	@eventHandler()
+	suiteEnd(suite: Suite) {
+		if (suite.error) {
+			const error = suite.error;
+
+			this.charm
+				.foreground('red')
+				.write('Suite ' + suite.id + ' FAILED\n')
+				.write(this.formatter.format(error))
+				.display('reset')
+				.write('\n');
+
+			this.hasErrors = true;
+		}
+		else if (!suite.hasParent) {
 			// Runner mode test with no sessionId was some failed test, not a bug
 			if (!suite.sessionId) {
 				return;
 			}
 
 			if (!this.sessions[suite.sessionId]) {
-				if (!this.proxyOnly) {
+				if (!this.serveOnly) {
 					this.charm
 						.write(LIGHT_YELLOW)
 						.write('BUG: suiteEnd was received for invalid session ' + suite.sessionId)
@@ -202,20 +224,8 @@ export default class Runner implements Reporter {
 		}
 	}
 
-	suiteError(suite: Suite): void {
-		const error = suite.error;
-
-		this.charm
-			.foreground('red')
-			.write('Suite ' + suite.id + ' FAILED\n')
-			.write(util.getErrorMessage(error))
-			.display('reset')
-			.write('\n');
-
-		this.hasErrors = true;
-	}
-
-	suiteStart(suite: Suite): void {
+	@eventHandler()
+	suiteStart(suite: Suite) {
 		if (!suite.hasParent) {
 			this.sessions[suite.sessionId || ''] = { suite: suite };
 			if (suite.sessionId) {
@@ -224,47 +234,51 @@ export default class Runner implements Reporter {
 		}
 	}
 
-	testFail(test: Test): void {
-		this.charm
-			.write(LIGHT_RED)
-			.write('× ' + test.id)
-			.write(' (' + (test.timeElapsed / 1000) + 's)')
-			.write('\n')
-			.foreground('red')
-			.write(util.getErrorMessage(test.error))
-			.display('reset')
-			.write('\n');
+	@eventHandler()
+	testEnd(test: Test) {
+		if (test.error) {
+			this.charm
+				.write(LIGHT_RED)
+				.write('× ' + test.id)
+				.write(' (' + (test.timeElapsed / 1000) + 's)')
+				.write('\n')
+				.foreground('red')
+				.write(this.formatter.format(test.error))
+				.display('reset')
+				.write('\n');
+		}
+		else if (test.skipped) {
+			this.charm
+				.write(LIGHT_MAGENTA)
+				.write('~ ' + test.id)
+				.foreground('white')
+				.write(' (' + (test.skipped || 'skipped') + ')')
+				.display('reset')
+				.write('\n');
+		}
+		else {
+			this.charm
+				.write(LIGHT_GREEN)
+				.write('✓ ' + test.id)
+				.foreground('white')
+				.write(' (' + (test.timeElapsed / 1000) + 's)')
+				.display('reset')
+				.write('\n');
+		}
 	}
 
-	testPass(test: Test): void {
-		this.charm
-			.write(LIGHT_GREEN)
-			.write('✓ ' + test.id)
-			.foreground('white')
-			.write(' (' + (test.timeElapsed / 1000) + 's)')
-			.display('reset')
-			.write('\n');
+	@eventHandler()
+	tunnelDownloadProgress(message: TunnelMessage) {
+		this.charm.write('Tunnel download: ' + (message.progress.received / message.progress.total * 100).toFixed(3) + '%\r');
 	}
 
-	testSkip(test: Test): void {
-		this.charm
-			.write(LIGHT_MAGENTA)
-			.write('~ ' + test.id)
-			.foreground('white')
-			.write(' (' + (test.skipped || 'skipped') + ')')
-			.display('reset')
-			.write('\n');
-	}
-
-	tunnelDownloadProgress(_tunnel: Tunnel, progress: { loaded: number, total: number }) {
-		this.charm.write('Tunnel download: ' + (progress.loaded / progress.total * 100).toFixed(3) + '%\r');
-	}
-
-	tunnelStart(): void {
+	@eventHandler()
+	tunnelStart() {
 		this.charm.write('Tunnel started\n');
 	}
 
-	tunnelStatus(_tunnel: Tunnel, status: string): void {
-		this.charm.write(status + '\x1b[K\r');
+	@eventHandler()
+	tunnelStatus(message: TunnelMessage) {
+		this.charm.write(message.status + '\x1b[K\r');
 	}
 }

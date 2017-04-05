@@ -2,8 +2,16 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "declaration": true,
-	"lib": [ "ES5", "ES2015.Promise", "ES2015.Symbol", "ES2015.Iterable", "DOM" ],
-    "module": "umd",
+    "experimentalDecorators": true,
+	"lib": [
+      "es5",
+      "es2015.collection",
+      "es2015.symbol",
+      "es2015.symbol.wellknown",
+      "es2015.iterable",
+      "dom"
+    ],
+    "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -14,10 +22,28 @@
     "removeComments": true,
     "rootDir": ".",
     "sourceMap": true,
-    "target": "ES5"
+    "target": "es5",
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types"
+    ]
   },
+  "formatCodeOptions": {
+    "convertTabsToSpaces": false,
+    "insertSpaceAfterCommaDelimiter": true,
+    "insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
+    "insertSpaceAfterSemicolonInForStatements": true
+  },
+  "files": [
+    "src/index.ts"
+  ],
   "include": [
-    "./types/**/*.d.ts",
-    "./src/**/*.ts"
+    "src/browser/**/*.ts",
+    "src/bin/*.ts",
+    "src/loaders/*.ts",
+    "src/lib/executors/Browser.ts",
+    "src/lib/executors/Node.ts",
+    "src/lib/executors/Remote.ts",
+    "src/lib/executors/WebDriver.ts"
   ]
 }

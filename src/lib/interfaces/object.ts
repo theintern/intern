@@ -1,91 +1,87 @@
-import * as aspect from 'dojo/aspect';
-import * as main from '../../main';
-import Suite, { SuiteConfig, SuiteLifecycleFunction } from '../Suite';
-import Test from '../Test';
-
-export interface ObjectSuiteConfig extends SuiteConfig {
-	after?: SuiteLifecycleFunction;
-	before?: SuiteLifecycleFunction;
-}
-
-function createSuite(descriptor: ObjectSuiteConfig, parentSuite: Suite, TestClass?: typeof Test, propertyHandler?: PropertyHandler): void {
-	/* jshint maxcomplexity: 13 */
-	let suite = new Suite({ parent: parentSuite });
-	let tests = suite.tests;
-	let test: any;
-	let handled: boolean;
-
-	parentSuite.tests.push(suite);
-
-	for (let k in descriptor) {
-		test = descriptor[k];
-		handled = propertyHandler && propertyHandler(k, test, suite);
-
-		if (!handled) {
-			handled = defaultPropertyHandler(k, test, suite);
-		}
-
-		if (!handled) {
-			// Test isn't a function; assume it's a nested suite
-			if (typeof test !== 'function') {
-				test.name = test.name || k;
-				createSuite(test, suite, TestClass, propertyHandler);
-			}
-			// Test is a function; create a Test instance for it
-			else {
-				tests.push(new TestClass({ name: k, test: test, parent: suite }));
-			}
-		}
-	}
-}
-
-function defaultPropertyHandler(property: string, value: any, suite: Suite) {
-	if (property === 'before') {
-		property = 'setup';
-	}
-	if (property === 'after') {
-		property = 'teardown';
-	}
-
-	switch (property) {
-		case 'name':
-		case 'timeout':
-			suite[property] = value;
-			return true;
-
-		case 'setup':
-		case 'beforeEach':
-		case 'afterEach':
-		case 'teardown':
-			aspect.on(suite, property, value);
-			return true;
-	}
-
-	return false;
-}
-
 /**
- * Register a new test suite. If provided, tests will be constructed using TestClass.
- *
- * @param {function|...object~SuiteDescriptor} mainDescriptor - Object or IIFE describing the suite
- * @param {function?} TestClass - Class to use to construct individual tests
- * @param {function?} propertyHandler - Function to handle any properties that shouldn't be used as tests
+ * Object interface for registering suites
  */
-export default function registerSuite(mainDescriptor: ObjectSuiteConfig, TestClass?: typeof Test, propertyHandler?: PropertyHandler): void {
-	TestClass = TestClass || Test;
 
-	main.executor.register(function (suite: Suite) {
-		let descriptor = mainDescriptor;
+import Suite, { SuiteOptions, SuiteProperties } from '../Suite';
+import Test, { TestFunction } from '../Test';
+import Executor from '../executors/Executor';
 
-		// enable per-suite closure, to match feature parity with other interfaces like tdd/bdd more closely;
-		// without this, it becomes impossible to use the object interface for functional tests since there is no
-		// other way to create a closure for each main suite
-		if (typeof descriptor === 'function') {
-			descriptor = descriptor();
+export default function getInterface(executor: Executor) {
+	return {
+		registerSuite(descriptor: ObjectSuiteDescriptor | ObjectSuiteFactory) {
+			// Enable per-suite closure, to match feature parity with other interfaces like tdd/bdd more closely;
+			// without this, it becomes impossible to use the object interface for functional tests since there is no
+			// other way to create a closure for each main suite
+			if (isSuiteDescriptorFactory<ObjectSuiteFactory>(descriptor)) {
+				descriptor = descriptor();
+			}
+
+			registerSuite(executor, descriptor, Suite, Test);
+		}
+	};
+}
+
+export interface ObjectInterface {
+	registerSuite(mainDescriptor: ObjectSuiteDescriptor | ObjectSuiteFactory): void;
+}
+
+export type SuiteDescriptor = {
+	tests: { [name: string]: SuiteDescriptor | TestFunction };
+};
+
+export type NestedSuiteDescriptor = Partial<SuiteProperties> & {
+	tests: { [name: string]: NestedSuiteDescriptor | TestFunction };
+};
+
+export type ObjectSuiteDescriptor = NestedSuiteDescriptor & {
+	name: string;
+};
+
+export interface ObjectSuiteFactory {
+	(): ObjectSuiteDescriptor;
+}
+
+export function isSuiteDescriptorFactory<T>(value: any): value is T {
+	return typeof value === 'function';
+}
+
+export function registerSuite<P extends SuiteDescriptor, S extends typeof Suite, T extends typeof Test>(executor: Executor, descriptor: P, SuiteClass: S, TestClass: T) {
+	executor.addTest(createSuite(descriptor, SuiteClass, TestClass));
+}
+
+function isNestedSuiteDescriptor(value: any): value is SuiteDescriptor {
+	return value && typeof value.tests === 'object';
+}
+
+function createSuite<P extends SuiteDescriptor, S extends typeof Suite, T extends typeof Test>(descriptor: P, SuiteClass: S, TestClass: T) {
+	let options: SuiteOptions = { name: null, tests: [] };
+
+	// Initialize a new SuiteOptions object from the provided ObjectSuiteDescriptor
+	Object.keys(descriptor).filter(key => {
+		return key !== 'tests';
+	}).forEach((key: keyof typeof descriptor) => {
+		(<any>options)[key] = descriptor[key];
+	});
+
+	const suite = new SuiteClass(options);
+	const tests = descriptor.tests;
+
+	Object.keys(tests).map(name => {
+		const thing = tests[name];
+
+		if (isNestedSuiteDescriptor(thing)) {
+			return createSuite({
+				name,
+				...thing
+			}, SuiteClass, TestClass);
 		}
 
-		createSuite(descriptor, suite, TestClass, propertyHandler);
+		return new TestClass({ name, test: thing });
+	}).forEach(suiteOrTest => {
+		suite.add(suiteOrTest);
 	});
+
+	return suite;
 }
 
 export interface PropertyHandler {

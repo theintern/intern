@@ -1,24 +1,17 @@
-import Collector = require('dojo/node!istanbul/lib/collector');
-import LcovOnlyReport = require('dojo/node!istanbul/lib/report/lcovonly');
-import { Reporter, ReporterConfig } from '../../common';
+import LcovOnlyReport = require('istanbul/lib/report/lcovonly');
+import Coverage, { CoverageOptions } from './Coverage';
 
-export default class Lcov implements Reporter {
-	private _collector: Collector;
-	private _reporter: LcovOnlyReport;
-
-	constructor(config: ReporterConfig = {}) {
-		this._collector = new Collector();
-		this._reporter = new LcovOnlyReport({
-			file: config.filename,
-			watermarks: config.watermarks
-		});
+export default class Lcov extends Coverage {
+	constructor(config: CoverageOptions = {}) {
+		config.ReportClass = LcovOnlyReport;
+		super(config);
 	}
 
 	coverage(_sessionId: string, coverage: Object): void {
-		this._collector.add(coverage);
+		this.collector.add(coverage);
 	}
 
 	runEnd(): void {
-		this._reporter.writeReport(this._collector, true);
+		this.report.writeReport(this.collector, true);
 	}
 }

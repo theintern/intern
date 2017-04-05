@@ -1,197 +1,110 @@
-import { Reporter, ReporterConfig, Config } from '../../common';
-import Suite from '../Suite';
-import Test from '../Test';
-import Tunnel from 'digdug/Tunnel';
-import charm = require('dojo/node!charm');
-import encode = require('dojo/node!charm/lib/encode');
-import * as nodeUtil from 'dojo/node!util';
-import * as lang from 'dojo/lang';
-import * as internUtil from '../util';
-import Collector = require('dojo/node!istanbul/lib/collector');
-import TextReport = require('dojo/node!istanbul/lib/report/text');
-
-export type Charm = charm.Charm;
-
 /**
  * Handles presentation of runner results to the user
  */
 
-const PAD = new Array(100).join(' ');
-const SPINNER_STATES = [ '/', '-', '\\', '|' ];
-const PASS = 0;
-const SKIP = 1;
-const FAIL = 2;
-const BROWSERS = {
-	chrome: 'Chr',
-	firefox: 'Fx',
-	opera: 'O',
-	safari: 'Saf',
-	'internet explorer': 'IE',
-	phantomjs: 'Phan'
-};
+import Executor from '../executors/Executor';
+import Suite from '../Suite';
+import Test from '../Test';
+import Reporter, { createEventHandler, ReporterProperties } from './Reporter';
+import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
+import { Events, TunnelMessage } from '../executors/WebDriver';
+import { mixin } from '@dojo/core/lang';
+import { format } from 'util';
+import charm = require('charm');
+import TextReport = require('istanbul/lib/report/text');
+import Collector = require('istanbul/lib/collector');
+import encode = require('charm/lib/encode');
+import { Watermarks } from 'istanbul';
 
-const ASCII_COLOR = {
-	red: encode('[31m'),
-	green: encode('[32m'),
-	yellow: encode('[33m'),
-	reset: encode('[0m')
-};
+const eventHandler = createEventHandler<Events>();
 
-/**
- * Model tracking test results
- * @param {string} environment the environment associated with the report
- * @param {string?} sessionId the sessionId associated with the report
- * @constructor
- */
-export class Report {
-	environment: string;
-	sessionId: string;
-	numTotal: number = 0;
-	numPassed: number = 0;
-	numFailed: number = 0;
-	numSkipped: number = 0;
-	results: number[] = [];
-	coverage: Collector = new Collector();
+export default class Pretty extends Reporter implements PrettyProperties {
+	colorReplacement: { [key: string]: string };
 
-	constructor(environment?: string, sessionId?: string) {
-		this.environment = environment;
-		this.sessionId = sessionId;
-	}
-
-	get finished() {
-		return this.results.length;
-	}
-
-	record(result: number): void {
-		this.results.push(result);
-		switch (result) {
-		case PASS:
-			++this.numPassed;
-			break;
-		case SKIP:
-			++this.numSkipped;
-			break;
-		case FAIL:
-			++this.numFailed;
-			break;
-		}
-	}
-
-	getCompressedResults(maxWidth: number): number[] {
-		const total = Math.max(this.numTotal, this.results.length);
-		const width = Math.min(maxWidth, total);
-		const resultList: number[] = [];
-
-		for (let i = 0; i < this.results.length; ++i) {
-			const pos = Math.floor(i / total * width);
-			resultList[pos] = Math.max(resultList[pos] || PASS, this.results[i]);
-		}
-
-		return resultList;
-	}
-}
-
-function pad(width: number): string {
-	return PAD.slice(0, Math.max(width, 0));
-}
-
-function fit(text: string|number, width: number, padLeft: boolean = false): string {
-	text = String(text);
-	if (text.length < width) {
-		if (padLeft) {
-			return pad(width - text.length) + text;
-		}
-		return text + pad(width - text.length);
-	}
-	return text.slice(0, width);
-}
-
-export interface PrettyReporterConfig extends ReporterConfig {
-	internConfig?: Config;
-	dimensions?: any;
-	titleWidth?: number;
-	maxProgressBarWidth?: number;
-	colorReplacement?: any;
-}
-
-export default class Pretty implements Reporter {
-	internConfig: Config;
-	spinnerOffset: number;
 	dimensions: any;
+
 	titleWidth: number;
+
 	maxProgressBarWidth: number;
-	colorReplacement: any;
-	header: string;
-	reporters: any;
-	log: string[];
-	total: Report;
-	watermarks: any;
+
 	tunnelState: string;
-	charm: Charm;
 
-	private _renderTimeout: NodeJS.Timer;
+	watermarks: Watermarks;
 
-	constructor(config: PrettyReporterConfig = {}) {
-		this.internConfig = config.internConfig;
-		this.spinnerOffset = 0;
+	protected _header: string;
+
+	protected _log: string[];
+
+	protected _reports: any;
+
+	protected _spinnerOffset: number;
+
+	protected _total: Report;
+
+	protected _charm: charm.Charm;
+
+	protected _renderTimeout: NodeJS.Timer;
+
+	constructor(executor: Executor, config: PrettyOptions = {}) {
+		super(executor, config);
+
+		this._spinnerOffset = 0;
 		this.dimensions = config.dimensions || {};
 		this.titleWidth = config.titleWidth || 12;
 		this.maxProgressBarWidth = config.maxProgressBarWidth || 40;
-		this.colorReplacement = lang.mixin({
-			0: ASCII_COLOR.green + '✓',
-			1: ASCII_COLOR.reset + '~',
-			2: ASCII_COLOR.red + '×',
-			'✓': ASCII_COLOR.green,
-			'!': ASCII_COLOR.red,
-			'×': ASCII_COLOR.red,
-			'~': ASCII_COLOR.reset,
-			'⚠': ASCII_COLOR.yellow
+		this.colorReplacement = mixin({
+			0: ANSI_COLOR.green + '✓',
+			1: ANSI_COLOR.reset + '~',
+			2: ANSI_COLOR.red + '×',
+			'✓': ANSI_COLOR.green,
+			'!': ANSI_COLOR.red,
+			'×': ANSI_COLOR.red,
+			'~': ANSI_COLOR.reset,
+			'⚠': ANSI_COLOR.yellow
 		}, config.colorReplacement);
-		this.header = '';
-		this.reporters = {};
-		this.log = [];
-		this.total = new Report();
-		this.watermarks = config.watermarks;
+		this._header = '';
+		this._reports = {};
+		this._log = [];
 		this.tunnelState = '';
 		this._renderTimeout = undefined;
+		this._total = new Report();
 	}
 
+	@eventHandler()
 	runStart() {
-		this.header = this.internConfig.config;
-		this.charm = this.charm || this._newCharm();
+		this._header = this.executor.config.name;
+		this._charm = this._charm || this._newCharm();
 
 		const resize = () => {
-			this.dimensions.width = (<any> process.stdout).columns || 80;
-			this.dimensions.height = (<any> process.stdout).rows || 24;
+			this.dimensions.width = (<any>process.stdout).columns || 80;
+			this.dimensions.height = (<any>process.stdout).rows || 24;
 		};
 
 		resize();
 		process.stdout.on('resize', resize);
 
 		const rerender = () => {
-			this.charm.erase('screen').position(0, 0);
+			this._charm.erase('screen').position(0, 0);
 			this._render();
 			this._renderTimeout = setTimeout(rerender, 200);
 		};
 		rerender();
 	}
 
+	@eventHandler()
 	runEnd() {
-		const charm = this.charm;
+		const charm = this._charm;
 		clearTimeout(this._renderTimeout);
 		charm.erase('screen').position(0, 0);
 
 		// write a full log of errors
 		// Sort logs: pass < deprecated < skip < errors < fail
 		const ERROR_LOG_WEIGHT = { '!': 4, '×': 3, '~': 2, '⚠': 1, '✓': 0 };
-		const logs = this.log.sort(function (a: any, b: any) {
-			a = (<{ [key: string]: any }> ERROR_LOG_WEIGHT)[a.charAt(0)] || 0;
-			b = (<{ [key: string]: any }> ERROR_LOG_WEIGHT)[b.charAt(0)] || 0;
+		const logs = this._log.sort((a: any, b: any) => {
+			a = (<{ [key: string]: any }>ERROR_LOG_WEIGHT)[a.charAt(0)] || 0;
+			b = (<{ [key: string]: any }>ERROR_LOG_WEIGHT)[b.charAt(0)] || 0;
 			return a - b;
-		}).map(line => {
-			const color = this.colorReplacement[line.charAt(0)];
-			return color + line;
-		}).join('\n');
+		}).map(line => this._getColor(line) + line).join('\n');
 		charm.write(logs);
 		charm.write('\n\n');
 
@@ -199,24 +112,26 @@ export default class Pretty implements Reporter {
 		this._render(true);
 
 		// Display coverage information
-		if (this.total.coverage.files().length > 0) {
+		if (this._total.coverage.files().length > 0) {
 			charm.write('\n');
 			(new TextReport({
 				watermarks: this.watermarks
-			})).writeReport(this.total.coverage, true);
+			})).writeReport(this._total.coverage, true);
 		}
 	}
 
-	coverage(sessionId: string, coverage: Object): void {
-		const reporter = this.reporters[sessionId];
-		reporter && reporter.coverage.add(coverage);
-		this.total.coverage.add(coverage);
+	@eventHandler()
+	coverage(data: CoverageMessage) {
+		const reporter = this._reports[data.sessionId];
+		reporter && reporter.coverage.add(data.coverage);
+		this._total.coverage.add(data.coverage);
 	}
 
-	suiteStart(suite: Suite): void {
+	@eventHandler()
+	suiteStart(suite: Suite) {
 		if (!suite.hasParent) {
 			const numTests = suite.numTests;
-			this.total.numTotal += numTests;
+			this._total.numTotal += numTests;
 
 			if (suite.sessionId) {
 				this._getReporter(suite).numTotal += numTests;
@@ -224,89 +139,90 @@ export default class Pretty implements Reporter {
 		}
 	}
 
-	suiteError(suite: Suite, error: Error) {
-		this._record(suite.sessionId, FAIL);
+	@eventHandler()
+	suiteEnd(suite: Suite) {
+		if (suite.error) {
+			this._record(suite.sessionId, FAIL);
 
-		const message = '! ' + suite.id;
-		this.log.push(message + '\n' + internUtil.getErrorMessage(error));
+			const message = '! ' + suite.id;
+			this._log.push(message + '\n' + this.formatter.format(suite.error));
+		}
 	}
 
-	testSkip(test: Test): void {
-		this._record(test.sessionId, SKIP);
-		this.log.push('~ ' + test.id + ': ' + (test.skipped || 'skipped'));
+	@eventHandler()
+	testEnd(test: Test) {
+		if (test.skipped) {
+			this._record(test.sessionId, SKIP);
+			this._log.push('~ ' + test.id + ': ' + (test.skipped || 'skipped'));
+		}
+		else if (test.error) {
+			const message = '× ' + test.id;
+			this._record(test.sessionId, FAIL);
+			this._log.push(message + '\n' + this.formatter.format(test.error));
+		}
+		else {
+			this._record(test.sessionId, PASS);
+			this._log.push('✓ ' + test.id);
+		}
 	}
 
-	testPass(test: Test): void {
-		this._record(test.sessionId, PASS);
-		this.log.push('✓ ' + test.id);
+	@eventHandler()
+	tunnelDownloadProgress(message: TunnelMessage) {
+		const progress = message.progress;
+		this.tunnelState = 'Downloading ' + (progress.received / progress.total * 100).toFixed(2) + '%';
 	}
 
-	testFail(test: Test): void {
-		const message = '× ' + test.id;
-		this._record(test.sessionId, FAIL);
-		this.log.push(message + '\n' + internUtil.getErrorMessage(test.error));
+	@eventHandler()
+	tunnelStatus(message: TunnelMessage) {
+		this.tunnelState = message.status;
 	}
 
-	tunnelStart(): void {
-		this.tunnelState = 'Starting';
-	}
-
-	tunnelDownloadProgress(_tunnel: Tunnel, progress: any): void {
-		this.tunnelState = 'Downloading ' + (progress.received / progress.numTotal * 100).toFixed(2) + '%';
-	}
-
-	tunnelStatus(_tunnel: Tunnel, status: string): void {
-		this.tunnelState = status;
-	}
-
-	runnerStart(): void {
-		this.tunnelState = 'Ready';
-	}
-
-	fatalError(error: Error): void {
+	@eventHandler()
+	error(error: Error) {
 		const message = '! ' + error.message;
-		this.log.push(message + '\n' + internUtil.getErrorMessage(error));
+		this._log.push(message + '\n' + this.formatter.format(error));
 		// stop the render timeout on a fatal error so Intern can exit
 		clearTimeout(this._renderTimeout);
 	}
 
-	deprecated(name: string, replacement: string, extra?: string): void {
-		let message = '⚠ ' + name + ' is deprecated.';
+	@eventHandler()
+	deprecated(message: DeprecationMessage) {
+		let text = '⚠ ' + message.original + ' is deprecated.';
 
-		if (replacement) {
-			message += ' Use ' + replacement + ' instead.';
+		if (message.replacement) {
+			text += ' Use ' + message.replacement + ' instead.';
 		}
 
-		if (extra) {
-			message += ' ' + extra;
+		if (message.message) {
+			text += ' ' + message.message;
 		}
 
-		this.log.push(message);
+		this._log.push(text);
 	}
 
 	/**
 	 * Return the reporter for a given session, creating it if necessary.
 	 */
 	private _getReporter(suite: Suite): Report {
-		if (!this.reporters[suite.sessionId]) {
-			this.reporters[suite.sessionId] = new Report(suite.remote && suite.remote.environmentType.toString());
+		if (!this._reports[suite.sessionId]) {
+			this._reports[suite.sessionId] = new Report(suite.remote && suite.remote.environmentType.toString());
 		}
-		return this.reporters[suite.sessionId];
+		return this._reports[suite.sessionId];
 	}
 
 	/**
 	 * Create the charm instance used by this reporter.
 	 */
-	private _newCharm(): Charm {
+	private _newCharm(): charm.Charm {
 		const c = charm();
 		c.pipe(process.stdout);
 		return c;
 	}
 
-	private _record(sessionId: string, result: number): void {
-		const reporter = this.reporters[sessionId];
+	private _record(sessionId: string, result: number) {
+		const reporter = this._reports[sessionId];
 		reporter && reporter.record(result);
-		this.total.record(result);
+		this._total.record(result);
 	}
 
 	/**
@@ -315,9 +231,9 @@ export default class Pretty implements Reporter {
 	 * @param report the report data to render
 	 * @param width the maximum width for the entire progress bar
 	 */
-	private _drawProgressBar(report: Report, width: number): void {
-		const spinnerCharacter = SPINNER_STATES[this.spinnerOffset];
-		const charm = this.charm;
+	private _drawProgressBar(report: Report, width: number) {
+		const spinnerCharacter = SPINNER_STATES[this._spinnerOffset];
+		const charm = this._charm;
 		if (!report.numTotal) {
 			charm.write('Pending');
 			return;
@@ -328,7 +244,7 @@ export default class Pretty implements Reporter {
 		const barSize = Math.min(remainingWidth, report.numTotal, this.maxProgressBarWidth);
 		const results = report.getCompressedResults(barSize);
 
-		charm.write('[' + results.map(value => this.colorReplacement[value]).join(''));
+		charm.write('[' + results.map(value => this._getColor(value)).join(''));
 		charm.display('reset').write(fit(spinnerCharacter, barSize - results.length) + '] ' +
 			fit(report.finished, totalTextSize, true) + '/' + report.numTotal);
 	}
@@ -339,8 +255,8 @@ export default class Pretty implements Reporter {
 	 * TODO split this into two lines. The first line will display the
 	 * title, OS and code coverage and the progress bar on the second
 	 */
-	private _drawSessionReporter(report: Report): void {
-		const charm = this.charm;
+	private _drawSessionReport(report: Report) {
+		const charm = this._charm;
 		const titleWidth = this.titleWidth;
 		const leftOfBar = fit(this._abbreviateEnvironment(report.environment).slice(0, titleWidth - 2) + ': ',
 			titleWidth);
@@ -360,7 +276,7 @@ export default class Pretty implements Reporter {
 	 * @returns {string} abbreviated environment information
 	 */
 	private _abbreviateEnvironment(env: any): string {
-		const browser = (<{ [key: string]: any }> BROWSERS)[env.browserName.toLowerCase()] || env.browserName.slice(0, 4);
+		const browser = (<{ [key: string]: any }>BROWSERS)[env.browserName.toLowerCase()] || env.browserName.slice(0, 4);
 		const result = [browser];
 
 		if (env.version) {
@@ -379,49 +295,159 @@ export default class Pretty implements Reporter {
 	}
 
 	private _render(omitLogs: boolean = false) {
-		const charm = this.charm;
-		const numReporters = Object.keys(this.reporters).length;
+		const charm = this._charm;
+		const numReporters = Object.keys(this._reports).length;
 		const logLength = this.dimensions.height - numReporters - 4 /* last line & total */ -
-			(this.tunnelState ? 2 : 0) - (numReporters ? 1 : 0) - (this.header ? 1 : 0);
-		this.spinnerOffset = (++this.spinnerOffset) % SPINNER_STATES.length;
+			(this.tunnelState ? 2 : 0) - (numReporters ? 1 : 0) - (this._header ? 1 : 0);
+		this._spinnerOffset = (++this._spinnerOffset) % SPINNER_STATES.length;
 
 		charm.display('reset');
-		this.header && charm.write(this.header + '\n');
+		if (this._header) {
+			charm.display('bright');
+			charm.write(this._header + '\n');
+			charm.display('reset');
+		}
 		this.tunnelState && charm.write('Tunnel: ' + this.tunnelState + '\n\n');
-		this._drawTotalReporter(this.total);
+		this._drawTotalReporter(this._total);
 
 		// TODO if there is not room to render all reporters only render
 		// active ones or only the total with less space
 		if (numReporters) {
 			charm.write('\n');
-			for (let key in this.reporters) {
-				this._drawSessionReporter(this.reporters[key]);
+			for (let key in this._reports) {
+				this._drawSessionReport(this._reports[key]);
 			}
 		}
 
-		if (!omitLogs && logLength > 0 && this.log.length) {
+		if (!omitLogs && logLength > 0 && this._log.length) {
 			const allowed = { '×': true, '⚠': true, '!': true };
-			const logs = this.log.filter(line => {
-				return (<{ [key: string]: any }> allowed)[line.charAt(0)];
+			const logs = this._log.filter(line => {
+				return (<{ [key: string]: any }>allowed)[line.charAt(0)];
 			}).slice(-logLength).map(line => {
 				// truncate long lines
-				const color = (<{ [key: string]: any }> this.colorReplacement)[line.charAt(0)] || ASCII_COLOR.reset;
+				const color = this._getColor(line);
 				line = line.split('\n', 1)[0];
-				return color + line.slice(0, this.dimensions.width) + ASCII_COLOR.reset;
+				return color + line.slice(0, this.dimensions.width) + ANSI_COLOR.reset;
 			}).join('\n');
 			charm.write('\n');
 			charm.write(logs);
 		}
 	}
 
-	private _drawTotalReporter(report: Report): void {
-		const charm = this.charm;
+	private _drawTotalReporter(report: Report) {
+		const charm = this._charm;
 		const title = 'Total: ';
 		const totalTextSize = String(report.numTotal).length;
 
 		charm.write(title);
 		this._drawProgressBar(report, this.dimensions.width - title.length);
-		charm.write(nodeUtil.format('\nPassed: %s  Failed: %s  Skipped: %d\n',
+		charm.write(format('\nPassed: %s  Failed: %s  Skipped: %d\n',
 			fit(report.numPassed, totalTextSize), fit(report.numFailed, totalTextSize), report.numSkipped));
 	}
+
+	private _getColor(value: string | number): string {
+		if (typeof value === 'string') {
+			value = value[0];
+		}
+		return this.colorReplacement[value] || ANSI_COLOR.reset;
+	}
+}
+
+export interface PrettyProperties extends ReporterProperties {
+	colorReplacement: { [key: string]: string };
+	dimensions: any;
+	maxProgressBarWidth: number;
+	titleWidth: number;
+	watermarks: Watermarks;
+}
+
+export type PrettyOptions = Partial<PrettyProperties>;
+
+/**
+ * Model tracking test results
+ * @param environment the environment associated with the report
+ * @param sessionId the sessionId associated with the report
+ */
+export class Report {
+	environment: string;
+	sessionId: string;
+	numTotal = 0;
+	numPassed = 0;
+	numFailed = 0;
+	numSkipped = 0;
+	results: number[] = [];
+	coverage: Collector = new Collector();
+
+	constructor(environment?: string, sessionId?: string) {
+		this.environment = environment;
+		this.sessionId = sessionId;
+	}
+
+	get finished() {
+		return this.results.length;
+	}
+
+	record(result: number) {
+		this.results.push(result);
+		switch (result) {
+			case PASS:
+				++this.numPassed;
+				break;
+			case SKIP:
+				++this.numSkipped;
+				break;
+			case FAIL:
+				++this.numFailed;
+				break;
+		}
+	}
+
+	getCompressedResults(maxWidth: number): number[] {
+		const total = Math.max(this.numTotal, this.results.length);
+		const width = Math.min(maxWidth, total);
+		const resultList: number[] = [];
+
+		for (let i = 0; i < this.results.length; ++i) {
+			const pos = Math.floor(i / total * width);
+			resultList[pos] = Math.max(resultList[pos] || PASS, this.results[i]);
+		}
+
+		return resultList;
+	}
+}
+
+const PAD = new Array(100).join(' ');
+const SPINNER_STATES = ['/', '-', '\\', '|'];
+const PASS = 0;
+const SKIP = 1;
+const FAIL = 2;
+const BROWSERS = {
+	chrome: 'Chr',
+	firefox: 'Fx',
+	opera: 'O',
+	safari: 'Saf',
+	'internet explorer': 'IE',
+	phantomjs: 'Phan'
+};
+
+const ANSI_COLOR = {
+	red: encode('[31m').toString('utf8'),
+	green: encode('[32m').toString('utf8'),
+	yellow: encode('[33m').toString('utf8'),
+	reset: encode('[0m').toString('utf8')
+};
+
+function pad(width: number): string {
+	return PAD.slice(0, Math.max(width, 0));
+}
+
+function fit(text: string | number, width: number, padLeft: boolean = false): string {
+	text = String(text);
+	if (text.length < width) {
+		if (padLeft) {
+			return pad(width - text.length) + text;
+		}
+		return text + pad(width - text.length);
+	}
+	return text.slice(0, width);
 }

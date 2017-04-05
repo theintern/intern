@@ -1,46 +1,60 @@
-import registerSuite, { async, skip, BenchmarkTestFunction } from 'src/lib/interfaces/benchmark';
+import { BenchmarkTestFunction } from '../../src/lib/BenchmarkTest';
 
-let counter = 0;
+const { registerSuite, async } = intern.getInterface('benchmark');
 
 registerSuite({
 	name: 'example benchmarks',
 
-	test1() {
-		return 2 * 2;
-	},
-
-	test2: (function () {
-		const test: BenchmarkTestFunction = function () {
-			[ 1, 2, 3, 4, 5 ].forEach(function (item) {
-				item = item * item;
-			});
-		};
-
-		test.options = {
-		};
-
-		return test;
-	})(),
-
-	nested: {
-		beforeEachLoop() {
-			counter = 0;
+	tests: {
+		test1() {
+			2 * 2;
 		},
 
-		nested1() {
-			return counter * 23;
+		test2: (function () {
+			const test: BenchmarkTestFunction = function () {
+				[1, 2, 3, 4, 5].forEach(function (item) {
+					item = item * item;
+				});
+			};
+
+			test.options = {
+			};
+
+			return test;
+		})(),
+
+		nested: (function () {
+			let counter = 0;
+
+			return {
+				beforeEachLoop() {
+					counter = 0;
+				},
+
+				tests: {
+					nested1() {
+						counter * 23;
+					},
+
+					nested2() {
+						counter / 12;
+					}
+				}
+			};
+		})(),
+
+		async: async(function (_test, deferred) {
+			setTimeout(deferred.callback(function () {
+				return 23 / 400;
+			}), 200);
+		}),
+
+		skip() {
+			this.skip('this also does nothing now');
 		},
 
-		nested2() {
-			return counter / 12;
+		'async skip'() {
+			this.skip('this also does nothing now');
 		}
-	},
-
-	async1: async(function (deferred) {
-		setTimeout(deferred.callback(function () {
-			return 23 / 400;
-		}), 200);
-	}),
-
-	skip1: skip(function () {}, 'this test does nothing right now')
+	}
 });
