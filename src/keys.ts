@@ -1,17 +1,12 @@
-/**
- * @module leadfoot/keys
- */
-
 // http://code.google.com/p/selenium/wiki/JsonWireProtocol#/session/:sessionId/element/:id/value
 // https://dvcs.w3.org/hg/webdriver/raw-file/default/webdriver-spec.html#character-types
 
 /**
  * A list of special keys that can be used with the `pressKeys` and `type` functions.
  *
- * @see {@link module:leadfoot/Session#pressKeys} for usage details.
- * @enum {string}
+ * @see [[Session.pressKeys]] for usage details.
  */
-module.exports = {
+const keys = {
 	/** Releases all held modifier keys. */
 	'NULL': '\uE000',
 	/** OS-specific keystroke sequence that performs a cancel action. */
@@ -192,3 +187,5 @@ module.exports = {
 	'\uE03D': 'Command',
 	'\uE040': 'Zenkaku/hankaku'
 };
+
+export default keys;

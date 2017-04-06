@@ -1,6 +1,6 @@
 {
   "name": "leadfoot",
-  "version": "1.8.0-pre",
+  "version": "2.0.0-pre",
   "description": "Leadfoot. A JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.",
   "repository": {
     "type": "git",
@@ -8,12 +8,25 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "dojo": "2.0.0-alpha.7",
+    "@dojo/core": "https://github.com/jason0x43/core/releases/download/v2.0.0-alpha.29/dojo-core-2.0.0-alpha.29.tgz",
+    "@dojo/has": "beta1",
+    "@dojo/interfaces": "beta1",
+    "@dojo/shim": "beta1",
     "jszip": "2.5.0"
   },
   "devDependencies": {
-    "intern": "3.3.2",
-    "rimraf": "2.5.4"
+    "@types/node": "~6.0.54",
+    "@dojo/loader": "beta1",
+    "intern": "~3.4.2",
+    "intern-dev": "~0.2.0"
+  },
+  "scripts": {
+    "clean": "intern-dev-clean",
+    "lint": "intern-dev-lint",
+    "build": "intern-dev-clean && intern-dev-build",
+    "release": "intern-dev-release",
+    "test": "intern-dev-test",
+    "watch": "intern-dev-watch"
   },
   "bugs": "https://github.com/theintern/leadfoot/issues",
   "keywords": [
@@ -26,9 +39,12 @@
     "browserstack",
     "testingbot"
   ],
-  "homepage": "http://github.com/theintern/leadfoot",
-  "scripts": {
-    "test": "intern-runner config=tests/intern",
-    "apidoc": "node support/apidoc.js"
-  }
+  "internDev": {
+    "resources": {
+      "_build": [
+        "tests/**/*.{txt,html}"
+      ]
+    }
+  },
+  "homepage": "http://github.com/theintern/leadfoot"
 }

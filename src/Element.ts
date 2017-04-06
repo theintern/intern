@@ -1,116 +1,134 @@
-/* global window:false */
-
-/**
- * @module leadfoot/Element
- */
-
-var findDisplayed = require('./lib/findDisplayed');
-var fs = require('fs');
-var strategies = require('./lib/strategies');
-var waitForDeleted = require('./lib/waitForDeleted');
-var util = require('./lib/util');
-
-/**
- * Delegates the HTTP request for a method to the underlying {@link module:leadfoot/Session} object.
- *
- * @private
- * @param {string} method
- * @returns {Promise.<any>}
- */
-function delegateToSession(method) {
-	return function (path, requestData, pathParts) {
-		path = 'element/' + encodeURIComponent(this._elementId) + '/' + path;
-		return this._session[method](path, requestData, pathParts);
-	};
-}
-
-function noop() {
-	// At least ios-driver 0.6.6 returns an empty object for methods that are supposed to return no value at all,
-	// which is not correct
-}
+import findDisplayed from './lib/findDisplayed';
+import * as fs from 'fs';
+import Locator, { toW3cLocator } from './lib/Locator';
+import waitForDeleted from './lib/waitForDeleted';
+import { sleep } from './lib/util';
+import Task from '@dojo/core/async/Task';
+import Session from './Session';
+import JSZip = require('jszip');
+import { basename } from 'path';
 
 /**
  * An Element represents a DOM or UI element within the remote environment.
- *
- * @constructor module:leadfoot/Element
- *
- * @param {string|module:leadfoot/Element|{ ELEMENT: string }} elementId
- * The ID of the element, as provided by the remote.
- *
- * @param {module:leadfoot/Session} session
- * The session that the element belongs to.
  */
-function Element(elementId, session) {
-	this._elementId = elementId.ELEMENT || elementId.elementId || elementId['element-6066-11e4-a52e-4f735466cecf'] ||
-		elementId;
-	this._session = session;
-}
+export default class Element extends Locator<Task<Element>, Task<Element[]>, Task<void>> {
+	private _elementId: string;
+	private _session: Session;
 
-/**
- * @lends module:leadfoot/Element#
- */
-Element.prototype = {
-	constructor: Element,
+	/**
+	 * @constructor module:leadfoot/Element
+	 *
+	 * @param elementId
+	 * The ID of the element, as provided by the remote.
+	 *
+	 * @param session
+	 * The session that the element belongs to.
+	 */
+	constructor(elementId: /*ElementOrElementId*/any, session?: Session) {
+		super();
+
+		this._elementId = elementId.ELEMENT || elementId.elementId || elementId['element-6066-11e4-a52e-4f735466cecf'] || elementId;
+		this._session = session;
+	}
 
 	/**
 	 * The opaque, remote-provided ID of the element.
 	 *
-	 * @member {string} elementId
-	 * @memberOf module:leadfoot/Element#
+	 * @member elementId
 	 * @readonly
 	 */
 	get elementId() {
 		return this._elementId;
-	},
+	}
 
 	/**
-	 * The session that the element belongs to.
-	 *
-	 * @member {module:leadfoot/Session} session
-	 * @memberOf module:leadfoot/Element#
+	 * The [[Session]] that the element belongs to.
 	 * @readonly
 	 */
 	get session() {
 		return this._session;
-	},
+	}
 
-	_get: delegateToSession('_get'),
-	_post: delegateToSession('_post'),
+	private _get<T>(path: string, requestData?: any, pathParts?: any): Task<any> {
+		path = 'element/' + encodeURIComponent(this._elementId) + '/' + path;
+		return this._session.serverGet<T>(path, requestData, pathParts);
+	}
 
-	toJSON: function () {
+	private _post<T>(path: string, requestData?: any, pathParts?: any): Task<any> {
+		path = 'element/' + encodeURIComponent(this._elementId) + '/' + path;
+		return this._session.serverPost<T>(path, requestData, pathParts);
+	}
+
+	toJSON() {
 		return { ELEMENT: this._elementId };
-	},
+	}
+
+	/**
+	 * Normalize whitespace in the same way that most browsers generate innerText.
+	 *
+	 * @param text
+	 * @returns Text with leading and trailing whitespace removed, with inner runs of spaces changed to a
+	 * single space, and with "\r\n" pairs converted to "\n".
+	 */
+	private _normalizeWhitespace(text: string): string {
+		if (text) {
+			text = text
+				.replace(/^\s+/, '')
+				.replace(/\s+$/, '')
+				.replace(/\s*\r\n\s*/g, '\n')
+				.replace(/ +/g, ' ');
+		}
+
+		return text;
+	}
+
+	/**
+	 * Uploads a file to a remote Selenium server for use when testing file uploads. This API is not part of the
+	 * WebDriver specification and should not be used directly. To send a file to a server that supports file uploads,
+	 * use [[Element.type]] to type the name of the local file into a file input field and the file
+	 * will be transparently transmitted and used by the server.
+	 */
+	private _uploadFile(filename: string): Task<string> {
+		return new Task(resolve => {
+			const content = fs.readFileSync(filename);
+
+			let zip = new JSZip();
+			zip.file(basename(filename), content);
+			const data = zip.generate({ type: 'base64' });
+			zip = null;
+
+			resolve(this.session.serverPost('file', { file: data }));
+		});
+	}
 
 	/**
 	 * Gets the first element within this element that matches the given query.
 	 *
-	 * @see {@link module:leadfoot/Session#setFindTimeout} to set the amount of time it the remote environment
+	 * @see [[Session.setFindTimeout]] to set the amount of time it the remote environment
 	 * should spend waiting for an element that does not exist at the time of the `find` call before timing
 	 * out.
 	 *
-	 * @param {string} using
-	 * The element retrieval strategy to use. See {@link module:leadfoot/Session#find} for options.
+	 * @param using
+	 * The element retrieval strategy to use. See [[Session.find]] for options.
 	 *
-	 * @param {string} value
-	 * The strategy-specific value to search for. See {@link module:leadfoot/Session#find} for details.
-	 *
-	 * @returns {Promise.<module:leadfoot/Element>}
+	 * @param value
+	 * The strategy-specific value to search for. See [[Session.find]] for details.
 	 */
-	find: function (using, value) {
-		var session = this._session;
+	find(using: string, value: string): Task<Element> {
+		const session = this._session;
 
 		if (session.capabilities.isWebDriver) {
-			var locator = strategies.toW3cLocator(using, value);
+			const locator = toW3cLocator(using, value);
 			using = locator.using;
 			value = locator.value;
 		}
 
 		if (using.indexOf('link text') !== -1 && this.session.capabilities.brokenWhitespaceNormalization) {
-			return this.session.execute(/* istanbul ignore next */ this.session._manualFindByLinkText, [
+			return this.session.execute<any>(/* istanbul ignore next */ this.session['_manualFindByLinkText'], [
 				using, value, false, this
-			]).then(function (element) {
+			]).then(function (element: ElementOrElementId) {
 				if (!element) {
-					var error = new Error();
+					const error = new Error();
 					error.name = 'NoSuchElement';
 					throw error;
 				}
@@ -119,46 +137,44 @@ Element.prototype = {
 		}
 
 		return this._post('element', {
-			using: using,
-			value: value
+			using,
+			value
 		}).then(function (element) {
 			return new Element(element, session);
 		}).catch(function (error) {
 			// At least Firefox 49 + geckodriver returns an UnknownCommand error when unable to find elements.
 			if (error.name === 'UnknownCommand' && error.message.indexOf('Unable to locate element:') !== -1) {
-				var newError = new Error();
+				const newError = new Error();
 				newError.name = 'NoSuchElement';
 				newError.message = error.message;
-				error = newError;
+				throw newError;
 			}
 			throw error;
 		});
-	},
+	}
 
 	/**
 	 * Gets all elements within this element that match the given query.
 	 *
-	 * @param {string} using
-	 * The element retrieval strategy to use. See {@link module:leadfoot/Session#find} for options.
+	 * @param using
+	 * The element retrieval strategy to use. See [[Session.find]] for options.
 	 *
-	 * @param {string} value
-	 * The strategy-specific value to search for. See {@link module:leadfoot/Session#find} for details.
-	 *
-	 * @returns {Promise.<module:leadfoot/Element[]>}
+	 * @param value
+	 * The strategy-specific value to search for. See [[Session.find]] for details.
 	 */
-	findAll: function (using, value) {
-		var session = this._session;
+	findAll(using: string, value: string): Task<Element[]> {
+		const session = this._session;
 
 		if (session.capabilities.isWebDriver) {
-			var locator = strategies.toW3cLocator(using, value);
+			const locator = toW3cLocator(using, value);
 			using = locator.using;
 			value = locator.value;
 		}
 
 		if (using.indexOf('link text') !== -1 && this.session.capabilities.brokenWhitespaceNormalization) {
-			return this.session.execute(/* istanbul ignore next */ this.session._manualFindByLinkText, [
+			return this.session.execute(/* istanbul ignore next */ this.session['_manualFindByLinkText'], [
 				using, value, true, this
-			]).then(function (elements) {
+			]).then(function (elements: ElementOrElementId[]) {
 				return elements.map(function (element) {
 					return new Element(element, session);
 				});
@@ -168,43 +184,38 @@ Element.prototype = {
 		return this._post('elements', {
 			using: using,
 			value: value
-		}).then(function (elements) {
+		}).then(function (elements: ElementOrElementId[]) {
 			return elements.map(function (element) {
 				return new Element(element, session);
 			});
 		});
-	},
+	}
 
 	/**
 	 * Clicks the element. This method works on both mouse and touch platforms.
-	 *
-	 * @returns {Promise.<void>}
 	 */
-	click: function () {
+	click() {
 		if (this.session.capabilities.brokenClick) {
-			return this.session.execute(function (element) {
+			return this.session.execute<void>((element: HTMLElement) => {
 				element.click();
 			}, [ this ]);
 		}
 
-		var self = this;
-		return this._post('click').then(function () {
+		return this._post<void>('click').then(() => {
 			// ios-driver 0.6.6-SNAPSHOT April 2014 and MS Edge Driver 14316 do not wait until the default action for
 			// a click event occurs before returning
-			if (self.session.capabilities.touchEnabled || self.session.capabilities.returnsFromClickImmediately) {
-				return util.sleep(500);
+			if (this.session.capabilities.touchEnabled || this.session.capabilities.returnsFromClickImmediately) {
+				return sleep(500);
 			}
 		});
-	},
+	}
 
 	/**
 	 * Submits the element, if it is a form, or the form belonging to the element, if it is a form element.
-	 *
-	 * @returns {Promise.<void>}
 	 */
-	submit: function () {
+	submit() {
 		if (this.session.capabilities.brokenSubmitElement) {
-			return this.session.execute(/* istanbul ignore next */ function (element) {
+			return this.session.execute<void>(/* istanbul ignore next */ (element: any) => {
 				if (element.submit) {
 					element.submit();
 				}
@@ -214,65 +225,56 @@ Element.prototype = {
 			}, [ this ]);
 		}
 
-		return this._post('submit').then(noop);
-	},
+		return this._post<void>('submit');
+	}
 
 	/**
 	 * Gets the visible text within the element. `<br>` elements are converted to line breaks in the returned
 	 * text, and whitespace is normalised per the usual XML/HTML whitespace normalisation rules.
-	 *
-	 * @returns {Promise.<string>}
 	 */
-	getVisibleText: function () {
-		var result = this._get('text');
+	getVisibleText(): Task<string> {
+		const result = this._get('text');
 
 		if (this.session.capabilities.brokenWhitespaceNormalization) {
-			var self = this;
-			return result.then(function (text) {
-				return self.session._normalizeWhitespace(text);
-			});
+			return result.then(text => this._normalizeWhitespace(text));
 		}
 
 		return result;
-	},
+	}
 
 	/**
-	 * Types into the element. This method works the same as the {@link module:leadfoot/Session#pressKeys} method
+	 * Types into the element. This method works the same as the [[Session.pressKeys]] method
 	 * except that any modifier keys are automatically released at the end of the command. This method should be used
-	 * instead of {@link module:leadfoot/Session#pressKeys} to type filenames into file upload fields.
+	 * instead of [[Session.pressKeys]] to type filenames into file upload fields.
 	 *
 	 * Since 1.5, if the WebDriver server supports remote file uploads, and you type a path to a file on your local
 	 * computer, that file will be transparently uploaded to the remote server and the remote filename will be typed
-	 * instead. If you do not want to upload local files, use {@link module:leadfoot/Session#pressKeys} instead.
+	 * instead. If you do not want to upload local files, use [[Session.pressKeys]] instead.
 	 *
-	 * @param {string|string[]} value
-	 * The text to type in the remote environment. See {@link module:leadfoot/Session#pressKeys} for more information.
-	 *
-	 * @returns {Promise.<void>}
+	 * @param value
+	 * The text to type in the remote environment. See [[Session.pressKeys]] for more information.
 	 */
-	type: function (value) {
-		function getPostData(arrayValue) {
-			if (self.session.capabilities.isWebDriver) {
-				return { value: arrayValue.join('').split('') };
+	type(value: string|string[]): Task<void> {
+		const getPostData = (value: string[]): { value: string[] } => {
+			if (this.session.capabilities.isWebDriver) {
+				return { value: value.join('').split('') };
 			}
-			return { value: arrayValue };
-		}
-
-		var self = this;
+			return { value };
+		};
 
 		if (!Array.isArray(value)) {
 			value = [ value ];
 		}
 
 		if (this.session.capabilities.remoteFiles) {
-			var filename = value.join('');
+			const filename = value.join('');
 
 			// Check to see if the input is a filename; if so, upload the file and then post it's remote name into the
 			// field
 			try {
 				if (fs.statSync(filename).isFile()) {
-					return this.session._uploadFile(filename).then(function(uploadedFilename) {
-						return self._post('value', getPostData([ uploadedFilename ])).then(noop);
+					return this._uploadFile(filename).then(uploadedFilename => {
+						return this._post('value', getPostData([ uploadedFilename ])).then(noop);
 					});
 				}
 			}
@@ -283,60 +285,51 @@ Element.prototype = {
 
 		// If the input isn't a filename, just post the value directly
 		return this._post('value', getPostData(value)).then(noop);
-	},
+	}
 
 	/**
 	 * Gets the tag name of the element. For HTML documents, the value is always lowercase.
-	 *
-	 * @returns {Promise.<string>}
 	 */
-	getTagName: function () {
-		var self = this;
-		return this._get('name').then(function (name) {
-			if (self.session.capabilities.brokenHtmlTagName) {
-				return self.session.execute(
+	getTagName(): Task<string> {
+		return this._get('name').then((name: string) => {
+			if (this.session.capabilities.brokenHtmlTagName) {
+				return this.session.execute(
 					'return document.body && document.body.tagName === document.body.tagName.toUpperCase();'
-				).then(function (isHtml) {
+				).then(function (isHtml: boolean) {
 					return isHtml ? name.toLowerCase() : name;
 				});
 			}
 
 			return name;
 		});
-	},
+	}
 
 	/**
 	 * Clears the value of a form element.
-	 *
-	 * @returns {Promise.<void>}
 	 */
-	clearValue: function () {
+	clearValue(): Task<void> {
 		return this._post('clear').then(noop);
-	},
+	}
 
 	/**
 	 * Returns whether or not a form element is currently selected (for drop-down options and radio buttons), or
 	 * whether or not the element is currently checked (for checkboxes).
-	 *
-	 * @returns {Promise.<boolean>}
 	 */
-	isSelected: function () {
+	isSelected(): Task<boolean> {
 		return this._get('selected');
-	},
+	}
 
 	/**
 	 * Returns whether or not a form element can be interacted with.
-	 *
-	 * @returns {Promise.<boolean>}
 	 */
-	isEnabled: function () {
+	isEnabled(): Task<boolean> {
 		return this._get('enabled');
-	},
+	}
 
 	/**
 	 * Gets a property or attribute of the element according to the WebDriver specification algorithm. Use of this
-	 * method is not recommended; instead, use {@link module:leadfoot/Element#getAttribute} to retrieve DOM attributes
-	 * and {@link module:leadfoot/Element#getProperty} to retrieve DOM properties.
+	 * method is not recommended; instead, use [[Element.getAttribute]] to retrieve DOM attributes
+	 * and [[Element.getProperty]] to retrieve DOM properties.
 	 *
 	 * This method uses the following algorithm on the server to determine what value to return:
 	 *
@@ -355,17 +348,16 @@ Element.prototype = {
 	 *    value coerced to a string.
 	 * 9. If `name` corresponds to an attribute of the element, return the attribute value.
 	 *
-	 * @param {string} name The property or attribute name.
-	 * @returns {Promise.<string>} The value of the attribute as a string, or `null` if no such property or
+	 * @param name The property or attribute name.
+	 * @returns The value of the attribute as a string, or `null` if no such property or
 	 * attribute exists.
 	 */
-	getSpecAttribute: function (name) {
-		var self = this;
-		return this._get('attribute/$0', null, [ name ]).then(function (value) {
-			if (self.session.capabilities.brokenNullGetSpecAttribute && (value === '' || value === undefined)) {
-				return self.session.execute(/* istanbul ignore next */ function (element, name) {
+	getSpecAttribute(name: string): Task<string> {
+		return this._get('attribute/$0', null, [ name ]).then((value) => {
+			if (this.session.capabilities.brokenNullGetSpecAttribute && (value === '' || value === undefined)) {
+				return this.session.execute(/* istanbul ignore next */ function (element: HTMLElement, name: string) {
 					return element.hasAttribute(name);
-				}, [ self, name ]).then(function (hasAttribute) {
+				}, [ this, name ]).then(function (hasAttribute: boolean) {
 					return hasAttribute ? value : null;
 				});
 			}
@@ -380,51 +372,47 @@ Element.prototype = {
 
 			return value;
 		});
-	},
+	}
 
 	/**
 	 * Gets an attribute of the element.
 	 *
-	 * @see Element#getProperty to retrieve an element property.
-	 * @param {string} name The name of the attribute.
-	 * @returns {Promise.<string>} The value of the attribute, or `null` if no such attribute exists.
+	 * @see [[Element.getProperty]] to retrieve an element property.
+	 * @param name The name of the attribute.
+	 * @returns The value of the attribute, or `null` if no such attribute exists.
 	 */
-	getAttribute: function (name) {
+	getAttribute(name: string): Task<string> {
 		return this.session.execute('return arguments[0].getAttribute(arguments[1]);', [ this, name ]);
-	},
+	}
 
 	/**
 	 * Gets a property of the element.
 	 *
-	 * @see Element#getAttribute to retrieve an element attribute.
-	 * @param {string} name The name of the property.
-	 * @returns {Promise.<any>} The value of the property.
+	 * @see [[Element.getAttribute]] to retrieve an element attribute.
+	 * @param name The name of the property.
+	 * @returns The value of the property.
 	 */
-	getProperty: function (name) {
+	getProperty(name: string): Task<any> {
 		return this.session.execute('return arguments[0][arguments[1]];', [ this, name ]);
-	},
+	}
 
 	/**
 	 * Determines if this element is equal to another element.
-	 *
-	 * @param {module:leadfoot/Element} other
-	 * @returns {Promise.<boolean>}
 	 */
-	equals: function (other) {
-		var elementId = other.elementId || other;
-		var self = this;
-		return this._get('equals/$0', null, [ elementId ]).catch(function (error) {
+	equals(other: Element): Task<boolean> {
+		const elementId = other.elementId || other;
+		return this._get('equals/$0', null, [ elementId ]).catch((error) => {
 			// At least Selendroid 0.9.0 does not support this command;
 			// At least ios-driver 0.6.6-SNAPSHOT April 2014 fails
 			if (error.name === 'UnknownCommand' ||
 				(error.name === 'UnknownError' && error.message.indexOf('bug.For input string:') > -1)
 			) {
-				return self.session.execute('return arguments[0] === arguments[1];', [ self, other ]);
+				return this.session.execute('return arguments[0] === arguments[1];', [ this, other ]);
 			}
 
 			throw error;
 		});
-	},
+	}
 
 	/**
 	 * Returns whether or not the element would be visible to an actual user. This means that the following types
@@ -435,78 +423,69 @@ Element.prototype = {
 	 * 3. Elements positioned outside of the viewport that cannot be scrolled into view
 	 * 4. Elements with `opacity: 0`
 	 * 5. Elements with no `offsetWidth` or `offsetHeight`
-	 *
-	 * @returns {Promise.<boolean>}
 	 */
-	isDisplayed: function () {
-		var self = this;
-		return this._get('displayed').then(function (isDisplayed) {
+	isDisplayed(): Task<boolean> {
+		return this._get('displayed').then((isDisplayed: boolean) => {
 
 			if (isDisplayed && (
-				self.session.capabilities.brokenElementDisplayedOpacity ||
-				self.session.capabilities.brokenElementDisplayedOffscreen
+				this.session.capabilities.brokenElementDisplayedOpacity ||
+				this.session.capabilities.brokenElementDisplayedOffscreen
 			)) {
-				return self.session.execute(/* istanbul ignore next */ function (element) {
-					var scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
-					var scrollY = document.documentElement.scrollTop || document.body.scrollTop;
+				return this.session.execute(/* istanbul ignore next */ function (element: HTMLElement) {
+					const scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
+					const scrollY = document.documentElement.scrollTop || document.body.scrollTop;
 					do {
 						if (window.getComputedStyle(element, null).opacity === '0') {
 							return false;
 						}
 
-						var bbox = element.getBoundingClientRect();
+						const bbox = element.getBoundingClientRect();
 						if (bbox.right + scrollX <= 0 || bbox.bottom + scrollY <= 0) {
 							return false;
 						}
 					}
-					while ((element = element.parentNode) && element.nodeType === 1);
+					while ((element = <HTMLElement> element.parentNode) && element.nodeType === 1);
 					return true;
-				}, [ self ]);
+				}, [ this ]);
 			}
 
 			return isDisplayed;
 		});
-	},
+	}
 
 	/**
 	 * Gets the position of the element relative to the top-left corner of the document, taking into account
 	 * scrolling and CSS transformations (if they are supported).
-	 *
-	 * @returns {Promise.<{ x: number, y: number }>}
 	 */
-	getPosition: function () {
+	getPosition(): Task<{ x: number, y: number }> {
 		if (this.session.capabilities.brokenElementPosition) {
 			/* jshint browser:true */
-			return this.session.execute(/* istanbul ignore next */ function (element) {
-				var bbox = element.getBoundingClientRect();
-				var scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
-				var scrollY = document.documentElement.scrollTop || document.body.scrollTop;
+			return this.session.execute(/* istanbul ignore next */ function (element: HTMLElement) {
+				const bbox = element.getBoundingClientRect();
+				const scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
+				const scrollY = document.documentElement.scrollTop || document.body.scrollTop;
 
 				return { x: scrollX + bbox.left, y: scrollY + bbox.top };
 			}, [ this ]);
 		}
 
-		return this._get('location').then(function (position) {
+		return this._get('location').then(function (position: { x: number, y: number }) {
 			// At least FirefoxDriver 2.41.0 incorrectly returns an object with additional `class` and `hCode`
 			// properties
 			return { x: position.x, y: position.y };
 		});
-	},
+	}
 
 	/**
 	 * Gets the size of the element, taking into account CSS transformations (if they are supported).
-	 *
-	 * @returns {Promise.<{ width: number, height: number }>}
 	 */
-	getSize: function () {
-		function getUsingExecute() {
-			return self.session.execute(/* istanbul ignore next */ function (element) {
-				var bbox = element.getBoundingClientRect();
+	getSize(): Task<{ width: number, height: number }> {
+		const getUsingExecute = () => {
+			return this.session.execute(/* istanbul ignore next */ function (element: HTMLElement) {
+				const bbox = element.getBoundingClientRect();
 				return { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
-			}, [ self ]);
-		}
-
-		var self = this;
+			}, [ this ]);
+		};
 
 		if (this.session.capabilities.brokenCssTransformedSize) {
 			return getUsingExecute();
@@ -523,25 +502,22 @@ Element.prototype = {
 			// At least ChromeDriver 2.9 incorrectly returns an object with an additional `toString` property
 			return { width: dimensions.width, height: dimensions.height };
 		});
-	},
+	}
 
 	/**
 	 * Gets a CSS computed property value for the element.
 	 *
-	 * @param {string} propertyName
+	 * @param propertyName
 	 * The CSS property to retrieve. This argument must be hyphenated, *not* camel-case.
-	 *
-	 * @returns {Promise.<string>}
 	 */
-	getComputedStyle: function (propertyName) {
-		function manualGetStyle() {
-			return self.session.execute(/* istanbul ignore next */ function (element, propertyName) {
-				return window.getComputedStyle(element, null)[propertyName];
-			}, [ self, propertyName ]);
-		}
+	getComputedStyle(propertyName: string): Task<string> {
+		const manualGetStyle = () => {
+			return this.session.execute(/* istanbul ignore next */ function (element: any, propertyName: string) {
+				return (<any> window.getComputedStyle(element, null))[propertyName];
+			}, [ this, propertyName ]);
+		};
 
-		var self = this;
-		var promise;
+		let promise: Task<string>;
 
 		if (this.session.capabilities.brokenComputedStyles) {
 			promise = manualGetStyle();
@@ -574,347 +550,44 @@ Element.prototype = {
 			return value != null ? value : '';
 		});
 	}
-};
 
-/**
- * Gets the first element inside this element matching the given CSS class name.
- *
- * @method findByClassName
- * @memberOf module:leadfoot/Element#
- * @param {string} className The CSS class name to search for.
- * @returns {Promise.<module:leadfoot/Element>}
- */
+	/**
+	 * Gets the first [[Element.isDisplayed displayed]] element inside this element
+	 * matching the given query. This is inherently slower than [[Element.find]], so should only be
+	 * used in cases where the visibility of an element cannot be ensured in advance.
+	 *
+	 * @since 1.6
+	 *
+	 * @param using
+	 * The element retrieval strategy to use. See [[Session.find]] for options.
+	 *
+	 * @param value
+	 * The strategy-specific value to search for. See [[Session.find]] for details.
+	 */
+	findDisplayed(using: string, value: string): Task<Element> {
+		return findDisplayed(this.session, this, using, value);
+	}
 
-/**
- * Gets the first element inside this element matching the given CSS selector.
- *
- * @method findByCssSelector
- * @memberOf module:leadfoot/Element#
- * @param {string} selector The CSS selector to search for.
- * @returns {Promise.<module:leadfoot/Element>}
- */
+	/**
+	 * Waits for all elements inside this element that match the given query to be destroyed.
+	 *
+	 * @method waitForDeleted
+	 * @memberOf module:leadfoot/Element#
+	 *
+	 * @param using
+	 * The element retrieval strategy to use. See [[Session.find]] for options.
+	 *
+	 * @param value
+	 * The strategy-specific value to search for. See [[Session.find]] for details.
+	 */
+	waitForDeleted(strategy: string, value: string) {
+		return waitForDeleted(this.session, this, strategy, value);
+	}
+}
 
-/**
- * Gets the first element inside this element matching the given ID.
- *
- * @method findById
- * @memberOf module:leadfoot/Element#
- * @param {string} id The ID of the element.
- * @returns {Promise.<module:leadfoot/Element>}
- */
+function noop() {
+	// At least ios-driver 0.6.6 returns an empty object for methods that are supposed to return no value at all,
+	// which is not correct
+}
 
-/**
- * Gets the first element inside this element matching the given name attribute.
- *
- * @method findByName
- * @memberOf module:leadfoot/Element#
- * @param {string} name The name of the element.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first element inside this element matching the given case-insensitive link text.
- *
- * @method findByLinkText
- * @memberOf module:leadfoot/Element#
- * @param {string} text The link text of the element.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first element inside this element partially matching the given case-insensitive link text.
- *
- * @method findByPartialLinkText
- * @memberOf module:leadfoot/Element#
- * @param {string} text The partial link text of the element.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first element inside this element matching the given HTML tag name.
- *
- * @method findByTagName
- * @memberOf module:leadfoot/Element#
- * @param {string} tagName The tag name of the element.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first element inside this element matching the given XPath selector.
- *
- * @method findByXpath
- * @memberOf module:leadfoot/Element#
- * @param {string} path The XPath selector to search for.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets all elements inside this element matching the given CSS class name.
- *
- * @method findAllByClassName
- * @memberOf module:leadfoot/Element#
- * @param {string} className The CSS class name to search for.
- * @returns {Promise.<module:leadfoot/Element[]>}
- */
-
-/**
- * Gets all elements inside this element matching the given CSS selector.
- *
- * @method findAllByCssSelector
- * @memberOf module:leadfoot/Element#
- * @param {string} selector The CSS selector to search for.
- * @returns {Promise.<module:leadfoot/Element[]>}
- */
-
-/**
- * Gets all elements inside this element matching the given name attribute.
- *
- * @method findAllByName
- * @memberOf module:leadfoot/Element#
- * @param {string} name The name of the element.
- * @returns {Promise.<module:leadfoot/Element[]>}
- */
-
-/**
- * Gets all elements inside this element matching the given case-insensitive link text.
- *
- * @method findAllByLinkText
- * @memberOf module:leadfoot/Element#
- * @param {string} text The link text of the element.
- * @returns {Promise.<module:leadfoot/Element[]>}
- */
-
-/**
- * Gets all elements inside this element partially matching the given case-insensitive link text.
- *
- * @method findAllByPartialLinkText
- * @memberOf module:leadfoot/Element#
- * @param {string} text The partial link text of the element.
- * @returns {Promise.<module:leadfoot/Element[]>}
- */
-
-/**
- * Gets all elements inside this element matching the given HTML tag name.
- *
- * @method findAllByTagName
- * @memberOf module:leadfoot/Element#
- * @param {string} tagName The tag name of the element.
- * @returns {Promise.<module:leadfoot/Element[]>}
- */
-
-/**
- * Gets all elements inside this element matching the given XPath selector.
- *
- * @method findAllByXpath
- * @memberOf module:leadfoot/Element#
- * @param {string} path The XPath selector to search for.
- * @returns {Promise.<module:leadfoot/Element[]>}
- */
-strategies.applyTo(Element.prototype);
-
-/**
- * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
- * matching the given query. This is inherently slower than {@link module:leadfoot/Element#find}, so should only be
- * used in cases where the visibility of an element cannot be ensured in advance.
- *
- * @method findDisplayed
- * @memberOf module:leadfoot/Element#
- * @since 1.6
- *
- * @param {string} using
- * The element retrieval strategy to use. See {@link module:leadfoot/Session#find} for options.
- *
- * @param {string} value
- * The strategy-specific value to search for. See {@link module:leadfoot/Session#find} for details.
- *
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
- * matching the given CSS class name. This is inherently slower than {@link module:leadfoot/Element#find}, so should
- * only be used in cases where the visibility of an element cannot be ensured in advance.
- *
- * @method findDisplayedByClassName
- * @memberOf module:leadfoot/Element#
- * @since 1.6
- * @param {string} className The CSS class name to search for.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
- * matching the given CSS selector. This is inherently slower than {@link module:leadfoot/Element#find}, so should
- * only be used in cases where the visibility of an element cannot be ensured in advance.
- *
- * @method findDisplayedByCssSelector
- * @memberOf module:leadfoot/Element#
- * @since 1.6
- * @param {string} selector The CSS selector to search for.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
- * matching the given ID. This is inherently slower than {@link module:leadfoot/Element#find}, so should
- * only be used in cases where the visibility of an element cannot be ensured in advance.
- *
- * @method findDisplayedById
- * @memberOf module:leadfoot/Element#
- * @since 1.6
- * @param {string} id The ID of the element.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
- * matching the given name attribute. This is inherently slower than {@link module:leadfoot/Element#find}, so should
- * only be used in cases where the visibility of an element cannot be ensured in advance.
- *
- * @method findDisplayedByName
- * @memberOf module:leadfoot/Element#
- * @since 1.6
- * @param {string} name The name of the element.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
- * matching the given case-insensitive link text. This is inherently slower than {@link module:leadfoot/Element#find},
- * so should only be used in cases where the visibility of an element cannot be ensured in advance.
- *
- * @method findDisplayedByLinkText
- * @memberOf module:leadfoot/Element#
- * @since 1.6
- * @param {string} text The link text of the element.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
- * partially matching the given case-insensitive link text. This is inherently slower than
- * {@link module:leadfoot/Element#find}, so should only be used in cases where the visibility of an element cannot be
- * ensured in advance.
- *
- * @method findDisplayedByPartialLinkText
- * @memberOf module:leadfoot/Element#
- * @since 1.6
- * @param {string} text The partial link text of the element.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
- * matching the given HTML tag name. This is inherently slower than {@link module:leadfoot/Element#find}, so should
- * only be used in cases where the visibility of an element cannot be ensured in advance.
- *
- * @method findDisplayedByTagName
- * @memberOf module:leadfoot/Element#
- * @since 1.6
- * @param {string} tagName The tag name of the element.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-
-/**
- * Gets the first {@link module:leadfoot/Element#isDisplayed displayed} element inside this element
- * matching the given XPath selector. This is inherently slower than {@link module:leadfoot/Element#find}, so should
- * only be used in cases where the visibility of an element cannot be ensured in advance.
- *
- * @method findDisplayedByXpath
- * @memberOf module:leadfoot/Element#
- * @since 1.6
- * @param {string} path The XPath selector to search for.
- * @returns {Promise.<module:leadfoot/Element>}
- */
-findDisplayed.applyTo(Element.prototype);
-
-/**
- * Waits for all elements inside this element that match the given query to be destroyed.
- *
- * @method waitForDeleted
- * @memberOf module:leadfoot/Element#
- *
- * @param {string} using
- * The element retrieval strategy to use. See {@link module:leadfoot/Session#find} for options.
- *
- * @param {string} value
- * The strategy-specific value to search for. See {@link module:leadfoot/Session#find} for details.
- *
- * @returns {Promise.<void>}
- */
-
-/**
- * Waits for all elements inside this element matching the given CSS class name to be destroyed.
- *
- * @method waitForDeletedByClassName
- * @memberOf module:leadfoot/Element#
- * @param {string} className The CSS class name to search for.
- * @returns {Promise.<void>}
- */
-
-/**
- * Waits for all elements inside this element matching the given CSS selector to be destroyed.
- *
- * @method waitForDeletedByCssSelector
- * @memberOf module:leadfoot/Element#
- * @param {string} selector The CSS selector to search for.
- * @returns {Promise.<void>}
- */
-
-/**
- * Waits for all elements inside this element matching the given ID to be destroyed.
- *
- * @method waitForDeletedById
- * @memberOf module:leadfoot/Element#
- * @param {string} id The ID of the element.
- * @returns {Promise.<void>}
- */
-
-/**
- * Waits for all elements inside this element matching the given name attribute to be destroyed.
- *
- * @method waitForDeletedByName
- * @memberOf module:leadfoot/Element#
- * @param {string} name The name of the element.
- * @returns {Promise.<void>}
- */
-
-/**
- * Waits for all elements inside this element matching the given case-insensitive link text to be destroyed.
- *
- * @method waitForDeletedByLinkText
- * @memberOf module:leadfoot/Element#
- * @param {string} text The link text of the element.
- * @returns {Promise.<void>}
- */
-
-/**
- * Waits for all elements inside this element partially matching the given case-insensitive link text to be
- * destroyed.
- *
- * @method waitForDeletedByPartialLinkText
- * @memberOf module:leadfoot/Element#
- * @param {string} text The partial link text of the element.
- * @returns {Promise.<void>}
- */
-
-/**
- * Waits for all elements inside this element matching the given HTML tag name to be destroyed.
- *
- * @method waitForDeletedByTagName
- * @memberOf module:leadfoot/Element#
- * @param {string} tagName The tag name of the element.
- * @returns {Promise.<void>}
- */
-
-/**
- * Waits for all elements inside this element matching the given XPath selector to be destroyed.
- *
- * @method waitForDeletedByXpath
- * @memberOf module:leadfoot/Element#
- * @param {string} path The XPath selector to search for.
- * @returns {Promise.<void>}
- */
-waitForDeleted.applyTo(Element.prototype);
-
-module.exports = Element;
+export type ElementOrElementId = { ELEMENT: string; } | Element | string;

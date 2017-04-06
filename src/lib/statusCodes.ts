@@ -1,5 +1,4 @@
-/*jshint maxlen:false */
-module.exports = {
+const statusCodes = {
 	0: [ 'Success', 'The command executed successfully.' ],
 	6: [ 'NoSuchDriver', 'A session is either terminated or not started.' ],
 	7: [ 'NoSuchElement', 'An element could not be located on the page using the given search parameters.' ],
@@ -26,3 +25,5 @@ module.exports = {
 	33: [ 'SessionNotCreatedException', 'A new session could not be created.' ],
 	34: [ 'MoveTargetOutOfBounds', 'Target provided for a move action is out of bounds.' ]
 };
+
+export default statusCodes;

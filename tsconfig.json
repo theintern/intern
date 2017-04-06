@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "outDir": "./_build",
+    "preserveConstEnums": true,
+    "removeComments": false,
+    "rootDir": ".",
+    "sourceMap": true,
+    "target": "es5",
+    "lib": [
+      "es5",
+      "es2015.symbol",
+      "es2015.symbol.wellknown",
+      "es2015.iterable",
+      "dom"
+    ]
+  },
+  "files": [
+    "./types/jszip/jszip.d.ts"
+  ],
+  "formatCodeOptions": {
+    "convertTabsToSpaces": false,
+    "insertSpaceAfterCommaDelimiter": true,
+    "insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
+    "insertSpaceAfterSemicolonInForStatements": true
+  },
+  "include": [
+    "./src/**/*.ts"
+  ]
+}
