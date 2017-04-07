@@ -2,9 +2,8 @@ sudo: false
 # Use trusty dist for newer JDK
 dist: trusty
 language: node_js
-# Test minimal, LTS, and latest
+# Test LTS, and latest
 node_js:
-  - '0.12'
   - 4
   - 6
 env:
@@ -17,7 +16,8 @@ env:
 cache:
     directories:
       - node_modules
-script: tests/selftest.sh
+script:
+  - npm run ci
 notifications:
     slack:
       secure: RvW7LoV4mBzNz481eqfhLB/QNuJYht9Fpz7F+vtVjD/RacDJfc7397/8pJcl2yP+Ft2X7yJsM6bx3Uq22CfMiZ7HTVOfb+tYQNBQ5vcluUvd3fYV72M4oWe/TTFTlAulC04vWs4/QRHqbvmsXXr8Rn8Jj2LjsxnKvP0UNr0aLxk=

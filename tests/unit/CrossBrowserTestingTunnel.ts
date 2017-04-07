@@ -1,34 +1,28 @@
-define([
-	'intern/dojo/node!../../CrossBrowserTestingTunnel',
-	'intern!object',
-	'intern/chai!assert'
-], function (
-	CrossBrowserTestingTunnel,
-	registerSuite,
-	assert
-) {
-	var tunnel;
+import CrossBrowserTestingTunnel from 'src/CrossBrowserTestingTunnel';
+import * as registerSuite from 'intern!object';
+import * as assert from 'intern/chai!assert';
 
-	registerSuite({
-		name: 'unit/CrossBrowserTestingTunnel',
+let tunnel: CrossBrowserTestingTunnel;
 
-		beforeEach: function () {
-			tunnel = new CrossBrowserTestingTunnel();
-		},
+registerSuite({
+	name: 'unit/CrossBrowserTestingTunnel',
 
-		'#auth': function () {
-			tunnel.username = 'foo';
-			tunnel.apiKey = 'bar';
-			assert.equal(tunnel.auth, 'foo:bar');
-		},
+	beforeEach: function () {
+		tunnel = new CrossBrowserTestingTunnel();
+	},
 
-		'#executable': function () {
-			assert.equal(tunnel.executable, 'node');
-		},
+	'#auth': function () {
+		tunnel.username = 'foo';
+		tunnel.accessKey = 'bar';
+		assert.equal(tunnel.auth, 'foo:bar');
+	},
 
-		'#extraCapabilities': function () {
-			assert.property(tunnel.extraCapabilities, 'username');
-			assert.property(tunnel.extraCapabilities, 'password');
-		}
-	});
+	'#executable': function () {
+		assert.equal(tunnel.executable, 'node');
+	},
+
+	'#extraCapabilities': function () {
+		assert.property(tunnel.extraCapabilities, 'username');
+		assert.property(tunnel.extraCapabilities, 'password');
+	}
 });

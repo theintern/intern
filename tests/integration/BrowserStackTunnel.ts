@@ -1,30 +1,23 @@
-define([
-	'intern!object',
-	'intern/chai!assert',
-	'../support/integration',
-	'intern/dojo/node!../../BrowserStackTunnel'
-], function (
-	registerSuite,
-	assert,
-	support,
-	BrowserStackTunnel
-) {
-	function checkEnvironment(environment) {
-		assert.property(environment, 'os_version');
-		assert.property(environment, 'browser');
-		assert.property(environment, 'os');
-		assert.property(environment, 'device');
-		assert.property(environment, 'browser_version');
-	}
+import * as registerSuite from 'intern!object';
+import * as assert from 'intern/chai!assert';
+import { addEnvironmentTest, addStartStopTest } from '../support/integration';
+import BrowserStackTunnel from 'src/BrowserStackTunnel';
 
-	var suite = {
-		name: 'integration/BrowserStackTunnel',
-	};
+function checkEnvironment(environment: any) {
+	assert.property(environment, 'os_version');
+	assert.property(environment, 'browser');
+	assert.property(environment, 'os');
+	assert.property(environment, 'device');
+	assert.property(environment, 'browser_version');
+}
 
-	support.addEnvironmentTest(suite, BrowserStackTunnel, checkEnvironment, {
-		needsAuthData: true
-	});
-	support.addStartStopTest(suite, BrowserStackTunnel);
+const suite = {
+	name: 'integration/BrowserStackTunnel'
+};
 
-	registerSuite(suite);
+addEnvironmentTest(suite, BrowserStackTunnel, checkEnvironment, {
+	needsAuthData: true
 });
+addStartStopTest(suite, BrowserStackTunnel);
+
+registerSuite(suite);

@@ -1,25 +1,19 @@
-define([
-	'intern/dojo/node!../../TestingBotTunnel',
-	'intern!object',
-	'intern/chai!assert'
-], function (
-	TestingBotTunnel,
-	registerSuite,
-	assert
-) {
-	var tunnel;
+import TestingBotTunnel from 'src/TestingBotTunnel';
+import * as registerSuite from 'intern!object';
+import * as assert from 'intern/chai!assert';
 
-	registerSuite({
-		name: 'unit/TestingBotTunnel',
+let tunnel: TestingBotTunnel;
 
-		beforeEach: function () {
-			tunnel = new TestingBotTunnel();
-		},
+registerSuite({
+	name: 'unit/TestingBotTunnel',
 
-		'#auth': function () {
-			tunnel.apiKey = 'foo';
-			tunnel.apiSecret = 'bar';
-			assert.equal(tunnel.auth, 'foo:bar');
-		}
-	});
+	beforeEach: function () {
+		tunnel = new TestingBotTunnel();
+	},
+
+	'#auth': function () {
+		tunnel.username = 'foo';
+		tunnel.accessKey = 'bar';
+		assert.equal(tunnel.auth, 'foo:bar');
+	}
 });

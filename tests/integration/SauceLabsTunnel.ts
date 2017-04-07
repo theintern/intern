@@ -1,28 +1,21 @@
-define([
-	'intern!object',
-	'intern/chai!assert',
-	'../support/integration',
-	'intern/dojo/node!../../SauceLabsTunnel'
-], function (
-	registerSuite,
-	assert,
-	support,
-	SauceLabsTunnel
-) {
-	function checkEnvironment(environment) {
-		assert.property(environment, 'short_version');
-		assert.property(environment, 'api_name');
-		assert.property(environment, 'os');
-	}
+import * as registerSuite from 'intern!object';
+import * as assert from 'intern/chai!assert';
+import { addEnvironmentTest, addStartStopTest } from '../support/integration';
+import SauceLabsTunnel from 'src/SauceLabsTunnel';
 
-	var suite = {
-		name: 'integration/SauceLabsTunnel'
-	};
+function checkEnvironment(environment: any) {
+	assert.property(environment, 'short_version');
+	assert.property(environment, 'api_name');
+	assert.property(environment, 'os');
+}
 
-	support.addEnvironmentTest(suite, SauceLabsTunnel, checkEnvironment);
-	support.addStartStopTest(suite, SauceLabsTunnel, {
-		timeout: 120000
-	});
+const suite = {
+	name: 'integration/SauceLabsTunnel'
+};
 
-	registerSuite(suite);
+addEnvironmentTest(suite, SauceLabsTunnel, checkEnvironment);
+addStartStopTest(suite, SauceLabsTunnel, {
+	timeout: 120000
 });
+
+registerSuite(suite);

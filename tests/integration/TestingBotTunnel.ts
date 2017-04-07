@@ -1,27 +1,20 @@
-define([
-	'intern!object',
-	'intern/chai!assert',
-	'../support/integration',
-	'intern/dojo/node!../../TestingBotTunnel'
-], function (
-	registerSuite,
-	assert,
-	support,
-	TestingBotTunnel
-) {
-	function checkEnvironment(environment) {
-		assert.property(environment, 'selenium_name');
-		assert.property(environment, 'name');
-		assert.property(environment, 'platform');
-		assert.property(environment, 'version');
-	}
+import * as registerSuite from 'intern!object';
+import * as assert from 'intern/chai!assert';
+import { addEnvironmentTest, addStartStopTest } from '../support/integration';
+import TestingBotTunnel from 'src/TestingBotTunnel';
 
-	var suite = {
-		name: 'integration/TestingBotTunnel'
-	};
+function checkEnvironment(environment: any) {
+	assert.property(environment, 'selenium_name');
+	assert.property(environment, 'name');
+	assert.property(environment, 'platform');
+	assert.property(environment, 'version');
+}
 
-	support.addEnvironmentTest(suite, TestingBotTunnel, checkEnvironment);
-	support.addStartStopTest(suite, TestingBotTunnel, { timeout: 30000 });
+const suite = {
+	name: 'integration/TestingBotTunnel'
+};
 
-	registerSuite(suite);
-});
+addEnvironmentTest(suite, TestingBotTunnel, checkEnvironment);
+addStartStopTest(suite, TestingBotTunnel, { timeout: 30000 });
+
+registerSuite(suite);

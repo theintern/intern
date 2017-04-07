@@ -1,16 +1,16 @@
-/**
- * @module digdug/CrossBrowserTestingTunnel
- */
+import { watchFile, unwatchFile } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import request from '@dojo/core/request';
+import { NodeRequestOptions } from '@dojo/core/request/providers/node';
+import Tunnel, { ChildExecutor, NormalizedEnvironment, TunnelProperties } from './Tunnel';
+import { JobState } from './interfaces';
+import { on } from './util';
+import Task from '@dojo/core/async/Task';
+import { createCompositeHandle, mixin } from '@dojo/core/lang';
+import { exec } from 'child_process';
 
-var fs = require('fs');
-var os = require('os');
-var pathUtil = require('path');
-var request = require('dojo/request');
-var Tunnel = require('./Tunnel');
-var util = require('./util');
-var Promise = require('dojo/Promise');
-
-var CBT_VERSION = '0.0.34';
+const cbtVersion = '0.0.34';
 
 /**
  * A CrossBrowserTesting tunnel.
@@ -25,9 +25,9 @@ var CBT_VERSION = '0.0.34';
  * ```js
  * define({
  * 	proxyUrl: 'http://local:9000',
- * 
+ *
  * 	tunnel: 'CrossBrowserTesting',
- * 
+ *
  * 	environments: [
  * 		{
  * 			browserName: 'chrome',
@@ -35,65 +35,26 @@ var CBT_VERSION = '0.0.34';
  * 			browser_api_name: 'Chrome52'
  * 		}
  * 	]
- * 
+ *
  * 	// Other Intern config options...
  * });
  * ```
  *
- * @constructor module:digdug/CrossBrowserTestingTunnel
- * @extends module:digdug/Tunnel
+ * The username and accessKey properties will be initialized using CBT_USERNAME and CBT_APIKEY.
  */
-function CrossBrowserTestingTunnel() {
-	this.apiKey = process.env.CBT_APIKEY;
-	this.username = process.env.CBT_USERNAME;
-	this.cbtVersion = CBT_VERSION;
-	Tunnel.apply(this, arguments);
-}
-
-var _super = Tunnel.prototype;
-
-CrossBrowserTestingTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/CrossBrowserTestingTunnel# */ {
-	constructor: CrossBrowserTestingTunnel,
-
-	/**
-	 * The CrossBrowserTesting API key. This will be initialized with the value of the `CBT_APIKEY` environment
-	 * variable.
-	 *
-	 * @type {string}
-	 * @default the value of the CBT_APIKEY environment variable
-	 */
-	apiKey: null,
-
-	/**
-	 * The CrossBrowserTesting username. This will be initialized with the value of the `CBT_USERNAME` environment
-	 * variable.
-	 *
-	 * @type {string}
-	 * @default the value of the CBT_USERNAME environment variable
-	 */
-	username: null,
-
-	/**
-	 * The URL of a service that provides a list of environments supported by CrossBrowserTesting.
-	 */
-	environmentUrl: 'https://crossbrowsertesting.com/api/v3/selenium/browsers?format=json',
-
-	executable: 'node',
-
-	hostname: 'hub.crossbrowsertesting.com',
-
-	port: 80,
+export default class CrossBrowserTestingTunnel extends Tunnel {
+	cbtVersion: string;
 
 	get auth() {
-		return (this.username || '') + ':' + (this.apiKey || '');
-	},
+		return `${this.username || ''}:${this.accessKey || ''}`;
+	}
 
 	get extraCapabilities() {
 		return {
 			username: this.username,
-			password: this.apiKey
+			password: this.accessKey
 		};
-	},
+	}
 
 	get isDownloaded() {
 		try {
@@ -103,104 +64,117 @@ CrossBrowserTestingTunnel.prototype = util.mixin(Object.create(_super), /** @len
 		catch (error) {
 			return false;
 		}
-	},
+	}
 
-	download: function (forceDownload) {
+	constructor(options?: TunnelProperties) {
+		super(mixin({
+			accessKey: process.env.CBT_APIKEY,
+			cbtVersion,
+			environmentUrl: 'https://crossbrowsertesting.com/api/v3/selenium/browsers?format=json',
+			executable: 'node',
+			hostname: 'hub.crossbrowsertesting.com',
+			port: '80',
+			username: process.env.CBT_USERNAME
+		}, options));
+	}
+
+	download(forceDownload = false): Task<any> {
 		if (!forceDownload && this.isDownloaded) {
-			return Promise.resolve();
+			return Task.resolve();
 		}
-		var cbtVersion = this.cbtVersion;
-		return new Promise(function (resolve, reject) {
-			var child_process = require('child_process');
-			child_process.exec('npm install cbt_tunnels@' + cbtVersion, function (error, stdout, stderr) {
+		return new Task((resolve, reject) => {
+			exec(`npm install cbt_tunnels@${this.cbtVersion}`, (error, stdout, stderr) => {
 				if (error) {
 					console.error(stderr);
 					reject(error);
 				}
-				resolve();
+				else {
+					resolve();
+				}
 			});
 		});
-	},
+	}
 
-	_makeArgs: function (readyFile) {
+	protected _makeArgs(readyFile: string): string[] {
 		return [
 			'node_modules/.bin/cbt_tunnels',
-			'--authkey', this.apiKey,
+			'--authkey', this.accessKey,
 			'--username', this.username,
 			'--ready', readyFile
 		];
-	},
+	}
 
-	sendJobState: function (jobId, data) {
-		var payload = JSON.stringify({
+	sendJobState(jobId: string, data: JobState): Task<void> {
+		const payload = JSON.stringify({
 			action: 'set_score',
 			score: (data.status || data.success) ? 'pass' : 'fail'
 		});
 
-		return request.put('https://crossbrowsertesting.com/api/v3/selenium/' + jobId, {
-			data: payload,
-			handleAs: 'text',
+		const url = `https://crossbrowsertesting.com/api/v3/selenium/${jobId}`;
+		return <Task<any>> request.put(url, <NodeRequestOptions> {
+			body: payload,
 			headers: {
-				'Content-Length': Buffer.byteLength(payload, 'utf8'),
+				'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
 				'Content-Type': 'application/json'
 			},
 			user: this.username,
-			password: this.apiKey,
+			password: this.accessKey,
 			proxy: this.proxy
 		}).then(function (response) {
-			if (response.data) {
-				var data = JSON.parse(response.data);
+			if (response.status !== 200) {
+				return response.text().then(text => {
+					if (text) {
+						const data = JSON.parse(text);
 
-				if (data.status) {
-					throw new Error('Could not save test status (' + data.message + ')');
+						if (data.status) {
+							throw new Error(`Could not save test status (${data.message})`);
+						}
+
+						throw new Error(`Server reported ${response.status} with: ${text}`);
+					}
+					else {
+						throw new Error(`Server reported ${response.status} with no other data.`);
+					}
+				});
+			}
+		});
+	}
+
+	protected _start(executor: ChildExecutor) {
+		const readyFile = join(tmpdir(), 'CrossBrowserTesting-' + Date.now());
+
+		return this._makeChild((child, resolve, reject) => {
+			let stdout: string[] = [];
+
+			// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
+			// `fs.watch` API has extra restrictions which are best avoided
+			watchFile(readyFile, { persistent: false, interval: 1007 }, function (current, previous) {
+				if (Number(current.mtime) === Number(previous.mtime)) {
+					// readyFile hasn't been modified, so ignore the event
+					return;
 				}
 
-				if (response.statusCode !== 200) {
-					throw new Error('Server reported ' + response.statusCode + ' with: ' + response.data);
-				}
-			}
-			else {
-				throw new Error('Server reported ' + response.statusCode + ' with no other data.');
-			}
-		});
-	},
+				unwatchFile(readyFile);
+				readHandle.destroy();
+				exitHandle.destroy();
+				stdout = null;
+				resolve();
+			});
 
-	_start: function () {
-		var readyFile = pathUtil.join(os.tmpdir(), 'CrossBrowserTesting-' + Date.now());
-		var child = this._makeChild(readyFile);
-		var childProcess = child.process;
-		var dfd = child.deferred;
-		var stdout = [];
+			// The cbt tunnel outputs its startup error messages on stdout. Capture any data on stdout and display it if the
+			// process exits early.
+			const readHandle = on(child.stdout, 'data', (data: any) => {
+				stdout.push(String(data));
+			});
+			const exitHandle = on(child, 'exit', function () {
+				process.stderr.write(stdout.join(''));
+			});
 
-		// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
-		// `fs.watch` API has extra restrictions which are best avoided
-		fs.watchFile(readyFile, { persistent: false, interval: 1007 }, function (current, previous) {
-			if (Number(current.mtime) === Number(previous.mtime)) {
-				// readyFile hasn't been modified, so ignore the event
-				return;
-			}
+			this._handle = createCompositeHandle(readHandle, exitHandle);
 
-			fs.unwatchFile(readyFile);
-			readHandle.remove();
-			exitHandle.remove();
-			stdout = null;
-			dfd.resolve();
-		});
-
-		// The cbt tunnel outputs its startup error messages on stdout. Capture any data on stdout and display it if the
-		// process exits early.
-		var readHandle = util.on(childProcess.stdout, 'data', function (data) {
-			stdout.push(data);
-		});
-		var exitHandle = util.on(childProcess, 'exit', function () {
-			process.stderr.write(stdout.join(''));
-		});
-
-		this._handles.push(readHandle);
-		this._handles.push(exitHandle);
-
-		return child;
-	},
+			executor(child, resolve, reject);
+		}, readyFile);
+	}
 
 	/**
 	 * Attempt to normalize a TestingBot described environment with the standard Selenium capabilities
@@ -214,25 +188,24 @@ CrossBrowserTestingTunnel.prototype = util.mixin(Object.create(_super), /** @len
 	 *     "version":"36"
 	 * }
 	 *
-	 * @param {Object} environment a TestingBot environment descriptor
+	 * @param environment a TestingBot environment descriptor
 	 * @returns a normalized descriptor
-	 * @private
 	 */
-	_normalizeEnvironment: function (environment) {
-		var platform = environment.api_name;
+	protected _normalizeEnvironment(environment: any): NormalizedEnvironment {
+		const platform = environment.api_name;
 
-		return environment.browsers.map(function (browser) {
-			var browserName = browser.type.toLowerCase();
+		return environment.browsers.map(function (browser: any) {
+			const browserName = browser.type.toLowerCase();
 
 			return {
-				platform: platform,
-				browserName: browserName,
+				platform,
+				browserName,
 				version: browser.version,
 
 				descriptor: environment,
 
 				intern: {
-					browserName: browserName,
+					browserName,
 					version: browser.version,
 					browser_api_name: browser.api_name,
 					os_api_name: platform
@@ -240,6 +213,4 @@ CrossBrowserTestingTunnel.prototype = util.mixin(Object.create(_super), /** @len
 			};
 		});
 	}
-});
-
-module.exports = CrossBrowserTestingTunnel;
+}

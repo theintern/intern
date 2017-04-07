@@ -1,211 +1,147 @@
+import Tunnel, { TunnelProperties, DownloadOptions, ChildExecutor, NormalizedEnvironment, StatusEvent } from './Tunnel';
+import { JobState } from './interfaces';
+import { chmodSync, watchFile, unwatchFile } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import Task, { State } from '@dojo/core/async/Task';
+import request from '@dojo/core/request';
+import { NodeRequestOptions } from '@dojo/core/request/providers/node';
+import { format as formatUrl, parse as parseUrl, Url } from 'url';
+import { mixin } from '@dojo/core/lang';
+import { fileExists, on } from './util';
+
+const scVersion = '4.4.5';
+
 /**
- * @module digdug/SauceLabsTunnel
- */
-
-var fs = require('fs');
-var os = require('os');
-var pathUtil = require('path');
-var Promise = require('dojo/Promise');
-var request = require('dojo/request');
-var Tunnel = require('./Tunnel');
-var urlUtil = require('url');
-var util = require('./util');
-
-var SC_VERSION = '4.4.5';
-
-/**
- * A Sauce Labs tunnel. This tunnel uses Sauce Connect 4 on platforms where it is supported, and Sauce Connect 3
- * on all other platforms.
+ * A Sauce Labs tunnel. This tunnel uses Sauce Connect 4 on platforms where it is supported, and Sauce Connect 3 on all
+ * other platforms.
  *
- * @constructor module:digdug/SauceLabsTunnel
- * @extends module:digdug/Tunnel
+ * The accessKey and username properties will be initialized using SAUCE_ACCESS_KEY and SAUCE_USERNAME.
  */
-function SauceLabsTunnel() {
-	this.accessKey = process.env.SAUCE_ACCESS_KEY;
-	this.scVersion = SC_VERSION;
-	this.directDomains = [];
-	this.tunnelDomains = [];
-	this.domainAuthentication = [];
-	this.fastFailDomains = [];
-	this.skipSslDomains = [];
-	this.username = process.env.SAUCE_USERNAME;
-	Tunnel.apply(this, arguments);
-}
+export default class SauceLabsTunnel extends Tunnel implements SauceLabsProperties {
+	/** A list of domains that should not be proxied by the tunnel on the remote VM. */
+	directDomains: string[];
 
-var _super = Tunnel.prototype;
-
-SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/SauceLabsTunnel# */ {
-	constructor: SauceLabsTunnel,
-
-	/**
-	 * The Sauce Labs access key.
-	 *
-	 * @type {string}
-	 * @default the value of the SAUCE_ACCESS_KEY environment variable
-	 */
-	accessKey: null,
-
-	/**
-	 * A list of domains that should not be proxied by the tunnel on the remote VM.
-	 *
-	 * @type {string[]}
-	 */
-	directDomains: null,
-
-	/**
-	 * A list of domains that will be proxied by the tunnel on the remote VM.
-	 *
-	 * @type {string[]}
-	 */
-	tunnelDomains: null,
-
-	directory: pathUtil.join(__dirname, 'saucelabs'),
+	/** A list of domains that will be proxied by the tunnel on the remote VM. */
+	tunnelDomains: string[];
 
 	/**
 	 * A list of URLs that require additional HTTP authentication. Only the hostname, port, and auth are used.
 	 * This property is only supported by Sauce Connect 4 tunnels.
-	 *
-	 * @type {string[]}
 	 */
-	domainAuthentication: null,
+	domainAuthentication: string[];
 
 	/**
 	 * A list of regular expressions corresponding to domains whose connections should fail immediately if the VM
 	 * attempts to make a connection to them.
-	 *
-	 * @type {string[]}
 	 */
-	fastFailDomains: null,
+	fastFailDomains: string[];
+
+	/** Allows the tunnel to also be used by sub-accounts of the user that started the tunnel. */
+	isSharedTunnel: boolean;
+
+	/** A filename where additional logs from the tunnel should be output. */
+	logFile: string;
+
+	/** A filename where Sauce Connect stores its process information. */
+	pidFile: string;
 
 	/**
-	 * Allows the tunnel to also be used by sub-accounts of the user that started the tunnel.
-	 *
-	 * @type {boolean}
-	 * @default
+	 * Specifies the maximum log filesize before rotation, in bytes. This property is only supported by Sauce Connect 3
+	 * tunnels.
 	 */
-	isSharedTunnel: false,
+	logFileSize: number;
 
 	/**
-	 * A filename where additional logs from the tunnel should be output.
-	 *
-	 * @type {string}
+	 * Log statistics about HTTP traffic every `logTrafficStats` milliseconds. This property is only supported by Sauce
+	 * Connect 4 tunnels.
 	 */
-	logFile: null,
+	logTrafficStats: number;
 
 	/**
-	 * A filename where Sauce Connect stores its process information.
-	 *
-	 * @type {string}
+	 * An alternative URL for the Sauce REST API. This property is only supported by Sauce Connect 3 tunnels.
 	 */
-	pidFile: null,
-
-	/**
-	 * Specifies the maximum log filesize before rotation, in bytes.
-	 * This property is only supported by Sauce Connect 3 tunnels.
-	 *
-	 * @type {number}
-	 */
-	logFileSize: null,
-
-	/**
-	 * Log statistics about HTTP traffic every `logTrafficStats` milliseconds.
-	 * This property is only supported by Sauce Connect 4 tunnels.
-	 *
-	 * @type {number}
-	 * @default
-	 */
-	logTrafficStats: 0,
-
-	/**
-	 * An alternative URL for the Sauce REST API.
-	 * This property is only supported by Sauce Connect 3 tunnels.
-	 *
-	 * @type {string}
-	 */
-	restUrl: null,
+	restUrl: string;
 
 	/**
 	 * A list of domains that should not have their SSL connections re-encrypted when going through the tunnel.
-	 *
-	 * @type {string[]}
 	 */
-	skipSslDomains: null,
+	skipSslDomains: string[];
 
 	/**
-	 * An additional set of options to use with the Squid proxy for the remote VM.
-	 * This property is only supported by Sauce Connect 3 tunnels.
-	 *
-	 * @type {string}
+	 * An additional set of options to use with the Squid proxy for the remote VM. This property is only supported by
+	 * Sauce Connect 3 tunnels.
 	 */
-	squidOptions: null,
+	squidOptions: string;
 
 	/**
-	 * Whether or not to use the proxy defined at {@link module:digdug/Tunnel#proxy} for the tunnel connection
-	 * itself.
-	 *
-	 * @type {boolean}
-	 * @default
+	 * Whether or not to use the proxy defined at {@link module:digdug/Tunnel#proxy} for the tunnel connection itself.
 	 */
-	useProxyForTunnel: false,
+	useProxyForTunnel: boolean;
 
 	/**
-	 * The Sauce Labs username.
-	 *
-	 * @type {string}
-	 * @default the value of the SAUCE_USERNAME environment variable
+	 * Overrides the version of the VM created on Sauce Labs. This property is only supported by Sauce Connect 3
+	 * tunnels.
 	 */
-	username: null,
+	vmVersion: string;
 
-	/**
-	 * Overrides the version of the VM created on Sauce Labs.
-	 * This property is only supported by Sauce Connect 3 tunnels.
-	 *
-	 * @type {string}
-	 */
-	vmVersion: null,
+	scVersion: string;
 
-	/**
-	 * The URL of a service that provides a list of environments supported by Sauce Labs.
-	 */
-	environmentUrl: 'https://saucelabs.com/rest/v1/info/platforms/webdriver',
+	constructor(options?: SauceLabsOptions) {
+		super(mixin({
+			accessKey: process.env.SAUCE_ACCESS_KEY,
+			directDomains: [],
+			directory: join(__dirname, 'saucelabs'),
+			domainAuthentication: [],
+			environmentUrl: 'https://saucelabs.com/rest/v1/info/platforms/webdriver',
+			fastFailDomains: [],
+			isSharedTunnel: false,
+			logTrafficStats: 0,
+			scVersion,
+			skipSslDomains: [],
+			tunnelDomains: [],
+			useProxyForTunnel: false,
+			username: process.env.SAUCE_USERNAME
+		}, options));
+	}
 
 	get auth() {
-		return (this.username || '') + ':' + (this.accessKey || '');
-	},
+		return `${this.username || ''}:${this.accessKey || ''}`;
+	}
 
 	get executable() {
-		var platform = this.platform === 'darwin' ? 'osx' : this.platform;
-		var architecture = this.architecture;
+		const platform = this.platform === 'darwin' ? 'osx' : this.platform;
+		const architecture = this.architecture;
 
 		if (platform === 'osx' || platform === 'win32' || (platform === 'linux' && architecture === 'x64')) {
-			return './sc-' + this.scVersion + '-' + platform + '/bin/sc' + (platform === 'win32' ? '.exe' : '');
+			return join(this.directory, 'sc-' + this.scVersion + '-' + platform + '/bin/sc' + (platform === 'win32' ? '.exe' : ''));
 		}
 		else {
 			return 'java';
 		}
-	},
+	}
 
 	get extraCapabilities() {
-		var capabilities = {};
+		const capabilities: any = {};
 
 		if (this.tunnelId) {
 			capabilities['tunnel-identifier'] = this.tunnelId;
 		}
 
 		return capabilities;
-	},
+	}
 
 	get isDownloaded() {
-		return util.fileExists(this.executable === 'java' ?
-			pathUtil.join(this.directory, 'Sauce-Connect.jar') :
-			pathUtil.join(this.directory, this.executable)
+		return fileExists(this.executable === 'java' ?
+			join(this.directory, 'Sauce-Connect.jar') :
+			join(this.executable)
 		);
-	},
+	}
 
 	get url() {
-		var platform = this.platform === 'darwin' ? 'osx' : this.platform;
-		var architecture = this.architecture;
-		var url = 'https://saucelabs.com/downloads/sc-' + this.scVersion + '-';
+		const platform = this.platform === 'darwin' ? 'osx' : this.platform;
+		const architecture = this.architecture;
+		let url = 'https://saucelabs.com/downloads/sc-' + this.scVersion + '-';
 
 		if (platform === 'osx' || platform === 'win32') {
 			url += platform + '.zip';
@@ -219,19 +155,18 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		}
 
 		return url;
-	},
+	}
 
-	_postDownloadFile: function (response) {
-		var self = this;
-		return util.decompress(response.data, this.directory).then(function () {
-			if (self.executable !== 'java') {
-				fs.chmodSync(pathUtil.join(self.directory, self.executable), parseInt('0755', 8));
+	protected _postDownloadFile(data: Buffer, options?: DownloadOptions): Promise<void> {
+		return super._postDownloadFile(data, options).then(() => {
+			if (this.executable !== 'java') {
+				chmodSync(this.executable, parseInt('0755', 8));
 			}
 		});
-	},
+	}
 
-	_makeNativeArgs: function (proxy) {
-		var args = [
+	protected _makeNativeArgs(proxy?: Url): string[] {
+		const args = [
 			'-u', this.username,
 			'-k', this.accessKey
 		];
@@ -244,32 +179,32 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			if (proxy.auth) {
 				args.push('-w', proxy.auth);
 			}
-			else if (proxy.username) {
+			/*else if (proxy.username) {
 				args.push('-w', proxy.username + ':' + proxy.password);
-			}
+			}*/
 		}
 
 		if (this.domainAuthentication.length) {
 			this.domainAuthentication.forEach(function (domain) {
-				domain = urlUtil.parse(domain);
-				args.push('-a', domain.hostname + ':' + domain.port + ':' + domain.auth);
+				const url = parseUrl(domain);
+				args.push('-a', `${url.hostname}:${url.port}:${url.auth}`);
 			});
 		}
 
-		this.logTrafficStats && args.push('-z', Math.floor(this.logTrafficStats / 1000));
+		this.logTrafficStats && args.push('-z', String(Math.floor(this.logTrafficStats / 1000)));
 		this.verbose && args.push('-v');
 
 		return args;
-	},
+	}
 
-	_makeJavaArgs: function (proxy) {
-		var args = [
+	protected _makeJavaArgs(proxy?: Url): string[] {
+		const args = [
 			'-jar', 'Sauce-Connect.jar',
 			this.username,
 			this.accessKey
 		];
 
-		this.logFileSize && args.push('-g', this.logFileSize);
+		this.logFileSize && args.push('-g', String(this.logFileSize));
 		this.squidOptions && args.push('-S', this.squidOptions);
 		this.verbose && args.push('-d');
 
@@ -277,21 +212,21 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			proxy.hostname && args.push('-p', proxy.hostname + (proxy.port ? ':' + proxy.port : ''));
 
 			if (proxy.auth) {
-				var auth = proxy.auth.split(':');
+				const auth = proxy.auth.split(':');
 				args.push('-u', auth[0], '-X', auth[1]);
 			}
-			else {
+			/*else {
 				proxy.username && args.push('-u', proxy.username);
 				proxy.password && args.push('-X', proxy.password);
-			}
+			}*/
 		}
 
 		return args;
-	},
+	}
 
-	_makeArgs: function (readyFile) {
-		var proxy = this.proxy ? urlUtil.parse(this.proxy) : undefined;
-		var args = this.executable === 'java' ? this._makeJavaArgs(proxy) : this._makeNativeArgs(proxy);
+	protected _makeArgs(readyFile: string): string[] {
+		const proxy = this.proxy ? parseUrl(this.proxy) : undefined;
+		const args = this.executable === 'java' ? this._makeJavaArgs(proxy) : this._makeNativeArgs(proxy);
 
 		args.push(
 			'-P', this.port,
@@ -311,14 +246,14 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 		this.vmVersion && args.push('-V', this.vmVersion);
 
 		return args;
-	},
+	}
 
-	sendJobState: function (jobId, data) {
-		var url = urlUtil.parse(this.restUrl || 'https://saucelabs.com/rest/v1/');
+	sendJobState(jobId: string, data: JobState): Task<void> {
+		let url = parseUrl(this.restUrl || 'https://saucelabs.com/rest/v1/');
 		url.auth = this.username + ':' + this.accessKey;
 		url.pathname += this.username + '/jobs/' + jobId;
 
-		var payload = JSON.stringify({
+		const payload = JSON.stringify({
 			build: data.buildId,
 			'custom-data': data.extra,
 			name: data.name,
@@ -327,141 +262,155 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			tags: data.tags
 		});
 
-		return request.put(urlUtil.format(url), {
-			data: payload,
-			handleAs: 'text',
+		return <Task<any>>request.put(formatUrl(url), <NodeRequestOptions>{
+			body: payload,
 			headers: {
-				'Content-Length': Buffer.byteLength(payload, 'utf8'),
+				'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
-			password: this.apiSecret,
-			user: this.apiKey,
+			password: this.accessKey,
+			user: this.username,
 			proxy: this.proxy
 		}).then(function (response) {
-			if (response.data) {
-				var data = JSON.parse(response.data);
+			return response.text().then(text => {
+				if (text) {
+					const data = JSON.parse(text);
 
-				if (data.error) {
-					throw new Error(data.error);
-				}
+					if (data.error) {
+						throw new Error(data.error);
+					}
 
-				if (response.statusCode !== 200) {
-					throw new Error('Server reported ' + response.statusCode + ' with: ' + response.data);
-				}
-			}
-			else {
-				throw new Error('Server reported ' + response.statusCode + ' with no other data.');
-			}
-		});
-	},
-
-	_start: function () {
-		var self = this;
-		function readStatus(message) {
-			if (
-				message &&
-				message.indexOf('Please wait for') === -1 &&
-				message.indexOf('Sauce Connect is up') === -1 &&
-				message.indexOf('Sauce Connect') !== 0 &&
-				message.indexOf('Using CA certificate bundle') === -1 &&
-				// Sauce Connect 3
-				message.indexOf('You may start your tests') === -1
-			) {
-				self.emit('status', message);
-			}
-		}
-
-		function readStartupMessage(message) {
-			function reject(message) {
-				if (dfd.promise.state === Promise.State.PENDING) {
-					dfd.reject(new Error(message));
-				}
-				return true;
-			}
-
-			// These messages contain structured data we can try to consume
-			if (message.indexOf('Error: response: ') === 0) {
-				try {
-					var error = /(\{[\s\S]*\})/.exec(message);
-					if (error) {
-						error = JSON.parse(error[1]);
-						return reject(error.error);
+					if (response.status !== 200) {
+						throw new Error(`Server reported ${response.status} with: ${text}`);
 					}
 				}
-				catch (error) {
-					// It seems parsing did not work so well; fall through to the normal error handler
+				else {
+					throw new Error(`Server reported ${response.status} with no other data.`);
 				}
-			}
+			});
+		});
+	}
 
-			if (message.indexOf('Error: ') === 0) {
-				// skip known warnings
+	protected _start(executor: ChildExecutor) {
+		const readyFile = join(tmpdir(), 'saucelabs-' + Date.now());
+
+		let readMessage: Function;
+		let readStartupMessage: (message: string) => boolean;
+		let readRunningMessage: (message: string) => void;
+
+		const task = this._makeChild((child, resolve, reject) => {
+
+			readStartupMessage = function (message: string) {
+				function fail(message: string) {
+					if (task.state === State.Pending) {
+						reject(new Error(message));
+					}
+					return true;
+				}
+
+				// These messages contain structured data we can try to consume
+				if (message.indexOf('Error: response: ') === 0) {
+					try {
+						const error = /(\{[\s\S]*\})/.exec(message);
+						if (error) {
+							const data = JSON.parse(error[1]);
+							return fail(data.error);
+						}
+					}
+					catch (error) {
+						// It seems parsing did not work so well; fall through to the normal error handler
+					}
+				}
+
+				if (message.indexOf('Error: ') === 0) {
+					// skip known warnings
+					if (
+						/open file limit \d+ is too low/.test(message) ||
+						/Sauce Labs recommends setting it/.test(message) ||
+						/HTTP response code indicated failure/.test(message)
+					) {
+						return;
+					}
+					return fail(message.slice('Error: '.length));
+				}
+
+				readStatus(message);
+			};
+
+			readRunningMessage = function (message: string) {
+				// Sauce Connect 3
+				if (message.indexOf('Problem connecting to Sauce Labs REST API') > -1) {
+					// It will just keep trying and trying and trying for a while, but it is a failure, so force it
+					// to stop
+					child.kill('SIGTERM');
+				}
+
+				readStatus(message);
+			};
+
+			const readStatus = (message: string) => {
 				if (
-					/open file limit \d+ is too low/.test(message) ||
-					/Sauce Labs recommends setting it/.test(message) ||
-					/HTTP response code indicated failure/.test(message)
+					message &&
+					message.indexOf('Please wait for') === -1 &&
+					message.indexOf('Sauce Connect is up') === -1 &&
+					message.indexOf('Sauce Connect') !== 0 &&
+					message.indexOf('Using CA certificate bundle') === -1 &&
+					// Sauce Connect 3
+					message.indexOf('You may start your tests') === -1
 				) {
+					this.emit<StatusEvent>({
+						type: 'status',
+						target: this,
+						status: message
+					});
+				}
+			};
+
+			readMessage = readStartupMessage;
+
+			// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
+			// `fs.watch` API has extra restrictions which are best avoided
+			watchFile(readyFile, { persistent: false, interval: 1007 }, function (current, previous) {
+				if (Number(current.mtime) === Number(previous.mtime)) {
+					// readyFile hasn't been modified, so ignore the event
 					return;
 				}
-				return reject(message.slice('Error: '.length));
-			}
 
-			readStatus(message);
-		}
+				unwatchFile(readyFile);
 
-		function readRunningMessage(message) {
-			// Sauce Connect 3
-			if (message.indexOf('Problem connecting to Sauce Labs REST API') > -1) {
-				// It will just keep trying and trying and trying for a while, but it is a failure, so force it
-				// to stop
-				childProcess.kill('SIGTERM');
-			}
+				// We have to watch for errors until the tunnel has started successfully at which point we only want to
+				// watch for status messages to emit
+				readMessage = readStatus;
 
-			readStatus(message);
-		}
-
-		var readyFile = pathUtil.join(os.tmpdir(), 'saucelabs-' + Date.now());
-		var child = this._makeChild(readyFile);
-		var childProcess = child.process;
-		var dfd = child.deferred;
-
-		// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
-		// `fs.watch` API has extra restrictions which are best avoided
-		fs.watchFile(readyFile, { persistent: false, interval: 1007 }, function (current, previous) {
-			if (Number(current.mtime) === Number(previous.mtime)) {
-				// readyFile hasn't been modified, so ignore the event
-				return;
-			}
-
-			fs.unwatchFile(readyFile);
-
-			// We have to watch for errors until the tunnel has started successfully at which point we only want to
-			// watch for status messages to emit
-			readMessage = readStatus;
-
-			dfd.resolve();
-		});
-
-		var readMessage = readStartupMessage;
-
-		dfd.promise.then(function () {
-			readMessage = readRunningMessage();
-		});
-
-		// Sauce Connect exits with a zero status code when there is a failure, and outputs error messages to
-		// stdout, like a boss. Even better, it uses the "Error:" tag for warnings.
-		this._handles.push(util.on(childProcess.stdout, 'data', function (data) {
-			data.split('\n').some(function (message) {
-				// Get rid of the date/time prefix on each message
-				var delimiter = message.indexOf(' - ');
-				if (delimiter > -1) {
-					message = message.slice(delimiter + 3);
-				}
-				return readMessage(message.trim());
+				resolve();
 			});
-		}));
 
-		return child;
-	},
+			// Sauce Connect exits with a zero status code when there is a failure, and outputs error messages to
+			// stdout, like a boss. Even better, it uses the "Error:" tag for warnings.
+			this._handle = on(child.stdout, 'data', function (data: string) {
+				if (!readMessage) {
+					return;
+				}
+				String(data).split('\n').some(function (message) {
+					// Get rid of the date/time prefix on each message
+					const delimiter = message.indexOf(' - ');
+					if (delimiter > -1) {
+						message = message.slice(delimiter + 3);
+					}
+					return readMessage(message.trim());
+				});
+			});
+
+			executor(child, resolve, reject);
+		}, readyFile);
+
+		task.then(function () {
+			readRunningMessage('');
+			readMessage = null;
+		});
+
+		return task;
+	}
 
 	/**
 	 * Attempt to normalize a SauceLabs described environment with the standard Selenium capabilities
@@ -478,12 +427,11 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 	 *     "os": "Windows 2003"
 	 * }
 	 *
-	 * @param {Object} environment a SauceLabs environment descriptor
+	 * @param environment a SauceLabs environment descriptor
 	 * @returns a normalized descriptor
-	 * @private
 	 */
-	_normalizeEnvironment: function (environment) {
-		var windowsMap = {
+	protected _normalizeEnvironment(environment: any): NormalizedEnvironment {
+		const windowsMap: any = {
 			'Windows 2003': 'Windows XP',
 			'Windows 2008': 'Windows 7',
 			'Windows 2012': 'Windows 8',
@@ -491,13 +439,13 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			'Windows 10': 'Windows 10'
 		};
 
-		var browserMap = {
+		const browserMap: any = {
 			'microsoftedge': 'MicrosoftEdge'
 		};
 
-		var os = environment.os;
-		var platformName = os;
-		var platformVersion;
+		let os = environment.os;
+		let platformName = os;
+		let platformVersion: string;
 		if (os.indexOf('Windows') === 0) {
 			os = windowsMap[os] || os;
 			platformName = 'Windows';
@@ -508,28 +456,47 @@ SauceLabsTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:
 			platformVersion = os.slice('Mac '.length);
 		}
 
-		var platform = platformName + (platformVersion ? ' ' + platformVersion : '');
-		var browserName = browserMap[environment.api_name] || environment.api_name;
-		var version = environment.short_version;
+		const platform = platformName + (platformVersion ? ' ' + platformVersion : '');
+		const browserName = browserMap[environment.api_name] || environment.api_name;
+		const version = environment.short_version;
 
 		return {
-			platform: platform,
-			platformName: platformName,
-			platformVersion: platformVersion,
+			platform,
+			platformName,
+			platformVersion,
 
-			browserName: browserName,
+			browserName,
 			browserVersion: version,
-			version: version,
+			version,
 
 			descriptor: environment,
 
 			intern: {
-				platform: platform,
-				browserName: browserName,
-				version: version
+				platform,
+				browserName,
+				version
 			}
 		};
 	}
-});
+}
 
-module.exports = SauceLabsTunnel;
+export interface SauceLabsProperties extends TunnelProperties {
+	accessKey: string;
+	directDomains: string[];
+	tunnelDomains: string[];
+	domainAuthentication: string[];
+	fastFailDomains: string[];
+	isSharedTunnel: boolean;
+	logFile: string;
+	pidFile: string;
+	logFileSize: number;
+	logTrafficStats: number;
+	restUrl: string;
+	skipSslDomains: string[];
+	squidOptions: string;
+	useProxyForTunnel: boolean;
+	username: string;
+	vmVersion: string;
+}
+
+export type SauceLabsOptions = Partial<SauceLabsProperties>;

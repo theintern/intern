@@ -1,8 +1,5 @@
-define([
-	'./BrowserStackTunnel',
-	'./CrossBrowserTestingTunnel',
-	'./SauceLabsTunnel',
-	'./TestingBotTunnel',
-	'./SeleniumTunnel'
-], function () {
-});
+import './BrowserStackTunnel';
+import './CrossBrowserTestingTunnel';
+import './SauceLabsTunnel';
+import './SeleniumTunnel';
+import './TestingBotTunnel';

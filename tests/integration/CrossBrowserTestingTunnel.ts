@@ -1,27 +1,20 @@
-define([
-	'intern!object',
-	'intern/chai!assert',
-	'../support/integration',
-	'intern/dojo/node!../../CrossBrowserTestingTunnel'
-], function (
-	registerSuite,
-	assert,
-	support,
-	CrossBrowserTestingTunnel
-) {
-	function checkEnvironment(environment) {
-		assert.property(environment, 'api_name');
-		assert.deepProperty(environment, 'browsers.0.api_name');
-	}
+import * as registerSuite from 'intern!object';
+import * as assert from 'intern/chai!assert';
+import { addEnvironmentTest, addStartStopTest } from '../support/integration';
+import CrossBrowserTestingTunnel from 'src/CrossBrowserTestingTunnel';
 
-	var suite = {
-		name: 'integration/CrossBrowserTestingTunnel'
-	};
+function checkEnvironment(environment: any) {
+	assert.property(environment, 'api_name');
+	assert.deepProperty(environment, 'browsers.0.api_name');
+}
 
-	support.addEnvironmentTest(suite, CrossBrowserTestingTunnel, checkEnvironment, {
-		needsAuthData: true
-	});
-	support.addStartStopTest(suite, CrossBrowserTestingTunnel);
+const suite = {
+	name: 'integration/CrossBrowserTestingTunnel'
+};
 
-	registerSuite(suite);
+addEnvironmentTest(suite, CrossBrowserTestingTunnel, checkEnvironment, {
+	needsAuthData: true
 });
+addStartStopTest(suite, CrossBrowserTestingTunnel);
+
+registerSuite(suite);

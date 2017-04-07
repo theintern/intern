@@ -1,39 +1,36 @@
-/**
- * @module digdug/NullTunnel
- */
-
-var Promise = require('dojo/Promise');
-var Tunnel = require('./Tunnel');
-var util = require('./util');
-
-function success() {
-	return Promise.resolve();
-}
+import Task from '@dojo/core/async/Task';
+import Tunnel, { TunnelOptions } from './Tunnel';
+import { mixin } from '@dojo/core/lang';
 
 /**
  * A no-op tunnel.
- *
- * @constructor module:digdug/NullTunnel
- * @extends module:digdug/Tunnel
  */
-function NullTunnel() {
-	Tunnel.apply(this, arguments);
+export default class NullTunnel extends Tunnel {
+	constructor(options?: TunnelOptions) {
+		super(mixin({
+			auth: ''
+		}, options));
+	}
+
+	get isDownloaded() {
+		return true;
+	}
+
+	download() {
+		return Task.resolve();
+	}
+
+	start() {
+		this._state = 'running';
+		return Task.resolve();
+	}
+
+	stop() {
+		this._state = 'stopped';
+		return Promise.resolve<number>(0);
+	}
+
+	sendJobState() {
+		return Task.resolve();
+	}
 }
-
-var _super = Tunnel.prototype;
-NullTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/NullTunnel */ {
-	auth: '',
-	isDownloaded: true,
-	download: success,
-	start: function () {
-		this.isRunning = true;
-		return success();
-	},
-	stop: function () {
-		this.isRunning = false;
-		return success();
-	},
-	sendJobState: success
-});
-
-module.exports = NullTunnel;

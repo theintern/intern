@@ -1,64 +1,59 @@
-define([
-	'intern/dojo/node!../../BrowserStackTunnel',
-	'intern!object',
-	'intern/chai!assert'
-], function (
-	BrowserStackTunnel,
-	registerSuite,
-	assert
-) {
-	var tunnel;
+import BrowserStackTunnel from 'src/BrowserStackTunnel';
+import { join } from 'path';
+import registerSuite = require('intern!object');
+import assert = require('intern/chai!assert');
 
-	registerSuite({
-		name: 'unit/BrowserStackTunnel',
+let tunnel: BrowserStackTunnel;
 
-		beforeEach: function () {
-			tunnel = new BrowserStackTunnel();
-		},
+registerSuite({
+	name: 'unit/BrowserStackTunnel',
 
-		'#auth': function () {
-			tunnel.username = 'foo';
-			tunnel.accessKey = 'bar';
-			assert.equal(tunnel.auth, 'foo:bar');
-		},
+	beforeEach() {
+		tunnel = new BrowserStackTunnel();
+	},
 
-		'#executable': function () {
-			tunnel.platform = 'foo';
-			var executable = './BrowserStackLocal';
-			assert.equal(tunnel.executable, executable);
+	'#auth'() {
+		tunnel.username = 'foo';
+		tunnel.accessKey = 'bar';
+		assert.equal(tunnel.auth, 'foo:bar');
+	},
 
-			tunnel.platform = 'win32';
-			executable = './BrowserStackLocal.exe';
-			assert.equal(tunnel.executable, executable);
-		},
+	'#executable'() {
+		tunnel.platform = 'foo';
+		let executable = join(tunnel.directory, 'BrowserStackLocal');
+		assert.equal(tunnel.executable, executable);
 
-		'#extraCapabilities': function () {
-			var capabilities = { 'browserstack.local': 'true' };
-			assert.deepEqual(tunnel.extraCapabilities, capabilities);
-			capabilities['browserstack.localIdentifier'] = tunnel.tunnelId = 'foo';
-			assert.deepEqual(tunnel.extraCapabilities, capabilities);
-		},
+		tunnel.platform = 'win32';
+		executable = join(tunnel.directory, 'BrowserStackLocal.exe');
+		assert.equal(tunnel.executable, executable);
+	},
 
-		'#url': function () {
-			tunnel.platform = 'foo';
-			assert.throws(function () {
-				tunnel.url;
-			});
+	'#extraCapabilities'() {
+		const capabilities: any = { 'browserstack.local': 'true' };
+		assert.deepEqual(tunnel.extraCapabilities, capabilities);
+		capabilities['browserstack.localIdentifier'] = tunnel.tunnelId = 'foo';
+		assert.deepEqual(tunnel.extraCapabilities, capabilities);
+	},
 
-			var url = 'https://www.browserstack.com/browserstack-local/BrowserStackLocal-';
-			tunnel.platform = 'darwin';
-			tunnel.architecture = 'x64';
-			assert.equal(tunnel.url, url + 'darwin-x64.zip');
+	'#url'() {
+		tunnel.platform = 'foo';
+		assert.throws(function () {
+			tunnel.url;
+		});
 
-			tunnel.platform = 'win32';
-			assert.equal(tunnel.url, url + 'win32.zip');
+		let url = 'https://www.browserstack.com/browserstack-local/BrowserStackLocal-';
+		tunnel.platform = 'darwin';
+		tunnel.architecture = 'x64';
+		assert.equal(tunnel.url, url + 'darwin-x64.zip');
 
-			tunnel.platform = 'linux';
-			tunnel.architecture = 'x64';
-			assert.equal(tunnel.url, url + 'linux-x64.zip');
+		tunnel.platform = 'win32';
+		assert.equal(tunnel.url, url + 'win32.zip');
 
-			tunnel.architecture = 'ia32';
-			assert.equal(tunnel.url, url + 'linux-ia32.zip');
-		}
-	});
+		tunnel.platform = 'linux';
+		tunnel.architecture = 'x64';
+		assert.equal(tunnel.url, url + 'linux-x64.zip');
+
+		tunnel.architecture = 'ia32';
+		assert.equal(tunnel.url, url + 'linux-ia32.zip');
+	}
 });

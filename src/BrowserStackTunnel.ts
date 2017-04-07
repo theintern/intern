@@ -1,114 +1,67 @@
-/**
- * @module digdug/BrowserStackTunnel
- */
-
-var fs = require('fs');
-var pathUtil = require('path');
-var Promise = require('dojo/Promise');
-var request = require('dojo/request');
-var Tunnel = require('./Tunnel');
-var urlUtil = require('url');
-var util = require('./util');
+import { chmodSync } from 'fs';
+import { join } from 'path';
+import Task from '@dojo/core/async/Task';
+import request from '@dojo/core/request';
+import { NodeRequestOptions } from '@dojo/core/request/providers/node';
+import Tunnel, { TunnelProperties, DownloadOptions, ChildExecutor, NormalizedEnvironment, StatusEvent } from './Tunnel';
+import { parse as parseUrl, Url } from 'url';
+import { mixin } from '@dojo/core/lang';
+import { JobState } from './interfaces';
+import { on } from './util';
 
 /**
  * A BrowserStack tunnel.
  *
- * @constructor module:digdug/BrowserStackTunnel
- * @extends module:digdug/Tunnel
+ * The accessKey and username properties will be initialized using BROWSERSTACK_ACCESS_KEY and BROWSERSTACK_USERNAME.
  */
-function BrowserStackTunnel() {
-	this.accessKey = process.env.BROWSERSTACK_ACCESS_KEY;
-	this.servers = [];
-	this.username = process.env.BROWSERSTACK_USERNAME;
-	Tunnel.apply(this, arguments);
-}
-
-var _super = Tunnel.prototype;
-
-BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:digdug/BrowserStackTunnel# */ {
-	constructor: BrowserStackTunnel,
-
-	/**
-	 * The BrowserStack access key. This will be initialized with the value of the `BROWSERSTACK_ACCESS_KEY`
-	 * environment variable.
-	 *
-	 * @type {string}
-	 * @default the value of the BROWSERSTACK_ACCESS_KEY environment variable
-	 */
-	accessKey: null,
-
+export default class BrowserStackTunnel extends Tunnel {
 	/**
 	 * Whether or not to start the tunnel with only WebDriver support. Setting this value to `false` is not
 	 * supported.
-	 *
-	 * @type {boolean}
-	 * @default
 	 */
-	automateOnly: true,
+	automateOnly: boolean;
 
-	directory: pathUtil.join(__dirname, 'browserstack'),
-
-	hostname: 'hub.browserstack.com',
-
-	/**
-	 * If true, any other tunnels running on the account will be killed when the tunnel is started.
-	 *
-	 * @type {boolean}
-	 * @default
-	 */
-	killOtherTunnels: false,
-
-	port: 443,
-
-	protocol: 'https',
+	/** If true, any other tunnels running on the account will be killed when the tunnel is started. */
+	killOtherTunnels: boolean;
 
 	/**
 	 * A list of server URLs that should be proxied by the tunnel. Only the hostname, port, and protocol are used.
-	 *
-	 * @type {string[]}
 	 */
-	servers: null,
+	servers: (Url | string)[];
 
-	/**
-	 * Skip verification that the proxied servers are online and responding at the time the tunnel starts.
-	 *
-	 * @type {boolean}
-	 * @default
-	 */
-	skipServerValidation: true,
+	/** Skip verification that the proxied servers are online and responding at the time the tunnel starts. */
+	skipServerValidation: boolean;
 
-	/**
-	 * If true, route all traffic via the local machine.
-	 *
-	 * @type {boolean}
-	 * @default
-	 */
-	forceLocal: false,
+	/** If true, route all traffic via the local machine. */
+	forceLocal: boolean;
 
-	/**
-	 * The BrowserStack username. This will be initialized with the value of the `BROWSERSTACK_USERNAME`
-	 * environment variable.
-	 *
-	 * @type {string}
-	 * @default the value of the BROWSERSTACK_USERNAME environment variable
-	 */
-	username: null,
-
-	/**
-	 * The URL of a service that provides a list of environments supported by BrowserStack.
-	 */
-	environmentUrl: 'https://www.browserstack.com/automate/browsers.json',
+	constructor(options?: BrowserStackOptions) {
+		super(mixin({
+			accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
+			automateOnly: true,
+			directory: join(__dirname, 'browserstack'),
+			environmentUrl: 'https://www.browserstack.com/automate/browsers.json',
+			forceLocal: false,
+			hostname: 'hub.browserstack.com',
+			killOtherTunnels: false,
+			port: '443',
+			protocol: 'https',
+			servers: [],
+			skipServerValidation: true,
+			username: process.env.BROWSERSTACK_USERNAME
+		}, options));
+	}
 
 	get auth() {
-		return (this.username || '') + ':' + (this.accessKey || '');
-	},
+		return `${this.username || ''}:${this.accessKey || ''}`;
+	}
 
 	get executable() {
-		return './BrowserStackLocal' + (this.platform === 'win32' ? '.exe' : '');
-	},
+		return join(this.directory, `BrowserStackLocal${this.platform === 'win32' ? '.exe' : '' }`);
+	}
 
-	get extraCapabilities() {
-		var capabilities = {
+	get extraCapabilities(): Object {
+		const capabilities: any = {
 			'browserstack.local': 'true'
 		};
 
@@ -117,12 +70,12 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 		}
 
 		return capabilities;
-	},
+	}
 
 	get url() {
-		var platform = this.platform;
-		var architecture = this.architecture;
-		var url = 'https://www.browserstack.com/browserstack-local/BrowserStackLocal-';
+		const platform = this.platform;
+		const architecture = this.architecture;
+		let url = 'https://www.browserstack.com/browserstack-local/BrowserStackLocal-';
 
 		if (platform === 'darwin' && architecture === 'x64') {
 			url += platform + '-' + architecture;
@@ -138,23 +91,22 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 
 		url += '.zip';
 		return url;
-	},
+	}
 
-	_postDownloadFile: function (response) {
-		var self = this;
-		return util.decompress(response.data, this.directory).then(function () {
-			var executable = pathUtil.join(self.directory, self.executable);
-			fs.chmodSync(executable, parseInt('0755', 8));
+	protected _postDownloadFile(data: Buffer, options?: DownloadOptions): Promise<void> {
+		return super._postDownloadFile(data, options).then(() => {
+			const executable = this.executable;
+			chmodSync(executable, parseInt('0755', 8));
 		});
-	},
+	}
 
-	_makeArgs: function () {
-		var args = [
+	protected _makeArgs(...values: string[]): string[] {
+		const args = [
 			this.accessKey,
 			this.servers.map(function (server) {
-				server = urlUtil.parse(server);
-				return [ server.hostname, server.port, server.protocol === 'https:' ? 1 : 0 ].join(',');
-			})
+				const url = parseUrl(String(server));
+				return [ url.hostname, url.port, url.protocol === 'https:' ? 1 : 0 ].join(',');
+			}).join(',')
 		];
 
 		this.automateOnly && args.push('-onlyAutomate');
@@ -165,106 +117,106 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 		this.verbose && args.push('-v');
 
 		if (this.proxy) {
-			var proxy = urlUtil.parse(this.proxy);
+			const proxy = parseUrl(this.proxy);
 
 			proxy.hostname && args.push('-proxyHost', proxy.hostname);
 			proxy.port && args.push('-proxyPort', proxy.port);
 
 			if (proxy.auth) {
-				var auth = proxy.auth.split(':');
+				const auth = proxy.auth.split(':');
 				args.push('-proxyUser', auth[0], '-proxyPass', auth[1]);
 			}
-			else {
+			/*else {
 				proxy.username && args.push('-proxyUser', proxy.username);
 				proxy.password && args.push('-proxyPass', proxy.password);
-			}
+			}*/
 		}
 
 		return args;
-	},
+	}
 
-	sendJobState: function (jobId, data) {
-		var payload = JSON.stringify({
+	sendJobState(jobId: string, data: JobState): Task<void> {
+		const payload = JSON.stringify({
 			status: data.status || data.success ? 'completed' : 'error'
 		});
 
-		return request.put('https://www.browserstack.com/automate/sessions/' + jobId + '.json', {
-			data: payload,
-			handleAs: 'text',
+		const url = `https://www.browserstack.com/automate/sessions/${jobId}.json`;
+		return request.put(url, <NodeRequestOptions> {
+			body: payload,
 			headers: {
-				'Content-Length': Buffer.byteLength(payload, 'utf8'),
+				'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
 				'Content-Type': 'application/json'
 			},
 			password: this.accessKey,
 			user: this.username,
 			proxy: this.proxy
-		}).then(function (response) {
-			if (response.statusCode >= 200 && response.statusCode < 300) {
-				return true;
-			}
-			else {
-				throw new Error(response.data || 'Server reported ' + response.statusCode + ' with no other data.');
+		}).then(response => {
+			if (response.status < 200 || response.status >= 300) {
+				return response.text().then(text => {
+					throw new Error(text || `Server reported ${response.status} with no other data.`);
+				});
 			}
 		});
-	},
+	}
 
-	_start: function () {
-		var child = this._makeChild();
-		var childProcess = child.process;
-		var dfd = child.deferred;
-		var self = this;
-
-		var handle = util.on(childProcess.stdout, 'data', function (data) {
-			var error = /\s*\*\*\* Error: (.*)$/m.exec(data);
-			if (error) {
-				handle.remove();
-				dfd.reject(new Error('The tunnel reported: ' + error[1]));
-			}
-			else if (data.indexOf('You can now access your local server(s) in our remote browser') > -1) {
-				handle.remove();
-				dfd.resolve();
-			}
-			else {
-				var line = data.replace(/^\s+/, '').replace(/\s+$/, '');
-				if (
-					/^BrowserStackLocal v/.test(line) ||
-					/^Connecting to BrowserStack/.test(line) ||
-					/^Connected/.test(line)
-				) {
-					self.emit('status', line);
+	protected _start(executor: ChildExecutor) {
+		return this._makeChild((child, resolve, reject) => {
+			let handle = on(child.stdout, 'data', (data: any) => {
+				data = String(data);
+				const error = /\s*\*\*\* Error: (.*)$/m.exec(data);
+				if (error) {
+					handle.destroy();
+					reject(new Error(`The tunnel reported: ${error[1]}`));
 				}
-			}
+				else if (data.indexOf('You can now access your local server(s) in our remote browser') > -1) {
+					handle.destroy();
+					resolve();
+				}
+				else {
+					const line = data.replace(/^\s+/, '').replace(/\s+$/, '');
+					if (
+						/^BrowserStackLocal v/.test(line) ||
+						/^Connecting to BrowserStack/.test(line) ||
+						/^Connected/.test(line)
+					) {
+						this.emit<StatusEvent>({
+							type: 'status',
+							target: this,
+							status: line
+						});
+					}
+				}
+			});
+
+			executor(child, resolve, reject);
 		});
+	}
 
-		return child;
-	},
+	protected _stop(): Promise<number> {
+		return new Promise(resolve => {
+			const childProcess = this._process;
+			let exited = false;
 
-	_stop: function () {
-		var dfd = new Promise.Deferred();
-		var childProcess = this._process;
-		var exited = false;
+			childProcess.once('exit', function (code) {
+				exited = true;
+				resolve(code);
+			});
+			childProcess.kill('SIGINT');
 
-		childProcess.once('exit', function (code) {
-			exited = true;
-			dfd.resolve(code);
+			// As of at least version 5.1, BrowserStackLocal spawns a secondary process. This is the one that needs to
+			// receive the CTRL-C, but Node doesn't provide an easy way to get the PID of the secondary process, so we'll
+			// just wait a few seconds, then kill the process if it hasn't ended cleanly.
+			setTimeout(function () {
+				if (!exited) {
+					childProcess.kill('SIGTERM');
+				}
+			}, 5000);
 		});
-		childProcess.kill('SIGINT');
-
-		// As of at least version 5.1, BrowserStackLocal spawns a secondary process. This is the one that needs to
-		// receive the CTRL-C, but Node doesn't provide an easy way to get the PID of the secondary process, so we'll
-		// just wait a few seconds, then kill the process if it hasn't ended cleanly.
-		setTimeout(function () {
-			if (!exited) {
-				childProcess.kill('SIGTERM');
-			}
-		}, 5000);
-
-		return dfd.promise;
-	},
+	}
 
 	/**
 	 * Attempt to normalize a BrowserStack described environment with the standard Selenium capabilities
-	 * 
+	 *
 	 * BrowserStack returns a list of environments that looks like:
 	 *
 	 * {
@@ -274,13 +226,12 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 	 *     "device": null,
 	 *     "os": "OS X"
 	 * }
-	 * 
-	 * @param {Object} environment a BrowserStack environment descriptor
+	 *
+	 * @param environment a BrowserStack environment descriptor
 	 * @returns a normalized descriptor
-	 * @private
 	 */
-	_normalizeEnvironment: function (environment) {
-		var platformMap = {
+	protected _normalizeEnvironment(environment: any): NormalizedEnvironment {
+		const platformMap: any = {
 			Windows: {
 				'10': 'WINDOWS',
 				'8.1': 'WIN8',
@@ -292,37 +243,48 @@ BrowserStackTunnel.prototype = util.mixin(Object.create(_super), /** @lends modu
 			'OS X': 'MAC'
 		};
 
-		var browserMap = {
+		const browserMap: any = {
 			ie: 'internet explorer'
 		};
 
 		// Create the BS platform name for a given os + version
-		var platform = platformMap[environment.os] || environment.os;
+		let platform = platformMap[environment.os] || environment.os;
 		if (typeof platform === 'object') {
 			platform = platform[environment.os_version];
 		}
 
-		var browserName = browserMap[environment.browser] || environment.browser;
-		var version = environment.browser_version;
+		const browserName = browserMap[environment.browser] || environment.browser;
+		const version = environment.browser_version;
 
 		return {
-			platform: platform,
+			platform,
 			platformName: environment.os,
 			platformVersion: environment.os_version,
 
-			browserName: browserName,
+			browserName,
 			browserVersion: version,
 			version: environment.browser_version,
 
 			descriptor: environment,
 
 			intern: {
-				platform: platform,
-				browserName: browserName,
-				version: version
+				platform,
+				browserName,
+				version
 			}
 		};
 	}
-});
+}
 
-module.exports = BrowserStackTunnel;
+export interface BrowserStackProperties extends TunnelProperties {
+	accessKey: string;
+	automateOnly: boolean;
+	killOtherTunnels: boolean;
+	servers: (Url | string)[];
+	skipServerValidation: boolean;
+	forceLocal: boolean;
+	username: string;
+	environmentUrl: string;
+}
+
+export type BrowserStackOptions = Partial<BrowserStackProperties>;

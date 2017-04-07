@@ -1,6 +1,6 @@
 {
   "name": "digdug",
-  "version": "1.7.0-pre",
+  "version": "2.0.0-pre",
   "description": "Dig Dug. A simple abstraction library for downloading and launching WebDriver service tunnels.",
   "repository": {
     "type": "git",
@@ -8,16 +8,28 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "dojo": "2.0.0-alpha.7",
-    "decompress": "3.0.0"
+    "@dojo/core": "https://github.com/jason0x43/core/releases/download/v2.0.0-alpha.29/dojo-core-2.0.0-alpha.29.tgz",
+    "@dojo/has": "beta1",
+    "@dojo/interfaces": "beta1",
+    "@dojo/shim": "beta1",
+    "decompress": "~4.0.0"
   },
   "devDependencies": {
-    "intern": "3.2.3",
-    "rimraf": "2.5.4"
+    "@dojo/loader": "beta1",
+    "@types/node": "~6.0.48",
+    "@types/shelljs": "~0.3.33",
+    "intern": "~3.4.2",
+    "intern-dev": "~0.2.0",
+    "shelljs": "~0.7.7"
   },
   "scripts": {
-    "test": "./node_modules/.bin/intern-client config=tests/intern",
-    "build:doc": "node support/apidoc.js"
+    "build": "intern-dev-clean && intern-dev-build",
+    "ci": "intern-dev-lint && intern-dev-build && intern-dev-test",
+    "clean": "intern-dev-clean",
+    "dist": "intern-dev-clean && npm run ci",
+    "lint": "intern-dev-lint",
+    "release": "intern-dev-release",
+    "test": "npm run build && intern-dev-test"
   },
   "bugs": "https://github.com/theintern/digdug/issues",
   "keywords": [
