@@ -234,7 +234,9 @@ export default class SauceLabsTunnel extends Tunnel implements SauceLabsProperti
 
 		args.push(
 			'-P', this.port,
-			'-f', readyFile
+			'-f', readyFile,
+			// Required for websocket support
+			'--vm-version', 'dev-varnish'
 		);
 
 		this.directDomains.length && args.push('-D', this.directDomains.join(','));
