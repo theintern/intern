@@ -4,7 +4,6 @@ dist: trusty
 language: node_js
 # Test LTS, and latest
 node_js:
-  - 4
   - 6
 env:
   global:
