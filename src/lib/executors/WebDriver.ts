@@ -48,7 +48,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 	constructor(config: Config) {
 		const defaults: Partial<Config> = {
 			capabilities: { 'idle-timeout': 60 },
-			contactTimeout: 5000,
+			contactTimeout: 30000,
 			environmentRetries: 3,
 			environments: [],
 			maxConcurrency: Infinity,
@@ -94,7 +94,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 				return Promise.all(promises)
 					// We do not want to actually return an array of values, so chain a callback that resolves to
 					// undefined
-					.then(() => {});
+					.then(() => {}, error => this.emit('error', error));
 			});
 	}
 
@@ -142,7 +142,6 @@ export default class WebDriver extends GenericNode<Events, Config> {
 				// return void
 				})).then(() => null);
 			})
-			.then(() => this._createSessionSuites())
 			.then(() => {
 				const tunnel = this.tunnel;
 				if (!tunnel) {
@@ -158,10 +157,15 @@ export default class WebDriver extends GenericNode<Events, Config> {
 				});
 
 				config.capabilities = deepMixin(tunnel.extraCapabilities, config.capabilities);
+			})
+			.then(() => this._createSessionSuites())
+			.then(() => {
+				const tunnel = this.tunnel;
+				if (!tunnel) {
+					return;
+				}
 
-				return tunnel.start().then(() => {
-					return this.emit('tunnelStart', { tunnel });
-				});
+				return tunnel.start().then(() => this.emit('tunnelStart', { tunnel }));
 			});
 	}
 

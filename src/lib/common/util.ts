@@ -92,16 +92,6 @@ export function parseArgs(rawArgs: string[]) {
 			args[name] = true;
 		}
 		else {
-			try {
-				// Always try to convert string args
-				if (typeof value === 'string') {
-					value = JSON.parse(value);
-				}
-			}
-			catch (_error) {
-				// ignore
-			}
-
 			if (!(name in args)) {
 				args[name] = value;
 			}

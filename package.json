@@ -57,13 +57,14 @@
     "intern": "./bin/intern.js"
   },
   "scripts": {
-    "build": "intern-dev-clean && stylus src/lib/reporters/html/html.styl && intern-dev-build",
+    "build": "npm run clean && stylus src/lib/reporters/html/html.styl && intern-dev-build",
     "postbuild": "intern-dev-browserify",
     "browserify": "intern-dev-browserify",
     "clean": "intern-dev-clean",
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
-    "test": "node _tests/src/bin/intern.js"
+    "test": "node _tests/src/bin/intern.js",
+    "ci": "node _tests/tests/selftest.js"
   },
   "dependencies": {
     "@dojo/core": "https://github.com/jason0x43/core/releases/download/v2.0.0-alpha.29/dojo-core-2.0.0-alpha.29.tgz",

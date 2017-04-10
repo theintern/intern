@@ -1,8 +1,8 @@
 sudo: false
 language: node_js
 node_js:
-  - '0.12'
-  - '6.5.0'
+  - '6'
+  - '7'
 env:
   global:
     # Please get your own free key if you want to test yourself
@@ -13,14 +13,18 @@ env:
     - INTERN_NODE_ONLY=0
 matrix:
   exclude:
-    - node_js: '0.12'
+    # Exlude the matrix run with node 7 && INTERN_NODE_ONLY=0 (which means only
+    # include the one with INTERN_NODE_ONLY=1)
+    - node_js: '7'
       env: INTERN_NODE_ONLY=0
-    - node_js: '6.5.0'
+    # Exlude the matrix run with node 6 && INTERN_NODE_ONLY=1 (which means only
+    # include the one with INTERN_NODE_ONLY=0)
+    - node_js: '6'
       env: INTERN_NODE_ONLY=1
 cache:
   directories:
     - node_modules
-script: tests/selftest.sh
+script: npm test webdriver
 notifications:
   slack:
     secure: RvW7LoV4mBzNz481eqfhLB/QNuJYht9Fpz7F+vtVjD/RacDJfc7397/8pJcl2yP+Ft2X7yJsM6bx3Uq22CfMiZ7HTVOfb+tYQNBQ5vcluUvd3fYV72M4oWe/TTFTlAulC04vWs4/QRHqbvmsXXr8Rn8Jj2LjsxnKvP0UNr0aLxk=

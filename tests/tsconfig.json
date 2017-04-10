@@ -15,6 +15,7 @@
     "./node.ts",
 	"./loader.ts",
 	"./pre.ts",
+	"./selftest.ts",
 	"./benchmark/example.ts",
 	"./unit/lib/Environment.ts",
 	"./unit/lib/BenchmarkTest.ts",

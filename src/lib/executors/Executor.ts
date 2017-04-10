@@ -476,7 +476,7 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 						}
 					}
 
-					if (!reporter.script) {
+					if (!reporter.reporter) {
 						throw new Error(`Invalid value "${value}" for ${name}`);
 					}
 

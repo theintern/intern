@@ -128,8 +128,7 @@ function normalizeStackTrace(stack: string, filterStack: boolean, getSource: (na
 		stackLines = stackLines.filter(function (line) {
 			return !(
 				/internal\/process\//.test(line) ||
-				/browser_modules\//.test(line) ||
-				/node_modules\//.test(line) ||
+				/node_modules\/(?!digdug|leadfoot)/.test(line) ||
 				/Module\.runMain/.test(line) ||
 				/bootstrap_node\.js/.test(line)
 			);
