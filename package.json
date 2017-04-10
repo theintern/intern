@@ -6,10 +6,9 @@
   "license": "BSD-3-Clause",
   "bugs": "https://github.com/theintern/intern/issues",
   "files": [
-    "Node.*",
-    "WebDriver.*",
     "index.*",
     "bin/*.js",
+    "favicon.*",
     "browser",
     "lib",
     "loaders",
