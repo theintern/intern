@@ -23,10 +23,9 @@
     "shelljs": "~0.7.7"
   },
   "scripts": {
-    "build": "intern-dev-clean && intern-dev-build",
-    "ci": "intern-dev-lint && intern-dev-build && intern-dev-test",
+    "build": "npm run clean && intern-dev-build",
+    "ci": "npm run build && intern-dev-test",
     "clean": "intern-dev-clean",
-    "dist": "intern-dev-clean && npm run ci",
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
     "test": "npm run build && intern-dev-test"
