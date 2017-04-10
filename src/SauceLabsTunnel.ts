@@ -225,6 +225,10 @@ export default class SauceLabsTunnel extends Tunnel implements SauceLabsProperti
 	}
 
 	protected _makeArgs(readyFile: string): string[] {
+		if (!this.username || !this.accessKey) {
+			throw new Error('BrowserStackTunnel requires a username and access key');
+		}
+
 		const proxy = this.proxy ? parseUrl(this.proxy) : undefined;
 		const args = this.executable === 'java' ? this._makeJavaArgs(proxy) : this._makeNativeArgs(proxy);
 
@@ -481,7 +485,6 @@ export default class SauceLabsTunnel extends Tunnel implements SauceLabsProperti
 }
 
 export interface SauceLabsProperties extends TunnelProperties {
-	accessKey: string;
 	directDomains: string[];
 	tunnelDomains: string[];
 	domainAuthentication: string[];
@@ -495,7 +498,6 @@ export interface SauceLabsProperties extends TunnelProperties {
 	skipSslDomains: string[];
 	squidOptions: string;
 	useProxyForTunnel: boolean;
-	username: string;
 	vmVersion: string;
 }
 

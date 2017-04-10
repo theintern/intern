@@ -65,6 +65,10 @@ export default class TestingBotTunnel extends Tunnel implements TunnelProperties
 	}
 
 	protected _makeArgs(readyFile: string): string[] {
+		if (!this.username || !this.accessKey) {
+			throw new Error('TestingBotTunnel requires a username and access key');
+		}
+
 		const args = [
 			'-jar', join(this.directory, 'testingbot-tunnel', 'testingbot-tunnel.jar'),
 			this.username,

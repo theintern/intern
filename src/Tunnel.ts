@@ -459,7 +459,9 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 
 		this._stopTask = this._stop()
 			.then(returnValue => {
-				this._handle.destroy();
+				if (this._handle) {
+					this._handle.destroy();
+				}
 				this._process = this._handle = null;
 				this._state = 'stopped';
 				return returnValue;
@@ -484,6 +486,10 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	protected _stop(): Promise<number> {
 		return new Promise(resolve => {
 			const childProcess = this._process;
+			if (!childProcess) {
+				resolve();
+				return;
+			}
 
 			childProcess.once('exit', code => {
 				resolve(code);
@@ -526,6 +532,9 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 				});
 			}
 			else {
+				if (response.status === 401) {
+					throw new Error(`Missing or invalid username and access key`);
+				}
 				throw new Error(`Server replied with a status of ${response.status}`);
 			}
 		});
@@ -589,6 +598,7 @@ export interface NormalizedEnvironment {
 export interface TunnelProperties extends DownloadOptions {
 	architecture: string;
 	auth: string;
+	accessKey: string;
 	executable: string;
 	hostname: string;
 	pathname: string;
@@ -596,6 +606,7 @@ export interface TunnelProperties extends DownloadOptions {
 	port: string;
 	protocol: string;
 	tunnelId: string;
+	username: string;
 	verbose: boolean;
 }
 

@@ -96,6 +96,10 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 	}
 
 	protected _makeArgs(readyFile: string): string[] {
+		if (!this.username || !this.accessKey) {
+			throw new Error('CrossBrowserTestingTunnel requires a username and access key');
+		}
+
 		return [
 			'node_modules/.bin/cbt_tunnels',
 			'--authkey', this.accessKey,

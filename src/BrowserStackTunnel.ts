@@ -101,6 +101,10 @@ export default class BrowserStackTunnel extends Tunnel {
 	}
 
 	protected _makeArgs(...values: string[]): string[] {
+		if (!this.username || !this.accessKey) {
+			throw new Error('BrowserStackTunnel requires a username and access key');
+		}
+
 		const args = [
 			this.accessKey,
 			this.servers.map(function (server) {
@@ -195,6 +199,11 @@ export default class BrowserStackTunnel extends Tunnel {
 	protected _stop(): Promise<number> {
 		return new Promise(resolve => {
 			const childProcess = this._process;
+			if (!childProcess) {
+				resolve();
+				return;
+			}
+
 			let exited = false;
 
 			childProcess.once('exit', function (code) {
@@ -277,13 +286,11 @@ export default class BrowserStackTunnel extends Tunnel {
 }
 
 export interface BrowserStackProperties extends TunnelProperties {
-	accessKey: string;
 	automateOnly: boolean;
 	killOtherTunnels: boolean;
 	servers: (Url | string)[];
 	skipServerValidation: boolean;
 	forceLocal: boolean;
-	username: string;
 	environmentUrl: string;
 }
 
