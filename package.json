@@ -1,23 +1,21 @@
 {
   "name": "intern",
-  "version": "4.0.0-pre",
+  "version": "4.0.0-alpha.0",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
   "homepage": "http://theintern.io/",
   "license": "BSD-3-Clause",
   "bugs": "https://github.com/theintern/intern/issues",
   "files": [
-    "bin",
-    "chai.js",
-    "client.html",
-    "client.js",
+    "Node.*",
+    "WebDriver.*",
+    "index.*",
+    "bin/*.js",
+    "browser",
     "lib",
-    "main.js",
-    "order.js",
-    "runner.js",
-    "support/fixdeps.js",
+    "loaders",
     "tasks",
-    "tests/example.intern.js",
-    "typings"
+    "tests",
+    "types"
   ],
   "keywords": [
     "javascript",
@@ -41,18 +39,6 @@
     "type": "git",
     "url": "https://github.com/theintern/intern.git"
   },
-  "files": [
-    "Node.*",
-    "WebDriver.*",
-    "index.*",
-    "bin/*.js",
-    "browser",
-    "lib",
-    "loaders",
-    "tasks",
-    "tests",
-    "types"
-  ],
   "bin": {
     "intern": "./bin/intern.js"
   },
