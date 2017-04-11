@@ -11,7 +11,7 @@ define([ './selftest.intern' ], function (config) {
 	};
 
 	// Benchmark suites
-	config.benchmarkSuites = [ 'tests/benchmark/all' ];
+	config.suites = [ 'tests/benchmark/all' ];
 
 	return config;
 });

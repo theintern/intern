@@ -37,17 +37,6 @@ export class GenericBrowser<E extends Events, C extends Config> extends GenericE
 		}, Task.resolve());
 	}
 
-	protected _beforeRun(): Task<any> {
-		return super._beforeRun().then(() => {
-			const config = this.config;
-			for (let suite of config.suites.concat(config.browserSuites)) {
-				if (/[*?]/.test(suite)) {
-					throw new Error(`Globs may not be used for browser suites: "${suite}"`);
-				}
-			}
-		});
-	}
-
 	/**
 	 * Override Executor#_loadSuites to pass a combination of browserSuites and suites to the loader
 	 */
@@ -75,6 +64,7 @@ export class GenericBrowser<E extends Events, C extends Config> extends GenericE
 	protected _resolveConfig() {
 		return super._resolveConfig().then(() => {
 			const config = this.config;
+
 			if (!config.basePath) {
 				config.basePath = '/';
 			}
@@ -85,6 +75,12 @@ export class GenericBrowser<E extends Events, C extends Config> extends GenericE
 
 			if (!config.browserSuites) {
 				config.browserSuites = [];
+			}
+
+			for (let suite of config.suites.concat(config.browserSuites)) {
+				if (/[*?]/.test(suite)) {
+					throw new Error(`Globs may not be used for browser suites: "${suite}"`);
+				}
 			}
 
 			[ 'basePath', 'internPath' ].forEach(key => {

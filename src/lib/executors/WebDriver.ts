@@ -131,18 +131,10 @@ export default class WebDriver extends GenericNode<Events, Config> {
 					options.servers = (options.servers || []).concat(config.serverUrl);
 				}
 
-				if (config.functionalSuites.length + config.suites.length + config.benchmarkSuites.length > 0) {
+				if (config.functionalSuites.length + config.suites.length + config.browserSuites.length > 0) {
 					let TunnelConstructor = this._tunnels[config.tunnel];
 					this.tunnel = new TunnelConstructor(this.config.tunnelOptions);
 				}
-			})
-			.then(() => {
-				return Promise.all(['suites', 'functionalSuites', 'benchmarkSuites'].map(property => {
-					return expandFiles(config[property]).then(expanded => {
-						config[property] = expanded;
-					});
-				// return void
-				})).then(() => null);
 			})
 			.then(() => {
 				const tunnel = this.tunnel;
@@ -281,9 +273,9 @@ export default class WebDriver extends GenericNode<Events, Config> {
 					suite.add(this._rootSuite);
 				}
 
-				// If unit tests were added to this executor, add a RemoteSuite to the session suite. The RemoteSuite
-				// will run the suites listed in executor.config.suites.
-				if (config.suites.length > 0) {
+				// If browser-compatible unit tests were added to this executor, add a RemoteSuite to the session suite.
+				// The RemoteSuite will run the suites listed in executor.config.suites.
+				if (config.suites.length + config.browserSuites.length > 0) {
 					suite.add(new RemoteSuite({ name: 'unit tests' }));
 				}
 
@@ -351,6 +343,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 				this.config[name] = parseValue(name, value, 'boolean');
 				break;
 
+			case 'browserSuites':
 			case 'functionalSuites':
 				this.config[name] = parseValue(name, value, 'string[]');
 				break;

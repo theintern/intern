@@ -104,7 +104,7 @@ export class GenericNode<E extends Events, C extends Config> extends GenericExec
 				});
 			}
 
-			return Promise.all(['suites', 'nodeSuites', 'benchmarkSuites'].map(property => {
+			return Promise.all(['suites', 'browserSuites', 'nodeSuites'].map(property => {
 				return expandFiles(config[property]).then(expanded => {
 					config[property] = expanded;
 				});
