@@ -307,7 +307,7 @@ export function isTestOptions(value: any): value is TestOptions {
 }
 
 export interface TestFunction {
-	(this: Test, test: Test): void | Promise<any>;
+	(this: Test, test: Test): void | Thenable<any>;
 }
 
 export interface TestProperties {
