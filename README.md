@@ -21,7 +21,7 @@ Note that these instructions are for Intern 4 alpha. For Intern 3 instructions, 
 
     ```sh
     $ cd /my/project/root
-    $ npm install intern --save-dev
+    $ npm install intern@next --save-dev
     ```
 
 2. Create an `intern.json` file in your project root.
