@@ -3,7 +3,7 @@
  */
 
 import Executor from '../executors/Executor';
-import { isSuiteDescriptorFactory, registerSuite } from './object';
+import { isSuiteDescriptorFactory, registerSuite as registerObjectSuite } from './object';
 import BenchmarkTest, { BenchmarkDeferredTestFunction, BenchmarkTestFunction } from '../BenchmarkTest';
 import BenchmarkSuite, { BenchmarkSuiteProperties } from '../BenchmarkSuite';
 
@@ -19,7 +19,7 @@ export default function getInterface(executor: Executor) {
 				descriptor = descriptor();
 			}
 
-			registerSuite(executor, descriptor, BenchmarkSuite, BenchmarkTest);
+			registerObjectSuite(executor, descriptor, BenchmarkSuite, BenchmarkTest);
 		},
 
 		async: BenchmarkTest.async

@@ -210,8 +210,6 @@ export default class WebDriver extends GenericNode<Events, Config> {
 
 		leadfootServer.sessionConstructor = ProxiedSession;
 
-		// TODO: The Promise.resolve check is just to get around some Task-related typing issues with
-		// Tunnel#getEnvironments.
 		return tunnel.getEnvironments().then(tunnelEnvironments => {
 			const executor = this;
 
