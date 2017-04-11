@@ -113,6 +113,7 @@ Several components can be extended by registering new implementations:
 * Reporters
 * Interfaces
 * Assertions
+* Tunnels
 
 In each case, Intern has a `registerX` method (e.g., `registerInterface`) that takes a name and some type-specific
 item. For example, reporter constructors can be registered using the reporter constructor:

@@ -4,6 +4,7 @@ There are several ways to run Intern:
 
 * [Node runner](#node-runner)
 * [Browser runner](#browser-runner)
+* [Grunt](#grunt)
 * [Custom node script](#custom-node-script)
 * [Custom HTML page](#custom-html-page)
 
@@ -38,6 +39,55 @@ query args.
     http://localhost:8080/node_modules/intern/?suites=tests/foo.js&grep=feature1
 
 Note that the browser runner can only be used to run unit tests, not functional (i.e., WebDriver) tests.
+
+## Grunt
+
+Intern includes a Grunt task that can be easily loaded with
+
+```js
+grunt.loadNpmTasks('intern');
+```
+
+The task may be configured using the same options as are used in an `intern.json` file. For example, consider the
+following `intern.json` file:
+
+```js
+{
+  "suites": "tests/unit/**/*.js",
+  "preload": "tests/pre.js",
+  "loader": { 
+    "script": "dojo",
+    "config": {
+      "packages": [{"name": "app", "location": "."}]
+    }
+}
+```
+
+An equivalent Grunt config that used the Node executor would look like:
+
+```js
+module.exports = function (grunt) {
+    grunt.initConfig({
+        intern: {
+            node: {
+                options: {
+                    suites: "tests/unit/**/*.js",
+                    preload: "tests/pre.js"
+                    "loader": { 
+                        "script": "dojo",
+                        "config": {
+                            "packages": [{"name": "app", "location": "."}]
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Loading using a local git copy
+    grunt.loadNpmTasks('intern');
+};
+```
 
 ## Custom Node Script
 

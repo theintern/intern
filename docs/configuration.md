@@ -41,18 +41,19 @@ These are some of the most often used configuration properties:
 * bail
 * baseline
 * benchmark
+* [browserSuites](#suites-nodesuites-browsersuites-functionalsuites)
 * debug
 * [environments](#environments)
 * excludeInstrumentation
 * filterErrorStack
+* [functionalSuites](#suites-nodesuites-browsersuites-functionalsuites)
 * [grep](#grep)
 * [loader](#loader)
+* [nodeSuites](#suites-nodesuites-browsersuites-functionalsuites)
 * [preload](#preload)
 * reporters
 * [suites](#suites-nodesuites-browsersuites-functionalsuites)
-* [nodeSuites](#suites-nodesuites-browsersuites-functionalsuites)
-* [browserSuites](#suites-nodesuites-browsersuites-functionalsuites)
-* [functionalSuites](#suites-nodesuites-browsersuites-functionalsuites)
+* [tunnel](#tunnel)
 
 #### `environments`
 
@@ -111,3 +112,18 @@ to a script file.
 
 Note that executors themselves don’t load suites; this is handled by a loader script (either one of Intern’s built-in
 scripts or a user-supplied one).
+
+#### `tunnel`
+
+The `tunnel` property specifies which Dig Dug tunnel class to use for WebDriver testing. There are several built in
+tunnel types, and others can be add through the WebDriver executor’s [`registerTunnel`
+method](./architecture.md#extension-points).
+
+The built in tunnel classes are:
+
+* 'null'
+* 'selenium'
+* 'browserstack'
+* 'cbt' (CrossBrowserTesting)
+* 'saucelabs'
+* 'testingbot'
