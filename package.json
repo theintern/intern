@@ -87,7 +87,8 @@
     "@dojo/has": "beta1",
     "@dojo/shim": "beta1",
     "intern-dev": "~0.2.0",
-    "systemjs": "^0.20.11"
+    "stylus": "~0.54.5",
+    "systemjs": "~0.20.11"
   },
   "internDev": {
     "resources": {
