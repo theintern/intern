@@ -15,16 +15,19 @@ export function expandFiles(patterns?: string[]) {
 		patterns = [patterns];
 	}
 	return Promise.all(patterns.map(pattern => {
-		return new Promise<string[]>((resolve, reject) => {
-			glob(pattern, (error, files) => {
-				if (error) {
-					reject(error);
-				}
-				else {
-					resolve(files);
-				}
+		if (glob.hasMagic(pattern)) {
+			return new Promise<string[]>((resolve, reject) => {
+				glob(pattern, (error, files) => {
+					if (error) {
+						reject(error);
+					}
+					else {
+						resolve(files);
+					}
+				});
 			});
-		});
+		}
+		return [pattern];
 	})).then(fileSets => {
 		return fileSets.reduce((allFiles, files) => {
 			return allFiles.concat(files);
