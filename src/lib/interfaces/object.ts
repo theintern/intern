@@ -25,10 +25,6 @@ export interface ObjectInterface {
 	registerSuite(mainDescriptor: ObjectSuiteDescriptor | ObjectSuiteFactory): void;
 }
 
-export type SuiteDescriptor = {
-	tests: { [name: string]: SuiteDescriptor | TestFunction };
-};
-
 export type NestedSuiteDescriptor = Partial<SuiteProperties> & {
 	tests: { [name: string]: NestedSuiteDescriptor | TestFunction };
 };
@@ -49,7 +45,7 @@ export function registerSuite<P extends SuiteDescriptor, S extends typeof Suite,
 	executor.addTest(createSuite(descriptor, SuiteClass, TestClass));
 }
 
-function isNestedSuiteDescriptor(value: any): value is SuiteDescriptor {
+function isNestedSuiteDescriptor(value: any): value is NestedSuiteDescriptor {
 	return value && typeof value.tests === 'object';
 }
 
@@ -82,8 +78,4 @@ function createSuite<P extends SuiteDescriptor, S extends typeof Suite, T extend
 	});
 
 	return suite;
-}
-
-export interface PropertyHandler {
-	(key: string, value: any, suite: Suite): boolean;
 }
