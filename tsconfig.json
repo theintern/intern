@@ -44,6 +44,7 @@
     "src/lib/executors/Browser.ts",
     "src/lib/executors/Node.ts",
     "src/lib/executors/Remote.ts",
-    "src/lib/executors/WebDriver.ts"
+    "src/lib/executors/WebDriver.ts",
+    "src/tasks/intern.ts"
   ]
 }
