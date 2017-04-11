@@ -12,10 +12,6 @@ import Server from '../Server';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import WebDriver, { Events, TunnelMessage } from '../executors/WebDriver';
 
-const LIGHT_RED = '\x1b[91m';
-const LIGHT_GREEN = '\x1b[92m';
-const LIGHT_YELLOW = '\x1b[93m';
-const LIGHT_MAGENTA = '\x1b[95m';
 export type Charm = charm.Charm;
 
 const eventHandler = createEventHandler<Events>();
@@ -29,6 +25,7 @@ export default class Runner extends Coverage {
 
 	private _summaryReporter: TextSummaryReport;
 	private _detailedReporter: TextReport;
+	private _deprecationMessages: { [message: string]: boolean };
 
 	protected charm: Charm;
 
@@ -48,6 +45,8 @@ export default class Runner extends Coverage {
 		this.charm = charm();
 		this.charm.pipe(<Writable>this.output);
 		this.charm.display('reset');
+
+		this._deprecationMessages = {};
 	}
 
 	@eventHandler()
@@ -62,8 +61,15 @@ export default class Runner extends Coverage {
 
 	@eventHandler()
 	deprecated(message: DeprecationMessage) {
+		// Keep track of deprecation messages we've seen before
+		const key = `${message.original}|${message.replacement}|${message.message}`;
+		if (this._deprecationMessages[key]) {
+			return;
+		}
+		this._deprecationMessages[key] = true;
+
 		this.charm
-			.write(LIGHT_YELLOW)
+			.foreground('yellow')
 			.write('⚠︎ ' + message.original + ' is deprecated. ');
 
 		if (message.replacement) {
@@ -78,7 +84,9 @@ export default class Runner extends Coverage {
 			this.charm.write(' ' + message.message);
 		}
 
-		this.charm.write('\n').display('reset');
+		this.charm
+			.write('\n')
+			.display('reset');
 	}
 
 	@eventHandler()
@@ -178,7 +186,8 @@ export default class Runner extends Coverage {
 			if (!this.sessions[suite.sessionId]) {
 				if (!this.serveOnly) {
 					this.charm
-						.write(LIGHT_YELLOW)
+						.display('bright')
+						.foreground('yellow')
 						.write('BUG: suiteEnd was received for invalid session ' + suite.sessionId)
 						.display('reset')
 						.write('\n');
@@ -217,7 +226,8 @@ export default class Runner extends Coverage {
 			}
 
 			this.charm
-				.write(numFailedTests || hasError > 0 ? LIGHT_RED : LIGHT_GREEN)
+				.display('bright')
+				.foreground(numFailedTests || hasError > 0 ? 'red' : 'green')
 				.write(summary)
 				.display('reset')
 				.write('\n\n');
@@ -238,10 +248,11 @@ export default class Runner extends Coverage {
 	testEnd(test: Test) {
 		if (test.error) {
 			this.charm
-				.write(LIGHT_RED)
+				.foreground('red')
 				.write('× ' + test.id)
 				.write(' (' + (test.timeElapsed / 1000) + 's)')
 				.write('\n')
+				.display('reset')
 				.foreground('red')
 				.write(this.formatter.format(test.error))
 				.display('reset')
@@ -249,8 +260,9 @@ export default class Runner extends Coverage {
 		}
 		else if (test.skipped) {
 			this.charm
-				.write(LIGHT_MAGENTA)
+				.foreground('magenta')
 				.write('~ ' + test.id)
+				.display('reset')
 				.foreground('white')
 				.write(' (' + (test.skipped || 'skipped') + ')')
 				.display('reset')
@@ -258,8 +270,9 @@ export default class Runner extends Coverage {
 		}
 		else {
 			this.charm
-				.write(LIGHT_GREEN)
+				.foreground('green')
 				.write('✓ ' + test.id)
+				.display('reset')
 				.foreground('white')
 				.write(' (' + (test.timeElapsed / 1000) + 's)')
 				.display('reset')
