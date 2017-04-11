@@ -41,22 +41,40 @@ export function isSuiteDescriptorFactory<T>(value: any): value is T {
 	return typeof value === 'function';
 }
 
-export function registerSuite<P extends SuiteDescriptor, S extends typeof Suite, T extends typeof Test>(executor: Executor, descriptor: P, SuiteClass: S, TestClass: T) {
-	executor.addTest(createSuite(descriptor, SuiteClass, TestClass));
+export function registerSuite<S extends typeof Suite, T extends typeof Test>(executor: Executor, descriptor: ObjectSuiteDescriptor, SuiteClass: S, TestClass: T) {
+	executor.addTest(createSuite(executor, descriptor, SuiteClass, TestClass));
 }
 
 function isNestedSuiteDescriptor(value: any): value is NestedSuiteDescriptor {
 	return value && typeof value.tests === 'object';
 }
 
-function createSuite<P extends SuiteDescriptor, S extends typeof Suite, T extends typeof Test>(descriptor: P, SuiteClass: S, TestClass: T) {
+function createSuite<S extends typeof Suite, T extends typeof Test>(executor: Executor, descriptor: NestedSuiteDescriptor, SuiteClass: S, TestClass: T) {
 	let options: SuiteOptions = { name: null, tests: [] };
 
 	// Initialize a new SuiteOptions object from the provided ObjectSuiteDescriptor
 	Object.keys(descriptor).filter(key => {
 		return key !== 'tests';
-	}).forEach((key: keyof typeof descriptor) => {
-		(<any>options)[key] = descriptor[key];
+	}).forEach((key: keyof NestedSuiteDescriptor) => {
+		let optionsKey: keyof SuiteOptions = <any>key;
+
+		// Convert 'setup' and 'teardown' to 'before' and 'after'
+		if (<string>key === 'setup') {
+			executor.emit('deprecated', {
+				original: 'Suite#setup',
+				replacement: 'Suite#before'
+			});
+			optionsKey = <keyof SuiteOptions>'before';
+		}
+		else if (<string>key === 'teardown') {
+			executor.emit('deprecated', {
+				original: 'Suite#teardown',
+				replacement: 'Suite#after'
+			});
+			optionsKey = <keyof SuiteOptions>'after';
+		}
+
+		options[optionsKey] = <any>descriptor[key];
 	});
 
 	const suite = new SuiteClass(options);
@@ -66,7 +84,7 @@ function createSuite<P extends SuiteDescriptor, S extends typeof Suite, T extend
 		const thing = tests[name];
 
 		if (isNestedSuiteDescriptor(thing)) {
-			return createSuite({
+			return createSuite(executor, {
 				name,
 				...thing
 			}, SuiteClass, TestClass);
