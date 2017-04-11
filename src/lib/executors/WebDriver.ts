@@ -387,6 +387,10 @@ export default class WebDriver extends GenericNode<Events, Config> {
 
 			config.serverUrl = config.serverUrl.replace(/\/*$/, '/');
 
+			if (config.browserSuites == null) {
+				config.browserSuites = [];
+			}
+
 			if (config.functionalSuites == null) {
 				config.functionalSuites = [];
 			}
@@ -400,9 +404,12 @@ export default class WebDriver extends GenericNode<Events, Config> {
 				config.capabilities.build = buildId;
 			}
 
-			return expandFiles(config.functionalSuites).then(expanded => {
+			return Promise.all(['browserSuites', 'functionalSuites'].map(property => {
+				return expandFiles(config[property]).then(expanded => {
 					config.functionalSuites = expanded;
-			}).then(() => null);
+				});
+			// return void
+			})).then(() => null);
 		});
 	}
 
