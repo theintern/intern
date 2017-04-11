@@ -46,7 +46,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 	protected _tunnels: { [name: string]: typeof Tunnel };
 
 	constructor(config: Config) {
-		const defaults: Partial<Config> = {
+		super({
 			capabilities: { 'idle-timeout': 60 },
 			contactTimeout: 30000,
 			environmentRetries: 3,
@@ -55,9 +55,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 			reporters: [{ reporter: 'runner' }],
 			tunnel: 'selenium',
 			tunnelOptions: { tunnelId: String(Date.now()) }
-		};
-
-		super(deepMixin(defaults, config));
+		});
 
 		this._tunnels = {};
 
@@ -71,6 +69,10 @@ export default class WebDriver extends GenericNode<Events, Config> {
 		this.registerReporter('pretty', Pretty);
 		this.registerReporter('runner', Runner);
 		this.registerReporter('benchmark', Benchmark);
+
+		if (config) {
+			this.configure(config);
+		}
 	}
 
 	get environment() {
