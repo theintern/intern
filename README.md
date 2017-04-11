@@ -15,6 +15,8 @@ Zenput, Alfresco, Esri, HSBC, ING, Intuit, and more. It’s also the testing fra
 
 ## Quick start
 
+Note that these instructions are for Intern 4 alpha. For Intern 3 instructions, please see [the Intern tutorial](https://github.com/theintern/intern-tutorial).
+
 1. Install from npm
 
     ```sh
@@ -36,8 +38,7 @@ Zenput, Alfresco, Esri, HSBC, ING, Intuit, and more. It’s also the testing fra
     $ node_modules/.bin/intern
     ```
 
-4. Start writing tests! Read [writing tests](docs/writing_tests.md) in the user guide and see the [Intern
-   tutorial](https://github.com/theintern/intern-tutorial) to learn more!
+4. Start [writing tests](docs/writing_tests.md)!
 
 ## More information
 
@@ -47,6 +48,8 @@ Zenput, Alfresco, Esri, HSBC, ING, Intuit, and more. It’s also the testing fra
 * [Running](docs/running.md)
 * [Developing](docs/developing.md)
 * [Contributing](https://github.com/theintern/intern/blob/master/CONTRIBUTING.md)
+
+See [The Intern Guide](https://theintern.github.io/intern) for more Intern 3 documentation.
 
 ## Get help
 
