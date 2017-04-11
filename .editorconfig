@@ -2,10 +2,15 @@ root = true
 
 [*.md]
 indent_style = space
+max_line_length = 120
 
 [*.json]
 indent_size = 2
 indent_style = space
+max_line_length = 120
+
+[*.ts]
+max_line_length = 120
 
 [*]
 indent_style = tab
@@ -13,4 +18,3 @@ indent_size = 4
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
-max_line_length = 120
