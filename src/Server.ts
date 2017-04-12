@@ -1,7 +1,6 @@
 import keys from './keys';
 import Task from '@dojo/core/async/Task';
 import request, { RequestOptions, Response } from '@dojo/core/request';
-// TODO: This will change in dojo-core alpha 20
 import { NodeRequestOptions } from '@dojo/core/request/providers/node';
 import Session from './Session';
 import Element from './Element';
@@ -420,7 +419,7 @@ export default class Server {
 
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
-			if (isMacSafari(capabilities)) {
+			if (isMacSafari(capabilities, null, 10)) {
 				return Task.resolve({
 					nativeEvents: false,
 					rotatable: false,
@@ -587,7 +586,7 @@ export default class Server {
 
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
-			if (isMacSafari(capabilities)) {
+			if (isMacSafari(capabilities, null, 10)) {
 				return Task.resolve({
 					brokenDeleteCookie: false,
 					brokenExecuteElementReturn: false,
@@ -808,8 +807,8 @@ export default class Server {
 				}).then(works, broken);
 			};
 
-			// IE11 will hang during this check, although option selection does work with it
-			if (capabilities.browserName !== 'internet explorer' && capabilities.browserVersion !== '11') {
+			// IE10+ and Safari will hang during this check, although option selection does work with it
+			if (!isInternetExplorer(capabilities, 10) && !isMacSafari(capabilities)) {
 				// At least MS Edge Driver 14316 doesn't allow selection option elements to be clicked.
 				testedCapabilities.brokenOptionSelect = function () {
 					return get(
@@ -1106,7 +1105,7 @@ export default class Server {
 
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
-			if (!isMacSafari(capabilities)) {
+			if (!isMacSafari(capabilities, null, 10)) {
 				// At least MS Edge 14316 returns immediately from a click request immediately rather than waiting for
 				// default action to occur.
 				if (isMsEdge(capabilities)) {
@@ -1227,12 +1226,49 @@ type Url = urlUtil.Url;
 
 export type Method = 'post' | 'get' | 'delete';
 
-function isMsEdge(capabilities: Capabilities, minVersion?: number, maxVersion?: number): boolean {
+function isMsEdge(capabilities: Capabilities, minVersion?: number, maxVersion?: number) {
 	if (capabilities.browserName !== 'MicrosoftEdge') {
 		return false;
 	}
+
+	return isValidVersion(capabilities, minVersion, maxVersion);
+}
+
+function isInternetExplorer(capabilities: Capabilities, minVersion?: number, maxVersion?: number) {
+	if (capabilities.browserName !== 'internet explorer') {
+		return false;
+	}
+
+	return isValidVersion(capabilities, minVersion, maxVersion);
+}
+
+function isMacSafari(capabilities: Capabilities, minVersion?: number, maxVersion?: number) {
+	if (
+		capabilities.browserName !== 'safari' ||
+		capabilities.platform !== 'MAC' ||
+		capabilities.platformName === 'ios'
+	) {
+		return false;
+	}
+
+	return isValidVersion(capabilities, minVersion, maxVersion);
+}
+
+function isGeckodriver(capabilities: Capabilities): boolean {
+	if (capabilities.browserName !== 'firefox') {
+		return false;
+	}
+
+	return isValidVersion(capabilities, 49);
+}
+
+function isMacGeckodriver(capabilities: Capabilities): boolean {
+	return isGeckodriver(capabilities) && capabilities.platform === 'MAC';
+}
+
+function isValidVersion(capabilities: Capabilities, minVersion?: number, maxVersion?: number) {
 	if (minVersion != null || maxVersion != null) {
-		const version = parseFloat(capabilities.browserVersion);
+		const version = parseFloat(capabilities.version || capabilities.browserVersion);
 		if (minVersion != null && version < minVersion) {
 			return false;
 		}
@@ -1240,22 +1276,8 @@ function isMsEdge(capabilities: Capabilities, minVersion?: number, maxVersion?: 
 			return false;
 		}
 	}
+
 	return true;
-}
-
-function isMacSafari(capabilities: Capabilities): boolean {
-	return capabilities.browserName === 'safari' &&
-		capabilities.platform === 'MAC' &&
-		capabilities.platformName !== 'ios';
-}
-
-function isGeckodriver(capabilities: Capabilities): boolean {
-	return capabilities.browserName === 'firefox' &&
-		parseFloat(capabilities.version) >= 49;
-}
-
-function isMacGeckodriver(capabilities: Capabilities): boolean {
-	return isGeckodriver(capabilities) && capabilities.platform === 'MAC';
 }
 
 function noop() { }

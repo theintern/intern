@@ -197,7 +197,7 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 
 		this._timeouts[type] = promise.then(function () {
 			return ms;
-		});
+		}).catch(error => null);
 
 		return promise;
 	}
