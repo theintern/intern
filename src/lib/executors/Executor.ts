@@ -4,7 +4,7 @@ import { deepMixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
 import Task from '@dojo/core/async/Task';
 import Formatter from '../common/Formatter';
-import { normalizePath, parseValue, pullFromArray } from '../common/util';
+import { normalizePathEnding, parseValue, pullFromArray } from '../common/util';
 import Reporter, { ReporterOptions } from '../reporters/Reporter';
 import getObjectInterface, { ObjectInterface } from '../interfaces/object';
 import getTddInterface, { TddInterface } from '../interfaces/tdd';
@@ -522,7 +522,7 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 		const config = this.config;
 
 		if (config.internPath != null) {
-			config.internPath = normalizePath(config.internPath);
+			config.internPath = normalizePathEnding(config.internPath);
 		}
 
 		if (!config.loader) {

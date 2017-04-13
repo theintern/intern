@@ -1,5 +1,5 @@
 import { Config as BaseConfig, Events, GenericExecutor, initialize } from './Executor';
-import { normalizePath, parseValue } from '../common/util';
+import { normalizePathEnding, parseValue } from '../common/util';
 import { deepMixin } from '@dojo/core/lang';
 import Formatter from '../browser/Formatter';
 import Task from '@dojo/core/async/Task';
@@ -84,7 +84,7 @@ export class GenericBrowser<E extends Events, C extends Config> extends GenericE
 			}
 
 			[ 'basePath', 'internPath' ].forEach(key => {
-				config[key] = normalizePath(config[key]);
+				config[key] = normalizePathEnding(config[key]);
 			});
 
 			if (config.internPath[0] !== '/') {

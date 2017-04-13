@@ -73,7 +73,7 @@ export function getShouldWait(waitMode: (string|boolean), message: Message) {
 /**
  * Normalize a path such that it ends in '/'
  */
-export function normalizePath(path: string) {
+export function normalizePathEnding(path: string) {
 	if (path && path.length > 0 && path[path.length - 1] !== '/') {
 		return `${path}/`;
 	}
