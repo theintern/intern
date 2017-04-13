@@ -299,12 +299,11 @@ export default class Server implements ServerProperties {
 		this.executor.log('Received message:', message);
 		const promise = this._publish(message);
 		let shouldWait = getShouldWait(this.runInSync, message);
-		return shouldWait ? promise : Promise.resolve();
+		return shouldWait ? promise : resolvedPromise;
 	}
 
 	private _handleWebSocket(client: WebSocket) {
 		client.on('message', data => {
-			this.executor.log('Received websocket message:', data);
 			const message: Message = JSON.parse(data);
 			this._handleMessage(message)
 				.catch(error => this.executor.emit('error', error))
@@ -319,6 +318,7 @@ export default class Server implements ServerProperties {
 
 		client.on('error', error => {
 			this.executor.log('WebSocket client error:', error);
+			this.executor.emit('error', error);
 		});
 	}
 
@@ -352,3 +352,5 @@ export interface ServerListener {
 }
 
 export type ServerOptions = Partial<ServerProperties> & { executor: Executor };
+
+const resolvedPromise = Promise.resolve();

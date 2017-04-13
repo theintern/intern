@@ -18,9 +18,6 @@ export default class RemoteSuite extends Suite {
 	/** The HTML page that will be used to host the tests */
 	harness: string;
 
-	/** If true, the remote suite will wait for ackowledgements from the host for runtime events. */
-	runInSync: boolean;
-
 	constructor() {
 		super({ name: 'unit tests' });
 
@@ -48,9 +45,6 @@ export default class RemoteSuite extends Suite {
 
 	/**
 	 * Run a suite in a remote browser.
-	 *
-	 * TODO: Change this from using Selenium-provided sessionId to self-generated constant identifier so that sessions
-	 * can be safely reset in the middle of a test run
 	 */
 	run(): Task<any> {
 		const remote = this.remote;
@@ -58,7 +52,7 @@ export default class RemoteSuite extends Suite {
 		const server = this.executor.server;
 		let listenerHandle: Handle;
 
-		const task = new Task(
+		return new Task(
 			(resolve, reject) => {
 				const handleError = (error: InternError) => {
 					this.error = error;
@@ -66,11 +60,11 @@ export default class RemoteSuite extends Suite {
 				};
 
 				// This is a deferred that will resolve when the remote sends back a 'remoteConfigured' message
-				const pendingRemote = new Deferred<void>();
+				const pendingConnection = new Deferred<void>();
 
 				// If the remote takes to long to connect, reject the connection promise
 				const connectTimer = setTimeout(() => {
-					pendingRemote.reject();
+					pendingConnection.reject();
 				}, this.executor.config.connectTimeout);
 
 				// Subscribe to messages received by the server for a particular remote session ID.
@@ -81,7 +75,7 @@ export default class RemoteSuite extends Suite {
 						case 'remoteStatus':
 							if (data === 'initialized') {
 								clearTimeout(connectTimer);
-								pendingRemote.resolve();
+								pendingConnection.resolve();
 							}
 							break;
 
@@ -216,9 +210,11 @@ export default class RemoteSuite extends Suite {
 					remoteConfig[key] = config[key];
 				});
 
+				this.executor.log('Configuring remote', this.name, 'with', remoteConfig);
+
 				remote
 					.get(`${harness}?${query}`)
-					.then(() => pendingRemote.promise)
+					.then(() => pendingConnection.promise)
 					// Send the config data in an execute block to avoid sending very large query strings
 					.execute(function (configString: string) {
 						const options = JSON.parse(configString);
@@ -234,8 +230,6 @@ export default class RemoteSuite extends Suite {
 			listenerHandle.destroy();
 			return this.executor.emit('suiteEnd', this);
 		});
-
-		return task;
 	}
 }
 

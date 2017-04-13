@@ -106,11 +106,11 @@ export default class Suite implements SuiteProperties {
 	 */
 	get id() {
 		let name: string[] = [];
-		let object: Suite = this;
+		let suite: Suite = this;
 
 		do {
-			object.name != null && name.unshift(object.name);
-		} while ((object = object.parent));
+			suite.name != null && name.unshift(suite.name);
+		} while ((suite = suite.parent));
 
 		return name.join(' - ');
 	}

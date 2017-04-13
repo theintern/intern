@@ -16,7 +16,10 @@ try {
 	// Forward all executor events back to the Intern host
 	intern.on('*', ({ name, data }) => {
 		let promise = channel.sendMessage(name, data).catch(console.error);
-		if (config.runInSync) {
+
+		// If config.runInSync is true, return the message promise so that Intern will wait for acknowledgement before
+		// continuing testing
+		if (intern.config.runInSync) {
 			return promise;
 		}
 	});

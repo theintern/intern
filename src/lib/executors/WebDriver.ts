@@ -230,7 +230,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 					executor: this,
 
 					before() {
-						executor.log('Creating proxied session for', environmentType);
+						executor.log('Creating session for', environmentType);
 						return retry<ProxiedSession>(
 							() => leadfootServer.createSession(environmentType),
 							config.environmentRetries

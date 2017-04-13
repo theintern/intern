@@ -2,7 +2,6 @@ import { Config as BaseConfig, Events, GenericBrowser } from './Browser';
 import { initialize } from './Executor';
 import { parseValue } from '../common/util';
 import Dom from '../reporters/Dom';
-import { deepMixin } from '@dojo/core/lang';
 
 /**
  * An executor for running suites in a remote browser. This executor is intended to be started and managed by Intern
@@ -16,10 +15,13 @@ export default class Remote extends GenericBrowser<Events, Config> {
 	protected _debug: boolean;
 
 	constructor(config: Config) {
-		super(deepMixin(config, {
-			reporters: ['dom']
-		}));
+		super({ reporters: [{ reporter: 'dom' }] });
+
 		this.registerReporter('dom', Dom);
+
+		if (config) {
+			this.configure(config);
+		}
 	}
 
 	protected _processOption(name: keyof Config, value: any) {

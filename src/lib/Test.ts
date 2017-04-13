@@ -49,11 +49,11 @@ export default class Test implements TestProperties {
 	 */
 	get id() {
 		let name: string[] = [];
-		let object: (Suite | Test) = this;
+		let suiteOrTest: (Suite | Test) = this;
 
 		do {
-			object.name != null && name.unshift(object.name);
-		} while ((object = object.parent));
+			suiteOrTest.name != null && name.unshift(suiteOrTest.name);
+		} while ((suiteOrTest = suiteOrTest.parent));
 
 		return name.join(' - ');
 	}
