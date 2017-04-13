@@ -77,11 +77,16 @@ export class GenericBrowser<E extends Events, C extends Config> extends GenericE
 				config.browserSuites = [];
 			}
 
-			for (let suite of config.suites.concat(config.browserSuites)) {
-				if (/[*?]/.test(suite)) {
-					throw new Error(`Globs may not be used for browser suites: "${suite}"`);
-				}
-			}
+			// Filter out globs from suites and browser suites
+			[ 'suites', 'browserSuites' ].forEach(name => {
+				config[name] = config[name].filter((suite: string) => {
+					if (/[*?]/.test(suite)) {
+						console.warn(`Globs may not be used for browser suites: "${suite}"`);
+						return false;
+					}
+					return true;
+				});
+			});
 
 			[ 'basePath', 'internPath' ].forEach(key => {
 				config[key] = normalizePathEnding(config[key]);
