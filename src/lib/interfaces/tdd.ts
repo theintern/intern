@@ -31,7 +31,7 @@ export default function getInterface(executor: Executor): TddInterface {
 			if (!currentSuite) {
 				throw new Error('A test must be declared within a suite');
 			}
-			currentSuite.add(new Test({ name, test, parent: currentSuite }));
+			currentSuite.add(new Test({ name, test }));
 		},
 
 		before(fn: SuiteLifecycleFunction) {
