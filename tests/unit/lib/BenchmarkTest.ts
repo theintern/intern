@@ -12,8 +12,8 @@ const assert = intern.getAssertions('assert');
 function getTestFunction(testFunc: BenchmarkTestFunction, isAsync?: boolean) {
 	if (isAsync) {
 		const originalFunc = testFunc;
-		testFunc = BenchmarkTest.async((test: BenchmarkTest, dfd: Deferred<any>) => {
-			setTimeout(dfd.callback(originalFunc.bind(test, test)), 200);
+		testFunc = BenchmarkTest.async(function (dfd: Deferred<any>) {
+			setTimeout(dfd.callback(originalFunc.bind(this)), 200);
 		});
 	}
 	testFunc.options = testFunc.options || {};

@@ -296,7 +296,7 @@ or using callbacks:
 }
 ```
 
-### Test context
+### Test and suite context
 
 Test methods are always called in the context of the test object itself. Consider the following case that uses the TDD
 interface:
@@ -311,33 +311,8 @@ test('update values', function () {
 });
 ```
 
-The value of `this` is the containing Test object. However, that would not be the case here:
-
-```ts
-test('update values', () => {
-    const dfd = this.async();  // <-- Problem here!
-    const component = new Component();
-    component.update({ value: 20 }, dfd.callback(error => {
-        assert.equal(component.children[0].value, 20);
-    }));
-});
-```
-
-To make using fat arrow functions with Intern easier, test functions will always be passed the Test object itself as the
-first (and typically only) argument.
-
-```ts
-test('update values', test => {
-    const dfd = test.async();
-    const component = new Component();
-    component.update({ value: 20 }, dfd.callback(error => {
-        assert.equal(component.children[0].value, 20);
-    }));
-});
-```
-
-Similarly, suite lifecycle functions such as `before` and `afterEach` will always be passed the Suite object itself as
-the first parameter.
+Suite lifecycle methods such as `before` and `afterEach` are always called in the context of the suite object.
+Additionally, the `beforeEach` and `afterEach` methods are passed the current test as the first argument.
 
 ### Environment
 

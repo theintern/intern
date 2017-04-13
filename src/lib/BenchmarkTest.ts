@@ -38,17 +38,17 @@ export default class BenchmarkTest extends Test {
 		});
 
 		if (options.defer) {
-			this.test = (testFunction => (test: BenchmarkTest, deferred?: Deferred<any>) => {
-				const dfd = createDeferred(test.benchmark, deferred, options.numCallsUntilResolution);
-				testFunction.call(this, this, dfd);
+			this.test = (function (testFunction: BenchmarkTestFunction) {
+				return function (this: BenchmarkTest, deferred?: Deferred<any>) {
+					const dfd = createDeferred(this.benchmark, deferred, options.numCallsUntilResolution);
+					testFunction.call(this, dfd);
+				};
 			})(this.test);
 		}
 
 		this.benchmark = new Benchmark(
 			descriptor.name,
-			options.defer ?
-			'this.benchmark.internTest.test(this.benchmark.internTest, deferred);' :
-			'this.internTest.test(this.internTest);',
+			options.defer ? 'this.benchmark.internTest.test(deferred);' : 'this.internTest.test();',
 			options
 		);
 
@@ -139,12 +139,12 @@ export default class BenchmarkTest extends Test {
 }
 
 export interface BenchmarkTestFunction {
-	(this: BenchmarkTest, test: BenchmarkTest): void | Promise<any>;
+	(this: BenchmarkTest): void | Promise<any>;
 	options?: BenchmarkOptions;
 }
 
 export interface BenchmarkDeferredTestFunction {
-	(this: BenchmarkTest, test: BenchmarkTest, deferred: Deferred<void>): void | Promise<any>;
+	(this: BenchmarkTest, deferred: Deferred<void>): void | Promise<any>;
 	options?: BenchmarkOptions;
 }
 

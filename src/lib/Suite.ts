@@ -281,7 +281,7 @@ export default class Suite implements SuiteProperties {
 				};
 
 				const suiteFunc: () => Promise<any> = (<any>suite)[name];
-				let returnValue = suiteFunc && suiteFunc.call(suite, suite, ...args);
+				let returnValue = suiteFunc && suiteFunc.call(suite, test);
 
 				if (dfd) {
 					// If a timeout was set, async was called, so we should use the dfd created by the call to
@@ -546,11 +546,11 @@ export function isSuiteOptions(value: any): value is SuiteOptions {
 }
 
 export interface SuiteLifecycleFunction {
-	(this: Suite, suite: Suite): void | Promise<any>;
+	(this: Suite): void | Promise<any>;
 }
 
 export interface TestLifecycleFunction {
-	(this: Test, test: Test): void | Promise<any>;
+	(this: Suite, test: Test): void | Promise<any>;
 }
 
 // Properties that define a Suite. Note that 'tests' isn't included so that other interfaces, such as the object

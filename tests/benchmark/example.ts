@@ -43,7 +43,7 @@ registerSuite({
 			};
 		})(),
 
-		async: async(function (_test, deferred) {
+		async: async(function (deferred) {
 			setTimeout(deferred.callback(function () {
 				return 23 / 400;
 			}), 200);
