@@ -498,7 +498,11 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 				break;
 
 			case 'name':
-				this.config[name] = parseValue(name, value, 'string');
+				value = parseValue(name, value, 'string');
+				this.config[name] = value;
+
+				// Update the rootSuite name when config.name is updated
+				this._rootSuite.name = value;
 				break;
 
 			case 'preload':
