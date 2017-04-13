@@ -70,7 +70,7 @@ export class GenericBrowser<E extends Events, C extends Config> extends GenericE
 			}
 
 			if (!config.internPath) {
-				config.internPath = config.basePath + 'node_modules/intern/';
+				config.internPath = 'node_modules/intern/';
 			}
 
 			if (!config.browserSuites) {
@@ -86,6 +86,10 @@ export class GenericBrowser<E extends Events, C extends Config> extends GenericE
 			[ 'basePath', 'internPath' ].forEach(key => {
 				config[key] = normalizePath(config[key]);
 			});
+
+			if (config.internPath[0] !== '/') {
+				config.internPath = `${config.basePath}${config.internPath}`;
+			}
 		});
 	}
 }

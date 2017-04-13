@@ -14,6 +14,10 @@ getConfig().then(config => {
 		config.reporters.push('html');
 	}
 
+	if (!config.internPath) {
+		config.internPath = location.pathname;
+	}
+
 	Browser.initialize(config);
 
 	intern.registerReporter('html', Html);
