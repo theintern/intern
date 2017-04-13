@@ -60,30 +60,9 @@ export default class ProxiedSession extends Session {
 			return super.get(url);
 		}
 
-		let shouldGetPromise: Task<boolean>;
-
-		// At least Safari will not inject user scripts for non http/https URLs, so we can't get coverage data.
-		if (this.capabilities.brokenExecuteForNonHttpUrl) {
-			shouldGetPromise = Task.resolve(this.getCurrentUrl().then(url => (/^https?:/i).test(url)));
-		}
-		else {
-			shouldGetPromise = Task.resolve(true);
-		}
-
-		const task: Task<void> = shouldGetPromise.then(shouldGetCoverage => {
-			if (shouldGetCoverage) {
-				return this.execute<string>(getCoverageData, [ this.coverageVariable ]).then(coverageData => {
-					return coverageData && this.executor.emit('coverage', {
-						sessionId: this.sessionId,
-						coverage: JSON.parse(coverageData)
-					});
-				});
-			}
-		}).finally(() => {
+		return this._getCoverage().finally(() => {
 			return super.get(url);
 		});
-
-		return task;
 	}
 
 	/**
@@ -91,21 +70,15 @@ export default class ProxiedSession extends Session {
 	 * by the browser prior to quitting.
 	 */
 	quit() {
+		this.executor.log('Quitting', this.sessionId);
 		return this
 			.setHeartbeatInterval(0)
 			.then(() => {
 				if (this.coverageEnabled) {
-					return this.execute<string>(getCoverageData, [ this.coverageVariable ]).then(coverageData => {
-						return coverageData && this.executor.emit('coverage', {
-							sessionId: this.sessionId,
-							coverage: JSON.parse(coverageData)
-						});
-					});
+					return this._getCoverage();
 				}
 			})
-			.finally(() => {
-				return super.quit();
-			});
+			.finally(() => super.quit());
 	}
 
 	/**
@@ -144,5 +117,29 @@ export default class ProxiedSession extends Session {
 		}
 
 		return Task.resolve();
+	}
+
+	protected _getCoverage() {
+		let shouldGetPromise: Task<boolean>;
+
+		// At least Safari 9 will not inject user scripts for non http/https URLs, so we can't get coverage data.
+		if (this.capabilities.brokenExecuteForNonHttpUrl) {
+			shouldGetPromise = Task.resolve(this.getCurrentUrl().then(url => (/^https?:/i).test(url)));
+		}
+		else {
+			shouldGetPromise = Task.resolve(true);
+		}
+
+		return shouldGetPromise.then(shouldGetCoverage => {
+			if (shouldGetCoverage) {
+				return this.execute<string>(getCoverageData, [this.coverageVariable]).then(coverageData => {
+					this.executor.log('Got coverage data for', this.sessionId);
+					return coverageData && this.executor.emit('coverage', {
+						sessionId: this.sessionId,
+						coverage: JSON.parse(coverageData)
+					});
+				});
+			}
+		});
 	}
 }

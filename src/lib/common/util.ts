@@ -53,9 +53,9 @@ export function getShouldWait(waitMode: (string|boolean), message: Message) {
 
 	if (waitMode === 'fail') {
 		if (
-			eventName === 'testFail' ||
-			eventName === 'suiteError' ||
-			eventName === 'fatalError'
+			(eventName === 'testEnd' && message.data.error) ||
+			(eventName === 'suiteEnd' && message.data.error) ||
+			eventName === 'error'
 		) {
 			shouldWait = true;
 		}

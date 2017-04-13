@@ -79,6 +79,13 @@ export default class WebDriver extends GenericNode<Events, Config> {
 		return 'webdriver';
 	}
 
+	/**
+	 * Override Executor#addSuite to handle WebDriver's multiple root suites
+	 */
+	addSuite(adder: (parentSuite: Suite) => void) {
+		this._rootSuites.forEach(adder);
+	}
+
 	registerTunnel(name: string, Class: typeof Tunnel) {
 		this._tunnels[name] = Class;
 	}
@@ -223,6 +230,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 					executor: this,
 
 					before() {
+						executor.log('Creating proxied session for', environmentType);
 						return retry<ProxiedSession>(
 							() => leadfootServer.createSession(environmentType),
 							config.environmentRetries
@@ -232,6 +240,8 @@ export default class WebDriver extends GenericNode<Events, Config> {
 							session.coverageVariable = config.instrumenterOptions.coverageVariable;
 							session.serverUrl = config.serverUrl;
 							session.serverBasePathLength = config.basePath.length;
+
+							this.executor.log('Created session:', session.capabilities);
 
 							let remote: Remote = <Remote>new Command(session);
 							remote.environmentType = new Environment(session.capabilities);
@@ -260,23 +270,15 @@ export default class WebDriver extends GenericNode<Events, Config> {
 								return endSession();
 							}
 
-							// A Command behaves like a Promise for our needs
 							return remote.quit().finally(endSession);
 						}
 					}
 				});
 
-				// If functional tests were added to this executor, they will be in the executor's _rootSuite property.
-				// The functional tests should be run for each remote session, so add _rootSuite to the session suite.
-				if (this._rootSuite) {
-					this._rootSuite.name = 'functional tests';
-					suite.add(this._rootSuite);
-				}
-
 				// If browser-compatible unit tests were added to this executor, add a RemoteSuite to the session suite.
 				// The RemoteSuite will run the suites listed in executor.config.suites.
 				if (config.suites.length + config.browserSuites.length > 0) {
-					suite.add(new RemoteSuite({ name: 'unit tests' }));
+					suite.add(new RemoteSuite({ name: `${environmentType} unit tests` }));
 				}
 
 				return suite;
@@ -406,7 +408,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 
 			return Promise.all(['browserSuites', 'functionalSuites'].map(property => {
 				return expandFiles(config[property]).then(expanded => {
-					config.functionalSuites = expanded;
+					config[property] = expanded;
 				});
 			// return void
 			})).then(() => null);
@@ -417,17 +419,23 @@ export default class WebDriver extends GenericNode<Events, Config> {
 	 * Runs each of the root suites, limited to a certain number of suites at the same time by `maxConcurrency`.
 	 */
 	protected _runTests(): Task<any> {
+		this.log('Running with maxConcurrency', this.config.maxConcurrency);
+
 		const rootSuites = this._rootSuites;
 		const queue = new FunctionQueue(this.config.maxConcurrency || Infinity);
 		const numSuitesToRun = rootSuites.length;
 		let numSuitesCompleted = 0;
 
 		return Task.all(rootSuites.map(suite => {
+			this.log('Queueing suite', suite.name);
 			return queue.enqueue(() => {
+				this.log('Running suite', suite.name);
 				return suite.run().finally(() => {
+					this.log('Finished suite', suite.name);
 					numSuitesCompleted++;
 					if (numSuitesCompleted === numSuitesToRun) {
 						// All suites have finished running, so emit coverage
+						this.log('Emitting coverage');
 						return this._emitCoverage();
 					}
 				});

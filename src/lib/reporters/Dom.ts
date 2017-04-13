@@ -21,8 +21,15 @@ export default class Dom extends Reporter {
 	}
 
 	@eventHandler()
+	error(error: Error) {
+		const errorNode = this.document.createElement('pre');
+		errorNode.appendChild(this.document.createTextNode(this.formatter.format(error)));
+		this.document.body.appendChild(errorNode);
+	}
+
+	@eventHandler()
 	suiteEnd(suite: Suite) {
-		this.suiteNode = <HTMLElement> (this.suiteNode.parentNode.parentNode || document.body);
+		this.suiteNode = <HTMLElement> (this.suiteNode.parentNode.parentNode || this.document.body);
 
 		if (suite.error) {
 			this.suiteNode.appendChild(this.document.createTextNode('Suite "' + suite.id + '" failed'));

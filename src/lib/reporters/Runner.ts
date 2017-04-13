@@ -96,7 +96,7 @@ export default class Runner extends Coverage {
 			.write('(ノಠ益ಠ)ノ彡┻━┻\n')
 			.write(this.formatter.format(error))
 			.display('reset')
-			.write('\n');
+			.write('\n\n');
 
 		this.hasErrors = true;
 	}
@@ -129,10 +129,10 @@ export default class Runner extends Coverage {
 			numSkippedTests += session.suite.numSkippedTests;
 		});
 
-		// add a newline between test results and coverage results for prettier output
-		this.charm.write('\n');
-
 		if (collector.files().length > 0) {
+			// add a newline between test results and coverage results for prettier output
+			this.charm.write('\n');
+
 			this._detailedReporter.writeReport(collector);
 		}
 
@@ -263,7 +263,6 @@ export default class Runner extends Coverage {
 				.foreground('magenta')
 				.write('~ ' + test.id)
 				.display('reset')
-				.foreground('white')
 				.write(' (' + (test.skipped || 'skipped') + ')')
 				.display('reset')
 				.write('\n');

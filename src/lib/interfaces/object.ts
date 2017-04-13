@@ -9,14 +9,16 @@ import Executor from '../executors/Executor';
 export default function getInterface(executor: Executor) {
 	return {
 		registerSuite(descriptor: ObjectSuiteDescriptor | ObjectSuiteFactory) {
-			// Enable per-suite closure, to match feature parity with other interfaces like tdd/bdd more closely;
-			// without this, it becomes impossible to use the object interface for functional tests since there is no
-			// other way to create a closure for each main suite
-			if (isSuiteDescriptorFactory<ObjectSuiteFactory>(descriptor)) {
-				descriptor = descriptor();
-			}
+			executor.addSuite(parent => {
+				// Enable per-suite closure, to match feature parity with other interfaces like tdd/bdd more closely;
+				// without this, it becomes impossible to use the object interface for functional tests since there is no
+				// other way to create a closure for each main suite
+				if (isSuiteDescriptorFactory<ObjectSuiteFactory>(descriptor)) {
+					descriptor = descriptor();
+				}
 
-			registerSuite(executor, descriptor, Suite, Test);
+				parent.add(createSuite(executor, descriptor, Suite, Test));
+			});
 		}
 	};
 }
@@ -41,15 +43,7 @@ export function isSuiteDescriptorFactory<T>(value: any): value is T {
 	return typeof value === 'function';
 }
 
-export function registerSuite<S extends typeof Suite, T extends typeof Test>(executor: Executor, descriptor: ObjectSuiteDescriptor, SuiteClass: S, TestClass: T) {
-	executor.addTest(createSuite(executor, descriptor, SuiteClass, TestClass));
-}
-
-function isNestedSuiteDescriptor(value: any): value is NestedSuiteDescriptor {
-	return value && typeof value.tests === 'object';
-}
-
-function createSuite<S extends typeof Suite, T extends typeof Test>(executor: Executor, descriptor: NestedSuiteDescriptor, SuiteClass: S, TestClass: T) {
+export function createSuite<S extends typeof Suite, T extends typeof Test>(executor: Executor, descriptor: NestedSuiteDescriptor, SuiteClass: S, TestClass: T) {
 	let options: SuiteOptions = { name: null, tests: [] };
 
 	// Initialize a new SuiteOptions object from the provided ObjectSuiteDescriptor
@@ -96,4 +90,8 @@ function createSuite<S extends typeof Suite, T extends typeof Test>(executor: Ex
 	});
 
 	return suite;
+}
+
+function isNestedSuiteDescriptor(value: any): value is NestedSuiteDescriptor {
+	return value && typeof value.tests === 'object';
 }

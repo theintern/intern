@@ -3,7 +3,7 @@
  */
 
 import Executor from '../executors/Executor';
-import { isSuiteDescriptorFactory, registerSuite as registerObjectSuite } from './object';
+import { createSuite, isSuiteDescriptorFactory } from './object';
 import BenchmarkTest, { BenchmarkDeferredTestFunction, BenchmarkTestFunction } from '../BenchmarkTest';
 import BenchmarkSuite, { BenchmarkSuiteProperties } from '../BenchmarkSuite';
 
@@ -15,11 +15,16 @@ export default function getInterface(executor: Executor) {
 				return;
 			}
 
-			if (isSuiteDescriptorFactory<BenchmarkSuiteFactory>(descriptor)) {
-				descriptor = descriptor();
-			}
+			executor.addSuite(parent => {
+				// Enable per-suite closure, to match feature parity with other interfaces like tdd/bdd more closely;
+				// without this, it becomes impossible to use the object interface for functional tests since there is no
+				// other way to create a closure for each main suite
+				if (isSuiteDescriptorFactory<BenchmarkSuiteFactory>(descriptor)) {
+					descriptor = descriptor();
+				}
 
-			registerObjectSuite(executor, descriptor, BenchmarkSuite, BenchmarkTest);
+				parent.add(createSuite(executor, descriptor, BenchmarkSuite, BenchmarkTest));
+			});
 		},
 
 		async: BenchmarkTest.async

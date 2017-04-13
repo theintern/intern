@@ -236,6 +236,10 @@ export default class Suite implements SuiteProperties {
 			throw new Error('Tried to add invalid suite or test');
 		}
 
+		if (suiteOrTest.parent != null) {
+			throw new Error('This Suite or Test already belongs to another parent');
+		}
+
 		suiteOrTest.parent = this;
 		this.tests.push(suiteOrTest);
 	}
@@ -261,7 +265,7 @@ export default class Suite implements SuiteProperties {
 			return this.executor.emit('suiteEnd', this);
 		};
 
-		const runLifecycleMethod = (suite: Suite, name: string, ...args: any[]) => {
+		const runLifecycleMethod = (suite: Suite, name: keyof Suite, test?: Test) => {
 			return new Task(resolve => {
 				let dfd: Deferred<any>;
 				let timeout: number;
@@ -280,7 +284,7 @@ export default class Suite implements SuiteProperties {
 					return dfd;
 				};
 
-				const suiteFunc: () => Promise<any> = (<any>suite)[name];
+				const suiteFunc: SuiteLifecycleFunction = <any>suite[name];
 				let returnValue = suiteFunc && suiteFunc.call(suite, test);
 
 				if (dfd) {
@@ -309,6 +313,7 @@ export default class Suite implements SuiteProperties {
 
 				if (error !== SKIP) {
 					if (!this.error) {
+						this.executor.log('Suite errored with non-skip error', error);
 						this.error = error;
 					}
 					throw error;
@@ -350,17 +355,19 @@ export default class Suite implements SuiteProperties {
 			let tests = this.tests;
 			let current: Task<any>;
 
-			const runTestLifecycle = (name: string, test: Test) => {
-				// beforeEach executes in order parent -> child;
-				// afterEach executes in order child -> parent
-				const orderMethod: ('push' | 'unshift') = name === 'beforeEach' ? 'push' : 'unshift';
-
-				// LIFO queue
+			const runTestLifecycle = (name: keyof Suite, test: Test) => {
 				let suiteQueue: Suite[] = [];
 				let suite: Suite = this;
 
 				do {
-					(<any>suiteQueue)[orderMethod](suite);
+					if (name === 'beforeEach') {
+						// beforeEach executes in order parent -> child;
+						suiteQueue.push(suite);
+					}
+					else {
+						// afterEach executes in order child -> parent
+						suiteQueue.unshift(suite);
+					}
 				}
 				while ((suite = suite.parent));
 

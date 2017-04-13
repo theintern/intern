@@ -61,7 +61,8 @@ export default class Server implements ServerProperties {
 				}
 			});
 
-			server.on('connection', function (socket) {
+			server.on('connection', socket => {
+				this.executor.log('HTTP connection opened');
 				sockets.push(socket);
 
 				// Disabling Nagle improves server performance on low-latency connections, which are more common
@@ -76,6 +77,7 @@ export default class Server implements ServerProperties {
 
 			this._wsServer = new WebSocket.Server({ port: this.port + 1 });
 			this._wsServer.on('connection', client => {
+				this.executor.log('WebSocket connection opened:', client);
 				this._handleWebSocket(client);
 			});
 			this._wsServer.on('error', error => {
@@ -302,6 +304,7 @@ export default class Server implements ServerProperties {
 
 	private _handleWebSocket(client: WebSocket) {
 		client.on('message', data => {
+			this.executor.log('Received websocket message:', data);
 			const message: Message = JSON.parse(data);
 			this._handleMessage(message)
 				.catch(error => this.executor.emit('error', error))
@@ -312,6 +315,10 @@ export default class Server implements ServerProperties {
 						}
 					});
 				});
+		});
+
+		client.on('error', error => {
+			this.executor.log('WebSocket client error:', error);
 		});
 	}
 

@@ -13,22 +13,18 @@ export interface TddInterface {
 }
 
 export default function getInterface(executor: Executor): TddInterface {
-	let currentSuite: Suite;
-
 	return {
 		suite(name: string, factory: (suite: Suite) => void) {
-			const parent = currentSuite;
-			const suite = new Suite({ name });
-			if (!parent) {
-				// This is a new top-level suite, not a nested suite
-				executor.addTest(suite);
+			if (!currentSuite) {
+				executor.addSuite(parent => {
+					currentSuite = parent;
+					registerSuite(name, factory);
+					currentSuite = null;
+				});
 			}
 			else {
-				parent.add(suite);
+				registerSuite(name, factory);
 			}
-			currentSuite = suite;
-			factory.call(suite, suite);
-			currentSuite = parent;
 		},
 
 		test(name: string, test: TestFunction) {
@@ -66,4 +62,17 @@ export default function getInterface(executor: Executor): TddInterface {
 			on(currentSuite, 'afterEach', fn);
 		}
 	};
+}
+
+let currentSuite: Suite;
+
+function registerSuite(name: string, factory: (suite: Suite) => void) {
+	const parent = currentSuite;
+
+	currentSuite = new Suite({ name });
+	parent.add(currentSuite);
+
+	factory(currentSuite);
+
+	currentSuite = parent;
 }

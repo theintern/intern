@@ -47,12 +47,11 @@
   "preload": "_tests/tests/pre.js",
   "excludeInstrumentation": "(?:node_modules|_tests)",
   "tunnel": "browserstack",
+  "maxConcurrency": 2,
   "environments": [
-	{ "browser": "internet explorer", "version": "11.0", "platform": "WINDOWS", "fixSessionCapabilities": false },
-	{ "browser": "internet explorer", "version": "10.0", "platform": "WIN8", "fixSessionCapabilities": false },
-	{ "browser": "internet explorer", "version": "9.0", "platform": "WINDOWS", "fixSessionCapabilities": false },
-	{ "browser": "firefox", "version": [ "33", "49" ], "platform": [ "WINDOWS", "MAC" ], "fixSessionCapabilities": false },
-	{ "browser": "chrome", "version": [ "38", "52" ], "platform": [ "WINDOWS", "MAC" ], "fixSessionCapabilities": false },
-	{ "browser": "safari", "version": [ "9", "10" ], "fixSessionCapabilities": false }
+	{ "browser": "internet explorer", "version": [ "10", "11" ] },
+	{ "browser": "firefox", "version": [ "33", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
+	{ "browser": "chrome", "version": [ "38", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
+	{ "browser": "safari", "version": [ "9", "10" ] }
   ]
 }

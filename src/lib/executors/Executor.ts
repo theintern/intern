@@ -1,5 +1,5 @@
-import Suite, { isSuiteOptions, SuiteOptions } from '../Suite';
-import Test, { isTestOptions, TestOptions } from '../Test';
+import Suite from '../Suite';
+import Test from '../Test';
 import { deepMixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
 import Task from '@dojo/core/async/Task';
@@ -99,22 +99,15 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 	abstract loadScript(script: string | string[]): Task<void>;
 
 	/**
-	 * Add a test or suite of tests to the set of tests that will be run when `run` is called.
+	 * Add a suite to the set of suites that will be run when `run` is called. The suited is added by calling a factory
+	 * function. The use of a factory allows for distinct instances of a given suite to be create when an executor has
+	 * multiple root suites.
+	 * parent suites.
+	 *
+	 * @param factory A function that will create a Suite object and add it to a given parent suite
 	 */
-	addTest(suiteOrTest: Suite | Test | SuiteOptions | TestOptions) {
-		// Check if suiteOrTest is an instance or a simple Object
-		if (!(suiteOrTest instanceof Test) && !(suiteOrTest instanceof Suite)) {
-			if (isTestOptions(suiteOrTest)) {
-				suiteOrTest = new Test(suiteOrTest);
-			}
-			else if (isSuiteOptions(suiteOrTest)) {
-				suiteOrTest = new Suite(suiteOrTest);
-			}
-			else {
-				throw new Error('InvalidTest: argument is not a valid suite or test');
-			}
-		}
-		this._rootSuite.add(<Suite | Test>suiteOrTest);
+	addSuite(factory: (parentSuite: Suite) => void) {
+		factory(this._rootSuite);
 	}
 
 	/**
@@ -223,7 +216,12 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 				if (arg instanceof Error) {
 					arg = { name: arg.name, message: arg.message, stack: arg.stack };
 				}
-				return JSON.stringify(arg);
+				try {
+					return JSON.stringify(arg);
+				}
+				catch (error) {
+					return arg.toString();
+				}
 			}).join(' ');
 			return this.emit('log', message);
 		}
@@ -291,6 +289,8 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 	run() {
 		// Only allow the executor to be started once
 		if (!this._runTask) {
+			let runError: Error;
+
 			try {
 				this._runTask = this._preloadScripts()
 					.then(() => this._resolveConfig())
@@ -300,18 +300,31 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 					.then(() => {
 						return this.emit('runStart')
 							.then(() => this._runTests())
+							.finally(() => {
+								if (this._hasSuiteErrors) {
+									throw new Error('One or more suite errors occurred during testing');
+								}
+							})
+							.catch(error => {
+								this.emit('error', error);
+								runError = error;
+							})
 							.finally(() => this.emit('runEnd'));
 					})
 					.finally(() => this._afterRun())
 					.finally(() => this.emit('afterRun'))
-					.then(() => {
-						if (this._hasSuiteErrors) {
-							throw new Error('One or more suite errors occurred during testing');
-						}
-					})
 					.catch(error => {
-						this.emit('error', error);
-						throw error;
+						return this.emit('error', error).finally(() => {
+							// a runError has priority
+							throw runError || error;
+						});
+					})
+					.then(() => {
+						// If we didn't have any other errors, but a runError was caught, throw it to reject the run
+						// task
+						if (runError) {
+							throw runError;
+						}
 					});
 			}
 			catch (error) {
@@ -661,7 +674,7 @@ export interface DeprecationMessage {
 }
 
 export interface ExecutorEvent {
-	name: string;
+	name: keyof Events;
 	data: any;
 }
 

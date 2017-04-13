@@ -10,7 +10,6 @@ import { eventHandler } from './Reporter';
 export default class Simple extends Coverage {
 	@eventHandler()
 	error(error: Error) {
-		this.console.error('FATAL ERROR');
 		this.console.error(this.formatter.format(error));
 	}
 
