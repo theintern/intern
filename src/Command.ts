@@ -1,6 +1,7 @@
 import { sleep, trimStack } from './lib/util';
 import Element from './Element';
 import Task from '@dojo/core/async/Task';
+import { Thenable } from '@dojo/shim/interfaces';
 import Session from './Session';
 import Locator from './lib/Locator';
 import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
@@ -444,7 +445,7 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	 *    element(s) will be used as the context for subsequent element method invocations (`click`, etc.). If
 	 *    the `setContext` method is not called, the element context from the parent will be passed through unmodified.
 	 */
-	then<U>(callback?: (value: T, setContext: SetContextMethod<U>) => U | Command<U>, errback?: (error: Error) => void | U | Command<U>) {
+	then<U>(callback?: (value: T, setContext: SetContextMethod<U>) => U | Thenable<U> | Command<U>, errback?: (error: Error) => void | U | Thenable<U> | Command<U>) {
 		function runCallback(command: Command<T>, callback: Function, value: T, setContext: SetContextMethod<T>): T {
 			const returnValue = callback.call(command, value, setContext);
 
