@@ -160,17 +160,21 @@ registerSuite(function () {
 
 			'#setHeartbeatInterval'() {
 				let lastNumGetCalls: number;
+				let startTime: number;
 
 				// Set the heardbeat interval, then wait for about 5x that interval -- should see about 5 get calls (a
 				// 'heartbeat' is a getCurrentUrl call, which will call our session's mock 'get' method)
-				return session.setHeartbeatInterval(250).then(function () {
-					return sleep(1250);
+				return session.setHeartbeatInterval(50).then(function () {
+					startTime = new Date().getTime();
+					return sleep(250);
 				}).then(function () {
-					assert.closeTo(numGetCalls, 5, 1, 'Heartbeats should occur on the given interval');
-					lastNumGetCalls = numGetCalls;
+					const elapsed = new Date().getTime() - startTime;
+					assert.closeTo(numGetCalls, Math.floor(elapsed / 50), 1,
+						'Heartbeats should occur on the given interval');
 					return session.setHeartbeatInterval(0);
 				}).then(function () {
-					return sleep(1000);
+					lastNumGetCalls = numGetCalls;
+					return sleep(100);
 				}).then(function () {
 					assert.strictEqual(numGetCalls, lastNumGetCalls,
 						'No more heartbeats should occur after being disabled');
