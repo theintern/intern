@@ -457,6 +457,12 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 
 		this._state = 'stopping';
 
+		this.emit<StatusEvent>({
+			type: 'status',
+			target: this,
+			status: 'Stopping'
+		});
+
 		this._stopTask = this._stop()
 			.then(returnValue => {
 				if (this._handle) {
@@ -464,6 +470,11 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 				}
 				this._process = this._handle = null;
 				this._state = 'stopped';
+				this.emit<StatusEvent>({
+					type: 'status',
+					target: this,
+					status: 'Stopped'
+				});
 				return returnValue;
 			})
 			.catch(error => {
