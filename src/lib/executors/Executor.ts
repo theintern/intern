@@ -292,8 +292,8 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 			let runError: Error;
 
 			try {
-				this._runTask = this._preloadScripts()
-					.then(() => this._resolveConfig())
+				this._runTask = this._resolveConfig()
+					.then(() => this._preloadScripts())
 					.then(() => this.emit('beforeRun'))
 					.then(() => this._beforeRun())
 					.then(() => this._loadSuites())
