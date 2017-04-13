@@ -8,10 +8,14 @@ import { getConfig } from '../lib/browser/util';
 
 getConfig().then(config => {
 	if (!config.reporters) {
-		config.reporters = ['html'];
+		config.reporters = ['html', 'console'];
 	}
-	else if (config.reporters.indexOf('html') === -1) {
+
+	if (config.reporters.indexOf('html') === -1) {
 		config.reporters.push('html');
+	}
+	if (config.reporters.indexOf('console') === -1) {
+		config.reporters.push('console');
 	}
 
 	if (!config.internPath) {
