@@ -7,6 +7,7 @@ import { InternError } from './types';
 import WebDriver, { Events } from './executors/WebDriver';
 import { Config } from './executors/Remote';
 import { toJSON } from './common/util';
+import Deferred from './Deferred';
 
 /**
  * RemoteSuite is a class that acts as a local server for one or more unit test suites being run in a remote browser.
@@ -41,7 +42,6 @@ export default class RemoteSuite extends Suite {
 		const sessionId = remote.session.sessionId;
 		const server = this.executor.server;
 		let listenerHandle: Handle;
-		let contactTimer: NodeJS.Timer | false;
 
 		const task = new Task(
 			(resolve, reject) => {
@@ -50,16 +50,26 @@ export default class RemoteSuite extends Suite {
 					reject(error);
 				};
 
+				// This is a deferred that will resolve when the remote sends back a 'remoteConfigured' message
+				const pendingRemote = new Deferred<void>();
+
+				// If the remote takes to long to connect, reject the connection promise
+				const connectTimer = setTimeout(() => {
+					pendingRemote.reject();
+				}, this.executor.config.connectTimeout);
+
 				// Subscribe to messages received by the server for a particular remote session ID.
-				listenerHandle = server.subscribe(sessionId, (name: keyof Events, data: any) => {
+				listenerHandle = server.subscribe(sessionId, (name: keyof RemoteEvents, data: any) => {
 					let suite: Suite;
 
-					if (contactTimer) {
-						clearTimeout(contactTimer);
-					}
-					contactTimer = false;
-
 					switch (name) {
+						case 'remoteStatus':
+							if (data === 'initialized') {
+								clearTimeout(connectTimer);
+								pendingRemote.resolve();
+							}
+							break;
+
 						case 'suiteStart':
 							suite = data;
 							if (!suite.hasParent) {
@@ -169,7 +179,7 @@ export default class RemoteSuite extends Suite {
 				const excludeKeys: { [key: string]: boolean } = {
 					basePath: true,
 					capabilities: true,
-					contactTimeout: true,
+					connectTimeout: true,
 					environmentRetries: true,
 					environments: true,
 					functionalSuites: true,
@@ -193,23 +203,13 @@ export default class RemoteSuite extends Suite {
 
 				remote
 					.get(`${harness}?${query}`)
+					.then(() => pendingRemote.promise)
 					// Send the config data in an execute block to avoid sending very large query strings
-					.execute(function (configString: any) {
+					.execute(function (configString: string) {
 						const options = JSON.parse(configString);
 						intern.configure(options);
 						intern.run().catch(_error => { });
 					}, [toJSON(remoteConfig)])
-					.then(() => {
-						// If the task hasn't been resolved yet, start a timer that will cancel this suite if no contact
-						// is received from the remote in a given time. The task could be resolved if, for example, the
-						// static configuration code run in client.html sends an error message back through the server
-						// before execution gets here.
-						if (contactTimer !== false) {
-							contactTimer = setTimeout(() => {
-								handleError(new Error('No contact from remote browser'));
-							}, this.executor.config.contactTimeout);
-						}
-					})
 					// If there's an error loading the page, kill the heartbeat and fail
 					.catch(error => remote.setHeartbeatInterval(0).finally(() => handleError(error)));
 			},
@@ -222,4 +222,8 @@ export default class RemoteSuite extends Suite {
 
 		return task;
 	}
+}
+
+export interface RemoteEvents extends Events {
+	remoteStatus: string;
 }

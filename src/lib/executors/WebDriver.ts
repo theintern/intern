@@ -48,7 +48,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 	constructor(config: Config) {
 		super({
 			capabilities: { 'idle-timeout': 60 },
-			contactTimeout: 30000,
+			connectTimeout: 30000,
 			environmentRetries: 3,
 			environments: [],
 			maxConcurrency: Infinity,
@@ -348,7 +348,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 				this.config[name] = parseValue(name, value, 'string[]');
 				break;
 
-			case 'contactTimeout':
+			case 'connectTimeout':
 			case 'maxConcurrency':
 			case 'environmentRetries':
 			case 'serverPort':
@@ -444,7 +444,7 @@ export interface Config extends BaseConfig {
 	};
 
 	/** Time to wait for contact from a remote server */
-	contactTimeout?: number;
+	connectTimeout?: number;
 
 	/** A list of remote environments */
 	environments: { browserName: string, [key: string]: any }[];

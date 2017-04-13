@@ -10,7 +10,7 @@ import { Socket } from 'net';
 import { mixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
 import Executor from './executors/Executor';
-import { Message } from './Channel';
+import { Message } from './channels/Base';
 import Promise from '@dojo/shim/Promise';
 import WebSocket = require('ws');
 

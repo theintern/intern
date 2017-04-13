@@ -1,7 +1,7 @@
 import Remote from '../lib/executors/Remote';
 import { parseQuery } from '../lib/browser/util';
 import { parseArgs } from '../lib/common/util';
-import Channel from '../lib/WebSocketChannel';
+import Channel from '../lib/Channel';
 
 const config = parseArgs(parseQuery());
 const channel = new Channel({
@@ -21,6 +21,7 @@ try {
 		}
 	});
 
+	channel.sendMessage('remoteStatus', 'initialized');
 	// Intern will be further configured and started via an execute command from RemoteSuite
 }
 catch (error) {
