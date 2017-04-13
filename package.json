@@ -1,6 +1,6 @@
 {
   "name": "leadfoot",
-  "version": "2.0.0-pre",
+  "version": "2.0.0-beta.1",
   "description": "Leadfoot. A JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.",
   "repository": {
     "type": "git",
