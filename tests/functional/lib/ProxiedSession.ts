@@ -169,7 +169,9 @@ registerSuite(function () {
 					return sleep(250);
 				}).then(function () {
 					const elapsed = new Date().getTime() - startTime;
-					assert.closeTo(numGetCalls, Math.floor(elapsed / 50), 1,
+					// Compare calls to the ceiling of (elapsed / 50) because a call is made when setHeartbeatInterval
+					// is initially called along with every x ms
+					assert.closeTo(numGetCalls, Math.ceil(elapsed / 50), 1,
 						'Heartbeats should occur on the given interval');
 					return session.setHeartbeatInterval(0);
 				}).then(function () {
