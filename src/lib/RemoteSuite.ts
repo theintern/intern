@@ -1,4 +1,4 @@
-import Suite, { SuiteOptions } from './Suite';
+import Suite from './Suite';
 import UrlSearchParams from '@dojo/core/UrlSearchParams';
 import { Handle, Hash } from '@dojo/interfaces/core';
 import { parse } from 'url';
@@ -21,14 +21,29 @@ export default class RemoteSuite extends Suite {
 	/** If true, the remote suite will wait for ackowledgements from the host for runtime events. */
 	runInSync: boolean;
 
-	constructor(config: SuiteOptions) {
-		super(config);
+	constructor() {
+		super({ name: 'unit tests' });
 
 		if (this.timeout == null) {
 			this.timeout = Infinity;
 		}
 
 		this.tests = [];
+	}
+
+	/**
+	 * Override Suite#id to exclude the RemoteSuite's name from the generated ID since the RemoteSuite is just a proxy
+	 * for a remote suite.
+	 */
+	get id() {
+		let name: string[] = [];
+		let suite: Suite = this.parent;
+
+		do {
+			suite.name != null && name.unshift(suite.name);
+		} while ((suite = suite.parent));
+
+		return name.join(' - ');
 	}
 
 	/**

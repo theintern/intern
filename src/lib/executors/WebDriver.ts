@@ -278,7 +278,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 				// If browser-compatible unit tests were added to this executor, add a RemoteSuite to the session suite.
 				// The RemoteSuite will run the suites listed in executor.config.suites.
 				if (config.suites.length + config.browserSuites.length > 0) {
-					suite.add(new RemoteSuite({ name: `${environmentType} unit tests` }));
+					suite.add(new RemoteSuite());
 				}
 
 				return suite;
