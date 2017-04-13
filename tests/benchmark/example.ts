@@ -50,7 +50,7 @@ registerSuite({
 		}),
 
 		skip() {
-			this.skip('this also does nothing now');
+			this.skip('this does nothing now');
 		},
 
 		'async skip'() {
