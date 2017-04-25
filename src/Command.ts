@@ -293,8 +293,7 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 			self._context = context;
 		}
 
-		function fixStack(error: any) {
-			// TODO: fix error type
+		function fixStack(error: Error) {
 			error.stack = error.stack + trimStack(trace.stack);
 			throw error;
 		}
@@ -340,7 +339,7 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 					.catch(errback.bind(self, setContext))
 					.catch(fixStack);
 			}
-			);
+		);
 	}
 
 	/**
