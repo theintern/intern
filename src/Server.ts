@@ -301,7 +301,7 @@ export default class Server {
 	 * A hash map of required capabilities of the remote environment. The server will not return an environment that
 	 * does not match all the required capabilities if one is not available.
 	 */
-	createSession(desiredCapabilities: Capabilities, requiredCapabilities?: Capabilities) {
+	createSession<S extends Session>(desiredCapabilities: Capabilities, requiredCapabilities?: Capabilities): Task<S> {
 		const fixSessionCapabilities = desiredCapabilities.fixSessionCapabilities !== false &&
 			this.fixSessionCapabilities;
 
