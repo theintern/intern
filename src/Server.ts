@@ -927,26 +927,36 @@ export default class Server {
 			// At least ios-driver 0.6.6-SNAPSHOT April 2014 will never complete a refresh call
 			testedCapabilities.brokenRefresh = function () {
 				return session.get('about:blank?1').then(function () {
-					let timer: any;
+					let timer: NodeJS.Timer;
 					let refresh: Task<any>;
 
-					function cleanup() {
-						clearTimeout(timer);
-						refresh.cancel();
-					}
 					return new Task(function (resolve, reject) {
-						refresh = session.refresh().then(function () {
-							cleanup();
-							resolve(false);
-						}, function () {
-							cleanup();
-							resolve(true);
+						let settled = false;
+
+						refresh = session.refresh().then(
+							() => {
+								settled = true;
+								clearTimeout(timer);
+								resolve(false);
+							},
+							() => {
+								settled = true;
+								clearTimeout(timer);
+								resolve(true);
+							}
+						).finally(() => {
+							if (!settled) {
+								resolve(true);
+							}
 						});
 
 						timer = setTimeout(function () {
-							cleanup();
+							refresh.cancel();
 						}, 2000);
-					}, () => cleanup());
+					}, () => {
+						clearTimeout(timer);
+						refresh.cancel();
+					});
 				}).catch(broken);
 			};
 
@@ -975,7 +985,7 @@ export default class Server {
 							return counter > 0 ? works() : broken();
 						},
 						broken
-						);
+					);
 				};
 
 				// At least ChromeDriver 2.12 through 2.19 will throw an error if mouse movement relative to the <html>
