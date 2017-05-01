@@ -13,7 +13,7 @@ import Task from '@dojo/core/async/Task';
 import LeadfootServer from 'leadfoot/Server';
 import ProxiedSession from '../ProxiedSession';
 import resolveEnvironments from '../resolveEnvironments';
-import Suite from '../Suite';
+import Suite, { isSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles } from '../node/util';
@@ -254,9 +254,16 @@ export default class WebDriver extends GenericNode<Events, Config> {
 						if (remote) {
 							const endSession = () => {
 								return executor.emit('sessionEnd', remote).then(() => {
-									return tunnel.sendJobState(remote.session.sessionId, {
-										success: this.numFailedTests === 0 && !this.error
-									});
+									// Check for an error in this suite or a sub-suite. This check is a bit more
+									// involved than just checking for a local suite error or failed tests since
+									// sub-suites may have failures that don't result in failed tests.
+									function hasError(suite: Suite): boolean {
+										if (suite.error != null || suite.numFailedTests > 0) {
+											return true;
+										}
+										return suite.tests.filter(isSuite).some(hasError);
+									}
+									return tunnel.sendJobState(remote.session.sessionId, { success: !hasError(this) });
 								});
 							};
 
