@@ -64,7 +64,9 @@ export default class RemoteSuite extends Suite {
 
 				// If the remote takes to long to connect, reject the connection promise
 				const connectTimer = setTimeout(() => {
-					pendingConnection.reject();
+					const error = new Error('Timed out waiting for remote to connect');
+					error.name = 'TimeoutError';
+					pendingConnection.reject(error);
 				}, this.executor.config.connectTimeout);
 
 				// Subscribe to messages received by the server for a particular remote session ID.

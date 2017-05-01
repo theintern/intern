@@ -175,7 +175,12 @@ function resolveVersions(environment: FlatEnvironment, available: NormalizedEnvi
 		let availableVersions = getVersions(environment, available);
 
 		versions = splitVersions(versionSpec).map(function (version) {
-			return resolveVersionAlias(version, availableVersions);
+			const resolved = resolveVersionAlias(version, availableVersions);
+			if (resolved == null) {
+				throw new Error(`Unable to resolve version "${version}" for ${environment.browserName}. Are you using the ` +
+					'proper browser and platform names for the tunnel?');
+			}
+			return resolved;
 		});
 
 		if (versions.length === 2) {
