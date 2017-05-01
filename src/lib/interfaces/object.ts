@@ -8,13 +8,18 @@ import Executor from '../executors/Executor';
 
 export default function getInterface(executor: Executor) {
 	return {
-		registerSuite(descriptor: ObjectSuiteDescriptor | ObjectSuiteFactory) {
+		registerSuite(descriptorOrFactory: ObjectSuiteDescriptor | ObjectSuiteFactory) {
 			executor.addSuite(parent => {
 				// Enable per-suite closure, to match feature parity with other interfaces like tdd/bdd more closely;
 				// without this, it becomes impossible to use the object interface for functional tests since there is no
 				// other way to create a closure for each main suite
-				if (isSuiteDescriptorFactory<ObjectSuiteFactory>(descriptor)) {
-					descriptor = descriptor();
+				let descriptor: ObjectSuiteDescriptor;
+
+				if (isSuiteDescriptorFactory<ObjectSuiteFactory>(descriptorOrFactory)) {
+					descriptor = descriptorOrFactory();
+				}
+				else {
+					descriptor = descriptorOrFactory;
 				}
 
 				parent.add(createSuite(executor, descriptor, Suite, Test));
