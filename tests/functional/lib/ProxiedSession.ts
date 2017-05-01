@@ -14,9 +14,6 @@ registerSuite(function () {
 	const serverUrl = 'https://example.invalid/';
 	const serverBasePathLength = 1;
 	let session: ProxiedSession;
-	let oldGet: any;
-	let oldPost: any;
-	let oldDelete: any;
 	let numGetCalls: number;
 	let lastUrl: string;
 	let mockCoverage = { isMockCoverage: true };
@@ -27,35 +24,49 @@ registerSuite(function () {
 		});
 	}
 
-	function createServerFromRemote(remote: Remote) {
-		if (!remote.session || !remote.session.server) {
-			throw new Error('Unsupported remote');
-		}
-
-		return new Server(remote.session.server.url, null);
-	}
-
 	function createProxiedSessionFromRemote(remote: Remote) {
 		if (!remote.session) {
 			throw new Error('Unsupported remote');
 		}
 
-		const server = createServerFromRemote(remote);
-		const session = new ProxiedSession(remote.session.sessionId, server, remote.session.capabilities);
+		const server = <Server>{
+			url: 'about:blank'
+		};
+
+		session = new ProxiedSession(remote.session.sessionId + '-test', server, remote.session.capabilities);
 		session.executor = <any>{
 			emit: () => Promise.resolve(),
 			log: () => Promise.resolve(),
 			config: { }
 		};
-		return Promise.resolve(session);
+
+		session.serverUrl = serverUrl;
+		session.serverBasePathLength = serverBasePathLength;
+
+		session.serverGet = <any>function () {
+			++numGetCalls;
+			return Task.resolve(lastUrl);
+		};
+
+		session.serverPost = <any>function (path: string, data: any) {
+			if (path === 'url') {
+				lastUrl = data.url;
+			}
+			else if (path === 'execute' && data.args && data.args[0] === '__testCoverage') {
+				return Task.resolve(JSON.stringify(mockCoverage));
+			}
+
+			return Task.resolve();
+		};
+
+		session.server.deleteSession = function () {
+			return Task.resolve();
+		};
 	}
 
 	function createCoverageTest(method: 'get' | 'quit'): TestFunction {
 		return function (this: Test) {
 			let coverage: any;
-
-			let oldCoverage = session.coverageEnabled;
-			let oldCoverageVariable = session.coverageVariable;
 
 			// Pre-initialize the browser URL; at least Safari 9 will fail to get coverage if the browser location isn't
 			// an http/https URL. This is reasonable since the typical case will be to get coverage from a loaded page.
@@ -83,9 +94,6 @@ registerSuite(function () {
 					'Correct session ID should be provided when broadcasting coverage data');
 				assert.deepEqual(coverage.coverage, mockCoverage,
 					'Code coverage data retrieved from session should be broadcasted');
-			}).finally(function () {
-				session.coverageEnabled = oldCoverage;
-				session.coverageVariable = oldCoverageVariable;
 			});
 		};
 	}
@@ -94,35 +102,7 @@ registerSuite(function () {
 		name: 'ProxiedSession',
 
 		before() {
-			return createProxiedSessionFromRemote(this.remote).then(newSession => {
-				session = newSession;
-				session.serverUrl = serverUrl;
-				session.serverBasePathLength = serverBasePathLength;
-
-				oldGet = session.serverGet;
-				oldPost = session.serverPost;
-				oldDelete = session.server.deleteSession;
-
-				session.serverGet = <any>function () {
-					++numGetCalls;
-					return Task.resolve(lastUrl);
-				};
-
-				session.serverPost = <any>function (path: string, data: any) {
-					if (path === 'url') {
-						lastUrl = data.url;
-					}
-					else if (path === 'execute' && data.args && data.args[0] === '__testCoverage') {
-						return Task.resolve(JSON.stringify(mockCoverage));
-					}
-
-					return Task.resolve();
-				};
-
-				session.server.deleteSession = function () {
-					return Task.resolve();
-				};
-			});
+			createProxiedSessionFromRemote(this.remote);
 		},
 
 		beforeEach() {
@@ -133,11 +113,7 @@ registerSuite(function () {
 		},
 
 		after() {
-			if (session) {
-				session.serverGet = oldGet;
-				session.serverPost = oldPost;
-				session.server.deleteSession = oldDelete;
-			}
+			session = null;
 		},
 
 		tests: {
@@ -168,11 +144,8 @@ registerSuite(function () {
 					startTime = new Date().getTime();
 					return sleep(250);
 				}).then(function () {
-					const elapsed = new Date().getTime() - startTime;
-					// Compare calls to the ceiling of (elapsed / 50) because a call is made when setHeartbeatInterval
-					// is initially called along with every x ms
-					assert.closeTo(numGetCalls, Math.ceil(elapsed / 50), 1,
-						'Heartbeats should occur on the given interval');
+					// Should be about 5 calls in 250ms
+					assert.closeTo(numGetCalls, 5, 1, 'Heartbeats should occur on the given interval');
 					return session.setHeartbeatInterval(0);
 				}).then(function () {
 					lastNumGetCalls = numGetCalls;
