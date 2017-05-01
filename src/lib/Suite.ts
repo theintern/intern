@@ -425,7 +425,7 @@ export default class Suite implements SuiteProperties {
 						const handleError = (error: InternError) => {
 							// An error may be associated with a deeper test already, in which case we do not
 							// want to reassociate it with a more generic parent
-							if (!error.relatedTest) {
+							if (error && error.relatedTest == null) {
 								error.relatedTest = <Test>test;
 							}
 						};
