@@ -430,13 +430,15 @@ export default class WebDriver extends GenericNode<Events, Config> {
 		const numSuitesToRun = rootSuites.length;
 		let numSuitesCompleted = 0;
 
+		this.log('Running', numSuitesToRun, 'suites');
+
 		return Task.all(rootSuites.map(suite => {
 			this.log('Queueing suite', suite.name);
 			return queue.enqueue(() => {
 				this.log('Running suite', suite.name);
 				return suite.run().finally(() => {
-					this.log('Finished suite', suite.name);
 					numSuitesCompleted++;
+					this.log('Finished suite', suite.name, '(', numSuitesCompleted, 'of', numSuitesToRun, ')');
 					if (numSuitesCompleted === numSuitesToRun) {
 						// All suites have finished running, so emit coverage
 						this.log('Emitting coverage');
