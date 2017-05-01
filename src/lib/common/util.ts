@@ -227,19 +227,6 @@ export function pullFromArray<T>(haystack: T[], needle: T): T[] {
 }
 
 /**
- * Run an async callback until it resolves, up to numRetries times
- */
-export function retry<T>(callback: () => Promise<T>, numRetries: number) {
-	let numAttempts = 0;
-	return callback().catch(function retry(error: Error): Promise<T> {
-		if (error.name !== 'CancelError' && ++numAttempts <= numRetries) {
-			return callback().catch(retry);
-		}
-		throw error;
-	});
-}
-
-/**
  * Convert an object to JSON, handling non-primitive properties
  *
  * @param object The object to serialise.

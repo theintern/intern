@@ -314,38 +314,6 @@ registerSuite({
 		}
 	},
 
-	'.retry': {
-		'until failure'() {
-			let numAttempts = 0;
-			let expected = new Error('Oops');
-
-			return util.retry(function () {
-				++numAttempts;
-				return Promise.reject(expected);
-			}, 3).then(function () {
-				assert.ok(false, 'Retry should reject after the final attempt ends in failure');
-			}, function (error: Error) {
-				assert.strictEqual(error, expected, 'Retry should reject with the error from the callback');
-				assert.strictEqual(numAttempts, 4, 'Retry should retry numRetries times after the first failure');
-			});
-		},
-		'until success'() {
-			let numAttempts = 0;
-			let expected = new Error('Oops');
-
-			return util.retry(function () {
-				if (++numAttempts < 2) {
-					return Promise.reject(expected);
-				}
-
-				return Promise.resolve('ok');
-			}, 3).then(function (result: any) {
-				assert.strictEqual(result, 'ok', 'Retry should pass the resolved value');
-				assert.strictEqual(numAttempts, 2, 'Retry should stop retrying once the callback resolves');
-			});
-		}
-	},
-
 	'.serialize'() {
 		/*jshint maxlen:160 */
 

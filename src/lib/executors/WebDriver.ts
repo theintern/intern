@@ -15,7 +15,7 @@ import ProxiedSession from '../ProxiedSession';
 import resolveEnvironments from '../resolveEnvironments';
 import Suite from '../Suite';
 import RemoteSuite from '../RemoteSuite';
-import { parseValue, pullFromArray, retry } from '../common/util';
+import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles } from '../node/util';
 import Environment from '../Environment';
 import Command from 'leadfoot/Command';
@@ -231,10 +231,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 
 					before() {
 						executor.log('Creating session for', environmentType);
-						return retry<ProxiedSession>(
-							() => leadfootServer.createSession(environmentType),
-							config.environmentRetries
-						).then(session => {
+						return leadfootServer.createSession<ProxiedSession>(environmentType).then(session => {
 							session.executor = executor;
 							session.coverageEnabled = config.excludeInstrumentation !== true;
 							session.coverageVariable = config.instrumenterOptions.coverageVariable;
