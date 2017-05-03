@@ -6,7 +6,7 @@ export default class WebSocketChannel extends BaseChannel {
 	timeout: number;
 
 	protected _socket: WebSocket;
-	protected _sendQueue: { [key: string]: { resolve: () => void, reject: (error: Error) => void } };
+	protected _sendQueue: { [key: string]: { resolve: () => void, reject: (error: Error) => void } | undefined };
 	protected _ready: Task<any>;
 	protected _sequence: number;
 
@@ -66,8 +66,8 @@ export default class WebSocketChannel extends BaseChannel {
 
 	protected _handleMessage(message: any) {
 		const id = message.id;
-		this._sendQueue[id].resolve();
-		this._sendQueue[id] = null;
+		this._sendQueue[id]!.resolve();
+		this._sendQueue[id] = undefined;
 	}
 
 	protected _handleError(error: Error) {
@@ -76,8 +76,8 @@ export default class WebSocketChannel extends BaseChannel {
 
 		// Reject any open sends
 		Object.keys(this._sendQueue).filter(id => this._sendQueue[id] != null).forEach(id => {
-			this._sendQueue[id].reject(error);
-			this._sendQueue[id] = null;
+			this._sendQueue[id]!.reject(error);
+			this._sendQueue[id] = undefined;
 		});
 	}
 }

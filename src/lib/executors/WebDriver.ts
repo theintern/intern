@@ -1,5 +1,5 @@
 import { initialize } from './Executor';
-import { Config as BaseConfig, Events as BaseEvents, GenericNode } from './Node';
+import Node, { Config as BaseConfig, Events as BaseEvents } from './Node';
 import Tunnel, { TunnelOptions, DownloadProgressEvent } from 'digdug/Tunnel';
 import BrowserStackTunnel, { BrowserStackOptions } from 'digdug/BrowserStackTunnel';
 import SeleniumTunnel, { SeleniumOptions } from 'digdug/SeleniumTunnel';
@@ -32,8 +32,8 @@ import Promise from '@dojo/shim/Promise';
  * they will be loaded in a remote browser session, not in this executor. Functional tests, on the other hand, are loaded
  * and executed directly in this executor.
  */
-export default class WebDriver extends GenericNode<Events, Config> {
-	static initialize(config?: Config) {
+export default class WebDriver extends Node<Events, Config> {
+	static initialize(config?: Partial<Config>) {
 		return initialize<Events, Config, WebDriver>(WebDriver, config);
 	}
 
@@ -45,14 +45,19 @@ export default class WebDriver extends GenericNode<Events, Config> {
 
 	protected _tunnels: { [name: string]: typeof Tunnel };
 
-	constructor(config: Config) {
-		super({
+	constructor(config?: Partial<Config>) {
+		super(config);
+
+		this.configure({
 			capabilities: { 'idle-timeout': 60 },
 			connectTimeout: 30000,
-			environmentRetries: 3,
-			environments: [],
+			environments: <EnvironmentSpec[]>[],
 			maxConcurrency: Infinity,
 			reporters: [{ reporter: 'runner' }],
+			runInSync: false,
+			serveOnly: false,
+			serverPort: 9000,
+			serverUrl: 'http://localhost:9000',
 			tunnel: 'selenium',
 			tunnelOptions: { tunnelId: String(Date.now()) }
 		});
@@ -135,7 +140,8 @@ export default class WebDriver extends GenericNode<Events, Config> {
 
 				if (config.tunnel === 'browserstack') {
 					const options = <BrowserStackOptions>config.tunnelOptions;
-					options.servers = (options.servers || []).concat(config.serverUrl);
+					options.servers = options.servers || [];
+					options.servers.push(config.serverUrl);
 				}
 
 				if (config.functionalSuites.length + config.suites.length + config.browserSuites.length > 0) {
@@ -414,8 +420,7 @@ export default class WebDriver extends GenericNode<Events, Config> {
 				return expandFiles(config[property]).then(expanded => {
 					config[property] = expanded;
 				});
-			// return void
-			})).then(() => null);
+			})).then(() => {});
 		});
 	}
 
@@ -451,36 +456,37 @@ export default class WebDriver extends GenericNode<Events, Config> {
 }
 
 export interface Config extends BaseConfig {
-	capabilities?: {
+	capabilities: {
 		name?: string;
 		build?: string;
 		[key: string]: any;
 	};
 
 	/** Time to wait for contact from a remote server */
-	connectTimeout?: number;
+	connectTimeout: number;
 
 	/** A list of remote environments */
-	environments: { browserName: string, [key: string]: any }[];
+	environments: EnvironmentSpec[];
 
-	environmentRetries?: number;
-	leaveRemoteOpen?: boolean | 'fail';
-	maxConcurrency?: number;
-	serveOnly?: boolean;
-	serverPort?: number;
-	serverUrl?: string;
-	runInSync?: boolean;
+	leaveRemoteOpen: boolean | 'fail';
+	maxConcurrency: number;
+	serveOnly: boolean;
+	serverPort: number;
+	serverUrl: string;
+	runInSync: boolean;
 	socketPort?: number;
-	tunnel?: string;
+	tunnel: string;
 	tunnelOptions?: TunnelOptions | BrowserStackOptions | SeleniumOptions;
-
-	/** A list of unit test suites that will be run in remote browsers */
-	suites?: string[];
 }
 
 export interface Remote extends Command<any> {
 	environmentType?: Environment;
 	setHeartbeatInterval(delay: number): Command<any>;
+}
+
+export interface EnvironmentSpec {
+	browserName: string;
+	[key: string]: any;
 }
 
 export interface TunnelMessage {
@@ -532,16 +538,11 @@ class FunctionQueue {
 	}
 
 	enqueue(func: () => Task<any>) {
-		let resolver: (value?: any) => void;
-		let rejecter: (error?: Error) => void;
-
 		const funcTask = new Task((resolve, reject) => {
-			resolver = resolve;
-			rejecter = reject;
+			this.queue.push({ func, resolve, reject });
 		});
 		this.funcTasks.push(funcTask);
 
-		this.queue.push({ func, resolver, rejecter });
 		if (this.activeTasks.length < this.maxConcurrency) {
 			this.next();
 		}

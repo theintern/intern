@@ -4,8 +4,8 @@ import { RemoteEvents } from '../RemoteSuite';
 import BaseChannel, { ChannelOptions, Message } from './Base';
 
 export default class HttpChannel extends BaseChannel {
-	protected _activeRequest: Task<any>;
-	protected _pendingRequest: Task<any>;
+	protected _activeRequest: Task<any> | null;
+	protected _pendingRequest: Task<any> | null;
 	protected _messageBuffer: string[];
 	protected _sequence: number;
 	protected _maxPostSize: number;
@@ -26,7 +26,7 @@ export default class HttpChannel extends BaseChannel {
 		if (this._activeRequest || this._pendingRequest) {
 			if (!this._pendingRequest) {
 				// Schedule another request after the active one completes
-				this._pendingRequest = this._activeRequest.then(() => {
+				this._pendingRequest = this._activeRequest!.then(() => {
 					this._pendingRequest = null;
 					return this._send();
 				});
@@ -45,11 +45,11 @@ export default class HttpChannel extends BaseChannel {
 		// each POST body to maxPostSize bytes. Always send at least one message, even if it's more than
 		// maxPostSize bytes.
 		const sendNextBlock = (): Task<any> => {
-			const block = [ messages.shift() ];
+			const block = [ messages.shift()! ];
 			let size = block[0].length;
 			while (messages.length > 0 && size + messages[0].length < exports.maxPostSize) {
 				size += messages[0].length;
-				block.push(messages.shift());
+				block.push(messages.shift()!);
 			}
 
 			return request(this.url, {

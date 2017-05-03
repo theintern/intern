@@ -26,12 +26,7 @@ intern.registerLoader(config => {
 
 		intern.log('Loading suites:', config.suites);
 		return config.suites.reduce((previous, suite) => {
-			if (previous) {
-				return previous.then(() => loader.import(suite));
-			}
-			else {
-				return loader.import(suite);
-			}
-		}, <Promise<void>>null);
+			return previous.then(() => loader.import(suite));
+		}, Promise.resolve());
 	}
 });

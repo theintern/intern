@@ -143,7 +143,7 @@ function normalizeStackTrace(stack: string, filterStack: boolean, getSource: (na
  */
 function processChromeTrace(lines: string[], getSource: (name: string) => string) {
 	return lines.map(function (line) {
-		let match: RegExpMatchArray;
+		let match: RegExpMatchArray | null;
 		if ((match = /^\s*at (.+?) \(([^)]+)\)$/.exec(line))) {
 			return formatLine({ func: match[1], source: match[2] }, getSource);
 		}
@@ -161,7 +161,7 @@ function processChromeTrace(lines: string[], getSource: (name: string) => string
  */
 function processSafariTrace(lines: string[], getSource: (name: string) => string) {
 	return lines.map(function (line) {
-		let match: RegExpMatchArray;
+		let match: RegExpMatchArray | null;
 		if ((match = /^([^@]+)@(.*)/.exec(line))) {
 			return formatLine({ func: match[1], source: match[2] }, getSource);
 		}

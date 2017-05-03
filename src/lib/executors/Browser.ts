@@ -1,14 +1,28 @@
-import { Config as BaseConfig, Events, GenericExecutor, initialize } from './Executor';
+import Executor, { Config as BaseConfig, Events, initialize } from './Executor';
 import { normalizePathEnding, parseValue } from '../common/util';
 import { deepMixin } from '@dojo/core/lang';
 import Formatter from '../browser/Formatter';
 import Task from '@dojo/core/async/Task';
 
-export class GenericBrowser<E extends Events, C extends Config> extends GenericExecutor<E, C> {
-	constructor(config: C) {
-		super(config);
+/**
+ * The Browser executor is used to run unit tests in a browser.
+ */
+export default class Browser<E extends Events = Events, C extends Config = Config> extends Executor<E, C> {
+	static initialize(config?: Config) {
+		return initialize<Events, Config, Browser>(Browser, config);
+	}
 
-		this._formatter = new Formatter(config);
+	constructor(config?: Partial<C>) {
+		super(<C>{
+			basePath: '/',
+			browserSuites: <string[]>[]
+		});
+
+		if (config) {
+			this.configure(config);
+		}
+
+		this._formatter = new Formatter(this.config);
 	}
 
 	get environment() {
@@ -65,16 +79,8 @@ export class GenericBrowser<E extends Events, C extends Config> extends GenericE
 		return super._resolveConfig().then(() => {
 			const config = this.config;
 
-			if (!config.basePath) {
-				config.basePath = '/';
-			}
-
 			if (!config.internPath) {
 				config.internPath = 'node_modules/intern/';
-			}
-
-			if (!config.browserSuites) {
-				config.browserSuites = [];
 			}
 
 			// Filter out globs from suites and browser suites
@@ -99,24 +105,15 @@ export class GenericBrowser<E extends Events, C extends Config> extends GenericE
 	}
 }
 
-/**
- * The Browser executor is used to run unit tests in a browser.
- */
-export default class Browser extends GenericBrowser<Events, Config> {
-	static initialize(config?: Config) {
-		return initialize<Events, Config, Browser>(Browser, config);
-	}
-}
-
 export interface Config extends BaseConfig {
 	/** The absolute path to the project base (defaults to '/') */
-	basePath?: string;
+	basePath: string;
 
 	/**
 	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that
 	 * will only be loaded in Node environments.
 	 */
-	browserSuites?: string[];
+	browserSuites: string[];
 }
 
 export { Events };

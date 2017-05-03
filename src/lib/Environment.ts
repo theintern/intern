@@ -1,11 +1,11 @@
 export default class Environment {
-	browserName: string = undefined;
+	browserName: string;
 
-	version: string = undefined;
+	version: string;
 
-	platform: string = undefined;
+	platform: string;
 
-	platformVersion: string = undefined;
+	platformVersion: string;
 
 	constructor(kwArgs: { [key: string]: any }) {
 		const anyThis = <any> this;

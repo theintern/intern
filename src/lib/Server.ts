@@ -29,13 +29,13 @@ export default class Server implements ServerProperties {
 
 	runInSync: boolean;
 
-	server: HttpServer;
+	server: HttpServer | null;
 
 	socketPort: number;
 
-	private _wsServer: WebSocket.Server;
+	private _wsServer: WebSocket.Server | null;
 
-	private _codeCache: { [filename: string]: { mtime: number, data: string } };
+	private _codeCache: { [filename: string]: { mtime: number, data: string } } | null;
 
 	private _sessions: { [id: string]: { listeners: ServerListener[] } };
 
@@ -55,7 +55,7 @@ export default class Server implements ServerProperties {
 
 			// If sockets are not manually destroyed then Node.js will keep itself running until they all expire
 			after(server, 'close', function () {
-				let socket: Socket;
+				let socket: Socket | undefined;
 				while ((socket = sockets.pop())) {
 					socket.destroy();
 				}
@@ -93,7 +93,7 @@ export default class Server implements ServerProperties {
 
 		if (this.server) {
 			promises.push(new Promise(resolve => {
-				this.server.close(resolve);
+				this.server!.close(resolve);
 			}).then(() => {
 				this.server = null;
 			}));
@@ -101,7 +101,7 @@ export default class Server implements ServerProperties {
 
 		if (this._wsServer) {
 			promises.push(new Promise(resolve => {
-				this._wsServer.close(resolve);
+				this._wsServer!.close(resolve);
 			}).then(() => {
 				this._wsServer = null;
 			}));
@@ -136,7 +136,7 @@ export default class Server implements ServerProperties {
 
 	private _handler(request: IncomingMessage, response: ServerResponse) {
 		if (request.method === 'GET') {
-			if (/\.js(?:$|\?)/.test(request.url)) {
+			if (/\.js(?:$|\?)/.test(request.url!)) {
 				this._handleFile(request, response, this.instrument);
 			}
 			else {
@@ -203,7 +203,7 @@ export default class Server implements ServerProperties {
 			response.end(data);
 		}
 
-		const file = /^\/+([^?]*)/.exec(request.url)[1];
+		const file = /^\/+([^?]*)/.exec(request.url!)![1];
 		let wholePath: string;
 
 		this.executor.log('Request for', file);
@@ -248,8 +248,9 @@ export default class Server implements ServerProperties {
 
 			if (shouldInstrument) {
 				const mtime = stats.mtime.getTime();
-				if (this._codeCache[wholePath] && this._codeCache[wholePath].mtime === mtime) {
-					send(contentType, this._codeCache[wholePath].data);
+				const codeCache = this._codeCache!;
+				if (codeCache[wholePath] && codeCache[wholePath].mtime === mtime) {
+					send(contentType, codeCache[wholePath].data);
 				}
 				else {
 					readFile(wholePath, 'utf8', (error, data) => {
@@ -270,7 +271,7 @@ export default class Server implements ServerProperties {
 							wholePath,
 							this.instrumenterOptions
 						);
-						this._codeCache[wholePath] = {
+						codeCache[wholePath] = {
 							// strictly speaking mtime could reflect a previous version, assume those race conditions are rare
 							mtime: mtime,
 							data: data

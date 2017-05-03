@@ -156,7 +156,7 @@ export default class RemoteSuite extends Suite {
 				}
 
 				// These are options that will be passed as query params to the test harness page
-				const queryOptions: Config = {
+				const queryOptions: Partial<Config> = {
 					basePath: serverUrlPath,
 					debug: config.debug,
 					sessionId: sessionId,
@@ -180,7 +180,7 @@ export default class RemoteSuite extends Suite {
 
 				// These are options that will be POSTed to the remote page and used to configure intern. Stringify and
 				// parse them to ensure that the config can be properly transmitted.
-				const remoteConfig: Config = {
+				const remoteConfig: Partial<Config> = {
 					basePath: serverUrlPath,
 					internPath: `${serverUrlPath}${config.internPath}`,
 					name: this.id,

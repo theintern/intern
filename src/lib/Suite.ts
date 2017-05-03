@@ -11,13 +11,13 @@ export default class Suite implements SuiteProperties {
 
 	afterEach: TestLifecycleFunction;
 
-	async: (timeout?: number) => Deferred<void>;
+	async: ((timeout?: number) => Deferred<void>) | null;
 
 	before: SuiteLifecycleFunction;
 
 	beforeEach: TestLifecycleFunction;
 
-	error: InternError;
+	error: InternError | null;
 
 	name: string;
 
@@ -55,7 +55,7 @@ export default class Suite implements SuiteProperties {
 		Object.keys(options).filter(key => {
 			return key !== 'tests';
 		}).forEach((key: keyof SuiteOptions) => {
-			this[key] = options[key];
+			this[key] = options[key]!;
 		});
 
 		this.tests = [];
@@ -155,6 +155,7 @@ export default class Suite implements SuiteProperties {
 		if (this.remote) {
 			return this.remote.session.sessionId;
 		}
+		return '';
 	}
 
 	/**
@@ -267,32 +268,37 @@ export default class Suite implements SuiteProperties {
 
 		const runLifecycleMethod = (suite: Suite, name: keyof Suite, test?: Test) => {
 			return new Task(resolve => {
-				let dfd: Deferred<any>;
-				let timeout: number;
+				let dfd: Deferred<any> | undefined;
+				let timeout: number | undefined;
 
 				// Provide a new Suite#async method for each call of a lifecycle method since there's no concept of
 				// a Suite-wide async deferred as there is for Tests.
-				suite.async = function (_timeout) {
+				suite.async = function (_timeout?: number) {
 					timeout = _timeout;
 
-					dfd = new Deferred();
+					const _dfd = new Deferred<any>();
+					dfd = _dfd;
 
 					suite.async = function () {
-						return dfd;
+						return _dfd;
 					};
 
-					return dfd;
+					return _dfd;
 				};
 
 				const suiteFunc: SuiteLifecycleFunction = <any>suite[name];
+
+				// Call the lifecycle function. The suite.async method above may be called within this function call.
 				let returnValue = suiteFunc && suiteFunc.call(suite, test);
 
 				if (dfd) {
+					const _dfd = dfd;
+
 					// If a timeout was set, async was called, so we should use the dfd created by the call to
 					// manage the timeout.
 					if (timeout) {
 						let timer = setTimeout(function () {
-							dfd.reject(new Error('Timeout reached on ' + suite.id + '#' + name));
+							_dfd.reject(new Error('Timeout reached on ' + suite.id + '#' + name));
 						}, timeout);
 
 						dfd.promise.catch(_error => {}).then(() => timer && clearTimeout(timer));
@@ -300,7 +306,7 @@ export default class Suite implements SuiteProperties {
 
 					// If the return value looks like a promise, resolve the dfd if the return value resolves
 					if (isThenable(returnValue)) {
-						returnValue.then((value: any) => dfd.resolve(value), error => dfd.reject(error));
+						returnValue.then((value: any) => _dfd.resolve(value), error => _dfd.reject(error));
 					}
 
 					returnValue = dfd.promise;
@@ -309,7 +315,7 @@ export default class Suite implements SuiteProperties {
 				resolve(returnValue);
 			}).catch((error: InternError) => {
 				// Remove the async method since it should only be available within a lifecycle function call
-				suite.async = undefined;
+				suite.async = null;
 
 				if (error !== SKIP) {
 					if (!this.error) {
@@ -339,7 +345,7 @@ export default class Suite implements SuiteProperties {
 		// TODO: Cancel any previous outstanding suite run
 		// TODO: Test
 		this.error = null;
-		this.timeElapsed = null;
+		this.timeElapsed = 0;
 
 		let task: Task<any>;
 
@@ -540,7 +546,7 @@ export default class Suite implements SuiteProperties {
 }
 
 export function isSuite(value: any): value is Suite {
-	return value.name && value.tests && typeof value.numTests === 'number' && typeof value.hasParent === 'boolean';
+	return typeof value.name === 'string' && Array.isArray(value.tests) && typeof value.hasParent === 'boolean';
 }
 
 export function isSuiteOptions(value: any): value is SuiteOptions {

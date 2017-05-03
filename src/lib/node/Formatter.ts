@@ -9,12 +9,12 @@ export default class Formatter extends BaseFormatter {
 	 * Dereference the source from a traceline.
 	 */
 	protected _getSource(tracepath: string) {
-		let match: RegExpMatchArray;
+		let match: RegExpMatchArray | null;
 		let source: string;
 		let line: number;
-		let col: number;
-		let map: SourceMapConsumer;
-		let originalPos: { source?: string, line: number, column: number };
+		let col: number | undefined;
+		let map: SourceMapConsumer | undefined;
+		let originalPos: { source?: string, line: number, column?: number };
 		let result: string;
 
 		if (tracepath === '<anonymous>') {
@@ -28,7 +28,7 @@ export default class Formatter extends BaseFormatter {
 
 		tracepath = match[1];
 		line = Number(match[2]);
-		col = match[3] ? Number(match[3].substring(1)) : null;
+		col = match[3] ? Number(match[3].substring(1)) : undefined;
 
 		// resolve URLs to a filesystem path
 		tracepath = resolve(parse(tracepath).pathname);
@@ -74,7 +74,7 @@ let fileSources: { [path: string]: string } = {};
  * Assumes mappings are is in order by generatedLine, then by generatedColumn; maps created with
  * SourceMapConsumer.eachMapping should be in this order by default.
  */
-function getOriginalPosition(map: any, line: number, column: number): { line: number, column: number, source?: string } {
+function getOriginalPosition(map: any, line: number, column?: number): { line: number, column?: number, source?: string } {
 	let originalPosition = map.originalPositionFor({ line: line, column: column });
 
 	// if the SourceMapConsumer was able to find a location, return it
@@ -105,7 +105,7 @@ function getOriginalPosition(map: any, line: number, column: number): { line: nu
 	// Firefox, PhantomJS have no column number
 	//   - for no col number, find the largest original line number for the generated line
 
-	if (column !== null) {
+	if (column != null) {
 		// find the most likely mapping for the given generated line and column
 		let entry: MappingItem;
 		for (let i = 1; i < entries.length; i++) {
@@ -131,7 +131,7 @@ function getSourceMap(filepath: string) {
 	let rawMap: RawSourceMap;
 	let lines: string[];
 	let lastLine: string;
-	let match: RegExpMatchArray;
+	let match: RegExpMatchArray | null;
 	const sourceMapRegEx = /(?:\/{2}[#@]{1,2}|\/\*)\s+sourceMappingURL\s*=\s*(data:(?:[^;]+;)+base64,)?(\S+)/;
 
 	if (filepath in fileSourceMaps) {
@@ -166,6 +166,5 @@ function getSourceMap(filepath: string) {
 	}
 	catch (error) {
 		// this is normal for files like node.js -- just return null
-		return null;
 	}
 }

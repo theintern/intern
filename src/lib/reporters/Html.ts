@@ -70,7 +70,7 @@ export default class Html extends Reporter implements HtmlProperties {
 
 	document: Document;
 
-	protected _reportContainer: Element = null;
+	protected _reportContainer: Element;
 
 	// Div element to hold buttons above the summary table
 	protected _reportControls: Element;
@@ -389,7 +389,7 @@ export default class Html extends Reporter implements HtmlProperties {
 			const expandToggle = document.createElement('div');
 			expandToggle.className = 'linkButton';
 			expandToggle.textContent = 'Expand/collapse all';
-			this._reportControls.firstElementChild.appendChild(expandToggle);
+			this._reportControls.firstElementChild!.appendChild(expandToggle);
 
 			expandToggle.addEventListener('click', () => {
 				const shouldExpand = this._reportNode.querySelector('.collapsed') != null;
@@ -400,10 +400,10 @@ export default class Html extends Reporter implements HtmlProperties {
 			});
 
 			if (this._failedFilter) {
-				this._reportControls.lastElementChild.appendChild(this._failedFilter);
+				this._reportControls.lastElementChild!.appendChild(this._failedFilter);
 			}
 			else {
-				const failedNode = document.querySelector('.failed');
+				const failedNode = document.querySelector('.failed')!;
 				failedNode.className = 'summaryContent failed success';
 			}
 

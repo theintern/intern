@@ -49,7 +49,7 @@ export function isSuiteDescriptorFactory<T>(value: any): value is T {
 }
 
 export function createSuite<S extends typeof Suite, T extends typeof Test>(executor: Executor, descriptor: NestedSuiteDescriptor, SuiteClass: S, TestClass: T) {
-	let options: SuiteOptions = { name: null, tests: [] };
+	let options: SuiteOptions = { name: '', tests: [] };
 
 	// Initialize a new SuiteOptions object from the provided ObjectSuiteDescriptor
 	Object.keys(descriptor).filter(key => {

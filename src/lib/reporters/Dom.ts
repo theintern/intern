@@ -29,7 +29,7 @@ export default class Dom extends Reporter {
 
 	@eventHandler()
 	suiteEnd(suite: Suite) {
-		this.suiteNode = <HTMLElement> (this.suiteNode.parentNode.parentNode || this.document.body);
+		this.suiteNode = <HTMLElement> (this.suiteNode!.parentNode!.parentNode || this.document.body);
 
 		if (suite.error) {
 			this.suiteNode.appendChild(this.document.createTextNode('Suite "' + suite.id + '" failed'));

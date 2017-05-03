@@ -31,7 +31,7 @@ export default class BenchmarkTest extends Test {
 		// `options`, if present, will be a property on the test function
 		this.test = (descriptor && descriptor.test) || /* istanbul ignore next */ function () { };
 
-		const options: BenchmarkOptions = mixin({}, this.test.options, {
+		const options: BenchmarkOptions = mixin({}, this.test.options || {}, {
 			async: true,
 			setup: createLifecycle(true),
 			teardown: createLifecycle(false)
@@ -40,7 +40,8 @@ export default class BenchmarkTest extends Test {
 		if (options.defer) {
 			this.test = (function (testFunction: BenchmarkTestFunction) {
 				return function (this: BenchmarkTest, deferred?: Deferred<any>) {
-					const dfd = createDeferred(this.benchmark, deferred, options.numCallsUntilResolution);
+					// deferred is optional for compat with BenchmarkTestFunction, but it will always be defined here
+					const dfd = createDeferred(this.benchmark, deferred!, options.numCallsUntilResolution);
 					testFunction.call(this, dfd);
 				};
 			})(this.test);
@@ -129,7 +130,7 @@ export default class BenchmarkTest extends Test {
 	}
 
 	static async(testFunction: BenchmarkDeferredTestFunction, numCallsUntilResolution?: number) {
-		testFunction.options = mixin({}, testFunction.options, {
+		testFunction.options = mixin({}, testFunction.options || {}, {
 			defer: true,
 			numCallsUntilResolution: numCallsUntilResolution
 		});
@@ -195,17 +196,15 @@ const createLifecycle = (before: boolean) => {
 };
 
 function createDeferred(benchmark: Benchmark, deferred: Deferred<any>, numCallsUntilResolution?: number) {
-	if (!numCallsUntilResolution) {
-		numCallsUntilResolution = 1;
-	}
+	let remainingCalls = numCallsUntilResolution || 1;
 
 	return {
 		resolve() {
-			--numCallsUntilResolution;
-			if (numCallsUntilResolution === 0) {
+			--remainingCalls;
+			if (remainingCalls === 0) {
 				deferred.resolve();
 			}
-			else if (numCallsUntilResolution < 0) {
+			else if (remainingCalls < 0) {
 				throw new Error('resolve called too many times');
 			}
 		},

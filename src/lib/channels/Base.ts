@@ -1,11 +1,11 @@
 import { RemoteEvents } from '../RemoteSuite';
 import Task from '@dojo/core/async/Task';
 
-abstract class BaseChannel {
+export default abstract class BaseChannel {
 	readonly url: string;
 	readonly sessionId: string;
 
-	constructor(options?: ChannelOptions) {
+	constructor(options: ChannelOptions) {
 		this.url = options.url;
 		this.sessionId = options.sessionId;
 	}
@@ -23,8 +23,6 @@ abstract class BaseChannel {
 
 	protected abstract _sendData(name: keyof RemoteEvents, data: any): Task<void>;
 }
-
-export default BaseChannel;
 
 export interface ChannelOptions {
 	sessionId: string;

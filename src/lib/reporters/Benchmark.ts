@@ -31,29 +31,14 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 
 	mode: string;
 
-	sessions: {
-		[sessionId: string]: {
-			suites: {
-				[suiteId: string]: {
-					numBenchmarks: number;
-					numFailedBenchmarks: number;
-				}
-			};
-			environment?: BenchmarkEnvironment;
-			[key: string]: any;
-		}
-	};
+	sessions: { [sessionId: string]: SessionInfo };
 
 	verbosity: number;
 
 	thresholds: BenchmarkThresholds;
 
-	constructor(executor: Executor, config: BenchmarkReporterOptions = {}) {
+	constructor(executor: Executor, config: BenchmarkReporterOptions) {
 		super(executor, config);
-
-		this.mode = config.mode;
-		this.thresholds = config.thresholds;
-		this.verbosity = config.verbosity;
 
 		// In test mode, try to load benchmark data for comparison
 		if (this.mode === 'test') {
@@ -68,7 +53,10 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		}
 
 		if (!this.baseline) {
-			this.baseline = { environments: {} };
+			this.baseline = { environments: {}, tests: {} };
+		}
+		else if (!this.baseline.tests) {
+			this.baseline.tests = {};
 		}
 
 		// Cache environments by session ID so we can look them up again when serialized tests come back from remote
@@ -81,27 +69,31 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		let session = this.sessions[sessionId];
 
 		if (!session) {
-			let environment: BenchmarkEnvironment;
-			session = this.sessions[sessionId] = {
-				suites: {}
-			};
+			let client: string;
+			let version: string;
+			let platform: string;
 
 			if (testOrSuite.sessionId) {
-				environment = session.environment = {
-					client: testOrSuite.remote.environmentType.browserName,
-					version: testOrSuite.remote.environmentType.version,
-					platform: testOrSuite.remote.environmentType.platform
-				};
+				const environmentType = testOrSuite.remote.environmentType!;
+				client = environmentType.browserName;
+				version = environmentType.version;
+				platform = environmentType.platform;
 			}
 			else {
-				environment = session.environment = {
-					client: process.title,
-					version: process.version,
-					platform: process.platform
-				};
+				client = process.title;
+				version = process.version;
+				platform = process.platform;
 			}
 
-			session.environment.id = environment.client + ':' + environment.version + ':' + environment.platform;
+			session = this.sessions[sessionId] = {
+				suites: {},
+				environment: {
+					client,
+					version,
+					platform,
+					id: client + ':' + version + ':' + platform
+				}
+			};
 		}
 
 		return session;
@@ -114,7 +106,10 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 				existingBaseline = JSON.parse(readFileSync(this.filename, { encoding: 'utf8' }));
 			}
 			catch (error) {
-				existingBaseline = { environments: {} };
+				existingBaseline = {
+					environments: {},
+					tests: {}
+				};
 			}
 
 			// Merge the newly recorded baseline data into the existing baseline data and write it back out to
@@ -159,15 +154,18 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 			const environmentName = environment.client + ' ' + environment.version + ' on ' + environment.platform;
 			this.console.log((this.mode === 'baseline' ? 'Baselining' : 'Benchmark testing') + ' ' + environmentName);
 
+			const baselineEnvironments = this.baseline.environments;
+
 			if (this.mode === 'baseline') {
-				this.baseline.environments[environment.id] = {
+				baselineEnvironments[environment.id] = <BaselineEnvironment>{
 					client: environment.client,
 					version: environment.version,
 					platform: environment.platform,
-					tests: {}
+					tests: {},
+					stats: {}
 				};
 			}
-			else if (!this.baseline.environments[environment.id]) {
+			else if (baselineEnvironments[environment.id]) {
 				this.console.warn('No baseline data for ' + environmentName + '!');
 			}
 		}
@@ -180,16 +178,18 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 	}
 
 	testPass(test: Test, benchmark?: BenchmarkData) {
-		const checkTest = (baseline: BenchmarkData) => {
+		const checkTest = (baseline: BenchmarkData, benchmark: BenchmarkData) => {
 			let warn: string[] = [];
 			let fail: string[] = [];
 			let list: string[];
 
 			const baselineMean = baseline.stats.mean;
+			const thresholds = this.thresholds || {};
 			let percentDifference = 100 * (benchmark.stats.mean - baselineMean) / baselineMean;
-			if (Math.abs(percentDifference) > this.thresholds.warn.mean) {
+
+			if (thresholds.warn && thresholds.warn.mean && Math.abs(percentDifference) > thresholds.warn.mean) {
 				list = warn;
-				if (Math.abs(percentDifference) > this.thresholds.fail.mean) {
+				if (thresholds.fail && thresholds.fail.mean && Math.abs(percentDifference) > thresholds.fail.mean) {
 					list = fail;
 				}
 				list.push('Execution time is ' + percentDifference.toFixed(1) + '% off');
@@ -198,9 +198,9 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 			const baselineRme = baseline.stats.rme;
 			// RME is already a percent
 			percentDifference = benchmark.stats.rme - baselineRme;
-			if (Math.abs(percentDifference) > this.thresholds.warn.rme) {
+			if (thresholds.warn && thresholds.warn.rme && Math.abs(percentDifference) > thresholds.warn.rme) {
 				list = warn;
-				if (Math.abs(percentDifference) > this.thresholds.fail.rme) {
+				if (thresholds.fail && thresholds.fail.rme && Math.abs(percentDifference) > thresholds.fail.rme) {
 					list = fail;
 				}
 				list.push('RME is ' + percentDifference.toFixed(1) + '% off');
@@ -232,8 +232,11 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		const suiteInfo = session.suites[test.parentId];
 		suiteInfo.numBenchmarks++;
 
+		const baselineEnvironments = this.baseline.environments;
+		const baseline = baselineEnvironments[environment.id]!;
+
 		if (this.mode === 'baseline') {
-			this.baseline.environments[environment.id].tests[test.id] = {
+			baseline.tests[test.id] = {
 				hz: benchmark.hz,
 				times: benchmark.times,
 				stats: {
@@ -247,14 +250,15 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 				benchmark.stats.rme.toFixed(2), '%');
 		}
 		else {
-			let baseline = this.baseline.environments[environment.id];
 			if (baseline) {
 				const testData = baseline.tests[test.id];
-				const result = checkTest(testData);
-				this.executor.log('Expected time per run:', formatSeconds(baseline.stats.mean), '\xb1',
-					baseline.stats.rme.toFixed(2), '%');
-				this.executor.log('Actual time per run:', formatSeconds(benchmark.stats.mean), '\xb1',
-					benchmark.stats.rme.toFixed(2), '%');
+				const result = checkTest(testData, benchmark);
+				const baselineStats = baseline.stats;
+				const benchmarkStats = baseline.stats;
+				this.executor.log('Expected time per run:', formatSeconds(baselineStats.mean), '\xb1',
+					baselineStats.rme.toFixed(2), '%');
+				this.executor.log('Actual time per run:', formatSeconds(benchmarkStats.mean), '\xb1',
+					benchmarkStats.rme.toFixed(2), '%');
 
 				if (!result) {
 					suiteInfo.numFailedBenchmarks++;
@@ -270,7 +274,9 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		suiteInfo.numFailedBenchmarks++;
 
 		this.console.error('ERROR: ' + test.id);
-		this.console.error(this.executor.formatter.format(test.error));
+		if (test.error) {
+			this.console.error(this.executor.formatter.format(test.error));
+		}
 	}
 }
 
@@ -297,19 +303,46 @@ export interface BenchmarkThresholds {
 	};
 }
 
-export interface BenchmarkEnvironment {
+export interface BaselineEnvironment {
 	client: string;
 	version: string;
 	platform: string;
-	id?: string;
-	tests?: { [testId: string]: BenchmarkData };
-	stats?: _Benchmark.Stats;
+	tests: { [testId: string]: BenchmarkData };
+	stats: _Benchmark.Stats;
 }
 
 export interface BenchmarkBaseline {
-	environments?: { [key: string]: BenchmarkEnvironment };
+	environments: { [key: string]: BaselineEnvironment };
+	tests: { [key: string]: BenchmarkData };
 	[key: string]: any;
 }
+
+export interface SesssionEnvironment {
+	client: string;
+	version: string;
+	platform: string;
+	id: string;
+}
+
+export interface SessionInfo {
+	suites: {
+		[suiteId: string]: {
+			numBenchmarks: number;
+			numFailedBenchmarks: number;
+		}
+	};
+	environment: SesssionEnvironment;
+	[key: string]: any;
+}
+
+export interface BenchmarkReporterProperties extends ReporterProperties {
+	filename: string;
+	mode: string;
+	thresholds: BenchmarkThresholds;
+	verbosity: number;
+}
+
+export type BenchmarkReporterOptions = Partial<BenchmarkReporterProperties>;
 
 // jshint node:true
 function formatSeconds(value: number) {
@@ -336,12 +369,3 @@ function formatSeconds(value: number) {
 
 	return value.toFixed(3) + units;
 }
-
-export interface BenchmarkReporterProperties extends ReporterProperties {
-	filename: string;
-	mode: string;
-	thresholds: BenchmarkThresholds;
-	verbosity: number;
-}
-
-export type BenchmarkReporterOptions = Partial<BenchmarkReporterProperties>;

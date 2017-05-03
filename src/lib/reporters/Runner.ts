@@ -281,7 +281,8 @@ export default class Runner extends Coverage {
 
 	@eventHandler()
 	tunnelDownloadProgress(message: TunnelMessage) {
-		this.charm.write('Tunnel download: ' + (message.progress.received / message.progress.total * 100).toFixed(3) + '%\r');
+		const progress = message.progress!;
+		this.charm.write('Tunnel download: ' + (progress.received / progress.total * 100).toFixed(3) + '%\r');
 	}
 
 	@eventHandler()

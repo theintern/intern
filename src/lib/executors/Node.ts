@@ -1,4 +1,4 @@
-import { Config as BaseConfig, Events, GenericExecutor, initialize } from './Executor';
+import Executor, { Config as BaseConfig, Events, initialize } from './Executor';
 import Task from '@dojo/core/async/Task';
 import instrument from '../instrument';
 import { parseValue } from '../common/util';
@@ -15,15 +15,26 @@ import Promise from '@dojo/shim/Promise';
 /**
  * The Node executor is used to run unit tests in a Node environment.
  */
-export class GenericNode<E extends Events, C extends Config> extends GenericExecutor<E, C> {
-	constructor(config: C) {
-		super(config);
+export default class Node<E extends Events = Events, C extends Config = Config> extends Executor<E, C> {
+	static initialize(config?: Partial<Config>) {
+		return initialize<Events, Config, Node>(Node, config);
+	}
+
+	constructor(config?: Partial<C>) {
+		super(<C>{
+			basePath: process.cwd() + sep,
+			nodeSuites: <string[]>[]
+		});
+
+		if (config) {
+			this.configure(config);
+		}
 
 		this.registerReporter('pretty', Pretty);
 		this.registerReporter('simple', Simple);
 		this.registerReporter('benchmark', Benchmark);
 
-		this._formatter = new Formatter(config);
+		this._formatter = new Formatter(this.config);
 
 		reportUncaughtErrors(this);
 	}
@@ -80,13 +91,10 @@ export class GenericNode<E extends Events, C extends Config> extends GenericExec
 		return super._resolveConfig().then(() => {
 			const config = this.config;
 
-			if (!config.basePath) {
-				config.basePath = process.cwd() + sep;
-			}
-
 			if (!config.internPath) {
 				config.internPath = dirname(dirname(__dirname));
 			}
+
 			config.internPath = `${relative(process.cwd(), config.internPath)}${sep}`;
 
 			if (config.reporters.length === 0) {
@@ -109,7 +117,7 @@ export class GenericNode<E extends Events, C extends Config> extends GenericExec
 					config[property] = expanded;
 				});
 			// return void
-			})).then(() => null);
+			})).then(() => {});
 		});
 	}
 
@@ -143,21 +151,14 @@ export class GenericNode<E extends Events, C extends Config> extends GenericExec
 	}
 }
 
-/**
- * The Node executor is used to run unit tests in a browser.
- */
-export default class Node extends GenericNode<Events, Config> {
-	static initialize(config?: Config) {
-		return initialize<Events, Config, Node>(Node, config);
-	}
-}
-
 export { Events };
 
 export interface Config extends BaseConfig {
+	basePath: string;
+
 	/**
 	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that
 	 * will only be loaded in Node environments.
 	 */
-	nodeSuites?: string[];
+	nodeSuites: string[];
 }

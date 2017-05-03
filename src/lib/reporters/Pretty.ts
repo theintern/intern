@@ -61,12 +61,11 @@ export default class Pretty extends Reporter implements PrettyProperties {
 			'×': ANSI_COLOR.red,
 			'~': ANSI_COLOR.reset,
 			'⚠': ANSI_COLOR.yellow
-		}, config.colorReplacement);
+		}, config.colorReplacement || {});
 		this._header = '';
 		this._reports = {};
 		this._log = [];
 		this.tunnelState = '';
-		this._renderTimeout = undefined;
 		this._total = new Report();
 	}
 
@@ -122,7 +121,7 @@ export default class Pretty extends Reporter implements PrettyProperties {
 
 	@eventHandler()
 	coverage(data: CoverageMessage) {
-		const reporter = this._reports[data.sessionId];
+		const reporter = this._reports[data.sessionId || ''];
 		reporter && reporter.coverage.add(data.coverage);
 		this._total.coverage.add(data.coverage);
 	}
@@ -168,13 +167,13 @@ export default class Pretty extends Reporter implements PrettyProperties {
 
 	@eventHandler()
 	tunnelDownloadProgress(message: TunnelMessage) {
-		const progress = message.progress;
+		const progress = message.progress!;
 		this.tunnelState = 'Downloading ' + (progress.received / progress.total * 100).toFixed(2) + '%';
 	}
 
 	@eventHandler()
 	tunnelStatus(message: TunnelMessage) {
-		this.tunnelState = message.status;
+		this.tunnelState = message.status!;
 	}
 
 	@eventHandler()
@@ -205,7 +204,7 @@ export default class Pretty extends Reporter implements PrettyProperties {
 	 */
 	private _getReporter(suite: Suite): Report {
 		if (!this._reports[suite.sessionId]) {
-			this._reports[suite.sessionId] = new Report(suite.remote && suite.remote.environmentType.toString());
+			this._reports[suite.sessionId] = new Report(suite.remote && suite.remote.environmentType!.toString());
 		}
 		return this._reports[suite.sessionId];
 	}
@@ -369,8 +368,8 @@ export type PrettyOptions = Partial<PrettyProperties>;
  * @param sessionId the sessionId associated with the report
  */
 export class Report {
-	environment: string;
-	sessionId: string;
+	environment: string | undefined;
+	sessionId: string | undefined;
 	numTotal = 0;
 	numPassed = 0;
 	numFailed = 0;

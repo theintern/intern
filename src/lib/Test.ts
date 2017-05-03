@@ -14,21 +14,21 @@ export default class Test implements TestProperties {
 
 	parent: Suite;
 
-	skipped: string;
+	skipped: string | undefined;
 
 	test: TestFunction;
 
-	isAsync = false;
+	isAsync: boolean;
 
-	timeElapsed = 0;
+	timeElapsed: number;
 
-	error: InternError;
+	error: InternError | undefined;
 
 	protected _timeout: number;
 
-	protected _runTask: Task<any>;
+	protected _runTask: Task<any> | null;
 
-	protected _timer: number;
+	protected _timer: number | null;
 
 	protected _usesRemote = false;
 
@@ -110,10 +110,7 @@ export default class Test implements TestProperties {
 			this.timeout = timeout;
 		}
 
-		if (!numCallsUntilResolution) {
-			numCallsUntilResolution = 1;
-		}
-
+		let remainingCalls = numCallsUntilResolution || 1;
 		const dfd = new Deferred();
 		const oldResolve = dfd.resolve;
 
@@ -122,11 +119,11 @@ export default class Test implements TestProperties {
 		 * `numCallsUntilResolution` parameter of the original `async` call.
 		 */
 		dfd.resolve = function (this: any) {
-			--numCallsUntilResolution;
+			--remainingCalls;
 			if (numCallsUntilResolution === 0) {
 				oldResolve.apply(this, arguments);
 			}
-			else if (numCallsUntilResolution < 0) {
+			else if (remainingCalls < 0) {
 				throw new Error('resolve called too many times');
 			}
 		};
@@ -146,7 +143,9 @@ export default class Test implements TestProperties {
 		timeout = timeout == null ? this.timeout : timeout;
 
 		if (this._runTask) {
-			clearTimeout(this._timer);
+			if (this._timer) {
+				clearTimeout(this._timer);
+			}
 			const timer = setTimeout(() => {
 				if (this._runTask) {
 					this._runTask.cancel();
@@ -172,9 +171,9 @@ export default class Test implements TestProperties {
 		this._usesRemote = false;
 		this.hasPassed = false;
 		this.isAsync = false;
-		this.error = null;
-		this.skipped = null;
-		this.timeElapsed = null;
+		this.error = undefined;
+		this.skipped = undefined;
+		this.timeElapsed = 0;
 
 		return this.executor.emit('testStart', this)
 			.then(() => {
@@ -230,7 +229,9 @@ export default class Test implements TestProperties {
 			})
 			.finally(() => {
 				this.timeElapsed = Date.now() - startTime;
-				clearTimeout(this._timer);
+				if (this._timer) {
+					clearTimeout(this._timer);
+				}
 				this._timer = this._runTask = null;
 			})
 			.then(
@@ -269,7 +270,7 @@ export default class Test implements TestProperties {
 	}
 
 	toJSON() {
-		let error: InternError = null;
+		let error: InternError | undefined;
 		if (this.error) {
 			error = {
 				name: this.error.name,
@@ -299,7 +300,7 @@ export default class Test implements TestProperties {
 }
 
 export function isTest(value: any): value is Test {
-	return typeof value.hasPassed === 'boolean' && typeof value.timeElapsed === 'number';
+	return typeof value.hasPassed === 'boolean' && typeof value.test === 'function';
 }
 
 export function isTestOptions(value: any): value is TestOptions {
@@ -314,7 +315,7 @@ export interface TestProperties {
 	hasPassed: boolean;
 	name: string;
 	parent: Suite;
-	skipped: string;
+	skipped: string | undefined;
 	test: TestFunction;
 }
 

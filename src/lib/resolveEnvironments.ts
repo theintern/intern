@@ -166,7 +166,7 @@ function getVersions(environment: EnvironmentOptions, available: NormalizedEnvir
  * @param available a list of environment available on the target service
  * @returns the environment with resolved version aliases
  */
-function resolveVersions(environment: FlatEnvironment, available: NormalizedEnvironment[]): string | string[] {
+function resolveVersions(environment: FlatEnvironment, available?: NormalizedEnvironment[]): string | string[] | undefined {
 	let versionSpec = environment.version;
 	let versions: string[];
 	available = available || [];

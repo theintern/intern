@@ -9,18 +9,22 @@ import Promise from '@dojo/shim/Promise';
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
 
-function getTestFunction(testFunc: BenchmarkTestFunction, isAsync?: boolean) {
+type FullBenchmarkTestFunction = BenchmarkTestFunction & { options: any };
+
+function getTestFunction(testFunc: BenchmarkTestFunction, isAsync?: boolean): FullBenchmarkTestFunction {
 	if (isAsync) {
 		const originalFunc = testFunc;
 		testFunc = BenchmarkTest.async(function (dfd: Deferred<any>) {
 			setTimeout(dfd.callback(originalFunc.bind(this)), 200);
 		});
 	}
-	testFunc.options = testFunc.options || {};
+
+	const fullTestFunc: FullBenchmarkTestFunction = <FullBenchmarkTestFunction>testFunc;
+	fullTestFunc.options = testFunc.options || {};
 	// Decrease the time of the benchmark so that browsers don't
 	// time out with a "Script on the page is taking too long" alert
-	testFunc.options.maxTime = 1;
-	return testFunc;
+	fullTestFunc.options.maxTime = 1;
+	return fullTestFunc;
 }
 
 interface TestOptions {
@@ -28,12 +32,12 @@ interface TestOptions {
 }
 
 function createTest(descriptor: BenchmarkTestOptions, options?: TestOptions) {
-	options = options || <TestOptions>{};
+	const _options = options || <TestOptions>{};
 	if (!descriptor.parent) {
 		descriptor.parent = <any>{
 			executor: <any>{
 				emit: (...args: any[]) => {
-					options.emit && options.emit(...args);
+					_options.emit && _options.emit(...args);
 					return Promise.resolve();
 				}
 			}
@@ -213,14 +217,14 @@ registerSuite({
 						test: getTestFunction(function () { })
 					});
 					const expected = {
-						error: <Error>null,
+						error: undefined,
 						id: 'parent id - no error',
 						parentId: 'parent id',
 						name: 'no error',
 						sessionId: 'abcd',
 						timeout: 30000,
 						hasPassed: true,
-						skipped: <string>undefined
+						skipped: undefined
 					};
 
 					return test.run().then(function () {
@@ -334,12 +338,22 @@ registerSuite({
 			}
 
 			interface Results {
-				outerBefore?: number;
-				innerBefore?: number;
-				test?: number;
-				innerAfter?: number;
-				outerAfter?: number;
+				outerBefore: number;
+				innerBefore: number;
+				test: number;
+				innerAfter: number;
+				outerAfter: number;
 				[key: string]: number;
+			}
+
+			function createResults() {
+				return <Results>{
+					outerBefore: 0,
+					innerBefore: 0,
+					test: 0,
+					innerAfter: 0,
+					outerAfter: 0
+				};
 			}
 
 			function testSuite(isAsync = false) {
@@ -351,7 +365,7 @@ registerSuite({
 
 						order() {
 							let counter = 0;
-							let orders: Results = {};
+							let orders = createResults();
 
 							function recordOrder(name: string) {
 								if (!(name in orders)) {
@@ -370,7 +384,7 @@ registerSuite({
 						},
 
 						context() {
-							let contexts: Results = {};
+							let contexts = createResults();
 
 							function recordContext(name: string, context: any) {
 								if (!(name in contexts)) {

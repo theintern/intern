@@ -64,10 +64,10 @@ export default function getInterface(executor: Executor): TddInterface {
 	};
 }
 
-let currentSuite: Suite;
+let currentSuite: Suite | null;
 
 function registerSuite(name: string, factory: (suite: Suite) => void) {
-	const parent = currentSuite;
+	const parent = currentSuite!;
 
 	currentSuite = new Suite({ name });
 	parent.add(currentSuite);

@@ -15,7 +15,10 @@ import * as chai from 'chai';
 import global from '@dojo/core/global';
 import Deferred from '../Deferred';
 
-export abstract class GenericExecutor<E extends Events, C extends Config> {
+/**
+ * This is the default executor class.
+ */
+export default abstract class Executor<E extends Events = Events, C extends Config = Config> {
 	protected _assertions: { [name: string]: any };
 
 	protected _availableReporters: { [name: string]: typeof Reporter };
@@ -43,13 +46,24 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 
 	protected _runTask: Task<void>;
 
-	constructor(config: C) {
+	constructor(config?: Partial<C>) {
 		this._config = <C>{
+			bail: false,
+			baseline: false,
+			benchmark: false,
+			debug: false,
+			defaultTimeout: 30000,
+			excludeInstrumentation: /(?:node_modules|browser|tests)\//,
+			filterErrorStack: false,
+			grep: new RegExp(''),
 			instrumenterOptions: {
 				coverageVariable: '__internCoverage'
 			},
-			defaultTimeout: 30000,
-			excludeInstrumentation: /(?:node_modules|browser|tests)\//
+			loader: { script: 'default' },
+			name: 'intern',
+			preload: <string[]>[],
+			reporters: <ReporterSpec[]>[],
+			suites: <string[]>[]
 		};
 
 		this._availableReporters = {};
@@ -116,7 +130,7 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 	 * Note that non-object properties will replace existing properties. Object propery values will be deeply mixed into
 	 * any existing value.
 	 */
-	configure(config: C | {[key in keyof Config]: string | string[] | true }) {
+	configure(config: Partial<C>) {
 		Object.keys(config).forEach((key: keyof Config) => {
 			this._processOption(key, config[key]);
 		});
@@ -395,18 +409,18 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 	protected _loadSuites(config?: Config) {
 		config = config || this.config;
 
-		const loader = config.loader.script;
-		switch (loader) {
+		let loader = config.loader;
+		switch (loader.script) {
 			case 'default':
 			case 'dojo':
 			case 'dojo2':
 			case 'systemjs':
-				config.loader.script = `${this.config.internPath}loaders/${loader}.js`;
+				loader.script = `${config.internPath}loaders/${loader.script}.js`;
 		}
 
-		return this.loadScript(config.loader.script).then(() => {
+		return this.loadScript(loader.script).then(() => {
 			if (!this._loader) {
-				throw new Error(`Loader script ${config.loader.script} did not register a loader callback`);
+				throw new Error(`Loader script ${loader.script} did not register a loader callback`);
 			}
 			return Task.resolve(this._loader(config || this.config));
 		});
@@ -516,7 +530,7 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 	}
 
 	/**
-	 * Resolve the config object
+	 * Resolve the config object.
 	 */
 	protected _resolveConfig() {
 		const config = this.config;
@@ -525,37 +539,17 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 			config.internPath = normalizePathEnding(config.internPath);
 		}
 
-		if (!config.loader) {
-			config.loader = { script: 'default' };
-		}
-
-		if (config.grep == null) {
-			config.grep = new RegExp('');
-		}
-
-		if (config.suites == null) {
-			config.suites = [];
-		}
-
-		if (config.reporters == null) {
-			config.reporters = [];
-		}
-
 		if (config.benchmark) {
 			config.benchmarkConfig = deepMixin({
 				id: 'Benchmark',
 				filename: 'baseline.json',
-				mode: 'test',
+				mode: 'test' as 'test',
 				thresholds: {
 					warn: { rme: 3, mean: 5 },
 					fail: { rme: 6, mean: 10 }
 				},
 				verbosity: 0
-			}, config.benchmarkConfig);
-		}
-
-		if (!config.reporters) {
-			config.reporters = [];
+			}, config.benchmarkConfig || {});
 		}
 
 		return resolvedTask;
@@ -569,9 +563,9 @@ export abstract class GenericExecutor<E extends Events, C extends Config> {
 	}
 }
 
-export function initialize<E extends Events, C extends Config, T extends GenericExecutor<E, C>>(
+export function initialize<E extends Events, C extends Config, T extends Executor<E, C>>(
 	ExecutorClass: ExecutorConstructor<E, C, T>,
-	config?: C
+	config?: Partial<C>
 ): T {
 	if (global['intern']) {
 		throw new Error('Intern has already been initialized in this environment');
@@ -581,24 +575,18 @@ export function initialize<E extends Events, C extends Config, T extends Generic
 	return executor;
 }
 
-/**
- * This is the default executor class.
- */
-export abstract class Executor extends GenericExecutor<Events, Config> { }
-export default Executor;
-
-export interface ExecutorConstructor<E extends Events, C extends Config, T extends GenericExecutor<E, C>> {
-	new (config: C): T;
+export interface ExecutorConstructor<E extends Events, C extends Config, T extends Executor<E, C>> {
+	new (config?: Partial<C>): T;
 }
 
 export { Handle };
 
 export interface Config {
 	/** If true, Intern will exit as soon as any test fails. */
-	bail?: boolean;
+	bail: boolean;
 
-	baseline?: boolean;
-	benchmark?: boolean;
+	baseline: boolean;
+	benchmark: boolean;
 	benchmarkConfig?: {
 		id: string;
 		filename: string;
@@ -611,21 +599,21 @@ export interface Config {
 	};
 
 	/** If true, emit and display debug messages. */
-	debug?: boolean;
+	debug: boolean;
 
 	/** The default timeout for async tests, in ms. */
-	defaultTimeout?: number;
+	defaultTimeout: number;
 
 	/** A regexp matching file names that shouldn't be instrumented, or `true` to disable instrumentation. */
-	excludeInstrumentation?: true | RegExp;
+	excludeInstrumentation: true | RegExp;
 
 	/** If true, filter external library calls and runtime calls out of error stacks. */
-	filterErrorStack?: boolean;
+	filterErrorStack: boolean;
 
 	/** A regexp matching tests that should be run. It defaults to `/./` (which matches everything). */
-	grep?: RegExp;
+	grep: RegExp;
 
-	instrumenterOptions?: any;
+	instrumenterOptions: any;
 
 	/**
 	 * A loader to run before testing.
@@ -639,27 +627,32 @@ export interface Config {
 	 * loader: { script: 'dojo', config: { packages: [ { name: 'app', location: './js' } ] } }
 	 * ```
 	 */
-	loader?: { script: string, config?: { [key: string]: any } };
+	loader: { script: string, config?: { [key: string]: any } };
 
 	/** A top-level name for this configuration. */
-	name?: string;
+	name: string;
 
 	/**
 	 * A list of scripts to load before suites are loaded. These must be simple scripts, not modules, as a module loader
 	 * may not be available when these are loaded. Also, these scripts should be synchronous. If they need to run async
 	 * actions, they can register listeners for the 'runBefore' or 'runAfter' executor events.
 	 */
-	preload?: string[];
+	preload: string[];
 
 	/**
 	 * A list of reporter names or descriptors. These reporters will be loaded and instantiated before testing begins.
 	 */
-	reporters?: { reporter: string, options?: ReporterOptions }[];
+	reporters: ReporterSpec[];
 
 	/** A list of paths to suite scripts (or some other suite identifier usable by the suite loader). */
-	suites?: string[];
+	suites: string[];
 
 	[key: string]: any;
+}
+
+export interface ReporterSpec {
+	reporter: string;
+	options?: ReporterOptions;
 }
 
 export interface Listener<T> {

@@ -11,7 +11,10 @@ import Executor from '../executors/Executor';
  * Expand a list of glob patterns into a flat file list
  */
 export function expandFiles(patterns?: string[]) {
-	if (!Array.isArray(patterns)) {
+	if (!patterns) {
+		patterns = [];
+	}
+	else if (!Array.isArray(patterns)) {
 		patterns = [patterns];
 	}
 	return Promise.all(patterns.map(pattern => {

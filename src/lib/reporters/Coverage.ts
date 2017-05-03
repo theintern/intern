@@ -5,19 +5,7 @@ import Report = require('istanbul/lib/report');
 import { Watermarks } from 'istanbul';
 import Reporter, { ReporterProperties } from './Reporter';
 
-export interface CoverageProperties extends ReporterProperties {
-	filename: string;
-	watermarks: Watermarks;
-	ReportClass: ReportConstructor;
-}
-
-export interface ReportConstructor {
-	new (config?: any): Report;
-}
-
-export type CoverageOptions = Partial<CoverageProperties>;
-
-abstract class Coverage extends Reporter implements CoverageProperties {
+export default abstract class Coverage extends Reporter implements CoverageProperties {
 	watermarks: Watermarks;
 
 	filename: string;
@@ -50,4 +38,14 @@ abstract class Coverage extends Reporter implements CoverageProperties {
 	}
 }
 
-export default Coverage;
+export interface CoverageProperties extends ReporterProperties {
+	filename: string;
+	watermarks: Watermarks;
+	ReportClass: ReportConstructor;
+}
+
+export interface ReportConstructor {
+	new (config?: any): Report;
+}
+
+export type CoverageOptions = Partial<CoverageProperties>;
