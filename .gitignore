@@ -11,3 +11,4 @@ _tests/
 src/**/*.js
 benchmark.json
 baselines.json
+baseline.json

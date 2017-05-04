@@ -19,7 +19,8 @@
  */
 import { readFileSync, writeFileSync } from 'fs';
 import Executor from '../executors/Executor';
-import Reporter, { ReporterProperties } from './Reporter';
+import Reporter, { eventHandler, ReporterProperties } from './Reporter';
+import BenchmarkTest from '../BenchmarkTest';
 import Test from '../Test';
 import Suite from '../Suite';
 import _Benchmark = require('benchmark');
@@ -99,6 +100,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		return session;
 	}
 
+	@eventHandler()
 	runEnd() {
 		if (this.mode === 'baseline') {
 			let existingBaseline: BenchmarkBaseline;
@@ -122,6 +124,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		}
 	}
 
+	@eventHandler()
 	suiteEnd(suite: Suite) {
 		const session = this._getSession(suite);
 
@@ -145,6 +148,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		}
 	}
 
+	@eventHandler()
 	suiteStart(suite: Suite) {
 		const session = this._getSession(suite);
 
@@ -152,9 +156,9 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		if (!suite.hasParent) {
 			const environment = session.environment;
 			const environmentName = environment.client + ' ' + environment.version + ' on ' + environment.platform;
-			this.console.log((this.mode === 'baseline' ? 'Baselining' : 'Benchmark testing') + ' ' + environmentName);
-
 			const baselineEnvironments = this.baseline.environments;
+
+			this.console.log((this.mode === 'baseline' ? 'Baselining' : 'Benchmark testing') + ' ' + environmentName);
 
 			if (this.mode === 'baseline') {
 				baselineEnvironments[environment.id] = <BaselineEnvironment>{
@@ -165,7 +169,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 					stats: {}
 				};
 			}
-			else if (baselineEnvironments[environment.id]) {
+			else if (!baselineEnvironments[environment.id]) {
 				this.console.warn('No baseline data for ' + environmentName + '!');
 			}
 		}
@@ -177,105 +181,108 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		}
 	}
 
-	testPass(test: Test, benchmark?: BenchmarkData) {
-		const checkTest = (baseline: BenchmarkData, benchmark: BenchmarkData) => {
-			let warn: string[] = [];
-			let fail: string[] = [];
-			let list: string[];
+	@eventHandler()
+	testEnd(test: BenchmarkTest) {
+		if (test.error) {
+			const session = this._getSession(test);
+			const suiteInfo = session.suites[test.parentId];
+			suiteInfo.numBenchmarks++;
+			suiteInfo.numFailedBenchmarks++;
 
-			const baselineMean = baseline.stats.mean;
-			const thresholds = this.thresholds || {};
-			let percentDifference = 100 * (benchmark.stats.mean - baselineMean) / baselineMean;
-
-			if (thresholds.warn && thresholds.warn.mean && Math.abs(percentDifference) > thresholds.warn.mean) {
-				list = warn;
-				if (thresholds.fail && thresholds.fail.mean && Math.abs(percentDifference) > thresholds.fail.mean) {
-					list = fail;
-				}
-				list.push('Execution time is ' + percentDifference.toFixed(1) + '% off');
+			this.console.error('ERROR: ' + test.id);
+			if (test.error) {
+				this.console.error(this.executor.formatter.format(test.error));
 			}
-
-			const baselineRme = baseline.stats.rme;
-			// RME is already a percent
-			percentDifference = benchmark.stats.rme - baselineRme;
-			if (thresholds.warn && thresholds.warn.rme && Math.abs(percentDifference) > thresholds.warn.rme) {
-				list = warn;
-				if (thresholds.fail && thresholds.fail.rme && Math.abs(percentDifference) > thresholds.fail.rme) {
-					list = fail;
-				}
-				list.push('RME is ' + percentDifference.toFixed(1) + '% off');
-			}
-
-			if (fail.length) {
-				this.console.error('FAIL ' + test.id + ' (' + fail.join(', ') + ')');
-				return false;
-			}
-			else if (warn.length) {
-				this.console.warn('WARN ' + test.id + ' (' + warn.join(', ') + ')');
-			}
-			else {
-				this.console.log('PASS ' + test.id);
-			}
-
-			return true;
-		};
-
-		// Ignore non-benchmark tests
-		if (!benchmark) {
-			this.executor.log('Ignoring non-benchmark test', test.id);
-			return;
-		}
-
-		const session = this._getSession(test);
-		const environment = session.environment;
-
-		const suiteInfo = session.suites[test.parentId];
-		suiteInfo.numBenchmarks++;
-
-		const baselineEnvironments = this.baseline.environments;
-		const baseline = baselineEnvironments[environment.id]!;
-
-		if (this.mode === 'baseline') {
-			baseline.tests[test.id] = {
-				hz: benchmark.hz,
-				times: benchmark.times,
-				stats: {
-					rme: benchmark.stats.rme,
-					moe: benchmark.stats.moe,
-					mean: benchmark.stats.mean
-				}
-			};
-			this.console.log('Baselined ' + test.name);
-			this.executor.log('Time per run:', formatSeconds(benchmark.stats.mean), '\xb1',
-				benchmark.stats.rme.toFixed(2), '%');
 		}
 		else {
-			if (baseline) {
-				const testData = baseline.tests[test.id];
-				const result = checkTest(testData, benchmark);
-				const baselineStats = baseline.stats;
-				const benchmarkStats = baseline.stats;
-				this.executor.log('Expected time per run:', formatSeconds(baselineStats.mean), '\xb1',
-					baselineStats.rme.toFixed(2), '%');
-				this.executor.log('Actual time per run:', formatSeconds(benchmarkStats.mean), '\xb1',
-					benchmarkStats.rme.toFixed(2), '%');
+			const checkTest = (baseline: BenchmarkData, benchmark: BenchmarkData) => {
+				let warn: string[] = [];
+				let fail: string[] = [];
+				let list: string[];
 
-				if (!result) {
-					suiteInfo.numFailedBenchmarks++;
+				const baselineMean = baseline.stats.mean;
+				const thresholds = this.thresholds || {};
+				let percentDifference = 100 * (benchmark.stats.mean - baselineMean) / baselineMean;
+
+				if (thresholds.warn && thresholds.warn.mean && Math.abs(percentDifference) > thresholds.warn.mean) {
+					list = warn;
+					if (thresholds.fail && thresholds.fail.mean && Math.abs(percentDifference) > thresholds.fail.mean) {
+						list = fail;
+					}
+					list.push('Execution time is ' + percentDifference.toFixed(1) + '% off');
+				}
+
+				const baselineRme = baseline.stats.rme;
+				// RME is already a percent
+				percentDifference = benchmark.stats.rme - baselineRme;
+				if (thresholds.warn && thresholds.warn.rme && Math.abs(percentDifference) > thresholds.warn.rme) {
+					list = warn;
+					if (thresholds.fail && thresholds.fail.rme && Math.abs(percentDifference) > thresholds.fail.rme) {
+						list = fail;
+					}
+					list.push('RME is ' + percentDifference.toFixed(1) + '% off');
+				}
+
+				if (fail.length) {
+					this.console.error('FAIL ' + test.id + ' (' + fail.join(', ') + ')');
+					return false;
+				}
+				else if (warn.length) {
+					this.console.warn('WARN ' + test.id + ' (' + warn.join(', ') + ')');
+				}
+				else {
+					this.console.log('PASS ' + test.id);
+				}
+
+				return true;
+			};
+
+			// Ignore non-benchmark tests
+			if (!test.benchmark) {
+				this.executor.log('Ignoring non-benchmark test', test.id);
+				return;
+			}
+
+			const benchmark = test.benchmark;
+			const session = this._getSession(test);
+			const environment = session.environment;
+
+			const suiteInfo = session.suites[test.parentId];
+			suiteInfo.numBenchmarks++;
+
+			const baselineEnvironments = this.baseline.environments;
+			const baseline = baselineEnvironments[environment.id]!;
+
+			if (this.mode === 'baseline') {
+				baseline.tests[test.id] = {
+					hz: benchmark.hz,
+					times: benchmark.times,
+					stats: {
+						rme: benchmark.stats.rme,
+						moe: benchmark.stats.moe,
+						mean: benchmark.stats.mean
+					}
+				};
+				this.console.log('Baselined ' + test.name);
+				this.executor.log('Time per run:', formatSeconds(benchmark.stats.mean), '\xb1',
+					benchmark.stats.rme.toFixed(2), '%');
+			}
+			else {
+				if (baseline) {
+					const testData = baseline.tests[test.id];
+					const result = checkTest(testData, benchmark);
+					const baselineStats = baseline.stats;
+					const benchmarkStats = baseline.stats;
+					this.executor.log('Expected time per run:', formatSeconds(baselineStats.mean), '\xb1',
+						baselineStats.rme.toFixed(2), '%');
+					this.executor.log('Actual time per run:', formatSeconds(benchmarkStats.mean), '\xb1',
+						benchmarkStats.rme.toFixed(2), '%');
+
+					if (!result) {
+						suiteInfo.numFailedBenchmarks++;
+					}
 				}
 			}
-		}
-	}
-
-	testFail(test: Test) {
-		const session = this._getSession(test);
-		const suiteInfo = session.suites[test.parentId];
-		suiteInfo.numBenchmarks++;
-		suiteInfo.numFailedBenchmarks++;
-
-		this.console.error('ERROR: ' + test.id);
-		if (test.error) {
-			this.console.error(this.executor.formatter.format(test.error));
 		}
 	}
 }

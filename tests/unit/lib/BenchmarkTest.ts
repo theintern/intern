@@ -337,25 +337,6 @@ registerSuite({
 				});
 			}
 
-			interface Results {
-				outerBefore: number;
-				innerBefore: number;
-				test: number;
-				innerAfter: number;
-				outerAfter: number;
-				[key: string]: number;
-			}
-
-			function createResults() {
-				return <Results>{
-					outerBefore: 0,
-					innerBefore: 0,
-					test: 0,
-					innerAfter: 0,
-					outerAfter: 0
-				};
-			}
-
 			function testSuite(isAsync = false) {
 				return {
 					tests: {
@@ -365,10 +346,16 @@ registerSuite({
 
 						order() {
 							let counter = 0;
-							let orders = createResults();
+							let orders: { [key: string]: number } = {
+								outerBefore: -1,
+								innerBefore: -1,
+								test: -1,
+								innerAfter: -1,
+								outerAfter: -1
+							};
 
 							function recordOrder(name: string) {
-								if (!(name in orders)) {
+								if (orders[name] === -1) {
 									orders[name] = counter++;
 								}
 							}
@@ -384,10 +371,16 @@ registerSuite({
 						},
 
 						context() {
-							let contexts = createResults();
+							let contexts: { [key: string]: any } = {
+								outerBefore: null,
+								innerBefore: null,
+								test: null,
+								innerAfter: null,
+								outerAfter: null
+							};
 
 							function recordContext(name: string, context: any) {
-								if (!(name in contexts)) {
+								if (contexts[name] === null) {
 									contexts[name] = context;
 								}
 							}
