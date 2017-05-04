@@ -526,7 +526,7 @@ export interface Events extends BaseEvents {
  */
 class FunctionQueue {
 	readonly maxConcurrency: number;
-	queue: any[];
+	queue: QueueEntry[];
 	activeTasks: Task<any>[];
 	funcTasks: Task<any>[];
 
@@ -560,8 +560,8 @@ class FunctionQueue {
 
 	next() {
 		if (this.queue.length > 0) {
-			const { func, resolver, rejecter } = this.queue.shift();
-			const task = func().then(resolver, rejecter).finally(() => {
+			const { func, resolve, reject } = this.queue.shift()!;
+			const task = func().then(resolve, reject).finally(() => {
 				// Remove the task from the active task list and kick off the next task
 				pullFromArray(this.activeTasks, task);
 				this.next();
@@ -569,4 +569,10 @@ class FunctionQueue {
 			this.activeTasks.push(task);
 		}
 	}
+}
+
+interface QueueEntry {
+	func: () => Task<any>;
+	resolve: () => void;
+	reject: () => void;
 }
