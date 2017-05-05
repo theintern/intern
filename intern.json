@@ -1,57 +1,46 @@
 {
-  "suites": [
-    "_tests/tests/unit/**/*.js",
-    "_tests/tests/benchmark/example.js"
-  ],
-  "benchmark": true,
-  "functionalSuites": "_tests/tests/functional/**/*.js",
-  "loader": {
-	"script": "systemjs",
-	"config": {
-	  "map": {
-		"src": "_build/src",
-        "intern": ".",
-        "@dojo": "node_modules/@dojo",
-
-        "leadfoot": "node_modules/leadfoot",
-        "benchmark": "node_modules/benchmark",
-        "lodash": "node_modules/lodash",
-        "platform": "node_modules/platform",
-
-        "url": "@node/url",
-        "fs": "@node/fs",
-        "path": "@node/path",
-        "jszip": "@node/jszip",
-        "http": "@node/http",
-        "https": "@node/http",
-        "zlib": "@node/zlib"
-	  },
-	  "packages": {
-		"src": { "defaultExtension": "js" },
-		"_tests": { "format": "cjs" },
-        "@dojo/shim": { "defaultExtension": "js" },
-        "@dojo/core": { "defaultExtension": "js" },
-        "@dojo/has": { "defaultExtension": "js" },
-        "leadfoot": { "defaultExtension": "js" },
-        "benchmark": {
-          "format": "cjs",
-          "main": "benchmark.js"
-        },
-        "lodash": { "main": "lodash.js" },
-        "platform": { "main": "platform.js" }
-	  }
-	}
-  },
-  "internPath": "_tests/src",
-  "filterErrorStack": true,
-  "preload": "_tests/tests/pre.js",
-  "excludeInstrumentation": "(?:node_modules|_tests)",
-  "tunnel": "browserstack",
-  "maxConcurrency": 2,
-  "environments": [
-	{ "browser": "internet explorer", "version": [ "10", "11" ] },
-	{ "browser": "firefox", "version": [ "33", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
-	{ "browser": "chrome", "version": [ "38", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
-	{ "browser": "safari", "version": [ "9", "10" ] }
-  ]
+	"suites": [
+		"_tests/tests/unit/**/*.js",
+		"_tests/tests/benchmark/example.js"
+	],
+	"benchmark": true,
+	"functionalSuites": "_tests/tests/functional/**/*.js",
+	"loader": {
+		"script": "systemjs",
+		"config": {
+			"baseURL": "node_modules",
+			"paths": {
+				"src": "./_build/src",
+				"_tests": "./_tests"
+			},
+			"map": {
+				"url": "@node/url",
+				"fs": "@node/fs",
+				"path": "@node/path",
+				"jszip": "@node/jszip",
+				"http": "@node/http",
+				"https": "@node/http",
+				"zlib": "@node/zlib"
+			},
+			"packageConfigPaths": [
+				"./node_modules/*/package.json",
+				"./node_modules/@dojo/*/package.json"
+			],
+			"packages": {
+				"src": { "defaultExtension": "js" }
+			}
+		}
+	},
+	"internPath": "_tests/src",
+	"filterErrorStack": true,
+	"preload": "_tests/tests/pre.js",
+	"excludeInstrumentation": "(?:node_modules|_tests)",
+	"tunnel": "browserstack",
+	"maxConcurrency": 2,
+	"environments": [
+		{ "browser": "internet explorer", "version": [ "10", "11" ] },
+		{ "browser": "firefox", "version": [ "33", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
+		{ "browser": "chrome", "version": [ "38", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
+		{ "browser": "safari", "version": [ "9", "10" ] }
+	]
 }
