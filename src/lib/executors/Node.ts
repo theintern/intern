@@ -2,7 +2,7 @@ import Executor, { Config as BaseConfig, Events, initialize, LoaderDescriptor } 
 import Task from '@dojo/core/async/Task';
 import instrument from '../instrument';
 import { parseValue } from '../common/util';
-import { expandFiles, loadScript, normalizePath, reportUncaughtErrors } from '../node/util';
+import { expandFiles, loadScript, normalizePath } from '../node/util';
 import { duplicate } from '@dojo/core/lang';
 import Formatter from '../node/Formatter';
 import { dirname, relative, resolve, sep } from 'path';
@@ -38,7 +38,16 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 
 		this._formatter = new Formatter(this.config);
 
-		reportUncaughtErrors(this);
+		// Report uncaught errors
+		process.on('unhandledRejection', (reason: Error, promise: Promise<any>) => {
+			console.warn('Unhandled rejection:', promise);
+			this.emit('error', reason);
+		});
+
+		process.on('uncaughtException', (reason: Error) => {
+			console.warn('Unhandled error');
+			this.emit('error', reason);
+		});
 	}
 
 	get environment() {

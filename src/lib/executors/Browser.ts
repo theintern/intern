@@ -23,6 +23,19 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 		}
 
 		this._formatter = new Formatter(this.config);
+
+		// Report uncaught errors
+		window.addEventListener('unhandledRejection', (event: PromiseRejectionEvent) => {
+			console.warn('Unhandled rejection:', event);
+			this.emit('error', event.reason);
+		});
+
+		window.addEventListener('error', (event: ErrorEvent) => {
+			console.warn('Unhandled error:', event);
+			const error = new Error(event.message);
+			error.stack = `${event.filename}:${event.lineno}:${event.colno}`;
+			this.emit('error', error);
+		});
 	}
 
 	get environment() {

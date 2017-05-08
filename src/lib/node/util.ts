@@ -5,7 +5,6 @@ import { deepMixin } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 import Promise from '@dojo/shim/Promise';
 import glob = require('glob');
-import Executor from '../executors/Executor';
 
 /**
  * Expand a list of glob patterns into a flat file list
@@ -103,17 +102,6 @@ export function normalizePath(path: string) {
  */
 export function projectRequire(mod: string) {
 	require(resolve(mod));
-}
-
-export function reportUncaughtErrors(executor: Executor) {
-	process.on('unhandledRejection', (reason: Error, promise: Promise<any>) => {
-		console.warn('Unhandled rejection:', promise);
-		executor.emit('error', reason);
-	});
-	process.on('uncaughtException', (reason: Error) => {
-		console.warn('Unhandled error');
-		executor.emit('error', reason);
-	});
 }
 
 function loadConfig(configPath: string): Promise<any> {
