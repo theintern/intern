@@ -5,20 +5,19 @@
 import Executor from '../executors/Executor';
 import Suite from '../Suite';
 import Test from '../Test';
-import Reporter, { createEventHandler, ReporterProperties } from './Reporter';
+import { createEventHandler } from './Reporter';
+import Coverage, { CoverageProperties } from './Coverage';
+import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import { Events, TunnelMessage } from '../executors/WebDriver';
 import { mixin } from '@dojo/core/lang';
 import { format } from 'util';
 import charm = require('charm');
-import TextReport = require('istanbul/lib/report/text');
-import Collector = require('istanbul/lib/collector');
 import encode = require('charm/lib/encode');
-import { Watermarks } from 'istanbul';
 
 const eventHandler = createEventHandler<Events>();
 
-export default class Pretty extends Reporter implements PrettyProperties {
+export default class Pretty extends Coverage implements PrettyProperties {
 	colorReplacement: { [key: string]: string };
 
 	dimensions: any;
@@ -28,8 +27,6 @@ export default class Pretty extends Reporter implements PrettyProperties {
 	maxProgressBarWidth: number;
 
 	tunnelState: string;
-
-	watermarks: Watermarks;
 
 	protected _header: string;
 
@@ -111,19 +108,17 @@ export default class Pretty extends Reporter implements PrettyProperties {
 		this._render(true);
 
 		// Display coverage information
-		if (this._total.coverage.files().length > 0) {
+		if (this._total.coverageMap.files().length > 0) {
 			charm.write('\n');
-			(new TextReport({
-				watermarks: this.watermarks
-			})).writeReport(this._total.coverage, true);
+			this.createCoverageReport('text', this._total.coverageMap);
 		}
 	}
 
 	@eventHandler()
 	coverage(data: CoverageMessage) {
 		const reporter = this._reports[data.sessionId || ''];
-		reporter && reporter.coverage.add(data.coverage);
-		this._total.coverage.add(data.coverage);
+		reporter && reporter.coverageMap.merge(data.coverage);
+		this._total.coverageMap.merge(data.coverage);
 	}
 
 	@eventHandler()
@@ -352,12 +347,11 @@ export default class Pretty extends Reporter implements PrettyProperties {
 	}
 }
 
-export interface PrettyProperties extends ReporterProperties {
+export interface PrettyProperties extends CoverageProperties {
 	colorReplacement: { [key: string]: string };
 	dimensions: any;
 	maxProgressBarWidth: number;
 	titleWidth: number;
-	watermarks: Watermarks;
 }
 
 export type PrettyOptions = Partial<PrettyProperties>;
@@ -375,11 +369,12 @@ export class Report {
 	numFailed = 0;
 	numSkipped = 0;
 	results: number[] = [];
-	coverage: Collector = new Collector();
+	coverageMap: CoverageMap;
 
 	constructor(environment?: string, sessionId?: string) {
 		this.environment = environment;
 		this.sessionId = sessionId;
+		this.coverageMap = createCoverageMap();
 	}
 
 	get finished() {

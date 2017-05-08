@@ -57,7 +57,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			filterErrorStack: false,
 			grep: new RegExp(''),
 			instrumenterOptions: {
-				coverageVariable: '__internCoverage'
+				coverageVariable: '__coverage__'
 			},
 			loader: { script: 'default' },
 			name: 'intern',

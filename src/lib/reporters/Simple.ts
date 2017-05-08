@@ -1,6 +1,6 @@
 import Suite from '../Suite';
 import Test from '../Test';
-import Coverage from './Coverage';
+import Coverage from './coverage';
 import { CoverageMessage } from '../executors/Executor';
 import { eventHandler } from './Reporter';
 
@@ -52,10 +52,8 @@ export default class Simple extends Coverage {
 
 	@eventHandler()
 	coverage(data: CoverageMessage) {
-		this.collector.add(data.coverage);
-
 		// add a newline between test results and coverage results for prettier output
 		this.console.log('');
-		this.report.writeReport(this.collector, true);
+		this.createCoverageReport('text', data.coverage);
 	}
 }

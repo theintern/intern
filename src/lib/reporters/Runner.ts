@@ -1,12 +1,10 @@
 import * as charm from 'charm';
 import * as nodeUtil from 'util';
-import Collector = require('istanbul/lib/collector');
-import TextSummaryReport = require('istanbul/lib/report/text-summary');
-import TextReport = require('istanbul/lib/report/text');
 import Test from '../Test';
 import Suite from '../Suite';
 import { createEventHandler } from './Reporter';
 import Coverage, { CoverageProperties } from './Coverage';
+import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { Writable } from 'stream';
 import Server from '../Server';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
@@ -17,14 +15,18 @@ export type Charm = charm.Charm;
 const eventHandler = createEventHandler<Events>();
 
 export default class Runner extends Coverage {
-	sessions: { [sessionId: string]: any };
+	sessions: {
+		[sessionId: string]: {
+			coverage?: CoverageMap;
+			suite: Suite;
+			[key: string]: any;
+		}
+	};
 
 	hasErrors: boolean;
 
 	serveOnly: boolean;
 
-	private _summaryReporter: TextSummaryReport;
-	private _detailedReporter: TextReport;
 	private _deprecationMessages: { [message: string]: boolean };
 
 	protected charm: Charm;
@@ -35,12 +37,6 @@ export default class Runner extends Coverage {
 		this.sessions = {};
 		this.hasErrors = false;
 		this.serveOnly = executor.config.serveOnly;
-		this._summaryReporter = new TextSummaryReport({
-			watermarks: this.watermarks
-		});
-		this._detailedReporter = new TextReport({
-			watermarks: this.watermarks
-		});
 
 		this.charm = charm();
 		this.charm.pipe(<Writable>this.output);
@@ -54,8 +50,8 @@ export default class Runner extends Coverage {
 		// coverage will be called for the runner host, which has no session ID -- ignore that
 		if (message.sessionId) {
 			const session = this.sessions[message.sessionId || ''];
-			session.coverage = session.coverage || new Collector();
-			session.coverage.add(message.coverage);
+			session.coverage = session.coverage || createCoverageMap();
+			session.coverage.merge(message.coverage);
 		}
 	}
 
@@ -110,7 +106,7 @@ export default class Runner extends Coverage {
 
 	@eventHandler()
 	runEnd() {
-		let collector = new Collector();
+		let map = createCoverageMap();
 		let numTests = 0;
 		let numFailedTests = 0;
 		let numSkippedTests = 0;
@@ -121,19 +117,18 @@ export default class Runner extends Coverage {
 		sessionIds.forEach(sessionId => {
 			const session = this.sessions[sessionId];
 			if (session.coverage) {
-				const finalCoverage = session.coverage.getFinalCoverage();
-				collector.add(finalCoverage);
+				map.merge(session.coverage);
 			}
 			numTests += session.suite.numTests;
 			numFailedTests += session.suite.numFailedTests;
 			numSkippedTests += session.suite.numSkippedTests;
 		});
 
-		if (collector.files().length > 0) {
+		if (map.files().length > 0) {
 			// add a newline between test results and coverage results for prettier output
 			this.charm.write('\n');
 
-			this._detailedReporter.writeReport(collector);
+			this.createCoverageReport('text', map);
 		}
 
 		let message = 'TOTAL: tested %d platforms, %d/%d tests failed';
@@ -199,7 +194,7 @@ export default class Runner extends Coverage {
 			const session = this.sessions[suite.sessionId];
 
 			if (session.coverage) {
-				this._summaryReporter.writeReport(session.coverage);
+				this.createCoverageReport('text', session.coverage);
 			}
 			else {
 				this.charm

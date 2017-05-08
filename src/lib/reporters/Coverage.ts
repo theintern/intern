@@ -1,51 +1,39 @@
-import Executor from '../executors/Executor';
-import Collector = require('istanbul/lib/collector');
-import TextReport = require('istanbul/lib/report/text');
-import Report = require('istanbul/lib/report');
-import { Watermarks } from 'istanbul';
 import Reporter, { ReporterProperties } from './Reporter';
+import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
+import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
+import { create, ReportType } from 'istanbul-reports';
 
 export default abstract class Coverage extends Reporter implements CoverageProperties {
-	watermarks: Watermarks;
-
 	filename: string;
 
-	ReportClass: ReportConstructor;
+	watermarks: Watermarks;
 
-	protected _report: Report;
+	createCoverageReport(type: ReportType, data: object | CoverageMap) {
+		let map: CoverageMap;
 
-	protected _collector: Collector;
-
-	constructor(executor: Executor, options: CoverageOptions = {}) {
-		super(executor, options);
-	}
-
-	get report() {
-		if (!this._report) {
-			this._report = new (this.ReportClass || TextReport)({
-				file: this.filename,
-				watermarks: this.watermarks
-			});
+		if (isCoverageMap(data)) {
+			map = data;
 		}
-		return this._report;
-	}
-
-	get collector() {
-		if (!this._collector) {
-			this._collector = new Collector();
+		else {
+			map = createCoverageMap(data);
 		}
-		return this._collector;
+
+		const context = createContext();
+		const tree = summarizers.pkg(map);
+		tree.visit(create(type, {
+			file: this.filename || null,
+			watermarks: this.watermarks
+		}), context);
 	}
 }
 
 export interface CoverageProperties extends ReporterProperties {
 	filename: string;
 	watermarks: Watermarks;
-	ReportClass: ReportConstructor;
-}
-
-export interface ReportConstructor {
-	new (config?: any): Report;
 }
 
 export type CoverageOptions = Partial<CoverageProperties>;
+
+function isCoverageMap(value: any): value is CoverageMap {
+	return value != null && typeof value.files === 'function';
+}

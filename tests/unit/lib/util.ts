@@ -87,8 +87,8 @@ registerSuite({
 
 			// save any existing coverage data
 			/* jshint node:true */
-			const existingCoverage = global.__internCoverage;
-			global.__internCoverage = undefined;
+			const existingCoverage = global.__coverage__;
+			global.__coverage__ = undefined;
 
 			// setup a hook to instrument our test module
 			hook.hookRunInThisContext(function () {
@@ -101,7 +101,7 @@ registerSuite({
 			// restore everything
 			// TODO: Use dfd.promise.finally in Intern 3
 			function restore(error: Error) {
-				global.__internCoverage = existingCoverage;
+				global.__coverage__ = existingCoverage;
 				hook.unhookRunInThisContext();
 				if (error) {
 					throw error;

@@ -1,5 +1,5 @@
 import { normalize } from 'path';
-import { Instrumenter } from 'istanbul';
+import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
 import { SourceMapConsumer } from 'source-map';
 import { mixin } from '@dojo/core/lang';
 
@@ -61,7 +61,7 @@ function getInstrumenter(instrumenterOptions: any) {
 			noAutoWrap: true
 		}, instrumenterOptions);
 
-		instrumenters[coverageVariable] = new Instrumenter(options);
+		instrumenters[coverageVariable] = createInstrumenter(options);
 	}
 	return instrumenters[coverageVariable];
 }

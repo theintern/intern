@@ -6,7 +6,7 @@ import { expandFiles, loadScript, normalizePath, reportUncaughtErrors } from '..
 import { deepMixin } from '@dojo/core/lang';
 import Formatter from '../node/Formatter';
 import { dirname, relative, resolve, sep } from 'path';
-import { hook } from 'istanbul';
+import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
 import Pretty from '../reporters/Pretty';
 import Simple from '../reporters/Simple';
 import Benchmark from '../reporters/Benchmark';
@@ -19,6 +19,8 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 	static initialize(config?: Partial<Config>) {
 		return initialize<Events, Config, Node>(Node, config);
 	}
+
+	_unhookRequire: null | (() => void);
 
 	constructor(config?: Partial<C>) {
 		super(<C>{
@@ -141,13 +143,16 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 			return instrument(code, resolve(filename), instrumenterOptions);
 		}
 
-		hook.hookRunInThisContext(shouldHook, instrumentCode);
-		hook.hookRequire(shouldHook, instrumentCode);
+		hookRunInThisContext(shouldHook, instrumentCode);
+		this._unhookRequire = hookRequire(shouldHook, instrumentCode);
 	}
 
 	protected _removeInstrumentationHooks() {
-		hook.unhookRunInThisContext();
-		hook.unhookRequire();
+		unhookRunInThisContext();
+		if (this._unhookRequire) {
+			this._unhookRequire();
+			this._unhookRequire = null;
+		}
 	}
 }
 
