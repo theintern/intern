@@ -1,9 +1,9 @@
-import Executor, { Config as BaseConfig, Events, initialize } from './Executor';
+import Executor, { Config as BaseConfig, Events, initialize, LoaderDescriptor } from './Executor';
 import Task from '@dojo/core/async/Task';
 import instrument from '../instrument';
 import { parseValue } from '../common/util';
 import { expandFiles, loadScript, normalizePath, reportUncaughtErrors } from '../node/util';
-import { deepMixin } from '@dojo/core/lang';
+import { duplicate } from '@dojo/core/lang';
 import Formatter from '../node/Formatter';
 import { dirname, relative, resolve, sep } from 'path';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
@@ -73,8 +73,12 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 	 * Override Executor#_loadSuites to pass a combination of nodeSuites and suites to the loader
 	 */
 	protected _loadSuites(config?: C) {
-		config = config || this.config;
-		return super._loadSuites(deepMixin({}, config, { suites: config.suites.concat(config.nodeSuites) }));
+		config = duplicate(config || this.config);
+		config.suites = config.suites.concat(config.nodeSuites);
+		if (config.nodeLoader) {
+			config.loader = config.nodeLoader;
+		}
+		return super._loadSuites(config);
 	}
 
 	protected _processOption(name: keyof Config, value: any) {
@@ -160,6 +164,11 @@ export { Events };
 
 export interface Config extends BaseConfig {
 	basePath: string;
+
+	/**
+	 * A loader used to load test suites and application modules in a Node environment.
+	 */
+	nodeLoader: LoaderDescriptor;
 
 	/**
 	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that

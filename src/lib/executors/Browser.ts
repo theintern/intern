@@ -1,6 +1,6 @@
-import Executor, { Config as BaseConfig, Events, initialize } from './Executor';
+import Executor, { Config as BaseConfig, Events, initialize, LoaderDescriptor } from './Executor';
 import { normalizePathEnding, parseValue } from '../common/util';
-import { deepMixin } from '@dojo/core/lang';
+import { duplicate } from '@dojo/core/lang';
 import Formatter from '../browser/Formatter';
 import Task from '@dojo/core/async/Task';
 
@@ -55,8 +55,12 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 	 * Override Executor#_loadSuites to pass a combination of browserSuites and suites to the loader
 	 */
 	protected _loadSuites() {
-		const config = this.config;
-		return super._loadSuites(deepMixin({}, config, { suites: config.suites.concat(config.browserSuites) }));
+		const config = duplicate(this.config);
+		config.suites = config.suites.concat(config.browserSuites);
+		if (config.browserLoader) {
+			config.loader = config.browserLoader;
+		}
+		return super._loadSuites(config);
 	}
 
 	protected _processOption(name: keyof Config, value: any) {
@@ -108,6 +112,11 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 export interface Config extends BaseConfig {
 	/** The absolute path to the project base (defaults to '/') */
 	basePath: string;
+
+	/**
+	 * A loader used to load test suites and application modules in a Node environment.
+	 */
+	browserLoader: LoaderDescriptor;
 
 	/**
 	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that

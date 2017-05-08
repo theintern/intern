@@ -48,7 +48,7 @@
     "clean": "intern-dev-clean",
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
-    "test": "node _tests/src/bin/intern.js",
+    "test": "NODE_PATH=_build node _tests/src/bin/intern.js",
     "ci": "npm run build && node _tests/tests/selftest.js"
   },
   "dependencies": {

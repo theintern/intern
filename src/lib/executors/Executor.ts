@@ -409,18 +409,18 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _loadSuites(config?: Config) {
 		config = config || this.config;
 
-		let loader = config.loader;
-		switch (loader.script) {
+		let script = config.loader.script;
+		switch (script) {
 			case 'default':
 			case 'dojo':
 			case 'dojo2':
 			case 'systemjs':
-				loader.script = `${config.internPath}loaders/${loader.script}.js`;
+				script = `${config.internPath}loaders/${script}.js`;
 		}
 
-		return this.loadScript(loader.script).then(() => {
+		return this.loadScript(script).then(() => {
 			if (!this._loader) {
-				throw new Error(`Loader script ${loader.script} did not register a loader callback`);
+				throw new Error(`Loader script ${script} did not register a loader callback`);
 			}
 			return Task.resolve(this._loader(config || this.config));
 		});
@@ -616,8 +616,8 @@ export interface Config {
 	instrumenterOptions: any;
 
 	/**
-	 * A loader to run before testing.
-	 * The `loader` property can be a string with a loader name or the path to a loader script. It may also be an object
+	 * The loader used to load test suites and application modules. When passed in as part of a config object, the
+	 * `loader` property can be a string with a loader name or the path to a loader script. It may also be an object
 	 * with `script` and `config` properties. Intern provides built-in loader scripts for Dojo and Dojo2, which can be
 	 * specified with the IDs 'dojo' and 'dojo2'.
 	 *
@@ -627,7 +627,7 @@ export interface Config {
 	 * loader: { script: 'dojo', config: { packages: [ { name: 'app', location: './js' } ] } }
 	 * ```
 	 */
-	loader: { script: string, config?: { [key: string]: any } };
+	loader: LoaderDescriptor;
 
 	/** A top-level name for this configuration. */
 	name: string;
@@ -723,6 +723,11 @@ export interface Events {
  */
 export interface Loader {
 	(config: Config): Promise<void> | void;
+}
+
+export interface LoaderDescriptor {
+	script: string;
+	config?: { [key: string]: any };
 }
 
 const resolvedTask = Task.resolve();
