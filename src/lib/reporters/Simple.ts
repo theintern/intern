@@ -1,6 +1,6 @@
 import Suite from '../Suite';
 import Test from '../Test';
-import Coverage from './coverage';
+import Coverage from './Coverage';
 import { CoverageMessage } from '../executors/Executor';
 import { eventHandler } from './Reporter';
 
