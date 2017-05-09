@@ -20,7 +20,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import Executor from '../executors/Executor';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
-import BenchmarkTest from '../BenchmarkTest';
+import BenchmarkTest, { isBenchmarkTest } from '../BenchmarkTest';
 import Test from '../Test';
 import Suite from '../Suite';
 import _Benchmark = require('benchmark');
@@ -183,16 +183,18 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 
 	@eventHandler()
 	testEnd(test: BenchmarkTest) {
+		if (!isBenchmarkTest(test)) {
+			return;
+		}
+
 		if (test.error) {
 			const session = this._getSession(test);
 			const suiteInfo = session.suites[test.parentId];
 			suiteInfo.numBenchmarks++;
 			suiteInfo.numFailedBenchmarks++;
 
-			this.console.error('ERROR: ' + test.id);
-			if (test.error) {
-				this.console.error(this.executor.formatter.format(test.error));
-			}
+			this.console.error('FAIL: ' + test.id);
+			this.console.error(this.executor.formatter.format(test.error, { space: '  ' }));
 		}
 		else {
 			const checkTest = (baseline: BenchmarkData, benchmark: BenchmarkData) => {
@@ -239,7 +241,6 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 
 			// Ignore non-benchmark tests
 			if (!test.benchmark) {
-				this.executor.log('Ignoring non-benchmark test', test.id);
 				return;
 			}
 

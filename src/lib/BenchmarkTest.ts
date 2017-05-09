@@ -170,6 +170,10 @@ export interface InternBenchmark extends Benchmark {
 	internTest?: BenchmarkTest;
 }
 
+export function isBenchmarkTest(value: any): value is BenchmarkTest {
+	return typeof value === 'object' && value.test != null && value.benchmark != null;
+}
+
 const createLifecycle = (before: boolean) => {
 	const queueName = before ? 'Before' : 'After';
 	const queueMethod = before ? 'push' : 'unshift';
