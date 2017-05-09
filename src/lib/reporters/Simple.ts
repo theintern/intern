@@ -14,6 +14,13 @@ export default class Simple extends Coverage {
 	}
 
 	@eventHandler()
+	log(message: string) {
+		message.split('\n').forEach(line => {
+			console.log(`DEBUG: ${line}`);
+		});
+	}
+
+	@eventHandler()
 	suiteEnd(suite: Suite) {
 		if (suite.error) {
 			this.console.warn('SUITE ERROR');
