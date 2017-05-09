@@ -1,6 +1,5 @@
 import { getShouldWait, pullFromArray } from './common/util';
 import { normalizePath } from './node/util';
-import instrument from './instrument';
 import { after } from '@dojo/core/aspect';
 import { createServer, IncomingMessage, Server as HttpServer, ServerResponse } from 'http';
 import { basename, join, resolve } from 'path';
@@ -9,7 +8,7 @@ import { lookup } from 'mime-types';
 import { Socket } from 'net';
 import { mixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
-import Executor from './executors/Executor';
+import WebDriver from './executors/WebDriver';
 import { Message } from './channels/Base';
 import Promise from '@dojo/shim/Promise';
 import WebSocket = require('ws');
@@ -17,13 +16,7 @@ import WebSocket = require('ws');
 export default class Server implements ServerProperties {
 	basePath: string;
 
-	excludeInstrumentation: boolean | RegExp;
-
-	executor: Executor;
-
-	instrument: boolean;
-
-	instrumenterOptions: any;
+	executor: WebDriver;
 
 	port: number;
 
@@ -137,7 +130,7 @@ export default class Server implements ServerProperties {
 	private _handler(request: IncomingMessage, response: ServerResponse) {
 		if (request.method === 'GET') {
 			if (/\.js(?:$|\?)/.test(request.url!)) {
-				this._handleFile(request, response, this.instrument);
+				this._handleFile(request, response, true);
 			}
 			else {
 				this._handleFile(request, response);
@@ -222,15 +215,6 @@ export default class Server implements ServerProperties {
 			wholePath += 'index.html';
 		}
 
-		// if the string passed to `excludeInstrumentation` changes here, it must also change in
-		// `lib/executors/Executor.js`
-		if (
-			this.excludeInstrumentation === true ||
-			(this.excludeInstrumentation && this.excludeInstrumentation.test(file))
-		) {
-			shouldInstrument = false;
-		}
-
 		const contentType = lookup(basename(wholePath)) || 'application/octet-stream';
 		stat(wholePath, (error, stats) => {
 			// The server was stopped before this file was served
@@ -246,7 +230,7 @@ export default class Server implements ServerProperties {
 
 			this.executor.log('Serving', wholePath);
 
-			if (shouldInstrument) {
+			if (shouldInstrument && this.executor.shouldInstrumentFile(wholePath)) {
 				const mtime = stats.mtime.getTime();
 				const codeCache = this._codeCache!;
 				if (codeCache[wholePath] && codeCache[wholePath].mtime === mtime) {
@@ -266,11 +250,7 @@ export default class Server implements ServerProperties {
 
 						// providing `wholePath` to the instrumenter instead of a partial filename is necessary because
 						// lcov.info requires full path names as per the lcov spec
-						data = instrument(
-							data,
-							wholePath,
-							this.instrumenterOptions
-						);
+						data = this.executor.instrumentCode(data, wholePath);
 						codeCache[wholePath] = {
 							// strictly speaking mtime could reflect a previous version, assume those race conditions are rare
 							mtime: mtime,
@@ -339,10 +319,7 @@ export default class Server implements ServerProperties {
 
 export interface ServerProperties {
 	basePath: string;
-	excludeInstrumentation: boolean | RegExp;
-	executor: Executor;
-	instrument: boolean;
-	instrumenterOptions: any;
+	executor: WebDriver;
 	port: number;
 	runInSync: boolean;
 	socketPort: number;
@@ -352,6 +329,6 @@ export interface ServerListener {
 	(name: string, data: any): void;
 }
 
-export type ServerOptions = Partial<ServerProperties> & { executor: Executor };
+export type ServerOptions = Partial<ServerProperties> & { executor: WebDriver };
 
 const resolvedPromise = Promise.resolve();

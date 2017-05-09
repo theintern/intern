@@ -1,16 +1,17 @@
 import Executor, { Config as BaseConfig, Events, initialize, LoaderDescriptor } from './Executor';
 import Task from '@dojo/core/async/Task';
-import instrument from '../instrument';
 import { parseValue } from '../common/util';
-import { expandFiles, loadScript, normalizePath } from '../node/util';
-import { duplicate } from '@dojo/core/lang';
+import { expandFiles, loadScript, normalizePath, readSourceMap } from '../node/util';
+import { mixin, duplicate } from '@dojo/core/lang';
 import Formatter from '../node/Formatter';
-import { dirname, relative, resolve, sep } from 'path';
+import { dirname, normalize, relative, resolve, sep } from 'path';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
 import Pretty from '../reporters/Pretty';
 import Simple from '../reporters/Simple';
 import Benchmark from '../reporters/Benchmark';
 import Promise from '@dojo/shim/Promise';
+import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
+import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
 
 /**
  * The Node executor is used to run unit tests in a Node environment.
@@ -20,6 +21,9 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 		return initialize<Events, Config, Node>(Node, config);
 	}
 
+	_instrumentBasePath: string;
+	_instrumenter: Instrumenter;
+	_sourceMaps: MapStore;
 	_unhookRequire: null | (() => void);
 
 	constructor(config?: Partial<C>) {
@@ -54,6 +58,20 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 		return 'node';
 	}
 
+	get sourceMapStore() {
+		return this._sourceMaps;
+	}
+
+	/**
+	 * Insert coverage instrumentation into a given code string
+	 */
+	instrumentCode(code: string, filename: string): string {
+		this.log('Instrumenting', filename);
+		const sourceMap = readSourceMap(filename, code);
+		this._sourceMaps.registerMap(filename, sourceMap);
+		return this._instrumenter.instrumentSync(code, normalize(filename), sourceMap);
+	}
+
 	/**
 	 * Load a script or scripts using Node's require.
 	 *
@@ -63,12 +81,29 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 		return loadScript(script);
 	}
 
+	shouldInstrumentFile(filename: string) {
+		const excludeInstrumentation = this.config.excludeInstrumentation;
+		if (excludeInstrumentation === true) {
+			return false;
+		}
+
+		const basePath = this._instrumentBasePath;
+		filename = normalizePath(filename);
+		return filename.indexOf(basePath) === 0 && !excludeInstrumentation.test(filename.slice(basePath.length));
+	}
+
 	protected _beforeRun(): Task<void> {
 		return super._beforeRun().then(() => {
 			const config = this.config;
 
+			this._instrumenter = createInstrumenter(mixin({}, config.instrumenterOptions, {
+				preserveComments: true,
+				produceSourceMap: true
+			}));
+			this._sourceMaps = createSourceMapStore();
+
 			if (this.config.excludeInstrumentation !== true) {
-				this._setInstrumentationHooks(this.config.excludeInstrumentation);
+				this._setInstrumentationHooks();
 			}
 
 			const suite = this._rootSuite;
@@ -127,6 +162,8 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 				});
 			}
 
+			this._instrumentBasePath = normalizePath(`${resolve(config.basePath || '')}${sep}`);
+
 			return Promise.all(['suites', 'nodeSuites'].map(property => {
 				return expandFiles(config[property]).then(expanded => {
 					config[property] = expanded;
@@ -139,25 +176,11 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 	/**
 	 * Adds hooks for code coverage instrumentation in the Node.js loader.
 	 */
-	protected _setInstrumentationHooks(excludeInstrumentation: RegExp) {
-		const { instrumenterOptions } = this.config;
-		const basePath = normalizePath(`${resolve(this.config.basePath || '')}${sep}`);
-
-		function shouldHook(filename: string) {
-			filename = normalizePath(filename);
-
-			return filename.indexOf(basePath) === 0 &&
-				// if the string passed to `excludeInstrumentation` changes here, it must also change in
-				// `lib/Server.js`
-				!excludeInstrumentation.test(filename.slice(basePath.length));
-		}
-
-		function instrumentCode(code: string, filename: string) {
-			return instrument(code, resolve(filename), instrumenterOptions);
-		}
-
-		hookRunInThisContext(shouldHook, instrumentCode);
-		this._unhookRequire = hookRequire(shouldHook, instrumentCode);
+	protected _setInstrumentationHooks() {
+		hookRunInThisContext(filename => this.shouldInstrumentFile(filename),
+			(code, filename) => this.instrumentCode(code, filename));
+		this._unhookRequire = hookRequire(filename => this.shouldInstrumentFile(filename),
+			(code, filename) => this.instrumentCode(code, filename));
 	}
 
 	protected _removeInstrumentationHooks() {

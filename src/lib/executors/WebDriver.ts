@@ -184,10 +184,7 @@ export default class WebDriver extends Node<Events, Config> {
 		// Need an explicitly declared variable for typing
 		const server: Server = new Server({
 			basePath: this.config.basePath,
-			instrumenterOptions: this.config.instrumenterOptions,
-			excludeInstrumentation: this.config.excludeInstrumentation,
 			executor: this,
-			instrument: true,
 			port: this.config.serverPort,
 			runInSync: this.config.runInSync,
 			socketPort: this.config.socketPort

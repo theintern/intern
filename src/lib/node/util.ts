@@ -1,5 +1,5 @@
-import { normalize, resolve } from 'path';
-import { readFile } from 'fs';
+import { dirname, join, normalize, resolve } from 'path';
+import { readFile, readFileSync } from 'fs';
 import { parseArgs, parseJSON } from '../common/util';
 import { deepMixin } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
@@ -104,6 +104,27 @@ export function projectRequire(mod: string) {
 	require(resolve(mod));
 }
 
+/**
+ * Given a source filename, and optionally code, return the file's source map if one exists.
+ */
+export function readSourceMap(sourceFile: string, code?: string): object | undefined {
+	if (!code) {
+		code = readFileSync(sourceFile, { encoding: 'utf8' });
+	}
+
+	let match: RegExpMatchArray | null;
+	if ((match = sourceMapRegEx.exec(code))) {
+		if (match[1]) {
+			return JSON.parse((new Buffer(match[2], 'base64').toString('utf8')));
+		}
+		else {
+			// Treat map file path as relative to the source file
+			const mapFile = join(dirname(sourceFile), match[2]);
+			return JSON.parse(readFileSync(mapFile, { encoding: 'utf8' }));
+		}
+	}
+}
+
 function loadConfig(configPath: string): Promise<any> {
 	return loadJson(configPath).then(config => {
 		if (config.extends) {
@@ -131,3 +152,5 @@ function loadText(path: string) {
 		});
 	});
 }
+
+const sourceMapRegEx = /(?:\/{2}[#@]{1,2}|\/\*)\s+sourceMappingURL\s*=\s*(data:(?:[^;]+;)+base64,)?(\S+)/;

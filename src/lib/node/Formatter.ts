@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import { parse } from 'url';
 import { dirname, join, relative, resolve } from 'path';
 import { MappingItem, RawSourceMap, SourceMapConsumer } from 'source-map';
+import { readSourceMap } from './util';
 
 export default class Formatter extends BaseFormatter {
 	/**
@@ -127,40 +128,24 @@ function getOriginalPosition(map: any, line: number, column?: number): { line: n
  * Load and process the source map for a given file.
  */
 function getSourceMap(filepath: string) {
-	let data: string;
-	let rawMap: RawSourceMap;
-	let lines: string[];
-	let lastLine: string;
-	let match: RegExpMatchArray | null;
-	const sourceMapRegEx = /(?:\/{2}[#@]{1,2}|\/\*)\s+sourceMappingURL\s*=\s*(data:(?:[^;]+;)+base64,)?(\S+)/;
-
 	if (filepath in fileSourceMaps) {
 		return fileSourceMaps[filepath];
 	}
 
+	let data: string;
+
+	if (filepath in fileSources) {
+		data = fileSources[filepath];
+	}
+	else {
+		data = readFileSync(filepath).toString('utf-8');
+		fileSources[filepath] = data;
+	}
+
 	try {
-		if (filepath in fileSources) {
-			data = fileSources[filepath];
-		}
-		else {
-			data = readFileSync(filepath).toString('utf-8');
-			fileSources[filepath] = data;
-		}
-
-		lines = data.trim().split('\n');
-		lastLine = lines[lines.length - 1];
-
-		if ((match = sourceMapRegEx.exec(lastLine))) {
-			if (match[1]) {
-				rawMap = JSON.parse((new Buffer(match[2], 'base64').toString('utf8')));
-				fileSourceMaps[filepath] = new SourceMapConsumer(rawMap);
-			}
-			else {
-				// treat map file path as relative to the source file
-				const mapFile = join(dirname(filepath), match[2]);
-				rawMap = JSON.parse(readFileSync(mapFile, { encoding: 'utf8' }));
-				fileSourceMaps[filepath] = new SourceMapConsumer(rawMap);
-			}
+		const rawMap = <RawSourceMap>readSourceMap(filepath, data);
+		if (rawMap) {
+			fileSourceMaps[filepath] = new SourceMapConsumer(rawMap);
 			return fileSourceMaps[filepath];
 		}
 	}

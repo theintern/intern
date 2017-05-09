@@ -2,10 +2,11 @@ import Reporter, { ReporterProperties } from './Reporter';
 import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
 import { create, ReportType } from 'istanbul-reports';
+import Node from '../executors/Node';
 
 export default abstract class Coverage extends Reporter implements CoverageProperties {
+	executor: Node;
 	filename: string;
-
 	watermarks: Watermarks;
 
 	createCoverageReport(type: ReportType, data: object | CoverageMap) {
@@ -18,8 +19,10 @@ export default abstract class Coverage extends Reporter implements CoveragePrope
 			map = createCoverageMap(data);
 		}
 
+		const transformed = this.executor.sourceMapStore.transformCoverage(map);
+
 		const context = createContext();
-		const tree = summarizers.pkg(map);
+		const tree = summarizers.pkg(transformed.map);
 		tree.visit(create(type, {
 			file: this.filename || null,
 			watermarks: this.watermarks
