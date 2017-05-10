@@ -1,3 +1,5 @@
+/// <reference types="istanbul-lib-coverage" />
+
 declare module 'istanbul-lib-source-maps' {
 	import { CoverageMap } from 'istanbul-lib-coverage';
 
