@@ -520,14 +520,25 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 			windowHandle = null;
 		}
 
-		const data = {
+		const data: { [key: string]: number | null } = {
 			width: width,
 			height: height
 		};
 
+		const setWindowSize = () => {
+			if (this.capabilities.supportsWindowRectCommand) {
+				data.x = null;
+				data.y = null;
+				return this.serverPost<void>('window/rect', data);
+			}
+			else {
+				return this.serverPost<void>('window/size', data);
+			}
+		};
+
 		if (this.capabilities.implicitWindowHandles) {
 			if (windowHandle == null) {
-				return this.serverPost<void>('window/size', data);
+				return setWindowSize();
 			}
 			else {
 				// User provided a window handle; get the current handle, switch to the new one, get the size, then
@@ -535,7 +546,7 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 				let error: Error;
 				return this.getCurrentWindowHandle().then(originalHandle => {
 					return this.switchToWindow(windowHandle).then(() => {
-						return this.serverPost<void>('window/size', data);
+						return setWindowSize();
 					}).catch(function (_error) {
 						error = error;
 					}).then(() => {
@@ -570,9 +581,20 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * An object describing the width and height of the window, in CSS pixels.
 	 */
 	getWindowSize(windowHandle?: string) {
+		const getWindowSize = () => {
+			if (this.capabilities.supportsWindowRectCommand) {
+				return this.serverGet<{ width: number, height: number, x: number, y: number }>('window/rect').then(rect => {
+					return { width: rect.width, height: rect.height };
+				});
+			}
+			else {
+				return this.serverGet<{ width: number, height: number }>('window/size');
+			}
+		};
+
 		if (this.capabilities.implicitWindowHandles) {
 			if (windowHandle == null) {
-				return this.serverGet<{ width: number, height: number }>('window/size');
+				return getWindowSize();
 			}
 			else {
 				// User provided a window handle; get the current handle, switch to the new one, get the size, then
@@ -581,7 +603,7 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 				let size: { width: number, height: number };
 				return this.getCurrentWindowHandle().then(originalHandle => {
 					return this.switchToWindow(windowHandle).then(() => {
-						return this.serverGet<{ width: number, height: number }>('window/size');
+						return getWindowSize();
 					}).then((_size) => {
 						size = _size;
 					}, (_error) => {

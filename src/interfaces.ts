@@ -70,10 +70,12 @@ export interface Capabilities {
 	supportsExecuteAsync?: boolean;
 	supportsKeysCommand?: boolean;
 	supportsNavigationDataUris?: boolean;
+	supportsWindowRectCommand?: boolean;
 	takesScreenshot?: boolean;
 	touchEnabled?: boolean;
 	version?: string;
 	webStorageEnabled?: boolean;
+	[key: string]: any;
 }
 
 export interface Geolocation {

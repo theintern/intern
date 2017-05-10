@@ -1109,9 +1109,14 @@ export default class Server {
 			// The window sizing commands in the W3C standard don't use window handles, but they do under the
 			// JsonWireProtocol. By default, Session assumes handles are used. When the result of this check is added to
 			// capabilities, Session will take it into account.
-			testedCapabilities.implicitWindowHandles = session.getWindowSize().then(unsupported, function (error) {
-				return error.name === 'UnknownCommand';
-			});
+			if (isFirefox(capabilities, 53)) {
+				testedCapabilities.implicitWindowHandles = true;
+			}
+			else {
+				testedCapabilities.implicitWindowHandles = session.getWindowSize().then(unsupported, function (error) {
+					return error.name === 'UnknownCommand';
+				});
+			}
 
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
@@ -1162,6 +1167,8 @@ export default class Server {
 				testedCapabilities.supportsKeysCommand = session.serverPost('keys', { value: ['a'] }).then(supported,
 					unsupported);
 			}
+
+			testedCapabilities.supportsWindowRectCommand = session.serverGet('window/rect').then(supported, unsupported);
 
 			return Task.all(Object.keys(testedCapabilities).map(key => testedCapabilities[key]))
 				.then(() => testedCapabilities);
@@ -1264,12 +1271,16 @@ function isMacSafari(capabilities: Capabilities, minVersion?: number, maxVersion
 	return isValidVersion(capabilities, minVersion, maxVersion);
 }
 
-function isGeckodriver(capabilities: Capabilities): boolean {
+function isFirefox(capabilities: Capabilities, minVersion?: number, maxVersion?: number) {
 	if (capabilities.browserName !== 'firefox') {
 		return false;
 	}
 
-	return isValidVersion(capabilities, 49);
+	return isValidVersion(capabilities, minVersion, maxVersion);
+}
+
+function isGeckodriver(capabilities: Capabilities): boolean {
+	return isFirefox(capabilities, 49);
 }
 
 function isMacGeckodriver(capabilities: Capabilities): boolean {
