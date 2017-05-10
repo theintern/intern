@@ -8,6 +8,9 @@ import { dirname, normalize, relative, resolve, sep } from 'path';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
 import Pretty from '../reporters/Pretty';
 import Simple from '../reporters/Simple';
+import JsonCoverage from '../reporters/JsonCoverage';
+import HtmlCoverage from '../reporters/HtmlCoverage';
+import LcovCoverage from '../reporters/LcovCoverage';
 import Benchmark from '../reporters/Benchmark';
 import Promise from '@dojo/shim/Promise';
 import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
@@ -39,6 +42,9 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 		this.registerReporter('pretty', Pretty);
 		this.registerReporter('simple', Simple);
 		this.registerReporter('benchmark', Benchmark);
+		this.registerReporter('jsoncoverage', JsonCoverage);
+		this.registerReporter('htmlcoverage', HtmlCoverage);
+		this.registerReporter('lcovcoverage', LcovCoverage);
 
 		this._formatter = new Formatter(this.config);
 

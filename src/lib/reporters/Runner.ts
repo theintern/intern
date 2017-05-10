@@ -128,7 +128,7 @@ export default class Runner extends Coverage {
 			// add a newline between test results and coverage results for prettier output
 			this.charm.write('\n');
 
-			this.createCoverageReport('text', map);
+			this.createCoverageReport(this.reportType, map);
 		}
 
 		let message = 'TOTAL: tested %d platforms, %d/%d tests failed';
@@ -194,7 +194,7 @@ export default class Runner extends Coverage {
 			const session = this.sessions[suite.sessionId];
 
 			if (session.coverage) {
-				this.createCoverageReport('text', session.coverage);
+				this.createCoverageReport(this.reportType, session.coverage);
 			}
 			else {
 				this.charm

@@ -2,8 +2,12 @@ import Formatter from '../common/Formatter';
 import { mixin } from '@dojo/core/lang';
 import Executor, { Events, Handle } from '../executors/Executor';
 
-export default class Reporter implements ReporterProperties {
-	readonly executor: Executor;
+export default class Reporter<
+	E extends Executor = Executor,
+	C extends ReporterOptions = ReporterOptions,
+	V extends Events = Events
+> implements ReporterProperties {
+	readonly executor: E;
 
 	protected _console: Console;
 
@@ -13,13 +17,13 @@ export default class Reporter implements ReporterProperties {
 	 * A mapping from event names to the names of methods on this object. This property should be defined on the class
 	 * prototype. It is automatically created by the @eventHandler decorator.
 	 */
-	protected _eventHandlers: { [eventName in keyof Events]: string };
+	protected _eventHandlers: { [eventName in keyof V]: string };
 
 	protected _handles: Handle[];
 
 	protected _output: ReporterOutput;
 
-	constructor(executor: Executor, config: ReporterOptions = {}) {
+	constructor(executor: E, config: C = <C>{}) {
 		mixin(this, config);
 		this.executor = executor;
 		this._registerEventHandlers();
@@ -76,12 +80,13 @@ export default class Reporter implements ReporterProperties {
 			return;
 		}
 
-		Object.keys(this._eventHandlers).forEach((name: keyof Events) => {
-			this.executor.on(name, (...args: any[]) => {
+		// Use a for..in loop because _eventHandlers may inherit from a parent
+		for (let name in this._eventHandlers) {
+			this.executor.on(<keyof Events>name, (...args: any[]) => {
 				const handler = this._eventHandlers[name];
 				return (<any>this)[handler](...args);
 			});
-		});
+		}
 	}
 }
 
@@ -96,7 +101,13 @@ export function createEventHandler<E extends Events>() {
 			_descriptor: TypedPropertyDescriptor<(data: E[T]) => void>
 		) {
 			if (!target.hasOwnProperty('_eventHandlers')) {
-				target._eventHandlers = {};
+				if (target._eventHandlers != null) {
+					// If there's an _eventHandlers property on a parent, inherit from it
+					target._eventHandlers = Object.create(target._eventHandlers);
+				}
+				else {
+					target._eventHandlers = {};
+				}
 			}
 			target._eventHandlers[name || propertyKey] = propertyKey;
 		};

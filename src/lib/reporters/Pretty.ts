@@ -2,7 +2,7 @@
  * Handles presentation of runner results to the user
  */
 
-import Executor from '../executors/Executor';
+import Node from '../executors/Node';
 import Suite from '../Suite';
 import Test from '../Test';
 import { createEventHandler } from './Reporter';
@@ -17,7 +17,7 @@ import encode = require('charm/lib/encode');
 
 const eventHandler = createEventHandler<Events>();
 
-export default class Pretty extends Coverage implements PrettyProperties {
+export default class Pretty extends Coverage<PrettyOptions> implements PrettyProperties {
 	colorReplacement: { [key: string]: string };
 
 	dimensions: any;
@@ -42,7 +42,7 @@ export default class Pretty extends Coverage implements PrettyProperties {
 
 	protected _renderTimeout: NodeJS.Timer;
 
-	constructor(executor: Executor, config: PrettyOptions = {}) {
+	constructor(executor: Node, config: PrettyOptions = <PrettyOptions>{}) {
 		super(executor, config);
 
 		this._spinnerOffset = 0;

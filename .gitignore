@@ -6,6 +6,7 @@ saucelabs
 testingbot
 browserstack
 coverage-final.json
+coverage/
 _build/
 _tests/
 src/**/*.js
