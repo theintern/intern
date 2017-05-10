@@ -16,7 +16,7 @@ export default class Remote extends Browser<Events, Config> {
 
 	constructor(config?: Partial<Config>) {
 		super(<Config>{
-			reporters: [{ reporter: 'dom' }],
+			reporters: [{ name: 'dom' }],
 			runInSync: false,
 			sessionId: ''
 		});

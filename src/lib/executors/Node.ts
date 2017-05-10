@@ -154,7 +154,7 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 			config.internPath = `${relative(process.cwd(), config.internPath)}${sep}`;
 
 			if (config.reporters.length === 0) {
-				config.reporters = [{ reporter: 'simple' }];
+				config.reporters = [{ name: 'simple' }];
 			}
 
 			if (!config.nodeSuites) {
@@ -163,7 +163,7 @@ export default class Node<E extends Events = Events, C extends Config = Config> 
 
 			if (config.benchmarkConfig) {
 				config.reporters.push({
-					reporter: 'benchmark',
+					name: 'benchmark',
 					options: config.benchmarkConfig
 				});
 			}

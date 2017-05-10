@@ -53,7 +53,7 @@ export default class WebDriver extends Node<Events, Config> {
 			connectTimeout: 30000,
 			environments: <EnvironmentSpec[]>[],
 			maxConcurrency: Infinity,
-			reporters: [{ reporter: 'runner' }],
+			reporters: [{ name: 'runner' }],
 			runInSync: false,
 			serveOnly: false,
 			serverPort: 9000,

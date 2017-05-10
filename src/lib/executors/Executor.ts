@@ -62,7 +62,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			loader: { script: 'default' },
 			name: 'intern',
 			preload: <string[]>[],
-			reporters: <ReporterSpec[]>[],
+			reporters: <ReporterDescriptor[]>[],
 			suites: <string[]>[]
 		};
 
@@ -378,7 +378,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				this._reporters.push(new ReporterClass(this));
 			}
 			else {
-				const ReporterClass = this._getReporter(reporter.reporter);
+				const ReporterClass = this._getReporter(reporter.name);
 				this._reporters.push(new ReporterClass(this, reporter.options));
 			}
 		});
@@ -503,8 +503,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 						}
 					}
 
-					if (!reporter.reporter) {
-						throw new Error(`Invalid value "${value}" for ${name}`);
+					if (!reporter.name) {
+						throw new Error(`Invalid value "${value}" for ${name}: missing 'name' property`);
 					}
 
 					return reporter;
@@ -642,7 +642,7 @@ export interface Config {
 	/**
 	 * A list of reporter names or descriptors. These reporters will be loaded and instantiated before testing begins.
 	 */
-	reporters: ReporterSpec[];
+	reporters: ReporterDescriptor[];
 
 	/** A list of paths to suite scripts (or some other suite identifier usable by the suite loader). */
 	suites: string[];
@@ -650,8 +650,8 @@ export interface Config {
 	[key: string]: any;
 }
 
-export interface ReporterSpec {
-	reporter: string;
+export interface ReporterDescriptor {
+	name: string;
 	options?: ReporterOptions;
 }
 
