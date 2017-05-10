@@ -748,7 +748,7 @@ declare module 'leadfoot/Command' {
 		 * The value returned by the remote code. Only values that can be serialised to JSON, plus DOM elements, can be
 		 * returned.
 		 */
-		execute<T>(script: Function | string, args: any[]): Command<T>;
+		execute<T>(script: Function | string, args?: any[]): Command<T>;
 
 		/**
 		 * Executes JavaScript code within the focused window/frame. The code must invoke the provided callback in
@@ -772,7 +772,7 @@ declare module 'leadfoot/Command' {
 		 * The value returned by the remote code. Only values that can be serialised to JSON, plus DOM elements, can be
 		 * returned.
 		 */
-		executeAsync<T>(script: Function | string, args: any[]): Command<T>;
+		executeAsync<T>(script: Function | string, args?: any[]): Command<T>;
 
 		/**
 		 * Gets a screenshot of the focused window and returns it in PNG format.
@@ -2518,7 +2518,7 @@ declare module 'leadfoot/Session' {
 		 * The value returned by the remote code. Only values that can be serialised to JSON, plus DOM elements, can be
 		 * returned.
 		 */
-		execute<T>(script: Function | string, args: any[]): Promise<T>;
+		execute<T>(script: Function | string, args?: any[]): Promise<T>;
 
 		/**
 		 * Executes JavaScript code within the focused window/frame. The code must invoke the provided callback in
@@ -2542,7 +2542,7 @@ declare module 'leadfoot/Session' {
 		 * The value returned by the remote code. Only values that can be serialised to JSON, plus DOM elements, can be
 		 * returned.
 		 */
-		executeAsync<T>(script: Function | string, args: any[]): Promise<T>;
+		executeAsync<T>(script: Function | string, args?: any[]): Promise<T>;
 
 		/**
 		 * Gets a screenshot of the focused window and returns it in PNG format.
