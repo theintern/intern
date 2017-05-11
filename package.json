@@ -1,6 +1,6 @@
 {
   "name": "intern",
-  "version": "3.4.4-pre",
+  "version": "3.4.4",
   "main": "./main.js",
   "types": "./typings/intern/intern.d.ts",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
