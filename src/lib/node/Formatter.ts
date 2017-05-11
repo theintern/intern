@@ -132,17 +132,17 @@ function getSourceMap(filepath: string) {
 		return fileSourceMaps[filepath];
 	}
 
-	let data: string;
-
-	if (filepath in fileSources) {
-		data = fileSources[filepath];
-	}
-	else {
-		data = readFileSync(filepath).toString('utf-8');
-		fileSources[filepath] = data;
-	}
-
 	try {
+		let data: string;
+
+		if (filepath in fileSources) {
+			data = fileSources[filepath];
+		}
+		else {
+			data = readFileSync(filepath).toString('utf-8');
+			fileSources[filepath] = data;
+		}
+
 		const rawMap = <RawSourceMap>readSourceMap(filepath, data);
 		if (rawMap) {
 			fileSourceMaps[filepath] = new SourceMapConsumer(rawMap);
