@@ -65,7 +65,7 @@ registerSuite(function () {
 						assert.strictEqual(error.message, 'Invalid call');
 						assert.include(error.stack.slice(0, error.stack.indexOf('\n')), error.message,
 							'Original error message should be provided on the first line of the stack trace');
-						assert.include(error.stack, 'tests/functional/Command.js:53',
+						assert.include(error.stack, 'tests/functional/Command.js:54',
 							'Stack trace should point back to the async method call that eventually threw the error');
 					});
 			},

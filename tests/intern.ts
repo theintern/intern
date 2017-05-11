@@ -5,12 +5,10 @@ export const capabilities = {
 
 export const environments = [
 	{ browserName: 'microsoftedge', fixSessionCapabilities: false },
-	{ browserName: 'internet explorer', version: '11', platform: 'WIN8', fixSessionCapabilities: false },
-	{ browserName: 'internet explorer', version: '10', platform: 'WIN8', fixSessionCapabilities: false },
-	{ browserName: 'internet explorer', version: '9', platform: 'WINDOWS', fixSessionCapabilities: false },
-	{ browserName: 'firefox', version: [ '33', '49' ], platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
-	{ browserName: 'chrome', version: [ '38', '52' ], platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
-	{ browserName: 'safari', version: [ '9', '10' ], platform: 'MAC', fixSessionCapabilities: false }
+	{ browserName: 'internet explorer', version: [ '9', '10', '11' ], fixSessionCapabilities: false },
+	{ browserName: 'firefox', version: [ '33', 'latest' ], platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
+	{ browserName: 'chrome', version: [ '38', 'latest' ], platform: [ 'WINDOWS', 'MAC' ], fixSessionCapabilities: false },
+	{ browserName: 'safari', version: [ '9', '10' ], fixSessionCapabilities: false }
 ];
 
 export const maxConcurrency = 2;

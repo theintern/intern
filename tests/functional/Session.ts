@@ -620,8 +620,8 @@ registerSuite(function () {
 
 			let originalPosition: Position;
 			return session.getWindowPosition().then(function (position: Position) {
-				assert.property(position, 'x');
-				assert.property(position, 'y');
+				assert.notEqual(position.x, null, 'Expected position.x to have a value');
+				assert.notEqual(position.y, null, 'Expected position.y to have a value');
 				originalPosition = position;
 
 				return session.setWindowPosition(position.x + 2, position.y + 2);
