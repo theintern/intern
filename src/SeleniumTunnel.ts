@@ -6,10 +6,10 @@ import { fileExists, on, writeFile } from './util';
 import { Handle } from '@dojo/interfaces/core';
 import { mixin } from '@dojo/core/lang';
 
-const SeleniumVersion = '3.3.1';
-const ChromeVersion = '2.28';
-const FirefoxVersion = '0.15.0';
-const IEVersion = '3.3.0';
+const SeleniumVersion = '3.4.0';
+const ChromeVersion = '2.29';
+const FirefoxVersion = '0.16.1';
+const IEVersion = '3.4.0';
 
 /**
  * A Selenium tunnel. This tunnel downloads the {@link http://www.seleniumhq.org/download/ Selenium-standalone server}
@@ -195,7 +195,7 @@ export default class SeleniumTunnel extends Tunnel implements SeleniumProperties
 		);
 
 		if (this.verbose) {
-			args.push('-debug');
+			args.push('-debug', 'true');
 			console.log('Starting with arguments: ', args.join(' '));
 		}
 
@@ -230,11 +230,13 @@ export default class SeleniumTunnel extends Tunnel implements SeleniumProperties
 					// Kill the child since we're reporting that startup failed
 					child.kill('SIGINT');
 				}
-
-				if (this.verbose) {
-					process.stderr.write(data);
-				}
 			});
+
+			if (this.verbose) {
+				on(child.stderr, 'data', (data: string) => {
+					process.stderr.write(data);
+				});
+			}
 
 			executor(child, resolve, reject);
 		});
