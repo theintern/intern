@@ -52,6 +52,7 @@ export default class WebDriver extends Node<Events, Config> {
 			capabilities: { 'idle-timeout': 60 },
 			connectTimeout: 30000,
 			environments: <EnvironmentSpec[]>[],
+			functionalCoverage: true,
 			maxConcurrency: Infinity,
 			reporters: [{ name: 'runner' }],
 			runInSync: false,
@@ -222,6 +223,8 @@ export default class WebDriver extends Node<Events, Config> {
 				config.environments,
 				tunnelEnvironments
 			).map(environmentType => {
+				let session: ProxiedSession;
+
 				// Create a new root suite for each environment
 				const suite = new Suite({
 					name: String(environmentType),
@@ -234,9 +237,10 @@ export default class WebDriver extends Node<Events, Config> {
 
 					before() {
 						executor.log('Creating session for', environmentType);
-						return leadfootServer.createSession<ProxiedSession>(environmentType).then(session => {
+						return leadfootServer.createSession<ProxiedSession>(environmentType).then(_session => {
+							session = _session;
 							session.executor = executor;
-							session.coverageEnabled = config.excludeInstrumentation !== true;
+							session.coverageEnabled = config.functionalCoverage && config.excludeInstrumentation !== true;
 							session.coverageVariable = config.instrumenterOptions.coverageVariable;
 							session.serverUrl = config.serverUrl;
 							session.serverBasePathLength = config.basePath.length;
@@ -285,7 +289,11 @@ export default class WebDriver extends Node<Events, Config> {
 				// If browser-compatible unit tests were added to this executor, add a RemoteSuite to the session suite.
 				// The RemoteSuite will run the suites listed in executor.config.suites.
 				if (config.suites.length + config.browserSuites.length > 0) {
-					suite.add(new RemoteSuite());
+					suite.add(new RemoteSuite({
+						before() {
+							session.coverageEnabled = config.functionalCoverage && config.excludeInstrumentation !== true;
+						}
+					}));
 				}
 
 				return suite;
@@ -464,6 +472,9 @@ export interface Config extends BaseConfig {
 
 	/** A list of remote environments */
 	environments: EnvironmentSpec[];
+
+	/** If true, collect coverage data from functional tests */
+	functionalCoverage: boolean;
 
 	leaveRemoteOpen: boolean | 'fail';
 	maxConcurrency: number;

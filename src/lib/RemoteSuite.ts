@@ -1,4 +1,4 @@
-import Suite from './Suite';
+import Suite, { SuiteOptions } from './Suite';
 import UrlSearchParams from '@dojo/core/UrlSearchParams';
 import { Handle, Hash } from '@dojo/interfaces/core';
 import { parse } from 'url';
@@ -18,14 +18,17 @@ export default class RemoteSuite extends Suite {
 	/** The HTML page that will be used to host the tests */
 	harness: string;
 
-	constructor() {
-		super({ name: 'unit tests' });
+	constructor(options: Partial<SuiteOptions>) {
+		options = options || {};
+		if (options.name == null) {
+			options.name = 'unit tests';
+		}
+
+		super(<SuiteOptions>options);
 
 		if (this.timeout == null) {
 			this.timeout = Infinity;
 		}
-
-		this.tests = [];
 	}
 
 	/**
