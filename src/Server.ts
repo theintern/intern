@@ -535,7 +535,8 @@ export default class Server {
 
 			if (!('dynamicViewport' in capabilities)) {
 				testedCapabilities.dynamicViewport = session.getWindowSize().then(function (originalSize) {
-					return session.setWindowSize(originalSize.width, originalSize.height);
+					// At least Firefox 53 will hang if the target size is the same as the current size
+					return session.setWindowSize(originalSize.width - 2, originalSize.height - 2);
 				}).then(supported, unsupported);
 			}
 
