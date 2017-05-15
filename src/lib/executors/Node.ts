@@ -449,8 +449,9 @@ export default class Node extends Executor<Events, Config> {
 			case 'socketPort':
 				this.config[name] = parseValue(name, value, 'number');
 				break;
+
 			default:
-				super._processOption(name, value);
+				super._processOption(<keyof BaseConfig>name, value);
 				break;
 		}
 	}
@@ -501,7 +502,7 @@ export default class Node extends Executor<Events, Config> {
 				config.capabilities.build = buildId;
 			}
 
-			return Promise.all(['suites', 'browserSuites', 'functionalSuites', 'nodeSuites'].map(property => {
+			return Promise.all(['suites', 'browserSuites', 'functionalSuites', 'nodeSuites'].map((property: keyof Config) => {
 				return expandFiles(config[property]).then(expanded => {
 					config[property] = expanded;
 				});
@@ -567,7 +568,14 @@ export default class Node extends Executor<Events, Config> {
 }
 
 export interface Config extends BaseConfig {
-	basePath: string;
+	/** A loader used to load test suites and application modules in a remote browser. */
+	browserLoader: LoaderDescriptor;
+
+	/**
+	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that
+	 * will only be loaded in remote browsers.
+	 */
+	browserSuites: string[];
 
 	capabilities: {
 		name?: string;

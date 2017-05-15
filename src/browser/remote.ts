@@ -3,6 +3,9 @@ import { parseQuery } from '../lib/browser/util';
 import { parseArgs } from '../lib/common/util';
 import Channel from '../lib/Channel';
 
+// In this context, the executor will be a Remote
+declare const intern: Remote;
+
 const config = parseArgs(parseQuery());
 const channel = new Channel({
 	url: config.basePath,

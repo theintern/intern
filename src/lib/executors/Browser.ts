@@ -85,7 +85,7 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 				break;
 
 			default:
-				super._processOption(name, value);
+				super._processOption(<keyof BaseConfig>name, value);
 				break;
 		}
 	}
@@ -99,7 +99,7 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 			}
 
 			// Filter out globs from suites and browser suites
-			[ 'suites', 'browserSuites' ].forEach(name => {
+			[ 'suites', 'browserSuites' ].forEach((name: keyof Config) => {
 				config[name] = config[name].filter((suite: string) => {
 					if (/[*?]/.test(suite)) {
 						console.warn(`Globs may not be used for browser suites: "${suite}"`);
@@ -109,7 +109,7 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 				});
 			});
 
-			[ 'basePath', 'internPath' ].forEach(key => {
+			[ 'basePath', 'internPath' ].forEach((key: keyof Config) => {
 				config[key] = normalizePathEnding(config[key]);
 			});
 
@@ -121,17 +121,12 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 }
 
 export interface Config extends BaseConfig {
-	/** The absolute path to the project base (defaults to '/') */
-	basePath: string;
-
-	/**
-	 * A loader used to load test suites and application modules in a Node environment.
-	 */
+	/** A loader used to load test suites and application modules in a browser. */
 	browserLoader: LoaderDescriptor;
 
 	/**
 	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that
-	 * will only be loaded in Node environments.
+	 * will only be loaded in browsers.
 	 */
 	browserSuites: string[];
 }

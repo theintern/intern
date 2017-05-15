@@ -396,7 +396,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _emitCoverage(source?: string) {
 		const coverage = global[this.config.instrumenterOptions.coverageVariable];
 		if (coverage) {
-			return this.emit('coverage', { coverage, source, sessionId: this.config.sessionId });
+			return this.emit('coverage', { coverage, source, sessionId: (<any>this.config).sessionId });
 		}
 	}
 
@@ -593,6 +593,10 @@ export interface Config {
 	bail: boolean;
 
 	baseline: boolean;
+
+	/** The path to the project base */
+	basePath: string;
+
 	benchmark: boolean;
 	benchmarkConfig?: {
 		id: string;
@@ -621,6 +625,9 @@ export interface Config {
 	grep: RegExp;
 
 	instrumenterOptions: any;
+
+	/** The path to Intern */
+	internPath: string;
 
 	/**
 	 * The loader used to load test suites and application modules. When passed in as part of a config object, the
@@ -653,8 +660,6 @@ export interface Config {
 
 	/** A list of paths to suite scripts (or some other suite identifier usable by the suite loader). */
 	suites: string[];
-
-	[key: string]: any;
 }
 
 export interface ReporterDescriptor {
@@ -700,9 +705,6 @@ export interface Events {
 
 	/** An unhandled error occurs */
 	error: Error;
-
-	/** The path to Intern */
-	internPath: string;
 
 	/** A debug log event */
 	log: string;

@@ -4,8 +4,8 @@ import { Handle, Hash } from '@dojo/interfaces/core';
 import { parse } from 'url';
 import Task from '@dojo/core/async/Task';
 import { InternError } from './types';
-import Node, { Events } from './executors/Node';
-import { Config } from './executors/Remote';
+import Node, { Config, Events } from './executors/Node';
+import { Config as RemoteConfig } from './executors/Remote';
 import { toJSON } from './common/util';
 import Deferred from './Deferred';
 
@@ -159,7 +159,7 @@ export default class RemoteSuite extends Suite {
 				}
 
 				// These are options that will be passed as query params to the test harness page
-				const queryOptions: Partial<Config> = {
+				const queryOptions: Partial<RemoteConfig> = {
 					basePath: serverUrlPath,
 					debug: config.debug,
 					sessionId: sessionId,
@@ -168,9 +168,9 @@ export default class RemoteSuite extends Suite {
 
 				// Do some pre-serialization of the options
 				const queryParams: Hash<any> = {};
-				Object.keys(queryOptions).filter(key => {
+				Object.keys(queryOptions).filter((key: keyof RemoteConfig) => {
 					return queryOptions[key] != null;
-				}).forEach(key => {
+				}).forEach((key: keyof RemoteConfig) => {
 					let value = queryOptions[key];
 					if (typeof value === 'object') {
 						value = JSON.stringify(value);
@@ -183,7 +183,7 @@ export default class RemoteSuite extends Suite {
 
 				// These are options that will be POSTed to the remote page and used to configure intern. Stringify and
 				// parse them to ensure that the config can be properly transmitted.
-				const remoteConfig: Partial<Config> = {
+				const remoteConfig: Partial<RemoteConfig> = {
 					basePath: serverUrlPath,
 					internPath: `${serverUrlPath}${config.internPath}`,
 					name: this.id,
@@ -210,8 +210,8 @@ export default class RemoteSuite extends Suite {
 				};
 
 				// Pass all non-excluded keys to the remote config
-				Object.keys(config).filter(key => !excludeKeys[key]).forEach(key => {
-					remoteConfig[key] = config[key];
+				Object.keys(config).filter(key => !excludeKeys[key]).forEach((key: keyof Config) => {
+					remoteConfig[<keyof RemoteConfig>key] = config[key];
 				});
 
 				this.executor.log('Configuring remote', this.name, 'with', remoteConfig);
