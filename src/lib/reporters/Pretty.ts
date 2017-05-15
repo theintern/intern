@@ -3,13 +3,14 @@
  */
 
 import Node from '../executors/Node';
+import Environment from '../Environment';
 import Suite from '../Suite';
 import Test from '../Test';
 import { createEventHandler } from './Reporter';
 import Coverage, { CoverageProperties } from './Coverage';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
-import { Events, TunnelMessage } from '../executors/WebDriver';
+import { Events, TunnelMessage } from '../executors/Node';
 import { mixin } from '@dojo/core/lang';
 import { format } from 'util';
 import charm = require('charm');
@@ -199,7 +200,7 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 	 */
 	private _getReporter(suite: Suite): Report {
 		if (!this._reports[suite.sessionId]) {
-			this._reports[suite.sessionId] = new Report(suite.remote && suite.remote.environmentType!.toString());
+			this._reports[suite.sessionId] = new Report(suite.remote && suite.remote.environmentType);
 		}
 		return this._reports[suite.sessionId];
 	}
@@ -362,7 +363,7 @@ export type PrettyOptions = Partial<PrettyProperties>;
  * @param sessionId the sessionId associated with the report
  */
 export class Report {
-	environment: string | undefined;
+	environment: Environment | undefined;
 	sessionId: string | undefined;
 	numTotal = 0;
 	numPassed = 0;
@@ -371,7 +372,7 @@ export class Report {
 	results: number[] = [];
 	coverageMap: CoverageMap;
 
-	constructor(environment?: string, sessionId?: string) {
+	constructor(environment?: Environment, sessionId?: string) {
 		this.environment = environment;
 		this.sessionId = sessionId;
 		this.coverageMap = createCoverageMap();

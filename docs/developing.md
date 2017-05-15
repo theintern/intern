@@ -15,17 +15,17 @@ To build Intern, just run:
 
 ## Running Self-Tests
 
-To run the existing unit tests in Node, use:
+To run the existing unit tests, use:
 
     $ npm test
-
-For WebDriver tests, run
-
-    $ npm test webdriver
 
 Intern’s self tests work by using two different builds of the current version of Intern, one in `_tests` and one in
 `_build`. Both instances are generated when building Intern. The version in `_tests` is then used to run tests against
 the version in `_build`.
+
+To disable the remote tests, use:
+
+    $ npm test environments=
 
 ## Writing Self-Tests
 
@@ -44,22 +44,13 @@ next section.
 
 ### SystemJS
 
-The self tests use the [SystemJS](https://github.com/systemjs/systemjs) loader. This provides a couple of useful
-capabilities:
-
-  * It allows individual Intern modules to be loaded in the browser
-  * It allows the tests to load modules using the non-relative 'src' package in Node
-
-Using SystemJS also adds some complications:
-
-  * A hack is needed to get [benchmark.js](https://benchmarkjs.com/) working properly in the browser
-  * There's a lot of configuration required since SystemJS doesn't use Node loading semantics
-
-The self-tests use the built-in `systemjs` loader script, with the loader config provided by the `intern.json` file.
+Self tests in the browser use the [SystemJS](https://github.com/systemjs/systemjs) loader so that individual Intern
+modules to be loaded in the browser. The self-tests use the built-in `systemjs` loader script, with the loader config
+provided by the `intern.json` file.
 
 The benchmark.js library has issues with SystemJS in the browser, so a preload script is loaded from
-`_tests/tests/pre.js` to do some environmental fixup. Specifically, benchmark.js expects that either an AMD
-define function or a global Benchmark property will exist when it is running benchmarks. It doesn't actually need either
-of these values; it just uses one of them as an anchor object to attach other values to. When benchmark.js is loaded by
+`_tests/tests/pre.js` to do some environmental fixup. Specifically, benchmark.js expects that either an AMD define
+function or a global Benchmark property will exist when it is running benchmarks. It doesn't actually need either of
+these values; it just uses one of them as an anchor object to attach other values to. When benchmark.js is loaded by
 SystemJS in the browser, neither of these properties will exist, so the preload script simply creates an empty Benchmark
 global in this situation.

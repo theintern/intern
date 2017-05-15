@@ -14,10 +14,6 @@ The node runner is a built in script for running Node-based unit tests and WebDr
 
     $ node_modules/.bin/intern
 
-or
-
-    $ node_modules/.bin/intern webdriver
-
 By default, the runner looks for an `intern.json` config file in the project root. This can be changed by providing a
 `config` property on the command line, like `config=tests/myconfig.json`. The runner will also accept any other config
 properties as command line arguments. For example,
@@ -55,7 +51,7 @@ following `intern.json` file:
 {
   "suites": "tests/unit/**/*.js",
   "preload": "tests/pre.js",
-  "loader": { 
+  "loader": {
     "script": "dojo",
     "config": {
       "packages": [{"name": "app", "location": "."}]
@@ -73,7 +69,7 @@ module.exports = function (grunt) {
                 options: {
                     suites: "tests/unit/**/*.js",
                     preload: "tests/pre.js"
-                    "loader": { 
+                    "loader": {
                         "script": "dojo",
                         "config": {
                             "packages": [{"name": "app", "location": "."}]

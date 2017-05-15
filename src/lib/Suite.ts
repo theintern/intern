@@ -3,7 +3,7 @@ import Deferred from './Deferred';
 import Executor from './executors/Executor';
 import Test, { isTest, SKIP } from './Test';
 import { InternError } from './types';
-import { Remote } from './executors/WebDriver';
+import { Remote } from './executors/Node';
 import Promise from '@dojo/shim/Promise';
 
 export default class Suite implements SuiteProperties {

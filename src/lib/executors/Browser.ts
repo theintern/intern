@@ -70,9 +70,7 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 	protected _loadSuites() {
 		const config = duplicate(this.config);
 		config.suites = config.suites.concat(config.browserSuites);
-		if (config.browserLoader) {
-			config.loader = config.browserLoader;
-		}
+		config.loader = config.browserLoader || config.loader;
 		return super._loadSuites(config);
 	}
 

@@ -8,7 +8,7 @@ import { lookup } from 'mime-types';
 import { Socket } from 'net';
 import { mixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
-import WebDriver from './executors/WebDriver';
+import Node from './executors/Node';
 import { Message } from './channels/Base';
 import Promise from '@dojo/shim/Promise';
 import WebSocket = require('ws');
@@ -16,7 +16,7 @@ import WebSocket = require('ws');
 export default class Server implements ServerProperties {
 	basePath: string;
 
-	executor: WebDriver;
+	executor: Node;
 
 	port: number;
 
@@ -319,7 +319,7 @@ export default class Server implements ServerProperties {
 
 export interface ServerProperties {
 	basePath: string;
-	executor: WebDriver;
+	executor: Node;
 	port: number;
 	runInSync: boolean;
 	socketPort: number;
@@ -329,6 +329,6 @@ export interface ServerListener {
 	(name: string, data: any): void;
 }
 
-export type ServerOptions = Partial<ServerProperties> & { executor: WebDriver };
+export type ServerOptions = Partial<ServerProperties> & { executor: Node };
 
 const resolvedPromise = Promise.resolve();

@@ -3,7 +3,7 @@
 		"_tests/tests/unit/**/*.js",
 		"_tests/tests/benchmark/example.js"
 	],
-	"benchmark": true,
+	"benchmark": false,
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 	"browserLoader": {
 		"script": "systemjs",

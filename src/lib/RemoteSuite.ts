@@ -4,7 +4,7 @@ import { Handle, Hash } from '@dojo/interfaces/core';
 import { parse } from 'url';
 import Task from '@dojo/core/async/Task';
 import { InternError } from './types';
-import WebDriver, { Events } from './executors/WebDriver';
+import Node, { Events } from './executors/Node';
 import { Config } from './executors/Remote';
 import { toJSON } from './common/util';
 import Deferred from './Deferred';
@@ -13,7 +13,7 @@ import Deferred from './Deferred';
  * RemoteSuite is a class that acts as a local server for one or more unit test suites being run in a remote browser.
  */
 export default class RemoteSuite extends Suite {
-	executor: WebDriver;
+	executor: Node;
 
 	/** The HTML page that will be used to host the tests */
 	harness: string;
@@ -21,7 +21,7 @@ export default class RemoteSuite extends Suite {
 	constructor(options: Partial<SuiteOptions>) {
 		options = options || {};
 		if (options.name == null) {
-			options.name = 'unit tests';
+			options.name = 'remote unit tests';
 		}
 
 		super(<SuiteOptions>options);
@@ -206,8 +206,7 @@ export default class RemoteSuite extends Suite {
 					sessionId: true,
 					socketPort: true,
 					tunnel: true,
-					tunnelOptions: true,
-					webdriver: true
+					tunnelOptions: true
 				};
 
 				// Pass all non-excluded keys to the remote config

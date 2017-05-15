@@ -8,7 +8,7 @@ import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { Writable } from 'stream';
 import Server from '../Server';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
-import WebDriver, { Events, TunnelMessage } from '../executors/WebDriver';
+import Node, { Events, TunnelMessage } from '../executors/Node';
 
 export type Charm = charm.Charm;
 
@@ -31,7 +31,7 @@ export default class Runner extends Coverage {
 
 	protected charm: Charm;
 
-	constructor(executor: WebDriver, config: Partial<CoverageProperties> = {}) {
+	constructor(executor: Node, config: Partial<CoverageProperties> = {}) {
 		super(executor, config);
 
 		this.sessions = {};
@@ -47,12 +47,9 @@ export default class Runner extends Coverage {
 
 	@eventHandler()
 	coverage(message: CoverageMessage) {
-		// coverage will be called for the runner host, which has no session ID -- ignore that
-		if (message.sessionId) {
-			const session = this.sessions[message.sessionId || ''];
-			session.coverage = session.coverage || createCoverageMap();
-			session.coverage.merge(message.coverage);
-		}
+		const session = this.sessions[message.sessionId || ''];
+		session.coverage = session.coverage || createCoverageMap();
+		session.coverage.merge(message.coverage);
 	}
 
 	@eventHandler()
@@ -114,39 +111,40 @@ export default class Runner extends Coverage {
 		const sessionIds = Object.keys(this.sessions);
 		const numEnvironments = sessionIds.length;
 
-		sessionIds.forEach(sessionId => {
-			const session = this.sessions[sessionId];
-			if (session.coverage) {
-				map.merge(session.coverage);
+		if (sessionIds.length > 1) {
+			sessionIds.forEach(sessionId => {
+				const session = this.sessions[sessionId];
+				if (session.coverage) {
+					map.merge(session.coverage);
+				}
+				numTests += session.suite.numTests;
+				numFailedTests += session.suite.numFailedTests;
+				numSkippedTests += session.suite.numSkippedTests;
+			});
+
+			if (map.files().length > 0) {
+				this.charm.write('\n');
+				this.charm.display('bright').write('Total coverage\n').display('reset');
+				this.createCoverageReport(this.reportType, map);
 			}
-			numTests += session.suite.numTests;
-			numFailedTests += session.suite.numFailedTests;
-			numSkippedTests += session.suite.numSkippedTests;
-		});
 
-		if (map.files().length > 0) {
-			// add a newline between test results and coverage results for prettier output
-			this.charm.write('\n');
+			let message = 'TOTAL: tested %d platforms, %d/%d tests failed';
 
-			this.createCoverageReport(this.reportType, map);
+			if (numSkippedTests) {
+				message += ' (' + numSkippedTests + ' skipped)';
+			}
+
+			if (this.hasErrors && !numFailedTests) {
+				message += '; fatal error occurred';
+			}
+
+			this.charm
+				.display('bright')
+				.foreground(numFailedTests > 0 || this.hasErrors ? 'red' : 'green')
+				.write(nodeUtil.format(message, numEnvironments, numFailedTests, numTests))
+				.display('reset')
+				.write('\n');
 		}
-
-		let message = 'TOTAL: tested %d platforms, %d/%d tests failed';
-
-		if (numSkippedTests) {
-			message += ' (' + numSkippedTests + ' skipped)';
-		}
-
-		if (this.hasErrors && !numFailedTests) {
-			message += '; fatal error occurred';
-		}
-
-		this.charm
-			.display('bright')
-			.foreground(numFailedTests > 0 || this.hasErrors ? 'red' : 'green')
-			.write(nodeUtil.format(message, numEnvironments, numFailedTests, numTests))
-			.display('reset')
-			.write('\n');
 	}
 
 	@eventHandler()
@@ -173,12 +171,9 @@ export default class Runner extends Coverage {
 			this.hasErrors = true;
 		}
 		else if (!suite.hasParent) {
-			// Runner mode test with no sessionId was some failed test, not a bug
-			if (!suite.sessionId) {
-				return;
-			}
+			const session = this.sessions[suite.sessionId || ''];
 
-			if (!this.sessions[suite.sessionId]) {
+			if (!session) {
 				if (!this.serveOnly) {
 					this.charm
 						.display('bright')
@@ -191,9 +186,8 @@ export default class Runner extends Coverage {
 				return;
 			}
 
-			const session = this.sessions[suite.sessionId];
-
 			if (session.coverage) {
+				this.charm.write('\n');
 				this.createCoverageReport(this.reportType, session.coverage);
 			}
 			else {
@@ -225,7 +219,7 @@ export default class Runner extends Coverage {
 				.foreground(numFailedTests || hasError > 0 ? 'red' : 'green')
 				.write(summary)
 				.display('reset')
-				.write('\n\n');
+				.write('\n');
 		}
 	}
 
@@ -234,7 +228,8 @@ export default class Runner extends Coverage {
 		if (!suite.hasParent) {
 			this.sessions[suite.sessionId || ''] = { suite: suite };
 			if (suite.sessionId) {
-				this.charm.write('‣ Created session ' + suite.name + ' (' + suite.sessionId + ')\n');
+				this.charm.write('\n');
+				this.charm.write('‣ Created remote session ' + suite.name + ' (' + suite.sessionId + ')\n');
 			}
 		}
 	}

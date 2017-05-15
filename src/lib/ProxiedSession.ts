@@ -1,6 +1,6 @@
 import Session from 'leadfoot/Session';
 import Task from '@dojo/core/async/Task';
-import WebDriver from './executors/WebDriver';
+import Node from './executors/Node';
 
 /* istanbul ignore next: client-side code */
 function getCoverageData(coverageVariable: string) {
@@ -27,7 +27,7 @@ export default class ProxiedSession extends Session {
 	/**
 	 * The Executor hosting this session.
 	 */
-	executor: WebDriver;
+	executor: Node;
 
 	/**
 	 * The number of characters that need to be truncated from the front of file paths to get a working path-part
@@ -133,9 +133,11 @@ export default class ProxiedSession extends Session {
 		return shouldGetPromise.then(shouldGetCoverage => {
 			if (shouldGetCoverage) {
 				return this.execute<string>(getCoverageData, [this.coverageVariable]).then(coverageData => {
+					// Emit coverage retrieved from a remote session
 					this.executor.log('Got coverage data for', this.sessionId);
 					return coverageData && this.executor.emit('coverage', {
 						sessionId: this.sessionId,
+						source: 'remote session',
 						coverage: JSON.parse(coverageData)
 					});
 				});

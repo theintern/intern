@@ -29,8 +29,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _formatter: Formatter;
 
 	/**
-	 * The root suites managed by this executor. Currently only the WebDriver executor will have more than one root
-	 * suite.
+	 * The root suites managed by this executor.
 	 */
 	protected _rootSuite: Suite;
 
@@ -81,14 +80,22 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this.registerAssertions('expect', chai.expect);
 		this.registerAssertions('should', chai.should);
 
-		if (config) {
-			this.configure(config);
-		}
-
 		this._rootSuite = new Suite({
 			executor: this,
 			name: this.config.name
 		});
+
+		// This is the first suiteEnd listener. When the root unit test suite ends, it will emit a coverage message
+		// before any other suiteEnd listeners are called.
+		this.on('suiteEnd', suite => {
+			if (!suite.hasParent && !suite.sessionId) {
+				return this._emitCoverage('unit tests');
+			}
+		});
+
+		if (config) {
+			this.configure(config);
+		}
 	}
 
 	abstract get environment(): string;
@@ -386,10 +393,10 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		return resolvedTask;
 	}
 
-	protected _emitCoverage() {
+	protected _emitCoverage(source?: string) {
 		const coverage = global[this.config.instrumenterOptions.coverageVariable];
 		if (coverage) {
-			return this.emit('coverage', { coverage, sessionId: this.config.sessionId });
+			return this.emit('coverage', { coverage, source, sessionId: this.config.sessionId });
 		}
 	}
 
@@ -499,7 +506,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 							reporter = JSON.parse(reporter);
 						}
 						catch (error) {
-							reporter = { reporter };
+							reporter = { name: reporter };
 						}
 					}
 
@@ -559,7 +566,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Runs each of the root suites, limited to a certain number of suites at the same time by `maxConcurrency`.
 	 */
 	protected _runTests() {
-		return this._rootSuite.run().finally(() => this._emitCoverage());
+		return this._rootSuite.run();
 	}
 }
 
@@ -661,6 +668,7 @@ export interface Listener<T> {
 
 export interface CoverageMessage {
 	sessionId?: string;
+	source?: string;
 	coverage: any;
 }
 

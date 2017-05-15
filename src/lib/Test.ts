@@ -3,7 +3,7 @@ import Deferred from './Deferred';
 import Task, { isTask, isThenable } from '@dojo/core/async/Task';
 import { Thenable } from '@dojo/shim/interfaces';
 import { InternError } from './types';
-import { Remote } from './executors/WebDriver';
+import { Remote } from './executors/Node';
 import Suite from './Suite';
 import { mixin } from '@dojo/core/lang';
 
