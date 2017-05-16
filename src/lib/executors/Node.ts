@@ -1,4 +1,4 @@
-import Executor, { Config as BaseConfig, Events as BaseEvents, initialize, LoaderDescriptor } from './Executor';
+import Executor, { Config as BaseConfig, Events as BaseEvents, initialize, LoaderDescriptor, PluginDescriptor } from './Executor';
 import Task from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
@@ -63,6 +63,7 @@ export default class Node extends Executor<Events, Config> {
 			functionalSuites: <string[]>[],
 			maxConcurrency: Infinity,
 			name: 'node',
+			nodePlugins: <PluginDescriptor[]>[],
 			nodeSuites: <string[]>[],
 			reporters: [{ name: 'runner' }],
 			runInSync: false,
@@ -364,6 +365,15 @@ export default class Node extends Executor<Events, Config> {
 	}
 
 	/**
+	 * Override Executor#_loadPlugins to pass a combination of nodePlugins and plugins to the loader.
+	 */
+	protected _loadPlugins() {
+		const config = duplicate(this.config);
+		config.plugins = config.plugins.concat(config.nodePlugins);
+		return super._loadPlugins(config);
+	}
+
+	/**
 	 * Override Executor#_loadSuites to pass a combination of nodeSuites and suites to the loader.
 	 */
 	protected _loadSuites() {
@@ -439,6 +449,10 @@ export default class Node extends Executor<Events, Config> {
 					throw new Error(`Invalid value "${value}" for ${name}`);
 				}
 				this.config[name] = value;
+				break;
+
+			case 'nodePlugins':
+				this.config[name] = parseValue(name, value, 'object[]', 'script');
 				break;
 
 			case 'functionalCoverage':
@@ -542,7 +556,7 @@ export default class Node extends Executor<Events, Config> {
 
 		this.log('Running', numSuitesToRun, 'suites');
 
-		// ...then run remote unit tests and functioal tests
+		// ...then run remote unit tests and functional tests
 		return Task.all(sessionSuites.map(suite => {
 			this.log('Queueing suite', suite.name);
 			return queue.enqueue(() => {
@@ -608,9 +622,14 @@ export interface Config extends BaseConfig {
 	maxConcurrency: number;
 
 	/**
-	 * A loader used to load test suites and application modules in a Node environment.
+	 * A loader used to load test suites and application modules in a Node environment
 	 */
 	nodeLoader: LoaderDescriptor;
+
+	/**
+	 * Plugins that should only be loaded in a Node environment
+	 */
+	nodePlugins: PluginDescriptor[];
 
 	/**
 	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that

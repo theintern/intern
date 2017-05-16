@@ -1,4 +1,4 @@
-import Executor, { Config as BaseConfig, Events, initialize, LoaderDescriptor } from './Executor';
+import Executor, { Config as BaseConfig, Events, initialize, LoaderDescriptor, PluginDescriptor } from './Executor';
 import { normalizePathEnding, parseValue } from '../common/util';
 import { duplicate } from '@dojo/core/lang';
 import Formatter from '../browser/Formatter';
@@ -15,6 +15,7 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 	constructor(config?: Partial<C>) {
 		super(<C>{
 			basePath: '/',
+			browserPlugins: <PluginDescriptor[]>[],
 			browserSuites: <string[]>[]
 		});
 
@@ -65,6 +66,15 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 	}
 
 	/**
+	 * Override Executor#_loadPlugins to pass a combination of browserPlugins and plugins to the loader.
+	 */
+	protected _loadPlugins() {
+		const config = duplicate(this.config);
+		config.plugins = config.plugins.concat(config.browserPlugins);
+		return super._loadPlugins(config);
+	}
+
+	/**
 	 * Override Executor#_loadSuites to pass a combination of browserSuites and suites to the loader
 	 */
 	protected _loadSuites() {
@@ -78,6 +88,10 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 		switch (name) {
 			case 'basePath':
 				this.config[name] = parseValue(name, value, 'string');
+				break;
+
+			case 'browserPlugins':
+				this.config[name] = parseValue(name, value, 'object[]', 'script');
 				break;
 
 			case 'browserSuites':
@@ -123,6 +137,9 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 export interface Config extends BaseConfig {
 	/** A loader used to load test suites and application modules in a browser. */
 	browserLoader: LoaderDescriptor;
+
+	/** Plugins that should only be loaded in a browser */
+	browserPlugins: PluginDescriptor[];
 
 	/**
 	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that

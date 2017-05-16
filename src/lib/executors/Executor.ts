@@ -39,6 +39,10 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 	protected _loader: Loader;
 
+	protected _loadingPlugin: Task<void> | undefined;
+
+	protected _loadingPluginOptions: any | undefined;
+
 	protected _listeners: { [event: string]: Listener<any>[] };
 
 	protected _reporters: Reporter[];
@@ -60,10 +64,14 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			},
 			loader: { script: 'default' },
 			name: 'intern',
-			preload: <string[]>[],
+			plugins: <PluginDescriptor[]>[],
 			reporters: <ReporterDescriptor[]>[],
 			suites: <string[]>[]
 		};
+
+		if (config) {
+			this.configure(config);
+		}
 
 		this._availableReporters = {};
 		this._listeners = {};
@@ -92,10 +100,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				return this._emitCoverage('unit tests');
 			}
 		});
-
-		if (config) {
-			this.configure(config);
-		}
 	}
 
 	abstract get environment(): string;
@@ -297,6 +301,14 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
+	 * Register a plugin that will be loaded at the beginning of the testing process (before any external loader is
+	 * initialized). This method should only be called from a plugin being loaded via the config.plugins option.
+	 */
+	registerPlugin(init: PluginInitializer) {
+		this._loadingPlugin = init(this._loadingPluginOptions);
+	}
+
+	/**
 	 * Install a reporter constructor
 	 */
 	registerReporter(name: string, Class: typeof Reporter) {
@@ -322,7 +334,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				}
 				else {
 					this._runTask = this._runTask
-						.then(() => this._preloadScripts())
+						.then(() => this._loadPlugins())
 						.then(() => this.emit('beforeRun'))
 						.then(() => this._beforeRun())
 						.then(() => this._loadSuites())
@@ -442,9 +454,23 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		});
 	}
 
-	protected _preloadScripts() {
-		if (this.config.preload) {
-			return this.loadScript(this.config.preload);
+	/**
+	 * Load plugins
+	 */
+	protected _loadPlugins(config?: Config) {
+		config = config || this.config;
+		if (config.plugins) {
+			return config.plugins.reduce((previous, plugin) => {
+				return previous.then(() => {
+					this._loadingPluginOptions = plugin.options;
+					return this.loadScript(plugin.script).then(() => {
+						return Task.resolve(this._loadingPlugin);
+					}).finally(() => {
+						this._loadingPlugin = undefined;
+						this._loadingPluginOptions = undefined;
+					});
+				});
+			}, Task.resolve());
 		}
 		return resolvedTask;
 	}
@@ -509,22 +535,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				break;
 
 			case 'reporters':
-				this.config[name] = (Array.isArray(value) ? value : [value]).map(reporter => {
-					if (typeof reporter === 'string') {
-						try {
-							reporter = JSON.parse(reporter);
-						}
-						catch (error) {
-							reporter = { name: reporter };
-						}
-					}
+				this.config[name] = parseValue(name, value, 'object[]', 'name');
+				break;
 
-					if (!reporter.name) {
-						throw new Error(`Invalid value "${value}" for ${name}: missing 'name' property`);
-					}
-
-					return reporter;
-				});
+			case 'plugins':
+				this.config[name] = parseValue(name, value, 'object[]', 'script');
 				break;
 
 			case 'name':
@@ -532,10 +547,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				this.config[name] = value;
 
 				// Update the rootSuite name when config.name is updated
-				this._rootSuite.name = value;
+				if (this._rootSuite) {
+					this._rootSuite.name = value;
+				}
 				break;
 
-			case 'preload':
 			case 'suites':
 				this.config[name] = parseValue(name, value, 'string[]');
 				break;
@@ -660,7 +676,7 @@ export interface Config {
 	 * may not be available when these are loaded. Also, these scripts should be synchronous. If they need to run async
 	 * actions, they can register listeners for the 'runBefore' or 'runAfter' executor events.
 	 */
-	preload: string[];
+	plugins: PluginDescriptor[];
 
 	/**
 	 * A list of reporter names or descriptors. These reporters will be loaded and instantiated before testing begins.
@@ -677,6 +693,11 @@ export interface Config {
 export interface ReporterDescriptor {
 	name: string;
 	options?: ReporterOptions;
+}
+
+export interface PluginDescriptor {
+	script: string;
+	options?: any;
 }
 
 export interface Listener<T> {
@@ -750,6 +771,10 @@ export interface Loader {
 export interface LoaderDescriptor {
 	script: string;
 	config?: { [key: string]: any };
+}
+
+export interface PluginInitializer {
+	(options?: any): Task<void> | undefined;
 }
 
 const resolvedTask = Task.resolve();

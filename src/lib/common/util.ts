@@ -85,8 +85,9 @@ export function parseJson(json: string) {
  * @param name The 'name' of the value being parsed (used for error messages)
  * @param value A value to parse something from
  * @param parser The type of thing to parse, or a parser function
+ * @param requiredProperty Only used with 'object' and 'object[]' parsers
  */
-export function parseValue(name: string, value: any, parser: TypeName) {
+export function parseValue(name: string, value: any, parser: TypeName, requiredProperty?: string) {
 	if (typeof parser === 'string') {
 		switch (parser) {
 			case 'boolean':
@@ -127,9 +128,43 @@ export function parseValue(name: string, value: any, parser: TypeName) {
 					}
 				}
 				if (typeof value === 'object') {
+					if (requiredProperty && !value[requiredProperty]) {
+						throw new Error(`Invalid value "${value}" for ${name}: missing '${requiredProperty}' property`);
+					}
 					return value;
 				}
 				throw new Error(`Non-object value "${value}" for ${name}`);
+
+			case 'object[]':
+				if (!value) {
+					value = [];
+				}
+				if (!Array.isArray(value)) {
+					value = [value];
+				}
+				return value.map((item: any) => {
+					if (typeof item === 'string') {
+						try {
+							item = JSON.parse(item);
+						}
+						catch (error) {
+							if (!requiredProperty) {
+								throw new Error(`Missing required property for ${name}`);
+							}
+							item = { [requiredProperty]: item };
+						}
+					}
+
+					if (typeof item !== 'object') {
+						throw new Error(`Invalid value "${value}" for ${name}`);
+					}
+
+					if (requiredProperty && !item[requiredProperty]) {
+						throw new Error(`Invalid item value ${JSON.stringify(item)} for ${name}: missing '${requiredProperty}' property`);
+					}
+
+					return item;
+				});
 
 			case 'string':
 				if (typeof value === 'string') {
@@ -175,7 +210,7 @@ export function parseValue(name: string, value: any, parser: TypeName) {
 	}
 }
 
-export type TypeName = 'string' | 'boolean' | 'number' | 'regexp' | 'object' | 'string[]' | 'object|string';
+export type TypeName = 'string' | 'boolean' | 'number' | 'regexp' | 'object' | 'string[]' | 'object|string' | 'object[]';
 
 /**
  * Remove all instances of of an item from any array and return the removed instances.

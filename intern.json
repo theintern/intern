@@ -37,7 +37,7 @@
 	},
 	"internPath": "_tests/src",
 	"filterErrorStack": true,
-	"preload": "_tests/tests/pre.js",
+	"browserPlugins": "_tests/tests/pre.js",
 	"excludeInstrumentation": "(?:node_modules|_tests)",
 
 	"configs": {
