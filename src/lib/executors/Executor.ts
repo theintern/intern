@@ -313,40 +313,49 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			let runError: Error;
 
 			try {
-				this._runTask = this._resolveConfig()
-					.then(() => this._preloadScripts())
-					.then(() => this.emit('beforeRun'))
-					.then(() => this._beforeRun())
-					.then(() => this._loadSuites())
-					.then(() => {
-						return this.emit('runStart')
-							.then(() => this._runTests())
-							.finally(() => {
-								if (this._hasSuiteErrors) {
-									throw new Error('One or more suite errors occurred during testing');
-								}
-							})
-							.catch(error => {
-								this.emit('error', error);
-								runError = error;
-							})
-							.finally(() => this.emit('runEnd'));
-					})
-					.finally(() => this._afterRun())
-					.finally(() => this.emit('afterRun'))
-					.catch(error => {
-						return this.emit('error', error).finally(() => {
-							// a runError has priority
-							throw runError || error;
-						});
-					})
-					.then(() => {
-						// If we didn't have any other errors, but a runError was caught, throw it to reject the run
-						// task
-						if (runError) {
-							throw runError;
-						}
+				this._runTask = this._resolveConfig();
+
+				if (this.config.resolveConfig) {
+					this._runTask = this._runTask.then(() => {
+						console.log(JSON.stringify(this.config, null, '    '));
 					});
+				}
+				else {
+					this._runTask = this._runTask
+						.then(() => this._preloadScripts())
+						.then(() => this.emit('beforeRun'))
+						.then(() => this._beforeRun())
+						.then(() => this._loadSuites())
+						.then(() => {
+							return this.emit('runStart')
+								.then(() => this._runTests())
+								.finally(() => {
+									if (this._hasSuiteErrors) {
+										throw new Error('One or more suite errors occurred during testing');
+									}
+								})
+								.catch(error => {
+									this.emit('error', error);
+									runError = error;
+								})
+								.finally(() => this.emit('runEnd'));
+						})
+						.finally(() => this._afterRun())
+						.finally(() => this.emit('afterRun'))
+						.catch(error => {
+							return this.emit('error', error).finally(() => {
+								// a runError has priority
+								throw runError || error;
+							});
+						})
+						.then(() => {
+							// If we didn't have any other errors, but a runError was caught, throw it to reject the run
+							// task
+							if (runError) {
+								throw runError;
+							}
+						});
+				}
 			}
 			catch (error) {
 				this._runTask = this.emit('error', error).then(() => {
@@ -657,6 +666,9 @@ export interface Config {
 	 * A list of reporter names or descriptors. These reporters will be loaded and instantiated before testing begins.
 	 */
 	reporters: ReporterDescriptor[];
+
+	/** If true, display the resolved config and exit */
+	resolveConfig: boolean;
 
 	/** A list of paths to suite scripts (or some other suite identifier usable by the suite loader). */
 	suites: string[];

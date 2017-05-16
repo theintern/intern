@@ -192,21 +192,10 @@ export default class RemoteSuite extends Suite {
 
 				const excludeKeys: { [key: string]: boolean } = {
 					basePath: true,
-					capabilities: true,
-					connectTimeout: true,
-					environmentRetries: true,
-					environments: true,
-					functionalSuites: true,
-					instrumenterOptions: true,
 					internPath: true,
-					maxConcurrency: true,
 					name: true,
 					reporters: true,
-					serverPort: true,
-					sessionId: true,
-					socketPort: true,
-					tunnel: true,
-					tunnelOptions: true
+					sessionId: true
 				};
 
 				// Pass all non-excluded keys to the remote config
@@ -214,7 +203,7 @@ export default class RemoteSuite extends Suite {
 					remoteConfig[<keyof RemoteConfig>key] = config[key];
 				});
 
-				this.executor.log('Configuring remote', this.name, 'with', remoteConfig);
+				this.executor.log('Configuring remote "', this.name, '" with', remoteConfig);
 
 				remote
 					.get(`${harness}?${query}`)

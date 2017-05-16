@@ -28,9 +28,9 @@
 			],
 			"packages": {
 				"src": { "defaultExtension": "js" },
-				// Force benchmark to be handled as CJS instead of AMD
+				/* Force benchmark to be handled as CJS instead of AMD */
 				"benchmark": { "format": "cjs" },
-				// Some tests are incorrectly detected as 'global'
+				/* Some tests are incorrectly detected as 'global' */
 				"_tests": { "format": "cjs" }
 			}
 		}
@@ -39,12 +39,30 @@
 	"filterErrorStack": true,
 	"preload": "_tests/tests/pre.js",
 	"excludeInstrumentation": "(?:node_modules|_tests)",
-	"tunnel": "browserstack",
-	"maxConcurrency": 2,
-	"environments": [
-		{ "browser": "internet explorer", "version": [ "10", "11" ] },
-		{ "browser": "firefox", "version": [ "33", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
-		{ "browser": "chrome", "version": [ "38", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
-		{ "browser": "safari", "version": [ "9", "10" ] }
-	]
+
+	"configs": {
+		/* For running local selenium tests */
+		"wd": {
+			"tunnel": "selenium",
+			"environments": "chrome"
+		},
+		/* For running tests on Travis */
+		"ci": {
+			"tunnel": "browserstack",
+			"maxConcurrency": 2,
+			"environments": [
+				{ "browser": "internet explorer", "version": [ "10", "11" ] },
+				{ "browser": "firefox", "version": [ "33", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
+				{ "browser": "chrome", "version": [ "38", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
+				{ "browser": "safari", "version": [ "9", "10" ] }
+			]
+		},
+		/* For trying out the browser runner */
+		"browser": {
+			"suites": [
+				"_tests/tests/unit/lib/Environment.js",
+				"_tests/tests/unit/lib/BenchmarkTest.js"
+			]
+		}
+	}
 }

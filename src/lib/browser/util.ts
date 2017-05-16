@@ -1,7 +1,7 @@
 import request from '@dojo/core/request/providers/xhr';
 import Task from '@dojo/core/async/Task';
-import { deepMixin } from '@dojo/core/lang';
-import { parseArgs, parseJSON } from '../common/util';
+import { mixin } from '@dojo/core/lang';
+import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
 
 /**
  * Resolve the user-supplied config data, which may include query args and a config file.
@@ -12,32 +12,18 @@ export function getConfig() {
 	if (args.config) {
 		// If a config parameter was provided, load it, mix in any other query params, then initialize the executor with
 		// that
-		const path = resolvePath(args.config, args.basePath);
-		return loadConfig(path).then(config => deepMixin(config, args));
+		const { configFile, childConfig } = splitConfigPath(args.config);
+		const path = resolvePath(configFile || 'intern.json', args.basePath);
+		return loadConfig(path, loadText, args, childConfig);
 	}
 	else {
 		// If no config parameter was provided, try 'intern.json'. If that file doesn't exist, just return the args
 		const path = resolvePath('intern.json', args.basePath);
-		return loadConfig(path).then(
-			config => deepMixin(config, args),
+		return loadConfig(path, loadText).then(
+			config => mixin(config, args),
 			_error => args
 		);
 	}
-}
-
-/**
- * Load a JSON resource
- */
-export function loadJson(path: string, basePath?: string): Task<any> {
-	if (path[0] !== '/') {
-		basePath = basePath == null ? '/' : basePath;
-		path = `${basePath}${path}`;
-	}
-	return request(path).then(response => {
-		return response.text().then(text => {
-			return parseJSON(text);
-		});
-	});
 }
 
 /**
@@ -90,21 +76,18 @@ export function parseQuery(query?: string) {
 	});
 }
 
-function loadConfig(configPath: string): Promise<any> {
-	return loadJson(configPath).then(config => {
-		if (config.extends) {
-			const parts = configPath.split('/');
-			const extensionPath = parts.slice(0, parts.length - 1).concat(config.extends).join('/');
-			return loadConfig(extensionPath).then(extension => {
-				return deepMixin(extension, config);
-			});
-		}
-		else {
-			return config;
-		}
+/**
+ * Load a text resource
+ */
+function loadText(path: string): Task<any> {
+	return request(path).then(response => {
+		return response.text();
 	});
 }
 
+/**
+ * Resolve a path against a base path
+ */
 function resolvePath(path: string, basePath: string) {
 	if (path[0] !== '/') {
 		basePath = basePath == null ? '/' : basePath;

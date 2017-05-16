@@ -1,9 +1,38 @@
+import { mixin } from '@dojo/core/lang';
+import Task from '@dojo/core/async/Task';
 
+const configPathSeparator = '@';
+
+export interface TextLoader {
+	(path: string): Task<string>;
 }
 
 /**
+ * Load config data from a given path, using a given text loader, and mixing args and/or a childConfig into the final
+ * config value if provided.
  */
+export function loadConfig(configPath: string, loadText: TextLoader, args?: { [key: string]: any }, childConfig?: string): Task<any> {
+	return loadText(configPath).then(text => {
+		const config = parseJson(text);
+		// extends paths are assumed to be relative and use '/'
+		if (config.extends) {
+			const parts = configPath.split('/');
+			const extensionPath = parts.slice(0, parts.length - 1).concat(config.extends).join('/');
+			return loadConfig(extensionPath, loadText).then(extension => mixin(extension, config));
 		}
+		return config;
+	}).then(config => {
+		if (childConfig) {
+			if (!config.configs[childConfig]) {
+				throw new Error(`Unknown child config "${childConfig}"`);
+			}
+			config = mixin(config, config.configs[childConfig]);
+		}
+		if (args) {
+			config = mixin(config, args);
+		}
+		return config;
+	});
 }
 
 /**
@@ -46,7 +75,7 @@ export function parseArgs(rawArgs: string[]) {
 /**
  * Parse a JSON string that may contain comments
  */
-export function parseJSON(json: string) {
+export function parseJson(json: string) {
 	return JSON.parse(removeComments(json));
 }
 
@@ -160,6 +189,14 @@ export function pullFromArray<T>(haystack: T[], needle: T): T[] {
 	}
 
 	return removed;
+}
+
+/**
+ * Split a config path into a file name and a child config name.
+ */
+export function splitConfigPath(path: string) {
+	const [ configFile, childConfig ] = path.split(configPathSeparator, 2);
+	return { configFile, childConfig };
 }
 
 /**

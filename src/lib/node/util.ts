@@ -1,7 +1,7 @@
 import { dirname, join, normalize } from 'path';
 import { readFile, readFileSync } from 'fs';
-import { parseArgs, parseJSON } from '../common/util';
-import { deepMixin } from '@dojo/core/lang';
+import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
+import { mixin } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 import Promise from '@dojo/shim/Promise';
 import glob = require('glob');
@@ -45,12 +45,13 @@ export function getConfig() {
 
 	if (args.config) {
 		// If a config parameter was provided, load it and mix in any other command line args.
-		return loadConfig(args.config).then(config => deepMixin(config, args));
+		const { configFile, childConfig } = splitConfigPath(args.config);
+		return loadConfig(configFile || 'intern.json', loadText, args, childConfig);
 	}
 	else {
 		// If no config parameter was provided, try 'intern.json', or just resolve to the original args
-		return loadConfig('intern.json').then(
-			config => deepMixin(config, args),
+		return loadConfig('intern.json', loadText).then(
+			config => mixin(config, args),
 			(error: NodeJS.ErrnoException) => {
 				if (error.code === 'ENOENT') {
 					return args;
@@ -59,15 +60,6 @@ export function getConfig() {
 			}
 		);
 	}
-}
-
-/**
- * Loads a text resource.
- *
- * @param resource a path to a text resource
- */
-export function loadJson(resource: string): Task<any> {
-	return loadText(resource).then(data => parseJSON(data));
 }
 
 /**
@@ -98,21 +90,9 @@ export function readSourceMap(sourceFile: string, code?: string): object | undef
 	}
 }
 
-function loadConfig(configPath: string): Promise<any> {
-	return loadJson(configPath).then(config => {
-		if (config.extends) {
-			const parts = configPath.split('/');
-			const extensionPath = parts.slice(0, parts.length - 1).concat(config.extends).join('/');
-			return loadConfig(extensionPath).then(extension => {
-				return deepMixin(extension, config);
-			});
-		}
-		else {
-			return config;
-		}
-	});
-}
-
+/**
+ * Loads a text resource.
+ */
 function loadText(path: string) {
 	return new Task<string>((resolve, reject) => {
 		readFile(path, { encoding: 'utf8' }, (error, data) => {
