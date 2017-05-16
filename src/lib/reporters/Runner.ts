@@ -10,7 +10,7 @@ import Server from '../Server';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import Node, { Events, TunnelMessage } from '../executors/Node';
 
-export type Charm = charm.Charm;
+export type Charm = charm.CharmInstance;
 
 const eventHandler = createEventHandler<Events>();
 
@@ -77,19 +77,17 @@ export default class Runner extends Coverage {
 			this.charm.write(' ' + message.message);
 		}
 
-		this.charm
-			.write('\n')
-			.display('reset');
+		this.charm.write('\n');
+		this.charm.display('reset');
 	}
 
 	@eventHandler()
 	error(error: Error) {
-		this.charm
-			.foreground('red')
-			.write('(ノಠ益ಠ)ノ彡┻━┻\n')
-			.write(this.formatter.format(error))
-			.display('reset')
-			.write('\n\n');
+		this.charm.foreground('red');
+		this.charm.write('(ノಠ益ಠ)ノ彡┻━┻\n');
+		this.charm.write(this.formatter.format(error));
+		this.charm.display('reset');
+		this.charm.write('\n\n');
 
 		this.hasErrors = true;
 	}
@@ -122,9 +120,13 @@ export default class Runner extends Coverage {
 				numSkippedTests += session.suite.numSkippedTests;
 			});
 
+			const charm = this.charm;
+
 			if (map.files().length > 0) {
-				this.charm.write('\n');
-				this.charm.display('bright').write('Total coverage\n').display('reset');
+				charm.write('\n');
+				charm.display('bright');
+				charm.write('Total coverage\n');
+				charm.display('reset');
 				this.createCoverageReport(this.reportType, map);
 			}
 
@@ -138,12 +140,11 @@ export default class Runner extends Coverage {
 				message += '; fatal error occurred';
 			}
 
-			this.charm
-				.display('bright')
-				.foreground(numFailedTests > 0 || this.hasErrors ? 'red' : 'green')
-				.write(nodeUtil.format(message, numEnvironments, numFailedTests, numTests))
-				.display('reset')
-				.write('\n');
+			charm.display('bright');
+			charm.foreground(numFailedTests > 0 || this.hasErrors ? 'red' : 'green');
+			charm.write(nodeUtil.format(message, numEnvironments, numFailedTests, numTests));
+			charm.display('reset');
+			charm.write('\n');
 		}
 	}
 
@@ -160,13 +161,13 @@ export default class Runner extends Coverage {
 	suiteEnd(suite: Suite) {
 		if (suite.error) {
 			const error = suite.error;
+			const charm = this.charm;
 
-			this.charm
-				.foreground('red')
-				.write('Suite ' + suite.id + ' FAILED\n')
-				.write(this.formatter.format(error))
-				.display('reset')
-				.write('\n');
+			charm.foreground('red');
+			charm.write('Suite ' + suite.id + ' FAILED\n');
+			charm.write(this.formatter.format(error));
+			charm.display('reset');
+			charm.write('\n');
 
 			this.hasErrors = true;
 		}
@@ -175,12 +176,12 @@ export default class Runner extends Coverage {
 
 			if (!session) {
 				if (!this.serveOnly) {
-					this.charm
-						.display('bright')
-						.foreground('yellow')
-						.write('BUG: suiteEnd was received for invalid session ' + suite.sessionId)
-						.display('reset')
-						.write('\n');
+					const charm = this.charm;
+					charm.display('bright');
+					charm.foreground('yellow');
+					charm.write('BUG: suiteEnd was received for invalid session ' + suite.sessionId);
+					charm.display('reset');
+					charm.write('\n');
 				}
 
 				return;
@@ -191,10 +192,10 @@ export default class Runner extends Coverage {
 				this.createCoverageReport(this.reportType, session.coverage);
 			}
 			else {
-				this.charm
-					.write('No unit test coverage for ' + suite.name)
-					.display('reset')
-					.write('\n');
+				const charm = this.charm;
+				charm.write('No unit test coverage for ' + suite.name);
+				charm.display('reset');
+				charm.write('\n');
 			}
 
 			let name = suite.name;
@@ -214,12 +215,12 @@ export default class Runner extends Coverage {
 				summary += '; fatal error occurred';
 			}
 
-			this.charm
-				.display('bright')
-				.foreground(numFailedTests || hasError > 0 ? 'red' : 'green')
-				.write(summary)
-				.display('reset')
-				.write('\n');
+			const charm = this.charm;
+			charm.display('bright');
+			charm.foreground(numFailedTests || hasError > 0 ? 'red' : 'green');
+			charm.write(summary);
+			charm.display('reset');
+			charm.write('\n');
 		}
 	}
 
@@ -236,36 +237,33 @@ export default class Runner extends Coverage {
 
 	@eventHandler()
 	testEnd(test: Test) {
+		const charm = this.charm;
 		if (test.error) {
-			this.charm
-				.foreground('red')
-				.write('× ' + test.id)
-				.write(' (' + (test.timeElapsed / 1000) + 's)')
-				.write('\n')
-				.display('reset')
-				.foreground('red')
-				.write(this.formatter.format(test.error))
-				.display('reset')
-				.write('\n');
+			charm.foreground('red');
+			charm.write('× ' + test.id);
+			charm.write(' (' + (test.timeElapsed / 1000) + 's)');
+			charm.write('\n');
+			charm.display('reset');
+			charm.foreground('red');
+			charm.write(this.formatter.format(test.error));
+			charm.display('reset');
+			charm.write('\n');
 		}
 		else if (test.skipped) {
-			this.charm
-				.foreground('magenta')
-				.write('~ ' + test.id)
-				.display('reset')
-				.write(' (' + (test.skipped || 'skipped') + ')')
-				.display('reset')
-				.write('\n');
+			charm.foreground('magenta');
+			charm.write('~ ' + test.id);
+			charm.display('reset');
+			charm.write(' (' + (test.skipped || 'skipped') + ')');
+			charm.display('reset');
+			charm.write('\n');
 		}
 		else {
-			this.charm
-				.foreground('green')
-				.write('✓ ' + test.id)
-				.display('reset')
-				.foreground('white')
-				.write(' (' + (test.timeElapsed / 1000) + 's)')
-				.display('reset')
-				.write('\n');
+			charm.foreground('green');
+			charm.write('✓ ' + test.id);
+			charm.display('reset');
+			charm.write(' (' + (test.timeElapsed / 1000) + 's)');
+			charm.display('reset');
+			charm.write('\n');
 		}
 	}
 

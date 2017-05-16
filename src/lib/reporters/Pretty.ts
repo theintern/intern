@@ -14,9 +14,9 @@ import { Events, TunnelMessage } from '../executors/Node';
 import { mixin } from '@dojo/core/lang';
 import { format } from 'util';
 import charm = require('charm');
-import encode = require('charm/lib/encode');
 
 const eventHandler = createEventHandler<Events>();
+const symbols = ['✓', '~', '×'];
 
 export default class Pretty extends Coverage<PrettyOptions> implements PrettyProperties {
 	colorReplacement: { [key: string]: string };
@@ -39,7 +39,7 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 
 	protected _total: Report;
 
-	protected _charm: charm.Charm;
+	protected _charm: charm.CharmInstance;
 
 	protected _renderTimeout: NodeJS.Timer;
 
@@ -51,14 +51,14 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 		this.titleWidth = config.titleWidth || 12;
 		this.maxProgressBarWidth = config.maxProgressBarWidth || 40;
 		this.colorReplacement = mixin({
-			0: ANSI_COLOR.green + '✓',
-			1: ANSI_COLOR.reset + '~',
-			2: ANSI_COLOR.red + '×',
-			'✓': ANSI_COLOR.green,
-			'!': ANSI_COLOR.red,
-			'×': ANSI_COLOR.red,
-			'~': ANSI_COLOR.reset,
-			'⚠': ANSI_COLOR.yellow
+			0: 'green',
+			1: 'magenta',
+			2: 'red',
+			'✓': 'green',
+			'!': 'red',
+			'×': 'red',
+			'~': 'magenta',
+			'⚠': 'yelow'
 		}, config.colorReplacement || {});
 		this._header = '';
 		this._reports = {};
@@ -96,14 +96,23 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 
 		// write a full log of errors
 		// Sort logs: pass < deprecated < skip < errors < fail
-		const ERROR_LOG_WEIGHT = { '!': 4, '×': 3, '~': 2, '⚠': 1, '✓': 0 };
-		const logs = this._log.sort((a: any, b: any) => {
-			a = (<{ [key: string]: any }>ERROR_LOG_WEIGHT)[a.charAt(0)] || 0;
-			b = (<{ [key: string]: any }>ERROR_LOG_WEIGHT)[b.charAt(0)] || 0;
+		const ERROR_LOG_WEIGHT: { [key: string]: number } = { '✓': 0, '⚠': 1, '~': 2, '×': 3, '!': 4 };
+		this._log.sort((a: any, b: any) => {
+			a = ERROR_LOG_WEIGHT[a.charAt(0)] || 0;
+			b = ERROR_LOG_WEIGHT[b.charAt(0)] || 0;
 			return a - b;
-		}).map(line => this._getColor(line) + line).join('\n');
-		charm.write(logs);
-		charm.write('\n\n');
+		}).forEach(line => {
+			const color = this._getColor(line);
+			if (color == null) {
+				charm.display('reset');
+			}
+			else {
+				charm.foreground(color);
+			}
+			charm.write(`${line}\n`);
+		});
+		charm.display('reset');
+		charm.write('\n');
 
 		// Display the pretty results
 		this._render(true);
@@ -208,7 +217,7 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 	/**
 	 * Create the charm instance used by this reporter.
 	 */
-	private _newCharm(): charm.Charm {
+	private _newCharm() {
 		const c = charm();
 		c.pipe(process.stdout);
 		return c;
@@ -239,9 +248,20 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 		const barSize = Math.min(remainingWidth, report.numTotal, this.maxProgressBarWidth);
 		const results = report.getCompressedResults(barSize);
 
-		charm.write('[' + results.map(value => this._getColor(value)).join(''));
-		charm.display('reset').write(fit(spinnerCharacter, barSize - results.length) + '] ' +
-			fit(report.finished, totalTextSize, true) + '/' + report.numTotal);
+		charm.write('[');
+		results.forEach(value => {
+			const color = this._getColor(value);
+			if (color == null) {
+				charm.display('reset');
+			}
+			else {
+				charm.foreground(color);
+			}
+			charm.write(symbols[value]);
+		});
+		charm.display('reset');
+		charm.write(fit(spinnerCharacter, barSize - results.length) + '] ' + fit(report.finished, totalTextSize, true) +
+			'/' + report.numTotal);
 	}
 
 	/**
@@ -316,16 +336,20 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 
 		if (!omitLogs && logLength > 0 && this._log.length) {
 			const allowed = { '×': true, '⚠': true, '!': true };
-			const logs = this._log.filter(line => {
+			charm.write('\n');
+
+			this._log.filter(line => {
 				return (<{ [key: string]: any }>allowed)[line.charAt(0)];
-			}).slice(-logLength).map(line => {
+			}).slice(-logLength).forEach(line => {
 				// truncate long lines
 				const color = this._getColor(line);
+				if (color) {
+					charm.foreground(color);
+				}
 				line = line.split('\n', 1)[0];
-				return color + line.slice(0, this.dimensions.width) + ANSI_COLOR.reset;
-			}).join('\n');
-			charm.write('\n');
-			charm.write(logs);
+				charm.write(`$(line.slice(0, this.dimensions.width))\n`);
+				charm.display('reset');
+			});
 		}
 	}
 
@@ -340,11 +364,11 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 			fit(report.numPassed, totalTextSize), fit(report.numFailed, totalTextSize), report.numSkipped));
 	}
 
-	private _getColor(value: string | number): string {
+	private _getColor(value: string | number): charm.CharmColor | null {
 		if (typeof value === 'string') {
 			value = value[0];
 		}
-		return this.colorReplacement[value] || ANSI_COLOR.reset;
+		return <charm.CharmColor>this.colorReplacement[value] || null;
 	}
 }
 
@@ -423,13 +447,6 @@ const BROWSERS = {
 	safari: 'Saf',
 	'internet explorer': 'IE',
 	phantomjs: 'Phan'
-};
-
-const ANSI_COLOR = {
-	red: encode('[31m').toString('utf8'),
-	green: encode('[32m').toString('utf8'),
-	yellow: encode('[33m').toString('utf8'),
-	reset: encode('[0m').toString('utf8')
 };
 
 function pad(width: number): string {

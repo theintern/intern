@@ -12,7 +12,9 @@ export default abstract class Coverage<V extends CoverageOptions = CoverageOptio
 	readonly reportType: ReportType = 'text';
 
 	executor: Node;
+
 	filename: string;
+
 	watermarks: Watermarks;
 
 	_coverageMap: CoverageMap;
