@@ -1,6 +1,7 @@
 import { InternError } from '../types';
-import { createDiff } from './util';
+import { toJSON } from './util';
 import { mixin } from '@dojo/core/lang';
+import diffUtil = require('diff');
 
 export default class Formatter implements FormatterProperties {
 	filterErrorStack = false;
@@ -92,6 +93,44 @@ export type FormatterOptions = Partial<FormatterProperties>;
 
 export interface FormatOptions {
 	space?: string;
+}
+
+/**
+ * Creates a unified diff to explain the difference between two objects.
+ *
+ * @param actual The actual result.
+ * @param expected The expected result.
+ * @returns A unified diff formatted string representing the difference between the two objects.
+ */
+function createDiff(actual: Object, expected: Object): string {
+	actual = toJSON(actual);
+	expected = toJSON(expected);
+
+	let diff = diffUtil
+		.createPatch('', actual + '\n', expected + '\n', '', '')
+		// diff header, first range information section, and EOF newline are not relevant for serialised object
+		// diffs
+		.split('\n')
+		.slice(5, -1)
+		.join('\n')
+		// range information is not relevant for serialised object diffs
+		.replace(/^@@[^@]*@@$/gm, '[...]');
+
+	// If the diff is empty now, running the next replacement will cause it to have some extra whitespace, which
+	// makes it harder than it needs to be for callers to know if the diff is empty
+	if (diff) {
+		// + and - are not super clear about which lines are the expected object and which lines are the actual
+		// object, and bump directly into code with no indentation, so replace the characters and add space
+		diff = diff.replace(/^([+-]?)(.*)$/gm, function (_, indicator, line) {
+			if (line === '[...]') {
+				return line;
+			}
+
+			return (indicator === '+' ? 'E' : indicator === '-' ? 'A' : '') + ' ' + line;
+		});
+	}
+
+	return diff;
 }
 
 /**

@@ -1,73 +1,9 @@
-import { Message } from '../channels/Base';
-import diffUtil = require('diff');
 
-export const hasFunctionName = function () {
-	function foo() {}
-	return (<any> foo).name === 'foo';
-}();
-
-/**
- * Creates a unified diff to explain the difference between two objects.
- *
- * @param actual The actual result.
- * @param expected The expected result.
- * @returns A unified diff formatted string representing the difference between the two objects.
- */
-export function createDiff(actual: Object, expected: Object): string {
-	actual = toJSON(actual);
-	expected = toJSON(expected);
-
-	let diff = diffUtil
-		.createPatch('', actual + '\n', expected + '\n', '', '')
-		// diff header, first range information section, and EOF newline are not relevant for serialised object
-		// diffs
-		.split('\n')
-		.slice(5, -1)
-		.join('\n')
-		// range information is not relevant for serialised object diffs
-		.replace(/^@@[^@]*@@$/gm, '[...]');
-
-	// If the diff is empty now, running the next replacement will cause it to have some extra whitespace, which
-	// makes it harder than it needs to be for callers to know if the diff is empty
-	if (diff) {
-		// + and - are not super clear about which lines are the expected object and which lines are the actual
-		// object, and bump directly into code with no indentation, so replace the characters and add space
-		diff = diff.replace(/^([+-]?)(.*)$/gm, function (_, indicator, line) {
-			if (line === '[...]') {
-				return line;
-			}
-
-			return (indicator === '+' ? 'E' : indicator === '-' ? 'A' : '') + ' ' + line;
-		});
-	}
-
-	return diff;
 }
 
 /**
- * Indicate whether Server or WebDriver should wait for an event to process before continuing.
  */
-export function getShouldWait(waitMode: (string|boolean), message: Message) {
-	let shouldWait = false;
-	let eventName = message.name;
-
-	if (waitMode === 'fail') {
-		if (
-			(eventName === 'testEnd' && message.data.error) ||
-			(eventName === 'suiteEnd' && message.data.error) ||
-			eventName === 'error'
-		) {
-			shouldWait = true;
 		}
-	}
-	else if (waitMode === true) {
-		shouldWait = true;
-	}
-	else if (Array.isArray(waitMode) && waitMode.indexOf(eventName) !== -1) {
-		shouldWait = true;
-	}
-
-	return shouldWait;
 }
 
 /**

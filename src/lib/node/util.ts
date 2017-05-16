@@ -1,4 +1,4 @@
-import { dirname, join, normalize, resolve } from 'path';
+import { dirname, join, normalize } from 'path';
 import { readFile, readFileSync } from 'fs';
 import { parseArgs, parseJSON } from '../common/util';
 import { deepMixin } from '@dojo/core/lang';
@@ -71,37 +71,10 @@ export function loadJson(resource: string): Task<any> {
 }
 
 /**
- * Load a script or scripts using Node's require.
- *
- * @param script a path to a script
- */
-export function loadScript(script: string | string[]) {
-	if (!Array.isArray(script)) {
-		script = [script];
-	}
-
-	script.forEach(script => {
-		script = resolve(script);
-		// Delete the module cache entry for the script to ensure it will be loaded and executed again.
-		delete require.cache[script];
-		require(script);
-	});
-
-	return Task.resolve();
-}
-
-/**
  * Normalize a path (e.g., resolve '..')
  */
 export function normalizePath(path: string) {
 	return normalize(path).replace(/\\/g, '/');
-}
-
-/**
- * Require a module relative to the project root (cwd)
- */
-export function projectRequire(mod: string) {
-	require(resolve(mod));
 }
 
 /**

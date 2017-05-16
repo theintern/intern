@@ -1,4 +1,4 @@
-import { getShouldWait, pullFromArray } from './common/util';
+import { pullFromArray } from './common/util';
 import { normalizePath } from './node/util';
 import { after } from '@dojo/core/aspect';
 import { createServer, IncomingMessage, Server as HttpServer, ServerResponse } from 'http';
@@ -332,3 +332,29 @@ export interface ServerListener {
 export type ServerOptions = Partial<ServerProperties> & { executor: Node };
 
 const resolvedPromise = Promise.resolve();
+
+/**
+ * Indicate whether Server should wait for an event to process before sending an acknowlegement.
+ */
+function getShouldWait(waitMode: (string|boolean), message: Message) {
+	let shouldWait = false;
+	let eventName = message.name;
+
+	if (waitMode === 'fail') {
+		if (
+			(eventName === 'testEnd' && message.data.error) ||
+			(eventName === 'suiteEnd' && message.data.error) ||
+			eventName === 'error'
+		) {
+			shouldWait = true;
+		}
+	}
+	else if (waitMode === true) {
+		shouldWait = true;
+	}
+	else if (Array.isArray(waitMode) && waitMode.indexOf(eventName) !== -1) {
+		shouldWait = true;
+	}
+
+	return shouldWait;
+}
