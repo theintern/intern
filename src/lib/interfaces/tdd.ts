@@ -69,7 +69,7 @@ let currentSuite: Suite | null;
 function registerSuite(name: string, factory: (suite: Suite) => void) {
 	const parent = currentSuite!;
 
-	currentSuite = new Suite({ name });
+	currentSuite = new Suite({ name, parent });
 	parent.add(currentSuite);
 
 	factory(currentSuite);

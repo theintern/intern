@@ -22,5 +22,6 @@ export interface BenchmarkSuiteProperties extends SuiteProperties {
 
 export type BenchmarkSuiteOptions = Partial<BenchmarkSuiteProperties> & {
 	name: string;
+	parent: Suite;
 	tests?: (BenchmarkSuite | BenchmarkTest)[];
 };

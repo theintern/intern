@@ -748,11 +748,17 @@ export interface Events {
 	/** Emitted just before tests start running  */
 	runStart: never;
 
+	/** A new suite has been added */
+	suiteAdd: Suite;
+
 	/** A suite has fininshed running */
 	suiteEnd: Suite;
 
 	/** A suite has started running */
 	suiteStart: Suite;
+
+	/** A new test has been added */
+	testAdd: Test;
 
 	/** A test has finished */
 	testEnd: Test;

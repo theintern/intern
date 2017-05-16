@@ -2,8 +2,9 @@ import BenchmarkTest, { BenchmarkTestOptions, BenchmarkTestFunction } from 'src/
 import Suite from 'src/lib/Suite';
 import { BenchmarkData } from 'src/lib/reporters/Benchmark';
 import Test from 'src/lib/Test';
-import BenchmarkSuite from 'src/lib/BenchmarkSuite';
+import BenchmarkSuite, { BenchmarkSuiteOptions, BenchmarkSuiteProperties } from 'src/lib/BenchmarkSuite';
 import Deferred from 'src/lib/Deferred';
+import Task from '@dojo/core/async/Task';
 import Promise from '@dojo/shim/Promise';
 
 const { registerSuite } = intern.getInterface('object');
@@ -31,6 +32,16 @@ interface TestOptions {
 	emit: any;
 }
 
+function createSuite(options: Partial<BenchmarkSuiteProperties> = <any>{}) {
+	if (!options.parent && !options.executor) {
+		options.executor = <any>{
+			emit() { return Task.resolve(); },
+			log() { return Task.resolve(); }
+		};
+	}
+	return new BenchmarkSuite(<BenchmarkSuiteOptions>options);
+}
+
 function createTest(descriptor: BenchmarkTestOptions, options?: TestOptions) {
 	const _options = options || <TestOptions>{};
 	if (!descriptor.parent) {
@@ -46,365 +57,357 @@ function createTest(descriptor: BenchmarkTestOptions, options?: TestOptions) {
 	return new BenchmarkTest(descriptor);
 }
 
-registerSuite({
-	name: 'intern/lib/BenchmarkTest',
+registerSuite('intern/lib/BenchmarkTest', {
+	'BenchmarkTest#test'() {
+		this.timeout = 5000;
 
-	tests: {
-		'BenchmarkTest#test'() {
-			this.timeout = 5000;
+		let executionCount = 0;
 
-			let executionCount = 0;
+		const test = createTest({
+			name: 'BenchmarkTest#test',
+			test: function () {
+				executionCount++;
+			}
+		});
 
-			const test = createTest({
-				name: 'BenchmarkTest#test',
-				test: function () {
-					executionCount++;
-				}
-			});
+		// Ensure the test runner's timeout gets reset on each cycle
+		test.benchmark.on('cycle', () => this.restartTimeout());
 
-			// Ensure the test runner's timeout gets reset on each cycle
-			test.benchmark.on('cycle', () => this.restartTimeout());
+		return test.run().then(function () {
+			assert.isAbove(executionCount, 1,
+				'Test function should have been called multiple times when run is called');
+		});
+	},
 
-			return test.run().then(function () {
-				assert.isAbove(executionCount, 1,
-					'Test function should have been called multiple times when run is called');
-			});
-		},
+	'BenchmarkTest#test (async)'() {
+		this.timeout = 5000;
 
-		'BenchmarkTest#test (async)'() {
-			this.timeout = 5000;
+		let executionCount = 0;
 
-			let executionCount = 0;
+		const test = createTest({
+			name: 'BenchmarkTest#test (async)',
+			test: getTestFunction(function () {
+				executionCount++;
+			}, true)
+		});
 
-			const test = createTest({
-				name: 'BenchmarkTest#test (async)',
-				test: getTestFunction(function () {
-					executionCount++;
-				}, true)
-			});
+		// Ensure the test runner's timeout gets reset on each cycle
+		test.benchmark.on('cycle', () => this.restartTimeout());
 
-			// Ensure the test runner's timeout gets reset on each cycle
-			test.benchmark.on('cycle', () => this.restartTimeout());
+		return test.run().then(function () {
+			assert.isAbove(executionCount, 1,
+				'Test function should have been called multiple times when run is called');
+		});
+	},
 
-			return test.run().then(function () {
-				assert.isAbove(executionCount, 1,
-					'Test function should have been called multiple times when run is called');
-			});
-		},
+	'BenchmarkTest#test (async, error)'() {
+		this.timeout = 5000;
 
-		'BenchmarkTest#test (async, error)'() {
-			this.timeout = 5000;
+		let executionCount = 0;
 
-			let executionCount = 0;
+		const test = createTest({
+			name: 'BenchmarkTest#test (async, error)',
+			test: getTestFunction(function () {
+				executionCount++;
+				throw new Error('error');
+			}, true)
+		});
 
-			const test = createTest({
-				name: 'BenchmarkTest#test (async, error)',
-				test: getTestFunction(function () {
-					executionCount++;
-					throw new Error('error');
-				}, true)
-			});
+		// Ensure the test runner's timeout gets reset on each cycle
+		test.benchmark.on('cycle', () => this.restartTimeout());
 
-			// Ensure the test runner's timeout gets reset on each cycle
-			test.benchmark.on('cycle', () => this.restartTimeout());
-
-			return test.run().then(
-				() => {
-					throw new Error('test should not have passed');
-				},
-				_error => {
-					assert.isAbove(executionCount, 0,
-						'Test function should have been called at least once when run is called');
-				}
-			);
-		},
-
-		'BenchmarkTest#constructor with benchmark options'() {
-			this.timeout = 5000;
-
-			let runCount = 0;
-			let onStartCalled = false;
-
-			const test = createTest({
-				name: 'BenchmarkTest#constructor with benchmark options',
-				test: (function () {
-					const testFunction = getTestFunction(function () {
-						runCount++;
-					});
-					testFunction.options.onStart = function () {
-						onStartCalled = true;
-					};
-					return testFunction;
-				})()
-			});
-
-			// Ensure the test runner's timeout gets reset on each cycle
-			test.benchmark.on('cycle', () => this.restartTimeout());
-
-			return test.run().then(function () {
-				assert.isAbove(runCount, 1, 'test should have run more than once');
-				assert.isTrue(onStartCalled, 'Benchmark#onStart should have been called');
-			});
-		},
-
-		'BenchmarkTest#testEnd event'() {
-			let topicFired = false;
-			let executionCount = 0;
-			let actualTest: Test;
-			let actualBenchmarks: BenchmarkData;
-			const expectedTest = createTest({
-				name: 'foo',
-				test: getTestFunction(function () {
-					executionCount++;
-				}, true)
+		return test.run().then(
+			() => {
+				throw new Error('test should not have passed');
 			},
-				{
-					emit(topic: string, test: BenchmarkTest) {
-						if (topic === 'testEnd') {
-							topicFired = true;
-							actualTest = test;
-							actualBenchmarks = test.benchmark;
-						}
-					}
+			_error => {
+				assert.isAbove(executionCount, 0,
+					'Test function should have been called at least once when run is called');
+			}
+		);
+	},
+
+	'BenchmarkTest#constructor with benchmark options'() {
+		this.timeout = 5000;
+
+		let runCount = 0;
+		let onStartCalled = false;
+
+		const test = createTest({
+			name: 'BenchmarkTest#constructor with benchmark options',
+			test: (function () {
+				const testFunction = getTestFunction(function () {
+					runCount++;
 				});
+				testFunction.options.onStart = function () {
+					onStartCalled = true;
+				};
+				return testFunction;
+			})()
+		});
 
-			return expectedTest.run().then(function () {
-				assert.isTrue(topicFired, 'testPass topic should fire after a test is successfully run');
-				assert.strictEqual(actualTest, expectedTest,
-					'testPass topic should be passed the test that was just run');
-				assert.property(actualBenchmarks, 'hz');
-				assert.property(actualBenchmarks, 'times');
-				assert.deepProperty(actualBenchmarks, 'times.cycle');
-				assert.deepProperty(actualBenchmarks, 'times.elapsed');
-				assert.deepProperty(actualBenchmarks, 'times.period');
-				assert.deepProperty(actualBenchmarks, 'times.timeStamp');
-				assert.property(actualBenchmarks, 'stats');
-				assert.deepProperty(actualBenchmarks, 'stats.moe');
-				assert.deepProperty(actualBenchmarks, 'stats.rme');
-				assert.deepProperty(actualBenchmarks, 'stats.sem');
-				assert.deepProperty(actualBenchmarks, 'stats.deviation');
-				assert.deepProperty(actualBenchmarks, 'stats.mean');
-				assert.deepProperty(actualBenchmarks, 'stats.sample');
-				assert.deepProperty(actualBenchmarks, 'stats.variance');
-			});
+		// Ensure the test runner's timeout gets reset on each cycle
+		test.benchmark.on('cycle', () => this.restartTimeout());
+
+		return test.run().then(function () {
+			assert.isAbove(runCount, 1, 'test should have run more than once');
+			assert.isTrue(onStartCalled, 'Benchmark#onStart should have been called');
+		});
+	},
+
+	'BenchmarkTest#testEnd event'() {
+		let topicFired = false;
+		let executionCount = 0;
+		let actualTest: Test;
+		let actualBenchmarks: BenchmarkData;
+		const expectedTest = createTest({
+			name: 'foo',
+			test: getTestFunction(function () {
+				executionCount++;
+			}, true)
 		},
-
-		'BenchmarkTest#skip'() {
-			const test1 = createTest({
-				name: 'skip 1',
-				test: function () {
-					this.skip('foo');
+			{
+				emit(topic: string, test: BenchmarkTest) {
+					if (topic === 'testEnd') {
+						topicFired = true;
+						actualTest = test;
+						actualBenchmarks = test.benchmark;
+					}
 				}
 			});
 
-			return test1.run().then(() => {
-				assert.strictEqual(test1.skipped, 'foo', 'skipped should be set to "foo" on test1');
-			});
-		},
+		return expectedTest.run().then(function () {
+			assert.isTrue(topicFired, 'testPass topic should fire after a test is successfully run');
+			assert.strictEqual(actualTest, expectedTest,
+				'testPass topic should be passed the test that was just run');
+			assert.property(actualBenchmarks, 'hz');
+			assert.property(actualBenchmarks, 'times');
+			assert.deepProperty(actualBenchmarks, 'times.cycle');
+			assert.deepProperty(actualBenchmarks, 'times.elapsed');
+			assert.deepProperty(actualBenchmarks, 'times.period');
+			assert.deepProperty(actualBenchmarks, 'times.timeStamp');
+			assert.property(actualBenchmarks, 'stats');
+			assert.deepProperty(actualBenchmarks, 'stats.moe');
+			assert.deepProperty(actualBenchmarks, 'stats.rme');
+			assert.deepProperty(actualBenchmarks, 'stats.sem');
+			assert.deepProperty(actualBenchmarks, 'stats.deviation');
+			assert.deepProperty(actualBenchmarks, 'stats.mean');
+			assert.deepProperty(actualBenchmarks, 'stats.sample');
+			assert.deepProperty(actualBenchmarks, 'stats.variance');
+		});
+	},
 
-		'BenchmarkTest#toJSON': {
-			tests: {
-				'no error'() {
-					const test = createTest({
-						name: 'no error',
-						parent: <Suite>{
-							id: 'parent id',
-							name: 'parent id',
-							sessionId: 'abcd',
-							timeout: 30000,
-							executor: <any>{ emit() { return Promise.resolve(); } }
-						},
-						test: getTestFunction(function () { })
-					});
-					const expected = {
-						error: undefined,
-						id: 'parent id - no error',
-						parentId: 'parent id',
-						name: 'no error',
+	'BenchmarkTest#skip'() {
+		const test1 = createTest({
+			name: 'skip 1',
+			test: function () {
+				this.skip('foo');
+			}
+		});
+
+		return test1.run().then(() => {
+			assert.strictEqual(test1.skipped, 'foo', 'skipped should be set to "foo" on test1');
+		});
+	},
+
+	'BenchmarkTest#toJSON': {
+		tests: {
+			'no error'() {
+				const test = createTest({
+					name: 'no error',
+					parent: <Suite>{
+						id: 'parent id',
+						name: 'parent id',
 						sessionId: 'abcd',
 						timeout: 30000,
-						hasPassed: true,
-						skipped: undefined
-					};
-
-					return test.run().then(function () {
-						const testJson = test.toJSON();
-
-						// Elapsed time is non-deterministic, so just force it to a value we can test
-						assert.isAbove(testJson.timeElapsed, 0);
-
-						// Delete the values we don't want deepEqual with the expected values
-						delete testJson.timeElapsed;
-
-						assert.deepEqual(testJson, expected,
-							'Test#toJSON should return expected JSON structure for test with no error');
-					});
-				},
-
-				error() {
-					const test = createTest({
-						name: 'error',
-						parent: <Suite>{
-							id: 'parent id',
-							name: 'parent id',
-							sessionId: 'abcd',
-							timeout: 30000,
-							executor: <any>{ emit() { return Promise.resolve(); } }
-						},
-						test: getTestFunction(function () {
-							const error = new Error('fail');
-							error.stack = 'stack';
-							throw error;
-						})
-					});
-
-					return test.run().then(
-						function () {
-							throw new Error('test should not have passed');
-						},
-						function () {
-							const testJson = test.toJSON();
-							const expected = {
-								name: 'Error',
-								message: 'fail',
-								stack: 'stack',
-								showDiff: false
-							};
-
-							// Check that a benchmark property exists and has values
-							assert.deepEqual(testJson.error, expected);
-						}
-					);
-				}
-			}
-		},
-
-		'Lifecycle methods': (function () {
-			function isMethodCalled(methodName: keyof BenchmarkSuite, isAsync: boolean) {
-				return function () {
-					let count = 0;
-					let parent = <BenchmarkSuite>{
 						executor: <any>{ emit() { return Promise.resolve(); } }
-					};
-					let parentAny: any = parent;
-					parentAny[methodName] = function () {
-						count++;
-					};
-
-					const test = createTest({
-						name: 'test',
-						test: getTestFunction(function () { }, isAsync),
-						parent
-					});
-
-					return test.run().then(function () {
-						assert.isAbove(count, 0, methodName + ' should have been called at least one time');
-					});
+					},
+					test: getTestFunction(function () { })
+				});
+				const expected = {
+					error: undefined,
+					id: 'parent id - no error',
+					parentId: 'parent id',
+					name: 'no error',
+					sessionId: 'abcd',
+					timeout: 30000,
+					hasPassed: true,
+					skipped: undefined
 				};
-			}
 
-			function innerOuterTest(recorder: (name: string, value?: any) => void, isAsync: boolean) {
-				return new BenchmarkTest({
-					name: 'test',
+				return test.run().then(function () {
+					const testJson = test.toJSON();
 
-					test: getTestFunction(function (this: any) {
-						recorder('test', this);
-					}, isAsync),
+					// Elapsed time is non-deterministic, so just force it to a value we can test
+					assert.isAbove(testJson.timeElapsed, 0);
 
-					parent: new BenchmarkSuite({
-						name: 'foo',
+					// Delete the values we don't want deepEqual with the expected values
+					delete testJson.timeElapsed;
 
-						beforeEachLoop() {
-							recorder('innerBefore', this);
-						},
-						afterEachLoop() {
-							recorder('innerAfter', this);
-						},
+					assert.deepEqual(testJson, expected,
+						'Test#toJSON should return expected JSON structure for test with no error');
+				});
+			},
 
-						parent: new BenchmarkSuite({
-							name: 'bar',
-							beforeEachLoop(this: any) {
-								recorder('outerBefore', this);
-							},
-							afterEachLoop(this: any) {
-								recorder('outerAfter', this);
-							},
-							executor: <any>{
-								emit() { return Promise.resolve(); }
-							}
-						})
+			error() {
+				const test = createTest({
+					name: 'error',
+					parent: <Suite>{
+						id: 'parent id',
+						name: 'parent id',
+						sessionId: 'abcd',
+						timeout: 30000,
+						executor: <any>{ emit() { return Promise.resolve(); } }
+					},
+					test: getTestFunction(function () {
+						const error = new Error('fail');
+						error.stack = 'stack';
+						throw error;
 					})
 				});
-			}
 
-			function testSuite(isAsync = false) {
-				return {
-					tests: {
-						'.beforeEachLoop': isMethodCalled('beforeEachLoop', isAsync),
+				return test.run().then(
+					function () {
+						throw new Error('test should not have passed');
+					},
+					function () {
+						const testJson = test.toJSON();
+						const expected = {
+							name: 'Error',
+							message: 'fail',
+							stack: 'stack',
+							showDiff: false
+						};
 
-						'.afterEachLoop': isMethodCalled('afterEachLoop', isAsync),
-
-						order() {
-							let counter = 0;
-							let orders: { [key: string]: number } = {
-								outerBefore: -1,
-								innerBefore: -1,
-								test: -1,
-								innerAfter: -1,
-								outerAfter: -1
-							};
-
-							function recordOrder(name: string) {
-								if (orders[name] === -1) {
-									orders[name] = counter++;
-								}
-							}
-
-							const test = innerOuterTest(recordOrder, isAsync);
-
-							return test.run().then(function () {
-								assert.isBelow(orders.outerBefore, orders.innerBefore, 'Outer beforeEachLoop should be called before inner beforeEachLoop');
-								assert.isBelow(orders.innerBefore, orders.test, 'Inner beforeEachLoop should be called before the test');
-								assert.isBelow(orders.test, orders.innerAfter, 'Inner afterEachLoop should be called after the test');
-								assert.isBelow(orders.innerAfter, orders.outerAfter, 'Inner afterEachLoop should be called before outer afterEachLoop');
-							});
-						},
-
-						context() {
-							let contexts: { [key: string]: any } = {
-								outerBefore: null,
-								innerBefore: null,
-								test: null,
-								innerAfter: null,
-								outerAfter: null
-							};
-
-							function recordContext(name: string, context: any) {
-								if (contexts[name] === null) {
-									contexts[name] = context;
-								}
-							}
-
-							const test = innerOuterTest(recordContext, isAsync);
-
-							return test.run().then(function () {
-								assert.strictEqual(contexts.test, test, 'Context of test function should be test');
-								assert.strictEqual(contexts.innerBefore, test.parent, 'Context of innerBefore should be test.parent');
-								assert.strictEqual(contexts.outerBefore, test.parent.parent, 'Context of outerBefore should be test.parent');
-								assert.strictEqual(contexts.innerAfter, test.parent, 'Context of innerAfter should be test.parent.parent');
-								assert.strictEqual(contexts.outerAfter, test.parent.parent, 'Context of outerAfter should be test.parent.parent');
-							});
-						}
+						// Check that a benchmark property exists and has values
+						assert.deepEqual(testJson.error, expected);
 					}
-				};
+				);
 			}
+		}
+	},
 
+	'Lifecycle methods': (function () {
+		function isMethodCalled(methodName: keyof BenchmarkSuite, isAsync: boolean) {
+			return function () {
+				let count = 0;
+				let parent = <BenchmarkSuite>{
+					executor: <any>{ emit() { return Promise.resolve(); } }
+				};
+				let parentAny: any = parent;
+				parentAny[methodName] = function () {
+					count++;
+				};
+
+				const test = createTest({
+					name: 'test',
+					test: getTestFunction(function () { }, isAsync),
+					parent
+				});
+
+				return test.run().then(function () {
+					assert.isAbove(count, 0, methodName + ' should have been called at least one time');
+				});
+			};
+		}
+
+		function innerOuterTest(recorder: (name: string, value?: any) => void, isAsync: boolean) {
+			return createTest({
+				name: 'test',
+
+				test: getTestFunction(function (this: any) {
+					recorder('test', this);
+				}, isAsync),
+
+				parent: createSuite({
+					name: 'foo',
+					beforeEachLoop() {
+						recorder('innerBefore', this);
+					},
+					afterEachLoop() {
+						recorder('innerAfter', this);
+					},
+
+					parent: createSuite({
+						name: 'bar',
+						beforeEachLoop() {
+							recorder('outerBefore', this);
+						},
+						afterEachLoop() {
+							recorder('outerAfter', this);
+						}
+					})
+				})
+			});
+		}
+
+		function testSuite(isAsync = false) {
 			return {
 				tests: {
-					'sync test': testSuite(),
-					'async test': testSuite(true)
+					'.beforeEachLoop': isMethodCalled('beforeEachLoop', isAsync),
+
+					'.afterEachLoop': isMethodCalled('afterEachLoop', isAsync),
+
+					order() {
+						let counter = 0;
+						let orders: { [key: string]: number } = {
+							outerBefore: -1,
+							innerBefore: -1,
+							test: -1,
+							innerAfter: -1,
+							outerAfter: -1
+						};
+
+						function recordOrder(name: string) {
+							if (orders[name] === -1) {
+								orders[name] = counter++;
+							}
+						}
+
+						const test = innerOuterTest(recordOrder, isAsync);
+
+						return test.run().then(function () {
+							assert.isBelow(orders.outerBefore, orders.innerBefore, 'Outer beforeEachLoop should be called before inner beforeEachLoop');
+							assert.isBelow(orders.innerBefore, orders.test, 'Inner beforeEachLoop should be called before the test');
+							assert.isBelow(orders.test, orders.innerAfter, 'Inner afterEachLoop should be called after the test');
+							assert.isBelow(orders.innerAfter, orders.outerAfter, 'Inner afterEachLoop should be called before outer afterEachLoop');
+						});
+					},
+
+					context() {
+						let contexts: { [key: string]: any } = {
+							outerBefore: null,
+							innerBefore: null,
+							test: null,
+							innerAfter: null,
+							outerAfter: null
+						};
+
+						function recordContext(name: string, context: any) {
+							if (contexts[name] === null) {
+								contexts[name] = context;
+							}
+						}
+
+						const test = innerOuterTest(recordContext, isAsync);
+
+						return test.run().then(function () {
+							assert.strictEqual(contexts.test, test, 'Context of test function should be test');
+							assert.strictEqual(contexts.innerBefore, test.parent, 'Context of innerBefore should be test.parent');
+							assert.strictEqual(contexts.outerBefore, test.parent.parent, 'Context of outerBefore should be test.parent');
+							assert.strictEqual(contexts.innerAfter, test.parent, 'Context of innerAfter should be test.parent.parent');
+							assert.strictEqual(contexts.outerAfter, test.parent.parent, 'Context of outerAfter should be test.parent.parent');
+						});
+					}
 				}
 			};
-		})()
-	}
+		}
+
+		return {
+			tests: {
+				'sync test': testSuite(),
+				'async test': testSuite(true)
+			}
+		};
+	})()
 });

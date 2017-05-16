@@ -36,7 +36,6 @@ export default class Test implements TestProperties {
 		if (!options.name && !options.test) {
 			throw new Error('A Test requires a name and a test function');
 		}
-
 		mixin(this, options);
 	}
 
@@ -300,7 +299,7 @@ export default class Test implements TestProperties {
 }
 
 export function isTest(value: any): value is Test {
-	return typeof value.hasPassed === 'boolean' && typeof value.test === 'function';
+	return typeof value.test === 'function' && typeof value.hasPassed === 'boolean';
 }
 
 export function isTestOptions(value: any): value is TestOptions {
@@ -309,6 +308,10 @@ export function isTestOptions(value: any): value is TestOptions {
 
 export interface TestFunction {
 	(this: Test): void | Thenable<any>;
+}
+
+export function isTestFunction(value: any): value is TestFunction {
+	return typeof value === 'function';
 }
 
 export interface TestProperties {

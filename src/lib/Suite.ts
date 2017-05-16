@@ -48,10 +48,6 @@ export default class Suite implements SuiteProperties {
 	private _timeout: number;
 
 	constructor(options: SuiteOptions | RootSuiteOptions) {
-		if (!options.name && !options.executor) {
-			throw new Error('A Suite requires a name or executor');
-		}
-
 		Object.keys(options).filter(key => {
 			return key !== 'tests';
 		}).forEach((key: keyof SuiteOptions) => {
@@ -62,6 +58,10 @@ export default class Suite implements SuiteProperties {
 
 		if (options.tests) {
 			options.tests.forEach(suiteOrTest => this.add(suiteOrTest));
+		}
+
+		if (!this.name && this.parent) {
+			throw new Error('A non-root Suite must have a name');
 		}
 	}
 
@@ -80,12 +80,15 @@ export default class Suite implements SuiteProperties {
 	 * The executor used to run this Suite.
 	 */
 	get executor(): Executor {
-		return this._executor || (this.parent && this.parent.executor);
+		// Prefer the parent's executor
+		return (this.parent && this.parent.executor) || this._executor;
 	}
 
 	set executor(value: Executor) {
 		if (this._executor) {
-			throw new Error('AlreadyAssigned: an executor may only be set once per suite');
+			const error = new Error('An executor may only be set once per suite');
+			error.name = 'AlreadyAssigned';
+			throw error;
 		}
 		this._executor = value;
 	}
@@ -186,7 +189,7 @@ export default class Suite implements SuiteProperties {
 			if (isSuite(suiteOrTest)) {
 				return numFailedTests + suiteOrTest.numFailedTests;
 			}
-			else if (suiteOrTest.error) {
+			else if (!(suiteOrTest.hasPassed || suiteOrTest.skipped) || suiteOrTest.error) {
 				return numFailedTests + 1;
 			}
 			return numFailedTests;
@@ -237,12 +240,19 @@ export default class Suite implements SuiteProperties {
 			throw new Error('Tried to add invalid suite or test');
 		}
 
-		if (suiteOrTest.parent != null) {
+		if (suiteOrTest.parent != null && suiteOrTest.parent !== this) {
 			throw new Error('This Suite or Test already belongs to another parent');
 		}
 
 		suiteOrTest.parent = this;
 		this.tests.push(suiteOrTest);
+
+		if (isTest(suiteOrTest)) {
+			this.executor.emit('testAdd', suiteOrTest);
+		}
+		else {
+			this.executor.emit('suiteAdd', suiteOrTest);
+		}
 	}
 
 	/**
@@ -546,16 +556,7 @@ export default class Suite implements SuiteProperties {
 }
 
 export function isSuite(value: any): value is Suite {
-	return typeof value.name === 'string' && Array.isArray(value.tests) && typeof value.hasParent === 'boolean';
-}
-
-export function isSuiteOptions(value: any): value is SuiteOptions {
-	return !(value instanceof Suite) && value.name && value.tests && (
-		value.before != null ||
-		value.beforeEach != null ||
-		value.after != null ||
-		value.afterEach != null
-	);
+	return Array.isArray(value.tests) && typeof value.hasParent === 'boolean';
 }
 
 export interface SuiteLifecycleFunction {
@@ -579,11 +580,14 @@ export interface SuiteProperties {
 	name: string;
 	parent: Suite;
 	publishAfterSetup: boolean;
+	remote: Remote;
+	sessionId: string;
 	timeout: number;
 }
 
 export type SuiteOptions = Partial<SuiteProperties> & {
 	name: string;
+	parent: Suite;
 	tests?: (Suite | Test)[];
 };
 

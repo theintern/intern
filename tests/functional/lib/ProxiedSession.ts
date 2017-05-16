@@ -10,7 +10,7 @@ import Test, { TestFunction } from '../../../src/lib/Test';
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
 
-registerSuite(function () {
+registerSuite('ProxiedSession', function () {
 	const serverUrl = 'https://example.invalid/';
 	const serverBasePathLength = 1;
 	let session: ProxiedSession | null;
@@ -102,8 +102,6 @@ registerSuite(function () {
 	}
 
 	return {
-		name: 'ProxiedSession',
-
 		before() {
 			session = createProxiedSessionFromRemote(this.remote);
 		},
