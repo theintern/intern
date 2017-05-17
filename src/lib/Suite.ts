@@ -308,7 +308,9 @@ export default class Suite implements SuiteProperties {
 					// manage the timeout.
 					if (timeout) {
 						let timer = setTimeout(function () {
-							_dfd.reject(new Error('Timeout reached on ' + suite.id + '#' + name));
+							const error = new Error(`Timeout reached on ${suite.id}#${name}`);
+							error.name = 'TimeoutError';
+							_dfd.reject(error);
 						}, timeout);
 
 						dfd.promise.catch(_error => {}).then(() => timer && clearTimeout(timer));

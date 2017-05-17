@@ -119,7 +119,7 @@ export default class Test implements TestProperties {
 		 */
 		dfd.resolve = function (this: any) {
 			--remainingCalls;
-			if (numCallsUntilResolution === 0) {
+			if (remainingCalls === 0) {
 				oldResolve.apply(this, arguments);
 			}
 			else if (remainingCalls < 0) {
@@ -147,6 +147,9 @@ export default class Test implements TestProperties {
 			}
 			const timer = setTimeout(() => {
 				if (this._runTask) {
+					const error = new Error(`Timeout reached on ${this.id}#`);
+					error.name = 'TimeoutError';
+					this.error = error;
 					this._runTask.cancel();
 				}
 			}, timeout);
@@ -202,36 +205,39 @@ export default class Test implements TestProperties {
 
 					// The `result` promise is wrapped in order to allow timeouts to work when a user returns a
 					// Promise from somewhere else that does not support cancellation
-					this._runTask = new Task(
-						(resolve, reject) => {
-							if (isThenable(result)) {
-								result.then(resolve, reject);
-							}
+					return new Task((resolve, reject) => {
+						this._runTask = new Task(
+							(resolve, reject) => {
+								if (isThenable(result)) {
+									result.then(resolve, reject);
+								}
 
-							// Most promise implementations that allow cancellation don't signal that a promise was
-							// canceled. In order to ensure that a timed out test is never accidentally resolved, reject
-							// a canceled test.
-							if (isTask(result)) {
-								result.finally(reject).catch(_error => {});
+								// Most promise implementations that allow cancellation don't signal that a promise was
+								// canceled. In order to ensure that a timed out test is never accidentally resolved, reject
+								// a canceled test.
+								if (isTask(result)) {
+									result.finally(reject).catch(_error => {});
+								}
+							},
+							() => {
+								if (isTask(result)) {
+									result.cancel();
+								}
+								reject(this.error);
 							}
-						},
-						() => {
-							if (isTask(result)) {
-								result.cancel();
-							}
-						}
-					);
+						).then(resolve, reject);
 
-					this.restartTimeout();
-					return this._runTask;
+						this.restartTimeout();
+					});
 				}
 			})
 			.finally(() => {
 				this.timeElapsed = Date.now() - startTime;
 				if (this._timer) {
 					clearTimeout(this._timer);
+					this._timer = null;
 				}
-				this._timer = this._runTask = null;
+				this._runTask = null;
 			})
 			.then(
 				// Test completed successfully -- potentially passed
