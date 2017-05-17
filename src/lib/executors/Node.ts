@@ -3,7 +3,7 @@ import Task from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
 import { deepMixin, duplicate, mixin } from '@dojo/core/lang';
-import Formatter from '../node/Formatter';
+import ErrorFormatter from '../node/ErrorFormatter';
 import { dirname, normalize, relative, resolve, sep } from 'path';
 import LeadfootServer from 'leadfoot/Server';
 import ProxiedSession from '../ProxiedSession';
@@ -74,8 +74,8 @@ export default class Node extends Executor<Events, Config> {
 			tunnelOptions: { tunnelId: String(Date.now()) }
 		});
 
-		this._formatter = new Formatter(this.config);
 		this._tunnels = {};
+		this._errorFormatter = new ErrorFormatter(this.config);
 
 		this.registerReporter('pretty', Pretty);
 		this.registerReporter('simple', Simple);
@@ -127,6 +127,7 @@ export default class Node extends Executor<Events, Config> {
 			super.addSuite(factory);
 		}
 	}
+
 	/**
 	 * Insert coverage instrumentation into a given code string
 	 */

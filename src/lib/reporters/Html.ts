@@ -236,7 +236,7 @@ export default class Html extends Reporter implements HtmlProperties {
 	@eventHandler()
 	error(error: Error) {
 		const document = this.document;
-		let htmlError = this.formatter.format(error).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+		let htmlError = this.formatError(error).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 		let errorNode = document.createElement('div');
 		errorNode.style.cssText = 'color: red; font-family: sans-serif;';
 		errorNode.innerHTML = '<h1>Fatal error</h1>' +

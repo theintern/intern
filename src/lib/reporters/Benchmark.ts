@@ -194,7 +194,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 			suiteInfo.numFailedBenchmarks++;
 
 			this.console.error('FAIL: ' + test.id);
-			this.console.error(this.executor.formatter.format(test.error, { space: '  ' }));
+			this.console.error(this.executor.formatError(test.error, { space: '  ' }));
 		}
 		else {
 			const checkTest = (baseline: BenchmarkData, benchmark: BenchmarkData) => {

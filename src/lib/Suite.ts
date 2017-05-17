@@ -529,31 +529,48 @@ export default class Suite implements SuiteProperties {
 		throw SKIP;
 	}
 
-	toJSON(): Object {
-		return {
-			name: this.name,
-			id: this.id,
-			parentId: this.parentId,
-			sessionId: this.sessionId,
+	toJSON(): object {
+		const json: { [key: string]: any } = {
 			hasParent: Boolean(this.parent),
 			tests: this.tests.map(function (test) {
 				return test.toJSON();
-			}),
-			timeElapsed: this.timeElapsed,
-			numTests: this.numTests,
-			numFailedTests: this.numFailedTests,
-			numSkippedTests: this.numSkippedTests,
-			skipped: this.skipped,
-			error: this.error ? {
+			})
+		};
+		const properties: (keyof Suite)[] = [
+			'name',
+			'id',
+			'parentId',
+			'sessionId',
+			'timeElapsed',
+			'numTests',
+			'numFailedTests',
+			'numSkippedTests',
+			'skipped'
+		];
+
+		properties.forEach(key => {
+			const value = this[key];
+			if (typeof value !== 'undefined') {
+				json[key] = value;
+			}
+		});
+
+		if (this.error) {
+			json.error = {
 				name: this.error.name,
 				message: this.error.message,
-				stack: this.error.stack,
+				stack: this.error.stack
+			};
+
+			if (this.error.relatedTest && this.error.relatedTest !== <any>this) {
 				// relatedTest can be the Suite itself in the case of nested suites (a nested Suite's error is
 				// caught by a parent Suite, which assigns the nested Suite as the relatedTest, resulting in
 				// nestedSuite.relatedTest === nestedSuite); in that case, don't serialize it
-				relatedTest: this.error.relatedTest === <any>this ? undefined : this.error.relatedTest
-			} : null
-		};
+				json.error.relatedTest = this.error.relatedTest.toJSON();
+			}
+		}
+
+		return json;
 	}
 }
 

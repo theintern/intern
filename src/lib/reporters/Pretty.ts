@@ -149,7 +149,7 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 			this._record(suite.sessionId, FAIL);
 
 			const message = '! ' + suite.id;
-			this._log.push(message + '\n' + this.formatter.format(suite.error));
+			this._log.push(message + '\n' + this.formatError(suite.error));
 		}
 	}
 
@@ -162,7 +162,7 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 		else if (test.error) {
 			const message = '× ' + test.id;
 			this._record(test.sessionId, FAIL);
-			this._log.push(message + '\n' + this.formatter.format(test.error));
+			this._log.push(message + '\n' + this.formatError(test.error));
 		}
 		else {
 			this._record(test.sessionId, PASS);
@@ -184,7 +184,7 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 	@eventHandler()
 	error(error: Error) {
 		const message = '! ' + error.message;
-		this._log.push(message + '\n' + this.formatter.format(error));
+		this._log.push(message + '\n' + this.formatError(error));
 		// stop the render timeout on a fatal error so Intern can exit
 		clearTimeout(this._renderTimeout);
 	}

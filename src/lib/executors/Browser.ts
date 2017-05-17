@@ -1,7 +1,7 @@
 import Executor, { Config as BaseConfig, Events, initialize, LoaderDescriptor, PluginDescriptor } from './Executor';
 import { normalizePathEnding, parseValue } from '../common/util';
 import { duplicate } from '@dojo/core/lang';
-import Formatter from '../browser/Formatter';
+import ErrorFormatter from '../browser/ErrorFormatter';
 import Task from '@dojo/core/async/Task';
 
 /**
@@ -23,7 +23,7 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 			this.configure(config);
 		}
 
-		this._formatter = new Formatter(this.config);
+		this._errorFormatter = new ErrorFormatter(this.config);
 
 		// Report uncaught errors
 		window.addEventListener('unhandledRejection', (event: PromiseRejectionEvent) => {

@@ -1,6 +1,6 @@
-import BaseFormatter from '../common/Formatter';
+import ErrorFormatter from '../common/ErrorFormatter';
 
-export default class Formatter extends BaseFormatter {
+export default class BrowserErrorFormatter extends ErrorFormatter {
 	/**
 	 * Dereference the source from a traceline.
 	 */

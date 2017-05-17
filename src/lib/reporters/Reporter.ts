@@ -1,6 +1,6 @@
-import Formatter from '../common/Formatter';
 import { mixin } from '@dojo/core/lang';
 import Executor, { Events, Handle } from '../executors/Executor';
+import { ErrorFormatOptions } from '../common/ErrorFormatter';
 
 export default class Reporter<
 	E extends Executor = Executor,
@@ -40,10 +40,6 @@ export default class Reporter<
 		this._console = value;
 	}
 
-	get formatter(): Formatter {
-		return this.executor.formatter;
-	}
-
 	get output() {
 		if (!this._output) {
 			// Use process.stdout in a Node.js environment, otherwise construct a writable-like object that outputs to
@@ -70,6 +66,10 @@ export default class Reporter<
 
 	set output(value: ReporterOutput) {
 		this._output = value;
+	}
+
+	formatError(error: Error, options?: ErrorFormatOptions) {
+		return this.executor.formatError(error, options);
 	}
 
 	/**

@@ -23,7 +23,7 @@ export default class Dom extends Reporter {
 	@eventHandler()
 	error(error: Error) {
 		const errorNode = this.document.createElement('pre');
-		errorNode.appendChild(this.document.createTextNode(this.formatter.format(error)));
+		errorNode.appendChild(this.document.createTextNode(this.formatError(error)));
 		this.document.body.appendChild(errorNode);
 	}
 
@@ -36,7 +36,7 @@ export default class Dom extends Reporter {
 			this.suiteNode.style.color = 'red';
 
 			const errorNode = this.document.createElement('pre');
-			errorNode.appendChild(this.document.createTextNode(this.formatter.format(suite.error)));
+			errorNode.appendChild(this.document.createTextNode(this.formatError(suite.error)));
 			this.suiteNode.appendChild(errorNode);
 			this._scroll();
 		}
@@ -77,7 +77,7 @@ export default class Dom extends Reporter {
 			this.testNode.style.color = 'red';
 
 			const errorNode = this.document.createElement('pre');
-			errorNode.appendChild(this.document.createTextNode(this.formatter.format(test.error)));
+			errorNode.appendChild(this.document.createTextNode(this.formatError(test.error)));
 			this.testNode.appendChild(errorNode);
 		}
 		else {

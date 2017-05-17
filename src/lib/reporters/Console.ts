@@ -19,7 +19,7 @@ export default class ConsoleReporter extends Reporter {
 	@eventHandler()
 	error(error: Error) {
 		this.console.warn('FATAL ERROR');
-		this.console.error(this.formatter.format(error));
+		this.console.error(this.formatError(error));
 	}
 
 	@eventHandler()
@@ -31,7 +31,7 @@ export default class ConsoleReporter extends Reporter {
 
 		if (suite.error) {
 			this.console.warn('SUITE ERROR');
-			this.console.error(this.formatter.format(suite.error));
+			this.console.error(this.formatError(suite.error));
 		}
 		else {
 			const numTests = suite.numTests;
@@ -59,7 +59,7 @@ export default class ConsoleReporter extends Reporter {
 	testEnd(test: Test) {
 		if (test.error) {
 			this.console.error(`FAIL: ${test[this._testId]} (${test.timeElapsed}ms)`);
-			this.console.error(this.formatter.format(test.error));
+			this.console.error(this.formatError(test.error));
 		}
 		else if (test.skipped) {
 			this.console.log(`SKIP: ${test[this._testId]} (${test.skipped})`);

@@ -9,7 +9,7 @@ import { eventHandler } from './Reporter';
 export default class Simple extends Coverage {
 	@eventHandler()
 	error(error: Error) {
-		this.console.error(this.formatter.format(error));
+		this.console.error(this.formatError(error));
 	}
 
 	@eventHandler()
@@ -23,7 +23,7 @@ export default class Simple extends Coverage {
 	suiteEnd(suite: Suite) {
 		if (suite.error) {
 			this.console.warn('SUITE ERROR');
-			this.console.error(this.formatter.format(suite.error));
+			this.console.error(this.formatError(suite.error));
 		}
 		else {
 			const numTests = suite.numTests;
@@ -46,7 +46,7 @@ export default class Simple extends Coverage {
 	testEnd(test: Test) {
 		if (test.error) {
 			this.console.error(`FAIL: ${test.id} (${test.timeElapsed}ms)`);
-			this.console.error(this.formatter.format(test.error, { space: '  ' }));
+			this.console.error(this.formatError(test.error, { space: '  ' }));
 		}
 		else if (test.skipped) {
 			this.console.log(`SKIP: ${test.id} (${test.skipped})`);

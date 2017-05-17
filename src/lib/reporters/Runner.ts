@@ -85,7 +85,7 @@ export default class Runner extends Coverage {
 	error(error: Error) {
 		this.charm.foreground('red');
 		this.charm.write('(ノಠ益ಠ)ノ彡┻━┻\n');
-		this.charm.write(this.formatter.format(error));
+		this.charm.write(this.formatError(error));
 		this.charm.display('reset');
 		this.charm.write('\n\n');
 
@@ -165,7 +165,7 @@ export default class Runner extends Coverage {
 
 			charm.foreground('red');
 			charm.write('Suite ' + suite.id + ' FAILED\n');
-			charm.write(this.formatter.format(error));
+			charm.write(this.formatError(error));
 			charm.display('reset');
 			charm.write('\n');
 
@@ -245,7 +245,7 @@ export default class Runner extends Coverage {
 			charm.write('\n');
 			charm.display('reset');
 			charm.foreground('red');
-			charm.write(this.formatter.format(test.error));
+			charm.write(this.formatError(test.error));
 			charm.display('reset');
 			charm.write('\n');
 		}

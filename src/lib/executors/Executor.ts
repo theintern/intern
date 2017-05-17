@@ -3,7 +3,7 @@ import Test from '../Test';
 import { deepMixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
 import Task from '@dojo/core/async/Task';
-import Formatter from '../common/Formatter';
+import ErrorFormatter, { ErrorFormatOptions } from '../common/ErrorFormatter';
 import { normalizePathEnding, parseValue, pullFromArray } from '../common/util';
 import Reporter, { ReporterOptions } from '../reporters/Reporter';
 import getObjectInterface, { ObjectInterface } from '../interfaces/object';
@@ -26,12 +26,12 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/** The resolved configuration for this executor. */
 	protected _config: C;
 
-	protected _formatter: Formatter;
-
 	/**
 	 * The root suites managed by this executor.
 	 */
 	protected _rootSuite: Suite;
+
+	protected _errorFormatter: ErrorFormatter;
 
 	protected _hasSuiteErrors = false;
 
@@ -108,11 +108,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		return this._config;
 	}
 
-	get formatter() {
-		if (!this._formatter) {
-			this._formatter = new Formatter(this.config);
-		}
-		return this._formatter;
+	/**
+	 * Format an error, normalizing the stack trace and resolving source map references
+	 */
+	formatError(error: Error, options?: ErrorFormatOptions) {
+		return this._errorFormatter.format(error, options);
 	}
 
 	/**
@@ -187,14 +187,14 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		if (notifications.length === 0) {
 			// Report an error when no error listeners are registered
 			if (eventName === 'error') {
-				console.error('ERROR:', this.formatter.format(<any>data));
+				console.error('ERROR:', this.formatError(<any>data));
 			}
 
 			return resolvedTask;
 		}
 
 		return Task.all(notifications).catch(error => {
-			console.error(`Error emitting ${eventName}: ${this.formatter.format(error)}`);
+			console.error(`Error emitting ${eventName}: ${this.formatError(error)}`);
 		});
 	}
 

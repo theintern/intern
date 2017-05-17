@@ -275,32 +275,40 @@ export default class Test implements TestProperties {
 	}
 
 	toJSON() {
-		let error: InternError | undefined;
+		const json: { [key: string]: any } = {};
+		const properties: (keyof Test)[] = [
+			'id',
+			'parentId',
+			'name',
+			'sessionId',
+			'timeElapsed',
+			'timeout',
+			'hasPassed',
+			'skipped'
+		];
+
+		properties.forEach(key => {
+			const value = this[key];
+			if (typeof value !== 'undefined') {
+				json[key] = value;
+			}
+		});
+
 		if (this.error) {
-			error = {
+			json.error = {
 				name: this.error.name,
 				message: this.error.message,
 				stack: this.error.stack,
-				showDiff: !!this.error.showDiff
+				showDiff: Boolean(this.error.showDiff)
 			};
 
 			if (this.error.showDiff) {
-				error.actual = this.error.actual;
-				error.expected = this.error.expected;
+				json.error.actual = this.error.actual;
+				json.error.expected = this.error.expected;
 			}
 		}
 
-		return {
-			error: error,
-			id: this.id,
-			parentId: this.parentId,
-			name: this.name,
-			sessionId: this.sessionId,
-			timeElapsed: this.timeElapsed,
-			timeout: this.timeout,
-			hasPassed: this.hasPassed,
-			skipped: this.skipped
-		};
+		return json;
 	}
 }
 

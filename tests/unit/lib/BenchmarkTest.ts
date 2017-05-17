@@ -225,14 +225,12 @@ registerSuite('intern/lib/BenchmarkTest', {
 					test: getTestFunction(function () { })
 				});
 				const expected = {
-					error: undefined,
 					id: 'parent id - no error',
 					parentId: 'parent id',
 					name: 'no error',
 					sessionId: 'abcd',
 					timeout: 30000,
-					hasPassed: true,
-					skipped: undefined
+					hasPassed: true
 				};
 
 				return test.run().then(function () {
