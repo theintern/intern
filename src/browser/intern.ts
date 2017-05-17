@@ -1,17 +1,10 @@
 /**
  * This is the browser runner for end users. It simply loads and initializes a Browser executor.
  */
-import { install } from 'source-map-support';
 import Browser from '../lib/executors/Browser';
 import Html from '../lib/reporters/Html';
 import Console from '../lib/reporters/Console';
 import { getConfig } from '../lib/browser/util';
-
-// TODO: remove <any> when @types/source-map-support is updated
-install(<any>{
-	handleUncaughtExceptions: false,
-	environment: 'browser'
-});
 
 getConfig().then(config => {
 	if (!config.reporters) {
