@@ -130,7 +130,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 
 		if (!suite.hasParent) {
 			const environment = session.environment;
-			this.console.log('Finished ' + environment.client + ' ' + environment.version + ' on ' + environment.platform);
+			this.console.log('Finished benchmarking ' + environment.client + ' ' + environment.version + ' on ' + environment.platform);
 		}
 		else if (this.mode === 'test') {
 			const suiteInfo = session.suites[suite.id];
@@ -158,7 +158,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 			const environmentName = environment.client + ' ' + environment.version + ' on ' + environment.platform;
 			const baselineEnvironments = this.baseline.environments;
 
-			this.console.log((this.mode === 'baseline' ? 'Baselining' : 'Benchmark testing') + ' ' + environmentName);
+			this.console.log((this.mode === 'baseline' ? 'Baselining' : 'Benchmarking') + ' ' + environmentName);
 
 			if (this.mode === 'baseline') {
 				baselineEnvironments[environment.id] = <BaselineEnvironment>{
