@@ -1,12 +1,10 @@
-import Executor from 'src/lib/executors/Executor';
-import { Remote } from 'src/lib/executors/Node';
-import Suite, { SuiteOptions, SuiteProperties } from 'src/lib/Suite';
-import Test, { TestOptions, TestProperties } from 'src/lib/Test';
+import Suite from 'src/lib/Suite';
+import Test from 'src/lib/Test';
 import { InternError } from 'src/lib/types';
+import { createExecutor, createRemote, createSuite, createTest } from '../../support/unit/util';
 
 import Promise from '@dojo/shim/Promise';
 import Task from '@dojo/core/async/Task';
-import { mixin } from '@dojo/core/lang';
 
 import _Deferred from '../../../src/lib/Deferred';
 import { TestFunction as _TestFunction } from '../../../src/lib/Test';
@@ -19,18 +17,6 @@ type lifecycleMethod = 'before' | 'beforeEach' | 'afterEach' | 'after';
 
 interface TestWrapper {
 	(func: (done: Function) => _TestFunction): _TestFunction;
-}
-
-function createExecutor(properties?: any) {
-	const executor: Executor = <any>{
-		emit() {
-			return Task.resolve();
-		},
-		log() {
-			return Task.resolve();
-		}
-	};
-	return mixin(executor, properties);
 }
 
 function createAsyncAndPromiseTest(testWrapper: TestWrapper) {
@@ -202,22 +188,6 @@ function createPromiseTest(testWrapper: TestWrapper) {
 	});
 }
 
-function createSuite(name?: string, options: Partial<SuiteProperties> & { tests?: (Suite | Test)[] } = <any>{}) {
-	if (!options.executor && !(options.parent && options.parent.executor)) {
-		options.executor = createExecutor(options.executor);
-	}
-	options.name = options.name || name;
-	return new Suite(<SuiteOptions>options);
-}
-
-function createTest(name: string, options: Partial<TestProperties> = {}) {
-	if (!options.test) {
-		options.test = () => {};
-	}
-	options.name = name;
-	return new Test(<TestOptions>options);
-}
-
 function createThrowsTest(method: lifecycleMethod, options: any = {}): _TestFunction {
 	return function () {
 		const dfd = this.async(1000);
@@ -357,9 +327,9 @@ registerSuite('intern/lib/Suite', {
 		},
 
 		'#remote'() {
-			const parentRemote = <Remote>{ session: { sessionId: 'remote' } };
+			const parentRemote = createRemote({ session: { sessionId: 'remote' } });
 			const parentSuite = createSuite('bar', { remote: parentRemote });
-			const mockRemote = <Remote>{ session: { sessionId: 'local' } };
+			const mockRemote = createRemote({ session: { sessionId: 'local' } });
 			const suite = createSuite('foo', { remote: mockRemote });
 			let thrown = false;
 

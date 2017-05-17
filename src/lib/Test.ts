@@ -28,12 +28,12 @@ export default class Test implements TestProperties {
 
 	protected _runTask: Task<any> | null;
 
-	protected _timer: number | null;
+	protected _timer: NodeJS.Timer | null;
 
 	protected _usesRemote = false;
 
 	constructor(options: TestOptions) {
-		if (!options.name && !options.test) {
+		if (!options.name || !options.test) {
 			throw new Error('A Test requires a name and a test function');
 		}
 		mixin(this, options);
@@ -81,12 +81,10 @@ export default class Test implements TestProperties {
 		if (this._timeout != null) {
 			return this._timeout;
 		}
-		else if (this.parent) {
+		if (this.parent && this.parent.timeout != null) {
 			return this.parent.timeout;
 		}
-		else {
-			return 30000;
-		}
+		return 30000;
 	}
 
 	set timeout(value) {
@@ -139,24 +137,23 @@ export default class Test implements TestProperties {
 	 * During an asynchronous test run, restarts the timeout timer.
 	 */
 	restartTimeout(timeout?: number) {
-		timeout = timeout == null ? this.timeout : timeout;
+		if (timeout != null) {
+			this.timeout = timeout;
+		}
 
 		if (this._runTask) {
 			if (this._timer) {
 				clearTimeout(this._timer);
 			}
-			const timer = setTimeout(() => {
+			this._timer = setTimeout(() => {
+				this._timer = null;
 				if (this._runTask) {
 					const error = new Error(`Timeout reached on ${this.id}#`);
 					error.name = 'TimeoutError';
 					this.error = error;
 					this._runTask.cancel();
 				}
-			}, timeout);
-			this._timer = <number>(<any>timer);
-		}
-		else {
-			this.timeout = timeout;
+			}, this.timeout);
 		}
 	}
 
@@ -216,7 +213,7 @@ export default class Test implements TestProperties {
 								// canceled. In order to ensure that a timed out test is never accidentally resolved, reject
 								// a canceled test.
 								if (isTask(result)) {
-									result.finally(reject).catch(_error => {});
+									result.finally(reject).catch(() => {});
 								}
 							},
 							() => {
@@ -313,11 +310,11 @@ export default class Test implements TestProperties {
 }
 
 export function isTest(value: any): value is Test {
-	return typeof value.test === 'function' && typeof value.hasPassed === 'boolean';
+	return value != null && typeof value.test === 'function' && typeof value.hasPassed === 'boolean';
 }
 
 export function isTestOptions(value: any): value is TestOptions {
-	return !(value instanceof Test) && value.name != null && value.test != null;
+	return value != null && !(value instanceof Test) && value.name != null && value.test != null;
 }
 
 export interface TestFunction {
@@ -334,6 +331,7 @@ export interface TestProperties {
 	parent: Suite;
 	skipped: string | undefined;
 	test: TestFunction;
+	timeout: number;
 }
 
 export type TestOptions = Partial<TestProperties> & {

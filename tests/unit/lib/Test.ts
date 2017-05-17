@@ -1,37 +1,40 @@
-import registerSuite = require('intern!object');
-import * as assert from 'intern/chai!assert';
-import Test from 'src/lib/Test';
+import Executor from 'src/lib/executors/Executor';
+import Test, { isTest, isTestFunction, isTestOptions, TestProperties } from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
-import Promise = require('dojo/Promise');
-import { AssertionError } from 'chai';
+import { createExecutor, createRemote, createSuite, createTest as _createTest } from '../../support/unit/util';
 
-function createTest(options: any): Test {
+import Promise from '@dojo/shim/Promise';
+import Task from '@dojo/core/async/Task';
+import { Thenable } from '@dojo/shim/interfaces';
+
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getAssertions('assert');
+
+function createTest(name: string, options: Partial<TestProperties> & { executor?: Executor } = {}) {
 	if (!options.parent) {
-		options.parent = {
-			reporterManager: {
-				emit(this: Test) {
-					options.reporterManagerEmit && options.reporterManagerEmit.apply(this, arguments);
-					return Promise.resolve();
-				}
-			}
-		};
+		options.parent = <Suite>{};
 	}
-	return new Test(options);
+	if (!options.parent.executor) {
+		const executor = options.executor || createExecutor();
+		delete options.executor;
+		options.parent.executor = executor;
+	}
+	return _createTest(name, options);
 }
 
-registerSuite({
-	name: 'intern/lib/Test',
+registerSuite('intern/lib/Test', {
+	'#constructor'() {
+		assert.throws(() => { new Test(<any>{}); }, /requires a name/);
+		assert.throws(() => { new Test(<any>{ name: 'foo' }); }, /requires a name/);
+		assert.throws(() => { new Test(<any>{ test: () => {} }); }, /requires a name/);
+	},
 
-	'Test#test'(this: Test) {
+	'#test'() {
 		const dfd = this.async(250);
 		let executed = false;
 
-		const test = new Test({
-			name: null,
-			parent: null,
-			test: function () {
-				executed = true;
-			}
+		const test = createTest('foo', {
+			test() { executed = true; }
 		});
 
 		test.run().then(dfd.callback(function () {
@@ -39,150 +42,152 @@ registerSuite({
 		}));
 	},
 
-	'Test#test throws'(this: Test) {
+	'#test throws'() {
 		const dfd = this.async(250);
 		const thrownError = new Error('Oops');
-		const test = new Test({
-			name: null,
-			parent: null,
-			test: function () {
-				throw thrownError;
-			}
+		const test = createTest('foo', {
+			test() { throw thrownError; }
 		});
 
-		test.run().then(function () {
-			dfd.reject(new AssertionError('Test should not resolve when it throws an error'));
-		}, dfd.callback(function (error) {
-			assert.strictEqual(test.error, thrownError, 'Error thrown by test should be the error set on test');
-			assert.strictEqual(error, thrownError, 'Error thrown by test should be the error used by the promise');
-		}));
+		test.run().then(
+			() => {
+				dfd.reject(new Error('Test should not resolve when it throws an error'));
+			},
+			dfd.callback((error: Error) => {
+				assert.strictEqual(test.error, thrownError, 'Error thrown by test should be the error set on test');
+				assert.strictEqual(error, thrownError, 'Error thrown by test should be the error used by the promise');
+			})
+		);
 	},
 
-	'Test#async implicit'(this: Test) {
-		const dfd = this.async();
-		let resolved = false;
-		const test = new Test({
-			name: null,
-			parent: null,
-			test: function (this: Test) {
-				const dfd = this.async(250);
-				setTimeout(function () {
-					resolved = true;
-					dfd.resolve();
-				}, 0);
-			}
-		});
-
-		test.run().then(dfd.callback(function () {
-			assert.isTrue(resolved, 'Test promise should have been resolved by the asynchronous code in the test');
-		}),
-		function () {
-			dfd.reject(new AssertionError('Test promise should resolve successfully, without any timeout'));
-		});
-
-		assert.isFalse(resolved, 'Test promise should not resolve immediately after calling run');
-	},
-
-	'Test#async explicit'(this: Test) {
-		const dfd = this.async();
-		let resolved = false;
-		const test = new Test({
-			name: null,
-			parent: null,
-			test: function (this: Test) {
-				const dfd = new Promise.Deferred();
-				setTimeout(function () {
-					resolved = true;
-					dfd.resolve();
-				}, 0);
-				return dfd.promise;
-			}
-		});
-
-		test.run().then(dfd.callback(function () {
-			assert.isTrue(resolved, 'Test promise should have been resolved by the asynchronous code in the test');
-		}),
-		function () {
-			dfd.reject(new AssertionError('Test promise should resolve successfully, without any timeout'));
-		});
-
-		assert.isFalse(resolved, 'Test promise should not resolve immediately after calling run');
-	},
-
-	'Test#async callback + numCallsUntilResolution'(this: Test) {
-		const dfd = this.async();
-		let numCalls = 0;
-		const test = new Test({
-			name: null,
-			parent: null,
-			test: function (this: Test) {
-				const dfd = this.async(250, 3);
-
-				for (let i = 0; i < 3; ++i) {
-					dfd.callback(function () {
-						++numCalls;
-					})();
+	'#async': {
+		implicit() {
+			let resolved = false;
+			const test = createTest('foo', {
+				test() {
+					const dfd = this.async();
+					setTimeout(function () {
+						resolved = true;
+						dfd.resolve();
+					}, 0);
 				}
-			}
-		});
+			});
 
-		test.run().then(function () {
-			assert.strictEqual(numCalls, 3,
-				'Callback method should have been invoked three times before test completed');
-			dfd.resolve();
+			const promise = test.run().then(
+				() => assert.isTrue(resolved, 'Test promise should have been resolved by the asynchronous code in the test'),
+				() => { throw new Error('Test promise should resolve successfully, without any timeout'); }
+			);
+
+			assert.isFalse(resolved, 'Test promise should not resolve immediately after calling run');
+			return promise;
 		},
-		function () {
-			dfd.reject(new AssertionError('Test should pass if specified number of callbacks are triggered on the promise'));
-		});
+
+		explicit() {
+			let resolved = false;
+			const test = createTest('foo', {
+				test() {
+					return new Promise(resolve => {
+						setTimeout(function () {
+							resolved = true;
+							resolve();
+						}, 0);
+					});
+				}
+			});
+
+			const promise = test.run().then(
+				() => assert.isTrue(resolved, 'Test promise should have been resolved by the asynchronous code in the test'),
+				() => { throw new Error('Test promise should resolve successfully, without any timeout'); }
+			);
+
+			assert.isFalse(resolved, 'Test promise should not resolve immediately after calling run');
+			return promise;
+		},
+
+		'callback + numCallsUntilResolution'() {
+			const dfd = this.async();
+			let numCalls = 0;
+			const test = createTest('foo', {
+				test() {
+					const dfd = this.async(250, 3);
+
+					for (let i = 0; i < 3; ++i) {
+						dfd.callback(function () {
+							++numCalls;
+						})();
+					}
+				}
+			});
+
+			test.run().then(
+				() => {
+					assert.strictEqual(numCalls, 3,
+						'Callback method should have been invoked three times before test completed');
+					dfd.resolve();
+				},
+				() => {
+					dfd.reject(new Error('Test should pass if specified number of callbacks are triggered on the promise'));
+				}
+			);
+		},
+
+		'-> timeout'() {
+			const dfd = this.async(500);
+			const test = createTest('foo', {
+				test() {
+					this.async(100);
+				}
+			});
+
+			test.run().then(
+				() => {
+					dfd.reject(new Error('Test should timeout if async and the promise is never resolved'));
+				},
+				error => {
+					assert.ok(error, 'Timeout error thrown in async test');
+					dfd.resolve();
+				}
+			);
+		},
+
+		'-> reject'() {
+			const thrownError = new Error('Oops');
+
+			const test = createTest('foo', {
+				test() {
+					const d = this.async();
+					d.reject(thrownError);
+				}
+			});
+
+			test.run().then(
+				() => { throw new Error('Test should throw if async and the promise is rejected'); },
+				error => {
+					assert.strictEqual(test.error, error, 'Error thrown in test should equal our assertion error');
+					assert.strictEqual(error, thrownError, 'Error thrown in test should be the error used by the promise');
+				}
+			);
+		},
+
+		'excessive resolution'() {
+			const test = createTest('foo', {
+				test() {
+					const d = this.async();
+					d.resolve();
+					d.resolve();
+				}
+			});
+
+			return test.run().then(
+				() => { throw new Error('Test should have thrown'); },
+				error => assert.match(error.message, /called too many times/)
+			);
+		}
 	},
 
-	'Test#async -> timeout'(this: Test) {
-		const dfd = this.async(500);
-		const test = new Test({
-			name: null,
-			parent: null,
-			test: function (this: Test) {
-				this.async(100);
-			}
-		});
-
-		test.run().then(function () {
-			dfd.reject(new Error('Test should timeout if async and the promise is never resolved'));
-		},
-		function (error: Error) {
-			assert.ok(error, 'Timeout error thrown in async test');
-			dfd.resolve();
-		});
-	},
-
-	'Test#async -> reject'(this: Test) {
-		const dfd = this.async(250);
-		const thrownError = new Error('Oops');
-
-		const test = new Test({
-			name: null,
-			parent: null,
-			test: function (this: Test) {
-				const d = this.async(250);
-				d.reject(thrownError);
-			}
-		});
-
-		test.run().then(function () {
-			dfd.reject(new AssertionError('Test should throw if async and the promise is rejected'));
-		},
-		function (error: Error) {
-			assert.strictEqual(test.error, error, 'Error thrown in test should equal our assertion error');
-			assert.strictEqual(error, thrownError, 'Error thrown in test should be the error used by the promise');
-			dfd.resolve();
-		});
-	},
-
-	'Test#timeElapsed'() {
-		const test = new Test({
-			name: null,
-			parent: null,
-			test: function (this: Test) {
+	'#timeElapsed'() {
+		const test = createTest('foo', {
+			test() {
 				const dfd = this.async();
 				setTimeout(function () {
 					dfd.resolve();
@@ -190,7 +195,7 @@ registerSuite({
 			}
 		});
 
-		return test.run().then(function () {
+		return test.run().then(() => {
 			// It isn't really our job to test how accurate browsers are, and this test will randomly fail
 			// when a browser decides to be slow for no reason (or execute setTimeout too fast for no reason)
 			// so we need to be really lax with this check
@@ -200,114 +205,92 @@ registerSuite({
 		});
 	},
 
-	'Test#toJSON'() {
-		const test = new Test({
-			name: 'test name',
-			parent: <Suite> {
+	'#toJSON'() {
+		const test = createTest('test name', {
+			parent: <Suite>{
 				id: 'parent id',
 				name: 'parent id',
 				sessionId: 'abcd',
 				timeout: 30000
 			},
-			test: function () {}
+			test() {}
 		});
-		const expected = {
-			error: <any> null,
+		const expected: { [key: string]: any }  = {
 			id: 'parent id - test name',
 			parentId: 'parent id',
 			name: 'test name',
 			sessionId: 'abcd',
 			timeElapsed: 100,
 			timeout: 30000,
-			hasPassed: true,
-			skipped: <any> null
+			hasPassed: true
 		};
 
-		return test.run().then(function () {
+		return test.run().then(() => {
 			// Elapsed time is non-deterministic, so just force it to a value we can test
 			test.timeElapsed = 100;
 
 			assert.deepEqual(test.toJSON(), expected,
-				'Test#toJSON should return expected JSON structure for test with no error');
+				'#toJSON should return expected JSON structure for test with no error');
 
 			test.error = expected.error = { name: 'Oops', message: 'message', stack: 'stack', showDiff: false };
 			assert.deepEqual(test.toJSON(), expected,
-				'Test#toJSON should return expected JSON structure for test with error not including diff info');
+				'#toJSON should return expected JSON structure for test with error not including diff info');
 
 			test.error = expected.error = { name: 'Oops', message: 'message', stack: 'stack', showDiff: true,
 				expected: 'foo', actual: 'bar' };
 			assert.deepEqual(test.toJSON(), expected,
-				'Test#toJSON should return expected JSON structure for test with error including diff info');
+				'#toJSON should return expected JSON structure for test with error including diff info');
 		});
 	},
 
-	'Test#hasPassed'(this: Test) {
-		const dfd = this.async(null, 2);
+	'#hasPassed'() {
+		const dfd = this.async(undefined, 2);
 		const thrownError = new Error('Oops');
-		const goodTest = new Test({ name: null, parent: null, test: function () {} });
-		const badTest = new Test({ name: null, parent: null, test: function () {
-			throw thrownError;
-		} });
+		const goodTest = createTest('good', { test() {} });
+		const badTest = createTest('bad', { test() { throw thrownError; } });
 
 		assert.isFalse(goodTest.hasPassed, 'Good test should not have passed if it has not been executed');
 		assert.isFalse(badTest.hasPassed, 'Bad test should not have passed if it has not been executed');
 		goodTest.run().finally(dfd.callback(function () {
 			assert.isTrue(goodTest.hasPassed, 'Good test should have passed after execution without error');
 		}));
-		badTest.run().finally(dfd.callback(function () {
+		badTest.run().catch(() => {}).finally(dfd.callback(function () {
 			assert.isFalse(badTest.hasPassed, 'Bad test should not have passed after execution with error');
 			assert.strictEqual(badTest.error, thrownError, 'Bad test error should be the error which was thrown');
 		}));
 	},
 
-	'Test#constructor topic'() {
-		let topicFired = false;
-		let actualTest: Test;
-		const expectedTest = createTest({
-			reporterManagerEmit: function (topic: string, test: Test) {
-				if (topic === 'newTest') {
-					topicFired = true;
-					actualTest = test;
-				}
-			}
-		});
-		assert.isTrue(topicFired, 'newTest topic should fire after a test is created');
-		assert.strictEqual(actualTest, expectedTest,
-			'newTest topic should be passed the test that was just created');
-	},
-
-	'Test#sessionId'() {
-		const test = new Test({
-			name: null,
-			test: null,
-			parent: new Suite({ sessionId: 'parent' })
+	'#sessionId'() {
+		const test = createTest('foo', {
+			parent: createSuite('bar', { sessionId: 'parent' })
 		});
 		assert.strictEqual(test.sessionId, test.parent.sessionId,
-			'Test#sessionId should get the sessionId from the test\'s parent');
+			'#sessionId should get the sessionId from the test\'s parent');
 	},
 
-	'Test#remote'() {
-		const mockRemote = { sessionId: 'test' };
-		const test = new Test({
-			name: null,
-			test: null,
-			parent: new Suite({ remote: mockRemote })
+	'#remote'() {
+		const mockRemote = createRemote({ sessionId: 'test' });
+		const test = createTest('foo', {
+			parent: createSuite('bar', { remote: mockRemote })
 		});
 		assert.strictEqual(test.remote, mockRemote,
-			'Test#remote should get the remote value from from the test\'s parent');
+			'#remote should get the remote value from from the test\'s parent');
 	},
 
-	'Test#skip'() {
+	'#skip'() {
 		let actual: Test;
-		const expected = createTest({
-			test: function (this: Test) {
+		const expected = createTest('foo', {
+			test() {
 				this.skip('IT’S A TRAP');
 			},
-			reporterManagerEmit: function (topic: string, test: Test) {
-				if (topic === 'testSkip') {
-					actual = test;
+			executor: createExecutor({
+				emit(event: string, data: any) {
+					if (event === 'testEnd' && data.skipped) {
+						actual = data;
+					}
+					return Task.resolve();
 				}
-			}
+			})
 		});
 
 		return expected.run().then(function () {
@@ -318,35 +301,33 @@ registerSuite({
 	},
 
 	'using remote in a test': {
-		'fails if test is synchronous'(this: Test) {
+		'fails if test is synchronous'() {
 			// Increase timeout for IE11
 			this.timeout = 5000;
 			let temp: any;
-			const test = createTest({
-				name: null,
-				parent: null,
-				test: function (this: Test) {
+			const test = createTest('foo', {
+				test() {
 					const remote = this.remote;
 					temp = remote;
 				}
 			});
 
 			return test.run().then(
-				function () {
+				() => {
 					assert.fail('test should not have passed');
 				},
-				function (error: Error) {
+				error => {
 					assert.match(error.message, /^Remote used in synchronous test/, 'unexpected error message');
 				}
 			);
 		},
 
-		'works if test returns a promise'(this: Test) {
+		'works if test returns a promise'() {
 			// Increase timeout for IE11
 			this.timeout = 5000;
 			let temp: any;
-			const test = createTest({
-				test: function (this: Test) {
+			const test = createTest('foo', {
+				test() {
 					const remote = this.remote;
 					temp = remote;
 					return Promise.resolve();
@@ -356,12 +337,12 @@ registerSuite({
 			return test.run();
 		},
 
-		'works if test resolves async dfd'(this: Test) {
+		'works if test resolves async dfd'() {
 			// Increase timeout for IE11
 			this.timeout = 5000;
 			let temp: any;
-			const test = createTest({
-				test: function (this: Test) {
+			const test = createTest('foo', {
+				test: function () {
 					const dfd = this.async();
 					const remote = this.remote;
 					temp = remote;
@@ -373,31 +354,28 @@ registerSuite({
 		}
 	},
 
-	'Test#restartTimeout'() {
-		const test = createTest({
-			timeout: 100,
-			name: null,
-			parent: null,
-			test: function (this: Test) {
-				const dfd = this.async();
-				setTimeout(dfd.resolve.bind(dfd), 200);
+	'#restartTimeout'() {
+		const test = createTest('foo', {
+			test() {
+				// Set a short timeout -- test will fail if restartTimeout isn't called
+				this.timeout = 100;
+				return new Promise(resolve => { setTimeout(resolve, 200); });
 			}
 		});
 
 		const run = test.run();
-		test.restartTimeout(1000);
+		// Cal restartTimeout in a setTimeout so it isn't called until the test has actually started
+		setTimeout(() => test.restartTimeout(1000));
 		return run.catch(function () {
 			assert(false, 'Test should not timeout before it is resolved');
 		});
 	},
 
 	'Test timeout using Promise with no cancel'() {
-		const test = createTest({
-			name: null,
-			parent: null,
-			test: function (this: Test) {
+		const test = createTest('foo', {
+			test() {
 				this.timeout = 1;
-				return { then: function () {} };
+				return <Thenable<any>>{ then() {} };
 			}
 		});
 
@@ -407,5 +385,27 @@ registerSuite({
 			assert.include(error.message, 'Timeout reached',
 				'Timeout should occur when using a Promise with no cancel');
 		});
+	},
+
+	'support functions': {
+		isTest() {
+			assert.isFalse(isTest(null));
+			assert.isFalse(isTest({}));
+			assert.isTrue(isTest(createTest('foo')));
+			assert.isTrue(isTest({ test() {}, hasPassed: false }));
+		},
+
+		isTestOptions() {
+			assert.isFalse(isTestOptions(null));
+			assert.isFalse(isTestOptions({}));
+			assert.isFalse(isTestOptions(createTest('foo')));
+			assert.isTrue(isTestOptions({ test() {}, name: 'foo' }));
+		},
+
+		isTestFunction() {
+			assert.isFalse(isTestFunction(null));
+			assert.isFalse(isTestFunction({}));
+			assert.isTrue(isTestFunction(() => {}));
+		}
 	}
 });
