@@ -1,7 +1,6 @@
 {
 	"suites": [
-		"_tests/tests/unit/**/*.js",
-		"_tests/tests/benchmark/example.js"
+		"_tests/tests/unit/**/!(Benchmark*).js"
 	],
 	"benchmark": false,
 	"functionalSuites": "_tests/tests/functional/**/*.js",
@@ -41,6 +40,14 @@
 	"excludeInstrumentation": "(?:node_modules|_tests)",
 
 	"configs": {
+		/* For running all unit tests (including benchmarks) */
+		"all": {
+			"benchmark": true,
+			"suites": [
+				"_tests/tests/unit/**/*.js",
+				"_tests/tests/benchmark/example.js"
+			]
+		},
 		/* For running local selenium tests */
 		"wd": {
 			"tunnel": "selenium",
@@ -48,6 +55,10 @@
 		},
 		/* For running tests on Travis */
 		"ci": {
+			"suites": [
+				"_tests/tests/unit/**/*.js",
+				"_tests/tests/benchmark/example.js"
+			],
 			"tunnel": "browserstack",
 			"maxConcurrency": 2,
 			"environments": [
