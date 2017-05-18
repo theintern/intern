@@ -138,7 +138,10 @@ export default class RemoteSuite extends Suite {
 							return promise.then(resolve, reject);
 
 						case 'error':
-							handleError(data);
+							// Ignore summary suite error messages
+							if (!(/One or more suite errors/).test(data.message)) {
+								handleError(data);
+							}
 							break;
 
 						default:
