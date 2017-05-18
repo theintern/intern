@@ -4,6 +4,7 @@
 	],
 	"benchmark": false,
 	"functionalSuites": "_tests/tests/functional/**/*.js",
+	"reporters": [ { "name": "runner", "options": { "hideSkipped": true } } ],
 	"browserLoader": {
 		"script": "systemjs",
 		"config": {

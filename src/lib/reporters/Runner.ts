@@ -25,6 +25,8 @@ export default class Runner extends Coverage {
 
 	hasErrors: boolean;
 
+	hideSkipped: boolean;
+
 	serveOnly: boolean;
 
 	private _deprecationMessages: { [message: string]: boolean };
@@ -250,12 +252,14 @@ export default class Runner extends Coverage {
 			charm.write('\n');
 		}
 		else if (test.skipped) {
-			charm.foreground('magenta');
-			charm.write('~ ' + test.id);
-			charm.display('reset');
-			charm.write(' (' + (test.skipped || 'skipped') + ')');
-			charm.display('reset');
-			charm.write('\n');
+			if (!this.hideSkipped) {
+				charm.foreground('magenta');
+				charm.write('~ ' + test.id);
+				charm.display('reset');
+				charm.write(' (' + (test.skipped || 'skipped') + ')');
+				charm.display('reset');
+				charm.write('\n');
+			}
 		}
 		else {
 			charm.foreground('green');
