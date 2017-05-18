@@ -2,7 +2,7 @@ import Environment from 'src/lib/Environment';
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
 
-registerSuite('intern/lib/Environment', {
+registerSuite('lib/Environment', {
 	'constructor with info'() {
 		const type = new Environment({
 			browserName: 'Browser',

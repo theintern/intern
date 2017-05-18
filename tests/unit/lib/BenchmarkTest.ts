@@ -57,7 +57,7 @@ function createTest(descriptor: BenchmarkTestOptions, options?: TestOptions) {
 	return new BenchmarkTest(descriptor);
 }
 
-registerSuite('intern/lib/BenchmarkTest', {
+registerSuite('lib/BenchmarkTest', {
 	'BenchmarkTest#test'() {
 		this.timeout = 5000;
 

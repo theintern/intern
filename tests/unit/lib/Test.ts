@@ -22,7 +22,7 @@ function createTest(name: string, options: Partial<TestProperties> & { executor?
 	return _createTest(name, options);
 }
 
-registerSuite('intern/lib/Test', {
+registerSuite('lib/Test', {
 	'#constructor'() {
 		assert.throws(() => { new Test(<any>{}); }, /requires a name/);
 		assert.throws(() => { new Test(<any>{ name: 'foo' }); }, /requires a name/);

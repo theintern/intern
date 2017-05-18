@@ -120,6 +120,10 @@ export default class Runner extends Coverage {
 				numTests += session.suite.numTests;
 				numFailedTests += session.suite.numFailedTests;
 				numSkippedTests += session.suite.numSkippedTests;
+
+				if (this.hideSkipped) {
+					numTests -= session.suite.numSkippedTests;
+				}
 			});
 
 			const charm = this.charm;
@@ -134,7 +138,7 @@ export default class Runner extends Coverage {
 
 			let message = 'TOTAL: tested %d platforms, %d/%d tests failed';
 
-			if (numSkippedTests) {
+			if (numSkippedTests && !this.hideSkipped) {
 				message += ' (' + numSkippedTests + ' skipped)';
 			}
 
@@ -208,8 +212,12 @@ export default class Runner extends Coverage {
 			let numTests = suite.numTests;
 			let numSkippedTests = suite.numSkippedTests;
 
+			if (this.hideSkipped) {
+				numTests -= numSkippedTests;
+			}
+
 			let summary = nodeUtil.format('%s: %d/%d tests failed', name, numFailedTests, numTests);
-			if (numSkippedTests) {
+			if (numSkippedTests && !this.hideSkipped) {
 				summary += ' (' + numSkippedTests + ' skipped)';
 			}
 

@@ -286,7 +286,7 @@ function createLifecycleTests(name: lifecycleMethod, asyncTest: TestWrapper, tes
 	};
 }
 
-registerSuite('intern/lib/Suite', {
+registerSuite('lib/Suite', {
 	'#constructor required parameters'() {
 		assert.throws(() => {
 			new Suite(<any>{ parent: {} });
