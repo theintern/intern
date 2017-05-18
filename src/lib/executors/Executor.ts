@@ -88,10 +88,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this.registerAssertions('expect', chai.expect);
 		this.registerAssertions('should', chai.should);
 
-		this._rootSuite = new Suite({
-			executor: this,
-			name: this.config.name
-		});
+		this._rootSuite = new Suite({ executor: this });
 
 		// This is the first suiteEnd listener. When the root unit test suite ends, it will emit a coverage message
 		// before any other suiteEnd listeners are called.
@@ -416,6 +413,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			}
 		});
 
+		this._rootSuite.bail = config.bail;
+		this._rootSuite.grep = config.grep;
+		this._rootSuite.name = config.name;
+		this._rootSuite.timeout = config.defaultTimeout;
+
 		return resolvedTask;
 	}
 
@@ -555,11 +557,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			case 'name':
 				value = parseValue(name, value, 'string');
 				this._setOption(name, value);
-
-				// Update the rootSuite name when config.name is updated
-				if (this._rootSuite) {
-					this._rootSuite.name = value;
-				}
 				break;
 
 			case 'suites':

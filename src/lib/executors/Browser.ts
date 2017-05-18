@@ -91,7 +91,7 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 				break;
 
 			case 'browserPlugins':
-				this._setOption(name, parseValue(name, value, 'object[]'), addToExisting);
+				this._setOption(name, parseValue(name, value, 'object[]', 'script'), addToExisting);
 				break;
 
 			case 'browserSuites':

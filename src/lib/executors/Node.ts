@@ -455,7 +455,7 @@ export default class Node extends Executor<Events, Config> {
 				break;
 
 			case 'nodePlugins':
-				this._setOption(name, parseValue(name, value, 'object[]', 'script'));
+				this._setOption(name, parseValue(name, value, 'object[]', 'script'), addToExisting);
 				break;
 
 			case 'functionalCoverage':
