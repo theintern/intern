@@ -530,12 +530,9 @@ export default class Node extends Executor<Events, Config> {
 				config.capabilities.build = buildId;
 			}
 
-			return Promise.all(['suites', 'browserSuites', 'functionalSuites', 'nodeSuites'].map((property: keyof Config) => {
-				return expandFiles(config[property]).then(expanded => {
-					config[property] = expanded;
-				});
-			// return void
-			})).then(() => {});
+			return ['suites', 'browserSuites', 'functionalSuites', 'nodeSuites'].forEach((property: keyof Config) => {
+				config[property] = expandFiles(config[property]);
+			});
 		});
 	}
 
