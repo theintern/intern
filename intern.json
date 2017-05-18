@@ -45,6 +45,7 @@
 		"_tests/tests/browserMocking.js"
 	],
 	"excludeInstrumentation": "(?:node_modules|_tests)",
+	"maxConcurrency": 2,
 
 	"configs": {
 		/* For running all unit tests (including benchmarks) */
@@ -67,12 +68,11 @@
 		},
 		/* For running tests on Travis */
 		"ci": {
+			"tunnel": "browserstack",
 			"suites": [
 				"_tests/tests/unit/**/*.js",
 				"_tests/tests/benchmark/example.js"
 			],
-			"tunnel": "browserstack",
-			"maxConcurrency": 2,
 			"environments": [
 				{ "browser": "internet explorer", "version": [ "10", "11" ] },
 				{ "browser": "firefox", "version": [ "33", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
@@ -85,6 +85,20 @@
 			"suites": [
 				"_tests/tests/unit/lib/Environment.js",
 				"_tests/tests/unit/lib/BenchmarkTest.js"
+			]
+		},
+		/* For running CI tests on Sauce Labs */
+		"sauce": {
+			"tunnel": "saucelabs",
+			"suites": [
+				"_tests/tests/unit/**/*.js",
+				"_tests/tests/benchmark/example.js"
+			],
+			"environments": [
+				{ "browser": "internet explorer", "version": [ "10", "11" ] },
+				{ "browser": "firefox", "version": [ "33", "latest" ], "platform": [ "Windows 10", "OS X 10.12" ] },
+				{ "browser": "chrome", "version": [ "38", "latest" ], "platform": [ "Windows 10", "OS X 10.12" ] },
+				{ "browser": "safari", "version": [ "9", "10" ] }
 			]
 		}
 	}
