@@ -513,6 +513,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			case 'filterErrorStack':
 				value = parseValue(name, value, 'boolean');
 				this._setOption(name, value);
+				this._errorFormatter.filterErrorStack = value;
 				break;
 
 			case 'internPath':

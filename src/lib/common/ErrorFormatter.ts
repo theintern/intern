@@ -1,12 +1,11 @@
 import { InternError } from '../types';
-import { mixin } from '@dojo/core/lang';
 import { diffJson } from 'diff';
 
 export default class ErrorFormatter implements ErrorFormatterProperties {
 	filterErrorStack = false;
 
 	constructor(options: ErrorFormatterOptions = {}) {
-		mixin(this, options);
+		this.filterErrorStack = options.filterErrorStack || false;
 	}
 
 	/**
