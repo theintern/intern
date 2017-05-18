@@ -42,11 +42,16 @@
 
 	"configs": {
 		/* For running all unit tests (including benchmarks) */
-		"all": {
+		"coverage": {
 			"benchmark": true,
 			"suites": [
-				"_tests/tests/unit/**/*.js",
-				"_tests/tests/benchmark/example.js"
+				"_tests/tests/unit/**/*.js"
+			],
+			"reporters+": [
+				{
+					"name": "htmlcoverage",
+					"options": { "sources": "_build/src/lib/**/*.js" }
+				}
 			]
 		},
 		/* For running local selenium tests */
