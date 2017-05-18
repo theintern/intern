@@ -12,8 +12,6 @@ export default class Remote extends Browser<Events, Config> {
 		return initialize<Events, Config, Remote>(Remote, config);
 	}
 
-	protected _debug: boolean;
-
 	constructor(config?: Partial<Config>) {
 		super(<Config>{
 			reporters: [{ name: 'dom' }],
@@ -28,22 +26,22 @@ export default class Remote extends Browser<Events, Config> {
 		}
 	}
 
-	protected _processOption(name: keyof Config, value: any) {
+	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
 		switch (name) {
 			case 'runInSync':
-				this._debug = parseValue(name, value, 'boolean');
+				this._setOption(name, parseValue(name, value, 'boolean'));
 				break;
 
 			case 'sessionId':
-				this.config[name] = parseValue(name, value, 'string');
+				this._setOption(name, parseValue(name, value, 'string'));
 				break;
 
 			case 'socketPort':
-				this.config[name] = parseValue(name, value, 'number');
+				this._setOption(name, parseValue(name, value, 'number'));
 				break;
 
 			default:
-				super._processOption(name, value);
+				super._processOption(name, value, addToExisting);
 				break;
 		}
 	}

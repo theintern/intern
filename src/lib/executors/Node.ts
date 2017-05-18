@@ -396,15 +396,15 @@ export default class Node extends Executor<Events, Config> {
 		return super._loadSuites(config);
 	}
 
-	protected _processOption(name: keyof Config, value: any) {
+	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
 		switch (name) {
 			case 'serverUrl':
-				this.config[name] = parseValue(name, value, 'string');
+				this._setOption(name, parseValue(name, value, 'string'));
 				break;
 
 			case 'capabilities':
 			case 'tunnelOptions':
-				this.config[name] = parseValue(name, value, 'object');
+				this._setOption(name, parseValue(name, value, 'object'));
 				break;
 
 			// Must be a string, object, or array of (string | object)
@@ -425,7 +425,7 @@ export default class Node extends Executor<Events, Config> {
 					value = [value];
 				}
 
-				this.config[name] = value.map((val: any) => {
+				value = value.map((val: any) => {
 					if (typeof val === 'string') {
 						try {
 							val = parseValue(name, val, 'object');
@@ -443,41 +443,43 @@ export default class Node extends Executor<Events, Config> {
 					}
 					return val;
 				});
+
+				this._setOption(name, value, addToExisting);
 				break;
 
 			case 'tunnel':
 				if (typeof value !== 'string' && typeof value !== 'function') {
 					throw new Error(`Invalid value "${value}" for ${name}`);
 				}
-				this.config[name] = value;
+				this._setOption(name, value);
 				break;
 
 			case 'nodePlugins':
-				this.config[name] = parseValue(name, value, 'object[]', 'script');
+				this._setOption(name, parseValue(name, value, 'object[]', 'script'));
 				break;
 
 			case 'functionalCoverage':
 			case 'leaveRemoteOpen':
 			case 'serveOnly':
 			case 'runInSync':
-				this.config[name] = parseValue(name, value, 'boolean');
+				this._setOption(name, parseValue(name, value, 'boolean'));
 				break;
 
 			case 'browserSuites':
 			case 'functionalSuites':
 			case 'nodeSuites':
-				this.config[name] = parseValue(name, value, 'string[]');
+				this._setOption(name, parseValue(name, value, 'string[]'), addToExisting);
 				break;
 
 			case 'connectTimeout':
 			case 'maxConcurrency':
 			case 'serverPort':
 			case 'socketPort':
-				this.config[name] = parseValue(name, value, 'number');
+				this._setOption(name, parseValue(name, value, 'number'));
 				break;
 
 			default:
-				super._processOption(<keyof BaseConfig>name, value);
+				super._processOption(<keyof BaseConfig>name, value, addToExisting);
 				break;
 		}
 	}

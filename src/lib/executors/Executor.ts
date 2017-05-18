@@ -143,7 +143,12 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 */
 	configure(config: Partial<C>) {
 		Object.keys(config).forEach((key: keyof Config) => {
-			this._processOption(key, config[key]);
+			const value = config[key];
+			const addToExisting = key[key.length - 1] === '+';
+			if (addToExisting) {
+				key = <keyof Config>key.slice(0, key.length - 1);
+			}
+			this._processOption(key, value, addToExisting);
 		});
 	}
 
@@ -479,7 +484,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Process an arbitrary config value. Subclasses can override this method to pre-process arguments or handle them
 	 * instead of allowing Executor to.
 	 */
-	protected _processOption(name: keyof Config, value: any) {
+	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
 		switch (name) {
 			case 'loader':
 				if (typeof value === 'string') {
@@ -495,31 +500,35 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 					throw new Error(`Invalid value "${value}" for ${name}`);
 				}
 
-				this.config[name] = value;
+				this._setOption(name, value);
 				break;
 
 			case 'bail':
 			case 'baseline':
 			case 'benchmark':
 			case 'debug':
+				this._setOption(name, parseValue(name, value, 'boolean'));
+				break;
+
 			case 'filterErrorStack':
-				this.config[name] = parseValue(name, value, 'boolean');
+				value = parseValue(name, value, 'boolean');
+				this._setOption(name, value);
 				break;
 
 			case 'internPath':
-				this.config[name] = parseValue(name, value, 'string');
+				this._setOption(name, parseValue(name, value, 'string'));
 				break;
 
 			case 'defaultTimeout':
-				this.config[name] = parseValue(name, value, 'number');
+				this._setOption(name, parseValue(name, value, 'number'));
 				break;
 
 			case 'excludeInstrumentation':
 				if (value === true) {
-					this.config[name] = value;
+					this._setOption(name, value);
 				}
 				else if (typeof value === 'string' || value instanceof RegExp) {
-					this.config[name] = parseValue(name, value, 'regexp');
+					this._setOption(name, parseValue(name, value, 'regexp'));
 				}
 				else {
 					throw new Error(`Invalid value "${value}" for ${name}; must be (string | RegExp | true)`);
@@ -527,24 +536,24 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				break;
 
 			case 'grep':
-				this.config[name] = parseValue(name, value, 'regexp');
+				this._setOption(name, parseValue(name, value, 'regexp'));
 				break;
 
 			case 'instrumenterOptions':
-				this.config[name] = deepMixin(this.config[name] || {}, parseValue(name, value, 'object'));
+				this._setOption(name, deepMixin({}, this.config[name], parseValue(name, value, 'object')));
 				break;
 
 			case 'reporters':
-				this.config[name] = parseValue(name, value, 'object[]', 'name');
+				this._setOption(name, parseValue(name, value, 'object[]', 'name'), addToExisting);
 				break;
 
 			case 'plugins':
-				this.config[name] = parseValue(name, value, 'object[]', 'script');
+				this._setOption(name, parseValue(name, value, 'object[]', 'script'), addToExisting);
 				break;
 
 			case 'name':
 				value = parseValue(name, value, 'string');
-				this.config[name] = value;
+				this._setOption(name, value);
 
 				// Update the rootSuite name when config.name is updated
 				if (this._rootSuite) {
@@ -553,11 +562,31 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				break;
 
 			case 'suites':
-				this.config[name] = parseValue(name, value, 'string[]');
+				this._setOption(name, parseValue(name, value, 'string[]'), addToExisting);
 				break;
 
 			default:
-				this.config[name] = value;
+				this._setOption(name, value);
+		}
+	}
+
+	protected _setOption(name: keyof C, value: any, addToExisting = false) {
+		// addToExisting
+		if (addToExisting) {
+			if (!Array.isArray(this.config[name])) {
+				throw new Error('Only array values may currently be added to');
+			}
+
+			const currentValue: any[] = this.config[name];
+			if (Array.isArray(value)) {
+				currentValue.push(...value);
+			}
+			else {
+				currentValue.push(value);
+			}
+		}
+		else {
+			this.config[name] = value;
 		}
 	}
 

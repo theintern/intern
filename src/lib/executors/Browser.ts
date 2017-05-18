@@ -84,22 +84,22 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 		return super._loadSuites(config);
 	}
 
-	protected _processOption(name: keyof Config, value: any) {
+	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
 		switch (name) {
 			case 'basePath':
-				this.config[name] = parseValue(name, value, 'string');
+				this._setOption(name, parseValue(name, value, 'string'));
 				break;
 
 			case 'browserPlugins':
-				this.config[name] = parseValue(name, value, 'object[]', 'script');
+				this._setOption(name, parseValue(name, value, 'object[]'), addToExisting);
 				break;
 
 			case 'browserSuites':
-				this.config[name] = parseValue(name, value, 'string[]');
+				this._setOption(name, parseValue(name, value, 'string[]'), addToExisting);
 				break;
 
 			default:
-				super._processOption(<keyof BaseConfig>name, value);
+				super._processOption(<keyof BaseConfig>name, value, addToExisting);
 				break;
 		}
 	}
