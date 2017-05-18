@@ -514,7 +514,9 @@ export default class Suite implements SuiteProperties {
 					}
 				}
 			);
-		}).finally(() => this.publishAfterSetup ? end().then(after) : after().then(end));
+		})
+		.finally(() => this.publishAfterSetup ? end() : after())
+		.finally(() => this.publishAfterSetup ? after() : end());
 	}
 
 	/**
