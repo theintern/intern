@@ -14,4 +14,13 @@ declare module 'istanbul-lib-instrument' {
 	}
 
 	export function createInstrumenter(options?: any): Instrumenter;
+
+	export interface InitialCoverage {
+		path: string;
+		hash: string;
+		gcv: any;
+		coverageData: any;
+	}
+
+	export function readInitialCoverage(code: string): InitialCoverage;
 }

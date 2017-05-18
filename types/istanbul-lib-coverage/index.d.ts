@@ -7,6 +7,7 @@ declare module 'istanbul-lib-coverage' {
 	}
 
 	export class CoverageMap {
+		addFileCoverage(pathOrObject: string | object): void;
 		files(): string[];
 		fileCoverageFor(filename: string): FileCoverage;
 		merge(data: object | CoverageMap): void;
@@ -18,4 +19,5 @@ declare module 'istanbul-lib-coverage' {
 
 	export function createCoverageMap(data?: any): CoverageMap;
 	export function createCoverageSummary(): CoverageSummary;
+	export function createFileCoverage(pathOrObject: string | object): FileCoverage;
 }
