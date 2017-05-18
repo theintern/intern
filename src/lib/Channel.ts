@@ -3,6 +3,8 @@ import WebSocketChannel from './channels/WebSocket';
 import HttpChannel from './channels/Http';
 import BaseChannel, { ChannelOptions } from './channels/Base';
 
+export { ChannelOptions };
+
 export default class Channel {
 	readonly options: ChannelOptions;
 

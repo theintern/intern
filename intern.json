@@ -37,7 +37,13 @@
 	},
 	"internPath": "_tests/src",
 	"filterErrorStack": true,
-	"browserPlugins": "_tests/tests/pre.js",
+	"nodePlugins": [
+		"_tests/tests/nodeMocking.js"
+	],
+	"browserPlugins": [
+		"_tests/tests/pre.js",
+		"_tests/tests/browserMocking.js"
+	],
 	"excludeInstrumentation": "(?:node_modules|_tests)",
 
 	"configs": {
