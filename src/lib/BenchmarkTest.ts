@@ -18,18 +18,16 @@ export default class BenchmarkTest extends Test {
 		let args: TestOptions = <TestOptions>{};
 		Object.keys(descriptor).forEach((key: keyof BenchmarkTestOptions) => {
 			switch (key) {
-				case 'test':
 				case 'options':
 					break;
 				default:
-					(<any>args)[key] = descriptor[key];
+					args[<keyof TestOptions>key] = descriptor[key];
 			}
 		});
 
-		super(args);
+		args.test = args.test || /* istanbul ignore next */ function () { };
 
-		// `options`, if present, will be a property on the test function
-		this.test = (descriptor && descriptor.test) || /* istanbul ignore next */ function () { };
+		super(args);
 
 		const options: BenchmarkOptions = mixin({}, this.test.options || {}, {
 			async: true,
