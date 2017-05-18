@@ -45,6 +45,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 	protected _listeners: { [event: string]: Listener<any>[] };
 
+	protected _pluginExports: { [name: string]: { [name: string]: any } };
+
 	protected _reporters: Reporter[];
 
 	protected _runTask: Task<void>;
@@ -78,6 +80,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this._reporters = [];
 		this._assertions = {};
 		this._interfaces = {};
+		this._pluginExports = {};
 
 		this.registerInterface('object', getObjectInterface(this));
 		this.registerInterface('tdd', getTddInterface(this));
@@ -228,6 +231,13 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
+	 * Return any resources registered by a plugin
+	 */
+	getPlugin(name: string): { [name: string]: any } | undefined {
+		return this._pluginExports[name];
+	}
+
+	/**
 	 * Convenience method for emitting log events
 	 */
 	log(...args: any[]) {
@@ -306,8 +316,12 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Register a plugin that will be loaded at the beginning of the testing process (before any external loader is
 	 * initialized). This method should only be called from a plugin being loaded via the config.plugins option.
 	 */
-	registerPlugin(init: PluginInitializer) {
-		this._loadingPlugin = init(this._loadingPluginOptions);
+	registerPlugin(name: string, init: PluginInitializer) {
+		this._loadingPlugin = Task.resolve(init(this._loadingPluginOptions)).then(exports => {
+			if (exports) {
+				this._pluginExports[name] = exports;
+			}
+		});
 	}
 
 	/**
@@ -402,7 +416,9 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * any last-minute configuration before the testing process begins.
 	 */
 	protected _beforeRun(): Task<any> {
-		this.config.reporters.forEach(reporter => {
+		const config = this.config;
+
+		config.reporters.forEach(reporter => {
 			if (typeof reporter === 'string') {
 				const ReporterClass = this._getReporter(reporter);
 				this._reporters.push(new ReporterClass(this));
@@ -807,7 +823,7 @@ export interface LoaderDescriptor {
 }
 
 export interface PluginInitializer {
-	(options?: any): Task<void> | undefined;
+	(options?: any): Task<object | void> | object | void;
 }
 
 const resolvedTask = Task.resolve();
