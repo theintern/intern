@@ -31,6 +31,10 @@ export function loadConfig(configPath: string, loadText: TextLoader, args?: { [k
 		if (args) {
 			config = mixin(config, args);
 		}
+
+		// 'configs' is only applicable to the config loader, not the Executors
+		delete config.configs;
+
 		return config;
 	});
 }
