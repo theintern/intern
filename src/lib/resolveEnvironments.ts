@@ -103,14 +103,21 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
 	}
 
 	if (pieces[0] === 'latest') {
+		// Only consider numeric versions; we don't want 'beta' or 'dev'
+		const numericVersions = availableVersions.filter(version => {
+			return !isNaN(parseFloat(version));
+		}).sort((a, b) => {
+			return parseFloat(a) - parseFloat(b);
+		});
+
 		let offset = pieces.length === 2 ? Number(pieces[1]) : 0;
-		if (offset > availableVersions.length) {
-			let message = 'Can\'t get ' + version + '; ' + availableVersions.length + ' version';
-			message += (availableVersions.length !== 1 ? 's are' : ' is') + ' available';
+		if (offset > numericVersions.length) {
+			let message = 'Can\'t get ' + version + '; ' + numericVersions.length + ' version';
+			message += (numericVersions.length !== 1 ? 's are' : ' is') + ' available';
 			throw new Error(message);
 		}
 
-		return availableVersions[availableVersions.length - 1 - offset];
+		return numericVersions[numericVersions.length - 1 - offset];
 	}
 	else {
 		return pieces[0];
