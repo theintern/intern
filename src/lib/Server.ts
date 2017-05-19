@@ -159,6 +159,8 @@ export default class Server implements ServerProperties {
 						return JSON.parse(messageString);
 					});
 
+					this.executor.log('Received HTTP messages');
+
 					Promise.all(messages.map(message => this._handleMessage(message))).then(
 						() => {
 							response.statusCode = 204;
@@ -277,7 +279,7 @@ export default class Server implements ServerProperties {
 	}
 
 	private _handleMessage(message: Message): Promise<any> {
-		this.executor.log('Received message:', message);
+		this.executor.log('Processing message [', message.id, '] for ', message.sessionId, ': ', message.name);
 		const promise = this._publish(message);
 		let shouldWait = getShouldWait(this.runInSync, message);
 		return shouldWait ? promise : resolvedPromise;
@@ -285,6 +287,7 @@ export default class Server implements ServerProperties {
 
 	private _handleWebSocket(client: WebSocket) {
 		client.on('message', data => {
+			this.executor.log('Received WebSocket message');
 			const message: Message = JSON.parse(data);
 			this._handleMessage(message)
 				.catch(error => this.executor.emit('error', error))

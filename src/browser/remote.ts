@@ -31,5 +31,9 @@ try {
 	// Intern will be further configured and started via an execute command from RemoteSuite
 }
 catch (error) {
+	const pre = document.createElement('pre');
+	pre.textContent = error.message;
+	document.body.appendChild(pre);
+
 	channel.sendMessage('error', error);
 }
