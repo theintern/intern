@@ -593,19 +593,20 @@ registerSuite(function () {
 				if (session.capabilities.dynamicViewport) {
 					return session.setWindowSize(size.width - 20, size.height - 20).then(function () {
 						return session.getWindowSize();
-					}).then(function (size: Size) {
+					}).then((size: Size) => {
 						assert.strictEqual(size.width, originalSize.width - 20);
 						assert.strictEqual(size.height, originalSize.height - 20);
 						resizedSize = size;
-						return session.maximizeWindow();
-					}).then(function () {
-						return session.getWindowSize();
-					}).then(function (size: Size) {
-						assert.operator(size.width, '>', resizedSize.width);
-						assert.operator(size.height, '>', resizedSize.height);
-					}).then(function () {
-						return session.setWindowSize(originalSize.width, originalSize.height);
-					});
+
+						if (!session.capabilities.brokenWindowMaximize) {
+							return session.maximizeWindow()
+								.then(() => session.getWindowSize())
+								.then(function (size: Size) {
+									assert.operator(size.width, '>', resizedSize.width);
+									assert.operator(size.height, '>', resizedSize.height);
+								});
+						}
+					}).then(() => session.setWindowSize(originalSize.width, originalSize.height));
 				}
 			});
 		},

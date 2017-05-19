@@ -12,15 +12,16 @@ function toUrl(url: string) {
 
 registerSuite(function (this: Test) {
 	let command: Command<any>;
+
 	return {
 		name: 'leadfoot/helpers/pollUntil',
 
 		setup(this: Test) {
 			const remote  = <any> this.remote;
 			return util.createSessionFromRemote(remote)
-			.then(function (session: Session) {
-				command = new Command<void>(session);
-			});
+				.then((session: Session) => {
+					command = new Command<void>(session);
+				});
 		},
 
 		'basic test'() {

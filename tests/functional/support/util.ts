@@ -34,7 +34,7 @@ export function createSessionFromRemote(remote: Command<any>, SessionCtor: any =
 	if (remote.session) {
 		const session = new SessionCtor(remote.session.sessionId, server, remote.session.capabilities);
 		fixGet(session);
-		return (<any> server)._fillCapabilities(session);
+		return server['_fillCapabilities'](session);
 	}
 
 	throw new Error('Unsupported remote');
