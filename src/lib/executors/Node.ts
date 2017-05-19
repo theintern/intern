@@ -277,11 +277,20 @@ export default class Node extends Executor<Events, Config> {
 			proxy: tunnel.proxy
 		});
 
-		leadfootServer.sessionConstructor = ProxiedSession;
+		const executor = this;
+
+		// Create a subclass of ProxiedSession here that will ensure the executor is set
+		class InitializedProxiedSession extends ProxiedSession {
+			executor = executor;
+			coverageEnabled = config.functionalCoverage && config.excludeInstrumentation !== true;
+			coverageVariable = config.instrumenterOptions.coverageVariable;
+			serverUrl = config.serverUrl;
+			serverBasePathLength = config.basePath.length;
+		}
+
+		leadfootServer.sessionConstructor = InitializedProxiedSession;
 
 		return tunnel.getEnvironments().then(tunnelEnvironments => {
-			const executor = this;
-
 			this._sessionSuites = resolveEnvironments(
 				config.capabilities,
 				config.environments,
@@ -303,12 +312,6 @@ export default class Node extends Executor<Events, Config> {
 						executor.log('Creating session for', environmentType);
 						return leadfootServer.createSession<ProxiedSession>(environmentType).then(_session => {
 							session = _session;
-							session.executor = executor;
-							session.coverageEnabled = config.functionalCoverage && config.excludeInstrumentation !== true;
-							session.coverageVariable = config.instrumenterOptions.coverageVariable;
-							session.serverUrl = config.serverUrl;
-							session.serverBasePathLength = config.basePath.length;
-
 							this.executor.log('Created session:', session.capabilities);
 
 							let remote: Remote = <Remote>new Command(session);
