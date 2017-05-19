@@ -47,7 +47,8 @@
 	"excludeInstrumentation": "(?:node_modules|_tests)",
 	"maxConcurrency": 2,
 	"capabilities": {
-		"fixSessionCapabilities": false
+		"idle-timeout": 60,
+		"fixSessionCapabilities": "no-detect"
 	},
 
 	"configs": {
