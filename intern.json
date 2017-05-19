@@ -46,6 +46,9 @@
 	],
 	"excludeInstrumentation": "(?:node_modules|_tests)",
 	"maxConcurrency": 2,
+	"capabilities": {
+		"fixSessionCapabilities": false
+	},
 
 	"configs": {
 		/* For running all unit tests (including benchmarks) */
