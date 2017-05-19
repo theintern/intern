@@ -49,7 +49,8 @@
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
     "test": "NODE_PATH=_build node _tests/src/bin/intern.js",
-    "ci": "npm run build && node _tests/tests/selftest.js"
+    "preci": "npm run build",
+    "ci": "NODE_PATH=_build node _tests/tests/selftest.js"
   },
   "dependencies": {
     "@dojo/core": "https://github.com/jason0x43/core/releases/download/v2.0.0-alpha.29/dojo-core-2.0.0-alpha.29.tgz",
