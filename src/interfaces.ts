@@ -47,7 +47,7 @@ export interface Capabilities {
 	browserVersion?: string;
 	deviceName?: string;
 	dynamicViewport?: boolean;
-	fixSessionCapabilities?: string | boolean;
+	fixSessionCapabilities?: 'no-detect' | boolean;
 	fixedLogTypes?: false | string[] | Task<string[]>;
 	handleAlerts?: boolean;
 	handlesAlerts?: boolean;

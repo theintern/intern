@@ -5,9 +5,9 @@ import { NodeRequestOptions } from '@dojo/core/request/providers/node';
 import Session from './Session';
 import Element from './Element';
 import statusCodes from './lib/statusCodes';
-import * as urlUtil from 'url';
-import * as util from './lib/util';
-import { create } from '@dojo/core/lang';
+import { format, parse, resolve, Url } from 'url';
+import { sleep, trimStack } from './lib/util';
+import { create, mixin } from '@dojo/core/lang';
 import { Capabilities, LeadfootURL, LeadfootError } from './interfaces';
 
 export default class Server {
@@ -22,9 +22,11 @@ export default class Server {
 	sessionConstructor = Session;
 
 	/**
-	 * Whether or not to perform capabilities testing and correction when creating a new Server.
+	 * Whether or not to detect and/or correct environnment capabilities when creating a new Server. If the value is
+	 * "no-detect", capabilities will be updated with pre-known features and defects based on the platform, but no tests
+	 * will be run.
 	 */
-	fixSessionCapabilities = true;
+	fixSessionCapabilities: boolean | 'no-detect' = true;
 
 	/**
 	 * The Server class represents a remote HTTP server implementing the WebDriver wire protocol that can be used to
@@ -46,7 +48,7 @@ export default class Server {
 			}
 		}
 
-		this.url = urlUtil.format(<Url>url).replace(/\/*$/, '/');
+		this.url = format(<Url>url).replace(/\/*$/, '/');
 		this.requestOptions = options || {};
 	}
 
@@ -118,7 +120,7 @@ export default class Server {
 
 				// If redirectUrl isn't an absolute URL, resolve it based on the orignal URL used to create the session
 				if (!/^\w+:/.test(redirectUrl)) {
-					redirectUrl = urlUtil.resolve(url, redirectUrl);
+					redirectUrl = resolve(url, redirectUrl);
 				}
 
 				return request(redirectUrl, {
@@ -245,25 +247,25 @@ export default class Server {
 				error.response = response;
 
 				const sanitizedUrl = (function () {
-					const parsedUrl = urlUtil.parse(url);
+					const parsedUrl = parse(url);
 					if (parsedUrl.auth) {
 						parsedUrl.auth = '(redacted)';
 					}
 
-					return urlUtil.format(parsedUrl);
+					return format(parsedUrl);
 				})();
 
 				error.message = '[' + method + ' ' + sanitizedUrl +
 					(requestData ? ' / ' + JSON.stringify(requestData) : '') +
 					'] ' + error.message;
-				error.stack = error.message + util.trimStack(trace.stack);
+				error.stack = error.message + trimStack(trace.stack);
 
 				throw error;
 			}
 
 			return data;
 		}).catch(function (error) {
-			error.stack = error.message + util.trimStack(trace.stack);
+			error.stack = error.message + trimStack(trace.stack);
 			throw error;
 		});
 	}
@@ -302,11 +304,11 @@ export default class Server {
 	 * does not match all the required capabilities if one is not available.
 	 */
 	createSession<S extends Session>(desiredCapabilities: Capabilities, requiredCapabilities?: Capabilities): Task<S> {
-		const fixSessionCapabilities = desiredCapabilities.fixSessionCapabilities !== false &&
-			this.fixSessionCapabilities;
+		let fixSessionCapabilities = this.fixSessionCapabilities;
+		if (desiredCapabilities.fixSessionCapabilities != null) {
+			fixSessionCapabilities = desiredCapabilities.fixSessionCapabilities;
 
-		// Don’t send `fixSessionCapabilities` to the server
-		if ('fixSessionCapabilities' in desiredCapabilities) {
+			// Don’t send `fixSessionCapabilities` to the server
 			desiredCapabilities = { ...desiredCapabilities };
 			desiredCapabilities.fixSessionCapabilities = undefined;
 		}
@@ -323,7 +325,7 @@ export default class Server {
 			const session = new this.sessionConstructor(response.sessionId, this, response.value);
 
 			if (fixSessionCapabilities) {
-				return this._fillCapabilities(session).catch(error => {
+				return this._fillCapabilities(session, fixSessionCapabilities !== 'no-detect').catch(error => {
 					// The session was started on the server, but we did not resolve the Task yet. If a failure
 					// occurs during capabilities filling, we should quit the session on the server too since the
 					// caller will not be aware that it ever got that far and will have no access to the session to
@@ -339,8 +341,26 @@ export default class Server {
 		});
 	}
 
-	private _fillCapabilities(session: Session): Task<void | Session> {
+	/**
+	 * Fill in known capabilities/defects and optionally run tests to detect more
+	 */
+	private _fillCapabilities(session: Session, detectCapabilities = true): Task<void | Session> {
+		mixin(session.capabilities, this._getKnownCapabilities(session));
+		return (detectCapabilities ? this._detectCapabilities(session) :  Task.resolve(session)).then(() => {
+			Object.defineProperty(session.capabilities, '_filled', {
+				value: true,
+				configurable: true
+			});
+			return session;
+		});
+	}
+
+	/**
+	 * Return capabilities and defects that don't require running tests
+	 */
+	private _getKnownCapabilities(session: Session) {
 		const capabilities = session.capabilities;
+		const updates: Capabilities = {};
 
 		// At least geckodriver 0.15.0 only returns platformName (not platform) and browserVersion (not version) in its
 		// capabilities.
@@ -350,6 +370,185 @@ export default class Server {
 		if (capabilities.version && !capabilities.browserVersion) {
 			capabilities.browserVersion = capabilities.version;
 		}
+
+		// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
+		// scripts for URLs that are not http/https
+		if (isMacSafari(capabilities, null, 10)) {
+			return {
+				nativeEvents: false,
+				rotatable: false,
+				locationContextEnabled: false,
+				webStorageEnabled: false,
+				applicationCacheEnabled: false,
+				supportsNavigationDataUris: true,
+				supportsCssTransforms: true,
+				supportsExecuteAsync: true,
+				mouseEnabled: true,
+				touchEnabled: false,
+				dynamicViewport: true,
+				shortcutKey: keys.COMMAND,
+
+				brokenDeleteCookie: false,
+				brokenExecuteElementReturn: false,
+				brokenExecuteUndefinedReturn: false,
+				brokenElementDisplayedOpacity: false,
+				brokenElementDisplayedOffscreen: false,
+				brokenSubmitElement: true,
+				brokenWindowSwitch: true,
+				brokenDoubleClick: false,
+				brokenCssTransformedSize: true,
+				fixedLogTypes: false as false,
+				brokenHtmlTagName: false,
+				brokenNullGetSpecAttribute: false,
+
+				// SafariDriver-specific
+				brokenActiveElement: true,
+				brokenNavigation: true,
+				brokenMouseEvents: true,
+				brokenWindowPosition: true,
+				brokenSendKeys: true,
+				brokenExecuteForNonHttpUrl: true,
+
+				// SafariDriver 2.41.0 cannot delete cookies, at all, ever
+				brokenCookies: true
+			};
+		}
+
+		// The window sizing commands in the W3C standard don't use window handles, but they do under the
+		// JsonWireProtocol. By default, Session assumes handles are used. When the result of this check is added to
+		// capabilities, Session will take it into account.
+		if (isFirefox(capabilities, 53)) {
+			updates.implicitWindowHandles = true;
+		}
+
+		if (isMsEdge(capabilities)) {
+			// At least MS Edge 14316 returns immediately from a click request immediately rather than waiting for
+			// default action to occur.
+			updates.returnsFromClickImmediately = true;
+
+			// MS Edge has broken cookie deletion.
+			updates.brokenDeleteCookie = true;
+
+			// At least MS Edge may return an 'element is obscured' error when trying to click on visible elements.
+			updates.brokenClick = true;
+		}
+
+		// At least MS Edge 10586 becomes unresponsive after calling DELETE window, and window.close() requires user
+		// interaction. This capability is distinct from brokenDeleteWindow as this capability indicates that there
+		// is no way to close a Window.
+		if (isMsEdge(capabilities, null, 25.10586)) {
+			updates.brokenWindowClose = true;
+		}
+
+		// At least MS Edge Driver 14316 doesn't support sending keys to a file input. See
+		// https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7194303/
+		//
+		// The existing feature test for this caused some browsers to hang, so just flag it for Edge for now.
+		if (isMsEdge(capabilities, null, 38.14366)) {
+			updates.brokenFileSendKeys = true;
+		}
+
+		// At least MS Edge 14316 supports alerts but does not specify the capability
+		if (isMsEdge(capabilities, 37.14316) && !('handlesAlerts' in capabilities)) {
+			updates.handlesAlerts = true;
+		}
+
+		if (isGeckodriver(capabilities)) {
+			// The W3C WebDriver standard does not support the session-level /keys command, but JsonWireProtocol does.
+			updates.supportsKeysCommand = false;
+
+			// Firefox 49+ (via geckodriver) only supports W3C locator strategies
+			updates.isWebDriver = true;
+
+			// At least Firefox 49 + geckodriver can't POST empty data
+			updates.brokenEmptyPost = true;
+
+			// At least geckodriver 0.15.0 and Firefox 51 will stop responding to commands when performing window
+			// switches.
+			updates.brokenWindowSwitch = true;
+
+			// At least geckodriver 0.11 and Firefox 49 don't implement mouse control, so everything will need to be
+			// simulated.
+			updates.brokenMouseEvents = true;
+
+			// Firefox 49+ (via geckodriver) doesn't support retrieving logs or log types, and may hang the session.
+			updates.fixedLogTypes = [];
+		}
+
+		// Firefox 53 supports the window rect command instead of window size
+		if (isFirefox(capabilities, 53)) {
+			updates.supportsWindowRectCommand = true;
+		}
+
+		if (isInternetExplorer(capabilities, 11, 11)) {
+			// IE11 will take screenshots, but it's very slow
+			updates.takesScreenshot = true;
+
+			// IE11 will hang during this check if nativeEvents are enabled
+			updates.brokenSubmitElement = true;
+		}
+
+		// Using mouse services such as doubleclick will hang Firefox 49+ session on the Mac.
+		if (!('mouseEnabled' in capabilities) && isMacGeckodriver(capabilities)) {
+			updates.mouseEnabled = true;
+		}
+
+		// Don't check for touch support if the environment reports that no touchscreen is available
+		if (capabilities.hasTouchScreen === false) {
+			updates.touchEnabled = false;
+		}
+
+		// Don't check for touch support if the environment reports that no touchscreen is available. Also, ChromeDriver
+		// 2.19 claims that it supports touch but it does not implement all of the touch endpoints from JsonWireProtocol
+		if (capabilities.hasTouchScreen === false || capabilities.browserName === 'chrome') {
+			updates.touchEnabled = false;
+		}
+
+		// It is not possible to test this since the feature tests runs in quirks-mode on IE<10, but we know that IE9
+		// supports CSS transforms
+		if (isInternetExplorer(capabilities, 9, 9)) {
+			updates.supportsCssTransforms = true;
+		}
+
+		updates.shortcutKey = (function () {
+			const platform = capabilities.platform.toLowerCase();
+
+			if (platform.indexOf('mac') === 0) {
+				return keys.COMMAND;
+			}
+
+			if (platform.indexOf('ios') === 0) {
+				return null;
+			}
+
+			return keys.CONTROL;
+		})();
+
+		// Internet Explorer 8 and earlier will simply crash the server if we attempt to return the parent frame via
+		// script, so never even attempt to do so
+		updates.scriptedParentFrameCrashesBrowser = isInternetExplorer(capabilities, null, 8.99999);
+
+		if (
+			// At least ios-driver 0.6.6-SNAPSHOT April 2014 corrupts its internal state when performing window
+			// switches and gets permanently stuck; we cannot feature detect, so platform sniffing it is
+			(capabilities.browserName === 'Safari' && capabilities.platformName === 'IOS')
+		) {
+			updates.brokenWindowSwitch = true;
+		}
+
+		// At least selendroid 0.12.0-SNAPSHOT doesn't support switching to the parent frame
+		if (capabilities.browserName === 'android' && capabilities.deviceName === 'Android Emulator') {
+			updates.brokenParentFrameSwitch = true;
+		}
+
+		return updates;
+	}
+
+	/**
+	 * Run tests to detect capabilities/defects
+	 */
+	private _detectCapabilities(session: Session): Task<void | Session> {
+		const capabilities = session.capabilities;
 
 		function supported() { return true; }
 		function unsupported() { return false; }
@@ -414,36 +613,82 @@ export default class Server {
 			});
 		}
 
+		function discoverServerFeatures() {
+			const testedCapabilities: any = {};
+
+			// Check that the remote server will accept file uploads. There is a secondary test in discoverDefects that
+			// checks whether the server allows typing into file inputs.
+			testedCapabilities.remoteFiles = function () {
+				// TODO: _post probably shouldn't be private
+				return session.serverPost<string>('file', {
+					file: 'UEsDBAoAAAAAAD0etkYAAAAAAAAAAAAAAAAIABwAdGVzdC50eHRVVAkAA2WnXlVlp15VdXgLAAEE8gMAAATyAwAAUEsBAh4DCgAAAAAAPR62RgAAAAAAAAAAAAAAAAgAGAAAAAAAAAAAAKSBAAAAAHRlc3QudHh0VVQFAANlp15VdXgLAAEE8gMAAATyAwAAUEsFBgAAAAABAAEATgAAAEIAAAAAAA=='
+				}).then(function (filename) {
+					return filename && filename.indexOf('test.txt') > -1;
+				}).catch(unsupported);
+			};
+
+			// The window sizing commands in the W3C standard don't use window handles, but they do under the
+			// JsonWireProtocol. By default, Session assumes handles are used. When the result of this check is added to
+			// capabilities, Session will take it into account.
+			if (capabilities.implicitWindowHandles == null) {
+				testedCapabilities.implicitWindowHandles = session.getWindowSize().then(unsupported, function (error) {
+					return error.name === 'UnknownCommand';
+				});
+			}
+
+			if (capabilities.returnsFromClickImmediately == null) {
+				testedCapabilities.returnsFromClickImmediately = function () {
+					function assertSelected(expected: any) {
+						return function (actual: any) {
+							if (expected !== actual) {
+								throw new Error('unexpected selection state');
+							}
+						};
+					}
+
+					return get(
+						'<!DOCTYPE html><input type="checkbox" id="c">'
+					).then(function () {
+						return session.findById('c');
+					}).then(function (element) {
+						return element.click().then(function () {
+							return element.isSelected();
+						}).then(assertSelected(true))
+							.then(function () {
+								return element.click().then(function () {
+									return element.isSelected();
+								});
+							}).then(assertSelected(false))
+							.then(function () {
+								return element.click().then(function () {
+									return element.isSelected();
+								});
+							}).then(assertSelected(true));
+					}).then(works, broken);
+				};
+			}
+
+			// The W3C WebDriver standard does not support the session-level /keys command, but JsonWireProtocol does.
+			if (capabilities.supportsKeysCommand == null) {
+				testedCapabilities.supportsKeysCommand = session.serverPost('keys', { value: ['a'] }).then(supported,
+					unsupported);
+			}
+
+			if (capabilities.supportsWindowRect == null) {
+				testedCapabilities.supportsWindowRectCommand = session.serverGet('window/rect').then(supported, unsupported);
+			}
+
+			return Task.all(Object.keys(testedCapabilities).map(key => testedCapabilities[key]))
+				.then(() => testedCapabilities);
+		}
+
 		function discoverFeatures() {
 			const testedCapabilities: any = {};
 
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
 			if (isMacSafari(capabilities, null, 10)) {
-				return Task.resolve({
-					nativeEvents: false,
-					rotatable: false,
-					locationContextEnabled: false,
-					webStorageEnabled: false,
-					applicationCacheEnabled: false,
-					supportsNavigationDataUris: true,
-					supportsCssTransforms: true,
-					supportsExecuteAsync: true,
-					mouseEnabled: true,
-					touchEnabled: false,
-					dynamicViewport: true,
-					shortcutKey: keys.COMMAND
-				});
-			}
-
-			// Firefox 49+ (via geckodriver) only supports W3C locator strategies
-			if (isGeckodriver(capabilities)) {
-				testedCapabilities.isWebDriver = true;
-			}
-
-			// At least MS Edge 14316 supports alerts but does not specify the capability
-			if (isMsEdge(capabilities, 37.14316) && !('handlesAlerts' in capabilities)) {
-				testedCapabilities.handlesAlerts = true;
+				return Task.resolve({});
 			}
 
 			// Appium iOS as of April 2014 supports rotation but does not specify the capability
@@ -487,38 +732,23 @@ export default class Server {
 			}
 
 			// IE11 will take screenshots, but it's very slow
-			// tslint:disable-next-line:triple-equals
-			if (capabilities.browserName === 'internet explorer' && capabilities.browserVersion == '11') {
-				testedCapabilities.takesScreenshot = true;
-			}
-			// At least Selendroid 0.9.0 will fail to take screenshots in certain device configurations, usually
-			// emulators with hardware acceleration enabled
-			else {
+			if (!isInternetExplorer(capabilities, 11)) {
+				// At least Selendroid 0.9.0 will fail to take screenshots in certain device configurations, usually
+				// emulators with hardware acceleration enabled
 				testedCapabilities.takesScreenshot = session.takeScreenshot().then(supported, unsupported);
 			}
 
 			// At least ios-driver 0.6.6-SNAPSHOT April 2014 does not support execute_async
 			testedCapabilities.supportsExecuteAsync = session.executeAsync('arguments[0](true);').catch(unsupported);
 
-			// Some additional, currently-non-standard capabilities are needed in order to know about supported
-			// features of a given platform
-			if (!('mouseEnabled' in capabilities)) {
-				// Using mouse services such as doubleclick will hang Firefox 49+ session on the Mac.
-				if (isMacGeckodriver(capabilities)) {
-					testedCapabilities.mouseEnabled = true;
-				}
-				else {
-					testedCapabilities.mouseEnabled = function () {
-						return session.doubleClick().then(supported, maybeSupported);
-					};
-				}
+			// Using mouse services such as doubleclick will hang Firefox 49+ session on the Mac.
+			if (!('mouseEnabled' in capabilities) && !isMacGeckodriver(capabilities)) {
+				testedCapabilities.mouseEnabled = function () {
+					return session.doubleClick().then(supported, maybeSupported);
+				};
 			}
 
-			// Don't check for touch support if the environment reports that no touchscreen is available
-			if (capabilities.hasTouchScreen === false) {
-				testedCapabilities.touchEnabled = false;
-			}
-			else if (!('touchEnabled' in capabilities)) {
+			if (!('touchEnabled' in capabilities)) {
 				testedCapabilities.touchEnabled = function () {
 					return get('<!DOCTYPE html><button id="clicker">Click me</button>').then(function () {
 						return session.findById('clicker');
@@ -526,11 +756,6 @@ export default class Server {
 						return session.doubleTap(button).then(supported, maybeSupported);
 					}).catch(unsupported);
 				};
-			}
-			// ChromeDriver 2.19 claims that it supports touch but it does not implement all of the touch endpoints
-			// from JsonWireProtocol
-			else if (capabilities.browserName === 'chrome') {
-				testedCapabilities.touchEnabled = false;
 			}
 
 			if (!('dynamicViewport' in capabilities)) {
@@ -548,21 +773,17 @@ export default class Server {
 					return pageTitle === 'a';
 				}).catch(unsupported);
 			};
-			testedCapabilities.supportsCssTransforms = function () {
-				// It is not possible to test this since the feature tests runs in quirks-mode on IE<10, but we
-				// know that IE9 supports CSS transforms
-				if (capabilities.browserName === 'internet explorer' && parseFloat(capabilities.browserVersion) === 9) {
-					return Task.resolve(true);
-				}
 
-				/*jshint maxlen:240 */
-				return get('<!DOCTYPE html><style>#a{width:8px;height:8px;-ms-transform:scale(0.5);-moz-transform:scale(0.5);-webkit-transform:scale(0.5);transform:scale(0.5);}</style><div id="a"></div>').then(function () {
-					return session.execute(/* istanbul ignore next */ function () {
-						const bbox = document.getElementById('a').getBoundingClientRect();
-						return bbox.right - bbox.left === 4;
-					});
-				}).catch(unsupported);
-			};
+			if (capabilities.supportsCssTransforms == null) {
+				testedCapabilities.supportsCssTransforms = function () {
+					return get('<!DOCTYPE html><style>#a{width:8px;height:8px;-ms-transform:scale(0.5);-moz-transform:scale(0.5);-webkit-transform:scale(0.5);transform:scale(0.5);}</style><div id="a"></div>').then(function () {
+						return session.execute(/* istanbul ignore next */ function () {
+							const bbox = document.getElementById('a').getBoundingClientRect();
+							return bbox.right - bbox.left === 4;
+						});
+					}).catch(unsupported);
+				};
+			}
 
 			testedCapabilities.shortcutKey = (function () {
 				const platform = capabilities.platform.toLowerCase();
@@ -588,44 +809,15 @@ export default class Server {
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
 			// scripts for URLs that are not http/https
 			if (isMacSafari(capabilities, null, 10)) {
-				return Task.resolve({
-					brokenDeleteCookie: false,
-					brokenExecuteElementReturn: false,
-					brokenExecuteUndefinedReturn: false,
-					brokenElementDisplayedOpacity: false,
-					brokenElementDisplayedOffscreen: false,
-					brokenSubmitElement: true,
-					brokenWindowSwitch: true,
-					brokenDoubleClick: false,
-					brokenCssTransformedSize: true,
-					fixedLogTypes: false as false,
-					brokenHtmlTagName: false,
-					brokenNullGetSpecAttribute: false,
-
-					// SafariDriver-specific
-					brokenActiveElement: true,
-					brokenNavigation: true,
-					brokenMouseEvents: true,
-					brokenWindowPosition: true,
-					brokenSendKeys: true,
-					brokenExecuteForNonHttpUrl: true,
-
-					// SafariDriver 2.41.0 cannot delete cookies, at all, ever
-					brokenCookies: true
-				});
+				return Task.resolve({});
 			}
-
-			// Internet Explorer 8 and earlier will simply crash the server if we attempt to return the parent
-			// frame via script, so never even attempt to do so
-			testedCapabilities.scriptedParentFrameCrashesBrowser =
-				capabilities.browserName === 'internet explorer' && parseFloat(capabilities.browserVersion) < 9;
 
 			// At least ChromeDriver 2.9 and MS Edge 10240 does not implement /element/active
 			testedCapabilities.brokenActiveElement = session.getActiveElement().then(works, function (error) {
 				return error.name === 'UnknownCommand';
 			});
 
-			// At least Selendroid 0.9.0 and MS Edge have broken cookie deletion.
+			// At least Selendroid 0.9.0 has broken cookie deletion.
 			if (capabilities.browserName === 'selendroid') {
 				// This test is very hard to get working properly in other environments so only test when Selendroid is
 				// the browser
@@ -646,19 +838,6 @@ export default class Server {
 						return session.clearCookies().then(() => isBroken, () => isBroken);
 					});
 				};
-			}
-			else if (isMsEdge(capabilities)) {
-				testedCapabilities.brokenDeleteCookie = true;
-			}
-
-			// At least Firefox 49 + geckodriver can't POST empty data
-			if (isGeckodriver(capabilities)) {
-				testedCapabilities.brokenEmptyPost = true;
-			}
-
-			// At least MS Edge may return an 'element is obscured' error when trying to click on visible elements.
-			if (isMsEdge(capabilities)) {
-				testedCapabilities.brokenClick = true;
 			}
 
 			// At least Selendroid 0.9.0 incorrectly returns HTML tag names in uppercase, which is a violation
@@ -741,10 +920,7 @@ export default class Server {
 			// At least MS Edge Driver 14316 doesn't support sending keys to a file input. See
 			// https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7194303/
 			//
-			// The existing feature test for this caused some browsers to hang, so just flag it for Edge for now.
-			if (isMsEdge(capabilities, null, 38.14366)) {
-				testedCapabilities.brokenFileSendKeys = true;
-			}
+			// The feature test for this causes some browsers to hang, so it's just flagged directly for Edge for now.
 			// testedCapabilities.brokenFileSendKeys = function () {
 			// 	return get('<!DOCTYPE html><input type="file" id="i1">').then(function () {
 			// 		var element;
@@ -830,11 +1006,7 @@ export default class Server {
 			// At least MS Edge driver 10240 doesn't support getting the page source
 			testedCapabilities.brokenPageSource = session.getPageSource().then(works, broken);
 
-			// IE11 will hang during this check if nativeEvents are enabled
-			if (capabilities.browserName !== 'internet explorer' && capabilities.browserVersion !== '11') {
-				testedCapabilities.brokenSubmitElement = true;
-			}
-			else {
+			if (capabilities.brokenSubmitElement == null) {
 				// There is inconsistency across all drivers as to whether or not submitting a form button should cause
 				// the form button to be submitted along with the rest of the form; it seems most likely that tests
 				// do want the specified button to act as though someone clicked it when it is submitted, so the
@@ -856,13 +1028,6 @@ export default class Server {
 				};
 			}
 
-			// At least MS Edge 10586 becomes unresponsive after calling DELETE window, and window.close() requires user
-			// interaction. This capability is distinct from brokenDeleteWindow as this capability indicates that there
-			// is no way to close a Window.
-			if (isMsEdge(capabilities, null, 25.10586)) {
-				testedCapabilities.brokenWindowClose = true;
-			}
-
 			// At least MS Edge driver 10240 doesn't support window sizing commands
 			testedCapabilities.brokenWindowSize = session.getWindowSize().then(works, broken);
 
@@ -871,10 +1036,7 @@ export default class Server {
 			// same hardcoded list ourselves.
 			// At least InternetExplorerDriver 2.41.0 also fails to provide log types.
 			// Firefox 49+ (via geckodriver) doesn't support retrieving logs or log types, and may hang the session.
-			if (isMacGeckodriver(capabilities)) {
-				testedCapabilities.fixedLogTypes = [];
-			}
-			else {
+			if (capabilities.fixedLogTypes == null) {
 				testedCapabilities.fixedLogTypes = session.getAvailableLogTypes().then(unsupported, function (error: LeadfootError) {
 					if (capabilities.browserName === 'selendroid' && !error.response.text.length) {
 						return ['logcat'];
@@ -887,27 +1049,13 @@ export default class Server {
 			// At least Microsoft Edge 10240 doesn't support timeout values of 0.
 			testedCapabilities.brokenZeroTimeout = session.setTimeout('implicit', 0).then(works, broken);
 
-			if (
-				// At least ios-driver 0.6.6-SNAPSHOT April 2014 corrupts its internal state when performing window
-				// switches and gets permanently stuck; we cannot feature detect, so platform sniffing it is
-				(capabilities.browserName === 'Safari' && capabilities.platformName === 'IOS') ||
-				// At least geckodriver 0.15.0 and Firefox 51 will stop responding to commands when performing window
-				// switches.
-				isGeckodriver(capabilities)
-			) {
-				testedCapabilities.brokenWindowSwitch = true;
-			}
-			else {
+			if (capabilities.brokenWindowSwitch == null) {
 				testedCapabilities.brokenWindowSwitch = session.getCurrentWindowHandle().then(function (handle) {
 					return session.switchToWindow(handle);
 				}).then(works, broken);
 			}
 
-			// At least selendroid 0.12.0-SNAPSHOT doesn't support switching to the parent frame
-			if (capabilities.browserName === 'android' && capabilities.deviceName === 'Android Emulator') {
-				testedCapabilities.brokenParentFrameSwitch = true;
-			}
-			else {
+			if (capabilities.brokenParentFrameSwitch == null) {
 				testedCapabilities.brokenParentFrameSwitch = session.switchToParentFrame().then(works, broken);
 			}
 
@@ -961,12 +1109,7 @@ export default class Server {
 				}).catch(broken);
 			};
 
-			if (isGeckodriver(capabilities)) {
-				// At least geckodriver 0.11 and Firefox 49 don't implement mouse control, so everything will need to be
-				// simulated.
-				testedCapabilities.brokenMouseEvents = true;
-			}
-			else if (capabilities.mouseEnabled) {
+			if (capabilities.brokenMouseEvents == null && capabilities.mouseEnabled) {
 				// At least IE 10 and 11 on SauceLabs don't fire native mouse events consistently even though they
 				// support moveMouseTo
 				testedCapabilities.brokenMouseEvents = function () {
@@ -978,7 +1121,7 @@ export default class Server {
 					}).then(function (element) {
 						return session.moveMouseTo(element, 20, 20);
 					}).then(function () {
-						return util.sleep(100);
+						return sleep(100);
 					}).then(function () {
 						return session.execute('return window.counter;');
 					}).then(
@@ -1014,7 +1157,7 @@ export default class Server {
 					}).then(function (element) {
 						return session.moveMouseTo(element);
 					}).then(function () {
-						return util.sleep(100);
+						return sleep(100);
 					}).then(function () {
 						return session.doubleClick();
 					}).then(function () {
@@ -1093,88 +1236,6 @@ export default class Server {
 				.then(() => testedCapabilities);
 		}
 
-		function discoverServerFeatures() {
-			const testedCapabilities: any = {};
-
-			// Check that the remote server will accept file uploads. There is a secondary test in discoverDefects that
-			// checks whether the server allows typing into file inputs.
-			testedCapabilities.remoteFiles = function () {
-				// TODO: _post probably shouldn't be private
-				return session.serverPost<string>('file', {
-					file: 'UEsDBAoAAAAAAD0etkYAAAAAAAAAAAAAAAAIABwAdGVzdC50eHRVVAkAA2WnXlVlp15VdXgLAAEE8gMAAATyAwAAUEsBAh4DCgAAAAAAPR62RgAAAAAAAAAAAAAAAAgAGAAAAAAAAAAAAKSBAAAAAHRlc3QudHh0VVQFAANlp15VdXgLAAEE8gMAAATyAwAAUEsFBgAAAAABAAEATgAAAEIAAAAAAA=='
-				}).then(function (filename) {
-					return filename && filename.indexOf('test.txt') > -1;
-				}).catch(unsupported);
-			};
-
-			// The window sizing commands in the W3C standard don't use window handles, but they do under the
-			// JsonWireProtocol. By default, Session assumes handles are used. When the result of this check is added to
-			// capabilities, Session will take it into account.
-			if (isFirefox(capabilities, 53)) {
-				testedCapabilities.implicitWindowHandles = true;
-			}
-			else {
-				testedCapabilities.implicitWindowHandles = session.getWindowSize().then(unsupported, function (error) {
-					return error.name === 'UnknownCommand';
-				});
-			}
-
-			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
-			// scripts for URLs that are not http/https
-			if (!isMacSafari(capabilities, null, 10)) {
-				// At least MS Edge 14316 returns immediately from a click request immediately rather than waiting for
-				// default action to occur.
-				if (isMsEdge(capabilities)) {
-					testedCapabilities.returnsFromClickImmediately = true;
-				}
-				else {
-					testedCapabilities.returnsFromClickImmediately = function () {
-						function assertSelected(expected: any) {
-							return function (actual: any) {
-								if (expected !== actual) {
-									throw new Error('unexpected selection state');
-								}
-							};
-						}
-
-						return get(
-							'<!DOCTYPE html><input type="checkbox" id="c">'
-						).then(function () {
-							return session.findById('c');
-						}).then(function (element) {
-							return element.click().then(function () {
-								return element.isSelected();
-							}).then(assertSelected(true))
-								.then(function () {
-									return element.click().then(function () {
-										return element.isSelected();
-									});
-								}).then(assertSelected(false))
-								.then(function () {
-									return element.click().then(function () {
-										return element.isSelected();
-									});
-								}).then(assertSelected(true));
-						}).then(works, broken);
-					};
-				}
-			}
-
-			// The W3C WebDriver standard does not support the session-level /keys command, but JsonWireProtocol does.
-			if (isGeckodriver(capabilities)) {
-				testedCapabilities.supportsKeysCommand = false;
-			}
-			else {
-				testedCapabilities.supportsKeysCommand = session.serverPost('keys', { value: ['a'] }).then(supported,
-					unsupported);
-			}
-
-			testedCapabilities.supportsWindowRectCommand = session.serverGet('window/rect').then(supported, unsupported);
-
-			return Task.all(Object.keys(testedCapabilities).map(key => testedCapabilities[key]))
-				.then(() => testedCapabilities);
-		}
-
 		if (capabilities._filled) {
 			return Task.resolve(session);
 		}
@@ -1239,8 +1300,6 @@ export default class Server {
 		return this.delete<void>('session/$0', null, [sessionId]).then(noop);
 	}
 }
-
-type Url = urlUtil.Url;
 
 export type Method = 'post' | 'get' | 'delete';
 
