@@ -13,12 +13,22 @@ const channel = new Channel({
 	port: config.socketPort
 });
 
+function displayMessage(message: string) {
+	const pre = document.createElement('pre');
+	pre.textContent = message;
+	document.body.appendChild(pre);
+	window.scrollTo(0, pre.offsetTop);
+}
+
 try {
 	Remote.initialize(config);
 
 	// Forward all executor events back to the Intern host
 	intern.on('*', ({ name, data }) => {
-		let promise = channel.sendMessage(name, data).catch(console.error);
+		let promise = channel.sendMessage(name, data).catch(error => {
+			displayMessage('Error: ' + error.message);
+			console.error(error);
+		});
 
 		// If config.runInSync is true, return the message promise so that Intern will wait for acknowledgement before
 		// continuing testing
@@ -31,9 +41,6 @@ try {
 	// Intern will be further configured and started via an execute command from RemoteSuite
 }
 catch (error) {
-	const pre = document.createElement('pre');
-	pre.textContent = error.message;
-	document.body.appendChild(pre);
-
+	displayMessage(error.message);
 	channel.sendMessage('error', error);
 }
