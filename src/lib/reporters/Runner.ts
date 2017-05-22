@@ -25,6 +25,8 @@ export default class Runner extends Coverage {
 
 	hasErrors: boolean;
 
+	hidePassed: boolean;
+
 	hideSkipped: boolean;
 
 	serveOnly: boolean;
@@ -120,10 +122,6 @@ export default class Runner extends Coverage {
 				numTests += session.suite.numTests;
 				numFailedTests += session.suite.numFailedTests;
 				numSkippedTests += session.suite.numSkippedTests;
-
-				if (this.hideSkipped) {
-					numTests -= session.suite.numSkippedTests;
-				}
 			});
 
 			const charm = this.charm;
@@ -138,7 +136,7 @@ export default class Runner extends Coverage {
 
 			let message = 'TOTAL: tested %d platforms, %d/%d tests failed';
 
-			if (numSkippedTests && !this.hideSkipped) {
+			if (numSkippedTests) {
 				message += ' (' + numSkippedTests + ' skipped)';
 			}
 
@@ -212,12 +210,8 @@ export default class Runner extends Coverage {
 			let numTests = suite.numTests;
 			let numSkippedTests = suite.numSkippedTests;
 
-			if (this.hideSkipped) {
-				numTests -= numSkippedTests;
-			}
-
 			let summary = nodeUtil.format('%s: %d/%d tests failed', name, numFailedTests, numTests);
-			if (numSkippedTests && !this.hideSkipped) {
+			if (numSkippedTests) {
 				summary += ' (' + numSkippedTests + ' skipped)';
 			}
 
@@ -270,12 +264,14 @@ export default class Runner extends Coverage {
 			}
 		}
 		else {
-			charm.foreground('green');
-			charm.write('✓ ' + test.id);
-			charm.display('reset');
-			charm.write(' (' + (test.timeElapsed / 1000) + 's)');
-			charm.display('reset');
-			charm.write('\n');
+			if (!this.hidePassed) {
+				charm.foreground('green');
+				charm.write('✓ ' + test.id);
+				charm.display('reset');
+				charm.write(' (' + (test.timeElapsed / 1000) + 's)');
+				charm.display('reset');
+				charm.write('\n');
+			}
 		}
 	}
 
