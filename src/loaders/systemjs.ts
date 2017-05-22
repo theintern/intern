@@ -3,6 +3,7 @@
  *
  * Note that loader scripts must be simple scripts, not modules.
  */
+
 intern.registerLoader(config => {
 	const loaderConfig: any = config.loader.config || {};
 	loaderConfig.baseURL = loaderConfig.baseURL || config.basePath;
@@ -18,15 +19,17 @@ intern.registerLoader(config => {
 	}
 
 	function configAndLoad(loader: typeof SystemJS) {
-		intern.log('Loaded SystemJS loader');
-		intern.log('Using loader', loader);
+		intern.log('Using SystemJS loader', loader);
 
-		intern.log('Configuring loader with:', loaderConfig);
+		intern.log('Configuring SystemJS with:', loaderConfig);
 		loader.config(loaderConfig);
 
-		intern.log('Loading suites:', config.suites);
+		intern.log('Loading suites with SystemJS:', config.suites);
 		return config.suites.reduce((previous, suite) => {
-			return previous.then(() => loader.import(suite));
-		}, Promise.resolve());
+			if (previous) {
+				return previous.then(() => loader.import(suite));
+			}
+			return loader.import(suite);
+		}, <any>null);
 	}
 });
