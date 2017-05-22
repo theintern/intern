@@ -226,7 +226,7 @@ export default class SauceLabsTunnel extends Tunnel implements SauceLabsProperti
 
 	protected _makeArgs(readyFile: string): string[] {
 		if (!this.username || !this.accessKey) {
-			throw new Error('BrowserStackTunnel requires a username and access key');
+			throw new Error('SauceLabsTunnel requires a username and access key');
 		}
 
 		const proxy = this.proxy ? parseUrl(this.proxy) : undefined;
