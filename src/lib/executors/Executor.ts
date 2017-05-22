@@ -178,14 +178,14 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		const notifications: Promise<any>[] = [];
 
 		(this._listeners[eventName] || []).forEach(listener => {
-			notifications.push(Promise.resolve(listener(data)));
+			notifications.push(Task.resolve(listener(data)));
 		});
 
 		const starListeners = this._listeners['*'] || [];
 		if (starListeners.length > 0) {
 			const starEvent = { name: eventName, data };
 			starListeners.forEach(listener => {
-				notifications.push(Promise.resolve(listener(starEvent)));
+				notifications.push(Task.resolve(listener(starEvent)));
 			});
 		}
 
@@ -363,8 +363,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 									}
 								})
 								.catch(error => {
-									this.emit('error', error);
 									runError = error;
+									return this.emit('error', error);
 								})
 								.finally(() => this.emit('runEnd'));
 						})
@@ -457,8 +457,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Load suites
 	 */
-	protected _loadSuites(config?: Config) {
-		config = config || this.config;
+	protected _loadSuites(optionalConfig?: Config) {
+		const config = optionalConfig || this.config;
 
 		let script = config.loader.script;
 		switch (script) {
@@ -473,7 +473,9 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			if (!this._loader) {
 				throw new Error(`Loader script ${script} did not register a loader callback`);
 			}
-			return Task.resolve(this._loader(config || this.config));
+			return Task.resolve(this._loader(config)).then(() => {
+				this.log('Loaded suites:', config.suites);
+			});
 		});
 	}
 
