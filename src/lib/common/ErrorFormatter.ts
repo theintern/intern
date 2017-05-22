@@ -1,5 +1,5 @@
 import { InternError } from '../types';
-import { diffJson } from 'diff';
+import { diffJson, IDiffResult } from 'diff';
 
 export default class ErrorFormatter implements ErrorFormatterProperties {
 	filterErrorStack = false;
@@ -90,7 +90,9 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 	 * @returns A unified diff formatted string representing the difference between the two objects.
 	 */
 	protected _createDiff(actual: Object, expected: Object): string {
-		let diff = diffJson(actual, expected);
+		// TODO: Remove the casts when the diffJson typings are updated (the current typings are missing the options
+		// argument).
+		let diff = <IDiffResult[]>(<any>diffJson)(actual, expected, { undefinedReplacement: null });
 		if (diff.length === 1 && !diff[0].added && !diff[0].removed) {
 			return '';
 		}
