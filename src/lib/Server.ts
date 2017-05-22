@@ -39,12 +39,21 @@ export default class Server implements ServerProperties {
 	start() {
 		return new Promise((resolve) => {
 			const server = this.server = createServer((request: IncomingMessage, response: ServerResponse) => {
-				return this._handler(request, response);
+				return this._handleHttp(request, response);
 			});
 			this._sessions = {};
 			this._codeCache = {};
 
 			const sockets: Socket[] = [];
+
+			this._wsServer = new WebSocket.Server({ port: this.port + 1 });
+			this._wsServer.on('connection', client => {
+				this.executor.log('WebSocket connection opened:', client);
+				this._handleWebSocket(client);
+			});
+			this._wsServer.on('error', error => {
+				this.executor.emit('error', error);
+			});
 
 			// If sockets are not manually destroyed then Node.js will keep itself running until they all expire
 			after(server, 'close', function () {
@@ -55,26 +64,18 @@ export default class Server implements ServerProperties {
 			});
 
 			server.on('connection', socket => {
-				this.executor.log('HTTP connection opened');
 				sockets.push(socket);
+				this.executor.log('HTTP connection opened,', sockets.length, 'open connections');
 
 				// Disabling Nagle improves server performance on low-latency connections, which are more common
 				// during testing than high-latency connections
 				socket.setNoDelay(true);
 
-				socket.on('close', function () {
+				socket.on('close', () => {
 					let index = sockets.indexOf(socket);
 					index !== -1 && sockets.splice(index, 1);
+					this.executor.log('HTTP connection closed,', sockets.length, 'open connections');
 				});
-			});
-
-			this._wsServer = new WebSocket.Server({ port: this.port + 1 });
-			this._wsServer.on('connection', client => {
-				this.executor.log('WebSocket connection opened:', client);
-				this._handleWebSocket(client);
-			});
-			this._wsServer.on('error', error => {
-				this.executor.emit('error', error);
 			});
 
 			server.listen(this.port, resolve);
@@ -127,7 +128,7 @@ export default class Server implements ServerProperties {
 		return session;
 	}
 
-	private _handler(request: IncomingMessage, response: ServerResponse) {
+	private _handleHttp(request: IncomingMessage, response: ServerResponse) {
 		if (request.method === 'GET') {
 			if (/\.js(?:$|\?)/.test(request.url!)) {
 				this._handleFile(request, response, true);
@@ -190,14 +191,6 @@ export default class Server implements ServerProperties {
 		shouldInstrument?: boolean,
 		omitContent?: boolean
 	) {
-		function send(contentType: string, data: string) {
-			response.writeHead(200, {
-				'Content-Type': contentType,
-				'Content-Length': Buffer.byteLength(data)
-			});
-			response.end(data);
-		}
-
 		const file = /^\/+([^?]*)/.exec(request.url!)![1];
 		let wholePath: string;
 
@@ -217,7 +210,6 @@ export default class Server implements ServerProperties {
 			wholePath += 'index.html';
 		}
 
-		const contentType = lookup(basename(wholePath)) || 'application/octet-stream';
 		stat(wholePath, (error, stats) => {
 			// The server was stopped before this file was served
 			if (!this.server) {
@@ -225,12 +217,28 @@ export default class Server implements ServerProperties {
 			}
 
 			if (error || !stats.isFile()) {
-				this.executor.log('Unable to serve', wholePath);
+				this.executor.log('Unable to serve', wholePath, '(unreadable)');
 				this._send404(response);
 				return;
 			}
 
 			this.executor.log('Serving', wholePath);
+
+			const send = (contentType: string, data: string) => {
+				response.writeHead(200, {
+					'Content-Type': contentType,
+					'Content-Length': Buffer.byteLength(data)
+				});
+				response.end(data, (error?: Error) => {
+					if (error) {
+						this.executor.log('Error serving', wholePath, ':', error);
+					}
+					else {
+						this.executor.log('Served', wholePath);
+					}
+				});
+			};
+			const contentType = lookup(basename(wholePath)) || 'application/octet-stream';
 
 			if (shouldInstrument && this.executor.shouldInstrumentFile(wholePath)) {
 				const mtime = stats.mtime.getTime();
@@ -272,7 +280,16 @@ export default class Server implements ServerProperties {
 					response.end();
 				}
 				else {
-					createReadStream(wholePath).pipe(response);
+					const stream = createReadStream(wholePath);
+					stream.pipe(response);
+					stream.on('end', () => {
+						this.executor.log('Served', wholePath);
+					});
+					stream.on('error', (error: Error) => {
+						this.executor.log('Error serving', wholePath, ':', error);
+						// If the read stream errors, the write stream has to be manually closed
+						response.end();
+					});
 				}
 			}
 		});
@@ -292,11 +309,16 @@ export default class Server implements ServerProperties {
 			this._handleMessage(message)
 				.catch(error => this.executor.emit('error', error))
 				.then(() => {
-					client.send(JSON.stringify({ id: message.id }), error => {
-						if (error) {
-							this.executor.emit('error', error);
-						}
-					});
+					// Don't send acks for runEnd, because by the remote will hev been shut down by the time we get
+					// here.
+					if (message.name !== 'runEnd') {
+						this.executor.log('Sending ack for [', message.id, ']');
+						client.send(JSON.stringify({ id: message.id }), error => {
+							if (error) {
+								this.executor.emit('error', new Error(`Error sending ack for [ ${message.id} ]: ${error.message}`));
+							}
+						});
+					}
 				});
 		});
 
