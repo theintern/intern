@@ -1,46 +1,41 @@
-import registerSuite = require('intern!object');
-import * as assert from 'intern/chai!assert';
-import resolveEnvironments, { Environment } from 'src/lib/resolveEnvironments';
-import EnvironmentType from 'src/lib/EnvironmentType';
-import { ServiceEnvironment } from 'digdug';
+import { NormalizedEnvironment } from 'digdug/Tunnel';
+import Environment from 'src/lib/Environment';
+import resolveEnvironments, { EnvironmentOptions } from 'src/lib/resolveEnvironments';
 
-const availableChrome = [
-	{ browserName: 'chrome', version: '39' },
-	{ browserName: 'chrome', version: '38' },
-	{ browserName: 'chrome', version: '37' },
-	{ browserName: 'chrome', version: '36' }
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getAssertions('assert');
+
+const availableChrome: NormalizedEnvironment[] = [
+	{ browserName: 'chrome', version: 'beta', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } },
+	{ browserName: 'chrome', version: 'dev', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } },
+	{ browserName: 'chrome', version: 'alpha', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } },
+	{ browserName: 'chrome', version: '39', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } },
+	{ browserName: 'chrome', version: '38', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } },
+	{ browserName: 'chrome', version: '37', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } },
+	{ browserName: 'chrome', version: '36', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } }
 ];
-const sortedChrome = availableChrome.slice().sort(versionSort);
-const availableIe = [
-	{ browserName: 'ie', version: '11' },
-	{ browserName: 'ie', version: '10' }
+const availableIe: NormalizedEnvironment[] = [
+	{ browserName: 'ie', version: '11', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } },
+	{ browserName: 'ie', version: '10', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } }
 ];
 
-function versionSort(a: any, b: any): number {
-	return parseInt(b.version, 10) - parseInt(a.version, 10);
-}
-
-function assertResolve(capabilities: { [key: string]: any }, environments: Environment[], available?: ServiceEnvironment[], expected?: any, message?: string) {
+function assertResolve(capabilities: { [key: string]: any }, environments: EnvironmentOptions[], available?: NormalizedEnvironment[], expected?: any, message?: string) {
 	const actual = resolveEnvironments(capabilities, environments, available);
-	assert.deepEqual(actual, expected.map(function (expected: any) {
-		return new EnvironmentType(expected);
-	}), message);
+	assert.deepEqual(actual, expected.map((expected: any) => new Environment(expected)), message);
 }
 
-function assertResolveEnvironments(environments: Environment[], available: ServiceEnvironment[], expected: any, message?: string) {
+function assertResolveEnvironments(environments: EnvironmentOptions[], available: NormalizedEnvironment[], expected: any, message?: string) {
 	assertResolve({}, environments, available, expected, message);
 }
 
-registerSuite({
-	name: 'commands/resolveEnvironments',
-
+registerSuite('commands/resolveEnvironments', {
 	'no version, is passed through'() {
-		const environments = [ { browserName: 'chrome', platformVersion: '10' } ];
+		const environments = <EnvironmentOptions[]>[ { browserName: 'chrome', platformVersion: '10' } ];
 		assertResolveEnvironments(environments, availableChrome, environments);
 	},
 
 	'numeric version, is passed through'() {
-		const environments = [ { browserName: 'chrome', version: 39, platformVersion: '10' } ];
+		const environments = <EnvironmentOptions[]>[ { browserName: 'chrome', version: 39, platformVersion: '10' } ];
 		assertResolveEnvironments(environments, availableChrome, environments);
 	},
 
@@ -49,7 +44,7 @@ registerSuite({
 
 		return {
 			'just a base; returns an empty list'() {
-				assertResolve(base, [], null, [ base ], 'Permuting only the base should return 1 result');
+				assertResolve(base, [], undefined, [ base ], 'Permuting only the base should return 1 result');
 			},
 
 			'single source without permutations; returns base + source'() {
@@ -62,13 +57,13 @@ registerSuite({
 						platformVersion: 8
 					}
 				];
-				assertResolve(base, sources, null, expected, 'their contents should be equal');
+				assertResolve(base, sources, undefined, expected, 'their contents should be equal');
 			},
 
 			'single source overriding base property'() {
-				const sources = [ { platformName: 'linux' } ];
-				const expected = [ { platformName: 'linux', platformVersion: 8 } ];
-				assertResolve(base, sources, null, expected, 'their contents should be equal');
+				const sources = [ { browserName: 'chrome', platformName: 'linux' } ];
+				const expected = [ { browserName: 'chrome', platformName: 'linux', platformVersion: 8 } ];
+				assertResolve(base, sources, undefined, expected, 'their contents should be equal');
 			},
 
 			'single permutation (n); returns n * (base + source)'() {
@@ -92,7 +87,7 @@ registerSuite({
 						platformVersion: 8
 					}
 				];
-				assertResolve(base, sources, null, expected, 'their contents should be equal');
+				assertResolve(base, sources, undefined, expected, 'their contents should be equal');
 			},
 
 			'multiple permutations (n, m); returns n * m * (base + source)'() {
@@ -128,7 +123,7 @@ registerSuite({
 						platformVersion: 8
 					}
 				];
-				assertResolve(base, sources, null, expected, 'their contents should be equal');
+				assertResolve(base, sources, undefined, expected, 'their contents should be equal');
 			},
 
 			'multiple sources (s), single permutation; returns all sources mixed into base'() {
@@ -168,7 +163,7 @@ registerSuite({
 						platformVersion: 8
 					}
 				];
-				assertResolve(base, sources, null, expected, 'their contents should be equal');
+				assertResolve(base, sources, undefined, expected, 'their contents should be equal');
 			},
 
 			'multiple sources (s), multiple permutations (n, m); returns s * n * m permutations'() {
@@ -221,7 +216,7 @@ registerSuite({
 						platformVersion: 8
 					}
 				];
-				assertResolve(base, sources, null, expected, 'their contents should be equal');
+				assertResolve(base, sources, undefined, expected, 'their contents should be equal');
 			},
 
 			'multiple everything'() {
@@ -259,7 +254,7 @@ registerSuite({
 					{ browserName: 'a', version: '2', platform: 'd', platformVersion: '4', isCapabilities: true },
 					{ browserName: 'b', version: '2', platform: 'd', platformVersion: '4', isCapabilities: true }
 				];
-				assertResolve(base, sources, null, expected, 'their contents should be equal');
+				assertResolve(base, sources, undefined, expected, 'their contents should be equal');
 			}
 		};
 	}()),
@@ -267,13 +262,13 @@ registerSuite({
 	'version aliases': {
 		'latest version alias'() {
 			const environments = [ { browserName: 'chrome', version: 'latest' } ];
-			const expected = [ { browserName: 'chrome', version: sortedChrome[0].version } ];
+			const expected = [ { browserName: 'chrome', version: '39' } ];
 			return assertResolveEnvironments(environments, availableChrome, expected);
 		},
 
 		'latest-1 version alias'() {
 			const environments = [ { browserName: 'chrome', version: 'latest-1' } ];
-			const expected = [ { browserName: 'chrome', version: sortedChrome[1].version } ];
+			const expected = [ { browserName: 'chrome', version: '38' } ];
 			return assertResolveEnvironments(environments, availableChrome, expected);
 		}
 	},
@@ -309,7 +304,7 @@ registerSuite({
 		},
 
 		'ranged math latest-1..latest with multiple browsers'() {
-			const available = [].concat(availableChrome, availableIe);
+			const available: NormalizedEnvironment[] = availableChrome.concat(availableIe);
 			const environments = [ { browserName: ['chrome', 'ie'], version: 'latest-1..latest' } ];
 			const expected = [
 				{ browserName: 'chrome', version: '38' },
@@ -340,7 +335,7 @@ registerSuite({
 		const expected = [
 			{
 				browserName: 'chrome',
-				version: sortedChrome[0].version,
+				version: '39',
 				platformName: 'os2/warp',
 				platformVersion: 10
 			}
@@ -353,21 +348,42 @@ registerSuite({
 			const environments = [ { browserName: 'ie', version: 'latest-2..latest-1..latest' } ];
 			assert.throws(function () {
 				resolveEnvironments({}, environments, availableIe);
-			});
+			}, /Invalid version syntax/);
 		},
 
 		'non-numeric offset'() {
 			const environments = [ { browserName: 'ie', version: '10..latest-a' } ];
 			assert.throws(function () {
 				resolveEnvironments({}, environments, availableIe);
-			});
+			}, /Invalid alias syntax/);
 		},
 
 		'backwards ranges'() {
 			const environments = [ { browserName: 'chrome', version: 'latest..latest-2' } ];
 			assert.throws(function () {
 				resolveEnvironments({}, environments, availableChrome);
-			});
+			}, /Invalid range/);
+		},
+
+		'offset too large'() {
+			const environments = [ { browserName: 'chrome', version: 'latest-12' } ];
+			assert.throws(function () {
+				resolveEnvironments({}, environments, availableChrome);
+			}, /versions are available/);
+		},
+
+		'range unavailable'() {
+			const environments = [ { browserName: 'chrome', version: '1..3' } ];
+			assert.throws(function () {
+				resolveEnvironments({}, environments, availableChrome);
+			}, /The version range .* is unavailable/);
+		},
+
+		'extra minuses'() {
+			const environments = [ { browserName: 'chrome', version: 'latest-2-3' } ];
+			assert.throws(function () {
+				resolveEnvironments({}, environments, availableChrome);
+			}, /Invalid alias syntax/);
 		}
 	}
 });

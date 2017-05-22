@@ -22,9 +22,11 @@ export default function resolveEnvironments(capabilities: { [key: string]: any }
 
 	// Expand any version ranges or aliases in the environments.
 	const expandedEnvironments = flatEnvironments.map(function (environment) {
-		return mixin({}, environment, {
-			version: resolveVersions(environment, available)
-		});
+		const version = resolveVersions(environment, available);
+		if (version == null) {
+			return environment;
+		}
+		return mixin({}, environment, { version });
 	});
 
 	// Perform a second round of permuting to handle any expanded version ranges
@@ -35,7 +37,7 @@ export default function resolveEnvironments(capabilities: { [key: string]: any }
 }
 
 export interface EnvironmentOptions {
-	browserName: string;
+	browserName: string | string[];
 	version?: (string | string[] | number | number[]);
 	[key: string]: any;
 }
@@ -44,24 +46,6 @@ export interface FlatEnvironment {
 	browserName: string;
 	version?: string;
 	[key: string]: any;
-}
-
-/**
- * A comparator for sorting potentially numeric strings in ascending order
- */
-function ascendingNumbers(a: string, b: string) {
-	const na = Number(a);
-	const nb = Number(b);
-	if (!isNaN(na) && !isNaN(nb)) {
-		return na - nb;
-	}
-	if (a < b) {
-		return -1;
-	}
-	if (a > b) {
-		return 1;
-	}
-	return 0;
 }
 
 /**
@@ -99,7 +83,7 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
 		(pieces.length === 2 && (pieces[0] !== 'latest' || isNaN(Number(pieces[1])))) ||
 		(pieces.length === 1 && isNaN(Number(pieces[0])) && pieces[0] !== 'latest')
 	) {
-		throw new Error('invalid alias syntax "' + version + '"');
+		throw new Error('Invalid alias syntax "' + version + '"');
 	}
 
 	if (pieces[0] === 'latest') {
@@ -162,7 +146,20 @@ function getVersions(environment: EnvironmentOptions, available: NormalizedEnvir
 		versions[availableEnvironment.version] = true;
 	});
 
-	return Object.keys(versions).sort(ascendingNumbers);
+	return Object.keys(versions).sort((a, b) => {
+		const na = Number(a);
+		const nb = Number(b);
+		if (!isNaN(na) && !isNaN(nb)) {
+			return na - nb;
+		}
+		if (a < b) {
+			return -1;
+		}
+		if (a > b) {
+			return 1;
+		}
+		return 0;
+	});
 }
 
 /**

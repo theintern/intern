@@ -24,6 +24,7 @@
 	"./unit/lib/BenchmarkTest.ts",
 	"./unit/lib/Suite.ts",
 	"./unit/lib/Test.ts",
+	"./unit/lib/resolveEnvironments.ts",
 	"./functional/lib/ProxiedSession.ts",
 	"../src/loaders/*.ts",
     "../src/browser/*.ts",
