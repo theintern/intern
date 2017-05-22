@@ -13,15 +13,6 @@
 				"src": "/_build/src",
 				"_tests": "/_tests"
 			},
-			"map": {
-				"url": "@node/url",
-				"fs": "@node/fs",
-				"path": "@node/path",
-				"jszip": "@node/jszip",
-				"http": "@node/http",
-				"https": "@node/http",
-				"zlib": "@node/zlib"
-			},
 			"packageConfigPaths": [
 				"/node_modules/*/package.json",
 				"/node_modules/@dojo/*/package.json"
@@ -52,7 +43,7 @@
 	},
 
 	"configs": {
-		/* For running all unit tests (including benchmarks) */
+		/* For running all unit tests in Node (including benchmarks) */
 		"coverage": {
 			"benchmark": true,
 			"suites": [
@@ -74,8 +65,13 @@
 		"ci": {
 			"tunnel": "browserstack",
 			"suites": [
-				"_tests/tests/unit/**/*.js",
 				"_tests/tests/benchmark/example.js"
+			],
+			"nodeSuites": [
+				"_tests/tests/unit/lib/*.js"
+			],
+			"browserSuites": [
+				"_tests/tests/unit/lib/!(resolveEnvironments).js"
 			],
 			"environments": [
 				{ "browser": "internet explorer", "version": [ "10", "11" ] },
@@ -84,7 +80,7 @@
 				{ "browser": "safari", "version": [ "9", "10" ] }
 			]
 		},
-		/* For trying out the browser runner */
+		/* For trying out the browser runner, which can't handle globs */
 		"browser": {
 			"suites": [
 				"_tests/tests/unit/lib/Environment.js",
@@ -95,8 +91,13 @@
 		"sauce": {
 			"tunnel": "saucelabs",
 			"suites": [
-				"_tests/tests/unit/**/*.js",
 				"_tests/tests/benchmark/example.js"
+			],
+			"nodeSuites": [
+				"_tests/tests/unit/lib/*.js"
+			],
+			"browserSuites": [
+				"_tests/tests/unit/lib/!(resolveEnvironments).js"
 			],
 			"environments": [
 				{ "browser": "internet explorer", "version": [ "10", "11" ] },
