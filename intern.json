@@ -61,17 +61,28 @@
 			"tunnel": "selenium",
 			"environments": "chrome"
 		},
+		/* For trying out the browser runner, which can't handle globs */
+		"browser": {
+			"suites": [
+				"_tests/tests/unit/lib/Environment.js",
+				"_tests/tests/unit/lib/BenchmarkTest.js"
+			]
+		},
 		/* For running tests on Travis */
 		"ci": {
 			"tunnel": "browserstack",
 			"suites": [
-				"_tests/tests/benchmark/example.js"
+				"_tests/tests/benchmark/example.js",
+				"_tests/tests/unit/lib/BenchmarkTest.js",
+				"_tests/tests/unit/lib/Environment.js",
+				"_tests/tests/unit/lib/Suite.js",
+				"_tests/tests/unit/lib/Test.js"
 			],
 			"nodeSuites": [
-				"_tests/tests/unit/lib/*.js"
+				"_tests/tests/unit/lib/resolveEnvironments.js"
 			],
 			"browserSuites": [
-				"_tests/tests/unit/lib/!(resolveEnvironments).js"
+				"_tests/tests/unit/lib/Channel.js"
 			],
 			"environments": [
 				{ "browser": "internet explorer", "version": [ "10", "11" ] },
@@ -80,25 +91,10 @@
 				{ "browser": "safari", "version": [ "9", "10" ] }
 			]
 		},
-		/* For trying out the browser runner, which can't handle globs */
-		"browser": {
-			"suites": [
-				"_tests/tests/unit/lib/Environment.js",
-				"_tests/tests/unit/lib/BenchmarkTest.js"
-			]
-		},
 		/* For running CI tests on Sauce Labs */
 		"sauce": {
+			"extends": "ci",
 			"tunnel": "saucelabs",
-			"suites": [
-				"_tests/tests/benchmark/example.js"
-			],
-			"nodeSuites": [
-				"_tests/tests/unit/lib/*.js"
-			],
-			"browserSuites": [
-				"_tests/tests/unit/lib/!(resolveEnvironments).js"
-			],
 			"environments": [
 				{ "browser": "internet explorer", "version": [ "10", "11" ] },
 				{ "browser": "firefox", "version": [ "33", "latest" ], "platform": [ "Windows 10", "OS X 10.12" ] },

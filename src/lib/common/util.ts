@@ -23,18 +23,29 @@ export function loadConfig(configPath: string, loadText: TextLoader, args?: { [k
 		return config;
 	}).then(config => {
 		if (childConfig) {
-			if (!config.configs[childConfig]) {
-				throw new Error(`Unknown child config "${childConfig}"`);
-			}
-			config = mixin(config, config.configs[childConfig]);
+			const mixinChild = (childConfig: any) => {
+				const child = config.configs[childConfig];
+				if (!child) {
+					throw new Error(`Unknown child config "${childConfig}"`);
+				}
+				if (child.extends) {
+					mixinChild(child.extends);
+				}
+				mixin(config, child);
+			};
+
+			mixinChild(childConfig);
 		}
+		return config;
+	}).then(config => {
 		if (args) {
-			config = mixin(config, args);
+			mixin(config, args);
 		}
-
-		// 'configs' is only applicable to the config loader, not the Executors
+		return config;
+	}).then(config => {
+		// 'configs' and 'extends' are only applicable to the config loader, not the Executors
 		delete config.configs;
-
+		delete config.extends;
 		return config;
 	});
 }
