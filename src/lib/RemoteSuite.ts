@@ -15,10 +15,7 @@ import Deferred from './Deferred';
 export default class RemoteSuite extends Suite {
 	executor: Node;
 
-	/** The HTML page that will be used to host the tests */
-	harness: string;
-
-	constructor(options: Partial<SuiteOptions>) {
+	constructor(options?: Partial<SuiteOptions>) {
 		options = options || {};
 		if (options.name == null) {
 			options.name = 'remote unit tests';
@@ -54,6 +51,7 @@ export default class RemoteSuite extends Suite {
 		const sessionId = remote.session.sessionId;
 		const server = this.executor.server;
 		let listenerHandle: Handle;
+		let connectTimer: NodeJS.Timer;
 
 		return new Task(
 			(resolve, reject) => {
@@ -66,7 +64,7 @@ export default class RemoteSuite extends Suite {
 				const pendingConnection = new Deferred<void>();
 
 				// If the remote takes to long to connect, reject the connection promise
-				const connectTimer = setTimeout(() => {
+				connectTimer = setTimeout(() => {
 					const error = new Error('Timed out waiting for remote to connect');
 					error.name = 'TimeoutError';
 					pendingConnection.reject(error);
@@ -212,7 +210,7 @@ export default class RemoteSuite extends Suite {
 					.get(`${harness}?${query}`)
 					.then(() => pendingConnection.promise)
 					// Send the config data in an execute block to avoid sending very large query strings
-					.execute(function (configString: string) {
+					.execute(/* istanbul ignore next */function (configString: string) {
 						const options = JSON.parse(configString);
 						intern.configure(options);
 						intern.run().catch(_error => { });
@@ -224,6 +222,9 @@ export default class RemoteSuite extends Suite {
 			() => remote.setHeartbeatInterval(0)
 		).finally(() => {
 			listenerHandle.destroy();
+			if (connectTimer) {
+				clearTimeout(connectTimer);
+			}
 			return this.executor.emit('suiteEnd', this);
 		});
 	}

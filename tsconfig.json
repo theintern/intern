@@ -17,7 +17,7 @@
     "noUnusedParameters": true,
     "outDir": "./_build",
     "preserveConstEnums": true,
-    "removeComments": true,
+    "removeComments": false,
     "rootDir": ".",
     "sourceMap": true,
     "strict": true,

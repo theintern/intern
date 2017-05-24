@@ -79,6 +79,7 @@
 				"_tests/tests/unit/lib/Test.js"
 			],
 			"nodeSuites": [
+				"_tests/tests/unit/lib/RemoteSuite.js",
 				"_tests/tests/unit/lib/resolveEnvironments.js"
 			],
 			"browserSuites": [
