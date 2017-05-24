@@ -534,7 +534,7 @@ export default class Suite implements SuiteProperties {
 	toJSON(): object {
 		const json: { [key: string]: any } = {
 			hasParent: Boolean(this.parent),
-			tests: this.tests
+			tests: this.tests.map(test => test.toJSON())
 		};
 		const properties: (keyof Suite)[] = [
 			'name',
