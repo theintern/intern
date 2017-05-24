@@ -13,7 +13,7 @@ intern.registerPlugin('mocking', () => {
 		}
 	}
 
-	function mockedRequire(_require: (id: string) => any, mod: string, mocks: { [key: string]: any }) {
+	function requireWithMocks(_require: (id: string) => any, mod: string, mocks: { [key: string]: any }) {
 		registeredMocks.push({ name: mod, original: undefined });
 		Object.keys(mocks).forEach(name => {
 			const mock = mocks[name];
@@ -26,5 +26,5 @@ intern.registerPlugin('mocking', () => {
 		return System.import(mod);
 	}
 
-	return { mockedRequire, removeMocks };
+	return { requireWithMocks, removeMocks };
 });

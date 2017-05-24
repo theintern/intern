@@ -33,7 +33,10 @@ export default class Server implements ServerProperties {
 	private _sessions: { [id: string]: { listeners: ServerListener[] } };
 
 	constructor(options: ServerOptions) {
-		mixin(this, options);
+		mixin(this, {
+			basePath: '.',
+			runInSync: false
+		}, options);
 	}
 
 	start() {
@@ -66,10 +69,6 @@ export default class Server implements ServerProperties {
 			server.on('connection', socket => {
 				sockets.push(socket);
 				this.executor.log('HTTP connection opened,', sockets.length, 'open connections');
-
-				// Disabling Nagle improves server performance on low-latency connections, which are more common
-				// during testing than high-latency connections
-				socket.setNoDelay(true);
 
 				socket.on('close', () => {
 					let index = sockets.indexOf(socket);

@@ -8,7 +8,9 @@ import Task from '@dojo/core/async/Task';
 
 export function createExecutor(properties?: any) {
 	const executor: Executor = <any>{
-		emit() {
+		events: [],
+		emit(event: string, data: any) {
+			this.events.push({ event, data });
 			return Task.resolve();
 		},
 		log() {

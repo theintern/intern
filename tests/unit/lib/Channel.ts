@@ -3,7 +3,7 @@ import Task from '@dojo/core/async/Task';
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
-const { removeMocks, mockedRequire } = <any>intern.getPlugin('mocking');
+const { removeMocks, requireWithMocks } = <any>intern.getPlugin('mocking');
 
 let Channel: typeof _Channel;
 
@@ -12,7 +12,7 @@ let websocketError: 'construct' | 'send' | null;
 
 registerSuite('lib/Channel', {
 	before() {
-		return mockedRequire(require, 'src/lib/Channel', {
+		return requireWithMocks(require, 'src/lib/Channel', {
 			'src/lib/channels/WebSocket': { default: MockWebSocket },
 			'src/lib/channels/Http': { default: MockHttp }
 		}).then((_Channel: any) => {

@@ -8,7 +8,7 @@ intern.registerPlugin('mocking', () => {
 		}
 	}
 
-	function mockedRequire(contextRequire: NodeRequire, mod: string, mocks: { [name: string]: any }) {
+	function requireWithMocks(contextRequire: NodeRequire, mod: string, mocks: { [name: string]: any }) {
 		registeredMocks.push({ id: contextRequire.resolve(mod), original: undefined });
 		Object.keys(mocks).forEach(name => {
 			const id = contextRequire.resolve(name);
@@ -24,5 +24,5 @@ intern.registerPlugin('mocking', () => {
 		return Promise.resolve(contextRequire(mod));
 	}
 
-	return { mockedRequire, removeMocks };
+	return { requireWithMocks, removeMocks };
 });
