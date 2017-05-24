@@ -19,11 +19,7 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 			browserSuites: <string[]>[]
 		});
 
-		if (config) {
-			this.configure(config);
-		}
-
-		this._errorFormatter = new ErrorFormatter(this.config);
+		this._errorFormatter = new ErrorFormatter(this);
 
 		// Report uncaught errors
 		window.addEventListener('unhandledRejection', (event: PromiseRejectionEvent) => {
@@ -37,6 +33,10 @@ export default class Browser<E extends Events = Events, C extends Config = Confi
 			error.stack = `${event.filename}:${event.lineno}:${event.colno}`;
 			this.emit('error', error);
 		});
+
+		if (config) {
+			this.configure(config);
+		}
 	}
 
 	get environment() {

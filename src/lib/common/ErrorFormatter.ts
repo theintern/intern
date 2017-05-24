@@ -1,11 +1,12 @@
 import { InternError } from '../types';
 import { diffJson, IDiffResult } from 'diff';
+import Executor from '../executors/Executor';
 
 export default class ErrorFormatter implements ErrorFormatterProperties {
-	filterErrorStack = false;
+	readonly executor: Executor;
 
-	constructor(options: ErrorFormatterOptions = {}) {
-		this.filterErrorStack = options.filterErrorStack || false;
+	constructor(executor: Executor) {
+		this.executor = executor;
 	}
 
 	/**
@@ -138,7 +139,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 
 		let stackLines = /^\s*at /.test(lines[0]) ? this._processChromeTrace(lines) : this._processSafariTrace(lines);
 
-		if (this.filterErrorStack) {
+		if (this.executor.config.filterErrorStack) {
 			stackLines = stackLines.filter(line => {
 				return !(
 					/internal\/process\//.test(line) ||
@@ -190,10 +191,8 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 }
 
 export interface ErrorFormatterProperties {
-	filterErrorStack: boolean;
+	executor: Executor;
 }
-
-export type ErrorFormatterOptions = Partial<ErrorFormatterProperties>;
 
 export interface ErrorFormatOptions {
 	space?: string;

@@ -4,11 +4,17 @@ import { parse } from 'url';
 import { dirname, join, relative, resolve } from 'path';
 import { MappingItem, RawSourceMap, SourceMapConsumer } from 'source-map';
 import { readSourceMap } from './util';
+import Node from '../executors/Node';
 
 export default class NodeErrorFormatter extends ErrorFormatter {
-	private instrumentationSourceMap: { [path: string]: SourceMapConsumer } = {};
 	private fileSourceMaps: { [path: string]: SourceMapConsumer } = {};
 	private fileSources: { [path: string]: string } = {};
+
+	readonly executor: Node;
+
+	constructor(executor: Node) {
+		super(executor);
+	}
 
 	/**
 	 * Dereference the source from a traceline.
@@ -40,9 +46,11 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 
 		source = relative('.', tracepath);
 
+		const instrumentedStore = this.executor.instrumentedMapStore;
+
 		// first, check for an instrumentation source map
-		if (tracepath in this.instrumentationSourceMap) {
-			map = this.instrumentationSourceMap[tracepath];
+		if (tracepath in instrumentedStore.data) {
+			map = new SourceMapConsumer(instrumentedStore.data[tracepath].data);
 			originalPos = this.getOriginalPosition(map, line, col);
 			line = originalPos.line;
 			col = originalPos.column;
@@ -52,7 +60,15 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 		}
 
 		// next, check for original source map
-		if ((map = this.getSourceMap(tracepath))) {
+		const sourceMapStore = this.executor.sourceMapStore;
+		if (tracepath in sourceMapStore) {
+			map = new SourceMapConsumer(sourceMapStore.data[tracepath].data);
+		}
+		else {
+			map = this.getSourceMap(tracepath);
+		}
+
+		if (map) {
 			originalPos = this.getOriginalPosition(map, line, col);
 			line = originalPos.line;
 			col = originalPos.column;
@@ -60,6 +76,8 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 				source = join(dirname(source), originalPos.source);
 			}
 		}
+
+		source = relative('.', source);
 
 		result = source + ':' + line;
 		if (col !== null) {

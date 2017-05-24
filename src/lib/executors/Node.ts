@@ -48,6 +48,7 @@ export default class Node extends Executor<Events, Config> {
 	protected _instrumentBasePath: string;
 	protected _instrumenter: Instrumenter;
 	protected _sourceMaps: MapStore;
+	protected _instrumentedMaps: MapStore;
 	protected _unhookRequire: null | (() => void);
 	protected _sessionSuites: Suite[];
 	protected _tunnels: { [name: string]: typeof Tunnel };
@@ -75,7 +76,9 @@ export default class Node extends Executor<Events, Config> {
 		});
 
 		this._tunnels = {};
-		this._errorFormatter = new ErrorFormatter(this.config);
+		this._sourceMaps = createSourceMapStore();
+		this._instrumentedMaps = createSourceMapStore();
+		this._errorFormatter = new ErrorFormatter(this);
 
 		this.registerReporter('pretty', Pretty);
 		this.registerReporter('simple', Simple);
@@ -112,6 +115,10 @@ export default class Node extends Executor<Events, Config> {
 		return 'node';
 	}
 
+	get instrumentedMapStore() {
+		return this._instrumentedMaps;
+	}
+
 	get sourceMapStore() {
 		return this._sourceMaps;
 	}
@@ -134,8 +141,12 @@ export default class Node extends Executor<Events, Config> {
 	instrumentCode(code: string, filename: string): string {
 		this.log('Instrumenting', filename);
 		const sourceMap = readSourceMap(filename, code);
-		this._sourceMaps.registerMap(filename, sourceMap);
-		return this._instrumenter.instrumentSync(code, normalize(filename), sourceMap);
+		if (sourceMap) {
+			this._sourceMaps.registerMap(filename, sourceMap);
+		}
+		const newCode = this._instrumenter.instrumentSync(code, normalize(filename), sourceMap);
+		this._instrumentedMaps.registerMap(filename, this._instrumenter.lastSourceMap());
+		return newCode;
 	}
 
 	/**
@@ -197,7 +208,6 @@ export default class Node extends Executor<Events, Config> {
 				preserveComments: true,
 				produceSourceMap: true
 			}));
-			this._sourceMaps = createSourceMapStore();
 
 			if (this.config.excludeInstrumentation !== true) {
 				this._setInstrumentationHooks();

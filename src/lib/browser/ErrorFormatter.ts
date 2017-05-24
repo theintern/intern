@@ -1,6 +1,13 @@
 import ErrorFormatter from '../common/ErrorFormatter';
+import Browser from '../executors/Browser';
 
 export default class BrowserErrorFormatter extends ErrorFormatter {
+	readonly executor: Browser;
+
+	constructor(executor: Browser) {
+		super(executor);
+	}
+
 	/**
 	 * Dereference the source from a traceline.
 	 */
