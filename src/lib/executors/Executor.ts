@@ -343,7 +343,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			try {
 				this._runTask = this._resolveConfig();
 
-				if (this.config.resolveConfig) {
+				if (this.config.showConfig) {
 					this._runTask = this._runTask.then(() => {
 						console.log(JSON.stringify(this.config, null, '    '));
 					});
@@ -728,7 +728,7 @@ export interface Config {
 	reporters: ReporterDescriptor[];
 
 	/** If true, display the resolved config and exit */
-	resolveConfig: boolean;
+	showConfig: boolean;
 
 	/** A list of paths to suite scripts (or some other suite identifier usable by the suite loader). */
 	suites: string[];
