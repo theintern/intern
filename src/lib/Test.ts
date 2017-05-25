@@ -8,18 +8,23 @@ import Suite from './Suite';
 import { mixin } from '@dojo/core/lang';
 
 export default class Test implements TestProperties {
+	/** The name of this test */
 	name: string;
 
+	/** This test's parent Suite */
 	parent: Suite;
 
+	/** If this test was skipped, this will contain a message indicating why */
 	skipped: string | undefined;
 
+	/** The test function that is run by this Test */
 	test: TestFunction;
 
+	/** The error that caused this Test to fail */
+	error: InternError | undefined;
 
 	protected _hasPassed = false;
 
-	error: InternError | undefined;
 	protected _isAsync = false;
 
 	protected _timeout: number;

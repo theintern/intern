@@ -14,23 +14,25 @@ import Promise from '@dojo/shim/Promise';
 import WebSocket = require('ws');
 
 export default class Server implements ServerProperties {
+	/** Executor managing this Server */
+	readonly executor: Node;
+
+	/** Base path to resolve file requests against */
 	basePath: string;
 
-	executor: Node;
-
+	/** Port to use for HTTP connections */
 	port: number;
 
+	/** If true, wait for emit handlers to complete before responding to a message */
 	runInSync: boolean;
 
-	server: HttpServer | null;
-
+	/** Port to use for WebSocket connections */
 	socketPort: number;
 
-	private _wsServer: WebSocket.Server | null;
-
-	private _codeCache: { [filename: string]: { mtime: number, data: string } } | null;
-
-	private _sessions: { [id: string]: { listeners: ServerListener[] } };
+	protected _codeCache: { [filename: string]: { mtime: number, data: string } } | null;
+	protected _httpServer: HttpServer | null;
+	protected _sessions: { [id: string]: { listeners: ServerListener[] } };
+	protected _wsServer: WebSocket.Server | null;
 
 	constructor(options: ServerOptions) {
 		mixin(this, {
@@ -40,8 +42,8 @@ export default class Server implements ServerProperties {
 	}
 
 	start() {
-		return new Promise((resolve) => {
-			const server = this.server = createServer((request: IncomingMessage, response: ServerResponse) => {
+		return new Promise<void>((resolve) => {
+			const server = this._httpServer = createServer((request: IncomingMessage, response: ServerResponse) => {
 				return this._handleHttp(request, response);
 			});
 			this._sessions = {};
@@ -77,18 +79,20 @@ export default class Server implements ServerProperties {
 				});
 			});
 
-			server.listen(this.port, resolve);
+			server.listen(this.port, () => {
+				resolve();
+			});
 		});
 	}
 
 	stop() {
 		const promises: Promise<any>[] = [];
 
-		if (this.server) {
+		if (this._httpServer) {
 			promises.push(new Promise(resolve => {
-				this.server!.close(resolve);
+				this._httpServer!.close(resolve);
 			}).then(() => {
-				this.server = null;
+				this._httpServer = null;
 			}));
 		}
 
@@ -211,7 +215,7 @@ export default class Server implements ServerProperties {
 
 		stat(wholePath, (error, stats) => {
 			// The server was stopped before this file was served
-			if (!this.server) {
+			if (!this._httpServer) {
 				return;
 			}
 
@@ -248,7 +252,7 @@ export default class Server implements ServerProperties {
 				else {
 					readFile(wholePath, 'utf8', (error, data) => {
 						// The server was stopped in the middle of the file read
-						if (!this.server) {
+						if (!this._httpServer) {
 							return;
 						}
 
@@ -298,7 +302,13 @@ export default class Server implements ServerProperties {
 		this.executor.log('Processing message [', message.id, '] for ', message.sessionId, ': ', message.name);
 		const promise = this._publish(message);
 		let shouldWait = getShouldWait(this.runInSync, message);
-		return shouldWait ? promise : resolvedPromise;
+		if (shouldWait) {
+			promise.catch(error => {
+				this.executor.emit('error', error);
+			});
+			return resolvedPromise;
+		}
+		return promise;
 	}
 
 	private _handleWebSocket(client: WebSocket) {

@@ -135,11 +135,13 @@ export default class ProxiedSession extends Session {
 				return this.execute<string>(getCoverageData, [this.coverageVariable]).then(coverageData => {
 					// Emit coverage retrieved from a remote session
 					this.executor.log('Got coverage data for', this.sessionId);
-					return coverageData && this.executor.emit('coverage', {
-						sessionId: this.sessionId,
-						source: 'remote session',
-						coverage: JSON.parse(coverageData)
-					});
+					if (coverageData) {
+						return this.executor.emit('coverage', {
+							sessionId: this.sessionId,
+							source: 'remote session',
+							coverage: JSON.parse(coverageData)
+						});
+					}
 				});
 			}
 		});

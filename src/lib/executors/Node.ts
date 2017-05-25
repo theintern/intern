@@ -32,16 +32,12 @@ import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
 
-/**
- * The Node executor is used to run unit tests in a Node environment.
- */
 export default class Node extends Executor<Events, Config> {
 	static initialize(config?: Partial<Config>) {
 		return initialize<Events, Config, Node>(Node, config);
 	}
 
 	server: Server;
-
 	tunnel: Tunnel;
 
 	protected _loadingFunctionalSuites: boolean;
@@ -150,9 +146,7 @@ export default class Node extends Executor<Events, Config> {
 	}
 
 	/**
-	 * Load a script or scripts using Node's require.
-	 *
-	 * @param script a path to a script
+	 * Load scripts using Node's require
 	 */
 	loadScript(script: string | string[]) {
 		if (!Array.isArray(script)) {
@@ -169,10 +163,16 @@ export default class Node extends Executor<Events, Config> {
 		return Task.resolve();
 	}
 
+	/**
+	 * Register a tunnel class
+	 */
 	registerTunnel(name: string, Class: typeof Tunnel) {
 		this._tunnels[name] = Class;
 	}
 
+	/**
+	 * Return true if a given file should be instrumented based on the current config
+	 */
 	shouldInstrumentFile(filename: string) {
 		const excludeInstrumentation = this.config.excludeInstrumentation;
 		if (excludeInstrumentation === true) {

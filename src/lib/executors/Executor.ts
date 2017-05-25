@@ -11,7 +11,7 @@ import getTddInterface, { TddInterface } from '../interfaces/tdd';
 import getBddInterface, { BddInterface } from '../interfaces/bdd';
 import getBenchmarkInterface, { BenchmarkInterface } from '../interfaces/benchmark';
 import Promise from '@dojo/shim/Promise';
-import * as chai from 'chai';
+import { assert, expect, should } from 'chai';
 import global from '@dojo/core/global';
 
 /**
@@ -19,35 +19,18 @@ import global from '@dojo/core/global';
  */
 export default abstract class Executor<E extends Events = Events, C extends Config = Config> {
 	protected _assertions: { [name: string]: any };
-
 	protected _availableReporters: { [name: string]: typeof Reporter };
-
-	/** The resolved configuration for this executor. */
 	protected _config: C;
-
-	/**
-	 * The root suites managed by this executor.
-	 */
 	protected _rootSuite: Suite;
-
 	protected _errorFormatter: ErrorFormatter;
-
 	protected _hasSuiteErrors = false;
-
 	protected _interfaces: { [name: string]: any };
-
 	protected _loader: Loader;
-
 	protected _loadingPlugin: Task<void> | undefined;
-
 	protected _loadingPluginOptions: any | undefined;
-
 	protected _listeners: { [event: string]: Listener<any>[] };
-
 	protected _pluginExports: { [name: string]: { [name: string]: any } };
-
 	protected _reporters: Reporter[];
-
 	protected _runTask: Task<void>;
 
 	constructor(config?: Partial<C>) {
@@ -86,9 +69,9 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this.registerInterface('bdd', getBddInterface(this));
 		this.registerInterface('benchmark', getBenchmarkInterface(this));
 
-		this.registerAssertions('assert', chai.assert);
-		this.registerAssertions('expect', chai.expect);
-		this.registerAssertions('should', chai.should);
+		this.registerAssertions('assert', assert);
+		this.registerAssertions('expect', expect);
+		this.registerAssertions('should', should);
 
 		this._rootSuite = new Suite({ executor: this });
 
@@ -103,6 +86,9 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 	abstract get environment(): string;
 
+	/**
+	 * The resolved configuration for this executor.
+	 */
 	get config() {
 		return this._config;
 	}
@@ -141,11 +127,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * any existing value.
 	 */
 	configure(config: Partial<C>) {
-		Object.keys(config).forEach((key: keyof Config) => {
+		Object.keys(config).forEach((key: keyof C) => {
 			const value = config[key];
 			const addToExisting = key[key.length - 1] === '+';
 			if (addToExisting) {
-				key = <keyof Config>key.slice(0, key.length - 1);
+				key = <keyof C>key.slice(0, key.length - 1);
 			}
 			this._processOption(key, value, addToExisting);
 		});
@@ -157,12 +143,12 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Event listeners may execute async code, and a failing handler (one that rejects or throws an error) will cause the
 	 * emit to fail.
 	 */
-	emit(eventName: 'afterRun'): Task<any>;
-	emit(eventName: 'beforeRun'): Task<any>;
-	emit(eventName: 'runStart'): Task<any>;
-	emit(eventName: 'runEnd'): Task<any>;
-	emit<T extends keyof E>(eventName: T, data: E[T]): Task<any>;
-	emit<T extends keyof E>(eventName: T, data?: E[T]): Task<any> {
+	emit(eventName: 'afterRun'): Task<void>;
+	emit(eventName: 'beforeRun'): Task<void>;
+	emit(eventName: 'runStart'): Task<void>;
+	emit(eventName: 'runEnd'): Task<void>;
+	emit<T extends keyof E>(eventName: T, data: E[T]): Task<void>;
+	emit<T extends keyof E>(eventName: T, data?: E[T]) {
 		if (eventName === 'suiteEnd' && (<any>data).error) {
 			this._hasSuiteErrors = true;
 		}
@@ -190,16 +176,19 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			return resolvedTask;
 		}
 
-		return Task.all(notifications).catch(error => {
+		return Task.all<void>(notifications).catch(error => {
 			console.error(`Error emitting ${eventName}: ${this.formatError(error)}`);
-		});
+		}).then(() => {});
 	}
 
+	/**
+	 * Get a registered assertion API
+	 */
 	getAssertions(name: 'assert'): Chai.AssertStatic;
 	getAssertions(name: 'expect'): Chai.ExpectStatic;
 	getAssertions(name: 'should'): Chai.Should;
 	getAssertions(name: string): any;
-	getAssertions(name: string): any {
+	getAssertions(name: string) {
 		const assertions = this._assertions[name];
 
 		// `should` is a weird case because it extends Object
@@ -211,19 +200,19 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
-	 * Return a testing interface
+	 * Get a registered test creation API
 	 */
 	getInterface(name: 'object'): ObjectInterface;
 	getInterface(name: 'tdd'): TddInterface;
 	getInterface(name: 'bdd'): BddInterface;
 	getInterface(name: 'benchmark'): BenchmarkInterface;
 	getInterface(name: string): any;
-	getInterface(name: string): any {
+	getInterface(name: string) {
 		return this._interfaces[name];
 	}
 
 	/**
-	 * Return any resources registered by a plugin
+	 * Get any resources registered by a particular plugin
 	 */
 	getPlugin(name: string): { [name: string]: any } | undefined {
 		return this._pluginExports[name];
@@ -263,7 +252,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Add a listener for a test event. When an event is emitted, the executor will wait for all Promises returned by
 	 * listener callbacks to resolve before continuing.
 	 */
-	on<T extends keyof E>(eventName: T, listener: Listener<E[T]>): Handle {
+	on<T extends keyof E>(eventName: T, listener: Listener<E[T]>) {
 		let listeners = this._listeners[eventName];
 		if (!listeners) {
 			listeners = this._listeners[eventName] = [];
@@ -449,7 +438,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Load suites
 	 */
-	protected _loadSuites(optionalConfig?: Config) {
+	protected _loadSuites(optionalConfig?: C) {
 		const config = optionalConfig || this.config;
 
 		let script = config.loader.script;
@@ -474,7 +463,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Load plugins
 	 */
-	protected _loadPlugins(config?: Config) {
+	protected _loadPlugins(config?: C) {
 		config = config || this.config;
 		if (config.plugins) {
 			return config.plugins.reduce((previous, plugin) => {
@@ -496,7 +485,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Process an arbitrary config value. Subclasses can override this method to pre-process arguments or handle them
 	 * instead of allowing Executor to.
 	 */
-	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
+	protected _processOption(name: keyof C, value: any, addToExisting: boolean) {
 		switch (name) {
 			case 'loader':
 				if (typeof value === 'string') {
