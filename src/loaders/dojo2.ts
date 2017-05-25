@@ -14,18 +14,17 @@ intern.registerLoader(config => {
 		const loader = globalObj.require;
 		intern.log('Using loader', loader);
 
-		const dfd = intern.createDeferred<void>();
-		loader.on('error', (error: Error) => {
-			intern.emit('error', error);
-			dfd.reject();
+		return new Promise<void>((resolve, reject) => {
+			loader.on('error', (error: Error) => {
+				intern.emit('error', error);
+				reject(error);
+			});
+
+			intern.log('Configuring loader with:', loaderConfig);
+			loader.config(loaderConfig);
+
+			intern.log('Loading suites:', config.suites);
+			loader(config.suites, () => { resolve(); });
 		});
-
-		intern.log('Configuring loader with:', loaderConfig);
-		loader.config(loaderConfig);
-
-		intern.log('Loading suites:', config.suites);
-		loader(config.suites, () => { dfd.resolve(); });
-
-		return dfd.promise;
 	});
 });

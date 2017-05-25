@@ -20,14 +20,13 @@ intern.registerLoader(config => {
 		const loader = globalObj.require;
 		intern.log('Using loader', loader);
 
-		const dfd = intern.createDeferred<void>();
-		loader.on('error', (error: Error) => {
-			dfd.reject(new Error(`Dojo loader error: ${error.message}`));
+		return new Promise<void>((resolve, reject) => {
+			loader.on('error', (error: Error) => {
+				reject(new Error(`Dojo loader error: ${error.message}`));
+			});
+
+			intern.log('Loading suites:', config.suites);
+			loader(config.suites, () => { resolve(); });
 		});
-
-		intern.log('Loading suites:', config.suites);
-		loader(config.suites, () => { dfd.resolve(); });
-
-		return dfd.promise;
 	});
 });

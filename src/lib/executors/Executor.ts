@@ -13,7 +13,6 @@ import getBenchmarkInterface, { BenchmarkInterface } from '../interfaces/benchma
 import Promise from '@dojo/shim/Promise';
 import * as chai from 'chai';
 import global from '@dojo/core/global';
-import Deferred from '../Deferred';
 
 /**
  * This is the default executor class.
@@ -150,13 +149,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			}
 			this._processOption(key, value, addToExisting);
 		});
-	}
-
-	/**
-	 * Create a Deferred object that can be used in enviroments without native Promises
-	 */
-	createDeferred<T>() {
-		return new Deferred<T>();
 	}
 
 	/**
