@@ -5,7 +5,7 @@ import { parse } from 'url';
 import Task from '@dojo/core/async/Task';
 import { InternError } from './types';
 import Node, { Config, Events } from './executors/Node';
-import { Config as RemoteConfig } from './executors/Remote';
+import { Config as BrowserConfig } from './executors/Browser';
 import { toJSON } from './common/util';
 import Deferred from './Deferred';
 
@@ -188,7 +188,8 @@ export default class RemoteSuite extends Suite {
 					basePath: serverUrlPath,
 					internPath: `${serverUrlPath}${config.internPath}`,
 					name: this.id,
-					sessionId: sessionId
+					sessionId: sessionId,
+					reporters: [ { name: 'dom' } ]
 				};
 
 				const excludeKeys: { [key: string]: boolean } = {
@@ -232,4 +233,10 @@ export default class RemoteSuite extends Suite {
 
 export interface RemoteEvents extends Events {
 	remoteStatus: string;
+}
+
+export interface RemoteConfig extends BrowserConfig {
+	runInSync?: boolean;
+	sessionId: string;
+	socketPort?: number;
 }

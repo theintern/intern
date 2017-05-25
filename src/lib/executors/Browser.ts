@@ -5,15 +5,15 @@ import ErrorFormatter from '../browser/ErrorFormatter';
 import Task from '@dojo/core/async/Task';
 
 /**
- * The Browser executor is used to run unit tests in a browser.
+ * A BrowserExecutor is used to run unit tests in a browser.
  */
-export default class Browser<E extends Events = Events, C extends Config = Config> extends Executor<E, C> {
-	static initialize(config?: Config) {
+export default class Browser extends Executor<Events, Config> {
+	static initialize(config?: Partial<Config>) {
 		return initialize<Events, Config, Browser>(Browser, config);
 	}
 
-	constructor(config?: Partial<C>) {
-		super(<C>{
+	constructor(config?: Partial<Config>) {
+		super(<Config>{
 			basePath: '/',
 			browserPlugins: <PluginDescriptor[]>[],
 			browserSuites: <string[]>[]

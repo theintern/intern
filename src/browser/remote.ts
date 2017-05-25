@@ -1,12 +1,14 @@
-import Remote from '../lib/executors/Remote';
+import Browser from '../lib/executors/Browser';
+import { RemoteConfig } from '../lib/RemoteSuite';
 import { parseQuery } from '../lib/browser/util';
 import { parseArgs } from '../lib/common/util';
 import Channel from '../lib/Channel';
+import Dom from '../lib/reporters/Dom';
 
 // In this context, the executor will be a Remote
-declare const intern: Remote;
+declare const intern: Browser;
 
-const config = parseArgs(parseQuery());
+const config = <RemoteConfig>parseArgs(parseQuery());
 const channel = new Channel({
 	url: config.basePath,
 	sessionId: config.sessionId,
@@ -21,7 +23,9 @@ function displayMessage(message: string) {
 }
 
 try {
-	Remote.initialize(config);
+	Browser.initialize(config);
+
+	intern.registerReporter('dom', Dom);
 
 	// Forward all executor events back to the Intern host
 	intern.on('*', ({ name, data }) => {
@@ -32,7 +36,7 @@ try {
 
 		// If config.runInSync is true, return the message promise so that Intern will wait for acknowledgement before
 		// continuing testing
-		if (intern.config.runInSync) {
+		if (config.runInSync) {
 			return promise;
 		}
 	});
