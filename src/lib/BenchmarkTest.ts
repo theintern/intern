@@ -80,7 +80,7 @@ export default class BenchmarkTest extends Test {
 	}
 
 	run(): Task<void> {
-		this.hasPassed = false;
+		this._hasPassed = false;
 		this._usesRemote = false;
 
 		const benchmark = this.benchmark;
@@ -117,7 +117,7 @@ export default class BenchmarkTest extends Test {
 		})
 		.then(
 			() => {
-				this.hasPassed = true;
+				this._hasPassed = true;
 			},
 			error => {
 				this.error = error;

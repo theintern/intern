@@ -8,8 +8,6 @@ import Suite from './Suite';
 import { mixin } from '@dojo/core/lang';
 
 export default class Test implements TestProperties {
-	hasPassed = false;
-
 	name: string;
 
 	parent: Suite;
@@ -18,15 +16,17 @@ export default class Test implements TestProperties {
 
 	test: TestFunction;
 
-	isAsync: boolean;
 
-	timeElapsed: number;
+	protected _hasPassed = false;
 
 	error: InternError | undefined;
+	protected _isAsync = false;
 
 	protected _timeout: number;
 
 	protected _runTask: Task<any> | null;
+
+	protected _timeElapsed: number;
 
 	protected _timer: NodeJS.Timer | null;
 
@@ -44,6 +44,13 @@ export default class Test implements TestProperties {
 	}
 
 	/**
+	 * True if the test function completed successfully
+	 */
+	get hasPassed() {
+		return this._hasPassed;
+	}
+
+	/**
 	 * The unique identifier of the test, assuming all combinations of suite + test are unique.
 	 */
 	get id() {
@@ -55,6 +62,13 @@ export default class Test implements TestProperties {
 		} while ((suiteOrTest = suiteOrTest.parent));
 
 		return name.join(' - ');
+	}
+
+	/**
+	 * If true, this Test's test function is async
+	 */
+	get isAsync() {
+		return this._isAsync;
 	}
 
 	/**
@@ -75,6 +89,13 @@ export default class Test implements TestProperties {
 
 	get sessionId() {
 		return this.parent.sessionId;
+	}
+
+	/**
+	 * Return the number of milliseconds required for the test function to complete
+	 */
+	get timeElapsed() {
+		return this._timeElapsed;
 	}
 
 	get timeout() {
@@ -101,7 +122,7 @@ export default class Test implements TestProperties {
 	 * @param numCallsUntilResolution The number of times that resolve needs to be called before the Deferred is actually resolved.
 	 */
 	async(timeout?: number, numCallsUntilResolution?: number): Deferred<any> {
-		this.isAsync = true;
+		this._isAsync = true;
 
 		if (timeout != null) {
 			this.timeout = timeout;
@@ -168,11 +189,11 @@ export default class Test implements TestProperties {
 		// TODO: Test
 		this.async = Object.getPrototypeOf(this).async;
 		this._usesRemote = false;
-		this.hasPassed = false;
-		this.isAsync = false;
+		this._hasPassed = false;
+		this._isAsync = false;
+		this._timeElapsed = 0;
 		this.error = undefined;
 		this.skipped = undefined;
-		this.timeElapsed = 0;
 
 		return this.executor.emit('testStart', this)
 			.then(() => {
@@ -198,7 +219,7 @@ export default class Test implements TestProperties {
 				if (isThenable(result)) {
 					// If a user did not call `this.async` but returned a promise we still want to mark this
 					// test as asynchronous for informational purposes
-					this.isAsync = true;
+					this._isAsync = true;
 
 					// The `result` promise is wrapped in order to allow timeouts to work when a user returns a
 					// Promise from somewhere else that does not support cancellation
@@ -229,7 +250,7 @@ export default class Test implements TestProperties {
 				}
 			})
 			.finally(() => {
-				this.timeElapsed = Date.now() - startTime;
+				this._timeElapsed = Date.now() - startTime;
 				if (this._timer) {
 					clearTimeout(this._timer);
 					this._timer = null;
@@ -243,7 +264,7 @@ export default class Test implements TestProperties {
 						throw new Error('Remote used in synchronous test! Tests using this.remote must ' +
 							'return a promise or resolve a this.async deferred.');
 					}
-					this.hasPassed = true;
+					this._hasPassed = true;
 				},
 				// There was an error running the test; could be a skip, could be an assertion failure
 				error => {
