@@ -11,7 +11,7 @@ export interface TextLoader {
  * Load config data from a given path, using a given text loader, and mixing args and/or a childConfig into the final
  * config value if provided.
  */
-export function loadConfig(configPath: string, loadText: TextLoader, args?: { [key: string]: any }, childConfig?: string): Task<any> {
+export function loadConfig(configPath: string, loadText: TextLoader, args?: { [key: string]: any }, childConfig?: string | string[]): Task<any> {
 	return loadText(configPath).then(text => {
 		const config = parseJson(text);
 		// extends paths are assumed to be relative and use '/'
@@ -23,18 +23,21 @@ export function loadConfig(configPath: string, loadText: TextLoader, args?: { [k
 		return config;
 	}).then(config => {
 		if (childConfig) {
-			const mixinChild = (childConfig: any) => {
-				const child = config.configs[childConfig];
-				if (!child) {
-					throw new Error(`Unknown child config "${childConfig}"`);
-				}
-				if (child.extends) {
-					mixinChild(child.extends);
-				}
-				mixin(config, child);
+			const mixinConfig = (childConfig: string | string[]) => {
+				const configs = Array.isArray(childConfig) ? childConfig : [ childConfig ];
+				configs.forEach(childConfig => {
+					const child = config.configs[childConfig];
+					if (!child) {
+						throw new Error(`Unknown child config "${childConfig}"`);
+					}
+					if (child.extends) {
+						mixinConfig(child.extends);
+					}
+					mixin(config, child);
+				});
 			};
 
-			mixinChild(childConfig);
+			mixinConfig(childConfig);
 		}
 		return config;
 	}).then(config => {
