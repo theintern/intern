@@ -92,6 +92,11 @@ registerSuite(function () {
 		},
 
 		'#getSessions'(this: Test) {
+			const remoteCapabilities = <Capabilities> this.remote.session.capabilities;
+			if (remoteCapabilities.brokenSessionList) {
+				this.skip('Server wil not provide session lists');
+			}
+
 			const currentSessionId = this.remote.session ? this.remote.session.sessionId : (<any> this.remote).sessionId;
 			return server.getSessions().then(function (result: any[]) {
 				assert.isArray(result);

@@ -35,6 +35,7 @@ export interface Capabilities {
 	brokenParentFrameSwitch?: boolean;
 	brokenRefresh?: boolean;
 	brokenSendKeys?: boolean;
+	brokenSessionList?: boolean;
 	brokenSubmitElement?: boolean;
 	brokenTouchScroll?: boolean;
 	brokenWhitespaceNormalization?: boolean;

@@ -654,6 +654,9 @@ export default class Server {
 				});
 			}
 
+			// Sauce Labs will not return a list of sessions at least as of May 2017
+			testedCapabilities.brokenSessionList = this.getSessions().then(works, broken);
+
 			if (capabilities.returnsFromClickImmediately == null) {
 				testedCapabilities.returnsFromClickImmediately = function () {
 					function assertSelected(expected: any) {
