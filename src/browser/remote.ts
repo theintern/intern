@@ -30,7 +30,7 @@ try {
 	// Forward all executor events back to the Intern host
 	intern.on('*', ({ name, data }) => {
 		let promise = channel.sendMessage(name, data).catch(error => {
-			displayMessage('Error: ' + error.message);
+			displayMessage(`Error sending ${name}: ${error.message}`);
 			console.error(error);
 		});
 
