@@ -348,7 +348,7 @@ registerSuite('lib/Server', function () {
 							handler(error);
 
 							assert.lengthOf(executor.events, 1, 'unexpected number of executor events were emitted');
-							assert.deepEqual(executor.events[0], { event: 'error', data: error }, 'unexpected event');
+							assert.deepEqual(executor.events[0], { name: 'error', data: error }, 'unexpected event');
 						});
 					},
 
@@ -365,7 +365,7 @@ registerSuite('lib/Server', function () {
 							socket.handlers.error[0](error);
 
 							assert.lengthOf(executor.events, 1, 'unexpected number of executor events were emitted');
-							assert.deepEqual(executor.events[0], { event: 'error', data: error }, 'unexpected event');
+							assert.deepEqual(executor.events[0], { name: 'error', data: error }, 'unexpected event');
 						});
 					}
 				},
@@ -452,7 +452,7 @@ registerSuite('lib/Server', function () {
 								responder(request, response);
 
 								assert.lengthOf(executor.events, 1, 'unexpected number of executor events were emitted');
-								assert.deepEqual(executor.events[0], { event: 'log', data: error }, 'unexpected event');
+								assert.deepEqual(executor.events[0], { name: 'error', data: error }, 'unexpected event');
 							});
 						}
 					},

@@ -234,7 +234,7 @@ export default class Server implements ServerProperties {
 				});
 				response.end(data, (error?: Error) => {
 					if (error) {
-						this.executor.log('Error serving', wholePath, ':', error);
+						this.executor.emit('error', new Error(`Error serving ${wholePath}: ${error.message}`));
 					}
 					else {
 						this.executor.log('Served', wholePath);
