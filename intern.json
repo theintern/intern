@@ -1,6 +1,15 @@
 {
 	"suites": [
-		"_tests/tests/unit/**/!(Benchmark*).js"
+		"_tests/tests/unit/lib/Environment.js",
+		"_tests/tests/unit/lib/Suite.js",
+		"_tests/tests/unit/lib/Test.js"
+	],
+	"nodeSuites": [
+		"_tests/tests/unit/lib/RemoteSuite.js",
+		"_tests/tests/unit/lib/resolveEnvironments.js"
+	],
+	"browserSuites": [
+		"_tests/tests/unit/lib/Channel.js"
 	],
 	"benchmark": false,
 	"functionalSuites": "_tests/tests/functional/**/*.js",
@@ -36,19 +45,19 @@
 		"_tests/tests/browserMocking.js"
 	],
 	"excludeInstrumentation": "(?:node_modules|_tests)",
-	"maxConcurrency": 2,
-	"capabilities": {
-		"idle-timeout": 60,
-		"fixSessionCapabilities": "no-detect"
-	},
 
 	"configs": {
+		/* Include benchmark suites */
+		"allSuites": {
+			"suites+": [
+				"_tests/tests/benchmark/example.js",
+				"_tests/tests/unit/lib/BenchmarkTest.js"
+			]
+		},
 		/* For running all unit tests in Node (including benchmarks) */
 		"coverage": {
 			"benchmark": true,
-			"suites": [
-				"_tests/tests/unit/**/*.js"
-			],
+			"extends": "allSuites",
 			"reporters+": [
 				{
 					"name": "htmlcoverage",
@@ -61,32 +70,17 @@
 			"tunnel": "selenium",
 			"environments": "chrome"
 		},
-		/* For trying out the browser runner, which can't handle globs */
-		"browser": {
-			"suites": [
-				"_tests/tests/unit/lib/Environment.js",
-				"_tests/tests/unit/lib/BenchmarkTest.js"
-			]
-		},
 		/* For running tests on Travis */
 		"ci": {
+			"extends": "allSuites",
 			"tunnel": "browserstack",
-			"suites": [
-				"_tests/tests/benchmark/example.js",
-				"_tests/tests/unit/lib/BenchmarkTest.js",
-				"_tests/tests/unit/lib/Environment.js",
-				"_tests/tests/unit/lib/Suite.js",
-				"_tests/tests/unit/lib/Test.js"
-			],
-			"nodeSuites": [
-				"_tests/tests/unit/lib/RemoteSuite.js",
-				"_tests/tests/unit/lib/resolveEnvironments.js"
-			],
-			"browserSuites": [
-				"_tests/tests/unit/lib/Channel.js"
-			],
+			"maxConcurrency": 2,
+			"capabilities": {
+				"idle-timeout": 60,
+				"fixSessionCapabilities": "no-detect"
+			},
 			"environments": [
-				{ "browser": "internet explorer", "version": [ "10", "11" ] },
+				{ "browser": "internet explorer", "version": [ "10", "11" ] }
 				{ "browser": "firefox", "version": [ "33", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
 				{ "browser": "chrome", "version": [ "38", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
 				{ "browser": "safari", "version": [ "9", "10" ] }
