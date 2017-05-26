@@ -108,7 +108,7 @@ export default class Node extends Executor<Events, Config> {
 	}
 
 	get environment() {
-		return 'node';
+		return 'node' as 'node';
 	}
 
 	get instrumentedMapStore() {

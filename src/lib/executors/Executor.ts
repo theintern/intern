@@ -84,7 +84,10 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		});
 	}
 
-	abstract get environment(): string;
+	/**
+	 * Get the current enviroment
+	 */
+	abstract get environment(): 'browser' | 'node';
 
 	/**
 	 * The resolved configuration for this executor.

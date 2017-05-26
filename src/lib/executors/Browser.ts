@@ -40,7 +40,7 @@ export default class Browser extends Executor<Events, Config> {
 	}
 
 	get environment() {
-		return 'browser';
+		return 'browser' as 'browser';
 	}
 
 	/**
