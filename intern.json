@@ -15,24 +15,19 @@
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 	"reporters": [ { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } } ],
 	"browserLoader": {
-		"script": "systemjs",
+		"script": "dojo2",
 		"config": {
-			"baseURL": "/node_modules",
-			"paths": {
-				"src": "/_build/src",
-				"_tests": "/_tests"
+			"map": {
+				"*": {
+					"@dojo": "node_modules/@dojo"
+				}
 			},
-			"packageConfigPaths": [
-				"/node_modules/*/package.json",
-				"/node_modules/@dojo/*/package.json"
-			],
-			"packages": {
-				"src": { "defaultExtension": "js" },
-				/* Force benchmark to be handled as CJS instead of AMD */
-				"benchmark": { "format": "cjs" },
-				/* Some tests are incorrectly detected as 'global' */
-				"_tests": { "format": "cjs" }
-			}
+			"packages": [
+				{ "name": "src", "location": "_build/src" },
+				{ "name": "benchmark", "location": "node_modules/benchmark", "main": "benchmark.js" },
+				{ "name": "lodash", "location": "node_modules/lodash", "main": "lodash.js" },
+				{ "name": "platform", "location": "node_modules/platform", "main": "platform.js" }
+			]
 		}
 	},
 	"internPath": "_tests/src",
@@ -68,7 +63,7 @@
 		/* For running local selenium tests */
 		"wd": {
 			"tunnel": "selenium",
-			"environments": "chrome"
+			"environments": { "browserName": "chrome", "fixSessionCapabilities": "no-detect" }
 		},
 		/* For running tests on Travis */
 		"ci": {
@@ -80,7 +75,7 @@
 				"fixSessionCapabilities": "no-detect"
 			},
 			"environments": [
-				{ "browser": "internet explorer", "version": [ "10", "11" ] }
+				{ "browser": "internet explorer", "version": [ "10", "11" ] },
 				{ "browser": "firefox", "version": [ "33", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
 				{ "browser": "chrome", "version": [ "38", "latest" ], "platform": [ "WINDOWS", "MAC" ] },
 				{ "browser": "safari", "version": [ "9", "10" ] }

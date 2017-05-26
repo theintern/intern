@@ -7,7 +7,7 @@ intern.registerLoader(config => {
 	const loaderConfig: any = config.loader.config || {};
 	loaderConfig.baseUrl = loaderConfig.baseUrl || config.basePath;
 
-	return intern.loadScript('node_modules/dojo-loader/loader.js').then(() => {
+	return intern.loadScript('node_modules/@dojo/loader/loader.js').then(() => {
 		intern.log('Loaded dojo loader');
 
 		const globalObj: any = typeof window !== 'undefined' ? window : global;

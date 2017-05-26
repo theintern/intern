@@ -11,7 +11,7 @@
       "es2015.iterable",
       "dom"
     ],
-    "module": "commonjs",
+    "module": "umd",
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
