@@ -6,6 +6,10 @@ import Html from '../lib/reporters/Html';
 import Console from '../lib/reporters/Console';
 import { getConfig } from '../lib/browser/util';
 
+// A Benchmark global needs to be defined for benchmark.js to work properly when loaded as part of the Intern browser
+// bundle since neither Node's require nor an AMD define will be present.
+(<any>window).Benchmark = {};
+
 getConfig().then(config => {
 	if (!config.reporters) {
 		config.reporters = ['html', 'console'];

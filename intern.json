@@ -32,13 +32,8 @@
 	},
 	"internPath": "_tests/src",
 	"filterErrorStack": true,
-	"nodePlugins": [
-		"_tests/tests/nodeMocking.js"
-	],
-	"browserPlugins": [
-		"_tests/tests/pre.js",
-		"_tests/tests/browserMocking.js"
-	],
+	"nodePlugins": "_tests/tests/nodeMocking.js",
+	"browserPlugins": "_tests/tests/browserMocking.js",
 	"excludeInstrumentation": "(?:node_modules|_tests)",
 
 	"configs": {
@@ -52,13 +47,11 @@
 		/* For running all unit tests in Node (including benchmarks) */
 		"coverage": {
 			"benchmark": true,
-			"extends": "allSuites",
-			"reporters+": [
-				{
-					"name": "htmlcoverage",
-					"options": { "sources": "_build/src/lib/**/*.js" }
-				}
-			]
+			"extends": [ "allSuites", "wd" ],
+			"reporters+": {
+				"name": "htmlcoverage",
+				"options": { "sources": "_build/src/lib/**/*.js" }
+			}
 		},
 		/* For running local selenium tests */
 		"wd": {
