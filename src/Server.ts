@@ -403,24 +403,43 @@ export default class Server {
 				brokenCssTransformedSize: true,
 				fixedLogTypes: false as false,
 				brokenHtmlTagName: false,
-				brokenNullGetSpecAttribute: false,
-
-				// SafariDriver-specific
-				brokenActiveElement: true,
-				brokenNavigation: true,
-				brokenMouseEvents: true,
-				brokenWindowPosition: true,
-				brokenSendKeys: true,
-				brokenExecuteForNonHttpUrl: true,
-				brokenOptionSelect: false,
-
-				// SafariDriver 2.41.0 cannot delete cookies, at all, ever
-				brokenCookies: true
+				brokenNullGetSpecAttribute: false
 			});
 
-			// SafariDriver doesn't support file uploads
-			if (isSafari(capabilities, 0, 10) && isMac(capabilities)) {
-				updates.remoteFiles = false;
+			// SafariDriver, which shows versions up to 10.x, doesn't support file uploads
+			if (isValidVersion(capabilities, 0, 100)) {
+				mixin(updates, {
+					remoteFiles: false,
+
+					brokenActiveElement: true,
+					brokenExecuteForNonHttpUrl: true,
+					brokenMouseEvents: true,
+					brokenNavigation: true,
+					brokenOptionSelect: false,
+					brokenSendKeys: true,
+					brokenWindowPosition: true,
+					brokenWindowSize: true,
+
+					// SafariDriver 2.41.0 cannot delete cookies, at all, ever
+					brokenCookies: true
+				});
+
+				if (isValidVersion(capabilities, 10, 11)) {
+					mixin(updates, {
+						// Safari 10 using SafariDriver does not appear to support executeAsync at least as of May 2017
+						supportsExecuteAsync: false
+					});
+				}
+			}
+
+			// The native safaridriver reports versions like '12603.1.30.0.34'
+			if (isValidVersion(capabilities, 1000, Infinity)) {
+				mixin(updates, {
+					brokenLinkTextLocator: true,
+					brokenOptionSelect: true,
+					brokenWhitespaceNormalization: true,
+					fixedLogTypes: []
+				});
 			}
 
 			return updates;
