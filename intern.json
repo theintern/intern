@@ -11,10 +11,19 @@
 	"browserSuites": [
 		"_tests/tests/unit/lib/Channel.js"
 	],
-	"benchmark": false,
 	"functionalSuites": "_tests/tests/functional/**/*.js",
-	"reporters": [ { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } } ],
+
+	"browserPlugins": "_tests/tests/browserMocking.js",
+	"nodePlugins": "_tests/tests/nodeMocking.js",
+
+	"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } },
+
+	"benchmark": false,
 	"coverageSources": "_build/src/lib/**/*.js",
+	"excludeInstrumentation": "(?:node_modules|_tests)",
+	"filterErrorStack": true,
+	"internPath": "_tests/src",
+
 	"browserLoader": {
 		"script": "dojo2",
 		"config": {
@@ -31,11 +40,6 @@
 			]
 		}
 	},
-	"internPath": "_tests/src",
-	"filterErrorStack": true,
-	"nodePlugins": "_tests/tests/nodeMocking.js",
-	"browserPlugins": "_tests/tests/browserMocking.js",
-	"excludeInstrumentation": "(?:node_modules|_tests)",
 
 	"configs": {
 		/* Include benchmark suites */
