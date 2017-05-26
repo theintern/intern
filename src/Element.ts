@@ -73,8 +73,8 @@ export default class Element extends Locator<Task<Element>, Task<Element[]>, Tas
 	private _normalizeWhitespace(text: string): string {
 		if (text) {
 			text = text
-				.replace(/^\s+/, '')
-				.replace(/\s+$/, '')
+				.replace(/^\s+/mg, '')
+				.replace(/\s+$/mg, '')
 				.replace(/\s*\r\n\s*/g, '\n')
 				.replace(/ +/g, ' ');
 		}
