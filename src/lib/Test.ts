@@ -41,6 +41,12 @@ export default class Test implements TestProperties {
 		if (!options.name || !options.test) {
 			throw new Error('A Test requires a name and a test function');
 		}
+
+		if (options.hasPassed != null) {
+			this._hasPassed = options.hasPassed;
+		}
+		delete options.hasPassed;
+
 		mixin(this, options);
 	}
 
