@@ -19,6 +19,8 @@
 	"./nodeMocking.ts",
 	"./selftest.ts",
 	"./benchmark/example.ts",
+	"./support/unit/factories.ts",
+	"./support/unit/mocks.ts",
 	"./unit/lib/Channel.ts",
 	"./unit/lib/Environment.ts",
 	"./unit/lib/BenchmarkTest.ts",

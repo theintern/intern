@@ -1,6 +1,7 @@
 import _Server from 'src/lib/Server';
-import { createExecutor } from '../../support/unit/util';
+import { mockNodeExecutor } from '../../support/unit/mocks';
 import { basename, join, normalize } from 'path';
+import { mixin } from '@dojo/core/lang';
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
@@ -48,9 +49,12 @@ class MockResponse extends EventHandler {
 	headers?: object;
 	statusCode: number;
 
-	constructor() {
+	constructor(options?: MockResponseOptions) {
 		super();
 		this.data = '';
+		if (options) {
+			mixin(this, options);
+		}
 	}
 
 	end(data: string | undefined, callback: (error?: Error) => {}) {
@@ -72,6 +76,10 @@ class MockResponse extends EventHandler {
 		this.headers = head;
 	}
 }
+
+type MockResponseOptions = {
+	[P in keyof MockResponse]?: MockResponse[P]
+};
 
 class MockSocket extends EventHandler {
 	destroyed: boolean;
@@ -263,7 +271,7 @@ registerSuite('lib/Server', function () {
 			'#start': {
 				init() {
 					const server = new Server({
-						executor: createExecutor(),
+						executor: mockNodeExecutor(),
 						port: 12345
 					});
 					return server.start().then(() => {
@@ -282,7 +290,7 @@ registerSuite('lib/Server', function () {
 
 				'http connection': {
 					'close with live sockets'() {
-						const server = new Server({ executor: createExecutor() });
+						const server = new Server({ executor: mockNodeExecutor() });
 						return server.start().then(() => {
 							const httpServer = httpServers[0];
 							const handler = httpServer.handlers['connection'][0];
@@ -297,7 +305,7 @@ registerSuite('lib/Server', function () {
 					},
 
 					'close sockets'() {
-						const server = new Server({ executor: createExecutor() });
+						const server = new Server({ executor: mockNodeExecutor() });
 						return server.start().then(() => {
 							const httpServer = httpServers[0];
 							const handler = httpServer.handlers.connection[0];
@@ -318,7 +326,7 @@ registerSuite('lib/Server', function () {
 
 				'websocket connection': {
 					connect() {
-						const server = new Server({ executor: createExecutor() });
+						const server = new Server({ executor: mockNodeExecutor() });
 						return server.start().then(() => {
 							const wsServer = webSocketServers[0];
 							const handler = wsServer.handlers.connection[0];
@@ -331,7 +339,7 @@ registerSuite('lib/Server', function () {
 					},
 
 					error() {
-						const executor = createExecutor();
+						const executor = mockNodeExecutor();
 						const server = new Server({ executor });
 						return server.start().then(() => {
 							const wsServer = webSocketServers[0];
@@ -345,7 +353,7 @@ registerSuite('lib/Server', function () {
 					},
 
 					'socket error'() {
-						const executor = createExecutor();
+						const executor = mockNodeExecutor();
 						const server = new Server({ executor });
 						return server.start().then(() => {
 							const wsServer = webSocketServers[0];
@@ -364,7 +372,7 @@ registerSuite('lib/Server', function () {
 
 				'http request handling': {
 					'missing file'() {
-						const server = new Server({ executor: createExecutor() });
+						const server = new Server({ executor: mockNodeExecutor() });
 						return server.start().then(() => {
 							const responder = httpServers[0].responder;
 							const request = new MockRequest('GET', '/foo/thing.js');
@@ -379,7 +387,7 @@ registerSuite('lib/Server', function () {
 					'non-instrumented file'() {
 						const server = new Server({
 							basePath: '/base',
-							executor: createExecutor({
+							executor: mockNodeExecutor({
 								shouldInstrumentFile() {
 									return false;
 								}
@@ -399,39 +407,58 @@ registerSuite('lib/Server', function () {
 						});
 					},
 
-					'instrumented file'() {
-						const server = new Server({
-							basePath: '/base',
-							executor: createExecutor({
-								shouldInstrumentFile() {
-									return true;
-								},
-								instrumentCode(code: string, _filename: string) {
-									return code;
-								}
-							})
-						});
-						return server.start().then(() => {
-							const responder = httpServers[0].responder;
-							const request = new MockRequest('GET', '/foo/thing.js');
-							const response = new MockResponse();
+					'instrumented file': {
+						successful() {
+							const server = new Server({
+								basePath: '/base',
+								executor: mockNodeExecutor({
+									shouldInstrumentFile: () => true,
+									instrumentCode: (code: string, _filename: string) => code
+								})
+							});
+							return server.start().then(() => {
+								const responder = httpServers[0].responder;
+								const request = new MockRequest('GET', '/foo/thing.js');
+								const response = new MockResponse();
 
-							// A regular file should be read from basePath
-							fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
+								// A regular file should be read from basePath
+								fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
 
-							responder(request, response);
-							assert.equal(response.data, 'what a fun time');
-							assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
-						});
+								responder(request, response);
+								assert.equal(response.data, 'what a fun time');
+								assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
+							});
+						},
+
+						'error sending'() {
+							const executor = mockNodeExecutor({
+								shouldInstrumentFile: () => true,
+								instrumentCode: (code: string, _filename: string) => code
+							});
+							const server = new Server({ basePath: '/base', executor });
+							return server.start().then(() => {
+								const responder = httpServers[0].responder;
+								const request = new MockRequest('GET', '/foo/thing.js');
+								const error = new Error('failed');
+								const response = new MockResponse({
+									end(_data: string | undefined, callback: (error?: Error) => void) {
+										callback(error);
+									}
+								});
+
+								// An intern resource should be read from internPath
+								fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
+
+								responder(request, response);
+
+								assert.lengthOf(executor.events, 1, 'unexpected number of executor events were emitted');
+								assert.deepEqual(executor.events[0], { event: 'log', data: error }, 'unexpected event');
+							});
+						}
 					},
 
 					'intern resource'() {
-						const executor = createExecutor({
-							config: {
-								internPath: '/modules/intern/'
-							}
-						});
-						const server = new Server({ executor });
+						const server = new Server({ executor: mockNodeExecutor({ config: <any>{ internPath: '/modules/intern/' } }) });
 						return server.start().then(() => {
 							const responder = httpServers[0].responder;
 							const request = new MockRequest('GET', '/__intern/bar/thing.js');
@@ -449,7 +476,7 @@ registerSuite('lib/Server', function () {
 					'index URL'() {
 						const server = new Server({
 							basePath: '/base',
-							executor: createExecutor({
+							executor: mockNodeExecutor({
 								shouldInstrumentFile() {
 									return false;
 								}
@@ -470,12 +497,12 @@ registerSuite('lib/Server', function () {
 					},
 
 					'server closes while responding'() {
-						const server = new Server({ executor: createExecutor() });
+						const server = new Server({ executor: mockNodeExecutor() });
 						return server.start().then(() => {
 							const responder = httpServers[0].responder;
 							const request = new MockRequest('GET', '/foo');
 							const response = new MockResponse();
-							server.server = null;
+							server['_httpServer'] = null;
 
 							responder(request, response);
 							assert.equal(response.data, '');
@@ -486,7 +513,7 @@ registerSuite('lib/Server', function () {
 					'HEAD request'() {
 						const server = new Server({
 							basePath: '/base',
-							executor: createExecutor({
+							executor: mockNodeExecutor({
 								shouldInstrumentFile() {
 									return false;
 								}
@@ -508,8 +535,8 @@ registerSuite('lib/Server', function () {
 
 					'POST single message'() {
 						const dfd = this.async();
-						const server = new Server({ executor: createExecutor() });
-						server.start().then(() => {
+						const server = new Server({ executor: mockNodeExecutor() });
+						server.start().then(dfd.rejectOnError(() => {
 							const responder = httpServers[0].responder;
 							const request = new MockRequest('POST');
 							const response = new MockResponse();
@@ -530,13 +557,13 @@ registerSuite('lib/Server', function () {
 								assert.equal(response.data, '', 'expected POST response to be empty');
 								assert.strictEqual(response.statusCode, 204, 'expected success status for good message');
 							}));
-						});
+						}));
 					},
 
 					'POST array of messages'() {
 						const dfd = this.async();
-						const server = new Server({ executor: createExecutor() });
-						server.start().then(() => {
+						const server = new Server({ executor: mockNodeExecutor() });
+						server.start().then(dfd.rejectOnError(() => {
 							const responder = httpServers[0].responder;
 							const request = new MockRequest('POST');
 							const response = new MockResponse();
@@ -558,15 +585,36 @@ registerSuite('lib/Server', function () {
 								assert.equal(response.data, '', 'expected POST response to be empty');
 								assert.strictEqual(response.statusCode, 204, 'expected success status for good messages');
 							}));
-						});
+						}));
 					},
 
 					'POST bad message'() {
 						const dfd = this.async();
-						const server = new Server({ executor: createExecutor() });
-						server.start().then(() => {
+						const server = new Server({ executor: mockNodeExecutor() });
+						server.start().then(dfd.rejectOnError(() => {
+							const responder = httpServers[0].responder;
+							const request = new MockRequest('POST');
+							const response = new MockResponse();
+
+							responder(request, response);
+
+							request.handlers.data[0]('[[[');
+							request.handlers.end[0]();
+
+							// Run checks in a timeout since messages are handled in a Promise callback
+							setTimeout(dfd.callback(() => {
+								assert.equal(response.data, '', 'expected POST response to be empty');
+								assert.strictEqual(response.statusCode, 500, 'expected error status for bad message');
+							}));
+						}));
+					},
+
+					'POST message handler rejection'() {
+						const dfd = this.async();
+						const server = new Server({ executor: mockNodeExecutor() });
+						server.start().then(dfd.rejectOnError(() => {
 							const listener = (_name: string, _data: any) => {
-								throw new Error('bad message');
+								return Promise.reject(new Error('bad message'));
 							};
 							server.subscribe('foo', listener);
 
@@ -591,6 +639,20 @@ registerSuite('lib/Server', function () {
 								assert.equal(response.data, '', 'expected POST response to be empty');
 								assert.strictEqual(response.statusCode, 500, 'expected error status for bad message');
 							}));
+						}));
+					},
+
+					'bad method'() {
+						const server = new Server({ executor: mockNodeExecutor() });
+						return server.start().then(() => {
+							const responder = httpServers[0].responder;
+							const request = new MockRequest(<any>'DELETE');
+							const response = new MockResponse();
+
+							responder(request, response);
+
+							assert.equal(response.data, '', 'expected DELETE response to be empty');
+							assert.strictEqual(response.statusCode, 501, 'expected error status for bad message');
 						});
 					}
 				}
@@ -598,7 +660,7 @@ registerSuite('lib/Server', function () {
 
 			'#stop': {
 				running() {
-					const server = new Server({ executor: createExecutor() });
+					const server = new Server({ executor: mockNodeExecutor() });
 					return server.start().then(() => {
 						return server.stop().then(() => {
 							assert.isTrue(webSocketServers[0].closed, 'websocket server should have been closed');
@@ -609,7 +671,7 @@ registerSuite('lib/Server', function () {
 				},
 
 				'already stopped'() {
-					const server = new Server({ executor: createExecutor() });
+					const server = new Server({ executor: mockNodeExecutor() });
 					// Check that stop doesn't reject
 					return server.stop();
 				}
@@ -617,7 +679,7 @@ registerSuite('lib/Server', function () {
 
 			'#subscribe': {
 				'before start'() {
-					const server = new Server({ executor: createExecutor() });
+					const server = new Server({ executor: mockNodeExecutor() });
 					// Server doesn't initialize its sessions object until it's started, so subscribing before start
 					// will fail
 					assert.throws(() => {
@@ -626,7 +688,7 @@ registerSuite('lib/Server', function () {
 				},
 
 				'publish message'() {
-					const server = new Server({ executor: createExecutor() });
+					const server = new Server({ executor: mockNodeExecutor() });
 					return server.start().then(() => {
 						const messages: { name: string, data: any }[] = [];
 						const listener = (name: string, data: any) => {

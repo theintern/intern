@@ -1,6 +1,5 @@
 import RemoteSuite from 'src/lib/RemoteSuite';
-import { createExecutor } from '../../support/unit/util';
-import Task from '@dojo/core/async/Task';
+import { mockNodeExecutor, mockRemoteAndSession, mockServer, MockNode } from '../../support/unit/mocks';
 import { ObjectSuiteDescriptor } from '../../../src/lib/interfaces/object';
 
 const { registerSuite } = intern.getInterface('object');
@@ -21,41 +20,34 @@ registerSuite('lib/RemoteSuite', {
 		'#run': (function () {
 			let remoteSuite: RemoteSuite;
 			let subscribers: Function[];
-			let events: { name: string, data: any }[];
+			let executor: MockNode;
 
 			return <ObjectSuiteDescriptor>{
 				beforeEach() {
 					subscribers = [];
-					events = [];
+
+					executor = mockNodeExecutor({
+						config: <any>{
+							connectTimeout: 3456,
+							serverUrl: 'http://foo.com/somewhere/else',
+							capabilities: { 'idle-timeout': 123 }
+						},
+
+						server: mockServer({
+							socketPort: 12345,
+
+							subscribe(_sessionId: string, handler: Function) {
+								subscribers.push(handler);
+								return {
+									destroy() {}
+								};
+							}
+						})
+					});
 
 					remoteSuite = new RemoteSuite({
-						executor: createExecutor({
-							config: {
-								connectTimeout: 3456,
-								serverUrl: 'http://foo.com/somewhere/else',
-								capabilities: { 'idle-timeout': 123 }
-							},
-
-							emit(name: string, data: any) {
-								events.push({ name, data });
-								return Task.resolve();
-							},
-
-							server: {
-								socketPort: 12345,
-
-								subscribe(_sessionId: string, handler: Function) {
-									subscribers.push(handler);
-									return {
-										destroy() {}
-									};
-								}
-							}
-						}),
-
-						parent: <any>{
-							remote: Remote.resolve()
-						}
+						executor,
+						parent: <any>{ remote: mockRemoteAndSession('foo') }
 					});
 				},
 
@@ -73,23 +65,23 @@ registerSuite('lib/RemoteSuite', {
 					},
 
 					'simple run'() {
-						const promise = remoteSuite.run();
+						const dfd = this.async();
+						remoteSuite.run().then(() => dfd.resolve(), error => dfd.reject(error));
 
 						assert.lengthOf(subscribers, 1);
 						subscribers[0]('remoteStatus', 'initialized');
 
-						setTimeout(() => {
+						setTimeout(dfd.rejectOnError(() => {
 							assert.lengthOf(subscribers, 1);
 							subscribers[0]('runEnd');
-						});
-
-						return promise;
+						}));
 					},
 
 					'root suite start and end'() {
 						const dfd = this.async(undefined, 2);
 						const promise = remoteSuite.run();
 						const handler = subscribers[0];
+						const events = executor.events;
 						handler('remoteStatus', 'initialized');
 
 						setTimeout(dfd.callback(() => {
@@ -114,6 +106,7 @@ registerSuite('lib/RemoteSuite', {
 						const dfd = this.async(undefined, 2);
 						const promise = remoteSuite.run();
 						const handler = subscribers[0];
+						const events = executor.events;
 						handler('remoteStatus', 'initialized');
 
 						setTimeout(dfd.callback(() => {
@@ -146,6 +139,7 @@ registerSuite('lib/RemoteSuite', {
 					'regular suite start and end'() {
 						const dfd = this.async(undefined, 2);
 						const promise = remoteSuite.run();
+						const events = executor.events;
 						const handler = subscribers[0];
 						handler('remoteStatus', 'initialized');
 
@@ -171,6 +165,7 @@ registerSuite('lib/RemoteSuite', {
 					'consumed events'() {
 						const dfd = this.async(undefined, 2);
 						const promise = remoteSuite.run();
+						const events = executor.events;
 						const handler = subscribers[0];
 						handler('remoteStatus', 'initialized');
 
@@ -193,13 +188,14 @@ registerSuite('lib/RemoteSuite', {
 					'general error'() {
 						const dfd = this.async(undefined, 2);
 						const promise = remoteSuite.run();
+						const events = executor.events;
 						const handler = subscribers[0];
-						const error = { message: 'foo' }
+						const error = { message: 'foo' };
 						handler('remoteStatus', 'initialized');
 
 						setTimeout(dfd.callback(() => {
 							handler('error', error);
-							assert.lengthOf(events, 0, 'beforeRun should have been consumed');
+							assert.lengthOf(events, 0, 'error event should have been consumed');
 
 							handler('runEnd');
 						}));
@@ -214,15 +210,16 @@ registerSuite('lib/RemoteSuite', {
 						});
 					},
 
-					'ignored events'() {
+					'pass through events'() {
 						const dfd = this.async(undefined, 2);
 						const promise = remoteSuite.run();
+						const events = executor.events;
 						const handler = subscribers[0];
 						handler('remoteStatus', 'initialized');
 
 						setTimeout(dfd.callback(() => {
-							handler('log', 'message');
-							assert.lengthOf(events, 1, 'event should have been emitted');
+							handler('testEnd');
+							assert.lengthOf(events, 1, 'testEnd event should have been emitted');
 							handler('runEnd');
 						}));
 
@@ -233,21 +230,3 @@ registerSuite('lib/RemoteSuite', {
 		})()
 	}
 });
-
-class Remote extends Task<any> {
-	get session() {
-		return { sessionId: 'foo' };
-	}
-
-	setHeartbeatInterval() {
-		return this.then();
-	}
-
-	get() {
-		return this.then();
-	}
-
-	execute(_callback: Function) {
-		return this.then();
-	}
-}

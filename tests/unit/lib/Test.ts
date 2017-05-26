@@ -1,7 +1,9 @@
 import Executor from 'src/lib/executors/Executor';
-import Test, { isTest, isTestFunction, isTestOptions, TestProperties } from 'src/lib/Test';
+import Test, { isTest, isTestFunction, isTestOptions, TestOptions, TestProperties } from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
-import { createExecutor, createRemote, createSuite, createTest as _createTest } from '../../support/unit/util';
+
+import { mockRemote, mockExecutor, mockSession } from '../../support/unit/mocks';
+import { createSuite } from '../../support/unit/factories';
 
 import Promise from '@dojo/shim/Promise';
 import Task from '@dojo/core/async/Task';
@@ -10,16 +12,19 @@ import { Thenable } from '@dojo/shim/interfaces';
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
 
-function createTest(name: string, options: Partial<TestProperties> & { executor?: Executor } = {}) {
+function createTest(options: Partial<TestProperties> & { executor?: Executor } = {}) {
 	if (!options.parent) {
 		options.parent = <Suite>{};
 	}
+	if (!options.test) {
+		options.test = () => {};
+	}
 	if (!options.parent.executor) {
-		const executor = options.executor || createExecutor();
+		const executor = options.executor || mockExecutor();
 		delete options.executor;
 		options.parent.executor = executor;
 	}
-	return _createTest(name, options);
+	return new Test(<TestOptions>options);
 }
 
 registerSuite('lib/Test', {
@@ -33,7 +38,8 @@ registerSuite('lib/Test', {
 		const dfd = this.async(250);
 		let executed = false;
 
-		const test = createTest('foo', {
+		const test = createTest({
+			name: 'foo',
 			test() { executed = true; }
 		});
 
@@ -45,7 +51,8 @@ registerSuite('lib/Test', {
 	'#test throws'() {
 		const dfd = this.async(250);
 		const thrownError = new Error('Oops');
-		const test = createTest('foo', {
+		const test = createTest({
+			name: 'foo',
 			test() { throw thrownError; }
 		});
 
@@ -63,7 +70,8 @@ registerSuite('lib/Test', {
 	'#async': {
 		implicit() {
 			let resolved = false;
-			const test = createTest('foo', {
+			const test = createTest({
+				name: 'foo',
 				test() {
 					const dfd = this.async();
 					setTimeout(function () {
@@ -84,7 +92,8 @@ registerSuite('lib/Test', {
 
 		explicit() {
 			let resolved = false;
-			const test = createTest('foo', {
+			const test = createTest({
+				name: 'foo',
 				test() {
 					return new Promise(resolve => {
 						setTimeout(function () {
@@ -107,7 +116,8 @@ registerSuite('lib/Test', {
 		'callback + numCallsUntilResolution'() {
 			const dfd = this.async();
 			let numCalls = 0;
-			const test = createTest('foo', {
+			const test = createTest({
+				name: 'foo',
 				test() {
 					const dfd = this.async(250, 3);
 
@@ -133,7 +143,8 @@ registerSuite('lib/Test', {
 
 		'-> timeout'() {
 			const dfd = this.async(500);
-			const test = createTest('foo', {
+			const test = createTest({
+				name: 'foo',
 				test() {
 					this.async(100);
 				}
@@ -153,7 +164,8 @@ registerSuite('lib/Test', {
 		'-> reject'() {
 			const thrownError = new Error('Oops');
 
-			const test = createTest('foo', {
+			const test = createTest({
+				name: 'foo',
 				test() {
 					const d = this.async();
 					d.reject(thrownError);
@@ -170,7 +182,8 @@ registerSuite('lib/Test', {
 		},
 
 		'excessive resolution'() {
-			const test = createTest('foo', {
+			const test = createTest({
+				name: 'foo',
 				test() {
 					const d = this.async();
 					d.resolve();
@@ -186,7 +199,8 @@ registerSuite('lib/Test', {
 	},
 
 	'#timeElapsed'() {
-		const test = createTest('foo', {
+		const test = createTest({
+			name: 'foo',
 			test() {
 				const dfd = this.async();
 				setTimeout(function () {
@@ -206,7 +220,8 @@ registerSuite('lib/Test', {
 	},
 
 	'#toJSON'() {
-		const test = createTest('test name', {
+		const test = createTest({
+			name: 'test name',
 			parent: <Suite>{
 				id: 'parent id',
 				name: 'parent id',
@@ -227,7 +242,7 @@ registerSuite('lib/Test', {
 
 		return test.run().then(() => {
 			// Elapsed time is non-deterministic, so just force it to a value we can test
-			test.timeElapsed = 100;
+			test['_timeElapsed'] = 100;
 
 			assert.deepEqual(test.toJSON(), expected,
 				'#toJSON should return expected JSON structure for test with no error');
@@ -246,8 +261,8 @@ registerSuite('lib/Test', {
 	'#hasPassed'() {
 		const dfd = this.async(undefined, 2);
 		const thrownError = new Error('Oops');
-		const goodTest = createTest('good', { test() {} });
-		const badTest = createTest('bad', { test() { throw thrownError; } });
+		const goodTest = createTest({ name: 'good', test() {} });
+		const badTest = createTest({ name: 'bad', test() { throw thrownError; } });
 
 		assert.isFalse(goodTest.hasPassed, 'Good test should not have passed if it has not been executed');
 		assert.isFalse(badTest.hasPassed, 'Bad test should not have passed if it has not been executed');
@@ -261,30 +276,33 @@ registerSuite('lib/Test', {
 	},
 
 	'#sessionId'() {
-		const test = createTest('foo', {
-			parent: createSuite('bar', { sessionId: 'parent' })
+		const test = createTest({
+			name: 'foo',
+			parent: createSuite({ name: 'bar', sessionId: 'parent' })
 		});
 		assert.strictEqual(test.sessionId, test.parent.sessionId,
 			'#sessionId should get the sessionId from the test\'s parent');
 	},
 
 	'#remote'() {
-		const mockRemote = createRemote({ sessionId: 'test' });
-		const test = createTest('foo', {
-			parent: createSuite('bar', { remote: mockRemote })
+		const remote = mockRemote({ session: mockSession({ sessionId: 'test' }) });
+		const test = createTest({
+			name: 'foo',
+			parent: createSuite({ name: 'bar', remote })
 		});
-		assert.strictEqual(test.remote, mockRemote,
+		assert.strictEqual(test.remote, remote,
 			'#remote should get the remote value from from the test\'s parent');
 	},
 
 	'#skip'() {
 		let actual: Test;
-		const expected = createTest('foo', {
+		const expected = createTest({
+			name: 'foo',
 			test() {
 				this.skip('IT’S A TRAP');
 			},
-			executor: createExecutor({
-				emit(event: string, data: any) {
+			executor: mockExecutor({
+				emit(event: string, data?: any) {
 					if (event === 'testEnd' && data.skipped) {
 						actual = data;
 					}
@@ -305,7 +323,8 @@ registerSuite('lib/Test', {
 			// Increase timeout for IE11
 			this.timeout = 5000;
 			let temp: any;
-			const test = createTest('foo', {
+			const test = createTest({
+				name: 'foo',
 				test() {
 					const remote = this.remote;
 					temp = remote;
@@ -326,7 +345,8 @@ registerSuite('lib/Test', {
 			// Increase timeout for IE11
 			this.timeout = 5000;
 			let temp: any;
-			const test = createTest('foo', {
+			const test = createTest({
+				name: 'foo',
 				test() {
 					const remote = this.remote;
 					temp = remote;
@@ -341,7 +361,8 @@ registerSuite('lib/Test', {
 			// Increase timeout for IE11
 			this.timeout = 5000;
 			let temp: any;
-			const test = createTest('foo', {
+			const test = createTest({
+				name: 'foo',
 				test: function () {
 					const dfd = this.async();
 					const remote = this.remote;
@@ -355,7 +376,8 @@ registerSuite('lib/Test', {
 	},
 
 	'#restartTimeout'() {
-		const test = createTest('foo', {
+		const test = createTest({
+			name: 'foo',
 			test() {
 				// Set a short timeout -- test will fail if restartTimeout isn't called
 				this.timeout = 100;
@@ -372,7 +394,8 @@ registerSuite('lib/Test', {
 	},
 
 	'Test timeout using Promise with no cancel'() {
-		const test = createTest('foo', {
+		const test = createTest({
+			name: 'foo',
 			test() {
 				this.timeout = 1;
 				return <Thenable<any>>{ then() {} };
@@ -391,14 +414,14 @@ registerSuite('lib/Test', {
 		isTest() {
 			assert.isFalse(isTest(null));
 			assert.isFalse(isTest({}));
-			assert.isTrue(isTest(createTest('foo')));
+			assert.isTrue(isTest(createTest({ name: 'foo' })));
 			assert.isTrue(isTest({ test() {}, hasPassed: false }));
 		},
 
 		isTestOptions() {
 			assert.isFalse(isTestOptions(null));
 			assert.isFalse(isTestOptions({}));
-			assert.isFalse(isTestOptions(createTest('foo')));
+			assert.isFalse(isTestOptions(createTest({ name: 'foo' })));
 			assert.isTrue(isTestOptions({ test() {}, name: 'foo' }));
 		},
 
