@@ -1,5 +1,6 @@
+import { args } from 'intern';
+
 export const capabilities = {
-	'selenium-version': '2.43.0',
 	'idle-timeout': 30
 };
 
@@ -12,7 +13,7 @@ export const environments = [
 ];
 
 export const maxConcurrency = 2;
-export const tunnel = 'BrowserStackTunnel';
+export let tunnel = 'BrowserStackTunnel';
 
 export const loaderOptions = {
 	packages: [
@@ -58,3 +59,32 @@ export const functionalSuites = [
 export const excludeInstrumentation = /\b(?:tests|node_modules)\//;
 
 export const filterErrorStack = true;
+
+if (args.service === 'sauce') {
+	const platforms: { [key: string]: string } = {
+		WINDOWS: 'Windows 10',
+		MAC: 'OS X 10.12'
+	};
+	environments.forEach((environment: any) => {
+		if (environment.platform) {
+			environment.platform = environment.platform.map((platform: string) => {
+				return platforms[platform] || platform;
+			});
+		}
+	});
+	tunnel = 'SauceLabsTunnel';
+}
+else if (args.service === 'testingbot') {
+	const platforms: { [key: string]: string } = {
+		WINDOWS: 'WIN10',
+		MAC: 'SIERRA'
+	};
+	environments.forEach((environment: any) => {
+		if (environment.platform) {
+			environment.platform = environment.platform.map((platform: string) => {
+				return platforms[platform] || platform;
+			});
+		}
+	});
+	tunnel = 'TestingBotTunnel';
+}
