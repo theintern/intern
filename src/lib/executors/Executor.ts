@@ -329,7 +329,20 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 				if (this.config.showConfig) {
 					this._runTask = this._runTask.then(() => {
-						console.log(JSON.stringify(this.config, null, '    '));
+						const sort = (value: any) => {
+							if (Array.isArray(value)) {
+								value = value.map(sort).sort();
+							}
+							else if (typeof value === 'object') {
+								const newObj: { [key: string]: any } = {};
+								Object.keys(value).sort().forEach(key => {
+									newObj[key] = sort(value[key]);
+								});
+								value = newObj;
+							}
+							return value;
+						};
+						console.log(JSON.stringify(sort(this.config), null, '    '));
 					});
 				}
 				else {
