@@ -468,7 +468,7 @@ export default class Server {
 			updates.handlesAlerts = true;
 		}
 
-		if (isGeckodriver(capabilities)) {
+		if (isFirefox(capabilities, 49, Infinity)) {
 			// The W3C WebDriver standard does not support the session-level /keys command, but JsonWireProtocol does.
 			updates.supportsKeysCommand = false;
 
@@ -508,7 +508,7 @@ export default class Server {
 		}
 
 		// Using mouse services such as doubleclick will hang Firefox 49+ session on the Mac.
-		if (!('mouseEnabled' in capabilities) && isMacGeckodriver(capabilities)) {
+		if (!('mouseEnabled' in capabilities) && isFirefox(capabilities, 49, Infinity) && isMac(capabilities)) {
 			updates.mouseEnabled = true;
 		}
 
@@ -762,7 +762,7 @@ export default class Server {
 			}
 
 			// Using mouse services such as doubleclick will hang Firefox 49+ session on the Mac.
-			if (capabilities.mouseEnabled == null && !isMacGeckodriver(capabilities)) {
+			if (capabilities.mouseEnabled == null && !(isFirefox(capabilities, 49, Infinity) && isMac(capabilities))) {
 				testedCapabilities.mouseEnabled = function () {
 					return session.doubleClick().then(supported, maybeSupported);
 				};
@@ -1309,7 +1309,8 @@ export default class Server {
 		}
 
 		// At least geckodriver 0.11 and Firefox 49+ may hang when getting 'about:blank' in the first request
-		const promise: Task<Session | void> = isGeckodriver(capabilities) ? Task.resolve(session) : session.get('about:blank');
+		const promise: Task<Session | void> = isFirefox(capabilities, 49, Infinity) ? Task.resolve(session) :
+			session.get('about:blank');
 
 		return promise
 			.then(discoverServerFeatures)
@@ -1364,7 +1365,7 @@ export default class Server {
 
 export type Method = 'post' | 'get' | 'delete';
 
-function isMac(capabilities: Capabilities, minOrExactVersion?: number, maxVersion?: number) {
+function isMac(capabilities: Capabilities) {
 	return capabilities.platform === 'MAC' && capabilities.platformName !== 'ios';
 }
 
@@ -1398,14 +1399,6 @@ function isFirefox(capabilities: Capabilities, minOrExactVersion?: number, maxVe
 	}
 
 	return isValidVersion(capabilities, minOrExactVersion, maxVersion);
-}
-
-function isGeckodriver(capabilities: Capabilities): boolean {
-	return isFirefox(capabilities, 49, Infinity);
-}
-
-function isMacGeckodriver(capabilities: Capabilities): boolean {
-	return isGeckodriver(capabilities) && capabilities.platform === 'MAC';
 }
 
 /**
