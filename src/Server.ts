@@ -503,7 +503,8 @@ export default class Server {
 			updates.brokenSubmitElement = true;
 		}
 
-		if (isInternetExplorer(capabilities, 10, Infinity)) {
+		if (isInternetExplorer(capabilities, 11, Infinity)) {
+			// At least IE11 will hang during this check, although option selection does work with it
 			updates.brokenOptionSelect = false;
 		}
 
@@ -568,10 +569,9 @@ export default class Server {
 	 */
 	private _detectCapabilities(session: Session): Task<void | Session> {
 		const capabilities = session.capabilities;
-
-		function supported() { return true; }
-		function unsupported() { return false; }
-		function maybeSupported(error: Error) {
+		const supported = () => true;
+		const unsupported = () => false;
+		const maybeSupported = (error: Error) => {
 			if (error.name === 'UnknownCommand') {
 				return false;
 			}
@@ -579,7 +579,7 @@ export default class Server {
 				return false;
 			}
 			return true;
-		}
+		};
 		const broken = supported;
 		const works = unsupported;
 
@@ -588,7 +588,7 @@ export default class Server {
 		 * the current session. If a tested capability value is a function, it is assumed that it still needs to
 		 * be executed serially in order to resolve the correct value of that particular capability.
 		 */
-		function addCapabilities(testedCapabilities: Capabilities): Task<void> {
+		const addCapabilities = (testedCapabilities: Capabilities): Task<void> => {
 			return Object.keys(testedCapabilities).reduce((previous: Task<any>, key: keyof Capabilities) => {
 				return previous.then(() => {
 					const value = testedCapabilities[key];
@@ -598,9 +598,9 @@ export default class Server {
 					});
 				});
 			}, Task.resolve());
-		}
+		};
 
-		function get(page: string) {
+		const get = (page: string) => {
 			if (capabilities.supportsNavigationDataUris !== false) {
 				return session.get('data:text/html;charset=utf-8,' + encodeURIComponent(page));
 			}
@@ -627,9 +627,9 @@ export default class Server {
 			return session.get('about:blank').then(function () {
 				return session.execute<void>('document.write(arguments[0]);', [page]);
 			});
-		}
+		};
 
-		function discoverServerFeatures() {
+		const discoverServerFeatures = () => {
 			const testedCapabilities: any = {};
 
 			// Check that the remote server will accept file uploads. There is a secondary test in discoverDefects that
@@ -692,16 +692,18 @@ export default class Server {
 					unsupported);
 			}
 
-			// This appears to cause Sauce to hang completely, at least as of May 2017
+			// As of May 2017 this appears to cause Sauce to hang completely, so just set the flag for Firefox 53+,
+			// which is currently the only platform known to require it
 			// if (capabilities.supportsWindowRect == null) {
-			// 	testedCapabilities.supportsWindowRectCommand = session.serverGet('window/rect').then(supported, unsupported);
+			// 	testedCapabilities.supportsWindowRectCommand = session.serverGet('window/rect').then(supported,
+			// 		unsupported);
 			// }
 
 			return Task.all(Object.keys(testedCapabilities).map(key => testedCapabilities[key]))
 				.then(() => testedCapabilities);
-		}
+		};
 
-		function discoverFeatures() {
+		const discoverFeatures = () => {
 			const testedCapabilities: any = {};
 
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
@@ -809,9 +811,9 @@ export default class Server {
 
 			return Task.all(Object.keys(testedCapabilities).map(key => testedCapabilities[key]))
 				.then(() => testedCapabilities);
-		}
+		};
 
-		function discoverDefects(): Task<Capabilities> {
+		const discoverDefects = (): Task<Capabilities> => {
 			const testedCapabilities: any = {};
 
 			// At least SafariDriver 2.41.0 fails to allow stand-alone feature testing because it does not inject user
@@ -1302,7 +1304,7 @@ export default class Server {
 
 			return Task.all(Object.keys(testedCapabilities).map(key => testedCapabilities[key]))
 				.then(() => testedCapabilities);
-		}
+		};
 
 		if (capabilities._filled) {
 			return Task.resolve(session);
