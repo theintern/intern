@@ -1,5 +1,4 @@
 import * as charm from 'charm';
-import * as nodeUtil from 'util';
 import Test from '../Test';
 import Suite from '../Suite';
 import { createEventHandler } from './Reporter';
@@ -134,10 +133,11 @@ export default class Runner extends Coverage {
 				this.createCoverageReport(this.reportType, map);
 			}
 
-			let message = 'TOTAL: tested %d platforms, %d/%d tests failed';
+			const numPassedTests = numTests - numFailedTests - numSkippedTests;
+			let message = `TOTAL: tested ${numEnvironments} platforms, ${numPassedTests} passed, ${numFailedTests} failed`;
 
 			if (numSkippedTests) {
-				message += ' (' + numSkippedTests + ' skipped)';
+				message += `, ${numSkippedTests} skipped`;
 			}
 
 			if (this.hasErrors && !numFailedTests) {
@@ -146,7 +146,7 @@ export default class Runner extends Coverage {
 
 			charm.display('bright');
 			charm.foreground(numFailedTests > 0 || this.hasErrors ? 'red' : 'green');
-			charm.write(nodeUtil.format(message, numEnvironments, numFailedTests, numTests));
+			charm.write(message);
 			charm.display('reset');
 			charm.write('\n');
 		}
@@ -202,17 +202,18 @@ export default class Runner extends Coverage {
 				charm.write('\n');
 			}
 
-			let name = suite.name;
-			let hasError = (function hasError(suite): any {
+			const name = suite.name;
+			const hasError = (function hasError(suite): any {
 				return suite.tests ? (suite.error || suite.tests.some(hasError)) : false;
 			})(suite);
-			let numFailedTests = suite.numFailedTests;
-			let numTests = suite.numTests;
-			let numSkippedTests = suite.numSkippedTests;
+			const numTests = suite.numTests;
+			const numFailedTests = suite.numFailedTests;
+			const numSkippedTests = suite.numSkippedTests;
+			const numPassedTests = numTests - numFailedTests - numSkippedTests;
 
-			let summary = nodeUtil.format('%s: %d/%d tests failed', name, numFailedTests, numTests);
+			let summary = `${name}: ${numPassedTests} passed, ${numFailedTests} failed`;
 			if (numSkippedTests) {
-				summary += ' (' + numSkippedTests + ' skipped)';
+				summary += `, ${numSkippedTests} skipped`;
 			}
 
 			if (hasError) {
