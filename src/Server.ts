@@ -630,8 +630,17 @@ export default class Server {
 			// innerHTML, though it is unfortunately a quirks-mode file so testing is limited
 			if (isInternetExplorer(capabilities, 0, 10) || isMsEdge(capabilities)) {
 				// Edge driver doesn't provide an initialBrowserUrl
-				const initialUrl = capabilities.browserName === 'internet explorer' ? capabilities.initialBrowserUrl :
-					'about:blank';
+				let initialUrl = 'about:blank';
+
+                // As of version 3.3.0.1, IEDriverServer provides IE-specific options, including the initialBrowserUrl,
+                // under an 'se:ieOptions' property rather than directly on capabilities.
+                // https://github.com/SeleniumHQ/selenium/blob/e60b607a97b9b7588d59e0c26ef9a6d1d1350911/cpp/iedriverserver/CHANGELOG
+				if (isInternetExplorer(capabilities) && capabilities['se:ieOptions']) {
+					initialUrl = capabilities['se:ieOptions'].initialBrowserUrl;
+				}
+				else if (capabilities.initialBrowserUrl) {
+					initialUrl = capabilities.initialBrowserUrl;
+				}
 
 				return session.get(initialUrl).then(function () {
 					return session.execute<void>('document.body.innerHTML = arguments[0];', [
