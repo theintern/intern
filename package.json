@@ -82,6 +82,7 @@
     "@types/grunt": "^0.4.20",
     "@types/node": "^6.0.0",
     "@types/shelljs": "^0.3.32",
+    "@types/systemjs": "^0.20.2",
     "browserify": "^14.1.0",
     "@dojo/loader": "beta1",
     "@dojo/has": "beta1",

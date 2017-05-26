@@ -1,3 +1,5 @@
+/// <reference types="systemjs"/>
+
 /**
  * A loader script for setting up the SystemJS loader.
  *
