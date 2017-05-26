@@ -370,7 +370,11 @@ registerSuite(function () {
 			}, /Arguments passed to execute must be an array/);
 		},
 
-		'#executeAsync non-array args'() {
+		'#executeAsync non-array args'(this: Test) {
+			if (!session.capabilities.supportsExecuteAsync) {
+				this.skip('executeAsync not supported');
+			}
+
 			assert.throws(function () {
 				session.executeAsync('return window;', <any>'oops');
 			}, /Arguments passed to executeAsync must be an array/);

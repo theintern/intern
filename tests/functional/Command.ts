@@ -140,7 +140,11 @@ registerSuite(function () {
 				});
 		},
 
-		'basic form interaction'() {
+		'basic form interaction'(this: Test) {
+			if (!session.capabilities.mouseEnabled) {
+				this.skip('mouse not enabled');
+			}
+
 			const command = new Command(session);
 			return command.get(require.toUrl('tests/functional/data/form.html'))
 				.findById('input')
@@ -204,7 +208,11 @@ registerSuite(function () {
 		// Check that when the mouse is pressed on one element and is moved over another element before being
 		// released, the mousedown event is generated for the first element and the mouseup event is generated for
 		// the second.
-		'#moveMouseTo usesElement'() {
+		'#moveMouseTo usesElement'(this: Test) {
+			if (!session.capabilities.mouseEnabled) {
+				this.skip('mouse not enabled');
+			}
+
 			return new Command(session).get(require.toUrl('tests/functional/data/pointer.html'))
 				.findById('a')
 				.moveMouseTo()

@@ -1,9 +1,8 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
 import Command from 'src/Command';
-import Session from 'src/Session';
 import pollUntil from 'src/helpers/pollUntil';
-import * as util from '../support/util';
+import { createSessionFromRemote } from '../support/util';
 import Test = require('intern/lib/Test');
 
 function toUrl(url: string) {
@@ -18,10 +17,9 @@ registerSuite(function (this: Test) {
 
 		setup(this: Test) {
 			const remote  = <any> this.remote;
-			return util.createSessionFromRemote(remote)
-				.then((session: Session) => {
-					command = new Command<void>(session);
-				});
+			return createSessionFromRemote(remote).then(session => {
+				command = new Command<void>(session);
+			});
 		},
 
 		'basic test'() {

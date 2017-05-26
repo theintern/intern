@@ -17,7 +17,7 @@ export function createServerFromRemote(remote: any) {
 	throw new Error('Unsupported remote');
 }
 
-export function createSessionFromRemote(remote: Command<any>, SessionCtor: any = Session) {
+export function createSessionFromRemote(remote: Command<any>, SessionCtor: any = Session): Promise<Session> {
 	const server = createServerFromRemote(remote);
 
 	function fixGet(session: any) {
