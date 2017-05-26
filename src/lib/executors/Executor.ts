@@ -10,6 +10,7 @@ import getObjectInterface, { ObjectInterface } from '../interfaces/object';
 import getTddInterface, { TddInterface } from '../interfaces/tdd';
 import getBddInterface, { BddInterface } from '../interfaces/bdd';
 import getBenchmarkInterface, { BenchmarkInterface } from '../interfaces/benchmark';
+import { BenchmarkReporterOptions } from '../reporters/Benchmark';
 import Promise from '@dojo/shim/Promise';
 import { assert, expect, should } from 'chai';
 import global from '@dojo/core/global';
@@ -50,6 +51,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			name: 'intern',
 			plugins: <PluginDescriptor[]>[],
 			reporters: <ReporterDescriptor[]>[],
+			sessionId: '',
 			suites: <string[]>[]
 		};
 
@@ -429,6 +431,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this._rootSuite.bail = config.bail;
 		this._rootSuite.grep = config.grep;
 		this._rootSuite.name = config.name;
+		this._rootSuite.sessionId = config.sessionId;
 		this._rootSuite.timeout = config.defaultTimeout;
 
 		return resolvedTask;
@@ -437,7 +440,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _emitCoverage(source?: string) {
 		const coverage = global[this.config.instrumenterOptions.coverageVariable];
 		if (coverage) {
-			return this.emit('coverage', { coverage, source, sessionId: (<any>this.config).sessionId });
+			return this.emit('coverage', { coverage, source, sessionId: this.config.sessionId });
 		}
 	}
 
@@ -533,6 +536,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				break;
 
 			case 'internPath':
+			case 'name':
+			case 'sessionId':
 				this._setOption(name, parseValue(name, value, 'string'));
 				break;
 
@@ -566,11 +571,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 			case 'plugins':
 				this._setOption(name, parseValue(name, value, 'object[]', 'script'), addToExisting);
-				break;
-
-			case 'name':
-				value = parseValue(name, value, 'string');
-				this._setOption(name, value);
 				break;
 
 			case 'suites':
@@ -613,10 +613,10 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		}
 
 		if (config.benchmark) {
-			config.benchmarkConfig = deepMixin({
+			config.benchmarkConfig = deepMixin(<BenchmarkConfig>{
+				mode: config.baseline ? 'baseline' : 'test',
 				id: 'Benchmark',
 				filename: 'baseline.json',
-				mode: 'test' as 'test',
 				thresholds: {
 					warn: { rme: 3, mean: 5 },
 					fail: { rme: 6, mean: 10 }
@@ -654,6 +654,10 @@ export interface ExecutorConstructor<E extends Events, C extends Config, T exten
 
 export { Handle };
 
+export interface BenchmarkConfig extends BenchmarkReporterOptions {
+	id: string;
+}
+
 export interface Config {
 	/** If true, Intern will exit as soon as any test fails. */
 	bail: boolean;
@@ -664,16 +668,7 @@ export interface Config {
 	basePath: string;
 
 	benchmark: boolean;
-	benchmarkConfig?: {
-		id: string;
-		filename: string;
-		mode: 'test' | 'baseline',
-		thresholds: {
-			warn: { rme: number, mean: number },
-			fail: { rme: number, mean: number }
-		};
-		verbosity: number;
-	};
+	benchmarkConfig?: BenchmarkConfig;
 
 	/** If true, emit and display debug messages. */
 	debug: boolean;
@@ -723,6 +718,9 @@ export interface Config {
 	 * A list of reporter names or descriptors. These reporters will be loaded and instantiated before testing begins.
 	 */
 	reporters: ReporterDescriptor[];
+
+	/** An identifier for this test session. By default it will have the value ''. */
+	sessionId: string;
 
 	/** If true, display the resolved config and exit */
 	showConfig: boolean;

@@ -8,19 +8,12 @@ import Promise from '@dojo/shim/Promise';
 
 export default class Suite implements SuiteProperties {
 	after: SuiteLifecycleFunction;
-
 	afterEach: TestLifecycleFunction;
-
 	async: ((timeout?: number) => Deferred<void>) | null;
-
 	before: SuiteLifecycleFunction;
-
 	beforeEach: TestLifecycleFunction;
-
 	error: InternError | null;
-
 	name: string;
-
 	parent: Suite;
 
 	/**
@@ -30,21 +23,14 @@ export default class Suite implements SuiteProperties {
 	publishAfterSetup = false;
 
 	skipped: string;
-
 	tests: (Suite | Test)[];
-
 	timeElapsed: number;
 
 	private _bail: boolean;
-
 	private _executor: Executor;
-
 	private _grep: RegExp;
-
 	private _remote: Remote;
-
 	private _sessionId: string;
-
 	private _timeout: number;
 
 	constructor(options: SuiteOptions | RootSuiteOptions) {
@@ -148,9 +134,8 @@ export default class Suite implements SuiteProperties {
 	 * The sessionId of the environment in which the suite executed.
 	 */
 	get sessionId(): string {
-		const parent = this.parent;
-		if (parent) {
-			return parent.sessionId;
+		if (this.parent) {
+			return this.parent.sessionId;
 		}
 		if (this._sessionId) {
 			return this._sessionId;
@@ -161,9 +146,6 @@ export default class Suite implements SuiteProperties {
 		return '';
 	}
 
-	/**
-	 * The sessionId may need to be overridden for suites proxied from client.js.
-	 */
 	set sessionId(value: string) {
 		this._sessionId = value;
 	}

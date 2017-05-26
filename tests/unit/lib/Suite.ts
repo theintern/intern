@@ -360,19 +360,16 @@ registerSuite('lib/Suite', {
 
 		'#sessionId'() {
 			const suite = createSuite({ name: 'foo' });
-			assert.strictEqual(suite.sessionId, '',
-				'#sessionId should be empty if the suite is not associated with a session');
+			assert.strictEqual(suite.sessionId, '', '#sessionId should be empty by default');
 
-			suite.remote = <any> { session: { sessionId: 'remote' } };
+			suite.remote = mockRemoteAndSession('remote');
 			assert.strictEqual(suite.sessionId, 'remote', '#sessionId should come from remote if one exists');
 
 			suite.sessionId = 'local';
-			assert.strictEqual(suite.sessionId, 'local',
-				'#sessionId from the suite itself should override remote');
+			assert.strictEqual(suite.sessionId, 'local', '#sessionId from the suite itself should override remote');
 
 			suite.parent = createSuite({ name: 'foo', sessionId: 'parent' });
-			assert.strictEqual(suite.sessionId, 'parent',
-				'#sessionId from the parent should override the suite itself');
+			assert.strictEqual(suite.sessionId, 'parent', `#sessionId from the parent should override the suite's`);
 		},
 
 		'#numTests / numFailedTests'() {

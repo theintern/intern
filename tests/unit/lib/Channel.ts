@@ -33,21 +33,21 @@ registerSuite('lib/Channel', {
 		'#sendMessage': {
 			http() {
 				const channel = new Channel(<ChannelOptions>{});
-				return channel.sendMessage('sessionStart', null).then(() => {
+				return channel.sendMessage('suiteStart', null).then(() => {
 					assert.deepEqual(messages, [
 						'constructing http',
-						'sending http sessionStart'
+						'sending http suiteStart'
 					]);
 				});
 			},
 
 			websocket() {
 				const channel = new Channel(<ChannelOptions>{ port: 1 });
-				return channel.sendMessage('sessionStart', null).then(() => {
+				return channel.sendMessage('suiteStart', null).then(() => {
 					assert.deepEqual(messages, [
 						'constructing websocket',
 						'sending websocket remoteStatus',
-						'sending websocket sessionStart'
+						'sending websocket suiteStart'
 					]);
 				});
 			},
@@ -56,12 +56,12 @@ registerSuite('lib/Channel', {
 				'websocket error'() {
 					const channel = new Channel(<ChannelOptions>{ port: 1 });
 					websocketError = 'send';
-					return channel.sendMessage('sessionStart', null).then(() => {
+					return channel.sendMessage('suiteStart', null).then(() => {
 						assert.deepEqual(messages, [
 							'constructing websocket',
 							'sending websocket remoteStatus',
 							'constructing http',
-							'sending http sessionStart'
+							'sending http suiteStart'
 						]);
 					});
 				},
@@ -69,11 +69,11 @@ registerSuite('lib/Channel', {
 				'websocket construction error'() {
 					const channel = new Channel(<ChannelOptions>{ port: 1 });
 					websocketError = 'construct';
-					return channel.sendMessage('sessionStart', null).then(() => {
+					return channel.sendMessage('suiteStart', null).then(() => {
 						assert.deepEqual(messages, [
 							'constructing websocket',
 							'constructing http',
-							'sending http sessionStart'
+							'sending http suiteStart'
 						]);
 					});
 				}

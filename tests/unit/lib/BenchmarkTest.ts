@@ -236,11 +236,18 @@ registerSuite('lib/BenchmarkTest', {
 				return test.run().then(function () {
 					const testJson = test.toJSON();
 
-					// Elapsed time is non-deterministic, so just force it to a value we can test
+					// Elapsed time is non-deterministic, so just check that it's non-zero
 					assert.isAbove(testJson.timeElapsed, 0);
+
+					// Benchmark data is non-deterministic, so just check that it's there
+					assert.property(testJson, 'benchmark');
+					assert.property(testJson.benchmark, 'hz');
+					assert.property(testJson.benchmark, 'stats');
+					assert.property(testJson.benchmark, 'times');
 
 					// Delete the values we don't want deepEqual with the expected values
 					delete testJson.timeElapsed;
+					delete testJson.benchmark;
 
 					assert.deepEqual(testJson, expected,
 						'Test#toJSON should return expected JSON structure for test with no error');

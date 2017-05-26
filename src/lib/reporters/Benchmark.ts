@@ -20,7 +20,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import Executor from '../executors/Executor';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
-import BenchmarkTest, { isBenchmarkTest } from '../BenchmarkTest';
+import BenchmarkTest from '../BenchmarkTest';
 import Test from '../Test';
 import Suite from '../Suite';
 import _Benchmark = require('benchmark');
@@ -30,7 +30,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 
 	filename: string;
 
-	mode: string;
+	mode: BenchmarkMode;
 
 	sessions: { [sessionId: string]: SessionInfo };
 
@@ -54,10 +54,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		}
 
 		if (!this.baseline) {
-			this.baseline = { environments: {}, tests: {} };
-		}
-		else if (!this.baseline.tests) {
-			this.baseline.tests = {};
+			this.baseline = {};
 		}
 
 		// Cache environments by session ID so we can look them up again when serialized tests come back from remote
@@ -109,16 +106,14 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 			}
 			catch (error) {
 				existingBaseline = {
-					environments: {},
-					tests: {}
 				};
 			}
 
-			// Merge the newly recorded baseline data into the existing baseline data and write it back out to
-			// output file.
+			// Merge the newly recorded baseline data into the existing baseline data and write it back out to output
+			// file.
 			const baseline = this.baseline;
-			Object.keys(baseline.environments).forEach(function (environmentId) {
-				existingBaseline.environments[environmentId] = baseline.environments[environmentId];
+			Object.keys(baseline).forEach(function (environmentId) {
+				existingBaseline[environmentId] = baseline[environmentId];
 			});
 			writeFileSync(this.filename, JSON.stringify(existingBaseline, null, '    '));
 		}
@@ -156,17 +151,16 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 		if (!suite.hasParent) {
 			const environment = session.environment;
 			const environmentName = environment.client + ' ' + environment.version + ' on ' + environment.platform;
-			const baselineEnvironments = this.baseline.environments;
+			const baselineEnvironments = this.baseline;
 
 			this.console.log((this.mode === 'baseline' ? 'Baselining' : 'Benchmarking') + ' ' + environmentName);
 
 			if (this.mode === 'baseline') {
-				baselineEnvironments[environment.id] = <BaselineEnvironment>{
+				baselineEnvironments[environment.id] = {
 					client: environment.client,
 					version: environment.version,
 					platform: environment.platform,
-					tests: {},
-					stats: {}
+					tests: {}
 				};
 			}
 			else if (!baselineEnvironments[environment.id]) {
@@ -183,7 +177,9 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 
 	@eventHandler()
 	testEnd(test: BenchmarkTest) {
-		if (!isBenchmarkTest(test)) {
+		// Just check for the benchmark property because the test may be a deserialized object rather than an actual
+		// BenchmarkTest instance.
+		if (test.benchmark == null) {
 			return;
 		}
 
@@ -239,11 +235,6 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 				return true;
 			};
 
-			// Ignore non-benchmark tests
-			if (!test.benchmark) {
-				return;
-			}
-
 			const benchmark = test.benchmark;
 			const session = this._getSession(test);
 			const environment = session.environment;
@@ -251,8 +242,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 			const suiteInfo = session.suites[test.parentId];
 			suiteInfo.numBenchmarks++;
 
-			const baselineEnvironments = this.baseline.environments;
-			const baseline = baselineEnvironments[environment.id]!;
+			const baseline = this.baseline[environment.id]!;
 
 			if (this.mode === 'baseline') {
 				baseline.tests[test.id] = {
@@ -272,8 +262,8 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 				if (baseline) {
 					const testData = baseline.tests[test.id];
 					const result = checkTest(testData, benchmark);
-					const baselineStats = baseline.stats;
-					const benchmarkStats = baseline.stats;
+					const baselineStats = testData.stats;
+					const benchmarkStats = benchmark.stats;
 					this.executor.log('Expected time per run:', formatSeconds(baselineStats.mean), '\xb1',
 						baselineStats.rme.toFixed(2), '%');
 					this.executor.log('Actual time per run:', formatSeconds(benchmarkStats.mean), '\xb1',
@@ -316,13 +306,10 @@ export interface BaselineEnvironment {
 	version: string;
 	platform: string;
 	tests: { [testId: string]: BenchmarkData };
-	stats: _Benchmark.Stats;
 }
 
 export interface BenchmarkBaseline {
-	environments: { [key: string]: BaselineEnvironment };
-	tests: { [key: string]: BenchmarkData };
-	[key: string]: any;
+	[key: string]: BaselineEnvironment;
 }
 
 export interface SesssionEnvironment {
@@ -340,12 +327,13 @@ export interface SessionInfo {
 		}
 	};
 	environment: SesssionEnvironment;
-	[key: string]: any;
 }
+
+export type BenchmarkMode = 'baseline' | 'test';
 
 export interface BenchmarkReporterProperties extends ReporterProperties {
 	filename: string;
-	mode: string;
+	mode: BenchmarkMode;
 	thresholds: BenchmarkThresholds;
 	verbosity: number;
 }
@@ -354,6 +342,10 @@ export type BenchmarkReporterOptions = Partial<BenchmarkReporterProperties>;
 
 // jshint node:true
 function formatSeconds(value: number) {
+	if (value == null) {
+		return null;
+	}
+
 	let units = 's';
 	if (value < 1) {
 		const places = Math.ceil(Math.log(value) / Math.log(10)) - 1;

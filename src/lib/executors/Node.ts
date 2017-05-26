@@ -339,8 +339,7 @@ export default class Node extends Executor<Events, Config> {
 							let remote: Remote = <Remote>new Command(session);
 							remote.environmentType = new Environment(session.capabilities);
 							this.remote = remote;
-
-							return executor.emit('sessionStart', remote);
+							this.sessionId = remote.session.sessionId;
 						});
 					},
 
@@ -349,18 +348,16 @@ export default class Node extends Executor<Events, Config> {
 
 						if (remote) {
 							const endSession = () => {
-								return executor.emit('sessionEnd', remote).then(() => {
-									// Check for an error in this suite or a sub-suite. This check is a bit more
-									// involved than just checking for a local suite error or failed tests since
-									// sub-suites may have failures that don't result in failed tests.
-									function hasError(suite: Suite): boolean {
-										if (suite.error != null || suite.numFailedTests > 0) {
-											return true;
-										}
-										return suite.tests.filter(isSuite).some(hasError);
+								// Check for an error in this suite or a sub-suite. This check is a bit more
+								// involved than just checking for a local suite error or failed tests since
+								// sub-suites may have failures that don't result in failed tests.
+								function hasError(suite: Suite): boolean {
+									if (suite.error != null || suite.numFailedTests > 0) {
+										return true;
 									}
-									return tunnel.sendJobState(remote.session.sessionId, { success: !hasError(this) });
-								});
+									return suite.tests.filter(isSuite).some(hasError);
+								}
+								return tunnel.sendJobState(remote.session.sessionId, { success: !hasError(this) });
 							};
 
 							if (
@@ -710,12 +707,6 @@ export interface Events extends BaseEvents {
 
 	/** A test server was started */
 	serverStart: Server;
-
-	/** A remote session has been opened */
-	sessionStart: Remote;
-
-	/** A remote session has ended */
-	sessionEnd: Remote;
 
 	/** Emitted as a Tunnel executable download is in process */
 	tunnelDownloadProgress: TunnelMessage;

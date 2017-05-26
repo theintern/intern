@@ -98,6 +98,9 @@ export default class Test implements TestProperties {
 		return this.parent.remote;
 	}
 
+	/**
+	 * An identifier for the test session this Test is running in.
+	 */
 	get sessionId() {
 		return this.parent.sessionId;
 	}

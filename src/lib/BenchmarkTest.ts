@@ -1,4 +1,4 @@
-import Test, { SKIP, TestOptions, TestProperties } from './Test';
+import Test, { isTest, SKIP, TestOptions, TestProperties } from './Test';
 import { InternError } from './types';
 import Deferred from './Deferred';
 import Task from '@dojo/core/async/Task';
@@ -127,6 +127,19 @@ export default class BenchmarkTest extends Test {
 		.finally(() => this.executor.emit('testEnd', this));
 	}
 
+	toJSON() {
+		const json = super.toJSON();
+		const benchmark = this.benchmark;
+
+		json.benchmark = {
+			hz: benchmark.hz,
+			times: benchmark.times,
+			stats: benchmark.stats
+		};
+
+		return json;
+	}
+
 	static async(testFunction: BenchmarkDeferredTestFunction, numCallsUntilResolution?: number) {
 		testFunction.options = mixin({}, testFunction.options || {}, {
 			defer: true,
@@ -169,7 +182,7 @@ export interface InternBenchmark extends Benchmark {
 }
 
 export function isBenchmarkTest(value: any): value is BenchmarkTest {
-	return typeof value === 'object' && value.test != null && value.benchmark != null;
+	return value && value.benchmark != null && isTest(value);
 }
 
 const createLifecycle = (before: boolean) => {
