@@ -14,6 +14,7 @@
 	"benchmark": false,
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 	"reporters": [ { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } } ],
+	"coverageSources": "_build/src/lib/**/*.js",
 	"browserLoader": {
 		"script": "dojo2",
 		"config": {

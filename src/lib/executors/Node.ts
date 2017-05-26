@@ -2,6 +2,7 @@ import Executor, { Config as BaseConfig, Events as BaseEvents, initialize, Loade
 import Task from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
+import { readFileSync } from 'fs';
 import { deepMixin, duplicate, mixin } from '@dojo/core/lang';
 import ErrorFormatter from '../node/ErrorFormatter';
 import { dirname, normalize, relative, resolve, sep } from 'path';
@@ -28,7 +29,8 @@ import NullTunnel from 'digdug/NullTunnel';
 import Server from '../Server';
 import Suite, { isSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
-import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
+import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
+import { createInstrumenter, Instrumenter, readInitialCoverage } from 'istanbul-lib-instrument';
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
 
@@ -40,6 +42,7 @@ export default class Node extends Executor<Events, Config> {
 	server: Server;
 	tunnel: Tunnel;
 
+	protected _coverageMap: CoverageMap;
 	protected _loadingFunctionalSuites: boolean;
 	protected _instrumentBasePath: string;
 	protected _instrumenter: Instrumenter;
@@ -75,6 +78,7 @@ export default class Node extends Executor<Events, Config> {
 		this._sourceMaps = createSourceMapStore();
 		this._instrumentedMaps = createSourceMapStore();
 		this._errorFormatter = new ErrorFormatter(this);
+		this._coverageMap = createCoverageMap();
 
 		this.registerReporter('pretty', Pretty);
 		this.registerReporter('simple', Simple);
@@ -105,6 +109,14 @@ export default class Node extends Executor<Events, Config> {
 			console.warn('Unhandled error:', reason);
 			this.emit('error', reason);
 		});
+
+		this.on('coverage', message => {
+			this._coverageMap.merge(message.coverage);
+		});
+	}
+
+	get coverageMap() {
+		return this._coverageMap;
 	}
 
 	get environment() {
@@ -582,6 +594,18 @@ export default class Node extends Executor<Events, Config> {
 				this.log('Emitting coverage');
 				return this._emitCoverage('functional tests');
 			}
+		}).finally(() => {
+            // If coverageSources is set, generate initial coverage data for files with no coverage results
+			const filesWithCoverage = this._coverageMap.files();
+			expandFiles(this.config.coverageSources)
+				.map(path => resolve(path))
+				.filter(path => filesWithCoverage.indexOf(path) === -1)
+				.forEach(filename => {
+					const code = readFileSync(filename, { encoding: 'utf8' });
+					const instrumentedCode = this.instrumentCode(code, filename);
+					const coverage = readInitialCoverage(instrumentedCode);
+					this._coverageMap.addFileCoverage(coverage.coverageData);
+				});
 		});
 	}
 
@@ -622,6 +646,11 @@ export interface Config extends BaseConfig {
 
 	/** Time to wait for contact from a remote server */
 	connectTimeout: number;
+
+    /**
+     * If set, coverage will be collected for all files. This allows uncovered files to be noticed more easily.
+     */
+	coverageSources: string[];
 
 	/** A list of remote environments */
 	environments: EnvironmentSpec[];
