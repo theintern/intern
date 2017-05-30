@@ -105,130 +105,98 @@ export function parseJson(json: string) {
  * @param parser The type of thing to parse, or a parser function
  * @param requiredProperty Only used with 'object' and 'object[]' parsers
  */
-export function parseValue(name: string, value: any, parser: TypeName, requiredProperty?: string) {
-	if (typeof parser === 'string') {
-		switch (parser) {
-			case 'boolean':
-				if (typeof value === 'boolean') {
-					return value;
-				}
-				if (value === 'true') {
-					return true;
-				}
-				if (value === 'false') {
-					return false;
-				}
-				throw new Error(`Non-boolean value "${value}" for ${name}`);
+export function parseValue(name: string, value: any, parser: TypeName | Parser, requiredProperty?: string) {
+	switch (parser) {
+		case 'boolean':
+			if (typeof value === 'boolean') {
+				return value;
+			}
+			if (value === 'true') {
+				return true;
+			}
+			if (value === 'false') {
+				return false;
+			}
+			throw new Error(`Non-boolean value "${value}" for ${name}`);
 
-			case 'number':
-				const numValue = Number(value);
-				if (!isNaN(numValue)) {
-					return numValue;
-				}
-				throw new Error(`Non-numeric value "${value}" for ${name}`);
+		case 'number':
+			const numValue = Number(value);
+			if (!isNaN(numValue)) {
+				return numValue;
+			}
+			throw new Error(`Non-numeric value "${value}" for ${name}`);
 
-			case 'regexp':
-				if (typeof value === 'string') {
-					return new RegExp(value);
-				}
-				if (value instanceof RegExp) {
-					return value;
-				}
-				throw new Error(`Non-regexp value "${value}" for ${name}`);
+		case 'regexp':
+			if (typeof value === 'string') {
+				return new RegExp(value);
+			}
+			if (value instanceof RegExp) {
+				return value;
+			}
+			throw new Error(`Non-regexp value "${value}" for ${name}`);
 
-			case 'object':
-				if (typeof value === 'string') {
-					try {
-						return JSON.parse(value);
-					}
-					catch (error) {
+		case 'object':
+			if (typeof value === 'string') {
+				try {
+					value = JSON.parse(value);
+				}
+				catch (error) {
+					if (!requiredProperty) {
 						throw new Error(`Non-object value "${value}" for ${name}`);
 					}
+					value = { [requiredProperty]: value };
 				}
-				if (typeof value === 'object') {
-					if (requiredProperty && !value[requiredProperty]) {
-						throw new Error(`Invalid value "${value}" for ${name}: missing '${requiredProperty}' property`);
-					}
-					return value;
+			}
+			// A value of type 'object' should be a simple object, not a built-in type like RegExp or Array
+			if (Object.prototype.toString.call(value) === '[object Object]') {
+				if (requiredProperty && !value[requiredProperty]) {
+					throw new Error(`Invalid value "${JSON.stringify(value)}" for ${name}: missing '${requiredProperty}' property`);
 				}
-				throw new Error(`Non-object value "${value}" for ${name}`);
+				return value;
+			}
+			throw new Error(`Non-object value "${value}" for ${name}`);
 
-			case 'object[]':
-				if (!value) {
-					value = [];
-				}
-				if (!Array.isArray(value)) {
-					value = [value];
-				}
-				return value.map((item: any) => {
-					if (typeof item === 'string') {
-						try {
-							item = JSON.parse(item);
-						}
-						catch (error) {
-							if (!requiredProperty) {
-								throw new Error(`Missing required property for ${name}`);
-							}
-							item = { [requiredProperty]: item };
-						}
-					}
+		case 'object[]':
+			if (!value) {
+				value = [];
+			}
+			if (!Array.isArray(value)) {
+				value = [value];
+			}
+			return value.map((item: any) => {
+				return parseValue(name, item, 'object', requiredProperty);
+			});
 
-					if (typeof item !== 'object') {
-						throw new Error(`Invalid value "${value}" for ${name}`);
-					}
+		case 'string':
+			if (typeof value === 'string') {
+				return value;
+			}
+			throw new Error(`Non-string value "${value}" for ${name}`);
 
-					if (requiredProperty && !item[requiredProperty]) {
-						throw new Error(`Invalid item value ${JSON.stringify(item)} for ${name}: missing '${requiredProperty}' property`);
-					}
+		case 'string[]':
+			if (!value) {
+				value = [];
+			}
+			if (typeof value === 'string') {
+				value = [value];
+			}
+			if (Array.isArray(value) && value.every(v => typeof v === 'string')) {
+				return value;
+			}
+			throw new Error(`Non-string[] value "${value}" for ${name}`);
 
-					return item;
-				});
-
-			case 'string':
-				if (typeof value === 'string') {
-					return value;
-				}
-				throw new Error(`Non-string value "${value}" for ${name}`);
-
-			case 'string[]':
-				if (!value) {
-					value = [];
-				}
-				if (typeof value === 'string') {
-					value = [value];
-				}
-				if (Array.isArray(value) && value.every(v => typeof v === 'string')) {
-					return value;
-				}
-				throw new Error(`Non-string[] value "${value}" for ${name}`);
-
-			case 'object|string':
-				if (typeof value === 'string') {
-					if (value[0] === '{') {
-						try {
-							return JSON.parse(value);
-						}
-						catch (error) {
-							throw new Error(`Invalid object string "${value}" for ${name}`);
-						}
-					}
-					return value;
-				}
-				if (typeof value === 'object') {
-					return value;
-				}
-				throw new Error(`Non-string|object value "${value}" for ${name}`);
-		}
-	}
-	else if (typeof parser === 'function') {
-		return parser(value);
-	}
-	else {
-		throw new Error('Parser must be a type name or a function');
+		default:
+			if (typeof parser === 'function') {
+				return parser(value);
+			}
+			else {
+				throw new Error('Parser must be a valid type name');
+			}
 	}
 }
 
-export type TypeName = 'string' | 'boolean' | 'number' | 'regexp' | 'object' | 'string[]' | 'object|string' | 'object[]';
+export type TypeName = 'string' | 'boolean' | 'number' | 'regexp' | 'object' | 'string[]' | 'object[]';
+export type Parser<T = any> = (value: any) => T;
 
 /**
  * Remove all instances of of an item from any array and return the removed instances.
