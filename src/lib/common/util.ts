@@ -258,12 +258,12 @@ export function splitConfigPath(path: string) {
  * @param object The object to serialise.
  * @returns A JSON string
  */
-export function toJSON(object: Object) {
-	return JSON.stringify(object, serializeReplacer, '  ');
+export function stringify(object: Object, indent?: string) {
+	return JSON.stringify(object, serializeReplacer, indent);
 }
 
 /**
- * Replacer function used in toJSON
+ * Replacer function used in stringify
  */
 function serializeReplacer(_key: string, value: any) {
 	if (!value) {

@@ -6,7 +6,7 @@ import Task from '@dojo/core/async/Task';
 import { InternError } from './types';
 import Node, { Config, Events } from './executors/Node';
 import { Config as BrowserConfig } from './executors/Browser';
-import { toJSON } from './common/util';
+import { stringify } from './common/util';
 import Deferred from './Deferred';
 
 /**
@@ -215,7 +215,7 @@ export default class RemoteSuite extends Suite {
 						const options = JSON.parse(configString);
 						intern.configure(options);
 						intern.run().catch(_error => { });
-					}, [toJSON(remoteConfig)])
+					}, [stringify(remoteConfig)])
 					// If there's an error loading the page, kill the heartbeat and fail
 					.catch(error => remote.setHeartbeatInterval(0).finally(() => handleError(error)));
 			},
