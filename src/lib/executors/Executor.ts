@@ -25,6 +25,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _rootSuite: Suite;
 	protected _errorFormatter: ErrorFormatter;
 	protected _hasSuiteErrors = false;
+	protected _hasTestErrors = false;
 	protected _interfaces: { [name: string]: any };
 	protected _loader: Loader;
 	protected _loadingPlugin: Task<void> | undefined;
@@ -154,8 +155,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	emit(eventName: 'runEnd'): Task<void>;
 	emit<T extends keyof E>(eventName: T, data: E[T]): Task<void>;
 	emit<T extends keyof E>(eventName: T, data?: E[T]) {
-		if (eventName === 'suiteEnd' && (<any>data).error) {
+		if (eventName === 'suiteEnd' && (<Suite>data).error) {
 			this._hasSuiteErrors = true;
+		}
+		else if (eventName === 'testEnd' && (<Test>data).error) {
+			this._hasTestErrors = true;
 		}
 
 		const notifications: Promise<any>[] = [];
@@ -356,11 +360,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 						.then(() => {
 							return this.emit('runStart')
 								.then(() => this._runTests())
-								.finally(() => {
-									if (this._hasSuiteErrors) {
-										throw new Error('One or more suite errors occurred during testing');
-									}
-								})
 								.catch(error => {
 									runError = error;
 									return this.emit('error', error);
@@ -371,15 +370,24 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 						.finally(() => this.emit('afterRun'))
 						.catch(error => {
 							return this.emit('error', error).finally(() => {
-								// a runError has priority
+								// A runError has priority over any cleanup errors, so rethrow one if it exists.
 								throw runError || error;
 							});
 						})
 						.then(() => {
-							// If we didn't have any other errors, but a runError was caught, throw it to reject the run
-							// task
+							// If we didn't have any cleanup errors but a runError was caught, throw it to reject the
+							// run task
 							if (runError) {
 								throw runError;
+							}
+							// If there were no run errors but any suites had errors, throw an error to reject the run
+							// task.
+							if (this._hasSuiteErrors) {
+								throw new Error('One or more suite errors occurred during testing');
+							}
+							// If there were no run errors but any tests failed, throw an error to reject the run task.
+							if (this._hasTestErrors) {
+								throw new Error('One or more tests failed');
 							}
 						});
 				}

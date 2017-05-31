@@ -22,7 +22,9 @@ export default class Runner extends Coverage {
 		}
 	};
 
-	hasErrors: boolean;
+	hasRunErrors: boolean;
+
+	hasSuiteErrors: boolean;
 
 	hidePassed: boolean;
 
@@ -38,7 +40,8 @@ export default class Runner extends Coverage {
 		super(executor, config);
 
 		this.sessions = {};
-		this.hasErrors = false;
+		this.hasRunErrors = false;
+		this.hasSuiteErrors = false;
 		this.serveOnly = executor.config.serveOnly;
 
 		this.charm = charm();
@@ -91,8 +94,7 @@ export default class Runner extends Coverage {
 		this.charm.write(this.formatError(error));
 		this.charm.display('reset');
 		this.charm.write('\n\n');
-
-		this.hasErrors = true;
+		this.hasRunErrors = true;
 	}
 
 	@eventHandler()
@@ -140,12 +142,15 @@ export default class Runner extends Coverage {
 				message += `, ${numSkippedTests} skipped`;
 			}
 
-			if (this.hasErrors && !numFailedTests) {
+			if (this.hasRunErrors) {
 				message += '; fatal error occurred';
+			}
+			else if (this.hasSuiteErrors) {
+				message += '; suite error occurred';
 			}
 
 			charm.display('bright');
-			charm.foreground(numFailedTests > 0 || this.hasErrors ? 'red' : 'green');
+			charm.foreground(numFailedTests > 0 || this.hasRunErrors || this.hasSuiteErrors ? 'red' : 'green');
 			charm.write(message);
 			charm.display('reset');
 			charm.write('\n');
@@ -163,6 +168,20 @@ export default class Runner extends Coverage {
 
 	@eventHandler()
 	suiteEnd(suite: Suite) {
+		const session = this.sessions[suite.sessionId || ''];
+		if (!session) {
+			if (!this.serveOnly) {
+				const charm = this.charm;
+				charm.display('bright');
+				charm.foreground('yellow');
+				charm.write('BUG: suiteEnd was received for invalid session ' + suite.sessionId);
+				charm.display('reset');
+				charm.write('\n');
+			}
+
+			return;
+		}
+
 		if (suite.error) {
 			const error = suite.error;
 			const charm = this.charm;
@@ -173,24 +192,9 @@ export default class Runner extends Coverage {
 			charm.display('reset');
 			charm.write('\n');
 
-			this.hasErrors = true;
+			session.hasSuiteErrors = true;
 		}
 		else if (!suite.hasParent) {
-			const session = this.sessions[suite.sessionId || ''];
-
-			if (!session) {
-				if (!this.serveOnly) {
-					const charm = this.charm;
-					charm.display('bright');
-					charm.foreground('yellow');
-					charm.write('BUG: suiteEnd was received for invalid session ' + suite.sessionId);
-					charm.display('reset');
-					charm.write('\n');
-				}
-
-				return;
-			}
-
 			if (session.coverage) {
 				this.charm.write('\n');
 				this.createCoverageReport(this.reportType, session.coverage);
@@ -203,9 +207,7 @@ export default class Runner extends Coverage {
 			}
 
 			const name = suite.name;
-			const hasError = (function hasError(suite): any {
-				return suite.tests ? (suite.error || suite.tests.some(hasError)) : false;
-			})(suite);
+			const hasError = suite.error || session.hasSuiteErrors;
 			const numTests = suite.numTests;
 			const numFailedTests = suite.numFailedTests;
 			const numSkippedTests = suite.numSkippedTests;
@@ -217,7 +219,7 @@ export default class Runner extends Coverage {
 			}
 
 			if (hasError) {
-				summary += '; fatal error occurred';
+				summary += '; suite error occurred';
 			}
 
 			const charm = this.charm;
