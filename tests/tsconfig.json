@@ -24,6 +24,7 @@
 	"./unit/lib/common/ErrorFormatter.ts",
 	"./unit/lib/common/util.ts",
 	"./unit/lib/node/ErrorFormatter.ts",
+	"./unit/lib/node/runner.ts",
 	"./unit/lib/node/util.ts",
 	"./unit/lib/Channel.ts",
 	"./unit/lib/Environment.ts",

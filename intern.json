@@ -11,6 +11,7 @@
 		"_tests/tests/unit/lib/Server.js",
 		"_tests/tests/unit/lib/resolveEnvironments.js",
 		"_tests/tests/unit/lib/node/ErrorFormatter.js",
+		"_tests/tests/unit/lib/node/runner.js",
 		"_tests/tests/unit/lib/node/util.js"
 	],
 	"browserSuites": [
