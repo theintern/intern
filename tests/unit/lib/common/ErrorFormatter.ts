@@ -62,7 +62,7 @@ registerSuite('lib/common/ErrorFormatter', function () {
 
 						diff() {
 							let err: InternError = { name: 'Foo', message: 'foo', showDiff: true, actual: { foo: 1 }, expected: { foo: 2 } };
-							assert.equal(formatter.format(err), 'Foo: foo\n\nE a  bA c\n\n\nNo stack or location');
+							assert.equal(formatter.format(err), 'Foo: foo\n\nE a\n  b\nA c\n\n\nNo stack or location');
 
 							diffValue = [ { value: 'no diff' } ];
 							assert.equal(formatter.format(err), 'Foo: foo\nNo stack or location',

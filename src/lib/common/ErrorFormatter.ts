@@ -107,8 +107,12 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 			if (lastChar === '\n') {
 				lines.pop();
 			}
+			let prefix = '';
+			if (d.length > 0 && d[d.length - 1] !== '\n') {
+				prefix = '\n';
+			}
 			const char = added ? 'E' : removed ? 'A' : ' ';
-			return d + `${char} ` + lines.join(`\n${char} `) + lastChar;
+			return d + `${prefix}${char} ` + lines.join(`\n${char} `) + lastChar;
 		}, '');
 	}
 
