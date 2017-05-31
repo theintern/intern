@@ -8,7 +8,7 @@ import { sync as glob, hasMagic } from 'glob';
 /**
  * Expand a list of glob patterns into a flat file list
  */
-export function expandFiles(patterns?: string[]) {
+export function expandFiles(patterns?: string[] | string) {
 	if (!patterns) {
 		patterns = [];
 	}
@@ -66,7 +66,13 @@ export function readSourceMap(sourceFile: string, code?: string): object | undef
 	}
 
 	let match: RegExpMatchArray | null;
-	if ((match = sourceMapRegEx.exec(code))) {
+
+	// sourceMappingUrl must be on last line of source file; search for last newline from code.length - 2 in case the
+	// file ends with a newline
+	const lastNewline = code.lastIndexOf('\n', code.length - 2);
+	const lastLine = code.slice(lastNewline + 1);
+
+	if ((match = sourceMapRegEx.exec(lastLine))) {
 		if (match[1]) {
 			return JSON.parse((new Buffer(match[2], 'base64').toString('utf8')));
 		}
@@ -94,4 +100,5 @@ function loadText(path: string) {
 	});
 }
 
-const sourceMapRegEx = /(?:\/{2}[#@]{1,2}|\/\*)\s+sourceMappingURL\s*=\s*(data:(?:[^;]+;)+base64,)?(\S+)/;
+// Regex for matching sourceMappingUrl comments
+const sourceMapRegEx = /^(?:\/{2}[#@]{1,2}|\/\*)\s+sourceMappingURL\s*=\s*(data:(?:[^;]+;)+base64,)?(\S+)/;

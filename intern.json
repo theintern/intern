@@ -9,7 +9,8 @@
 	"nodeSuites": [
 		"_tests/tests/unit/lib/RemoteSuite.js",
 		"_tests/tests/unit/lib/Server.js",
-		"_tests/tests/unit/lib/resolveEnvironments.js"
+		"_tests/tests/unit/lib/resolveEnvironments.js",
+		"_tests/tests/unit/lib/node/util.js"
 	],
 	"browserSuites": [
 		"_tests/tests/unit/lib/Channel.js"
