@@ -39,6 +39,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 
 			const anyError: any = error;
 
+			// Assertion errors may have showDiff, actual, and expected properties
 			if (anyError.showDiff && typeof anyError.actual === 'object' && typeof anyError.expected === 'object') {
 				const diff = this._createDiff(anyError.actual, anyError.expected);
 				if (diff) {
@@ -49,6 +50,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 			if (stack && /\S/.test(stack)) {
 				message += stack;
 			}
+			// FireFox errors may have fileName, lineNumber, and columnNumber properties
 			else if (anyError.fileName) {
 				message += '\n  at ' + anyError.fileName;
 				if (anyError.lineNumber != null) {
@@ -71,9 +73,10 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 
 		const space = options.space;
 		if (space != null) {
-			message = message.split('\n').map(line => {
+			const lines = message.split('\n');
+			message = [lines[0]].concat(lines.slice(1).map(line => {
 				return space + line;
-			}).join('\n');
+			})).join('\n');
 		}
 
 		return message;
@@ -126,12 +129,6 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 		let lines = stack.replace(/\s+$/, '').split('\n');
 		let firstLine = '';
 
-		if (/^(?:[A-Z]\w+)?Error: /.test(lines[0])) {
-			// ignore the first line if it's just the Error name
-			firstLine = lines[0] + '\n';
-			lines = lines.slice(1);
-		}
-
 		// strip leading blank lines
 		while (/^\s*$/.test(lines[0])) {
 			lines = lines.slice(1);
@@ -155,6 +152,11 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 
 	/**
 	 * Process Chrome, Opera, and IE traces.
+	 *
+	 * Ex)
+	 *   at Object._updateExpressionOptions (AxiomEditor.js:511)
+	 *   at Object.<anonymous> (AxiomEditor.js:291)
+	 *   at Function.m.emit (dojo.js.uncompressed.js:8875)
 	 */
 	protected _processChromeTrace(lines: string[]) {
 		return lines.map(line => {
@@ -173,6 +175,12 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 
 	/**
 	 * Process Safari and Firefox traces.
+	 *
+	 * Ex)
+	 *   _updateExpressionOptions@http://localhost:8080/AxiomEditor.js:511:49
+	 *   http://localhost:8080/AxiomEditor.js:291:34
+	 *   dispatchEvent@[native code]
+	 *   emit@http://ajax.googleapis.com/ajax/libs/dojo/1.12.2/dojo/dojo.js:118:282
 	 */
 	protected _processSafariTrace(lines: string[]) {
 		return lines.map(line => {

@@ -3,7 +3,8 @@
 		"_tests/tests/unit/lib/Environment.js",
 		"_tests/tests/unit/lib/Suite.js",
 		"_tests/tests/unit/lib/Test.js",
-		"_tests/tests/unit/lib/common/util.js"
+		"_tests/tests/unit/lib/common/util.js",
+		"_tests/tests/unit/lib/common/ErrorFormatter.js"
 	],
 	"nodeSuites": [
 		"_tests/tests/unit/lib/RemoteSuite.js",

@@ -10,7 +10,7 @@ import { Remote } from 'src/lib/executors/Node';
 import Command from 'leadfoot/Command';
 import ProxiedSession from 'src/lib/ProxiedSession';
 
-import { mixin } from '@dojo/core/lang';
+import { duplicate, mixin } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 
 /**
@@ -34,9 +34,16 @@ export interface MockExecutor extends Executor {
 /**
  * Create a MockExecutor with the given property overrides
  */
-export function mockExecutor(properties?: { [P in keyof Executor]?: Executor[P] }) {
+export function mockExecutor(properties?: { [P in keyof Executor]?: Executor[P] } & { testConfig?: any }) {
+	const _properties: any = duplicate(properties || {});
+	if (_properties.testConfig) {
+		_properties.config = _properties.testConfig;
+		delete _properties.testConfig;
+	}
 	return createMock<MockExecutor>(mixin({
 		events: <{ name: string, data: any }[]>[],
+
+		config: {},
 
 		emit(eventName: keyof Events, data?: any) {
 			// Ignore log events
@@ -49,7 +56,7 @@ export function mockExecutor(properties?: { [P in keyof Executor]?: Executor[P] 
 		log(...args: any[]) {
 			return this.emit('log', JSON.stringify(args));
 		}
-	}, properties || {}));
+	}, _properties || {}));
 }
 
 /**

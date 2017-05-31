@@ -5,7 +5,7 @@ export interface InternError {
 	message: string;
 	stack?: string;
 	showDiff?: boolean;
-	actual?: string;
-	expected?: string;
+	actual?: any;
+	expected?: any;
 	relatedTest?: Test;
 }
