@@ -17,8 +17,9 @@ export function loadConfig(configPath: string, loadText: TextLoader, args?: { [k
 		// extends paths are assumed to be relative and use '/'
 		if (config.extends) {
 			const parts = configPath.split('/');
-			const extensionPath = parts.slice(0, parts.length - 1).concat(config.extends).join('/');
-			return loadConfig(extensionPath, loadText).then(extension => mixin(extension, config));
+			const { configFile, childConfig } = splitConfigPath(config.extends);
+			const extensionPath = parts.slice(0, parts.length - 1).concat(configFile).join('/');
+			return loadConfig(extensionPath, loadText, undefined, childConfig).then(extension => mixin(extension, config));
 		}
 		return config;
 	}).then(config => {
