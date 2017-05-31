@@ -76,17 +76,16 @@
     "ws": "~2.3.0"
   },
   "devDependencies": {
+    "@dojo/has": "beta1",
+    "@dojo/loader": "beta1",
+    "@dojo/shim": "beta1",
     "@types/chalk": "^0.4.31",
     "@types/chokidar": "^1.4.29",
     "@types/glob": "^5.0.30",
     "@types/grunt": "^0.4.20",
     "@types/node": "^6.0.0",
-    "@types/shelljs": "^0.3.32",
     "@types/systemjs": "^0.20.2",
     "browserify": "^14.1.0",
-    "@dojo/loader": "beta1",
-    "@dojo/has": "beta1",
-    "@dojo/shim": "beta1",
     "intern-dev": "~0.2.0",
     "stylus": "~0.54.5"
   },
