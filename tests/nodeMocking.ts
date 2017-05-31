@@ -9,7 +9,8 @@ intern.registerPlugin('mocking', () => {
 	}
 
 	function requireWithMocks(contextRequire: NodeRequire, mod: string, mocks: { [name: string]: any }) {
-		registeredMocks.push({ id: contextRequire.resolve(mod), original: undefined });
+		mod = contextRequire.resolve(mod);
+		registeredMocks.push({ id: mod, original: undefined });
 		Object.keys(mocks).forEach(name => {
 			const id = contextRequire.resolve(name);
 			registeredMocks.push({ id, original: require.cache[id] });
