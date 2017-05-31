@@ -61,7 +61,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 
 		// next, check for original source map
 		const sourceMapStore = this.executor.sourceMapStore;
-		if (tracepath in sourceMapStore) {
+		if (tracepath in sourceMapStore.data) {
 			map = new SourceMapConsumer(sourceMapStore.data[tracepath].data);
 		}
 		else {
@@ -92,29 +92,29 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 	 * Assumes mappings are is in order by generatedLine, then by generatedColumn; maps created with
 	 * SourceMapConsumer.eachMapping should be in this order by default.
 	 */
-	private getOriginalPosition(map: any, line: number, column?: number): { line: number, column?: number, source?: string } {
-		let originalPosition = map.originalPositionFor({ line: line, column: column });
+	private getOriginalPosition(map: SourceMapConsumer, line: number, column?: number): { line: number, column?: number, source?: string } {
+		const originalPosition = map.originalPositionFor({ line: line, column: column! });
 
 		// if the SourceMapConsumer was able to find a location, return it
-		if (originalPosition.line !== null) {
+		if (originalPosition.line != null) {
 			return originalPosition;
 		}
 
 		const entries: MappingItem[] = [];
 
 		// find all map entries that apply to the given line in the generated output
-		map.eachMapping(function (entry: MappingItem) {
+		map.eachMapping(entry => {
 			if (entry.generatedLine === line) {
 				entries.push(entry);
 			}
-		}, null, map.GENERATED_ORDER);
+		}, null, SourceMapConsumer.GENERATED_ORDER);
 
 		if (entries.length === 0) {
 			// no valid mappings exist -- return the line and column arguments
 			return { line: line, column: column };
 		}
 
-		originalPosition = entries[0];
+		let position = entries[0];
 
 		// Chrome/Node.js column is at the start of the term that generated the exception
 		// IE column is at the beginning of the expression/line with the exceptional term
@@ -128,16 +128,16 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 			let entry: MappingItem;
 			for (let i = 1; i < entries.length; i++) {
 				entry = entries[i];
-				if (column > originalPosition.generatedColumn && column >= entry.generatedColumn) {
-					originalPosition = entry;
+				if (column > position.generatedColumn && column >= entry.generatedColumn) {
+					position = entry;
 				}
 			}
 		}
 
 		return {
-			line: originalPosition.originalLine,
-			column: originalPosition.originalColumn,
-			source: originalPosition.source
+			line: position.originalLine,
+			column: position.originalColumn,
+			source: position.source
 		};
 	}
 

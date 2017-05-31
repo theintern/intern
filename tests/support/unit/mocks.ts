@@ -64,6 +64,10 @@ export function mockExecutor(properties?: { [P in keyof Executor]?: Executor[P] 
  */
 export interface MockNode extends Node {
 	events: { name: string, data: any }[];
+
+	// Make some properties writable
+	instrumentedMapStore: any;
+	sourceMapStore: any;
 }
 
 /**
