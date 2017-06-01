@@ -12,6 +12,16 @@ export interface TextLoader {
  * config value if provided.
  */
 export function loadConfig(configPath: string, loadText: TextLoader, args?: { [key: string]: any }, childConfig?: string | string[]): Task<any> {
+	return _loadConfig(configPath, loadText, args, childConfig).then(config => {
+		// 'config', 'configs', and 'extends' are only applicable to the config loader, not the Executors
+		delete config.config;
+		delete config.configs;
+		delete config.extends;
+		return config;
+	});
+}
+
+function _loadConfig(configPath: string, loadText: TextLoader, args?: { [key: string]: any }, childConfig?: string | string[]): Task<any> {
 	return loadText(configPath).then(text => {
 		const config = parseJson(text);
 		// extends paths are assumed to be relative and use '/'
@@ -19,7 +29,22 @@ export function loadConfig(configPath: string, loadText: TextLoader, args?: { [k
 			const parts = configPath.split('/');
 			const { configFile, childConfig } = splitConfigPath(config.extends);
 			const extensionPath = parts.slice(0, parts.length - 1).concat(configFile).join('/');
-			return loadConfig(extensionPath, loadText, undefined, childConfig).then(extension => mixin(extension, config));
+			return _loadConfig(extensionPath, loadText, undefined, childConfig).then(extension => {
+				// Copy all keys except 'configs' from the config to the thing its extending (shallow mixin)
+				Object.keys(config).filter(key => key !== 'configs').forEach(key => {
+					extension[key] = config[key];
+				});
+				// If config has a 'configs' property, mix its values into extension.configs (slightly deeper mixin)
+				if (config.configs) {
+					if (extension.configs == null) {
+						extension.configs = {};
+					}
+					Object.keys(config.configs).forEach(key => {
+						extension.configs[key] = config.configs[key];
+					});
+				}
+				return extension;
+			});
 		}
 		return config;
 	}).then(config => {
@@ -45,11 +70,6 @@ export function loadConfig(configPath: string, loadText: TextLoader, args?: { [k
 		if (args) {
 			mixin(config, args);
 		}
-		return config;
-	}).then(config => {
-		// 'configs' and 'extends' are only applicable to the config loader, not the Executors
-		delete config.configs;
-		delete config.extends;
 		return config;
 	});
 }
