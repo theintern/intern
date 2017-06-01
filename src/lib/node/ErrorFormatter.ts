@@ -1,8 +1,7 @@
 import ErrorFormatter from '../common/ErrorFormatter';
 import { readFileSync } from 'fs';
-import { parse } from 'url';
-import { dirname, join, relative, resolve } from 'path';
-import { MappingItem, RawSourceMap, SourceMapConsumer } from 'source-map';
+import { dirname, join, relative } from 'path';
+import { MappingItem, SourceMapConsumer } from 'source-map';
 import { readSourceMap } from './util';
 import Node from '../executors/Node';
 
@@ -20,6 +19,20 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 	 * Dereference the source from a traceline.
 	 */
 	protected _getSource(tracepath: string) {
+		if (tracepath === '<anonymous>') {
+			return 'anonymous';
+		}
+
+		let sourcepath = this._getSourceHelper(tracepath);
+		while (sourcepath !== tracepath) {
+			tracepath = sourcepath;
+			sourcepath = this._getSourceHelper(tracepath);
+		}
+
+		return tracepath;
+	}
+
+	private _getSourceHelper(tracepath: string) {
 		let match: RegExpMatchArray | null;
 		let source: string;
 		let line: number;
@@ -27,10 +40,6 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 		let map: SourceMapConsumer | undefined;
 		let originalPos: { source?: string, line: number, column?: number };
 		let result: string;
-
-		if (tracepath === '<anonymous>') {
-			return 'anonymous';
-		}
 
 		if (!(match = /^(.*?):(\d+)(:\d+)?$/.exec(tracepath))) {
 			// no line or column data
@@ -41,8 +50,11 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 		line = Number(match[2]);
 		col = match[3] ? Number(match[3].substring(1)) : undefined;
 
-		// resolve URLs to a filesystem path
-		tracepath = resolve(parse(tracepath).pathname);
+		// If the tracepath starts with the server URL, resolve it to something local
+		if (tracepath.indexOf(this.executor.config.serverUrl) === 0) {
+			tracepath = tracepath.slice(this.executor.config.serverUrl.length);
+			tracepath = tracepath.replace(/^__intern\//, this.executor.config.internPath);
+		}
 
 		source = relative('.', tracepath);
 
@@ -73,7 +85,15 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 			line = originalPos.line;
 			col = originalPos.column;
 			if (originalPos.source) {
-				source = join(dirname(source), originalPos.source);
+				// If original source starts with ./ or ../, or is just a bare filename, assume it's relative to the
+				// current source
+				if (originalPos.source.indexOf('/') === -1 || /\.\.?\//.test(originalPos.source)) {
+					source = join(dirname(source), originalPos.source);
+				}
+				// If not, assume its relative to the project root
+				else {
+					source = originalPos.source;
+				}
 			}
 		}
 
@@ -160,7 +180,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 				this.fileSources[filepath] = data;
 			}
 
-			const rawMap = <RawSourceMap>readSourceMap(filepath, data);
+			const rawMap = readSourceMap(filepath, data);
 			if (rawMap) {
 				this.fileSourceMaps[filepath] = new SourceMapConsumer(rawMap);
 				return this.fileSourceMaps[filepath];

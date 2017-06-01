@@ -149,8 +149,10 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 				return !(
 					/internal\/process\//.test(line) ||
 					/node_modules\/(?!digdug|leadfoot)/.test(line) ||
+					/\/__intern\//.test(line) ||
 					/Module\.runMain/.test(line) ||
-					/bootstrap_node\.js/.test(line)
+					/bootstrap_node\.js/.test(line) ||
+					/<anonymous>/.test(line)
 				);
 			});
 		}

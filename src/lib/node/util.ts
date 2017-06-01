@@ -2,6 +2,7 @@ import { dirname, join, normalize } from 'path';
 import { readFile, readFileSync } from 'fs';
 import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
 import { mixin } from '@dojo/core/lang';
+import { RawSourceMap } from 'source-map';
 import Task from '@dojo/core/async/Task';
 import { sync as glob, hasMagic } from 'glob';
 
@@ -60,7 +61,7 @@ export function normalizePath(path: string) {
 /**
  * Given a source filename, and optionally code, return the file's source map if one exists.
  */
-export function readSourceMap(sourceFile: string, code?: string): object | undefined {
+export function readSourceMap(sourceFile: string, code?: string): RawSourceMap | undefined {
 	if (!code) {
 		code = readFileSync(sourceFile, { encoding: 'utf8' });
 	}
