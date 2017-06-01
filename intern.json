@@ -16,7 +16,8 @@
 		"_tests/tests/unit/lib/node/util.js"
 	],
 	"browserSuites": [
-		"_tests/tests/unit/lib/Channel.js"
+		"_tests/tests/unit/lib/Channel.js",
+		"_tests/tests/unit/lib/browser/util.js"
 	],
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 
@@ -42,7 +43,8 @@
 				{ "name": "src", "location": "_build/src" },
 				{ "name": "benchmark", "location": "node_modules/benchmark", "main": "benchmark.js" },
 				{ "name": "lodash", "location": "node_modules/lodash", "main": "lodash.js" },
-				{ "name": "platform", "location": "node_modules/platform", "main": "platform.js" }
+				{ "name": "platform", "location": "node_modules/platform", "main": "platform.js" },
+				{ "name": "sinon", "location": "node_modules/sinon", "main": "pkg/sinon.js" }
 			]
 		}
 	},

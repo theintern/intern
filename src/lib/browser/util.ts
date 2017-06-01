@@ -18,7 +18,12 @@ export function getConfig() {
 	else {
 		// If no config parameter was provided, try 'intern.json'. If that file doesn't exist, just return the args
 		const path = resolvePath('intern.json', args.basePath);
-		return loadConfig(path, loadText, args).catch(_error => args);
+		return loadConfig(path, loadText, args).catch(error => {
+			if (error.message.indexOf('Request failed') === 0) {
+				return args;
+			}
+			throw error;
+		});
 	}
 }
 
@@ -77,6 +82,9 @@ export function parseQuery(query?: string) {
  */
 function loadText(path: string): Task<any> {
 	return request(path).then(response => {
+		if (!response.ok) {
+			throw new Error('Request failed: ' + response.status);
+		}
 		return response.text();
 	});
 }

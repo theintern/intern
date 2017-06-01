@@ -21,6 +21,7 @@
 	"./benchmark/example.ts",
 	"./support/unit/factories.ts",
 	"./support/unit/mocks.ts",
+	"./unit/lib/browser/util.ts",
 	"./unit/lib/common/ErrorFormatter.ts",
 	"./unit/lib/common/util.ts",
 	"./unit/lib/node/ErrorFormatter.ts",
