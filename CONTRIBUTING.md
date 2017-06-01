@@ -53,7 +53,7 @@ helping other users on Stack Overflow or IRC, so get in touch if you’d be will
 ## Submitting pull requests
 
 Like most open source projects, we require everyone to sign a
-[contributor license agreement](http://dojofoundation.org/about/claForm) before we can accept any non-trivial
+[contributor license agreement](https://contribute.jquery.org/CLA/) before we can accept any non-trivial
 pull requests. This project belongs to the same foundation as other great OSS projects like Dojo, Grunt, lodash, and
 RequireJS, so one e-signature makes you eligible to contribute to all of these projects!
 
