@@ -33,6 +33,10 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 				else if (stack.indexOf(error.message) === 0) {
 					stack = stack.slice(String(error.message).length);
 				}
+				// The stack for errors in Internet Explorer may start with 'Error'
+				else if (stack.indexOf('Error\n') === 0) {
+					stack = stack.slice('Error'.length);
+				}
 
 				stack = this._normalizeStackTrace(stack);
 			}

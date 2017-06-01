@@ -54,10 +54,16 @@ registerSuite('lib/common/ErrorFormatter', function () {
 						},
 
 						error() {
-							assert.match(formatter.format(new Error('foo')), /^Error: foo\n  at Test\.error \[as test\]/);
+							let error = new Error('foo');
+							if (error.stack) {
+								assert.match(formatter.format(error), /^Error: foo\n  at (?:\S*\.)?error /);
+							}
+							else {
+								assert.equal(formatter.format(error), 'Error: foo\nNo stack or location');
+							}
 
-							const err = <InternError>{ message: 'foo' };
-							assert.equal(formatter.format(err), 'Error: foo\nNo stack or location');
+							error = <InternError>{ message: 'foo' };
+							assert.equal(formatter.format(error), 'Error: foo\nNo stack or location');
 						},
 
 						diff() {

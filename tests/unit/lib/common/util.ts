@@ -228,7 +228,11 @@ registerSuite('lib/common/util', {
 		assert.equal(util.stringify('foo'), '"foo"');
 		assert.equal(util.stringify(5), '5');
 		assert.equal(util.stringify(/(.*)/), '"(.*)"');
-		assert.equal(util.stringify(function () { return 'foo'; }), `"function () { return 'foo'; }"`);
+
+		// Older versions of Firefox may inject "use strict"; into fuction values
+		assert.match(util.stringify(function () { return 'foo'; }),
+			/"function \(\) {(?:\\n\\"use strict\\";\\n)? return 'foo'; }"/);
+
 		assert.equal(util.stringify({}), '{}');
 		assert.equal(util.stringify(<any>null), 'null');
 		assert.equal(util.stringify(''), '""');
