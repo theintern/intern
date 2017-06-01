@@ -9,10 +9,10 @@ import Promise from '@dojo/shim/Promise';
 export default class Suite implements SuiteProperties {
 	after: SuiteLifecycleFunction;
 	afterEach: TestLifecycleFunction;
-	async: ((timeout?: number) => Deferred<void>) | null;
+	async: ((timeout?: number) => Deferred<void>) | undefined;
 	before: SuiteLifecycleFunction;
 	beforeEach: TestLifecycleFunction;
-	error: InternError | null;
+	error: InternError | undefined;
 	name: string;
 	parent: Suite;
 
@@ -309,7 +309,7 @@ export default class Suite implements SuiteProperties {
 				resolve(returnValue);
 			}).catch((error: InternError) => {
 				// Remove the async method since it should only be available within a lifecycle function call
-				suite.async = null;
+				suite.async = undefined;
 
 				if (error !== SKIP) {
 					if (!this.error) {
@@ -338,7 +338,7 @@ export default class Suite implements SuiteProperties {
 		// Reset some state in case someone tries to re-run the same suite
 		// TODO: Cancel any previous outstanding suite run
 		// TODO: Test
-		this.error = null;
+		this.error = undefined;
 		this.timeElapsed = 0;
 
 		let task: Task<any>;

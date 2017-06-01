@@ -452,7 +452,8 @@ registerSuite('lib/Server', function () {
 								responder(request, response);
 
 								assert.lengthOf(executor.events, 1, 'unexpected number of executor events were emitted');
-								assert.deepEqual(executor.events[0], { name: 'error', data: error }, 'unexpected event');
+								assert.equal(executor.events[0].name, 'error', 'expected an error event');
+								assert.match(executor.events[0].data.message, /failed/, 'unexpected error value');
 							});
 						}
 					},

@@ -231,7 +231,7 @@ function createThrowsTest(method: lifecycleMethod, options: any = {}): _TestFunc
 			},
 			dfd.callback((error: InternError) => {
 				finished = true;
-				assert.strictEqual(suite.error, thrownError, `Error thrown in ${method} should be the error set on suite`);
+				assert.strictEqual<Error | undefined>(suite.error, thrownError, `Error thrown in ${method} should be the error set on suite`);
 				assert.strictEqual(error, thrownError, `Error thrown in  ${method} should be the error used by the promise`);
 
 				if (method === 'beforeEach' || method === 'afterEach') {

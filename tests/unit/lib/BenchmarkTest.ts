@@ -182,18 +182,18 @@ registerSuite('lib/BenchmarkTest', {
 				'testPass topic should be passed the test that was just run');
 			assert.property(actualBenchmarks, 'hz');
 			assert.property(actualBenchmarks, 'times');
-			assert.deepProperty(actualBenchmarks, 'times.cycle');
-			assert.deepProperty(actualBenchmarks, 'times.elapsed');
-			assert.deepProperty(actualBenchmarks, 'times.period');
-			assert.deepProperty(actualBenchmarks, 'times.timeStamp');
+			assert.property(actualBenchmarks.times, 'cycle');
+			assert.property(actualBenchmarks.times, 'elapsed');
+			assert.property(actualBenchmarks.times, 'period');
+			assert.property(actualBenchmarks.times, 'timeStamp');
 			assert.property(actualBenchmarks, 'stats');
-			assert.deepProperty(actualBenchmarks, 'stats.moe');
-			assert.deepProperty(actualBenchmarks, 'stats.rme');
-			assert.deepProperty(actualBenchmarks, 'stats.sem');
-			assert.deepProperty(actualBenchmarks, 'stats.deviation');
-			assert.deepProperty(actualBenchmarks, 'stats.mean');
-			assert.deepProperty(actualBenchmarks, 'stats.sample');
-			assert.deepProperty(actualBenchmarks, 'stats.variance');
+			assert.property(actualBenchmarks.stats, 'moe');
+			assert.property(actualBenchmarks.stats, 'rme');
+			assert.property(actualBenchmarks.stats, 'sem');
+			assert.property(actualBenchmarks.stats, 'deviation');
+			assert.property(actualBenchmarks.stats, 'mean');
+			assert.property(actualBenchmarks.stats, 'sample');
+			assert.property(actualBenchmarks.stats, 'variance');
 		});
 	},
 

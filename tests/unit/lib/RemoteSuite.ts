@@ -87,13 +87,13 @@ registerSuite('lib/RemoteSuite', {
 						setTimeout(dfd.callback(() => {
 							handler('suiteStart', { tests: [ 'foo', 'bar' ] });
 
-							assert.deepEqual(remoteSuite.tests, [ 'foo', 'bar' ]);
+							assert.deepEqual(<any[]>remoteSuite.tests, [ 'foo', 'bar' ]);
 							assert.lengthOf(events, 1);
 							assert.deepEqual(events[0], { name: 'suiteStart', data: remoteSuite });
 
 							handler('suiteEnd', { tests: [ 'baz', 'bif' ] });
 
-							assert.deepEqual(remoteSuite.tests, [ 'baz', 'bif' ]);
+							assert.deepEqual(<any[]>remoteSuite.tests, [ 'baz', 'bif' ]);
 							assert.lengthOf(events, 1);
 
 							handler('runEnd');
@@ -112,16 +112,16 @@ registerSuite('lib/RemoteSuite', {
 						setTimeout(dfd.callback(() => {
 							handler('suiteStart', { tests: [ 'foo', 'bar' ] });
 
-							assert.deepEqual(remoteSuite.tests, [ 'foo', 'bar' ]);
+							assert.deepEqual(<any[]>remoteSuite.tests, [ 'foo', 'bar' ]);
 							assert.lengthOf(events, 1);
 							assert.deepEqual(events[0], { name: 'suiteStart', data: remoteSuite });
 
 							const suiteError = new Error('foo');
 							handler('suiteEnd', { tests: [ 'baz', 'bif' ], error: suiteError });
 
-							assert.deepEqual(remoteSuite.tests, [ 'baz', 'bif' ]);
+							assert.deepEqual(<any[]>remoteSuite.tests, [ 'baz', 'bif' ]);
 							assert.lengthOf(events, 1);
-							assert.strictEqual(remoteSuite.error, suiteError);
+							assert.strictEqual<Error | undefined>(remoteSuite.error, suiteError);
 
 							handler('runEnd');
 						}));

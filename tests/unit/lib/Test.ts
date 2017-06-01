@@ -61,7 +61,7 @@ registerSuite('lib/Test', {
 				dfd.reject(new Error('Test should not resolve when it throws an error'));
 			},
 			dfd.callback((error: Error) => {
-				assert.strictEqual(test.error, thrownError, 'Error thrown by test should be the error set on test');
+				assert.strictEqual<Error | undefined>(test.error, thrownError, 'Error thrown by test should be the error set on test');
 				assert.strictEqual(error, thrownError, 'Error thrown by test should be the error used by the promise');
 			})
 		);
@@ -175,7 +175,7 @@ registerSuite('lib/Test', {
 			test.run().then(
 				() => { throw new Error('Test should throw if async and the promise is rejected'); },
 				error => {
-					assert.strictEqual(test.error, error, 'Error thrown in test should equal our assertion error');
+					assert.strictEqual<Error | undefined>(test.error, error, 'Error thrown in test should equal our assertion error');
 					assert.strictEqual(error, thrownError, 'Error thrown in test should be the error used by the promise');
 				}
 			);
@@ -271,7 +271,7 @@ registerSuite('lib/Test', {
 		}));
 		badTest.run().catch(() => {}).finally(dfd.callback(function () {
 			assert.isFalse(badTest.hasPassed, 'Bad test should not have passed after execution with error');
-			assert.strictEqual(badTest.error, thrownError, 'Bad test error should be the error which was thrown');
+			assert.strictEqual<Error | undefined>(badTest.error, thrownError, 'Bad test error should be the error which was thrown');
 		}));
 	},
 
