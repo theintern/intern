@@ -58,28 +58,40 @@
 				"_tests/tests/unit/lib/BenchmarkTest.js"
 			]
 		},
+
 		/* For running all unit tests in Node (including benchmarks) */
 		"coverage": {
 			"description": "Generate full coverage",
 			"benchmark": true,
-			"coverageSources": "_build/src/lib/**/*.js",
-			"extends": [ "allSuites", "wd" ],
+			"coverageSources": [
+				"_build/src/lib/**/*.js",
+				"_build/src/bin/**/*.js",
+				"_build/src/loaders/**/*.js",
+				"_build/src/tasks/**/*.js"
+			],
+			"extends": [ "allSuites" ],
 			"reporters+": {
 				"name": "htmlcoverage",
 				"options": { "sources": "_build/src/lib/**/*.js" }
 			}
 		},
+
 		/* For running local selenium tests */
 		"wd": {
 			"description": "Run tests in Chrome using Selenium",
 			"tunnel": "selenium",
 			"environments": { "browserName": "chrome", "fixSessionCapabilities": "no-detect" }
 		},
+
+		/* For running coverage tests locally  */
+		"wdcoverage": {
+			"extends": [ "wd", "coverage" ]
+		},
+
 		/* For running tests on Travis */
 		"ci": {
 			"description": "Run CI tests on the default cloud service (BrowserStack)",
-			"extends": "allSuites",
-			"coverageSources": "_build/src/lib/**/*.js",
+			"extends": "coverage",
 			"tunnel": "browserstack",
 			"maxConcurrency": 2,
 			"capabilities": {
@@ -93,6 +105,7 @@
 				{ "browser": "safari", "version": [ "9", "10" ] }
 			]
 		},
+
 		/* For running CI tests on Sauce Labs */
 		"sauce": {
 			"description": "Run CI tests on Sauce Labs",
