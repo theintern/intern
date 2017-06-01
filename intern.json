@@ -18,7 +18,8 @@
 	],
 	"browserSuites": [
 		"_tests/tests/unit/lib/Channel.js",
-		"_tests/tests/unit/lib/browser/util.js"
+		"_tests/tests/unit/lib/browser/util.js",
+		"_tests/tests/unit/lib/channels/Base.js"
 	],
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 
