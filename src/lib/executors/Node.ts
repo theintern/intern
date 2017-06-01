@@ -476,8 +476,14 @@ export default class Node extends Executor<Events, Config> {
 				this._setOption(name, value);
 				break;
 
+			case 'browserPlugins':
 			case 'nodePlugins':
 				this._setOption(name, parseValue(name, value, 'object[]', 'script'), addToExisting);
+				break;
+
+			case 'browserLoader':
+			case 'nodeLoader':
+				this._setOption(name, parseValue(name, value, 'object', 'script'));
 				break;
 
 			case 'functionalCoverage':
@@ -487,6 +493,7 @@ export default class Node extends Executor<Events, Config> {
 				this._setOption(name, parseValue(name, value, 'boolean'));
 				break;
 
+			case 'coverageSources':
 			case 'browserSuites':
 			case 'functionalSuites':
 			case 'nodeSuites':
@@ -628,6 +635,8 @@ export default class Node extends Executor<Events, Config> {
 export interface Config extends BaseConfig {
 	/** A loader used to load test suites and application modules in a remote browser. */
 	browserLoader: LoaderDescriptor;
+
+	browserPlugins: PluginDescriptor[];
 
 	/**
 	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that

@@ -90,6 +90,10 @@ export default class Browser extends Executor<Events, Config> {
 				this._setOption(name, parseValue(name, value, 'string'));
 				break;
 
+			case 'browserLoader':
+				this._setOption(name, parseValue(name, value, 'object', 'script'));
+				break;
+
 			case 'browserPlugins':
 				this._setOption(name, parseValue(name, value, 'object[]', 'script'), addToExisting);
 				break;

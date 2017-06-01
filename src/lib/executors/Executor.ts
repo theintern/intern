@@ -515,34 +515,18 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _processOption(name: keyof C, value: any, addToExisting: boolean) {
 		switch (name) {
 			case 'loader':
-				if (typeof value === 'string') {
-					try {
-						value = parseValue(name, value, 'object');
-					}
-					catch (error) {
-						value = { script: value };
-					}
-				}
-
-				if (!value.script) {
-					throw new Error(`Invalid value "${value}" for ${name}`);
-				}
-
-				this._setOption(name, value);
+				this._setOption(name, parseValue(name, value, 'object', 'script'));
 				break;
 
 			case 'bail':
 			case 'baseline':
 			case 'benchmark':
 			case 'debug':
+			case 'filterErrorStack':
 				this._setOption(name, parseValue(name, value, 'boolean'));
 				break;
 
-			case 'filterErrorStack':
-				value = parseValue(name, value, 'boolean');
-				this._setOption(name, value);
-				break;
-
+			case 'basePath':
 			case 'internPath':
 			case 'name':
 			case 'sessionId':
@@ -586,6 +570,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				break;
 
 			default:
+				console.warn(`Config has unknown option "${name}"`);
 				this._setOption(name, value);
 		}
 	}
