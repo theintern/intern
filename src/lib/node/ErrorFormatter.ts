@@ -1,6 +1,6 @@
 import ErrorFormatter from '../common/ErrorFormatter';
 import { readFileSync } from 'fs';
-import { dirname, join, relative } from 'path';
+import { dirname, join, relative, resolve } from 'path';
 import { MappingItem, SourceMapConsumer } from 'source-map';
 import { readSourceMap } from './util';
 import Node from '../executors/Node';
@@ -56,7 +56,8 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 			tracepath = tracepath.replace(/^__intern\//, this.executor.config.internPath);
 		}
 
-		source = relative('.', tracepath);
+		// Make the tracepath absolute since that's how it will be stored in map stores
+		tracepath = resolve(tracepath);
 
 		const instrumentedStore = this.executor.instrumentedMapStore;
 
@@ -80,6 +81,8 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 			map = this.getSourceMap(tracepath);
 		}
 
+		source = relative('.', tracepath);
+
 		if (map) {
 			originalPos = this.getOriginalPosition(map, line, col);
 			line = originalPos.line;
@@ -97,6 +100,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 			}
 		}
 
+		// Source should be relative, because that's what we want the user to see
 		source = relative('.', source);
 
 		result = source + ':' + line;
