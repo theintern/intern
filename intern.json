@@ -1,4 +1,5 @@
 {
+	"description": "Run tests on Node, excluding the benchmark tests",
 	"suites": [
 		"_tests/tests/unit/lib/Environment.js",
 		"_tests/tests/unit/lib/Suite.js",
@@ -49,6 +50,7 @@
 	"configs": {
 		/* Include benchmark suites */
 		"allSuites": {
+			"description": "All regular suites + benchmark suites",
 			"suites+": [
 				"_tests/tests/benchmark/example.js",
 				"_tests/tests/unit/lib/BenchmarkTest.js"
@@ -56,6 +58,7 @@
 		},
 		/* For running all unit tests in Node (including benchmarks) */
 		"coverage": {
+			"description": "Generate full coverage",
 			"benchmark": true,
 			"coverageSources": "_build/src/lib/**/*.js",
 			"extends": [ "allSuites", "wd" ],
@@ -66,11 +69,13 @@
 		},
 		/* For running local selenium tests */
 		"wd": {
+			"description": "Run tests in Chrome using Selenium",
 			"tunnel": "selenium",
 			"environments": { "browserName": "chrome", "fixSessionCapabilities": "no-detect" }
 		},
 		/* For running tests on Travis */
 		"ci": {
+			"description": "Run CI tests on the default cloud service (BrowserStack)",
 			"extends": "allSuites",
 			"coverageSources": "_build/src/lib/**/*.js",
 			"tunnel": "browserstack",
@@ -88,6 +93,7 @@
 		},
 		/* For running CI tests on Sauce Labs */
 		"sauce": {
+			"description": "Run CI tests on Sauce Labs",
 			"extends": "ci",
 			"tunnel": "saucelabs",
 			"environments": [

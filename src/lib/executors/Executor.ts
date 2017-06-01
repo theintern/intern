@@ -523,10 +523,12 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			case 'benchmark':
 			case 'debug':
 			case 'filterErrorStack':
+			case 'showConfig':
 				this._setOption(name, parseValue(name, value, 'boolean'));
 				break;
 
 			case 'basePath':
+			case 'description':
 			case 'internPath':
 			case 'name':
 			case 'sessionId':
@@ -668,6 +670,9 @@ export interface Config {
 
 	/** The default timeout for async tests, in ms. */
 	defaultTimeout: number;
+
+	/** A description for this test run */
+	description: string;
 
 	/** A regexp matching file names that shouldn't be instrumented, or `true` to disable instrumentation. */
 	excludeInstrumentation: true | RegExp;

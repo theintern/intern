@@ -7,16 +7,25 @@ export interface TextLoader {
 	(path: string): Task<string>;
 }
 
+export interface LoadedConfig {
+
+}
+
 /**
  * Load config data from a given path, using a given text loader, and mixing args and/or a childConfig into the final
  * config value if provided.
  */
 export function loadConfig(configPath: string, loadText: TextLoader, args?: { [key: string]: any }, childConfig?: string | string[]): Task<any> {
 	return _loadConfig(configPath, loadText, args, childConfig).then(config => {
-		// 'config', 'configs', and 'extends' are only applicable to the config loader, not the Executors
+		// 'config' and 'extends' are only applicable to the config loader, not the Executors
 		delete config.config;
-		delete config.configs;
 		delete config.extends;
+
+		if (!args || !args.showConfigs) {
+			// 'configs' is only relevant if we're showing configs
+			delete config.configs;
+		}
+
 		return config;
 	});
 }
@@ -48,6 +57,11 @@ function _loadConfig(configPath: string, loadText: TextLoader, args?: { [key: st
 		}
 		return config;
 	}).then(config => {
+		if (args && args.showConfigs) {
+			// If we're showing the configs, don't mix in children
+			return config;
+		}
+
 		if (childConfig) {
 			const mixinConfig = (childConfig: string | string[]) => {
 				const configs = Array.isArray(childConfig) ? childConfig : [ childConfig ];
@@ -68,10 +82,41 @@ function _loadConfig(configPath: string, loadText: TextLoader, args?: { [key: st
 		return config;
 	}).then(config => {
 		if (args) {
+			// If we're showing the configs, don't mix in args
 			mixin(config, args);
 		}
 		return config;
 	});
+}
+
+export function getConfigDescription(config: any) {
+	let description = '';
+
+	if (config.description) {
+		description += `${config.description}\n\n`;
+	}
+
+	if (config.configs) {
+		description += `Configs:\n`;
+		const width = Object.keys(config.configs).reduce((width, name) => {
+			return Math.max(width, name.length);
+		}, 0);
+		const lines = Object.keys(config.configs).map(name => {
+			const child = config.configs[name];
+			while (name.length < width) {
+				name += ' ';
+			}
+			let line = `  ${name}`;
+			if (child.description) {
+				line += ` (${child.description})`;
+			}
+			return line;
+		});
+
+		description += lines.join('\n');
+	}
+
+	return description;
 }
 
 /**
@@ -236,7 +281,7 @@ export function pullFromArray<T>(haystack: T[], needle: T): T[] {
 /**
  * Split a config path into a file name and a child config name.
  */
-export function splitConfigPath(path: string) {
+export function splitConfigPath(path: string): { configFile: string, childConfig?: string } {
 	const [ configFile, childConfig ] = path.split(configPathSeparator, 2);
 	return { configFile, childConfig };
 }

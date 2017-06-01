@@ -599,7 +599,7 @@ export default class Node extends Executor<Events, Config> {
 				return this._emitCoverage('functional tests');
 			}
 		}).finally(() => {
-            // If coverageSources is set, generate initial coverage data for files with no coverage results
+			// If coverageSources is set, generate initial coverage data for files with no coverage results
 			const filesWithCoverage = this._coverageMap.files();
 			expandFiles(this.config.coverageSources)
 				.map(path => resolve(path))
@@ -653,9 +653,9 @@ export interface Config extends BaseConfig {
 	/** Time to wait for contact from a remote server */
 	connectTimeout: number;
 
-    /**
-     * If set, coverage will be collected for all files. This allows uncovered files to be noticed more easily.
-     */
+	/**
+	 * If set, coverage will be collected for all files. This allows uncovered files to be noticed more easily.
+	 */
 	coverageSources: string[];
 
 	/** A list of remote environments */

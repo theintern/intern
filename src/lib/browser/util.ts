@@ -1,6 +1,5 @@
 import request from '@dojo/core/request/providers/xhr';
 import Task from '@dojo/core/async/Task';
-import { mixin } from '@dojo/core/lang';
 import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
 
 /**
@@ -19,10 +18,7 @@ export function getConfig() {
 	else {
 		// If no config parameter was provided, try 'intern.json'. If that file doesn't exist, just return the args
 		const path = resolvePath('intern.json', args.basePath);
-		return loadConfig(path, loadText).then(
-			config => mixin(config, args),
-			_error => args
-		);
+		return loadConfig(path, loadText, args).catch(_error => args);
 	}
 }
 

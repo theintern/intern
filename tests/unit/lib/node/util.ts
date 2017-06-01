@@ -4,9 +4,9 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
 const { removeMocks, requireWithMocks } = <any>intern.getPlugin('mocking');
 
-let util: typeof _util;
-
 registerSuite('lib/node/util', function () {
+	let util: typeof _util;
+
 	const mockFs = {
 		readFile(filename: string, _encoding: any, callback: (error: Error | undefined, data?: string) => {}) {
 			if (fsData[filename]) {
@@ -72,7 +72,7 @@ registerSuite('lib/node/util', function () {
 	let hasMagic: boolean;
 	let glob: ((pattern: string) => string[]) | undefined;
 	let calls: { [name: string]: any[] };
-	let parsedArgs: { [key: string]: any };
+	let parsedArgs: { [key: string]: string | string[] };
 	let fsData: { [name: string]: string };
 	let config: { [key: string]: any } | undefined;
 
@@ -138,29 +138,31 @@ registerSuite('lib/node/util', function () {
 			getConfig: {
 				'default config': {
 					exists() {
-						parsedArgs.here = 1;
+						parsedArgs.here = '1';
 						parsedArgs.there = 'bar';
-						fsData['intern.json'] = JSON.stringify({
-							suites: ['bar.js']
-						});
+						const configData = { suites: ['bar.js'] };
+						fsData['intern.json'] = JSON.stringify(configData);
 
 						return util.getConfig().then(config => {
 							assert.notProperty(calls, 'splitConfigPath', 'splitConfigPath should not have been called');
 							assert.property(calls, 'loadConfig', 'loadConfig should have been called');
+							assert.property(calls, 'parseArgs', 'parseArgs should have been called');
 							assert.equal(calls.loadConfig[0][0], 'intern.json');
-							assert.deepEqual(config, { suites: ['bar.js'], here: 1, there: 'bar' });
+							assert.deepEqual(calls.loadConfig[0][2], { here: '1', there: 'bar' });
+							// Since we've overridden loadConfig, args shouldn't actually be mixed in
+							assert.deepEqual(config, configData);
 						});
 					},
 
 					'does not exist'() {
-						parsedArgs.here = 1;
+						parsedArgs.here = '1';
 						parsedArgs.there = 'bar';
 
 						return util.getConfig().then(config => {
 							assert.notProperty(calls, 'splitConfigPath', 'splitConfigPath should not have been called');
 							assert.property(calls, 'loadConfig', 'loadConfig should have been called');
 							assert.equal(calls.loadConfig[0][0], 'intern.json');
-							assert.deepEqual(config, { here: 1, there: 'bar' });
+							assert.deepEqual(config, { here: '1', there: 'bar' });
 						});
 					},
 

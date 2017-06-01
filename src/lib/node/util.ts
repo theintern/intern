@@ -1,7 +1,6 @@
 import { dirname, join, normalize } from 'path';
 import { readFile, readFileSync } from 'fs';
 import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
-import { mixin } from '@dojo/core/lang';
 import { RawSourceMap } from 'source-map';
 import Task from '@dojo/core/async/Task';
 import { sync as glob, hasMagic } from 'glob';
@@ -27,7 +26,7 @@ export function expandFiles(patterns?: string[] | string) {
 }
 
 /**
- * Get the user-supplied config data, which may include query args and a config file.
+ * Get the user-supplied config data, which may include command line args and a config file.
  */
 export function getConfig() {
 	const args = parseArgs(process.argv.slice(2));
@@ -39,15 +38,12 @@ export function getConfig() {
 	}
 	else {
 		// If no config parameter was provided, try 'intern.json', or just resolve to the original args
-		return loadConfig('intern.json', loadText).then(
-			config => mixin(config, args),
-			(error: NodeJS.ErrnoException) => {
-				if (error.code === 'ENOENT') {
-					return args;
-				}
-				throw error;
+		return loadConfig('intern.json', loadText, args).catch((error: NodeJS.ErrnoException) => {
+			if (error.code === 'ENOENT') {
+				return args;
 			}
-		);
+			throw error;
+		});
 	}
 }
 

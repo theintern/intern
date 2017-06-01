@@ -19,6 +19,21 @@ registerSuite('lib/common/util', {
 			});
 		},
 
+		'config is cleaned up'() {
+			return util.loadConfig('children', loadText, { config: 'foo' }, 'extender').then(config => {
+				assert.notProperty(config, 'config');
+				assert.notProperty(config, 'configs');
+				assert.notProperty(config, 'extends');
+			});
+		},
+
+		'showConfigs'() {
+			return util.loadConfig('described', loadText, { showConfigs: true }).then(config => {
+				assert.property(config, 'configs', 'expected configs not to have been cleaned up');
+				assert.property(config, 'showConfigs', 'expected args to be mixed in');
+			});
+		},
+
 		extends() {
 			return util.loadConfig('extends', loadText).then(config => {
 				assert.deepEqual(config, { foo: 111, bar: 'bye' });
@@ -43,6 +58,13 @@ registerSuite('lib/common/util', {
 				error => { assert.match(error.message, /Unknown child config/); }
 			);
 		}
+	},
+
+	getConfigDescription() {
+		return util.loadConfig('described', loadText, { showConfigs: true }).then(config => {
+			const desc = util.getConfigDescription(config);
+			assert.equal(desc, 'has children\n\nConfigs:\n  child    (a child)\n  extender');
+		});
 	},
 
 	normalizePathEnding() {
@@ -260,6 +282,19 @@ function loadText(path: string) {
 				extender: {
 					extends: 'child',
 					foo: 123
+				}
+			}
+		}));
+	}
+	if (path === 'described') {
+		return Task.resolve(JSON.stringify({
+			description: 'has children',
+			configs: {
+				child: {
+					description: 'a child'
+				},
+				extender: {
+					extends: 'child'
 				}
 			}
 		}));
