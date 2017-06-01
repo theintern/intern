@@ -150,11 +150,13 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 		if (this.executor.config.filterErrorStack) {
 			stackLines = stackLines.filter(line => {
 				return !(
-					/internal\/process\//.test(line) ||
-					/node_modules\/(?!digdug|leadfoot)/.test(line) ||
+					/\binternal\/process\//.test(line) ||
+					/\bnode_modules\/(?!digdug|leadfoot)/.test(line) ||
 					/\/__intern\//.test(line) ||
-					/Module\.runMain/.test(line) ||
-					/bootstrap_node\.js/.test(line) ||
+					/\bModule\.(?:runMain|load)/.test(line) ||
+					/\bModule\._\w+/.test(line) ||
+					/\bbootstrap_node\.js/.test(line) ||
+					/<module.js[:>]/.test(line) ||
 					/<anonymous>/.test(line)
 				);
 			});

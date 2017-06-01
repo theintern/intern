@@ -101,7 +101,7 @@
         "bin/**"
       ],
       "_tests": [
-        "tests/**/*.xml",
+        "tests/**/*.{xml,d.ts}",
         "src/**/*.{css,d.ts,html,js,png}"
       ]
     },

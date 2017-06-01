@@ -4,7 +4,7 @@ import { mockExecutor, MockExecutor } from '../../../support/unit/mocks';
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
-const { removeMocks, requireWithMocks } = intern.getPlugin('mocking');
+const { removeMocks, requireWithMocks } = intern.getPlugin<mocking.Mocking>('mocking');
 
 let ErrorFormatter: typeof _ErrorFormatter;
 

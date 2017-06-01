@@ -223,8 +223,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Get any resources registered by a particular plugin
 	 */
-	getPlugin(name: string): { [name: string]: any } {
-		return this._pluginExports[name];
+	getPlugin<T = { [name: string]: any }>(name: string): T {
+		return <T>this._pluginExports[name];
 	}
 
 	/**

@@ -1,3 +1,5 @@
+/// <reference path="./mocking.d.ts"/>
+
 intern.registerPlugin('mocking', () => {
 	const registeredMocks: { id: string, original: any }[] = [];
 
@@ -25,5 +27,5 @@ intern.registerPlugin('mocking', () => {
 		return Promise.resolve(contextRequire(mod));
 	}
 
-	return { requireWithMocks, removeMocks };
+	return <mocking.Mocking>{ requireWithMocks, removeMocks };
 });

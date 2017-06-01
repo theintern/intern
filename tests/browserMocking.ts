@@ -1,4 +1,5 @@
 /// <reference types="@dojo/loader"/>
+/// <reference path="./mocking.d.ts"/>
 
 intern.registerPlugin('mocking', () => {
 	const registeredMocks: { id: string, original: any }[] = [];
@@ -28,5 +29,5 @@ intern.registerPlugin('mocking', () => {
 		});
 	}
 
-	return { requireWithMocks, removeMocks };
+	return <mocking.Mocking>{ requireWithMocks, removeMocks };
 });
