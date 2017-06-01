@@ -1,7 +1,7 @@
 import Executor, { Config as BaseConfig, Events, initialize, LoaderDescriptor, PluginDescriptor } from './Executor';
 import { normalizePathEnding, parseValue } from '../common/util';
 import { duplicate } from '@dojo/core/lang';
-import ErrorFormatter from '../browser/ErrorFormatter';
+import ErrorFormatter from '../common/ErrorFormatter';
 import Task from '@dojo/core/async/Task';
 
 /**

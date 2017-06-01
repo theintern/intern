@@ -87,6 +87,9 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 	}
 
 	protected _getSource(tracepath: string): string {
+		if (tracepath === '<anonymous>') {
+			return 'anonymous';
+		}
 		return tracepath;
 	}
 
