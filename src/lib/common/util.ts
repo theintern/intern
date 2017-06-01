@@ -90,7 +90,7 @@ export function normalizePathEnding(path: string) {
 export function parseArgs(rawArgs: string[]) {
 	const args: { [key: string]: any } = {};
 	rawArgs.forEach(arg => {
-		let [name, value] = arg.split('=', 2);
+		let [name, value] = arg.split(/=(.*)/, 2);
 
 		if (typeof value === 'undefined') {
 			args[name] = true;
