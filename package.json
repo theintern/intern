@@ -8,7 +8,7 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@dojo/core": "https://github.com/jason0x43/core/releases/download/v2.0.0-alpha.29/dojo-core-2.0.0-alpha.29.tgz",
+    "@dojo/core": "beta1",
     "@dojo/has": "beta1",
     "@dojo/interfaces": "beta1",
     "@dojo/shim": "beta1",
