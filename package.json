@@ -8,18 +8,19 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@dojo/core": "https://github.com/jason0x43/core/releases/download/v2.0.0-alpha.29/dojo-core-2.0.0-alpha.29.tgz",
+    "@dojo/core": "beta1",
     "@dojo/has": "beta1",
     "@dojo/interfaces": "beta1",
     "@dojo/shim": "beta1",
-    "decompress": "~4.0.0"
+    "cbt_tunnels": "0.0.34",
+    "decompress": "~4.2.0"
   },
   "devDependencies": {
     "@dojo/loader": "beta1",
-    "@types/node": "~6.0.48",
-    "@types/shelljs": "~0.3.33",
+    "@types/node": "~7.0.23",
+    "@types/shelljs": "~0.7.1",
     "intern": "~3.4.2",
-    "intern-dev": "~0.2.0",
+    "intern-dev": "~0.2.10",
     "shelljs": "~0.7.7"
   },
   "scripts": {
