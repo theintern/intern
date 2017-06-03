@@ -53,7 +53,7 @@
     "ci": "NODE_PATH=_build node _tests/tests/selftest.js"
   },
   "dependencies": {
-    "@dojo/core": "https://github.com/jason0x43/core/releases/download/v2.0.0-alpha.29/dojo-core-2.0.0-alpha.29.tgz",
+    "@dojo/core": "beta1",
     "@dojo/interfaces": "beta1",
     "@types/benchmark": "~1.0.30",
     "@types/chai": "~4.0.0",
