@@ -4,7 +4,7 @@ import { spy, SinonSpy } from 'sinon';
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
-const { removeMocks, requireWithMocks } = intern.getPlugin('mocking');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/browser/util', function () {
 	class MockResponse {
@@ -31,6 +31,7 @@ registerSuite('lib/browser/util', function () {
 	let util: typeof _util;
 	let parsedArgs: { [key: string]: string | string[] };
 	let requestData: { [name: string]: string };
+	let removeMocks: () => void;
 
 	const mockUtil: { [name: string]: SinonSpy } = {
 		loadConfig: spy((filename: string, loadText: (filename: string) => Promise<string>, _args?: string[], _childConfig?: string) => {
@@ -51,11 +52,12 @@ registerSuite('lib/browser/util', function () {
 
 	return {
 		before() {
-			return requireWithMocks(require, 'src/lib/browser/util', {
+			return mockRequire(require, 'src/lib/browser/util', {
 				'@dojo/core/request/providers/xhr': { default: request },
 				'src/lib/common/util': mockUtil
-			}).then((_util: any) => {
-				util = _util;
+			}).then(handle => {
+				removeMocks = handle.remove;
+				util = handle.module;
 			});
 		},
 

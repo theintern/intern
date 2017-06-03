@@ -4,16 +4,17 @@ import { RemoteEvents } from '../RemoteSuite';
 import BaseChannel, { ChannelOptions, Message } from './Base';
 
 export default class HttpChannel extends BaseChannel {
-	protected _activeRequest: Task<any> | null;
-	protected _pendingRequest: Task<any> | null;
+	protected _lastRequest: Task<any>;
 	protected _messageBuffer: string[];
 	protected _sequence: number;
 	protected _maxPostSize: number;
 
-	constructor(options: ChannelOptions) {
+	constructor(options: HttpChannelOptions) {
 		super(options);
 		this._sequence = 1;
+		this._maxPostSize = options.maxPostSize || 100000;
 		this._messageBuffer = [];
+		this._lastRequest = Task.resolve();
 	}
 
 	protected _sendData(name: keyof RemoteEvents, data: any) {
@@ -23,62 +24,45 @@ export default class HttpChannel extends BaseChannel {
 
 		this._messageBuffer.push(JSON.stringify(message));
 
-		if (this._activeRequest || this._pendingRequest) {
-			if (!this._pendingRequest) {
-				// Schedule another request after the active one completes
-				this._pendingRequest = this._activeRequest!.then(() => {
-					this._pendingRequest = null;
-					return this._send();
-				});
-			}
-			return this._pendingRequest;
-		}
-
-		return this._send();
+		return this._lastRequest = this._lastRequest.then(() => this._send());
 	}
 
 	/**
-	 * Send all buffered messages and empty the buffer. Note that the posted data will always be an array of objects.
+	 * If there are messages to send, send them.
 	 */
 	protected _send() {
-		// Some testing services have problems handling large message POSTs, so limit the maximum size of
-		// each POST body to maxPostSize bytes. Always send at least one message, even if it's more than
-		// maxPostSize bytes.
-		const sendNextBlock = (): Task<any> => {
-			const block = [ messages.shift()! ];
-			let size = block[0].length;
-			while (messages.length > 0 && size + messages[0].length < exports.maxPostSize) {
-				size += messages[0].length;
-				block.push(messages.shift()!);
-			}
-
-			return request(this.url, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(block)
-			}).then(() => {
-				if (messages.length > 0) {
-					return sendNextBlock();
-				}
-			});
-		};
-
-		const messages = this._messageBuffer;
-		this._messageBuffer = [];
-
-		this._activeRequest = new Task((resolve, reject) => {
-			return sendNextBlock().then(
-				() => {
-					this._activeRequest = null;
-					resolve();
-				},
-				error => {
-					this._activeRequest = null;
-					reject(error);
-				}
-			);
-		});
-
-		return this._activeRequest;
+		if (this._messageBuffer.length === 0) {
+			return Task.resolve();
+		}
+		return this._sendMessages();
 	}
+
+	/**
+	 * Some testing services have problems handling large message POSTs, so limit the maximum size of each POST body to
+	 * maxPostSize bytes. Always send at least one message, even if it's more than maxPostSize bytes.
+	 */
+	protected _sendMessages(): Task<void> {
+		const messages = this._messageBuffer;
+		const block = [ messages.shift()! ];
+
+		let size = block[0].length;
+		while (messages.length > 0 && size + messages[0].length < this._maxPostSize) {
+			size += messages[0].length;
+			block.push(messages.shift()!);
+		}
+
+		return request(this.url, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(block)
+		}).then(() => {
+			if (messages.length > 0) {
+				return this._sendMessages();
+			}
+		});
+	}
+}
+
+export interface HttpChannelOptions extends ChannelOptions {
+	maxPostSize?: number;
 }

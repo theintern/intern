@@ -5,9 +5,6 @@ import { parseArgs } from '../lib/common/util';
 import Channel from '../lib/Channel';
 import Dom from '../lib/reporters/Dom';
 
-// In this context, the executor will be a Remote
-declare const intern: Browser;
-
 // A Benchmark global needs to be defined for benchmark.js to work properly when loaded as part of the Intern browser
 // bundle since neither Node's require nor an AMD define will be present.
 (<any>window).Benchmark = {};
@@ -27,7 +24,7 @@ function displayMessage(message: string) {
 }
 
 try {
-	Browser.initialize(config);
+	const intern = Browser.initialize(config);
 
 	intern.registerReporter('dom', Dom);
 

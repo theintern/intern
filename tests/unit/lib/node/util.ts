@@ -2,7 +2,7 @@ import * as _util from 'src/lib/node/util';
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
-const { removeMocks, requireWithMocks } = intern.getPlugin('mocking');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/node/util', function () {
 	let util: typeof _util;
@@ -75,15 +75,17 @@ registerSuite('lib/node/util', function () {
 	let parsedArgs: { [key: string]: string | string[] };
 	let fsData: { [name: string]: string };
 	let config: { [key: string]: any } | undefined;
+	let removeMocks: () => void;
 
 	return {
 		before() {
-			return requireWithMocks(require, 'src/lib/node/util', {
+			return mockRequire(require, 'src/lib/node/util', {
 				'fs': mockFs,
 				'glob': mockGlob,
 				'src/lib/common/util': mockUtil
-			}).then((_util: any) => {
-				util = _util;
+			}).then(handle => {
+				removeMocks = handle.remove;
+				util = handle.module;
 			});
 		},
 

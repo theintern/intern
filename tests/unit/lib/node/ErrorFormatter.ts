@@ -6,7 +6,7 @@ import { duplicate } from '@dojo/core/lang';
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
-const { removeMocks, requireWithMocks } = intern.getPlugin('mocking');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 let ErrorFormatter: typeof _ErrorFormatter;
 
@@ -70,16 +70,18 @@ registerSuite('lib/node/ErrorFormatter', function () {
 	};
 
 	let fsData: { [name: string]: string };
+	let removeMocks: () => void;
 
 	return {
 		before() {
-			return requireWithMocks(require, 'src/lib/node/ErrorFormatter', {
+			return mockRequire(require, 'src/lib/node/ErrorFormatter', {
 				'source-map': { SourceMapConsumer },
 				path: mockPath,
 				fs: mockFs,
 				'src/lib/node/util': mockUtil
-			}).then((_ErrorFormatter: any) => {
-				ErrorFormatter = _ErrorFormatter.default;
+			}).then(handle => {
+				removeMocks = handle.remove;
+				ErrorFormatter = handle.module.default;
 			});
 		},
 

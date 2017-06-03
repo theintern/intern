@@ -1,10 +1,10 @@
 import Task from '@dojo/core/async/Task';
 import { stub, SinonStub, spy, SinonSpy } from 'sinon';
-import global from '@dojo/core/global';
+import intern from '../../../src/index';
 
-const { registerSuite } = intern.getInterface('object');
-const assert = intern.getAssertions('assert');
-const { removeMocks, requireWithMocks } = intern.getPlugin<mocking.Mocking>('mocking');
+const { registerSuite } = intern().getInterface('object');
+const assert = intern().getAssertions('assert');
+const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('bin/intern', function () {
 	const mockNodeUtil: { [name: string]: SinonSpy } = {
@@ -21,8 +21,8 @@ registerSuite('bin/intern', function () {
 
 	let configData: any;
 	let logStub: SinonStub | undefined;
-	const globalIntern = global.intern;
 	const originalExitCode = process.exitCode;
+	let removeMocks: (() => void) | undefined;
 
 	return {
 		beforeEach() {
@@ -32,22 +32,28 @@ registerSuite('bin/intern', function () {
 		},
 
 		afterEach() {
-			removeMocks();
+			if (removeMocks) {
+				removeMocks();
+				removeMocks = undefined;
+			}
+
 			if (logStub) {
 				logStub.restore();
 				logStub = undefined;
 			}
-			global.intern = globalIntern;
+
 			process.exitCode = originalExitCode;
 		},
 
 		tests: {
 			'basic run'() {
-				return requireWithMocks(require, 'src/bin/intern', {
+				return mockRequire(require, 'src/bin/intern', {
 					'src/lib/node/runner': { default: () => Task.resolve() },
 					'src/lib/node/util': mockNodeUtil,
-					'src/lib/common/util': mockCommonUtil
-				}).then(() => {
+					'src/lib/common/util': mockCommonUtil,
+					'src/index': { default: () => {} }
+				}).then(handle => {
+					removeMocks = handle.remove;
 					assert.equal(mockNodeUtil.getConfig.callCount, 1);
 					assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
 				});
@@ -57,11 +63,13 @@ registerSuite('bin/intern', function () {
 				configData = { showConfigs: true };
 				logStub = stub(console, 'log');
 
-				return requireWithMocks(require, 'src/bin/intern', {
+				return mockRequire(require, 'src/bin/intern', {
 					'src/lib/node/runner': { default: () => Task.resolve() },
 					'src/lib/node/util': mockNodeUtil,
-					'src/lib/common/util': mockCommonUtil
-				}).then(() => {
+					'src/lib/common/util': mockCommonUtil,
+					'src/index': { default: () => {} }
+				}).then(handle => {
+					removeMocks = handle.remove;
 					assert.equal(mockNodeUtil.getConfig.callCount, 1);
 					assert.equal(mockCommonUtil.getConfigDescription.callCount, 1);
 					assert.equal(logStub!.callCount, 1, 'expected log to be called once');
@@ -74,11 +82,13 @@ registerSuite('bin/intern', function () {
 					const origExitCode = process.exitCode;
 					logStub = stub(console, 'error');
 
-					return requireWithMocks(require, 'src/bin/intern', {
+					return mockRequire(require, 'src/bin/intern', {
 						'src/lib/node/runner': { default: () => Task.reject(new Error('fail')) },
 						'src/lib/node/util': mockNodeUtil,
-						'src/lib/common/util': mockCommonUtil
-					}).then(() => {
+						'src/lib/common/util': mockCommonUtil,
+						'src/index': { default: () => {} }
+					}).then(handle => {
+						removeMocks = handle.remove;
 						process.exitCode = origExitCode;
 						assert.equal(logStub!.callCount, 0, 'expected error not to be called');
 					});
@@ -88,13 +98,14 @@ registerSuite('bin/intern', function () {
 					const messageLogged = new Promise(resolve => {
 						logStub = stub(console, 'error').callsFake(resolve);
 					});
-					global.intern = undefined;
 
-					return requireWithMocks(require, 'src/bin/intern', {
+					return mockRequire(require, 'src/bin/intern', {
 						'src/lib/node/runner': { default: () => Task.reject(new Error('fail')) },
 						'src/lib/node/util': mockNodeUtil,
-						'src/lib/common/util': mockCommonUtil
-					}).then(() => {
+						'src/lib/common/util': mockCommonUtil,
+						'src/index': { default: () => {} }
+					}).then(handle => {
+						removeMocks = handle.remove;
 						return messageLogged;
 					}).then(() => {
 						assert.equal(logStub!.callCount, 1, 'expected error to be called once');

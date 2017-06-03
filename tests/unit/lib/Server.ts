@@ -5,7 +5,7 @@ import { mixin } from '@dojo/core/lang';
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
-const { removeMocks, requireWithMocks } = <any>intern.getPlugin('mocking');
+const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 
 let Server: typeof _Server;
 
@@ -149,6 +149,8 @@ function assertPropertyLength(obj: { [key: string]: any }, name: string, length:
 	assert.lengthOf(obj[name], length, message);
 }
 
+let removeMocks: () => void;
+
 registerSuite('lib/Server', function () {
 	// These classes below access closured data, so they're defined in here
 
@@ -247,13 +249,14 @@ registerSuite('lib/Server', function () {
 
 	return {
 		before() {
-			return requireWithMocks(require, 'src/lib/Server', {
+			return mockRequire(require, 'src/lib/Server', {
 				'fs': mockFs,
 				'http': mockHttp,
 				'path': mockPath,
 				'ws': mockWebSocket
-			}).then((_Server: any) => {
-				Server = _Server.default;
+			}).then(resource => {
+				removeMocks = resource.remove;
+				Server = resource.module.default;
 			});
 		},
 

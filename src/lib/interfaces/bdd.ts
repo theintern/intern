@@ -1,7 +1,7 @@
 import Executor from '../executors/Executor';
 import { SuiteLifecycleFunction } from '../Suite';
 import { TestFunction } from '../Test';
-import getTddInterface from './tdd';
+import { getInterface as getTddInterface, suite, test, before, after, beforeEach, afterEach } from './tdd';
 
 export interface BddInterface {
 	describe(name: string, factory: SuiteLifecycleFunction): void;
@@ -12,7 +12,11 @@ export interface BddInterface {
 	afterEach(fn: SuiteLifecycleFunction): void;
 }
 
-export default function getInterface(executor: Executor): BddInterface {
+export { suite as describe };
+export { test as it };
+export { before, after, beforeEach, afterEach };
+
+export function getInterface(executor: Executor): BddInterface {
 	const { suite, test, before, after, beforeEach, afterEach } = getTddInterface(executor);
 
 	return {

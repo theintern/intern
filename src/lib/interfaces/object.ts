@@ -41,25 +41,22 @@
 import Suite, { SuiteOptions, SuiteProperties } from '../Suite';
 import Test, { TestFunction, isTestFunction } from '../Test';
 import Executor from '../executors/Executor';
+import intern from '../../index';
 
-export default function getInterface(executor: Executor) {
+/**
+ * Importable interface that uses the currently installed global executor
+ */
+export default function registerSuite(name: string, descriptorOrFactory: ObjectSuiteDescriptor | ObjectSuiteFactory | Tests) {
+	return _registerSuite(intern(), name, descriptorOrFactory);
+}
+
+/**
+ * Interface factory used by Executor.getInterface
+ */
+export function getInterface(executor: Executor) {
 	return {
 		registerSuite(name: string, descriptorOrFactory: ObjectSuiteDescriptor | ObjectSuiteFactory | Tests) {
-			executor.addSuite(parent => {
-				// Enable per-suite closure, to match feature parity with other interfaces like tdd/bdd more closely;
-				// without this, it becomes impossible to use the object interface for functional tests since there is no
-				// other way to create a closure for each main suite
-				let descriptor: ObjectSuiteDescriptor | Tests;
-
-				if (isSuiteDescriptorFactory<ObjectSuiteFactory>(descriptorOrFactory)) {
-					descriptor = descriptorOrFactory();
-				}
-				else {
-					descriptor = descriptorOrFactory;
-				}
-
-				parent.add(createSuite(name, parent, descriptor, Suite, Test));
-			});
+			return _registerSuite(executor, name, descriptorOrFactory);
 		}
 	};
 }
@@ -135,4 +132,22 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(name:
 
 function isObjectSuiteDescriptor(value: any): value is ObjectSuiteDescriptor {
 	return typeof value === 'object' && typeof value.tests === 'object';
+}
+
+function _registerSuite(executor: Executor, name: string, descriptorOrFactory: ObjectSuiteDescriptor | ObjectSuiteFactory | Tests) {
+	executor.addSuite(parent => {
+		// Enable per-suite closure, to match feature parity with other interfaces like tdd/bdd more closely;
+		// without this, it becomes impossible to use the object interface for functional tests since there is no
+		// other way to create a closure for each main suite
+		let descriptor: ObjectSuiteDescriptor | Tests;
+
+		if (isSuiteDescriptorFactory<ObjectSuiteFactory>(descriptorOrFactory)) {
+			descriptor = descriptorOrFactory();
+		}
+		else {
+			descriptor = descriptorOrFactory;
+		}
+
+		parent.add(createSuite(name, parent, descriptor, Suite, Test));
+	});
 }

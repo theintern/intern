@@ -1,22 +1,25 @@
 import _Channel, { ChannelOptions } from 'src/lib/Channel';
 import Task from '@dojo/core/async/Task';
+import intern from '../../../src/index';
 
-const { registerSuite } = intern.getInterface('object');
-const assert = intern.getAssertions('assert');
-const { removeMocks, requireWithMocks } = <any>intern.getPlugin('mocking');
+const { registerSuite } = intern().getInterface('object');
+const assert = intern().getAssertions('assert');
+const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
 
 let Channel: typeof _Channel;
 
 let messages: string[];
 let websocketError: 'construct' | 'send' | null;
+let removeMocks: () => void;
 
 registerSuite('lib/Channel', {
 	before() {
-		return requireWithMocks(require, 'src/lib/Channel', {
+		return mockRequire(require, 'src/lib/Channel', {
 			'src/lib/channels/WebSocket': { default: MockWebSocket },
 			'src/lib/channels/Http': { default: MockHttp }
-		}).then((_Channel: any) => {
-			Channel = _Channel.default;
+		}).then(handle => {
+			removeMocks = handle.remove;
+			Channel = handle.module.default;
 		});
 	},
 

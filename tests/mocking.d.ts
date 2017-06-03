@@ -1,6 +1,10 @@
 declare namespace mocking {
-	export interface Mocking {
-		removeMocks(): void;
-		requireWithMocks(require: (id: string) => any, mod: string, mocks: { [key: string]: any }): Promise<any>;
+	export interface MockedResource<T = any> {
+		module: T;
+		remove: () => void;
+	}
+
+	export interface MockRequire {
+		<T = any>(require: (id: string) => any, mod: string, mocks: { [key: string]: any }): Promise<MockedResource<T>>;
 	}
 }

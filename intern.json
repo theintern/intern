@@ -4,6 +4,7 @@
 		"_tests/tests/unit/lib/Environment.js",
 		"_tests/tests/unit/lib/Suite.js",
 		"_tests/tests/unit/lib/Test.js",
+		"_tests/tests/unit/lib/channels/Http.js",
 		"_tests/tests/unit/lib/common/util.js",
 		"_tests/tests/unit/lib/common/ErrorFormatter.js"
 	],
@@ -19,11 +20,12 @@
 	"browserSuites": [
 		"_tests/tests/unit/lib/Channel.js",
 		"_tests/tests/unit/lib/browser/util.js",
-		"_tests/tests/unit/lib/channels/Base.js"
+		"_tests/tests/unit/lib/channels/Base.js",
+		"_tests/tests/unit/lib/channels/Http.js"
 	],
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 
-	"browserPlugins": "_tests/tests/browserMocking.js",
+	"browserPlugins": "_tests/tests/dojoMocking.js",
 	"nodePlugins": "_tests/tests/nodeMocking.js",
 
 	"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } },

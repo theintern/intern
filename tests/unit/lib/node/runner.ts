@@ -3,17 +3,17 @@ import Task from '@dojo/core/async/Task';
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getAssertions('assert');
-const { removeMocks, requireWithMocks } = intern.getPlugin('mocking');
-
-let run: typeof _run;
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/node/runner', function () {
 	let initializedConfig: any;
 	let runValue: Task<void>;
+	let removeMocks: () => void;
+	let run: typeof _run;
 
 	return {
 		before() {
-			return requireWithMocks(require, 'src/lib/node/runner', {
+			return mockRequire(require, 'src/lib/node/runner', {
 				'src/lib/executors/Node': {
 					default: {
 						initialize(rawConfig: any) {
@@ -26,8 +26,9 @@ registerSuite('lib/node/runner', function () {
 						}
 					}
 				}
-			}).then((_runner: any) => {
-				run = _runner.default;
+			}).then(handle => {
+				removeMocks = handle.remove;
+				run = handle.module.default;
 			});
 		},
 

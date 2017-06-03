@@ -11,6 +11,8 @@ import { getConfigDescription } from '../lib/common/util';
 // bundle since neither Node's require nor an AMD define will be present.
 (<any>window).Benchmark = {};
 
+let intern: Browser;
+
 getConfig().then(config => {
 	if (config.showConfigs) {
 		console.log(getConfigDescription(config));
@@ -31,7 +33,7 @@ getConfig().then(config => {
 			config.internPath = location.pathname;
 		}
 
-		Browser.initialize(config);
+		intern = Browser.initialize(config);
 
 		intern.registerReporter('html', Html);
 		intern.registerReporter('console', Console);

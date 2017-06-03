@@ -6,9 +6,10 @@ import BenchmarkSuite, { BenchmarkSuiteOptions, BenchmarkSuiteProperties } from 
 import Deferred from 'src/lib/Deferred';
 import Task from '@dojo/core/async/Task';
 import Promise from '@dojo/shim/Promise';
+import intern from '../../../src/index';
 
-const { registerSuite } = intern.getInterface('object');
-const assert = intern.getAssertions('assert');
+const { registerSuite } = intern().getInterface('object');
+const assert = intern().getAssertions('assert');
 
 type FullBenchmarkTestFunction = BenchmarkTestFunction & { options: any };
 

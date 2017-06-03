@@ -3,12 +3,13 @@ import Server from 'leadfoot/Server';
 import Promise from '@dojo/shim/Promise';
 import { Remote } from 'src/lib/executors/Node';
 import Task from '@dojo/core/async/Task';
+import intern from '../../../src/index';
 
 // Bring in Test and TestFunction from testing src rather than the src being tested
 import Test, { TestFunction } from '../../../src/lib/Test';
 
-const { registerSuite } = intern.getInterface('object');
-const assert = intern.getAssertions('assert');
+const { registerSuite } = intern().getInterface('object');
+const assert = intern().getAssertions('assert');
 
 registerSuite('ProxiedSession', function () {
 	const serverUrl = 'https://example.invalid/';
