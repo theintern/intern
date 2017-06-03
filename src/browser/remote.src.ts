@@ -4,10 +4,11 @@ import { parseQuery } from '../lib/browser/util';
 import { parseArgs } from '../lib/common/util';
 import Channel from '../lib/Channel';
 import Dom from '../lib/reporters/Dom';
+import global from '@dojo/core/global';
 
 // A Benchmark global needs to be defined for benchmark.js to work properly when loaded as part of the Intern browser
 // bundle since neither Node's require nor an AMD define will be present.
-(<any>window).Benchmark = {};
+global.Benchmark = {};
 
 const config = <RemoteConfig>parseArgs(parseQuery());
 const channel = new Channel({

@@ -3,7 +3,13 @@ import { InternError } from './types';
 import Deferred from './Deferred';
 import Task from '@dojo/core/async/Task';
 import { mixin } from '@dojo/core/lang';
-import Benchmark = require('benchmark');
+
+// Explicitly require benchmark dependencies and attach Benchmark to them to improve WebPack compatibility
+import * as _ from 'lodash';
+import * as platform from 'platform';
+import * as Benchmark from 'benchmark';
+// TODO: remove the <any> cast when benchmark typings are updated to include runInContext
+(<any>Benchmark).runInContext({ _, platform });
 
 /**
  * A wrapper around a Benchmark.js Benchmark that maps its API to that used by Test.

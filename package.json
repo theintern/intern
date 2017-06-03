@@ -9,7 +9,9 @@
     "index.*",
     "bin/*.js",
     "favicon.*",
-    "browser",
+    "browser/*.html",
+    "browser/remote.js",
+    "browser/intern.js",
     "lib",
     "loaders",
     "tasks",
@@ -43,14 +45,14 @@
   },
   "scripts": {
     "build": "npm run clean && stylus src/lib/reporters/html/html.styl && intern-dev-build",
-    "postbuild": "intern-dev-browserify",
-    "browserify": "intern-dev-browserify",
+    "postbuild": "webpack --hide-modules",
     "clean": "intern-dev-clean",
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
     "test": "NODE_PATH=_build node _tests/src/bin/intern.js",
     "preci": "npm run build",
-    "ci": "NODE_PATH=_build node _tests/tests/selftest.js"
+    "ci": "NODE_PATH=_build node _tests/tests/selftest.js",
+    "watch": "ts-node support/watch.ts"
   },
   "dependencies": {
     "@dojo/core": "beta1",
@@ -58,7 +60,10 @@
     "@types/benchmark": "~1.0.30",
     "@types/chai": "~4.0.0",
     "@types/charm": "~1.0.0",
+    "@types/chokidar": "~1.6.0",
     "@types/diff": "~3.2.0",
+    "@types/lodash": "~4.14.65",
+    "@types/platform": "~1.3.0",
     "@types/source-map": "~0.1.29",
     "@types/ws": "~0.0.38",
     "benchmark": "~2.1.4",
@@ -83,12 +88,16 @@
     "@types/glob": "~5.0.30",
     "@types/grunt": "~0.4.21",
     "@types/node": "~6.0.74",
+    "@types/shelljs": "~0.7.2",
     "@types/sinon": "~2.2.2",
     "@types/systemjs": "~0.20.2",
-    "browserify": "~14.4.0",
+    "chokidar": "~1.7.0",
     "intern-dev": "~0.2.9",
     "sinon": "~2.3.2",
-    "stylus": "~0.54.5"
+    "stylus": "~0.54.5",
+    "ts-node": "~3.0.4",
+    "umd-compat-loader": "~2.0.1",
+    "webpack": "~2.6.1"
   },
   "internDev": {
     "resources": {
@@ -103,20 +112,6 @@
       "_tests": [
         "tests/**/*.{xml,d.ts}",
         "src/**/*.{css,d.ts,html,js,png}"
-      ]
-    },
-    "browserify": {
-      "_build/src/browser/intern.js": [
-        "_build/src/browser/intern.js"
-      ],
-      "_build/src/browser/remote.js": [
-        "_build/src/browser/remote.js"
-      ],
-      "_tests/src/browser/intern.js": [
-        "_tests/src/browser/intern.js"
-      ],
-      "_tests/src/browser/remote.js": [
-        "_tests/src/browser/remote.js"
       ]
     }
   }
