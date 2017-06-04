@@ -101,12 +101,18 @@ export default class Node extends Executor<Events, Config> {
 
 		// Report uncaught errors
 		process.on('unhandledRejection', (reason: Error, promise: Promise<any>) => {
-			console.warn('Unhandled rejection:', promise);
+			if (!this._listeners['error'] || this._listeners['error'].length === 0) {
+				console.warn('Unhandled rejection:', promise);
+			}
+			reason.message = 'Unhandled rejection: ' + reason.message;
 			this.emit('error', reason);
 		});
 
 		process.on('uncaughtException', (reason: Error) => {
-			console.warn('Unhandled error:', reason);
+			if (!this._listeners['error'] || this._listeners['error'].length === 0) {
+				console.warn('Unhandled error:', reason);
+			}
+			reason.message = 'Uncaught exception: ' + reason.message;
 			this.emit('error', reason);
 		});
 
