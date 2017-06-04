@@ -44,15 +44,14 @@
     "intern": "./bin/intern.js"
   },
   "scripts": {
-    "build": "npm run clean && stylus src/lib/reporters/html/html.styl && intern-dev-build",
-    "postbuild": "webpack --hide-modules",
+    "build": "intern-dev-clean && intern-dev-build",
     "clean": "intern-dev-clean",
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
     "test": "NODE_PATH=_build node _tests/src/bin/intern.js",
-    "preci": "npm run build",
+    "preci": "intern-dev-build",
     "ci": "NODE_PATH=_build node _tests/tests/selftest.js",
-    "watch": "ts-node support/watch.ts"
+    "watch": "intern-dev-build watch"
   },
   "dependencies": {
     "@dojo/core": "beta1",
@@ -72,6 +71,7 @@
     "diff": "~3.2.0",
     "digdug": "~2.0.0-beta.3",
     "glob": "~7.1.1",
+    "intern-dev": "~0.3.1",
     "istanbul-api": "~1.1.9",
     "leadfoot": "~2.0.0-beta.7",
     "lodash-amd": "~4.17.4",
@@ -92,7 +92,6 @@
     "@types/sinon": "~2.2.2",
     "@types/systemjs": "~0.20.2",
     "chokidar": "~1.7.0",
-    "intern-dev": "~0.2.9",
     "sinon": "~2.3.2",
     "stylus": "~0.54.5",
     "ts-node": "~3.0.4",
@@ -113,6 +112,9 @@
         "tests/**/*.{xml,d.ts}",
         "src/**/*.{css,d.ts,html,js,png}"
       ]
-    }
+    },
+    "stylus": [
+      "src/lib/reporters/html/html.styl"
+    ]
   }
 }
