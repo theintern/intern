@@ -4,7 +4,7 @@ import { RemoteEvents } from '../RemoteSuite';
 import BaseChannel, { ChannelOptions, Message } from './Base';
 
 export default class HttpChannel extends BaseChannel {
-	protected _lastRequest: Task<any>;
+	protected _lastRequest: Task<void>;
 	protected _messageBuffer: string[];
 	protected _sequence: number;
 	protected _maxPostSize: number;
