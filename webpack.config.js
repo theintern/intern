@@ -1,9 +1,6 @@
 var path = require('path');
 
 var common = {
-	devServer: {
-		stats: 'errors-only'
-	},
 	devtool: 'source-map',
 	module: {
 		loaders: [
@@ -11,6 +8,15 @@ var common = {
 			{ test: /@dojo\//, loader: 'umd-compat-loader' }
 		],
 		noParse: /benchmark\/benchmark.js/
+	},
+	stats: {
+		assets: true,
+		errors: true,
+		hash: false,
+		modules: false,
+		timings: false,
+		version: false,
+		warnings: true
 	}
 };
 
