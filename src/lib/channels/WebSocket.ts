@@ -1,5 +1,6 @@
 import BaseChannel, { ChannelOptions, Message } from './Base';
 import Task from '@dojo/core/async/Task';
+import global from '@dojo/core/global';
 
 export default class WebSocketChannel extends BaseChannel {
 	/** Time to wait for response before rejecting a send */
@@ -21,7 +22,7 @@ export default class WebSocketChannel extends BaseChannel {
 			throw new Error('A port is required for a WebSocket channel');
 		}
 
-		this._socket = new WebSocket(`ws://localhost:${options.port}`);
+		this._socket = new global.WebSocket(`ws://localhost:${options.port}`);
 
 		this._ready = new Task((resolve, reject) => {
 			this._socket.addEventListener('open', resolve);

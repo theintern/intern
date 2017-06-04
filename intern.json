@@ -1,10 +1,13 @@
 {
 	"description": "Run tests on Node, excluding the benchmark tests",
 	"suites": [
+		"_tests/tests/unit/lib/Channel.js",
 		"_tests/tests/unit/lib/Environment.js",
 		"_tests/tests/unit/lib/Suite.js",
 		"_tests/tests/unit/lib/Test.js",
+		"_tests/tests/unit/lib/channels/Base.js",
 		"_tests/tests/unit/lib/channels/Http.js",
+		"_tests/tests/unit/lib/channels/WebSocket.js",
 		"_tests/tests/unit/lib/common/util.js",
 		"_tests/tests/unit/lib/common/ErrorFormatter.js"
 	],
@@ -18,10 +21,7 @@
 		"_tests/tests/unit/lib/node/util.js"
 	],
 	"browserSuites": [
-		"_tests/tests/unit/lib/Channel.js",
-		"_tests/tests/unit/lib/browser/util.js",
-		"_tests/tests/unit/lib/channels/Base.js",
-		"_tests/tests/unit/lib/channels/Http.js"
+		"_tests/tests/unit/lib/browser/util.js"
 	],
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 
@@ -74,10 +74,7 @@
 				"_build/src/tasks/**/*.js"
 			],
 			"extends": [ "allSuites" ],
-			"reporters+": {
-				"name": "htmlcoverage",
-				"options": { "sources": "_build/src/lib/**/*.js" }
-			}
+			"reporters+": "htmlcoverage"
 		},
 
 		/* For running local selenium tests */

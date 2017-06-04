@@ -25,6 +25,7 @@
 	"./unit/lib/browser/util.ts",
 	"./unit/lib/channels/Base.ts",
 	"./unit/lib/channels/Http.ts",
+	"./unit/lib/channels/WebSocket.ts",
 	"./unit/lib/common/ErrorFormatter.ts",
 	"./unit/lib/common/util.ts",
 	"./unit/lib/node/ErrorFormatter.ts",
