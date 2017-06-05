@@ -71,7 +71,7 @@
     "diff": "~3.2.0",
     "digdug": "~2.0.0-beta.3",
     "glob": "~7.1.1",
-    "intern-dev": "~0.3.1",
+    "intern-dev": "~0.3.2",
     "istanbul-api": "~1.1.9",
     "leadfoot": "~2.0.0-beta.7",
     "lodash-amd": "~4.17.4",
