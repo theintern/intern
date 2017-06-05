@@ -157,7 +157,8 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 					/\bModule\._\w+/.test(line) ||
 					/\bbootstrap_node\.js/.test(line) ||
 					/<module.js[:>]/.test(line) ||
-					/<anonymous>/.test(line)
+					/<anonymous>/.test(line) ||
+					/<native>/.test(line)
 				);
 			});
 		}
