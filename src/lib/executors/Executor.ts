@@ -15,6 +15,8 @@ import Promise from '@dojo/shim/Promise';
 import { assert, expect, should } from 'chai';
 import global from '@dojo/core/global';
 
+const console: Console = global.console;
+
 /**
  * This is the default executor class.
  */

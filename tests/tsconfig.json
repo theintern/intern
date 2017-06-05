@@ -28,6 +28,7 @@
 	"./unit/lib/channels/WebSocket.ts",
 	"./unit/lib/common/ErrorFormatter.ts",
 	"./unit/lib/common/util.ts",
+	"./unit/lib/executors/Executor.ts",
 	"./unit/lib/node/ErrorFormatter.ts",
 	"./unit/lib/node/runner.ts",
 	"./unit/lib/node/util.ts",

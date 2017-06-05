@@ -2,6 +2,9 @@ import Executor, { Config as BaseConfig, Events, LoaderDescriptor, PluginDescrip
 import { normalizePathEnding, parseValue } from '../common/util';
 import { duplicate } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
+import global from '@dojo/core/global';
+
+const console: Console = global.console;
 
 /**
  * A BrowserExecutor is used to run unit tests in a browser.

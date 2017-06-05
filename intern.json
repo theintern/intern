@@ -9,7 +9,8 @@
 		"_tests/tests/unit/lib/channels/Http.js",
 		"_tests/tests/unit/lib/channels/WebSocket.js",
 		"_tests/tests/unit/lib/common/util.js",
-		"_tests/tests/unit/lib/common/ErrorFormatter.js"
+		"_tests/tests/unit/lib/common/ErrorFormatter.js",
+		"_tests/tests/unit/lib/executors/Executor.js"
 	],
 	"nodeSuites": [
 		"_tests/tests/unit/bin/intern.js",

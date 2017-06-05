@@ -33,6 +33,9 @@ import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import { createInstrumenter, Instrumenter, readInitialCoverage } from 'istanbul-lib-instrument';
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
+import global from '@dojo/core/global';
+
+const console: Console = global.console;
 
 export default class Node extends Executor<Events, Config> {
 	server: Server;
