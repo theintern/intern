@@ -187,9 +187,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			return resolvedTask;
 		}
 
-		return Task.all<void>(notifications).catch(error => {
-			console.error(`Error emitting ${eventName}: ${this.formatError(error)}`);
-		}).then(() => {});
+		return Task.all<void>(notifications);
 	}
 
 	/**
@@ -391,14 +389,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		const config = this.config;
 
 		config.reporters.forEach(reporter => {
-			if (typeof reporter === 'string') {
-				const ReporterClass = this._getReporter(reporter);
-				this._reporters.push(new ReporterClass(this));
-			}
-			else {
-				const ReporterClass = this._getReporter(reporter.name);
-				this._reporters.push(new ReporterClass(this, reporter.options));
-			}
+			const ReporterClass = this._getReporter(reporter.name);
+			this._reporters.push(new ReporterClass(this, reporter.options));
 		});
 
 		this._rootSuite.bail = config.bail;
@@ -548,20 +540,14 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		}
 	}
 
+	/**
+	 * Set an option value.
+	 */
 	protected _setOption(name: keyof C, value: any, addToExisting = false) {
 		// addToExisting
 		if (addToExisting) {
-			if (!Array.isArray(this.config[name])) {
-				throw new Error('Only array values may currently be added to');
-			}
-
 			const currentValue: any[] = this.config[name];
-			if (Array.isArray(value)) {
-				currentValue.push(...value);
-			}
-			else {
-				currentValue.push(value);
-			}
+			currentValue.push(...value);
 		}
 		else {
 			this.config[name] = value;
@@ -576,6 +562,9 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 		if (config.internPath != null) {
 			config.internPath = normalizePathEnding(config.internPath);
+		}
+		else {
+			config.internPath = '';
 		}
 
 		if (config.benchmark) {
