@@ -10,8 +10,8 @@ import _Deferred from '../../../src/lib/Deferred';
 import { TestFunction as _TestFunction } from '../../../src/lib/Test';
 import { ObjectSuiteDescriptor as _ObjectSuiteDescriptor } from '../../../src/lib/interfaces/object';
 
-const { registerSuite } = intern.getInterface('object');
-const assert = intern.getAssertions('assert');
+const { registerSuite } = intern.getPlugin('interface.object');
+const assert = intern.getPlugin('chai.assert');
 
 type lifecycleMethod = 'before' | 'beforeEach' | 'afterEach' | 'after';
 

@@ -2,8 +2,8 @@ import Base, { isChannel } from 'src/lib/channels/Base';
 import { RemoteEvents } from 'src/lib/RemoteSuite';
 import Task from '@dojo/core/async/Task';
 
-const { registerSuite } = intern.getInterface('object');
-const assert = intern.getAssertions('assert');
+const { registerSuite } = intern.getPlugin('interface.object');
+const assert = intern.getPlugin('chai.assert');
 
 class TestBase extends Base {
 	sent: any[] = [];

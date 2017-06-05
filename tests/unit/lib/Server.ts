@@ -3,8 +3,8 @@ import { mockNodeExecutor } from '../../support/unit/mocks';
 import { basename, join, normalize } from 'path';
 import { mixin } from '@dojo/core/lang';
 
-const { registerSuite } = intern.getInterface('object');
-const assert = intern.getAssertions('assert');
+const { registerSuite } = intern.getPlugin('interface.object');
+const assert = intern.getPlugin('chai.assert');
 const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 
 let Server: typeof _Server;

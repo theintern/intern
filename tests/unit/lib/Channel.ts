@@ -2,8 +2,8 @@ import _Channel, { ChannelOptions } from 'src/lib/Channel';
 import Task from '@dojo/core/async/Task';
 import intern from '../../../src/index';
 
-const { registerSuite } = intern().getInterface('object');
-const assert = intern().getAssertions('assert');
+const { registerSuite } = intern().getPlugin('interface.object');
+const assert = intern().getPlugin('chai.assert');
 const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
 
 let Channel: typeof _Channel;

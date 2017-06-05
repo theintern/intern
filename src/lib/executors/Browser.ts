@@ -63,9 +63,7 @@ export default class Browser extends Executor<Events, Config> {
 	 * Override Executor#_loadPlugins to pass a combination of browserPlugins and plugins to the loader.
 	 */
 	protected _loadPlugins() {
-		const config = duplicate(this.config);
-		config.plugins = config.plugins.concat(config.browserPlugins);
-		return super._loadPlugins(config);
+		return super._loadPlugins(this.config.plugins.concat(this.config.browserPlugins));
 	}
 
 	/**

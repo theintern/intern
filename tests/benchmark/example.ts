@@ -1,7 +1,7 @@
 import { BenchmarkTestFunction } from '../../src/lib/BenchmarkTest';
 import intern from '../../src/index';
 
-const { registerSuite, async } = intern().getInterface('benchmark');
+const { registerSuite, async } = intern().getPlugin('interface.benchmark');
 
 registerSuite('example benchmarks', {
 	test1() {

@@ -8,8 +8,8 @@ import Task from '@dojo/core/async/Task';
 import Promise from '@dojo/shim/Promise';
 import intern from '../../../src/index';
 
-const { registerSuite } = intern().getInterface('object');
-const assert = intern().getAssertions('assert');
+const { registerSuite } = intern().getPlugin('interface.object');
+const assert = intern().getPlugin('chai.assert');
 
 type FullBenchmarkTestFunction = BenchmarkTestFunction & { options: any };
 

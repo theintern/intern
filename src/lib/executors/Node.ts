@@ -393,9 +393,7 @@ export default class Node extends Executor<Events, Config> {
 	 * Override Executor#_loadPlugins to pass a combination of nodePlugins and plugins to the loader.
 	 */
 	protected _loadPlugins() {
-		const config = duplicate(this.config);
-		config.plugins = config.plugins.concat(config.nodePlugins);
-		return super._loadPlugins(config);
+		return super._loadPlugins(this.config.plugins.concat(this.config.nodePlugins));
 	}
 
 	/**

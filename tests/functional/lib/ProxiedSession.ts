@@ -8,8 +8,8 @@ import intern from '../../../src/index';
 // Bring in Test and TestFunction from testing src rather than the src being tested
 import Test, { TestFunction } from '../../../src/lib/Test';
 
-const { registerSuite } = intern().getInterface('object');
-const assert = intern().getAssertions('assert');
+const { registerSuite } = intern().getPlugin('interface.object');
+const assert = intern().getPlugin('chai.assert');
 
 registerSuite('ProxiedSession', function () {
 	const serverUrl = 'https://example.invalid/';

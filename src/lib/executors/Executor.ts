@@ -28,10 +28,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _hasTestErrors = false;
 	protected _interfaces: { [name: string]: any };
 	protected _loader: Loader;
+	protected _loadingPlugins: boolean;
 	protected _loadingPlugin: Task<void> | undefined;
 	protected _loadingPluginOptions: any | undefined;
 	protected _listeners: { [event: string]: Listener<any>[] };
-	protected _pluginExports: { [name: string]: { [name: string]: any } };
+	protected _plugins: { [name: string]: any };
 	protected _reporters: Reporter[];
 	protected _runTask: Task<void>;
 
@@ -63,18 +64,16 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this._availableReporters = {};
 		this._listeners = {};
 		this._reporters = [];
-		this._assertions = {};
-		this._interfaces = {};
-		this._pluginExports = {};
+		this._plugins = {};
 
-		this.registerInterface('object', getObjectInterface(this));
-		this.registerInterface('tdd', getTddInterface(this));
-		this.registerInterface('bdd', getBddInterface(this));
-		this.registerInterface('benchmark', getBenchmarkInterface(this));
+		this.registerPlugin('interface.object', () => getObjectInterface(this));
+		this.registerPlugin('interface.tdd', () => getTddInterface(this));
+		this.registerPlugin('interface.bdd', () => getBddInterface(this));
+		this.registerPlugin('interface.benchmark', () => getBenchmarkInterface(this));
 
-		this.registerAssertions('assert', assert);
-		this.registerAssertions('expect', expect);
-		this.registerAssertions('should', should);
+		this.registerPlugin('chai.assert', () => assert);
+		this.registerPlugin('chai.expect', () => expect);
+		this.registerPlugin('chai.should', () => should);
 
 		this._rootSuite = new Suite({ executor: this });
 
@@ -194,40 +193,23 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
-	 * Get a registered assertion API
+	 * Get any resources registered by a particular plugin.
 	 */
-	getAssertions(name: 'assert'): Chai.AssertStatic;
-	getAssertions(name: 'expect'): Chai.ExpectStatic;
-	getAssertions(name: 'should'): Chai.Should;
-	getAssertions(name: string): any;
-	getAssertions(name: string) {
-		const assertions = this._assertions[name];
-
-		// `should` is a weird case because it extends Object
-		if (name === 'should') {
-			return assertions();
+	getPlugin(name: 'chai.assert'): Chai.AssertStatic;
+	getPlugin(name: 'chai.expect'): Chai.ExpectStatic;
+	getPlugin(name: 'chai.should'): Chai.Should;
+	getPlugin(name: 'interface.object'): ObjectInterface;
+	getPlugin(name: 'interface.tdd'): TddInterface;
+	getPlugin(name: 'interface.bdd'): BddInterface;
+	getPlugin(name: 'interface.benchmark'): BenchmarkInterface;
+	getPlugin<T>(name: string): T;
+	getPlugin<T>(name: string): T {
+		// The 'should' assertion interface must be initialized before being used
+		if (name === 'chai.should' && !Object.prototype.hasOwnProperty('should')) {
+			this._plugins[name] = this._plugins[name]();
 		}
 
-		return assertions;
-	}
-
-	/**
-	 * Get a registered test creation API
-	 */
-	getInterface(name: 'object'): ObjectInterface;
-	getInterface(name: 'tdd'): TddInterface;
-	getInterface(name: 'bdd'): BddInterface;
-	getInterface(name: 'benchmark'): BenchmarkInterface;
-	getInterface(name: string): any;
-	getInterface(name: string) {
-		return this._interfaces[name];
-	}
-
-	/**
-	 * Get any resources registered by a particular plugin
-	 */
-	getPlugin<T = { [name: string]: any }>(name: string): T {
-		return <T>this._pluginExports[name];
+		return <T>this._plugins[name];
 	}
 
 	/**
@@ -284,20 +266,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
-	 * Register an assertion library.
-	 */
-	registerAssertions(name: string, assertions: any) {
-		this._assertions[name] = assertions;
-	}
-
-	/**
-	 * Register an interface.
-	 */
-	registerInterface(name: string, iface: any) {
-		this._interfaces[name] = iface;
-	}
-
-	/**
 	 * Register a loader script that will be loaded at the beginning of the testing process. Intern assumes this script
 	 * will handle the loading of test suites.
 	 */
@@ -307,14 +275,17 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 	/**
 	 * Register a plugin that will be loaded at the beginning of the testing process (before any external loader is
-	 * initialized). This method should only be called from a plugin being loaded via the config.plugins option.
+	 * initialized).
 	 */
 	registerPlugin(name: string, init: PluginInitializer) {
-		this._loadingPlugin = Task.resolve(init(this._loadingPluginOptions)).then(exports => {
-			if (exports) {
-				this._pluginExports[name] = exports;
-			}
-		});
+		if (this._loadingPlugins) {
+			this._loadingPlugin = Task.resolve(init(this._loadingPluginOptions)).then(plugin => {
+				this._plugins[name] = plugin;
+			});
+		}
+		else {
+			this._plugins[name] = init();
+		}
 	}
 
 	/**
@@ -406,15 +377,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
-	 * Register a testing interface on this executor. A testing interface can be anything that will allow a test to
-	 * register tests on the executor. For example, the 'object' interface is a single method, `registerSuite`, that a
-	 * test can call to register a suite.
-	 */
-	setInterface(name: string, iface: any) {
-		this._interfaces[name] = iface;
-	}
-
-	/**
 	 * Code to execute after the main test run has finished to shut down the test system.
 	 */
 	protected _afterRun() {
@@ -493,22 +455,24 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Load plugins
 	 */
-	protected _loadPlugins(config?: C) {
-		config = config || this.config;
-		if (config.plugins) {
-			return config.plugins.reduce((previous, plugin) => {
+	protected _loadPlugins(plugins?: PluginDescriptor[]) {
+		plugins = plugins || this.config.plugins;
+		this._loadingPlugins = true;
+		return plugins
+			.reduce((previous, plugin) => {
 				return previous.then(() => {
 					this._loadingPluginOptions = plugin.options;
 					return this.loadScript(plugin.script).then(() => {
 						return Task.resolve(this._loadingPlugin);
-					}).finally(() => {
+					}).then(() => {
 						this._loadingPlugin = undefined;
 						this._loadingPluginOptions = undefined;
 					});
 				});
-			}, Task.resolve());
-		}
-		return resolvedTask;
+			}, Task.resolve())
+			.finally(() => {
+				this._loadingPlugins = false;
+			});
 	}
 
 	/**
