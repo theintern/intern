@@ -3,7 +3,7 @@
  *
  * Note that loader scripts must be simple scripts, not modules.
  */
-intern.registerLoader(config => {
+intern.registerLoader((config, suites) => {
 	intern.log('Using config:', config);
-	return intern.loadScript(config.suites);
+	return intern.loadScript(suites);
 });

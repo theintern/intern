@@ -3,7 +3,7 @@ import Task from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
 import { readFileSync } from 'fs';
-import { deepMixin, duplicate, mixin } from '@dojo/core/lang';
+import { deepMixin, mixin } from '@dojo/core/lang';
 import ErrorFormatter from '../node/ErrorFormatter';
 import { dirname, normalize, relative, resolve, sep } from 'path';
 import LeadfootServer from 'leadfoot/Server';
@@ -400,22 +400,18 @@ export default class Node extends Executor<Events, Config> {
 	 * Override Executor#_loadSuites to pass a combination of nodeSuites and suites to the loader.
 	 */
 	protected _loadSuites() {
-		const config = duplicate(this.config);
-		config.suites = config.suites.concat(config.nodeSuites);
-		config.loader = config.nodeLoader || config.loader;
+		const config = this.config;
 		this._loadingFunctionalSuites = false;
-		return super._loadSuites(config);
+		return super._loadSuites(config.suites.concat(config.nodeSuites), config.nodeLoader);
 	}
 
 	/**
 	 * Load functional test suites
 	 */
 	protected _loadFunctionalSuites() {
-		const config = duplicate(this.config);
-		config.suites = config.functionalSuites;
-		config.loader = config.nodeLoader || config.loader;
+		const config = this.config;
 		this._loadingFunctionalSuites = true;
-		return super._loadSuites(config);
+		return super._loadSuites(config.functionalSuites, config.nodeLoader);
 	}
 
 	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {

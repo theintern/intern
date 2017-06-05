@@ -5,9 +5,8 @@
  *
  * Note that loader scripts must be simple scripts, not modules.
  */
-intern.registerLoader(config => {
-	const loaderConfig: any = config.loader.config || {};
-	loaderConfig.baseUrl = loaderConfig.baseUrl || config.basePath;
+intern.registerLoader((config, suites) => {
+	config.baseUrl = config.baseUrl || intern.config.basePath;
 
 	return intern.loadScript('node_modules/@dojo/loader/loader.js').then(() => {
 		intern.log('Loaded dojo loader');
@@ -22,11 +21,11 @@ intern.registerLoader(config => {
 				reject(error);
 			});
 
-			intern.log('Configuring loader with:', loaderConfig);
-			loader.config(loaderConfig);
+			intern.log('Configuring loader with:', config);
+			loader.config(config);
 
-			intern.log('Loading suites:', config.suites);
-			loader(config.suites, () => { resolve(); });
+			intern.log('Loading suites:', suites);
+			loader(suites, () => { resolve(); });
 		});
 	});
 });

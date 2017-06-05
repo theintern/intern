@@ -430,10 +430,12 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Load suites
 	 */
-	protected _loadSuites(optionalConfig?: C) {
-		const config = optionalConfig || this.config;
+	protected _loadSuites(suites?: string[], loader?: LoaderDescriptor) {
+		const config = this.config;
+		suites = suites || config.suites;
+		loader = loader || config.loader;
 
-		let script = config.loader.script;
+		let script = loader.script;
 		switch (script) {
 			case 'default':
 			case 'dojo':
@@ -442,12 +444,14 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				script = `${config.internPath}loaders/${script}.js`;
 		}
 
+		const loaderConfig = loader!.config || {};
+
 		return this.loadScript(script).then(() => {
 			if (!this._loader) {
 				throw new Error(`Loader script ${script} did not register a loader callback`);
 			}
-			return Task.resolve(this._loader(config)).then(() => {
-				this.log('Loaded suites:', config.suites);
+			return Task.resolve(this._loader(loaderConfig, suites!)).then(() => {
+				this.log('Loaded suites:', suites);
 			});
 		});
 	}
@@ -763,7 +767,7 @@ export interface Events {
  * An async loader callback. Intern will wait for the done callback to be called before proceeding.
  */
 export interface Loader {
-	(config: Config): Promise<void> | void;
+	(config: any, suites: string[]): Promise<void> | void;
 }
 
 export interface LoaderDescriptor {

@@ -14,7 +14,6 @@ export default class Browser extends Executor<Events, Config> {
 			browserSuites: <string[]>[]
 		});
 
-
 		// Report uncaught errors
 		window.addEventListener('unhandledRejection', (event: PromiseRejectionEvent) => {
 			console.warn('Unhandled rejection:', event);
@@ -71,9 +70,7 @@ export default class Browser extends Executor<Events, Config> {
 	 */
 	protected _loadSuites() {
 		const config = duplicate(this.config);
-		config.suites = config.suites.concat(config.browserSuites);
-		config.loader = config.browserLoader || config.loader;
-		return super._loadSuites(config);
+		return super._loadSuites(config.suites.concat(config.browserSuites), config.browserLoader);
 	}
 
 	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {

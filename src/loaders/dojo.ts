@@ -3,16 +3,15 @@
  *
  * Note that loader scripts must be simple scripts, not modules.
  */
-intern.registerLoader(config => {
-	const loaderConfig: any = config.loader.config || {};
-	loaderConfig.baseUrl = loaderConfig.baseUrl || config.basePath;
-	if (!('async' in loaderConfig)) {
-		loaderConfig.async = true;
+intern.registerLoader((config, suites) => {
+	config.baseUrl = config.baseUrl || intern.config.basePath;
+	if (!('async' in config)) {
+		config.async = true;
 	}
 
 	const globalObj: any = typeof window !== 'undefined' ? window : global;
-	intern.log('Configuring loader with:', loaderConfig);
-	globalObj.dojoConfig = loaderConfig;
+	intern.log('Configuring loader with:', config);
+	globalObj.dojoConfig = config;
 
 	return intern.loadScript('node_modules/dojo/dojo.js').then(() => {
 		intern.log('Loaded dojo loader');
@@ -25,8 +24,8 @@ intern.registerLoader(config => {
 				reject(new Error(`Dojo loader error: ${error.message}`));
 			});
 
-			intern.log('Loading suites:', config.suites);
-			loader(config.suites, () => { resolve(); });
+			intern.log('Loading suites:', suites);
+			loader(suites, () => { resolve(); });
 		});
 	});
 });
