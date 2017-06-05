@@ -25,7 +25,7 @@ function displayMessage(message: string) {
 }
 
 try {
-	const intern = Browser.initialize(config);
+	const intern = global.intern = new Browser(config);
 
 	intern.registerReporter('dom', Dom);
 

@@ -1,4 +1,4 @@
-import Executor, { Config as BaseConfig, Events as BaseEvents, initialize, LoaderDescriptor, PluginDescriptor } from './Executor';
+import Executor, { Config as BaseConfig, Events as BaseEvents, LoaderDescriptor, PluginDescriptor } from './Executor';
 import Task from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
@@ -35,10 +35,6 @@ import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
 
 export default class Node extends Executor<Events, Config> {
-	static initialize(config?: Partial<Config>) {
-		return initialize<Events, Config, Node>(Node, config);
-	}
-
 	server: Server;
 	tunnel: Tunnel;
 

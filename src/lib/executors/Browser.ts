@@ -1,4 +1,4 @@
-import Executor, { Config as BaseConfig, Events, initialize, LoaderDescriptor, PluginDescriptor } from './Executor';
+import Executor, { Config as BaseConfig, Events, LoaderDescriptor, PluginDescriptor } from './Executor';
 import { normalizePathEnding, parseValue } from '../common/util';
 import { duplicate } from '@dojo/core/lang';
 import ErrorFormatter from '../common/ErrorFormatter';
@@ -8,10 +8,6 @@ import Task from '@dojo/core/async/Task';
  * A BrowserExecutor is used to run unit tests in a browser.
  */
 export default class Browser extends Executor<Events, Config> {
-	static initialize(config?: Partial<Config>) {
-		return initialize<Events, Config, Browser>(Browser, config);
-	}
-
 	constructor(config?: Partial<Config>) {
 		super(<Config>{
 			basePath: '/',

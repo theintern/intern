@@ -12,8 +12,6 @@ import global from '@dojo/core/global';
 // bundle since neither Node's require nor an AMD define will be present.
 global.Benchmark = {};
 
-let intern: Browser;
-
 getConfig().then(config => {
 	if (config.showConfigs) {
 		console.log(getConfigDescription(config));
@@ -34,7 +32,7 @@ getConfig().then(config => {
 			config.internPath = location.pathname;
 		}
 
-		intern = Browser.initialize(config);
+		const intern = global.intern = new Browser(config);
 
 		intern.registerReporter('html', Html);
 		intern.registerReporter('console', Console);
@@ -43,7 +41,7 @@ getConfig().then(config => {
 		return intern.run().catch(_error => {});
 	}
 }).catch(error => {
-	if (typeof intern === 'undefined') {
+	if (global.intern == null) {
 		console.error('Error initializing Intern:', error);
 	}
 	else {

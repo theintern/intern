@@ -631,18 +631,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 }
 
-export function initialize<E extends Events, C extends Config, T extends Executor<E, C>>(
-	ExecutorClass: ExecutorConstructor<E, C, T>,
-	config?: Partial<C>
-): T {
-	if (global['intern']) {
-		throw new Error('Intern has already been initialized in this environment');
-	}
-	const executor = new ExecutorClass(config);
-	global.intern = executor;
-	return executor;
-}
-
 export interface ExecutorConstructor<E extends Events, C extends Config, T extends Executor<E, C>> {
 	new (config?: Partial<C>): T;
 }

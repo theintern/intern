@@ -6,6 +6,16 @@ const assert = intern.getAssertions('assert');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/node/runner', function () {
+	class MockNode {
+		constructor(rawConfig: any) {
+			initializedConfig = rawConfig;
+		}
+
+		run() {
+			return runValue || Task.resolve();
+		}
+	}
+
 	let initializedConfig: any;
 	let runValue: Task<void>;
 	let removeMocks: () => void;
@@ -14,18 +24,8 @@ registerSuite('lib/node/runner', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/node/runner', {
-				'src/lib/executors/Node': {
-					default: {
-						initialize(rawConfig: any) {
-							initializedConfig = rawConfig;
-							return this;
-						},
-
-						run() {
-							return runValue || Task.resolve();
-						}
-					}
-				}
+				'src/lib/executors/Node': { default: MockNode },
+				'@dojo/core/global': { default: {} }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				run = handle.module.default;
