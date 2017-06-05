@@ -18,12 +18,12 @@ export default class Browser extends Executor<Events, Config> {
 		});
 
 		// Report uncaught errors
-		window.addEventListener('unhandledRejection', (event: PromiseRejectionEvent) => {
+		global.addEventListener('unhandledRejection', (event: PromiseRejectionEvent) => {
 			console.warn('Unhandled rejection:', event);
 			this.emit('error', event.reason);
 		});
 
-		window.addEventListener('error', (event: ErrorEvent) => {
+		global.addEventListener('error', (event: ErrorEvent) => {
 			console.warn('Unhandled error:', event);
 			const error = new Error(event.message);
 			error.stack = `${event.filename}:${event.lineno}:${event.colno}`;
@@ -84,10 +84,6 @@ export default class Browser extends Executor<Events, Config> {
 
 	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
 		switch (name) {
-			case 'basePath':
-				this._setOption(name, parseValue(name, value, 'string'));
-				break;
-
 			case 'browserLoader':
 				this._setOption(name, parseValue(name, value, 'object', 'script'));
 				break;
@@ -154,7 +150,8 @@ export { Events };
 
 function injectScript(path: string) {
 	return new Task<void>((resolve, reject) => {
-		const scriptTag = document.createElement('script');
+		const doc: Document = global.document;
+		const scriptTag = doc.createElement('script');
 		scriptTag.addEventListener('load', () => {
 			resolve();
 		});
@@ -163,6 +160,6 @@ function injectScript(path: string) {
 			reject(new Error(`Unable to load ${path}`));
 		});
 		scriptTag.src = path;
-		document.body.appendChild(scriptTag);
+		doc.body.appendChild(scriptTag);
 	});
 }

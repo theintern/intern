@@ -10,6 +10,7 @@
 		"_tests/tests/unit/lib/channels/WebSocket.js",
 		"_tests/tests/unit/lib/common/util.js",
 		"_tests/tests/unit/lib/common/ErrorFormatter.js",
+		"_tests/tests/unit/lib/executors/Browser.js",
 		"_tests/tests/unit/lib/executors/Executor.js"
 	],
 	"nodeSuites": [
