@@ -1,7 +1,6 @@
 import Executor, { Config as BaseConfig, Events, LoaderDescriptor, PluginDescriptor } from './Executor';
 import { normalizePathEnding, parseValue } from '../common/util';
 import { duplicate } from '@dojo/core/lang';
-import ErrorFormatter from '../common/ErrorFormatter';
 import Task from '@dojo/core/async/Task';
 
 /**
@@ -15,7 +14,6 @@ export default class Browser extends Executor<Events, Config> {
 			browserSuites: <string[]>[]
 		});
 
-		this._errorFormatter = new ErrorFormatter(this);
 
 		// Report uncaught errors
 		window.addEventListener('unhandledRejection', (event: PromiseRejectionEvent) => {

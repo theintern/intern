@@ -103,6 +103,9 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Format an error, normalizing the stack trace and resolving source map references
 	 */
 	formatError(error: Error, options?: ErrorFormatOptions) {
+		if (!this._errorFormatter) {
+			this._errorFormatter = new ErrorFormatter(this);
+		}
 		return this._errorFormatter.format(error, options);
 	}
 
