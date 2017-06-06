@@ -1,7 +1,7 @@
 import Executor, { Config as BaseConfig, Events, LoaderDescriptor, PluginDescriptor } from './Executor';
 import { normalizePathEnding, parseValue } from '../common/util';
-import { duplicate } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
+import Promise from '@dojo/shim/Promise';
 import global from '@dojo/core/global';
 
 const console: Console = global.console;
@@ -61,6 +61,13 @@ export default class Browser extends Executor<Events, Config> {
 		}, Task.resolve());
 	}
 
+	/*
+	 * Override Executor#_loadLoader to load nodeLoader, if applicable
+	 */
+	protected _loadLoader() {
+		return super._loadLoader(this.config.browserLoader || this.config.loader);
+	}
+
 	/**
 	 * Override Executor#_loadPlugins to pass a combination of browserPlugins and plugins to the loader.
 	 */
@@ -71,9 +78,8 @@ export default class Browser extends Executor<Events, Config> {
 	/**
 	 * Override Executor#_loadSuites to pass a combination of browserSuites and suites to the loader
 	 */
-	protected _loadSuites() {
-		const config = duplicate(this.config);
-		return super._loadSuites(config.suites.concat(config.browserSuites), config.browserLoader);
+	protected _loadSuites(): Promise<void> {
+		return super._loadSuites(this.config.suites.concat(this.config.browserSuites));
 	}
 
 	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {

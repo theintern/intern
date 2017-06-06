@@ -21,12 +21,6 @@ let Executor: FullExecutor;
 
 let removeMocks: () => void;
 
-function createExecutor(config?: Partial<Config>) {
-	const executor = new Executor(config);
-	executor.registerLoader((_config: Config) => { });
-	return executor;
-}
-
 function assertRunFails(executor: _Executor, errorMatcher: RegExp) {
 	return executor.run().then(
 		() => { throw new Error('run should have failed'); },
@@ -39,6 +33,21 @@ registerSuite('lib/executors/Executor', function () {
 		format(error: Error) {
 			return 'Foo: ' + error.message;
 		}
+	}
+
+	function createExecutor(config?: Partial<Config>) {
+		const executor = new Executor(config);
+		const testLoader = spy((mods: string[]) => {
+			mods.forEach(mod => {
+				if (scripts[mod]) {
+					scripts[mod]();
+				}
+			});
+			return Promise.resolve<void>();
+		});
+		executor.registerLoader((_config: Config) => Promise.resolve(testLoader));
+		(<any>executor).testLoader = testLoader;
+		return executor;
 	}
 
 	const mockConsole = {
@@ -357,9 +366,10 @@ registerSuite('lib/executors/Executor', function () {
 					});
 					scripts['foo.js'] = pluginScript;
 					return executor.run().then(() => {
-						// One load for the loader, and one for the plugin
-						assert.equal(loadScript.callCount, 2);
-						assert.equal(loadScript.getCall(0).args[0], 'foo.js');
+						// One load for the plugin, and one for the suites
+						const loader = (<any>executor).testLoader;
+						assert.equal(loader.callCount, 2);
+						assert.equal(loader.getCall(0).args[0], 'foo.js');
 						assert.equal(pluginScript.callCount, 1);
 						assert.equal(pluginInit.callCount, 1);
 						assert.equal(executor.getPlugin('foo'), 'bar',
@@ -447,9 +457,9 @@ registerSuite('lib/executors/Executor', function () {
 					return assertRunFails(executor, /A reporter named/);
 				},
 
-				'bad loader'() {
-					executor.registerLoader(<any>null);
-					return assertRunFails(executor, /did not register a loader/);
+				'loader failure'() {
+					executor.registerLoader(() => Promise.reject(new Error('foo')));
+					return assertRunFails(executor, /foo/);
 				},
 
 				'normalize intern path'() {

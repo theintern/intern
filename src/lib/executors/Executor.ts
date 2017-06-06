@@ -30,8 +30,10 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _hasTestErrors = false;
 	protected _interfaces: { [name: string]: any };
 	protected _loader: Loader;
+	protected _loaderConfig: any;
+	protected _loaderInit: Promise<Loader>;
 	protected _loadingPlugins: boolean;
-	protected _loadingPlugin: Task<void> | undefined;
+	protected _loadingPluginInit: Task<void> | undefined;
 	protected _loadingPluginOptions: any | undefined;
 	protected _listeners: { [event: string]: Listener<any>[] };
 	protected _plugins: { [name: string]: any };
@@ -266,11 +268,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
-	 * Register a loader script that will be loaded at the beginning of the testing process. Intern assumes this script
+	 * Set the loader script that will be used to load plugins and suites.
 	 * will handle the loading of test suites.
 	 */
-	registerLoader(loader: Loader) {
-		this._loader = loader;
+	registerLoader(init: LoaderInit) {
+		this._loaderInit = Promise.resolve(init(this._loaderConfig));
 	}
 
 	/**
@@ -279,7 +281,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 */
 	registerPlugin(name: string, init: PluginInitializer) {
 		if (this._loadingPlugins) {
-			this._loadingPlugin = Task.resolve(init(this._loadingPluginOptions)).then(plugin => {
+			this._loadingPluginInit = Task.resolve(init(this._loadingPluginOptions)).then(plugin => {
 				this._plugins[name] = plugin;
 			});
 		}
@@ -327,10 +329,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				}
 				else {
 					this._runTask = this._runTask
+						.then(() => this._loadLoader())
 						.then(() => this._loadPlugins())
+						.then(() => this._loadSuites())
 						.then(() => this.emit('beforeRun'))
 						.then(() => this._beforeRun())
-						.then(() => this._loadSuites())
 						.then(() => {
 							return this.emit('runStart')
 								.then(() => this._runTests())
@@ -422,32 +425,39 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
-	 * Load suites
+	 * Load a loader
 	 */
-	protected _loadSuites(suites?: string[], loader?: LoaderDescriptor) {
-		const config = this.config;
-		suites = suites || config.suites;
-		loader = loader || config.loader;
-
-		let script = loader.script;
-		switch (script) {
-			case 'default':
-			case 'dojo':
-			case 'dojo2':
-			case 'systemjs':
-				script = `${config.internPath}loaders/${script}.js`;
-		}
-
-		const loaderConfig = loader!.config || {};
-
-		return this.loadScript(script).then(() => {
-			if (!this._loader) {
-				throw new Error(`Loader script ${script} did not register a loader callback`);
-			}
-			return Task.resolve(this._loader(loaderConfig, suites!)).then(() => {
-				this.log('Loaded suites:', suites);
+	protected _loadLoader(loader?: LoaderDescriptor) {
+		// If registerLoader was already called, just wait for that loader to initialize
+		if (this._loaderInit) {
+			return this._loaderInit.then(loader => {
+				this._loader = loader;
 			});
-		});
+		}
+		// No loader has been registered, so load the configured or default one
+		else {
+			const config = this.config;
+			loader = loader || config.loader;
+
+			let script = loader.script;
+			switch (script) {
+				case 'default':
+				case 'dojo':
+				case 'dojo2':
+				case 'systemjs':
+					script = `${config.internPath}loaders/${script}.js`;
+			}
+
+			this._loaderConfig = loader!.config || {};
+			return this.loadScript(script).then(() => {
+				if (!this._loaderInit) {
+					throw new Error(`Loader script ${script} did not register a loader callback`);
+				}
+				return this._loaderInit;
+			}).then(loader => {
+				this._loader = loader;
+			});
+		}
 	}
 
 	/**
@@ -456,14 +466,16 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _loadPlugins(plugins?: PluginDescriptor[]) {
 		plugins = plugins || this.config.plugins;
 		this._loadingPlugins = true;
+
+		// Load plugins sequentiallly
 		return plugins
 			.reduce((previous, plugin) => {
 				return previous.then(() => {
 					this._loadingPluginOptions = plugin.options;
-					return this.loadScript(plugin.script).then(() => {
-						return Task.resolve(this._loadingPlugin);
+					return this._loader([plugin.script]).then(() => {
+						return Task.resolve(this._loadingPluginInit);
 					}).then(() => {
-						this._loadingPlugin = undefined;
+						this._loadingPluginInit = undefined;
 						this._loadingPluginOptions = undefined;
 					});
 				});
@@ -471,6 +483,16 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			.finally(() => {
 				this._loadingPlugins = false;
 			});
+	}
+
+	/**
+	 * Load suites
+	 */
+	protected _loadSuites(suites?: string[]) {
+		suites = suites || this.config.suites;
+		return this._loader(suites!).then(() => {
+			this.log('Loaded suites:', suites);
+		});
 	}
 
 	/**
@@ -755,10 +777,17 @@ export interface Events {
 }
 
 /**
- * An async loader callback. Intern will wait for the done callback to be called before proceeding.
+ * An async loader callback.
  */
 export interface Loader {
-	(config: any, suites: string[]): Promise<void> | void;
+	(modules: string[]): Promise<void>;
+}
+
+/**
+ * A loader initialization function.
+ */
+export interface LoaderInit {
+	(config: any): Promise<Loader> | Loader;
 }
 
 export interface LoaderDescriptor {

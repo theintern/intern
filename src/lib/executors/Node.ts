@@ -393,6 +393,21 @@ export default class Node extends Executor<Events, Config> {
 	}
 
 	/**
+	 * Load functional test suites
+	 */
+	protected _loadFunctionalSuites() {
+		this._loadingFunctionalSuites = true;
+		return super._loadSuites(this.config.functionalSuites);
+	}
+
+	/**
+	 * Override Executor#_loadLoader to load nodeLoader, if applicable
+	 */
+	protected _loadLoader() {
+		return super._loadLoader(this.config.nodeLoader || this.config.loader);
+	}
+
+	/**
 	 * Override Executor#_loadPlugins to pass a combination of nodePlugins and plugins to the loader.
 	 */
 	protected _loadPlugins() {
@@ -403,18 +418,8 @@ export default class Node extends Executor<Events, Config> {
 	 * Override Executor#_loadSuites to pass a combination of nodeSuites and suites to the loader.
 	 */
 	protected _loadSuites() {
-		const config = this.config;
 		this._loadingFunctionalSuites = false;
-		return super._loadSuites(config.suites.concat(config.nodeSuites), config.nodeLoader);
-	}
-
-	/**
-	 * Load functional test suites
-	 */
-	protected _loadFunctionalSuites() {
-		const config = this.config;
-		this._loadingFunctionalSuites = true;
-		return super._loadSuites(config.functionalSuites, config.nodeLoader);
+		return super._loadSuites(this.config.suites.concat(this.config.nodeSuites));
 	}
 
 	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {

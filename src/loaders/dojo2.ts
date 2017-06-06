@@ -5,27 +5,34 @@
  *
  * Note that loader scripts must be simple scripts, not modules.
  */
-intern.registerLoader((config, suites) => {
-	config.baseUrl = config.baseUrl || intern.config.basePath;
-
+intern.registerLoader(config => {
+	const globalObj: any = typeof window !== 'undefined' ? window : global;
 	return intern.loadScript('node_modules/@dojo/loader/loader.js').then(() => {
-		intern.log('Loaded dojo loader');
+		const require: DojoLoader.RootRequire = globalObj.require;
+		intern.log('Using Dojo 2 loader');
 
-		const globalObj: any = typeof window !== 'undefined' ? window : global;
-		const loader = globalObj.require;
-		intern.log('Using loader', loader);
+		config.baseUrl = config.baseUrl || intern.config.basePath;
+		intern.log('Configuring loader with:', config);
+		require.config(config);
 
-		return new Promise<void>((resolve, reject) => {
-			loader.on('error', (error: Error) => {
-				intern.emit('error', error);
-				reject(error);
-			});
+		return (modules: string[]) => {
+			let handle: { remove(): void };
 
-			intern.log('Configuring loader with:', config);
-			loader.config(config);
+			return new Promise((resolve, reject) => {
+				handle = require.on('error', (error: Error) => {
+					intern.emit('error', error);
+					reject(error);
+				});
 
-			intern.log('Loading suites:', suites);
-			loader(suites, () => { resolve(); });
-		});
+				intern.log('Loading modules:', modules);
+				require(modules, () => { resolve(); });
+			}).then(
+				() => { handle.remove(); },
+				error => {
+					handle && handle.remove();
+					throw error;
+				}
+			);
+		};
 	});
 });
