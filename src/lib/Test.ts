@@ -42,10 +42,12 @@ export default class Test implements TestProperties {
 			throw new Error('A Test requires a name and a test function');
 		}
 
-		if (options.hasPassed != null) {
-			this._hasPassed = options.hasPassed;
-		}
-		delete options.hasPassed;
+		[ 'timeElapsed', 'hasPassed' ].forEach((name: keyof TestOptions) => {
+			if (options[name] != null) {
+				(<any>this)[`_${name}`] = options[name];
+			}
+			delete options[name];
+		});
 
 		mixin(this, options);
 	}
