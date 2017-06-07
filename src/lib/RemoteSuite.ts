@@ -221,13 +221,14 @@ export default class RemoteSuite extends Suite {
 			},
 			// Canceller
 			() => remote.setHeartbeatInterval(0)
-		).finally(() => {
-			listenerHandle.destroy();
+		)
+		.finally(() => {
 			if (connectTimer) {
 				clearTimeout(connectTimer);
 			}
-			return this.executor.emit('suiteEnd', this);
-		});
+			listenerHandle.destroy();
+		})
+		.finally(() => this.executor.emit('suiteEnd', this));
 	}
 }
 
