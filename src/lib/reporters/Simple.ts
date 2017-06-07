@@ -1,6 +1,6 @@
 import Suite from '../Suite';
 import Test from '../Test';
-import Coverage from './Coverage';
+import Coverage from './_Coverage';
 import { eventHandler } from './Reporter';
 
 /**

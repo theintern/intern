@@ -2,7 +2,7 @@ import * as charm from 'charm';
 import Test from '../Test';
 import Suite from '../Suite';
 import { createEventHandler } from './Reporter';
-import Coverage, { CoverageProperties } from './Coverage';
+import Coverage, { CoverageProperties } from './_Coverage';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { Writable } from 'stream';
 import Server from '../Server';

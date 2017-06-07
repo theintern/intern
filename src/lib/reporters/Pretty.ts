@@ -7,7 +7,7 @@ import Environment from '../Environment';
 import Suite from '../Suite';
 import Test from '../Test';
 import { createEventHandler } from './Reporter';
-import Coverage, { CoverageProperties } from './Coverage';
+import Coverage, { CoverageProperties } from './_Coverage';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import { Events, TunnelMessage } from '../executors/Node';
