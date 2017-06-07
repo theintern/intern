@@ -341,6 +341,7 @@ registerSuite('lib/executors/Node', function () {
 					environments() {
 						test('environments', 5, 'chrome', [{ browserName: 'chrome' }], /Non-object/);
 						test('environments', { name: 'chrome' }, 'chrome', [{ browserName: 'chrome' }], /Invalid value.*missing/);
+						test('environments', 5, '', [], /Non-object/);
 					},
 
 					tunnel() {

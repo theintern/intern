@@ -447,7 +447,10 @@ export default class Node extends Executor<Events, Config> {
 
 			// Must be a string, object, or array of (string | object)
 			case 'environments':
-				if (!Array.isArray(value)) {
+				if (!value) {
+					value = [];
+				}
+				else if (!Array.isArray(value)) {
 					value = [value];
 				}
 				value = value.map((val: any) => {
