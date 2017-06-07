@@ -31,8 +31,12 @@
 		"_tests/tests/unit/lib/node/ErrorFormatter.js",
 		"_tests/tests/unit/lib/node/runner.js",
 		"_tests/tests/unit/lib/node/util.js",
-		"_tests/tests/unit/lib/reporters/Reporter.js",
+		"_tests/tests/unit/lib/reporters/Cobertura.js",
 		"_tests/tests/unit/lib/reporters/Coverage.js",
+		"_tests/tests/unit/lib/reporters/HtmlCoverage.js",
+		"_tests/tests/unit/lib/reporters/JsonCoverage.js",
+		"_tests/tests/unit/lib/reporters/LcovCoverage.js",
+		"_tests/tests/unit/lib/reporters/Reporter.js",
 		"_tests/tests/unit/tasks/intern.js"
 	],
 	"browserSuites": [

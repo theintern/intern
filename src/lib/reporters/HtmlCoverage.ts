@@ -1,5 +1,5 @@
-import Coverage from './Coverage';
+import Coverage, { ReportType } from './Coverage';
 
 export default class HtmlCoverage extends Coverage {
-	readonly reportType = 'html';
+	readonly reportType: ReportType = 'html';
 }

@@ -1,5 +1,5 @@
-import Coverage from './Coverage';
+import Coverage, { ReportType } from './Coverage';
 
 export default class JsonCoverage extends Coverage {
-	readonly reportType = 'json';
+	readonly reportType: ReportType = 'json';
 }

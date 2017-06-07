@@ -4,6 +4,7 @@ import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
 import { create, ReportType } from 'istanbul-reports';
 import Node, { Events } from '../executors/Node';
 import { mixin } from '@dojo/core/lang';
+export { ReportType };
 
 const eventHandler = createEventHandler<Events>();
 
