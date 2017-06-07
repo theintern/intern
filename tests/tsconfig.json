@@ -33,6 +33,7 @@
 	"./unit/lib/node/*.ts",
 	"./unit/lib/*.ts",
 	"./unit/loaders/*.ts",
+	"./unit/tasks/*.ts",
 	"./functional/lib/*.ts",
 	"../src/loaders/*.ts",
     "../src/browser/*.ts",
