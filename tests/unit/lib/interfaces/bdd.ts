@@ -1,24 +1,31 @@
-import registerSuite = require('intern!object');
-import * as assert from 'intern/chai!assert';
-import * as tdd from 'src/lib/interfaces/tdd';
-import * as bdd from 'src/lib/interfaces/bdd';
+import * as bddInt from 'src/lib/interfaces/bdd';
+import * as tddInt from 'src/lib/interfaces/tdd';
+import intern from '../../../../src/index';
 
-registerSuite({
-	name: 'intern/lib/interfaces/bdd',
+const { registerSuite } = intern().getPlugin('interface.object');
+const assert = intern().getPlugin('chai.assert');
 
-	// We already test all the BDD code paths by testing TDD, so long as the methods are the same, so just
-	// make sure that they are actually the same
-	'BDD/TDD interface equivalence check'() {
-		assert.strictEqual(tdd.suite, bdd.describe, 'bdd.describe should be an alias for tdd.suite');
-		assert.strictEqual(tdd.test, bdd.it, 'bdd.it should be an alias for tdd.test');
+registerSuite('lib/interfaces/bdd', {
+	// Since this interface is the same as tdd, just check that it really is the same
+	'tdd equivalence'() {
+		assert.strictEqual(bddInt.describe, tddInt.suite, 'expected bdd describe to alias tdd suite');
+		assert.strictEqual(bddInt.it, tddInt.test, 'expected bdd it to alias tdd test');
+		assert.strictEqual(bddInt.before, tddInt.before, 'expected bdd before to alias tdd before');
+		assert.strictEqual(bddInt.after, tddInt.after, 'expected bdd after to alias tdd after');
+		assert.strictEqual(bddInt.beforeEach, tddInt.beforeEach, 'expected bdd beforeEach to alias tdd beforeEach');
+		assert.strictEqual(bddInt.afterEach, tddInt.afterEach, 'expected bdd afterEach to alias tdd afterEach');
 
-		const anyTdd = <any> tdd;
-		const anyBdd = <any> bdd;
-		for (let key in { before: 1, after: 1, beforeEach: 1, afterEach: 1 }) {
-			assert.strictEqual(anyTdd[key], anyBdd[key], 'bdd.' + key + ' should be an alias for tdd.' + key);
-		}
+		assert.isUndefined((<any>bddInt).test, 'bdd interface should not have test');
+		assert.isUndefined((<any>bddInt).suite, 'bdd interface should not have suite');
+	},
 
-		assert.isUndefined(anyBdd.suite, 'bdd.suite should not be defined since it is a TDD interface');
-		assert.isUndefined(anyBdd.test, 'bdd.test should not be defined since it is a TDD interface');
+	getInterface() {
+		const iface = bddInt.getInterface(<any>{});
+		assert.isFunction(iface.describe, 'expected describe to exist on interface');
+		assert.isFunction(iface.it, 'expected it to exist on interface');
+		assert.isFunction(iface.before, 'expected before to exist on interface');
+		assert.isFunction(iface.after, 'expected after to exist on interface');
+		assert.isFunction(iface.beforeEach, 'expected beforeEach to exist on interface');
+		assert.isFunction(iface.afterEach, 'expected afterEach to exist on interface');
 	}
 });
