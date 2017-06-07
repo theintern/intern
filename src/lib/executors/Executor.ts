@@ -335,7 +335,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 						.then(() => this._loadPlugins())
 						.then(() => this._loadSuites())
 						.then(() => this._beforeRun())
-						.then(() => {
+						.then((skipTests: boolean) => {
+							if (skipTests) {
+								return;
+							}
+
 							// Keep track of distinct tasks to allow them to be cancelled
 							let outerTask: Task<void>;
 							let testingTask: Task<void>;
@@ -416,8 +420,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Code to execute before the main test run has started to set up the test system. This is where Executors can do
 	 * any last-minute configuration before the testing process begins.
+	 *
+	 * This method returns a Task that resolves to a boolean. A value of true indicates that Intern should skip running
+	 * tests and exit normally.
 	 */
-	protected _beforeRun(): Task<any> {
+	protected _beforeRun(): Task<boolean> {
 		const config = this.config;
 
 		config.reporters.forEach(reporter => {
@@ -431,7 +438,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this._rootSuite.sessionId = config.sessionId;
 		this._rootSuite.timeout = config.defaultTimeout;
 
-		return resolvedTask;
+		return Task.resolve(false);
 	}
 
 	protected _emitCoverage(source?: string) {

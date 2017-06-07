@@ -217,7 +217,7 @@ export default class Node extends Executor<Events, Config> {
 		});
 	}
 
-	protected _beforeRun(): Task<void> {
+	protected _beforeRun() {
 		return super._beforeRun().then(() => {
 			const config = this.config;
 
@@ -258,9 +258,17 @@ export default class Node extends Executor<Events, Config> {
 				// If we're in serveOnly mode, just start the server server. Don't create session suites or start a tunnel.
 				if (config.serveOnly) {
 					return serverTask.then(() => {
-						// This is normally handled in Executor#run, but in serveOnly mode we short circuit the normal
-						// sequence Pause indefinitely until canceled
-						return new Task<void>(() => {}).finally(() => this.server && this.server.stop());
+						// In serveOnly mode we just start the server to static file serving and instrumentation. Return
+						// an unresolved Task to pause indefinitely until canceled.
+						const waitTask = new Task<void>(resolve => {
+							process.on('SIGINT', () => {
+								resolve();
+							});
+						});
+
+						return waitTask
+							.then(() => this.server.stop())
+							.then(() => true);
 					});
 				}
 
