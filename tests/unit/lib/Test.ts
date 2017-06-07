@@ -6,7 +6,7 @@ import { mockRemote, mockExecutor, mockSession } from '../../support/unit/mocks'
 import { createSuite } from '../../support/unit/factories';
 
 import Promise from '@dojo/shim/Promise';
-import Task from '@dojo/core/async/Task';
+import Task, { State } from '@dojo/core/async/Task';
 import { Thenable } from '@dojo/shim/interfaces';
 
 const { registerSuite } = intern.getPlugin('interface.object');
@@ -430,5 +430,29 @@ registerSuite('lib/Test', {
 			assert.isFalse(isTestFunction({}));
 			assert.isTrue(isTestFunction(() => {}));
 		}
+	},
+
+	cancel() {
+		const dfd = this.async();
+		const task = new Task<void>(() => { });
+		const test = createTest({
+			name: 'foo',
+			test() {
+				return task;
+			}
+		});
+
+		const runTask = test.run();
+
+		setTimeout(() => {
+			runTask.cancel();
+		});
+
+		runTask.finally(() => {
+			setTimeout(dfd.callback(() => {
+				assert.equal(task.state, State.Canceled, 'expected test task to have been canceled');
+				assert.equal(test.skipped, 'Canceled');
+			}));
+		});
 	}
 });

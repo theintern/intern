@@ -2,7 +2,7 @@ import Suite from '../Suite';
 import Test from '../Test';
 import { deepMixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
-import Task from '@dojo/core/async/Task';
+import Task, { State } from '@dojo/core/async/Task';
 import ErrorFormatter, { ErrorFormatOptions } from '../common/ErrorFormatter';
 import { normalizePathEnding, parseValue, pullFromArray } from '../common/util';
 import Reporter, { ReporterOptions } from '../reporters/Reporter';
@@ -328,23 +328,50 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 					});
 				}
 				else {
+					let currentTask: Task<void>;
+
 					this._runTask = this._runTask
 						.then(() => this._loadLoader())
 						.then(() => this._loadPlugins())
 						.then(() => this._loadSuites())
-						.then(() => this.emit('beforeRun'))
 						.then(() => this._beforeRun())
 						.then(() => {
-							return this.emit('runStart')
-								.then(() => this._runTests())
-								.catch(error => {
-									runError = error;
-									return this.emit('error', error);
-								})
-								.finally(() => this.emit('runEnd'));
+							// Keep track of distinct tasks to allow them to be cancelled
+							let outerTask: Task<void>;
+							let testingTask: Task<void>;
+
+							currentTask = new Task<void>(
+								(resolve, reject) => {
+									outerTask = this.emit('beforeRun')
+										.then(() => {
+											return this.emit('runStart')
+												.then(() => testingTask = this._runTests())
+												.catch(error => {
+													runError = error;
+													return this.emit('error', error);
+												})
+												.finally(() => this.emit('runEnd'));
+										})
+										.finally(() => this._afterRun())
+										.finally(() => this.emit('afterRun'))
+										.then(resolve, reject);
+								},
+								() => {
+									if (testingTask && testingTask.state === State.Pending) {
+										testingTask.cancel();
+									}
+									else if (outerTask && outerTask.state === State.Pending) {
+										outerTask.cancel();
+									}
+								}
+							);
+							return currentTask;
 						})
-						.finally(() => this._afterRun())
-						.finally(() => this.emit('afterRun'))
+						.finally(() => {
+							if (currentTask && currentTask.state === State.Pending) {
+								currentTask.cancel();
+							}
+						})
 						.catch(error => {
 							return this.emit('error', error).finally(() => {
 								// A runError has priority over any cleanup errors, so rethrow one if it exists.

@@ -1,6 +1,6 @@
 import Executor from './executors/Executor';
 import Deferred from './Deferred';
-import Task, { isTask, isThenable } from '@dojo/core/async/Task';
+import Task, { isTask, isThenable, State } from '@dojo/core/async/Task';
 import { Thenable } from '@dojo/shim/interfaces';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
@@ -29,11 +29,11 @@ export default class Test implements TestProperties {
 
 	protected _timeout: number;
 
-	protected _runTask: Task<any> | null;
+	protected _runTask: Task<any> | undefined;
 
 	protected _timeElapsed: number;
 
-	protected _timer: NodeJS.Timer | null;
+	protected _timer: NodeJS.Timer | undefined;
 
 	protected _usesRemote = false;
 
@@ -181,7 +181,7 @@ export default class Test implements TestProperties {
 				clearTimeout(this._timer);
 			}
 			this._timer = setTimeout(() => {
-				this._timer = null;
+				this._timer = undefined;
 				if (this._runTask) {
 					const error = new Error(`Timeout reached on ${this.id}#`);
 					error.name = 'TimeoutError';
@@ -198,21 +198,29 @@ export default class Test implements TestProperties {
 	run() {
 		let startTime: number;
 
+		// Cancel any currently running test
+		if (this._runTask && this._runTask.state === State.Pending) {
+			this._runTask.cancel();
+			this._runTask = undefined;
+		}
+
+		if (this._timer) {
+			clearTimeout(this._timer);
+			this._timer = undefined;
+		}
+
 		// Reset some state in case someone tries to re-run the same test
-		// TODO: Cancel any previous outstanding test run
-		// TODO: Test
-		this.async = Object.getPrototypeOf(this).async;
 		this._usesRemote = false;
 		this._hasPassed = false;
 		this._isAsync = false;
 		this._timeElapsed = 0;
+		this._runTask = undefined;
+		this.async = Object.getPrototypeOf(this).async;
 		this.error = undefined;
 		this.skipped = undefined;
 
 		return this.executor.emit('testStart', this)
-			.then(() => {
-				startTime = Date.now();
-			})
+			.then(() => { startTime = Date.now(); })
 			.then(() => {
 				let result: Thenable<void> | void = this.test();
 
@@ -231,12 +239,11 @@ export default class Test implements TestProperties {
 				}
 
 				if (isThenable(result)) {
-					// If a user did not call `this.async` but returned a promise we still want to mark this
-					// test as asynchronous for informational purposes
+					// Even if a user did not call `this.async`, we still mark this test as asynchronous if a promise
+					// was returned
 					this._isAsync = true;
 
-					// The `result` promise is wrapped in order to allow timeouts to work when a user returns a
-					// Promise from somewhere else that does not support cancellation
+					// Wrap the runTask in another Task so that a canceled test can be treated like a skip.
 					return new Task((resolve, reject) => {
 						this._runTask = new Task(
 							(resolve, reject) => {
@@ -246,30 +253,53 @@ export default class Test implements TestProperties {
 
 								// Most promise implementations that allow cancellation don't signal that a promise was
 								// canceled. In order to ensure that a timed out test is never accidentally resolved, reject
-								// a canceled test.
+								// a canceled test, treating it as a skipped test.
 								if (isTask(result)) {
-									result.finally(reject).catch(() => {});
+									const resultTask = result;
+									resultTask
+										// Reject with SKIP in case we got here before the promise resolved
+										.finally(() => {
+											if (resultTask.state === State.Canceled) {
+												this.skipped = 'Canceled';
+												reject(SKIP);
+											}
+										})
+										// If the result rejected, consume the error; it's handled above
+										.catch((_error) => { });
 								}
 							},
 							() => {
+								// Only cancel the result if it's actually a Task
 								if (isTask(result)) {
 									result.cancel();
 								}
-								reject(this.error);
+								// If the test task was canceled between the time it failed and the time it resolved,
+								// reject it
+								if (this.error) {
+									reject(this.error);
+								}
 							}
-						).then(resolve, reject);
+						)
+						.then(resolve, reject);
 
 						this.restartTimeout();
 					});
 				}
 			})
 			.finally(() => {
+				// If we got here but the test task hasn't finished, the test was canceled
+				if (this._runTask && this._runTask.state === State.Pending) {
+					this._runTask.cancel();
+				}
+
+				this._runTask = undefined;
 				this._timeElapsed = Date.now() - startTime;
+
+				// Ensure the timeout timer is cleared so the testing process doesn't hang at exit
 				if (this._timer) {
 					clearTimeout(this._timer);
-					this._timer = null;
+					this._timer = undefined;
 				}
-				this._runTask = null;
 			})
 			.then(
 				// Test completed successfully -- potentially passed
@@ -282,12 +312,7 @@ export default class Test implements TestProperties {
 				},
 				// There was an error running the test; could be a skip, could be an assertion failure
 				error => {
-					if (error === SKIP) {
-						if (!this.skipped) {
-							this.skipped = error.message;
-						}
-					}
-					else {
+					if (error !== SKIP) {
 						this.error = error;
 						throw error;
 					}

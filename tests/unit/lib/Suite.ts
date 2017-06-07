@@ -3,12 +3,12 @@ import Test from 'src/lib/Test';
 import { InternError } from 'src/lib/types';
 
 import Promise from '@dojo/shim/Promise';
-import Task from '@dojo/core/async/Task';
+import Task, { State } from '@dojo/core/async/Task';
 
 import { mockExecutor, mockRemoteAndSession } from '../../support/unit/mocks';
 import _Deferred from '../../../src/lib/Deferred';
 import { TestFunction as _TestFunction } from '../../../src/lib/Test';
-import { ObjectSuiteDescriptor as _ObjectSuiteDescriptor } from '../../../src/lib/interfaces/object';
+import { ObjectSuiteDescriptor as _ObjectSuiteDescriptor, Tests } from '../../../src/lib/interfaces/object';
 
 const { registerSuite } = intern.getPlugin('interface.object');
 const assert = intern.getPlugin('chai.assert');
@@ -769,186 +769,218 @@ registerSuite('lib/Suite', {
 		});
 	},
 
-	'#run grep'() {
-		const dfd = this.async(5000);
-		const grep = /foo/;
-		const suite = createSuite({ name: 'grepSuite', grep });
-		const testsRun: Test[] = [];
-		const fooTest = new Test({
-			name: 'foo',
-			parent: suite,
-			test() {
-				testsRun.push(this);
-			}
-		});
-		const barSuite = createSuite({
-			name: 'bar',
-			parent: suite,
-			grep,
-			tests: [
-				new Test({
-					name: 'foo',
-					test() {
-						testsRun.push(this);
-					}
-				}),
-				new Test({
-					name: 'baz',
-					test() {
-						testsRun.push(this);
-					}
-				})
-			]
-		});
-		const foodTest = new Test({
-			name: 'food',
-			parent: suite,
-			test() {
-				testsRun.push(this);
-			}
-		});
+	'#run': <Tests>{
+		grep() {
+			const dfd = this.async(5000);
+			const grep = /foo/;
+			const suite = createSuite({ name: 'grepSuite', grep });
+			const testsRun: Test[] = [];
+			const fooTest = new Test({
+				name: 'foo',
+				parent: suite,
+				test() {
+					testsRun.push(this);
+				}
+			});
+			const barSuite = createSuite({
+				name: 'bar',
+				parent: suite,
+				grep,
+				tests: [
+					new Test({
+						name: 'foo',
+						test() {
+							testsRun.push(this);
+						}
+					}),
+					new Test({
+						name: 'baz',
+						test() {
+							testsRun.push(this);
+						}
+					})
+				]
+			});
+			const foodTest = new Test({
+				name: 'food',
+				parent: suite,
+				test() {
+					testsRun.push(this);
+				}
+			});
 
-		suite.tests.push(fooTest);
-		suite.tests.push(barSuite);
-		suite.tests.push(foodTest);
+			suite.tests.push(fooTest);
+			suite.tests.push(barSuite);
+			suite.tests.push(foodTest);
 
-		suite.run().then(dfd.callback(function () {
-			assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ],
-				'Only test matching grep regex should have run');
-		}), function () {
-			dfd.reject(new Error('Suite should not fail'));
-		});
-	},
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0], foodTest ],
+					'Only test matching grep regex should have run');
+			}), function () {
+				dfd.reject(new Error('Suite should not fail'));
+			});
+		},
 
-	'#run bail'() {
-		const dfd = this.async(5000);
-		const suite = createSuite({ name: 'bail', bail: true });
-		const testsRun: any[] = [];
-		const fooTest = new Test({
-			name: 'foo',
-			parent: suite,
-			test() {
-				testsRun.push(this);
-			}
-		});
-		const barSuite = createSuite({
-			name: 'bar',
-			parent: suite,
-			tests: [
-				new Test({
-					name: 'foo',
-					test() {
-						testsRun.push(this);
-						// Fail this test; everything after this should not run
-						throw new Error('fail');
-					}
-				}),
-				new Test({
-					name: 'baz',
-					test() {
-						testsRun.push(this);
-					}
-				})
-			]
-		});
-		const foodTest = new Test({
-			name: 'food',
-			parent: suite,
-			test() {
-				testsRun.push(this);
-			}
-		});
+		bail() {
+			const dfd = this.async(5000);
+			const suite = createSuite({ name: 'bail', bail: true });
+			const testsRun: any[] = [];
+			const fooTest = new Test({
+				name: 'foo',
+				parent: suite,
+				test() {
+					testsRun.push(this);
+				}
+			});
+			const barSuite = createSuite({
+				name: 'bar',
+				parent: suite,
+				tests: [
+					new Test({
+						name: 'foo',
+						test() {
+							testsRun.push(this);
+							// Fail this test; everything after this should not run
+							throw new Error('fail');
+						}
+					}),
+					new Test({
+						name: 'baz',
+						test() {
+							testsRun.push(this);
+						}
+					})
+				]
+			});
+			const foodTest = new Test({
+				name: 'food',
+				parent: suite,
+				test() {
+					testsRun.push(this);
+				}
+			});
 
-		let afterRan = false;
-		barSuite.after = function () {
-			afterRan = true;
-		};
+			let afterRan = false;
+			barSuite.after = function () {
+				afterRan = true;
+			};
 
-		suite.tests.push(fooTest);
-		suite.tests.push(barSuite);
-		suite.tests.push(foodTest);
+			suite.tests.push(fooTest);
+			suite.tests.push(barSuite);
+			suite.tests.push(foodTest);
 
-		suite.run().then(dfd.callback(function () {
-			assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0] ],
-				'Only tests before failing test should have run');
-			assert.isTrue(afterRan, 'after should have run for bailing suite');
-		}), function () {
-			dfd.reject(new Error('Suite should not fail'));
-		});
-	},
+			suite.run().then(dfd.callback(function () {
+				assert.deepEqual(testsRun, [ fooTest, barSuite.tests[0] ],
+					'Only tests before failing test should have run');
+				assert.isTrue(afterRan, 'after should have run for bailing suite');
+			}), function () {
+				dfd.reject(new Error('Suite should not fail'));
+			});
+		},
 
-	'#run skip'() {
-		const dfd = this.async(5000);
-		const suite = createSuite();
-		const testsRun: any[] = [];
-		const fooTest = new Test({
-			name: 'foo',
-			parent: suite,
-			test() {
-				testsRun.push(this);
-			}
-		});
-		const barSuite = createSuite({
-			name: 'bar',
-			parent: suite,
-			before() {
-				this.skip('skip foo');
-			},
-			tests: [
-				new Test({
-					name: 'foo',
-					test() {
-						testsRun.push(this);
-					}
-				}),
-				new Test({
-					name: 'baz',
-					test() {
-						testsRun.push(this);
-					}
-				})
-			]
-		});
-		const bazSuite = createSuite({
-			name: 'baz',
-			parent: suite,
-			tests: [
-				new Test({
-					name: 'foo',
-					test() {
-						testsRun.push(this);
-					}
-				}),
-				new Test({
-					name: 'bar',
-					test() {
-						this.parent.skip();
-						testsRun.push(this);
-					}
-				}),
-				new Test({
-					name: 'baz',
-					test() {
-						testsRun.push(this);
-					}
-				})
-			]
-		});
+		skip() {
+			const dfd = this.async(5000);
+			const suite = createSuite();
+			const testsRun: any[] = [];
+			const fooTest = new Test({
+				name: 'foo',
+				parent: suite,
+				test() {
+					testsRun.push(this);
+				}
+			});
+			const barSuite = createSuite({
+				name: 'bar',
+				parent: suite,
+				before() {
+					this.skip('skip foo');
+				},
+				tests: [
+					new Test({
+						name: 'foo',
+						test() {
+							testsRun.push(this);
+						}
+					}),
+					new Test({
+						name: 'baz',
+						test() {
+							testsRun.push(this);
+						}
+					})
+				]
+			});
+			const bazSuite = createSuite({
+				name: 'baz',
+				parent: suite,
+				tests: [
+					new Test({
+						name: 'foo',
+						test() {
+							testsRun.push(this);
+						}
+					}),
+					new Test({
+						name: 'bar',
+						test() {
+							this.parent.skip();
+							testsRun.push(this);
+						}
+					}),
+					new Test({
+						name: 'baz',
+						test() {
+							testsRun.push(this);
+						}
+					})
+				]
+			});
 
-		suite.tests.push(fooTest);
-		suite.tests.push(barSuite);
-		suite.tests.push(bazSuite);
+			suite.tests.push(fooTest);
+			suite.tests.push(barSuite);
+			suite.tests.push(bazSuite);
 
-		// Expected result is that fooTest will run, barSuite will not run (because the entire suite was skipped),
-		// and the first test in bazSuite will run because the second test skips itself and the remainder of the
-		// suite.
+			// Expected result is that fooTest will run, barSuite will not run (because the entire suite was skipped),
+			// and the first test in bazSuite will run because the second test skips itself and the remainder of the
+			// suite.
 
-		suite.run().then(<any> dfd.callback(function () {
-			assert.deepEqual(testsRun, [ fooTest, bazSuite.tests[0] ],
-				'Skipped suite should not have run');
-		}), function () {
-			dfd.reject(new Error('Suite should not fail'));
-		});
+			suite.run().then(<any> dfd.callback(function () {
+				assert.deepEqual(testsRun, [ fooTest, bazSuite.tests[0] ],
+					'Skipped suite should not have run');
+			}), function () {
+				dfd.reject(new Error('Suite should not fail'));
+			});
+		},
+
+		cancel() {
+			const dfd = this.async();
+			const suite = createSuite({ name: 'cancel suite' });
+			const testTask = new Task<void>(() => { });
+			let testStarted = false;
+			const hangTest = new Test({
+				name: 'hanging',
+				parent: suite,
+				test() {
+					testStarted = true;
+					return testTask;
+				}
+			});
+			suite.tests.push(hangTest);
+
+			const runTask = suite.run();
+
+			setTimeout(() => {
+				runTask.cancel();
+			}, 100);
+
+			runTask.finally(() => {
+				setTimeout(dfd.callback(() => {
+					assert.isTrue(testStarted, 'expected test to have started');
+					assert.equal(runTask.state, State.Canceled, 'expected suite task to have been canceled');
+					assert.equal(testTask.state, State.Canceled, 'expected test to have been canceled');
+				}));
+			});
+		}
 	},
 
 	'#toJSON'() {

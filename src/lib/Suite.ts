@@ -1,4 +1,5 @@
-import Task, { isThenable } from '@dojo/core/async/Task';
+import Task, { isTask, isThenable, State } from '@dojo/core/async/Task';
+import { Thenable } from '@dojo/shim/interfaces';
 import Deferred from './Deferred';
 import Executor from './executors/Executor';
 import Test, { isTest, SKIP } from './Test';
@@ -256,68 +257,96 @@ export default class Suite implements SuiteProperties {
 	 * If before, beforeEach, afterEach, or after throw, the suite itself will be marked as failed
 	 * and no further tests in the suite will be executed.
 	 */
-	run(): Task<any> {
+	run(): Task<void> {
 		let startTime: number;
 
+		// Run when the suite starts
+		const start = () => {
+			return this.executor.emit('suiteStart', this).then(function () {
+				startTime = Date.now();
+			});
+		};
+
+		// Run when the suite has ended
 		const end = () => {
 			this.timeElapsed = Date.now() - startTime;
 			return this.executor.emit('suiteEnd', this);
 		};
 
+		// Run the before and after suite lifecycle methods
 		const runLifecycleMethod = (suite: Suite, name: keyof Suite, test?: Test) => {
-			return new Task(resolve => {
-				let dfd: Deferred<any> | undefined;
-				let timeout: number | undefined;
+			let result: Thenable<void> | undefined;
 
-				// Provide a new Suite#async method for each call of a lifecycle method since there's no concept of
-				// a Suite-wide async deferred as there is for Tests.
-				suite.async = function (_timeout?: number) {
-					timeout = _timeout;
+			return new Task<void>(
+				(resolve, reject) => {
+					let dfd: Deferred<any> | undefined;
+					let timeout: number | undefined;
 
-					const _dfd = new Deferred<any>();
-					dfd = _dfd;
+					// Provide a new Suite#async method for each call of a lifecycle method since there's no concept of
+					// a Suite-wide async deferred as there is for Tests.
+					suite.async = function (_timeout?: number) {
+						timeout = _timeout;
 
-					suite.async = function () {
+						const _dfd = new Deferred<any>();
+						dfd = _dfd;
+
+						suite.async = function () {
+							return _dfd;
+						};
+
 						return _dfd;
 					};
 
-					return _dfd;
-				};
+					const suiteFunc: SuiteLifecycleFunction = <any>suite[name];
 
-				const suiteFunc: SuiteLifecycleFunction = <any>suite[name];
+					// Call the lifecycle function. The suite.async method above may be called within this function call.
+					result = suiteFunc && suiteFunc.call(suite, test);
 
-				// Call the lifecycle function. The suite.async method above may be called within this function call.
-				let returnValue = suiteFunc && suiteFunc.call(suite, test);
+					// If dfd is set, it means the async method was called
+					if (dfd) {
+						// Assign to a const so TS knows it's defined
+						const _dfd = dfd;
 
-				if (dfd) {
-					const _dfd = dfd;
+						// If a timeout was set, async was called, so we should use the dfd created by the call to
+						// manage the timeout.
+						if (timeout) {
+							let timer = setTimeout(function () {
+								const error = new Error(`Timeout reached on ${suite.id}#${name}`);
+								error.name = 'TimeoutError';
+								_dfd.reject(error);
+							}, timeout);
 
-					// If a timeout was set, async was called, so we should use the dfd created by the call to
-					// manage the timeout.
-					if (timeout) {
-						let timer = setTimeout(function () {
-							const error = new Error(`Timeout reached on ${suite.id}#${name}`);
-							error.name = 'TimeoutError';
-							_dfd.reject(error);
-						}, timeout);
+							_dfd.promise.catch(_error => {}).then(() => timer && clearTimeout(timer));
+						}
 
-						dfd.promise.catch(_error => {}).then(() => timer && clearTimeout(timer));
+						// If the return value looks like a promise, resolve the dfd if the return value resolves
+						if (isThenable(result)) {
+							result.then(() => _dfd.resolve(), error => _dfd.reject(error));
+						}
+
+						// Use the dfd.promise as the final result
+						result = dfd.promise;
 					}
 
-					// If the return value looks like a promise, resolve the dfd if the return value resolves
-					if (isThenable(returnValue)) {
-						returnValue.then((value: any) => _dfd.resolve(value), error => _dfd.reject(error));
+					if (isThenable(result)) {
+						result.then(() => resolve(), reject);
 					}
-
-					returnValue = dfd.promise;
+					else {
+						resolve();
+					}
+				},
+				() => {
+					if (isTask(result)) {
+						result.cancel();
+					}
 				}
-
-				resolve(returnValue);
-			}).catch((error: InternError) => {
+			)
+			.finally(() => {
 				// Remove the async method since it should only be available within a lifecycle function call
 				suite.async = undefined;
-
-				if (error !== SKIP) {
+			})
+			.catch((error: InternError) => {
+				if (error.name !== 'Skipped') {
 					if (!this.error) {
 						this.executor.log('Suite errored with non-skip error', error);
 						this.error = error;
@@ -327,16 +356,12 @@ export default class Suite implements SuiteProperties {
 			});
 		};
 
-		const start = () => {
-			return this.executor.emit('suiteStart', this).then(function () {
-				startTime = Date.now();
-			});
-		};
-
+		// Convenience method to run 'before' suite lifecycle method
 		const before = () => {
 			return runLifecycleMethod(this, 'before');
 		};
 
+		// Convenience method to run the 'after' suite lifecycle method
 		const after = () => {
 			return runLifecycleMethod(this, 'after');
 		};
@@ -347,43 +372,43 @@ export default class Suite implements SuiteProperties {
 		this.error = undefined;
 		this.timeElapsed = 0;
 
-		let task: Task<any>;
+		let task: Task<void>;
+		let runTask: Task<void>;
 
 		try {
 			task = this.publishAfterSetup ? before().then(start) : start().then(before);
 		}
 		catch (error) {
-			return Task.reject(error);
+			return Task.reject<void>(error);
 		}
 
+		// The task that manages running this suite's tests
 		return task.then(() => {
-			let i = 0;
-			let tests = this.tests;
-			let current: Task<any>;
-
+			// Run the beforeEach or afterEach methods for a given test in the proper order based on the current nested
+			// Suite structure
 			const runTestLifecycle = (name: keyof Suite, test: Test) => {
-				let suiteQueue: Suite[] = [];
+				let methodQueue: Suite[] = [];
 				let suite: Suite = this;
 
 				do {
 					if (name === 'beforeEach') {
 						// beforeEach executes in order parent -> child;
-						suiteQueue.push(suite);
+						methodQueue.push(suite);
 					}
 					else {
 						// afterEach executes in order child -> parent
-						suiteQueue.unshift(suite);
+						methodQueue.unshift(suite);
 					}
 				}
 				while ((suite = suite.parent));
 
-				let current: Task<any>;
+				let currentMethod: Task<any>;
 
 				return new Task(
 					(resolve, reject) => {
 						let firstError: Error;
 
-						function handleError(error: Error) {
+						const handleError = (error: Error) => {
 							if (name === 'afterEach') {
 								firstError = firstError || error;
 								next();
@@ -391,33 +416,39 @@ export default class Suite implements SuiteProperties {
 							else {
 								reject(error);
 							}
-						}
+						};
 
-						function next() {
-							const suite = suiteQueue.pop();
+						const next = () => {
+							const suite = methodQueue.pop();
 
 							if (!suite) {
 								firstError ? reject(firstError) : resolve();
 								return;
 							}
 
-							current = runLifecycleMethod(suite, name, test).then(next, handleError);
-						}
+							currentMethod = runLifecycleMethod(suite, name, test).then(next, handleError);
+						};
 
 						next();
 					},
 					() => {
-						suiteQueue.splice(0, suiteQueue.length);
-						if (current) {
-							current.cancel();
+						methodQueue.splice(0, methodQueue.length);
+						if (currentMethod) {
+							currentMethod.cancel();
 						}
 					}
 				);
 			};
 
-			return new Task(
+			let i = 0;
+			let tests = this.tests;
+			let current: Task<void>;
+
+			// Run each of the tests in this suite
+			runTask = new Task<void>(
 				(resolve, reject) => {
 					let firstError: Error;
+					let testTask: Task<void> | undefined;
 
 					const next = () => {
 						const test = tests[i++];
@@ -436,13 +467,16 @@ export default class Suite implements SuiteProperties {
 							}
 						};
 
-						function runWithCatch() {
+						const runTest = () => {
 							// Errors raised when running child tests should be reported but should not cause
 							// this suite’s run to reject, since this suite itself has not failed.
-							return test.run().catch(error => {
-								handleError(error);
-							});
-						}
+							const result = test.run().catch(error => { handleError(error); });
+							testTask = new Task<void>(
+								resolve => { result.then(resolve); },
+								() => { result.cancel(); }
+							);
+							return testTask;
+						};
 
 						// If the suite will be skipped, mark the current test as skipped. This will skip both
 						// individual tests and nested suites.
@@ -452,7 +486,7 @@ export default class Suite implements SuiteProperties {
 
 						// test is a suite
 						if (isSuite(test)) {
-							current = runWithCatch();
+							current = runTest();
 						}
 						// test is a single test
 						else {
@@ -465,8 +499,14 @@ export default class Suite implements SuiteProperties {
 							}
 							else {
 								current = runTestLifecycle('beforeEach', test)
-									.then(runWithCatch)
-									.finally(() => runTestLifecycle('afterEach', test))
+									.then(runTest)
+									.finally(() => {
+										if (testTask && testTask.state === State.Pending) {
+											testTask.cancel();
+										}
+										testTask = undefined;
+										return runTestLifecycle('afterEach', test);
+									})
 									.catch(error => {
 										firstError = firstError || error;
 										return handleError(error);
@@ -496,12 +536,20 @@ export default class Suite implements SuiteProperties {
 					next();
 				},
 				() => {
+					// Ensure no more tests will run
 					i = Infinity;
 					if (current) {
 						current.cancel();
 					}
 				}
 			);
+
+			return runTask;
+		})
+		.finally(() => {
+			if (runTask && runTask.state === State.Pending) {
+				runTask.cancel();
+			}
 		})
 		.finally(() => this.publishAfterSetup ? end() : after())
 		.finally(() => this.publishAfterSetup ? after() : end());
