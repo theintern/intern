@@ -428,6 +428,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Load a loader
 	 */
 	protected _loadLoader(loader?: LoaderDescriptor) {
+		this.log('loading loader with', loader);
 		// If registerLoader was already called, just wait for that loader to initialize
 		if (this._loaderInit) {
 			return this._loaderInit.then(loader => {
@@ -448,7 +449,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 					script = `${config.internPath}loaders/${script}.js`;
 			}
 
-			this._loaderConfig = loader!.config || {};
+			this._loaderConfig = loader!.options || {};
 			return this.loadScript(script).then(() => {
 				if (!this._loaderInit) {
 					throw new Error(`Loader script ${script} did not register a loader callback`);
@@ -787,12 +788,12 @@ export interface Loader {
  * A loader initialization function.
  */
 export interface LoaderInit {
-	(config: any): Promise<Loader> | Loader;
+	(options: { [key: string]: any }): Promise<Loader> | Loader;
 }
 
 export interface LoaderDescriptor {
 	script: string;
-	config?: { [key: string]: any };
+	options?: { [key: string]: any };
 }
 
 export interface PluginInitializer {

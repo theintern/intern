@@ -3,16 +3,16 @@
  *
  * Note that loader scripts must be simple scripts, not modules.
  */
-intern.registerLoader(config => {
+intern.registerLoader(options => {
 	const globalObj: any = typeof window !== 'undefined' ? window : global;
 
-	config.baseUrl = config.baseUrl || intern.config.basePath;
-	if (!('async' in config)) {
-		config.async = true;
+	options.baseUrl = options.baseUrl || intern.config.basePath;
+	if (!('async' in options)) {
+		options.async = true;
 	}
 
-	intern.log('Configuring Dojo loader with:', config);
-	globalObj.dojoConfig = config;
+	intern.log('Configuring Dojo loader with:', options);
+	globalObj.dojoConfig = options;
 
 	return intern.loadScript('node_modules/dojo/dojo.js').then(() => {
 		const require = globalObj.require;

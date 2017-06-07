@@ -6,8 +6,8 @@
  * Note that loader scripts must be simple scripts, not modules.
  */
 
-intern.registerLoader(config => {
-	config.baseURL = config.baseURL || intern.config.basePath;
+intern.registerLoader(options => {
+	options.baseURL = options.baseURL || intern.config.basePath;
 
 	if (intern.environment === 'browser') {
 		return intern.loadScript('node_modules/systemjs/dist/system.src.js').then(() => {
@@ -22,8 +22,8 @@ intern.registerLoader(config => {
 	function configAndLoad(loader: typeof SystemJS) {
 		intern.log('Using SystemJS loader');
 
-		intern.log('Configuring SystemJS with:', config);
-		loader.config(config);
+		intern.log('Configuring SystemJS with:', options);
+		loader.config(options);
 
 		return (modules: string[]) => {
 			intern.log('Loading modules with SystemJS:', modules);

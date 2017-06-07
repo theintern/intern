@@ -39,7 +39,7 @@
 
 	"browserLoader": {
 		"script": "dojo2",
-		"config": {
+		"options": {
 			"map": {
 				"*": {
 					"@dojo": "node_modules/@dojo"
