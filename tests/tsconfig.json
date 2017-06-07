@@ -20,6 +20,7 @@
 	"./selftest.ts",
 	"./benchmark/example.ts",
 	"./support/unit/*.ts",
+	"./unit/index.ts",
 	"./unit/bin/*.ts",
 	"./unit/lib/browser/*.ts",
 	"./unit/lib/channels/*.ts",

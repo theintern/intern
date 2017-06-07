@@ -1,6 +1,7 @@
 {
 	"description": "Run tests on Node, excluding the benchmark tests",
 	"suites": [
+		"_tests/tests/unit/index.js",
 		"_tests/tests/unit/lib/Channel.js",
 		"_tests/tests/unit/lib/Environment.js",
 		"_tests/tests/unit/lib/Suite.js",
