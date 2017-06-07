@@ -171,12 +171,14 @@ export default class Node extends Executor<Events, Config> {
 			script = [script];
 		}
 
-		script.forEach(script => {
-			script = resolve(script);
-			// Delete the module cache entry for the script to ensure it will be loaded and executed again.
-			delete require.cache[script];
-			require(script);
-		});
+		try {
+			script.forEach(script => {
+				require(resolve(script));
+			});
+		}
+		catch (error) {
+			return Task.reject<void>(error);
+		}
 
 		return Task.resolve();
 	}
