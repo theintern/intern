@@ -27,6 +27,7 @@
 	"./unit/lib/common/*.ts",
 	"./unit/lib/executors/*.ts",
 	"./unit/lib/interfaces/bdd.ts",
+	"./unit/lib/interfaces/benchmark.ts",
 	"./unit/lib/interfaces/object.ts",
 	"./unit/lib/interfaces/tdd.ts",
 	"./unit/lib/node/*.ts",
