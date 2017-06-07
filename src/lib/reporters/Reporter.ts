@@ -1,6 +1,11 @@
 import Executor, { Events, Handle } from '../executors/Executor';
 import { ErrorFormatOptions } from '../common/ErrorFormatter';
+import global from '@dojo/core/global';
 
+/**
+ * This is a base class for reporters that provides convenienience features such as event handler registration and a
+ * default console.
+ */
 export default class Reporter<
 	E extends Executor = Executor,
 	C extends ReporterOptions = ReporterOptions,
@@ -23,6 +28,9 @@ export default class Reporter<
 		if (config.output) {
 			this.output = config.output;
 		}
+		if (config.console) {
+			this.console = config.console;
+		}
 		this.executor = executor;
 		this._registerEventHandlers();
 	}
@@ -42,8 +50,8 @@ export default class Reporter<
 		if (!this._output) {
 			// Use process.stdout in a Node.js environment, otherwise construct a writable-like object that outputs to
 			// the console.
-			if (typeof process !== 'undefined') {
-				return process.stdout;
+			if (global.process != null) {
+				return global.process.stdout;
 			}
 			else {
 				const _console = this.console;
@@ -119,6 +127,7 @@ export const eventHandler = createEventHandler<Events>();
 
 export interface ReporterProperties {
 	output: ReporterOutput;
+	console: Console;
 }
 
 export type ReporterOptions = Partial<ReporterProperties>;

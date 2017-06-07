@@ -31,6 +31,7 @@
 	"./unit/lib/interfaces/object.ts",
 	"./unit/lib/interfaces/tdd.ts",
 	"./unit/lib/node/*.ts",
+	"./unit/lib/reporters/Reporter.ts",
 	"./unit/lib/*.ts",
 	"./unit/loaders/*.ts",
 	"./unit/tasks/*.ts",

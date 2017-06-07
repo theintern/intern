@@ -31,6 +31,7 @@
 		"_tests/tests/unit/lib/node/ErrorFormatter.js",
 		"_tests/tests/unit/lib/node/runner.js",
 		"_tests/tests/unit/lib/node/util.js",
+		"_tests/tests/unit/lib/reporters/Reporter.js",
 		"_tests/tests/unit/tasks/intern.js"
 	],
 	"browserSuites": [
