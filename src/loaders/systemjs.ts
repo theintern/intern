@@ -8,6 +8,7 @@
 
 intern.registerLoader(options => {
 	options.baseURL = options.baseURL || intern.config.basePath;
+	const globalObj: any = typeof window !== 'undefined' ? window : global;
 
 	if (intern.environment === 'browser') {
 		return intern.loadScript('node_modules/systemjs/dist/system.src.js').then(() => {
@@ -15,7 +16,8 @@ intern.registerLoader(options => {
 		});
 	}
 	else {
-		const SystemJS = require('systemjs');
+		// Use globalObj to get to require to improve testability
+		const SystemJS = globalObj.require('systemjs');
 		return configAndLoad(SystemJS);
 	}
 

@@ -18,7 +18,8 @@
 		"_tests/tests/unit/lib/interfaces/object.js",
 		"_tests/tests/unit/lib/interfaces/tdd.js",
 		"_tests/tests/unit/loaders/dojo.js",
-		"_tests/tests/unit/loaders/dojo2.js"
+		"_tests/tests/unit/loaders/dojo2.js",
+		"_tests/tests/unit/loaders/systemjs.js"
 	],
 	"nodeSuites": [
 		"_tests/tests/unit/bin/intern.js",
