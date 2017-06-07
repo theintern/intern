@@ -3,68 +3,9 @@ import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Test from '../Test';
 import Suite from '../Suite';
 
-function containsClass(node: Element, cls: string) {
-	const classes = node.className.split(/\s+/);
-	return classes.indexOf(cls) !== -1;
-}
-
-function addClass(node: Element, cls: string) {
-	const classes = node.className.split(/\s+/);
-	if (classes.indexOf(cls) !== -1) {
-		return;
-	}
-
-	classes.push(cls);
-	node.className = classes.join(' ');
-}
-
-function removeClass(node: Element, cls: string) {
-	const classes = node.className.split(/\s+/);
-	const index = classes.indexOf(cls);
-	if (index === -1) {
-		return;
-	}
-
-	classes.splice(index, 1);
-	node.className = classes.join(' ');
-}
-
-function pad(value: string | number, size: number): string {
-	let padded = String(value);
-
-	while (padded.length < size) {
-		padded = '0' + padded;
-	}
-
-	return padded;
-}
-
-// Format a millisecond value to m:ss.SSS
-// If duration is greater than 60 minutes, value will be HHHH:mm:ss.SSS
-// (the hours value will not be converted to days)
-function formatDuration(duration: number): string {
-	let hours = Math.floor(duration / 3600000);
-	let minutes: string | number = Math.floor(duration / 60000) - (hours * 60);
-	let seconds = Math.floor(duration / 1000) - (hours * 3600) - (minutes * 60);
-	let milliseconds = duration - (hours * 3600000) - (minutes * 60000) - (seconds * 1000);
-	let formattedValue = '';
-
-	if (hours) {
-		formattedValue = hours + ':';
-		minutes = pad(minutes, 2);
-	}
-
-	formattedValue += minutes + ':' + pad(seconds, 2) + '.' + pad(milliseconds, 3);
-
-	return formattedValue;
-}
-
-export interface HtmlProperties extends ReporterProperties {
-	document: Document;
-}
-
-export type HtmlOptions = Partial<HtmlProperties>;
-
+/**
+ * The Html reporter displays an HTML report in the browser.
+ */
 export default class Html extends Reporter implements HtmlProperties {
 	readonly executor: Browser;
 
@@ -528,4 +469,66 @@ export default class Html extends Reporter implements HtmlProperties {
 
 		this._reportNode.appendChild(rowNode);
 	}
+}
+
+export interface HtmlProperties extends ReporterProperties {
+	document: Document;
+}
+
+export type HtmlOptions = Partial<HtmlProperties>;
+
+function containsClass(node: Element, cls: string) {
+	const classes = node.className.split(/\s+/);
+	return classes.indexOf(cls) !== -1;
+}
+
+function addClass(node: Element, cls: string) {
+	const classes = node.className.split(/\s+/);
+	if (classes.indexOf(cls) !== -1) {
+		return;
+	}
+
+	classes.push(cls);
+	node.className = classes.join(' ');
+}
+
+function removeClass(node: Element, cls: string) {
+	const classes = node.className.split(/\s+/);
+	const index = classes.indexOf(cls);
+	if (index === -1) {
+		return;
+	}
+
+	classes.splice(index, 1);
+	node.className = classes.join(' ');
+}
+
+function pad(value: string | number, size: number): string {
+	let padded = String(value);
+
+	while (padded.length < size) {
+		padded = '0' + padded;
+	}
+
+	return padded;
+}
+
+// Format a millisecond value to m:ss.SSS
+// If duration is greater than 60 minutes, value will be HHHH:mm:ss.SSS
+// (the hours value will not be converted to days)
+function formatDuration(duration: number): string {
+	let hours = Math.floor(duration / 3600000);
+	let minutes: string | number = Math.floor(duration / 60000) - (hours * 60);
+	let seconds = Math.floor(duration / 1000) - (hours * 3600) - (minutes * 60);
+	let milliseconds = duration - (hours * 3600000) - (minutes * 60000) - (seconds * 1000);
+	let formattedValue = '';
+
+	if (hours) {
+		formattedValue = hours + ':';
+		minutes = pad(minutes, 2);
+	}
+
+	formattedValue += minutes + ':' + pad(seconds, 2) + '.' + pad(milliseconds, 3);
+
+	return formattedValue;
 }

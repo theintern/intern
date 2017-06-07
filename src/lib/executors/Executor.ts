@@ -103,6 +103,13 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
+	 * The root suites managed by this executor
+	 */
+	get suites() {
+		return [ this._rootSuite ];
+	}
+
+	/**
 	 * Format an error, normalizing the stack trace and resolving source map references
 	 */
 	formatError(error: Error, options?: ErrorFormatOptions) {

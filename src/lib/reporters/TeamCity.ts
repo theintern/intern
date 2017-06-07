@@ -1,5 +1,4 @@
-import { Reporter, ReporterConfig, ReporterOutput } from '../../common';
-import { getErrorMessage } from '../node/util';
+import Reporter, { eventHandler, ReporterOptions, ReporterOutput } from './Reporter';
 import Test from '../Test';
 import Suite from '../Suite';
 
@@ -10,11 +9,68 @@ import Suite from '../Suite';
  * Portions of this module are based on functions from teamcity-service-messages:
  * https://github.com/pifantastic/teamcity-service-messages.
  */
-export default class TeamCity implements Reporter {
-	output: ReporterOutput;
+export default class TeamCity extends Reporter {
+	@eventHandler()
+	testStart(test: Test) {
+		this._sendMessage('testStarted', { name: test.name, flowId: test.sessionId });
+	}
 
-	constructor(config: ReporterConfig = {}) {
-		this.output = config.output;
+	@eventHandler()
+	testEnd(test: Test) {
+		if (test.error) {
+			const message: any = {
+				name: test.name,
+				message: this.formatError(test.error),
+				flowId: test.sessionId
+			};
+
+			if (test.error.actual && test.error.expected) {
+				message.type = 'comparisonFailure';
+				message.expected = test.error.expected;
+				message.actual = test.error.actual;
+			}
+
+			this._sendMessage('testFailed', message);
+		}
+		else if (test.skipped) {
+			this._sendMessage('testIgnored', { name: test.name, flowId: test.sessionId });
+		}
+		else {
+			this._sendMessage('testFinished', {
+				name: test.name,
+				duration: test.timeElapsed,
+				flowId: test.sessionId
+			});
+		}
+	}
+
+	@eventHandler()
+	suiteStart(suite: Suite) {
+		this._sendMessage('testSuiteStarted', {
+			name: suite.name,
+			startDate: new Date(),
+			flowId: suite.sessionId
+		});
+	}
+
+	@eventHandler()
+	suiteEnd(suite: Suite) {
+		if (suite.error) {
+			this._sendMessage('message', {
+				name: suite.name,
+				flowId: suite.sessionId,
+				text: 'SUITE ERROR',
+				errorDetails: this.formatError(suite.error),
+				status: 'ERROR'
+			});
+		}
+		else {
+			this._sendMessage('testSuiteFinished', {
+				name: suite.name,
+				duration: suite.timeElapsed,
+				flowId: suite.sessionId
+			});
+		}
 	}
 
 	/**
@@ -60,63 +116,5 @@ export default class TeamCity implements Reporter {
 		args = Object.keys(args).map(key => `${key}='${this._escapeString(String(args[key]))}'`).join(' ');
 
 		this.output.write(`##teamcity[${type} ${args}]\n`);
-	}
-
-	testStart(test: Test) {
-		this._sendMessage('testStarted', { name: test.name, flowId: test.sessionId });
-	}
-
-	testSkip(test: Test) {
-		this._sendMessage('testIgnored', { name: test.name, flowId: test.sessionId });
-	}
-
-	testEnd(test: Test) {
-		this._sendMessage('testFinished', {
-			name: test.name,
-			duration: test.timeElapsed,
-			flowId: test.sessionId
-		});
-	}
-
-	testFail(test: Test) {
-		const message: any = {
-			name: test.name,
-			message: getErrorMessage(test.error),
-			flowId: test.sessionId
-		};
-
-		if (test.error.actual && test.error.expected) {
-			message.type = 'comparisonFailure';
-			message.expected = test.error.expected;
-			message.actual = test.error.actual;
-		}
-
-		this._sendMessage('testFailed', message);
-	}
-
-	suiteStart(suite: Suite) {
-		this._sendMessage('testSuiteStarted', {
-			name: suite.name,
-			startDate: new Date(),
-			flowId: suite.sessionId
-		});
-	}
-
-	suiteEnd(suite: Suite) {
-		this._sendMessage('testSuiteFinished', {
-			name: suite.name,
-			duration: suite.timeElapsed,
-			flowId: suite.sessionId
-		});
-	}
-
-	suiteError(suite: Suite) {
-		this._sendMessage('message', {
-			name: suite.name,
-			flowId: suite.sessionId,
-			text: 'SUITE ERROR',
-			errorDetails: getErrorMessage(suite.error),
-			status: 'ERROR'
-		});
 	}
 }

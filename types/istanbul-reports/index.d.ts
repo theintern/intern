@@ -3,7 +3,7 @@ declare module 'istanbul-reports' {
 
 	export type ReportType =
 		'clover' |
-		'covertura' |
+		'cobertura' |
 		'html' |
 		'json' |
 		'json-summary' |

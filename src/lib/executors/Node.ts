@@ -11,21 +11,8 @@ import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
 import resolveEnvironments from '../resolveEnvironments';
 import Command from 'leadfoot/Command';
-import Pretty from '../reporters/Pretty';
-import Runner from '../reporters/Runner';
-import Simple from '../reporters/Simple';
-import JsonCoverage from '../reporters/JsonCoverage';
-import HtmlCoverage from '../reporters/HtmlCoverage';
-import LcovCoverage from '../reporters/LcovCoverage';
-import Benchmark from '../reporters/Benchmark';
 import Promise from '@dojo/shim/Promise';
 import Tunnel, { TunnelOptions, DownloadProgressEvent } from 'digdug/Tunnel';
-import BrowserStackTunnel, { BrowserStackOptions } from 'digdug/BrowserStackTunnel';
-import SeleniumTunnel, { SeleniumOptions } from 'digdug/SeleniumTunnel';
-import SauceLabsTunnel from 'digdug/SauceLabsTunnel';
-import TestingBotTunnel from 'digdug/TestingBotTunnel';
-import CrossBrowserTestingTunnel from 'digdug/CrossBrowserTestingTunnel';
-import NullTunnel from 'digdug/NullTunnel';
 import Server from '../Server';
 import Suite, { isSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
@@ -34,6 +21,25 @@ import { createInstrumenter, Instrumenter, readInitialCoverage } from 'istanbul-
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
 import global from '@dojo/core/global';
+
+// Dig Dug tunnels
+import BrowserStackTunnel, { BrowserStackOptions } from 'digdug/BrowserStackTunnel';
+import SeleniumTunnel, { SeleniumOptions } from 'digdug/SeleniumTunnel';
+import SauceLabsTunnel from 'digdug/SauceLabsTunnel';
+import TestingBotTunnel from 'digdug/TestingBotTunnel';
+import CrossBrowserTestingTunnel from 'digdug/CrossBrowserTestingTunnel';
+import NullTunnel from 'digdug/NullTunnel';
+
+// Reporters
+import Pretty from '../reporters/Pretty';
+import Runner from '../reporters/Runner';
+import Simple from '../reporters/Simple';
+import JUnit from '../reporters/JUnit';
+import Cobertura from '../reporters/Cobertura';
+import JsonCoverage from '../reporters/JsonCoverage';
+import HtmlCoverage from '../reporters/HtmlCoverage';
+import LcovCoverage from '../reporters/LcovCoverage';
+import Benchmark from '../reporters/Benchmark';
 
 const console: Console = global.console;
 const process: NodeJS.Process = global.process;
@@ -85,9 +91,11 @@ export default class Node extends Executor<Events, Config> {
 		this.registerReporter('simple', Simple);
 		this.registerReporter('runner', Runner);
 		this.registerReporter('benchmark', Benchmark);
+		this.registerReporter('junit', JUnit);
 		this.registerReporter('jsoncoverage', JsonCoverage);
 		this.registerReporter('htmlcoverage', HtmlCoverage);
 		this.registerReporter('lcovcoverage', LcovCoverage);
+		this.registerReporter('cobertura', Cobertura);
 
 		this.registerTunnel('null', NullTunnel);
 		this.registerTunnel('selenium', SeleniumTunnel);
@@ -136,6 +144,16 @@ export default class Node extends Executor<Events, Config> {
 
 	get sourceMapStore() {
 		return this._sourceMaps;
+	}
+
+	/**
+	 * The root suites managed by this executor
+	 */
+	get suites() {
+		if (this._sessionSuites) {
+			return this._sessionSuites.concat([this._rootSuite]);
+		}
+		return [ this._rootSuite ];
 	}
 
 	/**

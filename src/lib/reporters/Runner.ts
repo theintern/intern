@@ -2,7 +2,7 @@ import * as charm from 'charm';
 import Test from '../Test';
 import Suite from '../Suite';
 import { createEventHandler } from './Reporter';
-import Coverage, { CoverageProperties } from './_Coverage';
+import Coverage, { CoverageProperties } from './Coverage';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { Writable } from 'stream';
 import Server from '../Server';
@@ -13,7 +13,7 @@ export type Charm = charm.CharmInstance;
 
 const eventHandler = createEventHandler<Events>();
 
-export default class Runner extends Coverage {
+export default class Runner extends Coverage implements RunnerProperties {
 	sessions: {
 		[sessionId: string]: {
 			coverage?: CoverageMap;
@@ -23,21 +23,20 @@ export default class Runner extends Coverage {
 	};
 
 	hasRunErrors: boolean;
-
 	hasSuiteErrors: boolean;
-
 	hidePassed: boolean;
-
 	hideSkipped: boolean;
-
 	serveOnly: boolean;
 
 	private _deprecationMessages: { [message: string]: boolean };
 
 	protected charm: Charm;
 
-	constructor(executor: Node, config: Partial<CoverageProperties> = {}) {
-		super(executor, config);
+	constructor(executor: Node, options: Partial<RunnerProperties> = {}) {
+		super(executor, options);
+
+		this.hidePassed = options.hidePassed || false;
+		this.hideSkipped = options.hideSkipped || false;
 
 		this.sessions = {};
 		this.hasRunErrors = false;
@@ -292,4 +291,9 @@ export default class Runner extends Coverage {
 	tunnelStatus(message: TunnelMessage) {
 		this.charm.write(message.status + '\x1b[K\r');
 	}
+}
+
+export interface RunnerProperties extends CoverageProperties {
+	hidePassed: boolean;
+	hideSkipped: boolean;
 }

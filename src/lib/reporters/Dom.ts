@@ -3,6 +3,9 @@ import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Suite from '../Suite';
 import Test from '../Test';
 
+/**
+ * The Dom reporter outputs text into the DOM, essentially treating it like the console.
+ */
 export default class Dom extends Reporter {
 	document: HTMLDocument;
 

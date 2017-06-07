@@ -1,13 +1,42 @@
-import { getErrorMessage } from '../node/util';
 import Suite from '../Suite';
 import Test from '../Test';
-import { Reporter, ReporterConfig } from '../../common';
-import Executor from '../../lib/executors/Executor';
+import Reporter, { eventHandler, ReporterProperties } from './Reporter';
+import Executor from '../executors/Executor';
+import { mkdir, createWriteStream } from 'fs';
+import { dirname } from 'path';
 
 /**
  * There is no formal spec for this format and everyone does it differently, so good luck! We've mashed as many of the
  * different incompatible JUnit/xUnit XSDs as possible into one reporter.
  */
+export default class JUnit extends Reporter {
+	readonly filename: string;
+
+	constructor(executor: Executor, options = <JUnitProperties>{}) {
+		super(executor, options);
+		if (options.filename) {
+			this.filename = options.filename;
+			if (dirname(this.filename) !== '.') {
+				mkdir(dirname(this.filename));
+			}
+			this.output = createWriteStream(this.filename);
+		}
+	}
+
+	@eventHandler()
+	runEnd() {
+		const rootNode = new XmlNode('testsuites');
+		this.executor.suites.forEach(suite => {
+			rootNode.childNodes.push(createSuiteNode(suite, this));
+		});
+		const report = '<?xml version="1.0" encoding="UTF-8" ?>' + rootNode.toString() + '\n';
+		this.output.end(report);
+	}
+}
+
+export interface JUnitProperties extends ReporterProperties {
+	filename?: string;
+}
 
 /**
  * Simple XML generator.
@@ -16,7 +45,7 @@ import Executor from '../../lib/executors/Executor';
  * @param {Object?} attributes Optional attributes.
  */
 class XmlNode {
-	nodeName: string = '';
+	nodeName = '';
 	childNodes: any[] = [];
 	attributes: any;
 
@@ -37,17 +66,17 @@ class XmlNode {
 	 * @param {(XmlNode|string)[]?} childNodes Optional child nodes for the new node.
 	 * @returns {XmlNode} A new node.
 	 */
-	createNode(nodeName: string, attributes: Object): XmlNode {
+	createNode(nodeName: string, attributes: Object) {
 		const node = new XmlNode(nodeName, attributes);
 		this.childNodes.push(node);
 		return node;
 	}
 
-	_escape(str: string): string {
+	_escape(str: string) {
 		return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 	}
 
-	_serializeAttributes(): string {
+	_serializeAttributes() {
 		const attributes = this.attributes;
 		const nodes: any[] = [];
 
@@ -60,7 +89,7 @@ class XmlNode {
 		return nodes.length ? ' ' + nodes.join(' ') : '';
 	}
 
-	_serializeContent(): string {
+	_serializeContent() {
 		const nodeList = this.childNodes;
 		const nodes: any[] = [];
 		for (let i = 0, j = nodeList.length; i < j; ++i) {
@@ -82,20 +111,20 @@ class XmlNode {
 	}
 }
 
-function createSuiteNode(suite: Suite): XmlNode {
+function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
 	return new XmlNode('testsuite', {
 		name: suite.name || 'Node.js',
 		failures: suite.numFailedTests,
 		skipped: suite.numSkippedTests,
 		tests: suite.numTests,
 		time: suite.timeElapsed / 1000,
-		childNodes: suite.tests.map(createTestNode)
+		childNodes: suite.tests.map(test => createTestNode(test, reporter))
 	});
 }
 
-function createTestNode(test: Suite|Test): XmlNode {
+function createTestNode(test: Suite | Test, reporter: JUnit) {
 	if (test instanceof Suite) {
-		return createSuiteNode(test);
+		return createSuiteNode(test, reporter);
 	}
 
 	const node = new XmlNode('testcase', {
@@ -106,33 +135,16 @@ function createTestNode(test: Suite|Test): XmlNode {
 
 	if (test.error) {
 		node.createNode(test.error.name === 'AssertionError' ? 'failure' : 'error', {
-			childNodes: [ getErrorMessage(test.error) ],
+			childNodes: [reporter.formatError(test.error)],
 			message: test.error.message,
 			type: test.error.name
 		});
 	}
 	else if (test.skipped != null) {
 		node.createNode('skipped', {
-			childNodes: [ test.skipped ]
+			childNodes: [test.skipped]
 		});
 	}
 
 	return node;
-}
-
-export default class JUnit implements Reporter {
-	output: any;
-	constructor(config: ReporterConfig = {}) {
-		this.output = config.output;
-	}
-
-	runEnd(executor: Executor) {
-		const rootNode = new XmlNode('testsuites');
-		executor.suites.forEach(function (suite) {
-			rootNode.childNodes.push(createSuiteNode(suite));
-		});
-
-		const report = '<?xml version="1.0" encoding="UTF-8" ?>' + rootNode.toString() + '\n';
-		this.output.end(report);
-	}
 }

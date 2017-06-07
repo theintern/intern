@@ -1,13 +1,9 @@
-/**
- * Handles presentation of runner results to the user
- */
-
 import Node from '../executors/Node';
 import Environment from '../Environment';
 import Suite from '../Suite';
 import Test from '../Test';
 import { createEventHandler } from './Reporter';
-import Coverage, { CoverageProperties } from './_Coverage';
+import Coverage, { CoverageProperties } from './Coverage';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import { Events, TunnelMessage } from '../executors/Node';
@@ -16,31 +12,23 @@ import { format } from 'util';
 import charm = require('charm');
 
 const eventHandler = createEventHandler<Events>();
-const symbols = ['✓', '~', '×'];
 
+/**
+ * Handles presentation of runner results to the user
+ */
 export default class Pretty extends Coverage<PrettyOptions> implements PrettyProperties {
 	colorReplacement: { [key: string]: string };
-
 	dimensions: any;
-
 	titleWidth: number;
-
 	maxProgressBarWidth: number;
-
 	tunnelState: string;
 
 	protected _header: string;
-
 	protected _log: string[];
-
 	protected _reports: any;
-
 	protected _spinnerOffset: number;
-
 	protected _total: Report;
-
 	protected _charm: charm.CharmInstance;
-
 	protected _renderTimeout: NodeJS.Timer;
 
 	constructor(executor: Node, config: PrettyOptions = <PrettyOptions>{}) {
@@ -435,6 +423,7 @@ export class Report {
 	}
 }
 
+const symbols = ['✓', '~', '×'];
 const PAD = new Array(100).join(' ');
 const SPINNER_STATES = ['/', '-', '\\', '|'];
 const PASS = 0;

@@ -1,4 +1,3 @@
-import { mixin } from '@dojo/core/lang';
 import Executor, { Events, Handle } from '../executors/Executor';
 import { ErrorFormatOptions } from '../common/ErrorFormatter';
 
@@ -10,8 +9,9 @@ export default class Reporter<
 	readonly executor: E;
 
 	protected _console: Console;
-
 	protected _executor: Executor;
+	protected _handles: Handle[];
+	protected _output: ReporterOutput;
 
 	/**
 	 * A mapping from event names to the names of methods on this object. This property should be defined on the class
@@ -19,12 +19,10 @@ export default class Reporter<
 	 */
 	protected _eventHandlers: { [eventName in keyof V]: string };
 
-	protected _handles: Handle[];
-
-	protected _output: ReporterOutput;
-
 	constructor(executor: E, config: C = <C>{}) {
-		mixin(this, config);
+		if (config.output) {
+			this.output = config.output;
+		}
 		this.executor = executor;
 		this._registerEventHandlers();
 	}

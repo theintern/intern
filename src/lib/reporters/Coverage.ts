@@ -1,8 +1,7 @@
-import Reporter, { ReporterProperties } from './Reporter';
+import Reporter, { createEventHandler, ReporterProperties } from './Reporter';
 import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
 import { create, ReportType } from 'istanbul-reports';
-import { createEventHandler } from './Reporter';
 import Node, { Events } from '../executors/Node';
 import { mixin } from '@dojo/core/lang';
 
@@ -12,9 +11,7 @@ export default abstract class Coverage<V extends CoverageOptions = CoverageOptio
 	readonly reportType: ReportType = 'text';
 
 	executor: Node;
-
 	filename: string;
-
 	watermarks: Watermarks;
 
 	constructor(executor: Node, config: V = <V>{}) {
@@ -49,10 +46,10 @@ export default abstract class Coverage<V extends CoverageOptions = CoverageOptio
 
 export interface CoverageProperties extends ReporterProperties {
 	/** A filename to write coverage data to */
-	filename: string | undefined;
+	filename?: string;
 
 	/** Watermarks used to check coverage */
-	watermarks: Watermarks | undefined;
+	watermarks?: Watermarks;
 }
 
 export type CoverageOptions = Partial<CoverageProperties>;

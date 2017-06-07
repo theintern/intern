@@ -1,3 +1,11 @@
+import { readFileSync, writeFileSync } from 'fs';
+import Executor from '../executors/Executor';
+import Reporter, { eventHandler, ReporterProperties } from './Reporter';
+import BenchmarkTest from '../BenchmarkTest';
+import Test from '../Test';
+import Suite from '../Suite';
+import _Benchmark = require('benchmark');
+
 /**
  * Benchmark is a reporter that can generate a baseline report and do runtime comparisons against an existing baseline.
  *
@@ -17,14 +25,6 @@
  * mean: mean execution time per function run
  * hz: Hertz (number of executions of a function per second). 1/Hz is the mean execution time of function.
  */
-import { readFileSync, writeFileSync } from 'fs';
-import Executor from '../executors/Executor';
-import Reporter, { eventHandler, ReporterProperties } from './Reporter';
-import BenchmarkTest from '../BenchmarkTest';
-import Test from '../Test';
-import Suite from '../Suite';
-import _Benchmark = require('benchmark');
-
 export default class Benchmark extends Reporter implements BenchmarkReporterProperties {
 	baseline: BenchmarkBaseline;
 

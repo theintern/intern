@@ -1,4 +1,4 @@
-import Coverage from './_Coverage';
+import Coverage from './Coverage';
 
 export default class JsonCoverage extends Coverage {
 	readonly reportType = 'json';
