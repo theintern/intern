@@ -18,6 +18,7 @@
 		"_tests/tests/unit/lib/RemoteSuite.js",
 		"_tests/tests/unit/lib/Server.js",
 		"_tests/tests/unit/lib/resolveEnvironments.js",
+		"_tests/tests/unit/lib/executors/Node.js",
 		"_tests/tests/unit/lib/node/ErrorFormatter.js",
 		"_tests/tests/unit/lib/node/runner.js",
 		"_tests/tests/unit/lib/node/util.js"
@@ -33,7 +34,7 @@
 	"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } },
 
 	"benchmark": false,
-	"excludeInstrumentation": "(?:node_modules|_tests)",
+	"excludeInstrumentation": "(?:node_modules|_tests)/",
 	"filterErrorStack": true,
 	"internPath": "_tests/src",
 

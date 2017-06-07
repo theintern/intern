@@ -5,6 +5,7 @@ import { spy } from 'sinon';
 // Import isSuite from the testing source rather than the source being tested
 import { isSuite } from '../../../../src/lib/Suite';
 import intern from '../../../../src/index';
+import { testProperty } from '../../../support/unit/executor';
 
 const { registerSuite } = intern().getPlugin('interface.object');
 const assert = intern().getPlugin('chai.assert');
@@ -189,29 +190,20 @@ registerSuite('lib/executors/Executor', function () {
 				},
 
 				'known properties': (() => {
-					function propertyTest(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, message?: string) {
-						assert.throws(() => { executor.configure(<any>{ [name]: badValue }); }, error);
-						executor.configure(<any>{ [name]: goodValue });
-						assert.lengthOf(mockConsole.warn, 0, 'no warning should have been emitted');
-						name = <keyof Config>name.replace(/\+$/, '');
-						if (typeof expectedValue === 'object') {
-							assert.deepEqual(executor.config[name], expectedValue, message);
-						}
-						else {
-							assert.strictEqual(executor.config[name], expectedValue, message);
-						}
+					function test(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, message?: string) {
+						testProperty<_Executor, Config>(executor, mockConsole, name, badValue, goodValue, expectedValue, error, message);
 					}
 
-					const booleanTest = (name: keyof Config) => () => { propertyTest(name, 5, 'true', true, /Non-boolean/); };
-					const stringTest = (name: keyof Config) => () => { propertyTest(name, 5, 'foo', 'foo', /Non-string/); };
+					const booleanTest = (name: keyof Config) => () => { test(name, 5, 'true', true, /Non-boolean/); };
+					const stringTest = (name: keyof Config) => () => { test(name, 5, 'foo', 'foo', /Non-string/); };
 					const objectArrayTest = (name: keyof Config, requiredProperty: string) => () => {
-						propertyTest(name, 5, 'foo', [ { [requiredProperty]: 'foo' } ], /Non-object/);
+						test(name, 5, 'foo', [{ [requiredProperty]: 'foo' }], /Non-object/);
 					};
 
 					return {
 						loader() {
-							propertyTest('loader', 5, { script: 'foo' }, { script: 'foo' }, /Non-object value/);
-							propertyTest('loader', { loader: 'foo' }, { script: 'foo' }, { script: 'foo' }, /Invalid value/);
+							test('loader', 5, { script: 'foo' }, { script: 'foo' }, /Non-object value/);
+							test('loader', { loader: 'foo' }, { script: 'foo' }, { script: 'foo' }, /Invalid value/);
 						},
 
 						bail: booleanTest('bail'),
@@ -228,23 +220,23 @@ registerSuite('lib/executors/Executor', function () {
 						sessionId: stringTest('sessionId'),
 
 						defaultTimeout() {
-							propertyTest('defaultTimeout', 'foo', 5, 5, /Non-numeric value/);
-							propertyTest('defaultTimeout', 'foo', '5', 5, /Non-numeric value/);
+							test('defaultTimeout', 'foo', 5, 5, /Non-numeric value/);
+							test('defaultTimeout', 'foo', '5', 5, /Non-numeric value/);
 						},
 
 						excludeInstrumentation() {
-							propertyTest('excludeInstrumentation', 5, true, true, /Invalid value/);
-							propertyTest('excludeInstrumentation', 5, /foo/, /foo/, /Invalid value/);
-							propertyTest('excludeInstrumentation', 5, 'foo', /foo/, /Invalid value/);
+							test('excludeInstrumentation', 5, true, true, /Invalid value/);
+							test('excludeInstrumentation', 5, /foo/, /foo/, /Invalid value/);
+							test('excludeInstrumentation', 5, 'foo', /foo/, /Invalid value/);
 						},
 
 						grep() {
-							propertyTest('grep', 5, 'foo', /foo/, /Non-regexp/);
-							propertyTest('grep', 5, /foo/, /foo/, /Non-regexp/);
+							test('grep', 5, 'foo', /foo/, /Non-regexp/);
+							test('grep', 5, /foo/, /foo/, /Non-regexp/);
 						},
 
 						instrumenterOptions() {
-							propertyTest('instrumenterOptions', 5, { foo: 'bar' }, {
+							test('instrumenterOptions', 5, { foo: 'bar' }, {
 								coverageVariable: '__coverage__',
 								foo: 'bar'
 							}, /Non-object/);
@@ -254,9 +246,9 @@ registerSuite('lib/executors/Executor', function () {
 						plugins: objectArrayTest('plugins', 'script'),
 
 						suites() {
-							propertyTest('suites', 5, 'foo', ['foo'], /Non-string\[\]/);
-							propertyTest('suites', 5, ['bar'], ['bar'], /Non-string\[\]/);
-							propertyTest(<any>'suites+', 5, ['baz'], ['bar', 'baz'], /Non-string\[\]/, 'suite should have been added');
+							test('suites', 5, 'foo', ['foo'], /Non-string\[\]/);
+							test('suites', 5, ['bar'], ['bar'], /Non-string\[\]/);
+							test(<any>'suites+', 5, ['baz'], ['bar', 'baz'], /Non-string\[\]/, 'suite should have been added');
 						}
 					};
 				})()
@@ -438,7 +430,7 @@ registerSuite('lib/executors/Executor', function () {
 				},
 
 				'run error'() {
-					executor.addSuite(rootSuite => { rootSuite.run = () => Task.reject(new Error('foo')); });
+					executor.addSuite(rootSuite => { rootSuite.run = () => Task.reject<void>(new Error('foo')); });
 					return assertRunFails(executor, /foo/);
 				},
 

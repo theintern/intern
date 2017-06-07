@@ -1,2 +1,4 @@
-define({
-});
+function SomeClass() {
+}
+
+module.exports = SomeClass;

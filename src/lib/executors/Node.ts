@@ -36,6 +36,7 @@ import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istan
 import global from '@dojo/core/global';
 
 const console: Console = global.console;
+const process: NodeJS.Process = global.process;
 
 export default class Node extends Executor<Events, Config> {
 	server: Server;

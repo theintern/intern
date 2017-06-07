@@ -109,7 +109,7 @@
         "bin/**"
       ],
       "_tests": [
-        "tests/**/*.{xml,d.ts}",
+        "tests/**/*.{xml,d.ts,js}",
         "src/**/*.{css,d.ts,html,js,png}"
       ]
     },

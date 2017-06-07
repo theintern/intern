@@ -2,8 +2,8 @@ import _Browser, { Config } from 'src/lib/executors/Browser';
 // import Task from '@dojo/core/async/Task';
 import { spy } from 'sinon';
 
-// Import isSuite from the testing source rather than the source being tested
 import intern from '../../../../src/index';
+import { testProperty } from '../../../support/unit/executor';
 
 const { registerSuite } = intern().getPlugin('interface.object');
 const assert = intern().getPlugin('chai.assert');
@@ -122,33 +122,24 @@ registerSuite('lib/executors/Browser', function () {
 
 			'#configure': {
 				'known properties': (() => {
-					function propertyTest(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, message?: string) {
-						assert.throws(() => { executor.configure(<any>{ [name]: badValue }); }, error);
-						executor.configure(<any>{ [name]: goodValue });
-						assert.lengthOf(mockConsole.warn, 0, 'no warning should have been emitted');
-						name = <keyof Config>name.replace(/\+$/, '');
-						if (typeof expectedValue === 'object') {
-							assert.deepEqual(executor.config[name], expectedValue, message);
-						}
-						else {
-							assert.strictEqual(executor.config[name], expectedValue, message);
-						}
+					function test(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, message?: string) {
+						testProperty<_Browser, Config>(executor, mockConsole, name, badValue, goodValue, expectedValue, error, message);
 					}
 
 					return {
 						browserLoader() {
-							propertyTest('browserLoader', 5, { script: 'foo' }, { script: 'foo' }, /Non-object value/);
-							propertyTest('browserLoader', { loader: 'foo' }, { script: 'foo' }, { script: 'foo' }, /Invalid value/);
+							test('browserLoader', 5, { script: 'foo' }, { script: 'foo' }, /Non-object value/);
+							test('browserLoader', { loader: 'foo' }, { script: 'foo' }, { script: 'foo' }, /Invalid value/);
 						},
 
 						browserPlugins() {
-							propertyTest('browserPlugins', 5, 'foo', [ { script: 'foo' } ], /Non-object/);
+							test('browserPlugins', 5, 'foo', [ { script: 'foo' } ], /Non-object/);
 						},
 
 						browserSuites() {
-							propertyTest('browserSuites', 5, 'foo', ['foo'], /Non-string\[\]/);
-							propertyTest('browserSuites', 5, ['bar'], ['bar'], /Non-string\[\]/);
-							propertyTest(<any>'browserSuites+', 5, ['baz'], ['bar', 'baz'], /Non-string\[\]/, 'suite should have been added');
+							test('browserSuites', 5, 'foo', ['foo'], /Non-string\[\]/);
+							test('browserSuites', 5, ['bar'], ['bar'], /Non-string\[\]/);
+							test(<any>'browserSuites+', 5, ['baz'], ['bar', 'baz'], /Non-string\[\]/, 'suite should have been added');
 						}
 					};
 				})(),
