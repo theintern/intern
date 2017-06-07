@@ -1,121 +1,209 @@
-import registerSuite = require('intern!object');
-import * as assert from 'intern/chai!assert';
-import testRegisterSuite from 'src/lib/interfaces/object';
-import * as main from 'src/main';
-import Suite from 'src/lib/Suite';
+import * as _objInt from 'src/lib/interfaces/object';
 import Test from 'src/lib/Test';
+import Suite from 'src/lib/Suite';
 
-const originalExecutor = main.executor;
-let rootSuites: Suite[];
+import intern from '../../../../src/index';
+import { spy } from 'sinon';
 
-registerSuite({
-	name: 'intern/lib/interfaces/object',
+const { registerSuite } = intern().getPlugin('interface.object');
+const assert = intern().getPlugin('chai.assert');
+const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
 
-	setup() {
-		main.setExecutor(<any> {
-			register: function (callback: (value: Suite, index: number, array: Suite[]) => void) {
-				rootSuites.forEach(callback);
-			}
-		});
-	},
+registerSuite('lib/interfaces/object', function () {
+	let objInt: typeof _objInt;
+	let removeMocks: () => void;
+	let parent: Suite;
 
-	teardown() {
-		main.setExecutor(originalExecutor);
-	},
+	const executor = {
+		addSuite: spy((callback: (suite: Suite) => void) => {
+			callback(parent);
+		}),
+		emit: spy(() => { })
+	};
+	const mockIntern = spy(() => {
+		return executor;
+	});
 
-	'Object interface registration': {
-		setup() {
-			// Normally, the root suites are set up once the runner or client are configured, but we do not execute
-			// the Intern under test
-			rootSuites = [
-				new Suite({ name: 'object test 1' }),
-				new Suite({ name: 'object test 2' })
-			];
+	return {
+		before() {
+			return mockRequire(require, 'src/lib/interfaces/object', {
+				'src/index': { default: mockIntern }
+			}).then(handle => {
+				removeMocks = handle.remove;
+				objInt = handle.module;
+			});
 		},
 
-		registration() {
-			testRegisterSuite({
-				name: 'root suite 1',
+		after() {
+			removeMocks();
+		},
 
-				'nested suite': {
-					'nested test': function () {}
+		beforeEach() {
+			mockIntern.reset();
+			executor.addSuite.reset();
+			executor.emit.reset();
+		},
+
+		tests: {
+			'registerSuite': (() => {
+				function verify() {
+					assert.equal(mockIntern.callCount, 1);
+					assert.equal(executor.addSuite.callCount, 1);
+					assert.isFunction(executor.addSuite.getCall(0).args[0], 'expected arg to be a callback');
+					assert.lengthOf(parent.tests, 1);
+					assert.instanceOf(parent.tests[0], Suite);
+
+					const suite = <Suite>parent.tests[0];
+					assert.strictEqual(suite.parent, parent);
+
+					assert.equal(suite.name, 'fooSuite');
+					assert.property(suite, 'beforeEach');
+
+					assert.lengthOf(suite.tests, 2);
+					assert.instanceOf(suite.tests[0], Test);
+					assert.propertyVal(suite.tests[0], 'name', 'foo');
+					assert.instanceOf(suite.tests[1], Test);
+					assert.propertyVal(suite.tests[1], 'name', 'bar');
+				}
+
+				return {
+					descriptor() {
+						parent = new Suite(<any>{ name: 'parent', executor });
+						objInt.default('fooSuite', {
+							beforeEach() { },
+							tests: {
+								foo() { },
+								bar() { }
+							}
+						});
+
+						verify();
+					},
+
+					factory() {
+						parent = new Suite(<any>{ name: 'parent', executor });
+						objInt.default('fooSuite', function () {
+							return {
+								beforeEach() { },
+								tests: {
+									foo() { },
+									bar() { }
+								}
+							};
+						});
+
+						verify();
+					}
+				};
+			})(),
+
+			getInterface() {
+				const iface = objInt.getInterface(<any>executor);
+				assert.property(iface, 'registerSuite');
+				assert.isFunction(iface.registerSuite);
+
+				iface.registerSuite('foo', {});
+				assert.equal(executor.addSuite.callCount, 1);
+				assert.isFunction(executor.addSuite.getCall(0).args[0], 'expected arg to be a callback');
+			},
+
+			isSuiteDescriptorFactory() {
+				assert.isTrue(objInt.isSuiteDescriptorFactory(() => { }));
+				assert.isFalse(objInt.isSuiteDescriptorFactory({ }));
+			},
+
+			createSuite: {
+				deprecated() {
+					const suite: Suite = <any>{ executor };
+					objInt.createSuite('foo', suite, {
+						setup() { },
+						tests: { }
+					}, Suite, Test);
+					assert.equal(executor.emit.callCount, 1);
+					assert.equal(executor.emit.getCall(0).args[0], 'deprecated');
+
+					objInt.createSuite('bar', suite, {
+						teardown() { },
+						tests: { }
+					}, Suite, Test);
+					assert.equal(executor.emit.callCount, 2);
+					assert.equal(executor.emit.getCall(1).args[0], 'deprecated');
 				},
 
-				'regular test': function () {}
-			});
+				'suite descriptor'() {
+					parent = new Suite(<any>{ name: 'parent', executor });
+					const suite = objInt.createSuite('fooSuite', parent, {
+						beforeEach() { },
+						tests: {
+							foo() { },
+							bar() { }
+						}
+					}, Suite, Test);
 
-			testRegisterSuite(function () {
-				return {
-					name: 'root suite 2',
+					assert.strictEqual(suite.parent, parent);
+					assert.equal(suite.name, 'fooSuite');
+					assert.property(suite, 'beforeEach');
 
-					'test 2': function () {}
-				};
-			});
+					assert.lengthOf(suite.tests, 2);
+					assert.instanceOf(suite.tests[0], Test);
+					assert.propertyVal(suite.tests[0], 'name', 'foo');
+					assert.instanceOf(suite.tests[1], Test);
+					assert.propertyVal(suite.tests[1], 'name', 'bar');
+				},
 
-			let mainSuite: Suite[];
-			for (let i = 0; (mainSuite = <Suite[]> (rootSuites[i] && rootSuites[i].tests)); ++i) {
-				assert.strictEqual(mainSuite[0].name, 'root suite 1',
-					'Root suite 1 should be the one named "root suite 1"');
-				assert.instanceOf(mainSuite[0], Suite, 'Root suite 1 should be a Suite instance');
+				'only tests'() {
+					parent = new Suite(<any>{ name: 'parent', executor });
+					const suite = objInt.createSuite('foo', parent, {
+						foo() { },
+						bar() { }
+					}, Suite, Test);
 
-				assert.strictEqual(mainSuite[0].tests.length, 2, 'Root suite should have two tests');
+					assert.strictEqual(suite.parent, parent);
 
-				assert.strictEqual(mainSuite[0].tests[0].name, 'nested suite',
-					'First test of root suite should be the one named "nested suite"');
-				assert.instanceOf(mainSuite[0].tests[0], Suite, 'Nested test suite should be a Suite instance');
+					assert.lengthOf(suite.tests, 2);
+					assert.instanceOf(suite.tests[0], Test);
+					assert.propertyVal(suite.tests[0], 'name', 'foo');
+					assert.instanceOf(suite.tests[1], Test);
+					assert.propertyVal(suite.tests[1], 'name', 'bar');
+				},
 
-				assert.strictEqual((<Suite> (<Suite> mainSuite[0]).tests[0]).tests.length, 1, 'Nested suite should only have one test');
+				'nested suites'() {
+					parent = new Suite(<any>{ name: 'parent', executor });
+					const suite = objInt.createSuite('foo', parent, {
+						foo() { },
+						bar: {
+							beforeEach() { },
 
-				assert.strictEqual((<Suite> (<Suite> mainSuite[0]).tests[0]).tests[0].name, 'nested test',
-					'Test in nested suite should be the one named "test nested suite');
-				assert.instanceOf((<Suite> (<Suite> mainSuite[0]).tests[0]).tests[0], Test,
-					'Test in nested suite should be a Test instance');
+							tests: {
+								up() { },
+								down() { }
+							}
+						},
+						baz: {
+							one() { },
+							two() { }
+						}
+					}, Suite, Test);
 
-				assert.strictEqual(mainSuite[0].tests[1].name, 'regular test',
-					'Last test in root suite should be the one named "regular test"');
-				assert.instanceOf(mainSuite[0].tests[1], Test, 'Last test in root suite should a Test instance');
+					assert.strictEqual(suite.parent, parent);
 
-				assert.strictEqual(mainSuite[1].name, 'root suite 2',
-					'Root suite 2 should be the one named "root suite 2"');
-				assert.instanceOf(mainSuite[1], Suite, 'Root suite 2 should be a Suite instance');
+					assert.lengthOf(suite.tests, 3);
 
-				assert.strictEqual(mainSuite[1].tests.length, 1, 'Root suite 2 should have one test');
+					assert.instanceOf(suite.tests[0], Test);
+					assert.propertyVal(suite.tests[0], 'name', 'foo');
 
-				assert.strictEqual(mainSuite[1].tests[0].name, 'test 2',
-					'The test in root suite 2 should be the one named "test 2"');
-				assert.instanceOf(mainSuite[1].tests[0], Test, 'test 2 should be a Test instance');
+					assert.instanceOf(suite.tests[1], Suite);
+					const suite1 = <Suite>suite.tests[1];
+					assert.propertyVal(suite1, 'name', 'bar');
+					assert.lengthOf(suite1.tests, 2);
+					assert.isFunction(suite1.beforeEach);
+
+					assert.instanceOf(suite.tests[2], Suite);
+					const suite2 = <Suite>suite.tests[2];
+					assert.propertyVal(suite2, 'name', 'baz');
+					assert.lengthOf(suite2.tests, 2);
+				}
 			}
 		}
-	},
-
-	'Object interface lifecycle methods': {
-		setup() {
-			rootSuites = [
-				new Suite({ name: 'object test 1' })
-			];
-		},
-
-		'lifecycle methods'() {
-			const suiteParams: any = { name: 'root suite' };
-			const results: string[] = [];
-			const expectedResults = ['before', 'arg', 'beforeEach', 'arg', 'afterEach', 'arg', 'after', 'arg'];
-			const lifecycleMethods = ['setup', 'beforeEach', 'afterEach', 'teardown'];
-
-			expectedResults.forEach(function (method) {
-				suiteParams[method] = function (arg: any) {
-					results.push(method, arg);
-				};
-			});
-
-			testRegisterSuite(suiteParams);
-
-			lifecycleMethods.forEach(function (method: string) {
-				(<{ [key: string]: any }> (<Suite> rootSuites[0]).tests[0])[method]('arg');
-			});
-
-			assert.deepEqual(results, expectedResults, 'object interface methods should get called when ' +
-				'corresponding Suite methods get called.');
-
-		}
-	}
+	};
 });

@@ -26,6 +26,7 @@
 	"./unit/lib/channels/*.ts",
 	"./unit/lib/common/*.ts",
 	"./unit/lib/executors/*.ts",
+	"./unit/lib/interfaces/object.ts",
 	"./unit/lib/node/*.ts",
 	"./unit/lib/*.ts",
 	"./functional/lib/*.ts",

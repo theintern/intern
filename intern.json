@@ -12,7 +12,8 @@
 		"_tests/tests/unit/lib/common/util.js",
 		"_tests/tests/unit/lib/common/ErrorFormatter.js",
 		"_tests/tests/unit/lib/executors/Browser.js",
-		"_tests/tests/unit/lib/executors/Executor.js"
+		"_tests/tests/unit/lib/executors/Executor.js",
+		"_tests/tests/unit/lib/interfaces/object.js"
 	],
 	"nodeSuites": [
 		"_tests/tests/unit/bin/intern.js",
