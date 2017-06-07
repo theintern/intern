@@ -258,7 +258,6 @@ export default class Runner extends Coverage {
 		}
 		else if (test.skipped) {
 			if (!this.hideSkipped) {
-				charm.foreground('magenta');
 				charm.write('~ ' + test.id);
 				charm.display('reset');
 				charm.write(' (' + (test.skipped || 'skipped') + ')');

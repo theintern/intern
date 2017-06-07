@@ -311,6 +311,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 				if (this.config.showConfig) {
 					this._runTask = this._runTask.then(() => {
+						// Emit the config as JSON deeply sorted by key
 						const sort = (value: any) => {
 							if (Array.isArray(value)) {
 								value = value.map(sort).sort();
@@ -525,9 +526,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 */
 	protected _loadSuites(suites?: string[]) {
 		suites = suites || this.config.suites;
-		return this._loader(suites!).then(() => {
-			this.log('Loaded suites:', suites);
-		});
+		return this._loader(suites!)
+			.then(() => { this.log('Loaded suites:', suites); });
 	}
 
 	/**
@@ -831,7 +831,7 @@ export interface LoaderDescriptor {
 }
 
 export interface PluginInitializer {
-	(options?: any): Task<object | void> | object | void;
+	(options?: { [key: string]: any }): Task<object | void> | object | void;
 }
 
 const resolvedTask = Task.resolve();

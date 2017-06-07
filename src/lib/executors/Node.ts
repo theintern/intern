@@ -69,6 +69,7 @@ export default class Node extends Executor<Events, Config> {
 			serveOnly: false,
 			serverPort: 9000,
 			serverUrl: 'http://localhost:9000',
+			socketPort: 9001,
 			tunnel: 'selenium',
 			tunnelOptions: { tunnelId: String(Date.now()) }
 		});
@@ -203,6 +204,8 @@ export default class Node extends Executor<Events, Config> {
 
 	protected _afterRun() {
 		return super._afterRun().finally(() => {
+			this._removeInstrumentationHooks();
+
 			const promises: Promise<any>[] = [];
 			if (this.server) {
 				promises.push(this.server.stop().then(() => this.emit('serverEnd', this.server)));
@@ -210,10 +213,11 @@ export default class Node extends Executor<Events, Config> {
 			if (this.tunnel) {
 				promises.push(this.tunnel.stop().then(() => this.emit('tunnelStop', { tunnel: this.tunnel })));
 			}
-			return Promise.all(promises)
-			// We do not want to actually return an array of values, so chain a callback that resolves to
-			// undefined
-				.then(() => {}, error => this.emit('error', error));
+			// We do not want to actually return an array of values, so chain a callback that resolves to undefined
+			return Promise.all(promises).then(
+				() => { },
+				error => this.emit('error', error)
+			);
 		});
 	}
 
@@ -249,10 +253,12 @@ export default class Node extends Executor<Events, Config> {
 						socketPort: config.socketPort
 					});
 
-					server.start().then(() => {
-						this.server = server;
-						return this.emit('serverStart', server);
-					}).then(resolve, reject);
+					server.start()
+						.then(() => {
+							this.server = server;
+							return this.emit('serverStart', server);
+						})
+						.then(resolve, reject);
 				});
 
 				// If we're in serveOnly mode, just start the server server. Don't create session suites or start a tunnel.
@@ -272,30 +278,34 @@ export default class Node extends Executor<Events, Config> {
 					});
 				}
 
-				return serverTask.then(() => {
-					if (config.tunnel === 'browserstack') {
-						const options = <BrowserStackOptions>config.tunnelOptions;
-						options.servers = options.servers || [];
-						options.servers.push(config.serverUrl);
-					}
+				return serverTask
+					.then(() => {
+						if (config.tunnel === 'browserstack') {
+							const options = <BrowserStackOptions>config.tunnelOptions;
+							options.servers = options.servers || [];
+							options.servers.push(config.serverUrl);
+						}
 
-					let TunnelConstructor = this._tunnels[config.tunnel];
-					const tunnel = this.tunnel = new TunnelConstructor(this.config.tunnelOptions);
+						let TunnelConstructor = this._tunnels[config.tunnel];
+						const tunnel = this.tunnel = new TunnelConstructor(this.config.tunnelOptions);
 
-					tunnel.on('downloadprogress', progress => {
-						this.emit('tunnelDownloadProgress', { tunnel, progress });
+						tunnel.on('downloadprogress', progress => {
+							this.emit('tunnelDownloadProgress', { tunnel, progress });
+						});
+
+						tunnel.on('status', status => {
+							this.emit('tunnelStatus', { tunnel, status: status.status });
+						});
+
+						config.capabilities = deepMixin(tunnel.extraCapabilities, config.capabilities);
+
+						return this._createSessionSuites().then(() => {
+							return tunnel.start().then(() => this.emit('tunnelStart', { tunnel }));
+						});
+					})
+					.then(() => {
+						return false;
 					});
-
-					tunnel.on('status', status => {
-						this.emit('tunnelStatus', { tunnel, status: status.status });
-					});
-
-					config.capabilities = deepMixin(tunnel.extraCapabilities, config.capabilities);
-
-					return this._createSessionSuites().then(() => {
-						return tunnel.start().then(() => this.emit('tunnelStart', { tunnel }));
-					});
-				});
 			}
 		});
 	}
@@ -443,49 +453,20 @@ export default class Node extends Executor<Events, Config> {
 
 			// Must be a string, object, or array of (string | object)
 			case 'environments':
-				if (!value) {
-					value = [];
-				}
-				else if (typeof value === 'string') {
-					try {
-						value = parseValue(name, value, 'object');
-					}
-					catch (error) {
-						value = { browserName: value };
-					}
-				}
-
 				if (!Array.isArray(value)) {
 					value = [value];
 				}
-
 				value = value.map((val: any) => {
-					if (typeof val === 'string') {
-						try {
-							val = parseValue(name, val, 'object');
-						}
-						catch (error) {
-							val = { browserName: val };
-						}
-					}
-					if (typeof val !== 'object') {
-						throw new Error(`Invalid value "${value}" for ${name}; must (string | object)[]`);
-					}
-					// Do some very basic normalization
-					if (val.browser && !val.browserName) {
+					if (typeof val === 'object' && val.browserName == null) {
 						val.browserName = val.browser;
 					}
 					return val;
 				});
-
-				this._setOption(name, value, addToExisting);
+				this._setOption(name, parseValue(name, value, 'object[]', 'browserName'), addToExisting);
 				break;
 
 			case 'tunnel':
-				if (typeof value !== 'string' && typeof value !== 'function') {
-					throw new Error(`Invalid value "${value}" for ${name}`);
-				}
-				this._setOption(name, value);
+				this._setOption(name, parseValue(name, value, 'string'));
 				break;
 
 			case 'browserPlugins':
@@ -535,10 +516,6 @@ export default class Node extends Executor<Events, Config> {
 
 			config.internPath = `${relative(process.cwd(), config.internPath)}${sep}`;
 
-			if (config.reporters.length === 0) {
-				config.reporters = [{ name: 'simple' }];
-			}
-
 			if (config.benchmarkConfig) {
 				config.reporters.push({
 					name: 'benchmark',
@@ -547,18 +524,6 @@ export default class Node extends Executor<Events, Config> {
 			}
 
 			this._instrumentBasePath = normalizePath(`${resolve(config.basePath || '')}${sep}`);
-
-			if (!config.serverPort) {
-				config.serverPort = 9000;
-			}
-
-			if (!config.socketPort) {
-				config.socketPort = config.serverPort + 1;
-			}
-
-			if (!config.serverUrl) {
-				config.serverUrl = 'http://localhost:' + config.serverPort;
-			}
 
 			config.serverUrl = config.serverUrl.replace(/\/*$/, '/');
 
@@ -610,13 +575,9 @@ export default class Node extends Executor<Events, Config> {
 	protected _runRemoteTests() {
 		const config = this.config;
 		const sessionSuites = this._sessionSuites;
-
-		this.log('Running with maxConcurrency', config.maxConcurrency);
-
 		const queue = new FunctionQueue(config.maxConcurrency || Infinity);
-		const numSuitesToRun = sessionSuites.length;
 
-		this.log('Running', numSuitesToRun, 'suites');
+		this.log('Running', sessionSuites.length, 'suites with maxConcurrency', config.maxConcurrency);
 
 		const runTask = new Task((resolve, reject) => {
 			Task.all(sessionSuites.map(suite => {
@@ -665,6 +626,9 @@ export default class Node extends Executor<Events, Config> {
 			(code, filename) => this.instrumentCode(code, filename));
 	}
 
+	/**
+	 * Removes instrumentation hooks
+	 */
 	protected _removeInstrumentationHooks() {
 		unhookRunInThisContext();
 		if (this._unhookRequire) {
