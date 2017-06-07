@@ -188,7 +188,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				console.error('ERROR:', this.formatError(<any>data));
 			}
 
-			return resolvedTask;
+			return Task.resolve();
 		}
 
 		return Task.all<void>(notifications);
@@ -240,7 +240,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			return this.emit('log', message);
 		}
 		else {
-			return resolvedTask;
+			return Task.resolve();
 		}
 	}
 
@@ -415,7 +415,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Code to execute after the main test run has finished to shut down the test system.
 	 */
 	protected _afterRun() {
-		return resolvedTask;
+		return Task.resolve();
 	}
 
 	/**
@@ -639,7 +639,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			}, config.benchmarkConfig || {});
 		}
 
-		return resolvedTask;
+		return Task.resolve();
 	}
 
 	/**
@@ -833,5 +833,3 @@ export interface LoaderDescriptor {
 export interface PluginInitializer {
 	(options?: { [key: string]: any }): Task<object | void> | object | void;
 }
-
-const resolvedTask = Task.resolve();

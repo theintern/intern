@@ -28,7 +28,7 @@ function assertResolveEnvironments(environments: EnvironmentOptions[], available
 	assertResolve({}, environments, available, expected, message);
 }
 
-registerSuite('commands/resolveEnvironments', {
+registerSuite('lib/resolveEnvironments', {
 	'no version, is passed through'() {
 		const environments = <EnvironmentOptions[]>[ { browserName: 'chrome', platformVersion: '10' } ];
 		assertResolveEnvironments(environments, availableChrome, environments);
