@@ -10,6 +10,7 @@ import { getInterface as getObjectInterface, ObjectInterface } from '../interfac
 import { getInterface as getTddInterface, TddInterface } from '../interfaces/tdd';
 import { getInterface as getBddInterface, BddInterface } from '../interfaces/bdd';
 import { getInterface as getBenchmarkInterface, BenchmarkInterface } from '../interfaces/benchmark';
+import { getInterface as getQUnitInterface, QUnitInterface } from '../interfaces/qunit';
 import { BenchmarkReporterOptions } from '../reporters/Benchmark';
 import * as chai from 'chai';
 import { InternError, RuntimeEnvironment } from '../types';
@@ -78,6 +79,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this.registerInterface('object', getObjectInterface(this));
 		this.registerInterface('tdd', getTddInterface(this));
 		this.registerInterface('bdd', getBddInterface(this));
+		this.registerInterface('qunit', () => getQUnitInterface(this));
 		this.registerInterface('benchmark', getBenchmarkInterface(this));
 
 		this.registerPlugin('chai', () => chai);
@@ -226,6 +228,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	getInterface(name: 'object'): ObjectInterface;
 	getInterface(name: 'tdd'): TddInterface;
 	getInterface(name: 'bdd'): BddInterface;
+	getInterface(name: 'qunit'): QUnitInterface;
 	getInterface(name: 'benchmark'): BenchmarkInterface;
 	getInterface(name: string): any {
 		return this.getPlugin(`interface.${name}`);
