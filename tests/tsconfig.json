@@ -32,6 +32,7 @@
 	"./unit/lib/interfaces/tdd.ts",
 	"./unit/lib/node/*.ts",
 	"./unit/lib/*.ts",
+	"./unit/loaders/*.ts",
 	"./functional/lib/*.ts",
 	"../src/loaders/*.ts",
     "../src/browser/*.ts",
