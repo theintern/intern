@@ -86,12 +86,14 @@ export default class Server implements ServerProperties {
 	}
 
 	stop() {
+		this.executor.log('Stopping server...');
 		const promises: Promise<any>[] = [];
 
 		if (this._httpServer) {
 			promises.push(new Promise(resolve => {
 				this._httpServer!.close(resolve);
 			}).then(() => {
+				this.executor.log('Stopped http server');
 				this._httpServer = null;
 			}));
 		}
@@ -100,6 +102,7 @@ export default class Server implements ServerProperties {
 			promises.push(new Promise(resolve => {
 				this._wsServer!.close(resolve);
 			}).then(() => {
+				this.executor.log('Stopped ws server');
 				this._wsServer = null;
 			}));
 		}
