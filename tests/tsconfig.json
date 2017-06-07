@@ -32,6 +32,7 @@
 	"./unit/lib/interfaces/tdd.ts",
 	"./unit/lib/node/*.ts",
 	"./unit/lib/reporters/Reporter.ts",
+	"./unit/lib/reporters/Coverage.ts",
 	"./unit/lib/*.ts",
 	"./unit/loaders/*.ts",
 	"./unit/tasks/*.ts",

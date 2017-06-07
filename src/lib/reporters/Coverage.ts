@@ -14,8 +14,14 @@ export default abstract class Coverage<V extends CoverageOptions = CoverageOptio
 	filename: string;
 	watermarks: Watermarks;
 
-	constructor(executor: Node, config: V = <V>{}) {
-		super(executor, mixin({}, config));
+	constructor(executor: Node, options: V = <V>{}) {
+		super(executor, mixin({}, options));
+		if (options.filename) {
+			this.filename = options.filename;
+		}
+		if (options.watermarks) {
+			this.watermarks = options.watermarks;
+		}
 	}
 
 	createCoverageReport(type: ReportType, data: object | CoverageMap) {
