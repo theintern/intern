@@ -1,72 +1,135 @@
-import registerSuite = require('intern!object');
-import * as assert from 'intern/chai!assert';
-import Suite from 'src/lib/Suite';
+import _JUnit from 'src/lib/reporters/JUnit';
+import intern from '../../../../src/index';
+import { spy, stub } from 'sinon';
 import Test from 'src/lib/Test';
-import JUnit from 'src/lib/reporters/JUnit';
-import expected = require ('dojo/text!../../data/lib/reporters/JUnit/expected.xml');
+import Suite from 'src/lib/Suite';
 
-registerSuite({
-	name: 'intern/lib/reporters/JUnit',
+const { registerSuite } = intern().getPlugin('interface.object');
+const assert = intern().getPlugin('chai.assert');
+const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
 
-	'basic tests': function () {
-		const reporter = new JUnit(<any> { output: { write: write, end: write } });
-		let report = '';
+registerSuite('lib/reporters/JUnit', function () {
+	const mockExecutor = <any>{
+		suites: [],
+		on: spy(),
+		emit: stub().resolves(),
+		formatError: spy((error: Error) => error.message)
+	};
 
-		function write(data: string): void {
-			report += data;
-		}
+	const mockFs = {
+		createWriteStream: spy(),
+		mkdir: spy()
+	};
 
-		const assertionError = new Error('Expected 1 + 1 to equal 3');
-		assertionError.name = 'AssertionError';
+	let JUnit: typeof _JUnit;
+	let removeMocks: () => void;
 
-		const suite = new Suite({
-			sessionId: 'foo',
-			name: 'chrome 32 on Mac',
-			timeElapsed: 1234,
-			tests: [
-				new Suite({
-					name: 'suite1',
+	return {
+		before() {
+			return mockRequire(require, 'src/lib/reporters/JUnit', {
+				'fs': mockFs
+			}).then(handle => {
+				removeMocks = handle.remove;
+				JUnit = handle.module.default;
+			});
+		},
+
+		after() {
+			removeMocks();
+		},
+
+		beforeEach() {
+			mockExecutor.on.reset();
+			mockFs.createWriteStream.reset();
+			mockFs.mkdir.reset();
+		},
+
+		tests: {
+			construct() {
+				new JUnit(mockExecutor, { filename: 'somewhere/foo.js' });
+				assert.equal(mockFs.mkdir.callCount, 1);
+				assert.equal(mockFs.mkdir.getCall(0).args[0], 'somewhere');
+				assert.equal(mockFs.createWriteStream.callCount, 1);
+			},
+
+			'#runEnd'() {
+				const assertionError = new Error('Expected 1 + 1 to equal 3');
+				assertionError.name = 'AssertionError';
+
+				mockExecutor.suites.push(new Suite(<any>{
+					sessionId: 'foo',
+					name: 'chrome 32 on Mac',
+					executor: mockExecutor,
 					timeElapsed: 1234,
 					tests: [
-						new Test(<any> {
-							name: 'test1',
-							hasPassed: true,
-							timeElapsed: 45
-						}),
-						new Test(<any> {
-							name: 'test2',
-							hasPassed: false,
-							error: new Error('Oops'),
-							timeElapsed: 45
-						}),
-						new Test(<any> {
-							name: 'test3',
-							hasPassed: false,
-							error: assertionError,
-							timeElapsed: 45
-						}),
-						new Test(<any> {
-							name: 'test4',
-							hasPassed: false,
-							skipped: 'No time for that',
-							timeElapsed: 45
-						}),
-						new Suite(<any> {
-							name: 'suite5',
-							timeElapsed: 45,
+						new Suite(<any>{
+							name: 'suite1',
+							executor: mockExecutor,
+							timeElapsed: 1234,
 							tests: [
-								new Test(<any> { name: 'test5.1', hasPassed: true, timeElapsed: 40 })
+								new Test(<any>{
+									name: 'test1',
+									test() { },
+									hasPassed: true,
+									timeElapsed: 45
+								}),
+								new Test(<any>{
+									name: 'test2',
+									test() { },
+									hasPassed: false,
+									error: new Error('Oops'),
+									timeElapsed: 45
+								}),
+								new Test(<any>{
+									name: 'test3',
+									test() { },
+									hasPassed: false,
+									error: assertionError,
+									timeElapsed: 45
+								}),
+								new Test(<any>{
+									name: 'test4',
+									test() { },
+									hasPassed: false,
+									skipped: 'No time for that',
+									timeElapsed: 45
+								}),
+								new Suite(<any>{
+									name: 'suite5',
+									executor: mockExecutor,
+									timeElapsed: 45,
+									tests: [
+										new Test(<any>{ name: 'test5.1', test() { }, hasPassed: true, timeElapsed: 40 })
+									]
+								})
 							]
 						})
 					]
-				})
-			]
-		});
+				}));
 
-		reporter.runEnd(<any> { suites: [ suite ] });
-
-		// make sure slight changes in the stack trace does not cause the test to start failing
-		report = report.replace(/(at Test\.)(?:registerSuite\.)?(basic tests )[^<]*/g, '$1$2...');
-		assert.strictEqual(report, expected, 'Report should match expected result');
-	}
+				const text: string[] = [];
+				const mockConsole = {
+					write(data: string) {
+						text.push(data);
+					},
+					end(data: string) {
+						text.push(data);
+					}
+				};
+				const expected = '<?xml version="1.0" encoding="UTF-8" ?><testsuites>' +
+					'<testsuite name="chrome 32 on Mac" failures="2" skipped="1" tests="5" time="1.234">' +
+					'<testsuite name="suite1" failures="2" skipped="1" tests="5" time="1.234">' +
+					'<testcase name="test1" time="0.045" status="0"/><testcase name="test2" time="0.045" status="1">' +
+					'<error message="Oops" type="Error">Oops</error></testcase>' +
+					'<testcase name="test3" time="0.045" status="1">' +
+					'<failure message="Expected 1 + 1 to equal 3" type="AssertionError">Expected 1 + 1 to equal 3</failure>' +
+					'</testcase><testcase name="test4" time="0.045" status="0"><skipped>No time for that</skipped>' +
+					'</testcase><testsuite name="suite5" failures="0" skipped="0" tests="1" time="0.045">' +
+					'<testcase name="test5.1" time="0.04" status="0"/></testsuite></testsuite></testsuite></testsuites>\n';
+				const junit = new JUnit(mockExecutor, { output: mockConsole });
+				junit.runEnd();
+				assert.equal(expected, text.join(''), 'report should exactly match expected output');
+			}
+		}
+	};
 });

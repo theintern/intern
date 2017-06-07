@@ -35,6 +35,7 @@
 	"./unit/lib/reporters/Coverage.ts",
 	"./unit/lib/reporters/HtmlCoverage.ts",
 	"./unit/lib/reporters/JsonCoverage.ts",
+	"./unit/lib/reporters/JUnit.ts",
 	"./unit/lib/reporters/LcovCoverage.ts",
 	"./unit/lib/reporters/Reporter.ts",
 	"./unit/lib/*.ts",

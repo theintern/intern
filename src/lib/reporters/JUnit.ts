@@ -12,7 +12,7 @@ import { dirname } from 'path';
 export default class JUnit extends Reporter {
 	readonly filename: string;
 
-	constructor(executor: Executor, options = <JUnitProperties>{}) {
+	constructor(executor: Executor, options: Partial<JUnitProperties> = {}) {
 		super(executor, options);
 		if (options.filename) {
 			this.filename = options.filename;
