@@ -1,112 +1,138 @@
-import registerSuite = require('intern!object');
-import * as assert from 'intern/chai!assert';
-import * as tdd from 'src/lib/interfaces/tdd';
-import * as main from 'src/main';
-import Suite from 'src/lib/Suite';
+import * as _tddInt from 'src/lib/interfaces/tdd';
 import Test from 'src/lib/Test';
+import Suite from 'src/lib/Suite';
 
-let originalExecutor = main.executor;
-let rootSuites: Suite[];
+import intern from '../../../../src/index';
+import { spy } from 'sinon';
 
-registerSuite({
-	name: 'intern/lib/interfaces/tdd',
+const { registerSuite } = intern().getPlugin('interface.object');
+const assert = intern().getPlugin('chai.assert');
+const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
 
-	beforeEach() {
-		// Normally, the root suites are set up once the runner or client are configured, but we do not execute
-		// the Intern under test
-		rootSuites = [
-			new Suite({ name: 'tdd test 1' }),
-			new Suite({ name: 'tdd test 2' })
-		];
-		main.setExecutor(<any> {
-			register: function (callback: (value: Suite, index: number, array: Suite[]) => void) {
-				rootSuites.forEach(callback);
+registerSuite('lib/interfaces/tdd', function () {
+	let tddInt: typeof _tddInt;
+	let removeMocks: () => void;
+	let parent: Suite;
+
+	const executor = {
+		addSuite: spy((callback: (suite: Suite) => void) => {
+			callback(parent);
+		}),
+		emit: spy(() => { })
+	};
+	const mockIntern = spy(() => {
+		return executor;
+	});
+
+	return {
+		before() {
+			return mockRequire(require, 'src/lib/interfaces/tdd', {
+				'src/index': { default: mockIntern }
+			}).then(handle => {
+				removeMocks = handle.remove;
+				tddInt = handle.module;
+			});
+		},
+
+		after() {
+			removeMocks();
+		},
+
+		beforeEach() {
+			mockIntern.reset();
+			executor.addSuite.reset();
+			executor.emit.reset();
+			parent = new Suite(<any>{ name: 'parent', executor });
+		},
+
+		tests: {
+			getInterface() {
+				const iface = tddInt.getInterface(<any>executor);
+				assert.isFunction(iface.suite);
+				assert.isFunction(iface.test);
+				assert.isFunction(iface.before);
+				assert.isFunction(iface.after);
+				assert.isFunction(iface.beforeEach);
+				assert.isFunction(iface.afterEach);
+
+				iface.suite('fooSuite', () => { });
+				assert.lengthOf(parent.tests, 1);
+				assert.equal(parent.tests[0].name, 'fooSuite');
+			},
+
+			suite() {
+				tddInt.suite('foo', () => {});
+				assert.lengthOf(parent.tests, 1);
+				assert.instanceOf(parent.tests[0], Suite);
+				assert.equal(parent.tests[0].name, 'foo');
+			},
+
+			test() {
+				tddInt.suite('foo', () => {
+					tddInt.test('bar', () => { });
+				});
+				const child = (<Suite>parent.tests[0]).tests[0];
+				assert.instanceOf(child, Test);
+				assert.equal(child.name, 'bar');
+
+				assert.throws(() => {
+					tddInt.test('baz', () => { });
+				}, /must be declared/);
+			},
+
+			'lifecycle methods': (() => {
+				type lifecycle = 'before' | 'beforeEach' | 'after' | 'afterEach';
+				function createTest(name: lifecycle) {
+					return () => {
+						tddInt.suite('foo', () => {
+							tddInt[name](() => { });
+						});
+						const suite = <Suite>parent.tests[0];
+						assert.instanceOf(suite[name], Function);
+
+						assert.throws(() => {
+							tddInt[name](() => { });
+						}, /must be declared/);
+					};
+				}
+
+				return {
+					before: createTest('before'),
+					after: createTest('after'),
+					beforeEach: createTest('beforeEach'),
+					afterEach: createTest('afterEach')
+				};
+			})(),
+
+			'nested suites'() {
+				tddInt.suite('fooSuite', () => {
+					tddInt.test('foo', () => { });
+					tddInt.suite('bar', () => {
+						tddInt.beforeEach(() => { });
+
+						tddInt.test('up', () => { });
+						tddInt.test('down', () => { });
+					});
+					tddInt.suite('baz', () => {
+						tddInt.test('one', () => { });
+						tddInt.test('down', () => { });
+					});
+				});
+
+				assert.lengthOf(parent.tests, 1, 'one child should have been defined on parent');
+				const suite = <Suite>parent.tests[0];
+				assert.lengthOf(suite.tests, 3, 'expect suite to have 3 children');
+
+				assert.instanceOf(suite.tests[0], Test);
+				assert.equal(suite.tests[0].name, 'foo');
+
+				assert.instanceOf(suite.tests[1], Suite);
+				assert.equal(suite.tests[1].name, 'bar');
+				assert.isFunction((<Suite>suite.tests[1]).beforeEach, 'expected suite to have a beforeEach method');
+
+				assert.instanceOf(suite.tests[2], Suite);
+				assert.equal(suite.tests[2].name, 'baz');
 			}
-		});
-		main.executor.register = function (callback) {
-			rootSuites.forEach(callback);
-		};
-	},
-
-	teardown() {
-		main.setExecutor(originalExecutor);
-	},
-
-	'Basic registration'() {
-		tdd.suite('root suite 1', function () {
-			tdd.suite('nested suite', function () {
-				tdd.test('nested test', function () {});
-			});
-			tdd.test('regular test', function () {});
-		});
-
-		tdd.suite('root suite 2', function () {
-			tdd.test('test 2', function () {});
-		});
-
-		let mainSuite: Suite[];
-
-		for (let i = 0; (mainSuite = <Suite[]> (rootSuites[i] && rootSuites[i].tests)); ++i) {
-			assert.strictEqual(mainSuite[0].name, 'root suite 1',
-				'Root suite 1 should be the one named "root suite 1"');
-			assert.instanceOf(mainSuite[0], Suite, 'Root suite 1 should be a Suite instance');
-
-			assert.strictEqual(mainSuite[0].tests.length, 2, 'Root suite should have two tests');
-
-			assert.strictEqual(mainSuite[0].tests[0].name, 'nested suite',
-				'First test of root suite should be the one named "nested suite"');
-			assert.instanceOf(mainSuite[0].tests[0], Suite, 'Nested test suite should be a Suite instance');
-
-			assert.strictEqual((<Suite> (<Suite> mainSuite[0]).tests[0]).tests.length, 1, 'Nested suite should only have one test');
-
-			assert.strictEqual((<Suite> (<Suite> mainSuite[0]).tests[0]).tests[0].name, 'nested test',
-				'Test in nested suite should be the one named "test nested suite');
-			assert.instanceOf((<Suite> (<Suite> mainSuite[0]).tests[0]).tests[0], Test,
-				'Test in nested suite should be a Test instance');
-
-			assert.strictEqual(mainSuite[0].tests[1].name, 'regular test',
-				'Last test in root suite should be the one named "regular test"');
-			assert.instanceOf(mainSuite[0].tests[1], Test, 'Last test in root suite should a Test instance');
-
-			assert.strictEqual(mainSuite[1].name, 'root suite 2',
-				'Root suite 2 should be the one named "root suite 2"');
-			assert.instanceOf(mainSuite[1], Suite, 'Root suite 2 should be a Suite instance');
-
-			assert.strictEqual(mainSuite[1].tests.length, 1, 'Root suite 2 should have one test');
-
-			assert.strictEqual(mainSuite[1].tests[0].name, 'test 2',
-				'The test in root suite 2 should be the one named "test 2"');
-			assert.instanceOf(mainSuite[1].tests[0], Test, 'test 2 should be a Test instance');
 		}
-	},
-
-	'Suite lifecycle methods'() {
-		const results: string[] = [];
-		const expectedResults = [
-			'before', undefined, 'before2', undefined,
-			'beforeEach', 'single test', 'beforeEach2', 'single test',
-			'afterEach', 'single test', 'afterEach2', 'single test',
-			'after', undefined, 'after2', undefined
-		];
-		const lifecycleMethods = [ 'before', 'beforeEach', 'afterEach', 'after' ];
-		const anyTdd = <any> tdd;
-
-		tdd.suite('root suite', function () {
-			lifecycleMethods.forEach(function (method) {
-				anyTdd[method](function (test: { name: string }) {
-					results.push(method, test && test.name);
-				});
-				anyTdd[method](function (test: { name: string }) {
-					results.push(method + '2', test && test.name);
-				});
-			});
-
-			tdd.test('single test', function () {});
-		});
-
-		return rootSuites[0].run().then(function () {
-			assert.deepEqual(results, expectedResults,
-				'TDD interface should correctly register special lifecycle methods on the Suite');
-		});
-	}
+	};
 });

@@ -169,7 +169,7 @@ registerSuite('lib/interfaces/object', function () {
 
 				'nested suites'() {
 					parent = new Suite(<any>{ name: 'parent', executor });
-					const suite = objInt.createSuite('foo', parent, {
+					const suite = objInt.createSuite('fooSuite', parent, {
 						foo() { },
 						bar: {
 							beforeEach() { },
