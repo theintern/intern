@@ -226,6 +226,12 @@ export default class Suite implements SuiteProperties {
 			throw new Error('This Suite or Test already belongs to another parent');
 		}
 
+		this.tests.forEach(existingSuiteOrTest => {
+			if (existingSuiteOrTest.name === suiteOrTest.name) {
+				throw new Error(`A suite or test named "${suiteOrTest.name}" has already been added`);
+			}
+		});
+
 		suiteOrTest.parent = this;
 		this.tests.push(suiteOrTest);
 

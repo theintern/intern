@@ -563,8 +563,16 @@ export default class Node extends Executor<Events, Config> {
 				config.capabilities.build = buildId;
 			}
 
-			return ['suites', 'browserSuites', 'functionalSuites', 'nodeSuites'].forEach((property: keyof Config) => {
+			['suites', 'functionalSuites'].forEach((property: keyof Config) => {
 				config[property] = expandFiles(config[property]);
+			});
+
+			// Filter any entries out of the browserSuites and nodeSuites lists that are already in suites
+			['browserSuites', 'nodeSuites'].forEach((property: keyof Config) => {
+				const suites = config.suites;
+				config[property] = expandFiles(config[property]).filter(file => {
+					return suites.indexOf(file) === -1;
+				});
 			});
 		});
 	}
