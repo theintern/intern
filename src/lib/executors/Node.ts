@@ -228,15 +228,6 @@ export default class Node extends Executor<Events, Config> {
 		return super._beforeRun().then(() => {
 			const config = this.config;
 
-			this._instrumenter = createInstrumenter(mixin({}, config.instrumenterOptions, {
-				preserveComments: true,
-				produceSourceMap: true
-			}));
-
-			if (this.config.excludeInstrumentation !== true) {
-				this._setInstrumentationHooks();
-			}
-
 			const suite = this._rootSuite;
 			suite.grep = config.grep;
 			suite.timeout = config.defaultTimeout;
@@ -550,6 +541,16 @@ export default class Node extends Executor<Events, Config> {
 					return suites.indexOf(file) === -1;
 				});
 			});
+
+			// Install the instrumenter in resolve config so it will be able to handle suites
+			this._instrumenter = createInstrumenter(mixin({}, config.instrumenterOptions, {
+				preserveComments: true,
+				produceSourceMap: true
+			}));
+
+			if (config.excludeInstrumentation !== true) {
+				this._setInstrumentationHooks();
+			}
 		});
 	}
 
