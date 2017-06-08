@@ -1,20 +1,17 @@
-import Executor, { Config as BaseConfig, Events, LoaderDescriptor, PluginDescriptor } from './Executor';
-import { normalizePathEnding, parseValue } from '../common/util';
+import Executor, { Config, Events } from './Executor';
+import { normalizePathEnding } from '../common/util';
 import Task from '@dojo/core/async/Task';
-import Promise from '@dojo/shim/Promise';
 import global from '@dojo/core/global';
 
 const console: Console = global.console;
 
 /**
- * A BrowserExecutor is used to run unit tests in a browser.
+ * A Browser executor is used to run unit tests in a browser.
  */
 export default class Browser extends Executor<Events, Config> {
 	constructor(config?: Partial<Config>) {
 		super(<Config>{
 			basePath: '/',
-			browserPlugins: <PluginDescriptor[]>[],
-			browserSuites: <string[]>[]
 		});
 
 		// Report uncaught errors
@@ -61,47 +58,6 @@ export default class Browser extends Executor<Events, Config> {
 		}, Task.resolve());
 	}
 
-	/*
-	 * Override Executor#_loadLoader to load nodeLoader, if applicable
-	 */
-	protected _loadLoader() {
-		return super._loadLoader(this.config.browserLoader || this.config.loader);
-	}
-
-	/**
-	 * Override Executor#_loadPlugins to pass a combination of browserPlugins and plugins to the loader.
-	 */
-	protected _loadPlugins() {
-		return super._loadPlugins(this.config.plugins.concat(this.config.browserPlugins));
-	}
-
-	/**
-	 * Override Executor#_loadSuites to pass a combination of browserSuites and suites to the loader
-	 */
-	protected _loadSuites(): Promise<void> {
-		return super._loadSuites(this.config.suites.concat(this.config.browserSuites));
-	}
-
-	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
-		switch (name) {
-			case 'browserLoader':
-				this._setOption(name, parseValue(name, value, 'object', 'script'));
-				break;
-
-			case 'browserPlugins':
-				this._setOption(name, parseValue(name, value, 'object[]', 'script'), addToExisting);
-				break;
-
-			case 'browserSuites':
-				this._setOption(name, parseValue(name, value, 'string[]'), addToExisting);
-				break;
-
-			default:
-				super._processOption(<keyof BaseConfig>name, value, addToExisting);
-				break;
-		}
-	}
-
 	protected _resolveConfig() {
 		return super._resolveConfig().then(() => {
 			const config = this.config;
@@ -111,13 +67,11 @@ export default class Browser extends Executor<Events, Config> {
 			}
 
 			// Filter out globs from suites and browser suites
-			[ 'suites', 'browserSuites' ].forEach((name: keyof Config) => {
-				config[name] = config[name].filter((suite: string) => {
+			[ config.suites, config.browser.suites ].forEach(suites => {
+				suites.forEach(suite => {
 					if (/[*?]/.test(suite)) {
-						console.warn(`Globs may not be used for browser suites: "${suite}"`);
-						return false;
+						throw new Error(`Globs may not be used for browser suites: "${suite}"`);
 					}
-					return true;
 				});
 			});
 
@@ -132,21 +86,7 @@ export default class Browser extends Executor<Events, Config> {
 	}
 }
 
-export interface Config extends BaseConfig {
-	/** A loader used to load test suites and application modules in a browser. */
-	browserLoader: LoaderDescriptor;
-
-	/** Plugins that should only be loaded in a browser */
-	browserPlugins: PluginDescriptor[];
-
-	/**
-	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that
-	 * will only be loaded in browsers.
-	 */
-	browserSuites: string[];
-}
-
-export { Events };
+export { Events, Config };
 
 function injectScript(path: string) {
 	return new Task<void>((resolve, reject) => {

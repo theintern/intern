@@ -1,5 +1,6 @@
 {
 	"description": "Run tests on Node, excluding the benchmark tests",
+
 	"suites": [
 		"_tests/tests/unit/index.js",
 		"_tests/tests/unit/lib/Channel.js",
@@ -22,56 +23,59 @@
 		"_tests/tests/unit/loaders/dojo2.js",
 		"_tests/tests/unit/loaders/systemjs.js"
 	],
-	"nodeSuites": [
-		"_tests/tests/unit/bin/intern.js",
-		"_tests/tests/unit/lib/RemoteSuite.js",
-		"_tests/tests/unit/lib/Server.js",
-		"_tests/tests/unit/lib/resolveEnvironments.js",
-		"_tests/tests/unit/lib/executors/Node.js",
-		"_tests/tests/unit/lib/node/ErrorFormatter.js",
-		"_tests/tests/unit/lib/node/runner.js",
-		"_tests/tests/unit/lib/node/util.js",
-		"_tests/tests/unit/lib/reporters/Cobertura.js",
-		"_tests/tests/unit/lib/reporters/Coverage.js",
-		"_tests/tests/unit/lib/reporters/HtmlCoverage.js",
-		"_tests/tests/unit/lib/reporters/JsonCoverage.js",
-		"_tests/tests/unit/lib/reporters/JUnit.js",
-		"_tests/tests/unit/lib/reporters/Lcov.js",
-		"_tests/tests/unit/lib/reporters/Reporter.js",
-		"_tests/tests/unit/tasks/intern.js"
-	],
-	"browserSuites": [
-		"_tests/tests/unit/lib/browser/util.js"
-	],
+
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 
-	"browserPlugins": "_tests/tests/dojoMocking.js",
-	"nodePlugins": "_tests/tests/nodeMocking.js",
+	"node": {
+		"suites": [
+			"_tests/tests/unit/bin/intern.js",
+			"_tests/tests/unit/lib/RemoteSuite.js",
+			"_tests/tests/unit/lib/Server.js",
+			"_tests/tests/unit/lib/resolveEnvironments.js",
+			"_tests/tests/unit/lib/executors/Node.js",
+			"_tests/tests/unit/lib/node/ErrorFormatter.js",
+			"_tests/tests/unit/lib/node/util.js",
+			"_tests/tests/unit/lib/reporters/Cobertura.js",
+			"_tests/tests/unit/lib/reporters/Coverage.js",
+			"_tests/tests/unit/lib/reporters/HtmlCoverage.js",
+			"_tests/tests/unit/lib/reporters/JsonCoverage.js",
+			"_tests/tests/unit/lib/reporters/JUnit.js",
+			"_tests/tests/unit/lib/reporters/Lcov.js",
+			"_tests/tests/unit/lib/reporters/Reporter.js",
+			"_tests/tests/unit/tasks/intern.js"
+		],
+		"plugins": "_tests/tests/nodeMocking.js",
+		"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } }
+	},
 
-	"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } },
+	"browser": {
+		"suites": [
+			"_tests/tests/unit/lib/browser/util.js"
+		],
+		"plugins": "_tests/tests/dojoMocking.js",
+		"loader": {
+			"script": "dojo2",
+			"options": {
+				"map": {
+					"*": {
+						"@dojo": "node_modules/@dojo"
+					}
+				},
+				"packages": [
+					{ "name": "src", "location": "_build/src" },
+					{ "name": "benchmark", "location": "node_modules/benchmark", "main": "benchmark.js" },
+					{ "name": "lodash", "location": "node_modules/lodash", "main": "lodash.js" },
+					{ "name": "platform", "location": "node_modules/platform", "main": "platform.js" },
+					{ "name": "sinon", "location": "node_modules/sinon", "main": "pkg/sinon.js" }
+				]
+			}
+		}
+	},
 
 	"benchmark": false,
 	"excludeInstrumentation": "(?:node_modules|_tests)/",
 	"filterErrorStack": true,
 	"internPath": "_tests/src",
-
-	"browserLoader": {
-		"script": "dojo2",
-		"options": {
-			"map": {
-				"*": {
-					"@dojo": "node_modules/@dojo"
-				}
-			},
-			"packages": [
-				{ "name": "src", "location": "_build/src" },
-				{ "name": "benchmark", "location": "node_modules/benchmark", "main": "benchmark.js" },
-				{ "name": "lodash", "location": "node_modules/lodash", "main": "lodash.js" },
-				{ "name": "platform", "location": "node_modules/platform", "main": "platform.js" },
-				{ "name": "sinon", "location": "node_modules/sinon", "main": "pkg/sinon.js" }
-			]
-		}
-	},
 
 	"configs": {
 		/* Include benchmark suites */

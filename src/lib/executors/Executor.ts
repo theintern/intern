@@ -45,6 +45,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			bail: false,
 			baseline: false,
 			benchmark: false,
+			browser: {
+				plugins: <PluginDescriptor[]>[],
+				reporters: <ReporterDescriptor[]>[],
+				suites: <string[]>[]
+			},
 			debug: false,
 			defaultTimeout: 30000,
 			excludeInstrumentation: /(?:node_modules|browser|tests)\//,
@@ -55,6 +60,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			},
 			loader: { script: 'default' },
 			name: 'intern',
+			node: {
+				plugins: <PluginDescriptor[]>[],
+				reporters: <ReporterDescriptor[]>[],
+				suites: <string[]>[]
+			},
 			plugins: <PluginDescriptor[]>[],
 			reporters: <ReporterDescriptor[]>[],
 			sessionId: '',
@@ -146,6 +156,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * any existing value.
 	 */
 	configure(config: Partial<C>) {
+		config = config || {};
 		Object.keys(config).forEach((key: keyof C) => {
 			const value = config[key];
 			const addToExisting = key[key.length - 1] === '+';
@@ -435,7 +446,14 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _beforeRun(): Task<boolean> {
 		const config = this.config;
 
-		config.reporters.forEach(reporter => {
+		const envReporters = config[this.environment].reporters;
+
+		// Take reporters from the base config that aren't also specified in an environment config
+		const baseReporters = config.reporters.filter(reporter => {
+			return !envReporters.some(envReporter => envReporter.name === reporter.name);
+		});
+
+		baseReporters.concat(envReporters).forEach(reporter => {
 			const ReporterClass = this._getReporter(reporter.name);
 			this._reporters.push(new ReporterClass(this, reporter.options));
 		});
@@ -469,8 +487,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Load a loader
 	 */
-	protected _loadLoader(loader?: LoaderDescriptor) {
-		this.log('loading loader with', loader);
+	protected _loadLoader() {
 		// If registerLoader was already called, just wait for that loader to initialize
 		if (this._loaderInit) {
 			return this._loaderInit.then(loader => {
@@ -480,7 +497,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		// No loader has been registered, so load the configured or default one
 		else {
 			const config = this.config;
-			loader = loader || config.loader;
+			const loader = config[this.environment].loader || config.loader;
 
 			let script = loader.script;
 			switch (script) {
@@ -506,8 +523,9 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Load plugins
 	 */
-	protected _loadPlugins(plugins?: PluginDescriptor[]) {
-		plugins = plugins || this.config.plugins;
+	protected _loadPlugins() {
+		const plugins = this.config.plugins.concat(this.config[this.environment].plugins);
+
 		this._loadingPlugins = true;
 
 		// Load plugins sequentiallly
@@ -531,9 +549,9 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Load suites
 	 */
-	protected _loadSuites(suites?: string[]) {
-		suites = suites || this.config.suites;
-		return this._loader(suites!)
+	protected _loadSuites() {
+		const suites = this.config.suites.concat(this.config[this.environment].suites);
+		return Task.resolve(this._loader(suites!))
 			.then(() => { this.log('Loaded suites:', suites); });
 	}
 
@@ -598,6 +616,30 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 			case 'suites':
 				this._setOption(name, parseValue(name, value, 'string[]'), addToExisting);
+				break;
+
+			case 'node':
+			case 'browser':
+				value = parseValue(name, value, 'object') || {};
+				Object.keys(value).forEach(key => {
+					switch (key) {
+						case 'loader':
+							value.loader = parseValue(name, value.loader, 'object', 'script');
+							break;
+						case 'plugins':
+							value.plugins = parseValue('plugins', value.plugins, 'object[]', 'script');
+							break;
+						case 'reporters':
+							value.reporters = parseValue('reporters', value.reporters, 'object[]', 'name');
+							break;
+						case 'suites':
+							value.suites = parseValue('suites', value.suites, 'string[]', 'name');
+							break;
+						default:
+							throw new Error(`Invalid property ${key} in ${name} config`);
+					}
+				});
+				this._setOption(name, value, false);
 				break;
 
 			default:
@@ -667,7 +709,38 @@ export interface BenchmarkConfig extends BenchmarkReporterOptions {
 	id: string;
 }
 
-export interface Config {
+export interface ResourceConfig {
+	/**
+	 * The loader used to load test suites and application modules. When passed in as part of a config object, the
+	 * `loader` property can be a string with a loader name or the path to a loader script. It may also be an object
+	 * with `script` and `config` properties. Intern provides built-in loader scripts for Dojo and Dojo2, which can be
+	 * specified with the IDs 'dojo' and 'dojo2'.
+	 *
+	 * ```ts
+	 * loader: 'dojo2'
+	 * loader: 'tests/loader.js'
+	 * loader: { script: 'dojo', config: { packages: [ { name: 'app', location: './js' } ] } }
+	 * ```
+	 */
+	loader: LoaderDescriptor;
+
+	/**
+	 * A list of scripts to load before suites are loaded. These must be simple scripts, not modules, as a module loader
+	 * may not be available when these are loaded. Also, these scripts should be synchronous. If they need to run async
+	 * actions, they can register listeners for the 'runBefore' or 'runAfter' executor events.
+	 */
+	plugins: PluginDescriptor[];
+
+	/**
+	 * A list of reporter names or descriptors. These reporters will be loaded and instantiated before testing begins.
+	 */
+	reporters: ReporterDescriptor[];
+
+	/** A list of paths to suite scripts (or some other suite identifier usable by the suite loader). */
+	suites: string[];
+}
+
+export interface Config extends ResourceConfig {
 	/** If true, Intern will exit as soon as any test fails. */
 	bail: boolean;
 
@@ -678,6 +751,8 @@ export interface Config {
 
 	benchmark: boolean;
 	benchmarkConfig?: BenchmarkConfig;
+
+	browser: ResourceConfig;
 
 	/** If true, emit and display debug messages. */
 	debug: boolean;
@@ -702,43 +777,16 @@ export interface Config {
 	/** The path to Intern */
 	internPath: string;
 
-	/**
-	 * The loader used to load test suites and application modules. When passed in as part of a config object, the
-	 * `loader` property can be a string with a loader name or the path to a loader script. It may also be an object
-	 * with `script` and `config` properties. Intern provides built-in loader scripts for Dojo and Dojo2, which can be
-	 * specified with the IDs 'dojo' and 'dojo2'.
-	 *
-	 * ```ts
-	 * loader: 'dojo2'
-	 * loader: 'tests/loader.js'
-	 * loader: { script: 'dojo', config: { packages: [ { name: 'app', location: './js' } ] } }
-	 * ```
-	 */
-	loader: LoaderDescriptor;
-
 	/** A top-level name for this configuration. */
 	name: string;
 
-	/**
-	 * A list of scripts to load before suites are loaded. These must be simple scripts, not modules, as a module loader
-	 * may not be available when these are loaded. Also, these scripts should be synchronous. If they need to run async
-	 * actions, they can register listeners for the 'runBefore' or 'runAfter' executor events.
-	 */
-	plugins: PluginDescriptor[];
-
-	/**
-	 * A list of reporter names or descriptors. These reporters will be loaded and instantiated before testing begins.
-	 */
-	reporters: ReporterDescriptor[];
+	node: ResourceConfig;
 
 	/** An identifier for this test session. By default it will have the value ''. */
 	sessionId: string;
 
 	/** If true, display the resolved config and exit */
 	showConfig: boolean;
-
-	/** A list of paths to suite scripts (or some other suite identifier usable by the suite loader). */
-	suites: string[];
 }
 
 export interface ReporterDescriptor {

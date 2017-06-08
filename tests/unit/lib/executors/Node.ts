@@ -348,33 +348,13 @@ registerSuite('lib/executors/Node', function () {
 						test('tunnel', 5, 'null', 'null', /Non-string/);
 					},
 
-					browserPlugins() {
-						test('browserPlugins', 5, 'foo', [{ script: 'foo' }], /Non-object/);
-					},
-
-					nodePlugins() {
-						test('nodePlugins', 5, 'foo', [{ script: 'foo' }], /Non-object/);
-					},
-
-					browserLoader() {
-						test('browserLoader', 5, { script: 'foo' }, { script: 'foo' }, /Non-object value/);
-						test('browserLoader', { loader: 'foo' }, { script: 'foo' }, { script: 'foo' }, /Invalid value/);
-					},
-
-					nodeLoader() {
-						test('nodeLoader', 5, { script: 'foo' }, { script: 'foo' }, /Non-object value/);
-						test('nodeLoader', { loader: 'foo' }, { script: 'foo' }, { script: 'foo' }, /Invalid value/);
-					},
-
 					functionalCoverage: booleanTest('functionalCoverage'),
 					leaveRemoteOpen: booleanTest('leaveRemoteOpen'),
 					serveOnly: booleanTest('serveOnly'),
 					runInSync: booleanTest('runInSync'),
 
 					coverageSources: stringArrayTest('coverageSources'),
-					browserSuites: stringArrayTest('browserSuites'),
 					functionalSuites: stringArrayTest('functionalSuites'),
-					nodeSuites: stringArrayTest('nodeSuites'),
 
 					connectTimeout: numberTest('connectTimeout'),
 					maxConcurrency: numberTest('maxConcurrency'),

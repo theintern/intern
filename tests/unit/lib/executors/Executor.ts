@@ -133,6 +133,11 @@ registerSuite('lib/executors/Executor', function () {
 					bail: false,
 					baseline: false,
 					benchmark: false,
+					browser: {
+						plugins: [],
+						reporters: [],
+						suites: []
+					},
 					debug: false,
 					defaultTimeout: 30000,
 					excludeInstrumentation: /(?:node_modules|browser|tests)\//,
@@ -143,6 +148,11 @@ registerSuite('lib/executors/Executor', function () {
 					},
 					loader: { script: 'default' },
 					name: 'intern',
+					node: {
+						plugins: [],
+						reporters: [],
+						suites: []
+					},
 					plugins: [],
 					reporters: [],
 					sessionId: '',
@@ -249,6 +259,12 @@ registerSuite('lib/executors/Executor', function () {
 							test('suites', 5, 'foo', ['foo'], /Non-string\[\]/);
 							test('suites', 5, ['bar'], ['bar'], /Non-string\[\]/);
 							test(<any>'suites+', 5, ['baz'], ['bar', 'baz'], /Non-string\[\]/, 'suite should have been added');
+						},
+
+						'environment resources'() {
+							test('node', 5, {}, {}, /Non-object/);
+							test('browser', 5, {}, {}, /Non-object/);
+							test('node', 5, { suites: 'foo' }, { suites: ['foo'] }, /Non-object/);
 						}
 					};
 				})()
@@ -401,6 +417,11 @@ registerSuite('lib/executors/Executor', function () {
 						'    "bail": false,\n' +
 						'    "baseline": false,\n' +
 						'    "benchmark": false,\n' +
+						'    "browser": {\n' +
+						'        "plugins": [],\n' +
+						'        "reporters": [],\n' +
+						'        "suites": []\n' +
+						'    },\n' +
 						'    "debug": false,\n' +
 						'    "defaultTimeout": 30000,\n' +
 						'    "excludeInstrumentation": {},\n' +
@@ -413,6 +434,11 @@ registerSuite('lib/executors/Executor', function () {
 						'        "script": "default"\n' +
 						'    },\n' +
 						'    "name": "intern",\n' +
+						'    "node": {\n' +
+						'        "plugins": [],\n' +
+						'        "reporters": [],\n' +
+						'        "suites": []\n' +
+						'    },\n' +
 						'    "plugins": [],\n' +
 						'    "reporters": [],\n' +
 						'    "sessionId": "",\n' +

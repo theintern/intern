@@ -1,4 +1,4 @@
-import Executor, { Config as BaseConfig, Events as BaseEvents, LoaderDescriptor, PluginDescriptor } from './Executor';
+import Executor, { Config as BaseConfig, Events as BaseEvents } from './Executor';
 import Task, { State } from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
@@ -61,7 +61,6 @@ export default class Node extends Executor<Events, Config> {
 	constructor(config?: Partial<Config>) {
 		super({
 			basePath: process.cwd() + sep,
-			browserSuites: <string[]>[],
 			capabilities: { 'idle-timeout': 60 },
 			connectTimeout: 30000,
 			environments: <EnvironmentSpec[]>[],
@@ -69,8 +68,6 @@ export default class Node extends Executor<Events, Config> {
 			functionalSuites: <string[]>[],
 			maxConcurrency: Infinity,
 			name: 'node',
-			nodePlugins: <PluginDescriptor[]>[],
-			nodeSuites: <string[]>[],
 			reporters: [{ name: 'runner' }],
 			runInSync: false,
 			serveOnly: false,
@@ -252,7 +249,7 @@ export default class Node extends Executor<Events, Config> {
 			suite.bail = config.bail;
 
 			if (
-				config.environments.length > 0 && (config.functionalSuites.length + config.suites.length + config.browserSuites.length > 0) ||
+				config.environments.length > 0 && (config.functionalSuites.length + config.suites.length + config.browser.suites.length > 0) ||
 				// User can start the server without planning to run functional tests
 				config.serveOnly
 			) {
@@ -409,7 +406,7 @@ export default class Node extends Executor<Events, Config> {
 
 				// If browser-compatible unit tests were added to this executor, add a RemoteSuite to the session suite.
 				// The RemoteSuite will run the suites listed in executor.config.suites.
-				if (config.suites.length + config.browserSuites.length > 0) {
+				if (config.suites.length + config.browser.suites.length > 0) {
 					suite.add(new RemoteSuite({
 						before() {
 							session.coverageEnabled = config.excludeInstrumentation !== true;
@@ -427,29 +424,10 @@ export default class Node extends Executor<Events, Config> {
 	 */
 	protected _loadFunctionalSuites() {
 		this._loadingFunctionalSuites = true;
-		return super._loadSuites(this.config.functionalSuites);
-	}
-
-	/**
-	 * Override Executor#_loadLoader to load nodeLoader, if applicable
-	 */
-	protected _loadLoader() {
-		return super._loadLoader(this.config.nodeLoader || this.config.loader);
-	}
-
-	/**
-	 * Override Executor#_loadPlugins to pass a combination of nodePlugins and plugins to the loader.
-	 */
-	protected _loadPlugins() {
-		return super._loadPlugins(this.config.plugins.concat(this.config.nodePlugins));
-	}
-
-	/**
-	 * Override Executor#_loadSuites to pass a combination of nodeSuites and suites to the loader.
-	 */
-	protected _loadSuites() {
-		this._loadingFunctionalSuites = false;
-		return super._loadSuites(this.config.suites.concat(this.config.nodeSuites));
+		const suites = this.config.functionalSuites;
+		return Task.resolve(this._loader(suites))
+			.then(() => { this.log('Loaded functional suites:', suites); })
+			.finally(() => { this._loadingFunctionalSuites = false; });
 	}
 
 	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
@@ -484,16 +462,6 @@ export default class Node extends Executor<Events, Config> {
 				this._setOption(name, parseValue(name, value, 'string'));
 				break;
 
-			case 'browserPlugins':
-			case 'nodePlugins':
-				this._setOption(name, parseValue(name, value, 'object[]', 'script'), addToExisting);
-				break;
-
-			case 'browserLoader':
-			case 'nodeLoader':
-				this._setOption(name, parseValue(name, value, 'object', 'script'));
-				break;
-
 			case 'functionalCoverage':
 			case 'leaveRemoteOpen':
 			case 'serveOnly':
@@ -502,9 +470,7 @@ export default class Node extends Executor<Events, Config> {
 				break;
 
 			case 'coverageSources':
-			case 'browserSuites':
 			case 'functionalSuites':
-			case 'nodeSuites':
 				this._setOption(name, parseValue(name, value, 'string[]'), addToExisting);
 				break;
 
@@ -555,12 +521,8 @@ export default class Node extends Executor<Events, Config> {
 				config[property] = expandFiles(config[property]);
 			});
 
-			// Filter any entries out of the browserSuites and nodeSuites lists that are already in suites
-			['browserSuites', 'nodeSuites'].forEach((property: keyof Config) => {
-				const suites = config.suites;
-				config[property] = expandFiles(config[property]).filter(file => {
-					return suites.indexOf(file) === -1;
-				});
+			['node', 'browser'].forEach((environment: keyof Config) => {
+				config[environment].suites = expandFiles(config[environment].suites);
 			});
 
 			// Install the instrumenter in resolve config so it will be able to handle suites
@@ -664,17 +626,6 @@ export default class Node extends Executor<Events, Config> {
 }
 
 export interface Config extends BaseConfig {
-	/** A loader used to load test suites and application modules in a remote browser. */
-	browserLoader: LoaderDescriptor;
-
-	browserPlugins: PluginDescriptor[];
-
-	/**
-	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that
-	 * will only be loaded in remote browsers.
-	 */
-	browserSuites: string[];
-
 	capabilities: {
 		name?: string;
 		build?: string;
@@ -699,22 +650,6 @@ export interface Config extends BaseConfig {
 
 	leaveRemoteOpen: boolean | 'fail';
 	maxConcurrency: number;
-
-	/**
-	 * A loader used to load test suites and application modules in a Node environment
-	 */
-	nodeLoader: LoaderDescriptor;
-
-	/**
-	 * Plugins that should only be loaded in a Node environment
-	 */
-	nodePlugins: PluginDescriptor[];
-
-	/**
-	 * A list of paths to unit tests suite scripts (or some other suite identifier usable by the suite loader) that
-	 * will only be loaded in Node environments.
-	 */
-	nodeSuites: string[];
 
 	serveOnly: boolean;
 	serverPort: number;

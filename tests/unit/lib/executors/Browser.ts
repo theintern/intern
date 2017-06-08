@@ -3,7 +3,6 @@ import _Browser, { Config } from 'src/lib/executors/Browser';
 import { spy } from 'sinon';
 
 import intern from '../../../../src/index';
-import { testProperty } from '../../../support/unit/executor';
 
 const { registerSuite } = intern().getPlugin('interface.object');
 const assert = intern().getPlugin('chai.assert');
@@ -121,35 +120,12 @@ registerSuite('lib/executors/Browser', function () {
 			},
 
 			'#configure': {
-				'known properties': (() => {
-					function test(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, message?: string) {
-						testProperty<_Browser, Config>(executor, mockConsole, name, badValue, goodValue, expectedValue, error, message);
-					}
-
-					return {
-						browserLoader() {
-							test('browserLoader', 5, { script: 'foo' }, { script: 'foo' }, /Non-object value/);
-							test('browserLoader', { loader: 'foo' }, { script: 'foo' }, { script: 'foo' }, /Invalid value/);
-						},
-
-						browserPlugins() {
-							test('browserPlugins', 5, 'foo', [ { script: 'foo' } ], /Non-object/);
-						},
-
-						browserSuites() {
-							test('browserSuites', 5, 'foo', ['foo'], /Non-string\[\]/);
-							test('browserSuites', 5, ['bar'], ['bar'], /Non-string\[\]/);
-							test(<any>'browserSuites+', 5, ['baz'], ['bar', 'baz'], /Non-string\[\]/, 'suite should have been added');
-						}
-					};
-				})(),
-
 				'suite globs'() {
 					executor.configure({ suites: ['**/*.js', 'bar.js'] });
-					return executor.run().then(() => {
-						assert.equal(mockConsole.warn.callCount, 1);
-						assert.match(mockConsole.warn.getCall(0).args[0], /Globs may not be used/);
-					});
+					return executor.run().then(
+						() => { throw new Error('run should have failed'); },
+						error => assert.match(error.message, /Globs may not be used/)
+					);
 				}
 			},
 
