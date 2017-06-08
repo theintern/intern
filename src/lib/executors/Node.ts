@@ -16,6 +16,7 @@ import Tunnel, { TunnelOptions, DownloadProgressEvent } from 'digdug/Tunnel';
 import Server from '../Server';
 import Suite, { isSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
+import { RuntimeEnvironment } from '../types';
 import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import { createInstrumenter, Instrumenter, readInitialCoverage } from 'istanbul-lib-instrument';
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
@@ -131,8 +132,8 @@ export default class Node extends Executor<Events, Config> {
 		return this._coverageMap;
 	}
 
-	get environment() {
-		return 'node' as 'node';
+	get environment(): RuntimeEnvironment {
+		return 'node';
 	}
 
 	get instrumentedMapStore() {
@@ -223,7 +224,6 @@ export default class Node extends Executor<Events, Config> {
 	protected _afterRun() {
 		return super._afterRun()
 			.finally(() => {
-				console.log('after run');
 				this._removeInstrumentationHooks();
 
 				const promises: Promise<any>[] = [];
@@ -277,15 +277,11 @@ export default class Node extends Executor<Events, Config> {
 					return serverTask.then(() => {
 						// In serveOnly mode we just start the server to static file serving and instrumentation. Return
 						// an unresolved Task to pause indefinitely until canceled.
-						const waitTask = new Task<void>(resolve => {
+						return new Task<boolean>(resolve => {
 							process.on('SIGINT', () => {
-								resolve();
+								resolve(true);
 							});
 						});
-
-						return waitTask
-							.then(() => this.server.stop())
-							.then(() => true);
 					});
 				}
 

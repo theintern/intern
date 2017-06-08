@@ -491,6 +491,9 @@ registerSuite('lib/executors/Node', function () {
 						tunnel: 'null',
 						suites: 'foo.js'
 					});
+					executor.on('beforeRun', dfd.rejectOnError(() => {
+						throw new Error('beforeRun should not have been emitted');
+					}));
 					executor.run().then(dfd.callback(() => {
 						assert.lengthOf(tunnels, 0, 'no tunnel should have been created');
 						assert.lengthOf(servers, 1, 'server should have been created');

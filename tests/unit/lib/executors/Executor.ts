@@ -199,6 +199,21 @@ registerSuite('lib/executors/Executor', function () {
 					assert.match(mockConsole.warn.getCall(0).args[0], /has unknown option "foo"/);
 				},
 
+				'environment config mixin'() {
+					executor.configure(<any>{ node: { suites: ['foo'], plugins: ['bar'] } });
+					assert.deepEqual<any>(executor.config.node, {
+						suites: ['foo'],
+						plugins: [{ script: 'bar' }],
+						reporters: []
+					}, 'values should have been set on node');
+					executor.configure(<any>{ node: { 'suites+': ['bif'], plugins: ['buf'], reporters: ['bof'] } });
+					assert.deepEqual<any>(executor.config.node, {
+						suites: ['foo', 'bif'],
+						plugins: [{ script: 'buf' }],
+						reporters: [{ name: 'bof' }]
+					}, 'values should have been mixed into node');
+				},
+
 				'known properties': (() => {
 					function test(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, message?: string) {
 						testProperty<_Executor, Config>(executor, mockConsole, name, badValue, goodValue, expectedValue, error, message);
@@ -262,9 +277,9 @@ registerSuite('lib/executors/Executor', function () {
 						},
 
 						'environment resources'() {
-							test('node', 5, {}, {}, /Non-object/);
-							test('browser', 5, {}, {}, /Non-object/);
-							test('node', 5, { suites: 'foo' }, { suites: ['foo'] }, /Non-object/);
+							test('node', 5, {}, { plugins: [], reporters: [], suites: [] }, /Non-object/);
+							test('browser', 5, {}, { plugins: [], reporters: [], suites: [] }, /Non-object/);
+							test('node', 5, { suites: 'foo' }, { plugins: [], reporters: [], suites: ['foo'] }, /Non-object/);
 						}
 					};
 				})()

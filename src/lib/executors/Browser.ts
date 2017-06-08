@@ -1,5 +1,6 @@
 import Executor, { Config, Events } from './Executor';
 import { normalizePathEnding } from '../common/util';
+import { RuntimeEnvironment } from '../types';
 import Task from '@dojo/core/async/Task';
 import global from '@dojo/core/global';
 
@@ -33,8 +34,8 @@ export default class Browser extends Executor<Events, Config> {
 		}
 	}
 
-	get environment() {
-		return 'browser' as 'browser';
+	get environment(): RuntimeEnvironment {
+		return 'browser';
 	}
 
 	/**

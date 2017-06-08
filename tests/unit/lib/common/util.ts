@@ -57,6 +57,13 @@ registerSuite('lib/common/util', {
 				() => { throw new Error('Missing child config should have errored'); },
 				error => { assert.match(error.message, /Unknown child config/); }
 			);
+		},
+
+		'child environment config'() {
+			return util.loadConfig('childEnvironment', loadText, undefined, 'child').then(config => {
+				assert.deepEqual(config.node, { suites: ['baz'], plugins: ['bar'] },
+					'child node config should have mixed into parent');
+			});
 		}
 	},
 
@@ -282,6 +289,25 @@ function loadText(path: string) {
 				extender: {
 					extends: 'child',
 					foo: 123
+				}
+			}
+		}));
+	}
+	if (path === 'childEnvironment') {
+		return Task.resolve(JSON.stringify({
+			node: {
+				suites: ['foo'],
+				plugins: ['bar']
+			},
+			baz: 'hello',
+			bar: 'bye',
+			foo: 222,
+			configs: {
+				child: {
+					bar: 345,
+					node: {
+						suites: ['baz']
+					}
 				}
 			}
 		}));

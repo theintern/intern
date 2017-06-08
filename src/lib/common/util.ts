@@ -69,7 +69,26 @@ function _loadConfig(configPath: string, loadText: TextLoader, args?: { [key: st
 					if (child.extends) {
 						mixinConfig(child.extends);
 					}
-					mixin(config, child);
+
+					// Mix the child into the current config. Properties other than the environment resource keys
+					// ('node' and 'browser') will replace values on the parent. The environment resource objects will
+					// be mixed into the corresponding objects on the parent.
+					Object.keys(child)
+						.filter(key => key !== 'node' && key !== 'browser')
+						.forEach(key => {
+							config[key] = child[key];
+						});
+
+					['node', 'browser'].forEach(key => {
+						if (child[key]) {
+							if (config[key]) {
+								mixin(config[key], child[key]);
+							}
+							else {
+								config[key] = child[key];
+							}
+						}
+					});
 				});
 			};
 

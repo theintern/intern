@@ -13,6 +13,7 @@ import { getInterface as getBenchmarkInterface, BenchmarkInterface } from '../in
 import { BenchmarkReporterOptions } from '../reporters/Benchmark';
 import Promise from '@dojo/shim/Promise';
 import { assert, expect, should } from 'chai';
+import { RuntimeEnvironment } from '../types';
 import global from '@dojo/core/global';
 
 const console: Console = global.console;
@@ -103,7 +104,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Get the current enviroment
 	 */
-	abstract get environment(): 'browser' | 'node';
+	abstract get environment(): RuntimeEnvironment;
 
 	/**
 	 * The resolved configuration for this executor.
@@ -158,12 +159,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	configure(config: Partial<C>) {
 		config = config || {};
 		Object.keys(config).forEach((key: keyof C) => {
-			const value = config[key];
-			const addToExisting = key[key.length - 1] === '+';
-			if (addToExisting) {
-				key = <keyof C>key.slice(0, key.length - 1);
-			}
-			this._processOption(key, value, addToExisting);
+			const { name, addToExisting } = this._evalProperty(key);
+			this._processOption(<keyof C>name, config[key], addToExisting);
 		});
 	}
 
@@ -475,6 +472,15 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
+	 * Evaluate a config property key
+	 */
+	protected _evalProperty(key: string) {
+		const addToExisting = key[key.length - 1] === '+';
+		const name = addToExisting ? <keyof C>key.slice(0, key.length - 1) : key;
+		return { name, addToExisting };
+	}
+
+	/**
 	 * Return a reporter constructor corresponding to the given name
 	 */
 	protected _getReporter(name: string): typeof Reporter {
@@ -620,26 +626,35 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 			case 'node':
 			case 'browser':
-				value = parseValue(name, value, 'object') || {};
-				Object.keys(value).forEach(key => {
-					switch (key) {
-						case 'loader':
-							value.loader = parseValue(name, value.loader, 'object', 'script');
-							break;
-						case 'plugins':
-							value.plugins = parseValue('plugins', value.plugins, 'object[]', 'script');
-							break;
-						case 'reporters':
-							value.reporters = parseValue('reporters', value.reporters, 'object[]', 'name');
-							break;
-						case 'suites':
-							value.suites = parseValue('suites', value.suites, 'string[]', 'name');
-							break;
-						default:
-							throw new Error(`Invalid property ${key} in ${name} config`);
-					}
-				});
-				this._setOption(name, value, false);
+				const envConfig: ResourceConfig = this.config[name];
+				const envName = name;
+				value = parseValue(name, value, 'object');
+				if (value) {
+					Object.keys(value).forEach((key: keyof ResourceConfig) => {
+						let resource = value[key];
+						const { name, addToExisting } = this._evalProperty(key);
+						switch (name) {
+							case 'loader':
+								resource = parseValue(name, resource, 'object', 'script');
+								this._setOption(name, resource, false, <C>envConfig);
+								break;
+							case 'plugins':
+								resource = parseValue('plugins', resource, 'object[]', 'script');
+								this._setOption(name, resource, addToExisting, <C>envConfig);
+								break;
+							case 'reporters':
+								resource = parseValue('reporters', resource, 'object[]', 'name');
+								this._setOption(name, resource, addToExisting, <C>envConfig);
+								break;
+							case 'suites':
+								resource = parseValue('suites', resource, 'string[]');
+								this._setOption(name, resource, addToExisting, <C>envConfig);
+								break;
+							default:
+								throw new Error(`Invalid property ${key} in ${envName} config`);
+						}
+					});
+				}
 				break;
 
 			default:
@@ -651,14 +666,16 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Set an option value.
 	 */
-	protected _setOption(name: keyof C, value: any, addToExisting = false) {
+	protected _setOption(name: keyof C, value: any, addToExisting = false, config?: C) {
+		config = config || this.config;
+
 		// addToExisting
 		if (addToExisting) {
-			const currentValue: any[] = this.config[name];
+			const currentValue: any[] = config[name];
 			currentValue.push(...value);
 		}
 		else {
-			this.config[name] = value;
+			config[name] = value;
 		}
 	}
 

@@ -9,3 +9,5 @@ export interface InternError {
 	expected?: any;
 	relatedTest?: Test;
 }
+
+export type RuntimeEnvironment = 'node' | 'browser';
