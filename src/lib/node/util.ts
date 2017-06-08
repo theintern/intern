@@ -4,6 +4,11 @@ import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
 import { RawSourceMap } from 'source-map';
 import Task from '@dojo/core/async/Task';
 import { sync as glob, hasMagic } from 'glob';
+import { mixin } from '@dojo/core/lang';
+import { parse } from 'shell-quote';
+import global from '@dojo/core/global';
+
+const process = global.process;
 
 /**
  * Expand a list of glob patterns into a flat file list
@@ -29,7 +34,15 @@ export function expandFiles(patterns?: string[] | string) {
  * Get the user-supplied config data, which may include command line args and a config file.
  */
 export function getConfig() {
-	const args = parseArgs(process.argv.slice(2));
+	let args: { [key: string]: any } = {};
+
+	if (process.env['INTERN_ARGS']) {
+		mixin(args, parseArgs(parse(process.env['INTERN_ARGS'])));
+	}
+
+	if (process.argv.length > 2) {
+		mixin(args, parseArgs(process.argv.slice(2)));
+	}
 
 	if (args.config) {
 		// If a config parameter was provided, load it and mix in any other command line args.

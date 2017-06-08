@@ -69,6 +69,13 @@ registerSuite('lib/node/util', function () {
 		calls[name].push(args);
 	};
 
+	const mockGlobal = {
+		process: {
+			argv: [ 'node', 'intern.js' ],
+			env: {}
+		}
+	};
+
 	let hasMagic: boolean;
 	let glob: ((pattern: string) => string[]) | undefined;
 	let calls: { [name: string]: any[] };
@@ -82,7 +89,8 @@ registerSuite('lib/node/util', function () {
 			return mockRequire(require, 'src/lib/node/util', {
 				'fs': mockFs,
 				'glob': mockGlob,
-				'src/lib/common/util': mockUtil
+				'src/lib/common/util': mockUtil,
+				'@dojo/core/global': { default: mockGlobal }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				util = handle.module;
@@ -100,6 +108,8 @@ registerSuite('lib/node/util', function () {
 			calls = {};
 			parsedArgs = {};
 			fsData = {};
+			mockGlobal.process.argv = [ 'node', 'intern.js' ];
+			mockGlobal.process.env = {};
 		},
 
 		tests: {
@@ -140,31 +150,28 @@ registerSuite('lib/node/util', function () {
 			getConfig: {
 				'default config': {
 					exists() {
-						parsedArgs.here = '1';
-						parsedArgs.there = 'bar';
 						const configData = { suites: ['bar.js'] };
 						fsData['intern.json'] = JSON.stringify(configData);
 
 						return util.getConfig().then(config => {
 							assert.notProperty(calls, 'splitConfigPath', 'splitConfigPath should not have been called');
 							assert.property(calls, 'loadConfig', 'loadConfig should have been called');
-							assert.property(calls, 'parseArgs', 'parseArgs should have been called');
+							assert.notProperty(calls, 'parseArgs', 'parseArgs should not have been called');
 							assert.equal(calls.loadConfig[0][0], 'intern.json');
-							assert.deepEqual(calls.loadConfig[0][2], { here: '1', there: 'bar' });
 							// Since we've overridden loadConfig, args shouldn't actually be mixed in
 							assert.deepEqual(config, configData);
 						});
 					},
 
 					'does not exist'() {
-						parsedArgs.here = '1';
-						parsedArgs.there = 'bar';
+						// Push an argument so parseArgs will be called
+						mockGlobal.process.argv.push('foo');
 
 						return util.getConfig().then(config => {
 							assert.notProperty(calls, 'splitConfigPath', 'splitConfigPath should not have been called');
 							assert.property(calls, 'loadConfig', 'loadConfig should have been called');
 							assert.equal(calls.loadConfig[0][0], 'intern.json');
-							assert.deepEqual(config, { here: '1', there: 'bar' });
+							assert.deepEqual(config, {});
 						});
 					},
 
@@ -179,6 +186,8 @@ registerSuite('lib/node/util', function () {
 				},
 
 				'custom config'() {
+					// Push a dummy arg to get Intern to call parseArgs
+					mockGlobal.process.argv.push('foo');
 					parsedArgs.config = 'foo.json';
 					fsData['foo.json'] = JSON.stringify({ stuff: 'happened' });
 
