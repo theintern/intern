@@ -93,8 +93,7 @@
 				"_build/src/loaders/**/*.js",
 				"_build/src/tasks/**/*.js"
 			],
-			"extends": [ "allSuites" ],
-			"reporters+": "htmlcoverage"
+			"extends": [ "allSuites" ]
 		},
 
 		/* For running local selenium tests */
