@@ -5,8 +5,11 @@ import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
 /**
  * Resolve the user-supplied config data, which may include query args and a config file.
  */
-export function getConfig() {
+export function getConfig(configFile?: string) {
 	const args = parseArgs(parseQuery());
+	if (configFile) {
+		args.config = configFile;
+	}
 
 	if (args.config) {
 		// If a config parameter was provided, load it, mix in any other query params, then initialize the executor with
@@ -72,6 +75,9 @@ export function parseQuery(query?: string) {
 		const name = decodeURIComponent(parts[0]);
 		if (parts[1]) {
 			return `${name}=${decodeURIComponent(parts[1])}`;
+		}
+		else if (parts.length > 1) {
+			return `${name}=`;
 		}
 		return name;
 	});

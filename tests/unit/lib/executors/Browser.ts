@@ -38,6 +38,7 @@ registerSuite('lib/executors/Browser', function () {
 
 	const mockGlobal = {
 		console: mockConsole,
+		location: { pathname: '/' },
 		'__coverage__': {},
 		addEventListener: spy(() => { }),
 		document: {

@@ -7,10 +7,6 @@ export interface TextLoader {
 	(path: string): Task<string>;
 }
 
-export interface LoadedConfig {
-
-}
-
 /**
  * Load config data from a given path, using a given text loader, and mixing args and/or a childConfig into the final
  * config value if provided.

@@ -510,9 +510,9 @@ registerSuite('lib/executors/Node', function () {
 				'benchmark mode'() {
 					executor.configure({ benchmark: true });
 					return executor.run().then(() => {
-						assert.lengthOf(executor.config.reporters, 2, 'unexpected number of reporters selected');
-						assert.propertyVal(executor.config.reporters[1], 'name', 'benchmark',
+						assert.propertyVal(executor.config.reporters[0], 'name', 'benchmark',
 							'expected benchmark reporter to be selected');
+						assert.lengthOf(executor.config.reporters, 1, 'should only have been 1 reporter selected');
 					});
 				},
 

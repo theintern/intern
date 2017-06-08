@@ -13,11 +13,16 @@ registerSuite('bin/intern', function () {
 		})
 	};
 
-	const mockCommonUtil: { [name: string]: SinonSpy } = {
-		getConfigDescription: spy(() => {
-			return 'foo';
-		})
+	const mockCommonUtil: { [name: string]: SinonStub } = {
+		getConfigDescription: stub().returns('foo')
 	};
+
+	class MockNode {
+		configure() {}
+		run() {
+			return Task.resolve();
+		}
+	}
 
 	let configData: any;
 	let logStub: SinonStub | undefined;
@@ -28,6 +33,7 @@ registerSuite('bin/intern', function () {
 		beforeEach() {
 			Object.keys(mockNodeUtil).forEach(key => mockNodeUtil[key].reset());
 			Object.keys(mockCommonUtil).forEach(key => mockCommonUtil[key].reset());
+			mockCommonUtil.getConfigDescription.returns('foo');
 			configData = {};
 		},
 
@@ -48,7 +54,7 @@ registerSuite('bin/intern', function () {
 		tests: {
 			'basic run'() {
 				return mockRequire(require, 'src/bin/intern', {
-					'src/lib/node/runner': { default: () => Task.resolve() },
+					'src/lib/executors/Node': { default: MockNode },
 					'src/lib/node/util': mockNodeUtil,
 					'src/lib/common/util': mockCommonUtil,
 					'src/index': { default: () => {} }
@@ -64,7 +70,7 @@ registerSuite('bin/intern', function () {
 				logStub = stub(console, 'log');
 
 				return mockRequire(require, 'src/bin/intern', {
-					'src/lib/node/runner': { default: () => Task.resolve() },
+					'src/lib/executors/Node': { default: MockNode },
 					'src/lib/node/util': mockNodeUtil,
 					'src/lib/common/util': mockCommonUtil,
 					'src/index': { default: () => {} }
@@ -79,17 +85,16 @@ registerSuite('bin/intern', function () {
 
 			'bad run': {
 				'intern defined'() {
-					const origExitCode = process.exitCode;
 					logStub = stub(console, 'error');
 
 					return mockRequire(require, 'src/bin/intern', {
-						'src/lib/node/runner': { default: () => Task.reject(new Error('fail')) },
+						'src/lib/executors/Node': { default: MockNode },
 						'src/lib/node/util': mockNodeUtil,
 						'src/lib/common/util': mockCommonUtil,
-						'src/index': { default: () => {} }
+						'src/index': { default: () => {} },
+						'@dojo/core/global': { default: { process: {} } }
 					}).then(handle => {
 						removeMocks = handle.remove;
-						process.exitCode = origExitCode;
 						assert.equal(logStub!.callCount, 0, 'expected error not to be called');
 					});
 				},
@@ -99,11 +104,15 @@ registerSuite('bin/intern', function () {
 						logStub = stub(console, 'error').callsFake(resolve);
 					});
 
+					configData = { showConfigs: true };
+					mockCommonUtil.getConfigDescription.throws();
+
 					return mockRequire(require, 'src/bin/intern', {
-						'src/lib/node/runner': { default: () => Task.reject(new Error('fail')) },
+						'src/lib/executors/Node': { default: MockNode },
 						'src/lib/node/util': mockNodeUtil,
 						'src/lib/common/util': mockCommonUtil,
-						'src/index': { default: () => {} }
+						'src/index': { default: () => {} },
+						'@dojo/core/global': { default: { process: { stdout: process.stdout } } }
 					}).then(handle => {
 						removeMocks = handle.remove;
 						return messageLogged;

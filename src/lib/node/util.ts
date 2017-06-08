@@ -33,7 +33,7 @@ export function expandFiles(patterns?: string[] | string) {
 /**
  * Get the user-supplied config data, which may include command line args and a config file.
  */
-export function getConfig() {
+export function getConfig(configFile?: string) {
 	let args: { [key: string]: any } = {};
 
 	if (process.env['INTERN_ARGS']) {
@@ -42,6 +42,10 @@ export function getConfig() {
 
 	if (process.argv.length > 2) {
 		mixin(args, parseArgs(process.argv.slice(2)));
+	}
+
+	if (configFile) {
+		args.config = configFile;
 	}
 
 	if (args.config) {

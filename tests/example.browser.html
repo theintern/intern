@@ -5,13 +5,23 @@
 	</head>
 
 	<body>
-		<script src="../browser/runner.js"></script>
+		<script src="/_tests/src/browser/intern.js"></script>
 		<script>
-			intern.configure({ reporters: [ 'console' ] });
+			intern.configure({
+				internPath: '/_tests/src',
+				reporters: 'console'
+			});
 		</script>
-		<script src="../../node_modules/dojo-loader/loader.js"></script>
+		<script src="/node_modules/@dojo/loader/loader.js"></script>
 		<script>
-			require([ './unit/all' ], function () {
+			require.config({
+				baseUrl: '/',
+				packages: [
+					{ name: 'src', location: '_build/src' },
+					{ name: 'tests', location: '_tests/tests' }
+				]
+			});
+			require([ 'tests/unit/lib/Environment' ], function () {
 				intern.run();
 			});
 		</script>

@@ -68,7 +68,7 @@ export default class Node extends Executor<Events, Config> {
 			functionalSuites: <string[]>[],
 			maxConcurrency: Infinity,
 			name: 'node',
-			reporters: [{ name: 'runner' }],
+			reporters: [],
 			runInSync: false,
 			serveOnly: false,
 			serverPort: 9000,

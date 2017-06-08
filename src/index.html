@@ -21,5 +21,32 @@
 	<body>
 		<!-- Load intern code in the body because Html reporter needs a DOM -->
 		<script src="browser/intern.js"></script>
+		<script src="browser/config.js"></script>
+		<script>
+		internConfig.getConfig()
+			.then(function (config) {
+				if (config.showConfigs) {
+					console.log(getConfigDescription(config));
+					return true;
+				}
+
+				// Add the HTML and console reporters to the default
+				intern.configure({ 'reporters+': ['html', 'console'] });
+				intern.configure(config);
+			})
+			.then(
+				function (skipTests) {
+					if (skipTests) {
+						return;
+					}
+
+					// Intern automatically reports run errors, so discard one if we get it
+					intern.run().catch(_error => {});
+				},
+				function (error) {
+					console.error('Error initializing Intern:', error);
+				}
+			);
+		</script>
 	</body>
 </html>

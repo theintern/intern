@@ -19,13 +19,24 @@ registerSuite('tasks/intern', function () {
 
 	const mockRun = stub();
 
+	class MockNode {
+		config: any;
+		run: Function;
+		constructor(config: any) {
+			executors.push(this);
+			this.config = config;
+			this.run = mockRun;
+		}
+	}
+
 	let gruntTask: typeof _gruntTask;
+	let executors: MockNode[];
 	let removeMocks: () => void;
 
 	return {
 		before() {
 			return mockRequire(require, 'src/tasks/intern', {
-				'src/lib/node/runner': { default: mockRun }
+				'src/lib/executors/Node': { default: MockNode }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				gruntTask = handle.module;
@@ -41,6 +52,7 @@ registerSuite('tasks/intern', function () {
 			mockRun.reset();
 			mockRun.resolves();
 			mockDone.reset();
+			executors = [];
 		},
 
 		tests: {
@@ -55,8 +67,9 @@ registerSuite('tasks/intern', function () {
 				gruntTask(<any>mockGrunt);
 				const callback = mockGrunt.registerMultiTask.getCall(0).args[1];
 				callback.call(mockGrunt);
+				assert.lengthOf(executors, 1, '1 executor should have been created');
 				assert.equal(mockRun.callCount, 1, 'intern should have been run');
-				assert.deepEqual(mockRun.getCall(0).args[0], { foo: 'bar' });
+				assert.deepEqual(executors[0].config, { foo: 'bar' });
 				setTimeout(dfd.callback(() => {
 					assert.equal(mockDone.callCount, 1);
 					// First arg is an error, so it should be undefined here
@@ -71,8 +84,9 @@ registerSuite('tasks/intern', function () {
 				const error = new Error('bad');
 				mockRun.rejects(error);
 				callback.call(mockGrunt);
+				assert.lengthOf(executors, 1, '1 executor should have been created');
 				assert.equal(mockRun.callCount, 1, 'intern should have been run');
-				assert.deepEqual(mockRun.getCall(0).args[0], { foo: 'bar' });
+				assert.deepEqual(executors[0].config, { foo: 'bar' });
 				setTimeout(dfd.callback(() => {
 					assert.equal(mockDone.callCount, 1);
 					assert.equal(mockDone.getCall(0).args[0], error);

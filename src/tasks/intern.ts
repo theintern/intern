@@ -1,4 +1,4 @@
-import runner from '../lib/node/runner';
+import Node from '../../src/lib/executors/Node';
 import { Config } from '../lib/executors/Executor';
 import global from '@dojo/core/global';
 
@@ -14,7 +14,8 @@ export = function (grunt: IGrunt) {
 		// Force colored output for istanbul report
 		process.env.FORCE_COLOR = true;
 
-		runner(config).then(finish, finish);
+		const intern = global.intern = new Node(config);
+		intern.run().then(finish, finish);
 
 		function finish(error?: any) {
 			// Remove the global intern object when we're done; this will allow Intern to be run again in the same

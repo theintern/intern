@@ -12,6 +12,7 @@ export default class Browser extends Executor<Events, Config> {
 	constructor(config?: Partial<Config>) {
 		super(<Config>{
 			basePath: '/',
+			internPath: global.location.pathname
 		});
 
 		// Report uncaught errors
