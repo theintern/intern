@@ -205,7 +205,7 @@ registerSuite('lib/executors/Node', function () {
 				'src/lib/reporters/Simple': { default: MockReporter },
 				'src/lib/reporters/JsonCoverage': { default: MockReporter },
 				'src/lib/reporters/HtmlCoverage': { default: MockReporter },
-				'src/lib/reporters/LcovCoverage': { default: MockReporter },
+				'src/lib/reporters/Lcov': { default: MockReporter },
 				'src/lib/reporters/Benchmark': { default: MockReporter },
 				'istanbul-lib-coverage': {
 					createCoverageMap() {
@@ -280,7 +280,7 @@ registerSuite('lib/executors/Node', function () {
 							'benchmark',
 							'jsoncoverage',
 							'htmlcoverage',
-							'lcovcoverage'
+							'lcov'
 						]
 					});
 					return executor.run().then(() => {

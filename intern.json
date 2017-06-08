@@ -36,7 +36,7 @@
 		"_tests/tests/unit/lib/reporters/HtmlCoverage.js",
 		"_tests/tests/unit/lib/reporters/JsonCoverage.js",
 		"_tests/tests/unit/lib/reporters/JUnit.js",
-		"_tests/tests/unit/lib/reporters/LcovCoverage.js",
+		"_tests/tests/unit/lib/reporters/Lcov.js",
 		"_tests/tests/unit/lib/reporters/Reporter.js",
 		"_tests/tests/unit/tasks/intern.js"
 	],

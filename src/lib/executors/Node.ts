@@ -38,7 +38,7 @@ import JUnit from '../reporters/JUnit';
 import Cobertura from '../reporters/Cobertura';
 import JsonCoverage from '../reporters/JsonCoverage';
 import HtmlCoverage from '../reporters/HtmlCoverage';
-import LcovCoverage from '../reporters/LcovCoverage';
+import Lcov from '../reporters/Lcov';
 import Benchmark from '../reporters/Benchmark';
 
 const console: Console = global.console;
@@ -94,7 +94,7 @@ export default class Node extends Executor<Events, Config> {
 		this.registerReporter('junit', JUnit);
 		this.registerReporter('jsoncoverage', JsonCoverage);
 		this.registerReporter('htmlcoverage', HtmlCoverage);
-		this.registerReporter('lcovcoverage', LcovCoverage);
+		this.registerReporter('lcov', Lcov);
 		this.registerReporter('cobertura', Cobertura);
 
 		this.registerTunnel('null', NullTunnel);
