@@ -50,7 +50,7 @@
     "release": "intern-dev-release",
     "test": "NODE_PATH=_build node _tests/src/bin/intern.js",
     "preci": "intern-dev-build",
-    "ci": "NODE_PATH=_build node _tests/tests/selftest.js",
+    "ci": "npm test config=@ci",
     "watch": "intern-dev-build watch"
   },
   "dependencies": {

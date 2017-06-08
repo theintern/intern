@@ -375,7 +375,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 												})
 												.finally(() => this.emit('runEnd'));
 										})
-										.finally(() => this._afterRun())
 										.finally(() => this.emit('afterRun'))
 										.then(resolve, reject);
 								},
@@ -390,6 +389,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 							);
 							return currentTask;
 						})
+						.finally(() => this._afterRun())
 						.finally(() => {
 							if (currentTask && currentTask.state === State.Pending) {
 								currentTask.cancel();

@@ -221,22 +221,24 @@ export default class Node extends Executor<Events, Config> {
 	}
 
 	protected _afterRun() {
-		return super._afterRun().finally(() => {
-			this._removeInstrumentationHooks();
+		return super._afterRun()
+			.finally(() => {
+				console.log('after run');
+				this._removeInstrumentationHooks();
 
-			const promises: Promise<any>[] = [];
-			if (this.server) {
-				promises.push(this.server.stop().then(() => this.emit('serverEnd', this.server)));
-			}
-			if (this.tunnel) {
-				promises.push(this.tunnel.stop().then(() => this.emit('tunnelStop', { tunnel: this.tunnel })));
-			}
-			// We do not want to actually return an array of values, so chain a callback that resolves to undefined
-			return Promise.all(promises).then(
-				() => { },
-				error => this.emit('error', error)
-			);
-		});
+				const promises: Promise<any>[] = [];
+				if (this.server) {
+					promises.push(this.server.stop().then(() => this.emit('serverEnd', this.server)));
+				}
+				if (this.tunnel) {
+					promises.push(this.tunnel.stop().then(() => this.emit('tunnelStop', { tunnel: this.tunnel })));
+				}
+				// We do not want to actually return an array of values, so chain a callback that resolves to undefined
+				return Promise.all(promises).then(
+					() => { },
+					error => this.emit('error', error)
+				);
+			});
 	}
 
 	protected _beforeRun() {
