@@ -99,7 +99,7 @@ export default class Runner extends Coverage implements RunnerProperties {
 	@eventHandler()
 	log(message: string) {
 		message.split('\n').forEach(line => {
-			console.log(`DEBUG: ${line}`);
+			this.console.log(`DEBUG: ${line}`);
 		});
 	}
 

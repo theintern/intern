@@ -3,7 +3,6 @@ import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
 import { create, ReportType } from 'istanbul-reports';
 import Node, { Events } from '../executors/Node';
-import { mixin } from '@dojo/core/lang';
 export { ReportType };
 
 const eventHandler = createEventHandler<Events>();
@@ -16,7 +15,8 @@ export default abstract class Coverage<V extends CoverageOptions = CoverageOptio
 	watermarks: Watermarks;
 
 	constructor(executor: Node, options: V = <V>{}) {
-		super(executor, mixin({}, options));
+		super(executor, options);
+
 		if (options.filename) {
 			this.filename = options.filename;
 		}
