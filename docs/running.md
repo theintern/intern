@@ -1,18 +1,29 @@
 # Running Intern
 
-There are several ways to run Intern:
-
-* [Node runner](#node-runner)
-* [Browser runner](#browser-runner)
+<!-- vim-markdown-toc GFM -->
+* [Node Runner](#node-runner)
+* [Browser Runner](#browser-runner)
 * [Grunt](#grunt)
-* [Custom node script](#custom-node-script)
-* [Custom HTML page](#custom-html-page)
+* [Custom Node Script](#custom-node-script)
+* [Custom HTML Page](#custom-html-page)
+
+<!-- vim-markdown-toc -->
 
 ## Node Runner
 
 The node runner is a built in script for running Node-based unit tests and WebDriver tests. Usage can be very simple:
 
     $ node_modules/.bin/intern
+
+Of course, it can be called from a `package.json` file even more simply:
+
+```js
+{
+    "scripts": {
+        "test": "intern"
+    }
+}
+```
 
 By default, the runner looks for an `intern.json` config file in the project root. This can be changed by providing a
 `config` property on the command line, like `config=tests/myconfig.json`. The runner will also accept any other config
@@ -24,7 +35,7 @@ would only load the suite in `tests/foo.js`, and would only run tests containing
 
 ## Browser Runner
 
-The browser runner is a built in HTML page for running browser-based unit tests. To use, serve the project root
+The browser runner is a built-in HTML page for running browser-based unit tests. To use it, serve the project root
 directory using a static webserver and browse to (assuming the server is running on port 8080):
 
     http://localhost:8080/node_modules/intern/
@@ -38,7 +49,7 @@ Note that the browser runner can only be used to run unit tests, not functional 
 
 ## Grunt
 
-Intern includes a Grunt task that can be easily loaded with
+Intern includes a Grunt task that can be loaded with
 
 ```js
 grunt.loadNpmTasks('intern');
@@ -50,7 +61,7 @@ following `intern.json` file:
 ```js
 {
   "suites": "tests/unit/**/*.js",
-  "preload": "tests/pre.js",
+  "plugins": "tests/pre.js",
   "loader": {
     "script": "dojo",
     "config": {
@@ -89,11 +100,9 @@ module.exports = function (grunt) {
 
 Intern may also be configured and run with a custom script. The basic steps this script must perform are:
 
-1. Load the Node or WebDriver executor module and any reporters that will be used
-2. Initialize the executor by calling `<Executor>.initialize`. Configuration information may be passed at this step.
-3. Register any reporter classes with `intern.registerReporter`
-4. Load suites
-5. Call `intern.run()`
+1. Load the Node executor
+2. Construct a new instance of Node and assign it to the `intern` global.
+3. Call `intern.run()`
 
 ## Custom HTML Page
 
@@ -102,5 +111,4 @@ Intern may be configured and run in a browser with a custom HTML page. The basic
 1. Load the Browser executor (`<script src="node_modules/intern/browser/intern.js"></script>`). The `intern.js` script
    will automatically initialize a Browser executor.
 2. Configure the executor
-3. Load suites
-4. Call `intern.run()`
+3. Call `intern.run()`

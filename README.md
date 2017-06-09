@@ -46,7 +46,6 @@ Note that these instructions are for Intern 4 alpha. For Intern 3 instructions, 
 ## More information
 
 * [How To](docs/how_to.md) - quick answers to common questions
-* [Get Help](docs/help.md) - where to go for if you still have questions
 * [Concepts](docs/concepts.md) - testing concepts and definitions
 * [Configuration](docs/configuration.md) - how to configure Intern
 * [Running](docs/running.md) - how to run Intern
@@ -61,7 +60,8 @@ See [The Intern Guide](https://theintern.github.io/intern) for more information 
 
 The best place to ask questions and get answers about Intern is Stack Overflow. Just tag your question with `intern`.
 If you have more immediate questions, or just want to chat with other people interested in Intern, there’s an `#intern`
-IRC channel on freenode, and a Gitter room at [theintern/intern](https://gitter.im/theintern/intern).
+IRC channel on freenode, and a Gitter room at [theintern/intern](https://gitter.im/theintern/intern). See the
+[Help](docs/help.md) page for more information.
 
 ## License
 

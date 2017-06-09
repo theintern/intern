@@ -1,18 +1,43 @@
 # Configuration
 
-* [Configuring Intern](#configuring-intern)
-* [Displaying Config Information](#displaying-config-information)
+<!-- vim-markdown-toc GFM -->
+* [Config structure](#config-structure)
+* [Configuration resolution](#configuration-resolution)
+* [Sources of configuration information](#sources-of-configuration-information)
+    * [Config File](#config-file)
+    * [Environment variable](#environment-variable)
+    * [Command line](#command-line)
+    * [Query args](#query-args)
+    * [Programmatically](#programmatically)
+* [Displaying config information](#displaying-config-information)
 * [Properties](#properties)
+    * [`bail`](#bail)
+    * [`coverageSources`](#coveragesources)
+    * [`environments`](#environments)
+    * [`excludeInstrumentation`](#excludeinstrumentation)
+    * [`functionalSuites`](#functionalsuites)
+    * [`grep`](#grep)
+    * [`leaveRemoteOpen`](#leaveremoteopen)
+    * [`loader`](#loader)
+    * [`suites`](#suites)
+    * [`tunnel`](#tunnel)
+
+<!-- vim-markdown-toc -->
 
 Intern (specifically the running Intern [executor](architecture.md#executors)) is configured with a standard JavaScript
-object. Config properties may be set via a file, the command line, browser query args, or an environment variable. All
-of these methods use the same basic syntax and provide the same capbilities.
+object. This object may contain properties applicable to either environment that Intern can run in (Node or browser).
 
-Wherever config property values come from, the executor will validate and normalize them into a canonical format when
-the testing process starts. This means that the property values on the `config` property on the executor don’t have to
-be input in the canonical format. For example, several properties such as `suites` and `environments` may be specified
-as a single string for convenience, but they will always be normalized to a canonical format on the executor config
-object. For example, `environments=chrome` will end up as
+Config properties may be set via a file, the command line, browser query args, or an environment variable. All
+of these methods use the same basic syntax and provide the same capbilities. Wherever config property values come from,
+the executor will validate and normalize them into a canonical format ("resolve" them) when the testing process starts.
+This allows the executor’s constructor or `configure` method can be flexible in the data it accepts. For example,
+several properties such as `suites` and `environments` may be specified as a single string for convenience, but they
+will always be normalized to a canonical format on the executor config object:
+
+```js
+{ environments: 'chrome' }
+```
+will end up as
 
 ```js
 environments: [ { browserName: 'chrome' } ]
@@ -20,9 +45,116 @@ environments: [ { browserName: 'chrome' } ]
 
 on the executor’s config object.
 
-## Configuring Intern
+## Config structure
 
-There are several ways to configure Intern. In order of increasing precedence, they are:
+The config structure is a simple JSON object. All property values must be serializable (RegExp objects are serialized to
+strings).
+
+```js
+{
+    // General properties
+    "bail": false,
+    "baseline": false,
+    "suites": [ "tests/unit/*.js" ],
+
+    // Browser and node specific resources
+    "browser": {
+        "suites": [ "tests/unit/dom_stuff.js" ]
+    },
+    "node": {
+        "suites": [ "tests/unit/dom_stuff.js" ]
+    },
+
+    "configs": {
+        // Child configs have the same structure as the main config
+        "ci": {
+            "bail": true,
+            "suites+": [ "tests/unit/other.js" ]
+        }
+    }
+}
+```
+
+There are two main classes of property:
+
+* **Resources**: "loader", "plugins", "reporters", "suites"
+* **Everything else**
+
+There are three general sections to a config:
+
+* **General properties**: this includes everything but "browser", "configs", and "node"
+* **Environment-specific resources**: resource properties ("loader", "plugins", "reporters", "suites") in the "browser"
+  and "node" objects.
+* **Child configs**: named configs in the "configs" object; each of these can have any config properties but "configs"
+
+## Configuration resolution
+
+At runtime, Intern will mix together properties from a config file, child configs within the file, an environment variable, and command line or query args into a resolved configuration. In general, properties from higher precedence sources (command line args vs config file) will simply override properties from lower precedence sources, but there are a few exceptions:
+
+1. **Resource arrays in "node" or "browser" ("plugins", "reporters", "suites"), are added to the corresponding resource
+   arrays in the base config.** For example, if the base config has:
+   ```js
+   "suites": [ "tests/unit/foo.js" ]
+   ```
+   and the "node" section has:
+   ```js
+   "suites": [ "tests/unit/bar.js" ]
+   ```
+   both sets of suites will be loaded when running on Node.
+3. **Properties in a child config other than "node" and "browser" are shallowly mixed into the base config.** For
+   example, if the base config has:
+   ```js
+   "suites": [ "tests/unit/foo.js" ]
+   ```
+   and a child config has:
+   ```js
+   "suites": [ "tests/unit/bar.js" ]
+   ```
+   the resolved value of suites will be
+   ```js
+   // The value from the child overrides the parent value
+   "suites": [ "tests/unit/bar.js" ]
+   ```
+2. **Resource arrays outside of "node" or "browser" can be extended (rather than replaced) by adding a '+' to the
+   property name.** For example, if the base config has:
+   ```js
+   "suites": [ "tests/unit/foo.js" ]
+   ```
+   and a child config has:
+   ```js
+   "suites+": [ "tests/unit/bar.js" ]
+   ```
+   the resolved value of suites will be:
+   ```js
+   "suites": [ "tests/unit/foo.js", "tests/unit/bar.js" ]
+   ```
+4. **The "node" and "browser" properties in a child config are shallowly mixed into "node" and "browser" in the base
+   config.** For example, if "node" in the base config looks like:
+   ```js
+   "node": {
+       "suites": [ "tests/unit/foo.js" ],
+       "plugins": [ "tests/plugins/bar.js" ]
+   }
+   ```
+   and "node" in a child config looks like:
+   ```js
+   "node": {
+       "suites": [ "tests/unit/baz.js" ],
+   }
+   ```
+   then the value of node in the resolved config (assuming the child config is active) will be:
+   ```js
+   "node": {
+       // node.suites from the child overrides node.suites from the base config
+       "suites": [ "tests/unit/baz.js" ],
+       // node.plugins from the base config remains
+       "plugins": [ "tests/plugins/bar.js" ]
+   }
+   ```
+
+## Sources of configuration information
+
+Intern takes in configuration data from several sources. In order of increasing precedence, they are:
 
   1. [Config file](#config-file)
   2. [Environment variable](#environment-variable)
@@ -148,17 +280,21 @@ All of the available configuration properties are listed in the table below.
 | `benchmark` | all | When true, run benchmark tests (if loaded) |
 | `browser` | browser | Resources (loader, plugins, reporters, suites) that only apply to browser tests |
 | `capabilities` | node | Default capabilities to be used for WebDriver sessions |
+| `connectTimeout` | node | When running WebDriver tests, how long (in ms) to wait for a remote browser to connect |
+| [`coverageSources`](#coveragesources) | node | An array of paths or globs that should be included in coverage reports |
 | `debug` | all | If true, display runtime messages to the console |
 | `defaultTimeout` | all | The time, in ms, to wait for an async test to finish |
 | `description` | all | Short string describing a test config |
 | [`environments`](#environments) | node | Browser + OS combinations to be tested using WebDriver |
-| `excludeInstrumentation` | all | Regular expression used to filter which files are instrumented for code coverage |
+| [`excludeInstrumentation`](#excludeinstrumentation) | all | Regular expression used to filter which files are instrumented for code coverage |
+| `extends` | config | Indicates that the current config extends a config file |
 | `filterErrorStack` | all | If true, filter non-application code lines out of stack traces |
 | `functionalCoverage` | node | If true, include coverage statistics generated by functional tests |
 | [`functionalSuites`](#suites-nodesuites-browsersuites-functionalsuites) | node | Suites to run using WebDriver |
 | [`grep`](#grep) | all | Regular expression used to filter which suites and tests are run |
 | `instrumenterOptions` | node | Options to pass to the code coverage instrumenter (Istanbul) |
 | `internPath` | all | Relative path from project root to the Intern package |
+| [`leaveRemoteOpen`](#leaveremoteopen) | node | If true, leave remote browsers open after testing has finished |
 | [`loader`](#loader) | all | An optinal loader script and options |
 | `maxConcurrency` | node | When running WebDriver tests, how may sessions to run at once |
 | `name` | all | A name for a test run for use by reporters |
@@ -177,12 +313,32 @@ All of the available configuration properties are listed in the table below.
 | [`tunnel`](#tunnel) | node | The name of a tunnel class to use for WebDriver tests |
 | [`tunnelOptions`](#tunnelOptions) | node | Options to use for the WebDriver tunnel |
 
+There are also several properties that are handled by the config system by aren’t actually config properties:
+
+| Property | Description |
+| :--------| :---------- |
+| `description` | Short string describing a test config |
+| `extends` | Indicates that the current config extends a config file |
+| `showConfig` | When true, show the resolved configuration and exit |
+| `showConfigs` | When true, show information about the currently loaded config file |
+
+These properties are used to affect the configuration process or to display information about Intern’s configuration.
+
 ### `bail`
 
 **Default**: `false`
 
 By default, Intern will run all configured tests. Setting the `bail` option to `true` will cause Intern to stop running
 tests after the first failure.
+
+### `coverageSources`
+
+**Default**: `[]`
+
+This property specifies an array of file paths or globs that should be included in coverage reports. Coverage data will
+automatically be gathered for all files loaded by Intern tests. Setting `coverageSources` will let Intern report on
+application files, even ones that weren’t loaded for tests. This allows a test writer to see which files _haven’t_ been
+tested, as well as coverage on files that were tested.
 
 ### `environments`
 
@@ -205,9 +361,18 @@ Labs](https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestCon
 or [BrowserStack](https://www.browserstack.com/automate/capabilities), browser names and other properties may have
 different acceptable values (e.g., ‘googlechrome’ instead of ‘chrome’, or ‘MacOS’ vs ‘OSX’).
 
+### `excludeInstrumentation`
+
+**Default**: `/(?:node_modules|browser|tests)\//`
+
+This property may be assigned a regular expression or the value `true`. If assigned a regular expression, every module
+loaded by Intern, or served by its testing server, is tested against the expression. Files that match are not
+[instrumented](concepts.md#code-coverage), while files that do not match are instrumented. If `excludeInstrumentation`
+is set to `true`, code coverage support is disabled entirely.
+
 ### `functionalSuites`
 
-**Default**: []
+**Default**: `[]`
 
 Functional suites are files that register [WebDriver tests](writing_tests.md). Suites may be specified as a string path,
 a glob expression, or an array of strings and/or globs.
@@ -218,6 +383,15 @@ a glob expression, or an array of strings and/or globs.
 
 The `grep` property is used to filter which tests are run. Grep operates on test IDs. A test ID is the concatenation of
 a test name with all of its parent suite names.
+
+### `leaveRemoteOpen`
+
+**Default**: `false`
+
+Normally when Intern runs tests on remote browsers, it shuts them down when testing is finished. However, you may
+sometimes want to inspect the state of a remote browser after tests have run, particularly if you're trying to debug why
+a test is failing. Setting `leaveRemoteOpen` to true will cause Intern to leave the browser open after testing. Setting
+it to `'fail'` will cause Intern to leave it open only if there were test failures.
 
 ### `loader`
 
@@ -233,17 +407,19 @@ loader: 'tests/loader.js'
 loader: { script: 'dojo', options: { packages: [ { name: 'app', location: './js' } ] } }
 ```
 
-### `suites`, `functionalSuites`
+### `suites`
 
-**Default**: []
+**Default**: `[]`
 
 Suites are files that register unit tests. Suites may be specified as a string path, a glob expression, or an array of
 strings and/or globs.
 
 ### `tunnel`
 
+**Defautl**: `'selenium'`
+
 The `tunnel` property specifies which Dig Dug tunnel class to use for WebDriver testing. There are several built in
-tunnel types, and others can be added through the Node executor’s [`registerTunnel`
+tunnel types, and others can be added through the Node executor’s [`registerPlugin`
 method](./architecture.md#extension-points).
 
 The built in tunnel classes are:

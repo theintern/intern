@@ -9,6 +9,13 @@ to configure Intern and start tests.
 <!DOCTYPE html>
 	<head>
 		<script src="node_modules/intern/browser/intern.js"></script>
+        <script>
+            intern.config({ suites: [
+                'tests/unit/a.js',
+                'tests/unit/b.js'
+            ]});
+            intern.run();
+        </script>
 	</head>
 	<body>
 	</body>

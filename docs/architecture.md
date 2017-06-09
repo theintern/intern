@@ -1,25 +1,25 @@
 # Architecture
 
+<!-- vim-markdown-toc GFM -->
+* [Components](#components)
+    * [Executors](#executors)
+    * [Runners](#runners)
+    * [Loader](#loader)
+    * [Plugins](#plugins)
+    * [Interfaces](#interfaces)
+    * [Reporters](#reporters)
+
+<!-- vim-markdown-toc -->
+
 ## Components
-
-Intern has several major components:
-
-* [Executors](#executors)
-* [Runners](#runners)
-* [Loaders](#loaders)
-* [Preload scripts](#preload-scripts)
-* [Interfaces](#interfaces)
-* [Assertions](#assertions)
-* [Reporters](#reporters)
 
 ### Executors
 
 Executors are the core of Intern. They manage the testing process, including emitting events for test lifecycle events.
-There are three main executors, each tailored to a particular runtime environment:
+There are two executors:
 
-* **Node**: Runs unit tests in Node
+* **Node**: Runs unit tests in Node and WebDriver tests against remote browsers
 * **Browser**: Runs unit tests in a browser
-* **WebDriver**: Runs functional tests in Node, and runs unit tests in remote browsers
 
 In typical usage a user will not directly load an executor. Instead, a runner script will load the executor and any
 configuration data provided by the user, configure the executor, and start the testing process.
@@ -32,48 +32,99 @@ sufficient in many/most cases. More information about runners is available in [R
 
 ### Loader
 
-A loader is an optional script that is used by Intern’s runner scripts to set up the environment for testing, including
-configuring a module loader (if necessary) and loading suites. Only a single loader script may be specified.
+A loader is an optional script that is used by Intern’s runner scripts to load and configure a module loader. Only a single loader script may be specified per environment (Node or browser). The script should load and setup and loader, and return a function that can be used to load modules.
 
-Loaders can be very simple; the only requirement is that the loader itself be a standalone script, not a module. For
-example, the built-in ‘dojo’ loader script looks like the following:
+Loader scripts will generally be very simple; the main requirement is that the script is standalone (i.e., not a module
+itself). For example, the built-in ‘dojo’ loader script looks like the following:
 
 ```ts
-intern.registerLoader(config => {
-	const loaderConfig: any = config.loader.config || {};
-	loaderConfig.baseUrl = loaderConfig.baseUrl || config.basePath;
-	if (!('async' in loaderConfig)) {
-		loaderConfig.async = true;
-	}
+intern.registerLoader(options => {
+    const globalObj: any = typeof window !== 'undefined' ? window : global;
 
-	const globalObj: any = typeof window !== 'undefined' ? window : global;
-	globalObj.dojoConfig = loaderConfig;
+    options.baseUrl = options.baseUrl || intern.config.basePath;
+    if (!('async' in options)) {
+        options.async = true;
+    }
 
-	return intern.loadScript('node_modules/dojo/dojo.js').then(() => {
-		const loader = globalObj.require;
-		const dfd = intern.createDeferred<void>();
-		loader(config.suites, () => { dfd.resolve(); });
-		return dfd.promise;
-	});
+    // Setup the loader config
+    globalObj.dojoConfig = loaderConfig;
+
+    // Load the loader using intern.loadScript, which loads simple scripts via injection
+    return intern.loadScript('node_modules/dojo/dojo.js').then(() => {
+        const require = globalObj.require;
+
+        // Return a function that can be used to load modules with the loader
+        return (modules: string[]) => {
+            let handle: { remove(): void };
+
+            return new Promise<void>((resolve, reject) => {
+                handle = require.on('error', (error: Error) => {
+                    intern.emit('error', error);
+                    reject(new Error(`Dojo loader error: ${error.message}`));
+                });
+
+                // The module loader function doesn't return modules, it just loads them
+                require(modules, () => { resolve(); });
+            }).then(
+                () => { handle.remove(); },
+                error => {
+                    handle && handle.remove();
+                    throw error;
+                }
+            );
+        };
+    });
 });
 ```
 
 If a loader isn’t specified, ‘default’ will be used. This loader uses an environment-specific default method for loading
-suites in a provided suites list. This means `require` in a Node environment, or script injection in the browser. If a
-user creates a fully custom runner script, a loader script will not be required.
+suites in a provided suites list. This means `require` in a Node environment, or script injection in the browser.
 
-### Preload Scripts
+### Plugins
 
-Preload scripts are simple scripts that are loaded before suites. These are a good place to load global scripts required
-for browser tests, or to register `beforeRun` or `afterRun` event handlers.
+Plugins are scripts that are loaded after the loader, but before suites. These are a good place to load global scripts
+required for browser tests, or to register `beforeRun` or `afterRun` event handlers.
 
 ```ts
-// tests/pre.js
-if (intern.environmentType === 'browser') {
+// tests/plugin.js
+intern.registerPlugin('foo', function () {
     intern.on('beforeRun', function () {
-	    // ...
+        // ...
     });
-}
+});
+```
+
+Plugins can register resources for use in tests with the `registerPlugin` method. Intern will resolve and store the
+return value of `registerPlugin`; tests can retrieve it by calling `intern.getPlugin('foo')`.
+
+The `registerPlugin` method can also be used simply for asynchronous initialization. If a Promise is returned, Intern
+will wait for it to rseolve before proceeding.
+
+When loading a plugin via a configuration property (e.g., `"plugins"` in a config file) without a module loader, the
+call to `registerPlugin` must be made synchronously. In other words, a plugin generally shouldn’t do this:
+
+```ts
+// tests/plugin.js
+System.import('some_module').then(function (module) {
+    intern.registerPlugin('foo', function () {
+        return module;
+    });
+});
+```
+
+Instead, do this:
+
+```ts
+// tests/plugin.js
+intern.registerPlugin('foo', function () {
+    return System.import('some_module');
+});
+```
+
+Plugins can be accessed in suites or other user code using the `getPlugin` method.
+
+```ts
+const { registerSuite } = intern.getPlugin('interface.object');
 ```
 
 ### Interfaces
@@ -81,45 +132,45 @@ if (intern.environmentType === 'browser') {
 An interface is a particular style of suite and test declaration. Intern comes with several built-in interfaces. For
 more information, see the [Interfaces](./writing_tests.md#interfaces) section in [Writing Tests](writing_tests.md).
 
+Assuming a module loader is being used, interfaces can be loaded just like any other module:
+
 ```ts
-const { registerSuite } = intern.getInterface('object');
+const { registerSuite } = require('intern/lib/interfaces/object');
 registerSuite({
     // ...
 });
 ```
 
-### Assertions
-
-An assertion is simply a check that throws an error if the check fails. This means that no special library is required
-to make assertions. However, assertion libraries can make tests easier to understand, and can automatically generate
-meaningful failure messages. To that end, Intern includes the Chai assertion library, and exposes its 3 interface
-(“assert”, “expect”, and “should”) using the `getInterface` method.
+In situations where a module loader isn’t present, Intern also makes registered interfaces available through its plugin
+system:
 
 ```ts
-const assert = intern.getInterface('assert');
-assert.lengthOf(someArray, 2);
+const { registerSuite } = intern.getPlugin('interface.object');
+registerSuite({
+    // ...
+});
 ```
 
 ### Reporters
 
 Reporters are how Intern displays or outputs test results and coverage information. Since Intern is an event emitter,
-anything that registers for Intern events can be a “reporter”. Classes that inherit from Reporter gain a few
-conveniences. Reporter also exports a decorator that handles some of the event registration boilerplate.
+anything that registers for Intern events can be a “reporter”.
 
-## Extension points
-
-Several components can be extended by registering new implementations:
-
-* Reporters
-* Interfaces
-* Assertions
-* Tunnels
-
-In each case, Intern has a `registerX` method (e.g., `registerInterface`) that takes a name and some type-specific
-item. For example, reporter constructors can be registered using the reporter constructor:
+Intern includes a Reporter base class that provides several convenience features, such as the ability to mark event
+handler methods with a decorator (assuming you’re using TypeScript) in a type-safe manner.
 
 ```ts
-intern.registerReporter('custom', Custom);
-```
+import Reporter, { eventHandler } from 'intern/lib/reporters/Reporter';
 
-Intern configs may then use the 'custom' reporter.
+class MyReporter extends Reporter {
+    @eventHandler()
+    runEnd() {
+        console.log('Testing is done!');
+    }
+
+    @eventHandler()
+    suiteStart(suite: Suite) {
+        console.log(`Suite ${suite.id} started`);
+    }
+}
+```

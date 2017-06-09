@@ -2,38 +2,46 @@
 
 At the most basic level, a test is a function that either runs to completion or throws an error. Intern groups tests
 into suites, and runs the suites when `intern.run()` is called. The first few sections in this document cover the basics
-of writing and organizing tests.
+of writing and organizing tests. At a higher level, there are two general classes of test: [unit tests](concepts.md#unit-tests) and [functional tests](concepts.md#functional-tests).
 
+<!-- vim-markdown-toc GFM -->
 * [Assertions](#assertions)
 * [Interfaces](#interfaces)
+    * [Object](#object)
+    * [TDD](#tdd)
+    * [BDD](#bdd)
+    * [Qunit](#qunit)
+    * [Benchmark](#benchmark)
+    * [Native](#native)
 * [Organization](#organization)
 * [Sync vs Async](#sync-vs-async)
-
-At a higher level, there are two general classes of test: unit and functional tests. Unit tests load application code,
-execute various parts of it, and check that it's behaving properly. Functional tests load pages in browsers and
-simulate user interaction, then verify that the page is behaving as expected (buttons work, elements show and hide,
-etc.).
-
 * [Unit tests](#unit-tests)
+    * [Test and suite context](#test-and-suite-context)
+    * [Environment](#environment)
+* [Benchmark tests](#benchmark-tests)
 * [Functional tests](#functional-tests)
+
+<!-- vim-markdown-toc -->
 
 ## Assertions
 
 Tests should throw errors when some feature being tested doesn’t behave as expected. The standard `throw` mechanism will
 work for this purpose, but performing a particular test and constructing meaningful error messages can be tedious.
 Assertion libraries exist that can simplify this process. Intern bundles the [chai](http://chaijs.com) assertion
-library, and exposes its ‘[assert](http://chaijs.com/api/assert/)’, ‘[expect](http://chaijs.com/api/bdd/)’, and ‘[should](http://chaijs.com/api/bdd/)’ interfaces via a `getAssertions` method.
+library, and exposes its ‘[assert](http://chaijs.com/api/assert/)’, ‘[expect](http://chaijs.com/api/bdd/)’, and ‘[should](http://chaijs.com/api/bdd/)’ interfaces as 'chai.assert', 'chai.expect', and 'chai.should' plugins.
 
 ```ts
-const assert = intern.getAssertions('assert');
+const assert = intern.getPlugin('chai.assert');
 ```
+
+When running with a module loader or in Node, Chai can be imported directly.
 
 ## Interfaces
 
 There are several ways to write tests. The most common will be to use one of Intern’s built-in interfaces, such as the
-object interface. Another possibility is to register tests or suites directly on the Intern object.
+object interface. Another possibility is to register tests or suites directly on the Intern executor.
 
-Interfaces may be accessed using the `getInterface` method.
+Interfaces may be accessed using the `getPlugin('interface.xyz')` method, or by importing if a module loader is in use.
 
 ### Object
 
@@ -41,29 +49,25 @@ This is the default interface used for Intern’s self-tests and most examples. 
 functions in a `tests` property on that object.
 
 ```ts
-const { registerSuite } = intern.getInterface('object');
+const { registerSuite } = intern.getPlugin('interface.object');
 
-registerSuite({
-    name: 'Component',
+registerSuite('Component', {
+    'create new'() {
+        assert.doesNotThrow(() => new Component());
+    },
 
-    tests: {
-        'create new'() {
-            assert.doesNotThrow(() => new Component());
-        },
-
-        'update values'() {
-            const component = new Component();
-            component.update({ value: 20 });
-            assert.equal(component.children[0].value, 20);
-        }
+    'update values'() {
+        const component = new Component();
+        component.update({ value: 20 });
+        assert.equal(component.children[0].value, 20);
     }
-})
+});
 ```
 
 ### TDD
 
 ```ts
-const { suite, test } = intern.getInterface('tdd');
+const { suite, test } = intern.getPlugin('interface.tdd');
 
 suite('Component', () => {
     test('create new', () => {
@@ -81,7 +85,7 @@ suite('Component', () => {
 ### BDD
 
 ```ts
-const { bdd, it } = intern.getInterface('bdd');
+const { describe, it } = intern.getPlugin('interface.bdd');
 
 describe('Component', () => {
     it('should not throw when created', () => {
@@ -98,8 +102,10 @@ describe('Component', () => {
 
 ### Qunit
 
+_Note that this interface is not yet available in Intern 4._
+
 ```ts
-const { QUnit } = intern.getInterface('qunit');
+const { QUnit } = intern.getPlugin('interface.qunit');
 
 QUnit.module('Component');
 QUnit.test('create new', () => {
@@ -116,15 +122,13 @@ QUnit.test('update values', () => {
 
 The benchmark interface is an extension of the [object interface](#object) used to register [benchmark
 suites](#benchmark-tests). Tests in benchmark suites are concerned with code performance rather than code correctness.
-The interface looks very similar to the object interface, but it has a couple of extra properties.
+The interface looks very similar to the object interface.
 
 ```ts
-const { registerSuite, async, skip } = intern.getInterface('benchmark');
+const { registerSuite, async } = intern.getPlugin('interface.benchmark');
 let component: Component;
 
-registerSuite({
-    name: 'Component performance',
-
+registerSuite('Component performance',
     beforeEach() {
         component = new Component();
     },
@@ -141,21 +145,17 @@ registerSuite({
 });
 ```
 
-The `async` and `skip` properties are functions that can be used to identify an asynchronous test or to skip a test.
+The `async` property is a function that can be used to identify an asynchronous test as the standard `this.async` method
+doesn't work well in a benchmarking situation.
 
 ```ts
-registerSuite({
+registerSuite('Performance', {
     // ...
 
     tests: {
         'update values'() {
             component.update({ value: 20 });
         },
-
-        // A skipped test will not be run
-        skip(repaint() {
-            component.repaint();
-        }),
 
         // An async test will be passed a Deferred object
         async(request(dfd) {
@@ -171,29 +171,24 @@ registerSuite({
 
 ### Native
 
-The native interface is simply the `addTest` method on Executor, which is what the various test interfaces use behind
-the scenes to register tests and suites. This method can take a constructed Suite or Test object, or an object of Suite
-options or Test options.
+The native interface is simply the `addSuite` method on Executor, which is what the various test interfaces use behind
+the scenes to register tests and suites. This method takes a factory method that, when called with a parent Suite, will
+create a new Suite and add it to the parent.
 
 ```ts
-intern.addTest({ name: 'create new', test: () => assert.doesNotThrow(() => new Component()) };
-intern.addTest(new Test({
-    name: 'update values',
-    test: () => {
-        const component = new Component();
-        component.update({ value: 20 });
-        assert.equal(component.children[0].value, 20);
-    }
+intern.addSuite((parent: Suite) => {
+    const suite = new Suite({ name: 'create new', tests: [
+        new Test({ name: 'new test', test: () => assert.doesNotThrow(() => new Component()) })
+    ]});
+    parent.add(suite);
 });
 ```
-
-When tests are added directly, they will be part of the executor's root suite.
 
 ## Organization
 
 Suites are typically grouped into script files, with one top-level suite per file. How the files themselves are
 structured depends on how the suite files will be [loaded](./architecture.md#loaders). For example, if the ‘dojo’ loader
-is used to load suites, an individual suite file would be an AMD module:
+is used to load suites, an individual suite file would be an AMD or UMD module:
 
 ```js
 define([ 'app/Component' ], function (Component) {
@@ -211,13 +206,13 @@ define([ 'app/Component' ], function (Component) {
 });
 ```
 
-On the other hand, if the loader is using SystemJS + Babel to load suites, suite file could be an ESM module:
+On the other hand, if the loader is using SystemJS + Babel to load suites, a suite file could be an ESM module:
 
 ```ts
 import Component from '../app/Component';
 
 const assert = intern.getAssertions('assert');
-const { registerSuite } = intern.getInterface('object');
+const { registerSuite } = intern.getPlugin('interface.object');
 
 registerSuite({
     name: 'Component',
