@@ -9,7 +9,7 @@ import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import { Events, TunnelMessage } from '../executors/Node';
 import { mixin } from '@dojo/core/lang';
 import { format } from 'util';
-import charm = require('charm');
+import * as charm from 'charm';
 
 const eventHandler = createEventHandler<Events>();
 

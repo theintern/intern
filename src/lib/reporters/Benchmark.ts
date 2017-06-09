@@ -4,7 +4,7 @@ import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import BenchmarkTest from '../BenchmarkTest';
 import Test from '../Test';
 import Suite from '../Suite';
-import _Benchmark = require('benchmark');
+import * as Benchmark from 'benchmark';
 
 /**
  * Benchmark is a reporter that can generate a baseline report and do runtime comparisons against an existing baseline.
@@ -25,7 +25,7 @@ import _Benchmark = require('benchmark');
  * mean: mean execution time per function run
  * hz: Hertz (number of executions of a function per second). 1/Hz is the mean execution time of function.
  */
-export default class Benchmark extends Reporter implements BenchmarkReporterProperties {
+export default class BenchmarkReporter extends Reporter implements BenchmarkReporterProperties {
 	baseline: BenchmarkBaseline;
 
 	filename: string;
@@ -279,7 +279,7 @@ export default class Benchmark extends Reporter implements BenchmarkReporterProp
 }
 
 export interface BenchmarkData {
-	times: _Benchmark.Times;
+	times: Benchmark.Times;
 	hz: number;
 	stats: {
 		rme: number;
