@@ -1,5 +1,28 @@
-<!--
-Hi, and thanks for your interest! To keep this issue tracker focused on development, we ask that you only open issues for bugs and feature requests. If you're reporting a bug, please describe the problem in detail and provide enough information for it to be reproduced (OS, browser/Node version, test case).
+<!-- Please provide a short summary of the issue/feature request in the title above -->
 
-If you have a question about how to use Intern, the best places to get help are Stack Overflow and IRC. See https://theintern.github.io/intern/#getting-help for more information.
--->
+## Expected behavior
+<!-- Describe what should be happening, or what you you'd like to see -->
+
+## Current behavior
+<!-- Describe what happens now -->
+
+## Possible solution
+<!-- If you have any thoughts on how to diagnose or fix the problem, -->
+<!-- or suggestions on how to implement a feature, this is the place -->
+
+## Steps to reproduce (for bugs)
+<!-- List the steps required to reproduce the issue. If possible, -->
+<!-- provide a link to a test project that illustrates the issue. -->
+1. …
+2. …
+3. …
+
+## Environment
+<!-- List the relevant software versions -->
+Intern version:
+Node version:
+NPM version:
+Browser version:
+
+## Additional information
+<!-- Anything else you think might be relevant -->

@@ -1,12 +1,14 @@
 # ![Intern testing framework](https://theintern.github.io/intern/images/readme-logo.png)
 
 [![Build Status](https://travis-ci.org/theintern/intern.svg?branch=master)](https://travis-ci.org/theintern/intern)
+[![codecov](https://codecov.io/gh/theintern/intern/branch/master/graph/badge.svg)](https://codecov.io/gh/theintern/intern)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/intern.svg)](http://isitmaintained.com/project/theintern/intern "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/intern.svg)](http://isitmaintained.com/project/theintern/intern "Percentage of issues still open")
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftheintern%2Fintern.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftheintern%2Fintern?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftheintern%2Fintern.svg?type=shield)](
+https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftheintern%2Fintern?ref=badge_shield)
 
 Intern is a complete test system for JavaScript designed to help you write and run consistent, high-quality test
-cases for your JavaScript libraries and applications. It can be used to test *any* JavaScript code. It can even be used
+cases for your JavaScript libraries and applications. It can be used to test _any_ JavaScript code. It can even be used
 to test [non-JavaScript Web and mobile apps](https://theintern.github.io/intern/#native-apps), and to run tests written
 for [other test systems](https://theintern.github.io/intern/#custom-interfaces).
 
@@ -22,7 +24,7 @@ Note that these instructions are for Intern 4 alpha. For Intern 3 instructions, 
 
     ```sh
     $ cd /my/project/root
-    $ npm install intern@next --save-dev
+    $ npm install intern@next
     ```
 
 2. Create an `intern.json` file in your project root.
@@ -43,14 +45,17 @@ Note that these instructions are for Intern 4 alpha. For Intern 3 instructions, 
 
 ## More information
 
-* [Architecture](docs/architecture.md)
-* [Writing Tests](docs/writing_tests.md)
-* [Configuration](docs/configuration.md)
-* [Running](docs/running.md)
-* [Developing](docs/developing.md)
-* [Contributing](https://github.com/theintern/intern/blob/master/CONTRIBUTING.md)
+* [How To](docs/how_to.md) - quick answers to common questions
+* [Get Help](docs/help.md) - where to go for if you still have questions
+* [Concepts](docs/concepts.md) - testing concepts and definitions
+* [Configuration](docs/configuration.md) - how to configure Intern
+* [Running](docs/running.md) - how to run Intern
+* [Writing Tests](docs/writing_tests.md) - the various ways of writing tests with Intern
+* [Architecture](docs/architecture.md) - how Intern is organized
+* [Developing](docs/developing.md) - for Intern developers
+* [Contributing](CONTRIBUTING.md) - how to contribute to Intern development
 
-See [The Intern Guide](https://theintern.github.io/intern) for more Intern 3 documentation.
+See [The Intern Guide](https://theintern.github.io/intern) for more information about Intern 3.
 
 ## Get help
 
