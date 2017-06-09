@@ -12,5 +12,5 @@ global.Benchmark = {};
 
 const intern = global.intern = new Browser();
 
-intern.registerReporter('html', Html);
-intern.registerReporter('console', Console);
+intern.registerPlugin('reporter', 'html', () => Html);
+intern.registerPlugin('reporter', 'console', () => Console);

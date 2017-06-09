@@ -108,11 +108,14 @@ registerSuite('lib/executors/Executor', function () {
 		tests: {
 			construct: {
 				'resources registered'() {
-					assert.isDefined(executor.getPlugin('interface.object'));
-					assert.isDefined(executor.getPlugin('interface.tdd'));
-					assert.isDefined(executor.getPlugin('interface.bdd'));
-					assert.isDefined(executor.getPlugin('interface.benchmark'));
-					assert.isUndefined(executor.getPlugin('foo'));
+					// Plugins aren't resolved until _loadPlugins runs
+					return executor.run().then(() => {
+						assert.isDefined(executor.getPlugin('interface.object'));
+						assert.isDefined(executor.getPlugin('interface.tdd'));
+						assert.isDefined(executor.getPlugin('interface.bdd'));
+						assert.isDefined(executor.getPlugin('interface.benchmark'));
+						assert.isUndefined(executor.getPlugin('foo'));
+					});
 				},
 
 				'suite end listener'() {
@@ -344,12 +347,16 @@ registerSuite('lib/executors/Executor', function () {
 
 			'#getPlugin': {
 				'general plugin'() {
-					assert.equal(executor.getPlugin<any>('chai.assert'), 'assert');
+					return executor.run().then(() => {
+						assert.equal(executor.getPlugin<any>('chai.assert'), 'assert');
+					});
 				},
 
 				'chai.should'() {
-					assert.equal(executor.getPlugin<any>('chai.should'), 'should');
-					assert.equal(mockChai.should.callCount, 1, '"should" factory should have been called');
+					return executor.run().then(() => {
+						assert.equal(executor.getPlugin<any>('chai.should'), 'should');
+						assert.equal(mockChai.should.callCount, 1, '"should" factory should have been called');
+					});
 				}
 			},
 
@@ -403,26 +410,22 @@ registerSuite('lib/executors/Executor', function () {
 				direct() {
 					executor.configure({ plugins: <any>'foo.js' });
 					const pluginInit = spy(() => 'bar');
-					executor.registerPlugin('foo', pluginInit);
-					assert.equal(pluginInit.callCount, 1);
-					assert.equal(executor.getPlugin('foo'), 'bar',
-						'expected plugin to have resolved value of init function');
-				}
-			},
-
-			'#registerReporter': {
-				'config'() {
-					executor.configure({ reporters: <any>'foo' });
-					let constructed = false;
-					class FooReporter {
-						constructor() {
-							constructed = true;
-						}
-					}
-					executor.registerReporter('foo', <any>FooReporter);
-					return executor.run().then(() => {
-						assert.isTrue(constructed, 'reporter should have been constructed');
+					return executor.registerPlugin('foo', pluginInit).then(() => {
+						assert.equal(pluginInit.callCount, 1);
+						return executor.run().then(() => {
+							assert.equal(executor.getPlugin('foo'), 'bar',
+								'expected plugin to have resolved value of init function');
+						});
 					});
+				},
+
+				'invalid reporter'() {
+					executor.configure({ plugins: <any>'foo.js' });
+					const pluginInit = spy(() => 'bar');
+					return executor.registerPlugin('reporter', 'foo', pluginInit).then(
+						() => { throw new Error('registration should not have succeeded'); },
+						error => { assert.match(error.message, /A reporter plugin/); }
+					);
 				}
 			},
 
@@ -485,9 +488,17 @@ registerSuite('lib/executors/Executor', function () {
 					return assertRunFails(executor, /foo/);
 				},
 
-				'invalid reporter'() {
-					executor.configure({ reporters: <any>'foo' });
-					return assertRunFails(executor, /A reporter named/);
+				'invalid reporter': {
+					missing() {
+						executor.configure({ reporters: <any>'foo' });
+						return assertRunFails(executor, /A reporter named/);
+					},
+
+					invalid() {
+						executor.registerPlugin('reporter.foo', () => { return {}; });
+						executor.configure({ reporters: <any>'foo' });
+						return assertRunFails(executor, /isn't a valid constructor/);
+					}
 				},
 
 				'loader failure'() {

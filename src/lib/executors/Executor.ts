@@ -21,9 +21,8 @@ const console: Console = global.console;
 /**
  * This is the default executor class.
  */
-export default abstract class Executor<E extends Events = Events, C extends Config = Config> {
+export default abstract class Executor<E extends Events = Events, C extends Config = Config, P extends Plugins = Plugins> {
 	protected _assertions: { [name: string]: any };
-	protected _availableReporters: { [name: string]: typeof Reporter };
 	protected _config: C;
 	protected _rootSuite: Suite;
 	protected _errorFormatter: ErrorFormatter;
@@ -33,8 +32,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _loader: Loader;
 	protected _loaderConfig: any;
 	protected _loaderInit: Promise<Loader>;
-	protected _loadingPlugins: boolean;
-	protected _loadingPluginInit: Task<void> | undefined;
+	protected _autoLoadingPlugins: boolean;
+	protected _loadingPlugins: { [name: string]: Task<any> };
 	protected _loadingPluginOptions: any | undefined;
 	protected _listeners: { [event: string]: Listener<any>[] };
 	protected _plugins: { [name: string]: any };
@@ -76,10 +75,10 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			this.configure(config);
 		}
 
-		this._availableReporters = {};
 		this._listeners = {};
 		this._reporters = [];
 		this._plugins = {};
+		this._loadingPlugins = {};
 
 		this.registerPlugin('interface.object', () => getObjectInterface(this));
 		this.registerPlugin('interface.tdd', () => getTddInterface(this));
@@ -212,6 +211,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	/**
 	 * Get any resources registered by a particular plugin.
 	 */
+	getPlugin<Y extends keyof P>(type: Y, name: string): P[Y];
 	getPlugin(name: 'chai.assert'): Chai.AssertStatic;
 	getPlugin(name: 'chai.expect'): Chai.ExpectStatic;
 	getPlugin(name: 'chai.should'): Chai.Should;
@@ -220,13 +220,15 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	getPlugin(name: 'interface.bdd'): BddInterface;
 	getPlugin(name: 'interface.benchmark'): BenchmarkInterface;
 	getPlugin<T>(name: string): T;
-	getPlugin<T>(name: string): T {
+	getPlugin<T>(type: string, name?: string): T {
+		const pluginName = typeof name === 'undefined' ? type : `${type}.${name}`;
+
 		// The 'should' assertion interface must be initialized before being used
-		if (name === 'chai.should' && !Object.prototype.hasOwnProperty('should')) {
-			this._plugins[name] = this._plugins[name]();
+		if (pluginName === 'chai.should' && !Object.prototype.hasOwnProperty('should')) {
+			this._plugins[pluginName] = this._plugins[pluginName]();
 		}
 
-		return <T>this._plugins[name];
+		return <T>this._plugins[pluginName];
 	}
 
 	/**
@@ -291,25 +293,25 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
-	 * Register a plugin that will be loaded at the beginning of the testing process (before any external loader is
-	 * initialized).
+	 * Register a plugin that will be loaded at the beginning of the testing process, after the loader but before any
+	 * suites are registered.
 	 */
-	registerPlugin(name: string, init: PluginInitializer) {
-		if (this._loadingPlugins) {
-			this._loadingPluginInit = Task.resolve(init(this._loadingPluginOptions)).then(plugin => {
-				this._plugins[name] = plugin;
-			});
-		}
-		else {
-			this._plugins[name] = init();
-		}
-	}
+	registerPlugin<T extends keyof P>(type: T, name: string, init: PluginInitializer<P[T]>): Task<void>;
+	registerPlugin(name: string, init: PluginInitializer): Task<void>;
+	registerPlugin(type: string, name: string | PluginInitializer, init?: PluginInitializer) {
+		const pluginName = typeof init === 'undefined' ? type : `${type}.${name}`;
+		const pluginInit = typeof init === 'undefined' ? <PluginInitializer>name : init;
 
-	/**
-	 * Install a reporter constructor
-	 */
-	registerReporter(name: string, Class: typeof Reporter) {
-		this._availableReporters[name] = Class;
+		const loadTask = Task.resolve(this._loadingPluginOptions ? pluginInit(this._loadingPluginOptions) : pluginInit())
+			.then(plugin => {
+				if (type === 'reporter' && typeof plugin !== 'function') {
+					throw new Error('A reporter plugin must be a constructor');
+				}
+				return plugin;
+			});
+
+		this._loadingPlugins[pluginName] = loadTask;
+		return loadTask;
 	}
 
 	/**
@@ -451,7 +453,13 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		});
 
 		baseReporters.concat(envReporters).forEach(reporter => {
-			const ReporterClass = this._getReporter(reporter.name);
+			const ReporterClass = this.getPlugin('reporter', reporter.name);
+			if (!ReporterClass) {
+				throw new Error(`A reporter named ${reporter.name} hasn't been registered`);
+			}
+			if (typeof ReporterClass !== 'function') {
+				throw new Error(`The reporter ${reporter.name} isn't a valid constructor`);
+			}
 			this._reporters.push(new ReporterClass(this, reporter.options));
 		});
 
@@ -478,16 +486,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		const addToExisting = key[key.length - 1] === '+';
 		const name = addToExisting ? <keyof C>key.slice(0, key.length - 1) : key;
 		return { name, addToExisting };
-	}
-
-	/**
-	 * Return a reporter constructor corresponding to the given name
-	 */
-	protected _getReporter(name: string): typeof Reporter {
-		if (!this._availableReporters[name]) {
-			throw new Error(`A reporter named "${name}" has not been registered`);
-		}
-		return this._availableReporters[name];
 	}
 
 	/**
@@ -532,23 +530,28 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _loadPlugins() {
 		const plugins = this.config.plugins.concat(this.config[this.environment].plugins);
 
-		this._loadingPlugins = true;
+		this._autoLoadingPlugins = true;
 
-		// Load plugins sequentiallly
 		return plugins
+			// Load configured plugins sequentiallly
 			.reduce((previous, plugin) => {
 				return previous.then(() => {
 					this._loadingPluginOptions = plugin.options;
-					return this._loader([plugin.script]).then(() => {
-						return Task.resolve(this._loadingPluginInit);
-					}).then(() => {
-						this._loadingPluginInit = undefined;
-						this._loadingPluginOptions = undefined;
-					});
+					return this._loader([plugin.script])
+						.then(() => { this._loadingPluginOptions = undefined; });
 				});
 			}, Task.resolve())
 			.finally(() => {
-				this._loadingPlugins = false;
+				this._autoLoadingPlugins = false;
+			})
+			.then(() => {
+				// Wait for all plugin registrations, both configured ones and any that were manually registered, to
+				// resolve
+				return Object.keys(this._loadingPlugins).reduce((previous, name) => {
+					return previous.then(() => this._loadingPlugins[name].then(plugin => {
+						this._plugins[name] = plugin;
+					}));
+				}, Task.resolve());
 			});
 	}
 
@@ -884,6 +887,13 @@ export interface Events {
 }
 
 /**
+ * Known plugin types
+ */
+export interface Plugins {
+	reporter: typeof Reporter;
+}
+
+/**
  * An async loader callback.
  */
 export interface Loader {
@@ -902,6 +912,6 @@ export interface LoaderDescriptor {
 	options?: { [key: string]: any };
 }
 
-export interface PluginInitializer {
-	(options?: { [key: string]: any }): Task<object | void> | object | void;
+export interface PluginInitializer<T extends any = any> {
+	(options?: { [key: string]: any }): Task<T> | T;
 }

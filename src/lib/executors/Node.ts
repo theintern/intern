@@ -1,4 +1,4 @@
-import Executor, { Config as BaseConfig, Events as BaseEvents } from './Executor';
+import Executor, { Config as BaseConfig, Events as BaseEvents, Plugins } from './Executor';
 import Task, { State } from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
@@ -45,7 +45,7 @@ import Benchmark from '../reporters/Benchmark';
 const console: Console = global.console;
 const process: NodeJS.Process = global.process;
 
-export default class Node extends Executor<Events, Config> {
+export default class Node extends Executor<Events, Config, NodePlugins> {
 	server: Server;
 	tunnel: Tunnel;
 
@@ -57,7 +57,6 @@ export default class Node extends Executor<Events, Config> {
 	protected _instrumentedMaps: MapStore;
 	protected _unhookRequire: null | (() => void);
 	protected _sessionSuites: Suite[];
-	protected _tunnels: { [name: string]: typeof Tunnel };
 
 	constructor(config?: Partial<Config>) {
 		super({
@@ -79,28 +78,27 @@ export default class Node extends Executor<Events, Config> {
 			tunnelOptions: { tunnelId: String(Date.now()) }
 		});
 
-		this._tunnels = {};
 		this._sourceMaps = createSourceMapStore();
 		this._instrumentedMaps = createSourceMapStore();
 		this._errorFormatter = new ErrorFormatter(this);
 		this._coverageMap = createCoverageMap();
 
-		this.registerReporter('pretty', Pretty);
-		this.registerReporter('simple', Simple);
-		this.registerReporter('runner', Runner);
-		this.registerReporter('benchmark', Benchmark);
-		this.registerReporter('junit', JUnit);
-		this.registerReporter('jsoncoverage', JsonCoverage);
-		this.registerReporter('htmlcoverage', HtmlCoverage);
-		this.registerReporter('lcov', Lcov);
-		this.registerReporter('cobertura', Cobertura);
+		this.registerPlugin('reporter', 'pretty', () => Pretty);
+		this.registerPlugin('reporter', 'simple', () => Simple);
+		this.registerPlugin('reporter', 'runner', () => Runner);
+		this.registerPlugin('reporter', 'benchmark', () => Benchmark);
+		this.registerPlugin('reporter', 'junit', () => JUnit);
+		this.registerPlugin('reporter', 'jsoncoverage', () => JsonCoverage);
+		this.registerPlugin('reporter', 'htmlcoverage', () => HtmlCoverage);
+		this.registerPlugin('reporter', 'lcov', () => Lcov);
+		this.registerPlugin('reporter', 'cobertura', () => Cobertura);
 
-		this.registerTunnel('null', NullTunnel);
-		this.registerTunnel('selenium', SeleniumTunnel);
-		this.registerTunnel('saucelabs', SauceLabsTunnel);
-		this.registerTunnel('browserstack', BrowserStackTunnel);
-		this.registerTunnel('testingbot', TestingBotTunnel);
-		this.registerTunnel('cbt', CrossBrowserTestingTunnel);
+		this.registerPlugin('tunnel', 'null', () => NullTunnel);
+		this.registerPlugin('tunnel', 'selenium', () => SeleniumTunnel);
+		this.registerPlugin('tunnel', 'saucelabs', () => SauceLabsTunnel);
+		this.registerPlugin('tunnel', 'browserstack', () => BrowserStackTunnel);
+		this.registerPlugin('tunnel', 'testingbot', () => TestingBotTunnel);
+		this.registerPlugin('tunnel', 'cbt', () => CrossBrowserTestingTunnel);
 
 		if (config) {
 			this.configure(config);
@@ -201,13 +199,6 @@ export default class Node extends Executor<Events, Config> {
 	}
 
 	/**
-	 * Register a tunnel class
-	 */
-	registerTunnel(name: string, Class: typeof Tunnel) {
-		this._tunnels[name] = Class;
-	}
-
-	/**
 	 * Return true if a given file should be instrumented based on the current config
 	 */
 	shouldInstrumentFile(filename: string) {
@@ -293,7 +284,7 @@ export default class Node extends Executor<Events, Config> {
 							options.servers.push(config.serverUrl);
 						}
 
-						let TunnelConstructor = this._tunnels[config.tunnel];
+						let TunnelConstructor = this.getPlugin<typeof Tunnel>(`tunnel.${config.tunnel}`);
 						const tunnel = this.tunnel = new TunnelConstructor(this.config.tunnelOptions);
 
 						tunnel.on('downloadprogress', progress => {
@@ -624,6 +615,10 @@ export default class Node extends Executor<Events, Config> {
 			this._unhookRequire = null;
 		}
 	}
+}
+
+export interface NodePlugins extends Plugins {
+	tunnel: typeof Tunnel;
 }
 
 export interface Config extends BaseConfig {

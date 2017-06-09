@@ -16,7 +16,7 @@ export default function registerSuite(name: string, descriptorOrFactory: Benchma
 }
 
 /**
- * Interface factory used by Executor.getInterface
+ * Interface factory used by Executor
  */
 export function getInterface(executor: Executor) {
 	return {
