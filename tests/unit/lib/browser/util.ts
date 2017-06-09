@@ -148,6 +148,16 @@ registerSuite('lib/browser/util', function () {
 				const rawArgs = util.parseQuery('foo&bar=5&baz=6&baz=7&baz=8');
 				const expected = ['foo', 'bar=5', 'baz=6', 'baz=7', 'baz=8'];
 				assert.deepEqual(rawArgs, expected);
+			},
+
+			parseUrl() {
+				const url = util.parseUrl('http://www.foo.com:80/some/local/document.md?foo=bar&location=my%20house#kitchen');
+				assert.propertyVal(url, 'protocol', 'http');
+				assert.propertyVal(url, 'hostname', 'www.foo.com');
+				assert.propertyVal(url, 'port', '80');
+				assert.propertyVal(url, 'path', '/some/local/document.md');
+				assert.propertyVal(url, 'query', 'foo=bar&location=my%20house');
+				assert.propertyVal(url, 'hash', 'kitchen');
 			}
 		}
 	};

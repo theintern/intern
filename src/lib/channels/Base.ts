@@ -26,6 +26,8 @@ export default abstract class BaseChannel {
 
 export interface ChannelOptions {
 	sessionId: string;
+
+	/** An HTTP URL that the testing host can be reached at */
 	url: string;
 
 	/** A websocket port */

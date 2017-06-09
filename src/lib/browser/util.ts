@@ -84,6 +84,33 @@ export function parseQuery(query?: string) {
 }
 
 /**
+ * Parse a URL
+ */
+export type Url = {
+	protocol: string;
+	hostname: string;
+	port: string;
+	path: string;
+	query: string;
+	hash: string;
+};
+export function parseUrl(url: string): Url | undefined {
+	if (url) {
+		const match = /^(([^:\/?#]+):)?(\/\/(([^:\/?#]*)(:(\d+))?))?([^?#]*)(\?([^#]*))?(#(.*))?/.exec(url);
+		if (match) {
+			return {
+				protocol: match[2],
+				hostname: match[5],
+				port: match[7],
+				path: match[8],
+				query: match[10],
+				hash: match[12]
+			};
+		}
+	}
+}
+
+/**
  * Load a text resource
  */
 function loadText(path: string): Task<any> {

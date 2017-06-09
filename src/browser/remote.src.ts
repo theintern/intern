@@ -12,7 +12,7 @@ global.Benchmark = {};
 
 const config = <RemoteConfig>parseArgs(parseQuery());
 const channel = new Channel({
-	url: config.basePath,
+	url: config.serverUrl,
 	sessionId: config.sessionId,
 	port: config.socketPort
 });

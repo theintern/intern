@@ -148,7 +148,7 @@ export default class RemoteSuite extends Suite {
 				});
 
 				const config = this.executor.config;
-				const serverUrlPath = parse(config.serverUrl).pathname;
+				const serverUrl = parse(config.serverUrl);
 
 				// Intern runs unit tests on the remote Selenium server by navigating to the client runner HTML page. No
 				// real commands are issued after the call to remote.get() below until all unit tests are complete, so
@@ -161,8 +161,8 @@ export default class RemoteSuite extends Suite {
 
 				// These are options that will be passed as query params to the test harness page
 				const queryOptions: Partial<RemoteConfig> = {
-					basePath: serverUrlPath,
-					debug: config.debug,
+					basePath: serverUrl.pathname,
+					serverUrl: serverUrl.href,
 					sessionId: sessionId,
 					socketPort: server.socketPort
 				};
@@ -185,19 +185,21 @@ export default class RemoteSuite extends Suite {
 				// These are options that will be POSTed to the remote page and used to configure intern. Stringify and
 				// parse them to ensure that the config can be properly transmitted.
 				const remoteConfig: Partial<RemoteConfig> = {
-					basePath: serverUrlPath,
-					internPath: `${serverUrlPath}${config.internPath}`,
+					debug: config.debug,
+					internPath: `${serverUrl.pathname}${config.internPath}`,
 					name: this.id,
-					sessionId: sessionId,
 					reporters: [ { name: 'dom' } ]
 				};
 
+				// Don't overwrite any config data we've already set
 				const excludeKeys: { [key: string]: boolean } = {
 					basePath: true,
 					internPath: true,
 					name: true,
 					reporters: true,
-					sessionId: true
+					serverUrl: true,
+					sessionId: true,
+					socketPort: true
 				};
 
 				// Pass all non-excluded keys to the remote config
@@ -237,7 +239,8 @@ export interface RemoteEvents extends Events {
 }
 
 export interface RemoteConfig extends BrowserConfig {
-	runInSync?: boolean;
+	serverUrl: string;
 	sessionId: string;
+	runInSync?: boolean;
 	socketPort?: number;
 }
