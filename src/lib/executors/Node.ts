@@ -370,6 +370,9 @@ export default class Node extends Executor<Events, Config> {
 							remote.environmentType = new Environment(session.capabilities);
 							this.remote = remote;
 							this.sessionId = remote.session.sessionId;
+
+							// Update the name with details from the remote environment
+							this.name = remote.environmentType.toString();
 						});
 					},
 
