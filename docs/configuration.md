@@ -2,6 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 * [Config structure](#config-structure)
+* [Configuration resolution](#configuration-resolution)
 * [Sources of configuration information](#sources-of-configuration-information)
     * [Config File](#config-file)
     * [Environment variable](#environment-variable)
@@ -9,12 +10,12 @@
     * [Query args](#query-args)
     * [Programmatically](#programmatically)
 * [Displaying config information](#displaying-config-information)
-* [Configuration resolution](#configuration-resolution)
 * [Properties](#properties)
     * [`bail`](#bail)
     * [`coverageSources`](#coveragesources)
     * [`environments`](#environments)
     * [`excludeInstrumentation`](#excludeinstrumentation)
+    * [`extends`](#extends)
     * [`functionalSuites`](#functionalsuites)
     * [`grep`](#grep)
     * [`leaveRemoteOpen`](#leaveremoteopen)
@@ -26,29 +27,24 @@
 
 Intern (specifically the running Intern [executor](architecture.md#executors)) is configured with a standard JavaScript
 object. This object may contain properties applicable to either environment that Intern can run in (Node or browser).
+Config properties may be set via a file, the command line, browser query args, or an environment variable. All of these
+methods use the same basic syntax and provide the same capabilities.
 
-Config properties may be set via a file, the command line, browser query args, or an environment variable. All
-of these methods use the same basic syntax and provide the same capbilities. Wherever config property values come from,
-the executor will validate and normalize them into a canonical format ("resolve" them) when the testing process starts.
-This allows the executor’s constructor or `configure` method can be flexible in the data it accepts. For example,
-several properties such as `suites` and `environments` may be specified as a single string for convenience, but they
-will always be normalized to a canonical format on the executor config object:
-
-```js
-{ environments: 'chrome' }
-```
-will end up as
+Wherever config property values come from, the executor will validate and normalize them into a canonical format
+("resolve" them) when the testing process starts. This allows the executor’s constructor or `configure` method to be
+flexible in what data it accepts. For example, the canonical form of the `environments` property is an array of objects:
 
 ```js
-environments: [ { browserName: 'chrome' } ]
+environments: [{ browserName: 'chrome' }]
 ```
 
-on the executor’s config object.
+However, Intern will accept a simple string for the `environments` property and will expand it into an array of a single
+object where the `browserName` property is the given string.
 
 ## Config structure
 
-The config structure is a simple JSON object. All property values must be serializable (RegExp objects are serialized to
-strings).
+The config structure is a simple JSON object, so all of its property values must be serializable (RegExp objects are
+serialized to strings).
 
 ```js
 {
@@ -82,7 +78,67 @@ There are four general sections to a config:
   environments.
 * **Browser-specific resources**: resource properties ("loader", "plugins", "reporters", "suites") that apply only to
   browser environments.
-* **Child configs**: named configs in the "configs" object; each of these can have any config properties but "configs"
+* **Child configs**: named configs in the "configs" object; each of these can have any config properties but
+  "configs" (i.e., general properties, Node resources, and browser resources).
+
+## Configuration resolution
+
+At runtime, the environment-specific resources and any [active child configs](#config-file) will be mixed into the
+resolved config. In general, properties from from more specific sources will override properties from lower precedence
+sources. The order of precedence, from lowest to highest, is:
+
+1. A config being extended by the base config
+2. The base config
+3. The active child config in the base config
+
+There are a few exceptions:
+
+1. **The "node" and "browser" properties in a child config are shallowly mixed into "node" and "browser" in the base
+   config.** For example, if "node" in the base config looks like:
+   ```js
+   "node": {
+       "suites": [ "tests/unit/foo.js" ],
+       "plugins": [ "tests/plugins/bar.js" ]
+   }
+   ```
+   and "node" in a child config looks like:
+   ```js
+   "node": {
+       "suites": [ "tests/unit/baz.js" ],
+   }
+   ```
+   then the value of node in the resolved config (assuming the child config is active) will be:
+   ```js
+   "node": {
+       // node.suites from the child overrides node.suites from the base config
+       "suites": [ "tests/unit/baz.js" ],
+       // node.plugins from the base config remains
+       "plugins": [ "tests/plugins/bar.js" ]
+   }
+   ```
+2. **Resource arrays in "node" or "browser" ("plugins", "reporters", "suites"), are added to the corresponding resource
+   arrays in the base config.** For example, if the base config has:
+   ```js
+   "suites": [ "tests/unit/foo.js" ]
+   ```
+   and the "node" section has:
+   ```js
+   "suites": [ "tests/unit/bar.js" ]
+   ```
+   both sets of suites will be loaded when running on Node.
+3. **Resource arrays can be extended (rather than replaced) by adding a '+' to the property name.** For example, if the
+   base config has:
+   ```js
+   "suites": [ "tests/unit/foo.js" ]
+   ```
+   and a child config has:
+   ```js
+   "suites+": [ "tests/unit/bar.js" ]
+   ```
+   the resolved value of suites will be:
+   ```js
+   "suites": [ "tests/unit/foo.js", "tests/unit/bar.js" ]
+   ```
 
 ## Sources of configuration information
 
@@ -111,6 +167,15 @@ An Intern config file is a JSON file specifying config properties, for example:
 
 By default, intern will try to load a file named `intern.json` from the project base directory. This file can be
 specified by passing a `config` property to the Node or browser runners.
+
+A child config can be selected by adding `@<child>` to the config file name. For example, to load a child config named
+“ci” from the default config file, you could run:
+
+    $ node_modules/.bin/intern config=@ci
+
+To load a config named “remote” from a config file named “intern-local.json”, run:
+
+    $ node_modules/.bin/intern config=intern-local.json@remote
 
 ### Environment variable
 
@@ -200,57 +265,6 @@ running Intern with the `showConfigs` property set would display the following t
       webdriver  (Run webdriver tests)
       ci         (Run tests on a CI server)
 
-## Configuration resolution
-
-At runtime, Intern will mix together properties from a config file, child configs within the file, an environment variable, and command line or query args into a resolved configuration. In general, properties from higher precedence sources (command line args vs config file) will simply override properties from lower precedence sources, but there are a few exceptions:
-
-1. **The "node" and "browser" properties in a child config are shallowly mixed into "node" and "browser" in the base
-   config.** For example, if "node" in the base config looks like:
-   ```js
-   "node": {
-       "suites": [ "tests/unit/foo.js" ],
-       "plugins": [ "tests/plugins/bar.js" ]
-   }
-   ```
-   and "node" in a child config looks like:
-   ```js
-   "node": {
-       "suites": [ "tests/unit/baz.js" ],
-   }
-   ```
-   then the value of node in the resolved config (assuming the child config is active) will be:
-   ```js
-   "node": {
-       // node.suites from the child overrides node.suites from the base config
-       "suites": [ "tests/unit/baz.js" ],
-       // node.plugins from the base config remains
-       "plugins": [ "tests/plugins/bar.js" ]
-   }
-   ```
-2. **Resource arrays in "node" or "browser" ("plugins", "reporters", "suites"), are added to the corresponding resource
-   arrays in the base config.** For example, if the base config has:
-   ```js
-   "suites": [ "tests/unit/foo.js" ]
-   ```
-   and the "node" section has:
-   ```js
-   "suites": [ "tests/unit/bar.js" ]
-   ```
-   both sets of suites will be loaded when running on Node.
-3. **Resource arrays outside of "node" or "browser" can be extended (rather than replaced) by adding a '+' to the
-   property name.** For example, if the base config has:
-   ```js
-   "suites": [ "tests/unit/foo.js" ]
-   ```
-   and a child config has:
-   ```js
-   "suites+": [ "tests/unit/bar.js" ]
-   ```
-   the resolved value of suites will be:
-   ```js
-   "suites": [ "tests/unit/foo.js", "tests/unit/bar.js" ]
-   ```
-
 ## Properties
 
 All of the available configuration properties are listed in the table below.
@@ -270,7 +284,6 @@ All of the available configuration properties are listed in the table below.
 | `description` | all | Short string describing a test config |
 | [`environments`](#environments) | node | Browser + OS combinations to be tested using WebDriver |
 | [`excludeInstrumentation`](#excludeinstrumentation) | all | Regular expression used to filter which files are instrumented for code coverage |
-| `extends` | config | Indicates that the current config extends a config file |
 | `filterErrorStack` | all | If true, filter non-application code lines out of stack traces |
 | `functionalCoverage` | node | If true, include coverage statistics generated by functional tests |
 | [`functionalSuites`](#suites-nodesuites-browsersuites-functionalsuites) | node | Suites to run using WebDriver |
@@ -296,12 +309,12 @@ All of the available configuration properties are listed in the table below.
 | [`tunnel`](#tunnel) | node | The name of a tunnel class to use for WebDriver tests |
 | [`tunnelOptions`](#tunnelOptions) | node | Options to use for the WebDriver tunnel |
 
-There are also several properties that are handled by the config system by aren’t actually config properties:
+There are also several properties that are handled by the config system aren’t directly involved in the testing process:
 
 | Property | Description |
 | :--------| :---------- |
 | `description` | Short string describing a test config |
-| `extends` | Indicates that the current config extends a config file |
+| [`extends`](#extends) | Indicates that the current config extends a config file |
 | `showConfig` | When true, show the resolved configuration and exit |
 | `showConfigs` | When true, show information about the currently loaded config file |
 
@@ -352,6 +365,38 @@ This property may be assigned a regular expression or the value `true`. If assig
 loaded by Intern, or served by its testing server, is tested against the expression. Files that match are not
 [instrumented](concepts.md#code-coverage), while files that do not match are instrumented. If `excludeInstrumentation`
 is set to `true`, code coverage support is disabled entirely.
+
+### `extends`
+
+**Default**: `undefined`
+
+If the `extends` property is set in a base config, it must be the path to a different config file. At run time, the
+properties from the config file with the `extends` value will be mixed into the properties from the config file being
+extended.
+
+If the `extends` property is set in a child config, it must be the name of a different child config within the same
+config file, or an array of such names. When a child config extends multiple other child configs, properties from the
+right-most config being extended will override properties from configs to the left.
+
+```js
+{
+  "configs": {
+    "a": { /* ... */ },
+    "b": { /* ... */ },
+    "c": { /* ... */ },
+    "d": {
+      "extends": ["a", "c"],
+      /* ... */
+    }
+}
+```
+
+In the scenario above, the following process will occur:
+
+1. Child “c” will be mixed into child “a”
+2. Child “d” will be mixed into the result of 1
+3. The result of 2 will be mixed into the base config
+4. The result of 3 will be the resolved config
 
 ### `functionalSuites`
 

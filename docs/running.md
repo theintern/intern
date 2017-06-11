@@ -1,15 +1,22 @@
 # Running Intern
 
 <!-- vim-markdown-toc GFM -->
-* [Node Runner](#node-runner)
-* [Browser Runner](#browser-runner)
+* [Built-in runners](#built-in-runners)
+    * [Node](#node)
+    * [Browser](#browser)
 * [Grunt](#grunt)
 * [Custom Node Script](#custom-node-script)
 * [Custom HTML Page](#custom-html-page)
 
 <!-- vim-markdown-toc -->
 
-## Node Runner
+## Built-in runners
+
+The Node and browser built-in runners load configuration information from the command line / query args and/or a config
+file. There are no special command line flags; in both cases, command line options are [config
+properties](configuration.md#properties).
+
+### Node
 
 The node runner is a built in script for running Node-based unit tests and WebDriver tests. Usage can be very simple:
 
@@ -33,7 +40,7 @@ properties as command line arguments. For example,
 
 would only load the suite in `tests/foo.js`, and would only run tests containing the string ‘feature1’ in their IDs.
 
-## Browser Runner
+### Browser
 
 The browser runner is a built-in HTML page for running browser-based unit tests. To use it, serve the project root
 directory using a static webserver and browse to (assuming the server is running on port 8080):
@@ -79,7 +86,7 @@ module.exports = function (grunt) {
             node: {
                 options: {
                     suites: "tests/unit/**/*.js",
-                    preload: "tests/pre.js"
+                    plugins: "tests/pre.js"
                     "loader": {
                         "script": "dojo",
                         "config": {
@@ -95,6 +102,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('intern');
 };
 ```
+
+Note that the Grunt task runner doesn’t use the config file loading logic employed by the Node and browser runners. The
+assumption is that Grunt will be used to construct the desired config.
 
 ## Custom Node Script
 

@@ -1,19 +1,16 @@
 # Architecture
 
 <!-- vim-markdown-toc GFM -->
-* [Components](#components)
-    * [Executors](#executors)
-    * [Runners](#runners)
-    * [Loader](#loader)
-    * [Plugins](#plugins)
-    * [Interfaces](#interfaces)
-    * [Reporters](#reporters)
+* [Executors](#executors)
+* [Runners](#runners)
+* [Loader](#loader)
+* [Plugins](#plugins)
+* [Interfaces](#interfaces)
+* [Reporters](#reporters)
 
 <!-- vim-markdown-toc -->
 
-## Components
-
-### Executors
+## Executors
 
 Executors are the core of Intern. They manage the testing process, including emitting events for test lifecycle events.
 There are two executors:
@@ -24,15 +21,17 @@ There are two executors:
 In typical usage a user will not directly load an executor. Instead, a runner script will load the executor and any
 configuration data provided by the user, configure the executor, and start the testing process.
 
-### Runners
+## Runners
 
 A runner is a script that instantiates an executor, configures it, and starts the testing process. Intern provides
-runners for both Node and the browser. Runners are the easiest way to get started running Intern tests, and should be
-sufficient in many/most cases. More information about runners is available in [Running Intern](running.md).
+runners for [Node](running.md#node) and the [browser](running.md#browser), and a [Grunt task](running.md#grunt).
+Runners are the easiest way to get started running Intern tests, and should be sufficient in many/most cases.
 
-### Loader
+## Loader
 
-A loader is an optional script that is used by Intern’s runner scripts to load and configure a module loader. Only a single loader script may be specified per environment (Node or browser). The script should load and setup and loader, and return a function that can be used to load modules.
+A loader is an optional script that is used by Intern to load and configure a module loader. Only a single loader script
+may be specified per environment (Node or browser). The script should load and setup a loader, and return a function
+that can be used to load modules.
 
 Loader scripts will generally be very simple; the main requirement is that the script is standalone (i.e., not a module
 itself). For example, the built-in ‘dojo’ loader script looks like the following:
@@ -78,9 +77,9 @@ intern.registerLoader(options => {
 ```
 
 If a loader isn’t specified, ‘default’ will be used. This loader uses an environment-specific default method for loading
-suites in a provided suites list. This means `require` in a Node environment, or script injection in the browser.
+scripts/modules. This means `require` in a Node environment, or script injection in the browser.
 
-### Plugins
+## Plugins
 
 Plugins are scripts that are loaded after the loader, but before suites. These are a good place to load global scripts
 required for browser tests, or to register `beforeRun` or `afterRun` event handlers.
@@ -127,7 +126,7 @@ Plugins can be accessed in suites or other user code using the `getPlugin` metho
 const { registerSuite } = intern.getPlugin('interface.object');
 ```
 
-### Interfaces
+## Interfaces
 
 An interface is a particular style of suite and test declaration. Intern comes with several built-in interfaces. For
 more information, see the [Interfaces](./writing_tests.md#interfaces) section in [Writing Tests](writing_tests.md).
@@ -151,7 +150,7 @@ registerSuite({
 });
 ```
 
-### Reporters
+## Reporters
 
 Reporters are how Intern displays or outputs test results and coverage information. Since Intern is an event emitter,
 anything that registers for Intern events can be a “reporter”.
