@@ -173,9 +173,15 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		if (sourceMap) {
 			this._sourceMaps.registerMap(filename, sourceMap);
 		}
-		const newCode = this._instrumenter.instrumentSync(code, normalize(filename), sourceMap);
-		this._instrumentedMaps.registerMap(filename, this._instrumenter.lastSourceMap());
-		return newCode;
+		try {
+			const newCode = this._instrumenter.instrumentSync(code, normalize(filename), sourceMap);
+			this._instrumentedMaps.registerMap(filename, this._instrumenter.lastSourceMap());
+			return newCode;
+		}
+		catch (error) {
+			this.emit('warning', new Error(`Error instrumenting ${filename}: ` + error.message));
+			return code;
+		}
 	}
 
 	/**

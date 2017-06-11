@@ -97,6 +97,15 @@ export default class Runner extends Coverage implements RunnerProperties {
 	}
 
 	@eventHandler()
+	warning(warning: string | Error) {
+		this.charm.foreground('yellow');
+		const message = typeof warning === 'string' ? warning : this.formatError(warning);
+		this.charm.write(`WARNING: ${message.replace(/^Error:\s+/, '')}`);
+		this.charm.display('reset');
+		this.charm.write('\n\n');
+	}
+
+	@eventHandler()
 	log(message: string) {
 		message.split('\n').forEach(line => {
 			this.console.log(`DEBUG: ${line}`);

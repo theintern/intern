@@ -197,9 +197,13 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		}
 
 		if (notifications.length === 0) {
-			// Report an error when no error listeners are registered
+			// Report errors and warnings when no listeners are registered
 			if (eventName === 'error') {
 				console.error('ERROR:', this.formatError(<any>data));
+			}
+			else if (eventName === 'warning') {
+				const message = typeof data === 'string' ? data : this.formatError(<any>data);
+				console.warn(`WARNING: ${message}`);
 			}
 
 			return Task.resolve();
@@ -884,6 +888,9 @@ export interface Events {
 
 	/** A test has started */
 	testStart: Test;
+
+	/** A non-fatal error occurred */
+	warning: Error | string;
 }
 
 /**
