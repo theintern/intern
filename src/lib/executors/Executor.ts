@@ -232,6 +232,10 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			this._plugins[pluginName] = this._plugins[pluginName]();
 		}
 
+		if (!(pluginName in this._plugins)) {
+			throw new Error(`A plugin named "${pluginName}" has not been registered`);
+		}
+
 		return <T>this._plugins[pluginName];
 	}
 
@@ -331,23 +335,29 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				this._runTask = this._resolveConfig();
 
 				if (this.config.showConfig) {
-					this._runTask = this._runTask.then(() => {
-						// Emit the config as JSON deeply sorted by key
-						const sort = (value: any) => {
-							if (Array.isArray(value)) {
-								value = value.map(sort).sort();
-							}
-							else if (typeof value === 'object') {
-								const newObj: { [key: string]: any } = {};
-								Object.keys(value).sort().forEach(key => {
-									newObj[key] = sort(value[key]);
-								});
-								value = newObj;
-							}
-							return value;
-						};
-						console.log(JSON.stringify(sort(this.config), null, '    '));
-					});
+					this._runTask = this._runTask
+						.then(() => {
+							// Emit the config as JSON deeply sorted by key
+							const sort = (value: any) => {
+								if (Array.isArray(value)) {
+									value = value.map(sort).sort();
+								}
+								else if (typeof value === 'object') {
+									const newObj: { [key: string]: any } = {};
+									Object.keys(value).sort().forEach(key => {
+										newObj[key] = sort(value[key]);
+									});
+									value = newObj;
+								}
+								return value;
+							};
+							console.log(JSON.stringify(sort(this.config), null, '    '));
+						})
+						.catch(error => {
+							// Display resolution errors because reporters haven't been installed yet
+							console.error(this.formatError(error));
+							throw error;
+						});
 				}
 				else {
 					let currentTask: Task<void>;
@@ -356,6 +366,11 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 						.then(() => this._loadLoader())
 						.then(() => this._loadPlugins())
 						.then(() => this._loadSuites())
+						.catch(error => {
+							// Display errors because reporters haven't been installed yet
+							console.error(this.formatError(error));
+							throw error;
+						})
 						.then(() => this._beforeRun())
 						.then((skipTests: boolean) => {
 							if (skipTests) {
