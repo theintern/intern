@@ -493,10 +493,14 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			const config = this.config;
 
 			if (!config.internPath) {
-				config.internPath = dirname(require.resolve('intern'));
+				config.internPath = dirname(dirname(__dirname));
 			}
 
 			config.internPath = normalizePath(`${relative(process.cwd(), config.internPath)}${sep}`);
+			if (/^\.\.\//.test(config.internPath)) {
+				throw new Error(`Invalid internPath "${config.internPath}". If the intern package is symlinked, `
+					+ 'config.internPath must be set manually.');
+			}
 
 			if (config.benchmarkConfig) {
 				config.reporters.push({
