@@ -50,14 +50,12 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				reporters: <ReporterDescriptor[]>[],
 				suites: <string[]>[]
 			},
+			coverageVariable: '__coverage__',
 			debug: false,
 			defaultTimeout: 30000,
 			excludeInstrumentation: /(?:node_modules|browser|tests)\//,
 			filterErrorStack: false,
 			grep: new RegExp(''),
-			instrumenterOptions: {
-				coverageVariable: '__coverage__'
-			},
 			loader: { script: 'default' },
 			name: 'intern',
 			node: {
@@ -492,7 +490,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	protected _emitCoverage(source?: string) {
-		const coverage = global[this.config.instrumenterOptions.coverageVariable];
+		const coverage = global[this.config.coverageVariable];
 		if (coverage) {
 			return this.emit('coverage', { coverage, source, sessionId: this.config.sessionId });
 		}
@@ -603,6 +601,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				break;
 
 			case 'basePath':
+			case 'coverageVariable':
 			case 'description':
 			case 'internPath':
 			case 'name':
@@ -628,10 +627,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 			case 'grep':
 				this._setOption(name, parseValue(name, value, 'regexp'));
-				break;
-
-			case 'instrumenterOptions':
-				this._setOption(name, deepMixin({}, this.config[name], parseValue(name, value, 'object')));
 				break;
 
 			case 'reporters':
@@ -793,6 +788,11 @@ export interface Config extends ResourceConfig {
 
 	browser: ResourceConfig;
 
+	/**
+	 * The global variable that will be used to store coverage data
+	 */
+	coverageVariable: string;
+
 	/** If true, emit and display debug messages. */
 	debug: boolean;
 
@@ -810,8 +810,6 @@ export interface Config extends ResourceConfig {
 
 	/** A regexp matching tests that should be run. It defaults to `/./` (which matches everything). */
 	grep: RegExp;
-
-	instrumenterOptions: any;
 
 	/** The path to Intern */
 	internPath: string;

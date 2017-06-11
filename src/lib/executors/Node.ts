@@ -62,10 +62,12 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		super({
 			basePath: process.cwd() + sep,
 			capabilities: { 'idle-timeout': 60 },
+			coverageSources: [],
 			connectTimeout: 30000,
 			environments: <EnvironmentSpec[]>[],
 			functionalCoverage: true,
 			functionalSuites: <string[]>[],
+			instrumenterOptions: {},
 			maxConcurrency: Infinity,
 			name: 'node',
 			reporters: [],
@@ -332,7 +334,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		class InitializedProxiedSession extends ProxiedSession {
 			executor = executor;
 			coverageEnabled = config.functionalCoverage && config.excludeInstrumentation !== true;
-			coverageVariable = config.instrumenterOptions.coverageVariable;
+			coverageVariable = config.coverageVariable;
 			serverUrl = config.serverUrl;
 			serverBasePathLength = config.basePath.length;
 		}
@@ -435,6 +437,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				break;
 
 			case 'capabilities':
+			case 'instrumenterOptions':
 			case 'tunnelOptions':
 				this._setOption(name, parseValue(name, value, 'object'));
 				break;
@@ -524,7 +527,10 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			});
 
 			// Install the instrumenter in resolve config so it will be able to handle suites
-			this._instrumenter = createInstrumenter(mixin({}, config.instrumenterOptions, {
+			this._instrumenter = createInstrumenter(mixin({}, {
+				coverageVariable: config.coverageVariable,
+				...config.instrumenterOptions
+			}, {
 				preserveComments: true,
 				produceSourceMap: true
 			}));
@@ -649,6 +655,8 @@ export interface Config extends BaseConfig {
 	functionalCoverage: boolean;
 
 	functionalSuites: string[];
+
+	instrumenterOptions: { [key: string]: any };
 
 	leaveRemoteOpen: boolean | 'fail';
 	maxConcurrency: number;

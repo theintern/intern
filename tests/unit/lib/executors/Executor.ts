@@ -141,14 +141,12 @@ registerSuite('lib/executors/Executor', function () {
 						reporters: [],
 						suites: []
 					},
+					coverageVariable: '__coverage__',
 					debug: false,
 					defaultTimeout: 30000,
 					excludeInstrumentation: /(?:node_modules|browser|tests)\//,
 					filterErrorStack: false,
 					grep: new RegExp(''),
-					instrumenterOptions: {
-						coverageVariable: '__coverage__'
-					},
 					loader: { script: 'default' },
 					name: 'intern',
 					node: {
@@ -242,6 +240,7 @@ registerSuite('lib/executors/Executor', function () {
 						showConfig: booleanTest('showConfig'),
 
 						basePath: stringTest('basePath'),
+						coverageVariable: stringTest('coverageVariable'),
 						description: stringTest('description'),
 						internPath: stringTest('internPath'),
 						name: stringTest('name'),
@@ -261,13 +260,6 @@ registerSuite('lib/executors/Executor', function () {
 						grep() {
 							test('grep', 5, 'foo', /foo/, /Non-regexp/);
 							test('grep', 5, /foo/, /foo/, /Non-regexp/);
-						},
-
-						instrumenterOptions() {
-							test('instrumenterOptions', 5, { foo: 'bar' }, {
-								coverageVariable: '__coverage__',
-								foo: 'bar'
-							}, /Non-object/);
 						},
 
 						reporters: objectArrayTest('reporters', 'name'),
@@ -440,14 +432,12 @@ registerSuite('lib/executors/Executor', function () {
 						'        "reporters": [],\n' +
 						'        "suites": []\n' +
 						'    },\n' +
+						'    "coverageVariable": "__coverage__",\n' +
 						'    "debug": false,\n' +
 						'    "defaultTimeout": 30000,\n' +
 						'    "excludeInstrumentation": {},\n' +
 						'    "filterErrorStack": false,\n' +
 						'    "grep": {},\n' +
-						'    "instrumenterOptions": {\n' +
-						'        "coverageVariable": "__coverage__"\n' +
-						'    },\n    "internPath": "",\n' +
 						'    "loader": {\n' +
 						'        "script": "default"\n' +
 						'    },\n' +

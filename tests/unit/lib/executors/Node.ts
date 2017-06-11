@@ -344,6 +344,10 @@ registerSuite('lib/executors/Node', function () {
 						test('environments', 5, '', [], /Non-object/);
 					},
 
+					instrumenterOptions() {
+						test('instrumenterOptions', 5, { foo: 'bar' }, { foo: 'bar' }, /Non-object/);
+					},
+
 					tunnel() {
 						test('tunnel', 5, 'null', 'null', /Non-string/);
 					},
