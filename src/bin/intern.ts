@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // This is the built-in runner script used to start Intern in a Node environment.
 
 import Node from '../lib/executors/Node';
