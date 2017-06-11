@@ -1,7 +1,7 @@
 # Concepts and Definitions
 
 <!-- vim-markdown-toc GFM -->
-    * [Assertions](#assertions)
+* [Assertions](#assertions)
 * [Code coverage](#code-coverage)
 * [Functional tests](#functional-tests)
 * [Source maps](#source-maps)
@@ -9,7 +9,7 @@
 
 <!-- vim-markdown-toc -->
 
-### Assertions
+## Assertions
 
 An assertion is simply a check that throws an error if the check fails. This means that no special library is required
 to make assertions. However, assertion libraries can make tests easier to understand, and can automatically generate

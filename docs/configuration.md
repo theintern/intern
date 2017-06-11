@@ -2,7 +2,6 @@
 
 <!-- vim-markdown-toc GFM -->
 * [Config structure](#config-structure)
-* [Configuration resolution](#configuration-resolution)
 * [Sources of configuration information](#sources-of-configuration-information)
     * [Config File](#config-file)
     * [Environment variable](#environment-variable)
@@ -10,6 +9,7 @@
     * [Query args](#query-args)
     * [Programmatically](#programmatically)
 * [Displaying config information](#displaying-config-information)
+* [Configuration resolution](#configuration-resolution)
 * [Properties](#properties)
     * [`bail`](#bail)
     * [`coverageSources`](#coveragesources)
@@ -75,82 +75,14 @@ strings).
 }
 ```
 
-There are two main classes of property:
-
-* **Resources**: "loader", "plugins", "reporters", "suites"
-* **Everything else**
-
-There are three general sections to a config:
+There are four general sections to a config:
 
 * **General properties**: this includes everything but "browser", "configs", and "node"
-* **Environment-specific resources**: resource properties ("loader", "plugins", "reporters", "suites") in the "browser"
-  and "node" objects.
+* **Node-specific resources**: resource properties ("loader", "plugins", "reporters", "suites") that apply only to Node
+  environments.
+* **Browser-specific resources**: resource properties ("loader", "plugins", "reporters", "suites") that apply only to
+  browser environments.
 * **Child configs**: named configs in the "configs" object; each of these can have any config properties but "configs"
-
-## Configuration resolution
-
-At runtime, Intern will mix together properties from a config file, child configs within the file, an environment variable, and command line or query args into a resolved configuration. In general, properties from higher precedence sources (command line args vs config file) will simply override properties from lower precedence sources, but there are a few exceptions:
-
-1. **Resource arrays in "node" or "browser" ("plugins", "reporters", "suites"), are added to the corresponding resource
-   arrays in the base config.** For example, if the base config has:
-   ```js
-   "suites": [ "tests/unit/foo.js" ]
-   ```
-   and the "node" section has:
-   ```js
-   "suites": [ "tests/unit/bar.js" ]
-   ```
-   both sets of suites will be loaded when running on Node.
-3. **Properties in a child config other than "node" and "browser" are shallowly mixed into the base config.** For
-   example, if the base config has:
-   ```js
-   "suites": [ "tests/unit/foo.js" ]
-   ```
-   and a child config has:
-   ```js
-   "suites": [ "tests/unit/bar.js" ]
-   ```
-   the resolved value of suites will be
-   ```js
-   // The value from the child overrides the parent value
-   "suites": [ "tests/unit/bar.js" ]
-   ```
-2. **Resource arrays outside of "node" or "browser" can be extended (rather than replaced) by adding a '+' to the
-   property name.** For example, if the base config has:
-   ```js
-   "suites": [ "tests/unit/foo.js" ]
-   ```
-   and a child config has:
-   ```js
-   "suites+": [ "tests/unit/bar.js" ]
-   ```
-   the resolved value of suites will be:
-   ```js
-   "suites": [ "tests/unit/foo.js", "tests/unit/bar.js" ]
-   ```
-4. **The "node" and "browser" properties in a child config are shallowly mixed into "node" and "browser" in the base
-   config.** For example, if "node" in the base config looks like:
-   ```js
-   "node": {
-       "suites": [ "tests/unit/foo.js" ],
-       "plugins": [ "tests/plugins/bar.js" ]
-   }
-   ```
-   and "node" in a child config looks like:
-   ```js
-   "node": {
-       "suites": [ "tests/unit/baz.js" ],
-   }
-   ```
-   then the value of node in the resolved config (assuming the child config is active) will be:
-   ```js
-   "node": {
-       // node.suites from the child overrides node.suites from the base config
-       "suites": [ "tests/unit/baz.js" ],
-       // node.plugins from the base config remains
-       "plugins": [ "tests/plugins/bar.js" ]
-   }
-   ```
 
 ## Sources of configuration information
 
@@ -168,7 +100,7 @@ before tests are executed.
 
 An Intern config file is a JSON file specifying config properties, for example:
 
-```json
+```js
 {
   "environments": [
     { "browserName": "chrome" }
@@ -267,6 +199,57 @@ running Intern with the `showConfigs` property set would display the following t
     Configs:
       webdriver  (Run webdriver tests)
       ci         (Run tests on a CI server)
+
+## Configuration resolution
+
+At runtime, Intern will mix together properties from a config file, child configs within the file, an environment variable, and command line or query args into a resolved configuration. In general, properties from higher precedence sources (command line args vs config file) will simply override properties from lower precedence sources, but there are a few exceptions:
+
+1. **The "node" and "browser" properties in a child config are shallowly mixed into "node" and "browser" in the base
+   config.** For example, if "node" in the base config looks like:
+   ```js
+   "node": {
+       "suites": [ "tests/unit/foo.js" ],
+       "plugins": [ "tests/plugins/bar.js" ]
+   }
+   ```
+   and "node" in a child config looks like:
+   ```js
+   "node": {
+       "suites": [ "tests/unit/baz.js" ],
+   }
+   ```
+   then the value of node in the resolved config (assuming the child config is active) will be:
+   ```js
+   "node": {
+       // node.suites from the child overrides node.suites from the base config
+       "suites": [ "tests/unit/baz.js" ],
+       // node.plugins from the base config remains
+       "plugins": [ "tests/plugins/bar.js" ]
+   }
+   ```
+2. **Resource arrays in "node" or "browser" ("plugins", "reporters", "suites"), are added to the corresponding resource
+   arrays in the base config.** For example, if the base config has:
+   ```js
+   "suites": [ "tests/unit/foo.js" ]
+   ```
+   and the "node" section has:
+   ```js
+   "suites": [ "tests/unit/bar.js" ]
+   ```
+   both sets of suites will be loaded when running on Node.
+3. **Resource arrays outside of "node" or "browser" can be extended (rather than replaced) by adding a '+' to the
+   property name.** For example, if the base config has:
+   ```js
+   "suites": [ "tests/unit/foo.js" ]
+   ```
+   and a child config has:
+   ```js
+   "suites+": [ "tests/unit/bar.js" ]
+   ```
+   the resolved value of suites will be:
+   ```js
+   "suites": [ "tests/unit/foo.js", "tests/unit/bar.js" ]
+   ```
 
 ## Properties
 
