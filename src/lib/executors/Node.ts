@@ -490,10 +490,10 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			const config = this.config;
 
 			if (!config.internPath) {
-				config.internPath = dirname(dirname(__dirname));
+				config.internPath = dirname(require.resolve('intern'));
 			}
 
-			config.internPath = `${relative(process.cwd(), config.internPath)}${sep}`;
+			config.internPath = normalizePath(`${relative(process.cwd(), config.internPath)}${sep}`);
 
 			if (config.benchmarkConfig) {
 				config.reporters.push({
