@@ -181,7 +181,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			return newCode;
 		}
 		catch (error) {
-			this.emit('warning', new Error(`Error instrumenting ${filename}: ` + error.message));
+			this.emit('warning', `Error instrumenting ${filename}: ${error.message}`);
 			return code;
 		}
 	}

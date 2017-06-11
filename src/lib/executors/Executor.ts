@@ -197,11 +197,10 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		if (notifications.length === 0) {
 			// Report errors and warnings when no listeners are registered
 			if (eventName === 'error') {
-				console.error('ERROR:', this.formatError(<any>data));
+				console.error(this.formatError(<any>data));
 			}
 			else if (eventName === 'warning') {
-				const message = typeof data === 'string' ? data : this.formatError(<any>data);
-				console.warn(`WARNING: ${message}`);
+				console.warn(`WARNING: ${data}`);
 			}
 
 			return Task.resolve();
@@ -364,11 +363,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 						.then(() => this._loadLoader())
 						.then(() => this._loadPlugins())
 						.then(() => this._loadSuites())
-						.catch(error => {
-							// Display errors because reporters haven't been installed yet
-							console.error(this.formatError(error));
-							throw error;
-						})
 						.then(() => this._beforeRun())
 						.then((skipTests: boolean) => {
 							if (skipTests) {
@@ -903,7 +897,7 @@ export interface Events {
 	testStart: Test;
 
 	/** A non-fatal error occurred */
-	warning: Error | string;
+	warning: string;
 }
 
 /**
