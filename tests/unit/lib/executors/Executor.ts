@@ -114,7 +114,9 @@ registerSuite('lib/executors/Executor', function () {
 						assert.isDefined(executor.getPlugin('interface.tdd'));
 						assert.isDefined(executor.getPlugin('interface.bdd'));
 						assert.isDefined(executor.getPlugin('interface.benchmark'));
-						assert.isUndefined(executor.getPlugin('foo'));
+						assert.throws(() => {
+							assert.isUndefined(executor.getPlugin('foo'));
+						}, /has not been registered/);
 					});
 				},
 
@@ -482,7 +484,7 @@ registerSuite('lib/executors/Executor', function () {
 				'invalid reporter': {
 					missing() {
 						executor.configure({ reporters: <any>'foo' });
-						return assertRunFails(executor, /A reporter named/);
+						return assertRunFails(executor, /has not been registered/);
 					},
 
 					invalid() {
