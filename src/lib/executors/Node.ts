@@ -64,9 +64,9 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			capabilities: { 'idle-timeout': 60 },
 			coverageSources: [],
 			connectTimeout: 30000,
-			environments: <EnvironmentSpec[]>[],
+			environments: [],
 			functionalCoverage: true,
-			functionalSuites: <string[]>[],
+			functionalSuites: [],
 			instrumenterOptions: {},
 			maxConcurrency: Infinity,
 			name: 'node',
@@ -518,13 +518,13 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				config.capabilities.build = buildId;
 			}
 
-			['suites', 'functionalSuites'].forEach((property: keyof Config) => {
-				config[property] = expandFiles(config[property]);
-			});
+			// Expand suite globs
+			config.suites = expandFiles(config.suites);
+			config.functionalSuites = expandFiles(config.functionalSuites);
 
-			['node', 'browser'].forEach((environment: keyof Config) => {
-				config[environment].suites = expandFiles(config[environment].suites);
-			});
+			// Expand suite globs in node, browser objects
+			config.node.suites = expandFiles(config.node.suites);
+			config.browser.suites = expandFiles(config.browser.suites);
 
 			// Install the instrumenter in resolve config so it will be able to handle suites
 			this._instrumenter = createInstrumenter(mixin({}, {

@@ -438,6 +438,7 @@ registerSuite('lib/executors/Executor', function () {
 						'    "excludeInstrumentation": {},\n' +
 						'    "filterErrorStack": false,\n' +
 						'    "grep": {},\n' +
+						'    "internPath": "",\n' +
 						'    "loader": {\n' +
 						'        "script": "default"\n' +
 						'    },\n' +

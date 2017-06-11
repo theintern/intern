@@ -78,7 +78,7 @@ export default class Browser extends Executor<Events, Config> {
 			});
 
 			[ 'basePath', 'internPath' ].forEach((key: keyof Config) => {
-				config[key] = normalizePathEnding(config[key]);
+				config[key] = normalizePathEnding(<string>config[key]);
 			});
 
 			if (config.internPath[0] !== '/') {

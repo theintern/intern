@@ -4,7 +4,7 @@ import { Handle, Hash } from '@dojo/interfaces/core';
 import { parse } from 'url';
 import Task from '@dojo/core/async/Task';
 import { InternError } from './types';
-import Node, { Config, Events } from './executors/Node';
+import Node, { Events } from './executors/Node';
 import { Config as BrowserConfig } from './executors/Browser';
 import { stringify } from './common/util';
 import Deferred from './Deferred';
@@ -203,8 +203,8 @@ export default class RemoteSuite extends Suite {
 				};
 
 				// Pass all non-excluded keys to the remote config
-				Object.keys(config).filter(key => !excludeKeys[key]).forEach((key: keyof Config) => {
-					remoteConfig[<keyof RemoteConfig>key] = config[key];
+				Object.keys(config).filter(key => !excludeKeys[key]).forEach((key: keyof RemoteConfig) => {
+					remoteConfig[key] = config[key];
 				});
 
 				this.executor.log('Configuring remote "', this.name, '" with', remoteConfig);
