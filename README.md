@@ -16,10 +16,10 @@ If you’re into name-dropping, Intern gets used every day by teams at Twitter, 
 Zenput, Alfresco, Esri, HSBC, ING, Intuit, and more. It’s also the testing framework of choice for
 [growing numbers of open-source projects](https://github.com/search?p=2&q=tests+filename%3Aintern.js&ref=searchresults&type=Code&utf8=%E2%9C%93).
 
-Note that this documentation is for Intern 4 master.
+**Note that this documentation is for Intern 4 master, which is currently an alpha release.**
 
-* For the latest Intern 4 pre-release docs, please see [the release README](https://github.com/theintern/intern/tree/4.0.0-alpha.5).
-* For Intern 3 docs, please see [the Intern tutorial](https://github.com/theintern/intern-tutorial).
+* For the latest stable (Intern 3) release docs, please see [the Intern Guide](https://theintern.github.io/intern).
+* For the latest unstable (Intern 4) release docs, please see [the release README](https://github.com/theintern/intern/tree/4.0.0-alpha.5).
 
 ## Quick start
 
@@ -57,8 +57,6 @@ Note that this documentation is for Intern 4 master.
 * [API](docs/api.md) - Intern's API
 * [Developing](docs/developing.md) - for Intern developers
 * [Contributing](CONTRIBUTING.md) - how to contribute to Intern development
-
-See [The Intern Guide](https://theintern.github.io/intern) for more information about Intern 3.
 
 ## Get help
 
