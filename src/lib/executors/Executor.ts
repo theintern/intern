@@ -270,10 +270,20 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Add a listener for a test event. When an event is emitted, the executor will wait for all Promises returned by
 	 * listener callbacks to resolve before continuing.
 	 */
-	on<T extends keyof E>(eventName: T, listener: Listener<E[T]>) {
-		let listeners = this._listeners[eventName];
+	on<T extends keyof E>(eventName: T, listener: Listener<E[T]>): Handle;
+	on(listener: Listener<{ name: string, data?: any }>): Handle;
+	on<T extends keyof E>(eventName: T | Listener<any>, listener?: Listener<E[T]>) {
+		let _eventName: T;
+		if (typeof listener === 'undefined') {
+			listener = <Listener<any>>eventName;
+			_eventName = <T>'*';
+		}
+		else {
+			_eventName = <T>eventName;
+		}
+		let listeners = this._listeners[_eventName];
 		if (!listeners) {
-			listeners = this._listeners[eventName] = [];
+			listeners = this._listeners[_eventName] = [];
 		}
 
 		if (listeners.indexOf(listener) === -1) {

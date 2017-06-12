@@ -368,17 +368,28 @@ registerSuite('lib/executors/Executor', function () {
 					'expected all args to have been serialized in log message');
 			},
 
-			'#on'() {
-				const logger = spy(() => { });
-				const handle = executor.on('testStart', logger);
-				executor.emit('testStart', <any>{});
-				assert.equal(logger.callCount, 1, 'listener should have been called');
-				handle.destroy();
-				executor.emit('testStart', <any>{});
-				assert.equal(logger.callCount, 1, 'listener should not have been called');
+			'#on': {
+				'single event'() {
+					const logger = spy(() => { });
+					const handle = executor.on('testStart', logger);
+					executor.emit('testStart', <any>{});
+					assert.equal(logger.callCount, 1, 'listener should have been called');
+					handle.destroy();
+					executor.emit('testStart', <any>{});
+					assert.equal(logger.callCount, 1, 'listener should not have been called');
 
-				// Calling handle again should be fine
-				assert.doesNotThrow(() => { handle.destroy(); });
+					// Calling handle again should be fine
+					assert.doesNotThrow(() => { handle.destroy(); });
+				},
+
+				'all events'() {
+					const logger = spy(() => { });
+					executor.on(logger);
+					executor.emit('testStart', <any>{});
+					assert.equal(logger.callCount, 1, 'listener should have been called');
+					executor.emit('testEnd', <any>{});
+					assert.equal(logger.callCount, 2, 'listener should have been called');
+				}
 			},
 
 			'#registerPlugin': {
