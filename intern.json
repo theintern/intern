@@ -44,7 +44,7 @@
 			"_tests/tests/unit/lib/reporters/Reporter.js",
 			"_tests/tests/unit/tasks/intern.js"
 		],
-		"plugins": "_tests/tests/nodeMocking.js",
+		"plugins": "_tests/tests/support/nodeMocking.js",
 		"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } }
 	},
 
@@ -52,7 +52,7 @@
 		"suites": [
 			"_tests/tests/unit/lib/browser/util.js"
 		],
-		"plugins": "_tests/tests/dojoMocking.js",
+		"plugins": "_tests/tests/support/dojoMocking.js",
 		"loader": {
 			"script": "dojo2",
 			"options": {
