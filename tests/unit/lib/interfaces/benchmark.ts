@@ -3,12 +3,11 @@ import BenchmarkTest, { BenchmarkTestFunction } from 'src/lib/BenchmarkTest';
 import BenchmarkSuite from 'src/lib/BenchmarkSuite';
 import Suite from 'src/lib/Suite';
 
-import intern from '../../../../src/index';
 import { spy } from 'sinon';
 
-const { registerSuite } = intern().getPlugin('interface.object');
-const assert = intern().getPlugin('chai.assert');
-const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
+const { registerSuite } = intern.getPlugin('interface.object');
+const { assert } = intern.getPlugin('chai');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/interfaces/benchmark', function () {
 	let benchmarkInt: typeof _benchmarkInt;

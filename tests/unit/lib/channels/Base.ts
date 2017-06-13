@@ -3,7 +3,7 @@ import { RemoteEvents } from 'src/lib/RemoteSuite';
 import Task from '@dojo/core/async/Task';
 
 const { registerSuite } = intern.getPlugin('interface.object');
-const assert = intern.getPlugin('chai.assert');
+const { assert } = intern.getPlugin('chai');
 
 class TestBase extends Base {
 	sent: any[] = [];

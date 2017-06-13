@@ -1,7 +1,7 @@
 import Environment from 'src/lib/Environment';
 
 const { registerSuite } = intern.getPlugin('interface.object');
-const assert = intern.getPlugin('chai.assert');
+const { assert } = intern.getPlugin('chai');
 
 registerSuite('lib/Environment', {
 	'constructor with info'() {

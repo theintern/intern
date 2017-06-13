@@ -1,12 +1,11 @@
-import intern from '../../../src/index';
 import global from '@dojo/core/global';
 import Promise from '@dojo/shim/Promise';
 import { spy, stub } from 'sinon';
 import { LoaderInit } from 'src/lib/executors/Executor';
 
-const { registerSuite } = intern().getPlugin('interface.object');
-const assert = intern().getPlugin('chai.assert');
-const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
+const { registerSuite } = intern.getPlugin('interface.object');
+const { assert } = intern.getPlugin('chai');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 const originalIntern = global.intern;
 const originalRequire = global.require;
@@ -17,7 +16,7 @@ registerSuite('loaders/systemjs', function () {
 
 	const mockIntern = {
 		// Use whatever the local environment is
-		environment: intern().environment,
+		environment: intern.environment,
 		config: { basePath: '/' },
 		emit: spy(() => { }),
 		loadScript: spy(() => Promise.resolve()),
@@ -66,7 +65,7 @@ registerSuite('loaders/systemjs', function () {
 			init() {
 				const init = mockIntern.registerLoader.getCall(0).args[0];
 				return Promise.resolve(init({})).then(() => {
-					if (intern().environment === 'browser') {
+					if (intern.environment === 'browser') {
 						assert.equal(mockIntern.loadScript.callCount, 1);
 					}
 				});

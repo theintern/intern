@@ -16,8 +16,7 @@ This page briefly presents definitions and/or brief descriptions for several cor
 An assertion is simply a check that throws an error if the check fails. This means that no special library is required
 to make assertions. However, assertion libraries can make tests easier to understand, and can automatically generate
 meaningful failure messages. To that end, Intern includes the [Chai](https://chaijs.com) assertion library, and exposes
-its 3 interfaces (“assert”, “expect”, and “should”) as [plugins](architecture.md#plugins) called “chai.assert”,
-”chai.expect”, and ”chai.should”.
+it via the [plugin system](architecture.md#plugins) as “chai”.
 
 ## Code coverage
 
@@ -44,7 +43,7 @@ control remote browsers. A functional test might look like:
 
 ```ts
 const { registerSuite } = intern.getPlugin('interface.object');
-const assert = intern.getPlugin('chai.assert');
+const { assert } = intern.getPlugin('chai');
 registerSuite('home page', {
     'login'() {
         return this.remote
@@ -91,7 +90,7 @@ A unit test might look like:
 ```ts
 import Component from 'app/Component';
 const { registerSuite } = intern.getPlugin('interface.object');
-const assert = intern.getPlugin('chai.assert');
+const { assert } = intern.getPlugin('chai');
 registerSuite('Component', {
     '#add'() {
         // Assume 'Component' is a class with 'add' and 'get' methods

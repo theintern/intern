@@ -28,10 +28,10 @@ of writing and organizing tests. At a higher level, there are two general classe
 Tests should throw errors when some feature being tested doesn’t behave as expected. The standard `throw` mechanism will
 work for this purpose, but performing a particular test and constructing meaningful error messages can be tedious.
 Assertion libraries exist that can simplify this process. Intern bundles the [chai](http://chaijs.com) assertion
-library, and exposes its ‘[assert](http://chaijs.com/api/assert/)’, ‘[expect](http://chaijs.com/api/bdd/)’, and ‘[should](http://chaijs.com/api/bdd/)’ interfaces as 'chai.assert', 'chai.expect', and 'chai.should' plugins.
+library, and exposes it it vial the plugin system as “chai”.
 
 ```ts
-const assert = intern.getPlugin('chai.assert');
+const { assert } = intern.getPlugin('chai');
 ```
 
 When running with a module loader or in Node, Chai can be imported directly.

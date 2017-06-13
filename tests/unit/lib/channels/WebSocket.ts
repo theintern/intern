@@ -1,7 +1,7 @@
 import _WebSocket from 'src/lib/channels/WebSocket';
 
 const { registerSuite } = intern.getPlugin('interface.object');
-const assert = intern.getPlugin('chai.assert');
+const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 let WebSocket: typeof _WebSocket;

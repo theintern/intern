@@ -1,7 +1,7 @@
 import * as _util from 'src/lib/node/util';
 
 const { registerSuite } = intern.getPlugin('interface.object');
-const assert = intern.getPlugin('chai.assert');
+const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/node/util', function () {

@@ -1,12 +1,11 @@
 import _JUnit from 'src/lib/reporters/JUnit';
-import intern from '../../../../src/index';
 import { spy, stub } from 'sinon';
 import Test from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
 
-const { registerSuite } = intern().getPlugin('interface.object');
-const assert = intern().getPlugin('chai.assert');
-const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
+const { registerSuite } = intern.getPlugin('interface.object');
+const { assert } = intern.getPlugin('chai');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/reporters/JUnit', function () {
 	const mockExecutor = <any>{

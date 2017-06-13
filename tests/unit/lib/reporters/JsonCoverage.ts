@@ -1,8 +1,7 @@
 import JsonCoverage from 'src/lib/reporters/JsonCoverage';
-import intern from '../../../../src/index';
 
-const { registerSuite } = intern().getPlugin('interface.object');
-const assert = intern().getPlugin('chai.assert');
+const { registerSuite } = intern.getPlugin('interface.object');
+const { assert } = intern.getPlugin('chai');
 
 registerSuite('lib/reporters/JsonCoverage', {
 	construct() {

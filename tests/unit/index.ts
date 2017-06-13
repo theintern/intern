@@ -1,11 +1,11 @@
-import intern from '../../src/index';
+import _intern from '../../src/index';
 
-const { registerSuite } = intern().getPlugin('interface.object');
-const assert = intern().getPlugin('chai.assert');
-const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
+const { registerSuite } = intern.getPlugin('interface.object');
+const { assert } = intern.getPlugin('chai');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('index', function () {
-	let index: typeof intern;
+	let index: typeof _intern;
 	let removeMocks: () => void;
 
 	return {

@@ -1,13 +1,12 @@
 import _Reporter, { createEventHandler, eventHandler } from 'src/lib/reporters/Reporter';
 import { Events } from 'src/lib/executors/Executor';
-import intern from '../../../../src/index';
 import { spy } from 'sinon';
 import global from '@dojo/core/global';
 import Test from 'src/lib/Test';
 
-const { registerSuite } = intern().getPlugin('interface.object');
-const assert = intern().getPlugin('chai.assert');
-const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
+const { registerSuite } = intern.getPlugin('interface.object');
+const { assert } = intern.getPlugin('chai');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/reporters/Reporter', function () {
 	const mockExecutor = <any>{

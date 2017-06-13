@@ -1,5 +1,4 @@
-import intern from '../../../src/index';
-const assert = intern().getPlugin('chai.assert');
+const { assert } = intern.getPlugin('chai');
 import Executor, { Config } from 'src/lib/executors/Executor';
 import { SinonSpy } from 'sinon';
 

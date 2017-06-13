@@ -66,7 +66,7 @@ Current events are:
 | tunnelStop | TunnelMessage | The tunnel has stopped
 | warning | string | A non-fatal error occurred
 
-A listener can be notified of all events by registering for the '*' event, or by just calling `on` with a callback:
+A listener can be notified of all events by registering for the '*' event, or by calling `on` with only a callback:
 
 ```ts
 intern.on(event => {

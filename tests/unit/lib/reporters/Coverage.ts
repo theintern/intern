@@ -1,10 +1,9 @@
 import _Coverage, { CoverageProperties } from 'src/lib/reporters/Coverage';
-import intern from '../../../../src/index';
 import { spy, stub } from 'sinon';
 
-const { registerSuite } = intern().getPlugin('interface.object');
-const assert = intern().getPlugin('chai.assert');
-const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
+const { registerSuite } = intern.getPlugin('interface.object');
+const { assert } = intern.getPlugin('chai');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 interface FullCoverage extends _Coverage {
 	new (executor: Node, options: CoverageProperties): _Coverage;

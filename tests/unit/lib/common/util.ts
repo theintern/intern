@@ -3,7 +3,7 @@ import * as util from 'src/lib/common/util';
 import Task from '@dojo/core/async/Task';
 
 const { registerSuite } = intern.getPlugin('interface.object');
-const assert = intern.getPlugin('chai.assert');
+const { assert } = intern.getPlugin('chai');
 
 registerSuite('lib/common/util', {
 	loadConfig: {

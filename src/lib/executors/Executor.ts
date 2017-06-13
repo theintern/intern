@@ -12,7 +12,7 @@ import { getInterface as getBddInterface, BddInterface } from '../interfaces/bdd
 import { getInterface as getBenchmarkInterface, BenchmarkInterface } from '../interfaces/benchmark';
 import { BenchmarkReporterOptions } from '../reporters/Benchmark';
 import Promise from '@dojo/shim/Promise';
-import { assert, expect, should } from 'chai';
+import * as chai from 'chai';
 import { RuntimeEnvironment } from '../types';
 import global from '@dojo/core/global';
 
@@ -83,9 +83,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this.registerPlugin('interface.bdd', () => getBddInterface(this));
 		this.registerPlugin('interface.benchmark', () => getBenchmarkInterface(this));
 
-		this.registerPlugin('chai.assert', () => assert);
-		this.registerPlugin('chai.expect', () => expect);
-		this.registerPlugin('chai.should', () => should);
+		this.registerPlugin('chai', () => chai);
 
 		this._rootSuite = new Suite({ executor: this });
 
@@ -213,9 +211,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Get any resources registered by a particular plugin.
 	 */
 	getPlugin<Y extends keyof P>(type: Y, name: string): P[Y];
-	getPlugin(name: 'chai.assert'): Chai.AssertStatic;
-	getPlugin(name: 'chai.expect'): Chai.ExpectStatic;
-	getPlugin(name: 'chai.should'): Chai.Should;
+	getPlugin(name: 'chai'): Chai.ChaiStatic;
 	getPlugin(name: 'interface.object'): ObjectInterface;
 	getPlugin(name: 'interface.tdd'): TddInterface;
 	getPlugin(name: 'interface.bdd'): BddInterface;
@@ -223,11 +219,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	getPlugin<T>(name: string): T;
 	getPlugin<T>(type: string, name?: string): T {
 		const pluginName = typeof name === 'undefined' ? type : `${type}.${name}`;
-
-		// The 'should' assertion interface must be initialized before being used
-		if (pluginName === 'chai.should' && !Object.prototype.hasOwnProperty('should')) {
-			this._plugins[pluginName] = this._plugins[pluginName]();
-		}
 
 		if (!(pluginName in this._plugins)) {
 			throw new Error(`A plugin named "${pluginName}" has not been registered`);

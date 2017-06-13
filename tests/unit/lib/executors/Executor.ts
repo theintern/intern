@@ -4,12 +4,11 @@ import { spy } from 'sinon';
 
 // Import isSuite from the testing source rather than the source being tested
 import { isSuite } from '../../../../src/lib/Suite';
-import intern from '../../../../src/index';
 import { testProperty } from '../../../support/unit/executor';
 
-const { registerSuite } = intern().getPlugin('interface.object');
-const assert = intern().getPlugin('chai.assert');
-const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
+const { registerSuite } = intern.getPlugin('interface.object');
+const { assert } = intern.getPlugin('chai');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 // Create an interface to de-abstract the abstract properties in Executor
 interface FullExecutor extends _Executor {
@@ -340,16 +339,17 @@ registerSuite('lib/executors/Executor', function () {
 			},
 
 			'#getPlugin': {
-				'general plugin'() {
+				'registered'() {
 					return executor.run().then(() => {
-						assert.equal(executor.getPlugin<any>('chai.assert'), 'assert');
+						assert.propertyVal(executor.getPlugin<any>('chai'), 'assert', 'assert');
 					});
 				},
 
-				'chai.should'() {
+				'not registered'() {
 					return executor.run().then(() => {
-						assert.equal(executor.getPlugin<any>('chai.should'), 'should');
-						assert.equal(mockChai.should.callCount, 1, '"should" factory should have been called');
+						assert.throws(() => {
+							executor.getPlugin<any>('foo');
+						}, /has not been registered/);
 					});
 				}
 			},

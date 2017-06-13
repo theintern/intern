@@ -1,10 +1,9 @@
 import _Runner from 'src/lib/reporters/Runner';
-import intern from '../../../../src/index';
 import { spy, stub } from 'sinon';
 
-const { registerSuite } = intern().getPlugin('interface.object');
-const assert = intern().getPlugin('chai.assert');
-const mockRequire = intern().getPlugin<mocking.MockRequire>('mockRequire');
+const { registerSuite } = intern.getPlugin('interface.object');
+const { assert } = intern.getPlugin('chai');
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/reporters/Runner', function () {
 	const mockCharm = {

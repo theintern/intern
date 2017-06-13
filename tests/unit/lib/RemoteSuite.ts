@@ -3,7 +3,7 @@ import { mockNodeExecutor, mockRemoteAndSession, mockServer, MockNode } from '..
 import { ObjectSuiteDescriptor } from '../../../src/lib/interfaces/object';
 
 const { registerSuite } = intern.getPlugin('interface.object');
-const assert = intern.getPlugin('chai.assert');
+const { assert } = intern.getPlugin('chai');
 
 registerSuite('lib/RemoteSuite', {
 	tests: {
