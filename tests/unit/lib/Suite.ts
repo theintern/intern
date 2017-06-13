@@ -10,9 +10,6 @@ import _Deferred from '../../../src/lib/Deferred';
 import { TestFunction as _TestFunction } from '../../../src/lib/Test';
 import { ObjectSuiteDescriptor as _ObjectSuiteDescriptor, Tests } from '../../../src/lib/interfaces/object';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-
 type lifecycleMethod = 'before' | 'beforeEach' | 'afterEach' | 'after';
 
 interface TestWrapper {

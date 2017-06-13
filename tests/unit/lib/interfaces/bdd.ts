@@ -1,9 +1,6 @@
 import * as bddInt from 'src/lib/interfaces/bdd';
 import * as tddInt from 'src/lib/interfaces/tdd';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-
 registerSuite('lib/interfaces/bdd', {
 	// Since this interface is the same as tdd, just check that it really is the same
 	'tdd equivalence'() {

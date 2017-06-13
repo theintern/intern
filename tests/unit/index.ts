@@ -1,7 +1,5 @@
 import _intern from '../../src/index';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('index', function () {

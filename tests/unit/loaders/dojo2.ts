@@ -3,8 +3,6 @@ import Promise from '@dojo/shim/Promise';
 import { spy } from 'sinon';
 import { LoaderInit } from 'src/lib/executors/Executor';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 const originalIntern = global.intern;

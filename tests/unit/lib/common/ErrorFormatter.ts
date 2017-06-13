@@ -2,8 +2,6 @@ import _ErrorFormatter from 'src/lib/common/ErrorFormatter';
 import { InternError } from 'src/lib/types';
 import { mockExecutor, MockExecutor } from '../../../support/unit/mocks';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 let ErrorFormatter: typeof _ErrorFormatter;

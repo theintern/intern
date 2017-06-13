@@ -4,8 +4,6 @@ import { mockNodeExecutor, MockNode } from '../../../support/unit/mocks';
 import { join } from 'path';
 import { duplicate } from '@dojo/core/lang';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 let ErrorFormatter: typeof _ErrorFormatter;

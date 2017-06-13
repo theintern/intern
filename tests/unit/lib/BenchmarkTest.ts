@@ -7,9 +7,6 @@ import Deferred from 'src/lib/Deferred';
 import Task from '@dojo/core/async/Task';
 import Promise from '@dojo/shim/Promise';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-
 type FullBenchmarkTestFunction = BenchmarkTestFunction & { options: any };
 
 function getTestFunction(testFunc: BenchmarkTestFunction, isAsync?: boolean): FullBenchmarkTestFunction {

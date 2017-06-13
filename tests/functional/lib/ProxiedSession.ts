@@ -7,9 +7,6 @@ import Task from '@dojo/core/async/Task';
 // Bring in Test and TestFunction from testing src rather than the src being tested
 import Test, { TestFunction } from '../../../src/lib/Test';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-
 registerSuite('ProxiedSession', function () {
 	const serverUrl = 'https://example.invalid/';
 	const serverBasePathLength = 1;

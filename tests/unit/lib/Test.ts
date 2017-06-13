@@ -9,9 +9,6 @@ import Promise from '@dojo/shim/Promise';
 import Task, { State } from '@dojo/core/async/Task';
 import { Thenable } from '@dojo/shim/interfaces';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-
 function createTest(options: Partial<TestProperties> & { executor?: Executor } = {}) {
 	if (!options.parent) {
 		options.parent = <Suite>{};

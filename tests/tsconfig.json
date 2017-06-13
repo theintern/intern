@@ -12,6 +12,7 @@
   },
   "extends": "../tsconfig.json",
   "include": [
+    "./globals.d.ts",
     "./benchmark/example.ts",
     "./support/**/*.ts",
     "./unit/index.ts",

@@ -1,8 +1,6 @@
 import Task from '@dojo/core/async/Task';
 import { stub, SinonStub, spy, SinonSpy } from 'sinon';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('bin/intern', function () {

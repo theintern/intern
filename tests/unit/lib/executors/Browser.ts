@@ -1,8 +1,6 @@
 import _Browser, { Config } from 'src/lib/executors/Browser';
 import { spy } from 'sinon';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 let Browser: typeof _Browser;

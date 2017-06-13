@@ -5,8 +5,6 @@ import { spy, SinonSpy } from 'sinon';
 
 import { testProperty } from '../../../support/unit/executor';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/executors/Node', function () {

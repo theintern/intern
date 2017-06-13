@@ -2,8 +2,6 @@ import _Http from 'src/lib/channels/Http';
 import { spy } from 'sinon';
 import Task from '@dojo/core/async/Task';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 let Http: typeof _Http;

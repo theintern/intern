@@ -2,9 +2,6 @@ import Base, { isChannel } from 'src/lib/channels/Base';
 import { RemoteEvents } from 'src/lib/RemoteSuite';
 import Task from '@dojo/core/async/Task';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-
 class TestBase extends Base {
 	sent: any[] = [];
 	_sendData(name: keyof RemoteEvents, data: any) {

@@ -6,8 +6,6 @@ import { spy } from 'sinon';
 import { isSuite } from '../../../../src/lib/Suite';
 import { testProperty } from '../../../support/unit/executor';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 // Create an interface to de-abstract the abstract properties in Executor

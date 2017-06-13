@@ -2,8 +2,6 @@ import _gruntTask from 'src/tasks/intern';
 import { spy, stub } from 'sinon';
 import global from '@dojo/core/global';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 const originalIntern = global.intern;
 

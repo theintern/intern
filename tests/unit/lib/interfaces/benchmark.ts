@@ -5,8 +5,6 @@ import Suite from 'src/lib/Suite';
 
 import { spy } from 'sinon';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/interfaces/benchmark', function () {

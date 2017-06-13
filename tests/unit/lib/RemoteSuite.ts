@@ -2,9 +2,6 @@ import RemoteSuite from 'src/lib/RemoteSuite';
 import { mockNodeExecutor, mockRemoteAndSession, mockServer, MockNode } from '../../support/unit/mocks';
 import { ObjectSuiteDescriptor } from '../../../src/lib/interfaces/object';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-
 registerSuite('lib/RemoteSuite', {
 	tests: {
 		'id property'() {

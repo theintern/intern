@@ -26,6 +26,8 @@
 
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 
+	"plugins": "_tests/tests/support/globalUi.js",
+
 	"node": {
 		"suites": [
 			"_tests/tests/unit/bin/intern.js",

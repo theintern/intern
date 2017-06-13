@@ -2,9 +2,6 @@ import { NormalizedEnvironment } from 'digdug/Tunnel';
 import Environment from 'src/lib/Environment';
 import resolveEnvironments, { EnvironmentOptions } from 'src/lib/resolveEnvironments';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-
 const availableChrome: NormalizedEnvironment[] = [
 	{ browserName: 'chrome', version: 'beta', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } },
 	{ browserName: 'chrome', version: 'dev', platform: 'windows', descriptor: {}, intern: { platform: '', browserName: '', version: '' } },
