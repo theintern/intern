@@ -33,7 +33,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _loaderConfig: any;
 	protected _loaderInit: Promise<Loader>;
 	protected _autoLoadingPlugins: boolean;
-	protected _loadingPlugins: { [name: string]: Task<any> };
+	protected _loadingPlugins: { name: string, init: PluginInitializer, options?: any }[];
 	protected _loadingPluginOptions: any | undefined;
 	protected _listeners: { [event: string]: Listener<any>[] };
 	protected _plugins: { [name: string]: any };
@@ -76,7 +76,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this._listeners = {};
 		this._reporters = [];
 		this._plugins = {};
-		this._loadingPlugins = {};
+		this._loadingPlugins = [];
 
 		this.registerPlugin('interface.object', () => getObjectInterface(this));
 		this.registerPlugin('interface.tdd', () => getTddInterface(this));
@@ -300,24 +300,14 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 	/**
 	 * Register a plugin that will be loaded at the beginning of the testing process, after the loader but before any
-	 * suites are registered.
+	 * suites are registered. Plugins will be initialized in the order in which they are registered.
 	 */
-	registerPlugin<T extends keyof P>(type: T, name: string, init: PluginInitializer<P[T]>): Task<void>;
-	registerPlugin(name: string, init: PluginInitializer): Task<void>;
+	registerPlugin<T extends keyof P>(type: T, name: string, init: PluginInitializer<P[T]>): void;
+	registerPlugin(name: string, init: PluginInitializer): void;
 	registerPlugin(type: string, name: string | PluginInitializer, init?: PluginInitializer) {
 		const pluginName = typeof init === 'undefined' ? type : `${type}.${name}`;
 		const pluginInit = typeof init === 'undefined' ? <PluginInitializer>name : init;
-
-		const loadTask = Task.resolve(this._loadingPluginOptions ? pluginInit(this._loadingPluginOptions) : pluginInit())
-			.then(plugin => {
-				if (type === 'reporter' && typeof plugin !== 'function') {
-					throw new Error('A reporter plugin must be a constructor');
-				}
-				return plugin;
-			});
-
-		this._loadingPlugins[pluginName] = loadTask;
-		return loadTask;
+		this._loadingPlugins.push({ name: pluginName, init: pluginInit, options: this._loadingPluginOptions });
 	}
 
 	/**
@@ -549,8 +539,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			.reduce((previous, plugin) => {
 				return previous.then(() => {
 					this._loadingPluginOptions = plugin.options;
-					return this._loader([plugin.script])
-						.then(() => { this._loadingPluginOptions = undefined; });
+					return this._loader([plugin.script]).then(() => { this._loadingPluginOptions = undefined; });
 				});
 			}, Task.resolve())
 			.finally(() => {
@@ -559,10 +548,17 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			.then(() => {
 				// Wait for all plugin registrations, both configured ones and any that were manually registered, to
 				// resolve
-				return Object.keys(this._loadingPlugins).reduce((previous, name) => {
-					return previous.then(() => this._loadingPlugins[name].then(plugin => {
-						this._plugins[name] = plugin;
-					}));
+				return this._loadingPlugins.reduce((previous, entry) => {
+					return previous.then(() => {
+						const result = entry.options ? entry.init(entry.options) : entry.init();
+						return Task.resolve(result).then(plugin => {
+							const name = entry.name;
+							if (name.indexOf('reporter.') === 0 && typeof plugin !== 'function') {
+								throw new Error('A reporter plugin must be a constructor');
+							}
+							this._plugins[name] = plugin;
+						});
+					});
 				}, Task.resolve());
 			});
 	}

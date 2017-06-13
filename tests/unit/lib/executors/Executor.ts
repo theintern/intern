@@ -415,19 +415,19 @@ registerSuite('lib/executors/Executor', function () {
 				direct() {
 					executor.configure({ plugins: <any>'foo.js' });
 					const pluginInit = spy(() => 'bar');
-					return executor.registerPlugin('foo', pluginInit).then(() => {
+					executor.registerPlugin('foo', pluginInit);
+					return executor.run().then(() => {
 						assert.equal(pluginInit.callCount, 1);
-						return executor.run().then(() => {
-							assert.equal(executor.getPlugin('foo'), 'bar',
-								'expected plugin to have resolved value of init function');
-						});
+						assert.equal(executor.getPlugin('foo'), 'bar',
+							'expected plugin to have resolved value of init function');
 					});
 				},
 
 				'invalid reporter'() {
 					executor.configure({ plugins: <any>'foo.js' });
 					const pluginInit = spy(() => 'bar');
-					return executor.registerPlugin('reporter', 'foo', pluginInit).then(
+					executor.registerPlugin('reporter', 'foo', pluginInit);
+					return executor.run().then(
 						() => { throw new Error('registration should not have succeeded'); },
 						error => { assert.match(error.message, /A reporter plugin/); }
 					);
@@ -501,7 +501,7 @@ registerSuite('lib/executors/Executor', function () {
 					invalid() {
 						executor.registerPlugin('reporter.foo', () => { return {}; });
 						executor.configure({ reporters: <any>'foo' });
-						return assertRunFails(executor, /isn't a valid constructor/);
+						return assertRunFails(executor, /A reporter plugin/);
 					}
 				},
 
