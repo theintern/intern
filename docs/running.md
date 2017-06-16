@@ -110,8 +110,15 @@ assumption is that Grunt will be used to construct the desired config.
 
 Intern may also be configured and run with a custom script. The basic steps this script must perform are:
 
-1. Load the Node executor
-2. Construct a new instance of Node and assign it to the `intern` global.
+1. Import/require the Node executor
+2. [Construct a new instance of Node](configuration.md#programmatically) and assign it to the `intern` global. The
+   config should include at least one suite and a reporter.
+   ```js
+   global.intern = new Node({
+       suites: 'tests/unit/a.js',
+       reporters: 'runner'
+    });
+    ```
 3. Call `intern.run()`
 
 ## Custom HTML Page
@@ -119,6 +126,12 @@ Intern may also be configured and run with a custom script. The basic steps this
 Intern may be configured and run in a browser with a custom HTML page. The basic steps are:
 
 1. Load the Browser executor (`<script src="node_modules/intern/browser/intern.js"></script>`). The `intern.js` script
-   will automatically initialize a Browser executor.
-2. Configure the executor
+   will automatically initialize a Browser executor and assign it to an `intern` global.
+2. [Configure the executor](configuration.md#programmatically). Include at least one suite at a reporter.
+   ```js
+   intern.configure({
+       suites: 'tests/unit/a.js',
+       reporters: 'html'
+   });
+    ```
 3. Call `intern.run()`
