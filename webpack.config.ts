@@ -1,11 +1,26 @@
-var path = require('path');
+import { join } from 'path';
+import { optimize, Configuration } from 'webpack';
 
-var common = {
+const common: Configuration = {
 	devtool: 'source-map',
 	module: {
-		loaders: [
-			{ test: /_(?:build|tests)\//, loader: 'umd-compat-loader' },
-			{ test: /@dojo\//, loader: 'umd-compat-loader' }
+		rules: [
+			{
+				test: /_(?:build|tests)\//,
+				use: 'umd-compat-loader'
+			},
+			{
+				test: /@dojo\//,
+				use: 'umd-compat-loader'
+			},
+			{
+				test: /\.styl$/,
+				use: [
+					'style-loader',
+					'css-loader',
+					'stylus-loader'
+				]
+			}
 		],
 		noParse: /benchmark\/benchmark.js/
 	},
@@ -20,8 +35,15 @@ var common = {
 	}
 };
 
+if (process.env['NODE_ENV'] === 'production') {
+	common.plugins = [
+		new optimize.UglifyJsPlugin()
+	];
+}
+
 module.exports = [
-	Object.assign({}, common, {
+	{
+		...common,
 		entry: {
 			intern: './_build/src/browser/intern.src.js',
 			remote: './_build/src/browser/remote.src.js',
@@ -29,10 +51,11 @@ module.exports = [
 		},
 		output: {
 			filename: '[name].js',
-			path: path.join(__dirname, '_build/src/browser')
+			path: join(__dirname, '_build/src/browser')
 		}
-	}),
-	Object.assign({}, common, {
+	},
+	{
+		...common,
 		entry: {
 			intern: './_tests/src/browser/intern.src.js',
 			remote: './_tests/src/browser/remote.src.js',
@@ -40,7 +63,7 @@ module.exports = [
 		},
 		output: {
 			filename: '[name].js',
-			path: path.join(__dirname, '_tests/src/browser')
+			path: join(__dirname, '_tests/src/browser')
 		}
-	})
+	}
 ];

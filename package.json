@@ -92,18 +92,22 @@
     "@types/shelljs": "~0.7.2",
     "@types/sinon": "~2.2.2",
     "@types/systemjs": "~0.20.2",
+    "@types/webpack": "~2.2.15",
     "chokidar": "~1.7.0",
-    "intern-dev": "~0.3.3",
+    "css-loader": "~0.28.4",
+    "intern-dev": "~0.3.4",
     "sinon": "~2.3.2",
+    "style-loader": "~0.18.2",
     "stylus": "~0.54.5",
-    "ts-node": "~3.0.4",
+    "stylus-loader": "~3.0.1",
+    "ts-node": "~3.0.6",
     "umd-compat-loader": "~2.0.1",
     "webpack": "~2.6.1"
   },
   "internDev": {
     "resources": {
       "_build": [
-        "src/**/*.{css,d.ts,html,js,png}",
+        "src/**/*.{styl,d.ts,html,js,png}",
         "src/**/!(tsconfig).json"
       ],
       "_build/src": [
@@ -112,11 +116,8 @@
       ],
       "_tests": [
         "tests/**/*.{xml,d.ts,js}",
-        "src/**/*.{css,d.ts,html,js,png}"
+        "src/**/*.{styl,d.ts,html,js,png}"
       ]
-    },
-    "stylus": [
-      "src/lib/reporters/html/html.styl"
-    ]
+    }
   }
 }
