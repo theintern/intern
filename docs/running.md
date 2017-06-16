@@ -119,6 +119,9 @@ Intern may also be configured and run with a custom script. The basic steps this
 Intern may be configured and run in a browser with a custom HTML page. The basic steps are:
 
 1. Load the Browser executor (`<script src="node_modules/intern/browser/intern.js"></script>`). The `intern.js` script
-   will automatically initialize a Browser executor.
-2. Configure the executor
+   will automatically initialize a Browser executor. This will create an `intern` global.
+2. Configure the executor  `intern.configure({
+                suites: [
+                    'tests/unit/a.js'
+                ])`
 3. Call `intern.run()`
