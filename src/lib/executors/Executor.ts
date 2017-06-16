@@ -2,7 +2,7 @@ import Suite from '../Suite';
 import Test from '../Test';
 import { deepMixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
-import Task, { State } from '@dojo/core/async/Task';
+import Task, { isThenable, isTask, State } from '@dojo/core/async/Task';
 import ErrorFormatter, { ErrorFormatOptions } from '../common/ErrorFormatter';
 import { normalizePathEnding, parseValue, pullFromArray } from '../common/util';
 import Reporter, { ReporterOptions } from '../reporters/Reporter';
@@ -33,7 +33,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _loaderConfig: any;
 	protected _loaderInit: Promise<Loader>;
 	protected _autoLoadingPlugins: boolean;
-	protected _loadingPlugins: { name: string, init: PluginInitializer, options?: any }[];
+	protected _loadingPlugins: { name: string, init: Task<void> }[];
 	protected _loadingPluginOptions: any | undefined;
 	protected _listeners: { [event: string]: Listener<any>[] };
 	protected _plugins: { [name: string]: any };
@@ -126,8 +126,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
-	 * Load a script or scripts. This is a convenience method for loading and evaluating simple scripts, not modules. If
-	 * multiple script paths are provided, scripts will be loaded sequentially in the order given.
+	 * Load a script or scripts. This is a convenience method for loading and evaluating simple scripts, not necessarily
+	 * modules. If multiple script paths are provided, scripts will be loaded sequentially in the order given.
 	 *
 	 * @param script a path to a script
 	 */
@@ -300,14 +300,30 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 	/**
 	 * Register a plugin that will be loaded at the beginning of the testing process, after the loader but before any
-	 * suites are registered. Plugins will be initialized in the order in which they are registered.
+	 * suites are registered.
 	 */
 	registerPlugin<T extends keyof P>(type: T, name: string, init: PluginInitializer<P[T]>): void;
 	registerPlugin(name: string, init: PluginInitializer): void;
 	registerPlugin(type: string, name: string | PluginInitializer, init?: PluginInitializer) {
 		const pluginName = typeof init === 'undefined' ? type : `${type}.${name}`;
 		const pluginInit = typeof init === 'undefined' ? <PluginInitializer>name : init;
-		this._loadingPlugins.push({ name: pluginName, init: pluginInit, options: this._loadingPluginOptions });
+		const options = this._loadingPluginOptions;
+		const result = options ? pluginInit(options) : pluginInit();
+		if (isThenable(result)) {
+			// If the result is thenable, push it on the loading queue
+			this._loadingPlugins.push({
+				name: pluginName,
+				init: new Task<void>(
+					(resolve, reject) => result.then(() => { resolve(); }, reject),
+					() => { isTask(result) && result.cancel(); }
+				)
+			});
+
+		}
+		else {
+			// If the result is not thenable, immediately add it to the plugins list
+			this._assignPlugin(pluginName, result);
+		}
 	}
 
 	/**
@@ -438,6 +454,16 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
+	 * Add a resolved plugin to the internal plugins list
+	 */
+	protected _assignPlugin(name: string, plugin: any) {
+		if (name.indexOf('reporter.') === 0 && typeof plugin !== 'function') {
+			throw new Error('A reporter plugin must be a constructor');
+		}
+		this._plugins[name] = plugin;
+	}
+
+	/**
 	 * Code to execute before the main test run has started to set up the test system. This is where Executors can do
 	 * any last-minute configuration before the testing process begins.
 	 *
@@ -548,18 +574,13 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			.then(() => {
 				// Wait for all plugin registrations, both configured ones and any that were manually registered, to
 				// resolve
-				return this._loadingPlugins.reduce((previous, entry) => {
-					return previous.then(() => {
-						const result = entry.options ? entry.init(entry.options) : entry.init();
-						return Task.resolve(result).then(plugin => {
-							const name = entry.name;
-							if (name.indexOf('reporter.') === 0 && typeof plugin !== 'function') {
-								throw new Error('A reporter plugin must be a constructor');
-							}
-							this._plugins[name] = plugin;
+				return Task.all(this._loadingPlugins.map(entry => entry.init))
+					.then(plugins => {
+						plugins.forEach((plugin, index) => {
+							const { name } = this._loadingPlugins[index];
+							this._assignPlugin(name, plugin);
 						});
 					});
-				}, Task.resolve());
 			});
 	}
 
