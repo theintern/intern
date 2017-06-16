@@ -17,7 +17,7 @@ to configure Intern and start tests.
     <head>
         <script src="node_modules/intern/browser/intern.js"></script>
         <script>
-            intern.config({
+            intern.configure({
                 suites: [
                     'tests/unit/a.js',
                     'tests/unit/b.js'
