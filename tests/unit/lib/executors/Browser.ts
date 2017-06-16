@@ -132,7 +132,9 @@ registerSuite('lib/executors/Browser', function () {
 			'#loadScript': {
 				'null input'() {
 					// Verify that it doesn't reject
-					return executor.loadScript(<any>null);
+					assert.throws(() => {
+						executor.loadScript(<any>null);
+					}, /null/);
 				},
 
 				'single script'() {

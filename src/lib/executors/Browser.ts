@@ -4,6 +4,11 @@ import { RuntimeEnvironment } from '../types';
 import Task from '@dojo/core/async/Task';
 import global from '@dojo/core/global';
 
+// Reporters
+import Html from '../reporters/Html';
+import Dom from '../reporters/Dom';
+import ConsoleReporter from '../reporters/Console';
+
 const console: Console = global.console;
 
 /**
@@ -13,7 +18,7 @@ export default class Browser extends Executor<Events, Config> {
 	constructor(config?: Partial<Config>) {
 		super(<Config>{
 			basePath: '/',
-			internPath: global.location.pathname
+			internPath: 'node_modules/intern/'
 		});
 
 		// Report uncaught errors
@@ -28,6 +33,10 @@ export default class Browser extends Executor<Events, Config> {
 			error.stack = `${event.filename}:${event.lineno}:${event.colno}`;
 			this.emit('error', error);
 		});
+
+		this.registerPlugin('reporter', 'html', () => Html);
+		this.registerPlugin('reporter', 'dom', () => Dom);
+		this.registerPlugin('reporter', 'console', () => ConsoleReporter);
 
 		if (config) {
 			this.configure(config);
@@ -44,10 +53,6 @@ export default class Browser extends Executor<Events, Config> {
 	 * @param script a path to a script
 	 */
 	loadScript(script: string | string[]) {
-		if (script == null) {
-			return Task.resolve();
-		}
-
 		if (typeof script === 'string') {
 			script = [script];
 		}
@@ -64,8 +69,8 @@ export default class Browser extends Executor<Events, Config> {
 		return super._resolveConfig().then(() => {
 			const config = this.config;
 
-			if (!config.internPath) {
-				config.internPath = 'node_modules/intern/';
+			if (config.internPath[0] !== '/') {
+				config.internPath = `${config.basePath}${config.internPath}`;
 			}
 
 			// Filter out globs from suites and browser suites
@@ -80,10 +85,6 @@ export default class Browser extends Executor<Events, Config> {
 			[ 'basePath', 'internPath' ].forEach((key: keyof Config) => {
 				config[key] = normalizePathEnding(<string>config[key]);
 			});
-
-			if (config.internPath[0] !== '/') {
-				config.internPath = `${config.basePath}${config.internPath}`;
-			}
 		});
 	}
 }
