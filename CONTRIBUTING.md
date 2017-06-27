@@ -33,7 +33,7 @@ than anything you could offer to big OSS projects that are already well-funded b
 Facebook.
 
 If you want to get involved with the sexy, sexy world of testing software, but aren’t sure where to start, come
-[talk to us on Gitter](https://gitter.com/theintern/intern) or look through the list of
+[talk to us on Gitter](https://gitter.im/theintern/intern) or look through the list of
 [help-wanted tickets](https://github.com/theintern/intern/labels/help-wanted) for something that piques your interest.
 The development team is always happy to provide guidance to new contributors!
 
