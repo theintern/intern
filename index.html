@@ -552,7 +552,7 @@
 						<p>Intern’s configuration files are actually <a href="http://dojotoolkit.org/documentation/tutorials/1.10/modules/">standard AMD modules</a> that export a configuration object. This allows simple inheritance of parent configurations and enables test configurations to be generated programmatically at runtime.</p>
 						<p>The configuration file is specified using the <a href="#execution-modes"><kbd>config</kbd> argument</a> on the command-line (for Node.js) or the <kbd>config</kbd> argument in the URL query-string (for browsers).</p>
 
-						<aside class="tip"><p>Take a look at the <a href="https://github.com/theintern/intern/blob/master/tests/example.intern.js">example configuration file</a> that comes with Intern to learn what a valid configuration looks like.</p></aside>
+						<aside class="tip"><p>Take a look at the <a href="https://github.com/theintern/intern/blob/3.4/tests/example.intern.js">example configuration file</a> that comes with Intern to learn what a valid configuration looks like.</p></aside>
 
 						<p>The following configuration options are common to <a href="#execution-modes">all execution modes</a> in Intern:</p>
 
@@ -3410,7 +3410,7 @@ define(function (require) {
 	};
 });</code></pre>
 
-						<aside class="tip"><p>The <a href="https://github.com/theintern/intern/tree/master/lib/interfaces">built-in interfaces</a> can also be used as a reference to understand how to better create a custom interface.</p></aside>
+						<aside class="tip"><p>The <a href="https://github.com/theintern/intern/tree/3.4/lib/interfaces">built-in interfaces</a> can also be used as a reference to understand how to better create a custom interface.</p></aside>
 
 						<h4>As a loader plugin (for tests written in other languages)</h4>
 
@@ -3727,7 +3727,7 @@ define({
 						<div class="a half" id="suite-object"></div>
 						<h3 data-id="suite-object">The Suite object</h3>
 
-						<p>The <a href="https://github.com/theintern/intern/blob/master/lib/Suite.js"><dfn>Suite object</dfn></a> represents a logical grouping of tests within a test run. When inside a setup (a.k.a. “before”), beforeEach, afterEach, or teardown (a.k.a. “after”) method, the <code class="javascript">this</code> object will be the Suite object that represents that suite.</p>
+						<p>The <a href="https://github.com/theintern/intern/blob/3.4/lib/Suite.js"><dfn>Suite object</dfn></a> represents a logical grouping of tests within a test run. When inside a setup (a.k.a. “before”), beforeEach, afterEach, or teardown (a.k.a. “after”) method, the <code class="javascript">this</code> object will be the Suite object that represents that suite.</p>
 
 						<p>The following properties and methods are available on all Suite objects:</p>
 
@@ -3848,7 +3848,7 @@ define({
 						<div class="a half" id="test-object"></div>
 						<h3 data-id="test-object">The Test object</h3>
 
-						<p>The <a href="https://github.com/theintern/intern/blob/master/lib/Test.js"><dfn>Test object</dfn></a> represents a single test within a test run. When inside a test function, the <code class="javascript">this</code> object will be the Test object that represents that test.</p>
+						<p>The <a href="https://github.com/theintern/intern/blob/3.4/lib/Test.js"><dfn>Test object</dfn></a> represents a single test within a test run. When inside a test function, the <code class="javascript">this</code> object will be the Test object that represents that test.</p>
 
 						<p>The following properties and methods are available on all Test objects:</p>
 
@@ -3933,7 +3933,7 @@ define({
 						<div class="a half" id="benchmarkTest-object"></div>
 						<h3 data-id="benchmarkTest-object">The BenchmarkTest object</h3>
 
-						<p>The <a href="https://github.com/theintern/intern/blob/master/lib/BenchmarkTest.js"><dfn>BenchmarkTest object</dfn></a> is an extension of the <a href="#test-object">Test object</a> that represents a single benchmark test within a test run. It manages the execution of benchmark its test using the <a href="https://benchmarkjs.com">Benchmark.js</a> library. It supports the Test API, barring the <code class="javascript">async</code> and <code class="javascript">skip</code> methods.</p>
+						<p>The <a href="https://github.com/theintern/intern/blob/3.4/lib/BenchmarkTest.js"><dfn>BenchmarkTest object</dfn></a> is an extension of the <a href="#test-object">Test object</a> that represents a single benchmark test within a test run. It manages the execution of benchmark its test using the <a href="https://benchmarkjs.com">Benchmark.js</a> library. It supports the Test API, barring the <code class="javascript">async</code> and <code class="javascript">skip</code> methods.</p>
 					</article>
 
 					<article>
