@@ -1,14 +1,13 @@
-# ディグダグ
+<p align="center"><img src="docs/logo.svg" alt="Dig Dug logo" height="128"></p>
+
+# Dig Dug
 
 [![Build Status](https://travis-ci.org/theintern/digdug.svg?branch=master)](https://travis-ci.org/theintern/digdug)
 [![npm version](https://badge.fury.io/js/digdug.svg)](https://badge.fury.io/js/digdug)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug "Percentage of issues still open")
 
-Dig Dug is a simple abstraction library for downloading and launching WebDriver service tunnels and interacting with
-the REST APIs of these services.
-
-Dig Dug can run a local Selenium server, and it supports the following cloud testing services:
+Dig Dug is a library for downloading and managing WebDriver service tunnels, along with Selenium and individual WebDrivers. It supports the following cloud testing services:
 
 * [BrowserStack](http://www.browserstack.com)
 * [CrossBrowserTesting](http://www.crossbrowsertesting.com)
@@ -17,7 +16,7 @@ Dig Dug can run a local Selenium server, and it supports the following cloud tes
 
 ## Configuration
 
-In many cases, the only configuration you'll need to do to create a tunnel is provide authentication data. This can be provided by setting properties on tunnels or via environment variables. The tunnels use the following environment variables:
+In many cases, the only configuration you'll need to do to create a tunnel is provide authentication data. This can be provided via options to a Tunnel constructor or via environment variables. The service tunnels use the following environment variables:
 
 Tunnel class                | Environment variables
 ----------------------------|----------------------------------------------------
@@ -26,22 +25,21 @@ Tunnel class                | Environment variables
 `SauceLabsTunnel`           | `SAUCE_USERNAME`, `SAUCE_ACCESS_KEY`
 `TestingBotTunnel`          | `TESTINGBOT_KEY`, `TESTINGBOT_SECRET`
 
-Other properties, such as the local port the tunnel should serve on or the URL of a proxy server the tunnel should go through, can be passed to a tunnel constructor or set on a tunnel instance. See the pages for [Tunnel](Tunnel.html) and the tunnel subclasses for available properties.
-
+Other properties, such as the local port the tunnel should serve on or the URL of a proxy server the tunnel should go through, can be passed to a tunnel constructor or set on a tunnel instance. See the API docs for [Tunnel](https://theintern.github.io/digdug/module-digdug_Tunnel.html) and the tunnel subclasses for available properties.
 
 ## Usage
 
 To create a new tunnel, import the desired tunnel class, create a new instance, and call its `start` method. `start` returns a Promise that resolves when the tunnel has successfully started. For example, to create a new Sauce Labs tunnel:
 
 ```js
-var SauceLabsTunnel = require('digdug/SauceLabsTunnel');
-var tunnel = new SauceLabsTunnel();
+import SauceLabsTunnel from 'digdug/SauceLabsTunnel';
+const tunnel = new SauceLabsTunnel();
 tunnel.start().then(function () {
 	// interact with the WebDriver server at tunnel.clientUrl
 });
 ```
 
-Once a tunnel has been started, a test runner interacts with it as described in the service's documentation. The Sauce Labs and TestingBot executables start a WebDriver server on localhost that the test client communicates with. To interact with BrowserStack, a test client will connect to `hub.browserstack.com` after the tunnel has started.
+Once a tunnel has been started, a test runner can interact with it as described in the service's documentation. For example, the Sauce Labs and TestingBot executables start a WebDriver server on localhost that the test client communicates with, while a test client will connect to `hub.browserstack.com` after the tunnel has started to use BrowserStack.
 
 The tunnel classes also provide a `sendJobState` convenience method to let the remote service know whether a test session passed or failed. This method accepts a session ID and an object containing service-specific data, and it returns a Promise that resolves if the job state was successfully updated.
 
@@ -49,7 +47,7 @@ The tunnel classes also provide a `sendJobState` convenience method to let the r
 tunnel.sendJobState(sessionId, { success: true });
 ```
 
-When testing is finished, call the tunnel's `stop` method to cleanly shut it down. This method returns a Promise that is resolved when the service tunnel executable has exited.
+When testing is finished, call the tunnel’s `stop` method to cleanly shut it down. This method returns a Promise that is resolved when the service tunnel executable has exited.
 
 ```js
 tunnel.stop().then(function () {
@@ -59,7 +57,7 @@ tunnel.stop().then(function () {
 
 ## Utilities
 
-Dig Dug includes a utility script, `digdugEnvironmnents`. After the digdug package has been installed, run this script to get a list of environments provided by a particular testing service.
+Dig Dug includes a utility script, `digdugEnvironmnents`, that will display all the environments provided by a remote testing service.
 
 ```
 $ ./node_modules/.bin/digdugEnvironments SauceLabsTunnel
