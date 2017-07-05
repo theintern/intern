@@ -1,4 +1,10 @@
-# “Leadfoot drives browsers insanely fast”
+<p align="center"><img src="docs/logo.svg" alt="Leadfoot logo" height="128"></p>
+
+# Leadfoot
+
+[![npm version](https://badge.fury.io/js/leadfoot.svg)](https://badge.fury.io/js/leadfoot)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/leadfoot.svg)](http://isitmaintained.com/project/theintern/leadfoot "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/leadfoot.svg)](http://isitmaintained.com/project/theintern/leadfoot "Percentage of issues still open")
 
 Leadfoot is a JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.
 
