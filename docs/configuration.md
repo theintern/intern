@@ -158,10 +158,10 @@ An Intern config file is a JSON file specifying config properties, for example:
 
 ```js
 {
-  "environments": [
-    { "browserName": "chrome" }
-  ],
-  "suites": [ "tests/unit/all.js" ]
+    "environments": [
+        { "browserName": "chrome" }
+    ],
+    "suites": [ "tests/unit/all.js" ]
 }
 ```
 
@@ -209,7 +209,10 @@ method.
 
 ```ts
 const intern = new Node({ grep: /run.*/, excludeInstrumentation: true });
-// or
+```
+_or_
+
+```ts
 intern.configure({ grep: /run.*/, excludeInstrumentation: true });
 ```
 
@@ -380,13 +383,14 @@ right-most config being extended will override properties from configs to the le
 
 ```js
 {
-  "configs": {
-    "a": { /* ... */ },
-    "b": { /* ... */ },
-    "c": { /* ... */ },
-    "d": {
-      "extends": ["a", "c"],
-      /* ... */
+    "configs": {
+        "a": { /* ... */ },
+        "b": { /* ... */ },
+        "c": { /* ... */ },
+        "d": {
+            "extends": ["a", "c"],
+            /* ... */
+        }
     }
 }
 ```
