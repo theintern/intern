@@ -5,6 +5,7 @@ import Task from '@dojo/core/async/Task';
 import { fileExists, on, writeFile } from './util';
 import { Handle } from '@dojo/interfaces/core';
 import { mixin } from '@dojo/core/lang';
+import Promise from '@dojo/shim/Promise';
 
 const SeleniumVersion = '3.4.0';
 const ChromeVersion = '2.29';

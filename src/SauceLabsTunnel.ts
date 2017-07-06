@@ -9,6 +9,7 @@ import { NodeRequestOptions } from '@dojo/core/request/providers/node';
 import { format as formatUrl, parse as parseUrl, Url } from 'url';
 import { mixin } from '@dojo/core/lang';
 import { fileExists, on } from './util';
+import Promise from '@dojo/shim/Promise';
 
 const scVersion = '4.4.5';
 
