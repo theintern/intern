@@ -7,7 +7,7 @@ import statusCodes from './lib/statusCodes';
 import Locator, { toW3cLocator } from './lib/Locator';
 import { forCommand as utilForCommand, sleep, toExecuteString } from './lib/util';
 import waitForDeleted from './lib/waitForDeleted';
-import { Capabilities, Geolocation, LogEntry, WebDriverCookie } from './interfaces';
+import { Capabilities, Geolocation, LogEntry, WebDriverCookie, WebDriverResponse } from './interfaces';
 
 export default class Session extends Locator<Task<Element>, Task<Element[]>, Task<void>> {
 	private _sessionId: string;
@@ -102,7 +102,8 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 					return;
 				}
 
-				const response = this._server[method](path, requestData, pathParts).then(response => response.value);
+				const response = this._server[method]<WebDriverResponse>(path, requestData, pathParts)
+					.then(response => response.value);
 
 				// safePromise is simply a promise based on the response that is guaranteed to resolve -- it is only
 				// used for promise chain management

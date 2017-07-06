@@ -154,12 +154,12 @@ registerSuite(function () {
 					oldPost = server.post;
 					server.sessionConstructor = <any> CustomSession;
 					server.fixSessionCapabilities = false;
-					server.post = function (method: string, data: any) {
+					server.post = (method: string, data: any) => {
 						assert.strictEqual(method, 'session');
 						assert.strictEqual(data.desiredCapabilities, desiredCapabilities);
 						assert.strictEqual(data.requiredCapabilities, requiredCapabilities);
 
-						return Task.resolve({
+						return Task.resolve<any>({
 							sessionId: 'test',
 							value: mockCapabilities
 						});

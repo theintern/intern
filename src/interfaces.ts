@@ -113,3 +113,7 @@ export interface LeadfootURL extends Url {
 export interface LeadfootError extends Error {
 	response?: { text: string };
 }
+
+export interface WebDriverResponse {
+	value: any;
+}

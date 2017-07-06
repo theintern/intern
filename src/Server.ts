@@ -270,15 +270,15 @@ export default class Server {
 		});
 	}
 
-	get<T>(path: string, requestData?: Object, pathParts?: string[]): Task<any> {
+	get<T>(path: string, requestData?: Object, pathParts?: string[]): Task<T> {
 		return this._sendRequest<T>('GET', path, requestData, pathParts);
 	}
 
-	post<T>(path: string, requestData?: Object, pathParts?: string[]): Task<any> {
+	post<T>(path: string, requestData?: Object, pathParts?: string[]): Task<T> {
 		return this._sendRequest<T>('POST', path, requestData, pathParts);
 	}
 
-	delete<T>(path: string, requestData?: Object, pathParts?: string[]): Task<any> {
+	delete<T>(path: string, requestData?: Object, pathParts?: string[]): Task<T> {
 		return this._sendRequest<T>('DELETE', path, requestData, pathParts);
 	}
 
@@ -303,7 +303,7 @@ export default class Server {
 	 * A hash map of required capabilities of the remote environment. The server will not return an environment that
 	 * does not match all the required capabilities if one is not available.
 	 */
-	createSession<S extends Session = Session>(desiredCapabilities: Capabilities, requiredCapabilities?: Capabilities): Task<S | void> {
+	createSession<S extends Session = Session>(desiredCapabilities: Capabilities, requiredCapabilities?: Capabilities): Task<S> {
 		let fixSessionCapabilities = this.fixSessionCapabilities;
 		if (desiredCapabilities.fixSessionCapabilities != null) {
 			fixSessionCapabilities = desiredCapabilities.fixSessionCapabilities;
@@ -313,7 +313,7 @@ export default class Server {
 			desiredCapabilities.fixSessionCapabilities = undefined;
 		}
 
-		return this.post('session', {
+		return this.post<any>('session', {
 			desiredCapabilities,
 			requiredCapabilities
 		}).then(response => {
@@ -326,15 +326,12 @@ export default class Server {
 
 			if (fixSessionCapabilities) {
 				return this._fillCapabilities(<S>session, fixSessionCapabilities !== 'no-detect')
-					.catch(error => {
-						// The session was started on the server, but we did not resolve the Task yet. If a failure
-						// occurs during capabilities filling, we should quit the session on the server too since the
-						// caller will not be aware that it ever got that far and will have no access to the session to
-						// quit itself.
-						return session.quit().finally(() => {
-							throw error;
-						});
-				});
+					// The session was started on the server, but we did not resolve the Task yet. If a failure
+					// occurs during capabilities filling, we should quit the session on the server too since the
+					// caller will not be aware that it ever got that far and will have no access to the session to
+					// quit itself.
+					.catch(error => session.quit().finally(() => { throw error; }))
+					.then(() => <S>session);
 			}
 			else {
 				return <S>session;
@@ -345,7 +342,7 @@ export default class Server {
 	/**
 	 * Fill in known capabilities/defects and optionally run tests to detect more
 	 */
-	private _fillCapabilities<S extends Session>(session: S, detectCapabilities = true): Task<S | void> {
+	private _fillCapabilities<S extends Session>(session: S, detectCapabilities = true): Task<S> {
 		mixin(session.capabilities, this._getKnownCapabilities(session));
 		return (detectCapabilities ? this._detectCapabilities(session) :  Task.resolve(session)).then(() => {
 			Object.defineProperty(session.capabilities, '_filled', {
