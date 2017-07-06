@@ -27,7 +27,7 @@ function displayMessage(message: string) {
 try {
 	const intern = global.intern = new Browser(config);
 
-	intern.registerPlugin('reporter', 'dom', () => Dom);
+	intern.registerReporter('dom', Dom);
 
 	// Forward all executor events back to the Intern host
 	intern.on('*', ({ name, data }) => {

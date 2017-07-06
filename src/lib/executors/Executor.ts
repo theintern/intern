@@ -78,10 +78,10 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this._plugins = {};
 		this._loadingPlugins = [];
 
-		this.registerPlugin('interface.object', () => getObjectInterface(this));
-		this.registerPlugin('interface.tdd', () => getTddInterface(this));
-		this.registerPlugin('interface.bdd', () => getBddInterface(this));
-		this.registerPlugin('interface.benchmark', () => getBenchmarkInterface(this));
+		this.registerInterface('object', getObjectInterface(this));
+		this.registerInterface('tdd', getTddInterface(this));
+		this.registerInterface('bdd', getBddInterface(this));
+		this.registerInterface('benchmark', getBenchmarkInterface(this));
 
 		this.registerPlugin('chai', () => chai);
 
@@ -208,6 +208,17 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
+	 * Get a registered interface plugin
+	 */
+	getInterface(name: 'object'): ObjectInterface;
+	getInterface(name: 'tdd'): TddInterface;
+	getInterface(name: 'bdd'): BddInterface;
+	getInterface(name: 'benchmark'): BenchmarkInterface;
+	getInterface(name: string): any {
+		return this.getPlugin(`interface.${name}`);
+	}
+
+	/**
 	 * Get any resources registered by a particular plugin.
 	 */
 	getPlugin<Y extends keyof P>(type: Y, name: string): P[Y];
@@ -291,6 +302,13 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
+	 * Register an interface plugin
+	 */
+	registerInterface(name: string, iface: any) {
+		this.registerPlugin(`interface.${name}`, () => iface);
+	}
+
+	/**
 	 * Set the loader script that will be used to load plugins and suites.
 	 * will handle the loading of test suites.
 	 */
@@ -324,6 +342,13 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			// If the result is not thenable, immediately add it to the plugins list
 			this._assignPlugin(pluginName, result);
 		}
+	}
+
+	/**
+	 * Register a reporter plugin
+	 */
+	registerReporter(name: string, Ctor: typeof Reporter) {
+		this.registerPlugin('reporter', name, () => Ctor);
 	}
 
 	/**

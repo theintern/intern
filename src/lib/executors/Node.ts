@@ -85,22 +85,22 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		this._errorFormatter = new ErrorFormatter(this);
 		this._coverageMap = createCoverageMap();
 
-		this.registerPlugin('reporter', 'pretty', () => Pretty);
-		this.registerPlugin('reporter', 'simple', () => Simple);
-		this.registerPlugin('reporter', 'runner', () => Runner);
-		this.registerPlugin('reporter', 'benchmark', () => Benchmark);
-		this.registerPlugin('reporter', 'junit', () => JUnit);
-		this.registerPlugin('reporter', 'jsoncoverage', () => JsonCoverage);
-		this.registerPlugin('reporter', 'htmlcoverage', () => HtmlCoverage);
-		this.registerPlugin('reporter', 'lcov', () => Lcov);
-		this.registerPlugin('reporter', 'cobertura', () => Cobertura);
+		this.registerReporter('pretty', Pretty);
+		this.registerReporter('simple', Simple);
+		this.registerReporter('runner', Runner);
+		this.registerReporter('benchmark', Benchmark);
+		this.registerReporter('junit', JUnit);
+		this.registerReporter('jsoncoverage', JsonCoverage);
+		this.registerReporter('htmlcoverage', HtmlCoverage);
+		this.registerReporter('lcov', Lcov);
+		this.registerReporter('cobertura', Cobertura);
 
-		this.registerPlugin('tunnel', 'null', () => NullTunnel);
-		this.registerPlugin('tunnel', 'selenium', () => SeleniumTunnel);
-		this.registerPlugin('tunnel', 'saucelabs', () => SauceLabsTunnel);
-		this.registerPlugin('tunnel', 'browserstack', () => BrowserStackTunnel);
-		this.registerPlugin('tunnel', 'testingbot', () => TestingBotTunnel);
-		this.registerPlugin('tunnel', 'cbt', () => CrossBrowserTestingTunnel);
+		this.registerTunnel('null', NullTunnel);
+		this.registerTunnel('selenium', SeleniumTunnel);
+		this.registerTunnel('saucelabs', SauceLabsTunnel);
+		this.registerTunnel('browserstack', BrowserStackTunnel);
+		this.registerTunnel('testingbot', TestingBotTunnel);
+		this.registerTunnel('cbt', CrossBrowserTestingTunnel);
 
 		if (config) {
 			this.configure(config);
@@ -167,6 +167,13 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	}
 
 	/**
+	 * Retrieve a registered tunnel constructor
+	 */
+	getTunnel(name: string): typeof Tunnel {
+		return this.getPlugin<typeof Tunnel>(`tunnel.${name}`);
+	}
+
+	/**
 	 * Insert coverage instrumentation into a given code string
 	 */
 	instrumentCode(code: string, filename: string): string {
@@ -204,6 +211,13 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		}
 
 		return Task.resolve();
+	}
+
+	/**
+	 * Register a tunnel constructor with the plugin system. It can be retrieved later with getTunnel or getPlugin.
+	 */
+	registerTunnel(name: string, Ctor: typeof Tunnel) {
+		this.registerPlugin('tunnel', name, () => Ctor);
 	}
 
 	/**
@@ -292,7 +306,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 							options.servers.push(config.serverUrl);
 						}
 
-						let TunnelConstructor = this.getPlugin<typeof Tunnel>(`tunnel.${config.tunnel}`);
+						let TunnelConstructor = this.getTunnel(config.tunnel);
 						const tunnel = this.tunnel = new TunnelConstructor(this.config.tunnelOptions);
 
 						tunnel.on('downloadprogress', progress => {

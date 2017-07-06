@@ -34,9 +34,9 @@ export default class Browser extends Executor<Events, Config> {
 			this.emit('error', error);
 		});
 
-		this.registerPlugin('reporter', 'html', () => Html);
-		this.registerPlugin('reporter', 'dom', () => Dom);
-		this.registerPlugin('reporter', 'console', () => ConsoleReporter);
+		this.registerReporter('html', Html);
+		this.registerReporter('dom', Dom);
+		this.registerReporter('console', ConsoleReporter);
 
 		if (config) {
 			this.configure(config);
