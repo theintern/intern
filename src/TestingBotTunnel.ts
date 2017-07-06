@@ -1,5 +1,5 @@
 import Tunnel, { TunnelProperties, ChildExecutor, NormalizedEnvironment, StatusEvent } from './Tunnel';
-import { watchFile, unwatchFile } from 'fs';
+import { existsSync, watchFile, unlinkSync, unwatchFile } from 'fs';
 import UrlSearchParams from '@dojo/core/UrlSearchParams';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -141,6 +141,15 @@ export default class TestingBotTunnel extends Tunnel implements TunnelProperties
 		const readyFile = join(tmpdir(), 'testingbot-' + Date.now());
 
 		return this._makeChild((child, resolve, reject) => {
+			function _reject(message: string) {
+				const pidFile = 'testingbot-tunnel.pid';
+				if (existsSync(pidFile)) {
+					// Remove the pidfile to ensure the running tunnel app shuts down
+					unlinkSync(pidFile);
+				}
+				reject(message);
+			}
+
 			// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
 			// `fs.watch` API has extra restrictions which are best avoided
 			watchFile(readyFile, { persistent: false, interval: 1007 }, function (current, previous) {
@@ -175,7 +184,10 @@ export default class TestingBotTunnel extends Tunnel implements TunnelProperties
 						}
 					}
 					else if (message.indexOf('SEVERE: ') === 0) {
-						reject(message);
+						_reject(message);
+					}
+					else if (message.indexOf('An error ocurred:') === 0) {
+						_reject(message);
 					}
 				});
 			});
