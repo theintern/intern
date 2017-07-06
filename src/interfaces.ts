@@ -91,10 +91,6 @@ export interface LogEntry {
 	message: string;
 }
 
-export interface Thenable<T> {
-	then<U>(onFulfilled?: (value?: T) => Thenable<U> | U, onRejected?: (error?: Error) => Thenable<U> | U): Thenable<U>;
-}
-
 export interface WebDriverCookie {
 	name: string;
 	value: string;

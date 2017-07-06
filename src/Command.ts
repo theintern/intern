@@ -1,7 +1,6 @@
 import { sleep, trimStack } from './lib/util';
 import Element from './Element';
 import Task from '@dojo/core/async/Task';
-import { Thenable } from '@dojo/shim/interfaces';
 import Session from './Session';
 import Locator from './lib/Locator';
 import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
@@ -32,9 +31,9 @@ import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
  * ```
  *
  * Because these operations are asynchronous, you need to use a `then` callback in order to retrieve the value from the
- * last method. Command objects are Thenables, which means that they can be used with any Promises/A+ or ES6-confirmant
- * Promises implementation, though there are some specific differences in the arguments and context that are provided
- * to callbacks; see [[Command.then]] for more details.
+ * last method. Command objects are PromiseLikes, which means that they can be used with any Promises/A+ or
+ * ES6-conformant Promises implementation, though there are some specific differences in the arguments and context that
+ * are provided to callbacks; see [[Command.then]] for more details.
  *
  * ---
  *
@@ -444,7 +443,10 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	 *    element(s) will be used as the context for subsequent element method invocations (`click`, etc.). If
 	 *    the `setContext` method is not called, the element context from the parent will be passed through unmodified.
 	 */
-	then<U>(callback?: (value: T, setContext: SetContextMethod<U>) => U | Thenable<U> | Command<U>, errback?: (error: Error) => void | U | Thenable<U> | Command<U>) {
+	then<U = T>(
+		callback?: ((value: T, setContext: SetContextMethod<U>) => U | PromiseLike<U> | Command<U>) | null | undefined,
+		errback?: ((error: Error) => void | U | PromiseLike<U> | Command<U>) | null | undefined
+	) {
 		function runCallback(command: Command<T>, callback: Function, value: T, setContext: SetContextMethod<T>): T {
 			const returnValue = callback.call(command, value, setContext);
 
@@ -456,17 +458,21 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 					if (maybeCommand === command) {
 						throw new Error('Deadlock: do not use `return this` from a Command callback');
 					}
-				} while ((maybeCommand = <Command<any>>maybeCommand.parent));
+				} while ((maybeCommand = <Command<T>>maybeCommand.parent));
 			}
 
 			return returnValue;
 		}
 
-		return new (this.constructor as typeof Command)(this, callback && function (this: Command<T>, setContext: SetContextMethod<T>, value: T) {
-			return runCallback(this, callback, value, setContext);
-		}, errback && function (this: Command<T>, setContext: SetContextMethod<T>, value: any) {
-			return runCallback(this, errback, value, setContext);
-		});
+		return <Command<U>>(new (this.constructor as typeof Command)(
+			this,
+			callback && ((setContext: SetContextMethod<T>, value: T) => {
+				return runCallback(this, callback, value, setContext);
+			}),
+			errback && ((setContext: SetContextMethod<T>, value: any) => {
+				return runCallback(this, errback, value, setContext);
+			})
+		));
 	}
 
 	/**
