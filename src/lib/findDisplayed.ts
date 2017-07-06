@@ -2,21 +2,20 @@ import Task from '@dojo/core/async/Task';
 import statusCodes from './statusCodes';
 import Element from '../Element';
 import Session from '../Session';
-import { Thenable } from '../interfaces';
 
 export default function findDisplayed(session: Session, locator: Session | Element, strategy: string, value: string) {
-	return session.getTimeout('implicit').then(function (originalTimeout) {
+	return session.getTimeout('implicit').then(originalTimeout => {
 		const startTime = Date.now();
 
-		function poll(): Task<Element | Element[]> {
+		function poll(): Task<Element> {
 			return locator.findAll(strategy, value).then(function (elements: Element[]) {
 				// Due to concurrency issues with at least ChromeDriver 2.16, each element must be tested one
 				// at a time instead of using `Promise.all`
 				let i = -1;
-				function checkElement(): Thenable<Element|Element[]> {
+				function checkElement(): PromiseLike<Element> {
 					const element = elements[++i];
 					if (element) {
-						return element.isDisplayed().then(function (isDisplayed) {
+						return element.isDisplayed().then(isDisplayed => {
 							if (isDisplayed) {
 								return element;
 							}
@@ -27,7 +26,7 @@ export default function findDisplayed(session: Session, locator: Session | Eleme
 					}
 				}
 
-				return Task.resolve(checkElement()).then(function (element) {
+				return Task.resolve(checkElement()).then(element => {
 					if (element) {
 						return element;
 					}

@@ -432,12 +432,11 @@ export default class Element extends Locator<Task<Element>, Task<Element[]>, Tas
 	 */
 	isDisplayed(): Task<boolean> {
 		return this._get('displayed').then((isDisplayed: boolean) => {
-
 			if (isDisplayed && (
 				this.session.capabilities.brokenElementDisplayedOpacity ||
 				this.session.capabilities.brokenElementDisplayedOffscreen
 			)) {
-				return this.session.execute(/* istanbul ignore next */ function (element: HTMLElement) {
+				return this.session.execute<boolean>(/* istanbul ignore next */ (element: HTMLElement) => {
 					const scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
 					const scrollY = document.documentElement.scrollTop || document.body.scrollTop;
 					do {
@@ -487,10 +486,13 @@ export default class Element extends Locator<Task<Element>, Task<Element[]>, Tas
 	 */
 	getSize(): Task<{ width: number, height: number }> {
 		const getUsingExecute = () => {
-			return this.session.execute(/* istanbul ignore next */ function (element: HTMLElement) {
-				const bbox = element.getBoundingClientRect();
-				return { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
-			}, [ this ]);
+			return this.session.execute<{ width: number, height: number }>(
+				/* istanbul ignore next */ function (element: HTMLElement) {
+					const bbox = element.getBoundingClientRect();
+					return { width: bbox.right - bbox.left, height: bbox.bottom - bbox.top };
+				},
+				[ this ]
+			);
 		};
 
 		if (this.session.capabilities.brokenCssTransformedSize) {
@@ -518,7 +520,7 @@ export default class Element extends Locator<Task<Element>, Task<Element[]>, Tas
 	 */
 	getComputedStyle(propertyName: string): Task<string> {
 		const manualGetStyle = () => {
-			return this.session.execute(/* istanbul ignore next */ function (element: any, propertyName: string) {
+			return this.session.execute<string>(/* istanbul ignore next */ (element: any, propertyName: string) => {
 				return (<any> window.getComputedStyle(element, null))[propertyName];
 			}, [ this, propertyName ]);
 		};

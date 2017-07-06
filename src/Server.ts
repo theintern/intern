@@ -303,7 +303,7 @@ export default class Server {
 	 * A hash map of required capabilities of the remote environment. The server will not return an environment that
 	 * does not match all the required capabilities if one is not available.
 	 */
-	createSession<S extends Session>(desiredCapabilities: Capabilities, requiredCapabilities?: Capabilities): Task<S> {
+	createSession<S extends Session = Session>(desiredCapabilities: Capabilities, requiredCapabilities?: Capabilities): Task<S | void> {
 		let fixSessionCapabilities = this.fixSessionCapabilities;
 		if (desiredCapabilities.fixSessionCapabilities != null) {
 			fixSessionCapabilities = desiredCapabilities.fixSessionCapabilities;
@@ -316,7 +316,7 @@ export default class Server {
 		return this.post('session', {
 			desiredCapabilities,
 			requiredCapabilities
-		}).then((response): Session | Task<Session | void> => {
+		}).then(response => {
 			// At least geckodriver 0.15.0 returns the response data in a 'value' property, whereas Selenium does not.
 			if (response.value && response.value.sessionId) {
 				response = response.value;
@@ -325,18 +325,19 @@ export default class Server {
 			const session = new this.sessionConstructor(response.sessionId, this, response.value);
 
 			if (fixSessionCapabilities) {
-				return this._fillCapabilities(session, fixSessionCapabilities !== 'no-detect').catch(error => {
-					// The session was started on the server, but we did not resolve the Task yet. If a failure
-					// occurs during capabilities filling, we should quit the session on the server too since the
-					// caller will not be aware that it ever got that far and will have no access to the session to
-					// quit itself.
-					return session.quit().finally(() => {
-						throw error;
-					});
+				return this._fillCapabilities(<S>session, fixSessionCapabilities !== 'no-detect')
+					.catch(error => {
+						// The session was started on the server, but we did not resolve the Task yet. If a failure
+						// occurs during capabilities filling, we should quit the session on the server too since the
+						// caller will not be aware that it ever got that far and will have no access to the session to
+						// quit itself.
+						return session.quit().finally(() => {
+							throw error;
+						});
 				});
 			}
 			else {
-				return session;
+				return <S>session;
 			}
 		});
 	}
@@ -344,7 +345,7 @@ export default class Server {
 	/**
 	 * Fill in known capabilities/defects and optionally run tests to detect more
 	 */
-	private _fillCapabilities(session: Session, detectCapabilities = true): Task<void | Session> {
+	private _fillCapabilities<S extends Session>(session: S, detectCapabilities = true): Task<S | void> {
 		mixin(session.capabilities, this._getKnownCapabilities(session));
 		return (detectCapabilities ? this._detectCapabilities(session) :  Task.resolve(session)).then(() => {
 			Object.defineProperty(session.capabilities, '_filled', {
