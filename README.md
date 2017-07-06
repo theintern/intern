@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/logo.svg" alt="Leadfoot logo" height="128"></p>
+<p align="center"><img src="https://cdn.rawgit.com/theintern/leadfoot/master/docs/logo.svg" alt="Leadfoot logo" height="128"></p>
 
 # Leadfoot
 
