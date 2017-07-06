@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/logo.svg" alt="Dig Dug logo" height="128"></p>
+<p align="center"><img src="https://cdn.rawgit.com/theintern/digdug/master/docs/logo.svg" alt="Dig Dug logo" height="128"></p>
 
 # Dig Dug
 
