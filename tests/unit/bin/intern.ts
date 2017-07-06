@@ -89,7 +89,7 @@ registerSuite('bin/intern', function () {
 						'src/lib/node/util': mockNodeUtil,
 						'src/lib/common/util': mockCommonUtil,
 						'src/index': { default: () => {} },
-						'@dojo/core/global': { default: { process: {} } }
+						'@dojo/shim/global': { default: { process: {} } }
 					}).then(handle => {
 						removeMocks = handle.remove;
 						assert.equal(logStub!.callCount, 0, 'expected error not to be called');
@@ -109,7 +109,7 @@ registerSuite('bin/intern', function () {
 						'src/lib/node/util': mockNodeUtil,
 						'src/lib/common/util': mockCommonUtil,
 						'src/index': { default: () => {} },
-						'@dojo/core/global': { default: { process: { stdout: process.stdout } } }
+						'@dojo/shim/global': { default: { process: { stdout: process.stdout } } }
 					}).then(handle => {
 						removeMocks = handle.remove;
 						return messageLogged;

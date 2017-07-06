@@ -41,7 +41,7 @@ registerSuite('lib/executors/Executor', function () {
 					scripts[mod]();
 				}
 			});
-			return Promise.resolve<void>();
+			return Promise.resolve();
 		});
 		executor.registerLoader((_config: Config) => Promise.resolve(testLoader));
 		(<any>executor).testLoader = testLoader;
@@ -74,7 +74,7 @@ registerSuite('lib/executors/Executor', function () {
 			return mockRequire(require, 'src/lib/executors/Executor', {
 				'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
 				'chai': mockChai,
-				'@dojo/core/global': {
+				'@dojo/shim/global': {
 					default: {
 						console: mockConsole,
 						'__coverage__': {}

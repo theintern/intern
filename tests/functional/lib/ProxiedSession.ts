@@ -1,5 +1,5 @@
 import ProxiedSession from 'src/lib/ProxiedSession';
-import Server from 'leadfoot/Server';
+import Server from '@theintern/leadfoot/Server';
 import Promise from '@dojo/shim/Promise';
 import { Remote } from 'src/lib/executors/Node';
 import Task from '@dojo/core/async/Task';

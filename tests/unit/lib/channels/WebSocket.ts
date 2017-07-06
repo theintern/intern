@@ -25,7 +25,7 @@ registerSuite('lib/channels/WebSocket', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/channels/WebSocket', {
-				'@dojo/core/global': { default: { WebSocket: MockWebSocket } }
+				'@dojo/shim/global': { default: { WebSocket: MockWebSocket } }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				WebSocket = handle.module.default;

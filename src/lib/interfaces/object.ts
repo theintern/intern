@@ -41,7 +41,7 @@
 import Suite, { SuiteOptions, SuiteProperties } from '../Suite';
 import Test, { TestFunction, isTestFunction } from '../Test';
 import Executor from '../executors/Executor';
-import intern from '../../index';
+import intern from '../../intern';
 
 /**
  * Importable interface that uses the currently installed global executor

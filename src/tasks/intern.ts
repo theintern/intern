@@ -1,6 +1,6 @@
 import Node from '../../src/lib/executors/Node';
 import { Config } from '../lib/executors/Executor';
-import global from '@dojo/core/global';
+import global from '@dojo/shim/global';
 
 interface TaskOptions extends grunt.task.ITaskOptions, Partial<Config> {
 	[key: string]: any;
@@ -12,7 +12,7 @@ export = function (grunt: IGrunt) {
 		const config = this.options<TaskOptions>({});
 
 		// Force colored output for istanbul report
-		process.env.FORCE_COLOR = true;
+		process.env.FORCE_COLOR = 'true';
 
 		const intern = global.intern = new Node(config);
 		intern.run().then(finish, finish);

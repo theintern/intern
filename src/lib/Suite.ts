@@ -5,7 +5,6 @@ import Executor from './executors/Executor';
 import Test, { isTest, SKIP } from './Test';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
-import Promise from '@dojo/shim/Promise';
 
 export default class Suite implements SuiteProperties {
 	after: SuiteLifecycleFunction;
@@ -615,11 +614,11 @@ export function isSuite(value: any): value is Suite {
 }
 
 export interface SuiteLifecycleFunction {
-	(this: Suite): void | Promise<any>;
+	(this: Suite): void | PromiseLike<void>;
 }
 
 export interface TestLifecycleFunction {
-	(this: Suite, test: Test): void | Promise<any>;
+	(this: Suite, test: Test): void | PromiseLike<void>;
 }
 
 // Properties that define a Suite. Note that 'tests' isn't included so that other interfaces, such as the object

@@ -1,7 +1,6 @@
 import Executor from './executors/Executor';
 import Deferred from './Deferred';
 import Task, { isTask, isThenable, State } from '@dojo/core/async/Task';
-import { Thenable } from '@dojo/shim/interfaces';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
 import Suite from './Suite';
@@ -223,8 +222,8 @@ export default class Test implements TestProperties {
 
 		return this.executor.emit('testStart', this)
 			.then(() => { startTime = Date.now(); })
-			.then(() => {
-				let result: Thenable<void> | void = this.test();
+			.then<void>(() => {
+				let result: PromiseLike<void> | void = this.test();
 
 				// Someone called `this.async`, so this test is async; we have to prefer one or the other, so
 				// prefer the promise returned from the test function if it exists, otherwise get the one that was
@@ -236,7 +235,7 @@ export default class Test implements TestProperties {
 					else {
 						// If the user called this.async and returned a thenable, wait for the first one to resolve or
 						// reject.
-						result = Task.race<Task<void>, void>([this.async().promise, result]);
+						result = Task.race<void>([this.async().promise, result]);
 					}
 				}
 
@@ -250,7 +249,7 @@ export default class Test implements TestProperties {
 						this._runTask = new Task(
 							(resolve, reject) => {
 								if (isThenable(result)) {
-									result.then(resolve, reject);
+									result.then(() => { resolve(); }, reject);
 								}
 
 								// Most promise implementations that allow cancellation don't signal that a promise was
@@ -282,7 +281,7 @@ export default class Test implements TestProperties {
 								}
 							}
 						)
-						.then(resolve, reject);
+						.then(() => { resolve(); }, reject);
 
 						this.restartTimeout();
 					});
@@ -380,7 +379,7 @@ export function isTestOptions(value: any): value is TestOptions {
 }
 
 export interface TestFunction {
-	(this: Test): void | Thenable<any>;
+	(this: Test): void | PromiseLike<any>;
 }
 
 export function isTestFunction(value: any): value is TestFunction {

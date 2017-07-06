@@ -7,7 +7,7 @@ import Node  from 'src/lib/executors/Node';
 import Server, { ServerListener } from 'src/lib/Server';
 import { Handle } from '@dojo/interfaces/core';
 import { Remote } from 'src/lib/executors/Node';
-import Command from 'leadfoot/Command';
+import Command from '@theintern/leadfoot/Command';
 import ProxiedSession from 'src/lib/ProxiedSession';
 
 import { duplicate, mixin } from '@dojo/core/lang';

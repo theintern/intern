@@ -6,13 +6,13 @@ import { readFileSync } from 'fs';
 import { deepMixin, mixin } from '@dojo/core/lang';
 import ErrorFormatter from '../node/ErrorFormatter';
 import { dirname, normalize, relative, resolve, sep } from 'path';
-import LeadfootServer from 'leadfoot/Server';
+import LeadfootServer from '@theintern/leadfoot/Server';
 import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
 import resolveEnvironments from '../resolveEnvironments';
-import Command from 'leadfoot/Command';
+import Command from '@theintern/leadfoot/Command';
 import Promise from '@dojo/shim/Promise';
-import Tunnel, { TunnelOptions, DownloadProgressEvent } from 'digdug/Tunnel';
+import Tunnel, { TunnelOptions, DownloadProgressEvent } from '@theintern/digdug/Tunnel';
 import Server from '../Server';
 import Suite, { isSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
@@ -21,15 +21,15 @@ import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import { createInstrumenter, Instrumenter, readInitialCoverage } from 'istanbul-lib-instrument';
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
-import global from '@dojo/core/global';
+import global from '@dojo/shim/global';
 
 // Dig Dug tunnels
-import BrowserStackTunnel, { BrowserStackOptions } from 'digdug/BrowserStackTunnel';
-import SeleniumTunnel, { SeleniumOptions } from 'digdug/SeleniumTunnel';
-import SauceLabsTunnel from 'digdug/SauceLabsTunnel';
-import TestingBotTunnel from 'digdug/TestingBotTunnel';
-import CrossBrowserTestingTunnel from 'digdug/CrossBrowserTestingTunnel';
-import NullTunnel from 'digdug/NullTunnel';
+import BrowserStackTunnel, { BrowserStackOptions } from '@theintern/digdug/BrowserStackTunnel';
+import SeleniumTunnel, { SeleniumOptions } from '@theintern/digdug/SeleniumTunnel';
+import SauceLabsTunnel from '@theintern/digdug/SauceLabsTunnel';
+import TestingBotTunnel from '@theintern/digdug/TestingBotTunnel';
+import CrossBrowserTestingTunnel from '@theintern/digdug/CrossBrowserTestingTunnel';
+import NullTunnel from '@theintern/digdug/NullTunnel';
 
 // Reporters
 import Pretty from '../reporters/Pretty';
@@ -313,6 +313,8 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 						return false;
 					});
 			}
+
+			return false;
 		});
 	}
 

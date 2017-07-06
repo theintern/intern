@@ -24,7 +24,7 @@ registerSuite('lib/interfaces/tdd', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/interfaces/tdd', {
-				'src/index': { default: mockIntern }
+				'src/intern': { default: mockIntern }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				tddInt = handle.module;

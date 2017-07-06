@@ -2,7 +2,7 @@ import Executor, { Config, Events } from './Executor';
 import { normalizePathEnding } from '../common/util';
 import { RuntimeEnvironment } from '../types';
 import Task from '@dojo/core/async/Task';
-import global from '@dojo/core/global';
+import global from '@dojo/shim/global';
 
 // Reporters
 import Html from '../reporters/Html';

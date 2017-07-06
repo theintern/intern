@@ -57,7 +57,7 @@ registerSuite('lib/executors/Browser', function () {
 			return mockRequire(require, 'src/lib/executors/Browser', {
 				'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
 				'chai': mockChai,
-				'@dojo/core/global': { default: mockGlobal }
+				'@dojo/shim/global': { default: mockGlobal }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				Browser = handle.module.default;

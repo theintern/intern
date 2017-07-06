@@ -88,7 +88,7 @@ registerSuite('lib/node/util', function () {
 				'fs': mockFs,
 				'glob': mockGlob,
 				'src/lib/common/util': mockUtil,
-				'@dojo/core/global': { default: mockGlobal }
+				'@dojo/shim/global': { default: mockGlobal }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				util = handle.module;

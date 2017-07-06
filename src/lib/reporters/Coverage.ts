@@ -7,14 +7,14 @@ export { ReportType };
 
 const eventHandler = createEventHandler<Events>();
 
-export default abstract class Coverage<V extends CoverageOptions = CoverageOptions> extends Reporter<Node, CoverageOptions> implements CoverageProperties {
+export default abstract class Coverage extends Reporter implements CoverageProperties {
 	readonly reportType: ReportType = 'text';
 
 	executor: Node;
 	filename: string;
 	watermarks: Watermarks;
 
-	constructor(executor: Node, options: V = <V>{}) {
+	constructor(executor: Node, options: CoverageOptions = {}) {
 		super(executor, options);
 
 		if (options.filename) {

@@ -677,7 +677,7 @@ registerSuite('lib/Suite', {
 					actualLifecycle.push(test.name + 'OuterBeforeEach');
 					dfd.resolve();
 				}, 100);
-				return dfd.promise;
+				return dfd.promise.then(() => {});
 			},
 			tests: [ outerTest ],
 			afterEach(test) {
@@ -703,7 +703,7 @@ registerSuite('lib/Suite', {
 					actualLifecycle.push(test.name + 'InnerAfterEach');
 					dfd.resolve();
 				}, 100);
-				return dfd.promise;
+				return dfd.promise.then(() => {});
 			},
 			after: function () {
 				actualLifecycle.push('innerAfter');

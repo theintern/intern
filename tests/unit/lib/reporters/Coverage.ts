@@ -34,7 +34,7 @@ registerSuite('lib/reporters/Coverage', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/reporters/Coverage', {
-				'@dojo/core/global': { default: mockGlobal },
+				'@dojo/shim/global': { default: mockGlobal },
 				'istanbul-lib-coverage': { createCoverageMap: mockCreateCoverageMap },
 				'istanbul-lib-report': {
 					createContext() { return {}; },

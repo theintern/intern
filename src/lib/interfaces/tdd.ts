@@ -2,7 +2,7 @@ import { on } from '@dojo/core/aspect';
 import Suite, { SuiteLifecycleFunction } from '../Suite';
 import Test, { TestFunction } from '../Test';
 import Executor from '../executors/Executor';
-import intern from '../../index';
+import intern from '../../intern';
 
 export interface TddInterface {
 	suite(name: string, factory: SuiteLifecycleFunction): void;

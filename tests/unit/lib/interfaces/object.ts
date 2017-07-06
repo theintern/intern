@@ -24,7 +24,7 @@ registerSuite('lib/interfaces/object', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/interfaces/object', {
-				'src/index': { default: mockIntern }
+				'src/intern': { default: mockIntern }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				objInt = handle.module;

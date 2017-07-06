@@ -6,7 +6,7 @@ import Task from '@dojo/core/async/Task';
 import { sync as glob, hasMagic } from 'glob';
 import { mixin } from '@dojo/core/lang';
 import { parse } from 'shell-quote';
-import global from '@dojo/core/global';
+import global from '@dojo/shim/global';
 
 const process = global.process;
 

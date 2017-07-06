@@ -14,7 +14,7 @@ import { BenchmarkReporterOptions } from '../reporters/Benchmark';
 import Promise from '@dojo/shim/Promise';
 import * as chai from 'chai';
 import { RuntimeEnvironment } from '../types';
-import global from '@dojo/core/global';
+import global from '@dojo/shim/global';
 
 const console: Console = global.console;
 
@@ -151,7 +151,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * Note that non-object properties will replace existing properties. Object propery values will be deeply mixed into
 	 * any existing value.
 	 */
-	configure(config: Partial<C>) {
+	configure(config: { [key in keyof C]?: any }) {
 		config = config || {};
 		Object.keys(config).forEach((key: keyof C) => {
 			const { name, addToExisting } = this._evalProperty(key);

@@ -16,7 +16,7 @@ const eventHandler = createEventHandler<Events>();
 /**
  * Handles presentation of runner results to the user
  */
-export default class Pretty extends Coverage<PrettyOptions> implements PrettyProperties {
+export default class Pretty extends Coverage implements PrettyProperties {
 	colorReplacement: { [key: string]: string };
 	dimensions: any;
 	titleWidth: number;
@@ -31,7 +31,7 @@ export default class Pretty extends Coverage<PrettyOptions> implements PrettyPro
 	protected _charm: charm.CharmInstance;
 	protected _renderTimeout: NodeJS.Timer;
 
-	constructor(executor: Node, config: PrettyOptions = <PrettyOptions>{}) {
+	constructor(executor: Node, config: PrettyOptions = {}) {
 		super(executor, config);
 
 		this._spinnerOffset = 0;

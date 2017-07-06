@@ -196,7 +196,7 @@ registerSuite('lib/executors/Node', function () {
 				'chai': mockChai,
 				'path': mockPath,
 				'fs': mockFs,
-				'@dojo/core/global': { default: mockGlobal },
+				'@dojo/shim/global': { default: mockGlobal },
 				'src/lib/reporters/Pretty': { default: MockReporter },
 				'src/lib/reporters/Runner': { default: MockReporter },
 				'src/lib/reporters/Simple': { default: MockReporter },
@@ -233,10 +233,10 @@ registerSuite('lib/executors/Node', function () {
 						return ['foo env'];
 					}
 				},
-				'leadfoot/Command': { default: MockCommand },
-				'leadfoot/Server': { default: MockLeadfootServer },
-				'digdug/NullTunnel': { default: MockTunnel },
-				'digdug/BrowserStackTunnel': { default: MockTunnel },
+				'@theintern/leadfoot/Command': { default: MockCommand },
+				'@theintern/leadfoot/Server': { default: MockLeadfootServer },
+				'@theintern/digdug/NullTunnel': { default: MockTunnel },
+				'@theintern/digdug/BrowserStackTunnel': { default: MockTunnel },
 				'src/lib/ProxiedSession': { default: MockSession },
 				'src/lib/executors/Executor': null
 			}).then(handle => {

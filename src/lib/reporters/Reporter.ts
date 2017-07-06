@@ -1,17 +1,13 @@
 import Executor, { Events, Handle } from '../executors/Executor';
 import { ErrorFormatOptions } from '../common/ErrorFormatter';
-import global from '@dojo/core/global';
+import global from '@dojo/shim/global';
 
 /**
  * This is a base class for reporters that provides convenienience features such as event handler registration and a
  * default console.
  */
-export default class Reporter<
-	E extends Executor = Executor,
-	C extends ReporterOptions = ReporterOptions,
-	V extends Events = Events
-> implements ReporterProperties {
-	readonly executor: E;
+export default class Reporter implements ReporterProperties {
+	readonly executor: Executor;
 
 	protected _console: Console;
 	protected _executor: Executor;
@@ -22,14 +18,14 @@ export default class Reporter<
 	 * A mapping from event names to the names of methods on this object. This property should be defined on the class
 	 * prototype. It is automatically created by the @eventHandler decorator.
 	 */
-	protected _eventHandlers: { [eventName in keyof V]: string };
+	protected _eventHandlers: { [eventName: string]: string };
 
-	constructor(executor: E, config: C = <C>{}) {
-		if (config.output) {
-			this.output = config.output;
+	constructor(executor: Executor, options: ReporterOptions = {}) {
+		if (options.output) {
+			this.output = options.output;
 		}
-		if (config.console) {
-			this.console = config.console;
+		if (options.console) {
+			this.console = options.console;
 		}
 		this.executor = executor;
 		this._registerEventHandlers();
@@ -99,7 +95,7 @@ export default class Reporter<
 /**
  * Create a decorator that will add a decorated method to a class's list of event handlers.
  */
-export function createEventHandler<E extends Events>() {
+export function createEventHandler<E extends Events = Events>() {
 	return function (name?: keyof E) {
 		return function<T extends keyof E> (
 			target: any,
@@ -123,7 +119,7 @@ export function createEventHandler<E extends Events>() {
 /**
  * The default event handler decorator.
  */
-export const eventHandler = createEventHandler<Events>();
+export const eventHandler = createEventHandler();
 
 export interface ReporterProperties {
 	output: ReporterOutput;

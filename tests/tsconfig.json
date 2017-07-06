@@ -15,7 +15,7 @@
     "./globals.d.ts",
     "./benchmark/example.ts",
     "./support/**/*.ts",
-    "./unit/index.ts",
+    "./unit/intern.ts",
     "./unit/bin/*.ts",
     "./unit/lib/browser/*.ts",
     "./unit/lib/channels/*.ts",

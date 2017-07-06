@@ -1,4 +1,4 @@
-import Session from 'leadfoot/Session';
+import Session from '@theintern/leadfoot/Session';
 import Task from '@dojo/core/async/Task';
 import Node from './executors/Node';
 

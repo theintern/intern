@@ -6,7 +6,7 @@ import Executor from '../executors/Executor';
 import { createSuite, isSuiteDescriptorFactory } from './object';
 import BenchmarkTest, { BenchmarkDeferredTestFunction, BenchmarkTestFunction } from '../BenchmarkTest';
 import BenchmarkSuite, { BenchmarkSuiteProperties } from '../BenchmarkSuite';
-import intern from '../../index';
+import intern from '../../intern';
 
 /**
  * Importable interface that uses the currently installed global executor

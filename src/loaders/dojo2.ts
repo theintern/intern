@@ -26,7 +26,7 @@ intern.registerLoader(options => {
 
 				intern.log('Loading modules:', modules);
 				require(modules, () => { resolve(); });
-			}).then(
+			}).then<void>(
 				() => { handle.remove(); },
 				error => {
 					handle && handle.remove();

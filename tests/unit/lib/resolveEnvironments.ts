@@ -1,4 +1,4 @@
-import { NormalizedEnvironment } from 'digdug/Tunnel';
+import { NormalizedEnvironment } from '@theintern/digdug/Tunnel';
 import Environment from 'src/lib/Environment';
 import resolveEnvironments, { EnvironmentOptions } from 'src/lib/resolveEnvironments';
 

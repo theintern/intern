@@ -19,7 +19,7 @@ registerSuite('lib/interfaces/benchmark', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/interfaces/benchmark', {
-				'src/index': { default: mockIntern }
+				'src/intern': { default: mockIntern }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				benchmarkInt = handle.module;

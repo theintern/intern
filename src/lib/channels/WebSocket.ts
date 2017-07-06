@@ -1,6 +1,6 @@
 import BaseChannel, { ChannelOptions, Message } from './Base';
 import Task from '@dojo/core/async/Task';
-import global from '@dojo/core/global';
+import global from '@dojo/shim/global';
 import { parseUrl } from '../browser/util';
 
 export default class WebSocketChannel extends BaseChannel {

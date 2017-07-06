@@ -21,7 +21,7 @@ intern.registerLoader(options => {
 		return (modules: string[]) => {
 			let handle: { remove(): void };
 
-			return new Promise<void>((resolve, reject) => {
+			return new Promise((resolve, reject) => {
 				handle = require.on('error', (error: Error) => {
 					intern.emit('error', error);
 					reject(new Error(`Dojo loader error: ${error.message}`));
@@ -29,7 +29,7 @@ intern.registerLoader(options => {
 
 				intern.log('Loading modules:', modules);
 				require(modules, () => { resolve(); });
-			}).then(
+			}).then<void>(
 				() => { handle.remove(); },
 				error => {
 					handle && handle.remove();
