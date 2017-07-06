@@ -11,7 +11,7 @@ import { mixin } from '@dojo/core/lang';
 import { fileExists, on } from './util';
 import Promise from '@dojo/shim/Promise';
 
-const scVersion = '4.4.5';
+const scVersion = '4.4.7';
 
 /**
  * A Sauce Labs tunnel. This tunnel uses Sauce Connect 4 on platforms where it is supported, and Sauce Connect 3 on all

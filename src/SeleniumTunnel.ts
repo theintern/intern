@@ -8,7 +8,7 @@ import { mixin } from '@dojo/core/lang';
 import Promise from '@dojo/shim/Promise';
 
 const SeleniumVersion = '3.4.0';
-const ChromeVersion = '2.29';
+const ChromeVersion = '2.30';
 const FirefoxVersion = '0.16.1';
 const IEVersion = '3.4.0';
 

@@ -10,7 +10,7 @@ import Task from '@dojo/core/async/Task';
 import { createCompositeHandle, mixin } from '@dojo/core/lang';
 import { exec } from 'child_process';
 
-const cbtVersion = '0.0.34';
+const cbtVersion = '0.1.0';
 
 /**
  * A CrossBrowserTesting tunnel.

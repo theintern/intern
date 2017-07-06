@@ -8,19 +8,19 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@dojo/core": "beta1",
-    "@dojo/has": "beta1",
-    "@dojo/interfaces": "beta1",
-    "@dojo/shim": "beta1",
+    "@dojo/core": "~2.0.0-beta2.2",
+    "@dojo/has": "~2.0.0-beta2.2",
+    "@dojo/interfaces": "~2.0.0-beta2.2",
+    "@dojo/shim": "~2.0.0-beta2.2",
     "cbt_tunnels": "0.0.34",
     "decompress": "~4.2.0"
   },
   "devDependencies": {
-    "@dojo/loader": "beta1",
+    "@dojo/loader": "~2.0.0-beta2.2",
+    "@theintern/dev": "~0.4.2",
     "@types/node": "~7.0.23",
     "@types/shelljs": "~0.7.1",
     "intern": "~3.4.2",
-    "intern-dev": "~0.2.10",
     "shelljs": "~0.7.7"
   },
   "scripts": {

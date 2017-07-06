@@ -2,7 +2,8 @@ import Evented, { BaseEventedEvents } from '@dojo/core/Evented';
 import { EventObject, EventTargettedObject, Handle } from '@dojo/interfaces/core';
 import { createCompositeHandle, mixin } from '@dojo/core/lang';
 import Task, { State } from '@dojo/core/async/Task';
-import sendRequest, { Response, ProgressEvent } from '@dojo/core/request';
+import sendRequest from '@dojo/core/request';
+import { Response } from '@dojo/core/request/interfaces';
 import { NodeRequestOptions } from '@dojo/core/request/providers/node';
 import { spawn, ChildProcess } from 'child_process';
 import { format as formatUrl, Url } from 'url';
@@ -208,14 +209,19 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 				request = sendRequest(url, <NodeRequestOptions>{ proxy });
 				request.then(response => {
 					const size = Number(response.headers.get('content-length'));
-					response.on('progress', (info: ProgressEvent) => {
-						this.emit<DownloadProgressEvent>({
-							type: 'downloadprogress',
-							target: this,
-							url,
-							total: size,
-							received: info.totalBytesDownloaded
-						});
+					let received = 0;
+
+					response.download.subscribe({
+						next: (value) => {
+							received += value;
+							this.emit<DownloadProgressEvent>({
+								type: 'downloadprogress',
+								target: this,
+								url,
+								total: size,
+								received
+							});
+						}
 					});
 
 					if (response.status >= 400) {
