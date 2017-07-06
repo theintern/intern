@@ -1802,7 +1802,7 @@ function pushCookieProperties(target: any[], source: any) {
 			}
 
 			if (value instanceof Date) {
-				value = (<any>Date).toUTCString();
+				value = value.toUTCString();
 			}
 
 			target.push('expires=' + encodeURIComponent(value));
