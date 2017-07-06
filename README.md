@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/logo.svg" alt="Intern logo" height="128"></p>
+<p align="center"><img src="https://cdn.rawgit.com/theintern/intern/master/docs/logo.svg" alt="Intern logo" height="128"></p>
 
 # Intern
 
