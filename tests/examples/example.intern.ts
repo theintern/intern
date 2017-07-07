@@ -1,7 +1,7 @@
-import Intern from 'src/index';
+import intern from 'src/index';
 
 // Construct a new executor, assigning it to a global
-const intern = (<any>global).intern = new Intern({
+intern.configure({
 	name: 'Test config',
 	filterErrorStack: true,
 	reporters: 'runner',
@@ -9,9 +9,7 @@ const intern = (<any>global).intern = new Intern({
 		loader: {
 			script: 'dojo2',
 			options: {
-				packages: [
-					{ name: 'src', location: '_build/src' }
-				]
+				packages: [ { name: 'src', location: '_build/src' } ]
 			}
 		}
 	},

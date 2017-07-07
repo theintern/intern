@@ -1,11 +1,5 @@
-import Executor from './lib/executors/Node';
-import _intern from './intern';
+import NodeExecutor from './lib/executors/Node';
+import global from '@dojo/shim/global';
 
-declare global {
-	// There will be one active executor
-	export const intern: Executor;
-}
-
-export default Executor;
-
-export { _intern as intern };
+const intern = global.intern = new NodeExecutor();
+export default intern;

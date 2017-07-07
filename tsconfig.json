@@ -34,11 +34,13 @@
 		"insertSpaceAfterSemicolonInForStatements": true
 	},
 	"files": [
-		"src/index.ts"
+		"src/globals.d.ts"
 	],
 	"include": [
 		"src/browser/**/*.ts",
 		"src/bin/*.ts",
+		"src/index.ts",
+		"src/intern.ts",
 		"src/loaders/*.ts",
 		"src/lib/executors/Browser.ts",
 		"src/lib/executors/Node.ts",

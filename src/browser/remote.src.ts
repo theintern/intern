@@ -3,7 +3,6 @@ import { RemoteConfig } from '../lib/RemoteSuite';
 import { parseQuery } from '../lib/browser/util';
 import { parseArgs } from '../lib/common/util';
 import Channel from '../lib/Channel';
-import Dom from '../lib/reporters/Dom';
 import global from '@dojo/shim/global';
 
 // A Benchmark global needs to be defined for benchmark.js to work properly when loaded as part of the Intern browser
@@ -26,8 +25,6 @@ function displayMessage(message: string) {
 
 try {
 	const intern = global.intern = new Browser(config);
-
-	intern.registerReporter('dom', Dom);
 
 	// Forward all executor events back to the Intern host
 	intern.on('*', ({ name, data }) => {
