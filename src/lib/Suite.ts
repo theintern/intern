@@ -298,8 +298,11 @@ export default class Suite implements SuiteProperties {
 
 					const suiteFunc: SuiteLifecycleFunction = <any>suite[name];
 
-					// Call the lifecycle function. The suite.async method above may be called within this function call.
-					result = suiteFunc && suiteFunc.call(suite, test);
+					// Call the lifecycle function. The suite.async method above may be called within this function
+					// call. If `test` is defined (i.e., this is beforeEach or afterEach), pass it first, followed by
+					// the suite. If `test` is not defined, just pass the suite. This ordering is maintain backwards
+					// compatibility with previous versions of Intern.
+					result = suiteFunc && (test ? suiteFunc.call(suite, test, suite) : suiteFunc.call(suite, suite));
 
 					// If dfd is set, it means the async method was called
 					if (dfd) {
@@ -614,11 +617,11 @@ export function isSuite(value: any): value is Suite {
 }
 
 export interface SuiteLifecycleFunction {
-	(this: Suite): void | PromiseLike<void>;
+	(this: Suite, suite: Suite): void | PromiseLike<void>;
 }
 
 export interface TestLifecycleFunction {
-	(this: Suite, test: Test): void | PromiseLike<void>;
+	(this: Suite, suite: Suite, test: Test): void | PromiseLike<void>;
 }
 
 // Properties that define a Suite. Note that 'tests' isn't included so that other interfaces, such as the object

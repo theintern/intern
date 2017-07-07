@@ -275,6 +275,28 @@ function createTimeoutTest(method: lifecycleMethod): _TestFunction {
 	};
 }
 
+/**
+ * Verify that lifecycle methods are called with the expected arguments
+ */
+function createArgsTest(method: lifecycleMethod): _TestFunction {
+	return function () {
+		const suite = createSuite({
+			[method]: (...args: any[]) => {
+				if (/Each$/.test(method)) {
+					assert.instanceOf(args[0], Test);
+					assert.instanceOf(args[1], Suite);
+				}
+				else {
+					assert.instanceOf(args[0], Suite);
+				}
+			},
+			tests: [ new Test({ name: 'foo', test: () => {} }) ]
+		});
+
+		return suite.run();
+	};
+}
+
 function createLifecycleTests(name: lifecycleMethod, asyncTest: TestWrapper, tests: { [name: string]: _TestFunction }) {
 	return {
 		tests: {
@@ -287,6 +309,7 @@ function createLifecycleTests(name: lifecycleMethod, asyncTest: TestWrapper, tes
 			'async rejects': createThrowsTest(name, { async: true }),
 			'async timeout': createTimeoutTest(name),
 			'promise rejects': createThrowsTest(name, { promise: true }),
+			arguments: createArgsTest(name),
 			...tests
 		}
 	};

@@ -223,7 +223,7 @@ export default class Test implements TestProperties {
 		return this.executor.emit('testStart', this)
 			.then(() => { startTime = Date.now(); })
 			.then<void>(() => {
-				let result: PromiseLike<void> | void = this.test();
+				let result: PromiseLike<void> | void = this.test(this);
 
 				// Someone called `this.async`, so this test is async; we have to prefer one or the other, so
 				// prefer the promise returned from the test function if it exists, otherwise get the one that was
@@ -379,7 +379,7 @@ export function isTestOptions(value: any): value is TestOptions {
 }
 
 export interface TestFunction {
-	(this: Test): void | PromiseLike<any>;
+	(this: Test, test: Test): void | PromiseLike<any>;
 }
 
 export function isTestFunction(value: any): value is TestFunction {
