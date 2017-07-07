@@ -47,7 +47,7 @@
 			"_tests/tests/unit/tasks/intern.js"
 		],
 		"plugins": "_tests/tests/support/nodeMocking.js",
-		"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } }
+		"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": false } }
 	},
 
 	"browser": {

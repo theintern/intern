@@ -1,47 +1,47 @@
 {
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "experimentalDecorators": true,
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"declaration": true,
+		"experimentalDecorators": true,
 	"lib": [
-      "es5",
-      "es2015.collection",
-      "es2015.symbol",
-      "es2015.symbol.wellknown",
-      "es2015.iterable",
-      "dom"
-    ],
-    "module": "umd",
-    "moduleResolution": "node",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "outDir": "./_build",
-    "preserveConstEnums": true,
-    "removeComments": false,
-    "rootDir": ".",
-    "sourceMap": true,
-    "strict": true,
-    "target": "es5",
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ]
-  },
-  "formatCodeOptions": {
-    "convertTabsToSpaces": false,
-    "insertSpaceAfterCommaDelimiter": true,
-    "insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
-    "insertSpaceAfterSemicolonInForStatements": true
-  },
-  "files": [
-    "src/index.ts"
-  ],
-  "include": [
-    "src/browser/**/*.ts",
-    "src/bin/*.ts",
-    "src/loaders/*.ts",
-    "src/lib/executors/Browser.ts",
-    "src/lib/executors/Node.ts",
-    "src/tasks/intern.ts"
-  ]
+			"es5",
+			"es2015.collection",
+			"es2015.symbol",
+			"es2015.symbol.wellknown",
+			"es2015.iterable",
+			"dom"
+		],
+		"module": "umd",
+		"moduleResolution": "node",
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"outDir": "./_build",
+		"preserveConstEnums": true,
+		"removeComments": false,
+		"rootDir": ".",
+		"sourceMap": true,
+		"strict": true,
+		"target": "es5",
+		"typeRoots": [
+			"./types",
+			"./node_modules/@types"
+		]
+	},
+	"formatCodeOptions": {
+		"convertTabsToSpaces": false,
+		"insertSpaceAfterCommaDelimiter": true,
+		"insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
+		"insertSpaceAfterSemicolonInForStatements": true
+	},
+	"files": [
+		"src/index.ts"
+	],
+	"include": [
+		"src/browser/**/*.ts",
+		"src/bin/*.ts",
+		"src/loaders/*.ts",
+		"src/lib/executors/Browser.ts",
+		"src/lib/executors/Node.ts",
+		"src/tasks/intern.ts"
+	]
 }

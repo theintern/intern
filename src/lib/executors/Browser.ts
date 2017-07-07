@@ -15,7 +15,7 @@ const console: Console = global.console;
  * A Browser executor is used to run unit tests in a browser.
  */
 export default class Browser extends Executor<Events, Config> {
-	constructor(config?: Partial<Config>) {
+	constructor(options?: { [key in keyof Config]?: any }) {
 		super(<Config>{
 			basePath: '/',
 			internPath: 'node_modules/intern/'
@@ -38,8 +38,8 @@ export default class Browser extends Executor<Events, Config> {
 		this.registerReporter('dom', Dom);
 		this.registerReporter('console', ConsoleReporter);
 
-		if (config) {
-			this.configure(config);
+		if (options) {
+			this.configure(options);
 		}
 	}
 

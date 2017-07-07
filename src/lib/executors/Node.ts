@@ -58,7 +58,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	protected _unhookRequire: null | (() => void);
 	protected _sessionSuites: Suite[];
 
-	constructor(config?: Partial<Config>) {
+	constructor(options?: { [key in keyof Config]?: any }) {
 		super({
 			basePath: process.cwd() + sep,
 			capabilities: { 'idle-timeout': 60 },
@@ -102,8 +102,8 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		this.registerTunnel('testingbot', TestingBotTunnel);
 		this.registerTunnel('cbt', CrossBrowserTestingTunnel);
 
-		if (config) {
-			this.configure(config);
+		if (options) {
+			this.configure(options);
 		}
 
 		// Report uncaught errors
@@ -421,7 +421,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				});
 
 				// If browser-compatible unit tests were added to this executor, add a RemoteSuite to the session suite.
-				// The RemoteSuite will run the suites listed in executor.config.suites.
+				// The RemoteSuite will run the suites listed in config.suites and config.browser.suites.
 				if (config.suites.length + config.browser.suites.length > 0) {
 					suite.add(new RemoteSuite({
 						before() {

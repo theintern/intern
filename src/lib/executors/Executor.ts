@@ -40,7 +40,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _reporters: Reporter[];
 	protected _runTask: Task<void>;
 
-	constructor(config?: Partial<C>) {
+	constructor(options?: { [key in keyof C]?: any }) {
 		this._config = <C>{
 			bail: false,
 			baseline: false,
@@ -69,8 +69,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			suites: <string[]>[]
 		};
 
-		if (config) {
-			this.configure(config);
+		if (options) {
+			this.configure(options);
 		}
 
 		this._listeners = {};
@@ -146,16 +146,13 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
-	 * Update this executor's configuration with a Config object.
-	 *
-	 * Note that non-object properties will replace existing properties. Object propery values will be deeply mixed into
-	 * any existing value.
+	 * Update this executor's configuration.
 	 */
-	configure(config: { [key in keyof C]?: any }) {
-		config = config || {};
-		Object.keys(config).forEach((key: keyof C) => {
+	configure(options: { [key in keyof C]?: any }) {
+		options = options || {};
+		Object.keys(options).forEach((key: keyof C) => {
 			const { name, addToExisting } = this._evalProperty(key);
-			this._processOption(<keyof C>name, config[key], addToExisting);
+			this._processOption(<keyof C>name, options[key], addToExisting);
 		});
 	}
 
