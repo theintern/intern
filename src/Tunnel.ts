@@ -208,17 +208,15 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 			(resolve, reject) => {
 				request = sendRequest(url, <NodeRequestOptions>{ proxy });
 				request.then(response => {
-					const size = Number(response.headers.get('content-length'));
-					let received = 0;
+					const total = Number(response.headers.get('content-length'));
 
 					response.download.subscribe({
-						next: (value) => {
-							received += value;
+						next: (received) => {
 							this.emit<DownloadProgressEvent>({
 								type: 'downloadprogress',
 								target: this,
 								url,
-								total: size,
+								total,
 								received
 							});
 						}
