@@ -68,7 +68,7 @@ following `intern.json` file:
 ```js
 {
   "suites": "tests/unit/**/*.js",
-  "plugins": "tests/pre.js",
+  "require": "tests/pre.js",
   "loader": {
     "script": "dojo",
     "config": {
@@ -86,7 +86,7 @@ module.exports = function (grunt) {
             node: {
                 options: {
                     suites: "tests/unit/**/*.js",
-                    plugins: "tests/pre.js"
+                    require: "tests/pre.js"
                     "loader": {
                         "script": "dojo",
                         "config": {

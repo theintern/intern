@@ -51,15 +51,15 @@ Zenput, Alfresco, Esri, HSBC, ING, Intuit, and more. It’s also the testing fra
 
 ## More information
 
-* [How To](docs/how_to.md) - quick answers to common questions
-* [Concepts](docs/concepts.md) - testing concepts and definitions
-* [Configuration](docs/configuration.md) - how to configure Intern
-* [Running](docs/running.md) - how to run Intern
-* [Writing Tests](docs/writing_tests.md) - the various ways of writing tests with Intern
-* [Architecture](docs/architecture.md) - how Intern is organized
+* [How To](docs/how_to.md) - Quick answers to common questions
+* [Concepts](docs/concepts.md) - Testing concepts and definitions
+* [Configuration](docs/configuration.md) - How to configure Intern
+* [Running](docs/running.md) - How to run Intern
+* [Writing Tests](docs/writing_tests.md) - The various ways of writing tests with Intern
+* [Architecture](docs/architecture.md) - How Intern is organized
 * [API](docs/api.md) - Intern's API
-* [Developing](docs/developing.md) - for Intern developers
-* [Contributing](CONTRIBUTING.md) - how to contribute to Intern development
+* [Developing](docs/developing.md) - For Intern developers
+* [Contributing](CONTRIBUTING.md) - How to contribute to Intern development
 
 ## Get help
 

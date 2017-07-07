@@ -1,12 +1,39 @@
 # How To...
 
 <!-- vim-markdown-toc GFM -->
+* [Use Intern programmatically](#use-intern-programmatically)
 * [Run Intern in my own test page in a browser](#run-intern-in-my-own-test-page-in-a-browser)
 * [Write tests in an HTML page](#write-tests-in-an-html-page)
 * [Test ES modules](#test-es-modules)
 * [Use Intern with a remote service like BrowserStack](#use-intern-with-a-remote-service-like-browserstack)
 
 <!-- vim-markdown-toc -->
+
+## Use Intern programmatically
+
+1. Load Intern
+   * In node:
+     ```js
+     import intern from 'intern';
+     ```
+   * In the browser, load the 'browser/intern.js' script
+     ```html
+     <script src="node_modules/intern/browser/intern.js"></script>
+     ```
+2. Configure Intern
+   ```js
+   intern.configure({
+       suites: [
+           'tests/unit/a.js',
+           'tests/unit/b.js'
+       ],
+       reporters: 'runner'
+   });
+   ```
+3. Run Intern
+   ```js
+   intern.run();
+   ```
 
 ## Run Intern in my own test page in a browser
 
@@ -48,7 +75,7 @@ If you’d rather not install Intern, you can load the package from a CDN, like:
     <head>
         <script src="https://unpkg.com/intern@next/browser/intern.js"></script>
         <script>
-            var registerSuite = intern.getPlugin('interface.object').registerSuite;
+            var registerSuite = intern.getInterface('object').registerSuite;
             registerSuite('app/module', {
                 test1: function () {
                     // ...
@@ -74,7 +101,9 @@ To work with ES modules in Node, install babel-register and load it as a plugin:
 ```js
 // intern.json
 {
-    "plugins": "node_modules/babel-register/lib/node.js"
+    "node": {
+        "require": "node_modules/babel-register/lib/node.js"
+    }
 }
 ```
 

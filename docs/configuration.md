@@ -1,5 +1,8 @@
 # Configuration
 
+<details>
+<summary><strong>Table of Contents</strong></summary>
+
 <!-- vim-markdown-toc GFM -->
 * [Config structure](#config-structure)
 * [Configuration resolution](#configuration-resolution)
@@ -24,6 +27,7 @@
     * [`tunnel`](#tunnel)
 
 <!-- vim-markdown-toc -->
+</details>
 
 Intern (specifically the running Intern [executor](architecture.md#executors)) is configured with a standard JavaScript
 object. This object may contain properties applicable to either environment that Intern can run in (Node or browser).
@@ -74,10 +78,10 @@ serialized to strings).
 There are four general sections to a config:
 
 * **General properties**: this includes everything but "browser", "configs", and "node"
-* **Node-specific resources**: resource properties ("loader", "plugins", "reporters", "suites") that apply only to Node
-  environments.
-* **Browser-specific resources**: resource properties ("loader", "plugins", "reporters", "suites") that apply only to
-  browser environments.
+* **Node-specific resources**: resource properties ("loader", "plugins", "reporters", "require', "suites") that apply
+  only to Node environments.
+* **Browser-specific resources**: resource properties ("loader", "plugins", "reporters", "require", "suites") that apply
+  only to browser environments.
 * **Child configs**: named configs in the "configs" object; each of these can have any config properties but
   "configs" (i.e., general properties, Node resources, and browser resources).
 
@@ -116,8 +120,8 @@ There are a few exceptions:
        "plugins": [ "tests/plugins/bar.js" ]
    }
    ```
-2. **Resource arrays in "node" or "browser" ("plugins", "reporters", "suites"), are added to the corresponding resource
-   arrays in the base config.** For example, if the base config has:
+2. **Resource arrays in "node" or "browser" ("plugins", "reporters", "require", "suites"), are added to the
+   corresponding resource arrays in the base config.** For example, if the base config has:
    ```js
    "suites": [ "tests/unit/foo.js" ]
    ```
@@ -278,7 +282,7 @@ All of the available configuration properties are listed in the table below.
 | `basePath` | all | The project base path |
 | `baseline` | node | When true, run benchmark tests in baseline mode |
 | `benchmark` | all | When true, run benchmark tests (if loaded) |
-| `browser` | browser | Resources (loader, plugins, reporters, suites) that only apply to browser tests |
+| `browser` | browser | Resources (loader, plugins, reporters, require, suites) that only apply to browser tests |
 | `capabilities` | node | Default capabilities to be used for WebDriver sessions |
 | `connectTimeout` | node | When running WebDriver tests, how long (in ms) to wait for a remote browser to connect |
 | [`coverageSources`](#coveragesources) | node | An array of paths or globs that should be included in coverage reports |
@@ -297,9 +301,10 @@ All of the available configuration properties are listed in the table below.
 | [`loader`](#loader) | all | An optinal loader script and options |
 | `maxConcurrency` | node | When running WebDriver tests, how may sessions to run at once |
 | `name` | all | A name for a test run for use by reporters |
-| `node` | browser | Resources (loader, plugins, reporters, suites) that only apply to node tests |
+| `node` | browser | Resources (loader, plugins, reporters, require, suites) that only apply to node tests |
 | `plugins` | all | A list of Intern extensions to load before tests begin |
 | `reporters` | all | A list of reporters to use |
+| `require` | all | A list of scripts or momdules to load before anything else |
 | `runInSync` | node | When true, remote executors will run in sync with the local Intern |
 | `serveOnly` | node | When true, Intern will start its instrumenting web server but not run tests |
 | `serverPort` | node | The port the instrumenting server should listen on |
