@@ -80,7 +80,6 @@
 	"internPath": "_tests/src",
 
 	"configs": {
-		/* Include benchmark suites */
 		"allSuites": {
 			"description": "All regular suites + benchmark suites",
 			"suites+": [
@@ -89,7 +88,14 @@
 			]
 		},
 
-		/* For running all unit tests in Node (including benchmarks) */
+		"fast": {
+			"description": "For running unit tests quickly",
+			"excludeInstrumentation": true,
+			"node": {
+				"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } }
+			}
+		},
+
 		"coverage": {
 			"description": "Generate full coverage",
 			"benchmark": true,
@@ -102,19 +108,17 @@
 			"extends": [ "allSuites" ]
 		},
 
-		/* For running local selenium tests */
 		"wd": {
 			"description": "Run tests in Chrome using Selenium",
 			"tunnel": "selenium",
 			"environments": { "browserName": "chrome", "fixSessionCapabilities": "no-detect" }
 		},
 
-		/* For running coverage tests locally  */
 		"wdcoverage": {
+			"description": "Run coverage tests locally",
 			"extends": [ "wd", "coverage" ]
 		},
 
-		/* For running tests on Travis */
 		"ci": {
 			"description": "Run CI tests on the default cloud service (BrowserStack)",
 			"extends": "coverage",
@@ -132,7 +136,6 @@
 			]
 		},
 
-		/* For running CI tests on Sauce Labs */
 		"sauce": {
 			"description": "Run CI tests on Sauce Labs",
 			"extends": "ci",
