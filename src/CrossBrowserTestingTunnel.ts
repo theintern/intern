@@ -83,7 +83,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 			return Task.resolve();
 		}
 		return new Task((resolve, reject) => {
-			exec(`npm install cbt_tunnels@${this.cbtVersion}`, (error, stdout, stderr) => {
+			exec(`npm install --no-save cbt_tunnels@${this.cbtVersion}`, (error, stdout, stderr) => {
 				if (error) {
 					console.error(stderr);
 					reject(error);
