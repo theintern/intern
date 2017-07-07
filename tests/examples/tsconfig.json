@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"baseUrl": "../..",
+		"declaration": false,
+		"outDir": "../../_examples",
+		"paths": {
+			"src/*": [
+				"_build/src/*.d.ts"
+			]
+		},
+        "rootDir": "."
+	},
+	"extends": "../../tsconfig.json",
+    "files": [ "example.intern.ts" ],
+	"include": []
+}
