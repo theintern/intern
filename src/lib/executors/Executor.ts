@@ -331,8 +331,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			// If the result is thenable, push it on the loading queue
 			this._loadingPlugins.push({
 				name: pluginName,
-				init: new Task<void>(
-					(resolve, reject) => result.then(() => { resolve(); }, reject),
+				init: new Task<any>(
+					(resolve, reject) => result.then(value => resolve(value), reject),
 					() => { isTask(result) && result.cancel(); }
 				)
 			});
