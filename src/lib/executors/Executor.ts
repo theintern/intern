@@ -48,6 +48,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			browser: {
 				plugins: <PluginDescriptor[]>[],
 				reporters: <ReporterDescriptor[]>[],
+				require: <string[]>[],
 				suites: <string[]>[]
 			},
 			coverageVariable: '__coverage__',
@@ -61,10 +62,12 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			node: {
 				plugins: <PluginDescriptor[]>[],
 				reporters: <ReporterDescriptor[]>[],
+				require: <string[]>[],
 				suites: <string[]>[]
 			},
 			plugins: <PluginDescriptor[]>[],
 			reporters: <ReporterDescriptor[]>[],
+			require: <string[]>[],
 			sessionId: '',
 			suites: <string[]>[]
 		};
@@ -389,6 +392,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 					let currentTask: Task<void>;
 
 					this._runTask = this._runTask
+						.then(() => this._loadRequires())
 						.then(() => this._loadLoader())
 						.then(() => this._loadPlugins())
 						.then(() => this._loadSuites())
@@ -607,6 +611,17 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	}
 
 	/**
+	 * Load scripts in the `require` list. These will be loaded sequentially in order using a platform-specific loading
+	 * mechanism (script injection or Node's require).
+	 */
+	protected _loadRequires() {
+		const requires = this.config.require.concat(this.config[this.environment].require);
+		requires.reduce((previous, script) => {
+			return previous.then(() => this.loadScript(script));
+		}, Task.resolve());
+	}
+
+	/**
 	 * Load suites
 	 */
 	protected _loadSuites() {
@@ -671,6 +686,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				this._setOption(name, parseValue(name, value, 'object[]', 'script'), addToExisting);
 				break;
 
+			case 'require':
 			case 'suites':
 				this._setOption(name, parseValue(name, value, 'string[]'), addToExisting);
 				break;
@@ -697,6 +713,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 								resource = parseValue('reporters', resource, 'object[]', 'name');
 								this._setOption(name, resource, addToExisting, <C>envConfig);
 								break;
+							case 'require':
 							case 'suites':
 								resource = parseValue('suites', resource, 'string[]');
 								this._setOption(name, resource, addToExisting, <C>envConfig);
@@ -803,6 +820,11 @@ export interface ResourceConfig {
 	 * A list of reporter names or descriptors. These reporters will be loaded and instantiated before testing begins.
 	 */
 	reporters: ReporterDescriptor[];
+
+	/**
+	 * A list of scripts or modules to load before any loader, plugins, or suites.
+	 */
+	require: string[];
 
 	/** A list of paths to suite scripts (or some other suite identifier usable by the suite loader). */
 	suites: string[];
