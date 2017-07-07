@@ -8,6 +8,13 @@ export interface TextLoader {
 }
 
 /**
+ * Return a string with all lines prefixed with a given prefix.
+ */
+export function prefix(message: string, prefix: string) {
+	return message.split('\n').map(line => prefix + line).join('\n');
+}
+
+/**
  * Load config data from a given path, using a given text loader, and mixing args and/or a childConfig into the final
  * config value if provided.
  */

@@ -8,6 +8,7 @@ import { Writable } from 'stream';
 import Server from '../Server';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import Node, { Events, TunnelMessage } from '../executors/Node';
+import { prefix } from '../common/util';
 
 export type Charm = charm.CharmInstance;
 
@@ -258,11 +259,9 @@ export default class Runner extends Coverage implements RunnerProperties {
 			charm.write('× ' + test.id);
 			charm.write(' (' + (test.timeElapsed / 1000) + 's)');
 			charm.write('\n');
+			charm.write(prefix(this.formatError(test.error), '    '));
 			charm.display('reset');
-			charm.foreground('red');
-			charm.write(this.formatError(test.error));
-			charm.display('reset');
-			charm.write('\n');
+			charm.write('\n\n');
 		}
 		else if (test.skipped) {
 			if (!this.hideSkipped) {
