@@ -97,8 +97,19 @@ function _loadConfig(configPath: string, loadText: TextLoader, args?: { [key: st
 		return config;
 	}).then(config => {
 		if (args) {
-			// If we're showing the configs, don't mix in args
 			mixin(config, args);
+
+			// If any non-additive resources are specified in args, they will apply to all environments and will
+			// override any environment specific resources.
+			[ 'plugins', 'reporters', 'require', 'suites' ].filter(property => {
+				return args[property];
+			}).forEach(property => {
+				[ 'node', 'browser' ].filter(environment => {
+					return config[environment];
+				}).forEach(environment => {
+					delete config[environment][property];
+				});
+			});
 		}
 		return config;
 	});
