@@ -25,6 +25,7 @@ cache:
   directories:
     - node_modules
 install:
+  - npm install -g npm@latest
   - npm install
   - npm install -g codecov
 script:
