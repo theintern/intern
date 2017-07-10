@@ -616,7 +616,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 */
 	protected _loadRequires() {
 		const requires = this.config.require.concat(this.config[this.environment].require);
-		requires.reduce((previous, script) => {
+		return requires.reduce((previous, script) => {
 			return previous.then(() => this.loadScript(script));
 		}, Task.resolve());
 	}
