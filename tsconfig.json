@@ -3,7 +3,7 @@
 		"allowSyntheticDefaultImports": true,
 		"declaration": true,
 		"experimentalDecorators": true,
-	"lib": [
+		"lib": [
 			"es5",
 			"es2015.collection",
 			"es2015.symbol",
@@ -34,12 +34,11 @@
 		"insertSpaceAfterSemicolonInForStatements": true
 	},
 	"files": [
-		"src/globals.d.ts"
+		"src/index.ts"
 	],
 	"include": [
 		"src/browser/**/*.ts",
 		"src/bin/*.ts",
-		"src/index.ts",
 		"src/intern.ts",
 		"src/loaders/*.ts",
 		"src/lib/executors/Browser.ts",
