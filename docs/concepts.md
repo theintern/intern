@@ -8,6 +8,7 @@ This page briefly presents definitions and/or brief descriptions for several cor
 * [Functional tests](#functional-tests)
 * [Source maps](#source-maps)
 * [Unit tests](#unit-tests)
+* [Page objects](#page-objects)
 
 <!-- vim-markdown-toc -->
 
@@ -112,3 +113,68 @@ if (comp.get('foo') !== 'bar') {
 ```
 
 However, the assertion library will generate errors with meaningful messages automatically, which is pretty convenient.
+
+## Page objects
+
+"Page objects" are very useful functional testing concept. The basic idea is to define a page-level API for a page that
+a test will be interacting with. For example, functional tests may need to login to a site:
+
+```ts
+// productPage.ts
+registerSuite('product page', {
+    'buy product'() {
+        return this.remote
+            .get('https://mysite.local')
+
+            // Login to the site, using the specified username and password, then look for a
+            // specific element to verify that the login succeeded
+            .findById('login')
+            .click()
+            .type(username)
+            .end()
+            .findById('password')
+            .click()
+            .type(password)
+            .end()
+            .findById('loginButton')
+            .click()
+            .end()
+            .setFindTimeout(5000)
+            .findById('loginSuccess')
+            .end()
+
+            // now buy the product
+            .findById('product-1')
+            .click()
+            .end()
+            // ...
+    },
+
+    // ...
+});
+```
+
+With a page object, this could be reduced to something more manageable:
+
+```ts
+// productPage.ts
+import { login } from './pages/loginPage.ts';
+
+registerSuite('product page', {
+    'buy product'() {
+        return this.remote
+            .get('https://mysite.local')
+            .then(login(username, password))
+
+            // now buy the product
+            .findById('product-1')
+            .click()
+            .end()
+            // ...
+    },
+
+    // ...
+});
+```
+
+See [Page objects](./writing_tests.md#page-objects) for more information.

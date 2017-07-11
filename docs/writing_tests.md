@@ -20,6 +20,7 @@ of writing and organizing tests. At a higher level, there are two general classe
     * [Environment](#environment)
 * [Benchmark tests](#benchmark-tests)
 * [Functional tests](#functional-tests)
+    * [Page objects](#page-objects)
 
 <!-- vim-markdown-toc -->
 
@@ -152,34 +153,35 @@ doesn't work well in a benchmarking situation.
 registerSuite('Performance', {
     // ...
 
-    tests: {
-        'update values'() {
-            component.update({ value: 20 });
-        },
+    'update values'() {
+        component.update({ value: 20 });
+    },
 
-        // An async test will be passed a Deferred object
-        async(request(dfd) {
-            component.request('something.html').then(() => {
-                dfd.resolve();
-            }, error => {
-                dfd.reject(error);
-            });
-        })
-    }
+    // An async test will be passed a Deferred object
+    async(request(dfd) {
+        component.request('something.html').then(() => {
+            dfd.resolve();
+        }, error => {
+            dfd.reject(error);
+        });
+    })
 });
 ```
 
 ### Native
 
 The native interface is simply the `addSuite` method on Executor, which is what the various test interfaces use behind
-the scenes to register tests and suites. This method takes a factory method that, when called with a parent Suite, will
-create a new Suite and add it to the parent.
+the scenes to register tests and suites. This method takes a factory function that will be called with a Suite. The
+factory function should add suites or tests to the given suite.
 
 ```ts
-intern.addSuite((parent: Suite) => {
-    const suite = new Suite({ name: 'create new', tests: [
-        new Test({ name: 'new test', test: () => assert.doesNotThrow(() => new Component()) })
-    ]});
+intern.addSuite(parent => {
+    const suite = new Suite({
+        name: 'create new',
+        tests: [
+            new Test({ name: 'new test', test: () => assert.doesNotThrow(() => new Component()) })
+        ]
+    });
     parent.add(suite);
 });
 ```
@@ -195,12 +197,9 @@ define([ 'app/Component' ], function (Component) {
     var assert = intern.getAssertions('assert');
     var registerSuite = intern.getInterface('object').registerSuite;
 
-    registerSuite({
-        name: 'Component',
-        tests: {
-            'create new': function () {
-                assert.doesNotThrow(() => new Component());
-            }
+    registerSuite('Component', {
+        'create new': function () {
+            assert.doesNotThrow(() => new Component());
         }
     });
 });
@@ -214,12 +213,9 @@ import Component from '../app/Component';
 const assert = intern.getAssertions('assert');
 const { registerSuite } = intern.getPlugin('interface.object');
 
-registerSuite({
-    name: 'Component',
-    tests: {
-        'create new'() {
-            assert.doesNotThrow(() => new Component());
-        }
+registerSuite('Component', {
+    'create new'() {
+        assert.doesNotThrow(() => new Component());
     }
 });
 ```
@@ -306,8 +302,28 @@ test('update values', function () {
 });
 ```
 
-Suite lifecycle methods such as `before` and `afterEach` are always called in the context of the suite object.
-Additionally, the `beforeEach` and `afterEach` methods are passed the current test as the first argument.
+The use of `this.async()` works because the test callback is called with the containing Test instance as its context.
+Similarly, suite lifecycle methods such as `before` and `afterEach` are called in the context of the suite object.
+The `beforeEach` and `afterEach` methods are also passed the current test as the first argument.
+
+Note that `this.async()` wouldn’t work so well with arrow functions:
+
+```ts
+test('update values', () => {
+    const dfd = this.async();   // <--- Problem -- this isn't bound to the Test!
+    // ...
+});
+```
+
+To making working with arrow functions easier, Intern also passes the Test instance as the first argument to test
+callbacks. It passes the Suite instance as the _last_ argument to Suite callback functions.
+
+```ts
+test('update values', test => {
+    const dfd = test.async();
+    // ...
+});
+```
 
 ### Environment
 
@@ -334,8 +350,7 @@ or is false, calls to register benchmark suites will be ignored.
 Functional tests operate fundamentally differently than unit tests. While a unit test directly loads and executes
 application code, functional tests load a page in a browser and interact with it in the same way a user would: by
 examining the content of the page, clicking buttons, typing into text inputs, etc. This interaction is managed through a
-`remote` property that is available on functional test suites. Note that _functional tests may only be run using the
-WebDriver executor.
+`remote` property that is available on functional test suites.
 
 Consider the following functional test:
 
@@ -372,3 +387,93 @@ is actually pretty simple to deal with. The API provided by `this.remote` is the
 API](https://theintern.github.io/leadfoot/module-leadfoot_Command.html), which is fluid and async, and the
 result of a bunch of fluid Command method calls will be something that looks like a Promise. A functional test just
 needs to return the result of this Command chain, and Intern will treat it as async.
+
+### Page objects
+
+Typically a given page may be used in multiple functional tests, and tests may perform a lot of the same actions on a
+given page. For example, functional tests may need to login to a site, which is generally a multi-step process:
+
+```ts
+// productPage.ts
+registerSuite('product page', {
+    'buy product'() {
+        return this.remote
+            .get('https://mysite.local')
+
+            // Login to the site, using the specified username and password, then look for a
+            // specific element to verify that the login succeeded
+            .findById('login')
+            .click()
+            .type(username)
+            .end()
+            .findById('password')
+            .click()
+            .type(password)
+            .end()
+            .findById('loginButton')
+            .click()
+            .end()
+            .setFindTimeout(5000)
+            .findById('loginSuccess')
+            .end()
+
+            // now buy the product
+            .findById('product-1')
+            .click()
+            .end()
+            // ...
+    },
+
+    // ...
+});
+```
+
+Page objects allow high-level actions like logging in to be handled by shareable components. They are generally
+implemented using functions that return callback functions, like the following:
+
+```ts
+// loginPage.ts
+export function login(username: string, password: string) {
+    return function () {
+        return this.parent
+            .findById('login')
+            .click()
+            .type(username)
+            .end()
+            .findById('password')
+            .click()
+            .type(password)
+            .end()
+            .findById('loginButton')
+            .click()
+            .end()
+            .setFindTimeout(5000)
+            .findById('loginSuccess')
+            .end()
+    }
+}
+```
+
+Each page object function returns a function. This returned function will be used as a `then` callback. To actually use
+a page object function, just call it and use the return value for a `then` callback:
+
+```ts
+// productPage.ts
+import { login } from './pages/loginPage.ts';
+
+registerSuite('product page', {
+    'buy product'() {
+        return this.remote
+            .get('https://mysite.local')
+            .then(login(username, password))
+
+            // now buy the product
+            .findById('product-1')
+            .click()
+            .end()
+            // ...
+    },
+
+    // ...
+});
+```
