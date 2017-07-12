@@ -14,8 +14,7 @@
 
 ## Executor
 
-The executor is instance of `lib/executors/Node` or `lib/executors/Browser`. It is typically assigned to an `intern`
-global.
+The executor is instance of `lib/executors/Node` or `lib/executors/Browser`. It is typically assigned to an `intern` global.
 
 ### .configure(options)
 
@@ -27,8 +26,7 @@ Retrieve a plugin. If no plugin named `name` has been registered, an error will 
 
 ### .log(arg...)
 
-This is a convenience method for emitting log messages when `config.debug` is true. When `config.debug` is false, this
-method does nothing.
+This is a convenience method for emitting log messages when `config.debug` is true. When `config.debug` is false, this method does nothing.
 
 ### .on(eventName, callback)
 
@@ -79,7 +77,6 @@ Note that some events are executor-specific. For example, the Browser executor w
 ### .registerLoader(callback)
 
 Register a module loader. The callback should accept an options object and return a function that can load modules.
-example,
 
 ```ts
 intern.registerLoader(options: any => {
@@ -97,9 +94,7 @@ intern.registerLoader(options: any => {
 
 ### .registerPlugin(id, callback)
 
-Register a plugin loader. The callback may return a Promise if the plugin needs to do some asynchronous initialization.
-If the plugin is being loaded via the `config.plugins` property, it's init callback will be passed any configured
-options. The resolved return value of the callback will be returned by `getPlugin`.
+Register a plugin loader. The callback may return a Promise if the plugin needs to do some asynchronous initialization. If the plugin is being loaded via the `config.plugins` property, it's init callback will be passed any configured options. The resolved return value of the callback will be returned by `getPlugin`.
 
 ```ts
 intern.registerPlugin('foo', (options: any) => {
@@ -123,5 +118,4 @@ doSomething();
 
 ### .run()
 
-Run the executor. This will resolve the config, load a configured loader, plugins, and suites, download and initialize a
-WebDriver tunnel (if configured), and start the testing process.
+Run the executor. This will resolve the config, load a configured loader, plugins, and suites, download and initialize a WebDriver tunnel (if configured), and start the testing process.

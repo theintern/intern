@@ -2,8 +2,7 @@
 
 # Community support
 
-The Intern community is available to assist you with basic questions, advice, and general guidance. There are three
-primary ways to get community support:
+The Intern community is available to assist you with basic questions, advice, and general guidance. There are three primary ways to get community support:
 
 * [Post a question to Stack Overflow](https://stackoverflow.com/questions/ask?tags=intern)
 * [Join theintern/intern on Gitter](https://gitter.im/theintern/intern)
@@ -11,9 +10,7 @@ primary ways to get community support:
 
 # Commercial support
 
-Some problems are too complicated, specific, time-sensitive, or confidential to be solved through free community
-support. In these cases, the creators of Intern, [SitePen](https://sitepen.com), offer commercial support services for
-you or your company. Commercial support has several advantages over community support:
+Some problems are too complicated, specific, time-sensitive, or confidential to be solved through free community support. In these cases, the creators of Intern, [SitePen](https://sitepen.com), offer commercial support services for you or your company. Commercial support has several advantages over community support:
 
 * Guaranteed response
 * 24 hours maximum response time

@@ -29,26 +29,19 @@
 <!-- vim-markdown-toc -->
 </details>
 
-Intern (specifically the running Intern [executor](architecture.md#executors)) is configured with a standard JavaScript
-object. This object may contain properties applicable to either environment that Intern can run in (Node or browser).
-Config properties may be set via a file, the command line, browser query args, or an environment variable. All of these
-methods use the same basic syntax and provide the same capabilities.
+Intern (specifically the running Intern [executor](architecture.md#executors)) is configured with a standard JavaScript object. This object may contain properties applicable to either environment that Intern can run in (Node or browser). Config properties may be set via a file, the command line, browser query args, or an environment variable. All of these methods use the same basic syntax and provide the same capabilities.
 
-Wherever config property values come from, the executor will validate and normalize them into a canonical format
-("resolve" them) when the testing process starts. This allows the executor’s constructor or `configure` method to be
-flexible in what data it accepts. For example, the canonical form of the `environments` property is an array of objects:
+Wherever config property values come from, the executor will validate and normalize them into a canonical format ("resolve" them) when the testing process starts. This allows the executor’s constructor or `configure` method to be flexible in what data it accepts. For example, the canonical form of the `environments` property is an array of objects:
 
 ```js
 environments: [{ browserName: 'chrome' }]
 ```
 
-However, Intern will accept a simple string for the `environments` property and will expand it into an array of a single
-object where the `browserName` property is the given string.
+However, Intern will accept a simple string for the `environments` property and will expand it into an array of a single object where the `browserName` property is the given string.
 
 ## Config structure
 
-The config structure is a simple JSON object, so all of its property values must be serializable (RegExp objects are
-serialized to strings).
+The config structure is a simple JSON object, so all of its property values must be serializable (RegExp objects are serialized to strings).
 
 ```js
 {
@@ -78,18 +71,13 @@ serialized to strings).
 There are four general sections to a config:
 
 * **General properties**: this includes everything but "browser", "configs", and "node"
-* **Node-specific resources**: resource properties ("loader", "plugins", "reporters", "require', "suites") that apply
-  only to Node environments.
-* **Browser-specific resources**: resource properties ("loader", "plugins", "reporters", "require", "suites") that apply
-  only to browser environments.
-* **Child configs**: named configs in the "configs" object; each of these can have any config properties but
-  "configs" (i.e., general properties, Node resources, and browser resources).
+* **Node-specific resources**: resource properties ("loader", "plugins", "reporters", "require', "suites") that apply only to Node environments.
+* **Browser-specific resources**: resource properties ("loader", "plugins", "reporters", "require", "suites") that apply only to browser environments.
+* **Child configs**: named configs in the "configs" object; each of these can have any config properties but "configs" (i.e., general properties, Node resources, and browser resources).
 
 ## Configuration resolution
 
-At runtime, the environment-specific resources and any [active child configs](#config-file) will be mixed into the
-resolved config. In general, properties from from more specific sources will override properties from lower precedence
-sources. The order of precedence, from lowest to highest, is:
+At runtime, the environment-specific resources and any [active child configs](#config-file) will be mixed into the resolved config. In general, properties from from more specific sources will override properties from lower precedence sources. The order of precedence, from lowest to highest, is:
 
 1. A config being extended by the base config
 2. The base config
@@ -120,8 +108,7 @@ There are a few exceptions:
        "plugins": [ "tests/plugins/bar.js" ]
    }
    ```
-2. **Resource arrays in "node" or "browser" ("plugins", "reporters", "require", "suites"), are added to the
-   corresponding resource arrays in the base config.** For example, if the base config has:
+2. **Resource arrays in "node" or "browser" ("plugins", "reporters", "require", "suites"), are added to the corresponding resource arrays in the base config.** For example, if the base config has:
    ```js
    "suites": [ "tests/unit/foo.js" ]
    ```
@@ -153,8 +140,7 @@ Intern takes in configuration data from several sources. In order of increasing 
   3. [Command line or query args](#command-line-or-query-args)
   4. [Programmatically](#programmatically)
 
-Multiple configuration methods may be used during a single run of Intern. The configuration will be fully resolved
-before tests are executed.
+Multiple configuration methods may be used during a single run of Intern. The configuration will be fully resolved before tests are executed.
 
 ### Config File
 
@@ -169,11 +155,9 @@ An Intern config file is a JSON file specifying config properties, for example:
 }
 ```
 
-By default, intern will try to load a file named `intern.json` from the project base directory. This file can be
-specified by passing a `config` property to the Node or browser runners.
+By default, intern will try to load a file named `intern.json` from the project base directory. This file can be specified by passing a `config` property to the Node or browser runners.
 
-A child config can be selected by adding `@<child>` to the config file name. For example, to load a child config named
-“ci” from the default config file, you could run:
+A child config can be selected by adding `@<child>` to the config file name. For example, to load a child config named “ci” from the default config file, you could run:
 
     $ node_modules/.bin/intern config=@ci
 
@@ -183,33 +167,27 @@ To load a config named “remote” from a config file named “intern-local.jso
 
 ### Environment variable
 
-In a Node environment, Intern may be configured using an `INTERN_ARGS` environment variable. This variable may contain
-config properties in `property=value` format. Its contents will be parsed and processed in the same way as arguments
-passed on the command line.
+In a Node environment, Intern may be configured using an `INTERN_ARGS` environment variable. This variable may contain config properties in `property=value` format. Its contents will be parsed and processed in the same way as arguments passed on the command line.
 
     $ export INTERN_ARGS="grep=run.* excludeInstrumentation"
 
 ### Command line
 
-Config properties may be provided directly on the command line when starting Intern. Properties must be specified using
-`propert=value` syntax. For example,
+Config properties may be provided directly on the command line when starting Intern. Properties must be specified using `property=value` syntax. For example,
 
     $ node_modules/.bin/intern grep='run.*' excludeInstrumentation
 
-Object values may be input as serialized strings (e.g., `environments='{"browserName":"chrome"}'`). Array values may be
-set by repeating a property (e.g., `suites="foo.js" suites="bar.js"`).
+Object values may be input as serialized strings (e.g., `environments='{"browserName":"chrome"}'`). Array values may be set by repeating a property (e.g., `suites="foo.js" suites="bar.js"`).
 
 ### Query args
 
-Query args work very similarly to command line args. They have the same format, but with URL query arg separators, and
-escaping of special characters as necessary.
+Query args work very similarly to command line args. They have the same format, but with URL query arg separators, and escaping of special characters as necessary.
 
     $ http://localhost:8080/node_modules/intern/?grep=run.*&excludeInstrumentation
 
 ### Programmatically
 
-When creating an executor programmatically it may be configured via its constructor, and later with a `configure`
-method.
+When creating an executor programmatically it may be configured via its constructor, and later with a `configure` method.
 
 ```ts
 const intern = new Node({ grep: /run.*/, excludeInstrumentation: true });
@@ -228,8 +206,7 @@ Intern has two config properties that can be used to display configuration infor
 
 **`showConfig`**
 
-Setting the `showConfig` property to tru will dump the resolved configuration to the current environment’s console. When
-this property is true, Intern will print its resolved configuration as a JSON structure and exit.
+Setting the `showConfig` property to tru will dump the resolved configuration to the current environment’s console. When this property is true, Intern will print its resolved configuration as a JSON structure and exit.
 
     $ node_modules/.bin/intern showConfig
     {
@@ -245,9 +222,7 @@ this property is true, Intern will print its resolved configuration as a JSON st
 
 **`showConfigs`**
 
-The `showConfigs` property can be used to show information about a given config file. When true, Intern will print the
-value of the current config file’s `description` property, and the list all child configs contained in the config file.
-For example, with a config file containing the following data:
+The `showConfigs` property can be used to show information about a given config file. When true, Intern will print the value of the current config file’s `description` property, and the list all child configs contained in the config file. For example, with a config file containing the following data:
 
 ```js
 {
@@ -332,24 +307,19 @@ These properties are used to affect the configuration process or to display info
 
 **Default**: `false`
 
-By default, Intern will run all configured tests. Setting the `bail` option to `true` will cause Intern to stop running
-tests after the first failure.
+By default, Intern will run all configured tests. Setting the `bail` option to `true` will cause Intern to stop running tests after the first failure.
 
 ### `coverageSources`
 
 **Default**: `[]`
 
-This property specifies an array of file paths or globs that should be included in coverage reports. Coverage data will
-automatically be gathered for all files loaded by Intern tests. Setting `coverageSources` will let Intern report on
-application files, even ones that weren’t loaded for tests. This allows a test writer to see which files _haven’t_ been
-tested, as well as coverage on files that were tested.
+This property specifies an array of file paths or globs that should be included in coverage reports. Coverage data will automatically be gathered for all files loaded by Intern tests. Setting `coverageSources` will let Intern report on application files, even ones that weren’t loaded for tests. This allows a test writer to see which files _haven’t_ been tested, as well as coverage on files that were tested.
 
 ### `environments`
 
 **Default**: `[]`
 
-The `environments` property specifies the environments that will be used to run WebDriver tests. Its value can be a
-single browser name or an environment object, or an array of these.
+The `environments` property specifies the environments that will be used to run WebDriver tests. Its value can be a single browser name or an environment object, or an array of these.
 
 ```ts
 environments: 'chrome'
@@ -357,34 +327,21 @@ environments: ['chrome', 'firefox']
 environments: { browserName: 'chrome', version: '57.0' }
 ```
 
-The syntax for browser names and other properties depends on where tests are being run. For example, when running tests
-using a local Selenium server, the browser name should be the lowercase name of a locally available browser, such as
-‘chrome’ or ‘firefox’, and other properties such as the platform name will generally be ignored. When running on a cloud
-testing service such as [Sauce
-Labs](https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-RequiredSeleniumTestConfigurationSettings)
-or [BrowserStack](https://www.browserstack.com/automate/capabilities), browser names and other properties may have
-different acceptable values (e.g., ‘googlechrome’ instead of ‘chrome’, or ‘MacOS’ vs ‘OSX’).
+The syntax for browser names and other properties depends on where tests are being run. For example, when running tests using a local Selenium server, the browser name should be the lowercase name of a locally available browser, such as ‘chrome’ or ‘firefox’, and other properties such as the platform name will generally be ignored. When running on a cloud testing service such as [Sauce Labs](https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-RequiredSeleniumTestConfigurationSettings) or [BrowserStack](https://www.browserstack.com/automate/capabilities), browser names and other properties may have different acceptable values (e.g., ‘googlechrome’ instead of ‘chrome’, or ‘MacOS’ vs ‘OSX’).
 
 ### `excludeInstrumentation`
 
 **Default**: `/(?:node_modules|browser|tests)\//`
 
-This property may be assigned a regular expression or the value `true`. If assigned a regular expression, every module
-loaded by Intern, or served by its testing server, is tested against the expression. Files that match are not
-[instrumented](concepts.md#code-coverage), while files that do not match are instrumented. If `excludeInstrumentation`
-is set to `true`, code coverage support is disabled entirely.
+This property may be assigned a regular expression or the value `true`. If assigned a regular expression, every module loaded by Intern, or served by its testing server, is tested against the expression. Files that match are not [instrumented](concepts.md#code-coverage), while files that do not match are instrumented. If `excludeInstrumentation` is set to `true`, code coverage support is disabled entirely.
 
 ### `extends`
 
 **Default**: `undefined`
 
-If the `extends` property is set in a base config, it must be the path to a different config file. At run time, the
-properties from the config file with the `extends` value will be mixed into the properties from the config file being
-extended.
+If the `extends` property is set in a base config, it must be the path to a different config file. At run time, the properties from the config file with the `extends` value will be mixed into the properties from the config file being extended.
 
-If the `extends` property is set in a child config, it must be the name of a different child config within the same
-config file, or an array of such names. When a child config extends multiple other child configs, properties from the
-right-most config being extended will override properties from configs to the left.
+If the `extends` property is set in a child config, it must be the name of a different child config within the same config file, or an array of such names. When a child config extends multiple other child configs, properties from the right-most config being extended will override properties from configs to the left.
 
 ```js
 {
@@ -411,32 +368,25 @@ In the scenario above, the following process will occur:
 
 **Default**: `[]`
 
-Functional suites are files that register [WebDriver tests](writing_tests.md). Suites may be specified as a string path,
-a glob expression, or an array of strings and/or globs.
+Functional suites are files that register [WebDriver tests](writing_tests.md). Suites may be specified as a string path, a glob expression, or an array of strings and/or globs.
 
 ### `grep`
 
 **Default**: `/.*/`
 
-The `grep` property is used to filter which tests are run. Grep operates on test IDs. A test ID is the concatenation of
-a test name with all of its parent suite names.
+The `grep` property is used to filter which tests are run. Grep operates on test IDs. A test ID is the concatenation of a test name with all of its parent suite names.
 
 ### `leaveRemoteOpen`
 
 **Default**: `false`
 
-Normally when Intern runs tests on remote browsers, it shuts them down when testing is finished. However, you may
-sometimes want to inspect the state of a remote browser after tests have run, particularly if you're trying to debug why
-a test is failing. Setting `leaveRemoteOpen` to true will cause Intern to leave the browser open after testing. Setting
-it to `'fail'` will cause Intern to leave it open only if there were test failures.
+Normally when Intern runs tests on remote browsers, it shuts them down when testing is finished. However, you may sometimes want to inspect the state of a remote browser after tests have run, particularly if you're trying to debug why a test is failing. Setting `leaveRemoteOpen` to true will cause Intern to leave the browser open after testing. Setting it to `'fail'` will cause Intern to leave it open only if there were test failures.
 
 ### `loader`
 
 **Default**: `/.*/`
 
-The `loader` property can be a string with a loader name or the path to a [loader script](./architecture.md#loaders). It
-may also be an object with `script` and `options` properties. Intern provides built-in loader scripts for Dojo, Dojo 2,
-and SystemJS, accessible through the aliases ‘dojo’, ‘dojo2’, and 'systemjs'.
+The `loader` property can be a string with a loader name or the path to a [loader script](./architecture.md#loaders). It may also be an object with `script` and `options` properties. Intern provides built-in loader scripts for Dojo, Dojo 2, and SystemJS, accessible through the aliases ‘dojo’, ‘dojo2’, and 'systemjs'.
 
 ```ts
 loader: 'dojo2'
@@ -448,16 +398,13 @@ loader: { script: 'dojo', options: { packages: [ { name: 'app', location: './js'
 
 **Default**: `[]`
 
-Suites are files that register unit tests. Suites may be specified as a string path, a glob expression, or an array of
-strings and/or globs.
+Suites are files that register unit tests. Suites may be specified as a string path, a glob expression, or an array of strings and/or globs.
 
 ### `tunnel`
 
 **Defautl**: `'selenium'`
 
-The `tunnel` property specifies which Dig Dug tunnel class to use for WebDriver testing. There are several built in
-tunnel types, and others can be added through the Node executor’s [`registerPlugin`
-method](./architecture.md#extension-points).
+The `tunnel` property specifies which Dig Dug tunnel class to use for WebDriver testing. There are several built in tunnel types, and others can be added through the Node executor’s [`registerPlugin` method](./architecture.md#extension-points).
 
 The built in tunnel classes are:
 
