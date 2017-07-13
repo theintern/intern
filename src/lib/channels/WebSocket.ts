@@ -16,7 +16,7 @@ export default class WebSocketChannel extends BaseChannel {
 		super(options);
 
 		if (this.timeout == null) {
-			this.timeout = 1000;
+			this.timeout = 10000;
 		}
 
 		if (!options.port) {
