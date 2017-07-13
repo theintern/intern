@@ -1,12 +1,12 @@
-<p align="center"><img src="https://cdn.rawgit.com/theintern/leadfoot/master/docs/logo.svg" alt="Leadfoot logo" height="128"></p>
-
 # Leadfoot
+
+A JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API
 
 [![npm version](https://badge.fury.io/js/leadfoot.svg)](https://badge.fury.io/js/leadfoot)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/leadfoot.svg)](http://isitmaintained.com/project/theintern/leadfoot "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/leadfoot.svg)](http://isitmaintained.com/project/theintern/leadfoot "Percentage of issues still open")
 
-Leadfoot is a JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.
+<br><p align="center"><img src="https://cdn.rawgit.com/theintern/leadfoot/master/docs/logo.svg" alt="Leadfoot logo" height="128"></p><br>
 
 Unlike existing WebDriver client libraries that assume the remote server will just do the Right Thing, Leadfoot detects
 and works around inconsistencies in WebDriver server implementations, so you can just worry about making your tests
