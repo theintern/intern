@@ -1,20 +1,22 @@
-<p align="center"><img src="https://cdn.rawgit.com/theintern/digdug/master/docs/logo.svg" alt="Dig Dug logo" height="128"></p>
-
 # Dig Dug
+
+A library for downloading and managing WebDriver service tunnels, along with Selenium and individual WebDrivers
 
 [![Build Status](https://travis-ci.org/theintern/digdug.svg?branch=master)](https://travis-ci.org/theintern/digdug)
 [![npm version](https://badge.fury.io/js/digdug.svg)](https://badge.fury.io/js/digdug)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug "Percentage of issues still open")
 
-Dig Dug is a library for downloading and managing WebDriver service tunnels, along with Selenium and individual WebDrivers. It supports the following cloud testing services:
+<br><p align="center"><img src="https://cdn.rawgit.com/theintern/digdug/master/docs/logo.svg" alt="Dig Dug logo" height="90"></p><br>
+
+## Configuration
+
+Dig Dug supports the following cloud testing services:
 
 * [BrowserStack](http://www.browserstack.com)
 * [CrossBrowserTesting](http://www.crossbrowsertesting.com)
 * [Sauce Labs](http://www.saucelabs.com)
 * [TestingBot](http://www.testingbot.com)
-
-## Configuration
 
 In many cases, the only configuration you'll need to do to create a tunnel is provide authentication data. This can be provided via options to a Tunnel constructor or via environment variables. The service tunnels use the following environment variables:
 
