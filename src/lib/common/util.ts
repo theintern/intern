@@ -109,7 +109,7 @@ function _loadConfig(configPath: string, loadText: TextLoader, args?: { [key: st
 			// If any non-additive resources are specified in args, they will apply to all environments and will
 			// override any environment specific resources.
 			[ 'plugins', 'reporters', 'require', 'suites' ].filter(property => {
-				return args[property];
+				return property in args;
 			}).forEach(property => {
 				[ 'node', 'browser' ].filter(environment => {
 					return config[environment];
