@@ -34,8 +34,6 @@ If you’re into name-dropping, Intern gets used every day by teams at Twitter, 
     $ npm install intern@next
     ```
 
-    ⚠️  Note that due to a deduplication issue with npm 5, Intern currently needs to be installed using npm 4.
-
 2. Create an `intern.json` file in your project root.
 
     ```js

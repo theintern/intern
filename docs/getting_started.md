@@ -37,8 +37,6 @@ Intern is distributed as an npm package. To install, just run:
 npm install intern@next
 ```
 
-⚠️  Note that due to a deduplication issue with npm 5, Intern currently needs to be installed using npm 4.
-
 ## Initial configuration
 
 Intern can be [configured](./configuration.md) in several ways, but the most common is via an `intern.json` file in the project root. A basic config for running unit and functional tests is:

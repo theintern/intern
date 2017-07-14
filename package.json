@@ -111,9 +111,6 @@
 		"umd-compat-loader": "~2.1.0",
 		"webpack": "~3.0.0"
 	},
-	"engines": {
-		"npm": "^4.0.0"
-	},
 	"internDev": {
 		"resources": {
 			"_build": [
