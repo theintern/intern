@@ -30,9 +30,11 @@ If you’re into name-dropping, Intern gets used every day by teams at Twitter, 
 1. Install from npm
 
     ```sh
-    $ cd /my/project/root
+    $ cd /my/project
     $ npm install intern@next
     ```
+
+    ⚠️  Note that due to a deduplication issue with npm 5, Intern currently needs to be installed using npm 4.
 
 2. Create an `intern.json` file in your project root.
 
@@ -45,7 +47,7 @@ If you’re into name-dropping, Intern gets used every day by teams at Twitter, 
 3. Verify that your configuration works by running Intern and checking that no errors are output.
 
     ```sh
-    $ node_modules/.bin/intern
+    $ ./node_modules/.bin/intern
     ```
 
 4. Start [writing tests](docs/writing_tests.md)!
@@ -57,24 +59,31 @@ Intern installs a global variable that tests may not be aware of if nothing impo
 ```js
 {
     "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/intern/types"
+        "./node_modules/@types",
+        "./node_modules/intern/types"
     ],
     "types": [
-      "intern"
+        "intern"
     ]
 }
 ```
 
+## Compatibility
+
+Intern can run unit tests in browsers that support ECMAScript 5, including mobile browsers on Android and iOS, and in Node 4+. It’s self-tests run against IE 10 and 11, Firefox 33 and current, Chrome 38 and current, and Safari 9 and 10, as well as Node 6 and 7.
+
+Intern can run functional tests using WebDriver-compatible applications and services, including Selenium, Appium, Selendroid. It has built-in support for cloud testing services from [BrowserStack](https://browserstack.com), [CrossBrowserTesting](https://crossbrowsertesting.com), [SauceLabs](https://saucelabs.com), and [TestingBot](https://testingbot.com).
+
 ## More information
 
+* [Getting started](docs/getting_started.md) - Setting up Intern to test a project
 * [How To](docs/how_to.md) - Quick answers to common questions
-* [Concepts](docs/concepts.md) - Testing concepts and definitions
+* [Concepts](docs/concepts.md) - General testing concepts and definitions
+* [Architecture](docs/architecture.md) - How Intern is organized
 * [Configuration](docs/configuration.md) - How to configure Intern
 * [Running](docs/running.md) - How to run Intern
-* [Writing Tests](docs/writing_tests.md) - The various ways of writing tests with Intern
-* [Native Apps](docs/native_apps.md) - Testing native apps
-* [Architecture](docs/architecture.md) - How Intern is organized
+* [Writing tests](docs/writing_tests.md) - The various ways of writing tests with Intern
+* [Native apps](docs/native_apps.md) - Testing native apps
 * [API](docs/api.md) - Intern's API
 * [Developing](docs/developing.md) - For Intern developers
 * [Contributing](CONTRIBUTING.md) - How to contribute to Intern development

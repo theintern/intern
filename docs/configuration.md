@@ -13,6 +13,8 @@
     * [Query args](#query-args)
     * [Programmatically](#programmatically)
 * [Displaying config information](#displaying-config-information)
+    * [`showConfig`](#showconfig)
+    * [`showConfigs`](#showconfigs)
 * [Properties](#properties)
     * [`bail`](#bail)
     * [`coverageSources`](#coveragesources)
@@ -25,11 +27,15 @@
     * [`loader`](#loader)
     * [`suites`](#suites)
     * [`tunnel`](#tunnel)
+    * [`tunnelOptions`](#tunneloptions)
+        * [All tunnels](#all-tunnels)
+        * [Selenium tunnel](#selenium-tunnel)
 
 <!-- vim-markdown-toc -->
 </details>
+<br>
 
-Intern (specifically the running Intern [executor](architecture.md#executors)) is configured with a standard JavaScript object. This object may contain properties applicable to either environment that Intern can run in (Node or browser). Config properties may be set via a file, the command line, browser query args, or an environment variable. All of these methods use the same basic syntax and provide the same capabilities.
+Intern (specifically the running Intern [executor](architecture.md#executors)) is configured with a standard JavaScript object. This object may contain properties applicable to either environment that Intern can run in (Node or browser). Config properties may be set via a file, the command line, browser query args, or an environment variable. All of these methods use the same basic syntax and provide the same capabilities. Assuming Intern is being run with the default [Node runner](./running.md#node) or [browser runner](./running.md#browser), configuration informatioon will be read from an `intern.json` file in the project root.
 
 Wherever config property values come from, the executor will validate and normalize them into a canonical format ("resolve" them) when the testing process starts. This allows the executor’s constructor or `configure` method to be flexible in what data it accepts. For example, the canonical form of the `environments` property is an array of objects:
 
@@ -155,27 +161,35 @@ An Intern config file is a JSON file specifying config properties, for example:
 }
 ```
 
-By default, intern will try to load a file named `intern.json` from the project base directory. This file can be specified by passing a `config` property to the Node or browser runners.
+By default, intern will try to load a file named `intern.json` from the project root directory. A different config file can be specified by passing a `config` property to the Node or browser runners.
 
 A child config can be selected by adding `@<child>` to the config file name. For example, to load a child config named “ci” from the default config file, you could run:
 
-    $ node_modules/.bin/intern config=@ci
+```sh
+node_modules/.bin/intern config=@ci
+```
 
 To load a config named “remote” from a config file named “intern-local.json”, run:
 
-    $ node_modules/.bin/intern config=intern-local.json@remote
+```sh
+node_modules/.bin/intern config=intern-local.json@remote
+```
 
 ### Environment variable
 
 In a Node environment, Intern may be configured using an `INTERN_ARGS` environment variable. This variable may contain config properties in `property=value` format. Its contents will be parsed and processed in the same way as arguments passed on the command line.
 
-    $ export INTERN_ARGS="grep=run.* excludeInstrumentation"
+```sh
+export INTERN_ARGS="grep=run.* excludeInstrumentation"
+```
 
 ### Command line
 
 Config properties may be provided directly on the command line when starting Intern. Properties must be specified using `property=value` syntax. For example,
 
-    $ node_modules/.bin/intern grep='run.*' excludeInstrumentation
+```sh
+node_modules/.bin/intern grep='run.*' excludeInstrumentation
+```
 
 Object values may be input as serialized strings (e.g., `environments='{"browserName":"chrome"}'`). Array values may be set by repeating a property (e.g., `suites="foo.js" suites="bar.js"`).
 
@@ -183,18 +197,20 @@ Object values may be input as serialized strings (e.g., `environments='{"browser
 
 Query args work very similarly to command line args. They have the same format, but with URL query arg separators, and escaping of special characters as necessary.
 
-    $ http://localhost:8080/node_modules/intern/?grep=run.*&excludeInstrumentation
+```
+http://localhost:8080/node_modules/intern/?grep=run.*&excludeInstrumentation
+```
 
 ### Programmatically
 
 When creating an executor programmatically it may be configured via its constructor, and later with a `configure` method.
 
-```ts
+```js
 const intern = new Node({ grep: /run.*/, excludeInstrumentation: true });
 ```
 _or_
 
-```ts
+```js
 intern.configure({ grep: /run.*/, excludeInstrumentation: true });
 ```
 
@@ -204,23 +220,25 @@ The configure method may be called any number of times before the testing proces
 
 Intern has two config properties that can be used to display configuration information: `showConfig` and `showConfigs`.
 
-**`showConfig`**
+### `showConfig`
 
 Setting the `showConfig` property to tru will dump the resolved configuration to the current environment’s console. When this property is true, Intern will print its resolved configuration as a JSON structure and exit.
 
-    $ node_modules/.bin/intern showConfig
-    {
-        "bail": false,
-        "baseline": false,
-        "benchmark": false,
-        "reporters": [
-            {
-                "name": "console"
-            }
-        ]
-    }
+```
+$ node_modules/.bin/intern showConfig
+{
+    "bail": false,
+    "baseline": false,
+    "benchmark": false,
+    "reporters": [
+        {
+            "name": "console"
+        }
+    ]
+}
+```
 
-**`showConfigs`**
+### `showConfigs`
 
 The `showConfigs` property can be used to show information about a given config file. When true, Intern will print the value of the current config file’s `description` property, and the list all child configs contained in the config file. For example, with a config file containing the following data:
 
@@ -240,12 +258,14 @@ The `showConfigs` property can be used to show information about a given config 
 
 running Intern with the `showConfigs` property set would display the following text:
 
-    $ node_modules/.bin/intern showConfigs
-    Default test suite
+```
+$ node_modules/.bin/intern showConfigs
+Default test suite
 
-    Configs:
-      webdriver  (Run webdriver tests)
-      ci         (Run tests on a CI server)
+Configs:
+  webdriver  (Run webdriver tests)
+  ci         (Run tests on a CI server)
+```
 
 ## Properties
 
@@ -276,7 +296,7 @@ All of the available configuration properties are listed in the table below.
 | [`loader`](#loader) | all | An optinal loader script and options |
 | `maxConcurrency` | node | When running WebDriver tests, how may sessions to run at once |
 | `name` | all | A name for a test run for use by reporters |
-| `node` | browser | Resources (loader, plugins, reporters, require, suites) that only apply to node tests |
+| `node` | node | Resources (loader, plugins, reporters, require, suites) that only apply to node tests |
 | `plugins` | all | A list of Intern extensions to load before tests begin |
 | `reporters` | all | A list of reporters to use |
 | `require` | all | A list of scripts or momdules to load before anything else |
@@ -288,20 +308,18 @@ All of the available configuration properties are listed in the table below.
 | `showConfig` | all | When true, show the resolved configuration and exit |
 | `showConfigs` | all | When true, show information about the currently loaded config file |
 | `socketPort` | node | A port to use for a WebSocket connection from a remote session |
-| [`suites`](#suites-nodesuites-browsersuites-functionalsuites) | all | A list of suites to load tests from |
-| [`tunnel`](#tunnel) | node | The name of a tunnel class to use for WebDriver tests |
-| [`tunnelOptions`](#tunnelOptions) | node | Options to use for the WebDriver tunnel |
+| [`suites`](#suites-nodesuites-browsersuites-functionalsuites) | all | A list of suites to load unit tests from |
+| [`tunnel`](#tunnel) | node | The name of a tunnel to use for WebDriver tests |
+| [`tunnelOptions`](#tunneloptions) | node | Options to use for the WebDriver tunnel |
 
-There are also several properties that are handled by the config system aren’t directly involved in the testing process:
+There are also several properties that are handled by the config file processing system system aren’t directly involved in the testing process. These properties are ignored if set programmatically.
 
 | Property | Description |
 | :--------| :---------- |
-| `description` | Short string describing a test config |
-| [`extends`](#extends) | Indicates that the current config extends a config file |
+| `description` | A short string describing a test config |
+| [`extends`](#extends) | Another config or config file that the config extends |
 | `showConfig` | When true, show the resolved configuration and exit |
 | `showConfigs` | When true, show information about the currently loaded config file |
-
-These properties are used to affect the configuration process or to display information about Intern’s configuration.
 
 ### `bail`
 
@@ -314,6 +332,8 @@ By default, Intern will run all configured tests. Setting the `bail` option to `
 **Default**: `[]`
 
 This property specifies an array of file paths or globs that should be included in coverage reports. Coverage data will automatically be gathered for all files loaded by Intern tests. Setting `coverageSources` will let Intern report on application files, even ones that weren’t loaded for tests. This allows a test writer to see which files _haven’t_ been tested, as well as coverage on files that were tested.
+
+Note that this property is only used for reporting, and does not affect which files are instrumented for code coverage. For the latter use case, see [excludeInstrumentation](#excludeinstrumentation).
 
 ### `environments`
 
@@ -374,13 +394,13 @@ Functional suites are files that register [WebDriver tests](writing_tests.md). S
 
 **Default**: `/.*/`
 
-The `grep` property is used to filter which tests are run. Grep operates on test IDs. A test ID is the concatenation of a test name with all of its parent suite names.
+The `grep` property is used to filter which tests are run. Grep operates on test IDs. A test ID is the concatenation of a test name with all of its parent suite names. Every test ID that matches the current grep expression will be run.
 
 ### `leaveRemoteOpen`
 
 **Default**: `false`
 
-Normally when Intern runs tests on remote browsers, it shuts them down when testing is finished. However, you may sometimes want to inspect the state of a remote browser after tests have run, particularly if you're trying to debug why a test is failing. Setting `leaveRemoteOpen` to true will cause Intern to leave the browser open after testing. Setting it to `'fail'` will cause Intern to leave it open only if there were test failures.
+Normally when Intern runs tests on remote browsers, it shuts the browser down when testing is finished. However, you may sometimes want to inspect the state of a remote browser after tests have run, particularly if you're trying to debug why a test is failing. Setting `leaveRemoteOpen` to true will cause Intern to leave the browser open after testing. Setting it to `'fail'` will cause Intern to leave it open only if there were test failures.
 
 ### `loader`
 
@@ -402,7 +422,7 @@ Suites are files that register unit tests. Suites may be specified as a string p
 
 ### `tunnel`
 
-**Defautl**: `'selenium'`
+**Default**: `'selenium'`
 
 The `tunnel` property specifies which Dig Dug tunnel class to use for WebDriver testing. There are several built in tunnel types, and others can be added through the Node executor’s [`registerPlugin` method](./architecture.md#extension-points).
 
@@ -414,3 +434,24 @@ The built in tunnel classes are:
 * 'cbt' (CrossBrowserTesting)
 * 'saucelabs'
 * 'testingbot'
+
+### `tunnelOptions`
+
+**Default**: `{}`
+
+This property specifies options for the currently selected tunnel. The available options depend on the current tunnel.
+
+#### All tunnels
+
+| Property | Value |
+| :--- | :--- |
+| `username` | Username for the tunnel service (e.g., BrowserStack) |
+| `apiKey` | API key for the tunnel service (e.g., BrowserStack) |
+| `pathname` | The path for the tunnel’s REST endpoint (e.g., `wd/hub`) |
+
+#### Selenium tunnel
+
+| Property | Value |
+| :--- | :--- |
+| `drivers` | A list of driver names, or objects with `name` and `options` properties |
+| `verbose` | If true, show tunnel debug information |

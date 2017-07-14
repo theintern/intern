@@ -1,28 +1,112 @@
 # Concepts and Definitions
 
-This page briefly presents definitions and/or brief descriptions for several core Intern concepts.
-
 <!-- vim-markdown-toc GFM -->
-* [Assertions](#assertions)
+* [Test organization](#test-organization)
+    * [Assertions](#assertions)
+    * [Test interface](#test-interface)
+* [Test types](#test-types)
+    * [Unit tests](#unit-tests)
+    * [Functional tests](#functional-tests)
 * [Code coverage](#code-coverage)
-* [Functional tests](#functional-tests)
 * [Source maps](#source-maps)
-* [Unit tests](#unit-tests)
 * [Page objects](#page-objects)
 
 <!-- vim-markdown-toc -->
 
-## Assertions
+## Test organization
 
-An assertion is simply a check that throws an error if the check fails. This means that no special library is required to make assertions. However, assertion libraries can make tests easier to understand, and can automatically generate meaningful failure messages. To that end, Intern includes the [Chai](https://chaijs.com) assertion library, and exposes it via the [plugin system](architecture.md#plugins) as “chai”.
+Intern organizes tests into suites and modules, and allows them to be registered with various test interfaces.
 
-## Code coverage
+* **Test module** - a JavaScript module (AMD, CJS, ESM, ...) containing test suites
+* **Test suite** - a group of related tests
+* **Test case**, or **test** - an individual test
+* **[Assertion](#assertions)** - a check for a condition that throws an error if the condition isn’t met
+* **[Test interface](#test-interface)** - an API used to register test suites
 
-Code coverage is information about what parts of the application code are exercised during tests. It commonly indicates what percentages of statements, branches, and functions are executed. Code coverage information is gathered by “instrumenting” the code being tested. This instrumentation is actually code that is injected into the code being tested. It records information about the executing code into a global variable that Intern retrieves after the testing is complete.
+These terms can be visualized in a hierarchy:
 
-Intern uses [Istanbul](https://github.com/istanbuljs/istanbuljs) to manage code coverage. There are a couple of config properties related to instrumentation. The mostly commonly used one is [`excludeInstrumentation`](configuration.md#excludeinstrumentation), which can be used to filter the files that are instrumented, or disable code coverage entirely. There’s generally no benefit to instrumenting the test files or library code, and in some cases this can even cause problems, so by default `excludeInstrumentation` is setup to filter out everything under `tests/` and `node_modules/`.
+* test module
+  * test suite
+    * test suite
+      * test case
+        * assertion
+        * assertion
+        * ...
+      * test case
+        * assertion
+        * ...
+      * ...
+    * ...
+  * test suite
+  * ...
+* test module
+* ...
 
-## Functional tests
+### Assertions
+
+An assertion is simply a check that throws an error if the check fails, like:
+
+```ts
+if (value !== 5) {
+    throw new Error(`Expected ${value} to be 5`);
+}
+```
+
+No special library is required to make assertions. However, assertion libraries can make tests easier to understand, and can automatically generate meaningful failure messages. Using the [Chai](https://chaijs.com) assertion library included with Intern, the above assertion could be written as:
+
+```ts
+assert.equal(value, 5);
+```
+
+If the assertion fails, Chai will construct a meaningful error message that includes the expected and actual values.
+
+### Test interface
+
+A test interface is an API used to register tests. For example, many testing frameworks use a "BDD" interface, with `describe` and `it` functions, where `describe` creates a suite and `it` creates an individual test. Intern includes several interfaces:
+
+* **BDD**
+* **TDD**, which uses `suite` and `test` functions
+* **Object**, which allows suites to be defined using objects
+* **Benchmark**, an object-like interface for registering benchmark tests
+* **Qunit**, an implementation of the [QUnit](http://qunitjs.com) interface
+
+## Test types
+
+Intern supports two basic types of automated testing: unit tests and functional tests.
+
+### Unit tests
+
+Unit tests test code directly by, for example, instantiating an application class or calling an application function, and then make assertions about the result.
+
+Since Intern calls unit test code directly, it needs to run in the same environment as the test code itself. This typically means running Intern in the browser to test browser-specific code, and in Node for Node code. You can get around this limitation using mocks/fakes/stubs; for example, many browser-based projects use a virtual DOM implementation to allow unit tests for browser code to run in a Node environment. (It’s less common to want to go the other way.)
+
+A unit test might look like:
+
+```ts
+import Component from 'app/Component';
+const { registerSuite } = intern.getInterface('object');
+const { assert } = intern.getPlugin('chai');
+registerSuite('Component', {
+    '#add'() {
+        // Assume 'Component' is a class with 'add' and 'get' methods
+        const comp = new Component();
+        comp.add({ id: 'foo', value: 'bar' };
+        assert.strictEqual(comp.get('foo'), 'bar');
+    }
+});
+```
+
+In the example above, the '#add' test instantiates a Component instance, calls a method on it, then makes an assertion about the result. If the assertion fails, it throws an error message. The test could just as easily have done an equality check itself:
+
+```ts
+if (comp.get('foo') !== 'bar') {
+    throw new Error('not equal');
+}
+```
+
+However, using an [assertion library](#assertions) will generate errors with meaningful messages automatically, which is pretty convenient.
+
+### Functional tests
 
 Also known as WebDriver tests (after the [W3C standard](https://www.w3.org/TR/webdriver/)), functional tests test code indirectly. While a unit test calls application functions and examines return values, a functional test manipulates the code in the same way a typical user might, by opening pages, clicking buttons, and filling in form fields.
 
@@ -52,41 +136,15 @@ registerSuite('home page', {
 
 Note that the functional test doesn't load any application code. Instead, it uses the `this.remote` object to load a page in a remote browser and interact with it. There's no explicit assertion in this case, either. Searching for the 'banner' element serves as a test assertion, because the chain of Promises started from `this.remote` will reject if the element isn’t found (and Intern will record that as a failure).
 
+## Code coverage
+
+Code coverage is information about what parts of the application code are exercised during tests. It commonly indicates what percentages of statements, branches, and functions are executed. Code coverage information is gathered by “instrumenting” the code being tested. This instrumentation is actually code that is injected into the code being tested. It records information about the executing code into a global variable that Intern retrieves after the testing is complete.
+
+Intern uses [Istanbul](https://github.com/istanbuljs/istanbuljs) to manage code coverage. There are a couple of config properties related to instrumentation. The mostly commonly used one is [`excludeInstrumentation`](configuration.md#excludeinstrumentation), which can be used to filter the files that are instrumented, or disable code coverage entirely. There’s generally no benefit to instrumenting the test files or library code, and in some cases this can even cause problems, so by default `excludeInstrumentation` is setup to filter out everything under `tests/` and `node_modules/`.
+
 ## Source maps
 
 Source maps provide a link between transpiled/instrumented/minimized code and the original source. Intern uses source maps both for coverage reporting and error formatting. For example, when it receives an error, either locally or from a remote browser, Intern will look up the locations in the stack trace using any available source maps and replace them with the corresponding location in the original source.
-
-## Unit tests
-
-Unit tests test code directly. A unit test will instantiate an application class, or call an application function, and make assertions about the result.
-
-Since Intern calls unit test code directly, it needs to run in the same environment as the test code itself. This typically means running Intern in the browser to test browser-specific code, and in Node for Node code. You can get around this limitation using mocks/fakes/stubs; for example, many browser-based projects use a virtual DOM implementation to allow unit tests for browser code to run in a Node environment. (It’s less common to want to go the other way.)
-
-A unit test might look like:
-
-```ts
-import Component from 'app/Component';
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-registerSuite('Component', {
-    '#add'() {
-        // Assume 'Component' is a class with 'add' and 'get' methods
-        const comp = new Component();
-        comp.add({ id: 'foo', value: 'bar' };
-        assert.strictEqual(comp.get('foo'), 'bar');
-    }
-});
-```
-
-In the example above, the '#add' test instantiates a Component instance, calls a method on it, then makes an assertion about the result. If the assertion fails, it throws an error message. The test could just as easily have done an equality check itself:
-
-```ts
-if (comp.get('foo') !== 'bar') {
-    throw new Error('not equal');
-}
-```
-
-However, the assertion library will generate errors with meaningful messages automatically, which is pretty convenient.
 
 ## Page objects
 
