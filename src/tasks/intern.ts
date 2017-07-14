@@ -1,4 +1,4 @@
-import Node from '../../src/lib/executors/Node';
+import Node from '../lib/executors/Node';
 import { Config } from '../lib/executors/Executor';
 import global from '@dojo/shim/global';
 
