@@ -349,12 +349,18 @@ registerSuite('lib/executors/Node', function () {
 						test('tunnel', 5, 'null', 'null', /Non-string/);
 					},
 
+					excludeInstrumentation() {
+						test('excludeInstrumentation', 5, true, true, /Invalid value/);
+						test('excludeInstrumentation', 5, /foo/, /foo/, /Invalid value/);
+						test('excludeInstrumentation', 5, 'foo', /foo/, /Invalid value/);
+					},
+
 					functionalCoverage: booleanTest('functionalCoverage'),
 					leaveRemoteOpen: booleanTest('leaveRemoteOpen'),
 					serveOnly: booleanTest('serveOnly'),
 					runInSync: booleanTest('runInSync'),
 
-					coverageSources: stringArrayTest('coverageSources'),
+					coverage: stringArrayTest('coverage'),
 					functionalSuites: stringArrayTest('functionalSuites'),
 
 					connectTimeout: numberTest('connectTimeout'),

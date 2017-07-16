@@ -51,6 +51,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	tunnel: Tunnel;
 
 	protected _coverageMap: CoverageMap;
+	protected _coverageFiles: string[];
 	protected _loadingFunctionalSuites: boolean;
 	protected _instrumentBasePath: string;
 	protected _instrumenter: Instrumenter;
@@ -63,7 +64,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		super({
 			basePath: process.cwd() + sep,
 			capabilities: { 'idle-timeout': 60 },
-			coverageSources: [],
+			coverage: [],
 			connectTimeout: 30000,
 			environments: [],
 			functionalCoverage: true,
@@ -233,7 +234,19 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 
 		const basePath = this._instrumentBasePath;
 		filename = normalizePath(filename);
-		return filename.indexOf(basePath) === 0 && !excludeInstrumentation.test(filename.slice(basePath.length));
+		if (filename.indexOf(basePath) !== 0) {
+			return false;
+		}
+
+		if (excludeInstrumentation && !excludeInstrumentation.test(filename.slice(basePath.length))) {
+			return false;
+		}
+
+		if (this._coverageFiles && this._coverageFiles.indexOf(filename) === -1) {
+			return false;
+		}
+
+		return true;
 	}
 
 	protected _afterRun() {
@@ -477,6 +490,22 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				this._setOption(name, parseValue(name, value, 'object[]', 'browserName'), addToExisting);
 				break;
 
+			case 'excludeInstrumentation':
+				this.emit('deprecated', {
+					original: 'excludeInstrumentation',
+					replacement: 'instrument'
+				});
+				if (value === true) {
+					this._setOption(name, value);
+				}
+				else if (typeof value === 'string' || value instanceof RegExp) {
+					this._setOption(name, parseValue(name, value, 'regexp'));
+				}
+				else {
+					throw new Error(`Invalid value "${value}" for ${name}; must be (string | RegExp | true)`);
+				}
+				break;
+
 			case 'tunnel':
 				this._setOption(name, parseValue(name, value, 'string'));
 				break;
@@ -488,7 +517,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				this._setOption(name, parseValue(name, value, 'boolean'));
 				break;
 
-			case 'coverageSources':
+			case 'coverage':
 			case 'functionalSuites':
 				this._setOption(name, parseValue(name, value, 'string[]'), addToExisting);
 				break;
@@ -528,6 +557,12 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			}
 
 			this._instrumentBasePath = normalizePath(`${resolve(config.basePath || '')}${sep}`);
+			this._coverageFiles = [];
+
+			if (config.coverage) {
+				// Coverage file entries should be absolute paths
+				this._coverageFiles = expandFiles(config.coverage).map(path => resolve(path));
+			}
 
 			config.serverUrl = config.serverUrl.replace(/\/*$/, '/');
 
@@ -615,10 +650,9 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				}
 			})
 			.finally(() => {
-				// If coverageSources is set, generate initial coverage data for files with no coverage results
+				// If coverage is set, generate initial coverage data for files with no coverage results
 				const filesWithCoverage = this._coverageMap.files();
-				expandFiles(this.config.coverageSources)
-					.map(path => resolve(path))
+				this._coverageFiles
 					.filter(path => filesWithCoverage.indexOf(path) === -1)
 					.forEach(filename => {
 						const code = readFileSync(filename, { encoding: 'utf8' });
@@ -666,12 +700,16 @@ export interface Config extends BaseConfig {
 	connectTimeout: number;
 
 	/**
-	 * If set, coverage will be collected for all files. This allows uncovered files to be noticed more easily.
+	 * A list of globs denoting which files coverage data should be collected for. Files may be excluded by prefixing an
+	 * expression with '!'.
 	 */
-	coverageSources: string[];
+	coverage: string[];
 
 	/** A list of remote environments */
 	environments: EnvironmentSpec[];
+
+	/** A regexp matching file names that shouldn't be instrumented, or `true` to disable instrumentation. */
+	excludeInstrumentation: true | RegExp;
 
 	/** If true, collect coverage data from functional tests */
 	functionalCoverage: boolean;

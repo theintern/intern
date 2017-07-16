@@ -11,7 +11,8 @@ import global from '@dojo/shim/global';
 const process = global.process;
 
 /**
- * Expand a list of glob patterns into a flat file list
+ * Expand a list of glob patterns into a flat file list. Patterns may be simple file paths or glob patterns. Patterns
+ * starting with '!' denote exclusions. Note that exclusion rules will not apply to simple paths.
  */
 export function expandFiles(patterns?: string[] | string) {
 	if (!patterns) {
@@ -20,14 +21,14 @@ export function expandFiles(patterns?: string[] | string) {
 	else if (!Array.isArray(patterns)) {
 		patterns = [patterns];
 	}
-	return patterns.map(pattern => {
-		if (hasMagic(pattern)) {
-			return glob(pattern);
-		}
-		return [pattern];
-	}).reduce((allFiles, files) => {
-		return allFiles.concat(files);
-	}, []);
+
+	const excludes = patterns.filter(pattern => pattern[0] === '!');
+	const includes = patterns.filter(pattern => pattern[0] !== '!' && hasMagic(pattern));
+	const paths = patterns.filter(pattern => pattern[0] !== '!' && !hasMagic(pattern));
+
+	return includes
+		.map(pattern => glob(pattern, { ignore: excludes }))
+		.reduce((allFiles, files) => allFiles.concat(files), paths);
 }
 
 /**

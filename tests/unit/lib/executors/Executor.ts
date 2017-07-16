@@ -144,7 +144,6 @@ registerSuite('lib/executors/Executor', function () {
 					coverageVariable: '__coverage__',
 					debug: false,
 					defaultTimeout: 30000,
-					excludeInstrumentation: /(?:node_modules|browser|tests)\//,
 					filterErrorStack: false,
 					grep: new RegExp(''),
 					loader: { script: 'default' },
@@ -253,12 +252,6 @@ registerSuite('lib/executors/Executor', function () {
 						defaultTimeout() {
 							test('defaultTimeout', 'foo', 5, 5, /Non-numeric value/);
 							test('defaultTimeout', 'foo', '5', 5, /Non-numeric value/);
-						},
-
-						excludeInstrumentation() {
-							test('excludeInstrumentation', 5, true, true, /Invalid value/);
-							test('excludeInstrumentation', 5, /foo/, /foo/, /Invalid value/);
-							test('excludeInstrumentation', 5, 'foo', /foo/, /Invalid value/);
 						},
 
 						grep() {
