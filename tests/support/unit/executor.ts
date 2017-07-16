@@ -9,11 +9,30 @@ export function testProperty<E extends Executor = Executor, C extends Config = C
 	badValue: any,
 	goodValue: any,
 	expectedValue: any,
-	error: RegExp, message?: string
+	error: RegExp,
+	allowDeprecated?: boolean | string,
+	message?: string
 ) {
+	if (typeof allowDeprecated === 'string') {
+		message = allowDeprecated;
+		allowDeprecated = undefined;
+	}
+	if (typeof allowDeprecated === 'undefined') {
+		allowDeprecated = false;
+	}
+
 	assert.throws(() => { executor.configure(<any>{ [name]: badValue }); }, error);
 	executor.configure(<any>{ [name]: goodValue });
-	assert.equal(mockConsole.warn.callCount, 0, 'no warning should have been emitted');
+
+	if (allowDeprecated) {
+		for (let call of mockConsole.warn.getCalls()) {
+			assert.include(call.args[0], 'deprecated', 'no warning should have been emitted');
+		}
+	}
+	else {
+		assert.equal(mockConsole.warn.callCount, 0, 'no warning should have been emitted');
+	}
+
 	name = <keyof Config>name.replace(/\+$/, '');
 	const config = <C>executor.config;
 	if (typeof expectedValue === 'object') {

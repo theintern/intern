@@ -47,7 +47,7 @@
 			"_tests/tests/unit/tasks/intern.js"
 		],
 		"plugins": "_tests/tests/support/nodeMocking.js",
-		"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": false } }
+		"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } }
 	},
 
 	"browser": {
@@ -75,7 +75,6 @@
 	},
 
 	"benchmark": false,
-	"excludeInstrumentation": "(?:node_modules|_tests)/",
 	"filterErrorStack": true,
 	"internPath": "_tests/src",
 
@@ -88,18 +87,17 @@
 			]
 		},
 
-		"fast": {
-			"description": "For running unit tests quickly",
-			"excludeInstrumentation": true,
+		"progress": {
+			"description": "For showing test progress",
 			"node": {
-				"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": true } }
+				"reporters": { "name": "runner", "options": { "hideSkipped": true, "hidePassed": false } }
 			}
 		},
 
 		"coverage": {
-			"description": "Generate full coverage",
 			"benchmark": true,
-			"coverageSources": [
+			"description": "Generate full coverage",
+			"coverage": [
 				"_build/src/lib/**/*.js",
 				"_build/src/bin/**/*.js",
 				"_build/src/loaders/**/*.js",

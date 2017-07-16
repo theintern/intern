@@ -46,10 +46,10 @@ registerSuite('lib/node/util', function () {
 	};
 
 	const mockGlob = {
-		sync(pattern: string) {
-			logCall('sync', [pattern]);
+		sync(pattern: string, options: any) {
+			logCall('sync', [pattern, options]);
 			if (glob) {
-				return glob(pattern);
+				return glob(pattern, options);
 			}
 			return ['globby'];
 		},
@@ -75,7 +75,7 @@ registerSuite('lib/node/util', function () {
 	};
 
 	let hasMagic: boolean;
-	let glob: ((pattern: string) => string[]) | undefined;
+	let glob: ((pattern: string, options: any) => string[]) | undefined;
 	let calls: { [name: string]: any[] };
 	let parsedArgs: { [key: string]: string | string[] };
 	let fsData: { [name: string]: string };
@@ -123,7 +123,7 @@ registerSuite('lib/node/util', function () {
 					hasMagic = true;
 					const magic = util.expandFiles('foo');
 					assert.lengthOf(calls.sync, 1);
-					assert.deepEqual(calls.sync[0], ['foo']);
+					assert.deepEqual(calls.sync[0], ['foo', { ignore: [] }]);
 					assert.lengthOf(calls.hasMagic, 1);
 					assert.deepEqual(calls.hasMagic[0], ['foo']);
 					assert.deepEqual(magic, ['globby'], 'expected value of glob call to be returned');
@@ -139,8 +139,19 @@ registerSuite('lib/node/util', function () {
 				multiple() {
 					hasMagic = true;
 					const files = util.expandFiles(['foo', 'bar']);
-					assert.deepEqual(calls.sync, [['foo'], ['bar']]);
+					assert.deepEqual(calls.sync, [['foo', { ignore: [] }], ['bar', { ignore: [] }]]);
 					assert.deepEqual(calls.hasMagic, [['foo'], ['bar']]);
+					assert.deepEqual(files, ['globby', 'globby']);
+				},
+
+				negation() {
+					hasMagic = true;
+					const files = util.expandFiles(['foo', '!bar', 'baz', '!blah']);
+					assert.deepEqual(calls.sync, [
+						['foo', { ignore: [ 'bar', 'blah' ] }],
+						['baz', { ignore: [ 'bar', 'blah' ] }]
+					]);
+					assert.deepEqual(calls.hasMagic, [['foo'], ['baz']]);
 					assert.deepEqual(files, ['globby', 'globby']);
 				}
 			},

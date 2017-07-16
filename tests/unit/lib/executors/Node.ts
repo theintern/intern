@@ -321,8 +321,8 @@ registerSuite('lib/executors/Node', function () {
 			},
 
 			'#configure': (() => {
-				function test(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, message?: string) {
-					testProperty<_Node, Config>(executor, mockConsole, name, badValue, goodValue, expectedValue, error, message);
+				function test(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, allowDeprecated?: boolean | string, message?: string) {
+					testProperty<_Node, Config>(executor, mockConsole, name, badValue, goodValue, expectedValue, error, allowDeprecated, message);
 				}
 
 				const booleanTest = (name: keyof Config) => () => { test(name, 5, 'true', true, /Non-boolean/); };
@@ -349,12 +349,18 @@ registerSuite('lib/executors/Node', function () {
 						test('tunnel', 5, 'null', 'null', /Non-string/);
 					},
 
+					excludeInstrumentation() {
+						test('excludeInstrumentation', 5, true, true, /Invalid value/, true);
+						test('excludeInstrumentation', 5, /foo/, /foo/, /Invalid value/, true);
+						test('excludeInstrumentation', 5, 'foo', /foo/, /Invalid value/, true);
+					},
+
 					functionalCoverage: booleanTest('functionalCoverage'),
 					leaveRemoteOpen: booleanTest('leaveRemoteOpen'),
 					serveOnly: booleanTest('serveOnly'),
 					runInSync: booleanTest('runInSync'),
 
-					coverageSources: stringArrayTest('coverageSources'),
+					coverage: stringArrayTest('coverage'),
 					functionalSuites: stringArrayTest('functionalSuites'),
 
 					connectTimeout: numberTest('connectTimeout'),
@@ -430,7 +436,7 @@ registerSuite('lib/executors/Node', function () {
 					const dfd = this.async();
 					executor.configure({ basePath: 'bar' });
 					executor.on('beforeRun', dfd.callback(() => {
-						assert.isTrue(executor.shouldInstrumentFile('bar/foo.js'));
+						assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
 					}));
 					executor.run();
 				},
@@ -526,7 +532,7 @@ registerSuite('lib/executors/Node', function () {
 						environments: 'chrome',
 						tunnel: 'null',
 						suites: 'foo.js',
-						coverageSources: ['foo.js']
+						coverage: ['foo.js']
 					});
 					return executor.run().then(() => {
 						assert.lengthOf(coverageMaps, 1);

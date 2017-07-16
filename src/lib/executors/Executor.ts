@@ -54,7 +54,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			coverageVariable: '__coverage__',
 			debug: false,
 			defaultTimeout: 30000,
-			excludeInstrumentation: /(?:node_modules|browser|tests)\//,
 			filterErrorStack: false,
 			grep: new RegExp(''),
 			loader: { script: 'default' },
@@ -72,10 +71,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			suites: <string[]>[]
 		};
 
-		if (options) {
-			this.configure(options);
-		}
-
 		this._listeners = {};
 		this._reporters = [];
 		this._plugins = {};
@@ -87,6 +82,10 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this.registerInterface('benchmark', getBenchmarkInterface(this));
 
 		this.registerPlugin('chai', () => chai);
+
+		if (options) {
+			this.configure(options);
+		}
 
 		this._rootSuite = new Suite({ executor: this });
 
@@ -193,12 +192,16 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		}
 
 		if (notifications.length === 0) {
-			// Report errors and warnings when no listeners are registered
+			// Report errors, warnings, deprecation messages when no listeners are registered
 			if (eventName === 'error') {
 				console.error(this.formatError(<any>data));
 			}
 			else if (eventName === 'warning') {
 				console.warn(`WARNING: ${data}`);
+			}
+			else if (eventName === 'deprecated') {
+				const message = <DeprecationMessage>data;
+				console.warn(`WARNING: ${message.original} is deprecated, use ${message.replacement} instead.`);
 			}
 
 			return Task.resolve();
@@ -662,18 +665,6 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 				this._setOption(name, parseValue(name, value, 'number'));
 				break;
 
-			case 'excludeInstrumentation':
-				if (value === true) {
-					this._setOption(name, value);
-				}
-				else if (typeof value === 'string' || value instanceof RegExp) {
-					this._setOption(name, parseValue(name, value, 'regexp'));
-				}
-				else {
-					throw new Error(`Invalid value "${value}" for ${name}; must be (string | RegExp | true)`);
-				}
-				break;
-
 			case 'grep':
 				this._setOption(name, parseValue(name, value, 'regexp'));
 				break;
@@ -857,9 +848,6 @@ export interface Config extends ResourceConfig {
 
 	/** A description for this test run */
 	description: string;
-
-	/** A regexp matching file names that shouldn't be instrumented, or `true` to disable instrumentation. */
-	excludeInstrumentation: true | RegExp;
 
 	/** If true, filter external library calls and runtime calls out of error stacks. */
 	filterErrorStack: boolean;
