@@ -7,6 +7,10 @@
 * [Write tests in an HTML page](#write-tests-in-an-html-page)
 * [Test ES modules](#test-es-modules)
 * [Use Intern with a remote service like BrowserStack](#use-intern-with-a-remote-service-like-browserstack)
+* [Test non-modular code](#test-non-modular-code)
+* [Test non-CORS web APIs](#test-non-cors-web-apis)
+    * [Option 1: Send all traffic except web services to Intern](#option-1-send-all-traffic-except-web-services-to-intern)
+    * [Option 2: Only send JavaScript traffic to Intern](#option-2-only-send-javascript-traffic-to-intern)
 
 <!-- vim-markdown-toc -->
 
@@ -216,3 +220,77 @@ To get code coverage in the browser when using Intern in WebDriver mode, enable 
    ```
    $ node_modules/.bin/intern
    ```
+
+## Test non-modular code
+
+Browser code that doesn’t support any module system and expects to be loaded along with other dependencies in a specific order can be loaded using the `require` config option.
+
+```js
+// intern.json
+{
+    "browser": {
+        "require": [
+            "lib/jquery.js",
+            "lib/plugin.jquery.js"
+        ]
+    }
+}
+```
+
+Modules specified in a `require` array are loaded sequentially in the order specified.
+
+## Test non-CORS web APIs
+
+When writing unit tests with Intern, occasionally you will need to interact with a Web service. However, because the Intern serves code at `http://localhost:9000` by default, any cross-origin requests will fail. In order to test Ajax requests wihtout using CORS of JSONP, setup a reverse proxy to Intern and tell the in-browser test runner to load from that URL by setting the `serverUrl` configuration option.
+
+### Option 1: Send all traffic except web services to Intern
+
+1. Set Intern’s `serverUrl` config option to point to the URL of the web server
+2. Set the web server to reverse proxy to `http://localhost:9000` by default
+3. Add `location` directives to pass web service URLs to the web service instead
+
+An nginx config implementing this pattern might look like:
+
+```nginx
+server {
+  server_name proxy.example;
+
+  location /web-service/ {
+    # This will proxy to http://www.web-service.example/web-service/<rest of url>;
+    # use `proxy_pass http://www.web-service.example/` to proxy to
+    # http://www.web-service.example/<rest of url> instead
+    proxy_pass http://www.web-service.example;
+  }
+
+  location / {
+    proxy_pass http://localhost:9000;
+  }
+}
+```
+
+### Option 2: Only send JavaScript traffic to Intern
+
+1. Set Intern’s `serverUrl` config option to point to the URL of the web server
+2. Set the web server to reverse proxy to `http://localhost:9000` for the special `/__intern/` location, plus any directories containing JavaScript code
+
+
+An nginx config implementing this pattern might look like:
+
+```nginx
+server {
+  server_name proxy.example;
+  root /var/www/;
+
+  location /js/ {
+    proxy_pass http://localhost:9000;
+  }
+
+  location /__intern/ {
+    proxy_pass http://localhost:9000;
+  }
+
+  location / {
+    try_files $uri $uri/ =404;
+  }
+}
+```

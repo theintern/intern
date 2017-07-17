@@ -2,6 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 * [Executor](#executor)
+    * [.addSuite((parent) => void)](#addsuiteparent--void)
     * [.configure(options)](#configureoptions)
     * [.emit(name, data)](#emitname-data)
     * [.getInterface(name)](#getinterfacename)
@@ -14,12 +15,31 @@
     * [.registerPlugin(id, callback)](#registerpluginid-callback)
     * [.registerReporter(name, Reporter)](#registerreportername-reporter)
     * [.run()](#run)
+* [Suite](#suite)
+    * [.skip(message)](#skipmessage)
+* [Test](#test)
+    * [.async(timeout, numCallsUntilResolution)](#asynctimeout-numcallsuntilresolution)
+    * [.skip(message)](#skipmessage-1)
 
 <!-- vim-markdown-toc -->
 
 ## Executor
 
 The executor is instance of `lib/executors/Node` or `lib/executors/Browser`. It is typically assigned to an `intern` global.
+
+### .addSuite((parent) => void)
+
+Add a suite to the executor’s root suite. The `addSuite` method is passed a callback that takes a single argument, a parent suite. The callback will add whatever it needs to (one or more suites or tests) to the given suite using `Suite.add`.
+
+```ts
+intern.addSuite(parent => {
+    const suite = new Suite({
+        name: 'create new',
+        tests: [ new Test({ name: 'new test', test: () => assert.doesNotThrow(() => new Component()) }) ]
+    });
+    parent.add(suite);
+});
+```
 
 ### .configure(options)
 
@@ -144,6 +164,36 @@ A convenience method for registering reporter constructors. This method calls [r
 ### .run()
 
 Run the executor. This will resolve the config, load a configured loader, plugins, and suites, download and initialize a WebDriver tunnel (if configured), and start the testing process.
+
+## Suite
+
+### .skip(message)
+
+Calling this function will cause all remaining tests in the suite to be skipped. If a message was provided, a reporter may report the suite’s tests as skipped. Skipped tests are not treated as passing or failing.
+
+If this method is called from a test function (as `this.parent.skip()`), the test will be immediately halted, just as if the test’s own [skip](#skipmessage-1) method were called.
+
+## Test
+
+### .async(timeout, numCallsUntilResolution)
+
+This function, when called from within a test, will alert Intern that the test is asynchronous, and also allows the timeout for the test to be adjusted.
+
+The return value of the `async` function is a Deferred object. This object has the following properties:
+
+| Property/method     | Description                                                                                                                     |
+| :-------            | :----------                                                                                                                     |
+| callback(func)      | Returns a function that, when called, resolves the Deferred if func does not throw an error, or rejects the Promise if it does. |
+| promise             | A Promise-like object that resolves or rejects with the Deferred                                                                |
+| reject(error)       | Rejects the Deferred. The error will be used when reporting the test failure.                                                   |
+| rejectOnError(func) | Returns a function that, when called, rejects the Deferred if func throws. If func does not throw, the function does nothing.   |
+| resolve(value)      | Resolves the deferred. The resolved value, if any, is not used by Intern.                                                       |
+
+The optional `numCallsUntilResolution` argument to `async` affects how the `callback` method operates. By default, the Deferred is resolved (assuming it hasn’t already been rejected) the first time the function returned by `callback` is called. If `numCallsUntilResolution` is set (it must be a value > 0), the function returned by `callback` must be called `numCallsUntilResolution` times before the Deferred resolves.
+
+### .skip(message)
+
+Calling this function will cause a test to halt immediately. If a message was provided, a reporter may report the test as skipped. Skipped tests are not treated as passing or failing.
 
 [registerPlugin]: #registerpluginid-callback
 [getPlugin]: #getpluginname

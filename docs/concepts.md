@@ -207,5 +207,3 @@ registerSuite('product page', {
     // ...
 });
 ```
-
-See [Page objects](./writing_tests.md#page-objects) for more information.

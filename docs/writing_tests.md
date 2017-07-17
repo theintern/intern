@@ -3,47 +3,162 @@
 At the most basic level, a test is a function that either runs to completion or throws an error. Intern groups tests into suites, and runs the suites when `intern.run()` is called. The first few sections in this document cover the basics of writing and organizing tests. At a higher level, there are two general classes of test: [unit tests](concepts.md#unit-tests) and [functional tests](concepts.md#functional-tests).
 
 <!-- vim-markdown-toc GFM -->
-* [Assertions](#assertions)
+* [Organization](#organization)
+* [The test lifcycle](#the-test-lifcycle)
 * [Interfaces](#interfaces)
     * [Object](#object)
+        * [Nesting suites](#nesting-suites)
+        * [Shared data](#shared-data)
     * [TDD](#tdd)
     * [BDD](#bdd)
     * [Qunit](#qunit)
     * [Benchmark](#benchmark)
     * [Native](#native)
-* [Organization](#organization)
-* [Sync vs Async](#sync-vs-async)
+* [Assertions](#assertions)
+    * [assert](#assert)
+    * [expect](#expect)
+    * [should](#should)
 * [Unit tests](#unit-tests)
+    * [Testing asynchronous code](#testing-asynchronous-code)
+    * [Skipping tests at runtime](#skipping-tests-at-runtime)
     * [Test and suite context](#test-and-suite-context)
     * [Environment](#environment)
-* [Benchmark tests](#benchmark-tests)
 * [Functional tests](#functional-tests)
     * [Page objects](#page-objects)
+* [Benchmark tests](#benchmark-tests)
 
 <!-- vim-markdown-toc -->
 
-## Assertions
+## Organization
 
-Tests should throw errors when some feature being tested doesn’t behave as expected. The standard `throw` mechanism will work for this purpose, but performing a particular test and constructing meaningful error messages can be tedious. Assertion libraries exist that can simplify this process. Intern bundles the [chai](http://chaijs.com) assertion library, and exposes it it vial the plugin system as “chai”.
+Suites are typically grouped into script files, with one top-level suite per file. How the files themselves are structured depends on how the suite files will be [loaded](./architecture.md#loader). For example, if the ‘dojo’ loader is used to load suites, an individual suite file would be an AMD or UMD module:
 
-```ts
-const { assert } = intern.getPlugin('chai');
+```js
+define([ 'app/Component' ], function (Component) {
+    var assert = intern.getPlugin('chai').assert;
+    var registerSuite = intern.getInterface('object').registerSuite;
+
+    registerSuite('Component', {
+        'create new': function () {
+            assert.doesNotThrow(() => new Component());
+        }
+    });
+});
 ```
 
-When running with a module loader or in Node, Chai can be imported directly.
+On other hand, if the loader is using SystemJS + Babel to load suites, a suite file could be an ESM module:
+
+```js
+import Component from '../app/Component';
+
+const { assert } = intern.getPlugin('chai');
+const { registerSuite } = intern.getInterface('object');
+
+registerSuite('Component', {
+    'create new'() {
+        assert.doesNotThrow(() => new Component());
+    }
+});
+```
+
+## The test lifcycle
+
+When tests are executed, the test system follows a specific lifecycle:
+
+* For each registered root suite...
+  * The suite’s `before` method is called, if it exists
+  * For each test within the suite...
+    * The suite’s `beforeEach` method is called, if it exists
+    * The test function is called
+    * The suite’s `afterEach` method is called, if it exists
+  * The suite’s `after` method is called, if it exists
+
+Given the following test module...
+
+```js
+const { registerSuite } = intern.getInteface('object');
+
+registerSuite({
+    before() {
+      console.log('outer before');
+    },
+    beforeEach() {
+      console.log('outer beforeEach');
+    },
+    afterEach() {
+      console.log('outer afterEach');
+    },
+    after() {
+      console.log('outer after');
+    },
+
+    tests: {
+        'inner suite': {
+            before() {
+                console.log('inner before');
+            },
+            beforeEach() {
+                console.log('inner beforeEach');
+            },
+            afterEach() {
+                console.log('inner afterEach');
+            },
+            after() {
+                console.log('inner after');
+            },
+
+            tests: {
+                'test A'() {
+                    console.log('inner test A');
+                },
+                'test B'() {
+                    console.log('inner test B');
+                }
+            }
+        },
+
+        'test C': function () {
+          console.log('outer test C');
+        }
+    }
+});
+```
+
+...the resulting console output would be:
+
+```
+outer before
+inner before
+outer beforeEach
+inner beforeEach
+inner test A
+inner afterEach
+outer afterEach
+outer beforeEach
+inner beforeEach
+inner test B
+inner afterEach
+outer afterEach
+inner after
+outer beforeEach
+outer test C
+outer afterEach
+outer after
+```
 
 ## Interfaces
 
 There are several ways to write tests. The most common will be to use one of Intern’s built-in interfaces, such as the object interface. Another possibility is to register tests or suites directly on the Intern executor.
 
-Interfaces may be accessed using the `getPlugin('interface.xyz')` method, or by importing if a module loader is in use.
+Interfaces may be accessed using the `getInterface('xyz')` method, or by importing an interface directly if a module loader is in use. Note that since interfaces are independent from the rest of the testing system, multiple interfaces may be used at the same time (e.g., some suites could be written with the object interface and others with BDD).
 
 ### Object
 
 This is the default interface used for Intern’s self-tests and most examples. A suite is a simple object, and tests are functions in a `tests` property on that object.
 
-```ts
-const { registerSuite } = intern.getPlugin('interface.object');
+```js
+// tests/unit/component.js
+const { registerSuite } = intern.getInterface('object');
 
 registerSuite('Component', {
     'create new'() {
@@ -58,10 +173,138 @@ registerSuite('Component', {
 });
 ```
 
+The property used to describe a suite has the basic format:
+
+```js
+{
+    // lifecycle functions
+    beforeEach() { },
+    afterEach() { },
+
+    tests: {
+        // tests or nested suites
+        test1() { },
+        test2() { },
+    }
+}
+```
+
+However, when no lifecycle functions are being provided (e.g., `beforeEach`, `afterEach`, etc.) the tests can be directly on the suite object:
+
+```js
+{
+    test1() { },
+    test2() { },
+    // ...
+}
+```
+
+#### Nesting suites
+
+Suites can be nested by using a suite object as a test:
+
+```js
+registerSuite('Component', {
+    foo() {
+        assert.doesNotThrow(() => new Component());
+    },
+
+    bar() {
+        const component = new Component();
+        component.update({ value: 20 });
+        assert.equal(component.children[0].value, 20);
+    }
+
+    'sub suite': {
+        baz() {
+            // a test in the sub-suite
+        },
+
+        bif() {
+            // another sub-suite test
+        }
+    }
+});
+```
+
+#### Shared data
+
+If tests need to share variables, make sure the suite is initialized with a function rather than directly with a suite object. This will ensure that when a suite is loaded more than once, such as for different environments, each instance will have its own copies of the shared variables. Do this:
+
+```js
+registerSuite('foo', () => {
+    let count = 0;
+    let app;
+
+    return {
+        before() {
+            app = new App(counter++);
+        },
+
+        tests: {
+            'validate counter'() {
+                assert.strictEqual(app.id, counter - 1);
+            }
+        }
+    };
+});
+```
+
+instead of this:
+
+```js
+let count = 0;
+let app;
+
+registerSuite('foo', {
+    before() {
+        app = new App(counter++);
+    },
+
+    tests: {
+        'validate counter'() {
+            assert.strictEqual(app.id, counter - 1);
+        }
+    }
+});
+```
+
+A similar tactic may be used when tests in a sub-suite need to share data but that data is only applicable to the sub-suite:
+
+```js
+registerSuite('foo', {
+    test1() {
+    }
+
+    test2() {
+    }
+
+    subSuite: (() => {
+        let counter = 0;
+        let app;
+
+        return {
+            before() {
+                app = new App(counter++);
+            },
+
+            tests: {
+                'validate counter'() {
+                    assert.strictEqual(app.id, counter - 1);
+                }
+            }
+        };
+    })()
+});
+```
+
 ### TDD
 
-```ts
-const { suite, test } = intern.getPlugin('interface.tdd');
+Registering suites and tests using the TDD interface is more procedural than the [object interface](#object).
+
+```js
+const { suite, test } = intern.getInterface('tdd');
+const { assert } = intern.getPlugin('chai');
 
 suite('Component', () => {
     test('create new', () => {
@@ -76,10 +319,25 @@ suite('Component', () => {
 });
 ```
 
+Suites may be nested by calling `suite` within a suite callback. However, calling `suite` within a test function isn't supported.
+
+```js
+suite('Component', () => {
+    test('create new', () => { });
+
+    suite('sub suite', () => {
+        test('test1', () => { });
+    });
+});
+```
+
 ### BDD
 
-```ts
-const { describe, it } = intern.getPlugin('interface.bdd');
+The BDD interface is nearly identical to the TDD interface, differing only in the names of its test and suite registration functions (`describe` and `it` rather than `suite` and `test`).
+
+```js
+const { describe, it } = intern.getInterface('bdd');
+const { assert } = intern.getPlugin('chai');
 
 describe('Component', () => {
     it('should not throw when created', () => {
@@ -98,8 +356,10 @@ describe('Component', () => {
 
 _Note that this interface is not yet available in Intern 4._
 
-```ts
-const { QUnit } = intern.getPlugin('interface.qunit');
+The QUnit interface provides an interface that is compatible with the QUnit 1 API.
+
+```js
+const { QUnit } = intern.getInterface('qunit');
 
 QUnit.module('Component');
 QUnit.test('create new', () => {
@@ -114,10 +374,10 @@ QUnit.test('update values', () => {
 
 ### Benchmark
 
-The benchmark interface is an extension of the [object interface](#object) used to register [benchmark suites](#benchmark-tests). Tests in benchmark suites are concerned with code performance rather than code correctness. The interface looks very similar to the object interface.
+The benchmark interface is an extension of the [object interface](#object) used to register [benchmark suites](#benchmark-tests). Tests in benchmark suites are concerned with code _performance_ rather than code _correctness_. The interface looks very similar to the object interface.
 
-```ts
-const { registerSuite, async } = intern.getPlugin('interface.benchmark');
+```js
+const { registerSuite, async } = intern.getInterface('benchmark');
 let component: Component;
 
 registerSuite('Component performance',
@@ -137,9 +397,9 @@ registerSuite('Component performance',
 });
 ```
 
-The `async` property is a function that can be used to identify an asynchronous test as the standard `this.async` method doesn't work well in a benchmarking situation.
+The `async` property is a function that can be used to identify an asynchronous test as the standard [`this.async`](#testing-asynchronous-code) method doesn’t work properly with benchmark tests.
 
-```ts
+```js
 registerSuite('Performance', {
     // ...
 
@@ -149,124 +409,219 @@ registerSuite('Performance', {
 
     // An async test will be passed a Deferred object
     async(request(dfd) {
-        component.request('something.html').then(() => {
-            dfd.resolve();
-        }, error => {
-            dfd.reject(error);
-        });
+        component.request('something.html').then(
+            () => { dfd.resolve(); },
+            error => { dfd.reject(error); }
+        );
     })
 });
 ```
 
+The benchmark interface also supports two additionl lifecycle methods, `beforeEachLoop` and `afterEachLoop`. The test lifecycle for a benchmark test is a bit different than for other types of test. A single benchmark test involves running a test function many times in succession. The total of all of these runs is the “test”, and this is what the standard `beforeEach` and `afterEach` callbacks run before and after. The `beforeEachLoop` and `afterEachLoop` run before and after each call of the test function in a run.
+
+⚠️  Note that because of limitations in Benchmark.js, `beforeEachLoop` and `afterEachLoop` _must_ be synchronous, and cannot be wrapped in `async`.
+
+Benchmark tests may also provide options directly to [benchmark.js] by attaching them to the test function.
+
+```js
+registerSuite('foo', {
+    'basic test': (() => {
+        test() {
+            // benchmark
+        }
+
+        test.options = {
+            // benchmark.js options
+        };
+
+        return test;
+    })();
+});
+```
+
+⚠️  Note that providing `setup` and `teardown` functions in an `options` object is not supported. Intern will always override these functions with its own lifecycle code. Instead, use `beforeEachLoop` and `afterEachLoop`.
+
 ### Native
 
-The native interface is simply the `addSuite` method on Executor, which is what the various test interfaces use behind the scenes to register tests and suites. This method takes a factory function that will be called with a Suite. The factory function should add suites or tests to the given suite.
+The native interface is simply the [`addSuite`](./api.md#addsuiteparent--void) method on Executor, which is what the various test interfaces use behind the scenes to register tests and suites. This method takes a factory function that will be called with a Suite. The factory function should add suites or tests to the given suite.
 
-```ts
+```js
 intern.addSuite(parent => {
     const suite = new Suite({
         name: 'create new',
-        tests: [
-            new Test({ name: 'new test', test: () => assert.doesNotThrow(() => new Component()) })
-        ]
+        tests: [ new Test({ name: 'new test', test: () => assert.doesNotThrow(() => new Component()) }) ]
     });
     parent.add(suite);
 });
 ```
 
-## Organization
+## Assertions
 
-Suites are typically grouped into script files, with one top-level suite per file. How the files themselves are structured depends on how the suite files will be [loaded](./architecture.md#loaders). For example, if the ‘dojo’ loader is used to load suites, an individual suite file would be an AMD or UMD module:
+Tests should throw errors when some feature being tested doesn’t behave as expected. The standard `throw` mechanism will work for this purpose, but performing a particular test and constructing meaningful error messages can be tedious. Assertion libraries exist that can simplify this process. Intern bundles the [chai](http://chaijs.com) assertion library, and exposes it it vial the plugin system as “chai”.
 
 ```js
-define([ 'app/Component' ], function (Component) {
-    var assert = intern.getAssertions('assert');
-    var registerSuite = intern.getInterface('object').registerSuite;
-
-    registerSuite('Component', {
-        'create new': function () {
-            assert.doesNotThrow(() => new Component());
-        }
-    });
-});
+const { assert } = intern.getPlugin('chai');
 ```
 
-On the other hand, if the loader is using SystemJS + Babel to load suites, a suite file could be an ESM module:
+When running with a module loader or in Node, Chai can be imported directly.
 
-```ts
-import Component from '../app/Component';
+Chai provides three assertion interfaces: [assert](http://chaijs.com/api/assert/), [expect](http://chaijs.com/api/bdd/), and [should](http://chaijs.com/api/bdd/).
 
-const assert = intern.getAssertions('assert');
-const { registerSuite } = intern.getPlugin('interface.object');
+### assert
 
-registerSuite('Component', {
-    'create new'() {
-        assert.doesNotThrow(() => new Component());
-    }
-});
+This is the interface used by most of the examples in the documentation.
+
+```js
+const { assert} = intern.getPlugin('chai');
+// ...
+assert.strictEqual(count, 5, 'unexpected value for count');
 ```
 
-## Sync vs Async
+💡 When using the assert API, an easy way to remember the order of arguments is that they’re alphabetical: actual, expected, message.
 
-The examples on this page have all involved synchronous code, but tests may also execute asynchronous code. When a test is async, Intern will wait for a notification that the test is finished before starting the next test. There are two ways to let Intern know a test is async:
+### expect
 
-1. Call `this.async` (or `test.async`) to get a Deferred object, and then resolve or reject that Deferred when the test is finished, or
-2. Return a Promise
-
-Internally both cases are handled in the same way; Intern will wait for the Deferred object created by the call to `async`, or for a Promise returned by the test, to resolve before continuing. If the Deferred or Promise is rejected, the test fails, otherwise it passes.
-
-If the Deferred or Promise takes too long to resolve, the test will timeout (which is considered a failure). The timeout can be adjusted by passing a new timeout value to `async` or by setting the test’s `timeout` property. Both are values in milliseconds.
-
-```ts
-const dfd = this.async(5000);
+```js
+const { expect} = intern.getPlugin('chai');
+// ...
+expect(count).to.equal(5, 'unexpected value for count');
 ```
 
-or
+### should
 
-```ts
-this.timeout = 5000;
+```js
+// Note that `should` needs to be called to be properly initialized
+const should = intern.getPlugin('chai').should();
+// ...
+count.should.equal(5, 'unexpected value for count')
 ```
+
+⚠️  This API modifies the global `Object.prototype` and duesn't work with null/undefine values or objects that don't inherit from `Object.prototype`.
 
 ## Unit tests
 
-Unit tests are probably the most common type of test. All of the example tests on this page have been unit tests. These work by directly loading a part of the application, exercising it, and verifying that it works as expected. For example, the following test checks that an `update` method on some Component class does what it’s supposed to:
+[Unit tests](./concepts.md#unit-tests) are probably the most common type of test. All of the example tests on this page have been unit tests. These work by directly loading a part of the application, exercising it, and verifying that it works as expected. For example, the following test checks that an `update` method on some Component class does what it’s supposed to:
 
-```ts
+```js
 'update values'() {
     const component = new Component();
     component.update({ value: 20 });
-    assert.equal(component.children[0].value, 20);
+    assert.equal(component.value, 20);
 }
 ```
 
-This test instantiates an object, calls a method on it, and makes an assertion about the resulting state of the object (in this case, that a `value` property on a child has a particular value). This test assumes the `update` method on component is synchronous; it would be very similar if the update method were asynchronous using Promises:
+This test instantiates an object, calls a method on it, and makes an assertion about the resulting state of the object (in this case, that the component’s `value` property has a particular value). This test assumes the `update` method on component is synchronous; it would be very similar if the update method were asynchronous using Promises:
 
-```ts
+```js
 'update values'() {
     const component = new Component();
     return component.update({ value: 20 }).then(() => {
-        assert.equal(component.children[0].value, 20);
+        assert.equal(component.value, 20);
     });
 }
 ```
 
 or using callbacks:
 
-```ts
+```js
 'update values'() {
     const dfd = this.async();
     const component = new Component();
     component.update({ value: 20 }, dfd.callback(error => {
-        assert.equal(component.children[0].value, 20);
+        assert.equal(component.value, 20);
     }));
 }
 ```
+
+### Testing asynchronous code
+
+The examples on this page have all involved synchronous code, but tests may also execute asynchronous code. When a test is async, Intern will wait for a notification that the test is finished before starting the next test. There are two ways to let Intern know a test is async:
+
+1. Call [`this.async`](./api.md#asynctimeout-numcallsuntilresolution) (or `test.async`) to get a Deferred object, and then resolve or reject that Deferred when the test is finished, or
+2. Return a Promise
+
+Internally both cases are handled in the same way; Intern will wait for the Deferred object created by the call to `async`, or for a Promise returned by the test, to resolve before continuing. If the Deferred or Promise is rejected, the test fails, otherwise it passes.
+
+```js
+import { get as _get } from 'http';
+import { promisify } from 'util';
+const get = promisify(_get);
+
+registerSuite('async demo', {
+    'async test'() {
+        const dfd = this.async(1000);
+        get('http://example.com/test.txt', dfd.callback((error, data) => {
+            if (error) {
+                throw error;
+            }
+            assert.strictEqual(data, 'Hello world!');
+        }));
+    },
+
+    'Promise test'() {
+        this.async(1000);
+        return get('http://example.com/test.txt')
+            .then(data => assert.strictEqual(data, 'Hello world!'));
+    }
+});
+```
+
+If the Deferred or Promise takes too long to resolve, the test will timeout (which is considered a failure). The timeout can be adjusted by
+
+* passing a new timeout value to `async`
+* by setting the test’s `timeout` property
+* by changing [`defaultTimeout`](./configuration.md#defaulttimeout) in the test config
+
+All are values in milliseconds.
+
+```js
+const dfd = this.async(5000);
+```
+
+or
+
+```js
+this.timeout = 5000;
+```
+
+### Skipping tests at runtime
+
+Tests have a [`skip`](./api.md#skipmessage-1) method that can be used to skip the test if it should not be executed for some reason.
+
+```js
+registerSuite('skip demo', {
+    'skip test'() {
+        if (typeof window === 'undefined') {
+            this.skip('browser-only test');
+        }
+
+        // ...
+    }
+});
+```
+
+💡Calling `this.skip` immediately halts test execution, so there is no need to call `return` after `skip`.
+
+The Suite class also provides a [`skip`](./api.md#skipmessage) method. Calling `this.skip()` (or `suite.skip()`) from a suite lifecycle method, or calling `this.parent.skip()` from a test, will cause all remaining tests in a suite to be skipped.
+
+Intern also provides a [`grep`](./configuration.md#grep) configuration option that can be used to skip tests and suites by ID.
+
+```js
+// intern.json
+{
+    suites: "tests/unit/*.js",
+    // Only tests with "skip demo" in their ID will be run
+    grep: 'skip demo'
+}
+```
+
+💡Note that a test ID is the concatenation of its parent suite ID and the test name (and a suite ID is the concatenation of _it’s_ parent suite ID and the suite’s own name, etc.).
 
 ### Test and suite context
 
 Test methods are always called in the context of the test object itself. Consider the following case that uses the TDD interface:
 
-```ts
+```js
 test('update values', function () {
     const dfd = this.async();
     const component = new Component();
@@ -278,18 +633,18 @@ test('update values', function () {
 
 The use of `this.async()` works because the test callback is called with the containing Test instance as its context. Similarly, suite lifecycle methods such as `before` and `afterEach` are called in the context of the suite object. The `beforeEach` and `afterEach` methods are also passed the current test as the first argument.
 
-Note that `this.async()` wouldn’t work so well with arrow functions:
+This manner of calling test methods doesn’t work so well with arrow functions:
 
-```ts
+```js
 test('update values', () => {
     const dfd = this.async();   // <--- Problem -- this isn't bound to the Test!
     // ...
 });
 ```
 
-To making working with arrow functions easier, Intern also passes the Test instance as the first argument to test callbacks. It passes the Suite instance as the _last_ argument to Suite callback functions.
+To making working with arrow functions easier, Intern also passes the Test instance as the first argument to test callbacks, and as the first argument to test-focused suite lifecycle functions (`beforeEach` and `afterEach`). It passes the Suite instance as the first argument to Suite callback functions (the second to `beforeEach` and `afterEach`).
 
-```ts
+```js
 test('update values', test => {
     const dfd = test.async();
     // ...
@@ -302,19 +657,15 @@ Since unit tests involve running application code directly, they will typically 
 
 This is not a hard-and-fast rule, though. In many cases the code being tested may run in both environments, or mocks and/or shims may be employed to allow it to run in a non-native environment. For example, mock DOMs are often employed to allow browser code to be tested in Node.
 
-## Benchmark tests
-
-Benchmark tests are a type of unit test that measures the performance of code rather than checking it for proper behavior. A benchmark test assumes that the code it’s running will work without error; the test is whether it runs as fast as expected.
-
-Benchmark tests can only be added with the ‘benchmark’ interface, which is an extension of the ‘object’ interface. Also note that benchmark suites will only be run when the `benchmark` config property is `true`. When `benchmark` is not set or is false, calls to register benchmark suites will be ignored.
-
 ## Functional tests
 
-Functional tests operate fundamentally differently than unit tests. While a unit test directly loads and executes application code, functional tests load a page in a browser and interact with it in the same way a user would: by examining the content of the page, clicking buttons, typing into text inputs, etc. This interaction is managed through a `remote` property that is available on functional test suites.
+[Functional tests](./concepts.md#functional-tests) operate fundamentally differently than unit tests. While a unit test directly loads and executes application code, functional tests load a page in a browser and interact with it in the same way a user would: by examining the content of the page, clicking buttons, typing into text inputs, etc. This interaction is managed through a `remote` property that is available to functional tests.
+
+Functional tests are registered using the same interfaces as [unit tests](#unit-tests), and use the same [Suite](./api.md#suite) and [Test](./api.md#test) objects, but are loaded using the [`functionalSuites`](./configuration.md#functionalSuites). The key difference is that instead of executing application code directly, functional tests use a [Leadfoot Command object](https://theintern.github.io/leadfoot/module-leadfoot_Command.html), available as a `remote` property on the test, to automate interactions that you’d normally perform manually.
 
 Consider the following functional test:
 
-```ts
+```js
 'login works'() {
     return this.remote
         .get('index.html')
@@ -336,52 +687,25 @@ Consider the following functional test:
 }
 ```
 
-This test first loads the page 'index.html' in the browser associated with the current test session (Intern can drive multiple browsers at a time). Once the page has loaded, Intern finds an element on the page with DOM ID ‘username’ and types ‘scroob’ into it, then finds the element with ID ‘password’ and types ‘12345’ into it, then finds the element with ID ‘login’ and clicks it. After clicking the login element, Intern waits a few seconds and looks for an H1 element, then verifies that it contains the text ‘Welcome!’.
+This test performs the following steps:
+
+1. Loads the page 'index.html' in the browser associated with the current test session (Intern can drive multiple browsers at a time)
+2. Finds an element on the page with DOM ID ‘username’ and types ‘scroob’ into it
+3. Finds the element with ID ‘password’ and types ‘12345’ into it
+4. Finds the element with ID ‘login’ and clicks it
+5. Waits a few seconds
+6. Finds an H1 element
+7. Verifies that it contains the text ‘Welcome!’
 
 One key point to keep in mind is that interaction with a browser is async, so all functional tests must be async. This is actually pretty simple to deal with. The API provided by `this.remote` is the Leadfoot [Command API](https://theintern.github.io/leadfoot/module-leadfoot_Command.html), which is fluid and async, and the result of a bunch of fluid Command method calls will be something that looks like a Promise. A functional test just needs to return the result of this Command chain, and Intern will treat it as async.
 
+⚠️ Always make sure to return the final call to the remote object, or return a Promise that resolves after the functional test is complete. Otherwise Intenr won’t wait for your functional test to finish before moving on to the next test.
+
 ### Page objects
 
-Typically a given page may be used in multiple functional tests, and tests may perform a lot of the same actions on a given page. For example, functional tests may need to login to a site, which is generally a multi-step process:
+Typically a given page may be used in multiple functional tests, and tests may perform a lot of the same actions on a given page. [Page objects](./concepts.md#page-objects) are one way of reducing repetition and improving maintainability. In Intern, they are typically implemented using functions that return callback functions, like the following:
 
-```ts
-// productPage.ts
-registerSuite('product page', {
-    'buy product'() {
-        return this.remote
-            .get('https://mysite.local')
-
-            // Login to the site, using the specified username and password, then look for a
-            // specific element to verify that the login succeeded
-            .findById('login')
-            .click()
-            .type(username)
-            .end()
-            .findById('password')
-            .click()
-            .type(password)
-            .end()
-            .findById('loginButton')
-            .click()
-            .end()
-            .setFindTimeout(5000)
-            .findById('loginSuccess')
-            .end()
-
-            // now buy the product
-            .findById('product-1')
-            .click()
-            .end()
-            // ...
-    },
-
-    // ...
-});
-```
-
-Page objects allow high-level actions like logging in to be handled by shareable components. They are generally implemented using functions that return callback functions, like the following:
-
-```ts
+```js
 // loginPage.ts
 export function login(username: string, password: string) {
     return function () {
@@ -406,7 +730,7 @@ export function login(username: string, password: string) {
 
 Each page object function returns a function. This returned function will be used as a `then` callback. To actually use a page object function, just call it and use the return value for a `then` callback:
 
-```ts
+```js
 // productPage.ts
 import { login } from './pages/loginPage.ts';
 
@@ -426,3 +750,26 @@ registerSuite('product page', {
     // ...
 });
 ```
+
+## Benchmark tests
+
+Benchmark tests are a type of unit test that measures the performance of code rather than checking it for proper behavior. A benchmark test assumes that the code it’s running will work without error; the test is whether it runs as fast as expected.
+
+Benchmarks work by running the test function many times in a loop, with Intern (through [Benchmark.js](https://benchmarkjs.com)) recording how long each test function takes to run on average. This information can be saved (“baselined”) and used during later test runs to see if performance has deviated from acceptable values.
+
+Benchmark tests can only be added with the [benchmark interface](#benchmark). Also note that benchmark suites will only be run when the [`benchmark`](./configuration.md#benchmark) config property is `true`. When `benchmark` is not set or is false, calls to register benchmark suites will be ignored.
+
+The benchmark test lifecycle is very similar to the standard test lifecycle:
+
+* For each registered root suite...
+  * The suite’s `before` method is called, if it exists
+  * For each test within the suite...
+    * The suite’s `beforeEach` method is called, if it exists
+    * The benchmark is started. The test function will be called many times in a “test loop”. For each execution of the test loop...
+      * The beforeEachLoop method of the suite is called, if it exists
+      * The test function is called
+      * The afterEachLoop method of the suite is called, if it exists
+    * The suite’s `afterEach` method is called, if it exists
+  * The suite’s `after` method is called, if it exists
+
+[benchmark.js]: https://benchmarkjs.com
