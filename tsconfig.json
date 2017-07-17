@@ -3,6 +3,7 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "experimentalDecorators": true,
+    "importHelpers": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,

@@ -13,7 +13,8 @@
     "@dojo/interfaces": "~2.0.0-beta2.2",
     "@dojo/shim": "~2.0.0-beta2.2",
     "@theintern/dev": "~0.4.2",
-    "jszip": "~3.1.3"
+    "jszip": "~3.1.3",
+    "tslib": "~1.7.1"
   },
   "devDependencies": {
     "@dojo/loader": "~2.0.0-beta2.2",
