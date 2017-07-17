@@ -2,7 +2,7 @@ import { sleep, trimStack } from './lib/util';
 import Element from './Element';
 import Task from '@dojo/core/async/Task';
 import Session from './Session';
-import Locator from './lib/Locator';
+import Locator, { Strategy } from './lib/Locator';
 import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
 
 /**
@@ -499,15 +499,15 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 		return this;
 	}
 
-	find(strategy: string, value: string) {
+	find(strategy: Strategy, value: string) {
 		return this._callFindElementMethod<Element>('find', strategy, value);
 	}
 
-	findAll(strategy: string, value: string) {
+	findAll(strategy: Strategy, value: string) {
 		return this._callFindElementMethod<Element[]>('findAll', strategy, value);
 	}
 
-	findDisplayed(strategy: string, value: string) {
+	findDisplayed(strategy: Strategy, value: string) {
 		return this._callFindElementMethod<Element>('findDisplayed', strategy, value);
 	}
 
@@ -1256,7 +1256,7 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	 * @param value
 	 * The strategy-specific value to search for. See [[Command.find]] for details.
 	 */
-	waitForDeleted(using: string, value: string) {
+	waitForDeleted(using: Strategy, value: string) {
 		return this._callSessionMethod<void>('waitForDeleted', using, value);
 	}
 

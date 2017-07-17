@@ -1,6 +1,6 @@
 import findDisplayed from './lib/findDisplayed';
 import * as fs from 'fs';
-import Locator, { toW3cLocator } from './lib/Locator';
+import Locator, { Strategy, toW3cLocator } from './lib/Locator';
 import waitForDeleted from './lib/waitForDeleted';
 import { sleep } from './lib/util';
 import Task from '@dojo/core/async/Task';
@@ -114,7 +114,7 @@ export default class Element extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * @param value
 	 * The strategy-specific value to search for. See [[Session.find]] for details.
 	 */
-	find(using: string, value: string): Task<Element> {
+	find(using: Strategy, value: string): Task<Element> {
 		const session = this._session;
 		const capabilities = session.capabilities;
 
@@ -165,7 +165,7 @@ export default class Element extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * @param value
 	 * The strategy-specific value to search for. See [[Session.find]] for details.
 	 */
-	findAll(using: string, value: string): Task<Element[]> {
+	findAll(using: Strategy, value: string): Task<Element[]> {
 		const session = this._session;
 		const capabilities = session.capabilities;
 
@@ -572,7 +572,7 @@ export default class Element extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * @param value
 	 * The strategy-specific value to search for. See [[Session.find]] for details.
 	 */
-	findDisplayed(using: string, value: string): Task<Element> {
+	findDisplayed(using: Strategy, value: string): Task<Element> {
 		return findDisplayed(this.session, this, using, value);
 	}
 
@@ -588,7 +588,7 @@ export default class Element extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * @param value
 	 * The strategy-specific value to search for. See [[Session.find]] for details.
 	 */
-	waitForDeleted(strategy: string, value: string) {
+	waitForDeleted(strategy: Strategy, value: string) {
 		return waitForDeleted(this.session, this, strategy, value);
 	}
 }

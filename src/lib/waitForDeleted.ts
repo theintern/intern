@@ -3,7 +3,9 @@ import statusCodes from './statusCodes';
 import Session from '../Session';
 import Element from '../Element';
 
-export default function waitForDeleted(session: Session, locator: Session | Element, strategy: string, value: string) {
+import { Strategy } from './Locator';
+
+export default function waitForDeleted(session: Session, locator: Session | Element, using: Strategy, value: string) {
 	let originalTimeout: number;
 
 	return session.getTimeout('implicit').then(function (value) {
@@ -27,7 +29,7 @@ export default function waitForDeleted(session: Session, locator: Session | Elem
 					return;
 				}
 
-				locator.find(strategy, value).then(poll, function (error) {
+				locator.find(using, value).then(poll, function (error) {
 					const always = function () {
 						/* istanbul ignore else: other errors should never occur during normal operation */
 						if (error.name === 'NoSuchElement') {

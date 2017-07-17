@@ -9,13 +9,13 @@
  *   4. xpath
  */
 abstract class Locator<E, L, V> {
-	abstract find(strategy: Strategies, value: string): E;
+	abstract find(strategy: Strategy, value: string): E;
 
-	abstract findAll(strategy: Strategies, value: string): L;
+	abstract findAll(strategy: Strategy, value: string): L;
 
-	abstract findDisplayed(strategy: Strategies, value: string): E;
+	abstract findDisplayed(strategy: Strategy, value: string): E;
 
-	abstract waitForDeleted(strategy: Strategies, value: string): V;
+	abstract waitForDeleted(strategy: Strategy, value: string): V;
 
 	/**
 	 * Gets the first element inside this element matching the given CSS class name.
@@ -325,20 +325,32 @@ abstract class Locator<E, L, V> {
 
 export default Locator;
 
-export const strategies = {
-	'class name': true,
+export const w3cStrategies = {
 	'css selector': true,
-	'id': true,
-	'name': true,
 	'link text': true,
 	'partial link text': true,
-	'tag name': true,
 	'xpath': true
 };
 
-export type Strategies = keyof typeof strategies;
+export type W3cStrategy = keyof typeof w3cStrategies;
 
-export function toW3cLocator(using: string, value: string) {
+export interface W3cLocator {
+	using: W3cStrategy;
+	value: string;
+}
+
+export const strategies = {
+	...w3cStrategies,
+	'class name': true,
+	'id': true,
+	'name': true,
+	'partial link text': true,
+	'tag name': true
+};
+
+export type Strategy = keyof typeof strategies;
+
+export function toW3cLocator(using: Strategy, value: string): W3cLocator {
 	switch (using) {
 		case 'id':
 			using = 'css selector';

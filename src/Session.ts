@@ -4,7 +4,7 @@ import findDisplayed from './lib/findDisplayed';
 import { partial } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 import statusCodes from './lib/statusCodes';
-import Locator, { toW3cLocator } from './lib/Locator';
+import Locator, { toW3cLocator, Strategy } from './lib/Locator';
 import { forCommand as utilForCommand, sleep, toExecuteString } from './lib/util';
 import waitForDeleted from './lib/waitForDeleted';
 import { Capabilities, Geolocation, LogEntry, WebDriverCookie, WebDriverResponse } from './interfaces';
@@ -873,7 +873,7 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * The strategy-specific value to search for. For example, if `using` is 'id', `value` should be the ID of the
 	 * element to retrieve.
 	 */
-	find(using: string, value: string) {
+	find(using: Strategy, value: string) {
 		if (this.capabilities.isWebDriver) {
 			const locator = toW3cLocator(using, value);
 			using = locator.using;
@@ -917,7 +917,7 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * @param {string} value
 	 * The strategy-specific value to search for. See [[Session.find]] for details.
 	 */
-	findAll(using: string, value: string) {
+	findAll(using: Strategy, value: string) {
 		if (this.capabilities.isWebDriver) {
 			const locator = toW3cLocator(using, value);
 			using = locator.using;
@@ -1648,7 +1648,7 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * @param value
 	 * The strategy-specific value to search for. See [[Session.find]] for details.
 	 */
-	findDisplayed(using: string, value: string) {
+	findDisplayed(using: Strategy, value: string) {
 		return findDisplayed(this, this, using, value);
 	}
 
@@ -1661,8 +1661,8 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * @param value
 	 * The strategy-specific value to search for. See [[Session.find]] for details.
 	 */
-	waitForDeleted(strategy: string, value: string) {
-		return waitForDeleted(this, this, strategy, value);
+	waitForDeleted(using: Strategy, value: string) {
+		return waitForDeleted(this, this, using, value);
 	}
 
 	/**

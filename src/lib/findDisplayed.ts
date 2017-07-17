@@ -3,7 +3,9 @@ import statusCodes from './statusCodes';
 import Element from '../Element';
 import Session from '../Session';
 
-export default function findDisplayed(session: Session, locator: Session | Element, strategy: string, value: string) {
+import { Strategy } from './Locator';
+
+export default function findDisplayed(session: Session, locator: Session | Element, strategy: Strategy, value: string) {
 	return session.getTimeout('implicit').then(originalTimeout => {
 		const startTime = Date.now();
 
