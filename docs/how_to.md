@@ -2,6 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 * [Use Intern programmatically](#use-intern-programmatically)
+* [Run code before tests start](#run-code-before-tests-start)
 * [Run Intern in my own test page in a browser](#run-intern-in-my-own-test-page-in-a-browser)
 * [Write tests in an HTML page](#write-tests-in-an-html-page)
 * [Test ES modules](#test-es-modules)
@@ -33,6 +34,47 @@
 3. Run Intern
    ```js
    intern.run();
+   ```
+
+## Run code before tests start
+
+There several ways to accomplish this:
+
+* If you just need to run some self-contained, synchronous setup code before testing starts, use a `require` script.
+  ```js
+  // setup.js
+  intern.config.suites.push('./some/other/suite.js')
+  ```
+  ```js
+  // intern.json
+  {
+      "require": "setup.js"
+  }
+  ```
+* If your setup code is still self-contained but needs to do something asynchronous, you can still load it as a `require` script, but use a `beforeRun` callback to handle the async code:
+  ```js
+  // setup.js
+  intern.on('beforeRun', function () {
+      return new Promise(function (resolve) {
+          // async code
+      });
+  });
+  ```
+* If your startup code needs to load modules using your test loader (one configured with the [`loader`](./configuration.md#loder) option), register it as a plugin. These can run async initialization code in the [`registerPlugin`](./api.md#registerpluginid-callback) method, and also have access to any module loader configured for the tests.
+   ```js
+   // setup.js
+   const bar = require('./bar');
+   intern.registerPlugin('foo', function () {
+       return bar.getSomething().then(function (something) {
+           // more async code
+       });
+   });
+   ```
+   ```js
+   // intern.json
+   {
+       "plugins": "setup.js"
+   }
    ```
 
 ## Run Intern in my own test page in a browser
