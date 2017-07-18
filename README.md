@@ -79,9 +79,8 @@ Intern can run functional tests using WebDriver-compatible applications and serv
 * [Concepts](docs/concepts.md) - General testing concepts and definitions
 * [Architecture](docs/architecture.md) - How Intern is organized
 * [Configuration](docs/configuration.md) - How to configure Intern
-* [Running](docs/running.md) - How to run Intern
 * [Writing tests](docs/writing_tests.md) - The various ways of writing tests with Intern
-* [Native apps](docs/native_apps.md) - Testing native apps
+* [Running](docs/running.md) - How to run Intern
 * [API](docs/api.md) - Intern's API
 * [Developing](docs/developing.md) - For Intern developers
 * [Contributing](CONTRIBUTING.md) - How to contribute to Intern development

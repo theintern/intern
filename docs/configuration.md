@@ -14,6 +14,7 @@
 * [Properties](#properties)
     * [bail](#bail)
     * [benchmark](#benchmark)
+    * [capabilities](#capabilities)
     * [coverageSources](#coveragesources)
     * [debug](#debug)
     * [defaultTimeout](#defaulttimeout)
@@ -242,7 +243,7 @@ Some properties are only meaningful for Node or WebDriver tests:
 
 | Property                 | Description                                                                                | Default
 | :-------                 | :----------                                                                                | :------
-| capabilities             | Default capabilities to be used for WebDriver sessions                                     | `{ 'idle-timeout': 60 }`
+| [capabilities]           | Default capabilities to be used for WebDriver sessions                                     | `{ 'idle-timeout': 60 }`
 | connectTimeout           | When running WebDriver tests, how long (in ms) to wait for a remote browser to connect     | 30000
 | [coverageSources]        | An array of paths or globs that should be included in coverage reports                     | `[]`
 | [environments]           | Browser + OS combinations to be tested using WebDriver                                     | `[]`
@@ -284,6 +285,25 @@ By default, Intern will run all configured tests. Setting the `bail` option to `
 ### benchmark
 
 This property must be set to true for benchmark tests to run. If it is unset or false, any suites registered using the [benchmark interface](./writing_tests.md#benchmark) will be ignored.
+
+### capabilities
+
+These are the default capabilities for all test environments. They will be extended for each environment by values in the [`environments`](#environments) array.
+
+Cloud testing services such as BrowserStack may have unique capabilities. It’s important to use the proper capabilities for the WebDriver server or cloud service being used to run tests.
+
+* [Selenium capabilities](https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities)
+* [BrowserStack capabilities](https://www.browserstack.com/automate/capabilities)
+* [CrossBrowserTesting capabilities](https://help.crossbrowsertesting.com/selenium-testing/automation-capabilities)
+* [Sauce Labs capabilities](https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-Selenium-SpecificOptions) and [environments](https://saucelabs.com/platforms)
+* [TestingBot capabilities](https://testingbot.com/support/other/test-options) and [environments](https://testingbot.com/support/getting-started/browsers.html)
+
+[Chrome-specific options](https://sites.google.com/a/chromium.org/chromedriver/capabilities) may be passed using a `chromeOptions` capability.
+
+Intern will automatically provide certain capabilities to provide better feedback with cloud service dashboards:
+
+* `name` will be set to the name of the test config
+* `build` will be set to the commit ID from the `TRAVIS_COMMIT` and `BUILD_TAG` environment variables, if either exists
 
 ### coverageSources
 
@@ -476,6 +496,7 @@ There are a few exceptions:
 
 
 [benchmark]: #benchmark
+[capabilities]: #capabilities
 [coverageSources]: #coveragesources
 [debug]: #debug
 [defaultTimeout]: #defaulttimeout

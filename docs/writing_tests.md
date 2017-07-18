@@ -23,9 +23,14 @@ At the most basic level, a test is a function that either runs to completion or 
     * [Skipping tests at runtime](#skipping-tests-at-runtime)
     * [Test and suite context](#test-and-suite-context)
     * [Environment](#environment)
+* [Benchmark tests](#benchmark-tests)
 * [Functional tests](#functional-tests)
     * [Page objects](#page-objects)
-* [Benchmark tests](#benchmark-tests)
+    * [Testing native apps](#testing-native-apps)
+        * [Appium](#appium)
+        * [ios-driver](#ios-driver)
+        * [Selendroid](#selendroid)
+    * [Debugging](#debugging)
 
 <!-- vim-markdown-toc -->
 
@@ -456,7 +461,7 @@ intern.addSuite(parent => {
 ```
 
 ## Assertions
-
+u
 Tests should throw errors when some feature being tested doesn’t behave as expected. The standard `throw` mechanism will work for this purpose, but performing a particular test and constructing meaningful error messages can be tedious. Assertion libraries exist that can simplify this process. Intern bundles the [chai](http://chaijs.com) assertion library, and exposes it it vial the plugin system as “chai”.
 
 ```js
@@ -496,7 +501,7 @@ const should = intern.getPlugin('chai').should();
 count.should.equal(5, 'unexpected value for count')
 ```
 
-⚠️  This API modifies the global `Object.prototype` and duesn't work with null/undefine values or objects that don't inherit from `Object.prototype`.
+⚠️  This API modifies the global `Object.prototype` and doesn’t work with null/undefined values or objects that don't inherit from `Object.prototype`.
 
 ## Unit tests
 
@@ -657,6 +662,27 @@ Since unit tests involve running application code directly, they will typically 
 
 This is not a hard-and-fast rule, though. In many cases the code being tested may run in both environments, or mocks and/or shims may be employed to allow it to run in a non-native environment. For example, mock DOMs are often employed to allow browser code to be tested in Node.
 
+## Benchmark tests
+
+Benchmark tests are a type of unit test that measures the performance of code rather than checking it for proper behavior. A benchmark test assumes that the code it’s running will work without error; the test is whether it runs as fast as expected.
+
+Benchmarks work by running the test function many times in a loop, with Intern (through [Benchmark.js](https://benchmarkjs.com)) recording how long each test function takes to run on average. This information can be saved (“baselined”) and used during later test runs to see if performance has deviated from acceptable values.
+
+Benchmark tests can only be added with the [benchmark interface](#benchmark). Also note that benchmark suites will only be run when the [`benchmark`](./configuration.md#benchmark) config property is `true`. When `benchmark` is not set or is false, calls to register benchmark suites will be ignored.
+
+The benchmark test lifecycle is very similar to the standard test lifecycle:
+
+* For each registered root suite...
+  * The suite’s `before` method is called, if it exists
+  * For each test within the suite...
+    * The suite’s `beforeEach` method is called, if it exists
+    * The benchmark is started. The test function will be called many times in a “test loop”. For each execution of the test loop...
+      * The beforeEachLoop method of the suite is called, if it exists
+      * The test function is called
+      * The afterEachLoop method of the suite is called, if it exists
+    * The suite’s `afterEach` method is called, if it exists
+  * The suite’s `after` method is called, if it exists
+
 ## Functional tests
 
 [Functional tests](./concepts.md#functional-tests) operate fundamentally differently than unit tests. While a unit test directly loads and executes application code, functional tests load a page in a browser and interact with it in the same way a user would: by examining the content of the page, clicking buttons, typing into text inputs, etc. This interaction is managed through a `remote` property that is available to functional tests.
@@ -699,7 +725,7 @@ This test performs the following steps:
 
 One key point to keep in mind is that interaction with a browser is async, so all functional tests must be async. This is actually pretty simple to deal with. The API provided by `this.remote` is the Leadfoot [Command API](https://theintern.github.io/leadfoot/module-leadfoot_Command.html), which is fluid and async, and the result of a bunch of fluid Command method calls will be something that looks like a Promise. A functional test just needs to return the result of this Command chain, and Intern will treat it as async.
 
-⚠️ Always make sure to return the final call to the remote object, or return a Promise that resolves after the functional test is complete. Otherwise Intenr won’t wait for your functional test to finish before moving on to the next test.
+⚠️ Always make sure to return the final call to the remote object, or return a Promise that resolves after the functional test is complete. Otherwise Intern won’t wait for your functional test to finish before moving on to the next test.
 
 ### Page objects
 
@@ -751,25 +777,116 @@ registerSuite('product page', {
 });
 ```
 
-## Benchmark tests
+### Testing native apps
 
-Benchmark tests are a type of unit test that measures the performance of code rather than checking it for proper behavior. A benchmark test assumes that the code it’s running will work without error; the test is whether it runs as fast as expected.
+Native mobile application UIs can be tested by Intern using an [Appium](http://appium.io/), [ios-driver](http://ios-driver.github.io/ios-driver/), or [Selendroid](http://selendroid.io/) server. Each server has slightly different support for WebDriver, so make sure to read each project’s documentation to pick the right one for you.
 
-Benchmarks work by running the test function many times in a loop, with Intern (through [Benchmark.js](https://benchmarkjs.com)) recording how long each test function takes to run on average. This information can be saved (“baselined”) and used during later test runs to see if performance has deviated from acceptable values.
+⚠️  Always be sure to set `fixSessionCapabilities: false` in your environment capabilities when testing a native app to bypass feature detection code that only works for Web apps.
 
-Benchmark tests can only be added with the [benchmark interface](#benchmark). Also note that benchmark suites will only be run when the [`benchmark`](./configuration.md#benchmark) config property is `true`. When `benchmark` is not set or is false, calls to register benchmark suites will be ignored.
+#### Appium
 
-The benchmark test lifecycle is very similar to the standard test lifecycle:
+To test a native app with Appium, one method is to pass the path to a valid IPA or APK using the app key in your [environments] configuration:
 
-* For each registered root suite...
-  * The suite’s `before` method is called, if it exists
-  * For each test within the suite...
-    * The suite’s `beforeEach` method is called, if it exists
-    * The benchmark is started. The test function will be called many times in a “test loop”. For each execution of the test loop...
-      * The beforeEachLoop method of the suite is called, if it exists
-      * The test function is called
-      * The afterEachLoop method of the suite is called, if it exists
-    * The suite’s `afterEach` method is called, if it exists
-  * The suite’s `after` method is called, if it exists
+```js
+{
+    environments: [
+        {
+            platformName: 'iOS',
+            app: 'testapp.ipa',
+            fixSessionCapabilities: false
+        }
+    ]
+}
+```
+
+You can also use `appPackage` and `appActivity` for Android, or `bundleId` and `udid` for iOS, to run an application that is already installed on a test device:
+
+```js
+{
+    environments: [
+        {
+            platformName: 'iOS',
+            bundleId: 'com.example.TestApp',
+            udid: 'da39a3ee5e…',
+            fixSessionCapabilities: false
+        },
+        {
+            platformName: 'Android',
+            appActivity: 'MainActivity',
+            appPackage: 'com.example.TestApp',
+            fixSessionCapabilities: false
+        }
+    ]
+}
+```
+
+The available capabilities for Appium are complex, so review the [Appium capabilities documentation](http://appium.io/slate/en/master/?javascript#appium-server-capabilities) to understand all possible execution modes.
+
+Once the application has started successfully, you can interact with it using any of the supported [WebDriver APIs](http://appium.io/slate/en/master/?javascript#finding-and-interacting-with-elements).
+
+#### ios-driver
+
+To test a native app with ios-driver, first run ios-driver, passing one or more app bundles for the applications you want to test:
+
+```
+java -jar ios-driver.jar -aut TestApp.app
+```
+
+Then, pass the bundle ID and version using the `CFBundleName` and `CFBundleVersion` keys in your [environments] configuration:
+
+```js
+{
+    environments: [
+        {
+            device: 'iphone',
+            CFBundleName: 'TestApp',
+            CFBundleVersion: '1.0.0',
+            // required for ios-driver to use iOS Simulator
+            simulator: true,
+            fixSessionCapabilities: false
+        }
+    ]
+}
+```
+
+Once the application has started successfully, you can interact with it using any of the [supported WebDriver APIs](https://ios-driver.github.io/ios-driver/?page=native).
+
+#### Selendroid
+
+To test a native app with Selendroid, first run Selendroid, passing one or more APKs for the applications you want to test:
+
+```
+java -jar selendroid.jar -app testapp-1.0.0.apk
+```
+
+Then, pass the Android app ID of the application using the `aut` key in your [environments] configuration:
+
+```js
+{
+    environments: [
+        {
+            automationName: 'selendroid',
+            aut: 'com.example.testapp:1.0.0',
+            fixSessionCapabilities: false
+        }
+    ]
+}
+```
+
+Once the application has started successfully, you can interact with it using any of the supported WebDriver APIs.
+
+### Debugging
+
+Keep in mind that JavaScript code is running in two separate environments: functional test suites are running in Node.js, while the page being tested is running in a web browser. Functional tests themselves can be debugged using Node’s `--inspect` or `--inspect-brk` command line options.
+
+1. Set a breakpoint in your test code by adding a `debugger` statement.
+2. Launch Node.js in inspect mode
+   ```sh
+   $ node --inspect-brk node_modules/.bin/intern
+   ```
+3. Start Chrome and connect to the address and port provided by Node
+4. Continue execution (F8). The tests will run to the debugger statement.
+5. Debug!
 
 [benchmark.js]: https://benchmarkjs.com
+[environments]: ./configuration.md#environments
