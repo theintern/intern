@@ -81,6 +81,7 @@ Intern can run functional tests using WebDriver-compatible applications and serv
 * [Configuration](docs/configuration.md) - How to configure Intern
 * [Writing tests](docs/writing_tests.md) - The various ways of writing tests with Intern
 * [Running](docs/running.md) - How to run Intern
+* [Extending](docs/extending.md) - Extending Intern
 * [API](docs/api.md) - Intern's API
 * [Developing](docs/developing.md) - For Intern developers
 * [Contributing](CONTRIBUTING.md) - How to contribute to Intern development
