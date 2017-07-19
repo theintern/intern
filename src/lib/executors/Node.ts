@@ -41,6 +41,7 @@ import JsonCoverage from '../reporters/JsonCoverage';
 import HtmlCoverage from '../reporters/HtmlCoverage';
 import Lcov from '../reporters/Lcov';
 import Benchmark from '../reporters/Benchmark';
+import TeamCity from '../reporters/TeamCity';
 
 const console: Console = global.console;
 const process: NodeJS.Process = global.process;
@@ -94,6 +95,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		this.registerReporter('htmlcoverage', HtmlCoverage);
 		this.registerReporter('lcov', Lcov);
 		this.registerReporter('cobertura', Cobertura);
+		this.registerReporter('teamcity', TeamCity);
 
 		this.registerTunnel('null', NullTunnel);
 		this.registerTunnel('selenium', SeleniumTunnel);

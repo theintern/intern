@@ -1,4 +1,4 @@
-import Reporter, { eventHandler, ReporterOptions, ReporterOutput } from './Reporter';
+import Reporter, { eventHandler } from './Reporter';
 import Test from '../Test';
 import Suite from '../Suite';
 
