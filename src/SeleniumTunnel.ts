@@ -258,7 +258,7 @@ export interface RemoteFile {
 	url: string;
 }
 
-export type DriverDescriptor = 'chrome' | 'ie' | 'firefox' | DriverFile | { name: string };
+export type DriverDescriptor = 'chrome' | 'ie' | 'firefox' | DriverFile | { name: string, version?: string };
 
 export interface SeleniumProperties extends TunnelProperties {
 	seleniumArgs: string[];
@@ -296,10 +296,19 @@ interface ChromeProperties {
 type ChromeOptions = Partial<ChromeProperties>;
 
 class ChromeConfig extends Config<ChromeOptions> implements ChromeProperties, DriverFile {
-	arch = process.arch;
-	baseUrl = 'https://chromedriver.storage.googleapis.com';
-	platform: string = process.platform;
-	version = ChromeVersion;
+	arch: string;
+	baseUrl: string;
+	platform: string;
+	version: string;
+
+	constructor(options: ChromeOptions) {
+		super(mixin({
+			arch: process.arch,
+			baseUrl: 'https://chromedriver.storage.googleapis.com',
+			platform: process.platform,
+			version: ChromeVersion
+		}, options));
+	}
 
 	get artifact() {
 		let platform = this.platform;
@@ -339,10 +348,19 @@ interface FirefoxProperties {
 type FirefoxOptions = Partial<FirefoxProperties>;
 
 class FirefoxConfig extends Config<FirefoxOptions> implements FirefoxProperties, DriverFile {
-	arch = process.arch;
-	baseUrl = 'https://github.com/mozilla/geckodriver/releases/download';
-	platform: string = process.platform;
-	version = FirefoxVersion;
+	arch: string;
+	baseUrl: string;
+	platform: string;
+	version: string;
+
+	constructor(options: FirefoxOptions) {
+		super(mixin({
+			arch: process.arch,
+			baseUrl: 'https://github.com/mozilla/geckodriver/releases/download',
+			platform: process.platform,
+			version: FirefoxVersion
+		}, options));
+	}
 
 	get artifact() {
 		let platform = this.platform;
@@ -382,9 +400,17 @@ interface IEProperties {
 type IEOptions = Partial<IEProperties>;
 
 class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
-	arch = process.arch;
-	baseUrl = 'https://selenium-release.storage.googleapis.com';
-	version = IEVersion;
+	arch: string;
+	baseUrl: string;
+	version: string;
+
+	constructor(options: IEOptions) {
+		super(mixin({
+			arch: process.arch,
+			baseUrl: 'https://selenium-release.storage.googleapis.com',
+			version: IEVersion
+		}, options));
+	}
 
 	get artifact() {
 		const architecture = this.arch === 'x64' ? 'x64' : 'Win32';

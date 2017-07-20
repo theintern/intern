@@ -2,6 +2,8 @@ import intern = require('intern');
 import assert = require('intern/chai!assert');
 import registerSuite = require('intern!object');
 import { readdirSync } from 'fs';
+import { join } from 'path';
+import { execSync } from 'child_process';
 import SeleniumTunnel, { DriverFile } from 'src/SeleniumTunnel';
 import { addStartStopTest } from '../support/integration';
 import { cleanup, deleteTunnelFiles } from '../support/util';
@@ -24,29 +26,19 @@ function createDownloadTest(config: any) {
 			return executable !== '.';
 		});
 
-		// TODO: uncomment when we figure out progress events
-		/*if (intern.args.verbose) {
-			tunnel.on('downloadprogress', function (info) {
-				process.stdout.write('.');
-				if (info.loaded >= info.total) {
-					process.stdout.write('\n');
-				}
-			});
-		}*/
-
 		// Check that the progress callback is called
-		// let progressed = false;
+		let progressed = false;
+
+		tunnel.on('downloadprogress', function (info) {
+			progressed = true;
+		});
 
 		return tunnel.download()
 			.then(function () {
 				const files = readdirSync(tunnel.directory);
 				assert.includeMembers(files, expected);
-				// assert.isTrue(progressed, 'expected to have seen progress');
-			})
-			/*.progress(function () {
-				progressed = true;
-			})*/
-		;
+				assert.isTrue(progressed, 'expected to have seen progress');
+			});
 	};
 }
 
@@ -109,6 +101,18 @@ const suite = {
 		deleteTunnelFiles(tunnel);
 
 		assert.isFalse(tunnel.isDownloaded);
+	},
+
+	'version check': function () {
+		const version = '2.25';
+		tunnel = new SeleniumTunnel({
+			drivers: [ { name: 'chrome', version } ]
+		});
+		return tunnel.download().then(() => {
+			const driver = join(tunnel.directory, 'chromedriver');
+			const result = execSync(`"${driver}" --version`).toString('utf-8');
+			assert.match(result, new RegExp(`ChromeDriver ${version}\.`), 'unexpected driver version');
+		});
 	}
 };
 
