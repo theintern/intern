@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "umd",
+    "noEmit": true,
+
+    "strict": true,
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "moduleResolution": "node",
+    "baseUrl": "../../",
+    "typeRoots": [
+        "./node_modules/@types",
+        "./typings"
+    ]
+  },
+  "include": [
+      "../../typings/leadfoot/leadfoot.d.ts",
+      "./*.ts"
+  ]
+}
