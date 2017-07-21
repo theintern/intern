@@ -436,7 +436,7 @@ registerSuite('lib/executors/Node', function () {
 					const dfd = this.async();
 					executor.configure({ basePath: 'bar' });
 					executor.on('beforeRun', dfd.callback(() => {
-						assert.isTrue(executor.shouldInstrumentFile('bar/foo.js'));
+						assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
 					}));
 					executor.run();
 				},
@@ -532,7 +532,7 @@ registerSuite('lib/executors/Node', function () {
 						environments: 'chrome',
 						tunnel: 'null',
 						suites: 'foo.js',
-						coverageSources: ['foo.js']
+						coverage: ['foo.js']
 					});
 					return executor.run().then(() => {
 						assert.lengthOf(coverageMaps, 1);

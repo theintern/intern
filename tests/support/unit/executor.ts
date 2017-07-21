@@ -13,7 +13,9 @@ export function testProperty<E extends Executor = Executor, C extends Config = C
 ) {
 	assert.throws(() => { executor.configure(<any>{ [name]: badValue }); }, error);
 	executor.configure(<any>{ [name]: goodValue });
-	assert.equal(mockConsole.warn.callCount, 0, 'no warning should have been emitted');
+	for (let call of mockConsole.warn.getCalls()) {
+		assert.include(call.args[0], 'deprecated', 'no warning should have been emitted');
+	}
 	name = <keyof Config>name.replace(/\+$/, '');
 	const config = <C>executor.config;
 	if (typeof expectedValue === 'object') {

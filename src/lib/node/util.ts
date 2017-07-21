@@ -22,9 +22,23 @@ export function expandFiles(patterns?: string[] | string) {
 		patterns = [patterns];
 	}
 
-	const excludes = patterns.filter(pattern => pattern[0] === '!');
-	const includes = patterns.filter(pattern => pattern[0] !== '!' && hasMagic(pattern));
-	const paths = patterns.filter(pattern => pattern[0] !== '!' && !hasMagic(pattern));
+	const excludes: string[] = [];
+	const includes: string[] = [];
+	const paths: string[] = [];
+
+	for (let pattern of patterns) {
+		if (pattern[0] === '!') {
+			excludes.push(pattern.slice(1));
+		}
+		else {
+			if (hasMagic(pattern)) {
+				includes.push(pattern);
+			}
+			else {
+				paths.push(pattern);
+			}
+		}
+	}
 
 	return includes
 		.map(pattern => glob(pattern, { ignore: excludes }))

@@ -96,8 +96,6 @@
 
 		"coverage": {
 			"description": "Generate full coverage",
-			// "benchmark": true,
-			// "extends": [ "allSuites" ]
 			"coverage": [
 				"_build/src/lib/**/*.js",
 				"_build/src/bin/**/*.js",

@@ -442,7 +442,6 @@ registerSuite('lib/executors/Executor', function () {
 						'    "coverageVariable": "__coverage__",\n' +
 						'    "debug": false,\n' +
 						'    "defaultTimeout": 30000,\n' +
-						'    "excludeInstrumentation": {},\n' +
 						'    "filterErrorStack": false,\n' +
 						'    "grep": {},\n' +
 						'    "internPath": "",\n' +
