@@ -5,12 +5,13 @@
 import Executor, { Events } from 'src/lib/executors/Executor';
 import Node from 'src/lib/executors/Node';
 import Server, { ServerListener } from 'src/lib/Server';
+import { Message } from 'src/lib/channels/Base';
 import { Handle } from '@dojo/interfaces/core';
 import { Remote } from 'src/lib/executors/Node';
 import Command from '@theintern/leadfoot/Command';
 import ProxiedSession from 'src/lib/ProxiedSession';
 
-import { duplicate, mixin } from '@dojo/core/lang';
+import { duplicate, mixin, assign } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 
 /**
@@ -84,6 +85,11 @@ export function mockNodeExecutor(properties?: { [P in keyof Node]?: Node[P] }) {
 	const executor = mockExecutor(
 		mixin(
 			{
+				config: <any>{
+					basePath: '/path/to/base/path/',
+					internPath: '/modules/intern/'
+				},
+
 				server: <Server>{},
 
 				instrumentCode(_code: string, _filename: string) {
@@ -92,10 +98,6 @@ export function mockNodeExecutor(properties?: { [P in keyof Node]?: Node[P] }) {
 
 				shouldInstrumentFile(_filename: string) {
 					return false;
-				},
-
-				readFile(_filename: string, _omitCode = false) {
-					return Task.reject<any>(new Error());
 				}
 			},
 			properties || {}
@@ -177,4 +179,120 @@ export function mockRemote(
  */
 export function mockRemoteAndSession(sessionId: string) {
 	return mockRemote({ session: mockSession({ sessionId }) });
+}
+
+export class EventHandler {
+	handlers: { [event: string]: Function[] };
+
+	constructor() {
+		this.handlers = {};
+	}
+
+	on(event: string, handler: Function) {
+		if (!this.handlers[event]) {
+			this.handlers[event] = [];
+		}
+		this.handlers[event].push(handler);
+	}
+
+	once() {}
+	emit() {}
+	prependListener() {}
+}
+
+export type MethodType = 'GET' | 'POST' | 'HEAD';
+
+export interface MockInternObject {
+	readonly stopped: boolean;
+	readonly basePath: string;
+	readonly executor: MockExecutor;
+	handleMessage(message: Message): Promise<any>;
+}
+
+export class MockRequest extends EventHandler {
+	method: MethodType;
+	url: string | undefined;
+	headers: { [key: string]: string } = Object.create(null);
+	body: string | string[];
+
+	intern: MockInternObject;
+
+	constructor(method: MethodType, url?: string) {
+		super();
+		this.method = method;
+		this.url = url;
+	}
+
+	setEncoding(_encoding: string) {}
+}
+
+export type MockResponseOptions = {
+	[P in keyof MockResponse]?: MockResponse[P]
+};
+
+export class MockResponse extends EventHandler {
+	data: string;
+	headers: { [key: string]: string } = Object.create(null);
+	statusCode: number;
+
+	intern: MockInternObject;
+
+	constructor(options?: MockResponseOptions) {
+		super();
+		this.data = '';
+		if (options) {
+			mixin(this, options);
+		}
+	}
+
+	end(data: string | undefined, callback?: (error?: Error) => {}) {
+		if (data) {
+			this.data += data;
+		}
+		if (callback) {
+			callback();
+		}
+	}
+
+	write(data?: string) {
+		this.data += data;
+		return true;
+	}
+
+	writeHead(status: number, head: { [key: string]: string }) {
+		this.statusCode = status;
+		assign(this.headers, head);
+	}
+
+	getHeader(name: string) {
+		return this.headers[name];
+	}
+
+	setHeader(name: string, value: string) {
+		this.headers[name] = String(value);
+	}
+}
+
+export function mockInternObject(
+	objects: MockRequest | MockResponse | (MockRequest | MockResponse)[],
+	server: any,
+	handleMessage?: any
+) {
+	if (!Array.isArray(objects)) {
+		objects = [objects];
+	}
+	objects.forEach(object => {
+		object.intern = {
+			get stopped() {
+				return server.stopped;
+			},
+			get basePath() {
+				return server.basePath;
+			},
+			get executor() {
+				return server.executor;
+			},
+			handleMessage
+		};
+	});
 }

@@ -289,7 +289,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				promises.push(
 					this.server
 						.stop()
-						.then(() => this.emit('serverEnd', this.server))
+						.then(() => this.emit('serverEnd', <any>this.server))
 				);
 			}
 			if (this.tunnel) {
@@ -342,7 +342,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 						.start()
 						.then(() => {
 							this.server = server;
-							return this.emit('serverStart', server);
+							return this.emit('serverStart', server as any);
 						})
 						.then(resolve, reject);
 				});

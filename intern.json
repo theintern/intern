@@ -34,6 +34,7 @@
 			"_tests/tests/unit/lib/Server.js",
 			"_tests/tests/unit/lib/resolveEnvironments.js",
 			"_tests/tests/unit/lib/executors/Node.js",
+			"_tests/tests/unit/lib/middleware/**/*.js",
 			"_tests/tests/unit/lib/node/ErrorFormatter.js",
 			"_tests/tests/unit/lib/node/util.js",
 			"_tests/tests/unit/lib/reporters/Cobertura.js",

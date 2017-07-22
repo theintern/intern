@@ -1,22 +1,47 @@
 import { pullFromArray } from './common/util';
-import { normalizePath } from './node/util';
 import { after } from '@dojo/core/aspect';
-import {
-	createServer,
-	IncomingMessage,
-	Server as HttpServer,
-	ServerResponse
-} from 'http';
-import { basename, join, resolve } from 'path';
-import { createReadStream, stat, readFile } from 'fs';
-import { Stream } from 'stream';
-import { lookup } from 'mime-types';
+import { Server as HttpServer } from 'http';
+import * as express from 'express';
 import { Socket } from 'net';
 import { mixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
 import Node from './executors/Node';
 import { Message } from './channels/Base';
 import * as WebSocket from 'ws';
+import * as bodyParser from 'body-parser';
+
+import instrument from './middleware/instrument';
+import unhandled from './middleware/unhandled';
+import finalError from './middleware/finalError';
+import post from './middleware/post';
+
+export interface InternObject {
+	readonly stopped: boolean;
+	readonly basePath: string;
+	readonly executor: Node;
+	handleMessage(message: Message): Promise<any>;
+}
+
+export interface InternRequest extends express.Request {
+	readonly intern: InternObject;
+}
+
+export interface InternResponse extends express.Response {
+	readonly intern: InternObject;
+}
+
+export interface InternRequestHandler {
+	(req: InternRequest, res: InternResponse, next: express.NextFunction): any;
+}
+
+export interface InternErrorRequestHandler {
+	(
+		err: any,
+		req: InternRequest,
+		res: InternResponse,
+		next: express.NextFunction
+	): any;
+}
 
 export default class Server implements ServerProperties {
 	/** Executor managing this Server */
@@ -37,9 +62,11 @@ export default class Server implements ServerProperties {
 	/** Port to use for WebSocket connections */
 	socketPort: number;
 
-	protected _codeCache: {
-		[filename: string]: { mtime: number; data: string; size: number };
-	} | null;
+	get stopped() {
+		return !this._httpServer;
+	}
+
+	protected _app: express.Express | null;
 	protected _httpServer: HttpServer | null;
 	protected _sessions: { [id: string]: { listeners: ServerListener[] } };
 	protected _wsServer: WebSocket.Server | null;
@@ -57,15 +84,8 @@ export default class Server implements ServerProperties {
 
 	start() {
 		return new Promise<void>(resolve => {
-			const server = (this._httpServer = createServer(
-				(request: IncomingMessage, response: ServerResponse) => {
-					return this._handleHttp(request, response);
-				}
-			));
+			const app = (this._app = express());
 			this._sessions = {};
-			this._codeCache = Object.create(null);
-
-			const sockets: Socket[] = [];
 
 			this._wsServer = new WebSocket.Server({ port: this.port + 1 });
 			this._wsServer.on('connection', client => {
@@ -75,6 +95,70 @@ export default class Server implements ServerProperties {
 			this._wsServer.on('error', error => {
 				this.executor.emit('error', error);
 			});
+
+			const intern = Object.create(null, {
+				stopped: {
+					enumerable: true,
+					get: () => this.stopped
+				},
+				basePath: {
+					enumerable: true,
+					get: () => this.basePath
+				},
+				executor: {
+					enumerable: true,
+					get: () => this.executor
+				},
+				handleMessage: {
+					enumerable: false,
+					writable: false,
+					configurable: false,
+					value: (message: Message) => this._handleMessage(message)
+				}
+			});
+
+			// Add "intern" object to both request and response objects
+			Object.defineProperty(app.request, 'intern', {
+				enumerable: true,
+				get: () => intern
+			});
+			Object.defineProperty(app.response, 'intern', {
+				enumerable: true,
+				get: () => intern
+			});
+
+			app.use(
+				bodyParser.json(),
+				bodyParser.urlencoded({ extended: true })
+			);
+
+			app.use((request, _response, next) => {
+				this.executor.log(`Request for ${request.url}`);
+				return next();
+			});
+
+			app.use(
+				'/__intern',
+				express.static(this.executor.config.internPath, {
+					fallthrough: false
+				})
+			);
+
+			// TODO: Allow user to add middleware here
+
+			app.use(
+				instrument(),
+				express.static(this.basePath, { fallthrough: false }),
+				post(),
+				unhandled(),
+				finalError()
+			);
+
+			const server = (this._httpServer = app.listen(this.port, () => {
+				resolve();
+			}));
+
+			const sockets: Socket[] = [];
 
 			// If sockets are not manually destroyed then Node.js will keep
 			// itself running until they all expire
@@ -103,10 +187,6 @@ export default class Server implements ServerProperties {
 					);
 				});
 			});
-
-			server.listen(this.port, () => {
-				resolve();
-			});
 		});
 	}
 
@@ -114,13 +194,13 @@ export default class Server implements ServerProperties {
 		this.executor.log('Stopping server...');
 		const promises: Promise<any>[] = [];
 
-		if (this._httpServer) {
+		if (this._app && this._httpServer) {
 			promises.push(
 				new Promise(resolve => {
 					this._httpServer!.close(resolve);
 				}).then(() => {
 					this.executor.log('Stopped http server');
-					this._httpServer = null;
+					this._app = this._httpServer = null;
 				})
 			);
 		}
@@ -136,9 +216,7 @@ export default class Server implements ServerProperties {
 			);
 		}
 
-		return Promise.all(promises).then(() => {
-			this._codeCache = null;
-		});
+		return Promise.all(promises);
 	}
 
 	/**
@@ -161,173 +239,6 @@ export default class Server implements ServerProperties {
 			session = this._sessions[sessionId] = { listeners: [] };
 		}
 		return session;
-	}
-
-	private _handleHttp(request: IncomingMessage, response: ServerResponse) {
-		if (request.method === 'GET' || request.method === 'HEAD') {
-			this._handleFile(request, response, request.method === 'HEAD');
-		} else if (request.method === 'POST') {
-			request.setEncoding('utf8');
-
-			let data = '';
-			request.on('data', function(chunk) {
-				data += chunk;
-			});
-
-			request.on('end', () => {
-				try {
-					let rawMessages: any = JSON.parse(data);
-
-					if (!Array.isArray(rawMessages)) {
-						rawMessages = [rawMessages];
-					}
-
-					const messages: Message[] = rawMessages.map(function(
-						messageString: string
-					) {
-						return JSON.parse(messageString);
-					});
-
-					this.executor.log('Received HTTP messages');
-
-					Promise.all(
-						messages.map(message => this._handleMessage(message))
-					).then(
-						() => {
-							response.statusCode = 204;
-							response.end();
-						},
-						() => {
-							response.statusCode = 500;
-							response.end();
-						}
-					);
-				} catch (error) {
-					response.statusCode = 500;
-					response.end();
-				}
-			});
-		} else {
-			response.statusCode = 501;
-			response.end();
-		}
-	}
-
-	private _handleFile(
-		request: IncomingMessage,
-		response: ServerResponse,
-		omitContent?: boolean
-	) {
-		const file = /^\/+([^?]*)/.exec(request.url!)![1];
-		let wholePath: string;
-
-		this.executor.log('Request for', file);
-
-		if (/^__intern\//.test(file)) {
-			wholePath = join(
-				this.executor.config.internPath,
-				file.replace(/^__intern\//, '')
-			);
-		} else {
-			wholePath = resolve(join(this.basePath, file));
-		}
-
-		wholePath = normalizePath(wholePath);
-
-		if (wholePath.charAt(wholePath.length - 1) === '/') {
-			wholePath += 'index.html';
-		}
-
-		stat(wholePath, (error, stats) => {
-			// The server was stopped before this file was served
-			if (!this._httpServer) {
-				return;
-			}
-
-			if (error || !stats.isFile()) {
-				this.executor.log(`Unable to serve ${wholePath} (unreadable)`);
-				this._send404(response);
-				return;
-			}
-
-			this.executor.log(`Serving ${wholePath}`);
-
-			const contentType =
-				lookup(basename(wholePath)) || 'application/octet-stream';
-
-			const onEnd = (error?: Error) => {
-				if (error) {
-					this.executor.emit(
-						'error',
-						new Error(
-							`Error serving ${wholePath}: ${error.message}`
-						)
-					);
-				} else {
-					this.executor.log(`Served ${wholePath}`);
-				}
-			};
-			const send = (size: number, data: string | Stream | null) => {
-				response.writeHead(200, {
-					'Content-Type': contentType,
-					'Content-Length': size
-				});
-
-				if (!data) {
-					response.end();
-					return;
-				}
-
-				if (typeof data === 'string') {
-					response.end(data, onEnd);
-				} else {
-					data.on('end', () => onEnd());
-					data.on('error', (error: Error) => {
-						onEnd(error);
-						// If the read stream errors, the write stream has to be
-						// manually closed
-						response.end();
-					});
-					data.pipe(response);
-				}
-			};
-
-			if (this.executor.shouldInstrumentFile(wholePath)) {
-				const mtime = stats.mtime.getTime();
-				const codeCache = this._codeCache!;
-				const entry = codeCache[wholePath];
-
-				if (entry && entry.mtime === mtime) {
-					send(entry.size, entry.data);
-				} else {
-					readFile(wholePath, 'utf8', (error, data) => {
-						// The server was stopped in the middle of the file read
-						if (!this._httpServer) {
-							return;
-						}
-
-						if (error) {
-							this._send404(response);
-							return;
-						}
-
-						// Providing `wholePath` to the instrumenter instead of
-						// a partial filename is necessary because lcov.info
-						// requires full path names as per the lcov spec
-						data = this.executor.instrumentCode(data, wholePath);
-						const size = Buffer.byteLength(data);
-						codeCache[wholePath] = { mtime, data, size };
-
-						send(size, data);
-					});
-				}
-			} else {
-				send(
-					stats.size,
-					omitContent ? null : createReadStream(wholePath)
-				);
-			}
-		});
 	}
 
 	private _handleMessage(message: Message): Promise<any> {
@@ -388,16 +299,6 @@ export default class Server implements ServerProperties {
 		const listeners = this._getSession(message.sessionId).listeners;
 		return Promise.all(
 			listeners.map(listener => listener(message.name, message.data))
-		);
-	}
-
-	private _send404(response: ServerResponse) {
-		response.writeHead(404, {
-			'Content-Type': 'text/html;charset=utf-8'
-		});
-		response.end(
-			'<!DOCTYPE html><title>404 Not Found</title><h1>404 Not Found</h1>' +
-				`<!-- ${new Array(512).join('.')} -->`
 		);
 	}
 }
