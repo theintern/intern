@@ -95,13 +95,15 @@
 		},
 
 		"coverage": {
+			"benchmark": true,
 			"description": "Generate full coverage",
 			"coverage": [
 				"_build/src/lib/**/*.js",
 				"_build/src/bin/**/*.js",
 				"_build/src/loaders/**/*.js",
 				"_build/src/tasks/**/*.js"
-			]
+			],
+			"extends": [ "allSuites" ]
 		},
 
 		"wd": {

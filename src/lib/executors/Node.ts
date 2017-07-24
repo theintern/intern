@@ -493,7 +493,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			case 'excludeInstrumentation':
 				this.emit('deprecated', {
 					original: 'excludeInstrumentation',
-					replacement: 'instrument'
+					replacement: 'coverage'
 				});
 				if (value === true) {
 					this._setOption(name, value);

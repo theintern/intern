@@ -321,8 +321,8 @@ registerSuite('lib/executors/Node', function () {
 			},
 
 			'#configure': (() => {
-				function test(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, message?: string) {
-					testProperty<_Node, Config>(executor, mockConsole, name, badValue, goodValue, expectedValue, error, message);
+				function test(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, allowDeprecated?: boolean | string, message?: string) {
+					testProperty<_Node, Config>(executor, mockConsole, name, badValue, goodValue, expectedValue, error, allowDeprecated, message);
 				}
 
 				const booleanTest = (name: keyof Config) => () => { test(name, 5, 'true', true, /Non-boolean/); };
@@ -350,9 +350,9 @@ registerSuite('lib/executors/Node', function () {
 					},
 
 					excludeInstrumentation() {
-						test('excludeInstrumentation', 5, true, true, /Invalid value/);
-						test('excludeInstrumentation', 5, /foo/, /foo/, /Invalid value/);
-						test('excludeInstrumentation', 5, 'foo', /foo/, /Invalid value/);
+						test('excludeInstrumentation', 5, true, true, /Invalid value/, true);
+						test('excludeInstrumentation', 5, /foo/, /foo/, /Invalid value/, true);
+						test('excludeInstrumentation', 5, 'foo', /foo/, /Invalid value/, true);
 					},
 
 					functionalCoverage: booleanTest('functionalCoverage'),
