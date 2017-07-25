@@ -1,5 +1,5 @@
 export default class MockStream {
-	data: string = '';
+	data = '';
 
 	private _mockAction(data: string, _encoding?: string, callback?: Function) {
 		this.data += data;

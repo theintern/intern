@@ -1,7 +1,9 @@
 import Task from '@dojo/core/async/Task';
 import { stub, SinonStub, spy, SinonSpy } from 'sinon';
+import global from '@dojo/shim/global';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
+const originalIntern = global.intern;
 
 registerSuite('bin/intern', function () {
 	const mockNodeUtil: { [name: string]: SinonSpy } = {
@@ -46,6 +48,7 @@ registerSuite('bin/intern', function () {
 			}
 
 			process.exitCode = originalExitCode;
+			global.intern = originalIntern;
 		},
 
 		tests: {

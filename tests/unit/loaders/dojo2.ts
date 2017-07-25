@@ -43,6 +43,7 @@ registerSuite('loaders/dojo2', function () {
 		},
 
 		after() {
+			global.intern = originalIntern;
 			removeMocks();
 		},
 

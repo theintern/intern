@@ -1,9 +1,7 @@
 import _gruntTask from 'src/tasks/intern';
 import { spy, stub } from 'sinon';
-import global from '@dojo/shim/global';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-const originalIntern = global.intern;
 
 registerSuite('tasks/intern', function () {
 	const mockDone = stub();
@@ -42,7 +40,6 @@ registerSuite('tasks/intern', function () {
 
 		after() {
 			removeMocks();
-			global.intern = originalIntern;
 		},
 
 		beforeEach() {

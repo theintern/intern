@@ -29,6 +29,7 @@ registerSuite('loaders/default', function () {
 		},
 
 		after() {
+			global.intern = originalIntern;
 			removeMocks();
 		},
 

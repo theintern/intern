@@ -41,6 +41,7 @@ registerSuite('loaders/systemjs', function () {
 		},
 
 		after() {
+			global.intern = originalIntern;
 			removeMocks();
 		},
 

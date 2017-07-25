@@ -34,6 +34,7 @@
 		"./unit/lib/reporters/Lcov.ts",
 		"./unit/lib/reporters/Reporter.ts",
 		"./unit/lib/reporters/Runner.ts",
+		"./unit/lib/reporters/TeamCity.ts",
 		"./unit/lib/*.ts",
 		"./unit/loaders/*.ts",
 		"./unit/tasks/*.ts",
