@@ -31,7 +31,8 @@ registerSuite('tasks/intern', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/tasks/intern', {
-				'src/lib/executors/Node': { default: MockNode }
+				'src/lib/executors/Node': { default: MockNode },
+				'@dojo/shim/global': { default: {} }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				gruntTask = handle.module;
