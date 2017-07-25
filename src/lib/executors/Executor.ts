@@ -194,6 +194,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		if (notifications.length === 0) {
 			// Report errors, warnings, deprecation messages when no listeners are registered
 			if (eventName === 'error') {
+				(<any>data).reported = true;
 				console.error(this.formatError(<any>data));
 			}
 			else if (eventName === 'warning') {
@@ -207,7 +208,12 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			return Task.resolve();
 		}
 
-		return Task.all<void>(notifications);
+		return Task.all<void>(notifications)
+			.then(() => {
+				if (eventName === 'error') {
+					(<any>data).reported = true;
+				}
+			});
 	}
 
 	/**

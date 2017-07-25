@@ -20,8 +20,13 @@ getConfig().then(config => {
 	}
 }).catch(error => {
 	// If intern wasn't initialized, then this error won't have been reported
-	if (intern == null) {
-		console.error(error);
+	if (!error.reported) {
+		try {
+			console.error(intern.formatError(error));
+		}
+		catch (e) {
+			console.error(error);
+		}
 	}
 	global.process.exitCode = 1;
 });
