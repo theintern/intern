@@ -168,6 +168,12 @@ registerSuite('lib/executors/Node', function () {
 		}
 	};
 
+	class MockRemoteSuite {
+		hasParent = true;
+		tests = [];
+		run() { return Task.resolve(); }
+	}
+
 	let executor: _Node;
 	let reporters: MockReporter[];
 	let tunnels: MockTunnel[];
@@ -238,6 +244,7 @@ registerSuite('lib/executors/Node', function () {
 				'@theintern/digdug/NullTunnel': { default: MockTunnel },
 				'@theintern/digdug/BrowserStackTunnel': { default: MockTunnel },
 				'src/lib/ProxiedSession': { default: MockSession },
+				'src/lib/RemoteSuite': { default: MockRemoteSuite },
 				'src/lib/executors/Executor': null
 			}).then(handle => {
 				removeMocks = handle.remove;
