@@ -10,7 +10,6 @@ import { mixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
 import Node from './executors/Node';
 import { Message } from './channels/Base';
-import Promise from '@dojo/shim/Promise';
 import * as WebSocket from 'ws';
 
 export default class Server implements ServerProperties {

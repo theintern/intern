@@ -11,7 +11,6 @@ import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
 import resolveEnvironments from '../resolveEnvironments';
 import Command from '@theintern/leadfoot/Command';
-import Promise from '@dojo/shim/Promise';
 import Tunnel, { TunnelOptions, DownloadProgressEvent } from '@theintern/digdug/Tunnel';
 import Server from '../Server';
 import Suite, { isSuite } from '../Suite';

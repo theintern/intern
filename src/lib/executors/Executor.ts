@@ -11,7 +11,6 @@ import { getInterface as getTddInterface, TddInterface } from '../interfaces/tdd
 import { getInterface as getBddInterface, BddInterface } from '../interfaces/bdd';
 import { getInterface as getBenchmarkInterface, BenchmarkInterface } from '../interfaces/benchmark';
 import { BenchmarkReporterOptions } from '../reporters/Benchmark';
-import Promise from '@dojo/shim/Promise';
 import * as chai from 'chai';
 import { RuntimeEnvironment } from '../types';
 import global from '@dojo/shim/global';

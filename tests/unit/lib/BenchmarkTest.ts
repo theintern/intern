@@ -5,7 +5,6 @@ import Test from 'src/lib/Test';
 import BenchmarkSuite, { BenchmarkSuiteOptions, BenchmarkSuiteProperties } from 'src/lib/BenchmarkSuite';
 import Deferred from 'src/lib/Deferred';
 import Task from '@dojo/core/async/Task';
-import Promise from '@dojo/shim/Promise';
 
 type FullBenchmarkTestFunction = BenchmarkTestFunction & { options: any };
 

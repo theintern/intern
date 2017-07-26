@@ -2,7 +2,6 @@ import Suite, { SuiteOptions, SuiteProperties } from 'src/lib/Suite';
 import Test from 'src/lib/Test';
 import { InternError } from 'src/lib/types';
 
-import Promise from '@dojo/shim/Promise';
 import Task, { State } from '@dojo/core/async/Task';
 
 import { mockExecutor, mockRemoteAndSession } from '../../support/unit/mocks';

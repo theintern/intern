@@ -2,7 +2,6 @@ import { RemoteEvents } from './RemoteSuite';
 import WebSocketChannel from './channels/WebSocket';
 import HttpChannel from './channels/Http';
 import BaseChannel, { ChannelOptions } from './channels/Base';
-import Promise from '@dojo/shim/Promise';
 
 export { ChannelOptions };
 

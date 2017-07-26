@@ -1,5 +1,4 @@
 import global from '@dojo/shim/global';
-import Promise from '@dojo/shim/Promise';
 import { spy, stub } from 'sinon';
 import { LoaderInit } from 'src/lib/executors/Executor';
 

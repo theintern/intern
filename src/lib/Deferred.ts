@@ -1,5 +1,3 @@
-import Promise from '@dojo/shim/Promise';
-
 export default class Deferred<T> {
 	private _resolver: (value?: T) => void;
 	private _rejector: (error?: Error) => void;

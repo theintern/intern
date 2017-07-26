@@ -5,7 +5,6 @@ import Suite from 'src/lib/Suite';
 import { mockRemote, mockExecutor, mockSession } from '../../support/unit/mocks';
 import { createSuite } from '../../support/unit/factories';
 
-import Promise from '@dojo/shim/Promise';
 import Task, { State } from '@dojo/core/async/Task';
 import { Thenable } from '@dojo/shim/interfaces';
 

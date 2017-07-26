@@ -3,7 +3,6 @@ import Node from '../src/lib/executors/Node';
 import Suite from '../src/lib/Suite';
 import Test from '../src/lib/Test';
 import { assert } from 'chai';
-import Promise from 'dojo-shim/Promise';
 
 Node.initialize({
 	name: 'Test config',
