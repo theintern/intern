@@ -1,4 +1,5 @@
 import _WebSocket from 'src/lib/channels/WebSocket';
+import { useFakeTimers, SinonFakeTimers } from 'sinon';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
@@ -21,6 +22,7 @@ registerSuite('lib/channels/WebSocket', function () {
 	let removeMocks: () => void;
 	let eventListeners: { [name: string]: ((event: any) => void)[] };
 	let sentData: string[];
+	let clock: SinonFakeTimers;
 
 	return {
 		before() {
@@ -39,6 +41,11 @@ registerSuite('lib/channels/WebSocket', function () {
 		beforeEach() {
 			eventListeners = {};
 			sentData = [];
+			clock = useFakeTimers();
+		},
+
+		afterEach() {
+			clock.restore();
 		},
 
 		tests: {
