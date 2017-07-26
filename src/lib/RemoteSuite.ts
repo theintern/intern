@@ -224,6 +224,12 @@ export default class RemoteSuite extends Suite {
 			// Canceller
 			() => remote.setHeartbeatInterval(0)
 		)
+		.catch(error => {
+			if (!this.error) {
+				this.error = error;
+			}
+			throw error;
+		})
 		.finally(() => {
 			if (connectTimer) {
 				clearTimeout(connectTimer);
