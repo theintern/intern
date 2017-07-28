@@ -1,6 +1,6 @@
 import Suite from '../Suite';
 import Test from '../Test';
-import { deepMixin } from '@dojo/core/lang';
+import { deepMixin, duplicate } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
 import Task, { isThenable, isTask, State } from '@dojo/core/async/Task';
 import ErrorFormatter, { ErrorFormatOptions } from '../common/ErrorFormatter';
@@ -29,7 +29,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	protected _hasTestErrors = false;
 	protected _interfaces: { [name: string]: any };
 	protected _loader: Loader;
-	protected _loaderConfig: any;
+	protected _loaderOptions: any;
 	protected _loaderInit: Promise<Loader>;
 	protected _autoLoadingPlugins: boolean;
 	protected _loadingPlugins: { name: string, init: Task<void> }[];
@@ -321,7 +321,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 	 * will handle the loading of test suites.
 	 */
 	registerLoader(init: LoaderInit) {
-		this._loaderInit = Promise.resolve(init(this._loaderConfig));
+		const options = this._loaderOptions ? duplicate(this._loaderOptions) : {};
+		this._loaderInit = Promise.resolve(init(options));
 	}
 
 	/**
@@ -334,7 +335,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		const pluginName = typeof init === 'undefined' ? type : `${type}.${name}`;
 		const pluginInit = typeof init === 'undefined' ? <PluginInitializer>name : init;
 		const options = this._loadingPluginOptions;
-		const result = options ? pluginInit(options) : pluginInit();
+		const result = options ? pluginInit(duplicate(options)) : pluginInit();
 		if (isThenable(result)) {
 			// If the result is thenable, push it on the loading queue
 			this._loadingPlugins.push({
@@ -563,7 +564,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		// No loader has been registered, so load the configured or default one
 		else {
 			const config = this.config;
-			const loader = config[this.environment].loader || config.loader;
+			const loader: { [key: string]: any } = config[this.environment].loader || config.loader;
 
 			let script = loader.script;
 			switch (script) {
@@ -574,7 +575,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 					script = `${config.internPath}loaders/${script}.js`;
 			}
 
-			this._loaderConfig = loader!.options || {};
+			this._loaderOptions = loader.options || {};
 			return this.loadScript(script).then(() => {
 				if (!this._loaderInit) {
 					throw new Error(`Loader script ${script} did not register a loader callback`);
