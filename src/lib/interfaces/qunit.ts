@@ -7,7 +7,63 @@ import Executor from '../../lib/executors/Executor';
 import { assert, AssertionError } from 'chai';
 import { Handle } from '@dojo/interfaces/core';
 
+export interface QUnitBeginData {
+	totalTests: number;
+}
+
+export interface QUnitDoneData {
+	failed: number;
+	passed: number;
+	runtime: number;
+	total: number;
+}
+
+export interface QUnitLogData {
+	result: boolean;
+	actual: any | undefined;
+	expected: any | undefined;
+	message: any | undefined;
+	source: any | undefined;
+	module: string;
+	name: string;
+}
+
+export interface QUnitModuleDoneData extends QUnitDoneData {
+	name: string;
+}
+
+export interface QUnitModuleStartData {
+	name: string;
+}
+
+export interface QUnitTestDoneData extends QUnitModuleDoneData {
+	module: string;
+}
+
+export interface QUnitTestStartData extends QUnitModuleStartData {
+	module: string;
+}
+
+export type QUnitCallback<T> = (data: T) => void;
+
 export interface QUnitInterface {
+	assert: QUnitBaseAssert;
+	config: QUnitConfig;
+	extend<T extends {}, U extends {}>(target: T, mixin: U, skipExistingTargetProperties: boolean): T & U;
+	start(): void;
+	stop(): void;
+
+	asyncTest(name: string, test: QUnitTestFunction): void;
+	module(name: string, lifecycle?: QUnitHooks): void;
+	test(name: string, test?: QUnitTestFunction): void;
+
+	begin(callback: QUnitCallback<QUnitBeginData>): void;
+	done(callback: QUnitCallback<QUnitDoneData>): void;
+	log(callback: QUnitCallback<QUnitLogData>): void;
+	moduleDone(callback: QUnitCallback<QUnitModuleDoneData>): void;
+	moduleStart(callback: QUnitCallback<QUnitModuleStartData>): void;
+	testDone(callback: QUnitCallback<QUnitTestDoneData>): void;
+	testStart(callback: QUnitCallback<QUnitTestStartData>): void;
 }
 
 export function getInterface(executor: Executor) {
@@ -94,7 +150,7 @@ export function getInterface(executor: Executor) {
 		}
 	};
 
-	const QUnit = {
+	const QUnit: QUnitInterface = {
 		assert: baseAssert,
 
 		config: <QUnitConfig>{
@@ -142,18 +198,19 @@ export function getInterface(executor: Executor) {
 			testTimeout: Infinity
 		},
 
-		extend(target: { [key: string]: any }, mixin: { [key: string]: any }, skipExistingTargetProperties: boolean = false): { [key: string]: any } {
+		extend<T extends {}, U extends {}>(target: T, mixin: U, skipExistingTargetProperties: boolean = false): T & U {
+			const result: T & U = target as any;
 			for (let key in mixin) {
 				if (mixin.hasOwnProperty(key)) {
 					if (mixin[key] === undefined) {
-						delete target[key];
+						delete result[key];
 					}
-					else if (!skipExistingTargetProperties || target[key] === undefined) {
-						target[key] = mixin[key];
+					else if (!skipExistingTargetProperties || result[key] === undefined) {
+						result[key] = mixin[key];
 					}
 				}
 			}
-			return target;
+			return result;
 		},
 
 		start() {},
@@ -162,7 +219,7 @@ export function getInterface(executor: Executor) {
 
 		// test registration
 		asyncTest(name: string, test: QUnitTestFunction) {
-			registerTest(name, function (this: Test) {
+			registerTest(name, function (this: QUnitTest) {
 				this.timeout = QUnit.config.testTimeout;
 
 				let numCallsUntilResolution = 1;
@@ -185,7 +242,7 @@ export function getInterface(executor: Executor) {
 				});
 
 				try {
-					test.call((<QUnitSuite>this.parent)._qunitContext, testAssert);
+					test.call(this.parent._qunitContext, testAssert);
 				}
 				catch (error) {
 					dfd.reject(error);
@@ -202,13 +259,13 @@ export function getInterface(executor: Executor) {
 
 				if (lifecycle) {
 					if (lifecycle.before) {
-						after(suite, 'beforeEach', function (this: any) {
+						after(suite, 'beforeEach', function (this: QUnitSuite) {
 							lifecycle.before!.call(this._qunitContext);
 						});
 					}
 
 					if (lifecycle.after) {
-						after(suite, 'afterEach', function (this: any) {
+						after(suite, 'afterEach', function (this: QUnitSuite) {
 							lifecycle.after!.call(this._qunitContext);
 						});
 					}
@@ -217,7 +274,7 @@ export function getInterface(executor: Executor) {
 		},
 
 		test(name: string, test?: QUnitTestFunction) {
-			registerTest(name, function (this: any) {
+			registerTest(name, function (this: QUnitTest) {
 				const testAssert = create(baseAssert, { _expectedAssertions: NaN, _numAssertions: 0 });
 				test!.call(this.parent._qunitContext, testAssert);
 				testAssert.verifyAssertions();
@@ -225,7 +282,7 @@ export function getInterface(executor: Executor) {
 		},
 
 		// callbacks
-		begin(callback: Function) {
+		begin(callback) {
 			executor.on('runStart', function (executor: Executor) {
 				const numTests = executor.suites.reduce((numTests, suite) => {
 					return numTests + suite.numTests;
@@ -235,7 +292,7 @@ export function getInterface(executor: Executor) {
 			});
 		},
 
-		done(callback: Function) {
+		done(callback) {
 			executor.on('runEnd', function (executor: Executor) {
 				const numFailedTests = executor.suites.reduce((numTests: number, suite: Suite) => {
 					return numTests + suite.numFailedTests;
@@ -259,8 +316,8 @@ export function getInterface(executor: Executor) {
 			});
 		},
 
-		log(callback: Function) {
-			executor.on('testEnd', function (test: Test) {
+		log(callback) {
+			executor.on('testEnd', function (test: QUnitTest) {
 				callback({
 					result: test.hasPassed,
 					actual: test.error && test.error.actual,
@@ -273,8 +330,8 @@ export function getInterface(executor: Executor) {
 			});
 		},
 
-		moduleDone(callback: Function) {
-			executor.on('suiteEnd', function (suite: any) {
+		moduleDone(callback) {
+			executor.on('suiteEnd', function (suite: QUnitSuite) {
 				if (suite._qunitContext) {
 					callback({
 						name: suite.name,
@@ -287,8 +344,8 @@ export function getInterface(executor: Executor) {
 			});
 		},
 
-		moduleStart(callback: Function) {
-			executor.on('suiteStart', function (suite: any) {
+		moduleStart(callback) {
+			executor.on('suiteStart', function (suite: QUnitSuite) {
 				if (suite._qunitContext) {
 					callback({
 						name: suite.name
@@ -297,8 +354,8 @@ export function getInterface(executor: Executor) {
 			});
 		},
 
-		testDone(callback: Function) {
-			executor.on('testEnd', function (test: Test) {
+		testDone(callback) {
+			executor.on('testEnd', function (test: QUnitTest) {
 				callback({
 					name: test.name,
 					module: test.parent.name,
@@ -310,7 +367,7 @@ export function getInterface(executor: Executor) {
 			});
 		},
 
-		testStart(callback: Function) {
+		testStart(callback) {
 			executor.on('testStart', function (test) {
 				callback({
 					name: test.name,
@@ -327,6 +384,10 @@ export interface QUnitTestFunction {
 
 interface QUnitSuite extends Suite {
 	_qunitContext: any;
+}
+
+interface QUnitTest extends Test {
+	parent: QUnitSuite;
 }
 
 export interface QUnitAssertions {
