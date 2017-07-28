@@ -12,7 +12,7 @@ import { getInterface as getBddInterface, BddInterface } from '../interfaces/bdd
 import { getInterface as getBenchmarkInterface, BenchmarkInterface } from '../interfaces/benchmark';
 import { BenchmarkReporterOptions } from '../reporters/Benchmark';
 import * as chai from 'chai';
-import { RuntimeEnvironment } from '../types';
+import { InternError, RuntimeEnvironment } from '../types';
 import global from '@dojo/shim/global';
 
 const console: Console = global.console;
@@ -190,11 +190,16 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 			});
 		}
 
+		let error: InternError | undefined;
+		if (eventName === 'error') {
+			error = <InternError>data;
+		}
+
 		if (notifications.length === 0) {
 			// Report errors, warnings, deprecation messages when no listeners are registered
-			if (eventName === 'error') {
-				(<any>data).reported = true;
-				console.error(this.formatError(<any>data));
+			if (error) {
+				error.reported = true;
+				console.error(this.formatError(error));
 			}
 			else if (eventName === 'warning') {
 				console.warn(`WARNING: ${data}`);
@@ -209,8 +214,8 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 
 		return Task.all<void>(notifications)
 			.then(() => {
-				if (eventName === 'error') {
-					(<any>data).reported = true;
+				if (error) {
+					error.reported = true;
 				}
 			});
 	}
@@ -459,14 +464,24 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 							if (runError) {
 								throw runError;
 							}
+
+							let message = '';
+
 							// If there were no run errors but any suites had errors, throw an error to reject the run
 							// task.
 							if (this._hasSuiteErrors) {
-								throw new Error('One or more suite errors occurred during testing');
+								message = 'One or more suite errors occurred during testing';
 							}
 							// If there were no run errors but any tests failed, throw an error to reject the run task.
-							if (this._hasTestErrors) {
-								throw new Error('One or more tests failed');
+							else if (this._hasTestErrors) {
+								message = 'One or more tests failed';
+							}
+
+							if (message) {
+								const error: InternError = new Error(message);
+								// Mark this error as reported so that the runner script won't report it again.
+								error.reported = true;
+								throw error;
 							}
 						});
 				}

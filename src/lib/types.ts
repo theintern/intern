@@ -8,6 +8,7 @@ export interface InternError {
 	actual?: any;
 	expected?: any;
 	relatedTest?: Test;
+	reported?: boolean;
 }
 
 export type RuntimeEnvironment = 'node' | 'browser';
