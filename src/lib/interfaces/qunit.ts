@@ -1,9 +1,10 @@
-import { after } from '@dojo/core/aspect';
+import { after, on } from '@dojo/core/aspect';
 import { create } from '@dojo/core/lang';
 import Promise from '@dojo/shim/Promise';
 import Suite from '../Suite';
 import Test from '../Test';
 import Executor from '../../lib/executors/Executor';
+import intern from '../../intern';
 import { assert, AssertionError } from 'chai';
 import { Handle } from '@dojo/interfaces/core';
 
@@ -54,7 +55,10 @@ export interface QUnitInterface {
 	stop(): void;
 
 	asyncTest(name: string, test: QUnitTestFunction): void;
-	module(name: string, lifecycle?: QUnitHooks): void;
+	module(name: string): void;
+	module(name: string, hooks: QUnitHooks): void;
+	module(name: string, nested: QUnitModuleCallback): void;
+	module(name: string, hooks: QUnitHooks, nested: QUnitModuleCallback): void;
 	test(name: string, test?: QUnitTestFunction): void;
 
 	begin(callback: QUnitCallback<QUnitBeginData>): void;
@@ -64,6 +68,76 @@ export interface QUnitInterface {
 	moduleStart(callback: QUnitCallback<QUnitModuleStartData>): void;
 	testDone(callback: QUnitCallback<QUnitTestDoneData>): void;
 	testStart(callback: QUnitCallback<QUnitTestStartData>): void;
+}
+
+export type QUnitModuleCallback = (hooks: QUnitHooks) => void;
+
+export function module(name: string): void;
+export function module(name: string, hooks: QUnitHooks): void;
+export function module(name: string, nested: QUnitModuleCallback): void;
+export function module(name: string, hooks: QUnitHooks, nested: QUnitModuleCallback): void;
+export function module(name: string, hooks?: QUnitHooks | QUnitModuleCallback, nested?: QUnitModuleCallback) {
+	_module(intern(), name, hooks, nested);
+}
+
+let currentSuite: Suite | null;
+
+function registerModule(name: string, hooks: QUnitHooks | undefined, nested: QUnitModuleCallback | undefined) {
+	const parent = currentSuite!;
+
+	currentSuite = new Suite({ name, parent });
+	parent.add(currentSuite);
+
+	if (hooks) {
+		if (hooks.before) {
+			on(currentSuite, 'before', hooks.before);
+		}
+		if (hooks.beforeEach) {
+			on(currentSuite, 'beforeEach', hooks.beforeEach);
+		}
+	}
+
+	if (nested) {
+		nested({
+		});
+	}
+}
+
+function _module(executor: Executor, name: string, hooks?: QUnitHooks | QUnitModuleCallback, nested?: QUnitModuleCallback) {
+	if (typeof hooks === 'function') {
+		nested = hooks;
+		hooks = undefined;
+	}
+
+	if (!currentSuite) {
+		executor.addSuite(parent => {
+			currentSuite = parent;
+			registerModule(name, hooks, nested);
+		});
+	}
+	else {
+		registerModule(name, hooks, nested);
+	}
+
+	executor.addSuite(parent => {
+		const suite = new Suite(<any>{ name: name, parent, _qunitContext: {} });
+		parent.tests.push(suite);
+		currentSuites.push(suite);
+
+		if (lifecycle) {
+			if (lifecycle.before) {
+				after(suite, 'beforeEach', function (this: QUnitSuite) {
+					lifecycle.before!.call(this._qunitContext);
+				});
+			}
+
+			if (lifecycle.after) {
+				after(suite, 'afterEach', function (this: QUnitSuite) {
+					lifecycle.after!.call(this._qunitContext);
+				});
+			}
+		}
+	});
 }
 
 export function getInterface(executor: Executor) {
@@ -250,11 +324,15 @@ export function getInterface(executor: Executor) {
 			});
 		},
 
+		module(name: string, hooks?: QUnitHooks | QUnitModuleCallback, nested?: QUnitModuleCallback) {
+			_module(executor, name, hooks, nested);
+		}/*,
+
 		module: function (name: string, lifecycle?: QUnitHooks) {
 			currentSuites = [];
-			executor.addSuite(function (parentSuite: Suite) {
-				const suite = new Suite(<any>{ name: name, parent: parentSuite, _qunitContext: {} });
-				parentSuite.tests.push(suite);
+			executor.addSuite(parent => {
+				const suite = new Suite(<any>{ name: name, parent, _qunitContext: {} });
+				parent.tests.push(suite);
 				currentSuites.push(suite);
 
 				if (lifecycle) {
@@ -271,7 +349,7 @@ export function getInterface(executor: Executor) {
 					}
 				}
 			});
-		},
+		}*/,
 
 		test(name: string, test?: QUnitTestFunction) {
 			registerTest(name, function (this: QUnitTest) {
@@ -427,6 +505,13 @@ export interface QUnitHooks {
 	beforeEach?: () => void;
 	afterEach?: () => void;
 	after?: () => void;
+}
+
+export interface QUnitModuleHooks {
+	before(callback: QUnitTestFunction): void;
+	beforeEach(callback: QUnitTestFunction): void;
+	afterEach(callback: QUnitTestFunction): void;
+	after(callback: QUnitTestFunction): void;
 }
 
 let currentSuites: Suite[];
