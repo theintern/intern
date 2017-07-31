@@ -1,477 +1,23 @@
-import { after, on } from '@dojo/core/aspect';
+import { on } from '@dojo/core/aspect';
 import { create } from '@dojo/core/lang';
-import Promise from '@dojo/shim/Promise';
 import Suite from '../Suite';
 import Test from '../Test';
-import Executor from '../../lib/executors/Executor';
-import intern from '../../intern';
-import { assert, AssertionError } from 'chai';
 import { Handle } from '@dojo/interfaces/core';
+import intern from '../../intern';
+import Executor from '../executors/Executor';
+import WeakMap from '@dojo/shim/WeakMap';
 
-export interface QUnitBeginData {
-	totalTests: number;
-}
+let interfaces = new WeakMap<Executor, QUnitInterface>();
 
-export interface QUnitDoneData {
-	failed: number;
-	passed: number;
-	runtime: number;
-	total: number;
-}
-
-export interface QUnitLogData {
-	result: boolean;
-	actual: any | undefined;
-	expected: any | undefined;
-	message: any | undefined;
-	source: any | undefined;
-	module: string;
-	name: string;
-}
-
-export interface QUnitModuleDoneData extends QUnitDoneData {
-	name: string;
-}
-
-export interface QUnitModuleStartData {
-	name: string;
-}
-
-export interface QUnitTestDoneData extends QUnitModuleDoneData {
-	module: string;
-}
-
-export interface QUnitTestStartData extends QUnitModuleStartData {
-	module: string;
-}
-
-export type QUnitCallback<T> = (data: T) => void;
-
-export interface QUnitInterface {
-	assert: QUnitBaseAssert;
-	config: QUnitConfig;
-	extend<T extends {}, U extends {}>(target: T, mixin: U, skipExistingTargetProperties: boolean): T & U;
-	start(): void;
-	stop(): void;
-
-	asyncTest(name: string, test: QUnitTestFunction): void;
-	module(name: string): void;
-	module(name: string, hooks: QUnitHooks): void;
-	module(name: string, nested: QUnitModuleCallback): void;
-	module(name: string, hooks: QUnitHooks, nested: QUnitModuleCallback): void;
-	test(name: string, test?: QUnitTestFunction): void;
-
-	begin(callback: QUnitCallback<QUnitBeginData>): void;
-	done(callback: QUnitCallback<QUnitDoneData>): void;
-	log(callback: QUnitCallback<QUnitLogData>): void;
-	moduleDone(callback: QUnitCallback<QUnitModuleDoneData>): void;
-	moduleStart(callback: QUnitCallback<QUnitModuleStartData>): void;
-	testDone(callback: QUnitCallback<QUnitTestDoneData>): void;
-	testStart(callback: QUnitCallback<QUnitTestStartData>): void;
-}
-
-export type QUnitModuleCallback = (hooks: QUnitHooks) => void;
-
-export function module(name: string): void;
-export function module(name: string, hooks: QUnitHooks): void;
-export function module(name: string, nested: QUnitModuleCallback): void;
-export function module(name: string, hooks: QUnitHooks, nested: QUnitModuleCallback): void;
-export function module(name: string, hooks?: QUnitHooks | QUnitModuleCallback, nested?: QUnitModuleCallback) {
-	_module(intern(), name, hooks, nested);
-}
-
-let currentSuite: Suite | null;
-
-function registerModule(name: string, hooks: QUnitHooks | undefined, nested: QUnitModuleCallback | undefined) {
-	const parent = currentSuite!;
-
-	currentSuite = new Suite({ name, parent });
-	parent.add(currentSuite);
-
-	if (hooks) {
-		if (hooks.before) {
-			on(currentSuite, 'before', hooks.before);
-		}
-		if (hooks.beforeEach) {
-			on(currentSuite, 'beforeEach', hooks.beforeEach);
-		}
-	}
-
-	if (nested) {
-		nested({
-		});
-	}
-}
-
-function _module(executor: Executor, name: string, hooks?: QUnitHooks | QUnitModuleCallback, nested?: QUnitModuleCallback) {
-	if (typeof hooks === 'function') {
-		nested = hooks;
-		hooks = undefined;
-	}
-
-	if (!currentSuite) {
-		executor.addSuite(parent => {
-			currentSuite = parent;
-			registerModule(name, hooks, nested);
-		});
-	}
-	else {
-		registerModule(name, hooks, nested);
-	}
-
-	executor.addSuite(parent => {
-		const suite = new Suite(<any>{ name: name, parent, _qunitContext: {} });
-		parent.tests.push(suite);
-		currentSuites.push(suite);
-
-		if (lifecycle) {
-			if (lifecycle.before) {
-				after(suite, 'beforeEach', function (this: QUnitSuite) {
-					lifecycle.before!.call(this._qunitContext);
-				});
-			}
-
-			if (lifecycle.after) {
-				after(suite, 'afterEach', function (this: QUnitSuite) {
-					lifecycle.after!.call(this._qunitContext);
-				});
-			}
-		}
-	});
-}
-
-export function getInterface(executor: Executor) {
-	let autostartHandle: Handle | undefined;
-
-	const baseAssert: QUnitBaseAssert = {
-		_expectedAssertions: NaN,
-
-		_numAssertions: 0,
-
-		deepEqual: wrapChai('deepEqual'),
-
-		equal: wrapChai('equal'),
-
-		expect: function (numTotal?: number) {
-			if (arguments.length === 1) {
-				this._expectedAssertions = numTotal!;
-			}
-			else {
-				return this._expectedAssertions;
-			}
-		},
-
-		notDeepEqual: wrapChai('notDeepEqual'),
-
-		notEqual: wrapChai('notEqual'),
-
-		notPropEqual: wrapChai('notDeepEqual'),
-
-		notStrictEqual: wrapChai('notStrictEqual'),
-
-		ok: wrapChai('ok'),
-
-		push: function (this: QUnitBaseAssert, ok: any, actual: any, expected: any, message?: string): void {
-			++this._numAssertions;
-			if (!ok) {
-				assert.fail(actual, expected, message);
-			}
-		},
-
-		propEqual: wrapChai('propEqual'),
-
-		strictEqual: wrapChai('strictEqual'),
-
-		throws: (function () {
-			const throws = wrapChai('throws');
-			return function (this: QUnitBaseAssert, fn: Function, expected: Object | RegExp | Error, message?: string) {
-				if (typeof expected === 'function') {
-					++this._numAssertions;
-					try {
-						fn();
-						throw new AssertionError(`${message ? message + ': ' : ''}expected [Function] to throw`);
-					}
-					catch (error) {
-						if (!expected(error)) {
-							throw new AssertionError(
-								(message ? message + ': ' : '') +
-								'expected [Function] to throw error matching [Function] but got ' +
-								(error instanceof Error ? error.toString() : error)
-							);
-						}
-					}
-				}
-				else {
-					throws.apply(this, arguments);
-				}
-			};
-		})(),
-
-		raises: function (this: QUnitBaseAssert) {
-			return this.throws.apply(this, arguments);
-		},
-
-		verifyAssertions: function (this: QUnitBaseAssert) {
-			if (isNaN(this._expectedAssertions) && QUnit.config.requireExpects) {
-				throw new AssertionError('Expected number of assertions to be defined, but expect() was ' +
-					'not called.');
-			}
-
-			if (!isNaN(this._expectedAssertions) && this._numAssertions !== this._expectedAssertions) {
-				throw new AssertionError('Expected ' + this._expectedAssertions + ' assertions, but ' +
-					this._numAssertions + ' were run');
-			}
-		}
-	};
-
-	const QUnit: QUnitInterface = {
-		assert: baseAssert,
-
-		config: <QUnitConfig>{
-			get autostart() {
-				return !autostartHandle;
-			},
-
-			set autostart(value) {
-				if (autostartHandle) {
-					autostartHandle.destroy();
-					autostartHandle = undefined;
-				}
-
-				if (!value) {
-					autostartHandle = executor.on('beforeRun', () => {
-						return new Promise<void>(resolve => {
-							QUnit.start = resolve;
-						});
-					});
-
-					QUnit.start = () => {
-						autostartHandle!.destroy();
-						autostartHandle = undefined;
-						QUnit.start = () => {};
-					};
-				}
-			},
-
-			_module: <string><any>undefined,
-
-			get module(this: QUnitConfig) {
-				return this._module;
-			},
-
-			set module(this: QUnitConfig, value: string) {
-
-				this._module = value;
-				executor.addSuite(suite => {
-					suite.grep = new RegExp('(?:^|[^-]* - )' + escapeRegExp(value) + ' - ', 'i');
-				});
-			},
-
-			requireExpects: false,
-
-			testTimeout: Infinity
-		},
-
-		extend<T extends {}, U extends {}>(target: T, mixin: U, skipExistingTargetProperties: boolean = false): T & U {
-			const result: T & U = target as any;
-			for (let key in mixin) {
-				if (mixin.hasOwnProperty(key)) {
-					if (mixin[key] === undefined) {
-						delete result[key];
-					}
-					else if (!skipExistingTargetProperties || result[key] === undefined) {
-						result[key] = mixin[key];
-					}
-				}
-			}
-			return result;
-		},
-
-		start() {},
-
-		stop() {},
-
-		// test registration
-		asyncTest(name: string, test: QUnitTestFunction) {
-			registerTest(name, function (this: QUnitTest) {
-				this.timeout = QUnit.config.testTimeout;
-
-				let numCallsUntilResolution = 1;
-				const dfd = this.async();
-				const testAssert = create(baseAssert, { _expectedAssertions: NaN, _numAssertions: 0 });
-
-				QUnit.stop = function () {
-					++numCallsUntilResolution;
-				};
-				QUnit.start = <() => void> dfd.rejectOnError(function () {
-					if (--numCallsUntilResolution === 0) {
-						try {
-							testAssert.verifyAssertions();
-							dfd.resolve();
-						}
-						finally {
-							QUnit.stop = QUnit.start = function () {};
-						}
-					}
-				});
-
-				try {
-					test.call(this.parent._qunitContext, testAssert);
-				}
-				catch (error) {
-					dfd.reject(error);
-				}
-			});
-		},
-
-		module(name: string, hooks?: QUnitHooks | QUnitModuleCallback, nested?: QUnitModuleCallback) {
-			_module(executor, name, hooks, nested);
-		}/*,
-
-		module: function (name: string, lifecycle?: QUnitHooks) {
-			currentSuites = [];
-			executor.addSuite(parent => {
-				const suite = new Suite(<any>{ name: name, parent, _qunitContext: {} });
-				parent.tests.push(suite);
-				currentSuites.push(suite);
-
-				if (lifecycle) {
-					if (lifecycle.before) {
-						after(suite, 'beforeEach', function (this: QUnitSuite) {
-							lifecycle.before!.call(this._qunitContext);
-						});
-					}
-
-					if (lifecycle.after) {
-						after(suite, 'afterEach', function (this: QUnitSuite) {
-							lifecycle.after!.call(this._qunitContext);
-						});
-					}
-				}
-			});
-		}*/,
-
-		test(name: string, test?: QUnitTestFunction) {
-			registerTest(name, function (this: QUnitTest) {
-				const testAssert = create(baseAssert, { _expectedAssertions: NaN, _numAssertions: 0 });
-				test!.call(this.parent._qunitContext, testAssert);
-				testAssert.verifyAssertions();
-			});
-		},
-
-		// callbacks
-		begin(callback) {
-			executor.on('runStart', function (executor: Executor) {
-				const numTests = executor.suites.reduce((numTests, suite) => {
-					return numTests + suite.numTests;
-				}, 0);
-
-				callback({ totalTests: numTests });
-			});
-		},
-
-		done(callback) {
-			executor.on('runEnd', function (executor: Executor) {
-				const numFailedTests = executor.suites.reduce((numTests: number, suite: Suite) => {
-					return numTests + suite.numFailedTests;
-				}, 0);
-				const numTests = executor.suites.reduce((numTests: number, suite: Suite) => {
-					return numTests + suite.numTests;
-				}, 0);
-				const numSkippedTests = executor.suites.reduce((numTests: number, suite: Suite) => {
-					return numTests + suite.numSkippedTests;
-				}, 0);
-				const timeElapsed = Math.max.apply(null, executor.suites.map((suite: Suite) => {
-					return suite.timeElapsed;
-				}));
-
-				callback({
-					failed: numFailedTests,
-					passed: numTests - numFailedTests - numSkippedTests,
-					total: numTests,
-					runtime: timeElapsed
-				});
-			});
-		},
-
-		log(callback) {
-			executor.on('testEnd', function (test: QUnitTest) {
-				callback({
-					result: test.hasPassed,
-					actual: test.error && test.error.actual,
-					expected: test.error && test.error.expected,
-					message: test.error && test.error.message,
-					source: test.error && test.error.stack,
-					module: test.parent.name,
-					name: test.name
-				});
-			});
-		},
-
-		moduleDone(callback) {
-			executor.on('suiteEnd', function (suite: QUnitSuite) {
-				if (suite._qunitContext) {
-					callback({
-						name: suite.name,
-						failed: suite.numFailedTests,
-						passed: suite.numTests - suite.numFailedTests - suite.numSkippedTests,
-						total: suite.numTests,
-						runtime: suite.timeElapsed
-					});
-				}
-			});
-		},
-
-		moduleStart(callback) {
-			executor.on('suiteStart', function (suite: QUnitSuite) {
-				if (suite._qunitContext) {
-					callback({
-						name: suite.name
-					});
-				}
-			});
-		},
-
-		testDone(callback) {
-			executor.on('testEnd', function (test: QUnitTest) {
-				callback({
-					name: test.name,
-					module: test.parent.name,
-					failed: test.hasPassed ? 0 : 1,
-					passed: test.hasPassed ? 1 : 0,
-					total: 1,
-					runtime: test.timeElapsed
-				});
-			});
-		},
-
-		testStart(callback) {
-			executor.on('testStart', function (test) {
-				callback({
-					name: test.name,
-					module: test.parent.name
-				});
-			});
-		}
-	};
-}
-
-export interface QUnitTestFunction {
-	(assert: QUnitBaseAssert): void;
-}
-
-interface QUnitSuite extends Suite {
-	_qunitContext: any;
-}
-
-interface QUnitTest extends Test {
-	parent: QUnitSuite;
+function getExecutor(executor?: Executor) {
+	return executor || intern();
 }
 
 export interface QUnitAssertions {
 	deepEqual(actual: any, expected: any, message?: string): void;
 	equal(actual: any, expected: any, message?: string): void;
-	expect(numTotal?: number): void | number;
+	expect(numTotal: number): void;
+	expect(): number;
 	notDeepEqual(actual: any, expected: any, message?: string): void;
 	notEqual(actual: any, expected: any, message?: string): void;
 	// notOk(state: any, message?: string): void;
@@ -492,48 +38,490 @@ export interface QUnitBaseAssert extends QUnitAssertions {
 	_numAssertions: number;
 }
 
+export type QUnitCallback<T> = (data: T) => void;
+
 export interface QUnitConfig {
 	autostart: boolean;
-	_module: string;
-	module: string;
+	module: string | undefined;
 	requireExpects: boolean;
 	testTimeout: number;
 }
 
+export interface QUnitBeginData {
+	totalTests: number;
+}
+
+export interface QUnitDoneData {
+	failed: number;
+	passed: number;
+	runtime: number;
+	total: number;
+}
+
 export interface QUnitHooks {
-	before?: () => void;
-	beforeEach?: () => void;
-	afterEach?: () => void;
-	after?: () => void;
+	setup?(): void;
+	teardown?(): void;
 }
 
-export interface QUnitModuleHooks {
-	before(callback: QUnitTestFunction): void;
-	beforeEach(callback: QUnitTestFunction): void;
-	afterEach(callback: QUnitTestFunction): void;
-	after(callback: QUnitTestFunction): void;
+export interface QUnitInterface {
+	assert: QUnitAssertions;
+	config: QUnitConfig;
+	extend<T extends {}, U extends {}>(target: T, mixin: U, skipExistingTargetProperties?: boolean): T & U;
+	start(): void;
+	stop(): void;
+	asyncTest(name: string, test: QUnitTestFunction): void;
+	module(name: string, hooks?: QUnitHooks): void;
+	test(name: string, test: QUnitTestFunction): void;
+	begin(callback: QUnitCallback<QUnitBeginData>): void;
+	done(callback: QUnitCallback<QUnitDoneData>): void;
+	log(callback: QUnitCallback<QUnitLogData>): void;
+	moduleDone(callback: QUnitCallback<QUnitModuleDoneData>): void;
+	moduleStart(callback: QUnitCallback<QUnitModuleStartData>): void;
+	testDone(callback: QUnitCallback<QUnitTestDoneData>): void;
+	testStart(callback: QUnitCallback<QUnitTestStartData>): void;
 }
 
-let currentSuites: Suite[];
-
-function registerTest(name: string, test: QUnitTestFunction) {
-	currentSuites.forEach(suite => {
-		suite.tests.push(new Test({
-			name: name,
-			parent: suite,
-			test: <any> test
-		}));
-	});
+export interface QUnitLogData {
+	actual: any;
+	expected: any;
+	message?: string;
+	module: string;
+	name: string;
+	result: boolean;
+	source?: string;
 }
 
-function wrapChai(name: string) {
-	return function (this: QUnitBaseAssert) {
-		// TODO: Could try/catch errors to make them act more like the way QUnit acts, where an assertion failure
-		// does not fail the test, but not sure of the best way to get multiple assertion failures out of a test
-		// like that
-		++this._numAssertions;
-		(<{ [key: string]: any }> assert)[name].apply(assert, arguments);
+export interface QUnitModuleDoneData extends QUnitModuleStartData, QUnitDoneData {}
+
+export interface QUnitModuleStartData {
+	name: string;
+}
+
+export interface QUnitTestDoneData extends QUnitModuleDoneData, QUnitTestStartData {}
+
+export interface QUnitTestFunction {
+	(assert: QUnitBaseAssert): void;
+}
+
+export interface QUnitTestStartData extends QUnitModuleStartData {
+	module: string;
+}
+
+function getBaseAssert(executor?: Executor): QUnitBaseAssert {
+	let assert: Chai.AssertStatic;
+	let AssertionError: typeof Chai.AssertionError;
+
+	function wrapChai(name: keyof Chai.AssertStatic) {
+		return function (this: QUnitBaseAssert): void {
+			if (!assert) {
+				executor = getExecutor(executor);
+				const chai = executor.getPlugin('chai');
+				assert = chai.assert;
+			}
+			// TODO: Could try/catch errors to make them act more like the way QUnit acts, where an assertion failure
+			// does not fail the test, but not sure of the best way to get multiple assertion failures out of a test
+			// like that
+			++this._numAssertions;
+			assert[name].apply(assert, arguments);
+		};
+	}
+
+	AssertionError = <any> function (message: string, props: any, ssf: any) {
+		executor = getExecutor(executor);
+		AssertionError = executor.getPlugin('chai').AssertionError;
+
+		return new AssertionError(message, props, ssf);
 	};
+
+	return {
+		_expectedAssertions: NaN,
+		_numAssertions: 0,
+
+		deepEqual: wrapChai('deepEqual'),
+		equal: wrapChai('equal'),
+		expect: function (this: QUnitBaseAssert, numTotal?: number) {
+			if (typeof numTotal !== 'undefined') {
+				this._expectedAssertions = numTotal;
+			}
+			else {
+				return this._expectedAssertions;
+			}
+		} as QUnitAssertions['expect'],
+		notDeepEqual: wrapChai('notDeepEqual'),
+		notEqual: wrapChai('notEqual'),
+		notPropEqual: wrapChai('notDeepEqual'),
+		notStrictEqual: wrapChai('notStrictEqual'),
+		ok: wrapChai('ok'),
+		push(ok, actual, expected, message) {
+			++this._numAssertions;
+			if (!ok) {
+				throw new AssertionError(message!, { actual, expected });
+			}
+		},
+		propEqual: wrapChai('deepEqual'),
+		strictEqual: wrapChai('strictEqual'),
+		throws: ((): QUnitBaseAssert['throws'] => {
+			const throws = wrapChai('throws');
+			return function (this: QUnitBaseAssert, fn, expected, message) {
+				if (typeof expected === 'function') {
+					++this._numAssertions;
+					try {
+						fn();
+						throw new AssertionError(
+							(message ? message + ': ' : '') +
+							'expected [Function] to throw'
+						);
+					}
+					catch (error) {
+						if (!expected(error)) {
+							throw new AssertionError(
+								(message ? message + ': ' : '') +
+								'expected [Function] to throw error matching [Function] but got ' +
+								(error instanceof Error ? error.toString() : error)
+							);
+						}
+					}
+				}
+				else {
+					throws.apply(this, arguments);
+				}
+			};
+		})(),
+
+		raises() {
+			return this.throws.apply(this, arguments);
+		},
+
+		verifyAssertions() {
+			if (!executor) {
+				executor = getExecutor(executor);
+			}
+			if (isNaN(this._expectedAssertions) && getInterface(executor).config.requireExpects) {
+				throw new AssertionError('Expected number of assertions to be defined, but expect() was ' +
+					'not called.');
+			}
+
+			if (!isNaN(this._expectedAssertions) && this._numAssertions !== this._expectedAssertions) {
+				throw new AssertionError('Expected ' + this._expectedAssertions + ' assertions, but ' +
+					this._numAssertions + ' were run');
+			}
+		}
+	};
+}
+
+function getConfig(executor?: Executor): QUnitConfig {
+	let autostartHandle: Handle | undefined;
+	let moduleName: string | undefined;
+
+	return {
+		get autostart() {
+			return !autostartHandle;
+		},
+		set autostart(value) {
+			if (autostartHandle) {
+				autostartHandle.destroy();
+				autostartHandle = undefined;
+			}
+
+			if (!value) {
+				if (!executor) {
+					executor = getExecutor(executor);
+				}
+
+				const QUnit = getInterface(executor);
+				autostartHandle = executor.on('beforeRun', () => {
+					return new Promise<void>(resolve => {
+						QUnit.start = resolve;
+					});
+				});
+
+				QUnit.start = () => {
+					autostartHandle!.destroy();
+					autostartHandle = undefined;
+					QUnit.start = function () {};
+				};
+			}
+		},
+		get module() {
+			return moduleName;
+		},
+		set module(value) {
+			moduleName = value;
+			getExecutor(executor).addSuite(suite => {
+				suite.grep = new RegExp('(?:^|[^-]* - )' + escapeRegExp(value) + ' - ', 'i');
+			});
+		},
+		requireExpects: false,
+		testTimeout: Infinity
+	};
+}
+
+export function getInterface(executor: Executor) {
+	if (interfaces.has(executor)) {
+		return interfaces.get(executor)!;
+	}
+
+	let currentSuites: Suite[];
+
+	function registerTest(name: string, test: QUnitRegisterTestFunction) {
+		currentSuites.forEach(parent => {
+			parent.tests.push(new Test({
+				name,
+				parent,
+				test
+			}));
+		});
+	}
+
+	const baseAssert = executor === intern() ? assert : getBaseAssert(executor);
+	const _config = executor === intern() ? config : getConfig(executor);
+
+	const QUnit: QUnitInterface = {
+		assert: baseAssert,
+		get config() {
+			return _config;
+		},
+
+		extend,
+
+		start() {},
+		stop() {},
+
+		// test registration
+		asyncTest(name, test) {
+			registerTest(name, self => {
+				self.timeout = QUnit.config.testTimeout;
+
+				let numCallsUntilResolution = 1;
+				const dfd = self.async();
+				const testAssert = create(baseAssert, { _expectedAssertions: NaN, _numAssertions: 0 });
+
+				QUnit.stop = function () {
+					++numCallsUntilResolution;
+				};
+				QUnit.start = dfd.rejectOnError(() => {
+					if (--numCallsUntilResolution === 0) {
+						try {
+							testAssert.verifyAssertions();
+							dfd.resolve();
+						}
+						finally {
+							QUnit.stop = QUnit.start = function () {};
+						}
+					}
+				});
+
+				try {
+					test.call(self.parent._qunitContext, testAssert);
+				}
+				catch (error) {
+					dfd.reject(error);
+				}
+			});
+		},
+
+		module(name, hooks) {
+			currentSuites = [];
+			executor.addSuite(parentSuite => {
+				const suite = new Suite({ name: name, parent: parentSuite, _qunitContext: {} } as any);
+				parentSuite.tests.push(suite);
+				currentSuites.push(suite);
+
+				if (hooks) {
+					if (hooks.setup) {
+						on(suite, 'beforeEach', function (this: QUnitSuite) {
+							hooks.setup!.call(this._qunitContext);
+						});
+					}
+
+					if (hooks.teardown) {
+						on(suite, 'afterEach', function (this: QUnitSuite) {
+							hooks.teardown!.call(this._qunitContext);
+						});
+					}
+				}
+			});
+		},
+
+		test(name, test) {
+			registerTest(name, self => {
+				const testAssert = create(baseAssert, { _expectedAssertions: NaN, _numAssertions: 0 });
+				test.call(self.parent._qunitContext, testAssert);
+				testAssert.verifyAssertions();
+			});
+		},
+
+		// callbacks
+		begin(callback) {
+			executor.on('runStart', (executor: Executor) => {
+				const totalTests = executor.suites.reduce((numTests, suite) => {
+					return numTests + suite.numTests;
+				}, 0);
+
+				callback({ totalTests });
+			});
+		},
+		done(callback) {
+			executor.on('runEnd', (executor: Executor) => {
+				const failed = executor.suites.reduce((numTests, suite) => {
+					return numTests + suite.numFailedTests;
+				}, 0);
+				const total = executor.suites.reduce((numTests, suite) => {
+					return numTests + suite.numTests;
+				}, 0);
+				const numSkippedTests = executor.suites.reduce(function (numTests, suite) {
+					return numTests + suite.numSkippedTests;
+				}, 0);
+				const runtime = Math.max.apply(null, executor.suites.map(function (suite) {
+					return suite.timeElapsed;
+				}));
+
+				callback({
+					failed,
+					passed: total - failed - numSkippedTests,
+					total,
+					runtime
+				});
+			});
+		},
+		log(callback) {
+			executor.on('testEnd', (test: QUnitTest) => {
+				callback({
+					result: test.hasPassed,
+					actual: test.error && test.error.actual,
+					expected: test.error && test.error.expected,
+					message: test.error && test.error.message,
+					source: test.error && test.error.stack,
+					module: test.parent.name,
+					name: test.name
+				});
+			});
+		},
+		moduleDone(callback) {
+			executor.on('suiteEnd', (suite: QUnitSuite) => {
+				if (suite._qunitContext) {
+					callback({
+						name: suite.name,
+						failed: suite.numFailedTests,
+						passed: suite.numTests - suite.numFailedTests - suite.numSkippedTests,
+						total: suite.numTests,
+						runtime: suite.timeElapsed
+					});
+				}
+			});
+		},
+		moduleStart(callback) {
+			executor.on('suiteStart', (suite: QUnitSuite) => {
+				if (suite._qunitContext) {
+					callback({
+						name: suite.name
+					});
+				}
+			});
+		},
+		testDone(callback) {
+			executor.on('testEnd', (test: QUnitTest) => {
+				callback({
+					name: test.name,
+					module: test.parent.name,
+					failed: test.hasPassed ? 0 : 1,
+					passed: test.hasPassed ? 1 : 0,
+					total: 1,
+					runtime: test.timeElapsed
+				});
+			});
+		},
+		testStart(callback) {
+			executor.on('testStart', (test: QUnitTest) => {
+				callback({
+					name: test.name,
+					module: test.parent.name
+				});
+			});
+		}
+	};
+
+	interfaces.set(executor, QUnit);
+
+	return QUnit;
+}
+
+export const assert: QUnitAssertions = getBaseAssert();
+export const config = getConfig();
+
+export function extend<T extends {}, U extends {}>(target: T, mixin: U, skipExistingTargetProperties?: boolean): T & U {
+	const result: typeof target & typeof mixin = target as any;
+	for (let key in mixin) {
+		if (mixin.hasOwnProperty(key)) {
+			if (mixin[key] === undefined) {
+				delete result[key];
+			}
+			else if (!skipExistingTargetProperties || result[key] === undefined) {
+				result[key] = mixin[key];
+			}
+		}
+	}
+	return result;
+}
+
+export function start() {
+	getInterface(intern()).start();
+}
+
+export function stop() {
+	getInterface(intern()).stop();
+}
+
+export function asyncTest(name: string, test: QUnitTestFunction) {
+	getInterface(intern()).asyncTest(name, test);
+}
+
+export function module(name: string, hooks?: QUnitHooks) {
+	getInterface(intern()).module(name, hooks);
+}
+
+export function test(name: string, test: QUnitTestFunction) {
+	getInterface(intern()).test(name, test);
+}
+
+export function begin(callback: QUnitCallback<QUnitBeginData>) {
+	getInterface(intern()).begin(callback);
+}
+
+export function done(callback: QUnitCallback<QUnitDoneData>) {
+	getInterface(intern()).done(callback);
+}
+
+export function log(callback: QUnitCallback<QUnitLogData>) {
+	getInterface(intern()).log(callback);
+}
+
+export function moduleDone(callback: QUnitCallback<QUnitModuleDoneData>) {
+	getInterface(intern()).moduleDone(callback);
+}
+
+export function moduleStart(callback: QUnitCallback<QUnitModuleStartData>) {
+	getInterface(intern()).moduleStart(callback);
+}
+
+export function testDone(callback: QUnitCallback<QUnitTestDoneData>) {
+	getInterface(intern()).testDone(callback);
+}
+
+export function testStart(callback: QUnitCallback<QUnitTestStartData>) {
+	getInterface(intern()).testStart(callback);
+}
+
+interface QUnitRegisterTestFunction {
+	(this: QUnitTest, test: QUnitTest): void | PromiseLike<void>;
+}
+
+interface QUnitSuite extends Suite {
+	_qunitContext: any;
+}
+
+interface QUnitTest extends Test {
+	parent: QUnitSuite;
 }
 
 /**

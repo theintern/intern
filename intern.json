@@ -18,6 +18,7 @@
 		"_tests/tests/unit/lib/interfaces/benchmark.js",
 		"_tests/tests/unit/lib/interfaces/object.js",
 		"_tests/tests/unit/lib/interfaces/tdd.js",
+		"_tests/tests/unit/lib/interfaces/qunit.js",
 		"_tests/tests/unit/loaders/default.js",
 		"_tests/tests/unit/loaders/dojo.js",
 		"_tests/tests/unit/loaders/dojo2.js",

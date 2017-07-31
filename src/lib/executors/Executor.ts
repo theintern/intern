@@ -79,7 +79,7 @@ export default abstract class Executor<E extends Events = Events, C extends Conf
 		this.registerInterface('object', getObjectInterface(this));
 		this.registerInterface('tdd', getTddInterface(this));
 		this.registerInterface('bdd', getBddInterface(this));
-		this.registerInterface('qunit', () => getQUnitInterface(this));
+		this.registerInterface('qunit', getQUnitInterface(this));
 		this.registerInterface('benchmark', getBenchmarkInterface(this));
 
 		this.registerPlugin('chai', () => chai);
