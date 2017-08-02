@@ -35,14 +35,18 @@ export default abstract class Coverage extends Reporter implements CoveragePrope
 			map = createCoverageMap(data);
 		}
 
-		const transformed = this.executor.sourceMapStore.transformCoverage(map).map;
+		const transformed = this.executor.sourceMapStore.transformCoverage(map);
 
-		const context = createContext();
-		const tree = summarizers.pkg(transformed);
-		tree.visit(create(type, {
+		const context = createContext({
+			sourceFinder: transformed.sourceFinder,
+			watermarks: this.watermarks
+		});
+		const tree = summarizers.pkg(transformed.map);
+		const report = create(type, {
 			file: this.filename,
 			watermarks: this.watermarks
-		}), context);
+		});
+		tree.visit(report, context);
 	}
 
 	@eventHandler()

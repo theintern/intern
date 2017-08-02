@@ -3,7 +3,7 @@ import Task, { State } from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
 import { readFileSync } from 'fs';
-import { deepMixin, mixin } from '@dojo/core/lang';
+import { deepMixin, mixin, duplicate } from '@dojo/core/lang';
 import ErrorFormatter from '../node/ErrorFormatter';
 import { dirname, normalize, relative, resolve, sep } from 'path';
 import LeadfootServer from '@theintern/leadfoot/Server';
@@ -16,7 +16,7 @@ import Server from '../Server';
 import Suite, { isSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
 import { RuntimeEnvironment } from '../types';
-import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
+import { CoverageMap, createCoverageMap, classes as coverageClasses } from 'istanbul-lib-coverage';
 import { createInstrumenter, Instrumenter, readInitialCoverage } from 'istanbul-lib-instrument';
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
@@ -45,10 +45,29 @@ import TeamCity from '../reporters/TeamCity';
 const console: Console = global.console;
 const process: NodeJS.Process = global.process;
 
+const merge = coverageClasses.FileCoverage.prototype.merge;
+function mergeFileCoverage(target: object, source: object) {
+	merge.call({ data: target }, source);
+}
+
+function mergeCoverageData(target: { [key: string]: any; }, source: { [key: string]: any; }) {
+	Object.keys(source).forEach(key => {
+		if (target[key]) {
+			mergeFileCoverage(target[key], source[key]);
+		}
+		else {
+			target[key] = duplicate(source[key]);
+		}
+	});
+
+	return target;
+}
+
 export default class Node extends Executor<Events, Config, NodePlugins> {
 	server: Server;
 	tunnel: Tunnel;
 
+	protected _initialCoverage: { [key: string]: object; };
 	protected _coverageMap: CoverageMap;
 	protected _coverageFiles: string[];
 	protected _loadingFunctionalSuites: boolean;
@@ -84,6 +103,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		this._sourceMaps = createSourceMapStore();
 		this._instrumentedMaps = createSourceMapStore();
 		this._errorFormatter = new ErrorFormatter(this);
+		this._initialCoverage = Object.create(null);
 		this._coverageMap = createCoverageMap();
 
 		this.registerReporter('pretty', Pretty);
@@ -127,6 +147,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 
 		this.on('coverage', message => {
 			this._coverageMap.merge(message.coverage);
+			message.coverage = mergeCoverageData(duplicate(this._initialCoverage), message.coverage);
 		});
 	}
 
@@ -269,6 +290,14 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	}
 
 	protected _beforeRun() {
+		this._coverageFiles.forEach(filename => {
+			const code = readFileSync(filename, { encoding: 'utf8' });
+			const instrumentedCode = this.instrumentCode(code, filename);
+			const coverage = readInitialCoverage(instrumentedCode);
+			this._initialCoverage[filename] = duplicate(coverage.coverageData);
+			this._coverageMap.addFileCoverage(coverage.coverageData);
+		});
+
 		return super._beforeRun().then(() => {
 			const config = this.config;
 
@@ -647,18 +676,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 					this.log('Emitting coverage');
 					return this._emitCoverage('functional tests');
 				}
-			})
-			.finally(() => {
-				// If coverage is set, generate initial coverage data for files with no coverage results
-				const filesWithCoverage = this._coverageMap.files();
-				this._coverageFiles
-					.filter(path => filesWithCoverage.indexOf(path) === -1)
-					.forEach(filename => {
-						const code = readFileSync(filename, { encoding: 'utf8' });
-						const instrumentedCode = this.instrumentCode(code, filename);
-						const coverage = readInitialCoverage(instrumentedCode);
-						this._coverageMap.addFileCoverage(coverage.coverageData);
-					});
 			});
 	}
 

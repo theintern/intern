@@ -211,6 +211,13 @@ registerSuite('lib/executors/Node', function () {
 				'src/lib/reporters/Lcov': { default: MockReporter },
 				'src/lib/reporters/Benchmark': { default: MockReporter },
 				'istanbul-lib-coverage': {
+					classes: {
+						FileCoverage: {
+							prototype: {
+								merge() {}
+							}
+						}
+					},
 					createCoverageMap() {
 						return new MockCoverageMap();
 					}
