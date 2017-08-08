@@ -1,7 +1,7 @@
 import _Node, { Config } from 'src/lib/executors/Node';
 import Suite from 'src/lib/Suite';
 import Task, { State } from '@dojo/core/async/Task';
-import { spy, SinonSpy } from 'sinon';
+import { spy, stub, SinonStub, SinonSpy } from 'sinon';
 
 import { testProperty } from '../../../support/unit/executor';
 
@@ -34,26 +34,40 @@ registerSuite('lib/executors/Node', function () {
 	}
 
 	class MockCoverageMap {
+		addFileCoverage: SinonSpy;
 		mockName = 'coverageMap';
+
+		private _files: string[] = [];
+
 		constructor() {
 			coverageMaps.push(this);
-			this.addFileCoverage = spy(this.addFileCoverage);
-		}
-		addFileCoverage() {
+			this.addFileCoverage = spy(({ filename }: { filename: string; }) => {
+				this._files.push(filename);
+			});
 		}
 		merge() {
 		}
 		files() {
-			return [];
+			return this._files;
 		}
 	}
 
 	class MockInstrumenter {
-		instrumentSync(code: string) {
+		private fileCoverage: {
+			code: string;
+			filename: string;
+		};
+
+		instrumentSync(code: string, filename: string) {
+			this.fileCoverage = { code, filename };
 			return `instrumented: ${code}`;
 		}
 
 		lastSourceMap() {
+		}
+
+		lastFileCoverage() {
+			return this.fileCoverage;
 		}
 	}
 
@@ -129,14 +143,65 @@ registerSuite('lib/executors/Node', function () {
 		should: spy(() => 'should')
 	};
 
+	type statType = 'file' | 'directory';
+
+	class MockStats {
+		path: string;
+		size: number;
+		type: statType | undefined;
+		mtime: { getTime: () => number };
+
+		constructor(path: string, size: number, type?: statType) {
+			this.path = path;
+			this.size = size;
+			this.type = type;
+			this.mtime = {
+				getTime() {
+					return 0;
+				}
+			};
+		}
+
+		isFile() {
+			return this.type === 'file';
+		}
+
+		isDirectory() {
+			return this.type === 'directory';
+		}
+	}
+
+	type StatCallback = (error: Error | undefined, stats: MockStats | undefined) => void;
+	type FsCallback = (error: Error | undefined, data: string | undefined) => {};
+
 	const mockFs = {
 		readFileSync(path: string) {
-			if (fsData[path]) {
-				return fsData[path];
+			if (fileData[path]) {
+				return fileData[path].data;
 			}
 			const error: NodeJS.ErrnoException = new Error('no such file');
 			error.code = 'ENOENT';
 			return error;
+		},
+
+		stat(path: string, callback: StatCallback) {
+			const entry = fileData[path];
+			if (entry) {
+				callback(undefined, new MockStats(path, Buffer.byteLength(entry.data), entry.type));
+			}
+			else {
+				callback(new Error('no such file'), undefined);
+			}
+		},
+
+		readFile(path: string, _encoding: string, callback: FsCallback) {
+			const entry = fileData[path];
+			if (entry) {
+				callback(undefined, entry.data);
+			}
+			else {
+				callback(new Error('no such file'), undefined);
+			}
 		}
 	};
 
@@ -174,6 +239,18 @@ registerSuite('lib/executors/Node', function () {
 		run() { return Task.resolve(); }
 	}
 
+	const mockNodeUtil = {
+		expandFiles(files: string) {
+			return files || [];
+		},
+		normalizePath(path: string) {
+			return path;
+		},
+		readSourceMap() {
+			return {};
+		}
+	};
+
 	let executor: _Node;
 	let reporters: MockReporter[];
 	let tunnels: MockTunnel[];
@@ -182,23 +259,13 @@ registerSuite('lib/executors/Node', function () {
 	let coverageMaps: MockCoverageMap[];
 	let Node: typeof _Node;
 	let removeMocks: () => void;
-	let fsData: { [name: string]: string };
+	let fileData: { [name: string]: { type: statType, data: string } };
 
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/executors/Node', {
 				'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
-				'src/lib/node/util': {
-					expandFiles(files: string[]) {
-						return files || [];
-					},
-					normalizePath(path: string) {
-						return path;
-					},
-					readSourceMap() {
-						return {};
-					}
-				},
+				'src/lib/node/util': mockNodeUtil,
 				'chai': mockChai,
 				'path': mockPath,
 				'fs': mockFs,
@@ -269,7 +336,7 @@ registerSuite('lib/executors/Node', function () {
 			tunnels = [];
 			servers = [];
 			sessions = [];
-			fsData = {};
+			fileData = {};
 			executor = createExecutor();
 		},
 
@@ -419,6 +486,108 @@ registerSuite('lib/executors/Node', function () {
 				executor.run();
 			},
 
+			'#readFile': (() => {
+				let expandFilesStub: SinonStub;
+				let readFileStub: SinonStub;
+				let instrumentSyncSpy: SinonSpy;
+
+				return {
+					beforeEach() {
+						fileData['bar/foo.js'] = { type: 'file', data: 'foo' };
+						fileData['bar/baz/'] = { type: 'directory', data: 'foo' };
+
+						executor.configure({ basePath: 'bar' });
+
+						instrumentSyncSpy = spy(MockInstrumenter.prototype, 'instrumentSync');
+					},
+
+					afterEach() {
+						expandFilesStub && expandFilesStub.restore();
+						readFileStub && readFileStub.restore();
+						instrumentSyncSpy.restore();
+					},
+
+					tests: {
+						good() {
+							return executor.run().then(() => {
+								return executor.readFile('bar/foo.js').then(({ size, data }) => {
+									assert.strictEqual(size, 3);
+									assert.strictEqual(data, 'foo');
+								});
+							});
+						},
+
+						omitContent() {
+							return executor.run().then(() => {
+								return executor.readFile('bar/foo.js', true).then(({ size, data }) => {
+									assert.strictEqual(size, 3);
+									assert.strictEqual(data, null);
+								});
+							});
+						},
+
+						'stat error'() {
+							return executor.run().then(() => {
+								function didNotError() {
+									assert(false, 'Should not have reached here');
+								}
+								return Promise.all([
+									executor.readFile('bar/blah.js')
+										.then(didNotError)
+										.catch(error => {
+											assert.instanceOf(error, Error);
+											assert.strictEqual(error.message, 'no such file');
+										}),
+									executor.readFile('bar/baz/')
+										.then(didNotError)
+										.catch(error => {
+											assert.instanceOf(error, Error);
+											assert.strictEqual(error.message, 'Cannot read bar/baz/: must be a file');
+										})
+								]);
+							});
+						},
+
+						'read error'() {
+							readFileStub = stub(mockFs, 'readFile');
+							readFileStub.callsArgWith(2, new Error('read error'), undefined);
+
+							return executor.run().then(() => {
+								return executor.readFile('bar/foo.js')
+									.then(() => assert(false, 'Should not have reached here'))
+									.catch(error => {
+										assert.instanceOf(error, Error);
+										assert.strictEqual(error.message, 'read error');
+									});
+							});
+						},
+
+						'instrumentation'() {
+							delete fileData['bar/baz/'];
+
+							expandFilesStub = stub(mockNodeUtil, 'expandFiles');
+							expandFilesStub.returns([ 'bar/foo.js' ]);
+
+							return executor.run().then(() => {
+								instrumentSyncSpy.reset();
+
+								return Task.all([
+										executor.readFile('bar/foo.js'),
+										executor.readFile('bar/foo.js')
+									])
+									.then(results => {
+										assert.strictEqual(results[0].data, 'instrumented: foo');
+										assert.strictEqual(results[0].size, 17);
+										assert.strictEqual(results[1].data, 'instrumented: foo');
+										assert.strictEqual(results[1].size, 17);
+										assert.isTrue(instrumentSyncSpy.calledOnce, 'should have accessed the code cache');
+									});
+							});
+						}
+					}
+				};
+			})(),
+
 			'#loadScript': {
 				good() {
 					const module = require.resolve('../../data/lib/executors/intern.js');
@@ -437,31 +606,90 @@ registerSuite('lib/executors/Node', function () {
 			},
 
 			'#shouldInstrument': {
-				'instrumentation disabled'() {
-					const dfd = this.async();
-					executor.configure({ excludeInstrumentation: true, basePath: 'bar' });
-					executor.on('beforeRun', dfd.callback(() => {
-						assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
-					}));
-					executor.run();
-				},
-
-				'default filter'() {
-					const dfd = this.async();
+				beforeEach() {
 					executor.configure({ basePath: 'bar' });
-					executor.on('beforeRun', dfd.callback(() => {
-						assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
-					}));
-					executor.run();
 				},
 
-				'configured filter'() {
-					const dfd = this.async();
-					executor.configure({ basePath: 'bar', excludeInstrumentation: /foo/ });
-					executor.on('beforeRun', dfd.callback(() => {
-						assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
-					}));
-					executor.run();
+				tests: {
+					'outside base path'() {
+						const dfd = this.async();
+						executor.on('beforeRun', dfd.callback(() => {
+							assert.isFalse(executor.shouldInstrumentFile('baz/foo.js'));
+						}));
+						executor.run();
+					},
+
+					'excludeInstrumentation': {
+						'instrumentation disabled'() {
+							const dfd = this.async();
+							executor.configure({ excludeInstrumentation: true });
+							executor.on('beforeRun', dfd.callback(() => {
+								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
+							}));
+							executor.run();
+						},
+
+						'instrumentation disabled via regex'() {
+							const dfd = this.async();
+							executor.configure({ excludeInstrumentation: /blah/ });
+							executor.on('beforeRun', dfd.callback(() => {
+								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
+							}));
+							executor.run();
+						},
+
+						'default filter'() {
+							const dfd = this.async();
+							executor.on('beforeRun', dfd.callback(() => {
+								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
+							}));
+							executor.run();
+						},
+
+						'configured filter'() {
+							const dfd = this.async();
+							executor.configure({ excludeInstrumentation: /foo/ });
+							executor.on('beforeRun', dfd.callback(() => {
+								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
+							}));
+							executor.run();
+						}
+					},
+
+					'coverage': {
+						'instrumentation disabled'() {
+							const dfd = this.async();
+							executor.configure({ coverage: [] });
+							executor.on('beforeRun', dfd.callback(() => {
+								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
+							}));
+							executor.run();
+						},
+
+						'default filter'() {
+							const dfd = this.async();
+							executor.on('beforeRun', dfd.callback(() => {
+								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
+							}));
+							executor.run();
+						},
+
+						'configured filter'() {
+							const dfd = this.async();
+							executor.configure({ coverage: [ 'bar/**/*.js' ] });
+							const expandFilesStub = stub(mockNodeUtil, 'expandFiles');
+							expandFilesStub.returns([
+								'bar/foo.js',
+								'bar/baz.js'
+							]);
+							executor.on('beforeRun', dfd.callback(() => {
+								assert.isTrue(executor.shouldInstrumentFile('bar/foo.js'));
+								assert.isFalse(executor.shouldInstrumentFile('bar/blah.js'));
+								expandFilesStub.restore();
+							}));
+							executor.run();
+						}
+					}
 				}
 			},
 
@@ -541,19 +769,26 @@ registerSuite('lib/executors/Node', function () {
 				},
 
 				'full coverage'() {
-					fsData['foo.js'] = 'foo';
+					fileData['foo.js'] = { type: 'file', data: 'foo' };
+					fileData['bar.js'] = { type: 'file', data: 'bar' };
 					executor.configure(<any>{
 						environments: 'chrome',
 						tunnel: 'null',
 						suites: 'foo.js',
-						coverage: ['foo.js']
+						coverage: ['foo.js', 'bar.js']
 					});
-					return executor.run().then(() => {
-						assert.lengthOf(coverageMaps, 1);
 
-						const addFileCoverage = <SinonSpy>coverageMaps[0].addFileCoverage;
-						assert.equal(addFileCoverage.callCount, 1);
-						assert.equal(addFileCoverage.getCall(0).args[0], 'covered: instrumented: foo');
+					return executor.run().then(() => {
+						const map: MockCoverageMap = executor.coverageMap as any;
+						assert.isTrue(map.addFileCoverage.calledTwice);
+						assert.deepEqual(map.addFileCoverage.args[0][0], {
+							code: 'foo',
+							filename: 'foo.js'
+						});
+						assert.deepEqual(map.addFileCoverage.args[1][0], {
+							code: 'bar',
+							filename: 'bar.js'
+						});
 					});
 				},
 

@@ -3,11 +3,11 @@ import { normalizePath } from './node/util';
 import { after } from '@dojo/core/aspect';
 import { createServer, IncomingMessage, Server as HttpServer, ServerResponse } from 'http';
 import { basename, join, resolve } from 'path';
-import { createReadStream, stat, readFile } from 'fs';
 import { lookup } from 'mime-types';
 import { Socket } from 'net';
 import { mixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
+import Task from '@dojo/core/async/Task';
 import Node from './executors/Node';
 import { Message } from './channels/Base';
 import * as WebSocket from 'ws';
@@ -28,8 +28,8 @@ export default class Server implements ServerProperties {
 	/** Port to use for WebSocket connections */
 	socketPort: number;
 
-	protected _codeCache: { [filename: string]: { mtime: number, data: string } } | null;
 	protected _httpServer: HttpServer | null;
+	protected _readTasks: { [filename: string]: Task<any>; } | null;
 	protected _sessions: { [id: string]: { listeners: ServerListener[] } };
 	protected _wsServer: WebSocket.Server | null;
 
@@ -45,8 +45,8 @@ export default class Server implements ServerProperties {
 			const server = this._httpServer = createServer((request: IncomingMessage, response: ServerResponse) => {
 				return this._handleHttp(request, response);
 			});
+			this._readTasks = Object.create(null);
 			this._sessions = {};
-			this._codeCache = {};
 
 			const sockets: Socket[] = [];
 
@@ -88,6 +88,12 @@ export default class Server implements ServerProperties {
 		this.executor.log('Stopping server...');
 		const promises: Promise<any>[] = [];
 
+		if (this._readTasks) {
+			Object.keys(this._readTasks).forEach(filename => {
+				this._readTasks![filename].cancel();
+			});
+		}
+
 		if (this._httpServer) {
 			promises.push(new Promise(resolve => {
 				this._httpServer!.close(resolve);
@@ -107,7 +113,7 @@ export default class Server implements ServerProperties {
 		}
 
 		return Promise.all(promises).then(() => {
-			this._codeCache = null;
+			this._readTasks = null;
 		});
 	}
 
@@ -134,16 +140,8 @@ export default class Server implements ServerProperties {
 	}
 
 	private _handleHttp(request: IncomingMessage, response: ServerResponse) {
-		if (request.method === 'GET') {
-			if (/\.js(?:$|\?)/.test(request.url!)) {
-				this._handleFile(request, response, true);
-			}
-			else {
-				this._handleFile(request, response);
-			}
-		}
-		else if (request.method === 'HEAD') {
-			this._handleFile(request, response, false, true);
+		if (request.method === 'GET' || request.method === 'HEAD') {
+			this._handleFile(request, response, request.method === 'HEAD');
 		}
 		else if (request.method === 'POST') {
 			request.setEncoding('utf8');
@@ -193,7 +191,6 @@ export default class Server implements ServerProperties {
 	private _handleFile(
 		request: IncomingMessage,
 		response: ServerResponse,
-		shouldInstrument?: boolean,
 		omitContent?: boolean
 	) {
 		const file = /^\/+([^?]*)/.exec(request.url!)![1];
@@ -203,7 +200,6 @@ export default class Server implements ServerProperties {
 
 		if (/^__intern\//.test(file)) {
 			wholePath = join(this.executor.config.internPath, file.replace(/^__intern\//, ''));
-			shouldInstrument = false;
 		}
 		else {
 			wholePath = resolve(join(this.basePath, file));
@@ -215,89 +211,43 @@ export default class Server implements ServerProperties {
 			wholePath += 'index.html';
 		}
 
-		stat(wholePath, (error, stats) => {
-			// The server was stopped before this file was served
-			if (!this._httpServer) {
-				return;
-			}
+		if (this._readTasks![wholePath]) {
+			return this._readTasks![wholePath];
+		}
 
-			if (error || !stats.isFile()) {
-				this.executor.log('Unable to serve', wholePath, '(unreadable)');
-				this._send404(response);
-				return;
-			}
+		return this._readTasks![wholePath] = this.executor.readFile(wholePath, omitContent)
+			.then(({ size, data }) => {
+				this.executor.log('Serving', wholePath);
 
-			this.executor.log('Serving', wholePath);
+				const contentType = lookup(basename(wholePath)) || 'application/octet-stream';
 
-			const send = (contentType: string, data: string) => {
 				response.writeHead(200, {
 					'Content-Type': contentType,
-					'Content-Length': Buffer.byteLength(data)
-				});
-				response.end(data, (error?: Error) => {
-					if (error) {
-						this.executor.emit('error', new Error(`Error serving ${wholePath}: ${error.message}`));
-					}
-					else {
-						this.executor.log('Served', wholePath);
-					}
-				});
-			};
-			const contentType = lookup(basename(wholePath)) || 'application/octet-stream';
-
-			if (shouldInstrument && this.executor.shouldInstrumentFile(wholePath)) {
-				const mtime = stats.mtime.getTime();
-				const codeCache = this._codeCache!;
-				if (codeCache[wholePath] && codeCache[wholePath].mtime === mtime) {
-					send(contentType, codeCache[wholePath].data);
-				}
-				else {
-					readFile(wholePath, 'utf8', (error, data) => {
-						// The server was stopped in the middle of the file read
-						if (!this._httpServer) {
-							return;
-						}
-
-						if (error) {
-							this._send404(response);
-							return;
-						}
-
-						// providing `wholePath` to the instrumenter instead of a partial filename is necessary because
-						// lcov.info requires full path names as per the lcov spec
-						data = this.executor.instrumentCode(data, wholePath);
-						codeCache[wholePath] = {
-							// strictly speaking mtime could reflect a previous version, assume those race conditions are rare
-							mtime: mtime,
-							data: data
-						};
-						send(contentType, data);
-					});
-				}
-			}
-			else {
-				response.writeHead(200, {
-					'Content-Type': contentType,
-					'Content-Length': stats.size
+					'Content-Length': size
 				});
 
-				if (omitContent) {
+				if (data === null) {
 					response.end();
 				}
 				else {
-					const stream = createReadStream(wholePath);
-					stream.pipe(response);
-					stream.on('end', () => {
-						this.executor.log('Served', wholePath);
-					});
-					stream.on('error', (error: Error) => {
-						this.executor.log('Error serving', wholePath, ':', error);
-						// If the read stream errors, the write stream has to be manually closed
-						response.end();
+					response.end(data, (error?: Error) => {
+						if (error) {
+							this.executor.emit('error', new Error(`Error serving ${wholePath}: ${error.message}`));
+						}
+						else {
+							this.executor.log('Served', wholePath);
+						}
 					});
 				}
-			}
-		});
+			})
+			.catch(error => {
+				this.executor.log('Error serving', wholePath, ':', error);
+				this._send404(response);
+			})
+			.finally(() => {
+				delete this._readTasks![wholePath];
+			})
+		;
 	}
 
 	private _handleMessage(message: Message): Promise<any> {
