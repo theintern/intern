@@ -11,6 +11,7 @@
 * [Displaying config information](#displaying-config-information)
     * [`showConfig`](#showconfig)
     * [`showConfigs`](#showconfigs)
+* [Environment-specific config](#environment-specific-config)
 * [Properties](#properties)
     * [bail](#bail)
     * [benchmark](#benchmark)
@@ -214,6 +215,12 @@ Configs:
   webdriver  (Run webdriver tests)
   ci         (Run tests on a CI server)
 ```
+
+## Environment-specific config
+
+Tests can run in two basic environments: Node and browsers. By default, “resource” properties (`suites`, `plugins`, `reporters`, `loader`, and `require`) in a config file apply to both environments. This means that if the same config is used to run tests in a browser and in Node, the same resources will be loaded in both environments. In some cases this isn’t desirable because tests may load application code that depends on environment-specific properties or features, such as the DOM. Intern’s config provides `node` and `browser` properties for this use case. Not surprisingly, these properties specify resources that will only be loaded in the given environment.  The values in these properties will be [shallowly mixed into the base config](#configuration-resolution) rather than replacing it.
+
+⚠️ Note that this is different than the `mode` property in Intern 3, which had values of “client” or “runner”. Intern 3’s mode indicated whether tests were being run in unit test or functional test mode, but it was sometimes used as an environment check due to the fact that functional tests always run in Node.
 
 ## Properties
 
