@@ -148,6 +148,10 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		return this._sourceMaps;
 	}
 
+	get hasCoveredFiles() {
+		return Boolean(this.config.coverage && this._coverageFiles.length);
+	}
+
 	/**
 	 * The root suites managed by this executor
 	 */
@@ -287,21 +291,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	 * Return true if a given file should be instrumented based on the current config
 	 */
 	shouldInstrumentFile(filename: string) {
-		const excludeInstrumentation = this.config.excludeInstrumentation;
-		if (excludeInstrumentation === true) {
-			return false;
-		}
-
-		const basePath = this._instrumentBasePath;
-		filename = normalizePath(filename);
-		if (filename.indexOf(basePath) !== 0) {
-			return false;
-		}
-
-		if (excludeInstrumentation && !excludeInstrumentation.test(filename.slice(basePath.length))) {
-			return false;
-		}
-
 		if (this._coverageFiles && this._coverageFiles.indexOf(filename) === -1) {
 			return false;
 		}
@@ -424,7 +413,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		// Create a subclass of ProxiedSession here that will ensure the executor is set
 		class InitializedProxiedSession extends ProxiedSession {
 			executor = executor;
-			coverageEnabled = config.functionalCoverage && config.excludeInstrumentation !== true;
+			coverageEnabled = config.functionalCoverage && executor.hasCoveredFiles;
 			coverageVariable = config.coverageVariable;
 			serverUrl = config.serverUrl;
 			serverBasePathLength = config.basePath.length;
@@ -500,7 +489,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				if (config.suites.length + config.browser.suites.length > 0) {
 					suite.add(new RemoteSuite({
 						before() {
-							session.coverageEnabled = config.excludeInstrumentation !== true;
+							session.coverageEnabled = executor.hasCoveredFiles;
 						}
 					}));
 				}
@@ -519,6 +508,13 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		return Task.resolve(this._loader(suites))
 			.then(() => { this.log('Loaded functional suites:', suites); })
 			.finally(() => { this._loadingFunctionalSuites = false; });
+	}
+
+	protected _loadSuites() {
+		if (this.hasCoveredFiles) {
+			this._setInstrumentationHooks();
+		}
+		return super._loadSuites();
 	}
 
 	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
@@ -555,15 +551,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 					original: 'excludeInstrumentation',
 					replacement: 'coverage'
 				});
-				if (value === true) {
-					this._setOption(name, value);
-				}
-				else if (typeof value === 'string' || value instanceof RegExp) {
-					this._setOption(name, parseValue(name, value, 'regexp'));
-				}
-				else {
-					throw new Error(`Invalid value "${value}" for ${name}; must be (string | RegExp | true)`);
-				}
 				break;
 
 			case 'tunnel':
@@ -651,10 +638,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				preserveComments: true,
 				produceSourceMap: true
 			}));
-
-			if (config.excludeInstrumentation !== true) {
-				this._setInstrumentationHooks();
-			}
 		});
 	}
 
@@ -770,7 +753,7 @@ export interface Config extends BaseConfig {
 	environments: EnvironmentSpec[];
 
 	/** A regexp matching file names that shouldn't be instrumented, or `true` to disable instrumentation. */
-	excludeInstrumentation: true | RegExp;
+	excludeInstrumentation: never;
 
 	/** If true, collect coverage data from functional tests */
 	functionalCoverage: boolean;

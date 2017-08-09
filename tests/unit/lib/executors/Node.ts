@@ -430,12 +430,6 @@ registerSuite('lib/executors/Node', function () {
 						test('tunnel', 5, 'null', 'null', /Non-string/);
 					},
 
-					excludeInstrumentation() {
-						test('excludeInstrumentation', 5, true, true, /Invalid value/, true);
-						test('excludeInstrumentation', 5, /foo/, /foo/, /Invalid value/, true);
-						test('excludeInstrumentation', 5, 'foo', /foo/, /Invalid value/, true);
-					},
-
 					functionalCoverage: booleanTest('functionalCoverage'),
 					leaveRemoteOpen: booleanTest('leaveRemoteOpen'),
 					serveOnly: booleanTest('serveOnly'),
@@ -619,41 +613,16 @@ registerSuite('lib/executors/Node', function () {
 						executor.run();
 					},
 
-					'excludeInstrumentation': {
-						'instrumentation disabled'() {
-							const dfd = this.async();
-							executor.configure({ excludeInstrumentation: true });
-							executor.on('beforeRun', dfd.callback(() => {
-								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
-							}));
-							executor.run();
-						},
-
-						'instrumentation disabled via regex'() {
-							const dfd = this.async();
-							executor.configure({ excludeInstrumentation: /blah/ });
-							executor.on('beforeRun', dfd.callback(() => {
-								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
-							}));
-							executor.run();
-						},
-
-						'default filter'() {
-							const dfd = this.async();
-							executor.on('beforeRun', dfd.callback(() => {
-								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
-							}));
-							executor.run();
-						},
-
-						'configured filter'() {
-							const dfd = this.async();
-							executor.configure({ excludeInstrumentation: /foo/ });
-							executor.on('beforeRun', dfd.callback(() => {
-								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
-							}));
-							executor.run();
-						}
+					'excludeInstrumentation'() {
+						const dfd = this.async();
+						executor.configure({ excludeInstrumentation: true });
+						executor.on('beforeRun', dfd.callback(() => {
+							for (let call of mockConsole.warn.getCalls()) {
+								assert.include(call.args[0], 'deprecated', 'warning should have been emitted');
+							}
+							assert.isUndefined(executor.config.excludeInstrumentation);
+						}));
+						executor.run();
 					},
 
 					'coverage': {
