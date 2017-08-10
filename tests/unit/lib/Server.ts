@@ -2,8 +2,8 @@ import _Server from 'src/lib/Server';
 import { mockNodeExecutor } from '../../support/unit/mocks';
 import { basename, join, normalize } from 'path';
 import { mixin } from '@dojo/core/lang';
-import { on } from '@dojo/core/aspect';
-import Task from '@dojo/core/async/Task';
+
+import { stub, spy } from 'sinon';
 
 const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 
@@ -57,7 +57,7 @@ class MockResponse extends EventHandler {
 		}
 	}
 
-	end(data: string | undefined, callback: (error?: Error) => {}) {
+	end(data?: string, callback?: (error?: Error) => {}) {
 		if (data) {
 			this.data += data;
 		}
@@ -120,11 +120,13 @@ type statType = 'file' | 'directory';
 
 class MockStats {
 	path: string;
+	size: number;
 	type: statType | undefined;
 	mtime: { getTime: () => number };
 
-	constructor(path: string, type?: statType) {
+	constructor(path: string, size: number, type?: statType) {
 		this.path = path;
+		this.size = size;
 		this.type = type;
 		this.mtime = {
 			getTime() {
@@ -142,7 +144,7 @@ class MockStats {
 	}
 }
 
-type StatCallback = (error: Error | undefined, stats: MockStats) => void;
+type StatCallback = (error: Error | undefined, stats: MockStats | undefined) => void;
 
 function assertPropertyLength(obj: { [key: string]: any }, name: string, length: number, message?: string) {
 	assert.property(obj, name, message);
@@ -186,9 +188,22 @@ registerSuite('lib/Server', function () {
 		}
 
 		pipe(stream: MockResponse) {
-			const data = fileData[this.filename].data;
-			if (data != null) {
-				stream.write(data);
+			const entry = fileData[this.filename];
+			if (entry) {
+				stream.write(entry.data);
+				stream.end();
+				this._emit('end');
+			}
+			else {
+				this._emit('error', new Error('file error'));
+			}
+		}
+
+		private _emit(name: string, ...args: any[]) {
+			if (this.handlers[name]) {
+				for (let handler of this.handlers[name]) {
+					handler.call(this, ...args);
+				}
 			}
 		}
 	}
@@ -197,7 +212,7 @@ registerSuite('lib/Server', function () {
 	let webSocketServers: MockWebSocketServer[];
 	let fileData: { [name: string]: { type: statType, data: string } };
 
-	type FsCallback = (error: Error | undefined, data: string) => {};
+	type FsCallback = (error: Error | undefined, data: string | undefined) => {};
 
 	const mockFs = {
 		createReadStream(filename: string) {
@@ -205,26 +220,25 @@ registerSuite('lib/Server', function () {
 		},
 
 		stat(path: string, callback: StatCallback) {
-			const entry = fileData[path] || {};
-			callback(undefined, new MockStats(path, entry.type));
+			const entry = fileData[path];
+			if (entry) {
+				callback(undefined, new MockStats(path, Buffer.byteLength(entry.data), entry.type));
+			}
+			else {
+				callback(new Error('no such file'), undefined);
+			}
 		},
 
 		readFile(path: string, _encoding: string, callback: FsCallback) {
 			const entry = fileData[path];
-			callback(undefined, entry.data);
+			if (entry) {
+				callback(undefined, entry.data);
+			}
+			else {
+				callback(new Error('no such file'), undefined);
+			}
 		}
 	};
-
-	function mockReadFile(filename: string, omitContent = false) {
-		const data = fileData[filename];
-		if (data) {
-			return Task.resolve({
-				size: Buffer.byteLength(data.data),
-				data: omitContent ? null : data.data
-			});
-		}
-		return Task.reject<any>(new Error());
-	}
 
 	const mockPath = {
 		resolve(path: string) {
@@ -386,65 +400,32 @@ registerSuite('lib/Server', function () {
 
 				'http request handling': {
 					'missing file'() {
-						const dfd = this.async();
 						const server = new Server({ executor: mockNodeExecutor() });
 
-						server.start().then(dfd.rejectOnError(() => {
+						return server.start().then(() => {
 							const responder = httpServers[0].responder;
 							const request = new MockRequest('GET', '/foo/thing.js');
 							const response = new MockResponse();
 
-							on(response, 'end', dfd.callback(() => {
-								assert.match(response.data, /404 Not Found/, 'expected 404 response for non-existing file');
-								assert.strictEqual(response.statusCode, 404, 'expected 404 status for non-existing file');
-							}));
-
 							responder(request, response);
-						}));
-					},
 
-					'non-instrumented file'() {
-						const dfd = this.async();
-						const server = new Server({
-							basePath: '/base',
-							executor: mockNodeExecutor({
-								shouldInstrumentFile() {
-									return false;
-								},
-								readFile: mockReadFile
-							})
+							assert.match(response.data, /404 Not Found/, 'expected 404 response for non-existing file');
+							assert.strictEqual(response.statusCode, 404, 'expected 404 status for non-existing file');
 						});
-
-						server.start().then(dfd.rejectOnError(() => {
-							const responder = httpServers[0].responder;
-							const request = new MockRequest('GET', '/foo/thing.js');
-							const response = new MockResponse();
-
-							// A regular file should be read from basePath
-							fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
-
-							on(response, 'end', dfd.callback(() => {
-								assert.equal(response.data, 'what a fun time');
-								assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
-							}));
-
-							responder(request, response);
-						}));
 					},
 
-					'instrumented file': {
+					'non-instrumented file': {
 						successful() {
-							const dfd = this.async();
 							const server = new Server({
 								basePath: '/base',
 								executor: mockNodeExecutor({
-									shouldInstrumentFile: () => true,
-									instrumentCode: (code: string, _filename: string) => code,
-									readFile: mockReadFile
+									shouldInstrumentFile() {
+										return false;
+									}
 								})
 							});
 
-							server.start().then(dfd.rejectOnError(() => {
+							return server.start().then(() => {
 								const responder = httpServers[0].responder;
 								const request = new MockRequest('GET', '/foo/thing.js');
 								const response = new MockResponse();
@@ -452,58 +433,176 @@ registerSuite('lib/Server', function () {
 								// A regular file should be read from basePath
 								fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
 
-								on(response, 'end', dfd.callback(() => {
-									assert.equal(response.data, 'what a fun time');
-									assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
-								}));
-
 								responder(request, response);
-							}));
+
+								assert.equal(response.data, 'what a fun time');
+								assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
+							});
 						},
 
-						'error sending'() {
-							const dfd = this.async();
+						'stream error'() {
+							const server = new Server({
+								basePath: '/base',
+								executor: mockNodeExecutor({
+									shouldInstrumentFile() {
+										return false;
+									}
+								})
+							});
+							const createReadStreamStub = (createReadStream => {
+								const createReadStreamStub = stub(mockFs, 'createReadStream');
+								createReadStreamStub.callsFake((path: string) => {
+									delete fileData[path];
+									return createReadStream.call(mockFs, path);
+								});
+								return createReadStreamStub;
+							})(mockFs.createReadStream);
+
+							return server.start().then(() => {
+								const responder = httpServers[0].responder;
+								const request = new MockRequest('GET', '/foo/thing.js');
+								const response = new MockResponse();
+
+								// A regular file should be read from basePath
+								fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
+
+								responder(request, response);
+
+								createReadStreamStub.restore();
+
+								assert.equal(response.data, '');
+								assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
+							});
+						}
+					},
+
+					'instrumented file': {
+						successful() {
+							const server = new Server({
+								basePath: '/base',
+								executor: mockNodeExecutor({
+									shouldInstrumentFile: () => true,
+									instrumentCode: (code: string, _filename: string) => code
+								})
+							});
+
+							return server.start().then(() => {
+								const responder = httpServers[0].responder;
+								const request = new MockRequest('GET', '/foo/thing.js');
+								const response = new MockResponse();
+
+								// A regular file should be read from basePath
+								fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
+
+								responder(request, response);
+
+								assert.equal(response.data, 'what a fun time');
+								assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
+							});
+						},
+
+						'unchanged hits cache'() {
+							const server = new Server({
+								basePath: '/base',
+								executor: mockNodeExecutor({
+									shouldInstrumentFile: () => true,
+									instrumentCode: (code: string, _filename: string) => code
+								})
+							});
+
+							return server.start().then(() => {
+								const responder = httpServers[0].responder;
+								const request = new MockRequest('GET', '/foo/thing.js');
+								const response1 = new MockResponse();
+								const response2 = new MockResponse();
+								const readFileSpy = spy(mockFs, 'readFile');
+
+								// A regular file should be read from basePath
+								fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
+
+								responder(request, response1);
+								responder(request, response2);
+
+								readFileSpy.restore();
+
+								assert.isTrue(readFileSpy.calledOnce);
+								assert.equal(response1.data, 'what a fun time');
+								assert.strictEqual(response1.statusCode, 200, 'expected success status for good file');
+								assert.equal(response2.data, 'what a fun time');
+								assert.strictEqual(response2.statusCode, 200, 'expected success status for good file');
+							});
+						},
+
+						'error reading'() {
 							const executor = mockNodeExecutor({
 								shouldInstrumentFile: () => true,
-								instrumentCode: (code: string, _filename: string) => code,
-								readFile: mockReadFile
+								instrumentCode: (code: string, _filename: string) => code
 							});
 							const server = new Server({ basePath: '/base', executor });
 
-							server.start().then(dfd.rejectOnError(() => {
+							const readFileStub = (readFile => {
+								const readFileStub = stub(mockFs, 'readFile');
+								readFileStub.callsFake((path: string, encoding: string, callback: FsCallback) => {
+									delete fileData[path];
+									return readFile.call(mockFs, path, encoding, callback);
+								});
+								return readFileStub;
+							})(mockFs.readFile);
+
+							return server.start().then(() => {
+								const responder = httpServers[0].responder;
+								const request = new MockRequest('GET', '/foo/thing.js');
+								const response = new MockResponse();
+
+								// A regular file should be read from basePath
+								fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
+
+								responder(request, response);
+
+								readFileStub.restore();
+
+								assert.match(response.data, /404 Not Found/, 'expected 404 response for non-existing file');
+								assert.strictEqual(response.statusCode, 404, 'expected 404 status for non-existing file');
+							});
+						},
+
+						'error sending'() {
+							const executor = mockNodeExecutor({
+								shouldInstrumentFile: () => true,
+								instrumentCode: (code: string, _filename: string) => code
+							});
+							const server = new Server({ basePath: '/base', executor });
+
+							return server.start().then(() => {
 								const responder = httpServers[0].responder;
 								const request = new MockRequest('GET', '/foo/thing.js');
 								const error = new Error('failed');
 								const response = new MockResponse({
-									end(_data: string | undefined, callback: (error?: Error) => void) {
-										callback(error);
+									end(_data?: string, callback?: (error?: Error) => void) {
+										callback && callback(error);
 									}
 								});
 
 								// An intern resource should be read from internPath
 								fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
 
-								on(response, 'end', dfd.callback(() => {
-									assert.lengthOf(executor.events, 1, 'unexpected number of executor events were emitted');
-									assert.equal(executor.events[0].name, 'error', 'expected an error event');
-									assert.match(executor.events[0].data.message, /failed/, 'unexpected error value');
-								}));
-
 								responder(request, response);
-							}));
+
+								assert.lengthOf(executor.events, 1, 'unexpected number of executor events were emitted');
+								assert.equal(executor.events[0].name, 'error', 'expected an error event');
+								assert.match(executor.events[0].data.message, /failed/, 'unexpected error value');
+							});
 						}
 					},
 
 					'intern resource'() {
-						const dfd = this.async();
 						const server = new Server({
 							executor: mockNodeExecutor({
-								config: <any>{ internPath: '/modules/intern/' },
-								readFile: mockReadFile
+								config: <any>{ internPath: '/modules/intern/' }
 							})
 						});
 
-						server.start().then(dfd.rejectOnError(() => {
+						return server.start().then(() => {
 							const responder = httpServers[0].responder;
 							const request = new MockRequest('GET', '/__intern/bar/thing.js');
 							const response = new MockResponse();
@@ -511,28 +610,24 @@ registerSuite('lib/Server', function () {
 							// An intern resource should be read from internPath
 							fileData['/modules/intern/bar/thing.js'] = { type: 'file', data: 'what a fun time' };
 
-							on(response, 'end', dfd.callback(() => {
-								assert.equal(response.data, 'what a fun time');
-								assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
-							}));
-
 							responder(request, response);
-						}));
+
+							assert.equal(response.data, 'what a fun time');
+							assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
+						});
 					},
 
 					'index URL'() {
-						const dfd = this.async();
 						const server = new Server({
 							basePath: '/base',
 							executor: mockNodeExecutor({
 								shouldInstrumentFile() {
 									return false;
-								},
-								readFile: mockReadFile
+								}
 							})
 						});
 
-						server.start().then(dfd.rejectOnError(() => {
+						return server.start().then(() => {
 							const responder = httpServers[0].responder;
 							const request = new MockRequest('GET', '/foo');
 							const response = new MockResponse();
@@ -540,30 +635,29 @@ registerSuite('lib/Server', function () {
 							// A directory request should look for an index.html file in the directory
 							fileData['/base/foo/index.html'] = { type: 'file', data: 'what a fun time' };
 
-							on(response, 'end', dfd.callback(() => {
-								assert.equal(response.data, 'what a fun time');
-								assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
-							}));
-
 							responder(request, response);
-						}));
+
+							assert.equal(response.data, 'what a fun time');
+							assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
+						});
 					},
 
 					'server closes while responding'() {
-						const server = new Server({
-							executor: mockNodeExecutor({
-								readFile() {
-									let timeout: any;
-									return new Task<any>(resolve => {
-										timeout = setTimeout(() => {
-											resolve({ size: 4, data: 'foo' });
-										}, 1000);
-									}, () => {
-										clearTimeout(timeout);
-									});
+						const server = new Server({ executor: mockNodeExecutor() });
+						const statStub = stub(mockFs, 'stat');
+
+						statStub.callsFake((path: string, callback: Function) => {
+							setTimeout(() => {
+								const entry = fileData[path];
+								if (entry) {
+									callback(undefined, new MockStats(path, Buffer.byteLength(entry.data), entry.type));
 								}
-							})
+								else {
+									callback(new Error('no such file'), undefined);
+								}
+							}, 5000);
 						});
+
 						return server.start().then(() => {
 							const responder = httpServers[0].responder;
 							const request = new MockRequest('GET', '/foo');
@@ -575,22 +669,25 @@ registerSuite('lib/Server', function () {
 								assert.equal(response.data, '');
 								assert.isUndefined(response.statusCode, 'expected no status for when server was stopped');
 							});
+						}).then(() => {
+							statStub.restore();
+						}).catch(error => {
+							statStub.restore();
+							throw error;
 						});
 					},
 
 					'HEAD request'() {
-						const dfd = this.async();
 						const server = new Server({
 							basePath: '/base',
 							executor: mockNodeExecutor({
 								shouldInstrumentFile() {
 									return false;
-								},
-								readFile: mockReadFile
+								}
 							})
 						});
 
-						server.start().then(dfd.rejectOnError(() => {
+						return server.start().then(() => {
 							const responder = httpServers[0].responder;
 							const request = new MockRequest('HEAD', '/foo/thing.js');
 							const response = new MockResponse();
@@ -598,13 +695,11 @@ registerSuite('lib/Server', function () {
 							// A regular file should be read from basePath
 							fileData['/base/foo/thing.js'] = { type: 'file', data: 'what a fun time' };
 
-							on(response, 'end', dfd.callback(() => {
-								assert.equal(response.data, '', 'expected HEAD response to be empty');
-								assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
-							}));
-
 							responder(request, response);
-						}));
+
+							assert.equal(response.data, '', 'expected HEAD response to be empty');
+							assert.strictEqual(response.statusCode, 200, 'expected success status for good file');
+						});
 					},
 
 					'POST single message'() {

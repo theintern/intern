@@ -2,7 +2,7 @@ import Executor, { Config as BaseConfig, Events as BaseEvents, Plugins } from '.
 import Task, { State } from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
-import { stat, readFile, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { deepMixin, mixin } from '@dojo/core/lang';
 import ErrorFormatter from '../node/ErrorFormatter';
 import { dirname, normalize, relative, resolve, sep } from 'path';
@@ -202,62 +202,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			this.emit('warning', `Error instrumenting ${filename}: ${error.message}`);
 			return code;
 		}
-	}
-
-	/**
-	 * Read a file, instrument it (if needed), and return the size and data
-	 */
-	readFile(filename: string, omitContent = false): Task<{ size: number; data: string | null; }> {
-		let canceled = false;
-		return new Task((resolve, reject) => {
-			stat(filename, (error, stats) => {
-				if (canceled) {
-					return;
-				}
-
-				if (error || !stats.isFile()) {
-					this.log(`Cannot read ${filename} (unreadable)`);
-					reject(error || new Error(`Cannot read ${filename}: must be a file`));
-					return;
-				}
-
-				if (omitContent) {
-					resolve({ size: stats.size, data: null });
-					return;
-				}
-
-				const mtime = stats.mtime.getTime();
-				const codeCache = this._codeCache;
-
-				if (codeCache[filename] && codeCache[filename].mtime === mtime) {
-					resolve(codeCache[filename]);
-					return;
-				}
-
-				let size = stats.size;
-				readFile(filename, 'utf8', (error, data) => {
-					if (canceled) {
-						return;
-					}
-
-					if (error) {
-						reject(error);
-						return;
-					}
-
-					if (this.shouldInstrumentFile(filename)) {
-						data = this.instrumentCode(data, filename);
-						size = Buffer.byteLength(data);
-					}
-
-					codeCache[filename] = { mtime, size, data };
-
-					resolve({ size, data });
-				});
-			});
-		}, () => {
-			canceled = true;
-		});
 	}
 
 	/**
@@ -670,8 +614,11 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 					return;
 				}
 
-				const code = readFileSync(filename, { encoding: 'utf8' });
-				this.instrumentCode(code, filename);
+				try {
+					const code = readFileSync(filename, { encoding: 'utf8' });
+					this.instrumentCode(code, filename);
+				}
+				catch (_error) {}
 			});
 		});
 	}

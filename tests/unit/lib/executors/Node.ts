@@ -1,7 +1,7 @@
 import _Node, { Config } from 'src/lib/executors/Node';
 import Suite from 'src/lib/Suite';
 import Task, { State } from '@dojo/core/async/Task';
-import { spy, stub, SinonStub, SinonSpy } from 'sinon';
+import { spy, stub, SinonSpy } from 'sinon';
 
 import { testProperty } from '../../../support/unit/executor';
 
@@ -143,65 +143,15 @@ registerSuite('lib/executors/Node', function () {
 		should: spy(() => 'should')
 	};
 
-	type statType = 'file' | 'directory';
-
-	class MockStats {
-		path: string;
-		size: number;
-		type: statType | undefined;
-		mtime: { getTime: () => number };
-
-		constructor(path: string, size: number, type?: statType) {
-			this.path = path;
-			this.size = size;
-			this.type = type;
-			this.mtime = {
-				getTime() {
-					return 0;
-				}
-			};
-		}
-
-		isFile() {
-			return this.type === 'file';
-		}
-
-		isDirectory() {
-			return this.type === 'directory';
-		}
-	}
-
-	type StatCallback = (error: Error | undefined, stats: MockStats | undefined) => void;
-	type FsCallback = (error: Error | undefined, data: string | undefined) => {};
-
 	const mockFs = {
 		readFileSync(path: string) {
-			if (fileData[path]) {
-				return fileData[path].data;
+			if (fsData[path]) {
+				return fsData[path];
 			}
 			const error: NodeJS.ErrnoException = new Error('no such file');
 			error.code = 'ENOENT';
-			return error;
-		},
 
-		stat(path: string, callback: StatCallback) {
-			const entry = fileData[path];
-			if (entry) {
-				callback(undefined, new MockStats(path, Buffer.byteLength(entry.data), entry.type));
-			}
-			else {
-				callback(new Error('no such file'), undefined);
-			}
-		},
-
-		readFile(path: string, _encoding: string, callback: FsCallback) {
-			const entry = fileData[path];
-			if (entry) {
-				callback(undefined, entry.data);
-			}
-			else {
-				callback(new Error('no such file'), undefined);
-			}
+			throw error;
 		}
 	};
 
@@ -259,7 +209,7 @@ registerSuite('lib/executors/Node', function () {
 	let coverageMaps: MockCoverageMap[];
 	let Node: typeof _Node;
 	let removeMocks: () => void;
-	let fileData: { [name: string]: { type: statType, data: string } };
+	let fsData: { [name: string]: string; };
 
 	return {
 		before() {
@@ -336,7 +286,7 @@ registerSuite('lib/executors/Node', function () {
 			tunnels = [];
 			servers = [];
 			sessions = [];
-			fileData = {};
+			fsData = {};
 			executor = createExecutor();
 		},
 
@@ -479,108 +429,6 @@ registerSuite('lib/executors/Node', function () {
 				}));
 				executor.run();
 			},
-
-			'#readFile': (() => {
-				let expandFilesStub: SinonStub;
-				let readFileStub: SinonStub;
-				let instrumentSyncSpy: SinonSpy;
-
-				return {
-					beforeEach() {
-						fileData['bar/foo.js'] = { type: 'file', data: 'foo' };
-						fileData['bar/baz/'] = { type: 'directory', data: 'foo' };
-
-						executor.configure({ basePath: 'bar' });
-
-						instrumentSyncSpy = spy(MockInstrumenter.prototype, 'instrumentSync');
-					},
-
-					afterEach() {
-						expandFilesStub && expandFilesStub.restore();
-						readFileStub && readFileStub.restore();
-						instrumentSyncSpy.restore();
-					},
-
-					tests: {
-						good() {
-							return executor.run().then(() => {
-								return executor.readFile('bar/foo.js').then(({ size, data }) => {
-									assert.strictEqual(size, 3);
-									assert.strictEqual(data, 'foo');
-								});
-							});
-						},
-
-						omitContent() {
-							return executor.run().then(() => {
-								return executor.readFile('bar/foo.js', true).then(({ size, data }) => {
-									assert.strictEqual(size, 3);
-									assert.strictEqual(data, null);
-								});
-							});
-						},
-
-						'stat error'() {
-							return executor.run().then(() => {
-								function didNotError() {
-									assert(false, 'Should not have reached here');
-								}
-								return Promise.all([
-									executor.readFile('bar/blah.js')
-										.then(didNotError)
-										.catch(error => {
-											assert.instanceOf(error, Error);
-											assert.strictEqual(error.message, 'no such file');
-										}),
-									executor.readFile('bar/baz/')
-										.then(didNotError)
-										.catch(error => {
-											assert.instanceOf(error, Error);
-											assert.strictEqual(error.message, 'Cannot read bar/baz/: must be a file');
-										})
-								]);
-							});
-						},
-
-						'read error'() {
-							readFileStub = stub(mockFs, 'readFile');
-							readFileStub.callsArgWith(2, new Error('read error'), undefined);
-
-							return executor.run().then(() => {
-								return executor.readFile('bar/foo.js')
-									.then(() => assert(false, 'Should not have reached here'))
-									.catch(error => {
-										assert.instanceOf(error, Error);
-										assert.strictEqual(error.message, 'read error');
-									});
-							});
-						},
-
-						'instrumentation'() {
-							delete fileData['bar/baz/'];
-
-							expandFilesStub = stub(mockNodeUtil, 'expandFiles');
-							expandFilesStub.returns([ 'bar/foo.js' ]);
-
-							return executor.run().then(() => {
-								instrumentSyncSpy.reset();
-
-								return Task.all([
-										executor.readFile('bar/foo.js'),
-										executor.readFile('bar/foo.js')
-									])
-									.then(results => {
-										assert.strictEqual(results[0].data, 'instrumented: foo');
-										assert.strictEqual(results[0].size, 17);
-										assert.strictEqual(results[1].data, 'instrumented: foo');
-										assert.strictEqual(results[1].size, 17);
-										assert.isTrue(instrumentSyncSpy.calledOnce, 'should have accessed the code cache');
-									});
-							});
-						}
-					}
-				};
-			})(),
 
 			'#loadScript': {
 				good() {
@@ -738,8 +586,8 @@ registerSuite('lib/executors/Node', function () {
 				},
 
 				'full coverage'() {
-					fileData['foo.js'] = { type: 'file', data: 'foo' };
-					fileData['bar.js'] = { type: 'file', data: 'bar' };
+					fsData['foo.js'] = 'foo';
+					fsData['bar.js'] = 'bar';
 					executor.configure(<any>{
 						environments: 'chrome',
 						tunnel: 'null',
