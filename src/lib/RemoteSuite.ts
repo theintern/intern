@@ -127,7 +127,7 @@ export default class RemoteSuite extends Suite {
 						case 'runEnd':
 							// Consume this event, and do some post-processing
 							let promise = remote.setHeartbeatInterval(0);
-							if (config.excludeInstrumentation !== true) {
+							if (this.executor.hasCoveredFiles) {
 								// get about:blank to always collect code coverage data from the page in case it is
 								// navigated away later by some other process; this happens during self-testing when the
 								// Leadfoot library takes over

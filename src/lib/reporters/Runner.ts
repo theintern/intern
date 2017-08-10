@@ -115,7 +115,7 @@ export default class Runner extends Coverage implements RunnerProperties {
 
 	@eventHandler()
 	runEnd() {
-		let map = createCoverageMap();
+		const map = this.executor.coverageMap;
 		let numTests = 0;
 		let numFailedTests = 0;
 		let numSkippedTests = 0;
@@ -123,47 +123,42 @@ export default class Runner extends Coverage implements RunnerProperties {
 		const sessionIds = Object.keys(this.sessions);
 		const numEnvironments = sessionIds.length;
 
-		if (sessionIds.length > 1) {
-			sessionIds.forEach(sessionId => {
-				const session = this.sessions[sessionId];
-				if (session.coverage) {
-					map.merge(session.coverage);
-				}
-				numTests += session.suite.numTests;
-				numFailedTests += session.suite.numFailedTests;
-				numSkippedTests += session.suite.numSkippedTests;
-			});
+		sessionIds.forEach(sessionId => {
+			const session = this.sessions[sessionId];
+			numTests += session.suite.numTests;
+			numFailedTests += session.suite.numFailedTests;
+			numSkippedTests += session.suite.numSkippedTests;
+		});
 
-			const charm = this.charm;
+		const charm = this.charm;
 
-			if (map.files().length > 0) {
-				charm.write('\n');
-				charm.display('bright');
-				charm.write('Total coverage\n');
-				charm.display('reset');
-				this.createCoverageReport(this.reportType, map);
-			}
-
-			const numPassedTests = numTests - numFailedTests - numSkippedTests;
-			let message = `TOTAL: tested ${numEnvironments} platforms, ${numPassedTests} passed, ${numFailedTests} failed`;
-
-			if (numSkippedTests) {
-				message += `, ${numSkippedTests} skipped`;
-			}
-
-			if (this.hasRunErrors) {
-				message += '; fatal error occurred';
-			}
-			else if (this.hasSuiteErrors) {
-				message += '; suite error occurred';
-			}
-
-			charm.display('bright');
-			charm.foreground(numFailedTests > 0 || this.hasRunErrors || this.hasSuiteErrors ? 'red' : 'green');
-			charm.write(message);
-			charm.display('reset');
+		if (map.files().length > 0) {
 			charm.write('\n');
+			charm.display('bright');
+			charm.write('Total coverage\n');
+			charm.display('reset');
+			this.createCoverageReport(this.reportType, map);
 		}
+
+		const numPassedTests = numTests - numFailedTests - numSkippedTests;
+		let message = `TOTAL: tested ${numEnvironments} platforms, ${numPassedTests} passed, ${numFailedTests} failed`;
+
+		if (numSkippedTests) {
+			message += `, ${numSkippedTests} skipped`;
+		}
+
+		if (this.hasRunErrors) {
+			message += '; fatal error occurred';
+		}
+		else if (this.hasSuiteErrors) {
+			message += '; suite error occurred';
+		}
+
+		charm.display('bright');
+		charm.foreground(numFailedTests > 0 || this.hasRunErrors || this.hasSuiteErrors ? 'red' : 'green');
+		charm.write(message);
+		charm.display('reset');
+		charm.write('\n');
 	}
 
 	@eventHandler()
@@ -203,7 +198,7 @@ export default class Runner extends Coverage implements RunnerProperties {
 
 			session.hasSuiteErrors = true;
 		}
-		else if (!suite.hasParent) {
+		else if (!suite.hasParent && this.executor.suites.length > 1) {
 			if (session.coverage) {
 				this.charm.write('\n');
 				this.createCoverageReport(this.reportType, session.coverage);

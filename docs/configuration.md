@@ -314,7 +314,7 @@ Intern will automatically provide certain capabilities to provide better feedbac
 
 This property specifies an array of file paths or globs that should be instrumented for code coverage. This property should point to the actual JavaScript files that will be executed, not pre-transpiled sources (coverage results will still be mapped back to original sources). Coverage data will be collected for these files even if they’re not loaded by Intern for tests, allowing a test writer to see which files _haven’t_ been tested, as well as coverage on files that were tested.
 
-> 💡This property replaces the `excludeInstrumentation` property used in previous versions of Intern, which acted as a filter rather than an inclusive list. `excludeInstrumentation` will still work for now, but we encourage users to switch to `coverage`.
+> 💡This property replaces the `excludeInstrumentation` property used in previous versions of Intern, which acted as a filter rather than an inclusive list.
 
 ### debug
 

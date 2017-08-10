@@ -9,15 +9,19 @@ declare module 'istanbul-lib-coverage' {
 	export class CoverageMap {
 		addFileCoverage(pathOrObject: string | object): void;
 		files(): string[];
-		fileCoverageFor(filename: string): FileCoverage;
+		fileCoverageFor(filename: string): classes.FileCoverage;
 		merge(data: object | CoverageMap): void;
 	}
 
-	export class FileCoverage {
-		toSummary(): CoverageSummary;
+	export namespace classes {
+		export class FileCoverage {
+			merge(other: object): void;
+			toSummary(): CoverageSummary;
+			toJSON(): object;
+		}
 	}
 
 	export function createCoverageMap(data?: any): CoverageMap;
 	export function createCoverageSummary(): CoverageSummary;
-	export function createFileCoverage(pathOrObject: string | object): FileCoverage;
+	export function createFileCoverage(pathOrObject: string | object): classes.FileCoverage;
 }

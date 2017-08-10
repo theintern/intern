@@ -1,7 +1,7 @@
 import _Node, { Config } from 'src/lib/executors/Node';
 import Suite from 'src/lib/Suite';
 import Task, { State } from '@dojo/core/async/Task';
-import { spy, SinonSpy } from 'sinon';
+import { spy, SinonSpy, stub } from 'sinon';
 
 import { testProperty } from '../../../support/unit/executor';
 
@@ -34,26 +34,40 @@ registerSuite('lib/executors/Node', function () {
 	}
 
 	class MockCoverageMap {
+		addFileCoverage: SinonSpy;
 		mockName = 'coverageMap';
+
+		private _files: string[] = [];
+
 		constructor() {
 			coverageMaps.push(this);
-			this.addFileCoverage = spy(this.addFileCoverage);
-		}
-		addFileCoverage() {
+			this.addFileCoverage = spy(({ filename }: { filename: string; }) => {
+				this._files.push(filename);
+			});
 		}
 		merge() {
 		}
 		files() {
-			return [];
+			return this._files;
 		}
 	}
 
 	class MockInstrumenter {
-		instrumentSync(code: string) {
+		private fileCoverage: {
+			code: string;
+			filename: string;
+		};
+
+		instrumentSync(code: string, filename: string) {
+			this.fileCoverage = { code, filename };
 			return `instrumented: ${code}`;
 		}
 
 		lastSourceMap() {
+		}
+
+		lastFileCoverage() {
+			return this.fileCoverage;
 		}
 	}
 
@@ -136,7 +150,8 @@ registerSuite('lib/executors/Node', function () {
 			}
 			const error: NodeJS.ErrnoException = new Error('no such file');
 			error.code = 'ENOENT';
-			return error;
+
+			throw error;
 		}
 	};
 
@@ -174,6 +189,18 @@ registerSuite('lib/executors/Node', function () {
 		run() { return Task.resolve(); }
 	}
 
+	const mockNodeUtil = {
+		expandFiles(files: string) {
+			return files || [];
+		},
+		normalizePath(path: string) {
+			return path;
+		},
+		readSourceMap() {
+			return {};
+		}
+	};
+
 	let executor: _Node;
 	let reporters: MockReporter[];
 	let tunnels: MockTunnel[];
@@ -188,17 +215,7 @@ registerSuite('lib/executors/Node', function () {
 		before() {
 			return mockRequire(require, 'src/lib/executors/Node', {
 				'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
-				'src/lib/node/util': {
-					expandFiles(files: string[]) {
-						return files || [];
-					},
-					normalizePath(path: string) {
-						return path;
-					},
-					readSourceMap() {
-						return {};
-					}
-				},
+				'src/lib/node/util': mockNodeUtil,
 				'chai': mockChai,
 				'path': mockPath,
 				'fs': mockFs,
@@ -211,6 +228,13 @@ registerSuite('lib/executors/Node', function () {
 				'src/lib/reporters/Lcov': { default: MockReporter },
 				'src/lib/reporters/Benchmark': { default: MockReporter },
 				'istanbul-lib-coverage': {
+					classes: {
+						FileCoverage: {
+							prototype: {
+								merge() {}
+							}
+						}
+					},
 					createCoverageMap() {
 						return new MockCoverageMap();
 					}
@@ -356,12 +380,6 @@ registerSuite('lib/executors/Node', function () {
 						test('tunnel', 5, 'null', 'null', /Non-string/);
 					},
 
-					excludeInstrumentation() {
-						test('excludeInstrumentation', 5, true, true, /Invalid value/, true);
-						test('excludeInstrumentation', 5, /foo/, /foo/, /Invalid value/, true);
-						test('excludeInstrumentation', 5, 'foo', /foo/, /Invalid value/, true);
-					},
-
 					functionalCoverage: booleanTest('functionalCoverage'),
 					leaveRemoteOpen: booleanTest('leaveRemoteOpen'),
 					serveOnly: booleanTest('serveOnly'),
@@ -430,31 +448,65 @@ registerSuite('lib/executors/Node', function () {
 			},
 
 			'#shouldInstrument': {
-				'instrumentation disabled'() {
-					const dfd = this.async();
-					executor.configure({ excludeInstrumentation: true, basePath: 'bar' });
-					executor.on('beforeRun', dfd.callback(() => {
-						assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
-					}));
-					executor.run();
-				},
-
-				'default filter'() {
-					const dfd = this.async();
+				beforeEach() {
 					executor.configure({ basePath: 'bar' });
-					executor.on('beforeRun', dfd.callback(() => {
-						assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
-					}));
-					executor.run();
 				},
 
-				'configured filter'() {
-					const dfd = this.async();
-					executor.configure({ basePath: 'bar', excludeInstrumentation: /foo/ });
-					executor.on('beforeRun', dfd.callback(() => {
-						assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
-					}));
-					executor.run();
+				tests: {
+					'outside base path'() {
+						const dfd = this.async();
+						executor.on('beforeRun', dfd.callback(() => {
+							assert.isFalse(executor.shouldInstrumentFile('baz/foo.js'));
+						}));
+						executor.run();
+					},
+
+					'excludeInstrumentation'() {
+						const dfd = this.async();
+						executor.configure({ excludeInstrumentation: true });
+						executor.on('beforeRun', dfd.callback(() => {
+							for (let call of mockConsole.warn.getCalls()) {
+								assert.include(call.args[0], 'deprecated', 'warning should have been emitted');
+							}
+							assert.isUndefined(executor.config.excludeInstrumentation);
+						}));
+						executor.run();
+					},
+
+					'coverage': {
+						'instrumentation disabled'() {
+							const dfd = this.async();
+							executor.configure({ coverage: [] });
+							executor.on('beforeRun', dfd.callback(() => {
+								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
+							}));
+							executor.run();
+						},
+
+						'default filter'() {
+							const dfd = this.async();
+							executor.on('beforeRun', dfd.callback(() => {
+								assert.isFalse(executor.shouldInstrumentFile('bar/foo.js'));
+							}));
+							executor.run();
+						},
+
+						'configured filter'() {
+							const dfd = this.async();
+							executor.configure({ coverage: [ 'bar/**/*.js' ] });
+							const expandFilesStub = stub(mockNodeUtil, 'expandFiles');
+							expandFilesStub.returns([
+								'bar/foo.js',
+								'bar/baz.js'
+							]);
+							executor.on('beforeRun', dfd.callback(() => {
+								assert.isTrue(executor.shouldInstrumentFile('bar/foo.js'));
+								assert.isFalse(executor.shouldInstrumentFile('bar/blah.js'));
+								expandFilesStub.restore();
+							}));
+							executor.run();
+						}
+					}
 				}
 			},
 
@@ -535,18 +587,25 @@ registerSuite('lib/executors/Node', function () {
 
 				'full coverage'() {
 					fsData['foo.js'] = 'foo';
+					fsData['bar.js'] = 'bar';
 					executor.configure(<any>{
 						environments: 'chrome',
 						tunnel: 'null',
 						suites: 'foo.js',
-						coverage: ['foo.js']
+						coverage: ['foo.js', 'bar.js']
 					});
-					return executor.run().then(() => {
-						assert.lengthOf(coverageMaps, 1);
 
-						const addFileCoverage = <SinonSpy>coverageMaps[0].addFileCoverage;
-						assert.equal(addFileCoverage.callCount, 1);
-						assert.equal(addFileCoverage.getCall(0).args[0], 'covered: instrumented: foo');
+					return executor.run().then(() => {
+						const map: MockCoverageMap = executor.coverageMap as any;
+						assert.isTrue(map.addFileCoverage.calledTwice);
+						assert.deepEqual(map.addFileCoverage.args[0][0], {
+							code: 'foo',
+							filename: 'foo.js'
+						});
+						assert.deepEqual(map.addFileCoverage.args[1][0], {
+							code: 'bar',
+							filename: 'bar.js'
+						});
 					});
 				},
 

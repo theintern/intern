@@ -4,6 +4,7 @@ import { after } from '@dojo/core/aspect';
 import { createServer, IncomingMessage, Server as HttpServer, ServerResponse } from 'http';
 import { basename, join, resolve } from 'path';
 import { createReadStream, stat, readFile } from 'fs';
+import { Stream } from 'stream';
 import { lookup } from 'mime-types';
 import { Socket } from 'net';
 import { mixin } from '@dojo/core/lang';
@@ -28,7 +29,7 @@ export default class Server implements ServerProperties {
 	/** Port to use for WebSocket connections */
 	socketPort: number;
 
-	protected _codeCache: { [filename: string]: { mtime: number, data: string } } | null;
+	protected _codeCache: { [filename: string]: { mtime: number; data: string; size: number; } } | null;
 	protected _httpServer: HttpServer | null;
 	protected _sessions: { [id: string]: { listeners: ServerListener[] } };
 	protected _wsServer: WebSocket.Server | null;
@@ -46,7 +47,7 @@ export default class Server implements ServerProperties {
 				return this._handleHttp(request, response);
 			});
 			this._sessions = {};
-			this._codeCache = {};
+			this._codeCache = Object.create(null);
 
 			const sockets: Socket[] = [];
 
@@ -134,16 +135,8 @@ export default class Server implements ServerProperties {
 	}
 
 	private _handleHttp(request: IncomingMessage, response: ServerResponse) {
-		if (request.method === 'GET') {
-			if (/\.js(?:$|\?)/.test(request.url!)) {
-				this._handleFile(request, response, true);
-			}
-			else {
-				this._handleFile(request, response);
-			}
-		}
-		else if (request.method === 'HEAD') {
-			this._handleFile(request, response, false, true);
+		if (request.method === 'GET' || request.method === 'HEAD') {
+			this._handleFile(request, response, request.method === 'HEAD');
 		}
 		else if (request.method === 'POST') {
 			request.setEncoding('utf8');
@@ -193,7 +186,6 @@ export default class Server implements ServerProperties {
 	private _handleFile(
 		request: IncomingMessage,
 		response: ServerResponse,
-		shouldInstrument?: boolean,
 		omitContent?: boolean
 	) {
 		const file = /^\/+([^?]*)/.exec(request.url!)![1];
@@ -203,7 +195,6 @@ export default class Server implements ServerProperties {
 
 		if (/^__intern\//.test(file)) {
 			wholePath = join(this.executor.config.internPath, file.replace(/^__intern\//, ''));
-			shouldInstrument = false;
 		}
 		else {
 			wholePath = resolve(join(this.basePath, file));
@@ -222,34 +213,55 @@ export default class Server implements ServerProperties {
 			}
 
 			if (error || !stats.isFile()) {
-				this.executor.log('Unable to serve', wholePath, '(unreadable)');
+				this.executor.log(`Unable to serve ${wholePath} (unreadable)`);
 				this._send404(response);
 				return;
 			}
 
-			this.executor.log('Serving', wholePath);
+			this.executor.log(`Serving ${wholePath}`);
 
-			const send = (contentType: string, data: string) => {
-				response.writeHead(200, {
-					'Content-Type': contentType,
-					'Content-Length': Buffer.byteLength(data)
-				});
-				response.end(data, (error?: Error) => {
-					if (error) {
-						this.executor.emit('error', new Error(`Error serving ${wholePath}: ${error.message}`));
-					}
-					else {
-						this.executor.log('Served', wholePath);
-					}
-				});
-			};
 			const contentType = lookup(basename(wholePath)) || 'application/octet-stream';
 
-			if (shouldInstrument && this.executor.shouldInstrumentFile(wholePath)) {
+			const onEnd = (error?: Error) => {
+				if (error) {
+					this.executor.emit('error', new Error(`Error serving ${wholePath}: ${error.message}`));
+				}
+				else {
+					this.executor.log(`Served ${wholePath}`);
+				}
+			};
+			const send = (size: number, data: string | Stream | null) => {
+				response.writeHead(200, {
+					'Content-Type': contentType,
+					'Content-Length': size
+				});
+
+				if (!data) {
+					response.end();
+					return;
+				}
+
+				if (typeof data === 'string') {
+					response.end(data, onEnd);
+				}
+				else {
+					data.on('end', () => onEnd());
+					data.on('error', (error: Error) => {
+						onEnd(error);
+						// If the read stream errors, the write stream has to be manually closed
+						response.end();
+					});
+					data.pipe(response);
+				}
+			};
+
+			if (this.executor.shouldInstrumentFile(wholePath)) {
 				const mtime = stats.mtime.getTime();
 				const codeCache = this._codeCache!;
-				if (codeCache[wholePath] && codeCache[wholePath].mtime === mtime) {
-					send(contentType, codeCache[wholePath].data);
+				const entry = codeCache[wholePath];
+
+				if (entry && entry.mtime === mtime) {
+					send(entry.size, entry.data);
 				}
 				else {
 					readFile(wholePath, 'utf8', (error, data) => {
@@ -263,39 +275,18 @@ export default class Server implements ServerProperties {
 							return;
 						}
 
-						// providing `wholePath` to the instrumenter instead of a partial filename is necessary because
+						// Providing `wholePath` to the instrumenter instead of a partial filename is necessary because
 						// lcov.info requires full path names as per the lcov spec
 						data = this.executor.instrumentCode(data, wholePath);
-						codeCache[wholePath] = {
-							// strictly speaking mtime could reflect a previous version, assume those race conditions are rare
-							mtime: mtime,
-							data: data
-						};
-						send(contentType, data);
+						const size = Buffer.byteLength(data);
+						codeCache[wholePath] = { mtime, data, size };
+
+						send(size, data);
 					});
 				}
 			}
 			else {
-				response.writeHead(200, {
-					'Content-Type': contentType,
-					'Content-Length': stats.size
-				});
-
-				if (omitContent) {
-					response.end();
-				}
-				else {
-					const stream = createReadStream(wholePath);
-					stream.pipe(response);
-					stream.on('end', () => {
-						this.executor.log('Served', wholePath);
-					});
-					stream.on('error', (error: Error) => {
-						this.executor.log('Error serving', wholePath, ':', error);
-						// If the read stream errors, the write stream has to be manually closed
-						response.end();
-					});
-				}
+				send(stats.size, omitContent ? null : createReadStream(wholePath));
 			}
 		});
 	}

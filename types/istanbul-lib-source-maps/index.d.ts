@@ -12,7 +12,7 @@ declare module 'istanbul-lib-source-maps' {
 		data: any;
 
 		registerMap(filename: string, sourceMap: any): void;
-		transformCoverage(coverageMap: CoverageMap): { map: CoverageMap };
+		transformCoverage(coverageMap: CoverageMap): { map: CoverageMap; sourceFinder: (path: string) => string; };
 	}
 
 	export class SourceStore {
