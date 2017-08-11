@@ -1,15 +1,20 @@
 import Executor from '../executors/Executor';
-import { SuiteLifecycleFunction } from '../Suite';
-import { TestFunction } from '../Test';
-import { getInterface as getTddInterface, suite, test, before, after, beforeEach, afterEach } from './tdd';
+import { TestProperties } from '../Test';
+import {
+	TddLifecycleInterface,
+	TddSuiteFactory,
+	getInterface as getTddInterface,
+	suite,
+	test,
+	before,
+	after,
+	beforeEach,
+	afterEach
+} from './tdd';
 
-export interface BddInterface {
-	describe(name: string, factory: SuiteLifecycleFunction): void;
-	it(name: string, test: TestFunction): void;
-	before(fn: SuiteLifecycleFunction): void;
-	after(fn: SuiteLifecycleFunction): void;
-	beforeEach(fn: SuiteLifecycleFunction): void;
-	afterEach(fn: SuiteLifecycleFunction): void;
+export interface BddInterface extends TddLifecycleInterface {
+	describe(name: string, factory: TddSuiteFactory): void;
+	it(name: string, test: TestProperties['test']): void;
 }
 
 export { suite as describe };

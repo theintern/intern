@@ -621,7 +621,7 @@ export interface SuiteLifecycleFunction {
 }
 
 export interface TestLifecycleFunction {
-	(this: Suite, suite: Suite, test: Test): void | PromiseLike<void>;
+	(this: Suite, test: Test, suite: Suite): void | PromiseLike<void>;
 }
 
 // Properties that define a Suite. Note that 'tests' isn't included so that other interfaces, such as the object

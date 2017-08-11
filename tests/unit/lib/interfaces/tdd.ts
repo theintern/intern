@@ -82,13 +82,13 @@ registerSuite('lib/interfaces/tdd', function () {
 				function createTest(name: lifecycle) {
 					return () => {
 						tddInt.suite('foo', () => {
-							tddInt[name](() => { });
+							(tddInt[name] as any)(() => { });
 						});
 						const suite = <Suite>parent.tests[0];
 						assert.instanceOf(suite[name], Function);
 
 						assert.throws(() => {
-							tddInt[name](() => { });
+							(tddInt[name] as any)(() => { });
 						}, /must be declared/);
 					};
 				}
