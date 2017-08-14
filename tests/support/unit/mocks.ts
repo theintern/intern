@@ -83,6 +83,10 @@ export function mockNodeExecutor(properties?: { [P in keyof Node]?: Node[P] }) {
 
 		shouldInstrumentFile(_filename: string) {
 			return false;
+		},
+
+		readFile(_filename: string, _omitCode = false) {
+			return Task.reject<any>(new Error());
 		}
 	}, properties || {}));
 	return <MockNode>executor;

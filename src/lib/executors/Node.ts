@@ -17,7 +17,7 @@ import Suite, { isSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
 import { RuntimeEnvironment } from '../types';
 import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
-import { createInstrumenter, Instrumenter, readInitialCoverage } from 'istanbul-lib-instrument';
+import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
 import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
 import global from '@dojo/shim/global';
@@ -49,6 +49,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	server: Server;
 	tunnel: Tunnel;
 
+	protected _codeCache: { [key: string]: { mtime: number; size: number; data: string; } };
 	protected _coverageMap: CoverageMap;
 	protected _coverageFiles: string[];
 	protected _loadingFunctionalSuites: boolean;
@@ -84,6 +85,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		this._sourceMaps = createSourceMapStore();
 		this._instrumentedMaps = createSourceMapStore();
 		this._errorFormatter = new ErrorFormatter(this);
+		this._codeCache = Object.create(null);
 		this._coverageMap = createCoverageMap();
 
 		this.registerReporter('pretty', Pretty);
@@ -146,6 +148,10 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		return this._sourceMaps;
 	}
 
+	get hasCoveredFiles() {
+		return Boolean(this.config.coverage && this._coverageFiles.length);
+	}
+
 	/**
 	 * The root suites managed by this executor
 	 */
@@ -186,7 +192,10 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		}
 		try {
 			const newCode = this._instrumenter.instrumentSync(code, normalize(filename), sourceMap);
+
+			this._coverageMap.addFileCoverage(this._instrumenter.lastFileCoverage());
 			this._instrumentedMaps.registerMap(filename, this._instrumenter.lastSourceMap());
+
 			return newCode;
 		}
 		catch (error) {
@@ -226,21 +235,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	 * Return true if a given file should be instrumented based on the current config
 	 */
 	shouldInstrumentFile(filename: string) {
-		const excludeInstrumentation = this.config.excludeInstrumentation;
-		if (excludeInstrumentation === true) {
-			return false;
-		}
-
-		const basePath = this._instrumentBasePath;
-		filename = normalizePath(filename);
-		if (filename.indexOf(basePath) !== 0) {
-			return false;
-		}
-
-		if (excludeInstrumentation && !excludeInstrumentation.test(filename.slice(basePath.length))) {
-			return false;
-		}
-
 		if (this._coverageFiles && this._coverageFiles.indexOf(filename) === -1) {
 			return false;
 		}
@@ -363,7 +357,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		// Create a subclass of ProxiedSession here that will ensure the executor is set
 		class InitializedProxiedSession extends ProxiedSession {
 			executor = executor;
-			coverageEnabled = config.functionalCoverage && config.excludeInstrumentation !== true;
+			coverageEnabled = config.functionalCoverage && executor.hasCoveredFiles;
 			coverageVariable = config.coverageVariable;
 			serverUrl = config.serverUrl;
 			serverBasePathLength = config.basePath.length;
@@ -439,7 +433,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				if (config.suites.length + config.browser.suites.length > 0) {
 					suite.add(new RemoteSuite({
 						before() {
-							session.coverageEnabled = config.excludeInstrumentation !== true;
+							session.coverageEnabled = executor.hasCoveredFiles;
 						}
 					}));
 				}
@@ -458,6 +452,13 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		return Task.resolve(this._loader(suites))
 			.then(() => { this.log('Loaded functional suites:', suites); })
 			.finally(() => { this._loadingFunctionalSuites = false; });
+	}
+
+	protected _loadSuites() {
+		if (this.hasCoveredFiles) {
+			this._setInstrumentationHooks();
+		}
+		return super._loadSuites();
 	}
 
 	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
@@ -494,15 +495,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 					original: 'excludeInstrumentation',
 					replacement: 'coverage'
 				});
-				if (value === true) {
-					this._setOption(name, value);
-				}
-				else if (typeof value === 'string' || value instanceof RegExp) {
-					this._setOption(name, parseValue(name, value, 'regexp'));
-				}
-				else {
-					throw new Error(`Invalid value "${value}" for ${name}; must be (string | RegExp | true)`);
-				}
 				break;
 
 			case 'tunnel':
@@ -590,10 +582,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				preserveComments: true,
 				produceSourceMap: true
 			}));
-
-			if (config.excludeInstrumentation !== true) {
-				this._setInstrumentationHooks();
-			}
 		});
 	}
 
@@ -616,7 +604,23 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 					testTask.cancel();
 				}
 			}
-		);
+		).finally(() => {
+			// For all files that are marked for coverage that weren't
+			// read, read the file and instrument the code (adding it
+			// to the overall coverage map)
+			const coveredFiles = this._coverageMap.files();
+			this._coverageFiles.forEach(filename => {
+				if (coveredFiles.indexOf(filename) > -1) {
+					return;
+				}
+
+				try {
+					const code = readFileSync(filename, { encoding: 'utf8' });
+					this.instrumentCode(code, filename);
+				}
+				catch (_error) {}
+			});
+		});
 	}
 
 	protected _runRemoteTests() {
@@ -647,18 +651,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 					this.log('Emitting coverage');
 					return this._emitCoverage('functional tests');
 				}
-			})
-			.finally(() => {
-				// If coverage is set, generate initial coverage data for files with no coverage results
-				const filesWithCoverage = this._coverageMap.files();
-				this._coverageFiles
-					.filter(path => filesWithCoverage.indexOf(path) === -1)
-					.forEach(filename => {
-						const code = readFileSync(filename, { encoding: 'utf8' });
-						const instrumentedCode = this.instrumentCode(code, filename);
-						const coverage = readInitialCoverage(instrumentedCode);
-						this._coverageMap.addFileCoverage(coverage.coverageData);
-					});
 			});
 	}
 
@@ -708,7 +700,7 @@ export interface Config extends BaseConfig {
 	environments: EnvironmentSpec[];
 
 	/** A regexp matching file names that shouldn't be instrumented, or `true` to disable instrumentation. */
-	excludeInstrumentation: true | RegExp;
+	excludeInstrumentation: never;
 
 	/** If true, collect coverage data from functional tests */
 	functionalCoverage: boolean;
