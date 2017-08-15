@@ -1,14 +1,15 @@
+# Customisation
 
--   [Customisation](https://theintern.github.io/intern/#customisation)
-    -   [Custom interfaces](https://theintern.github.io/intern/#custom-interfaces)
-    -   [Custom executors <span class="versionBadge">3.0</span>](https://theintern.github.io/intern/#custom-executors)
-    -   [Custom reporters](https://theintern.github.io/intern/#custom-reporters)
+<!-- vim-markdown-toc GFM -->
+* [Custom interfaces](#custom-interfaces)
+	* [As a standard module (for tests written in JavaScript)](#as-a-standard-module-for-tests-written-in-javascript)
+	* [As a loader plugin (for tests written in other languages)](#as-a-loader-plugin-for-tests-written-in-other-languages)
+* [Custom executors <span class="versionBadge">3.0</span>](#custom-executors-span-classversionbadge30span)
+* [Custom reporters](#custom-reporters)
 
+<!-- vim-markdown-toc -->
 
-Customisation
--------------
-
-### Custom interfaces
+## Custom interfaces
 
 Custom interfaces allow Intern to understand test files written for other testing systems—and even other languages! If you want to use Intern but don’t want to spend time and energy converting tests you’ve already written for another test system, writing a custom interface may be the quickest solution.
 
@@ -22,7 +23,7 @@ Any interface in Intern, including a custom interface, is responsible for doing 
 
 There are two ways to write test interfaces: as standard modules, or as loader plug-ins.
 
-#### As a standard module (for tests written in JavaScript)
+### As a standard module (for tests written in JavaScript)
 
 A standard module is a normal AMD module that returns a test interface.
 
@@ -226,7 +227,7 @@ Then, you’d only need to write a custom Jasmine test interface that creates In
 
 The [built-in interfaces](https://github.com/theintern/intern/tree/3.4/lib/interfaces) can also be used as a reference to understand how to better create a custom interface.
 
-#### As a loader plugin (for tests written in other languages)
+### As a loader plugin (for tests written in other languages)
 
 For tests written in other languages, an AMD [loader plugin](https://github.com/amdjs/amdjs-api/blob/master/LoaderPlugins.md) can be used instead of a normal module to asynchronously parse and compile the foreign source code into a JavaScript function that can be called by an Intern Test object:
 
@@ -280,11 +281,11 @@ To use a plugin-based test interface like this, use the AMD loader plugin syntax
       ]
     });
 
-### Custom executors <span class="versionBadge">3.0</span>
+## Custom executors <span class="versionBadge">3.0</span>
 
 TODO
 
-### Custom reporters
+## Custom reporters
 
 If none of the [built-in reporters](https://theintern.github.io/intern/#reporter-overview) provide the information you need, you can write a custom reporter and reference it using an absolute module ID (i.e. `'tests/support/CustomReporter'`).
 

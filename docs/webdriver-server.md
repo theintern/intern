@@ -1,13 +1,23 @@
+# Getting a WebDriver server
 
--   [Getting a WebDriver server](https://theintern.github.io/intern/#webdriver-server)
-    -   [Cloud hosting](https://theintern.github.io/intern/#hosted-selenium)
-    -   [Local Selenium](https://theintern.github.io/intern/#local-selenium)
-    -   [Selenium Grid](https://theintern.github.io/intern/#selenium-grid)
+<!-- vim-markdown-toc GFM -->
+* [Cloud hosting](#cloud-hosting)
+	* [BrowserStack](#browserstack)
+	* [CrossBrowserTesting](#crossbrowsertesting)
+	* [Sauce Labs](#sauce-labs)
+	* [TestingBot](#testingbot)
+* [Local Selenium](#local-selenium)
+	* [Using a WebDriver directly](#using-a-webdriver-directly)
+		* [Using ChromeDriver (Chrome-only)](#using-chromedriver-chrome-only)
+		* [Using PhantomJS 2](#using-phantomjs-2)
+	* [Using Selenium (all browsers)](#using-selenium-all-browsers)
+		* [SeleniumTunnel](#seleniumtunnel)
+		* [Manually running Selenium](#manually-running-selenium)
+* [Selenium Grid](#selenium-grid)
 
-Getting a WebDriver server
---------------------------
+<!-- vim-markdown-toc -->
 
-### Cloud hosting
+## Cloud hosting
 
 Using cloud hosting is the fastest way to get an operational Selenium server. Intern natively provides support for four major cloud hosting providers:
 
@@ -16,7 +26,7 @@ Using cloud hosting is the fastest way to get an operational Selenium server. In
 -   [Sauce Labs](https://saucelabs.com/)
 -   [TestingBot](https://testingbot.com/)
 
-#### BrowserStack
+### BrowserStack
 
 1.  [Sign up](https://www.browserstack.com/users/sign_up) for [BrowserStack Automate](https://www.browserstack.com/automate)
 2.  Get your Automate username and password from the [Automate account settings page](https://www.browserstack.com/accounts/automate)
@@ -26,7 +36,7 @@ Using cloud hosting is the fastest way to get an operational Selenium server. In
     -   Set `browserstackUsername` and `browserstackAccessKey` in your Gruntfile’s intern task options
     -   Set `username` and `accessKey` on your [tunnelOptions](https://theintern.github.io/intern/#option-tunnelOptions) configuration option
 
-#### CrossBrowserTesting
+### CrossBrowserTesting
 
 1.  [Sign up](https://www.crossbrowsertesting.com/freetrial) for a trial account
 2.  Get your authkey from your account settings page
@@ -36,7 +46,7 @@ Using cloud hosting is the fastest way to get an operational Selenium server. In
     -   Set `cbtUsername` and `cbtApikey` in your Gruntfile’s intern task options
     -   Set `username` and `apiKey` on your [tunnelOptions](https://theintern.github.io/intern/#option-tunnelOptions) configuration option
 
-#### Sauce Labs
+### Sauce Labs
 
 1.  [Sign up](https://saucelabs.com/signup/trial) for a Sauce Labs account
 2.  Get your master account access key from the sidebar of the [Account settings page](https://saucelabs.com/account), or create a separate sub-account on the [sub-accounts page](https://saucelabs.com/sub-accounts) and get a username and access key from there
@@ -46,7 +56,7 @@ Using cloud hosting is the fastest way to get an operational Selenium server. In
     -   Set `sauceUsername` and `sauceAccessKey` in your Gruntfile’s intern task options
     -   Set `username` and `accessKey` on your [tunnelOptions](https://theintern.github.io/intern/#option-tunnelOptions) configuration option
 
-#### TestingBot
+### TestingBot
 
 1.  [Sign up](https://testingbot.com/users/sign_up) for a TestingBot account
 2.  Get your API key and secret from the [Account settings page](https://testingbot.com/members/user/edit)
@@ -58,15 +68,15 @@ Using cloud hosting is the fastest way to get an operational Selenium server. In
 
 Cloud hosts typically have their own unique capabilities options, so be sure to read the [capabilities documentation](https://theintern.github.io/intern/#option-capabilities) for the provider you’re using.
 
-### Local Selenium
+## Local Selenium
 
 Depending upon which browsers you want to test locally, a few options are available.
 
-#### Using a WebDriver directly
+### Using a WebDriver directly
 
 It's possible to run a browser-specific WebDriver in standalone-mode and use Intern with it.
 
-##### Using ChromeDriver (Chrome-only)
+#### Using ChromeDriver (Chrome-only)
 
 If you’re just looking to have a local environment for developing functional tests, a stand-alone ChromeDriver installation works great.
 
@@ -78,7 +88,7 @@ If you’re just looking to have a local environment for developing functional t
 
 If you are having trouble starting the server or getting Intern to communicate with it, verify the server is running correctly by going to <http://localhost:4444/wd/hub/status>. It should return a JSON response with a `status` field of 0.
 
-##### Using PhantomJS 2
+#### Using PhantomJS 2
 
 If you want to use a fake browser to develop your tests, PhantomJS 2 is an option.
 
@@ -90,11 +100,11 @@ If you want to use a fake browser to develop your tests, PhantomJS 2 is an optio
 
 Since PhantomJS is not a real browser that your users will ever actually use, it’s not the best idea to rely on it for testing unless you have a [continuous integration](https://theintern.github.io/intern/#ci) system set up to test with real browsers.
 
-#### Using Selenium (all browsers)
+### Using Selenium (all browsers)
 
 If you want to test against more than just Chrome, or you want to use multiple browsers at once, you can run a local copy of Selenium. You can do this manually, or using SeleniumTunnel.
 
-##### <span class="versionBadge">3.3</span> SeleniumTunnel
+#### SeleniumTunnel
 
 If Java (JRE or JDK) is installed on the testing system, you can set the tunnel class to `SeleniumTunnel` to have Intern automatically download and run Selenium. Use the `drivers` tunnel option to tell the tunnel which WebDrivers to download:
 
@@ -107,7 +117,7 @@ Intern will download and start Selenium at the beginning of the functional tests
 
 Note that to use Selenium with Firefox 47+, you will need to include `marionette: true` in the [environment object](https://theintern.github.io/intern/#option-environments), and code coverage will need to be disabled by setting `excludeInstrumentation: true`.
 
-##### Manually running Selenium
+#### Manually running Selenium
 
 Start by downloading the servers for each platform you want to test:
 
@@ -143,7 +153,7 @@ Each driver you use with Selenium has its own installation and configuration req
 
 It is not necessary to manually add browser sessions to the server through the Web interface. Selenium will automatically create new sessions when a connection from Intern is established.
 
-### Selenium Grid
+## Selenium Grid
 
 selenium-server-standalone-{version}.jar includes both stand-alone and grid server functionality. To start a Selenium Grid, first create a hub by running Selenium server in hub mode:
 

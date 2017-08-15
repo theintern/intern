@@ -1,16 +1,28 @@
+# Continuous integration
 
--   [Continuous integration](https://theintern.github.io/intern/#ci)
-    -   [Jenkins](https://theintern.github.io/intern/#ci-jenkins)
-    -   [Travis CI](https://theintern.github.io/intern/#ci-travis)
-    -   [TeamCity](https://theintern.github.io/intern/#ci-teamcity)
-    -   [Codeship](https://theintern.github.io/intern/#ci-codeship)
-    -   [Bamboo](https://theintern.github.io/intern/#ci-bamboo)
+<!-- vim-markdown-toc GFM -->
+* [Jenkins](#jenkins)
+	* [Intern as a post-build action to an existing project](#intern-as-a-post-build-action-to-an-existing-project)
+	* [Intern as part of a free-style software project](#intern-as-part-of-a-free-style-software-project)
+	* [Intern as an execution step in a Maven pom.xml](#intern-as-an-execution-step-in-a-maven-pomxml)
+* [Travis CI](#travis-ci)
+* [TeamCity](#teamcity)
+	* [Intern as an additional build step](#intern-as-an-additional-build-step)
+	* [Intern as a separate build configuration](#intern-as-a-separate-build-configuration)
+* [Codeship](#codeship)
+	* [For a new project:](#for-a-new-project)
+	* [For an existing project:](#for-an-existing-project)
+	* [Setup Commands](#setup-commands)
+	* [Configure Test Pipelines](#configure-test-pipelines)
+* [Bamboo](#bamboo)
+	* [Manage elastic instances](#manage-elastic-instances)
+	* [Create a build plan](#create-a-build-plan)
+	* [Configure your build plan](#configure-your-build-plan)
+	* [Running your build plan and verifying its output](#running-your-build-plan-and-verifying-its-output)
 
+<!-- vim-markdown-toc -->
 
-Continuous integration
-----------------------
-
-### Jenkins
+## Jenkins
 
 When integrating Intern with Jenkins, there are two primary ways in which the integration can be completed: either creating a new project that executes as a post-build action for your primary project using a shared workspace, or by creating a multi-step free-style software project that executes Intern after the first (existing) build step.
 
@@ -20,7 +32,7 @@ When using Intern with Jenkins, use the `junit` reporter and enable the “Publi
 
 To add code coverage data to Jenkins, add the `cobertura` reporter, install the Cobertura plugin for Jenkins, and enable the “Publish Cobertura Coverage Report” post-build action.
 
-#### Intern as a post-build action to an existing project
+### Intern as a post-build action to an existing project
 
 This option enables you to use an existing build project by adding a new project that executes unit tests in a separate job from the main build. This option is ideal for situations where you want to be able to manage the build and testing processes separately, or have several projects that need to be built downstream from the main project that can occur in parallel with test execution.
 
@@ -45,7 +57,7 @@ Once the main project is set to use the shared workspace, the new unit test proj
 
 Once this project has been configured, test everything by running a build on the main project. Once the main project build finishes successfully, the new “myApp-tests” project will begin executing automatically.
 
-#### Intern as part of a free-style software project
+### Intern as part of a free-style software project
 
 When working with an existing free-style software project it is possible to simply add the unit testing as an extra build step, following steps similar to the above:
 
@@ -54,7 +66,7 @@ When working with an existing free-style software project it is possible to simp
 3.  Under “Execute shell”, enter the command you want to use to run Intern. See the [Running tests](https://theintern.github.io/intern/#runnin-intern) section for possible commands.
 4.  Save changes.
 
-#### Intern as an execution step in a Maven pom.xml
+### Intern as an execution step in a Maven pom.xml
 
 Intern can be executed by Maven from a `pom.xml` during the test or integration-test phases of the build by using the `exec-maven-plugin` to spawn a new Intern process:
 
@@ -81,7 +93,7 @@ Intern can be executed by Maven from a `pom.xml` during the test or integration-
 
 The `executable` and `arguments` elements should be modified to run Intern using your desired executor and configuration.
 
-### Travis CI
+## Travis CI
 
 In order to enable [Travis CI](http://travis-ci.org/) builds for your project, you must first create a `.travis.yml` in your repository root that will load and execute Intern:
 
@@ -103,13 +115,13 @@ Once you have a Travis configuration, you just need to actually start the thing:
 
 The next time you push commits to the repository, you will be able to watch Intern happily execute all your tests directly from the Travis CI Web site. Any time you make a new commit, or a new pull request is issued, Travis will automatically re-run your test suite and send notification emails on failure.
 
-### TeamCity
+## TeamCity
 
 There are two primary ways that Intern can be integrated with a [TeamCity](http://www.jetbrains.com/teamcity/) project: either by adding a new build configuration that is chained using a post-build trigger, or by adding additional build steps to an existing build configuration.
 
 When using Intern with TeamCity, use Intern’s `teamcity` reporter for best integration.
 
-#### Intern as an additional build step
+### Intern as an additional build step
 
 1.  Go to the project that you want to add Intern to and click “Edit Project Settings” at the top-right.
 2.  In the left-hand menu, click “General Settings”.
@@ -122,7 +134,7 @@ When using Intern with TeamCity, use Intern’s `teamcity` reporter for best int
 9.  Under “Custom script”, enter the command you want to use to run Intern. See the [Running tests](https://theintern.github.io/intern/#running-intern) section for possible commands.
 10. Click “Save”.
 
-#### Intern as a separate build configuration
+### Intern as a separate build configuration
 
 1.  Go to the project that you want to add Intern to and click “Edit Project Settings” at the top-right.
 2.  In the left-hand menu, click “General Settings”.
@@ -146,11 +158,11 @@ When using Intern with TeamCity, use Intern’s `teamcity` reporter for best int
 20. Check “Trigger after successful build only”.
 21. Click “Save”.
 
-### Codeship
+## Codeship
 
 To use Intern with [Codeship](https://codeship.com/), you’ll need to configure a test pipeline:
 
-#### For a new project:
+### For a new project:
 
 1.  Log in to Codeship.
 2.  In the upper-left corner, click “Select Project...”.
@@ -161,7 +173,7 @@ To use Intern with [Codeship](https://codeship.com/), you’ll need to configure
 7.  The following steps are the same as for an existing project.
 8.  Once completed, click “Save and go to dashboard” and then push a commit to see your build tested.
 
-#### For an existing project:
+### For an existing project:
 
 1.  Log in to Codeship.
 2.  In the upper-left corner, click “Select Project...”.
@@ -169,7 +181,7 @@ To use Intern with [Codeship](https://codeship.com/), you’ll need to configure
 4.  From the “Test” Project Settings page, select “I want to create my own custom commands” from the dropdown box labeled “Select your technology to prepopulate basic commands”.
 5.  The remaining steps are identical to creating any new project with Codeship.
 
-#### Setup Commands
+### Setup Commands
 
 Setup Commands are those that allow you to set up your environment. For testing a project with Intern, you must install node and your project’s dependencies:
 
@@ -180,7 +192,7 @@ Setup Commands are those that allow you to set up your environment. For testing 
     npm install
                   
 
-#### Configure Test Pipelines
+### Configure Test Pipelines
 
 The test pipeline is what actually runs your specified test commands. This is equivalent to running the tests on your local development environment. For example, to run the Intern self-tests with the `intern-client`, you would enter the following command:
 
@@ -194,11 +206,11 @@ If you want to run tests with Selenium, Codeship supports this as well! You just
     node_modules/.bin/intern-runner config=tests/selftest.intern.js tunnel=NullTunnel
                   
 
-### Bamboo
+## Bamboo
 
 Using Intern with Bamboo involves creating a build plan, described below. Note that the instructions below were tested using Bamboo Cloud edition, but configuring a build plan task should work similarly using a local agent.
 
-#### Manage elastic instances
+### Manage elastic instances
 
 By default, if you run a build on Bamboo and an agent isn’t available, an Elastic Bamboo image is started as a Windows Server instance. Intern behavior is more consistent running in a POSIX compliant environment, so follow the steps below to create a Linux instance:
 
@@ -209,7 +221,7 @@ By default, if you run a build on Bamboo and an agent isn’t available, an Elas
 
 You will be taken to the “Manage elastic instances” page, where you will see your image and its current state. Once the image status is “Running”, the Elastic Agent starts. Once the agent has started and is either “Pending” or “Idle”, you may begin your build.
 
-#### Create a build plan
+### Create a build plan
 
 1.  Click the “Create” dropdown button at the top-middle of any Bamboo administration page.
 2.  Select “Create a new plan” from the menu.
@@ -218,7 +230,7 @@ You will be taken to the “Manage elastic instances” page, where you will see
 5.  Link the build plan to a previously linked or new repository.
 6.  Click “Configure plan”.
 
-#### Configure your build plan
+### Configure your build plan
 
 By default, the plan starts with an initial task of “Source Code Checkout”, which you can leave configured as is, because you linked the repository in a previous step.
 
@@ -240,7 +252,7 @@ By default, the plan starts with an initial task of “Source Code Checkout”, 
 9.  Below the task configuration interface, make sure “Yes please!” is checked under the “Enable this plan?” heading.
 10. Click the “Create” button to create your build plan.
 
-#### Running your build plan and verifying its output
+### Running your build plan and verifying its output
 
 1.  Click the “Build” dropdown menu item from the Bamboo administration page top menu and select “All build plans”.
 2.  Select your plan from those shown.

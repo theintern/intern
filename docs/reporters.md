@@ -1,17 +1,14 @@
+# Getting test results
 
--   [Getting test results](https://theintern.github.io/intern/#reporters)
-    -   [Overview](https://theintern.github.io/intern/#reporter-overview)
-    -   [Test results reporters](https://theintern.github.io/intern/#reporter-results)
-    -   [Code coverage reporters](https://theintern.github.io/intern/#reporter-lcov)
-    -   [Reporter options <span class="versionBadge">3.0</span>](https://theintern.github.io/intern/#reporter-options)
+<!-- vim-markdown-toc GFM -->
+* [Overview](#overview)
+* [Test results reporters](#test-results-reporters)
+* [Code coverage reporters](#code-coverage-reporters)
+* [Reporter options](#reporter-options)
 
+<!-- vim-markdown-toc -->
 
-
-
-Getting test results
---------------------
-
-### Overview
+## Overview
 
 Information about the state of a test run needs to be published in many different formats in order to properly integrate with different systems. To facilitate this, Intern allows reporters to be registered. A reporter is a simple object that receives messages from the rest of the test system and forwards that information, in the correct format, to a destination, like a file, console, or HTTP server.
 
@@ -19,7 +16,7 @@ There are two primary kinds of reporters: reporters for *test results*, and repo
 
 Reporters for a test run are defined using the [reporters](https://theintern.github.io/intern/#option-reporters) configuration option.
 
-### Test results reporters
+## Test results reporters
 
 Test results reporters provide information about the tests themselves—whether or not they passed, how long they took to run, and so on.
 
@@ -68,7 +65,7 @@ watermarks</td>
 </tbody>
 </table>
 
-### Code coverage reporters
+## Code coverage reporters
 
 Code coverage reporters provide information about the state of code coverage—how many lines of code, functions, code branches, and statements were executed by the test system.
 
@@ -112,7 +109,7 @@ watermarks</td>
 
 Generally speaking, code coverage reporters will never work directly from the browser client because they require code to be instrumented in order to collect coverage data.
 
-### Reporter options
+## Reporter options
 
 As noted in the tables above, each reporter supports one or more different configuration options.
 

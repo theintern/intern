@@ -1,17 +1,17 @@
+# Functional testing
 
--   [Functional testing](https://theintern.github.io/intern/#functional-testing)
-    -   [Writing a functional test](https://theintern.github.io/intern/#writing-functional-test)
-    -   [Page objects](https://theintern.github.io/intern/#page-objects)
-    -   [Testing native apps](https://theintern.github.io/intern/#native-apps)
-    -   [Debugging](https://theintern.github.io/intern/#debugging)
+<!-- vim-markdown-toc GFM -->
+* [Writing a functional test](#writing-a-functional-test)
+* [Page objects](#page-objects)
+* [Testing native apps](#testing-native-apps)
+	* [Appium](#appium)
+	* [ios-driver](#ios-driver)
+	* [Selendroid](#selendroid)
+* [Debugging](#debugging)
 
+<!-- vim-markdown-toc -->
 
-
-
-Functional testing
-------------------
-
-### Writing a functional test
+## Writing a functional test
 
 As described in the [fundamentals overview](https://theintern.github.io/intern/#fundamentals-overview), functional testing enables application testing by automating user interactions like navigating to pages, scrolling, clicking, reading content, etc.. It’s used as an automated alternative to manual user testing.
 
@@ -65,7 +65,7 @@ In this example, taken from the [Intern tutorial](https://github.com/theintern/i
 
 Calling `this.remote.quit()` will break Intern, so don’t do it. Intern will always handle cleaning up the remote environment on your behalf once testing is finished.
 
-### Page objects
+## Page objects
 
 A page object is like a widget for your test code. It abstracts away the details of your UI so you can avoid tightly coupling your test code to a specific view (DOM) tree design.
 
@@ -157,13 +157,13 @@ Then, the page object would be used in tests instead of the `this.remote` object
       });
     });
 
-### Testing native apps
+## Testing native apps
 
 Native mobile application UIs can be tested by Intern using an [Appium](http://appium.io/), [ios-driver](http://ios-driver.github.io/ios-driver/), or [Selendroid](http://selendroid.io/) server. Each server has slightly different support for WebDriver, so make sure to read each project’s documentation to pick the right one for you.
 
 Always be sure to set `fixSessionCapabilities: false` in your environment capabilities when testing a native app to bypass feature detection code that only works for Web apps.
 
-#### Appium
+### Appium
 
 To test a native app with Appium, one method is to pass the path to a valid IPA or APK using the `app` key in your [environments](https://theintern.github.io/intern/#option-environments) configuration:
 
@@ -200,7 +200,7 @@ The available capabilities for Appium are complex, so review the [Appium capabil
 
 Once the application has started successfully, you can interact with it using any of the [supported WebDriver APIs](http://appium.io/slate/en/master/?javascript#finding-and-interacting-with-elements).
 
-#### ios-driver
+### ios-driver
 
 To test a native app with ios-driver, first run ios-driver, passing one or more app bundles for the applications you want to test:
 
@@ -223,7 +223,7 @@ Then, pass the bundle ID and version using the `CFBundleName` and `CFBundleVersi
 
 Once the application has started successfully, you can interact with it using any of the [supported WebDriver APIs](https://ios-driver.github.io/ios-driver/?page=native).
 
-#### Selendroid
+### Selendroid
 
 To test a native app with Selendroid, first run Selendroid, passing one or more APKs for the applications you want to test:
 
@@ -243,7 +243,7 @@ Then, pass the Android app ID of the application using the `aut` key in your [en
 
 Once the application has started successfully, you can interact with it using any of the [supported WebDriver APIs](http://selendroid.io/native.html).
 
-### Debugging
+## Debugging
 
 Keep in mind that JavaScript code is running in two separate environments: your test suites are run in Node.js, while the page loaded by functional tests runs in a web browser. Functional tests can be debugged with Node.js’s built-in debugger, or with the more user-friendly [node-inspector](https://github.com/node-inspector/node-inspector). Note that these instructions are for debugging functional tests, which run in Node.js; debugging code on the test page itself should be done using the browser's debugging tools.
 

@@ -1,21 +1,6 @@
+# Running tests
 
-
--   [Running tests](https://theintern.github.io/intern/#execution-modes)
-    -   [The browser client](https://theintern.github.io/intern/#browser-client)
-    -   [The Node.js client](https://theintern.github.io/intern/#node-client)
-    -   [The test runner](https://theintern.github.io/intern/#test-runner)
-    -   [Using custom arguments](https://theintern.github.io/intern/#custom-args)
-    -   [Using Grunt](https://theintern.github.io/intern/#grunt)
-    -   [Using Gulp](https://theintern.github.io/intern/#gulp)
-
-
-
-
-
-Running tests
--------------
-
-### The browser client
+## The browser client
 
 The browser client allows unit tests to be run directly in a browser without any server other than a regular HTTP server. This is useful when you are in the process of writing unit tests that require a browser, or when you need to run a debugger in the browser to inspect a test failure.
 
@@ -48,13 +33,13 @@ The browser client supports the following arguments:
 | config                                                               | The module ID of the Intern configuration file that should be used. Relative to `initialBaseUrl`. This argument is required. | none                           |
 | [initialBaseUrl](https://theintern.github.io/intern/#option-baseUrl) | The path to use when resolving the `basePath` in a browser.                                                                  | `'node_modules/intern/../../'` |
 
-#### initialBaseUrl (string) <span class="versionBadge">3.0</span>
+### initialBaseUrl (string) 
 
 The path to use when resolving the `basePath` in a browser. Since browsers do not have any concept of a current working directory, using this argument allows a pseudo-cwd to be specified for the browser client in order to match up file paths with what exists on the underlying filesystem. This argument should always be an absolute path (i.e. it should be the entire path that comes after the domain name).
 
 You can also specify any valid [configuration option](https://theintern.github.io/intern/#configuration) in the query string.
 
-### The Node.js client
+## The Node.js client
 
 The Node.js client allows unit tests to be run directly within a local Node.js environment. This is useful when you are writing unit tests for code that runs in Node.js. It is invoked by running intern-client on the command-line.
 
@@ -83,7 +68,7 @@ The Node.js client supports the following arguments:
 
 You can also specify any valid [configuration option](https://theintern.github.io/intern/#configuration) as an argument on the command-line.
 
-### The test runner
+## The test runner
 
 The test runner allows functional tests to be executed against a Web browser or native mobile application. It also allows unit tests & functional tests to be executed on multiple environments at the same time. This is useful when you want to automate UI testing, or when you want to run your entire test suite against multiple environments at once (for example, in [continuous integration](https://theintern.github.io/intern/#ci)). It is invoked by running intern-runner on the command-line.
 
@@ -120,7 +105,7 @@ The test runner supports the following arguments:
 
 You can also specify any valid [configuration option](https://theintern.github.io/intern/#configuration) as an argument on the command-line.
 
-### Using custom arguments
+## Using custom arguments
 
 Intern allows arbitrary arguments to be passed on the command-line that can then be retrieved through the main Intern object. This is useful for cases where you want to be able to pass things like custom ports, servers, etc. dynamically:
 
@@ -152,7 +137,7 @@ This makes it possible to, for example, define a dynamic proxy URL from the comm
 
 In Intern 3, all arguments from the command-line are automatically added to the configuration object, so default configuration properties can be changed without needing to use custom arguments. For instance, in the previous example, intern-runner config=tests/intern proxyUrl=http://id1.example/ could have been used instead of a custom argument.
 
-### Using Grunt
+## Using Grunt
 
 Grunt support is built into Intern. Install Intern and load the Grunt task into your Gruntfile using `grunt.loadNpmTasks('intern')`:
 
@@ -205,7 +190,7 @@ The following events are available:
 
 The current Grunt events are rudimentary, based on the output of the default [console reporter](https://theintern.github.io/intern/#reporter-results), and do not provide much detail into the actual state of the test runner to Grunt tasks. Future versions of Intern are likely to improve to provide first-class event support, if sufficient demand exists for this feature.
 
-### Using Gulp
+## Using Gulp
 
 Intern doesn’t provide a gulp plugin, but running Intern with gulp is much like running it with Grunt. The key difference is that Intern is run explicitly in gulp rather than through a plugin. The following example shows one way to do this
 
