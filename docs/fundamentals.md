@@ -2,7 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 * [What is Intern?](#what-is-intern)
-	* [Who is Intern best for?](#who-is-intern-best-for)
+* [Who is Intern best for?](#who-is-intern-best-for)
 * [System requirements](#system-requirements)
 * [Reading this guide](#reading-this-guide)
 
@@ -24,7 +24,7 @@ Intern also comes with Grunt tasks so it can be quickly added to existing Grunt-
 
 Intern is used by companies large and small, including some you may have heard of, like Aerohive Networks, Esri, HSBC, IBM, ING, Intuit, Marriott, Mozilla, Stripe, and Twitter. We hope you’ll enjoy working with it too!
 
-### Who is Intern best for?
+## Who is Intern best for?
 
 Intern is best for development teams that want a complete, flexible, [standards-based](http://www.w3.org/TR/webdriver/), high-quality testing solution that Just Works. It’s best for testing JavaScript code, but it is also an excellent tool for testing server-generated Web pages or native mobile apps. Its built-in support for [source maps](http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/) makes it uniquely well-suited for developers that compile their code to JavaScript from another language, such as TypeScript, or that run tests against production-ready built/minified code.
 
