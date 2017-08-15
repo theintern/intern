@@ -93,5 +93,5 @@ Sections that look like this tell you about functionality that is deprecated and
 
 Sections that look like this tell you about dangerous anti-patterns that can break, slow down, or make your code less maintainable.
 
-Later sections of this guide are designed to be built upon knowledge presented in earlier parts. If you jump into the middle and feel confused, step back a section or two until you find the information you need to move forward. We also accept [pull requests](https://github.com/theintern/intern/pulls?q=is%3Aopen+label%3Adocumentation+is%3Apr) to the [documentation source](https://github.com/theintern/intern/tree/gh-pages) in order to improve its flow and clarity.
+Later sections of this guide are designed to be built upon knowledge presented in earlier parts. If you jump into the middle and feel confused, step back a section or two until you find the information you need to move forward. We also accept [pull requests](https://github.com/theintern/intern/pulls?q=is%3Aopen+label%3Adocumentation+is%3Apr) to the [documentation source](https://github.com/theintern/intern/tree/3.4/docs) in order to improve its flow and clarity.
 

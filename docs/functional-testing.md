@@ -4,55 +4,57 @@
 * [Writing a functional test](#writing-a-functional-test)
 * [Page objects](#page-objects)
 * [Testing native apps](#testing-native-apps)
-	* [Appium](#appium)
-	* [ios-driver](#ios-driver)
-	* [Selendroid](#selendroid)
+    * [Appium](#appium)
+    * [ios-driver](#ios-driver)
+    * [Selendroid](#selendroid)
 * [Debugging](#debugging)
 
 <!-- vim-markdown-toc -->
 
 ## Writing a functional test
 
-As described in the [fundamentals overview](https://theintern.github.io/intern/#fundamentals-overview), functional testing enables application testing by automating user interactions like navigating to pages, scrolling, clicking, reading content, etc.. It’s used as an automated alternative to manual user testing.
+As described in the [fundamentals overview](./fundamentals.md), functional testing enables application testing by automating user interactions like navigating to pages, scrolling, clicking, reading content, etc.. It’s used as an automated alternative to manual user testing.
 
-Functional tests are registered using the same interfaces as [unit tests](https://theintern.github.io/intern/#writing-unit-tests), and use the same internal [Suite](https://theintern.github.io/intern/#suite-object) and [Test](https://theintern.github.io/intern/#test-object) objects, but are loaded using the [functionalSuites](https://theintern.github.io/intern/#option-functionalSuites) configuration option instead of the [suites](https://theintern.github.io/intern/#option-suites) option and run inside the test runner instead of inside the environment being tested.
+Functional tests are registered using the same interfaces as [unit tests](./unit-testing.md), and use the same internal [Suite](./internals.md#the-suite-object) and [Test](./internals.md#the-test-object) objects, but are loaded using the [functionalSuites](./customisation.md#functionalsuites) configuration option instead of the [suites](./customisation.md#suites) option and run inside the test runner instead of inside the environment being tested.
 
 When writing a functional test, instead of executing application code directly, use the [Leadfoot Command object](https://theintern.github.io/leadfoot/module-leadfoot_Command.html) at `this.remote` to automate interactions that you’d normally perform manually to test an application:
 
-    define(function (require) {
-      var registerSuite = require('intern!object');
-      var assert = require('intern/chai!assert');
+```js
+define(function (require) {
+  var registerSuite = require('intern!object');
+  var assert = require('intern/chai!assert');
 
-      registerSuite({
-        name: 'index',
+  registerSuite({
+    name: 'index',
 
-        'greeting form': function () {
-          return this.remote
-            .get(require.toUrl('index.html'))
-            .setFindTimeout(5000)
-            .findByCssSelector('body.loaded')
-            .findById('nameField')
-              .click()
-              .type('Elaine')
-              .end()
-            .findByCssSelector('#loginForm input[type=submit]')
-              .click()
-              .end()
-            .findById('greeting')
-              .getVisibleText()
-              .then(function (text) {
-                assert.strictEqual(text, 'Hello, Elaine!',
-                  'Greeting should be displayed when the form is submitted');
-              });
-        }
-      });
-    });
+    'greeting form': function () {
+      return this.remote
+        .get(require.toUrl('index.html'))
+        .setFindTimeout(5000)
+        .findByCssSelector('body.loaded')
+        .findById('nameField')
+          .click()
+          .type('Elaine')
+          .end()
+        .findByCssSelector('#loginForm input[type=submit]')
+          .click()
+          .end()
+        .findById('greeting')
+          .getVisibleText()
+          .then(function (text) {
+            assert.strictEqual(text, 'Hello, Elaine!',
+              'Greeting should be displayed when the form is submitted');
+          });
+    }
+  });
+});
+```
 
 Always make sure that you either `return` the final call to the remote object, or return another Promise that resolves after all of your commands have finished executing. If you don’t, Intern won’t wait before moving on to the next test, and your test suite will be broken.
 
 In this example, taken from the [Intern tutorial](https://github.com/theintern/intern-tutorial), we’re automating interaction with a basic form that is supposed to accept a name from the user and then display it as a greeting in the user interface. As can be seen from the code above, the series of steps the test takes are as follows:
 
--   Load the page. `require.toUrl` is used here to convert a local file path (index.html) into a URL that can actually be loaded by the remote browser ([http://localhost:9000](https://theintern.github.io/intern/#option-proxyUrl)/index.html).
+-   Load the page. `require.toUrl` is used here to convert a local file path (index.html) into a URL that can actually be loaded by the remote browser ([http://localhost:9000](./configuration.md#proxyurl)/index.html).
 -   Set a timeout of 5 seconds for each attempt to find an element on the page. This ensures that even if the browser takes a couple of seconds to create an element, the test won’t fail
 -   Wait for the page to indicate it has loaded by putting a `loaded` class on the body element
 -   Find the form field where the name should be typed
@@ -75,87 +77,91 @@ Once you’ve written a page object, your tests will use the page object to inte
 
 For example, a page object for the index page of a Web site could be written like this:
 
-    // in tests/support/pages/IndexPage.js
-    define(function (require) {
-      // the page object is created as a constructor
-      // so we can provide the remote Command object
-      // at runtime
-      function IndexPage(remote) {
-        this.remote = remote;
-      }
+```js
+// in tests/support/pages/IndexPage.js
+define(function (require) {
+  // the page object is created as a constructor
+  // so we can provide the remote Command object
+  // at runtime
+  function IndexPage(remote) {
+    this.remote = remote;
+  }
 
-      IndexPage.prototype = {
-        constructor: IndexPage,
+  IndexPage.prototype = {
+    constructor: IndexPage,
 
-        // the login function accepts username and password
-        // and returns a promise that resolves to `true` on
-        // success or rejects with an error on failure
-        login: function (username, password) {
-          return this.remote
-            // first, we perform the login action, using the
-            // specified username and password
-            .findById('login')
-            .click()
-            .type(username)
-            .end()
-            .findById('password')
-            .click()
-            .type(password)
-            .end()
-            .findById('loginButton')
-            .click()
-            .end()
-            // then, we verify the success of the action by
-            // looking for a login success marker on the page
-            .setFindTimeout(5000)
-            .findById('loginSuccess')
-            .then(function () {
-              // if it succeeds, resolve to `true`; otherwise
-              // allow the error from whichever previous
-              // operation failed to reject the final promise
-              return true;
-            });
-        },
+    // the login function accepts username and password
+    // and returns a promise that resolves to `true` on
+    // success or rejects with an error on failure
+    login: function (username, password) {
+      return this.remote
+        // first, we perform the login action, using the
+        // specified username and password
+        .findById('login')
+        .click()
+        .type(username)
+        .end()
+        .findById('password')
+        .click()
+        .type(password)
+        .end()
+        .findById('loginButton')
+        .click()
+        .end()
+        // then, we verify the success of the action by
+        // looking for a login success marker on the page
+        .setFindTimeout(5000)
+        .findById('loginSuccess')
+        .then(function () {
+          // if it succeeds, resolve to `true`; otherwise
+          // allow the error from whichever previous
+          // operation failed to reject the final promise
+          return true;
+        });
+    },
 
-        // …additional page interaction tasks…
-      };
+    // …additional page interaction tasks…
+  };
 
-      return IndexPage;
-    });
+  return IndexPage;
+});
+```
 
 Then, the page object would be used in tests instead of the `this.remote` object:
 
-    // in tests/functional/index.js
-    define([
-      'intern!object',
-      'intern/chai!assert',
-      '../support/pages/IndexPage'
-    ], function (registerSuite, assert, IndexPage) {
-      registerSuite(function () {
-        var indexPage;
-        return {
-          // on setup, we create an IndexPage instance
-          // that we will use for all the tests
-          setup: function () {
-            indexPage = new IndexPage(this.remote);
-          },
+```js
+// in tests/functional/index.js
+define([
+  'intern!object',
+  'intern/chai!assert',
+  '../support/pages/IndexPage'
+], function (registerSuite, assert, IndexPage) {
+  registerSuite(function () {
+    var indexPage;
+    return {
+      // on setup, we create an IndexPage instance
+      // that we will use for all the tests
+      setup: function () {
+        indexPage = new IndexPage(this.remote);
+      },
 
-          'successful login': function () {
-            // then from the tests themselves we simply call
-            // methods on the page object and then verify
-            // that the expected result is returned
-            return indexPage
-              .login('test', 'test')
-              .then(function (loggedIn) {
-                assert.isTrue(loggedIn,
-                  'Valid username and password should log in successfully');
-              });
-          },
+      'successful login': function () {
+        // then from the tests themselves we simply call
+        // methods on the page object and then verify
+        // that the expected result is returned
+        return indexPage
+          .login('test', 'test')
+          .then(function (loggedIn) {
+            assert.isTrue(loggedIn,
+              'Valid username and password should log in successfully');
+          });
+      },
 
-          // …additional tests…
-        };
-      });
-    });
+      // …additional tests…
+    };
+  });
+});
+```
 
 ## Testing native apps
 
@@ -165,36 +171,40 @@ Always be sure to set `fixSessionCapabilities: false` in your environment capabi
 
 ### Appium
 
-To test a native app with Appium, one method is to pass the path to a valid IPA or APK using the `app` key in your [environments](https://theintern.github.io/intern/#option-environments) configuration:
+To test a native app with Appium, one method is to pass the path to a valid IPA or APK using the `app` key in your [environments](./configuration.md#environments) configuration:
 
+```js
+{
+  environments: [
     {
-      environments: [
-        {
-          platformName: 'iOS',
-          app: 'testapp.ipa',
-          fixSessionCapabilities: false
-        }
-      ]
+      platformName: 'iOS',
+      app: 'testapp.ipa',
+      fixSessionCapabilities: false
     }
+  ]
+}
+```
 
 You can also use `appPackage` and `appActivity` for Android, or `bundleId` and `udid` for iOS, to run an application that is already installed on a test device:
 
+```js
+{
+  environments: [
     {
-      environments: [
-        {
-          platformName: 'iOS',
-          bundleId: 'com.example.TestApp',
-          udid: 'da39a3ee5e…',
-          fixSessionCapabilities: false
-        },
-        {
-          platformName: 'Android',
-          appActivity: 'MainActivity',
-          appPackage: 'com.example.TestApp',
-          fixSessionCapabilities: false
-        }
-      ]
+      platformName: 'iOS',
+      bundleId: 'com.example.TestApp',
+      udid: 'da39a3ee5e…',
+      fixSessionCapabilities: false
+    },
+    {
+      platformName: 'Android',
+      appActivity: 'MainActivity',
+      appPackage: 'com.example.TestApp',
+      fixSessionCapabilities: false
     }
+  ]
+}
+```
 
 The available capabilities for Appium are complex, so review the [Appium capabilities documentation](http://appium.io/slate/en/master/#caps.md) to understand all possible execution modes.
 
@@ -204,22 +214,26 @@ Once the application has started successfully, you can interact with it using an
 
 To test a native app with ios-driver, first run ios-driver, passing one or more app bundles for the applications you want to test:
 
-    java -jar ios-driver.jar -aut TestApp.app
+```
+java -jar ios-driver.jar -aut TestApp.app
+```
 
-Then, pass the bundle ID and version using the `CFBundleName` and `CFBundleVersion` keys in your [environments](https://theintern.github.io/intern/#option-environments) configuration:
+Then, pass the bundle ID and version using the `CFBundleName` and `CFBundleVersion` keys in your [environments](./confiuration.md#environments) configuration:
 
+```json
+{
+  environments: [
     {
-      environments: [
-        {
-          device: 'iphone',
-          CFBundleName: 'TestApp',
-          CFBundleVersion: '1.0.0',
-          // required for ios-driver to use iOS Simulator
-          simulator: true,
-          fixSessionCapabilities: false
-        }
-      ]
+      device: 'iphone',
+      CFBundleName: 'TestApp',
+      CFBundleVersion: '1.0.0',
+      // required for ios-driver to use iOS Simulator
+      simulator: true,
+      fixSessionCapabilities: false
     }
+  ]
+}
+```
 
 Once the application has started successfully, you can interact with it using any of the [supported WebDriver APIs](https://ios-driver.github.io/ios-driver/?page=native).
 
@@ -229,17 +243,19 @@ To test a native app with Selendroid, first run Selendroid, passing one or more 
 
     java -jar selendroid.jar -app testapp-1.0.0.apk
 
-Then, pass the Android app ID of the application using the `aut` key in your [environments](https://theintern.github.io/intern/#option-environments) configuration:
+Then, pass the Android app ID of the application using the `aut` key in your [environments](./configuration.md#environments) configuration:
 
+```js
+{
+  environments: [
     {
-      environments: [
-        {
-          automationName: 'selendroid',
-          aut: 'com.example.testapp:1.0.0',
-          fixSessionCapabilities: false
-        }
-      ]
+      automationName: 'selendroid',
+      aut: 'com.example.testapp:1.0.0',
+      fixSessionCapabilities: false
     }
+  ]
+}
+```
 
 Once the application has started successfully, you can interact with it using any of the [supported WebDriver APIs](http://selendroid.io/native.html).
 
@@ -250,9 +266,9 @@ Keep in mind that JavaScript code is running in two separate environments: your 
 1.  npm install -g node-inspector
 2.  Set a breakpoint in your test code by adding a `debugger` statement. Since test modules are loaded dynamically by Intern, they will likely not show up in the debugger’s file list, so you won’t be able use the debugger to set an initial breakpoint.
 3.  Launch Node.js with debugging enabled, set to pause on the first line of code:
-    -   node --debug-brk node\_modules/intern/runner config=myPackage/test/intern
+    -   `node --debug-brk node\_modules/intern/runner config=myPackage/test/intern`
 4.  Launch node-inspector by running node-inspector.
 5.  Open Chrome (you must use Chrome as node-inspector leverages Chrome's developer tools) to:
-    -   http://127.0.0.1:8080/debug?port=5858
+    -   `http://127.0.0.1:8080/debug?port=5858`
 6.  Continue code execution (F8). The tests will run until your debugger statement.
 7.  Debug!

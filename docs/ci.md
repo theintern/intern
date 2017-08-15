@@ -2,23 +2,23 @@
 
 <!-- vim-markdown-toc GFM -->
 * [Jenkins](#jenkins)
-	* [Intern as a post-build action to an existing project](#intern-as-a-post-build-action-to-an-existing-project)
-	* [Intern as part of a free-style software project](#intern-as-part-of-a-free-style-software-project)
-	* [Intern as an execution step in a Maven pom.xml](#intern-as-an-execution-step-in-a-maven-pomxml)
+    * [Intern as a post-build action to an existing project](#intern-as-a-post-build-action-to-an-existing-project)
+    * [Intern as part of a free-style software project](#intern-as-part-of-a-free-style-software-project)
+    * [Intern as an execution step in a Maven pom.xml](#intern-as-an-execution-step-in-a-maven-pomxml)
 * [Travis CI](#travis-ci)
 * [TeamCity](#teamcity)
-	* [Intern as an additional build step](#intern-as-an-additional-build-step)
-	* [Intern as a separate build configuration](#intern-as-a-separate-build-configuration)
+    * [Intern as an additional build step](#intern-as-an-additional-build-step)
+    * [Intern as a separate build configuration](#intern-as-a-separate-build-configuration)
 * [Codeship](#codeship)
-	* [For a new project:](#for-a-new-project)
-	* [For an existing project:](#for-an-existing-project)
-	* [Setup Commands](#setup-commands)
-	* [Configure Test Pipelines](#configure-test-pipelines)
+    * [For a new project:](#for-a-new-project)
+    * [For an existing project:](#for-an-existing-project)
+    * [Setup Commands](#setup-commands)
+    * [Configure Test Pipelines](#configure-test-pipelines)
 * [Bamboo](#bamboo)
-	* [Manage elastic instances](#manage-elastic-instances)
-	* [Create a build plan](#create-a-build-plan)
-	* [Configure your build plan](#configure-your-build-plan)
-	* [Running your build plan and verifying its output](#running-your-build-plan-and-verifying-its-output)
+    * [Manage elastic instances](#manage-elastic-instances)
+    * [Create a build plan](#create-a-build-plan)
+    * [Configure your build plan](#configure-your-build-plan)
+    * [Running your build plan and verifying its output](#running-your-build-plan-and-verifying-its-output)
 
 <!-- vim-markdown-toc -->
 
@@ -52,7 +52,7 @@ Once the main project is set to use the shared workspace, the new unit test proj
 3.  Under “Source Code Management”, leave the “None” option checked. Because of the shared workspace, source code checkout will be handled by the upstream project.
 4.  Under “Build triggers”, check the “Build after other projects are built” checkbox. Enter the name of the existing Maven project in the text box that appears. (This will create a corresponding post-build action to build “myApp-tests” in the existing project’s configuration.)
 5.  Under “Build”, click the “Add build step” button and choose “Execute shell” from the drop-down.
-6.  Under “Execute shell”, enter the command you want to use to run Intern. See the <a href="https://theintern.github.io/theintern/intern/wiki/Running-Intern" class="internal present">Running tests</a> section for possible commands.
+6.  Under “Execute shell”, enter the command you want to use to run Intern. See the [Running tests](./running.md) section for possible commands.
 7.  Save changes.
 
 Once this project has been configured, test everything by running a build on the main project. Once the main project build finishes successfully, the new “myApp-tests” project will begin executing automatically.
@@ -63,33 +63,35 @@ When working with an existing free-style software project it is possible to simp
 
 1.  Open the configuration page for the existing free-style software project.
 2.  Under “Build”, click the “Add build step” button and choose “Execute shell” from the drop-down.
-3.  Under “Execute shell”, enter the command you want to use to run Intern. See the [Running tests](https://theintern.github.io/intern/#runnin-intern) section for possible commands.
+3.  Under “Execute shell”, enter the command you want to use to run Intern. See the [Running tests](./running.md) section for possible commands.
 4.  Save changes.
 
 ### Intern as an execution step in a Maven pom.xml
 
 Intern can be executed by Maven from a `pom.xml` during the test or integration-test phases of the build by using the `exec-maven-plugin` to spawn a new Intern process:
 
-    <plugin>
-      <artifactId>exec-maven-plugin</artifactId>
-      <groupId>org.codehaus.mojo</groupId>
-      <version>1.2.1</version>
-      <executions>
-          <execution>
-          <id>run-tests</id>
-          <phase>test</phase>
-          <goals>
-            <goal>exec</goal>
-          </goals>
-        </execution>
-      </executions>
-      <configuration>
-        <executable>node_modules/.bin/intern-runner</executable>
-        <arguments>
-          <argument>config=tests/intern</argument>
-        </arguments>
-      </configuration>
-    </plugin>
+```xml
+<plugin>
+  <artifactId>exec-maven-plugin</artifactId>
+  <groupId>org.codehaus.mojo</groupId>
+  <version>1.2.1</version>
+  <executions>
+      <execution>
+      <id>run-tests</id>
+      <phase>test</phase>
+      <goals>
+        <goal>exec</goal>
+      </goals>
+    </execution>
+  </executions>
+  <configuration>
+    <executable>node_modules/.bin/intern-runner</executable>
+    <arguments>
+      <argument>config=tests/intern</argument>
+    </arguments>
+  </configuration>
+</plugin>
+```
 
 The `executable` and `arguments` elements should be modified to run Intern using your desired executor and configuration.
 
@@ -97,12 +99,14 @@ The `executable` and `arguments` elements should be modified to run Intern using
 
 In order to enable [Travis CI](http://travis-ci.org/) builds for your project, you must first create a `.travis.yml` in your repository root that will load and execute Intern:
 
-    language: node_js
-    node_js:
-      - '0.10'
-    script: node_modules/.bin/intern-runner config=tests/intern
+```yaml
+language: node_js
+node_js:
+  - '6'
+script: node_modules/.bin/intern-runner config=tests/intern
+```
 
-If you are using a cloud hosting provider like BrowserStack, Sauce Labs, or TestingBot, you can add [environment variables](https://theintern.github.io/intern/#hosted-selenium) holding your access credentials either through the Travis CI Web site by going to the repository’s settings page, or by [adding an `env` list](http://docs.travis-ci.com/user/environment-variables/) to your .travis.yml configuration.
+If you are using a cloud hosting provider like BrowserStack, Sauce Labs, or TestingBot, you can add [environment variables](./webdriver-server.md#cloud-hosting) holding your access credentials either through the Travis CI Web site by going to the repository’s settings page, or by [adding an `env` list](http://docs.travis-ci.com/user/environment-variables/) to your .travis.yml configuration.
 
 Once you have a Travis configuration, you just need to actually start the thing:
 
@@ -131,7 +135,7 @@ When using Intern with TeamCity, use Intern’s `teamcity` reporter for best int
 6.  Select “Command Line” from the “Runner type” drop-down.
 7.  Enter a name like “Run Intern” as the step name.
 8.  Select “Custom Script” from the “Run” drop-down.
-9.  Under “Custom script”, enter the command you want to use to run Intern. See the [Running tests](https://theintern.github.io/intern/#running-intern) section for possible commands.
+9.  Under “Custom script”, enter the command you want to use to run Intern. See the [Running tests](./running.md) section for possible commands.
 10. Click “Save”.
 
 ### Intern as a separate build configuration
@@ -146,7 +150,7 @@ When using Intern with TeamCity, use Intern’s `teamcity` reporter for best int
 8.  Select “Command Line” from the “Runner type” drop-down.
 9.  Enter a name like “Run Intern” as the step name.
 10. Select “Custom Script” from the “Run” drop-down.
-11. Under “Custom script”, enter the command you want to use to run Intern. See the [Running tests](https://theintern.github.io/intern/#running-intern) section for possible commands.
+11. Under “Custom script”, enter the command you want to use to run Intern. See the [Running tests](./running.md) section for possible commands.
 12. Click “Save”.
 13. Go back to the settings page for the project.
 14. In the left-hand menu, click “General Settings”.
@@ -185,25 +189,31 @@ To use Intern with [Codeship](https://codeship.com/), you’ll need to configure
 
 Setup Commands are those that allow you to set up your environment. For testing a project with Intern, you must install node and your project’s dependencies:
 
-    # Install the version of node specified in your package.json
-    nvm install node
+```bash
+# Install the version of node specified in your package.json
+nvm install node
 
-    # Install project requirements
-    npm install
+# Install project requirements
+npm install
+```
                   
 
 ### Configure Test Pipelines
 
 The test pipeline is what actually runs your specified test commands. This is equivalent to running the tests on your local development environment. For example, to run the Intern self-tests with the `intern-client`, you would enter the following command:
 
-    # run the intern-client with the specified configuration
-    node_modules/.bin/intern-client config=tests/selftest.intern.js
+```bash
+# run the intern-client with the specified configuration
+node_modules/.bin/intern-client config=tests/selftest.intern.js
+```
                   
 
 If you want to run tests with Selenium, Codeship supports this as well! You just need to [curl and run this script](https://github.com/codeship/scripts/blob/master/packages/selenium_server.sh) before calling the `intern-runner` with a `NullTunnel`.
 
-    curl -sSL https://raw.githubusercontent.com/codeship/scripts/master/packages/selenium_server.sh | bash -s
-    node_modules/.bin/intern-runner config=tests/selftest.intern.js tunnel=NullTunnel
+```
+curl -sSL https://raw.githubusercontent.com/codeship/scripts/master/packages/selenium_server.sh | bash -s
+node_modules/.bin/intern-runner config=tests/selftest.intern.js tunnel=NullTunnel
+```
                   
 
 ## Bamboo
@@ -239,13 +249,12 @@ By default, the plan starts with an initial task of “Source Code Checkout”, 
 3.  Provide it with a Command of “install” and save the task.
 4.  Add a task of “Script”.
 5.  In the script body, write the following (use the version of node chosen in step 2):
-
-        /opt/node-0.12/bin/node ${bamboo.build.working.directory}/node_modules/.bin/intern-client \
-          config=tests/selftest.intern \
-          reporters=JUnit \
-          > results.xml
-                      
-
+    ```
+    /opt/node-0.12/bin/node ${bamboo.build.working.directory}/node_modules/.bin/intern-client \
+      config=tests/selftest.intern \
+      reporters=JUnit \
+      > results.xml
+    ```
 6.  Save the Script task.
 7.  Add a task of “JUnit Parser”.
 8.  Enter “\*” in the “Specify custom results directories” field and save the task.

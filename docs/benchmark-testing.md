@@ -15,10 +15,10 @@ The benchmark test lifcycle is very similar to standard tests.
 -   For *each registered root suite*:
     -   The [setup](./internals.md#the-suite-object) method of the suite is called, if it exists
     -   For *each test* within the suite:
-        -   The [beforeEach](https://theintern.github.io/intern/#suite-object-beforeEach) method of the suite is called, if it exists
+        -   The [beforeEach](./internals.md#the-suite-object) method of the suite is called, if it exists
         -   The benchmark is started. This involves calling the test function itself many times in a "test loop". For each execution of the test loop, the following steps take place:
-            -   The [beforeEachLoop](https://theintern.github.io/intern/#suite-object-beforeEachLoop) method of the suite is called, if it exists
+            -   The [beforeEachLoop](./internals.md#the-suite-object) method of the suite is called, if it exists
             -   The test function is called at least once
-            -   The [afterEachLoop](https://theintern.github.io/intern/#suite-object-afterEachLoop) method of the suite is called, if it exists
-        -   The [afterEach](https://theintern.github.io/intern/#suite-object-afterEach) method of the suite is called, if it exists
+            -   The [afterEachLoop](./internals.md#the-suite-object) method of the suite is called, if it exists
+        -   The [afterEach](./internals.md#the-suite-object) method of the suite is called, if it exists
     -   The [teardown](./internals.md#the-suite-object) method of the suite is called, if it exists

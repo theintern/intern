@@ -40,31 +40,31 @@
 
 Intern’s configuration files are actually [standard AMD modules](http://dojotoolkit.org/documentation/tutorials/1.10/modules/) that export a configuration object. This allows simple inheritance of parent configurations and enables test configurations to be generated programmatically at runtime.
 
-The configuration file is specified using the [config argument](https://theintern.github.io/intern/#execution-modes) on the command-line (for Node.js) or the config argument in the URL query-string (for browsers).
+The configuration file is specified using the [config argument](./running.md) on the command-line (for Node.js) or the config argument in the URL query-string (for browsers).
 
 Take a look at the [example configuration file](https://github.com/theintern/intern/blob/3.4/tests/example.intern.js) that comes with Intern to learn what a valid configuration looks like.
 
-The following configuration options are common to [all execution modes](https://theintern.github.io/intern/#execution-modes) in Intern:
+The following configuration options are common to [all execution modes](./running.md) in Intern:
 
-| Option                                            | Type                                                                                                                | Default                                                          |
-| ------                                            | ----                                                                                                                | -------                                                          |
-| [bail](#bail)                                     | If this value is set to `true`, a failing test will cause all following tests in all suites to be skipped.          | `false`                                                          |
-| [baseline](#baseline)                             | If true, and if <code>benchmark</code> is also true, benchmarking will run in &quot;baseline&quot; mode.            | `false`                                                          |
-| [basePath](#basepath)                             | The common base path for all files that need to be loaded during testing.                                           | `process.cwd` (Node) <br> `node_modules/intern/../../` (browser) |
-| [benchmark](#benchmark)                           | If true, enable benchmarking mode.                                                                                  | `false`                                                          |
-| [benchmarkConfig](#benchmarkconfig)               | An object containing options for the benchmarking system.                                                           | `undefined`                                                      |
-| [benchmarkSuites](#benchmarksuites)               | An array of benchmark test module IDs to load. These may include glob patterns.                                     | `[]`                                                             |
-| [coverageVariable](#coveragevariable)             | The name of the global variable used to store and retrieve code coverage data.                                      | `'__internCoverage'`                                             |
-| [defaultTimeout](#defaulttimeout)                 | The amount of time, in milliseconds, an asynchronous test can take before it is considered timed out.               | `30000`                                                          |
-| [excludeInstrumentation](#excludeinstrumentation) | A boolean  or regular expression matching paths to exclude from code coverage. | `null`                                                           |
-| [filterErrorStack](#filtererrorstack)             | If this value is set to `true`, stack trace lines for non-application code will be pruned from error messages.      | `false`                                                          |
-| [grep](#grep)                                     | A regular expression that filters which tests should run.                                                           | `/.*/`                                                           |
-| [loaderOptions](#loaderoptions)                   | Configuration options for the AMD loader.                                                                           | `{ … }`                                                          |
-| [loaders](#loaders)                               | An alternative module loader to use in place of the built-in AMD loader.                                            | `{}`                                                             |
-| [reporters](#reporters)                           | An array of reporters to use to report test results.                                                                | `['Runner']` (runner)<br/> `['Console']` (client)                |
-| [setup](#setup)                                   | A function that will be run before the testing process starts.                                                      | `undefined`                                                      |
-| [suites](#suites)                                 | An array of unit test module IDs to load. These may include glob patterns.                                          | `[]`                                                             |
-| [teardown](#teardown)                             | A function that will be run after the testing process ends.                                                         | `undefined`                                                      |
+| Option                                            | Type                                                                                                           | Default                                                          |
+| ------                                            | ----                                                                                                           | -------                                                          |
+| [bail](#bail)                                     | If this value is set to `true`, a failing test will cause all following tests in all suites to be skipped.     | `false`                                                          |
+| [baseline](#baseline)                             | If true, and if <code>benchmark</code> is also true, benchmarking will run in &quot;baseline&quot; mode.       | `false`                                                          |
+| [basePath](#basepath)                             | The common base path for all files that need to be loaded during testing.                                      | `process.cwd` (Node) <br> `node_modules/intern/../../` (browser) |
+| [benchmark](#benchmark)                           | If true, enable benchmarking mode.                                                                             | `false`                                                          |
+| [benchmarkConfig](#benchmarkconfig)               | An object containing options for the benchmarking system.                                                      | `undefined`                                                      |
+| [benchmarkSuites](#benchmarksuites)               | An array of benchmark test module IDs to load. These may include glob patterns.                                | `[]`                                                             |
+| [coverageVariable](#coveragevariable)             | The name of the global variable used to store and retrieve code coverage data.                                 | `'__internCoverage'`                                             |
+| [defaultTimeout](#defaulttimeout)                 | The amount of time, in milliseconds, an asynchronous test can take before it is considered timed out.          | `30000`                                                          |
+| [excludeInstrumentation](#excludeinstrumentation) | A boolean  or regular expression matching paths to exclude from code coverage.                                 | `null`                                                           |
+| [filterErrorStack](#filtererrorstack)             | If this value is set to `true`, stack trace lines for non-application code will be pruned from error messages. | `false`                                                          |
+| [grep](#grep)                                     | A regular expression that filters which tests should run.                                                      | `/.*/`                                                           |
+| [loaderOptions](#loaderoptions)                   | Configuration options for the AMD loader.                                                                      | `{ … }`                                                          |
+| [loaders](#loaders)                               | An alternative module loader to use in place of the built-in AMD loader.                                       | `{}`                                                             |
+| [reporters](#reporters)                           | An array of reporters to use to report test results.                                                           | `['Runner']` (runner)<br/> `['Console']` (client)                |
+| [setup](#setup)                                   | A function that will be run before the testing process starts.                                                 | `undefined`                                                      |
+| [suites](#suites)                                 | An array of unit test module IDs to load. These may include glob patterns.                                     | `[]`                                                             |
+| [teardown](#teardown)                             | A function that will be run after the testing process ends.                                                    | `undefined`                                                      |
 
 ### bail
 
@@ -85,7 +85,7 @@ If this value is true, and if Intern is running in benchmarking mode, it will re
 The common base path for all files that need to be loaded during testing. If `basePath` is specified using a relative path, that path is resolved differently depending upon where Intern is executing:
 
 -   In Node.js, `basePath` is resolved relative to `process.cwd()`
--   In a browser with an [`initialBaseUrl`](https://theintern.github.io/intern/#option-baseUrl) argument in the query-string, `basePath` is resolved relative to `initialBaseUrl`
+-   In a browser with an [`initialBaseUrl`](#baseurl) argument in the query-string, `basePath` is resolved relative to `initialBaseUrl`
 -   In a browser with no `initialBaseUrl` argument, `basePath` is resolved relative to two directories above the Intern directory (i.e. `node_modules/intern/../../`)
 
 If `basePath` is not explicitly provided, it is set to `.` and is resolved according to the rules above.
@@ -104,20 +104,22 @@ If this value is true, Intern will run in benchmarking mode. In this mode, only 
 
 This value contains options for the Benchmark reporter. The default values are:
 
-    benchmarkConfig: {
-      filename: 'baseline.json',
-      thresholds: {
-        warn: { rme: 5, mean: 3 },
-        fail: { rme: 6, mean: 10 }
-      },
-      verbosity: 0
-    }
+```js
+benchmarkConfig: {
+  filename: 'baseline.json',
+  thresholds: {
+	warn: { rme: 5, mean: 3 },
+	fail: { rme: 6, mean: 10 }
+  },
+  verbosity: 0
+}
+```
 
 ### benchmarkSuites
 
 *Type: string[]*
 
-An array of benchmark test module IDs to load. See [suites](https://theintern.github.io/intern/#option-suites) for supported syntax.
+An array of benchmark test module IDs to load. See [suites](#suites) for supported syntax.
 
 ### coverageVariable
 
@@ -141,13 +143,15 @@ The `excludeInstrumentation` option can be either a regular expression or the bo
 
 As a boolean `true`, completely disables code instrumentation.
 
-As a regular expression, a regular expression matching paths to exclude from code coverage. The regular expression matches the path-part of URLs (starting from the end of [proxyUrl](https://theintern.github.io/intern/#option-proxyUrl), excluding any trailing slash) or paths (starting from the end of `process.cwd()`) that should not be instrumented for code coverage during testing in browsers and the Node.js client.
+As a regular expression, a regular expression matching paths to exclude from code coverage. The regular expression matches the path-part of URLs (starting from the end of [proxyUrl](#proxyurl), excluding any trailing slash) or paths (starting from the end of `process.cwd()`) that should not be instrumented for code coverage during testing in browsers and the Node.js client.
 
 This option should be used when you want to exclude dependencies from being reported in your code coverage results. (Intern code—that is, anything that loads from {{proxyUrl}}/\_\_intern/—is always excluded from code coverage results.) For example, to exclude tests and Node.js dependencies from being reported in your application’s code coverage analysis:
 
-    {
-      excludeInstrumentation: /^(?:tests|node_modules)\//
-    }
+```js
+{
+  excludeInstrumentation: /^(?:tests|node_modules)\//
+}
+```
 
 If you are running Intern 2 on Windows, you will need to use `[\\/]` instead of `\/` to match the path separator used by that OS. In Intern 3, forward-slashes should always be used regardless of platform.
 
@@ -223,13 +227,13 @@ The following `grep` values would *not* match and cause this test to be skipped:
 
 *Type: Object*
 
-Configuration options for the module loader. Any [configuration options](https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md) that are supported by the active loader can be used here. By default, the [Dojo 2](https://github.com/dojo/dojo2) AMD loader is used; this can be changed to another loader that provides an AMD-compatible API with [`loaders`](https://theintern.github.io/intern/#config-useLoader).
+Configuration options for the module loader. Any [configuration options](https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md) that are supported by the active loader can be used here. By default, the [Dojo 2](https://github.com/dojo/dojo2) AMD loader is used; this can be changed to another loader that provides an AMD-compatible API with [`loaders`](#loaders).
 
 AMD configuration options supported by the built-in loader are [`map`](https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#map-), [`packages`](https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#packages-), and [`paths`](https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#paths-).
 
- If [`baseUrl`](https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#baseurl-) is not explicitly defined, it is automatically set to be equivalent to the [`basePath`](https://theintern.github.io/intern/#option-basePath). Relative `baseUrl`s are relative to `basePath`.
+ If [`baseUrl`](https://github.com/amdjs/amdjs-api/blob/master/CommonConfig.md#baseurl-) is not explicitly defined, it is automatically set to be equivalent to the [`basePath`](#basepath). Relative `baseUrl`s are relative to `basePath`.
 
-When following the [recommended directory structure](https://theintern.github.io/intern/#directory-structure), no extra loader configuration is needed.
+When following the [recommended directory structure](./getting-started.md#recommended-directory-structure), no extra loader configuration is needed.
 
 If you are testing an AMD application and need to use stub modules for testing, the `map` configuration option is the correct way to do this:
 
@@ -260,7 +264,7 @@ There are two different keys that may be specified so that the correct path to t
 -   `host-node` specifies the loader to use in Node.js. This should be a Node.js module ID.
 -   `host-browser` specifies the loader to use in browsers. This should be a path or URL to a script file.
 
-In Intern 2, loader paths are relative to the directory where Intern is installed. In Intern 3, loader paths are relative to [`basePath`](https://theintern.github.io/intern/#option-basePath).
+In Intern 2, loader paths are relative to the directory where Intern is installed. In Intern 3, loader paths are relative to [`basePath`](#basepath).
 
 For example, to use a copy of RequireJS installed to the same project as Intern:
 
@@ -277,7 +281,7 @@ When using RequireJS in Node.js, you *must* use `'requirejs'`, which actually lo
 
 *Type: (Object | string)[]*
 
-An array of reporters to use to report test results. Reporters in this list can either be [built-in reporter names](https://theintern.github.io/intern/#reporters) (like `'Console'` or `'JUnit'`), or absolute AMD module IDs (like `'tests/support/customReporter'`) when using [custom reporters](https://theintern.github.io/intern/#custom-reporters).
+An array of reporters to use to report test results. Reporters in this list can either be [built-in reporter names](./reporters.md#test-results-reporters) (like `'Console'` or `'JUnit'`), or absolute AMD module IDs (like `'tests/support/customReporter'`) when using [custom reporters](./customisation.md#custom-reporters).
 
  Reporters can also be configured by passing an object with extra configuration options valid for the given reporter. In this case, the ID of the reporter should be given by the `id` key of the reporter configuration:
 
@@ -346,7 +350,7 @@ When running tests with `client.html`, tests must be served by the Intern proxy 
 
 *Type: Function*
 
-A function that will be run after the testing process completes. If this function returns a Promise, Intern will wait for the Promise to resolve before continuing. If the function throws an exception or rejects a returned Promise, the testing process will terminate with an error. This is generally where resources opened in [`config.setup`](https://theintern.github.io/intern/#option-setup) should be cleaned up.
+A function that will be run after the testing process completes. If this function returns a Promise, Intern will wait for the Promise to resolve before continuing. If the function throws an exception or rejects a returned Promise, the testing process will terminate with an error. This is generally where resources opened in [`config.setup`](#setup) should be cleaned up.
 
 ## Client configuration
 
@@ -361,21 +365,21 @@ Certain configuration options only apply when in runner mode. These options are 
 | [capabilities](#capabilities)                    | Default capabilities for all test environments.                                        | `{ name: configModuleId,  'idle-timeout': 60 }`   |
 | [environments](#environments)                    | An array of capabilities objects, one for each desired test environment.               | `[]`                                              |
 | [environmentRetries](#environmentretries)        | The number of times to retry creating a session for a remote environment.              | `3`                                               |
-| [functionalSuites](#functionalSuites)            | An array of functional test module IDs to load. These may include glob patterns.       | `[]`                                              |
-| [leaveRemoteOpen](#leaveRemoteOpen)              | Leaves the remote environment running at the end of the test run.                      | `false`                                           |
-| [maxConcurrency](#maxConcurrency)                | The maximum number of environments to test simultaneously.                             | `3`                                               |
-| [proxyOnly](#proxyOnly)                          | Starts Intern’s instrumenting HTTP proxy but performs no other work.                   | `false`                                           |
-| [proxyPort](#proxyPort)                          | The port where the Intern HTTP server will listen for requests.                        | `9000`                                            |
-| [proxyUrl](#proxyUrl)                            | The external URL to the Intern HTTP server.                                            | `'http://localhost:9000/'`                        |
-| [runnerClientReporter](#runnerClientReporter)    | The reporter used to send data from the unit testing system back to the test runner.   | `{ id: 'WebDriver' }`                             |
+| [functionalSuites](#functionalsuites)            | An array of functional test module IDs to load. These may include glob patterns.       | `[]`                                              |
+| [leaveRemoteOpen](#leaveremoteopen)              | Leaves the remote environment running at the end of the test run.                      | `false`                                           |
+| [maxConcurrency](#maxconcurrency)                | The maximum number of environments to test simultaneously.                             | `3`                                               |
+| [proxyOnly](#proxyonly)                          | Starts Intern’s instrumenting HTTP proxy but performs no other work.                   | `false`                                           |
+| [proxyPort](#proxyport)                          | The port where the Intern HTTP server will listen for requests.                        | `9000`                                            |
+| [proxyUrl](#proxyurl)                            | The external URL to the Intern HTTP server.                                            | `'http://localhost:9000/'`                        |
+| [runnerClientReporter](#runnerclientreporter)    | The reporter used to send data from the unit testing system back to the test runner.   | `{ id: 'WebDriver' }`                             |
 | [tunnel](#tunnel)                                | The tunnel to use to establish a WebDriver server for testing.                         | `'NullTunnel'`                                    |
-| [tunnelOptions](#tunnelOptions)                  | Options to pass to the WebDriver server tunnel.                                        | `{}`                                              |
+| [tunnelOptions](#tunneloptions)                  | Options to pass to the WebDriver server tunnel.                                        | `{}`                                              |
 
 ### capabilities
 
 *Type: Object*
 
-Default capabilities for all test environments. These baseline capabilities are extended for each environment by the [`environments`](https://theintern.github.io/intern/#option-environments) array.
+Default capabilities for all test environments. These baseline capabilities are extended for each environment by the [`environments`](#environments) array.
 
 Different services like BrowserStack and Sauce Labs may have different sets of available capabilities. In order for Intern to work correctly, it’s important that you use the appropriate capabilities for WebDriver server you are interacting with:
 
@@ -396,7 +400,7 @@ Intern will automatically fill certain capabilities fields in order to provide b
 
 *Type: Object[]*
 
-An array of capabilities objects, one for each desired test environment. The same options from [capabilities](https://theintern.github.io/intern/#option-capabilities) are used for each environment specified in the array. To delete an option from the default capabilities, explicitly set its value to `undefined`.
+An array of capabilities objects, one for each desired test environment. The same options from [capabilities](#capabilities) are used for each environment specified in the array. To delete an option from the default capabilities, explicitly set its value to `undefined`.
 
 If arrays are provided for `browserName`, `version`, `platform`, or `platformVersion`, all possible option permutations will be generated. For example:
 
@@ -437,7 +441,7 @@ The “latest” alias represents the most recent version of a browser (the most
 }
 ```
 
-Different cloud testing services use different capability values when specifying environment capabilities. For example, Sauce Labs uses 'Windows XP' to specify the Windows XP platform while BrowserStack uses 'XP'. Check [the list above](https://theintern.github.io/intern/#option-capabilities) to find the right capabilities for your chosen platform.
+Different cloud testing services use different capability values when specifying environment capabilities. For example, Sauce Labs uses 'Windows XP' to specify the Windows XP platform while BrowserStack uses 'XP'. Check [the list above](#capabilities) to find the right capabilities for your chosen platform.
 
 ### environmentRetries
 
@@ -449,7 +453,7 @@ The number of times to retry creating a session for a remote environment. Occasi
 
 *Type: string[]*
 
-An array of functional test module IDs to load. [Functional tests](https://theintern.github.io/intern/#writing-functional-test) are different from unit tests because they are executed on the local (Node.js) side, not the remote (browser) side, so they are specified separately from the list of unit test modules.
+An array of functional test module IDs to load. [Functional tests](./functional-testing.md) are different from unit tests because they are executed on the local (Node.js) side, not the remote (browser) side, so they are specified separately from the list of unit test modules.
 
 ```js
 {
@@ -460,7 +464,7 @@ An array of functional test module IDs to load. [Functional tests](https://thein
 }
 ```
 
-As with `suites`, functional suite specifiers may also include [glob patterns](https://theintern.github.io/intern/#option-suites).
+As with `suites`, functional suite specifiers may also include [glob patterns](#suites).
 
 ### leaveRemoteOpen
 
@@ -480,7 +484,7 @@ The maximum number of environments to test simultaneously. Set this to `Infinity
 
 *Type: boolean*
 
-Starts Intern’s instrumenting HTTP proxy but performs no other work. [`basePath`](https://theintern.github.io/intern/#option-basePath) will be served as the root of the server. This can be useful when you want to run the [browser client](https://theintern.github.io/intern/#browser-client) manually and get access to code coverage information, which is not available when running the browser client directly from a normal HTTP server. The browser client is available from [{proxyUrl}](https://theintern.github.io/intern/#option-proxyUrl)/\_\_intern/client.html.
+Starts Intern’s instrumenting HTTP proxy but performs no other work. [`basePath`](#basepath) will be served as the root of the server. This can be useful when you want to run the [browser client](./running.md#the-browser-client) manually and get access to code coverage information, which is not available when running the browser client directly from a normal HTTP server. The browser client is available from [{proxyUrl}](#proxyurl)/\_\_intern/client.html.
 
 In Intern 2, this option is available, but only as a command-line flag.
 
@@ -529,7 +533,7 @@ The following tunnels are built in to Intern:
 -   [SeleniumTunnel](https://theintern.github.io/digdug/module-digdug_SeleniumTunnel.html) – For loading and managing a local standalone Selenium server
 -   [TestingBotTunnel](https://theintern.github.io/digdug/module-digdug_TestingBotTunnel.html) – For use with [TestingBot](https://testingbot.com/)
 
-When you are using [your own Selenium server](./webdriver-server.md#local-selenium) or [your own Selenium grid](./webdriver-server.md#selenium-grid), you will typically use the `'NullTunnel'` tunnel and specify the `host`, `port`, and/or `path` to the Selenium server in [tunnelOptions](https://theintern.github.io/intern/#option-tunnelOptions).
+When you are using [your own Selenium server](./webdriver-server.md#local-selenium) or [your own Selenium grid](./webdriver-server.md#selenium-grid), you will typically use the `'NullTunnel'` tunnel and specify the `host`, `port`, and/or `path` to the Selenium server in [tunnelOptions](#tunneloptions).
 
 ### tunnelOptions
 

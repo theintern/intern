@@ -58,7 +58,7 @@ Using this directory structure provides a few benefits:
 
 Intern uses certain standard terminology in order to make it easier to understand each part of the system.
 
--   An [assertion](./unit-tests.md) is a function call that verifies that an expression (like a variable or function call) returns an expected, correct, value (e.g. `assert.isTrue(someVariable, 'someVariable should be true')`)
+-   An [assertion](./unit-testing.md) is a function call that verifies that an expression (like a variable or function call) returns an expected, correct, value (e.g. `assert.isTrue(someVariable, 'someVariable should be true')`)
 -   A test [interface](./interfaces.md) is a programming interface for registering tests with Intern
 -   A test case (or, just test) is a function that makes calls to application code and makes assertions about what it should have done
 -   A test suite is a collection of tests (and, optionally, sub–test-suites) that are related to each other in some logical way
@@ -90,7 +90,7 @@ Intern follows certain conventions in order to make testing easier and more reli
 
 ### Asynchronous operations
 
-Intern always uses [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) objects whenever an asynchronous operation needs to occur. All [suite](./internals#the-suite-object), [test](https://theintern.github.io/intern/#test-object), and [reporter](./reporters.md) functions can return a Promise, which will pause the test system until the Promise resolves (or until a timeout occurs, whichever happens first).
+Intern always uses [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) objects whenever an asynchronous operation needs to occur. All [suite](./internals.md#the-suite-object), [test](./internals.md#the-test-object), and [reporter](./reporters.md) functions can return a Promise, which will pause the test system until the Promise resolves (or until a timeout occurs, whichever happens first).
 
 ### Module loader
 
@@ -102,9 +102,11 @@ Intern is built on top of a standard AMD loader, which means that its modules ar
 
 For users that are only familiar with Node.js modules, AMD modules are exactly the same with one extra line of wrapper code to enable asynchronous loading:
 
-    define(function (require, exports, module) {
-    /* Node.js module code here! */
-    });
+```js
+define(function (require, exports, module) {
+	/* Node.js module code here! */
+});
+```
 
 Because the AMD standard includes the ability to run loader plugins, it’s not necessary for your test modules to be written as AMD modules if you don’t want. Just write a loader plugin that understands the module format you prefer and you’re ready to go!
 
@@ -112,7 +114,7 @@ Once the [outstanding issues with native ES modules](http://jrburke.com/2015/02/
 
 ## Testing your first app
 
-In order to quickly get started with Intern, we’ve created a basic [tutorial](https://github.com/theintern/intern-tutorial) that walks through the steps required to install, configure, and run basic tests against a very simple demo application.
+In order to quickly get started with Intern, we’ve created a basic [tutorial](https://github.com/theintern/intern-tutorial/tree/intern-3) that walks through the steps required to install, configure, and run basic tests against a very simple demo application.
 
 Once you’ve run through the tutorial, you may also want to look at some of the [example integrations](https://github.com/theintern/intern-examples) for popular libraries and frameworks if you are using AngularJS, Backbone.js, Dojo, Ember, or jQuery.
 
