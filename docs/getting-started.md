@@ -1,18 +1,18 @@
+# Getting started
 
+<!-- vim-markdown-toc GFM -->
+* [Overview](#overview)
+* [Installation](#installation)
+* [Recommended directory structure](#recommended-directory-structure)
+* [Terminology](#terminology)
+* [Conventions](#conventions)
+	* [Asynchronous operations](#asynchronous-operations)
+	* [Module loader](#module-loader)
+* [Testing your first app](#testing-your-first-app)
 
--   [Getting started](https://theintern.github.io/intern/#getting-started)
-    -   [Overview](https://theintern.github.io/intern/#fundamentals-overview)
-    -   [Installation](https://theintern.github.io/intern/#installation)
-    -   [Recommended directory structure](https://theintern.github.io/intern/#directory-structure)
-    -   [Terminology](https://theintern.github.io/intern/#terminology)
-    -   [Conventions](https://theintern.github.io/intern/#conventions)
-    -   [Testing your first app](https://theintern.github.io/intern/#first-app)
+<!-- vim-markdown-toc -->
 
-
-Getting started
----------------
-
-### Overview
+## Overview
 
 Intern provides two strategies for automated testing: unit testing and functional testing.
 
@@ -22,29 +22,31 @@ Functional testing works by issuing commands to a device that mimic actual user 
 
 By understanding & combining both of these testing strategies when testing an application, it becomes possible to effectively automate nearly all of the QA process, enabling much faster development cycles and significantly reducing software defects.
 
-### Installation
+## Installation
 
 Intern can be installed simply by running npm install intern.
 
-### Recommended directory structure
+## Recommended directory structure
 
 While Intern can be used to test code using nearly any directory structure, if you are starting a new project or have the ability to modify the directory structure of your existing project, a few small changes can help make Intern integration a lot easier.
 
 The recommended directory structure for a front-end or front+back-end project using Intern looks like this:
 
-    project_root/
-      dist/         – (optional) Built code; mirrors the `src` directory
-      node_modules/ – Node.js dependencies, including Intern
-        intern/
-      src/          – Front-end source code (+ browser dependencies)
-        app/        – Your application code
-        index.html  – Your application entry point
-      tests/        – Intern tests
-        functional/ – Functional tests
-        support/    – Test support files
-                      (custom interfaces, reporters, mocks, etc.)
-        unit/       – Unit tests
-        intern.js   – Intern configuration
+```
+project_root/
+  dist/         – (optional) Built code; mirrors the `src` directory
+  node_modules/ – Node.js dependencies, including Intern
+	intern/
+  src/          – Front-end source code (+ browser dependencies)
+	app/        – Your application code
+	index.html  – Your application entry point
+  tests/        – Intern tests
+	functional/ – Functional tests
+	support/    – Test support files
+				  (custom interfaces, reporters, mocks, etc.)
+	unit/       – Unit tests
+	intern.js   – Intern configuration
+```
 
 Using this directory structure provides a few benefits:
 
@@ -52,15 +54,15 @@ Using this directory structure provides a few benefits:
 -   It lets you use the default loader `baseUrl` configuration setting without worrying about path differences between Node.js and browser
 -   It adds another layer of assurance that your tests and other private server-side code won’t be accidentally deployed along with the rest of your application
 
-### Terminology
+## Terminology
 
 Intern uses certain standard terminology in order to make it easier to understand each part of the system.
 
--   An [assertion](https://theintern.github.io/intern/#writing-unit-test) is a function call that verifies that an expression (like a variable or function call) returns an expected, correct, value (e.g. `assert.isTrue(someVariable, 'someVariable should be true')`)
--   A test [interface](https://theintern.github.io/intern/#interfaces) is a programming interface for registering tests with Intern
+-   An [assertion](./unit-tests.md) is a function call that verifies that an expression (like a variable or function call) returns an expected, correct, value (e.g. `assert.isTrue(someVariable, 'someVariable should be true')`)
+-   A test [interface](./interfaces.md) is a programming interface for registering tests with Intern
 -   A test case (or, just test) is a function that makes calls to application code and makes assertions about what it should have done
 -   A test suite is a collection of tests (and, optionally, sub–test-suites) that are related to each other in some logical way
--   A test module is a JavaScript module, usually in [AMD format](https://theintern.github.io/intern/#amd), that contains test suites
+-   A test module is a JavaScript module, usually in [AMD format](#module-loader), that contains test suites
 
 These pieces can be visualized in a hierarchy, like this:
 
@@ -82,15 +84,15 @@ These pieces can be visualized in a hierarchy, like this:
 -   test module
 -   …
 
-### Conventions
+## Conventions
 
 Intern follows certain conventions in order to make testing easier and more reliable. Understanding these fundamental concepts will help you get the most out of testing with Intern.
 
-#### Asynchronous operations
+### Asynchronous operations
 
-Intern always uses [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) objects whenever an asynchronous operation needs to occur. All [suite](https://theintern.github.io/intern/#suite-object), [test](https://theintern.github.io/intern/#test-object), and [reporter](https://theintern.github.io/intern/#custom-reporters) functions can return a Promise, which will pause the test system until the Promise resolves (or until a timeout occurs, whichever happens first).
+Intern always uses [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) objects whenever an asynchronous operation needs to occur. All [suite](./internals#the-suite-object), [test](https://theintern.github.io/intern/#test-object), and [reporter](./reporters.md) functions can return a Promise, which will pause the test system until the Promise resolves (or until a timeout occurs, whichever happens first).
 
-#### Module loader & format
+### Module loader
 
 Intern is built on top of a standard AMD loader, which means that its modules are also normally written in the AMD module format. Using an AMD loader instead of something like the built-in Node.js loader + Browserify is critical to provide a highly stable and flexible testing system, because AMD is the only stable standard for module loading that has all of these traits:
 
@@ -106,9 +108,9 @@ For users that are only familiar with Node.js modules, AMD modules are exactly t
 
 Because the AMD standard includes the ability to run loader plugins, it’s not necessary for your test modules to be written as AMD modules if you don’t want. Just write a loader plugin that understands the module format you prefer and you’re ready to go!
 
-Once the [outstanding issues with native ES modules](http://jrburke.com/2015/02/13/how-to-know-when-es-modules-are-done/) have been addressed, and a native module loader with equivalent capabilities to a standard AMD loader is available on all the [platforms supported by Intern](https://theintern.github.io/intern/#system-requirements), Intern will be updated to use the native ES module format.
+Once the [outstanding issues with native ES modules](http://jrburke.com/2015/02/13/how-to-know-when-es-modules-are-done/) have been addressed, and a native module loader with equivalent capabilities to a standard AMD loader is available on all the [platforms supported by Intern](./fundamentals.md#system-requirements), Intern will be updated to use the native ES module format.
 
-### Testing your first app
+## Testing your first app
 
 In order to quickly get started with Intern, we’ve created a basic [tutorial](https://github.com/theintern/intern-tutorial) that walks through the steps required to install, configure, and run basic tests against a very simple demo application.
 
@@ -117,4 +119,3 @@ Once you’ve run through the tutorial, you may also want to look at some of the
 Some of the example integrations are outdated and don’t represent modern best practices when using Intern. We’d love it if you’d [submit your own examples](https://github.com/theintern/intern-examples/fork) following the patterns outlined in this document to make Intern easier to use for new users!
 
 After that, continue reading the user guide to learn about all the advanced functionality available within Intern that you can use test your own code better and faster!
-

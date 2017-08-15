@@ -1,17 +1,14 @@
+# Fundamentals
 
+<!-- vim-markdown-toc GFM -->
+* [What is Intern?](#what-is-intern)
+	* [Who is Intern best for?](#who-is-intern-best-for)
+* [System requirements](#system-requirements)
+* [Reading this guide](#reading-this-guide)
 
--   [Fundamentals](https://theintern.github.io/intern/#fundamentals)
-    -   [What is Intern?](https://theintern.github.io/intern/#what-is-intern)
-    -   [System requirements](https://theintern.github.io/intern/#system-requirements)
-    -   [Reading this guide](https://theintern.github.io/intern/#reading-guide)
+<!-- vim-markdown-toc -->
 
-
-
-
-Fundamentals
-------------
-
-### What is Intern?
+## What is Intern?
 
 Intern is a complete framework for testing Web sites and applications. It’s built around standards like WebDriver and was designed from the ground up to be the most powerful, flexible, and reliable JavaScript testing system in the world.
 
@@ -27,7 +24,7 @@ Intern also comes with Grunt tasks so it can be quickly added to existing Grunt-
 
 Intern is used by companies large and small, including some you may have heard of, like Aerohive Networks, Esri, HSBC, IBM, ING, Intuit, Marriott, Mozilla, Stripe, and Twitter. We hope you’ll enjoy working with it too!
 
-#### Who is Intern best for?
+### Who is Intern best for?
 
 Intern is best for development teams that want a complete, flexible, [standards-based](http://www.w3.org/TR/webdriver/), high-quality testing solution that Just Works. It’s best for testing JavaScript code, but it is also an excellent tool for testing server-generated Web pages or native mobile apps. Its built-in support for [source maps](http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/) makes it uniquely well-suited for developers that compile their code to JavaScript from another language, such as TypeScript, or that run tests against production-ready built/minified code.
 
@@ -39,7 +36,7 @@ Intern’s execution model is well-suited to those that follow a test-last devel
 
 Finally, because of its strong architectural patterns, conventions, and expansive feature set, Intern is well-suited for testing extremely large, “enterprise-level” applications that must be maintained by large teams of developers with varying skill levels.
 
-### System requirements
+## System requirements
 
 Intern can be used to run unit tests in any of the following environments:
 
@@ -84,7 +81,7 @@ The following WebDriver servers are compatible with Intern:
 
 Intern also has built-in support for cloud hosted services from [BrowserStack](https://browserstack.com/), [CrossBrowserTesting](https://crossbrowsertesting.com/), [Sauce Labs](https://saucelabs.com/), and [TestingBot](https://testingbot.com/).
 
-### Reading this guide
+## Reading this guide
 
 Throughout this guide, you will find certain pieces of information are called out specifically, as we have found them to be especially important or problematic for users.
 

@@ -1,22 +1,22 @@
+# Unit testing
 
+<!-- vim-markdown-toc GFM -->
+* [Writing a unit test](#writing-a-unit-test)
+* [The test lifecycle](#the-test-lifecycle)
+* [Asynchronous tests](#asynchronous-tests)
+	* [Returning a Promise](#returning-a-promise)
+	* [Calling this.async](#calling-thisasync)
+* [Skipping tests at runtime](#skipping-tests-at-runtime)
+* [Testing CommonJS modules](#testing-commonjs-modules)
+* [Testing non-modular code](#testing-non-modular-code)
+* [Testing other transpiled code](#testing-other-transpiled-code)
+* [Testing non-CORS APIs](#testing-non-cors-apis)
+	* [Option 1: All traffic except Web services to Intern](#option-1-all-traffic-except-web-services-to-intern)
+	* [Option 2: Only JavaScript traffic to Intern](#option-2-only-javascript-traffic-to-intern)
 
--   [Unit testing](https://theintern.github.io/intern/#unit-testing)
-    -   [Writing a unit test](https://theintern.github.io/intern/#writing-unit-test)
-    -   [The test lifecycle](https://theintern.github.io/intern/#test-lifecycle)
-    -   [Asynchronous tests](https://theintern.github.io/intern/#async-tests)
-    -   [Skipping tests at runtime](https://theintern.github.io/intern/#skipping-tests)
-    -   [Testing CommonJS modules](https://theintern.github.io/intern/#testing-commonjs-code)
-    -   [Testing non-modular code](https://theintern.github.io/intern/#testing-global-code)
-    -   [Testing other transpiled code](https://theintern.github.io/intern/#testing-other-module)
-    -   [Testing non-CORS APIs](https://theintern.github.io/intern/#testing-cors)
+<!-- vim-markdown-toc -->
 
-
-
-
-Unit testing
-------------
-
-### Writing a unit test
+## Writing a unit test
 
 As described in the [fundamentals overview](https://theintern.github.io/intern/#fundamentals-overview), unit tests are the cornerstone of every test suite. Unit tests allow us to test applications by loading and interacting directly with application code.
 
@@ -71,7 +71,7 @@ When using the assert API, an easy way to remember the order of arguments is tha
 
 The should-style API pollutes the global `Object.prototype` and doesn’t work with null/undefined values or objects that don’t inherit from `Object.prototype`. It is recommended that this style of assertion be avoided.
 
-### The test lifecycle
+## The test lifecycle
 
 When tests are executed, the test system follows a specific lifecycle:
 
@@ -152,15 +152,15 @@ So, given the this test module:
 
 The `this` keyword inside of the suite lifecycle methods (setup, beforeEach, afterEach, teardown) refers to the internal [Suite object](https://theintern.github.io/intern/#suite-object).
 
-### Asynchronous tests
+## Asynchronous tests
 
 As mentioned in the earlier section on [conventions](https://theintern.github.io/intern/#conventions), asynchronous testing in Intern is based on Promises. When writing a test, you may either return a Promise from your test function (convenient for interfaces that already use Promises), or call `this.async` from within a test function to create a promise for that test.
 
-#### Returning a Promise
+### Returning a Promise
 
 If your test returns a promise (any object with a then function), it is understood that your test is asynchronous. Resolving the promise indicates a passing test, and rejecting the promise indicates a failed test. The test will also fail if the promise is not fulfilled within the timeout of the test (the default is 30 seconds; set `this.timeout` to change the value).
 
-#### Calling this.async
+### Calling this.async
 
 All tests have a `this.async` method that can be used to retrieve a Deferred object. It has the following signature:
 
@@ -217,7 +217,7 @@ In this example, an HTTP request is made using a hypothetical `request` library 
 
 If the data is correct, the Promise associated with `dfd` will be resolved, and the test will pass; otherwise, it will be rejected (because an error is thrown), and the test will fail.
 
-### Skipping tests at runtime
+## Skipping tests at runtime
 
 All tests have a `skip` method that can be used to skip the test if it should not be executed for some reason:
 
@@ -276,7 +276,7 @@ Suites also have a `skip` method. Calling `this.skip()` from a suite lifecycle m
 
 When a test is skipped because `this.skip()` or `this.parent.skip()` was called from within the test, the `beforeEach` and `afterEach` lifecycle methods are still executed for that test. However, when tests are skipped due to `grep` or because `skip` was called on a suite (either in a lifecycle method or in a previous test), `beforeEach` and `afterEach` are *not* executed for the skipped test(s).
 
-### Testing CommonJS modules
+## Testing CommonJS modules
 
 CommonJS modules, including Node.js built-ins, can be loaded as dependencies to a test module using the `dojo/node` loader plugin that comes with Intern:
 
@@ -298,7 +298,7 @@ CommonJS modules, including Node.js built-ins, can be loaded as dependencies to 
 
 CommonJS modules will be loaded using the native Node.js loader. This means they will follow the Node.js module path resolution rules. It also means that AMD loader features like `map` cannot be used when testing CommonJS modules to mock their dependencies.
 
-### Testing non-modular code
+## Testing non-modular code
 
 Browser code that doesn’t support any module system and expects to be loaded along with other dependencies in a specific order can be loaded using the `intern/order` loader plugin:
 
@@ -339,7 +339,7 @@ In this case, the dependency ordering is handled by use-amd instead.
 
 Authoring non-modular code that pollutes the global scope is strongly discouraged. Any code using this style should be upgraded… just as soon as you have a good test suite you can use to prevent regressions!
 
-### Testing other transpiled code
+## Testing other transpiled code
 
 Other transpiled code can be tested without requiring a build step by first writing a [loader plugin](https://github.com/amdjs/amdjs-api/blob/master/LoaderPlugins.md) that performs code compilation for you:
 
@@ -385,7 +385,7 @@ Once you have a suitable loader plugin, just load your code through the loader p
 
 This same mechanism can be used to write the test modules themselves in a different language or module format by referencing a loader plugin ID in the [suites](https://theintern.github.io/intern/#option-suites) and [functionalSuites](https://theintern.github.io/intern/#option-functionalSuites) arrays.
 
-### Testing non-CORS APIs
+## Testing non-CORS APIs
 
 When writing unit tests with Intern, occasionally you will need to interact with a Web service using XMLHttpRequest. However, because the [test runner](https://theintern.github.io/intern/#test-runner) serves code at http://localhost:9000 by default, any cross-origin requests will fail.
 
@@ -393,7 +393,7 @@ In order to test Ajax requests without using CORS or JSONP, the solution is to s
 
 You can either set up the Web server to only send requests to Intern for your JavaScript files, or you can set up the Web server to send all requests to Intern except for the Web services you’re trying to access.
 
-#### Option 1: All traffic except Web services to Intern
+### Option 1: All traffic except Web services to Intern
 
 1.  Modify [proxyUrl](https://theintern.github.io/intern/#option-proxyUrl) in your Intern configuration to point to the URL where the Web server lives
 2.  Set up the Web server to reverse proxy to http://localhost:9000/ by default
@@ -416,7 +416,7 @@ An nginx configuration implementing this pattern might look like this:
       }
     }
 
-#### Option 2: Only JavaScript traffic to Intern
+### Option 2: Only JavaScript traffic to Intern
 
 1.  Modify [proxyUrl](https://theintern.github.io/intern/#option-proxyUrl) in your Intern configuration to point to the URL where the Web server lives
 2.  Set up the Web server to reverse proxy to http://localhost:9000/ for the special /\_\_intern/ location, plus any directories that contain JavaScript
@@ -439,5 +439,3 @@ An nginx configuration implementing this pattern might look like this:
         try_files $uri $uri/ =404;
       }
     }
-
-
