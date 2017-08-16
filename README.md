@@ -1,8 +1,12 @@
-# ![Intern testing framework](https://theintern.github.io/intern/images/readme-logo.png)
+# Intern
 
+<!-- start-github-only -->
 [![Build Status](https://travis-ci.org/theintern/intern.svg?branch=master)](https://travis-ci.org/theintern/intern)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/intern.svg)](http://isitmaintained.com/project/theintern/intern "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/intern.svg)](http://isitmaintained.com/project/theintern/intern "Percentage of issues still open")
+
+<br><p align="center"><img src="https://cdn.rawgit.com/theintern/intern/master/docs/logo.svg" alt="Intern logo" height="128"></p><br>
+<!-- end-github-only -->
 
 Intern is a complete test system for JavaScript designed to help you write and run consistent, high-quality test
 cases for your JavaScript libraries and applications. It can be used to test *any* JavaScript code. It can even be used
@@ -43,7 +47,7 @@ and the [Intern tutorial](https://github.com/theintern/intern-tutorial) to learn
 ## More information
 
 * [Web site](https://theintern.github.io)
-* [Documentation](https://theintern.github.io/intern)
+* [Documentation](https://theintern.github.io/docs.html)
 * [Contributing/support](https://github.com/theintern/intern/blob/master/CONTRIBUTING.md)
 
 ## Do you hate kittens and love old IE?
@@ -51,8 +55,10 @@ and the [Intern tutorial](https://github.com/theintern/intern-tutorial) to learn
 If you need to support IE 6–8, there is also a
 [version of Intern for legacy browsers](https://github.com/theintern/intern/tree/geezer "geezer branch").
 
+<!-- start-github-only -->
 ## License
 
 Intern is a Dojo Foundation project offered under the [New BSD](LICENSE) license.
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/intern/graphs/contributors)
+<!-- end-github-only -->
