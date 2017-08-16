@@ -46,6 +46,7 @@ and the [Intern tutorial](https://github.com/theintern/intern-tutorial) to learn
 
 ## More information
 
+<!-- start-github-only -->
 * [Getting started](docs/getting-started.md)
 * [Fundamentals](docs/fundamentals.md)
 * [Configuration](docs/configuration.md)
@@ -61,6 +62,7 @@ and the [Intern tutorial](https://github.com/theintern/intern-tutorial) to learn
 * [Internals](docs/internals.md)
 * [Community](docs/community.md)
 * [FAQ](docs/faq.md)
+<!-- end-github-only -->
 * [Web site](https://theintern.github.io)
 * [Contributing/support](https://github.com/theintern/intern/blob/master/CONTRIBUTING.md)
 
