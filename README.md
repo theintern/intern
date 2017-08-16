@@ -1,9 +1,13 @@
-# ディグダグ
+# Dig Dug
+
+<!-- start-github-only -->
+> ディグダグ
 
 [![Build Status](https://travis-ci.org/theintern/digdug.svg?branch=master)](https://travis-ci.org/theintern/digdug)
 [![npm version](https://badge.fury.io/js/digdug.svg)](https://badge.fury.io/js/digdug)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug "Percentage of issues still open")
+<!-- end-github-only -->
 
 Dig Dug is a simple abstraction library for downloading and launching WebDriver service tunnels and interacting with
 the REST APIs of these services.
@@ -79,8 +83,10 @@ Note that BrowserStackTunnel requires that the `BROWSERSTACK_ACCESS_KEY` and `BR
 
 [View API documentation](https://theintern.github.io/digdug/)
 
+<!-- start-github-only -->
 ## License
 
 Dig Dug is a JS Foundation project offered under the [New BSD](LICENSE) license.
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/digdug/graphs/contributors)
+<!-- end-github-only -->
