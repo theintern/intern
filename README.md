@@ -76,6 +76,7 @@ Intern can run unit tests in browsers that support ECMAScript 5, including mobil
 
 Intern can run functional tests using WebDriver-compatible applications and services, including Selenium, Appium, Selendroid. It has built-in support for cloud testing services from [BrowserStack](https://browserstack.com), [CrossBrowserTesting](https://crossbrowsertesting.com), [SauceLabs](https://saucelabs.com), and [TestingBot](https://testingbot.com).
 
+<!-- start-github-only -->
 ## More information
 
 * [Getting started](docs/getting_started.md) - Setting up Intern to test a project
@@ -90,6 +91,7 @@ Intern can run functional tests using WebDriver-compatible applications and serv
 * [API](docs/api.md) - Intern's API
 * [Developing](docs/developing.md) - For Intern developers
 * [Contributing](CONTRIBUTING.md) - How to contribute to Intern development
+<!-- end-github-only -->
 
 ## Get help
 
@@ -103,7 +105,7 @@ Intern is a JS Foundation project offered under the [New BSD](LICENSE) license.
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftheintern%2Fintern.svg?type=large)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftheintern%2Fintern?ref=badge_large)
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/intern/graphs/contributors)
-<!-- end-github-only -->
 
 <p align="center">Intern’s self-tests run on<br>
 <a href="https://browserstack.com"><img alt="BrowserStack logo" src="https://theintern.github.io/images/browserstack.svg" height="32" align="middle"></a></p>
+<!-- end-github-only -->
