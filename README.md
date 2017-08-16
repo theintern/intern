@@ -26,7 +26,7 @@ If you’re into name-dropping, Intern gets used every day by teams at Twitter, 
 
 **Note that this documentation is for Intern 4 master, which is currently an alpha release.**
 
-* For the latest stable (Intern 3) release docs, please see [the Intern Guide](https://theintern.github.io/intern).
+* For the latest stable (Intern 3) release docs, please see [the Intern 3 README](https://github.com/theintern/intern/tree/3.4#intern).
 * For the latest unstable (Intern 4) release docs, please see [the release README](https://github.com/theintern/intern/tree/4.0.0-alpha.5).
 
 ## Quick start
