@@ -4,15 +4,15 @@
 * [Writing a unit test](#writing-a-unit-test)
 * [The test lifecycle](#the-test-lifecycle)
 * [Asynchronous tests](#asynchronous-tests)
-    * [Returning a Promise](#returning-a-promise)
-    * [Calling this.async](#calling-thisasync)
+	* [Returning a Promise](#returning-a-promise)
+	* [Calling this.async](#calling-thisasync)
 * [Skipping tests at runtime](#skipping-tests-at-runtime)
 * [Testing CommonJS modules](#testing-commonjs-modules)
 * [Testing non-modular code](#testing-non-modular-code)
 * [Testing other transpiled code](#testing-other-transpiled-code)
 * [Testing non-CORS APIs](#testing-non-cors-apis)
-    * [Option 1: All traffic except Web services to Intern](#option-1-all-traffic-except-web-services-to-intern)
-    * [Option 2: Only JavaScript traffic to Intern](#option-2-only-javascript-traffic-to-intern)
+	* [Option 1: All traffic except Web services to Intern](#option-1-all-traffic-except-web-services-to-intern)
+	* [Option 2: Only JavaScript traffic to Intern](#option-2-only-javascript-traffic-to-intern)
 
 <!-- vim-markdown-toc -->
 
@@ -63,7 +63,7 @@ define(function (require) {
 });
 ```
 
-Good code comments describe *why* code is doing something and not *what* it is doing. Similarly, good assertion messages describe *why* the assertion exists and not *what* it is asserting. Keep this in mind as you write your tests!
+> 💡 Good code comments describe *why* code is doing something and not *what* it is doing. Similarly, good assertion messages describe *why* the assertion exists and not *what* it is asserting. Keep this in mind as you write your tests!
 
 Chai provides its own set of different interfaces for providing assertions. They all do the same things, so just like Intern’s test interfaces, pick the one whose syntax you prefer:
 
@@ -71,9 +71,9 @@ Chai provides its own set of different interfaces for providing assertions. They
 -   The [expect](http://chaijs.com/guide/styles/#expect) API, loaded from `'intern/chai!expect'`, looks like `expect(value).to.be.true`
 -   The [should](http://chaijs.com/guide/styles/#should) API, loaded from `'intern/chai!should'`, looks like `value.should.be.true`
 
-When using the assert API, an easy way to remember the order of arguments is that they are alphabetical: *a*ctual, *e*xpected, *m*essage.
+> 💡 When using the assert API, an easy way to remember the order of arguments is that they are alphabetical: *a*ctual, *e*xpected, *m*essage.
 
-The should-style API pollutes the global `Object.prototype` and doesn’t work with null/undefined values or objects that don’t inherit from `Object.prototype`. It is recommended that this style of assertion be avoided.
+> ⚠️ The should-style API pollutes the global `Object.prototype` and doesn’t work with null/undefined values or objects that don’t inherit from `Object.prototype`. It is recommended that this style of assertion be avoided.
 
 ## The test lifecycle
 
@@ -250,7 +250,7 @@ define(function (require) {
 });
 ```
 
-Calling `this.skip` halts execution of the rest of the function, so it is not necessary to `return` after calling it.
+> 💡 Calling `this.skip` halts execution of the rest of the function, so it is not necessary to `return` after calling it.
 
 The [grep configuration option](./configuration.md#grep) can also be used to skip tests whose IDs don’t match a regular expression.
 
@@ -288,7 +288,7 @@ define(function (require) {
 });
 ```
 
-When a test is skipped because `this.skip()` or `this.parent.skip()` was called from within the test, the `beforeEach` and `afterEach` lifecycle methods are still executed for that test. However, when tests are skipped due to `grep` or because `skip` was called on a suite (either in a lifecycle method or in a previous test), `beforeEach` and `afterEach` are *not* executed for the skipped test(s).
+> 💡 When a test is skipped because `this.skip()` or `this.parent.skip()` was called from within the test, the `beforeEach` and `afterEach` lifecycle methods are still executed for that test. However, when tests are skipped due to `grep` or because `skip` was called on a suite (either in a lifecycle method or in a previous test), `beforeEach` and `afterEach` are *not* executed for the skipped test(s).
 
 ## Testing CommonJS modules
 
@@ -312,7 +312,7 @@ define(function (require) {
 });
 ```
 
-CommonJS modules will be loaded using the native Node.js loader. This means they will follow the Node.js module path resolution rules. It also means that AMD loader features like `map` cannot be used when testing CommonJS modules to mock their dependencies.
+> 💡 CommonJS modules will be loaded using the native Node.js loader. This means they will follow the Node.js module path resolution rules. It also means that AMD loader features like `map` cannot be used when testing CommonJS modules to mock their dependencies.
 
 ## Testing non-modular code
 
@@ -357,7 +357,7 @@ define(function (require) {
 
 In this case, the dependency ordering is handled by use-amd instead.
 
-Authoring non-modular code that pollutes the global scope is strongly discouraged. Any code using this style should be upgraded… just as soon as you have a good test suite you can use to prevent regressions!
+> ⚠️ Authoring non-modular code that pollutes the global scope is strongly discouraged. Any code using this style should be upgraded… just as soon as you have a good test suite you can use to prevent regressions!
 
 ## Testing other transpiled code
 
@@ -407,7 +407,7 @@ define(function (require) {
 });
 ```
 
-This same mechanism can be used to write the test modules themselves in a different language or module format by referencing a loader plugin ID in the [suites](./configuration.md#suites) and [functionalSuites](./configuration.md#functionalsuites) arrays.
+> 💡 This same mechanism can be used to write the test modules themselves in a different language or module format by referencing a loader plugin ID in the [suites](./configuration.md#suites) and [functionalSuites](./configuration.md#functionalsuites) arrays.
 
 ## Testing non-CORS APIs
 

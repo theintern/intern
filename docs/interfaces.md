@@ -13,9 +13,9 @@
 
 Test interfaces are the way in which your tests make it into Intern. You can use one of the standard interfaces that come with Intern, or you can [create your own custom interface](./customisation.md#custom-interfaces) if you don’t like the available defaults.
 
-If you already have a suite of tests written for a different testing framework, you don’t have to rewrite all of your tests! Just create a custom interface that provides the same API as your old test system.
+> 💡 If you already have a suite of tests written for a different testing framework, you don’t have to rewrite all of your tests! Just create a custom interface that provides the same API as your old test system.
 
-Because test interfaces are independent from the rest of the testing system, you can use more than one test interface at the same time in a single project. Just be careful not to introduce unnecessary inconsistencies by doing this!
+> ⚠️ Because test interfaces are independent from the rest of the testing system, you can use more than one test interface at the same time in a single project. Just be careful not to introduce unnecessary inconsistencies by doing this!
 
 ## The Object interface
 
@@ -112,7 +112,7 @@ define(function (require) {
 });
 ```
 
-Failure to follow this guidance will cause extremely unpredictable test execution, but *only* once you start running functional tests against multiple environments concurrently using the [test runner](./running.md#the-test-runner)! This defect will be invisible when running tests against a single environment or when running with [maxConcurrency](#maxconcurrency) set to 1.
+> ⚠️ Failure to follow this guidance will cause extremely unpredictable test execution, but *only* once you start running functional tests against multiple environments concurrently using the [test runner](./running.md#the-test-runner)! This defect will be invisible when running tests against a single environment or when running with [maxConcurrency](#maxconcurrency) set to 1.
 
 It is also possible to nest suites by using an object as a value instead of a function:
 
@@ -223,7 +223,7 @@ define(function (require) {
 });
 ```
 
-Both interfaces work the same, so just pick which style you prefer and stick with it!
+> 💡 Both interfaces work the same, so just pick which style you prefer and stick with it!
 
 Just like the Object interface, the TDD & BDD interfaces allow suites to be nested by calling `tdd.suite` or `bdd.describe` from within a parent suite:
 
@@ -257,7 +257,7 @@ define(function (require) {
 });
 ```
 
-Don’t try to call `tdd.suite` or `bdd.describe` from inside a test case; it’s not supported.
+> ⚠️ Don’t try to call `tdd.suite` or `bdd.describe` from inside a test case; it’s not supported.
 
 ## The QUnit interface
 
@@ -279,7 +279,7 @@ define(function (require) {
 });
 ```
 
-The QUnit interface has been successfully used by multiple jQuery projects to convert their tests to Intern, but there may be some edge cases where its behaviour differs. Please [let us know](https://github.com/theintern/intern/issues/new?body=Description:%0A%0ASteps+to+reproduce:%0A%0A1.%20%E2%80%A6%0A2.%20%E2%80%A6%0A3.%20%E2%80%A6%0A%0AExpected%20result:%0AActual%20result:%0A%0AIntern%20version:%0A%0AAny%20additional%20information:) if you run into any in your own projects!
+> ⚠️ The QUnit interface has been successfully used by multiple jQuery projects to convert their tests to Intern, but there may be some edge cases where its behaviour differs. Please [let us know](https://github.com/theintern/intern/issues/new?body=Description:%0A%0ASteps+to+reproduce:%0A%0A1.%20%E2%80%A6%0A2.%20%E2%80%A6%0A3.%20%E2%80%A6%0A%0AExpected%20result:%0AActual%20result:%0A%0AIntern%20version:%0A%0AAny%20additional%20information:) if you run into any in your own projects!
 
 ## The Benchmark interface
 
@@ -328,6 +328,6 @@ registerSuite({
 
 The benchmark interface also adds two new lifecycle functions: `beforeEachLoop` and `afterEachLoop`. These are similar to Benchmark.js's `setup` and `teardown` methods, in that they will be called for each execution of Benchmark.js's test loop. (The existing `beforeEach` and `afterEach` methods will be called before and after the benchmarking process for a particular test, which will involve calling the test function multiple times.) Like Intern's existing lifecycle functions, these methods support nested suites.
 
-Note that because of limitations in Benchmark.js, `beforeEachLoop` and `afterEachLoop` *must* be synchronous and *cannot* use `this.async()`, return a Promise, or be wrapped with `async`.
+> ⚠️ Note that because of limitations in Benchmark.js, `beforeEachLoop` and `afterEachLoop` *must* be synchronous and *cannot* use `this.async()`, return a Promise, or be wrapped with `async`.
 
-Note that providing `setup` and `teardown` functions on benchmark test "options" object is not supported. Intern will always override these functions with its own lifecycle code. Instead, use `beforeEachLoop` and `afterEachLoop`.
+> 💡 Note that providing `setup` and `teardown` functions on benchmark test "options" object is not supported. Intern will always override these functions with its own lifecycle code. Instead, use `beforeEachLoop` and `afterEachLoop`.

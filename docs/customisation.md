@@ -2,8 +2,8 @@
 
 <!-- vim-markdown-toc GFM -->
 * [Custom interfaces](#custom-interfaces)
-    * [As a standard module (for tests written in JavaScript)](#as-a-standard-module-for-tests-written-in-javascript)
-    * [As a loader plugin (for tests written in other languages)](#as-a-loader-plugin-for-tests-written-in-other-languages)
+	* [As a standard module (for tests written in JavaScript)](#as-a-standard-module-for-tests-written-in-javascript)
+	* [As a loader plugin (for tests written in other languages)](#as-a-loader-plugin-for-tests-written-in-other-languages)
 * [Custom reporters](#custom-reporters)
 
 <!-- vim-markdown-toc -->
@@ -123,7 +123,7 @@ define(function (require) {
 });
 ```
 
-Test and Suite constructors must always be passed `name` and `parent` properties, since this information is used at construction time to notify reporters of a new suite or test.
+> ⚠️ Test and Suite constructors must always be passed `name` and `parent` properties, since this information is used at construction time to notify reporters of a new suite or test.
 
 As a more practical (but incomplete) example, to convert a Jasmine test suite to an Intern test suite using a custom Jasmine interface, you’d simply run a script to wrap all of your existing Jasmine spec files like this:
 
@@ -236,7 +236,7 @@ define(function (require) {
 });
 ```
 
-The [built-in interfaces](https://github.com/theintern/intern/tree/3.4/lib/interfaces) can also be used as a reference to understand how to better create a custom interface.
+> 💡 The [built-in interfaces](https://github.com/theintern/intern/tree/3.4/lib/interfaces) can also be used as a reference to understand how to better create a custom interface.
 
 ### As a loader plugin (for tests written in other languages)
 

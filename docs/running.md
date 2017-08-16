@@ -2,7 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 * [The browser client](#the-browser-client)
-    * [initialBaseUrl (string)](#initialbaseurl-string)
+	* [initialBaseUrl (string)](#initialbaseurl-string)
 * [The Node.js client](#the-nodejs-client)
 * [The test runner](#the-test-runner)
 * [Using custom arguments](#using-custom-arguments)
@@ -41,7 +41,7 @@ http://localhost/my-project/node_modules/intern/client.html?
   reporters=Html
 ```
 
-The browser client is also used by the [test runner](#the-test-runner) to run unit tests in each browser.
+> 💡 The browser client is also used by the [test runner](#the-test-runner) to run unit tests in each browser.
 
 The browser client supports the following arguments:
 
@@ -66,11 +66,11 @@ A typical execution that runs all tests and outputs results to the console would
 intern-client config=tests/intern
 ```
 
-The `config` argument is a module ID, not a file path. Providing a file path may cause confusing or unpredictable results.
+> ⚠️ The `config` argument is a module ID, not a file path. Providing a file path may cause confusing or unpredictable results.
 
-When running on Windows, all command-line options must be surrounded by quotes.
+> 💡 When running on Windows, all command-line options must be surrounded by quotes.
 
-The commands shown above rely on npm being installed and configured properly. If your environment PATH is not set properly, you may need to run node\_modules/.bin/intern-client instead of intern-client.
+> 💡 The commands shown above rely on npm being installed and configured properly. If your environment PATH is not set properly, you may need to run node\_modules/.bin/intern-client instead of intern-client.
 
 A more complex execution with arguments overriding the [suites](./configuration.md#suites) and [reporters](./configuration.md#reporters) properties from the configuration file might look like this:
 
@@ -105,11 +105,11 @@ A typical execution that runs all tests against all [environments](./configurati
 intern-runner config=tests/intern
 ```
 
-The `config` argument is a module ID, not a file path. Providing a file path may cause confusing or unpredictable results.
+> ⚠️ The `config` argument is a module ID, not a file path. Providing a file path may cause confusing or unpredictable results.
 
-When running on Windows, all command-line options must be surrounded by quotes.
+> 💡 When running on Windows, all command-line options must be surrounded by quotes.
 
-The commands shown above rely on npm being installed and configured properly. If your environment PATH is not set properly, you may need to run node\_modules/.bin/intern-runner instead of intern-runner.
+> 💡 The commands shown above rely on npm being installed and configured properly. If your environment PATH is not set properly, you may need to run node\_modules/.bin/intern-runner instead of intern-runner.
 
 A more complex execution that overrides the [reporters](./configuration.md#reporters) and [functionalSuites](./configuration.md#functionalsuites) properties from the configuration file might look like this:
 
@@ -120,7 +120,7 @@ intern-runner config=tests/intern \
   functionalSuites=tests/functional/cart
 ```
 
-The test runner is the *only* executor that runs functional tests.
+> 💡 The test runner is the *only* executor that runs functional tests.
 
 The test runner supports the following arguments:
 
@@ -166,7 +166,7 @@ define(function (require) {
 intern-runner config=tests/intern serverId=id1
 ````
 
-In Intern 3, all arguments from the command-line are automatically added to the configuration object, so default configuration properties can be changed without needing to use custom arguments. For instance, in the previous example,
+> 💡 In Intern 3, all arguments from the command-line are automatically added to the configuration object, so default configuration properties can be changed without needing to use custom arguments. For instance, in the previous example,
 
 ```
 intern-runner config=tests/intern proxyUrl=http://id1.example/
@@ -227,7 +227,7 @@ The following events are available:
 | intern.pass(message: string) | This event is emitted when a test passes. |
 | intern.fail(message: string) | This event is emitted when a test fails.  |
 
-The current Grunt events are rudimentary, based on the output of the default [console reporter](./reporters.md#test-results-reporters), and do not provide much detail into the actual state of the test runner to Grunt tasks. Future versions of Intern are likely to improve to provide first-class event support, if sufficient demand exists for this feature.
+> 💡 The current Grunt events are rudimentary, based on the output of the default [console reporter](./reporters.md#test-results-reporters), and do not provide much detail into the actual state of the test runner to Grunt tasks. Future versions of Intern are likely to improve to provide first-class event support, if sufficient demand exists for this feature.
 
 ## Using Gulp
 

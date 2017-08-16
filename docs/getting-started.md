@@ -108,9 +108,9 @@ define(function (require, exports, module) {
 });
 ```
 
-Because the AMD standard includes the ability to run loader plugins, it’s not necessary for your test modules to be written as AMD modules if you don’t want. Just write a loader plugin that understands the module format you prefer and you’re ready to go!
+> 💡 Because the AMD standard includes the ability to run loader plugins, it’s not necessary for your test modules to be written as AMD modules if you don’t want. Just write a loader plugin that understands the module format you prefer and you’re ready to go!
 
-Once the [outstanding issues with native ES modules](http://jrburke.com/2015/02/13/how-to-know-when-es-modules-are-done/) have been addressed, and a native module loader with equivalent capabilities to a standard AMD loader is available on all the [platforms supported by Intern](./fundamentals.md#system-requirements), Intern will be updated to use the native ES module format.
+> 💡 Once the [outstanding issues with native ES modules](http://jrburke.com/2015/02/13/how-to-know-when-es-modules-are-done/) have been addressed, and a native module loader with equivalent capabilities to a standard AMD loader is available on all the [platforms supported by Intern](./fundamentals.md#system-requirements), Intern will be updated to use the native ES module format.
 
 ## Testing your first app
 
@@ -118,6 +118,6 @@ In order to quickly get started with Intern, we’ve created a basic [tutorial](
 
 Once you’ve run through the tutorial, you may also want to look at some of the [example integrations](https://github.com/theintern/intern-examples) for popular libraries and frameworks if you are using AngularJS, Backbone.js, Dojo, Ember, or jQuery.
 
-Some of the example integrations are outdated and don’t represent modern best practices when using Intern. We’d love it if you’d [submit your own examples](https://github.com/theintern/intern-examples/fork) following the patterns outlined in this document to make Intern easier to use for new users!
+> ⚠️ Some of the example integrations are outdated and don’t represent modern best practices when using Intern. We’d love it if you’d [submit your own examples](https://github.com/theintern/intern-examples/fork) following the patterns outlined in this document to make Intern easier to use for new users!
 
 After that, continue reading the user guide to learn about all the advanced functionality available within Intern that you can use test your own code better and faster!

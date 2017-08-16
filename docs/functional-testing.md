@@ -4,9 +4,9 @@
 * [Writing a functional test](#writing-a-functional-test)
 * [Page objects](#page-objects)
 * [Testing native apps](#testing-native-apps)
-    * [Appium](#appium)
-    * [ios-driver](#ios-driver)
-    * [Selendroid](#selendroid)
+	* [Appium](#appium)
+	* [ios-driver](#ios-driver)
+	* [Selendroid](#selendroid)
 * [Debugging](#debugging)
 
 <!-- vim-markdown-toc -->
@@ -50,7 +50,7 @@ define(function (require) {
 });
 ```
 
-Always make sure that you either `return` the final call to the remote object, or return another Promise that resolves after all of your commands have finished executing. If you don’t, Intern won’t wait before moving on to the next test, and your test suite will be broken.
+> ⚠️ Always make sure that you either `return` the final call to the remote object, or return another Promise that resolves after all of your commands have finished executing. If you don’t, Intern won’t wait before moving on to the next test, and your test suite will be broken.
 
 In this example, taken from the [Intern tutorial](https://github.com/theintern/intern-tutorial), we’re automating interaction with a basic form that is supposed to accept a name from the user and then display it as a greeting in the user interface. As can be seen from the code above, the series of steps the test takes are as follows:
 
@@ -65,7 +65,7 @@ In this example, taken from the [Intern tutorial](https://github.com/theintern/i
 -   Get the text from the greeting
 -   Verify that the correct greeting is displayed
 
-Calling `this.remote.quit()` will break Intern, so don’t do it. Intern will always handle cleaning up the remote environment on your behalf once testing is finished.
+> ⚠️ Calling `this.remote.quit()` will break Intern, so don’t do it. Intern will always handle cleaning up the remote environment on your behalf once testing is finished.
 
 ## Page objects
 
@@ -167,7 +167,7 @@ define([
 
 Native mobile application UIs can be tested by Intern using an [Appium](http://appium.io/), [ios-driver](http://ios-driver.github.io/ios-driver/), or [Selendroid](http://selendroid.io/) server. Each server has slightly different support for WebDriver, so make sure to read each project’s documentation to pick the right one for you.
 
-Always be sure to set `fixSessionCapabilities: false` in your environment capabilities when testing a native app to bypass feature detection code that only works for Web apps.
+> ⚠️ Always be sure to set `fixSessionCapabilities: false` in your environment capabilities when testing a native app to bypass feature detection code that only works for Web apps.
 
 ### Appium
 
@@ -206,7 +206,7 @@ You can also use `appPackage` and `appActivity` for Android, or `bundleId` and `
 }
 ```
 
-The available capabilities for Appium are complex, so review the [Appium capabilities documentation](http://appium.io/slate/en/master/#caps.md) to understand all possible execution modes.
+> 💡 The available capabilities for Appium are complex, so review the [Appium capabilities documentation](http://appium.io/slate/en/master/#caps.md) to understand all possible execution modes.
 
 Once the application has started successfully, you can interact with it using any of the [supported WebDriver APIs](http://appium.io/slate/en/master/?javascript#finding-and-interacting-with-elements).
 

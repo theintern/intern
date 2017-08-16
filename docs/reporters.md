@@ -44,7 +44,7 @@ Intern comes with several different test results reporters:
 | Lcov      | This reporter generates an lcov.info from collated coverage data that can be fed to another program that understands the standard lcov data format.                                           | filename, watermarks  |
 | LcovHtml  | This reporter generates a set of illustrated HTML reports from collated coverage data.                                                                                                        | directory, watermarks |
 
-Generally speaking, code coverage reporters will never work directly from the browser client because they require code to be instrumented in order to collect coverage data.
+> 💡 Generally speaking, code coverage reporters will never work directly from the browser client because they require code to be instrumented in order to collect coverage data.
 
 ## Reporter options
 

@@ -42,7 +42,7 @@ Intern’s configuration files are actually [standard AMD modules](http://dojoto
 
 The configuration file is specified using the [config argument](./running.md) on the command-line (for Node.js) or the config argument in the URL query-string (for browsers).
 
-Take a look at the [example configuration file](https://github.com/theintern/intern/blob/3.4/tests/example.intern.js) that comes with Intern to learn what a valid configuration looks like.
+> 💡 Take a look at the [example configuration file](https://github.com/theintern/intern/blob/3.4/tests/example.intern.js) that comes with Intern to learn what a valid configuration looks like.
 
 The following configuration options are common to [all execution modes](./running.md) in Intern:
 
@@ -90,7 +90,7 @@ The common base path for all files that need to be loaded during testing. If `ba
 
 If `basePath` is not explicitly provided, it is set to `.` and is resolved according to the rules above.
 
-`basePath` is the directory that is served by the test runner’s instrumenting proxy HTTP server. If it is not set properly for your application, the test runner will not work correctly.
+> ⚠️ `basePath` is the directory that is served by the test runner’s instrumenting proxy HTTP server. If it is not set properly for your application, the test runner will not work correctly.
 
 ### benchmark
 
@@ -153,7 +153,7 @@ This option should be used when you want to exclude dependencies from being repo
 }
 ```
 
-If you are running Intern 2 on Windows, you will need to use `[\\/]` instead of `\/` to match the path separator used by that OS. In Intern 3, forward-slashes should always be used regardless of platform.
+> 💡 If you are running Intern 2 on Windows, you will need to use `[\\/]` instead of `\/` to match the path separator used by that OS. In Intern 3, forward-slashes should always be used regardless of platform.
 
 ### filterErrorStack
 
@@ -275,7 +275,7 @@ loaders: {
 }
 ```
 
-When using RequireJS in Node.js, you *must* use `'requirejs'`, which actually loads `r.js`. The file `require.js` is for Web browsers *only* and will not work.
+> ⚠️ When using RequireJS in Node.js, you *must* use `'requirejs'`, which actually loads `r.js`. The file `require.js` is for Web browsers *only* and will not work.
 
 ### reporters 
 
@@ -295,7 +295,7 @@ An array of reporters to use to report test results. Reporters in this list can 
 
 If reporters are not specified in the configuration, Intern will pick defaults that are most suitable for the current execution mode.
 
-In Intern 2, reporter IDs are all lowercase. In Intern 3, reporter IDs are UpperCamelCase (because they are now constructors).
+> 💡 In Intern 2, reporter IDs are all lowercase. In Intern 3, reporter IDs are UpperCamelCase (because they are now constructors).
 
 ### setup
 
@@ -340,9 +340,9 @@ project_root/
 	intern.js
 ```
 
-Glob expressions aren’t evaluated in module IDs involving loader plugins, so the following won’t work: 'dojo/node!cjsmodules/\*'.
+> ⚠️ Glob expressions aren’t evaluated in module IDs involving loader plugins, so the following won’t work: 'dojo/node!cjsmodules/\*'.
 
-When running tests with `client.html`, tests must be served by the Intern proxy to use globbing.
+> 💡 When running tests with `client.html`, tests must be served by the Intern proxy to use globbing.
 
 `suites` can be set to `null` to skip loading the unit testing system when in runner mode. From the command line, this is done by passing the argument `suites=`.
 
@@ -441,7 +441,7 @@ The “latest” alias represents the most recent version of a browser (the most
 }
 ```
 
-Different cloud testing services use different capability values when specifying environment capabilities. For example, Sauce Labs uses 'Windows XP' to specify the Windows XP platform while BrowserStack uses 'XP'. Check [the list above](#capabilities) to find the right capabilities for your chosen platform.
+> 💡 Different cloud testing services use different capability values when specifying environment capabilities. For example, Sauce Labs uses 'Windows XP' to specify the Windows XP platform while BrowserStack uses 'XP'. Check [the list above](#capabilities) to find the right capabilities for your chosen platform.
 
 ### environmentRetries
 
@@ -516,7 +516,7 @@ The reporter used to send data from the unit testing system back to the test run
 | waitForRunner | Whether or not events transmitted from the unit testing system to the test runner should cause the unit testing system to pause until a response is received from the test runner. This is necessary if you expect to be able to do things like take screenshots of the browser before/after each unit test executes from a custom reporter. This property can be set to `true` to always wait for the test runner after each event from the test system, or `'fail'` to only wait if the event was a test failure or other error. | `false` |
 | writeHtml     | Whether or not test status should be written to the screen during the test run. This is useful for debugging test hangs when running on a cloud provider, but can also interfere with tests that rely on scrolling/positioning or code which indiscriminately destroys the content of the DOM.                                                                                                                                                                                                                                     | `true`  |
 
-You can swap out the client reporter with a completely different reporter if you want by specifying its ID, but doing so will break the test runner if you don’t know what you are doing.
+> ⚠️ You can swap out the client reporter with a completely different reporter if you want by specifying its ID, but doing so will break the test runner if you don’t know what you are doing.
 
 ### tunnel
 

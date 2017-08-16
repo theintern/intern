@@ -2,17 +2,17 @@
 
 <!-- vim-markdown-toc GFM -->
 * [Cloud hosting](#cloud-hosting)
-    * [BrowserStack](#browserstack)
-    * [CrossBrowserTesting](#crossbrowsertesting)
-    * [Sauce Labs](#sauce-labs)
-    * [TestingBot](#testingbot)
+	* [BrowserStack](#browserstack)
+	* [CrossBrowserTesting](#crossbrowsertesting)
+	* [Sauce Labs](#sauce-labs)
+	* [TestingBot](#testingbot)
 * [Local Selenium](#local-selenium)
-    * [Using a WebDriver directly](#using-a-webdriver-directly)
-        * [Using ChromeDriver (Chrome-only)](#using-chromedriver-chrome-only)
-        * [Using PhantomJS 2](#using-phantomjs-2)
-    * [Using Selenium (all browsers)](#using-selenium-all-browsers)
-        * [SeleniumTunnel](#seleniumtunnel)
-        * [Manually running Selenium](#manually-running-selenium)
+	* [Using a WebDriver directly](#using-a-webdriver-directly)
+		* [Using ChromeDriver (Chrome-only)](#using-chromedriver-chrome-only)
+		* [Using PhantomJS 2](#using-phantomjs-2)
+	* [Using Selenium (all browsers)](#using-selenium-all-browsers)
+		* [SeleniumTunnel](#seleniumtunnel)
+		* [Manually running Selenium](#manually-running-selenium)
 * [Selenium Grid](#selenium-grid)
 
 <!-- vim-markdown-toc -->
@@ -66,7 +66,7 @@ Using cloud hosting is the fastest way to get an operational Selenium server. In
     -   Set `testingbotKey` and `testingbotSecret` in your Gruntfile’s intern task options
     -   Set `apiKey` and `apiSecret` on your [tunnelOptions](./configuration.md#tunneloptions) configuration option
 
-Cloud hosts typically have their own unique capabilities options, so be sure to read the [capabilities documentation](./configuration.md#capabilities) for the provider you’re using.
+> 💡 Cloud hosts typically have their own unique capabilities options, so be sure to read the [capabilities documentation](./configuration.md#capabilities) for the provider you’re using.
 
 ## Local Selenium
 
@@ -86,7 +86,7 @@ If you’re just looking to have a local environment for developing functional t
 4.  Set your [environments](./configuration.md#environments) capabilities to `[ { browserName: 'chrome' } ]`
 5.  Run [the test runner](./running.md#the-test-runner)
 
-If you are having trouble starting the server or getting Intern to communicate with it, verify the server is running correctly by going to <http://localhost:4444/wd/hub/status>. It should return a JSON response with a `status` field of 0.
+> 💡 If you are having trouble starting the server or getting Intern to communicate with it, verify the server is running correctly by going to <http://localhost:4444/wd/hub/status>. It should return a JSON response with a `status` field of 0.
 
 #### Using PhantomJS 2
 
@@ -98,7 +98,7 @@ If you want to use a fake browser to develop your tests, PhantomJS 2 is an optio
 4.  Set your [environments](./configuration.md#environments) capabilities to `[ { browserName: 'phantomjs' } ]`
 5.  Run [the test runner](./running.md#the-test-runner)
 
-Since PhantomJS is not a real browser that your users will ever actually use, it’s not the best idea to rely on it for testing unless you have a [continuous integration](https://theintern.github.io/intern/#ci) system set up to test with real browsers.
+> ⚠️ Since PhantomJS is not a real browser that your users will ever actually use, it’s not the best idea to rely on it for testing unless you have a [continuous integration](https://theintern.github.io/intern/#ci) system set up to test with real browsers.
 
 ### Using Selenium (all browsers)
 
@@ -117,7 +117,7 @@ tunnelOptions: {
 
 Intern will download and start Selenium at the beginning of the functional tests, and will shut it down when the testing process has finished.
 
-Note that to use Selenium with Firefox 47+, you will need to include `marionette: true` in the [environment object](./configuration.md#environments), and code coverage will need to be disabled by setting `excludeInstrumentation: true`.
+> 💡 Note that to use Selenium with Firefox 47+, you will need to include `marionette: true` in the [environment object](./configuration.md#environments), and code coverage will need to be disabled by setting `excludeInstrumentation: true`.
 
 #### Manually running Selenium
 
@@ -130,7 +130,7 @@ Start by downloading the servers for each platform you want to test:
 -   Android Browser: [Selendroid server with dependencies](https://github.com/selendroid/selendroid/releases/)
 -   Mobile Safari: [ios-driver server standalone](http://ios-driver-ci.ebaystratus.com/userContent/)
 
-New versions of Firefox will occasionally break Selenium. If this is the case, downgrade to an earlier version of Firefox until a new Selenium release is available. Once [Marionette](https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette) is updated to use the WebDriver wire protocol, this should no longer be an issue.
+> ⚠️ New versions of Firefox will occasionally break Selenium. If this is the case, downgrade to an earlier version of Firefox until a new Selenium release is available. Once [Marionette](https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette) is updated to use the WebDriver wire protocol, this should no longer be an issue.
 
 To start the server, run
 
@@ -148,7 +148,7 @@ java -jar selenium-server-standalone-{version}.jar \
 
 Once the server is running, simply configure Intern to point to the server by setting [tunnel](./configuration.md#tunnel) to `'NullTunnel'`, then run the [test runner](./running.md#the-test-runner).
 
-If you are having trouble starting the server or getting Intern to communicate with it, verify the server is running correctly by going to <http://localhost:4444/wd/hub/status>. It should return a JSON response with a `status` field of 0.
+> 💡 If you are having trouble starting the server or getting Intern to communicate with it, verify the server is running correctly by going to <http://localhost:4444/wd/hub/status>. It should return a JSON response with a `status` field of 0.
 
 Each driver you use with Selenium has its own installation and configuration requirements, so be sure to read the installation instructions for each:
 
@@ -159,7 +159,7 @@ Each driver you use with Selenium has its own installation and configuration req
 -   [Selendroid](http://selendroid.io/)
 -   [ios-driver](http://ios-driver.github.io/ios-driver/)
 
-It is not necessary to manually add browser sessions to the server through the Web interface. Selenium will automatically create new sessions when a connection from Intern is established.
+> 💡 It is not necessary to manually add browser sessions to the server through the Web interface. Selenium will automatically create new sessions when a connection from Intern is established.
 
 ## Selenium Grid
 
@@ -185,6 +185,6 @@ Creating a grid that works with Selendroid and ios-driver requires that addition
 java -Dfile.encoding=UTF-8 -cp "selendroid-grid-plugin-{version}.jar:ios-grid-plugin-{version}.jar:selenium-server-standalone-{version}.jar" org.openqa.grid.selenium.GridLauncher -capabilityMatcher io.selendroid.grid.SelendroidCapabilityMatcher -role hub
 ```
 
-When running on Windows, the colons (:) in the -cp argument must be replaced with semicolons (;).
+> 💡 When running on Windows, the colons (:) in the -cp argument must be replaced with semicolons (;).
 
 Firefox, Safari, Chrome, Chrome for Android, and Internet Explorer will all be available using a standard Selenium server node. Selendroid and ios-driver, in contrast, use their own custom Selenium servers (`selendroid-standalone-{version}-with-dependencies.jar` and `ios-server-standalone-{version}.jar`), which must be run and registered separately with the hub. ios-driver uses the same hub registration method as the standard Selenium server (-hub http://hub-server…); Selendroid requires [manual registration](http://selendroid.io/scale.html#start) to the hub.
