@@ -46,8 +46,22 @@ and the [Intern tutorial](https://github.com/theintern/intern-tutorial) to learn
 
 ## More information
 
+* [Getting started](docs/getting-started.md)
+* [Fundamentals](docs/fundamentals.md)
+* [Configuration](docs/configuration.md)
+* [Test interfaces](docs/interfaces.md)
+* [Unit testing](docs/unit-testing.md)
+* [Benchmark testing](docs/benchmark-testing.md)
+* [Functional testing](docs/functional-testing.md)
+* [Getting a WebDriver server](docs/webdriver-server.md)
+* [Running tests](docs/running.md)
+* [Getting test results](docs/reporters.md)
+* [Continuous integration](docs/ci.md)
+* [Customisation](docs/customisation.md)
+* [Internals](docs/internals.md)
+* [Community](docs/community.md)
+* [FAQ](docs/faq.md)
 * [Web site](https://theintern.github.io)
-* [Documentation](https://theintern.github.io/docs.html)
 * [Contributing/support](https://github.com/theintern/intern/blob/master/CONTRIBUTING.md)
 
 ## Do you hate kittens and love old IE?
