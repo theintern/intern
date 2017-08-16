@@ -424,7 +424,7 @@ registerSuite('Performance', {
 
 The benchmark interface also supports two additionl lifecycle methods, `beforeEachLoop` and `afterEachLoop`. The test lifecycle for a benchmark test is a bit different than for other types of test. A single benchmark test involves running a test function many times in succession. The total of all of these runs is the “test”, and this is what the standard `beforeEach` and `afterEach` callbacks run before and after. The `beforeEachLoop` and `afterEachLoop` run before and after each call of the test function in a run.
 
-⚠️  Note that because of limitations in Benchmark.js, `beforeEachLoop` and `afterEachLoop` _must_ be synchronous, and cannot be wrapped in `async`.
+> ⚠️  Note that because of limitations in Benchmark.js, `beforeEachLoop` and `afterEachLoop` _must_ be synchronous, and cannot be wrapped in `async`.
 
 Benchmark tests may also provide options directly to [benchmark.js] by attaching them to the test function.
 
@@ -444,7 +444,7 @@ registerSuite('foo', {
 });
 ```
 
-⚠️  Note that providing `setup` and `teardown` functions in an `options` object is not supported. Intern will always override these functions with its own lifecycle code. Instead, use `beforeEachLoop` and `afterEachLoop`.
+> ⚠️  Note that providing `setup` and `teardown` functions in an `options` object is not supported. Intern will always override these functions with its own lifecycle code. Instead, use `beforeEachLoop` and `afterEachLoop`.
 
 ### Native
 
@@ -461,7 +461,7 @@ intern.addSuite(parent => {
 ```
 
 ## Assertions
-u
+
 Tests should throw errors when some feature being tested doesn’t behave as expected. The standard `throw` mechanism will work for this purpose, but performing a particular test and constructing meaningful error messages can be tedious. Assertion libraries exist that can simplify this process. Intern bundles the [chai](http://chaijs.com) assertion library, and exposes it it vial the plugin system as “chai”.
 
 ```js
@@ -501,7 +501,7 @@ const should = intern.getPlugin('chai').should();
 count.should.equal(5, 'unexpected value for count')
 ```
 
-⚠️  This API modifies the global `Object.prototype` and doesn’t work with null/undefined values or objects that don't inherit from `Object.prototype`.
+> ⚠️  This API modifies the global `Object.prototype` and doesn’t work with null/undefined values or objects that don't inherit from `Object.prototype`.
 
 ## Unit tests
 
@@ -605,7 +605,7 @@ registerSuite('skip demo', {
 });
 ```
 
-💡Calling `this.skip` immediately halts test execution, so there is no need to call `return` after `skip`.
+> 💡Calling `this.skip` immediately halts test execution, so there is no need to call `return` after `skip`.
 
 The Suite class also provides a [`skip`](./api.md#skipmessage) method. Calling `this.skip()` (or `suite.skip()`) from a suite lifecycle method, or calling `this.parent.skip()` from a test, will cause all remaining tests in a suite to be skipped.
 
@@ -620,7 +620,7 @@ Intern also provides a [`grep`](./configuration.md#grep) configuration option th
 }
 ```
 
-💡Note that a test ID is the concatenation of its parent suite ID and the test name (and a suite ID is the concatenation of _it’s_ parent suite ID and the suite’s own name, etc.).
+> 💡Note that a test ID is the concatenation of its parent suite ID and the test name (and a suite ID is the concatenation of _it’s_ parent suite ID and the suite’s own name, etc.).
 
 ### Test and suite context
 
@@ -725,7 +725,7 @@ This test performs the following steps:
 
 One key point to keep in mind is that interaction with a browser is async, so all functional tests must be async. This is actually pretty simple to deal with. The API provided by `this.remote` is the Leadfoot [Command API](https://theintern.github.io/leadfoot/module-leadfoot_Command.html), which is fluid and async, and the result of a bunch of fluid Command method calls will be something that looks like a Promise. A functional test just needs to return the result of this Command chain, and Intern will treat it as async.
 
-⚠️ Always make sure to return the final call to the remote object, or return a Promise that resolves after the functional test is complete. Otherwise Intern won’t wait for your functional test to finish before moving on to the next test.
+> ⚠️ Always make sure to return the final call to the remote object, or return a Promise that resolves after the functional test is complete. Otherwise Intern won’t wait for your functional test to finish before moving on to the next test.
 
 ### Page objects
 
@@ -781,7 +781,7 @@ registerSuite('product page', {
 
 Native mobile application UIs can be tested by Intern using an [Appium](http://appium.io/), [ios-driver](http://ios-driver.github.io/ios-driver/), or [Selendroid](http://selendroid.io/) server. Each server has slightly different support for WebDriver, so make sure to read each project’s documentation to pick the right one for you.
 
-⚠️  Always be sure to set `fixSessionCapabilities: false` in your environment capabilities when testing a native app to bypass feature detection code that only works for Web apps.
+> ⚠️  Always be sure to set `fixSessionCapabilities: false` in your environment capabilities when testing a native app to bypass feature detection code that only works for Web apps.
 
 #### Appium
 

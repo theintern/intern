@@ -1,5 +1,7 @@
 # Intern
 
+<!-- start-github-only -->
+
 Software testing for humans
 
 [![Build Status](https://travis-ci.org/theintern/intern.svg?branch=master)](https://travis-ci.org/theintern/intern)
@@ -9,6 +11,8 @@ Software testing for humans
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftheintern%2Fintern.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftheintern%2Fintern?ref=badge_shield)
 
 <br><p align="center"><img src="https://cdn.rawgit.com/theintern/intern/master/docs/logo.svg" alt="Intern logo" height="128"></p><br>
+
+<!-- end-github-only -->
 
 Intern is a complete test system for JavaScript designed to help you write and run consistent, high-quality test cases for your JavaScript libraries and applications. It can be used to test _any_ JavaScript code.
 
@@ -91,6 +95,7 @@ Intern can run functional tests using WebDriver-compatible applications and serv
 
 The best place to ask questions and get answers about Intern is Stack Overflow. Just tag your question with `intern`. If you have more immediate questions, or just want to chat with other people interested in Intern, there’s an `#intern` IRC channel on freenode, and a Gitter room at [theintern/intern](https://gitter.im/theintern/intern). See the [Help](docs/help.md) page for more information.
 
+<!-- start-github-only -->
 ## License
 
 Intern is a JS Foundation project offered under the [New BSD](LICENSE) license.
@@ -98,6 +103,7 @@ Intern is a JS Foundation project offered under the [New BSD](LICENSE) license.
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftheintern%2Fintern.svg?type=large)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftheintern%2Fintern?ref=badge_large)
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/intern/graphs/contributors)
+<!-- end-github-only -->
 
 <p align="center">Intern’s self-tests run on<br>
 <a href="https://browserstack.com"><img alt="BrowserStack logo" src="https://theintern.github.io/images/browserstack.svg" height="32" align="middle"></a></p>

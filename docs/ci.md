@@ -106,7 +106,7 @@ node_js:
 script: node_modules/.bin/intern
 ```
 
-💡 If you are using a cloud hosting provider like [BrowserStack](https://browserstack.com), [Sauce Labs](https://saucelabs.com), or [TestingBot](https://testingbot.com), you can add [environment variables](http://localhost:6420/docs/how_to.md#use-intern-with-a-remote-service-like-browserstack) holding your access credentials either through the Travis CI Web site by going to the repository’s settings page, or by adding an [env list](http://docs.travis-ci.com/user/environment-variables/) to your `.travis.yml` configuration.
+>💡 If you are using a cloud hosting provider like [BrowserStack](https://browserstack.com), [Sauce Labs](https://saucelabs.com), or [TestingBot](https://testingbot.com), you can add [environment variables](http://localhost:6420/docs/how_to.md#use-intern-with-a-remote-service-like-browserstack) holding your access credentials either through the Travis CI Web site by going to the repository’s settings page, or by adding an [env list](http://docs.travis-ci.com/user/environment-variables/) to your `.travis.yml` configuration.
 
 Once you have a Travis configuration, you just need to actually start the thing:
 

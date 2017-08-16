@@ -149,7 +149,7 @@ To use a bare WebDriver, such as [chromedriver](https://sites.google.com/a/chrom
 4. Set the [`environments`](./configuration.md) config property to 'chrome'.
 5. Run Intern
 
-💡 To verify that the WebDriver is running on the proper port and path, open a browser to `http://localhost:4444/wd/hub/status. It should return a JSON response with a `status` field of 0.
+> 💡 To verify that the WebDriver is running on the proper port and path, open a browser to `http://localhost:4444/wd/hub/status. It should return a JSON response with a `status` field of 0.
 
 ### Selenium
 
@@ -170,7 +170,7 @@ If you’d rather let Intern manage WebDrivers, you can use Selenium. Intern def
 
 Intern comes with built-in support for 4 cloud testing services via the [digdug library](https://github.com/theintern/digdug): BrowserStack, CrossBrowserTesting, Sauce Labs, and TestingBot. Basic usage for each of these is provided in the following sections.
 
-💡 Cloud hosts typically have their own unique capabilities options, so be sure to read the [capabilities documentation](./configuration.md#capabilities) for the provider you’re using.
+> 💡 Cloud hosts typically have their own unique capabilities options, so be sure to read the [capabilities documentation](./configuration.md#capabilities) for the provider you’re using.
 
 #### BrowesrStack
 

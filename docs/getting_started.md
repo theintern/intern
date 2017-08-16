@@ -72,4 +72,4 @@ Intern will load the `intern.json` file in the project root and run the configur
 
 To help users get started with Intern, we’ve created a basic [tutorial project](https://github.com/theintern/intern-tutorial) that walks through the steps required to install and configure Intern, and to run tests against a simple demo application. There are also a number of [example integrations](https://github.com/theintern/intern-examples) for popular libraries, including Angular, Backbone, and React.
 
-⚠️  Note that as frameworks change, or as new frameworks become popular, the examples may become outdated. We’d love it if you’d [submit your own examples](https://github.com/theintern/intern-examples/fork) to make Intern easier for new users!
+> ⚠️  Note that as frameworks change, or as new frameworks become popular, the examples may become outdated. We’d love it if you’d [submit your own examples](https://github.com/theintern/intern-examples/fork) to make Intern easier for new users!
