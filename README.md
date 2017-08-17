@@ -9,6 +9,8 @@
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug "Percentage of issues still open")
 <!-- end-github-only -->
 
+[![Intern](http://theintern.github.io/images/intern-v3.svg)](https://github.com/theintern/intern/)
+
 Dig Dug is a simple abstraction library for downloading and launching WebDriver service tunnels and interacting with
 the REST APIs of these services.
 
