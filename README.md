@@ -11,6 +11,8 @@
 
 Dig Dug is a library for downloading and managing WebDriver service tunnels, along with Selenium and individual WebDrivers.
 
+[![Intern](http://theintern.github.io/images/intern-v4.svg)](https://github.com/theintern/intern/)
+
 ## Configuration
 
 Dig Dug supports the following cloud testing services:
