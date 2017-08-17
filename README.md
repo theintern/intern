@@ -1,18 +1,22 @@
 # intern-cli
 
-> The command line interface for [Intern](https://github.com/theintern/intern)
+This module gives [Intern](https://github.com/theintern/intern) a friendly command line interface that works like a typical POSIX application.
 
-This module gives Intern a friendly command line interface that works like a typical POSIX application.
+[![Intern](http://theintern.github.io/images/intern-v3.svg)](https://github.com/theintern/intern/tree/3.4/)
 
 ## Getting started
 
 Install it globally:
 
-	$ npm install -g intern-cli
+```
+$ npm install -g intern-cli
+```
 
 You can then run Intern unit tests with:
 
-	$ intern run
+```
+$ intern run
+```
 
 intern-cli will use Intern’s Node client by default, and it assumes the test config is located at `./tests/intern.js`.
 
@@ -20,56 +24,64 @@ intern-cli will use Intern’s Node client by default, and it assumes the test c
 
 intern-cli provides top level help when run with no arguments:
 
-	$ intern
+```
+$ intern
 
-	  Usage: intern [options] [command]
+  Usage: intern [options] [command]
 
-	  Run JavaScript tests
+  Run JavaScript tests
 
-	  Commands:
+  Commands:
 
-	    init [options]    Setup a project for testing with Intern
-	    run [options]     Run tests in Node or in a browser using WebDriver
-	    serve [options]   Start a simple web server for running unit tests in a browser on your system
+	init [options]    Setup a project for testing with Intern
+	run [options]     Run tests in Node or in a browser using WebDriver
+	serve [options]   Start a simple web server for running unit tests in a browser on your system
 
-	  Options:
+  Options:
 
-	    -h, --help     output usage information
-	    -v, --verbose  show more information about what Intern is doing
-	    -V, --version  output the version
-	    --debug        enable the Node debugger
+	-h, --help     output usage information
+	-v, --verbose  show more information about what Intern is doing
+	-V, --version  output the version
+	--debug        enable the Node debugger
+```
 
 You can get more information about a particular sub-command with the `help` command or the `-h` option:
 
-	$ intern help init
+```
+$ intern help init
 
-	  Usage: init [options]
+  Usage: init [options]
 
-	  Setup a project for testing with Intern
+  Setup a project for testing with Intern
 
-	  Options:
+  Options:
 
-		-h, --help               output usage information
-		-b, --browser <browser>  browser to use for functional tests
+	-h, --help               output usage information
+	-b, --browser <browser>  browser to use for functional tests
 
-	  This command creates a "tests" directory with a default Intern config file
-	  and some sample tests.
+  This command creates a "tests" directory with a default Intern config file
+  and some sample tests.
 
-	  Browser names:
+  Browser names:
 
-		chrome, firefox, safari, internet explorer, microsoftedge
+	chrome, firefox, safari, internet explorer, microsoftedge
+```
 
 intern-cli also tries to provide useful feedback when it notices a problem with its environment:
 
-	$ intern
+```
+$ intern
 
-	  You'll need a local install of Intern before you can use this command.
-	  Install it with
+  You'll need a local install of Intern before you can use this command.
+  Install it with
 
-		npm install --save-dev intern
+	npm install --save-dev intern
+```
 
+<!-- start-github-only -->
 ## License
 
 intern-cli is offered under the [New BSD](LICENSE) license.
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/intern-cli/graphs/contributors)
+<!-- end-github-only -->
