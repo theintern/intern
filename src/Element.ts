@@ -94,10 +94,9 @@ export default class Element extends Locator<Task<Element>, Task<Element[]>, Tas
 
 			let zip = new JSZip();
 			zip.file(basename(filename), content);
-			const data = zip.generate({ type: 'base64' });
-			zip = null;
-
-			resolve(this.session.serverPost('file', { file: data }));
+			zip.generateAsync({ type: 'base64' }).then(file => {
+				resolve(this.session.serverPost('file', { file }));
+			});
 		});
 	}
 
