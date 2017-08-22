@@ -118,7 +118,7 @@ registerSuite(function () {
 			const sessionId = this.remote.session.sessionId;
 			const desiredCapabilities = this.remote.session.capabilities;
 			const platforms: { [key: string]: string[] } = {
-				WINDOWS: ['Windows NT']
+				WINDOWS: ['Windows NT', 'WINDOWS']
 			};
 
 			return server.getSessionCapabilities(sessionId).then(function (capabilities: Capabilities) {
