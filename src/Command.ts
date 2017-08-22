@@ -270,7 +270,11 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	 * Promise that it returns. If no context is explicitly provided, the context from the parent command will be used.
 	 */
 	// TODO: Need to show that parent is mixed into this Command
-	constructor(parent: Session | Command<any>, initialiser?: (setContext: Function, value: any) => any | Task<any>, errback?: (setContext: Function, error: Error) => any | Task<any>) {
+	constructor(
+		parent: Session | Command<any>,
+		initialiser?: (this: Command<any>, setContext: Function, value: any) => any | Task<any>,
+		errback?: (this: Command<any>, setContext: Function, error: Error) => any | Task<any>
+	) {
 		super();
 
 		const self = this;
@@ -466,10 +470,10 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 
 		return <Command<U>>(new (this.constructor as typeof Command)(
 			this,
-			callback && ((setContext: SetContextMethod<T>, value: T) => {
+			callback && (function (setContext: SetContextMethod<T>, value: T) {
 				return runCallback(this, callback, value, setContext);
 			}),
-			errback && ((setContext: SetContextMethod<T>, value: any) => {
+			errback && (function (setContext: SetContextMethod<T>, value: any) {
 				return runCallback(this, errback, value, setContext);
 			})
 		));

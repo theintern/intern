@@ -99,16 +99,11 @@ registerSuite(function () {
 			expectedContext.isSingle = true;
 			expectedContext.depth = 0;
 
-			const command = parent.then(function (this: Command<any>, returnValue: string) {
-				const self = this;
-				// setTimeout is necessary because underlying Promise implementation resolves same-turn and so
-				// `command` is still not defined when this callback executes
-				setTimeout(dfd.callback(function () {
-					assert.strictEqual(self, command, 'The `this` object in callbacks should be the Command object');
-					assert.deepEqual(command.context, expectedContext, 'The context of the Command should be set by the initialiser');
-					assert.deepEqual(returnValue, 'bar', 'The return value of the initialiser should be exposed to the first callback');
-				}), 0);
-			});
+			const command = parent.then(dfd.callback(function (this: Command<any>, returnValue: string) {
+				assert.isTrue(this === command, 'The `this` object in callbacks should be the Command object');
+				assert.deepEqual(command.context, expectedContext, 'The context of the Command should be set by the initialiser');
+				assert.deepEqual(returnValue, 'bar', 'The return value of the initialiser should be exposed to the first callback');
+			}));
 
 			return dfd.promise;
 		},
