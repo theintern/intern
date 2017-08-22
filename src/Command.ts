@@ -1308,7 +1308,7 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	 *
 	 * @param ms The length of the timeout, in milliseconds.
 	 */
-	setPageLoadTimeout(ms: string) {
+	setPageLoadTimeout(ms: number) {
 		return this._callSessionMethod<void>('setPageLoadTimeout', ms);
 	}
 
