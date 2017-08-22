@@ -116,14 +116,16 @@ registerSuite(function () {
 		'#getSessionCapabilities'(this: Test) {
 			// Intern 2 has remote.session; Intern 1 does not
 			const sessionId = this.remote.session.sessionId;
-			const remoteCapabilities = <Capabilities> this.remote.session.capabilities;
+			const desiredCapabilities = this.remote.session.capabilities;
+			const platforms: { [key: string]: string[] } = {
+				WINDOWS: ['Windows NT']
+			};
 
 			return server.getSessionCapabilities(sessionId).then(function (capabilities: Capabilities) {
 				assert.isObject(capabilities);
-				assert.strictEqual(capabilities.browserName, remoteCapabilities.browserName);
-				assert.strictEqual(capabilities.version, remoteCapabilities.version);
-				assert.strictEqual(capabilities.platform, remoteCapabilities.platform);
-				assert.strictEqual(capabilities.platformVersion, remoteCapabilities.platformVersion);
+				assert.strictEqual(capabilities.browserName, desiredCapabilities.browserName);
+				assert.strictEqual(capabilities.version, desiredCapabilities.version);
+				assert.include(platforms[desiredCapabilities.platform], capabilities.platform);
 			});
 		},
 
