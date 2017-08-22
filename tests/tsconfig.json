@@ -4,6 +4,7 @@
     "baseUrl": "..",
     "declaration": false,
     "module": "umd",
+    "importHelpers": false,
     "paths": {
       "src/*": [ "./_build/src/*", "./src/*" ]
     }
