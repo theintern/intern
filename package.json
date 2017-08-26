@@ -16,14 +16,15 @@
   },
   "devDependencies": {
     "@dojo/loader": "~2.0.0-beta2.2",
-    "@theintern/dev": "~0.4.2",
+    "@theintern/dev": "~0.4.4",
     "@types/node": "~7.0.23",
     "@types/shelljs": "~0.7.1",
+    "concurrently": "~3.5.0",
     "intern": "~3.4.2",
     "shelljs": "~0.7.7"
   },
   "scripts": {
-    "build": "npm run clean && intern-dev-build",
+    "build": "npm run clean && concurrently intern-dev-build intern-dev-api",
     "ci": "npm run build && intern-dev-test",
     "clean": "intern-dev-clean",
     "lint": "intern-dev-lint",
