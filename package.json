@@ -47,7 +47,7 @@
     "intern": "./bin/intern.js"
   },
   "scripts": {
-    "build": "intern-dev-clean && intern-dev-build",
+    "build": "intern-dev-clean && concurrently intern-dev-build intern-dev-api",
     "clean": "intern-dev-clean",
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
@@ -92,7 +92,7 @@
   },
   "devDependencies": {
     "@dojo/loader": "~2.0.0-beta2.2",
-    "@theintern/dev": "~0.4.3",
+    "@theintern/dev": "~0.4.4",
     "@types/chalk": "~0.4.31",
     "@types/glob": "~5.0.30",
     "@types/grunt": "~0.4.21",
@@ -102,6 +102,7 @@
     "@types/systemjs": "~0.20.2",
     "@types/webpack": "~3.0.1",
     "ajv": "~5.2.0",
+    "concurrently": "~3.5.0",
     "css-loader": "~0.28.4",
     "sinon": "~2.3.6",
     "style-loader": "~0.18.2",
