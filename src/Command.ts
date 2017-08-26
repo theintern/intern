@@ -1048,8 +1048,8 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	 * client rectangle. If no element is specified, the offset is relative to the previous position of the mouse,
 	 * or to the top edge of the page’s root element if the mouse was never moved before.
 	 */
-	moveMouseTo(xOffset?: number, yOffset?: number): Command<void>;
 	moveMouseTo(element?: Element, xOffset?: number, yOffset?: number): Command<void>;
+	moveMouseTo(xOffset?: number, yOffset?: number): Command<void>;
 	moveMouseTo(...args: any[]) {
 		return this._callSessionMethod<void>('moveMouseTo', ...args);
 	}

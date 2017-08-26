@@ -5816,6 +5816,24 @@
 									"parameters": [
 										{
 											"id": 1294,
+											"name": "element",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isOptional": true,
+												"__visited__": true
+											},
+											"comment": {
+												"text": "\nThe element to move the mouse to. If x-offset and y-offset are not specified, the mouse will be moved to the\ncentre of the element.\n"
+											},
+											"type": {
+												"type": "reference",
+												"name": "Element",
+												"id": 924
+											}
+										},
+										{
+											"id": 1295,
 											"name": "xOffset",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -5832,7 +5850,7 @@
 											}
 										},
 										{
-											"id": 1295,
+											"id": 1296,
 											"name": "yOffset",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -5862,7 +5880,7 @@
 									}
 								},
 								{
-									"id": 1296,
+									"id": 1297,
 									"name": "moveMouseTo",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -5870,21 +5888,6 @@
 										"__visited__": true
 									},
 									"parameters": [
-										{
-											"id": 1297,
-											"name": "element",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"isOptional": true,
-												"__visited__": true
-											},
-											"type": {
-												"type": "reference",
-												"name": "Element",
-												"id": 924
-											}
-										},
 										{
 											"id": 1298,
 											"name": "xOffset",
