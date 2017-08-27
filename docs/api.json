@@ -70039,7 +70039,7 @@
 					},
 					"comment": {
 						"shortText": "Benchmark is a reporter that can generate a baseline report and do runtime comparisons against an existing baseline.",
-						"text": "Configuration\n-------------\nAlong with the default reporter options, Benchmark also supports a `mode` option. This can have two\nvalues:\n\n    'baseline': Benchmark data will be written to a baseline file when testing is finished\n    'test': Benchmark is compared to a baseline read from a file when testing starts\n\nBaseline data is stored hierarchically by environment and then by test.\n\nNotation\n--------\nrme: relative margin of error -- margin of error as a percentage of the mean margin of error\nmean: mean execution time per function run\nhz: Hertz (number of executions of a function per second). 1/Hz is the mean execution time of function.\n"
+						"text": "**Configuration**\n\nAlong with the default reporter options, Benchmark also supports a `mode` option. This can have two\nvalues:\n\n* `'baseline'`: Benchmark data will be written to a baseline file when testing is finished\n* `'test'`: Benchmark is compared to a baseline read from a file when testing starts\n\nBaseline data is stored hierarchically by environment and then by test.\n\n**Notation**\n\n* **rme:** relative margin of error -- margin of error as a percentage of the mean margin of error\n* **mean:** mean execution time per function run\n* **hz:** Hertz (number of executions of a function per second). 1/Hz is the mean execution time of function.\n"
 					},
 					"children": [
 						{

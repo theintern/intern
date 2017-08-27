@@ -9,21 +9,21 @@ import * as Benchmark from 'benchmark';
 /**
  * Benchmark is a reporter that can generate a baseline report and do runtime comparisons against an existing baseline.
  *
- * Configuration
- * -------------
+ * **Configuration**
+ *
  * Along with the default reporter options, Benchmark also supports a `mode` option. This can have two
  * values:
  *
- *     'baseline': Benchmark data will be written to a baseline file when testing is finished
- *     'test': Benchmark is compared to a baseline read from a file when testing starts
+ * * `'baseline'`: Benchmark data will be written to a baseline file when testing is finished
+ * * `'test'`: Benchmark is compared to a baseline read from a file when testing starts
  *
  * Baseline data is stored hierarchically by environment and then by test.
  *
- * Notation
- * --------
- * rme: relative margin of error -- margin of error as a percentage of the mean margin of error
- * mean: mean execution time per function run
- * hz: Hertz (number of executions of a function per second). 1/Hz is the mean execution time of function.
+ * **Notation**
+ *
+ * * **rme:** relative margin of error -- margin of error as a percentage of the mean margin of error
+ * * **mean:** mean execution time per function run
+ * * **hz:** Hertz (number of executions of a function per second). 1/Hz is the mean execution time of function.
  */
 export default class BenchmarkReporter extends Reporter implements BenchmarkReporterProperties {
 	baseline: BenchmarkBaseline;
