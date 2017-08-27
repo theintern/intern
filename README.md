@@ -79,11 +79,11 @@ $ ./node_modules/.bin/digdugEnvironments SauceLabsTunnel
 
 Note that BrowserStackTunnel requires that the `BROWSERSTACK_ACCESS_KEY` and `BROWSERSTACK_USERNAME` environment variables exist and are set to a user's account access key and username. The other tunnels do not (currently) require authentication to request an environment list.
 
+<!-- start-github-only -->
 ## API documentation
 
 [View API documentation](https://theintern.github.io/digdug/)
 
-<!-- start-github-only -->
 ## License
 
 Dig Dug is a JS Foundation project offered under the [New BSD](LICENSE) license.
