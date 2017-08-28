@@ -1,5 +1,5 @@
 import Reporter, { createEventHandler, ReporterProperties } from './Reporter';
-import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
+import { CoverageMap, CoverageMapData, createCoverageMap } from 'istanbul-lib-coverage';
 import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
 import { create, ReportType } from 'istanbul-reports';
 import Node, { Events } from '../executors/Node';
@@ -25,7 +25,7 @@ export default abstract class Coverage extends Reporter implements CoveragePrope
 		}
 	}
 
-	createCoverageReport(type: ReportType, data: object | CoverageMap) {
+	createCoverageReport(type: ReportType, data: CoverageMapData | CoverageMap) {
 		let map: CoverageMap;
 
 		if (isCoverageMap(data)) {

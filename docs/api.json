@@ -73285,8 +73285,8 @@
 												"type": "union",
 												"types": [
 													{
-														"type": "intrinsic",
-														"name": "any"
+														"type": "reference",
+														"name": "CoverageMapData"
 													},
 													{
 														"type": "reference",
@@ -75147,8 +75147,8 @@
 												"type": "union",
 												"types": [
 													{
-														"type": "intrinsic",
-														"name": "any"
+														"type": "reference",
+														"name": "CoverageMapData"
 													},
 													{
 														"type": "reference",
@@ -79805,8 +79805,8 @@
 												"type": "union",
 												"types": [
 													{
-														"type": "intrinsic",
-														"name": "any"
+														"type": "reference",
+														"name": "CoverageMapData"
 													},
 													{
 														"type": "reference",
@@ -82217,8 +82217,8 @@
 												"type": "union",
 												"types": [
 													{
-														"type": "intrinsic",
-														"name": "any"
+														"type": "reference",
+														"name": "CoverageMapData"
 													},
 													{
 														"type": "reference",
@@ -83164,8 +83164,8 @@
 												"type": "union",
 												"types": [
 													{
-														"type": "intrinsic",
-														"name": "any"
+														"type": "reference",
+														"name": "CoverageMapData"
 													},
 													{
 														"type": "reference",
@@ -84505,8 +84505,8 @@
 												"type": "union",
 												"types": [
 													{
-														"type": "intrinsic",
-														"name": "any"
+														"type": "reference",
+														"name": "CoverageMapData"
 													},
 													{
 														"type": "reference",
@@ -88880,8 +88880,8 @@
 												"type": "union",
 												"types": [
 													{
-														"type": "intrinsic",
-														"name": "any"
+														"type": "reference",
+														"name": "CoverageMapData"
 													},
 													{
 														"type": "reference",
@@ -90798,8 +90798,8 @@
 												"type": "union",
 												"types": [
 													{
-														"type": "intrinsic",
-														"name": "any"
+														"type": "reference",
+														"name": "CoverageMapData"
 													},
 													{
 														"type": "reference",

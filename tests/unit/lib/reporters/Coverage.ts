@@ -1,5 +1,6 @@
-import _Coverage, { CoverageProperties } from 'src/lib/reporters/Coverage';
+import { CoverageMap } from 'istanbul-lib-coverage';
 import { spy, stub } from 'sinon';
+import _Coverage, { CoverageProperties } from 'src/lib/reporters/Coverage';
 
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
@@ -79,7 +80,7 @@ registerSuite('lib/reporters/Coverage', function () {
 
 				'with data'() {
 					const reporter = new Coverage(mockExecutor, <any>{});
-					reporter.createCoverageReport('json', { files() { } });
+					reporter.createCoverageReport('json', <CoverageMap>{ files() { } });
 					assert.equal(mockVisit.callCount, 1);
 					assert.equal(mockCreateCoverageMap.callCount, 0);
 					assert.equal(mockCreate.callCount, 1);
