@@ -51,11 +51,11 @@ A compatibility layer is provided to expose APIs that are signature-compatible w
 Intern 1. Use of these APIs will emit deprecation warnings. This compatibility layer will be removed in a future
 release.
 
+<!-- start-github-only -->
 ## API documentation
 
 [View API documentation](https://theintern.github.io/leadfoot/)
 
-<!-- start-github-only -->
 ## License
 
 Leadfoot is a JS Foundation project offered under the [New BSD](LICENSE) license.
