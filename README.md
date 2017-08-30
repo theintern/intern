@@ -1,8 +1,8 @@
 # intern-cli
 
-This module gives [Intern](https://github.com/theintern/intern) a friendly command line interface that works like a typical POSIX application.
+This module gives [Intern](https://theintern.io) a friendly command line interface that works like a typical POSIX application.
 
-[![Intern](http://theintern.github.io/images/intern-v3.svg)](https://github.com/theintern/intern/tree/3.4/)
+[![Intern](https://theintern.io/images/intern-v3.svg)](https://github.com/theintern/intern/tree/3.4/)
 
 ## Getting started
 
