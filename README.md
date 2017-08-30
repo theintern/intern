@@ -10,8 +10,8 @@
 
 Intern is a complete test system for JavaScript designed to help you write and run consistent, high-quality test
 cases for your JavaScript libraries and applications. It can be used to test *any* JavaScript code. It can even be used
-to test [non-JavaScript Web and mobile apps](https://theintern.github.io/intern/#native-apps), and to run tests written
-for [other test systems](https://theintern.github.io/intern/#custom-interfaces).
+to test [non-JavaScript Web and mobile apps](docs/functional-testing.md#testing-native-apps), and to run tests written
+for [other test systems](docs/customisation.md#custom-interfaces).
 
 If you’re into name-dropping, Intern gets used every day by teams at Twitter, Stripe, Mozilla, IBM, Marriott, Philips,
 Zenput, Alfresco, Esri, HSBC, ING, Intuit, and more. It’s also the testing framework of choice for
@@ -28,8 +28,8 @@ Learn more about Intern at https://theintern.github.io.
    npm install intern --save-dev
    ```
 
-2. Create a copy of the [example configuration file](https://github.com/theintern/intern/blob/master/tests/example.intern.js) in your package’s test directory and edit appropriately. See the
-[configuration documentation](https://theintern.github.io/intern/#common-config) for a list of all available options.
+2. Create a copy of the [example configuration file](tests/example.intern.js) in your package’s test directory and edit appropriately. See the
+[configuration documentation](docs/configuration.md) for a list of all available options.
 
    ```
    mkdir tests ; cp node_modules/intern/tests/example.intern.js tests/intern.js
@@ -41,8 +41,8 @@ Learn more about Intern at https://theintern.github.io.
    node_modules/.bin/intern-client config=tests/intern
    ```
 
-4. Start writing tests! Read [writing tests](https://theintern.github.io/intern/#writing-unit-test) in the user guide
-and the [Intern tutorial](https://github.com/theintern/intern-tutorial) to learn more!
+4. Start writing tests! Read [writing tests](docs/unit-testing.md) in the user guide
+and the [Intern tutorial](https://github.com/theintern/intern-tutorial/tree/intern-3) to learn more!
 
 ## More information
 
