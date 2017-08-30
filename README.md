@@ -12,7 +12,7 @@ A JavaScript client library that brings cross-platform consistency to the Seleni
 
 <!-- end-github-only -->
 
-[![Intern](https://theintern.github.io/images/intern-v4.svg)](https://github.com/theintern/intern/)
+[![Intern](https://theintern.io/images/intern-v4.svg)](https://github.com/theintern/intern/)
 
 Unlike existing WebDriver client libraries that assume the remote server will just do the Right Thing, Leadfoot detects
 and works around inconsistencies in WebDriver server implementations, so you can just worry about making your tests
@@ -62,3 +62,9 @@ Leadfoot is a JS Foundation project offered under the [New BSD](LICENSE) license
 
 © [SitePen, Inc.](https://sitepen.com) and its [contributors](https://github.com/theintern/leadfoot/graphs/contributors)
 <!-- end-github-only -->
+
+<!-- doc-viewer-config
+{
+    "api": "docs/api.json"
+}
+-->
