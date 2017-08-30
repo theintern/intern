@@ -128,5 +128,10 @@
         "src/**/*.{styl,d.ts,html,js,png}"
       ]
     }
+  },
+  "prettier": {
+	  "singleQuote": true,
+	  "tabWidth": 4,
+	  "useTabs": true
   }
 }

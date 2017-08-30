@@ -42,10 +42,7 @@ export default abstract class Coverage extends Reporter implements CoveragePrope
 			watermarks: this.watermarks
 		});
 		const tree = summarizers.pkg(transformed.map);
-		const report = create(type, {
-			file: this.filename,
-			watermarks: this.watermarks
-		});
+		const report = create(type, { file: this.filename });
 		tree.visit(report, context);
 	}
 
