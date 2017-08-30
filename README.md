@@ -78,3 +78,25 @@ Intern is a Dojo Foundation project offered under the [New BSD](LICENSE) license
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/intern/graphs/contributors)
 <!-- end-github-only -->
+
+<!-- doc-viewer-config
+{
+	"pages": [
+		"docs/fundamentals.md",
+		"docs/getting-started.md",
+		"docs/configuration.md",
+		"docs/interfaces.md",
+		"docs/unit-testing.md",
+		"docs/benchmark-testing.md",
+		"docs/functional-testing.md",
+		"docs/webdriver-server.md",
+		"docs/running.md",
+		"docs/reporters.md",
+		"docs/ci.md",
+		"docs/customisation.md",
+		"docs/internals.md",
+		"docs/community.md",
+		"docs/faq.md"
+	]
+}
+-->
