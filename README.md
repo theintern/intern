@@ -111,3 +111,22 @@ Intern is a JS Foundation project offered under the [New BSD](LICENSE) license.
 <p align="center">Intern’s self-tests run on<br>
 <a href="https://browserstack.com"><img alt="BrowserStack logo" src="https://theintern.github.io/images/browserstack.svg" height="32" align="middle"></a></p>
 <!-- end-github-only -->
+
+<!-- doc-viewer-config
+{
+    "api": "docs/api.json",
+    "pages": [
+        "docs/getting_started.md",
+        "docs/how_to.md",
+        "docs/concepts.md",
+        "docs/architecture.md",
+        "docs/configuration.md",
+        "docs/writing_tests.md",
+        "docs/running.md",
+        "docs/ci.md",
+        "docs/extending.md",
+        "docs/api.md",
+        "docs/developing.md"
+    ]
+}
+-->
