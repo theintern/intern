@@ -188,7 +188,6 @@ program
 		'chrome'
 	)
 	.action(function(options) {
-		// jshint maxcomplexity:11
 		try {
 			statSync(testsDir);
 			die(
@@ -348,8 +347,6 @@ program
 	)
 	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
 	.action(function(...args: any[]) {
-		// jshint maxcomplexity:12
-
 		const options = args[args.length - 1];
 		const config = options.config || join(testsDir, 'intern.js');
 
