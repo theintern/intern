@@ -38,16 +38,19 @@ export default class Pretty extends Coverage implements PrettyProperties {
 		this.dimensions = config.dimensions || {};
 		this.titleWidth = config.titleWidth || 12;
 		this.maxProgressBarWidth = config.maxProgressBarWidth || 40;
-		this.colorReplacement = mixin({
-			0: 'green',
-			1: 'magenta',
-			2: 'red',
-			'✓': 'green',
-			'!': 'red',
-			'×': 'red',
-			'~': 'magenta',
-			'⚠': 'yelow'
-		}, config.colorReplacement || {});
+		this.colorReplacement = mixin(
+			{
+				0: 'green',
+				1: 'magenta',
+				2: 'red',
+				'✓': 'green',
+				'!': 'red',
+				'×': 'red',
+				'~': 'magenta',
+				'⚠': 'yelow'
+			},
+			config.colorReplacement || {}
+		);
 		this._header = '';
 		this._reports = {};
 		this._log = [];
@@ -84,21 +87,28 @@ export default class Pretty extends Coverage implements PrettyProperties {
 
 		// write a full log of errors
 		// Sort logs: pass < deprecated < skip < errors < fail
-		const ERROR_LOG_WEIGHT: { [key: string]: number } = { '✓': 0, '⚠': 1, '~': 2, '×': 3, '!': 4 };
-		this._log.sort((a: any, b: any) => {
-			a = ERROR_LOG_WEIGHT[a.charAt(0)] || 0;
-			b = ERROR_LOG_WEIGHT[b.charAt(0)] || 0;
-			return a - b;
-		}).forEach(line => {
-			const color = this._getColor(line);
-			if (color == null) {
-				charm.display('reset');
-			}
-			else {
-				charm.foreground(color);
-			}
-			charm.write(`${line}\n`);
-		});
+		const ERROR_LOG_WEIGHT: { [key: string]: number } = {
+			'✓': 0,
+			'⚠': 1,
+			'~': 2,
+			'×': 3,
+			'!': 4
+		};
+		this._log
+			.sort((a: any, b: any) => {
+				a = ERROR_LOG_WEIGHT[a.charAt(0)] || 0;
+				b = ERROR_LOG_WEIGHT[b.charAt(0)] || 0;
+				return a - b;
+			})
+			.forEach(line => {
+				const color = this._getColor(line);
+				if (color == null) {
+					charm.display('reset');
+				} else {
+					charm.foreground(color);
+				}
+				charm.write(`${line}\n`);
+			});
 		charm.display('reset');
 		charm.write('\n');
 
@@ -146,13 +156,11 @@ export default class Pretty extends Coverage implements PrettyProperties {
 		if (test.skipped) {
 			this._record(test.sessionId, SKIP);
 			this._log.push('~ ' + test.id + ': ' + (test.skipped || 'skipped'));
-		}
-		else if (test.error) {
+		} else if (test.error) {
 			const message = '× ' + test.id;
 			this._record(test.sessionId, FAIL);
 			this._log.push(message + '\n' + this.formatError(test.error));
-		}
-		else {
+		} else {
 			this._record(test.sessionId, PASS);
 			this._log.push('✓ ' + test.id);
 		}
@@ -161,7 +169,10 @@ export default class Pretty extends Coverage implements PrettyProperties {
 	@eventHandler()
 	tunnelDownloadProgress(message: TunnelMessage) {
 		const progress = message.progress!;
-		this.tunnelState = 'Downloading ' + (progress.received / progress.total * 100).toFixed(2) + '%';
+		this.tunnelState =
+			'Downloading ' +
+			(progress.received / progress.total * 100).toFixed(2) +
+			'%';
 	}
 
 	@eventHandler()
@@ -197,7 +208,9 @@ export default class Pretty extends Coverage implements PrettyProperties {
 	 */
 	private _getReporter(suite: Suite): Report {
 		if (!this._reports[suite.sessionId]) {
-			this._reports[suite.sessionId] = new Report(suite.remote && suite.remote.environmentType);
+			this._reports[suite.sessionId] = new Report(
+				suite.remote && suite.remote.environmentType
+			);
 		}
 		return this._reports[suite.sessionId];
 	}
@@ -232,8 +245,12 @@ export default class Pretty extends Coverage implements PrettyProperties {
 		}
 
 		const totalTextSize = String(report.numTotal).length;
-		const remainingWidth = Math.max(width - 4 - (totalTextSize * 2), 1);
-		const barSize = Math.min(remainingWidth, report.numTotal, this.maxProgressBarWidth);
+		const remainingWidth = Math.max(width - 4 - totalTextSize * 2, 1);
+		const barSize = Math.min(
+			remainingWidth,
+			report.numTotal,
+			this.maxProgressBarWidth
+		);
 		const results = report.getCompressedResults(barSize);
 
 		charm.write('[');
@@ -241,15 +258,19 @@ export default class Pretty extends Coverage implements PrettyProperties {
 			const color = this._getColor(value);
 			if (color == null) {
 				charm.display('reset');
-			}
-			else {
+			} else {
 				charm.foreground(color);
 			}
 			charm.write(symbols[value]);
 		});
 		charm.display('reset');
-		charm.write(fit(spinnerCharacter, barSize - results.length) + '] ' + fit(report.finished, totalTextSize, true) +
-			'/' + report.numTotal);
+		charm.write(
+			fit(spinnerCharacter, barSize - results.length) +
+				'] ' +
+				fit(report.finished, totalTextSize, true) +
+				'/' +
+				report.numTotal
+		);
 	}
 
 	/**
@@ -261,9 +282,15 @@ export default class Pretty extends Coverage implements PrettyProperties {
 	private _drawSessionReport(report: Report) {
 		const charm = this._charm;
 		const titleWidth = this.titleWidth;
-		const leftOfBar = fit(this._abbreviateEnvironment(report.environment).slice(0, titleWidth - 2) + ': ',
-			titleWidth);
-		const rightOfBar = '' +
+		const leftOfBar = fit(
+			this._abbreviateEnvironment(report.environment).slice(
+				0,
+				titleWidth - 2
+			) + ': ',
+			titleWidth
+		);
+		const rightOfBar =
+			'' +
 			(report.numFailed ? ', ' + report.numFailed + ' fail' : '') +
 			(report.numSkipped ? ', ' + report.numSkipped + ' skip' : '');
 		const barWidth = this.dimensions.width - rightOfBar.length - titleWidth;
@@ -279,7 +306,9 @@ export default class Pretty extends Coverage implements PrettyProperties {
 	 * @returns {string} abbreviated environment information
 	 */
 	private _abbreviateEnvironment(env: any): string {
-		const browser = (<{ [key: string]: any }>BROWSERS)[env.browserName.toLowerCase()] || env.browserName.slice(0, 4);
+		const browser =
+			(<{ [key: string]: any }>BROWSERS)[env.browserName.toLowerCase()] ||
+			env.browserName.slice(0, 4);
 		const result = [browser];
 
 		if (env.version) {
@@ -300,9 +329,14 @@ export default class Pretty extends Coverage implements PrettyProperties {
 	private _render(omitLogs: boolean = false) {
 		const charm = this._charm;
 		const numReporters = Object.keys(this._reports).length;
-		const logLength = this.dimensions.height - numReporters - 4 /* last line & total */ -
-			(this.tunnelState ? 2 : 0) - (numReporters ? 1 : 0) - (this._header ? 1 : 0);
-		this._spinnerOffset = (++this._spinnerOffset) % SPINNER_STATES.length;
+		const logLength =
+			this.dimensions.height -
+			numReporters -
+			4 /* last line & total */ -
+			(this.tunnelState ? 2 : 0) -
+			(numReporters ? 1 : 0) -
+			(this._header ? 1 : 0);
+		this._spinnerOffset = ++this._spinnerOffset % SPINNER_STATES.length;
 
 		charm.display('reset');
 		if (this._header) {
@@ -326,18 +360,21 @@ export default class Pretty extends Coverage implements PrettyProperties {
 			const allowed = { '×': true, '⚠': true, '!': true };
 			charm.write('\n');
 
-			this._log.filter(line => {
-				return (<{ [key: string]: any }>allowed)[line.charAt(0)];
-			}).slice(-logLength).forEach(line => {
-				// truncate long lines
-				const color = this._getColor(line);
-				if (color) {
-					charm.foreground(color);
-				}
-				line = line.split('\n', 1)[0];
-				charm.write(`$(line.slice(0, this.dimensions.width))\n`);
-				charm.display('reset');
-			});
+			this._log
+				.filter(line => {
+					return (<{ [key: string]: any }>allowed)[line.charAt(0)];
+				})
+				.slice(-logLength)
+				.forEach(line => {
+					// truncate long lines
+					const color = this._getColor(line);
+					if (color) {
+						charm.foreground(color);
+					}
+					line = line.split('\n', 1)[0];
+					charm.write('$(line.slice(0, this.dimensions.width))\n');
+					charm.display('reset');
+				});
 		}
 	}
 
@@ -348,8 +385,14 @@ export default class Pretty extends Coverage implements PrettyProperties {
 
 		charm.write(title);
 		this._drawProgressBar(report, this.dimensions.width - title.length);
-		charm.write(format('\nPassed: %s  Failed: %s  Skipped: %d\n',
-			fit(report.numPassed, totalTextSize), fit(report.numFailed, totalTextSize), report.numSkipped));
+		charm.write(
+			format(
+				'\nPassed: %s  Failed: %s  Skipped: %d\n',
+				fit(report.numPassed, totalTextSize),
+				fit(report.numFailed, totalTextSize),
+				report.numSkipped
+			)
+		);
 	}
 
 	private _getColor(value: string | number): charm.CharmColor | null {
@@ -416,7 +459,10 @@ export class Report {
 
 		for (let i = 0; i < this.results.length; ++i) {
 			const pos = Math.floor(i / total * width);
-			resultList[pos] = Math.max(resultList[pos] || PASS, this.results[i]);
+			resultList[pos] = Math.max(
+				resultList[pos] || PASS,
+				this.results[i]
+			);
 		}
 
 		return resultList;
@@ -442,7 +488,11 @@ function pad(width: number): string {
 	return PAD.slice(0, Math.max(width, 0));
 }
 
-function fit(text: string | number, width: number, padLeft: boolean = false): string {
+function fit(
+	text: string | number,
+	width: number,
+	padLeft: boolean = false
+): string {
 	text = String(text);
 	if (text.length < width) {
 		if (padLeft) {

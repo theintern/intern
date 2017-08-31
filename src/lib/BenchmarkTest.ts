@@ -4,15 +4,18 @@ import Deferred from './Deferred';
 import Task from '@dojo/core/async/Task';
 import { mixin } from '@dojo/core/lang';
 
-// Explicitly require benchmark dependencies and attach Benchmark to them to improve WebPack compatibility
+// Explicitly require benchmark dependencies and attach Benchmark to them to
+// improve WebPack compatibility
 import * as _ from 'lodash';
 import * as platform from 'platform';
 import * as Benchmark from 'benchmark';
-// TODO: remove the <any> cast when benchmark typings are updated to include runInContext
+// TODO: remove the <any> cast when benchmark typings are updated to include
+// runInContext
 (<any>Benchmark).runInContext({ _, platform });
 
 /**
- * A wrapper around a Benchmark.js Benchmark that maps its API to that used by Test.
+ * A wrapper around a Benchmark.js Benchmark that maps its API to that used by
+ * Test.
  */
 export default class BenchmarkTest extends Test {
 	test: BenchmarkTestFunction;
@@ -20,7 +23,8 @@ export default class BenchmarkTest extends Test {
 	benchmark: InternBenchmark;
 
 	constructor(descriptor: BenchmarkTestOptions) {
-		// Call the superclass constructor with the set of descriptor keys not specific to BenchmarkTest
+		// Call the superclass constructor with the set of descriptor keys not
+		// specific to BenchmarkTest
 		let args: TestOptions = <TestOptions>{};
 		Object.keys(descriptor).forEach((key: keyof BenchmarkTestOptions) => {
 			switch (key) {
@@ -31,7 +35,7 @@ export default class BenchmarkTest extends Test {
 			}
 		});
 
-		args.test = args.test || /* istanbul ignore next */ function () { };
+		args.test = args.test || /* istanbul ignore next */ function() {};
 
 		super(args);
 
@@ -42,10 +46,15 @@ export default class BenchmarkTest extends Test {
 		});
 
 		if (options.defer) {
-			this.test = (function (testFunction: BenchmarkTestFunction) {
-				return function (this: BenchmarkTest, deferred?: Deferred<any>) {
-					// deferred is optional for compat with BenchmarkTestFunction, but it will always be defined here
-					const dfd = createDeferred(this.benchmark, deferred!, options.numCallsUntilResolution);
+			this.test = (function(testFunction: BenchmarkTestFunction) {
+				return function(this: BenchmarkTest, deferred?: Deferred<any>) {
+					// deferred is optional for compat with
+					// BenchmarkTestFunction, but it will always be defined here
+					const dfd = createDeferred(
+						this.benchmark,
+						deferred!,
+						options.numCallsUntilResolution
+					);
 					testFunction.call(this, dfd);
 				};
 			})(this.test);
@@ -53,7 +62,9 @@ export default class BenchmarkTest extends Test {
 
 		this.benchmark = new Benchmark(
 			descriptor.name,
-			options.defer ? 'this.benchmark.internTest.test(deferred);' : 'this.internTest.test();',
+			options.defer
+				? 'this.benchmark.internTest.test(deferred);'
+				: 'this.internTest.test();',
 			options
 		);
 
@@ -81,8 +92,10 @@ export default class BenchmarkTest extends Test {
 	}
 
 	async(_timeout?: number, _numCallsUntilResolution?: number): Deferred<any> {
-		throw new Error('Benchmark tests must be marked as asynchronous and use the deferred ' +
-			'passed to them rather than call `this.async()`.');
+		throw new Error(
+			'Benchmark tests must be marked as asynchronous and use the deferred ' +
+				'passed to them rather than call `this.async()`.'
+		);
 	}
 
 	run(): Task<void> {
@@ -100,8 +113,7 @@ export default class BenchmarkTest extends Test {
 				benchmark.on('error', () => {
 					if (benchmark.error === SKIP) {
 						resolve();
-					}
-					else {
+					} else {
 						reject(benchmark.error);
 					}
 				});
@@ -117,20 +129,21 @@ export default class BenchmarkTest extends Test {
 			() => {
 				benchmark.abort();
 			}
-		).finally(() => {
-			// Stop listening for benchmark events once the test is finished
-			benchmark.off();
-		})
-		.then(
-			() => {
-				this._hasPassed = true;
-			},
-			error => {
-				this.error = error;
-				throw error;
-			}
 		)
-		.finally(() => this.executor.emit('testEnd', this));
+			.finally(() => {
+				// Stop listening for benchmark events once the test is finished
+				benchmark.off();
+			})
+			.then(
+				() => {
+					this._hasPassed = true;
+				},
+				error => {
+					this.error = error;
+					throw error;
+				}
+			)
+			.finally(() => this.executor.emit('testEnd', this));
 	}
 
 	toJSON() {
@@ -146,7 +159,10 @@ export default class BenchmarkTest extends Test {
 		return json;
 	}
 
-	static async(testFunction: BenchmarkDeferredTestFunction, numCallsUntilResolution?: number) {
+	static async(
+		testFunction: BenchmarkDeferredTestFunction,
+		numCallsUntilResolution?: number
+	) {
 		testFunction.options = mixin({}, testFunction.options || {}, {
 			defer: true,
 			numCallsUntilResolution: numCallsUntilResolution
@@ -173,9 +189,9 @@ export interface BenchmarkTestProperties extends TestProperties {
 }
 
 export type BenchmarkTestOptions = Partial<BenchmarkTestProperties> & {
-	name: string,
+	name: string;
 	test: BenchmarkTestFunction;
-	options?: BenchmarkOptions
+	options?: BenchmarkOptions;
 };
 
 export interface BenchmarkOptions extends Benchmark.Options {
@@ -196,27 +212,31 @@ const createLifecycle = (before: boolean) => {
 	const queueMethod = before ? 'push' : 'unshift';
 	const methodName = before ? 'before' : 'after';
 	return [
-		`(function (benchmark) {`,
+		'(function (benchmark) {',
 		`	var queue = benchmark.intern${queueName}EachLoopQueue;`,
-		`	var suite;`,
-		`	if (!queue) {`,
-		`		suite = benchmark.internTest;`,
+		'	var suite;',
+		'	if (!queue) {',
+		'		suite = benchmark.internTest;',
 		`		benchmark.intern${queueName}EachLoopQueue = queue = [];`,
-		`		while ((suite = suite.parent)) {`,
+		'		while ((suite = suite.parent)) {',
 		`			if (suite.${methodName}EachLoop) {`,
 		`				queue.${queueMethod}(suite);`,
-		`			}`,
-		`		}`,
-		`	}`,
-		`	var i = queue.length;`,
-		`	while((suite = queue[--i])) {`,
+		'			}',
+		'		}',
+		'	}',
+		'	var i = queue.length;',
+		'	while((suite = queue[--i])) {',
 		`		suite.${methodName}EachLoop();`,
-		`	}`,
-		`})(this.benchmark || this);\n`
+		'	}',
+		'})(this.benchmark || this);\n'
 	].join('\n');
 };
 
-function createDeferred(benchmark: Benchmark, deferred: Deferred<any>, numCallsUntilResolution?: number) {
+function createDeferred(
+	benchmark: Benchmark,
+	deferred: Deferred<any>,
+	numCallsUntilResolution?: number
+) {
 	let remainingCalls = numCallsUntilResolution || 1;
 
 	return {
@@ -224,8 +244,7 @@ function createDeferred(benchmark: Benchmark, deferred: Deferred<any>, numCallsU
 			--remainingCalls;
 			if (remainingCalls === 0) {
 				deferred.resolve();
-			}
-			else if (remainingCalls < 0) {
+			} else if (remainingCalls < 0) {
 				throw new Error('resolve called too many times');
 			}
 		},
@@ -238,19 +257,18 @@ function createDeferred(benchmark: Benchmark, deferred: Deferred<any>, numCallsU
 
 		rejectOnError(this: any, callback: Function) {
 			const self = this;
-			return function (this: any) {
+			return function(this: any) {
 				try {
 					return callback.apply(this, arguments);
-				}
-				catch (error) {
+				} catch (error) {
 					self.reject(error);
 				}
 			};
 		},
 
-		callback: function (this: any, callback: Function) {
+		callback: function(this: any, callback: Function) {
 			const self = this;
-			return this.rejectOnError(function (this: any) {
+			return this.rejectOnError(function(this: any) {
 				const returnValue = callback.apply(this, arguments);
 				self.resolve();
 				return returnValue;

@@ -40,13 +40,14 @@ registerSuite({
 	suiteStart() {
 		const suite: any = {
 			parent: {},
-			tests: [ {} ],
+			tests: [{}],
 			name: 'foo',
 			id: 'foo'
 		};
 
-		// Check that the reporter isn't doing anything with the DOM that target browsers can't handle
-		assert.doesNotThrow(function () {
+		// Check that the reporter isn't doing anything with the DOM that target
+		// browsers can't handle
+		assert.doesNotThrow(function() {
 			const reporter = new Html({ document: doc });
 			reporter.run();
 			reporter.suiteStart(suite);

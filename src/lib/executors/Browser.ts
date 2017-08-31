@@ -22,10 +22,13 @@ export default class Browser extends Executor<Events, Config> {
 		});
 
 		// Report uncaught errors
-		global.addEventListener('unhandledRejection', (event: PromiseRejectionEvent) => {
-			console.warn('Unhandled rejection:', event);
-			this.emit('error', event.reason);
-		});
+		global.addEventListener(
+			'unhandledRejection',
+			(event: PromiseRejectionEvent) => {
+				console.warn('Unhandled rejection:', event);
+				this.emit('error', event.reason);
+			}
+		);
 
 		global.addEventListener('error', (event: ErrorEvent) => {
 			console.warn('Unhandled error:', event);
@@ -74,15 +77,17 @@ export default class Browser extends Executor<Events, Config> {
 			}
 
 			// Filter out globs from suites and browser suites
-			[ config.suites, config.browser.suites ].forEach(suites => {
+			[config.suites, config.browser.suites].forEach(suites => {
 				suites.forEach(suite => {
 					if (/[*?]/.test(suite)) {
-						throw new Error(`Globs may not be used for browser suites: "${suite}"`);
+						throw new Error(
+							`Globs may not be used for browser suites: "${suite}"`
+						);
 					}
 				});
 			});
 
-			[ 'basePath', 'internPath' ].forEach((key: keyof Config) => {
+			['basePath', 'internPath'].forEach((key: keyof Config) => {
 				config[key] = normalizePathEnding(<string>config[key]);
 			});
 		});

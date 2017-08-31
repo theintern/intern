@@ -7,7 +7,7 @@ import { spy } from 'sinon';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/interfaces/benchmark', function () {
+registerSuite('lib/interfaces/benchmark', function() {
 	let benchmarkInt: typeof _benchmarkInt;
 	let removeMocks: () => void;
 	let parent: Suite;
@@ -37,8 +37,8 @@ registerSuite('lib/interfaces/benchmark', function () {
 				addSuite: spy((callback: (suite: Suite) => void) => {
 					callback(parent);
 				}),
-				emit: spy(() => { }),
-				log: spy(() => { })
+				emit: spy(() => {}),
+				log: spy(() => {})
 			};
 			parent = new Suite(<any>{ name: 'parent', executor });
 		},
@@ -51,21 +51,31 @@ registerSuite('lib/interfaces/benchmark', function () {
 
 				iface.registerSuite('foo', {});
 				assert.equal(executor.addSuite.callCount, 1);
-				assert.isFunction(executor.addSuite.getCall(0).args[0], 'expected arg to be a callback');
+				assert.isFunction(
+					executor.addSuite.getCall(0).args[0],
+					'expected arg to be a callback'
+				);
 			},
 
 			'skip registration if benchmark is disabled'() {
 				executor.config.benchmark = false;
 				const iface = benchmarkInt.getInterface(executor);
 				iface.registerSuite('foo', {});
-				assert.equal(executor.addSuite.callCount, 0, 'addSuite should not have been called if benchmark is false');
+				assert.equal(
+					executor.addSuite.callCount,
+					0,
+					'addSuite should not have been called if benchmark is false'
+				);
 			},
 
-			'registerSuite': (() => {
+			registerSuite: (() => {
 				function verify() {
 					assert.equal(mockIntern.callCount, 1);
 					assert.equal(executor.addSuite.callCount, 1);
-					assert.isFunction(executor.addSuite.getCall(0).args[0], 'expected arg to be a callback');
+					assert.isFunction(
+						executor.addSuite.getCall(0).args[0],
+						'expected arg to be a callback'
+					);
 					assert.lengthOf(parent.tests, 1);
 					assert.instanceOf(parent.tests[0], BenchmarkSuite);
 
@@ -86,10 +96,10 @@ registerSuite('lib/interfaces/benchmark', function () {
 					descriptor() {
 						parent = new Suite(<any>{ name: 'parent', executor });
 						benchmarkInt.default('fooSuite', {
-							beforeEach() { },
+							beforeEach() {},
 							tests: {
-								foo() { },
-								bar() { }
+								foo() {},
+								bar() {}
 							}
 						});
 
@@ -98,12 +108,12 @@ registerSuite('lib/interfaces/benchmark', function () {
 
 					factory() {
 						parent = new Suite(<any>{ name: 'parent', executor });
-						benchmarkInt.default('fooSuite', function () {
+						benchmarkInt.default('fooSuite', function() {
 							return {
-								beforeEach() { },
+								beforeEach() {},
 								tests: {
-									foo() { },
-									bar() { }
+									foo() {},
+									bar() {}
 								}
 							};
 						});
@@ -115,8 +125,8 @@ registerSuite('lib/interfaces/benchmark', function () {
 
 			'register with benchmark options'() {
 				benchmarkInt.default('suite 1', {
-					test1: (function () {
-						let testFunction: BenchmarkTestFunction = () => { };
+					test1: (function() {
+						let testFunction: BenchmarkTestFunction = () => {};
 						testFunction.options = {
 							initCount: 5
 						};
@@ -127,12 +137,24 @@ registerSuite('lib/interfaces/benchmark', function () {
 				assert.lengthOf(parent.tests, 1, 'suite should have 1 test');
 
 				const suite = <BenchmarkSuite>parent.tests[0];
-				assert.instanceOf(suite, BenchmarkSuite, 'expected test to be a BenchmarkSuite');
+				assert.instanceOf(
+					suite,
+					BenchmarkSuite,
+					'expected test to be a BenchmarkSuite'
+				);
 
 				const test = <BenchmarkTest>suite.tests[0];
-				assert.instanceOf(test, BenchmarkTest, 'expected test to be a BenchmarkTest');
-				assert.propertyVal(test.benchmark, 'initCount', 5,
-					'expected test option to have been passed to Benchmark');
+				assert.instanceOf(
+					test,
+					BenchmarkTest,
+					'expected test to be a BenchmarkTest'
+				);
+				assert.propertyVal(
+					test.benchmark,
+					'initCount',
+					5,
+					'expected test option to have been passed to Benchmark'
+				);
 			}
 		}
 	};

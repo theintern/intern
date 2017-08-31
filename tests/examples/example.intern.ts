@@ -9,7 +9,7 @@ intern.configure({
 		loader: {
 			script: 'dojo2',
 			options: {
-				packages: [ { name: 'src', location: '_build/src' } ]
+				packages: [{ name: 'src', location: '_build/src' }]
 			}
 		}
 	},

@@ -8,17 +8,17 @@ const originalIntern = global.intern;
 const originalRequire = global.require;
 const originalSystemJS = global.SystemJS;
 
-registerSuite('loaders/systemjs', function () {
+registerSuite('loaders/systemjs', function() {
 	let removeMocks: () => void;
 
 	const mockIntern = {
 		// Use whatever the local environment is
 		environment: intern.environment,
 		config: { basePath: '/' },
-		emit: spy(() => { }),
+		emit: spy(() => {}),
 		loadScript: spy(() => Promise.resolve()),
-		registerLoader: spy((_init: LoaderInit) => { }),
-		log: spy(() => { })
+		registerLoader: spy((_init: LoaderInit) => {}),
+		log: spy(() => {})
 	};
 
 	const fakeRequire: any = spy((_module: string) => {
@@ -26,14 +26,18 @@ registerSuite('loaders/systemjs', function () {
 	});
 
 	const mockSystemJS = {
-		config: spy(() => { }),
+		config: spy(() => {}),
 		import: stub().resolves()
 	};
 
 	return {
 		before() {
 			global.intern = mockIntern;
-			return mockRequire(require, 'src/loaders/systemjs', {}).then(handle => {
+			return mockRequire(
+				require,
+				'src/loaders/systemjs',
+				{}
+			).then(handle => {
 				removeMocks = handle.remove;
 				assert.equal(mockIntern.registerLoader.callCount, 1);
 			});
@@ -70,24 +74,33 @@ registerSuite('loaders/systemjs', function () {
 			},
 
 			'load Modules'() {
-				const init: LoaderInit = mockIntern.registerLoader.getCall(0).args[0];
+				const init: LoaderInit = mockIntern.registerLoader.getCall(0)
+					.args[0];
 				return Promise.resolve(init({})).then(loader => {
 					return loader(['foo.js']).then(() => {
 						assert.equal(mockSystemJS.import.callCount, 1);
-						assert.deepEqual(mockSystemJS.import.getCall(0).args[0], 'foo.js');
+						assert.deepEqual(
+							mockSystemJS.import.getCall(0).args[0],
+							'foo.js'
+						);
 					});
 				});
 			},
 
 			error() {
-				const init: LoaderInit = mockIntern.registerLoader.getCall(0).args[0];
+				const init: LoaderInit = mockIntern.registerLoader.getCall(0)
+					.args[0];
 				return Promise.resolve(init({})).then(loader => {
 					const error = new Error('fail');
 					mockSystemJS.import.callsFake(() => Promise.reject(error));
 
 					return loader(['foo.js']).then(
-						() => { throw new Error('should not have succeeded'); },
-						error => { assert.match(error.message, /fail/); }
+						() => {
+							throw new Error('should not have succeeded');
+						},
+						error => {
+							assert.match(error.message, /fail/);
+						}
 					);
 				});
 			}

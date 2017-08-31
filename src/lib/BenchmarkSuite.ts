@@ -1,7 +1,12 @@
-import Suite, { SuiteOptions, SuiteProperties, TestLifecycleFunction } from './Suite';
+import Suite, {
+	SuiteOptions,
+	SuiteProperties,
+	TestLifecycleFunction
+} from './Suite';
 import BenchmarkTest from './BenchmarkTest';
 
-export default class BenchmarkSuite extends Suite implements BenchmarkSuiteProperties {
+export default class BenchmarkSuite extends Suite
+	implements BenchmarkSuiteProperties {
 	/** A function that is run after each test call by benchmark.js */
 	afterEachLoop: TestLifecycleFunction;
 

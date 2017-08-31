@@ -36,13 +36,11 @@ export default class Channel {
 								resolve();
 							}
 						);
-					}
-					catch (error) {
+					} catch (error) {
 						this._channel = new HttpChannel(this.options);
 						resolve();
 					}
-				}
-				else {
+				} else {
 					this._channel = new HttpChannel(this.options);
 					resolve();
 				}

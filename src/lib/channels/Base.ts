@@ -11,17 +11,25 @@ export default abstract class BaseChannel {
 	}
 
 	/**
-	 * Send a message, or schedule it to be sent. Return a promise that resolves when the message has been sent.
+	 * Send a message, or schedule it to be sent. Return a promise that resolves
+	 * when the message has been sent.
 	 */
 	sendMessage(name: keyof RemoteEvents, data: any) {
 		if (data instanceof Error) {
-			data = { name: data.name, message: data.message, stack: data.stack };
+			data = {
+				name: data.name,
+				message: data.message,
+				stack: data.stack
+			};
 		}
 
 		return this._sendData(name, data);
 	}
 
-	protected abstract _sendData(name: keyof RemoteEvents, data: any): Task<void>;
+	protected abstract _sendData(
+		name: keyof RemoteEvents,
+		data: any
+	): Task<void>;
 }
 
 export interface ChannelOptions {
@@ -38,7 +46,11 @@ export interface ChannelOptions {
 }
 
 export function isChannel(value: any): value is BaseChannel {
-	return value && typeof value === 'object' && typeof value.sendMessage === 'function';
+	return (
+		value &&
+		typeof value === 'object' &&
+		typeof value.sendMessage === 'function'
+	);
 }
 
 export interface ChannelOptions {

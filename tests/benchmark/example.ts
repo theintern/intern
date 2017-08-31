@@ -7,20 +7,19 @@ registerSuite('example benchmarks', {
 		2 * 2;
 	},
 
-	test2: (function () {
-		const test: BenchmarkTestFunction = function () {
-			[1, 2, 3, 4, 5].forEach(function (item) {
+	test2: (function() {
+		const test: BenchmarkTestFunction = function() {
+			[1, 2, 3, 4, 5].forEach(function(item) {
 				item = item * item;
 			});
 		};
 
-		test.options = {
-		};
+		test.options = {};
 
 		return test;
 	})(),
 
-	nested: (function () {
+	nested: (function() {
 		let counter = 0;
 
 		return {
@@ -40,10 +39,13 @@ registerSuite('example benchmarks', {
 		};
 	})(),
 
-	async: async(function (deferred) {
-		setTimeout(deferred.callback(function () {
-			return 23 / 400;
-		}), 200);
+	async: async(function(deferred) {
+		setTimeout(
+			deferred.callback(function() {
+				return 23 / 400;
+			}),
+			200
+		);
 	}),
 
 	skip() {

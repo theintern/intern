@@ -11,14 +11,14 @@ import global from '@dojo/shim/global';
 const process = global.process;
 
 /**
- * Expand a list of glob patterns into a flat file list. Patterns may be simple file paths or glob patterns. Patterns
- * starting with '!' denote exclusions. Note that exclusion rules will not apply to simple paths.
+ * Expand a list of glob patterns into a flat file list. Patterns may be simple
+ * file paths or glob patterns. Patterns starting with '!' denote exclusions.
+ * Note that exclusion rules will not apply to simple paths.
  */
 export function expandFiles(patterns?: string[] | string) {
 	if (!patterns) {
 		patterns = [];
-	}
-	else if (!Array.isArray(patterns)) {
+	} else if (!Array.isArray(patterns)) {
 		patterns = [patterns];
 	}
 
@@ -29,12 +29,10 @@ export function expandFiles(patterns?: string[] | string) {
 	for (let pattern of patterns) {
 		if (pattern[0] === '!') {
 			excludes.push(pattern.slice(1));
-		}
-		else {
+		} else {
 			if (hasMagic(pattern)) {
 				includes.push(pattern);
-			}
-			else {
+			} else {
 				paths.push(pattern);
 			}
 		}
@@ -46,7 +44,8 @@ export function expandFiles(patterns?: string[] | string) {
 }
 
 /**
- * Get the user-supplied config data, which may include command line args and a config file.
+ * Get the user-supplied config data, which may include command line args and a
+ * config file.
  */
 export function getConfig(configFile?: string) {
 	let args: { [key: string]: any } = {};
@@ -64,13 +63,23 @@ export function getConfig(configFile?: string) {
 	}
 
 	if (args.config) {
-		// If a config parameter was provided, load it and mix in any other command line args.
+		// If a config parameter was provided, load it and mix in any other
+		// command line args.
 		const { configFile, childConfig } = splitConfigPath(args.config);
-		return loadConfig(configFile || 'intern.json', loadText, args, childConfig);
-	}
-	else {
-		// If no config parameter was provided, try 'intern.json', or just resolve to the original args
-		return loadConfig('intern.json', loadText, args).catch((error: NodeJS.ErrnoException) => {
+		return loadConfig(
+			configFile || 'intern.json',
+			loadText,
+			args,
+			childConfig
+		);
+	} else {
+		// If no config parameter was provided, try 'intern.json', or just
+		// resolve to the original args
+		return loadConfig(
+			'intern.json',
+			loadText,
+			args
+		).catch((error: NodeJS.ErrnoException) => {
 			if (error.code === 'ENOENT') {
 				return args;
 			}
@@ -87,25 +96,28 @@ export function normalizePath(path: string) {
 }
 
 /**
- * Given a source filename, and optionally code, return the file's source map if one exists.
+ * Given a source filename, and optionally code, return the file's source map if
+ * one exists.
  */
-export function readSourceMap(sourceFile: string, code?: string): RawSourceMap | undefined {
+export function readSourceMap(
+	sourceFile: string,
+	code?: string
+): RawSourceMap | undefined {
 	if (!code) {
 		code = readFileSync(sourceFile, { encoding: 'utf8' });
 	}
 
 	let match: RegExpMatchArray | null;
 
-	// sourceMappingUrl must be on last line of source file; search for last newline from code.length - 2 in case the
-	// file ends with a newline
+	// sourceMappingUrl must be on last line of source file; search for last
+	// newline from code.length - 2 in case the file ends with a newline
 	const lastNewline = code.lastIndexOf('\n', code.length - 2);
 	const lastLine = code.slice(lastNewline + 1);
 
 	if ((match = sourceMapRegEx.exec(lastLine))) {
 		if (match[1]) {
-			return JSON.parse((new Buffer(match[2], 'base64').toString('utf8')));
-		}
-		else {
+			return JSON.parse(new Buffer(match[2], 'base64').toString('utf8'));
+		} else {
 			// Treat map file path as relative to the source file
 			const mapFile = join(dirname(sourceFile), match[2]);
 			return JSON.parse(readFileSync(mapFile, { encoding: 'utf8' }));
@@ -121,8 +133,7 @@ function loadText(path: string) {
 		readFile(path, { encoding: 'utf8' }, (error, data) => {
 			if (error) {
 				reject(error);
-			}
-			else {
+			} else {
 				resolve(data);
 			}
 		});

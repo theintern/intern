@@ -10,7 +10,7 @@ interface FullCoverage extends _Coverage {
 	new (executor: Node, options: CoverageProperties): _Coverage;
 }
 
-registerSuite('lib/reporters/Coverage', function () {
+registerSuite('lib/reporters/Coverage', function() {
 	const mockExecutor = <any>{
 		formatError: spy(),
 		on: spy(),
@@ -24,7 +24,9 @@ registerSuite('lib/reporters/Coverage', function () {
 	const mockGlobal: { [name: string]: any } = {};
 	const mockVisit = spy();
 	const mockSummarizers = {
-		pkg: spy(() => { return { visit: mockVisit }; })
+		pkg: spy(() => {
+			return { visit: mockVisit };
+		})
 	};
 	const mockCreate = spy();
 	const mockCreateCoverageMap = stub().returns({});
@@ -36,9 +38,13 @@ registerSuite('lib/reporters/Coverage', function () {
 		before() {
 			return mockRequire(require, 'src/lib/reporters/Coverage', {
 				'@dojo/shim/global': { default: mockGlobal },
-				'istanbul-lib-coverage': { createCoverageMap: mockCreateCoverageMap },
+				'istanbul-lib-coverage': {
+					createCoverageMap: mockCreateCoverageMap
+				},
 				'istanbul-lib-report': {
-					createContext() { return {}; },
+					createContext() {
+						return {};
+					},
 					summarizers: mockSummarizers
 				},
 				'istanbul-reports': { create: mockCreate }
@@ -63,7 +69,10 @@ registerSuite('lib/reporters/Coverage', function () {
 		tests: {
 			construct() {
 				const watermarks = <any>{};
-				const reporter = new Coverage(mockExecutor, <any>{ filename: 'foo', watermarks });
+				const reporter = new Coverage(mockExecutor, <any>{
+					filename: 'foo',
+					watermarks
+				});
 				assert.propertyVal(reporter, 'filename', 'foo');
 				assert.propertyVal(reporter, 'watermarks', watermarks);
 			},
@@ -75,16 +84,26 @@ registerSuite('lib/reporters/Coverage', function () {
 					assert.equal(mockVisit.callCount, 1);
 					assert.equal(mockCreateCoverageMap.callCount, 1);
 					assert.equal(mockCreate.callCount, 1);
-					assert.equal(mockCreate.getCall(0).args[0], 'text', 'report should be text by default');
+					assert.equal(
+						mockCreate.getCall(0).args[0],
+						'text',
+						'report should be text by default'
+					);
 				},
 
 				'with data'() {
 					const reporter = new Coverage(mockExecutor, <any>{});
-					reporter.createCoverageReport('json', <CoverageMap>{ files() { } });
+					reporter.createCoverageReport('json', <CoverageMap>{
+						files() {}
+					});
 					assert.equal(mockVisit.callCount, 1);
 					assert.equal(mockCreateCoverageMap.callCount, 0);
 					assert.equal(mockCreate.callCount, 1);
-					assert.equal(mockCreate.getCall(0).args[0], 'json', 'report should be assigned value');
+					assert.equal(
+						mockCreate.getCall(0).args[0],
+						'json',
+						'report should be assigned value'
+					);
 				}
 			},
 
@@ -105,7 +124,10 @@ registerSuite('lib/reporters/Coverage', function () {
 					reporter.runEnd();
 					assert.equal(create.callCount, 1);
 					assert.equal(create.getCall(0).args[0], 'text');
-					assert.equal(create.getCall(0).args[1], mockExecutor.coverageMap);
+					assert.equal(
+						create.getCall(0).args[1],
+						mockExecutor.coverageMap
+					);
 				}
 			}
 		}

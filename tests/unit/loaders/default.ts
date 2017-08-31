@@ -7,21 +7,25 @@ const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 const originalIntern = global.intern;
 const originalRequire = global.require;
 
-registerSuite('loaders/default', function () {
+registerSuite('loaders/default', function() {
 	let removeMocks: () => void;
 
 	const mockIntern = {
 		config: { basePath: '/' },
-		emit: spy(() => { }),
+		emit: spy(() => {}),
 		loadScript: stub().resolves(),
-		registerLoader: spy((_init: LoaderInit) => { }),
-		log: spy(() => { })
+		registerLoader: spy((_init: LoaderInit) => {}),
+		log: spy(() => {})
 	};
 
 	return {
 		before() {
 			global.intern = mockIntern;
-			return mockRequire(require, 'src/loaders/default', {}).then(handle => {
+			return mockRequire(
+				require,
+				'src/loaders/default',
+				{}
+			).then(handle => {
 				removeMocks = handle.remove;
 				assert.equal(mockIntern.registerLoader.callCount, 1);
 			});
@@ -48,28 +52,38 @@ registerSuite('loaders/default', function () {
 			init() {
 				const init = mockIntern.registerLoader.getCall(0).args[0];
 				return Promise.resolve(init({})).then(() => {
-					// The default loader doesn't do anythign in its init function
+					// The default loader doesn't do anythign in its init
+					// function
 					assert.equal(mockIntern.loadScript.callCount, 0);
 				});
 			},
 
 			'load Modules'() {
-				const init: LoaderInit = mockIntern.registerLoader.getCall(0).args[0];
+				const init: LoaderInit = mockIntern.registerLoader.getCall(0)
+					.args[0];
 				return Promise.resolve(init({})).then(loader => {
 					return loader(['foo.js']).then(() => {
 						assert.equal(mockIntern.loadScript.callCount, 1);
-						assert.equal(mockIntern.loadScript.getCall(0).args[0], 'foo.js');
+						assert.equal(
+							mockIntern.loadScript.getCall(0).args[0],
+							'foo.js'
+						);
 					});
 				});
 			},
 
 			error() {
-				const init: LoaderInit = mockIntern.registerLoader.getCall(0).args[0];
+				const init: LoaderInit = mockIntern.registerLoader.getCall(0)
+					.args[0];
 				mockIntern.loadScript.rejects(new Error('fail'));
 				return Promise.resolve(init({})).then(loader => {
 					return loader(['foo.js']).then(
-						() => { throw new Error('should not have succeeded'); },
-						error => { assert.match(error.message, /fail/); }
+						() => {
+							throw new Error('should not have succeeded');
+						},
+						error => {
+							assert.match(error.message, /fail/);
+						}
 					);
 				});
 			}

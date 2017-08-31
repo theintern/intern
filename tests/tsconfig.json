@@ -4,10 +4,7 @@
 		"declaration": false,
 		"outDir": "../_tests",
 		"paths": {
-			"src/*": [
-				"_build/src/*",
-				"src/*"
-			]
+			"src/*": ["_build/src/*", "src/*"]
 		}
 	},
 	"extends": "../tsconfig.json",

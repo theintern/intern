@@ -5,7 +5,7 @@ import global from '@dojo/shim/global';
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 const originalIntern = global.intern;
 
-registerSuite('bin/intern', function () {
+registerSuite('bin/intern', function() {
 	const mockNodeUtil: { [name: string]: SinonSpy } = {
 		getConfig: spy(() => {
 			return Task.resolve(configData);
@@ -31,7 +31,9 @@ registerSuite('bin/intern', function () {
 	return {
 		beforeEach() {
 			Object.keys(mockNodeUtil).forEach(key => mockNodeUtil[key].reset());
-			Object.keys(mockCommonUtil).forEach(key => mockCommonUtil[key].reset());
+			Object.keys(mockCommonUtil).forEach(key =>
+				mockCommonUtil[key].reset()
+			);
 			mockCommonUtil.getConfigDescription.returns('foo');
 			configData = {};
 		},
@@ -61,7 +63,10 @@ registerSuite('bin/intern', function () {
 				}).then(handle => {
 					removeMocks = handle.remove;
 					assert.equal(mockNodeUtil.getConfig.callCount, 1);
-					assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
+					assert.equal(
+						mockCommonUtil.getConfigDescription.callCount,
+						0
+					);
 				});
 			},
 
@@ -77,9 +82,20 @@ registerSuite('bin/intern', function () {
 				}).then(handle => {
 					removeMocks = handle.remove;
 					assert.equal(mockNodeUtil.getConfig.callCount, 1);
-					assert.equal(mockCommonUtil.getConfigDescription.callCount, 1);
-					assert.equal(logStub!.callCount, 1, 'expected log to be called once');
-					assert.equal(logStub!.getCall(0).args[0], 'foo', 'unexpected description');
+					assert.equal(
+						mockCommonUtil.getConfigDescription.callCount,
+						1
+					);
+					assert.equal(
+						logStub!.callCount,
+						1,
+						'expected log to be called once'
+					);
+					assert.equal(
+						logStub!.getCall(0).args[0],
+						'foo',
+						'unexpected description'
+					);
 				});
 			},
 
@@ -95,7 +111,11 @@ registerSuite('bin/intern', function () {
 						'@dojo/shim/global': { default: { process: {} } }
 					}).then(handle => {
 						removeMocks = handle.remove;
-						assert.equal(logStub!.callCount, 0, 'expected error not to be called');
+						assert.equal(
+							logStub!.callCount,
+							0,
+							'expected error not to be called'
+						);
 					});
 				},
 
@@ -112,13 +132,21 @@ registerSuite('bin/intern', function () {
 						'src/lib/node/util': mockNodeUtil,
 						'src/lib/common/util': mockCommonUtil,
 						'src/index': { default: () => {} },
-						'@dojo/shim/global': { default: { process: { stdout: process.stdout } } }
-					}).then(handle => {
-						removeMocks = handle.remove;
-						return messageLogged;
-					}).then(() => {
-						assert.equal(logStub!.callCount, 1, 'expected error to be called once');
-					});
+						'@dojo/shim/global': {
+							default: { process: { stdout: process.stdout } }
+						}
+					})
+						.then(handle => {
+							removeMocks = handle.remove;
+							return messageLogged;
+						})
+						.then(() => {
+							assert.equal(
+								logStub!.callCount,
+								1,
+								'expected error to be called once'
+							);
+						});
 				}
 			}
 		}

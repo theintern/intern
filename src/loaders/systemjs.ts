@@ -11,11 +11,12 @@ intern.registerLoader(options => {
 	const globalObj: any = typeof window !== 'undefined' ? window : global;
 
 	if (intern.environment === 'browser') {
-		return intern.loadScript('node_modules/systemjs/dist/system.src.js').then(() => {
-			return configAndLoad(SystemJS);
-		});
-	}
-	else {
+		return intern
+			.loadScript('node_modules/systemjs/dist/system.src.js')
+			.then(() => {
+				return configAndLoad(SystemJS);
+			});
+	} else {
 		// Use globalObj to get to require to improve testability
 		const SystemJS = globalObj.require('systemjs');
 		return configAndLoad(SystemJS);
@@ -29,12 +30,15 @@ intern.registerLoader(options => {
 
 		return (modules: string[]) => {
 			intern.log('Loading modules with SystemJS:', modules);
-			return modules.reduce((previous, suite) => {
-				if (previous) {
-					return previous.then(() => loader.import(suite));
-				}
-				return loader.import(suite);
-			}, <any>null);
+			return modules.reduce(
+				(previous, suite) => {
+					if (previous) {
+						return previous.then(() => loader.import(suite));
+					}
+					return loader.import(suite);
+				},
+				<any>null
+			);
 		};
 	}
 });

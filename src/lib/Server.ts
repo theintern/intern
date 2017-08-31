@@ -1,7 +1,12 @@
 import { pullFromArray } from './common/util';
 import { normalizePath } from './node/util';
 import { after } from '@dojo/core/aspect';
-import { createServer, IncomingMessage, Server as HttpServer, ServerResponse } from 'http';
+import {
+	createServer,
+	IncomingMessage,
+	Server as HttpServer,
+	ServerResponse
+} from 'http';
 import { basename, join, resolve } from 'path';
 import { createReadStream, stat, readFile } from 'fs';
 import { Stream } from 'stream';
@@ -23,29 +28,40 @@ export default class Server implements ServerProperties {
 	/** Port to use for HTTP connections */
 	port: number;
 
-	/** If true, wait for emit handlers to complete before responding to a message */
+	/**
+	 * If true, wait for emit handlers to complete before responding to a
+	 * message
+	 */
 	runInSync: boolean;
 
 	/** Port to use for WebSocket connections */
 	socketPort: number;
 
-	protected _codeCache: { [filename: string]: { mtime: number; data: string; size: number; } } | null;
+	protected _codeCache: {
+		[filename: string]: { mtime: number; data: string; size: number };
+	} | null;
 	protected _httpServer: HttpServer | null;
 	protected _sessions: { [id: string]: { listeners: ServerListener[] } };
 	protected _wsServer: WebSocket.Server | null;
 
 	constructor(options: ServerOptions) {
-		mixin(this, {
-			basePath: '.',
-			runInSync: false
-		}, options);
+		mixin(
+			this,
+			{
+				basePath: '.',
+				runInSync: false
+			},
+			options
+		);
 	}
 
 	start() {
-		return new Promise<void>((resolve) => {
-			const server = this._httpServer = createServer((request: IncomingMessage, response: ServerResponse) => {
-				return this._handleHttp(request, response);
-			});
+		return new Promise<void>(resolve => {
+			const server = (this._httpServer = createServer(
+				(request: IncomingMessage, response: ServerResponse) => {
+					return this._handleHttp(request, response);
+				}
+			));
 			this._sessions = {};
 			this._codeCache = Object.create(null);
 
@@ -60,8 +76,9 @@ export default class Server implements ServerProperties {
 				this.executor.emit('error', error);
 			});
 
-			// If sockets are not manually destroyed then Node.js will keep itself running until they all expire
-			after(server, 'close', function () {
+			// If sockets are not manually destroyed then Node.js will keep
+			// itself running until they all expire
+			after(server, 'close', function() {
 				let socket: Socket | undefined;
 				while ((socket = sockets.pop())) {
 					socket.destroy();
@@ -70,12 +87,20 @@ export default class Server implements ServerProperties {
 
 			server.on('connection', socket => {
 				sockets.push(socket);
-				this.executor.log('HTTP connection opened,', sockets.length, 'open connections');
+				this.executor.log(
+					'HTTP connection opened,',
+					sockets.length,
+					'open connections'
+				);
 
 				socket.on('close', () => {
 					let index = sockets.indexOf(socket);
 					index !== -1 && sockets.splice(index, 1);
-					this.executor.log('HTTP connection closed,', sockets.length, 'open connections');
+					this.executor.log(
+						'HTTP connection closed,',
+						sockets.length,
+						'open connections'
+					);
 				});
 			});
 
@@ -90,21 +115,25 @@ export default class Server implements ServerProperties {
 		const promises: Promise<any>[] = [];
 
 		if (this._httpServer) {
-			promises.push(new Promise(resolve => {
-				this._httpServer!.close(resolve);
-			}).then(() => {
-				this.executor.log('Stopped http server');
-				this._httpServer = null;
-			}));
+			promises.push(
+				new Promise(resolve => {
+					this._httpServer!.close(resolve);
+				}).then(() => {
+					this.executor.log('Stopped http server');
+					this._httpServer = null;
+				})
+			);
 		}
 
 		if (this._wsServer) {
-			promises.push(new Promise(resolve => {
-				this._wsServer!.close(resolve);
-			}).then(() => {
-				this.executor.log('Stopped ws server');
-				this._wsServer = null;
-			}));
+			promises.push(
+				new Promise(resolve => {
+					this._wsServer!.close(resolve);
+				}).then(() => {
+					this.executor.log('Stopped ws server');
+					this._wsServer = null;
+				})
+			);
 		}
 
 		return Promise.all(promises).then(() => {
@@ -119,8 +148,8 @@ export default class Server implements ServerProperties {
 		const listeners = this._getSession(sessionId).listeners;
 		listeners.push(listener);
 		return {
-			destroy: function (this: any) {
-				this.destroy = function () { };
+			destroy: function(this: any) {
+				this.destroy = function() {};
 				pullFromArray(listeners, listener);
 			}
 		};
@@ -137,12 +166,11 @@ export default class Server implements ServerProperties {
 	private _handleHttp(request: IncomingMessage, response: ServerResponse) {
 		if (request.method === 'GET' || request.method === 'HEAD') {
 			this._handleFile(request, response, request.method === 'HEAD');
-		}
-		else if (request.method === 'POST') {
+		} else if (request.method === 'POST') {
 			request.setEncoding('utf8');
 
 			let data = '';
-			request.on('data', function (chunk) {
+			request.on('data', function(chunk) {
 				data += chunk;
 			});
 
@@ -154,13 +182,17 @@ export default class Server implements ServerProperties {
 						rawMessages = [rawMessages];
 					}
 
-					const messages: Message[] = rawMessages.map(function (messageString: string) {
+					const messages: Message[] = rawMessages.map(function(
+						messageString: string
+					) {
 						return JSON.parse(messageString);
 					});
 
 					this.executor.log('Received HTTP messages');
 
-					Promise.all(messages.map(message => this._handleMessage(message))).then(
+					Promise.all(
+						messages.map(message => this._handleMessage(message))
+					).then(
 						() => {
 							response.statusCode = 204;
 							response.end();
@@ -170,14 +202,12 @@ export default class Server implements ServerProperties {
 							response.end();
 						}
 					);
-				}
-				catch (error) {
+				} catch (error) {
 					response.statusCode = 500;
 					response.end();
 				}
 			});
-		}
-		else {
+		} else {
 			response.statusCode = 501;
 			response.end();
 		}
@@ -194,9 +224,11 @@ export default class Server implements ServerProperties {
 		this.executor.log('Request for', file);
 
 		if (/^__intern\//.test(file)) {
-			wholePath = join(this.executor.config.internPath, file.replace(/^__intern\//, ''));
-		}
-		else {
+			wholePath = join(
+				this.executor.config.internPath,
+				file.replace(/^__intern\//, '')
+			);
+		} else {
 			wholePath = resolve(join(this.basePath, file));
 		}
 
@@ -220,13 +252,18 @@ export default class Server implements ServerProperties {
 
 			this.executor.log(`Serving ${wholePath}`);
 
-			const contentType = lookup(basename(wholePath)) || 'application/octet-stream';
+			const contentType =
+				lookup(basename(wholePath)) || 'application/octet-stream';
 
 			const onEnd = (error?: Error) => {
 				if (error) {
-					this.executor.emit('error', new Error(`Error serving ${wholePath}: ${error.message}`));
-				}
-				else {
+					this.executor.emit(
+						'error',
+						new Error(
+							`Error serving ${wholePath}: ${error.message}`
+						)
+					);
+				} else {
 					this.executor.log(`Served ${wholePath}`);
 				}
 			};
@@ -243,12 +280,12 @@ export default class Server implements ServerProperties {
 
 				if (typeof data === 'string') {
 					response.end(data, onEnd);
-				}
-				else {
+				} else {
 					data.on('end', () => onEnd());
 					data.on('error', (error: Error) => {
 						onEnd(error);
-						// If the read stream errors, the write stream has to be manually closed
+						// If the read stream errors, the write stream has to be
+						// manually closed
 						response.end();
 					});
 					data.pipe(response);
@@ -262,8 +299,7 @@ export default class Server implements ServerProperties {
 
 				if (entry && entry.mtime === mtime) {
 					send(entry.size, entry.data);
-				}
-				else {
+				} else {
 					readFile(wholePath, 'utf8', (error, data) => {
 						// The server was stopped in the middle of the file read
 						if (!this._httpServer) {
@@ -275,8 +311,9 @@ export default class Server implements ServerProperties {
 							return;
 						}
 
-						// Providing `wholePath` to the instrumenter instead of a partial filename is necessary because
-						// lcov.info requires full path names as per the lcov spec
+						// Providing `wholePath` to the instrumenter instead of
+						// a partial filename is necessary because lcov.info
+						// requires full path names as per the lcov spec
 						data = this.executor.instrumentCode(data, wholePath);
 						const size = Buffer.byteLength(data);
 						codeCache[wholePath] = { mtime, data, size };
@@ -284,15 +321,24 @@ export default class Server implements ServerProperties {
 						send(size, data);
 					});
 				}
-			}
-			else {
-				send(stats.size, omitContent ? null : createReadStream(wholePath));
+			} else {
+				send(
+					stats.size,
+					omitContent ? null : createReadStream(wholePath)
+				);
 			}
 		});
 	}
 
 	private _handleMessage(message: Message): Promise<any> {
-		this.executor.log('Processing message [', message.id, '] for ', message.sessionId, ': ', message.name);
+		this.executor.log(
+			'Processing message [',
+			message.id,
+			'] for ',
+			message.sessionId,
+			': ',
+			message.name
+		);
 		const promise = this._publish(message);
 		let shouldWait = getShouldWait(this.runInSync, message);
 		if (shouldWait) {
@@ -311,15 +357,23 @@ export default class Server implements ServerProperties {
 			this._handleMessage(message)
 				.catch(error => this.executor.emit('error', error))
 				.then(() => {
-					// Don't send acks for runEnd, because by the remote will hev been shut down by the time we get
-					// here.
+					// Don't send acks for runEnd, because by the remote will
+					// hev been shut down by the time we get here.
 					if (message.name !== 'runEnd') {
 						this.executor.log('Sending ack for [', message.id, ']');
-						client.send(JSON.stringify({ id: message.id }), error => {
-							if (error) {
-								this.executor.emit('error', new Error(`Error sending ack for [ ${message.id} ]: ${error.message}`));
+						client.send(
+							JSON.stringify({ id: message.id }),
+							error => {
+								if (error) {
+									this.executor.emit(
+										'error',
+										new Error(
+											`Error sending ack for [ ${message.id} ]: ${error.message}`
+										)
+									);
+								}
 							}
-						});
+						);
 					}
 				});
 		});
@@ -332,15 +386,19 @@ export default class Server implements ServerProperties {
 
 	private _publish(message: Message) {
 		const listeners = this._getSession(message.sessionId).listeners;
-		return Promise.all(listeners.map(listener => listener(message.name, message.data)));
+		return Promise.all(
+			listeners.map(listener => listener(message.name, message.data))
+		);
 	}
 
 	private _send404(response: ServerResponse) {
 		response.writeHead(404, {
 			'Content-Type': 'text/html;charset=utf-8'
 		});
-		response.end(`<!DOCTYPE html><title>404 Not Found</title><h1>404 Not Found</h1>` +
-			`<!-- ${new Array(512).join('.')} -->`);
+		response.end(
+			'<!DOCTYPE html><title>404 Not Found</title><h1>404 Not Found</h1>' +
+				`<!-- ${new Array(512).join('.')} -->`
+		);
 	}
 }
 
@@ -361,9 +419,10 @@ export type ServerOptions = Partial<ServerProperties> & { executor: Node };
 const resolvedPromise = Promise.resolve();
 
 /**
- * Indicate whether Server should wait for an event to process before sending an acknowlegement.
+ * Indicate whether Server should wait for an event to process before sending an
+ * acknowlegement.
  */
-function getShouldWait(waitMode: (string|boolean), message: Message) {
+function getShouldWait(waitMode: string | boolean, message: Message) {
 	let shouldWait = false;
 	let eventName = message.name;
 
@@ -375,11 +434,9 @@ function getShouldWait(waitMode: (string|boolean), message: Message) {
 		) {
 			shouldWait = true;
 		}
-	}
-	else if (waitMode === true) {
+	} else if (waitMode === true) {
 		shouldWait = true;
-	}
-	else if (Array.isArray(waitMode) && waitMode.indexOf(eventName) !== -1) {
+	} else if (Array.isArray(waitMode) && waitMode.indexOf(eventName) !== -1) {
 		shouldWait = true;
 	}
 

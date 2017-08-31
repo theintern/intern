@@ -31,28 +31,36 @@ export function test(name: string, test: TestProperties['test']) {
 
 export function before(fn: SuiteProperties['before']) {
 	if (!currentSuite) {
-		throw new Error(`A suite lifecycle method must be declared within a suite`);
+		throw new Error(
+			'A suite lifecycle method must be declared within a suite'
+		);
 	}
 	on(currentSuite, 'before', fn);
 }
 
 export function after(fn: SuiteProperties['after']) {
 	if (!currentSuite) {
-		throw new Error(`A suite lifecycle method must be declared within a suite`);
+		throw new Error(
+			'A suite lifecycle method must be declared within a suite'
+		);
 	}
 	on(currentSuite, 'after', fn);
 }
 
 export function beforeEach(fn: SuiteProperties['beforeEach']) {
 	if (!currentSuite) {
-		throw new Error(`A suite lifecycle method must be declared within a suite`);
+		throw new Error(
+			'A suite lifecycle method must be declared within a suite'
+		);
 	}
 	on(currentSuite, 'beforeEach', fn);
 }
 
 export function afterEach(fn: SuiteProperties['afterEach']) {
 	if (!currentSuite) {
-		throw new Error(`A suite lifecycle method must be declared within a suite`);
+		throw new Error(
+			'A suite lifecycle method must be declared within a suite'
+		);
 	}
 	on(currentSuite, 'afterEach', fn);
 }
@@ -91,8 +99,7 @@ function _suite(executor: Executor, name: string, factory: TddSuiteFactory) {
 			registerSuite(name, factory);
 			currentSuite = null;
 		});
-	}
-	else {
+	} else {
 		registerSuite(name, factory);
 	}
 }

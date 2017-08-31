@@ -24,7 +24,7 @@ export default class HttpChannel extends BaseChannel {
 
 		this._messageBuffer.push(JSON.stringify(message));
 
-		return this._lastRequest = this._lastRequest.then(() => this._send());
+		return (this._lastRequest = this._lastRequest.then(() => this._send()));
 	}
 
 	/**
@@ -38,15 +38,19 @@ export default class HttpChannel extends BaseChannel {
 	}
 
 	/**
-	 * Some testing services have problems handling large message POSTs, so limit the maximum size of each POST body to
-	 * maxPostSize bytes. Always send at least one message, even if it's more than maxPostSize bytes.
+	 * Some testing services have problems handling large message POSTs, so
+	 * limit the maximum size of each POST body to maxPostSize bytes. Always
+	 * send at least one message, even if it's more than maxPostSize bytes.
 	 */
 	protected _sendMessages(): Task<void> {
 		const messages = this._messageBuffer;
-		const block = [ messages.shift()! ];
+		const block = [messages.shift()!];
 
 		let size = block[0].length;
-		while (messages.length > 0 && size + messages[0].length < this._maxPostSize) {
+		while (
+			messages.length > 0 &&
+			size + messages[0].length < this._maxPostSize
+		) {
 			size += messages[0].length;
 			block.push(messages.shift()!);
 		}

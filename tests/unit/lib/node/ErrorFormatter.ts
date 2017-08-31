@@ -8,14 +8,18 @@ const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 let ErrorFormatter: typeof _ErrorFormatter;
 
-registerSuite('lib/node/ErrorFormatter', function () {
+registerSuite('lib/node/ErrorFormatter', function() {
 	class SourceMapConsumer {
 		map: { file: string };
 		constructor(map: { file: string }) {
 			this.map = map;
 		}
 
-		originalPositionFor(position: { line: number, column: number, source?: string }) {
+		originalPositionFor(position: {
+			line: number;
+			column: number;
+			source?: string;
+		}) {
 			position = duplicate(position);
 			position.source = this.map.file;
 			if (position.line > 20) {
@@ -26,9 +30,24 @@ registerSuite('lib/node/ErrorFormatter', function () {
 
 		eachMapping(callback: (entry: any) => {}) {
 			[
-				{ generatedLine: 30, generatedColumn: 15, originalLine: 33, originalColumn: 22 },
-				{ generatedLine: 30, generatedColumn: 20, originalLine: 34, originalColumn: 22 },
-				{ generatedLine: 30, generatedColumn: 21, originalLine: 35, originalColumn: 22 }
+				{
+					generatedLine: 30,
+					generatedColumn: 15,
+					originalLine: 33,
+					originalColumn: 22
+				},
+				{
+					generatedLine: 30,
+					generatedColumn: 20,
+					originalLine: 34,
+					originalColumn: 22
+				},
+				{
+					generatedLine: 30,
+					generatedColumn: 21,
+					originalLine: 35,
+					originalColumn: 22
+				}
 			].forEach(callback);
 		}
 	}
@@ -92,7 +111,7 @@ registerSuite('lib/node/ErrorFormatter', function () {
 		},
 
 		tests: {
-			'#format': (function () {
+			'#format': (function() {
 				let executor: MockNode;
 				let formatter: _ErrorFormatter;
 
@@ -128,44 +147,76 @@ registerSuite('lib/node/ErrorFormatter', function () {
 
 						'with stack': {
 							'anonymous entry'() {
-								const err = <InternError>{ message: 'foo', stack: 'Error: foo\n  at <anonymous>' };
-								assert.equal(formatter.format(err), 'Error: foo\n  at <anonymous>');
+								const err = <InternError>{
+									message: 'foo',
+									stack: 'Error: foo\n  at <anonymous>'
+								};
+								assert.equal(
+									formatter.format(err),
+									'Error: foo\n  at <anonymous>'
+								);
 							},
 
 							'no line/col data'() {
-								const err = <InternError>{ message: 'foo', stack: 'Error: foo\n  at function (somefile.js)' };
-								assert.equal(formatter.format(err), 'Error: foo\n  at function  <somefile.js>');
+								const err = <InternError>{
+									message: 'foo',
+									stack:
+										'Error: foo\n  at function (somefile.js)'
+								};
+								assert.equal(
+									formatter.format(err),
+									'Error: foo\n  at function  <somefile.js>'
+								);
 							},
 
 							'instrumented file'() {
-								const err = <InternError>{ message: 'foo', stack: 'Error: foo\n  at function (instrumented.js:10:20)' };
-								assert.equal(formatter.format(err), 'Error: foo\n  at function  <instrumented.js:10:20>');
+								const err = <InternError>{
+									message: 'foo',
+									stack:
+										'Error: foo\n  at function (instrumented.js:10:20)'
+								};
+								assert.equal(
+									formatter.format(err),
+									'Error: foo\n  at function  <instrumented.js:10:20>'
+								);
 							},
 
 							'exact position in source map'() {
 								const err = <InternError>{
 									message: 'foo',
-									stack: 'Error: foo\n  at function1 (noninstrumented.js:10:20)'
+									stack:
+										'Error: foo\n  at function1 (noninstrumented.js:10:20)'
 								};
-								assert.equal(formatter.format(err), 'Error: foo\n  at function1  <noninstrumented.js:10:20>');
+								assert.equal(
+									formatter.format(err),
+									'Error: foo\n  at function1  <noninstrumented.js:10:20>'
+								);
 							},
 
 							'approximate position in source map'() {
 								const err = <InternError>{
 									message: 'foo',
-									stack: 'Error: foo\n  at function2 (noninstrumented.js:30:20)'
+									stack:
+										'Error: foo\n  at function2 (noninstrumented.js:30:20)'
 								};
-								assert.equal(formatter.format(err), 'Error: foo\n  at function2  <noninstrumented.js:34:22>',
-									'expected stack trace to use closest entry found in map');
+								assert.equal(
+									formatter.format(err),
+									'Error: foo\n  at function2  <noninstrumented.js:34:22>',
+									'expected stack trace to use closest entry found in map'
+								);
 							},
 
 							'no match in source map'() {
 								const err = <InternError>{
 									message: 'foo',
-									stack: 'Error: foo\n  at function2 (noninstrumented.js:40:20)'
+									stack:
+										'Error: foo\n  at function2 (noninstrumented.js:40:20)'
 								};
-								assert.equal(formatter.format(err), 'Error: foo\n  at function2  <noninstrumented.js:40:20>',
-									'expected stack trace to use original position');
+								assert.equal(
+									formatter.format(err),
+									'Error: foo\n  at function2  <noninstrumented.js:40:20>',
+									'expected stack trace to use original position'
+								);
 							},
 
 							'map not in store'() {
@@ -174,18 +225,22 @@ registerSuite('lib/node/ErrorFormatter', function () {
 
 								const err = <InternError>{
 									message: 'foo',
-									stack: 'Error: foo\n  ' +
+									stack:
+										'Error: foo\n  ' +
 										'at function2 (hasmap.js:40:20)\n' +
 										'at function2 (hasmap.js:44:21)\n' +
 										'at function2 (hasnomap.js:40:20)\n' +
 										'at function2 (hasnomap.js:50:30)'
 								};
-								assert.equal(formatter.format(err), 'Error: foo\n' +
-									'  at function2  <hasmap.js:40:20>\n' +
-									'  at function2  <hasmap.js:44:21>\n' +
-									'  at function2  <hasnomap.js:40:20>\n' +
-									'  at function2  <hasnomap.js:50:30>',
-									'expected stack trace to use original position');
+								assert.equal(
+									formatter.format(err),
+									'Error: foo\n' +
+										'  at function2  <hasmap.js:40:20>\n' +
+										'  at function2  <hasmap.js:44:21>\n' +
+										'  at function2  <hasnomap.js:40:20>\n' +
+										'  at function2  <hasnomap.js:50:30>',
+									'expected stack trace to use original position'
+								);
 							}
 						}
 					}

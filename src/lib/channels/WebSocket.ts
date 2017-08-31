@@ -8,7 +8,11 @@ export default class WebSocketChannel extends BaseChannel {
 	timeout: number;
 
 	protected _socket: WebSocket;
-	protected _sendQueue: { [key: string]: { resolve: () => void, reject: (error: Error) => void } | undefined };
+	protected _sendQueue: {
+		[key: string]:
+			| { resolve: () => void; reject: (error: Error) => void }
+			| undefined;
+	};
 	protected _ready: Task<any>;
 	protected _sequence: number;
 
@@ -26,7 +30,9 @@ export default class WebSocketChannel extends BaseChannel {
 		const url = parseUrl(options.url);
 		const host = url!.hostname;
 		const protocol = url!.protocol === 'https' ? 'wss' : 'ws';
-		this._socket = new global.WebSocket(`${protocol}://${host}:${options.port}`);
+		this._socket = new global.WebSocket(
+			`${protocol}://${host}:${options.port}`
+		);
 
 		this._ready = new Task((resolve, reject) => {
 			this._socket.addEventListener('open', resolve);
@@ -46,27 +52,30 @@ export default class WebSocketChannel extends BaseChannel {
 	}
 
 	protected _sendData(name: string, data: any) {
-		return this._ready.then(() => new Task<void>((resolve, reject) => {
-			const id = String(this._sequence++);
-			const sessionId = this.sessionId;
-			const message: Message = { id, sessionId, name, data };
+		return this._ready.then(
+			() =>
+				new Task<void>((resolve, reject) => {
+					const id = String(this._sequence++);
+					const sessionId = this.sessionId;
+					const message: Message = { id, sessionId, name, data };
 
-			this._socket.send(JSON.stringify(message));
+					this._socket.send(JSON.stringify(message));
 
-			const timer = setTimeout(() => {
-				reject(new Error('Send timed out'));
-			}, this.timeout);
+					const timer = setTimeout(() => {
+						reject(new Error('Send timed out'));
+					}, this.timeout);
 
-			this._sendQueue[id] = {
-				resolve() {
-					clearTimeout(timer);
-					resolve();
-				},
-				reject(error: Error) {
-					reject(error);
-				}
-			};
-		}));
+					this._sendQueue[id] = {
+						resolve() {
+							clearTimeout(timer);
+							resolve();
+						},
+						reject(error: Error) {
+							reject(error);
+						}
+					};
+				})
+		);
 	}
 
 	protected _handleMessage(message: any) {
@@ -80,9 +89,11 @@ export default class WebSocketChannel extends BaseChannel {
 		this._ready = Task.reject(error);
 
 		// Reject any open sends
-		Object.keys(this._sendQueue).filter(id => this._sendQueue[id] != null).forEach(id => {
-			this._sendQueue[id]!.reject(error);
-			this._sendQueue[id] = undefined;
-		});
+		Object.keys(this._sendQueue)
+			.filter(id => this._sendQueue[id] != null)
+			.forEach(id => {
+				this._sendQueue[id]!.reject(error);
+				this._sendQueue[id] = undefined;
+			});
 	}
 }

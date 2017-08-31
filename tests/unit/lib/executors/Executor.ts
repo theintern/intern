@@ -21,12 +21,16 @@ let removeMocks: () => void;
 
 function assertRunFails(executor: _Executor, errorMatcher: RegExp) {
 	return executor.run().then(
-		() => { throw new Error('run should have failed'); },
-		error => { assert.match(error.message, errorMatcher); }
+		() => {
+			throw new Error('run should have failed');
+		},
+		error => {
+			assert.match(error.message, errorMatcher);
+		}
 	);
 }
 
-registerSuite('lib/executors/Executor', function () {
+registerSuite('lib/executors/Executor', function() {
 	class MockErrorFormatter {
 		format(error: Error) {
 			return 'Foo: ' + error.message;
@@ -43,15 +47,17 @@ registerSuite('lib/executors/Executor', function () {
 			});
 			return Promise.resolve();
 		});
-		executor.registerLoader((_config: Config) => Promise.resolve(testLoader));
+		executor.registerLoader((_config: Config) =>
+			Promise.resolve(testLoader)
+		);
 		(<any>executor).testLoader = testLoader;
 		return executor;
 	}
 
 	const mockConsole = {
-		log: spy(() => { }),
-		warn: spy(() => { }),
-		error: spy(() => { })
+		log: spy(() => {}),
+		warn: spy(() => {}),
+		error: spy(() => {})
 	};
 
 	const mockChai = {
@@ -72,12 +78,14 @@ registerSuite('lib/executors/Executor', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/executors/Executor', {
-				'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
-				'chai': mockChai,
+				'src/lib/common/ErrorFormatter': {
+					default: MockErrorFormatter
+				},
+				chai: mockChai,
 				'@dojo/shim/global': {
 					default: {
 						console: mockConsole,
-						'__coverage__': {}
+						__coverage__: {}
 					}
 				}
 			}).then(handle => {
@@ -107,10 +115,14 @@ registerSuite('lib/executors/Executor', function () {
 				'resources registered'() {
 					// Plugins aren't resolved until _loadPlugins runs
 					return executor.run().then(() => {
-						assert.isDefined(executor.getPlugin('interface.object'));
+						assert.isDefined(
+							executor.getPlugin('interface.object')
+						);
 						assert.isDefined(executor.getPlugin('interface.tdd'));
 						assert.isDefined(executor.getPlugin('interface.bdd'));
-						assert.isDefined(executor.getPlugin('interface.benchmark'));
+						assert.isDefined(
+							executor.getPlugin('interface.benchmark')
+						);
 						assert.throws(() => {
 							assert.isUndefined(executor.getPlugin('foo'));
 						}, /has not been registered/);
@@ -123,10 +135,16 @@ registerSuite('lib/executors/Executor', function () {
 						coverageEmitted = true;
 					});
 					executor.emit('suiteEnd', <any>{ hasParent: true });
-					assert.isFalse(coverageEmitted, 'coverage should not have been emitted for child suite');
+					assert.isFalse(
+						coverageEmitted,
+						'coverage should not have been emitted for child suite'
+					);
 
 					executor.emit('suiteEnd', <any>{});
-					assert.isTrue(coverageEmitted, 'coverage should have been emitted for root suite');
+					assert.isTrue(
+						coverageEmitted,
+						'coverage should have been emitted for root suite'
+					);
 				}
 			},
 
@@ -174,7 +192,10 @@ registerSuite('lib/executors/Executor', function () {
 					rootSuite = suite;
 				};
 				executor.addSuite(factory);
-				assert.isTrue(isSuite(rootSuite), 'expected root suite to be a Suite');
+				assert.isTrue(
+					isSuite(rootSuite),
+					'expected root suite to be a Suite'
+				);
 			},
 
 			'#configure': {
@@ -197,42 +218,106 @@ registerSuite('lib/executors/Executor', function () {
 				'unknown property'() {
 					executor.configure(<any>{ foo: 'bar' });
 					assert.propertyVal(executor.config, 'foo', 'bar');
-					assert.equal(mockConsole.warn.callCount, 1, 'a warning should have been emitted');
-					assert.match(mockConsole.warn.getCall(0).args[0], /has unknown option "foo"/);
+					assert.equal(
+						mockConsole.warn.callCount,
+						1,
+						'a warning should have been emitted'
+					);
+					assert.match(
+						mockConsole.warn.getCall(0).args[0],
+						/has unknown option "foo"/
+					);
 				},
 
 				'environment config mixin'() {
-					executor.configure(<any>{ node: { suites: ['foo'], plugins: ['bar'] } });
-					assert.deepEqual<any>(executor.config.node, {
-						suites: ['foo'],
-						plugins: [{ script: 'bar' }],
-						reporters: [],
-						require: []
-					}, 'values should have been set on node');
-					executor.configure(<any>{ node: { 'suites+': ['bif'], plugins: ['buf'], reporters: ['bof'] } });
-					assert.deepEqual<any>(executor.config.node, {
-						suites: ['foo', 'bif'],
-						plugins: [{ script: 'buf' }],
-						reporters: [{ name: 'bof' }],
-						require: []
-					}, 'values should have been mixed into node');
+					executor.configure(<any>{
+						node: { suites: ['foo'], plugins: ['bar'] }
+					});
+					assert.deepEqual<any>(
+						executor.config.node,
+						{
+							suites: ['foo'],
+							plugins: [{ script: 'bar' }],
+							reporters: [],
+							require: []
+						},
+						'values should have been set on node'
+					);
+					executor.configure(<any>{
+						node: {
+							'suites+': ['bif'],
+							plugins: ['buf'],
+							reporters: ['bof']
+						}
+					});
+					assert.deepEqual<any>(
+						executor.config.node,
+						{
+							suites: ['foo', 'bif'],
+							plugins: [{ script: 'buf' }],
+							reporters: [{ name: 'bof' }],
+							require: []
+						},
+						'values should have been mixed into node'
+					);
 				},
 
 				'known properties': (() => {
-					function test(name: keyof Config, badValue: any, goodValue: any, expectedValue: any, error: RegExp, message?: string) {
-						testProperty<_Executor, Config>(executor, mockConsole, name, badValue, goodValue, expectedValue, error, message);
+					function test(
+						name: keyof Config,
+						badValue: any,
+						goodValue: any,
+						expectedValue: any,
+						error: RegExp,
+						message?: string
+					) {
+						testProperty<_Executor, Config>(
+							executor,
+							mockConsole,
+							name,
+							badValue,
+							goodValue,
+							expectedValue,
+							error,
+							message
+						);
 					}
 
-					const booleanTest = (name: keyof Config) => () => { test(name, 5, 'true', true, /Non-boolean/); };
-					const stringTest = (name: keyof Config) => () => { test(name, 5, 'foo', 'foo', /Non-string/); };
-					const objectArrayTest = (name: keyof Config, requiredProperty: string) => () => {
-						test(name, 5, 'foo', [{ [requiredProperty]: 'foo' }], /Non-object/);
+					const booleanTest = (name: keyof Config) => () => {
+						test(name, 5, 'true', true, /Non-boolean/);
+					};
+					const stringTest = (name: keyof Config) => () => {
+						test(name, 5, 'foo', 'foo', /Non-string/);
+					};
+					const objectArrayTest = (
+						name: keyof Config,
+						requiredProperty: string
+					) => () => {
+						test(
+							name,
+							5,
+							'foo',
+							[{ [requiredProperty]: 'foo' }],
+							/Non-object/
+						);
 					};
 
 					return {
 						loader() {
-							test('loader', 5, { script: 'foo' }, { script: 'foo' }, /Non-object value/);
-							test('loader', { loader: 'foo' }, { script: 'foo' }, { script: 'foo' }, /Invalid value/);
+							test(
+								'loader',
+								5,
+								{ script: 'foo' },
+								{ script: 'foo' },
+								/Non-object value/
+							);
+							test(
+								'loader',
+								{ loader: 'foo' },
+								{ script: 'foo' },
+								{ script: 'foo' },
+								/Invalid value/
+							);
 						},
 
 						bail: booleanTest('bail'),
@@ -250,8 +335,20 @@ registerSuite('lib/executors/Executor', function () {
 						sessionId: stringTest('sessionId'),
 
 						defaultTimeout() {
-							test('defaultTimeout', 'foo', 5, 5, /Non-numeric value/);
-							test('defaultTimeout', 'foo', '5', 5, /Non-numeric value/);
+							test(
+								'defaultTimeout',
+								'foo',
+								5,
+								5,
+								/Non-numeric value/
+							);
+							test(
+								'defaultTimeout',
+								'foo',
+								'5',
+								5,
+								/Non-numeric value/
+							);
 						},
 
 						grep() {
@@ -264,14 +361,60 @@ registerSuite('lib/executors/Executor', function () {
 
 						suites() {
 							test('suites', 5, 'foo', ['foo'], /Non-string\[\]/);
-							test('suites', 5, ['bar'], ['bar'], /Non-string\[\]/);
-							test(<any>'suites+', 5, ['baz'], ['bar', 'baz'], /Non-string\[\]/, 'suite should have been added');
+							test(
+								'suites',
+								5,
+								['bar'],
+								['bar'],
+								/Non-string\[\]/
+							);
+							test(
+								<any>'suites+',
+								5,
+								['baz'],
+								['bar', 'baz'],
+								/Non-string\[\]/,
+								'suite should have been added'
+							);
 						},
 
 						'environment resources'() {
-							test('node', 5, {}, { plugins: [], reporters: [], require: [], suites: [] }, /Non-object/);
-							test('browser', 5, {}, { plugins: [], reporters: [], require: [], suites: [] }, /Non-object/);
-							test('node', 5, { suites: 'foo' }, { plugins: [], reporters: [], require: [], suites: ['foo'] }, /Non-object/);
+							test(
+								'node',
+								5,
+								{},
+								{
+									plugins: [],
+									reporters: [],
+									require: [],
+									suites: []
+								},
+								/Non-object/
+							);
+							test(
+								'browser',
+								5,
+								{},
+								{
+									plugins: [],
+									reporters: [],
+									require: [],
+									suites: []
+								},
+								/Non-object/
+							);
+							test(
+								'node',
+								5,
+								{ suites: 'foo' },
+								{
+									plugins: [],
+									reporters: [],
+									require: [],
+									suites: ['foo']
+								},
+								/Non-object/
+							);
 						}
 					};
 				})()
@@ -284,7 +427,10 @@ registerSuite('lib/executors/Executor', function () {
 						notified = true;
 					});
 					executor.emit('suiteEnd', <any>{});
-					assert.isTrue(notified, 'listener should have been notified');
+					assert.isTrue(
+						notified,
+						'listener should have been notified'
+					);
 				},
 
 				'fails if a listener fails'() {
@@ -296,8 +442,12 @@ registerSuite('lib/executors/Executor', function () {
 					});
 
 					return executor.emit('suiteEnd', <any>{}).then(
-						() => { throw new Error('emit should have rejected'); },
-						error => { assert.match(error.message, /foo/); }
+						() => {
+							throw new Error('emit should have rejected');
+						},
+						error => {
+							assert.match(error.message, /foo/);
+						}
 					);
 				},
 
@@ -313,31 +463,49 @@ registerSuite('lib/executors/Executor', function () {
 
 				'star listener'() {
 					const events: string[] = [];
-					executor.on('*', (event: { name: string, data: any }) => {
+					executor.on('*', (event: { name: string; data: any }) => {
 						events.push(event.name);
 					});
-					return executor.emit('suiteStart', <any>{}).then(() => {
-						assert.deepEqual(events, ['suiteStart']);
-						return executor.emit('testStart', <any>{});
-					}).then(() => {
-						assert.deepEqual(events, ['suiteStart', 'testStart']);
-					});
+					return executor
+						.emit('suiteStart', <any>{})
+						.then(() => {
+							assert.deepEqual(events, ['suiteStart']);
+							return executor.emit('testStart', <any>{});
+						})
+						.then(() => {
+							assert.deepEqual(events, [
+								'suiteStart',
+								'testStart'
+							]);
+						});
 				},
 
 				'no error listeners'() {
 					executor.emit('error', new Error('foo'));
-					assert.equal(mockConsole.error.callCount, 1, 'an error should have been logged to the console');
+					assert.equal(
+						mockConsole.error.callCount,
+						1,
+						'an error should have been logged to the console'
+					);
 
-					executor.on('error', () => { });
+					executor.on('error', () => {});
 					executor.emit('error', new Error('foo'));
-					assert.equal(mockConsole.error.callCount, 1, 'an error should not have been logged');
+					assert.equal(
+						mockConsole.error.callCount,
+						1,
+						'an error should not have been logged'
+					);
 				}
 			},
 
 			'#getPlugin': {
-				'registered'() {
+				registered() {
 					return executor.run().then(() => {
-						assert.propertyVal(executor.getPlugin<any>('chai'), 'assert', 'assert');
+						assert.propertyVal(
+							executor.getPlugin<any>('chai'),
+							'assert',
+							'assert'
+						);
 					});
 				},
 
@@ -351,40 +519,75 @@ registerSuite('lib/executors/Executor', function () {
 			},
 
 			'#log'() {
-				let logger = spy(() => { });
+				let logger = spy(() => {});
 				executor.on('log', logger);
 				executor.log('testing');
-				assert.equal(logger.callCount, 0, 'log should not have been emitted');
+				assert.equal(
+					logger.callCount,
+					0,
+					'log should not have been emitted'
+				);
 
 				const debugExecutor = createExecutor({ debug: true });
 				debugExecutor.on('log', logger);
-				debugExecutor.log('testing', new Error('foo'), () => { }, /bar/, 5);
-				assert.equal(logger.callCount, 1, 'log should have been emitted');
-				assert.match(logger.getCall(0).args[0], /^testing .*Error.*foo.* function \(\) {[^]*} \/bar\/ 5$/,
-					'expected all args to have been serialized in log message');
+				debugExecutor.log(
+					'testing',
+					new Error('foo'),
+					() => {},
+					/bar/,
+					5
+				);
+				assert.equal(
+					logger.callCount,
+					1,
+					'log should have been emitted'
+				);
+				assert.match(
+					logger.getCall(0).args[0],
+					/^testing .*Error.*foo.* function \(\) {[^]*} \/bar\/ 5$/,
+					'expected all args to have been serialized in log message'
+				);
 			},
 
 			'#on': {
 				'single event'() {
-					const logger = spy(() => { });
+					const logger = spy(() => {});
 					const handle = executor.on('testStart', logger);
 					executor.emit('testStart', <any>{});
-					assert.equal(logger.callCount, 1, 'listener should have been called');
+					assert.equal(
+						logger.callCount,
+						1,
+						'listener should have been called'
+					);
 					handle.destroy();
 					executor.emit('testStart', <any>{});
-					assert.equal(logger.callCount, 1, 'listener should not have been called');
+					assert.equal(
+						logger.callCount,
+						1,
+						'listener should not have been called'
+					);
 
 					// Calling handle again should be fine
-					assert.doesNotThrow(() => { handle.destroy(); });
+					assert.doesNotThrow(() => {
+						handle.destroy();
+					});
 				},
 
 				'all events'() {
-					const logger = spy(() => { });
+					const logger = spy(() => {});
 					executor.on(logger);
 					executor.emit('testStart', <any>{});
-					assert.equal(logger.callCount, 1, 'listener should have been called');
+					assert.equal(
+						logger.callCount,
+						1,
+						'listener should have been called'
+					);
 					executor.emit('testEnd', <any>{});
-					assert.equal(logger.callCount, 2, 'listener should have been called');
+					assert.equal(
+						logger.callCount,
+						2,
+						'listener should have been called'
+					);
 				}
 			},
 
@@ -403,8 +606,11 @@ registerSuite('lib/executors/Executor', function () {
 						assert.equal(loader.getCall(0).args[0], 'foo.js');
 						assert.equal(pluginScript.callCount, 1);
 						assert.equal(pluginInit.callCount, 1);
-						assert.equal(executor.getPlugin('foo'), 'bar',
-							'expected plugin to have resolved value of init function');
+						assert.equal(
+							executor.getPlugin('foo'),
+							'bar',
+							'expected plugin to have resolved value of init function'
+						);
 					});
 				},
 
@@ -414,8 +620,11 @@ registerSuite('lib/executors/Executor', function () {
 					executor.registerPlugin('foo', pluginInit);
 					return executor.run().then(() => {
 						assert.equal(pluginInit.callCount, 1);
-						assert.equal(executor.getPlugin('foo'), 'bar',
-							'expected plugin to have resolved value of init function');
+						assert.equal(
+							executor.getPlugin('foo'),
+							'bar',
+							'expected plugin to have resolved value of init function'
+						);
 					});
 				},
 
@@ -429,7 +638,8 @@ registerSuite('lib/executors/Executor', function () {
 
 			'#run': {
 				showConfig() {
-					const expected = '{\n' +
+					const expected =
+						'{\n' +
 						'    "bail": false,\n' +
 						'    "baseline": false,\n' +
 						'    "benchmark": false,\n' +
@@ -464,44 +674,65 @@ registerSuite('lib/executors/Executor', function () {
 						'}';
 					executor.configure({ showConfig: true });
 
-					const logger = spy(() => { });
+					const logger = spy(() => {});
 					executor.on('beforeRun', logger);
 					return executor.run().then(() => {
-						assert.equal(mockConsole.log.getCall(0).args[0], expected);
-						assert.equal(logger.callCount, 0, 'beforeRun should not have been emitted');
+						assert.equal(
+							mockConsole.log.getCall(0).args[0],
+							expected
+						);
+						assert.equal(
+							logger.callCount,
+							0,
+							'beforeRun should not have been emitted'
+						);
 					});
 				},
 
 				'run error'() {
-					executor.addSuite(rootSuite => { rootSuite.run = () => Task.reject<void>(new Error('foo')); });
+					executor.addSuite(rootSuite => {
+						rootSuite.run = () =>
+							Task.reject<void>(new Error('foo'));
+					});
 					return assertRunFails(executor, /foo/);
 				},
 
 				'afterRun error'() {
-					executor.on('afterRun', () => Promise.reject<void>(new Error('foo')));
+					executor.on('afterRun', () =>
+						Promise.reject<void>(new Error('foo'))
+					);
 					return assertRunFails(executor, /foo/);
 				},
 
 				'run start error'() {
-					executor['_resolveConfig'] = () => { throw new Error('foo'); };
+					executor['_resolveConfig'] = () => {
+						throw new Error('foo');
+					};
 					return assertRunFails(executor, /foo/);
 				},
 
 				'invalid reporter': {
 					missing() {
 						executor.configure({ reporters: <any>'foo' });
-						return assertRunFails(executor, /has not been registered/);
+						return assertRunFails(
+							executor,
+							/has not been registered/
+						);
 					},
 
 					invalid() {
-						executor.registerPlugin('reporter.foo', () => Promise.resolve({}));
+						executor.registerPlugin('reporter.foo', () =>
+							Promise.resolve({})
+						);
 						executor.configure({ reporters: <any>'foo' });
 						return assertRunFails(executor, /A reporter plugin/);
 					}
 				},
 
 				'loader failure'() {
-					executor.registerLoader(() => Promise.reject(new Error('foo')));
+					executor.registerLoader(() =>
+						Promise.reject(new Error('foo'))
+					);
 					return assertRunFails(executor, /foo/);
 				},
 
@@ -515,27 +746,53 @@ registerSuite('lib/executors/Executor', function () {
 
 				'benchmark config'() {
 					executor.configure({ showConfig: true });
-					const executor2 = createExecutor({ showConfig: true, benchmark: true });
-					const executor3 = createExecutor({ showConfig: true, benchmark: true, baseline: true });
+					const executor2 = createExecutor({
+						showConfig: true,
+						benchmark: true
+					});
+					const executor3 = createExecutor({
+						showConfig: true,
+						benchmark: true,
+						baseline: true
+					});
 
-					return executor.run()
+					return executor
+						.run()
 						.then(() => {
-							const data = JSON.parse(mockConsole.log.getCall(0).args[0]);
+							const data = JSON.parse(
+								mockConsole.log.getCall(0).args[0]
+							);
 							assert.notProperty(data, 'benchmarkConfig');
 							mockConsole.log.reset();
 						})
 						.then(() => executor2.run())
 						.then(() => {
-							const data = JSON.parse(mockConsole.log.getCall(0).args[0]);
+							const data = JSON.parse(
+								mockConsole.log.getCall(0).args[0]
+							);
 							assert.property(data, 'benchmarkConfig');
-							assert.propertyVal(data.benchmarkConfig, 'id', 'Benchmark');
-							assert.propertyVal(data.benchmarkConfig, 'mode', 'test');
+							assert.propertyVal(
+								data.benchmarkConfig,
+								'id',
+								'Benchmark'
+							);
+							assert.propertyVal(
+								data.benchmarkConfig,
+								'mode',
+								'test'
+							);
 							mockConsole.log.reset();
 						})
 						.then(() => executor3.run())
 						.then(() => {
-							const data = JSON.parse(mockConsole.log.getCall(0).args[0]);
-							assert.propertyVal(data.benchmarkConfig, 'mode', 'baseline');
+							const data = JSON.parse(
+								mockConsole.log.getCall(0).args[0]
+							);
+							assert.propertyVal(
+								data.benchmarkConfig,
+								'mode',
+								'baseline'
+							);
 						});
 				}
 			}

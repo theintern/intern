@@ -30,8 +30,7 @@ export default class Deferred<T> {
 		return (...args: any[]) => {
 			try {
 				return callback.apply(this, args);
-			}
-			catch (error) {
+			} catch (error) {
 				this.reject(error);
 			}
 		};
@@ -46,7 +45,7 @@ export default class Deferred<T> {
 	}
 
 	protected _finalize() {
-		this._resolver = () => { };
-		this._rejector = () => { };
+		this._resolver = () => {};
+		this._rejector = () => {};
 	}
 }

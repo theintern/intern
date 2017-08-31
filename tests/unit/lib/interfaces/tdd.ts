@@ -6,7 +6,7 @@ import { spy } from 'sinon';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/interfaces/tdd', function () {
+registerSuite('lib/interfaces/tdd', function() {
 	let tddInt: typeof _tddInt;
 	let removeMocks: () => void;
 	let parent: Suite;
@@ -15,7 +15,7 @@ registerSuite('lib/interfaces/tdd', function () {
 		addSuite: spy((callback: (suite: Suite) => void) => {
 			callback(parent);
 		}),
-		emit: spy(() => { })
+		emit: spy(() => {})
 	};
 	const mockIntern = spy(() => {
 		return executor;
@@ -52,7 +52,7 @@ registerSuite('lib/interfaces/tdd', function () {
 				assert.isFunction(iface.beforeEach);
 				assert.isFunction(iface.afterEach);
 
-				iface.suite('fooSuite', () => { });
+				iface.suite('fooSuite', () => {});
 				assert.lengthOf(parent.tests, 1);
 				assert.equal(parent.tests[0].name, 'fooSuite');
 			},
@@ -66,29 +66,33 @@ registerSuite('lib/interfaces/tdd', function () {
 
 			test() {
 				tddInt.suite('foo', () => {
-					tddInt.test('bar', () => { });
+					tddInt.test('bar', () => {});
 				});
 				const child = (<Suite>parent.tests[0]).tests[0];
 				assert.instanceOf(child, Test);
 				assert.equal(child.name, 'bar');
 
 				assert.throws(() => {
-					tddInt.test('baz', () => { });
+					tddInt.test('baz', () => {});
 				}, /must be declared/);
 			},
 
 			'lifecycle methods': (() => {
-				type lifecycle = 'before' | 'beforeEach' | 'after' | 'afterEach';
+				type lifecycle =
+					| 'before'
+					| 'beforeEach'
+					| 'after'
+					| 'afterEach';
 				function createTest(name: lifecycle) {
 					return () => {
 						tddInt.suite('foo', () => {
-							(tddInt[name] as any)(() => { });
+							(tddInt[name] as any)(() => {});
 						});
 						const suite = <Suite>parent.tests[0];
 						assert.instanceOf(suite[name], Function);
 
 						assert.throws(() => {
-							(tddInt[name] as any)(() => { });
+							(tddInt[name] as any)(() => {});
 						}, /must be declared/);
 					};
 				}
@@ -103,29 +107,40 @@ registerSuite('lib/interfaces/tdd', function () {
 
 			'nested suites'() {
 				tddInt.suite('fooSuite', () => {
-					tddInt.test('foo', () => { });
+					tddInt.test('foo', () => {});
 					tddInt.suite('bar', () => {
-						tddInt.beforeEach(() => { });
+						tddInt.beforeEach(() => {});
 
-						tddInt.test('up', () => { });
-						tddInt.test('down', () => { });
+						tddInt.test('up', () => {});
+						tddInt.test('down', () => {});
 					});
 					tddInt.suite('baz', () => {
-						tddInt.test('one', () => { });
-						tddInt.test('down', () => { });
+						tddInt.test('one', () => {});
+						tddInt.test('down', () => {});
 					});
 				});
 
-				assert.lengthOf(parent.tests, 1, 'one child should have been defined on parent');
+				assert.lengthOf(
+					parent.tests,
+					1,
+					'one child should have been defined on parent'
+				);
 				const suite = <Suite>parent.tests[0];
-				assert.lengthOf(suite.tests, 3, 'expect suite to have 3 children');
+				assert.lengthOf(
+					suite.tests,
+					3,
+					'expect suite to have 3 children'
+				);
 
 				assert.instanceOf(suite.tests[0], Test);
 				assert.equal(suite.tests[0].name, 'foo');
 
 				assert.instanceOf(suite.tests[1], Suite);
 				assert.equal(suite.tests[1].name, 'bar');
-				assert.isFunction((<Suite>suite.tests[1]).beforeEach, 'expected suite to have a beforeEach method');
+				assert.isFunction(
+					(<Suite>suite.tests[1]).beforeEach,
+					'expected suite to have a beforeEach method'
+				);
 
 				assert.instanceOf(suite.tests[2], Suite);
 				assert.equal(suite.tests[2].name, 'baz');

@@ -11,24 +11,38 @@ registerSuite('lib/common/util', {
 		},
 
 		args() {
-			return util.loadConfig('extends', loadText, { bar: 123 }).then(config => {
-				assert.deepEqual(config, { foo: 111, bar: 123 });
-			});
+			return util
+				.loadConfig('extends', loadText, { bar: 123 })
+				.then(config => {
+					assert.deepEqual(config, { foo: 111, bar: 123 });
+				});
 		},
 
 		'config is cleaned up'() {
-			return util.loadConfig('children', loadText, { config: 'foo' }, 'extender').then(config => {
-				assert.notProperty(config, 'config');
-				assert.notProperty(config, 'configs');
-				assert.notProperty(config, 'extends');
-			});
+			return util
+				.loadConfig('children', loadText, { config: 'foo' }, 'extender')
+				.then(config => {
+					assert.notProperty(config, 'config');
+					assert.notProperty(config, 'configs');
+					assert.notProperty(config, 'extends');
+				});
 		},
 
-		'showConfigs'() {
-			return util.loadConfig('described', loadText, { showConfigs: true }).then(config => {
-				assert.property(config, 'configs', 'expected configs not to have been cleaned up');
-				assert.property(config, 'showConfigs', 'expected args to be mixed in');
-			});
+		showConfigs() {
+			return util
+				.loadConfig('described', loadText, { showConfigs: true })
+				.then(config => {
+					assert.property(
+						config,
+						'configs',
+						'expected configs not to have been cleaned up'
+					);
+					assert.property(
+						config,
+						'showConfigs',
+						'expected args to be mixed in'
+					);
+				});
 		},
 
 		extends() {
@@ -38,52 +52,118 @@ registerSuite('lib/common/util', {
 		},
 
 		'child config'() {
-			return util.loadConfig('children', loadText, undefined, 'child').then(config => {
-				assert.deepEqual(config, { baz: 'hello', foo: 222, bar: 345 });
-			});
+			return util
+				.loadConfig('children', loadText, undefined, 'child')
+				.then(config => {
+					assert.deepEqual(config, {
+						baz: 'hello',
+						foo: 222,
+						bar: 345
+					});
+				});
 		},
 
 		'child config extends'() {
-			return util.loadConfig('children', loadText, undefined, 'extender').then(config => {
-				assert.deepEqual(config, { foo: 123, bar: 345, baz: 'hello' });
-			});
+			return util
+				.loadConfig('children', loadText, undefined, 'extender')
+				.then(config => {
+					assert.deepEqual(config, {
+						foo: 123,
+						bar: 345,
+						baz: 'hello'
+					});
+				});
 		},
 
 		'missing child config'() {
-			return util.loadConfig('children', loadText, undefined, 'bad_child').then(
-				() => { throw new Error('Missing child config should have errored'); },
-				error => { assert.match(error.message, /Unknown child config/); }
-			);
+			return util
+				.loadConfig('children', loadText, undefined, 'bad_child')
+				.then(
+					() => {
+						throw new Error(
+							'Missing child config should have errored'
+						);
+					},
+					error => {
+						assert.match(error.message, /Unknown child config/);
+					}
+				);
 		},
 
 		'child environment config'() {
-			return util.loadConfig('childEnvironment', loadText, undefined, 'child').then(config => {
-				assert.deepEqual(config.node, { suites: ['baz'], plugins: ['bar'] },
-					'child node config should have mixed into parent');
-			});
+			return util
+				.loadConfig('childEnvironment', loadText, undefined, 'child')
+				.then(config => {
+					assert.deepEqual(
+						config.node,
+						{ suites: ['baz'], plugins: ['bar'] },
+						'child node config should have mixed into parent'
+					);
+				});
 		}
 	},
 
 	getConfigDescription() {
-		return util.loadConfig('described', loadText, { showConfigs: true }).then(config => {
-			const desc = util.getConfigDescription(config);
-			assert.equal(desc, 'has children\n\nConfigs:\n  child    (a child)\n  extender');
-		});
+		return util
+			.loadConfig('described', loadText, { showConfigs: true })
+			.then(config => {
+				const desc = util.getConfigDescription(config);
+				assert.equal(
+					desc,
+					'has children\n\nConfigs:\n  child    (a child)\n  extender'
+				);
+			});
 	},
 
 	normalizePathEnding() {
-		assert.equal(util.normalizePathEnding('foo'), 'foo/', 'path not ending in / should have /');
-		assert.equal(util.normalizePathEnding('bar/'), 'bar/', 'path ending in / should be unmodified');
-		assert.equal(util.normalizePathEnding(''), '', 'empty path should be unmodified');
+		assert.equal(
+			util.normalizePathEnding('foo'),
+			'foo/',
+			'path not ending in / should have /'
+		);
+		assert.equal(
+			util.normalizePathEnding('bar/'),
+			'bar/',
+			'path ending in / should be unmodified'
+		);
+		assert.equal(
+			util.normalizePathEnding(''),
+			'',
+			'empty path should be unmodified'
+		);
 	},
 
 	parseArgs() {
-		const args = util.parseArgs(['foo', 'bar=5', 'baz=6', 'baz=7', 'baz=8']);
+		const args = util.parseArgs([
+			'foo',
+			'bar=5',
+			'baz=6',
+			'baz=7',
+			'baz=8'
+		]);
 		const expected = { foo: true, bar: '5', baz: ['6', '7', '8'] };
-		assert.propertyVal(args, 'foo', expected.foo, 'bare arg should be parsed as boolean true');
-		assert.propertyVal(args, 'bar', expected.bar, 'assigned value should be a string');
-		assert.property(args, 'baz', 'multiply-assigned value should be in args');
-		assert.deepEqual(args.baz, expected.baz, 'multiply-assigned value should be an array of strings');
+		assert.propertyVal(
+			args,
+			'foo',
+			expected.foo,
+			'bare arg should be parsed as boolean true'
+		);
+		assert.propertyVal(
+			args,
+			'bar',
+			expected.bar,
+			'assigned value should be a string'
+		);
+		assert.property(
+			args,
+			'baz',
+			'multiply-assigned value should be in args'
+		);
+		assert.deepEqual(
+			args.baz,
+			expected.baz,
+			'multiply-assigned value should be an array of strings'
+		);
 		assert.deepEqual(args, expected);
 	},
 
@@ -93,40 +173,53 @@ registerSuite('lib/common/util', {
 		},
 
 		'line comment'() {
-			assert.deepEqual(util.parseJson(`{
+			assert.deepEqual(
+				util.parseJson(`{
 				"foo": "bar", // line comment
 				"baz": 10
-			}`), { foo: 'bar', baz: 10 });
+			}`),
+				{ foo: 'bar', baz: 10 }
+			);
 		},
 
 		'block comment'() {
-			assert.deepEqual(util.parseJson(`{
+			assert.deepEqual(
+				util.parseJson(`{
 				"baz": 10,
 				/*
 				"commented": "property",
 				*/
 				"bif": 5
-			}`), { baz: 10, bif: 5 });
+			}`),
+				{ baz: 10, bif: 5 }
+			);
 		},
 
 		escaping() {
-			assert.deepEqual(util.parseJson('{"baz": "He said \\"Hello\\""}'), { baz: 'He said "Hello"' });
-			assert.deepEqual(util.parseJson('{"baz": "Slashy \\\\"}'), { baz: 'Slashy \\' });
+			assert.deepEqual(util.parseJson('{"baz": "He said \\"Hello\\""}'), {
+				baz: 'He said "Hello"'
+			});
+			assert.deepEqual(util.parseJson('{"baz": "Slashy \\\\"}'), {
+				baz: 'Slashy \\'
+			});
 		}
 	},
 
-	parseValue: (function () {
+	parseValue: (function() {
 		function createValueAssertion(type: util.TypeName) {
 			return (value: any, expected: any, requiredProperty?: string) => {
-				const parsed = util.parseValue('foo', value, type, requiredProperty);
+				const parsed = util.parseValue(
+					'foo',
+					value,
+					type,
+					requiredProperty
+				);
 				if (expected instanceof RegExp) {
 					assert.instanceOf(parsed, RegExp);
 					assert.strictEqual(parsed.source, expected.source);
-				}
-				else if (typeof expected === 'object') {
+				} else if (typeof expected === 'object') {
 					assert.deepEqual(parsed, expected);
-				}
-				else {
+				} else {
 					assert.strictEqual(parsed, expected);
 				}
 			};
@@ -134,7 +227,9 @@ registerSuite('lib/common/util', {
 
 		function createThrowsAssertion(type: util.TypeName) {
 			return (value: any, message: RegExp, requiredProperty?: string) => {
-				assert.throws(() => { util.parseValue('foo', value, type, requiredProperty); }, message);
+				assert.throws(() => {
+					util.parseValue('foo', value, type, requiredProperty);
+				}, message);
 			};
 		}
 
@@ -178,8 +273,16 @@ registerSuite('lib/common/util', {
 				const throws = createThrowsAssertion('object');
 				throws('bad', /Non-object/);
 				throws('[1]', /Non-object/);
-				throws('{"bad":"bar"}', /Invalid value.*missing.*property/, 'name');
-				throws({ bad: 'bar' }, /Invalid value.*missing.*property/, 'name');
+				throws(
+					'{"bad":"bar"}',
+					/Invalid value.*missing.*property/,
+					'name'
+				);
+				throws(
+					{ bad: 'bar' },
+					/Invalid value.*missing.*property/,
+					'name'
+				);
 			},
 
 			'object[]'() {
@@ -187,12 +290,24 @@ registerSuite('lib/common/util', {
 				value(null, []);
 				value('{"name":"bar"}', [{ name: 'bar' }]);
 				value('{"name":"bar"}', [{ name: 'bar' }], 'name');
-				value([{ name: 'bar' }, { name: 'baz' }], [{ name: 'bar' }, { name: 'baz' }], 'name');
+				value(
+					[{ name: 'bar' }, { name: 'baz' }],
+					[{ name: 'bar' }, { name: 'baz' }],
+					'name'
+				);
 
 				const throws = createThrowsAssertion('object[]');
 				throws('bad', /Non-object/);
-				throws('{"bad":"bar"}', /Invalid value.*missing.*property/, 'name');
-				throws({ bad: 'bar' }, /Invalid value.*missing.*property/, 'name');
+				throws(
+					'{"bad":"bar"}',
+					/Invalid value.*missing.*property/,
+					'name'
+				);
+				throws(
+					{ bad: 'bar' },
+					/Invalid value.*missing.*property/,
+					'name'
+				);
 			},
 
 			string() {
@@ -232,7 +347,12 @@ registerSuite('lib/common/util', {
 	})(),
 
 	pullFromArray() {
-		const arrayTest = (array: any[], value: any, expectedArray: any[], expectedReturn: any) => {
+		const arrayTest = (
+			array: any[],
+			value: any,
+			expectedArray: any[],
+			expectedReturn: any
+		) => {
 			const returned = util.pullFromArray(array, value);
 			assert.deepEqual(array, expectedArray);
 			assert.deepEqual(returned, expectedReturn);
@@ -244,10 +364,22 @@ registerSuite('lib/common/util', {
 	},
 
 	splitConfigPath() {
-		assert.deepEqual(util.splitConfigPath('foo'), { configFile: 'foo', childConfig: undefined });
-		assert.deepEqual(util.splitConfigPath('foo@bar'), { configFile: 'foo', childConfig: 'bar' });
-		assert.deepEqual(util.splitConfigPath('foo@'), { configFile: 'foo', childConfig: '' });
-		assert.deepEqual(util.splitConfigPath('@bar'), { configFile: '', childConfig: 'bar' });
+		assert.deepEqual(util.splitConfigPath('foo'), {
+			configFile: 'foo',
+			childConfig: undefined
+		});
+		assert.deepEqual(util.splitConfigPath('foo@bar'), {
+			configFile: 'foo',
+			childConfig: 'bar'
+		});
+		assert.deepEqual(util.splitConfigPath('foo@'), {
+			configFile: 'foo',
+			childConfig: ''
+		});
+		assert.deepEqual(util.splitConfigPath('@bar'), {
+			configFile: '',
+			childConfig: 'bar'
+		});
 	},
 
 	stringify() {
@@ -255,72 +387,87 @@ registerSuite('lib/common/util', {
 		assert.equal(util.stringify(5), '5');
 		assert.equal(util.stringify(/(.*)/), '"(.*)"');
 
-		// Older versions of Firefox may inject "use strict"; into fuction values
-		assert.match(util.stringify(function () { return 'foo'; }),
-			/"function \(\) {(?:\\n\\"use strict\\";\\n)? return 'foo'; }"/);
+		// Older versions of Firefox may inject "use strict"; into fuction
+		// values
+		assert.match(
+			// prettier-ignore
+			util.stringify(function() { return 'foo'; }),
+			/"function \(\) {(?:\\n\\"use strict\\";\\n)? return 'foo'; }"/
+		);
 
 		assert.equal(util.stringify({}), '{}');
 		assert.equal(util.stringify(<any>null), 'null');
 		assert.equal(util.stringify(''), '""');
-		assert.equal(util.stringify({ foo: 'bar', baz: 10 }), '{"foo":"bar","baz":10}');
+		assert.equal(
+			util.stringify({ foo: 'bar', baz: 10 }),
+			'{"foo":"bar","baz":10}'
+		);
 	}
 });
 
 function loadText(path: string) {
 	if (path === 'extends') {
-		return Task.resolve(JSON.stringify({
-			foo: 111,
-			bar: 'bye',
-			extends: 'empty'
-		}));
+		return Task.resolve(
+			JSON.stringify({
+				foo: 111,
+				bar: 'bye',
+				extends: 'empty'
+			})
+		);
 	}
 	if (path === 'children') {
-		return Task.resolve(JSON.stringify({
-			baz: 'hello',
-			bar: 'bye',
-			foo: 222,
-			configs: {
-				child: {
-					bar: 345
-				},
-				extender: {
-					extends: 'child',
-					foo: 123
-				}
-			}
-		}));
-	}
-	if (path === 'childEnvironment') {
-		return Task.resolve(JSON.stringify({
-			node: {
-				suites: ['foo'],
-				plugins: ['bar']
-			},
-			baz: 'hello',
-			bar: 'bye',
-			foo: 222,
-			configs: {
-				child: {
-					bar: 345,
-					node: {
-						suites: ['baz']
+		return Task.resolve(
+			JSON.stringify({
+				baz: 'hello',
+				bar: 'bye',
+				foo: 222,
+				configs: {
+					child: {
+						bar: 345
+					},
+					extender: {
+						extends: 'child',
+						foo: 123
 					}
 				}
-			}
-		}));
+			})
+		);
+	}
+	if (path === 'childEnvironment') {
+		return Task.resolve(
+			JSON.stringify({
+				node: {
+					suites: ['foo'],
+					plugins: ['bar']
+				},
+				baz: 'hello',
+				bar: 'bye',
+				foo: 222,
+				configs: {
+					child: {
+						bar: 345,
+						node: {
+							suites: ['baz']
+						}
+					}
+				}
+			})
+		);
 	}
 	if (path === 'described') {
-		return Task.resolve(JSON.stringify({
-			description: 'has children',
-			configs: {
-				child: {
-					description: 'a child'
-				},
-				extender: {
-					extends: 'child'
+		return Task.resolve(
+			JSON.stringify({
+				description: 'has children',
+				configs: {
+					child: {
+						description: 'a child'
+					},
+					extender: {
+						extends: 'child'
+					}
 				}
-			}
-		}));
+			})
+		);
 	}
 	return Task.resolve('{}');
 }

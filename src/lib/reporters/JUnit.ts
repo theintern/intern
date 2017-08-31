@@ -6,8 +6,9 @@ import { mkdir, createWriteStream } from 'fs';
 import { dirname } from 'path';
 
 /**
- * There is no formal spec for this format and everyone does it differently, so good luck! We've mashed as many of the
- * different incompatible JUnit/xUnit XSDs as possible into one reporter.
+ * There is no formal spec for this format and everyone does it differently, so
+ * good luck! We've mashed as many of the different incompatible JUnit/xUnit
+ * XSDs as possible into one reporter.
  */
 export default class JUnit extends Reporter {
 	readonly filename: string;
@@ -29,7 +30,10 @@ export default class JUnit extends Reporter {
 		this.executor.suites.forEach(suite => {
 			rootNode.childNodes.push(createSuiteNode(suite, this));
 		});
-		const report = '<?xml version="1.0" encoding="UTF-8" ?>' + rootNode.toString() + '\n';
+		const report =
+			'<?xml version="1.0" encoding="UTF-8" ?>' +
+			rootNode.toString() +
+			'\n';
 		this.output.end(report);
 	}
 }
@@ -63,7 +67,8 @@ class XmlNode {
 	 * Creates a new XML node and pushes it to the end of the current node.
 	 * @param {string} nodeName The node name for the new node.
 	 * @param {Object?} attributes Optional attributes for the new node.
-	 * @param {(XmlNode|string)[]?} childNodes Optional child nodes for the new node.
+	 * @param {(XmlNode|string)[]?} childNodes Optional child nodes for the new
+	 * node.
 	 * @returns {XmlNode} A new node.
 	 */
 	createNode(nodeName: string, attributes: Object) {
@@ -73,7 +78,10 @@ class XmlNode {
 	}
 
 	_escape(str: string) {
-		return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+		return String(str)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/"/g, '&quot;');
 	}
 
 	_serializeAttributes() {
@@ -93,7 +101,11 @@ class XmlNode {
 		const nodeList = this.childNodes;
 		const nodes: any[] = [];
 		for (let i = 0, j = nodeList.length; i < j; ++i) {
-			nodes.push(typeof nodeList[i] === 'string' ? this._escape(nodeList[i]) : nodeList[i].toString());
+			nodes.push(
+				typeof nodeList[i] === 'string'
+					? this._escape(nodeList[i])
+					: nodeList[i].toString()
+			);
 		}
 
 		return nodes.join('');
@@ -106,8 +118,14 @@ class XmlNode {
 	toString() {
 		const children = this._serializeContent();
 
-		return '<' + this.nodeName + this._serializeAttributes() +
-			(children.length ? '>' + children + '</' + this.nodeName + '>' : '/>');
+		return (
+			'<' +
+			this.nodeName +
+			this._serializeAttributes() +
+			(children.length
+				? '>' + children + '</' + this.nodeName + '>'
+				: '/>')
+		);
 	}
 }
 
@@ -134,13 +152,15 @@ function createTestNode(test: Suite | Test, reporter: JUnit) {
 	});
 
 	if (test.error) {
-		node.createNode(test.error.name === 'AssertionError' ? 'failure' : 'error', {
-			childNodes: [reporter.formatError(test.error)],
-			message: test.error.message,
-			type: test.error.name
-		});
-	}
-	else if (test.skipped != null) {
+		node.createNode(
+			test.error.name === 'AssertionError' ? 'failure' : 'error',
+			{
+				childNodes: [reporter.formatError(test.error)],
+				message: test.error.message,
+				type: test.error.name
+			}
+		);
+	} else if (test.skipped != null) {
 		node.createNode('skipped', {
 			childNodes: [test.skipped]
 		});

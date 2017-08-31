@@ -1,4 +1,3 @@
-function SomeClass() {
-}
+function SomeClass() {}
 
 module.exports = SomeClass;

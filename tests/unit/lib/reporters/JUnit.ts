@@ -7,7 +7,7 @@ const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/reporters/JUnit', function () {
+registerSuite('lib/reporters/JUnit', function() {
 	const mockExecutor = <any>{
 		suites: [],
 		on: spy(),
@@ -26,7 +26,7 @@ registerSuite('lib/reporters/JUnit', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/reporters/JUnit', {
-				'fs': mockFs
+				fs: mockFs
 			}).then(handle => {
 				removeMocks = handle.remove;
 				JUnit = handle.module.default;
@@ -55,56 +55,63 @@ registerSuite('lib/reporters/JUnit', function () {
 				const assertionError = new Error('Expected 1 + 1 to equal 3');
 				assertionError.name = 'AssertionError';
 
-				mockExecutor.suites.push(new Suite(<any>{
-					sessionId: 'foo',
-					name: 'chrome 32 on Mac',
-					executor: mockExecutor,
-					timeElapsed: 1234,
-					tests: [
-						new Suite(<any>{
-							name: 'suite1',
-							executor: mockExecutor,
-							timeElapsed: 1234,
-							tests: [
-								new Test(<any>{
-									name: 'test1',
-									test() { },
-									hasPassed: true,
-									timeElapsed: 45
-								}),
-								new Test(<any>{
-									name: 'test2',
-									test() { },
-									hasPassed: false,
-									error: new Error('Oops'),
-									timeElapsed: 45
-								}),
-								new Test(<any>{
-									name: 'test3',
-									test() { },
-									hasPassed: false,
-									error: assertionError,
-									timeElapsed: 45
-								}),
-								new Test(<any>{
-									name: 'test4',
-									test() { },
-									hasPassed: false,
-									skipped: 'No time for that',
-									timeElapsed: 45
-								}),
-								new Suite(<any>{
-									name: 'suite5',
-									executor: mockExecutor,
-									timeElapsed: 45,
-									tests: [
-										new Test(<any>{ name: 'test5.1', test() { }, hasPassed: true, timeElapsed: 40 })
-									]
-								})
-							]
-						})
-					]
-				}));
+				mockExecutor.suites.push(
+					new Suite(<any>{
+						sessionId: 'foo',
+						name: 'chrome 32 on Mac',
+						executor: mockExecutor,
+						timeElapsed: 1234,
+						tests: [
+							new Suite(<any>{
+								name: 'suite1',
+								executor: mockExecutor,
+								timeElapsed: 1234,
+								tests: [
+									new Test(<any>{
+										name: 'test1',
+										test() {},
+										hasPassed: true,
+										timeElapsed: 45
+									}),
+									new Test(<any>{
+										name: 'test2',
+										test() {},
+										hasPassed: false,
+										error: new Error('Oops'),
+										timeElapsed: 45
+									}),
+									new Test(<any>{
+										name: 'test3',
+										test() {},
+										hasPassed: false,
+										error: assertionError,
+										timeElapsed: 45
+									}),
+									new Test(<any>{
+										name: 'test4',
+										test() {},
+										hasPassed: false,
+										skipped: 'No time for that',
+										timeElapsed: 45
+									}),
+									new Suite(<any>{
+										name: 'suite5',
+										executor: mockExecutor,
+										timeElapsed: 45,
+										tests: [
+											new Test(<any>{
+												name: 'test5.1',
+												test() {},
+												hasPassed: true,
+												timeElapsed: 40
+											})
+										]
+									})
+								]
+							})
+						]
+					})
+				);
 
 				const text: string[] = [];
 				const mockConsole = {
@@ -115,7 +122,8 @@ registerSuite('lib/reporters/JUnit', function () {
 						text.push(data);
 					}
 				};
-				const expected = '<?xml version="1.0" encoding="UTF-8" ?><testsuites>' +
+				const expected =
+					'<?xml version="1.0" encoding="UTF-8" ?><testsuites>' +
 					'<testsuite name="chrome 32 on Mac" failures="2" skipped="1" tests="5" time="1.234">' +
 					'<testsuite name="suite1" failures="2" skipped="1" tests="5" time="1.234">' +
 					'<testcase name="test1" time="0.045" status="0"/><testcase name="test2" time="0.045" status="1">' +
@@ -127,7 +135,11 @@ registerSuite('lib/reporters/JUnit', function () {
 					'<testcase name="test5.1" time="0.04" status="0"/></testsuite></testsuite></testsuite></testsuites>\n';
 				const junit = new JUnit(mockExecutor, { output: mockConsole });
 				junit.runEnd();
-				assert.equal(expected, text.join(''), 'report should exactly match expected output');
+				assert.equal(
+					expected,
+					text.join(''),
+					'report should exactly match expected output'
+				);
 			}
 		}
 	};

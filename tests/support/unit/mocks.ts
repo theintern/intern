@@ -1,9 +1,9 @@
 /**
- * Mocks are completely artificial entities that have the types of actual classes and interfaces (as far as TypeScript
- * is concerned).
+ * Mocks are completely artificial entities that have the types of actual
+ * classes and interfaces (as far as TypeScript is concerned).
  */
 import Executor, { Events } from 'src/lib/executors/Executor';
-import Node  from 'src/lib/executors/Node';
+import Node from 'src/lib/executors/Node';
 import Server, { ServerListener } from 'src/lib/Server';
 import { Handle } from '@dojo/interfaces/core';
 import { Remote } from 'src/lib/executors/Node';
@@ -28,42 +28,49 @@ export function createMock<T>(properties?: { [P in keyof T]?: T[P] }) {
  * A mock Executor with an events property that stores emitted events
  */
 export interface MockExecutor extends Executor {
-	events: { name: string, data: any }[];
+	events: { name: string; data: any }[];
 }
 
 /**
  * Create a MockExecutor with the given property overrides
  */
-export function mockExecutor(properties?: { [P in keyof Executor]?: Executor[P] } & { testConfig?: any }) {
+export function mockExecutor(
+	properties?: { [P in keyof Executor]?: Executor[P] } & { testConfig?: any }
+) {
 	const _properties: any = duplicate(properties || {});
 	if (_properties.testConfig) {
 		_properties.config = _properties.testConfig;
 		delete _properties.testConfig;
 	}
-	return createMock<MockExecutor>(mixin({
-		events: <{ name: string, data: any }[]>[],
+	return createMock<MockExecutor>(
+		mixin(
+			{
+				events: <{ name: string; data: any }[]>[],
 
-		config: {},
+				config: {},
 
-		emit(eventName: keyof Events, data?: any) {
-			// Ignore log events
-			if (eventName !== 'log') {
-				this.events.push({ name: eventName, data });
-			}
-			return Task.resolve();
-		},
+				emit(eventName: keyof Events, data?: any) {
+					// Ignore log events
+					if (eventName !== 'log') {
+						this.events.push({ name: eventName, data });
+					}
+					return Task.resolve();
+				},
 
-		log(...args: any[]) {
-			return this.emit('log', JSON.stringify(args));
-		}
-	}, _properties || {}));
+				log(...args: any[]) {
+					return this.emit('log', JSON.stringify(args));
+				}
+			},
+			_properties || {}
+		)
+	);
 }
 
 /**
  * A mock Node executor with an events property that stores emitted events
  */
 export interface MockNode extends Node {
-	events: { name: string, data: any }[];
+	events: { name: string; data: any }[];
 
 	// Make some properties writable
 	instrumentedMapStore: any;
@@ -74,49 +81,65 @@ export interface MockNode extends Node {
  * Create a MockNode with the given property overrides
  */
 export function mockNodeExecutor(properties?: { [P in keyof Node]?: Node[P] }) {
-	const executor = mockExecutor(mixin({
-		server: <Server>{},
+	const executor = mockExecutor(
+		mixin(
+			{
+				server: <Server>{},
 
-		instrumentCode(_code: string, _filename: string) {
-			return _code;
-		},
+				instrumentCode(_code: string, _filename: string) {
+					return _code;
+				},
 
-		shouldInstrumentFile(_filename: string) {
-			return false;
-		},
+				shouldInstrumentFile(_filename: string) {
+					return false;
+				},
 
-		readFile(_filename: string, _omitCode = false) {
-			return Task.reject<any>(new Error());
-		}
-	}, properties || {}));
+				readFile(_filename: string, _omitCode = false) {
+					return Task.reject<any>(new Error());
+				}
+			},
+			properties || {}
+		)
+	);
 	return <MockNode>executor;
 }
 
 /**
- * Create a mock Server with defaults for required properties and the given property overrides
+ * Create a mock Server with defaults for required properties and the given
+ * property overrides
  */
 export function mockServer(properties?: { [P in keyof Server]?: Server[P] }) {
-	return createMock<Server>(mixin({
-		start() {
-			return Promise.resolve();
-		},
+	return createMock<Server>(
+		mixin(
+			{
+				start() {
+					return Promise.resolve();
+				},
 
-		stop() {
-			return Promise.resolve();
-		},
+				stop() {
+					return Promise.resolve();
+				},
 
-		subscribe(_sessionId: string, _listener: ServerListener): Handle {
-			return {
-				destroy() {}
-			};
-		}
-	}, properties || {}));
+				subscribe(
+					_sessionId: string,
+					_listener: ServerListener
+				): Handle {
+					return {
+						destroy() {}
+					};
+				}
+			},
+			properties || {}
+		)
+	);
 }
 
 /**
  * Create a mock ProxiedSession
  */
-export function mockSession(properties?: { [P in keyof ProxiedSession]?: ProxiedSession[P] }) {
+export function mockSession(
+	properties?: { [P in keyof ProxiedSession]?: ProxiedSession[P] }
+) {
 	return createMock<ProxiedSession>(properties);
 }
 
@@ -137,7 +160,13 @@ export class MockRemote extends Task<MockRemote> {
 /**
  * Create a mock Remote
  */
-export function mockRemote(properties?: { [P in keyof (Remote | Command<ProxiedSession>)]?: (Remote | Command<ProxiedSession>)[P] }) {
+export function mockRemote(
+	properties?: {
+		[P in keyof (Remote | Command<ProxiedSession>)]?: (
+			| Remote
+			| Command<ProxiedSession>)[P]
+	}
+) {
 	const remote = MockRemote.resolve();
 	mixin(remote, <any>properties);
 	return <Remote>(<any>remote);

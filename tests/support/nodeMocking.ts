@@ -1,6 +1,10 @@
 intern.registerPlugin('mockRequire', () => {
-	function mockRequire(require: NodeRequire, mod: string, mocks: { [name: string]: any }) {
-		const registeredMocks: { id: string, original: any }[] = [];
+	function mockRequire(
+		require: NodeRequire,
+		mod: string,
+		mocks: { [name: string]: any }
+	) {
+		const registeredMocks: { id: string; original: any }[] = [];
 
 		mod = require.resolve(mod);
 		registeredMocks.push({ id: mod, original: require.cache[mod] });
@@ -11,8 +15,9 @@ intern.registerPlugin('mockRequire', () => {
 			registeredMocks.push({ id, original: require.cache[id] });
 			delete require.cache[id];
 
-			// If mocks[name] is null then there's no explicit mock for the module, it just needs to be reloaded to use
-			// mocks that have just been defined.
+			// If mocks[name] is null then there's no explicit mock for the
+			// module, it just needs to be reloaded to use mocks that have just
+			// been defined.
 			if (mocks[name] != null) {
 				require.cache[id] = {
 					id,

@@ -1,4 +1,7 @@
-import _Reporter, { createEventHandler, eventHandler } from 'src/lib/reporters/Reporter';
+import _Reporter, {
+	createEventHandler,
+	eventHandler
+} from 'src/lib/reporters/Reporter';
 import { Events } from 'src/lib/executors/Executor';
 import { spy } from 'sinon';
 import global from '@dojo/shim/global';
@@ -8,14 +11,13 @@ const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/reporters/Reporter', function () {
+registerSuite('lib/reporters/Reporter', function() {
 	const mockExecutor = <any>{
-		formatError: spy(() => { }),
-		on: spy(() => { })
+		formatError: spy(() => {}),
+		on: spy(() => {})
 	};
 
-	const mockGlobal: { [name: string]: any } = {
-	};
+	const mockGlobal: { [name: string]: any } = {};
 
 	let Reporter: typeof _Reporter;
 	let removeMocks: () => void;
@@ -51,11 +53,18 @@ registerSuite('lib/reporters/Reporter', function () {
 			'#console'() {
 				const reporter = new Reporter(mockExecutor, {});
 				const defaultConsole = reporter.console;
-				assert.isDefined(defaultConsole, 'console should have been created on demand');
+				assert.isDefined(
+					defaultConsole,
+					'console should have been created on demand'
+				);
 
 				const custom = {};
 				reporter.console = <any>custom;
-				assert.strictEqual(reporter.console, custom, 'console should be assignable');
+				assert.strictEqual(
+					reporter.console,
+					custom,
+					'console should be assignable'
+				);
 			},
 
 			'#output': {
@@ -68,7 +77,10 @@ registerSuite('lib/reporters/Reporter', function () {
 				'default, process'() {
 					const reporter = new Reporter(mockExecutor);
 					mockGlobal.process = { stdout: {} };
-					assert.strictEqual(reporter.output, mockGlobal.process.stdout);
+					assert.strictEqual(
+						reporter.output,
+						mockGlobal.process.stdout
+					);
 				},
 
 				'default, no process'() {
@@ -84,17 +96,33 @@ registerSuite('lib/reporters/Reporter', function () {
 					const dfd = this.async(undefined, 2);
 					mockGlobal.process = undefined;
 					const mockConsole = <any>{ log: spy(() => {}) };
-					const reporter = new Reporter(mockExecutor, { console: mockConsole });
+					const reporter = new Reporter(mockExecutor, {
+						console: mockConsole
+					});
 					assert.strictEqual<any>(reporter.console, mockConsole);
 					const output = reporter.output;
-					output.write('foo', 'utf8', dfd.callback(() => {
-						assert.equal(mockConsole.log.callCount, 1);
-						assert.equal(mockConsole.log.getCall(0).args[0], 'foo');
-					}));
-					output.end('bar', 'utf8', dfd.callback(() => {
-						assert.equal(mockConsole.log.callCount, 2);
-						assert.equal(mockConsole.log.getCall(1).args[0], 'bar');
-					}));
+					output.write(
+						'foo',
+						'utf8',
+						dfd.callback(() => {
+							assert.equal(mockConsole.log.callCount, 1);
+							assert.equal(
+								mockConsole.log.getCall(0).args[0],
+								'foo'
+							);
+						})
+					);
+					output.end(
+						'bar',
+						'utf8',
+						dfd.callback(() => {
+							assert.equal(mockConsole.log.callCount, 2);
+							assert.equal(
+								mockConsole.log.getCall(1).args[0],
+								'bar'
+							);
+						})
+					);
 				}
 			},
 
@@ -102,8 +130,15 @@ registerSuite('lib/reporters/Reporter', function () {
 				const reporter = new Reporter(mockExecutor);
 				const error = new Error('foo');
 				reporter.formatError(error);
-				assert.equal(mockExecutor.formatError.callCount, 1, 'expected executor error formatter to be called');
-				assert.strictEqual(mockExecutor.formatError.getCall(0).args[0], error);
+				assert.equal(
+					mockExecutor.formatError.callCount,
+					1,
+					'expected executor error formatter to be called'
+				);
+				assert.strictEqual(
+					mockExecutor.formatError.getCall(0).args[0],
+					error
+				);
 			},
 
 			'event handlers'() {
@@ -120,7 +155,10 @@ registerSuite('lib/reporters/Reporter', function () {
 
 				const listener = mockExecutor.on.getCall(0).args[1];
 				listener();
-				assert.isTrue(started, 'testStart event should have been handled');
+				assert.isTrue(
+					started,
+					'testStart event should have been handled'
+				);
 			},
 
 			'custom event handler'() {
@@ -133,10 +171,14 @@ registerSuite('lib/reporters/Reporter', function () {
 				let evented: string[] = [];
 				class SomeReporter extends Reporter {
 					@customEventHandler()
-					goodTime(_data: string) { evented.push('good'); }
+					goodTime(_data: string) {
+						evented.push('good');
+					}
 
 					@customEventHandler()
-					badTime(_data: string) { evented.push('bad'); }
+					badTime(_data: string) {
+						evented.push('bad');
+					}
 				}
 				new SomeReporter(mockExecutor);
 				assert.equal(mockExecutor.on.callCount, 2);
@@ -147,7 +189,11 @@ registerSuite('lib/reporters/Reporter', function () {
 				goodListener();
 				const badListener = mockExecutor.on.getCall(1).args[1];
 				badListener();
-				assert.deepEqual(evented, ['good', 'bad'], 'funTime event should have been handled');
+				assert.deepEqual(
+					evented,
+					['good', 'bad'],
+					'funTime event should have been handled'
+				);
 			}
 		}
 	};

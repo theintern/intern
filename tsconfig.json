@@ -23,10 +23,7 @@
 		"sourceMap": true,
 		"strict": true,
 		"target": "es5",
-		"typeRoots": [
-			"./types",
-			"./node_modules/@types"
-		]
+		"typeRoots": ["./types", "./node_modules/@types"]
 	},
 	"formatCodeOptions": {
 		"convertTabsToSpaces": false,
@@ -34,9 +31,7 @@
 		"insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
 		"insertSpaceAfterSemicolonInForStatements": true
 	},
-	"files": [
-		"src/index.ts"
-	],
+	"files": ["src/index.ts"],
 	"include": [
 		"src/browser/**/*.ts",
 		"src/bin/*.ts",

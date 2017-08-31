@@ -4,7 +4,8 @@ import Suite from '../Suite';
 import Test from '../Test';
 
 /**
- * The Dom reporter outputs text into the DOM, essentially treating it like the console.
+ * The Dom reporter outputs text into the DOM, essentially treating it like the
+ * console.
  */
 export default class Dom extends Reporter {
 	document: HTMLDocument;
@@ -26,20 +27,27 @@ export default class Dom extends Reporter {
 	@eventHandler()
 	error(error: Error) {
 		const errorNode = this.document.createElement('pre');
-		errorNode.appendChild(this.document.createTextNode(this.formatError(error)));
+		errorNode.appendChild(
+			this.document.createTextNode(this.formatError(error))
+		);
 		this.document.body.appendChild(errorNode);
 	}
 
 	@eventHandler()
 	suiteEnd(suite: Suite) {
-		this.suiteNode = <HTMLElement> (this.suiteNode!.parentNode!.parentNode || this.document.body);
+		this.suiteNode = <HTMLElement>(this.suiteNode!.parentNode!.parentNode ||
+			this.document.body);
 
 		if (suite.error) {
-			this.suiteNode.appendChild(this.document.createTextNode('Suite "' + suite.id + '" failed'));
+			this.suiteNode.appendChild(
+				this.document.createTextNode('Suite "' + suite.id + '" failed')
+			);
 			this.suiteNode.style.color = 'red';
 
 			const errorNode = this.document.createElement('pre');
-			errorNode.appendChild(this.document.createTextNode(this.formatError(suite.error)));
+			errorNode.appendChild(
+				this.document.createTextNode(this.formatError(suite.error))
+			);
 			this.suiteNode.appendChild(errorNode);
 			this._scroll();
 		}
@@ -52,8 +60,7 @@ export default class Dom extends Reporter {
 
 		if (oldSuiteNode === this.document.body) {
 			oldSuiteNode.appendChild(this.suiteNode);
-		}
-		else {
+		} else {
 			const outerSuiteNode = this.document.createElement('li');
 			const headerNode = this.document.createElement('div');
 
@@ -69,22 +76,37 @@ export default class Dom extends Reporter {
 	@eventHandler()
 	testEnd(test: Test) {
 		if (test.skipped) {
-			const testNode = this.testNode = this.document.createElement('li');
-			testNode.appendChild(this.document.createTextNode(test.name + ' skipped' +
-				(test.skipped ? ' (' + test.skipped + ')' : '')));
+			const testNode = (this.testNode = this.document.createElement(
+				'li'
+			));
+			testNode.appendChild(
+				this.document.createTextNode(
+					test.name +
+						' skipped' +
+						(test.skipped ? ' (' + test.skipped + ')' : '')
+				)
+			);
 			testNode.style.color = 'gray';
 			this.suiteNode.appendChild(testNode);
-		}
-		else if (test.error) {
-			this.testNode.appendChild(this.document.createTextNode(' failed (' + test.timeElapsed + 'ms)'));
+		} else if (test.error) {
+			this.testNode.appendChild(
+				this.document.createTextNode(
+					' failed (' + test.timeElapsed + 'ms)'
+				)
+			);
 			this.testNode.style.color = 'red';
 
 			const errorNode = this.document.createElement('pre');
-			errorNode.appendChild(this.document.createTextNode(this.formatError(test.error)));
+			errorNode.appendChild(
+				this.document.createTextNode(this.formatError(test.error))
+			);
 			this.testNode.appendChild(errorNode);
-		}
-		else {
-			this.testNode.appendChild(this.document.createTextNode(' passed (' + test.timeElapsed + 'ms)'));
+		} else {
+			this.testNode.appendChild(
+				this.document.createTextNode(
+					' passed (' + test.timeElapsed + 'ms)'
+				)
+			);
 			this.testNode.style.color = 'green';
 		}
 		this._scroll();
@@ -99,7 +121,11 @@ export default class Dom extends Reporter {
 	}
 
 	private _scroll() {
-		window.scrollTo(0, this.document.documentElement.scrollHeight || this.document.body.scrollHeight);
+		window.scrollTo(
+			0,
+			this.document.documentElement.scrollHeight ||
+				this.document.body.scrollHeight
+		);
 	}
 }
 

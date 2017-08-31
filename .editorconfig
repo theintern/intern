@@ -12,7 +12,7 @@ indent_style = space
 max_line_length = 0
 
 [*.json]
-max_line_length = 120
+max_line_length = 80
 
 [*.ts]
-max_line_length = 120
+max_line_length = 80

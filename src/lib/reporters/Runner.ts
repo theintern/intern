@@ -20,7 +20,7 @@ export default class Runner extends Coverage implements RunnerProperties {
 			coverage?: CoverageMap;
 			suite: Suite;
 			[key: string]: any;
-		}
+		};
 	};
 
 	hasRunErrors: boolean;
@@ -73,10 +73,11 @@ export default class Runner extends Coverage implements RunnerProperties {
 
 		if (message.replacement) {
 			this.charm.write('Use ' + message.replacement + ' instead.');
-		}
-		else {
-			this.charm.write('Please open a ticket at https://github.com/theintern/intern/issues if you still ' +
-				'require access to this function.');
+		} else {
+			this.charm.write(
+				'Please open a ticket at https://github.com/theintern/intern/issues if you still ' +
+					'require access to this function.'
+			);
 		}
 
 		if (message.message) {
@@ -100,7 +101,8 @@ export default class Runner extends Coverage implements RunnerProperties {
 	@eventHandler()
 	warning(warning: string | Error) {
 		this.charm.foreground('yellow');
-		const message = typeof warning === 'string' ? warning : this.formatError(warning);
+		const message =
+			typeof warning === 'string' ? warning : this.formatError(warning);
 		this.charm.write(`WARNING: ${message.replace(/^Error:\s+/, '')}`);
 		this.charm.display('reset');
 		this.charm.write('\n\n');
@@ -149,13 +151,16 @@ export default class Runner extends Coverage implements RunnerProperties {
 
 		if (this.hasRunErrors) {
 			message += '; fatal error occurred';
-		}
-		else if (this.hasSuiteErrors) {
+		} else if (this.hasSuiteErrors) {
 			message += '; suite error occurred';
 		}
 
 		charm.display('bright');
-		charm.foreground(numFailedTests > 0 || this.hasRunErrors || this.hasSuiteErrors ? 'red' : 'green');
+		charm.foreground(
+			numFailedTests > 0 || this.hasRunErrors || this.hasSuiteErrors
+				? 'red'
+				: 'green'
+		);
 		charm.write(message);
 		charm.display('reset');
 		charm.write('\n');
@@ -178,7 +183,10 @@ export default class Runner extends Coverage implements RunnerProperties {
 				const charm = this.charm;
 				charm.display('bright');
 				charm.foreground('yellow');
-				charm.write('BUG: suiteEnd was received for invalid session ' + suite.sessionId);
+				charm.write(
+					'BUG: suiteEnd was received for invalid session ' +
+						suite.sessionId
+				);
 				charm.display('reset');
 				charm.write('\n');
 			}
@@ -197,13 +205,11 @@ export default class Runner extends Coverage implements RunnerProperties {
 			charm.write('\n');
 
 			session.hasSuiteErrors = true;
-		}
-		else if (!suite.hasParent && this.executor.suites.length > 1) {
+		} else if (!suite.hasParent && this.executor.suites.length > 1) {
 			if (session.coverage) {
 				this.charm.write('\n');
 				this.createCoverageReport(this.reportType, session.coverage);
-			}
-			else {
+			} else {
 				const charm = this.charm;
 				charm.write('No unit test coverage for ' + suite.name);
 				charm.display('reset');
@@ -241,7 +247,13 @@ export default class Runner extends Coverage implements RunnerProperties {
 			this.sessions[suite.sessionId || ''] = { suite: suite };
 			if (suite.sessionId) {
 				this.charm.write('\n');
-				this.charm.write('‣ Created remote session ' + suite.name + ' (' + suite.sessionId + ')\n');
+				this.charm.write(
+					'‣ Created remote session ' +
+						suite.name +
+						' (' +
+						suite.sessionId +
+						')\n'
+				);
 			}
 		}
 	}
@@ -252,13 +264,12 @@ export default class Runner extends Coverage implements RunnerProperties {
 		if (test.error) {
 			charm.foreground('red');
 			charm.write('× ' + test.id);
-			charm.write(' (' + (test.timeElapsed / 1000) + 's)');
+			charm.write(' (' + test.timeElapsed / 1000 + 's)');
 			charm.write('\n');
 			charm.write(prefix(this.formatError(test.error), '    '));
 			charm.display('reset');
 			charm.write('\n\n');
-		}
-		else if (test.skipped) {
+		} else if (test.skipped) {
 			if (!this.hideSkipped) {
 				charm.write('~ ' + test.id);
 				charm.display('reset');
@@ -266,13 +277,12 @@ export default class Runner extends Coverage implements RunnerProperties {
 				charm.display('reset');
 				charm.write('\n');
 			}
-		}
-		else {
+		} else {
 			if (!this.hidePassed) {
 				charm.foreground('green');
 				charm.write('✓ ' + test.id);
 				charm.display('reset');
-				charm.write(' (' + (test.timeElapsed / 1000) + 's)');
+				charm.write(' (' + test.timeElapsed / 1000 + 's)');
 				charm.display('reset');
 				charm.write('\n');
 			}
@@ -282,7 +292,11 @@ export default class Runner extends Coverage implements RunnerProperties {
 	@eventHandler()
 	tunnelDownloadProgress(message: TunnelMessage) {
 		const progress = message.progress!;
-		this.charm.write('Tunnel download: ' + (progress.received / progress.total * 100).toFixed(3) + '%\r');
+		this.charm.write(
+			'Tunnel download: ' +
+				(progress.received / progress.total * 100).toFixed(3) +
+				'%\r'
+		);
 	}
 
 	@eventHandler()

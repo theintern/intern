@@ -12,7 +12,8 @@ export default class ConsoleReporter extends Reporter {
 
 	constructor(executor: Executor, options: ReporterOptions = {}) {
 		super(executor, options);
-		this._hasGrouping = 'group' in this.console && 'groupEnd' in this.console;
+		this._hasGrouping =
+			'group' in this.console && 'groupEnd' in this.console;
 		this._testId = this._hasGrouping ? 'name' : 'id';
 	}
 
@@ -24,7 +25,8 @@ export default class ConsoleReporter extends Reporter {
 
 	@eventHandler()
 	suiteEnd(suite: Suite) {
-		// IE<10 does not provide a global console object when Developer Tools is turned off
+		// IE<10 does not provide a global console object when Developer Tools
+		// is turned off
 		if (!this.console) {
 			return;
 		}
@@ -32,8 +34,7 @@ export default class ConsoleReporter extends Reporter {
 		if (suite.error) {
 			this.console.warn('SUITE ERROR');
 			this.console.error(this.formatError(suite.error));
-		}
-		else {
+		} else {
 			const numTests = suite.numTests;
 			const numFailedTests = suite.numFailedTests;
 			const numSkippedTests = suite.numSkippedTests;
@@ -58,14 +59,16 @@ export default class ConsoleReporter extends Reporter {
 	@eventHandler()
 	testEnd(test: Test) {
 		if (test.error) {
-			this.console.error(`FAIL: ${test[this._testId]} (${test.timeElapsed}ms)`);
+			this.console.error(
+				`FAIL: ${test[this._testId]} (${test.timeElapsed}ms)`
+			);
 			this.console.error(this.formatError(test.error));
-		}
-		else if (test.skipped) {
+		} else if (test.skipped) {
 			this.console.log(`SKIP: ${test[this._testId]} (${test.skipped})`);
-		}
-		else {
-			this.console.log(`PASS: ${test[this._testId]} (${test.timeElapsed})ms)`);
+		} else {
+			this.console.log(
+				`PASS: ${test[this._testId]} (${test.timeElapsed})ms)`
+			);
 		}
 	}
 }

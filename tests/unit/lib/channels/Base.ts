@@ -30,7 +30,7 @@ registerSuite('lib/channels/Base', {
 		}
 	},
 
-	'isChannel'() {
+	isChannel() {
 		assert.isFalse(isChannel('foo'));
 		assert.isFalse(isChannel({}));
 		assert.isFalse(isChannel({ sendMessage: true }));

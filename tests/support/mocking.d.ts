@@ -5,6 +5,10 @@ declare namespace mocking {
 	}
 
 	export interface MockRequire {
-		<T = any>(require: (id: string) => any, mod: string, mocks: { [key: string]: any }): Promise<MockedResource<T>>;
+		<T = any>(
+			require: (id: string) => any,
+			mod: string,
+			mocks: { [key: string]: any }
+		): Promise<MockedResource<T>>;
 	}
 }

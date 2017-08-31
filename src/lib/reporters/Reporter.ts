@@ -3,8 +3,8 @@ import { ErrorFormatOptions } from '../common/ErrorFormatter';
 import global from '@dojo/shim/global';
 
 /**
- * This is a base class for reporters that provides convenienience features such as event handler registration and a
- * default console.
+ * This is a base class for reporters that provides convenienience features such
+ * as event handler registration and a default console.
  */
 export default class Reporter implements ReporterProperties {
 	readonly executor: Executor;
@@ -15,8 +15,9 @@ export default class Reporter implements ReporterProperties {
 	protected _output: ReporterOutput;
 
 	/**
-	 * A mapping from event names to the names of methods on this object. This property should be defined on the class
-	 * prototype. It is automatically created by the @eventHandler decorator.
+	 * A mapping from event names to the names of methods on this object. This
+	 * property should be defined on the class prototype. It is automatically
+	 * created by the @eventHandler decorator.
 	 */
 	protected _eventHandlers: { [eventName: string]: string };
 
@@ -44,15 +45,18 @@ export default class Reporter implements ReporterProperties {
 
 	get output() {
 		if (!this._output) {
-			// Use process.stdout in a Node.js environment, otherwise construct a writable-like object that outputs to
-			// the console.
+			// Use process.stdout in a Node.js environment, otherwise construct
+			// a writable-like object that outputs to the console.
 			if (global.process != null) {
 				return global.process.stdout;
-			}
-			else {
+			} else {
 				const _console = this.console;
 				this._output = {
-					write(chunk: string, _encoding: string, callback: Function) {
+					write(
+						chunk: string,
+						_encoding: string,
+						callback: Function
+					) {
 						_console.log(chunk);
 						callback();
 					},
@@ -93,21 +97,24 @@ export default class Reporter implements ReporterProperties {
 }
 
 /**
- * Create a decorator that will add a decorated method to a class's list of event handlers.
+ * Create a decorator that will add a decorated method to a class's list of
+ * event handlers.
  */
 export function createEventHandler<E extends Events = Events>() {
-	return function (name?: keyof E) {
-		return function<T extends keyof E> (
+	return function(name?: keyof E) {
+		return function<T extends keyof E>(
 			target: any,
 			propertyKey: T,
 			_descriptor: TypedPropertyDescriptor<(data: E[T]) => void>
 		) {
 			if (!target.hasOwnProperty('_eventHandlers')) {
 				if (target._eventHandlers != null) {
-					// If there's an _eventHandlers property on a parent, inherit from it
-					target._eventHandlers = Object.create(target._eventHandlers);
-				}
-				else {
+					// If there's an _eventHandlers property on a parent,
+					// inherit from it
+					target._eventHandlers = Object.create(
+						target._eventHandlers
+					);
+				} else {
 					target._eventHandlers = {};
 				}
 			}
@@ -141,7 +148,7 @@ function getConsole() {
 		return console;
 	}
 
-	return <Console> {
+	return <Console>{
 		assert: noop,
 		count: noop,
 		dir: noop,

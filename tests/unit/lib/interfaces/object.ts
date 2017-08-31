@@ -6,7 +6,7 @@ import { spy } from 'sinon';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/interfaces/object', function () {
+registerSuite('lib/interfaces/object', function() {
 	let objInt: typeof _objInt;
 	let removeMocks: () => void;
 	let parent: Suite;
@@ -15,7 +15,7 @@ registerSuite('lib/interfaces/object', function () {
 		addSuite: spy((callback: (suite: Suite) => void) => {
 			callback(parent);
 		}),
-		emit: spy(() => { })
+		emit: spy(() => {})
 	};
 	const mockIntern = spy(() => {
 		return executor;
@@ -42,11 +42,14 @@ registerSuite('lib/interfaces/object', function () {
 		},
 
 		tests: {
-			'registerSuite': (() => {
+			registerSuite: (() => {
 				function verify() {
 					assert.equal(mockIntern.callCount, 1);
 					assert.equal(executor.addSuite.callCount, 1);
-					assert.isFunction(executor.addSuite.getCall(0).args[0], 'expected arg to be a callback');
+					assert.isFunction(
+						executor.addSuite.getCall(0).args[0],
+						'expected arg to be a callback'
+					);
 					assert.lengthOf(parent.tests, 1);
 					assert.instanceOf(parent.tests[0], Suite);
 
@@ -67,10 +70,10 @@ registerSuite('lib/interfaces/object', function () {
 					descriptor() {
 						parent = new Suite(<any>{ name: 'parent', executor });
 						objInt.default('fooSuite', {
-							beforeEach() { },
+							beforeEach() {},
 							tests: {
-								foo() { },
-								bar() { }
+								foo() {},
+								bar() {}
 							}
 						});
 
@@ -79,12 +82,12 @@ registerSuite('lib/interfaces/object', function () {
 
 					factory() {
 						parent = new Suite(<any>{ name: 'parent', executor });
-						objInt.default('fooSuite', function () {
+						objInt.default('fooSuite', function() {
 							return {
-								beforeEach() { },
+								beforeEach() {},
 								tests: {
-									foo() { },
-									bar() { }
+									foo() {},
+									bar() {}
 								}
 							};
 						});
@@ -101,41 +104,68 @@ registerSuite('lib/interfaces/object', function () {
 
 				iface.registerSuite('foo', {});
 				assert.equal(executor.addSuite.callCount, 1);
-				assert.isFunction(executor.addSuite.getCall(0).args[0], 'expected arg to be a callback');
+				assert.isFunction(
+					executor.addSuite.getCall(0).args[0],
+					'expected arg to be a callback'
+				);
 			},
 
 			isSuiteDescriptorFactory() {
-				assert.isTrue(objInt.isSuiteDescriptorFactory(() => { }));
-				assert.isFalse(objInt.isSuiteDescriptorFactory({ }));
+				assert.isTrue(objInt.isSuiteDescriptorFactory(() => {}));
+				assert.isFalse(objInt.isSuiteDescriptorFactory({}));
 			},
 
 			createSuite: {
 				deprecated() {
 					const suite: Suite = <any>{ executor };
-					objInt.createSuite('foo', suite, {
-						setup() { },
-						tests: { }
-					}, Suite, Test);
+					objInt.createSuite(
+						'foo',
+						suite,
+						{
+							setup() {},
+							tests: {}
+						},
+						Suite,
+						Test
+					);
 					assert.equal(executor.emit.callCount, 1);
-					assert.equal(executor.emit.getCall(0).args[0], 'deprecated');
+					assert.equal(
+						executor.emit.getCall(0).args[0],
+						'deprecated'
+					);
 
-					objInt.createSuite('bar', suite, {
-						teardown() { },
-						tests: { }
-					}, Suite, Test);
+					objInt.createSuite(
+						'bar',
+						suite,
+						{
+							teardown() {},
+							tests: {}
+						},
+						Suite,
+						Test
+					);
 					assert.equal(executor.emit.callCount, 2);
-					assert.equal(executor.emit.getCall(1).args[0], 'deprecated');
+					assert.equal(
+						executor.emit.getCall(1).args[0],
+						'deprecated'
+					);
 				},
 
 				'suite descriptor'() {
 					parent = new Suite(<any>{ name: 'parent', executor });
-					const suite = objInt.createSuite('fooSuite', parent, {
-						beforeEach() { },
-						tests: {
-							foo() { },
-							bar() { }
-						}
-					}, Suite, Test);
+					const suite = objInt.createSuite(
+						'fooSuite',
+						parent,
+						{
+							beforeEach() {},
+							tests: {
+								foo() {},
+								bar() {}
+							}
+						},
+						Suite,
+						Test
+					);
 
 					assert.strictEqual(suite.parent, parent);
 					assert.equal(suite.name, 'fooSuite');
@@ -150,10 +180,16 @@ registerSuite('lib/interfaces/object', function () {
 
 				'only tests'() {
 					parent = new Suite(<any>{ name: 'parent', executor });
-					const suite = objInt.createSuite('foo', parent, {
-						foo() { },
-						bar() { }
-					}, Suite, Test);
+					const suite = objInt.createSuite(
+						'foo',
+						parent,
+						{
+							foo() {},
+							bar() {}
+						},
+						Suite,
+						Test
+					);
 
 					assert.strictEqual(suite.parent, parent);
 
@@ -166,21 +202,27 @@ registerSuite('lib/interfaces/object', function () {
 
 				'nested suites'() {
 					parent = new Suite(<any>{ name: 'parent', executor });
-					const suite = objInt.createSuite('fooSuite', parent, {
-						foo() { },
-						bar: {
-							beforeEach() { },
+					const suite = objInt.createSuite(
+						'fooSuite',
+						parent,
+						{
+							foo() {},
+							bar: {
+								beforeEach() {},
 
-							tests: {
-								up() { },
-								down() { }
+								tests: {
+									up() {},
+									down() {}
+								}
+							},
+							baz: {
+								one() {},
+								two() {}
 							}
 						},
-						baz: {
-							one() { },
-							two() { }
-						}
-					}, Suite, Test);
+						Suite,
+						Test
+					);
 
 					assert.strictEqual(suite.parent, parent);
 

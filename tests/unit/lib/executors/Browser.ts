@@ -9,11 +9,13 @@ let removeMocks: () => void;
 
 function createExecutor(config?: Partial<Config>) {
 	const executor = new Browser(config);
-	executor.registerLoader((_config: Config) => (_modules: string[]) => Promise.resolve());
+	executor.registerLoader((_config: Config) => (_modules: string[]) =>
+		Promise.resolve()
+	);
 	return executor;
 }
 
-registerSuite('lib/executors/Browser', function () {
+registerSuite('lib/executors/Browser', function() {
 	class MockErrorFormatter {
 		format(error: Error) {
 			return 'Foo: ' + error.message;
@@ -21,9 +23,9 @@ registerSuite('lib/executors/Browser', function () {
 	}
 
 	const mockConsole = {
-		log: spy(() => { }),
-		warn: spy(() => { }),
-		error: spy(() => { })
+		log: spy(() => {}),
+		warn: spy(() => {}),
+		error: spy(() => {})
 	};
 
 	const mockChai = {
@@ -34,8 +36,8 @@ registerSuite('lib/executors/Browser', function () {
 	const mockGlobal = {
 		console: mockConsole,
 		location: { pathname: '/' },
-		'__coverage__': {},
-		addEventListener: spy(() => { }),
+		__coverage__: {},
+		addEventListener: spy(() => {}),
 		document: {
 			createElement: spy(() => {
 				return {
@@ -45,7 +47,7 @@ registerSuite('lib/executors/Browser', function () {
 				};
 			}),
 			body: {
-				appendChild: spy(() => { })
+				appendChild: spy(() => {})
 			}
 		}
 	};
@@ -55,8 +57,10 @@ registerSuite('lib/executors/Browser', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/executors/Browser', {
-				'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
-				'chai': mockChai,
+				'src/lib/common/ErrorFormatter': {
+					default: MockErrorFormatter
+				},
+				chai: mockChai,
 				'@dojo/shim/global': { default: mockGlobal }
 			}).then(handle => {
 				removeMocks = handle.remove;
@@ -85,28 +89,44 @@ registerSuite('lib/executors/Browser', function () {
 			construct: {
 				'listeners added'() {
 					assert.equal(mockGlobal.addEventListener.callCount, 2);
-					assert.equal(mockGlobal.addEventListener.getCall(0).args[0], 'unhandledRejection');
-					assert.equal(mockGlobal.addEventListener.getCall(1).args[0], 'error');
+					assert.equal(
+						mockGlobal.addEventListener.getCall(0).args[0],
+						'unhandledRejection'
+					);
+					assert.equal(
+						mockGlobal.addEventListener.getCall(1).args[0],
+						'error'
+					);
 				},
 
 				'unhandled rejection'() {
-					const logger = spy(() => { });
+					const logger = spy(() => {});
 					executor.on('error', logger);
-					const handler = mockGlobal.addEventListener.getCall(0).args[1];
+					const handler = mockGlobal.addEventListener.getCall(0)
+						.args[1];
 					const reason = new Error('foo');
 					handler({ reason });
 					assert.equal(logger.callCount, 1);
-					assert.strictEqual(logger.getCall(0).args[0], reason, 'expected emitted error to be error passed to listener');
+					assert.strictEqual(
+						logger.getCall(0).args[0],
+						reason,
+						'expected emitted error to be error passed to listener'
+					);
 				},
 
 				'unhandled error'() {
-					const logger = spy(() => { });
+					const logger = spy(() => {});
 					executor.on('error', logger);
-					const handler = mockGlobal.addEventListener.getCall(1).args[1];
+					const handler = mockGlobal.addEventListener.getCall(1)
+						.args[1];
 					handler({ message: 'foo' });
 					assert.equal(logger.callCount, 1);
-					assert.propertyVal(logger.getCall(0).args[0], 'message', 'foo',
-						'expected emitted error to be error passed to listener');
+					assert.propertyVal(
+						logger.getCall(0).args[0],
+						'message',
+						'foo',
+						'expected emitted error to be error passed to listener'
+					);
 				},
 
 				configure() {
@@ -119,8 +139,11 @@ registerSuite('lib/executors/Browser', function () {
 				'suite globs'() {
 					executor.configure({ suites: ['**/*.js', 'bar.js'] });
 					return executor.run().then(
-						() => { throw new Error('run should have failed'); },
-						error => assert.match(error.message, /Globs may not be used/)
+						() => {
+							throw new Error('run should have failed');
+						},
+						error =>
+							assert.match(error.message, /Globs may not be used/)
 					);
 				}
 			},
@@ -141,17 +164,29 @@ registerSuite('lib/executors/Browser', function () {
 					return executor.loadScript('foo.js').then(() => {
 						const createElement = mockGlobal.document.createElement;
 						assert.equal(createElement.callCount, 1);
-						assert.equal(createElement.getCall(0).args[0], 'script');
+						assert.equal(
+							createElement.getCall(0).args[0],
+							'script'
+						);
 					});
 				},
 
 				'multiple scripts'() {
-					return executor.loadScript(['foo.js', 'bar.js']).then(() => {
-						const createElement = mockGlobal.document.createElement;
-						assert.equal(createElement.callCount, 2);
-						assert.equal(createElement.getCall(0).args[0], 'script');
-						assert.equal(createElement.getCall(1).args[0], 'script');
-					});
+					return executor
+						.loadScript(['foo.js', 'bar.js'])
+						.then(() => {
+							const createElement =
+								mockGlobal.document.createElement;
+							assert.equal(createElement.callCount, 2);
+							assert.equal(
+								createElement.getCall(0).args[0],
+								'script'
+							);
+							assert.equal(
+								createElement.getCall(1).args[0],
+								'script'
+							);
+						});
 				}
 			},
 

@@ -24,8 +24,7 @@ export default class Simple extends Coverage {
 		if (suite.error) {
 			this.console.warn('SUITE ERROR');
 			this.console.error(this.formatError(suite.error));
-		}
-		else {
+		} else {
 			const numTests = suite.numTests;
 			const numFailedTests = suite.numFailedTests;
 			const numSkippedTests = suite.numSkippedTests;
@@ -47,11 +46,9 @@ export default class Simple extends Coverage {
 		if (test.error) {
 			this.console.error(`FAIL: ${test.id} (${test.timeElapsed}ms)`);
 			this.console.error(this.formatError(test.error, { space: '  ' }));
-		}
-		else if (test.skipped) {
+		} else if (test.skipped) {
 			this.console.log(`SKIP: ${test.id} (${test.skipped})`);
-		}
-		else {
+		} else {
 			this.console.log(`PASS: ${test.id} (${test.timeElapsed}ms)`);
 		}
 	}

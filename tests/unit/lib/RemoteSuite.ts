@@ -1,5 +1,10 @@
 import RemoteSuite from 'src/lib/RemoteSuite';
-import { mockNodeExecutor, mockRemoteAndSession, mockServer, MockNode } from '../../support/unit/mocks';
+import {
+	mockNodeExecutor,
+	mockRemoteAndSession,
+	mockServer,
+	MockNode
+} from '../../support/unit/mocks';
 import { ObjectSuiteDescriptor } from '../../../src/lib/interfaces/object';
 
 registerSuite('lib/RemoteSuite', {
@@ -11,10 +16,14 @@ registerSuite('lib/RemoteSuite', {
 					name: 'bar'
 				}
 			});
-			assert.strictEqual(remoteSuite.id, 'bar', `RemoteSuite name shouldn't be part of id`);
+			assert.strictEqual(
+				remoteSuite.id,
+				'bar',
+				"RemoteSuite name shouldn't be part of id"
+			);
 		},
 
-		'#run': (function () {
+		'#run': (function() {
 			let remoteSuite: RemoteSuite;
 			let subscribers: Function[];
 			let executor: MockNode;
@@ -56,22 +65,32 @@ registerSuite('lib/RemoteSuite', {
 								throw new Error('Suite should have failed');
 							},
 							error => {
-								assert.match(error.message, /waiting for remote/);
+								assert.match(
+									error.message,
+									/waiting for remote/
+								);
 							}
 						);
 					},
 
 					'simple run'() {
 						const dfd = this.async();
-						remoteSuite.run().then(() => dfd.resolve(), error => dfd.reject(error));
+						remoteSuite
+							.run()
+							.then(
+								() => dfd.resolve(),
+								error => dfd.reject(error)
+							);
 
 						assert.lengthOf(subscribers, 1);
 						subscribers[0]('remoteStatus', 'initialized');
 
-						setTimeout(dfd.rejectOnError(() => {
-							assert.lengthOf(subscribers, 1);
-							subscribers[0]('runEnd');
-						}));
+						setTimeout(
+							dfd.rejectOnError(() => {
+								assert.lengthOf(subscribers, 1);
+								subscribers[0]('runEnd');
+							})
+						);
 					},
 
 					'root suite start and end'() {
@@ -81,22 +100,42 @@ registerSuite('lib/RemoteSuite', {
 						const events = executor.events;
 						handler('remoteStatus', 'initialized');
 
-						setTimeout(dfd.callback(() => {
-							handler('suiteStart', { tests: [ 'foo', 'bar' ] });
+						setTimeout(
+							dfd.callback(() => {
+								handler('suiteStart', {
+									tests: ['foo', 'bar']
+								});
 
-							assert.deepEqual(<any[]>remoteSuite.tests, [ 'foo', 'bar' ]);
-							assert.lengthOf(events, 1);
-							assert.deepEqual(events[0], { name: 'suiteStart', data: remoteSuite });
+								assert.deepEqual(<any[]>remoteSuite.tests, [
+									'foo',
+									'bar'
+								]);
+								assert.lengthOf(events, 1);
+								assert.deepEqual(events[0], {
+									name: 'suiteStart',
+									data: remoteSuite
+								});
 
-							handler('suiteEnd', { tests: [ 'baz', 'bif' ] });
+								handler('suiteEnd', { tests: ['baz', 'bif'] });
 
-							assert.deepEqual(<any[]>remoteSuite.tests, [ 'baz', 'bif' ]);
-							assert.lengthOf(events, 1);
+								assert.deepEqual(<any[]>remoteSuite.tests, [
+									'baz',
+									'bif'
+								]);
+								assert.lengthOf(events, 1);
 
-							handler('runEnd');
-						}));
+								handler('runEnd');
+							})
+						);
 
-						promise.then(() => { dfd.resolve(); }, error => { dfd.reject(error); });
+						promise.then(
+							() => {
+								dfd.resolve();
+							},
+							error => {
+								dfd.reject(error);
+							}
+						);
 					},
 
 					'root suite error'() {
@@ -106,31 +145,60 @@ registerSuite('lib/RemoteSuite', {
 						const events = executor.events;
 						handler('remoteStatus', 'initialized');
 
-						setTimeout(dfd.callback(() => {
-							handler('suiteStart', { tests: [ 'foo', 'bar' ] });
+						setTimeout(
+							dfd.callback(() => {
+								handler('suiteStart', {
+									tests: ['foo', 'bar']
+								});
 
-							assert.deepEqual(<any[]>remoteSuite.tests, [ 'foo', 'bar' ]);
-							assert.lengthOf(events, 1);
-							assert.deepEqual(events[0], { name: 'suiteStart', data: remoteSuite });
+								assert.deepEqual(<any[]>remoteSuite.tests, [
+									'foo',
+									'bar'
+								]);
+								assert.lengthOf(events, 1);
+								assert.deepEqual(events[0], {
+									name: 'suiteStart',
+									data: remoteSuite
+								});
 
-							const suiteError = new Error('foo');
-							handler('suiteEnd', { tests: [ 'baz', 'bif' ], error: suiteError });
+								const suiteError = new Error('foo');
+								handler('suiteEnd', {
+									tests: ['baz', 'bif'],
+									error: suiteError
+								});
 
-							assert.deepEqual(<any[]>remoteSuite.tests, [ 'baz', 'bif' ]);
-							assert.lengthOf(events, 1);
-							assert.strictEqual<Error | undefined>(remoteSuite.error, suiteError);
+								assert.deepEqual(<any[]>remoteSuite.tests, [
+									'baz',
+									'bif'
+								]);
+								assert.lengthOf(events, 1);
+								assert.strictEqual<Error | undefined>(
+									remoteSuite.error,
+									suiteError
+								);
 
-							handler('runEnd');
-						}));
+								handler('runEnd');
+							})
+						);
 
-						promise.then(() => { dfd.reject(new Error('Suite should not have passed')); }, error => {
-							if (error.message === 'foo') {
-								dfd.resolve();
+						promise.then(
+							() => {
+								dfd.reject(
+									new Error('Suite should not have passed')
+								);
+							},
+							error => {
+								if (error.message === 'foo') {
+									dfd.resolve();
+								} else {
+									dfd.reject(
+										new Error(
+											'Unexpected value of suite error'
+										)
+									);
+								}
 							}
-							else {
-								dfd.reject(new Error('Unexpected value of suite error'));
-							}
-						});
+						);
 					},
 
 					'regular suite start and end'() {
@@ -140,23 +208,41 @@ registerSuite('lib/RemoteSuite', {
 						const handler = subscribers[0];
 						handler('remoteStatus', 'initialized');
 
-						setTimeout(dfd.callback(() => {
-							const suite = { hasParent: true, tests: [ 'foo', 'bar' ] };
-							handler('suiteStart', suite);
+						setTimeout(
+							dfd.callback(() => {
+								const suite = {
+									hasParent: true,
+									tests: ['foo', 'bar']
+								};
+								handler('suiteStart', suite);
 
-							assert.lengthOf(remoteSuite.tests, 0);
-							assert.lengthOf(events, 1);
-							assert.deepEqual(events[0], { name: 'suiteStart', data: suite });
+								assert.lengthOf(remoteSuite.tests, 0);
+								assert.lengthOf(events, 1);
+								assert.deepEqual(events[0], {
+									name: 'suiteStart',
+									data: suite
+								});
 
-							handler('suiteEnd', suite);
+								handler('suiteEnd', suite);
 
-							assert.lengthOf(events, 2);
-							assert.deepEqual(events[1], { name: 'suiteEnd', data: suite });
+								assert.lengthOf(events, 2);
+								assert.deepEqual(events[1], {
+									name: 'suiteEnd',
+									data: suite
+								});
 
-							handler('runEnd');
-						}));
+								handler('runEnd');
+							})
+						);
 
-						promise.then(() => { dfd.resolve(); }, error => { dfd.reject(error); });
+						promise.then(
+							() => {
+								dfd.resolve();
+							},
+							error => {
+								dfd.reject(error);
+							}
+						);
 					},
 
 					'consumed events'() {
@@ -166,20 +252,41 @@ registerSuite('lib/RemoteSuite', {
 						const handler = subscribers[0];
 						handler('remoteStatus', 'initialized');
 
-						setTimeout(dfd.callback(() => {
-							handler('beforeRun');
-							assert.lengthOf(events, 0, 'beforeRun should have been consumed');
+						setTimeout(
+							dfd.callback(() => {
+								handler('beforeRun');
+								assert.lengthOf(
+									events,
+									0,
+									'beforeRun should have been consumed'
+								);
 
-							handler('afterRun');
-							assert.lengthOf(events, 0, 'afterRun should have been consumed');
+								handler('afterRun');
+								assert.lengthOf(
+									events,
+									0,
+									'afterRun should have been consumed'
+								);
 
-							handler('runStart');
-							assert.lengthOf(events, 0, 'runStart should have been consumed');
+								handler('runStart');
+								assert.lengthOf(
+									events,
+									0,
+									'runStart should have been consumed'
+								);
 
-							handler('runEnd');
-						}));
+								handler('runEnd');
+							})
+						);
 
-						promise.then(() => { dfd.resolve(); }, error => { dfd.reject(error); });
+						promise.then(
+							() => {
+								dfd.resolve();
+							},
+							error => {
+								dfd.reject(error);
+							}
+						);
 					},
 
 					'general error'() {
@@ -190,21 +297,37 @@ registerSuite('lib/RemoteSuite', {
 						const error = { message: 'foo' };
 						handler('remoteStatus', 'initialized');
 
-						setTimeout(dfd.callback(() => {
-							handler('error', error);
-							assert.lengthOf(events, 0, 'error event should have been consumed');
+						setTimeout(
+							dfd.callback(() => {
+								handler('error', error);
+								assert.lengthOf(
+									events,
+									0,
+									'error event should have been consumed'
+								);
 
-							handler('runEnd');
-						}));
+								handler('runEnd');
+							})
+						);
 
-						promise.then(() => { dfd.reject(new Error('Suite should not have passed')); }, error => {
-							if (error.message === 'foo') {
-								dfd.resolve();
+						promise.then(
+							() => {
+								dfd.reject(
+									new Error('Suite should not have passed')
+								);
+							},
+							error => {
+								if (error.message === 'foo') {
+									dfd.resolve();
+								} else {
+									dfd.reject(
+										new Error(
+											'Unexpected value of suite error'
+										)
+									);
+								}
 							}
-							else {
-								dfd.reject(new Error('Unexpected value of suite error'));
-							}
-						});
+						);
 					},
 
 					'pass through events'() {
@@ -214,13 +337,26 @@ registerSuite('lib/RemoteSuite', {
 						const handler = subscribers[0];
 						handler('remoteStatus', 'initialized');
 
-						setTimeout(dfd.callback(() => {
-							handler('testEnd');
-							assert.lengthOf(events, 1, 'testEnd event should have been emitted');
-							handler('runEnd');
-						}));
+						setTimeout(
+							dfd.callback(() => {
+								handler('testEnd');
+								assert.lengthOf(
+									events,
+									1,
+									'testEnd event should have been emitted'
+								);
+								handler('runEnd');
+							})
+						);
 
-						promise.then(() => { dfd.resolve(); }, error => { dfd.reject(error); });
+						promise.then(
+							() => {
+								dfd.resolve();
+							},
+							error => {
+								dfd.reject(error);
+							}
+						);
 					}
 				}
 			};

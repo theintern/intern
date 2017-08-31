@@ -38,7 +38,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 		let line: number;
 		let col: number | undefined;
 		let map: SourceMapConsumer | undefined;
-		let originalPos: { source?: string, line: number, column?: number };
+		let originalPos: { source?: string; line: number; column?: number };
 		let result: string;
 
 		if (!(match = /^(.*?):(\d+)(:\d+)?$/.exec(tracepath))) {
@@ -50,13 +50,18 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 		line = Number(match[2]);
 		col = match[3] ? Number(match[3].substring(1)) : undefined;
 
-		// If the tracepath starts with the server URL, resolve it to something local
+		// If the tracepath starts with the server URL, resolve it to something
+		// local
 		if (tracepath.indexOf(this.executor.config.serverUrl) === 0) {
 			tracepath = tracepath.slice(this.executor.config.serverUrl.length);
-			tracepath = tracepath.replace(/^__intern\//, this.executor.config.internPath);
+			tracepath = tracepath.replace(
+				/^__intern\//,
+				this.executor.config.internPath
+			);
 		}
 
-		// Make the tracepath absolute since that's how it will be stored in map stores
+		// Make the tracepath absolute since that's how it will be stored in map
+		// stores
 		tracepath = resolve(tracepath);
 
 		const instrumentedStore = this.executor.instrumentedMapStore;
@@ -76,8 +81,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 		const sourceMapStore = this.executor.sourceMapStore;
 		if (tracepath in sourceMapStore.data) {
 			map = new SourceMapConsumer(sourceMapStore.data[tracepath].data);
-		}
-		else {
+		} else {
 			map = this.getSourceMap(tracepath);
 		}
 
@@ -88,19 +92,22 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 			line = originalPos.line;
 			col = originalPos.column;
 			if (originalPos.source) {
-				// If original source starts with ./ or ../, or is just a bare filename, assume it's relative to the
-				// current source
-				if (originalPos.source.indexOf('/') === -1 || /\.\.?\//.test(originalPos.source)) {
+				// If original source starts with ./ or ../, or is just a bare
+				// filename, assume it's relative to the current source
+				if (
+					originalPos.source.indexOf('/') === -1 ||
+					/\.\.?\//.test(originalPos.source)
+				) {
 					source = join(dirname(source), originalPos.source);
-				}
-				// If not, assume its relative to the project root
-				else {
+				} else {
+					// If not, assume its relative to the project root
 					source = originalPos.source;
 				}
 			}
 		}
 
-		// Source should be relative, because that's what we want the user to see
+		// Source should be relative, because that's what we want the user to
+		// see
 		source = relative('.', source);
 
 		result = source + ':' + line;
@@ -113,11 +120,19 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 	/**
 	 * Get the original position of line:column based on map.
 	 *
-	 * Assumes mappings are is in order by generatedLine, then by generatedColumn; maps created with
-	 * SourceMapConsumer.eachMapping should be in this order by default.
+	 * Assumes mappings are is in order by generatedLine, then by
+	 * generatedColumn; maps created with SourceMapConsumer.eachMapping should
+	 * be in this order by default.
 	 */
-	private getOriginalPosition(map: SourceMapConsumer, line: number, column?: number): { line: number, column?: number, source?: string } {
-		const originalPosition = map.originalPositionFor({ line: line, column: column! });
+	private getOriginalPosition(
+		map: SourceMapConsumer,
+		line: number,
+		column?: number
+	): { line: number; column?: number; source?: string } {
+		const originalPosition = map.originalPositionFor({
+			line: line,
+			column: column!
+		});
 
 		// if the SourceMapConsumer was able to find a location, return it
 		if (originalPosition.line != null) {
@@ -126,12 +141,17 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 
 		const entries: MappingItem[] = [];
 
-		// find all map entries that apply to the given line in the generated output
-		map.eachMapping(entry => {
-			if (entry.generatedLine === line) {
-				entries.push(entry);
-			}
-		}, null, SourceMapConsumer.GENERATED_ORDER);
+		// find all map entries that apply to the given line in the generated
+		// output
+		map.eachMapping(
+			entry => {
+				if (entry.generatedLine === line) {
+					entries.push(entry);
+				}
+			},
+			null,
+			SourceMapConsumer.GENERATED_ORDER
+		);
 
 		if (entries.length === 0) {
 			// no valid mappings exist -- return the line and column arguments
@@ -140,19 +160,27 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 
 		let position = entries[0];
 
-		// Chrome/Node.js column is at the start of the term that generated the exception
-		// IE column is at the beginning of the expression/line with the exceptional term
+		// Chrome/Node.js column is at the start of the term that generated the
+		// exception IE column is at the beginning of the expression/line with
+		// the exceptional term
+		//
 		// Safari column number is just after the exceptional term
 		//   - need to go back one element in the mapping
+		//
 		// Firefox, PhantomJS have no column number
-		//   - for no col number, find the largest original line number for the generated line
+		//   - for no col number, find the largest original line number for the
+		//     generated line
 
 		if (column != null) {
-			// find the most likely mapping for the given generated line and column
+			// find the most likely mapping for the given generated line and
+			// column
 			let entry: MappingItem;
 			for (let i = 1; i < entries.length; i++) {
 				entry = entries[i];
-				if (column > position.generatedColumn && column >= entry.generatedColumn) {
+				if (
+					column > position.generatedColumn &&
+					column >= entry.generatedColumn
+				) {
 					position = entry;
 				}
 			}
@@ -178,8 +206,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 
 			if (filepath in this.fileSources) {
 				data = this.fileSources[filepath];
-			}
-			else {
+			} else {
 				data = readFileSync(filepath).toString('utf-8');
 				this.fileSources[filepath] = data;
 			}
@@ -189,8 +216,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 				this.fileSourceMaps[filepath] = new SourceMapConsumer(rawMap);
 				return this.fileSourceMaps[filepath];
 			}
-		}
-		catch (error) {
+		} catch (error) {
 			// this is normal for files like node.js -- just return null
 		}
 	}

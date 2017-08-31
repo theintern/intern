@@ -10,31 +10,38 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 	}
 
 	/**
-	 * Generates a full error message from a plain Error object, avoiding duplicate error messages that might be
-	 * caused by different opinions on what a stack trace should look like.
+	 * Generates a full error message from a plain Error object, avoiding
+	 * duplicate error messages that might be caused by different opinions on
+	 * what a stack trace should look like.
 	 *
 	 * @param error An object describing the error.
 	 * @returns A string message describing the error.
 	 */
-	format(error: string | Error | InternError, options?: ErrorFormatOptions): string {
+	format(
+		error: string | Error | InternError,
+		options?: ErrorFormatOptions
+	): string {
 		options = options || {};
 		let message: string;
 
 		if (typeof error !== 'string' && (error.message || error.stack)) {
-			message = (error.name || 'Error') + ': ' + (error.message || 'Unknown error');
+			message =
+				(error.name || 'Error') +
+				': ' +
+				(error.message || 'Unknown error');
 			let stack = error.stack;
 
 			if (stack) {
-				// V8 puts the original error at the top of the stack too; avoid redundant output that may
-				// cause confusion about how many times an assertion was actually called
+				// V8 puts the original error at the top of the stack too; avoid
+				// redundant output that may cause confusion about how many
+				// times an assertion was actually called
 				if (stack.indexOf(message) === 0) {
 					stack = stack.slice(message.length);
-				}
-				else if (stack.indexOf(error.message) === 0) {
+				} else if (stack.indexOf(error.message) === 0) {
 					stack = stack.slice(String(error.message).length);
-				}
-				// The stack for errors in Internet Explorer may start with 'Error'
-				else if (stack.indexOf('Error\n') === 0) {
+				} else if (stack.indexOf('Error\n') === 0) {
+					// The stack for errors in Internet Explorer may start with
+					// 'Error'
 					stack = stack.slice('Error'.length);
 				}
 
@@ -44,8 +51,15 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 			const anyError: any = error;
 
 			// Assertion errors may have showDiff, actual, and expected properties
-			if (anyError.showDiff && typeof anyError.actual === 'object' && typeof anyError.expected === 'object') {
-				const diff = this._createDiff(anyError.actual, anyError.expected);
+			if (
+				anyError.showDiff &&
+				typeof anyError.actual === 'object' &&
+				typeof anyError.expected === 'object'
+			) {
+				const diff = this._createDiff(
+					anyError.actual,
+					anyError.expected
+				);
 				if (diff) {
 					message += '\n\n' + diff + '\n';
 				}
@@ -53,9 +67,9 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 
 			if (stack && /\S/.test(stack)) {
 				message += stack;
-			}
-			// FireFox errors may have fileName, lineNumber, and columnNumber properties
-			else if (anyError.fileName) {
+			} else if (anyError.fileName) {
+				// FireFox errors may have fileName, lineNumber, and
+				// columnNumber properties
 				message += '\n  at ' + anyError.fileName;
 				if (anyError.lineNumber != null) {
 					message += ':' + anyError.lineNumber;
@@ -66,21 +80,23 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 				}
 
 				message += '\nNo stack';
-			}
-			else {
+			} else {
 				message += '\nNo stack or location';
 			}
-		}
-		else {
+		} else {
 			message = String(error);
 		}
 
 		const space = options.space;
 		if (space != null) {
 			const lines = message.split('\n');
-			message = [lines[0]].concat(lines.slice(1).map(line => {
-				return space + line;
-			})).join('\n');
+			message = [lines[0]]
+				.concat(
+					lines.slice(1).map(line => {
+						return space + line;
+					})
+				)
+				.join('\n');
 		}
 
 		return message;
@@ -98,12 +114,15 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 	 *
 	 * @param actual The actual result.
 	 * @param expected The expected result.
-	 * @returns A unified diff formatted string representing the difference between the two objects.
+	 * @returns A unified diff formatted string representing the difference
+	 * between the two objects.
 	 */
 	protected _createDiff(actual: Object, expected: Object): string {
-		// TODO: Remove the casts when the diffJson typings are updated (the current typings are missing the options
-		// argument).
-		let diff = <IDiffResult[]>(<any>diffJson)(actual, expected, { undefinedReplacement: null });
+		// TODO: Remove the casts when the diffJson typings are updated (the
+		// current typings are missing the options argument).
+		let diff = <IDiffResult[]>(<any>diffJson)(actual, expected, {
+			undefinedReplacement: null
+		});
 		if (diff.length === 1 && !diff[0].added && !diff[0].removed) {
 			return '';
 		}
@@ -119,14 +138,16 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 				prefix = '\n';
 			}
 			const char = added ? 'E' : removed ? 'A' : ' ';
-			return d + `${prefix}${char} ` + lines.join(`\n${char} `) + lastChar;
+			return (
+				d + `${prefix}${char} ` + lines.join(`\n${char} `) + lastChar
+			);
 		}, '');
 	}
 
 	/**
 	 * Return a trace line in a standardized format.
 	 */
-	protected _formatLine(data: { func?: string, source: string }) {
+	protected _formatLine(data: { func?: string; source: string }) {
 		if (!data.func) {
 			return '  at <' + this._getSource(data.source) + '>';
 		}
@@ -145,7 +166,9 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 			lines = lines.slice(1);
 		}
 
-		let stackLines = /^\s*at /.test(lines[0]) ? this._processChromeTrace(lines) : this._processSafariTrace(lines);
+		let stackLines = /^\s*at /.test(lines[0])
+			? this._processChromeTrace(lines)
+			: this._processSafariTrace(lines);
 
 		if (this.executor.config.filterErrorStack) {
 			stackLines = stackLines.filter(line => {
@@ -179,11 +202,9 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 			let match: RegExpMatchArray | null;
 			if ((match = /^\s*at (.+?) \(([^)]+)\)$/.exec(line))) {
 				return this._formatLine({ func: match[1], source: match[2] });
-			}
-			else if ((match = /^\s*at (.*)/.exec(line))) {
+			} else if ((match = /^\s*at (.*)/.exec(line))) {
 				return this._formatLine({ source: match[1] });
-			}
-			else {
+			} else {
 				return line;
 			}
 		});
@@ -203,11 +224,9 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 			let match: RegExpMatchArray | null;
 			if ((match = /^([^@]+)@(.*)/.exec(line))) {
 				return this._formatLine({ func: match[1], source: match[2] });
-			}
-			else if ((match = /^(\w+:\/\/.*)/.exec(line))) {
+			} else if ((match = /^(\w+:\/\/.*)/.exec(line))) {
 				return this._formatLine({ source: match[1] });
-			}
-			else {
+			} else {
 				return line;
 			}
 		});

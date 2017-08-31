@@ -4,7 +4,7 @@ import { spy, SinonSpy } from 'sinon';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/browser/util', function () {
+registerSuite('lib/browser/util', function() {
 	class MockResponse {
 		data: string | undefined;
 		ok: boolean;
@@ -32,11 +32,18 @@ registerSuite('lib/browser/util', function () {
 	let removeMocks: () => void;
 
 	const mockUtil: { [name: string]: SinonSpy } = {
-		loadConfig: spy((filename: string, loadText: (filename: string) => Promise<string>, _args?: string[], _childConfig?: string) => {
-			return loadText(filename).then(text => {
-				return JSON.parse(text);
-			});
-		}),
+		loadConfig: spy(
+			(
+				filename: string,
+				loadText: (filename: string) => Promise<string>,
+				_args?: string[],
+				_childConfig?: string
+			) => {
+				return loadText(filename).then(text => {
+					return JSON.parse(text);
+				});
+			}
+		),
 
 		parseArgs: spy(() => {
 			return parsedArgs;
@@ -77,16 +84,41 @@ registerSuite('lib/browser/util', function () {
 						parsedArgs.here = '1';
 						parsedArgs.there = 'bar';
 						const configData = { suites: ['bar.js'] };
-						requestData['/intern.json'] = JSON.stringify(configData);
+						requestData['/intern.json'] = JSON.stringify(
+							configData
+						);
 
 						return util.getConfig().then(config => {
-							assert.equal(mockUtil.splitConfigPath.callCount, 0, 'splitConfigPath should not have been called');
-							assert.equal(mockUtil.loadConfig.callCount, 1, 'loadConfig should have been called');
-							assert.equal(mockUtil.parseArgs.callCount, 1, 'parseArgs should have been called');
-							assert.equal(request.callCount, 1, 'request should have been called');
-							assert.equal(mockUtil.loadConfig.getCall(0).args[0], '/intern.json');
-							assert.deepEqual(mockUtil.loadConfig.getCall(0).args[2], { here: '1', there: 'bar' });
-							// Since we've overridden loadConfig, args shouldn't actually be mixed in
+							assert.equal(
+								mockUtil.splitConfigPath.callCount,
+								0,
+								'splitConfigPath should not have been called'
+							);
+							assert.equal(
+								mockUtil.loadConfig.callCount,
+								1,
+								'loadConfig should have been called'
+							);
+							assert.equal(
+								mockUtil.parseArgs.callCount,
+								1,
+								'parseArgs should have been called'
+							);
+							assert.equal(
+								request.callCount,
+								1,
+								'request should have been called'
+							);
+							assert.equal(
+								mockUtil.loadConfig.getCall(0).args[0],
+								'/intern.json'
+							);
+							assert.deepEqual(
+								mockUtil.loadConfig.getCall(0).args[2],
+								{ here: '1', there: 'bar' }
+							);
+							// Since we've overridden loadConfig, args shouldn't
+							// actually be mixed in
 							assert.deepEqual(config, configData);
 						});
 					},
@@ -96,10 +128,24 @@ registerSuite('lib/browser/util', function () {
 						parsedArgs.there = 'bar';
 
 						return util.getConfig().then(config => {
-							assert.equal(mockUtil.splitConfigPath.callCount, 0, 'splitConfigPath should not have been called');
-							assert.equal(mockUtil.loadConfig.callCount, 1, 'loadConfig should have been called');
-							assert.equal(mockUtil.loadConfig.getCall(0).args[0], '/intern.json');
-							assert.deepEqual(config, { here: '1', there: 'bar' });
+							assert.equal(
+								mockUtil.splitConfigPath.callCount,
+								0,
+								'splitConfigPath should not have been called'
+							);
+							assert.equal(
+								mockUtil.loadConfig.callCount,
+								1,
+								'loadConfig should have been called'
+							);
+							assert.equal(
+								mockUtil.loadConfig.getCall(0).args[0],
+								'/intern.json'
+							);
+							assert.deepEqual(config, {
+								here: '1',
+								there: 'bar'
+							});
 						});
 					},
 
@@ -107,12 +153,16 @@ registerSuite('lib/browser/util', function () {
 						requestData['/intern.json'] = 'foo';
 
 						return util.getConfig().then(
-							_config => { throw new Error('getConfig should not have passed'); },
+							_config => {
+								throw new Error(
+									'getConfig should not have passed'
+								);
+							},
 							error => {
 								if (
-									(/JSON[. ]parse/i).test(error.message) ||
-									(/Invalid character/i).test(error.message) ||
-									(/Unexpected token/i).test(error.message)
+									/JSON[. ]parse/i.test(error.message) ||
+									/Invalid character/i.test(error.message) ||
+									/Unexpected token/i.test(error.message)
 								) {
 									return;
 								}
@@ -124,13 +174,29 @@ registerSuite('lib/browser/util', function () {
 
 				'custom config'() {
 					parsedArgs.config = 'foo.json';
-					requestData['/foo.json'] = JSON.stringify({ stuff: 'happened' });
+					requestData['/foo.json'] = JSON.stringify({
+						stuff: 'happened'
+					});
 
 					return util.getConfig().then(config => {
-						assert.equal(mockUtil.splitConfigPath.callCount, 1, 'splitConfigPath should have been called');
-						assert.deepEqual(mockUtil.splitConfigPath.getCall(0).args, ['foo.json']);
-						assert.equal(mockUtil.loadConfig.callCount, 1, 'loadConfig should have been called');
-						assert.equal(mockUtil.loadConfig.getCall(0).args[0], '/foo.json');
+						assert.equal(
+							mockUtil.splitConfigPath.callCount,
+							1,
+							'splitConfigPath should have been called'
+						);
+						assert.deepEqual(
+							mockUtil.splitConfigPath.getCall(0).args,
+							['foo.json']
+						);
+						assert.equal(
+							mockUtil.loadConfig.callCount,
+							1,
+							'loadConfig should have been called'
+						);
+						assert.equal(
+							mockUtil.loadConfig.getCall(0).args[0],
+							'/foo.json'
+						);
 						assert.deepEqual(config, { stuff: 'happened' });
 					});
 				}
@@ -149,7 +215,9 @@ registerSuite('lib/browser/util', function () {
 			},
 
 			parseUrl() {
-				const url = util.parseUrl('http://www.foo.com:80/some/local/document.md?foo=bar&location=my%20house#kitchen');
+				const url = util.parseUrl(
+					'http://www.foo.com:80/some/local/document.md?foo=bar&location=my%20house#kitchen'
+				);
 				assert.propertyVal(url, 'protocol', 'http');
 				assert.propertyVal(url, 'hostname', 'www.foo.com');
 				assert.propertyVal(url, 'port', '80');

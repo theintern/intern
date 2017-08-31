@@ -2,7 +2,10 @@ const { assert } = intern.getPlugin('chai');
 import Executor, { Config } from 'src/lib/executors/Executor';
 import { SinonSpy } from 'sinon';
 
-export function testProperty<E extends Executor = Executor, C extends Config = Config>(
+export function testProperty<
+	E extends Executor = Executor,
+	C extends Config = Config
+>(
 	executor: E,
 	mockConsole: { [name: string]: SinonSpy },
 	name: keyof C,
@@ -21,24 +24,32 @@ export function testProperty<E extends Executor = Executor, C extends Config = C
 		allowDeprecated = false;
 	}
 
-	assert.throws(() => { executor.configure(<any>{ [name]: badValue }); }, error);
+	assert.throws(() => {
+		executor.configure(<any>{ [name]: badValue });
+	}, error);
 	executor.configure(<any>{ [name]: goodValue });
 
 	if (allowDeprecated) {
 		for (let call of mockConsole.warn.getCalls()) {
-			assert.include(call.args[0], 'deprecated', 'no warning should have been emitted');
+			assert.include(
+				call.args[0],
+				'deprecated',
+				'no warning should have been emitted'
+			);
 		}
-	}
-	else {
-		assert.equal(mockConsole.warn.callCount, 0, 'no warning should have been emitted');
+	} else {
+		assert.equal(
+			mockConsole.warn.callCount,
+			0,
+			'no warning should have been emitted'
+		);
 	}
 
 	name = <keyof Config>name.replace(/\+$/, '');
 	const config = <C>executor.config;
 	if (typeof expectedValue === 'object') {
 		assert.deepEqual(config[name], expectedValue, message);
-	}
-	else {
+	} else {
 		assert.strictEqual(config[name], expectedValue, message);
 	}
 }

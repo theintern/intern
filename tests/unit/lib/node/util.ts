@@ -2,11 +2,15 @@ import * as _util from 'src/lib/node/util';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/node/util', function () {
+registerSuite('lib/node/util', function() {
 	let util: typeof _util;
 
 	const mockFs = {
-		readFile(filename: string, _encoding: any, callback: (error: Error | undefined, data?: string) => {}) {
+		readFile(
+			filename: string,
+			_encoding: any,
+			callback: (error: Error | undefined, data?: string) => {}
+		) {
 			if (fsData[filename]) {
 				callback(undefined, fsData[filename]);
 			}
@@ -26,7 +30,12 @@ registerSuite('lib/node/util', function () {
 	};
 
 	const mockUtil = {
-		loadConfig(filename: string, loadText: (filename: string) => Promise<string>, args?: string[], childConfig?: string) {
+		loadConfig(
+			filename: string,
+			loadText: (filename: string) => Promise<string>,
+			args?: string[],
+			childConfig?: string
+		) {
 			logCall('loadConfig', [filename, loadText, args, childConfig]);
 			return loadText(filename).then(text => {
 				return JSON.parse(text);
@@ -69,7 +78,7 @@ registerSuite('lib/node/util', function () {
 
 	const mockGlobal = {
 		process: {
-			argv: [ 'node', 'intern.js' ],
+			argv: ['node', 'intern.js'],
 			env: {}
 		}
 	};
@@ -85,8 +94,8 @@ registerSuite('lib/node/util', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/node/util', {
-				'fs': mockFs,
-				'glob': mockGlob,
+				fs: mockFs,
+				glob: mockGlob,
 				'src/lib/common/util': mockUtil,
 				'@dojo/shim/global': { default: mockGlobal }
 			}).then(handle => {
@@ -106,7 +115,7 @@ registerSuite('lib/node/util', function () {
 			calls = {};
 			parsedArgs = {};
 			fsData = {};
-			mockGlobal.process.argv = [ 'node', 'intern.js' ];
+			mockGlobal.process.argv = ['node', 'intern.js'];
 			mockGlobal.process.env = {};
 		},
 
@@ -126,30 +135,54 @@ registerSuite('lib/node/util', function () {
 					assert.deepEqual(calls.sync[0], ['foo', { ignore: [] }]);
 					assert.lengthOf(calls.hasMagic, 1);
 					assert.deepEqual(calls.hasMagic[0], ['foo']);
-					assert.deepEqual(magic, ['globby'], 'expected value of glob call to be returned');
+					assert.deepEqual(
+						magic,
+						['globby'],
+						'expected value of glob call to be returned'
+					);
 
 					hasMagic = false;
 					const noMagic = util.expandFiles(['bar']);
-					assert.lengthOf(calls.sync, 1, 'sync should not have been called');
-					assert.lengthOf(calls.hasMagic, 2, 'hasMagic should have been called again');
+					assert.lengthOf(
+						calls.sync,
+						1,
+						'sync should not have been called'
+					);
+					assert.lengthOf(
+						calls.hasMagic,
+						2,
+						'hasMagic should have been called again'
+					);
 					assert.deepEqual(calls.hasMagic[1], ['bar']);
-					assert.deepEqual(noMagic, ['bar'], 'expected value of pattern to be returned');
+					assert.deepEqual(
+						noMagic,
+						['bar'],
+						'expected value of pattern to be returned'
+					);
 				},
 
 				multiple() {
 					hasMagic = true;
 					const files = util.expandFiles(['foo', 'bar']);
-					assert.deepEqual(calls.sync, [['foo', { ignore: [] }], ['bar', { ignore: [] }]]);
+					assert.deepEqual(calls.sync, [
+						['foo', { ignore: [] }],
+						['bar', { ignore: [] }]
+					]);
 					assert.deepEqual(calls.hasMagic, [['foo'], ['bar']]);
 					assert.deepEqual(files, ['globby', 'globby']);
 				},
 
 				negation() {
 					hasMagic = true;
-					const files = util.expandFiles(['foo', '!bar', 'baz', '!blah']);
+					const files = util.expandFiles([
+						'foo',
+						'!bar',
+						'baz',
+						'!blah'
+					]);
 					assert.deepEqual(calls.sync, [
-						['foo', { ignore: [ 'bar', 'blah' ] }],
-						['baz', { ignore: [ 'bar', 'blah' ] }]
+						['foo', { ignore: ['bar', 'blah'] }],
+						['baz', { ignore: ['bar', 'blah'] }]
 					]);
 					assert.deepEqual(calls.hasMagic, [['foo'], ['baz']]);
 					assert.deepEqual(files, ['globby', 'globby']);
@@ -163,11 +196,24 @@ registerSuite('lib/node/util', function () {
 						fsData['intern.json'] = JSON.stringify(configData);
 
 						return util.getConfig().then(config => {
-							assert.notProperty(calls, 'splitConfigPath', 'splitConfigPath should not have been called');
-							assert.property(calls, 'loadConfig', 'loadConfig should have been called');
-							assert.notProperty(calls, 'parseArgs', 'parseArgs should not have been called');
+							assert.notProperty(
+								calls,
+								'splitConfigPath',
+								'splitConfigPath should not have been called'
+							);
+							assert.property(
+								calls,
+								'loadConfig',
+								'loadConfig should have been called'
+							);
+							assert.notProperty(
+								calls,
+								'parseArgs',
+								'parseArgs should not have been called'
+							);
 							assert.equal(calls.loadConfig[0][0], 'intern.json');
-							// Since we've overridden loadConfig, args shouldn't actually be mixed in
+							// Since we've overridden loadConfig, args shouldn't
+							// actually be mixed in
 							assert.deepEqual(config, configData);
 						});
 					},
@@ -177,8 +223,16 @@ registerSuite('lib/node/util', function () {
 						mockGlobal.process.argv.push('foo');
 
 						return util.getConfig().then(config => {
-							assert.notProperty(calls, 'splitConfigPath', 'splitConfigPath should not have been called');
-							assert.property(calls, 'loadConfig', 'loadConfig should have been called');
+							assert.notProperty(
+								calls,
+								'splitConfigPath',
+								'splitConfigPath should not have been called'
+							);
+							assert.property(
+								calls,
+								'loadConfig',
+								'loadConfig should have been called'
+							);
 							assert.equal(calls.loadConfig[0][0], 'intern.json');
 							assert.deepEqual(config, {});
 						});
@@ -188,8 +242,14 @@ registerSuite('lib/node/util', function () {
 						fsData['intern.json'] = 'foo';
 
 						return util.getConfig().then(
-							_config => { throw new Error('getConfig should not have passed'); },
-							error => { assert.match(error.message, /Unexpected token/); }
+							_config => {
+								throw new Error(
+									'getConfig should not have passed'
+								);
+							},
+							error => {
+								assert.match(error.message, /Unexpected token/);
+							}
 						);
 					}
 				},
@@ -201,9 +261,17 @@ registerSuite('lib/node/util', function () {
 					fsData['foo.json'] = JSON.stringify({ stuff: 'happened' });
 
 					return util.getConfig().then(config => {
-						assert.property(calls, 'splitConfigPath', 'splitConfigPath should have been called');
+						assert.property(
+							calls,
+							'splitConfigPath',
+							'splitConfigPath should have been called'
+						);
 						assert.deepEqual(calls.splitConfigPath, [['foo.json']]);
-						assert.property(calls, 'loadConfig', 'loadConfig should have been called');
+						assert.property(
+							calls,
+							'loadConfig',
+							'loadConfig should have been called'
+						);
 						assert.equal(calls.loadConfig[0][0], 'foo.json');
 						assert.deepEqual(config, { stuff: 'happened' });
 					});
@@ -218,11 +286,15 @@ registerSuite('lib/node/util', function () {
 			readSourceMap: {
 				'with code'() {
 					fsData['foo.js.map'] = '{}';
-					util.readSourceMap('foo.js', 'function () { console.log("hi"); }\n//# sourceMappingURL=foo.js.map');
+					util.readSourceMap(
+						'foo.js',
+						'function () { console.log("hi"); }\n//# sourceMappingURL=foo.js.map'
+					);
 				},
 
 				'without code'() {
-					fsData['foo.js'] = 'function () { console.log("hi"); }\n//# sourceMappingURL=foo.js.map';
+					fsData['foo.js'] =
+						'function () { console.log("hi"); }\n//# sourceMappingURL=foo.js.map';
 					fsData['foo.js.map'] = '{}';
 					util.readSourceMap('foo.js');
 				},
@@ -230,7 +302,10 @@ registerSuite('lib/node/util', function () {
 				'embedded map'() {
 					const map = Buffer.from('{}').toString('base64');
 					const mapUrl = `data:application/json;charset=utf-8;base64,${map}`;
-					util.readSourceMap('foo.js', `function () { console.log("hi"); }\n//# sourceMappingURL=${mapUrl}`);
+					util.readSourceMap(
+						'foo.js',
+						`function () { console.log("hi"); }\n//# sourceMappingURL=${mapUrl}`
+					);
 				}
 			}
 		}

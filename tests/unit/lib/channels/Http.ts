@@ -6,7 +6,7 @@ const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 let Http: typeof _Http;
 
-registerSuite('lib/channels/Http', function () {
+registerSuite('lib/channels/Http', function() {
 	const request = spy((path: string) => {
 		if (requester) {
 			return requester(path);
@@ -52,20 +52,25 @@ registerSuite('lib/channels/Http', function () {
 				http.sendMessage('remoteStatus', 'bar');
 				const send3 = http.sendMessage('remoteStatus', 'baz');
 
-				// Run first request check in a task resolve since first sendData call waits for a Task resolution
-				return Task.resolve().then(() => {
-					assert.lengthOf(requests, 1);
-					requests[0]();
-					return send3;
-				}).then(() => {
-					assert.equal(request.callCount, 1);
-					const messageStrings = JSON.parse(request.getCall(0).args[1].body);
-					assert.lengthOf(messageStrings, 3);
-					const messages = messageStrings.map(JSON.parse);
-					assert.propertyVal(messages[0], 'data', 'foo');
-					assert.propertyVal(messages[1], 'data', 'bar');
-					assert.propertyVal(messages[2], 'data', 'baz');
-				});
+				// Run first request check in a task resolve since first
+				// sendData call waits for a Task resolution
+				return Task.resolve()
+					.then(() => {
+						assert.lengthOf(requests, 1);
+						requests[0]();
+						return send3;
+					})
+					.then(() => {
+						assert.equal(request.callCount, 1);
+						const messageStrings = JSON.parse(
+							request.getCall(0).args[1].body
+						);
+						assert.lengthOf(messageStrings, 3);
+						const messages = messageStrings.map(JSON.parse);
+						assert.propertyVal(messages[0], 'data', 'foo');
+						assert.propertyVal(messages[1], 'data', 'bar');
+						assert.propertyVal(messages[2], 'data', 'baz');
+					});
 			}
 		}
 	};

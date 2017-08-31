@@ -2,7 +2,7 @@ import _intern from '../../src/intern';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('intern', function () {
+registerSuite('intern', function() {
 	let intern: typeof _intern;
 	let removeMocks: () => void;
 
@@ -24,7 +24,11 @@ registerSuite('intern', function () {
 
 		tests: {
 			intern() {
-				assert.equal<any>(intern(), 'foo', 'unexpected value for intern');
+				assert.equal<any>(
+					intern(),
+					'foo',
+					'unexpected value for intern'
+				);
 			}
 		}
 	};

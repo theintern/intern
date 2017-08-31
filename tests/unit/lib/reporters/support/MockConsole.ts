@@ -1,8 +1,8 @@
 export default class MockConsole {
 	messages: { [key: string]: string[] } = {};
 	constructor(hasGrouping?: boolean) {
-		const methods = [ 'log', 'info', 'warn', 'error' ];
-		const anyThis = <any> this;
+		const methods = ['log', 'info', 'warn', 'error'];
+		const anyThis = <any>this;
 
 		if (hasGrouping) {
 			methods.push('group', 'groupEnd');
@@ -10,7 +10,9 @@ export default class MockConsole {
 		methods.forEach(method => {
 			this.messages[method] = [];
 			anyThis[method] = (...args: any[]) => {
-				this.messages[method].push(Array.prototype.slice.call(args, 0).join(' '));
+				this.messages[method].push(
+					Array.prototype.slice.call(args, 0).join(' ')
+				);
 			};
 		});
 	}

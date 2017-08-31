@@ -4,13 +4,11 @@
 		"declaration": false,
 		"outDir": "../../_examples",
 		"paths": {
-			"src/*": [
-				"_build/src/*.d.ts"
-			]
+			"src/*": ["_build/src/*.d.ts"]
 		},
-        "rootDir": "."
+		"rootDir": "."
 	},
 	"extends": "../../tsconfig.json",
-    "files": [ "example.intern.ts" ],
+	"files": ["example.intern.ts"],
 	"include": []
 }

@@ -5,7 +5,7 @@ const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/reporters/Runner', function () {
+registerSuite('lib/reporters/Runner', function() {
 	const mockCharm = {
 		foreground: spy(() => mockCharm),
 		pipe: spy(() => mockCharm),
@@ -15,7 +15,7 @@ registerSuite('lib/reporters/Runner', function () {
 
 	const mockExecutor = <any>{
 		formatError: spy((error: Error) => error.message),
-		on: spy(() => { }),
+		on: spy(() => {}),
 		config: { serveOnly: false }
 	};
 
@@ -28,8 +28,10 @@ registerSuite('lib/reporters/Runner', function () {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/reporters/Runner', {
-				'istanbul-lib-coverage': { createCoverageMap: mockCreateCoverageMap },
-				'charm': () => mockCharm
+				'istanbul-lib-coverage': {
+					createCoverageMap: mockCreateCoverageMap
+				},
+				charm: () => mockCharm
 			}).then(handle => {
 				removeMocks = handle.remove;
 				Runner = handle.module.default;
@@ -60,25 +62,51 @@ registerSuite('lib/reporters/Runner', function () {
 			'#coverage'() {
 				const reporter = new Runner(mockExecutor);
 				reporter.sessions['bar'] = <any>{};
-				reporter.coverage({ sessionId: 'bar', coverage: { 'foo.js': {} } });
+				reporter.coverage({
+					sessionId: 'bar',
+					coverage: { 'foo.js': {} }
+				});
 				assert.equal(mockCoverageMap.merge.callCount, 1);
-				assert.deepEqual(mockCoverageMap.merge.getCall(0).args[0], { 'foo.js': {} });
+				assert.deepEqual(mockCoverageMap.merge.getCall(0).args[0], {
+					'foo.js': {}
+				});
 			},
 
 			'#deprecated'() {
 				const reporter = new Runner(mockExecutor);
-				reporter.deprecated({ original: 'foo', replacement: 'bar', message: `don't mix them` });
+				reporter.deprecated({
+					original: 'foo',
+					replacement: 'bar',
+					message: "don't mix them"
+				});
 				assert.equal(mockCharm.write.callCount, 4);
-				assert.match(mockCharm.write.getCall(0).args[0], /is deprecated/);
+				assert.match(
+					mockCharm.write.getCall(0).args[0],
+					/is deprecated/
+				);
 
 				// Send the same message again -- should be ignored
-				reporter.deprecated({ original: 'foo', replacement: 'bar', message: `don't mix them` });
-				assert.equal(mockCharm.write.callCount, 4, 'expected no new writes');
+				reporter.deprecated({
+					original: 'foo',
+					replacement: 'bar',
+					message: "don't mix them"
+				});
+				assert.equal(
+					mockCharm.write.callCount,
+					4,
+					'expected no new writes'
+				);
 
 				// Send the same message again -- should be ignored
-				reporter.deprecated({ original: 'bar', message: `don't mix them` });
+				reporter.deprecated({
+					original: 'bar',
+					message: "don't mix them"
+				});
 				assert.equal(mockCharm.write.callCount, 8);
-				assert.match(mockCharm.write.getCall(5).args[0], /open a ticket/);
+				assert.match(
+					mockCharm.write.getCall(5).args[0],
+					/open a ticket/
+				);
 			},
 
 			'#error'() {
@@ -94,7 +122,9 @@ registerSuite('lib/reporters/Runner', function () {
 
 			'#log'() {
 				const mockConsole = { log: spy() };
-				const reporter = new Runner(mockExecutor, { console: <any>mockConsole });
+				const reporter = new Runner(mockExecutor, {
+					console: <any>mockConsole
+				});
 				assert.equal(mockConsole.log.callCount, 0);
 				reporter.log('foo');
 				assert.equal(mockConsole.log.callCount, 1);

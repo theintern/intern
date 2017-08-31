@@ -6,13 +6,17 @@ import Suite from '../Suite';
  * This reporter enables Intern to interact with TeamCity.
  * http://confluence.jetbrains.com/display/TCD8/Build+Script+Interaction+with+TeamCity
  *
- * Portions of this module are based on functions from teamcity-service-messages:
+ * Portions of this module are based on functions from
+ * teamcity-service-messages:
  * https://github.com/pifantastic/teamcity-service-messages.
  */
 export default class TeamCity extends Reporter {
 	@eventHandler()
 	testStart(test: Test) {
-		this._sendMessage('testStarted', { name: test.name, flowId: test.sessionId });
+		this._sendMessage('testStarted', {
+			name: test.name,
+			flowId: test.sessionId
+		});
 	}
 
 	@eventHandler()
@@ -31,11 +35,12 @@ export default class TeamCity extends Reporter {
 			}
 
 			this._sendMessage('testFailed', message);
-		}
-		else if (test.skipped) {
-			this._sendMessage('testIgnored', { name: test.name, flowId: test.sessionId });
-		}
-		else {
+		} else if (test.skipped) {
+			this._sendMessage('testIgnored', {
+				name: test.name,
+				flowId: test.sessionId
+			});
+		} else {
 			this._sendMessage('testFinished', {
 				name: test.name,
 				duration: test.timeElapsed,
@@ -63,8 +68,7 @@ export default class TeamCity extends Reporter {
 				errorDetails: this.formatError(suite.error),
 				status: 'ERROR'
 			});
-		}
-		else {
+		} else {
 			this._sendMessage('testSuiteFinished', {
 				name: suite.name,
 				duration: suite.timeElapsed,
@@ -84,7 +88,7 @@ export default class TeamCity extends Reporter {
 	private _escapeString(str: string): string {
 		const replacer = /['\n\r\|\[\]\u0100-\uffff]/g;
 		const map = {
-			'\'': '|\'',
+			"'": "|'",
 			'|': '||',
 			'\n': '|n',
 			'\r': '|r',
@@ -92,9 +96,9 @@ export default class TeamCity extends Reporter {
 			']': '|]'
 		};
 
-		return str.replace(replacer, function (character: string): string {
+		return str.replace(replacer, function(character: string): string {
 			if (character in map) {
-				return (<{ [key: string]: any }> map)[character];
+				return (<{ [key: string]: any }>map)[character];
 			}
 			if (/[^\u0000-\u00ff]/.test(character)) {
 				return '|0x' + character.charCodeAt(0).toString(16);
@@ -113,7 +117,9 @@ export default class TeamCity extends Reporter {
 	 */
 	private _sendMessage(type: string, args: any): void {
 		args.timestamp = new Date().toISOString().slice(0, -1);
-		args = Object.keys(args).map(key => `${key}='${this._escapeString(String(args[key]))}'`).join(' ');
+		args = Object.keys(args)
+			.map(key => `${key}='${this._escapeString(String(args[key]))}'`)
+			.join(' ');
 
 		this.output.write(`##teamcity[${type} ${args}]\n`);
 	}

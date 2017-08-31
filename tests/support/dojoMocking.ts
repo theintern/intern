@@ -4,7 +4,7 @@ const notDefined = {};
 
 class RequireHelpers {
 	require: DojoLoader.RootRequire;
-	registeredMocks: { id: string, original?: any }[];
+	registeredMocks: { id: string; original?: any }[];
 
 	constructor(require: DojoLoader.RootRequire) {
 		this.require = require;
@@ -15,15 +15,16 @@ class RequireHelpers {
 		const require = this.require;
 		require.undef(require.toAbsMid(mid));
 
-		// If this plugin is used in a Node environment, it also must handle undefining modules in the node loader since
-		// the dojo loader (beta2.1) doesn't currently handle that.
+		// If this plugin is used in a Node environment, it also must handle
+		// undefining modules in the node loader since the dojo loader (beta2.1)
+		// doesn't currently handle that.
 		if (require.nodeRequire) {
 			const nrequire = <NodeRequire>require.nodeRequire;
 			delete nrequire.cache[nrequire.resolve(mid)];
 		}
 	}
 
-	redefine(mid: string,  mock: any) {
+	redefine(mid: string, mock: any) {
 		this.undefine(mid);
 		define(this.require.toAbsMid(mid), [], () => mock);
 	}
@@ -32,8 +33,7 @@ class RequireHelpers {
 		mid = this.require.toAbsMid(mid);
 		try {
 			return this.require(mid);
-		}
-		catch (error) {
+		} catch (error) {
 			return notDefined;
 		}
 	}
@@ -43,13 +43,13 @@ class RequireHelpers {
 	}
 
 	remove() {
-		// For now, removing the mocks simply removes the relevant modules from the loader without restoring them.
+		// For now, removing the mocks simply removes the relevant modules from
+		// the loader without restoring them.
 		while (this.registeredMocks.length > 0) {
 			const { id, original } = this.registeredMocks.pop()!;
 			if (original !== notDefined) {
 				this.redefine(id, original);
-			}
-			else {
+			} else {
 				this.undefine(id);
 			}
 		}
@@ -57,7 +57,11 @@ class RequireHelpers {
 }
 
 intern.registerPlugin('mockRequire', () => {
-	function mockRequire(require: DojoLoader.RootRequire, mid: string, mocks: { [key: string]: any }) {
+	function mockRequire(
+		require: DojoLoader.RootRequire,
+		mid: string,
+		mocks: { [key: string]: any }
+	) {
 		mid = require.toAbsMid(mid);
 		const helper = new RequireHelpers(require);
 
@@ -70,7 +74,7 @@ intern.registerPlugin('mockRequire', () => {
 		});
 
 		return new Promise(resolve => {
-			require([ mid ], mod => {
+			require([mid], mod => {
 				resolve({
 					module: mod,
 					remove() {

@@ -1,4 +1,8 @@
-import Executor, { Config as BaseConfig, Events as BaseEvents, Plugins } from './Executor';
+import Executor, {
+	Config as BaseConfig,
+	Events as BaseEvents,
+	Plugins
+} from './Executor';
 import Task, { State } from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
@@ -11,7 +15,10 @@ import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
 import resolveEnvironments from '../resolveEnvironments';
 import Command from '@theintern/leadfoot/Command';
-import Tunnel, { TunnelOptions, DownloadProgressEvent } from '@theintern/digdug/Tunnel';
+import Tunnel, {
+	TunnelOptions,
+	DownloadProgressEvent
+} from '@theintern/digdug/Tunnel';
 import Server from '../Server';
 import Suite, { isSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
@@ -19,12 +26,20 @@ import { RuntimeEnvironment } from '../types';
 import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
-import { hookRunInThisContext, hookRequire, unhookRunInThisContext } from 'istanbul-lib-hook';
+import {
+	hookRunInThisContext,
+	hookRequire,
+	unhookRunInThisContext
+} from 'istanbul-lib-hook';
 import global from '@dojo/shim/global';
 
 // Dig Dug tunnels
-import BrowserStackTunnel, { BrowserStackOptions } from '@theintern/digdug/BrowserStackTunnel';
-import SeleniumTunnel, { SeleniumOptions } from '@theintern/digdug/SeleniumTunnel';
+import BrowserStackTunnel, {
+	BrowserStackOptions
+} from '@theintern/digdug/BrowserStackTunnel';
+import SeleniumTunnel, {
+	SeleniumOptions
+} from '@theintern/digdug/SeleniumTunnel';
 import SauceLabsTunnel from '@theintern/digdug/SauceLabsTunnel';
 import TestingBotTunnel from '@theintern/digdug/TestingBotTunnel';
 import CrossBrowserTestingTunnel from '@theintern/digdug/CrossBrowserTestingTunnel';
@@ -109,16 +124,25 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		}
 
 		// Report uncaught errors
-		process.on('unhandledRejection', (reason: Error, promise: Promise<any>) => {
-			if (!this._listeners['error'] || this._listeners['error'].length === 0) {
-				console.warn('Unhandled rejection:', promise);
+		process.on(
+			'unhandledRejection',
+			(reason: Error, promise: Promise<any>) => {
+				if (
+					!this._listeners['error'] ||
+					this._listeners['error'].length === 0
+				) {
+					console.warn('Unhandled rejection:', promise);
+				}
+				reason.message = 'Unhandled rejection: ' + reason.message;
+				this.emit('error', reason);
 			}
-			reason.message = 'Unhandled rejection: ' + reason.message;
-			this.emit('error', reason);
-		});
+		);
 
 		process.on('uncaughtException', (reason: Error) => {
-			if (!this._listeners['error'] || this._listeners['error'].length === 0) {
+			if (
+				!this._listeners['error'] ||
+				this._listeners['error'].length === 0
+			) {
 				console.warn('Unhandled error:', reason);
 			}
 			reason.message = 'Uncaught exception: ' + reason.message;
@@ -157,7 +181,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		if (this._sessionSuites) {
 			return this._sessionSuites.concat([this._rootSuite]);
 		}
-		return [ this._rootSuite ];
+		return [this._rootSuite];
 	}
 
 	/**
@@ -166,8 +190,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	addSuite(factory: (parentSuite: Suite) => void) {
 		if (this._loadingFunctionalSuites) {
 			this._sessionSuites.forEach(factory);
-		}
-		else {
+		} else {
 			super.addSuite(factory);
 		}
 	}
@@ -190,15 +213,26 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		}
 
 		try {
-			const newCode = this._instrumenter.instrumentSync(code, normalize(filename), sourceMap);
+			const newCode = this._instrumenter.instrumentSync(
+				code,
+				normalize(filename),
+				sourceMap
+			);
 
-			this._coverageMap.addFileCoverage(this._instrumenter.lastFileCoverage());
-			this._instrumentedMaps.registerMap(filename, this._instrumenter.lastSourceMap());
+			this._coverageMap.addFileCoverage(
+				this._instrumenter.lastFileCoverage()
+			);
+			this._instrumentedMaps.registerMap(
+				filename,
+				this._instrumenter.lastSourceMap()
+			);
 
 			return newCode;
-		}
-		catch (error) {
-			this.emit('warning', `Error instrumenting ${filename}: ${error.message}`);
+		} catch (error) {
+			this.emit(
+				'warning',
+				`Error instrumenting ${filename}: ${error.message}`
+			);
 			return code;
 		}
 	}
@@ -215,8 +249,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			script.forEach(script => {
 				require(resolve(script));
 			});
-		}
-		catch (error) {
+		} catch (error) {
 			return Task.reject<void>(error);
 		}
 
@@ -231,30 +264,43 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	}
 
 	/**
-	 * Return true if a given file should be instrumented based on the current config
+	 * Return true if a given file should be instrumented based on the current
+	 * config
 	 */
 	shouldInstrumentFile(filename: string) {
-		return this._coverageFiles && this._coverageFiles.indexOf(filename) !== -1;
+		return (
+			this._coverageFiles && this._coverageFiles.indexOf(filename) !== -1
+		);
 	}
 
 	protected _afterRun() {
-		return super._afterRun()
-			.finally(() => {
-				this._removeInstrumentationHooks();
+		return super._afterRun().finally(() => {
+			this._removeInstrumentationHooks();
 
-				const promises: Promise<any>[] = [];
-				if (this.server) {
-					promises.push(this.server.stop().then(() => this.emit('serverEnd', this.server)));
-				}
-				if (this.tunnel) {
-					promises.push(this.tunnel.stop().then(() => this.emit('tunnelStop', { tunnel: this.tunnel })));
-				}
-				// We do not want to actually return an array of values, so chain a callback that resolves to undefined
-				return Promise.all(promises).then(
-					() => { },
-					error => this.emit('error', error)
+			const promises: Promise<any>[] = [];
+			if (this.server) {
+				promises.push(
+					this.server
+						.stop()
+						.then(() => this.emit('serverEnd', this.server))
 				);
-			});
+			}
+			if (this.tunnel) {
+				promises.push(
+					this.tunnel
+						.stop()
+						.then(() =>
+							this.emit('tunnelStop', { tunnel: this.tunnel })
+						)
+				);
+			}
+			// We do not want to actually return an array of values, so chain a
+			// callback that resolves to undefined
+			return Promise.all(promises).then(
+				() => {},
+				error => this.emit('error', error)
+			);
+		});
 	}
 
 	protected _beforeRun() {
@@ -267,8 +313,13 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			suite.bail = config.bail;
 
 			if (
-				config.environments.length > 0 && (config.functionalSuites.length + config.suites.length + config.browser.suites.length > 0) ||
-				// User can start the server without planning to run functional tests
+				(config.environments.length > 0 &&
+					config.functionalSuites.length +
+						config.suites.length +
+						config.browser.suites.length >
+						0) ||
+				// User can start the server without planning to run functional
+				// tests
 				config.serveOnly
 			) {
 				const serverTask = new Task<void>((resolve, reject) => {
@@ -280,7 +331,8 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 						socketPort: config.socketPort
 					});
 
-					server.start()
+					server
+						.start()
 						.then(() => {
 							this.server = server;
 							return this.emit('serverStart', server);
@@ -288,11 +340,13 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 						.then(resolve, reject);
 				});
 
-				// If we're in serveOnly mode, just start the server server. Don't create session suites or start a tunnel.
+				// If we're in serveOnly mode, just start the server server.
+				// Don't create session suites or start a tunnel.
 				if (config.serveOnly) {
 					return serverTask.then(() => {
-						// In serveOnly mode we just start the server to static file serving and instrumentation. Return
-						// an unresolved Task to pause indefinitely until canceled.
+						// In serveOnly mode we just start the server to static
+						// file serving and instrumentation. Return an
+						// unresolved Task to pause indefinitely until canceled.
 						return new Task<boolean>(resolve => {
 							process.on('SIGINT', () => {
 								resolve(true);
@@ -310,20 +364,35 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 						}
 
 						let TunnelConstructor = this.getTunnel(config.tunnel);
-						const tunnel = this.tunnel = new TunnelConstructor(this.config.tunnelOptions);
+						const tunnel = (this.tunnel = new TunnelConstructor(
+							this.config.tunnelOptions
+						));
 
 						tunnel.on('downloadprogress', progress => {
-							this.emit('tunnelDownloadProgress', { tunnel, progress });
+							this.emit('tunnelDownloadProgress', {
+								tunnel,
+								progress
+							});
 						});
 
 						tunnel.on('status', status => {
-							this.emit('tunnelStatus', { tunnel, status: status.status });
+							this.emit('tunnelStatus', {
+								tunnel,
+								status: status.status
+							});
 						});
 
-						config.capabilities = deepMixin(tunnel.extraCapabilities, config.capabilities);
+						config.capabilities = deepMixin(
+							tunnel.extraCapabilities,
+							config.capabilities
+						);
 
 						return this._createSessionSuites().then(() => {
-							return tunnel.start().then(() => this.emit('tunnelStart', { tunnel }));
+							return tunnel
+								.start()
+								.then(() =>
+									this.emit('tunnelStart', { tunnel })
+								);
 						});
 					})
 					.then(() => {
@@ -336,8 +405,9 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	}
 
 	/**
-	 * Creates suites for each environment in which tests will be executed. This method will only be called if there are
-	 * both environments and suites to run.
+	 * Creates suites for each environment in which tests will be executed. This
+	 * method will only be called if there are both environments and suites to
+	 * run.
 	 */
 	protected _createSessionSuites() {
 		const tunnel = this.tunnel;
@@ -349,10 +419,12 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 
 		const executor = this;
 
-		// Create a subclass of ProxiedSession here that will ensure the executor is set
+		// Create a subclass of ProxiedSession here that will ensure the
+		// executor is set
 		class InitializedProxiedSession extends ProxiedSession {
 			executor = executor;
-			coverageEnabled = config.functionalCoverage && executor.hasCoveredFiles;
+			coverageEnabled = config.functionalCoverage &&
+				executor.hasCoveredFiles;
 			coverageVariable = config.coverageVariable;
 			serverUrl = config.serverUrl;
 			serverBasePathLength = config.basePath.length;
@@ -380,18 +452,28 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 
 					before() {
 						executor.log('Creating session for', environmentType);
-						return leadfootServer.createSession<ProxiedSession>(environmentType).then(_session => {
-							session = _session;
-							this.executor.log('Created session:', session.capabilities);
+						return leadfootServer
+							.createSession<ProxiedSession>(environmentType)
+							.then(_session => {
+								session = _session;
+								this.executor.log(
+									'Created session:',
+									session.capabilities
+								);
 
-							let remote: Remote = <Remote>new Command(session);
-							remote.environmentType = new Environment(session.capabilities);
-							this.remote = remote;
-							this.sessionId = remote.session.sessionId;
+								let remote: Remote = <Remote>new Command(
+									session
+								);
+								remote.environmentType = new Environment(
+									session.capabilities
+								);
+								this.remote = remote;
+								this.sessionId = remote.session.sessionId;
 
-							// Update the name with details from the remote environment
-							this.name = remote.environmentType.toString();
-						});
+								// Update the name with details from the remote
+								// environment
+								this.name = remote.environmentType.toString();
+							});
 					},
 
 					after() {
@@ -399,21 +481,32 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 
 						if (remote) {
 							const endSession = () => {
-								// Check for an error in this suite or a sub-suite. This check is a bit more
-								// involved than just checking for a local suite error or failed tests since
-								// sub-suites may have failures that don't result in failed tests.
+								// Check for an error in this suite or a
+								// sub-suite. This check is a bit more involved
+								// than just checking for a local suite error or
+								// failed tests since sub-suites may have
+								// failures that don't result in failed tests.
 								function hasError(suite: Suite): boolean {
-									if (suite.error != null || suite.numFailedTests > 0) {
+									if (
+										suite.error != null ||
+										suite.numFailedTests > 0
+									) {
 										return true;
 									}
-									return suite.tests.filter(isSuite).some(hasError);
+									return suite.tests
+										.filter(isSuite)
+										.some(hasError);
 								}
-								return tunnel.sendJobState(remote.session.sessionId, { success: !hasError(this) });
+								return tunnel.sendJobState(
+									remote.session.sessionId,
+									{ success: !hasError(this) }
+								);
 							};
 
 							if (
 								config.leaveRemoteOpen === true ||
-								(config.leaveRemoteOpen === 'fail' && this.numFailedTests > 0)
+								(config.leaveRemoteOpen === 'fail' &&
+									this.numFailedTests > 0)
 							) {
 								return endSession();
 							}
@@ -423,14 +516,19 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 					}
 				});
 
-				// If browser-compatible unit tests were added to this executor, add a RemoteSuite to the session suite.
-				// The RemoteSuite will run the suites listed in config.suites and config.browser.suites.
+				// If browser-compatible unit tests were added to this executor,
+				// add a RemoteSuite to the session suite. The RemoteSuite will
+				// run the suites listed in config.suites and
+				// config.browser.suites.
 				if (config.suites.length + config.browser.suites.length > 0) {
-					suite.add(new RemoteSuite({
-						before() {
-							session.coverageEnabled = executor.hasCoveredFiles;
-						}
-					}));
+					suite.add(
+						new RemoteSuite({
+							before() {
+								session.coverageEnabled =
+									executor.hasCoveredFiles;
+							}
+						})
+					);
 				}
 
 				return suite;
@@ -445,12 +543,17 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		this._loadingFunctionalSuites = true;
 		const suites = this.config.functionalSuites;
 		return Task.resolve(this._loader(suites))
-			.then(() => { this.log('Loaded functional suites:', suites); })
-			.finally(() => { this._loadingFunctionalSuites = false; });
+			.then(() => {
+				this.log('Loaded functional suites:', suites);
+			})
+			.finally(() => {
+				this._loadingFunctionalSuites = false;
+			});
 	}
 
 	/**
-	 * Override Executor#_loadSuites to set instrumentetion hooks before loading suites
+	 * Override Executor#_loadSuites to set instrumentetion hooks before loading
+	 * suites
 	 */
 	protected _loadSuites() {
 		if (this.hasCoveredFiles) {
@@ -459,7 +562,11 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		return super._loadSuites();
 	}
 
-	protected _processOption(name: keyof Config, value: any, addToExisting: boolean) {
+	protected _processOption(
+		name: keyof Config,
+		value: any,
+		addToExisting: boolean
+	) {
 		switch (name) {
 			case 'serverUrl':
 				this._setOption(name, parseValue(name, value, 'string'));
@@ -475,8 +582,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			case 'environments':
 				if (!value) {
 					value = [];
-				}
-				else if (!Array.isArray(value)) {
+				} else if (!Array.isArray(value)) {
 					value = [value];
 				}
 				value = value.map((val: any) => {
@@ -485,7 +591,11 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 					}
 					return val;
 				});
-				this._setOption(name, parseValue(name, value, 'object[]', 'browserName'), addToExisting);
+				this._setOption(
+					name,
+					parseValue(name, value, 'object[]', 'browserName'),
+					addToExisting
+				);
 				break;
 
 			case 'excludeInstrumentation':
@@ -508,7 +618,11 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 
 			case 'coverage':
 			case 'functionalSuites':
-				this._setOption(name, parseValue(name, value, 'string[]'), addToExisting);
+				this._setOption(
+					name,
+					parseValue(name, value, 'string[]'),
+					addToExisting
+				);
 				break;
 
 			case 'connectTimeout':
@@ -519,7 +633,11 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				break;
 
 			default:
-				super._processOption(<keyof BaseConfig>name, value, addToExisting);
+				super._processOption(
+					<keyof BaseConfig>name,
+					value,
+					addToExisting
+				);
 				break;
 		}
 	}
@@ -532,10 +650,14 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				config.internPath = dirname(dirname(__dirname));
 			}
 
-			config.internPath = normalizePath(`${relative(process.cwd(), config.internPath)}${sep}`);
+			config.internPath = normalizePath(
+				`${relative(process.cwd(), config.internPath)}${sep}`
+			);
 			if (/^\.\.\//.test(config.internPath)) {
-				throw new Error(`Invalid internPath "${config.internPath}". If the intern package is symlinked, `
-					+ 'config.internPath must be set manually.');
+				throw new Error(
+					`Invalid internPath "${config.internPath}". If the intern package is symlinked, ` +
+						'config.internPath must be set manually.'
+				);
 			}
 
 			if (config.benchmarkConfig) {
@@ -545,12 +667,16 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				});
 			}
 
-			this._instrumentBasePath = normalizePath(`${resolve(config.basePath || '')}${sep}`);
+			this._instrumentBasePath = normalizePath(
+				`${resolve(config.basePath || '')}${sep}`
+			);
 			this._coverageFiles = [];
 
 			if (config.coverage) {
 				// Coverage file entries should be absolute paths
-				this._coverageFiles = expandFiles(config.coverage).map(path => resolve(path));
+				this._coverageFiles = expandFiles(config.coverage).map(path =>
+					resolve(path)
+				);
 			}
 
 			config.serverUrl = config.serverUrl.replace(/\/*$/, '/');
@@ -572,14 +698,21 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			config.node.suites = expandFiles(config.node.suites);
 			config.browser.suites = expandFiles(config.browser.suites);
 
-			// Install the instrumenter in resolve config so it will be able to handle suites
-			this._instrumenter = createInstrumenter(mixin({}, {
-				coverageVariable: config.coverageVariable,
-				...config.instrumenterOptions
-			}, {
-				preserveComments: true,
-				produceSourceMap: true
-			}));
+			// Install the instrumenter in resolve config so it will be able to
+			// handle suites
+			this._instrumenter = createInstrumenter(
+				mixin(
+					{},
+					{
+						coverageVariable: config.coverageVariable,
+						...config.instrumenterOptions
+					},
+					{
+						preserveComments: true,
+						produceSourceMap: true
+					}
+				)
+			);
 		});
 	}
 
@@ -587,13 +720,15 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		let testTask: Task<void>;
 		return new Task<void>(
 			(resolve, reject) => {
-				super._runTests()
+				super
+					._runTests()
 					.then(() => {
 						if (!this._sessionSuites) {
 							return;
 						}
-						return this._loadFunctionalSuites()
-							.then(() => testTask = this._runRemoteTests());
+						return this._loadFunctionalSuites().then(
+							() => (testTask = this._runRemoteTests())
+						);
 					})
 					.then(resolve, reject);
 			},
@@ -603,8 +738,9 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				}
 			}
 		).finally(() => {
-			// For all files that are marked for coverage that weren't read, read the file and instrument the code
-			// (adding it to the overall coverage map)
+			// For all files that are marked for coverage that weren't read,
+			// read the file and instrument the code (adding it to the overall
+			// coverage map)
 			const coveredFiles = this._coverageMap.files();
 			const uncoveredFiles = this._coverageFiles.filter(filename => {
 				return coveredFiles.indexOf(filename) === -1;
@@ -613,8 +749,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				try {
 					const code = readFileSync(filename, { encoding: 'utf8' });
 					this.instrumentCode(code, filename);
-				}
-				catch (_error) {}
+				} catch (_error) {}
 			});
 		});
 	}
@@ -624,40 +759,52 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		const sessionSuites = this._sessionSuites;
 		const queue = new FunctionQueue(config.maxConcurrency || Infinity);
 
-		this.log('Running', sessionSuites.length, 'suites with maxConcurrency', config.maxConcurrency);
+		this.log(
+			'Running',
+			sessionSuites.length,
+			'suites with maxConcurrency',
+			config.maxConcurrency
+		);
 
-		const runTask = new Task((resolve, reject) => {
-			Task.all(sessionSuites.map(suite => {
-				this.log('Queueing suite', suite.name);
-				return queue.enqueue(() => {
-					this.log('Running suite', suite.name);
-					return suite.run();
-				});
-			})).then(resolve, reject);
-		}, () => {
-			this.log('Canceling remote tests');
-			queue.clear();
+		const runTask = new Task(
+			(resolve, reject) => {
+				Task.all(
+					sessionSuites.map(suite => {
+						this.log('Queueing suite', suite.name);
+						return queue.enqueue(() => {
+							this.log('Running suite', suite.name);
+							return suite.run();
+						});
+					})
+				).then(resolve, reject);
+			},
+			() => {
+				this.log('Canceling remote tests');
+				queue.clear();
+			}
+		);
+
+		return runTask.then(() => {}).finally(() => {
+			if (config.functionalCoverage !== false) {
+				// Collect any local coverage generated by functional tests
+				this.log('Emitting coverage');
+				return this._emitCoverage('functional tests');
+			}
 		});
-
-		return runTask
-			.then(() => { })
-			.finally(() => {
-				if (config.functionalCoverage !== false) {
-					// Collect any local coverage generated by functional tests
-					this.log('Emitting coverage');
-					return this._emitCoverage('functional tests');
-				}
-			});
 	}
 
 	/**
 	 * Adds hooks for code coverage instrumentation in the Node.js loader.
 	 */
 	protected _setInstrumentationHooks() {
-		hookRunInThisContext(filename => this.shouldInstrumentFile(filename),
-			(code, filename) => this.instrumentCode(code, filename));
-		this._unhookRequire = hookRequire(filename => this.shouldInstrumentFile(filename),
-			(code, filename) => this.instrumentCode(code, filename));
+		hookRunInThisContext(
+			filename => this.shouldInstrumentFile(filename),
+			(code, filename) => this.instrumentCode(code, filename)
+		);
+		this._unhookRequire = hookRequire(
+			filename => this.shouldInstrumentFile(filename),
+			(code, filename) => this.instrumentCode(code, filename)
+		);
 	}
 
 	/**
@@ -687,8 +834,8 @@ export interface Config extends BaseConfig {
 	connectTimeout: number;
 
 	/**
-	 * A list of globs denoting which files coverage data should be collected for. Files may be excluded by prefixing an
-	 * expression with '!'.
+	 * A list of globs denoting which files coverage data should be collected
+	 * for. Files may be excluded by prefixing an expression with '!'.
 	 */
 	coverage: string[];
 
@@ -754,7 +901,8 @@ export interface Events extends BaseEvents {
 }
 
 /**
- * A basic FIFO function queue to limit the number of currently executing asynchronous functions.
+ * A basic FIFO function queue to limit the number of currently executing
+ * asynchronous functions.
  */
 class FunctionQueue {
 	readonly maxConcurrency: number;
@@ -793,11 +941,14 @@ class FunctionQueue {
 	next() {
 		if (this.queue.length > 0) {
 			const { func, resolve, reject } = this.queue.shift()!;
-			const task = func().then(resolve, reject).finally(() => {
-				// Remove the task from the active task list and kick off the next task
-				pullFromArray(this.activeTasks, task);
-				this.next();
-			});
+			const task = func()
+				.then(resolve, reject)
+				.finally(() => {
+					// Remove the task from the active task list and kick off
+					// the next task
+					pullFromArray(this.activeTasks, task);
+					this.next();
+				});
 			this.activeTasks.push(task);
 		}
 	}

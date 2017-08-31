@@ -15,11 +15,7 @@ const common: Configuration = {
 			},
 			{
 				test: /\.styl$/,
-				use: [
-					'style-loader',
-					'css-loader',
-					'stylus-loader'
-				]
+				use: ['style-loader', 'css-loader', 'stylus-loader']
 			}
 		],
 		noParse: /benchmark\/benchmark.js/
@@ -36,9 +32,7 @@ const common: Configuration = {
 };
 
 if (process.env['NODE_ENV'] === 'production') {
-	common.plugins = [
-		new optimize.UglifyJsPlugin()
-	];
+	common.plugins = [new optimize.UglifyJsPlugin()];
 }
 
 module.exports = [
