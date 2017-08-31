@@ -10,19 +10,46 @@ import { Remote } from './executors/Node';
  * The Suite class manages a group of tests.
  */
 export default class Suite implements SuiteProperties {
+	/**
+	 * An optional method that is run after all the suite's tests have completed
+	 */
 	after: SuiteLifecycleFunction;
+
+	/**
+	 * An optional method that is run after each test has completed
+	 */
 	afterEach: TestLifecycleFunction;
+
+	/**
+	 * A convenience function that generates and returns a special
+	 * [[lib/Deferred.Deferred]] that can be used for asynchronous testing
+	 */
 	async: ((timeout?: number) => Deferred<void>) | undefined;
+
+	/**
+	 * An optional method that is run before any of this suite's tests are
+	 * started
+	 */
 	before: SuiteLifecycleFunction;
+
+	/**
+	 * An optional method that is run before each test
+	 */
 	beforeEach: TestLifecycleFunction;
+
+	/** The error that caused this suite to fail */
 	error: InternError | undefined;
+
+	/** This suite's name */
 	name: string;
+
+	/** This suite's parent Suite */
 	parent: Suite;
 
 	/**
-	 * If true, the suite will publish its start topic after the before callback
-	 * has finished, and will publish its end topic before the after callback
-	 * has finished.
+	 * If true, the suite will emit a suiteStart event after the `before`
+	 * callback has finished, and will emit a suiteEnd event before the `after`
+	 * callback has finished.
 	 */
 	publishAfterSetup = false;
 
