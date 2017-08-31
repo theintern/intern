@@ -28,6 +28,7 @@
   },
   "scripts": {
     "build": "intern-dev-build",
+    "clean": "intern-dev-clean",
     "test": "intern-dev-test",
     "lint": "intern-dev-lint",
     "release": "intern-dev-release"
