@@ -95,42 +95,6 @@ if (!acceptVersion(internPackage.version, minVersion)) {
 	);
 }
 
-// // Override commander's helpInformation to show the description above commands.
-// // Remove this if https://github.com/tj/commander.js/issues/500 gets taken care
-// // of.
-// program.helpInformation = function(this: any) {
-// 	let desc: string[] = [];
-// 	if (this._description) {
-// 		desc = ['', '  ' + this._description];
-// 	}
-
-// 	let cmdName = this._name;
-// 	if (this._alias) {
-// 		cmdName = `${cmdName}|${this._alias}`;
-// 	}
-// 	const usage = ['', `  Usage: ${cmdName} ${this.usage()}`];
-
-// 	const cmds: string[] = [];
-// 	const commandHelp = this.commandHelp();
-// 	if (commandHelp) {
-// 		cmds.push(commandHelp);
-// 	}
-
-// 	const options = [
-// 		'  Options:',
-// 		'',
-// 		'' + this.optionHelp().replace(/^/gm, '    '),
-// 		'',
-// 		''
-// 	];
-
-// 	return usage
-// 		.concat(desc)
-// 		.concat(cmds)
-// 		.concat(options)
-// 		.join('\n');
-// };
-
 program
 	.description('Run JavaScript tests')
 	.option('-v, --verbose', 'show more information about what Intern is doing')
