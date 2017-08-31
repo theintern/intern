@@ -1,39 +1,55 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs';
-import * as path from 'path';
-import * as cli from '../lib/cli';
+import {
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	statSync,
+	writeFileSync
+} from 'fs';
+import { basename, dirname, join } from 'path';
+import {
+	acceptVersion,
+	copy,
+	collect,
+	die,
+	enumArg,
+	exitCodeForSignal,
+	getLogger,
+	intArg,
+	print
+} from '../lib/cli';
 import { Command } from 'commander';
-import * as resolve from 'resolve';
+import { sync as resolve } from 'resolve';
 import { spawn } from 'child_process';
-import opn = require('opn');
-const pkg = require('../../../package.json');
+import * as opn from 'opn';
 
+const pkg = require('../../../package.json');
 const program = new Command();
 
-let vlog = cli.getLogger();
-const print = cli.print;
-const die = cli.die;
+let vlog = getLogger();
 
 let internDir: string;
 let internPackage: any;
 
-const TESTS_DIR = 'tests';
-const MIN_VERSION = '3.0.0';
-const BROWSERS = {
-	'chrome': {
+const testsDir = 'tests';
+const minVersion = '3.0.0';
+const browsers = {
+	chrome: {
 		name: 'Chrome',
 		driver: 'ChromeDriver',
 		url: 'https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver'
 	},
-	'firefox': {
+	firefox: {
 		environment: { marionette: true },
 		name: 'Firefox 47+',
 		driver: 'GeckoDriver',
-		url: 'https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver'
+		url:
+			'https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver'
 	},
-	'safari': {
-		note: 'Note that Safari currently requires that the Safari WebDriver extension be manually ' +
+	safari: {
+		note:
+			'Note that Safari currently requires that the Safari WebDriver extension be manually ' +
 			'installed.',
 		name: 'Safari',
 		driver: 'SafariDriver',
@@ -42,81 +58,84 @@ const BROWSERS = {
 	'internet explorer': {
 		name: 'Internet Explorer',
 		driver: 'IEDriverServer',
-		url: 'https://github.com/SeleniumHQ/selenium/wiki/InternetExplorerDriver'
+		url:
+			'https://github.com/SeleniumHQ/selenium/wiki/InternetExplorerDriver'
 	},
-	'microsoftedge': {
+	microsoftedge: {
 		name: 'Microsft Edge',
 		driver: 'MicrosoftWebDriver',
-		url: 'https://developer.microsoft.com/en-us/microsoft-edge/platform/documentation/dev-guide' +
+		url:
+			'https://developer.microsoft.com/en-us/microsoft-edge/platform/documentation/dev-guide' +
 			'/tools/webdriver/'
 	}
 };
 
 // Load the local Intern's package.json
 try {
-	internDir = path.dirname(resolve.sync('intern', { basedir: process.cwd() }));
-	internPackage = JSON.parse(fs.readFileSync(path.join(internDir, 'package.json'), { encoding: 'utf8' }));
-}
-catch (error) {
+	internDir = dirname(resolve('intern', { basedir: process.cwd() }));
+	internPackage = JSON.parse(
+		readFileSync(join(internDir, 'package.json'), { encoding: 'utf8' })
+	);
+} catch (error) {
 	die([
-		'You\'ll need a local install of Intern before you can use this command. Install it with',
+		'You will need a local install of Intern before you can use this command. Install it with',
 		'',
 		'  npm install --save-dev intern'
 	]);
 }
 
 // Verify the installed Intern is a version this script can work with
-if (!cli.acceptVersion(internPackage.version, MIN_VERSION)) {
-	die('This command requires Intern ' + MIN_VERSION + ' or newer (' + internPackage.version +
-		' is installed).');
+if (!acceptVersion(internPackage.version, minVersion)) {
+	die(
+		'This command requires Intern ' +
+			minVersion +
+			' or newer (' +
+			internPackage.version +
+			' is installed).'
+	);
 }
 
-// Override commander's helpInformation to show the description above commands. Remove this if
-// https://github.com/tj/commander.js/issues/500 gets taken care of.
-program.helpInformation = function(this: any) {
-	let desc: string[] = [];
-	if (this._description) {
-		desc = [
-			'',
-			'  ' + this._description
-		];
-	}
+// // Override commander's helpInformation to show the description above commands.
+// // Remove this if https://github.com/tj/commander.js/issues/500 gets taken care
+// // of.
+// program.helpInformation = function(this: any) {
+// 	let desc: string[] = [];
+// 	if (this._description) {
+// 		desc = ['', '  ' + this._description];
+// 	}
 
-	let cmdName = this._name;
-	if (this._alias) {
-		cmdName = `${cmdName}|${this._alias}`;
-	}
-	const usage = [
-		'',
-		`  Usage: ${cmdName} ${this.usage()}`
-	];
+// 	let cmdName = this._name;
+// 	if (this._alias) {
+// 		cmdName = `${cmdName}|${this._alias}`;
+// 	}
+// 	const usage = ['', `  Usage: ${cmdName} ${this.usage()}`];
 
-	const cmds: string[] = [];
-	const commandHelp = this.commandHelp();
-	if (commandHelp) {
-		cmds.push(commandHelp);
-	}
+// 	const cmds: string[] = [];
+// 	const commandHelp = this.commandHelp();
+// 	if (commandHelp) {
+// 		cmds.push(commandHelp);
+// 	}
 
-	const options = [
-		'  Options:',
-		'',
-		'' + this.optionHelp().replace(/^/gm, '    '),
-		'',
-		''
-	];
+// 	const options = [
+// 		'  Options:',
+// 		'',
+// 		'' + this.optionHelp().replace(/^/gm, '    '),
+// 		'',
+// 		''
+// 	];
 
-	return usage
-		.concat(desc)
-		.concat(cmds)
-		.concat(options)
-		.join('\n');
-};
+// 	return usage
+// 		.concat(desc)
+// 		.concat(cmds)
+// 		.concat(options)
+// 		.join('\n');
+// };
 
 program
 	.description('Run JavaScript tests')
 	.option('-v, --verbose', 'show more information about what Intern is doing')
 	.option('-V, --version', 'output the version')
-	.on('version', function () {
+	.on('version', function() {
 		print();
 		print('intern-cli: ' + pkg.version);
 		if (internDir) {
@@ -124,13 +143,13 @@ program
 		}
 		print();
 	})
-	.on('verbose', function () {
-		vlog = cli.getLogger(true);
+	.on('verbose', function() {
+		vlog = getLogger(true);
 	})
-	.on('help', function (args: any[]) {
+	.on('help', function(args: any[]) {
 		const commandName = args[0];
 		let command: any;
-		const commands: any[] = (<any> program).commands;
+		const commands: any[] = (<any>program).commands;
 
 		for (let i = 0; i < commands.length; i++) {
 			if (commands[i].name() === commandName) {
@@ -140,8 +159,7 @@ program
 
 		if (command) {
 			command.help();
-		}
-		else {
+		} else {
 			print();
 
 			if (commandName) {
@@ -149,7 +167,9 @@ program
 			}
 
 			print([
-				'To get started with Intern, run `intern init` to setup a "' + TESTS_DIR + '" directory and then',
+				'To get started with Intern, run `intern init` to setup a "' +
+					testsDir +
+					'" directory and then',
 				'run `intern run` to start testing!'
 			]);
 			program.help();
@@ -161,30 +181,46 @@ program
 program
 	.command('init')
 	.description('Setup a project for testing with Intern')
-	.option('-b, --browser <browser>', 'browser to use for functional tests',
-		cli.enumArg.bind(null, Object.keys(BROWSERS)), 'chrome')
-	.action(function (options) {
+	.option(
+		'-b, --browser <browser>',
+		'browser to use for functional tests',
+		enumArg.bind(null, Object.keys(browsers)),
+		'chrome'
+	)
+	.action(function(options) {
 		// jshint maxcomplexity:11
 		try {
-			fs.statSync(TESTS_DIR);
-			die('error: A file or directory named "' + TESTS_DIR + '" already exists.');
-		}
-		catch (error) {
+			statSync(testsDir);
+			die(
+				'error: A file or directory named "' +
+					testsDir +
+					'" already exists.'
+			);
+		} catch (error) {
 			// ignore
 		}
 
 		try {
-			fs.mkdirSync(TESTS_DIR);
+			mkdirSync(testsDir);
 
-			vlog('Created test directory %s/', TESTS_DIR);
+			vlog('Created test directory %s/', testsDir);
 
-			const configFile = path.join(TESTS_DIR, 'intern.js');
+			const configFile = join(testsDir, 'intern.js');
 
-			let data = fs.readFileSync(path.join(internDir, 'tests', 'example.intern.js'), { encoding: 'utf8' });
+			let data = readFileSync(
+				join(internDir, 'tests', 'example.intern.js'),
+				{ encoding: 'utf8' }
+			);
 			data = data.replace(/myPackage/g, 'app');
-			data = data.replace(/suites: \[.*?],/, 'suites: [ \'app/tests/unit/*\' ],');
-			data = data.replace(/functionalSuites: \[.*?],/, 'functionalSuites: [ \'app/tests/functional/*\' ],');
-			data = data.replace(/'BrowserStackTunnel'/, '\'NullTunnel\'');
+			data = data.replace(
+				/suites: \[.*?],/,
+				"suites: [ 'app/tests/unit/*' ],"
+			);
+			data = data.replace(
+				/functionalSuites: \[.*?],/,
+				"functionalSuites: [ 'app/tests/functional/*' ],"
+			);
+			data = data.replace(/'BrowserStackTunnel'/, "'NullTunnel'");
 			data = data.replace(/capabilities: {[\s\S]*?}/, 'capabilities: {}');
 
 			vlog('Using browser: %s', options.browser);
@@ -192,37 +228,49 @@ program
 
 			let environment: string;
 			if (options.browser === 'firefox') {
-				environment = '{ browserName: \'firefox\', marionette: true }';
+				environment = "{ browserName: 'firefox', marionette: true }";
+			} else {
+				environment = "{ browserName: '" + options.browser + "' }";
 			}
-			else {
-				environment = '{ browserName: \'' + options.browser + '\' }';
-			}
-			data = data.replace(/environments: \[[\s\S]*?],/, 'environments: [ ' + environment + ' ],');
+			data = data.replace(
+				/environments: \[[\s\S]*?],/,
+				'environments: [ ' + environment + ' ],'
+			);
 
-			fs.writeFileSync(configFile, data);
+			writeFileSync(configFile, data);
 
-			cli.copy(path.join(__dirname, '..', '..', '..', 'init'), path.join(TESTS_DIR));
+			copy(join(__dirname, '..', '..', '..', 'init'), join(testsDir));
 
 			vlog('Copied test files');
 
 			print();
 			print([
 				'Intern initialized! A test directory containing example unit and functional tests has been ' +
-				'created at ' + TESTS_DIR + '/. See ' + configFile + ' for configuration options.',
+					'created at ' +
+					testsDir +
+					'/. See ' +
+					configFile +
+					' for configuration options.',
 				'',
 				'Run the sample unit test with `intern run`.',
 				'',
 				'To run the sample functional test, first start a WebDriver server (e.g., Selenium), then ' +
-				'run `intern run -w`. The functional tests assume ' + options.browser + ' is installed.',
+					'run `intern run -w`. The functional tests assume ' +
+					options.browser +
+					' is installed.',
 				''
 			]);
 
-			const info = (<any> BROWSERS)[options.browser];
+			const info = (<any>browsers)[options.browser];
 			let note = info.note;
 
 			if (!note) {
-				note = 'Note that running WebDriver tests with ' + info.name + ' requires ' + info.driver +
-				' to be available in the system path.';
+				note =
+					'Note that running WebDriver tests with ' +
+					info.name +
+					' requires ' +
+					info.driver +
+					' to be available in the system path.';
 			}
 
 			print([
@@ -233,18 +281,21 @@ program
 				'for more information.',
 				''
 			]);
-		}
-		catch (error) {
+		} catch (error) {
 			die('error initializing: ' + error);
 		}
 	})
-	.on('--help', function () {
-		print('This command creates a "' + TESTS_DIR + '" directory with a default Intern config file ' +
-			'and some sample tests.');
+	.on('--help', function() {
+		print(
+			'This command creates a "' +
+				testsDir +
+				'" directory with a default Intern config file ' +
+				'and some sample tests.'
+		);
 		print();
 		print('Browser names:');
 		print();
-		print('  ' + Object.keys(BROWSERS).join(', '));
+		print('  ' + Object.keys(browsers).join(', '));
 		print();
 	});
 
@@ -252,53 +303,84 @@ program
 	.command('run')
 	.description('Run tests in Node or in a browser using WebDriver')
 	.option('-b, --bail', 'quit after the first failing test')
-	.option('-c, --config <module ID|file>', 'config file to use (default is ' + TESTS_DIR + '/intern.js)')
-	.option('-f, --fsuites <module ID>', 'specify a functional suite to run (can be used multiple times)', cli.collect,
-		[])
+	.option(
+		'-c, --config <module ID|file>',
+		'config file to use (default is ' + testsDir + '/intern.js)'
+	)
+	.option(
+		'-f, --fsuites <module ID>',
+		'specify a functional suite to run (can be used multiple times)',
+		collect,
+		[]
+	)
 	.option('-g, --grep <regex>', 'filter tests by ID')
-	.option('-l, --leaveRemoteOpen', 'leave the remote browser open after tests finish')
-	.option('-r, --reporters <name|module ID>', 'specify a reporter (can be used multiple times)', cli.collect, [])
-	.option('-p, --port <port>', 'port that test proxy should serve on', cli.intArg)
-	.option('-s, --suites <module ID>', 'specify a suite to run (can be used multiple times)', cli.collect, [])
-	.option('-w, --webdriver', 'use the WebDriver runner (default is Node client)')
+	.option(
+		'-l, --leaveRemoteOpen',
+		'leave the remote browser open after tests finish'
+	)
+	.option(
+		'-r, --reporters <name|module ID>',
+		'specify a reporter (can be used multiple times)',
+		collect,
+		[]
+	)
+	.option('-p, --port <port>', 'port that test proxy should serve on', intArg)
+	.option(
+		'-s, --suites <module ID>',
+		'specify a suite to run (can be used multiple times)',
+		collect,
+		[]
+	)
+	.option(
+		'-w, --webdriver',
+		'use the WebDriver runner (default is Node client)'
+	)
 	.option('-I, --noInstrument', 'disable instrumentation')
 	.option('--debug', 'enable the Node debugger')
-	.option('--proxyOnly', 'start Intern\'s test server, but don\'t run any tests')
-	.option('--timeout <int>', 'set the default timeout for async tests', cli.intArg)
+	.option(
+		'--proxyOnly',
+		"start Intern's test server, but don't run any tests"
+	)
+	.option(
+		'--timeout <int>',
+		'set the default timeout for async tests',
+		intArg
+	)
 	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
-	.action(function (...args: any[]) {
+	.action(function(...args: any[]) {
 		// jshint maxcomplexity:12
 
 		const options = args[args.length - 1];
-		const config = options.config || path.join(TESTS_DIR, 'intern.js');
+		const config = options.config || join(testsDir, 'intern.js');
 
 		try {
-			fs.statSync(config);
-		}
-		catch (error) {
+			statSync(config);
+		} catch (error) {
 			die([
-				'There isn\'t a test config at ' + config + '. You can specify a different test config ' +
-				'with the --config option, or run `intern init` to setup a project for testing.'
+				"There isn't a test config at " +
+					config +
+					'. You can specify a different test config ' +
+					'with the --config option, or run `intern init` to setup a project for testing.'
 			]);
 		}
 
 		const mode = options.webdriver ? 'runner' : 'client';
-		const internCmd = path.join(internDir, mode);
+		const internCmd = join(internDir, mode);
 
 		// Allow user-specified args in the standard intern format to be passed through
 		const internArgs = args.slice(0, args.length - 1);
 
 		internArgs.push('config=' + config);
 
-		options.suites.forEach(function (suite: string) {
+		options.suites.forEach(function(suite: string) {
 			internArgs.push('suites=' + suite);
 		});
 
-		options.fsuites.forEach(function (suite: string) {
+		options.fsuites.forEach(function(suite: string) {
 			internArgs.push('functionalSuites=' + suite);
 		});
 
-		options.reporters.forEach(function (reporter: string) {
+		options.reporters.forEach(function(reporter: string) {
 			internArgs.push('reporters=' + reporter);
 		});
 
@@ -349,80 +431,82 @@ program
 			stdio: 'inherit'
 		});
 
-		process.on('SIGINT', function () {
+		process.on('SIGINT', function() {
 			intern.kill('SIGINT');
 		});
 
-		intern.on('close', function (code: number, signal: string) {
+		intern.on('close', function(code: number, signal: string) {
 			if (process.exitCode == null) {
-				process.exitCode = code != null ? code : cli.exitCodeForSignal(signal);
+				process.exitCode =
+					code != null ? code : exitCodeForSignal(signal);
 			}
 		});
 
-		intern.on('error', function () {
+		intern.on('error', function() {
 			if (process.exitCode == null) {
 				process.exitCode = 1;
 			}
 		});
 	})
-	.on('--help', function () {
+	.on('--help', function() {
 		print([
 			'Tests may be run purely in Node using the Node client, or in a browser using the WebDriver ' +
-			'runner.',
+				'runner.',
 			'',
 			'The Node client runs tests purely in Node rather than in a browser. This makes it well ' +
-			'suited for quickly running tests that do not involve the DOM, and and for testing code ' +
-			'meant to run in a server environment. Only unit tests will be run when using the Node ' +
-			'client.',
+				'suited for quickly running tests that do not involve the DOM, and and for testing code ' +
+				'meant to run in a server environment. Only unit tests will be run when using the Node ' +
+				'client.',
 			'',
 			'The WebDriver runner starts and controls a browser using the WebDriver protocol. This ' +
-			'requires that either a local instance of Selenium is running or that Intern has been ' +
-			'configured to run tests on a cloud testing service. Both unit and functional tests will ' +
-			'be run when using the WebDriver runner.',
+				'requires that either a local instance of Selenium is running or that Intern has been ' +
+				'configured to run tests on a cloud testing service. Both unit and functional tests will ' +
+				'be run when using the WebDriver runner.',
 			''
 		]);
 
 		const reporters: string[] = [];
-		const reporterDir = path.join(internDir, 'lib', 'reporters');
-		fs.readdirSync(reporterDir).filter(function (name: string) {
-			const fullPath = path.join(reporterDir, name);
-			return fs.statSync(fullPath).isFile();
-		}).forEach(function (name) {
-			reporters.push(path.basename(name, '.js'));
-		});
-		print([
-			'Reporters:',
-			'',
-			'  ' + reporters.join(', '),
-			''
-		]);
+		const reporterDir = join(internDir, 'lib', 'reporters');
+		readdirSync(reporterDir)
+			.filter(function(name: string) {
+				const fullPath = join(reporterDir, name);
+				return statSync(fullPath).isFile();
+			})
+			.forEach(function(name) {
+				reporters.push(basename(name, '.js'));
+			});
+		print(['Reporters:', '', '  ' + reporters.join(', '), '']);
 
 		const tunnels: string[] = [];
-		const digdugDir = path.dirname(resolve.sync('digdug/Tunnel', { basedir: process.cwd() }));
-		fs.readdirSync(digdugDir).filter(function (name) {
-			return /\wTunnel/.test(name);
-		}).forEach(function (name) {
-			tunnels.push(path.basename(name, '.js'));
-		});
-		print([
-			'Tunnels:',
-			'',
-			'  ' + tunnels.join(', '),
-			''
-		]);
+		const digdugDir = dirname(
+			resolve('digdug/Tunnel', { basedir: process.cwd() })
+		);
+		readdirSync(digdugDir)
+			.filter(function(name) {
+				return /\wTunnel/.test(name);
+			})
+			.forEach(function(name) {
+				tunnels.push(basename(name, '.js'));
+			});
+		print(['Tunnels:', '', '  ' + tunnels.join(', '), '']);
 	});
 
 program
 	.command('serve')
-	.description('Start a simple web server for running unit tests in a browser on your system')
-	.option('-c, --config <module ID|file>', 'config file to use (default is ' + TESTS_DIR + '/intern.js)')
+	.description(
+		'Start a simple web server for running unit tests in a browser on your system'
+	)
+	.option(
+		'-c, --config <module ID|file>',
+		'config file to use (default is ' + testsDir + '/intern.js)'
+	)
 	.option('-o, --open', 'open the test runner URL when the server starts')
-	.option('-p, --port <port>', 'port to serve on', cli.intArg)
+	.option('-p, --port <port>', 'port to serve on', intArg)
 	.option('-I, --noInstrument', 'disable instrumentation')
-	.action(function (...args: any[]) {
+	.action(function(...args: any[]) {
 		const options = args[args.length - 1];
-		const config = options.config || path.join(TESTS_DIR, 'intern.js');
-		const internCmd = path.join(internDir, 'runner');
+		const config = options.config || join(testsDir, 'intern.js');
+		const internCmd = join(internDir, 'runner');
 
 		// Allow user-specified args in the standard intern format to be passed through
 		const internArgs = args.slice(0, args.length - 1);
@@ -444,19 +528,27 @@ program
 			nodeArgs.push('debug');
 		}
 
-		const intern = spawn(process.execPath, nodeArgs.concat(internCmd).concat(internArgs), {
-			stdio: [ process.stdin, 'pipe', process.stdout ]
-		});
+		const intern = spawn(
+			process.execPath,
+			nodeArgs.concat(internCmd).concat(internArgs),
+			{
+				stdio: [process.stdin, 'pipe', process.stdout]
+			}
+		);
 
-		intern.stdout.on('data', function (data: any) {
+		intern.stdout.on('data', function(data: any) {
 			data = String(data);
 			process.stdout.write(data);
 
 			if (/Listening on/.test(data)) {
-				const internPath = '/node_modules/intern/client.html?config=' + config;
+				const internPath =
+					'/node_modules/intern/client.html?config=' + config;
 
 				// Get the address. Convert 0.0.0.0 to 'localhost' for Windows compatibility.
-				let address = data.split(' on ')[1].replace(/^\s*/, '').replace(/\s*$/, '');
+				let address = data
+					.split(' on ')[1]
+					.replace(/^\s*/, '')
+					.replace(/\s*$/, '');
 				const parts = address.split(':');
 				if (parts[0] === '0.0.0.0') {
 					parts[0] = 'localhost';
@@ -465,8 +557,7 @@ program
 
 				if (options.open) {
 					opn('http://' + address + internPath);
-				}
-				else {
+				} else {
 					print([
 						'',
 						'To run unit tests, browse to:',
@@ -481,23 +572,23 @@ program
 			}
 		});
 
-		process.on('SIGINT', function () {
+		process.on('SIGINT', function() {
 			intern.kill('SIGINT');
 		});
 	})
-	.on('--help', function () {
-		print('When running WebDriver tests, Intern runs a local server to serve itself and the test ' +
-			'files to the browser(s) running the tests. This server can also be used instead of a ' +
-			'dedicated web server such as nginx or Apache for running unit tests locally.');
+	.on('--help', function() {
+		print(
+			'When running WebDriver tests, Intern runs a local server to serve itself and the test ' +
+				'files to the browser(s) running the tests. This server can also be used instead of a ' +
+				'dedicated web server such as nginx or Apache for running unit tests locally.'
+		);
 		print();
 	});
 
 // Handle any unknown commands
-program
-	.command('*', null, { noHelp: true })
-	.action(function (command) {
-		die('unknown command: ' + command);
-	});
+program.command('*', null, { noHelp: true }).action(function(command) {
+	die('unknown command: ' + command);
+});
 
 program.parse(process.argv);
 
