@@ -90,7 +90,6 @@ Intern can run functional tests using WebDriver-compatible applications and serv
 * [Running](docs/running.md) - How to run Intern
 * [Continuous integration](docs/ci.md) - Using Intern with CI systems
 * [Extending](docs/extending.md) - Extending Intern
-* [API](docs/api.md) - Intern's API
 * [Developing](docs/developing.md) - For Intern developers
 * [Contributing](CONTRIBUTING.md) - How to contribute to Intern development
 <!-- end-github-only -->
@@ -125,7 +124,6 @@ Intern is a JS Foundation project offered under the [New BSD](LICENSE) license.
         "docs/running.md",
         "docs/ci.md",
         "docs/extending.md",
-        "docs/api.md",
         "docs/developing.md"
     ]
 }

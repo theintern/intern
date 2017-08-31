@@ -6,6 +6,9 @@ import Test, { isTest, SKIP } from './Test';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
 
+/**
+ * The Suite class manages a group of tests.
+ */
 export default class Suite implements SuiteProperties {
 	after: SuiteLifecycleFunction;
 	afterEach: TestLifecycleFunction;
@@ -23,8 +26,13 @@ export default class Suite implements SuiteProperties {
 	 */
 	publishAfterSetup = false;
 
+	/** The reason why this suite was skipped */
 	skipped: string;
+
+	/** The tests or other suites managed by this suite */
 	tests: (Suite | Test)[];
+
+	/** The time required to run all the tests in this suite */
 	timeElapsed: number;
 
 	private _bail: boolean;
@@ -34,6 +42,9 @@ export default class Suite implements SuiteProperties {
 	private _sessionId: string;
 	private _timeout: number;
 
+	/**
+	 * @param options an object with default property values
+	 */
 	constructor(options: SuiteOptions | RootSuiteOptions) {
 		Object.keys(options)
 			.filter(key => {
@@ -633,8 +644,15 @@ export default class Suite implements SuiteProperties {
 	/**
 	 * Skips this suite.
 	 *
-	 * @param {String} message
-	 * If provided, will be stored in this suite's `skipped` property.
+	 * Calling this function will cause all remaining tests in the suite to be
+	 * skipped. If a message was provided, a reporter may report the suite’s
+	 * tests as skipped. Skipped tests are not treated as passing or failing.
+	 *
+	 * If this method is called from a test function (as this.parent.skip()),
+	 * the test will be immediately halted, just as if the test’s own skip
+	 * method were called.
+	 *
+	 * @param message If provided, will be stored in this suite's `skipped` property.
 	 */
 	skip(message: string = 'suite skipped') {
 		this.skipped = message;

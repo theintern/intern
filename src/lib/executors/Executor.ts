@@ -30,7 +30,10 @@ import global from '@dojo/shim/global';
 const console: Console = global.console;
 
 /**
- * This is the default executor class.
+ * This is the base executor class.
+ *
+ * Executors are the main driver of the testing process. An instance of Executor
+ * is assigned to the `intern` global.
  */
 export default abstract class Executor<
 	E extends Events = Events,
@@ -156,19 +159,36 @@ export default abstract class Executor<
 
 	/**
 	 * Add a suite to the set of suites that will be run when `run` is called.
-	 * The suited is added by calling a factory function. The use of a factory
-	 * allows for distinct instances of a given suite to be create when an
-	 * executor has multiple root suites. parent suites.
 	 *
-	 * @param factory A function that will create a Suite object and add it to a
-	 * given parent suite
+	 * The suite is added by calling a factory function. The use of a factory
+	 * allows for distinct instances of a given suite to be create when an
+	 * executor has multiple root suites.
+	 *
+	 * ```js
+	 * intern.addSuite(parent => {
+	 *     const suite = new Suite({
+	 *         name: 'create new',
+	 *         tests: [
+	 *             new Test({
+	 *                 name: 'new test',
+	 *                 test: () => assert.doesNotThrow(() => new Component())
+	 *             })
+	 *         ]
+	 *     });
+	 *     parent.add(suite);
+	 * });
+	 * ```
+	 *
+	 * @param factory A function that will add a new Suite object to a given
+	 * parent suite.
 	 */
 	addSuite(factory: (parentSuite: Suite) => void) {
 		factory(this._rootSuite);
 	}
 
 	/**
-	 * Update this executor's configuration.
+	 * Configure the executor with an object containing
+	 * [[lib/executors/Executor.Config]] properties.
 	 */
 	configure(options: { [key in keyof C]?: any }) {
 		options = options || {};
@@ -183,6 +203,10 @@ export default abstract class Executor<
 	 *
 	 * Event listeners may execute async code, and a failing handler (one that
 	 * rejects or throws an error) will cause the emit to fail.
+	 *
+	 * @param eventName the name of the event to emit
+	 * @param data a data object whose type is event-dependent
+	 * @returns a Task that resolves when all listeners have processed the event
 	 */
 	emit(eventName: 'afterRun'): Task<void>;
 	emit(eventName: 'beforeRun'): Task<void>;
@@ -240,7 +264,13 @@ export default abstract class Executor<
 	}
 
 	/**
-	 * Get a registered interface plugin
+	 * Get a registered interface plugin.
+	 *
+	 * This method calls `getPlugin` behind the scenes.
+	 *
+	 * @param name the name of the interface
+	 * @returns the interface, which may be an object or a callable function, or
+	 * undefined if no such interface was registered.
 	 */
 	getInterface(name: 'object'): ObjectInterface;
 	getInterface(name: 'tdd'): TddInterface;
@@ -252,6 +282,11 @@ export default abstract class Executor<
 
 	/**
 	 * Get any resources registered by a particular plugin.
+	 *
+	 * @param type the type of plugin (e.g., 'interface' or 'reporter')
+	 * @param name the name of the plugin
+	 * @returns the resource registered for the given plugin name, or undefined
+	 * if no such plugin was registered.
 	 */
 	getPlugin<Y extends keyof P>(type: Y, name: string): P[Y];
 	getPlugin(name: 'chai'): Chai.ChaiStatic;
@@ -274,7 +309,15 @@ export default abstract class Executor<
 	}
 
 	/**
-	 * Convenience method for emitting log events
+	 * This is a convenience method for emitting log events.
+	 *
+	 * When debug mode is enabled, this method emits 'log' events using `emit`.
+	 * Otherwise it does nothing.
+	 *
+	 * @param args A list of arguments that will be stringified and combined
+	 * into a space-separated message.
+	 * @returns a Task that resolves when all listeners have finished processing
+	 * the event.
 	 */
 	log(...args: any[]) {
 		if (this.config.debug) {
@@ -308,9 +351,31 @@ export default abstract class Executor<
 	}
 
 	/**
-	 * Add a listener for a test event. When an event is emitted, the executor
-	 * will wait for all Promises returned by listener callbacks to resolve
-	 * before continuing.
+	 * Add a listener for a test event.
+	 *
+	 * ```js
+	 * intern.on('error', error => {
+	 *     console.log('An error occurred:', error);
+	 * });
+	 * ```
+	 *
+	 * A listener can be notified of all events by registering for the '*'
+	 * event, or by calling on with only a callback:
+	 *
+	 * ```js
+	 * intern.on(event => {
+	 *     console.log(`An ${event.name} event occurred:`, event.data);
+	 * });
+	 * ```
+	 * Note that some events are executor-specific. For example, the
+	 * [[lib/executors/Browser]] executor will never emit a tunnelStop
+	 * message.
+	 *
+	 * @param eventName the [[lib/executors/Executor.Events|event]] to listen for
+	 * @param listener a callback that accepts a single data parameter; it may
+	 * return a PromiseLike object if it needs to perform async actions
+	 * @returns a handle with a `destroy` method that can be used to stop
+	 * listening
 	 */
 	on<T extends keyof E>(eventName: T, listener: Listener<E[T]>): Handle;
 	on(listener: Listener<{ name: string; data?: any }>): Handle;
@@ -345,14 +410,39 @@ export default abstract class Executor<
 
 	/**
 	 * Register an interface plugin
+	 *
+	 * This is a convenience method for registering test interfaces. This method
+	 * calls [[lib/executors/Executor.registerPlugin]] behind the
+	 * scenes using the name `interface.${name}`.
 	 */
 	registerInterface(name: string, iface: any) {
 		this.registerPlugin(`interface.${name}`, () => iface);
 	}
 
 	/**
-	 * Set the loader script that will be used to load plugins and suites. will
-	 * handle the loading of test suites.
+	 * Register a module loader.
+	 *
+	 * This method sets the loader script that will be used to load plugins and
+	 * suites. The callback should accept an options object and return a
+	 * function that can load modules.
+	 *
+	 * ```js
+	 * intern.registerLoader(options: any => {
+	 *     // Register loader can return a Promise if it needs to load something
+	 *     // itself
+	 *     return intern.loadScript('some/loader.js').then(() => {
+	 *         loader.config(options);
+	 *         // Return a function that takes a list of modules and returns a
+	 *         // Promise that resolves when they've been loaded.
+	 *         return (modules: string[]) => {
+	 *             return loader.load(modules);
+	 *         });
+	 *     });
+	 * });
+	 * ```
+	 *
+	 * @param init a loader initialzation callback that should return a loader
+	 * function, or a Promise that resolves to a loader function
 	 */
 	registerLoader(init: LoaderInit) {
 		const options = this._loaderOptions
@@ -362,8 +452,40 @@ export default abstract class Executor<
 	}
 
 	/**
-	 * Register a plugin that will be loaded at the beginning of the testing
-	 * process, after the loader but before any suites are registered.
+	 * Register a plugin.
+	 *
+	 * Plugins are resources that are loaded at the beginning of the testing
+	 * process, after the loader but before any suites are registered. The
+	 * callback may return a Promise if the plugin needs to do some asynchronous
+	 * initialization. If the plugin is being loaded via the
+	 * [[lib/executors/Executor.Config.plugins|config.plugins]]
+	 * property, it's init callback will be passed any configured options. The
+	 * resolved return value of the callback will be returned by
+	 * [[lib/executors/Executor.getPlugin]].
+	 *
+	 * ```js
+	 * intern.registerPlugin('foo', (options: any) => {
+	 *     return {
+	 *         doSomething() {
+	 *             // ...
+	 *         },
+	 *         doSomethingElse() {
+	 *             // ...
+	 *         }
+	 *     };
+	 * });
+	 * ```
+	 *
+	 * Code would use the plugin by calling getPlugin:
+	 *
+	 * ```js
+	 * const { doSomething, doSomethingElse } = intern.getPlugin('foo');
+	 * doSomething();
+	 * ```
+	 *
+	 * @param name the plugin name
+	 * @param init an initializer function that returns the plugin resource, or
+	 * a Promise that resolves to the resource
 	 */
 	registerPlugin<T extends keyof P>(
 		type: T,
@@ -403,16 +525,23 @@ export default abstract class Executor<
 
 	/**
 	 * Register a reporter plugin
+	 *
+	 * This is a convenience method for registering reporter constructors. This
+	 * method calls [[lib/executors/Executor.registerPlugin]] behind the scenes
+	 * using the name `reporter.${name}`.
+	 *
+	 * @param name the reporter name
+	 * @param Ctor a reporter class constructor
 	 */
 	registerReporter(name: string, Ctor: typeof Reporter) {
 		this.registerPlugin('reporter', name, () => Ctor);
 	}
 
 	/**
-	 * Run tests. This method sets up the environment for test execution, runs
-	 * the tests, and runs any finalization code afterwards. Subclasses should
-	 * override `_beforeRun`, `_runTests`, and `_afterRun` to alter how tests
-	 * are run.
+	 * Run tests.
+	 *
+	 * This method sets up the environment for test execution, runs the tests,
+	 * and runs any finalization code afterwards.
 	 */
 	run() {
 		// Only allow the executor to be started once

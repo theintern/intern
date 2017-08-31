@@ -6,6 +6,9 @@ import { Remote } from './executors/Node';
 import Suite from './Suite';
 import { mixin } from '@dojo/core/lang';
 
+/**
+ * A Test is a single unit or functional test.
+ */
 export default class Test implements TestProperties {
 	/** The name of this test */
 	name: string;
@@ -130,16 +133,26 @@ export default class Test implements TestProperties {
 	}
 
 	/**
-	 * A convenience function that generates and returns a special Deferred that
-	 * can be used for asynchronous testing. Once called, a test is assumed to
-	 * be asynchronous no matter its return value (the generated Deferred's
-	 * promise will always be used as the implied return value if a promise is
-	 * not returned by the test function).
+	 * This is a convenience function that generates and returns a special
+	 * [[lib/Deferred.Deferred]] that can be used for asynchronous testing.
+	 *
+	 * Once this method is called, a test is assumed to be asynchronous no
+	 * matter its return value (the generated Deferred's promise will always be
+	 * used as the implied return value if a promise is not returned by the test
+	 * function).
+	 *
+	 * The optional `numCallsUntilResolution` argument to `async` affects how the
+	 * callback method operates. By default, the Deferred is resolved (assuming
+	 * it hasn’t already been rejected) the first time the function returned by
+	 * `callback` is called. If `numCallsUntilResolution` is set (it must be a
+	 * value > 0), the function returned by `callback` must be called
+	 * `numCallsUntilResolution` times before the Deferred resolves.
 	 *
 	 * @param timeout If provided, the amount of time to wait before rejecting
 	 * the test with a timeout error, in milliseconds.
 	 * @param numCallsUntilResolution The number of times that resolve needs to
 	 * be called before the Deferred is actually resolved.
+	 * @returns a lib/Deferred that can be used to resolve the test
 	 */
 	async(timeout?: number, numCallsUntilResolution?: number): Deferred<any> {
 		this._isAsync = true;
@@ -356,6 +369,10 @@ export default class Test implements TestProperties {
 	/**
 	 * Skips this test.
 	 *
+	 * Calling this function will cause a test to halt immediately. If a message
+	 * was provided, a reporter may report the test as skipped. Skipped tests
+	 * are not treated as passing or failing.
+	 *
 	 * @param message If provided, will be stored in this test's `skipped`
 	 * property.
 	 */
@@ -364,6 +381,9 @@ export default class Test implements TestProperties {
 		throw SKIP;
 	}
 
+	/**
+	 * Return a JSON-representation of this test
+	 */
 	toJSON() {
 		const json: { [key: string]: any } = {};
 		const properties: (keyof Test)[] = [
