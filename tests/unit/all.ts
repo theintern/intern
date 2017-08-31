@@ -67,7 +67,7 @@ registerSuite({
 
 	enumArg: (function () {
 		const oldDie = cli.die;
-		let message: string;
+		let message: string | null;
 
 		return {
 			setup() {

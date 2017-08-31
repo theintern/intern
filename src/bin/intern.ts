@@ -99,7 +99,7 @@ program
 	.description('Run JavaScript tests')
 	.option('-v, --verbose', 'show more information about what Intern is doing')
 	.option('-V, --version', 'output the version')
-	.on('version', function() {
+	.on('version', () => {
 		print();
 		print('intern-cli: ' + pkg.version);
 		if (internDir) {
@@ -107,19 +107,13 @@ program
 		}
 		print();
 	})
-	.on('verbose', function() {
+	.on('verbose', () => {
 		vlog = getLogger(true);
 	})
-	.on('help', function(args: any[]) {
+	.on('help', (args: string[]) => {
 		const commandName = args[0];
-		let command: any;
 		const commands: any[] = (<any>program).commands;
-
-		for (let i = 0; i < commands.length; i++) {
-			if (commands[i].name() === commandName) {
-				command = commands[i];
-			}
-		}
+		const command = commands.find(cmd => cmd.name() === commandName);
 
 		if (command) {
 			command.help();
@@ -547,7 +541,7 @@ program
 	});
 
 // Handle any unknown commands
-program.command('*', null, { noHelp: true }).action(function(command) {
+program.command('*', undefined, { noHelp: true }).action(function(command) {
 	die('unknown command: ' + command);
 });
 

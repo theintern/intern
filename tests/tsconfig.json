@@ -1,0 +1,13 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "module": "umd",
+		"outDir": "../_build/tests"
+    },
+	"files": [
+		"../node_modules/intern/typings/intern/intern.d.ts"
+	],
+    "include": [
+        "./**/*.ts"
+    ]
+}
