@@ -104,9 +104,9 @@ export default class Element extends Locator<
 	 * Uploads a file to a remote Selenium server for use when testing file
 	 * uploads. This API is not part of the WebDriver specification and should
 	 * not be used directly. To send a file to a server that supports file
-	 * uploads, use [[Element.type]] to type the name of the local file into a
-	 * file input field and the file will be transparently transmitted and used
-	 * by the server.
+	 * uploads, use [[Element.Element.type]] to type the name of the local file
+	 * into a file input field and the file will be transparently transmitted
+	 * and used by the server.
 	 */
 	private _uploadFile(filename: string): Task<string> {
 		return new Task(resolve => {
@@ -123,15 +123,15 @@ export default class Element extends Locator<
 	/**
 	 * Gets the first element within this element that matches the given query.
 	 *
-	 * See [[Session.setFindTimeout]] to set the amount of time it the remote
-	 * environment should spend waiting for an element that does not exist at
-	 * the time of the `find` call before timing out.
+	 * See [[Session.Session.setFindTimeout]] to set the amount of time it the
+	 * remote environment should spend waiting for an element that does not
+	 * exist at the time of the `find` call before timing out.
 	 *
-	 * @param using The element retrieval strategy to use. See [[Session.find]]
-	 * for options.
+	 * @param using The element retrieval strategy to use. See
+	 * [[Session.Session.find]] for options.
 	 *
 	 * @param value The strategy-specific value to search for. See
-	 * [[Session.find]] for details.
+	 * [[Session.Session.find]] for details.
 	 */
 	find(using: Strategy, value: string): Task<Element> {
 		const session = this._session;
@@ -189,11 +189,11 @@ export default class Element extends Locator<
 	/**
 	 * Gets all elements within this element that match the given query.
 	 *
-	 * @param using The element retrieval strategy to use. See [[Session.find]]
-	 * for options.
+	 * @param using The element retrieval strategy to use. See
+	 * [[Session.Session.find]] for options.
 	 *
 	 * @param value The strategy-specific value to search for. See
-	 * [[Session.find]] for details.
+	 * [[Session.Session.find]] for details.
 	 */
 	findAll(using: Strategy, value: string): Task<Element[]> {
 		const session = this._session;
@@ -296,19 +296,19 @@ export default class Element extends Locator<
 
 	/**
 	 * Types into the element. This method works the same as the
-	 * [[Session.pressKeys]] method except that any modifier keys are
+	 * [[Session.Session.pressKeys]] method except that any modifier keys are
 	 * automatically released at the end of the command. This method should be
-	 * used instead of [[Session.pressKeys]] to type filenames into file upload
-	 * fields.
+	 * used instead of [[Session.Session.pressKeys]] to type filenames into
+	 * file upload fields.
 	 *
 	 * Since 1.5, if the WebDriver server supports remote file uploads, and you
 	 * type a path to a file on your local computer, that file will be
 	 * transparently uploaded to the remote server and the remote filename will
 	 * be typed instead. If you do not want to upload local files, use
-	 * [[Session.pressKeys]] instead.
+	 * [[Session.Session.pressKeys]] instead.
 	 *
 	 * @param value The text to type in the remote environment. See
-	 * [[Session.pressKeys]] for more information.
+	 * [[Session.Session.pressKeys]] for more information.
 	 */
 	type(value: string | string[]): Task<void> {
 		const getPostData = (value: string[]): { value: string[] } => {
@@ -391,8 +391,8 @@ export default class Element extends Locator<
 	/**
 	 * Gets a property or attribute of the element according to the WebDriver
 	 * specification algorithm. Use of this method is not recommended; instead,
-	 * use [[Element.getAttribute]] to retrieve DOM attributes and
-	 * [[Element.getProperty]] to retrieve DOM properties.
+	 * use [[Element.Element.getAttribute]] to retrieve DOM attributes and
+	 * [[Element.Element.getProperty]] to retrieve DOM properties.
 	 *
 	 * This method uses the following algorithm on the server to determine what
 	 * value to return:
@@ -462,7 +462,7 @@ export default class Element extends Locator<
 	/**
 	 * Gets an attribute of the element.
 	 *
-	 * See [[Element.getProperty]] to retrieve an element property.
+	 * See [[Element.Element.getProperty]] to retrieve an element property.
 	 *
 	 * @param name The name of the attribute.
 	 * @returns The value of the attribute, or `null` if no such attribute
@@ -478,7 +478,7 @@ export default class Element extends Locator<
 	/**
 	 * Gets a property of the element.
 	 *
-	 * See [[Element.getAttribute]] to retrieve an element attribute.
+	 * See [[Element.Element.getAttribute]] to retrieve an element attribute.
 	 *
 	 * @param name The name of the property.
 	 * @returns The value of the property.
@@ -711,18 +711,18 @@ export default class Element extends Locator<
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element inside this
-	 * element matching the given query. This is inherently slower than
-	 * [[Element.find]], so should only be used in cases where the visibility
-	 * of an element cannot be ensured in advance.
+	 * Gets the first [[Element.Element.isDisplayed|displayed]] element inside
+	 * this element matching the given query. This is inherently slower than
+	 * [[Element.Element.find]], so should only be used in cases where the
+	 * visibility of an element cannot be ensured in advance.
 	 *
 	 * @since 1.6
 	 *
-	 * @param using The element retrieval strategy to use. See [[Session.find]]
-	 * for options.
+	 * @param using The element retrieval strategy to use. See
+	 * [[Session.Session.find]] for options.
 	 *
 	 * @param value The strategy-specific value to search for. See
-	 * [[Session.find]] for details.
+	 * [[Session.Session.find]] for details.
 	 */
 	findDisplayed(using: Strategy, value: string): Task<Element> {
 		return findDisplayed(this.session, this, using, value);
@@ -732,11 +732,11 @@ export default class Element extends Locator<
 	 * Waits for all elements inside this element that match the given query to
 	 * be destroyed.
 	 *
-	 * @param using The element retrieval strategy to use. See [[Session.find]]
-	 * for options.
+	 * @param using The element retrieval strategy to use. See
+	 * [[Session.Session.find]] for options.
 	 *
 	 * @param value The strategy-specific value to search for. See
-	 * [[Session.find]] for details.
+	 * [[Session.Session.find]] for details.
 	 */
 	waitForDeleted(strategy: Strategy, value: string) {
 		return waitForDeleted(this.session, this, strategy, value);

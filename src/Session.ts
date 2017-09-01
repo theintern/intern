@@ -83,8 +83,8 @@ export default class Session extends Locator<
 	}
 
 	/**
-	 * Delegates the HTTP request for a method to the underlying [[Server]]
-	 * object.
+	 * Delegates the HTTP request for a method to the underlying
+	 * [[Server.Server]] object.
 	 */
 	private _delegateToServer<T>(
 		method: Method,
@@ -339,7 +339,7 @@ export default class Session extends Locator<
 	 * Executes JavaScript code within the focused window/frame. The code
 	 * should return a value synchronously.
 	 *
-	 * See [[Session.executeAsync]] to execute code that returns values
+	 * See [[Session.Session.executeAsync]] to execute code that returns values
 	 * asynchronously.
 	 *
 	 * @param script The code to execute. This function will always be
@@ -350,8 +350,8 @@ export default class Session extends Locator<
 	 * `args`.
 	 *
 	 * @param args An array of arguments that will be passed to the executed
-	 * code. Only values that can be serialised to JSON, plus [[Element]]
-	 * objects, can be specified as arguments.
+	 * code. Only values that can be serialised to JSON, plus
+	 * [[Element.Element]] objects, can be specified as arguments.
 	 *
 	 * @returns The value returned by the remote code. Only values that can be
 	 * serialised to JSON, plus DOM elements, can be returned.
@@ -381,10 +381,10 @@ export default class Session extends Locator<
 	 * invoke the provided callback in order to signal that it has completed
 	 * execution.
 	 *
-	 * See [[Session.execute]] to execute code that returns values
+	 * See [[Session.Session.execute]] to execute code that returns values
 	 * synchronously.
 	 *
-	 * See [[Session.setExecuteAsyncTimeout]] to set the time until an
+	 * See [[Session.Session.setExecuteAsyncTimeout]] to set the time until an
 	 * asynchronous script is considered timed out.
 	 *
 	 * @param script The code to execute. This function will always be
@@ -395,12 +395,13 @@ export default class Session extends Locator<
 	 * `args`.
 	 *
 	 * @param args An array of arguments that will be passed to the executed
-	 * code. Only values that can be serialised to JSON, plus [[Element]]
-	 * objects, can be specified as arguments. In addition to these arguments,
-	 * a callback function will always be passed as the final argument to the
-	 * function specified in `script`. This callback function must be invoked
-	 * in order to signal that execution has completed. The return value of the
-	 * execution, if any, should be passed to this callback function.
+	 * code. Only values that can be serialised to JSON, plus
+	 * [[Element.Element]] objects, can be specified as arguments. In addition
+	 * to these arguments, a callback function will always be passed as the
+	 * final argument to the function specified in `script`. This callback
+	 * function must be invoked in order to signal that execution has
+	 * completed. The return value of the execution, if any, should be passed
+	 * to this callback function.
 	 *
 	 * @returns The value returned by the remote code. Only values that can be
 	 * serialised to JSON, plus DOM elements, can be returned.
@@ -494,7 +495,8 @@ export default class Session extends Locator<
 	 *
 	 * @param handle The handle of the window to switch to. In mobile
 	 * environments and environments based on the W3C WebDriver standard, this
-	 * should be a handle as returned by [[Session.getAllWindowHandles]].
+	 * should be a handle as returned by
+	 * [[Session.Session.getAllWindowHandles]].
 	 *
 	 * In environments using the JsonWireProtocol, this value corresponds to
 	 * the `window.name` property of a window.
@@ -579,8 +581,8 @@ export default class Session extends Locator<
 	 * Sets the dimensions of a window.
 	 *
 	 * @param windowHandle The name of the window to resize. See
-	 * [[Session.switchToWindow]] to learn about valid window names. Omit this
-	 * argument to resize the currently focused window.
+	 * [[Session.Session.switchToWindow]] to learn about valid window names.
+	 * Omit this argument to resize the currently focused window.
 	 *
 	 * @param width The new width of the window, in CSS pixels.
 	 *
@@ -661,8 +663,8 @@ export default class Session extends Locator<
 	 * Gets the dimensions of a window.
 	 *
 	 * @param windowHandle The name of the window to query. See
-	 * [[Session.switchToWindow]] to learn about valid window names. Omit this
-	 * argument to query the currently focused window.
+	 * [[Session.Session.switchToWindow]] to learn about valid window names.
+	 * Omit this argument to query the currently focused window.
 	 *
 	 * @returns An object describing the width and height of the window, in CSS
 	 * pixels.
@@ -735,8 +737,8 @@ export default class Session extends Locator<
 	 * Note that this method is not part of the W3C WebDriver standard.
 	 *
 	 * @param windowHandle The name of the window to move. See
-	 * [[Session.switchToWindow]] to learn about valid window names. Omit this
-	 * argument to move the currently focused window.
+	 * [[Session.Session.switchToWindow]] to learn about valid window names.
+	 * Omit this argument to move the currently focused window.
 	 *
 	 * @param x The screen x-coordinate to move to, in CSS pixels, relative to
 	 * the left edge of the primary monitor.
@@ -771,8 +773,8 @@ export default class Session extends Locator<
 	 * Note that this method is not part of the W3C WebDriver standard.
 	 *
 	 * @param windowHandle The name of the window to query. See
-	 * [[Session.switchToWindow]] to learn about valid window names. Omit this
-	 * argument to query the currently focused window.
+	 * [[Session.Session.switchToWindow]] to learn about valid window names.
+	 * Omit this argument to query the currently focused window.
 	 *
 	 * @returns An object describing the position of the window, in CSS pixels,
 	 * relative to the top-left corner of the primary monitor. If a secondary
@@ -798,8 +800,8 @@ export default class Session extends Locator<
 	 * Maximises a window according to the platform’s window system behaviour.
 	 *
 	 * @param windowHandle The name of the window to resize. See
-	 * [[Session.switchToWindow]] to learn about valid window names. Omit this
-	 * argument to resize the currently focused window.
+	 * [[Session.Session.switchToWindow]] to learn about valid window names.
+	 * Omit this argument to resize the currently focused window.
 	 */
 	maximizeWindow(windowHandle?: string) {
 		if (typeof windowHandle === 'undefined') {
@@ -1015,9 +1017,9 @@ export default class Session extends Locator<
 	 * Gets the first element from the focused window/frame that matches the
 	 * given query.
 	 *
-	 * See [[Session.setFindTimeout]] to set the amount of time it the remote
-	 * environment should spend waiting for an element that does not exist at
-	 * the time of the `find` call before timing out.
+	 * See [[Session.Session.setFindTimeout]] to set the amount of time it the
+	 * remote environment should spend waiting for an element that does not
+	 * exist at the time of the `find` call before timing out.
 	 *
 	 * @param using The element retrieval strategy to use. One of 'class name',
 	 * 'css selector', 'id', 'name', 'link text', 'partial link text', 'tag
@@ -1069,11 +1071,11 @@ export default class Session extends Locator<
 	 * Gets an array of elements from the focused window/frame that match the
 	 * given query.
 	 *
-	 * @param using The element retrieval strategy to use. See [[Session.find]]
-	 * for options.
+	 * @param using The element retrieval strategy to use. See
+	 * [[Session.Session.find]] for options.
 	 *
 	 * @param value The strategy-specific value to search for. See
-	 * [[Session.find]] for details.
+	 * [[Session.Session.find]] for details.
 	 */
 	findAll(using: Strategy, value: string) {
 		if (this.capabilities.isWebDriver) {
@@ -1364,8 +1366,8 @@ export default class Session extends Locator<
 	/**
 	 * Depresses a mouse button without releasing it.
 	 *
-	 * @param button The button to press. See [[Session.click]] for available
-	 * options.
+	 * @param button The button to press. See [[Session.Session.click]] for
+	 * available options.
 	 */
 	pressMouseButton(button?: number) {
 		if (this.capabilities.brokenMouseEvents) {
@@ -1386,8 +1388,8 @@ export default class Session extends Locator<
 	/**
 	 * Releases a previously depressed mouse button.
 	 *
-	 * @param button The button to press. See [[Session.click]] for available
-	 * options.
+	 * @param button The button to press. See [[Session.Session.click]] for
+	 * available options.
 	 */
 	releaseMouseButton(button?: number) {
 		if (this.capabilities.brokenMouseEvents) {
@@ -1658,9 +1660,10 @@ export default class Session extends Locator<
 	 * the remote environment are cleared once they have been retrieved.
 	 *
 	 * @param type The type of log entries to retrieve. Available log types
-	 * differ between remote environments. Use [[Session.getAvailableLogTypes]]
-	 * to learn what log types are currently available. Not all environments
-	 * support all possible log types.
+	 * differ between remote environments. Use
+	 * [[Session.Session.getAvailableLogTypes]] to learn what log types are
+	 * currently available. Not all environments support all possible log
+	 * types.
 	 *
 	 * @returns An array of log entry objects. Timestamps in log entries are
 	 * Unix timestamps, in seconds.
@@ -1895,18 +1898,19 @@ export default class Session extends Locator<
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element in the
+	 * Gets the first [[Element.Element.isDisplayed|displayed]] element in the
 	 * currently active window/frame matching the given query. This is
-	 * inherently slower than [[Session.find]], so should only be used in cases
-	 * where the visibility of an element cannot be ensured in advance.
+	 * inherently slower than [[Session.Session.find]], so should only be used
+	 * in cases where the visibility of an element cannot be ensured in
+	 * advance.
 	 *
 	 * @since 1.6
 	 *
-	 * @param using The element retrieval strategy to use. See [[Session.find]]
-	 * for options.
+	 * @param using The element retrieval strategy to use. See
+	 * [[Session.Session.find]] for options.
 	 *
 	 * @param value The strategy-specific value to search for. See
-	 * [[Session.find]] for details.
+	 * [[Session.Session.find]] for details.
 	 */
 	findDisplayed(using: Strategy, value: string) {
 		return findDisplayed(this, this, using, value);
@@ -1916,25 +1920,25 @@ export default class Session extends Locator<
 	 * Waits for all elements in the currently active window/frame to be
 	 * destroyed.
 	 *
-	 * @param using The element retrieval strategy to use. See [[Session.find]]
-	 * for options.
+	 * @param using The element retrieval strategy to use. See
+	 * [[Session.Session.find]] for options.
 	 *
 	 * @param value The strategy-specific value to search for. See
-	 * [[Session.find]] for details.
+	 * [[Session.Session.find]] for details.
 	 */
 	waitForDeleted(using: Strategy, value: string) {
 		return waitForDeleted(this, this, using, value);
 	}
 
 	/**
-	 * Gets the timeout for [[Session.executeAsync]] calls.
+	 * Gets the timeout for [[Session.Session.executeAsync]] calls.
 	 */
 	getExecuteAsyncTimeout() {
 		return this.getTimeout('script');
 	}
 
 	/**
-	 * Sets the timeout for [[Session.executeAsync]] calls.
+	 * Sets the timeout for [[Session.Session.executeAsync]] calls.
 	 *
 	 * @param ms The length of the timeout, in milliseconds.
 	 */
@@ -1943,14 +1947,14 @@ export default class Session extends Locator<
 	}
 
 	/**
-	 * Gets the timeout for [[Session.find]] calls.
+	 * Gets the timeout for [[Session.Session.find]] calls.
 	 */
 	getFindTimeout() {
 		return this.getTimeout('implicit');
 	}
 
 	/**
-	 * Sets the timeout for [[Session.find]] calls.
+	 * Sets the timeout for [[Session.Session.find]] calls.
 	 *
 	 * @param ms The length of the timeout, in milliseconds.
 	 */
@@ -1959,14 +1963,14 @@ export default class Session extends Locator<
 	}
 
 	/**
-	 * Gets the timeout for [[Session.get]] calls.
+	 * Gets the timeout for [[Session.Session.get]] calls.
 	 */
 	getPageLoadTimeout() {
 		return this.getTimeout('page load');
 	}
 
 	/**
-	 * Sets the timeout for [[Session.get]] calls.
+	 * Sets the timeout for [[Session.Session.get]] calls.
 	 *
 	 * @param ms The length of the timeout, in milliseconds.
 	 */

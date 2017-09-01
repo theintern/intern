@@ -36,7 +36,7 @@ import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
  * PromiseLikes, which means that they can be used with any Promises/A+ or
  * ES6-conformant Promises implementation, though there are some specific
  * differences in the arguments and context that are provided to callbacks; see
- * [[Command.then]] for more details.
+ * [[Command.Command.then]] for more details.
  *
  * ---
  *
@@ -457,7 +457,7 @@ export default class Command<T> extends Locator<
 	 *   (`findAll`).
 	 * - depth (number): The depth of the context within the command chain.
 	 *   This is used to prevent traversal into higher filtering levels by
-	 *   [[Command.end]].
+	 *   [[Command.Command.end]].
 	 */
 	get context() {
 		return this._context;
@@ -850,7 +850,7 @@ export default class Command<T> extends Locator<
 	 * Executes JavaScript code within the focused window/frame. The code
 	 * should return a value synchronously.
 	 *
-	 * See [[Command.executeAsync]] to execute code that returns values
+	 * See [[Command.Command.executeAsync]] to execute code that returns values
 	 * asynchronously.
 	 *
 	 * @param script The code to execute. This function will always be
@@ -876,10 +876,10 @@ export default class Command<T> extends Locator<
 	 * invoke the provided callback in order to signal that it has completed
 	 * execution.
 	 *
-	 * See [[Command.execute]] to execute code that returns values
+	 * See [[Command.Command.execute]] to execute code that returns values
 	 * synchronously.
 	 *
-	 * See [[Command.setExecuteAsyncTimeout]] to set the time until an
+	 * See [[Command.Command.setExecuteAsyncTimeout]] to set the time until an
 	 * asynchronous script is considered timed out.
 	 *
 	 * @param script The code to execute. This function will always be
@@ -976,7 +976,8 @@ export default class Command<T> extends Locator<
 	 *
 	 * @param handle The handle of the window to switch to. In mobile
 	 * environments and environments based on the W3C WebDriver standard, this
-	 * should be a handle as returned by [[Command.getAllWindowHandles]].
+	 * should be a handle as returned by
+	 * [[Command.Command.getAllWindowHandles]].
 	 */
 	switchToWindow(handle: string) {
 		return this._callSessionMethod<void>('switchToWindow', handle);
@@ -1003,8 +1004,8 @@ export default class Command<T> extends Locator<
 	 * Sets the dimensions of a window.
 	 *
 	 * @param windowHandle The name of the window to resize. See
-	 * [[Command.switchToWindow]] to learn about valid window names. Omit this
-	 * argument to resize the currently focused window.
+	 * [[Command.Command.switchToWindow]] to learn about valid window names.
+	 * Omit this argument to resize the currently focused window.
 	 *
 	 * @param width The new width of the window, in CSS pixels.
 	 *
@@ -1024,8 +1025,8 @@ export default class Command<T> extends Locator<
 	 * Gets the dimensions of a window.
 	 *
 	 * @param windowHandle The name of the window to query. See
-	 * [[Command.switchToWindow]] to learn about valid window names. Omit this
-	 * argument to query the currently focused window.
+	 * [[Command.Command.switchToWindow]] to learn about valid window names.
+	 * Omit this argument to query the currently focused window.
 	 *
 	 * @returns An object describing the width and height of the window, in CSS
 	 * pixels.
@@ -1042,8 +1043,8 @@ export default class Command<T> extends Locator<
 	 * Note that this method is not part of the W3C WebDriver standard.
 	 *
 	 * @param windowHandle The name of the window to move. See
-	 * [[Command.switchToWindow]] to learn about valid window names. Omit this
-	 * argument to move the currently focused window.
+	 * [[Command.Command.switchToWindow]] to learn about valid window names.
+	 * Omit this argument to move the currently focused window.
 	 *
 	 * @param x The screen x-coordinate to move to, in CSS pixels, relative to
 	 * the left edge of the primary monitor.
@@ -1067,8 +1068,8 @@ export default class Command<T> extends Locator<
 	 * Note that this method is not part of the W3C WebDriver standard.
 	 *
 	 * @param windowHandle The name of the window to query. See
-	 * [[Command.switchToWindow]] to learn about valid window names. Omit this
-	 * argument to query the currently focused window.
+	 * [[Command.Command.switchToWindow]] to learn about valid window names.
+	 * Omit this argument to query the currently focused window.
 	 *
 	 * @returns An object describing the position of the window, in CSS pixels,
 	 * relative to the top-left corner of the primary monitor. If a secondary
@@ -1086,8 +1087,8 @@ export default class Command<T> extends Locator<
 	 * Maximises a window according to the platform’s window system behaviour.
 	 *
 	 * @param windowHandle The name of the window to resize. See
-	 * [[Command.switchToWindow] to learn about valid window names. Omit this
-	 * argument to resize the currently focused window.
+	 * [[Command.Command.switchToWindow] to learn about valid window names.
+	 * Omit this argument to resize the currently focused window.
 	 */
 	maximizeWindow(windowHandle?: string) {
 		return this._callSessionMethod<void>('maximizeWindow', windowHandle);
@@ -1263,8 +1264,8 @@ export default class Command<T> extends Locator<
 	/**
 	 * Depresses a mouse button without releasing it.
 	 *
-	 * @param button The button to press. See [[Command.click]] for available
-	 * options.
+	 * @param button The button to press. See [[Command.Command.click]] for
+	 * available options.
 	 */
 	pressMouseButton(button?: number) {
 		return this._callSessionMethod<void>('pressMouseButton', button);
@@ -1273,8 +1274,8 @@ export default class Command<T> extends Locator<
 	/**
 	 * Releases a previously depressed mouse button.
 	 *
-	 * @param button The button to press. See [[Command.click]] for available
-	 * options.
+	 * @param button The button to press. See [[Command.Command.click]] for
+	 * available options.
 	 */
 	releaseMouseButton(button?: number) {
 		return this._callSessionMethod<void>('releaseMouseButton', button);
@@ -1429,9 +1430,10 @@ export default class Command<T> extends Locator<
 	 * the remote environment are cleared once they have been retrieved.
 	 *
 	 * @param type The type of log entries to retrieve. Available log types
-	 * differ between remote environments. Use [[Command.getAvailableLogTypes]]
-	 * to learn what log types are currently available. Not all environments
-	 * support all possible log types.
+	 * differ between remote environments. Use
+	 * [[Command.Command.getAvailableLogTypes]] to learn what log types are
+	 * currently available. Not all environments support all possible log
+	 * types.
 	 *
 	 * @returns An array of log entry objects. Timestamps in log entries are
 	 * Unix timestamps, in seconds.
@@ -1471,25 +1473,25 @@ export default class Command<T> extends Locator<
 	 * Waits for all elements in the currently active window/frame to be
 	 * destroyed.
 	 *
-	 * @param using The element retrieval strategy to use. See [[Command.find]]
-	 * for options.
+	 * @param using The element retrieval strategy to use. See
+	 * [[Command.Command.find]] for options.
 	 *
 	 * @param value The strategy-specific value to search for. See
-	 * [[Command.find]] for details.
+	 * [[Command.Command.find]] for details.
 	 */
 	waitForDeleted(using: Strategy, value: string) {
 		return this._callSessionMethod<void>('waitForDeleted', using, value);
 	}
 
 	/**
-	 * Gets the timeout for [[Command.executeAsync]] calls.
+	 * Gets the timeout for [[Command.Command.executeAsync]] calls.
 	 */
 	getExecuteAsyncTimeout() {
 		return this._callSessionMethod<number>('getExecuteAsyncTimeout');
 	}
 
 	/**
-	 * Sets the timeout for [[Command.executeAsync]] calls.
+	 * Sets the timeout for [[Command.Command.executeAsync]] calls.
 	 *
 	 * @param ms The length of the timeout, in milliseconds.
 	 */
@@ -1498,14 +1500,14 @@ export default class Command<T> extends Locator<
 	}
 
 	/**
-	 * Gets the timeout for [[Command.find]] calls.
+	 * Gets the timeout for [[Command.Command.find]] calls.
 	 */
 	getFindTimeout() {
 		return this._callSessionMethod<number>('getFindTimeout');
 	}
 
 	/**
-	 * Sets the timeout for [[Command.find]] calls.
+	 * Sets the timeout for [[Command.Command.find]] calls.
 	 *
 	 * @param ms The length of the timeout, in milliseconds.
 	 */
@@ -1514,14 +1516,14 @@ export default class Command<T> extends Locator<
 	}
 
 	/**
-	 * Gets the timeout for [[Command.get]] calls.
+	 * Gets the timeout for [[Command.Command.get]] calls.
 	 */
 	getPageLoadTimeout() {
 		return this._callSessionMethod<number>('getPageLoadTimeout');
 	}
 
 	/**
-	 * Sets the timeout for [[Command.get]] calls.
+	 * Sets the timeout for [[Command.Command.get]] calls.
 	 *
 	 * @param ms The length of the timeout, in milliseconds.
 	 */
@@ -1557,19 +1559,19 @@ export default class Command<T> extends Locator<
 
 	/**
 	 * Types into the element. This method works the same as the
-	 * [[Command.pressKeys]] method except that any modifier keys are
+	 * [[Command.Command.pressKeys]] method except that any modifier keys are
 	 * automatically released at the end of the command. This method should be
-	 * used instead of [[Command.pressKeys]] to type filenames into file upload
-	 * fields.
+	 * used instead of [[Command.Command.pressKeys]] to type filenames into
+	 * file upload fields.
 	 *
 	 * Since 1.5, if the WebDriver server supports remote file uploads, and you
 	 * type a path to a file on your local computer, that file will be
 	 * transparently uploaded to the remote server and the remote filename will
 	 * be typed instead. If you do not want to upload local files, use
-	 * [[Command.pressKeys]] instead.
+	 * [[Command.Command.pressKeys]] instead.
 	 *
 	 * @param value The text to type in the remote environment. See
-	 * [[Command.pressKeys]] for more information.
+	 * [[Command.Command.pressKeys]] for more information.
 	 */
 	type(value: string | string[]) {
 		return this._callElementMethod<void>('type', value);
@@ -1609,8 +1611,8 @@ export default class Command<T> extends Locator<
 	/**
 	 * Gets a property or attribute of the element according to the WebDriver
 	 * specification algorithm. Use of this method is not recommended; instead,
-	 * use [[Command.getAttribute]] to retrieve DOM attributes and
-	 * [[Command.getProperty]] to retrieve DOM properties.
+	 * use [[Command.Command.getAttribute]] to retrieve DOM attributes and
+	 * [[Command.Command.getProperty]] to retrieve DOM properties.
 	 *
 	 * This method uses the following algorithm on the server to determine what
 	 * value to return:
@@ -1648,7 +1650,7 @@ export default class Command<T> extends Locator<
 	/**
 	 * Gets an attribute of the element.
 	 *
-	 * See [[Element.getProperty]] to retrieve an element property.
+	 * See [[Element.Element.getProperty]] to retrieve an element property.
 	 *
 	 * @param name The name of the attribute.
 	 * @returns The value of the attribute, or `null` if no such attribute
@@ -1661,7 +1663,7 @@ export default class Command<T> extends Locator<
 	/**
 	 * Gets a property of the element.
 	 *
-	 * See [[Element.getAttribute]] to retrieve an element attribute.
+	 * See [[Element.Element.getAttribute]] to retrieve an element attribute.
 	 *
 	 * @param name The name of the property.
 	 * @returns The value of the property.

@@ -28,7 +28,7 @@
 					},
 					"comment": {
 						"shortText": "The Command class is a chainable, subclassable object type that can be used\nto execute commands serially against a remote WebDriver environment. The\nstandard Command class includes methods from the [[Session]] and [[Element]]\nclasses, so you can perform all standard session and element operations that\ncome with Leadfoot without being forced to author long promise chains.",
-						"text": "In order to use the Command class, you first need to pass it a [[Session]]\ninstance for it to use:\n\n```js\nconst command = new Command(session);\n```\n\nOnce you have created the Command, you can then start chaining methods, and\nthey will execute in order one after another:\n\n```js\ncommand.get('http://example.com')\n    .findByTagName('h1')\n    .getVisibleText()\n    .then(function (text) {\n        assert.strictEqual(text, 'Example Domain');\n    });\n```\n\nBecause these operations are asynchronous, you need to use a `then` callback\nin order to retrieve the value from the last method. Command objects are\nPromiseLikes, which means that they can be used with any Promises/A+ or\nES6-conformant Promises implementation, though there are some specific\ndifferences in the arguments and context that are provided to callbacks; see\n[[Command.then]] for more details.\n\n---\n\nEach call on a Command generates a new Command object, which means that\ncertain operations can be parallelised:\n\n```js\ncommand = command.get('http://example.com');\nPromise.all([\n    command.getPageTitle(),\n    command.findByTagName('h1').getVisibleText()\n]).then(results => {\n    assert.strictEqual(results[0], results[1]);\n});\n```\n\nIn this example, the commands on line 3 and 4 both depend upon the `get`\ncall completing successfully but are otherwise independent of each other and\nso execute here in parallel. This is different from commands in Intern 1\nwhich were always chained onto the last called method within a given test.\n\n---\n\nCommand objects actually encapsulate two different types of interaction:\n*session* interactions, which operate against the entire browser session,\nand *element* interactions, which operate against specific elements taken\nfrom the currently loaded page. Things like navigating the browser, moving\nthe mouse cursor, and executing scripts are session interactions; things\nlike getting text displayed on the page, typing into form fields, and\ngetting element attributes are element interactions.\n\nSession interactions can be performed at any time, from any Command. On the\nother hand, to perform element interactions, you first need to retrieve one\nor more elements to interact with. This can be done using any of the `find`\nor `findAll` methods, by the `getActiveElement` method, or by returning\nelements from `execute` or `executeAsync` calls. The retrieved elements are\nstored internally as the *element context* of all chained Commands. When an\nelement method is called on a chained Command with a single element context,\nthe result will be returned as-is:\n\n```js\ncommand = command.get('http://example.com')\n    // finds one element -> single element context\n    .findByTagName('h1')\n    .getVisibleText()\n    .then(text => {\n        // `text` is the text from the element context\n        assert.strictEqual(text, 'Example Domain');\n    });\n```\n\nWhen an element method is called on a chained Command with a multiple\nelement context, the result will be returned as an array:\n\n```js\ncommand = command.get('http://example.com')\n    // finds multiple elements -> multiple element context\n    .findAllByTagName('p')\n    .getVisibleText()\n    .then(texts => {\n        // `texts` is an array of text from each of the `p` elements\n        assert.deepEqual(texts, [\n            'This domain is established to be used for […]',\n            'More information...'\n        ]);\n    });\n```\n\nThe `find` and `findAll` methods are special and change their behaviour\nbased on the current element filtering state of a given command. If a\ncommand has been filtered by element, the `find` and `findAll` commands will\nonly find elements *within* the currently filtered set of elements.\nOtherwise, they will find elements throughout the page.\n\nSome method names, like `click`, are identical for both Session and Element\nAPIs; in this case, the element APIs are suffixed with the word `Element` in\norder to identify them uniquely.\n\n---\n\nCommands can be subclassed in order to add additional functionality without\nmaking direct modifications to the default Command prototype that might\nbreak other parts of the system:\n\n```ts\nclass CustomCommand extends Command {\n    login(username: string, password: string) {\n        return new this.constructor(this, function () {\n            return this.parent\n                .findById('username')\n                .click()\n                .type(username)\n                .end()\n\n                .findById('password')\n                .click()\n                .type(password)\n                .end()\n\n                .findById('login')\n                .click()\n                .end();\n        });\n    }\n}\n```\n\nNote that returning `this`, or a command chain starting from `this`, from a\ncallback or command initialiser will deadlock the Command, as it waits for\nitself to settle before settling.\n"
+						"text": "In order to use the Command class, you first need to pass it a [[Session]]\ninstance for it to use:\n\n```js\nconst command = new Command(session);\n```\n\nOnce you have created the Command, you can then start chaining methods, and\nthey will execute in order one after another:\n\n```js\ncommand.get('http://example.com')\n    .findByTagName('h1')\n    .getVisibleText()\n    .then(function (text) {\n        assert.strictEqual(text, 'Example Domain');\n    });\n```\n\nBecause these operations are asynchronous, you need to use a `then` callback\nin order to retrieve the value from the last method. Command objects are\nPromiseLikes, which means that they can be used with any Promises/A+ or\nES6-conformant Promises implementation, though there are some specific\ndifferences in the arguments and context that are provided to callbacks; see\n[[Command.Command.then]] for more details.\n\n---\n\nEach call on a Command generates a new Command object, which means that\ncertain operations can be parallelised:\n\n```js\ncommand = command.get('http://example.com');\nPromise.all([\n    command.getPageTitle(),\n    command.findByTagName('h1').getVisibleText()\n]).then(results => {\n    assert.strictEqual(results[0], results[1]);\n});\n```\n\nIn this example, the commands on line 3 and 4 both depend upon the `get`\ncall completing successfully but are otherwise independent of each other and\nso execute here in parallel. This is different from commands in Intern 1\nwhich were always chained onto the last called method within a given test.\n\n---\n\nCommand objects actually encapsulate two different types of interaction:\n*session* interactions, which operate against the entire browser session,\nand *element* interactions, which operate against specific elements taken\nfrom the currently loaded page. Things like navigating the browser, moving\nthe mouse cursor, and executing scripts are session interactions; things\nlike getting text displayed on the page, typing into form fields, and\ngetting element attributes are element interactions.\n\nSession interactions can be performed at any time, from any Command. On the\nother hand, to perform element interactions, you first need to retrieve one\nor more elements to interact with. This can be done using any of the `find`\nor `findAll` methods, by the `getActiveElement` method, or by returning\nelements from `execute` or `executeAsync` calls. The retrieved elements are\nstored internally as the *element context* of all chained Commands. When an\nelement method is called on a chained Command with a single element context,\nthe result will be returned as-is:\n\n```js\ncommand = command.get('http://example.com')\n    // finds one element -> single element context\n    .findByTagName('h1')\n    .getVisibleText()\n    .then(text => {\n        // `text` is the text from the element context\n        assert.strictEqual(text, 'Example Domain');\n    });\n```\n\nWhen an element method is called on a chained Command with a multiple\nelement context, the result will be returned as an array:\n\n```js\ncommand = command.get('http://example.com')\n    // finds multiple elements -> multiple element context\n    .findAllByTagName('p')\n    .getVisibleText()\n    .then(texts => {\n        // `texts` is an array of text from each of the `p` elements\n        assert.deepEqual(texts, [\n            'This domain is established to be used for […]',\n            'More information...'\n        ]);\n    });\n```\n\nThe `find` and `findAll` methods are special and change their behaviour\nbased on the current element filtering state of a given command. If a\ncommand has been filtered by element, the `find` and `findAll` commands will\nonly find elements *within* the currently filtered set of elements.\nOtherwise, they will find elements throughout the page.\n\nSome method names, like `click`, are identical for both Session and Element\nAPIs; in this case, the element APIs are suffixed with the word `Element` in\norder to identify them uniquely.\n\n---\n\nCommands can be subclassed in order to add additional functionality without\nmaking direct modifications to the default Command prototype that might\nbreak other parts of the system:\n\n```ts\nclass CustomCommand extends Command {\n    login(username: string, password: string) {\n        return new this.constructor(this, function () {\n            return this.parent\n                .findById('username')\n                .click()\n                .type(username)\n                .end()\n\n                .findById('password')\n                .click()\n                .type(password)\n                .end()\n\n                .findById('login')\n                .click()\n                .end();\n        });\n    }\n}\n```\n\nNote that returning `this`, or a command chain starting from `this`, from a\ncallback or command initialiser will deadlock the Command, as it waits for\nitself to settle before settling.\n"
 					},
 					"typeParameter": [
 						{
@@ -343,7 +343,7 @@
 							},
 							"comment": {
 								"shortText": "The filtered elements that will be used if an element-specific method is\ninvoked. Note that this property is not valid until the parent Command\nhas been settled. The context array also has two additional properties:",
-								"text": "- isSingle (boolean): If true, the context will always contain a single\n  element. This is used to differentiate between methods that should\n  still return scalar values (`find`) and methods that should return\n  arrays of values even if there is only one element in the context\n  (`findAll`).\n- depth (number): The depth of the context within the command chain.\n  This is used to prevent traversal into higher filtering levels by\n  [[Command.end]].\n"
+								"text": "- isSingle (boolean): If true, the context will always contain a single\n  element. This is used to differentiate between methods that should\n  still return scalar values (`find`) and methods that should return\n  arrays of values even if there is only one element in the context\n  (`findAll`).\n- depth (number): The depth of the context within the command chain.\n  This is used to prevent traversal into higher filtering levels by\n  [[Command.Command.end]].\n"
 							},
 							"getSignature": [
 								{
@@ -356,7 +356,7 @@
 									},
 									"comment": {
 										"shortText": "The filtered elements that will be used if an element-specific method is\ninvoked. Note that this property is not valid until the parent Command\nhas been settled. The context array also has two additional properties:",
-										"text": "- isSingle (boolean): If true, the context will always contain a single\n  element. This is used to differentiate between methods that should\n  still return scalar values (`find`) and methods that should return\n  arrays of values even if there is only one element in the context\n  (`findAll`).\n- depth (number): The depth of the context within the command chain.\n  This is used to prevent traversal into higher filtering levels by\n  [[Command.end]].\n"
+										"text": "- isSingle (boolean): If true, the context will always contain a single\n  element. This is used to differentiate between methods that should\n  still return scalar values (`find`) and methods that should return\n  arrays of values even if there is only one element in the context\n  (`findAll`).\n- depth (number): The depth of the context within the command chain.\n  This is used to prevent traversal into higher filtering levels by\n  [[Command.Command.end]].\n"
 									},
 									"type": {
 										"type": "reference",
@@ -560,7 +560,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1205,
+									"line": 1206,
 									"character": 12
 								}
 							]
@@ -819,7 +819,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1113,
+									"line": 1114,
 									"character": 13
 								}
 							]
@@ -861,7 +861,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1589,
+									"line": 1591,
 									"character": 11
 								}
 							]
@@ -903,7 +903,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1537,
+									"line": 1539,
 									"character": 6
 								}
 							]
@@ -964,7 +964,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1259,
+									"line": 1260,
 									"character": 17
 								}
 							]
@@ -1006,7 +1006,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 998,
+									"line": 999,
 									"character": 19
 								}
 							]
@@ -1108,7 +1108,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1122,
+									"line": 1123,
 									"character": 13
 								}
 							]
@@ -1150,7 +1150,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1214,
+									"line": 1215,
 									"character": 13
 								}
 							]
@@ -1192,7 +1192,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1286,
+									"line": 1287,
 									"character": 12
 								}
 							]
@@ -1260,7 +1260,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1366,
+									"line": 1367,
 									"character": 10
 								}
 							]
@@ -1380,7 +1380,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1676,
+									"line": 1678,
 									"character": 7
 								}
 							]
@@ -1405,7 +1405,7 @@
 									},
 									"comment": {
 										"shortText": "Executes JavaScript code within the focused window/frame. The code\nshould return a value synchronously.",
-										"text": "See [[Command.executeAsync]] to execute code that returns values\nasynchronously.\n",
+										"text": "See [[Command.Command.executeAsync]] to execute code that returns values\nasynchronously.\n",
 										"returns": "The value returned by the remote code. Only values that can be\nserialised to JSON, plus DOM elements, can be returned.\n"
 									},
 									"parameters": [
@@ -1496,7 +1496,7 @@
 									},
 									"comment": {
 										"shortText": "Executes JavaScript code within the focused window/frame. The code must\ninvoke the provided callback in order to signal that it has completed\nexecution.",
-										"text": "See [[Command.execute]] to execute code that returns values\nsynchronously.\n\nSee [[Command.setExecuteAsyncTimeout]] to set the time until an\nasynchronous script is considered timed out.\n",
+										"text": "See [[Command.Command.execute]] to execute code that returns values\nsynchronously.\n\nSee [[Command.Command.setExecuteAsyncTimeout]] to set the time until an\nasynchronous script is considered timed out.\n",
 										"returns": "The value returned by the remote code. Only values that can be\nserialised to JSON, plus DOM elements, can be returned.\n"
 									},
 									"parameters": [
@@ -3551,17 +3551,17 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1390,
+									"line": 1391,
 									"character": 12
 								},
 								{
 									"fileName": "Command.ts",
-									"line": 1396,
+									"line": 1397,
 									"character": 12
 								},
 								{
 									"fileName": "Command.ts",
-									"line": 1401,
+									"line": 1402,
 									"character": 12
 								}
 							]
@@ -3661,7 +3661,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1146,
+									"line": 1147,
 									"character": 17
 								}
 							]
@@ -3745,7 +3745,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1188,
+									"line": 1189,
 									"character": 13
 								}
 							]
@@ -3833,7 +3833,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1458,
+									"line": 1460,
 									"character": 26
 								}
 							]
@@ -3858,7 +3858,7 @@
 									},
 									"comment": {
 										"shortText": "Gets an attribute of the element.",
-										"text": "See [[Element.getProperty]] to retrieve an element property.\n",
+										"text": "See [[Element.Element.getProperty]] to retrieve an element property.\n",
 										"returns": "The value of the attribute, or `null` if no such attribute\nexists.\n"
 									},
 									"parameters": [
@@ -3895,7 +3895,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1657,
+									"line": 1659,
 									"character": 13
 								}
 							]
@@ -3985,7 +3985,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1447,
+									"line": 1449,
 									"character": 21
 								}
 							]
@@ -4045,7 +4045,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1721,
+									"line": 1723,
 									"character": 17
 								}
 							]
@@ -4091,7 +4091,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1099,
+									"line": 1100,
 									"character": 11
 								}
 							]
@@ -4200,7 +4200,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the timeout for [[Command.executeAsync]] calls."
+										"shortText": "Gets the timeout for [[Command.Command.executeAsync]] calls."
 									},
 									"type": {
 										"type": "reference",
@@ -4218,7 +4218,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1487,
+									"line": 1489,
 									"character": 23
 								}
 							]
@@ -4242,7 +4242,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the timeout for [[Command.find]] calls."
+										"shortText": "Gets the timeout for [[Command.Command.find]] calls."
 									},
 									"type": {
 										"type": "reference",
@@ -4260,7 +4260,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1503,
+									"line": 1505,
 									"character": 15
 								}
 							]
@@ -4304,7 +4304,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1412,
+									"line": 1413,
 									"character": 15
 								}
 							]
@@ -4341,7 +4341,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The type of log entries to retrieve. Available log types\ndiffer between remote environments. Use [[Command.getAvailableLogTypes]]\nto learn what log types are currently available. Not all environments\nsupport all possible log types.\n"
+												"text": "The type of log entries to retrieve. Available log types\ndiffer between remote environments. Use\n[[Command.Command.getAvailableLogTypes]] to learn what log types are\ncurrently available. Not all environments support all possible log\ntypes.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -4369,7 +4369,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1439,
+									"line": 1441,
 									"character": 11
 								}
 							]
@@ -4420,7 +4420,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1170,
+									"line": 1171,
 									"character": 15
 								}
 							]
@@ -4444,7 +4444,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the timeout for [[Command.get]] calls."
+										"shortText": "Gets the timeout for [[Command.Command.get]] calls."
 									},
 									"type": {
 										"type": "reference",
@@ -4462,7 +4462,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1519,
+									"line": 1521,
 									"character": 19
 								}
 							]
@@ -4504,7 +4504,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1131,
+									"line": 1132,
 									"character": 14
 								}
 							]
@@ -4546,7 +4546,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1139,
+									"line": 1140,
 									"character": 13
 								}
 							]
@@ -4599,7 +4599,7 @@
 															"sources": [
 																{
 																	"fileName": "Command.ts",
-																	"line": 1702,
+																	"line": 1704,
 																	"character": 36
 																}
 															],
@@ -4619,7 +4619,7 @@
 															"sources": [
 																{
 																	"fileName": "Command.ts",
-																	"line": 1702,
+																	"line": 1704,
 																	"character": 47
 																}
 															],
@@ -4648,7 +4648,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1701,
+									"line": 1703,
 									"character": 12
 								}
 							]
@@ -4673,7 +4673,7 @@
 									},
 									"comment": {
 										"shortText": "Gets a property of the element.",
-										"text": "See [[Element.getAttribute]] to retrieve an element attribute.\n",
+										"text": "See [[Element.Element.getAttribute]] to retrieve an element attribute.\n",
 										"returns": "The value of the property.\n"
 									},
 									"parameters": [
@@ -4710,7 +4710,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1669,
+									"line": 1671,
 									"character": 12
 								}
 							]
@@ -4763,7 +4763,7 @@
 															"sources": [
 																{
 																	"fileName": "Command.ts",
-																	"line": 1710,
+																	"line": 1712,
 																	"character": 56
 																}
 															],
@@ -4783,7 +4783,7 @@
 															"sources": [
 																{
 																	"fileName": "Command.ts",
-																	"line": 1710,
+																	"line": 1712,
 																	"character": 40
 																}
 															],
@@ -4812,7 +4812,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1709,
+									"line": 1711,
 									"character": 8
 								}
 							]
@@ -4836,7 +4836,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets a property or attribute of the element according to the WebDriver\nspecification algorithm. Use of this method is not recommended; instead,\nuse [[Command.getAttribute]] to retrieve DOM attributes and\n[[Command.getProperty]] to retrieve DOM properties.",
+										"shortText": "Gets a property or attribute of the element according to the WebDriver\nspecification algorithm. Use of this method is not recommended; instead,\nuse [[Command.Command.getAttribute]] to retrieve DOM attributes and\n[[Command.Command.getProperty]] to retrieve DOM properties.",
 										"text": "This method uses the following algorithm on the server to determine what\nvalue to return:\n\n1. If `name` is 'style', returns the `style.cssText` property of the\n   element.\n2. If the attribute exists and is a boolean attribute, returns 'true' if\n   the attribute is true, or null otherwise.\n3. If the element is an `<option>` element and `name` is 'value',\n   returns the `value` attribute if it exists, otherwise returns the\n   visible text content of the option.\n4. If the element is a checkbox or radio button and `name` is\n   'selected', returns 'true' if the element is checked, or null\n   otherwise.\n5. If the returned value is expected to be a URL (e.g. element is `<a>`\n   and attribute is `href`), returns the fully resolved URL from the\n   `href`/`src` property of the element, not the attribute.\n6. If `name` is 'class', returns the `className` property of the\n   element.\n7. If `name` is 'readonly', returns 'true' if the `readOnly` property is\n   true, or null otherwise.\n8. If `name` corresponds to a property of the element, and the property\n   is not an Object, return the property value coerced to a string.\n9. If `name` corresponds to an attribute of the element, return the\n   attribute value.\n",
 										"returns": "The value of the attribute as a string, or `null` if no such\nproperty or attribute exists.\n"
 									},
@@ -4874,7 +4874,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1644,
+									"line": 1646,
 									"character": 17
 								}
 							]
@@ -4916,7 +4916,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1582,
+									"line": 1584,
 									"character": 11
 								}
 							]
@@ -5019,7 +5019,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1554,
+									"line": 1556,
 									"character": 15
 								}
 							]
@@ -5058,7 +5058,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The name of the window to query. See\n[[Command.switchToWindow]] to learn about valid window names. Omit this\nargument to query the currently focused window.\n"
+												"text": "The name of the window to query. See\n[[Command.Command.switchToWindow]] to learn about valid window names.\nOmit this argument to query the currently focused window.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -5093,7 +5093,7 @@
 															"sources": [
 																{
 																	"fileName": "Command.ts",
-																	"line": 1079,
+																	"line": 1080,
 																	"character": 36
 																}
 															],
@@ -5113,7 +5113,7 @@
 															"sources": [
 																{
 																	"fileName": "Command.ts",
-																	"line": 1079,
+																	"line": 1080,
 																	"character": 47
 																}
 															],
@@ -5142,7 +5142,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1078,
+									"line": 1079,
 									"character": 18
 								}
 							]
@@ -5180,7 +5180,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The name of the window to query. See\n[[Command.switchToWindow]] to learn about valid window names. Omit this\nargument to query the currently focused window.\n"
+												"text": "The name of the window to query. See\n[[Command.Command.switchToWindow]] to learn about valid window names.\nOmit this argument to query the currently focused window.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -5215,7 +5215,7 @@
 															"sources": [
 																{
 																	"fileName": "Command.ts",
-																	"line": 1034,
+																	"line": 1035,
 																	"character": 56
 																}
 															],
@@ -5235,7 +5235,7 @@
 															"sources": [
 																{
 																	"fileName": "Command.ts",
-																	"line": 1034,
+																	"line": 1035,
 																	"character": 40
 																}
 															],
@@ -5264,7 +5264,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1033,
+									"line": 1034,
 									"character": 14
 								}
 							]
@@ -5391,7 +5391,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1692,
+									"line": 1694,
 									"character": 12
 								}
 							]
@@ -5433,7 +5433,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1605,
+									"line": 1607,
 									"character": 10
 								}
 							]
@@ -5517,7 +5517,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1598,
+									"line": 1600,
 									"character": 11
 								}
 							]
@@ -5585,7 +5585,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1376,
+									"line": 1377,
 									"character": 8
 								}
 							]
@@ -5622,7 +5622,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The name of the window to resize. See\n[[Command.switchToWindow] to learn about valid window names. Omit this\nargument to resize the currently focused window.\n"
+												"text": "The name of the window to resize. See\n[[Command.Command.switchToWindow] to learn about valid window names.\nOmit this argument to resize the currently focused window.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -5646,7 +5646,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1092,
+									"line": 1093,
 									"character": 15
 								}
 							]
@@ -5722,7 +5722,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1331,
+									"line": 1332,
 									"character": 11
 								}
 							]
@@ -5868,17 +5868,17 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1239,
-									"character": 12
-								},
-								{
-									"fileName": "Command.ts",
-									"line": 1244,
+									"line": 1240,
 									"character": 12
 								},
 								{
 									"fileName": "Command.ts",
 									"line": 1245,
+									"character": 12
+								},
+								{
+									"fileName": "Command.ts",
+									"line": 1246,
 									"character": 12
 								}
 							]
@@ -5954,7 +5954,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1308,
+									"line": 1309,
 									"character": 12
 								}
 							]
@@ -6026,7 +6026,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1163,
+									"line": 1164,
 									"character": 10
 								}
 							]
@@ -6063,7 +6063,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The button to press. See [[Command.click]] for available\noptions.\n"
+												"text": "The button to press. See [[Command.Command.click]] for\navailable options.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -6087,7 +6087,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1269,
+									"line": 1270,
 									"character": 17
 								}
 							]
@@ -6129,7 +6129,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1466,
+									"line": 1468,
 									"character": 5
 								}
 							]
@@ -6247,7 +6247,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1321,
+									"line": 1322,
 									"character": 14
 								}
 							]
@@ -6284,7 +6284,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The button to press. See [[Command.click]] for available\noptions.\n"
+												"text": "The button to press. See [[Command.Command.click]] for\navailable options.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -6308,7 +6308,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1279,
+									"line": 1280,
 									"character": 19
 								}
 							]
@@ -6366,7 +6366,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1106,
+									"line": 1107,
 									"character": 10
 								}
 							]
@@ -6390,7 +6390,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Sets the timeout for [[Command.executeAsync]] calls."
+										"shortText": "Sets the timeout for [[Command.Command.executeAsync]] calls."
 									},
 									"parameters": [
 										{
@@ -6426,7 +6426,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1496,
+									"line": 1498,
 									"character": 23
 								}
 							]
@@ -6450,7 +6450,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Sets the timeout for [[Command.find]] calls."
+										"shortText": "Sets the timeout for [[Command.Command.find]] calls."
 									},
 									"parameters": [
 										{
@@ -6486,7 +6486,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1512,
+									"line": 1514,
 									"character": 15
 								}
 							]
@@ -6547,7 +6547,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1423,
+									"line": 1424,
 									"character": 15
 								}
 							]
@@ -6616,7 +6616,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1181,
+									"line": 1182,
 									"character": 15
 								}
 							]
@@ -6640,7 +6640,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Sets the timeout for [[Command.get]] calls."
+										"shortText": "Sets the timeout for [[Command.Command.get]] calls."
 									},
 									"parameters": [
 										{
@@ -6676,7 +6676,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1528,
+									"line": 1530,
 									"character": 19
 								}
 							]
@@ -6890,17 +6890,17 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1054,
-									"character": 18
-								},
-								{
-									"fileName": "Command.ts",
 									"line": 1055,
 									"character": 18
 								},
 								{
 									"fileName": "Command.ts",
-									"line": 1060,
+									"line": 1056,
+									"character": 18
+								},
+								{
+									"fileName": "Command.ts",
+									"line": 1061,
 									"character": 18
 								}
 							]
@@ -7037,17 +7037,17 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1013,
-									"character": 14
-								},
-								{
-									"fileName": "Command.ts",
 									"line": 1014,
 									"character": 14
 								},
 								{
 									"fileName": "Command.ts",
-									"line": 1019,
+									"line": 1015,
+									"character": 14
+								},
+								{
+									"fileName": "Command.ts",
+									"line": 1020,
 									"character": 14
 								}
 							]
@@ -7149,7 +7149,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1545,
+									"line": 1547,
 									"character": 7
 								}
 							]
@@ -7265,7 +7265,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 989,
+									"line": 990,
 									"character": 20
 								}
 							]
@@ -7302,7 +7302,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The handle of the window to switch to. In mobile\nenvironments and environments based on the W3C WebDriver standard, this\nshould be a handle as returned by [[Command.getAllWindowHandles]].\n"
+												"text": "The handle of the window to switch to. In mobile\nenvironments and environments based on the W3C WebDriver standard, this\nshould be a handle as returned by\n[[Command.Command.getAllWindowHandles]].\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -7326,7 +7326,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 981,
+									"line": 982,
 									"character": 15
 								}
 							]
@@ -7429,7 +7429,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1297,
+									"line": 1298,
 									"character": 4
 								}
 							]
@@ -7846,17 +7846,17 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1350,
-									"character": 12
-								},
-								{
-									"fileName": "Command.ts",
 									"line": 1351,
 									"character": 12
 								},
 								{
 									"fileName": "Command.ts",
-									"line": 1356,
+									"line": 1352,
+									"character": 12
+								},
+								{
+									"fileName": "Command.ts",
+									"line": 1357,
 									"character": 12
 								}
 							]
@@ -7880,8 +7880,8 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Types into the element. This method works the same as the\n[[Command.pressKeys]] method except that any modifier keys are\nautomatically released at the end of the command. This method should be\nused instead of [[Command.pressKeys]] to type filenames into file upload\nfields.",
-										"text": "Since 1.5, if the WebDriver server supports remote file uploads, and you\ntype a path to a file on your local computer, that file will be\ntransparently uploaded to the remote server and the remote filename will\nbe typed instead. If you do not want to upload local files, use\n[[Command.pressKeys]] instead.\n"
+										"shortText": "Types into the element. This method works the same as the\n[[Command.Command.pressKeys]] method except that any modifier keys are\nautomatically released at the end of the command. This method should be\nused instead of [[Command.Command.pressKeys]] to type filenames into\nfile upload fields.",
+										"text": "Since 1.5, if the WebDriver server supports remote file uploads, and you\ntype a path to a file on your local computer, that file will be\ntransparently uploaded to the remote server and the remote filename will\nbe typed instead. If you do not want to upload local files, use\n[[Command.Command.pressKeys]] instead.\n"
 									},
 									"parameters": [
 										{
@@ -7893,7 +7893,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The text to type in the remote environment. See\n[[Command.pressKeys]] for more information.\n"
+												"text": "The text to type in the remote environment. See\n[[Command.Command.pressKeys]] for more information.\n"
 											},
 											"type": {
 												"type": "union",
@@ -7929,7 +7929,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1574,
+									"line": 1576,
 									"character": 5
 								}
 							]
@@ -8001,7 +8001,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1197,
+									"line": 1198,
 									"character": 13
 								}
 							]
@@ -8037,7 +8037,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The element retrieval strategy to use. See [[Command.find]]\nfor options.\n"
+												"text": "The element retrieval strategy to use. See\n[[Command.Command.find]] for options.\n"
 											},
 											"type": {
 												"type": "reference",
@@ -8054,7 +8054,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The strategy-specific value to search for. See\n[[Command.find]] for details.\n"
+												"text": "The strategy-specific value to search for. See\n[[Command.Command.find]] for details.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -8083,7 +8083,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1480,
+									"line": 1482,
 									"character": 15
 								}
 							],
@@ -9076,7 +9076,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1736,
+									"line": 1738,
 									"character": 6
 								}
 							],
@@ -9098,7 +9098,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1735,
+									"line": 1737,
 									"character": 9
 								}
 							],
@@ -12262,7 +12262,7 @@
 					"sources": [
 						{
 							"fileName": "Command.ts",
-							"line": 1734,
+							"line": 1736,
 							"character": 24
 						}
 					],
@@ -12344,7 +12344,7 @@
 					"sources": [
 						{
 							"fileName": "Command.ts",
-							"line": 1729,
+							"line": 1731,
 							"character": 33
 						}
 					]
@@ -12360,7 +12360,7 @@
 					"sources": [
 						{
 							"fileName": "Command.ts",
-							"line": 1739,
+							"line": 1741,
 							"character": 17
 						}
 					],
@@ -12382,7 +12382,7 @@
 					"sources": [
 						{
 							"fileName": "Command.ts",
-							"line": 1743,
+							"line": 1745,
 							"character": 18
 						}
 					],
@@ -12803,7 +12803,7 @@
 									},
 									"comment": {
 										"shortText": "Gets the first element within this element that matches the given query.",
-										"text": "See [[Session.setFindTimeout]] to set the amount of time it the remote\nenvironment should spend waiting for an element that does not exist at\nthe time of the `find` call before timing out.\n"
+										"text": "See [[Session.Session.setFindTimeout]] to set the amount of time it the\nremote environment should spend waiting for an element that does not\nexist at the time of the `find` call before timing out.\n"
 									},
 									"parameters": [
 										{
@@ -12815,7 +12815,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The element retrieval strategy to use. See [[Session.find]]\nfor options.\n"
+												"text": "The element retrieval strategy to use. See\n[[Session.Session.find]] for options.\n"
 											},
 											"type": {
 												"type": "reference",
@@ -12832,7 +12832,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The strategy-specific value to search for. See\n[[Session.find]] for details.\n"
+												"text": "The strategy-specific value to search for. See\n[[Session.Session.find]] for details.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -12902,7 +12902,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The element retrieval strategy to use. See [[Session.find]]\nfor options.\n"
+												"text": "The element retrieval strategy to use. See\n[[Session.Session.find]] for options.\n"
 											},
 											"type": {
 												"type": "reference",
@@ -12919,7 +12919,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The strategy-specific value to search for. See\n[[Session.find]] for details.\n"
+												"text": "The strategy-specific value to search for. See\n[[Session.Session.find]] for details.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -13925,7 +13925,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this\nelement matching the given query. This is inherently slower than\n[[Element.find]], so should only be used in cases where the visibility\nof an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.Element.isDisplayed|displayed]] element inside\nthis element matching the given query. This is inherently slower than\n[[Element.Element.find]], so should only be used in cases where the\nvisibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -13943,7 +13943,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The element retrieval strategy to use. See [[Session.find]]\nfor options.\n"
+												"text": "The element retrieval strategy to use. See\n[[Session.Session.find]] for options.\n"
 											},
 											"type": {
 												"type": "reference",
@@ -13960,7 +13960,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The strategy-specific value to search for. See\n[[Session.find]] for details.\n"
+												"text": "The strategy-specific value to search for. See\n[[Session.Session.find]] for details.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -14571,7 +14571,7 @@
 									},
 									"comment": {
 										"shortText": "Gets an attribute of the element.",
-										"text": "See [[Element.getProperty]] to retrieve an element property.\n",
+										"text": "See [[Element.Element.getProperty]] to retrieve an element property.\n",
 										"returns": "The value of the attribute, or `null` if no such attribute\nexists.\n"
 									},
 									"parameters": [
@@ -14799,7 +14799,7 @@
 									},
 									"comment": {
 										"shortText": "Gets a property of the element.",
-										"text": "See [[Element.getAttribute]] to retrieve an element attribute.\n",
+										"text": "See [[Element.Element.getAttribute]] to retrieve an element attribute.\n",
 										"returns": "The value of the property.\n"
 									},
 									"parameters": [
@@ -14967,7 +14967,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets a property or attribute of the element according to the WebDriver\nspecification algorithm. Use of this method is not recommended; instead,\nuse [[Element.getAttribute]] to retrieve DOM attributes and\n[[Element.getProperty]] to retrieve DOM properties.",
+										"shortText": "Gets a property or attribute of the element according to the WebDriver\nspecification algorithm. Use of this method is not recommended; instead,\nuse [[Element.Element.getAttribute]] to retrieve DOM attributes and\n[[Element.Element.getProperty]] to retrieve DOM properties.",
 										"text": "This method uses the following algorithm on the server to determine what\nvalue to return:\n\n1. If `name` is 'style', returns the `style.cssText` property of the\n   element.\n2. If the attribute exists and is a boolean attribute, returns 'true' if\n   the attribute is true, or null otherwise.\n3. If the element is an `<option>` element and `name` is 'value',\n   returns the `value` attribute if it exists, otherwise returns the\n   visible text content of the option.\n4. If the element is a checkbox or radio button and `name` is\n   'selected', returns 'true' if the element is checked, or null\n   otherwise.\n5. If the returned value is expected to be a URL (e.g. element is `<a>`\n   and attribute is `href`), returns the fully resolved URL from the\n   `href`/`src` property of the element, not the attribute.\n6. If `name` is 'class', returns the `className` property of the\n   element.\n7. If `name` is 'readonly', returns 'true' if the `readOnly` property is\n   true, or null otherwise.\n8. If `name` corresponds to a property of the element, and the property\n   is not an Object, return the property value coerced to a string.\n9. If `name` corresponds to an attribute of the element, return the\n   attribute value.\n",
 										"returns": "The value of the attribute as a string, or `null` if no such\nproperty or attribute exists.\n"
 									},
@@ -15347,8 +15347,8 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Types into the element. This method works the same as the\n[[Session.pressKeys]] method except that any modifier keys are\nautomatically released at the end of the command. This method should be\nused instead of [[Session.pressKeys]] to type filenames into file upload\nfields.",
-										"text": "Since 1.5, if the WebDriver server supports remote file uploads, and you\ntype a path to a file on your local computer, that file will be\ntransparently uploaded to the remote server and the remote filename will\nbe typed instead. If you do not want to upload local files, use\n[[Session.pressKeys]] instead.\n"
+										"shortText": "Types into the element. This method works the same as the\n[[Session.Session.pressKeys]] method except that any modifier keys are\nautomatically released at the end of the command. This method should be\nused instead of [[Session.Session.pressKeys]] to type filenames into\nfile upload fields.",
+										"text": "Since 1.5, if the WebDriver server supports remote file uploads, and you\ntype a path to a file on your local computer, that file will be\ntransparently uploaded to the remote server and the remote filename will\nbe typed instead. If you do not want to upload local files, use\n[[Session.Session.pressKeys]] instead.\n"
 									},
 									"parameters": [
 										{
@@ -15360,7 +15360,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The text to type in the remote environment. See\n[[Session.pressKeys]] for more information.\n"
+												"text": "The text to type in the remote environment. See\n[[Session.Session.pressKeys]] for more information.\n"
 											},
 											"type": {
 												"type": "union",
@@ -15445,7 +15445,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The strategy-specific value to search for. See\n[[Session.find]] for details.\n"
+												"text": "The strategy-specific value to search for. See\n[[Session.Session.find]] for details.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -18013,7 +18013,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1226,
+									"line": 1228,
 									"character": 12
 								}
 							]
@@ -18072,7 +18072,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 475,
+									"line": 476,
 									"character": 12
 								}
 							]
@@ -18113,7 +18113,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 909,
+									"line": 911,
 									"character": 13
 								}
 							]
@@ -18154,7 +18154,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1816,
+									"line": 1819,
 									"character": 18
 								}
 							]
@@ -18195,7 +18195,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1867,
+									"line": 1870,
 									"character": 20
 								}
 							]
@@ -18255,7 +18255,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1342,
+									"line": 1344,
 									"character": 17
 								}
 							]
@@ -18296,7 +18296,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 552,
+									"line": 554,
 									"character": 19
 								}
 							]
@@ -18337,7 +18337,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 465,
+									"line": 466,
 									"character": 14
 								}
 							]
@@ -18396,7 +18396,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 948,
+									"line": 950,
 									"character": 13
 								}
 							]
@@ -18455,7 +18455,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1834,
+									"line": 1837,
 									"character": 23
 								}
 							]
@@ -18514,7 +18514,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1885,
+									"line": 1888,
 									"character": 25
 								}
 							]
@@ -18555,7 +18555,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1235,
+									"line": 1237,
 									"character": 13
 								}
 							]
@@ -18596,7 +18596,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1411,
+									"line": 1413,
 									"character": 12
 								}
 							]
@@ -18671,7 +18671,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1553,
+									"line": 1555,
 									"character": 10
 								}
 							]
@@ -18696,7 +18696,7 @@
 									},
 									"comment": {
 										"shortText": "Executes JavaScript code within the focused window/frame. The code\nshould return a value synchronously.",
-										"text": "See [[Session.executeAsync]] to execute code that returns values\nasynchronously.\n",
+										"text": "See [[Session.Session.executeAsync]] to execute code that returns values\nasynchronously.\n",
 										"returns": "The value returned by the remote code. Only values that can be\nserialised to JSON, plus DOM elements, can be returned.\n"
 									},
 									"typeParameter": [
@@ -18746,7 +18746,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "An array of arguments that will be passed to the executed\ncode. Only values that can be serialised to JSON, plus [[Element]]\nobjects, can be specified as arguments.\n"
+												"text": "An array of arguments that will be passed to the executed\ncode. Only values that can be serialised to JSON, plus\n[[Element.Element]] objects, can be specified as arguments.\n"
 											},
 											"type": {
 												"type": "array",
@@ -18797,7 +18797,7 @@
 									},
 									"comment": {
 										"shortText": "Executes JavaScript code within the focused window/frame. The code must\ninvoke the provided callback in order to signal that it has completed\nexecution.",
-										"text": "See [[Session.execute]] to execute code that returns values\nsynchronously.\n\nSee [[Session.setExecuteAsyncTimeout]] to set the time until an\nasynchronous script is considered timed out.\n",
+										"text": "See [[Session.Session.execute]] to execute code that returns values\nsynchronously.\n\nSee [[Session.Session.setExecuteAsyncTimeout]] to set the time until an\nasynchronous script is considered timed out.\n",
 										"returns": "The value returned by the remote code. Only values that can be\nserialised to JSON, plus DOM elements, can be returned.\n"
 									},
 									"typeParameter": [
@@ -18847,7 +18847,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "An array of arguments that will be passed to the executed\ncode. Only values that can be serialised to JSON, plus [[Element]]\nobjects, can be specified as arguments. In addition to these arguments,\na callback function will always be passed as the final argument to the\nfunction specified in `script`. This callback function must be invoked\nin order to signal that execution has completed. The return value of the\nexecution, if any, should be passed to this callback function.\n"
+												"text": "An array of arguments that will be passed to the executed\ncode. Only values that can be serialised to JSON, plus\n[[Element.Element]] objects, can be specified as arguments. In addition\nto these arguments, a callback function will always be passed as the\nfinal argument to the function specified in `script`. This callback\nfunction must be invoked in order to signal that execution has\ncompleted. The return value of the execution, if any, should be passed\nto this callback function.\n"
 											},
 											"type": {
 												"type": "array",
@@ -18873,7 +18873,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 408,
+									"line": 409,
 									"character": 13
 								}
 							]
@@ -18898,7 +18898,7 @@
 									},
 									"comment": {
 										"shortText": "Gets the first element from the focused window/frame that matches the\ngiven query.",
-										"text": "See [[Session.setFindTimeout]] to set the amount of time it the remote\nenvironment should spend waiting for an element that does not exist at\nthe time of the `find` call before timing out.\n"
+										"text": "See [[Session.Session.setFindTimeout]] to set the amount of time it the\nremote environment should spend waiting for an element that does not\nexist at the time of the `find` call before timing out.\n"
 									},
 									"parameters": [
 										{
@@ -18956,7 +18956,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1029,
+									"line": 1031,
 									"character": 5
 								}
 							],
@@ -18997,7 +18997,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The element retrieval strategy to use. See [[Session.find]]\nfor options.\n"
+												"text": "The element retrieval strategy to use. See\n[[Session.Session.find]] for options.\n"
 											},
 											"type": {
 												"type": "reference",
@@ -19014,7 +19014,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The strategy-specific value to search for. See\n[[Session.find]] for details.\n"
+												"text": "The strategy-specific value to search for. See\n[[Session.Session.find]] for details.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -19046,7 +19046,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1078,
+									"line": 1080,
 									"character": 8
 								}
 							],
@@ -20020,7 +20020,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element in the\ncurrently active window/frame matching the given query. This is\ninherently slower than [[Session.find]], so should only be used in cases\nwhere the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.Element.isDisplayed|displayed]] element in the\ncurrently active window/frame matching the given query. This is\ninherently slower than [[Session.Session.find]], so should only be used\nin cases where the visibility of an element cannot be ensured in\nadvance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -20038,7 +20038,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The element retrieval strategy to use. See [[Session.find]]\nfor options.\n"
+												"text": "The element retrieval strategy to use. See\n[[Session.Session.find]] for options.\n"
 											},
 											"type": {
 												"type": "reference",
@@ -20055,7 +20055,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The strategy-specific value to search for. See\n[[Session.find]] for details.\n"
+												"text": "The strategy-specific value to search for. See\n[[Session.Session.find]] for details.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -20084,7 +20084,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1911,
+									"line": 1915,
 									"character": 14
 								}
 							],
@@ -20825,17 +20825,17 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1581,
-									"character": 12
-								},
-								{
-									"fileName": "Session.ts",
-									"line": 1587,
+									"line": 1583,
 									"character": 12
 								},
 								{
 									"fileName": "Session.ts",
 									"line": 1589,
+									"character": 12
+								},
+								{
+									"fileName": "Session.ts",
+									"line": 1591,
 									"character": 12
 								}
 							]
@@ -20947,7 +20947,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1120,
+									"line": 1122,
 									"character": 17
 								}
 							]
@@ -20988,7 +20988,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 448,
+									"line": 449,
 									"character": 19
 								}
 							]
@@ -21029,7 +21029,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1203,
+									"line": 1205,
 									"character": 13
 								}
 							]
@@ -21115,7 +21115,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1727,
+									"line": 1730,
 									"character": 26
 								}
 							]
@@ -21159,7 +21159,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 440,
+									"line": 441,
 									"character": 23
 								}
 							]
@@ -21203,7 +21203,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1712,
+									"line": 1715,
 									"character": 21
 								}
 							]
@@ -21247,7 +21247,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 817,
+									"line": 819,
 									"character": 11
 								}
 							]
@@ -21354,7 +21354,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the timeout for [[Session.executeAsync]] calls."
+										"shortText": "Gets the timeout for [[Session.Session.executeAsync]] calls."
 									},
 									"type": {
 										"type": "reference",
@@ -21371,7 +21371,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1932,
+									"line": 1936,
 									"character": 23
 								}
 							]
@@ -21395,7 +21395,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the timeout for [[Session.find]] calls."
+										"shortText": "Gets the timeout for [[Session.Session.find]] calls."
 									},
 									"type": {
 										"type": "reference",
@@ -21412,7 +21412,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1948,
+									"line": 1952,
 									"character": 15
 								}
 							]
@@ -21455,7 +21455,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1621,
+									"line": 1623,
 									"character": 15
 								}
 							]
@@ -21514,7 +21514,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1825,
+									"line": 1828,
 									"character": 20
 								}
 							]
@@ -21558,7 +21558,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1799,
+									"line": 1802,
 									"character": 20
 								}
 							]
@@ -21599,7 +21599,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1842,
+									"line": 1845,
 									"character": 22
 								}
 							]
@@ -21636,7 +21636,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The type of log entries to retrieve. Available log types\ndiffer between remote environments. Use [[Session.getAvailableLogTypes]]\nto learn what log types are currently available. Not all environments\nsupport all possible log types.\n"
+												"text": "The type of log entries to retrieve. Available log types\ndiffer between remote environments. Use\n[[Session.Session.getAvailableLogTypes]] to learn what log types are\ncurrently available. Not all environments support all possible log\ntypes.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -21675,7 +21675,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1668,
+									"line": 1671,
 									"character": 11
 								}
 							]
@@ -21717,7 +21717,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1179,
+									"line": 1181,
 									"character": 15
 								}
 							]
@@ -21741,7 +21741,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the timeout for [[Session.get]] calls."
+										"shortText": "Gets the timeout for [[Session.Session.get]] calls."
 									},
 									"type": {
 										"type": "reference",
@@ -21758,7 +21758,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1964,
+									"line": 1968,
 									"character": 19
 								}
 							]
@@ -21799,7 +21799,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 994,
+									"line": 996,
 									"character": 14
 								}
 							]
@@ -21840,7 +21840,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1010,
+									"line": 1012,
 									"character": 13
 								}
 							]
@@ -21899,7 +21899,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1876,
+									"line": 1879,
 									"character": 22
 								}
 							]
@@ -21943,7 +21943,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1850,
+									"line": 1853,
 									"character": 22
 								}
 							]
@@ -21984,7 +21984,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1893,
+									"line": 1896,
 									"character": 24
 								}
 							]
@@ -22083,7 +22083,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The name of the window to query. See\n[[Session.switchToWindow]] to learn about valid window names. Omit this\nargument to query the currently focused window.\n"
+												"text": "The name of the window to query. See\n[[Session.Session.switchToWindow]] to learn about valid window names.\nOmit this argument to query the currently focused window.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -22117,7 +22117,7 @@
 															"sources": [
 																{
 																	"fileName": "Session.ts",
-																	"line": 793,
+																	"line": 795,
 																	"character": 13
 																}
 															],
@@ -22138,7 +22138,7 @@
 															"sources": [
 																{
 																	"fileName": "Session.ts",
-																	"line": 793,
+																	"line": 795,
 																	"character": 28
 																}
 															],
@@ -22168,7 +22168,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 782,
+									"line": 784,
 									"character": 18
 								}
 							]
@@ -22206,7 +22206,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The name of the window to query. See\n[[Session.switchToWindow]] to learn about valid window names. Omit this\nargument to query the currently focused window.\n"
+												"text": "The name of the window to query. See\n[[Session.Session.switchToWindow]] to learn about valid window names.\nOmit this argument to query the currently focused window.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -22240,7 +22240,7 @@
 															"sources": [
 																{
 																	"fileName": "Session.ts",
-																	"line": 679,
+																	"line": 681,
 																	"character": 39
 																}
 															],
@@ -22261,7 +22261,7 @@
 															"sources": [
 																{
 																	"fileName": "Session.ts",
-																	"line": 679,
+																	"line": 681,
 																	"character": 19
 																}
 															],
@@ -22291,7 +22291,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 670,
+									"line": 672,
 									"character": 14
 								}
 							]
@@ -22414,7 +22414,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 457,
+									"line": 458,
 									"character": 15
 								}
 							]
@@ -22489,7 +22489,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1566,
+									"line": 1568,
 									"character": 8
 								}
 							]
@@ -22526,7 +22526,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The name of the window to resize. See\n[[Session.switchToWindow]] to learn about valid window names. Omit this\nargument to resize the currently focused window.\n"
+												"text": "The name of the window to resize. See\n[[Session.Session.switchToWindow]] to learn about valid window names.\nOmit this argument to resize the currently focused window.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -22549,7 +22549,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 804,
+									"line": 806,
 									"character": 15
 								}
 							]
@@ -22624,7 +22624,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1480,
+									"line": 1482,
 									"character": 11
 								}
 							]
@@ -22792,22 +22792,22 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1260,
-									"character": 12
-								},
-								{
-									"fileName": "Session.ts",
-									"line": 1261,
-									"character": 12
-								},
-								{
-									"fileName": "Session.ts",
 									"line": 1262,
 									"character": 12
 								},
 								{
 									"fileName": "Session.ts",
-									"line": 1268,
+									"line": 1263,
+									"character": 12
+								},
+								{
+									"fileName": "Session.ts",
+									"line": 1264,
+									"character": 12
+								},
+								{
+									"fileName": "Session.ts",
+									"line": 1270,
 									"character": 12
 								}
 							]
@@ -22882,7 +22882,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1454,
+									"line": 1456,
 									"character": 12
 								}
 							]
@@ -22968,7 +22968,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1157,
+									"line": 1159,
 									"character": 10
 								}
 							]
@@ -23005,7 +23005,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The button to press. See [[Session.click]] for available\noptions.\n"
+												"text": "The button to press. See [[Session.Session.click]] for\navailable options.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -23028,7 +23028,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1370,
+									"line": 1372,
 									"character": 17
 								}
 							]
@@ -23069,7 +23069,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1735,
+									"line": 1738,
 									"character": 5
 								}
 							]
@@ -23185,7 +23185,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1470,
+									"line": 1472,
 									"character": 14
 								}
 							]
@@ -23222,7 +23222,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The button to press. See [[Session.click]] for available\noptions.\n"
+												"text": "The button to press. See [[Session.Session.click]] for\navailable options.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -23245,7 +23245,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1392,
+									"line": 1394,
 									"character": 19
 								}
 							]
@@ -23587,7 +23587,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 851,
+									"line": 853,
 									"character": 10
 								}
 							]
@@ -23611,7 +23611,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Sets the timeout for [[Session.executeAsync]] calls."
+										"shortText": "Sets the timeout for [[Session.Session.executeAsync]] calls."
 									},
 									"parameters": [
 										{
@@ -23646,7 +23646,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1941,
+									"line": 1945,
 									"character": 23
 								}
 							]
@@ -23670,7 +23670,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Sets the timeout for [[Session.find]] calls."
+										"shortText": "Sets the timeout for [[Session.Session.find]] calls."
 									},
 									"parameters": [
 										{
@@ -23705,7 +23705,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1957,
+									"line": 1961,
 									"character": 15
 								}
 							]
@@ -23765,7 +23765,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1646,
+									"line": 1648,
 									"character": 15
 								}
 							]
@@ -23840,7 +23840,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1809,
+									"line": 1812,
 									"character": 20
 								}
 							]
@@ -23899,7 +23899,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1192,
+									"line": 1194,
 									"character": 15
 								}
 							]
@@ -23923,7 +23923,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Sets the timeout for [[Session.get]] calls."
+										"shortText": "Sets the timeout for [[Session.Session.get]] calls."
 									},
 									"parameters": [
 										{
@@ -23958,7 +23958,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1973,
+									"line": 1977,
 									"character": 19
 								}
 							]
@@ -24033,7 +24033,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1860,
+									"line": 1863,
 									"character": 22
 								}
 							]
@@ -24244,17 +24244,17 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 747,
-									"character": 18
-								},
-								{
-									"fileName": "Session.ts",
-									"line": 748,
-									"character": 18
-								},
-								{
-									"fileName": "Session.ts",
 									"line": 749,
+									"character": 18
+								},
+								{
+									"fileName": "Session.ts",
+									"line": 750,
+									"character": 18
+								},
+								{
+									"fileName": "Session.ts",
+									"line": 751,
 									"character": 18
 								}
 							]
@@ -24389,17 +24389,17 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 589,
+									"line": 591,
 									"character": 14
 								},
 								{
 									"fileName": "Session.ts",
-									"line": 590,
+									"line": 592,
 									"character": 14
 								},
 								{
 									"fileName": "Session.ts",
-									"line": 595,
+									"line": 597,
 									"character": 14
 								}
 							]
@@ -24472,7 +24472,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 488,
+									"line": 489,
 									"character": 14
 								}
 							]
@@ -24513,7 +24513,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 513,
+									"line": 515,
 									"character": 20
 								}
 							]
@@ -24549,7 +24549,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The handle of the window to switch to. In mobile\nenvironments and environments based on the W3C WebDriver standard, this\nshould be a handle as returned by [[Session.getAllWindowHandles]].\n\nIn environments using the JsonWireProtocol, this value corresponds to\nthe `window.name` property of a window.\n"
+												"text": "The handle of the window to switch to. In mobile\nenvironments and environments based on the W3C WebDriver standard, this\nshould be a handle as returned by\n[[Session.Session.getAllWindowHandles]].\n\nIn environments using the JsonWireProtocol, this value corresponds to\nthe `window.name` property of a window.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -24572,7 +24572,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 502,
+									"line": 504,
 									"character": 15
 								}
 							]
@@ -24614,7 +24614,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 429,
+									"line": 430,
 									"character": 15
 								}
 							]
@@ -24688,7 +24688,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1441,
+									"line": 1443,
 									"character": 4
 								}
 							]
@@ -24841,17 +24841,17 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1499,
+									"line": 1501,
 									"character": 12
 								},
 								{
 									"fileName": "Session.ts",
-									"line": 1500,
+									"line": 1502,
 									"character": 12
 								},
 								{
 									"fileName": "Session.ts",
-									"line": 1506,
+									"line": 1508,
 									"character": 12
 								}
 							]
@@ -24922,7 +24922,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1212,
+									"line": 1214,
 									"character": 13
 								}
 							]
@@ -24958,7 +24958,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The element retrieval strategy to use. See [[Session.find]]\nfor options.\n"
+												"text": "The element retrieval strategy to use. See\n[[Session.Session.find]] for options.\n"
 											},
 											"type": {
 												"type": "reference",
@@ -24975,7 +24975,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "The strategy-specific value to search for. See\n[[Session.find]] for details.\n"
+												"text": "The strategy-specific value to search for. See\n[[Session.Session.find]] for details.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -25003,7 +25003,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1925,
+									"line": 1929,
 									"character": 15
 								}
 							],
@@ -25833,7 +25833,7 @@
 							"sources": [
 								{
 									"fileName": "Session.ts",
-									"line": 1979,
+									"line": 1983,
 									"character": 7
 								}
 							],
@@ -25960,7 +25960,7 @@
 					"sources": [
 						{
 							"fileName": "Session.ts",
-							"line": 1978,
+							"line": 1982,
 							"character": 29
 						}
 					],
@@ -26036,7 +26036,7 @@
 					"sources": [
 						{
 							"fileName": "Session.ts",
-							"line": 2009,
+							"line": 2013,
 							"character": 26
 						}
 					]
@@ -26086,7 +26086,7 @@
 					"sources": [
 						{
 							"fileName": "Session.ts",
-							"line": 2036,
+							"line": 2040,
 							"character": 24
 						}
 					]
@@ -26180,7 +26180,7 @@
 													"sources": [
 														{
 															"fileName": "Session.ts",
-															"line": 1987,
+															"line": 1991,
 															"character": 15
 														}
 													],
@@ -26201,7 +26201,7 @@
 													"sources": [
 														{
 															"fileName": "Session.ts",
-															"line": 1986,
+															"line": 1990,
 															"character": 12
 														}
 													],
@@ -26224,7 +26224,7 @@
 											"sources": [
 												{
 													"fileName": "Session.ts",
-													"line": 1985,
+													"line": 1989,
 													"character": 31
 												}
 											]
@@ -26241,7 +26241,7 @@
 					"sources": [
 						{
 							"fileName": "Session.ts",
-							"line": 1985,
+							"line": 1989,
 							"character": 19
 						}
 					]
@@ -26287,7 +26287,7 @@
 					"sources": [
 						{
 							"fileName": "Session.ts",
-							"line": 2356,
+							"line": 2360,
 							"character": 22
 						}
 					]
@@ -26352,7 +26352,7 @@
 					"sources": [
 						{
 							"fileName": "Session.ts",
-							"line": 2054,
+							"line": 2058,
 							"character": 29
 						}
 					]
@@ -26407,7 +26407,7 @@
 					"sources": [
 						{
 							"fileName": "Session.ts",
-							"line": 2092,
+							"line": 2096,
 							"character": 21
 						}
 					]
@@ -26459,7 +26459,7 @@
 					"sources": [
 						{
 							"fileName": "Session.ts",
-							"line": 2184,
+							"line": 2188,
 							"character": 22
 						}
 					]
