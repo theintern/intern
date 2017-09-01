@@ -46,9 +46,9 @@ export function copy(src: string, dst: string) {
 			}
 		}
 
-		readdirSync(src).forEach(function(filename) {
+		for (const filename of readdirSync(src)) {
 			exports.copy(join(src, filename), join(dst, filename));
-		});
+		}
 	} else {
 		const data = readFileSync(src);
 		writeFileSync(dst, data);

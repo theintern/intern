@@ -49,8 +49,8 @@ const browsers = {
 	},
 	safari: {
 		note:
-			'Note that Safari currently requires that the Safari WebDriver extension be manually ' +
-			'installed.',
+			'Note that Safari currently requires that the Safari WebDriver ' +
+			'extension be manually installed.',
 		name: 'Safari',
 		driver: 'SafariDriver',
 		url: 'https://github.com/SeleniumHQ/selenium/wiki/SafariDriver'
@@ -78,7 +78,8 @@ try {
 	);
 } catch (error) {
 	die([
-		'You will need a local install of Intern before you can use this command. Install it with',
+		'You will need a local install of Intern before you can use this ' +
+			'command. Install it with',
 		'',
 		'  npm install --save-dev intern'
 	]);
@@ -87,11 +88,8 @@ try {
 // Verify the installed Intern is a version this script can work with
 if (!acceptVersion(internPackage.version, minVersion)) {
 	die(
-		'This command requires Intern ' +
-			minVersion +
-			' or newer (' +
-			internPackage.version +
-			' is installed).'
+		`This command requires Intern ${minVersion} or newer (` +
+			`${internPackage.version} is installed).`
 	);
 }
 
@@ -121,7 +119,7 @@ program
 			print();
 
 			if (commandName) {
-				print('unknown command: ' + commandName + '\n');
+				print(`unknown command: ${commandName}\n`);
 			}
 
 			print([
@@ -142,10 +140,10 @@ program
 	.option(
 		'-b, --browser <browser>',
 		'browser to use for functional tests',
-		enumArg.bind(null, Object.keys(browsers)),
+		(val: string) => enumArg(Object.keys(browsers), val),
 		'chrome'
 	)
-	.action(function(options) {
+	.action(options => {
 		try {
 			statSync(testsDir);
 			die(
@@ -187,11 +185,11 @@ program
 			if (options.browser === 'firefox') {
 				environment = "{ browserName: 'firefox', marionette: true }";
 			} else {
-				environment = "{ browserName: '" + options.browser + "' }";
+				environment = `{ browserName: '"${options.browser}"' }`;
 			}
 			data = data.replace(
 				/environments: \[[\s\S]*?],/,
-				'environments: [ ' + environment + ' ],'
+				`environments: [ ${environment} ],`
 			);
 
 			writeFileSync(configFile, data);
@@ -202,19 +200,15 @@ program
 
 			print();
 			print([
-				'Intern initialized! A test directory containing example unit and functional tests has been ' +
-					'created at ' +
-					testsDir +
-					'/. See ' +
-					configFile +
-					' for configuration options.',
+				'Intern initialized! A test directory containing example unit ' +
+					`and functional tests has been created at ${testsDir}/.` +
+					` See ${configFile} for configuration options.`,
 				'',
 				'Run the sample unit test with `intern run`.',
 				'',
-				'To run the sample functional test, first start a WebDriver server (e.g., Selenium), then ' +
-					'run `intern run -w`. The functional tests assume ' +
-					options.browser +
-					' is installed.',
+				'To run the sample functional test, first start a WebDriver ' +
+					'server (e.g., Selenium), then run `intern run -w`. The ' +
+					`functional tests assume ${options.browser} is installed.`,
 				''
 			]);
 
@@ -223,17 +217,14 @@ program
 
 			if (!note) {
 				note =
-					'Note that running WebDriver tests with ' +
-					info.name +
-					' requires ' +
-					info.driver +
-					' to be available in the system path.';
+					`Note that running WebDriver tests with ${info.name}` +
+					` requires ${info.driver} to be available in the system path.`;
 			}
 
 			print([
-				note + ' See',
+				`${note} See`,
 				'',
-				'  ' + info.url,
+				`  ${info.url}`,
 				'',
 				'for more information.',
 				''
@@ -244,15 +235,13 @@ program
 	})
 	.on('--help', function() {
 		print(
-			'This command creates a "' +
-				testsDir +
-				'" directory with a default Intern config file ' +
-				'and some sample tests.'
+			`This command creates a "${testsDir}" directory with a ` +
+				'default Intern config file and some sample tests.'
 		);
 		print();
 		print('Browser names:');
 		print();
-		print('  ' + Object.keys(browsers).join(', '));
+		print(`  ${Object.keys(browsers).join(', ')}`);
 		print();
 	});
 
@@ -262,7 +251,7 @@ program
 	.option('-b, --bail', 'quit after the first failing test')
 	.option(
 		'-c, --config <module ID|file>',
-		'config file to use (default is ' + testsDir + '/intern.js)'
+		`config file to use (default is ${testsDir}/intern.js)`
 	)
 	.option(
 		'-f, --fsuites <module ID>',
@@ -304,7 +293,7 @@ program
 		intArg
 	)
 	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
-	.action(function(...args: any[]) {
+	.action((...args: any[]) => {
 		const options = args[args.length - 1];
 		const config = options.config || join(testsDir, 'intern.js');
 
@@ -312,10 +301,10 @@ program
 			statSync(config);
 		} catch (error) {
 			die([
-				"There isn't a test config at " +
-					config +
-					'. You can specify a different test config ' +
-					'with the --config option, or run `intern init` to setup a project for testing.'
+				`There isn't a test config at "${config}".` +
+					' You can specify a different test config ' +
+					'with the --config option, or run `intern init` ' +
+					'to setup a project for testing.'
 			]);
 		}
 
@@ -325,22 +314,22 @@ program
 		// Allow user-specified args in the standard intern format to be passed through
 		const internArgs = args.slice(0, args.length - 1);
 
-		internArgs.push('config=' + config);
+		internArgs.push(`config=${config}`);
 
-		options.suites.forEach(function(suite: string) {
-			internArgs.push('suites=' + suite);
-		});
+		for (const suite of options.suites) {
+			internArgs.push(`suites=${suite}`);
+		}
 
-		options.fsuites.forEach(function(suite: string) {
-			internArgs.push('functionalSuites=' + suite);
-		});
+		for (const suite of options.fsuites) {
+			internArgs.push(`functionalSuites=${suite}`);
+		}
 
-		options.reporters.forEach(function(reporter: string) {
-			internArgs.push('reporters=' + reporter);
-		});
+		for (const reporter of options.reporters) {
+			internArgs.push(`reporters=${reporter}`);
+		}
 
 		if (options.grep) {
-			internArgs.push('grep=' + options.grep);
+			internArgs.push(`grep=${options.grep}`);
 		}
 
 		if (options.bail) {
@@ -348,15 +337,15 @@ program
 		}
 
 		if (options.port) {
-			internArgs.push('proxyPort=' + options.port);
+			internArgs.push(`proxyPort=${options.port}`);
 		}
 
 		if (options.timeout) {
-			internArgs.push('defaultTimeout=' + options.timeout);
+			internArgs.push(`defaultTimeout=${options.timeout}`);
 		}
 
 		if (options.tunnel) {
-			internArgs.push('tunnel=' + options.tunnel);
+			internArgs.push(`tunnel=${options.tunnel}`);
 		}
 
 		if (options.noInstrument) {
@@ -378,7 +367,7 @@ program
 			nodeArgs.push('debug');
 		}
 
-		const spawnArgs = nodeArgs.concat(internCmd).concat(internArgs);
+		const spawnArgs = [...nodeArgs, internCmd, ...internArgs];
 
 		vlog('Running %s %s', process.execPath, spawnArgs.join(' '));
 
@@ -386,37 +375,37 @@ program
 			stdio: 'inherit'
 		});
 
-		process.on('SIGINT', function() {
-			intern.kill('SIGINT');
-		});
+		process.on('SIGINT', () => intern.kill('SIGINT'));
 
-		intern.on('close', function(code: number, signal: string) {
+		intern.on('close', (code: number, signal: string) => {
 			if (process.exitCode == null) {
 				process.exitCode =
 					code != null ? code : exitCodeForSignal(signal);
 			}
 		});
 
-		intern.on('error', function() {
+		intern.on('error', () => {
 			if (process.exitCode == null) {
 				process.exitCode = 1;
 			}
 		});
 	})
-	.on('--help', function() {
+	.on('--help', () => {
 		print([
-			'Tests may be run purely in Node using the Node client, or in a browser using the WebDriver ' +
-				'runner.',
+			'Tests may be run purely in Node using the Node client, or in a ' +
+				'browser using the WebDriver runner.',
 			'',
-			'The Node client runs tests purely in Node rather than in a browser. This makes it well ' +
-				'suited for quickly running tests that do not involve the DOM, and and for testing code ' +
-				'meant to run in a server environment. Only unit tests will be run when using the Node ' +
-				'client.',
+			'The Node client runs tests purely in Node rather than in a ' +
+				'browser. This makes it well suited for quickly running tests ' +
+				'that do not involve the DOM, and and for testing code meant ' +
+				'to run in a server environment. Only unit tests will be run ' +
+				'when using the Node client.',
 			'',
-			'The WebDriver runner starts and controls a browser using the WebDriver protocol. This ' +
-				'requires that either a local instance of Selenium is running or that Intern has been ' +
-				'configured to run tests on a cloud testing service. Both unit and functional tests will ' +
-				'be run when using the WebDriver runner.',
+			'The WebDriver runner starts and controls a browser using the WebDriver ' +
+				'protocol. This requires that either a local instance of Selenium ' +
+				'is running or that Intern has been configured to run tests on a ' +
+				'cloud testing service. Both unit and functional tests will be run ' +
+				'when using the WebDriver runner.',
 			''
 		]);
 
@@ -430,35 +419,34 @@ program
 			.forEach(function(name) {
 				reporters.push(basename(name, '.js'));
 			});
-		print(['Reporters:', '', '  ' + reporters.join(', '), '']);
+		print(['Reporters:', '', `  ${reporters.join(', ')}`, '']);
 
 		const tunnels: string[] = [];
 		const digdugDir = dirname(
 			resolve('digdug/Tunnel', { basedir: process.cwd() })
 		);
 		readdirSync(digdugDir)
-			.filter(function(name) {
-				return /\wTunnel/.test(name);
-			})
-			.forEach(function(name) {
+			.filter(name => /\wTunnel/.test(name))
+			.forEach(name => {
 				tunnels.push(basename(name, '.js'));
 			});
-		print(['Tunnels:', '', '  ' + tunnels.join(', '), '']);
+		print(['Tunnels:', '', `  ${tunnels.join(', ')}`, '']);
 	});
 
 program
 	.command('serve')
 	.description(
-		'Start a simple web server for running unit tests in a browser on your system'
+		'Start a simple web server for running unit tests in a browser on ' +
+			'your system'
 	)
 	.option(
 		'-c, --config <module ID|file>',
-		'config file to use (default is ' + testsDir + '/intern.js)'
+		`config file to use (default is ${testsDir}/intern.js)`
 	)
 	.option('-o, --open', 'open the test runner URL when the server starts')
 	.option('-p, --port <port>', 'port to serve on', intArg)
 	.option('-I, --noInstrument', 'disable instrumentation')
-	.action(function(...args: any[]) {
+	.action(args => {
 		const options = args[args.length - 1];
 		const config = options.config || join(testsDir, 'intern.js');
 		const internCmd = join(internDir, 'runner');
@@ -466,11 +454,11 @@ program
 		// Allow user-specified args in the standard intern format to be passed through
 		const internArgs = args.slice(0, args.length - 1);
 
-		internArgs.push('config=' + config);
+		internArgs.push(`config=${config}`);
 		internArgs.push('proxyOnly');
 
 		if (options.port) {
-			internArgs.push('proxyPort=' + options.port);
+			internArgs.push(`proxyPort=${options.port}`);
 		}
 
 		if (options.noInstrument) {
@@ -485,21 +473,21 @@ program
 
 		const intern = spawn(
 			process.execPath,
-			nodeArgs.concat(internCmd).concat(internArgs),
+			[...nodeArgs, internCmd, ...internArgs],
 			{
 				stdio: [process.stdin, 'pipe', process.stdout]
 			}
 		);
 
-		intern.stdout.on('data', function(data: any) {
+		intern.stdout.on('data', data => {
 			data = String(data);
 			process.stdout.write(data);
 
 			if (/Listening on/.test(data)) {
-				const internPath =
-					'/node_modules/intern/client.html?config=' + config;
+				const internPath = `/node_modules/intern/client.html?config=${config}`;
 
-				// Get the address. Convert 0.0.0.0 to 'localhost' for Windows compatibility.
+				// Get the address. Convert 0.0.0.0 to 'localhost' for Windows
+				// compatibility.
 				let address = data
 					.split(' on ')[1]
 					.replace(/^\s*/, '')
@@ -511,13 +499,13 @@ program
 				address = parts.join(':');
 
 				if (options.open) {
-					opn('http://' + address + internPath);
+					opn(`http://${address}${internPath}`);
 				} else {
 					print([
 						'',
 						'To run unit tests, browse to:',
 						'',
-						'  http://' + address + internPath
+						`  http://${address}${internPath}`
 					]);
 				}
 
@@ -527,22 +515,23 @@ program
 			}
 		});
 
-		process.on('SIGINT', function() {
+		process.on('SIGINT', () => {
 			intern.kill('SIGINT');
 		});
 	})
-	.on('--help', function() {
+	.on('--help', () => {
 		print(
-			'When running WebDriver tests, Intern runs a local server to serve itself and the test ' +
-				'files to the browser(s) running the tests. This server can also be used instead of a ' +
-				'dedicated web server such as nginx or Apache for running unit tests locally.'
+			'When running WebDriver tests, Intern runs a local server to ' +
+				'serve itself and the test files to the browser(s) running the ' +
+				'tests. This server can also be used instead of a dedicated web ' +
+				'server such as nginx or Apache for running unit tests locally.'
 		);
 		print();
 	});
 
 // Handle any unknown commands
-program.command('*', undefined, { noHelp: true }).action(function(command) {
-	die('unknown command: ' + command);
+program.command('*', undefined, { noHelp: true }).action(command => {
+	die(`unknown command: ${command}`);
 });
 
 program.parse(process.argv);
