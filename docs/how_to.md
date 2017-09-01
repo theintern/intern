@@ -1,6 +1,7 @@
 # How To...
 
 <!-- vim-markdown-toc GFM -->
+
 * [Use Intern programmatically](#use-intern-programmatically)
 * [Run code before tests start](#run-code-before-tests-start)
 * [Run Intern in my own test page in a browser](#run-intern-in-my-own-test-page-in-a-browser)
@@ -64,7 +65,7 @@ There several ways to accomplish this:
       });
   });
   ```
-* If your startup code needs to load modules using your test loader (one configured with the [`loader`](./configuration.md#loder) option), register it as a plugin. These can run async initialization code in the [`registerPlugin`](./api.md#registerpluginid-callback) method, and also have access to any module loader configured for the tests.
+* If your startup code needs to load modules using your test loader (one configured with the [`loader`](./configuration.md#loder) option), register it as a plugin. These can run async initialization code in the [`registerPlugin`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/registerplugin) method, and also have access to any module loader configured for the tests.
    ```js
    // setup.js
    const bar = require('./bar');

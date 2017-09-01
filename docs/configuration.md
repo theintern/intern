@@ -1,6 +1,7 @@
 # Configuration
 
 <!-- vim-markdown-toc GFM -->
+
 * [Config structure](#config-structure)
 * [Sources of configuration information](#sources-of-configuration-information)
     * [Config File](#config-file)
@@ -318,7 +319,7 @@ This property specifies an array of file paths or globs that should be instrumen
 
 ### debug
 
-When set to true, Intern will emit [`log`](./api.md#logarg) events for many internal operations. Reporters that register for these events, such as the Runner reporter, will display them during testing.
+When set to true, Intern will emit 'log' events for many internal operations. Reporters that register for these events, such as the Runner reporter, will display them during testing.
 
 ### defaultTimeout
 
@@ -392,7 +393,7 @@ loader: {
 
 ### reporters
 
-This option is a list of reporters to use during the testing process. Reporters specified in this list must have been previously installed using [`registerReporter`](./api.md#registerreportername-reporter) or [`registerPlugin`](./api.md#registerpluginid-callback). List entries may be reporter names or objects of the format
+This option is a list of reporters to use during the testing process. Reporters specified in this list must have been previously installed using [`registerReporter`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerreporter) or [`registerPlugin`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerplugin). List entries may be reporter names or objects of the format
 
 ```js
 {

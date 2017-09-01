@@ -3,34 +3,35 @@
 At the most basic level, a test is a function that either runs to completion or throws an error. Intern groups tests into suites, and runs the suites when `intern.run()` is called. The first few sections in this document cover the basics of writing and organizing tests. At a higher level, there are two general classes of test: [unit tests](concepts.md#unit-tests) and [functional tests](concepts.md#functional-tests).
 
 <!-- vim-markdown-toc GFM -->
+
 * [Organization](#organization)
 * [The test lifcycle](#the-test-lifcycle)
 * [Interfaces](#interfaces)
-    * [Object](#object)
-        * [Nesting suites](#nesting-suites)
-        * [Shared data](#shared-data)
-    * [TDD](#tdd)
-    * [BDD](#bdd)
-    * [Qunit](#qunit)
-    * [Benchmark](#benchmark)
-    * [Native](#native)
+	* [Object](#object)
+		* [Nesting suites](#nesting-suites)
+		* [Shared data](#shared-data)
+	* [TDD](#tdd)
+	* [BDD](#bdd)
+	* [Qunit](#qunit)
+	* [Benchmark](#benchmark)
+	* [Native](#native)
 * [Assertions](#assertions)
-    * [assert](#assert)
-    * [expect](#expect)
-    * [should](#should)
+	* [assert](#assert)
+	* [expect](#expect)
+	* [should](#should)
 * [Unit tests](#unit-tests)
-    * [Testing asynchronous code](#testing-asynchronous-code)
-    * [Skipping tests at runtime](#skipping-tests-at-runtime)
-    * [Test and suite context](#test-and-suite-context)
-    * [Environment](#environment)
+	* [Testing asynchronous code](#testing-asynchronous-code)
+	* [Skipping tests at runtime](#skipping-tests-at-runtime)
+	* [Test and suite context](#test-and-suite-context)
+	* [Environment](#environment)
 * [Benchmark tests](#benchmark-tests)
 * [Functional tests](#functional-tests)
-    * [Page objects](#page-objects)
-    * [Testing native apps](#testing-native-apps)
-        * [Appium](#appium)
-        * [ios-driver](#ios-driver)
-        * [Selendroid](#selendroid)
-    * [Debugging](#debugging)
+	* [Page objects](#page-objects)
+	* [Testing native apps](#testing-native-apps)
+		* [Appium](#appium)
+		* [ios-driver](#ios-driver)
+		* [Selendroid](#selendroid)
+	* [Debugging](#debugging)
 
 <!-- vim-markdown-toc -->
 
@@ -448,7 +449,7 @@ registerSuite('foo', {
 
 ### Native
 
-The native interface is simply the [`addSuite`](./api.md#addsuiteparent--void) method on Executor, which is what the various test interfaces use behind the scenes to register tests and suites. This method takes a factory function that will be called with a Suite. The factory function should add suites or tests to the given suite.
+The native interface is simply the [`addSuite`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/addsuite) method on Executor, which is what the various test interfaces use behind the scenes to register tests and suites. This method takes a factory function that will be called with a Suite. The factory function should add suites or tests to the given suite.
 
 ```js
 intern.addSuite(parent => {
@@ -542,7 +543,7 @@ or using callbacks:
 
 The examples on this page have all involved synchronous code, but tests may also execute asynchronous code. When a test is async, Intern will wait for a notification that the test is finished before starting the next test. There are two ways to let Intern know a test is async:
 
-1. Call [`this.async`](./api.md#asynctimeout-numcallsuntilresolution) (or `test.async`) to get a Deferred object, and then resolve or reject that Deferred when the test is finished, or
+1. Call [`this.async`](https://theintern.io/docs.html#Intern/4/api/lib%2FTest/async) (or `test.async`) to get a Deferred object, and then resolve or reject that Deferred when the test is finished, or
 2. Return a Promise
 
 Internally both cases are handled in the same way; Intern will wait for the Deferred object created by the call to `async`, or for a Promise returned by the test, to resolve before continuing. If the Deferred or Promise is rejected, the test fails, otherwise it passes.
@@ -591,7 +592,7 @@ this.timeout = 5000;
 
 ### Skipping tests at runtime
 
-Tests have a [`skip`](./api.md#skipmessage-1) method that can be used to skip the test if it should not be executed for some reason.
+Tests have a [`skip`](https://theintern.io/docs.html#Intern/4/api/lib%2FTest/skip) method that can be used to skip the test if it should not be executed for some reason.
 
 ```js
 registerSuite('skip demo', {
@@ -607,7 +608,7 @@ registerSuite('skip demo', {
 
 > 💡Calling `this.skip` immediately halts test execution, so there is no need to call `return` after `skip`.
 
-The Suite class also provides a [`skip`](./api.md#skipmessage) method. Calling `this.skip()` (or `suite.skip()`) from a suite lifecycle method, or calling `this.parent.skip()` from a test, will cause all remaining tests in a suite to be skipped.
+The Suite class also provides a [`skip`](https://theintern.io/docs.html#Intern/4/api/lib%2FSuite/skip) method. Calling `this.skip()` (or `suite.skip()`) from a suite lifecycle method, or calling `this.parent.skip()` from a test, will cause all remaining tests in a suite to be skipped.
 
 Intern also provides a [`grep`](./configuration.md#grep) configuration option that can be used to skip tests and suites by ID.
 
@@ -687,7 +688,7 @@ The benchmark test lifecycle is very similar to the standard test lifecycle:
 
 [Functional tests](./concepts.md#functional-tests) operate fundamentally differently than unit tests. While a unit test directly loads and executes application code, functional tests load a page in a browser and interact with it in the same way a user would: by examining the content of the page, clicking buttons, typing into text inputs, etc. This interaction is managed through a `remote` property that is available to functional tests.
 
-Functional tests are registered using the same interfaces as [unit tests](#unit-tests), and use the same [Suite](./api.md#suite) and [Test](./api.md#test) objects, but are loaded using the [`functionalSuites`](./configuration.md#functionalSuites). The key difference is that instead of executing application code directly, functional tests use a [Leadfoot Command object](https://theintern.github.io/leadfoot/module-leadfoot_Command.html), available as a `remote` property on the test, to automate interactions that you’d normally perform manually.
+Functional tests are registered using the same interfaces as [unit tests](#unit-tests), and use the same [Suite](https://theintern.io/docs.html#Intern/4/api/lib%2FSuite/suite) and [Test](https://theintern.io/docs.html#Intern/4/api/lib%2FTest/test) objects, but are loaded using the [`functionalSuites`](./configuration.md#functionalSuites). The key difference is that instead of executing application code directly, functional tests use a [Leadfoot Command object](https://theintern.github.io/leadfoot/module-leadfoot_Command.html), available as a `remote` property on the test, to automate interactions that you’d normally perform manually.
 
 Consider the following functional test:
 

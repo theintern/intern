@@ -1,6 +1,7 @@
 # Extending
 
 <!-- vim-markdown-toc GFM -->
+
 * [Types of extension](#types-of-extension)
     * [Plugins](#plugins)
     * [Reporters](#reporters)
@@ -38,7 +39,7 @@ const { db } = intern.getPlugin('dbaccess');
 
 ### Reporters
 
-Reporters are simply event listeners that register for Intern [events](./api.md#oneventname-callback)). For example, a reporter that displays test results to the console could be as simple as:
+Reporters are simply event listeners that register for Intern [events](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/on)). For example, a reporter that displays test results to the console could be as simple as:
 
 ```js
 intern.on('testEnd', test => {
@@ -58,7 +59,7 @@ Intern provides a number of pre-registered reporters that can be enabled via the
 
 ### Interfaces
 
-An interface is an API for registering test suites. Intern has several built in interfaces, such as [object](./writing_tests.md#object) and [bdd](./writing_tests.md#bdd). These interfaces all work by creating [Suite](./api.md#suite) and [Test](./api.md#test) objects and registering them with Intern’s root suite(s). New interfaces should follow the same pattern. For example, below is an excerpt from the tdd interface, which allows suites to be registered using `suite` and `test` functions:
+An interface is an API for registering test suites. Intern has several built in interfaces, such as [object](./writing_tests.md#object) and [bdd](./writing_tests.md#bdd). These interfaces all work by creating [Suite](https://theintern.io/docs.html#Intern/4/api/lib%2FSuite) and [Test](https://theintern.io/docs.html#Intern/4/api/lib%2FTest) objects and registering them with Intern’s root suite(s). New interfaces should follow the same pattern. For example, below is an excerpt from the tdd interface, which allows suites to be registered using `suite` and `test` functions:
 
 ```js
 import Suite from '../Suite';
