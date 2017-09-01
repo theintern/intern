@@ -153,7 +153,7 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed displayed]] element inside this element
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
 	 * matching the given CSS class name. This is inherently slower than [[Element.find]], so should
 	 * only be used in cases where the visibility of an element cannot be ensured in advance.
 	 *
@@ -165,7 +165,7 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed displayed]] element inside this element
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
 	 * matching the given CSS selector. This is inherently slower than [[Element.find]], so should
 	 * only be used in cases where the visibility of an element cannot be ensured in advance.
 	 *
@@ -177,7 +177,7 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed displayed]] element inside this element
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
 	 * matching the given ID. This is inherently slower than [[Element.find]], so should
 	 * only be used in cases where the visibility of an element cannot be ensured in advance.
 	 *
@@ -189,7 +189,7 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed displayed]] element inside this element
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
 	 * matching the given name attribute. This is inherently slower than [[Element.find]], so should
 	 * only be used in cases where the visibility of an element cannot be ensured in advance.
 	 *
@@ -201,7 +201,7 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed displayed]] element inside this element
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
 	 * matching the given case-insensitive link text. This is inherently slower than [[Element.find]],
 	 * so should only be used in cases where the visibility of an element cannot be ensured in advance.
 	 *
@@ -213,7 +213,7 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed displayed]] element inside this element
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
 	 * partially matching the given case-insensitive link text. This is inherently slower than
 	 * [[Element.find]], so should only be used in cases where the visibility of an element cannot be
 	 * ensured in advance.
@@ -226,7 +226,7 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed displayed]] element inside this element
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
 	 * matching the given HTML tag name. This is inherently slower than [[Element.find]], so should
 	 * only be used in cases where the visibility of an element cannot be ensured in advance.
 	 *
@@ -238,7 +238,7 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed displayed]] element inside this element
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
 	 * matching the given XPath selector. This is inherently slower than [[Element.find]], so should
 	 * only be used in cases where the visibility of an element cannot be ensured in advance.
 	 *

@@ -6,6 +6,37 @@ import Task from '@dojo/core/async/Task';
  * A [[Command]] helper that polls for a value within the client environment until the value exists
  * or a timeout is reached.
  *
+ * ```js
+ * var Command = require('leadfoot/Command');
+ * var pollUntil = require('leadfoot/helpers/pollUntil');
+ *
+ * new Command(session)
+ *     .get('http://example.com')
+ *     .then(pollUntil('return document.getElementById("a");', 1000))
+ *     .then(function (elementA) {
+ *         // element was found
+ *     }, function (error) {
+ *         // element was not found
+ *     });
+ * ```
+ *
+ * ```js
+ * var Command = require('leadfoot/Command');
+ * var pollUntil = require('leadfoot/helpers/pollUntil');
+ *
+ * new Command(session)
+ *     .get('http://example.com')
+ *     .then(pollUntil(function (value) {
+ *         var element = document.getElementById('a');
+ *         return element && element.value === value ? true : null;
+ *     }, [ 'foo' ], 1000))
+ *     .then(function () {
+ *         // value was set to 'foo'
+ *     }, function (error) {
+ *         // value was never set
+ *     });
+ * ```
+ *
  * @param poller
  * The poller function to execute on an interval. The function should return `null` or `undefined` if there is not a
  * result. If the poller function throws, polling will halt.
@@ -25,40 +56,6 @@ import Task from '@dojo/core/async/Task';
  * A [[Command]] callback function that, when called, returns a promise that resolves to the
  * value returned by the poller function on success and rejects on failure.
  *
- * @example
- *
- * ```js
- * var Command = require('leadfoot/Command');
- * var pollUntil = require('leadfoot/helpers/pollUntil');
- *
- * new Command(session)
- *     .get('http://example.com')
- *     .then(pollUntil('return document.getElementById("a");', 1000))
- *     .then(function (elementA) {
- *         // element was found
- *     }, function (error) {
- *         // element was not found
- *     });
- * ```
- *
- * @example
- *
- * ```js
- * var Command = require('leadfoot/Command');
- * var pollUntil = require('leadfoot/helpers/pollUntil');
- *
- * new Command(session)
- *     .get('http://example.com')
- *     .then(pollUntil(function (value) {
- *         var element = document.getElementById('a');
- *         return element && element.value === value ? true : null;
- *     }, [ 'foo' ], 1000))
- *     .then(function () {
- *         // value was set to 'foo'
- *     }, function (error) {
- *         // value was never set
- *     });
- * ```
  */
 export default function pollUntil(poller: Function|string, args?: any[], timeout?: number, pollInterval?: number): () => Task<any>;
 export default function pollUntil(poller: Function|string, timeout?: number, pollInterval?: number): () => Task<any>;

@@ -559,7 +559,7 @@ export default class Element extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed displayed]] element inside this element
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
 	 * matching the given query. This is inherently slower than [[Element.find]], so should only be
 	 * used in cases where the visibility of an element cannot be ensured in advance.
 	 *

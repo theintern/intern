@@ -1,3 +1,6 @@
+/**
+ * Status codes that may be received from a remote WebDriver server
+ */
 const statusCodes = {
 	0: [ 'Success', 'The command executed successfully.' ],
 	6: [ 'NoSuchDriver', 'A session is either terminated or not started.' ],

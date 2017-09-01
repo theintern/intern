@@ -1636,7 +1636,7 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed displayed]] element in the currently active window/frame
+	 * Gets the first [[Element.isDisplayed|displayed]] element in the currently active window/frame
 	 * matching the given query. This is inherently slower than [[Session.find]], so should only be
 	 * used in cases where the visibility of an element cannot be ensured in advance.
 	 *

@@ -2,9 +2,14 @@ import Task from '@dojo/core/async/Task';
 import statusCodes from './statusCodes';
 import Element from '../Element';
 import Session from '../Session';
-
 import { Strategy } from './Locator';
 
+/**
+ * Gets the first [[Element.isDisplayed|displayed]] element inside this element
+ * matching the given query. This is inherently slower than [[Element.find]],
+ * so should only be used in cases where the visibility of an element cannot be
+ * ensured in advance.
+ */
 export default function findDisplayed(session: Session, locator: Session | Element, strategy: Strategy, value: string) {
 	return session.getTimeout('implicit').then(originalTimeout => {
 		const startTime = Date.now();
