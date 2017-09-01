@@ -1,3 +1,28 @@
+/**
+ * This is the TDD interface for registering suites. Typically it will be
+ * accessed using [[lib/executors/Executor.Executor.getInterface]], like:
+ *
+ * ```js
+ * const { suite, test } = intern.getInterface('tdd');
+ * ```
+ *
+ * It may also be imported as a module, like
+ *
+ * ```js
+ * import { suite, test } from 'intern/lib/interfaces/tdd';
+ * ```
+ *
+ * Suites are registered using callback functions, and tests can be registered
+ * within the suite callbacks.
+ *
+ * ```js
+ * suite('foo', () => {
+ *     before(() => { ... });
+ *     afterEach(() => { ... });
+ *     test('bar', () => { ... });
+ *     test('baz', () => { ... });
+ * });
+ */ /** */
 import { on } from '@dojo/core/aspect';
 import global from '@dojo/shim/global';
 import Suite, { SuiteProperties } from '../Suite';

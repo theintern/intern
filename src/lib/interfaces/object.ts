@@ -1,5 +1,16 @@
 /**
- * Object interface for registering suites
+ * This is the object interface for registering suites. Typically it will be
+ * accessed using [[lib/executors/Executor.Executor.getInterface]], like:
+ *
+ * ```js
+ * const { registerSuite } = intern.getInterface('object');
+ * ```
+ *
+ * It may also be imported as a module, like
+ *
+ * ```js
+ * import { registerSuite } from 'intern/lib/interfaces/object';
+ * ```
  *
  * Suites are described using objects. The object structure is a subset of suite
  * properties, specifically name, the lifecycle methods, and tests.
@@ -43,7 +54,7 @@
  *     }
  * });
  * ```
- */
+ */ /** */
 
 import Suite, { SuiteOptions, SuiteProperties } from '../Suite';
 import Test, { TestFunction, isTestFunction } from '../Test';

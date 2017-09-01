@@ -5,6 +5,10 @@ import Suite, {
 } from './Suite';
 import BenchmarkTest from './BenchmarkTest';
 
+/**
+ * BenchmarkSuite is a specialization of [[lib/Suite]] that manages
+ * [[lib/BenchmarkTest|BenchmarkTests]].
+ */
 export default class BenchmarkSuite extends Suite
 	implements BenchmarkSuiteProperties {
 	/** A function that is run after each test call by benchmark.js */

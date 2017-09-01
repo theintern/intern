@@ -354,6 +354,9 @@
 						"isExternal": true,
 						"__visited__": true
 					},
+					"comment": {
+						"shortText": "BenchmarkSuite is a specialization of [[lib/Suite]] that manages\n[[lib/BenchmarkTest|BenchmarkTests]]."
+					},
 					"children": [
 						{
 							"id": 991,
@@ -405,7 +408,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkSuite.ts",
-									"line": 16,
+									"line": 20,
 									"character": 43
 								}
 							],
@@ -503,7 +506,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkSuite.ts",
-									"line": 11,
+									"line": 15,
 									"character": 14
 								}
 							],
@@ -707,7 +710,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkSuite.ts",
-									"line": 14,
+									"line": 18,
 									"character": 15
 								}
 							],
@@ -912,7 +915,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkSuite.ts",
-									"line": 16,
+									"line": 20,
 									"character": 6
 								}
 							],
@@ -2145,7 +2148,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkSuite.ts",
-							"line": 8,
+							"line": 12,
 							"character": 35
 						}
 					],
@@ -2249,7 +2252,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkSuite.ts",
-									"line": 25,
+									"line": 29,
 									"character": 14
 								}
 							],
@@ -2355,7 +2358,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkSuite.ts",
-									"line": 24,
+									"line": 28,
 									"character": 15
 								}
 							],
@@ -2611,7 +2614,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkSuite.ts",
-							"line": 23,
+							"line": 27,
 							"character": 41
 						}
 					],
@@ -2643,7 +2646,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkSuite.ts",
-							"line": 28,
+							"line": 32,
 							"character": 33
 						}
 					],
@@ -2684,7 +2687,7 @@
 											"sources": [
 												{
 													"fileName": "lib/BenchmarkSuite.ts",
-													"line": 29,
+													"line": 33,
 													"character": 5
 												}
 											],
@@ -2705,7 +2708,7 @@
 											"sources": [
 												{
 													"fileName": "lib/BenchmarkSuite.ts",
-													"line": 30,
+													"line": 34,
 													"character": 7
 												}
 											],
@@ -2728,7 +2731,7 @@
 											"sources": [
 												{
 													"fileName": "lib/BenchmarkSuite.ts",
-													"line": 31,
+													"line": 35,
 													"character": 6
 												}
 											],
@@ -2766,7 +2769,7 @@
 									"sources": [
 										{
 											"fileName": "lib/BenchmarkSuite.ts",
-											"line": 28,
+											"line": 32,
 											"character": 71
 										}
 									]
@@ -2830,7 +2833,7 @@
 						"__visited__": true
 					},
 					"comment": {
-						"shortText": "A wrapper around a Benchmark.js Benchmark that maps its API to that used by\nTest."
+						"shortText": "BenchmarkTest wraps a Benchmark.js Benchmark, mapping its API to that used by\n[[lib/Test]]."
 					},
 					"children": [
 						{
@@ -2883,7 +2886,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 23,
+									"line": 25,
 									"character": 28
 								}
 							],
@@ -3126,10 +3129,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The Benchmark.js test that actually performs benchmarking"
+							},
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 23,
+									"line": 25,
 									"character": 10
 								}
 							],
@@ -3304,10 +3310,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The test function managed by this test"
+							},
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 21,
+									"line": 22,
 									"character": 5
 								}
 							],
@@ -3337,6 +3346,9 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The executor running this test."
+							},
 							"getSignature": [
 								{
 									"id": 558,
@@ -3345,6 +3357,9 @@
 									"kindString": "Get signature",
 									"flags": {
 										"__visited__": true
+									},
+									"comment": {
+										"shortText": "The executor running this test."
 									},
 									"type": {
 										"type": "reference",
@@ -3361,7 +3376,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 57,
+									"line": 60,
 									"character": 13
 								}
 							],
@@ -3410,7 +3425,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 64,
+									"line": 67,
 									"character": 14
 								}
 							],
@@ -3464,7 +3479,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 72,
+									"line": 75,
 									"character": 7
 								}
 							],
@@ -3513,7 +3528,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 86,
+									"line": 89,
 									"character": 12
 								}
 							],
@@ -3562,7 +3577,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 93,
+									"line": 96,
 									"character": 13
 								}
 							],
@@ -3624,7 +3639,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 101,
+									"line": 104,
 									"character": 11
 								}
 							],
@@ -3673,7 +3688,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 109,
+									"line": 112,
 									"character": 14
 								}
 							],
@@ -3693,6 +3708,9 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The number of milliseconds the test function took to complete."
+							},
 							"getSignature": [
 								{
 									"id": 528,
@@ -3701,6 +3719,9 @@
 									"kindString": "Get signature",
 									"flags": {
 										"__visited__": true
+									},
+									"comment": {
+										"shortText": "The number of milliseconds the test function took to complete."
 									},
 									"type": {
 										"type": "intrinsic",
@@ -3721,6 +3742,9 @@
 									"kindString": "Set signature",
 									"flags": {
 										"__visited__": true
+									},
+									"comment": {
+										"shortText": "The number of milliseconds the test function took to complete."
 									},
 									"parameters": [
 										{
@@ -3751,12 +3775,12 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 83,
+									"line": 88,
 									"character": 16
 								},
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 90,
+									"line": 95,
 									"character": 16
 								}
 							],
@@ -3776,6 +3800,9 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The number of milliseconds this test can run before it will be canceled."
+							},
 							"getSignature": [
 								{
 									"id": 572,
@@ -3784,6 +3811,9 @@
 									"kindString": "Get signature",
 									"flags": {
 										"__visited__": true
+									},
+									"comment": {
+										"shortText": "The number of milliseconds this test can run before it will be canceled."
 									},
 									"type": {
 										"type": "intrinsic",
@@ -3804,6 +3834,9 @@
 									"kindString": "Set signature",
 									"flags": {
 										"__visited__": true
+									},
+									"comment": {
+										"shortText": "The number of milliseconds this test can run before it will be canceled."
 									},
 									"parameters": [
 										{
@@ -3834,12 +3867,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 121,
+									"line": 126,
 									"character": 12
 								},
 								{
 									"fileName": "lib/Test.ts",
-									"line": 131,
+									"line": 136,
 									"character": 12
 								}
 							],
@@ -3942,7 +3975,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 94,
+									"line": 99,
 									"character": 6
 								}
 							],
@@ -4013,7 +4046,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 194,
+									"line": 199,
 									"character": 15
 								}
 							],
@@ -4062,7 +4095,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 101,
+									"line": 106,
 									"character": 4
 								}
 							],
@@ -4128,7 +4161,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 379,
+									"line": 384,
 									"character": 5
 								}
 							],
@@ -4209,7 +4242,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 149,
+									"line": 154,
 									"character": 7
 								}
 							],
@@ -4288,7 +4321,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 162,
+									"line": 167,
 									"character": 13
 								}
 							]
@@ -4462,7 +4495,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 182,
+									"line": 187,
 									"character": 8
 								}
 							],
@@ -4485,7 +4518,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkTest.ts",
-							"line": 180,
+							"line": 185,
 							"character": 46
 						}
 					]
@@ -4883,7 +4916,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 199,
+									"line": 204,
 									"character": 24
 								}
 							],
@@ -5153,7 +5186,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 198,
+									"line": 203,
 									"character": 5
 								}
 							],
@@ -5240,7 +5273,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkTest.ts",
-							"line": 197,
+							"line": 202,
 							"character": 33
 						}
 					],
@@ -5322,7 +5355,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 177,
+									"line": 182,
 									"character": 8
 								}
 							],
@@ -5345,7 +5378,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkTest.ts",
-							"line": 175,
+							"line": 180,
 							"character": 38
 						}
 					]
@@ -5374,7 +5407,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 451,
+									"line": 456,
 									"character": 10
 								}
 							],
@@ -5401,7 +5434,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 452,
+									"line": 457,
 									"character": 5
 								}
 							],
@@ -5428,7 +5461,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 188,
+									"line": 193,
 									"character": 24
 								}
 							],
@@ -5450,7 +5483,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 453,
+									"line": 458,
 									"character": 7
 								}
 							],
@@ -5478,7 +5511,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 187,
+									"line": 192,
 									"character": 5
 								}
 							],
@@ -5500,7 +5533,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 454,
+									"line": 459,
 									"character": 8
 								}
 							],
@@ -5536,7 +5569,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 186,
+									"line": 191,
 									"character": 5
 								}
 							],
@@ -5564,7 +5597,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 456,
+									"line": 461,
 									"character": 8
 								}
 							],
@@ -5598,7 +5631,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkTest.ts",
-							"line": 185,
+							"line": 190,
 							"character": 40
 						}
 					],
@@ -9805,7 +9838,7 @@
 							"sources": [
 								{
 									"fileName": "lib/BenchmarkTest.ts",
-									"line": 203,
+									"line": 208,
 									"character": 11
 								}
 							],
@@ -12419,7 +12452,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkTest.ts",
-							"line": 202,
+							"line": 207,
 							"character": 32
 						}
 					],
@@ -12443,7 +12476,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkTest.ts",
-							"line": 191,
+							"line": 196,
 							"character": 32
 						}
 					],
@@ -12484,7 +12517,7 @@
 											"sources": [
 												{
 													"fileName": "lib/BenchmarkTest.ts",
-													"line": 192,
+													"line": 197,
 													"character": 5
 												}
 											],
@@ -12506,7 +12539,7 @@
 											"sources": [
 												{
 													"fileName": "lib/BenchmarkTest.ts",
-													"line": 194,
+													"line": 199,
 													"character": 8
 												}
 											],
@@ -12528,7 +12561,7 @@
 											"sources": [
 												{
 													"fileName": "lib/BenchmarkTest.ts",
-													"line": 193,
+													"line": 198,
 													"character": 5
 												}
 											],
@@ -12553,7 +12586,7 @@
 									"sources": [
 										{
 											"fileName": "lib/BenchmarkTest.ts",
-											"line": 191,
+											"line": 196,
 											"character": 69
 										}
 									]
@@ -12704,7 +12737,7 @@
 											"sources": [
 												{
 													"fileName": "lib/BenchmarkTest.ts",
-													"line": 269,
+													"line": 274,
 													"character": 10
 												}
 											]
@@ -12752,7 +12785,7 @@
 											"sources": [
 												{
 													"fileName": "lib/BenchmarkTest.ts",
-													"line": 252,
+													"line": 257,
 													"character": 8
 												}
 											]
@@ -12812,7 +12845,7 @@
 											"sources": [
 												{
 													"fileName": "lib/BenchmarkTest.ts",
-													"line": 258,
+													"line": 263,
 													"character": 15
 												}
 											]
@@ -12844,7 +12877,7 @@
 											"sources": [
 												{
 													"fileName": "lib/BenchmarkTest.ts",
-													"line": 243,
+													"line": 248,
 													"character": 9
 												}
 											]
@@ -12869,7 +12902,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkTest.ts",
-							"line": 235,
+							"line": 240,
 							"character": 23
 						}
 					]
@@ -12916,7 +12949,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkTest.ts",
-							"line": 210,
+							"line": 215,
 							"character": 21
 						}
 					]
@@ -12964,7 +12997,7 @@
 					"sources": [
 						{
 							"fileName": "lib/BenchmarkTest.ts",
-							"line": 206,
+							"line": 211,
 							"character": 31
 						}
 					]
@@ -25074,7 +25107,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1165,
+									"line": 1166,
 									"character": 5
 								}
 							],
@@ -25104,7 +25137,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1170,
+									"line": 1171,
 									"character": 9
 								}
 							],
@@ -25131,7 +25164,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1167,
+									"line": 1168,
 									"character": 9
 								}
 							],
@@ -25158,7 +25191,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1172,
+									"line": 1173,
 									"character": 10
 								}
 							],
@@ -25186,7 +25219,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1173,
+									"line": 1174,
 									"character": 16
 								}
 							],
@@ -25214,7 +25247,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1175,
+									"line": 1176,
 									"character": 8
 								}
 							],
@@ -25245,7 +25278,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1180,
+									"line": 1181,
 									"character": 17
 								}
 							],
@@ -25275,7 +25308,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1183,
+									"line": 1184,
 									"character": 6
 								}
 							],
@@ -25305,7 +25338,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1186,
+									"line": 1187,
 									"character": 15
 								}
 							],
@@ -25335,7 +25368,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1189,
+									"line": 1190,
 									"character": 12
 								}
 							],
@@ -25365,7 +25398,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1195,
+									"line": 1196,
 									"character": 17
 								}
 							],
@@ -25395,7 +25428,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1201,
+									"line": 1202,
 									"character": 5
 								}
 							],
@@ -25425,7 +25458,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1204,
+									"line": 1205,
 									"character": 11
 								}
 							],
@@ -25456,7 +25489,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1133,
+									"line": 1134,
 									"character": 7
 								}
 							],
@@ -25487,7 +25520,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1207,
+									"line": 1208,
 									"character": 5
 								}
 							],
@@ -25514,7 +25547,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1209,
+									"line": 1210,
 									"character": 5
 								}
 							],
@@ -25545,7 +25578,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1142,
+									"line": 1143,
 									"character": 8
 								}
 							],
@@ -25579,7 +25612,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1148,
+									"line": 1149,
 									"character": 10
 								}
 							],
@@ -25613,7 +25646,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1154,
+									"line": 1155,
 									"character": 8
 								}
 							],
@@ -25731,7 +25764,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1218,
+									"line": 1219,
 									"character": 11
 								}
 							],
@@ -25793,7 +25826,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1160,
+									"line": 1161,
 									"character": 7
 								}
 							],
@@ -25883,7 +25916,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1253,
+									"line": 1254,
 									"character": 4
 								}
 							],
@@ -25914,7 +25947,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1256,
+									"line": 1257,
 									"character": 9
 								}
 							],
@@ -25944,7 +25977,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1259,
+									"line": 1260,
 									"character": 10
 								}
 							],
@@ -25974,7 +26007,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1262,
+									"line": 1263,
 									"character": 9
 								}
 							],
@@ -26005,7 +26038,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1265,
+									"line": 1266,
 									"character": 11
 								}
 							],
@@ -26036,7 +26069,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1268,
+									"line": 1269,
 									"character": 6
 								}
 							],
@@ -26066,7 +26099,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1271,
+									"line": 1272,
 									"character": 4
 								}
 							],
@@ -26118,7 +26151,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1274,
+									"line": 1275,
 									"character": 7
 								}
 							],
@@ -26148,7 +26181,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1277,
+									"line": 1278,
 									"character": 9
 								}
 							],
@@ -26240,7 +26273,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1280,
+									"line": 1281,
 									"character": 9
 								}
 							],
@@ -26271,7 +26304,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1283,
+									"line": 1284,
 									"character": 9
 								}
 							],
@@ -26302,7 +26335,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1286,
+									"line": 1287,
 									"character": 11
 								}
 							],
@@ -26333,7 +26366,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1289,
+									"line": 1290,
 									"character": 8
 								}
 							],
@@ -26364,7 +26397,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1292,
+									"line": 1293,
 									"character": 8
 								}
 							],
@@ -26395,7 +26428,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1295,
+									"line": 1296,
 									"character": 10
 								}
 							],
@@ -26550,7 +26583,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1298,
+									"line": 1299,
 									"character": 8
 								}
 							],
@@ -30739,6 +30772,9 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The executor running this test."
+							},
 							"getSignature": [
 								{
 									"id": 50,
@@ -30747,6 +30783,9 @@
 									"kindString": "Get signature",
 									"flags": {
 										"__visited__": true
+									},
+									"comment": {
+										"shortText": "The executor running this test."
 									},
 									"type": {
 										"type": "reference",
@@ -30758,7 +30797,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 57,
+									"line": 60,
 									"character": 13
 								}
 							]
@@ -30797,7 +30836,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 64,
+									"line": 67,
 									"character": 14
 								}
 							],
@@ -30841,7 +30880,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 72,
+									"line": 75,
 									"character": 7
 								}
 							]
@@ -30880,7 +30919,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 86,
+									"line": 89,
 									"character": 12
 								}
 							]
@@ -30919,7 +30958,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 93,
+									"line": 96,
 									"character": 13
 								}
 							]
@@ -30971,7 +31010,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 101,
+									"line": 104,
 									"character": 11
 								}
 							]
@@ -31010,7 +31049,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 109,
+									"line": 112,
 									"character": 14
 								}
 							]
@@ -31026,7 +31065,7 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "Return the number of milliseconds required for the test function to\ncomplete"
+								"shortText": "The number of milliseconds the test function took to complete."
 							},
 							"getSignature": [
 								{
@@ -31038,7 +31077,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Return the number of milliseconds required for the test function to\ncomplete"
+										"shortText": "The number of milliseconds the test function took to complete."
 									},
 									"type": {
 										"type": "intrinsic",
@@ -31049,7 +31088,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 117,
+									"line": 119,
 									"character": 16
 								}
 							]
@@ -31064,6 +31103,9 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The number of milliseconds this test can run before it will be canceled."
+							},
 							"getSignature": [
 								{
 									"id": 66,
@@ -31072,6 +31114,9 @@
 									"kindString": "Get signature",
 									"flags": {
 										"__visited__": true
+									},
+									"comment": {
+										"shortText": "The number of milliseconds this test can run before it will be canceled."
 									},
 									"type": {
 										"type": "intrinsic",
@@ -31087,6 +31132,9 @@
 									"kindString": "Set signature",
 									"flags": {
 										"__visited__": true
+									},
+									"comment": {
+										"shortText": "The number of milliseconds this test can run before it will be canceled."
 									},
 									"parameters": [
 										{
@@ -31112,12 +31160,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 121,
+									"line": 126,
 									"character": 12
 								},
 								{
 									"fileName": "lib/Test.ts",
-									"line": 131,
+									"line": 136,
 									"character": 12
 								}
 							],
@@ -31221,7 +31269,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 157,
+									"line": 162,
 									"character": 6
 								}
 							]
@@ -31282,7 +31330,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 194,
+									"line": 199,
 									"character": 15
 								}
 							]
@@ -31324,7 +31372,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 218,
+									"line": 223,
 									"character": 4
 								}
 							]
@@ -31380,7 +31428,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 379,
+									"line": 384,
 									"character": 5
 								}
 							]
@@ -31454,7 +31502,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 387,
+									"line": 392,
 									"character": 7
 								}
 							]
@@ -31608,7 +31656,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 442,
+							"line": 447,
 							"character": 29
 						}
 					]
@@ -31637,7 +31685,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 451,
+									"line": 456,
 									"character": 10
 								}
 							],
@@ -31659,7 +31707,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 452,
+									"line": 457,
 									"character": 5
 								}
 							],
@@ -31681,7 +31729,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 453,
+									"line": 458,
 									"character": 7
 								}
 							],
@@ -31704,7 +31752,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 454,
+									"line": 459,
 									"character": 8
 								}
 							],
@@ -31735,7 +31783,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 455,
+									"line": 460,
 									"character": 5
 								}
 							],
@@ -31758,7 +31806,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 456,
+									"line": 461,
 									"character": 8
 								}
 							],
@@ -31785,7 +31833,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 450,
+							"line": 455,
 							"character": 31
 						}
 					],
@@ -31822,7 +31870,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 459,
+							"line": 464,
 							"character": 23
 						}
 					],
@@ -31863,7 +31911,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Test.ts",
-													"line": 460,
+													"line": 465,
 													"character": 5
 												}
 											],
@@ -31884,7 +31932,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Test.ts",
-													"line": 461,
+													"line": 466,
 													"character": 5
 												}
 											],
@@ -31908,7 +31956,7 @@
 									"sources": [
 										{
 											"fileName": "lib/Test.ts",
-											"line": 459,
+											"line": 464,
 											"character": 51
 										}
 									]
@@ -31930,7 +31978,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 464,
+							"line": 469,
 							"character": 17
 						}
 					],
@@ -31982,7 +32030,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 425,
+							"line": 430,
 							"character": 22
 						}
 					]
@@ -32030,7 +32078,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 446,
+							"line": 451,
 							"character": 30
 						}
 					]
@@ -32078,7 +32126,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 433,
+							"line": 438,
 							"character": 29
 						}
 					]
@@ -38695,7 +38743,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 700,
+									"line": 701,
 									"character": 20
 								}
 							],
@@ -38769,7 +38817,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 707,
+									"line": 708,
 									"character": 24
 								}
 							],
@@ -38822,7 +38870,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 722,
+									"line": 723,
 									"character": 21
 								}
 							],
@@ -38905,7 +38953,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 759,
+									"line": 760,
 									"character": 24
 								}
 							],
@@ -38974,7 +39022,7 @@
 													"sources": [
 														{
 															"fileName": "lib/executors/Executor.ts",
-															"line": 778,
+															"line": 779,
 															"character": 30
 														}
 													],
@@ -38994,7 +39042,7 @@
 													"sources": [
 														{
 															"fileName": "lib/executors/Executor.ts",
-															"line": 778,
+															"line": 779,
 															"character": 15
 														}
 													],
@@ -39026,7 +39074,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 773,
+									"line": 774,
 									"character": 24
 								}
 							],
@@ -39078,7 +39126,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 784,
+									"line": 785,
 									"character": 22
 								}
 							],
@@ -39130,7 +39178,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 826,
+									"line": 827,
 									"character": 23
 								}
 							],
@@ -39182,7 +39230,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 867,
+									"line": 868,
 									"character": 24
 								}
 							],
@@ -39234,7 +39282,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 879,
+									"line": 880,
 									"character": 22
 								}
 							],
@@ -39321,7 +39369,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 892,
+									"line": 893,
 									"character": 25
 								}
 							],
@@ -39422,7 +39470,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1092,
+									"line": 1093,
 									"character": 20
 								}
 							],
@@ -39525,7 +39573,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1040,
+									"line": 1041,
 									"character": 21
 								}
 							],
@@ -40818,7 +40866,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "the [[lib/executors/Executor.Events|event]] to listen for"
+												"text": "the [[lib/executors/Executor.Events|event]] to listen\nfor"
 											},
 											"type": {
 												"type": "typeParameter",
@@ -40908,7 +40956,7 @@
 																	"sources": [
 																		{
 																			"fileName": "lib/executors/Executor.ts",
-																			"line": 381,
+																			"line": 382,
 																			"character": 43
 																		}
 																	],
@@ -40928,7 +40976,7 @@
 																	"sources": [
 																		{
 																			"fileName": "lib/executors/Executor.ts",
-																			"line": 381,
+																			"line": 382,
 																			"character": 29
 																		}
 																	],
@@ -40951,7 +40999,7 @@
 															"sources": [
 																{
 																	"fileName": "lib/executors/Executor.ts",
-																	"line": 381,
+																	"line": 382,
 																	"character": 23
 																}
 															]
@@ -40975,17 +41023,17 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 380,
-									"character": 3
-								},
-								{
-									"fileName": "lib/executors/Executor.ts",
 									"line": 381,
 									"character": 3
 								},
 								{
 									"fileName": "lib/executors/Executor.ts",
 									"line": 382,
+									"character": 3
+								},
+								{
+									"fileName": "lib/executors/Executor.ts",
+									"line": 383,
 									"character": 3
 								}
 							],
@@ -41015,7 +41063,7 @@
 									},
 									"comment": {
 										"shortText": "Register an interface plugin",
-										"text": "This is a convenience method for registering test interfaces. This method\ncalls [[lib/executors/Executor.registerPlugin]] behind the\nscenes using the name `interface.${name}`.\n"
+										"text": "This is a convenience method for registering test interfaces. This method\ncalls [[lib/executors/Executor.Executor.registerPlugin]] behind the\nscenes using the name `interface.${name}`.\n"
 									},
 									"parameters": [
 										{
@@ -41059,7 +41107,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 418,
+									"line": 419,
 									"character": 18
 								}
 							],
@@ -41124,7 +41172,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 447,
+									"line": 448,
 									"character": 15
 								}
 							],
@@ -41154,7 +41202,7 @@
 									},
 									"comment": {
 										"shortText": "Register a plugin.",
-										"text": "Plugins are resources that are loaded at the beginning of the testing\nprocess, after the loader but before any suites are registered. The\ncallback may return a Promise if the plugin needs to do some asynchronous\ninitialization. If the plugin is being loaded via the\n[[lib/executors/Executor.Config.plugins|config.plugins]]\nproperty, it's init callback will be passed any configured options. The\nresolved return value of the callback will be returned by\n[[lib/executors/Executor.getPlugin]].\n\n```js\nintern.registerPlugin('foo', (options: any) => {\n    return {\n        doSomething() {\n            // ...\n        },\n        doSomethingElse() {\n            // ...\n        }\n    };\n});\n```\n\nCode would use the plugin by calling getPlugin:\n\n```js\nconst { doSomething, doSomethingElse } = intern.getPlugin('foo');\ndoSomething();\n```\n"
+										"text": "Plugins are resources that are loaded at the beginning of the testing\nprocess, after the loader but before any suites are registered. The\ncallback may return a Promise if the plugin needs to do some asynchronous\ninitialization. If the plugin is being loaded via the\n[[lib/executors/Executor.Config.plugins|config.plugins]]\nproperty, it's init callback will be passed any configured options. The\nresolved return value of the callback will be returned by\n[[lib/executors/Executor.Executor.getPlugin]].\n\n```js\nintern.registerPlugin('foo', (options: any) => {\n    return {\n        doSomething() {\n            // ...\n        },\n        doSomethingElse() {\n            // ...\n        }\n    };\n});\n```\n\nCode would use the plugin by calling getPlugin:\n\n```js\nconst { doSomething, doSomethingElse } = intern.getPlugin('foo');\ndoSomething();\n```\n"
 									},
 									"typeParameter": [
 										{
@@ -41290,17 +41338,17 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 490,
-									"character": 15
-								},
-								{
-									"fileName": "lib/executors/Executor.ts",
-									"line": 495,
+									"line": 491,
 									"character": 15
 								},
 								{
 									"fileName": "lib/executors/Executor.ts",
 									"line": 496,
+									"character": 15
+								},
+								{
+									"fileName": "lib/executors/Executor.ts",
+									"line": 497,
 									"character": 15
 								}
 							],
@@ -41330,7 +41378,7 @@
 									},
 									"comment": {
 										"shortText": "Register a reporter plugin",
-										"text": "This is a convenience method for registering reporter constructors. This\nmethod calls [[lib/executors/Executor.registerPlugin]] behind the scenes\nusing the name `reporter.${name}`.\n"
+										"text": "This is a convenience method for registering reporter constructors. This\nmethod calls [[lib/executors/Executor.Executor.registerPlugin]] behind\nthe scenes using the name `reporter.${name}`.\n"
 									},
 									"parameters": [
 										{
@@ -41381,7 +41429,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 536,
+									"line": 537,
 									"character": 17
 								}
 							],
@@ -41433,7 +41481,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 546,
+									"line": 547,
 									"character": 4
 								}
 							],
@@ -42643,7 +42691,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 700,
+									"line": 701,
 									"character": 20
 								}
 							]
@@ -42708,7 +42756,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 707,
+									"line": 708,
 									"character": 24
 								}
 							]
@@ -42752,7 +42800,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 722,
+									"line": 723,
 									"character": 21
 								}
 							]
@@ -42826,7 +42874,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 759,
+									"line": 760,
 									"character": 24
 								}
 							]
@@ -42892,7 +42940,7 @@
 													"sources": [
 														{
 															"fileName": "lib/executors/Executor.ts",
-															"line": 778,
+															"line": 779,
 															"character": 30
 														}
 													],
@@ -42913,7 +42961,7 @@
 													"sources": [
 														{
 															"fileName": "lib/executors/Executor.ts",
-															"line": 778,
+															"line": 779,
 															"character": 15
 														}
 													],
@@ -42940,7 +42988,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 773,
+									"line": 774,
 									"character": 24
 								}
 							]
@@ -42983,7 +43031,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 784,
+									"line": 785,
 									"character": 22
 								}
 							]
@@ -43026,7 +43074,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 826,
+									"line": 827,
 									"character": 23
 								}
 							]
@@ -43069,7 +43117,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 867,
+									"line": 868,
 									"character": 24
 								}
 							]
@@ -43112,7 +43160,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 879,
+									"line": 880,
 									"character": 22
 								}
 							]
@@ -43190,7 +43238,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 892,
+									"line": 893,
 									"character": 25
 								}
 							]
@@ -43233,7 +43281,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1060,
+									"line": 1061,
 									"character": 25
 								}
 							]
@@ -43276,7 +43324,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1092,
+									"line": 1093,
 									"character": 20
 								}
 							]
@@ -43370,7 +43418,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1040,
+									"line": 1041,
 									"character": 21
 								}
 							]
@@ -44522,7 +44570,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "the [[lib/executors/Executor.Events|event]] to listen for"
+												"text": "the [[lib/executors/Executor.Events|event]] to listen\nfor"
 											},
 											"type": {
 												"type": "typeParameter",
@@ -44608,7 +44656,7 @@
 																	"sources": [
 																		{
 																			"fileName": "lib/executors/Executor.ts",
-																			"line": 381,
+																			"line": 382,
 																			"character": 43
 																		}
 																	],
@@ -44629,7 +44677,7 @@
 																	"sources": [
 																		{
 																			"fileName": "lib/executors/Executor.ts",
-																			"line": 381,
+																			"line": 382,
 																			"character": 29
 																		}
 																	],
@@ -44652,7 +44700,7 @@
 															"sources": [
 																{
 																	"fileName": "lib/executors/Executor.ts",
-																	"line": 381,
+																	"line": 382,
 																	"character": 23
 																}
 															]
@@ -44671,17 +44719,17 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 380,
-									"character": 3
-								},
-								{
-									"fileName": "lib/executors/Executor.ts",
 									"line": 381,
 									"character": 3
 								},
 								{
 									"fileName": "lib/executors/Executor.ts",
 									"line": 382,
+									"character": 3
+								},
+								{
+									"fileName": "lib/executors/Executor.ts",
+									"line": 383,
 									"character": 3
 								}
 							]
@@ -44707,7 +44755,7 @@
 									},
 									"comment": {
 										"shortText": "Register an interface plugin",
-										"text": "This is a convenience method for registering test interfaces. This method\ncalls [[lib/executors/Executor.registerPlugin]] behind the\nscenes using the name `interface.${name}`.\n"
+										"text": "This is a convenience method for registering test interfaces. This method\ncalls [[lib/executors/Executor.Executor.registerPlugin]] behind the\nscenes using the name `interface.${name}`.\n"
 									},
 									"parameters": [
 										{
@@ -44746,7 +44794,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 418,
+									"line": 419,
 									"character": 18
 								}
 							]
@@ -44802,7 +44850,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 447,
+									"line": 448,
 									"character": 15
 								}
 							]
@@ -44828,7 +44876,7 @@
 									},
 									"comment": {
 										"shortText": "Register a plugin.",
-										"text": "Plugins are resources that are loaded at the beginning of the testing\nprocess, after the loader but before any suites are registered. The\ncallback may return a Promise if the plugin needs to do some asynchronous\ninitialization. If the plugin is being loaded via the\n[[lib/executors/Executor.Config.plugins|config.plugins]]\nproperty, it's init callback will be passed any configured options. The\nresolved return value of the callback will be returned by\n[[lib/executors/Executor.getPlugin]].\n\n```js\nintern.registerPlugin('foo', (options: any) => {\n    return {\n        doSomething() {\n            // ...\n        },\n        doSomethingElse() {\n            // ...\n        }\n    };\n});\n```\n\nCode would use the plugin by calling getPlugin:\n\n```js\nconst { doSomething, doSomethingElse } = intern.getPlugin('foo');\ndoSomething();\n```\n"
+										"text": "Plugins are resources that are loaded at the beginning of the testing\nprocess, after the loader but before any suites are registered. The\ncallback may return a Promise if the plugin needs to do some asynchronous\ninitialization. If the plugin is being loaded via the\n[[lib/executors/Executor.Config.plugins|config.plugins]]\nproperty, it's init callback will be passed any configured options. The\nresolved return value of the callback will be returned by\n[[lib/executors/Executor.Executor.getPlugin]].\n\n```js\nintern.registerPlugin('foo', (options: any) => {\n    return {\n        doSomething() {\n            // ...\n        },\n        doSomethingElse() {\n            // ...\n        }\n    };\n});\n```\n\nCode would use the plugin by calling getPlugin:\n\n```js\nconst { doSomething, doSomethingElse } = intern.getPlugin('foo');\ndoSomething();\n```\n"
 									},
 									"typeParameter": [
 										{
@@ -44954,17 +45002,17 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 490,
-									"character": 15
-								},
-								{
-									"fileName": "lib/executors/Executor.ts",
-									"line": 495,
+									"line": 491,
 									"character": 15
 								},
 								{
 									"fileName": "lib/executors/Executor.ts",
 									"line": 496,
+									"character": 15
+								},
+								{
+									"fileName": "lib/executors/Executor.ts",
+									"line": 497,
 									"character": 15
 								}
 							]
@@ -44990,7 +45038,7 @@
 									},
 									"comment": {
 										"shortText": "Register a reporter plugin",
-										"text": "This is a convenience method for registering reporter constructors. This\nmethod calls [[lib/executors/Executor.registerPlugin]] behind the scenes\nusing the name `reporter.${name}`.\n"
+										"text": "This is a convenience method for registering reporter constructors. This\nmethod calls [[lib/executors/Executor.Executor.registerPlugin]] behind\nthe scenes using the name `reporter.${name}`.\n"
 									},
 									"parameters": [
 										{
@@ -45036,7 +45084,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 536,
+									"line": 537,
 									"character": 17
 								}
 							]
@@ -45079,7 +45127,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 546,
+									"line": 547,
 									"character": 4
 								}
 							]
@@ -45203,7 +45251,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1108,
+									"line": 1109,
 									"character": 3
 								}
 							],
@@ -45225,7 +45273,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1107,
+							"line": 1108,
 							"character": 32
 						}
 					],
@@ -45243,7 +45291,7 @@
 								"sources": [
 									{
 										"fileName": "lib/executors/Executor.ts",
-										"line": 1107,
+										"line": 1108,
 										"character": 40
 									}
 								]
@@ -45278,7 +45326,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1165,
+									"line": 1166,
 									"character": 5
 								}
 							],
@@ -45303,7 +45351,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1170,
+									"line": 1171,
 									"character": 9
 								}
 							],
@@ -45325,7 +45373,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1167,
+									"line": 1168,
 									"character": 9
 								}
 							],
@@ -45347,7 +45395,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1172,
+									"line": 1173,
 									"character": 10
 								}
 							],
@@ -45370,7 +45418,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1173,
+									"line": 1174,
 									"character": 16
 								}
 							],
@@ -45393,7 +45441,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1175,
+									"line": 1176,
 									"character": 8
 								}
 							],
@@ -45419,7 +45467,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1180,
+									"line": 1181,
 									"character": 17
 								}
 							],
@@ -45444,7 +45492,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1183,
+									"line": 1184,
 									"character": 6
 								}
 							],
@@ -45469,7 +45517,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1186,
+									"line": 1187,
 									"character": 15
 								}
 							],
@@ -45494,7 +45542,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1189,
+									"line": 1190,
 									"character": 12
 								}
 							],
@@ -45519,7 +45567,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1195,
+									"line": 1196,
 									"character": 17
 								}
 							],
@@ -45544,7 +45592,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1201,
+									"line": 1202,
 									"character": 5
 								}
 							],
@@ -45569,7 +45617,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1204,
+									"line": 1205,
 									"character": 11
 								}
 							],
@@ -45595,7 +45643,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1133,
+									"line": 1134,
 									"character": 7
 								}
 							],
@@ -45626,7 +45674,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1207,
+									"line": 1208,
 									"character": 5
 								}
 							],
@@ -45648,7 +45696,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1209,
+									"line": 1210,
 									"character": 5
 								}
 							],
@@ -45674,7 +45722,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1142,
+									"line": 1143,
 									"character": 8
 								}
 							],
@@ -45708,7 +45756,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1148,
+									"line": 1149,
 									"character": 10
 								}
 							],
@@ -45742,7 +45790,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1154,
+									"line": 1155,
 									"character": 8
 								}
 							],
@@ -45775,7 +45823,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1215,
+									"line": 1216,
 									"character": 10
 								}
 							],
@@ -45800,7 +45848,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1218,
+									"line": 1219,
 									"character": 11
 								}
 							],
@@ -45825,7 +45873,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1160,
+									"line": 1161,
 									"character": 7
 								}
 							],
@@ -45876,7 +45924,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1163,
+							"line": 1164,
 							"character": 23
 						}
 					],
@@ -45924,7 +45972,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1238,
+									"line": 1239,
 									"character": 9
 								}
 							],
@@ -45947,7 +45995,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1236,
+									"line": 1237,
 									"character": 10
 								}
 							],
@@ -45979,7 +46027,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1237,
+									"line": 1238,
 									"character": 7
 								}
 							],
@@ -46012,7 +46060,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1235,
+							"line": 1236,
 							"character": 32
 						}
 					]
@@ -46042,7 +46090,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1244,
+									"line": 1245,
 									"character": 8
 								}
 							],
@@ -46073,7 +46121,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1242,
+									"line": 1243,
 									"character": 9
 								}
 							],
@@ -46096,7 +46144,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1243,
+									"line": 1244,
 									"character": 12
 								}
 							],
@@ -46129,7 +46177,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1241,
+							"line": 1242,
 							"character": 35
 						}
 					]
@@ -46158,7 +46206,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1253,
+									"line": 1254,
 									"character": 4
 								}
 							],
@@ -46184,7 +46232,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1256,
+									"line": 1257,
 									"character": 9
 								}
 							],
@@ -46209,7 +46257,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1259,
+									"line": 1260,
 									"character": 10
 								}
 							],
@@ -46234,7 +46282,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1262,
+									"line": 1263,
 									"character": 9
 								}
 							],
@@ -46260,7 +46308,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1265,
+									"line": 1266,
 									"character": 11
 								}
 							],
@@ -46286,7 +46334,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1268,
+									"line": 1269,
 									"character": 6
 								}
 							],
@@ -46311,7 +46359,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1271,
+									"line": 1272,
 									"character": 4
 								}
 							],
@@ -46336,7 +46384,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1274,
+									"line": 1275,
 									"character": 7
 								}
 							],
@@ -46361,7 +46409,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1277,
+									"line": 1278,
 									"character": 9
 								}
 							],
@@ -46386,7 +46434,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1280,
+									"line": 1281,
 									"character": 9
 								}
 							],
@@ -46412,7 +46460,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1283,
+									"line": 1284,
 									"character": 9
 								}
 							],
@@ -46438,7 +46486,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1286,
+									"line": 1287,
 									"character": 11
 								}
 							],
@@ -46464,7 +46512,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1289,
+									"line": 1290,
 									"character": 8
 								}
 							],
@@ -46490,7 +46538,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1292,
+									"line": 1293,
 									"character": 8
 								}
 							],
@@ -46516,7 +46564,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1295,
+									"line": 1296,
 									"character": 10
 								}
 							],
@@ -46542,7 +46590,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1298,
+									"line": 1299,
 									"character": 8
 								}
 							],
@@ -46579,7 +46627,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1252,
+							"line": 1253,
 							"character": 23
 						}
 					],
@@ -46726,7 +46774,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1101,
+									"line": 1102,
 									"character": 3
 								}
 							]
@@ -46744,7 +46792,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1097,
+							"line": 1098,
 							"character": 36
 						}
 					]
@@ -46773,7 +46821,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1249,
+									"line": 1250,
 									"character": 5
 								}
 							],
@@ -46795,7 +46843,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1248,
+									"line": 1249,
 									"character": 5
 								}
 							],
@@ -46883,7 +46931,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1247,
+							"line": 1248,
 							"character": 30
 						}
 					]
@@ -46957,7 +47005,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1231,
+							"line": 1232,
 							"character": 25
 						}
 					]
@@ -47020,7 +47068,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1311,
+							"line": 1312,
 							"character": 23
 						}
 					]
@@ -47050,7 +47098,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1324,
+									"line": 1325,
 									"character": 8
 								}
 							],
@@ -47119,7 +47167,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1323,
+									"line": 1324,
 									"character": 7
 								}
 							],
@@ -47142,7 +47190,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1322,
+							"line": 1323,
 							"character": 33
 						}
 					]
@@ -47224,7 +47272,7 @@
 											"sources": [
 												{
 													"fileName": "lib/executors/Executor.ts",
-													"line": 1319,
+													"line": 1320,
 													"character": 10
 												}
 											]
@@ -47258,7 +47306,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1318,
+							"line": 1319,
 							"character": 27
 						}
 					]
@@ -47288,7 +47336,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1228,
+									"line": 1229,
 									"character": 8
 								}
 							],
@@ -47310,7 +47358,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1227,
+									"line": 1228,
 									"character": 7
 								}
 							],
@@ -47333,7 +47381,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1226,
+							"line": 1227,
 							"character": 33
 						}
 					]
@@ -47467,7 +47515,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1327,
+							"line": 1328,
 							"character": 34
 						}
 					]
@@ -47499,7 +47547,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1305,
+									"line": 1306,
 									"character": 9
 								}
 							],
@@ -47522,7 +47570,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1304,
+							"line": 1305,
 							"character": 24
 						}
 					],
@@ -47558,7 +47606,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1222,
+									"line": 1223,
 									"character": 5
 								}
 							],
@@ -47581,7 +47629,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1223,
+									"line": 1224,
 									"character": 8
 								}
 							],
@@ -47605,7 +47653,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1221,
+							"line": 1222,
 							"character": 35
 						}
 					]
@@ -47638,7 +47686,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1133,
+									"line": 1134,
 									"character": 7
 								}
 							],
@@ -47664,7 +47712,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1142,
+									"line": 1143,
 									"character": 8
 								}
 							],
@@ -47693,7 +47741,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1148,
+									"line": 1149,
 									"character": 10
 								}
 							],
@@ -47722,7 +47770,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1154,
+									"line": 1155,
 									"character": 8
 								}
 							],
@@ -47750,7 +47798,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1160,
+									"line": 1161,
 									"character": 7
 								}
 							],
@@ -47779,7 +47827,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1111,
+							"line": 1112,
 							"character": 31
 						}
 					],
@@ -49733,7 +49781,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 707,
+									"line": 708,
 									"character": 24
 								}
 							],
@@ -49907,7 +49955,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 759,
+									"line": 760,
 									"character": 24
 								}
 							],
@@ -49976,7 +50024,7 @@
 													"sources": [
 														{
 															"fileName": "lib/executors/Executor.ts",
-															"line": 778,
+															"line": 779,
 															"character": 30
 														}
 													],
@@ -49996,7 +50044,7 @@
 													"sources": [
 														{
 															"fileName": "lib/executors/Executor.ts",
-															"line": 778,
+															"line": 779,
 															"character": 15
 														}
 													],
@@ -50028,7 +50076,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 773,
+									"line": 774,
 									"character": 24
 								}
 							],
@@ -50122,7 +50170,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 784,
+									"line": 785,
 									"character": 22
 								}
 							],
@@ -50174,7 +50222,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 826,
+									"line": 827,
 									"character": 23
 								}
 							],
@@ -50226,7 +50274,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 867,
+									"line": 868,
 									"character": 24
 								}
 							],
@@ -50831,7 +50879,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1040,
+									"line": 1041,
 									"character": 21
 								}
 							],
@@ -52230,7 +52278,7 @@
 												"__visited__": true
 											},
 											"comment": {
-												"text": "the [[lib/executors/Executor.Events|event]] to listen for"
+												"text": "the [[lib/executors/Executor.Events|event]] to listen\nfor"
 											},
 											"type": {
 												"type": "typeParameter",
@@ -52320,7 +52368,7 @@
 																	"sources": [
 																		{
 																			"fileName": "lib/executors/Executor.ts",
-																			"line": 381,
+																			"line": 382,
 																			"character": 43
 																		}
 																	],
@@ -52340,7 +52388,7 @@
 																	"sources": [
 																		{
 																			"fileName": "lib/executors/Executor.ts",
-																			"line": 381,
+																			"line": 382,
 																			"character": 29
 																		}
 																	],
@@ -52363,7 +52411,7 @@
 															"sources": [
 																{
 																	"fileName": "lib/executors/Executor.ts",
-																	"line": 381,
+																	"line": 382,
 																	"character": 23
 																}
 															]
@@ -52387,17 +52435,17 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 380,
-									"character": 3
-								},
-								{
-									"fileName": "lib/executors/Executor.ts",
 									"line": 381,
 									"character": 3
 								},
 								{
 									"fileName": "lib/executors/Executor.ts",
 									"line": 382,
+									"character": 3
+								},
+								{
+									"fileName": "lib/executors/Executor.ts",
+									"line": 383,
 									"character": 3
 								}
 							],
@@ -52427,7 +52475,7 @@
 									},
 									"comment": {
 										"shortText": "Register an interface plugin",
-										"text": "This is a convenience method for registering test interfaces. This method\ncalls [[lib/executors/Executor.registerPlugin]] behind the\nscenes using the name `interface.${name}`.\n"
+										"text": "This is a convenience method for registering test interfaces. This method\ncalls [[lib/executors/Executor.Executor.registerPlugin]] behind the\nscenes using the name `interface.${name}`.\n"
 									},
 									"parameters": [
 										{
@@ -52471,7 +52519,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 418,
+									"line": 419,
 									"character": 18
 								}
 							],
@@ -52536,7 +52584,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 447,
+									"line": 448,
 									"character": 15
 								}
 							],
@@ -52566,7 +52614,7 @@
 									},
 									"comment": {
 										"shortText": "Register a plugin.",
-										"text": "Plugins are resources that are loaded at the beginning of the testing\nprocess, after the loader but before any suites are registered. The\ncallback may return a Promise if the plugin needs to do some asynchronous\ninitialization. If the plugin is being loaded via the\n[[lib/executors/Executor.Config.plugins|config.plugins]]\nproperty, it's init callback will be passed any configured options. The\nresolved return value of the callback will be returned by\n[[lib/executors/Executor.getPlugin]].\n\n```js\nintern.registerPlugin('foo', (options: any) => {\n    return {\n        doSomething() {\n            // ...\n        },\n        doSomethingElse() {\n            // ...\n        }\n    };\n});\n```\n\nCode would use the plugin by calling getPlugin:\n\n```js\nconst { doSomething, doSomethingElse } = intern.getPlugin('foo');\ndoSomething();\n```\n"
+										"text": "Plugins are resources that are loaded at the beginning of the testing\nprocess, after the loader but before any suites are registered. The\ncallback may return a Promise if the plugin needs to do some asynchronous\ninitialization. If the plugin is being loaded via the\n[[lib/executors/Executor.Config.plugins|config.plugins]]\nproperty, it's init callback will be passed any configured options. The\nresolved return value of the callback will be returned by\n[[lib/executors/Executor.Executor.getPlugin]].\n\n```js\nintern.registerPlugin('foo', (options: any) => {\n    return {\n        doSomething() {\n            // ...\n        },\n        doSomethingElse() {\n            // ...\n        }\n    };\n});\n```\n\nCode would use the plugin by calling getPlugin:\n\n```js\nconst { doSomething, doSomethingElse } = intern.getPlugin('foo');\ndoSomething();\n```\n"
 									},
 									"typeParameter": [
 										{
@@ -52702,17 +52750,17 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 490,
-									"character": 15
-								},
-								{
-									"fileName": "lib/executors/Executor.ts",
-									"line": 495,
+									"line": 491,
 									"character": 15
 								},
 								{
 									"fileName": "lib/executors/Executor.ts",
 									"line": 496,
+									"character": 15
+								},
+								{
+									"fileName": "lib/executors/Executor.ts",
+									"line": 497,
 									"character": 15
 								}
 							],
@@ -52742,7 +52790,7 @@
 									},
 									"comment": {
 										"shortText": "Register a reporter plugin",
-										"text": "This is a convenience method for registering reporter constructors. This\nmethod calls [[lib/executors/Executor.registerPlugin]] behind the scenes\nusing the name `reporter.${name}`.\n"
+										"text": "This is a convenience method for registering reporter constructors. This\nmethod calls [[lib/executors/Executor.Executor.registerPlugin]] behind\nthe scenes using the name `reporter.${name}`.\n"
 									},
 									"parameters": [
 										{
@@ -52793,7 +52841,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 536,
+									"line": 537,
 									"character": 17
 								}
 							],
@@ -52908,7 +52956,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 546,
+									"line": 547,
 									"character": 4
 								}
 							],
@@ -53124,7 +53172,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1165,
+									"line": 1166,
 									"character": 5
 								}
 							],
@@ -53153,7 +53201,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1170,
+									"line": 1171,
 									"character": 9
 								}
 							],
@@ -53179,7 +53227,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1167,
+									"line": 1168,
 									"character": 9
 								}
 							],
@@ -53205,7 +53253,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1172,
+									"line": 1173,
 									"character": 10
 								}
 							],
@@ -53232,7 +53280,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1173,
+									"line": 1174,
 									"character": 16
 								}
 							],
@@ -53259,7 +53307,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1175,
+									"line": 1176,
 									"character": 8
 								}
 							],
@@ -53478,7 +53526,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1180,
+									"line": 1181,
 									"character": 17
 								}
 							],
@@ -53507,7 +53555,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1183,
+									"line": 1184,
 									"character": 6
 								}
 							],
@@ -53536,7 +53584,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1186,
+									"line": 1187,
 									"character": 15
 								}
 							],
@@ -53565,7 +53613,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1189,
+									"line": 1190,
 									"character": 12
 								}
 							],
@@ -53643,7 +53691,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1195,
+									"line": 1196,
 									"character": 17
 								}
 							],
@@ -53720,7 +53768,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1201,
+									"line": 1202,
 									"character": 5
 								}
 							],
@@ -53815,7 +53863,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1204,
+									"line": 1205,
 									"character": 11
 								}
 							],
@@ -53875,7 +53923,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1133,
+									"line": 1134,
 									"character": 7
 								}
 							],
@@ -53926,7 +53974,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1207,
+									"line": 1208,
 									"character": 5
 								}
 							],
@@ -53952,7 +54000,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1209,
+									"line": 1210,
 									"character": 5
 								}
 							],
@@ -53982,7 +54030,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1142,
+									"line": 1143,
 									"character": 8
 								}
 							],
@@ -54015,7 +54063,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1148,
+									"line": 1149,
 									"character": 10
 								}
 							],
@@ -54048,7 +54096,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1154,
+									"line": 1155,
 									"character": 8
 								}
 							],
@@ -54164,7 +54212,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1215,
+									"line": 1216,
 									"character": 10
 								}
 							],
@@ -54193,7 +54241,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1218,
+									"line": 1219,
 									"character": 11
 								}
 							],
@@ -54253,7 +54301,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1160,
+									"line": 1161,
 									"character": 7
 								}
 							],
@@ -54490,7 +54538,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1253,
+									"line": 1254,
 									"character": 4
 								}
 							],
@@ -54520,7 +54568,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1256,
+									"line": 1257,
 									"character": 9
 								}
 							],
@@ -54549,7 +54597,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1259,
+									"line": 1260,
 									"character": 10
 								}
 							],
@@ -54578,7 +54626,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1262,
+									"line": 1263,
 									"character": 9
 								}
 							],
@@ -54608,7 +54656,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1265,
+									"line": 1266,
 									"character": 11
 								}
 							],
@@ -54638,7 +54686,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1268,
+									"line": 1269,
 									"character": 6
 								}
 							],
@@ -54667,7 +54715,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1271,
+									"line": 1272,
 									"character": 4
 								}
 							],
@@ -54696,7 +54744,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1274,
+									"line": 1275,
 									"character": 7
 								}
 							],
@@ -54725,7 +54773,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1277,
+									"line": 1278,
 									"character": 9
 								}
 							],
@@ -54804,7 +54852,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1280,
+									"line": 1281,
 									"character": 9
 								}
 							],
@@ -54834,7 +54882,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1283,
+									"line": 1284,
 									"character": 9
 								}
 							],
@@ -54864,7 +54912,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1286,
+									"line": 1287,
 									"character": 11
 								}
 							],
@@ -54894,7 +54942,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1289,
+									"line": 1290,
 									"character": 8
 								}
 							],
@@ -54924,7 +54972,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1292,
+									"line": 1293,
 									"character": 8
 								}
 							],
@@ -54954,7 +55002,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1295,
+									"line": 1296,
 									"character": 10
 								}
 							],
@@ -55084,7 +55132,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1298,
+									"line": 1299,
 									"character": 8
 								}
 							],
@@ -55173,7 +55221,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1305,
+									"line": 1306,
 									"character": 9
 								}
 							],
@@ -65609,7 +65657,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 14,
+									"line": 39,
 									"character": 6
 								}
 							],
@@ -65668,7 +65716,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 16,
+									"line": 41,
 									"character": 10
 								}
 							],
@@ -65727,7 +65775,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 13,
+									"line": 38,
 									"character": 7
 								}
 							],
@@ -65786,7 +65834,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 15,
+									"line": 40,
 									"character": 11
 								}
 							],
@@ -66825,6 +66873,10 @@
 				"__visited__": true
 			},
 			"originalName": "src/lib/interfaces/object.ts",
+			"comment": {
+				"shortText": "This is the object interface for registering suites. Typically it will be\naccessed using [[lib/executors/Executor.Executor.getInterface]], like:",
+				"text": "```js\nconst { registerSuite } = intern.getInterface('object');\n```\n\nIt may also be imported as a module, like\n\n```js\nimport { registerSuite } from 'intern/lib/interfaces/object';\n```\n\nSuites are described using objects. The object structure is a subset of suite\nproperties, specifically name, the lifecycle methods, and tests.\n\n```js\nregisterSuite('foo', {\n    before() {},\n    afterEach() {},\n    tests: {\n        bar() {},\n        baz() {}\n    }\n});\n```\n\nTests may also describe sub-suites:\n\n```js\nregisterSuite('foo', {\n    tests: {\n        fooStuff {\n            tests: {\n                bar() {},\n                baz() {}\n            }\n        }\n    }\n});\n```\n\nSub-suites don't need name properties, and may also omit the 'tests' nesting\nif no lifecycle functions are in use. The rule is that if a 'tests' property\nisn't in the sub-suite object, then every property is assumed to refer to a\ntest.\n\n```js\nregisterSuite('foo', {\n    fooStuff {\n        bar() {},\n        baz() {}\n    }\n});\n```\n"
+			},
 			"children": [
 				{
 					"id": 377,
@@ -66909,7 +66961,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/object.ts",
-									"line": 81,
+									"line": 92,
 									"character": 14
 								}
 							]
@@ -66927,7 +66979,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 80,
+							"line": 91,
 							"character": 32
 						}
 					]
@@ -66971,7 +67023,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 93,
+							"line": 104,
 							"character": 35
 						}
 					]
@@ -67035,7 +67087,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 87,
+							"line": 98,
 							"character": 22
 						}
 					]
@@ -67053,7 +67105,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 91,
+							"line": 102,
 							"character": 33
 						}
 					],
@@ -67094,7 +67146,7 @@
 											"sources": [
 												{
 													"fileName": "lib/interfaces/object.ts",
-													"line": 91,
+													"line": 102,
 													"character": 70
 												}
 											],
@@ -67117,7 +67169,7 @@
 									"sources": [
 										{
 											"fileName": "lib/interfaces/object.ts",
-											"line": 91,
+											"line": 102,
 											"character": 62
 										}
 									]
@@ -67211,7 +67263,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 171,
+							"line": 182,
 							"character": 23
 						}
 					]
@@ -67364,7 +67416,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 101,
+							"line": 112,
 							"character": 27
 						}
 					]
@@ -67489,7 +67541,7 @@
 											"sources": [
 												{
 													"fileName": "lib/interfaces/object.ts",
-													"line": 68,
+													"line": 79,
 													"character": 15
 												}
 											]
@@ -67511,7 +67563,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 66,
+							"line": 77,
 							"character": 28
 						}
 					]
@@ -67558,7 +67610,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 167,
+							"line": 178,
 							"character": 32
 						}
 					]
@@ -67617,7 +67669,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 97,
+							"line": 108,
 							"character": 40
 						}
 					]
@@ -67697,7 +67749,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 56,
+							"line": 67,
 							"character": 37
 						}
 					]
@@ -67752,6 +67804,10 @@
 				"__visited__": true
 			},
 			"originalName": "src/lib/interfaces/tdd.ts",
+			"comment": {
+				"shortText": "This is the TDD interface for registering suites. Typically it will be\naccessed using [[lib/executors/Executor.Executor.getInterface]], like:",
+				"text": "```js\nconst { suite, test } = intern.getInterface('tdd');\n```\n\nIt may also be imported as a module, like\n\n```js\nimport { suite, test } from 'intern/lib/interfaces/tdd';\n```\n\nSuites are registered using callback functions, and tests can be registered\nwithin the suite callbacks.\n\n```js\nsuite('foo', () => {\n    before(() => { ... });\n    afterEach(() => { ... });\n    test('bar', () => { ... });\n    test('baz', () => { ... });\n});\n"
+			},
 			"children": [
 				{
 					"id": 424,
@@ -67813,7 +67869,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 14,
+									"line": 39,
 									"character": 6
 								}
 							],
@@ -67872,7 +67928,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 16,
+									"line": 41,
 									"character": 10
 								}
 							],
@@ -67931,7 +67987,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 13,
+									"line": 38,
 									"character": 7
 								}
 							],
@@ -67990,7 +68046,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 15,
+									"line": 40,
 									"character": 11
 								}
 							],
@@ -68057,7 +68113,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 8,
+									"line": 33,
 									"character": 6
 								}
 							]
@@ -68119,7 +68175,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 9,
+									"line": 34,
 									"character": 5
 								}
 							]
@@ -68142,7 +68198,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 7,
+							"line": 32,
 							"character": 29
 						}
 					],
@@ -68209,7 +68265,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 14,
+									"line": 39,
 									"character": 6
 								}
 							]
@@ -68258,7 +68314,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 16,
+									"line": 41,
 									"character": 10
 								}
 							]
@@ -68307,7 +68363,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 13,
+									"line": 38,
 									"character": 7
 								}
 							]
@@ -68356,7 +68412,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 15,
+									"line": 40,
 									"character": 11
 								}
 							]
@@ -68377,7 +68433,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 12,
+							"line": 37,
 							"character": 38
 						}
 					],
@@ -68407,7 +68463,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 19,
+							"line": 44,
 							"character": 27
 						}
 					],
@@ -68455,7 +68511,7 @@
 							"sources": [
 								{
 									"fileName": "lib/interfaces/tdd.ts",
-									"line": 19,
+									"line": 44,
 									"character": 29
 								}
 							]
@@ -68474,7 +68530,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 82,
+							"line": 107,
 							"character": 16
 						}
 					],
@@ -68563,7 +68619,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 95,
+							"line": 120,
 							"character": 15
 						}
 					]
@@ -68612,7 +68668,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 41,
+							"line": 66,
 							"character": 21
 						}
 					]
@@ -68661,7 +68717,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 59,
+							"line": 84,
 							"character": 25
 						}
 					]
@@ -68710,7 +68766,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 32,
+							"line": 57,
 							"character": 22
 						}
 					]
@@ -68759,7 +68815,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 50,
+							"line": 75,
 							"character": 26
 						}
 					]
@@ -68809,7 +68865,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 68,
+							"line": 93,
 							"character": 28
 						}
 					]
@@ -68870,7 +68926,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 84,
+							"line": 109,
 							"character": 22
 						}
 					]
@@ -68932,7 +68988,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 21,
+							"line": 46,
 							"character": 21
 						}
 					]
@@ -68994,7 +69050,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/tdd.ts",
-							"line": 25,
+							"line": 50,
 							"character": 20
 						}
 					]

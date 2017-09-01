@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-/** This is the runner script used to start Intern in a Node environment. */
+//
+//This is the runner script used to start Intern in a Node environment.
+//
 
 import Node from '../lib/executors/Node';
 import global from '@dojo/shim/global';

@@ -54,6 +54,9 @@ export default class Test implements TestProperties {
 		mixin(this, options);
 	}
 
+	/**
+	 * The executor running this test.
+	 */
 	get executor(): Executor {
 		return this.parent && this.parent.executor;
 	}
@@ -111,13 +114,15 @@ export default class Test implements TestProperties {
 	}
 
 	/**
-	 * Return the number of milliseconds required for the test function to
-	 * complete
+	 * The number of milliseconds the test function took to complete.
 	 */
 	get timeElapsed() {
 		return this._timeElapsed;
 	}
 
+	/**
+	 * The number of milliseconds this test can run before it will be canceled.
+	 */
 	get timeout() {
 		if (this._timeout != null) {
 			return this._timeout;

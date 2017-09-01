@@ -14,12 +14,14 @@ import * as Benchmark from 'benchmark';
 (<any>Benchmark).runInContext({ _, platform });
 
 /**
- * A wrapper around a Benchmark.js Benchmark that maps its API to that used by
- * Test.
+ * BenchmarkTest wraps a Benchmark.js Benchmark, mapping its API to that used by
+ * [[lib/Test]].
  */
 export default class BenchmarkTest extends Test {
+	/** The test function managed by this test */
 	test: BenchmarkTestFunction;
 
+	/** The Benchmark.js test that actually performs benchmarking */
 	benchmark: InternBenchmark;
 
 	constructor(descriptor: BenchmarkTestOptions) {
@@ -80,6 +82,9 @@ export default class BenchmarkTest extends Test {
 		this.benchmark.internTest = this;
 	}
 
+	/**
+	 * The number of milliseconds the test function took to complete.
+	 */
 	get timeElapsed() {
 		if (this.benchmark && this.benchmark.times) {
 			return this.benchmark.times.elapsed;

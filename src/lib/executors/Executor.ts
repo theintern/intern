@@ -371,7 +371,8 @@ export default abstract class Executor<
 	 * [[lib/executors/Browser]] executor will never emit a tunnelStop
 	 * message.
 	 *
-	 * @param eventName the [[lib/executors/Executor.Events|event]] to listen for
+	 * @param eventName the [[lib/executors/Executor.Events|event]] to listen
+	 * for
 	 * @param listener a callback that accepts a single data parameter; it may
 	 * return a PromiseLike object if it needs to perform async actions
 	 * @returns a handle with a `destroy` method that can be used to stop
@@ -412,7 +413,7 @@ export default abstract class Executor<
 	 * Register an interface plugin
 	 *
 	 * This is a convenience method for registering test interfaces. This method
-	 * calls [[lib/executors/Executor.registerPlugin]] behind the
+	 * calls [[lib/executors/Executor.Executor.registerPlugin]] behind the
 	 * scenes using the name `interface.${name}`.
 	 */
 	registerInterface(name: string, iface: any) {
@@ -461,7 +462,7 @@ export default abstract class Executor<
 	 * [[lib/executors/Executor.Config.plugins|config.plugins]]
 	 * property, it's init callback will be passed any configured options. The
 	 * resolved return value of the callback will be returned by
-	 * [[lib/executors/Executor.getPlugin]].
+	 * [[lib/executors/Executor.Executor.getPlugin]].
 	 *
 	 * ```js
 	 * intern.registerPlugin('foo', (options: any) => {
@@ -527,8 +528,8 @@ export default abstract class Executor<
 	 * Register a reporter plugin
 	 *
 	 * This is a convenience method for registering reporter constructors. This
-	 * method calls [[lib/executors/Executor.registerPlugin]] behind the scenes
-	 * using the name `reporter.${name}`.
+	 * method calls [[lib/executors/Executor.Executor.registerPlugin]] behind
+	 * the scenes using the name `reporter.${name}`.
 	 *
 	 * @param name the reporter name
 	 * @param Ctor a reporter class constructor
