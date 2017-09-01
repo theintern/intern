@@ -17,7 +17,7 @@ registerSuite('lib/reporters/JUnit', function() {
 
 	const mockFs = {
 		createWriteStream: spy(),
-		mkdir: spy()
+		mkdirSync: spy()
 	};
 
 	let JUnit: typeof _JUnit;
@@ -40,14 +40,14 @@ registerSuite('lib/reporters/JUnit', function() {
 		beforeEach() {
 			mockExecutor.on.reset();
 			mockFs.createWriteStream.reset();
-			mockFs.mkdir.reset();
+			mockFs.mkdirSync.reset();
 		},
 
 		tests: {
 			construct() {
 				new JUnit(mockExecutor, { filename: 'somewhere/foo.js' });
-				assert.equal(mockFs.mkdir.callCount, 1);
-				assert.equal(mockFs.mkdir.getCall(0).args[0], 'somewhere');
+				assert.equal(mockFs.mkdirSync.callCount, 1);
+				assert.equal(mockFs.mkdirSync.getCall(0).args[0], 'somewhere');
 				assert.equal(mockFs.createWriteStream.callCount, 1);
 			},
 

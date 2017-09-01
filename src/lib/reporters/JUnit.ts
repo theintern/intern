@@ -2,7 +2,7 @@ import Suite from '../Suite';
 import Test from '../Test';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Executor from '../executors/Executor';
-import { mkdir, createWriteStream } from 'fs';
+import { mkdirSync, createWriteStream } from 'fs';
 import { dirname } from 'path';
 
 /**
@@ -18,7 +18,7 @@ export default class JUnit extends Reporter {
 		if (options.filename) {
 			this.filename = options.filename;
 			if (dirname(this.filename) !== '.') {
-				mkdir(dirname(this.filename));
+				mkdirSync(dirname(this.filename));
 			}
 			this.output = createWriteStream(this.filename);
 		}

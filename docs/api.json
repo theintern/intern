@@ -16875,7 +16875,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element in the currently active window/frame\nmatching the given query. This is inherently slower than [[Session.find]], so should only be\nused in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element in the currently active window/frame\nmatching the given query. This is inherently slower than [[Session.find]], so should only be\nused in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -16973,7 +16973,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given CSS class name. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given CSS class name. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -17047,7 +17047,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given CSS selector. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given CSS selector. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -17121,7 +17121,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given ID. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given ID. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -17195,7 +17195,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given case-insensitive link text. This is inherently slower than [[Element.find]],\nso should only be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given case-insensitive link text. This is inherently slower than [[Element.find]],\nso should only be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -17269,7 +17269,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given name attribute. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given name attribute. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -17343,7 +17343,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\npartially matching the given case-insensitive link text. This is inherently slower than\n[[Element.find]], so should only be used in cases where the visibility of an element cannot be\nensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\npartially matching the given case-insensitive link text. This is inherently slower than\n[[Element.find]], so should only be used in cases where the visibility of an element cannot be\nensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -17417,7 +17417,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given HTML tag name. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given HTML tag name. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -17491,7 +17491,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given XPath selector. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given XPath selector. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -58545,7 +58545,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given CSS class name. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given CSS class name. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -58618,7 +58618,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given CSS selector. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given CSS selector. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -58691,7 +58691,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given ID. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given ID. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -58764,7 +58764,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given case-insensitive link text. This is inherently slower than [[Element.find]],\nso should only be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given case-insensitive link text. This is inherently slower than [[Element.find]],\nso should only be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -58837,7 +58837,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given name attribute. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given name attribute. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -58910,7 +58910,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\npartially matching the given case-insensitive link text. This is inherently slower than\n[[Element.find]], so should only be used in cases where the visibility of an element cannot be\nensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\npartially matching the given case-insensitive link text. This is inherently slower than\n[[Element.find]], so should only be used in cases where the visibility of an element cannot be\nensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -58983,7 +58983,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given HTML tag name. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given HTML tag name. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -59056,7 +59056,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Gets the first [[Element.isDisplayed displayed]] element inside this element\nmatching the given XPath selector. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
+										"shortText": "Gets the first [[Element.isDisplayed|displayed]] element inside this element\nmatching the given XPath selector. This is inherently slower than [[Element.find]], so should\nonly be used in cases where the visibility of an element cannot be ensured in advance.",
 										"tags": [
 											{
 												"tag": "since",
@@ -61832,6 +61832,23 @@
 									"parameters": [
 										{
 											"id": 3625,
+											"name": "element",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isOptional": true,
+												"__visited__": true
+											},
+											"comment": {
+												"text": "\nThe element to move the mouse to. If x-offset and y-offset are not specified, the mouse will be moved to the\ncentre of the element.\n"
+											},
+											"type": {
+												"type": "reference",
+												"name": "Element"
+											}
+										},
+										{
+											"id": 3626,
 											"name": "xOffset",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -61857,7 +61874,7 @@
 											}
 										},
 										{
-											"id": 3626,
+											"id": 3627,
 											"name": "yOffset",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -61899,7 +61916,7 @@
 									}
 								},
 								{
-									"id": 3627,
+									"id": 3628,
 									"name": "moveMouseTo",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -61907,20 +61924,6 @@
 										"__visited__": true
 									},
 									"parameters": [
-										{
-											"id": 3628,
-											"name": "element",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"isOptional": true,
-												"__visited__": true
-											},
-											"type": {
-												"type": "reference",
-												"name": "Element"
-											}
-										},
 										{
 											"id": 3629,
 											"name": "xOffset",
