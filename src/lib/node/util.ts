@@ -1,4 +1,4 @@
-import { dirname, join, normalize } from 'path';
+import { dirname, join, normalize, sep } from 'path';
 import { readFile, readFileSync } from 'fs';
 import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
 import { RawSourceMap } from 'source-map';
@@ -65,7 +65,7 @@ export function getConfig(configFile?: string) {
 	if (args.config) {
 		// If a config parameter was provided, load it and mix in any other
 		// command line args.
-		const { configFile, childConfig } = splitConfigPath(args.config);
+		const { configFile, childConfig } = splitConfigPath(args.config, sep);
 		return loadConfig(
 			configFile || 'intern.json',
 			loadText,

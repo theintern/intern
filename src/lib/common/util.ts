@@ -1,6 +1,5 @@
 import { mixin } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
-import { sep } from 'path';
 
 const configPathSeparator = '@';
 
@@ -384,14 +383,15 @@ export function pullFromArray<T>(haystack: T[], needle: T): T[] {
  * separator (e.g., a scoped npm package).
  */
 export function splitConfigPath(
-	path: string
+	path: string,
+	separator = '/'
 ): { configFile: string; childConfig?: string } {
 	const lastSep = path.lastIndexOf(configPathSeparator);
 	if (lastSep === 0) {
 		// path is like '@foo' -- specifies a child config
 		return { configFile: '', childConfig: path.slice(1) };
 	}
-	if (lastSep === -1 || path[lastSep - 1] === sep) {
+	if (lastSep === -1 || path[lastSep - 1] === separator) {
 		// path is like 'foo' or 'node_modules/@foo' -- specifies a
 		// path
 		return { configFile: path };
