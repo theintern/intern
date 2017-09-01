@@ -365,8 +365,7 @@ registerSuite('lib/common/util', {
 
 	splitConfigPath() {
 		assert.deepEqual(util.splitConfigPath('foo'), {
-			configFile: 'foo',
-			childConfig: undefined
+			configFile: 'foo'
 		});
 		assert.deepEqual(util.splitConfigPath('foo@bar'), {
 			configFile: 'foo',
@@ -380,6 +379,22 @@ registerSuite('lib/common/util', {
 			configFile: '',
 			childConfig: 'bar'
 		});
+		assert.deepEqual(util.splitConfigPath('./@bar'), {
+			configFile: './@bar'
+		});
+		assert.deepEqual(
+			util.splitConfigPath('node_modules/@dojo/foo/intern.json'),
+			{
+				configFile: 'node_modules/@dojo/foo/intern.json'
+			}
+		);
+		assert.deepEqual(
+			util.splitConfigPath('node_modules/@dojo/foo/intern.json@wd'),
+			{
+				configFile: 'node_modules/@dojo/foo/intern.json',
+				childConfig: 'wd'
+			}
+		);
 	},
 
 	stringify() {

@@ -36345,7 +36345,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 6,
+							"line": 7,
 							"character": 27
 						}
 					]
@@ -36363,7 +36363,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 356,
+							"line": 357,
 							"character": 18
 						}
 					],
@@ -36410,7 +36410,7 @@
 							"sources": [
 								{
 									"fileName": "lib/common/util.ts",
-									"line": 356,
+									"line": 357,
 									"character": 29
 								}
 							]
@@ -36430,7 +36430,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 348,
+							"line": 349,
 							"character": 20
 						}
 					],
@@ -36480,7 +36480,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 4,
+							"line": 5,
 							"character": 25
 						}
 					],
@@ -36639,7 +36639,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 45,
+							"line": 46,
 							"character": 20
 						}
 					]
@@ -36687,7 +36687,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 166,
+							"line": 167,
 							"character": 36
 						}
 					]
@@ -36845,7 +36845,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 24,
+							"line": 25,
 							"character": 26
 						}
 					]
@@ -36896,7 +36896,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 199,
+							"line": 200,
 							"character": 35
 						}
 					]
@@ -36988,7 +36988,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 209,
+							"line": 210,
 							"character": 25
 						}
 					]
@@ -37039,7 +37039,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 233,
+							"line": 234,
 							"character": 25
 						}
 					]
@@ -37162,7 +37162,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 245,
+							"line": 246,
 							"character": 26
 						}
 					]
@@ -37226,7 +37226,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 13,
+							"line": 14,
 							"character": 22
 						}
 					]
@@ -37307,7 +37307,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 362,
+							"line": 363,
 							"character": 29
 						}
 					]
@@ -37357,7 +37357,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 415,
+							"line": 434,
 							"character": 23
 						}
 					]
@@ -37420,7 +37420,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 396,
+							"line": 415,
 							"character": 26
 						}
 					]
@@ -37445,7 +37445,8 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "Split a config path into a file name and a child config name."
+								"shortText": "Split a config path into a file name and a child config name.",
+								"text": "This allows for the case where a file name itself may include the config\nseparator (e.g., a scoped npm package).\n"
 							},
 							"parameters": [
 								{
@@ -37486,7 +37487,7 @@
 											"sources": [
 												{
 													"fileName": "lib/common/util.ts",
-													"line": 378,
+													"line": 382,
 													"character": 36
 												}
 											],
@@ -37516,7 +37517,7 @@
 											"sources": [
 												{
 													"fileName": "lib/common/util.ts",
-													"line": 378,
+													"line": 382,
 													"character": 15
 												}
 											],
@@ -37539,7 +37540,7 @@
 									"sources": [
 										{
 											"fileName": "lib/common/util.ts",
-											"line": 378,
+											"line": 382,
 											"character": 2
 										}
 									]
@@ -37550,7 +37551,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 376,
+							"line": 380,
 							"character": 31
 						}
 					]
@@ -37628,7 +37629,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 389,
+							"line": 408,
 							"character": 25
 						}
 					]

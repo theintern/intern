@@ -1,5 +1,6 @@
 import { mixin } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
+import { sep } from 'path';
 
 const configPathSeparator = '@';
 
@@ -372,12 +373,30 @@ export function pullFromArray<T>(haystack: T[], needle: T): T[] {
 
 /**
  * Split a config path into a file name and a child config name.
+ *
+ * This allows for the case where a file name itself may include the config
+ * separator (e.g., a scoped npm package).
  */
 export function splitConfigPath(
 	path: string
 ): { configFile: string; childConfig?: string } {
-	const [configFile, childConfig] = path.split(configPathSeparator, 2);
-	return { configFile, childConfig };
+	const lastSep = path.lastIndexOf(configPathSeparator);
+	if (lastSep === 0) {
+		// path is like '@foo' -- specifies a child config
+		return { configFile: '', childConfig: path.slice(1) };
+	}
+	if (lastSep === -1 || path[lastSep - 1] === sep) {
+		// path is like 'foo' or 'node_modules/@foo' -- specifies a
+		// path
+		return { configFile: path };
+	}
+
+	// path is like 'foo@bar' or 'node_modules/@foo@bar' -- specifies a path and
+	// a child config
+	return {
+		configFile: path.slice(0, lastSep),
+		childConfig: path.slice(lastSep + 1)
+	};
 }
 
 /**
