@@ -14,7 +14,6 @@ import { format as formatUrl, Url } from 'url';
 import { fileExists, on } from './util';
 import { JobState } from './interfaces';
 import decompress = require('decompress');
-import Promise from '@dojo/shim/Promise';
 
 // TODO: Spawned processes are not getting cleaned up if there is a crash
 

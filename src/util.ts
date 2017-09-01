@@ -2,7 +2,6 @@ import { createHandle } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
 import { mkdirSync, statSync, writeFile as fsWriteFile } from 'fs';
 import { dirname } from 'path';
-import Promise from '@dojo/shim/Promise';
 
 /**
  * Attaches an event to a Node.js EventEmitter and returns a handle for removing

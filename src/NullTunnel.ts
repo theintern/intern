@@ -1,7 +1,6 @@
 import Task from '@dojo/core/async/Task';
 import Tunnel, { TunnelOptions } from './Tunnel';
 import { mixin } from '@dojo/core/lang';
-import Promise from '@dojo/shim/Promise';
 
 /**
  * A no-op tunnel.

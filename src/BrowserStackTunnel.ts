@@ -14,7 +14,6 @@ import { parse as parseUrl, Url } from 'url';
 import { mixin } from '@dojo/core/lang';
 import { JobState } from './interfaces';
 import { on } from './util';
-import Promise from '@dojo/shim/Promise';
 
 /**
  * A BrowserStack tunnel.
