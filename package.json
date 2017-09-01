@@ -8,10 +8,10 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@dojo/core": "~2.0.0-beta2.2",
+    "@dojo/core": "~2.0.0-beta2.3",
     "@dojo/has": "~2.0.0-beta2.2",
-    "@dojo/interfaces": "~2.0.0-beta2.2",
-    "@dojo/shim": "~2.0.0-beta2.2",
+    "@dojo/interfaces": "~2.0.0-beta2.3",
+    "@dojo/shim": "~2.0.0-beta2.3",
     "decompress": "~4.2.0"
   },
   "devDependencies": {
