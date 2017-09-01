@@ -6,17 +6,17 @@ import { createSessionFromRemote } from '../support/util';
 import Test = require('intern/lib/Test');
 
 function toUrl(url: string) {
-	return (<any> require).toUrl(url);
+	return (<any>require).toUrl(url);
 }
 
-registerSuite(function (this: Test) {
+registerSuite(function(this: Test) {
 	let command: Command<any>;
 
 	return {
 		name: 'leadfoot/helpers/pollUntil',
 
 		setup(this: Test) {
-			const remote  = <any> this.remote;
+			const remote = <any>this.remote;
 			return createSessionFromRemote(remote).then(session => {
 				command = new Command<void>(session);
 			});
@@ -27,9 +27,15 @@ registerSuite(function (this: Test) {
 				.get(toUrl('../data/elements.html'))
 				.findById('makeD')
 				.click()
-				.then(pollUntil('return document.getElementById("d");', [], 1000))
-				.then(function (result: any) {
-					assert.property(result, 'elementId', 'Returned value should be an element');
+				.then(
+					pollUntil('return document.getElementById("d");', [], 1000)
+				)
+				.then(function(result: any) {
+					assert.property(
+						result,
+						'elementId',
+						'Returned value should be an element'
+					);
 				});
 		},
 
@@ -39,8 +45,12 @@ registerSuite(function (this: Test) {
 				.findById('makeD')
 				.click()
 				.then(pollUntil('return document.getElementById("d");', 1000))
-				.then(function (result: any) {
-					assert.property(result, 'elementId', 'Returned value should be an element');
+				.then(function(result: any) {
+					assert.property(
+						result,
+						'elementId',
+						'Returned value should be an element'
+					);
 				});
 		},
 
@@ -49,12 +59,19 @@ registerSuite(function (this: Test) {
 				.get(toUrl('../data/elements.html'))
 				.findById('makeDSlowly')
 				.click()
-				.then(pollUntil('return document.getElementById("d");', [], 100, 25))
 				.then(
-					function () {
+					pollUntil(
+						'return document.getElementById("d");',
+						[],
+						100,
+						25
+					)
+				)
+				.then(
+					function() {
 						throw new Error('Polling should fail after a timeout');
 					},
-					function (error: Error) {
+					function(error: Error) {
 						assert.strictEqual(error.name, 'ScriptTimeout');
 					}
 				);
@@ -63,17 +80,24 @@ registerSuite(function (this: Test) {
 		'iteration check'() {
 			return command
 				.get(toUrl('../data/default.html'))
-				.then(pollUntil(function () {
-					const anyWindow = <any> window;
-					if (!anyWindow.counter) {
-						anyWindow.counter = 0;
-					}
+				.then(
+					pollUntil(
+						function() {
+							const anyWindow = <any>window;
+							if (!anyWindow.counter) {
+								anyWindow.counter = 0;
+							}
 
-					if ((++anyWindow.counter) === 4) {
-						return anyWindow.counter;
-					}
-				}, [], 1000, 25))
-				.then(function (counter: number) {
+							if (++anyWindow.counter === 4) {
+								return anyWindow.counter;
+							}
+						},
+						[],
+						1000,
+						25
+					)
+				)
+				.then(function(counter: number) {
 					assert.strictEqual(counter, 4);
 				});
 		}

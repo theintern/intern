@@ -3,8 +3,8 @@ import Command from '../Command';
 import Task from '@dojo/core/async/Task';
 
 /**
- * A [[Command]] helper that polls for a value within the client environment until the value exists
- * or a timeout is reached.
+ * A [[Command]] helper that polls for a value within the client environment
+ * until the value exists or a timeout is reached.
  *
  * ```js
  * var Command = require('leadfoot/Command');
@@ -37,30 +37,38 @@ import Task from '@dojo/core/async/Task';
  *     });
  * ```
  *
- * @param poller
- * The poller function to execute on an interval. The function should return `null` or `undefined` if there is not a
- * result. If the poller function throws, polling will halt.
+ * @param poller The poller function to execute on an interval. The function
+ * should return `null` or `undefined` if there is not a result. If the poller
+ * function throws, polling will halt.
  *
- * @param args
- * An array of arguments to pass to the poller function when it is invoked. Only values that can be serialised to JSON,
- * plus [[Element]] objects, can be specified as arguments.
+ * @param args An array of arguments to pass to the poller function when it is
+ * invoked. Only values that can be serialised to JSON, plus [[Element]]
+ * objects, can be specified as arguments.
  *
- * @param timeout
- * The maximum amount of time to wait for a successful result, in milliseconds. If not specified, the current
- * `executeAsync` maximum timeout for the session will be used.
+ * @param timeout The maximum amount of time to wait for a successful result,
+ * in milliseconds. If not specified, the current `executeAsync` maximum
+ * timeout for the session will be used.
  *
- * @param pollInterval
- * The amount of time to wait between calls to the poller function, in milliseconds. If not specified, defaults to 67ms.
+ * @param pollInterval The amount of time to wait between calls to the poller
+ * function, in milliseconds. If not specified, defaults to 67ms.
  *
- * @returns
- * A [[Command]] callback function that, when called, returns a promise that resolves to the
- * value returned by the poller function on success and rejects on failure.
- *
+ * @returns A [[Command]] callback function that, when called, returns a
+ * promise that resolves to the value returned by the poller function on
+ * success and rejects on failure.
  */
-export default function pollUntil(poller: Function|string, args?: any[], timeout?: number, pollInterval?: number): () => Task<any>;
-export default function pollUntil(poller: Function|string, timeout?: number, pollInterval?: number): () => Task<any>;
+export default function pollUntil(
+	poller: Function | string,
+	args?: any[],
+	timeout?: number,
+	pollInterval?: number
+): () => Task<any>;
+export default function pollUntil(
+	poller: Function | string,
+	timeout?: number,
+	pollInterval?: number
+): () => Task<any>;
 export default function pollUntil(...allArgs: any[]): () => Task<any> {
-	let [ poller, args, timeout, pollInterval ] = allArgs;
+	let [poller, args, timeout, pollInterval] = allArgs;
 	if (typeof args === 'number') {
 		pollInterval = timeout;
 		timeout = args;
@@ -70,11 +78,11 @@ export default function pollUntil(...allArgs: any[]): () => Task<any> {
 	args = args || [];
 	pollInterval = pollInterval || 67;
 
-	return function (this: Command<any>) {
+	return function(this: Command<any>) {
 		const session = this.session;
 		let originalTimeout: number;
 
-		return session.getExecuteAsyncTimeout().then(function () {
+		return session.getExecuteAsyncTimeout().then(function() {
 			let resultOrError: any;
 
 			function storeResult(result: any) {
@@ -95,42 +103,56 @@ export default function pollUntil(...allArgs: any[]): () => Task<any> {
 
 			function cleanup() {
 				if (!isNaN(originalTimeout)) {
-					return session.setExecuteAsyncTimeout(originalTimeout).then(finish);
+					return session
+						.setExecuteAsyncTimeout(originalTimeout)
+						.then(finish);
 				}
 				return finish();
 			}
 
 			if (!isNaN(timeout)) {
 				originalTimeout = arguments[0];
-			}
-			else {
+			} else {
 				timeout = arguments[0];
 			}
 
-			return session.setExecuteAsyncTimeout(timeout)
-				.then(function () {
+			return session
+				.setExecuteAsyncTimeout(timeout)
+				.then(function() {
 					/* jshint maxlen:140 */
-					return session.executeAsync(/* istanbul ignore next */ function (poller: string|Function, args: any[], timeout: number, pollInterval: number, done: Function): void {
-						/* jshint evil:true */
-						poller = <Function> new Function(<string> poller);
+					return session.executeAsync(
+						/* istanbul ignore next */ function(
+							poller: string | Function,
+							args: any[],
+							timeout: number,
+							pollInterval: number,
+							done: Function
+						): void {
+							/* jshint evil:true */
+							poller = <Function>new Function(<string>poller);
 
-						const endTime = Number(new Date()) + timeout;
+							const endTime = Number(new Date()) + timeout;
 
-						(function poll(this: any) {
-							const result = poller.apply(this, args);
+							(function poll(this: any) {
+								const result = poller.apply(this, args);
 
-							/*jshint evil:true */
-							if (result != null) {
-								done(result);
-							}
-							else if (Number(new Date()) < endTime) {
-								setTimeout(poll, pollInterval);
-							}
-							else {
-								done(null);
-							}
-						})();
-					}, [ util.toExecuteString(poller), args, timeout, pollInterval ]);
+								/*jshint evil:true */
+								if (result != null) {
+									done(result);
+								} else if (Number(new Date()) < endTime) {
+									setTimeout(poll, pollInterval);
+								} else {
+									done(null);
+								}
+							})();
+						},
+						[
+							util.toExecuteString(poller),
+							args,
+							timeout,
+							pollInterval
+						]
+					);
 				})
 				.then(storeResult, storeResult)
 				.then(cleanup, cleanup);

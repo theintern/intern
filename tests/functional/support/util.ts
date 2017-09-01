@@ -5,7 +5,7 @@ import { LeadfootURL } from 'src/interfaces';
 
 export * from 'src/lib/util';
 
-export function createServer(config: LeadfootURL|string) {
+export function createServer(config: LeadfootURL | string) {
 	return new Server(config);
 }
 
@@ -17,12 +17,15 @@ export function createServerFromRemote(remote: any) {
 	throw new Error('Unsupported remote');
 }
 
-export function createSessionFromRemote(remote: Command<any>, SessionCtor: any = Session): Promise<Session> {
+export function createSessionFromRemote(
+	remote: Command<any>,
+	SessionCtor: any = Session
+): Promise<Session> {
 	const server = createServerFromRemote(remote);
 
 	function fixGet(session: any) {
 		const oldGet = session.get;
-		session.get = function (this: Session, url: string) {
+		session.get = function(this: Session, url: string) {
 			if (!/^[A-Za-z][A-Za-z0-9+.-]+:/.test(url)) {
 				url = convertPathToUrl(remote, url);
 			}
@@ -32,7 +35,11 @@ export function createSessionFromRemote(remote: Command<any>, SessionCtor: any =
 	}
 
 	if (remote.session) {
-		const session = new SessionCtor(remote.session.sessionId, server, remote.session.capabilities);
+		const session = new SessionCtor(
+			remote.session.sessionId,
+			server,
+			remote.session.capabilities
+		);
 		fixGet(session);
 		return server['_fillCapabilities'](session);
 	}

@@ -5,29 +5,46 @@ import { partial } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 import statusCodes from './lib/statusCodes';
 import Locator, { toW3cLocator, Strategy } from './lib/Locator';
-import { forCommand as utilForCommand, sleep, toExecuteString } from './lib/util';
+import {
+	forCommand as utilForCommand,
+	sleep,
+	toExecuteString
+} from './lib/util';
 import waitForDeleted from './lib/waitForDeleted';
-import { Capabilities, Geolocation, LogEntry, WebDriverCookie, WebDriverResponse } from './interfaces';
+import {
+	Capabilities,
+	Geolocation,
+	LogEntry,
+	WebDriverCookie,
+	WebDriverResponse
+} from './interfaces';
 
-export default class Session extends Locator<Task<Element>, Task<Element[]>, Task<void>> {
+export default class Session extends Locator<
+	Task<Element>,
+	Task<Element[]>,
+	Task<void>
+> {
 	private _sessionId: string;
 	private _server: Server;
 	private _capabilities: Capabilities;
 	private _closedWindows: any = null;
-	// TODO: Timeouts are held so that we can fiddle with the implicit wait timeout to add efficient `waitFor`
-	// and `waitForDeleted` convenience methods. Technically only the implicit timeout is necessary.
-	private _timeouts: { [key: string]: Task<number>; } = {};
+	// TODO: Timeouts are held so that we can fiddle with the implicit wait
+	// timeout to add efficient `waitFor` and `waitForDeleted` convenience
+	// methods. Technically only the implicit timeout is necessary.
+	private _timeouts: { [key: string]: Task<number> } = {};
 	private _movedToElement = false;
 	private _lastMousePosition: any = null;
 	private _lastAltitude: any = null;
 	private _nextRequest: Task<any>;
 
 	/**
-	 * A Session represents a connection to a remote environment that can be driven programmatically.
+	 * A Session represents a connection to a remote environment that can be
+	 * driven programmatically.
 	 *
 	 * @param sessionId The ID of the session, as provided by the remote.
 	 * @param server The server that the session belongs to.
-	 * @param capabilities A map of bugs and features that the remote environment exposes.
+	 * @param capabilities A map of bugs and features that the remote
+	 * environment exposes.
 	 */
 	constructor(sessionId: string, server: Server, capabilities: Capabilities) {
 		super();
@@ -44,9 +61,8 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Information about the available features and bugs in the remote environment.
-	 *
-	 * @readonly
+	 * Information about the available features and bugs in the remote
+	 * environment.
 	 */
 	get capabilities() {
 		return this._capabilities;
@@ -54,8 +70,6 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 
 	/**
 	 * The current session ID.
-	 *
-	 * @readonly
 	 */
 	get sessionId() {
 		return this._sessionId;
@@ -63,29 +77,36 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 
 	/**
 	 * The Server that the session runs on.
-	 *
-	 * @readonly
 	 */
 	get server() {
 		return this._server;
 	}
 
 	/**
-	 * Delegates the HTTP request for a method to the underlying [[Server]] object.
-	 *
-	 * @private
+	 * Delegates the HTTP request for a method to the underlying [[Server]]
+	 * object.
 	 */
-	private _delegateToServer<T>(method: Method, path: string, requestData: any, pathParts?: string[]) {
-		path = 'session/' + this._sessionId + (path ? ('/' + path) : '');
+	private _delegateToServer<T>(
+		method: Method,
+		path: string,
+		requestData: any,
+		pathParts?: string[]
+	) {
+		path = 'session/' + this._sessionId + (path ? '/' + path : '');
 
-		if (method === 'post' && !requestData && this.capabilities.brokenEmptyPost) {
+		if (
+			method === 'post' &&
+			!requestData &&
+			this.capabilities.brokenEmptyPost
+		) {
 			requestData = {};
 		}
 
 		let cancelled = false;
 		return new Task<T>((resolve, reject) => {
-			// The promise is cleared from `_nextRequest` once it has been resolved in order to avoid
-			// infinitely long chains of promises retaining values that are not used any more
+			// The promise is cleared from `_nextRequest` once it has been
+			// resolved in order to avoid infinitely long chains of promises
+			// retaining values that are not used any more
 			let thisRequest: Task<any>;
 			const clearNextRequest = () => {
 				if (this._nextRequest === thisRequest) {
@@ -94,43 +115,51 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 			};
 
 			const runRequest = () => {
-				// `runRequest` is normally called once the previous request is finished. If this request
-				// is cancelled before the previous request is finished, then it should simply never run.
-				// (This Task will have been rejected already by the cancellation.)
+				// `runRequest` is normally called once the previous request is
+				// finished. If this request is cancelled before the previous
+				// request is finished, then it should simply never run. (This
+				// Task will have been rejected already by the cancellation.)
 				if (cancelled) {
 					clearNextRequest();
 					return;
 				}
 
-				const response = this._server[method]<WebDriverResponse>(path, requestData, pathParts)
+				const response = this._server
+					[method]<WebDriverResponse>(path, requestData, pathParts)
 					.then(response => response.value);
 
-				// safePromise is simply a promise based on the response that is guaranteed to resolve -- it is only
-				// used for promise chain management
-				const safePromise = response.catch(_error => { });
+				// safePromise is simply a promise based on the response that
+				// is guaranteed to resolve -- it is only used for promise
+				// chain management
+				const safePromise = response.catch(_error => {});
 				safePromise.then(clearNextRequest);
 
-				// The value of the response always needs to be taken directly from the server call
-				// rather than from the chained `_nextRequest` promise, since if an undefined value is
-				// returned by the server call and that value is returned through `finally(runRequest)`,
-				// the *previous* Task’s resolved value will be used as the resolved value, which is
+				// The value of the response always needs to be taken directly
+				// from the server call rather than from the chained
+				// `_nextRequest` promise, since if an undefined value is
+				// returned by the server call and that value is returned
+				// through `finally(runRequest)`, the *previous* Task’s
+				// resolved value will be used as the resolved value, which is
 				// wrong
 				resolve(response);
 
 				return safePromise;
 			};
 
-			// At least ChromeDriver 2.19 will just hard close connections if parallel requests are made to the server,
-			// so any request sent to the server for a given session must be serialised. Other servers like Selendroid
-			// have been known to have issues with parallel requests as well, so serialisation is applied universally,
-			// even though it has negative performance implications
+			// At least ChromeDriver 2.19 will just hard close connections if
+			// parallel requests are made to the server, so any request sent to
+			// the server for a given session must be serialised. Other servers
+			// like Selendroid have been known to have issues with parallel
+			// requests as well, so serialisation is applied universally, even
+			// though it has negative performance implications
 			if (this._nextRequest) {
-				thisRequest = this._nextRequest = this._nextRequest.finally(runRequest);
-			}
-			else {
+				thisRequest = this._nextRequest = this._nextRequest.finally(
+					runRequest
+				);
+			} else {
 				thisRequest = this._nextRequest = runRequest();
 			}
-		}, () => cancelled = true);
+		}, () => (cancelled = true));
 	}
 
 	serverGet<T>(path: string, requestData?: any, pathParts?: string[]) {
@@ -142,13 +171,19 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	serverDelete<T>(path: string, requestData?: any, pathParts?: string[]) {
-		return this._delegateToServer<T>('delete', path, requestData, pathParts);
+		return this._delegateToServer<T>(
+			'delete',
+			path,
+			requestData,
+			pathParts
+		);
 	}
 
 	/**
 	 * Gets the current value of a timeout for the session.
 	 *
-	 * @param type The type of timeout to retrieve. One of 'script', 'implicit', or 'page load'.
+	 * @param type The type of timeout to retrieve. One of 'script',
+	 * 'implicit', or 'page load'.
 	 * @returns The timeout, in milliseconds.
 	 */
 	getTimeout(type: string): Task<number> {
@@ -158,18 +193,19 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Sets the value of a timeout for the session.
 	 *
-	 * @param type
-	 * The type of timeout to set. One of 'script', 'implicit', or 'page load'.
+	 * @param type The type of timeout to set. One of 'script', 'implicit', or
+	 * 'page load'.
 	 *
-	 * @param ms
-	 * The length of time to use for the timeout, in milliseconds. A value of 0 will cause operations to time out
-	 * immediately.
+	 * @param ms The length of time to use for the timeout, in milliseconds. A
+	 * value of 0 will cause operations to time out immediately.
 	 */
 	setTimeout(type: string, ms: number) {
 		// Infinity cannot be serialised by JSON
 		if (ms === Infinity) {
-			// It seems that at least ChromeDriver 2.10 has a limit here that is near the 32-bit signed integer limit,
-			// and IEDriverServer 2.42.2 has an even lower limit; 2.33 hours should be infinite enough for testing
+			// It seems that at least ChromeDriver 2.10 has a limit here that
+			// is near the 32-bit signed integer limit, and IEDriverServer
+			// 2.42.2 has an even lower limit; 2.33 hours should be infinite
+			// enough for testing
 			ms = Math.pow(2, 23) - 1;
 		}
 
@@ -182,23 +218,28 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 			type: type,
 			ms: ms
 		}).catch(error => {
-			// Appium as of April 2014 complains that `timeouts` is unsupported, so try the more specific
-			// endpoints if they exist
+			// Appium as of April 2014 complains that `timeouts` is
+			// unsupported, so try the more specific endpoints if they exist
 			if (error.name === 'UnknownCommand') {
 				if (type === 'script') {
-					return this.serverPost<void>('timeouts/async_script', { ms: ms });
-				}
-				else if (type === 'implicit') {
-					return this.serverPost<void>('timeouts/implicit_wait', { ms: ms });
+					return this.serverPost<void>('timeouts/async_script', {
+						ms: ms
+					});
+				} else if (type === 'implicit') {
+					return this.serverPost<void>('timeouts/implicit_wait', {
+						ms: ms
+					});
 				}
 			}
 
 			throw error;
 		});
 
-		this._timeouts[type] = promise.then(function () {
-			return ms;
-		}).catch(error => null);
+		this._timeouts[type] = promise
+			.then(function() {
+				return ms;
+			})
+			.catch(error => null);
 
 		return promise;
 	}
@@ -206,11 +247,15 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Gets the identifier for the window that is currently focused.
 	 *
-	 * @returns A window handle identifier that can be used with other window handling functions.
+	 * @returns A window handle identifier that can be used with other window
+	 * handling functions.
 	 */
 	getCurrentWindowHandle() {
 		return this.serverGet<string>('window_handle').then(handle => {
-			if (this.capabilities.brokenDeleteWindow && this._closedWindows[handle]) {
+			if (
+				this.capabilities.brokenDeleteWindow &&
+				this._closedWindows[handle]
+			) {
 				const error: SessionError = new Error();
 				error.status = '23';
 				error.name = statusCodes[error.status][0];
@@ -226,9 +271,13 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * Gets a list of identifiers for all currently open windows.
 	 */
 	getAllWindowHandles() {
-		return this.serverGet<string[]>('window_handles').then((handles: string[]) => {
+		return this.serverGet<string[]>(
+			'window_handles'
+		).then((handles: string[]) => {
 			if (this.capabilities.brokenDeleteWindow) {
-				return handles.filter(handle => { return !this._closedWindows[handle]; });
+				return handles.filter(handle => {
+					return !this._closedWindows[handle];
+				});
 			}
 
 			return handles;
@@ -256,18 +305,22 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Navigates the focused window/frame forward one page using the browser’s navigation history.
+	 * Navigates the focused window/frame forward one page using the browser’s
+	 * navigation history.
 	 */
 	goForward() {
-		// TODO: SPEC: Seems like this and `back` should return the newly navigated URL.
+		// TODO: SPEC: Seems like this and `back` should return the newly
+		// navigated URL.
 		return this.serverPost<void>('forward');
 	}
 
 	/**
-	 * Navigates the focused window/frame back one page using the browser’s navigation history.
+	 * Navigates the focused window/frame back one page using the browser’s
+	 * navigation history.
 	 */
 	goBack() {
-		// TODO: SPEC: Seems like this and `back` should return the newly navigated URL.
+		// TODO: SPEC: Seems like this and `back` should return the newly
+		// navigated URL.
 		return this.serverPost<void>('back');
 	}
 
@@ -283,27 +336,30 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Executes JavaScript code within the focused window/frame. The code should return a value synchronously.
+	 * Executes JavaScript code within the focused window/frame. The code
+	 * should return a value synchronously.
 	 *
-	 * @see [[Session.executeAsync]] to execute code that returns values asynchronously.
+	 * See [[Session.executeAsync]] to execute code that returns values
+	 * asynchronously.
 	 *
-	 * @param script
-	 * The code to execute. This function will always be converted to a string, sent to the remote environment, and
-	 * reassembled as a new anonymous function on the remote end. This means that you cannot access any variables
-	 * through closure. If your code needs to get data from variables on the local end, they should be passed using
+	 * @param script The code to execute. This function will always be
+	 * converted to a string, sent to the remote environment, and reassembled
+	 * as a new anonymous function on the remote end. This means that you
+	 * cannot access any variables through closure. If your code needs to get
+	 * data from variables on the local end, they should be passed using
 	 * `args`.
 	 *
-	 * @param args
-	 * An array of arguments that will be passed to the executed code. Only values that can be serialised to JSON, plus
-	 * [[Element]] objects, can be specified as arguments.
+	 * @param args An array of arguments that will be passed to the executed
+	 * code. Only values that can be serialised to JSON, plus [[Element]]
+	 * objects, can be specified as arguments.
 	 *
-	 * @returns
-	 * The value returned by the remote code. Only values that can be serialised to JSON, plus DOM elements, can be
-	 * returned.
+	 * @returns The value returned by the remote code. Only values that can be
+	 * serialised to JSON, plus DOM elements, can be returned.
 	 */
 	execute<T>(script: Function | string, args?: any[]): Task<T> {
-		// At least FirefoxDriver 2.40.0 will throw a confusing NullPointerException if args is not an array;
-		// provide a friendlier error message to users that accidentally pass a non-array
+		// At least FirefoxDriver 2.40.0 will throw a confusing
+		// NullPointerException if args is not an array; provide a friendlier
+		// error message to users that accidentally pass a non-array
 		if (typeof args !== 'undefined' && !Array.isArray(args)) {
 			throw new Error('Arguments passed to execute must be an array');
 		}
@@ -314,42 +370,49 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 		}).then(value => convertToElements(this, value), fixExecuteError);
 
 		if (this.capabilities.brokenExecuteUndefinedReturn) {
-			result = result.then(value => value == null ? null : value);
+			result = result.then(value => (value == null ? null : value));
 		}
 
 		return result;
 	}
 
 	/**
-	 * Executes JavaScript code within the focused window/frame. The code must invoke the provided callback in
-	 * order to signal that it has completed execution.
+	 * Executes JavaScript code within the focused window/frame. The code must
+	 * invoke the provided callback in order to signal that it has completed
+	 * execution.
 	 *
-	 * @see [[Session.execute]] to execute code that returns values synchronously.
-	 * @see [[Session.setExecuteAsyncTimeout]] to set the time until an asynchronous script is
-	 * considered timed out.
+	 * See [[Session.execute]] to execute code that returns values
+	 * synchronously.
 	 *
-	 * @param script
-	 * The code to execute. This function will always be converted to a string, sent to the remote environment, and
-	 * reassembled as a new anonymous function on the remote end. This means that you cannot access any variables
-	 * through closure. If your code needs to get data from variables on the local end, they should be passed using
+	 * See [[Session.setExecuteAsyncTimeout]] to set the time until an
+	 * asynchronous script is considered timed out.
+	 *
+	 * @param script The code to execute. This function will always be
+	 * converted to a string, sent to the remote environment, and reassembled
+	 * as a new anonymous function on the remote end. This means that you
+	 * cannot access any variables through closure. If your code needs to get
+	 * data from variables on the local end, they should be passed using
 	 * `args`.
 	 *
-	 * @param args
-	 * An array of arguments that will be passed to the executed code. Only values that can be serialised to JSON, plus
-	 * [[Element]] objects, can be specified as arguments. In addition to these arguments, a
-	 * callback function will always be passed as the final argument to the function specified in `script`. This
-	 * callback function must be invoked in order to signal that execution has completed. The return value of the
+	 * @param args An array of arguments that will be passed to the executed
+	 * code. Only values that can be serialised to JSON, plus [[Element]]
+	 * objects, can be specified as arguments. In addition to these arguments,
+	 * a callback function will always be passed as the final argument to the
+	 * function specified in `script`. This callback function must be invoked
+	 * in order to signal that execution has completed. The return value of the
 	 * execution, if any, should be passed to this callback function.
 	 *
-	 * @returns
-	 * The value returned by the remote code. Only values that can be serialised to JSON, plus DOM elements, can be
-	 * returned.
+	 * @returns The value returned by the remote code. Only values that can be
+	 * serialised to JSON, plus DOM elements, can be returned.
 	 */
 	executeAsync<T>(script: Function | string, args?: any[]) {
-		// At least FirefoxDriver 2.40.0 will throw a confusing NullPointerException if args is not an array;
-		// provide a friendlier error message to users that accidentally pass a non-array
+		// At least FirefoxDriver 2.40.0 will throw a confusing
+		// NullPointerException if args is not an array; provide a friendlier
+		// error message to users that accidentally pass a non-array
 		if (typeof args !== 'undefined' && !Array.isArray(args)) {
-			throw new Error('Arguments passed to executeAsync must be an array');
+			throw new Error(
+				'Arguments passed to executeAsync must be an array'
+			);
 		}
 
 		return this.serverPost<T>('execute_async', {
@@ -364,12 +427,15 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * @returns A buffer containing a PNG image.
 	 */
 	takeScreenshot() {
-		return this.serverGet<string>('screenshot').then(data => new Buffer(data, 'base64'));
+		return this.serverGet<string>('screenshot').then(
+			data => new Buffer(data, 'base64')
+		);
 	}
 
 	/**
-	 * Gets a list of input method editor engines available to the remote environment.
-	 * As of April 2014, no known remote environments support IME functions.
+	 * Gets a list of input method editor engines available to the remote
+	 * environment. As of April 2014, no known remote environments support IME
+	 * functions.
 	 */
 	getAvailableImeEngines() {
 		return this.serverGet<string[]>('ime/available_engines');
@@ -384,8 +450,9 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Returns whether or not an input method editor is currently active in the remote environment.
-	 * As of April 2014, no known remote environments support IME functions.
+	 * Returns whether or not an input method editor is currently active in the
+	 * remote environment. As of April 2014, no known remote environments
+	 * support IME functions.
 	 */
 	isImeActivated() {
 		return this.serverGet<boolean>('ime/activated');
@@ -412,10 +479,11 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Switches the currently focused frame to a new frame.
 	 *
-	 * @param id
-	 * The frame to switch to. In most environments, a number or string value corresponds to a key in the
-	 * `window.frames` object of the currently active frame. If `null`, the topmost (default) frame will be used.
-	 * If an Element is provided, it must correspond to a `<frame>` or `<iframe>` element.
+	 * @param id The frame to switch to. In most environments, a number or
+	 * string value corresponds to a key in the `window.frames` object of the
+	 * currently active frame. If `null`, the topmost (default) frame will be
+	 * used. If an Element is provided, it must correspond to a `<frame>` or
+	 * `<iframe>` element.
 	 */
 	switchToFrame(id: string | number | Element) {
 		return this.serverPost<void>('frame', { id: id });
@@ -424,11 +492,12 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Switches the currently focused window to a new window.
 	 *
-	 * @param handle
-	 * The handle of the window to switch to. In mobile environments and environments based on the W3C WebDriver
-	 * standard, this should be a handle as returned by [[Session.getAllWindowHandles]].
+	 * @param handle The handle of the window to switch to. In mobile
+	 * environments and environments based on the W3C WebDriver standard, this
+	 * should be a handle as returned by [[Session.getAllWindowHandles]].
 	 *
-	 * In environments using the JsonWireProtocol, this value corresponds to the `window.name` property of a window.
+	 * In environments using the JsonWireProtocol, this value corresponds to
+	 * the `window.name` property of a window.
 	 */
 	switchToWindow(handle: string) {
 		return this.serverPost<void>('window', {
@@ -438,28 +507,35 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Switches the currently focused frame to the parent of the currently focused frame.
+	 * Switches the currently focused frame to the parent of the currently
+	 * focused frame.
 	 */
 	switchToParentFrame() {
 		return this.serverPost<void>('frame/parent').catch(error => {
-			// At least FirefoxDriver 2.40.0 does not implement this command, but we can fake it by retrieving
-			// the parent frame element using JavaScript and switching to it directly by reference
-			// At least Selendroid 0.9.0 also does not support this command, but unfortunately throws an incorrect
-			// error so it looks like a fatal error; see https://github.com/selendroid/selendroid/issues/364
-			if (error.name === 'UnknownCommand' ||
-				(
-					this.capabilities.browserName === 'selendroid' &&
-					error.message.indexOf('Error occured while communicating with selendroid server') > -1
-				)
+			// At least FirefoxDriver 2.40.0 does not implement this command,
+			// but we can fake it by retrieving the parent frame element using
+			// JavaScript and switching to it directly by reference At least
+			// Selendroid 0.9.0 also does not support this command, but
+			// unfortunately throws an incorrect error so it looks like a fatal
+			// error; see https://github.com/selendroid/selendroid/issues/364
+			if (
+				error.name === 'UnknownCommand' ||
+				(this.capabilities.browserName === 'selendroid' &&
+					error.message.indexOf(
+						'Error occured while communicating with selendroid server'
+					) > -1)
 			) {
 				if (this.capabilities.scriptedParentFrameCrashesBrowser) {
 					throw error;
 				}
 
-				return this.execute<Element>('return window.parent.frameElement;').then(parent => {
-					// TODO: Using `null` if no parent frame was returned keeps the request from being invalid,
-					// but may be incorrect and may cause incorrect frame retargeting on certain platforms;
-					// At least Selendroid 0.9.0 fails both commands
+				return this.execute<Element>(
+					'return window.parent.frameElement;'
+				).then(parent => {
+					// TODO: Using `null` if no parent frame was returned keeps
+					// the request from being invalid, but may be incorrect and
+					// may cause incorrect frame retargeting on certain
+					// platforms; At least Selendroid 0.9.0 fails both commands
 					return this.switchToFrame(parent || null);
 				});
 			}
@@ -469,14 +545,15 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Closes the currently focused window. In most environments, after the window has been closed, it is necessary
-	 * to explicitly switch to whatever window is now focused.
+	 * Closes the currently focused window. In most environments, after the
+	 * window has been closed, it is necessary to explicitly switch to whatever
+	 * window is now focused.
 	 */
 	closeCurrentWindow() {
 		const self = this;
 		function manualClose() {
-			return self.getCurrentWindowHandle().then(function (handle: any) {
-				return self.execute('window.close();').then(function () {
+			return self.getCurrentWindowHandle().then(function(handle: any) {
+				return self.execute('window.close();').then(function() {
 					self._closedWindows[handle] = true;
 				});
 			});
@@ -487,7 +564,8 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 		}
 
 		return this.serverDelete<void>('window').catch(error => {
-			// ios-driver 0.6.6-SNAPSHOT April 2014 does not implement close window command
+			// ios-driver 0.6.6-SNAPSHOT April 2014 does not implement close
+			// window command
 			if (error.name === 'UnknownCommand') {
 				this.capabilities.brokenDeleteWindow = true;
 				return manualClose();
@@ -500,18 +578,20 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Sets the dimensions of a window.
 	 *
-	 * @param windowHandle
-	 * The name of the window to resize. See [[Session.switchToWindow]] to learn about valid
-	 * window names. Omit this argument to resize the currently focused window.
+	 * @param windowHandle The name of the window to resize. See
+	 * [[Session.switchToWindow]] to learn about valid window names. Omit this
+	 * argument to resize the currently focused window.
 	 *
-	 * @param width
-	 * The new width of the window, in CSS pixels.
+	 * @param width The new width of the window, in CSS pixels.
 	 *
-	 * @param height
-	 * The new height of the window, in CSS pixels.
+	 * @param height The new height of the window, in CSS pixels.
 	 */
 	setWindowSize(width: number, height: number): Task<void>;
-	setWindowSize(windowHandle: string, width: number, height: number): Task<void>;
+	setWindowSize(
+		windowHandle: string,
+		width: number,
+		height: number
+	): Task<void>;
 	setWindowSize(...args: any[]) {
 		let [windowHandle, width, height] = args;
 
@@ -531,8 +611,7 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 				data.x = null;
 				data.y = null;
 				return this.serverPost<void>('window/rect', data);
-			}
-			else {
+			} else {
 				return this.serverPost<void>('window/size', data);
 			}
 		};
@@ -540,91 +619,113 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 		if (this.capabilities.implicitWindowHandles) {
 			if (windowHandle == null) {
 				return setWindowSize();
-			}
-			else {
-				// User provided a window handle; get the current handle, switch to the new one, get the size, then
-				// switch back to the original handle.
+			} else {
+				// User provided a window handle; get the current handle,
+				// switch to the new one, get the size, then switch back to the
+				// original handle.
 				let error: Error;
 				return this.getCurrentWindowHandle().then(originalHandle => {
-					return this.switchToWindow(windowHandle).then(() => {
-						return setWindowSize();
-					}).catch(function (_error) {
-						error = error;
-					}).then(() => {
-						return this.switchToWindow(originalHandle);
-					}).then(() => {
-						if (error) {
-							throw error;
-						}
-					});
+					return this.switchToWindow(windowHandle)
+						.then(() => {
+							return setWindowSize();
+						})
+						.catch(function(_error) {
+							error = error;
+						})
+						.then(() => {
+							return this.switchToWindow(originalHandle);
+						})
+						.then(() => {
+							if (error) {
+								throw error;
+							}
+						});
 				});
 			}
-		}
-		else {
+		} else {
 			if (windowHandle == null) {
 				windowHandle = 'current';
 			}
-			return this.serverPost<void>('window/$0/size', {
-				width: width,
-				height: height
-			}, [windowHandle]);
+			return this.serverPost<void>(
+				'window/$0/size',
+				{
+					width: width,
+					height: height
+				},
+				[windowHandle]
+			);
 		}
 	}
 
 	/**
 	 * Gets the dimensions of a window.
 	 *
-	 * @param windowHandle
-	 * The name of the window to query. See [[Session.switchToWindow]] to learn about valid
-	 * window names. Omit this argument to query the currently focused window.
+	 * @param windowHandle The name of the window to query. See
+	 * [[Session.switchToWindow]] to learn about valid window names. Omit this
+	 * argument to query the currently focused window.
 	 *
-	 * @returns
-	 * An object describing the width and height of the window, in CSS pixels.
+	 * @returns An object describing the width and height of the window, in CSS
+	 * pixels.
 	 */
 	getWindowSize(windowHandle?: string) {
 		const getWindowSize = () => {
 			if (this.capabilities.supportsWindowRectCommand) {
-				return this.serverGet<{ width: number, height: number, x: number, y: number }>('window/rect').then(rect => {
+				return this.serverGet<{
+					width: number;
+					height: number;
+					x: number;
+					y: number;
+				}>('window/rect').then(rect => {
 					return { width: rect.width, height: rect.height };
 				});
-			}
-			else {
-				return this.serverGet<{ width: number, height: number }>('window/size');
+			} else {
+				return this.serverGet<{ width: number; height: number }>(
+					'window/size'
+				);
 			}
 		};
 
 		if (this.capabilities.implicitWindowHandles) {
 			if (windowHandle == null) {
 				return getWindowSize();
-			}
-			else {
-				// User provided a window handle; get the current handle, switch to the new one, get the size, then
-				// switch back to the original handle.
+			} else {
+				// User provided a window handle; get the current handle,
+				// switch to the new one, get the size, then switch back to the
+				// original handle.
 				let error: Error;
-				let size: { width: number, height: number };
+				let size: { width: number; height: number };
 				return this.getCurrentWindowHandle().then(originalHandle => {
-					return this.switchToWindow(windowHandle).then(() => {
-						return getWindowSize();
-					}).then((_size) => {
-						size = _size;
-					}, (_error) => {
-						error = _error;
-					}).then(() => {
-						return this.switchToWindow(originalHandle);
-					}).then(() => {
-						if (error) {
-							throw error;
-						}
-						return size;
-					});
+					return this.switchToWindow(windowHandle)
+						.then(() => {
+							return getWindowSize();
+						})
+						.then(
+							_size => {
+								size = _size;
+							},
+							_error => {
+								error = _error;
+							}
+						)
+						.then(() => {
+							return this.switchToWindow(originalHandle);
+						})
+						.then(() => {
+							if (error) {
+								throw error;
+							}
+							return size;
+						});
 				});
 			}
-		}
-		else {
+		} else {
 			if (typeof windowHandle === 'undefined') {
 				windowHandle = 'current';
 			}
-			return this.serverGet<{ width: number, height: number }>('window/$0/size', null, [windowHandle]);
+			return this.serverGet<{
+				width: number;
+				height: number;
+			}>('window/$0/size', null, [windowHandle]);
 		}
 	}
 
@@ -633,15 +734,15 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 *
 	 * Note that this method is not part of the W3C WebDriver standard.
 	 *
-	 * @param windowHandle
-	 * The name of the window to move. See [[Session.switchToWindow]] to learn about valid
-	 * window names. Omit this argument to move the currently focused window.
+	 * @param windowHandle The name of the window to move. See
+	 * [[Session.switchToWindow]] to learn about valid window names. Omit this
+	 * argument to move the currently focused window.
 	 *
-	 * @param x
-	 * The screen x-coordinate to move to, in CSS pixels, relative to the left edge of the primary monitor.
+	 * @param x The screen x-coordinate to move to, in CSS pixels, relative to
+	 * the left edge of the primary monitor.
 	 *
-	 * @param y
-	 * The screen y-coordinate to move to, in CSS pixels, relative to the top edge of the primary monitor.
+	 * @param y The screen y-coordinate to move to, in CSS pixels, relative to
+	 * the top edge of the primary monitor.
 	 */
 	setWindowPosition(x: number, y: number): Task<void>;
 	setWindowPosition(windowHandle: string, x: number, y: number): Task<void>;
@@ -654,10 +755,14 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 			windowHandle = 'current';
 		}
 
-		return this.serverPost<void>('window/$0/position', {
-			x: x,
-			y: y
-		}, [windowHandle]);
+		return this.serverPost<void>(
+			'window/$0/position',
+			{
+				x: x,
+				y: y
+			},
+			[windowHandle]
+		);
 	}
 
 	/**
@@ -665,13 +770,13 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 *
 	 * Note that this method is not part of the W3C WebDriver standard.
 	 *
-	 * @param windowHandle
-	 * The name of the window to query. See [[Session.switchToWindow]] to learn about valid
-	 * window names. Omit this argument to query the currently focused window.
+	 * @param windowHandle The name of the window to query. See
+	 * [[Session.switchToWindow]] to learn about valid window names. Omit this
+	 * argument to query the currently focused window.
 	 *
-	 * @returns
-	 * An object describing the position of the window, in CSS pixels, relative to the top-left corner of the
-	 * primary monitor. If a secondary monitor exists above or to the left of the primary monitor, these values
+	 * @returns An object describing the position of the window, in CSS pixels,
+	 * relative to the top-left corner of the primary monitor. If a secondary
+	 * monitor exists above or to the left of the primary monitor, these values
 	 * will be negative.
 	 */
 	getWindowPosition(windowHandle?: string) {
@@ -679,8 +784,12 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 			windowHandle = 'current';
 		}
 
-		return this.serverGet<{ x: number, y: number }>('window/$0/position', null, [windowHandle]).then(function (position) {
-			// At least InternetExplorerDriver 2.41.0 on IE9 returns an object containing extra properties
+		return this.serverGet<{
+			x: number;
+			y: number;
+		}>('window/$0/position', null, [windowHandle]).then(function(position) {
+			// At least InternetExplorerDriver 2.41.0 on IE9 returns an object
+			// containing extra properties
 			return { x: position.x, y: position.y };
 		});
 	}
@@ -688,30 +797,40 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Maximises a window according to the platform’s window system behaviour.
 	 *
-	 * @param windowHandle
-	 * The name of the window to resize. See [[Session.switchToWindow]] to learn about valid
-	 * window names. Omit this argument to resize the currently focused window.
+	 * @param windowHandle The name of the window to resize. See
+	 * [[Session.switchToWindow]] to learn about valid window names. Omit this
+	 * argument to resize the currently focused window.
 	 */
 	maximizeWindow(windowHandle?: string) {
 		if (typeof windowHandle === 'undefined') {
 			windowHandle = 'current';
 		}
 
-		return this.serverPost<void>('window/$0/maximize', null, [windowHandle]);
+		return this.serverPost<void>('window/$0/maximize', null, [
+			windowHandle
+		]);
 	}
 
 	/**
 	 * Gets all cookies set on the current page.
 	 */
 	getCookies() {
-		return this.serverGet<WebDriverCookie[]>('cookie').then(function (cookies: WebDriverCookie[]) {
-			// At least SafariDriver 2.41.0 returns cookies with extra class and hCode properties that should not
-			// exist
-			return cookies.map(function (badCookie) {
+		return this.serverGet<WebDriverCookie[]>('cookie').then(function(
+			cookies: WebDriverCookie[]
+		) {
+			// At least SafariDriver 2.41.0 returns cookies with extra class
+			// and hCode properties that should not exist
+			return cookies.map(function(badCookie) {
 				let cookie: any = {};
 				for (let key in badCookie) {
-					if (key === 'name' || key === 'value' || key === 'path' || key === 'domain' ||
-						key === 'secure' || key === 'httpOnly' || key === 'expiry'
+					if (
+						key === 'name' ||
+						key === 'value' ||
+						key === 'path' ||
+						key === 'domain' ||
+						key === 'secure' ||
+						key === 'httpOnly' ||
+						key === 'expiry'
 					) {
 						cookie[key] = (<any>badCookie)[key];
 					}
@@ -742,10 +861,12 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 		return this.serverPost<void>('cookie', {
 			cookie: cookie
 		}).catch((error: SessionError) => {
-			// At least ios-driver 0.6.0-SNAPSHOT April 2014 does not know how to set cookies
+			// At least ios-driver 0.6.0-SNAPSHOT April 2014 does not know how
+			// to set cookies
 			if (error.name === 'UnknownCommand') {
-				// Per RFC6265 section 4.1.1, cookie names must match `token` (any US-ASCII character except for
-				// control characters and separators as defined in RFC2616 section 2.2)
+				// Per RFC6265 section 4.1.1, cookie names must match `token`
+				// (any US-ASCII character except for control characters and
+				// separators as defined in RFC2616 section 2.2)
 				if (/[^A-Za-z0-9!#$%&'*+.^_`|~-]/.test(cookie.name)) {
 					error = new Error();
 					error.status = '25';
@@ -754,7 +875,11 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 					throw error;
 				}
 
-				if (/[^\u0021\u0023-\u002b\u002d-\u003a\u003c-\u005b\u005d-\u007e]/.test(cookie.value)) {
+				if (
+					/[^\u0021\u0023-\u002b\u002d-\u003a\u003c-\u005b\u005d-\u007e]/.test(
+						cookie.value
+					)
+				) {
 					error = new Error();
 					error.status = '25';
 					error.name = statusCodes[error.status][0];
@@ -766,9 +891,12 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 
 				pushCookieProperties(cookieToSet, cookie);
 
-				return self.execute<void>(/* istanbul ignore next */ function (cookie: any) {
-					document.cookie = cookie;
-				}, [cookieToSet.join(';')]);
+				return self.execute<void>(
+					/* istanbul ignore next */ function(cookie: any) {
+						document.cookie = cookie;
+					},
+					[cookieToSet.join(';')]
+				);
 			}
 
 			throw error;
@@ -789,11 +917,21 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 					pushCookieProperties(expiredCookie, cookie);
 
 					return promise.then(() => {
-						return this.execute<void>(/* istanbul ignore next */ function (expiredCookie: string) {
-							// Assume the cookie was created by Selenium, so it's path is '/'; at least MS Edge
-							// requires a path to delete a cookie
-							document.cookie = `${expiredCookie}; domain=${encodeURIComponent(document.domain)}; path=/`;
-						}, [expiredCookie.join(';')]);
+						return this.execute<
+							void
+						>(
+							/* istanbul ignore next */ function(
+								expiredCookie: string
+							) {
+								// Assume the cookie was created by Selenium,
+								// so it's path is '/'; at least MS Edge
+								// requires a path to delete a cookie
+								document.cookie = `${expiredCookie}; domain=${encodeURIComponent(
+									document.domain
+								)}; path=/`;
+							},
+							[expiredCookie.join(';')]
+						);
 					});
 				}, Task.resolve());
 			});
@@ -811,12 +949,14 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 		if (this.capabilities.brokenDeleteCookie) {
 			return this.getCookies().then(cookies => {
 				let cookie: any;
-				if (cookies.some(function (value) {
-					if (value.name === name) {
-						cookie = value;
-						return true;
-					}
-				})) {
+				if (
+					cookies.some(function(value) {
+						if (value.name === name) {
+							cookie = value;
+							return true;
+						}
+					})
+				) {
 					const expiredCookie = [
 						`${cookie.name}=`,
 						'expires=Thu, 01 Jan 1970 00:00:00 GMT'
@@ -824,11 +964,21 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 
 					pushCookieProperties(expiredCookie, cookie);
 
-					return this.execute<void>(/* istanbul ignore next */ function (expiredCookie: any) {
-						// Assume the cookie was created by Selenium, so it's path is '/'; at least MS Edge requires
-						// a path to delete a cookie
-						document.cookie = `${expiredCookie}; domain=${encodeURIComponent(document.domain)}; path=/`;
-					}, [expiredCookie.join(';')]);
+					return this.execute<
+						void
+					>(
+						/* istanbul ignore next */ function(
+							expiredCookie: any
+						) {
+							// Assume the cookie was created by Selenium, so
+							// it's path is '/'; at least MS Edge requires a
+							// path to delete a cookie
+							document.cookie = `${expiredCookie}; domain=${encodeURIComponent(
+								document.domain
+							)}; path=/`;
+						},
+						[expiredCookie.join(';')]
+					);
 				}
 			});
 		}
@@ -837,41 +987,44 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Gets the HTML loaded in the focused window/frame. This markup is serialised by the remote environment so
-	 * may not exactly match the HTML provided by the Web server.
+	 * Gets the HTML loaded in the focused window/frame. This markup is
+	 * serialised by the remote environment so may not exactly match the HTML
+	 * provided by the Web server.
 	 */
 	getPageSource() {
 		if (this.capabilities.brokenPageSource) {
-			return this.execute<string>(/* istanbul ignore next */ function () {
-				return document.documentElement.outerHTML;
-			});
-		}
-		else {
+			return this.execute<string>(
+				/* istanbul ignore next */ function() {
+					return document.documentElement.outerHTML;
+				}
+			);
+		} else {
 			return this.serverGet<string>('source');
 		}
 	}
 
 	/**
-	 * Gets the title of the top-level browsing context of the current window or tab.
+	 * Gets the title of the top-level browsing context of the current window
+	 * or tab.
 	 */
 	getPageTitle() {
 		return this.serverGet<string>('title');
 	}
 
 	/**
-	 * Gets the first element from the focused window/frame that matches the given query.
+	 * Gets the first element from the focused window/frame that matches the
+	 * given query.
 	 *
-	 * @see [[Session.setFindTimeout]] to set the amount of time it the remote environment
-	 * should spend waiting for an element that does not exist at the time of the `find` call before timing
-	 * out.
+	 * See [[Session.setFindTimeout]] to set the amount of time it the remote
+	 * environment should spend waiting for an element that does not exist at
+	 * the time of the `find` call before timing out.
 	 *
-	 * @param using
-	 * The element retrieval strategy to use. One of 'class name', 'css selector', 'id', 'name', 'link text',
-	 * 'partial link text', 'tag name', 'xpath'.
+	 * @param using The element retrieval strategy to use. One of 'class name',
+	 * 'css selector', 'id', 'name', 'link text', 'partial link text', 'tag
+	 * name', 'xpath'.
 	 *
-	 * @param value
-	 * The strategy-specific value to search for. For example, if `using` is 'id', `value` should be the ID of the
-	 * element to retrieve.
+	 * @param value The strategy-specific value to search for. For example, if
+	 * `using` is 'id', `value` should be the ID of the element to retrieve.
 	 */
 	find(using: Strategy, value: string) {
 		if (this.capabilities.isWebDriver) {
@@ -886,18 +1039,22 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 			value = locator.value;
 		}
 
-		if (using.indexOf('link text') !== -1 && (
-			this.capabilities.brokenWhitespaceNormalization || this.capabilities.brokenLinkTextLocator
-		)) {
-			return this.execute<Element>(/* istanbul ignore next */ this._manualFindByLinkText, [using, value])
-				.then(element => {
-					if (!element) {
-						const error = new Error();
-						error.name = 'NoSuchElement';
-						throw error;
-					}
-					return new Element(element, this);
-				});
+		if (
+			using.indexOf('link text') !== -1 &&
+			(this.capabilities.brokenWhitespaceNormalization ||
+				this.capabilities.brokenLinkTextLocator)
+		) {
+			return this.execute<Element>(
+				/* istanbul ignore next */ this._manualFindByLinkText,
+				[using, value]
+			).then(element => {
+				if (!element) {
+					const error = new Error();
+					error.name = 'NoSuchElement';
+					throw error;
+				}
+				return new Element(element, this);
+			});
 		}
 
 		return this.serverPost<any>('element', {
@@ -909,13 +1066,14 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Gets an array of elements from the focused window/frame that match the given query.
+	 * Gets an array of elements from the focused window/frame that match the
+	 * given query.
 	 *
-	 * @param using
-	 * The element retrieval strategy to use. See [[Session.find]] for options.
+	 * @param using The element retrieval strategy to use. See [[Session.find]]
+	 * for options.
 	 *
-	 * @param {string} value
-	 * The strategy-specific value to search for. See [[Session.find]] for details.
+	 * @param value The strategy-specific value to search for. See
+	 * [[Session.find]] for details.
 	 */
 	findAll(using: Strategy, value: string) {
 		if (this.capabilities.isWebDriver) {
@@ -930,15 +1088,19 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 			value = locator.value;
 		}
 
-		if (using.indexOf('link text') !== -1 && (
-			this.capabilities.brokenWhitespaceNormalization || this.capabilities.brokenLinkTextLocator
-		)) {
-			return this.execute<Element[]>(/* istanbul ignore next */ this._manualFindByLinkText, [using, value, true])
-				.then(elements => {
-					return elements.map((element: ElementOrElementId) => {
-						return new Element(element, this);
-					});
+		if (
+			using.indexOf('link text') !== -1 &&
+			(this.capabilities.brokenWhitespaceNormalization ||
+				this.capabilities.brokenLinkTextLocator)
+		) {
+			return this.execute<Element[]>(
+				/* istanbul ignore next */ this._manualFindByLinkText,
+				[using, value, true]
+			).then(elements => {
+				return elements.map((element: ElementOrElementId) => {
+					return new Element(element, this);
 				});
+			});
 		}
 
 		return this.serverPost<any[]>('elements', {
@@ -962,15 +1124,17 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 
 		if (this.capabilities.brokenActiveElement) {
 			return getDocumentActiveElement();
-		}
-		else {
-			return this.serverPost<any>('element/active').then((element: ElementOrElementId) => {
+		} else {
+			return this.serverPost<any>(
+				'element/active'
+			).then((element: ElementOrElementId) => {
 				if (element) {
 					return new Element(element, this);
-				}
-				// The driver will return `null` if the active element is the body element; for consistency with how
-				// the DOM `document.activeElement` property works, we’ll diverge and always return an element
-				else {
+				} else {
+					// The driver will return `null` if the active element is
+					// the body element; for consistency with how the DOM
+					// `document.activeElement` property works, we’ll diverge
+					// and always return an element
 					return getDocumentActiveElement();
 				}
 			});
@@ -980,20 +1144,25 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Types into the focused window/frame/element.
 	 *
-	 * @param keys
-	 * The text to type in the remote environment. It is possible to type keys that do not have normal character
-	 * representations (modifier keys, function keys, etc.) as well as keys that have two different representations
-	 * on a typical US-ASCII keyboard (numpad keys); use the values from [[keys]] to type these
-	 * special characters. Any modifier keys that are activated by this call will persist until they are
-	 * deactivated. To deactivate a modifier key, type the same modifier key a second time, or send `\uE000`
-	 * ('NULL') to deactivate all currently active modifier keys.
+	 * @param keys The text to type in the remote environment. It is possible
+	 * to type keys that do not have normal character representations (modifier
+	 * keys, function keys, etc.) as well as keys that have two different
+	 * representations on a typical US-ASCII keyboard (numpad keys); use the
+	 * values from [[keys]] to type these special characters. Any modifier keys
+	 * that are activated by this call will persist until they are deactivated.
+	 * To deactivate a modifier key, type the same modifier key a second time,
+	 * or send `\uE000` ('NULL') to deactivate all currently active modifier
+	 * keys.
 	 */
 	pressKeys(keys: string | string[]) {
 		if (!Array.isArray(keys)) {
 			keys = [keys];
 		}
 
-		if (this.capabilities.brokenSendKeys || !this.capabilities.supportsKeysCommand) {
+		if (
+			this.capabilities.brokenSendKeys ||
+			!this.capabilities.supportsKeysCommand
+		) {
 			return this.execute(simulateKeys, [keys]);
 		}
 
@@ -1008,7 +1177,9 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * @returns Either 'portrait' or 'landscape'.
 	 */
 	getOrientation() {
-		return this.serverGet<'portrait' | 'landscape'>('orientation').then(function (orientation) {
+		return this.serverGet<'portrait' | 'landscape'>(
+			'orientation'
+		).then(function(orientation) {
 			return orientation.toLowerCase();
 		});
 	}
@@ -1049,41 +1220,50 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Accepts an alert, prompt, or confirmation pop-up. Equivalent to clicking the 'OK' button.
+	 * Accepts an alert, prompt, or confirmation pop-up. Equivalent to clicking
+	 * the 'OK' button.
 	 */
 	acceptAlert() {
 		return this.serverPost<void>('accept_alert');
 	}
 
 	/**
-	 * Dismisses an alert, prompt, or confirmation pop-up. Equivalent to clicking the 'OK' button of an alert pop-up
-	 * or the 'Cancel' button of a prompt or confirmation pop-up.
+	 * Dismisses an alert, prompt, or confirmation pop-up. Equivalent to
+	 * clicking the 'OK' button of an alert pop-up or the 'Cancel' button of a
+	 * prompt or confirmation pop-up.
 	 */
 	dismissAlert() {
 		return this.serverPost<void>('dismiss_alert');
 	}
 
 	/**
-	 * Moves the remote environment’s mouse cursor to the specified element or relative position. If the element is
-	 * outside of the viewport, the remote driver will attempt to scroll it into view automatically.
+	 * Moves the remote environment’s mouse cursor to the specified element or
+	 * relative position. If the element is outside of the viewport, the remote
+	 * driver will attempt to scroll it into view automatically.
 	 *
-	 * @param element
-	 * The element to move the mouse to. If x-offset and y-offset are not specified, the mouse will be moved to the
-	 * centre of the element.
+	 * @param element The element to move the mouse to. If x-offset and
+	 * y-offset are not specified, the mouse will be moved to the centre of the
+	 * element.
 	 *
-	 * @param xOffset
-	 * The x-offset of the cursor, maybe in CSS pixels, relative to the left edge of the specified element’s
-	 * bounding client rectangle. If no element is specified, the offset is relative to the previous position of the
-	 * mouse, or to the left edge of the page’s root element if the mouse was never moved before.
+	 * @param xOffset The x-offset of the cursor, maybe in CSS pixels, relative
+	 * to the left edge of the specified element’s bounding client rectangle.
+	 * If no element is specified, the offset is relative to the previous
+	 * position of the mouse, or to the left edge of the page’s root element if
+	 * the mouse was never moved before.
 	 *
-	 * @param yOffset
-	 * The y-offset of the cursor, maybe in CSS pixels, relative to the top edge of the specified element’s bounding
-	 * client rectangle. If no element is specified, the offset is relative to the previous position of the mouse,
-	 * or to the top edge of the page’s root element if the mouse was never moved before.
+	 * @param yOffset The y-offset of the cursor, maybe in CSS pixels, relative
+	 * to the top edge of the specified element’s bounding client rectangle. If
+	 * no element is specified, the offset is relative to the previous position
+	 * of the mouse, or to the top edge of the page’s root element if the mouse
+	 * was never moved before.
 	 */
 	moveMouseTo(): Task<void>;
 	moveMouseTo(xOffset?: number, yOffset?: number): Task<void>;
-	moveMouseTo(element?: Element, xOffset?: number, yOffset?: number): Task<void>;
+	moveMouseTo(
+		element?: Element,
+		xOffset?: number,
+		yOffset?: number
+	): Task<void>;
 	@forCommand({ usesElement: true })
 	moveMouseTo(...args: any[]) {
 		let [element, xOffset, yOffset] = args;
@@ -1095,34 +1275,46 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 		}
 
 		if (this.capabilities.brokenMouseEvents) {
-			return this.execute<void>(simulateMouse, [{
-				action: 'mousemove',
-				position: this._lastMousePosition,
-				element: element,
-				xOffset: xOffset,
-				yOffset: yOffset
-			}]).then((newPosition) => {
+			return this.execute<void>(simulateMouse, [
+				{
+					action: 'mousemove',
+					position: this._lastMousePosition,
+					element: element,
+					xOffset: xOffset,
+					yOffset: yOffset
+				}
+			]).then(newPosition => {
 				this._lastMousePosition = newPosition;
 			});
 		}
 
 		if (element) {
 			element = element.elementId;
-		}
-		// If the mouse has not been moved to any element on this page yet, drivers will either throw errors
-		// (FirefoxDriver 2.40.0) or silently fail (ChromeDriver 2.9) when trying to move the mouse cursor relative
-		// to the "previous" position; in this case, we just assume that the mouse position defaults to the
-		// top-left corner of the document
-		else if (!this._movedToElement) {
+		} else if (!this._movedToElement) {
+			// If the mouse has not been moved to any element on this page yet,
+			// drivers will either throw errors (FirefoxDriver 2.40.0) or
+			// silently fail (ChromeDriver 2.9) when trying to move the mouse
+			// cursor relative to the "previous" position; in this case, we
+			// just assume that the mouse position defaults to the top-left
+			// corner of the document
 			if (this.capabilities.brokenHtmlMouseMove) {
-				return this.execute<Element>('return document.body;').then(element => {
-					return element.getPosition().then((position: { x: number, y: number }) => {
-						return this.moveMouseTo(element, xOffset - position.x, yOffset - position.y);
-					});
+				return this.execute<Element>(
+					'return document.body;'
+				).then(element => {
+					return element
+						.getPosition()
+						.then((position: { x: number; y: number }) => {
+							return this.moveMouseTo(
+								element,
+								xOffset - position.x,
+								yOffset - position.y
+							);
+						});
 				});
-			}
-			else {
-				return this.execute<Element>('return document.documentElement;').then(element => {
+			} else {
+				return this.execute<Element>(
+					'return document.documentElement;'
+				).then(element => {
 					return this.moveMouseTo(element, xOffset, yOffset);
 				});
 			}
@@ -1138,27 +1330,31 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Clicks a mouse button at the point where the mouse cursor is currently positioned. This method may fail to
-	 * execute with an error if the mouse has not been moved anywhere since the page was loaded.
+	 * Clicks a mouse button at the point where the mouse cursor is currently
+	 * positioned. This method may fail to execute with an error if the mouse
+	 * has not been moved anywhere since the page was loaded.
 	 *
-	 * @param button
-	 * The button to click. 0 corresponds to the primary mouse button, 1 to the middle mouse button, 2 to the
-	 * secondary mouse button. Numbers above 2 correspond to any additional buttons a mouse might provide.
+	 * @param button The button to click. 0 corresponds to the primary mouse
+	 * button, 1 to the middle mouse button, 2 to the secondary mouse button.
+	 * Numbers above 2 correspond to any additional buttons a mouse might
+	 * provide.
 	 */
 	clickMouseButton(button?: number) {
 		if (this.capabilities.brokenMouseEvents) {
-			return this.execute<void>(simulateMouse, [{
-				action: 'click',
-				button: button,
-				position: this._lastMousePosition
-			}]);
+			return this.execute<void>(simulateMouse, [
+				{
+					action: 'click',
+					button: button,
+					position: this._lastMousePosition
+				}
+			]);
 		}
 
 		return this.serverPost<void>('click', {
 			button: button
 		}).then(() => {
-			// ios-driver 0.6.6-SNAPSHOT April 2014 does not wait until the default action for a click event occurs
-			// before returning
+			// ios-driver 0.6.6-SNAPSHOT April 2014 does not wait until the
+			// default action for a click event occurs before returning
 			if (this.capabilities.touchEnabled) {
 				return sleep(300);
 			}
@@ -1168,15 +1364,18 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Depresses a mouse button without releasing it.
 	 *
-	 * @param button The button to press. See [[Session.click]] for available options.
+	 * @param button The button to press. See [[Session.click]] for available
+	 * options.
 	 */
 	pressMouseButton(button?: number) {
 		if (this.capabilities.brokenMouseEvents) {
-			return this.execute<void>(simulateMouse, [{
-				action: 'mousedown',
-				button: button,
-				position: this._lastMousePosition
-			}]);
+			return this.execute<void>(simulateMouse, [
+				{
+					action: 'mousedown',
+					button: button,
+					position: this._lastMousePosition
+				}
+			]);
 		}
 
 		return this.serverPost<void>('buttondown', {
@@ -1187,15 +1386,18 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Releases a previously depressed mouse button.
 	 *
-	 * @param button The button to press. See [[Session.click]] for available options.
+	 * @param button The button to press. See [[Session.click]] for available
+	 * options.
 	 */
 	releaseMouseButton(button?: number) {
 		if (this.capabilities.brokenMouseEvents) {
-			return this.execute<void>(simulateMouse, [{
-				action: 'mouseup',
-				button: button,
-				position: this._lastMousePosition
-			}]);
+			return this.execute<void>(simulateMouse, [
+				{
+					action: 'mouseup',
+					button: button,
+					position: this._lastMousePosition
+				}
+			]);
 		}
 
 		return this.serverPost<void>('buttonup', {
@@ -1208,50 +1410,62 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 */
 	doubleClick() {
 		if (this.capabilities.brokenMouseEvents) {
-			return this.execute<void>(simulateMouse, [{
-				action: 'dblclick',
-				button: 0,
-				position: this._lastMousePosition
-			}]);
+			return this.execute<void>(simulateMouse, [
+				{
+					action: 'dblclick',
+					button: 0,
+					position: this._lastMousePosition
+				}
+			]);
 		}
 
 		if (this.capabilities.brokenDoubleClick) {
-			return this.pressMouseButton().then(() => {
-				return this.releaseMouseButton();
-			}).then(() => this.serverPost<void>('doubleclick'));
+			return this.pressMouseButton()
+				.then(() => {
+					return this.releaseMouseButton();
+				})
+				.then(() => this.serverPost<void>('doubleclick'));
 		}
 
 		return this.serverPost<void>('doubleclick');
 	}
 
 	/**
-	 * Taps an element on a touch screen device. If the element is outside of the viewport, the remote driver will
-	 * attempt to scroll it into view automatically.
+	 * Taps an element on a touch screen device. If the element is outside of
+	 * the viewport, the remote driver will attempt to scroll it into view
+	 * automatically.
 	 *
 	 * @param element The element to tap.
 	 */
 	@forCommand({ usesElement: true })
 	tap(element: Element) {
-		return this.serverPost<void>('touch/click', { element: element.elementId });
+		return this.serverPost<void>('touch/click', {
+			element: element.elementId
+		});
 	}
 
 	/**
-	 * Depresses a new finger at the given point on a touch screen device without releasing it.
+	 * Depresses a new finger at the given point on a touch screen device
+	 * without releasing it.
 	 *
 	 * @param x The screen x-coordinate to press, maybe in device pixels.
 	 * @param y The screen y-coordinate to press, maybe in device pixels.
 	 */
 	pressFinger(x: number, y: number) {
-		// TODO: If someone specifies the same coordinates as as an existing finger, will it switch the active finger
-		// back to that finger instead of adding a new one?
+		// TODO: If someone specifies the same coordinates as as an existing
+		// finger, will it switch the active finger back to that finger instead
+		// of adding a new one?
 		return this.serverPost<void>('touch/down', { x: x, y: y });
 	}
 
 	/**
-	 * Releases whatever finger exists at the given point on a touch screen device.
+	 * Releases whatever finger exists at the given point on a touch screen
+	 * device.
 	 *
-	 * @param x The screen x-coordinate where a finger is pressed, maybe in device pixels.
-	 * @param y The screen y-coordinate where a finger is pressed, maybe in device pixels.
+	 * @param x The screen x-coordinate where a finger is pressed, maybe in
+	 * device pixels.
+	 * @param y The screen y-coordinate where a finger is pressed, maybe in
+	 * device pixels.
 	 */
 	releaseFinger(x: number, y: number) {
 		return this.serverPost<void>('touch/up', { x: x, y: y });
@@ -1270,20 +1484,24 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Scrolls the currently focused window on a touch screen device.
 	 *
-	 * @param element
-	 * An element to scroll to. The window will be scrolled so the element is as close to the top-left corner of the
-	 * window as possible.
+	 * @param element An element to scroll to. The window will be scrolled so
+	 * the element is as close to the top-left corner of the window as
+	 * possible.
 	 *
-	 * @param xOffset
-	 * An optional x-offset, relative to the left edge of the element, in CSS pixels. If no element is specified,
-	 * the offset is relative to the previous scroll position of the window.
+	 * @param xOffset An optional x-offset, relative to the left edge of the
+	 * element, in CSS pixels. If no element is specified, the offset is
+	 * relative to the previous scroll position of the window.
 	 *
-	 * @param yOffset
-	 * An optional y-offset, relative to the top edge of the element, in CSS pixels. If no element is specified,
-	 * the offset is relative to the previous scroll position of the window.
+	 * @param yOffset An optional y-offset, relative to the top edge of the
+	 * element, in CSS pixels. If no element is specified, the offset is
+	 * relative to the previous scroll position of the window.
 	 */
 	touchScroll(xOffset: number, yOffset: number): Task<void>;
-	touchScroll(element?: Element, xOffset?: number, yOffset?: number): Task<void>;
+	touchScroll(
+		element?: Element,
+		xOffset?: number,
+		yOffset?: number
+	): Task<void>;
 	@forCommand({ usesElement: true })
 	touchScroll(...args: any[]) {
 		let [element, xOffset, yOffset] = args;
@@ -1294,23 +1512,31 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 		}
 
 		if (this.capabilities.brokenTouchScroll) {
-			return this.execute<void>(/* istanbul ignore next */ function (element: HTMLElement, x: number, y: number) {
-				const rect = { left: window.scrollX, top: window.scrollY };
-				if (element) {
-					const bbox = element.getBoundingClientRect();
-					rect.left += bbox.left;
-					rect.top += bbox.top;
-				}
+			return this.execute<void>(
+				/* istanbul ignore next */ function(
+					element: HTMLElement,
+					x: number,
+					y: number
+				) {
+					const rect = { left: window.scrollX, top: window.scrollY };
+					if (element) {
+						const bbox = element.getBoundingClientRect();
+						rect.left += bbox.left;
+						rect.top += bbox.top;
+					}
 
-				window.scrollTo(rect.left + x, rect.top + y);
-			}, [element, xOffset, yOffset]);
+					window.scrollTo(rect.left + x, rect.top + y);
+				},
+				[element, xOffset, yOffset]
+			);
 		}
 
 		if (element) {
 			element = element.elementId;
 		}
 
-		// TODO: If using this, please correct for device pixel ratio to ensure consistency
+		// TODO: If using this, please correct for device pixel ratio to ensure
+		// consistency
 		return this.serverPost<void>('touch/scroll', {
 			element: element,
 			xoffset: xOffset,
@@ -1326,7 +1552,9 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	@forCommand({ usesElement: true })
 	doubleTap(element?: Element) {
 		const elementId = element && element.elementId;
-		return this.serverPost<void>('touch/doubleclick', { element: elementId });
+		return this.serverPost<void>('touch/doubleclick', {
+			element: elementId
+		});
 	}
 
 	/**
@@ -1341,21 +1569,30 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Flicks a finger. Note that this method is currently badly specified and highly dysfunctional and is only
-	 * provided for the sake of completeness.
+	 * Flicks a finger. Note that this method is currently badly specified and
+	 * highly dysfunctional and is only provided for the sake of completeness.
 	 *
 	 * @param element The element where the flick should start.
 	 * @param xOffset The x-offset in pixels to flick by.
 	 * @param yOffset The x-offset in pixels to flick by.
-	 * @param speed The speed of the flick, in pixels per *second*. Most human flicks are 100–200ms, so
-	 * this value will be higher than expected.
+	 * @param speed The speed of the flick, in pixels per *second*. Most human
+	 * flicks are 100–200ms, so this value will be higher than expected.
 	 */
-	flickFinger(element: Element, xOffset: number, yOffset: number, speed?: number): Task<void>;
+	flickFinger(
+		element: Element,
+		xOffset: number,
+		yOffset: number,
+		speed?: number
+	): Task<void>;
 	flickFinger(xOffset: number, yOffset: number, speed?: number): Task<void>;
 	@forCommand({ usesElement: true })
 	flickFinger(...args: any[]) {
 		let [element, xOffset, yOffset, speed] = args;
-		if (typeof speed === 'undefined' && typeof yOffset === 'undefined' && typeof xOffset !== 'undefined') {
+		if (
+			typeof speed === 'undefined' &&
+			typeof yOffset === 'undefined' &&
+			typeof xOffset !== 'undefined'
+		) {
 			return this.serverPost<void>('touch/flick', {
 				xspeed: element,
 				yspeed: xOffset
@@ -1377,16 +1614,21 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Gets the current geographical location of the remote environment.
 	 *
-	 * @returns
-	 * Latitude and longitude are specified using standard WGS84 decimal latitude/longitude. Altitude is specified
-	 * as meters above the WGS84 ellipsoid. Not all environments support altitude.
+	 * @returns Latitude and longitude are specified using standard WGS84
+	 * decimal latitude/longitude. Altitude is specified as meters above the
+	 * WGS84 ellipsoid. Not all environments support altitude.
 	 */
 	getGeolocation() {
 		return this.serverGet<Geolocation>('location').then(location => {
-			// ChromeDriver 2.9 ignores altitude being set and then returns 0; to match the Geolocation API
-			// specification, we will just pretend that altitude is not supported by the browser at all by
-			// changing the value to `null` if it is zero but the last set value was not zero
-			if (location.altitude === 0 && this._lastAltitude !== location.altitude) {
+			// ChromeDriver 2.9 ignores altitude being set and then returns 0;
+			// to match the Geolocation API specification, we will just pretend
+			// that altitude is not supported by the browser at all by changing
+			// the value to `null` if it is zero but the last set value was not
+			// zero
+			if (
+				location.altitude === 0 &&
+				this._lastAltitude !== location.altitude
+			) {
 				location.altitude = null;
 			}
 
@@ -1397,12 +1639,13 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	/**
 	 * Sets the geographical location of the remote environment.
 	 *
-	 * @param location
-	 * Latitude and longitude are specified using standard WGS84 decimal latitude/longitude. Altitude is specified
-	 * as meters above the WGS84 ellipsoid. Not all environments support altitude.
+	 * @param location Latitude and longitude are specified using standard
+	 * WGS84 decimal latitude/longitude. Altitude is specified as meters above
+	 * the WGS84 ellipsoid. Not all environments support altitude.
 	 */
 	setGeolocation(location: Geolocation) {
-		// TODO: Is it weird that this accepts an object argument? `setCookie` does too, but nothing else does.
+		// TODO: Is it weird that this accepts an object argument? `setCookie`
+		// does too, but nothing else does.
 		if (location.altitude !== undefined) {
 			this._lastAltitude = location.altitude;
 		}
@@ -1411,30 +1654,33 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Gets all logs from the remote environment of the given type. The logs in the remote environment are cleared
-	 * once they have been retrieved.
+	 * Gets all logs from the remote environment of the given type. The logs in
+	 * the remote environment are cleared once they have been retrieved.
 	 *
-	 * @param type
-	 * The type of log entries to retrieve. Available log types differ between remote environments. Use
-	 * [[Session.getAvailableLogTypes]] to learn what log types are currently available. Not all
-	 * environments support all possible log types.
+	 * @param type The type of log entries to retrieve. Available log types
+	 * differ between remote environments. Use [[Session.getAvailableLogTypes]]
+	 * to learn what log types are currently available. Not all environments
+	 * support all possible log types.
 	 *
-	 * @returns
-	 * An array of log entry objects. Timestamps in log entries are Unix timestamps, in seconds.
+	 * @returns An array of log entry objects. Timestamps in log entries are
+	 * Unix timestamps, in seconds.
 	 */
 	getLogsFor(type: string) {
 		return this.serverPost<string[] | LogEntry[]>('log', {
 			type: type
-		}).then(function (logs) {
-			// At least Selendroid 0.9.0 returns logs as an array of strings instead of an array of log objects,
-			// which is a spec violation; see https://github.com/selendroid/selendroid/issues/366
+		}).then(function(logs) {
+			// At least Selendroid 0.9.0 returns logs as an array of strings
+			// instead of an array of log objects, which is a spec violation;
+			// see https://github.com/selendroid/selendroid/issues/366
 			if (!logs) {
 				return logs;
 			}
 
 			if (isStringArray(logs)) {
 				return logs.map(log => {
-					const logData = /\[([^\]]+)\]\s*\[([^\]]+)\]\s*(.*)/.exec(log);
+					const logData = /\[([^\]]+)\]\s*\[([^\]]+)\]\s*(.*)/.exec(
+						log
+					);
 					let entry: LogEntry;
 
 					if (logData) {
@@ -1443,8 +1689,7 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 							level: logData[2],
 							message: logData[3]
 						};
-					}
-					else {
+					} else {
 						entry = {
 							timestamp: NaN,
 							level: 'INFO',
@@ -1454,15 +1699,15 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 
 					return entry;
 				});
-			}
-			else {
+			} else {
 				return logs;
 			}
 		});
 	}
 
 	/**
-	 * Gets the types of logs that are currently available for retrieval from the remote environment.
+	 * Gets the types of logs that are currently available for retrieval from
+	 * the remote environment.
 	 */
 	getAvailableLogTypes() {
 		if (this.capabilities.fixedLogTypes) {
@@ -1473,28 +1718,31 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Gets the current state of the HTML5 application cache for the current page.
+	 * Gets the current state of the HTML5 application cache for the current
+	 * page.
 	 *
-	 * @returns
-	 * The cache status. One of 0 (uncached), 1 (cached/idle), 2 (checking), 3 (downloading), 4 (update ready), 5
-	 * (obsolete).
+	 * @returns The cache status. One of 0 (uncached), 1 (cached/idle), 2
+	 * (checking), 3 (downloading), 4 (update ready), 5 (obsolete).
 	 */
 	getApplicationCacheStatus() {
 		return this.serverGet<number>('application_cache/status');
 	}
 
 	/**
-	 * Terminates the session. No more commands will be accepted by the remote after this point.
+	 * Terminates the session. No more commands will be accepted by the remote
+	 * after this point.
 	 */
 	quit() {
 		return this._server.deleteSession(this._sessionId);
 	}
 
 	/**
-	 * Searches a document or element subtree for links with the given normalized text. This method works for 'link text'
-	 * and 'partial link text' search strategies.
+	 * Searches a document or element subtree for links with the given
+	 * normalized text. This method works for 'link text' and 'partial link
+	 * text' search strategies.
 	 *
-	 * Note that this method should be passed to an `execute` call, not called directly.
+	 * Note that this method should be passed to an `execute` call, not called
+	 * directly.
 	 *
 	 * @param using The strategy in use ('link text' or 'partial link text')
 	 * @param value The link text to search for
@@ -1502,12 +1750,20 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	 * @param element A context element
 	 * @returns The found element or elements
 	 */
-	private _manualFindByLinkText(using: string, value: string, multiple: boolean, element?: HTMLElement) {
-		const check = using === 'link text' ? function (linkText: string, text: string) {
-			return linkText === text;
-		} : function (linkText: string, text: string) {
-			return linkText.indexOf(text) !== -1;
-		};
+	private _manualFindByLinkText(
+		using: string,
+		value: string,
+		multiple: boolean,
+		element?: HTMLElement
+	) {
+		const check =
+			using === 'link text'
+				? function(linkText: string, text: string) {
+						return linkText === text;
+					}
+				: function(linkText: string, text: string) {
+						return linkText.indexOf(text) !== -1;
+					};
 
 		const links = (element || document).getElementsByTagName('a');
 		let linkText: string;
@@ -1580,14 +1836,16 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Gets the number of keys set in local storage for the focused window/frame.
+	 * Gets the number of keys set in local storage for the focused
+	 * window/frame.
 	 */
 	getLocalStorageLength() {
 		return this.serverGet<number>('local_storage/size');
 	}
 
 	/**
-	 * Gets the list of keys set in session storage for the focused window/frame.
+	 * Gets the list of keys set in session storage for the focused
+	 * window/frame.
 	 */
 	getSessionStorageKeys() {
 		return this.serverGet<string[]>('session_storage');
@@ -1629,37 +1887,40 @@ export default class Session extends Locator<Task<Element>, Task<Element[]>, Tas
 	}
 
 	/**
-	 * Gets the number of keys set in session storage for the focused window/frame.
+	 * Gets the number of keys set in session storage for the focused
+	 * window/frame.
 	 */
 	getSessionStorageLength() {
 		return this.serverGet<number>('session_storage/size');
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element in the currently active window/frame
-	 * matching the given query. This is inherently slower than [[Session.find]], so should only be
-	 * used in cases where the visibility of an element cannot be ensured in advance.
+	 * Gets the first [[Element.isDisplayed|displayed]] element in the
+	 * currently active window/frame matching the given query. This is
+	 * inherently slower than [[Session.find]], so should only be used in cases
+	 * where the visibility of an element cannot be ensured in advance.
 	 *
 	 * @since 1.6
 	 *
-	 * @param using
-	 * The element retrieval strategy to use. See [[Session.find]] for options.
+	 * @param using The element retrieval strategy to use. See [[Session.find]]
+	 * for options.
 	 *
-	 * @param value
-	 * The strategy-specific value to search for. See [[Session.find]] for details.
+	 * @param value The strategy-specific value to search for. See
+	 * [[Session.find]] for details.
 	 */
 	findDisplayed(using: Strategy, value: string) {
 		return findDisplayed(this, this, using, value);
 	}
 
 	/**
-	 * Waits for all elements in the currently active window/frame to be destroyed.
+	 * Waits for all elements in the currently active window/frame to be
+	 * destroyed.
 	 *
-	 * @param using
-	 * The element retrieval strategy to use. See [[Session.find]] for options.
+	 * @param using The element retrieval strategy to use. See [[Session.find]]
+	 * for options.
 	 *
-	 * @param value
-	 * The strategy-specific value to search for. See [[Session.find]] for details.
+	 * @param value The strategy-specific value to search for. See
+	 * [[Session.find]] for details.
 	 */
 	waitForDeleted(using: Strategy, value: string) {
 		return waitForDeleted(this, this, using, value);
@@ -1721,32 +1982,39 @@ export interface SessionError extends Error {
 /**
  * Decorator for the [[util.forCommand]] method
  */
-function forCommand(properties: { usesElement?: boolean, createsContext?: boolean }) {
-	return function (target: any, property: string, descriptor: PropertyDescriptor) {
+function forCommand(properties: {
+	usesElement?: boolean;
+	createsContext?: boolean;
+}) {
+	return function(
+		target: any,
+		property: string,
+		descriptor: PropertyDescriptor
+	) {
 		const fn = <Function>target[property];
 		descriptor.value = utilForCommand(fn, properties);
 	};
 }
 
 /**
- * Finds and converts serialised DOM element objects into fully-featured typed Elements.
+ * Finds and converts serialised DOM element objects into fully-featured typed
+ * Elements.
  *
- * @private
  * @param session The session from which the Element was retrieved.
- * @param value An object or array that may be, or may contain, serialised DOM element objects.
- * @returns The input value, with all serialised DOM element objects converted to typed Elements.
+ * @param value An object or array that may be, or may contain, serialised DOM
+ * element objects.
+ * @returns The input value, with all serialised DOM element objects converted
+ * to typed Elements.
  */
 function convertToElements(session: Session, value: any) {
 	// TODO: Unit test elements attached to objects
 	function convert(value: any) {
 		if (Array.isArray(value)) {
 			value = value.map(convert);
-		}
-		else if (typeof value === 'object' && value !== null) {
+		} else if (typeof value === 'object' && value !== null) {
 			if (value.ELEMENT) {
 				value = new Element(value, session);
-			}
-			else {
+			} else {
 				for (let k in value) {
 					value[k] = convert(value[k]);
 				}
@@ -1760,11 +2028,10 @@ function convertToElements(session: Session, value: any) {
 }
 
 /**
- * As of Selenium 2.40.0 (March 2014), all drivers incorrectly transmit an UnknownError instead of a
- * JavaScriptError when user code fails to execute correctly. This method corrects this status code, under the
- * assumption that drivers will follow the spec in future.
- *
- * @private
+ * As of Selenium 2.40.0 (March 2014), all drivers incorrectly transmit an
+ * UnknownError instead of a JavaScriptError when user code fails to execute
+ * correctly. This method corrects this status code, under the assumption that
+ * drivers will follow the spec in future.
  */
 function fixExecuteError(error: SessionError) {
 	if (error.name === 'UnknownError') {
@@ -1776,27 +2043,31 @@ function fixExecuteError(error: SessionError) {
 }
 
 /**
- * HTTP cookies are transmitted as semicolon-delimited strings, with a `key=value` pair giving the cookie’s name and
- * value, then additional information about the cookie (expiry, path, domain, etc.) as additional k-v pairs. This
- * method takes an Array describing the parts of a cookie (`target`), and a hash map containing the additional
- * information (`source`), and pushes the properties from the source object onto the target array as properly
- * escaped key-value strings.
- *
- * @private
+ * HTTP cookies are transmitted as semicolon-delimited strings, with a
+ * `key=value` pair giving the cookie’s name and value, then additional
+ * information about the cookie (expiry, path, domain, etc.) as additional k-v
+ * pairs. This method takes an Array describing the parts of a cookie
+ * (`target`), and a hash map containing the additional information (`source`),
+ * and pushes the properties from the source object onto the target array as
+ * properly escaped key-value strings.
  */
 function pushCookieProperties(target: any[], source: any) {
-	Object.keys(source).forEach(function (key) {
+	Object.keys(source).forEach(function(key) {
 		let value = source[key];
 
-		if (key === 'name' || key === 'value' || (key === 'domain' && value === 'http')) {
+		if (
+			key === 'name' ||
+			key === 'value' ||
+			(key === 'domain' && value === 'http')
+		) {
 			return;
 		}
 
 		if (typeof value === 'boolean') {
 			value && target.push(key);
-		}
-		// JsonWireProtocol uses the key 'expiry' but JavaScript cookies use the key 'expires'
-		else if (key === 'expiry') {
+		} else if (key === 'expiry') {
+			// JsonWireProtocol uses the key 'expiry' but JavaScript cookies
+			// use the key 'expires'
 			if (typeof value === 'number') {
 				value = new Date(value * 1000);
 			}
@@ -1806,8 +2077,7 @@ function pushCookieProperties(target: any[], source: any) {
 			}
 
 			target.push('expires=' + encodeURIComponent(value));
-		}
-		else {
+		} else {
 			target.push(key + '=' + encodeURIComponent(value));
 		}
 	});
@@ -1817,7 +2087,6 @@ function pushCookieProperties(target: any[], source: any) {
 /**
  * Simulates a keyboard event as it would occur on Safari 7.
  *
- * @private
  * @param keys Keys to type.
  */
 function simulateKeys(keys: string[]) {
@@ -1834,8 +2103,7 @@ function simulateKeys(keys: string[]) {
 				key: kwArgs.key || '',
 				location: 3
 			});
-		}
-		else {
+		} else {
 			event = document.createEvent('KeyboardEvent');
 			event.initKeyboardEvent(
 				kwArgs.type,
@@ -1857,32 +2125,40 @@ function simulateKeys(keys: string[]) {
 		let event: Event;
 		if (typeof Event === 'function') {
 			event = new Event('input', { bubbles: true, cancelable: false });
-		}
-		else {
+		} else {
 			event = document.createEvent('Event');
 			event.initEvent('input', true, false);
 		}
 		return target.dispatchEvent(event);
 	}
 
-	keys = [].concat(...keys.map(function (keys) {
-		return keys.split('');
-	}));
+	keys = [].concat(
+		...keys.map(function(keys) {
+			return keys.split('');
+		})
+	);
 
 	for (let i = 0, j = keys.length; i < j; ++i) {
 		const key = keys[i];
 		let performDefault = true;
 
-		performDefault = dispatch({ type: 'keydown', cancelable: true, key: key });
-		performDefault = performDefault && dispatch({ type: 'keypress', cancelable: true, key: key });
+		performDefault = dispatch({
+			type: 'keydown',
+			cancelable: true,
+			key: key
+		});
+		performDefault =
+			performDefault &&
+			dispatch({ type: 'keypress', cancelable: true, key: key });
 
 		if (performDefault) {
 			if ('value' in target) {
-				target.value = target.value.slice(0, target.selectionStart) + key +
+				target.value =
+					target.value.slice(0, target.selectionStart) +
+					key +
 					target.value.slice(target.selectionEnd);
 				dispatchInput();
-			}
-			else if (target.isContentEditable) {
+			} else if (target.isContentEditable) {
 				let node = document.createTextNode(key);
 				let selection = window.getSelection();
 				let range = selection.getRangeAt(0);
@@ -1903,7 +2179,6 @@ function simulateKeys(keys: string[]) {
 /**
  * Simulates a mouse event as it would occur on Safari 7.
  *
- * @private
  * @param kwArgs Parameters for the mouse event.
  */
 function simulateMouse(kwArgs: any) {
@@ -1928,8 +2203,7 @@ function simulateMouse(kwArgs: any) {
 				button: kwArgs.button || 0,
 				relatedTarget: kwArgs.relatedTarget
 			});
-		}
-		else {
+		} else {
 			event = document.createEvent('MouseEvents');
 			event.initMouseEvent(
 				kwArgs.type,
@@ -1948,7 +2222,6 @@ function simulateMouse(kwArgs: any) {
 				kwArgs.button || 0,
 				kwArgs.relatedTarget || null
 			);
-
 		}
 
 		return kwArgs.target.dispatchEvent(event);
@@ -1990,7 +2263,12 @@ function simulateMouse(kwArgs: any) {
 		});
 	}
 
-	function move(currentElement: HTMLElement, newElement: HTMLElement, xOffset: number, yOffset: number) {
+	function move(
+		currentElement: HTMLElement,
+		newElement: HTMLElement,
+		xOffset: number,
+		yOffset: number
+	) {
 		if (newElement) {
 			const bbox = newElement.getBoundingClientRect();
 
@@ -2003,19 +2281,39 @@ function simulateMouse(kwArgs: any) {
 			}
 
 			position = { x: bbox.left + xOffset, y: bbox.top + yOffset };
-		}
-		else {
+		} else {
 			position.x += xOffset || 0;
 			position.y += yOffset || 0;
 
-			newElement = <HTMLElement>document.elementFromPoint(position.x, position.y);
+			newElement = <HTMLElement>document.elementFromPoint(
+				position.x,
+				position.y
+			);
 		}
 
 		if (currentElement !== newElement) {
-			dispatch({ type: 'mouseout', target: currentElement, relatedTarget: newElement });
-			dispatch({ type: 'mouseleave', target: currentElement, relatedTarget: newElement, bubbles: false });
-			dispatch({ type: 'mouseenter', target: newElement, relatedTarget: currentElement, bubbles: false });
-			dispatch({ type: 'mouseover', target: newElement, relatedTarget: currentElement });
+			dispatch({
+				type: 'mouseout',
+				target: currentElement,
+				relatedTarget: newElement
+			});
+			dispatch({
+				type: 'mouseleave',
+				target: currentElement,
+				relatedTarget: newElement,
+				bubbles: false
+			});
+			dispatch({
+				type: 'mouseenter',
+				target: newElement,
+				relatedTarget: currentElement,
+				bubbles: false
+			});
+			dispatch({
+				type: 'mouseover',
+				target: newElement,
+				relatedTarget: currentElement
+			});
 		}
 
 		dispatch({ type: 'mousemove', target: newElement, bubbles: true });
@@ -2023,21 +2321,20 @@ function simulateMouse(kwArgs: any) {
 		return position;
 	}
 
-	const target = <HTMLElement>document.elementFromPoint(position.x, position.y);
+	const target = <HTMLElement>document.elementFromPoint(
+		position.x,
+		position.y
+	);
 
 	if (kwArgs.action === 'mousemove') {
 		return move(target, kwArgs.element, kwArgs.xOffset, kwArgs.yOffset);
-	}
-	else if (kwArgs.action === 'mousedown') {
+	} else if (kwArgs.action === 'mousedown') {
 		return down(target, kwArgs.button);
-	}
-	else if (kwArgs.action === 'mouseup') {
+	} else if (kwArgs.action === 'mouseup') {
 		return up(target, kwArgs.button);
-	}
-	else if (kwArgs.action === 'click') {
+	} else if (kwArgs.action === 'click') {
 		return click(target, kwArgs.button, 0);
-	}
-	else if (kwArgs.action === 'dblclick') {
+	} else if (kwArgs.action === 'dblclick') {
 		if (!click(target, kwArgs.button, 0)) {
 			return false;
 		}

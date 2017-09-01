@@ -2,11 +2,13 @@
  * Locator is a class that supports searching for specific element (E), list
  * (L), and void (V) types by various strategies.
  *
- * Note that this class includes JSONWireProtocol strategies. W3C Webdriver only understands 4 strategies:
- *   1. css selector
- *   2. link text
- *   3. partial link text
- *   4. xpath
+ * Note that this class includes JSONWireProtocol strategies. W3C Webdriver
+ * only understands 4 strategies:
+ *
+ * 1. css selector
+ * 2. link text
+ * 3. partial link text
+ * 4. xpath
  */
 abstract class Locator<E, L, V> {
 	abstract find(strategy: Strategy, value: string): E;
@@ -18,7 +20,8 @@ abstract class Locator<E, L, V> {
 	abstract waitForDeleted(strategy: Strategy, value: string): V;
 
 	/**
-	 * Gets the first element inside this element matching the given CSS class name.
+	 * Gets the first element inside this element matching the given CSS class
+	 * name.
 	 *
 	 * @param className The CSS class name to search for.
 	 */
@@ -27,7 +30,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first element inside this element matching the given CSS selector.
+	 * Gets the first element inside this element matching the given CSS
+	 * selector.
 	 *
 	 * @param selector The CSS selector to search for.
 	 */
@@ -45,7 +49,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first element inside this element matching the given name attribute.
+	 * Gets the first element inside this element matching the given name
+	 * attribute.
 	 *
 	 * @param name The name of the element.
 	 */
@@ -54,7 +59,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first element inside this element matching the given case-insensitive link text.
+	 * Gets the first element inside this element matching the given
+	 * case-insensitive link text.
 	 *
 	 * @param text The link text of the element.
 	 */
@@ -63,7 +69,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first element inside this element partially matching the given case-insensitive link text.
+	 * Gets the first element inside this element partially matching the given
+	 * case-insensitive link text.
 	 *
 	 * @param text The partial link text of the element.
 	 */
@@ -72,7 +79,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first element inside this element matching the given HTML tag name.
+	 * Gets the first element inside this element matching the given HTML tag
+	 * name.
 	 *
 	 * @param tagName The tag name of the element.
 	 */
@@ -81,7 +89,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first element inside this element matching the given XPath selector.
+	 * Gets the first element inside this element matching the given XPath
+	 * selector.
 	 *
 	 * @param path The XPath selector to search for.
 	 */
@@ -117,7 +126,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets all elements inside this element matching the given case-insensitive link text.
+	 * Gets all elements inside this element matching the given
+	 * case-insensitive link text.
 	 *
 	 * @param text The link text of the element.
 	 */
@@ -126,7 +136,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets all elements inside this element partially matching the given case-insensitive link text.
+	 * Gets all elements inside this element partially matching the given
+	 * case-insensitive link text.
 	 *
 	 * @param text The partial link text of the element.
 	 */
@@ -153,9 +164,10 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
-	 * matching the given CSS class name. This is inherently slower than [[Element.find]], so should
-	 * only be used in cases where the visibility of an element cannot be ensured in advance.
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this
+	 * element matching the given CSS class name. This is inherently slower
+	 * than [[Element.find]], so should only be used in cases where the
+	 * visibility of an element cannot be ensured in advance.
 	 *
 	 * @since 1.6
 	 * @param className The CSS class name to search for.
@@ -165,9 +177,10 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
-	 * matching the given CSS selector. This is inherently slower than [[Element.find]], so should
-	 * only be used in cases where the visibility of an element cannot be ensured in advance.
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this
+	 * element matching the given CSS selector. This is inherently slower than
+	 * [[Element.find]], so should only be used in cases where the visibility
+	 * of an element cannot be ensured in advance.
 	 *
 	 * @since 1.6
 	 * @param selector The CSS selector to search for.
@@ -177,9 +190,10 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
-	 * matching the given ID. This is inherently slower than [[Element.find]], so should
-	 * only be used in cases where the visibility of an element cannot be ensured in advance.
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this
+	 * element matching the given ID. This is inherently slower than
+	 * [[Element.find]], so should only be used in cases where the visibility
+	 * of an element cannot be ensured in advance.
 	 *
 	 * @since 1.6
 	 * @param id The ID of the element.
@@ -189,9 +203,10 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
-	 * matching the given name attribute. This is inherently slower than [[Element.find]], so should
-	 * only be used in cases where the visibility of an element cannot be ensured in advance.
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this
+	 * element matching the given name attribute. This is inherently slower
+	 * than [[Element.find]], so should only be used in cases where the
+	 * visibility of an element cannot be ensured in advance.
 	 *
 	 * @since 1.6
 	 * @param name The name of the element.
@@ -201,9 +216,10 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
-	 * matching the given case-insensitive link text. This is inherently slower than [[Element.find]],
-	 * so should only be used in cases where the visibility of an element cannot be ensured in advance.
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this
+	 * element matching the given case-insensitive link text. This is
+	 * inherently slower than [[Element.find]], so should only be used in cases
+	 * where the visibility of an element cannot be ensured in advance.
 	 *
 	 * @since 1.6
 	 * @param text The link text of the element.
@@ -213,10 +229,10 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
-	 * partially matching the given case-insensitive link text. This is inherently slower than
-	 * [[Element.find]], so should only be used in cases where the visibility of an element cannot be
-	 * ensured in advance.
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this
+	 * element partially matching the given case-insensitive link text. This is
+	 * inherently slower than [[Element.find]], so should only be used in cases
+	 * where the visibility of an element cannot be ensured in advance.
 	 *
 	 * @since 1.6
 	 * @param text The partial link text of the element.
@@ -226,9 +242,10 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
-	 * matching the given HTML tag name. This is inherently slower than [[Element.find]], so should
-	 * only be used in cases where the visibility of an element cannot be ensured in advance.
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this
+	 * element matching the given HTML tag name. This is inherently slower than
+	 * [[Element.find]], so should only be used in cases where the visibility
+	 * of an element cannot be ensured in advance.
 	 *
 	 * @since 1.6
 	 * @param tagName The tag name of the element.
@@ -238,9 +255,10 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Gets the first [[Element.isDisplayed|displayed]] element inside this element
-	 * matching the given XPath selector. This is inherently slower than [[Element.find]], so should
-	 * only be used in cases where the visibility of an element cannot be ensured in advance.
+	 * Gets the first [[Element.isDisplayed|displayed]] element inside this
+	 * element matching the given XPath selector. This is inherently slower
+	 * than [[Element.find]], so should only be used in cases where the
+	 * visibility of an element cannot be ensured in advance.
 	 *
 	 * @since 1.6
 	 * @param path The XPath selector to search for.
@@ -250,7 +268,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Waits for all elements inside this element matching the given CSS class name to be destroyed.
+	 * Waits for all elements inside this element matching the given CSS class
+	 * name to be destroyed.
 	 *
 	 * @param className The CSS class name to search for.
 	 */
@@ -259,7 +278,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Waits for all elements inside this element matching the given CSS selector to be destroyed.
+	 * Waits for all elements inside this element matching the given CSS
+	 * selector to be destroyed.
 	 *
 	 * @param selector The CSS selector to search for.
 	 */
@@ -268,7 +288,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Waits for all elements inside this element matching the given ID to be destroyed.
+	 * Waits for all elements inside this element matching the given ID to be
+	 * destroyed.
 	 *
 	 * @param id The ID of the element.
 	 */
@@ -277,7 +298,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Waits for all elements inside this element matching the given name attribute to be destroyed.
+	 * Waits for all elements inside this element matching the given name
+	 * attribute to be destroyed.
 	 *
 	 * @param name The name of the element.
 	 */
@@ -286,7 +308,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Waits for all elements inside this element matching the given case-insensitive link text to be destroyed.
+	 * Waits for all elements inside this element matching the given
+	 * case-insensitive link text to be destroyed.
 	 *
 	 * @param text The link text of the element.
 	 */
@@ -295,8 +318,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Waits for all elements inside this element partially matching the given case-insensitive link text to be
-	 * destroyed.
+	 * Waits for all elements inside this element partially matching the given
+	 * case-insensitive link text to be destroyed.
 	 *
 	 * @param text The partial link text of the element.
 	 */
@@ -305,7 +328,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Waits for all elements inside this element matching the given HTML tag name to be destroyed.
+	 * Waits for all elements inside this element matching the given HTML tag
+	 * name to be destroyed.
 	 *
 	 * @param tagName The tag name of the element.
 	 */
@@ -314,7 +338,8 @@ abstract class Locator<E, L, V> {
 	}
 
 	/**
-	 * Waits for all elements inside this element matching the given XPath selector to be destroyed.
+	 * Waits for all elements inside this element matching the given XPath
+	 * selector to be destroyed.
 	 *
 	 * @param path The XPath selector to search for.
 	 */
@@ -329,7 +354,7 @@ export const w3cStrategies = {
 	'css selector': true,
 	'link text': true,
 	'partial link text': true,
-	'xpath': true
+	xpath: true
 };
 
 export type W3cStrategy = keyof typeof w3cStrategies;
@@ -342,8 +367,8 @@ export interface W3cLocator {
 export const strategies = {
 	...w3cStrategies,
 	'class name': true,
-	'id': true,
-	'name': true,
+	id: true,
+	name: true,
 	'partial link text': true,
 	'tag name': true
 };

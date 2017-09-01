@@ -12,10 +12,9 @@ const collector = new Collector();
 let reporters: any = [];
 
 if (intern.mode === 'client') {
-	reporters = [ new JsonReporter() ];
-}
-else {
-	reporters = [ new TextReporter(), new LcovHtmlReporter() ];
+	reporters = [new JsonReporter()];
+} else {
+	reporters = [new TextReporter(), new LcovHtmlReporter()];
 }
 
 const reporter = {
@@ -39,8 +38,15 @@ const reporter = {
 		console.log('Starting launcher');
 	},
 
-	'/launcher/download/progress'(launcher: any, progress: { received: number, total: number }) {
-		console.log('Download ' + (progress.received / progress.total * 100) + '% complete');
+	'/launcher/download/progress'(
+		launcher: any,
+		progress: { received: number; total: number }
+	) {
+		console.log(
+			'Download ' +
+				progress.received / progress.total * 100 +
+				'% complete'
+		);
 	},
 
 	'/launcher/status'(launcher: any, status: any) {
@@ -54,10 +60,12 @@ const reporter = {
 
 	stop() {
 		if (intern.mode === 'runner' && fs.existsSync('coverage-final.json')) {
-			collector.add(JSON.parse(fs.readFileSync('coverage-final.json').toString()));
+			collector.add(
+				JSON.parse(fs.readFileSync('coverage-final.json').toString())
+			);
 		}
 
-		reporters.forEach(function (reporter: any) {
+		reporters.forEach(function(reporter: any) {
 			reporter.writeReport(collector, true);
 		});
 	}

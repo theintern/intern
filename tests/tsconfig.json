@@ -1,20 +1,17 @@
 {
-  "extends": "../tsconfig.json",
-  "compilerOptions": {
-    "baseUrl": "..",
-    "declaration": false,
-    "module": "umd",
-    "importHelpers": false,
-    "paths": {
-      "src/*": [ "./_build/src/*", "./src/*" ]
-    }
-  },
-  "files": [
-    "../node_modules/intern/typings/intern/intern.d.ts",
-    "../types/jszip/jszip.d.ts"
-  ],
-  "include": [
-    "./**/*.ts",
-    "./types/**/*.d.ts"
-  ]
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": "..",
+		"declaration": false,
+		"module": "umd",
+		"importHelpers": false,
+		"paths": {
+			"src/*": ["./_build/src/*", "./src/*"]
+		}
+	},
+	"files": [
+		"../node_modules/intern/typings/intern/intern.d.ts",
+		"../types/jszip/jszip.d.ts"
+	],
+	"include": ["./**/*.ts", "./types/**/*.d.ts"]
 }

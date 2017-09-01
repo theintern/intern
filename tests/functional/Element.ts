@@ -10,22 +10,30 @@ import Test = require('intern/lib/Test');
 const strategyNames = Object.keys(strategies);
 
 const suffixes = strategyNames.map(name => {
-	return name[0].toUpperCase() + name.slice(1).replace(/\s(\w)/g, (_, letter) => letter.toUpperCase());
+	return (
+		name[0].toUpperCase() +
+		name.slice(1).replace(/\s(\w)/g, (_, letter) => letter.toUpperCase())
+	);
 });
 
 function toUrl(url: string): string {
-	return (<any> require).toUrl(url);
+	return (<any>require).toUrl(url);
 }
 
-function createStubbedSuite(stubbedMethodName: string, testMethodName: string, placeholders: string[], firstArguments: any[]) {
+function createStubbedSuite(
+	stubbedMethodName: string,
+	testMethodName: string,
+	placeholders: string[],
+	firstArguments: any[]
+) {
 	let originalMethod: Function;
 	let calledWith: any;
 	let extraArguments: any[] = [];
 	let element = new Element('test');
 	const suite = {
-		setup: function () {
-			originalMethod = (<any> element)[stubbedMethodName];
-			(<any> element)[stubbedMethodName] = function () {
+		setup: function() {
+			originalMethod = (<any>element)[stubbedMethodName];
+			(<any>element)[stubbedMethodName] = function() {
 				calledWith = arguments;
 			};
 
@@ -33,31 +41,34 @@ function createStubbedSuite(stubbedMethodName: string, testMethodName: string, p
 				extraArguments.push('ok' + (i + 2));
 			}
 		},
-		beforeEach: function () {
+		beforeEach: function() {
 			calledWith = null;
 		},
 
-		teardown: function () {
-			(<any> element)[stubbedMethodName] = originalMethod;
+		teardown: function() {
+			(<any>element)[stubbedMethodName] = originalMethod;
 		}
 	};
 
-	placeholders.forEach(function (placeholder: string, index: number) {
+	placeholders.forEach(function(placeholder: string, index: number) {
 		const method = testMethodName.replace('_', placeholder);
 
-		(<any> suite)['#' + method] = function () {
-			assert.isFunction((<any> element)[method]);
-			(<any> element)[method].apply(element, extraArguments);
+		(<any>suite)['#' + method] = function() {
+			assert.isFunction((<any>element)[method]);
+			(<any>element)[method].apply(element, extraArguments);
 			assert.ok(calledWith);
 			assert.strictEqual(calledWith[0], firstArguments[index]);
-			assert.deepEqual(Array.prototype.slice.call(calledWith, 1), extraArguments);
+			assert.deepEqual(
+				Array.prototype.slice.call(calledWith, 1),
+				extraArguments
+			);
 		};
 	});
 
 	return suite;
 }
 
-registerSuite(function () {
+registerSuite(function() {
 	let session: Session;
 	let resetBrowserState = true;
 
@@ -65,15 +76,15 @@ registerSuite(function () {
 		name: 'Element',
 
 		setup(this: Test) {
-			const remote = <any> this.remote;
-			return util.createSessionFromRemote(remote).then(function () {
+			const remote = <any>this.remote;
+			return util.createSessionFromRemote(remote).then(function() {
 				session = arguments[0];
 			});
 		},
 
 		beforeEach() {
 			if (resetBrowserState) {
-				return session.get('about:blank').then(function () {
+				return session.get('about:blank').then(function() {
 					return session.setTimeout('implicit', 0);
 				});
 			}
@@ -84,9 +95,13 @@ registerSuite(function () {
 			assert.deepEqual(element.toJSON(), { ELEMENT: 'test' });
 		},
 
-		'#find': (function () {
+		'#find': (function() {
 			function getId(element: Element) {
-				assert.property(element, 'elementId', 'Returned object should look like an element object');
+				assert.property(
+					element,
+					'elementId',
+					'Returned object should look like an element object'
+				);
 				return element.getAttribute('id');
 			}
 
@@ -95,11 +110,14 @@ registerSuite(function () {
 			return {
 				setup() {
 					resetBrowserState = false;
-					return session.get(toUrl('tests/functional/data/elements.html')).then(function () {
-						return session.find('id', 'h');
-					}).then(function (_element) {
-						element = _element;
-					});
+					return session
+						.get(toUrl('tests/functional/data/elements.html'))
+						.then(function() {
+							return session.find('id', 'h');
+						})
+						.then(function(_element) {
+							element = _element;
+						});
 				},
 
 				teardown() {
@@ -107,83 +125,98 @@ registerSuite(function () {
 				},
 
 				'by class name'() {
-					return element.find('class name', 'i')
+					return element
+						.find('class name', 'i')
 						.then(getId)
-						.then(function (id) {
-							assert.strictEqual(id, 'i2', 'Returned element should be the first in the document');
+						.then(function(id) {
+							assert.strictEqual(
+								id,
+								'i2',
+								'Returned element should be the first in the document'
+							);
 						});
 				},
 
 				'by css selector'() {
-					return element.find('css selector', '#j b.i')
+					return element
+						.find('css selector', '#j b.i')
 						.then(getId)
-						.then(function (id: string) {
+						.then(function(id: string) {
 							assert.strictEqual(id, 'i2');
 						});
 				},
 
 				'by name'() {
-					return element.find('name', 'nothing')
+					return element
+						.find('name', 'nothing')
 						.then(getId)
-						.then(function (id: string) {
+						.then(function(id: string) {
 							assert.strictEqual(id, 'nothing1');
 						});
 				},
 
 				'by link text'() {
-					return element.find('link text', 'What a cute, red cap.')
+					return element
+						.find('link text', 'What a cute, red cap.')
 						.then(getId)
-						.then(function (id) {
+						.then(function(id) {
 							assert.strictEqual(id, 'j');
 						});
 				},
 
 				'by partial link text'() {
-					return element.find('partial link text', 'cute, red')
+					return element
+						.find('partial link text', 'cute, red')
 						.then(getId)
-						.then(function (id) {
+						.then(function(id) {
 							assert.strictEqual(id, 'j');
 						});
 				},
 
 				'by link text (hidden text)'() {
-					return element.find('link text', 'What a cap.')
+					return element
+						.find('link text', 'What a cap.')
 						.then(getId)
-						.then(function (id) {
+						.then(function(id) {
 							assert.strictEqual(id, 'k');
 						});
 				},
 
 				'by partial link text (hidden text)'() {
-					return element.find('partial link text', 'a cap')
+					return element
+						.find('partial link text', 'a cap')
 						.then(getId)
-						.then(function (id) {
+						.then(function(id) {
 							assert.strictEqual(id, 'k');
 						});
 				},
 
 				'by tag name'() {
-					return element.find('tag name', 'b')
+					return element
+						.find('tag name', 'b')
 						.then(getId)
-						.then(function (id) {
+						.then(function(id) {
 							assert.strictEqual(id, 'i2');
 						});
 				},
 
 				'by xpath'() {
-					return element.find('xpath', 'id("h")/a[2]')
+					return element
+						.find('xpath', 'id("h")/a[2]')
 						.then(getId)
-						.then(function (id) {
+						.then(function(id) {
 							assert.strictEqual(id, 'i1');
 						});
 				},
 
 				'non-existent'() {
 					return element.find('id', 'does-not-exist').then(
-						function () {
-							throw new Error('Requesting non-existing element should throw error');
+						function() {
+							throw new Error(
+								'Requesting non-existing element should throw error'
+							);
 						},
-						function (error) {
+						function(error) {
 							assert.strictEqual(error.name, 'NoSuchElement');
 						}
 					);
@@ -191,50 +224,81 @@ registerSuite(function () {
 			};
 		})(),
 
-		'#find (with implicit timeout)': (function () {
+		'#find (with implicit timeout)': (function() {
 			let startTime: number;
-			return function () {
-				return session.get(toUrl('tests/functional/data/elements.html')).then(function () {
-					return session.setTimeout('implicit', 2000);
-				}).then(function () {
-					return session.find('id', 'h');
-				}).then(function (element) {
-					startTime = Date.now();
-					return element.find('id', 'd').then(function () {
-						throw new Error('Requesting non-existing element should throw error');
-					}, function () {
-						assert.operator(Date.now(), '>=', startTime + 2000,
-							'Driver should wait for implicit timeout before continuing');
-						return session.find('id', 'makeD');
-					}).then(function (makeElement) {
-						return makeElement.click();
-					}).then(function () {
-						return session.setTimeout('implicit', 10000);
-					}).then(function () {
+			return function() {
+				return session
+					.get(toUrl('tests/functional/data/elements.html'))
+					.then(function() {
+						return session.setTimeout('implicit', 2000);
+					})
+					.then(function() {
+						return session.find('id', 'h');
+					})
+					.then(function(element) {
 						startTime = Date.now();
-						return element.find('id', 'd');
-					}).then(function (child) {
-						assert.operator(Date.now(), '<', startTime + 9000,
-							'Driver should not wait until end of implicit timeout once element is available');
-						assert.property(child, 'elementId');
-						return child.getAttribute('id');
-					}).then(function (id) {
-						assert.strictEqual(id, 'd');
+						return element
+							.find('id', 'd')
+							.then(
+								function() {
+									throw new Error(
+										'Requesting non-existing element should throw error'
+									);
+								},
+								function() {
+									assert.operator(
+										Date.now(),
+										'>=',
+										startTime + 2000,
+										'Driver should wait for implicit timeout before continuing'
+									);
+									return session.find('id', 'makeD');
+								}
+							)
+							.then(function(makeElement) {
+								return makeElement.click();
+							})
+							.then(function() {
+								return session.setTimeout('implicit', 10000);
+							})
+							.then(function() {
+								startTime = Date.now();
+								return element.find('id', 'd');
+							})
+							.then(function(child) {
+								assert.operator(
+									Date.now(),
+									'<',
+									startTime + 9000,
+									'Driver should not wait until end of implicit timeout once element is available'
+								);
+								assert.property(child, 'elementId');
+								return child.getAttribute('id');
+							})
+							.then(function(id) {
+								assert.strictEqual(id, 'd');
+							});
 					});
-				});
 			};
 		})(),
 
-		'#findAll': (function () {
+		'#findAll': (function() {
 			function getIds(elements: Element[]) {
-				elements.forEach(function (element, index) {
-					assert.property(element, 'elementId', 'Returned object ' + index +
-						' should look like an element object');
+				elements.forEach(function(element, index) {
+					assert.property(
+						element,
+						'elementId',
+						'Returned object ' +
+							index +
+							' should look like an element object'
+					);
 				});
 
-				return Task.all(elements.map(function (element) {
-					return element.getAttribute('id');
-				}));
+				return Task.all(
+					elements.map(function(element) {
+						return element.getAttribute('id');
+					})
+				);
 			}
 
 			let element: Element;
@@ -242,11 +306,14 @@ registerSuite(function () {
 			return {
 				setup() {
 					resetBrowserState = false;
-					return session.get(toUrl('tests/functional/data/elements.html')).then(function () {
-						return session.find('id', 'h');
-					}).then(function (_element) {
-						element = _element;
-					});
+					return session
+						.get(toUrl('tests/functional/data/elements.html'))
+						.then(function() {
+							return session.find('id', 'h');
+						})
+						.then(function(_element) {
+							element = _element;
+						});
 				},
 
 				teardown() {
@@ -254,88 +321,99 @@ registerSuite(function () {
 				},
 
 				'by id'() {
-					return element.findAll('id', 'j')
+					return element
+						.findAll('id', 'j')
 						.then(getIds)
-						.then(function (ids) {
-							assert.deepEqual(ids, [ 'j' ]);
+						.then(function(ids) {
+							assert.deepEqual(ids, ['j']);
 						});
 				},
 
 				'by class name'() {
-					return element.findAll('class name', 'i')
+					return element
+						.findAll('class name', 'i')
 						.then(getIds)
-						.then(function (ids) {
-							assert.deepEqual(ids, [ 'i2', 'i3', 'i1' ]);
+						.then(function(ids) {
+							assert.deepEqual(ids, ['i2', 'i3', 'i1']);
 						});
 				},
 
 				'by css selector'() {
-					return element.findAll('css selector', '#j b.i')
+					return element
+						.findAll('css selector', '#j b.i')
 						.then(getIds)
-						.then(function (ids) {
-							assert.deepEqual(ids, [ 'i2', 'i3' ]);
+						.then(function(ids) {
+							assert.deepEqual(ids, ['i2', 'i3']);
 						});
 				},
 
 				'by name'() {
-					return element.findAll('name', 'nothing')
+					return element
+						.findAll('name', 'nothing')
 						.then(getIds)
-						.then(function (ids) {
-							assert.deepEqual(ids, [ 'nothing1', 'nothing2' ]);
+						.then(function(ids) {
+							assert.deepEqual(ids, ['nothing1', 'nothing2']);
 						});
 				},
 
 				'by link text'() {
-					return element.findAll('link text', 'What a cute, red cap.')
+					return element
+						.findAll('link text', 'What a cute, red cap.')
 						.then(getIds)
-						.then(function (ids) {
-							assert.deepEqual(ids, [ 'j', 'i1' ]);
+						.then(function(ids) {
+							assert.deepEqual(ids, ['j', 'i1']);
 						});
 				},
 
 				'by partial link text'() {
-					return element.findAll('partial link text', 'cute, red')
+					return element
+						.findAll('partial link text', 'cute, red')
 						.then(getIds)
-						.then(function (ids) {
-							assert.deepEqual(ids, [ 'j', 'i1' ]);
+						.then(function(ids) {
+							assert.deepEqual(ids, ['j', 'i1']);
 						});
 				},
 
 				'by link text (hidden text)'() {
-					return element.findAll('link text', 'What a cap.')
+					return element
+						.findAll('link text', 'What a cap.')
 						.then(getIds)
-						.then(function (ids) {
-							assert.deepEqual(ids, [ 'k' ]);
+						.then(function(ids) {
+							assert.deepEqual(ids, ['k']);
 						});
 				},
 
 				'by partial link text (hidden text)'() {
-					return element.findAll('partial link text', 'a cap')
+					return element
+						.findAll('partial link text', 'a cap')
 						.then(getIds)
-						.then(function (ids) {
-							assert.deepEqual(ids, [ 'k' ]);
+						.then(function(ids) {
+							assert.deepEqual(ids, ['k']);
 						});
 				},
 
 				'by tag name'() {
-					return element.findAll('tag name', 'b')
+					return element
+						.findAll('tag name', 'b')
 						.then(getIds)
-						.then(function (ids) {
-							assert.deepEqual(ids, [ 'i2', 'i3', 'l' ]);
+						.then(function(ids) {
+							assert.deepEqual(ids, ['i2', 'i3', 'l']);
 						});
 				},
 
 				'by xpath'() {
-					return element.findAll('xpath', 'id("j")/b')
+					return element
+						.findAll('xpath', 'id("j")/b')
 						.then(getIds)
-						.then(function (ids) {
-							assert.deepEqual(ids, [ 'i2', 'i3' ]);
+						.then(function(ids) {
+							assert.deepEqual(ids, ['i2', 'i3']);
 						});
 				},
 
 				'non-existent'() {
-					return element.findAll('id', 'does-not-exist')
-						.then(function (elements) {
+					return element
+						.findAll('id', 'does-not-exist')
+						.then(function(elements) {
 							assert.deepEqual(elements, []);
 						});
 				}
@@ -352,15 +430,23 @@ registerSuite(function () {
 		'#findAll convenience methods': createStubbedSuite(
 			'findAll',
 			'findAllBy_',
-			suffixes.filter(function (suffix) { return suffix !== 'Id'; }),
-			strategyNames.filter(function (strategy) { return strategy !== 'id'; })
+			suffixes.filter(function(suffix) {
+				return suffix !== 'Id';
+			}),
+			strategyNames.filter(function(strategy) {
+				return strategy !== 'id';
+			})
 		),
 
 		'#findDisplayed convenience methods': createStubbedSuite(
 			'findDisplayed',
 			'findDisplayedBy_',
-			suffixes.filter(function (suffix) { return suffix !== 'Id'; }),
-			strategyNames.filter(function (strategy) { return strategy !== 'id'; })
+			suffixes.filter(function(suffix) {
+				return suffix !== 'Id';
+			}),
+			strategyNames.filter(function(strategy) {
+				return strategy !== 'id';
+			})
 		),
 
 		// TODO: findDisplayed
@@ -378,170 +464,247 @@ registerSuite(function () {
 				this.skip('mouse not enabled');
 			}
 
-			return session.get(toUrl('tests/functional/data/pointer.html')).then(function () {
-				return session.findById('a');
-			}).then(function (element) {
-				return element.click();
-			}).then(function () {
-				return session.execute<any>('return result;');
-			}).then(function (result) {
-				assert.isArray(result.mousedown.a);
-				assert.isArray(result.mouseup.a);
-				assert.isArray(result.click.a);
-				assert.lengthOf(result.mousedown.a, 1);
-				assert.lengthOf(result.mouseup.a, 1);
-				assert.lengthOf(result.click.a, 1);
-			});
+			return session
+				.get(toUrl('tests/functional/data/pointer.html'))
+				.then(function() {
+					return session.findById('a');
+				})
+				.then(function(element) {
+					return element.click();
+				})
+				.then(function() {
+					return session.execute<any>('return result;');
+				})
+				.then(function(result) {
+					assert.isArray(result.mousedown.a);
+					assert.isArray(result.mouseup.a);
+					assert.isArray(result.click.a);
+					assert.lengthOf(result.mousedown.a, 1);
+					assert.lengthOf(result.mouseup.a, 1);
+					assert.lengthOf(result.click.a, 1);
+				});
 		},
 
 		'#submit (submit button)'() {
-			return session.get(toUrl('tests/functional/data/form.html')).then(function () {
-				return session.getCurrentUrl();
-			}).then(function (expectedUrl) {
-				return session.findById('input').then(function (element) {
-					return element.type('hello');
-				}).then(function () {
-					return session.findById('submit2');
-				}).then(function (element) {
-					return element.submit();
-				}).then(function () {
+			return session
+				.get(toUrl('tests/functional/data/form.html'))
+				.then(function() {
 					return session.getCurrentUrl();
-				}).then(function (url) {
-					expectedUrl += '?a=hello&go=submit2';
-					assert.strictEqual(url, expectedUrl);
+				})
+				.then(function(expectedUrl) {
+					return session
+						.findById('input')
+						.then(function(element) {
+							return element.type('hello');
+						})
+						.then(function() {
+							return session.findById('submit2');
+						})
+						.then(function(element) {
+							return element.submit();
+						})
+						.then(function() {
+							return session.getCurrentUrl();
+						})
+						.then(function(url) {
+							expectedUrl += '?a=hello&go=submit2';
+							assert.strictEqual(url, expectedUrl);
+						});
 				});
-			});
 		},
 
 		'#submit (form)'() {
-			return session.get(toUrl('tests/functional/data/form.html')).then(function () {
-				return session.getCurrentUrl();
-			}).then(function (expectedUrl) {
-				return session.findById('input').then(function (element) {
-					return element.type('hello');
-				}).then(function () {
-					return session.findById('form');
-				}).then(function (element) {
-					return element.submit();
-				}).then(function () {
+			return session
+				.get(toUrl('tests/functional/data/form.html'))
+				.then(function() {
 					return session.getCurrentUrl();
-				}).then(function (url) {
-					expectedUrl += '?a=hello';
-					assert.strictEqual(url, expectedUrl);
+				})
+				.then(function(expectedUrl) {
+					return session
+						.findById('input')
+						.then(function(element) {
+							return element.type('hello');
+						})
+						.then(function() {
+							return session.findById('form');
+						})
+						.then(function(element) {
+							return element.submit();
+						})
+						.then(function() {
+							return session.getCurrentUrl();
+						})
+						.then(function(url) {
+							expectedUrl += '?a=hello';
+							assert.strictEqual(url, expectedUrl);
+						});
 				});
-			});
 		},
 
 		'#getVisibleText'() {
-			return session.get(toUrl('tests/functional/data/elements.html')).then(function () {
-				return session.findById('c3');
-			}).then(function (element) {
-				return element.getVisibleText();
-			}).then(function (text) {
-				assert.strictEqual(text, 'What a cute backpack.');
-			});
+			return session
+				.get(toUrl('tests/functional/data/elements.html'))
+				.then(function() {
+					return session.findById('c3');
+				})
+				.then(function(element) {
+					return element.getVisibleText();
+				})
+				.then(function(text) {
+					assert.strictEqual(text, 'What a cute backpack.');
+				});
 		},
 
 		'#getVisibleText (multi-line)'() {
-			return session.get(toUrl('tests/functional/data/elements.html')).then(function () {
-				return session.findById('i4');
-			}).then(function (element) {
-				return element.getVisibleText();
-			}).then(function (text) {
-				const expectedText = [
-					'I\'ve come up with another wacky invention that I think has real potential.',
-					'Maybe you won\'t, but anyway...',
-					'it\'s called the \u201cGourmet Yogurt Machine.\u201d',
-					'It makes many different flavors of yogurt.',
-					'The only problem is, right now, it can only make trout-flavored yogurt...',
-					'So, I\'m having the machine delivered to you via Escargo Express.',
-					'It\'s coming \u201cNeglected Class.\u201d'
-				].join('\n');
-				assert.strictEqual(text, expectedText);
-			});
+			return session
+				.get(toUrl('tests/functional/data/elements.html'))
+				.then(function() {
+					return session.findById('i4');
+				})
+				.then(function(element) {
+					return element.getVisibleText();
+				})
+				.then(function(text) {
+					const expectedText = [
+						"I've come up with another wacky invention that I think has real potential.",
+						"Maybe you won't, but anyway...",
+						"it's called the \u201cGourmet Yogurt Machine.\u201d",
+						'It makes many different flavors of yogurt.',
+						'The only problem is, right now, it can only make trout-flavored yogurt...',
+						"So, I'm having the machine delivered to you via Escargo Express.",
+						"It's coming \u201cNeglected Class.\u201d"
+					].join('\n');
+					assert.strictEqual(text, expectedText);
+				});
 		},
 
 		'#type'() {
 			// TODO: Complex characters, tabs and arrows, copy and paste
-			return session.get(toUrl('tests/functional/data/form.html')).then(function () {
-				return session.findById('input');
-			}).then(function (element) {
-				return element.type('hello, world').then(function () {
-					return element.getProperty('value');
+			return session
+				.get(toUrl('tests/functional/data/form.html'))
+				.then(function() {
+					return session.findById('input');
+				})
+				.then(function(element) {
+					return element.type('hello, world').then(function() {
+						return element.getProperty('value');
+					});
+				})
+				.then(function(value) {
+					assert.strictEqual(value, 'hello, world');
 				});
-			}).then(function (value) {
-				assert.strictEqual(value, 'hello, world');
-			});
 		},
 
 		'#type -> file upload'(this: Test) {
-			if (!session.capabilities.remoteFiles || session.capabilities.brokenFileSendKeys) {
+			if (
+				!session.capabilities.remoteFiles ||
+				session.capabilities.brokenFileSendKeys
+			) {
 				this.skip('Remote file uploads not supported by server');
 			}
 
-			return session.get(toUrl('./data/upload.html')).then(function () {
-				return session.findById('file');
-			}).then(function (element) {
-				return element.type(toUrl('./data/upload.txt'));
-			}).then(function () {
-				return session.execute(function () {
-					const file = (<any> document.getElementById('file')).files[0];
-					return { name: file.name, size: file.size };
+			return session
+				.get(toUrl('./data/upload.html'))
+				.then(function() {
+					return session.findById('file');
+				})
+				.then(function(element) {
+					return element.type(toUrl('./data/upload.txt'));
+				})
+				.then(function() {
+					return session.execute(function() {
+						const file = (<any>document.getElementById('file'))
+							.files[0];
+						return { name: file.name, size: file.size };
+					});
+				})
+				.then(function(file) {
+					assert.deepEqual(file, {
+						name: 'upload.txt',
+						size: 19
+					});
 				});
-			}).then(function (file) {
-				assert.deepEqual(file, {
-					name: 'upload.txt',
-					size: 19
-				});
-			});
 		},
 
 		'#getTagName'() {
-			return session.get(toUrl('tests/functional/data/default.html')).then(function () {
-				return session.findByTagName('body');
-			}).then(function (element) {
-				return element.getTagName();
-			}).then(function (tagName) {
-				assert.strictEqual(tagName, 'body');
-			});
+			return session
+				.get(toUrl('tests/functional/data/default.html'))
+				.then(function() {
+					return session.findByTagName('body');
+				})
+				.then(function(element) {
+					return element.getTagName();
+				})
+				.then(function(tagName) {
+					assert.strictEqual(tagName, 'body');
+				});
 		},
 
 		'#clearValue'() {
-			return session.get(toUrl('tests/functional/data/form.html')).then(function () {
-				return session.findById('input2');
-			}).then(function (element) {
-				return element.getProperty('value').then(function (value) {
-					assert.strictEqual(value, 'default');
-					return element.clearValue();
-				}).then(function () {
-					return element.getProperty('value');
+			return session
+				.get(toUrl('tests/functional/data/form.html'))
+				.then(function() {
+					return session.findById('input2');
+				})
+				.then(function(element) {
+					return element
+						.getProperty('value')
+						.then(function(value) {
+							assert.strictEqual(value, 'default');
+							return element.clearValue();
+						})
+						.then(function() {
+							return element.getProperty('value');
+						});
+				})
+				.then(function(value) {
+					assert.strictEqual(value, '');
 				});
-			}).then(function (value) {
-				assert.strictEqual(value, '');
-			});
 		},
 
 		'#isSelected (radio button)'() {
-			return session.get(toUrl('tests/functional/data/form.html')).then(function () {
-				return session.findById('radio1');
-			}).then(function (element) {
-				return element.isSelected().then(function (isSelected) {
-					assert.isTrue(isSelected, 'Default checked element should be selected');
-					return session.findById('radio2').then(function (element2) {
-						return element2.isSelected().then(function (isSelected) {
-							assert.isFalse(isSelected, 'Default unchecked element should not be selected');
-							return element2.click();
-						}).then(function () {
-							return element.isSelected();
-						}).then(function (isSelected) {
-							assert.isFalse(isSelected, 'Newly unchecked element should not be selected');
-							return element2.isSelected();
-						}).then(function (isSelected) {
-							assert.isTrue(isSelected, 'Newly checked element should be selected');
-						});
+			return session
+				.get(toUrl('tests/functional/data/form.html'))
+				.then(function() {
+					return session.findById('radio1');
+				})
+				.then(function(element) {
+					return element.isSelected().then(function(isSelected) {
+						assert.isTrue(
+							isSelected,
+							'Default checked element should be selected'
+						);
+						return session
+							.findById('radio2')
+							.then(function(element2) {
+								return element2
+									.isSelected()
+									.then(function(isSelected) {
+										assert.isFalse(
+											isSelected,
+											'Default unchecked element should not be selected'
+										);
+										return element2.click();
+									})
+									.then(function() {
+										return element.isSelected();
+									})
+									.then(function(isSelected) {
+										assert.isFalse(
+											isSelected,
+											'Newly unchecked element should not be selected'
+										);
+										return element2.isSelected();
+									})
+									.then(function(isSelected) {
+										assert.isTrue(
+											isSelected,
+											'Newly checked element should be selected'
+										);
+									});
+							});
 					});
 				});
-			});
 		},
 
 		'#isSelected (checkbox)': {
@@ -555,25 +718,42 @@ registerSuite(function () {
 			},
 
 			'initial selection'() {
-				return session.findById('checkbox').then(function (element) {
-					return element.isSelected();
-				}).then(function (isSelected) {
-					assert.isFalse(isSelected, 'Default unchecked element should not be selected');
-				});
+				return session
+					.findById('checkbox')
+					.then(function(element) {
+						return element.isSelected();
+					})
+					.then(function(isSelected) {
+						assert.isFalse(
+							isSelected,
+							'Default unchecked element should not be selected'
+						);
+					});
 			},
 
 			'change selection'() {
-				return session.findById('checkbox').then(function (element) {
-					return element.click().then(function () {
-						return element.isSelected();
-					}).then(function (isSelected) {
-						assert.isTrue(isSelected, 'Newly checked element should be selected');
-						return element.click();
-					}).then(function () {
-						return element.isSelected();
-					}).then(function (isSelected) {
-						assert.isFalse(isSelected, 'Newly unchecked element should not be selected');
-					});
+				return session.findById('checkbox').then(function(element) {
+					return element
+						.click()
+						.then(function() {
+							return element.isSelected();
+						})
+						.then(function(isSelected) {
+							assert.isTrue(
+								isSelected,
+								'Newly checked element should be selected'
+							);
+							return element.click();
+						})
+						.then(function() {
+							return element.isSelected();
+						})
+						.then(function(isSelected) {
+							assert.isFalse(
+								isSelected,
+								'Newly unchecked element should not be selected'
+							);
+						});
 				});
 			}
 		},
@@ -589,17 +769,29 @@ registerSuite(function () {
 			},
 
 			'initial selection'() {
-				return session.findById('option2').then(function (element) {
-					return element.isSelected();
-				}).then(function (isSelected) {
-					assert.isTrue(isSelected, 'Default selected element should be selected');
-				}).then(function () {
-					return session.findById('option1');
-				}).then(function (element) {
-					return element.isSelected();
-				}).then(function (isSelected) {
-					assert.isFalse(isSelected, 'Default unselected element should not be selected');
-				});
+				return session
+					.findById('option2')
+					.then(function(element) {
+						return element.isSelected();
+					})
+					.then(function(isSelected) {
+						assert.isTrue(
+							isSelected,
+							'Default selected element should be selected'
+						);
+					})
+					.then(function() {
+						return session.findById('option1');
+					})
+					.then(function(element) {
+						return element.isSelected();
+					})
+					.then(function(isSelected) {
+						assert.isFalse(
+							isSelected,
+							'Default unselected element should not be selected'
+						);
+					});
 			},
 
 			'change selection'(this: Test) {
@@ -607,156 +799,255 @@ registerSuite(function () {
 					this.skip('broken option select');
 				}
 
-				return session.findById('select').then(function (select) {
-					return select.click();
-				}).then(function () {
-					return session.findById('option1');
-				}).then(function (element) {
-					return element.click()
-						.then(function () {
-							return element.isSelected();
-						}).then(function (isSelected) {
-							assert.isTrue(isSelected, 'Newly selected element should be selected');
-						});
-				}).then(function () {
-					return session.findById('option2');
-				}).then(function (element) {
-					return element.isSelected();
-				}).then(function (isSelected) {
-					assert.isFalse(isSelected, 'Newly unselected element should not be selected');
-				});
+				return session
+					.findById('select')
+					.then(function(select) {
+						return select.click();
+					})
+					.then(function() {
+						return session.findById('option1');
+					})
+					.then(function(element) {
+						return element
+							.click()
+							.then(function() {
+								return element.isSelected();
+							})
+							.then(function(isSelected) {
+								assert.isTrue(
+									isSelected,
+									'Newly selected element should be selected'
+								);
+							});
+					})
+					.then(function() {
+						return session.findById('option2');
+					})
+					.then(function(element) {
+						return element.isSelected();
+					})
+					.then(function(isSelected) {
+						assert.isFalse(
+							isSelected,
+							'Newly unselected element should not be selected'
+						);
+					});
 			}
 		},
 
 		'#isEnabled'() {
-			return session.get(toUrl('tests/functional/data/form.html')).then(function () {
-				return session.findById('input');
-			}).then(function (element) {
-				return element.isEnabled();
-			}).then(function (isEnabled) {
-				assert.isTrue(isEnabled);
-				return session.findById('disabled');
-			}).then(function (element) {
-				return element.isEnabled();
-			}).then(function (isEnabled) {
-				assert.isFalse(isEnabled);
-			});
+			return session
+				.get(toUrl('tests/functional/data/form.html'))
+				.then(function() {
+					return session.findById('input');
+				})
+				.then(function(element) {
+					return element.isEnabled();
+				})
+				.then(function(isEnabled) {
+					assert.isTrue(isEnabled);
+					return session.findById('disabled');
+				})
+				.then(function(element) {
+					return element.isEnabled();
+				})
+				.then(function(isEnabled) {
+					assert.isFalse(isEnabled);
+				});
 		},
 
 		'#getSpecAttribute'() {
 			/*jshint maxlen:140 */
-			return session.get(toUrl('tests/functional/data/form.html')).then(function () {
-				return session.findById('input2');
-			}).then(function (element) {
-				return element.getSpecAttribute('value').then(function (value) {
-					assert.strictEqual(value, 'default', 'Default value of input should be returned when value is unchanged');
-					return element.type('foo');
-				}).then(function () {
-					return element.getSpecAttribute('value');
-				}).then(function (value) {
+			return session
+				.get(toUrl('tests/functional/data/form.html'))
+				.then(function() {
+					return session.findById('input2');
+				})
+				.then(function(element) {
+					return element
+						.getSpecAttribute('value')
+						.then(function(value) {
+							assert.strictEqual(
+								value,
+								'default',
+								'Default value of input should be returned when value is unchanged'
+							);
+							return element.type('foo');
+						})
+						.then(function() {
+							return element.getSpecAttribute('value');
+						})
+						.then(function(value) {
+							if (session.capabilities.isWebDriver) {
+								assert.strictEqual(
+									value,
+									'default',
+									'Initial value of input should be returned'
+								);
+							} else {
+								assert.strictEqual(
+									value,
+									'defaultfoo',
+									'Current value of input should be returned'
+								);
+							}
+							return element.getSpecAttribute('defaultValue');
+						})
+						.then(function(defaultValue) {
+							assert.strictEqual(
+								defaultValue,
+								'default',
+								'Default value should be returned'
+							);
+							return element.getSpecAttribute('data-html5');
+						})
+						.then(function(value) {
+							assert.strictEqual(
+								value,
+								'true',
+								'Value of custom attributes should be returned'
+							);
+							return element.getSpecAttribute('nonexisting');
+						})
+						.then(function(value) {
+							assert.isNull(
+								value,
+								'Non-existing attributes should not return a value'
+							);
+						});
+				})
+				.then(function() {
+					return session.findById('disabled');
+				})
+				.then(function(element) {
+					return element.getSpecAttribute('disabled');
+				})
+				.then(function(isDisabled) {
+					assert.strictEqual(
+						isDisabled,
+						'true',
+						'True boolean attributes must return string value per the spec'
+					);
+					return session.get(
+						toUrl('tests/functional/data/elements.html')
+					);
+				})
+				.then(function() {
+					return session.findById('c');
+				})
+				.then(function(element) {
+					return element.getSpecAttribute('href');
+				})
+				.then(function(href) {
 					if (session.capabilities.isWebDriver) {
-						assert.strictEqual(value, 'default', 'Initial value of input should be returned');
+						assert.strictEqual(
+							href,
+							'default.html',
+							'Unexpected link href value'
+						);
+					} else {
+						return session.getCurrentUrl().then(function(baseUrl) {
+							const expected =
+								baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1) +
+								'default.html';
+							assert.strictEqual(
+								href,
+								expected,
+								'Link href value should be absolute'
+							);
+						});
 					}
-					else {
-						assert.strictEqual(value, 'defaultfoo', 'Current value of input should be returned');
-					}
-					return element.getSpecAttribute('defaultValue');
-				}).then(function (defaultValue) {
-					assert.strictEqual(defaultValue, 'default', 'Default value should be returned');
-					return element.getSpecAttribute('data-html5');
-				}).then(function (value) {
-					assert.strictEqual(value, 'true', 'Value of custom attributes should be returned');
-					return element.getSpecAttribute('nonexisting');
-				}).then(function (value) {
-					assert.isNull(value, 'Non-existing attributes should not return a value');
 				});
-			}).then(function () {
-				return session.findById('disabled');
-			}).then(function (element) {
-				return element.getSpecAttribute('disabled');
-			}).then(function (isDisabled) {
-				assert.strictEqual(isDisabled, 'true', 'True boolean attributes must return string value per the spec');
-				return session.get(toUrl('tests/functional/data/elements.html'));
-			}).then(function () {
-				return session.findById('c');
-			}).then(function (element) {
-				return element.getSpecAttribute('href');
-			}).then(function (href) {
-				if (session.capabilities.isWebDriver) {
-					assert.strictEqual(href, 'default.html', 'Unexpected link href value');
-				}
-				else {
-					return session.getCurrentUrl().then(function (baseUrl) {
-						const expected = baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1) + 'default.html';
-						assert.strictEqual(href, expected, 'Link href value should be absolute');
-					});
-				}
-			});
 		},
 
 		'#getAttribute'() {
-			return session.get(toUrl('tests/functional/data/form.html')).then(function () {
-				return session.findById('form');
-			}).then(function (element) {
-				return element.getAttribute('action');
-			}).then(function (action) {
-				assert.strictEqual(action, 'form.html');
-				return session.findById('disabled');
-			}).then(function (element) {
-				return Task.all({
-					'non-existing': element.getAttribute('non-existing'),
-					disabled: element.getAttribute('disabled')
+			return session
+				.get(toUrl('tests/functional/data/form.html'))
+				.then(function() {
+					return session.findById('form');
+				})
+				.then(function(element) {
+					return element.getAttribute('action');
+				})
+				.then(function(action) {
+					assert.strictEqual(action, 'form.html');
+					return session.findById('disabled');
+				})
+				.then(function(element) {
+					return Task.all({
+						'non-existing': element.getAttribute('non-existing'),
+						disabled: element.getAttribute('disabled')
+					});
+				})
+				.then(function(result: any) {
+					assert.isNotNull(result.disabled);
+					assert.isNull(result['non-existing']);
 				});
-			}).then(function (result: any) {
-				assert.isNotNull(result.disabled);
-				assert.isNull(result['non-existing']);
-			});
 		},
 
 		'#getProperty'() {
-			return session.get(toUrl('tests/functional/data/form.html')).then(function () {
-				return session.findById('form');
-			}).then(function (element) {
-				return element.getProperty('action');
-			}).then(function (action) {
-				assert.operator(action.indexOf('http'), '===', 0);
-				return session.findById('disabled');
-			}).then(function (element) {
-				return Task.all({
-					'non-existing': element.getProperty('non-existing'),
-					disabled: element.getProperty('disabled')
+			return session
+				.get(toUrl('tests/functional/data/form.html'))
+				.then(function() {
+					return session.findById('form');
+				})
+				.then(function(element) {
+					return element.getProperty('action');
+				})
+				.then(function(action) {
+					assert.operator(action.indexOf('http'), '===', 0);
+					return session.findById('disabled');
+				})
+				.then(function(element) {
+					return Task.all({
+						'non-existing': element.getProperty('non-existing'),
+						disabled: element.getProperty('disabled')
+					});
+				})
+				.then(function(result: any) {
+					assert.isTrue(result.disabled);
+					assert.isNull(result['non-existing']);
 				});
-			}).then(function (result: any) {
-				assert.isTrue(result.disabled);
-				assert.isNull(result['non-existing']);
-			});
 		},
 
 		'#equals'() {
-			return session.get(toUrl('tests/functional/data/elements.html')).then(function () {
-				return session.findById('a');
-			}).then(function (element) {
-				return session.findById('z').then(function (element2) {
-					return element.equals(element2).then(function (isEqual) {
-						assert.isFalse(isEqual);
-						return element2.equals(element);
-					}).then(function (isEqual) {
-						assert.isFalse(isEqual);
-					});
-				}).then(function () {
+			return session
+				.get(toUrl('tests/functional/data/elements.html'))
+				.then(function() {
 					return session.findById('a');
-				}).then(function (element2) {
-					return element.equals(element2).then(function (isEqual) {
-						assert.isTrue(isEqual);
-						return element2.equals(element);
-					}).then(function (isEqual) {
-						assert.isTrue(isEqual);
-					});
+				})
+				.then(function(element) {
+					return session
+						.findById('z')
+						.then(function(element2) {
+							return element
+								.equals(element2)
+								.then(function(isEqual) {
+									assert.isFalse(isEqual);
+									return element2.equals(element);
+								})
+								.then(function(isEqual) {
+									assert.isFalse(isEqual);
+								});
+						})
+						.then(function() {
+							return session.findById('a');
+						})
+						.then(function(element2) {
+							return element
+								.equals(element2)
+								.then(function(isEqual) {
+									assert.isTrue(isEqual);
+									return element2.equals(element);
+								})
+								.then(function(isEqual) {
+									assert.isTrue(isEqual);
+								});
+						});
 				});
-			});
 		},
 
-		'#isDisplayed': (function () {
+		'#isDisplayed': (function() {
 			const visibilities = {
 				normal: true,
 				empty: false,
@@ -771,7 +1062,9 @@ registerSuite(function () {
 			const suite = {
 				setup() {
 					resetBrowserState = false;
-					return session.get(toUrl('tests/functional/data/visibility.html'));
+					return session.get(
+						toUrl('tests/functional/data/visibility.html')
+					);
 				},
 				teardown() {
 					resetBrowserState = true;
@@ -779,21 +1072,24 @@ registerSuite(function () {
 			};
 
 			for (let id in visibilities) {
-				(function (id, expected) {
-					(<any> suite)[id] = function () {
-						return session.findById(id).then(function (element) {
-							return element.isDisplayed();
-						}).then(function (isDisplayed) {
-							assert.strictEqual(isDisplayed, expected);
-						});
+				(function(id, expected) {
+					(<any>suite)[id] = function() {
+						return session
+							.findById(id)
+							.then(function(element) {
+								return element.isDisplayed();
+							})
+							.then(function(isDisplayed) {
+								assert.strictEqual(isDisplayed, expected);
+							});
 					};
-				})(id, (<any> visibilities)[id]);
+				})(id, (<any>visibilities)[id]);
 			}
 
 			return suite;
 		})(),
 
-		'#getPosition': (function () {
+		'#getPosition': (function() {
 			// TODO: Inside scrolled viewport
 			// TODO: Fix transforms for platforms without transforms
 
@@ -808,7 +1104,9 @@ registerSuite(function () {
 			const suite = {
 				setup() {
 					resetBrowserState = false;
-					return session.get(toUrl('tests/functional/data/dimensions.html'));
+					return session.get(
+						toUrl('tests/functional/data/dimensions.html')
+					);
 				},
 				teardown() {
 					resetBrowserState = true;
@@ -816,13 +1114,16 @@ registerSuite(function () {
 			};
 
 			for (let id in positions) {
-				(function (id: string, expected: any) {
-					(<any> suite)[id] = function () {
-						return session.findById(id).then(function (element) {
-							return element.getPosition();
-						}).then(function (position) {
-							assert.deepEqual(position, expected);
-						});
+				(function(id: string, expected: any) {
+					(<any>suite)[id] = function() {
+						return session
+							.findById(id)
+							.then(function(element) {
+								return element.getPosition();
+							})
+							.then(function(position) {
+								assert.deepEqual(position, expected);
+							});
 					};
 				})(id, positions[id]);
 			}
@@ -830,7 +1131,7 @@ registerSuite(function () {
 			return suite;
 		})(),
 
-		'#getSize': (function () {
+		'#getSize': (function() {
 			let documentWidth: number;
 			let dimensions: any = {};
 			dimensions.a = { width: 222, height: 222 };
@@ -843,11 +1144,16 @@ registerSuite(function () {
 			const suite = {
 				setup() {
 					resetBrowserState = false;
-					return session.get(toUrl('tests/functional/data/dimensions.html')).then(function () {
-						return session.execute<number>('return document.body.offsetWidth;');
-					}).then(width => {
-						documentWidth = width;
-					});
+					return session
+						.get(toUrl('tests/functional/data/dimensions.html'))
+						.then(function() {
+							return session.execute<number>(
+								'return document.body.offsetWidth;'
+							);
+						})
+						.then(width => {
+							documentWidth = width;
+						});
 				},
 				teardown() {
 					resetBrowserState = true;
@@ -855,20 +1161,25 @@ registerSuite(function () {
 			};
 
 			for (let id in dimensions) {
-				(function (id, expected) {
-					(<any> suite)[id] = function () {
-						return session.findById(id).then(function (element) {
-							return element.getSize();
-						}).then(function (dimensions) {
-							if (expected.width === -1) {
-								expected.width = documentWidth;
-							}
-							else if (id === 'e' && !session.capabilities.supportsCssTransforms) {
-								expected.width = expected.height = 40;
-							}
+				(function(id, expected) {
+					(<any>suite)[id] = function() {
+						return session
+							.findById(id)
+							.then(function(element) {
+								return element.getSize();
+							})
+							.then(function(dimensions) {
+								if (expected.width === -1) {
+									expected.width = documentWidth;
+								} else if (
+									id === 'e' &&
+									!session.capabilities.supportsCssTransforms
+								) {
+									expected.width = expected.height = 40;
+								}
 
-							assert.deepEqual(dimensions, expected);
-						});
+								assert.deepEqual(dimensions, expected);
+							});
 					};
 				})(id, dimensions[id]);
 			}
@@ -880,26 +1191,53 @@ registerSuite(function () {
 			/*jshint maxlen:140 */
 
 			// TODO: Spec: pseudo-elements?
-			return session.get(toUrl('tests/functional/data/dimensions.html')).then(function () {
-				return session.findById('a');
-			}).then(function (element) {
-				return element.getComputedStyle('background-color').then(function (style) {
-					assert.strictEqual(style, 'rgba(128, 0, 128, 1)', 'Background colour should be rgba');
-					return element.getComputedStyle('border-left-width');
-				}).then(function (style) {
-					assert.strictEqual(style, '1px', 'Left border width should be in pixels');
-					return element.getComputedStyle('display');
-				}).then(function (style) {
-					assert.strictEqual(style, 'block', 'Display mode should be the correct non-overridden style');
-					return element.getComputedStyle('not-a-property');
-				}).then(function (style) {
-					// Empty string is used by necessity since this is what FirefoxDriver returns and we cannot
-					// list all possible invalid style names
-					assert.strictEqual(style, '', 'Non-existing style should not return any value');
-				});
+			return session
+				.get(toUrl('tests/functional/data/dimensions.html'))
+				.then(function() {
+					return session.findById('a');
+				})
+				.then(function(element) {
+					return element
+						.getComputedStyle('background-color')
+						.then(function(style) {
+							assert.strictEqual(
+								style,
+								'rgba(128, 0, 128, 1)',
+								'Background colour should be rgba'
+							);
+							return element.getComputedStyle(
+								'border-left-width'
+							);
+						})
+						.then(function(style) {
+							assert.strictEqual(
+								style,
+								'1px',
+								'Left border width should be in pixels'
+							);
+							return element.getComputedStyle('display');
+						})
+						.then(function(style) {
+							assert.strictEqual(
+								style,
+								'block',
+								'Display mode should be the correct non-overridden style'
+							);
+							return element.getComputedStyle('not-a-property');
+						})
+						.then(function(style) {
+							// Empty string is used by necessity since this is what FirefoxDriver returns and we cannot
+							// list all possible invalid style names
+							assert.strictEqual(
+								style,
+								'',
+								'Non-existing style should not return any value'
+							);
+						});
 
-				// TODO: Firefox thinks these are inapplicable; see https://bugzilla.mozilla.org/show_bug.cgi?id=889091
-				/*
+					// TODO: Firefox thinks these are inapplicable; see
+					// https://bugzilla.mozilla.org/show_bug.cgi?id=889091
+					/*
 					return element.getComputedStyle('borderWidth');
 				}).then(function (style) {
 					assert.strictEqual(style, '1px', 'Border width should be in pixels');
@@ -908,7 +1246,7 @@ registerSuite(function () {
 					assert.strictEqual(style, '1px solid rgba(0, 0, 0, 1)', 'Composite border should be in order size, style, colour');
 				});
 				*/
-			});
+				});
 		}
 	};
 });

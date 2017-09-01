@@ -11,7 +11,7 @@ registerSuite({
 
 	'.sleep'() {
 		const startTime = Date.now();
-		return util.sleep(250).then(function () {
+		return util.sleep(250).then(function() {
 			assert.closeTo(Date.now() - startTime, 250, 50);
 		});
 	},
@@ -28,7 +28,7 @@ registerSuite({
 	},
 
 	'.forCommand'() {
-		const commandFn: any = util.forCommand(function () {}, {
+		const commandFn: any = util.forCommand(function() {}, {
 			createsContext: false,
 			usesElement: true
 		});
@@ -42,10 +42,13 @@ registerSuite({
 	},
 
 	'.toExecuteString function'() {
-		const script = util.toExecuteString(function () {
+		const script = util.toExecuteString(function() {
 			__cov_abcdef++;
 			return a;
 		});
-		assert.match(script, /^return \(function \(\) \{\s*return a;\s*\}\)\.apply\(this, arguments\);$/);
+		assert.match(
+			script,
+			/^return \(function \(\) \{\s*return a;\s*\}\)\.apply\(this, arguments\);$/
+		);
 	}
 });

@@ -3,7 +3,10 @@ declare module 'istanbul' {
 	import { EventEmitter } from 'events';
 
 	export interface Config {
-		loadFile: (file: string, overrides: { [key: string]: any }) => Configuration;
+		loadFile: (
+			file: string,
+			overrides: { [key: string]: any }
+		) => Configuration;
 	}
 
 	export interface ContentWriter {
@@ -18,26 +21,34 @@ declare module 'istanbul' {
 	}
 
 	export interface Hook {
-		hookRequire: (matcher: Function, transformer: Function, options?: any) => void;
+		hookRequire: (
+			matcher: Function,
+			transformer: Function,
+			options?: any
+		) => void;
 		unhookRequire: () => void;
-		hookCreateScript: (matcher: Function, transformer: Function, options?: any) => void;
+		hookCreateScript: (
+			matcher: Function,
+			transformer: Function,
+			options?: any
+		) => void;
 		unhookCreateScript: () => void;
-		hookRunInThisContext: (matcher: Function, transformer: Function, options?: any) => void;
+		hookRunInThisContext: (
+			matcher: Function,
+			transformer: Function,
+			options?: any
+		) => void;
 		unhookRunInThisContext: () => void;
 		unloadRequireCache: (matcher: Function) => void;
 	}
 
-	export interface Report {
-	}
+	export interface Report {}
 
-	export interface Store {
-	}
+	export interface Store {}
 
-	export interface ObjectUtils {
-	}
+	export interface ObjectUtils {}
 
-	export interface Writer {
-	}
+	export interface Writer {}
 
 	export interface Watermarks {
 		statements: number[];
@@ -97,7 +108,7 @@ declare module 'istanbul/lib/collector' {
 	}
 
 	class Collector {
-		new (options?: CollectorOptions): Collector;
+		new(options?: CollectorOptions): Collector;
 		add(coverage: Object): void;
 		files(): string[];
 		fileCoverageFor(fileName: string): Object;
@@ -126,8 +137,17 @@ declare module 'istanbul/lib/report' {
 }
 
 declare module 'istanbul/lib/report/common/defaults' {
-	export const watermarks: () => { statements: number[], lines: number[], functions: number[], branches: number[] };
-	export const classFor: (type: string, metrics: { [key: string]: any }, watermarks: { [key: string]: any }) => string;
+	export const watermarks: () => {
+		statements: number[];
+		lines: number[];
+		functions: number[];
+		branches: number[];
+	};
+	export const classFor: (
+		type: string,
+		metrics: { [key: string]: any },
+		watermarks: { [key: string]: any }
+	) => string;
 	export const colorize: (str: string, clazz: string) => string;
 	export const defaultReporterConfig: () => { [key: string]: string };
 }
@@ -199,16 +219,25 @@ declare module 'istanbul/lib/report/html' {
 		metrics: any;
 		reportClass: string;
 		pathToHtml: any;
-		prettify: { js: any, css: any };
+		prettify: { js: any; css: any };
 	}
 
 	class HtmlReport extends Report {
 		constructor(opts?: any);
 		getPathHtml(node: Node, linkMapper: LinkMapper): string;
 		fillTemplate(node: Node, templateData: TemplateData): void;
-		writeDetailPage(writer: FileWriter, node: Node, fileCoverage: FileCoverage): void;
+		writeDetailPage(
+			writer: FileWriter,
+			node: Node,
+			fileCoverage: FileCoverage
+		): void;
 		writeIndexPage(writer: FileWriter, node: Node): void;
-		writeFiles(writer: FileWriter, node: Node, dir: string, collector: Collector): void;
+		writeFiles(
+			writer: FileWriter,
+			node: Node,
+			dir: string,
+			collector: Collector
+		): void;
 		standardLinkMapper(): LinkMapper;
 	}
 
@@ -229,11 +258,23 @@ declare module 'istanbul/lib/report/lcovonly' {
 }
 
 declare module 'istanbul/lib/hook' {
-	export function hookRequire(matcher: Function, transformer: Function, options?: any): void;
+	export function hookRequire(
+		matcher: Function,
+		transformer: Function,
+		options?: any
+	): void;
 	export function unhookRequire(): void;
-	export function hookCreateScript(matcher: Function, transformer: Function, options?: any): void;
+	export function hookCreateScript(
+		matcher: Function,
+		transformer: Function,
+		options?: any
+	): void;
 	export function unhookCreateScript(): void;
-	export function hookRunInThisContext(matcher: Function, transformer: Function, options?: any): void;
+	export function hookRunInThisContext(
+		matcher: Function,
+		transformer: Function,
+		options?: any
+	): void;
 	export function unhookRunInThisContext(): void;
 	export function unloadRequireCache(matcher: Function): void;
 }

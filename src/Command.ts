@@ -6,189 +6,239 @@ import Locator, { Strategy } from './lib/Locator';
 import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
 
 /**
- * The Command class is a chainable, subclassable object type that can be used to execute commands serially against a
- * remote WebDriver environment. The standard Command class includes methods from the [[Session]]
- * and [[Element]] classes, so you can perform all standard session and element operations that
+ * The Command class is a chainable, subclassable object type that can be used
+ * to execute commands serially against a remote WebDriver environment. The
+ * standard Command class includes methods from the [[Session]] and [[Element]]
+ * classes, so you can perform all standard session and element operations that
  * come with Leadfoot without being forced to author long promise chains.
  *
- * In order to use the Command class, you first need to pass it a [[Session]] instance for it to
- * use:
+ * In order to use the Command class, you first need to pass it a [[Session]]
+ * instance for it to use:
  *
  * ```js
- * var command = new Command(session);
+ * const command = new Command(session);
  * ```
  *
- * Once you have created the Command, you can then start chaining methods, and they will execute in order one after
- * another:
+ * Once you have created the Command, you can then start chaining methods, and
+ * they will execute in order one after another:
  *
  * ```js
  * command.get('http://example.com')
- *   .findByTagName('h1')
- *   .getVisibleText()
- *   .then(function (text) {
- *       assert.strictEqual(text, 'Example Domain');
- *   });
+ *     .findByTagName('h1')
+ *     .getVisibleText()
+ *     .then(function (text) {
+ *         assert.strictEqual(text, 'Example Domain');
+ *     });
  * ```
  *
- * Because these operations are asynchronous, you need to use a `then` callback in order to retrieve the value from the
- * last method. Command objects are PromiseLikes, which means that they can be used with any Promises/A+ or
- * ES6-conformant Promises implementation, though there are some specific differences in the arguments and context that
- * are provided to callbacks; see [[Command.then]] for more details.
+ * Because these operations are asynchronous, you need to use a `then` callback
+ * in order to retrieve the value from the last method. Command objects are
+ * PromiseLikes, which means that they can be used with any Promises/A+ or
+ * ES6-conformant Promises implementation, though there are some specific
+ * differences in the arguments and context that are provided to callbacks; see
+ * [[Command.then]] for more details.
  *
  * ---
  *
- * Each call on a Command generates a new Command object, which means that certain operations can be parallelised:
+ * Each call on a Command generates a new Command object, which means that
+ * certain operations can be parallelised:
  *
  * ```js
  * command = command.get('http://example.com');
  * Promise.all([
- *   command.getPageTitle(),
- *   command.findByTagName('h1').getVisibleText()
- * ]).then(function (results) {
- *   assert.strictEqual(results[0], results[1]);
+ *     command.getPageTitle(),
+ *     command.findByTagName('h1').getVisibleText()
+ * ]).then(results => {
+ *     assert.strictEqual(results[0], results[1]);
  * });
  * ```
  *
- * In this example, the commands on line 3 and 4 both depend upon the `get` call completing successfully but are
- * otherwise independent of each other and so execute here in parallel. This is different from commands in Intern 1
+ * In this example, the commands on line 3 and 4 both depend upon the `get`
+ * call completing successfully but are otherwise independent of each other and
+ * so execute here in parallel. This is different from commands in Intern 1
  * which were always chained onto the last called method within a given test.
  *
  * ---
  *
- * Command objects actually encapsulate two different types of interaction: *session* interactions, which operate
- * against the entire browser session, and *element* interactions, which operate against specific elements taken from
- * the currently loaded page. Things like navigating the browser, moving the mouse cursor, and executing scripts are
- * session interactions; things like getting text displayed on the page, typing into form fields, and getting element
- * attributes are element interactions.
+ * Command objects actually encapsulate two different types of interaction:
+ * *session* interactions, which operate against the entire browser session,
+ * and *element* interactions, which operate against specific elements taken
+ * from the currently loaded page. Things like navigating the browser, moving
+ * the mouse cursor, and executing scripts are session interactions; things
+ * like getting text displayed on the page, typing into form fields, and
+ * getting element attributes are element interactions.
  *
- * Session interactions can be performed at any time, from any Command. On the other hand, to perform element
- * interactions, you first need to retrieve one or more elements to interact with. This can be done using any of the
- * `find` or `findAll` methods, by the `getActiveElement` method, or by returning elements from `execute` or
- * `executeAsync` calls. The retrieved elements are stored internally as the *element context* of all chained
- * Commands. When an element method is called on a chained Command with a single element context, the result will be
- * returned as-is:
- *
- * ```js
- * command = command.get('http://example.com')
- *   // finds one element -> single element context
- *   .findByTagName('h1')
- *   .getVisibleText()
- *   .then(function (text) {
- *     // `text` is the text from the element context
- *     assert.strictEqual(text, 'Example Domain');
- *   });
- * ```
- *
- * When an element method is called on a chained Command with a multiple element context, the result will be returned
- * as an array:
+ * Session interactions can be performed at any time, from any Command. On the
+ * other hand, to perform element interactions, you first need to retrieve one
+ * or more elements to interact with. This can be done using any of the `find`
+ * or `findAll` methods, by the `getActiveElement` method, or by returning
+ * elements from `execute` or `executeAsync` calls. The retrieved elements are
+ * stored internally as the *element context* of all chained Commands. When an
+ * element method is called on a chained Command with a single element context,
+ * the result will be returned as-is:
  *
  * ```js
  * command = command.get('http://example.com')
- *   // finds multiple elements -> multiple element context
- *   .findAllByTagName('p')
- *   .getVisibleText()
- *   .then(function (texts) {
- *     // `texts` is an array of text from each of the `p` elements
- *     assert.deepEqual(texts, [
- *       'This domain is established to be used for […]',
- *       'More information...'
- *     ]);
- *   });
+ *     // finds one element -> single element context
+ *     .findByTagName('h1')
+ *     .getVisibleText()
+ *     .then(text => {
+ *         // `text` is the text from the element context
+ *         assert.strictEqual(text, 'Example Domain');
+ *     });
  * ```
  *
- * The `find` and `findAll` methods are special and change their behaviour based on the current element filtering state
- * of a given command. If a command has been filtered by element, the `find` and `findAll` commands will only find
- * elements *within* the currently filtered set of elements. Otherwise, they will find elements throughout the page.
+ * When an element method is called on a chained Command with a multiple
+ * element context, the result will be returned as an array:
  *
- * Some method names, like `click`, are identical for both Session and Element APIs; in this case, the element APIs
- * are suffixed with the word `Element` in order to identify them uniquely.
+ * ```js
+ * command = command.get('http://example.com')
+ *     // finds multiple elements -> multiple element context
+ *     .findAllByTagName('p')
+ *     .getVisibleText()
+ *     .then(texts => {
+ *         // `texts` is an array of text from each of the `p` elements
+ *         assert.deepEqual(texts, [
+ *             'This domain is established to be used for […]',
+ *             'More information...'
+ *         ]);
+ *     });
+ * ```
+ *
+ * The `find` and `findAll` methods are special and change their behaviour
+ * based on the current element filtering state of a given command. If a
+ * command has been filtered by element, the `find` and `findAll` commands will
+ * only find elements *within* the currently filtered set of elements.
+ * Otherwise, they will find elements throughout the page.
+ *
+ * Some method names, like `click`, are identical for both Session and Element
+ * APIs; in this case, the element APIs are suffixed with the word `Element` in
+ * order to identify them uniquely.
  *
  * ---
  *
- * Commands can be subclassed in order to add additional functionality without making direct modifications to the
- * default Command prototype that might break other parts of the system:
+ * Commands can be subclassed in order to add additional functionality without
+ * making direct modifications to the default Command prototype that might
+ * break other parts of the system:
  *
- * ```js
- * function CustomCommand() {
- *   Command.apply(this, arguments);
+ * ```ts
+ * class CustomCommand extends Command {
+ *     login(username: string, password: string) {
+ *         return new this.constructor(this, function () {
+ *             return this.parent
+ *                 .findById('username')
+ *                 .click()
+ *                 .type(username)
+ *                 .end()
+ *
+ *                 .findById('password')
+ *                 .click()
+ *                 .type(password)
+ *                 .end()
+ *
+ *                 .findById('login')
+ *                 .click()
+ *                 .end();
+ *         });
+ *     }
  * }
- * CustomCommand.prototype = Object.create(Command.prototype);
- * CustomCommand.prototype.constructor = CustomCommand;
- * CustomCommand.prototype.login = function (username, password) {
- *   return new this.constructor(this, function () {
- *     return this.parent
- *       .findById('username')
- *         .click()
- *         .type(username)
- *         .end()
- *       .findById('password')
- *         .click()
- *         .type(password)
- *         .end()
- *       .findById('login')
- *         .click()
- *         .end();
- *   });
- * };
  * ```
  *
- * Note that returning `this`, or a command chain starting from `this`, from a callback or command initialiser will
- * deadlock the Command, as it waits for itself to settle before settling.
+ * Note that returning `this`, or a command chain starting from `this`, from a
+ * callback or command initialiser will deadlock the Command, as it waits for
+ * itself to settle before settling.
  */
-export default class Command<T> extends Locator<Command<Element>, Command<Element[]>, Command<void>> {
+export default class Command<T> extends Locator<
+	Command<Element>,
+	Command<Element[]>,
+	Command<void>
+> {
 	/**
-	 * Augments `target` with a conversion of the `originalFn` method that enables its use with a Command object.
-	 * This can be used to easily add new methods from any custom object that implements the Session API to any target
-	 * object that implements the Command API.
+	 * Augments `target` with a conversion of the `originalFn` method that
+	 * enables its use with a Command object. This can be used to easily add
+	 * new methods from any custom object that implements the Session API to
+	 * any target object that implements the Command API.
 	 *
-	 * Functions that are copied may have the following extra properties in order to change the way that Command works
-	 * with these functions:
+	 * Functions that are copied may have the following extra properties in
+	 * order to change the way that Command works with these functions:
 	 *
-	 * - `createsContext` (boolean): If this property is specified, the return value from the function will be used as
-	 *   the new context for the returned Command.
-	 * - `usesElement` (boolean): If this property is specified, element(s) from the current context will be used as
-	 *   the first argument to the function, if the explicitly specified first argument is not already an element.
+	 * - `createsContext` (boolean): If this property is specified, the return
+	 *   value from the function will be used as the new context for the
+	 *   returned Command.
+	 * - `usesElement` (boolean): If this property is specified, element(s)
+	 *   from the current context will be used as the first argument to the
+	 *   function, if the explicitly specified first argument is not already an
+	 *   element.
 	 *
 	 * @memberOf module:leadfoot/Command
 	 * @param {module:leadfoot/Command} target
 	 * @param {string} key
 	 * @param {Function} originalFn
 	 */
-	static addSessionMethod<U>(target: Command<U>, key: string, originalFn: Function) {
-		// Checking for private/non-functions here deduplicates this logic; otherwise it would need to exist in both
-		// the Command constructor (for copying functions from sessions) as well as the Command factory below
-		if (key.charAt(0) !== '_' && !(<any>target)[key] && typeof originalFn === 'function') {
-			(<any>target)[key] = function (this: Command<U>, ...args: any[]): Command<U> {
-				return new (this.constructor as typeof Command)<U>(this, function (this: Command<U>, setContext: Function) {
+	static addSessionMethod<U>(
+		target: Command<U>,
+		key: string,
+		originalFn: Function
+	) {
+		// Checking for private/non-functions here deduplicates this logic;
+		// otherwise it would need to exist in both the Command constructor
+		// (for copying functions from sessions) as well as the Command factory
+		// below
+		if (
+			key.charAt(0) !== '_' &&
+			!(<any>target)[key] &&
+			typeof originalFn === 'function'
+		) {
+			(<any>target)[key] = function(
+				this: Command<U>,
+				...args: any[]
+			): Command<U> {
+				return new (this.constructor as typeof Command)<
+					U
+				>(this, function(this: Command<U>, setContext: Function) {
 					const parentContext = this._context;
 					const session = this._session;
 					let promise: Task<any>;
-					// The function may have come from a session object prototype but have been overridden on the actual
-					// session instance; in such a case, the overridden function should be used instead of the one from
-					// the original source object. The original source object may still be used, however, if the
-					// function is being added like a mixin and does not exist on the actual session object for this
+					// The function may have come from a session object
+					// prototype but have been overridden on the actual session
+					// instance; in such a case, the overridden function should
+					// be used instead of the one from the original source
+					// object. The original source object may still be used,
+					// however, if the function is being added like a mixin and
+					// does not exist on the actual session object for this
 					// session
 					const fn = (<any>session)[key] || originalFn;
 
-					if (fn.usesElement && parentContext.length && (!args[0] || !args[0].elementId)) {
-						// Defer converting arguments into an array until it is necessary to avoid overhead
+					if (
+						fn.usesElement &&
+						parentContext.length &&
+						(!args[0] || !args[0].elementId)
+					) {
+						// Defer converting arguments into an array until it is
+						// necessary to avoid overhead
 						args = Array.prototype.slice.call(args, 0);
 
 						if (parentContext.isSingle) {
-							promise = fn.apply(session, [parentContext[0]].concat(args));
+							promise = fn.apply(
+								session,
+								[parentContext[0]].concat(args)
+							);
+						} else {
+							promise = Task.all(
+								parentContext.map(function(element: Element) {
+									return fn.apply(
+										session,
+										[element].concat(args)
+									);
+								})
+							);
 						}
-						else {
-							promise = Task.all(parentContext.map(function (element: Element) {
-								return fn.apply(session, [element].concat(args));
-							}));
-						}
-					}
-					else {
+					} else {
 						promise = fn.apply(session, args);
 					}
 
 					if (fn.createsContext) {
-						promise = promise.then(function (newContext) {
+						promise = promise.then(function(newContext) {
 							setContext(newContext);
 							return newContext;
 						});
@@ -201,15 +251,17 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Augments `target` with a method that will call `key` on all context elements stored within `target`.
-	 * This can be used to easily add new methods from any custom object that implements the Element API to any target
-	 * object that implements the Command API.
+	 * Augments `target` with a method that will call `key` on all context
+	 * elements stored within `target`. This can be used to easily add new
+	 * methods from any custom object that implements the Element API to any
+	 * target object that implements the Command API.
 	 *
-	 * Functions that are copied may have the following extra properties in order to change the way that Command works
-	 * with these functions:
+	 * Functions that are copied may have the following extra properties in
+	 * order to change the way that Command works with these functions:
 	 *
-	 * - `createsContext` (boolean): If this property is specified, the return value from the function will be used as
-	 *   the new context for the returned Command.
+	 * - `createsContext` (boolean): If this property is specified, the return
+	 *   value from the function will be used as the new context for the
+	 *   returned Command.
 	 *
 	 * @memberOf module:leadfoot/Command
 	 * @param {module:leadfoot/Command} target
@@ -218,26 +270,35 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	static addElementMethod<T>(target: Command<T>, key: string) {
 		const anyTarget = <any>target;
 		if (key.charAt(0) !== '_') {
-			// some methods, like `click`, exist on both Session and Element; deduplicate these methods by appending the
-			// element ones with 'Element'
+			// some methods, like `click`, exist on both Session and Element;
+			// deduplicate these methods by appending the element ones with
+			// 'Element'
 			const targetKey = key + (anyTarget[key] ? 'Element' : '');
-			anyTarget[targetKey] = function (this: Command<T>, ...args: any[]): Command<T> {
-				return new (this.constructor as typeof Command)(this, function (this: Command<T>, setContext: Function) {
+			anyTarget[targetKey] = function(
+				this: Command<T>,
+				...args: any[]
+			): Command<T> {
+				return new (this.constructor as typeof Command)(this, function(
+					this: Command<T>,
+					setContext: Function
+				) {
 					const parentContext = this._context;
 					let promise: Task<any>;
-					let fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
+					let fn =
+						(<any>parentContext)[0] && (<any>parentContext)[0][key];
 
 					if (parentContext.isSingle) {
 						promise = fn.apply(parentContext[0], args);
-					}
-					else {
-						promise = Task.all(parentContext.map(function (element: any) {
-							return element[key].apply(element, args);
-						}));
+					} else {
+						promise = Task.all(
+							parentContext.map(function(element: any) {
+								return element[key].apply(element, args);
+							})
+						);
 					}
 
 					if (fn && fn.createsContext) {
-						promise = promise.then(function (newContext) {
+						promise = promise.then(function(newContext) {
 							setContext(newContext);
 							return newContext;
 						});
@@ -255,25 +316,34 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	private _task: Task<any>;
 
 	/**
-	 * @param parent
-	 * The parent command that this command is chained to, or a [[Sesssion]] object if this is the
-	 * first command in a command chain.
+	 * @param parent The parent command that this command is chained to, or a
+	 * [[Sesssion]] object if this is the first command in a command chain.
 	 *
-	 * @param initialiser
-	 * A function that will be executed when all parent commands have completed execution. This function can create a
-	 * new context for this command by calling the passed `setContext` function any time prior to resolving the Promise
-	 * that it returns. If no context is explicitly provided, the context from the parent command will be used.
+	 * @param initialiser A function that will be executed when all parent
+	 * commands have completed execution. This function can create a new
+	 * context for this command by calling the passed `setContext` function any
+	 * time prior to resolving the Promise that it returns. If no context is
+	 * explicitly provided, the context from the parent command will be used.
 	 *
-	 * @param errback
-	 * A function that will be executed if any parent commands failed to complete successfully. This function can create
-	 * a new context for the current command by calling the passed `setContext` function any time prior to resolving the
-	 * Promise that it returns. If no context is explicitly provided, the context from the parent command will be used.
+	 * @param errback A function that will be executed if any parent commands
+	 * failed to complete successfully. This function can create a new context
+	 * for the current command by calling the passed `setContext` function any
+	 * time prior to resolving the Promise that it returns. If no context is
+	 * explicitly provided, the context from the parent command will be used.
 	 */
 	// TODO: Need to show that parent is mixed into this Command
 	constructor(
 		parent: Session | Command<any>,
-		initialiser?: (this: Command<any>, setContext: Function, value: any) => any | Task<any>,
-		errback?: (this: Command<any>, setContext: Function, error: Error) => any | Task<any>
+		initialiser?: (
+			this: Command<any>,
+			setContext: Function,
+			value: any
+		) => any | Task<any>,
+		errback?: (
+			this: Command<any>,
+			setContext: Function,
+			error: Error
+		) => any | Task<any>
 	) {
 		super();
 
@@ -287,10 +357,13 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 				context.isSingle = true;
 			}
 
-			// If the context being set has depth, then it is coming from `Command#end`,
-			// or someone smart knows what they are doing; do not change the depth
+			// If the context being set has depth, then it is coming from
+			// `Command#end`, or someone smart knows what they are doing; do
+			// not change the depth
 			if (!('depth' in context)) {
-				context.depth = parent ? (<Command<T>>parent).context.depth + 1 : 0;
+				context.depth = parent
+					? (<Command<T>>parent).context.depth + 1
+					: 0;
 			}
 
 			self._context = context;
@@ -304,17 +377,17 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 		if (parent instanceof Command) {
 			this._parent = parent;
 			session = this._session = parent.session;
-		}
-		else if (parent instanceof Session) {
+		} else if (parent instanceof Session) {
 			session = this._session = parent;
 			parent = null;
-		}
-		else {
-			throw new Error('A parent Command or Session must be provided to a new Command');
+		} else {
+			throw new Error(
+				'A parent Command or Session must be provided to a new Command'
+			);
 		}
 
-		// Add any custom functions from the session to this command object so they can be accessed automatically
-		// using the fluid interfaces
+		// Add any custom functions from the session to this command object so
+		// they can be accessed automatically using the fluid interfaces
 		// TODO: Test
 		for (let key in session) {
 			if ((<any>session)[key] !== (<any>Session.prototype)[key]) {
@@ -325,30 +398,41 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 		Error.captureStackTrace(trace, Command);
 
 		let parentCommand = <Command<T>>parent;
-		this._task = (parentCommand ? parentCommand.promise : Task.resolve(undefined)).then(function (returnValue) {
-			self._context = parentCommand ? parentCommand.context : TOP_CONTEXT;
-			return returnValue;
-		}, function (error) {
-			self._context = parentCommand ? parentCommand.context : TOP_CONTEXT;
-			throw error;
-		}).then(
-			initialiser && function (returnValue) {
-				return Task.resolve(returnValue)
-					.then(initialiser.bind(self, setContext))
-					.catch(fixStack);
-			},
-			errback && function (error) {
-				return Task.reject(error)
-					.catch(errback.bind(self, setContext))
-					.catch(fixStack);
-			}
-		);
+		this._task = (parentCommand
+			? parentCommand.promise
+			: Task.resolve(undefined))
+			.then(
+				function(returnValue) {
+					self._context = parentCommand
+						? parentCommand.context
+						: TOP_CONTEXT;
+					return returnValue;
+				},
+				function(error) {
+					self._context = parentCommand
+						? parentCommand.context
+						: TOP_CONTEXT;
+					throw error;
+				}
+			)
+			.then(
+				initialiser &&
+					function(returnValue) {
+						return Task.resolve(returnValue)
+							.then(initialiser.bind(self, setContext))
+							.catch(fixStack);
+					},
+				errback &&
+					function(error) {
+						return Task.reject(error)
+							.catch(errback.bind(self, setContext))
+							.catch(fixStack);
+					}
+			);
 	}
 
 	/**
 	 * The parent Command of the Command, if one exists.
-	 *
-	 * @readonly
 	 */
 	get parent() {
 		return this._parent;
@@ -356,24 +440,24 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 
 	/**
 	 * The parent Session of the Command.
-	 *
-	 * @readonly
 	 */
 	get session() {
 		return this._session;
 	}
 
 	/**
-	 * The filtered elements that will be used if an element-specific method is invoked. Note that this property is not
-	 * valid until the parent Command has been settled. The context array also has two additional properties:
+	 * The filtered elements that will be used if an element-specific method is
+	 * invoked. Note that this property is not valid until the parent Command
+	 * has been settled. The context array also has two additional properties:
 	 *
-	 * - isSingle (boolean): If true, the context will always contain a single element. This is used to differentiate
-	 *   between methods that should still return scalar values (`find`) and methods that should return arrays of
-	 *   values even if there is only one element in the context (`findAll`).
-	 * - depth (number): The depth of the context within the command chain. This is used to prevent traversal into
-	 *   higher filtering levels by [[Command.end]].
-	 *
-	 * @readonly
+	 * - isSingle (boolean): If true, the context will always contain a single
+	 *   element. This is used to differentiate between methods that should
+	 *   still return scalar values (`find`) and methods that should return
+	 *   arrays of values even if there is only one element in the context
+	 *   (`findAll`).
+	 * - depth (number): The depth of the context within the command chain.
+	 *   This is used to prevent traversal into higher filtering levels by
+	 *   [[Command.end]].
 	 */
 	get context() {
 		return this._context;
@@ -394,36 +478,44 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	 * @param ms Time to delay, in milliseconds.
 	 */
 	sleep(ms: number) {
-		return new (this.constructor as typeof Command)(this, function () {
+		return new (this.constructor as typeof Command)(this, function() {
 			return sleep(ms);
 		});
 	}
 
 	/**
-	 * Ends the most recent filtering operation in the current Command chain and returns the set of matched elements
-	 * to the previous state. This is equivalent to the `jQuery#end` method.
+	 * Ends the most recent filtering operation in the current Command chain
+	 * and returns the set of matched elements to the previous state. This is
+	 * equivalent to the `jQuery#end` method.
 	 *
-	 * @example
 	 * ```js
 	 * command
-	 *   .findById('parent') // sets filter to #parent
+	 *     .findById('parent') // sets filter to #parent
 	 *     .findByClassName('child') // sets filter to all .child inside #parent
-	 *       .getVisibleText()
-	 *       .then(function (visibleTexts) {
+	 *     .getVisibleText()
+	 *     .then(function (visibleTexts) {
 	 *         // all the visible texts from the children
-	 *       })
-	 *       .end() // resets filter to #parent
+	 *     })
+	 *     .end() // resets filter to #parent
 	 *     .end(); // resets filter to nothing (the whole document)
 	 *  ```
 	 *
-	 * @param numCommandsToPop The number of element contexts to pop. Defaults to 1.
+	 * @param numCommandsToPop The number of element contexts to pop. Defaults
+	 * to 1.
 	 */
 	end(numCommandsToPop: number = 1) {
-		return new (this.constructor as typeof Command)<void>(this, function (this: Command<T>, setContext: Function) {
+		return new (this.constructor as typeof Command)<void>(this, function(
+			this: Command<T>,
+			setContext: Function
+		) {
 			let command = this;
 			let depth: number = this.context.depth;
 
-			while (depth && numCommandsToPop && (command = <Command<any>>command.parent)) {
+			while (
+				depth &&
+				numCommandsToPop &&
+				(command = <Command<any>>command.parent)
+			) {
 				if (command.context.depth < depth) {
 					--numCommandsToPop;
 					depth = command.context.depth;
@@ -435,32 +527,56 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Adds a callback to be invoked once the previously chained operation has completed.
+	 * Adds a callback to be invoked once the previously chained operation has
+	 * completed.
 	 *
-	 * This method is compatible with the `Promise#then` API, with two important differences:
+	 * This method is compatible with the `Promise#then` API, with two
+	 * important differences:
 	 *
-	 * 1. The context (`this`) of the callback is set to the Command object, rather than being `undefined`. This allows
-	 *    promise helpers to be created that can retrieve the appropriate session and element contexts for execution.
-	 * 2. A second non-standard `setContext` argument is passed to the callback. This `setContext` function can be
-	 *    called at any time before the callback fulfills its return value and expects either a single
-	 *    [[Element]] or an array of Elements to be provided as its only argument. The provided
-	 *    element(s) will be used as the context for subsequent element method invocations (`click`, etc.). If
-	 *    the `setContext` method is not called, the element context from the parent will be passed through unmodified.
+	 * 1. The context (`this`) of the callback is set to the Command object,
+	 *    rather than being `undefined`. This allows promise helpers to be
+	 *    created that can retrieve the appropriate session and element
+	 *    contexts for execution.
+	 * 2. A second non-standard `setContext` argument is passed to the
+	 *    callback. This `setContext` function can be called at any time before
+	 *    the callback fulfills its return value and expects either a single
+	 *    [[Element]] or an array of Elements to be provided as its only
+	 *    argument. The provided element(s) will be used as the context for
+	 *    subsequent element method invocations (`click`, etc.). If the
+	 *    `setContext` method is not called, the element context from the
+	 *    parent will be passed through unmodified.
 	 */
 	then<U = T>(
-		callback?: ((value: T, setContext: SetContextMethod<U>) => U | PromiseLike<U> | Command<U>) | null | undefined,
-		errback?: ((error: Error) => void | U | PromiseLike<U> | Command<U>) | null | undefined
+		callback?:
+			| ((
+					value: T,
+					setContext: SetContextMethod<U>
+				) => U | PromiseLike<U> | Command<U>)
+			| null
+			| undefined,
+		errback?:
+			| ((error: Error) => void | U | PromiseLike<U> | Command<U>)
+			| null
+			| undefined
 	) {
-		function runCallback(command: Command<T>, callback: Function, value: T, setContext: SetContextMethod<T>): T {
+		function runCallback(
+			command: Command<T>,
+			callback: Function,
+			value: T,
+			setContext: SetContextMethod<T>
+		): T {
 			const returnValue = callback.call(command, value, setContext);
 
-			// If someone returns `this` (or a chain starting from `this`) from the callback, it will cause a deadlock
-			// where the child command is waiting for the child command to resolve
+			// If someone returns `this` (or a chain starting from `this`) from
+			// the callback, it will cause a deadlock where the child command
+			// is waiting for the child command to resolve
 			if (returnValue instanceof Command) {
 				let maybeCommand = returnValue;
 				do {
 					if (maybeCommand === command) {
-						throw new Error('Deadlock: do not use `return this` from a Command callback');
+						throw new Error(
+							'Deadlock: do not use `return this` from a Command callback'
+						);
 					}
 				} while ((maybeCommand = <Command<T>>maybeCommand.parent));
 			}
@@ -468,26 +584,30 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 			return returnValue;
 		}
 
-		return <Command<U>>(new (this.constructor as typeof Command)(
+		return <Command<U>>new (this.constructor as typeof Command)(
 			this,
-			callback && (function (setContext: SetContextMethod<T>, value: T) {
-				return runCallback(this, callback, value, setContext);
-			}),
-			errback && (function (setContext: SetContextMethod<T>, value: any) {
-				return runCallback(this, errback, value, setContext);
-			})
-		));
+			callback &&
+				function(setContext: SetContextMethod<T>, value: T) {
+					return runCallback(this, callback, value, setContext);
+				},
+			errback &&
+				function(setContext: SetContextMethod<T>, value: any) {
+					return runCallback(this, errback, value, setContext);
+				}
+		);
 	}
 
 	/**
-	 * Adds a callback to be invoked when any of the previously chained operations have failed.
+	 * Adds a callback to be invoked when any of the previously chained
+	 * operations have failed.
 	 */
 	catch(errback: (reason: Error) => void | T | Command<T>) {
 		return this.then(null, errback);
 	}
 
 	/**
-	 * Adds a callback to be invoked once the previously chained operations have resolved.
+	 * Adds a callback to be invoked once the previously chained operations
+	 * have resolved.
 	 */
 	finally(callback: () => void) {
 		this._task = this._task.finally(callback);
@@ -495,8 +615,9 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Cancels all outstanding chained operations of the Command. Calling this method will cause this command and all
-	 * subsequent chained commands to fail with a CancelError.
+	 * Cancels all outstanding chained operations of the Command. Calling this
+	 * method will cause this command and all subsequent chained commands to
+	 * fail with a CancelError.
 	 */
 	cancel() {
 		this._task.cancel();
@@ -508,41 +629,58 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	findAll(strategy: Strategy, value: string) {
-		return this._callFindElementMethod<Element[]>('findAll', strategy, value);
+		return this._callFindElementMethod<Element[]>(
+			'findAll',
+			strategy,
+			value
+		);
 	}
 
 	findDisplayed(strategy: Strategy, value: string) {
-		return this._callFindElementMethod<Element>('findDisplayed', strategy, value);
+		return this._callFindElementMethod<Element>(
+			'findDisplayed',
+			strategy,
+			value
+		);
 	}
 
 	/**
-	 * a function that, when called, creates a new Command that retrieves elements from the parent context and
-	 * uses them as the context for the newly created Command.
+	 * a function that, when called, creates a new Command that retrieves
+	 * elements from the parent context and uses them as the context for the
+	 * newly created Command.
 	 */
 	private _callFindElementMethod<U>(key: keyof Element, ...args: any[]) {
-		return new (this.constructor as typeof Command)<U>(this, function (this: Command<U>, setContext: SetContextMethod<U>) {
+		return new (this.constructor as typeof Command)<U>(this, function(
+			this: Command<U>,
+			setContext: SetContextMethod<U>
+		) {
 			const parentContext = this._context;
 			let promise: Task<U>;
 
 			if (parentContext.length && parentContext.isSingle) {
-				promise = (<any>parentContext)[0][key].apply(parentContext[0], args);
-			}
-			else if (parentContext.length) {
-				promise = Task.all(parentContext.map(function (element: Element) {
-					return (<any>element)[key].apply(element, args);
-				})).then(function (elements) {
-					// findAll against an array context will result in arrays of arrays; flatten into a single array of
-					// elments. It would also be possible to resort in document order but other parallel operations
-					// could not be sorted so we just don't do it anywhere and say not to rely on a particular order for
-					// results
+				promise = (<any>parentContext)[0][key].apply(
+					parentContext[0],
+					args
+				);
+			} else if (parentContext.length) {
+				promise = Task.all(
+					parentContext.map(function(element: Element) {
+						return (<any>element)[key].apply(element, args);
+					})
+				).then(function(elements) {
+					// findAll against an array context will result in arrays
+					// of arrays; flatten into a single array of elments. It
+					// would also be possible to resort in document order but
+					// other parallel operations could not be sorted so we just
+					// don't do it anywhere and say not to rely on a particular
+					// order for results
 					return Array.prototype.concat.apply([], elements);
 				});
-			}
-			else {
+			} else {
 				promise = (<any>this.session)[key].apply(this.session, args);
 			}
 
-			return promise.then(function (newContext) {
+			return promise.then(function(newContext) {
 				setContext(newContext);
 				return newContext;
 			});
@@ -550,22 +688,26 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	private _callElementMethod<U>(key: keyof Element, ...args: any[]) {
-		return new (this.constructor as typeof Command)<U>(this, function (this: Command<T>, setContext: Function) {
+		return new (this.constructor as typeof Command)<U>(this, function(
+			this: Command<T>,
+			setContext: Function
+		) {
 			const parentContext = this._context;
 			let promise: Task<any>;
 			let fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
 
 			if (parentContext.isSingle) {
 				promise = fn.apply(parentContext[0], args);
-			}
-			else {
-				promise = Task.all(parentContext.map(function (element: any) {
-					return element[key].apply(element, args);
-				}));
+			} else {
+				promise = Task.all(
+					parentContext.map(function(element: any) {
+						return element[key].apply(element, args);
+					})
+				);
 			}
 
 			if (fn && fn.createsContext) {
-				promise = promise.then(function (newContext) {
+				promise = promise.then(function(newContext) {
 					setContext(newContext);
 					return newContext;
 				});
@@ -576,36 +718,45 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	private _callSessionMethod<U>(key: keyof Session, ...args: any[]) {
-		return new (this.constructor as typeof Command)<U>(this, function (this: Command<T>, setContext: Function) {
+		return new (this.constructor as typeof Command)<U>(this, function(
+			this: Command<T>,
+			setContext: Function
+		) {
 			const parentContext = this._context;
 			const session = this._session;
 			let task: Task<any>;
 
-			// The function may have come from a session object prototype but have been overridden on the actual
-			// session instance; in such a case, the overridden function should be used instead of the one from
-			// the original source object. The original source object may still be used, however, if the
-			// function is being added like a mixin and does not exist on the actual session object for this
+			// The function may have come from a session object prototype but
+			// have been overridden on the actual session instance; in such a
+			// case, the overridden function should be used instead of the one
+			// from the original source object. The original source object may
+			// still be used, however, if the function is being added like a
+			// mixin and does not exist on the actual session object for this
 			// session
 			const sessionMethod = (...args: any[]) => {
 				return (<Function>session[key])(...args);
 			};
 
-			if ((<any>session[key]).usesElement && parentContext.length && (!args[0] || !args[0].elementId)) {
+			if (
+				(<any>session[key]).usesElement &&
+				parentContext.length &&
+				(!args[0] || !args[0].elementId)
+			) {
 				if (parentContext.isSingle) {
 					task = sessionMethod(...[parentContext[0], ...args]);
+				} else {
+					task = Task.all(
+						parentContext.map(element => {
+							return sessionMethod(...[element, ...args]);
+						})
+					);
 				}
-				else {
-					task = Task.all(parentContext.map(element => {
-						return sessionMethod(...[element, ...args]);
-					}));
-				}
-			}
-			else {
+			} else {
 				task = sessionMethod(...args);
 			}
 
 			if ((<any>session[key]).createsContext) {
-				task = task.then(function (newContext) {
+				task = task.then(function(newContext) {
 					setContext(newContext);
 					return newContext;
 				});
@@ -620,7 +771,8 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Gets the current value of a timeout for the session.
 	 *
-	 * @param type The type of timeout to retrieve. One of 'script', 'implicit', or 'page load'.
+	 * @param type The type of timeout to retrieve. One of 'script',
+	 * 'implicit', or 'page load'.
 	 * @returns The timeout, in milliseconds.
 	 */
 	getTimeout(type: string) {
@@ -630,12 +782,11 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Sets the value of a timeout for the session.
 	 *
-	 * @param type
-	 * The type of timeout to set. One of 'script', 'implicit', or 'page load'.
+	 * @param type The type of timeout to set. One of 'script', 'implicit', or
+	 * 'page load'.
 	 *
-	 * @param ms
-	 * The length of time to use for the timeout, in milliseconds. A value of 0 will cause operations to time out
-	 * immediately.
+	 * @param ms The length of time to use for the timeout, in milliseconds. A
+	 * value of 0 will cause operations to time out immediately.
 	 */
 	setTimeout(type: string, ms: number) {
 		return this._callSessionMethod<void>('setTimeout', type, ms);
@@ -644,7 +795,8 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Gets the identifier for the window that is currently focused.
 	 *
-	 * @returns A window handle identifier that can be used with other window handling functions.
+	 * @returns A window handle identifier that can be used with other window
+	 * handling functions.
 	 */
 	getCurrentWindowHandle() {
 		return this._callSessionMethod<string>('getCurrentWindowHandle');
@@ -672,14 +824,16 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Navigates the focused window/frame forward one page using the browser’s navigation history.
+	 * Navigates the focused window/frame forward one page using the browser’s
+	 * navigation history.
 	 */
 	goForward() {
 		return this._callSessionMethod<void>('goForward');
 	}
 
 	/**
-	 * Navigates the focused window/frame back one page using the browser’s navigation history.
+	 * Navigates the focused window/frame back one page using the browser’s
+	 * navigation history.
 	 */
 	goBack() {
 		return this._callSessionMethod<void>('goBack');
@@ -693,52 +847,58 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Executes JavaScript code within the focused window/frame. The code should return a value synchronously.
+	 * Executes JavaScript code within the focused window/frame. The code
+	 * should return a value synchronously.
 	 *
-	 * @see [[Command.executeAsync]] to execute code that returns values asynchronously.
+	 * See [[Command.executeAsync]] to execute code that returns values
+	 * asynchronously.
 	 *
-	 * @param script
-	 * The code to execute. This function will always be converted to a string, sent to the remote environment, and
-	 * reassembled as a new anonymous function on the remote end. This means that you cannot access any variables
-	 * through closure. If your code needs to get data from variables on the local end, they should be passed using
+	 * @param script The code to execute. This function will always be
+	 * converted to a string, sent to the remote environment, and reassembled
+	 * as a new anonymous function on the remote end. This means that you
+	 * cannot access any variables through closure. If your code needs to get
+	 * data from variables on the local end, they should be passed using
 	 * `args`.
 	 *
-	 * @param args
-	 * An array of arguments that will be passed to the executed code. Only values that can be serialised to JSON, plus
-	 * [[Element]] objects, can be specified as arguments.
+	 * @param args An array of arguments that will be passed to the executed
+	 * code. Only values that can be serialised to JSON, plus [[Element]]
+	 * objects, can be specified as arguments.
 	 *
-	 * @returns
-	 * The value returned by the remote code. Only values that can be serialised to JSON, plus DOM elements, can be
-	 * returned.
+	 * @returns The value returned by the remote code. Only values that can be
+	 * serialised to JSON, plus DOM elements, can be returned.
 	 */
 	execute(script: Function | string, args?: any[]) {
 		return this._callSessionMethod<any>('execute', script, args);
 	}
 
 	/**
-	 * Executes JavaScript code within the focused window/frame. The code must invoke the provided callback in
-	 * order to signal that it has completed execution.
+	 * Executes JavaScript code within the focused window/frame. The code must
+	 * invoke the provided callback in order to signal that it has completed
+	 * execution.
 	 *
-	 * @see [[Command.execute]] to execute code that returns values synchronously.
-	 * @see [[Command.setExecuteAsyncTimeout]] to set the time until an asynchronous script is
-	 * considered timed out.
+	 * See [[Command.execute]] to execute code that returns values
+	 * synchronously.
 	 *
-	 * @param script
-	 * The code to execute. This function will always be converted to a string, sent to the remote environment, and
-	 * reassembled as a new anonymous function on the remote end. This means that you cannot access any variables
-	 * through closure. If your code needs to get data from variables on the local end, they should be passed using
+	 * See [[Command.setExecuteAsyncTimeout]] to set the time until an
+	 * asynchronous script is considered timed out.
+	 *
+	 * @param script The code to execute. This function will always be
+	 * converted to a string, sent to the remote environment, and reassembled
+	 * as a new anonymous function on the remote end. This means that you
+	 * cannot access any variables through closure. If your code needs to get
+	 * data from variables on the local end, they should be passed using
 	 * `args`.
 	 *
-	 * @param args
-	 * An array of arguments that will be passed to the executed code. Only values that can be serialised to JSON, plus
-	 * [[Element]] objects, can be specified as arguments. In addition to these arguments, a
-	 * callback function will always be passed as the final argument to the function specified in `script`. This
-	 * callback function must be invoked in order to signal that execution has completed. The return value of the
+	 * @param args An array of arguments that will be passed to the executed
+	 * code. Only values that can be serialised to JSON, plus [[Element]]
+	 * objects, can be specified as arguments. In addition to these arguments,
+	 * a callback function will always be passed as the final argument to the
+	 * function specified in `script`. This callback function must be invoked
+	 * in order to signal that execution has completed. The return value of the
 	 * execution, if any, should be passed to this callback function.
 	 *
-	 * @returns
-	 * The value returned by the remote code. Only values that can be serialised to JSON, plus DOM elements, can be
-	 * returned.
+	 * @returns The value returned by the remote code. Only values that can be
+	 * serialised to JSON, plus DOM elements, can be returned.
 	 */
 	executeAsync(script: Function | string, args?: any[]) {
 		return this._callSessionMethod<any>('executeAsync', script, args);
@@ -752,8 +912,9 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Gets a list of input method editor engines available to the remote environment.
-	 * As of April 2014, no known remote environments support IME functions.
+	 * Gets a list of input method editor engines available to the remote
+	 * environment. As of April 2014, no known remote environments support IME
+	 * functions.
 	 */
 	getAvailableImeEngines() {
 		return this._callSessionMethod<string[]>('getAvailableImeEngines');
@@ -768,8 +929,9 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Returns whether or not an input method editor is currently active in the remote environment.
-	 * As of April 2014, no known remote environments support IME functions.
+	 * Returns whether or not an input method editor is currently active in the
+	 * remote environment. As of April 2014, no known remote environments
+	 * support IME functions.
 	 */
 	isImeActivated() {
 		return this._callSessionMethod<boolean>('isImeActivated');
@@ -796,10 +958,11 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Switches the currently focused frame to a new frame.
 	 *
-	 * @param id
-	 * The frame to switch to. In most environments, a number or string value corresponds to a key in the
-	 * `window.frames` object of the currently active frame. If `null`, the topmost (default) frame will be used.
-	 * If an Element is provided, it must correspond to a `<frame>` or `<iframe>` element.
+	 * @param id The frame to switch to. In most environments, a number or
+	 * string value corresponds to a key in the `window.frames` object of the
+	 * currently active frame. If `null`, the topmost (default) frame will be
+	 * used. If an Element is provided, it must correspond to a `<frame>` or
+	 * `<iframe>` element.
 	 */
 	switchToFrame(id: string | number | Element) {
 		return this._callSessionMethod<void>('switchToFrame', id);
@@ -808,26 +971,29 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Switches the currently focused window to a new window.
 	 *
-	 * @param handle
-	 * The handle of the window to switch to. In mobile environments and environments based on the W3C WebDriver
-	 * standard, this should be a handle as returned by [[Command.getAllWindowHandles]].
+	 * In environments using the JsonWireProtocol, this value corresponds to
+	 * the `window.name` property of a window.
 	 *
-	 * In environments using the JsonWireProtocol, this value corresponds to the `window.name` property of a window.
+	 * @param handle The handle of the window to switch to. In mobile
+	 * environments and environments based on the W3C WebDriver standard, this
+	 * should be a handle as returned by [[Command.getAllWindowHandles]].
 	 */
 	switchToWindow(handle: string) {
 		return this._callSessionMethod<void>('switchToWindow', handle);
 	}
 
 	/**
-	 * Switches the currently focused frame to the parent of the currently focused frame.
+	 * Switches the currently focused frame to the parent of the currently
+	 * focused frame.
 	 */
 	switchToParentFrame() {
 		return this._callSessionMethod<void>('switchToParentFrame');
 	}
 
 	/**
-	 * Closes the currently focused window. In most environments, after the window has been closed, it is necessary
-	 * to explicitly switch to whatever window is now focused.
+	 * Closes the currently focused window. In most environments, after the
+	 * window has been closed, it is necessary to explicitly switch to whatever
+	 * window is now focused.
 	 */
 	closeCurrentWindow() {
 		return this._callSessionMethod<void>('closeCurrentWindow');
@@ -836,18 +1002,20 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Sets the dimensions of a window.
 	 *
-	 * @param windowHandle
-	 * The name of the window to resize. See [[Command.switchToWindow]] to learn about valid
-	 * window names. Omit this argument to resize the currently focused window.
+	 * @param windowHandle The name of the window to resize. See
+	 * [[Command.switchToWindow]] to learn about valid window names. Omit this
+	 * argument to resize the currently focused window.
 	 *
-	 * @param width
-	 * The new width of the window, in CSS pixels.
+	 * @param width The new width of the window, in CSS pixels.
 	 *
-	 * @param height
-	 * The new height of the window, in CSS pixels.
+	 * @param height The new height of the window, in CSS pixels.
 	 */
 	setWindowSize(width: number, height: number): Command<void>;
-	setWindowSize(windowHandle: string, width: number, height: number): Command<void>;
+	setWindowSize(
+		windowHandle: string,
+		width: number,
+		height: number
+	): Command<void>;
 	setWindowSize(...args: any[]) {
 		return this._callSessionMethod<void>('setWindowSize', ...args);
 	}
@@ -855,15 +1023,17 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Gets the dimensions of a window.
 	 *
-	 * @param windowHandle
-	 * The name of the window to query. See [[Command.switchToWindow]] to learn about valid
-	 * window names. Omit this argument to query the currently focused window.
+	 * @param windowHandle The name of the window to query. See
+	 * [[Command.switchToWindow]] to learn about valid window names. Omit this
+	 * argument to query the currently focused window.
 	 *
-	 * @returns
-	 * An object describing the width and height of the window, in CSS pixels.
+	 * @returns An object describing the width and height of the window, in CSS
+	 * pixels.
 	 */
 	getWindowSize(windowHandle?: string) {
-		return this._callSessionMethod<{ width: number, height: number }>('getWindowSize');
+		return this._callSessionMethod<{ width: number; height: number }>(
+			'getWindowSize'
+		);
 	}
 
 	/**
@@ -871,18 +1041,22 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	 *
 	 * Note that this method is not part of the W3C WebDriver standard.
 	 *
-	 * @param windowHandle
-	 * The name of the window to move. See [[Command.switchToWindow]] to learn about valid
-	 * window names. Omit this argument to move the currently focused window.
+	 * @param windowHandle The name of the window to move. See
+	 * [[Command.switchToWindow]] to learn about valid window names. Omit this
+	 * argument to move the currently focused window.
 	 *
-	 * @param x
-	 * The screen x-coordinate to move to, in CSS pixels, relative to the left edge of the primary monitor.
+	 * @param x The screen x-coordinate to move to, in CSS pixels, relative to
+	 * the left edge of the primary monitor.
 	 *
-	 * @param y
-	 * The screen y-coordinate to move to, in CSS pixels, relative to the top edge of the primary monitor.
+	 * @param y The screen y-coordinate to move to, in CSS pixels, relative to
+	 * the top edge of the primary monitor.
 	 */
 	setWindowPosition(x: number, y: number): Command<void>;
-	setWindowPosition(windowHandle: string, x: number, y: number): Command<void>;
+	setWindowPosition(
+		windowHandle: string,
+		x: number,
+		y: number
+	): Command<void>;
 	setWindowPosition(...args: any[]) {
 		return this._callSessionMethod<void>('setWindowPosition', ...args);
 	}
@@ -892,25 +1066,28 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	 *
 	 * Note that this method is not part of the W3C WebDriver standard.
 	 *
-	 * @param windowHandle
-	 * The name of the window to query. See [[Command.switchToWindow]] to learn about valid
-	 * window names. Omit this argument to query the currently focused window.
+	 * @param windowHandle The name of the window to query. See
+	 * [[Command.switchToWindow]] to learn about valid window names. Omit this
+	 * argument to query the currently focused window.
 	 *
-	 * @returns
-	 * An object describing the position of the window, in CSS pixels, relative to the top-left corner of the
-	 * primary monitor. If a secondary monitor exists above or to the left of the primary monitor, these values
+	 * @returns An object describing the position of the window, in CSS pixels,
+	 * relative to the top-left corner of the primary monitor. If a secondary
+	 * monitor exists above or to the left of the primary monitor, these values
 	 * will be negative.
 	 */
 	getWindowPosition(windowHandle?: string) {
-		return this._callSessionMethod<{ x: number, y: number }>('getWindowPosition', windowHandle);
+		return this._callSessionMethod<{ x: number; y: number }>(
+			'getWindowPosition',
+			windowHandle
+		);
 	}
 
 	/**
 	 * Maximises a window according to the platform’s window system behaviour.
 	 *
-	 * @param windowHandle
-	 * The name of the window to resize. See [[Command.switchToWindow] to learn about valid
-	 * window names. Omit this argument to resize the currently focused window.
+	 * @param windowHandle The name of the window to resize. See
+	 * [[Command.switchToWindow] to learn about valid window names. Omit this
+	 * argument to resize the currently focused window.
 	 */
 	maximizeWindow(windowHandle?: string) {
 		return this._callSessionMethod<void>('maximizeWindow', windowHandle);
@@ -947,15 +1124,17 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Gets the HTML loaded in the focused window/frame. This markup is serialised by the remote environment so
-	 * may not exactly match the HTML provided by the Web server.
+	 * Gets the HTML loaded in the focused window/frame. This markup is
+	 * serialised by the remote environment so may not exactly match the HTML
+	 * provided by the Web server.
 	 */
 	getPageSource() {
 		return this._callSessionMethod<string>('getPageSource');
 	}
 
 	/**
-	 * Gets the title of the top-level browsing context of the current window or tab.
+	 * Gets the title of the top-level browsing context of the current window
+	 * or tab.
 	 */
 	getPageTitle() {
 		return this._callSessionMethod<string>('getPageTitle');
@@ -971,13 +1150,15 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Types into the focused window/frame/element.
 	 *
-	 * @param keys
-	 * The text to type in the remote environment. It is possible to type keys that do not have normal character
-	 * representations (modifier keys, function keys, etc.) as well as keys that have two different representations
-	 * on a typical US-ASCII keyboard (numpad keys); use the values from [[keys]] to type these
-	 * special characters. Any modifier keys that are activated by this call will persist until they are
-	 * deactivated. To deactivate a modifier key, type the same modifier key a second time, or send `\uE000`
-	 * ('NULL') to deactivate all currently active modifier keys.
+	 * @param keys The text to type in the remote environment. It is possible
+	 * to type keys that do not have normal character representations (modifier
+	 * keys, function keys, etc.) as well as keys that have two different
+	 * representations on a typical US-ASCII keyboard (numpad keys); use the
+	 * values from [[keys]] to type these special characters. Any modifier keys
+	 * that are activated by this call will persist until they are deactivated.
+	 * To deactivate a modifier key, type the same modifier key a second time,
+	 * or send `\uE000` ('NULL') to deactivate all currently active modifier
+	 * keys.
 	 */
 	pressKeys(keys: string | string[]) {
 		return this._callSessionMethod<void>('pressKeys', keys);
@@ -987,7 +1168,9 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	 * Gets the current screen orientation.
 	 */
 	getOrientation() {
-		return this._callSessionMethod<'portrait' | 'landscape'>('getOrientation');
+		return this._callSessionMethod<'portrait' | 'landscape'>(
+			'getOrientation'
+		);
 	}
 
 	/**
@@ -1016,51 +1199,62 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Accepts an alert, prompt, or confirmation pop-up. Equivalent to clicking the 'OK' button.
+	 * Accepts an alert, prompt, or confirmation pop-up. Equivalent to clicking
+	 * the 'OK' button.
 	 */
 	acceptAlert() {
 		return this._callSessionMethod<void>('acceptAlert');
 	}
 
 	/**
-	 * Dismisses an alert, prompt, or confirmation pop-up. Equivalent to clicking the 'OK' button of an alert pop-up
-	 * or the 'Cancel' button of a prompt or confirmation pop-up.
+	 * Dismisses an alert, prompt, or confirmation pop-up. Equivalent to
+	 * clicking the 'OK' button of an alert pop-up or the 'Cancel' button of a
+	 * prompt or confirmation pop-up.
 	 */
 	dismissAlert() {
 		return this._callSessionMethod<void>('dismissAlert');
 	}
 
 	/**
-	 * Moves the remote environment’s mouse cursor to the specified element or relative position. If the element is
-	 * outside of the viewport, the remote driver will attempt to scroll it into view automatically.
+	 * Moves the remote environment’s mouse cursor to the specified element or
+	 * relative position. If the element is outside of the viewport, the remote
+	 * driver will attempt to scroll it into view automatically.
 	 *
-	 * @param element
-	 * The element to move the mouse to. If x-offset and y-offset are not specified, the mouse will be moved to the
-	 * centre of the element.
+	 * @param element The element to move the mouse to. If x-offset and
+	 * y-offset are not specified, the mouse will be moved to the centre of the
+	 * element.
 	 *
-	 * @param xOffset
-	 * The x-offset of the cursor, maybe in CSS pixels, relative to the left edge of the specified element’s
-	 * bounding client rectangle. If no element is specified, the offset is relative to the previous position of the
-	 * mouse, or to the left edge of the page’s root element if the mouse was never moved before.
+	 * @param xOffset The x-offset of the cursor, maybe in CSS pixels, relative
+	 * to the left edge of the specified element’s bounding client rectangle.
+	 * If no element is specified, the offset is relative to the previous
+	 * position of the mouse, or to the left edge of the page’s root element if
+	 * the mouse was never moved before.
 	 *
-	 * @param yOffset
-	 * The y-offset of the cursor, maybe in CSS pixels, relative to the top edge of the specified element’s bounding
-	 * client rectangle. If no element is specified, the offset is relative to the previous position of the mouse,
-	 * or to the top edge of the page’s root element if the mouse was never moved before.
+	 * @param yOffset The y-offset of the cursor, maybe in CSS pixels, relative
+	 * to the top edge of the specified element’s bounding client rectangle. If
+	 * no element is specified, the offset is relative to the previous position
+	 * of the mouse, or to the top edge of the page’s root element if the mouse
+	 * was never moved before.
 	 */
-	moveMouseTo(element?: Element, xOffset?: number, yOffset?: number): Command<void>;
+	moveMouseTo(
+		element?: Element,
+		xOffset?: number,
+		yOffset?: number
+	): Command<void>;
 	moveMouseTo(xOffset?: number, yOffset?: number): Command<void>;
 	moveMouseTo(...args: any[]) {
 		return this._callSessionMethod<void>('moveMouseTo', ...args);
 	}
 
 	/**
-	 * Clicks a mouse button at the point where the mouse cursor is currently positioned. This method may fail to
-	 * execute with an error if the mouse has not been moved anywhere since the page was loaded.
+	 * Clicks a mouse button at the point where the mouse cursor is currently
+	 * positioned. This method may fail to execute with an error if the mouse
+	 * has not been moved anywhere since the page was loaded.
 	 *
-	 * @param button
-	 * The button to click. 0 corresponds to the primary mouse button, 1 to the middle mouse button, 2 to the
-	 * secondary mouse button. Numbers above 2 correspond to any additional buttons a mouse might provide.
+	 * @param button The button to click. 0 corresponds to the primary mouse
+	 * button, 1 to the middle mouse button, 2 to the secondary mouse button.
+	 * Numbers above 2 correspond to any additional buttons a mouse might
+	 * provide.
 	 */
 	clickMouseButton(button?: number) {
 		return this._callSessionMethod<void>('clickMouseButton', button);
@@ -1069,7 +1263,8 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Depresses a mouse button without releasing it.
 	 *
-	 * @param button The button to press. See [[Command.click]] for available options.
+	 * @param button The button to press. See [[Command.click]] for available
+	 * options.
 	 */
 	pressMouseButton(button?: number) {
 		return this._callSessionMethod<void>('pressMouseButton', button);
@@ -1078,7 +1273,8 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Releases a previously depressed mouse button.
 	 *
-	 * @param button The button to press. See [[Command.click]] for available options.
+	 * @param button The button to press. See [[Command.click]] for available
+	 * options.
 	 */
 	releaseMouseButton(button?: number) {
 		return this._callSessionMethod<void>('releaseMouseButton', button);
@@ -1092,8 +1288,9 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Taps an element on a touch screen device. If the element is outside of the viewport, the remote driver will
-	 * attempt to scroll it into view automatically.
+	 * Taps an element on a touch screen device. If the element is outside of
+	 * the viewport, the remote driver will attempt to scroll it into view
+	 * automatically.
 	 *
 	 * @param element The element to tap.
 	 */
@@ -1102,7 +1299,8 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Depresses a new finger at the given point on a touch screen device without releasing it.
+	 * Depresses a new finger at the given point on a touch screen device
+	 * without releasing it.
 	 *
 	 * @param x The screen x-coordinate to press, maybe in device pixels.
 	 * @param y The screen y-coordinate to press, maybe in device pixels.
@@ -1112,10 +1310,13 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Releases whatever finger exists at the given point on a touch screen device.
+	 * Releases whatever finger exists at the given point on a touch screen
+	 * device.
 	 *
-	 * @param x The screen x-coordinate where a finger is pressed, maybe in device pixels.
-	 * @param y The screen y-coordinate where a finger is pressed, maybe in device pixels.
+	 * @param x The screen x-coordinate where a finger is pressed, maybe in
+	 * device pixels.
+	 * @param y The screen y-coordinate where a finger is pressed, maybe in
+	 * device pixels.
 	 */
 	releaseFinger(x: number, y: number) {
 		return this._callSessionMethod<void>('releaseFinger', x, y);
@@ -1134,20 +1335,24 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Scrolls the currently focused window on a touch screen device.
 	 *
-	 * @param element
-	 * An element to scroll to. The window will be scrolled so the element is as close to the top-left corner of the
-	 * window as possible.
+	 * @param element An element to scroll to. The window will be scrolled so
+	 * the element is as close to the top-left corner of the window as
+	 * possible.
 	 *
-	 * @param xOffset
-	 * An optional x-offset, relative to the left edge of the element, in CSS pixels. If no element is specified,
-	 * the offset is relative to the previous scroll position of the window.
+	 * @param xOffset An optional x-offset, relative to the left edge of the
+	 * element, in CSS pixels. If no element is specified, the offset is
+	 * relative to the previous scroll position of the window.
 	 *
-	 * @param yOffset
-	 * An optional y-offset, relative to the top edge of the element, in CSS pixels. If no element is specified,
-	 * the offset is relative to the previous scroll position of the window.
+	 * @param yOffset An optional y-offset, relative to the top edge of the
+	 * element, in CSS pixels. If no element is specified, the offset is
+	 * relative to the previous scroll position of the window.
 	 */
 	touchScroll(xOffset: number, yOffset: number): Command<void>;
-	touchScroll(element?: Element, xOffset?: number, yOffset?: number): Command<void>;
+	touchScroll(
+		element?: Element,
+		xOffset?: number,
+		yOffset?: number
+	): Command<void>;
 	touchScroll(...args: any[]) {
 		return this._callSessionMethod<void>('touchScroll', ...args);
 	}
@@ -1173,17 +1378,26 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Flicks a finger. Note that this method is currently badly specified and highly dysfunctional and is only
-	 * provided for the sake of completeness.
+	 * Flicks a finger. Note that this method is currently badly specified and
+	 * highly dysfunctional and is only provided for the sake of completeness.
 	 *
 	 * @param element The element where the flick should start.
 	 * @param xOffset The x-offset in pixels to flick by.
 	 * @param yOffset The x-offset in pixels to flick by.
-	 * @param speed The speed of the flick, in pixels per *second*. Most human flicks are 100–200ms, so
-	 * this value will be higher than expected.
+	 * @param speed The speed of the flick, in pixels per *second*. Most human
+	 * flicks are 100–200ms, so this value will be higher than expected.
 	 */
-	flickFinger(element: Element, xOffset: number, yOffset: number, speed?: number): Command<void>;
-	flickFinger(xOffset: number, yOffset: number, speed?: number): Command<void>;
+	flickFinger(
+		element: Element,
+		xOffset: number,
+		yOffset: number,
+		speed?: number
+	): Command<void>;
+	flickFinger(
+		xOffset: number,
+		yOffset: number,
+		speed?: number
+	): Command<void>;
 	flickFinger(...args: any[]) {
 		return this._callSessionMethod<void>('flickFinger', ...args);
 	}
@@ -1191,9 +1405,9 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Gets the current geographical location of the remote environment.
 	 *
-	 * @returns
-	 * Latitude and longitude are specified using standard WGS84 decimal latitude/longitude. Altitude is specified
-	 * as meters above the WGS84 ellipsoid. Not all environments support altitude.
+	 * @returns Latitude and longitude are specified using standard WGS84
+	 * decimal latitude/longitude. Altitude is specified as meters above the
+	 * WGS84 ellipsoid. Not all environments support altitude.
 	 */
 	getGeolocation() {
 		return this._callSessionMethod<Geolocation>('getGeolocation');
@@ -1202,63 +1416,66 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Sets the geographical location of the remote environment.
 	 *
-	 * @param location
-	 * Latitude and longitude are specified using standard WGS84 decimal latitude/longitude. Altitude is specified
-	 * as meters above the WGS84 ellipsoid. Not all environments support altitude.
+	 * @param location Latitude and longitude are specified using standard
+	 * WGS84 decimal latitude/longitude. Altitude is specified as meters above
+	 * the WGS84 ellipsoid. Not all environments support altitude.
 	 */
 	setGeolocation(location: Geolocation) {
 		return this._callSessionMethod<void>('setGeolocation', location);
 	}
 
 	/**
-	 * Gets all logs from the remote environment of the given type. The logs in the remote environment are cleared
-	 * once they have been retrieved.
+	 * Gets all logs from the remote environment of the given type. The logs in
+	 * the remote environment are cleared once they have been retrieved.
 	 *
-	 * @param type
-	 * The type of log entries to retrieve. Available log types differ between remote environments. Use
-	 * [[Command.getAvailableLogTypes]] to learn what log types are currently available. Not all
-	 * environments support all possible log types.
+	 * @param type The type of log entries to retrieve. Available log types
+	 * differ between remote environments. Use [[Command.getAvailableLogTypes]]
+	 * to learn what log types are currently available. Not all environments
+	 * support all possible log types.
 	 *
-	 * @returns
-	 * An array of log entry objects. Timestamps in log entries are Unix timestamps, in seconds.
+	 * @returns An array of log entry objects. Timestamps in log entries are
+	 * Unix timestamps, in seconds.
 	 */
 	getLogsFor(type: string) {
 		return this._callSessionMethod<LogEntry[]>('getLogsFor', type);
 	}
 
 	/**
-	 * Gets the types of logs that are currently available for retrieval from the remote environment.
+	 * Gets the types of logs that are currently available for retrieval from
+	 * the remote environment.
 	 */
 	getAvailableLogTypes() {
 		return this._callSessionMethod<string[]>('getAvailableLogTypes');
 	}
 
 	/**
-	 * Gets the current state of the HTML5 application cache for the current page.
+	 * Gets the current state of the HTML5 application cache for the current
+	 * page.
 	 *
-	 * @returns
-	 * The cache status. One of 0 (uncached), 1 (cached/idle), 2 (checking), 3 (downloading), 4 (update ready), 5
-	 * (obsolete).
+	 * @returns The cache status. One of 0 (uncached), 1 (cached/idle), 2
+	 * (checking), 3 (downloading), 4 (update ready), 5 (obsolete).
 	 */
 	getApplicationCacheStatus() {
 		return this._callSessionMethod<number>('getApplicationCacheStatus');
 	}
 
 	/**
-	 * Terminates the session. No more commands will be accepted by the remote after this point.
+	 * Terminates the session. No more commands will be accepted by the remote
+	 * after this point.
 	 */
 	quit() {
 		return this._callSessionMethod<void>('quit');
 	}
 
 	/**
-	 * Waits for all elements in the currently active window/frame to be destroyed.
+	 * Waits for all elements in the currently active window/frame to be
+	 * destroyed.
 	 *
-	 * @param using
-	 * The element retrieval strategy to use. See [[Command.find]] for options.
+	 * @param using The element retrieval strategy to use. See [[Command.find]]
+	 * for options.
 	 *
-	 * @param value
-	 * The strategy-specific value to search for. See [[Command.find]] for details.
+	 * @param value The strategy-specific value to search for. See
+	 * [[Command.find]] for details.
 	 */
 	waitForDeleted(using: Strategy, value: string) {
 		return this._callSessionMethod<void>('waitForDeleted', using, value);
@@ -1322,38 +1539,45 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Submits the element, if it is a form, or the form belonging to the element, if it is a form element.
+	 * Submits the element, if it is a form, or the form belonging to the
+	 * element, if it is a form element.
 	 */
 	submit() {
 		return this._callElementMethod<void>('submit');
 	}
 
 	/**
-	 * Gets the visible text within the element. `<br>` elements are converted to line breaks in the returned
-	 * text, and whitespace is normalised per the usual XML/HTML whitespace normalisation rules.
+	 * Gets the visible text within the element. `<br>` elements are converted
+	 * to line breaks in the returned text, and whitespace is normalised per
+	 * the usual XML/HTML whitespace normalisation rules.
 	 */
 	getVisibleText() {
 		return this._callElementMethod<string>('getVisibleText');
 	}
 
 	/**
-	 * Types into the element. This method works the same as the [[Command.pressKeys]] method
-	 * except that any modifier keys are automatically released at the end of the command. This method should be used
-	 * instead of [[Command.pressKeys]] to type filenames into file upload fields.
+	 * Types into the element. This method works the same as the
+	 * [[Command.pressKeys]] method except that any modifier keys are
+	 * automatically released at the end of the command. This method should be
+	 * used instead of [[Command.pressKeys]] to type filenames into file upload
+	 * fields.
 	 *
-	 * Since 1.5, if the WebDriver server supports remote file uploads, and you type a path to a file on your local
-	 * computer, that file will be transparently uploaded to the remote server and the remote filename will be typed
-	 * instead. If you do not want to upload local files, use [[Command.pressKeys]] instead.
+	 * Since 1.5, if the WebDriver server supports remote file uploads, and you
+	 * type a path to a file on your local computer, that file will be
+	 * transparently uploaded to the remote server and the remote filename will
+	 * be typed instead. If you do not want to upload local files, use
+	 * [[Command.pressKeys]] instead.
 	 *
-	 * @param value
-	 * The text to type in the remote environment. See [[Command.pressKeys]] for more information.
+	 * @param value The text to type in the remote environment. See
+	 * [[Command.pressKeys]] for more information.
 	 */
 	type(value: string | string[]) {
 		return this._callElementMethod<void>('type', value);
 	}
 
 	/**
-	 * Gets the tag name of the element. For HTML documents, the value is always lowercase.
+	 * Gets the tag name of the element. For HTML documents, the value is
+	 * always lowercase.
 	 */
 	getTagName() {
 		return this._callElementMethod<string>('getTagName');
@@ -1367,8 +1591,9 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Returns whether or not a form element is currently selected (for drop-down options and radio buttons), or
-	 * whether or not the element is currently checked (for checkboxes).
+	 * Returns whether or not a form element is currently selected (for
+	 * drop-down options and radio buttons), or whether or not the element is
+	 * currently checked (for checkboxes).
 	 */
 	isSelected() {
 		return this._callElementMethod<boolean>('isSelected');
@@ -1382,30 +1607,39 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Gets a property or attribute of the element according to the WebDriver specification algorithm. Use of this
-	 * method is not recommended; instead, use [[Command.getAttribute]] to retrieve DOM attributes
-	 * and [[Command.getProperty]] to retrieve DOM properties.
+	 * Gets a property or attribute of the element according to the WebDriver
+	 * specification algorithm. Use of this method is not recommended; instead,
+	 * use [[Command.getAttribute]] to retrieve DOM attributes and
+	 * [[Command.getProperty]] to retrieve DOM properties.
 	 *
-	 * This method uses the following algorithm on the server to determine what value to return:
+	 * This method uses the following algorithm on the server to determine what
+	 * value to return:
 	 *
-	 * 1. If `name` is 'style', returns the `style.cssText` property of the element.
-	 * 2. If the attribute exists and is a boolean attribute, returns 'true' if the attribute is true, or null
+	 * 1. If `name` is 'style', returns the `style.cssText` property of the
+	 *    element.
+	 * 2. If the attribute exists and is a boolean attribute, returns 'true' if
+	 *    the attribute is true, or null otherwise.
+	 * 3. If the element is an `<option>` element and `name` is 'value',
+	 *    returns the `value` attribute if it exists, otherwise returns the
+	 *    visible text content of the option.
+	 * 4. If the element is a checkbox or radio button and `name` is
+	 *    'selected', returns 'true' if the element is checked, or null
 	 *    otherwise.
-	 * 3. If the element is an `<option>` element and `name` is 'value', returns the `value` attribute if it exists,
-	 *    otherwise returns the visible text content of the option.
-	 * 4. If the element is a checkbox or radio button and `name` is 'selected', returns 'true' if the element is
-	 *    checked, or null otherwise.
-	 * 5. If the returned value is expected to be a URL (e.g. element is `<a>` and attribute is `href`), returns the
-	 *    fully resolved URL from the `href`/`src` property of the element, not the attribute.
-	 * 6. If `name` is 'class', returns the `className` property of the element.
-	 * 7. If `name` is 'readonly', returns 'true' if the `readOnly` property is true, or null otherwise.
-	 * 8. If `name` corresponds to a property of the element, and the property is not an Object, return the property
-	 *    value coerced to a string.
-	 * 9. If `name` corresponds to an attribute of the element, return the attribute value.
+	 * 5. If the returned value is expected to be a URL (e.g. element is `<a>`
+	 *    and attribute is `href`), returns the fully resolved URL from the
+	 *    `href`/`src` property of the element, not the attribute.
+	 * 6. If `name` is 'class', returns the `className` property of the
+	 *    element.
+	 * 7. If `name` is 'readonly', returns 'true' if the `readOnly` property is
+	 *    true, or null otherwise.
+	 * 8. If `name` corresponds to a property of the element, and the property
+	 *    is not an Object, return the property value coerced to a string.
+	 * 9. If `name` corresponds to an attribute of the element, return the
+	 *    attribute value.
 	 *
 	 * @param name The property or attribute name.
-	 * @returns The value of the attribute as a string, or `null` if no such property or
-	 * attribute exists.
+	 * @returns The value of the attribute as a string, or `null` if no such
+	 * property or attribute exists.
 	 */
 	getSpecAttribute(name: string) {
 		return this._callElementMethod<string>('getSpecAttribute', name);
@@ -1414,9 +1648,11 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Gets an attribute of the element.
 	 *
-	 * @see Element#getProperty to retrieve an element property.
+	 * See [[Element.getProperty]] to retrieve an element property.
+	 *
 	 * @param name The name of the attribute.
-	 * @returns The value of the attribute, or `null` if no such attribute exists.
+	 * @returns The value of the attribute, or `null` if no such attribute
+	 * exists.
 	 */
 	getAttribute(name: string) {
 		return this._callElementMethod('getAttribute', name);
@@ -1425,7 +1661,8 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	/**
 	 * Gets a property of the element.
 	 *
-	 * @see Element#getAttribute to retrieve an element attribute.
+	 * See [[Element.getAttribute]] to retrieve an element attribute.
+	 *
 	 * @param name The name of the property.
 	 * @returns The value of the property.
 	 */
@@ -1441,12 +1678,14 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Returns whether or not the element would be visible to an actual user. This means that the following types
-	 * of elements are considered to be not displayed:
+	 * Returns whether or not the element would be visible to an actual user.
+	 * This means that the following types of elements are considered to be not
+	 * displayed:
 	 *
 	 * 1. Elements with `display: none`
 	 * 2. Elements with `visibility: hidden`
-	 * 3. Elements positioned outside of the viewport that cannot be scrolled into view
+	 * 3. Elements positioned outside of the viewport that cannot be scrolled
+	 *    into view
 	 * 4. Elements with `opacity: 0`
 	 * 5. Elements with no `offsetWidth` or `offsetHeight`
 	 */
@@ -1455,30 +1694,36 @@ export default class Command<T> extends Locator<Command<Element>, Command<Elemen
 	}
 
 	/**
-	 * Gets the position of the element relative to the top-left corner of the document, taking into account
-	 * scrolling and CSS transformations (if they are supported).
+	 * Gets the position of the element relative to the top-left corner of the
+	 * document, taking into account scrolling and CSS transformations (if they
+	 * are supported).
 	 */
 	getPosition() {
-		return this._callElementMethod<{ x: number, y: number }>('getPosition');
+		return this._callElementMethod<{ x: number; y: number }>('getPosition');
 	}
 
 	/**
-	 * Gets the size of the element, taking into account CSS transformations (if they are supported).
+	 * Gets the size of the element, taking into account CSS transformations
+	 * (if they are supported).
 	 */
 	getSize() {
-		return this._callElementMethod<{ width: number, height: number }>('getSize');
+		return this._callElementMethod<{ width: number; height: number }>(
+			'getSize'
+		);
 	}
 
 	/**
 	 * Gets a CSS computed property value for the element.
 	 *
-	 * @param propertyName
-	 * The CSS property to retrieve. This argument must be hyphenated, *not* camel-case.
+	 * @param propertyName The CSS property to retrieve. This argument must be
+	 * hyphenated, *not* camel-case.
 	 */
 	getComputedStyle(propertyName: string) {
-		return this._callElementMethod<string>('getComputedStyle', propertyName);
+		return this._callElementMethod<string>(
+			'getComputedStyle',
+			propertyName
+		);
 	}
-
 }
 
 export interface SetContextMethod<T> {
@@ -1498,11 +1743,14 @@ TOP_CONTEXT.depth = 0;
 let chaiAsPromised: any = null;
 try {
 	chaiAsPromised = require('chai-as-promised');
-} catch (error) { }
+} catch (error) {}
 
 // TODO: Add unit test
 if (chaiAsPromised) {
-	(<any>chaiAsPromised).transferPromiseness = function (assertion: any, promise: any) {
+	(<any>chaiAsPromised).transferPromiseness = function(
+		assertion: any,
+		promise: any
+	) {
 		assertion.then = promise.then.bind(promise);
 		for (let method in promise) {
 			if (typeof promise[method] === 'function') {
