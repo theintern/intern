@@ -1,8 +1,8 @@
 sudo: false
 language: node_js
 node_js:
-  - '6'
-  - '7'
+  - 'lts/*'
+  - 'node'
 env:
   global:
     # Please get your own free key if you want to test yourself
@@ -15,11 +15,11 @@ matrix:
   exclude:
     # Exlude the matrix run with node 7 && INTERN_ARGS="" (which means only
     # include the one that does *not* run tests on remote environments)
-    - node_js: '7'
+    - node_js: 'node'
       env: INTERN_ARGS=""
     # Exlude the matrix run with node 6 && INTERN_ARGS="environments=" (which
     # means only include the one that *does* run remote tests)
-    - node_js: '6'
+    - node_js: 'lts/*'
       env: INTERN_ARGS="environments="
 cache:
   directories:
