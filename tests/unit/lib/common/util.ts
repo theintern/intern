@@ -269,6 +269,7 @@ registerSuite('lib/common/util', {
 				value('{"name":"bar"}', { name: 'bar' }, 'name');
 				value({ name: 'bar' }, { name: 'bar' }, 'name');
 				value('bad', { name: 'bad' }, 'name');
+				value('', {});
 
 				const throws = createThrowsAssertion('object');
 				throws('bad', /Non-object/);

@@ -281,7 +281,7 @@ export function parseValue(
 		case 'object':
 			if (typeof value === 'string') {
 				try {
-					value = JSON.parse(value);
+					value = value ? JSON.parse(value) : {};
 				} catch (error) {
 					if (!requiredProperty) {
 						throw new Error(
