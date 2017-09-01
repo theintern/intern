@@ -139,9 +139,17 @@ registerSuite('lib/common/util', {
 			'bar=5',
 			'baz=6',
 			'baz=7',
-			'baz=8'
+			'baz=8',
+			'bif=8f5=324',
+			'baf='
 		]);
-		const expected = { foo: true, bar: '5', baz: ['6', '7', '8'] };
+		const expected = {
+			foo: true,
+			bar: '5',
+			baz: ['6', '7', '8'],
+			bif: '8f5=324',
+			baf: ''
+		};
 		assert.propertyVal(
 			args,
 			'foo',
@@ -163,6 +171,16 @@ registerSuite('lib/common/util', {
 			args.baz,
 			expected.baz,
 			'multiply-assigned value should be an array of strings'
+		);
+		assert.property(
+			args,
+			'bif',
+			'arg value containing "=" should exist'
+		);
+		assert.property(
+			args,
+			'baf',
+			'arg value containing "=" with no value should exist'
 		);
 		assert.deepEqual(args, expected);
 	},

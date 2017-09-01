@@ -210,7 +210,13 @@ export function normalizePathEnding(path: string) {
 export function parseArgs(rawArgs: string[]) {
 	const args: { [key: string]: any } = {};
 	rawArgs.forEach(arg => {
-		let [name, value] = arg.split('=', 2);
+		let name = arg;
+		let value: string | undefined;
+		let eq = arg.indexOf('=');
+		if (eq !== -1) {
+			name = arg.slice(0, eq);
+			value = arg.slice(eq + 1);
+		}
 
 		if (typeof value === 'undefined') {
 			args[name] = true;
