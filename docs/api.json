@@ -481,10 +481,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run after all the suite's tests have completed"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 13,
+									"line": 16,
 									"character": 6
 								}
 							],
@@ -514,10 +517,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run after each test has completed"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 14,
+									"line": 21,
 									"character": 10
 								}
 							],
@@ -578,10 +584,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "A convenience function that generates and returns a special\n[[lib/Deferred.Deferred]] that can be used for asynchronous testing"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 15,
+									"line": 27,
 									"character": 6
 								}
 							],
@@ -648,7 +657,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 15,
+													"line": 27,
 													"character": 7
 												}
 											]
@@ -676,10 +685,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run before any of this suite's tests are\nstarted"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 16,
+									"line": 33,
 									"character": 7
 								}
 							],
@@ -709,10 +721,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run before each test"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 17,
+									"line": 38,
 									"character": 11
 								}
 							],
@@ -773,10 +788,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The error that caused this suite to fail"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 18,
+									"line": 41,
 									"character": 6
 								}
 							],
@@ -810,10 +828,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "This suite's name"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 19,
+									"line": 44,
 									"character": 5
 								}
 							],
@@ -842,10 +863,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "This suite's parent Suite"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 20,
+									"line": 47,
 									"character": 7
 								}
 							],
@@ -876,12 +900,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "If true, the suite will publish its start topic after the before callback\nhas finished, and will publish its end topic before the after callback\nhas finished."
+								"shortText": "If true, the suite will emit a suiteStart event after the `before`\ncallback has finished, and will emit a suiteEnd event before the `after`\ncallback has finished."
 							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 27,
+									"line": 54,
 									"character": 18
 								}
 							],
@@ -917,7 +941,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 30,
+									"line": 57,
 									"character": 8
 								}
 							],
@@ -988,7 +1012,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 36,
+									"line": 63,
 									"character": 12
 								}
 							],
@@ -1079,12 +1103,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 72,
+									"line": 99,
 									"character": 9
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 76,
+									"line": 103,
 									"character": 9
 								}
 							],
@@ -1178,12 +1202,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 83,
+									"line": 110,
 									"character": 13
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 88,
+									"line": 115,
 									"character": 13
 								}
 							],
@@ -1275,12 +1299,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 102,
+									"line": 129,
 									"character": 9
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 106,
+									"line": 133,
 									"character": 9
 								}
 							],
@@ -1334,7 +1358,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 226,
+									"line": 253,
 									"character": 14
 								}
 							],
@@ -1383,7 +1407,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 114,
+									"line": 141,
 									"character": 7
 								}
 							],
@@ -1432,7 +1456,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 193,
+									"line": 220,
 									"character": 19
 								}
 							],
@@ -1481,7 +1505,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 211,
+									"line": 238,
 									"character": 20
 								}
 							],
@@ -1530,7 +1554,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 180,
+									"line": 207,
 									"character": 13
 								}
 							],
@@ -1588,7 +1612,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 128,
+									"line": 155,
 									"character": 13
 								}
 							],
@@ -1677,12 +1701,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 141,
+									"line": 168,
 									"character": 11
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 147,
+									"line": 174,
 									"character": 11
 								}
 							],
@@ -1774,12 +1798,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 159,
+									"line": 186,
 									"character": 14
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 172,
+									"line": 199,
 									"character": 14
 								}
 							],
@@ -1862,12 +1886,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 230,
+									"line": 257,
 									"character": 12
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 240,
+									"line": 267,
 									"character": 12
 								}
 							],
@@ -1944,7 +1968,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 247,
+									"line": 274,
 									"character": 4
 								}
 							],
@@ -1997,7 +2021,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 289,
+									"line": 316,
 									"character": 4
 								}
 							],
@@ -2063,7 +2087,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 657,
+									"line": 684,
 									"character": 5
 								}
 							],
@@ -2106,7 +2130,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 664,
+									"line": 691,
 									"character": 7
 								}
 							],
@@ -2225,7 +2249,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 728,
+									"line": 755,
 									"character": 6
 								}
 							],
@@ -2253,7 +2277,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 729,
+									"line": 756,
 									"character": 10
 								}
 							],
@@ -2304,7 +2328,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 730,
+									"line": 757,
 									"character": 5
 								}
 							],
@@ -2331,7 +2355,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 731,
+									"line": 758,
 									"character": 7
 								}
 							],
@@ -2359,7 +2383,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 732,
+									"line": 759,
 									"character": 11
 								}
 							],
@@ -2410,7 +2434,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 733,
+									"line": 760,
 									"character": 9
 								}
 							],
@@ -2438,7 +2462,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 734,
+									"line": 761,
 									"character": 5
 								}
 							],
@@ -2465,7 +2489,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 735,
+									"line": 762,
 									"character": 5
 								}
 							],
@@ -2492,7 +2516,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 736,
+									"line": 763,
 									"character": 7
 								}
 							],
@@ -2520,7 +2544,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 737,
+									"line": 764,
 									"character": 18
 								}
 							],
@@ -2547,7 +2571,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 738,
+									"line": 765,
 									"character": 7
 								}
 							],
@@ -2575,7 +2599,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 739,
+									"line": 766,
 									"character": 10
 								}
 							],
@@ -2602,7 +2626,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 740,
+									"line": 767,
 									"character": 8
 								}
 							],
@@ -23468,10 +23492,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run after all the suite's tests have completed"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 13,
+									"line": 16,
 									"character": 6
 								}
 							],
@@ -23501,10 +23528,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run after each test has completed"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 14,
+									"line": 21,
 									"character": 10
 								}
 							],
@@ -23534,10 +23564,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "A convenience function that generates and returns a special\n[[lib/Deferred.Deferred]] that can be used for asynchronous testing"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 15,
+									"line": 27,
 									"character": 6
 								}
 							],
@@ -23604,7 +23637,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 15,
+													"line": 27,
 													"character": 7
 												}
 											]
@@ -23632,10 +23665,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run before any of this suite's tests are\nstarted"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 16,
+									"line": 33,
 									"character": 7
 								}
 							],
@@ -23665,10 +23701,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run before each test"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 17,
+									"line": 38,
 									"character": 11
 								}
 							],
@@ -23698,10 +23737,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The error that caused this suite to fail"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 18,
+									"line": 41,
 									"character": 6
 								}
 							],
@@ -23768,10 +23810,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "This suite's name"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 19,
+									"line": 44,
 									"character": 5
 								}
 							],
@@ -23800,10 +23845,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "This suite's parent Suite"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 20,
+									"line": 47,
 									"character": 7
 								}
 							],
@@ -23834,12 +23882,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "If true, the suite will publish its start topic after the before callback\nhas finished, and will publish its end topic before the after callback\nhas finished."
+								"shortText": "If true, the suite will emit a suiteStart event after the `before`\ncallback has finished, and will emit a suiteEnd event before the `after`\ncallback has finished."
 							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 27,
+									"line": 54,
 									"character": 18
 								}
 							],
@@ -23875,7 +23923,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 30,
+									"line": 57,
 									"character": 8
 								}
 							],
@@ -23905,7 +23953,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 33,
+									"line": 60,
 									"character": 6
 								}
 							],
@@ -23949,7 +23997,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 36,
+									"line": 63,
 									"character": 12
 								}
 							],
@@ -24040,12 +24088,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 72,
+									"line": 99,
 									"character": 9
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 76,
+									"line": 103,
 									"character": 9
 								}
 							],
@@ -24137,12 +24185,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 102,
+									"line": 129,
 									"character": 9
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 106,
+									"line": 133,
 									"character": 9
 								}
 							],
@@ -24196,7 +24244,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 226,
+									"line": 253,
 									"character": 14
 								}
 							],
@@ -24294,7 +24342,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 193,
+									"line": 220,
 									"character": 19
 								}
 							],
@@ -24343,7 +24391,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 211,
+									"line": 238,
 									"character": 20
 								}
 							],
@@ -24392,7 +24440,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 180,
+									"line": 207,
 									"character": 13
 								}
 							],
@@ -24450,7 +24498,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 128,
+									"line": 155,
 									"character": 13
 								}
 							],
@@ -24539,12 +24587,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 141,
+									"line": 168,
 									"character": 11
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 147,
+									"line": 174,
 									"character": 11
 								}
 							],
@@ -24636,12 +24684,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 159,
+									"line": 186,
 									"character": 14
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 172,
+									"line": 199,
 									"character": 14
 								}
 							],
@@ -24724,12 +24772,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 230,
+									"line": 257,
 									"character": 12
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 240,
+									"line": 267,
 									"character": 12
 								}
 							],
@@ -24806,7 +24854,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 247,
+									"line": 274,
 									"character": 4
 								}
 							],
@@ -24924,7 +24972,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 657,
+									"line": 684,
 									"character": 5
 								}
 							],
@@ -24967,7 +25015,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 664,
+									"line": 691,
 									"character": 7
 								}
 							],
@@ -27944,7 +27992,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 43,
+									"line": 70,
 									"character": 26
 								}
 							]
@@ -27959,10 +28007,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run after all the suite's tests have completed"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 13,
+									"line": 16,
 									"character": 6
 								}
 							],
@@ -27987,10 +28038,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run after each test has completed"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 14,
+									"line": 21,
 									"character": 10
 								}
 							],
@@ -28015,10 +28069,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "A convenience function that generates and returns a special\n[[lib/Deferred.Deferred]] that can be used for asynchronous testing"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 15,
+									"line": 27,
 									"character": 6
 								}
 							],
@@ -28085,7 +28142,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 15,
+													"line": 27,
 													"character": 7
 												}
 											]
@@ -28108,10 +28165,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run before any of this suite's tests are\nstarted"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 16,
+									"line": 33,
 									"character": 7
 								}
 							],
@@ -28136,10 +28196,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "An optional method that is run before each test"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 17,
+									"line": 38,
 									"character": 11
 								}
 							],
@@ -28164,10 +28227,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The error that caused this suite to fail"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 18,
+									"line": 41,
 									"character": 6
 								}
 							],
@@ -28196,10 +28262,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "This suite's name"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 19,
+									"line": 44,
 									"character": 5
 								}
 							],
@@ -28223,10 +28292,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "This suite's parent Suite"
+							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 20,
+									"line": 47,
 									"character": 7
 								}
 							],
@@ -28252,12 +28324,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "If true, the suite will publish its start topic after the before callback\nhas finished, and will publish its end topic before the after callback\nhas finished."
+								"shortText": "If true, the suite will emit a suiteStart event after the `before`\ncallback has finished, and will emit a suiteEnd event before the `after`\ncallback has finished."
 							},
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 27,
+									"line": 54,
 									"character": 18
 								}
 							],
@@ -28288,7 +28360,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 30,
+									"line": 57,
 									"character": 8
 								}
 							],
@@ -28313,7 +28385,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 33,
+									"line": 60,
 									"character": 6
 								}
 							],
@@ -28352,7 +28424,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 36,
+									"line": 63,
 									"character": 12
 								}
 							],
@@ -28428,12 +28500,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 72,
+									"line": 99,
 									"character": 9
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 76,
+									"line": 103,
 									"character": 9
 								}
 							],
@@ -28512,12 +28584,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 83,
+									"line": 110,
 									"character": 13
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 88,
+									"line": 115,
 									"character": 13
 								}
 							],
@@ -28594,12 +28666,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 102,
+									"line": 129,
 									"character": 9
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 106,
+									"line": 133,
 									"character": 9
 								}
 							],
@@ -28643,7 +28715,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 226,
+									"line": 253,
 									"character": 14
 								}
 							]
@@ -28682,7 +28754,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 114,
+									"line": 141,
 									"character": 7
 								}
 							]
@@ -28721,7 +28793,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 193,
+									"line": 220,
 									"character": 19
 								}
 							]
@@ -28760,7 +28832,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 211,
+									"line": 238,
 									"character": 20
 								}
 							]
@@ -28799,7 +28871,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 180,
+									"line": 207,
 									"character": 13
 								}
 							]
@@ -28847,7 +28919,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 128,
+									"line": 155,
 									"character": 13
 								}
 							]
@@ -28921,12 +28993,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 141,
+									"line": 168,
 									"character": 11
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 147,
+									"line": 174,
 									"character": 11
 								}
 							],
@@ -29003,12 +29075,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 159,
+									"line": 186,
 									"character": 14
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 172,
+									"line": 199,
 									"character": 14
 								}
 							],
@@ -29076,12 +29148,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 230,
+									"line": 257,
 									"character": 12
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 240,
+									"line": 267,
 									"character": 12
 								}
 							],
@@ -29148,7 +29220,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 247,
+									"line": 274,
 									"character": 4
 								}
 							]
@@ -29191,7 +29263,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 289,
+									"line": 316,
 									"character": 4
 								}
 							]
@@ -29247,7 +29319,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 657,
+									"line": 684,
 									"character": 5
 								}
 							]
@@ -29280,7 +29352,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 664,
+									"line": 691,
 									"character": 7
 								}
 							]
@@ -29441,7 +29513,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 716,
+							"line": 743,
 							"character": 39
 						}
 					]
@@ -29470,7 +29542,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 728,
+									"line": 755,
 									"character": 6
 								}
 							],
@@ -29493,7 +29565,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 729,
+									"line": 756,
 									"character": 10
 								}
 							],
@@ -29516,7 +29588,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 730,
+									"line": 757,
 									"character": 5
 								}
 							],
@@ -29538,7 +29610,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 731,
+									"line": 758,
 									"character": 7
 								}
 							],
@@ -29561,7 +29633,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 732,
+									"line": 759,
 									"character": 11
 								}
 							],
@@ -29584,7 +29656,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 733,
+									"line": 760,
 									"character": 9
 								}
 							],
@@ -29607,7 +29679,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 734,
+									"line": 761,
 									"character": 5
 								}
 							],
@@ -29629,7 +29701,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 735,
+									"line": 762,
 									"character": 5
 								}
 							],
@@ -29651,7 +29723,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 736,
+									"line": 763,
 									"character": 7
 								}
 							],
@@ -29674,7 +29746,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 737,
+									"line": 764,
 									"character": 18
 								}
 							],
@@ -29696,7 +29768,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 738,
+									"line": 765,
 									"character": 7
 								}
 							],
@@ -29719,7 +29791,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 739,
+									"line": 766,
 									"character": 10
 								}
 							],
@@ -29741,7 +29813,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 740,
+									"line": 767,
 									"character": 8
 								}
 							],
@@ -29775,7 +29847,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 727,
+							"line": 754,
 							"character": 32
 						}
 					],
@@ -29891,7 +29963,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 720,
+							"line": 747,
 							"character": 38
 						}
 					]
@@ -29909,7 +29981,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 749,
+							"line": 776,
 							"character": 28
 						}
 					],
@@ -29950,7 +30022,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 750,
+													"line": 777,
 													"character": 9
 												}
 											],
@@ -29973,7 +30045,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 751,
+													"line": 778,
 													"character": 6
 												}
 											],
@@ -30010,7 +30082,7 @@
 									"sources": [
 										{
 											"fileName": "lib/Suite.ts",
-											"line": 749,
+											"line": 776,
 											"character": 57
 										}
 									]
@@ -30032,7 +30104,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 743,
+							"line": 770,
 							"character": 24
 						}
 					],
@@ -30073,7 +30145,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 744,
+													"line": 771,
 													"character": 5
 												}
 											],
@@ -30094,7 +30166,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 745,
+													"line": 772,
 													"character": 7
 												}
 											],
@@ -30117,7 +30189,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 746,
+													"line": 773,
 													"character": 6
 												}
 											],
@@ -30155,7 +30227,7 @@
 									"sources": [
 										{
 											"fileName": "lib/Suite.ts",
-											"line": 743,
+											"line": 770,
 											"character": 53
 										}
 									]
@@ -30176,7 +30248,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 756,
+							"line": 783,
 							"character": 17
 						}
 					],
@@ -30229,7 +30301,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 712,
+							"line": 739,
 							"character": 23
 						}
 					]

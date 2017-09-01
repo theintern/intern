@@ -22,8 +22,7 @@
 		"rootDir": ".",
 		"sourceMap": true,
 		"strict": true,
-		"target": "es5",
-		"typeRoots": ["./types", "./node_modules/@types"]
+		"target": "es5"
 	},
 	"formatCodeOptions": {
 		"convertTabsToSpaces": false,
