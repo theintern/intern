@@ -10,8 +10,7 @@
 		}
 	},
 	"files": [
-		"../node_modules/intern/typings/intern/intern.d.ts",
-		"../types/jszip/jszip.d.ts"
+		"../node_modules/intern/typings/intern/intern.d.ts"
 	],
 	"include": ["./**/*.ts", "./types/**/*.d.ts"]
 }
