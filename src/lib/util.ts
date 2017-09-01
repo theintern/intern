@@ -20,7 +20,7 @@ export function acceptVersion(
 ) {
 	let range = `>=${minVersion}`;
 	if (maxVersion) {
-		range += ` <=${maxVersion}`;
+		range += ` <${maxVersion}`;
 	}
 	return satisfies(version.split('-')[0], range);
 }

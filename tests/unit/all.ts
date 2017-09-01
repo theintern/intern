@@ -1,24 +1,24 @@
 import registerSuite = require('intern!object');
 import * as assert from 'intern/chai!assert';
-import * as cli from '../../src/lib/cli';
+import * as util from '../../src/lib/util';
 import * as fs from 'fs';
 import * as path from 'path';
 
 registerSuite({
-	name: 'lib/cli',
+	name: 'lib/util',
 
 	acceptVersion() {
-		assert.isTrue(cli.acceptVersion('3.3.0-pre', '3.0.0'));
-		assert.isTrue(cli.acceptVersion('3.3.2', '3.0.0'));
-		assert.isFalse(cli.acceptVersion('2.3.2', '3.0.0'));
+		assert.isTrue(util.acceptVersion('3.3.0-pre', '3.0.0'));
+		assert.isTrue(util.acceptVersion('3.3.2', '3.0.0'));
+		assert.isFalse(util.acceptVersion('2.3.2', '3.0.0'));
 	},
 
 	collect() {
 		const input: string[] = [];
-		cli.collect('5', input);
+		util.collect('5', input);
 		assert.deepEqual(input, [ '5' ]);
 
-		cli.collect('6', input);
+		util.collect('6', input);
 		assert.deepEqual(input, [ '5', '6' ]);
 	},
 
@@ -54,24 +54,24 @@ registerSuite({
 			},
 
 			'copy file'() {
-				cli.copy('./tests/unit/all.ts', path.join(tempdir, 'all.js'));
+				util.copy('./tests/unit/all.ts', path.join(tempdir, 'all.js'));
 				assert.isTrue(fs.statSync(path.join(tempdir, 'all.js')).isFile());
 			},
 
 			'copy dir'() {
-				cli.copy('./tests', tempdir);
+				util.copy('./tests', tempdir);
 				assert.isTrue(fs.statSync(path.join(tempdir, 'unit', 'all.ts')).isFile());
 			}
 		};
 	})(),
 
 	enumArg: (function () {
-		const oldDie = cli.die;
+		const oldDie = util.die;
 		let message: string | null;
 
 		return {
 			setup() {
-				cli._setDieMethod(function (msg: string) {
+				util._setDieMethod(function (msg: string) {
 					message = msg;
 				});
 			},
@@ -81,16 +81,16 @@ registerSuite({
 			},
 
 			teardown() {
-				cli._setDieMethod(oldDie);
+				util._setDieMethod(oldDie);
 			},
 
 			good() {
-				assert.strictEqual(cli.enumArg([ 'a', 'b' ], 'a'), 'a');
+				assert.strictEqual(util.enumArg([ 'a', 'b' ], 'a'), 'a');
 				assert.isNull(message);
 			},
 
 			bad() {
-				cli.enumArg([ 'a', 'b' ], 'c');
+				util.enumArg([ 'a', 'b' ], 'c');
 				assert.isNotNull(message);
 			}
 		};
