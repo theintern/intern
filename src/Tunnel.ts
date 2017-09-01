@@ -549,7 +549,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 			}
 			else {
 				if (response.status === 401) {
-					throw new Error(`Missing or invalid username and access key`);
+					throw new Error('Missing or invalid username and access key');
 				}
 				throw new Error(`Server replied with a status of ${response.status}`);
 			}
