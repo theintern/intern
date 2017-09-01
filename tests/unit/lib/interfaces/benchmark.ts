@@ -12,14 +12,19 @@ registerSuite('lib/interfaces/benchmark', function() {
 	let removeMocks: () => void;
 	let parent: Suite;
 	let executor: any;
-	const mockIntern = spy(() => {
+	const getIntern = spy(() => {
 		return executor;
 	});
+	const mockGlobal = {
+		get intern() {
+			return getIntern();
+		}
+	};
 
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/interfaces/benchmark', {
-				'src/intern': { default: mockIntern }
+				'@dojo/shim/global': { default: mockGlobal }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				benchmarkInt = handle.module;
@@ -31,7 +36,7 @@ registerSuite('lib/interfaces/benchmark', function() {
 		},
 
 		beforeEach() {
-			mockIntern.reset();
+			getIntern.reset();
 			executor = {
 				config: { benchmark: true },
 				addSuite: spy((callback: (suite: Suite) => void) => {
@@ -70,7 +75,7 @@ registerSuite('lib/interfaces/benchmark', function() {
 
 			registerSuite: (() => {
 				function verify() {
-					assert.equal(mockIntern.callCount, 1);
+					assert.equal(getIntern.callCount, 1);
 					assert.equal(executor.addSuite.callCount, 1);
 					assert.isFunction(
 						executor.addSuite.getCall(0).args[0],

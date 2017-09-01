@@ -9,7 +9,7 @@ import BenchmarkTest, {
 	BenchmarkTestFunction
 } from '../BenchmarkTest';
 import BenchmarkSuite, { BenchmarkSuiteProperties } from '../BenchmarkSuite';
-import intern from '../../intern';
+import global from '@dojo/shim/global';
 
 /**
  * Importable interface that uses the currently installed global executor
@@ -21,7 +21,7 @@ export default function registerSuite(
 		| BenchmarkSuiteFactory
 		| Tests
 ) {
-	return _registerSuite(intern(), name, descriptorOrFactory);
+	return _registerSuite(global.intern, name, descriptorOrFactory);
 }
 
 /**

@@ -1,8 +1,8 @@
 /**
  * Object interface for registering suites
  *
- * Suites are described using objects. The object structure is a subset of suite properties, specifically name, the
- * lifecycle methods, and tests.
+ * Suites are described using objects. The object structure is a subset of suite
+ * properties, specifically name, the lifecycle methods, and tests.
  *
  * ```js
  * registerSuite('foo', {
@@ -30,8 +30,9 @@
  * });
  * ```
  *
- * Sub-suites don't need name properties, and may also omit the 'tests' nesting if no lifecycle functions are in use.
- * The rule is that if a 'tests' property isn't in the sub-suite object, then every property is assumed to refer to a
+ * Sub-suites don't need name properties, and may also omit the 'tests' nesting
+ * if no lifecycle functions are in use. The rule is that if a 'tests' property
+ * isn't in the sub-suite object, then every property is assumed to refer to a
  * test.
  *
  * ```js
@@ -47,7 +48,7 @@
 import Suite, { SuiteOptions, SuiteProperties } from '../Suite';
 import Test, { TestFunction, isTestFunction } from '../Test';
 import Executor from '../executors/Executor';
-import intern from '../../intern';
+import global from '@dojo/shim/global';
 
 /**
  * Importable interface that uses the currently installed global executor
@@ -56,7 +57,7 @@ export default function registerSuite(
 	name: string,
 	descriptorOrFactory: ObjectSuiteDescriptor | ObjectSuiteFactory | Tests
 ) {
-	return _registerSuite(intern(), name, descriptorOrFactory);
+	return _registerSuite(global.intern, name, descriptorOrFactory);
 }
 
 /**

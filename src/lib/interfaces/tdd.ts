@@ -1,8 +1,8 @@
 import { on } from '@dojo/core/aspect';
+import global from '@dojo/shim/global';
 import Suite, { SuiteProperties } from '../Suite';
 import Test, { TestProperties } from '../Test';
 import Executor from '../executors/Executor';
-import intern from '../../intern';
 
 export interface TddInterface extends TddLifecycleInterface {
 	suite(name: string, factory: TddSuiteFactory): void;
@@ -19,7 +19,7 @@ export interface TddLifecycleInterface {
 export type TddSuiteFactory = (suite: Suite) => void;
 
 export function suite(name: string, factory: TddSuiteFactory) {
-	return _suite(intern(), name, factory);
+	return _suite(global.intern, name, factory);
 }
 
 export function test(name: string, test: TestProperties['test']) {

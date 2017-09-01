@@ -17,14 +17,19 @@ registerSuite('lib/interfaces/tdd', function() {
 		}),
 		emit: spy(() => {})
 	};
-	const mockIntern = spy(() => {
+	const getIntern = spy(() => {
 		return executor;
 	});
+	const mockGlobal = {
+		get intern() {
+			return getIntern();
+		}
+	};
 
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/interfaces/tdd', {
-				'src/intern': { default: mockIntern }
+				'@dojo/shim/global': { default: mockGlobal }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				tddInt = handle.module;
@@ -36,7 +41,7 @@ registerSuite('lib/interfaces/tdd', function() {
 		},
 
 		beforeEach() {
-			mockIntern.reset();
+			getIntern.reset();
 			executor.addSuite.reset();
 			executor.emit.reset();
 			parent = new Suite(<any>{ name: 'parent', executor });
