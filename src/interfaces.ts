@@ -1,11 +1,13 @@
 export interface JobState {
 	/**
-	 * The build number of the software being tested by the job. Supported by Sauce Labs.
+	 * The build number of the software being tested by the job. Supported by
+	 * Sauce Labs.
 	 */
 	buildId?: number;
 
 	/**
-	 * Additional arbitrary data to be stored alongside the job. Supported by TestingBot and Sauce Labs.
+	 * Additional arbitrary data to be stored alongside the job. Supported by
+	 * TestingBot and Sauce Labs.
 	 */
 	extra?: {};
 
@@ -20,7 +22,8 @@ export interface JobState {
 	status?: string;
 
 	/**
-	 * Whether or not the job should be listed as successful. Supported by BrowserStack, TestingBot, and Sauce Labs.
+	 * Whether or not the job should be listed as successful. Supported by
+	 * BrowserStack, TestingBot, and Sauce Labs.
 	 */
 	success: boolean;
 
@@ -30,8 +33,8 @@ export interface JobState {
 	tags?: string[];
 
 	/**
-	 * The public visibility of test results. May be one of 'public', 'public restricted', 'share', 'team', or 'private'.
-	 * Supported by Sauce Labs.
+	 * The public visibility of test results. May be one of 'public', 'public
+	 * restricted', 'share', 'team', or 'private'. Supported by Sauce Labs.
 	 */
 	visibility?: string;
 }

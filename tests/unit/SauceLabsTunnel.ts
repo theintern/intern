@@ -11,13 +11,13 @@ registerSuite({
 		tunnel = new SauceLabsTunnel();
 	},
 
-	'#auth': function () {
+	'#auth': function() {
 		tunnel.username = 'foo';
 		tunnel.accessKey = 'bar';
 		assert.equal(tunnel.auth, 'foo:bar');
 	},
 
-	'#executable': function () {
+	'#executable': function() {
 		tunnel.platform = 'foo';
 		assert.equal(tunnel.executable, 'java');
 
@@ -38,21 +38,26 @@ registerSuite({
 		assert.match(tunnel.executable, executable);
 	},
 
-	'#extraCapabilities': function () {
+	'#extraCapabilities': function() {
 		assert.deepEqual(tunnel.extraCapabilities, {});
 		tunnel.tunnelId = 'foo';
-		assert.deepEqual(tunnel.extraCapabilities, { 'tunnel-identifier': 'foo' });
+		assert.deepEqual(tunnel.extraCapabilities, {
+			'tunnel-identifier': 'foo'
+		});
 	},
 
-	'#isDownloaded': function () {
+	'#isDownloaded': function() {
 		tunnel.platform = 'foo';
 		assert.isFalse(tunnel.isDownloaded);
 	},
 
-	'#url': function () {
+	'#url': function() {
 		tunnel.platform = 'foo';
 		tunnel.architecture = 'bar';
-		assert.equal(tunnel.url, 'https://saucelabs.com/downloads/Sauce-Connect-3.1-r32.zip');
+		assert.equal(
+			tunnel.url,
+			'https://saucelabs.com/downloads/Sauce-Connect-3.1-r32.zip'
+		);
 
 		tunnel.platform = 'darwin';
 		let url = /https:\/\/saucelabs\.com\/downloads\/sc-\d+\.\d+(?:\.\d+)?-osx\.zip/;

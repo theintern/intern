@@ -1,36 +1,34 @@
 {
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "experimentalDecorators": true,
-	"lib": [
-      "es5",
-      "es2015.symbol",
-      "es2015.symbol.wellknown",
-      "es2015.iterable",
-      "dom"
-    ],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": false,
-    "outDir": "./_build",
-    "preserveConstEnums": true,
-    "removeComments": false,
-    "rootDir": ".",
-    "sourceMap": true,
-	"inlineSources": true,
-    "target": "es5"
-  },
-  "formatCodeOptions": {
-    "convertTabsToSpaces": false,
-    "insertSpaceAfterCommaDelimiter": true,
-    "insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
-    "insertSpaceAfterSemicolonInForStatements": true
-  },
-  "include": [
-    "./src/**/*.ts"
-  ]
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"declaration": true,
+		"experimentalDecorators": true,
+		"lib": [
+			"es5",
+			"es2015.symbol",
+			"es2015.symbol.wellknown",
+			"es2015.iterable",
+			"dom"
+		],
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": false,
+		"outDir": "./_build",
+		"preserveConstEnums": true,
+		"removeComments": false,
+		"rootDir": ".",
+		"sourceMap": true,
+		"inlineSources": true,
+		"target": "es5"
+	},
+	"formatCodeOptions": {
+		"convertTabsToSpaces": false,
+		"insertSpaceAfterCommaDelimiter": true,
+		"insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
+		"insertSpaceAfterSemicolonInForStatements": true
+	},
+	"include": ["./src/**/*.ts"]
 }

@@ -1,6 +1,6 @@
-// This is a bridge module that loads CommonJS modules from a location relative to this module
-// from Intern tests written in UMD. This should be used with an AMD module loader
-// and an AMD `map` configuration like the following:
+// This is a bridge module that loads CommonJS modules from a location relative
+// to this module from Intern tests written in UMD. This should be used with an
+// AMD module loader and an AMD `map` configuration like the following:
 //
 // map: {
 // 	'tests': {
@@ -20,7 +20,7 @@ export function normalize(id: string): string {
 }
 
 export function load(id: string, pluginRequire: IRequire, callback: Function) {
-	pluginRequire([ 'intern/dojo/node!' + require.toUrl(id) ], function (module) {
+	pluginRequire(['intern/dojo/node!' + require.toUrl(id)], function(module) {
 		callback(module);
 	});
 }

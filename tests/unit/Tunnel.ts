@@ -9,11 +9,11 @@ let tunnel: Tunnel;
 registerSuite({
 	name: 'unit/Tunnel',
 
-	beforeEach: function () {
-		tunnel = new Tunnel(<any> { foo: 'bar' });
+	beforeEach: function() {
+		tunnel = new Tunnel(<any>{ foo: 'bar' });
 	},
 
-	'#clientUrl': function () {
+	'#clientUrl': function() {
 		tunnel.port = '4446';
 		tunnel.hostname = 'foo.com';
 		tunnel.protocol = 'https';
@@ -21,11 +21,11 @@ registerSuite({
 		assert.strictEqual(tunnel.clientUrl, 'https://foo.com:4446/bar/baz/');
 	},
 
-	'#extraCapabilities': function () {
+	'#extraCapabilities': function() {
 		assert.deepEqual(tunnel.extraCapabilities, {});
 	},
 
-	'#start': function () {
+	'#start': function() {
 		const task = Task.resolve();
 		tunnel['_startTask'] = task;
 		tunnel['_state'] = 'stopping';
@@ -34,12 +34,16 @@ registerSuite({
 		});
 
 		tunnel['_state'] = 'running';
-		assert.strictEqual(tunnel.start(), task, 'Running tunnel should have returned start task');
+		assert.strictEqual(
+			tunnel.start(),
+			task,
+			'Running tunnel should have returned start task'
+		);
 	},
 
 	'#stop': {
 		'stop a stopping tunnel'() {
-			(<any> tunnel)._state = 'stopping';
+			(<any>tunnel)._state = 'stopping';
 			return tunnel.stop();
 		},
 
@@ -65,16 +69,16 @@ registerSuite({
 		},
 
 		'stop a tunnel that is not running; throws'() {
-			(<any> tunnel)['_state'] = 'stopped';
-			(<any> tunnel)['_stop'] = () => Promise.resolve(0);
-			(<any> tunnel)['_handle'] = { destroy() {} };
+			(<any>tunnel)['_state'] = 'stopped';
+			(<any>tunnel)['_stop'] = () => Promise.resolve(0);
+			(<any>tunnel)['_handle'] = { destroy() {} };
 			return tunnel.stop();
 		}
 	},
 
-	'#sendJobState': function (this: Test) {
+	'#sendJobState': function(this: Test) {
 		const dfd = this.async();
-		tunnel.sendJobState('0', { success: true }).catch(function () {
+		tunnel.sendJobState('0', { success: true }).catch(function() {
 			dfd.resolve();
 		});
 	}

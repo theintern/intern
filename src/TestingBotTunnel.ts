@@ -1,4 +1,9 @@
-import Tunnel, { TunnelProperties, ChildExecutor, NormalizedEnvironment, StatusEvent } from './Tunnel';
+import Tunnel, {
+	TunnelProperties,
+	ChildExecutor,
+	NormalizedEnvironment,
+	StatusEvent
+} from './Tunnel';
 import { existsSync, watchFile, unlinkSync, unwatchFile } from 'fs';
 import UrlSearchParams from '@dojo/core/UrlSearchParams';
 import { tmpdir } from 'os';
@@ -14,12 +19,14 @@ import Task from '@dojo/core/async/Task';
 /**
  * A TestingBot tunnel.
  *
- * The username and accessKey properties will be initialized using TESTINGBOT_API_KEY and TESTINGBOT_API_SECRET.
+ * The username and accessKey properties will be initialized using
+ * TESTINGBOT_API_KEY and TESTINGBOT_API_SECRET.
  */
-export default class TestingBotTunnel extends Tunnel implements TunnelProperties {
+export default class TestingBotTunnel extends Tunnel
+	implements TunnelProperties {
 	/**
-	 * A list of regular expressions corresponding to domains whose connections should fail immediately if the VM
-	 * attempts to make a connection to them.
+	 * A list of regular expressions corresponding to domains whose connections
+	 * should fail immediately if the VM attempts to make a connection to them.
 	 */
 	fastFailDomains: string[];
 
@@ -35,25 +42,33 @@ export default class TestingBotTunnel extends Tunnel implements TunnelProperties
 	/** Whether or not to use the default remote Squid proxy for the VM. */
 	useSquidProxy: boolean;
 
-	/** Whether or not to re-encrypt data encrypted by self-signed certificates. */
+	/**
+	 * Whether or not to re-encrypt data encrypted by self-signed certificates.
+	 */
 	useSsl: boolean;
 
 	constructor(options?: TestingBotOptions) {
-		super(mixin({
-			username: process.env.TESTINGBOT_KEY,
-			accessKey: process.env.TESTINGBOT_SECRET,
-			directory: join(__dirname, 'testingbot'),
-			environmentUrl: 'https://api.testingbot.com/v1/browsers',
-			executable: 'java',
-			fastFailDomains: [],
-			logFile: null,
-			port: 4445,
-			url: 'https://testingbot.com/downloads/testingbot-tunnel.zip',
-			useCompression: false,
-			useJettyProxy: true,
-			useSquidProxy: true,
-			useSsl: false
-		}, options));
+		super(
+			mixin(
+				{
+					username: process.env.TESTINGBOT_KEY,
+					accessKey: process.env.TESTINGBOT_SECRET,
+					directory: join(__dirname, 'testingbot'),
+					environmentUrl: 'https://api.testingbot.com/v1/browsers',
+					executable: 'java',
+					fastFailDomains: [],
+					logFile: null,
+					port: 4445,
+					url:
+						'https://testingbot.com/downloads/testingbot-tunnel.zip',
+					useCompression: false,
+					useJettyProxy: true,
+					useSquidProxy: true,
+					useSsl: false
+				},
+				options
+			)
+		);
 	}
 
 	get auth() {
@@ -61,23 +76,31 @@ export default class TestingBotTunnel extends Tunnel implements TunnelProperties
 	}
 
 	get isDownloaded() {
-		return fileExists(join(this.directory, 'testingbot-tunnel/testingbot-tunnel.jar'));
+		return fileExists(
+			join(this.directory, 'testingbot-tunnel/testingbot-tunnel.jar')
+		);
 	}
 
 	protected _makeArgs(readyFile: string): string[] {
 		if (!this.username || !this.accessKey) {
-			throw new Error('TestingBotTunnel requires a username and access key');
+			throw new Error(
+				'TestingBotTunnel requires a username and access key'
+			);
 		}
 
 		const args = [
-			'-jar', join(this.directory, 'testingbot-tunnel', 'testingbot-tunnel.jar'),
+			'-jar',
+			join(this.directory, 'testingbot-tunnel', 'testingbot-tunnel.jar'),
 			this.username,
 			this.accessKey,
-			'-P', this.port,
-			'-f', readyFile
+			'-P',
+			this.port,
+			'-f',
+			readyFile
 		];
 
-		this.fastFailDomains.length && args.push('-F', this.fastFailDomains.join(','));
+		this.fastFailDomains.length &&
+			args.push('-F', this.fastFailDomains.join(','));
 		this.logFile && args.push('-l', this.logFile);
 		this.useJettyProxy || args.push('-x');
 		this.useSquidProxy || args.push('-q');
@@ -98,43 +121,51 @@ export default class TestingBotTunnel extends Tunnel implements TunnelProperties
 	sendJobState(jobId: string, data: JobState): Task<void> {
 		const params = new UrlSearchParams();
 
-		data.success != null && params.set('test[success]', String(data.success ? 1 : 0));
+		data.success != null &&
+			params.set('test[success]', String(data.success ? 1 : 0));
 		data.status && params.set('test[status_message]', data.status);
 		data.name && params.set('test[name]', data.name);
 		data.extra && params.set('test[extra]', JSON.stringify(data.extra));
-		data.tags && data.tags.length && params.set('groups', data.tags.join(','));
+		data.tags &&
+			data.tags.length &&
+			params.set('groups', data.tags.join(','));
 
 		const url = `https://api.testingbot.com/v1/tests/${jobId}`;
 		const payload = params.toString();
-		return <Task<any>> request.put(url, <NodeRequestOptions> {
-			body: payload,
-			headers: {
-				'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
-				'Content-Type': 'application/x-www-form-urlencoded'
-			},
-			password: this.accessKey,
-			user: this.username,
-			proxy: this.proxy
-		}).then(function (response) {
-			return response.text().then(text => {
-				if (text) {
-					const data = JSON.parse(text);
+		return <Task<any>>request
+			.put(url, <NodeRequestOptions>{
+				body: payload,
+				headers: {
+					'Content-Length': String(
+						Buffer.byteLength(payload, 'utf8')
+					),
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				password: this.accessKey,
+				user: this.username,
+				proxy: this.proxy
+			})
+			.then(function(response) {
+				return response.text().then(text => {
+					if (text) {
+						const data = JSON.parse(text);
 
-					if (data.error) {
-						throw new Error(data.error);
+						if (data.error) {
+							throw new Error(data.error);
+						} else if (!data.success) {
+							throw new Error('Job data failed to save.');
+						} else if (response.status !== 200) {
+							throw new Error(
+								`Server reported ${response.status} with: ${text}`
+							);
+						}
+					} else {
+						throw new Error(
+							`Server reported ${response.status} with no other data.`
+						);
 					}
-					else if (!data.success) {
-						throw new Error('Job data failed to save.');
-					}
-					else if (response.status !== 200) {
-						throw new Error(`Server reported ${response.status} with: ${text}`);
-					}
-				}
-				else {
-					throw new Error(`Server reported ${response.status} with no other data.`);
-				}
+				});
 			});
-		});
 	}
 
 	protected _start(executor: ChildExecutor) {
@@ -144,32 +175,39 @@ export default class TestingBotTunnel extends Tunnel implements TunnelProperties
 			function _reject(message: string) {
 				const pidFile = 'testingbot-tunnel.pid';
 				if (existsSync(pidFile)) {
-					// Remove the pidfile to ensure the running tunnel app shuts down
+					// Remove the pidfile to ensure the running tunnel app shuts
+					// down
 					unlinkSync(pidFile);
 				}
 				reject(message);
 			}
 
-			// Polling API is used because we are only watching for one file, so efficiency is not a big deal, and the
-			// `fs.watch` API has extra restrictions which are best avoided
-			watchFile(readyFile, { persistent: false, interval: 1007 }, function (current, previous) {
-				if (Number(current.mtime) === Number(previous.mtime)) {
-					// readyFile hasn't been modified, so ignore the event
-					return;
-				}
+			// Polling API is used because we are only watching for one file, so
+			// efficiency is not a big deal, and the `fs.watch` API has extra
+			// restrictions which are best avoided
+			watchFile(
+				readyFile,
+				{ persistent: false, interval: 1007 },
+				function(current, previous) {
+					if (Number(current.mtime) === Number(previous.mtime)) {
+						// readyFile hasn't been modified, so ignore the event
+						return;
+					}
 
-				unwatchFile(readyFile);
-				resolve();
-			});
+					unwatchFile(readyFile);
+					resolve();
+				}
+			);
 
 			let lastMessage: string;
 			this._handle = on(child.stderr, 'data', (data: string) => {
 				data = String(data);
-				data.split('\n').forEach((message) => {
+				data.split('\n').forEach(message => {
 					if (message.indexOf('INFO: ') === 0) {
 						message = message.slice('INFO: '.length);
-						// the tunnel produces a lot of repeating messages during setup when the status is pending;
-						// deduplicate them for sanity
+						// the tunnel produces a lot of repeating messages
+						// during setup when the status is pending; deduplicate
+						// them for sanity
 						if (
 							message !== lastMessage &&
 							message.indexOf('>> [') === -1 &&
@@ -182,11 +220,9 @@ export default class TestingBotTunnel extends Tunnel implements TunnelProperties
 							});
 							lastMessage = message;
 						}
-					}
-					else if (message.indexOf('SEVERE: ') === 0) {
+					} else if (message.indexOf('SEVERE: ') === 0) {
 						_reject(message);
-					}
-					else if (message.indexOf('An error ocurred:') === 0) {
+					} else if (message.indexOf('An error ocurred:') === 0) {
 						_reject(message);
 					}
 				});
@@ -197,7 +233,8 @@ export default class TestingBotTunnel extends Tunnel implements TunnelProperties
 	}
 
 	/**
-	 * Attempt to normalize a TestingBot described environment with the standard Selenium capabilities
+	 * Attempt to normalize a TestingBot described environment with the standard
+	 * Selenium capabilities
 	 *
 	 * TestingBot returns a list of environments that looks like:
 	 *

@@ -29,7 +29,7 @@
     "clean": "intern-dev-clean",
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
-    "test": "npm run build && intern-dev-test"
+    "test": "intern-dev-build && intern-dev-test"
   },
   "bugs": "https://github.com/theintern/digdug/issues",
   "keywords": [

@@ -1,6 +1,9 @@
 declare namespace Decompress {
+	// tslint:disable:class-name
 	interface decompress {
-		(input: string | Buffer, output?: string, options?: Options): Promise<ParsedFile>
+		(input: string | Buffer, output?: string, options?: Options): Promise<
+			ParsedFile
+		>;
 	}
 
 	interface FileDescriptor {
@@ -26,7 +29,7 @@ declare namespace Decompress {
 	}
 }
 
-declare module "decompress" {
+declare module 'decompress' {
 	type decompress = Decompress.decompress;
 	const mod: Decompress.decompress;
 	export = mod;

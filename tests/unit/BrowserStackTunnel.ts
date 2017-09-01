@@ -37,11 +37,12 @@ registerSuite({
 
 	'#url'() {
 		tunnel.platform = 'foo';
-		assert.throws(function () {
+		assert.throws(function() {
 			tunnel.url;
 		});
 
-		let url = 'https://www.browserstack.com/browserstack-local/BrowserStackLocal-';
+		let url =
+			'https://www.browserstack.com/browserstack-local/BrowserStackLocal-';
 		tunnel.platform = 'darwin';
 		tunnel.architecture = 'x64';
 		assert.equal(tunnel.url, url + 'darwin-x64.zip');

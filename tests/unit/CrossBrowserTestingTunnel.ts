@@ -7,21 +7,21 @@ let tunnel: CrossBrowserTestingTunnel;
 registerSuite({
 	name: 'unit/CrossBrowserTestingTunnel',
 
-	beforeEach: function () {
+	beforeEach: function() {
 		tunnel = new CrossBrowserTestingTunnel();
 	},
 
-	'#auth': function () {
+	'#auth': function() {
 		tunnel.username = 'foo';
 		tunnel.accessKey = 'bar';
 		assert.equal(tunnel.auth, 'foo:bar');
 	},
 
-	'#executable': function () {
+	'#executable': function() {
 		assert.equal(tunnel.executable, 'node');
 	},
 
-	'#extraCapabilities': function () {
+	'#extraCapabilities': function() {
 		assert.property(tunnel.extraCapabilities, 'username');
 		assert.property(tunnel.extraCapabilities, 'password');
 	}

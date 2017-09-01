@@ -1,5 +1,9 @@
 import Evented, { BaseEventedEvents } from '@dojo/core/Evented';
-import { EventObject, EventTargettedObject, Handle } from '@dojo/interfaces/core';
+import {
+	EventObject,
+	EventTargettedObject,
+	Handle
+} from '@dojo/interfaces/core';
 import { createCompositeHandle, mixin } from '@dojo/core/lang';
 import Task, { State } from '@dojo/core/async/Task';
 import sendRequest from '@dojo/core/request';
@@ -15,21 +19,26 @@ import Promise from '@dojo/shim/Promise';
 // TODO: Spawned processes are not getting cleaned up if there is a crash
 
 /**
- * A Tunnel is a mechanism for connecting to a WebDriver service provider that securely exposes local services for
- * testing within the service provider’s network.
+ * A Tunnel is a mechanism for connecting to a WebDriver service provider that
+ * securely exposes local services for testing within the service provider’s
+ * network.
  */
 export default class Tunnel extends Evented implements TunnelProperties, Url {
 	constructor(options?: TunnelOptions) {
 		super();
-		mixin(this, {
-			architecture: process.arch,
-			hostname: 'localhost',
-			pathname: '/wd/hub/',
-			platform: process.platform,
-			port: 4444,
-			protocol: 'http',
-			verbose: false
-		}, options);
+		mixin(
+			this,
+			{
+				architecture: process.arch,
+				hostname: 'localhost',
+				pathname: '/wd/hub/',
+				platform: process.platform,
+				port: 4444,
+				protocol: 'http',
+				verbose: false
+			},
+			options
+		);
 	}
 
 	/**
@@ -56,7 +65,8 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	 */
 
 	/**
-	 * Information about the status of the tunnel setup process that is suitable for presentation to end-users.
+	 * Information about the status of the tunnel setup process that is suitable
+	 * for presentation to end-users.
 	 *
 	 * @event module:digdug/Tunnel#status
 	 * @type {string}
@@ -64,64 +74,84 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 
 	on: Events;
 
-	/** The URL of a service that provides a list of environments supported by the tunnel. */
+	/**
+	 * The URL of a service that provides a list of environments supported by
+	 * the tunnel.
+	 */
 	environmentUrl: string;
 
 	/**
-	 * The tunnel access key. This will be initialized with a tunnel-specific environment variable if not specified.
+	 * The tunnel access key. This will be initialized with a tunnel-specific
+	 * environment variable if not specified.
 	 */
 	accessKey: string;
 
 	/**
-	 * The tunnel username. This will be initialized with a tunnel-specific environment variable if not specified.
+	 * The tunnel username. This will be initialized with a tunnel-specific
+	 * environment variable if not specified.
 	 */
 	username: string;
 
 	/**
-	 * The architecture the tunnel will run against. This information is automatically retrieved for the current
-	 * system at runtime.
+	 * The architecture the tunnel will run against. This information is
+	 * automatically retrieved for the current system at runtime.
 	 */
 	architecture: string;
 
 	/**
-	 * An HTTP authorization string to use when initiating connections to the tunnel. This value of this property is
-	 * defined by Tunnel subclasses.
+	 * An HTTP authorization string to use when initiating connections to the
+	 * tunnel. This value of this property is defined by Tunnel subclasses.
 	 */
 	auth: string;
 
 	/**
-	 * The directory where the tunnel software will be extracted. If the directory does not exist, it will be
-	 * created. This value is set by the tunnel subclasses.
+	 * The directory where the tunnel software will be extracted. If the
+	 * directory does not exist, it will be created. This value is set by the
+	 * tunnel subclasses.
 	 */
 	directory: string;
 
-	/** The executable to spawn in order to create a tunnel. This value is set by the tunnel subclasses. */
+	/**
+	 * The executable to spawn in order to create a tunnel. This value is set
+	 * by the tunnel subclasses.
+	 */
 	executable: string;
 
 	/**
-	 * The host on which a WebDriver client can access the service provided by the tunnel. This may or may not be
-	 * the host where the tunnel application is running.
+	 * The host on which a WebDriver client can access the service provided by
+	 * the tunnel. This may or may not be the host where the tunnel application
+	 * is running.
 	 */
 	hostname: string;
 
-	/** The path that a WebDriver client should use to access the service provided by the tunnel. */
+	/**
+	 * The path that a WebDriver client should use to access the service
+	 * provided by the tunnel.
+	 */
 	pathname: string;
 
 	/**
-	 * The operating system the tunnel will run on. This information is automatically retrieved for the current
-	 * system at runtime.
+	 * The operating system the tunnel will run on. This information is
+	 * automatically retrieved for the current system at runtime.
 	 */
 	platform: string;
 
-	/** The local port where the WebDriver server should be exposed by the tunnel. */
+	/**
+	 * The local port where the WebDriver server should be exposed by the
+	 * tunnel.
+	 */
 	port: string;
 
 	/**
-	 * The protocol (e.g., 'http') that a WebDriver client should use to access the service provided by the tunnel.
+	 * The protocol (e.g., 'http') that a WebDriver client should use to access
+	 * the service provided by the tunnel.
 	 */
 	protocol: string;
 
-	/** The URL of a proxy server for the tunnel to go through. Only the hostname, port, and auth are used. */
+	/**
+	 * The URL of a proxy server for the tunnel to go through. Only the
+	 * hostname, port, and auth are used.
+	 */
 	proxy: string;
 
 	/** A unique identifier for the newly created tunnel. */
@@ -137,17 +167,23 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	protected _stopTask: Promise<number>;
 	protected _handle: Handle = null;
 	protected _process: ChildProcess = null;
-	protected _state: 'stopped' | 'starting' | 'running' | 'stopping' = 'stopped';
+	protected _state:
+		| 'stopped'
+		| 'starting'
+		| 'running'
+		| 'stopping' = 'stopped';
 
 	/**
-	 * The URL that a WebDriver client should used to interact with this service.
+	 * The URL that a WebDriver client should used to interact with this
+	 * service.
 	 */
 	get clientUrl(): string {
 		return formatUrl(this);
 	}
 
 	/**
-	 * A map of additional capabilities that need to be sent to the provider when a new session is being created.
+	 * A map of additional capabilities that need to be sent to the provider
+	 * when a new session is being created.
 	 */
 	get extraCapabilities(): Object {
 		return {};
@@ -182,13 +218,17 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	}
 
 	/**
-	 * Downloads and extracts the tunnel software if it is not already downloaded.
+	 * Downloads and extracts the tunnel software if it is not already
+	 * downloaded.
 	 *
-	 * This method can be extended by implementations to perform any necessary post-processing, such as setting
-	 * appropriate file permissions on the downloaded executable.
+	 * This method can be extended by implementations to perform any necessary
+	 * post-processing, such as setting appropriate file permissions on the
+	 * downloaded executable.
 	 *
-	 * @param forceDownload Force downloading the software even if it already has been downloaded.
-	 * @returns A promise that resolves once the download and extraction process has completed.
+	 * @param forceDownload Force downloading the software even if it already
+	 * has been downloaded.
+	 * @returns A promise that resolves once the download and extraction process
+	 * has completed.
 	 */
 	download(forceDownload = false): Task<any> {
 		if (!forceDownload && this.isDownloaded) {
@@ -197,7 +237,11 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 		return this._downloadFile(this.url, this.proxy);
 	}
 
-	protected _downloadFile(url: string, proxy: string, options?: DownloadOptions): Task<any> {
+	protected _downloadFile(
+		url: string,
+		proxy: string,
+		options?: DownloadOptions
+	): Task<any> {
 		let request: Task<Response>;
 
 		if (!url) {
@@ -207,32 +251,42 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 		return new Task<any>(
 			(resolve, reject) => {
 				request = sendRequest(url, <NodeRequestOptions>{ proxy });
-				request.then(response => {
-					const total = Number(response.headers.get('content-length'));
+				request
+					.then(response => {
+						const total = Number(
+							response.headers.get('content-length')
+						);
 
-					response.download.subscribe({
-						next: (received) => {
-							this.emit<DownloadProgressEvent>({
-								type: 'downloadprogress',
-								target: this,
-								url,
-								total,
-								received
+						response.download.subscribe({
+							next: received => {
+								this.emit<DownloadProgressEvent>({
+									type: 'downloadprogress',
+									target: this,
+									url,
+									total,
+									received
+								});
+							}
+						});
+
+						if (response.status >= 400) {
+							throw new Error(
+								`Download server returned status code ${response.status} for ${url}`
+							);
+						} else {
+							response.arrayBuffer().then(data => {
+								resolve(
+									this._postDownloadFile(
+										Buffer.from(data),
+										options
+									)
+								);
 							});
 						}
+					})
+					.catch(error => {
+						reject(error);
 					});
-
-					if (response.status >= 400) {
-						throw new Error(`Download server returned status code ${response.status} for ${url}`);
-					}
-					else {
-						response.arrayBuffer().then(data => {
-							resolve(this._postDownloadFile(Buffer.from(data), options));
-						});
-					}
-				}).catch(error => {
-					reject(error);
-				});
 			},
 			() => {
 				request && request.cancel();
@@ -243,7 +297,10 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	/**
 	 * Called with the response after a file download has completed
 	 */
-	protected _postDownloadFile(data: Buffer, options?: DownloadOptions): Promise<void> {
+	protected _postDownloadFile(
+		data: Buffer,
+		options?: DownloadOptions
+	): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
 			decompress(data, this.directory)
 				.then(() => resolve())
@@ -252,10 +309,12 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	}
 
 	/**
-	 * Creates the list of command-line arguments to be passed to the spawned tunnel. Implementations should
-	 * override this method to provide the appropriate command-line arguments.
+	 * Creates the list of command-line arguments to be passed to the spawned
+	 * tunnel. Implementations should override this method to provide the
+	 * appropriate command-line arguments.
 	 *
-	 * Arguments passed to {@link module:digdug/Tunnel#_makeChild} will be passed as-is to this method.
+	 * Arguments passed to [[Tunnel._makeChild]] will be passed as-is to this
+	 * method.
 	 *
 	 * @returns A list of command-line arguments.
 	 */
@@ -264,16 +323,19 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	}
 
 	/**
-	 * Creates a newly spawned child process for the tunnel software. Implementations should call this method to
-	 * create the tunnel process.
+	 * Creates a newly spawned child process for the tunnel software.
+	 * Implementations should call this method to create the tunnel process.
 	 *
-	 * Arguments passed to this method will be passed as-is to {@link module:digdug/Tunnel#_makeArgs} and
-	 * {@link module:digdug/Tunnel#_makeOptions}.
+	 * Arguments passed to this method will be passed as-is to
+	 * [[Tunnel._makeArgs]] and [[Tunnel._makeOptions]].
 	 *
-	 * @returns An object containing a newly spawned Process and a Deferred that will be resolved once the tunnel has started
-	 * successfully.
+	 * @returns An object containing a newly spawned Process and a Deferred that
+	 * will be resolved once the tunnel has started successfully.
 	 */
-	protected _makeChild(executor: ChildExecutor, ...values: string[]): Task<any> {
+	protected _makeChild(
+		executor: ChildExecutor,
+		...values: string[]
+	): Task<any> {
 		const command = this.executable;
 		const args = this._makeArgs(...values);
 		const options = this._makeOptions(...values);
@@ -292,7 +354,12 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 
 				function handleChildExit() {
 					if (task.state === State.Pending) {
-						reject(new Error(`Tunnel failed to start: ${errorMessage || `Exit code: ${exitCode}`}`));
+						reject(
+							new Error(
+								`Tunnel failed to start: ${errorMessage ||
+									`Exit code: ${exitCode}`}`
+							)
+						);
 					}
 				}
 				handle = createCompositeHandle(
@@ -306,8 +373,9 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 							handleChildExit();
 						}
 					}),
-					// stderr might still have data in buffer at the time the exit event is sent, so we have to store data
-					// from stderr and the exit code and reject only once stderr closes
+					// stderr might still have data in buffer at the time the
+					// exit event is sent, so we have to store data from stderr
+					// and the exit code and reject only once stderr closes
 					on(child.stderr, 'close', () => {
 						stderrClosed = true;
 						if (exitCode !== null) {
@@ -327,27 +395,29 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 			}
 		);
 
-		return task
-			.finally(() => {
-				handle.destroy();
-				if (canceled) {
-					// We only want this to run when cancelation has occurred
-					return new Promise(resolve => {
-						child.once('exit', () => {
-							resolve();
-						});
+		return task.finally(() => {
+			handle.destroy();
+			if (canceled) {
+				// We only want this to run when cancelation has occurred
+				return new Promise(resolve => {
+					child.once('exit', () => {
+						resolve();
 					});
-				}
-			});
+				});
+			}
+		});
 	}
 
 	/**
-	 * Creates the set of options to use when spawning the tunnel process. Implementations should override this
-	 * method to provide the appropriate options for the tunnel software.
+	 * Creates the set of options to use when spawning the tunnel process.
+	 * Implementations should override this method to provide the appropriate
+	 * options for the tunnel software.
 	 *
-	 * Arguments passed to {@link module:digdug/Tunnel#_makeChild} will be passed as-is to this method.
+	 * Arguments passed to [[Tunnel._makeChild]] will be passed as-is to this
+	 * method.
 	 *
-	 * @returns A set of options matching those provided to Node.js {@link module:child_process.spawn}.
+	 * @returns A set of options matching those provided to Node.js
+	 * `child_process.spawn`.
 	 */
 	protected _makeOptions(...values: string[]) {
 		return { env: process.env };
@@ -361,7 +431,9 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	 * @returns A promise that resolves once the job state request is complete.
 	 */
 	sendJobState(jobId: string, data: JobState): Task<void> {
-		return Task.reject<void>(new Error('Job state is not supported by this tunnel.'));
+		return Task.reject<void>(
+			new Error('Job state is not supported by this tunnel.')
+		);
 	}
 
 	/**
@@ -380,21 +452,19 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 
 		this._state = 'starting';
 
-		this._startTask = this
-			.download()
-			.then(() => {
-				return this._start((child, resolve, reject) => {
-					this._process = child;
-					this._handle = createCompositeHandle(
-						this._handle || { destroy: function () { } },
-						on(child.stdout, 'data', proxyIOEvent(this, 'stdout')),
-						on(child.stderr, 'data', proxyIOEvent(this, 'stderr')),
-						on(child, 'exit', () => {
-							this._state = 'stopped';
-						})
-					);
-				});
+		this._startTask = this.download().then(() => {
+			return this._start((child, resolve, reject) => {
+				this._process = child;
+				this._handle = createCompositeHandle(
+					this._handle || { destroy: function() {} },
+					on(child.stdout, 'data', proxyIOEvent(this, 'stdout')),
+					on(child.stderr, 'data', proxyIOEvent(this, 'stderr')),
+					on(child, 'exit', () => {
+						this._state = 'stopped';
+					})
+				);
 			});
+		});
 
 		this._startTask
 			.then(() => {
@@ -412,7 +482,10 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 				this.emit<StatusEvent>({
 					type: 'status',
 					target: this,
-					status: error.name === 'CancelError' ? 'Start cancelled' : 'Failed to start tunnel'
+					status:
+						error.name === 'CancelError'
+							? 'Start cancelled'
+							: 'Failed to start tunnel'
 				});
 			});
 
@@ -420,15 +493,18 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	}
 
 	/**
-	 * This method provides the implementation that actually starts the tunnel and any other logic for emitting
-	 * events on the Tunnel based on data passed by the tunnel software.
+	 * This method provides the implementation that actually starts the tunnel
+	 * and any other logic for emitting events on the Tunnel based on data
+	 * passed by the tunnel software.
 	 *
-	 * The default implementation that assumes the tunnel is ready for use once the child process has written to
-	 * `stdout` or `stderr`. This method should be reimplemented by other tunnel launchers to implement correct
-	 * launch detection logic.
+	 * The default implementation that assumes the tunnel is ready for use once
+	 * the child process has written to `stdout` or `stderr`. This method should
+	 * be reimplemented by other tunnel launchers to implement correct launch
+	 * detection logic.
 	 *
-	 * @returns An object containing a reference to the child process, and a Deferred that is resolved once the tunnel is
-	 * ready for use. Normally this will be the object returned from a call to `Tunnel#_makeChild`.
+	 * @returns An object containing a reference to the child process, and a
+	 * Deferred that is resolved once the tunnel is ready for use. Normally this
+	 * will be the object returned from a call to [[Tunnel._makeChild]].
 	 */
 	protected _start(executor: ChildExecutor) {
 		return this._makeChild((child, resolve, reject) => {
@@ -449,7 +525,8 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	/**
 	 * Stops the tunnel.
 	 *
-	 * @returns A promise that resolves to the exit code for the tunnel once it has been terminated.
+	 * @returns A promise that resolves to the exit code for the tunnel once it
+	 * has been terminated.
 	 */
 	stop(): Promise<number> {
 		switch (this._state) {
@@ -485,8 +562,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 			.catch(error => {
 				this._state = 'running';
 				throw error;
-			})
-			;
+			});
 
 		return this._stopTask;
 	}
@@ -494,8 +570,9 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	/**
 	 * This method provides the implementation that actually stops the tunnel.
 	 *
-	 * The default implementation that assumes the tunnel has been closed once the child process has exited. This
-	 * method should be reimplemented by other tunnel launchers to implement correct shutdown logic, if necessary.
+	 * The default implementation that assumes the tunnel has been closed once
+	 * the child process has exited. This method should be reimplemented by
+	 * other tunnel launchers to implement correct shutdown logic, if necessary.
 	 *
 	 * @returns A promise that resolves once the tunnel has shut down.
 	 */
@@ -518,15 +595,17 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	/**
 	 * Get a list of environments available on the service.
 	 *
-	 * This method should be overridden and use a specific implementation that returns normalized
-	 * environments from the service. E.g.
+	 * This method should be overridden and use a specific implementation that
+	 * returns normalized environments from the service. E.g.
 	 *
+	 * ```js
 	 * {
 	 *     browserName: 'firefox',
 	 *     version: '12',
 	 *     platform: 'windows',
 	 *     descriptor: { <original returned environment> }
 	 * }
+	 * ```
 	 *
 	 * @returns An object containing the response and helper functions
 	 */
@@ -542,27 +621,41 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 		}).then(response => {
 			if (response.status >= 200 && response.status < 400) {
 				return response.json<any[]>().then(data => {
-					return data.reduce((environments: NormalizedEnvironment[], environment: any) => {
-						return environments.concat(this._normalizeEnvironment(environment));
-					}, []);
+					return data.reduce(
+						(
+							environments: NormalizedEnvironment[],
+							environment: any
+						) => {
+							return environments.concat(
+								this._normalizeEnvironment(environment)
+							);
+						},
+						[]
+					);
 				});
-			}
-			else {
+			} else {
 				if (response.status === 401) {
-					throw new Error('Missing or invalid username and access key');
+					throw new Error(
+						'Missing or invalid username and access key'
+					);
 				}
-				throw new Error(`Server replied with a status of ${response.status}`);
+				throw new Error(
+					`Server replied with a status of ${response.status}`
+				);
 			}
 		});
 	}
 
 	/**
-	 * Normalizes a specific Tunnel environment descriptor to a general form. To be overriden by a child implementation.
+	 * Normalizes a specific Tunnel environment descriptor to a general form. To
+	 * be overriden by a child implementation.
 	 *
 	 * @param environment an environment descriptor specific to the Tunnel
 	 * @returns a normalized environment
 	 */
-	protected _normalizeEnvironment(environment: Object): NormalizedEnvironment {
+	protected _normalizeEnvironment(
+		environment: Object
+	): NormalizedEnvironment {
 		return <any>environment;
 	}
 }
@@ -586,7 +679,11 @@ export interface DownloadProgressEvent extends EventTargettedObject<Tunnel> {
 }
 
 export interface ChildExecutor {
-	(child: ChildProcess, resolve: () => void, reject: (reason?: any) => void): Handle | void;
+	(
+		child: ChildProcess,
+		resolve: () => void,
+		reject: (reason?: any) => void
+	): Handle | void;
 }
 
 export interface DownloadOptions {
@@ -631,12 +728,15 @@ export type TunnelOptions = Partial<TunnelProperties>;
 export interface Events extends BaseEventedEvents {
 	(type: 'stderr' | 'stdout', listener: (event: IOEvent) => void): Handle;
 	(type: 'status', listener: (event: StatusEvent) => void): Handle;
-	(type: 'downloadprogress', listener: (event: DownloadProgressEvent) => void): Handle;
+	(
+		type: 'downloadprogress',
+		listener: (event: DownloadProgressEvent) => void
+	): Handle;
 	(type: string, listener: (event: EventObject) => void): Handle;
 }
 
 function proxyIOEvent(target: Tunnel, type: 'stdout' | 'stderr') {
-	return function (data: any) {
+	return function(data: any) {
 		target.emit<IOEvent>({
 			type,
 			target,

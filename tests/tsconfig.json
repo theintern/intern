@@ -1,21 +1,16 @@
 {
-  "compilerOptions": {
-    "baseUrl": "..",
-    "declaration": false,
-    "module": "umd",
-    "paths": {
-      "src/*": [
-        "./_build/src/*",
-        "./src/*"
-      ]
-    }
-  },
-  "extends": "../tsconfig.json",
-  "files": [
-    "../node_modules/intern/typings/intern/intern.d.ts",
-    "../src/types/decompress/decompress.d.ts"
-  ],
-  "include": [
-    "./**/*.ts"
-  ]
+	"compilerOptions": {
+		"baseUrl": "..",
+		"declaration": false,
+		"module": "umd",
+		"paths": {
+			"src/*": ["./_build/src/*", "./src/*"]
+		}
+	},
+	"extends": "../tsconfig.json",
+	"files": [
+		"../node_modules/intern/typings/intern/intern.d.ts",
+		"../src/types/decompress/decompress.d.ts"
+	],
+	"include": ["./**/*.ts"]
 }

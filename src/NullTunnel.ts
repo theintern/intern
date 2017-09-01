@@ -8,9 +8,14 @@ import Promise from '@dojo/shim/Promise';
  */
 export default class NullTunnel extends Tunnel {
 	constructor(options?: TunnelOptions) {
-		super(mixin({
-			auth: ''
-		}, options));
+		super(
+			mixin(
+				{
+					auth: ''
+				},
+				options
+			)
+		);
 	}
 
 	get isDownloaded() {

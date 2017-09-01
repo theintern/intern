@@ -15,16 +15,16 @@ function rmFileAndDir(filename: string) {
 registerSuite({
 	name: 'unit/Tunnel',
 
-	'.fileExists': function () {
+	'.fileExists': function() {
 		assert.isTrue(util.fileExists('src/Tunnel.ts'));
 		assert.isFalse(util.fileExists('src/Tunnel.jsx'));
 	},
 
-	'.on': function () {
+	'.on': function() {
 		const emitter = new EventEmitter();
 
 		let called = false;
-		const handle = util.on(emitter, 'foo', function () {
+		const handle = util.on(emitter, 'foo', function() {
 			called = true;
 		});
 		emitter.emit('foo');
@@ -37,13 +37,12 @@ registerSuite({
 		assert.isFalse(called);
 	},
 
-	'.writeFile': function () {
+	'.writeFile': function() {
 		const filename = path.join('_a', '_b', 'foo.txt');
-		return util.writeFile('foo\n', filename).then(function () {
+		return util.writeFile('foo\n', filename).then(function() {
 			try {
 				fs.statSync(filename).isFile();
-			}
-			finally {
+			} finally {
 				rmFileAndDir(filename);
 			}
 		});

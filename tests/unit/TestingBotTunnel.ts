@@ -7,11 +7,11 @@ let tunnel: TestingBotTunnel;
 registerSuite({
 	name: 'unit/TestingBotTunnel',
 
-	beforeEach: function () {
+	beforeEach: function() {
 		tunnel = new TestingBotTunnel();
 	},
 
-	'#auth': function () {
+	'#auth': function() {
 		tunnel.username = 'foo';
 		tunnel.accessKey = 'bar';
 		assert.equal(tunnel.auth, 'foo:bar');
