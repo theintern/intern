@@ -19,6 +19,10 @@ import {
 	WebDriverResponse
 } from './interfaces';
 
+/**
+ * A Session represents a connection to a remote environment that can be driven
+ * programmatically.
+ */
 export default class Session extends Locator<
 	Task<Element>,
 	Task<Element[]>,

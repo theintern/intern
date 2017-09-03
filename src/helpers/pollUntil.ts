@@ -7,34 +7,40 @@ import Task from '@dojo/core/async/Task';
  * until the value exists or a timeout is reached.
  *
  * ```js
- * var Command = require('leadfoot/Command');
- * var pollUntil = require('leadfoot/helpers/pollUntil');
+ * import Command from 'leadfoot/Command';
+ * import pollUntil from 'leadfoot/helpers/pollUntil';
  *
  * new Command(session)
  *     .get('http://example.com')
  *     .then(pollUntil('return document.getElementById("a");', 1000))
- *     .then(function (elementA) {
- *         // element was found
- *     }, function (error) {
- *         // element was not found
- *     });
+ *     .then(
+ *         elementA => {
+ *             // element was found
+ *         },
+ *         error => {
+ *             // element was not found
+ *         }
+ *     );
  * ```
  *
  * ```js
- * var Command = require('leadfoot/Command');
- * var pollUntil = require('leadfoot/helpers/pollUntil');
+ * import Command from 'leadfoot/Command';
+ * import pollUntil from 'leadfoot/helpers/pollUntil';
  *
  * new Command(session)
  *     .get('http://example.com')
- *     .then(pollUntil(function (value) {
- *         var element = document.getElementById('a');
+ *     .then(pollUntil(value => {
+ *         const element = document.getElementById('a');
  *         return element && element.value === value ? true : null;
  *     }, [ 'foo' ], 1000))
- *     .then(function () {
- *         // value was set to 'foo'
- *     }, function (error) {
- *         // value was never set
- *     });
+ *     .then(
+ *         () => {
+ *             // value was set to 'foo'
+ *         },
+ *         error => {
+ *             // value was never set
+ *         }
+ *     );
  * ```
  *
  * @param poller The poller function to execute on an interval. The function
@@ -57,22 +63,31 @@ import Task from '@dojo/core/async/Task';
  * success and rejects on failure.
  */
 export default function pollUntil(
-	poller: Function | string,
+	poller: Poller | string,
 	args?: any[],
 	timeout?: number,
 	pollInterval?: number
 ): () => Task<any>;
+
 export default function pollUntil(
-	poller: Function | string,
+	poller: Poller | string,
 	timeout?: number,
 	pollInterval?: number
 ): () => Task<any>;
-export default function pollUntil(...allArgs: any[]): () => Task<any> {
-	let [poller, args, timeout, pollInterval] = allArgs;
-	if (typeof args === 'number') {
+
+export default function pollUntil(
+	poller: Poller | string,
+	argsOrTimeout?: any[] | number,
+	timeout?: number,
+	pollInterval?: number
+): () => Task<any> {
+	let args: any[];
+
+	if (typeof argsOrTimeout === 'number') {
 		pollInterval = timeout;
-		timeout = args;
-		args = [];
+		timeout = argsOrTimeout;
+	} else {
+		args = argsOrTimeout;
 	}
 
 	args = args || [];
@@ -159,3 +174,5 @@ export default function pollUntil(...allArgs: any[]): () => Task<any> {
 		});
 	};
 }
+
+export type Poller = () => any;

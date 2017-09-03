@@ -9,7 +9,8 @@ import JSZip = require('jszip');
 import { basename } from 'path';
 
 /**
- * An Element represents a DOM or UI element within the remote environment.
+ * The Element class represents a DOM or UI element within the remote
+ * environment.
  */
 export default class Element extends Locator<
 	Task<Element>,

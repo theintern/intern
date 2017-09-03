@@ -55,20 +55,3 @@ export function toExecuteString(fn: Function | string): string {
 export function trimStack(stack: string): string {
 	return stack.replace(/^[^\n]+/, '');
 }
-
-export function applyMixins(
-	derivedCtor: any,
-	baseCtors: any[],
-	includePrivates: boolean = true
-): void {
-	baseCtors.forEach(baseCtor => {
-		Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
-			if (
-				name !== 'constructor' &&
-				(includePrivates || name.charAt(0) !== '_')
-			) {
-				derivedCtor.prototype[name] = baseCtor.prototype[name];
-			}
-		});
-	});
-}

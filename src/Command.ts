@@ -38,6 +38,15 @@ import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
  * differences in the arguments and context that are provided to callbacks; see
  * [[Command.Command.then]] for more details.
  *
+ * Because Commands are promise-like, they may also be used with `async/await`:
+ *
+ * ```js
+ * const page = await command.get('http://example.com');
+ * const h1 = await page.findByTagName('h1');
+ * const text = await h1.getVisibleText();
+ * assert.strictEqual(text, 'Example Domain');
+ * ```
+ *
  * ---
  *
  * Each call on a Command generates a new Command object, which means that
@@ -144,15 +153,15 @@ import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
  * }
  * ```
  *
- * Note that returning `this`, or a command chain starting from `this`, from a
- * callback or command initialiser will deadlock the Command, as it waits for
- * itself to settle before settling.
+ * >  ⚠️Note that returning `this`, or a command chain starting from `this`,
+ * from a callback or command initialiser will deadlock the Command, as it
+ * waits for itself to settle before settling.
  */
 export default class Command<T> extends Locator<
 	Command<Element>,
 	Command<Element[]>,
 	Command<void>
-> {
+> implements PromiseLike<T> {
 	/**
 	 * Augments `target` with a conversion of the `originalFn` method that
 	 * enables its use with a Command object. This can be used to easily add
@@ -162,15 +171,14 @@ export default class Command<T> extends Locator<
 	 * Functions that are copied may have the following extra properties in
 	 * order to change the way that Command works with these functions:
 	 *
-	 * - `createsContext` (boolean): If this property is specified, the return
+	 * * `createsContext` (boolean): If this property is specified, the return
 	 *   value from the function will be used as the new context for the
 	 *   returned Command.
-	 * - `usesElement` (boolean): If this property is specified, element(s)
+	 * * `usesElement` (boolean): If this property is specified, element(s)
 	 *   from the current context will be used as the first argument to the
 	 *   function, if the explicitly specified first argument is not already an
 	 *   element.
 	 *
-	 * @memberOf module:leadfoot/Command
 	 * @param {module:leadfoot/Command} target
 	 * @param {string} key
 	 * @param {Function} originalFn
@@ -259,11 +267,10 @@ export default class Command<T> extends Locator<
 	 * Functions that are copied may have the following extra properties in
 	 * order to change the way that Command works with these functions:
 	 *
-	 * - `createsContext` (boolean): If this property is specified, the return
+	 * * `createsContext` (boolean): If this property is specified, the return
 	 *   value from the function will be used as the new context for the
 	 *   returned Command.
 	 *
-	 * @memberOf module:leadfoot/Command
 	 * @param {module:leadfoot/Command} target
 	 * @param {string} key
 	 */
@@ -450,12 +457,12 @@ export default class Command<T> extends Locator<
 	 * invoked. Note that this property is not valid until the parent Command
 	 * has been settled. The context array also has two additional properties:
 	 *
-	 * - isSingle (boolean): If true, the context will always contain a single
-	 *   element. This is used to differentiate between methods that should
-	 *   still return scalar values (`find`) and methods that should return
-	 *   arrays of values even if there is only one element in the context
-	 *   (`findAll`).
-	 * - depth (number): The depth of the context within the command chain.
+	 * * `isSingle` (boolean): If true, the context will always contain a
+	 *   single element. This is used to differentiate between methods that
+	 *   should still return scalar values (`find`) and methods that should
+	 *   return arrays of values even if there is only one element in the
+	 *   context (`findAll`).
+	 * * `depth` (number): The depth of the context within the command chain.
 	 *   This is used to prevent traversal into higher filtering levels by
 	 *   [[Command.Command.end]].
 	 */
@@ -1406,9 +1413,10 @@ export default class Command<T> extends Locator<
 	/**
 	 * Gets the current geographical location of the remote environment.
 	 *
-	 * @returns Latitude and longitude are specified using standard WGS84
-	 * decimal latitude/longitude. Altitude is specified as meters above the
-	 * WGS84 ellipsoid. Not all environments support altitude.
+	 * @returns a [[interfaces.Geolocation]] value with latitude and longitude
+	 * specified using standard WGS84 decimal latitude/longitude. Altitude is
+	 * specified as meters above the WGS84 ellipsoid. Not all environments
+	 * support altitude.
 	 */
 	getGeolocation() {
 		return this._callSessionMethod<Geolocation>('getGeolocation');
@@ -1470,8 +1478,8 @@ export default class Command<T> extends Locator<
 	}
 
 	/**
-	 * Waits for all elements in the currently active window/frame to be
-	 * destroyed.
+	 * Waits for all elements findable in the currently active window/frame
+	 * using the given strategy and value to be destroyed.
 	 *
 	 * @param using The element retrieval strategy to use. See
 	 * [[Command.Command.find]] for options.

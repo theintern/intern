@@ -5,6 +5,23 @@ import Element from '../Element';
 
 import { Strategy } from './Locator';
 
+/**
+ * Waits for all elements findable in the currently active window/frame
+ * using the given strategy and value to be destroyed.
+ *
+ * @param session The session to consider.
+ *
+ * @param locator The particular instance that will perform the locating.
+ *
+ * @param using The element retrieval strategy to use. See
+ * [[Command.Command.find]] for options.
+ *
+ * @param value The strategy-specific value to search for. See
+ * [[Command.Command.find]] for details.
+ *
+ * @returns a Task that resolves when no matching elements can be found, or
+ * rejects if matching elements still exist after the find timeout.
+ */
 export default function waitForDeleted(
 	session: Session,
 	locator: Session | Element,
