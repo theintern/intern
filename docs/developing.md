@@ -2,6 +2,12 @@
 
 Intern is written in TypeScript. The various build lifecycle steps (build, test, etc.) are handled through `npm`, and are mostly implemented by scripts in the [intern-dev](https://github.com/theintern/intern-dev) package.
 
+## Code style
+
+The source is formatted using [prettier](https://github.com/prettier/prettier) 1.6+ and a `.prettierrc` file in the repo. This isn't automatic yet, so updates should be run through prettier manually (`prettier src/changed_file.ts --write`) or using an [editor plugin](https://github.com/prettier/prettier#editor-integration).
+
+Prettier doesn't (yet) reflow comments; those should be wrapped at 80 characters. Long lines for URLs are fine.
+
 ## Building Intern
 
 Before you can do much else, you'll need to install Intern’s development dependencies:
