@@ -227,6 +227,8 @@ Tests can run in two basic environments: Node and browsers. By default, “resou
 
 A number of config properties are applicable whether Intern is running in Node or directly in a broswer:
 
+> 💡 See [the API docs](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/config-://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/config-1) for a complete list of the available config properties.
+
 | Property                 | Description                                                                                | Default
 | :-------                 | :----------                                                                                | :------
 | bail                     | When true, stop testing after the first failure                                            | `false`
