@@ -1,8 +1,7 @@
 {
+	"extends": "./node_modules/@theintern/dev/tsconfig-base.json",
 	"compilerOptions": {
-		"allowSyntheticDefaultImports": true,
 		"declaration": true,
-		"experimentalDecorators": true,
 		"lib": [
 			"es5",
 			"es2015.collection",
@@ -13,22 +12,8 @@
 			"dom"
 		],
 		"module": "umd",
-		"moduleResolution": "node",
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
 		"outDir": "./_build",
-		"preserveConstEnums": true,
-		"removeComments": false,
-		"rootDir": ".",
-		"sourceMap": true,
-		"strict": true,
-		"target": "es5"
-	},
-	"formatCodeOptions": {
-		"convertTabsToSpaces": false,
-		"insertSpaceAfterCommaDelimiter": true,
-		"insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
-		"insertSpaceAfterSemicolonInForStatements": true
+		"rootDir": "."
 	},
 	"files": ["src/index.ts"],
 	"include": [
