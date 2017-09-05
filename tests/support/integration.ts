@@ -40,7 +40,7 @@ function checkCredentials(tunnel: Tunnel, options: any) {
 	return (/\S+:\S+/).test(tunnel.auth);
 }
 
-function getCleanup(tunnel: Tunnel, handle: Handle) {
+function getCleanup(tunnel: Tunnel, handle?: Handle) {
 	return function () {
 		if (handle) {
 			handle.destroy();
@@ -59,7 +59,7 @@ export function addEnvironmentTest(suite: any, TunnelClass: typeof Tunnel, check
 			this.skip('missing auth data');
 		}
 
-		let handle: Handle;
+		let handle: Handle | undefined;
 		if (intern.args.verbose) {
 			handle = addVerboseListeners(tunnel);
 		}
@@ -95,7 +95,7 @@ export function addStartStopTest(suite: any, TunnelClass: typeof Tunnel, options
 			this.skip('missing auth data');
 		}
 
-		let handle: Handle;
+		let handle: Handle | undefined;
 		if (intern.args.verbose) {
 			handle = addVerboseListeners(tunnel);
 		}
@@ -105,7 +105,7 @@ export function addStartStopTest(suite: any, TunnelClass: typeof Tunnel, options
 		}
 
 		const cleanup = getCleanup(tunnel, handle);
-		return tunnel.start().then(function () {
+		return tunnel.start()!.then(function () {
 				return tunnel.stop();
 			})
 			.then(cleanup)

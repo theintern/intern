@@ -66,7 +66,7 @@ export default class TestingBotTunnel extends Tunnel
 					useSquidProxy: true,
 					useSsl: false
 				},
-				options
+				options || {}
 			)
 		);
 	}

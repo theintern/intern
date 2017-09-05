@@ -12,7 +12,7 @@ export default class NullTunnel extends Tunnel {
 				{
 					auth: ''
 				},
-				options
+				options || {}
 			)
 		);
 	}

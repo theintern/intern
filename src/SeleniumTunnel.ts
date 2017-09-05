@@ -93,7 +93,7 @@ export default class SeleniumTunnel extends Tunnel
 					version: SeleniumVersion,
 					seleniumTimeout: 5000
 				},
-				options
+				options || {}
 			)
 		);
 	}
@@ -141,7 +141,7 @@ export default class SeleniumTunnel extends Tunnel
 		let tasks: Task<any>[];
 
 		return new Task(
-			(resolve, reject) => {
+			resolve => {
 				const configs: RemoteFile[] = [
 					{ url: this.url, executable: this.artifact },
 					...this._getDriverConfigs()
@@ -233,8 +233,9 @@ export default class SeleniumTunnel extends Tunnel
 		data: Buffer,
 		options: SeleniumDownloadOptions
 	) {
-		if (extname(options.executable) === '.jar') {
-			return writeFile(data, join(this.directory, options.executable));
+		const executable = options.executable!;
+		if (extname(executable) === '.jar') {
+			return writeFile(data, join(this.directory, executable));
 		}
 		return super._postDownloadFile(data, options);
 	}
@@ -274,7 +275,7 @@ export default class SeleniumTunnel extends Tunnel
 			executor(child, resolve, reject);
 		});
 
-		task.then(handle.destroy.bind(handle), handle.destroy.bind(handle));
+		task.then(() => handle.destroy(), () => handle.destroy());
 
 		return task;
 	}

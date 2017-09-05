@@ -67,7 +67,7 @@ export default class BrowserStackTunnel extends Tunnel {
 					skipServerValidation: true,
 					username: process.env.BROWSERSTACK_USERNAME
 				},
-				options
+				options || {}
 			)
 		);
 	}
@@ -130,7 +130,7 @@ export default class BrowserStackTunnel extends Tunnel {
 		});
 	}
 
-	protected _makeArgs(...values: string[]): string[] {
+	protected _makeArgs(..._values: string[]): string[] {
 		if (!this.username || !this.accessKey) {
 			throw new Error(
 				'BrowserStackTunnel requires a username and access key'
@@ -196,7 +196,7 @@ export default class BrowserStackTunnel extends Tunnel {
 				user: this.username,
 				proxy: this.proxy
 			})
-			.then(response => {
+			.then<void>(response => {
 				if (response.status < 200 || response.status >= 300) {
 					return response.text().then(text => {
 						throw new Error(

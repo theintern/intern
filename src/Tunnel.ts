@@ -36,7 +36,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 				protocol: 'http',
 				verbose: false
 			},
-			options
+			options || {}
 		);
 	}
 
@@ -162,10 +162,10 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	/** Whether or not to tell the tunnel to provide verbose logging output. */
 	verbose: boolean;
 
-	protected _startTask: Task<any>;
-	protected _stopTask: Promise<number>;
-	protected _handle: Handle = null;
-	protected _process: ChildProcess = null;
+	protected _startTask: Task<any> | undefined;
+	protected _stopTask: Promise<number> | undefined;
+	protected _handle: Handle | undefined;
+	protected _process: ChildProcess | undefined;
 	protected _state:
 		| 'stopped'
 		| 'starting'
@@ -298,7 +298,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	 */
 	protected _postDownloadFile(
 		data: Buffer,
-		options?: DownloadOptions
+		_options?: DownloadOptions
 	): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
 			decompress(data, this.directory)
@@ -317,7 +317,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	 *
 	 * @returns A list of command-line arguments.
 	 */
-	protected _makeArgs(...values: string[]): string[] {
+	protected _makeArgs(..._values: string[]): string[] {
 		return [];
 	}
 
@@ -348,7 +348,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 		const task = new Task(
 			(resolve, reject) => {
 				let errorMessage = '';
-				let exitCode: number = null;
+				let exitCode: number | undefined;
 				let stderrClosed = false;
 
 				function handleChildExit() {
@@ -418,7 +418,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	 * @returns A set of options matching those provided to Node.js
 	 * `child_process.spawn`.
 	 */
-	protected _makeOptions(...values: string[]) {
+	protected _makeOptions(..._values: string[]) {
 		return { env: process.env };
 	}
 
@@ -429,7 +429,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	 * @param data Data to send to the tunnel provider about the job.
 	 * @returns A promise that resolves once the job state request is complete.
 	 */
-	sendJobState(jobId: string, data: JobState): Task<void> {
+	sendJobState(_jobId: string, _data: JobState): Task<void> {
 		return Task.reject<void>(
 			new Error('Job state is not supported by this tunnel.')
 		);
@@ -452,7 +452,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 		this._state = 'starting';
 
 		this._startTask = this.download().then(() => {
-			return this._start((child, resolve, reject) => {
+			return this._start(child => {
 				this._process = child;
 				this._handle = createCompositeHandle(
 					this._handle || { destroy: function() {} },
@@ -467,7 +467,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 
 		this._startTask
 			.then(() => {
-				this._startTask = null;
+				this._startTask = undefined;
 				this._state = 'running';
 				this.emit<StatusEvent>({
 					type: 'status',
@@ -476,7 +476,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 				});
 			})
 			.catch(error => {
-				this._startTask = null;
+				this._startTask = undefined;
 				this._state = 'stopped';
 				this.emit<StatusEvent>({
 					type: 'status',
@@ -530,10 +530,10 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	stop(): Promise<number> {
 		switch (this._state) {
 			case 'starting':
-				this._startTask.cancel();
-				return this._startTask.finally(() => null);
+				this._startTask!.cancel();
+				return this._startTask!.finally(() => null);
 			case 'stopping':
-				return this._stopTask;
+				return this._stopTask!;
 		}
 
 		this._state = 'stopping';
@@ -549,7 +549,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 				if (this._handle) {
 					this._handle.destroy();
 				}
-				this._process = this._handle = null;
+				this._process = this._handle = undefined;
 				this._state = 'stopped';
 				this.emit<StatusEvent>({
 					type: 'status',

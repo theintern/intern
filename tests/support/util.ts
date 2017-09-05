@@ -11,7 +11,7 @@ import Tunnel from 'src/Tunnel';
  */
 export function cleanup(tunnel: Tunnel) {
 	if (!tunnel) {
-		return;
+		return Promise.resolve();
 	}
 
 	if (tunnel.isRunning) {
@@ -24,7 +24,7 @@ export function cleanup(tunnel: Tunnel) {
 	}
 	else {
 		deleteTunnelFiles(tunnel);
-		return Promise.resolve<void>(null);
+		return Promise.resolve();
 	}
 }
 

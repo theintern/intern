@@ -145,10 +145,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Handle"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Handle"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._handle",
@@ -173,10 +181,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "ChildProcess"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "ChildProcess"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._process",
@@ -201,12 +217,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Task",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "any"
+										"name": "undefined"
 									}
 								]
 							},
@@ -279,12 +304,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Promise",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "number"
+										"name": "undefined"
 									}
 								]
 							},
@@ -1426,7 +1460,7 @@
 									"parameters": [
 										{
 											"id": 234,
-											"name": "values",
+											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -1583,7 +1617,7 @@
 									"parameters": [
 										{
 											"id": 290,
-											"name": "values",
+											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -2152,12 +2186,21 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "reference",
-										"name": "Task",
-										"typeArguments": [
+										"type": "union",
+										"types": [
 											{
 												"type": "intrinsic",
-												"name": "any"
+												"name": "undefined"
+											},
+											{
+												"type": "reference",
+												"name": "Task",
+												"typeArguments": [
+													{
+														"type": "intrinsic",
+														"name": "any"
+													}
+												]
 											}
 										]
 									},
@@ -3122,10 +3165,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Handle"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Handle"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._handle",
@@ -3150,10 +3201,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "ChildProcess"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "ChildProcess"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._process",
@@ -3178,12 +3237,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Task",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "any"
+										"name": "undefined"
 									}
 								]
 							},
@@ -3256,12 +3324,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Promise",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "number"
+										"name": "undefined"
 									}
 								]
 							},
@@ -4475,7 +4552,7 @@
 									"parameters": [
 										{
 											"id": 398,
-											"name": "values",
+											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -4660,7 +4737,7 @@
 										},
 										{
 											"id": 391,
-											"name": "options",
+											"name": "_options",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -5044,12 +5121,21 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "reference",
-										"name": "Task",
-										"typeArguments": [
+										"type": "union",
+										"types": [
 											{
 												"type": "intrinsic",
-												"name": "any"
+												"name": "undefined"
+											},
+											{
+												"type": "reference",
+												"name": "Task",
+												"typeArguments": [
+													{
+														"type": "intrinsic",
+														"name": "any"
+													}
+												]
 											}
 										]
 									},
@@ -5412,10 +5498,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Handle"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Handle"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._handle",
@@ -5440,10 +5534,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "ChildProcess"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "ChildProcess"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._process",
@@ -5468,12 +5570,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Task",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "any"
+										"name": "undefined"
 									}
 								]
 							},
@@ -5546,12 +5657,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Promise",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "number"
+										"name": "undefined"
 									}
 								]
 							},
@@ -6527,7 +6647,7 @@
 									"parameters": [
 										{
 											"id": 469,
-											"name": "values",
+											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -6684,7 +6804,7 @@
 									"parameters": [
 										{
 											"id": 476,
-											"name": "values",
+											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -6868,7 +6988,7 @@
 										},
 										{
 											"id": 466,
-											"name": "options",
+											"name": "_options",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -7544,10 +7664,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Handle"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Handle"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._handle",
@@ -7572,10 +7700,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "ChildProcess"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "ChildProcess"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._process",
@@ -7600,12 +7736,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Task",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "any"
+										"name": "undefined"
 									}
 								]
 							},
@@ -7678,12 +7823,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Promise",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "number"
+										"name": "undefined"
 									}
 								]
 							},
@@ -9386,7 +9540,7 @@
 									"parameters": [
 										{
 											"id": 584,
-											"name": "values",
+											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -9523,7 +9677,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 514,
+									"line": 515,
 									"character": 32
 								}
 							],
@@ -9960,12 +10114,21 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "reference",
-										"name": "Task",
-										"typeArguments": [
+										"type": "union",
+										"types": [
 											{
 												"type": "intrinsic",
-												"name": "any"
+												"name": "undefined"
+											},
+											{
+												"type": "reference",
+												"name": "Task",
+												"typeArguments": [
+													{
+														"type": "intrinsic",
+														"name": "any"
+													}
+												]
 											}
 										]
 									},
@@ -10265,7 +10428,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 566,
+									"line": 567,
 									"character": 14
 								}
 							],
@@ -10315,7 +10478,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 568,
+									"line": 569,
 									"character": 21
 								}
 							],
@@ -10365,7 +10528,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 569,
+									"line": 570,
 									"character": 16
 								}
 							],
@@ -10415,7 +10578,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 570,
+									"line": 571,
 									"character": 15
 								}
 							],
@@ -10436,7 +10599,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 571,
+									"line": 572,
 									"character": 8
 								}
 							],
@@ -10457,7 +10620,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 573,
+									"line": 574,
 									"character": 12
 								}
 							],
@@ -10478,7 +10641,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 574,
+									"line": 575,
 									"character": 16
 								}
 							],
@@ -10525,7 +10688,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 572,
+									"line": 573,
 									"character": 8
 								}
 							],
@@ -10650,7 +10813,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 575,
+									"line": 576,
 									"character": 8
 								}
 							],
@@ -10671,7 +10834,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 576,
+									"line": 577,
 									"character": 15
 								}
 							],
@@ -10695,7 +10858,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 577,
+									"line": 578,
 									"character": 13
 								}
 							],
@@ -10716,7 +10879,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 567,
+									"line": 568,
 									"character": 14
 								}
 							],
@@ -10792,7 +10955,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 578,
+									"line": 579,
 									"character": 18
 								}
 							],
@@ -10865,7 +11028,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 579,
+									"line": 580,
 									"character": 10
 								}
 							],
@@ -10915,7 +11078,7 @@
 					"sources": [
 						{
 							"fileName": "SauceLabsTunnel.ts",
-							"line": 565,
+							"line": 566,
 							"character": 36
 						}
 					],
@@ -10946,7 +11109,7 @@
 					"sources": [
 						{
 							"fileName": "SauceLabsTunnel.ts",
-							"line": 582,
+							"line": 583,
 							"character": 28
 						}
 					],
@@ -11090,7 +11253,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 340,
+									"line": 341,
 									"character": 17
 								}
 							],
@@ -11111,7 +11274,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 337,
+									"line": 338,
 									"character": 5
 								}
 							],
@@ -11136,7 +11299,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 338,
+									"line": 339,
 									"character": 8
 								}
 							],
@@ -11161,7 +11324,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 339,
+									"line": 340,
 									"character": 9
 								}
 							],
@@ -11186,7 +11349,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 340,
+									"line": 341,
 									"character": 8
 								}
 							],
@@ -11226,7 +11389,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 356,
+									"line": 357,
 									"character": 13
 								}
 							]
@@ -11271,7 +11434,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 376,
+									"line": 377,
 									"character": 15
 								}
 							],
@@ -11317,7 +11480,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 380,
+									"line": 381,
 									"character": 21
 								}
 							],
@@ -11363,7 +11526,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 372,
+									"line": 373,
 									"character": 8
 								}
 							],
@@ -11411,7 +11574,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 335,
+							"line": 336,
 							"character": 18
 						}
 					],
@@ -11504,7 +11667,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 316,
+									"line": 317,
 									"character": 26
 								}
 							]
@@ -11520,7 +11683,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 321,
+									"line": 322,
 									"character": 29
 								}
 							],
@@ -11541,13 +11704,22 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 323,
+									"line": 324,
 									"character": 35
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "string"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
 							}
 						},
 						{
@@ -11561,7 +11733,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 322,
+									"line": 323,
 									"character": 22
 								}
 							],
@@ -11592,7 +11764,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 316,
+							"line": 317,
 							"character": 21
 						}
 					],
@@ -11671,7 +11843,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 399,
+									"line": 400,
 									"character": 17
 								}
 							],
@@ -11692,7 +11864,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 396,
+									"line": 397,
 									"character": 5
 								}
 							],
@@ -11717,7 +11889,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 397,
+									"line": 398,
 									"character": 8
 								}
 							],
@@ -11742,7 +11914,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 398,
+									"line": 399,
 									"character": 9
 								}
 							],
@@ -11767,7 +11939,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 399,
+									"line": 400,
 									"character": 8
 								}
 							],
@@ -11807,7 +11979,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 416,
+									"line": 417,
 									"character": 13
 								}
 							]
@@ -11852,7 +12024,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 438,
+									"line": 439,
 									"character": 15
 								}
 							],
@@ -11898,7 +12070,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 442,
+									"line": 443,
 									"character": 21
 								}
 							],
@@ -11944,7 +12116,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 434,
+									"line": 435,
 									"character": 8
 								}
 							],
@@ -11992,7 +12164,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 394,
+							"line": 395,
 							"character": 19
 						}
 					],
@@ -12080,7 +12252,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 459,
+									"line": 460,
 									"character": 17
 								}
 							],
@@ -12101,7 +12273,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 457,
+									"line": 458,
 									"character": 5
 								}
 							],
@@ -12126,7 +12298,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 458,
+									"line": 459,
 									"character": 8
 								}
 							],
@@ -12151,7 +12323,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 459,
+									"line": 460,
 									"character": 8
 								}
 							],
@@ -12191,7 +12363,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 474,
+									"line": 475,
 									"character": 13
 								}
 							]
@@ -12227,7 +12399,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 492,
+									"line": 493,
 									"character": 15
 								}
 							],
@@ -12273,7 +12445,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 496,
+									"line": 497,
 									"character": 21
 								}
 							],
@@ -12319,7 +12491,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 479,
+									"line": 480,
 									"character": 8
 								}
 							],
@@ -12366,7 +12538,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 456,
+							"line": 457,
 							"character": 14
 						}
 					],
@@ -12525,10 +12697,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Handle"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Handle"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._handle",
@@ -12553,10 +12733,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "ChildProcess"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "ChildProcess"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._process",
@@ -12581,12 +12769,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Task",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "any"
+										"name": "undefined"
 									}
 								]
 							},
@@ -12659,12 +12856,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Promise",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "number"
+										"name": "undefined"
 									}
 								]
 							},
@@ -14058,7 +14264,7 @@
 									"parameters": [
 										{
 											"id": 704,
-											"name": "values",
+											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -14337,7 +14543,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 242,
+									"line": 243,
 									"character": 17
 								}
 							],
@@ -14593,12 +14799,21 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "reference",
-										"name": "Task",
-										"typeArguments": [
+										"type": "union",
+										"types": [
 											{
 												"type": "intrinsic",
-												"name": "any"
+												"name": "undefined"
+											},
+											{
+												"type": "reference",
+												"name": "Task",
+												"typeArguments": [
+													{
+														"type": "intrinsic",
+														"name": "any"
+													}
+												]
 											}
 										]
 									},
@@ -14808,7 +15023,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 327,
+									"line": 328,
 									"character": 5
 								}
 							],
@@ -14828,7 +15043,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 328,
+									"line": 329,
 									"character": 8
 								}
 							],
@@ -14848,7 +15063,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 329,
+									"line": 330,
 									"character": 9
 								}
 							],
@@ -14868,7 +15083,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 330,
+									"line": 331,
 									"character": 8
 								}
 							],
@@ -14893,7 +15108,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 326,
+							"line": 327,
 							"character": 26
 						}
 					],
@@ -14928,13 +15143,26 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 288,
+									"line": 289,
 									"character": 12
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "boolean"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "true"
+									},
+									{
+										"type": "intrinsic",
+										"name": "false"
+									}
+								]
 							},
 							"inheritedFrom": {
 								"type": "reference",
@@ -14954,7 +15182,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 289,
+									"line": 290,
 									"character": 11
 								}
 							],
@@ -14980,7 +15208,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 284,
+									"line": 285,
 									"character": 17
 								}
 							],
@@ -15001,7 +15229,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 290,
+									"line": 291,
 									"character": 4
 								}
 							],
@@ -15031,7 +15259,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 283,
+							"line": 284,
 							"character": 27
 						}
 					],
@@ -15080,7 +15308,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 386,
+									"line": 387,
 									"character": 5
 								}
 							],
@@ -15100,7 +15328,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 387,
+									"line": 388,
 									"character": 8
 								}
 							],
@@ -15120,7 +15348,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 388,
+									"line": 389,
 									"character": 9
 								}
 							],
@@ -15140,7 +15368,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 389,
+									"line": 390,
 									"character": 8
 								}
 							],
@@ -15165,7 +15393,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 385,
+							"line": 386,
 							"character": 27
 						}
 					],
@@ -15197,7 +15425,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 449,
+									"line": 450,
 									"character": 5
 								}
 							],
@@ -15217,7 +15445,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 450,
+									"line": 451,
 									"character": 8
 								}
 							],
@@ -15237,7 +15465,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 451,
+									"line": 452,
 									"character": 8
 								}
 							],
@@ -15261,7 +15489,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 448,
+							"line": 449,
 							"character": 22
 						}
 					],
@@ -15296,13 +15524,26 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 288,
+									"line": 289,
 									"character": 12
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "boolean"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "true"
+									},
+									{
+										"type": "intrinsic",
+										"name": "false"
+									}
+								]
 							}
 						},
 						{
@@ -15317,7 +15558,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 289,
+									"line": 290,
 									"character": 11
 								}
 							],
@@ -15338,7 +15579,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 290,
+									"line": 291,
 									"character": 4
 								}
 							],
@@ -15362,7 +15603,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 287,
+							"line": 288,
 							"character": 27
 						}
 					],
@@ -15423,13 +15664,22 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 311,
+									"line": 312,
 									"character": 11
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "string"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
 							}
 						},
 						{
@@ -15500,7 +15750,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 310,
+							"line": 311,
 							"character": 40
 						}
 					],
@@ -15612,7 +15862,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 303,
+									"line": 304,
 									"character": 8
 								}
 							],
@@ -15659,7 +15909,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 302,
+									"line": 303,
 									"character": 8
 								}
 							],
@@ -15866,7 +16116,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 301,
+									"line": 302,
 									"character": 13
 								}
 							],
@@ -15890,7 +16140,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 305,
+									"line": 306,
 									"character": 16
 								}
 							],
@@ -16015,7 +16265,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 304,
+									"line": 305,
 									"character": 8
 								}
 							],
@@ -16056,7 +16306,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 300,
+							"line": 301,
 							"character": 35
 						}
 					],
@@ -16086,7 +16336,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 333,
+							"line": 334,
 							"character": 18
 						}
 					],
@@ -16113,7 +16363,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 314,
+							"line": 315,
 							"character": 22
 						}
 					],
@@ -16171,7 +16421,7 @@
 									"sources": [
 										{
 											"fileName": "SeleniumTunnel.ts",
-											"line": 314,
+											"line": 315,
 											"character": 26
 										}
 									]
@@ -16189,7 +16439,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 314,
+									"line": 315,
 									"character": 24
 								}
 							]
@@ -16208,7 +16458,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 293,
+							"line": 294,
 							"character": 28
 						}
 					],
@@ -16254,7 +16504,7 @@
 											"sources": [
 												{
 													"fileName": "SeleniumTunnel.ts",
-													"line": 298,
+													"line": 299,
 													"character": 9
 												}
 											],
@@ -16275,13 +16525,22 @@
 											"sources": [
 												{
 													"fileName": "SeleniumTunnel.ts",
-													"line": 298,
+													"line": 299,
 													"character": 26
 												}
 											],
 											"type": {
-												"type": "intrinsic",
-												"name": "string"
+												"type": "union",
+												"types": [
+													{
+														"type": "intrinsic",
+														"name": "undefined"
+													},
+													{
+														"type": "intrinsic",
+														"name": "string"
+													}
+												]
 											}
 										}
 									],
@@ -16298,7 +16557,7 @@
 									"sources": [
 										{
 											"fileName": "SeleniumTunnel.ts",
-											"line": 298,
+											"line": 299,
 											"character": 2
 										}
 									]
@@ -16318,7 +16577,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 392,
+							"line": 393,
 							"character": 19
 						}
 					],
@@ -16345,7 +16604,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 454,
+							"line": 455,
 							"character": 14
 						}
 					],
@@ -16373,7 +16632,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 308,
+							"line": 309,
 							"character": 27
 						}
 					],
@@ -16493,7 +16752,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 502,
+									"line": 503,
 									"character": 7
 								}
 							],
@@ -16515,7 +16774,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 503,
+									"line": 504,
 									"character": 8
 								}
 							],
@@ -16537,7 +16796,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 504,
+									"line": 505,
 									"character": 3
 								}
 							],
@@ -16563,7 +16822,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 501,
+							"line": 502,
 							"character": 19
 						}
 					],
@@ -16775,10 +17034,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Handle"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Handle"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._handle",
@@ -16803,10 +17070,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "ChildProcess"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "ChildProcess"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
 							},
-							"defaultValue": " null",
 							"inheritedFrom": {
 								"type": "reference",
 								"name": "Tunnel._process",
@@ -16831,12 +17106,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Task",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "any"
+										"name": "undefined"
 									}
 								]
 							},
@@ -16909,12 +17193,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Promise",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "number"
+										"name": "undefined"
 									}
 								]
 							},
@@ -18198,7 +18491,7 @@
 									"parameters": [
 										{
 											"id": 921,
-											"name": "values",
+											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -18383,7 +18676,7 @@
 										},
 										{
 											"id": 914,
-											"name": "options",
+											"name": "_options",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -18775,12 +19068,21 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "reference",
-										"name": "Task",
-										"typeArguments": [
+										"type": "union",
+										"types": [
 											{
 												"type": "intrinsic",
-												"name": "any"
+												"name": "undefined"
+											},
+											{
+												"type": "reference",
+												"name": "Task",
+												"typeArguments": [
+													{
+														"type": "intrinsic",
+														"name": "any"
+													}
+												]
 											}
 										]
 									},
@@ -19738,10 +20040,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Handle"
-							},
-							"defaultValue": " null"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Handle"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
+							}
 						},
 						{
 							"id": 48,
@@ -19761,10 +20071,18 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "ChildProcess"
-							},
-							"defaultValue": " null"
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "ChildProcess"
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
+							}
 						},
 						{
 							"id": 45,
@@ -19784,12 +20102,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Task",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "any"
+										"name": "undefined"
 									}
 								]
 							}
@@ -19852,12 +20179,21 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "Promise",
-								"typeArguments": [
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									},
 									{
 										"type": "intrinsic",
-										"name": "number"
+										"name": "undefined"
 									}
 								]
 							}
@@ -20729,7 +21065,7 @@
 									"parameters": [
 										{
 											"id": 76,
-											"name": "values",
+											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -20866,7 +21202,7 @@
 									"parameters": [
 										{
 											"id": 83,
-											"name": "values",
+											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -21030,7 +21366,7 @@
 										},
 										{
 											"id": 73,
-											"name": "options",
+											"name": "_options",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
@@ -21494,14 +21830,11 @@
 									"parameters": [
 										{
 											"id": 88,
-											"name": "jobId",
+											"name": "_jobId",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
 												"__visited__": true
-											},
-											"comment": {
-												"text": "The job to send data about. This is usually a session ID."
 											},
 											"type": {
 												"type": "intrinsic",
@@ -21510,14 +21843,11 @@
 										},
 										{
 											"id": 89,
-											"name": "data",
+											"name": "_data",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
 												"__visited__": true
-											},
-											"comment": {
-												"text": "Data to send to the tunnel provider about the job."
 											},
 											"type": {
 												"type": "reference",
@@ -21569,12 +21899,21 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "reference",
-										"name": "Task",
-										"typeArguments": [
+										"type": "union",
+										"types": [
 											{
 												"type": "intrinsic",
-												"name": "any"
+												"name": "undefined"
+											},
+											{
+												"type": "reference",
+												"name": "Task",
+												"typeArguments": [
+													{
+														"type": "intrinsic",
+														"name": "any"
+													}
+												]
 											}
 										]
 									}
@@ -22930,8 +23269,17 @@
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "string"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
 							}
 						},
 						{
@@ -23103,8 +23451,17 @@
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "string"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
 							}
 						},
 						{
@@ -23125,8 +23482,17 @@
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "string"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
 							}
 						},
 						{
@@ -24064,8 +24430,17 @@
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "number"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "number"
+									}
+								]
 							}
 						},
 						{
@@ -24089,8 +24464,17 @@
 								}
 							],
 							"type": {
-								"type": "reference",
-								"name": "__type"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "reference",
+										"name": "__type"
+									}
+								]
 							}
 						},
 						{
@@ -24114,8 +24498,17 @@
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "string"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
 							}
 						},
 						{
@@ -24139,8 +24532,17 @@
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "string"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
 							}
 						},
 						{
@@ -24216,8 +24618,17 @@
 								}
 							],
 							"type": {
-								"type": "intrinsic",
-								"name": "string"
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
 							}
 						}
 					],

@@ -32,7 +32,7 @@ function createDownloadTest(config: any) {
 		// Check that the progress callback is called
 		let progressed = false;
 
-		tunnel.on('downloadprogress', function(info) {
+		tunnel.on('downloadprogress', () => {
 			progressed = true;
 		});
 

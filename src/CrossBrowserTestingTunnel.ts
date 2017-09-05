@@ -82,7 +82,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 					port: '80',
 					username: process.env.CBT_USERNAME
 				},
-				options
+				options || {}
 			)
 		);
 	}
@@ -94,7 +94,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 		return new Task((resolve, reject) => {
 			exec(
 				`npm install --no-save cbt_tunnels@${this.cbtVersion}`,
-				(error, stdout, stderr) => {
+				(error, _stdout, stderr) => {
 					if (error) {
 						console.error(stderr);
 						reject(error);
@@ -144,7 +144,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 				password: this.accessKey,
 				proxy: this.proxy
 			})
-			.then(function(response) {
+			.then<void>(response => {
 				if (response.status !== 200) {
 					return response.text().then(text => {
 						if (text) {
@@ -173,7 +173,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 		const readyFile = join(tmpdir(), 'CrossBrowserTesting-' + Date.now());
 
 		return this._makeChild((child, resolve, reject) => {
-			let stdout: string[] = [];
+			let stdout: string[] | null = [];
 
 			// Polling API is used because we are only watching for one file, so
 			// efficiency is not a big deal, and the `fs.watch` API has extra
@@ -199,10 +199,10 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 			// Capture any data on stdout and display it if the process exits
 			// early.
 			const readHandle = on(child.stdout, 'data', (data: any) => {
-				stdout.push(String(data));
+				stdout!.push(String(data));
 			});
 			const exitHandle = on(child, 'exit', function() {
-				process.stderr.write(stdout.join(''));
+				process.stderr.write(stdout!.join(''));
 			});
 
 			this._handle = createCompositeHandle(readHandle, exitHandle);

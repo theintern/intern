@@ -126,7 +126,7 @@ export default class SauceLabsTunnel extends Tunnel
 					useProxyForTunnel: false,
 					username: process.env.SAUCE_USERNAME
 				},
-				options
+				options || {}
 			)
 		);
 	}
@@ -362,12 +362,12 @@ export default class SauceLabsTunnel extends Tunnel
 	protected _start(executor: ChildExecutor) {
 		const readyFile = join(tmpdir(), 'saucelabs-' + Date.now());
 
-		let readMessage: Function;
+		let readMessage: ((message: string) => boolean) | undefined;
 		let readStartupMessage: (message: string) => boolean;
-		let readRunningMessage: (message: string) => void;
+		let readRunningMessage: (message: string) => boolean;
 
 		const task = this._makeChild((child, resolve, reject) => {
-			readStartupMessage = function(message: string) {
+			readStartupMessage = (message: string) => {
 				function fail(message: string) {
 					if (task.state === State.Pending) {
 						reject(new Error(message));
@@ -396,12 +396,12 @@ export default class SauceLabsTunnel extends Tunnel
 						/Sauce Labs recommends setting it/.test(message) ||
 						/HTTP response code indicated failure/.test(message)
 					) {
-						return;
+						return false;
 					}
 					return fail(message.slice('Error: '.length));
 				}
 
-				readStatus(message);
+				return readStatus(message);
 			};
 
 			readRunningMessage = function(message: string) {
@@ -416,7 +416,7 @@ export default class SauceLabsTunnel extends Tunnel
 					child.kill('SIGTERM');
 				}
 
-				readStatus(message);
+				return readStatus(message);
 			};
 
 			const readStatus = (message: string) => {
@@ -435,6 +435,7 @@ export default class SauceLabsTunnel extends Tunnel
 						status: message
 					});
 				}
+				return false;
 			};
 
 			readMessage = readStartupMessage;
@@ -477,7 +478,7 @@ export default class SauceLabsTunnel extends Tunnel
 						if (delimiter > -1) {
 							message = message.slice(delimiter + 3);
 						}
-						return readMessage(message.trim());
+						return readMessage!(message.trim());
 					});
 			});
 
@@ -486,7 +487,7 @@ export default class SauceLabsTunnel extends Tunnel
 
 		task.then(function() {
 			readRunningMessage('');
-			readMessage = null;
+			readMessage = undefined;
 		});
 
 		return task;
@@ -526,7 +527,7 @@ export default class SauceLabsTunnel extends Tunnel
 
 		let os = environment.os;
 		let platformName = os;
-		let platformVersion: string;
+		let platformVersion: string | undefined;
 		if (os.indexOf('Windows') === 0) {
 			os = windowsMap[os] || os;
 			platformName = 'Windows';

@@ -1,8 +1,7 @@
 {
+	"extends": "./node_modules/@theintern/dev/tsconfig-base.json",
 	"compilerOptions": {
-		"allowSyntheticDefaultImports": true,
 		"declaration": true,
-		"experimentalDecorators": true,
 		"lib": [
 			"es5",
 			"es2015.symbol",
@@ -11,25 +10,8 @@
 			"es2015.promise",
 			"dom"
 		],
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"noImplicitAny": true,
-		"noImplicitThis": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": false,
 		"outDir": "./_build",
-		"preserveConstEnums": true,
-		"removeComments": false,
-		"rootDir": ".",
-		"sourceMap": true,
-		"inlineSources": true,
-		"target": "es5"
-	},
-	"formatCodeOptions": {
-		"convertTabsToSpaces": false,
-		"insertSpaceAfterCommaDelimiter": true,
-		"insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
-		"insertSpaceAfterSemicolonInForStatements": true
+		"rootDir": "."
 	},
 	"include": ["./src/**/*.ts"]
 }
