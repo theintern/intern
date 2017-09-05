@@ -824,6 +824,32 @@ export interface NodePlugins extends Plugins {
 }
 
 export interface Config extends BaseConfig {
+	/**
+	 * The default capabilities for all test environments.
+	 *
+	 * They will be extended for each environment by values in the
+	 * [`environments`](#environments) array.
+	 *
+	 * Cloud testing services such as BrowserStack may have unique capabilities.
+	 * It’s important to use the proper capabilities for the WebDriver server or
+	 * cloud service being used to run tests.
+	 *
+	 * * [Selenium capabilities](https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities)
+	 * * [BrowserStack capabilities](https://www.browserstack.com/automate/capabilities)
+	 * * [CrossBrowserTesting capabilities](https://help.crossbrowsertesting.com/selenium-testing/automation-capabilities)
+	 * * [Sauce Labs capabilities](https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-Selenium-SpecificOptions) and [environments](https://saucelabs.com/platforms)
+	 * * [TestingBot capabilities](https://testingbot.com/support/other/test-options) and [environments](https://testingbot.com/support/getting-started/browsers.html)
+	 *
+	 * [Chrome-specific options](https://sites.google.com/a/chromium.org/chromedriver/capabilities)
+	 * may be passed using a `chromeOptions` capability.
+	 *
+	 * Intern will automatically provide certain capabilities to provide better
+	 * feedback with cloud service dashboards:
+	 *
+	 * * `name` will be set to the name of the test config
+	 * * `build` will be set to the commit ID from the `TRAVIS_COMMIT` and
+	 *   `BUILD_TAG` environment variables, if either exists
+	 */
 	capabilities: {
 		name?: string;
 		build?: string;
@@ -834,24 +860,72 @@ export interface Config extends BaseConfig {
 	connectTimeout: number;
 
 	/**
-	 * A list of globs denoting which files coverage data should be collected
-	 * for. Files may be excluded by prefixing an expression with '!'.
+	 * An array of file paths or globs that should be instrumented for code coverage.
+	 *
+	 * This property should point to the actual JavaScript files that will be
+	 * executed, not pre-transpiled sources (coverage results will still be
+	 * mapped back to original sources). Coverage data will be collected for
+	 * these files even if they’re not loaded by Intern for tests, allowing a
+	 * test writer to see which files _haven’t_ been tested, as well as coverage
+	 * on files that were tested.
+	 *
+	 * > 💡This property replaces the `excludeInstrumentation` property used in
+	 * previous versions of Intern, which acted as a filter rather than an
+	 * inclusive list.
 	 */
 	coverage: string[];
 
-	/** A list of remote environments */
+	/**
+	 * The environments that will be used to run WebDriver tests.
+	 *
+	 * Its value can be a single browser name or an environment object, or an
+	 * array of these.
+	 *
+	 * ```js
+	 * environments: 'chrome'
+	 * environments: ['chrome', 'firefox']
+	 * environments: { browserName: 'chrome', version: '57.0' }
+	 * ```
+	 *
+	 * The syntax for browser names and other properties depends on where tests
+	 * are being run. For example, when running tests using a local Selenium
+	 * server, the browser name should be the lowercase name of a locally
+	 * available browser, such as ‘chrome’ or ‘firefox’, and other properties
+	 * such as the platform name will generally be ignored. When running on a
+	 * cloud testing service such as [Sauce Labs](https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-RequiredSeleniumTestConfigurationSettings)
+	 * or [BrowserStack](https://www.browserstack.com/automate/capabilities),
+	 * browser names and other properties may have different acceptable values
+	 * (e.g., ‘googlechrome’ instead of ‘chrome’, or ‘MacOS’ vs ‘OSX’).
+	 */
 	environments: EnvironmentSpec[];
 
 	// Deprecated; this is only here for typing
 	excludeInstrumentation: never;
 
-	/** If true, collect coverage data from functional tests */
+	/** Whether to collect coverage data from functional tests */
 	functionalCoverage: boolean;
 
+	/**
+	 * A list of paths or glob expressions that point to functional suites.
+	 *
+	 * Functional suites are files that register
+	 * [WebDriver tests](writing_tests.md).
+	 */
 	functionalSuites: string[];
 
 	instrumenterOptions: { [key: string]: any };
 
+	/**
+	 * Whether to leave the remote browser open after testing.
+	 *
+	 * Normally when Intern runs tests on remote browsers, it shuts the browser
+	 * down when testing is finished. However, you may sometimes want to inspect
+	 * the state of a remote browser after tests have run, particularly if
+	 * you're trying to debug why a test is failing. Setting `leaveRemoteOpen`
+	 * to true will cause Intern to leave the browser open after testing.
+	 * Setting it to `'fail'` will cause Intern to leave it open only if there
+	 * were test failures.
+	 */
 	leaveRemoteOpen: boolean | 'fail';
 	maxConcurrency: number;
 
@@ -860,7 +934,30 @@ export interface Config extends BaseConfig {
 	serverUrl: string;
 	runInSync: boolean;
 	socketPort?: number;
+
+	/**
+	 * The Dig Dug tunnel class to use for WebDriver testing.
+	 *
+	 * There are several built in tunnel types, and others can be added through
+	 * the Node executor’s [`registerPlugin`
+	 * method](./architecture.md#extension-points).
+	 *
+	 * The built in tunnel classes are:
+	 *
+	 * * 'null'
+	 * * 'selenium'
+	 * * 'browserstack'
+	 * * 'cbt' (CrossBrowserTesting)
+	 * * 'saucelabs'
+	 * * 'testingbot'
+	 */
 	tunnel: string;
+
+	/**
+	 * Options for the currently selected tunnel.
+	 *
+	 * The available options depend on the current tunnel.
+	 */
 	tunnelOptions?: TunnelOptions | BrowserStackOptions | SeleniumOptions;
 }
 

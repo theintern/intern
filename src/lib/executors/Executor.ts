@@ -1111,12 +1111,13 @@ export interface BenchmarkConfig extends BenchmarkReporterOptions {
 
 export interface ResourceConfig {
 	/**
-	 * The loader used to load test suites and application modules. When passed
-	 * in as part of a config object, the `loader` property can be a string with
-	 * a loader name or the path to a loader script. It may also be an object
-	 * with `script` and `config` properties. Intern provides built-in loader
-	 * scripts for Dojo and Dojo2, which can be specified with the IDs 'dojo'
-	 * and 'dojo2'.
+	 * The loader used to load test suites and application modules.
+	 *
+	 * When passed in as part of a config object, the `loader` property can be a
+	 * string with a loader name or the path to a loader script. It may also be
+	 * an object with `script` and `config` properties. Intern provides built-in
+	 * loader scripts for Dojo and Dojo2, which can be specified with the IDs
+	 * 'dojo' and 'dojo2'.
 	 *
 	 * ```ts
 	 * loader: 'dojo2'
@@ -1134,17 +1135,34 @@ export interface ResourceConfig {
 	loader: LoaderDescriptor;
 
 	/**
-	 * A list of scripts to load before suites are loaded. These must be simple
-	 * scripts, not modules, as a module loader may not be available when these
-	 * are loaded. Also, these scripts should be synchronous. If they need to
-	 * run async actions, they can register listeners for the 'runBefore' or
-	 * 'runAfter' executor events.
+	 * A list of scripts to load before suites are loaded.
+	 *
+	 * These must be simple scripts, not modules, as a module loader may not be
+	 * available when these are loaded. Also, these scripts should be
+	 * synchronous. If they need to run async actions, they can register
+	 * listeners for the 'runBefore' or 'runAfter' executor events.
 	 */
 	plugins: PluginDescriptor[];
 
 	/**
-	 * A list of reporter names or descriptors. These reporters will be loaded
-	 * and instantiated before testing begins.
+	 * A list of reporter names or descriptors.
+	 *
+	 * Reporters specified in this list must have been previously installed
+	 * using
+	 * [`registerReporter`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerreporter)
+	 * or
+	 * [`registerPlugin`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerplugin).
+	 *
+	 * List entries may be reporter names or objects of the format
+	 *
+	 * ```js
+	 * {
+	 *     name: 'reporter name',
+	 *     options: {
+	 *         // reporter-specific options
+	 *     }
+	 * }
+	 * ```
 	 */
 	reporters: ReporterDescriptor[];
 
@@ -1155,14 +1173,16 @@ export interface ResourceConfig {
 	require: string[];
 
 	/**
-	 * A list of paths to suite scripts (or some other suite identifier usable
-	 * by the suite loader).
+	 * A list of paths or glob expressions that point to suite scripts.
 	 */
 	suites: string[];
 }
 
 export interface Config extends ResourceConfig {
-	/** If true, Intern will exit as soon as any test fails. */
+	/**
+	 * By default, Intern will run all configured tests. Setting this option
+	 * to `true` will cause Intern to stop running tests after the first failure.
+	 */
 	bail: boolean;
 
 	baseline: boolean;
@@ -1170,7 +1190,13 @@ export interface Config extends ResourceConfig {
 	/** The path to the project base */
 	basePath: string;
 
+	/**
+	 * This property must be set to `true` for benchmark tests to run. If it is
+	 * unset or `false`, any suites registered using the benchmark interface will
+	 * be ignored.
+	 */
 	benchmark: boolean;
+
 	benchmarkConfig?: BenchmarkConfig;
 
 	browser: ResourceConfig;
@@ -1180,10 +1206,19 @@ export interface Config extends ResourceConfig {
 	 */
 	coverageVariable: string;
 
-	/** If true, emit and display debug messages. */
+	/**
+	 * When set to true, Intern will emit 'log' events for many internal
+	 * operations. Reporters that register for these events, such as the Runner
+	 * reporter, will display them during testing.
+	 */
 	debug: boolean;
 
-	/** The default timeout for async tests, in ms. */
+	/**
+	 * This is the number of milliseconds that Intern will wait for an
+	 * [asynchronous test](./writing_tests.md#testing-asynchronous-code) to
+	 * complete before timing out. A timed out test is considered to have
+	 * failed.
+	 */
 	defaultTimeout: number;
 
 	/** A description for this test run */
@@ -1196,8 +1231,10 @@ export interface Config extends ResourceConfig {
 	filterErrorStack: boolean;
 
 	/**
-	 * A regexp matching tests that should be run. It defaults to `/./` (which
-	 * matches everything).
+	 * This property is a regular expression that is used to filter which tests
+	 * are run. Grep operates on test IDs. A test ID is the concatenation of a
+	 * test name with all of its parent suite names. Every test ID that matches
+	 * the current grep expression will be run.
 	 */
 	grep: RegExp;
 
