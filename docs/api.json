@@ -25102,12 +25102,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "If true, Intern will exit as soon as any test fails."
+								"shortText": "By default, Intern will run all configured tests. Setting this option\nto `true` will cause Intern to stop running tests after the first failure."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1166,
+									"line": 1186,
 									"character": 5
 								}
 							],
@@ -25137,7 +25137,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1171,
+									"line": 1191,
 									"character": 9
 								}
 							],
@@ -25164,7 +25164,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1168,
+									"line": 1188,
 									"character": 9
 								}
 							],
@@ -25188,10 +25188,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "This property must be set to `true` for benchmark tests to run. If it is\nunset or `false`, any suites registered using the benchmark interface will\nbe ignored."
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1173,
+									"line": 1198,
 									"character": 10
 								}
 							],
@@ -25219,7 +25222,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1174,
+									"line": 1200,
 									"character": 16
 								}
 							],
@@ -25247,7 +25250,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1176,
+									"line": 1202,
 									"character": 8
 								}
 							],
@@ -25278,7 +25281,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1181,
+									"line": 1207,
 									"character": 17
 								}
 							],
@@ -25303,12 +25306,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "If true, emit and display debug messages."
+								"shortText": "When set to true, Intern will emit 'log' events for many internal\noperations. Reporters that register for these events, such as the Runner\nreporter, will display them during testing."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1184,
+									"line": 1214,
 									"character": 6
 								}
 							],
@@ -25333,12 +25336,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "The default timeout for async tests, in ms."
+								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](./writing_tests.md#testing-asynchronous-code) to\ncomplete before timing out. A timed out test is considered to have\nfailed."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1187,
+									"line": 1222,
 									"character": 15
 								}
 							],
@@ -25368,7 +25371,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1190,
+									"line": 1225,
 									"character": 12
 								}
 							],
@@ -25398,7 +25401,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1196,
+									"line": 1231,
 									"character": 17
 								}
 							],
@@ -25423,12 +25426,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A regexp matching tests that should be run. It defaults to `/./` (which\nmatches everything)."
+								"shortText": "This property is a regular expression that is used to filter which tests\nare run. Grep operates on test IDs. A test ID is the concatenation of a\ntest name with all of its parent suite names. Every test ID that matches\nthe current grep expression will be run."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1202,
+									"line": 1239,
 									"character": 5
 								}
 							],
@@ -25458,7 +25461,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1205,
+									"line": 1242,
 									"character": 11
 								}
 							],
@@ -25483,13 +25486,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "The loader used to load test suites and application modules. When passed\nin as part of a config object, the `loader` property can be a string with\na loader name or the path to a loader script. It may also be an object\nwith `script` and `config` properties. Intern provides built-in loader\nscripts for Dojo and Dojo2, which can be specified with the IDs 'dojo'\nand 'dojo2'.",
-								"text": "```ts\nloader: 'dojo2'\nloader: 'tests/loader.js'\nloader: {\n    script: 'dojo',\n    config: {\n        packages: [\n            { name: 'app', location: './js' }\n        ]\n    }\n}\n```\n"
+								"shortText": "The loader used to load test suites and application modules.",
+								"text": "When passed in as part of a config object, the `loader` property can be a\nstring with a loader name or the path to a loader script. It may also be\nan object with `script` and `config` properties. Intern provides built-in\nloader scripts for Dojo and Dojo2, which can be specified with the IDs\n'dojo' and 'dojo2'.\n\n```ts\nloader: 'dojo2'\nloader: 'tests/loader.js'\nloader: {\n    script: 'dojo',\n    config: {\n        packages: [\n            { name: 'app', location: './js' }\n        ]\n    }\n}\n```\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1134,
+									"line": 1135,
 									"character": 7
 								}
 							],
@@ -25520,7 +25523,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1208,
+									"line": 1245,
 									"character": 5
 								}
 							],
@@ -25547,7 +25550,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1210,
+									"line": 1247,
 									"character": 5
 								}
 							],
@@ -25573,12 +25576,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts to load before suites are loaded. These must be simple\nscripts, not modules, as a module loader may not be available when these\nare loaded. Also, these scripts should be synchronous. If they need to\nrun async actions, they can register listeners for the 'runBefore' or\n'runAfter' executor events."
+								"shortText": "A list of scripts to load before suites are loaded.",
+								"text": "These must be simple scripts, not modules, as a module loader may not be\navailable when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1143,
+									"line": 1145,
 									"character": 8
 								}
 							],
@@ -25607,12 +25611,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of reporter names or descriptors. These reporters will be loaded\nand instantiated before testing begins."
+								"shortText": "A list of reporter names or descriptors.",
+								"text": "Reporters specified in this list must have been previously installed\nusing\n[`registerReporter`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerreporter)\nor\n[`registerPlugin`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerplugin).\n\nList entries may be reporter names or objects of the format\n\n```js\n{\n    name: 'reporter name',\n    options: {\n        // reporter-specific options\n    }\n}\n```\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1149,
+									"line": 1167,
 									"character": 10
 								}
 							],
@@ -25646,7 +25651,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1155,
+									"line": 1173,
 									"character": 8
 								}
 							],
@@ -25764,7 +25769,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1219,
+									"line": 1256,
 									"character": 11
 								}
 							],
@@ -25821,12 +25826,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of paths to suite scripts (or some other suite identifier usable\nby the suite loader)."
+								"shortText": "A list of paths or glob expressions that point to suite scripts."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1161,
+									"line": 1178,
 									"character": 7
 								}
 							],
@@ -25916,7 +25921,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1254,
+									"line": 1291,
 									"character": 4
 								}
 							],
@@ -25947,7 +25952,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1257,
+									"line": 1294,
 									"character": 9
 								}
 							],
@@ -25977,7 +25982,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1260,
+									"line": 1297,
 									"character": 10
 								}
 							],
@@ -26007,7 +26012,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1263,
+									"line": 1300,
 									"character": 9
 								}
 							],
@@ -26038,7 +26043,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1266,
+									"line": 1303,
 									"character": 11
 								}
 							],
@@ -26069,7 +26074,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1269,
+									"line": 1306,
 									"character": 6
 								}
 							],
@@ -26099,7 +26104,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1272,
+									"line": 1309,
 									"character": 4
 								}
 							],
@@ -26151,7 +26156,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1275,
+									"line": 1312,
 									"character": 7
 								}
 							],
@@ -26181,7 +26186,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1278,
+									"line": 1315,
 									"character": 9
 								}
 							],
@@ -26211,7 +26216,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 885,
+									"line": 982,
 									"character": 10
 								}
 							],
@@ -26242,7 +26247,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 888,
+									"line": 985,
 									"character": 12
 								}
 							],
@@ -26273,7 +26278,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1281,
+									"line": 1318,
 									"character": 9
 								}
 							],
@@ -26304,7 +26309,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1284,
+									"line": 1321,
 									"character": 9
 								}
 							],
@@ -26335,7 +26340,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1287,
+									"line": 1324,
 									"character": 11
 								}
 							],
@@ -26366,7 +26371,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1290,
+									"line": 1327,
 									"character": 8
 								}
 							],
@@ -26397,7 +26402,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1293,
+									"line": 1330,
 									"character": 8
 								}
 							],
@@ -26428,7 +26433,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1296,
+									"line": 1333,
 									"character": 10
 								}
 							],
@@ -26459,7 +26464,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 891,
+									"line": 988,
 									"character": 23
 								}
 							],
@@ -26490,7 +26495,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 894,
+									"line": 991,
 									"character": 12
 								}
 							],
@@ -26521,7 +26526,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 897,
+									"line": 994,
 									"character": 13
 								}
 							],
@@ -26552,7 +26557,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 900,
+									"line": 997,
 									"character": 11
 								}
 							],
@@ -26583,7 +26588,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1299,
+									"line": 1336,
 									"character": 8
 								}
 							],
@@ -45336,12 +45341,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "If true, Intern will exit as soon as any test fails."
+								"shortText": "By default, Intern will run all configured tests. Setting this option\nto `true` will cause Intern to stop running tests after the first failure."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1166,
+									"line": 1186,
 									"character": 5
 								}
 							],
@@ -45366,7 +45371,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1171,
+									"line": 1191,
 									"character": 9
 								}
 							],
@@ -45388,7 +45393,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1168,
+									"line": 1188,
 									"character": 9
 								}
 							],
@@ -45407,10 +45412,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "This property must be set to `true` for benchmark tests to run. If it is\nunset or `false`, any suites registered using the benchmark interface will\nbe ignored."
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1173,
+									"line": 1198,
 									"character": 10
 								}
 							],
@@ -45433,7 +45441,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1174,
+									"line": 1200,
 									"character": 16
 								}
 							],
@@ -45456,7 +45464,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1176,
+									"line": 1202,
 									"character": 8
 								}
 							],
@@ -45482,7 +45490,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1181,
+									"line": 1207,
 									"character": 17
 								}
 							],
@@ -45502,12 +45510,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "If true, emit and display debug messages."
+								"shortText": "When set to true, Intern will emit 'log' events for many internal\noperations. Reporters that register for these events, such as the Runner\nreporter, will display them during testing."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1184,
+									"line": 1214,
 									"character": 6
 								}
 							],
@@ -45527,12 +45535,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "The default timeout for async tests, in ms."
+								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](./writing_tests.md#testing-asynchronous-code) to\ncomplete before timing out. A timed out test is considered to have\nfailed."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1187,
+									"line": 1222,
 									"character": 15
 								}
 							],
@@ -45557,7 +45565,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1190,
+									"line": 1225,
 									"character": 12
 								}
 							],
@@ -45582,7 +45590,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1196,
+									"line": 1231,
 									"character": 17
 								}
 							],
@@ -45602,12 +45610,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A regexp matching tests that should be run. It defaults to `/./` (which\nmatches everything)."
+								"shortText": "This property is a regular expression that is used to filter which tests\nare run. Grep operates on test IDs. A test ID is the concatenation of a\ntest name with all of its parent suite names. Every test ID that matches\nthe current grep expression will be run."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1202,
+									"line": 1239,
 									"character": 5
 								}
 							],
@@ -45632,7 +45640,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1205,
+									"line": 1242,
 									"character": 11
 								}
 							],
@@ -45652,13 +45660,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "The loader used to load test suites and application modules. When passed\nin as part of a config object, the `loader` property can be a string with\na loader name or the path to a loader script. It may also be an object\nwith `script` and `config` properties. Intern provides built-in loader\nscripts for Dojo and Dojo2, which can be specified with the IDs 'dojo'\nand 'dojo2'.",
-								"text": "```ts\nloader: 'dojo2'\nloader: 'tests/loader.js'\nloader: {\n    script: 'dojo',\n    config: {\n        packages: [\n            { name: 'app', location: './js' }\n        ]\n    }\n}\n```\n"
+								"shortText": "The loader used to load test suites and application modules.",
+								"text": "When passed in as part of a config object, the `loader` property can be a\nstring with a loader name or the path to a loader script. It may also be\nan object with `script` and `config` properties. Intern provides built-in\nloader scripts for Dojo and Dojo2, which can be specified with the IDs\n'dojo' and 'dojo2'.\n\n```ts\nloader: 'dojo2'\nloader: 'tests/loader.js'\nloader: {\n    script: 'dojo',\n    config: {\n        packages: [\n            { name: 'app', location: './js' }\n        ]\n    }\n}\n```\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1134,
+									"line": 1135,
 									"character": 7
 								}
 							],
@@ -45689,7 +45697,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1208,
+									"line": 1245,
 									"character": 5
 								}
 							],
@@ -45711,7 +45719,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1210,
+									"line": 1247,
 									"character": 5
 								}
 							],
@@ -45732,12 +45740,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts to load before suites are loaded. These must be simple\nscripts, not modules, as a module loader may not be available when these\nare loaded. Also, these scripts should be synchronous. If they need to\nrun async actions, they can register listeners for the 'runBefore' or\n'runAfter' executor events."
+								"shortText": "A list of scripts to load before suites are loaded.",
+								"text": "These must be simple scripts, not modules, as a module loader may not be\navailable when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1143,
+									"line": 1145,
 									"character": 8
 								}
 							],
@@ -45766,12 +45775,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of reporter names or descriptors. These reporters will be loaded\nand instantiated before testing begins."
+								"shortText": "A list of reporter names or descriptors.",
+								"text": "Reporters specified in this list must have been previously installed\nusing\n[`registerReporter`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerreporter)\nor\n[`registerPlugin`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerplugin).\n\nList entries may be reporter names or objects of the format\n\n```js\n{\n    name: 'reporter name',\n    options: {\n        // reporter-specific options\n    }\n}\n```\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1149,
+									"line": 1167,
 									"character": 10
 								}
 							],
@@ -45805,7 +45815,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1155,
+									"line": 1173,
 									"character": 8
 								}
 							],
@@ -45838,7 +45848,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1216,
+									"line": 1253,
 									"character": 10
 								}
 							],
@@ -45863,7 +45873,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1219,
+									"line": 1256,
 									"character": 11
 								}
 							],
@@ -45883,12 +45893,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of paths to suite scripts (or some other suite identifier usable\nby the suite loader)."
+								"shortText": "A list of paths or glob expressions that point to suite scripts."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1161,
+									"line": 1178,
 									"character": 7
 								}
 							],
@@ -45939,7 +45949,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1164,
+							"line": 1181,
 							"character": 23
 						}
 					],
@@ -45987,7 +45997,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1239,
+									"line": 1276,
 									"character": 9
 								}
 							],
@@ -46010,7 +46020,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1237,
+									"line": 1274,
 									"character": 10
 								}
 							],
@@ -46042,7 +46052,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1238,
+									"line": 1275,
 									"character": 7
 								}
 							],
@@ -46075,7 +46085,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1236,
+							"line": 1273,
 							"character": 32
 						}
 					]
@@ -46105,7 +46115,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1245,
+									"line": 1282,
 									"character": 8
 								}
 							],
@@ -46136,7 +46146,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1243,
+									"line": 1280,
 									"character": 9
 								}
 							],
@@ -46159,7 +46169,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1244,
+									"line": 1281,
 									"character": 12
 								}
 							],
@@ -46192,7 +46202,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1242,
+							"line": 1279,
 							"character": 35
 						}
 					]
@@ -46221,7 +46231,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1254,
+									"line": 1291,
 									"character": 4
 								}
 							],
@@ -46247,7 +46257,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1257,
+									"line": 1294,
 									"character": 9
 								}
 							],
@@ -46272,7 +46282,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1260,
+									"line": 1297,
 									"character": 10
 								}
 							],
@@ -46297,7 +46307,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1263,
+									"line": 1300,
 									"character": 9
 								}
 							],
@@ -46323,7 +46333,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1266,
+									"line": 1303,
 									"character": 11
 								}
 							],
@@ -46349,7 +46359,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1269,
+									"line": 1306,
 									"character": 6
 								}
 							],
@@ -46374,7 +46384,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1272,
+									"line": 1309,
 									"character": 4
 								}
 							],
@@ -46399,7 +46409,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1275,
+									"line": 1312,
 									"character": 7
 								}
 							],
@@ -46424,7 +46434,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1278,
+									"line": 1315,
 									"character": 9
 								}
 							],
@@ -46449,7 +46459,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1281,
+									"line": 1318,
 									"character": 9
 								}
 							],
@@ -46475,7 +46485,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1284,
+									"line": 1321,
 									"character": 9
 								}
 							],
@@ -46501,7 +46511,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1287,
+									"line": 1324,
 									"character": 11
 								}
 							],
@@ -46527,7 +46537,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1290,
+									"line": 1327,
 									"character": 8
 								}
 							],
@@ -46553,7 +46563,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1293,
+									"line": 1330,
 									"character": 8
 								}
 							],
@@ -46579,7 +46589,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1296,
+									"line": 1333,
 									"character": 10
 								}
 							],
@@ -46605,7 +46615,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1299,
+									"line": 1336,
 									"character": 8
 								}
 							],
@@ -46642,7 +46652,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1253,
+							"line": 1290,
 							"character": 23
 						}
 					],
@@ -46836,7 +46846,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1250,
+									"line": 1287,
 									"character": 5
 								}
 							],
@@ -46858,7 +46868,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1249,
+									"line": 1286,
 									"character": 5
 								}
 							],
@@ -46946,7 +46956,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1248,
+							"line": 1285,
 							"character": 30
 						}
 					]
@@ -47020,7 +47030,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1232,
+							"line": 1269,
 							"character": 25
 						}
 					]
@@ -47083,7 +47093,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1312,
+							"line": 1349,
 							"character": 23
 						}
 					]
@@ -47113,7 +47123,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1325,
+									"line": 1362,
 									"character": 8
 								}
 							],
@@ -47182,7 +47192,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1324,
+									"line": 1361,
 									"character": 7
 								}
 							],
@@ -47205,7 +47215,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1323,
+							"line": 1360,
 							"character": 33
 						}
 					]
@@ -47287,7 +47297,7 @@
 											"sources": [
 												{
 													"fileName": "lib/executors/Executor.ts",
-													"line": 1320,
+													"line": 1357,
 													"character": 10
 												}
 											]
@@ -47321,7 +47331,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1319,
+							"line": 1356,
 							"character": 27
 						}
 					]
@@ -47351,7 +47361,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1229,
+									"line": 1266,
 									"character": 8
 								}
 							],
@@ -47373,7 +47383,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1228,
+									"line": 1265,
 									"character": 7
 								}
 							],
@@ -47396,7 +47406,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1227,
+							"line": 1264,
 							"character": 33
 						}
 					]
@@ -47530,7 +47540,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1328,
+							"line": 1365,
 							"character": 34
 						}
 					]
@@ -47562,7 +47572,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1306,
+									"line": 1343,
 									"character": 9
 								}
 							],
@@ -47585,7 +47595,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1305,
+							"line": 1342,
 							"character": 24
 						}
 					],
@@ -47621,7 +47631,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1223,
+									"line": 1260,
 									"character": 5
 								}
 							],
@@ -47644,7 +47654,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1224,
+									"line": 1261,
 									"character": 8
 								}
 							],
@@ -47668,7 +47678,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1222,
+							"line": 1259,
 							"character": 35
 						}
 					]
@@ -47695,13 +47705,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "The loader used to load test suites and application modules. When passed\nin as part of a config object, the `loader` property can be a string with\na loader name or the path to a loader script. It may also be an object\nwith `script` and `config` properties. Intern provides built-in loader\nscripts for Dojo and Dojo2, which can be specified with the IDs 'dojo'\nand 'dojo2'.",
-								"text": "```ts\nloader: 'dojo2'\nloader: 'tests/loader.js'\nloader: {\n    script: 'dojo',\n    config: {\n        packages: [\n            { name: 'app', location: './js' }\n        ]\n    }\n}\n```\n"
+								"shortText": "The loader used to load test suites and application modules.",
+								"text": "When passed in as part of a config object, the `loader` property can be a\nstring with a loader name or the path to a loader script. It may also be\nan object with `script` and `config` properties. Intern provides built-in\nloader scripts for Dojo and Dojo2, which can be specified with the IDs\n'dojo' and 'dojo2'.\n\n```ts\nloader: 'dojo2'\nloader: 'tests/loader.js'\nloader: {\n    script: 'dojo',\n    config: {\n        packages: [\n            { name: 'app', location: './js' }\n        ]\n    }\n}\n```\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1134,
+									"line": 1135,
 									"character": 7
 								}
 							],
@@ -47722,12 +47732,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts to load before suites are loaded. These must be simple\nscripts, not modules, as a module loader may not be available when these\nare loaded. Also, these scripts should be synchronous. If they need to\nrun async actions, they can register listeners for the 'runBefore' or\n'runAfter' executor events."
+								"shortText": "A list of scripts to load before suites are loaded.",
+								"text": "These must be simple scripts, not modules, as a module loader may not be\navailable when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1143,
+									"line": 1145,
 									"character": 8
 								}
 							],
@@ -47751,12 +47762,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of reporter names or descriptors. These reporters will be loaded\nand instantiated before testing begins."
+								"shortText": "A list of reporter names or descriptors.",
+								"text": "Reporters specified in this list must have been previously installed\nusing\n[`registerReporter`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerreporter)\nor\n[`registerPlugin`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerplugin).\n\nList entries may be reporter names or objects of the format\n\n```js\n{\n    name: 'reporter name',\n    options: {\n        // reporter-specific options\n    }\n}\n```\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1149,
+									"line": 1167,
 									"character": 10
 								}
 							],
@@ -47785,7 +47797,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1155,
+									"line": 1173,
 									"character": 8
 								}
 							],
@@ -47808,12 +47820,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of paths to suite scripts (or some other suite identifier usable\nby the suite loader)."
+								"shortText": "A list of paths or glob expressions that point to suite scripts."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1161,
+									"line": 1178,
 									"character": 7
 								}
 							],
@@ -47988,7 +48000,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 911,
+									"line": 1008,
 									"character": 24
 								}
 							]
@@ -48004,7 +48016,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 910,
+									"line": 1007,
 									"character": 12
 								}
 							],
@@ -48033,7 +48045,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 911,
+									"line": 1008,
 									"character": 10
 								}
 							],
@@ -48062,7 +48074,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 908,
+									"line": 1005,
 									"character": 24
 								}
 							],
@@ -48082,7 +48094,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 909,
+									"line": 1006,
 									"character": 6
 								}
 							],
@@ -48121,7 +48133,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 933,
+									"line": 1030,
 									"character": 6
 								}
 							]
@@ -48186,7 +48198,7 @@
 													"sources": [
 														{
 															"fileName": "lib/executors/Node.ts",
-															"line": 920,
+															"line": 1017,
 															"character": 14
 														}
 													]
@@ -48209,7 +48221,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 920,
+									"line": 1017,
 									"character": 8
 								}
 							]
@@ -48240,7 +48252,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 941,
+									"line": 1038,
 									"character": 5
 								}
 							]
@@ -48277,7 +48289,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 907,
+							"line": 1004,
 							"character": 19
 						}
 					]
@@ -53182,12 +53194,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "If true, Intern will exit as soon as any test fails."
+								"shortText": "By default, Intern will run all configured tests. Setting this option\nto `true` will cause Intern to stop running tests after the first failure."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1166,
+									"line": 1186,
 									"character": 5
 								}
 							],
@@ -53216,7 +53228,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1171,
+									"line": 1191,
 									"character": 9
 								}
 							],
@@ -53242,7 +53254,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1168,
+									"line": 1188,
 									"character": 9
 								}
 							],
@@ -53265,10 +53277,13 @@
 								"isExported": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "This property must be set to `true` for benchmark tests to run. If it is\nunset or `false`, any suites registered using the benchmark interface will\nbe ignored."
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1173,
+									"line": 1198,
 									"character": 10
 								}
 							],
@@ -53295,7 +53310,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1174,
+									"line": 1200,
 									"character": 16
 								}
 							],
@@ -53322,7 +53337,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1176,
+									"line": 1202,
 									"character": 8
 								}
 							],
@@ -53346,10 +53361,14 @@
 								"isExported": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The default capabilities for all test environments.",
+								"text": "They will be extended for each environment by values in the\n[`environments`](#environments) array.\n\nCloud testing services such as BrowserStack may have unique capabilities.\nIt’s important to use the proper capabilities for the WebDriver server or\ncloud service being used to run tests.\n\n* [Selenium capabilities](https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities)\n* [BrowserStack capabilities](https://www.browserstack.com/automate/capabilities)\n* [CrossBrowserTesting capabilities](https://help.crossbrowsertesting.com/selenium-testing/automation-capabilities)\n* [Sauce Labs capabilities](https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-Selenium-SpecificOptions) and [environments](https://saucelabs.com/platforms)\n* [TestingBot capabilities](https://testingbot.com/support/other/test-options) and [environments](https://testingbot.com/support/getting-started/browsers.html)\n\n[Chrome-specific options](https://sites.google.com/a/chromium.org/chromedriver/capabilities)\nmay be passed using a `chromeOptions` capability.\n\nIntern will automatically provide certain capabilities to provide better\nfeedback with cloud service dashboards:\n\n* `name` will be set to the name of the test config\n* `build` will be set to the commit ID from the `TRAVIS_COMMIT` and\n  `BUILD_TAG` environment variables, if either exists\n"
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 827,
+									"line": 853,
 									"character": 13
 								}
 							],
@@ -53406,7 +53425,7 @@
 											"sources": [
 												{
 													"fileName": "lib/executors/Node.ts",
-													"line": 829,
+													"line": 855,
 													"character": 7
 												}
 											],
@@ -53436,7 +53455,7 @@
 											"sources": [
 												{
 													"fileName": "lib/executors/Node.ts",
-													"line": 828,
+													"line": 854,
 													"character": 6
 												}
 											],
@@ -53468,7 +53487,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 827,
+											"line": 853,
 											"character": 14
 										}
 									]
@@ -53490,7 +53509,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 834,
+									"line": 860,
 									"character": 15
 								}
 							],
@@ -53509,12 +53528,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of globs denoting which files coverage data should be collected\nfor. Files may be excluded by prefixing an expression with '!'."
+								"shortText": "An array of file paths or globs that should be instrumented for code coverage.",
+								"text": "This property should point to the actual JavaScript files that will be\nexecuted, not pre-transpiled sources (coverage results will still be\nmapped back to original sources). Coverage data will be collected for\nthese files even if they’re not loaded by Intern for tests, allowing a\ntest writer to see which files _haven’t_ been tested, as well as coverage\non files that were tested.\n\n> 💡This property replaces the `excludeInstrumentation` property used in\nprevious versions of Intern, which acted as a filter rather than an\ninclusive list.\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 840,
+									"line": 876,
 									"character": 9
 								}
 							],
@@ -53541,7 +53561,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1181,
+									"line": 1207,
 									"character": 17
 								}
 							],
@@ -53565,12 +53585,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "If true, emit and display debug messages."
+								"shortText": "When set to true, Intern will emit 'log' events for many internal\noperations. Reporters that register for these events, such as the Runner\nreporter, will display them during testing."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1184,
+									"line": 1214,
 									"character": 6
 								}
 							],
@@ -53594,12 +53614,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "The default timeout for async tests, in ms."
+								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](./writing_tests.md#testing-asynchronous-code) to\ncomplete before timing out. A timed out test is considered to have\nfailed."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1187,
+									"line": 1222,
 									"character": 15
 								}
 							],
@@ -53628,7 +53648,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1190,
+									"line": 1225,
 									"character": 12
 								}
 							],
@@ -53652,12 +53672,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of remote environments"
+								"shortText": "The environments that will be used to run WebDriver tests.",
+								"text": "Its value can be a single browser name or an environment object, or an\narray of these.\n\n```js\nenvironments: 'chrome'\nenvironments: ['chrome', 'firefox']\nenvironments: { browserName: 'chrome', version: '57.0' }\n```\n\nThe syntax for browser names and other properties depends on where tests\nare being run. For example, when running tests using a local Selenium\nserver, the browser name should be the lowercase name of a locally\navailable browser, such as ‘chrome’ or ‘firefox’, and other properties\nsuch as the platform name will generally be ignored. When running on a\ncloud testing service such as [Sauce Labs](https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-RequiredSeleniumTestConfigurationSettings)\nor [BrowserStack](https://www.browserstack.com/automate/capabilities),\nbrowser names and other properties may have different acceptable values\n(e.g., ‘googlechrome’ instead of ‘chrome’, or ‘MacOS’ vs ‘OSX’).\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 843,
+									"line": 900,
 									"character": 13
 								}
 							],
@@ -53682,7 +53703,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 846,
+									"line": 903,
 									"character": 23
 								}
 							],
@@ -53706,7 +53727,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1196,
+									"line": 1231,
 									"character": 17
 								}
 							],
@@ -53730,12 +53751,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "If true, collect coverage data from functional tests"
+								"shortText": "Whether to collect coverage data from functional tests"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 849,
+									"line": 906,
 									"character": 19
 								}
 							],
@@ -53753,10 +53774,14 @@
 								"isExported": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "A list of paths or glob expressions that point to functional suites.",
+								"text": "Functional suites are files that register\n[WebDriver tests](writing_tests.md).\n"
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 851,
+									"line": 914,
 									"character": 17
 								}
 							],
@@ -53778,12 +53803,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A regexp matching tests that should be run. It defaults to `/./` (which\nmatches everything)."
+								"shortText": "This property is a regular expression that is used to filter which tests\nare run. Grep operates on test IDs. A test ID is the concatenation of a\ntest name with all of its parent suite names. Every test ID that matches\nthe current grep expression will be run."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1202,
+									"line": 1239,
 									"character": 5
 								}
 							],
@@ -53809,7 +53834,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 853,
+									"line": 916,
 									"character": 20
 								}
 							],
@@ -53856,7 +53881,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 853,
+											"line": 916,
 											"character": 21
 										}
 									]
@@ -53878,7 +53903,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1205,
+									"line": 1242,
 									"character": 11
 								}
 							],
@@ -53901,10 +53926,14 @@
 								"isExported": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "Whether to leave the remote browser open after testing.",
+								"text": "Normally when Intern runs tests on remote browsers, it shuts the browser\ndown when testing is finished. However, you may sometimes want to inspect\nthe state of a remote browser after tests have run, particularly if\nyou're trying to debug why a test is failing. Setting `leaveRemoteOpen`\nto true will cause Intern to leave the browser open after testing.\nSetting it to `'fail'` will cause Intern to leave it open only if there\nwere test failures.\n"
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 855,
+									"line": 929,
 									"character": 16
 								}
 							],
@@ -53932,13 +53961,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "The loader used to load test suites and application modules. When passed\nin as part of a config object, the `loader` property can be a string with\na loader name or the path to a loader script. It may also be an object\nwith `script` and `config` properties. Intern provides built-in loader\nscripts for Dojo and Dojo2, which can be specified with the IDs 'dojo'\nand 'dojo2'.",
-								"text": "```ts\nloader: 'dojo2'\nloader: 'tests/loader.js'\nloader: {\n    script: 'dojo',\n    config: {\n        packages: [\n            { name: 'app', location: './js' }\n        ]\n    }\n}\n```\n"
+								"shortText": "The loader used to load test suites and application modules.",
+								"text": "When passed in as part of a config object, the `loader` property can be a\nstring with a loader name or the path to a loader script. It may also be\nan object with `script` and `config` properties. Intern provides built-in\nloader scripts for Dojo and Dojo2, which can be specified with the IDs\n'dojo' and 'dojo2'.\n\n```ts\nloader: 'dojo2'\nloader: 'tests/loader.js'\nloader: {\n    script: 'dojo',\n    config: {\n        packages: [\n            { name: 'app', location: './js' }\n        ]\n    }\n}\n```\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1134,
+									"line": 1135,
 									"character": 7
 								}
 							],
@@ -53965,7 +53994,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 856,
+									"line": 930,
 									"character": 15
 								}
 							],
@@ -53989,7 +54018,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1208,
+									"line": 1245,
 									"character": 5
 								}
 							],
@@ -54015,7 +54044,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1210,
+									"line": 1247,
 									"character": 5
 								}
 							],
@@ -54040,12 +54069,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts to load before suites are loaded. These must be simple\nscripts, not modules, as a module loader may not be available when these\nare loaded. Also, these scripts should be synchronous. If they need to\nrun async actions, they can register listeners for the 'runBefore' or\n'runAfter' executor events."
+								"shortText": "A list of scripts to load before suites are loaded.",
+								"text": "These must be simple scripts, not modules, as a module loader may not be\navailable when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1143,
+									"line": 1145,
 									"character": 8
 								}
 							],
@@ -54073,12 +54103,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of reporter names or descriptors. These reporters will be loaded\nand instantiated before testing begins."
+								"shortText": "A list of reporter names or descriptors.",
+								"text": "Reporters specified in this list must have been previously installed\nusing\n[`registerReporter`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerreporter)\nor\n[`registerPlugin`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerplugin).\n\nList entries may be reporter names or objects of the format\n\n```js\n{\n    name: 'reporter name',\n    options: {\n        // reporter-specific options\n    }\n}\n```\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1149,
+									"line": 1167,
 									"character": 10
 								}
 							],
@@ -54111,7 +54142,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1155,
+									"line": 1173,
 									"character": 8
 								}
 							],
@@ -54140,7 +54171,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 861,
+									"line": 935,
 									"character": 10
 								}
 							],
@@ -54161,7 +54192,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 858,
+									"line": 932,
 									"character": 10
 								}
 							],
@@ -54182,7 +54213,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 859,
+									"line": 933,
 									"character": 11
 								}
 							],
@@ -54203,7 +54234,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 860,
+									"line": 934,
 									"character": 10
 								}
 							],
@@ -54227,7 +54258,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1216,
+									"line": 1253,
 									"character": 10
 								}
 							],
@@ -54256,7 +54287,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1219,
+									"line": 1256,
 									"character": 11
 								}
 							],
@@ -54283,7 +54314,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 862,
+									"line": 936,
 									"character": 11
 								}
 							],
@@ -54311,12 +54342,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of paths to suite scripts (or some other suite identifier usable\nby the suite loader)."
+								"shortText": "A list of paths or glob expressions that point to suite scripts."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1161,
+									"line": 1178,
 									"character": 7
 								}
 							],
@@ -54342,10 +54373,14 @@
 								"isExported": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The Dig Dug tunnel class to use for WebDriver testing.",
+								"text": "There are several built in tunnel types, and others can be added through\nthe Node executor’s [`registerPlugin`\nmethod](./architecture.md#extension-points).\n\nThe built in tunnel classes are:\n\n* 'null'\n* 'selenium'\n* 'browserstack'\n* 'cbt' (CrossBrowserTesting)\n* 'saucelabs'\n* 'testingbot'\n"
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 863,
+									"line": 954,
 									"character": 7
 								}
 							],
@@ -54364,10 +54399,14 @@
 								"isOptional": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "Options for the currently selected tunnel.",
+								"text": "The available options depend on the current tunnel.\n"
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 864,
+									"line": 961,
 									"character": 14
 								}
 							],
@@ -54504,7 +54543,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 873,
+									"line": 970,
 									"character": 12
 								}
 							],
@@ -54526,7 +54565,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 872,
+							"line": 969,
 							"character": 32
 						}
 					]
@@ -54553,7 +54592,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1254,
+									"line": 1291,
 									"character": 4
 								}
 							],
@@ -54583,7 +54622,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1257,
+									"line": 1294,
 									"character": 9
 								}
 							],
@@ -54612,7 +54651,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1260,
+									"line": 1297,
 									"character": 10
 								}
 							],
@@ -54641,7 +54680,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1263,
+									"line": 1300,
 									"character": 9
 								}
 							],
@@ -54671,7 +54710,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1266,
+									"line": 1303,
 									"character": 11
 								}
 							],
@@ -54701,7 +54740,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1269,
+									"line": 1306,
 									"character": 6
 								}
 							],
@@ -54730,7 +54769,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1272,
+									"line": 1309,
 									"character": 4
 								}
 							],
@@ -54759,7 +54798,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1275,
+									"line": 1312,
 									"character": 7
 								}
 							],
@@ -54788,7 +54827,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1278,
+									"line": 1315,
 									"character": 9
 								}
 							],
@@ -54817,7 +54856,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 885,
+									"line": 982,
 									"character": 10
 								}
 							],
@@ -54842,7 +54881,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 888,
+									"line": 985,
 									"character": 12
 								}
 							],
@@ -54867,7 +54906,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1281,
+									"line": 1318,
 									"character": 9
 								}
 							],
@@ -54897,7 +54936,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1284,
+									"line": 1321,
 									"character": 9
 								}
 							],
@@ -54927,7 +54966,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1287,
+									"line": 1324,
 									"character": 11
 								}
 							],
@@ -54957,7 +54996,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1290,
+									"line": 1327,
 									"character": 8
 								}
 							],
@@ -54987,7 +55026,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1293,
+									"line": 1330,
 									"character": 8
 								}
 							],
@@ -55017,7 +55056,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1296,
+									"line": 1333,
 									"character": 10
 								}
 							],
@@ -55047,7 +55086,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 891,
+									"line": 988,
 									"character": 23
 								}
 							],
@@ -55072,7 +55111,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 894,
+									"line": 991,
 									"character": 12
 								}
 							],
@@ -55097,7 +55136,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 897,
+									"line": 994,
 									"character": 13
 								}
 							],
@@ -55122,7 +55161,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 900,
+									"line": 997,
 									"character": 11
 								}
 							],
@@ -55147,7 +55186,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1299,
+									"line": 1336,
 									"character": 8
 								}
 							],
@@ -55195,7 +55234,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 883,
+							"line": 980,
 							"character": 23
 						}
 					],
@@ -55236,7 +55275,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1306,
+									"line": 1343,
 									"character": 9
 								}
 							],
@@ -55318,7 +55357,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 958,
+									"line": 1055,
 									"character": 5
 								}
 							],
@@ -55356,7 +55395,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 958,
+											"line": 1055,
 											"character": 6
 										}
 									]
@@ -55374,7 +55413,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 960,
+									"line": 1057,
 									"character": 7
 								}
 							],
@@ -55406,7 +55445,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 960,
+											"line": 1057,
 											"character": 8
 										}
 									]
@@ -55424,7 +55463,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 959,
+									"line": 1056,
 									"character": 8
 								}
 							],
@@ -55456,7 +55495,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 959,
+											"line": 1056,
 											"character": 9
 										}
 									]
@@ -55478,7 +55517,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 957,
+							"line": 1054,
 							"character": 20
 						}
 					]
@@ -55839,7 +55878,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 868,
+									"line": 965,
 									"character": 16
 								}
 							],
@@ -62828,7 +62867,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 869,
+									"line": 966,
 									"character": 21
 								}
 							]
@@ -65400,7 +65439,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 867,
+							"line": 964,
 							"character": 23
 						}
 					],
@@ -65440,7 +65479,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 879,
+									"line": 976,
 									"character": 9
 								}
 							],
@@ -65462,7 +65501,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 880,
+									"line": 977,
 									"character": 7
 								}
 							],
@@ -65492,7 +65531,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 878,
+									"line": 975,
 									"character": 7
 								}
 							],
@@ -65516,7 +65555,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 877,
+							"line": 974,
 							"character": 30
 						}
 					]
