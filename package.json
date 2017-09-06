@@ -57,10 +57,10 @@
     "watch": "intern-dev-build watch"
   },
   "dependencies": {
-    "@dojo/core": "~2.0.0-beta2.3",
-    "@dojo/has": "~2.0.0-beta2.2",
-    "@dojo/interfaces": "~2.0.0-beta2.2",
-    "@dojo/shim": "~2.0.0-beta2.3",
+    "@dojo/core": "beta2",
+    "@dojo/has": "beta2",
+    "@dojo/interfaces": "beta2",
+    "@dojo/shim": "beta2",
     "@theintern/digdug": "~2.0.0-beta.10",
     "@theintern/leadfoot": "~2.0.0-beta.13",
     "@types/benchmark": "~1.0.30",
