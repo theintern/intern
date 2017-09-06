@@ -62,7 +62,7 @@
     "@dojo/interfaces": "~2.0.0-beta2.2",
     "@dojo/shim": "~2.0.0-beta2.3",
     "@theintern/digdug": "~2.0.0-beta.10",
-    "@theintern/leadfoot": "~2.0.0-beta.12",
+    "@theintern/leadfoot": "~2.0.0-beta.13",
     "@types/benchmark": "~1.0.30",
     "@types/chai": "~4.0.1",
     "@types/charm": "~1.0.0",
