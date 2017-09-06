@@ -1,17 +1,8 @@
 {
+    "extends": "./node_modules/@theintern/dev/tsconfig-base.json",
 	"compilerOptions": {
-		"allowSyntheticDefaultImports": true,
-		"declaration": true,
-		"experimentalDecorators": true,
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
 		"outDir": "./_build/src",
-		"preserveConstEnums": true,
-		"removeComments": true,
-		"sourceMap": true,
-        "strict": true,
+		"sourceMap": false,
 		"target": "es2015"
 	},
 	"include": [
