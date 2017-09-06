@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@dojo/loader": "beta2",
-    "@theintern/dev": "~0.5.5",
+    "@theintern/dev": "~0.5.6",
     "@types/node": "~6.0.54",
     "concurrently": "~3.5.0",
     "intern": "~3.4.2"
