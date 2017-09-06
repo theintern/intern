@@ -7,7 +7,10 @@ export const maxConcurrency = 2;
 export const tunnel = 'NullTunnel';
 
 export const loaderOptions = {
-	packages: [{ name: 'app', location: '_build' }]
+	packages: [
+		{ name: 'app', location: '_build' },
+		{ name: 'src', location: '_build/src' }
+	]
 };
 
 export const loaders = {
