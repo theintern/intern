@@ -1,11 +1,19 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander';
+import * as program from 'commander';
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { sync as resolve } from 'resolve';
 
-import { acceptVersion, die, getLogger, print } from '../lib/util';
+import {
+	acceptVersion,
+	collect,
+	die,
+	enumArg,
+	getLogger,
+	intArg,
+	print
+} from '../lib/util';
 import cli3, {
 	minVersion as cli3Min,
 	maxVersion as cli3Max
@@ -34,26 +42,182 @@ try {
 
 const pkg = require('../../../package.json');
 const minVersion = '3.0.0';
-const program = new Command();
+const testsDir = 'tests';
+const commands: { [name: string]: program.ICommand } = Object.create(null);
+const browsers = {
+	chrome: {
+		name: 'Chrome'
+	},
+	firefox: {
+		name: 'Firefox 47+'
+	},
+	safari: {
+		name: 'Safari',
+		note:
+			'Note that Safari currently requires that the Safari WebDriver ' +
+			'extension be manually installed.'
+	},
+	'internet explorer': {
+		name: 'Internet Explorer'
+	},
+	microsoftedge: {
+		name: 'Microsft Edge'
+	}
+};
+
 let vlog = getLogger();
 
 program
+	.version(pkg.version)
 	.description('Run JavaScript tests')
-	.option('-v, --verbose', 'show more information about what Intern is doing')
-	.option('-V, --version', 'output the version')
-	.on('version', () => {
-		print();
-		print(`intern-cli: ${pkg.version}`);
-		if (internDir) {
-			print(`intern: ${internPkg.version}`);
-		}
+	.option(
+		'-v, --verbose',
+		'show more information about what Intern is doing'
+	);
+
+program.on('option:verbose', () => {
+	vlog = getLogger(true);
+});
+
+program
+	.command('version')
+	.description('Show versions of intern-cli and intern')
+	.on('--help', () => {
 		print();
 	})
-	.on('verbose', () => {
-		vlog = getLogger(true);
+	.action(() => {
+		const text = [`intern-cli: ${pkg.version}`];
+		if (internDir) {
+			text.push(`intern: ${internPkg.version}`);
+		}
+		print(['', ...text, '']);
 	});
 
-const context = { program, vlog, internDir };
+// Add a blank line after help
+program.on('--help', () => {
+	print();
+});
+
+commands.help = program
+	.command('help [command]')
+	.description('Get help for a command')
+	.action(commandName => {
+		const cmdName = typeof commandName === 'string' ? commandName : '';
+		const commands: any[] = (<any>program).commands;
+		const command = commands.find(cmd => cmd.name() === cmdName);
+
+		if (command) {
+			command.outputHelp();
+		} else {
+			print();
+
+			if (cmdName) {
+				print(`unknown command: ${cmdName}\n`);
+			}
+
+			print(
+				'To get started with Intern, run `intern init` to setup a ' +
+					`"${testsDir}" directory and then ` +
+					'run `intern run` to start testing!'
+			);
+			program.outputHelp();
+		}
+	});
+
+commands.init = program
+	.command('init')
+	.description('Setup a project for testing with Intern')
+	.option(
+		'-b, --browser <browser>',
+		'browser to use for functional tests',
+		(val: string) => enumArg(Object.keys(browsers), val),
+		'chrome'
+	)
+	.on('--help', function() {
+		print([
+			'\n',
+			`This command creates a "${testsDir}" directory with a ` +
+				'default Intern config file and some sample tests.',
+			'',
+			'Browser names:',
+			'',
+			`  ${Object.keys(browsers).join(', ')}`,
+			''
+		]);
+	});
+
+commands.run = program
+	.command('run')
+	.description('Run tests in Node or in a browser using WebDriver')
+	.option('-b, --bail', 'quit after the first failing test')
+	.option(
+		'-c, --config <module ID|file>',
+		`config file to use (default is ${testsDir}/intern.js)`
+	)
+	.option(
+		'-f, --fsuites <module ID>',
+		'specify a functional suite to run (can be used multiple times)',
+		collect,
+		[]
+	)
+	.option('-g, --grep <regex>', 'filter tests by ID')
+	.option(
+		'-l, --leaveRemoteOpen',
+		'leave the remote browser open after tests finish'
+	)
+	.option(
+		'-r, --reporters <name|module ID>',
+		'specify a reporter (can be used multiple times)',
+		collect,
+		[]
+	)
+	.option('-p, --port <port>', 'port that test proxy should serve on', intArg)
+	.option(
+		'-s, --suites <module ID>',
+		'specify a suite to run (can be used multiple times)',
+		collect,
+		[]
+	)
+	.option(
+		'-w, --webdriver',
+		'use the WebDriver runner (default is Node client)'
+	)
+	.option('-I, --noInstrument', 'disable instrumentation')
+	.option('--debug', 'enable the Node debugger')
+	.option(
+		'--serveOnly',
+		"start Intern's test server, but don't run any tests"
+	)
+	.option(
+		'--timeout <int>',
+		'set the default timeout for async tests',
+		intArg
+	)
+	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests');
+
+commands.serve = program
+	.command('serve')
+	.description(
+		'Start a simple web server for running unit tests in a browser on ' +
+			'your system'
+	)
+	.option(
+		'-c, --config <module ID|file>',
+		`config file to use (default is ${testsDir}/intern.js)`
+	)
+	.option('-o, --open', 'open the test runner URL when the server starts')
+	.option('-p, --port <port>', 'port to serve on', intArg)
+	.option('-I, --noInstrument', 'disable instrumentation')
+	.on('--help', () => print());
+
+// Handle any unknown commands
+commands['*'] = program
+	.command('*', undefined, { noHelp: true })
+	.action(command => {
+		die(`unknown command: ${command}`);
+	});
+
+const context = { browsers, commands, program, vlog, internDir, testsDir };
 
 if (acceptVersion(internPkg.version, cli3Min, cli3Max)) {
 	cli3(context);

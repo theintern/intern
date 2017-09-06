@@ -9,6 +9,7 @@ import {
 } from 'fs';
 import { join } from 'path';
 import { format as _format } from 'util';
+import { ICommand, IExportedCommand } from 'commander';
 
 /**
  * Ensures that a semver is contained in a range
@@ -52,6 +53,17 @@ export function copy(src: string, dst: string) {
 	} else {
 		const data = readFileSync(src);
 		writeFileSync(dst, data);
+	}
+}
+
+/**
+ * Return the named command from a commander Command
+ */
+export function getCommand(name: string, command: IExportedCommand): ICommand  | undefined {
+	for (let cmd of command.commands) {
+		if (cmd.name === name) {
+			return cmd;
+		}
 	}
 }
 
@@ -136,6 +148,10 @@ export function intArg(val: any) {
  * lines.
  */
 function format(...args: any[]) {
+	if (args.length === 0) {
+		return '';
+	}
+
 	const width = 80;
 	const prefix = '  ';
 	const message = _format(args[0], ...args.slice(1));
@@ -164,4 +180,6 @@ function format(...args: any[]) {
 			}
 		}
 	}
+
+	return lines.join('\n');
 }
