@@ -446,7 +446,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 				throw new Error('Previous tunnel is still terminating');
 			case 'running':
 			case 'starting':
-				return this._startTask;
+				return this._startTask!;
 		}
 
 		this._state = 'starting';
@@ -488,7 +488,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 				});
 			});
 
-		return this._startTask;
+		return this._startTask!;
 	}
 
 	/**

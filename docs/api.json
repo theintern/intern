@@ -2186,21 +2186,12 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "union",
-										"types": [
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
 											{
 												"type": "intrinsic",
-												"name": "undefined"
-											},
-											{
-												"type": "reference",
-												"name": "Task",
-												"typeArguments": [
-													{
-														"type": "intrinsic",
-														"name": "any"
-													}
-												]
+												"name": "any"
 											}
 										]
 									},
@@ -5121,21 +5112,12 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "union",
-										"types": [
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
 											{
 												"type": "intrinsic",
-												"name": "undefined"
-											},
-											{
-												"type": "reference",
-												"name": "Task",
-												"typeArguments": [
-													{
-														"type": "intrinsic",
-														"name": "any"
-													}
-												]
+												"name": "any"
 											}
 										]
 									},
@@ -10114,21 +10096,12 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "union",
-										"types": [
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
 											{
 												"type": "intrinsic",
-												"name": "undefined"
-											},
-											{
-												"type": "reference",
-												"name": "Task",
-												"typeArguments": [
-													{
-														"type": "intrinsic",
-														"name": "any"
-													}
-												]
+												"name": "any"
 											}
 										]
 									},
@@ -14799,21 +14772,12 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "union",
-										"types": [
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
 											{
 												"type": "intrinsic",
-												"name": "undefined"
-											},
-											{
-												"type": "reference",
-												"name": "Task",
-												"typeArguments": [
-													{
-														"type": "intrinsic",
-														"name": "any"
-													}
-												]
+												"name": "any"
 											}
 										]
 									},
@@ -19068,21 +19032,12 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "union",
-										"types": [
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
 											{
 												"type": "intrinsic",
-												"name": "undefined"
-											},
-											{
-												"type": "reference",
-												"name": "Task",
-												"typeArguments": [
-													{
-														"type": "intrinsic",
-														"name": "any"
-													}
-												]
+												"name": "any"
 											}
 										]
 									},
@@ -21899,21 +21854,12 @@
 										"returns": "A promise that resolves once the tunnel has been established.\n"
 									},
 									"type": {
-										"type": "union",
-										"types": [
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
 											{
 												"type": "intrinsic",
-												"name": "undefined"
-											},
-											{
-												"type": "reference",
-												"name": "Task",
-												"typeArguments": [
-													{
-														"type": "intrinsic",
-														"name": "any"
-													}
-												]
+												"name": "any"
 											}
 										]
 									}
