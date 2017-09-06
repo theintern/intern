@@ -1495,7 +1495,7 @@ registerSuite(function() {
 				.then(function(tagName: string) {
 					assert.strictEqual(tagName, 'body');
 					return session.execute(function() {
-						document.getElementById('input').focus();
+						document.getElementById('input')!.focus();
 					});
 				})
 				.then(function() {

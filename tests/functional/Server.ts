@@ -167,7 +167,7 @@ registerSuite(function() {
 						desiredCapabilities.version
 					);
 					assert.include(
-						platforms[desiredCapabilities.platform],
+						platforms[desiredCapabilities.platform] || [desiredCapabilities.platform],
 						capabilities.platform
 					);
 				});
@@ -248,14 +248,14 @@ registerSuite(function() {
 
 		'#deleteSession'() {
 			const oldDelete = server.delete;
-			server.delete = function(
+			server.delete = <any>function(
 				command: string,
-				data: any,
+				_data: any,
 				pathData: string[]
 			) {
 				assert.strictEqual(command, 'session/$0');
 				assert.deepEqual(pathData, ['test']);
-				return Task.resolve(null);
+				return Task.resolve();
 			};
 
 			try {

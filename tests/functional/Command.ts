@@ -42,7 +42,7 @@ registerSuite(function() {
 						function(error: Error) {
 							assert.strictEqual(error.message, 'broken');
 							assert.include(
-								error.stack,
+								error.stack!,
 								'tests/functional/Command.js:34',
 								'Stack trace should point back to the error'
 							);
@@ -65,7 +65,7 @@ registerSuite(function() {
 			'invalid async command'() {
 				const command: any = new Command(session).sleep(100);
 				Command.addSessionMethod(command, 'invalid', function() {
-					return new Task(function(resolve, reject) {
+					return new Task((_resolve, reject) => {
 						setTimeout(function() {
 							reject(new Error('Invalid call'));
 						}, 0);
@@ -80,14 +80,15 @@ registerSuite(function() {
 					},
 					function(error: Error) {
 						assert.strictEqual(error.message, 'Invalid call');
+						const stack = error.stack!;
 						assert.include(
-							error.stack.slice(0, error.stack.indexOf('\n')),
+							stack.slice(0, stack.indexOf('\n')),
 							error.message,
 							'Original error message should be provided on the first line of the stack trace'
 						);
 						assert.include(
-							error.stack,
-							'tests/functional/Command.js:54',
+							stack,
+							'tests/functional/Command.js:56',
 							'Stack trace should point back to the async method call that eventually threw the error'
 						);
 					}
@@ -350,8 +351,8 @@ registerSuite(function() {
 
 		'#catch'() {
 			const command = new Command(session);
-			let callback: Function;
-			let errback: Function;
+			let callback: Function | undefined;
+			let errback: Function | undefined;
 			const expectedErrback = function() {};
 			command.then = <any>function() {
 				callback = arguments[0];
@@ -369,7 +370,7 @@ registerSuite(function() {
 			const promise = command['_task'];
 			const expected = function() {};
 			let wasCalled = false;
-			let result: Function;
+			let result: Function | undefined;
 
 			promise.finally = <any>function(cb: Function) {
 				wasCalled = true;
@@ -497,7 +498,7 @@ registerSuite(function() {
 				'useElement',
 				util.forCommand(
 					function(context: any, arg: any) {
-						const _expected = expected.shift();
+						const _expected = expected.shift()!;
 
 						assert.strictEqual(
 							context,

@@ -1,4 +1,5 @@
 node_modules/
 coverage-final.json
 _build/
+_publish/
 html-report/

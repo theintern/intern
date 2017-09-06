@@ -81,7 +81,7 @@ export default function pollUntil(
 	timeout?: number,
 	pollInterval?: number
 ): () => Task<any> {
-	let args: any[];
+	let args: any[] | undefined;
 
 	if (typeof argsOrTimeout === 'number') {
 		pollInterval = timeout;
@@ -97,7 +97,7 @@ export default function pollUntil(
 		const session = this.session;
 		let originalTimeout: number;
 
-		return session.getExecuteAsyncTimeout().then(function() {
+		return session.getExecuteAsyncTimeout().then(function(currentTimeout) {
 			let resultOrError: any;
 
 			function storeResult(result: any) {
@@ -125,14 +125,14 @@ export default function pollUntil(
 				return finish();
 			}
 
-			if (!isNaN(timeout)) {
-				originalTimeout = arguments[0];
+			if (!isNaN(<number>timeout)) {
+				originalTimeout = currentTimeout;
 			} else {
-				timeout = arguments[0];
+				timeout = currentTimeout;
 			}
 
 			return session
-				.setExecuteAsyncTimeout(timeout)
+				.setExecuteAsyncTimeout(timeout!)
 				.then(function() {
 					/* jshint maxlen:140 */
 					return session.executeAsync(

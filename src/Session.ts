@@ -39,7 +39,7 @@ export default class Session extends Locator<
 	private _movedToElement = false;
 	private _lastMousePosition: any = null;
 	private _lastAltitude: any = null;
-	private _nextRequest: Task<any>;
+	private _nextRequest: Task<any> | undefined;
 
 	/**
 	 * A Session represents a connection to a remote environment that can be
@@ -107,14 +107,14 @@ export default class Session extends Locator<
 		}
 
 		let cancelled = false;
-		return new Task<T>((resolve, reject) => {
+		return new Task<T>(resolve => {
 			// The promise is cleared from `_nextRequest` once it has been
 			// resolved in order to avoid infinitely long chains of promises
 			// retaining values that are not used any more
-			let thisRequest: Task<any>;
+			let thisRequest: Task<any> | undefined;
 			const clearNextRequest = () => {
 				if (this._nextRequest === thisRequest) {
-					this._nextRequest = null;
+					this._nextRequest = undefined;
 				}
 			};
 
@@ -190,7 +190,7 @@ export default class Session extends Locator<
 	 * 'implicit', or 'page load'.
 	 * @returns The timeout, in milliseconds.
 	 */
-	getTimeout(type: string): Task<number> {
+	getTimeout(type: Timeout): Task<number> {
 		return this._timeouts[type];
 	}
 
@@ -203,7 +203,7 @@ export default class Session extends Locator<
 	 * @param ms The length of time to use for the timeout, in milliseconds. A
 	 * value of 0 will cause operations to time out immediately.
 	 */
-	setTimeout(type: string, ms: number) {
+	setTimeout(type: Timeout, ms: number) {
 		// Infinity cannot be serialised by JSON
 		if (ms === Infinity) {
 			// It seems that at least ChromeDriver 2.10 has a limit here that
@@ -240,10 +240,8 @@ export default class Session extends Locator<
 		});
 
 		this._timeouts[type] = promise
-			.then(function() {
-				return ms;
-			})
-			.catch(error => null);
+			.then(() => ms)
+			.catch(() => 0);
 
 		return promise;
 	}
@@ -701,7 +699,7 @@ export default class Session extends Locator<
 				let error: Error;
 				let size: { width: number; height: number };
 				return this.getCurrentWindowHandle().then(originalHandle => {
-					return this.switchToWindow(windowHandle)
+					return this.switchToWindow(windowHandle!)
 						.then(() => {
 							return getWindowSize();
 						})
@@ -956,11 +954,12 @@ export default class Session extends Locator<
 			return this.getCookies().then(cookies => {
 				let cookie: any;
 				if (
-					cookies.some(function(value) {
+					cookies.some(value => {
 						if (value.name === name) {
 							cookie = value;
 							return true;
 						}
+						return false;
 					})
 				) {
 					const expiredCookie = [
@@ -1635,7 +1634,7 @@ export default class Session extends Locator<
 				location.altitude === 0 &&
 				this._lastAltitude !== location.altitude
 			) {
-				location.altitude = null;
+				location.altitude = undefined;
 			}
 
 			return location;
@@ -1987,6 +1986,8 @@ export interface SessionError extends Error {
 	status?: keyof typeof statusCodes;
 }
 
+export type Timeout = 'script' | 'implicit' | 'page load';
+
 /**
  * Decorator for the [[util.forCommand]] method
  */
@@ -2140,11 +2141,7 @@ function simulateKeys(keys: string[]) {
 		return target.dispatchEvent(event);
 	}
 
-	keys = [].concat(
-		...keys.map(function(keys) {
-			return keys.split('');
-		})
-	);
+	keys = (<string[]>[]).concat(...keys.map(keys => keys.split('')));
 
 	for (let i = 0, j = keys.length; i < j; ++i) {
 		const key = keys[i];

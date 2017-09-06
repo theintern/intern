@@ -47,9 +47,9 @@ export default class Server {
 			url = <URL>Object.create(url);
 			if (url.username || url.password || url.accessKey) {
 				url.auth =
-					encodeURIComponent(url.username) +
+					encodeURIComponent(url.username || '') +
 					':' +
-					encodeURIComponent(url.password || url.accessKey);
+					encodeURIComponent(url.password || url.accessKey || '');
 			}
 		}
 
@@ -81,7 +81,7 @@ export default class Server {
 		const url =
 			this.url +
 			path.replace(/\$(\d)/, function(_, index) {
-				return encodeURIComponent(pathParts[index]);
+				return encodeURIComponent(pathParts![index]);
 			});
 
 		const defaultRequestHeaders: { [key: string]: string } = {
@@ -142,7 +142,7 @@ export default class Server {
 					response.status < 400 &&
 					response.headers.get('Location')
 				) {
-					let redirectUrl = response.headers.get('Location');
+					let redirectUrl = response.headers.get('Location')!;
 
 					// If redirectUrl isn't an absolute URL, resolve it based
 					// on the orignal URL used to create the session
@@ -686,7 +686,7 @@ export default class Server {
 		}
 
 		updates.shortcutKey = (function() {
-			const platform = capabilities.platform.toLowerCase();
+			const platform = capabilities.platform!.toLowerCase();
 
 			if (platform.indexOf('mac') === 0) {
 				return keys.COMMAND;
@@ -1090,7 +1090,7 @@ export default class Server {
 							return session.execute(
 								/* istanbul ignore next */ function() {
 									const bbox = document
-										.getElementById('a')
+										.getElementById('a')!
 										.getBoundingClientRect();
 									return bbox.right - bbox.left === 4;
 								}
@@ -1500,7 +1500,7 @@ export default class Server {
 					.then(unsupported, function(error: LeadfootError) {
 						if (
 							capabilities.browserName === 'selendroid' &&
-							!error.response.text.length
+							error.response!.text.length === 0
 						) {
 							return ['logcat'];
 						}
@@ -1565,7 +1565,7 @@ export default class Server {
 							let refresh: Task<any>;
 
 							return new Task(
-								function(resolve, reject) {
+								resolve => {
 									let settled = false;
 
 									refresh = session
@@ -1881,14 +1881,14 @@ export default class Server {
 	 * inaccurate.
 	 */
 	getSessionCapabilities(sessionId: string): Task<Capabilities> {
-		return this.get('session/$0', null, [sessionId]).then(returnValue);
+		return this.get('session/$0', undefined, [sessionId]).then(returnValue);
 	}
 
 	/**
 	 * Terminates a session on the server.
 	 */
 	deleteSession(sessionId: string) {
-		return this.delete<void>('session/$0', null, [sessionId]).then(noop);
+		return this.delete<void>('session/$0', undefined, [sessionId]).then(noop);
 	}
 }
 
@@ -1960,7 +1960,7 @@ function isValidVersion(
 ) {
 	if (minOrExactVersion != null) {
 		const version = parseFloat(
-			capabilities.version || capabilities.browserVersion
+			(capabilities.version || capabilities.browserVersion)!
 		);
 
 		if (maxVersion != null) {

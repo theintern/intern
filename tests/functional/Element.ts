@@ -29,7 +29,7 @@ function createStubbedSuite(
 	let originalMethod: Function;
 	let calledWith: any;
 	let extraArguments: any[] = [];
-	let element = new Element('test');
+	let element = new Element('test', <Session>{});
 	const suite = {
 		setup: function() {
 			originalMethod = (<any>element)[stubbedMethodName];
@@ -91,7 +91,7 @@ registerSuite(function() {
 		},
 
 		'#toJSON'() {
-			const element = new Element('test');
+			const element = new Element('test', <Session>{});
 			assert.deepEqual(element.toJSON(), { ELEMENT: 'test' });
 		},
 

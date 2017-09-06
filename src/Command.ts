@@ -340,15 +340,15 @@ export default class Command<T> extends Locator<
 	 */
 	// TODO: Need to show that parent is mixed into this Command
 	constructor(
-		parent: Session | Command<any>,
+		parent: Session | Command<any> | null,
 		initialiser?: (
 			this: Command<any>,
-			setContext: Function,
+			setContext: SetContextMethod<any>,
 			value: any
 		) => any | Task<any>,
 		errback?: (
 			this: Command<any>,
-			setContext: Function,
+			setContext: SetContextMethod<any>,
 			error: Error
 		) => any | Task<any>
 	) {
@@ -369,7 +369,7 @@ export default class Command<T> extends Locator<
 			// not change the depth
 			if (!('depth' in context)) {
 				context.depth = parent
-					? (<Command<T>>parent).context.depth + 1
+					? (<Command<T>>parent).context.depth! + 1
 					: 0;
 			}
 
@@ -516,14 +516,17 @@ export default class Command<T> extends Locator<
 			setContext: Function
 		) {
 			let command = this;
-			let depth: number = this.context.depth;
+			let depth: number | undefined = this.context.depth;
 
 			while (
 				depth &&
 				numCommandsToPop &&
 				(command = <Command<any>>command.parent)
 			) {
-				if (command.context.depth < depth) {
+				if (
+					command.context.depth != null &&
+					command.context.depth < depth
+				) {
 					--numCommandsToPop;
 					depth = command.context.depth;
 				}
@@ -568,7 +571,10 @@ export default class Command<T> extends Locator<
 	) {
 		function runCallback(
 			command: Command<T>,
-			callback: Function,
+			callback: (
+				value: T | Error,
+				setContext: SetContextMethod<U>
+			) => void | U | PromiseLike<U> | Command<U>,
 			value: T,
 			setContext: SetContextMethod<T>
 		): T {
@@ -593,14 +599,14 @@ export default class Command<T> extends Locator<
 
 		return <Command<U>>new (this.constructor as typeof Command)(
 			this,
-			callback &&
+			callback ?
 				function(setContext: SetContextMethod<T>, value: T) {
 					return runCallback(this, callback, value, setContext);
-				},
-			errback &&
+				} : undefined,
+			errback ?
 				function(setContext: SetContextMethod<T>, value: any) {
 					return runCallback(this, errback, value, setContext);
-				}
+				} : undefined
 		);
 	}
 
@@ -1038,7 +1044,7 @@ export default class Command<T> extends Locator<
 	 * @returns An object describing the width and height of the window, in CSS
 	 * pixels.
 	 */
-	getWindowSize(windowHandle?: string) {
+	getWindowSize(_windowHandle?: string) {
 		return this._callSessionMethod<{ width: number; height: number }>(
 			'getWindowSize'
 		);

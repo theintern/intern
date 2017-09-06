@@ -32,7 +32,7 @@ export default function waitForDeleted(
 
 	return session
 		.getTimeout('implicit')
-		.then(function(value) {
+		.then(value => {
 			originalTimeout = value;
 			session.setTimeout('implicit', 0);
 		})

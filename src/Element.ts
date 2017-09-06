@@ -29,7 +29,7 @@ export default class Element extends Locator<
 	 * @param session
 	 * The session that the element belongs to.
 	 */
-	constructor(elementId: /*ElementOrElementId*/ any, session?: Session) {
+	constructor(elementId: /*ElementOrElementId*/ any, session: Session) {
 		super();
 
 		this._elementId =
@@ -545,7 +545,7 @@ export default class Element extends Locator<
 							document.body.scrollTop;
 						do {
 							if (
-								window.getComputedStyle(element, null)
+								window.getComputedStyle(element)
 									.opacity === '0'
 							) {
 								return false;
@@ -661,7 +661,7 @@ export default class Element extends Locator<
 					element: any,
 					propertyName: string
 				) => {
-					return (<any>window.getComputedStyle(element, null))[
+					return (<any>window.getComputedStyle(element))[
 						propertyName
 					];
 				},

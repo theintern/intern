@@ -22,12 +22,12 @@ export default function findDisplayed(
 		function poll(): Task<Element> {
 			return locator
 				.findAll(strategy, value)
-				.then(function(elements: Element[]) {
+				.then(elements => {
 					// Due to concurrency issues with at least ChromeDriver
 					// 2.16, each element must be tested one at a time instead
 					// of using `Promise.all`
 					let i = -1;
-					function checkElement(): PromiseLike<Element> {
+					function checkElement(): PromiseLike<Element | void> | undefined {
 						const element = elements[++i];
 						if (element) {
 							return element.isDisplayed().then(isDisplayed => {
@@ -40,7 +40,7 @@ export default function findDisplayed(
 						}
 					}
 
-					return Task.resolve(checkElement()).then(element => {
+					return Task.resolve<Element | void>(checkElement()).then(element => {
 						if (element) {
 							return element;
 						} else if (Date.now() - startTime > originalTimeout) {
