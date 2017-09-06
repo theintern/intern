@@ -4,19 +4,16 @@
 //This is the runner script used to start Intern in a Node environment.
 //
 
-import Node from '../lib/executors/Node';
 import global from '@dojo/shim/global';
 import { getConfig } from '../lib/node/util';
 import { getConfigDescription } from '../lib/common/util';
-
-let intern: Node;
+import intern from '../index';
 
 getConfig()
 	.then(config => {
 		if (config.showConfigs) {
 			console.log(getConfigDescription(config));
 		} else {
-			intern = global.intern = new Node();
 			intern.configure({ reporters: 'runner' });
 			intern.configure(config);
 			return intern.run();

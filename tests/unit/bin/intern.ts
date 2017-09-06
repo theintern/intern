@@ -59,7 +59,7 @@ registerSuite('bin/intern', function() {
 					'src/lib/executors/Node': { default: MockNode },
 					'src/lib/node/util': mockNodeUtil,
 					'src/lib/common/util': mockCommonUtil,
-					'src/index': { default: () => {} }
+					'src/index': { default: new MockNode }
 				}).then(handle => {
 					removeMocks = handle.remove;
 					assert.equal(mockNodeUtil.getConfig.callCount, 1);

@@ -16,38 +16,6 @@
 				"__visited__": true
 			},
 			"originalName": "src/bin/intern.ts",
-			"children": [
-				{
-					"id": 4031,
-					"name": "intern",
-					"kind": 32,
-					"kindString": "Variable",
-					"flags": {
-						"__visited__": true
-					},
-					"sources": [
-						{
-							"fileName": "bin/intern.ts",
-							"line": 12,
-							"character": 10
-						}
-					],
-					"type": {
-						"type": "reference",
-						"name": "Node",
-						"id": 3158
-					}
-				}
-			],
-			"groups": [
-				{
-					"title": "Variables",
-					"kind": 32,
-					"children": [
-						4031
-					]
-				}
-			],
 			"sources": [
 				{
 					"fileName": "bin/intern.ts",
@@ -92297,7 +92265,7 @@
 			]
 		},
 		{
-			"id": 4032,
+			"id": 4031,
 			"name": "\"loaders/default\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -92315,7 +92283,7 @@
 			]
 		},
 		{
-			"id": 4033,
+			"id": 4032,
 			"name": "\"loaders/dojo\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -92333,7 +92301,7 @@
 			]
 		},
 		{
-			"id": 4034,
+			"id": 4033,
 			"name": "\"loaders/dojo2\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -92351,7 +92319,7 @@
 			]
 		},
 		{
-			"id": 4035,
+			"id": 4034,
 			"name": "\"loaders/systemjs\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -92369,7 +92337,7 @@
 			]
 		},
 		{
-			"id": 4036,
+			"id": 4035,
 			"name": "\"tasks/intern\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -92380,7 +92348,7 @@
 			"originalName": "src/tasks/intern.ts",
 			"children": [
 				{
-					"id": 4037,
+					"id": 4036,
 					"name": "TaskOptions",
 					"kind": 256,
 					"kindString": "Interface",
@@ -92389,7 +92357,7 @@
 					},
 					"indexSignature": [
 						{
-							"id": 4038,
+							"id": 4037,
 							"name": "__index",
 							"kind": 8192,
 							"kindString": "Index signature",
@@ -92398,7 +92366,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4039,
+									"id": 4038,
 									"name": "key",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -92419,7 +92387,7 @@
 					],
 					"children": [
 						{
-							"id": 4041,
+							"id": 4040,
 							"name": "files",
 							"kind": 1024,
 							"kindString": "Property",
@@ -92444,7 +92412,7 @@
 							}
 						},
 						{
-							"id": 4040,
+							"id": 4039,
 							"name": "options",
 							"kind": 1024,
 							"kindString": "Property",
@@ -92474,8 +92442,8 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								4041,
-								4040
+								4040,
+								4039
 							]
 						}
 					],
@@ -92494,7 +92462,7 @@
 						{
 							"type": "reflection",
 							"declaration": {
-								"id": 4042,
+								"id": 4041,
 								"name": "__type",
 								"kind": 65536,
 								"kindString": "Type literal",
@@ -92518,7 +92486,7 @@
 					"title": "Interfaces",
 					"kind": 256,
 					"children": [
-						4037
+						4036
 					]
 				}
 			],
@@ -92583,11 +92551,11 @@
 				3116,
 				1959,
 				21,
+				4031,
 				4032,
 				4033,
 				4034,
-				4035,
-				4036
+				4035
 			]
 		}
 	]
