@@ -1,0 +1,3 @@
+{
+    "suites": "_build/tests/**/*.js"
+}

@@ -9,6 +9,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "commander": "~2.11.0",
+    "intern": "~4.0.0-alpha.15",
     "opn": "~5.1.0",
     "resolve": "~1.4.0",
     "semver": "~5.4.1"
@@ -24,14 +25,15 @@
   "homepage": "http://theintern.io/",
   "preferGlobal": true,
   "bin": {
-    "intern": "./_build/src/bin/intern.js"
+    "intern": "./bin/intern.js"
   },
   "scripts": {
     "build": "intern-dev-build",
     "clean": "intern-dev-clean",
-    "test": "intern-dev-test",
+    "test": "NODE_PATH=_build intern",
     "lint": "intern-dev-lint",
-    "release": "intern-dev-release"
+    "release": "intern-dev-release",
+    "watch": "intern-dev-build watch"
   },
   "engines": {
     "node": ">=4.0.0"
@@ -41,8 +43,6 @@
     "@types/commander": "~2.3.31",
     "@types/opn": "~3.0.28",
     "@types/resolve": "0.0.4",
-    "@types/semver": "~5.3.30",
-    "dojo-loader": "~2.0.0-beta.7",
-    "intern": "~3.4.6"
+    "@types/semver": "~5.3.30"
   }
 }

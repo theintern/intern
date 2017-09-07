@@ -3,11 +3,10 @@
 	"compilerOptions": {
 		"baseUrl": "..",
 		"declaration": false,
-		"module": "umd",
 		"paths": {
 			"src/*": ["_build/src/*", "src/*"]
-		}
+		},
+		"types": ["intern"]
 	},
-	"files": ["../node_modules/intern/typings/intern/intern.d.ts"],
 	"include": ["./**/*.ts"]
 }
