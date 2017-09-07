@@ -9,6 +9,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "commander": "~2.11.0",
+    "glob": "~7.1.2",
     "intern": "~4.0.0-alpha.15",
     "opn": "~5.1.0",
     "resolve": "~1.4.0",
@@ -41,6 +42,7 @@
   "devDependencies": {
     "@theintern/dev": "~0.5.5",
     "@types/commander": "~2.3.31",
+    "@types/glob": "~5.0.32",
     "@types/opn": "~3.0.28",
     "@types/resolve": "0.0.4",
     "@types/semver": "~5.3.30"

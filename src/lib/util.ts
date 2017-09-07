@@ -143,6 +143,13 @@ export function intArg(val: any) {
 }
 
 /**
+ * Read a JSON file
+ */
+export function readJsonFile(file: string) {
+	return JSON.parse(readFileSync(file, { encoding: 'utf8' }));
+}
+
+/**
  * Formats a string. This function works similarly to Node's `util.format`, but
  * it automatically wraps text at a given width, and prepends a prefix to all
  * lines.

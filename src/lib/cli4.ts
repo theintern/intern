@@ -1,107 +1,69 @@
-import { sync as resolve } from 'resolve';
 import { spawn } from 'child_process';
 import * as opn from 'opn';
+import { sync as glob } from 'glob';
 import {
+	existsSync,
 	mkdirSync,
-	readdirSync,
-	readFileSync,
 	statSync,
 	writeFileSync
 } from 'fs';
-import { basename, dirname, join } from 'path';
-import { copy, die, exitCodeForSignal, print } from './util';
+import { join } from 'path';
+import { die, exitCodeForSignal, print, readJsonFile } from './util';
 import { CliContext } from './interfaces';
 
 export const minVersion = '4.0.0';
 export const maxVersion = '5.0.0';
 
 export default function install(context: CliContext) {
-	const { browsers, commands, vlog, internDir, testsDir } = context;
+	const { commands, vlog, internDir, testsDir } = context;
 
 	commands.init.action(options => {
-		try {
-			statSync(testsDir);
-			die(
-				'error: A file or directory named "' +
-					testsDir +
-					'" already exists.'
-			);
-		} catch (error) {
-			// ignore
+		if (!existsSync(testsDir)) {
+			try {
+				mkdirSync(testsDir);
+				vlog('Created test directory %s/', testsDir);
+			} catch (error) {
+				die('error creating test directory: ' + error);
+			}
 		}
 
 		try {
-			mkdirSync(testsDir);
+			const configFile = 'intern.json';
+			let data: any;
+			if (existsSync(configFile)) {
+				data = readJsonFile(configFile);
+			} else {
+				data = {};
+			}
 
-			vlog('Created test directory %s/', testsDir);
+			const testsGlob = join(testsDir, '**', '*.js');
+			if (glob(testsGlob).length > 0) {
+				data.suites = [testsGlob];
+			}
 
-			const configFile = join(testsDir, 'intern.js');
-
-			let data = readFileSync(
-				join(internDir, 'tests', 'example.intern.js'),
-				{ encoding: 'utf8' }
-			);
-			data = data.replace(/myPackage/g, 'app');
-			data = data.replace(
-				/suites: \[.*?],/,
-				"suites: [ 'app/tests/unit/*' ],"
-			);
-			data = data.replace(
-				/functionalSuites: \[.*?],/,
-				"functionalSuites: [ 'app/tests/functional/*' ],"
-			);
-			data = data.replace(/'BrowserStackTunnel'/, "'NullTunnel'");
-			data = data.replace(/capabilities: {[\s\S]*?}/, 'capabilities: {}');
+			if (existsSync(join(testsDir, 'functional'))) {
+				const functionalGlob = join(testsDir, 'functional', '**', '*.js');
+				data.suites.push(`!${functionalGlob}`);
+				data.functionalSuites = [functionalGlob];
+				data.environments = [{ browserName: options.browser }];
+			}
 
 			vlog('Using browser: %s', options.browser);
-			vlog('Created config file %s', configFile);
+			vlog('Saved config to %s', configFile);
 
-			let environment: string;
-			if (options.browser === 'firefox') {
-				environment = "{ browserName: 'firefox', marionette: true }";
-			} else {
-				environment = `{ browserName: '"${options.browser}"' }`;
-			}
-			data = data.replace(
-				/environments: \[[\s\S]*?],/,
-				`environments: [ ${environment} ],`
-			);
-
-			writeFileSync(configFile, data);
-
-			copy(join(__dirname, '..', '..', '..', 'init'), join(testsDir));
-
-			vlog('Copied test files');
+			writeFileSync(configFile, JSON.stringify(data, null, '\t'));
 
 			print();
 			print([
 				'Intern initialized! A test directory containing example unit ' +
-					`and functional tests has been created at ${testsDir}/.` +
-					` See ${configFile} for configuration options.`,
+				`and functional tests has been created at ${testsDir}/.` +
+				` See ${configFile} for configuration options.`,
 				'',
 				'Run the sample unit test with `intern run`.',
 				'',
 				'To run the sample functional test, first start a WebDriver ' +
-					'server (e.g., Selenium), then run `intern run -w`. The ' +
-					`functional tests assume ${options.browser} is installed.`,
-				''
-			]);
-
-			const info = (<any>browsers)[options.browser];
-			let note = info.note;
-
-			if (!note) {
-				note =
-					`Note that running WebDriver tests with ${info.name}` +
-					` requires ${info.driver} to be available in the system path.`;
-			}
-
-			print([
-				`${note} See`,
-				'',
-				`  ${info.url}`,
-				'',
-				'for more information.',
+				'server (e.g., Selenium), then run `intern run -w`. The ' +
+				`functional tests assume ${options.browser} is installed.`,
 				''
 			]);
 		} catch (error) {
@@ -111,51 +73,34 @@ export default function install(context: CliContext) {
 
 	commands.run
 		.on('--help', () => {
-			print([
-				'\n',
-				'Tests may be run purely in Node using the Node client, or in a ' +
-					'browser using the WebDriver runner.',
-				'',
-				'The Node client runs tests purely in Node rather than in a ' +
-					'browser. This makes it well suited for quickly running tests ' +
-					'that do not involve the DOM, and and for testing code meant ' +
-					'to run in a server environment. Only unit tests will be run ' +
-					'when using the Node client.',
-				'',
-				'The WebDriver runner starts and controls a browser using the WebDriver ' +
-					'protocol. This requires that either a local instance of Selenium ' +
-					'is running or that Intern has been configured to run tests on a ' +
-					'cloud testing service. Both unit and functional tests will be run ' +
-					'when using the WebDriver runner.',
-				''
-			]);
+			print();
 
-			const reporters: string[] = [];
-			const reporterDir = join(internDir, 'lib', 'reporters');
-			readdirSync(reporterDir)
-				.filter(function(name: string) {
-					const fullPath = join(reporterDir, name);
-					return statSync(fullPath).isFile();
-				})
-				.forEach(function(name) {
-					reporters.push(basename(name, '.js'));
-				});
-			print(['Reporters:', '', `  ${reporters.join(', ')}`, '']);
+			// const reporters: string[] = [];
+			// const reporterDir = join(internDir, 'lib', 'reporters');
+			// readdirSync(reporterDir)
+			// 	.filter(function(name: string) {
+			// 		const fullPath = join(reporterDir, name);
+			// 		return statSync(fullPath).isFile();
+			// 	})
+			// 	.forEach(function(name) {
+			// 		reporters.push(basename(name, '.js'));
+			// 	});
+			// print(['Reporters:', '', `  ${reporters.join(', ')}`, '']);
 
-			const tunnels: string[] = [];
-			const digdugDir = dirname(
-				resolve('digdug/Tunnel', { basedir: process.cwd() })
-			);
-			readdirSync(digdugDir)
-				.filter(name => /\wTunnel/.test(name))
-				.forEach(name => {
-					tunnels.push(basename(name, '.js'));
-				});
-			print(['Tunnels:', '', `  ${tunnels.join(', ')}`, '']);
+			// const tunnels: string[] = [];
+			// const digdugDir = dirname(
+			// 	resolve('digdug/Tunnel', { basedir: process.cwd() })
+			// );
+			// readdirSync(digdugDir)
+			// 	.filter(name => /\wTunnel/.test(name))
+			// 	.forEach(name => {
+			// 		tunnels.push(basename(name, '.js'));
+			// 	});
+			// print(['Tunnels:', '', `  ${tunnels.join(', ')}`, '']);
 		})
 		.action((...args: any[]) => {
 			const options = args[args.length - 1];
-			const config = options.config || join(testsDir, 'intern.js');
+			const config = options.config || 'intern.json';
 
 			try {
 				statSync(config);
@@ -168,8 +113,7 @@ export default function install(context: CliContext) {
 				]);
 			}
 
-			const mode = options.webdriver ? 'runner' : 'client';
-			const internCmd = join(internDir, mode);
+			const internCmd = join(internDir, 'bin', 'intern.js');
 
 			// Allow user-specified args in the standard intern format to be passed through
 			const internArgs = args.slice(0, args.length - 1);
