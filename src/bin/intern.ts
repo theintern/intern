@@ -112,7 +112,7 @@ commands.help = program
 			print();
 
 			if (cmdName) {
-				print(`unknown command: ${cmdName}\n`);
+				print(`Unknown command: ${cmdName}\n`);
 			}
 
 			print(
@@ -224,7 +224,8 @@ commands.serve = program
 commands['*'] = program
 	.command('*', undefined, { noHelp: true })
 	.action(command => {
-		die(`unknown command: ${command}`);
+		print(`\nUnknown command: ${command}`);
+		program.outputHelp();
 	});
 
 const context = {
