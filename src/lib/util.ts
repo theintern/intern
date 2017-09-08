@@ -59,7 +59,10 @@ export function copy(src: string, dst: string) {
 /**
  * Return the named command from a commander Command
  */
-export function getCommand(name: string, command: IExportedCommand): ICommand  | undefined {
+export function getCommand(
+	name: string,
+	command: IExportedCommand
+): ICommand | undefined {
 	for (let cmd of command.commands) {
 		if (cmd.name === name) {
 			return cmd;
@@ -179,8 +182,11 @@ function format(...args: any[]) {
 			}
 
 			if (space !== -1) {
+				// Maintain the line's relative indent as well as the overall
+				// indent
+				const linePrefix = line.slice(0, line.search(/\S/));
 				lines.push(prefix + line.slice(0, space));
-				line = line.slice(space + 1);
+				line = linePrefix + line.slice(space + 1);
 			} else {
 				lines.push(prefix + line);
 				line = messageLines.shift();

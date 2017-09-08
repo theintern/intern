@@ -147,7 +147,7 @@ commands.init = program
 	});
 
 commands.run = program
-	.command('run')
+	.command('run [args...]')
 	.description('Run tests in Node or in a browser using WebDriver')
 	.option('-b, --bail', 'quit after the first failing test')
 	.option(
@@ -196,7 +196,7 @@ commands.run = program
 	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests');
 
 commands.serve = program
-	.command('serve')
+	.command('serve [args...]')
 	.description(
 		'Start a simple web server for running unit tests in a browser on ' +
 			'your system'
@@ -208,7 +208,17 @@ commands.serve = program
 	.option('-o, --open', 'open the test runner URL when the server starts')
 	.option('-p, --port <port>', 'port to serve on', intArg)
 	.option('-I, --noInstrument', 'disable instrumentation')
-	.on('--help', () => print());
+	.on('--help', () => {
+		print([
+			'',
+			'',
+			'When running WebDriver tests, Intern runs a local server to ' +
+				'serve itself and the test files to the browser(s) running the ' +
+				'tests. This server can also be used instead of a dedicated web ' +
+				'server such as nginx or Apache for running unit tests locally.',
+			''
+		]);
+	});
 
 // Handle any unknown commands
 commands['*'] = program
@@ -217,7 +227,15 @@ commands['*'] = program
 		die(`unknown command: ${command}`);
 	});
 
-const context = { browsers, commands, program, vlog, internDir, testsDir };
+const context = {
+	browsers,
+	commands,
+	program,
+	vlog,
+	internDir,
+	internPkg,
+	testsDir
+};
 
 if (acceptVersion(internPkg.version, cli3Min, cli3Max)) {
 	cli3(context);

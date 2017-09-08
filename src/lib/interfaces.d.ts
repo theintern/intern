@@ -17,5 +17,6 @@ interface CliContext {
 	program: ICommand;
 	vlog: Logger;
 	internDir: string;
+	internPkg: { [key: string]: any };
 	testsDir: string;
 }

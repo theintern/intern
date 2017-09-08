@@ -1,13 +1,8 @@
 import { spawn } from 'child_process';
 import * as opn from 'opn';
-import { sync as glob } from 'glob';
-import {
-	existsSync,
-	mkdirSync,
-	statSync,
-	writeFileSync
-} from 'fs';
+import { existsSync, mkdirSync, statSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { createInterface } from 'readline';
 import { die, exitCodeForSignal, print, readJsonFile } from './util';
 import { CliContext } from './interfaces';
 
@@ -17,7 +12,27 @@ export const maxVersion = '5.0.0';
 export default function install(context: CliContext) {
 	const { commands, vlog, internDir, testsDir } = context;
 
-	commands.init.action(options => {
+	const nodeReporters = [
+		'pretty',
+		'simple',
+		'runner',
+		'benchmark',
+		'junit',
+		'jsoncoverage',
+		'htmlcoverage',
+		'lcov',
+		'cobertura',
+		'teamcity'
+	];
+	const browserReporters = ['html', 'dom', 'console'];
+	const tunnels = ['null', 'selenium', 'saucelabs', 'browserstack', 'cbt'];
+
+	commands.init.action(async options => {
+		const rl = createInterface({
+			input: process.stdin,
+			output: process.stdout
+		});
+
 		if (!existsSync(testsDir)) {
 			try {
 				mkdirSync(testsDir);
@@ -30,6 +45,8 @@ export default function install(context: CliContext) {
 		try {
 			const configFile = 'intern.json';
 			let data: any;
+
+			// TODO should this also deal with extended configs?
 			if (existsSync(configFile)) {
 				data = readJsonFile(configFile);
 			} else {
@@ -37,15 +54,34 @@ export default function install(context: CliContext) {
 			}
 
 			const testsGlob = join(testsDir, '**', '*.js');
-			if (glob(testsGlob).length > 0) {
-				data.suites = [testsGlob];
-			}
+			const resources = {
+				suites: [testsGlob],
+				functionalSuites: <string[] | undefined>undefined,
+				environments: <any>undefined
+			};
 
 			if (existsSync(join(testsDir, 'functional'))) {
-				const functionalGlob = join(testsDir, 'functional', '**', '*.js');
-				data.suites.push(`!${functionalGlob}`);
-				data.functionalSuites = [functionalGlob];
-				data.environments = [{ browserName: options.browser }];
+				const functionalGlob = join(
+					testsDir,
+					'functional',
+					'**',
+					'*.js'
+				);
+
+				resources.suites.push(`!${functionalGlob}`);
+				resources.functionalSuites = [functionalGlob];
+				resources.environments = [{ browserName: options.browser }];
+			}
+
+			const names: (keyof typeof resources)[] = [
+				'suites',
+				'functionalSuites',
+				'environments'
+			];
+			for (const name of names) {
+				if (await shouldUpdate(name, resources, data)) {
+					data[name] = resources[name];
+				}
 			}
 
 			vlog('Using browser: %s', options.browser);
@@ -56,51 +92,82 @@ export default function install(context: CliContext) {
 			print();
 			print([
 				'Intern initialized! A test directory containing example unit ' +
-				`and functional tests has been created at ${testsDir}/.` +
-				` See ${configFile} for configuration options.`,
+					`and functional tests has been created at ${testsDir}/.` +
+					` See ${configFile} for configuration options.`,
 				'',
 				'Run the sample unit test with `intern run`.',
 				'',
 				'To run the sample functional test, first start a WebDriver ' +
-				'server (e.g., Selenium), then run `intern run -w`. The ' +
-				`functional tests assume ${options.browser} is installed.`,
+					'server (e.g., Selenium), then run `intern run -w`. The ' +
+					`functional tests assume ${options.browser} is installed.`,
 				''
 			]);
 		} catch (error) {
 			die('error initializing: ' + error);
+		} finally {
+			rl.close();
+		}
+
+		async function shouldUpdate(name: string, resources: any, data: any) {
+			if (!(name in resources)) {
+				return false;
+			}
+
+			if (!(name in data)) {
+				return true;
+			}
+
+			if (
+				JSON.stringify(resources[name]) === JSON.stringify(data[name])
+			) {
+				return false;
+			}
+
+			let answer = await new Promise<string>(resolve => {
+				print([
+					'',
+					'The existing intern.json has the following ' +
+						`value for ${name}:`,
+					''
+				]);
+				print('  ', data[name]);
+				print([
+					'',
+					'The default value based on our project layout is:',
+					''
+				]);
+				print('  ', resources[name]);
+				rl.question('\n  Should the default be used? ', resolve);
+			});
+
+			if (answer.toLowerCase()[0] !== 'y') {
+				return false;
+			}
+
+			return true;
 		}
 	});
 
 	commands.run
 		.on('--help', () => {
-			print();
-
-			// const reporters: string[] = [];
-			// const reporterDir = join(internDir, 'lib', 'reporters');
-			// readdirSync(reporterDir)
-			// 	.filter(function(name: string) {
-			// 		const fullPath = join(reporterDir, name);
-			// 		return statSync(fullPath).isFile();
-			// 	})
-			// 	.forEach(function(name) {
-			// 		reporters.push(basename(name, '.js'));
-			// 	});
-			// print(['Reporters:', '', `  ${reporters.join(', ')}`, '']);
-
-			// const tunnels: string[] = [];
-			// const digdugDir = dirname(
-			// 	resolve('digdug/Tunnel', { basedir: process.cwd() })
-			// );
-			// readdirSync(digdugDir)
-			// 	.filter(name => /\wTunnel/.test(name))
-			// 	.forEach(name => {
-			// 		tunnels.push(basename(name, '.js'));
-			// 	});
-			// print(['Tunnels:', '', `  ${tunnels.join(', ')}`, '']);
+			print([
+				'',
+				'Node reporters:',
+				'',
+				`  ${nodeReporters.join(', ')}`,
+				'',
+				'Browser reporters:',
+				'',
+				`  ${browserReporters.join(', ')}`,
+				'',
+				'Tunnels:',
+				'',
+				`  ${tunnels.join(', ')}`,
+				''
+			]);
 		})
-		.action((...args: any[]) => {
-			const options = args[args.length - 1];
-			const config = options.config || 'intern.json';
+		.action(async (args, command) => {
+			const config = command.config || 'intern.json';
 
 			try {
 				statSync(config);
@@ -116,58 +183,58 @@ export default function install(context: CliContext) {
 			const internCmd = join(internDir, 'bin', 'intern.js');
 
 			// Allow user-specified args in the standard intern format to be passed through
-			const internArgs = args.slice(0, args.length - 1);
+			const internArgs = args || [];
 
 			internArgs.push(`config=${config}`);
 
-			for (const suite of options.suites) {
+			for (const suite of command.suites) {
 				internArgs.push(`suites=${suite}`);
 			}
 
-			for (const suite of options.fsuites) {
+			for (const suite of command.fsuites) {
 				internArgs.push(`functionalSuites=${suite}`);
 			}
 
-			for (const reporter of options.reporters) {
+			for (const reporter of command.reporters) {
 				internArgs.push(`reporters=${reporter}`);
 			}
 
-			if (options.grep) {
-				internArgs.push(`grep=${options.grep}`);
+			if (command.grep) {
+				internArgs.push(`grep=${command.grep}`);
 			}
 
-			if (options.bail) {
+			if (command.bail) {
 				internArgs.push('bail');
 			}
 
-			if (options.port) {
-				internArgs.push(`proxyPort=${options.port}`);
+			if (command.port) {
+				internArgs.push(`proxyPort=${command.port}`);
 			}
 
-			if (options.timeout) {
-				internArgs.push(`defaultTimeout=${options.timeout}`);
+			if (command.timeout) {
+				internArgs.push(`defaultTimeout=${command.timeout}`);
 			}
 
-			if (options.tunnel) {
-				internArgs.push(`tunnel=${options.tunnel}`);
+			if (command.tunnel) {
+				internArgs.push(`tunnel=${command.tunnel}`);
 			}
 
-			if (options.noInstrument) {
+			if (command.noInstrument) {
 				internArgs.push('excludeInstrumentation');
 			}
 
-			if (options.leaveRemoteOpen) {
+			if (command.leaveRemoteOpen) {
 				internArgs.push('leaveRemoteOpen');
 			}
 
 			// 'verbose' is a top-level option
-			if (options.parent.verbose) {
+			if (command.parent.verbose) {
 				internArgs.push('verbose');
 			}
 
 			const nodeArgs: string[] = [];
 
-			if (options.debug) {
+			if (command.debug) {
 				nodeArgs.push('debug');
 			}
 
@@ -195,87 +262,76 @@ export default function install(context: CliContext) {
 			});
 		});
 
-	commands.serve
-		.action(args => {
-			const options = args[args.length - 1];
-			const config = options.config || join(testsDir, 'intern.js');
-			const internCmd = join(internDir, 'runner');
+	commands.serve.action((args, command) => {
+		const config = command.config || 'intern.json';
+		const internCmd = join(internDir, 'bin', 'intern.js');
 
-			// Allow user-specified args in the standard intern format to be passed through
-			const internArgs = args.slice(0, args.length - 1);
+		// Allow user-specified args in the standard intern format to be passed through
+		const internArgs = args || [];
 
-			internArgs.push(`config=${config}`);
-			internArgs.push('serveOnly');
+		internArgs.push(`config=${config}`);
+		internArgs.push('serveOnly');
 
-			if (options.port) {
-				internArgs.push(`proxyPort=${options.port}`);
+		if (command.port) {
+			internArgs.push(`proxyPort=${command.port}`);
+		}
+
+		if (command.noInstrument) {
+			internArgs.push('excludeInstrumentation');
+		}
+
+		const nodeArgs: string[] = [];
+
+		if (command.debug) {
+			nodeArgs.push('debug');
+		}
+
+		const intern = spawn(
+			process.execPath,
+			[...nodeArgs, internCmd, ...internArgs],
+			{
+				stdio: [process.stdin, 'pipe', process.stdout]
 			}
+		);
 
-			if (options.noInstrument) {
-				internArgs.push('excludeInstrumentation');
-			}
+		intern.stdout.on('data', data => {
+			data = String(data);
+			process.stdout.write(data);
 
-			const nodeArgs: string[] = [];
+			if (/Listening on/.test(data)) {
+				const internPath = `/node_modules/intern/client.html?config=${config}`;
 
-			if (options.debug) {
-				nodeArgs.push('debug');
-			}
-
-			const intern = spawn(
-				process.execPath,
-				[...nodeArgs, internCmd, ...internArgs],
-				{
-					stdio: [process.stdin, 'pipe', process.stdout]
+				// Get the address. Convert 0.0.0.0 to 'localhost' for Windows
+				// compatibility.
+				let address = data
+					.split(' on ')[1]
+					.replace(/^\s*/, '')
+					.replace(/\s*$/, '');
+				const parts = address.split(':');
+				if (parts[0] === '0.0.0.0') {
+					parts[0] = 'localhost';
 				}
-			);
+				address = parts.join(':');
 
-			intern.stdout.on('data', data => {
-				data = String(data);
-				process.stdout.write(data);
-
-				if (/Listening on/.test(data)) {
-					const internPath = `/node_modules/intern/client.html?config=${config}`;
-
-					// Get the address. Convert 0.0.0.0 to 'localhost' for Windows
-					// compatibility.
-					let address = data
-						.split(' on ')[1]
-						.replace(/^\s*/, '')
-						.replace(/\s*$/, '');
-					const parts = address.split(':');
-					if (parts[0] === '0.0.0.0') {
-						parts[0] = 'localhost';
-					}
-					address = parts.join(':');
-
-					if (options.open) {
-						opn(`http://${address}${internPath}`);
-					} else {
-						print([
-							'',
-							'To run unit tests, browse to:',
-							'',
-							`  http://${address}${internPath}`
-						]);
-					}
-
-					print();
-					print('Press CTRL-C to stop serving.');
-					print();
+				if (command.open) {
+					opn(`http://${address}${internPath}`);
+				} else {
+					print([
+						'',
+						'To run unit tests, browse to:',
+						'',
+						`  http://${address}${internPath}`
+					]);
 				}
-			});
 
-			process.on('SIGINT', () => {
-				intern.kill('SIGINT');
-			});
-		})
-		.on('--help', () => {
-			print(
-				'When running WebDriver tests, Intern runs a local server to ' +
-					'serve itself and the test files to the browser(s) running the ' +
-					'tests. This server can also be used instead of a dedicated web ' +
-					'server such as nginx or Apache for running unit tests locally.'
-			);
-			print();
+				print();
+				print('Press CTRL-C to stop serving.');
+				print();
+			}
 		});
+
+		process.on('SIGINT', () => {
+			intern.kill('SIGINT');
+		});
+	});
 }
