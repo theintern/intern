@@ -40,7 +40,7 @@
     "node": ">=4.0.0"
   },
   "devDependencies": {
-    "@theintern/dev": "~0.5.5",
+    "@theintern/dev": "~0.5.7",
     "@types/commander": "~2.3.31",
     "@types/glob": "~5.0.32",
     "@types/opn": "~3.0.28",
