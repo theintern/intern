@@ -55,6 +55,11 @@ const browsers = {
 
 let vlog = getLogger();
 
+process.on('unhandledRejection', (error: Error) => {
+	console.error(error);
+	process.exit(1);
+});
+
 program
 	.version(pkg.version)
 	.description('Run JavaScript tests')
