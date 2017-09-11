@@ -232,14 +232,23 @@ commands['*'] = program
 				''
 			]);
 			const shouldInstall = await new Promise(resolve => {
-				rl.question('  Install intern@latest now? ', answer => {
-					resolve(answer.toLowerCase()[0] === 'y');
-				});
+				rl.question(
+					'  Install intern now [latest, next, no]? ',
+					answer => {
+						if (/l(a(t(e(s(t)?)?)?)?)?/.test(answer)) {
+							resolve('latest');
+						} else if (/ne(x(t)?)?/.test(answer)) {
+							resolve('next');
+						} else {
+							resolve('no');
+						}
+					}
+				);
 			});
 
-			if (shouldInstall) {
+			if (shouldInstall !== 'no') {
 				print();
-				execSync('npm install intern@^4.0.0-alpha --save-dev', {
+				execSync(`npm install intern@${shouldInstall} --save-dev`, {
 					stdio: 'inherit'
 				});
 			}
@@ -258,9 +267,13 @@ commands['*'] = program
 			);
 		} catch (error) {
 			die([
-				'You can install the latest Intern with:',
+				'Install the latest Intern release with:',
 				'',
-				'  npm install --save-dev intern@^4.0.0-alpha',
+				'  npm install --save-dev intern@latest',
+				'',
+				'Install the development version with:',
+				'',
+				'  npm install --save-dev intern@next',
 				''
 			]);
 		}
