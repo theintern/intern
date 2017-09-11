@@ -154,6 +154,7 @@ export default function install(context: CliContext) {
 			'-c, --config <file>[@config]',
 			'config file to use (default is intern.json)'
 		)
+		.option('-n, --node', 'only run Node-based unit tests')
 		.on('--help', () => {
 			print([
 				'',
@@ -213,6 +214,10 @@ export default function install(context: CliContext) {
 
 			if (command.leaveRemoteOpen) {
 				internArgs.push('leaveRemoteOpen');
+			}
+
+			if (command.node) {
+				internArgs.push('environments=');
 			}
 
 			// 'verbose' is a top-level option
