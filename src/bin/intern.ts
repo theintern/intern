@@ -195,13 +195,6 @@ commands.run = program
 	)
 	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests');
 
-commands.watch = program
-	.command('watch [files]')
-	.description(
-		'Watch test and app files for changes and re-run Node-based ' +
-			'unit tests when files are updated'
-	);
-
 commands.serve = program
 	.command('serve [args...]')
 	.description(

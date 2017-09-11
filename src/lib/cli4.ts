@@ -11,7 +11,7 @@ export const minVersion = '4.0.0';
 export const maxVersion = '5.0.0';
 
 export default function install(context: CliContext) {
-	const { commands, vlog, internDir, testsDir } = context;
+	const { program, commands, vlog, internDir, testsDir } = context;
 
 	const nodeReporters = [
 		'pretty',
@@ -219,50 +219,61 @@ export default function install(context: CliContext) {
 			await runIntern(internDir, configFile, command.debug, internArgs);
 		});
 
-	commands.watch.action(async (_files, command) => {
-		const configFile = command.config || 'intern.json';
-		const { getConfig } = require(join(internDir, 'lib', 'node', 'util'));
-		const config = await getConfig(configFile);
-		const nodeSuites = [
-			...config.suites,
-			...(config.node ? config.node.suites : [])
-		];
+	commands.watch = program
+		.command('watch [files]')
+		.description(
+			'Watch test and app files for changes and re-run Node-based ' +
+				'unit tests when files are updated'
+		)
+		.action(async (_files, command) => {
+			const configFile = command.config || 'intern.json';
+			const { getConfig } = require(join(
+				internDir,
+				'lib',
+				'node',
+				'util'
+			));
+			const config = await getConfig(configFile);
+			const nodeSuites = [
+				...config.suites,
+				...(config.node ? config.node.suites : [])
+			];
 
-		const watcher = watch(nodeSuites)
-			.on('ready', () => {
-				print('Watching', nodeSuites);
-				watcher.on('add', scheduleInternRun);
-				watcher.on('change', scheduleInternRun);
-			})
-			.on('error', (error: Error) => {
-				print('Watcher error:', error);
-			});
+			const watcher = watch(nodeSuites)
+				.on('ready', () => {
+					print('Watching', nodeSuites);
+					watcher.on('add', scheduleInternRun);
+					watcher.on('change', scheduleInternRun);
+				})
+				.on('error', (error: Error) => {
+					print('Watcher error:', error);
+				});
 
-		process.on('SIGINT', () => watcher.close());
+			process.on('SIGINT', () => watcher.close());
 
-		let timer: number;
-		let suites = new Set();
-		function scheduleInternRun(suite: string) {
-			suites.add(suite);
-			if (timer) {
-				clearTimeout(timer);
+			let timer: number;
+			let suites = new Set();
+			function scheduleInternRun(suite: string) {
+				suites.add(suite);
+				if (timer) {
+					clearTimeout(timer);
+				}
+				timer = setTimeout(async () => {
+					const toTest = Array.from(suites.values());
+					suites = new Set();
+
+					const args = [
+						'environments=',
+						...toTest.map(suite => `suites=${suite}`)
+					];
+					await runIntern(internDir, configFile, command.debug, args);
+				});
 			}
-			timer = setTimeout(async () => {
-				const toTest = Array.from(suites.values());
-				suites = new Set();
 
-				const args = [
-					'environments=',
-					...toTest.map(suite => `suites=${suite}`)
-				];
-				await runIntern(internDir, configFile, command.debug, args);
-			});
-		}
-
-		await runIntern(internDir, configFile, command.debug, [
-			'environments='
-		]);
-	});
+			await runIntern(internDir, configFile, command.debug, [
+				'environments='
+			]);
+		});
 
 	commands.serve.action((args, command) => {
 		const config = command.config || 'intern.json';
