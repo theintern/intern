@@ -3,7 +3,6 @@
 	"compilerOptions": {
 		"outDir": "./_build",
 		"rootDir": ".",
-		"sourceMap": false,
 		"target": "es2015"
 	},
 	"include": ["./src/**/*.ts"]
