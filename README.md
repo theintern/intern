@@ -90,3 +90,9 @@ Dig Dug is a JS Foundation project offered under the [New BSD](LICENSE) license.
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/digdug/graphs/contributors)
 <!-- end-github-only -->
+
+<!-- doc-viewer-config
+{
+    "api": "docs/api.json"
+}
+-->
