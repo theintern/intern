@@ -141,14 +141,16 @@ registerSuite('lib/common/util', {
 			'baz=7',
 			'baz=8',
 			'bif=8f5=324',
-			'baf='
+			'baf=',
+			'bof.foo=42'
 		]);
 		const expected = {
 			foo: true,
 			bar: '5',
 			baz: ['6', '7', '8'],
 			bif: '8f5=324',
-			baf: ''
+			baf: '',
+			bof: { foo: '42' }
 		};
 		assert.propertyVal(
 			args,
@@ -172,15 +174,16 @@ registerSuite('lib/common/util', {
 			expected.baz,
 			'multiply-assigned value should be an array of strings'
 		);
-		assert.property(
-			args,
-			'bif',
-			'arg value containing "=" should exist'
-		);
+		assert.property(args, 'bif', 'arg value containing "=" should exist');
 		assert.property(
 			args,
 			'baf',
 			'arg value containing "=" with no value should exist'
+		);
+		assert.deepEqual(
+			args.bof,
+			expected.bof,
+			'dot-separated key should assign to nested objects'
 		);
 		assert.deepEqual(args, expected);
 	},

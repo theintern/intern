@@ -1,4 +1,4 @@
-import { mixin } from '@dojo/core/lang';
+import { deepMixin, mixin } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 
 const configPathSeparator = '@';
@@ -140,7 +140,7 @@ function _loadConfig(
 		})
 		.then(config => {
 			if (args) {
-				mixin(config, args);
+				deepMixin(config, args);
 
 				// If any non-additive resources are specified in args, they
 				// will apply to all environments and will override any
@@ -207,14 +207,30 @@ export function normalizePathEnding(path: string) {
  * Parse an array of name=value arguments into an object
  */
 export function parseArgs(rawArgs: string[]) {
-	const args: { [key: string]: any } = {};
-	rawArgs.forEach(arg => {
+	const parsedArgs: { [key: string]: any } = {};
+
+	for (const arg of rawArgs) {
 		let name = arg;
 		let value: string | undefined;
-		let eq = arg.indexOf('=');
+		let args = parsedArgs;
+
+		const eq = arg.indexOf('=');
 		if (eq !== -1) {
 			name = arg.slice(0, eq);
 			value = arg.slice(eq + 1);
+		}
+
+		if (name.indexOf('.') !== -1) {
+			const parts = name.split('.');
+			const head = parts.slice(0, parts.length - 1);
+			name = parts[parts.length - 1];
+
+			for (const part of head) {
+				if (!args[part]) {
+					args[part] = {};
+				}
+				args = args[part];
+			}
 		}
 
 		if (typeof value === 'undefined') {
@@ -228,9 +244,9 @@ export function parseArgs(rawArgs: string[]) {
 				args[name].push(value);
 			}
 		}
-	});
+	}
 
-	return args;
+	return parsedArgs;
 }
 
 /**
