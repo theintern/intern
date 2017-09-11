@@ -9,12 +9,7 @@ import {
 	writeFileSync
 } from 'fs';
 import { basename, dirname, join } from 'path';
-import {
-	copy,
-	die,
-	exitCodeForSignal,
-	print
-} from './util';
+import { copy, die, exitCodeForSignal, print } from './util';
 import { CliContext } from './interfaces';
 
 export const minVersion = '3.0.0';
@@ -23,104 +18,97 @@ export const maxVersion = '4.0.0';
 export default function install(context: CliContext) {
 	const { browsers, commands, vlog, internDir, testsDir } = context;
 
-	// Initialize an Intern project
-	commands.init
-		.action(options => {
-			try {
-				statSync(testsDir);
-				die(
-					'error: A file or directory named "' +
-						testsDir +
-						'" already exists.'
-				);
-			} catch (error) {
-				// ignore
+	commands.init.action(options => {
+		try {
+			statSync(testsDir);
+			die(
+				'error: A file or directory named "' +
+					testsDir +
+					'" already exists.'
+			);
+		} catch (error) {
+			// ignore
+		}
+
+		try {
+			mkdirSync(testsDir);
+
+			vlog('Created test directory %s/', testsDir);
+
+			const configFile = join(testsDir, 'intern.js');
+
+			let data = readFileSync(
+				join(internDir, 'tests', 'example.intern.js'),
+				{ encoding: 'utf8' }
+			);
+			data = data.replace(/myPackage/g, 'app');
+			data = data.replace(
+				/suites: \[.*?],/,
+				"suites: [ 'app/tests/unit/*' ],"
+			);
+			data = data.replace(
+				/functionalSuites: \[.*?],/,
+				"functionalSuites: [ 'app/tests/functional/*' ],"
+			);
+			data = data.replace(/'BrowserStackTunnel'/, "'NullTunnel'");
+			data = data.replace(/capabilities: {[\s\S]*?}/, 'capabilities: {}');
+
+			vlog('Using browser: %s', options.browser);
+			vlog('Created config file %s', configFile);
+
+			let environment: string;
+			if (options.browser === 'firefox') {
+				environment = "{ browserName: 'firefox', marionette: true }";
+			} else {
+				environment = `{ browserName: '"${options.browser}"' }`;
+			}
+			data = data.replace(
+				/environments: \[[\s\S]*?],/,
+				`environments: [ ${environment} ],`
+			);
+
+			writeFileSync(configFile, data);
+
+			copy(join(__dirname, '..', '..', '..', 'init'), join(testsDir));
+
+			vlog('Copied test files');
+
+			print();
+			print([
+				'Intern initialized! A test directory containing example unit ' +
+					`and functional tests has been created at ${testsDir}/.` +
+					` See ${configFile} for configuration options.`,
+				'',
+				'Run the sample unit test with `intern run`.',
+				'',
+				'To run the sample functional test, first start a WebDriver ' +
+					'server (e.g., Selenium), then run `intern run -w`. The ' +
+					`functional tests assume ${options.browser} is installed.`,
+				''
+			]);
+
+			const info = (<any>browsers)[options.browser];
+			let note = info.note;
+
+			if (!note) {
+				note =
+					`Note that running WebDriver tests with ${info.name}` +
+					` requires ${info.driver} to be available in the system path.`;
 			}
 
-			try {
-				mkdirSync(testsDir);
+			print([
+				`${note} See`,
+				'',
+				`  ${info.url}`,
+				'',
+				'for more information.',
+				''
+			]);
+		} catch (error) {
+			die('error initializing: ' + error);
+		}
+	});
 
-				vlog('Created test directory %s/', testsDir);
-
-				const configFile = join(testsDir, 'intern.js');
-
-				let data = readFileSync(
-					join(internDir, 'tests', 'example.intern.js'),
-					{ encoding: 'utf8' }
-				);
-				data = data.replace(/myPackage/g, 'app');
-				data = data.replace(
-					/suites: \[.*?],/,
-					"suites: [ 'app/tests/unit/*' ],"
-				);
-				data = data.replace(
-					/functionalSuites: \[.*?],/,
-					"functionalSuites: [ 'app/tests/functional/*' ],"
-				);
-				data = data.replace(/'BrowserStackTunnel'/, "'NullTunnel'");
-				data = data.replace(
-					/capabilities: {[\s\S]*?}/,
-					'capabilities: {}'
-				);
-
-				vlog('Using browser: %s', options.browser);
-				vlog('Created config file %s', configFile);
-
-				let environment: string;
-				if (options.browser === 'firefox') {
-					environment =
-						"{ browserName: 'firefox', marionette: true }";
-				} else {
-					environment = `{ browserName: '"${options.browser}"' }`;
-				}
-				data = data.replace(
-					/environments: \[[\s\S]*?],/,
-					`environments: [ ${environment} ],`
-				);
-
-				writeFileSync(configFile, data);
-
-				copy(join(__dirname, '..', '..', '..', 'init'), join(testsDir));
-
-				vlog('Copied test files');
-
-				print();
-				print([
-					'Intern initialized! A test directory containing example unit ' +
-						`and functional tests has been created at ${testsDir}/.` +
-						` See ${configFile} for configuration options.`,
-					'',
-					'Run the sample unit test with `intern run`.',
-					'',
-					'To run the sample functional test, first start a WebDriver ' +
-						'server (e.g., Selenium), then run `intern run -w`. The ' +
-						`functional tests assume ${options.browser} is installed.`,
-					''
-				]);
-
-				const info = (<any>browsers)[options.browser];
-				let note = info.note;
-
-				if (!note) {
-					note =
-						`Note that running WebDriver tests with ${info.name}` +
-						` requires ${info.driver} to be available in the system path.`;
-				}
-
-				print([
-					`${note} See`,
-					'',
-					`  ${info.url}`,
-					'',
-					'for more information.',
-					''
-				]);
-			} catch (error) {
-				die('error initializing: ' + error);
-			}
-		});
-
-	// Run Intern
 	commands.run
 		.option(
 			'-c, --config <module ID|file>',
@@ -271,78 +259,77 @@ export default function install(context: CliContext) {
 			});
 		});
 
-	commands.serve
-		.action(args => {
-			const options = args[args.length - 1];
-			const config = options.config || join(testsDir, 'intern.js');
-			const internCmd = join(internDir, 'runner');
+	commands.serve.action(args => {
+		const options = args[args.length - 1];
+		const config = options.config || join(testsDir, 'intern.js');
+		const internCmd = join(internDir, 'runner');
 
-			// Allow user-specified args in the standard intern format to be passed through
-			const internArgs = args.slice(0, args.length - 1);
+		// Allow user-specified args in the standard intern format to be passed through
+		const internArgs = args.slice(0, args.length - 1);
 
-			internArgs.push(`config=${config}`);
-			internArgs.push('proxyOnly');
+		internArgs.push(`config=${config}`);
+		internArgs.push('proxyOnly');
 
-			if (options.port) {
-				internArgs.push(`proxyPort=${options.port}`);
+		if (options.port) {
+			internArgs.push(`proxyPort=${options.port}`);
+		}
+
+		if (options.noInstrument) {
+			internArgs.push('excludeInstrumentation');
+		}
+
+		const nodeArgs: string[] = [];
+
+		if (options.debug) {
+			nodeArgs.push('debug');
+		}
+
+		const intern = spawn(
+			process.execPath,
+			[...nodeArgs, internCmd, ...internArgs],
+			{
+				stdio: [process.stdin, 'pipe', process.stdout]
 			}
+		);
 
-			if (options.noInstrument) {
-				internArgs.push('excludeInstrumentation');
-			}
+		intern.stdout.on('data', data => {
+			data = String(data);
+			process.stdout.write(data);
 
-			const nodeArgs: string[] = [];
+			if (/Listening on/.test(data)) {
+				const internPath = `/node_modules/intern/client.html?config=${config}`;
 
-			if (options.debug) {
-				nodeArgs.push('debug');
-			}
-
-			const intern = spawn(
-				process.execPath,
-				[...nodeArgs, internCmd, ...internArgs],
-				{
-					stdio: [process.stdin, 'pipe', process.stdout]
+				// Get the address. Convert 0.0.0.0 to 'localhost' for Windows
+				// compatibility.
+				let address = data
+					.split(' on ')[1]
+					.replace(/^\s*/, '')
+					.replace(/\s*$/, '');
+				const parts = address.split(':');
+				if (parts[0] === '0.0.0.0') {
+					parts[0] = 'localhost';
 				}
-			);
+				address = parts.join(':');
 
-			intern.stdout.on('data', data => {
-				data = String(data);
-				process.stdout.write(data);
-
-				if (/Listening on/.test(data)) {
-					const internPath = `/node_modules/intern/client.html?config=${config}`;
-
-					// Get the address. Convert 0.0.0.0 to 'localhost' for Windows
-					// compatibility.
-					let address = data
-						.split(' on ')[1]
-						.replace(/^\s*/, '')
-						.replace(/\s*$/, '');
-					const parts = address.split(':');
-					if (parts[0] === '0.0.0.0') {
-						parts[0] = 'localhost';
-					}
-					address = parts.join(':');
-
-					if (options.open) {
-						opn(`http://${address}${internPath}`);
-					} else {
-						print([
-							'',
-							'To run unit tests, browse to:',
-							'',
-							`  http://${address}${internPath}`
-						]);
-					}
-
-					print();
-					print('Press CTRL-C to stop serving.');
-					print();
+				if (options.open) {
+					opn(`http://${address}${internPath}`);
+				} else {
+					print([
+						'',
+						'To run unit tests, browse to:',
+						'',
+						`  http://${address}${internPath}`
+					]);
 				}
-			});
 
-			process.on('SIGINT', () => {
-				intern.kill('SIGINT');
-			});
+				print();
+				print('Press CTRL-C to stop serving.');
+				print();
+			}
 		});
+
+		process.on('SIGINT', () => {
+			intern.kill('SIGINT');
+		});
+	});
 }
