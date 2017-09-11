@@ -144,10 +144,6 @@ commands.run = program
 	.description('Run tests in Node or in a browser using WebDriver')
 	.option('-b, --bail', 'quit after the first failing test')
 	.option(
-		'-c, --config <module ID|file>',
-		`config file to use (default is ${testsDir}/intern.js)`
-	)
-	.option(
 		'-f, --fsuites <module ID>',
 		'specify a functional suite to run (can be used multiple times)',
 		collect,
@@ -170,10 +166,6 @@ commands.run = program
 		'specify a suite to run (can be used multiple times)',
 		collect,
 		[]
-	)
-	.option(
-		'-w, --webdriver',
-		'use the WebDriver runner (default is Node client)'
 	)
 	.option('-I, --noInstrument', 'disable instrumentation')
 	.option('--debug', 'enable the Node debugger')

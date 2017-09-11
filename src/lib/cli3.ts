@@ -122,6 +122,14 @@ export default function install(context: CliContext) {
 
 	// Run Intern
 	commands.run
+		.option(
+			'-c, --config <module ID|file>',
+			`config file to use (default is ${testsDir}/intern.js)`
+		)
+		.option(
+			'-w, --webdriver',
+			'use the WebDriver runner (default is Node client)'
+		)
 		.on('--help', () => {
 			print([
 				'\n',

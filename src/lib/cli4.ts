@@ -150,6 +150,10 @@ export default function install(context: CliContext) {
 	});
 
 	commands.run
+		.option(
+			'-c, --config <file>[@config]',
+			'config file to use (default is intern.json)'
+		)
 		.on('--help', () => {
 			print([
 				'',
