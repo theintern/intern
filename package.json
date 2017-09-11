@@ -50,7 +50,7 @@
     "build": "intern-dev-clean && concurrently intern-dev-build intern-dev-api",
     "clean": "intern-dev-clean",
     "lint": "intern-dev-lint",
-    "release": "intern-dev-release",
+    "release": "INTERN_BUILD=release intern-dev-release",
     "test": "NODE_PATH=_build node _tests/src/bin/intern.js",
     "preci": "intern-dev-build",
     "ci": "npm test config=@ci",

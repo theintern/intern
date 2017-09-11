@@ -31,7 +31,10 @@ const common: Configuration = {
 	}
 };
 
-if (process.env['NODE_ENV'] === 'production') {
+if (
+	process.env['NODE_ENV'] === 'production' ||
+	process.env['INTERN_BUILD'] === 'release'
+) {
 	common.plugins = [new optimize.UglifyJsPlugin()];
 }
 
