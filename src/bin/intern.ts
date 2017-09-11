@@ -287,6 +287,27 @@ commands['*'] = program
 		);
 	}
 
+	for (const command of program.commands) {
+		command.options.sort((a: program.IOption, b: program.IOption) => {
+			const af = a.flags.toLowerCase();
+			const bf = b.flags.toLowerCase();
+
+			if (/^--/.test(af) && !/^--/.test(bf)) {
+				return 1;
+			}
+			if (!/^--/.test(af) && /^--/.test(bf)) {
+				return -1;
+			}
+			if (af < bf) {
+				return -1;
+			}
+			if (af > bf) {
+				return 1;
+			}
+			return 0;
+		});
+	}
+
 	program.parse(process.argv);
 
 	// If no command was given, show the help message
