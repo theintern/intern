@@ -47,7 +47,7 @@ export function expandFiles(patterns?: string[] | string) {
  * Get the user-supplied config data, which may include command line args and a
  * config file.
  */
-export function getConfig(configFile?: string) {
+export function getConfig(file?: string) {
 	let args: { [key: string]: any } = {};
 
 	if (process.env['INTERN_ARGS']) {
@@ -58,24 +58,23 @@ export function getConfig(configFile?: string) {
 		mixin(args, parseArgs(process.argv.slice(2)));
 	}
 
-	if (configFile) {
-		args.config = configFile;
+	if (file) {
+		args.config = file;
 	}
+
+	let load: Task<{ [key: string]: any }>;
 
 	if (args.config) {
 		// If a config parameter was provided, load it and mix in any other
 		// command line args.
 		const { configFile, childConfig } = splitConfigPath(args.config, sep);
-		return loadConfig(
-			configFile || 'intern.json',
-			loadText,
-			args,
-			childConfig
-		);
+		file = configFile || 'intern.json';
+		load = loadConfig(file, loadText, args, childConfig);
 	} else {
 		// If no config parameter was provided, try 'intern.json', or just
 		// resolve to the original args
-		return loadConfig(
+		file = 'intern.json';
+		load = loadConfig(
 			'intern.json',
 			loadText,
 			args
@@ -86,6 +85,8 @@ export function getConfig(configFile?: string) {
 			throw error;
 		});
 	}
+
+	return load.then(config => ({ config, file }));
 }
 
 /**

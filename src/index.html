@@ -24,10 +24,15 @@
 		<script src="browser/config.js"></script>
 		<script>
 		internConfig.getConfig()
-			.then(function (config) {
+			.then(function (result) {
+				var config = result.config;
 				if (config.showConfigs) {
 					console.log(getConfigDescription(config));
 					return true;
+				}
+
+				if (!result.file) {
+					console.warn('No config file was found');
 				}
 
 				// Add the HTML and console reporters to the default

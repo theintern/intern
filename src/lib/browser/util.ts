@@ -6,29 +6,33 @@ import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
  * Resolve the user-supplied config data, which may include query args and a
  * config file.
  */
-export function getConfig(configFile?: string) {
+export function getConfig(file?: string) {
 	const args = parseArgs(parseQuery());
-	if (configFile) {
-		args.config = configFile;
+	if (file) {
+		args.config = file;
 	}
+
+	let load: Task<{ [key: string]: any }>;
 
 	if (args.config) {
 		// If a config parameter was provided, load it, mix in any other query
 		// params, then initialize the executor with that
 		const { configFile, childConfig } = splitConfigPath(args.config);
-		const path = resolvePath(configFile || 'intern.json', args.basePath);
-		return loadConfig(path, loadText, args, childConfig);
+		file = resolvePath(configFile || 'intern.json', args.basePath);
+		load = loadConfig(file, loadText, args, childConfig);
 	} else {
 		// If no config parameter was provided, try 'intern.json'. If that file
 		// doesn't exist, just return the args
-		const path = resolvePath('intern.json', args.basePath);
-		return loadConfig(path, loadText, args).catch(error => {
+		file = resolvePath('intern.json', args.basePath);
+		load = loadConfig(file, loadText, args).catch(error => {
 			if (error.message.indexOf('Request failed') === 0) {
 				return args;
 			}
 			throw error;
 		});
 	}
+
+	return load.then(config => ({ config, file }));
 }
 
 /**

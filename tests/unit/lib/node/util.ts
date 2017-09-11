@@ -195,7 +195,12 @@ registerSuite('lib/node/util', function() {
 						const configData = { suites: ['bar.js'] };
 						fsData['intern.json'] = JSON.stringify(configData);
 
-						return util.getConfig().then(config => {
+						return util.getConfig().then(({ config, file }) => {
+							assert.strictEqual(
+								file,
+								'intern.json',
+								'unexpected config file name'
+							);
 							assert.notProperty(
 								calls,
 								'splitConfigPath',
@@ -222,7 +227,7 @@ registerSuite('lib/node/util', function() {
 						// Push an argument so parseArgs will be called
 						mockGlobal.process.argv.push('foo');
 
-						return util.getConfig().then(config => {
+						return util.getConfig().then(({ config }) => {
 							assert.notProperty(
 								calls,
 								'splitConfigPath',
@@ -260,7 +265,7 @@ registerSuite('lib/node/util', function() {
 					parsedArgs.config = 'foo.json';
 					fsData['foo.json'] = JSON.stringify({ stuff: 'happened' });
 
-					return util.getConfig().then(config => {
+					return util.getConfig().then(({ config }) => {
 						assert.property(
 							calls,
 							'splitConfigPath',

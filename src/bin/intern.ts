@@ -10,10 +10,14 @@ import { getConfigDescription } from '../lib/common/util';
 import intern from '../index';
 
 getConfig()
-	.then(config => {
+	.then(({ config, file }) => {
 		if (config.showConfigs) {
 			console.log(getConfigDescription(config));
 		} else {
+			if (!file) {
+				console.warn('No config file was loaded');
+			}
+
 			intern.configure({ reporters: 'runner' });
 			intern.configure(config);
 			return intern.run();

@@ -8,7 +8,7 @@ const originalIntern = global.intern;
 registerSuite('bin/intern', function() {
 	const mockNodeUtil: { [name: string]: SinonSpy } = {
 		getConfig: spy(() => {
-			return Task.resolve(configData);
+			return Task.resolve({ config: configData });
 		})
 	};
 
@@ -25,6 +25,7 @@ registerSuite('bin/intern', function() {
 
 	let configData: any;
 	let logStub: SinonStub | undefined;
+	let warnStub: SinonStub | undefined;
 	const originalExitCode = process.exitCode;
 	let removeMocks: (() => void) | undefined;
 
@@ -49,17 +50,24 @@ registerSuite('bin/intern', function() {
 				logStub = undefined;
 			}
 
+			if (warnStub) {
+				warnStub.restore();
+				warnStub = undefined;
+			}
+
 			process.exitCode = originalExitCode;
 			global.intern = originalIntern;
 		},
 
 		tests: {
 			'basic run'() {
+				warnStub = stub(console, 'warn');
+
 				return mockRequire(require, 'src/bin/intern', {
 					'src/lib/executors/Node': { default: MockNode },
 					'src/lib/node/util': mockNodeUtil,
 					'src/lib/common/util': mockCommonUtil,
-					'src/index': { default: new MockNode }
+					'src/index': { default: new MockNode() }
 				}).then(handle => {
 					removeMocks = handle.remove;
 					assert.equal(mockNodeUtil.getConfig.callCount, 1);
@@ -102,6 +110,7 @@ registerSuite('bin/intern', function() {
 			'bad run': {
 				'intern defined'() {
 					logStub = stub(console, 'error');
+					warnStub = stub(console, 'warn');
 
 					return mockRequire(require, 'src/bin/intern', {
 						'src/lib/executors/Node': { default: MockNode },

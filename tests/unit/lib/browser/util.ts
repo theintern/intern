@@ -88,7 +88,8 @@ registerSuite('lib/browser/util', function() {
 							configData
 						);
 
-						return util.getConfig().then(config => {
+						return util.getConfig().then(({ config, file }) => {
+							assert.strictEqual(file, '/intern.json');
 							assert.equal(
 								mockUtil.splitConfigPath.callCount,
 								0,
@@ -127,7 +128,7 @@ registerSuite('lib/browser/util', function() {
 						parsedArgs.here = '1';
 						parsedArgs.there = 'bar';
 
-						return util.getConfig().then(config => {
+						return util.getConfig().then(({ config }) => {
 							assert.equal(
 								mockUtil.splitConfigPath.callCount,
 								0,
@@ -178,7 +179,12 @@ registerSuite('lib/browser/util', function() {
 						stuff: 'happened'
 					});
 
-					return util.getConfig().then(config => {
+					return util.getConfig().then(({ config, file }) => {
+						assert.strictEqual(
+							file,
+							'/foo.json',
+							'unexpected config file name'
+						);
 						assert.equal(
 							mockUtil.splitConfigPath.callCount,
 							1,
