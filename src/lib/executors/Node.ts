@@ -6,10 +6,11 @@ import Executor, {
 import Task, { State } from '@dojo/core/async/Task';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, normalizePath, readSourceMap } from '../node/util';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { deepMixin, mixin } from '@dojo/core/lang';
 import ErrorFormatter from '../node/ErrorFormatter';
 import { dirname, normalize, relative, resolve, sep } from 'path';
+import { sync as nodeResolve } from 'resolve';
 import LeadfootServer from '@theintern/leadfoot/Server';
 import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
@@ -241,14 +242,19 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	 * Load scripts using Node's require
 	 */
 	loadScript(script: string | string[]) {
-		if (!Array.isArray(script)) {
-			script = [script];
-		}
+		const scripts = Array.isArray(script) ? script : [script];
 
 		try {
-			script.forEach(script => {
-				require(resolve(script));
-			});
+			for (const script of scripts) {
+				const file = resolve(script);
+				if (existsSync(file)) {
+					require(file);
+				} else {
+					// `script` isn't a valid file path, so maybe it's a
+					// Node-resolvable module
+					require(nodeResolve(script, { basedir: process.cwd() }));
+				}
+			}
 		} catch (error) {
 			return Task.reject<void>(error);
 		}
@@ -257,7 +263,8 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	}
 
 	/**
-	 * Register a tunnel constructor with the plugin system. It can be retrieved later with getTunnel or getPlugin.
+	 * Register a tunnel constructor with the plugin system. It can be retrieved
+	 * later with getTunnel or getPlugin.
 	 */
 	registerTunnel(name: string, Ctor: typeof Tunnel) {
 		this.registerPlugin('tunnel', name, () => Ctor);

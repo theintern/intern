@@ -141,6 +141,10 @@ registerSuite('lib/executors/Node', function() {
 	};
 
 	const mockFs = {
+		existsSync(_path: string) {
+			return true;
+		},
+
 		readFileSync(path: string) {
 			if (fsData[path]) {
 				return fsData[path];
@@ -515,34 +519,68 @@ registerSuite('lib/executors/Node', function() {
 				executor.run();
 			},
 
-			'#loadScript': {
-				good() {
-					const module = require.resolve(
-						'../../data/lib/executors/intern.js'
-					);
-					assert.isUndefined(
-						require.cache[module],
-						'expected test module not to be loaded already'
-					);
-					executor.loadScript(module);
-					assert.isDefined(
-						require.cache[module],
-						'expected module to have been loaded'
-					);
-					delete require.cache[module];
-				},
+			'#loadScript': (() => {
+				let modules: string[];
 
-				bad() {
-					return executor.loadScript('fake_file.js').then(
-						() => {
-							throw new Error('load should have failed');
-						},
-						error => {
-							assert.match(error.message, /Cannot find module/);
+				return {
+					beforeEach() {
+						modules = Object.keys(require.cache);
+					},
+
+					afterEach() {
+						const newModules = Object.keys(require.cache);
+						for (const mod of newModules) {
+							if (modules.indexOf(mod) === -1) {
+								delete require.cache[mod];
+							}
 						}
-					);
-				}
-			},
+					},
+
+					tests: {
+						'good script'() {
+							const module = require.resolve(
+								'../../data/lib/executors/intern.js'
+							);
+							assert.isUndefined(
+								require.cache[module],
+								'expected test module not to be loaded already'
+							);
+							executor.loadScript(module);
+							assert.isDefined(
+								require.cache[module],
+								'expected module to have been loaded'
+							);
+						},
+
+						'good node_module'() {
+							const module = require.resolve('commander');
+							assert.isUndefined(
+								require.cache[module],
+								'expected test module not to be loaded already'
+							);
+							executor.loadScript('commander');
+							assert.isDefined(
+								require.cache[module],
+								'expected module to have been loaded'
+							);
+						},
+
+						bad() {
+							return executor.loadScript('fake_file.js').then(
+								() => {
+									throw new Error('load should have failed');
+								},
+								error => {
+									assert.match(
+										error.message,
+										/Cannot find module/
+									);
+								}
+							);
+						}
+					}
+				};
+			})(),
 
 			'#shouldInstrument': {
 				beforeEach() {
