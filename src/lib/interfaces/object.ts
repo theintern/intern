@@ -122,30 +122,27 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
 	// Initialize a new SuiteOptions object from the provided
 	// ObjectSuiteDescriptor
 	if (isObjectSuiteDescriptor(descriptor)) {
-		Object.keys(descriptor)
-			.filter(key => {
-				return key !== 'tests';
-			})
-			.forEach((key: keyof ObjectSuiteDescriptor) => {
-				let optionsKey: keyof SuiteOptions = <any>key;
+		const keys = Object.keys(descriptor).filter(key => key !== 'tests');
+		for (const key of keys) {
+			let optionsKey = <keyof SuiteOptions>key;
 
-				// Convert 'setup' and 'teardown' to 'before' and 'after'
-				if (<string>key === 'setup') {
-					parent.executor.emit('deprecated', {
-						original: 'Suite#setup',
-						replacement: 'Suite#before'
-					});
-					optionsKey = <keyof SuiteOptions>'before';
-				} else if (<string>key === 'teardown') {
-					parent.executor.emit('deprecated', {
-						original: 'Suite#teardown',
-						replacement: 'Suite#after'
-					});
-					optionsKey = <keyof SuiteOptions>'after';
-				}
+			// Convert 'setup' and 'teardown' to 'before' and 'after'
+			if (key === 'setup') {
+				parent.executor.emit('deprecated', {
+					original: 'Suite#setup',
+					replacement: 'Suite#before'
+				});
+				optionsKey = 'before';
+			} else if (key === 'teardown') {
+				parent.executor.emit('deprecated', {
+					original: 'Suite#teardown',
+					replacement: 'Suite#after'
+				});
+				optionsKey = 'after';
+			}
 
-				options[optionsKey] = <any>descriptor[key];
-			});
+			options[optionsKey] = <any>descriptor[<keyof SuiteOptions>key];
+		}
 
 		tests = descriptor.tests;
 	} else {
@@ -156,6 +153,19 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
 
 	Object.keys(tests)
 		.map(name => {
+			if (
+				name === 'before' ||
+				name === 'after' ||
+				name === 'setup' ||
+				name === 'teardown' ||
+				name === 'beforeEach' ||
+				name === 'afterEach'
+			) {
+				parent.executor.log(
+					`Warning: created test with lifecycle method name "${name}"`
+				);
+			}
+
 			const thing = tests[name];
 			if (isTestFunction(thing)) {
 				return new TestClass({ name, test: thing, parent: suite });

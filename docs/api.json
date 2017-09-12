@@ -65872,7 +65872,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 182,
+							"line": 192,
 							"character": 23
 						}
 					]
@@ -66219,7 +66219,7 @@
 					"sources": [
 						{
 							"fileName": "lib/interfaces/object.ts",
-							"line": 178,
+							"line": 188,
 							"character": 32
 						}
 					]

@@ -2,7 +2,7 @@ import * as _objInt from 'src/lib/interfaces/object';
 import Test from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
 
-import { spy } from 'sinon';
+import { sandbox as Sandbox } from 'sinon';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
@@ -11,15 +11,20 @@ registerSuite('lib/interfaces/object', function() {
 	let removeMocks: () => void;
 	let parent: Suite;
 
+	const sandbox = Sandbox.create();
+
 	const executor = {
-		addSuite: spy((callback: (suite: Suite) => void) => {
+		addSuite: sandbox.spy((callback: (suite: Suite) => void) => {
 			callback(parent);
 		}),
-		emit: spy(() => {})
+		emit: sandbox.spy(() => {}),
+		log: sandbox.spy(() => {})
 	};
-	const getIntern = spy(() => {
+
+	const getIntern = sandbox.spy(() => {
 		return executor;
 	});
+
 	const mockGlobal = {
 		get intern() {
 			return getIntern();
@@ -41,9 +46,7 @@ registerSuite('lib/interfaces/object', function() {
 		},
 
 		beforeEach() {
-			getIntern.reset();
-			executor.addSuite.reset();
-			executor.emit.reset();
+			sandbox.reset();
 		},
 
 		tests: {
@@ -203,6 +206,30 @@ registerSuite('lib/interfaces/object', function() {
 					assert.propertyVal(suite.tests[0], 'name', 'foo');
 					assert.instanceOf(suite.tests[1], Test);
 					assert.propertyVal(suite.tests[1], 'name', 'bar');
+				},
+
+				'tests with lifecycle-method names'() {
+					parent = new Suite(<any>{ name: 'parent', executor });
+					objInt.createSuite(
+						'foo',
+						parent,
+						<any>{
+							before() {},
+							foo() {}
+						},
+						Suite,
+						Test
+					);
+					assert.isTrue(
+						executor.log.calledOnce,
+						'expected a log message to have been emitted'
+					);
+					// Suite should emit a log message
+					assert.match(
+						executor.log.args[0][0],
+						/created test with lifecycle method name/,
+						'expected log message to mention test name'
+					);
 				},
 
 				'nested suites'() {
