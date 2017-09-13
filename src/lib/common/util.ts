@@ -33,7 +33,7 @@ export function loadConfig(
 		delete config.config;
 		delete config.extends;
 
-		if (!args || !args.showConfigs) {
+		if (!(args && (args.showConfigs || args.help))) {
 			// 'configs' is only relevant if we're showing configs
 			delete config.configs;
 		}
@@ -90,7 +90,7 @@ function _loadConfig(
 			return config;
 		})
 		.then(config => {
-			if (args && args.showConfigs) {
+			if (args && (args.showConfigs || args.help)) {
 				// If we're showing the configs, don't mix in children
 				return config;
 			}
@@ -163,15 +163,15 @@ function _loadConfig(
 		});
 }
 
-export function getConfigDescription(config: any) {
+export function getConfigDescription(config: any, prefix = '') {
 	let description = '';
 
 	if (config.description) {
-		description += `${config.description}\n\n`;
+		description += `${prefix}${config.description}\n\n`;
 	}
 
 	if (config.configs) {
-		description += 'Configs:\n';
+		description += `${prefix}Configs:\n`;
 		const width = Object.keys(config.configs).reduce((width, name) => {
 			return Math.max(width, name.length);
 		}, 0);
@@ -184,7 +184,7 @@ export function getConfigDescription(config: any) {
 			if (child.description) {
 				line += ` (${child.description})`;
 			}
-			return line;
+			return `${prefix}${line}`;
 		});
 
 		description += lines.join('\n');

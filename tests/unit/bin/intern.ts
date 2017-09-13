@@ -17,6 +17,11 @@ registerSuite('bin/intern', function() {
 	};
 
 	class MockNode {
+		_config = {
+			foo: 1,
+			bar: { abc: 123 },
+			baz: false
+		};
 		configure() {}
 		run() {
 			return Task.resolve();
@@ -64,7 +69,6 @@ registerSuite('bin/intern', function() {
 				warnStub = stub(console, 'warn');
 
 				return mockRequire(require, 'src/bin/intern', {
-					'src/lib/executors/Node': { default: MockNode },
 					'src/lib/node/util': mockNodeUtil,
 					'src/lib/common/util': mockCommonUtil,
 					'src/index': { default: new MockNode() }
@@ -83,10 +87,9 @@ registerSuite('bin/intern', function() {
 				logStub = stub(console, 'log');
 
 				return mockRequire(require, 'src/bin/intern', {
-					'src/lib/executors/Node': { default: MockNode },
 					'src/lib/node/util': mockNodeUtil,
 					'src/lib/common/util': mockCommonUtil,
-					'src/index': { default: () => {} }
+					'src/index': { default: new MockNode() }
 				}).then(handle => {
 					removeMocks = handle.remove;
 					assert.equal(mockNodeUtil.getConfig.callCount, 1);
@@ -113,10 +116,9 @@ registerSuite('bin/intern', function() {
 					warnStub = stub(console, 'warn');
 
 					return mockRequire(require, 'src/bin/intern', {
-						'src/lib/executors/Node': { default: MockNode },
 						'src/lib/node/util': mockNodeUtil,
 						'src/lib/common/util': mockCommonUtil,
-						'src/index': { default: () => {} },
+						'src/index': { default: new MockNode() },
 						'@dojo/shim/global': { default: { process: {} } }
 					}).then(handle => {
 						removeMocks = handle.remove;
@@ -137,10 +139,9 @@ registerSuite('bin/intern', function() {
 					mockCommonUtil.getConfigDescription.throws();
 
 					return mockRequire(require, 'src/bin/intern', {
-						'src/lib/executors/Node': { default: MockNode },
 						'src/lib/node/util': mockNodeUtil,
 						'src/lib/common/util': mockCommonUtil,
-						'src/index': { default: () => {} },
+						'src/index': { default: new MockNode() },
 						'@dojo/shim/global': {
 							default: { process: { stdout: process.stdout } }
 						}
@@ -157,6 +158,39 @@ registerSuite('bin/intern', function() {
 							);
 						});
 				}
+			},
+
+			help() {
+				configData = { help: true };
+				logStub = stub(console, 'log');
+
+				return mockRequire(require, 'src/bin/intern', {
+					'src/lib/node/util': mockNodeUtil,
+					'src/lib/common/util': mockCommonUtil,
+					'src/index': { default: new MockNode() }
+				}).then(handle => {
+					removeMocks = handle.remove;
+					assert.isAbove(
+						logStub!.callCount,
+						1,
+						'expected log to be called at least once'
+					);
+					const text = logStub!
+						.getCalls()
+						.map(call => call.args[0])
+						.join('\n');
+					assert.match(text, /foo\s+-\s+1/, 'unexpected description');
+					assert.match(
+						text,
+						/baz\s+-\s+false/,
+						'unexpected description'
+					);
+					assert.match(
+						text,
+						/bar\s+-\s+{"abc":123}/,
+						'unexpected description'
+					);
+				});
 			}
 		}
 	};
