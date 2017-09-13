@@ -114,10 +114,6 @@ export default function install(context: CliContext) {
 			'-c, --config <module ID|file>',
 			`config file to use (default is ${testsDir}/intern.js)`
 		)
-		.option(
-			'-w, --webdriver',
-			'use the WebDriver runner (default is Node client)'
-		)
 		.on('--help', () => {
 			print([
 				'\n',

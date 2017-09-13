@@ -178,7 +178,8 @@ commands.run = program
 		'set the default timeout for async tests',
 		intArg
 	)
-	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests');
+	.option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
+	.option('-w, --webdriver', 'run WebDriver tests only');
 
 commands.serve = program
 	.command('serve [args...]')

@@ -173,7 +173,13 @@ export default function install(context: CliContext) {
 			]);
 		})
 		.action(async (args, command) => {
-			const configFile = command.config || 'intern.json';
+			const { getConfig } = require(join(
+				internDir,
+				'lib',
+				'node',
+				'util'
+			));
+			const { config, file } = await getConfig(command.config);
 			const internArgs = args || [];
 
 			for (const suite of command.suites) {
@@ -220,12 +226,42 @@ export default function install(context: CliContext) {
 				internArgs.push('environments=');
 			}
 
+			if (command.webdriver) {
+				// Clear out any node or general suites
+				internArgs.push('node.suites=');
+				internArgs.push('suites=');
+
+				// If the user provided suites, apply them only to the browser
+				// environment
+				if (command.suites) {
+					internArgs.push(
+						...command.suites.map((suites: string) => {
+							return `browser.suites+=${suites}`;
+						})
+					);
+				}
+
+				// If the config had general suites, move them to the browser
+				// environment
+				if (config.suites) {
+					internArgs.push(
+						...config.suites.map((suites: string) => {
+							return `browser.suites+=${suites}`;
+						})
+					);
+				}
+			}
+
+			if (command.node && command.webdriver) {
+				die('Only one of --node and --webdriver may be specified');
+			}
+
 			// 'verbose' is a top-level option
 			if (command.parent.verbose) {
 				internArgs.push('verbose');
 			}
 
-			await runIntern(internDir, configFile, command.debug, internArgs);
+			await runIntern(internDir, file, command.debug, internArgs);
 		});
 
 	commands.watch = program
@@ -235,14 +271,13 @@ export default function install(context: CliContext) {
 				'unit tests when files are updated'
 		)
 		.action(async (_files, command) => {
-			const configFile = command.config || 'intern.json';
 			const { getConfig } = require(join(
 				internDir,
 				'lib',
 				'node',
 				'util'
 			));
-			const config = await getConfig(configFile);
+			const { config, file } = await getConfig(command.config);
 			const nodeSuites = [
 				...config.suites,
 				...(config.node ? config.node.suites : [])
@@ -275,13 +310,11 @@ export default function install(context: CliContext) {
 						'environments=',
 						...toTest.map(suite => `suites=${suite}`)
 					];
-					await runIntern(internDir, configFile, command.debug, args);
+					await runIntern(internDir, file, command.debug, args);
 				});
 			}
 
-			await runIntern(internDir, configFile, command.debug, [
-				'environments='
-			]);
+			await runIntern(internDir, file, command.debug, ['environments=']);
 		});
 
 	commands.serve.action((args, command) => {
