@@ -25,7 +25,7 @@
 
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 
-	"plugins": "_tests/tests/support/globalUi.js",
+	"require": "_tests/tests/support/globalUi.js",
 
 	"node": {
 		"suites": [
@@ -46,7 +46,10 @@
 			"_tests/tests/unit/lib/reporters/TeamCity.js",
 			"_tests/tests/unit/tasks/intern.js"
 		],
-		"plugins": "_tests/tests/support/nodeMocking.js",
+		"require": [
+			"_tests/tests/support/nodeMocking.js",
+			"source-map-support/register"
+		],
 		"reporters": {
 			"name": "runner",
 			"options": { "hideSkipped": true, "hidePassed": true }
@@ -55,7 +58,7 @@
 
 	"browser": {
 		"suites": ["_tests/tests/unit/lib/browser/util.js"],
-		"plugins": "_tests/tests/support/dojoMocking.js",
+		"require": "_tests/tests/support/dojoMocking.js",
 		"loader": {
 			"script": "dojo2",
 			"options": {

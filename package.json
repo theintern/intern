@@ -114,6 +114,7 @@
     "concurrently": "~3.5.0",
     "css-loader": "~0.28.4",
     "sinon": "~2.3.6",
+    "source-map-support": "~0.4.18",
     "style-loader": "~0.18.2",
     "stylus": "~0.54.5",
     "stylus-loader": "~3.0.1",

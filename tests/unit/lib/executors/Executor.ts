@@ -1,6 +1,6 @@
 import _Executor, { Config } from 'src/lib/executors/Executor';
 import Task from '@dojo/core/async/Task';
-import { spy } from 'sinon';
+import { sandbox as Sandbox, spy } from 'sinon';
 
 // Import isSuite from the testing source rather than the source being tested
 import { isSuite } from '../../../../src/lib/Suite';
@@ -37,16 +37,18 @@ registerSuite('lib/executors/Executor', function() {
 		}
 	}
 
+	const sandbox = Sandbox.create();
+	const testLoader = sandbox.spy((mods: string[]) => {
+		mods.forEach(mod => {
+			if (scripts[mod]) {
+				scripts[mod]();
+			}
+		});
+		return Promise.resolve();
+	});
+
 	function createExecutor(config?: Partial<Config>) {
 		const executor = new Executor(config);
-		const testLoader = spy((mods: string[]) => {
-			mods.forEach(mod => {
-				if (scripts[mod]) {
-					scripts[mod]();
-				}
-			});
-			return Promise.resolve();
-		});
 		executor.registerLoader((_config: Config) =>
 			Promise.resolve(testLoader)
 		);
@@ -55,17 +57,17 @@ registerSuite('lib/executors/Executor', function() {
 	}
 
 	const mockConsole = {
-		log: spy(() => {}),
-		warn: spy(() => {}),
-		error: spy(() => {})
+		log: sandbox.spy(() => {}),
+		warn: sandbox.spy(() => {}),
+		error: sandbox.spy(() => {})
 	};
 
 	const mockChai = {
 		assert: 'assert',
-		should: spy(() => 'should')
+		should: sandbox.spy(() => 'should')
 	};
 
-	const loadScript = spy((script: string) => {
+	const loadScript = sandbox.spy((script: string) => {
 		if (scripts[script]) {
 			return Task.resolve(scripts[script]());
 		}
@@ -101,10 +103,7 @@ registerSuite('lib/executors/Executor', function() {
 		},
 
 		beforeEach() {
-			mockConsole.log.reset();
-			mockConsole.warn.reset();
-			mockConsole.error.reset();
-			loadScript.reset();
+			sandbox.reset();
 			scripts = {};
 
 			executor = createExecutor();
@@ -157,9 +156,9 @@ registerSuite('lib/executors/Executor', function() {
 					baseline: false,
 					benchmark: false,
 					browser: {
-						plugins: [],
 						reporters: [],
 						require: [],
+						scripts: [],
 						suites: []
 					},
 					coverageVariable: '__coverage__',
@@ -170,14 +169,14 @@ registerSuite('lib/executors/Executor', function() {
 					loader: { script: 'default' },
 					name: 'intern',
 					node: {
-						plugins: [],
 						reporters: [],
 						require: [],
+						scripts: [],
 						suites: []
 					},
-					plugins: [],
 					reporters: [],
 					require: [],
+					scripts: [],
 					sessionId: '',
 					suites: <string[]>[]
 				};
@@ -234,32 +233,32 @@ registerSuite('lib/executors/Executor', function() {
 
 				'environment config mixin'() {
 					executor.configure(<any>{
-						node: { suites: ['foo'], plugins: ['bar'] }
+						node: { suites: ['foo'], require: ['bar'] }
 					});
 					assert.deepEqual<any>(
 						executor.config.node,
 						{
 							suites: ['foo'],
-							plugins: [{ script: 'bar' }],
 							reporters: [],
-							require: []
+							require: [{ script: 'bar' }],
+							scripts: []
 						},
 						'values should have been set on node'
 					);
 					executor.configure(<any>{
 						node: {
 							'suites+': ['bif'],
-							plugins: ['buf'],
-							reporters: ['bof']
+							reporters: ['bof'],
+							require: ['buf']
 						}
 					});
 					assert.deepEqual<any>(
 						executor.config.node,
 						{
 							suites: ['foo', 'bif'],
-							plugins: [{ script: 'buf' }],
 							reporters: [{ name: 'bof' }],
-							require: []
+							require: [{ script: 'buf' }],
+							scripts: []
 						},
 						'values should have been mixed into node'
 					);
@@ -360,7 +359,8 @@ registerSuite('lib/executors/Executor', function() {
 						},
 
 						reporters: objectArrayTest('reporters', 'name'),
-						plugins: objectArrayTest('plugins', 'script'),
+						require: objectArrayTest('require', 'script'),
+						scripts: objectArrayTest('scripts', 'script'),
 
 						suites() {
 							test('suites', 5, 'foo', ['foo'], /Non-string\[\]/);
@@ -387,9 +387,9 @@ registerSuite('lib/executors/Executor', function() {
 								5,
 								{},
 								{
-									plugins: [],
 									reporters: [],
 									require: [],
+									scripts: [],
 									suites: []
 								},
 								/Non-object/
@@ -399,9 +399,9 @@ registerSuite('lib/executors/Executor', function() {
 								5,
 								{},
 								{
-									plugins: [],
 									reporters: [],
 									require: [],
+									scripts: [],
 									suites: []
 								},
 								/Non-object/
@@ -411,9 +411,9 @@ registerSuite('lib/executors/Executor', function() {
 								5,
 								{ suites: 'foo' },
 								{
-									plugins: [],
 									reporters: [],
 									require: [],
+									scripts: [],
 									suites: ['foo']
 								},
 								/Non-object/
@@ -615,7 +615,7 @@ registerSuite('lib/executors/Executor', function() {
 
 			'#registerPlugin': {
 				config() {
-					executor.configure({ plugins: <any>'foo.js' });
+					executor.configure({ require: 'foo.js' });
 					const pluginInit = spy(() => 'bar');
 					const pluginScript = spy(() => {
 						executor.registerPlugin('foo', pluginInit);
@@ -637,7 +637,7 @@ registerSuite('lib/executors/Executor', function() {
 				},
 
 				direct() {
-					executor.configure({ plugins: <any>'foo.js' });
+					executor.configure({ require: 'foo.js' });
 					const pluginInit = spy(() => 'bar');
 					executor.registerPlugin('foo', pluginInit);
 					return executor.run().then(() => {
@@ -666,9 +666,9 @@ registerSuite('lib/executors/Executor', function() {
 						'    "baseline": false,\n' +
 						'    "benchmark": false,\n' +
 						'    "browser": {\n' +
-						'        "plugins": [],\n' +
 						'        "reporters": [],\n' +
 						'        "require": [],\n' +
+						'        "scripts": [],\n' +
 						'        "suites": []\n' +
 						'    },\n' +
 						'    "coverageVariable": "__coverage__",\n' +
@@ -682,14 +682,14 @@ registerSuite('lib/executors/Executor', function() {
 						'    },\n' +
 						'    "name": "intern",\n' +
 						'    "node": {\n' +
-						'        "plugins": [],\n' +
 						'        "reporters": [],\n' +
 						'        "require": [],\n' +
+						'        "scripts": [],\n' +
 						'        "suites": []\n' +
 						'    },\n' +
-						'    "plugins": [],\n' +
 						'    "reporters": [],\n' +
 						'    "require": [],\n' +
+						'    "scripts": [],\n' +
 						'    "sessionId": "",\n' +
 						'    "showConfig": true,\n' +
 						'    "suites": []\n' +

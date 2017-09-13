@@ -51,7 +51,6 @@ export default abstract class Executor<
 	protected _loader: Loader;
 	protected _loaderOptions: any;
 	protected _loaderInit: Promise<Loader>;
-	protected _autoLoadingPlugins: boolean;
 	protected _loadingPlugins: { name: string; init: Task<void> }[];
 	protected _loadingPluginOptions: any | undefined;
 	protected _listeners: { [event: string]: Listener<any>[] };
@@ -66,9 +65,9 @@ export default abstract class Executor<
 			baseline: false,
 			benchmark: false,
 			browser: {
-				plugins: <PluginDescriptor[]>[],
+				require: <(string | ScriptDescriptor)[]>[],
 				reporters: <ReporterDescriptor[]>[],
-				require: <string[]>[],
+				scripts: <(string | ScriptDescriptor)[]>[],
 				suites: <string[]>[]
 			},
 			coverageVariable: '__coverage__',
@@ -79,14 +78,14 @@ export default abstract class Executor<
 			loader: { script: 'default' },
 			name: 'intern',
 			node: {
-				plugins: <PluginDescriptor[]>[],
+				require: <(string | ScriptDescriptor)[]>[],
 				reporters: <ReporterDescriptor[]>[],
-				require: <string[]>[],
+				scripts: <(string | ScriptDescriptor)[]>[],
 				suites: <string[]>[]
 			},
-			plugins: <PluginDescriptor[]>[],
+			require: <(string | ScriptDescriptor)[]>[],
 			reporters: <ReporterDescriptor[]>[],
-			require: <string[]>[],
+			scripts: <(string | ScriptDescriptor)[]>[],
 			sessionId: '',
 			suites: <string[]>[]
 		};
@@ -600,9 +599,9 @@ export default abstract class Executor<
 					let currentTask: Task<void>;
 
 					this._runTask = this._runTask
-						.then(() => this._loadRequires())
+						.then(() => this._loadScripts())
 						.then(() => this._loadLoader())
-						.then(() => this._loadPlugins())
+						.then(() => this._loadRequires())
 						.then(() => this._loadSuites())
 						.then(() => this._beforeRun())
 						.then((skipTests: boolean) => {
@@ -815,11 +814,11 @@ export default abstract class Executor<
 	/**
 	 * Evaluate a config property key
 	 */
-	protected _evalProperty(key: string) {
+	protected _evalProperty(key: string): EvaluatedProperty<C> {
 		const addToExisting = key[key.length - 1] === '+';
-		const name = addToExisting
+		const name = <keyof C>(addToExisting
 			? <keyof C>key.slice(0, key.length - 1)
-			: key;
+			: key);
 		return { name, addToExisting };
 	}
 
@@ -866,56 +865,68 @@ export default abstract class Executor<
 	}
 
 	/**
-	 * Load plugins
+	 * Load scripts in the `require` list using an external loader, if
+	 * configured, or the platform's native loading mechanism
 	 */
-	protected _loadPlugins() {
-		const plugins = this.config.plugins.concat(
-			this.config[this.environment].plugins
-		);
-
-		this._autoLoadingPlugins = true;
-
-		return (
-			plugins
-				// Load configured plugins sequentiallly
-				.reduce((previous, plugin) => {
-					return previous.then(() => {
-						this._loadingPluginOptions = plugin.options;
-						return this._loader([plugin.script]).then(() => {
-							this._loadingPluginOptions = undefined;
-						});
-					});
-				}, Task.resolve())
-				.finally(() => {
-					this._autoLoadingPlugins = false;
-				})
-				.then(() => {
-					// Wait for all plugin registrations, both configured ones
-					// and any that were manually registered, to resolve
-					return Task.all(
-						this._loadingPlugins.map(entry => entry.init)
-					).then(plugins => {
-						plugins.forEach((plugin, index) => {
-							const { name } = this._loadingPlugins[index];
-							this._assignPlugin(name, plugin);
-						});
-					});
-				})
+	protected _loadRequires() {
+		const scripts = [
+			...this.config.require,
+			...this.config[this.environment].require
+		];
+		return this._loadScriptsWithLoader(scripts, script =>
+			this._loader([script])
 		);
 	}
 
 	/**
-	 * Load scripts in the `require` list. These will be loaded sequentially in
-	 * order using a platform-specific loading mechanism (script injection or
-	 * Node's require).
+	 * Load scripts in the `scripts` list using the platform's native loading
+	 * mechanism
 	 */
-	protected _loadRequires() {
-		const requires = this.config.require.concat(
-			this.config[this.environment].require
+	protected _loadScripts() {
+		const scripts = [
+			...this.config.scripts,
+			...this.config[this.environment].scripts
+		];
+		return this._loadScriptsWithLoader(scripts, script =>
+			this.loadScript(script)
 		);
-		return requires.reduce((previous, script) => {
-			return previous.then(() => this.loadScript(script));
-		}, Task.resolve());
+	}
+
+	/**
+	 * Load a list of scripts using a given loader. These will be loaded
+	 * sequentially in order.
+	 */
+	protected _loadScriptsWithLoader(
+		scripts: ScriptDescriptor[],
+		loader: (script: string) => Promise<void>
+	) {
+		return scripts
+			.reduce((previous, script) => {
+				if (typeof script === 'string') {
+					return previous.then(() => load(script));
+				} else {
+					this._loadingPluginOptions = script.options;
+					return previous
+						.then(() => loader(script.script))
+						.then(() => {
+							this._loadingPluginOptions = undefined;
+						});
+				}
+			}, Task.resolve())
+			.then(() => {
+				// Wait for all plugin registrations, both configured ones
+				// and any that were manually registered, to resolve
+				return Task.all(
+					this._loadingPlugins.map(entry => entry.init)
+				).then(plugins => {
+					plugins.forEach((plugin, index) => {
+						this._assignPlugin(
+							this._loadingPlugins[index].name,
+							plugin
+						);
+					});
+				});
+			});
 	}
 
 	/**
@@ -982,6 +993,15 @@ export default abstract class Executor<
 				break;
 
 			case 'plugins':
+			case 'require':
+			case 'scripts':
+				if (name === 'plugins') {
+					this.emit('deprecated', {
+						original: 'plugins',
+						replacement: 'require'
+					});
+					name = 'require';
+				}
 				this._setOption(
 					name,
 					parseValue(name, value, 'object[]', 'script'),
@@ -989,7 +1009,6 @@ export default abstract class Executor<
 				);
 				break;
 
-			case 'require':
 			case 'suites':
 				this._setOption(
 					name,
@@ -1006,7 +1025,7 @@ export default abstract class Executor<
 				if (value) {
 					Object.keys(value).forEach((key: keyof ResourceConfig) => {
 						let resource = value[key];
-						const { name, addToExisting } = this._evalProperty(key);
+						let { name, addToExisting } = this._evalProperty(key);
 						switch (name) {
 							case 'loader':
 								resource = parseValue(
@@ -1019,20 +1038,6 @@ export default abstract class Executor<
 									name,
 									resource,
 									false,
-									<C>envConfig
-								);
-								break;
-							case 'plugins':
-								resource = parseValue(
-									'plugins',
-									resource,
-									'object[]',
-									'script'
-								);
-								this._setOption(
-									name,
-									resource,
-									addToExisting,
 									<C>envConfig
 								);
 								break;
@@ -1050,10 +1055,32 @@ export default abstract class Executor<
 									<C>envConfig
 								);
 								break;
+							case 'plugins':
 							case 'require':
+							case 'scripts':
+								if (name === 'plugins') {
+									this.emit('deprecated', {
+										original: 'plugins',
+										replacement: 'require'
+									});
+									name = 'require';
+								}
+								resource = parseValue(
+									name,
+									resource,
+									'object[]',
+									'script'
+								);
+								this._setOption(
+									name,
+									resource,
+									addToExisting,
+									<C>envConfig
+								);
+								break;
 							case 'suites':
 								resource = parseValue(
-									'suites',
+									name,
 									resource,
 									'string[]'
 								);
@@ -1184,16 +1211,6 @@ export interface ResourceConfig {
 	loader: LoaderDescriptor;
 
 	/**
-	 * A list of scripts to load before suites are loaded.
-	 *
-	 * These must be simple scripts, not modules, as a module loader may not be
-	 * available when these are loaded. Also, these scripts should be
-	 * synchronous. If they need to run async actions, they can register
-	 * listeners for the 'runBefore' or 'runAfter' executor events.
-	 */
-	plugins: PluginDescriptor[];
-
-	/**
 	 * A list of reporter names or descriptors.
 	 *
 	 * Reporters specified in this list must have been previously installed
@@ -1216,10 +1233,19 @@ export interface ResourceConfig {
 	reporters: ReporterDescriptor[];
 
 	/**
-	 * A list of scripts or modules to load before any loader, plugins, or
-	 * suites.
+	 * A list of scripts or modules to load before suites are loaded.
 	 */
-	require: string[];
+	require: ScriptDescriptor[];
+
+	/**
+	 * A list of scripts to load before any loader, plugins, or suites.
+	 *
+	 * These must be simple scripts, not modules, as a module loader may not be
+	 * available when these are loaded. Also, these scripts should be
+	 * synchronous. If they need to run async actions, they can register
+	 * listeners for the 'runBefore' or 'runAfter' executor events.
+	 */
+	scripts: ScriptDescriptor[];
 
 	/**
 	 * A list of paths or glob expressions that point to suite scripts.
@@ -1305,20 +1331,34 @@ export interface Config extends ResourceConfig {
 	showConfig: boolean;
 }
 
+/**
+ * A descriptor object used to load a built-in reporter
+ */
 export interface ReporterDescriptor {
 	name: string;
 	options?: ReporterOptions;
 }
 
-export interface PluginDescriptor {
+/**
+ * A descriptor object for a script. If an options value is present, the
+ * descriptor is assumed to refer to a plugin, and the options will be passed to
+ * the plugins initializer function.
+ */
+export interface ScriptDescriptor {
 	script: string;
 	options?: any;
 }
 
+/**
+ * A generic event listener
+ */
 export interface Listener<T> {
 	(arg: T): void | Promise<void>;
 }
 
+/**
+ * The data accompanying a coverage event
+ */
 export interface CoverageMessage {
 	sessionId?: string;
 	source?: string;
@@ -1413,4 +1453,9 @@ export interface LoaderDescriptor {
 
 export interface PluginInitializer<T extends any = any> {
 	(options?: { [key: string]: any }): Task<T> | T;
+}
+
+export interface EvaluatedProperty<C extends Config = Config> {
+	name: keyof C;
+	addToExisting: boolean;
 }
