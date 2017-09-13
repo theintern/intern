@@ -1,5 +1,5 @@
 import _Browser, { Config } from 'src/lib/executors/Browser';
-import { spy } from 'sinon';
+import { spy, sandbox as Sandbox } from 'sinon';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
@@ -22,24 +22,26 @@ registerSuite('lib/executors/Browser', function() {
 		}
 	}
 
+	const sandbox = Sandbox.create();
+
 	const mockConsole = {
-		log: spy(() => {}),
-		warn: spy(() => {}),
-		error: spy(() => {})
+		log: sandbox.spy(() => {}),
+		warn: sandbox.spy(() => {}),
+		error: sandbox.spy(() => {})
 	};
 
 	const mockChai = {
 		assert: 'assert',
-		should: spy(() => 'should')
+		should: sandbox.spy(() => 'should')
 	};
 
 	const mockGlobal = {
 		console: mockConsole,
 		location: { pathname: '/' },
 		__coverage__: {},
-		addEventListener: spy(() => {}),
+		addEventListener: sandbox.spy(() => {}),
 		document: {
-			createElement: spy(() => {
+			createElement: sandbox.spy(() => {
 				return {
 					addEventListener(_name: string, callback: () => void) {
 						callback();
@@ -47,7 +49,7 @@ registerSuite('lib/executors/Browser', function() {
 				};
 			}),
 			body: {
-				appendChild: spy(() => {})
+				appendChild: sandbox.spy(() => {})
 			}
 		}
 	};
@@ -77,12 +79,7 @@ registerSuite('lib/executors/Browser', function() {
 		},
 
 		afterEach() {
-			mockConsole.log.reset();
-			mockConsole.warn.reset();
-			mockConsole.error.reset();
-			mockGlobal.addEventListener.reset();
-			mockGlobal.document.createElement.reset();
-			mockGlobal.document.body.appendChild.reset();
+			sandbox.reset();
 		},
 
 		tests: {
@@ -106,12 +103,14 @@ registerSuite('lib/executors/Browser', function() {
 						.args[1];
 					const reason = new Error('foo');
 					handler({ reason });
-					assert.equal(logger.callCount, 1);
-					assert.strictEqual(
-						logger.getCall(0).args[0],
-						reason,
-						'expected emitted error to be error passed to listener'
-					);
+					return executor.run().then(() => {
+						assert.equal(logger.callCount, 1);
+						assert.strictEqual(
+							logger.getCall(0).args[0],
+							reason,
+							'expected emitted error to be error passed to listener'
+						);
+					});
 				},
 
 				'unhandled error'() {
@@ -120,13 +119,15 @@ registerSuite('lib/executors/Browser', function() {
 					const handler = mockGlobal.addEventListener.getCall(1)
 						.args[1];
 					handler({ message: 'foo' });
-					assert.equal(logger.callCount, 1);
-					assert.propertyVal(
-						logger.getCall(0).args[0],
-						'message',
-						'foo',
-						'expected emitted error to be error passed to listener'
-					);
+					return executor.run().then(() => {
+						assert.equal(logger.callCount, 1);
+						assert.propertyVal(
+							logger.getCall(0).args[0],
+							'message',
+							'foo',
+							'expected emitted error to be error passed to listener'
+						);
+					});
 				},
 
 				configure() {

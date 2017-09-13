@@ -43,6 +43,7 @@ export default abstract class Executor<
 	protected _assertions: { [name: string]: any };
 	protected _config: C;
 	protected _rootSuite: Suite;
+	protected _events: Event<E>[];
 	protected _errorFormatter: ErrorFormatter;
 	protected _hasSuiteErrors = false;
 	protected _hasTestErrors = false;
@@ -57,6 +58,7 @@ export default abstract class Executor<
 	protected _plugins: { [name: string]: any };
 	protected _reporters: Reporter[];
 	protected _runTask: Task<void>;
+	protected _reportersInitialized: boolean;
 
 	constructor(options?: { [key in keyof C]?: any }) {
 		this._config = <C>{
@@ -89,6 +91,8 @@ export default abstract class Executor<
 			suites: <string[]>[]
 		};
 
+		this._reportersInitialized = false;
+		this._events = [];
 		this._listeners = {};
 		this._reporters = [];
 		this._plugins = {};
@@ -111,8 +115,17 @@ export default abstract class Executor<
 		// ends, it will emit a coverage message before any other suiteEnd
 		// listeners are called.
 		this.on('suiteEnd', suite => {
+			if (suite.error) {
+				this._hasSuiteErrors = true;
+			}
 			if (!suite.hasParent && !suite.sessionId) {
 				return this._emitCoverage('unit tests');
+			}
+		});
+
+		this.on('testEnd', test => {
+			if (test.error) {
+				this._hasTestErrors = true;
 			}
 		});
 	}
@@ -214,10 +227,10 @@ export default abstract class Executor<
 	emit(eventName: 'runEnd'): Task<void>;
 	emit<T extends keyof E>(eventName: T, data: E[T]): Task<void>;
 	emit<T extends keyof E>(eventName: T, data?: E[T]) {
-		if (eventName === 'suiteEnd' && (<Suite>data).error) {
-			this._hasSuiteErrors = true;
-		} else if (eventName === 'testEnd' && (<Test>data).error) {
-			this._hasTestErrors = true;
+		// If reporters haven't been loaded yet, queue the event for later
+		if (!this._reportersInitialized) {
+			this._events.push({ eventName, data });
+			return Task.resolve();
 		}
 
 		const notifications: Promise<any>[] = [];
@@ -240,8 +253,9 @@ export default abstract class Executor<
 		}
 
 		if (notifications.length === 0) {
-			// Report errors, warnings, deprecation messages when no listeners are registered
+			// If reporters haven't been loaded yet, cache the event
 			if (error) {
+				// Report errors, warnings, deprecation messages when no listeners are registered
 				error.reported = true;
 				console.error(this.formatError(error));
 			} else if (eventName === 'warning') {
@@ -550,7 +564,9 @@ export default abstract class Executor<
 			let runError: Error;
 
 			try {
-				this._runTask = this._resolveConfig();
+				this._runTask = this._resolveConfig().then(() =>
+					this._initReporters()
+				);
 
 				if (this.config.showConfig) {
 					this._runTask = this._runTask
@@ -638,6 +654,11 @@ export default abstract class Executor<
 							);
 							return currentTask;
 						})
+						.finally(() => {
+							// Ensure any queued events have been emitted.
+							this._reportersInitialized = true;
+							return this._drainEventQueue();
+						})
 						.finally(() => this._afterRun())
 						.finally(() => {
 							if (
@@ -720,9 +741,21 @@ export default abstract class Executor<
 	 * This method returns a Task that resolves to a boolean. A value of true
 	 * indicates that Intern should skip running tests and exit normally.
 	 */
-	protected _beforeRun(): Task<boolean> {
-		const config = this.config;
+	protected _beforeRun() {
+		const { bail, grep, name, sessionId, defaultTimeout } = this.config;
+		this._rootSuite.bail = bail;
+		this._rootSuite.grep = grep;
+		this._rootSuite.name = name;
+		this._rootSuite.sessionId = sessionId;
+		this._rootSuite.timeout = defaultTimeout;
+		return Task.resolve(false);
+	}
 
+	/**
+	 * Instantiate any configured built-in reporters
+	 */
+	protected _initReporters() {
+		const config = this.config;
 		const envReporters = config[this.environment].reporters;
 
 		// Take reporters from the base config that aren't also specified in an
@@ -748,13 +781,24 @@ export default abstract class Executor<
 			this._reporters.push(new ReporterClass(this, reporter.options));
 		});
 
-		this._rootSuite.bail = config.bail;
-		this._rootSuite.grep = config.grep;
-		this._rootSuite.name = config.name;
-		this._rootSuite.sessionId = config.sessionId;
-		this._rootSuite.timeout = config.defaultTimeout;
+		this._reportersInitialized = true;
 
-		return Task.resolve(false);
+		return this._drainEventQueue();
+	}
+
+	/**
+	 * Emit any queued events. The event queue will be empty after this method
+	 * runs.
+	 */
+	protected _drainEventQueue() {
+		let task = Task.resolve();
+		while (this._events.length > 0) {
+			const event = this._events.shift()!;
+			task = task.then(() => {
+				return this.emit(event.eventName, event.data);
+			});
+		}
+		return task;
 	}
 
 	protected _emitCoverage(source?: string) {
@@ -1093,6 +1137,11 @@ export default abstract class Executor<
 	protected _runTests() {
 		return this._rootSuite.run();
 	}
+}
+
+export interface Event<E extends Events = Events> {
+	eventName: keyof E;
+	data?: any;
 }
 
 export interface ExecutorConstructor<

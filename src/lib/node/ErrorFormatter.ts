@@ -5,11 +5,9 @@ import { MappingItem, SourceMapConsumer } from 'source-map';
 import { readSourceMap } from './util';
 import Node from '../executors/Node';
 
-export default class NodeErrorFormatter extends ErrorFormatter {
+export default class NodeErrorFormatter extends ErrorFormatter<Node> {
 	private fileSourceMaps: { [path: string]: SourceMapConsumer } = {};
 	private fileSources: { [path: string]: string } = {};
-
-	readonly executor: Node;
 
 	constructor(executor: Node) {
 		super(executor);

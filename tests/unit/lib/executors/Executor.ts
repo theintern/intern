@@ -141,10 +141,13 @@ registerSuite('lib/executors/Executor', function() {
 					);
 
 					executor.emit('suiteEnd', <any>{});
-					assert.isTrue(
-						coverageEmitted,
-						'coverage should have been emitted for root suite'
-					);
+
+					return executor.run().then(() => {
+						assert.isTrue(
+							coverageEmitted,
+							'coverage should have been emitted for root suite'
+						);
+					});
 				}
 			},
 
@@ -427,10 +430,12 @@ registerSuite('lib/executors/Executor', function() {
 						notified = true;
 					});
 					executor.emit('suiteEnd', <any>{});
-					assert.isTrue(
-						notified,
-						'listener should have been notified'
-					);
+					return executor.run().then(() => {
+						assert.isTrue(
+							notified,
+							'listener should have been notified'
+						);
+					});
 				},
 
 				'fails if a listener fails'() {
@@ -441,7 +446,7 @@ registerSuite('lib/executors/Executor', function() {
 						return Promise.reject<void>(new Error('foo'));
 					});
 
-					return executor.emit('suiteEnd', <any>{}).then(
+					return executor.run().then(
 						() => {
 							throw new Error('emit should have rejected');
 						},
@@ -463,38 +468,49 @@ registerSuite('lib/executors/Executor', function() {
 
 				'star listener'() {
 					const events: string[] = [];
+					const expected = [
+						'beforeRun',
+						'runStart',
+						'suiteStart',
+						'coverage',
+						'suiteEnd',
+						'runEnd',
+						'afterRun'
+					];
 					executor.on('*', (event: { name: string; data: any }) => {
 						events.push(event.name);
 					});
 					return executor
-						.emit('suiteStart', <any>{})
+						.run()
 						.then(() => {
-							assert.deepEqual(events, ['suiteStart']);
+							assert.deepEqual(events, expected);
 							return executor.emit('testStart', <any>{});
 						})
 						.then(() => {
 							assert.deepEqual(events, [
-								'suiteStart',
+								...expected,
 								'testStart'
 							]);
 						});
 				},
 
 				'no error listeners'() {
-					executor.emit('error', new Error('foo'));
-					assert.equal(
-						mockConsole.error.callCount,
-						1,
-						'an error should have been logged to the console'
-					);
+					return executor.run().then(() => {
+						executor.emit('error', new Error('foo'));
+						assert.equal(
+							mockConsole.error.callCount,
+							1,
+							'an error should have been logged to the console'
+						);
 
-					executor.on('error', () => {});
-					executor.emit('error', new Error('foo'));
-					assert.equal(
-						mockConsole.error.callCount,
-						1,
-						'an error should not have been logged'
-					);
+						executor.on('error', () => {});
+						executor.emit('error', new Error('foo'));
+						assert.equal(
+							mockConsole.error.callCount,
+							1,
+							'an error should not have been logged'
+						);
+					});
 				}
 			},
 
@@ -529,65 +545,71 @@ registerSuite('lib/executors/Executor', function() {
 				);
 
 				const debugExecutor = createExecutor({ debug: true });
-				debugExecutor.on('log', logger);
-				debugExecutor.log(
-					'testing',
-					new Error('foo'),
-					() => {},
-					/bar/,
-					5
-				);
-				assert.equal(
-					logger.callCount,
-					1,
-					'log should have been emitted'
-				);
-				assert.match(
-					logger.getCall(0).args[0],
-					/^testing .*Error.*foo.* function \(\) {[^]*} \/bar\/ 5$/,
-					'expected all args to have been serialized in log message'
-				);
+				return debugExecutor.run().then(() => {
+					debugExecutor.on('log', logger);
+					debugExecutor.log(
+						'testing',
+						new Error('foo'),
+						() => {},
+						/bar/,
+						5
+					);
+					assert.equal(
+						logger.callCount,
+						1,
+						'log should have been emitted'
+					);
+					assert.match(
+						logger.getCall(0).args[0],
+						/^testing .*Error.*foo.* function \(\) {[^]*} \/bar\/ 5$/,
+						'expected all args to have been serialized in log message'
+					);
+				});
 			},
 
 			'#on': {
 				'single event'() {
 					const logger = spy(() => {});
 					const handle = executor.on('testStart', logger);
-					executor.emit('testStart', <any>{});
-					assert.equal(
-						logger.callCount,
-						1,
-						'listener should have been called'
-					);
-					handle.destroy();
-					executor.emit('testStart', <any>{});
-					assert.equal(
-						logger.callCount,
-						1,
-						'listener should not have been called'
-					);
-
-					// Calling handle again should be fine
-					assert.doesNotThrow(() => {
+					return executor.run().then(() => {
+						executor.emit('testStart', <any>{});
+						assert.equal(
+							logger.callCount,
+							1,
+							'listener should have been called'
+						);
 						handle.destroy();
+						executor.emit('testStart', <any>{});
+						assert.equal(
+							logger.callCount,
+							1,
+							'listener should not have been called'
+						);
+
+						// Calling handle again should be fine
+						assert.doesNotThrow(() => {
+							handle.destroy();
+						});
 					});
 				},
 
 				'all events'() {
 					const logger = spy(() => {});
-					executor.on(logger);
-					executor.emit('testStart', <any>{});
-					assert.equal(
-						logger.callCount,
-						1,
-						'listener should have been called'
-					);
-					executor.emit('testEnd', <any>{});
-					assert.equal(
-						logger.callCount,
-						2,
-						'listener should have been called'
-					);
+					return executor.run().then(() => {
+						executor.on(logger);
+						executor.emit('testStart', <any>{});
+						assert.equal(
+							logger.callCount,
+							1,
+							'listener should have been called'
+						);
+						executor.emit('testEnd', <any>{});
+						assert.equal(
+							logger.callCount,
+							2,
+							'listener should have been called'
+						);
+					});
 				}
 			},
 
@@ -725,7 +747,10 @@ registerSuite('lib/executors/Executor', function() {
 							Promise.resolve({})
 						);
 						executor.configure({ reporters: <any>'foo' });
-						return assertRunFails(executor, /A reporter plugin/);
+						return assertRunFails(
+							executor,
+							/A plugin .* not been registered/
+						);
 					}
 				},
 
