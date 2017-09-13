@@ -28,8 +28,8 @@ import cli4, {
 let internDir: any;
 let internPkg: any;
 
-const pkg = require('../../../package.json');
-const minVersion = '3.0.0';
+const pkg = require('../package.json');
+const minVersion = cli3Min;
 const testsDir = 'tests';
 const commands: { [name: string]: program.ICommand } = Object.create(null);
 const browsers = {
