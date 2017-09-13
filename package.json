@@ -1,6 +1,6 @@
 {
   "name": "@theintern/cli",
-  "version": "0.2.0-pre",
+  "version": "1.0.0-pre",
   "description": "The command line interface for Intern",
   "repository": {
     "type": "git",
