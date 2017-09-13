@@ -1,10 +1,10 @@
-import { spawn } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import * as opn from 'opn';
 import { existsSync, mkdirSync, statSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { createInterface } from 'readline';
 import { watch } from 'chokidar';
-import { die, print, readJsonFile } from './util';
+import { collect, die, print, readJsonFile } from './util';
 import { CliContext } from './interfaces';
 
 export const minVersion = '4.0.0';
@@ -28,6 +28,23 @@ export default function install(context: CliContext) {
 	const browserReporters = ['html', 'dom', 'console'];
 	const tunnels = ['null', 'selenium', 'saucelabs', 'browserstack', 'cbt'];
 
+	program.on('--help', () => {
+		try {
+			const text = execSync(
+				`${join(internDir, 'bin', 'intern.js')} showConfigs`,
+				{ encoding: 'utf8' }
+			).trim();
+			if (text) {
+				print([`Using config file at ${defaultConfig}:`, '']);
+				print(`  ${text}`);
+			} else {
+				print(`Using config file at ${defaultConfig}`);
+			}
+		} catch (error) {
+			// ignore
+		}
+	});
+
 	commands.init.action(async options => {
 		const rl = createInterface({
 			input: process.stdin,
@@ -44,7 +61,7 @@ export default function install(context: CliContext) {
 		}
 
 		try {
-			const configFile = 'intern.json';
+			const configFile = defaultConfig;
 			let data: any;
 
 			// TODO should this also deal with extended configs?
@@ -125,15 +142,15 @@ export default function install(context: CliContext) {
 			}
 
 			let answer = await new Promise<string>(resolve => {
+				print();
 				print([
-					'',
-					'The existing intern.json has the following ' +
+					'The existing config file has the following ' +
 						`value for ${name}:`,
 					''
 				]);
 				print('  ', data[name]);
+				print();
 				print([
-					'',
 					'The default value based on our project layout is:',
 					''
 				]);
@@ -152,12 +169,30 @@ export default function install(context: CliContext) {
 	commands.run
 		.option(
 			'-c, --config <file>[@config]',
-			'config file to use (default is intern.json)'
+			`config file to use (default is ${defaultConfig})`
+		)
+		.option(
+			'-f, --fsuites <file|glob>',
+			'specify a functional suite to run (can be used multiple times)',
+			collect,
+			[]
+		)
+		.option(
+			'-r, --reporters <name>',
+			'specify a reporter (can be used multiple times)',
+			collect,
+			[]
+		)
+		.option(
+			'-s, --suites <file|glob>',
+			'specify a suite to run (can be used multiple times)',
+			collect,
+			[]
 		)
 		.option('-n, --node', 'only run Node-based unit tests')
 		.on('--help', () => {
+			print('\n');
 			print([
-				'',
 				'Node reporters:',
 				'',
 				`  ${nodeReporters.join(', ')}`,
@@ -168,9 +203,9 @@ export default function install(context: CliContext) {
 				'',
 				'Tunnels:',
 				'',
-				`  ${tunnels.join(', ')}`,
-				''
+				`  ${tunnels.join(', ')}`
 			]);
+			print();
 		})
 		.action(async (args, command) => {
 			const { getConfig } = require(join(
@@ -258,7 +293,7 @@ export default function install(context: CliContext) {
 
 			// 'verbose' is a top-level option
 			if (command.parent.verbose) {
-				internArgs.push('verbose');
+				internArgs.push('debug');
 			}
 
 			await runIntern(internDir, file, command.debug, internArgs);
@@ -318,7 +353,7 @@ export default function install(context: CliContext) {
 		});
 
 	commands.serve.action((args, command) => {
-		const config = command.config || 'intern.json';
+		const config = command.config || defaultConfig;
 		const internCmd = join(internDir, 'bin', 'intern.js');
 
 		// Allow user-specified args in the standard intern format to be passed
@@ -372,8 +407,8 @@ export default function install(context: CliContext) {
 				if (command.open) {
 					opn(`http://${address}${internPath}`);
 				} else {
+					print();
 					print([
-						'',
 						'To run unit tests, browse to:',
 						'',
 						`  http://${address}${internPath}`
@@ -438,3 +473,5 @@ export default function install(context: CliContext) {
 			});
 	}
 }
+
+const defaultConfig = 'intern.json';

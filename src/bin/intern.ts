@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 
-import * as program from 'commander';
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { sync as resolve } from 'resolve';
 import { createInterface } from 'readline';
 import { execSync } from 'child_process';
 
+import program from '../lib/commander';
 import {
 	acceptVersion,
-	collect,
 	die,
 	enumArg,
 	getLogger,
@@ -62,7 +61,11 @@ process.on('unhandledRejection', (error: Error) => {
 
 program
 	.version(pkg.version)
-	.description('Run JavaScript tests')
+	.description(
+		'Run JavaScript tests. If no command is given, Intern is ' +
+			'run using the default test config.  ' +
+			'Run `intern help run` for run options.'
+	)
 	.option(
 		'-v, --verbose',
 		'show more information about what Intern is doing'
@@ -75,15 +78,13 @@ program.on('option:verbose', () => {
 program
 	.command('version')
 	.description('Show versions of intern-cli and intern')
-	.on('--help', () => {
-		print();
-	})
 	.action(() => {
 		const text = [`intern-cli: ${pkg.version}`];
 		if (internDir) {
 			text.push(`intern: ${internPkg.version}`);
 		}
-		print(['', ...text, '']);
+		print();
+		print([, ...text, '']);
 	});
 
 // Add a blank line after help
@@ -102,8 +103,6 @@ commands.help = program
 		if (command) {
 			command.outputHelp();
 		} else {
-			print();
-
 			if (cmdName) {
 				print(`Unknown command: ${cmdName}\n`);
 			}
@@ -111,7 +110,7 @@ commands.help = program
 			print(
 				'To get started with Intern, run `intern init` to setup a ' +
 					`"${testsDir}" directory and then ` +
-					'run `intern run` to start testing!'
+					'run `intern` to start testing!'
 			);
 			program.outputHelp();
 		}
@@ -127,8 +126,8 @@ commands.init = program
 		'chrome'
 	)
 	.on('--help', function() {
+		print();
 		print([
-			'\n',
 			`This command creates a "${testsDir}" directory with a ` +
 				'default Intern config file and some sample tests.',
 			'',
@@ -143,30 +142,12 @@ commands.run = program
 	.command('run [args...]')
 	.description('Run tests in Node or in a browser using WebDriver')
 	.option('-b, --bail', 'quit after the first failing test')
-	.option(
-		'-f, --fsuites <module ID>',
-		'specify a functional suite to run (can be used multiple times)',
-		collect,
-		[]
-	)
 	.option('-g, --grep <regex>', 'filter tests by ID')
 	.option(
 		'-l, --leaveRemoteOpen',
 		'leave the remote browser open after tests finish'
 	)
-	.option(
-		'-r, --reporters <name|module ID>',
-		'specify a reporter (can be used multiple times)',
-		collect,
-		[]
-	)
 	.option('-p, --port <port>', 'port that test proxy should serve on', intArg)
-	.option(
-		'-s, --suites <module ID>',
-		'specify a suite to run (can be used multiple times)',
-		collect,
-		[]
-	)
 	.option('-I, --noInstrument', 'disable instrumentation')
 	.option('--debug', 'enable the Node debugger')
 	.option(
@@ -195,9 +176,8 @@ commands.serve = program
 	.option('-p, --port <port>', 'port to serve on', intArg)
 	.option('-I, --noInstrument', 'disable instrumentation')
 	.on('--help', () => {
+		print('\n');
 		print([
-			'',
-			'',
 			'When running WebDriver tests, Intern runs a local server to ' +
 				'serve itself and the test files to the browser(s) running the ' +
 				'tests. This server can also be used instead of a dedicated web ' +
@@ -210,7 +190,7 @@ commands.serve = program
 commands['*'] = program
 	.command('*', undefined, { noHelp: true })
 	.action(command => {
-		print(`\nUnknown command: ${command}`);
+		print(`Unknown command: ${command}`);
 		program.outputHelp();
 	});
 
@@ -227,8 +207,8 @@ commands['*'] = program
 		});
 
 		try {
+			print();
 			print([
-				'',
 				'You need a local install of Intern to use this command.',
 				''
 			]);

@@ -9,7 +9,7 @@ import {
 	writeFileSync
 } from 'fs';
 import { basename, dirname, join } from 'path';
-import { copy, die, exitCodeForSignal, print } from './util';
+import { collect, copy, die, exitCodeForSignal, print } from './util';
 import { CliContext } from './interfaces';
 
 export const minVersion = '3.0.0';
@@ -114,9 +114,27 @@ export default function install(context: CliContext) {
 			'-c, --config <module ID|file>',
 			`config file to use (default is ${testsDir}/intern.js)`
 		)
+		.option(
+			'-f, --fsuites <module ID>',
+			'specify a functional suite to run (can be used multiple times)',
+			collect,
+			[]
+		)
+		.option(
+			'-r, --reporters <class name|module ID>',
+			'specify a reporter (can be used multiple times)',
+			collect,
+			[]
+		)
+		.option(
+			'-s, --suites <module ID>',
+			'specify a suite to run (can be used multiple times)',
+			collect,
+			[]
+		)
 		.on('--help', () => {
+			print();
 			print([
-				'\n',
 				'Tests may be run purely in Node using the Node client, or in a ' +
 					'browser using the WebDriver runner.',
 				'',
@@ -310,8 +328,8 @@ export default function install(context: CliContext) {
 				if (options.open) {
 					opn(`http://${address}${internPath}`);
 				} else {
+					print();
 					print([
-						'',
 						'To run unit tests, browse to:',
 						'',
 						`  http://${address}${internPath}`

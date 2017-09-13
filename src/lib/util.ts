@@ -11,6 +11,12 @@ import { join } from 'path';
 import { format as _format } from 'util';
 import { ICommand, IExportedCommand } from 'commander';
 
+export let screenWidth = 80;
+
+export function setWidth(width: number) {
+	screenWidth = width;
+}
+
 /**
  * Ensures that a semver is contained in a range
  */
@@ -153,26 +159,46 @@ export function readJsonFile(file: string) {
 }
 
 /**
- * Formats a string. This function works similarly to Node's `util.format`, but
- * it automatically wraps text at a given width, and prepends a prefix to all
- * lines.
+ * Wraps a string to a certain line length, maintaining the indent of the first
+ * line.
  */
-function format(...args: any[]) {
-	if (args.length === 0) {
-		return '';
-	}
-
-	const width = 80;
-	const prefix = '  ';
-	const message = _format(args[0], ...args.slice(1));
-	const messageLines = message.split('\n');
+export function wrap(
+	str: string,
+	options?: { width?: number; indent?: number }
+) {
+	const textStart = str.search(/\S/);
+	const prefix = str.slice(0, textStart);
+	const strLines = str.split('\n');
 	const lines: string[] = [];
 
-	let line = messageLines.shift();
+	options = options || {};
+	let indent = options.indent;
+	if (indent == null) {
+		indent = 0;
+	}
+	let width = options.width;
+	if (width == null) {
+		width = screenWidth - indent;
+	}
+
+	let addLine = (line: string) => {
+		lines.push(prefix + line);
+		let indentPrefix = '';
+		if (indent) {
+			for (let i = 0; i < indent; i++) {
+				indentPrefix += ' ';
+			}
+		}
+		addLine = (line: string) => {
+			lines.push(indentPrefix + prefix + line);
+		};
+	};
+
+	let line = strLines.shift()!.replace(/^\s*/, '');
 	while (line != null) {
 		if (line.length - prefix.length <= width) {
-			lines.push(prefix + line);
-			line = messageLines.shift();
+			addLine(line);
+			line = strLines.shift()!;
 		} else {
 			const shortLine = line.slice(0, width - prefix.length);
 			const start = shortLine.search(/\S/);
@@ -185,14 +211,28 @@ function format(...args: any[]) {
 				// Maintain the line's relative indent as well as the overall
 				// indent
 				const linePrefix = line.slice(0, line.search(/\S/));
-				lines.push(prefix + line.slice(0, space));
+				addLine(line.slice(0, space));
 				line = linePrefix + line.slice(space + 1);
 			} else {
-				lines.push(prefix + line);
-				line = messageLines.shift();
+				addLine(line);
+				line = strLines.shift()!;
 			}
 		}
 	}
 
 	return lines.join('\n');
+}
+
+/**
+ * Formats a string. This function works similarly to Node's `util.format`, but
+ * it automatically wraps text at a given width and maintains the indent of the
+ * first line.
+ */
+function format(...args: any[]) {
+	if (args.length === 0) {
+		return '';
+	}
+
+	const message = _format(args[0], ...args.slice(1));
+	return wrap(message);
 }
