@@ -322,10 +322,15 @@ commands['*'] = program
 		});
 	}
 
-	program.parse(process.argv);
-
-	// If no command was given, show the help message
-	if (process.argv.length === 2) {
-		program.outputHelp();
+	// If no command was provided and the user didn't request help, run intern
+	// by default
+	const parsed = program.parseOptions(process.argv);
+	if (
+		parsed.args.length < 3 &&
+		!(parsed.unknown[0] === '-h' || parsed.unknown[0] === '--help')
+	) {
+		process.argv.splice(2, 0, 'run');
 	}
+
+	program.parse(process.argv);
 })();
