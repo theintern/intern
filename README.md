@@ -58,17 +58,11 @@ If you’re into name-dropping, Intern gets used every day by teams at Twitter, 
 
 ## TypeScript setup
 
-Intern installs a global variable that tests may not be aware of if nothing imports the base `intern` package. Also, Intern includes typings for several packages that haven’t made it onto DefinitelyTyped yet (and so can’t be installed as @types packages). To ensure all the necessary types are loaded, add the following statements to your `tsconfig.json`:
+Intern installs a global variable that tests may not be aware of if nothing imports the base `intern` package. Also, Intern includes typings for several packages that haven’t made it onto DefinitelyTyped yet (and so can’t be installed as @types packages). To ensure Intern’s types are loaded, add the following to your `tsconfig.json`:
 
 ```js
 {
-    "typeRoots": [
-        "./node_modules/@types",
-        "./node_modules/intern/types"
-    ],
-    "types": [
-        "intern"
-    ]
+    "types": ["intern"]
 }
 ```
 
