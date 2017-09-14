@@ -157,7 +157,7 @@ registerSuite('lib/executors/Executor', function() {
 					benchmark: false,
 					browser: {
 						reporters: [],
-						require: [],
+						requires: [],
 						scripts: [],
 						suites: []
 					},
@@ -170,12 +170,12 @@ registerSuite('lib/executors/Executor', function() {
 					name: 'intern',
 					node: {
 						reporters: [],
-						require: [],
+						requires: [],
 						scripts: [],
 						suites: []
 					},
 					reporters: [],
-					require: [],
+					requires: [],
 					scripts: [],
 					sessionId: '',
 					suites: <string[]>[]
@@ -233,14 +233,14 @@ registerSuite('lib/executors/Executor', function() {
 
 				'environment config mixin'() {
 					executor.configure(<any>{
-						node: { suites: ['foo'], require: ['bar'] }
+						node: { suites: ['foo'], requires: ['bar'] }
 					});
 					assert.deepEqual<any>(
 						executor.config.node,
 						{
 							suites: ['foo'],
 							reporters: [],
-							require: [{ script: 'bar' }],
+							requires: [{ script: 'bar' }],
 							scripts: []
 						},
 						'values should have been set on node'
@@ -249,7 +249,7 @@ registerSuite('lib/executors/Executor', function() {
 						node: {
 							'suites+': ['bif'],
 							reporters: ['bof'],
-							require: ['buf']
+							requires: ['buf']
 						}
 					});
 					assert.deepEqual<any>(
@@ -257,7 +257,7 @@ registerSuite('lib/executors/Executor', function() {
 						{
 							suites: ['foo', 'bif'],
 							reporters: [{ name: 'bof' }],
-							require: [{ script: 'buf' }],
+							requires: [{ script: 'buf' }],
 							scripts: []
 						},
 						'values should have been mixed into node'
@@ -359,7 +359,7 @@ registerSuite('lib/executors/Executor', function() {
 						},
 
 						reporters: objectArrayTest('reporters', 'name'),
-						require: objectArrayTest('require', 'script'),
+						requires: objectArrayTest('requires', 'script'),
 						scripts: objectArrayTest('scripts', 'script'),
 
 						suites() {
@@ -388,7 +388,7 @@ registerSuite('lib/executors/Executor', function() {
 								{},
 								{
 									reporters: [],
-									require: [],
+									requires: [],
 									scripts: [],
 									suites: []
 								},
@@ -400,7 +400,7 @@ registerSuite('lib/executors/Executor', function() {
 								{},
 								{
 									reporters: [],
-									require: [],
+									requires: [],
 									scripts: [],
 									suites: []
 								},
@@ -412,7 +412,7 @@ registerSuite('lib/executors/Executor', function() {
 								{ suites: 'foo' },
 								{
 									reporters: [],
-									require: [],
+									requires: [],
 									scripts: [],
 									suites: ['foo']
 								},
@@ -615,7 +615,7 @@ registerSuite('lib/executors/Executor', function() {
 
 			'#registerPlugin': {
 				config() {
-					executor.configure({ require: 'foo.js' });
+					executor.configure({ requires: 'foo.js' });
 					const pluginInit = spy(() => 'bar');
 					const pluginScript = spy(() => {
 						executor.registerPlugin('foo', pluginInit);
@@ -637,7 +637,7 @@ registerSuite('lib/executors/Executor', function() {
 				},
 
 				direct() {
-					executor.configure({ require: 'foo.js' });
+					executor.configure({ requires: 'foo.js' });
 					const pluginInit = spy(() => 'bar');
 					executor.registerPlugin('foo', pluginInit);
 					return executor.run().then(() => {
@@ -667,7 +667,7 @@ registerSuite('lib/executors/Executor', function() {
 						'    "benchmark": false,\n' +
 						'    "browser": {\n' +
 						'        "reporters": [],\n' +
-						'        "require": [],\n' +
+						'        "requires": [],\n' +
 						'        "scripts": [],\n' +
 						'        "suites": []\n' +
 						'    },\n' +
@@ -683,12 +683,12 @@ registerSuite('lib/executors/Executor', function() {
 						'    "name": "intern",\n' +
 						'    "node": {\n' +
 						'        "reporters": [],\n' +
-						'        "require": [],\n' +
+						'        "requires": [],\n' +
 						'        "scripts": [],\n' +
 						'        "suites": []\n' +
 						'    },\n' +
 						'    "reporters": [],\n' +
-						'    "require": [],\n' +
+						'    "requires": [],\n' +
 						'    "scripts": [],\n' +
 						'    "sessionId": "",\n' +
 						'    "showConfig": true,\n' +

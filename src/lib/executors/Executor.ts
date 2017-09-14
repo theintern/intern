@@ -65,7 +65,7 @@ export default abstract class Executor<
 			baseline: false,
 			benchmark: false,
 			browser: {
-				require: <(string | ScriptDescriptor)[]>[],
+				requires: <(string | ScriptDescriptor)[]>[],
 				reporters: <ReporterDescriptor[]>[],
 				scripts: <(string | ScriptDescriptor)[]>[],
 				suites: <string[]>[]
@@ -78,12 +78,12 @@ export default abstract class Executor<
 			loader: { script: 'default' },
 			name: 'intern',
 			node: {
-				require: <(string | ScriptDescriptor)[]>[],
+				requires: <(string | ScriptDescriptor)[]>[],
 				reporters: <ReporterDescriptor[]>[],
 				scripts: <(string | ScriptDescriptor)[]>[],
 				suites: <string[]>[]
 			},
-			require: <(string | ScriptDescriptor)[]>[],
+			requires: <(string | ScriptDescriptor)[]>[],
 			reporters: <ReporterDescriptor[]>[],
 			scripts: <(string | ScriptDescriptor)[]>[],
 			sessionId: '',
@@ -765,7 +765,7 @@ export default abstract class Executor<
 			);
 		});
 
-		baseReporters.concat(envReporters).forEach(reporter => {
+		for (const reporter of [...baseReporters, ...envReporters]) {
 			const ReporterClass = this.getPlugin('reporter', reporter.name);
 			if (!ReporterClass) {
 				throw new Error(
@@ -778,7 +778,7 @@ export default abstract class Executor<
 				);
 			}
 			this._reporters.push(new ReporterClass(this, reporter.options));
-		});
+		}
 
 		this._reportersInitialized = true;
 
@@ -865,13 +865,13 @@ export default abstract class Executor<
 	}
 
 	/**
-	 * Load scripts in the `require` list using an external loader, if
+	 * Load scripts in the `requires` list using an external loader, if
 	 * configured, or the platform's native loading mechanism
 	 */
 	protected _loadRequires() {
 		const scripts = [
-			...this.config.require,
-			...this.config[this.environment].require
+			...this.config.requires,
+			...this.config[this.environment].requires
 		];
 		return this._loadScriptsWithLoader(scripts, script =>
 			this._loader([script])
@@ -933,9 +933,10 @@ export default abstract class Executor<
 	 * Load suites
 	 */
 	protected _loadSuites() {
-		const suites = this.config.suites.concat(
-			this.config[this.environment].suites
-		);
+		const suites = [
+			...this.config.suites,
+			...this.config[this.environment].suites
+		];
 		return Task.resolve(this._loader(suites!)).then(() => {
 			this.log('Loaded suites:', suites);
 		});
@@ -993,6 +994,7 @@ export default abstract class Executor<
 				break;
 
 			case 'plugins':
+			case 'requires':
 			case 'require':
 			case 'scripts':
 				if (name === 'plugins') {
@@ -1000,7 +1002,13 @@ export default abstract class Executor<
 						original: 'plugins',
 						replacement: 'require'
 					});
-					name = 'require';
+					name = 'requires';
+				} else if (name === 'require') {
+					this.emit('deprecated', {
+						original: 'require',
+						replacement: 'scripts'
+					});
+					name = 'requires';
 				}
 				this._setOption(
 					name,
@@ -1057,13 +1065,20 @@ export default abstract class Executor<
 								break;
 							case 'plugins':
 							case 'require':
+							case 'requires':
 							case 'scripts':
 								if (name === 'plugins') {
 									this.emit('deprecated', {
 										original: 'plugins',
 										replacement: 'require'
 									});
-									name = 'require';
+									name = 'requires';
+								} else if (name === 'require') {
+									this.emit('deprecated', {
+										original: 'require',
+										replacement: 'scripts'
+									});
+									name = 'scripts';
 								}
 								resource = parseValue(
 									name,
@@ -1233,15 +1248,16 @@ export interface ResourceConfig {
 	reporters: ReporterDescriptor[];
 
 	/**
-	 * A list of scripts or modules to load before suites are loaded.
+	 * A list of scripts or modules to load before suites are loaded. These will
+	 * be loaded with the external loader, if one has been configured.
 	 */
-	require: ScriptDescriptor[];
+	requires: ScriptDescriptor[];
 
 	/**
-	 * A list of scripts to load before any loader, plugins, or suites.
+	 * A list of scripts to load before any external loader is configured.
 	 *
-	 * These must be simple scripts, not modules, as a module loader may not be
-	 * available when these are loaded. Also, these scripts should be
+	 * These should be simple scripts, not modules, as a module loader may not
+	 * be available when these are loaded. Also, these scripts should be
 	 * synchronous. If they need to run async actions, they can register
 	 * listeners for the 'runBefore' or 'runAfter' executor events.
 	 */

@@ -24409,7 +24409,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1261,
+									"line": 1277,
 									"character": 5
 								}
 							],
@@ -24439,7 +24439,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1266,
+									"line": 1282,
 									"character": 9
 								}
 							],
@@ -24466,7 +24466,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1263,
+									"line": 1279,
 									"character": 9
 								}
 							],
@@ -24496,7 +24496,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1273,
+									"line": 1289,
 									"character": 10
 								}
 							],
@@ -24524,7 +24524,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1275,
+									"line": 1291,
 									"character": 16
 								}
 							],
@@ -24552,7 +24552,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1277,
+									"line": 1293,
 									"character": 8
 								}
 							],
@@ -24583,7 +24583,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1282,
+									"line": 1298,
 									"character": 17
 								}
 							],
@@ -24613,7 +24613,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1289,
+									"line": 1305,
 									"character": 6
 								}
 							],
@@ -24643,7 +24643,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1297,
+									"line": 1313,
 									"character": 15
 								}
 							],
@@ -24673,7 +24673,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1300,
+									"line": 1316,
 									"character": 12
 								}
 							],
@@ -24703,7 +24703,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1306,
+									"line": 1322,
 									"character": 17
 								}
 							],
@@ -24733,7 +24733,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1314,
+									"line": 1330,
 									"character": 5
 								}
 							],
@@ -24763,7 +24763,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1317,
+									"line": 1333,
 									"character": 11
 								}
 							],
@@ -24794,7 +24794,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1211,
+									"line": 1226,
 									"character": 7
 								}
 							],
@@ -24825,7 +24825,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1320,
+									"line": 1336,
 									"character": 5
 								}
 							],
@@ -24852,7 +24852,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1322,
+									"line": 1338,
 									"character": 5
 								}
 							],
@@ -24884,7 +24884,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1233,
+									"line": 1248,
 									"character": 10
 								}
 							],
@@ -24904,7 +24904,7 @@
 						},
 						{
 							"id": 2521,
-							"name": "require",
+							"name": "requires",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
@@ -24913,13 +24913,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts or modules to load before suites are loaded."
+								"shortText": "A list of scripts or modules to load before suites are loaded. These will\nbe loaded with the external loader, if one has been configured."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1238,
-									"character": 8
+									"line": 1254,
+									"character": 9
 								}
 							],
 							"type": {
@@ -24932,7 +24932,7 @@
 							},
 							"inheritedFrom": {
 								"type": "reference",
-								"name": "ResourceConfig.require",
+								"name": "ResourceConfig.requires",
 								"id": 1429
 							}
 						},
@@ -24983,13 +24983,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts to load before any loader, plugins, or suites.",
-								"text": "These must be simple scripts, not modules, as a module loader may not be\navailable when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
+								"shortText": "A list of scripts to load before any external loader is configured.",
+								"text": "These should be simple scripts, not modules, as a module loader may not\nbe available when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1248,
+									"line": 1264,
 									"character": 8
 								}
 							],
@@ -25072,7 +25072,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1331,
+									"line": 1347,
 									"character": 11
 								}
 							],
@@ -25134,7 +25134,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1253,
+									"line": 1269,
 									"character": 7
 								}
 							],
@@ -25224,7 +25224,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1380,
+									"line": 1396,
 									"character": 4
 								}
 							],
@@ -25255,7 +25255,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1383,
+									"line": 1399,
 									"character": 9
 								}
 							],
@@ -25285,7 +25285,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1386,
+									"line": 1402,
 									"character": 10
 								}
 							],
@@ -25315,7 +25315,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1389,
+									"line": 1405,
 									"character": 9
 								}
 							],
@@ -25346,7 +25346,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1392,
+									"line": 1408,
 									"character": 11
 								}
 							],
@@ -25377,7 +25377,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1395,
+									"line": 1411,
 									"character": 6
 								}
 							],
@@ -25407,7 +25407,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1398,
+									"line": 1414,
 									"character": 4
 								}
 							],
@@ -25459,7 +25459,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1401,
+									"line": 1417,
 									"character": 7
 								}
 							],
@@ -25489,7 +25489,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1404,
+									"line": 1420,
 									"character": 9
 								}
 							],
@@ -25581,7 +25581,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1407,
+									"line": 1423,
 									"character": 9
 								}
 							],
@@ -25612,7 +25612,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1410,
+									"line": 1426,
 									"character": 9
 								}
 							],
@@ -25643,7 +25643,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1413,
+									"line": 1429,
 									"character": 11
 								}
 							],
@@ -25674,7 +25674,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1416,
+									"line": 1432,
 									"character": 8
 								}
 							],
@@ -25705,7 +25705,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1419,
+									"line": 1435,
 									"character": 8
 								}
 							],
@@ -25736,7 +25736,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1422,
+									"line": 1438,
 									"character": 10
 								}
 							],
@@ -25891,7 +25891,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1425,
+									"line": 1441,
 									"character": 8
 								}
 							],
@@ -35817,7 +35817,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 6,
+							"line": 7,
 							"character": 27
 						}
 					]
@@ -35835,7 +35835,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 378,
+							"line": 385,
 							"character": 18
 						}
 					],
@@ -35882,7 +35882,7 @@
 							"sources": [
 								{
 									"fileName": "lib/common/util.ts",
-									"line": 378,
+									"line": 385,
 									"character": 29
 								}
 							]
@@ -35902,7 +35902,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 370,
+							"line": 377,
 							"character": 20
 						}
 					],
@@ -35952,7 +35952,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 4,
+							"line": 5,
 							"character": 25
 						}
 					],
@@ -36111,7 +36111,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 45,
+							"line": 46,
 							"character": 20
 						}
 					]
@@ -36173,7 +36173,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 166,
+							"line": 173,
 							"character": 36
 						}
 					]
@@ -36331,7 +36331,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 24,
+							"line": 25,
 							"character": 26
 						}
 					]
@@ -36382,7 +36382,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 199,
+							"line": 206,
 							"character": 35
 						}
 					]
@@ -36474,7 +36474,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 209,
+							"line": 216,
 							"character": 25
 						}
 					]
@@ -36525,7 +36525,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 255,
+							"line": 262,
 							"character": 25
 						}
 					]
@@ -36648,7 +36648,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 267,
+							"line": 274,
 							"character": 26
 						}
 					]
@@ -36712,7 +36712,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 13,
+							"line": 14,
 							"character": 22
 						}
 					]
@@ -36793,7 +36793,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 384,
+							"line": 391,
 							"character": 29
 						}
 					]
@@ -36843,7 +36843,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 456,
+							"line": 463,
 							"character": 23
 						}
 					]
@@ -36906,7 +36906,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 437,
+							"line": 444,
 							"character": 26
 						}
 					]
@@ -36987,7 +36987,7 @@
 											"sources": [
 												{
 													"fileName": "lib/common/util.ts",
-													"line": 404,
+													"line": 411,
 													"character": 36
 												}
 											],
@@ -37017,7 +37017,7 @@
 											"sources": [
 												{
 													"fileName": "lib/common/util.ts",
-													"line": 404,
+													"line": 411,
 													"character": 15
 												}
 											],
@@ -37040,7 +37040,7 @@
 									"sources": [
 										{
 											"fileName": "lib/common/util.ts",
-											"line": 404,
+											"line": 411,
 											"character": 2
 										}
 									]
@@ -37051,7 +37051,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 401,
+							"line": 408,
 							"character": 31
 						}
 					]
@@ -37129,7 +37129,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 430,
+							"line": 437,
 							"character": 25
 						}
 					]
@@ -38747,7 +38747,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Load scripts in the `require` list using an external loader, if\nconfigured, or the platform's native loading mechanism"
+										"shortText": "Load scripts in the `requires` list using an external loader, if\nconfigured, or the platform's native loading mechanism"
 									},
 									"type": {
 										"type": "reference",
@@ -39095,7 +39095,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 948,
+									"line": 949,
 									"character": 25
 								}
 							],
@@ -39196,7 +39196,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1164,
+									"line": 1179,
 									"character": 20
 								}
 							],
@@ -39299,7 +39299,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1112,
+									"line": 1127,
 									"character": 21
 								}
 							],
@@ -42861,7 +42861,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Load scripts in the `require` list using an external loader, if\nconfigured, or the platform's native loading mechanism"
+										"shortText": "Load scripts in the `requires` list using an external loader, if\nconfigured, or the platform's native loading mechanism"
 									},
 									"type": {
 										"type": "reference",
@@ -43168,7 +43168,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 948,
+									"line": 949,
 									"character": 25
 								}
 							]
@@ -43211,7 +43211,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1132,
+									"line": 1147,
 									"character": 25
 								}
 							]
@@ -43254,7 +43254,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1164,
+									"line": 1179,
 									"character": 20
 								}
 							]
@@ -43348,7 +43348,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1112,
+									"line": 1127,
 									"character": 21
 								}
 							]
@@ -45185,7 +45185,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1185,
+									"line": 1200,
 									"character": 3
 								}
 							],
@@ -45207,7 +45207,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1184,
+							"line": 1199,
 							"character": 32
 						}
 					],
@@ -45225,7 +45225,7 @@
 								"sources": [
 									{
 										"fileName": "lib/executors/Executor.ts",
-										"line": 1184,
+										"line": 1199,
 										"character": 40
 									}
 								]
@@ -45260,7 +45260,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1261,
+									"line": 1277,
 									"character": 5
 								}
 							],
@@ -45285,7 +45285,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1266,
+									"line": 1282,
 									"character": 9
 								}
 							],
@@ -45307,7 +45307,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1263,
+									"line": 1279,
 									"character": 9
 								}
 							],
@@ -45332,7 +45332,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1273,
+									"line": 1289,
 									"character": 10
 								}
 							],
@@ -45355,7 +45355,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1275,
+									"line": 1291,
 									"character": 16
 								}
 							],
@@ -45378,7 +45378,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1277,
+									"line": 1293,
 									"character": 8
 								}
 							],
@@ -45404,7 +45404,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1282,
+									"line": 1298,
 									"character": 17
 								}
 							],
@@ -45429,7 +45429,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1289,
+									"line": 1305,
 									"character": 6
 								}
 							],
@@ -45454,7 +45454,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1297,
+									"line": 1313,
 									"character": 15
 								}
 							],
@@ -45479,7 +45479,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1300,
+									"line": 1316,
 									"character": 12
 								}
 							],
@@ -45504,7 +45504,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1306,
+									"line": 1322,
 									"character": 17
 								}
 							],
@@ -45529,7 +45529,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1314,
+									"line": 1330,
 									"character": 5
 								}
 							],
@@ -45554,7 +45554,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1317,
+									"line": 1333,
 									"character": 11
 								}
 							],
@@ -45580,7 +45580,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1211,
+									"line": 1226,
 									"character": 7
 								}
 							],
@@ -45611,7 +45611,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1320,
+									"line": 1336,
 									"character": 5
 								}
 							],
@@ -45633,7 +45633,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1322,
+									"line": 1338,
 									"character": 5
 								}
 							],
@@ -45660,7 +45660,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1233,
+									"line": 1248,
 									"character": 10
 								}
 							],
@@ -45680,7 +45680,7 @@
 						},
 						{
 							"id": 1452,
-							"name": "require",
+							"name": "requires",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
@@ -45689,13 +45689,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts or modules to load before suites are loaded."
+								"shortText": "A list of scripts or modules to load before suites are loaded. These will\nbe loaded with the external loader, if one has been configured."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1238,
-									"character": 8
+									"line": 1254,
+									"character": 9
 								}
 							],
 							"type": {
@@ -45708,7 +45708,7 @@
 							},
 							"inheritedFrom": {
 								"type": "reference",
-								"name": "ResourceConfig.require",
+								"name": "ResourceConfig.requires",
 								"id": 1429
 							}
 						},
@@ -45723,13 +45723,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts to load before any loader, plugins, or suites.",
-								"text": "These must be simple scripts, not modules, as a module loader may not be\navailable when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
+								"shortText": "A list of scripts to load before any external loader is configured.",
+								"text": "These should be simple scripts, not modules, as a module loader may not\nbe available when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1248,
+									"line": 1264,
 									"character": 8
 								}
 							],
@@ -45763,7 +45763,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1328,
+									"line": 1344,
 									"character": 10
 								}
 							],
@@ -45788,7 +45788,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1331,
+									"line": 1347,
 									"character": 11
 								}
 							],
@@ -45813,7 +45813,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1253,
+									"line": 1269,
 									"character": 7
 								}
 							],
@@ -45864,7 +45864,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1256,
+							"line": 1272,
 							"character": 23
 						}
 					],
@@ -45915,7 +45915,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1365,
+									"line": 1381,
 									"character": 9
 								}
 							],
@@ -45938,7 +45938,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1363,
+									"line": 1379,
 									"character": 10
 								}
 							],
@@ -45970,7 +45970,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1364,
+									"line": 1380,
 									"character": 7
 								}
 							],
@@ -46003,7 +46003,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1362,
+							"line": 1378,
 							"character": 32
 						}
 					]
@@ -46033,7 +46033,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1371,
+									"line": 1387,
 									"character": 8
 								}
 							],
@@ -46064,7 +46064,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1369,
+									"line": 1385,
 									"character": 9
 								}
 							],
@@ -46087,7 +46087,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1370,
+									"line": 1386,
 									"character": 12
 								}
 							],
@@ -46120,7 +46120,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1368,
+							"line": 1384,
 							"character": 35
 						}
 					]
@@ -46165,7 +46165,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1460,
+									"line": 1476,
 									"character": 14
 								}
 							],
@@ -46187,7 +46187,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1459,
+									"line": 1475,
 									"character": 5
 								}
 							],
@@ -46210,7 +46210,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1458,
+							"line": 1474,
 							"character": 34
 						}
 					]
@@ -46256,7 +46256,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1171,
+									"line": 1186,
 									"character": 5
 								}
 							],
@@ -46278,7 +46278,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1170,
+									"line": 1185,
 									"character": 10
 								}
 							],
@@ -46301,7 +46301,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1169,
+							"line": 1184,
 							"character": 22
 						}
 					]
@@ -46330,7 +46330,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1380,
+									"line": 1396,
 									"character": 4
 								}
 							],
@@ -46356,7 +46356,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1383,
+									"line": 1399,
 									"character": 9
 								}
 							],
@@ -46381,7 +46381,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1386,
+									"line": 1402,
 									"character": 10
 								}
 							],
@@ -46406,7 +46406,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1389,
+									"line": 1405,
 									"character": 9
 								}
 							],
@@ -46432,7 +46432,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1392,
+									"line": 1408,
 									"character": 11
 								}
 							],
@@ -46458,7 +46458,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1395,
+									"line": 1411,
 									"character": 6
 								}
 							],
@@ -46483,7 +46483,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1398,
+									"line": 1414,
 									"character": 4
 								}
 							],
@@ -46508,7 +46508,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1401,
+									"line": 1417,
 									"character": 7
 								}
 							],
@@ -46533,7 +46533,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1404,
+									"line": 1420,
 									"character": 9
 								}
 							],
@@ -46558,7 +46558,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1407,
+									"line": 1423,
 									"character": 9
 								}
 							],
@@ -46584,7 +46584,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1410,
+									"line": 1426,
 									"character": 9
 								}
 							],
@@ -46610,7 +46610,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1413,
+									"line": 1429,
 									"character": 11
 								}
 							],
@@ -46636,7 +46636,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1416,
+									"line": 1432,
 									"character": 8
 								}
 							],
@@ -46662,7 +46662,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1419,
+									"line": 1435,
 									"character": 8
 								}
 							],
@@ -46688,7 +46688,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1422,
+									"line": 1438,
 									"character": 10
 								}
 							],
@@ -46714,7 +46714,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1425,
+									"line": 1441,
 									"character": 8
 								}
 							],
@@ -46751,7 +46751,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1379,
+							"line": 1395,
 							"character": 23
 						}
 					],
@@ -46898,7 +46898,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1178,
+									"line": 1193,
 									"character": 3
 								}
 							]
@@ -46916,7 +46916,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1174,
+							"line": 1189,
 							"character": 36
 						}
 					]
@@ -46945,7 +46945,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1376,
+									"line": 1392,
 									"character": 5
 								}
 							],
@@ -46967,7 +46967,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1375,
+									"line": 1391,
 									"character": 5
 								}
 							],
@@ -47055,7 +47055,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1374,
+							"line": 1390,
 							"character": 30
 						}
 					]
@@ -47135,7 +47135,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1355,
+							"line": 1371,
 							"character": 25
 						}
 					]
@@ -47198,7 +47198,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1438,
+							"line": 1454,
 							"character": 23
 						}
 					]
@@ -47228,7 +47228,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1451,
+									"line": 1467,
 									"character": 8
 								}
 							],
@@ -47297,7 +47297,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1450,
+									"line": 1466,
 									"character": 7
 								}
 							],
@@ -47320,7 +47320,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1449,
+							"line": 1465,
 							"character": 33
 						}
 					]
@@ -47402,7 +47402,7 @@
 											"sources": [
 												{
 													"fileName": "lib/executors/Executor.ts",
-													"line": 1446,
+													"line": 1462,
 													"character": 10
 												}
 											]
@@ -47436,7 +47436,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1445,
+							"line": 1461,
 							"character": 27
 						}
 					]
@@ -47570,7 +47570,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1454,
+							"line": 1470,
 							"character": 34
 						}
 					]
@@ -47602,7 +47602,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1432,
+									"line": 1448,
 									"character": 9
 								}
 							],
@@ -47625,7 +47625,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1431,
+							"line": 1447,
 							"character": 24
 						}
 					],
@@ -47664,7 +47664,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1338,
+									"line": 1354,
 									"character": 5
 								}
 							],
@@ -47687,7 +47687,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1339,
+									"line": 1355,
 									"character": 8
 								}
 							],
@@ -47711,7 +47711,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1337,
+							"line": 1353,
 							"character": 35
 						}
 					]
@@ -47744,7 +47744,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1211,
+									"line": 1226,
 									"character": 7
 								}
 							],
@@ -47771,7 +47771,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1233,
+									"line": 1248,
 									"character": 10
 								}
 							],
@@ -47786,7 +47786,7 @@
 						},
 						{
 							"id": 1429,
-							"name": "require",
+							"name": "requires",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
@@ -47795,13 +47795,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts or modules to load before suites are loaded."
+								"shortText": "A list of scripts or modules to load before suites are loaded. These will\nbe loaded with the external loader, if one has been configured."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1238,
-									"character": 8
+									"line": 1254,
+									"character": 9
 								}
 							],
 							"type": {
@@ -47824,13 +47824,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts to load before any loader, plugins, or suites.",
-								"text": "These must be simple scripts, not modules, as a module loader may not be\navailable when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
+								"shortText": "A list of scripts to load before any external loader is configured.",
+								"text": "These should be simple scripts, not modules, as a module loader may not\nbe available when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1248,
+									"line": 1264,
 									"character": 8
 								}
 							],
@@ -47859,7 +47859,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1253,
+									"line": 1269,
 									"character": 7
 								}
 							],
@@ -47888,7 +47888,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1188,
+							"line": 1203,
 							"character": 31
 						}
 					],
@@ -47928,7 +47928,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1349,
+									"line": 1365,
 									"character": 8
 								}
 							],
@@ -47950,7 +47950,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1348,
+									"line": 1364,
 									"character": 7
 								}
 							],
@@ -47973,7 +47973,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1347,
+							"line": 1363,
 							"character": 33
 						}
 					]
@@ -50431,7 +50431,7 @@
 										"__visited__": true
 									},
 									"comment": {
-										"shortText": "Load scripts in the `require` list using an external loader, if\nconfigured, or the platform's native loading mechanism"
+										"shortText": "Load scripts in the `requires` list using an external loader, if\nconfigured, or the platform's native loading mechanism"
 									},
 									"type": {
 										"type": "reference",
@@ -50815,7 +50815,7 @@
 													},
 													{
 														"type": "stringLiteral",
-														"value": "require"
+														"value": "requires"
 													},
 													{
 														"type": "stringLiteral",
@@ -51245,7 +51245,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1112,
+									"line": 1127,
 									"character": 21
 								}
 							],
@@ -53542,7 +53542,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1261,
+									"line": 1277,
 									"character": 5
 								}
 							],
@@ -53571,7 +53571,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1266,
+									"line": 1282,
 									"character": 9
 								}
 							],
@@ -53597,7 +53597,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1263,
+									"line": 1279,
 									"character": 9
 								}
 							],
@@ -53626,7 +53626,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1273,
+									"line": 1289,
 									"character": 10
 								}
 							],
@@ -53653,7 +53653,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1275,
+									"line": 1291,
 									"character": 16
 								}
 							],
@@ -53680,7 +53680,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1277,
+									"line": 1293,
 									"character": 8
 								}
 							],
@@ -53904,7 +53904,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1282,
+									"line": 1298,
 									"character": 17
 								}
 							],
@@ -53933,7 +53933,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1289,
+									"line": 1305,
 									"character": 6
 								}
 							],
@@ -53962,7 +53962,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1297,
+									"line": 1313,
 									"character": 15
 								}
 							],
@@ -53991,7 +53991,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1300,
+									"line": 1316,
 									"character": 12
 								}
 							],
@@ -54070,7 +54070,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1306,
+									"line": 1322,
 									"character": 17
 								}
 							],
@@ -54151,7 +54151,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1314,
+									"line": 1330,
 									"character": 5
 								}
 							],
@@ -54246,7 +54246,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1317,
+									"line": 1333,
 									"character": 11
 								}
 							],
@@ -54310,7 +54310,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1211,
+									"line": 1226,
 									"character": 7
 								}
 							],
@@ -54361,7 +54361,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1320,
+									"line": 1336,
 									"character": 5
 								}
 							],
@@ -54387,7 +54387,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1322,
+									"line": 1338,
 									"character": 5
 								}
 							],
@@ -54418,7 +54418,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1233,
+									"line": 1248,
 									"character": 10
 								}
 							],
@@ -54438,7 +54438,7 @@
 						},
 						{
 							"id": 3470,
-							"name": "require",
+							"name": "requires",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
@@ -54446,13 +54446,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts or modules to load before suites are loaded."
+								"shortText": "A list of scripts or modules to load before suites are loaded. These will\nbe loaded with the external loader, if one has been configured."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1238,
-									"character": 8
+									"line": 1254,
+									"character": 9
 								}
 							],
 							"type": {
@@ -54465,7 +54465,7 @@
 							},
 							"inheritedFrom": {
 								"type": "reference",
-								"name": "ResourceConfig.require",
+								"name": "ResourceConfig.requires",
 								"id": 1429
 							}
 						},
@@ -54500,13 +54500,13 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "A list of scripts to load before any loader, plugins, or suites.",
-								"text": "These must be simple scripts, not modules, as a module loader may not be\navailable when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
+								"shortText": "A list of scripts to load before any external loader is configured.",
+								"text": "These should be simple scripts, not modules, as a module loader may not\nbe available when these are loaded. Also, these scripts should be\nsynchronous. If they need to run async actions, they can register\nlisteners for the 'runBefore' or 'runAfter' executor events.\n"
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1248,
+									"line": 1264,
 									"character": 8
 								}
 							],
@@ -54602,7 +54602,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1328,
+									"line": 1344,
 									"character": 10
 								}
 							],
@@ -54631,7 +54631,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1331,
+									"line": 1347,
 									"character": 11
 								}
 							],
@@ -54691,7 +54691,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1253,
+									"line": 1269,
 									"character": 7
 								}
 							],
@@ -54936,7 +54936,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1380,
+									"line": 1396,
 									"character": 4
 								}
 							],
@@ -54966,7 +54966,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1383,
+									"line": 1399,
 									"character": 9
 								}
 							],
@@ -54995,7 +54995,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1386,
+									"line": 1402,
 									"character": 10
 								}
 							],
@@ -55024,7 +55024,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1389,
+									"line": 1405,
 									"character": 9
 								}
 							],
@@ -55054,7 +55054,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1392,
+									"line": 1408,
 									"character": 11
 								}
 							],
@@ -55084,7 +55084,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1395,
+									"line": 1411,
 									"character": 6
 								}
 							],
@@ -55113,7 +55113,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1398,
+									"line": 1414,
 									"character": 4
 								}
 							],
@@ -55142,7 +55142,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1401,
+									"line": 1417,
 									"character": 7
 								}
 							],
@@ -55171,7 +55171,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1404,
+									"line": 1420,
 									"character": 9
 								}
 							],
@@ -55250,7 +55250,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1407,
+									"line": 1423,
 									"character": 9
 								}
 							],
@@ -55280,7 +55280,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1410,
+									"line": 1426,
 									"character": 9
 								}
 							],
@@ -55310,7 +55310,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1413,
+									"line": 1429,
 									"character": 11
 								}
 							],
@@ -55340,7 +55340,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1416,
+									"line": 1432,
 									"character": 8
 								}
 							],
@@ -55370,7 +55370,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1419,
+									"line": 1435,
 									"character": 8
 								}
 							],
@@ -55400,7 +55400,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1422,
+									"line": 1438,
 									"character": 10
 								}
 							],
@@ -55530,7 +55530,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1425,
+									"line": 1441,
 									"character": 8
 								}
 							],
@@ -55619,7 +55619,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1432,
+									"line": 1448,
 									"character": 9
 								}
 							],

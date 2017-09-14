@@ -25,7 +25,7 @@
 
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 
-	"require": "_tests/tests/support/globalUi.js",
+	"scripts": "_tests/tests/support/globalUi.js",
 
 	"node": {
 		"suites": [
@@ -46,7 +46,7 @@
 			"_tests/tests/unit/lib/reporters/TeamCity.js",
 			"_tests/tests/unit/tasks/intern.js"
 		],
-		"require": [
+		"scripts": [
 			"_tests/tests/support/nodeMocking.js",
 			"source-map-support/register"
 		],
@@ -58,7 +58,7 @@
 
 	"browser": {
 		"suites": ["_tests/tests/unit/lib/browser/util.js"],
-		"require": "_tests/tests/support/dojoMocking.js",
+		"scripts": "_tests/tests/support/dojoMocking.js",
 		"loader": {
 			"script": "dojo2",
 			"options": {

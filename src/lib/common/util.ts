@@ -1,5 +1,6 @@
 import { deepMixin, mixin } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
+import { Config, ResourceConfig } from '../executors/Executor';
 
 const configPathSeparator = '@';
 
@@ -145,17 +146,23 @@ function _loadConfig(
 				// If any non-additive resources are specified in args, they
 				// will apply to all environments and will override any
 				// environment specific resources.
-				['plugins', 'reporters', 'require', 'suites']
-					.filter(property => {
-						return property in args;
-					})
-					.forEach(property => {
-						['node', 'browser']
-							.filter(environment => {
-								return config[environment];
-							})
+				const resources: (keyof ResourceConfig)[] = [
+					'scripts',
+					'reporters',
+					'requires',
+					'suites'
+				];
+				resources
+					.filter(resource => resource in args)
+					.forEach(resource => {
+						const environments: (keyof Config)[] = [
+							'node',
+							'browser'
+						];
+						environments
+							.filter(environment => config[environment])
 							.forEach(environment => {
-								delete config[environment][property];
+								delete config[environment][resource];
 							});
 					});
 			}
