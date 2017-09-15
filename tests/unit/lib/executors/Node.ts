@@ -742,7 +742,6 @@ registerSuite('lib/executors/Node', function() {
 							1,
 							'a session should have been created'
 						);
-						assert.property(sessions[0], 'coverageEnabled');
 						assert.property(sessions[0], 'coverageVariable');
 						assert.property(sessions[0], 'serverUrl');
 					});

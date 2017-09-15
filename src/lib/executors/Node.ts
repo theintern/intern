@@ -430,8 +430,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		// executor is set
 		class InitializedProxiedSession extends ProxiedSession {
 			executor = executor;
-			coverageEnabled = config.functionalCoverage &&
-				executor.hasCoveredFiles;
 			coverageVariable = config.coverageVariable;
 			serverUrl = config.serverUrl;
 			serverBasePathLength = config.basePath.length;
@@ -528,14 +526,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				// run the suites listed in config.suites and
 				// config.browser.suites.
 				if (config.suites.length + config.browser.suites.length > 0) {
-					suite.add(
-						new RemoteSuite({
-							before() {
-								session.coverageEnabled =
-									executor.hasCoveredFiles;
-							}
-						})
-					);
+					suite.add(new RemoteSuite());
 				}
 
 				return suite;
@@ -624,6 +615,18 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				break;
 
 			case 'coverage':
+				let parsed: boolean | string[];
+				try {
+					parsed = parseValue(name, value, 'boolean');
+				} catch (error) {
+					parsed = parseValue(name, value, 'string[]');
+				}
+				if (typeof parsed === 'boolean' && parsed !== false) {
+					throw new Error("Non-false boolean for 'coverage'");
+				}
+				this._setOption(name, parsed);
+				break;
+
 			case 'functionalSuites':
 				this._setOption(
 					name,
@@ -867,7 +870,8 @@ export interface Config extends BaseConfig {
 	connectTimeout: number;
 
 	/**
-	 * An array of file paths or globs that should be instrumented for code coverage.
+	 * An array of file paths or globs that should be instrumented for code
+	 * coverage, or false to completely disable coverage.
 	 *
 	 * This property should point to the actual JavaScript files that will be
 	 * executed, not pre-transpiled sources (coverage results will still be
@@ -876,11 +880,16 @@ export interface Config extends BaseConfig {
 	 * test writer to see which files _haven’t_ been tested, as well as coverage
 	 * on files that were tested.
 	 *
+	 * When this value is unset, Intern will still look for coverage data on a
+	 * global coverage variable, and it will request coverage data from remote
+	 * sessions. Explicitly setting coverage to false will prevent Intern from
+	 * even checking for coverage data.
+	 *
 	 * > 💡This property replaces the `excludeInstrumentation` property used in
 	 * previous versions of Intern, which acted as a filter rather than an
 	 * inclusive list.
 	 */
-	coverage: string[];
+	coverage: false | string[];
 
 	/**
 	 * The environments that will be used to run WebDriver tests.

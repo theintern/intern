@@ -18,12 +18,6 @@ function getCoverageData(coverageVariable: string) {
  */
 export default class ProxiedSession extends Session {
 	/**
-	 * Indicate whether coverage data should be requested before performing a
-	 * request.
-	 */
-	coverageEnabled = false;
-
-	/**
 	 * The name of the global variable used to store coverage data.
 	 */
 	coverageVariable = '';
@@ -45,6 +39,10 @@ export default class ProxiedSession extends Session {
 	serverUrl = '';
 
 	private _heartbeatIntervalHandle: { remove: Function };
+
+	get coverageEnabled() {
+		return this.executor.config.coverage !== false;
+	}
 
 	/**
 	 * Navigates the browser to a new URL like `leadfoot/Session#get`, but

@@ -85,7 +85,6 @@ registerSuite('ProxiedSession', function() {
 
 			return task
 				.then(() => {
-					_session.coverageEnabled = true;
 					_session.coverageVariable = '__testCoverage';
 					_session.executor.emit = <any>function(
 						eventName: string,
