@@ -2,9 +2,14 @@ import Suite from '../Suite';
 import Test from '../Test';
 import { deepMixin, duplicate } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
-import Task, { isThenable, isTask, State } from '@dojo/core/async/Task';
+import Task, { isThenable, State } from '@dojo/core/async/Task';
 import ErrorFormatter, { ErrorFormatOptions } from '../common/ErrorFormatter';
-import { normalizePathEnding, parseValue, pullFromArray } from '../common/util';
+import {
+	isTask,
+	normalizePathEnding,
+	parseValue,
+	pullFromArray
+} from '../common/util';
 import Reporter, { ReporterOptions } from '../reporters/Reporter';
 import {
 	getInterface as getObjectInterface,

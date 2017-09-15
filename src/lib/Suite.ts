@@ -1,4 +1,5 @@
-import Task, { isTask, isThenable, State } from '@dojo/core/async/Task';
+import Task, { isThenable, State } from '@dojo/core/async/Task';
+import { isTask } from './common/util';
 import { Thenable } from '@dojo/shim/interfaces';
 import Deferred from './Deferred';
 import Executor from './executors/Executor';

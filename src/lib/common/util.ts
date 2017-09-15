@@ -400,6 +400,17 @@ export function pullFromArray<T>(haystack: T[], needle: T): T[] {
 }
 
 /**
+ * Check if a value is a Task without directly accessing any non-existent
+ * properties.
+ *
+ * Checking in this way is necessary when using libraries that validate property
+ * accesses such as ChaiAsPromised.
+ */
+export function isTask<T = any>(value: any): value is Task<T> {
+	return value && 'cancel' in value && typeof value.cancel === 'function';
+}
+
+/**
  * Split a config path into a file name and a child config name.
  *
  * This allows for the case where a file name itself may include the config
