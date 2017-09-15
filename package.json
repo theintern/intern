@@ -48,6 +48,7 @@
   },
   "scripts": {
     "build": "intern-dev-clean && concurrently intern-dev-build intern-dev-api",
+    "devpack": "intern-dev-build && cd _build/src && npm pack && cp *.tgz ../../",
     "clean": "intern-dev-clean",
     "lint": "intern-dev-lint",
     "release": "INTERN_BUILD=release intern-dev-release",
