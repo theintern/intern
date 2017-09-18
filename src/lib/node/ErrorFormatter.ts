@@ -32,7 +32,7 @@ export default class NodeErrorFormatter extends ErrorFormatter<Node> {
 
 	private _getSourceHelper(tracepath: string) {
 		let match: RegExpMatchArray | null;
-		let source: string;
+		let source: string | undefined;
 		let line: number;
 		let col: number | undefined;
 		let map: SourceMapConsumer | undefined;
@@ -75,15 +75,17 @@ export default class NodeErrorFormatter extends ErrorFormatter<Node> {
 			}
 		}
 
+		source = source || tracepath;
+
 		// next, check for original source map
 		const sourceMapStore = this.executor.sourceMapStore;
-		if (tracepath in sourceMapStore.data) {
-			map = new SourceMapConsumer(sourceMapStore.data[tracepath].data);
+		if (source in sourceMapStore.data) {
+			map = new SourceMapConsumer(sourceMapStore.data[source].data);
 		} else {
-			map = this.getSourceMap(tracepath);
+			map = this.getSourceMap(source);
 		}
 
-		source = relative('.', tracepath);
+		source = relative('.', source);
 
 		if (map) {
 			originalPos = this.getOriginalPosition(map, line, col);
