@@ -908,7 +908,7 @@ export default abstract class Executor<
 		return scripts
 			.reduce((previous, script) => {
 				if (typeof script === 'string') {
-					return previous.then(() => load(script));
+					return previous.then(() => loader(script));
 				} else {
 					this._loadingPluginOptions = script.options;
 					return previous
