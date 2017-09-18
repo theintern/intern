@@ -849,6 +849,7 @@ export default abstract class Executor<
 				case 'default':
 				case 'dojo':
 				case 'dojo2':
+				case 'esm':
 				case 'systemjs':
 					script = `${config.internPath}loaders/${script}.js`;
 			}

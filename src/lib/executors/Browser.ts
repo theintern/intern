@@ -55,7 +55,7 @@ export default class Browser extends Executor<Events, Config> {
 	 *
 	 * @param script a path to a script
 	 */
-	loadScript(script: string | string[]) {
+	loadScript(script: string | string[], isEsm = false) {
 		if (typeof script === 'string') {
 			script = [script];
 		}
@@ -64,7 +64,7 @@ export default class Browser extends Executor<Events, Config> {
 			if (script[0] !== '/') {
 				script = `${this.config.basePath}${script}`;
 			}
-			return previous.then(() => injectScript(script));
+			return previous.then(() => injectScript(script, isEsm));
 		}, Task.resolve());
 	}
 
@@ -96,7 +96,7 @@ export default class Browser extends Executor<Events, Config> {
 
 export { Events, Config };
 
-function injectScript(path: string) {
+function injectScript(path: string, isEsm: boolean) {
 	return new Task<void>((resolve, reject) => {
 		const doc: Document = global.document;
 		const scriptTag = doc.createElement('script');
@@ -107,6 +107,9 @@ function injectScript(path: string) {
 			console.error(`Error loading ${path}:`, event);
 			reject(new Error(`Unable to load ${path}`));
 		});
+		if (isEsm) {
+			scriptTag.type = 'module';
+		}
 		scriptTag.src = path;
 		doc.body.appendChild(scriptTag);
 	});
