@@ -11,18 +11,18 @@
 			"es2015.iterable",
 			"dom"
 		],
+		// Build as UMD for compatibility with AMD loaders
 		"module": "umd",
 		"outDir": "./_build",
 		"rootDir": "."
 	},
-	"files": ["src/index.ts"],
 	"include": [
-		"src/browser/**/*.ts",
 		"src/bin/*.ts",
-		"src/intern.ts",
 		"src/loaders/*.ts",
-		"src/lib/executors/Browser.ts",
-		"src/lib/executors/Node.ts",
-		"src/tasks/intern.ts"
+		"src/tasks/*.ts",
+
+		// Build everything in lib (vs just relying on the bin entry point) so
+		// it'll be available for testing
+		"src/lib/*.ts"
 	]
 }

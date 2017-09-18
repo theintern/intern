@@ -6,28 +6,30 @@ const common: Configuration = {
 	module: {
 		rules: [
 			{
-				test: /_(?:build|tests)\//,
-				use: 'umd-compat-loader'
-			},
-			{
 				test: /@dojo\//,
 				use: 'umd-compat-loader'
 			},
 			{
 				test: /\.styl$/,
 				use: ['style-loader', 'css-loader', 'stylus-loader']
+			},
+			{
+				test: /\.ts/,
+				use: 'ts-loader'
 			}
 		],
 		noParse: /benchmark\/benchmark.js/
 	},
 	stats: {
-		assets: true,
+		assets: false,
 		errors: true,
 		hash: false,
-		modules: false,
-		timings: false,
+		modules: true,
 		version: false,
 		warnings: true
+	},
+	resolve: {
+		extensions: ['.ts', '.js']
 	}
 };
 
@@ -42,9 +44,9 @@ module.exports = [
 	{
 		...common,
 		entry: {
-			intern: './_build/src/browser/intern.src.js',
-			remote: './_build/src/browser/remote.src.js',
-			config: './_build/src/browser/config.src.js'
+			intern: './src/browser/intern.ts',
+			remote: './src/browser/remote.ts',
+			config: './src/browser/config.ts'
 		},
 		output: {
 			filename: '[name].js',
@@ -54,9 +56,9 @@ module.exports = [
 	{
 		...common,
 		entry: {
-			intern: './_tests/src/browser/intern.src.js',
-			remote: './_tests/src/browser/remote.src.js',
-			config: './_tests/src/browser/config.src.js'
+			intern: './src/browser/intern.ts',
+			remote: './src/browser/remote.ts',
+			config: './src/browser/config.ts'
 		},
 		output: {
 			filename: '[name].js',

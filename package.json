@@ -119,11 +119,17 @@
     "style-loader": "~0.18.2",
     "stylus": "~0.54.5",
     "stylus-loader": "~3.0.1",
+    "ts-loader": "~2.3.7",
     "ts-node": "~3.2.0",
     "umd-compat-loader": "~2.1.0",
     "webpack": "~3.0.0"
   },
   "internDev": {
+    "configs": [
+      "tsconfig.json",
+      "tests/tsconfig.json",
+      "tests/examples/tsconfig.json"
+    ],
     "resources": {
       "_build": [
         "src/**/*.{styl,d.ts,html,js,png}",

@@ -5,9 +5,12 @@ import { parse } from 'url';
 import Task from '@dojo/core/async/Task';
 import { InternError } from './types';
 import Node, { Events } from './executors/Node';
-import { Config as BrowserConfig } from './executors/Browser';
+import Browser, { Config as BrowserConfig } from './executors/Browser';
 import { stringify } from './common/util';
 import Deferred from './Deferred';
+
+// This is used for the `execute` config block
+declare const intern: Browser;
 
 /**
  * RemoteSuite is a class that acts as a local server for one or more unit test
