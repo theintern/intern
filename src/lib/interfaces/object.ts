@@ -56,7 +56,7 @@
  * ```
  */ /** */
 
-import Suite, { SuiteOptions, SuiteProperties } from '../Suite';
+import Suite, { SuiteOptions, SuiteLifecycleProperties } from '../Suite';
 import Test, { TestFunction, isTestFunction } from '../Test';
 import Executor from '../executors/Executor';
 import global from '@dojo/shim/global';
@@ -99,7 +99,10 @@ export interface Tests {
 	[name: string]: ObjectSuiteDescriptor | TestFunction | Tests;
 }
 
-export type ObjectSuiteDescriptor = Partial<SuiteProperties> & { tests: Tests };
+export interface ObjectSuiteDescriptor
+	extends Partial<SuiteLifecycleProperties> {
+	tests: Tests;
+}
 
 export interface ObjectSuiteFactory {
 	(): ObjectSuiteDescriptor | Tests;
@@ -141,7 +144,9 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
 				optionsKey = 'after';
 			}
 
-			options[optionsKey] = <any>descriptor[<keyof SuiteOptions>key];
+			options[optionsKey] = <any>descriptor[
+				<keyof ObjectSuiteDescriptor>key
+			];
 		}
 
 		tests = descriptor.tests;

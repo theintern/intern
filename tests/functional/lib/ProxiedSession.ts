@@ -9,7 +9,7 @@ import Test, { TestFunction } from '../../../src/lib/Test';
 import registerSuite from '../../../src/lib/interfaces/object';
 import { assert } from 'chai';
 
-registerSuite('ProxiedSession', function() {
+registerSuite('ProxiedSession', () => {
 	const serverUrl = 'https://example.invalid/';
 	const serverBasePathLength = 1;
 	let session: ProxiedSession | null;

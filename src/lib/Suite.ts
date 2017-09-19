@@ -749,15 +749,20 @@ export interface TestLifecycleFunction {
 	(this: Suite, test: Test, suite: Suite): void | PromiseLike<void>;
 }
 
-// Properties that define a Suite. Note that 'tests' isn't included so that
-// other interfaces, such as the object interface, can use a different
-// definition for it.
-export interface SuiteProperties {
+export interface SuiteLifecycleProperties {
 	after: SuiteLifecycleFunction;
 	afterEach: TestLifecycleFunction;
-	bail: boolean;
 	before: SuiteLifecycleFunction;
 	beforeEach: TestLifecycleFunction;
+}
+
+/**
+ * Properties that define a Suite. Note that 'tests' isn't included so that
+ * other interfaces, such as the object interface, can use a different
+ * definition for it.
+ */
+export interface SuiteProperties extends SuiteLifecycleProperties {
+	bail: boolean;
 	executor: Executor;
 	grep: RegExp;
 	name: string;
