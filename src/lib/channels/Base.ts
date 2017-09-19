@@ -29,7 +29,7 @@ export default abstract class BaseChannel {
 	protected abstract _sendData(
 		name: keyof RemoteEvents,
 		data: any
-	): Task<void>;
+	): Task<any>;
 }
 
 export interface ChannelOptions {

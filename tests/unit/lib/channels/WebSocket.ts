@@ -1,5 +1,7 @@
 import _WebSocket from 'src/lib/channels/WebSocket';
 import { useFakeTimers, SinonFakeTimers } from 'sinon';
+import Task from '@dojo/core/async/Task';
+import { parseUrl } from '../../../../src/lib/browser/util';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
@@ -27,7 +29,9 @@ registerSuite('lib/channels/WebSocket', function() {
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/channels/WebSocket', {
-				'@dojo/shim/global': { default: { WebSocket: MockWebSocket } }
+				'@dojo/shim/global': { default: { WebSocket: MockWebSocket } },
+				'src/lib/browser/util': { parseUrl },
+				'@dojo/core/async/Task': { default: Task }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				WebSocket = handle.module.default;
@@ -73,17 +77,30 @@ registerSuite('lib/channels/WebSocket', function() {
 					eventListeners['open'][0]({});
 
 					const sent = ws.sendMessage('remoteStatus', 'foo');
+					let messageId: string;
 
-					return Promise.resolve().then(() => {
-						assert.lengthOf(sentData, 1);
-						const message = JSON.parse(sentData[0]);
-						// Send an ack
-						eventListeners['message'][0]({
-							data: JSON.stringify({ id: message.id })
+					return Promise.resolve()
+						.then(() => {
+							assert.lengthOf(sentData, 1);
+							const message = JSON.parse(sentData[0]);
+							messageId = message.id;
+
+							// Send a response
+							eventListeners['message'][0]({
+								data: JSON.stringify({
+									id: messageId,
+									data: 'bar'
+								})
+							});
+
+							return sent;
+						})
+						.then(response => {
+							assert.deepEqual(response, {
+								id: messageId,
+								data: 'bar'
+							});
 						});
-
-						return sent;
-					});
 				},
 
 				error() {

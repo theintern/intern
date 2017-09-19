@@ -5,9 +5,10 @@ import BaseChannel, { ChannelOptions, Message } from './Base';
 
 export default class HttpChannel extends BaseChannel {
 	protected _lastRequest: Task<void>;
-	protected _messageBuffer: string[];
+	protected _messageBuffer: MessageEntry[];
 	protected _sequence: number;
 	protected _maxPostSize: number;
+	protected _activeRequest: Task<any> | undefined;
 
 	constructor(options: HttpChannelOptions) {
 		super(options);
@@ -21,20 +22,29 @@ export default class HttpChannel extends BaseChannel {
 		const id = String(this._sequence++);
 		const sessionId = this.sessionId;
 		const message: Message = { id, sessionId, name, data };
+		const task = new Task(
+			(resolve, reject) => {
+				this._messageBuffer.push({
+					message: JSON.stringify(message),
+					resolve,
+					reject
+				});
 
-		this._messageBuffer.push(JSON.stringify(message));
+				if (this._activeRequest) {
+					this._activeRequest.then(() => this._sendMessages());
+				} else {
+					this._sendMessages();
+				}
+			},
+			() => {
+				if (this._activeRequest) {
+					this._activeRequest.cancel();
+				}
+				this._messageBuffer = [];
+			}
+		);
 
-		return (this._lastRequest = this._lastRequest.then(() => this._send()));
-	}
-
-	/**
-	 * If there are messages to send, send them.
-	 */
-	protected _send() {
-		if (this._messageBuffer.length === 0) {
-			return Task.resolve();
-		}
-		return this._sendMessages();
+		return task;
 	}
 
 	/**
@@ -42,31 +52,58 @@ export default class HttpChannel extends BaseChannel {
 	 * limit the maximum size of each POST body to maxPostSize bytes. Always
 	 * send at least one message, even if it's more than maxPostSize bytes.
 	 */
-	protected _sendMessages(): Task<void> {
+	protected _sendMessages(): Task<any> | undefined {
 		const messages = this._messageBuffer;
+		if (messages.length === 0) {
+			return;
+		}
+
 		const block = [messages.shift()!];
 
-		let size = block[0].length;
+		let size = block[0].message.length;
 		while (
 			messages.length > 0 &&
-			size + messages[0].length < this._maxPostSize
+			size + messages[0].message.length < this._maxPostSize
 		) {
-			size += messages[0].length;
+			size += messages[0].message.length;
 			block.push(messages.shift()!);
 		}
 
-		return request(this.url, {
+		this._activeRequest = request(this.url, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(block)
-		}).then(() => {
-			if (messages.length > 0) {
-				return this._sendMessages();
-			}
-		});
+			body: JSON.stringify(block.map(entry => entry.message))
+		})
+			.then(response => {
+				return response.json();
+			})
+			.then((results: any[]) => {
+				block.forEach((entry, index) => {
+					entry.resolve(results[index]);
+				});
+			})
+			.catch(error => {
+				block.forEach(entry => {
+					entry.reject(error);
+				});
+			})
+			.finally(() => {
+				this._activeRequest = undefined;
+				if (messages.length > 0) {
+					return this._sendMessages();
+				}
+			});
+
+		return this._activeRequest;
 	}
 }
 
 export interface HttpChannelOptions extends ChannelOptions {
 	maxPostSize?: number;
+}
+
+export interface MessageEntry {
+	message: string;
+	resolve: (value: any) => void;
+	reject: (error: Error) => void;
 }

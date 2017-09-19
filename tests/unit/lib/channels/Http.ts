@@ -1,5 +1,5 @@
 import _Http from 'src/lib/channels/Http';
-import { spy } from 'sinon';
+import { spy, SinonSpy } from 'sinon';
 import Task from '@dojo/core/async/Task';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
@@ -7,17 +7,17 @@ const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 let Http: typeof _Http;
 
 registerSuite('lib/channels/Http', function() {
-	const request = spy((path: string) => {
-		if (requester) {
-			return requester(path);
+	const request = spy((path: string, data: any) => {
+		if (requestHandler) {
+			return requestHandler(path, data);
 		}
-		const data = requestData && requestData[path];
-		return Task.resolve(data);
+		const result = requestData && requestData[path];
+		return Task.resolve(result);
 	});
 
 	let requestData: { [name: string]: string };
 	let removeMocks: () => void;
-	let requester: ((path: string) => Task<void>) | undefined;
+	let requestHandler: SinonSpy | undefined;
 
 	return {
 		before() {
@@ -34,43 +34,44 @@ registerSuite('lib/channels/Http', function() {
 		},
 
 		beforeEach() {
-			requester = undefined;
+			requestHandler = undefined;
 		},
 
 		tests: {
 			'#sendMessage'() {
 				const http = new Http({ sessionId: 'foo', url: 'bar' });
-				const requests: (() => void)[] = [];
 
-				requester = () => {
-					return new Task<void>(resolve => {
-						requests.push(resolve);
+				requestHandler = spy((_path: string, data: any) => {
+					return new Task<any>(resolve => {
+						// Auto-respond to a request after a short timeout
+						setTimeout(() => {
+							const items = JSON.parse(data.body).map(JSON.parse);
+							const responses: any[] = [];
+							for (const item of items) {
+								responses.push({
+									id: item.id,
+									data: item.data.toUpperCase()
+								});
+							}
+							resolve({ json: () => Task.resolve(responses) });
+						}, 100);
 					});
-				};
+				});
 
-				http.sendMessage('remoteStatus', 'foo');
-				http.sendMessage('remoteStatus', 'bar');
+				const send1 = http.sendMessage('remoteStatus', 'foo');
+				const send2 = http.sendMessage('remoteStatus', 'bar');
 				const send3 = http.sendMessage('remoteStatus', 'baz');
 
-				// Run first request check in a task resolve since first
-				// sendData call waits for a Task resolution
-				return Task.resolve()
-					.then(() => {
-						assert.lengthOf(requests, 1);
-						requests[0]();
-						return send3;
-					})
-					.then(() => {
-						assert.equal(request.callCount, 1);
-						const messageStrings = JSON.parse(
-							request.getCall(0).args[1].body
-						);
-						assert.lengthOf(messageStrings, 3);
-						const messages = messageStrings.map(JSON.parse);
-						assert.propertyVal(messages[0], 'data', 'foo');
-						assert.propertyVal(messages[1], 'data', 'bar');
-						assert.propertyVal(messages[2], 'data', 'baz');
-					});
+				return Promise.all([send1, send2, send3]).then(results => {
+					// First send is a request, and the other two will queue up
+					// and be be sent together in a second request
+					assert.equal(requestHandler!.callCount, 2);
+
+					// Each message should have its own response
+					assert.deepEqual(results[0], { id: '1', data: 'FOO' });
+					assert.deepEqual(results[1], { id: '2', data: 'BAR' });
+					assert.deepEqual(results[2], { id: '3', data: 'BAZ' });
+				});
 			}
 		}
 	};
