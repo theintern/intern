@@ -1,8 +1,9 @@
+import { join } from 'path';
+import { duplicate } from '@dojo/core/lang';
+
 import _ErrorFormatter from 'src/lib/node/ErrorFormatter';
 import { InternError } from 'src/lib/types';
 import { mockNodeExecutor, MockNode } from '../../../support/unit/mocks';
-import { join } from 'path';
-import { duplicate } from '@dojo/core/lang';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 

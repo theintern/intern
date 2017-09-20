@@ -1,10 +1,11 @@
 import * as charm from 'charm';
+import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
+import { Writable } from 'stream';
+
 import Test from '../Test';
 import Suite from '../Suite';
 import { createEventHandler } from './Reporter';
 import Coverage, { CoverageProperties } from './Coverage';
-import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
-import { Writable } from 'stream';
 import Server from '../Server';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import Node, { Events, TunnelMessage } from '../executors/Node';

@@ -1,6 +1,7 @@
-import _Executor, { Config } from 'src/lib/executors/Executor';
-import Task from '@dojo/core/async/Task';
 import { sandbox as Sandbox, spy } from 'sinon';
+import Task from '@dojo/core/async/Task';
+
+import _Executor, { Config } from 'src/lib/executors/Executor';
 
 // Import isSuite from the testing source rather than the source being tested
 import { isSuite } from '../../../../src/lib/Suite';

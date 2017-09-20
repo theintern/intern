@@ -1,6 +1,3 @@
-import Test, { isTest, SKIP, TestOptions, TestProperties } from './Test';
-import { InternError } from './types';
-import Deferred from './Deferred';
 import Task from '@dojo/core/async/Task';
 import { mixin } from '@dojo/core/lang';
 
@@ -9,6 +6,11 @@ import { mixin } from '@dojo/core/lang';
 import * as _ from 'lodash';
 import * as platform from 'platform';
 import * as Benchmark from 'benchmark';
+
+import Test, { isTest, SKIP, TestOptions, TestProperties } from './Test';
+import { InternError } from './types';
+import Deferred from './Deferred';
+
 // TODO: remove the <any> cast when benchmark typings are updated to include
 // runInContext
 (<any>Benchmark).runInContext({ _, platform });

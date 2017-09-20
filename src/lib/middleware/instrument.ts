@@ -1,9 +1,10 @@
-import { InternRequestHandler } from '../Server';
-import { join, resolve } from 'path';
-import { normalizePath } from '../node/util';
 import { stat, readFile } from 'fs';
 import * as createError from 'http-errors';
 import { lookup } from 'mime-types';
+import { join, resolve } from 'path';
+
+import { InternRequestHandler } from '../Server';
+import { normalizePath } from '../node/util';
 
 export default function instrument(): InternRequestHandler {
 	const codeCache: {
@@ -70,11 +71,13 @@ export default function instrument(): InternRequestHandler {
 						return next(createError(404, error, { expose: false }));
 					}
 
-					// providing `wholePath` to the instrumenter instead of a partial filename is necessary because
-					// lcov.info requires full path names as per the lcov spec
+					// providing `wholePath` to the instrumenter instead of a
+					// partial filename is necessary because lcov.info requires
+					// full path names as per the lcov spec
 					data = executor.instrumentCode(data, wholePath);
 					codeCache[wholePath] = {
-						// strictly speaking mtime could reflect a previous version, assume those race conditions are rare
+						// strictly speaking mtime could reflect a previous
+						// version, assume those race conditions are rare
 						mtime,
 						data
 					};

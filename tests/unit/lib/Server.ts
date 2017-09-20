@@ -1,3 +1,7 @@
+import { STATUS_CODES } from 'http';
+import * as createError from 'http-errors';
+import * as sinon from 'sinon';
+
 import _Server from 'src/lib/Server';
 import {
 	mockNodeExecutor,
@@ -7,10 +11,6 @@ import {
 	EventHandler
 } from '../../support/unit/mocks';
 import { mockFs, mockPath } from '../../support/unit/nodeMocks';
-import { STATUS_CODES } from 'http';
-import * as createError from 'http-errors';
-
-import * as sinon from 'sinon';
 
 const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 
@@ -170,6 +170,7 @@ registerSuite('lib/Server', function() {
 				'src/lib/middleware/post': { default: post },
 				'src/lib/middleware/unhandled': { default: unhandled },
 				'src/lib/middleware/finalError': { default: finalError },
+				'serve-static/index': mockServeStatic,
 				express: null,
 				'express/lib/express': null,
 				'express/lib/application': null,
@@ -641,8 +642,8 @@ registerSuite('lib/Server', function() {
 
 			'#subscribe': {
 				'before start'() {
-					// Server doesn't initialize its sessions object until it's started, so subscribing before start
-					// will fail
+					// Server doesn't initialize its sessions object until it's
+					// started, so subscribing before start will fail
 					assert.throws(() => {
 						server.subscribe('foo', () => {});
 					}, /Cannot read property/);

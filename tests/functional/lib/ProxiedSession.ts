@@ -1,7 +1,8 @@
-import ProxiedSession from 'src/lib/ProxiedSession';
-import Server from '@theintern/leadfoot/Server';
-import { Remote } from 'src/lib/executors/Node';
 import Task from '@dojo/core/async/Task';
+import Server from '@theintern/leadfoot/Server';
+
+import ProxiedSession from 'src/lib/ProxiedSession';
+import { Remote } from 'src/lib/executors/Node';
 
 // Bring in Test and TestFunction from testing src rather than the src being
 // tested

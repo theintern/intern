@@ -1,11 +1,10 @@
-import finalError from 'src/lib/middleware/finalError';
-
-import { MockRequest, MockResponse } from '../../../support/unit/mocks';
-
 import * as createError from 'http-errors';
 import { spy, SinonSpy } from 'sinon';
 
-registerSuite('lib/middleware/finalError', function () {
+import finalError from 'src/lib/middleware/finalError';
+import { MockRequest, MockResponse } from '../../../support/unit/mocks';
+
+registerSuite('lib/middleware/finalError', function() {
 	let handler: (error: any, request: any, response: any, next: any) => void;
 	let request: MockRequest;
 	let response: MockResponse;

@@ -1,9 +1,9 @@
+import { spy } from 'sinon';
+
 import * as _benchmarkInt from 'src/lib/interfaces/benchmark';
 import BenchmarkTest, { BenchmarkTestFunction } from 'src/lib/BenchmarkTest';
 import BenchmarkSuite from 'src/lib/BenchmarkSuite';
 import Suite from 'src/lib/Suite';
-
-import { spy } from 'sinon';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 

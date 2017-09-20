@@ -1,5 +1,6 @@
 import request from '@dojo/core/request/providers/xhr';
 import Task from '@dojo/core/async/Task';
+
 import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
 
 /**

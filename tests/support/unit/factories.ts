@@ -2,11 +2,11 @@
  * Factories are convenience functions for creating instances of normal classes
  * (not mocks).
  */
+import { mixin } from '@dojo/core/lang';
+
 import Test from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
 import { mockExecutor } from './mocks';
-
-import { mixin } from '@dojo/core/lang';
 
 /**
  * Create a new Suite with default required values and any given properties

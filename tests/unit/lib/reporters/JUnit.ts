@@ -1,5 +1,6 @@
-import _JUnit from 'src/lib/reporters/JUnit';
 import { spy, stub } from 'sinon';
+
+import _JUnit from 'src/lib/reporters/JUnit';
 import Test from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
 

@@ -1,7 +1,8 @@
-import ErrorFormatter from '../common/ErrorFormatter';
 import { readFileSync } from 'fs';
 import { dirname, join, relative, resolve } from 'path';
 import { MappingItem, SourceMapConsumer } from 'source-map';
+
+import ErrorFormatter from '../common/ErrorFormatter';
 import { readSourceMap } from './util';
 import Node from '../executors/Node';
 

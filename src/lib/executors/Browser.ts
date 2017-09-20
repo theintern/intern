@@ -1,10 +1,11 @@
 import { Minimatch } from 'minimatch';
-import Executor, { Config, Events } from './Executor';
-import { normalizePathEnding } from '../common/util';
-import { RuntimeEnvironment } from '../types';
 import request from '@dojo/core/request/providers/xhr';
 import Task from '@dojo/core/async/Task';
 import global from '@dojo/shim/global';
+
+import Executor, { Config, Events } from './Executor';
+import { normalizePathEnding } from '../common/util';
+import { RuntimeEnvironment } from '../types';
 
 // Reporters
 import Html from '../reporters/Html';

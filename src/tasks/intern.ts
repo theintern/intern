@@ -1,6 +1,7 @@
+import global from '@dojo/shim/global';
+
 import Node from '../lib/executors/Node';
 import { Config } from '../lib/executors/Executor';
-import global from '@dojo/shim/global';
 
 interface TaskOptions extends grunt.task.ITaskOptions, Partial<Config> {
 	[key: string]: any;

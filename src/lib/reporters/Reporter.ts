@@ -1,6 +1,7 @@
+import global from '@dojo/shim/global';
+
 import Executor, { Events, Handle } from '../executors/Executor';
 import { ErrorFormatOptions } from '../common/ErrorFormatter';
-import global from '@dojo/shim/global';
 
 /**
  * This is a base class for reporters that provides convenienience features such

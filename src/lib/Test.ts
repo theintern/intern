@@ -1,10 +1,11 @@
+import Task, { isThenable, State } from '@dojo/core/async/Task';
+import { mixin } from '@dojo/core/lang';
+
 import Executor from './executors/Executor';
 import Deferred from './Deferred';
-import Task, { isThenable, State } from '@dojo/core/async/Task';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
 import Suite from './Suite';
-import { mixin } from '@dojo/core/lang';
 import { isTask } from './common/util';
 
 /**

@@ -1,5 +1,6 @@
 import request from '@dojo/core/request/providers/xhr';
 import Task from '@dojo/core/async/Task';
+
 import { RemoteEvents } from '../RemoteSuite';
 import BaseChannel, { ChannelOptions, Message } from './Base';
 

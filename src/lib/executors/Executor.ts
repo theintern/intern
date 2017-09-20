@@ -1,8 +1,11 @@
-import Suite from '../Suite';
-import Test from '../Test';
+import * as chai from 'chai';
 import { deepMixin, duplicate } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
 import Task, { isThenable, State } from '@dojo/core/async/Task';
+import global from '@dojo/shim/global';
+
+import Suite from '../Suite';
+import Test from '../Test';
 import ErrorFormatter, { ErrorFormatOptions } from '../common/ErrorFormatter';
 import {
 	isTask,
@@ -28,9 +31,7 @@ import {
 	BenchmarkInterface
 } from '../interfaces/benchmark';
 import { BenchmarkReporterOptions } from '../reporters/Benchmark';
-import * as chai from 'chai';
 import { InternError, RuntimeEnvironment } from '../types';
-import global from '@dojo/shim/global';
 
 const console: Console = global.console;
 

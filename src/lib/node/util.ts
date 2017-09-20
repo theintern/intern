@@ -1,12 +1,13 @@
-import { dirname, join, normalize, sep } from 'path';
 import { readFile, readFileSync } from 'fs';
-import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
+import { dirname, join, normalize, sep } from 'path';
 import { RawSourceMap } from 'source-map';
-import Task from '@dojo/core/async/Task';
 import { sync as glob, hasMagic } from 'glob';
-import { mixin } from '@dojo/core/lang';
 import { parse } from 'shell-quote';
+import Task from '@dojo/core/async/Task';
+import { mixin } from '@dojo/core/lang';
 import global from '@dojo/shim/global';
+
+import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
 
 const process = global.process;
 

@@ -1,5 +1,6 @@
 import { deepMixin, mixin } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
+
 import { Config, ResourceConfig } from '../executors/Executor';
 
 const configPathSeparator = '@';

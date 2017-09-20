@@ -1,9 +1,10 @@
+import { mkdirSync, createWriteStream } from 'fs';
+import { dirname } from 'path';
+
 import Suite from '../Suite';
 import Test from '../Test';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Executor from '../executors/Executor';
-import { mkdirSync, createWriteStream } from 'fs';
-import { dirname } from 'path';
 
 /**
  * There is no formal spec for this format and everyone does it differently, so

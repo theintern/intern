@@ -1,5 +1,5 @@
-import _gruntTask from 'src/tasks/intern';
 import { spy, stub } from 'sinon';
+import _gruntTask from 'src/tasks/intern';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 

@@ -1,6 +1,6 @@
+import { parse } from 'url';
 import { InternRequestHandler } from '../Server';
 import { expandFiles } from '../node/util';
-import { parse } from 'url';
 
 export default function instrument(): InternRequestHandler {
 	return (request, response) => {

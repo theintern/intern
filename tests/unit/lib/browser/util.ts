@@ -1,6 +1,7 @@
-import * as _util from 'src/lib/browser/util';
-import Task from '@dojo/core/async/Task';
 import { spy, SinonSpy } from 'sinon';
+import Task from '@dojo/core/async/Task';
+
+import * as _util from 'src/lib/browser/util';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 

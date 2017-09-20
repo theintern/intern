@@ -1,15 +1,16 @@
+import * as charm from 'charm';
+import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
+import { format } from 'util';
+import { mixin } from '@dojo/core/lang';
+
 import Node from '../executors/Node';
 import Environment from '../Environment';
 import Suite from '../Suite';
 import Test from '../Test';
 import { createEventHandler } from './Reporter';
 import Coverage, { CoverageProperties } from './Coverage';
-import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import { Events, TunnelMessage } from '../executors/Node';
-import { mixin } from '@dojo/core/lang';
-import { format } from 'util';
-import * as charm from 'charm';
 
 const eventHandler = createEventHandler<Events>();
 

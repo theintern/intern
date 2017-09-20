@@ -1,29 +1,6 @@
-import Executor, {
-	Config as BaseConfig,
-	Events as BaseEvents,
-	Plugins
-} from './Executor';
-import Task, { State } from '@dojo/core/async/Task';
-import { parseValue, pullFromArray } from '../common/util';
-import { expandFiles, normalizePath, readSourceMap } from '../node/util';
 import { existsSync, readFileSync } from 'fs';
-import { deepMixin, mixin } from '@dojo/core/lang';
-import ErrorFormatter from '../node/ErrorFormatter';
 import { dirname, normalize, relative, resolve, sep } from 'path';
 import { sync as nodeResolve } from 'resolve';
-import LeadfootServer from '@theintern/leadfoot/Server';
-import ProxiedSession from '../ProxiedSession';
-import Environment from '../Environment';
-import resolveEnvironments from '../resolveEnvironments';
-import Command from '@theintern/leadfoot/Command';
-import Tunnel, {
-	TunnelOptions,
-	DownloadProgressEvent
-} from '@theintern/digdug/Tunnel';
-import Server from '../Server';
-import Suite, { isSuite } from '../Suite';
-import RemoteSuite from '../RemoteSuite';
-import { RuntimeEnvironment } from '../types';
 import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
@@ -33,6 +10,14 @@ import {
 	unhookRunInThisContext
 } from 'istanbul-lib-hook';
 import global from '@dojo/shim/global';
+import Task, { State } from '@dojo/core/async/Task';
+import { deepMixin, mixin } from '@dojo/core/lang';
+import Command from '@theintern/leadfoot/Command';
+import LeadfootServer from '@theintern/leadfoot/Server';
+import Tunnel, {
+	TunnelOptions,
+	DownloadProgressEvent
+} from '@theintern/digdug/Tunnel';
 
 // Dig Dug tunnels
 import BrowserStackTunnel, {
@@ -45,6 +30,22 @@ import SauceLabsTunnel from '@theintern/digdug/SauceLabsTunnel';
 import TestingBotTunnel from '@theintern/digdug/TestingBotTunnel';
 import CrossBrowserTestingTunnel from '@theintern/digdug/CrossBrowserTestingTunnel';
 import NullTunnel from '@theintern/digdug/NullTunnel';
+
+import Executor, {
+	Config as BaseConfig,
+	Events as BaseEvents,
+	Plugins
+} from './Executor';
+import { parseValue, pullFromArray } from '../common/util';
+import { expandFiles, normalizePath, readSourceMap } from '../node/util';
+import ErrorFormatter from '../node/ErrorFormatter';
+import ProxiedSession from '../ProxiedSession';
+import Environment from '../Environment';
+import resolveEnvironments from '../resolveEnvironments';
+import Server from '../Server';
+import Suite, { isSuite } from '../Suite';
+import RemoteSuite from '../RemoteSuite';
+import { RuntimeEnvironment } from '../types';
 
 // Reporters
 import Pretty from '../reporters/Pretty';

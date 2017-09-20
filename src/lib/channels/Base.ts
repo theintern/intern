@@ -1,5 +1,5 @@
-import { RemoteEvents } from '../RemoteSuite';
 import Task from '@dojo/core/async/Task';
+import { RemoteEvents } from '../RemoteSuite';
 
 export default abstract class BaseChannel {
 	readonly url: string;

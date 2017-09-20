@@ -1,5 +1,6 @@
-import global from '@dojo/shim/global';
 import { spy } from 'sinon';
+import global from '@dojo/shim/global';
+
 import { LoaderInit } from 'src/lib/executors/Executor';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');

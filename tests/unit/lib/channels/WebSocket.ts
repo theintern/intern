@@ -1,6 +1,6 @@
-import _WebSocket from 'src/lib/channels/WebSocket';
 import { useFakeTimers, SinonFakeTimers } from 'sinon';
 import Task from '@dojo/core/async/Task';
+import _WebSocket from 'src/lib/channels/WebSocket';
 import { parseUrl } from '../../../../src/lib/browser/util';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');

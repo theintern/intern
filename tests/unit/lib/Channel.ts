@@ -1,5 +1,5 @@
-import _Channel, { ChannelOptions } from 'src/lib/Channel';
 import Task from '@dojo/core/async/Task';
+import _Channel, { ChannelOptions } from 'src/lib/Channel';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 

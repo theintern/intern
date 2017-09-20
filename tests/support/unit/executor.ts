@@ -1,6 +1,7 @@
-const { assert } = intern.getPlugin('chai');
-import Executor, { Config } from 'src/lib/executors/Executor';
 import { SinonSpy } from 'sinon';
+import Executor, { Config } from 'src/lib/executors/Executor';
+
+const { assert } = intern.getPlugin('chai');
 
 export function testProperty<
 	E extends Executor = Executor,

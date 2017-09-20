@@ -1,3 +1,5 @@
+import * as sinon from 'sinon';
+
 import _instrument from 'src/lib/middleware/instrument';
 import Server from 'src/lib/Server';
 import {
@@ -8,8 +10,6 @@ import {
 	mockInternObject
 } from '../../../support/unit/mocks';
 import { mockFs, mockPath, MockStats } from '../../../support/unit/nodeMocks';
-
-import * as sinon from 'sinon';
 
 const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 

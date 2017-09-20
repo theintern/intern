@@ -4,7 +4,9 @@ import { STATUS_CODES } from 'http';
 
 export default function finalError(): ErrorRequestHandler {
 	return (error: HttpError, request, response, _) => {
-		const message = error.expose ? error.message : STATUS_CODES[error.statusCode];
+		const message = error.expose
+			? error.message
+			: STATUS_CODES[error.statusCode];
 
 		response.writeHead(error.statusCode, {
 			'Content-Type': 'text/html;charset=utf-8'

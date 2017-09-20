@@ -1,5 +1,5 @@
-import _Browser, { Config } from 'src/lib/executors/Browser';
 import { spy, sandbox as Sandbox } from 'sinon';
+import _Browser, { Config } from 'src/lib/executors/Browser';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 

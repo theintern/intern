@@ -1,8 +1,8 @@
-import _resolveSuites from 'src/lib/middleware/resolveSuites';
+import { sandbox as Sandbox } from 'sinon';
 import { parse } from 'url';
 
+import _resolveSuites from 'src/lib/middleware/resolveSuites';
 import { MockResponse } from '../../../support/unit/mocks';
-import { sandbox as Sandbox } from 'sinon';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 

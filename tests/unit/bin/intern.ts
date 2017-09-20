@@ -1,5 +1,5 @@
-import Task from '@dojo/core/async/Task';
 import { stub, SinonStub, spy, SinonSpy } from 'sinon';
+import Task from '@dojo/core/async/Task';
 import global from '@dojo/shim/global';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');

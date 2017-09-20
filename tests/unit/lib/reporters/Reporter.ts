@@ -1,10 +1,11 @@
+import { spy } from 'sinon';
+import global from '@dojo/shim/global';
+
 import _Reporter, {
 	createEventHandler,
 	eventHandler
 } from 'src/lib/reporters/Reporter';
 import { Events } from 'src/lib/executors/Executor';
-import { spy } from 'sinon';
-import global from '@dojo/shim/global';
 import Test from 'src/lib/Test';
 
 const { registerSuite } = intern.getPlugin('interface.object');

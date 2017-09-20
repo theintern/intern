@@ -1,6 +1,7 @@
+import Task from '@dojo/core/async/Task';
+
 import Base, { isChannel } from 'src/lib/channels/Base';
 import { RemoteEvents } from 'src/lib/RemoteSuite';
-import Task from '@dojo/core/async/Task';
 
 class TestBase extends Base {
 	sent: any[] = [];

@@ -1,5 +1,5 @@
-import _Runner from 'src/lib/reporters/Runner';
 import { spy, stub } from 'sinon';
+import _Runner from 'src/lib/reporters/Runner';
 
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');

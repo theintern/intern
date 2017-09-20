@@ -1,8 +1,9 @@
-import Suite, { SuiteOptions } from './Suite';
+import { parse } from 'url';
 import UrlSearchParams from '@dojo/core/UrlSearchParams';
 import { Handle, Hash } from '@dojo/interfaces/core';
-import { parse } from 'url';
 import Task from '@dojo/core/async/Task';
+
+import Suite, { SuiteOptions } from './Suite';
 import { InternError } from './types';
 import Node, { Events } from './executors/Node';
 import Browser, { Config as BrowserConfig } from './executors/Browser';

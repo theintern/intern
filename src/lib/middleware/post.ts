@@ -16,7 +16,9 @@ export default function post(): InternRequestHandler {
 				rawMessages = [rawMessages];
 			}
 
-			const messages: Message[] = rawMessages.map(function (messageString: string) {
+			const messages: Message[] = rawMessages.map(function(
+				messageString: string
+			) {
 				return JSON.parse(messageString);
 			});
 
@@ -30,10 +32,8 @@ export default function post(): InternRequestHandler {
 				.catch(() => {
 					response.statusCode = 500;
 					response.end();
-				})
-			;
-		}
-		catch (_) {
+				});
+		} catch (_) {
 			response.statusCode = 500;
 			response.end();
 		}

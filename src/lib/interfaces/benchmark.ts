@@ -1,6 +1,7 @@
 /**
  * Interface for registering benchmark suites
- */
+ */ /** */
+import global from '@dojo/shim/global';
 
 import Executor from '../executors/Executor';
 import { createSuite, isSuiteDescriptorFactory } from './object';
@@ -9,7 +10,6 @@ import BenchmarkTest, {
 	BenchmarkTestFunction
 } from '../BenchmarkTest';
 import BenchmarkSuite, { BenchmarkSuiteProperties } from '../BenchmarkSuite';
-import global from '@dojo/shim/global';
 
 /**
  * Importable interface that uses the currently installed global executor

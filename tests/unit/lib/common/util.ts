@@ -1,6 +1,5 @@
-import * as util from 'src/lib/common/util';
-
 import Task from '@dojo/core/async/Task';
+import * as util from 'src/lib/common/util';
 
 registerSuite('lib/common/util', {
 	loadConfig: {

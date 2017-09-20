@@ -1,5 +1,6 @@
-import { InternError } from '../types';
 import { diffJson, IDiffResult } from 'diff';
+
+import { InternError } from '../types';
 import Executor from '../executors/Executor';
 
 export default class ErrorFormatter<E extends Executor = Executor>

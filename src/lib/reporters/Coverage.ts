@@ -1,4 +1,3 @@
-import Reporter, { createEventHandler, ReporterProperties } from './Reporter';
 import {
 	CoverageMap,
 	CoverageMapData,
@@ -6,7 +5,9 @@ import {
 } from 'istanbul-lib-coverage';
 import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
 import { create, ReportType } from 'istanbul-reports';
+import Reporter, { createEventHandler, ReporterProperties } from './Reporter';
 import Node, { Events } from '../executors/Node';
+
 export { ReportType };
 
 const eventHandler = createEventHandler<Events>();

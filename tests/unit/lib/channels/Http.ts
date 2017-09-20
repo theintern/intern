@@ -1,6 +1,7 @@
-import _Http from 'src/lib/channels/Http';
 import { spy, SinonSpy } from 'sinon';
 import Task from '@dojo/core/async/Task';
+
+import _Http from 'src/lib/channels/Http';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 

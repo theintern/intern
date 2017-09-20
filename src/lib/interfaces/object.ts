@@ -55,11 +55,11 @@
  * });
  * ```
  */ /** */
+import global from '@dojo/shim/global';
 
 import Suite, { SuiteOptions, SuiteLifecycleProperties } from '../Suite';
 import Test, { TestFunction, isTestFunction } from '../Test';
 import Executor from '../executors/Executor';
-import global from '@dojo/shim/global';
 
 /**
  * Importable interface that uses the currently installed global executor

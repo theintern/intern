@@ -1,3 +1,5 @@
+import Task from '@dojo/core/async/Task';
+
 import BenchmarkTest, {
 	BenchmarkTestOptions,
 	BenchmarkTestFunction
@@ -10,7 +12,6 @@ import BenchmarkSuite, {
 	BenchmarkSuiteProperties
 } from 'src/lib/BenchmarkSuite';
 import Deferred from 'src/lib/Deferred';
-import Task from '@dojo/core/async/Task';
 
 type FullBenchmarkTestFunction = BenchmarkTestFunction & { options: any };
 

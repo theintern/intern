@@ -2,17 +2,17 @@
  * Mocks are completely artificial entities that have the types of actual
  * classes and interfaces (as far as TypeScript is concerned).
  */
+import { Handle } from '@dojo/interfaces/core';
+import { duplicate, mixin, assign } from '@dojo/core/lang';
+import Task from '@dojo/core/async/Task';
+import Command from '@theintern/leadfoot/Command';
+
 import Executor, { Events } from 'src/lib/executors/Executor';
 import Node from 'src/lib/executors/Node';
 import Server, { ServerListener } from 'src/lib/Server';
 import { Message } from 'src/lib/channels/Base';
-import { Handle } from '@dojo/interfaces/core';
 import { Remote } from 'src/lib/executors/Node';
-import Command from '@theintern/leadfoot/Command';
 import ProxiedSession from 'src/lib/ProxiedSession';
-
-import { duplicate, mixin, assign } from '@dojo/core/lang';
-import Task from '@dojo/core/async/Task';
 
 /**
  * Create a mock entity

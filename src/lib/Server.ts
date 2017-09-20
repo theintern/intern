@@ -1,14 +1,15 @@
-import { pullFromArray } from './common/util';
-import { after } from '@dojo/core/aspect';
-import { Server as HttpServer } from 'http';
+import { json, urlencoded } from 'body-parser';
 import * as express from 'express';
+import { Server as HttpServer } from 'http';
 import { Socket } from 'net';
+import * as WebSocket from 'ws';
+import { after } from '@dojo/core/aspect';
 import { mixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/interfaces/core';
+
+import { pullFromArray } from './common/util';
 import Node from './executors/Node';
 import { Message } from './channels/Base';
-import * as WebSocket from 'ws';
-import * as bodyParser from 'body-parser';
 
 import instrument from './middleware/instrument';
 import unhandled from './middleware/unhandled';
@@ -128,10 +129,7 @@ export default class Server implements ServerProperties {
 				get: () => intern
 			});
 
-			app.use(
-				bodyParser.json(),
-				bodyParser.urlencoded({ extended: true })
-			);
+			app.use(json(), urlencoded({ extended: true }));
 
 			app.use((request, _response, next) => {
 				this.executor.log(`Request for ${request.url}`);

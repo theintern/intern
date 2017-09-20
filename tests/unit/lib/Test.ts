@@ -1,3 +1,6 @@
+import Task, { State } from '@dojo/core/async/Task';
+import { Thenable } from '@dojo/shim/interfaces';
+
 import Executor from 'src/lib/executors/Executor';
 import Test, {
 	isTest,
@@ -14,9 +17,6 @@ import {
 	mockSession
 } from '../../support/unit/mocks';
 import { createSuite } from '../../support/unit/factories';
-
-import Task, { State } from '@dojo/core/async/Task';
-import { Thenable } from '@dojo/shim/interfaces';
 
 function createTest(
 	options: Partial<TestProperties> & { executor?: Executor } = {}

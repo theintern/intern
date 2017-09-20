@@ -1,6 +1,7 @@
 import { mixin } from '@dojo/core/lang';
-import Environment from './Environment';
 import { NormalizedEnvironment } from '@theintern/digdug/Tunnel';
+
+import Environment from './Environment';
 
 /**
  * Resolves a collection of Intern test environments to a list of service

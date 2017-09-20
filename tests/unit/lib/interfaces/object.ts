@@ -1,8 +1,8 @@
+import { sandbox as Sandbox } from 'sinon';
+
 import * as _objInt from 'src/lib/interfaces/object';
 import Test from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
-
-import { sandbox as Sandbox } from 'sinon';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 

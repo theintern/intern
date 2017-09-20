@@ -1,10 +1,10 @@
 import { readFileSync, writeFileSync } from 'fs';
+import * as Benchmark from 'benchmark';
 import Executor from '../executors/Executor';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import BenchmarkTest from '../BenchmarkTest';
 import Test from '../Test';
 import Suite from '../Suite';
-import * as Benchmark from 'benchmark';
 
 /**
  * Benchmark is a reporter that can generate a baseline report and do runtime
