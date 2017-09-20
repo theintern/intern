@@ -1,21 +1,23 @@
 import { InternRequestHandler } from '../Server';
-import * as express from 'express';
 import { join, resolve } from 'path';
 import { normalizePath } from '../node/util';
 import { stat, readFile } from 'fs';
 import * as createError from 'http-errors';
-
-const { mime } = express.static;
+import { lookup } from 'mime-types';
 
 export default function instrument(): InternRequestHandler {
-	const codeCache: { [filename: string]: { mtime: number, data: string } } = Object.create(null);
+	const codeCache: {
+		[filename: string]: { mtime: number; data: string };
+	} = Object.create(null);
 
 	return (request, response, next) => {
 		const { basePath, executor } = request.intern;
 		const wholePath = normalizePath(resolve(join(basePath, request.url)));
 
-		if (!(request.method === 'HEAD' || request.method === 'GET') ||
-			!executor.shouldInstrumentFile(wholePath)) {
+		if (
+			!(request.method === 'HEAD' || request.method === 'GET') ||
+			!executor.shouldInstrumentFile(wholePath)
+		) {
 			return next();
 		}
 
@@ -41,20 +43,23 @@ export default function instrument(): InternRequestHandler {
 			};
 			const callback = (error?: Error) => {
 				if (error) {
-					executor.emit('error', new Error(`Error serving ${wholePath}: ${error.message}`));
-				}
-				else {
+					executor.emit(
+						'error',
+						new Error(
+							`Error serving ${wholePath}: ${error.message}`
+						)
+					);
+				} else {
 					executor.log('Served', wholePath);
 				}
 			};
 
-			const contentType = mime.lookup(wholePath);
+			const contentType = lookup(wholePath) || 'application/octet-stream';
 			const mtime = stats.mtime.getTime();
 
 			if (codeCache[wholePath] && codeCache[wholePath].mtime === mtime) {
 				send(contentType, codeCache[wholePath].data);
-			}
-			else {
+			} else {
 				readFile(wholePath, 'utf8', (error, data) => {
 					// The server was stopped in the middle of the file read
 					if (request.intern.stopped) {

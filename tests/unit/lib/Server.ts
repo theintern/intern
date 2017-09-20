@@ -7,10 +7,8 @@ import {
 	EventHandler
 } from '../../support/unit/mocks';
 import { mockFs, mockPath } from '../../support/unit/nodeMocks';
-import { assign } from '@dojo/core/lang';
 import { STATUS_CODES } from 'http';
 import * as createError from 'http-errors';
-import { mime } from 'serve-static';
 
 import * as sinon from 'sinon';
 
@@ -134,9 +132,6 @@ registerSuite('lib/Server', function() {
 			return baseStaticHandler;
 		}
 	});
-	assign(mockServeStatic, {
-		mime
-	});
 
 	function mockMiddleware(error = false) {
 		const handler = sandbox.stub();
@@ -175,7 +170,6 @@ registerSuite('lib/Server', function() {
 				'src/lib/middleware/post': { default: post },
 				'src/lib/middleware/unhandled': { default: unhandled },
 				'src/lib/middleware/finalError': { default: finalError },
-				'serve-static/index': mockServeStatic,
 				express: null,
 				'express/lib/express': null,
 				'express/lib/application': null,
