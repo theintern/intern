@@ -1,3 +1,4 @@
+import global from '@dojo/shim/global';
 import Browser from '../executors/Browser';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Suite from '../Suite';
@@ -16,12 +17,8 @@ export default class Dom extends Reporter {
 
 	constructor(executor: Browser, options: DomOptions = {}) {
 		super(executor, options);
-		if (!this.document) {
-			this.document = document;
-		}
-		if (!this.suiteNode) {
-			this.suiteNode = this.document.body;
-		}
+		this.document = options.document || document;
+		this.suiteNode = options.suiteNode || this.document.body;
 	}
 
 	@eventHandler()
@@ -121,7 +118,7 @@ export default class Dom extends Reporter {
 	}
 
 	private _scroll() {
-		window.scrollTo(
+		global.scrollTo(
 			0,
 			this.document.documentElement.scrollHeight ||
 				this.document.body.scrollHeight

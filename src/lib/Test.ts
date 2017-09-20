@@ -41,7 +41,9 @@ export default class Test implements TestProperties {
 
 	protected _usesRemote = false;
 
-	constructor(options: TestOptions) {
+	constructor(
+		options: TestOptions & { timeElapsed?: number; hasPassed?: boolean }
+	) {
 		if (!options.name || !options.test) {
 			throw new Error('A Test requires a name and a test function');
 		}

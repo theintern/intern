@@ -67,7 +67,7 @@ export default class ConsoleReporter extends Reporter {
 			this.console.log(`SKIP: ${test[this._testId]} (${test.skipped})`);
 		} else {
 			this.console.log(
-				`PASS: ${test[this._testId]} (${test.timeElapsed})ms)`
+				`PASS: ${test[this._testId]} (${test.timeElapsed}ms)`
 			);
 		}
 	}
