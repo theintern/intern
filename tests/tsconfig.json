@@ -37,8 +37,7 @@
 		"./unit/loaders/*.ts",
 		"./unit/tasks/*.ts",
 		"./functional/lib/*.ts",
-		"../src/loaders/*.ts",
-		"../src/browser/*.ts",
-		"../src/bin/*.ts"
+		"../src/bin/*.ts",
+		"../src/loaders/*.ts"
 	]
 }

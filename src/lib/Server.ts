@@ -13,6 +13,7 @@ import * as bodyParser from 'body-parser';
 import instrument from './middleware/instrument';
 import unhandled from './middleware/unhandled';
 import finalError from './middleware/finalError';
+import resolveSuites from './middleware/resolveSuites';
 import post from './middleware/post';
 
 export interface InternObject {
@@ -136,6 +137,8 @@ export default class Server implements ServerProperties {
 				this.executor.log(`Request for ${request.url}`);
 				return next();
 			});
+
+			app.use('/__intern/__resolveSuites__', resolveSuites());
 
 			app.use(
 				'/__intern',

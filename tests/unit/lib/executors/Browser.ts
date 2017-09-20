@@ -56,13 +56,33 @@ registerSuite('lib/executors/Browser', function() {
 
 	let executor: _Browser;
 
+	const request = sandbox.spy((_path: string, _data: any) => {
+		return Promise.resolve({
+			json: () => Promise.resolve({})
+		});
+	});
+
+	class MockMiniMatch {
+		set: (string | RegExp)[][];
+
+		constructor(pattern: string) {
+			if (/\*/.test(pattern)) {
+				this.set = [[/.*/]];
+			} else {
+				this.set = [[]];
+			}
+		}
+	}
+
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/executors/Browser', {
 				'src/lib/common/ErrorFormatter': {
 					default: MockErrorFormatter
 				},
+				'@dojo/core/request/providers/xhr': { default: request },
 				chai: mockChai,
+				minimatch: { Minimatch: MockMiniMatch },
 				'@dojo/shim/global': { default: mockGlobal }
 			}).then(handle => {
 				removeMocks = handle.remove;
@@ -139,13 +159,21 @@ registerSuite('lib/executors/Browser', function() {
 			'#configure': {
 				'suite globs'() {
 					executor.configure({ suites: ['**/*.js', 'bar.js'] });
-					return executor.run().then(
-						() => {
-							throw new Error('run should have failed');
-						},
-						error =>
-							assert.match(error.message, /Globs may not be used/)
-					);
+					return executor.run().then(() => {
+						assert.equal(
+							request.callCount,
+							1,
+							'expected a request'
+						);
+						assert.deepEqual(
+							request.args[0],
+							[
+								'__resolveSuites__',
+								{ query: { suites: ['**/*.js'] } }
+							],
+							'expected suite resolution request'
+						);
+					});
 				}
 			},
 

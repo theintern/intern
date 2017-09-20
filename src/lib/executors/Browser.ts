@@ -1,6 +1,8 @@
+import { Minimatch } from 'minimatch';
 import Executor, { Config, Events } from './Executor';
 import { normalizePathEnding } from '../common/util';
 import { RuntimeEnvironment } from '../types';
+import request from '@dojo/core/request/providers/xhr';
 import Task from '@dojo/core/async/Task';
 import global from '@dojo/shim/global';
 
@@ -76,20 +78,55 @@ export default class Browser extends Executor<Events, Config> {
 				config.internPath = `${config.basePath}${config.internPath}`;
 			}
 
-			// Filter out globs from suites and browser suites
+			['basePath', 'internPath'].forEach((key: keyof Config) => {
+				config[key] = normalizePathEnding(<string>config[key]);
+			});
+
+			type GlobEntry = {
+				suites: string[];
+				pattern: string;
+				index: number;
+			};
+
+			const globSuites: GlobEntry[] = [];
 			[config.suites, config.browser.suites].forEach(suites => {
-				suites.forEach(suite => {
-					if (/[*?]/.test(suite)) {
-						throw new Error(
-							`Globs may not be used for browser suites: "${suite}"`
-						);
+				suites.forEach((pattern, index) => {
+					const matcher = new Minimatch(pattern);
+					if (
+						matcher.set[0].some(entry => typeof entry !== 'string')
+					) {
+						// suite is a glob
+						globSuites.push({ suites, pattern, index });
 					}
 				});
 			});
 
-			['basePath', 'internPath'].forEach((key: keyof Config) => {
-				config[key] = normalizePathEnding(<string>config[key]);
-			});
+			if (globSuites.length > 0) {
+				return request('__resolveSuites__', {
+					query: {
+						suites: globSuites.map(entry => entry.pattern)
+					}
+				})
+					.then(response => response.json())
+					.catch(() => {
+						throw new Error(
+							'The server does not support suite glob resolution'
+						);
+					})
+					.then((data: string[][]) => {
+						// Process the data in reverse since we'll be modifying the
+						// suites lists
+						for (let i = data.length - 1; i >= 0; i--) {
+							const suites = data[i];
+							const globEntry = globSuites[i];
+							globEntry.suites.splice(
+								globEntry.index,
+								1,
+								...suites
+							);
+						}
+					});
+			}
 		});
 	}
 }
