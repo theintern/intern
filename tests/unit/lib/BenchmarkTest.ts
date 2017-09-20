@@ -64,6 +64,12 @@ function createTest(descriptor: BenchmarkTestOptions, options?: TestOptions) {
 			}
 		};
 	}
+
+	// Keep things fast
+	const test = descriptor.test!;
+	test.options = test.options || {};
+	test.options.maxTime = 0.1;
+
 	return new BenchmarkTest(descriptor);
 }
 

@@ -1,7 +1,14 @@
 {
 	"description": "Run tests on Node, excluding the benchmark tests",
 
+	"coverage": [
+		"_build/src/**/*.js",
+		"!_build/src/browser/**/*.js"
+	],
+
 	"suites": [
+		"_tests/tests/benchmark/example.js",
+		"_tests/tests/unit/lib/BenchmarkTest.js",
 		"_tests/tests/unit/lib/Channel.js",
 		"_tests/tests/unit/lib/Environment.js",
 		"_tests/tests/unit/lib/Suite.js",
@@ -100,14 +107,6 @@
 	"internPath": "_tests/src",
 
 	"configs": {
-		"allSuites": {
-			"description": "All regular suites + benchmark suites",
-			"suites+": [
-				"_tests/tests/benchmark/example.js",
-				"_tests/tests/unit/lib/BenchmarkTest.js"
-			]
-		},
-
 		"progress": {
 			"description": "For showing test progress",
 			"node": {
@@ -116,17 +115,6 @@
 					"options": { "hideSkipped": true, "hidePassed": false }
 				}
 			}
-		},
-
-		"coverage": {
-			"benchmark": true,
-			"description": "Generate full coverage",
-			"coverage": [
-				"_build/src/**/*.js",
-				"!_build/src/*.js",
-				"!_build/src/browser/**/*.js"
-			],
-			"extends": ["allSuites"]
 		},
 
 		"wd": {
@@ -138,15 +126,10 @@
 			}
 		},
 
-		"wdcoverage": {
-			"description": "Run coverage tests locally",
-			"extends": ["wd", "coverage"]
-		},
-
 		"ci": {
 			"description":
 				"Run CI tests on the default cloud service (BrowserStack)",
-			"extends": "coverage",
+			"reporters+": "lcov",
 			"tunnel": "browserstack",
 			"maxConcurrency": 2,
 			"capabilities": {
