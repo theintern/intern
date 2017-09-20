@@ -1,0 +1,13 @@
+sudo: false
+language: node_js
+node_js:
+  - 'lts/*'
+  - 'node'
+install:
+  - npm install
+  - npm install -g codecov
+script:
+  - npm run ci && codecov
+notifications:
+  slack:
+    secure: RvW7LoV4mBzNz481eqfhLB/QNuJYht9Fpz7F+vtVjD/RacDJfc7397/8pJcl2yP+Ft2X7yJsM6bx3Uq22CfMiZ7HTVOfb+tYQNBQ5vcluUvd3fYV72M4oWe/TTFTlAulC04vWs4/QRHqbvmsXXr8Rn8Jj2LjsxnKvP0UNr0aLxk=

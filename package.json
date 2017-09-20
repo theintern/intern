@@ -32,6 +32,7 @@
     "build": "intern-dev-build",
     "clean": "intern-dev-clean",
     "test": "NODE_PATH=_build intern",
+    "ci": "intern-dev-build && NODE_PATH=_build intern config=@ci",
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
     "watch": "intern-dev-build watch"
