@@ -238,7 +238,7 @@ export default function install(context: CliContext) {
 			}
 
 			if (command.port) {
-				internArgs.push(`proxyPort=${command.port}`);
+				internArgs.push(`serverPort=${command.port}`);
 			}
 
 			if (command.timeout) {
@@ -364,7 +364,7 @@ export default function install(context: CliContext) {
 		internArgs.push('serveOnly');
 
 		if (command.port) {
-			internArgs.push(`proxyPort=${command.port}`);
+			internArgs.push(`serverPort=${command.port}`);
 		}
 
 		if (command.noInstrument) {
@@ -390,14 +390,11 @@ export default function install(context: CliContext) {
 			process.stdout.write(data);
 
 			if (/Listening on/.test(data)) {
-				const internPath = `/node_modules/intern/client.html?config=${config}`;
+				const internPath = `/node_modules/intern/?config=${config}`;
 
 				// Get the address. Convert 0.0.0.0 to 'localhost' for Windows
 				// compatibility.
-				let address = data
-					.split(' on ')[1]
-					.replace(/^\s*/, '')
-					.replace(/\s*$/, '');
+				let address = data.split(' ')[2];
 				const parts = address.split(':');
 				if (parts[0] === '0.0.0.0') {
 					parts[0] = 'localhost';
