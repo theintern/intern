@@ -142,8 +142,6 @@ function _loadConfig(
 		})
 		.then(config => {
 			if (args) {
-				deepMixin(config, args);
-
 				// If any non-additive resources are specified in args, they
 				// will apply to all environments and will override any
 				// environment specific resources.
@@ -166,6 +164,8 @@ function _loadConfig(
 								delete config[environment][resource];
 							});
 					});
+
+				deepMixin(config, args);
 			}
 			return config;
 		});
