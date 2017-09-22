@@ -1,10 +1,7 @@
 {
 	"description": "Run tests on Node, excluding the benchmark tests",
 
-	"coverage": [
-		"_build/src/**/*.js",
-		"!_build/src/browser/**/*.js"
-	],
+	"coverage": ["_build/src/**/*.js", "!_build/src/browser/**/*.js"],
 
 	"suites": [
 		"_tests/tests/benchmark/example.js",
@@ -26,6 +23,7 @@
 		"_tests/tests/unit/lib/interfaces/tdd.js",
 		"_tests/tests/unit/lib/reporters/Console.js",
 		"_tests/tests/unit/lib/reporters/Dom.js",
+		"_tests/tests/unit/lib/reporters/Html.js",
 		"_tests/tests/unit/loaders/default.js",
 		"_tests/tests/unit/loaders/dojo.js",
 		"_tests/tests/unit/loaders/dojo2.js",
@@ -47,6 +45,7 @@
 			"_tests/tests/unit/lib/middleware/**/*.js",
 			"_tests/tests/unit/lib/node/ErrorFormatter.js",
 			"_tests/tests/unit/lib/node/util.js",
+			"_tests/tests/unit/lib/reporters/Benchmark.js",
 			"_tests/tests/unit/lib/reporters/Cobertura.js",
 			"_tests/tests/unit/lib/reporters/Coverage.js",
 			"_tests/tests/unit/lib/reporters/HtmlCoverage.js",
@@ -59,6 +58,7 @@
 		],
 		"scripts": [
 			"_tests/tests/support/nodeMocking.js",
+			"_tests/tests/support/nodeDom.js",
 			"source-map-support/register"
 		],
 		"reporters": {
@@ -69,7 +69,10 @@
 
 	"browser": {
 		"suites": ["_tests/tests/unit/lib/browser/util.js"],
-		"scripts": "_tests/tests/support/dojoMocking.js",
+		"scripts": [
+			"_tests/tests/support/browserDom.js",
+			"_tests/tests/support/dojoMocking.js"
+		],
 		"loader": {
 			"script": "dojo2",
 			"options": {
@@ -125,6 +128,18 @@
 			"tunnel": "selenium",
 			"environments": {
 				"browserName": "chrome",
+				"fixSessionCapabilities": "no-detect"
+			}
+		},
+
+		"localwd": {
+			"tunnel": "null",
+			"tunnelOptions": {
+				"hostname": "192.168.151.129"
+			},
+			"serverUrl": "http://192.168.151.1:9000/",
+			"environments": {
+				"browserName": "internet explorer",
 				"fixSessionCapabilities": "no-detect"
 			}
 		},

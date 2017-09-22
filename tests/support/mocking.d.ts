@@ -11,4 +11,8 @@ declare namespace mocking {
 			mocks: { [key: string]: any }
 		): Promise<MockedResource<T>>;
 	}
+
+	export interface DocCreator {
+		(): Document;
+	}
 }

@@ -48,7 +48,7 @@ export default class Html extends Reporter implements HtmlProperties {
 
 	protected _failedFilter: any = null;
 
-	protected _fragment: DocumentFragment = document.createDocumentFragment();
+	protected _fragment: DocumentFragment;
 
 	protected _indentLevel = 0;
 
@@ -56,10 +56,8 @@ export default class Html extends Reporter implements HtmlProperties {
 
 	constructor(executor: Browser, options: HtmlOptions = {}) {
 		super(executor, options);
-
-		if (!this.document) {
-			this.document = window.document;
-		}
+		this.document = options.document || window.document;
+		this._fragment = this.document.createDocumentFragment();
 	}
 
 	protected _generateSummary(suite: Suite): void {
@@ -304,7 +302,7 @@ export default class Html extends Reporter implements HtmlProperties {
 	suiteStart(suite: Suite) {
 		// There's a top-level Suite that contains all user-created suites
 		// We want to skip it
-		if (!suite.parent) {
+		if (!suite.hasParent) {
 			return;
 		}
 

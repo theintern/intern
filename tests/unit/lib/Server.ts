@@ -4,7 +4,7 @@ import * as sinon from 'sinon';
 
 import _Server from 'src/lib/Server';
 import {
-	mockNodeExecutor,
+	createMockNodeExecutor,
 	MockExecutor,
 	MockRequest,
 	MockResponse,
@@ -192,7 +192,7 @@ registerSuite('lib/Server', function() {
 			fs.__fileData = {};
 			httpServers = [];
 			webSocketServers = [];
-			executor = mockNodeExecutor();
+			executor = createMockNodeExecutor();
 			server = new Server({ executor: executor as any });
 		},
 

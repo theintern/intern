@@ -3,7 +3,7 @@ import { duplicate } from '@dojo/core/lang';
 
 import _ErrorFormatter from 'src/lib/node/ErrorFormatter';
 import { InternError } from 'src/lib/types';
-import { mockNodeExecutor, MockNode } from '../../../support/unit/mocks';
+import { createMockNodeExecutor, MockNode } from '../../../support/unit/mocks';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
@@ -118,7 +118,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
 
 				return {
 					beforeEach() {
-						executor = mockNodeExecutor();
+						executor = createMockNodeExecutor();
 						executor.config.filterErrorStack = false;
 						executor.instrumentedMapStore = {
 							data: {

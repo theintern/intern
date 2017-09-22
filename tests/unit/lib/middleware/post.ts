@@ -2,11 +2,11 @@ import * as sinon from 'sinon';
 
 import post from 'src/lib/middleware/post';
 import {
-	mockNodeExecutor,
-	mockServer,
+	createMockNodeExecutor,
+	createMockServer,
 	MockRequest,
 	MockResponse,
-	mockInternObject
+	createMockInternObject
 } from '../../../support/unit/mocks';
 
 registerSuite('lib/middleware/post', function() {
@@ -19,14 +19,14 @@ registerSuite('lib/middleware/post', function() {
 
 	return {
 		beforeEach() {
-			const server = mockServer({
-				executor: mockNodeExecutor()
+			const server = createMockServer({
+				executor: createMockNodeExecutor()
 			});
 			handleMessage = sinon.stub();
 			handler = post();
 			request = new MockRequest('POST', '/');
 			response = new MockResponse();
-			mockInternObject([request, response], server, handleMessage);
+			createMockInternObject([request, response], server, handleMessage);
 			next = sinon.spy();
 			end = sinon.spy(response, 'end');
 		},

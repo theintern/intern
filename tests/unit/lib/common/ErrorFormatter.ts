@@ -1,6 +1,6 @@
 import _ErrorFormatter from 'src/lib/common/ErrorFormatter';
 import { InternError } from 'src/lib/types';
-import { mockExecutor, MockExecutor } from '../../../support/unit/mocks';
+import { createMockExecutor, MockExecutor } from '../../../support/unit/mocks';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
@@ -47,7 +47,7 @@ registerSuite('lib/common/ErrorFormatter', function() {
 
 				return {
 					beforeEach() {
-						executor = mockExecutor();
+						executor = createMockExecutor();
 						executor.config.filterErrorStack = false;
 						formatter = new ErrorFormatter(executor);
 					},

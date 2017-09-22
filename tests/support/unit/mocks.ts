@@ -2,16 +2,17 @@
  * Mocks are completely artificial entities that have the types of actual
  * classes and interfaces (as far as TypeScript is concerned).
  */
+import { spy, SinonSpy } from 'sinon';
 import { Handle } from '@dojo/interfaces/core';
 import { duplicate, mixin, assign } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 import Command from '@theintern/leadfoot/Command';
 
 import Executor, { Events } from 'src/lib/executors/Executor';
-import Node from 'src/lib/executors/Node';
+import Node, { Remote } from 'src/lib/executors/Node';
+import Browser from 'src/lib/executors/Browser';
 import Server, { ServerListener } from 'src/lib/Server';
 import { Message } from 'src/lib/channels/Base';
-import { Remote } from 'src/lib/executors/Node';
 import ProxiedSession from 'src/lib/ProxiedSession';
 
 /**
@@ -35,7 +36,7 @@ export interface MockExecutor extends Executor {
 /**
  * Create a MockExecutor with the given property overrides
  */
-export function mockExecutor(
+export function createMockExecutor(
 	properties?: { [P in keyof Executor]?: Executor[P] } & { testConfig?: any }
 ) {
 	const _properties: any = duplicate(properties || {});
@@ -58,13 +59,46 @@ export function mockExecutor(
 					return Task.resolve();
 				},
 
+				formatError(error: Error) {
+					return error.toString();
+				},
+
 				log(...args: any[]) {
 					return this.emit('log', JSON.stringify(args));
-				}
+				},
+
+				on(_eventName: keyof Events) {}
 			},
 			_properties || {}
 		)
 	);
+}
+
+/**
+ * A mock Node executor with an events property that stores emitted events
+ */
+export interface MockBrowser extends Browser {
+	events: { name: string; data: any }[];
+}
+
+/**
+ * Create a MockNode with the given property overrides
+ */
+export function createMockBrowserExecutor(
+	properties?: { [P in keyof Browser]?: Browser[P] }
+) {
+	const executor = createMockExecutor(
+		mixin(
+			{
+				config: <any>{
+					basePath: '/path/to/base/path/',
+					internPath: '/modules/intern/'
+				}
+			},
+			properties || {}
+		)
+	);
+	return <MockBrowser>executor;
 }
 
 /**
@@ -81,8 +115,10 @@ export interface MockNode extends Node {
 /**
  * Create a MockNode with the given property overrides
  */
-export function mockNodeExecutor(properties?: { [P in keyof Node]?: Node[P] }) {
-	const executor = mockExecutor(
+export function createMockNodeExecutor(
+	properties?: { [P in keyof Node]?: Node[P] }
+) {
+	const executor = createMockExecutor(
 		mixin(
 			{
 				config: <any>{
@@ -107,10 +143,29 @@ export function mockNodeExecutor(properties?: { [P in keyof Node]?: Node[P] }) {
 }
 
 /**
+ * Create a mock Console object
+ */
+export function createMockConsole(hasGrouping = false) {
+	const console: { [key: string]: SinonSpy } = {
+		error: spy(() => {}),
+		info: spy(() => {}),
+		log: spy(() => {}),
+		warn: spy(() => {})
+	};
+	if (hasGrouping) {
+		console.group = spy(() => {});
+		console.groupEnd = spy(() => {});
+	}
+	return console;
+}
+
+/**
  * Create a mock Server with defaults for required properties and the given
  * property overrides
  */
-export function mockServer(properties?: { [P in keyof Server]?: Server[P] }) {
+export function createMockServer(
+	properties?: { [P in keyof Server]?: Server[P] }
+) {
 	return createMock<Server>(
 		mixin(
 			{
@@ -139,7 +194,7 @@ export function mockServer(properties?: { [P in keyof Server]?: Server[P] }) {
 /**
  * Create a mock ProxiedSession
  */
-export function mockSession(
+export function createMockSession(
 	properties?: { [P in keyof ProxiedSession]?: ProxiedSession[P] }
 ) {
 	return createMock<ProxiedSession>(properties);
@@ -162,7 +217,7 @@ export class MockRemote extends Task<MockRemote> {
 /**
  * Create a mock Remote
  */
-export function mockRemote(
+export function createMockRemote(
 	properties?: {
 		[P in keyof (Remote | Command<ProxiedSession>)]?: (
 			| Remote
@@ -177,8 +232,8 @@ export function mockRemote(
 /**
  * Create a mock Remote with a mock Session using a given ID
  */
-export function mockRemoteAndSession(sessionId: string) {
-	return mockRemote({ session: mockSession({ sessionId }) });
+export function createMockRemoteAndSession(sessionId: string) {
+	return createMockRemote({ session: createMockSession({ sessionId }) });
 }
 
 export class EventHandler {
@@ -273,7 +328,7 @@ export class MockResponse extends EventHandler {
 	}
 }
 
-export function mockInternObject(
+export function createMockInternObject(
 	objects: MockRequest | MockResponse | (MockRequest | MockResponse)[],
 	server: any,
 	handleMessage?: any

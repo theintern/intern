@@ -12,9 +12,9 @@ import Test, {
 import Suite from 'src/lib/Suite';
 
 import {
-	mockRemote,
-	mockExecutor,
-	mockSession
+	createMockRemote,
+	createMockExecutor,
+	createMockSession
 } from '../../support/unit/mocks';
 import { createSuite } from '../../support/unit/factories';
 
@@ -28,7 +28,7 @@ function createTest(
 		options.test = () => {};
 	}
 	if (!options.parent.executor) {
-		const executor = options.executor || mockExecutor();
+		const executor = options.executor || createMockExecutor();
 		delete options.executor;
 		options.parent.executor = executor;
 	}
@@ -421,8 +421,8 @@ registerSuite('lib/Test', {
 	},
 
 	'#remote'() {
-		const remote = mockRemote({
-			session: mockSession({ sessionId: 'test' })
+		const remote = createMockRemote({
+			session: createMockSession({ sessionId: 'test' })
 		});
 		const test = createTest({
 			name: 'foo',
@@ -442,7 +442,7 @@ registerSuite('lib/Test', {
 			test() {
 				this.skip('IT’S A TRAP');
 			},
-			executor: mockExecutor({
+			executor: createMockExecutor({
 				emit(event: string, data?: any) {
 					if (event === 'testEnd' && data.skipped) {
 						actual = data;

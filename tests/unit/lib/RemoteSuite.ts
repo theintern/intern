@@ -1,8 +1,8 @@
 import RemoteSuite from 'src/lib/RemoteSuite';
 import {
-	mockNodeExecutor,
-	mockRemoteAndSession,
-	mockServer,
+	createMockNodeExecutor,
+	createMockRemoteAndSession,
+	createMockServer,
 	MockNode
 } from '../../support/unit/mocks';
 import { ObjectSuiteDescriptor } from '../../../src/lib/interfaces/object';
@@ -31,14 +31,14 @@ registerSuite('lib/RemoteSuite', {
 			beforeEach() {
 				subscribers = [];
 
-				executor = mockNodeExecutor({
+				executor = createMockNodeExecutor({
 					config: <any>{
 						connectTimeout: 3456,
 						serverUrl: 'http://foo.com/somewhere/else',
 						capabilities: { 'idle-timeout': 123 }
 					},
 
-					server: mockServer({
+					server: createMockServer({
 						socketPort: 12345,
 
 						subscribe(_sessionId: string, handler: Function) {
@@ -52,7 +52,7 @@ registerSuite('lib/RemoteSuite', {
 
 				remoteSuite = new RemoteSuite({
 					executor,
-					parent: <any>{ remote: mockRemoteAndSession('foo') }
+					parent: <any>{ remote: createMockRemoteAndSession('foo') }
 				});
 			},
 

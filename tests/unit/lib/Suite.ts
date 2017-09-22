@@ -4,7 +4,10 @@ import Suite, { SuiteOptions, SuiteProperties } from 'src/lib/Suite';
 import Test from 'src/lib/Test';
 import { InternError } from 'src/lib/types';
 
-import { mockExecutor, mockRemoteAndSession } from '../../support/unit/mocks';
+import {
+	createMockExecutor,
+	createMockRemoteAndSession
+} from '../../support/unit/mocks';
 import _Deferred from '../../../src/lib/Deferred';
 import { TestFunction as _TestFunction } from '../../../src/lib/Test';
 import {
@@ -49,7 +52,7 @@ function createSuite(
 ) {
 	options = options || {};
 	if (!options.executor && !(options.parent && options.parent.executor)) {
-		options.executor = mockExecutor();
+		options.executor = createMockExecutor();
 	}
 	return new Suite(<SuiteOptions>options);
 }
@@ -134,7 +137,7 @@ function createLifecycle(options: any = {}): _TestFunction {
 	return function() {
 		const dfd = this.async(5000);
 
-		options.executor = mockExecutor({
+		options.executor = createMockExecutor({
 			emit(event: string, data?: any) {
 				try {
 					if (event === 'suiteStart') {
@@ -458,12 +461,12 @@ registerSuite('lib/Suite', {
 		},
 
 		'#remote'() {
-			const parentRemote = mockRemoteAndSession('remote');
+			const parentRemote = createMockRemoteAndSession('remote');
 			const parentSuite = createSuite({
 				name: 'bar',
 				remote: parentRemote
 			});
-			const mockRemote = mockRemoteAndSession('local');
+			const mockRemote = createMockRemoteAndSession('local');
 			const suite = createSuite({ name: 'foo', remote: mockRemote });
 			let thrown = false;
 
@@ -501,7 +504,7 @@ registerSuite('lib/Suite', {
 				'#sessionId should be empty by default'
 			);
 
-			suite.remote = mockRemoteAndSession('remote');
+			suite.remote = createMockRemoteAndSession('remote');
 			assert.strictEqual(
 				suite.sessionId,
 				'remote',
@@ -621,7 +624,7 @@ registerSuite('lib/Suite', {
 			let actualSuite: Suite | undefined;
 			const suite = createSuite({
 				name: 'foo',
-				executor: mockExecutor({
+				executor: createMockExecutor({
 					emit(event: string, suite?: Suite) {
 						if (event === 'suiteAdd') {
 							topicFired = true;
@@ -655,7 +658,7 @@ registerSuite('lib/Suite', {
 			let actualTest: Test | undefined;
 			const suite = createSuite({
 				name: 'foo',
-				executor: mockExecutor({
+				executor: createMockExecutor({
 					emit(event: string, test?: Test) {
 						if (event === 'testAdd') {
 							topicFired = true;
@@ -1318,7 +1321,7 @@ registerSuite('lib/Suite', {
 	'#toJSON'() {
 		const suite = new Suite({
 			name: 'foo',
-			executor: mockExecutor(),
+			executor: createMockExecutor(),
 			tests: [new Test({ name: 'bar', test() {}, hasPassed: true })]
 		});
 		suite.error = {

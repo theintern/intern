@@ -40,12 +40,14 @@ export default class BenchmarkReporter extends Reporter
 
 	sessions: { [sessionId: string]: SessionInfo };
 
-	verbosity: number;
-
 	thresholds: BenchmarkThresholds;
 
-	constructor(executor: Executor, config: BenchmarkReporterOptions) {
-		super(executor, config);
+	constructor(executor: Executor, options: BenchmarkReporterOptions = {}) {
+		super(executor, options);
+
+		this.mode = options.mode || 'test';
+		this.filename = options.filename || '';
+		this.thresholds = options.thresholds || {};
 
 		// In test mode, try to load benchmark data for comparison
 		if (this.mode === 'test') {
@@ -409,12 +411,10 @@ export interface BenchmarkReporterProperties extends ReporterProperties {
 	filename: string;
 	mode: BenchmarkMode;
 	thresholds: BenchmarkThresholds;
-	verbosity: number;
 }
 
 export type BenchmarkReporterOptions = Partial<BenchmarkReporterProperties>;
 
-// jshint node:true
 function formatSeconds(value: number) {
 	if (value == null) {
 		return null;

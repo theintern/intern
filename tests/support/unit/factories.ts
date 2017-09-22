@@ -6,7 +6,7 @@ import { mixin } from '@dojo/core/lang';
 
 import Test from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
-import { mockExecutor } from './mocks';
+import { createMockExecutor } from './mocks';
 
 /**
  * Create a new Suite with default required values and any given properties
@@ -15,7 +15,7 @@ import { mockExecutor } from './mocks';
 export function createSuite(properties?: { [P in keyof Suite]?: Suite[P] }) {
 	let suite = new Suite({
 		name: 'suite',
-		executor: mockExecutor()
+		executor: createMockExecutor()
 	});
 	if (properties) {
 		suite = Object.create(suite);

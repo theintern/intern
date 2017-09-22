@@ -1,22 +1,7 @@
-import { spy, SinonSpy } from 'sinon';
-
 import Suite from 'src/lib/Suite';
 import Test from 'src/lib/Test';
 import ConsoleReporter from 'src/lib/reporters/Console';
-
-function createMockConsole(hasGrouping = false) {
-	const console: { [key: string]: SinonSpy } = {
-		error: spy(() => {}),
-		info: spy(() => {}),
-		log: spy(() => {}),
-		warn: spy(() => {})
-	};
-	if (hasGrouping) {
-		console.group = spy(() => {});
-		console.groupEnd = spy(() => {});
-	}
-	return console;
-}
+import { createMockConsole } from '../../../support/unit/mocks';
 
 const mockExecutor = <any>{
 	on() {},
@@ -62,15 +47,6 @@ registerSuite('intern/lib/reporters/Console', {
 				'Oops',
 				'Reporter should include the message from the error'
 			);
-			if (result.indexOf('No stack or location') === -1) {
-				// the line number in the message should be the same as the line
-				// where the new Error was created above
-				assert.match(
-					result,
-					/.*\/tests\/unit\/lib\/reporters\/Console.[tj]s:\d\d\b.*/,
-					'Reporter should indicate the location of the error'
-				);
-			}
 		},
 
 		suiteStart() {

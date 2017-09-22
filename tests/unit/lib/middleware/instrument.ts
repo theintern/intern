@@ -3,11 +3,11 @@ import * as sinon from 'sinon';
 import _instrument from 'src/lib/middleware/instrument';
 import Server from 'src/lib/Server';
 import {
-	mockNodeExecutor,
-	mockServer,
+	createMockNodeExecutor,
+	createMockServer,
 	MockRequest,
 	MockResponse,
-	mockInternObject
+	createMockInternObject
 } from '../../../support/unit/mocks';
 import { mockFs, mockPath, MockStats } from '../../../support/unit/nodeMocks';
 
@@ -49,9 +49,9 @@ registerSuite('lib/middleware/instrument', function() {
 			fs.__fileData = {
 				'/base/foo/thing.js': { type: 'file', data: 'what a fun time' }
 			};
-			server = mockServer({
+			server = createMockServer({
 				basePath: '/base',
-				executor: mockNodeExecutor()
+				executor: createMockNodeExecutor()
 			});
 			shouldInstrumentFile = sandbox.stub(
 				server.executor,
@@ -61,7 +61,7 @@ registerSuite('lib/middleware/instrument', function() {
 			handler = instrument();
 			request = new MockRequest('GET', '/foo/thing.js');
 			response = new MockResponse();
-			mockInternObject([request, response], server);
+			createMockInternObject([request, response], server);
 			next = sinon.spy();
 		},
 

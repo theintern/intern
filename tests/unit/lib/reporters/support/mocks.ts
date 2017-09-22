@@ -1,28 +1,43 @@
-export default function getMock() {
-	return {
-		coverage: {
-			'test.js': {
-				path: 'test.js',
-				s: {
-					'1': 1
-				},
-				b: {},
-				f: {},
-				fnMap: {},
-				statementMap: {
-					'1': {
-						start: {
-							line: 1,
-							column: 0
-						},
-						end: {
-							line: 60,
-							column: 3
-						}
-					}
-				},
-				branchMap: {}
+import { spy } from 'sinon';
+
+export function createMockNode(tagName: string, parent: any, content?: string) {
+	const mockNode = {
+		content,
+		tagName,
+		parentNode: parent,
+		style: {},
+		children: <any[]>[],
+		appendChild: spy((node: any) => {
+			mockNode.children.push(node);
+			node.parentNode = mockNode;
+		}),
+		scrollHeight: 0,
+		textContent() {
+			if (mockNode.children.length > 0) {
+				return mockNode.children
+					.map(child => child.textContent())
+					.join('');
 			}
+			return mockNode.content || '';
 		}
 	};
+	return mockNode;
+}
+
+export function createMockDocument() {
+	const body = createMockNode('body', createMockNode('html', undefined));
+	const doc = {
+		body,
+		documentElement: body,
+		createDocumentFragment: spy(() =>
+			createMockNode('#fragment', undefined)
+		),
+		createElement: spy((tagName: string) =>
+			createMockNode(tagName, undefined)
+		),
+		createTextNode: spy((text: string) =>
+			createMockNode('', undefined, text)
+		)
+	};
+	return doc;
 }
