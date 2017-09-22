@@ -32,13 +32,13 @@ export default class Pretty extends Coverage implements PrettyProperties {
 	protected _charm: charm.CharmInstance;
 	protected _renderTimeout: NodeJS.Timer;
 
-	constructor(executor: Node, config: PrettyOptions = {}) {
-		super(executor, config);
+	constructor(executor: Node, options: PrettyOptions = {}) {
+		super(executor, options);
 
 		this._spinnerOffset = 0;
-		this.dimensions = config.dimensions || {};
-		this.titleWidth = config.titleWidth || 12;
-		this.maxProgressBarWidth = config.maxProgressBarWidth || 40;
+		this.dimensions = options.dimensions || {};
+		this.titleWidth = options.titleWidth || 12;
+		this.maxProgressBarWidth = options.maxProgressBarWidth || 40;
 		this.colorReplacement = mixin(
 			{
 				0: 'green',
@@ -50,13 +50,19 @@ export default class Pretty extends Coverage implements PrettyProperties {
 				'~': 'magenta',
 				'⚠': 'yelow'
 			},
-			config.colorReplacement || {}
+			options.colorReplacement || {}
 		);
 		this._header = '';
 		this._reports = {};
 		this._log = [];
 		this.tunnelState = '';
 		this._total = new Report();
+	}
+
+	close() {
+		if (this._renderTimeout) {
+			clearTimeout(this._renderTimeout);
+		}
 	}
 
 	@eventHandler()
@@ -470,12 +476,13 @@ export class Report {
 	}
 }
 
+export const PASS = 0;
+export const SKIP = 1;
+export const FAIL = 2;
+
 const symbols = ['✓', '~', '×'];
 const PAD = new Array(100).join(' ');
 const SPINNER_STATES = ['/', '-', '\\', '|'];
-const PASS = 0;
-const SKIP = 1;
-const FAIL = 2;
 const BROWSERS = {
 	chrome: 'Chr',
 	firefox: 'Fx',

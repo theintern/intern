@@ -1,494 +1,426 @@
-import registerSuite = require('intern!object');
-import * as assert from 'intern/chai!assert';
-import Pretty, { Report } from 'src/lib/reporters/Pretty';
-import EnvironmentType from 'src/lib/EnvironmentType';
-import Suite from 'src/lib/Suite';
-import Test from 'src/lib/Test';
-import getMock from './support/mocks';
-import Reporter = require('dojo/has!host-node?dojo/node!istanbul/lib/report/text');
+import { spy, SinonSpy } from 'sinon';
+import * as tty from 'tty';
 
-const mock = getMock();
+// import Suite from 'src/lib/Suite';
+// import Test from 'src/lib/Test';
+import _Pretty, { PASS, FAIL, SKIP } from 'src/lib/reporters/Pretty';
+// import Environment from 'src/lib/Environment';
+import {
+	createMockCharm,
+	createMockCoverageMap,
+	createMockNodeExecutor
+} from '../../../support/unit/mocks';
 
-function bar(results: number[]): string {
-	return results
-		.map(function(result) {
-			return pretty.colorReplacement[result] || result;
-		})
-		.join('');
-}
+const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-function fillArray(length: number, fill: any): any[] {
-	return Array.apply(null, { length: length }).map(function() {
-		return fill;
-	});
-}
-
-function createReport(
-	results: number[],
-	total?: number,
-	type?: EnvironmentType
-): Report {
-	const report = new Report(<any>type);
-	results.forEach(function(value: number) {
-		report.record(value);
-	});
-	if (typeof total !== 'undefined') {
-		report.numTotal = total;
-	}
-	return report;
-}
-
-function createStub(callback?: Function): Function {
-	const func = function(this: any) {
-		(<any>func).args.push(arguments);
-		callback && callback.apply(this, arguments);
-	};
-	(<any>func).args = <any[]>[];
-	return func;
-}
-
-function fluentMockCharmFunc() {
-	return mockCharm;
-}
-
-const mockCharm = {
-	write(str: string) {
-		mockCharm.out += str;
-	},
-	out: <string>null,
-	erase: fluentMockCharmFunc,
-	position: fluentMockCharmFunc,
-	foreground: fluentMockCharmFunc,
-	display: fluentMockCharmFunc,
-	pipe: createStub()
-};
-
-let pretty: Pretty;
-
-registerSuite(function() {
+registerSuite('intern/lib/reporters/Pretty', () => {
 	return {
-		name: 'intern/lib/reporters/Pretty',
+		before() {
+			return mockRequire(require, 'src/lib/reporters/Pretty', {
+				charm: createMockCharm,
+				'istanbul-lib-coverage': {
+					createCoverageMap: createMockCoverageMap
+				}
+			}).then(resource => {
+				removeMocks = resource.remove;
+				Pretty = resource.module.default;
+			});
+		},
 
 		beforeEach() {
-			mockCharm.out = '';
-			pretty = new Pretty({
-				dimensions: {
-					width: 80,
-					height: 24
-				},
-				internConfig: {}
-			});
-			(<any>pretty).charm = mockCharm;
+			pretty = new Pretty(createMockNodeExecutor());
+			pretty.createCoverageReport = spy(() => {});
 		},
 
-		_Report() {
-			const report = createReport([0, 1, 2]);
-			assert.isUndefined(report.environment);
-			assert.deepEqual(report.numPassed, 1);
-			assert.deepEqual(report.numSkipped, 1);
-			assert.deepEqual(report.numFailed, 1);
-			assert.lengthOf(report.results, 3);
-			assert.deepEqual(report.results, [0, 1, 2]);
-			assert.deepEqual(report.getCompressedResults(1), [2]);
-			assert.deepEqual(report.getCompressedResults(2), [1, 2]);
-			assert.deepEqual(report.getCompressedResults(3), [0, 1, 2]);
-			assert.deepEqual(report.getCompressedResults(4), [0, 1, 2]);
+		afterEach() {
+			pretty.close();
 		},
 
-		_render: {
-			empty() {
-				pretty['_render']();
+		tests: {
+			runStart() {
+				pretty.dimensions = {
+					width: 0,
+					height: 0
+				};
+
+				pretty.runStart();
+				const mockCharm = <any>pretty['_charm'];
+
 				assert.equal(
-					mockCharm.out,
-					'Total: Pending\nPassed: 0  Failed: 0  Skipped: 0\n'
+					pretty.dimensions.width,
+					stdout.columns,
+					'expected dimensions to use console width'
+				);
+				assert.equal(
+					pretty.dimensions.height,
+					stdout.rows,
+					'expected dimensions to use console height'
+				);
+
+				assert.equal(
+					mockCharm.erase.callCount,
+					1,
+					'expected screen to be erased'
+				);
+				assert.equal(
+					mockCharm.position.callCount,
+					1,
+					'expected cursor position to be set'
+				);
+				assert.deepEqual(
+					mockCharm.position.args[0],
+					[0, 0],
+					'expected cursor position to be set to 0, 0'
+				);
+
+				const statusText = [
+					['Total: '],
+					['Pending'],
+					['\nPassed: 0  Failed: 0  Skipped: 0\n']
+				];
+
+				assert.deepEqual(mockCharm.write.args, statusText);
+
+				const dfd = this.async();
+				setTimeout(
+					dfd.callback(() => {
+						assert.equal(
+							mockCharm.write.callCount,
+							statusText.length * 3,
+							'expected status text to be written two more times'
+						);
+					}),
+					500
 				);
 			},
 
-			simple() {
-				pretty.total = createReport([0, 0, 0, 0, 1, 2, 0, 0, 0], 30);
-				pretty['_render']();
-				const expected =
-					'Total: [' +
-					bar(pretty.total.results) +
-					'-                    ]  9/30\n' +
-					'Passed: 7   Failed: 1   Skipped: 1\n';
-				assert.equal(mockCharm.out, expected);
-			},
+			runEnd: {
+				'no tests'() {
+					pretty.runStart();
+					const mockCharm = <any>pretty['_charm'];
+					mockCharm.write.reset();
 
-			'without logs'() {
-				pretty.total = createReport([0, 0, 0, 0, 1, 2, 0, 0, 0], 30);
-				pretty.reporters = {
-					1: createReport(
-						[0, 0, 1],
-						10,
-						new EnvironmentType({ browserName: 'chrome' })
-					),
-					2: createReport(
-						[0, 0, 0],
-						10,
-						new EnvironmentType({
-							browserName: 'firefox',
-							version: '24.0.1'
-						})
-					),
-					3: createReport(
-						[2, 0, 0],
-						10,
-						new EnvironmentType({
-							browserName: 'internet explorer',
-							version: '11'
-						})
-					),
-					4: createReport(
-						[],
-						5,
-						new EnvironmentType({
-							browserName: 'Unknown',
-							platform: 'Windows'
-						})
-					)
-				};
-				// pretty.sessions = ['1', '2', '3', '4'];
-				pretty['_render']();
+					pretty.runEnd();
+					pretty.close();
 
-				const expected =
-					'Total: [' +
-					bar(pretty.total.results) +
-					'-                    ]  9/30\n' +
-					'Passed: 7   Failed: 1   Skipped: 1\n' +
-					'\n' +
-					'Chr:        [' +
-					bar(pretty.reporters[1].results) +
-					'-      ]  3/10, 1 skip\n' +
-					'Fx 24:      [' +
-					bar(pretty.reporters[2].results) +
-					'-      ]  3/10\n' +
-					'IE 11:      [' +
-					bar(pretty.reporters[3].results) +
-					'-      ]  3/10, 1 fail\n' +
-					'Unkn Win:   [-    ] 0/5\n';
-				assert.equal(mockCharm.out, expected);
-			},
+					assert.equal(mockCharm.write.callCount, 4);
+					assert.deepEqual(mockCharm.write.args, [
+						['\n'],
+						['Total: '],
+						['Pending'],
+						['\nPassed: 0  Failed: 0  Skipped: 0\n']
+					]);
+				},
 
-			'with logs'() {
-				/* jshint maxlen: 160 */
-				pretty.total = createReport([2, 2, 2, 2], 30);
-				pretty.log = [
-					'⚠ expected line',
-					'× expected line',
-					'× expected line\nsecond line',
-					'! expected really long line with some really important stuff to say but we will never know ' +
-						'because it is going to be truncated',
-					'✓ line',
-					'! expected line',
-					'~ line'
-				];
-				pretty['_render']();
+				'some tests'() {
+					pretty.runStart();
+					const mockCharm = <any>pretty['_charm'];
 
-				const expected =
-					'Total: [' +
-					bar(pretty.total.results) +
-					'-                         ]  4/30\n' +
-					'Passed: 0   Failed: 4   Skipped: 0\n' +
-					'\n' +
-					pretty.colorReplacement['⚠'] +
-					'⚠ expected line\x1b[0m\n' +
-					pretty.colorReplacement['×'] +
-					'× expected line\x1b[0m\n' +
-					pretty.colorReplacement['×'] +
-					'× expected line\x1b[0m\n' +
-					pretty.colorReplacement['!'] +
-					'! expected really long line with some really important ' +
-					'stuff to say but we will \x1b[0m\n' +
-					pretty.colorReplacement['!'] +
-					'! expected line\x1b[0m';
-				assert.equal(mockCharm.out, expected);
-			},
+					pretty.testEnd(<any>{
+						id: 'foo - skipped',
+						skipped: 'yes'
+					});
+					pretty.testEnd(<any>{
+						id: 'foo - failed',
+						error: new Error('failed')
+					});
+					pretty.testEnd(<any>{
+						id: 'foo - passed'
+					});
+					mockCharm.write.reset();
 
-			'with tunnel status and header'() {
-				pretty.total = createReport([0, 0, 0, 0, 0], 30);
-				pretty.tunnelState = 'tunnel';
-				pretty.header = 'header';
-				pretty['_render']();
+					// Add a file to the total report so the reporter will try
+					// to create a coverage report
+					(<any>pretty['_total'].coverageMap)._files = ['foo.js'];
 
-				const expected =
-					'header\n' +
-					'Tunnel: tunnel\n' +
-					'\n' +
-					'Total: [' +
-					bar(pretty.total.results) +
-					'-                        ]  5/30\n' +
-					'Passed: 5   Failed: 0   Skipped: 0\n';
-				assert.equal(mockCharm.out, expected);
-			},
+					pretty.runEnd();
+					pretty.close();
 
-			'large progress bar becomes compressed'() {
-				const expected =
-					'Total: [' +
-					pretty.colorReplacement[2] +
-					'- ]   5/100\n' +
-					'Passed: 2    Failed: 1    Skipped: 2\n';
-				pretty.total = createReport([0, 1, 2, 1, 0], 100);
-				pretty.dimensions = {
-					width: 20,
-					height: 5
-				};
-				pretty['_render']();
-				assert.equal(mockCharm.out, expected);
-			},
-
-			'large progress bar exceeding maxAllowed is compressed'() {
-				const expected =
-					'Total: [' +
-					bar(fillArray(40, 0)) +
-					']  99/100\n' +
-					'Passed: 99   Failed: 0    Skipped: 0\n';
-				pretty.total = createReport(fillArray(99, 0), 100);
-				pretty.dimensions = {
-					width: 100,
-					height: 5
-				};
-				pretty['_render']();
-				assert.equal(mockCharm.out, expected);
-			},
-
-			'spinner advances on each render'() {
-				function assertSpinner(spinner: string) {
-					pretty['_render']();
-
-					const expected =
-						'Total: [' +
-						bar(pretty.total.results) +
-						spinner +
-						'    ]  5/10\n' +
-						'Passed: 5   Failed: 0   Skipped: 0\n';
-					assert.equal(mockCharm.out, expected);
-					mockCharm.out = '';
+					assert.equal(
+						mockCharm.write.callCount,
+						8,
+						'unexpected number of writes to charm'
+					);
+					assert.match(mockCharm.write.args[0][0], /foo - passed/);
+					assert.match(
+						mockCharm.write.args[1][0],
+						/foo - skipped: yes/
+					);
+					assert.match(
+						mockCharm.write.args[2][0],
+						/foo - failed[^]Error: failed/
+					);
+					assert.deepEqual(mockCharm.write.args.slice(3), [
+						['\n'],
+						['Total: '],
+						['Pending'],
+						['\nPassed: 1  Failed: 1  Skipped: 1\n'],
+						['\n']
+					]);
+					assert.equal(
+						(<SinonSpy>pretty.createCoverageReport).callCount,
+						1,
+						'coverage report should have been created'
+					);
 				}
+			},
 
-				pretty.total = createReport(fillArray(5, 0), 10);
-				assertSpinner('-');
-				assertSpinner('\\');
-				assertSpinner('|');
-				assertSpinner('/');
-				assertSpinner('-');
-			}
-		},
+			coverage() {
+				const report = pretty['_getReporter']({ sessionId: 'foo' });
+				pretty.coverage({
+					sessionId: 'foo',
+					coverage: { functions: 5 }
+				});
+				assert.equal(
+					report.coverageMap.merge.callCount,
+					1,
+					'coverage data should have been merged into report'
+				);
+				assert.deepEqual(
+					report.coverageMap.data,
+					{ functions: 5 },
+					'expected coverage data to have been merged into sourcemap'
+				);
+			},
 
-		runStart() {
-			try {
-				pretty.dimensions = {};
-				// pretty.intern = { config: 'foo' };
+			suiteStart() {
+				const suite = <any>{
+					hasParent: false,
+					numTests: 3,
+					sessionId: 'foo'
+				};
+
+				pretty.runStart();
+				pretty.suiteStart(suite);
+				const fooReport = pretty['_getReporter'](suite);
+				assert.equal(
+					fooReport.numTotal,
+					3,
+					'expected suite report to include suite test count'
+				);
+				assert.equal(
+					pretty['_total'].numTotal,
+					3,
+					'expected total report to include suite test count'
+				);
+
+				suite.sessionId = 'bar';
+				pretty.suiteStart(suite);
+				const barReport = pretty['_getReporter'](suite);
+				assert.equal(
+					barReport.numTotal,
+					3,
+					'expected suite report to include suite test count'
+				);
+				assert.equal(
+					pretty['_total'].numTotal,
+					6,
+					'expected total report to include suite test count'
+				);
+
+				suite.hasParent = true;
+				pretty.suiteStart(suite);
+				assert.equal(
+					barReport.numTotal,
+					3,
+					'expected report test count to be unchanged'
+				);
+			},
+
+			suiteEnd() {
+				const suite = <any>{
+					hasParent: false,
+					numTests: 3,
+					sessionId: 'foo',
+					error: new Error('fail')
+				};
+
 				pretty.runStart();
 
-				assert.isDefined(pretty.dimensions.width);
-				assert.isDefined(pretty.dimensions.height);
-				assert.isDefined(pretty['_renderTimeout']);
-			} finally {
-				clearTimeout(pretty['_renderTimeout']);
-			}
-		},
+				// Get the report to initialize it
+				const fooReport = pretty['_getReporter'](suite);
+				pretty.suiteEnd(suite);
 
-		runEnd() {
-			const expected =
-				pretty.colorReplacement['✓'] +
-				'✓ 0\n' +
-				pretty.colorReplacement['⚠'] +
-				'⚠ 1\n' +
-				pretty.colorReplacement['~'] +
-				'~ 2\n' +
-				pretty.colorReplacement['×'] +
-				'× 3\n' +
-				pretty.colorReplacement['!'] +
-				'! 4\n\n' +
-				'Total: Pending\n' +
-				'Passed: 0  Failed: 0  Skipped: 0\n';
-			const oldReporterWriteReport = Reporter.prototype.writeReport;
-			Reporter.prototype.writeReport = <any>createStub();
-
-			try {
-				pretty.log = ['! 4', '~ 2', '× 3', '⚠ 1', '✓ 0'];
-				pretty.runEnd();
-				assert.equal(mockCharm.out, expected);
-				// writeReport won't be called with any args since no files were
-				// reported for coverage
-				assert.lengthOf(
-					(<any>Reporter.prototype.writeReport).args,
-					0,
-					'Expected writeReport to be called with no args'
+				assert.equal(
+					fooReport.numFailed,
+					1,
+					'expected suite report to include suite test count'
 				);
-			} finally {
-				Reporter.prototype.writeReport = oldReporterWriteReport;
-			}
-		},
+				assert.equal(
+					pretty['_total'].numFailed,
+					1,
+					'expected total report to include suite test count'
+				);
+			},
 
-		'session based tests': (function() {
-			const sessionId = 'sessionId';
-			const sessionSuite = new Suite({
-				remote: {
-					environmentType: new EnvironmentType({
-						browserName: 'internet explorer',
-						platform: 'WINDOWS'
-					})
-				},
-				sessionId: sessionId
-			});
+			testEnd: (() => {
+				function runTest(test: any) {
+					pretty.runStart();
 
-			const expectedLog = {
-				0: '✓ test',
-				1: '~ test: Skipped',
-				2: '× test\nError: Oops'
-			};
+					// Get the report to initialize it
+					const fooReport = pretty['_getReporter'](test);
+					pretty.testEnd(test);
 
-			function assertTestResult(handlerName: string, result: number) {
-				const suite = new Suite(<any>{});
-				const test = new Test(<any>{
-					name: 'test',
-					parent: suite,
-					hasPassed: false,
-					error: new Error('Oops'),
-					skipped: 'Skipped'
-				});
-				suite.tests.push(test);
+					let testType: string;
+					let marker: string;
 
-				return function() {
-					// client unit tests
-					(<any>(<any>pretty)[handlerName])(test);
-					assert.lengthOf(pretty.total.results, 1);
-					assert.lengthOf(pretty.log, 1);
-					assert.strictEqual(
-						pretty.log[0].split('\n', 2).join('\n'),
-						(<any>expectedLog)[result]
-					);
-					assert.strictEqual(pretty.total.results[0], result);
+					if (test.error) {
+						testType = 'numFailed';
+						marker = '×';
+					} else if (test.skipped) {
+						testType = 'numSkipped';
+						marker = '~';
+					} else {
+						testType = 'numPassed';
+						marker = '✓';
+					}
 
-					// runner tests
-					const reporter = pretty.reporters[sessionId];
-
-					// set the suite's remote & sessionId so the reporter will
-					// treat it as a session suite
-					suite.remote = <any>{
-						environmentType: new EnvironmentType({
-							browserName: 'internet explorer',
-							platform: 'WINDOWS'
-						})
-					};
-					suite.sessionId = sessionId;
-
-					(<any>pretty)[handlerName](test);
-					assert.lengthOf(pretty.total.results, 2);
-					assert.lengthOf(pretty.log, 2);
-					assert.strictEqual(
-						pretty.log[1].split('\n', 2).join('\n'),
-						(<any>expectedLog)[result]
-					);
-					assert.strictEqual(pretty.total.results[1], result);
-					assert.lengthOf(reporter.results, 1);
-					assert.strictEqual(reporter.results[0], result);
-				};
-			}
-
-			return {
-				beforeEach() {
-					pretty.suiteStart(sessionSuite);
-				},
-
-				coverage() {
-					const sessionCoverageArgs: any[] = [];
-					const totalCoverageArgs: any[] = [];
-					pretty.reporters[sessionSuite.sessionId].coverage = <any>{
-						add: function(coverage: any) {
-							sessionCoverageArgs.push(coverage);
-						}
-					};
-					pretty.total.coverage = <any>{
-						add: function(coverage: any) {
-							totalCoverageArgs.push(coverage);
-						}
-					};
-
-					pretty.coverage(sessionId, mock.coverage);
-					assert.lengthOf(
-						sessionCoverageArgs,
+					assert.equal(
+						fooReport[testType],
 						1,
-						'Collector#add should have been called once'
+						'expected suite report to include suite test count'
 					);
-					assert.strictEqual(
-						sessionCoverageArgs[0],
-						mock.coverage,
-						'Collector#add should be called with the correct mockCoverage object'
+
+					const totalReport: typeof fooReport = pretty['_total'];
+					assert.equal(
+						totalReport[testType],
+						1,
+						'expected total report to include suite test count'
 					);
-					pretty.coverage('', mock.coverage);
-					assert.lengthOf(sessionCoverageArgs, 1);
-					assert.lengthOf(totalCoverageArgs, 2);
-				},
 
-				'new session'() {
-					const suite: any = {
-						numTests: 10
-					};
-					// client unit tests
-					pretty.suiteStart(suite);
-					assert.strictEqual(pretty.total.numTotal, 10);
-
-					// runner tests
-					suite.remote = {
-						environmentType: new EnvironmentType({
-							browserName: 'internet explorer',
-							platform: 'WINDOWS'
-						})
-					};
-					suite.sessionId = sessionId;
-					pretty.suiteStart(suite);
-					assert.strictEqual(
-						pretty.reporters[sessionId].numTotal,
-						10
-					);
-					assert.strictEqual(pretty.total.numTotal, 20);
-				},
-
-				testSkip: assertTestResult('testSkip', 1),
-				testFail: assertTestResult('testFail', 2),
-				testPass: assertTestResult('testPass', 0),
-
-				tunnelStart() {
-					pretty.tunnelStart();
-					assert.strictEqual(pretty.tunnelState, 'Starting');
-				},
-
-				tunnelDownloadProgress() {
-					pretty.tunnelDownloadProgress(undefined, {
-						received: 99,
-						numTotal: 100
-					});
-					assert.strictEqual(
-						pretty.tunnelState,
-						'Downloading 99.00%'
-					);
-				},
-
-				tunnelStatus() {
-					const status = 'hello world!';
-					pretty.tunnelStatus(undefined, status);
-					assert.strictEqual(pretty.tunnelState, status);
-				},
-
-				fatalError() {
-					const error = new Error('error');
-					pretty.fatalError(error);
-					assert.lengthOf(pretty.log, 1);
-					assert.match(pretty.log[0], /^! error\nError: error/);
-				},
-
-				deprecated() {
-					pretty.deprecated('java', 'javascript');
-					assert.lengthOf(pretty.log, 1);
-					assert.strictEqual(
-						pretty.log[0],
-						'⚠ java is deprecated. Use javascript instead.'
-					);
+					const message = pretty['_log'][0];
+					assert.match(message, new RegExp(`^${marker} ${test.id}`));
 				}
-			};
-		})()
+
+				return {
+					passed() {
+						runTest({
+							id: 'good test',
+							sessionId: 'foo'
+						});
+					},
+
+					failed() {
+						runTest({
+							id: 'bad test',
+							sessionId: 'foo',
+							error: new Error('fail')
+						});
+					},
+
+					skipped() {
+						runTest({
+							id: 'skipped test',
+							sessionId: 'foo',
+							skipped: 'yes'
+						});
+					}
+				};
+			})(),
+
+			tunnelDownloadProgress() {
+				pretty.tunnelDownloadProgress(<any>{
+					progress: {
+						received: 10,
+						total: 40
+					}
+				});
+				assert.match(pretty.tunnelState, /^Downloading 25.00%/);
+			},
+
+			tunnelStatus() {
+				pretty.tunnelStatus(<any>{ status: 'running' });
+				assert.equal(pretty.tunnelState, 'running');
+			},
+
+			error() {
+				pretty.runStart();
+				const mockCharm = <any>pretty['_charm'];
+				mockCharm.erase.reset();
+
+				pretty.error(new Error('failed'));
+
+				assert.match(pretty['_log'][0], /^! failed/);
+
+				const dfd = this.async();
+				setTimeout(
+					dfd.callback(() => {
+						assert.equal(
+							mockCharm.erase.callCount,
+							0,
+							'did not expect screen to be redrawn'
+						);
+					}),
+					400
+				);
+			},
+
+			deprecated() {
+				pretty.deprecated({
+					original: 'foo',
+					replacement: 'bar',
+					message: 'it was replaced'
+				});
+				assert.match(
+					pretty['_log'][0],
+					/foo is deprecated. Use bar instead. it was replaced/
+				);
+			},
+
+			rendering() {
+				pretty.runStart();
+				const mockCharm = <any>pretty['_charm'];
+
+				// Get/create a report so the renderer will do something
+				const report = pretty['_getReporter']({
+					sessionId: 'foo',
+					remote: {
+						environmentType: {
+							browserName: 'node',
+							version: '8.5.0',
+							platform: 'MAC'
+						}
+					}
+				});
+
+				// Set a total value so the progress bar will draw
+				report.numTotal = 3;
+
+				report.record(PASS);
+				report.record(FAIL);
+				report.record(SKIP);
+
+				const dfd = this.async();
+				setTimeout(
+					dfd.callback(() => {
+						pretty.close();
+						assert.deepEqual(mockCharm.write.args, [
+							['Total: '],
+							['Pending'],
+							['\nPassed: 0  Failed: 0  Skipped: 0\n'],
+							['Total: '],
+							['Pending'],
+							['\nPassed: 0  Failed: 0  Skipped: 0\n'],
+							['\n'],
+							['node 8 MAC: '],
+							// Progress bar
+							['['],
+							['✓'],
+							['×'],
+							['~'],
+							['] 3/3'],
+							[', 1 fail, 1 skip\n']
+						]);
+					}),
+					400
+				);
+			}
+		}
 	};
 });
+
+let pretty: _Pretty;
+let Pretty: typeof _Pretty;
+let removeMocks: () => void;
+
+const stdout = <tty.WriteStream>process.stdout;

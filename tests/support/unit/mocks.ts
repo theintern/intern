@@ -2,7 +2,7 @@
  * Mocks are completely artificial entities that have the types of actual
  * classes and interfaces (as far as TypeScript is concerned).
  */
-import { spy, SinonSpy } from 'sinon';
+import { sandbox as Sandbox, spy, SinonSpy } from 'sinon';
 import { Handle } from '@dojo/interfaces/core';
 import { duplicate, mixin, assign } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
@@ -24,6 +24,25 @@ export function createMock<T>(properties?: { [P in keyof T]?: T[P] }) {
 		mixin(obj, properties);
 	}
 	return obj;
+}
+
+/**
+ * Create a mock Charm
+ */
+export function createMockCharm() {
+	const sandbox = Sandbox.create();
+	const mockCharm = {
+		write: sandbox.spy(() => {}),
+		erase: sandbox.spy(() => mockCharm),
+		position: sandbox.spy(() => mockCharm),
+		foreground: sandbox.spy(() => mockCharm),
+		display: sandbox.spy(() => mockCharm),
+		pipe: sandbox.spy(() => {}),
+		_reset() {
+			sandbox.resetHistory();
+		}
+	};
+	return mockCharm;
 }
 
 /**
@@ -143,10 +162,44 @@ export function createMockNodeExecutor(
 }
 
 /**
+ * A mock CoverageMap
+ */
+export interface MockCoverageMap {
+	_files: string[];
+	data: { [key: string]: any };
+	files: SinonSpy;
+	merge: SinonSpy;
+}
+
+/**
+ * Create a mock coverage map
+ */
+export function createMockCoverageMap() {
+	const mockCoverageMap: MockCoverageMap = {
+		_files: [],
+		data: <{ [key: string]: any }>{},
+		files: spy(() => mockCoverageMap._files),
+		merge: spy((data: any) => {
+			Object.keys(data).forEach(key => {
+				mockCoverageMap.data[key] = data[key];
+			});
+		})
+	};
+	return mockCoverageMap;
+}
+
+/**
+ * A mock Console object
+ */
+export interface MockConsole {
+	[key: string]: SinonSpy;
+}
+
+/**
  * Create a mock Console object
  */
 export function createMockConsole(hasGrouping = false) {
-	const console: { [key: string]: SinonSpy } = {
+	const console: MockConsole = {
 		error: spy(() => {}),
 		info: spy(() => {}),
 		log: spy(() => {}),

@@ -42,11 +42,6 @@ registerSuite('intern/lib/reporters/Console', {
 				/\bFATAL ERROR\b/,
 				'Reporter should indicate that a fatal error occurred'
 			);
-			assert.include(
-				result,
-				'Oops',
-				'Reporter should include the message from the error'
-			);
 		},
 
 		suiteStart() {

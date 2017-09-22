@@ -1,35 +1,34 @@
-import { spy, stub } from 'sinon';
+import { sandbox as Sandbox, spy } from 'sinon';
 import _Runner from 'src/lib/reporters/Runner';
+import {
+	MockConsole,
+	MockCoverageMap,
+	createMockCharm,
+	createMockConsole,
+	createMockCoverageMap,
+	createMockNodeExecutor
+} from '../../../support/unit/mocks';
 
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/reporters/Runner', function() {
-	const mockCharm = {
-		foreground: spy(() => mockCharm),
-		pipe: spy(() => mockCharm),
-		display: spy(() => mockCharm),
-		write: spy(() => true)
-	};
+	const sandbox = Sandbox.create();
+	const mockCharm = createMockCharm();
+	const mockExecutor = createMockNodeExecutor();
 
-	const mockExecutor = <any>{
-		formatError: spy((error: Error) => error.message),
-		on: spy(() => {}),
-		config: { serveOnly: false }
-	};
-
-	const mockCoverageMap = { merge: spy() };
-	const mockCreateCoverageMap = stub().returns(mockCoverageMap);
+	mockExecutor.config.serveOnly = false;
 
 	let Runner: typeof _Runner;
 	let removeMocks: () => void;
+	let reporter: _Runner;
 
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/reporters/Runner', {
 				'istanbul-lib-coverage': {
-					createCoverageMap: mockCreateCoverageMap
+					createCoverageMap: createMockCoverageMap
 				},
 				charm: () => mockCharm
 			}).then(handle => {
@@ -43,37 +42,37 @@ registerSuite('lib/reporters/Runner', function() {
 		},
 
 		beforeEach() {
-			mockExecutor.formatError.reset();
-			mockExecutor.on.reset();
-			mockCoverageMap.merge.reset();
-			mockCreateCoverageMap.reset();
-			mockCreateCoverageMap.returns(mockCoverageMap);
-			mockCharm.write.reset();
+			sandbox.resetHistory();
+			mockCharm._reset();
+			reporter = new Runner(mockExecutor, {
+				hidePassed: true,
+				console: <any>createMockConsole()
+			});
 		},
 
 		tests: {
 			construct() {
-				const reporter = new Runner(mockExecutor, { hidePassed: true });
 				assert.isDefined(reporter);
 				assert.isFalse(reporter.serveOnly);
 				assert.isTrue(reporter.hidePassed);
 			},
 
-			'#coverage'() {
-				const reporter = new Runner(mockExecutor);
+			coverage() {
 				reporter.sessions['bar'] = <any>{};
 				reporter.coverage({
 					sessionId: 'bar',
 					coverage: { 'foo.js': {} }
 				});
-				assert.equal(mockCoverageMap.merge.callCount, 1);
-				assert.deepEqual(mockCoverageMap.merge.getCall(0).args[0], {
+				const coverageMap: MockCoverageMap = <any>reporter.sessions[
+					'bar'
+				].coverage;
+				assert.equal(coverageMap.merge.callCount, 1);
+				assert.deepEqual(coverageMap.merge.getCall(0).args[0], {
 					'foo.js': {}
 				});
 			},
 
-			'#deprecated'() {
-				const reporter = new Runner(mockExecutor);
+			deprecated() {
 				reporter.deprecated({
 					original: 'foo',
 					replacement: 'bar',
@@ -109,8 +108,7 @@ registerSuite('lib/reporters/Runner', function() {
 				);
 			},
 
-			'#error'() {
-				const reporter = new Runner(mockExecutor);
+			error() {
 				assert.isFalse(reporter.hasRunErrors);
 				reporter.error(new Error('fail'));
 				assert.isTrue(reporter.hasRunErrors);
@@ -120,15 +118,77 @@ registerSuite('lib/reporters/Runner', function() {
 				assert.match(text, /fail/);
 			},
 
-			'#log'() {
-				const mockConsole = { log: spy() };
-				const reporter = new Runner(mockExecutor, {
-					console: <any>mockConsole
-				});
+			warning() {
+				reporter.warning('oops');
+				assert.deepEqual(mockCharm.write.args[0], ['WARNING: oops']);
+			},
+
+			log() {
+				const mockConsole: MockConsole = <any>reporter.console;
 				assert.equal(mockConsole.log.callCount, 0);
 				reporter.log('foo');
 				assert.equal(mockConsole.log.callCount, 1);
 				assert.equal(mockConsole.log.getCall(0).args[0], 'DEBUG: foo');
+			},
+
+			runEnd: {
+				normal() {
+					const coverageMap: MockCoverageMap = createMockCoverageMap();
+					(<any>reporter.executor).coverageMap = <any>coverageMap;
+					reporter.sessions['bar'] = <any>{
+						suite: {
+							numTests: 2,
+							numFailedTests: 1,
+							numSkippedTests: 0
+						}
+					};
+					reporter.createCoverageReport = spy(() => {});
+					coverageMap._files = ['foo.js'];
+					reporter.runEnd();
+
+					assert.equal(
+						(<any>reporter.createCoverageReport).callCount,
+						1,
+						'expected coverage report to be generated'
+					);
+
+					assert.deepEqual(mockCharm.write.args, [
+						['\n'],
+						// This line is because we have files
+						['Total coverage\n'],
+						['TOTAL: tested 1 platforms, 1 passed, 1 failed'],
+						['\n']
+					]);
+				},
+
+				'run errors'() {
+					const coverageMap: MockCoverageMap = createMockCoverageMap();
+					(<any>reporter.executor).coverageMap = <any>coverageMap;
+					reporter.sessions['bar'] = <any>{
+						suite: {
+							numTests: 2,
+							numFailedTests: 1,
+							numSkippedTests: 0
+						}
+					};
+					reporter.createCoverageReport = spy(() => {});
+					coverageMap._files = ['foo.js'];
+					reporter.runEnd();
+
+					assert.equal(
+						(<any>reporter.createCoverageReport).callCount,
+						1,
+						'expected coverage report to be generated'
+					);
+
+					assert.deepEqual(mockCharm.write.args, [
+						['\n'],
+						// This line is because we have files
+						['Total coverage\n'],
+						['TOTAL: tested 1 platforms, 1 passed, 1 failed'],
+						['\n']
+					]);
+				}
 			}
 		}
 	};

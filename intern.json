@@ -52,7 +52,9 @@
 			"_tests/tests/unit/lib/reporters/JsonCoverage.js",
 			"_tests/tests/unit/lib/reporters/JUnit.js",
 			"_tests/tests/unit/lib/reporters/Lcov.js",
+			"_tests/tests/unit/lib/reporters/Pretty.js",
 			"_tests/tests/unit/lib/reporters/Reporter.js",
+			"_tests/tests/unit/lib/reporters/Runner.js",
 			"_tests/tests/unit/lib/reporters/TeamCity.js",
 			"_tests/tests/unit/tasks/intern.js"
 		],
@@ -128,18 +130,6 @@
 			"tunnel": "selenium",
 			"environments": {
 				"browserName": "chrome",
-				"fixSessionCapabilities": "no-detect"
-			}
-		},
-
-		"localwd": {
-			"tunnel": "null",
-			"tunnelOptions": {
-				"hostname": "192.168.151.129"
-			},
-			"serverUrl": "http://192.168.151.1:9000/",
-			"environments": {
-				"browserName": "internet explorer",
 				"fixSessionCapabilities": "no-detect"
 			}
 		},
