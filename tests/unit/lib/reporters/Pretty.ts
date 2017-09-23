@@ -48,12 +48,12 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
 				assert.equal(
 					pretty.dimensions.width,
-					stdout.columns,
+					stdout.columns || 80,
 					'expected dimensions to use console width'
 				);
 				assert.equal(
 					pretty.dimensions.height,
-					stdout.rows,
+					stdout.rows || 24,
 					'expected dimensions to use console height'
 				);
 
