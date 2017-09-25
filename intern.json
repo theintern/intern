@@ -27,6 +27,7 @@
 		"_tests/tests/unit/loaders/default.js",
 		"_tests/tests/unit/loaders/dojo.js",
 		"_tests/tests/unit/loaders/dojo2.js",
+		"_tests/tests/unit/loaders/esm.js",
 		"_tests/tests/unit/loaders/systemjs.js"
 	],
 
