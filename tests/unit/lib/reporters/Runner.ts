@@ -139,7 +139,7 @@ registerSuite('lib/reporters/Runner', function() {
 						suite: {
 							numTests: 2,
 							numFailedTests: 1,
-							numSkippedTests: 0
+							numSkippedTests: 1
 						}
 					};
 					reporter.createCoverageReport = spy(() => {});
@@ -156,12 +156,14 @@ registerSuite('lib/reporters/Runner', function() {
 						['\n'],
 						// This line is because we have files
 						['Total coverage\n'],
-						['TOTAL: tested 1 platforms, 1 passed, 1 failed'],
+						[
+							'TOTAL: tested 1 platforms, 0 passed, 1 failed, 1 skipped'
+						],
 						['\n']
 					]);
 				},
 
-				'run errors'() {
+				'run error'() {
 					const coverageMap: MockCoverageMap = createMockCoverageMap();
 					(<any>reporter.executor).coverageMap = <any>coverageMap;
 					reporter.sessions['bar'] = <any>{
@@ -171,6 +173,7 @@ registerSuite('lib/reporters/Runner', function() {
 							numSkippedTests: 0
 						}
 					};
+					reporter.hasRunErrors = true;
 					reporter.createCoverageReport = spy(() => {});
 					coverageMap._files = ['foo.js'];
 					reporter.runEnd();
@@ -185,10 +188,254 @@ registerSuite('lib/reporters/Runner', function() {
 						['\n'],
 						// This line is because we have files
 						['Total coverage\n'],
-						['TOTAL: tested 1 platforms, 1 passed, 1 failed'],
+						[
+							'TOTAL: tested 1 platforms, 1 passed, 1 failed; fatal error occurred'
+						],
+						['\n']
+					]);
+				},
+
+				'suite error'() {
+					const coverageMap: MockCoverageMap = createMockCoverageMap();
+					(<any>reporter.executor).coverageMap = <any>coverageMap;
+					reporter.sessions['bar'] = <any>{
+						suite: {
+							numTests: 2,
+							numFailedTests: 0,
+							numSkippedTests: 0
+						}
+					};
+					reporter.hasSuiteErrors = true;
+					reporter.createCoverageReport = spy(() => {});
+					coverageMap._files = ['foo.js'];
+					reporter.runEnd();
+
+					assert.equal(
+						(<any>reporter.createCoverageReport).callCount,
+						1,
+						'expected coverage report to be generated'
+					);
+
+					assert.deepEqual(mockCharm.write.args, [
+						['\n'],
+						// This line is because we have files
+						['Total coverage\n'],
+						[
+							'TOTAL: tested 1 platforms, 2 passed, 0 failed; suite error occurred'
+						],
 						['\n']
 					]);
 				}
+			},
+
+			serverStart: {
+				'no websocket'() {
+					reporter.serverStart(<any>{ port: 12345 });
+					assert.deepEqual(mockCharm.write.args, [
+						['Listening on localhost:12345\n']
+					]);
+				},
+
+				websocket() {
+					reporter.serverStart(<any>{
+						port: 12345,
+						socketPort: 54321
+					});
+					assert.deepEqual(mockCharm.write.args, [
+						['Listening on localhost:12345 (ws 54321)\n']
+					]);
+				}
+			},
+
+			suiteEnd: {
+				'missing session'() {
+					reporter.suiteEnd(<any>{ sessionId: 'bar' });
+					assert.deepEqual(mockCharm.write.args, [
+						['BUG: suiteEnd was received for invalid session bar'],
+						['\n']
+					]);
+				},
+
+				'suite error'() {
+					reporter.sessions[''] = <any>{};
+					reporter.suiteEnd(<any>{
+						id: 'foo',
+						error: new Error('failed')
+					});
+					assert.deepEqual(mockCharm.write.args, [
+						['Suite foo FAILED\n'],
+						['Error: failed'],
+						['\n']
+					]);
+				},
+
+				'multiple suites': (() => {
+					let suite: any;
+					let session: any;
+
+					return {
+						beforeEach() {
+							reporter.sessions[''] = session = <any>{};
+							(<any>reporter.executor).suites = [
+								'foo.js',
+								'bar.js'
+							];
+							suite = {
+								id: 'foo',
+								name: 'foo',
+								numTests: 2,
+								numFailedTests: 0,
+								numSkippedTests: 0
+							};
+						},
+
+						tests: {
+							coverage() {
+								session.coverage = {};
+								const createCoverageReport = spy(() => {});
+								reporter.createCoverageReport = createCoverageReport;
+								reporter.suiteEnd(suite);
+								assert.equal(createCoverageReport.callCount, 1);
+								assert.deepEqual(mockCharm.write.args, [
+									['\n'],
+									['foo: 2 passed, 0 failed'],
+									['\n']
+								]);
+							},
+
+							'no coverage'() {
+								reporter.suiteEnd(suite);
+								assert.deepEqual(mockCharm.write.args, [
+									['No unit test coverage for foo'],
+									['\n'],
+									['foo: 2 passed, 0 failed'],
+									['\n']
+								]);
+							},
+
+							skipped() {
+								suite.numSkippedTests = 1;
+								reporter.suiteEnd(suite);
+								assert.deepEqual(mockCharm.write.args, [
+									['No unit test coverage for foo'],
+									['\n'],
+									['foo: 1 passed, 0 failed, 1 skipped'],
+									['\n']
+								]);
+							},
+
+							error() {
+								session.hasSuiteErrors = true;
+								reporter.suiteEnd(suite);
+								assert.deepEqual(mockCharm.write.args, [
+									['No unit test coverage for foo'],
+									['\n'],
+									[
+										'foo: 2 passed, 0 failed; suite error occurred'
+									],
+									['\n']
+								]);
+							}
+						}
+					};
+				})()
+			},
+
+			suiteStart() {
+				reporter.sessions['foo'] = <any>{};
+				reporter.suiteStart(<any>{
+					sessionId: 'foo',
+					name: 'bar'
+				});
+				assert.deepEqual(mockCharm.write.args, [
+					['\n'],
+					['‣ Created remote session bar (foo)\n']
+				]);
+			},
+
+			testEnd: {
+				error() {
+					reporter.testEnd(<any>{
+						error: new Error('failed'),
+						id: 'foo',
+						timeElapsed: 123
+					});
+					assert.deepEqual(mockCharm.write.args, [
+						['× foo'],
+						[' (0.123s)'],
+						['\n'],
+						['    Error: failed'],
+						['\n\n']
+					]);
+				},
+
+				skipped: {
+					hidden() {
+						reporter.hideSkipped = true;
+						reporter.testEnd(<any>{
+							skipped: 'yes',
+							id: 'foo'
+						});
+						assert.deepEqual(mockCharm.write.args, []);
+					},
+
+					shown() {
+						reporter.testEnd(<any>{
+							skipped: 'yes',
+							id: 'foo'
+						});
+						assert.deepEqual(mockCharm.write.args, [
+							['~ foo'],
+							[' (yes)'],
+							['\n']
+						]);
+					}
+				},
+
+				passed: {
+					hidden() {
+						reporter.testEnd(<any>{
+							id: 'foo'
+						});
+						assert.deepEqual(mockCharm.write.args, []);
+					},
+
+					shown() {
+						reporter.hidePassed = false;
+						reporter.testEnd(<any>{
+							id: 'foo',
+							timeElapsed: 123
+						});
+						assert.deepEqual(mockCharm.write.args, [
+							['✓ foo'],
+							[' (0.123s)'],
+							['\n']
+						]);
+					}
+				}
+			},
+
+			tunnelDownloadProgress() {
+				const progress = { received: 10, total: 50 };
+				reporter.tunnelDownloadProgress(<any>{ progress });
+				assert.deepEqual(mockCharm.write.args, [
+					[
+						`Tunnel download: ${(progress.received /
+							progress.total *
+							100
+						).toFixed(3)}%\r`
+					]
+				]);
+			},
+
+			tunnelStart() {
+				reporter.tunnelStart();
+				assert.deepEqual(mockCharm.write.args, [['Tunnel started\n']]);
+			},
+
+			tunnelStatus() {
+				reporter.tunnelStatus(<any>{ status: 'fine' });
+				assert.deepEqual(mockCharm.write.args, [['fine\x1b[K\r']]);
 			}
 		}
 	};
