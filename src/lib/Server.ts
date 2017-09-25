@@ -129,7 +129,7 @@ export default class Server implements ServerProperties {
 				get: () => intern
 			});
 
-			app.use(json(), urlencoded({ extended: true }));
+			app.use(json({ limit: '1mb' }), urlencoded({ extended: true }));
 
 			app.use((request, _response, next) => {
 				this.executor.log(
