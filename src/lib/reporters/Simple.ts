@@ -15,7 +15,7 @@ export default class Simple extends Coverage {
 	@eventHandler()
 	log(message: string) {
 		message.split('\n').forEach(line => {
-			console.log(`DEBUG: ${line}`);
+			this.console.log(`DEBUG: ${line}`);
 		});
 	}
 
