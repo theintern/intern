@@ -50,6 +50,9 @@ export function createMockCharm() {
  */
 export interface MockExecutor extends Executor {
 	events: { name: string; data: any }[];
+
+	// True if the executor's run method was called
+	_ran: boolean;
 }
 
 /**
@@ -66,9 +69,19 @@ export function createMockExecutor(
 	return createMock<MockExecutor>(
 		mixin(
 			{
+				_ran: false,
+
 				events: <{ name: string; data: any }[]>[],
 
 				config: {},
+
+				configure(options: any) {
+					if (options) {
+						Object.keys(options).forEach(key => {
+							(<any>this).config[key] = options[key];
+						});
+					}
+				},
 
 				emit(eventName: keyof Events, data?: any) {
 					// Ignore log events
@@ -86,7 +99,11 @@ export function createMockExecutor(
 					return this.emit('log', JSON.stringify(args));
 				},
 
-				on(_eventName: keyof Events) {}
+				on(_eventName: keyof Events) {},
+
+				run() {
+					this._ran = true;
+				}
 			},
 			_properties || {}
 		)
@@ -117,7 +134,7 @@ export function createMockBrowserExecutor(
 			properties || {}
 		)
 	);
-	return <MockBrowser>executor;
+	return <MockBrowser>(<any>executor);
 }
 
 /**
@@ -129,6 +146,9 @@ export interface MockNode extends Node {
 	// Make some properties writable
 	instrumentedMapStore: any;
 	sourceMapStore: any;
+
+	// True if the executor's run method was called
+	_ran: boolean;
 }
 
 /**

@@ -11,6 +11,8 @@ import { getConfig } from '../lib/node/util';
 import { getConfigDescription } from '../lib/common/util';
 import intern from '../index';
 
+const console = global.console;
+
 getConfig()
 	.then(({ config, file }) => {
 		if (config.help) {
