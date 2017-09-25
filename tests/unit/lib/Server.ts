@@ -258,8 +258,7 @@ registerSuite('lib/Server', function() {
 							{ fallthrough: false }
 						]);
 						assert.deepEqual(mockServeStatic.secondCall.args, [
-							server.basePath,
-							{ fallthrough: false }
+							server.basePath
 						]);
 						assert.isTrue(instrument.calledOnce);
 						assert.isTrue(post.calledOnce);

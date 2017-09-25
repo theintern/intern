@@ -132,7 +132,9 @@ export default class Server implements ServerProperties {
 			app.use(json(), urlencoded({ extended: true }));
 
 			app.use((request, _response, next) => {
-				this.executor.log(`Request for ${request.url}`);
+				this.executor.log(
+					`${request.method} request for ${request.url}`
+				);
 				return next();
 			});
 
@@ -149,7 +151,7 @@ export default class Server implements ServerProperties {
 
 			app.use(
 				instrument(),
-				express.static(this.basePath, { fallthrough: false }),
+				express.static(this.basePath),
 				post(),
 				unhandled(),
 				finalError()
