@@ -205,7 +205,7 @@ export default class Runner extends Coverage implements RunnerProperties {
 			charm.display('reset');
 			charm.write('\n');
 
-			session.hasSuiteErrors = true;
+			this.hasSuiteErrors = session.hasSuiteErrors = true;
 		} else if (!suite.hasParent && this.executor.suites.length > 1) {
 			if (session.coverage) {
 				this.charm.write('\n');

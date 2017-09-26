@@ -267,6 +267,10 @@ registerSuite('lib/reporters/Runner', function() {
 						['Error: failed'],
 						['\n']
 					]);
+					assert.isTrue(
+						reporter.hasSuiteErrors,
+						'reporter should indicate that there were suite errors'
+					);
 				},
 
 				'multiple suites': (() => {
