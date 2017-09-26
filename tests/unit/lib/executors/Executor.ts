@@ -157,9 +157,8 @@ registerSuite('lib/executors/Executor', function() {
 					baseline: false,
 					benchmark: false,
 					browser: {
+						plugins: [],
 						reporters: [],
-						requires: [],
-						scripts: [],
 						suites: []
 					},
 					coverageVariable: '__coverage__',
@@ -170,14 +169,12 @@ registerSuite('lib/executors/Executor', function() {
 					loader: { script: 'default' },
 					name: 'intern',
 					node: {
+						plugins: [],
 						reporters: [],
-						requires: [],
-						scripts: [],
 						suites: []
 					},
+					plugins: [],
 					reporters: [],
-					requires: [],
-					scripts: [],
 					sessionId: '',
 					suites: <string[]>[]
 				};
@@ -234,15 +231,14 @@ registerSuite('lib/executors/Executor', function() {
 
 				'environment config mixin'() {
 					executor.configure(<any>{
-						node: { suites: ['foo'], requires: ['bar'] }
+						node: { suites: ['foo'], plugins: ['bar'] }
 					});
 					assert.deepEqual<any>(
 						executor.config.node,
 						{
 							suites: ['foo'],
 							reporters: [],
-							requires: [{ script: 'bar' }],
-							scripts: []
+							plugins: [{ script: 'bar' }]
 						},
 						'values should have been set on node'
 					);
@@ -250,7 +246,7 @@ registerSuite('lib/executors/Executor', function() {
 						node: {
 							'suites+': ['bif'],
 							reporters: ['bof'],
-							requires: ['buf']
+							plugins: ['buf']
 						}
 					});
 					assert.deepEqual<any>(
@@ -258,8 +254,7 @@ registerSuite('lib/executors/Executor', function() {
 						{
 							suites: ['foo', 'bif'],
 							reporters: [{ name: 'bof' }],
-							requires: [{ script: 'buf' }],
-							scripts: []
+							plugins: [{ script: 'buf' }]
 						},
 						'values should have been mixed into node'
 					);
@@ -360,8 +355,7 @@ registerSuite('lib/executors/Executor', function() {
 						},
 
 						reporters: objectArrayTest('reporters', 'name'),
-						requires: objectArrayTest('requires', 'script'),
-						scripts: objectArrayTest('scripts', 'script'),
+						plugins: objectArrayTest('plugins', 'script'),
 
 						suites() {
 							test('suites', 5, 'foo', ['foo'], /Non-string\[\]/);
@@ -388,9 +382,8 @@ registerSuite('lib/executors/Executor', function() {
 								5,
 								{},
 								{
+									plugins: [],
 									reporters: [],
-									requires: [],
-									scripts: [],
 									suites: []
 								},
 								/Non-object/
@@ -400,9 +393,8 @@ registerSuite('lib/executors/Executor', function() {
 								5,
 								{},
 								{
+									plugins: [],
 									reporters: [],
-									requires: [],
-									scripts: [],
 									suites: []
 								},
 								/Non-object/
@@ -412,9 +404,8 @@ registerSuite('lib/executors/Executor', function() {
 								5,
 								{ suites: 'foo' },
 								{
+									plugins: [],
 									reporters: [],
-									requires: [],
-									scripts: [],
 									suites: ['foo']
 								},
 								/Non-object/
@@ -616,7 +607,9 @@ registerSuite('lib/executors/Executor', function() {
 
 			'#registerPlugin': {
 				config() {
-					executor.configure({ requires: 'foo.js' });
+					executor.configure({
+						plugins: { script: 'foo.js', useLoader: true }
+					});
 					const pluginInit = spy(() => 'bar');
 					const pluginScript = spy(() => {
 						executor.registerPlugin('foo', pluginInit);
@@ -638,7 +631,7 @@ registerSuite('lib/executors/Executor', function() {
 				},
 
 				direct() {
-					executor.configure({ requires: 'foo.js' });
+					executor.configure({ plugins: 'foo.js' });
 					const pluginInit = spy(() => 'bar');
 					executor.registerPlugin('foo', pluginInit);
 					return executor.run().then(() => {
@@ -667,9 +660,8 @@ registerSuite('lib/executors/Executor', function() {
 						'    "baseline": false,\n' +
 						'    "benchmark": false,\n' +
 						'    "browser": {\n' +
+						'        "plugins": [],\n' +
 						'        "reporters": [],\n' +
-						'        "requires": [],\n' +
-						'        "scripts": [],\n' +
 						'        "suites": []\n' +
 						'    },\n' +
 						'    "coverageVariable": "__coverage__",\n' +
@@ -683,14 +675,12 @@ registerSuite('lib/executors/Executor', function() {
 						'    },\n' +
 						'    "name": "intern",\n' +
 						'    "node": {\n' +
+						'        "plugins": [],\n' +
 						'        "reporters": [],\n' +
-						'        "requires": [],\n' +
-						'        "scripts": [],\n' +
 						'        "suites": []\n' +
 						'    },\n' +
+						'    "plugins": [],\n' +
 						'    "reporters": [],\n' +
-						'    "requires": [],\n' +
-						'    "scripts": [],\n' +
 						'    "sessionId": "",\n' +
 						'    "showConfig": true,\n' +
 						'    "suites": []\n' +

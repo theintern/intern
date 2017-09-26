@@ -71,9 +71,8 @@ export default abstract class Executor<
 			baseline: false,
 			benchmark: false,
 			browser: {
-				requires: <(string | ScriptDescriptor)[]>[],
+				plugins: <PluginDescriptor[]>[],
 				reporters: <ReporterDescriptor[]>[],
-				scripts: <(string | ScriptDescriptor)[]>[],
 				suites: <string[]>[]
 			},
 			coverageVariable: '__coverage__',
@@ -84,14 +83,12 @@ export default abstract class Executor<
 			loader: { script: 'default' },
 			name: 'intern',
 			node: {
-				requires: <(string | ScriptDescriptor)[]>[],
+				plugins: <PluginDescriptor[]>[],
 				reporters: <ReporterDescriptor[]>[],
-				scripts: <(string | ScriptDescriptor)[]>[],
 				suites: <string[]>[]
 			},
-			requires: <(string | ScriptDescriptor)[]>[],
+			plugins: <PluginDescriptor[]>[],
 			reporters: <ReporterDescriptor[]>[],
-			scripts: <(string | ScriptDescriptor)[]>[],
 			sessionId: '',
 			suites: <string[]>[]
 		};
@@ -605,9 +602,9 @@ export default abstract class Executor<
 					let currentTask: Task<void>;
 
 					this._runTask = this._runTask
-						.then(() => this._loadScripts())
+						.then(() => this._loadPlugins())
 						.then(() => this._loadLoader())
-						.then(() => this._loadRequires())
+						.then(() => this._loadPluginsWithLoader())
 						.then(() => this._loadSuites())
 						.then(() => this._beforeRun())
 						.then((skipTests: boolean) => {
@@ -875,36 +872,32 @@ export default abstract class Executor<
 	 * Load scripts in the `requires` list using an external loader, if
 	 * configured, or the platform's native loading mechanism
 	 */
-	protected _loadRequires() {
+	protected _loadPluginsWithLoader() {
 		const scripts = [
-			...this.config.requires,
-			...this.config[this.environment].requires
-		];
-		return this._loadScriptsWithLoader(scripts, script =>
-			this._loader([script])
-		);
+			...this.config.plugins,
+			...this.config[this.environment].plugins
+		].filter(plugin => plugin.useLoader);
+		return this._loadScripts(scripts, script => this._loader([script]));
 	}
 
 	/**
-	 * Load scripts in the `scripts` list using the platform's native loading
+	 * Load scripts in the `plugins` list using the platform's native loading
 	 * mechanism
 	 */
-	protected _loadScripts() {
+	protected _loadPlugins() {
 		const scripts = [
-			...this.config.scripts,
-			...this.config[this.environment].scripts
-		];
-		return this._loadScriptsWithLoader(scripts, script =>
-			this.loadScript(script)
-		);
+			...this.config.plugins,
+			...this.config[this.environment].plugins
+		].filter(plugin => !plugin.useLoader);
+		return this._loadScripts(scripts, script => this.loadScript(script));
 	}
 
 	/**
 	 * Load a list of scripts using a given loader. These will be loaded
 	 * sequentially in order.
 	 */
-	protected _loadScriptsWithLoader(
-		scripts: ScriptDescriptor[],
+	protected _loadScripts(
+		scripts: PluginDescriptor[],
 		loader: (script: string) => Promise<void>
 	) {
 		return scripts
@@ -921,8 +914,8 @@ export default abstract class Executor<
 				}
 			}, Task.resolve())
 			.then(() => {
-				// Wait for all plugin registrations, both configured ones
-				// and any that were manually registered, to resolve
+				// Wait for all plugin registrations, both configured ones and
+				// any that were manually registered, to resolve
 				return Task.all(
 					this._loadingPlugins.map(entry => entry.init)
 				).then(plugins => {
@@ -1004,24 +997,35 @@ export default abstract class Executor<
 			case 'requires':
 			case 'require':
 			case 'scripts':
-				if (name === 'plugins') {
+				let useLoader = false;
+				if (name === 'scripts') {
 					this.emit('deprecated', {
-						original: 'plugins',
-						replacement: 'require'
+						original: 'scripts',
+						replacement: 'plugins'
 					});
-					name = 'requires';
+					name = 'plugins';
 				} else if (name === 'require') {
 					this.emit('deprecated', {
 						original: 'require',
-						replacement: 'scripts'
+						replacement: 'plugins'
 					});
-					name = 'requires';
+					name = 'plugins';
+				} else if (name === 'requires') {
+					this.emit('deprecated', {
+						original: 'require',
+						replacement: 'plugins',
+						message: 'Set `useLoader: true`'
+					});
+					name = 'plugins';
+					useLoader = true;
 				}
-				this._setOption(
-					name,
-					parseValue(name, value, 'object[]', 'script'),
-					addToExisting
-				);
+				const parsed = parseValue(name, value, 'object[]', 'script');
+				if (useLoader) {
+					parsed.forEach((entry: PluginDescriptor) => {
+						entry.useLoader = true;
+					});
+				}
+				this._setOption(name, parsed, addToExisting);
 				break;
 
 			case 'suites':
@@ -1074,18 +1078,27 @@ export default abstract class Executor<
 							case 'require':
 							case 'requires':
 							case 'scripts':
-								if (name === 'plugins') {
+								let useLoader = false;
+								if (name === 'scripts') {
 									this.emit('deprecated', {
-										original: 'plugins',
-										replacement: 'require'
+										original: 'scripts',
+										replacement: 'plugins'
 									});
-									name = 'requires';
+									name = 'plugins';
 								} else if (name === 'require') {
 									this.emit('deprecated', {
 										original: 'require',
-										replacement: 'scripts'
+										replacement: 'plugins'
 									});
-									name = 'scripts';
+									name = 'plugins';
+								} else if (name === 'requires') {
+									this.emit('deprecated', {
+										original: 'requires',
+										replacement: 'plugins',
+										message: 'Set `useLoader: true`'
+									});
+									name = 'plugins';
+									useLoader = true;
 								}
 								resource = parseValue(
 									name,
@@ -1093,6 +1106,13 @@ export default abstract class Executor<
 									'object[]',
 									'script'
 								);
+								if (useLoader) {
+									resource.forEach(
+										(entry: PluginDescriptor) => {
+											entry.useLoader = true;
+										}
+									);
+								}
 								this._setOption(
 									name,
 									resource,
@@ -1255,20 +1275,9 @@ export interface ResourceConfig {
 	reporters: ReporterDescriptor[];
 
 	/**
-	 * A list of scripts or modules to load before suites are loaded. These will
-	 * be loaded with the external loader, if one has been configured.
+	 * A list of scripts or modules to load before suites are loaded.
 	 */
-	requires: ScriptDescriptor[];
-
-	/**
-	 * A list of scripts to load before any external loader is configured.
-	 *
-	 * These should be simple scripts, not modules, as a module loader may not
-	 * be available when these are loaded. Also, these scripts should be
-	 * synchronous. If they need to run async actions, they can register
-	 * listeners for the 'runBefore' or 'runAfter' executor events.
-	 */
-	scripts: ScriptDescriptor[];
+	plugins: PluginDescriptor[];
 
 	/**
 	 * A list of paths or glob expressions that point to suite scripts.
@@ -1367,8 +1376,9 @@ export interface ReporterDescriptor {
  * descriptor is assumed to refer to a plugin, and the options will be passed to
  * the plugins initializer function.
  */
-export interface ScriptDescriptor {
+export interface PluginDescriptor {
 	script: string;
+	useLoader?: boolean;
 	options?: any;
 }
 

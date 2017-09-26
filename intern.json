@@ -33,7 +33,7 @@
 
 	"functionalSuites": "_tests/tests/functional/**/*.js",
 
-	"scripts": "_tests/tests/support/globalUi.js",
+	"plugins": "_tests/tests/support/globalUi.js",
 
 	"node": {
 		"suites": [
@@ -60,7 +60,7 @@
 			"_tests/tests/unit/lib/reporters/TeamCity.js",
 			"_tests/tests/unit/tasks/intern.js"
 		],
-		"scripts": [
+		"plugins": [
 			"_tests/tests/support/nodeMocking.js",
 			"_tests/tests/support/nodeDom.js",
 			"source-map-support/register"
@@ -73,7 +73,7 @@
 
 	"browser": {
 		"suites": ["_tests/tests/unit/lib/browser/util.js"],
-		"scripts": [
+		"plugins": [
 			"_tests/tests/support/browserDom.js",
 			"_tests/tests/support/dojoMocking.js"
 		],

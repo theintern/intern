@@ -146,9 +146,8 @@ function _loadConfig(
 				// will apply to all environments and will override any
 				// environment specific resources.
 				const resources: (keyof ResourceConfig)[] = [
-					'scripts',
+					'plugins',
 					'reporters',
-					'requires',
 					'suites'
 				];
 				resources
