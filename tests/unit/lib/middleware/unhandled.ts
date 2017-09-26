@@ -7,7 +7,6 @@ import { MockRequest, MockResponse } from '../../../support/unit/mocks';
 
 registerSuite('lib/middleware/unhandled', function() {
 	let handler: (request: any, response: any, next: any) => void;
-	let request: MockRequest;
 	let response: MockResponse;
 	let next: SinonSpy;
 	let end: SinonSpy;
@@ -15,20 +14,30 @@ registerSuite('lib/middleware/unhandled', function() {
 	return {
 		beforeEach() {
 			handler = unhandled();
-			request = new MockRequest('GET', '/foo/bar.js');
 			response = new MockResponse();
 			next = spy();
 			end = spy(response, 'end');
 		},
 
 		tests: {
-			'unhandled request'() {
+			GET() {
+				const request = new MockRequest('GET', '/foo/bar.js');
 				handler(request, response, next);
 
-				assert.isFalse(end.called);
-				assert.isTrue(next.calledOnce);
-				assert.instanceOf(next.firstCall.args[0], HttpError);
-				assert.strictEqual(next.firstCall.args[0].statusCode, 501);
+				assert.isFalse(end.called, 'did not expect `end` to be called');
+				assert.isTrue(next.calledOnce, 'expected `next` to be called');
+				assert.instanceOf(next.args[0][0], HttpError);
+				assert.strictEqual(next.args[0][0].statusCode, 404);
+			},
+
+			POST() {
+				const request = new MockRequest('POST', '/foo/');
+				handler(request, response, next);
+
+				assert.isFalse(end.called, 'did not expect `end` to be called');
+				assert.isTrue(next.calledOnce, 'expected `next` to be called');
+				assert.instanceOf(next.args[0][0], HttpError);
+				assert.strictEqual(next.args[0][0].statusCode, 501);
 			}
 		}
 	};
