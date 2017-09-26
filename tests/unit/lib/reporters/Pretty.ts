@@ -1,10 +1,9 @@
 import { spy, SinonSpy } from 'sinon';
 import * as tty from 'tty';
 
-// import Suite from 'src/lib/Suite';
-// import Test from 'src/lib/Test';
+import RemoteSuite from 'src/lib/RemoteSuite';
 import _Pretty, { PASS, FAIL, SKIP } from 'src/lib/reporters/Pretty';
-// import Environment from 'src/lib/Environment';
+
 import {
 	createMockCharm,
 	createMockCoverageMap,
@@ -223,6 +222,15 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 				assert.equal(
 					barReport.numTotal,
 					3,
+					'expected report test count to be unchanged'
+				);
+
+				const remoteSuite = new RemoteSuite({ sessionId: 'bar' });
+				remoteSuite.tests = [<any>{}, <any>{}];
+				pretty.suiteStart(remoteSuite);
+				assert.equal(
+					barReport.numTotal,
+					5,
 					'expected report test count to be unchanged'
 				);
 			},

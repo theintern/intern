@@ -7,6 +7,7 @@ import Node from '../executors/Node';
 import Environment from '../Environment';
 import Suite from '../Suite';
 import Test from '../Test';
+import RemoteSuite from '../RemoteSuite';
 import { createEventHandler } from './Reporter';
 import Coverage, { CoverageProperties } from './Coverage';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
@@ -138,7 +139,7 @@ export default class Pretty extends Coverage implements PrettyProperties {
 
 	@eventHandler()
 	suiteStart(suite: Suite) {
-		if (!suite.hasParent) {
+		if (!suite.hasParent || suite instanceof RemoteSuite) {
 			const numTests = suite.numTests;
 			this._total.numTotal += numTests;
 
