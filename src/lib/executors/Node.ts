@@ -365,10 +365,15 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 
 				return serverTask
 					.then(() => {
+						const tunnelOptions = config.tunnelOptions;
 						if (config.tunnel === 'browserstack') {
-							const options = <BrowserStackOptions>config.tunnelOptions;
+							const options = <BrowserStackOptions>tunnelOptions;
 							options.servers = options.servers || [];
 							options.servers.push(config.serverUrl);
+						}
+
+						if ('proxy' in config && !('proxy' in tunnelOptions)) {
+							tunnelOptions.proxy = config.proxy;
 						}
 
 						let TunnelConstructor = this.getTunnel(config.tunnel);
@@ -422,7 +427,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		const config = this.config;
 
 		const leadfootServer = new LeadfootServer(tunnel.clientUrl, {
-			proxy: tunnel.proxy
+			proxy: 'proxy' in config ? config.proxy : tunnel.proxy
 		});
 
 		const executor = this;
@@ -569,6 +574,14 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		switch (name) {
 			case 'serverUrl':
 				this._setOption(name, parseValue(name, value, 'string'));
+				break;
+
+			case 'proxy':
+				if (value == null) {
+					this._setOption(name, undefined);
+				} else {
+					this._setOption(name, parseValue(name, value, 'string'));
+				}
 				break;
 
 			case 'capabilities':
@@ -946,6 +959,13 @@ export interface Config extends BaseConfig {
 	leaveRemoteOpen: boolean | 'fail';
 	maxConcurrency: number;
 
+	/**
+	 * A proxy that should be used for outgoing web connections. If specified,
+	 * this will be used for Intern's WebDriver client instead of the Dig Dug
+	 * tunnel's proxy value.
+	 */
+	proxy?: string;
+
 	serveOnly: boolean;
 	serverPort: number;
 	serverUrl: string;
@@ -975,7 +995,7 @@ export interface Config extends BaseConfig {
 	 *
 	 * The available options depend on the current tunnel.
 	 */
-	tunnelOptions?: TunnelOptions | BrowserStackOptions | SeleniumOptions;
+	tunnelOptions: TunnelOptions | BrowserStackOptions | SeleniumOptions;
 }
 
 export interface Remote extends Command<any> {

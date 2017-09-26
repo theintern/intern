@@ -91,6 +91,12 @@ registerSuite('lib/executors/Node', function() {
 
 	class MockLeadfootServer {
 		sessionConstructor: any;
+		args: any[];
+
+		constructor(...args: any[]) {
+			this.args = args;
+			leadfootServers.push(this);
+		}
 
 		createSession() {
 			return Promise.resolve(new this.sessionConstructor());
@@ -105,7 +111,11 @@ registerSuite('lib/executors/Node', function() {
 
 	class MockTunnel {
 		extraCapabilities = {};
-		constructor() {
+
+		constructor(options: { [key: string]: any } = {}) {
+			Object.keys(options).forEach(option => {
+				(<any>this)[option] = options[option];
+			});
 			tunnels.push(this);
 			this.start = spy(this.start);
 			this.stop = spy(this.stop);
@@ -209,6 +219,7 @@ registerSuite('lib/executors/Node', function() {
 	let reporters: MockReporter[];
 	let tunnels: MockTunnel[];
 	let servers: MockServer[];
+	let leadfootServers: MockLeadfootServer[];
 	let sessions: MockSession[];
 	let coverageMaps: MockCoverageMap[];
 	let Node: typeof _Node;
@@ -291,6 +302,7 @@ registerSuite('lib/executors/Node', function() {
 			reporters = [];
 			tunnels = [];
 			servers = [];
+			leadfootServers = [];
 			sessions = [];
 			fsData = {};
 			executor = createExecutor();
@@ -413,6 +425,9 @@ registerSuite('lib/executors/Node', function() {
 				const booleanTest = (name: keyof Config) => () => {
 					test(name, 5, 'true', true, /Non-boolean/);
 				};
+				const stringTest = (name: keyof Config) => () => {
+					test(name, 5, 'foo', 'foo', /Non-string/);
+				};
 				const numberTest = (name: keyof Config) => () => {
 					test(name, 'foo', '5', 5, /Non-numeric/);
 					test(name, 'foo', 5, 5, /Non-numeric/);
@@ -465,7 +480,10 @@ registerSuite('lib/executors/Node', function() {
 					connectTimeout: numberTest('connectTimeout'),
 					maxConcurrency: numberTest('maxConcurrency'),
 					serverPort: numberTest('serverPort'),
-					socketPort: numberTest('socketPort')
+					socketPort: numberTest('socketPort'),
+
+					proxy: stringTest('proxy'),
+					serverUrl: stringTest('serverUrl')
 				};
 			})(),
 
@@ -907,6 +925,57 @@ registerSuite('lib/executors/Node', function() {
 							);
 						})
 					);
+				},
+
+				proxies: {
+					tunnel() {
+						executor.configure(<any>{
+							environments: 'chrome',
+							tunnel: 'browserstack',
+							tunnelOptions: { proxy: 'foo' },
+							suites: 'foo2.js'
+						});
+						return executor.run().then(() => {
+							assert.equal(
+								leadfootServers[0].args[1].proxy,
+								'foo',
+								'expected server to use tunnel proxy'
+							);
+						});
+					},
+
+					config() {
+						executor.configure(<any>{
+							environments: 'chrome',
+							proxy: 'bar',
+							tunnel: 'browserstack',
+							tunnelOptions: { proxy: 'foo' },
+							suites: 'foo2.js'
+						});
+						return executor.run().then(() => {
+							assert.equal(
+								leadfootServers[0].args[1].proxy,
+								'bar',
+								'expected server to use configured proxy'
+							);
+						});
+					},
+
+					none() {
+						executor.configure(<any>{
+							environments: 'chrome',
+							proxy: null,
+							tunnel: 'browserstack',
+							tunnelOptions: { proxy: 'foo' },
+							suites: 'foo2.js'
+						});
+						return executor.run().then(() => {
+							assert.isUndefined(
+								leadfootServers[0].args[1].proxy,
+								'expected server to use configured proxy'
+							);
+						});
+					}
 				}
 			}
 		}
