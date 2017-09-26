@@ -4,6 +4,7 @@
 		"declaration": true,
 		"lib": [
 			"es5",
+			"ES2015.Core",
 			"es2015.collection",
 			"es2015.promise",
 			"es2015.symbol",

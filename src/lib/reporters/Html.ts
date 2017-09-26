@@ -11,6 +11,8 @@ export default class Html extends Reporter implements HtmlProperties {
 
 	document: Document;
 
+	location: Location;
+
 	protected _reportContainer: Element;
 
 	// Div element to hold buttons above the summary table
@@ -57,6 +59,7 @@ export default class Html extends Reporter implements HtmlProperties {
 	constructor(executor: Browser, options: HtmlOptions = {}) {
 		super(executor, options);
 		this.document = options.document || window.document;
+		this.location = options.location || window.location;
 		this._fragment = this.document.createDocumentFragment();
 	}
 
@@ -323,7 +326,7 @@ export default class Html extends Reporter implements HtmlProperties {
 		this._suiteCount++;
 
 		cellNode.className = 'title';
-		cellNode.appendChild(document.createTextNode(suite.name));
+		cellNode.appendChild(this.createLinkNode(suite));
 		rowNode.className = 'suite';
 		rowNode.appendChild(cellNode);
 		this._reportNode.appendChild(rowNode);
@@ -466,7 +469,7 @@ export default class Html extends Reporter implements HtmlProperties {
 			cellNode.className += ' indent' + this._indentLevel;
 		}
 
-		cellNode.appendChild(document.createTextNode(test.name));
+		cellNode.appendChild(this.createLinkNode(test));
 		rowNode.appendChild(cellNode);
 
 		cellNode = document.createElement('td');
@@ -499,10 +502,28 @@ export default class Html extends Reporter implements HtmlProperties {
 
 		this._reportNode.appendChild(rowNode);
 	}
+
+	private createLinkNode(obj: Suite | Test) {
+		const document = this.document;
+		const location = this.location;
+		const a = document.createElement('a');
+		let search = location.search;
+
+		if (search) {
+			search = search.slice(1).split('&').filter(el => {
+				return !el.startsWith('grep');
+			}).join('&');
+		}
+
+		a.href = location.origin + location.pathname + `?${search}&grep=${encodeURIComponent(obj.id)}`;
+		a.appendChild(document.createTextNode(obj.name));
+		return a;
+	}
 }
 
 export interface HtmlProperties extends ReporterProperties {
 	document: Document;
+	location: Location;
 }
 
 export type HtmlOptions = Partial<HtmlProperties>;

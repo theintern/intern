@@ -1,5 +1,7 @@
+import { after } from '@dojo/core/aspect';
 import _Html from 'src/lib/reporters/Html';
 import { createMockBrowserExecutor } from '../../../support/unit/mocks';
+import { createLocation } from './support/mocks';
 
 const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 const createDocument = intern.getPlugin<mocking.DocCreator>('createDocument');
@@ -9,6 +11,7 @@ const mockExecutor = createMockBrowserExecutor();
 let Html: typeof _Html;
 let removeMocks: () => void;
 let doc: Document;
+let location: Location;
 let reporter: _Html;
 
 registerSuite('intern/lib/reporters/Html', {
@@ -27,7 +30,8 @@ registerSuite('intern/lib/reporters/Html', {
 
 	beforeEach() {
 		doc = createDocument();
-		reporter = new Html(mockExecutor, { document: doc });
+		location = <Location>createLocation();
+		reporter = new Html(mockExecutor, { document: doc, location: location });
 	},
 
 	tests: {
@@ -46,22 +50,53 @@ registerSuite('intern/lib/reporters/Html', {
 			);
 		},
 
-		suiteStart() {
-			const suite: any = {
-				parent: {},
-				tests: [],
-				name: 'foo',
-				id: 'foo'
-			};
+		suiteStart: {
+			'root suite'() {
+				const suite: any = {
+					parent: {},
+					tests: [],
+					name: 'foo',
+					id: 'foo'
+				};
 
-			// Need to run runStart to setup doc for suiteStart
-			reporter.runStart();
-			reporter.suiteStart(suite);
-			assert.equal(
-				doc.body.innerHTML,
-				'',
-				'suiteStart should not have altered the document'
-			);
+				// Need to run runStart to setup doc for suiteStart
+				reporter.runStart();
+				reporter.suiteStart(suite);
+				assert.equal(
+					doc.body.innerHTML,
+					'',
+					'suiteStart should not have altered the document'
+				);
+			},
+
+			'regular suite'() {
+				const links: HTMLElement[] = [];
+				const handler = after(reporter.document, 'createElement', (returnValue: any) => {
+					if (returnValue.tagName === 'A') {
+						links.push(returnValue);
+					}
+					return returnValue;
+				});
+
+				const suite: any = {
+					hasParent: true,
+					parent: {},
+					tests: [],
+					name: 'foo',
+					id: 'foo'
+				};
+
+				// Need to run runStart to setup doc for suiteStart
+				reporter.runStart();
+				reporter.suiteStart(suite);
+				handler.destroy();
+
+				assert.lengthOf(links, 1);
+				const link = links[0];
+
+				assert.equal(link.getAttribute('href'), '?&grep=foo', 'expected link with for single test');
+				assert.equal(link.textContent, 'foo', 'link should contain the test name');
+			}
 		},
 
 		suiteEnd: {
@@ -187,6 +222,9 @@ registerSuite('intern/lib/reporters/Html', {
 
 				tests.forEach((test, index) => {
 					const row = rows[index + 1];
+					const link = row.querySelectorAll('a')[0];
+					assert.equal(link.getAttribute('href'), test.expectedLink, 'expected link with for single test');
+					assert.equal(link.textContent, test.name, 'link should contain the test name');
 					if (test.error) {
 						assert.isTrue(row.classList.contains('failed'));
 					} else if (test.skipped) {
@@ -201,7 +239,9 @@ registerSuite('intern/lib/reporters/Html', {
 				passed() {
 					doTest([
 						{
-							id: 'foo - test',
+							id: 'foo - test 1',
+							name: 'test 1',
+							expectedLink: '?&grep=foo%20-%20test%201',
 							timeElapsed: 123
 						}
 					]);
@@ -210,7 +250,9 @@ registerSuite('intern/lib/reporters/Html', {
 				failed() {
 					doTest([
 						{
-							id: 'foo - test',
+							id: 'foo - test 2',
+							name: 'test 2',
+							expectedLink: '?&grep=foo%20-%20test%202',
 							timeElapsed: 123,
 							error: new Error('failed')
 						}
@@ -220,7 +262,9 @@ registerSuite('intern/lib/reporters/Html', {
 				skipped() {
 					doTest([
 						{
-							id: 'foo - test',
+							id: 'foo - test 3',
+							name: 'test 3',
+							expectedLink: '?&grep=foo%20-%20test%203',
 							timeElapsed: 123,
 							skipped: 'yes'
 						}

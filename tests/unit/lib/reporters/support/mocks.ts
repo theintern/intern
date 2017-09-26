@@ -41,3 +41,26 @@ export function createMockDocument() {
 	};
 	return doc;
 }
+
+export function createLocation() {
+	return {
+		hash: '',
+		host: '',
+		hostname: '',
+		href: '',
+		origin: '',
+		pathname: '',
+		port: '',
+		protocol: '',
+		search: '',
+		assign: function() {
+		},
+		reload: function() {
+		},
+		replace: function() {
+		},
+		toString: function(): string {
+			return '';
+		}
+	};
+}
