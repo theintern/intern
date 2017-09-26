@@ -129,8 +129,10 @@ export default class Server implements ServerProperties {
 				get: () => intern
 			});
 
+			// Handle JSON and form-encoded request bodies
 			app.use(json({ limit: '1mb' }), urlencoded({ extended: true }));
 
+			// Log all requests
 			app.use((request, _response, next) => {
 				this.executor.log(
 					`${request.method} request for ${request.url}`
@@ -138,13 +140,22 @@ export default class Server implements ServerProperties {
 				return next();
 			});
 
-			app.use('/__intern/__resolveSuites__', resolveSuites());
+			const internPath = this.executor.config.internPath;
 
+			// Allow resolution using both __intern and node_modules/intern.
+			// Note that internPath will always end with a '/'.
+			app.use(
+				[
+					`/${internPath}__resolveSuites__`,
+					'/__intern/__resolveSuites__'
+				],
+				resolveSuites()
+			);
+
+			// Map __intern to config.internPath
 			app.use(
 				'/__intern',
-				express.static(this.executor.config.internPath, {
-					fallthrough: false
-				})
+				express.static(internPath, { fallthrough: false })
 			);
 
 			// TODO: Allow user to add middleware here
