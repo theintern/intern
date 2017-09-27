@@ -110,6 +110,48 @@ registerSuite('lib/interfaces/tdd', function() {
 				};
 			})(),
 
+			'multiple of same lifecycle method'() {
+				let firstIsResolved = false;
+				const dfd = this.async();
+
+				tddInt.suite('foo', () => {
+					tddInt.beforeEach(() => {
+						return new Promise<void>(resolve => {
+							setTimeout(() => {
+								firstIsResolved = true;
+								resolve(<any>'foo');
+							}, 100);
+						});
+					});
+
+					tddInt.beforeEach(
+						dfd.rejectOnError(() => {
+							assert.isTrue(
+								firstIsResolved,
+								'expected first beforeEach to be resolved'
+							);
+							return new Promise<void>(resolve => {
+								setTimeout(() => {
+									resolve(<any>'bar');
+								}, 100);
+							});
+						})
+					);
+
+					tddInt.test('fooTest', () => {});
+				});
+
+				const suite = <Suite>parent.tests[0];
+				Promise.resolve<string>(<any>suite.beforeEach(
+					<any>{},
+					<any>{}
+				)).then(
+					dfd.callback((result: string) => {
+						assert.equal(result, 'bar');
+					})
+				);
+			},
+
 			'nested suites'() {
 				tddInt.suite('fooSuite', () => {
 					tddInt.test('foo', () => {});

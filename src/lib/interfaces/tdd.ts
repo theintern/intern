@@ -23,9 +23,13 @@
  *     test('baz', () => { ... });
  * });
  */ /** */
-import { on } from '@dojo/core/aspect';
+import { after as _after } from '@dojo/core/aspect';
 import global from '@dojo/shim/global';
-import Suite, { SuiteProperties } from '../Suite';
+import Suite, {
+	SuiteProperties,
+	SuiteLifecycleFunction,
+	TestLifecycleFunction
+} from '../Suite';
 import Test, { TestProperties } from '../Test';
 import Executor from '../executors/Executor';
 
@@ -60,7 +64,7 @@ export function before(fn: SuiteProperties['before']) {
 			'A suite lifecycle method must be declared within a suite'
 		);
 	}
-	on(currentSuite, 'before', fn);
+	aspect(currentSuite, 'before', fn);
 }
 
 export function after(fn: SuiteProperties['after']) {
@@ -69,7 +73,7 @@ export function after(fn: SuiteProperties['after']) {
 			'A suite lifecycle method must be declared within a suite'
 		);
 	}
-	on(currentSuite, 'after', fn);
+	aspect(currentSuite, 'after', fn);
 }
 
 export function beforeEach(fn: SuiteProperties['beforeEach']) {
@@ -78,7 +82,7 @@ export function beforeEach(fn: SuiteProperties['beforeEach']) {
 			'A suite lifecycle method must be declared within a suite'
 		);
 	}
-	on(currentSuite, 'beforeEach', fn);
+	aspect(currentSuite, 'beforeEach', fn);
 }
 
 export function afterEach(fn: SuiteProperties['afterEach']) {
@@ -87,7 +91,7 @@ export function afterEach(fn: SuiteProperties['afterEach']) {
 			'A suite lifecycle method must be declared within a suite'
 		);
 	}
-	on(currentSuite, 'afterEach', fn);
+	aspect(currentSuite, 'afterEach', fn);
 }
 
 export function getInterface(executor: Executor): TddInterface {
@@ -127,4 +131,16 @@ function _suite(executor: Executor, name: string, factory: TddSuiteFactory) {
 	} else {
 		registerSuite(name, factory);
 	}
+}
+
+function aspect(
+	suite: Suite,
+	method: string,
+	callback: SuiteLifecycleFunction | TestLifecycleFunction
+) {
+	_after(suite, method, (originalReturn: any, ...args: any[]) => {
+		return Promise.resolve(originalReturn).then(() => {
+			return callback.apply(currentSuite, args);
+		});
+	});
 }
