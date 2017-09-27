@@ -19,6 +19,11 @@ function getCoverageData(coverageVariable: string) {
  */
 export default class ProxiedSession extends Session {
 	/**
+	 * The base URL for relative URLs.
+	 */
+	baseUrl = '';
+
+	/**
 	 * The name of the global variable used to store coverage data.
 	 */
 	coverageVariable = '';
@@ -27,17 +32,6 @@ export default class ProxiedSession extends Session {
 	 * The Executor hosting this session.
 	 */
 	executor: Node;
-
-	/**
-	 * The number of characters that need to be truncated from the front of file
-	 * paths to get a working path-part for a URL.
-	 */
-	serverBasePathLength = 0;
-
-	/**
-	 * The base URL of the server server in use.
-	 */
-	serverUrl = '';
 
 	private _heartbeatIntervalHandle: { remove: Function };
 
@@ -55,10 +49,10 @@ export default class ProxiedSession extends Session {
 		// paths being misinterpreted as URLs
 		if (!/^[A-Za-z][A-Za-z0-9+.-]+:/.test(url)) {
 			if (url.indexOf(this.executor.config.basePath) === 0) {
-				url = url.slice(this.serverBasePathLength);
+				url = url.slice(this.executor.config.basePath.length);
 			}
 
-			url = this.serverUrl + url;
+			url = this.baseUrl + url;
 		}
 
 		if (!this.coverageEnabled) {

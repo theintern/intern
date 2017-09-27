@@ -437,8 +437,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		class InitializedProxiedSession extends ProxiedSession {
 			executor = executor;
 			coverageVariable = config.coverageVariable;
-			serverUrl = config.serverUrl;
-			serverBasePathLength = config.basePath.length;
+			baseUrl = config.functionalBaseUrl || config.serverUrl;
 		}
 
 		leadfootServer.sessionConstructor = InitializedProxiedSession;
@@ -608,6 +607,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		addToExisting: boolean
 	) {
 		switch (name) {
+			case 'functionalBaseUrl':
 			case 'serverUrl':
 				this._setOption(name, parseValue(name, value, 'string'));
 				break;
@@ -771,7 +771,18 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				);
 			}
 
-			config.serverUrl = config.serverUrl.replace(/\/*$/, '/');
+			// Ensure URLs end with a '/'
+			[
+				'serverUrl',
+				'functionalBaseUrl'
+			].forEach((property: keyof Config) => {
+				if (config[property]) {
+					config[property] = (<string>config[property]).replace(
+						/\/*$/,
+						'/'
+					);
+				}
+			});
 
 			if (!config.capabilities.name) {
 				config.capabilities.name = 'intern';
@@ -1016,6 +1027,9 @@ export interface Config extends BaseConfig {
 
 	// Deprecated; this is only here for typing
 	excludeInstrumentation: never;
+
+	/** The base URL to use for relative addresses in functional tests */
+	functionalBaseUrl?: string;
 
 	/** Whether to collect coverage data from functional tests */
 	functionalCoverage: boolean;

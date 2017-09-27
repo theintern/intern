@@ -12,7 +12,6 @@ import { assert } from 'chai';
 
 registerSuite('ProxiedSession', () => {
 	const serverUrl = 'https://example.invalid/';
-	const serverBasePathLength = 1;
 	let session: ProxiedSession | null;
 	let numGetCalls: number;
 	let lastUrl: string | null;
@@ -44,8 +43,7 @@ registerSuite('ProxiedSession', () => {
 			config: {}
 		};
 
-		session.serverUrl = serverUrl;
-		session.serverBasePathLength = serverBasePathLength;
+		session.baseUrl = serverUrl;
 
 		session.serverGet = <any>function() {
 			++numGetCalls;

@@ -504,6 +504,7 @@ registerSuite('lib/executors/Node', function() {
 					serverPort: numberTest('serverPort'),
 					socketPort: numberTest('socketPort'),
 
+					functionalBaseUrl: stringTest('functionalBaseUrl'),
 					proxy: stringTest('proxy'),
 					serverUrl: stringTest('serverUrl')
 				};
@@ -791,7 +792,7 @@ registerSuite('lib/executors/Node', function() {
 							'a session should have been created'
 						);
 						assert.property(sessions[0], 'coverageVariable');
-						assert.property(sessions[0], 'serverUrl');
+						assert.property(sessions[0], 'baseUrl');
 					});
 				},
 
