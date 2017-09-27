@@ -65,19 +65,25 @@ export default class RemoteSuite extends Suite {
 					reject(error);
 				};
 
+				const config = this.executor.config;
+
 				// This is a deferred that will resolve when the remote sends
 				// back a 'remoteConfigured' message
 				const pendingConnection = new Deferred<void>();
 
 				// If the remote takes to long to connect, reject the connection
 				// promise
+				const connectTimeout =
+					config.functionalTimeouts.connectTimeout != null
+						? config.functionalTimeouts.connectTimeout
+						: 30000;
 				connectTimer = setTimeout(() => {
 					const error = new Error(
 						'Timed out waiting for remote to connect'
 					);
 					error.name = 'TimeoutError';
 					pendingConnection.reject(error);
-				}, this.executor.config.connectTimeout);
+				}, connectTimeout);
 
 				// Subscribe to messages received by the server for a particular
 				// remote session ID.
@@ -175,7 +181,6 @@ export default class RemoteSuite extends Suite {
 					}
 				);
 
-				const config = this.executor.config;
 				const serverUrl = parse(config.serverUrl);
 
 				// Intern runs unit tests on the remote Selenium server by

@@ -81,10 +81,10 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			basePath: process.cwd() + sep,
 			capabilities: { 'idle-timeout': 60 },
 			coverage: [],
-			connectTimeout: 30000,
 			environments: [],
 			functionalCoverage: true,
 			functionalSuites: [],
+			functionalTimeouts: { connectTimeout: 30000 },
 			instrumenterOptions: {},
 			maxConcurrency: Infinity,
 			name: 'node',
@@ -484,6 +484,42 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 								// Update the name with details from the remote
 								// environment
 								this.name = remote.environmentType.toString();
+
+								const timeouts = config.functionalTimeouts;
+								let promise = Promise.resolve();
+								if (timeouts.executeAsync != null) {
+									promise = promise.then(() =>
+										remote.setExecuteAsyncTimeout(
+											timeouts.executeAsync!
+										)
+									);
+									this.executor.log(
+										'Set remote executeAsync timeout to ',
+										timeouts.executeAsync
+									);
+								}
+								if (timeouts.find != null) {
+									promise = promise.then(() =>
+										remote.setFindTimeout(timeouts.find!)
+									);
+									this.executor.log(
+										'Set remote find timeout to ',
+										timeouts.find
+									);
+								}
+								if (timeouts.pageLoad != null) {
+									promise = promise.then(() =>
+										remote.setPageLoadTimeout(
+											timeouts.pageLoad!
+										)
+									);
+									this.executor.log(
+										'Set remote pageLoad timeout to ',
+										timeouts.pageLoad
+									);
+								}
+
+								return promise;
 							});
 					},
 
@@ -650,6 +686,38 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				break;
 
 			case 'connectTimeout':
+			case 'functionalTimeouts':
+				if (!this.config.functionalTimeouts) {
+					this.config.functionalTimeouts = {};
+				}
+				if (name === 'connectTimeout') {
+					this.emit('deprecated', {
+						original: name,
+						replacement: 'functionalTimeouts.connectTimeout'
+					});
+					name = 'functionalTimeouts';
+					value = { connectTimeout: value };
+				}
+				const parsedTimeout = parseValue(name, value, 'object');
+				if (parsedTimeout) {
+					// If the given value was an object, mix it in to the
+					// default functionalTimeouts
+					Object.keys(
+						parsedTimeout
+					).forEach((key: keyof Config['functionalTimeouts']) => {
+						this.config.functionalTimeouts[key] = parseValue(
+							`functionalTimeouts.${key}`,
+							parsedTimeout[key],
+							'number'
+						);
+					});
+				} else {
+					// If the given value was null/undefined, clear out
+					// functionalTimeouts
+					this._setOption(name, {});
+				}
+				break;
+
 			case 'maxConcurrency':
 			case 'serverPort':
 			case 'socketPort':
@@ -880,8 +948,25 @@ export interface Config extends BaseConfig {
 		[key: string]: any;
 	};
 
-	/** Time to wait for contact from a remote server */
-	connectTimeout: number;
+	// Deprecated; this is only here for typing
+	connectTimeout: never;
+
+	/**
+	 * Timeouts that apply to functional tests
+	 */
+	functionalTimeouts: {
+		/** Time to wait for contact from a remote server */
+		connectTimeout?: number;
+
+		/** Time to wait for a findBy command to find a matching element */
+		find?: number;
+
+		/** Time to wait for an executeAsync to complete */
+		executeAsync?: number;
+
+		/** Time to wait for initial page load to complete */
+		pageLoad?: number;
+	};
 
 	/**
 	 * An array of file paths or globs that should be instrumented for code

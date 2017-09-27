@@ -326,7 +326,7 @@ export interface ServerProperties {
 }
 
 export interface ServerListener {
-	(name: string, data: any): void;
+	(name: string, data?: any): void;
 }
 
 export type ServerOptions = Partial<ServerProperties> & { executor: Node };

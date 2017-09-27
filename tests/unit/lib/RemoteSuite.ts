@@ -1,4 +1,5 @@
 import RemoteSuite from 'src/lib/RemoteSuite';
+import { ServerListener } from 'src/lib/Server';
 import {
 	createMockNodeExecutor,
 	createMockRemoteAndSession,
@@ -24,7 +25,7 @@ registerSuite('lib/RemoteSuite', {
 
 	'#run': (function() {
 		let remoteSuite: RemoteSuite;
-		let subscribers: Function[];
+		let subscribers: ServerListener[];
 		let executor: MockNode;
 
 		return <ObjectSuiteDescriptor>{
@@ -33,7 +34,7 @@ registerSuite('lib/RemoteSuite', {
 
 				executor = createMockNodeExecutor({
 					config: <any>{
-						connectTimeout: 3456,
+						functionalTimeouts: { connectTimeout: 3456 },
 						serverUrl: 'http://foo.com/somewhere/else',
 						capabilities: { 'idle-timeout': 123 }
 					},
@@ -41,7 +42,7 @@ registerSuite('lib/RemoteSuite', {
 					server: createMockServer({
 						socketPort: 12345,
 
-						subscribe(_sessionId: string, handler: Function) {
+						subscribe(_sessionId: string, handler: ServerListener) {
 							subscribers.push(handler);
 							return {
 								destroy() {}
@@ -58,7 +59,9 @@ registerSuite('lib/RemoteSuite', {
 
 			tests: {
 				'connect timeout'() {
-					remoteSuite.executor.config.connectTimeout = 10;
+					remoteSuite.executor.config.functionalTimeouts = {
+						connectTimeout: 10
+					};
 					return remoteSuite.run().then(
 						() => {
 							throw new Error('Suite should have failed');

@@ -31,6 +31,12 @@ registerSuite('lib/executors/Node', function() {
 
 	class MockCommand {
 		session = {};
+		setPageLoadTimeout: SinonSpy;
+
+		constructor() {
+			this.setPageLoadTimeout = spy();
+		}
+
 		quit() {
 			return Task.resolve();
 		}
@@ -469,6 +475,23 @@ registerSuite('lib/executors/Node', function() {
 						test('tunnel', 5, 'null', 'null', /Non-string/);
 					},
 
+					functionalTimeouts() {
+						test(
+							'functionalTimeouts',
+							5,
+							{ foo: 5 },
+							{ connectTimeout: 30000, foo: 5 },
+							/Non-object/
+						);
+						test(
+							'functionalTimeouts',
+							{ foo: 'bar' },
+							{ foo: 5 },
+							{ connectTimeout: 30000, foo: 5 },
+							/Non-numeric/
+						);
+					},
+
 					functionalCoverage: booleanTest('functionalCoverage'),
 					leaveRemoteOpen: booleanTest('leaveRemoteOpen'),
 					serveOnly: booleanTest('serveOnly'),
@@ -477,7 +500,6 @@ registerSuite('lib/executors/Node', function() {
 					coverage: stringArrayTest('coverage'),
 					functionalSuites: stringArrayTest('functionalSuites'),
 
-					connectTimeout: numberTest('connectTimeout'),
 					maxConcurrency: numberTest('maxConcurrency'),
 					serverPort: numberTest('serverPort'),
 					socketPort: numberTest('socketPort'),
@@ -717,9 +739,16 @@ registerSuite('lib/executors/Node', function() {
 					executor.configure(<any>{
 						environments: 'chrome',
 						tunnel: 'null',
-						suites: 'foo.js'
+						suites: 'foo.js',
+						functionalTimeouts: { pageLoad: 10 }
 					});
 					return executor.run().then(() => {
+						const suite = executor['_sessionSuites'][0];
+						assert.equal(
+							(<any>suite.remote.setPageLoadTimeout).callCount,
+							1,
+							'expected page load timeout to have been set'
+						);
 						assert.lengthOf(
 							tunnels,
 							1,
