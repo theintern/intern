@@ -216,17 +216,28 @@ export default class Suite implements SuiteProperties {
 	}
 
 	/**
-	 * The total number of tests in this test suite and any sub-suites that have
+	 * The total number of tests in this test suite that passed.
+	 */
+	get numPassedTests(): number {
+		return this.tests.reduce((numPassedTests, suiteOrTest) => {
+			if (isSuite(suiteOrTest)) {
+				return numPassedTests + suiteOrTest.numPassedTests;
+			} else if (suiteOrTest.hasPassed) {
+				return numPassedTests + 1;
+			}
+			return numPassedTests;
+		}, 0);
+	}
+
+	/**
+	 * The total number of tests in this test suite and any sub-suites that
 	 * failed.
 	 */
 	get numFailedTests(): number {
 		return this.tests.reduce((numFailedTests, suiteOrTest) => {
 			if (isSuite(suiteOrTest)) {
 				return numFailedTests + suiteOrTest.numFailedTests;
-			} else if (
-				!(suiteOrTest.hasPassed || suiteOrTest.skipped) ||
-				suiteOrTest.error
-			) {
+			} else if (suiteOrTest.error) {
 				return numFailedTests + 1;
 			}
 			return numFailedTests;
@@ -702,6 +713,7 @@ export default class Suite implements SuiteProperties {
 			'sessionId',
 			'timeElapsed',
 			'numTests',
+			'numPassedTests',
 			'numFailedTests',
 			'numSkippedTests',
 			'skipped'

@@ -120,6 +120,7 @@ export default class Runner extends Coverage implements RunnerProperties {
 	runEnd() {
 		const map = this.executor.coverageMap;
 		let numTests = 0;
+		let numPassedTests = 0;
 		let numFailedTests = 0;
 		let numSkippedTests = 0;
 
@@ -129,6 +130,7 @@ export default class Runner extends Coverage implements RunnerProperties {
 		sessionIds.forEach(sessionId => {
 			const session = this.sessions[sessionId];
 			numTests += session.suite.numTests;
+			numPassedTests += session.suite.numPassedTests;
 			numFailedTests += session.suite.numFailedTests;
 			numSkippedTests += session.suite.numSkippedTests;
 		});
@@ -143,11 +145,16 @@ export default class Runner extends Coverage implements RunnerProperties {
 			this.createCoverageReport(this.reportType, map);
 		}
 
-		const numPassedTests = numTests - numFailedTests - numSkippedTests;
 		let message = `TOTAL: tested ${numEnvironments} platforms, ${numPassedTests} passed, ${numFailedTests} failed`;
 
 		if (numSkippedTests) {
 			message += `, ${numSkippedTests} skipped`;
+		}
+
+		const numUnrunTests =
+			numTests - (numPassedTests + numFailedTests + numSkippedTests);
+		if (numUnrunTests) {
+			message += `, ${numUnrunTests} not run`;
 		}
 
 		if (this.hasRunErrors) {

@@ -146,11 +146,11 @@ registerSuite('intern/lib/reporters/Console', {
 					tests: [
 						new Test({
 							name: 'foo',
-							test: () => {},
-							hasPassed: false
+							test: () => {}
 						})
 					]
 				});
+				suite.tests[0].error = new Error('foo');
 
 				reporter.suiteEnd(suite);
 				assert.equal(

@@ -38,10 +38,13 @@ export default class ConsoleReporter extends Reporter {
 			const numTests = suite.numTests;
 			const numFailedTests = suite.numFailedTests;
 			const numSkippedTests = suite.numSkippedTests;
+			const numNotRunTests =
+				numTests -
+				(suite.numPassedTests + numFailedTests + numSkippedTests);
 			let message = numFailedTests + '/' + numTests + ' tests failed';
 
-			if (numSkippedTests > 0) {
-				message += ' (' + numSkippedTests + ' skipped)';
+			if (numSkippedTests + numNotRunTests > 0) {
+				message += ` (${numSkippedTests + numNotRunTests} not run)`;
 			}
 
 			this.console[numFailedTests ? 'warn' : 'info'](message);

@@ -138,6 +138,7 @@ registerSuite('lib/reporters/Runner', function() {
 					reporter.sessions['bar'] = <any>{
 						suite: {
 							numTests: 2,
+							numPassedTests: 0,
 							numFailedTests: 1,
 							numSkippedTests: 1
 						}
@@ -169,6 +170,7 @@ registerSuite('lib/reporters/Runner', function() {
 					reporter.sessions['bar'] = <any>{
 						suite: {
 							numTests: 2,
+							numPassedTests: 1,
 							numFailedTests: 1,
 							numSkippedTests: 0
 						}
@@ -201,6 +203,7 @@ registerSuite('lib/reporters/Runner', function() {
 					reporter.sessions['bar'] = <any>{
 						suite: {
 							numTests: 2,
+							numPassedTests: 2,
 							numFailedTests: 0,
 							numSkippedTests: 0
 						}
@@ -288,6 +291,7 @@ registerSuite('lib/reporters/Runner', function() {
 								id: 'foo',
 								name: 'foo',
 								numTests: 2,
+								numPassedTests: 2,
 								numFailedTests: 0,
 								numSkippedTests: 0
 							};

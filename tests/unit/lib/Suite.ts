@@ -266,7 +266,8 @@ function createThrowsTest(
 					`Suite should never resolve after a fatal error in ${method}`
 				)
 			);
-		}, dfd.callback((error: InternError) => {
+		},
+		dfd.callback((error: InternError) => {
 			finished = true;
 			assert.strictEqual<Error | undefined>(
 				suite.error,
@@ -319,7 +320,8 @@ function createTimeoutTest(method: lifecycleMethod): _TestFunction {
 						method
 				)
 			);
-		}, dfd.callback(function() {
+		},
+		dfd.callback(function() {
 			finished = true;
 			assert.match(
 				suite.error!.message,
@@ -526,89 +528,65 @@ registerSuite('lib/Suite', {
 			);
 		},
 
-		'#numTests / numFailedTests'() {
-			const suite = createSuite({
-				name: 'foo',
-				tests: [
-					createSuite({
-						name: 'far',
-						tests: [
-							new Test({
-								name: 'bar',
-								test() {},
-								hasPassed: false
-							}),
-							new Test({
-								name: 'baz',
-								test() {},
-								hasPassed: true
-							})
-						]
-					}),
-					new Test({ name: 'bif', test() {}, hasPassed: false }),
-					new Test({ name: 'bof', test() {}, hasPassed: true })
-				]
-			});
+		'test counts': (() => {
+			function runTest(type: keyof Suite, expectedCount: number) {
+				const suite = createSuite({
+					name: 'foo',
+					tests: [
+						createSuite({
+							name: 'far',
+							tests: [
+								new Test({
+									name: 'bar',
+									test() {}
+								}),
+								new Test({
+									name: 'baz',
+									test() {},
+									hasPassed: true
+								})
+							]
+						}),
+						new Test({
+							name: 'bif',
+							test() {},
+							hasPassed: true
+						}),
+						new Test({
+							name: 'bof',
+							test() {},
+							hasPassed: true
+						})
+					]
+				});
 
-			assert.strictEqual(
-				suite.numTests,
-				4,
-				'#numTests should return the correct number of tests, including those from nested suites'
-			);
-			assert.strictEqual(
-				suite.numFailedTests,
-				2,
-				'#numFailedTests returns the correct number of failed tests, including those from nested suites'
-			);
-		},
+				(<Suite>suite.tests[0]).tests[0].error = new Error('bad');
 
-		'#numSkippedTests'() {
-			const suite = createSuite({
-				name: 'foo',
-				tests: [
-					createSuite({
-						name: 'far',
-						tests: [
-							new Test({
-								name: 'bar',
-								test() {},
-								hasPassed: true
-							}),
-							new Test({
-								name: 'baz',
-								test() {},
-								skipped: 'skipped',
-								hasPassed: true
-							})
-						]
-					}),
-					new Test({ name: 'bif', test() {}, hasPassed: true }),
-					new Test({
-						name: 'bof',
-						test() {},
-						skipped: 'skipped',
-						hasPassed: false
-					})
-				]
-			});
+				assert.strictEqual(
+					suite[type],
+					expectedCount,
+					`unexpected count for ${type}`
+				);
+			}
 
-			assert.strictEqual(
-				suite.numTests,
-				4,
-				'#numTests should return the correct number of tests, including those from nested suites'
-			);
-			assert.strictEqual(
-				suite.numSkippedTests,
-				2,
-				'#numSkippedTests returns the correct number of skipped tests, ' +
-					'including those from nested suites'
-			);
-			assert.strictEqual(
-				suite.numFailedTests,
-				0,
-				'#numFailedTests returns the correct number of failed tests, including those from nested suites'
-			);
-		}
+			return {
+				'#numTests'() {
+					runTest('numTests', 4);
+				},
+
+				'#numPassedTests'() {
+					runTest('numPassedTests', 3);
+				},
+
+				'#numFailedTests'() {
+					runTest('numFailedTests', 1);
+				},
+
+				'#numSkippedTests'() {
+					runTest('numSkippedTests', 0);
+				}
+			};
+		})()
 	},
 
 	'#add': {
@@ -1027,7 +1005,8 @@ registerSuite('lib/Suite', {
 				'Nested beforeEach and afterEach should execute in a pyramid, ' +
 					'with the test passed to beforeEach and afterEach'
 			);
-		}), function(error) {
+		}),
+		function(error) {
 			console.log('suite failed with', error);
 			dfd.reject(new Error('Suite should not fail'));
 		});
@@ -1072,7 +1051,8 @@ registerSuite('lib/Suite', {
 				'Oops',
 				'Suite with afterEach failure should hold the last error from afterEach'
 			);
-		}), function() {
+		}),
+		function() {
 			dfd.reject(new Error('Suite should not fail'));
 		});
 	},
@@ -1127,7 +1107,8 @@ registerSuite('lib/Suite', {
 					[fooTest, barSuite.tests[0], foodTest],
 					'Only test matching grep regex should have run'
 				);
-			}), function() {
+			}),
+			function() {
 				dfd.reject(new Error('Suite should not fail'));
 			});
 		},
@@ -1191,7 +1172,8 @@ registerSuite('lib/Suite', {
 					afterRan,
 					'after should have run for bailing suite'
 				);
-			}), function() {
+			}),
+			function() {
 				dfd.reject(new Error('Suite should not fail'));
 			});
 		},
@@ -1269,7 +1251,8 @@ registerSuite('lib/Suite', {
 					[fooTest, bazSuite.tests[0]],
 					'Skipped suite should not have run'
 				);
-			}), function() {
+			}),
+			function() {
 				dfd.reject(new Error('Suite should not fail'));
 			});
 		},
@@ -1361,6 +1344,7 @@ registerSuite('lib/Suite', {
 			],
 			numTests: 1,
 			numFailedTests: 0,
+			numPassedTests: 1,
 			numSkippedTests: 0
 		};
 		assert.deepEqual(suite.toJSON(), expected, 'Unexpected value');
