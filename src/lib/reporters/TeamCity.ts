@@ -1,6 +1,6 @@
 import Reporter, { eventHandler } from './Reporter';
 import Test from '../Test';
-import Suite from '../Suite';
+import Suite, { isSuite } from '../Suite';
 
 /**
  * This reporter enables Intern to interact with TeamCity.
@@ -11,6 +11,13 @@ import Suite from '../Suite';
  * https://github.com/pifantastic/teamcity-service-messages.
  */
 export default class TeamCity extends Reporter {
+	_ignoredTestIds: { [sessionId: string]: { [testId: string]: boolean } };
+
+	@eventHandler()
+	runStart() {
+		this._ignoredTestIds = {};
+	}
+
 	@eventHandler()
 	testStart(test: Test) {
 		this._sendMessage('testStarted', {
@@ -68,6 +75,8 @@ export default class TeamCity extends Reporter {
 				errorDetails: this.formatError(suite.error),
 				status: 'ERROR'
 			});
+
+			this._notifyUnrunTests(suite);
 		} else {
 			this._sendMessage('testSuiteFinished', {
 				name: suite.name,
@@ -104,6 +113,29 @@ export default class TeamCity extends Reporter {
 				return '|0x' + character.charCodeAt(0).toString(16);
 			}
 			return '';
+		});
+	}
+
+	private _notifyUnrunTests(suite: Suite) {
+		// Keep track of test IDs that have already been ignored for a given
+		// session. This prevents the reporter from emitting duplicate
+		// testIgnored messages for unrun tests in nested suites as parent
+		// suites are finished.
+		let ignoredTests = this._ignoredTestIds[suite.sessionId];
+		if (!ignoredTests) {
+			ignoredTests = this._ignoredTestIds[suite.sessionId] = {};
+		}
+
+		suite.tests.forEach(test => {
+			if (isSuite(test)) {
+				this._notifyUnrunTests(test);
+			} else if (!ignoredTests[test.id]) {
+				this._sendMessage('testIgnored', {
+					name: test.name,
+					flowId: test.sessionId
+				});
+				ignoredTests[test.id] = true;
+			}
 		});
 	}
 
