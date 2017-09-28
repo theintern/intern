@@ -2,7 +2,7 @@ import { spy, SinonSpy } from 'sinon';
 import * as tty from 'tty';
 
 import RemoteSuite from 'src/lib/RemoteSuite';
-import _Pretty, { PASS, FAIL, SKIP } from 'src/lib/reporters/Pretty';
+import _Pretty, { Result } from 'src/lib/reporters/Pretty';
 
 import {
 	createMockCharm,
@@ -19,6 +19,17 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 				charm: createMockCharm,
 				'istanbul-lib-coverage': {
 					createCoverageMap: createMockCoverageMap
+				},
+				'@dojo/shim/global': {
+					default: {
+						process: {
+							stdout: {
+								columns: stdout.columns,
+								rows: stdout.rows,
+								on() {}
+							}
+						}
+					}
 				}
 			}).then(resource => {
 				removeMocks = resource.remove;
@@ -165,7 +176,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 			},
 
 			coverage() {
-				const report = pretty['_getReporter']({ sessionId: 'foo' });
+				const report = pretty['_getReport']({ sessionId: 'foo' });
 				pretty.coverage({
 					sessionId: 'foo',
 					coverage: { functions: 5 }
@@ -191,7 +202,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
 				pretty.runStart();
 				pretty.suiteStart(suite);
-				const fooReport = pretty['_getReporter'](suite);
+				const fooReport = pretty['_getReport'](suite);
 				assert.equal(
 					fooReport.numTotal,
 					3,
@@ -205,7 +216,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
 				suite.sessionId = 'bar';
 				pretty.suiteStart(suite);
-				const barReport = pretty['_getReporter'](suite);
+				const barReport = pretty['_getReport'](suite);
 				assert.equal(
 					barReport.numTotal,
 					3,
@@ -225,13 +236,19 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 					'expected report test count to be unchanged'
 				);
 
-				const remoteSuite = new RemoteSuite({ sessionId: 'bar' });
+				const remoteSuite = new RemoteSuite({
+					parent: <any>{
+						name: 'parent-foo',
+						sessionId: 'bar'
+					},
+					name: 'foo'
+				});
 				remoteSuite.tests = [<any>{}, <any>{}];
 				pretty.suiteStart(remoteSuite);
 				assert.equal(
 					barReport.numTotal,
 					5,
-					'expected report test count to be unchanged'
+					'unexpected report test count'
 				);
 			},
 
@@ -240,24 +257,30 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 					hasParent: false,
 					numTests: 3,
 					sessionId: 'foo',
-					error: new Error('fail')
+					id: 'bar',
+					error: new Error('fail'),
+					remote: getRemote()
+				};
+
+				// Get the report to initialize it
+				const fooReport = pretty['_getReport'](suite);
+				fooReport.suiteInfo[suite.id] = {
+					parentId: undefined,
+					numToReport: suite.numTests - 1
 				};
 
 				pretty.runStart();
-
-				// Get the report to initialize it
-				const fooReport = pretty['_getReporter'](suite);
 				pretty.suiteEnd(suite);
 
 				assert.equal(
-					fooReport.numFailed,
-					1,
-					'expected suite report to include suite test count'
+					fooReport.numSkipped,
+					2,
+					'should have reported unrun tests ask skipped'
 				);
 				assert.equal(
-					pretty['_total'].numFailed,
-					1,
-					'expected total report to include suite test count'
+					pretty['_total'].numSkipped,
+					2,
+					'should have reported unrun tests ask skipped'
 				);
 			},
 
@@ -266,7 +289,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 					pretty.runStart();
 
 					// Get the report to initialize it
-					const fooReport = pretty['_getReporter'](test);
+					const fooReport = pretty['_getReport'](test);
 					pretty.testEnd(test);
 
 					let testType: string;
@@ -380,7 +403,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 				const mockCharm = <any>pretty['_charm'];
 
 				// Get/create a report so the renderer will do something
-				const report = pretty['_getReporter']({
+				const report = pretty['_getReport']({
 					sessionId: 'foo',
 					remote: {
 						environmentType: {
@@ -394,9 +417,9 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 				// Set a total value so the progress bar will draw
 				report.numTotal = 3;
 
-				report.record(PASS);
-				report.record(FAIL);
-				report.record(SKIP);
+				report.record(Result.PASS);
+				report.record(Result.FAIL);
+				report.record(Result.SKIP);
 
 				const dfd = this.async();
 				setTimeout(
@@ -432,3 +455,13 @@ let Pretty: typeof _Pretty;
 let removeMocks: () => void;
 
 const stdout = <tty.WriteStream>process.stdout;
+
+function getRemote() {
+	return {
+		environmentType: {
+			browserName: 'node',
+			version: '8.5.0',
+			platform: 'MAC'
+		}
+	};
+}

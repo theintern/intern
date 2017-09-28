@@ -2,6 +2,7 @@ import * as charm from 'charm';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { format } from 'util';
 import { mixin } from '@dojo/core/lang';
+import global from '@dojo/shim/global';
 
 import Node from '../executors/Node';
 import Environment from '../Environment';
@@ -72,12 +73,12 @@ export default class Pretty extends Coverage implements PrettyProperties {
 		this._charm = this._charm || this._newCharm();
 
 		const resize = () => {
-			this.dimensions.width = (<any>process.stdout).columns || 80;
-			this.dimensions.height = (<any>process.stdout).rows || 24;
+			this.dimensions.width = (<any>global.process.stdout).columns || 80;
+			this.dimensions.height = (<any>global.process.stdout).rows || 24;
 		};
 
 		resize();
-		process.stdout.on('resize', resize);
+		global.process.stdout.on('resize', resize);
 
 		const rerender = () => {
 			this._charm.erase('screen').position(0, 0);
@@ -132,8 +133,8 @@ export default class Pretty extends Coverage implements PrettyProperties {
 
 	@eventHandler()
 	coverage(data: CoverageMessage) {
-		const reporter = this._reports[data.sessionId || ''];
-		reporter && reporter.coverageMap.merge(data.coverage);
+		const report = this._reports[data.sessionId || ''];
+		report && report.coverageMap.merge(data.coverage);
 		this._total.coverageMap.merge(data.coverage);
 	}
 
@@ -144,7 +145,12 @@ export default class Pretty extends Coverage implements PrettyProperties {
 			this._total.numTotal += numTests;
 
 			if (suite.sessionId) {
-				this._getReporter(suite).numTotal += numTests;
+				const report = this._getReport(suite);
+				report.numTotal += numTests;
+				report.suiteInfo[suite.id] = {
+					parentId: suite.parentId,
+					numToReport: suite.numTests
+				};
 			}
 		}
 	}
@@ -152,7 +158,9 @@ export default class Pretty extends Coverage implements PrettyProperties {
 	@eventHandler()
 	suiteEnd(suite: Suite) {
 		if (suite.error) {
-			this._record(suite.sessionId, FAIL);
+			// Record all the tests that haven't been run as skipped
+			const info = this._getReport(suite).suiteInfo[suite.id];
+			this._record(suite, Result.SKIP, info.numToReport);
 
 			const message = '! ' + suite.id;
 			this._log.push(message + '\n' + this.formatError(suite.error));
@@ -162,14 +170,14 @@ export default class Pretty extends Coverage implements PrettyProperties {
 	@eventHandler()
 	testEnd(test: Test) {
 		if (test.skipped) {
-			this._record(test.sessionId, SKIP);
+			this._record(test, Result.SKIP);
 			this._log.push('~ ' + test.id + ': ' + (test.skipped || 'skipped'));
 		} else if (test.error) {
 			const message = '× ' + test.id;
-			this._record(test.sessionId, FAIL);
+			this._record(test, Result.FAIL);
 			this._log.push(message + '\n' + this.formatError(test.error));
 		} else {
-			this._record(test.sessionId, PASS);
+			this._record(test, Result.PASS);
 			this._log.push('✓ ' + test.id);
 		}
 	}
@@ -212,30 +220,48 @@ export default class Pretty extends Coverage implements PrettyProperties {
 	}
 
 	/**
-	 * Return the reporter for a given session, creating it if necessary.
+	 * Return the report for a given session, creating it if necessary.
 	 */
-	private _getReporter(suite: Suite): Report {
-		if (!this._reports[suite.sessionId]) {
-			this._reports[suite.sessionId] = new Report(
-				suite.remote && suite.remote.environmentType
+	private _getReport(suiteOrTest: Suite | Test): Report {
+		const id = suiteOrTest.sessionId || '';
+		if (!this._reports[id]) {
+			this._reports[id] = new Report(
+				suiteOrTest.remote && suiteOrTest.remote.environmentType
 			);
 		}
-		return this._reports[suite.sessionId];
+		return this._reports[id];
 	}
 
 	/**
-	 * Create the charm instance used by this reporter.
+	 * Create the charm instance used by this report.
 	 */
 	private _newCharm() {
 		const c = charm();
-		c.pipe(process.stdout);
+		c.pipe(global.process.stdout);
 		return c;
 	}
 
-	private _record(sessionId: string, result: number) {
-		const reporter = this._reports[sessionId];
-		reporter && reporter.record(result);
-		this._total.record(result);
+	private _record(suiteOrTest: Suite | Test, result: Result, count = 1) {
+		const report = this._reports[suiteOrTest.sessionId];
+		this._total.record(result, count);
+		if (report) {
+			report.record(result, count);
+
+			const suiteInfo = report.suiteInfo;
+			let info: SuiteInfo | undefined = suiteInfo[suiteOrTest.id];
+			// A test ID won't be in this._suiteInfo, but it's parentId should be
+			if (!info && suiteOrTest.parentId) {
+				info = suiteInfo[suiteOrTest.parentId];
+			}
+			while (info) {
+				info.numToReport -= count;
+				if (info.parentId) {
+					info = suiteInfo[info.parentId];
+				} else {
+					info = undefined;
+				}
+			}
+		}
 	}
 
 	/**
@@ -336,13 +362,13 @@ export default class Pretty extends Coverage implements PrettyProperties {
 
 	private _render(omitLogs: boolean = false) {
 		const charm = this._charm;
-		const numReporters = Object.keys(this._reports).length;
+		const numReports = Object.keys(this._reports).length;
 		const logLength =
 			this.dimensions.height -
-			numReporters -
+			numReports -
 			4 /* last line & total */ -
 			(this.tunnelState ? 2 : 0) -
-			(numReporters ? 1 : 0) -
+			(numReports ? 1 : 0) -
 			(this._header ? 1 : 0);
 		this._spinnerOffset = ++this._spinnerOffset % SPINNER_STATES.length;
 
@@ -353,11 +379,11 @@ export default class Pretty extends Coverage implements PrettyProperties {
 			charm.display('reset');
 		}
 		this.tunnelState && charm.write('Tunnel: ' + this.tunnelState + '\n\n');
-		this._drawTotalReporter(this._total);
+		this._drawTotalReport(this._total);
 
-		// TODO if there is not room to render all reporters only render
+		// TODO if there is not room to render all reports only render
 		// active ones or only the total with less space
-		if (numReporters) {
+		if (numReports) {
 			charm.write('\n');
 			for (let key in this._reports) {
 				this._drawSessionReport(this._reports[key]);
@@ -386,7 +412,7 @@ export default class Pretty extends Coverage implements PrettyProperties {
 		}
 	}
 
-	private _drawTotalReporter(report: Report) {
+	private _drawTotalReport(report: Report) {
 		const charm = this._charm;
 		const title = 'Total: ';
 		const totalTextSize = String(report.numTotal).length;
@@ -433,29 +459,34 @@ export class Report {
 	numFailed = 0;
 	numSkipped = 0;
 	results: number[] = [];
+	suiteInfo: { [id: string]: SuiteInfo };
 	coverageMap: CoverageMap;
 
 	constructor(environment?: Environment, sessionId?: string) {
 		this.environment = environment;
 		this.sessionId = sessionId;
 		this.coverageMap = createCoverageMap();
+		this.suiteInfo = {};
 	}
 
 	get finished() {
 		return this.results.length;
 	}
 
-	record(result: number) {
-		this.results.push(result);
+	record(result: Result, count = 1) {
+		for (let i = 0; i < count; i++) {
+			this.results.push(result);
+		}
+
 		switch (result) {
-			case PASS:
-				++this.numPassed;
+			case Result.PASS:
+				this.numPassed += count;
 				break;
-			case SKIP:
-				++this.numSkipped;
+			case Result.SKIP:
+				this.numSkipped += count;
 				break;
-			case FAIL:
-				++this.numFailed;
+			case Result.FAIL:
+				this.numFailed += count;
 				break;
 		}
 	}
@@ -463,12 +494,12 @@ export class Report {
 	getCompressedResults(maxWidth: number): number[] {
 		const total = Math.max(this.numTotal, this.results.length);
 		const width = Math.min(maxWidth, total);
-		const resultList: number[] = [];
+		const resultList: Result[] = [];
 
 		for (let i = 0; i < this.results.length; ++i) {
 			const pos = Math.floor(i / total * width);
 			resultList[pos] = Math.max(
-				resultList[pos] || PASS,
+				resultList[pos] || Result.PASS,
 				this.results[i]
 			);
 		}
@@ -477,9 +508,16 @@ export class Report {
 	}
 }
 
-export const PASS = 0;
-export const SKIP = 1;
-export const FAIL = 2;
+export enum Result {
+	PASS = 0,
+	SKIP = 1,
+	FAIL = 2
+}
+
+export interface SuiteInfo {
+	parentId: string | undefined;
+	numToReport: number;
+}
 
 const symbols = ['✓', '~', '×'];
 const PAD = new Array(100).join(' ');
