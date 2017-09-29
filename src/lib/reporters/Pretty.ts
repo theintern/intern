@@ -406,7 +406,7 @@ export default class Pretty extends Coverage implements PrettyProperties {
 						charm.foreground(color);
 					}
 					line = line.split('\n', 1)[0];
-					charm.write('$(line.slice(0, this.dimensions.width))\n');
+					charm.write(`${line.slice(0, this.dimensions.width)}\n`);
 					charm.display('reset');
 				});
 		}
