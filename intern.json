@@ -140,7 +140,12 @@
 		"ci": {
 			"description":
 				"Run CI tests on the default cloud service (BrowserStack)",
-			"reporters+": "lcov",
+			"reporters+": {
+				"name": "jsoncoverage",
+				"options": {
+					"filename": "coverage.json"
+				}
+			},
 			"tunnel": "browserstack",
 			"maxConcurrency": 2,
 			"capabilities": {
