@@ -111,16 +111,16 @@ registerSuite('lib/reporters/Coverage', function() {
 				'without data'() {
 					const reporter = new Coverage(mockExecutor, <any>{});
 					const create = stub(reporter, 'createCoverageReport');
+					mockExecutor.coverageMap = { files: () => [] };
 					reporter.runEnd();
-					assert.equal(create.callCount, 1);
-					assert.equal(create.getCall(0).args[0], 'text');
-					assert.isUndefined(create.getCall(0).args[1]);
+					assert.equal(create.callCount, 0);
 				},
 
 				'with data'() {
 					mockExecutor.coverageMap = {};
 					const reporter = new Coverage(mockExecutor, <any>{});
 					const create = stub(reporter, 'createCoverageReport');
+					mockExecutor.coverageMap = { files: () => ['foo.js'] };
 					reporter.runEnd();
 					assert.equal(create.callCount, 1);
 					assert.equal(create.getCall(0).args[0], 'text');

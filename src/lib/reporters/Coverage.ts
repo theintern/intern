@@ -56,7 +56,10 @@ export default abstract class Coverage extends Reporter
 
 	@eventHandler()
 	runEnd(): void {
-		this.createCoverageReport(this.reportType, this.executor.coverageMap);
+		const map = this.executor.coverageMap;
+		if (map.files().length > 0) {
+			this.createCoverageReport(this.reportType, map);
+		}
 	}
 }
 

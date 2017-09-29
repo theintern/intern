@@ -94034,7 +94034,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Coverage.ts",
-									"line": 65,
+									"line": 68,
 									"character": 9
 								}
 							],
@@ -94097,7 +94097,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Coverage.ts",
-									"line": 68,
+									"line": 71,
 									"character": 11
 								}
 							],
@@ -94122,7 +94122,7 @@
 					"sources": [
 						{
 							"fileName": "lib/reporters/Coverage.ts",
-							"line": 63,
+							"line": 66,
 							"character": 35
 						}
 					],
@@ -94201,7 +94201,7 @@
 					"sources": [
 						{
 							"fileName": "lib/reporters/Coverage.ts",
-							"line": 71,
+							"line": 74,
 							"character": 27
 						}
 					],
@@ -94281,7 +94281,7 @@
 					"sources": [
 						{
 							"fileName": "lib/reporters/Coverage.ts",
-							"line": 73,
+							"line": 76,
 							"character": 22
 						}
 					]
@@ -104660,7 +104660,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Coverage.ts",
-									"line": 65,
+									"line": 68,
 									"character": 9
 								}
 							],
@@ -104772,7 +104772,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Coverage.ts",
-									"line": 68,
+									"line": 71,
 									"character": 11
 								}
 							],
@@ -108674,7 +108674,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Coverage.ts",
-									"line": 65,
+									"line": 68,
 									"character": 9
 								}
 							],
@@ -108786,7 +108786,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Coverage.ts",
-									"line": 68,
+									"line": 71,
 									"character": 11
 								}
 							],
