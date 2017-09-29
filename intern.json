@@ -131,10 +131,13 @@
 		"wd": {
 			"description": "Run tests in Chrome using Selenium",
 			"tunnel": "selenium",
-			"environments": {
-				"browserName": "chrome",
-				"fixSessionCapabilities": "no-detect"
-			}
+			"environments": [
+				{ "browserName": "node" },
+				{
+					"browserName": "chrome",
+					"fixSessionCapabilities": "no-detect"
+				}
+			]
 		},
 
 		"ci": {
@@ -153,6 +156,7 @@
 				"fixSessionCapabilities": "no-detect"
 			},
 			"environments": [
+				{ "browser": "node" },
 				{ "browser": "internet explorer", "version": ["10", "11"] },
 				{
 					"browser": "firefox",
@@ -173,6 +177,7 @@
 			"extends": "ci",
 			"tunnel": "saucelabs",
 			"environments": [
+				{ "browser": "node" },
 				{ "browser": "internet explorer", "version": ["10", "11"] },
 				{
 					"browser": "firefox",

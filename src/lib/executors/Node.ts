@@ -180,10 +180,18 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	 * The root suites managed by this executor
 	 */
 	get suites() {
-		if (this._sessionSuites) {
-			return this._sessionSuites.concat([this._rootSuite]);
+		const suites = [];
+
+		// Only include the rootSuite if some suites were added to it.
+		if (this._rootSuite.tests.length > 0) {
+			suites.push(this._rootSuite);
 		}
-		return [this._rootSuite];
+
+		if (this._sessionSuites) {
+			suites.push(...this._sessionSuites);
+		}
+
+		return suites;
 	}
 
 	/**
@@ -321,7 +329,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			suite.bail = config.bail;
 
 			if (
-				(config.environments.length > 0 &&
+				(config.environments.filter(isRemoteEnvironment).length > 0 &&
 					config.functionalSuites.length +
 						config.suites.length +
 						config.browser.suites.length >
@@ -445,7 +453,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		return tunnel.getEnvironments().then(tunnelEnvironments => {
 			this._sessionSuites = resolveEnvironments(
 				config.capabilities,
-				config.environments,
+				config.environments.filter(isRemoteEnvironment),
 				tunnelEnvironments
 			).map(environmentType => {
 				let session: ProxiedSession;
@@ -595,6 +603,11 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	 * suites
 	 */
 	protected _loadSuites() {
+		// Don't load suites if there isn't a local environment
+		if (!this.config.environments.some(isLocalEnvironment)) {
+			return Task.resolve();
+		}
+
 		if (this.hasCoveredFiles) {
 			this._setInstrumentationHooks();
 		}
@@ -738,6 +751,11 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		return super._resolveConfig().then(() => {
 			const config = this.config;
 
+			if (config.environments.length === 0) {
+				this.log("Adding default 'node' environment");
+				config.environments.push({ browserName: 'node' });
+			}
+
 			if (!config.internPath) {
 				config.internPath = dirname(dirname(__dirname));
 			}
@@ -821,10 +839,16 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 
 	protected _runTests() {
 		let testTask: Task<void>;
+
 		return new Task<void>(
 			(resolve, reject) => {
-				super
-					._runTests()
+				if (this._rootSuite.tests.length > 0) {
+					testTask = this._rootSuite.run();
+				} else {
+					testTask = Task.resolve();
+				}
+
+				testTask
 					.then(() => {
 						if (!this._sessionSuites) {
 							return;
@@ -1191,4 +1215,12 @@ interface QueueEntry {
 	func: () => Task<any>;
 	resolve: () => void;
 	reject: () => void;
+}
+
+function isRemoteEnvironment(environment: EnvironmentSpec) {
+	return environment.browserName !== 'node';
+}
+
+function isLocalEnvironment(environment: EnvironmentSpec) {
+	return !isRemoteEnvironment(environment);
 }
