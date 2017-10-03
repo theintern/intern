@@ -9,6 +9,7 @@ import Task from '@dojo/core/async/Task';
 import { fileExists, on, writeFile } from './util';
 import { Handle } from '@dojo/interfaces/core';
 import { mixin } from '@dojo/core/lang';
+import { satisfies } from 'semver';
 
 const SeleniumVersion = '3.4.0';
 const ChromeVersion = '2.30';
@@ -222,7 +223,10 @@ export default class SeleniumTunnel extends Tunnel
 		);
 
 		if (this.verbose) {
-			args.push('-debug', 'true');
+			args.push('-debug');
+			if (satisfies(this.version, '>=3.1.0 <3.5.0')) {
+				args.push('true');
+			}
 			console.log('Starting with arguments: ', args.join(' '));
 		}
 
