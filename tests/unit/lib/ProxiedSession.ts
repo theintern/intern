@@ -19,7 +19,7 @@ class MockSession {
 	}
 }
 
-registerSuite('tests/unit/lib/ProxiedSession', {
+registerSuite('lib/ProxiedSession', {
 	before() {
 		return mockRequire(require, 'src/lib/ProxiedSession', {
 			'@theintern/leadfoot/Session': { default: MockSession }

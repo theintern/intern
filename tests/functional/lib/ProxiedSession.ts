@@ -10,7 +10,7 @@ import Test, { TestFunction } from '../../../src/lib/Test';
 import registerSuite from '../../../src/lib/interfaces/object';
 import { assert } from 'chai';
 
-registerSuite('ProxiedSession', () => {
+registerSuite('lib/ProxiedSession (functional)', () => {
 	const serverUrl = 'https://example.invalid/';
 	let session: ProxiedSession | null;
 	let numGetCalls: number;
