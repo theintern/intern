@@ -138,7 +138,7 @@ function aspect(
 	method: string,
 	callback: SuiteLifecycleFunction | TestLifecycleFunction
 ) {
-	_after(suite, method, (originalReturn: any, ...args: any[]) => {
+	_after(suite, method, (originalReturn: any, args: IArguments) => {
 		return Promise.resolve(originalReturn).then(() => {
 			return callback.apply(currentSuite, args);
 		});

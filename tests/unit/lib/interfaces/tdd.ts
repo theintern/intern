@@ -1,8 +1,9 @@
-import { spy } from 'sinon';
+import { sandbox as Sandbox } from 'sinon';
+import Task from '@dojo/core/async/Task';
 
 import * as _tddInt from 'src/lib/interfaces/tdd';
-import Test from 'src/lib/Test';
-import Suite from 'src/lib/Suite';
+import Test, { isTest } from 'src/lib/Test';
+import Suite, { isSuite } from 'src/lib/Suite';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
@@ -10,14 +11,15 @@ registerSuite('lib/interfaces/tdd', function() {
 	let tddInt: typeof _tddInt;
 	let removeMocks: () => void;
 	let parent: Suite;
+	const sandbox = Sandbox.create();
 
 	const executor = {
-		addSuite: spy((callback: (suite: Suite) => void) => {
+		addSuite: sandbox.spy((callback: (suite: Suite) => void) => {
 			callback(parent);
 		}),
-		emit: spy(() => {})
+		emit: sandbox.spy(() => Task.resolve())
 	};
-	const getIntern = spy(() => {
+	const getIntern = sandbox.spy(() => {
 		return executor;
 	});
 	const mockGlobal = {
@@ -41,9 +43,7 @@ registerSuite('lib/interfaces/tdd', function() {
 		},
 
 		beforeEach() {
-			getIntern.reset();
-			executor.addSuite.reset();
-			executor.emit.reset();
+			sandbox.resetHistory();
 			parent = new Suite(<any>{ name: 'parent', executor });
 		},
 
@@ -88,25 +88,49 @@ registerSuite('lib/interfaces/tdd', function() {
 					| 'beforeEach'
 					| 'after'
 					| 'afterEach';
-				function createTest(name: lifecycle) {
+				function createTest(name: lifecycle, hasTestArg: boolean) {
 					return () => {
 						tddInt.suite('foo', () => {
-							(tddInt[name] as any)(() => {});
+							(tddInt[name] as any)((arg: any) => {
+								firstArg = arg;
+							});
+
+							tddInt.test('bar', () => {});
 						});
 						const suite = <Suite>parent.tests[0];
 						assert.instanceOf(suite[name], Function);
 
+						let firstArg: any;
+
 						assert.throws(() => {
 							(tddInt[name] as any)(() => {});
 						}, /must be declared/);
+
+						return suite.run().then(() => {
+							assert.isDefined(
+								firstArg,
+								'lifecycle method should have been passed an arg'
+							);
+							if (hasTestArg) {
+								assert.isTrue(
+									isTest(firstArg),
+									'expected first arg to be a test'
+								);
+							} else {
+								assert.isTrue(
+									isSuite(firstArg),
+									'expected first arg to be a suite'
+								);
+							}
+						});
 					};
 				}
 
 				return {
-					before: createTest('before'),
-					after: createTest('after'),
-					beforeEach: createTest('beforeEach'),
-					afterEach: createTest('afterEach')
+					before: createTest('before', false),
+					after: createTest('after', false),
+					beforeEach: createTest('beforeEach', true),
+					afterEach: createTest('afterEach', true)
 				};
 			})(),
 
