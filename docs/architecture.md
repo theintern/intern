@@ -1,6 +1,7 @@
 # Architecture
 
 <!-- vim-markdown-toc GFM -->
+
 * [Executors](#executors)
 * [Runners](#runners)
 * [Loader](#loader)
@@ -73,22 +74,28 @@ If a loader isn’t specified, ‘default’ will be used. This loader uses an e
 
 ## Plugins
 
-Plugins are scripts that are loaded after the loader, but before suites. These are a good place to load global scripts required for browser tests, or to register `beforeRun` or `afterRun` event handlers.
+Plugins are scripts that provide additional funtionality. They may register values or functions that can be directly used in tests, register callbacks that will fire at certain poitns in the testing process, or modify the environment in some way (e.g., `babel-register`).
 
 ```ts
 // tests/plugin.js
-intern.registerPlugin('foo', function () {
-    intern.on('beforeRun', function () {
-        // ...
+intern.on('beforeRun', function () {
+    // ...
+});
+```
+
+Plugins can register resources for use in tests with the `registerPlugin` method. Intern will resolve and store the return value of `registerPlugin`; tests can retrieve it by calling `intern.getPlugin('foo')`. The `registerPlugin` method will wait for a returned Promise to resolve, allowing for asynchronous plugin initialization.
+
+
+```ts
+// tests/plugin.js
+intern.registerPlugin('postData', function () {
+    return (name: string, value: any) => {
+        // post data to a remote database
     });
 });
 ```
 
-Plugins can register resources for use in tests with the `registerPlugin` method. Intern will resolve and store the return value of `registerPlugin`; tests can retrieve it by calling `intern.getPlugin('foo')`.
-
-The `registerPlugin` method can also be used simply for asynchronous initialization. If a Promise is returned, Intern will wait for it to rseolve before proceeding.
-
-When loading a plugin via a configuration property (e.g., `"plugins"` in a config file) without a module loader, the call to `registerPlugin` must be made synchronously. In other words, a plugin generally shouldn’t do this:
+When loading a plugin without a module loader, the call to `registerPlugin` must be made synchronously. In other words, a plugin generally shouldn’t do this:
 
 ```ts
 // tests/plugin.js
@@ -130,7 +137,7 @@ registerSuite({
 In situations where a module loader isn’t present, Intern also makes registered interfaces available through its plugin system:
 
 ```ts
-const { registerSuite } = intern.getPlugin('interface.object');
+const { registerSuite } = intern.getInterface('object');
 registerSuite({
     // ...
 });
@@ -138,7 +145,7 @@ registerSuite({
 
 ## Reporters
 
-Reporters are how Intern displays or outputs test results and coverage information. Since Intern is an event emitter, anything that registers for Intern events can be a “reporter”.
+Reporters are used by Intern to display or output test results and coverage information. Since Intern is an event emitter, anything that registers for Intern events can be a “reporter”.
 
 Intern includes a Reporter base class that provides several convenience features, such as the ability to mark event handler methods with a decorator (assuming you’re using TypeScript) in a type-safe manner.
 

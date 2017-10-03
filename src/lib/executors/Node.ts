@@ -987,7 +987,15 @@ export interface Config extends BaseConfig {
 	connectTimeout: never;
 
 	/**
-	 * Timeouts that apply to functional tests
+	 * Timeouts that apply to functional tests.
+	 *
+	 *   * **connectTimeout** is the time to wait for contact from a remote
+	 *     server
+	 *   * **find** is the time to wait for findBy commands to find an element
+	 *   * **executeAsync** is the time to wait for executeAsync calls to
+	 *     complete
+	 *   * **pageLoad** is the time to wait for a page to finish loading
+	 *     synchronous resources
 	 */
 	functionalTimeouts: {
 		/** Time to wait for contact from a remote server */
@@ -1080,6 +1088,14 @@ export interface Config extends BaseConfig {
 	 * were test failures.
 	 */
 	leaveRemoteOpen: boolean | 'fail';
+
+	/**
+	 * The number of concurrent remote test sessions to run at once.
+	 *
+	 * The default value is Infinity, meaning Intern will try to run all of its
+	 * test sessions in parallel. Note that cloud testing services often limit
+	 * the number of concurrent sessions they will allow to 2 or 5.
+	 */
 	maxConcurrency: number;
 
 	/**
@@ -1089,7 +1105,9 @@ export interface Config extends BaseConfig {
 	 */
 	proxy?: string;
 
+	/** If true, start Intern's static test server but do not run any tests. */
 	serveOnly: boolean;
+
 	serverPort: number;
 	serverUrl: string;
 	runInSync: boolean;

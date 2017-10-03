@@ -1,6 +1,7 @@
 # Continuous Integration
 
 <!-- vim-markdown-toc GFM -->
+
 * [Jenkins](#jenkins)
     * [Intern as a post-build action to an existing project](#intern-as-a-post-build-action-to-an-existing-project)
     * [Intern as part of a free-style software project](#intern-as-part-of-a-free-style-software-project)
@@ -85,9 +86,9 @@ Intern can be executed by Maven from a `pom.xml` during the test or integration-
         </execution>
     </executions>
     <configuration>
-        <executable>node_modules/.bin/intern-runner</executable>
+        <executable>node_modules/.bin/intern</executable>
         <arguments>
-            <argument>config=tests/intern</argument>
+            <argument>config=intern.json</argument>
         </arguments>
     </configuration>
 </plugin>
@@ -199,11 +200,11 @@ npm install
 
 ### Configure Test Pipelines
 
-The test pipeline is what actually runs your specified test commands. This is equivalent to running the tests on your local development environment. For example, to run the Intern self-tests with the intern-client, you would enter the following command:
+The test pipeline is what actually runs your specified test commands. This is equivalent to running the tests on your local development environment. For example, to run the Intern self-tests, you would enter the following command:
 
 ```bash
-# run the intern-client with the specified configuration
-node_modules/.bin/intern-client config=tests/selftest.intern.js
+# run intern with the specified configuration
+node_modules/.bin/intern config=intern.json
 ```
 
 If you want to run tests with Selenium, Codeship supports this as well! You just need to [curl and run this script](https://github.com/codeship/scripts/blob/master/packages/selenium_server.sh) before running Intern using the `"null"` tunnel.

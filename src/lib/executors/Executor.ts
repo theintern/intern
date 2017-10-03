@@ -1285,6 +1285,11 @@ export interface ResourceConfig {
 	suites: string[];
 }
 
+/**
+ * This interface describes the configuration data used by Intern. It's
+ * properties can be set from the command line when running the intern bin
+ * script, or via an object passed to the executor's `configure` method.
+ */
 export interface Config extends ResourceConfig {
 	/**
 	 * By default, Intern will run all configured tests. Setting this option
@@ -1322,8 +1327,8 @@ export interface Config extends ResourceConfig {
 
 	/**
 	 * This is the number of milliseconds that Intern will wait for an
-	 * [asynchronous test](./writing_tests.md#testing-asynchronous-code) to
-	 * complete before timing out. A timed out test is considered to have
+	 * [asynchronous test](https://github.com/theintern/intern/docs/writing_tests.md#testing-asynchronous-code)
+	 * to complete before timing out. A timed out test is considered to have
 	 * failed.
 	 */
 	defaultTimeout: number;

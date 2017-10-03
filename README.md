@@ -58,7 +58,7 @@ If you’re into name-dropping, Intern gets used every day by teams at Twitter, 
 
 ## TypeScript setup
 
-Intern installs a global variable that tests may not be aware of if nothing imports the base `intern` package. Also, Intern includes typings for several packages that haven’t made it onto DefinitelyTyped yet (and so can’t be installed as @types packages). To ensure Intern’s types are loaded, add the following to your `tsconfig.json`:
+Intern installs a global variable that tests may not be aware of if nothing imports the base `intern` package. To ensure Intern’s types are loaded, add the following to your `tsconfig.json`:
 
 ```js
 {
@@ -68,7 +68,7 @@ Intern installs a global variable that tests may not be aware of if nothing impo
 
 ## Compatibility
 
-Intern can run unit tests in browsers that support ECMAScript 5, including mobile browsers on Android and iOS, and in Node 4+. It’s self-tests run against IE 10 and 11, Firefox 33 and current, Chrome 38 and current, and Safari 9 and 10, as well as Node 6 and 7.
+Intern can run unit tests in browsers that support ECMAScript 5, including mobile browsers on Android and iOS, and in Node 4+. It’s self-tests run against IE 10 and 11, Firefox 33 and current, Chrome 38 and current, and Safari 9 and 10, as well as Node 6 and 8.
 
 Intern can run functional tests using WebDriver-compatible applications and services, including Selenium, Appium, Selendroid. It has built-in support for cloud testing services from [BrowserStack](https://browserstack.com), [CrossBrowserTesting](https://crossbrowsertesting.com), [SauceLabs](https://saucelabs.com), and [TestingBot](https://testingbot.com).
 
@@ -90,7 +90,7 @@ Intern can run functional tests using WebDriver-compatible applications and serv
 
 ## Get help
 
-The best place to ask questions and get answers about Intern is Stack Overflow. Just tag your question with `intern`. If you have more immediate questions, or just want to chat with other people interested in Intern, there’s an `#intern` IRC channel on freenode, and a Gitter room at [theintern/intern](https://gitter.im/theintern/intern). See the [Help](docs/help.md) page for more information.
+The best place to ask questions and get answers about Intern is Stack Overflow. Just tag your question with `intern`. If you have more immediate questions, or just want to chat with other people interested in Intern, join the Gitter room at [theintern/intern](https://gitter.im/theintern/intern). See the [Help](docs/help.md) page for more information.
 
 <!-- start-github-only -->
 ## License

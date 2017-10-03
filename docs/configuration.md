@@ -14,12 +14,6 @@
     * [`showConfigs`](#showconfigs)
 * [Environment-specific config](#environment-specific-config)
 * [Properties](#properties)
-    * [bail](#bail)
-    * [benchmark](#benchmark)
-    * [capabilities](#capabilities)
-    * [coverage](#coverage)
-    * [debug](#debug)
-    * [defaultTimeout](#defaulttimeout)
     * [environments](#environments)
     * [extends](#extends)
     * [functionalSuites](#functionalsuites)
@@ -36,7 +30,7 @@
 
 <!-- vim-markdown-toc -->
 
-Intern is configured with a standard JavaScript object. This object may contain properties applicable to either environment that Intern can run in (Node or browser). Config properties may be set via a file, the command line, browser query args, or an environment variable. All of these methods use the same basic syntax and provide the same capabilities. Assuming Intern is being run with the default [Node runner](./running.md#node) or [browser runner](./running.md#browser) and without a `config` argument, configuration informatioon will be read from an `intern.json` file in the project root.
+Intern is configured with a standard JavaScript object. This object may contain properties applicable to either environment that Intern can run in (Node or browser). Config properties may be set via a file, the command line, browser query args, or an environment variable. All of these methods use the same basic syntax and provide the same capabilities. Assuming Intern is being run with the default [Node runner](./running.md#node) or [browser runner](./running.md#browser) and without a `config` argument, Intern will attempt to load configuration informatioon from an `intern.json` file in the project root.
 
 Wherever config property values come from, the executor will validate and normalize them into a canonical format ("resolve" them) when the testing process starts. This allows the executor’s constructor or `configure` method to be flexible in what data it accepts. For example, the canonical form of the `environments` property is an array of objects:
 
@@ -78,8 +72,8 @@ The config structure is a simple JSON object, so all of its property values must
 There are four general sections to a config:
 
 * **General properties**: this includes everything but "browser", "configs", and "node"
-* **Node-specific resources**: resource properties ("loader", "plugins", "reporters", "require', "suites") that apply only to Node environments.
-* **Browser-specific resources**: resource properties ("loader", "plugins", "reporters", "require", "suites") that apply only to browser environments.
+* **Node-specific resources**: resource properties ("loader", "plugins", "reporters", "suites") that apply only to Node environments.
+* **Browser-specific resources**: resource properties ("loader", "plugins", "reporters", "suites") that apply only to browser environments.
 * **Child configs**: named configs in the "configs" object; each of these can have any config properties except "configs" (i.e., general properties, Node resources, and browser resources).
 
 ## Sources of configuration information
@@ -153,7 +147,7 @@ http://localhost:8080/node_modules/intern/?grep=run.*&suites=
 
 ### Programmatically
 
-When creating an executor programmatically it may be configured via its constructor, and later with a `configure` method.
+When creating an executor programmatically it may be configured via its constructor, and/or via its `configure` method.
 
 ```js
 const intern = new Node({ grep: /run.*/, suites: [] });
@@ -164,7 +158,7 @@ _or_
 intern.configure({ grep: /run.*/, suites: [] });
 ```
 
-The configure method may be called any number of times before the testing process is started.
+The `configure` method may be called any number of times before the testing process is started.
 
 ## Displaying config information
 
@@ -190,7 +184,7 @@ $ node_modules/.bin/intern showConfig
 
 ### `showConfigs`
 
-The `showConfigs` property can be used to show information about a given config file. When true, Intern will print the value of the current config file’s `description` property, and the list all child configs contained in the config file. For example, with a config file containing the following data:
+Setting the `showConfigs` property to `true` will cause Intern to show information about a given config file. Intern will print the value of the current config file’s `description` property, and then list all child configs contained in the config file. For example, with a config file containing the following data:
 
 ```js
 {
@@ -219,56 +213,45 @@ Configs:
 
 ## Environment-specific config
 
-Tests can run in two basic environments: Node and browsers. By default, “resource” properties (`suites`, `plugins`, `reporters`, `loader`, and `require`) in a config file apply to both environments. This means that if the same config is used to run tests in a browser and in Node, the same resources will be loaded in both environments. In some cases this isn’t desirable because tests may load application code that depends on environment-specific properties or features, such as the DOM. Intern’s config provides `node` and `browser` properties for this use case. Not surprisingly, these properties specify resources that will only be loaded in the given environment.  The values in these properties will be [shallowly mixed into the base config](#configuration-resolution) rather than replacing it.
+Tests can run in two basic environments: Node and browsers. By default, “resource” properties (`suites`, `plugins`, `reporters`, and `loader`) in a config file apply to both environments. This means that if the same config is used to run tests in a browser and in Node, the same resources will be loaded in both environments. In some cases this isn’t desirable because tests may load application code that depends on environment-specific properties or features, such as the DOM. Intern’s config provides `node` and `browser` properties for this use case. These properties specify resources that will only be loaded in the given environment.  The values in these properties will be [shallowly mixed into the base config](#configuration-resolution) rather than replacing it.
 
 > ⚠️ Note that this is different than the `mode` property in Intern 3, which had values of “client” or “runner”. Intern 3’s mode indicated whether tests were being run in unit test or functional test mode, but it was sometimes used as an environment check due to the fact that functional tests always run in Node.
 
 ## Properties
 
-A number of config properties are applicable whether Intern is running in Node or directly in a broswer:
+A number of config properties are applicable whether Intern is running in Node or directly in a browser. Some of the more common ones are listed below.
 
 > 💡 See [the API docs](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/config-1) for a complete list of the available config properties.
 
 | Property                 | Description                                                                                | Default
 | :-------                 | :----------                                                                                | :------
-| bail                     | When true, stop testing after the first failure                                            | `false`
-| basePath                 | The absolute project base path                                                             | `/`&nbsp;(browser)<br>`process.cwd()`&nbsp;(Node)
-| baseline                 | When true, run benchmark tests in baseline mode                                            | `false`
+| [bail]                   | When true, stop testing after the first failure                                            | `false`
+| [baseline]               | When true, run benchmark tests in baseline mode                                            | `false`
 | [benchmark]              | When true, run benchmark tests (if loaded)                                                 | `false`
-| benchmarkConfig          | An object containing benchmarking options                                                  |
 | [debug]                  | If true, display runtime messages to the console                                           | `false`
 | [defaultTimeout]         | The time, in ms, before an async test times out                                            | 30000
-| filterErrorStack         | If true, filter non-application code lines out of stack traces                             | `false`
+| [filterErrorStack]       | If true, filter non-application code lines out of stack traces                             | `false`
 | [grep]                   | Regular expression used to filter which suites and tests are run                           | `/.*/`
-| internPath               | Relative path from project root to the Intern package                                      | `'node_modules/intern'`
-| [loader]                 | An optinal loader script and options                                                       | `{ script: 'default' }`
-| name                     | A name for a test run for use by reporters                                                 |
-| plugins                  | A list of Intern extensions to load before tests begin                                     | `[]`
+| [loader]                 | An optional loader script and options                                                      | `{ script: 'default' }`
+| [plugins]                | A list of Intern extensions to load before tests begin                                     | `[]`
 | [reporters]              | A list of reporters to use                                                                 | `[]`
-| require                  | A list of scripts or modules to load before anything else                                  | `[]`
-| suites                   | A list of suites to load unit tests from                                                   | `[]`
+| [suites]                 | A list of suites to load unit tests from                                                   | `[]`
 
 Some properties are only meaningful for Node or WebDriver tests:
 
 | Property                 | Description                                                                                | Default
 | :-------                 | :----------                                                                                | :------
 | [capabilities]           | Default capabilities to be used for WebDriver sessions                                     | `{ 'idle-timeout': 60 }`
-| connectTimeout           | When running WebDriver tests, how long (in ms) to wait for a remote browser to connect     | 30000
 | [coverage]               | An array of paths or globs to collect coverage data for                                    | `[]`
 | [environments]           | Browser + OS combinations to be tested using WebDriver                                     | `[]`
-| functionalCoverage       | If true, include coverage statistics generated by functional tests                         | `true`
 | [functionalSuites]       | Suites to run in WebDriver mode                                                            | `[]`
-| instrumenterOptions      | Options to pass to the code coverage instrumenter (Istanbul)                               | `{}`
+| [functionalTimeouts]     | Timeouts used in functional tests                                                          | `{ connectTimeout: 30000 }`
 | [leaveRemoteOpen]        | If true, leave remote browsers open after testing has finished                             | `false`
-| maxConcurrency           | When running WebDriver tests, how may sessions to run at once                              | `Infinity`
-| runInSync                | When true, remote executors will run in sync with the local Intern                         | `false`
 | serveOnly                | When true, Intern will start its instrumenting web server but not run tests                | `false`
 | serverPort               | The port the instrumenting server should listen on                                         | `9000`
 | serverUrl                | A URL a remote executor can use to reach the local Intern                                  | `http://localhost:9000`
-| sessionId                | A unique ID assigned to a remote executor                                                  |
-| socketPort               | A port to use for a WebSocket connection from a remote session                             | `9001`
-| tunnel                   | The name of a tunnel to use for WebDriver tests                                            | `selenium`
-| tunnelOptions            | Options to use for the WebDriver tunnel                                                    | `{ tunnelId: Date.now() }`
+| [tunnel]                 | The name of a tunnel to use for WebDriver tests                                            | `selenium`
+| [tunnelOptions]          | Options to use for the WebDriver tunnel                                                    | `{ tunnelId: Date.now() }`
 
 The environment-specific properties come into play when Intern is running in that environment:
 
@@ -285,47 +268,6 @@ There are also several properties that are handled by the config file processing
 | [extends]   | Another config or config file that the config extends              |
 | showConfig  | When true, show the resolved configuration and exit                |
 | showConfigs | When true, show information about the currently loaded config file |
-
-### bail
-
-By default, Intern will run all configured tests. Setting the `bail` option to `true` will cause Intern to stop running tests after the first failure.
-
-### benchmark
-
-This property must be set to true for benchmark tests to run. If it is unset or false, any suites registered using the [benchmark interface](./writing_tests.md#benchmark) will be ignored.
-
-### capabilities
-
-These are the default capabilities for all test environments. They will be extended for each environment by values in the [`environments`](#environments) array.
-
-Cloud testing services such as BrowserStack may have unique capabilities. It’s important to use the proper capabilities for the WebDriver server or cloud service being used to run tests.
-
-* [Selenium capabilities](https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities)
-* [BrowserStack capabilities](https://www.browserstack.com/automate/capabilities)
-* [CrossBrowserTesting capabilities](https://help.crossbrowsertesting.com/selenium-testing/automation-capabilities)
-* [Sauce Labs capabilities](https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-Selenium-SpecificOptions) and [environments](https://saucelabs.com/platforms)
-* [TestingBot capabilities](https://testingbot.com/support/other/test-options) and [environments](https://testingbot.com/support/getting-started/browsers.html)
-
-[Chrome-specific options](https://sites.google.com/a/chromium.org/chromedriver/capabilities) may be passed using a `chromeOptions` capability.
-
-Intern will automatically provide certain capabilities to provide better feedback with cloud service dashboards:
-
-* `name` will be set to the name of the test config
-* `build` will be set to the commit ID from the `TRAVIS_COMMIT` and `BUILD_TAG` environment variables, if either exists
-
-### coverage
-
-This property specifies an array of file paths or globs that should be instrumented for code coverage. This property should point to the actual JavaScript files that will be executed, not pre-transpiled sources (coverage results will still be mapped back to original sources). Coverage data will be collected for these files even if they’re not loaded by Intern for tests, allowing a test writer to see which files _haven’t_ been tested, as well as coverage on files that were tested.
-
-> 💡This property replaces the `excludeInstrumentation` property used in previous versions of Intern, which acted as a filter rather than an inclusive list.
-
-### debug
-
-When set to true, Intern will emit 'log' events for many internal operations. Reporters that register for these events, such as the Runner reporter, will display them during testing.
-
-### defaultTimeout
-
-This is the number of milliseconds that Intern will wait for an [asynchronous test](./writing_tests.md#testing-asynchronous-code) to complete before timing out. A timed out test is considered to have failed.
 
 ### environments
 
@@ -498,19 +440,24 @@ There are a few exceptions:
    "suites": [ "tests/unit/foo.js", "tests/unit/bar.js" ]
    ```
 
-
-[benchmark]: #benchmark
-[capabilities]: #capabilities
-[coverage]: #coverage
-[debug]: #debug
-[defaultTimeout]: #defaulttimeout
-[environments]: #environments
+[bail]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/bail
+[baseline]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/baseline
+[benchmark]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/benchmark
+[capabilities]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/capabilities
+[coverage]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/coverage
+[debug]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/debug
+[defaultTimeout]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/defaulttimeout
+[environments]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/environments
 [extends]: #extends
-[functionalSuites]: #suites-nodesuites-browsersuites-functionalsuites
-[grep]: #grep
-[leaveRemoteOpen]: #leaveremoteopen
-[loader]: #loader
-[reporters]: #reporters
-[suites]: #suites-nodesuites-browsersuites-functionalsuites
-[tunnelOptions]: #tunneloptions
-[tunnel]: #tunnel
+[filterErrorStack]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/filtererrorstack
+[functionalSuites]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/functionalsuites
+[functionalTimeouts]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/functionaltimeouts
+[grep]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/grep
+[leaveRemoteOpen]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/leaveremoteopen
+[loader]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/loader
+[plugins]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/plugins
+[reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/reporters
+[serveOnly]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/serveonly
+[suites]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/suites-1
+[tunnelOptions]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunneloptions
+[tunnel]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunnel-1

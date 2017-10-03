@@ -1,6 +1,7 @@
 # Concepts and Definitions
 
 <!-- vim-markdown-toc GFM -->
+
 * [Test organization](#test-organization)
     * [Assertions](#assertions)
     * [Test interface](#test-interface)
@@ -17,11 +18,11 @@
 
 Intern organizes tests into suites and modules, and allows them to be registered with various test interfaces.
 
-* **Test module** - a JavaScript module (AMD, CJS, ESM, ...) containing test suites
-* **Test suite** - a group of related tests
-* **Test case**, or **test** - an individual test
-* **[Assertion](#assertions)** - a check for a condition that throws an error if the condition isn’t met
-* **[Test interface](#test-interface)** - an API used to register test suites
+* **Test module** - A JavaScript module (AMD, CJS, ESM, ...) containing test suites
+* **Test suite** - A group of related tests. There is typically one top-level suite per module.
+* **Test case**, or **test** - An individual test
+* **[Assertion](#assertions)** - A check for a condition that throws an error if the condition isn’t met
+* **[Test interface](#test-interface)** - An API used to register test suites
 
 These terms can be visualized in a hierarchy:
 
@@ -65,20 +66,22 @@ If the assertion fails, Chai will construct a meaningful error message that incl
 A test interface is an API used to register tests. For example, many testing frameworks use a "BDD" interface, with `describe` and `it` functions, where `describe` creates a suite and `it` creates an individual test. Intern includes several interfaces:
 
 * **BDD**
-* **TDD**, which uses `suite` and `test` functions
+* **TDD**, which uses `suite` and `test` functions in place of `describe` and `it`
 * **Object**, which allows suites to be defined using objects
 * **Benchmark**, an object-like interface for registering benchmark tests
-* **Qunit**, an implementation of the [QUnit](http://qunitjs.com) interface
+
+<!-- TODO: Add a link ot the QUnit plugin -->
+A [QUnit](http://qunitjs.com) interface is available through a plugin.
 
 ## Test types
 
-Intern supports two basic types of automated testing: unit tests and functional tests.
+Intern supports two basic types of automated tests: unit tests and functional tests.
 
 ### Unit tests
 
-Unit tests test code directly by, for example, instantiating an application class or calling an application function, and then make assertions about the result.
+Unit tests test code directly, typically by instantiating an application class and calling methods, or by calling application functions, and then making assertions about the results.
 
-Since Intern calls unit test code directly, it needs to run in the same environment as the test code itself. This typically means running Intern in the browser to test browser-specific code, and in Node for Node code. You can get around this limitation using mocks/fakes/stubs; for example, many browser-based projects use a virtual DOM implementation to allow unit tests for browser code to run in a Node environment. (It’s less common to want to go the other way.)
+Since Intern unit tests call application code directly, they need to run in the same environment as the test code itself. This typically means running Intern in the browser to test browser-specific code, and in Node for Node code. This limitation can be circumvented by using mocks/fakes/stubs; for example, many browser-based projects use a virtual DOM implementation to allow unit tests for browser code to run in a Node environment. (It’s less common to want to go the other way.)
 
 A unit test might look like:
 
@@ -113,7 +116,7 @@ Also known as WebDriver tests (after the [W3C standard](https://www.w3.org/TR/we
 Functional tests in Intern typically use the [Leadfoot](https://theintern.github.io/leadfoot) WebDriver library to control remote browsers. A functional test might look like:
 
 ```ts
-const { registerSuite } = intern.getPlugin('interface.object');
+const { registerSuite } = intern.getInterface('object');
 const { assert } = intern.getPlugin('chai');
 registerSuite('home page', {
     'login'() {
@@ -138,13 +141,13 @@ Note that the functional test doesn't load any application code. Instead, it use
 
 ## Code coverage
 
-Code coverage is information about what parts of the application code are exercised during tests. It commonly indicates what percentages of statements, branches, and functions are executed. Code coverage information is gathered by “instrumenting” the code being tested. This instrumentation is actually code that is injected into the code being tested. It records information about the executing code into a global variable that Intern retrieves after the testing is complete.
+Code coverage is information about what parts of the application code are exercised during tests. It commonly indicates what percentages of statements, branches, and functions are executed. Code coverage information is gathered by “instrumenting” the code being tested. This instrumentation is actually code that is injected into the code being tested. It records information about the executing code and stores it in a global variable that Intern retrieves after the testing is complete.
 
-Intern uses [Istanbul](https://github.com/istanbuljs/istanbuljs) to manage code coverage. There are three config properties related to instrumentation. The mostly commonly used one is [`coverage`](configuration.md#coverage), which can be used to specify which files should be instrumented. The other two are `functionalCoverage`, a boolean that indicates whether coverage should be collected during functional tests, and `instrumenterOptions`, which allows options to be passed directly to Istanbul.
+Intern uses [Istanbul](https://github.com/istanbuljs/istanbuljs) to manage code coverage. There are three config properties related to instrumentation. The mostly commonly used one is [`coverage`](configuration.md#coverage), which is used to specify which files should be instrumented. The other two are `functionalCoverage`, a boolean that indicates whether coverage should be collected during functional tests, and `instrumenterOptions`, which allows options to be passed directly to Istanbul.
 
 ## Source maps
 
-Source maps provide a link between transpiled/instrumented/minimized code and the original source. Intern uses source maps both for coverage reporting and error formatting. For example, when it receives an error, either locally or from a remote browser, Intern will look up the locations in the stack trace using any available source maps and replace them with the corresponding location in the original source.
+Source maps provide a link between transpiled/instrumented/minimized code and the original source. Intern uses source maps both for coverage reporting and error formatting. For example, when a test generates an error, Intern will look up the locations in the stack trace using any available source maps and replace them with the corresponding location in the original source.
 
 ## Page objects
 
@@ -185,7 +188,7 @@ registerSuite('product page', {
 });
 ```
 
-With a page object, this could be reduced to something more manageable:
+The login logic could be extracted to a page object, resulting a much simpler test:
 
 ```ts
 // productPage.ts
