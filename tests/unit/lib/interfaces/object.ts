@@ -79,6 +79,9 @@ registerSuite('lib/interfaces/object', function() {
 						parent = new Suite(<any>{ name: 'parent', executor });
 						objInt.default('fooSuite', {
 							beforeEach() {},
+							timeout: 10,
+							bail: false,
+							grep: /foo/,
 							tests: {
 								foo() {},
 								bar() {}

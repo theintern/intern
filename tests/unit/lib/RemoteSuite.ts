@@ -52,9 +52,9 @@ registerSuite('lib/RemoteSuite', {
 				});
 
 				remoteSuite = new RemoteSuite({
-					executor,
 					parent: <any>{ remote: createMockRemoteAndSession('foo') }
 				});
+				remoteSuite.executor = executor;
 			},
 
 			tests: {

@@ -7,10 +7,7 @@ import BenchmarkTest, {
 import Suite from 'src/lib/Suite';
 import { BenchmarkData } from 'src/lib/reporters/Benchmark';
 import Test from 'src/lib/Test';
-import BenchmarkSuite, {
-	BenchmarkSuiteOptions,
-	BenchmarkSuiteProperties
-} from 'src/lib/BenchmarkSuite';
+import BenchmarkSuite, { BenchmarkSuiteOptions } from 'src/lib/BenchmarkSuite';
 import Deferred from 'src/lib/Deferred';
 
 type FullBenchmarkTestFunction = BenchmarkTestFunction & { options: any };
@@ -38,7 +35,7 @@ interface TestOptions {
 	emit: any;
 }
 
-function createSuite(options: Partial<BenchmarkSuiteProperties> = <any>{}) {
+function createSuite(options: Partial<BenchmarkSuite> = <any>{}) {
 	if (!options.parent && !options.executor) {
 		options.executor = <any>{
 			emit() {

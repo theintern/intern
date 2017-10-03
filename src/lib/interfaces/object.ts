@@ -57,7 +57,7 @@
  */ /** */
 import global from '@dojo/shim/global';
 
-import Suite, { SuiteOptions, SuiteLifecycleProperties } from '../Suite';
+import Suite, { SuiteOptions, SuiteProperties } from '../Suite';
 import Test, { TestFunction, isTestFunction } from '../Test';
 import Executor from '../executors/Executor';
 
@@ -99,8 +99,7 @@ export interface Tests {
 	[name: string]: ObjectSuiteDescriptor | TestFunction | Tests;
 }
 
-export interface ObjectSuiteDescriptor
-	extends Partial<SuiteLifecycleProperties> {
+export interface ObjectSuiteDescriptor extends Partial<SuiteProperties> {
 	tests: Tests;
 }
 

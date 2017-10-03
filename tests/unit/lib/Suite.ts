@@ -1,6 +1,6 @@
 import Task, { State } from '@dojo/core/async/Task';
 
-import Suite, { SuiteOptions, SuiteProperties } from 'src/lib/Suite';
+import Suite, { SuiteOptions } from 'src/lib/Suite';
 import Test from 'src/lib/Test';
 import { InternError } from 'src/lib/types';
 
@@ -47,9 +47,7 @@ function createAsyncCallbackTest(testWrapper: TestWrapper) {
 	});
 }
 
-function createSuite(
-	options?: Partial<SuiteProperties> & { tests?: (Suite | Test)[] }
-) {
+function createSuite(options?: Partial<Suite> & { tests?: (Suite | Test)[] }) {
 	options = options || {};
 	if (!options.executor && !(options.parent && options.parent.executor)) {
 		options.executor = createMockExecutor();

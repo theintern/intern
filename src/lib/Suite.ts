@@ -79,7 +79,7 @@ export default class Suite implements SuiteProperties {
 			.filter(key => {
 				return key !== 'tests';
 			})
-			.forEach((key: keyof SuiteOptions) => {
+			.forEach((key: keyof (SuiteOptions | RootSuiteOptions)) => {
 				this[key] = options[key]!;
 			});
 
@@ -762,36 +762,37 @@ export interface TestLifecycleFunction {
 	(this: Suite, test: Test, suite: Suite): void | PromiseLike<void>;
 }
 
-export interface SuiteLifecycleProperties {
+/**
+ * Properties that can be set on a Suite.
+ *
+ * Note that 'tests' isn't included so that other interfaces, such as the object
+ * interface, can use a different definition for it.
+ */
+export interface SuiteProperties {
 	after: SuiteLifecycleFunction;
 	afterEach: TestLifecycleFunction;
+	bail: boolean;
 	before: SuiteLifecycleFunction;
 	beforeEach: TestLifecycleFunction;
-}
-
-/**
- * Properties that define a Suite. Note that 'tests' isn't included so that
- * other interfaces, such as the object interface, can use a different
- * definition for it.
- */
-export interface SuiteProperties extends SuiteLifecycleProperties {
-	bail: boolean;
-	executor: Executor;
 	grep: RegExp;
 	name: string;
-	parent: Suite;
 	publishAfterSetup: boolean;
-	remote: Remote;
-	sessionId: string;
 	timeout: number;
 }
 
+/**
+ * Options that can be passed into a Suite constructor to initialize a suite
+ */
 export type SuiteOptions = Partial<SuiteProperties> & {
 	name: string;
 	parent: Suite;
 	tests?: (Suite | Test)[];
 };
 
+/**
+ * Options that can be passed into a Suite constructor to initialize a root
+ * suite
+ */
 export type RootSuiteOptions = Partial<SuiteProperties> & {
 	executor: Executor;
 	tests?: (Suite | Test)[];
