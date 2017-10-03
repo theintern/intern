@@ -5,6 +5,7 @@
 var format = require('util').format;
 var fs = require('fs');
 var pathUtil = require('path');
+var satisfies = require('semver').satisfies;
 var Promise = require('dojo/Promise');
 var request = require('dojo/request');
 var Tunnel = require('./Tunnel');
@@ -307,7 +308,10 @@ SeleniumTunnel.prototype = util.mixin(Object.create(_super), /** @lends module:d
 		]);
 
 		if (this.verbose) {
-			args.push('-debug', 'true');
+			args.push('-debug');
+			if (satisfies(this.version, '>=3.1.0 <3.5.0')) {
+				args.push('true');
+			}
 			console.log('starting with arguments: ', args.join(' '));
 		}
 		
