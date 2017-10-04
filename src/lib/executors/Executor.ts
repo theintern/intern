@@ -1286,9 +1286,10 @@ export interface ResourceConfig {
 }
 
 /**
- * This interface describes the configuration data used by Intern. It's
+ * This interface describes the configuration data used by Intern. Its
  * properties can be set from the command line when running the intern bin
- * script, or via an object passed to the executor's `configure` method.
+ * script, or via an object passed to the executor's
+ * [[lib/executors/Executor.Executor.configure]] method.
  */
 export interface Config extends ResourceConfig {
 	/**
@@ -1414,6 +1415,10 @@ export interface ExecutorEvent {
 	data: any;
 }
 
+/**
+ * Events that may be emitted by an Executor. Each event has at most one
+ * associated message type. A few (e.g., afterRun) don't have messages.
+ */
 export interface Events {
 	'*': ExecutorEvent;
 

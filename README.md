@@ -70,6 +70,8 @@ Intern installs a global variable that tests may not be aware of if nothing impo
 
 Intern can run unit tests in browsers that support ECMAScript 5, including mobile browsers on Android and iOS, and in Node 4+. It’s self-tests run against IE 10 and 11, Firefox 33 and current, Chrome 38 and current, and Safari 9 and 10, as well as Node 6 and 8.
 
+Note that Intern requires npm 3+ to install properly, so Node 4 users may need to update npm.
+
 Intern can run functional tests using WebDriver-compatible applications and services, including Selenium, Appium, Selendroid. It has built-in support for cloud testing services from [BrowserStack](https://browserstack.com), [CrossBrowserTesting](https://crossbrowsertesting.com), [SauceLabs](https://saucelabs.com), and [TestingBot](https://testingbot.com).
 
 <!-- start-github-only -->

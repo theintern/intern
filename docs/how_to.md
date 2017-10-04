@@ -12,6 +12,7 @@
 * [Test non-CORS web APIs](#test-non-cors-web-apis)
     * [Option 1: Send all traffic except web services to Intern](#option-1-send-all-traffic-except-web-services-to-intern)
     * [Option 2: Only send JavaScript traffic to Intern](#option-2-only-send-javascript-traffic-to-intern)
+* [Use a custom profile with Firefox](#use-a-custom-profile-with-firefox)
 
 <!-- vim-markdown-toc -->
 
@@ -295,3 +296,27 @@ server {
   }
 }
 ```
+
+## Use a custom profile with Firefox
+
+1. Setup a profile in Firefox, create a ZIP archive of the profile directory, and base-64 encode it. The [firefox-profile](https://www.npmjs.com/package/firefox-profile) package can help with this.
+2. Add the profile to the Firefox entry in your `environments` config property. How this is done depends on the version of Firefox in use.
+   * For older versions of Firefox, set a `firefox_profile` property:
+   ```json
+   {
+       "environments": [{
+           "browserName": "firefox",
+           "firefox_profile": "UEsDBBQACAAIACynEk..."
+       }]
+   }
+   ```
+   * Starting with geckodriver 0.19, use a `moz:firefoxOptions` property:
+   ```json
+   {
+       "environments": [{
+           "browserName": "firefox",
+           "moz:firefoxOptions": {
+               "profile": "UEsDBBQACAAIACynEk..."
+           }
+       }]
+   }

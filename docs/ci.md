@@ -25,7 +25,7 @@
 
 ## Jenkins
 
-When integrating Intern with Jenkins, there are two primary ways in which the integration can be completed: either creating a new project that executes as a post-build action for your primary project using a shared workspace, or by creating a multi-step free-style software project that executes Intern after the first (existing) build step.
+When integrating Intern with Jenkins, there are two primary ways to proceed: either creating a new project that executes Intern as a post-build action for your primary project using a shared workspace, or by creating a multi-step free-style software project that executes Intern after the first (existing) build step.
 
 For projects that are already using Maven, a third option is to execute Intern using [exec-maven-plugin](http://mojo.codehaus.org/exec-maven-plugin/) from an existing `pom.xml`.
 
@@ -107,7 +107,7 @@ node_js:
 script: node_modules/.bin/intern
 ```
 
->💡 If you are using a cloud hosting provider like [BrowserStack](https://browserstack.com), [Sauce Labs](https://saucelabs.com), or [TestingBot](https://testingbot.com), you can add [environment variables](http://localhost:6420/docs/how_to.md#use-intern-with-a-remote-service-like-browserstack) holding your access credentials either through the Travis CI Web site by going to the repository’s settings page, or by adding an [env list](http://docs.travis-ci.com/user/environment-variables/) to your `.travis.yml` configuration.
+>💡 If you are using a cloud hosting provider like [BrowserStack](https://browserstack.com), [Sauce Labs](https://saucelabs.com), or [TestingBot](https://testingbot.com), you can add [environment variables](./how_to.md#use-intern-with-a-remote-service-like-browserstack) holding your access credentials either through the Travis CI Web site by going to the repository’s settings page, or by adding an [env list](http://docs.travis-ci.com/user/environment-variables/) to your `.travis.yml` configuration.
 
 Once you have a Travis configuration, you just need to actually start the thing:
 
@@ -174,7 +174,7 @@ To use Intern with [Codeship](https://codeship.com), you’ll need to configure 
 3. Click the “Create a new project” button.
 4. Connect your GitHub or Bitbucket account as required.
 5. Choose the repository you’d like to test.
-6. Select “I want to create my own custom commands” from the dropdown box labeled “Select your technology to prepopulate basic commands”.
+6. Select “I want to create my own custom commands” from the drop down box labeled “Select your technology to pre-populate basic commands”.
 7. The following steps are the same as for an existing project.
 8. Once completed, click “Save and go to dashboard” and then push a commit to see your build tested.
 
@@ -183,7 +183,7 @@ To use Intern with [Codeship](https://codeship.com), you’ll need to configure 
 1. Log in to Codeship.
 2. In the upper-left corner, click “Select Project...”.
 3. Select the gear icon to the right of your project’s name.
-4. From the “Test” Project Settings page, select “I want to create my own custom commands” from the dropdown box labeled “Select your technology to prepopulate basic commands”.
+4. From the “Test” Project Settings page, select “I want to create my own custom commands” from the drop down box labeled “Select your technology to pre-populate basic commands”.
 5. The remaining steps are identical to creating any new project with Codeship.
 
 ### Setup Commands
@@ -224,14 +224,14 @@ By default, if you run a build on Bamboo and an agent isn’t available, an Elas
 
 1. From the gear icon menu in the upper-right corner of any Bamboo administration page, select “Elastic instances”.
 2. Click the “Start new elastic instances” button in the upper-right corner of the page.
-3. Under the “Elastic image configuration name” dropdown, select “Ubuntu stock image”.
+3. Under the “Elastic image configuration name” drop down, select “Ubuntu stock image”.
 4. Click the “Submit” button.
 
 You will be taken to the “Manage elastic instances” page, where you will see your image and its current state. Once the image status is “Running”, the Elastic Agent starts. Once the agent has started and is either “Pending” or “Idle”, you may begin your build.
 
 ### Create a build plan
 
-1. Click the “Create” dropdown button at the top-middle of any Bamboo administration page.
+1. Click the “Create” drop down button at the top-middle of any Bamboo administration page.
 2. Select “Create a new plan” from the menu.
 3. Select or create a Project to house the build plan.
 4. Give the build plan a name and key, for your reference, and provide an optional description.
@@ -243,7 +243,7 @@ You will be taken to the “Manage elastic instances” page, where you will see
 By default, the plan starts with an initial task of “Source Code Checkout”, which you can leave configured as is, because you linked the repository in a previous step.
 
 1. Add a task of “npm”.
-2. Use Node.js executable “Node.js 0.12” (or newer).
+2. Use Node.js executable “Node.js 4” (or newer).
 3. Provide it with a Command of “install” and save the task.
 4. Add a task of “Script”.
 5. In the script body, write the following (use the version of node chosen in step 2):
@@ -254,13 +254,13 @@ By default, the plan starts with an initial task of “Source Code Checkout”, 
    ```
 6. Save the Script task.
 7. Add a task of “JUnit Parser”.
-8. Enter “*” in the “Specify custom results directories” field and save the task.
+8. Enter “\*” in the “Specify custom results directories” field and save the task.
 9. Below the task configuration interface, make sure “Yes please!” is checked under the “Enable this plan?” heading.
 10. Click the “Create” button to create your build plan.
 
 ### Running your build plan and verifying its output
 
-1. Click the “Build” dropdown menu item from the Bamboo administration page top menu and select “All build plans”.
+1. Click the “Build” drop down menu item from the Bamboo administration page top menu and select “All build plans”.
 2. Select your plan from those shown.
 3. Click “Run” and then “Run plan” in the upper-right corner of the page.
 4. Once your plan has finished running, you will see a “Tests” tab on the page, which you can click through and see details of every test.

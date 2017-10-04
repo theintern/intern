@@ -14,18 +14,7 @@
     * [`showConfigs`](#showconfigs)
 * [Environment-specific config](#environment-specific-config)
 * [Properties](#properties)
-    * [environments](#environments)
     * [extends](#extends)
-    * [functionalSuites](#functionalsuites)
-    * [grep](#grep)
-    * [leaveRemoteOpen](#leaveremoteopen)
-    * [loader](#loader)
-    * [reporters](#reporters)
-    * [suites](#suites)
-    * [tunnel](#tunnel)
-    * [tunnelOptions](#tunneloptions)
-        * [All tunnels](#all-tunnels)
-        * [Selenium tunnel](#selenium-tunnel)
 * [Configuration resolution](#configuration-resolution)
 
 <!-- vim-markdown-toc -->
@@ -247,9 +236,9 @@ Some properties are only meaningful for Node or WebDriver tests:
 | [functionalSuites]       | Suites to run in WebDriver mode                                                            | `[]`
 | [functionalTimeouts]     | Timeouts used in functional tests                                                          | `{ connectTimeout: 30000 }`
 | [leaveRemoteOpen]        | If true, leave remote browsers open after testing has finished                             | `false`
-| serveOnly                | When true, Intern will start its instrumenting web server but not run tests                | `false`
-| serverPort               | The port the instrumenting server should listen on                                         | `9000`
-| serverUrl                | A URL a remote executor can use to reach the local Intern                                  | `http://localhost:9000`
+| [serveOnly]              | When true, Intern will start its instrumenting web server but not run tests                | `false`
+| [serverPort]             | The port the instrumenting server should listen on                                         | `9000`
+| [serverUrl]              | A URL a remote executor can use to reach the local Intern                                  | `http://localhost:9000`
 | [tunnel]                 | The name of a tunnel to use for WebDriver tests                                            | `selenium`
 | [tunnelOptions]          | Options to use for the WebDriver tunnel                                                    | `{ tunnelId: Date.now() }`
 
@@ -266,20 +255,9 @@ There are also several properties that are handled by the config file processing
 | :-------    | :----------                                                        |
 | description | A short string describing a test config                            |
 | [extends]   | Another config or config file that the config extends              |
+| help        | Display a help message                                             |
 | showConfig  | When true, show the resolved configuration and exit                |
 | showConfigs | When true, show information about the currently loaded config file |
-
-### environments
-
-The `environments` property specifies the environments that will be used to run WebDriver tests. Its value can be a single browser name or an environment object, or an array of these.
-
-```ts
-environments: 'chrome'
-environments: ['chrome', 'firefox']
-environments: { browserName: 'chrome', version: '57.0' }
-```
-
-The syntax for browser names and other properties depends on where tests are being run. For example, when running tests using a local Selenium server, the browser name should be the lowercase name of a locally available browser, such as ‘chrome’ or ‘firefox’, and other properties such as the platform name will generally be ignored. When running on a cloud testing service such as [Sauce Labs](https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-RequiredSeleniumTestConfigurationSettings) or [BrowserStack](https://www.browserstack.com/automate/capabilities), browser names and other properties may have different acceptable values (e.g., ‘googlechrome’ instead of ‘chrome’, or ‘MacOS’ vs ‘OSX’).
 
 ### extends
 
@@ -301,96 +279,20 @@ If the `extends` property is set in a child config, it must be the name of a dif
 }
 ```
 
-In the scenario above, the following process will occur:
+Given the config above, and assuming child config “d” is selected, the following resolution process will occur:
 
 1. Child “c” will be mixed into child “a”
 2. Child “d” will be mixed into the result of 1
 3. The result of 2 will be mixed into the base config
 4. The result of 3 will be the resolved config
 
-### functionalSuites
-
-Functional suites are files that register [WebDriver tests](writing_tests.md). Suites may be specified as a string path, a glob expression, or an array of strings and/or globs.
-
-### grep
-
-The `grep` property is used to filter which tests are run. Grep operates on test IDs. A test ID is the concatenation of a test name with all of its parent suite names. Every test ID that matches the current grep expression will be run.
-
-### leaveRemoteOpen
-
-Normally when Intern runs tests on remote browsers, it shuts the browser down when testing is finished. However, you may sometimes want to inspect the state of a remote browser after tests have run, particularly if you're trying to debug why a test is failing. Setting `leaveRemoteOpen` to true will cause Intern to leave the browser open after testing. Setting it to `'fail'` will cause Intern to leave it open only if there were test failures.
-
-### loader
-
-The `loader` property can be a string with a loader name or the path to a [loader script](./architecture.md#loaders). It may also be an object with `script` and `options` properties. Intern provides built-in loader scripts for Dojo, Dojo 2, and SystemJS, accessible through the aliases ‘dojo’, ‘dojo2’, and 'systemjs'.
-
-```ts
-loader: 'dojo2'
-loader: 'tests/loader.js'
-loader: {
-    script: 'dojo',
-    options: {
-        packages: [ { name: 'app', location: './js' } ]
-    }
-}
-```
-
-### reporters
-
-This option is a list of reporters to use during the testing process. Reporters specified in this list must have been previously installed using [`registerReporter`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerreporter) or [`registerPlugin`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerplugin). List entries may be reporter names or objects of the format
-
-```js
-{
-    name: 'reporter name',
-    options: {
-        /* reporter-specific options */
-    }
-}
-```
-
-### suites
-
-Suites are files that register unit tests. Suites may be specified as a string path, a glob expression, or an array of strings and/or globs.
-
-### tunnel
-
-The `tunnel` property specifies which Dig Dug tunnel class to use for WebDriver testing. There are several built in tunnel types, and others can be added through the Node executor’s [`registerPlugin` method](./architecture.md#extension-points).
-
-The built in tunnel classes are:
-
-* 'null'
-* 'selenium'
-* 'browserstack'
-* 'cbt' (CrossBrowserTesting)
-* 'saucelabs'
-* 'testingbot'
-
-### tunnelOptions
-
-This property specifies options for the currently selected tunnel. The available options depend on the current tunnel.
-
-#### All tunnels
-
-| Property | Value |
-| :--- | :--- |
-| `username` | Username for the tunnel service (e.g., BrowserStack) |
-| `apiKey` | API key for the tunnel service (e.g., BrowserStack) |
-| `pathname` | The path for the tunnel’s REST endpoint (e.g., `wd/hub`) |
-
-#### Selenium tunnel
-
-| Property | Value |
-| :--- | :--- |
-| `drivers` | A list of driver names, or objects with `name` and `options` properties |
-| `verbose` | If true, show tunnel debug information |
-
 ## Configuration resolution
 
 At runtime, the environment-specific resources and any [active child configs](#config-file) will be mixed into the resolved config. In general, properties from from more specific sources will override properties from lower precedence sources. The order of precedence, from lowest to highest, is:
 
-1. A config being extended by the base config
-2. The base config
-3. The active child config in the base config
+1. A config being extended by the current config
+2. The current config
+3. An active child config in the current config
 
 There are a few exceptions:
 
@@ -458,6 +360,8 @@ There are a few exceptions:
 [plugins]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/plugins
 [reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/reporters
 [serveOnly]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/serveonly
+[serverPort]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/serverport
+[serverUrl]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/serverurl
 [suites]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/suites-1
-[tunnelOptions]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunneloptions
 [tunnel]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunnel-1
+[tunnelOptions]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunneloptions

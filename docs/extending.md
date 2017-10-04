@@ -8,8 +8,6 @@
     * [Interfaces](#interfaces)
     * [Pre- and post-test code](#pre--and-post-test-code)
 * [Loading extensions](#loading-extensions)
-    * [require](#require)
-    * [plugins](#plugins-1)
 
 <!-- vim-markdown-toc -->
 
@@ -37,9 +35,11 @@ Within a suite, the plugin would be accessed like:
 const { db } = intern.getPlugin('dbaccess');
 ```
 
+As the example above indicates, plugin initialization code may be asynchronous.
+
 ### Reporters
 
-Reporters are simply event listeners that register for Intern [events](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/on)). For example, a reporter that displays test results to the console could be as simple as:
+Reporters are simply event listeners that register for Intern [events]. For example, a reporter that displays test results to the console could be as simple as:
 
 ```js
 intern.on('testEnd', test => {
@@ -55,11 +55,11 @@ intern.on('testEnd', test => {
 });
 ```
 
-Intern provides a number of pre-registered reporters that can be enabled via the [`reporters`](./configuration.md#reporters) config option.
+Intern provides several built-in reporters that can be enabled via the [reporters] config option.
 
 ### Interfaces
 
-An interface is an API for registering test suites. Intern has several built in interfaces, such as [object](./writing_tests.md#object) and [bdd](./writing_tests.md#bdd). These interfaces all work by creating [Suite](https://theintern.io/docs.html#Intern/4/api/lib%2FSuite) and [Test](https://theintern.io/docs.html#Intern/4/api/lib%2FTest) objects and registering them with Intern’s root suite(s). New interfaces should follow the same pattern. For example, below is an excerpt from the tdd interface, which allows suites to be registered using `suite` and `test` functions:
+An interface is an API for registering test suites. Intern has several built in interfaces, such as [object](./writing_tests.md#object) and [bdd](./writing_tests.md#bdd). These interfaces all work by creating [Suite] and [Test] objects and registering them with Intern’s root suite(s). New interfaces should follow the same pattern. For example, below is an excerpt from the [tdd] interface, which allows suites to be registered using `suite` and `test` functions:
 
 ```js
 import Suite from '../Suite';
@@ -69,31 +69,31 @@ import intern from '../../intern';
 let currentSuite;
 
 export function suite(name, factory) {
-	if (!currentSuite) {
-		executor.addSuite(parent => {
-			currentSuite = parent;
-			registerSuite(name, factory);
-			currentSuite = null;
-		});
-	}
-	else {
-		registerSuite(name, factory);
-	}
+    if (!currentSuite) {
+        executor.addSuite(parent => {
+            currentSuite = parent;
+            registerSuite(name, factory);
+            currentSuite = null;
+        });
+    }
+    else {
+        registerSuite(name, factory);
+    }
 }
 
 export function test(name, test) {
-	if (!currentSuite) {
-		throw new Error('A test must be declared within a suite');
-	}
-	currentSuite.add(new Test({ name, test }));
+    if (!currentSuite) {
+        throw new Error('A test must be declared within a suite');
+    }
+    currentSuite.add(new Test({ name, test }));
 }
 
 function registerSuite(name, factory) {
-	const parent = currentSuite!;
-	currentSuite = new Suite({ name, parent });
-	parent.add(currentSuite);
-	factory(currentSuite);
-	currentSuite = parent;
+    const parent = currentSuite!;
+    currentSuite = new Suite({ name, parent });
+    parent.add(currentSuite);
+    factory(currentSuite);
+    currentSuite = parent;
 }
 ```
 
@@ -111,16 +111,28 @@ As with all Intern event listeners the callback may run asynchronous code. Async
 
 ## Loading extensions
 
-There are two main ways to load extensions: the `require` and `plugins` config properties.
+Extensions are loaded using the [plugins] config property. Plugins may provide actual Intern plugins by calling `registerPlugin`, or they may be standalone scripts that affect the JavaScript environment, like `babel-register`. By default, scripts listed in `plugins` will be loaded before an external loader, using the platform native loading mechanism. Plugins can be marked as requiring the external loader with a `useLoader` property.
 
-### require
+```js
+{
+    "loader": "dojo2",
+    "plugins": [
+        "node_modules/babel-register/lib/node.js",
+        {
+            "script": "tests/support/dojoMocking.js",
+            "useLoader": true
+        },
+        {
+            "script": "tests/support/mongodbAccess.js",
+            "options": { "dbUrl": "https://testdb.local" }
+        }
+    ]
+}
+```
 
-Scripts loaded using the [`require`](./configuration.md#require) config property are the most basic type of extension. These are simply scripts that are run before a loader, plugins, or test suites, using the environment’s native script loading mechanism (`require` in Node, script injection in the browser). This means that in the browser these scripts must be self-contained (in Node they can make use of Node’s module loader). The code in these scripts must also be synchronous.
-
-### plugins
-
-Another way to load scripts is using the [`plugins`](./configuration.md#plugins) config property. There are three key differences between scripts loaded via `plugins` versus those loaded with `require`:
-
-* Plugins are loaded with a module loader (if one is being used)
-* Plugins can be configured
-* Plugins support asynchronous initialization
+[events]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/events
+[plugins]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/plugins
+[reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/reporters
+[Suite]: https://theintern.io/docs.html#Intern/4/api/lib%2FSuite
+[Test]: https://theintern.io/docs.html#Intern/4/api/lib%2FTest
+[tdd]: https://theintern.io/docs.html#Intern/4/api/lib%2Finterfaces%2Ftdd

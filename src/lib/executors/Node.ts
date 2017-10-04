@@ -1034,7 +1034,7 @@ export interface Config extends BaseConfig {
 	coverage: false | string[];
 
 	/**
-	 * The environments that will be used to run WebDriver tests.
+	 * The environments that will be used to run tests.
 	 *
 	 * Its value can be a single browser name or an environment object, or an
 	 * array of these.
@@ -1054,6 +1054,11 @@ export interface Config extends BaseConfig {
 	 * or [BrowserStack](https://www.browserstack.com/automate/capabilities),
 	 * browser names and other properties may have different acceptable values
 	 * (e.g., ‘googlechrome’ instead of ‘chrome’, or ‘MacOS’ vs ‘OSX’).
+	 *
+	 * > 💡Note that 'node' is an environment. If no environments are specified,
+	 * the Node executor will automatically add 'node' to the resolved config.
+	 * If any environments are specified, though, unit tests will only be run in
+	 * this environments.
 	 */
 	environments: EnvironmentSpec[];
 
@@ -1105,12 +1110,33 @@ export interface Config extends BaseConfig {
 	 */
 	proxy?: string;
 
+	/**
+	 * If true, a remote will wait for reponses from Intern for any executor
+	 * events.
+	 */
+	runInSync: boolean;
+
 	/** If true, start Intern's static test server but do not run any tests. */
 	serveOnly: boolean;
 
+	/**
+	 * The port Intern's static server will listen on during functional tests.
+	 */
 	serverPort: number;
+
+	/**
+	 * The URL a remote should use to access Intern's static server. By default
+	 * this is http://localhost:9000, but the domain or port may be different if
+	 * Intern is behind a proxy.
+	 */
 	serverUrl: string;
-	runInSync: boolean;
+
+	/**
+	 * The port that a remote will use to access Intern's websocket server. The
+	 * hostname will be the same as for serverUrl. For example, if serverPort is
+	 * set to 9001 and the default serverUrl is used (http://localhost:9000),
+	 * the full websocket URL will be ws://localhost:9001.
+	 */
 	socketPort?: number;
 
 	/**
@@ -1134,7 +1160,29 @@ export interface Config extends BaseConfig {
 	/**
 	 * Options for the currently selected tunnel.
 	 *
-	 * The available options depend on the current tunnel.
+	 * The available options depend on the current tunnel. Common options
+	 * include:
+	 *
+	 * ** All tunnels**
+	 *
+	 * | Property   | Value                                                    |
+	 * | :---       | :---                                                     |
+	 * | `username` | Username for the tunnel service (e.g., BrowserStack)     |
+	 * | `apiKey`   | API key for the tunnel service (e.g., BrowserStack)      |
+	 * | `pathname` | The path for the tunnel’s REST endpoint (e.g., `wd/hub`) |
+	 *
+	 * **Selenium tunnel**
+	 *
+	 * | Property  | Value                                                                   |
+	 * | :---      | :---                                                                    |
+	 * | `drivers` | A list of driver names, or objects with `name` and `options` properties |
+	 * | `verbose` | If true, show tunnel debug information                                  |
+	 *
+	 * See also:
+	 *
+	 * * [[https://theintern.io/docs.html#Dig%20Dug/2/api/Tunnel/tunnelproperties|Tunnel]]
+	 * * [[https://theintern.io/docs.html#Dig%20Dug/2/api/SeleniumTunnel/seleniumproperties|SeleniumTunnel]]
+	 * * [[https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel/browserstackproperties|BrowserStackTunnel]]
 	 */
 	tunnelOptions: TunnelOptions | BrowserStackOptions | SeleniumOptions;
 }

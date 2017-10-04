@@ -1,6 +1,7 @@
 # Running Intern
 
 <!-- vim-markdown-toc GFM -->
+
 * [Built-in runners](#built-in-runners)
     * [Node](#node)
     * [Browser](#browser)
@@ -11,7 +12,7 @@
     * [Bare WebDriver server](#bare-webdriver-server)
     * [Selenium](#selenium)
     * [Cloud service](#cloud-service)
-        * [BrowesrStack](#browesrstack)
+        * [BrowserStack](#browserstack)
         * [CrossBrowserTesting](#crossbrowsertesting)
         * [Sauce Labs](#sauce-labs)
         * [TestingBot](#testingbot)
@@ -20,13 +21,21 @@
 
 ## Built-in runners
 
-The Node and browser built-in runners load configuration information from the command line / query args and/or a config file. There are no special command line flags; in both cases, command line options are [config properties](configuration.md#properties).
+The Node and browser built-in runners load configuration information from the command line / query args and/or a config file. There are no special command line flags when using the built-in runners; in both cases, command line options are [config properties](configuration.md#properties).
 
 ### Node
 
 The node runner is a built in script for running Node-based unit tests and WebDriver tests. Usage can be very simple:
 
-    $ node_modules/.bin/intern
+```
+$ node_modules/.bin/intern
+```
+
+or, if using npm 5+:
+
+```
+$ npx intern
+```
 
 Of course, it can be called from a `package.json` file even more simply:
 
@@ -40,19 +49,27 @@ Of course, it can be called from a `package.json` file even more simply:
 
 By default, the runner looks for an `intern.json` config file in the project root. This can be changed by providing a `config` property on the command line, like `config=tests/myconfig.json`. The runner will also accept any other config properties as command line arguments. For example,
 
-    $ node_modules/.bin/intern suites=tests/foo.js grep=feature1
+```
+$ npx intern suites=tests/foo.js grep=feature1
+```
 
 would only load the suite in `tests/foo.js`, and would only run tests containing the string ‘feature1’ in their IDs.
+
+> 💡 Intern decides what environments to run tests in based on the value of the [environments] config property. If `environments` isn’t set, Intern adds 'node' to it, so that tests will be run in Node. If `environments` is set, Intern will only run tests in the specified environments.
 
 ### Browser
 
 The browser runner is a built-in HTML page for running browser-based unit tests. To use it, serve the project root directory using a static webserver and browse to (assuming the server is running on port 8080):
 
-    http://localhost:8080/node_modules/intern/
+```
+http://localhost:8080/node_modules/intern/
+```
 
 Similar to the Node runner script, the browser runner will accept a config argument, or any other config properties, as query args.
 
-    http://localhost:8080/node_modules/intern/?suites=tests/foo.js&grep=feature1
+```
+http://localhost:8080/node_modules/intern/?suites=tests/foo.js&grep=feature1
+```
 
 Note that the browser runner can only be used to run unit tests, not functional (i.e., WebDriver) tests.
 
@@ -68,12 +85,13 @@ The task may be configured using the same options as are used in an `intern.json
 
 ```js
 {
-  "suites": "tests/unit/**/*.js",
-  "require": "tests/pre.js",
-  "loader": {
-    "script": "dojo",
-    "config": {
-      "packages": [{"name": "app", "location": "."}]
+    "suites": "tests/unit/**/*.js",
+    "plugins": "tests/pre.js",
+    "loader": {
+        "script": "dojo",
+        "config": {
+            "packages": [{"name": "app", "location": "."}]
+        }
     }
 }
 ```
@@ -86,12 +104,12 @@ module.exports = function (grunt) {
         intern: {
             node: {
                 options: {
-                    suites: "tests/unit/**/*.js",
-                    require: "tests/pre.js"
-                    "loader": {
-                        "script": "dojo",
-                        "config": {
-                            "packages": [{"name": "app", "location": "."}]
+                    suites: 'tests/unit/**/*.js',
+                    plugins: 'tests/pre.js'
+                    loader: {
+                        script: 'dojo',
+                        config: {
+                            packages: [{ name: 'app', location: '.' }]
                         }
                     }
                 }
@@ -110,23 +128,32 @@ Note that the Grunt task runner doesn’t use the config file loading logic empl
 
 Intern may also be configured and run with a custom script. The basic steps this script must perform are:
 
-1. Import/require the Node executor
-2. [Construct a new instance of Node](configuration.md#programmatically) and assign it to the `intern` global. The
-   config should include at least one suite and a reporter.
+1. Import/require the 'intern' package. This will instantiate a Node executor and assign it to the `intern` global.
+2. [Configure the executor](configuration.md#programmatically). Include at least one suite and a reporter.
    ```js
-   global.intern = new Node({
+   intern.configure({
        suites: 'tests/unit/a.js',
        reporters: 'runner'
-    });
+   });
     ```
 3. Call `intern.run()`
 
+A very simple run script might look like:
+
+```js
+import intern from 'intern';
+intern.configure({ suites: 'tests/unit/**/*.js' });
+intern.run();
+```
+
+See Intern’s [own run script](https://github.com/theintern/intern/blob/master/src/bin/intern.ts) for a more complex example.
+
 ## Custom HTML Page
 
-Intern may be configured and run in a browser with a custom HTML page. The basic steps are:
+Intern may be configured and run in a browser with a custom HTML page. The basic steps are similar to those for a custom Node script:
 
 1. Load the Browser executor (`<script src="node_modules/intern/browser/intern.js"></script>`). The `intern.js` script will automatically initialize a Browser executor and assign it to an `intern` global.
-2. [Configure the executor](configuration.md#programmatically). Include at least one suite at a reporter.
+2. [Configure the executor](configuration.md#programmatically). Include at least one suite and a reporter.
    ```js
    intern.configure({
        suites: 'tests/unit/a.js',
@@ -144,35 +171,35 @@ When running functional tests, Intern communicates with remote browsers using We
 To use a bare WebDriver, such as [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/), use the following steps:
 
 1. Download the latest version of the WebDriver
-2. Set the [`tunnel`](./configuration.md#tunnel) config property to `'null'`
-3. Run the WebDriver on port 4444 with a base URL of 'wd/hub'. Alternatively, using the [`tunnelOptions`](./configuration.md#tunneloptions) config property, set `port` to a particular port and `pathname` to the WebDriver’s base URL).
-4. Set the [`environments`](./configuration.md) config property to 'chrome'.
+2. Set the [tunnel] config property to `'null'`
+3. Run the WebDriver on port 4444 with a base URL of 'wd/hub'. Alternatively, using the [tunnelOptions] config property, set `port` to a particular port and `pathname` to the WebDriver’s base URL.
+4. Set the [environments] config property to 'chrome'.
 5. Run Intern
 
 > 💡 To verify that the WebDriver is running on the proper port and path, open a browser to `http://localhost:4444/wd/hub/status. It should return a JSON response with a `status` field of 0.
 
 ### Selenium
 
-If you’d rather let Intern manage WebDrivers, you can use Selenium. Intern defaults to using the 'selenium' tunnel, so configuration is simpler than for a bare WebDriver.
+If you’d rather not manage WebDriver binaries individually, you can use Selenium. Intern defaults to using the 'selenium' tunnel, so configuration is simpler than for a bare WebDriver.
 
-1. Set the [`environments`](./configuration.md) config property to the name of the desired browser ('chrome', 'firefox', etc.)
-2. If using 'firefox' or 'internet explorer', also provide the driver name in the [`tunnelOptions`](./configuration.md#tunneloptions) config property:
+1. Set the [environments] config property to the name of the desired browser ('chrome', 'firefox', etc.)
+2. If using 'firefox' or 'internet explorer', also provide the driver name in the [tunnelOptions] config property:
    ```js
    {
        "tunnelOptions": {
-           "drivers": [ "firefox" ]
+           "drivers": ["firefox"]
        }
    }
    ```
-3. Run Itnern
+3. Run Intern
 
 ### Cloud service
 
-Intern comes with built-in support for 4 cloud testing services via the [digdug library](https://github.com/theintern/digdug): BrowserStack, CrossBrowserTesting, Sauce Labs, and TestingBot. Basic usage for each of these is provided in the following sections.
+Intern comes with built-in support for four cloud testing services via the [digdug library](https://github.com/theintern/digdug): BrowserStack, CrossBrowserTesting, Sauce Labs, and TestingBot. Basic usage for each of these is provided in the following sections.
 
-> 💡 Cloud hosts typically have their own unique capabilities options, so be sure to read the [capabilities documentation](./configuration.md#capabilities) for the provider you’re using.
+> 💡 Cloud hosts typically have their own unique capabilities options, so be sure to read the [capabilities] documentation for the provider you’re using.
 
-#### BrowesrStack
+#### BrowserStack
 
 1. [Sign up](https://www.browserstack.com/users/sign_up) for [BrowserStack Automate](https://www.browserstack.com/automate)
 2. Get your Automate username and password from the [Automate account settings page](https://www.browserstack.com/accounts/automate)
@@ -180,7 +207,7 @@ Intern comes with built-in support for 4 cloud testing services via the [digdug 
 4. Set your username and access key in one of these ways:
    * Define `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` environment variables
    * Set `browserstackUsername` and `browserstackAccessKey` in your [Gruntfile’s](#grunt) intern task options
-   * Set `username` and `accessKey` on your [`tunnelOptions`](./configuration.md#tunnelOptions) configuration option
+   * Set `username` and `accessKey` on your [tunnelOptions] configuration option
 5. Run Intern
 
 #### CrossBrowserTesting
@@ -191,7 +218,7 @@ Intern comes with built-in support for 4 cloud testing services via the [digdug 
 4. Set your username and access key in one of these ways:
    * Define `CBT_USERNAME` and `CBT_APIKEY` environment variables
    * Set `cbtUsername` and `cbtApikey` in your [Gruntfile’s](#grunt) intern task options
-   * Set `username` and `accessKey` on your [`tunnelOptions`](./configuration.md#tunnelOptions) configuration option
+   * Set `username` and `accessKey` on your [tunnelOptions] configuration option
 5. Run Intern
 
 #### Sauce Labs
@@ -202,7 +229,7 @@ Intern comes with built-in support for 4 cloud testing services via the [digdug 
 4. Set your username and access key in one of these ways:
    * Define `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` environment variables
    * Set `sauceUsername` and `sauceAccessKey` in your [Gruntfile’s](#grunt) intern task options
-   * Set `username` and `accessKey` on your [`tunnelOptions`](./configuration.md#tunnelOptions) configuration option
+   * Set `username` and `accessKey` on your [tunnelOptions] configuration option
 5. Run Intern
 
 #### TestingBot
@@ -213,5 +240,10 @@ Intern comes with built-in support for 4 cloud testing services via the [digdug 
 4. Set your API key and secret in one of these ways:
    * Define `TESTINGBOT_KEY` and `TESTINGBOT_SECRET` environment variables
    * Set `testingbotKey` and `testingbotSecret` in your Gruntfile’s intern task options
-   * Set `username` and `accessKey` on your [`tunnelOptions`](./configuration.md#tunnelOptions) configuration option
+   * Set `username` and `accessKey` on your [tunnelOptions] configuration option
 5. Run Intern
+
+[capabilities]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/capabilities
+[environments]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/environments
+[tunnel]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunnel-1
+[tunnelOptions]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunneloptions
