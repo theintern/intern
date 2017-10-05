@@ -40,38 +40,8 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 		);
 	}
 
-	/**
-	 * Part of the tunnel has been downloaded from the server.
-	 *
-	 * @event module:digdug/Tunnel#downloadprogress
-	 * @type {Object}
-	 * @property {number} received The number of bytes received so far.
-	 * @property {number} total The total number of bytes to download.
-	 */
-
-	/**
-	 * A chunk of raw string data output by the tunnel software to stdout.
-	 *
-	 * @event module:digdug/Tunnel#stdout
-	 * @type {string}
-	 */
-
-	/**
-	 * A chunk of raw string data output by the tunnel software to stderr.
-	 *
-	 * @event module:digdug/Tunnel#stderr
-	 * @type {string}
-	 */
-
-	/**
-	 * Information about the status of the tunnel setup process that is suitable
-	 * for presentation to end-users.
-	 *
-	 * @event module:digdug/Tunnel#status
-	 * @type {string}
-	 */
-
-	on: Events;
+	/** Register an event listener */
+	on: RegisterListener;
 
 	/**
 	 * The URL of a service that provides a list of environments supported by
@@ -659,24 +629,43 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	}
 }
 
+/**
+ * A chunk of raw string data output by the tunnel software to stdout or stderr.
+ */
 // tslint:disable-next-line:interface-name
 export interface IOEvent extends EventTargettedObject<Tunnel> {
 	readonly type: 'stdout' | 'stderr';
 	readonly data: string;
 }
 
+/**
+ * An event containing information about the status of the tunnel setup process
+ * that is suitable for presentation to end-users.
+ */
 export interface StatusEvent extends EventTargettedObject<Tunnel> {
 	readonly type: 'status';
 	readonly status: string;
 }
 
+/**
+ * An event indicating that part of a tunnel binary has been downloaded from the
+ * server.
+ */
 export interface DownloadProgressEvent extends EventTargettedObject<Tunnel> {
+	/** The event type */
 	readonly type: 'downloadprogress';
+	/** The URL being downloaded from */
 	readonly url: string;
+	/** The total number of bytes being downloaded */
 	readonly total: number;
+	/** The number of bytes received so far */
 	readonly received: number;
 }
 
+/**
+ * A handle to a child process, along with resolve and reject callbacks that can
+ * be used to settle an associated Promise.
+ */
 export interface ChildExecutor {
 	(
 		child: ChildProcess,
@@ -685,12 +674,20 @@ export interface ChildExecutor {
 	): Handle | void;
 }
 
+/** Options for file downloads */
 export interface DownloadOptions {
 	directory: string;
 	proxy: string;
 	url: string;
 }
 
+/**
+ * A normalized environment descriptor.
+ *
+ * A NormalizedEnvironment contains a mix of W3C WebDriver and JSONWireProtocol
+ * capabilities, as well as a set of standardized capabilities that can be used
+ * to specify the given environment in an Intern `environments` descriptor.
+ */
 export interface NormalizedEnvironment {
 	browserName: string;
 	browserVersion?: string;
@@ -707,6 +704,7 @@ export interface NormalizedEnvironment {
 	};
 }
 
+/** Properties of a tunnel */
 export interface TunnelProperties extends DownloadOptions {
 	architecture: string;
 	auth: string;
@@ -722,9 +720,11 @@ export interface TunnelProperties extends DownloadOptions {
 	verbose: boolean;
 }
 
+/** Options used to configure a tunnel */
 export type TunnelOptions = Partial<TunnelProperties>;
 
-export interface Events extends BaseEventedEvents {
+/** Event registration call signatures */
+export interface RegisterListener extends BaseEventedEvents {
 	(type: 'stderr' | 'stdout', listener: (event: IOEvent) => void): Handle;
 	(type: 'status', listener: (event: StatusEvent) => void): Handle;
 	(

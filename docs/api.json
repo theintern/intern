@@ -92,42 +92,6 @@
 							}
 						},
 						{
-							"id": 247,
-							"name": "on",
-							"kind": 8388608,
-							"kindString": "Event",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "Information about the status of the tunnel setup process that is suitable\nfor presentation to end-users.",
-								"tags": [
-									{
-										"tag": "type",
-										"text": "{string}\n"
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 74,
-									"character": 3
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "Events",
-								"id": 172
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "Tunnel.on",
-								"id": 28
-							}
-						},
-						{
 							"id": 263,
 							"name": "_handle",
 							"kind": 1024,
@@ -140,7 +104,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 167,
+									"line": 137,
 									"character": 18
 								}
 							],
@@ -176,7 +140,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 168,
+									"line": 138,
 									"character": 19
 								}
 							],
@@ -212,7 +176,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 165,
+									"line": 135,
 									"character": 21
 								}
 							],
@@ -254,7 +218,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 169,
+									"line": 139,
 									"character": 17
 								}
 							],
@@ -299,7 +263,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 166,
+									"line": 136,
 									"character": 20
 								}
 							],
@@ -343,7 +307,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 86,
+									"line": 56,
 									"character": 10
 								}
 							],
@@ -377,7 +341,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 98,
+									"line": 68,
 									"character": 13
 								}
 							],
@@ -435,7 +399,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 111,
+									"line": 81,
 									"character": 10
 								}
 							],
@@ -469,7 +433,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 80,
+									"line": 50,
 									"character": 15
 								}
 							],
@@ -522,7 +486,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 124,
+									"line": 94,
 									"character": 9
 								}
 							],
@@ -566,6 +530,36 @@
 							}
 						},
 						{
+							"id": 247,
+							"name": "on",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "Register an event listener"
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 44,
+									"character": 3
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "RegisterListener",
+								"id": 172
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "Tunnel.on",
+								"id": 28
+							}
+						},
+						{
 							"id": 254,
 							"name": "pathname",
 							"kind": 1024,
@@ -580,7 +574,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 130,
+									"line": 100,
 									"character": 9
 								}
 							],
@@ -614,7 +608,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 136,
+									"line": 106,
 									"character": 9
 								}
 							],
@@ -648,7 +642,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 142,
+									"line": 112,
 									"character": 5
 								}
 							],
@@ -682,7 +676,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 148,
+									"line": 118,
 									"character": 9
 								}
 							],
@@ -716,7 +710,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 154,
+									"line": 124,
 									"character": 6
 								}
 							],
@@ -810,7 +804,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 157,
+									"line": 127,
 									"character": 9
 								}
 							],
@@ -844,7 +838,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 92,
+									"line": 62,
 									"character": 9
 								}
 							],
@@ -878,7 +872,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 163,
+									"line": 133,
 									"character": 8
 								}
 							],
@@ -1008,7 +1002,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 179,
+									"line": 149,
 									"character": 14
 								}
 							],
@@ -1145,7 +1139,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 194,
+									"line": 164,
 									"character": 17
 								}
 							],
@@ -1193,7 +1187,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 201,
+									"line": 171,
 									"character": 14
 								}
 							],
@@ -1241,7 +1235,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 208,
+									"line": 178,
 									"character": 15
 								}
 							],
@@ -1289,7 +1283,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 215,
+									"line": 185,
 									"character": 15
 								}
 							],
@@ -1428,7 +1422,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 239,
+									"line": 209,
 									"character": 24
 								}
 							],
@@ -1580,7 +1574,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 334,
+									"line": 304,
 									"character": 21
 								}
 							],
@@ -1655,7 +1649,7 @@
 													"sources": [
 														{
 															"fileName": "Tunnel.ts",
-															"line": 422,
+															"line": 392,
 															"character": 14
 														}
 													],
@@ -1687,7 +1681,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 421,
+									"line": 391,
 									"character": 23
 								}
 							],
@@ -2019,7 +2013,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 232,
+									"line": 202,
 									"character": 9
 								}
 							],
@@ -2076,7 +2070,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 611,
+									"line": 581,
 									"character": 16
 								}
 							],
@@ -2205,7 +2199,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 443,
+									"line": 413,
 									"character": 6
 								}
 							],
@@ -2257,7 +2251,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 530,
+									"line": 500,
 									"character": 5
 								}
 							],
@@ -2277,13 +2271,6 @@
 							]
 						},
 						{
-							"title": "Events",
-							"kind": 8388608,
-							"children": [
-								247
-							]
-						},
-						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
@@ -2300,6 +2287,7 @@
 								216,
 								253,
 								213,
+								247,
 								254,
 								255,
 								256,
@@ -2396,7 +2384,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 713,
+									"line": 711,
 									"character": 10
 								}
 							],
@@ -2422,7 +2410,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 711,
+									"line": 709,
 									"character": 13
 								}
 							],
@@ -2448,7 +2436,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 712,
+									"line": 710,
 									"character": 5
 								}
 							],
@@ -2495,7 +2483,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 689,
+									"line": 679,
 									"character": 10
 								}
 							],
@@ -2542,7 +2530,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 714,
+									"line": 712,
 									"character": 11
 								}
 							],
@@ -2589,7 +2577,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 715,
+									"line": 713,
 									"character": 9
 								}
 							],
@@ -2636,7 +2624,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 716,
+									"line": 714,
 									"character": 9
 								}
 							],
@@ -2662,7 +2650,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 717,
+									"line": 715,
 									"character": 9
 								}
 							],
@@ -2688,7 +2676,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 718,
+									"line": 716,
 									"character": 5
 								}
 							],
@@ -2714,7 +2702,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 719,
+									"line": 717,
 									"character": 9
 								}
 							],
@@ -2740,7 +2728,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 690,
+									"line": 680,
 									"character": 6
 								}
 							],
@@ -2820,7 +2808,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 720,
+									"line": 718,
 									"character": 9
 								}
 							],
@@ -2846,7 +2834,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 691,
+									"line": 681,
 									"character": 4
 								}
 							],
@@ -2872,7 +2860,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 721,
+									"line": 719,
 									"character": 9
 								}
 							],
@@ -2898,7 +2886,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 722,
+									"line": 720,
 									"character": 8
 								}
 							],
@@ -3103,42 +3091,6 @@
 							}
 						},
 						{
-							"id": 354,
-							"name": "on",
-							"kind": 8388608,
-							"kindString": "Event",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "Information about the status of the tunnel setup process that is suitable\nfor presentation to end-users.",
-								"tags": [
-									{
-										"tag": "type",
-										"text": "{string}\n"
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 74,
-									"character": 3
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "Events",
-								"id": 172
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "Tunnel.on",
-								"id": 28
-							}
-						},
-						{
 							"id": 372,
 							"name": "_handle",
 							"kind": 1024,
@@ -3151,7 +3103,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 167,
+									"line": 137,
 									"character": 18
 								}
 							],
@@ -3187,7 +3139,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 168,
+									"line": 138,
 									"character": 19
 								}
 							],
@@ -3223,7 +3175,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 165,
+									"line": 135,
 									"character": 21
 								}
 							],
@@ -3265,7 +3217,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 169,
+									"line": 139,
 									"character": 17
 								}
 							],
@@ -3310,7 +3262,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 166,
+									"line": 136,
 									"character": 20
 								}
 							],
@@ -3354,7 +3306,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 86,
+									"line": 56,
 									"character": 10
 								}
 							],
@@ -3388,7 +3340,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 98,
+									"line": 68,
 									"character": 13
 								}
 							],
@@ -3443,7 +3395,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 111,
+									"line": 81,
 									"character": 10
 								}
 							],
@@ -3477,7 +3429,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 80,
+									"line": 50,
 									"character": 15
 								}
 							],
@@ -3506,7 +3458,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 117,
+									"line": 87,
 									"character": 11
 								}
 							],
@@ -3540,7 +3492,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 124,
+									"line": 94,
 									"character": 9
 								}
 							],
@@ -3560,6 +3512,36 @@
 							}
 						},
 						{
+							"id": 354,
+							"name": "on",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "Register an event listener"
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 44,
+									"character": 3
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "RegisterListener",
+								"id": 172
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "Tunnel.on",
+								"id": 28
+							}
+						},
+						{
 							"id": 362,
 							"name": "pathname",
 							"kind": 1024,
@@ -3574,7 +3556,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 130,
+									"line": 100,
 									"character": 9
 								}
 							],
@@ -3608,7 +3590,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 136,
+									"line": 106,
 									"character": 9
 								}
 							],
@@ -3642,7 +3624,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 142,
+									"line": 112,
 									"character": 5
 								}
 							],
@@ -3676,7 +3658,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 148,
+									"line": 118,
 									"character": 9
 								}
 							],
@@ -3710,7 +3692,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 154,
+									"line": 124,
 									"character": 6
 								}
 							],
@@ -3744,7 +3726,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 157,
+									"line": 127,
 									"character": 9
 								}
 							],
@@ -3778,7 +3760,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 160,
+									"line": 130,
 									"character": 4
 								}
 							],
@@ -3812,7 +3794,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 92,
+									"line": 62,
 									"character": 9
 								}
 							],
@@ -3846,7 +3828,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 163,
+									"line": 133,
 									"character": 8
 								}
 							],
@@ -3976,7 +3958,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 179,
+									"line": 149,
 									"character": 14
 								}
 							],
@@ -4170,7 +4152,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 201,
+									"line": 171,
 									"character": 14
 								}
 							],
@@ -4218,7 +4200,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 208,
+									"line": 178,
 									"character": 15
 								}
 							],
@@ -4266,7 +4248,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 215,
+									"line": 185,
 									"character": 15
 								}
 							],
@@ -4358,7 +4340,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 239,
+									"line": 209,
 									"character": 24
 								}
 							],
@@ -4506,7 +4488,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 334,
+									"line": 304,
 									"character": 21
 								}
 							],
@@ -4581,7 +4563,7 @@
 													"sources": [
 														{
 															"fileName": "Tunnel.ts",
-															"line": 422,
+															"line": 392,
 															"character": 14
 														}
 													],
@@ -4613,7 +4595,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 421,
+									"line": 391,
 									"character": 23
 								}
 							],
@@ -4762,7 +4744,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 299,
+									"line": 269,
 									"character": 28
 								}
 							],
@@ -4881,7 +4863,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 578,
+									"line": 548,
 									"character": 16
 								}
 							],
@@ -5002,7 +4984,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 611,
+									"line": 581,
 									"character": 16
 								}
 							],
@@ -5131,7 +5113,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 443,
+									"line": 413,
 									"character": 6
 								}
 							],
@@ -5183,7 +5165,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 530,
+									"line": 500,
 									"character": 5
 								}
 							],
@@ -5203,13 +5185,6 @@
 							]
 						},
 						{
-							"title": "Events",
-							"kind": 8388608,
-							"children": [
-								354
-							]
-						},
-						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
@@ -5225,6 +5200,7 @@
 								355,
 								360,
 								361,
+								354,
 								362,
 								363,
 								364,
@@ -5427,42 +5403,6 @@
 							}
 						},
 						{
-							"id": 426,
-							"name": "on",
-							"kind": 8388608,
-							"kindString": "Event",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "Information about the status of the tunnel setup process that is suitable\nfor presentation to end-users.",
-								"tags": [
-									{
-										"tag": "type",
-										"text": "{string}\n"
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 74,
-									"character": 3
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "Events",
-								"id": 172
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "Tunnel.on",
-								"id": 28
-							}
-						},
-						{
 							"id": 445,
 							"name": "_handle",
 							"kind": 1024,
@@ -5475,7 +5415,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 167,
+									"line": 137,
 									"character": 18
 								}
 							],
@@ -5511,7 +5451,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 168,
+									"line": 138,
 									"character": 19
 								}
 							],
@@ -5547,7 +5487,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 165,
+									"line": 135,
 									"character": 21
 								}
 							],
@@ -5589,7 +5529,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 169,
+									"line": 139,
 									"character": 17
 								}
 							],
@@ -5634,7 +5574,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 166,
+									"line": 136,
 									"character": 20
 								}
 							],
@@ -5678,7 +5618,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 86,
+									"line": 56,
 									"character": 10
 								}
 							],
@@ -5712,7 +5652,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 98,
+									"line": 68,
 									"character": 13
 								}
 							],
@@ -5746,7 +5686,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 104,
+									"line": 74,
 									"character": 5
 								}
 							],
@@ -5780,7 +5720,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 111,
+									"line": 81,
 									"character": 10
 								}
 							],
@@ -5814,7 +5754,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 80,
+									"line": 50,
 									"character": 15
 								}
 							],
@@ -5843,7 +5783,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 117,
+									"line": 87,
 									"character": 11
 								}
 							],
@@ -5877,7 +5817,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 124,
+									"line": 94,
 									"character": 9
 								}
 							],
@@ -5897,6 +5837,36 @@
 							}
 						},
 						{
+							"id": 426,
+							"name": "on",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "Register an event listener"
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 44,
+									"character": 3
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "RegisterListener",
+								"id": 172
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "Tunnel.on",
+								"id": 28
+							}
+						},
+						{
 							"id": 435,
 							"name": "pathname",
 							"kind": 1024,
@@ -5911,7 +5881,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 130,
+									"line": 100,
 									"character": 9
 								}
 							],
@@ -5945,7 +5915,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 136,
+									"line": 106,
 									"character": 9
 								}
 							],
@@ -5979,7 +5949,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 142,
+									"line": 112,
 									"character": 5
 								}
 							],
@@ -6013,7 +5983,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 148,
+									"line": 118,
 									"character": 9
 								}
 							],
@@ -6047,7 +6017,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 154,
+									"line": 124,
 									"character": 6
 								}
 							],
@@ -6081,7 +6051,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 157,
+									"line": 127,
 									"character": 9
 								}
 							],
@@ -6115,7 +6085,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 160,
+									"line": 130,
 									"character": 4
 								}
 							],
@@ -6149,7 +6119,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 92,
+									"line": 62,
 									"character": 9
 								}
 							],
@@ -6183,7 +6153,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 163,
+									"line": 133,
 									"character": 8
 								}
 							],
@@ -6266,7 +6236,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 179,
+									"line": 149,
 									"character": 14
 								}
 							],
@@ -6314,7 +6284,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 187,
+									"line": 157,
 									"character": 22
 								}
 							],
@@ -6404,7 +6374,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 201,
+									"line": 171,
 									"character": 14
 								}
 							],
@@ -6452,7 +6422,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 208,
+									"line": 178,
 									"character": 15
 								}
 							],
@@ -6500,7 +6470,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 215,
+									"line": 185,
 									"character": 15
 								}
 							],
@@ -6592,7 +6562,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 239,
+									"line": 209,
 									"character": 24
 								}
 							],
@@ -6662,7 +6632,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 320,
+									"line": 290,
 									"character": 20
 								}
 							],
@@ -6749,7 +6719,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 334,
+									"line": 304,
 									"character": 21
 								}
 							],
@@ -6824,7 +6794,7 @@
 													"sources": [
 														{
 															"fileName": "Tunnel.ts",
-															"line": 422,
+															"line": 392,
 															"character": 14
 														}
 													],
@@ -6856,7 +6826,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 421,
+									"line": 391,
 									"character": 23
 								}
 							],
@@ -6922,7 +6892,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 655,
+									"line": 625,
 									"character": 32
 								}
 							],
@@ -7004,7 +6974,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 299,
+									"line": 269,
 									"character": 28
 								}
 							],
@@ -7074,7 +7044,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 508,
+									"line": 478,
 									"character": 17
 								}
 							],
@@ -7128,7 +7098,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 578,
+									"line": 548,
 									"character": 16
 								}
 							],
@@ -7233,7 +7203,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 611,
+									"line": 581,
 									"character": 16
 								}
 							],
@@ -7397,13 +7367,6 @@
 							]
 						},
 						{
-							"title": "Events",
-							"kind": 8388608,
-							"children": [
-								426
-							]
-						},
-						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
@@ -7419,6 +7382,7 @@
 								427,
 								433,
 								434,
+								426,
 								435,
 								436,
 								437,
@@ -7593,42 +7557,6 @@
 							}
 						},
 						{
-							"id": 543,
-							"name": "on",
-							"kind": 8388608,
-							"kindString": "Event",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "Information about the status of the tunnel setup process that is suitable\nfor presentation to end-users.",
-								"tags": [
-									{
-										"tag": "type",
-										"text": "{string}\n"
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 74,
-									"character": 3
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "Events",
-								"id": 172
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "Tunnel.on",
-								"id": 28
-							}
-						},
-						{
 							"id": 559,
 							"name": "_handle",
 							"kind": 1024,
@@ -7641,7 +7569,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 167,
+									"line": 137,
 									"character": 18
 								}
 							],
@@ -7677,7 +7605,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 168,
+									"line": 138,
 									"character": 19
 								}
 							],
@@ -7713,7 +7641,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 165,
+									"line": 135,
 									"character": 21
 								}
 							],
@@ -7755,7 +7683,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 169,
+									"line": 139,
 									"character": 17
 								}
 							],
@@ -7800,7 +7728,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 166,
+									"line": 136,
 									"character": 20
 								}
 							],
@@ -7844,7 +7772,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 86,
+									"line": 56,
 									"character": 10
 								}
 							],
@@ -7878,7 +7806,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 98,
+									"line": 68,
 									"character": 13
 								}
 							],
@@ -7944,7 +7872,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 111,
+									"line": 81,
 									"character": 10
 								}
 							],
@@ -8010,7 +7938,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 80,
+									"line": 50,
 									"character": 15
 								}
 							],
@@ -8071,7 +7999,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 124,
+									"line": 94,
 									"character": 9
 								}
 							],
@@ -8207,6 +8135,36 @@
 							}
 						},
 						{
+							"id": 543,
+							"name": "on",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "Register an event listener"
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 44,
+									"character": 3
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "RegisterListener",
+								"id": 172
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "Tunnel.on",
+								"id": 28
+							}
+						},
+						{
 							"id": 550,
 							"name": "pathname",
 							"kind": 1024,
@@ -8221,7 +8179,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 130,
+									"line": 100,
 									"character": 9
 								}
 							],
@@ -8284,7 +8242,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 136,
+									"line": 106,
 									"character": 9
 								}
 							],
@@ -8318,7 +8276,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 142,
+									"line": 112,
 									"character": 5
 								}
 							],
@@ -8352,7 +8310,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 148,
+									"line": 118,
 									"character": 9
 								}
 							],
@@ -8386,7 +8344,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 154,
+									"line": 124,
 									"character": 6
 								}
 							],
@@ -8563,7 +8521,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 157,
+									"line": 127,
 									"character": 9
 								}
 							],
@@ -8626,7 +8584,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 92,
+									"line": 62,
 									"character": 9
 								}
 							],
@@ -8660,7 +8618,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 163,
+									"line": 133,
 									"character": 8
 								}
 							],
@@ -8819,7 +8777,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 179,
+									"line": 149,
 									"character": 14
 								}
 							],
@@ -8998,7 +8956,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 201,
+									"line": 171,
 									"character": 14
 								}
 							],
@@ -9046,7 +9004,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 208,
+									"line": 178,
 									"character": 15
 								}
 							],
@@ -9094,7 +9052,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 215,
+									"line": 185,
 									"character": 15
 								}
 							],
@@ -9233,7 +9191,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 239,
+									"line": 209,
 									"character": 24
 								}
 							],
@@ -9381,7 +9339,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 334,
+									"line": 304,
 									"character": 21
 								}
 							],
@@ -9560,7 +9518,7 @@
 													"sources": [
 														{
 															"fileName": "Tunnel.ts",
-															"line": 422,
+															"line": 392,
 															"character": 14
 														}
 													],
@@ -9592,7 +9550,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 421,
+									"line": 391,
 									"character": 23
 								}
 							],
@@ -9857,7 +9815,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 578,
+									"line": 548,
 									"character": 16
 								}
 							],
@@ -9929,7 +9887,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 232,
+									"line": 202,
 									"character": 9
 								}
 							],
@@ -9986,7 +9944,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 611,
+									"line": 581,
 									"character": 16
 								}
 							],
@@ -10115,7 +10073,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 443,
+									"line": 413,
 									"character": 6
 								}
 							],
@@ -10167,7 +10125,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 530,
+									"line": 500,
 									"character": 5
 								}
 							],
@@ -10184,13 +10142,6 @@
 							"kind": 512,
 							"children": [
 								507
-							]
-						},
-						{
-							"title": "Events",
-							"kind": 8388608,
-							"children": [
-								543
 							]
 						},
 						{
@@ -10214,6 +10165,7 @@
 								497,
 								499,
 								500,
+								543,
 								550,
 								498,
 								551,
@@ -10323,7 +10275,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 713,
+									"line": 711,
 									"character": 10
 								}
 							],
@@ -10349,7 +10301,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 711,
+									"line": 709,
 									"character": 13
 								}
 							],
@@ -10375,7 +10327,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 712,
+									"line": 710,
 									"character": 5
 								}
 							],
@@ -10425,7 +10377,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 689,
+									"line": 679,
 									"character": 10
 								}
 							],
@@ -10475,7 +10427,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 714,
+									"line": 712,
 									"character": 11
 								}
 							],
@@ -10525,7 +10477,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 715,
+									"line": 713,
 									"character": 9
 								}
 							],
@@ -10635,7 +10587,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 716,
+									"line": 714,
 									"character": 9
 								}
 							],
@@ -10682,7 +10634,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 717,
+									"line": 715,
 									"character": 9
 								}
 							],
@@ -10708,7 +10660,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 718,
+									"line": 716,
 									"character": 5
 								}
 							],
@@ -10734,7 +10686,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 719,
+									"line": 717,
 									"character": 9
 								}
 							],
@@ -10760,7 +10712,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 690,
+									"line": 680,
 									"character": 6
 								}
 							],
@@ -10876,7 +10828,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 720,
+									"line": 718,
 									"character": 9
 								}
 							],
@@ -10902,7 +10854,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 691,
+									"line": 681,
 									"character": 4
 								}
 							],
@@ -10949,7 +10901,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 721,
+									"line": 719,
 									"character": 9
 								}
 							],
@@ -10975,7 +10927,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 722,
+									"line": 720,
 									"character": 8
 								}
 							],
@@ -12617,42 +12569,6 @@
 							}
 						},
 						{
-							"id": 664,
-							"name": "on",
-							"kind": 8388608,
-							"kindString": "Event",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "Information about the status of the tunnel setup process that is suitable\nfor presentation to end-users.",
-								"tags": [
-									{
-										"tag": "type",
-										"text": "{string}\n"
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 74,
-									"character": 3
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "Events",
-								"id": 172
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "Tunnel.on",
-								"id": 28
-							}
-						},
-						{
 							"id": 680,
 							"name": "_handle",
 							"kind": 1024,
@@ -12665,7 +12581,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 167,
+									"line": 137,
 									"character": 18
 								}
 							],
@@ -12701,7 +12617,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 168,
+									"line": 138,
 									"character": 19
 								}
 							],
@@ -12737,7 +12653,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 165,
+									"line": 135,
 									"character": 21
 								}
 							],
@@ -12779,7 +12695,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 169,
+									"line": 139,
 									"character": 17
 								}
 							],
@@ -12824,7 +12740,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 166,
+									"line": 136,
 									"character": 20
 								}
 							],
@@ -12868,7 +12784,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 86,
+									"line": 56,
 									"character": 10
 								}
 							],
@@ -12902,7 +12818,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 98,
+									"line": 68,
 									"character": 13
 								}
 							],
@@ -12936,7 +12852,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 104,
+									"line": 74,
 									"character": 5
 								}
 							],
@@ -13045,7 +12961,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 80,
+									"line": 50,
 									"character": 15
 								}
 							],
@@ -13074,7 +12990,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 124,
+									"line": 94,
 									"character": 9
 								}
 							],
@@ -13094,6 +13010,36 @@
 							}
 						},
 						{
+							"id": 664,
+							"name": "on",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "Register an event listener"
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 44,
+									"character": 3
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "RegisterListener",
+								"id": 172
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "Tunnel.on",
+								"id": 28
+							}
+						},
+						{
 							"id": 671,
 							"name": "pathname",
 							"kind": 1024,
@@ -13108,7 +13054,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 130,
+									"line": 100,
 									"character": 9
 								}
 							],
@@ -13142,7 +13088,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 136,
+									"line": 106,
 									"character": 9
 								}
 							],
@@ -13176,7 +13122,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 142,
+									"line": 112,
 									"character": 5
 								}
 							],
@@ -13210,7 +13156,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 148,
+									"line": 118,
 									"character": 9
 								}
 							],
@@ -13244,7 +13190,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 154,
+									"line": 124,
 									"character": 6
 								}
 							],
@@ -13345,7 +13291,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 157,
+									"line": 127,
 									"character": 9
 								}
 							],
@@ -13379,7 +13325,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 92,
+									"line": 62,
 									"character": 9
 								}
 							],
@@ -13413,7 +13359,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 163,
+									"line": 133,
 									"character": 8
 								}
 							],
@@ -13563,7 +13509,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 179,
+									"line": 149,
 									"character": 14
 								}
 							],
@@ -13705,7 +13651,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 187,
+									"line": 157,
 									"character": 22
 								}
 							],
@@ -13795,7 +13741,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 201,
+									"line": 171,
 									"character": 14
 								}
 							],
@@ -13843,7 +13789,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 208,
+									"line": 178,
 									"character": 15
 								}
 							],
@@ -13891,7 +13837,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 215,
+									"line": 185,
 									"character": 15
 								}
 							],
@@ -14030,7 +13976,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 239,
+									"line": 209,
 									"character": 24
 								}
 							],
@@ -14200,7 +14146,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 334,
+									"line": 304,
 									"character": 21
 								}
 							],
@@ -14275,7 +14221,7 @@
 													"sources": [
 														{
 															"fileName": "Tunnel.ts",
-															"line": 422,
+															"line": 392,
 															"character": 14
 														}
 													],
@@ -14307,7 +14253,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 421,
+									"line": 391,
 									"character": 23
 								}
 							],
@@ -14373,7 +14319,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 655,
+									"line": 625,
 									"character": 32
 								}
 							],
@@ -14570,7 +14516,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 578,
+									"line": 548,
 									"character": 16
 								}
 							],
@@ -14691,7 +14637,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 611,
+									"line": 581,
 									"character": 16
 								}
 							],
@@ -14791,7 +14737,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 443,
+									"line": 413,
 									"character": 6
 								}
 							],
@@ -14843,7 +14789,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 530,
+									"line": 500,
 									"character": 5
 								}
 							],
@@ -14863,13 +14809,6 @@
 							]
 						},
 						{
-							"title": "Events",
-							"kind": 8388608,
-							"children": [
-								664
-							]
-						},
-						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
@@ -14885,6 +14824,7 @@
 								631,
 								665,
 								670,
+								664,
 								671,
 								672,
 								673,
@@ -15601,7 +15541,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 689,
+									"line": 679,
 									"character": 10
 								}
 							],
@@ -15658,7 +15598,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 690,
+									"line": 680,
 									"character": 6
 								}
 							],
@@ -15684,7 +15624,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 691,
+									"line": 681,
 									"character": 4
 								}
 							],
@@ -15748,7 +15688,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 713,
+									"line": 711,
 									"character": 10
 								}
 							],
@@ -15774,7 +15714,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 711,
+									"line": 709,
 									"character": 13
 								}
 							],
@@ -15800,7 +15740,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 712,
+									"line": 710,
 									"character": 5
 								}
 							],
@@ -15847,7 +15787,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 689,
+									"line": 679,
 									"character": 10
 								}
 							],
@@ -15898,7 +15838,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 714,
+									"line": 712,
 									"character": 11
 								}
 							],
@@ -15924,7 +15864,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 715,
+									"line": 713,
 									"character": 9
 								}
 							],
@@ -15950,7 +15890,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 716,
+									"line": 714,
 									"character": 9
 								}
 							],
@@ -15976,7 +15916,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 717,
+									"line": 715,
 									"character": 9
 								}
 							],
@@ -16002,7 +15942,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 718,
+									"line": 716,
 									"character": 5
 								}
 							],
@@ -16028,7 +15968,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 719,
+									"line": 717,
 									"character": 9
 								}
 							],
@@ -16054,7 +15994,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 690,
+									"line": 680,
 									"character": 6
 								}
 							],
@@ -16125,7 +16065,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 720,
+									"line": 718,
 									"character": 9
 								}
 							],
@@ -16151,7 +16091,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 691,
+									"line": 681,
 									"character": 4
 								}
 							],
@@ -16177,7 +16117,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 721,
+									"line": 719,
 									"character": 9
 								}
 							],
@@ -16203,7 +16143,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 722,
+									"line": 720,
 									"character": 8
 								}
 							],
@@ -16945,42 +16885,6 @@
 							}
 						},
 						{
-							"id": 872,
-							"name": "on",
-							"kind": 8388608,
-							"kindString": "Event",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "Information about the status of the tunnel setup process that is suitable\nfor presentation to end-users.",
-								"tags": [
-									{
-										"tag": "type",
-										"text": "{string}\n"
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 74,
-									"character": 3
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "Events",
-								"id": 172
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "Tunnel.on",
-								"id": 28
-							}
-						},
-						{
 							"id": 890,
 							"name": "_handle",
 							"kind": 1024,
@@ -16993,7 +16897,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 167,
+									"line": 137,
 									"character": 18
 								}
 							],
@@ -17029,7 +16933,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 168,
+									"line": 138,
 									"character": 19
 								}
 							],
@@ -17065,7 +16969,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 165,
+									"line": 135,
 									"character": 21
 								}
 							],
@@ -17107,7 +17011,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 169,
+									"line": 139,
 									"character": 17
 								}
 							],
@@ -17152,7 +17056,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 166,
+									"line": 136,
 									"character": 20
 								}
 							],
@@ -17196,7 +17100,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 86,
+									"line": 56,
 									"character": 10
 								}
 							],
@@ -17230,7 +17134,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 98,
+									"line": 68,
 									"character": 13
 								}
 							],
@@ -17264,7 +17168,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 111,
+									"line": 81,
 									"character": 10
 								}
 							],
@@ -17298,7 +17202,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 80,
+									"line": 50,
 									"character": 15
 								}
 							],
@@ -17327,7 +17231,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 117,
+									"line": 87,
 									"character": 11
 								}
 							],
@@ -17388,7 +17292,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 124,
+									"line": 94,
 									"character": 9
 								}
 							],
@@ -17432,6 +17336,36 @@
 							}
 						},
 						{
+							"id": 872,
+							"name": "on",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "Register an event listener"
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 44,
+									"character": 3
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "RegisterListener",
+								"id": 172
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "Tunnel.on",
+								"id": 28
+							}
+						},
+						{
 							"id": 880,
 							"name": "pathname",
 							"kind": 1024,
@@ -17446,7 +17380,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 130,
+									"line": 100,
 									"character": 9
 								}
 							],
@@ -17480,7 +17414,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 136,
+									"line": 106,
 									"character": 9
 								}
 							],
@@ -17514,7 +17448,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 142,
+									"line": 112,
 									"character": 5
 								}
 							],
@@ -17548,7 +17482,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 148,
+									"line": 118,
 									"character": 9
 								}
 							],
@@ -17582,7 +17516,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 154,
+									"line": 124,
 									"character": 6
 								}
 							],
@@ -17616,7 +17550,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 157,
+									"line": 127,
 									"character": 9
 								}
 							],
@@ -17650,7 +17584,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 160,
+									"line": 130,
 									"character": 4
 								}
 							],
@@ -17780,7 +17714,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 92,
+									"line": 62,
 									"character": 9
 								}
 							],
@@ -17814,7 +17748,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 163,
+									"line": 133,
 									"character": 8
 								}
 							],
@@ -17944,7 +17878,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 179,
+									"line": 149,
 									"character": 14
 								}
 							],
@@ -17992,7 +17926,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 187,
+									"line": 157,
 									"character": 22
 								}
 							],
@@ -18082,7 +18016,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 201,
+									"line": 171,
 									"character": 14
 								}
 							],
@@ -18130,7 +18064,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 208,
+									"line": 178,
 									"character": 15
 								}
 							],
@@ -18178,7 +18112,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 215,
+									"line": 185,
 									"character": 15
 								}
 							],
@@ -18270,7 +18204,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 239,
+									"line": 209,
 									"character": 24
 								}
 							],
@@ -18418,7 +18352,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 334,
+									"line": 304,
 									"character": 21
 								}
 							],
@@ -18493,7 +18427,7 @@
 													"sources": [
 														{
 															"fileName": "Tunnel.ts",
-															"line": 422,
+															"line": 392,
 															"character": 14
 														}
 													],
@@ -18525,7 +18459,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 421,
+									"line": 391,
 									"character": 23
 								}
 							],
@@ -18674,7 +18608,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 299,
+									"line": 269,
 									"character": 28
 								}
 							],
@@ -18793,7 +18727,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 578,
+									"line": 548,
 									"character": 16
 								}
 							],
@@ -18865,7 +18799,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 232,
+									"line": 202,
 									"character": 9
 								}
 							],
@@ -18922,7 +18856,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 611,
+									"line": 581,
 									"character": 16
 								}
 							],
@@ -19051,7 +18985,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 443,
+									"line": 413,
 									"character": 6
 								}
 							],
@@ -19103,7 +19037,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 530,
+									"line": 500,
 									"character": 5
 								}
 							],
@@ -19123,13 +19057,6 @@
 							]
 						},
 						{
-							"title": "Events",
-							"kind": 8388608,
-							"children": [
-								872
-							]
-						},
-						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
@@ -19146,6 +19073,7 @@
 								846,
 								879,
 								847,
+								872,
 								880,
 								881,
 								882,
@@ -19248,7 +19176,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 713,
+									"line": 711,
 									"character": 10
 								}
 							],
@@ -19274,7 +19202,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 711,
+									"line": 709,
 									"character": 13
 								}
 							],
@@ -19300,7 +19228,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 712,
+									"line": 710,
 									"character": 5
 								}
 							],
@@ -19326,7 +19254,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 689,
+									"line": 679,
 									"character": 10
 								}
 							],
@@ -19352,7 +19280,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 714,
+									"line": 712,
 									"character": 11
 								}
 							],
@@ -19402,7 +19330,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 715,
+									"line": 713,
 									"character": 9
 								}
 							],
@@ -19449,7 +19377,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 716,
+									"line": 714,
 									"character": 9
 								}
 							],
@@ -19475,7 +19403,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 717,
+									"line": 715,
 									"character": 9
 								}
 							],
@@ -19501,7 +19429,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 718,
+									"line": 716,
 									"character": 5
 								}
 							],
@@ -19527,7 +19455,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 719,
+									"line": 717,
 									"character": 9
 								}
 							],
@@ -19553,7 +19481,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 690,
+									"line": 680,
 									"character": 6
 								}
 							],
@@ -19579,7 +19507,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 720,
+									"line": 718,
 									"character": 9
 								}
 							],
@@ -19605,7 +19533,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 691,
+									"line": 681,
 									"character": 4
 								}
 							],
@@ -19715,7 +19643,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 721,
+									"line": 719,
 									"character": 9
 								}
 							],
@@ -19741,7 +19669,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 722,
+									"line": 720,
 									"character": 8
 								}
 							],
@@ -19943,41 +19871,6 @@
 							}
 						},
 						{
-							"id": 28,
-							"name": "on",
-							"kind": 8388608,
-							"kindString": "Event",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "Information about the status of the tunnel setup process that is suitable\nfor presentation to end-users.",
-								"tags": [
-									{
-										"tag": "type",
-										"text": "{string}\n"
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 74,
-									"character": 3
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "Events",
-								"id": 172
-							},
-							"overwrites": {
-								"type": "reference",
-								"name": "Evented.on"
-							}
-						},
-						{
 							"id": 47,
 							"name": "_handle",
 							"kind": 1024,
@@ -19990,7 +19883,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 167,
+									"line": 137,
 									"character": 18
 								}
 							],
@@ -20021,7 +19914,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 168,
+									"line": 138,
 									"character": 19
 								}
 							],
@@ -20052,7 +19945,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 165,
+									"line": 135,
 									"character": 21
 								}
 							],
@@ -20089,7 +19982,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 169,
+									"line": 139,
 									"character": 17
 								}
 							],
@@ -20129,7 +20022,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 166,
+									"line": 136,
 									"character": 20
 								}
 							],
@@ -20168,7 +20061,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 86,
+									"line": 56,
 									"character": 10
 								}
 							],
@@ -20197,7 +20090,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 98,
+									"line": 68,
 									"character": 13
 								}
 							],
@@ -20226,7 +20119,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 104,
+									"line": 74,
 									"character": 5
 								}
 							],
@@ -20255,7 +20148,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 111,
+									"line": 81,
 									"character": 10
 								}
 							],
@@ -20284,7 +20177,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 80,
+									"line": 50,
 									"character": 15
 								}
 							],
@@ -20308,7 +20201,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 117,
+									"line": 87,
 									"character": 11
 								}
 							],
@@ -20337,7 +20230,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 124,
+									"line": 94,
 									"character": 9
 								}
 							],
@@ -20397,6 +20290,35 @@
 							}
 						},
 						{
+							"id": 28,
+							"name": "on",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "Register an event listener"
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 44,
+									"character": 3
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "RegisterListener",
+								"id": 172
+							},
+							"overwrites": {
+								"type": "reference",
+								"name": "Evented.on"
+							}
+						},
+						{
 							"id": 37,
 							"name": "pathname",
 							"kind": 1024,
@@ -20411,7 +20333,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 130,
+									"line": 100,
 									"character": 9
 								}
 							],
@@ -20440,7 +20362,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 136,
+									"line": 106,
 									"character": 9
 								}
 							],
@@ -20469,7 +20391,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 142,
+									"line": 112,
 									"character": 5
 								}
 							],
@@ -20498,7 +20420,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 148,
+									"line": 118,
 									"character": 9
 								}
 							],
@@ -20527,7 +20449,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 154,
+									"line": 124,
 									"character": 6
 								}
 							],
@@ -20556,7 +20478,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 157,
+									"line": 127,
 									"character": 9
 								}
 							],
@@ -20585,7 +20507,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 160,
+									"line": 130,
 									"character": 4
 								}
 							],
@@ -20614,7 +20536,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 92,
+									"line": 62,
 									"character": 9
 								}
 							],
@@ -20643,7 +20565,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 163,
+									"line": 133,
 									"character": 8
 								}
 							],
@@ -20716,7 +20638,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 179,
+									"line": 149,
 									"character": 14
 								}
 							]
@@ -20754,7 +20676,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 187,
+									"line": 157,
 									"character": 22
 								}
 							]
@@ -20792,7 +20714,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 194,
+									"line": 164,
 									"character": 17
 								}
 							]
@@ -20830,7 +20752,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 201,
+									"line": 171,
 									"character": 14
 								}
 							]
@@ -20868,7 +20790,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 208,
+									"line": 178,
 									"character": 15
 								}
 							]
@@ -20906,7 +20828,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 215,
+									"line": 185,
 									"character": 15
 								}
 							]
@@ -20988,7 +20910,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 239,
+									"line": 209,
 									"character": 24
 								}
 							]
@@ -21048,7 +20970,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 320,
+									"line": 290,
 									"character": 20
 								}
 							]
@@ -21125,7 +21047,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 334,
+									"line": 304,
 									"character": 21
 								}
 							]
@@ -21195,7 +21117,7 @@
 													"sources": [
 														{
 															"fileName": "Tunnel.ts",
-															"line": 422,
+															"line": 392,
 															"character": 14
 														}
 													],
@@ -21222,7 +21144,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 421,
+									"line": 391,
 									"character": 23
 								}
 							]
@@ -21278,7 +21200,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 655,
+									"line": 625,
 									"character": 32
 								}
 							]
@@ -21350,7 +21272,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 299,
+									"line": 269,
 									"character": 28
 								}
 							]
@@ -21410,7 +21332,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 508,
+									"line": 478,
 									"character": 17
 								}
 							]
@@ -21454,7 +21376,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 578,
+									"line": 548,
 									"character": 16
 								}
 							]
@@ -21566,7 +21488,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 232,
+									"line": 202,
 									"character": 9
 								}
 							]
@@ -21693,7 +21615,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 611,
+									"line": 581,
 									"character": 16
 								}
 							]
@@ -21826,7 +21748,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 432,
+									"line": 402,
 									"character": 13
 								}
 							]
@@ -21868,7 +21790,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 443,
+									"line": 413,
 									"character": 6
 								}
 							]
@@ -21910,7 +21832,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 530,
+									"line": 500,
 									"character": 5
 								}
 							]
@@ -21922,13 +21844,6 @@
 							"kind": 512,
 							"children": [
 								25
-							]
-						},
-						{
-							"title": "Events",
-							"kind": 8388608,
-							"children": [
-								28
 							]
 						},
 						{
@@ -21948,6 +21863,7 @@
 								35,
 								36,
 								105,
+								28,
 								37,
 								38,
 								39,
@@ -22065,6 +21981,9 @@
 						"isExported": true,
 						"__visited__": true
 					},
+					"comment": {
+						"shortText": "A handle to a child process, along with resolve and reject callbacks that can\nbe used to settle an associated Promise."
+					},
 					"signatures": [
 						{
 							"id": 130,
@@ -22073,6 +21992,9 @@
 							"kindString": "Call signature",
 							"flags": {
 								"__visited__": true
+							},
+							"comment": {
+								"shortText": "A handle to a child process, along with resolve and reject callbacks that can\nbe used to settle an associated Promise."
 							},
 							"parameters": [
 								{
@@ -22124,7 +22046,7 @@
 											"sources": [
 												{
 													"fileName": "Tunnel.ts",
-													"line": 683,
+													"line": 672,
 													"character": 10
 												}
 											]
@@ -22183,7 +22105,7 @@
 											"sources": [
 												{
 													"fileName": "Tunnel.ts",
-													"line": 684,
+													"line": 673,
 													"character": 9
 												}
 											]
@@ -22209,7 +22131,7 @@
 					"sources": [
 						{
 							"fileName": "Tunnel.ts",
-							"line": 680,
+							"line": 669,
 							"character": 30
 						}
 					]
@@ -22222,6 +22144,9 @@
 					"flags": {
 						"isExported": true,
 						"__visited__": true
+					},
+					"comment": {
+						"shortText": "Options for file downloads"
 					},
 					"children": [
 						{
@@ -22236,7 +22161,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 689,
+									"line": 679,
 									"character": 10
 								}
 							],
@@ -22257,7 +22182,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 690,
+									"line": 680,
 									"character": 6
 								}
 							],
@@ -22278,7 +22203,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 691,
+									"line": 681,
 									"character": 4
 								}
 							],
@@ -22302,7 +22227,7 @@
 					"sources": [
 						{
 							"fileName": "Tunnel.ts",
-							"line": 688,
+							"line": 678,
 							"character": 32
 						}
 					],
@@ -22328,6 +22253,9 @@
 						"isExported": true,
 						"__visited__": true
 					},
+					"comment": {
+						"shortText": "An event indicating that part of a tunnel binary has been downloaded from the\nserver."
+					},
 					"children": [
 						{
 							"id": 127,
@@ -22338,10 +22266,13 @@
 								"isExported": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The number of bytes received so far"
+							},
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 677,
+									"line": 662,
 									"character": 18
 								}
 							],
@@ -22388,10 +22319,13 @@
 								"isExported": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The total number of bytes being downloaded"
+							},
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 676,
+									"line": 660,
 									"character": 15
 								}
 							],
@@ -22409,10 +22343,13 @@
 								"isExported": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The event type"
+							},
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 674,
+									"line": 656,
 									"character": 14
 								}
 							],
@@ -22434,10 +22371,13 @@
 								"isExported": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "The URL being downloaded from"
+							},
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 675,
+									"line": 658,
 									"character": 13
 								}
 							],
@@ -22463,7 +22403,7 @@
 					"sources": [
 						{
 							"fileName": "Tunnel.ts",
-							"line": 673,
+							"line": 654,
 							"character": 38
 						}
 					],
@@ -22482,13 +22422,471 @@
 					]
 				},
 				{
-					"id": 172,
-					"name": "Events",
+					"id": 115,
+					"name": "IOEvent",
 					"kind": 256,
 					"kindString": "Interface",
 					"flags": {
 						"isExported": true,
 						"__visited__": true
+					},
+					"comment": {
+						"shortText": "A chunk of raw string data output by the tunnel software to stdout or stderr."
+					},
+					"children": [
+						{
+							"id": 117,
+							"name": "data",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 638,
+									"character": 14
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 118,
+							"name": "target",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "The target of the event"
+							},
+							"sources": [
+								{
+									"fileName": "node_modules/@dojo/interfaces/core.d.ts",
+									"line": 67,
+									"character": 16
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "Tunnel",
+								"id": 24
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "EventTargettedObject.target"
+							}
+						},
+						{
+							"id": 116,
+							"name": "type",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 637,
+									"character": 14
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "stringLiteral",
+										"value": "stdout"
+									},
+									{
+										"type": "stringLiteral",
+										"value": "stderr"
+									}
+								]
+							},
+							"overwrites": {
+								"type": "reference",
+								"name": "EventTargettedObject.type"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								117,
+								118,
+								116
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "Tunnel.ts",
+							"line": 636,
+							"character": 24
+						}
+					],
+					"extendedTypes": [
+						{
+							"type": "reference",
+							"name": "EventTargettedObject",
+							"typeArguments": [
+								{
+									"type": "reference",
+									"name": "Tunnel",
+									"id": 24
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 143,
+					"name": "NormalizedEnvironment",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {
+						"isExported": true,
+						"__visited__": true
+					},
+					"comment": {
+						"shortText": "A normalized environment descriptor.",
+						"text": "A NormalizedEnvironment contains a mix of W3C WebDriver and JSONWireProtocol\ncapabilities, as well as a set of standardized capabilities that can be used\nto specify the given environment in an Intern `environments` descriptor.\n"
+					},
+					"children": [
+						{
+							"id": 144,
+							"name": "browserName",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 692,
+									"character": 12
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 145,
+							"name": "browserVersion",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 693,
+									"character": 15
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						},
+						{
+							"id": 146,
+							"name": "descriptor",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 694,
+									"character": 11
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "Object"
+							}
+						},
+						{
+							"id": 151,
+							"name": "intern",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 700,
+									"character": 7
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 152,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {
+										"__visited__": true
+									},
+									"children": [
+										{
+											"id": 154,
+											"name": "browserName",
+											"kind": 32,
+											"kindString": "Variable",
+											"flags": {
+												"__visited__": true
+											},
+											"sources": [
+												{
+													"fileName": "Tunnel.ts",
+													"line": 702,
+													"character": 13
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 153,
+											"name": "platform",
+											"kind": 32,
+											"kindString": "Variable",
+											"flags": {
+												"__visited__": true
+											},
+											"sources": [
+												{
+													"fileName": "Tunnel.ts",
+													"line": 701,
+													"character": 10
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 155,
+											"name": "version",
+											"kind": 32,
+											"kindString": "Variable",
+											"flags": {
+												"__visited__": true
+											},
+											"sources": [
+												{
+													"fileName": "Tunnel.ts",
+													"line": 703,
+													"character": 9
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Variables",
+											"kind": 32,
+											"children": [
+												154,
+												153,
+												155
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "Tunnel.ts",
+											"line": 700,
+											"character": 8
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 147,
+							"name": "platform",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 695,
+									"character": 9
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 148,
+							"name": "platformName",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 696,
+									"character": 13
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						},
+						{
+							"id": 149,
+							"name": "platformVersion",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 697,
+									"character": 16
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						},
+						{
+							"id": 150,
+							"name": "version",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "Tunnel.ts",
+									"line": 698,
+									"character": 8
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								144,
+								145,
+								146,
+								151,
+								147,
+								148,
+								149,
+								150
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "Tunnel.ts",
+							"line": 691,
+							"character": 38
+						}
+					]
+				},
+				{
+					"id": 172,
+					"name": "RegisterListener",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {
+						"isExported": true,
+						"__visited__": true
+					},
+					"comment": {
+						"shortText": "Event registration call signatures"
 					},
 					"signatures": [
 						{
@@ -22498,6 +22896,9 @@
 							"kindString": "Call signature",
 							"flags": {
 								"__visited__": true
+							},
+							"comment": {
+								"shortText": "Event registration call signatures"
 							},
 							"parameters": [
 								{
@@ -22595,6 +22996,9 @@
 							"flags": {
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "Event registration call signatures"
+							},
 							"parameters": [
 								{
 									"id": 180,
@@ -22682,6 +23086,9 @@
 							"flags": {
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "Event registration call signatures"
+							},
 							"parameters": [
 								{
 									"id": 186,
@@ -22768,6 +23175,9 @@
 							"kindString": "Call signature",
 							"flags": {
 								"__visited__": true
+							},
+							"comment": {
+								"shortText": "Event registration call signatures"
 							},
 							"parameters": [
 								{
@@ -22895,7 +23305,9 @@
 							"flags": {
 								"__visited__": true
 							},
-							"comment": {},
+							"comment": {
+								"shortText": "Event registration call signatures"
+							},
 							"parameters": [
 								{
 									"id": 200,
@@ -22968,7 +23380,9 @@
 							"flags": {
 								"__visited__": true
 							},
-							"comment": {},
+							"comment": {
+								"shortText": "Event registration call signatures"
+							},
 							"parameters": [
 								{
 									"id": 203,
@@ -23029,461 +23443,13 @@
 						{
 							"fileName": "Tunnel.ts",
 							"line": 727,
-							"character": 23
+							"character": 33
 						}
 					],
 					"extendedTypes": [
 						{
 							"type": "reference",
 							"name": "BaseEventedEvents"
-						}
-					]
-				},
-				{
-					"id": 115,
-					"name": "IOEvent",
-					"kind": 256,
-					"kindString": "Interface",
-					"flags": {
-						"isExported": true,
-						"__visited__": true
-					},
-					"children": [
-						{
-							"id": 117,
-							"name": "data",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 665,
-									"character": 14
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							}
-						},
-						{
-							"id": 118,
-							"name": "target",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "The target of the event"
-							},
-							"sources": [
-								{
-									"fileName": "node_modules/@dojo/interfaces/core.d.ts",
-									"line": 67,
-									"character": 16
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "Tunnel",
-								"id": 24
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "EventTargettedObject.target"
-							}
-						},
-						{
-							"id": 116,
-							"name": "type",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 664,
-									"character": 14
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "stringLiteral",
-										"value": "stdout"
-									},
-									{
-										"type": "stringLiteral",
-										"value": "stderr"
-									}
-								]
-							},
-							"overwrites": {
-								"type": "reference",
-								"name": "EventTargettedObject.type"
-							}
-						}
-					],
-					"groups": [
-						{
-							"title": "Properties",
-							"kind": 1024,
-							"children": [
-								117,
-								118,
-								116
-							]
-						}
-					],
-					"sources": [
-						{
-							"fileName": "Tunnel.ts",
-							"line": 663,
-							"character": 24
-						}
-					],
-					"extendedTypes": [
-						{
-							"type": "reference",
-							"name": "EventTargettedObject",
-							"typeArguments": [
-								{
-									"type": "reference",
-									"name": "Tunnel",
-									"id": 24
-								}
-							]
-						}
-					]
-				},
-				{
-					"id": 143,
-					"name": "NormalizedEnvironment",
-					"kind": 256,
-					"kindString": "Interface",
-					"flags": {
-						"isExported": true,
-						"__visited__": true
-					},
-					"children": [
-						{
-							"id": 144,
-							"name": "browserName",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 695,
-									"character": 12
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							}
-						},
-						{
-							"id": 145,
-							"name": "browserVersion",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isOptional": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 696,
-									"character": 15
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "string"
-									}
-								]
-							}
-						},
-						{
-							"id": 146,
-							"name": "descriptor",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 697,
-									"character": 11
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "Object"
-							}
-						},
-						{
-							"id": 151,
-							"name": "intern",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 703,
-									"character": 7
-								}
-							],
-							"type": {
-								"type": "reflection",
-								"declaration": {
-									"id": 152,
-									"name": "__type",
-									"kind": 65536,
-									"kindString": "Type literal",
-									"flags": {
-										"__visited__": true
-									},
-									"children": [
-										{
-											"id": 154,
-											"name": "browserName",
-											"kind": 32,
-											"kindString": "Variable",
-											"flags": {
-												"__visited__": true
-											},
-											"sources": [
-												{
-													"fileName": "Tunnel.ts",
-													"line": 705,
-													"character": 13
-												}
-											],
-											"type": {
-												"type": "intrinsic",
-												"name": "string"
-											}
-										},
-										{
-											"id": 153,
-											"name": "platform",
-											"kind": 32,
-											"kindString": "Variable",
-											"flags": {
-												"__visited__": true
-											},
-											"sources": [
-												{
-													"fileName": "Tunnel.ts",
-													"line": 704,
-													"character": 10
-												}
-											],
-											"type": {
-												"type": "intrinsic",
-												"name": "string"
-											}
-										},
-										{
-											"id": 155,
-											"name": "version",
-											"kind": 32,
-											"kindString": "Variable",
-											"flags": {
-												"__visited__": true
-											},
-											"sources": [
-												{
-													"fileName": "Tunnel.ts",
-													"line": 706,
-													"character": 9
-												}
-											],
-											"type": {
-												"type": "intrinsic",
-												"name": "string"
-											}
-										}
-									],
-									"groups": [
-										{
-											"title": "Variables",
-											"kind": 32,
-											"children": [
-												154,
-												153,
-												155
-											]
-										}
-									],
-									"sources": [
-										{
-											"fileName": "Tunnel.ts",
-											"line": 703,
-											"character": 8
-										}
-									]
-								}
-							}
-						},
-						{
-							"id": 147,
-							"name": "platform",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 698,
-									"character": 9
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							}
-						},
-						{
-							"id": 148,
-							"name": "platformName",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isOptional": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 699,
-									"character": 13
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "string"
-									}
-								]
-							}
-						},
-						{
-							"id": 149,
-							"name": "platformVersion",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isOptional": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 700,
-									"character": 16
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "string"
-									}
-								]
-							}
-						},
-						{
-							"id": 150,
-							"name": "version",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "Tunnel.ts",
-									"line": 701,
-									"character": 8
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							}
-						}
-					],
-					"groups": [
-						{
-							"title": "Properties",
-							"kind": 1024,
-							"children": [
-								144,
-								145,
-								146,
-								151,
-								147,
-								148,
-								149,
-								150
-							]
-						}
-					],
-					"sources": [
-						{
-							"fileName": "Tunnel.ts",
-							"line": 694,
-							"character": 38
 						}
 					]
 				},
@@ -23495,6 +23461,9 @@
 					"flags": {
 						"isExported": true,
 						"__visited__": true
+					},
+					"comment": {
+						"shortText": "An event containing information about the status of the tunnel setup process\nthat is suitable for presentation to end-users."
 					},
 					"children": [
 						{
@@ -23509,7 +23478,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 670,
+									"line": 647,
 									"character": 16
 								}
 							],
@@ -23559,7 +23528,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 669,
+									"line": 646,
 									"character": 14
 								}
 							],
@@ -23587,7 +23556,7 @@
 					"sources": [
 						{
 							"fileName": "Tunnel.ts",
-							"line": 668,
+							"line": 645,
 							"character": 28
 						}
 					],
@@ -23614,6 +23583,9 @@
 						"isExported": true,
 						"__visited__": true
 					},
+					"comment": {
+						"shortText": "Properties of a tunnel"
+					},
 					"children": [
 						{
 							"id": 159,
@@ -23627,7 +23599,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 713,
+									"line": 711,
 									"character": 10
 								}
 							],
@@ -23648,7 +23620,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 711,
+									"line": 709,
 									"character": 13
 								}
 							],
@@ -23669,7 +23641,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 712,
+									"line": 710,
 									"character": 5
 								}
 							],
@@ -23690,7 +23662,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 689,
+									"line": 679,
 									"character": 10
 								}
 							],
@@ -23716,7 +23688,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 714,
+									"line": 712,
 									"character": 11
 								}
 							],
@@ -23737,7 +23709,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 715,
+									"line": 713,
 									"character": 9
 								}
 							],
@@ -23758,7 +23730,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 716,
+									"line": 714,
 									"character": 9
 								}
 							],
@@ -23779,7 +23751,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 717,
+									"line": 715,
 									"character": 9
 								}
 							],
@@ -23800,7 +23772,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 718,
+									"line": 716,
 									"character": 5
 								}
 							],
@@ -23821,7 +23793,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 719,
+									"line": 717,
 									"character": 9
 								}
 							],
@@ -23842,7 +23814,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 690,
+									"line": 680,
 									"character": 6
 								}
 							],
@@ -23868,7 +23840,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 720,
+									"line": 718,
 									"character": 9
 								}
 							],
@@ -23889,7 +23861,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 691,
+									"line": 681,
 									"character": 4
 								}
 							],
@@ -23915,7 +23887,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 721,
+									"line": 719,
 									"character": 9
 								}
 							],
@@ -23936,7 +23908,7 @@
 							"sources": [
 								{
 									"fileName": "Tunnel.ts",
-									"line": 722,
+									"line": 720,
 									"character": 8
 								}
 							],
@@ -23972,7 +23944,7 @@
 					"sources": [
 						{
 							"fileName": "Tunnel.ts",
-							"line": 710,
+							"line": 708,
 							"character": 33
 						}
 					],
@@ -24057,10 +24029,13 @@
 						"isExported": true,
 						"__visited__": true
 					},
+					"comment": {
+						"shortText": "Options used to configure a tunnel"
+					},
 					"sources": [
 						{
 							"fileName": "Tunnel.ts",
-							"line": 725,
+							"line": 724,
 							"character": 25
 						}
 					],
@@ -24161,9 +24136,9 @@
 						129,
 						139,
 						123,
-						172,
 						115,
 						143,
+						172,
 						119,
 						156
 					]
