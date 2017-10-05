@@ -203,7 +203,7 @@ Intern comes with built-in support for four cloud testing services via the [digd
 
 1. [Sign up](https://www.browserstack.com/users/sign_up) for [BrowserStack Automate](https://www.browserstack.com/automate)
 2. Get your Automate username and password from the [Automate account settings page](https://www.browserstack.com/accounts/automate)
-3. Set the [`tunnel`](./configuration.md#tunnel) config property to `'browserstack'`
+3. Set the [tunnel] config property to `'browserstack'`
 4. Set your username and access key in one of these ways:
    * Define `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` environment variables
    * Set `browserstackUsername` and `browserstackAccessKey` in your [Gruntfile’s](#grunt) intern task options
@@ -214,7 +214,7 @@ Intern comes with built-in support for four cloud testing services via the [digd
 
 1. [Sign up](https://www.crossbrowsertesting.com/freetrial) for a trial account
 2. Get your authkey from your account settings page
-3. Set the [`tunnel`](./configuration.md#tunnel) config property to `'cbt'`
+3. Set the [tunnel] config property to `'cbt'`
 4. Set your username and access key in one of these ways:
    * Define `CBT_USERNAME` and `CBT_APIKEY` environment variables
    * Set `cbtUsername` and `cbtApikey` in your [Gruntfile’s](#grunt) intern task options
@@ -225,7 +225,7 @@ Intern comes with built-in support for four cloud testing services via the [digd
 
 1. [Sign up](https://saucelabs.com/signup/trial) for a Sauce Labs account
 2. Get your master account access key from the sidebar of the [Account settings page](https://saucelabs.com/account), or create a separate sub-account on the [sub-accounts page](https://saucelabs.com/sub-accounts) and get a username and access key from there
-3. Set the [`tunnel`](./configuration.md#tunnel) config property to `'saucelabs'`
+3. Set the [tunnel] config property to `'saucelabs'`
 4. Set your username and access key in one of these ways:
    * Define `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` environment variables
    * Set `sauceUsername` and `sauceAccessKey` in your [Gruntfile’s](#grunt) intern task options
@@ -236,7 +236,7 @@ Intern comes with built-in support for four cloud testing services via the [digd
 
 1. [Sign up](https://testingbot.com/users/sign_up) for a TestingBot account
 2. Get your API key and secret from the [Account settings page](https://testingbot.com/members/user/edit)
-3. Set the [`tunnel`](./configuration.md#tunnel) config property to `'testingbot'`
+3. Set the [tunnel] config property to `'testingbot'`
 4. Set your API key and secret in one of these ways:
    * Define `TESTINGBOT_KEY` and `TESTINGBOT_SECRET` environment variables
    * Set `testingbotKey` and `testingbotSecret` in your Gruntfile’s intern task options

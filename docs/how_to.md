@@ -46,7 +46,7 @@
 
 There several ways to accomplish this:
 
-* If you just need to run some self-contained, synchronous setup code before testing starts, use a `require` script.
+* If you just need to run some self-contained, synchronous setup code before testing starts, use a `plugins` script.
   ```js
   // setup.js
   intern.config.suites.push('./some/other/suite.js')
@@ -54,10 +54,10 @@ There several ways to accomplish this:
   ```js
   // intern.json
   {
-      "require": "setup.js"
+      "plugins": "setup.js"
   }
   ```
-* If your setup code is still self-contained but needs to do something asynchronous, you can still load it as a `require` script, but use a `beforeRun` callback to handle the async code:
+* If your setup code is still self-contained but needs to do something asynchronous, you can still load it as a `plugins` script, but use a `beforeRun` callback to handle the async code:
   ```js
   // setup.js
   intern.on('beforeRun', function () {
@@ -66,7 +66,7 @@ There several ways to accomplish this:
       });
   });
   ```
-* If your startup code needs to load modules using your test loader (one configured with the [`loader`](./configuration.md#loder) option), register it as a plugin. These can run async initialization code in the [`registerPlugin`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/registerplugin) method, and also have access to any module loader configured for the tests.
+* If your startup code needs to load modules using your test loader (one configured with the [loader] option), register it as a plugin. These can run async initialization code in the [registerPlugin] method, and also have access to any module loader configured for the tests.
    ```js
    // setup.js
    const bar = require('./bar');
@@ -144,13 +144,16 @@ If you’d rather not install Intern, you can load the package from a CDN, like:
 
 ## Test ES modules
 
-To work with ES modules in Node, install babel-register and load it as a plugin:
+One way to work with ES modules in Node is to install babel-register and load it as a plugin. This will let Intern load ES modules transparently, without requiring a build step. Also set the `esModules` instrumenter option if code coverage is desired.
 
 ```js
 // intern.json
 {
     "node": {
-        "require": "node_modules/babel-register/lib/node.js"
+        "plugins": "node_modules/babel-register/lib/node.js"
+    },
+    "instrumenterOptions": {
+        "esModules": true
     }
 }
 ```
@@ -171,15 +174,7 @@ To work with ES modules in the browser, you’ll need to setup a loader. One opt
                 "transpiler": "plugin-babel"
             }
         }
-    }
-}
-```
-
-To get code coverage in the browser when using Intern in WebDriver mode, enable ESM support in the instrumenter with:
-
-```js
-// intern.json
-{
+    },
     "instrumenterOptions": {
         "esModules": true
     }
@@ -196,7 +191,7 @@ To get code coverage in the browser when using Intern in WebDriver mode, enable 
        "functionalSuites": "tests/functional/*.js"
    }
    ```
-2. Select the desired [tunnel](configuration.md#tunnel) in your `intern.json`
+2. Select the desired [tunnel] in your `intern.json`
    ```js
    // intern.json
    {
@@ -218,7 +213,16 @@ To get code coverage in the browser when using Intern in WebDriver mode, enable 
        }
    }
    ```
-4. Run Intern
+4. Select some [environments]. Be sure to use the cloud service’s naming conventions.
+   ```js
+   // intern.json
+   {
+       "environments": [
+           { "browserName": "chrome", "version": "latest", "platform": "MAC" }
+       ]
+   }
+   ```
+5. Run Intern
    ```
    $ node_modules/.bin/intern
    ```
@@ -231,7 +235,7 @@ Browser code that doesn’t support any module system and expects to be loaded a
 // intern.json
 {
     "browser": {
-        "require": [
+        "plugins": [
             "lib/jquery.js",
             "lib/plugin.jquery.js"
         ]
@@ -239,7 +243,7 @@ Browser code that doesn’t support any module system and expects to be loaded a
 }
 ```
 
-Modules specified in a `require` array are loaded sequentially in the order specified.
+Modules specified in the `plugins` array will be loaded sequentially in the order specified.
 
 ## Test non-CORS web APIs
 
@@ -320,3 +324,8 @@ server {
            }
        }]
    }
+
+[environments]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/environments
+[loader]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/loader
+[registerPlugin]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/registerplugin
+[tunnel]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunnel-1

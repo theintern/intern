@@ -406,7 +406,7 @@ registerSuite('Component performance',
 });
 ```
 
-The `async` function is used to identify asynchronous benchmark tests as the standard [`this.async`](#testing-asynchronous-code) method doesn’t work properly with benchmark tests.
+The `async` function is used to identify asynchronous benchmark tests as the standard [this.async](#testing-asynchronous-code) method doesn’t work properly with benchmark tests.
 
 ```js
 registerSuite('Performance', {
@@ -430,7 +430,7 @@ The benchmark interface also supports two additional lifecycle methods, `beforeE
 
 > ⚠️  Note that because of limitations in Benchmark.js, `beforeEachLoop` and `afterEachLoop` _must_ be synchronous, and cannot be wrapped in `async`.
 
-Benchmark tests may also provide options directly to [benchmark.js] by attaching them to the test function.
+Benchmark tests may also provide options directly to [Benchmark.js] by attaching them to the test function.
 
 ```js
 registerSuite('foo', {
@@ -440,7 +440,7 @@ registerSuite('foo', {
         }
 
         test.options = {
-            // benchmark.js options
+            // Benchmark.js options
         };
 
         return test;
@@ -452,7 +452,7 @@ registerSuite('foo', {
 
 ### Native
 
-The native interface is simply the [`addSuite`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/addsuite) method on Executor, which is what the various test interfaces use behind the scenes to register tests and suites. This method takes a factory function that will be called with a Suite. The factory function should add suites or tests to the given suite using the suite’s `add` method.
+The native interface is simply the [addSuite](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/addsuite) method on Executor, which is what the various test interfaces use behind the scenes to register tests and suites. This method takes a factory function that will be called with a Suite. The factory function should add suites or tests to the given suite using the suite’s `add` method.
 
 ```js
 intern.addSuite(parent => {
@@ -546,7 +546,7 @@ or using callbacks:
 
 The examples on this page have all involved synchronous code, but tests may also execute asynchronous code. When a test is async, Intern will wait for a notification that the test is finished before starting the next test. There are two ways to let Intern know a test is async:
 
-1. Call [`this.async`](https://theintern.io/docs.html#Intern/4/api/lib%2FTest/async) (or `test.async`) to get a Deferred object, and then resolve or reject that Deferred when the test is finished, or
+1. Call [this.async] (or `test.async`) to get a Deferred object, and then resolve or reject that Deferred when the test is finished, or
 2. Return a Promise
 
 Internally both cases are handled in the same way; Intern will wait for the Deferred object created by the call to `async`, or for a Promise returned by the test, to resolve before continuing. If the Deferred or Promise is rejected, the test fails, otherwise it passes.
@@ -578,7 +578,7 @@ If the Deferred or Promise takes too long to resolve, the test will timeout (whi
 
 * passing a new timeout value to `async`
 * by setting the test’s `timeout` property
-* by changing [`defaultTimeout`](./configuration.md#defaulttimeout) in the test config
+* by changing [defaultTimeout] in the test config
 
 All are values in milliseconds.
 
@@ -594,7 +594,7 @@ this.timeout = 5000;
 
 ### Skipping tests at runtime
 
-Tests have a [`skip`](https://theintern.io/docs.html#Intern/4/api/lib%2FTest/skip) method that can be used to skip the test if it should not be executed for some reason.
+Tests have a [skip](https://theintern.io/docs.html#Intern/4/api/lib%2FTest/skip) method that can be used to skip the test if it should not be executed for some reason.
 
 ```js
 registerSuite('skip demo', {
@@ -610,9 +610,9 @@ registerSuite('skip demo', {
 
 > 💡Calling `this.skip` immediately halts test execution, so there is no need to call `return` after `skip`.
 
-The Suite class also provides a [`skip`](https://theintern.io/docs.html#Intern/4/api/lib%2FSuite/skip) method. Calling `this.skip()` (or `suite.skip()`) from a suite lifecycle method, or calling `this.parent.skip()` from a test, will cause all remaining tests in a suite to be skipped.
+The Suite class also provides a [skip](https://theintern.io/docs.html#Intern/4/api/lib%2FSuite/skip) method. Calling `this.skip()` (or `suite.skip()`) from a suite lifecycle method, or calling `this.parent.skip()` from a test, will cause all remaining tests in a suite to be skipped.
 
-Intern also provides a [`grep`](./configuration.md#grep) configuration option that can be used to skip tests and suites by ID.
+Intern also provides a [grep] configuration option that can be used to skip tests and suites by ID.
 
 ```js
 // intern.json
@@ -669,9 +669,9 @@ This is not a hard-and-fast rule, though. In many cases the code being tested ma
 
 Benchmark tests are a type of unit test that measures the performance of code rather than checking it for proper behavior. A benchmark test assumes that the code it’s running will work without error; the test is whether it runs as fast as expected.
 
-Benchmarks work by running the test function many times in a loop, with Intern (through [Benchmark.js](https://benchmarkjs.com)) recording how long each test function takes to run on average. This information can be saved (“baselined”) and used during later test runs to see if performance has deviated from acceptable values.
+Benchmarks work by running the test function many times in a loop, with Intern (through [Benchmark.js]) recording how long each test function takes to run on average. This information can be saved (“baselined”) and used during later test runs to see if performance has deviated from acceptable values.
 
-Benchmark tests can only be added with the [benchmark interface](#benchmark). Also note that benchmark suites will only be run when the [`benchmark`](./configuration.md#benchmark) config property is `true`. When `benchmark` is not set or is false, calls to register benchmark suites will be ignored.
+Benchmark tests can only be added with the [benchmark interface](#benchmark). Also note that benchmark suites will only be run when the [benchmark] config property is `true`. When `benchmark` is not set or is false, calls to register benchmark suites will be ignored.
 
 The benchmark test lifecycle is very similar to the standard test lifecycle:
 
@@ -690,7 +690,7 @@ The benchmark test lifecycle is very similar to the standard test lifecycle:
 
 [Functional tests](./concepts.md#functional-tests) operate fundamentally differently than unit tests. While a unit test directly loads and executes application code, functional tests load a page in a browser and interact with it in the same way a user would: by examining the content of the page, clicking buttons, typing into text inputs, etc. This interaction is managed through a `remote` property that is available to functional tests.
 
-Functional tests are registered using the same interfaces as [unit tests](#unit-tests), and use the same [Suite](https://theintern.io/docs.html#Intern/4/api/lib%2FSuite/suite) and [Test](https://theintern.io/docs.html#Intern/4/api/lib%2FTest/test) objects, but are loaded using the [`functionalSuites`](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/functionalsuites) property. The key difference is that instead of executing application code directly, functional tests use a [Leadfoot Command object](https://theintern.io/docs.html#Leadfoot/2/api/Command/command-1), available as a `remote` property on the test, to automate interactions that you’d normally perform manually.
+Functional tests are registered using the same interfaces as [unit tests](#unit-tests), and use the same [Suite] and [Test] objects, but are loaded using the [functionalSuites] property. The key difference is that instead of executing application code directly, functional tests use a [Leadfoot Command object](https://theintern.io/docs.html#Leadfoot/2/api/Command/command-1), available as a `remote` property on the test, to automate interactions that you’d normally perform manually.
 
 Consider the following functional test:
 
@@ -891,5 +891,12 @@ When debugging functional tests, keep in mind that JavaScript code is running in
 4. Continue execution (F8). The tests will run to the debugger statement.
 5. Debug!
 
-[benchmark.js]: https://benchmarkjs.com
+[benchmark]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/benchmark
+[Benchmark.js]: https://benchmarkjs.com
+[defaultTimeout]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/defaulttimeout
 [environments]: ./configuration.md#environments
+[functionalSuites]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/functionalsuites
+[grep]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/grep
+[this.async]: https://theintern.io/docs.html#Intern/4/api/lib%2FTest/async
+[Suite]: https://theintern.io/docs.html#Intern/4/api/lib%2FSuite
+[Test]: https://theintern.io/docs.html#Intern/4/api/lib%2FTest

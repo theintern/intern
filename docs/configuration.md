@@ -10,8 +10,8 @@
     * [Query args](#query-args)
     * [Programmatically](#programmatically)
 * [Displaying config information](#displaying-config-information)
-    * [`showConfig`](#showconfig)
-    * [`showConfigs`](#showconfigs)
+    * [showConfig](#showconfig)
+    * [showConfigs](#showconfigs)
 * [Environment-specific config](#environment-specific-config)
 * [Properties](#properties)
     * [extends](#extends)
@@ -153,7 +153,7 @@ The `configure` method may be called any number of times before the testing proc
 
 Intern has two config properties that can be used to display configuration information: `showConfig` and `showConfigs`.
 
-### `showConfig`
+### showConfig
 
 Setting the `showConfig` property to `true` will cause Intern to dump the resolved configuration to the current environment’s console.
 
@@ -171,7 +171,7 @@ $ node_modules/.bin/intern showConfig
 }
 ```
 
-### `showConfigs`
+### showConfigs
 
 Setting the `showConfigs` property to `true` will cause Intern to show information about a given config file. Intern will print the value of the current config file’s `description` property, and then list all child configs contained in the config file. For example, with a config file containing the following data:
 

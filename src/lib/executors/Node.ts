@@ -1079,6 +1079,10 @@ export interface Config extends BaseConfig {
 	 */
 	functionalSuites: string[];
 
+	/**
+	 * An object containing options for the
+	 * [Istanbul instrumenter](https://github.com/istanbuljs/istanbuljs/blob/master/packages/istanbul-lib-instrument/api.md#instrumenter).
+	 */
 	instrumenterOptions: { [key: string]: any };
 
 	/**

@@ -1,6 +1,7 @@
 # Getting Started
 
 <!-- vim-markdown-toc GFM -->
+
 * [Project structure](#project-structure)
 * [Installing Intern](#installing-intern)
 * [Initial configuration](#initial-configuration)
@@ -16,7 +17,7 @@ Intern is very flexible, and doesn’t enforce any particular directory structur
 ```
 project_root/
   intern.json    - Intern config
-  dist/          - Built code
+  build/         - Built code
   node_modules/  - Node.js dependencies (including Intern)
   src/           - Front-end source code
     app/         - Application code
@@ -44,11 +45,12 @@ Intern can be [configured](./configuration.md) in several ways, but the most com
 ```js
 {
     "suites": "tests/unit/**/*.js",
-    "functionalSuites": "tests/functional/**/*.js"
+    "functionalSuites": "tests/functional/**/*.js",
+    "environments": ["node", "chrome"]
 }
 ```
 
-This simply tells Intern to run all js files under `tests/unit/` as unit tests, and all js files under `tests/functional/` as functional tests.
+This simply tells Intern to run all js files under `tests/unit/` as unit tests, and all js files under `tests/functional/` as functional tests. Unit tests will be run in Node and Chrome, and functional tests will be run using Chrome.
 
 ## Running intern
 
