@@ -16569,9 +16569,9 @@
 					],
 					"type": {
 						"type": "stringLiteral",
-						"value": "2.30"
+						"value": "2.33"
 					},
-					"defaultValue": "\"2.30\""
+					"defaultValue": "\"2.33\""
 				},
 				{
 					"id": 825,
@@ -16590,9 +16590,9 @@
 					],
 					"type": {
 						"type": "stringLiteral",
-						"value": "0.16.1"
+						"value": "0.18.0"
 					},
-					"defaultValue": "\"0.16.1\""
+					"defaultValue": "\"0.18.0\""
 				},
 				{
 					"id": 826,
@@ -16611,9 +16611,9 @@
 					],
 					"type": {
 						"type": "stringLiteral",
-						"value": "3.4.0"
+						"value": "3.5.1"
 					},
-					"defaultValue": "\"3.4.0\""
+					"defaultValue": "\"3.5.1\""
 				},
 				{
 					"id": 823,
@@ -16632,9 +16632,9 @@
 					],
 					"type": {
 						"type": "stringLiteral",
-						"value": "3.4.0"
+						"value": "3.5.2"
 					},
-					"defaultValue": "\"3.4.0\""
+					"defaultValue": "\"3.5.2\""
 				},
 				{
 					"id": 840,
