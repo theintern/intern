@@ -295,10 +295,14 @@ export default class Server {
 						data.status = 9;
 					}
 
-					const [name, message] = (<any>statusCodes)[data.status];
-					if (name && message) {
-						error.name = name;
-						error.message = message;
+					const statusCode =
+						statusCodes[<keyof typeof statusCodes>data.status];
+					if (statusCode) {
+						const [name, message] = statusCode;
+						if (name && message) {
+							error.name = name;
+							error.message = message;
+						}
 					}
 
 					if (data.value && data.value.message) {
