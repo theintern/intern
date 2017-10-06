@@ -54,7 +54,7 @@ Leadfoot is a JS Foundation project offered under the [New BSD](LICENSE) license
 
 <!-- doc-viewer-config
 {
-    "api": "docs/api.json"
+    "api": "docs/api.json",
     "pages": [
         "docs/architecture.md",
         "docs/how_to.md"
