@@ -11,10 +11,10 @@ import { Handle } from '@dojo/interfaces/core';
 import { mixin } from '@dojo/core/lang';
 import { satisfies } from 'semver';
 
-const SeleniumVersion = '3.4.0';
-const ChromeVersion = '2.30';
-const FirefoxVersion = '0.16.1';
-const IEVersion = '3.4.0';
+const SeleniumVersion = '3.5.2';
+const ChromeVersion = '2.33';
+const FirefoxVersion = '0.18.0';
+const IEVersion = '3.5.1';
 
 /**
  * A Selenium tunnel. This tunnel downloads the
