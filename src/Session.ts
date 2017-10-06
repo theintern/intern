@@ -619,8 +619,8 @@ export default class Session extends Locator<
 				return this.serverPost<void>('window/size', data);
 			}
 		};
+		if (this.capabilities.usesWebDriverWindowCommands) {
 
-		if (this.capabilities.implicitWindowHandles) {
 			if (windowHandle == null) {
 				return setWindowSize();
 			} else {
@@ -688,8 +688,8 @@ export default class Session extends Locator<
 				);
 			}
 		};
+		if (this.capabilities.usesWebDriverWindowCommands) {
 
-		if (this.capabilities.implicitWindowHandles) {
 			if (windowHandle == null) {
 				return getWindowSize();
 			} else {
@@ -1032,13 +1032,13 @@ export default class Session extends Locator<
 	 * `using` is 'id', `value` should be the ID of the element to retrieve.
 	 */
 	find(using: Strategy, value: string) {
-		if (this.capabilities.isWebDriver) {
+		if (this.capabilities.usesWebDriverLocators) {
 			const locator = toW3cLocator(using, value);
 			using = locator.using;
 			value = locator.value;
 		}
 
-		if (this.capabilities.isWebDriver) {
+		if (this.capabilities.usesWebDriverLocators) {
 			const locator = toW3cLocator(using, value);
 			using = locator.using;
 			value = locator.value;
@@ -1081,13 +1081,13 @@ export default class Session extends Locator<
 	 * [[Session.Session.find]] for details.
 	 */
 	findAll(using: Strategy, value: string) {
-		if (this.capabilities.isWebDriver) {
+		if (this.capabilities.usesWebDriverLocators) {
 			const locator = toW3cLocator(using, value);
 			using = locator.using;
 			value = locator.value;
 		}
 
-		if (this.capabilities.isWebDriver) {
+		if (this.capabilities.usesWebDriverLocators) {
 			const locator = toW3cLocator(using, value);
 			using = locator.using;
 			value = locator.value;

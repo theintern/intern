@@ -138,7 +138,7 @@ export default class Element extends Locator<
 		const session = this._session;
 		const capabilities = session.capabilities;
 
-		if (capabilities.isWebDriver) {
+		if (capabilities.usesWebDriverLocators) {
 			const locator = toW3cLocator(using, value);
 			using = locator.using;
 			value = locator.value;
@@ -200,7 +200,7 @@ export default class Element extends Locator<
 		const session = this._session;
 		const capabilities = session.capabilities;
 
-		if (capabilities.isWebDriver) {
+		if (capabilities.usesWebDriverLocators) {
 			const locator = toW3cLocator(using, value);
 			using = locator.using;
 			value = locator.value;
@@ -313,7 +313,9 @@ export default class Element extends Locator<
 	 */
 	type(value: string | string[]): Task<void> {
 		const getPostData = (value: string[]): { value: string[] } => {
-			if (this.session.capabilities.isWebDriver) {
+			if (this.session.capabilities.usesFlatKeysArray) {
+				// At least Firefox 49+ requires the keys value to be a flat
+				// array of characters
 				return { value: value.join('').split('') };
 			}
 			return { value };

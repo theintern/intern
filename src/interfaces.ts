@@ -105,19 +105,8 @@ export interface Capabilities {
 	/** Whether the remote has a touch screen */
 	hasTouchScreen?: boolean;
 
-	/**
-	 * Whether the remote assumes a default window or requires a handle for
-	 * window commands
-	 */
-	implicitWindowHandles?: boolean;
-
 	/** Allows the user to specify the initial URL loaded when IE starts. */
 	initialBrowserUrl?: string;
-
-	/**
-	 * Whether the remote is using WebDriver semantics (vs JSONWireProtocol)
-	 */
-	isWebDriver?: boolean;
 
 	/** Whether the session can set and query the browser's location context. */
 	locationContextEnabled?: boolean;
@@ -198,6 +187,21 @@ export interface Capabilities {
 
 	/** Whether the remote browser supports touch events */
 	touchEnabled?: boolean;
+
+	/**
+	 * Whether the remote server requires element keys to be sent as a flat array
+	 */
+	usesFlatKeysArray?: boolean;
+
+	/**
+	 * Whether find commands should use WebDriver (vs JsonWireProtocol) locators
+	 */
+	usesWebDriverLocators?: boolean;
+
+	/**
+	 * Whether the remote browser uses WebDriver-style window commands (/rect, implicit handles)
+	 */
+	usesWebDriverWindowCommands?: boolean;
 
 	/** The remote browser version */
 	version?: string;

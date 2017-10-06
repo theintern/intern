@@ -566,7 +566,7 @@ export default class Server {
 		// assumes handles are used. When the result of this check is added to
 		// capabilities, Session will take it into account.
 		if (isFirefox(capabilities, 53, Infinity)) {
-			updates.implicitWindowHandles = true;
+			updates.usesWebDriverWindowCommands = true;
 		}
 
 		if (isMsEdge(capabilities)) {
@@ -619,7 +619,11 @@ export default class Server {
 
 			// Firefox 49+ (via geckodriver) only supports W3C locator
 			// strategies
-			updates.isWebDriver = true;
+			updates.usesWebDriverLocators = true;
+
+			// Firefox 49+ (via geckodriver) requires keys sent to an element
+			// to be a flat array
+			updates.usesFlatKeysArray = true;
 
 			// At least Firefox 49 + geckodriver can't POST empty data
 			updates.brokenEmptyPost = true;
@@ -639,7 +643,7 @@ export default class Server {
 
 		// Firefox 53 supports the window rect command instead of window size
 		if (isFirefox(capabilities, 53, Infinity)) {
-			updates.supportsWindowRectCommand = true;
+			updates.usesWebDriverWindowCommands = true;
 		}
 
 		if (isInternetExplorer(capabilities, 11)) {
