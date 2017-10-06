@@ -14,47 +14,35 @@ A JavaScript client library that brings cross-platform consistency to the Seleni
 
 [![Intern](https://theintern.io/images/intern-v4.svg)](https://github.com/theintern/intern/)
 
-Unlike existing WebDriver client libraries that assume the remote server will just do the Right Thing, Leadfoot detects
-and works around inconsistencies in WebDriver server implementations, so you can just worry about making your tests
-work—not bugs in WebDriver servers.
+Unlike existing WebDriver client libraries that assume the remote server will just do the Right Thing, Leadfoot detects and works around inconsistencies in WebDriver server implementations, using native WebDriver/Selenium commands when possible, so you can just worry about making your tests work—not bugs in WebDriver servers.
 
-Enhanced capabilities are also exposed to end-users about which features and APIs a remote environment supports, so
-you don’t have to browser sniff to decide whether (for example) you’re testing a touch-device or a mouse-device.
-Optional convenience methods are also available for use, and support for chai-as-promised is built in.
+Enhanced capabilities are also exposed to end-users about which features and APIs a remote environment supports, so you don’t have to browser sniff to decide whether (for example) you’re testing a touch-device or a mouse-device. Optional convenience methods are also available for use, and support for chai-as-promised is built in.
 
-Leadfoot is also the only WebDriver client library that includes an exhaustive unit test suite that verifies that
-results are consistently returned from *all remote drivers*. Through this test suite we have discovered and reported
-over 15 defects to upstream WebDriver server implementers.
+Leadfoot has been tested with the following remote drivers:
 
-Leadfoot currently detects and corrects known defects in the following remote drivers:
-
-* InternetExplorerDriver 2.41.0+
-* FirefoxDriver 2.41.0+
-* ChromeDriver 2.9+
-* SafariDriver 2.41.0+
-* Selendroid 0.9.0+
-* ios-driver 0.6.6+
-
-Leadfoot is tested against IE9+ and all other modern browsers.
+* InternetExplorerDriver
+* Microsoft WebDriver
+* FirefoxDriver
+* geckodriver
+* ChromeDriver
+* SafariDriver
+* safaridriver (native)
+* Selendroid
+* ios-driver
 
 ## Using Leadfoot
 
-Leadfoot can be installed and used as a stand-alone WebDriver library from npm by running `npm install leadfoot`.
-However, we recommend using Leadfoot through the [Intern testing framework](https://theintern.io), which provides you
-with all of the tools you need to write robust unit and functional tests. Follow the instructions on
-[writing functional tests with Intern](https://theintern.github.io/intern/#writing-functional-test)
-to learn how to use Leadfoot with Intern.
+Leadfoot can be installed and used as a [stand-alone library](docs/how_to.md#use-leadfoot-as-a-standalone-library). It is also an integral part of the [Intern testing framework](https://theintern.io), which provides you with all of the tools you need to write robust unit and functional tests. Follow the instructions on [writing functional tests with Intern](https://theintern.io/docs.html#Intern/4/docs/docs%2Fwriting_tests.md/functional-tests) to learn how to use Leadfoot with Intern.
 
-## WD.js compatibility
+## Firefox, Safari, and Edge
 
-A compatibility layer is provided to expose APIs that are signature-compatible with the variant of WD.js 0.2.2 used by
-Intern 1. Use of these APIs will emit deprecation warnings. This compatibility layer will be removed in a future
-release.
+Firefox 49+, Safari 10+, and Microsoft Edge are all on the bleeding edge of WebDriver-based browser automation. They all use relatively new drivers that implement the still-under-development W3C WebDriver standard, so feature support is spotty at times. For best results, use the most recent versions of Selenium and the browser’s native driver (geckodriver, Microsoft WebDriver, or safaridriver), and the most recent browser version in Firefox’s case.
 
-<!-- start-github-only -->
-## API documentation
+## More information
 
-[View API documentation](https://theintern.github.io/leadfoot/)
+* [Architecture](docs/architecture.md) — An overview of Leadfoot’s architecture
+* [How To](docs/how_to.md) — Quick answers to common questions
+* [API documentation](https://theintern.io/docs.html#Leadfoot/2/api/Command)
 
 ## License
 
