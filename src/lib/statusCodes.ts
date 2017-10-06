@@ -86,7 +86,8 @@ const statusCodes = {
 	34: [
 		'MoveTargetOutOfBounds',
 		'Target provided for a move action is out of bounds.'
-	]
+	],
+	61: ['InvalidArgument', 'Argument was invalid']
 };
 
 export default statusCodes;
