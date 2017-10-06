@@ -44,6 +44,7 @@ Firefox 49+, Safari 10+, and Microsoft Edge are all on the bleeding edge of WebD
 * [How To](docs/how_to.md) — Quick answers to common questions
 * [API documentation](https://theintern.io/docs.html#Leadfoot/2/api/Command)
 
+<!-- start-github-only -->
 ## License
 
 Leadfoot is a JS Foundation project offered under the [New BSD](LICENSE) license.
@@ -54,5 +55,9 @@ Leadfoot is a JS Foundation project offered under the [New BSD](LICENSE) license
 <!-- doc-viewer-config
 {
     "api": "docs/api.json"
+    "pages": [
+        "docs/architecture.md",
+        "docs/how_to.md"
+    ]
 }
 -->
