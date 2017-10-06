@@ -878,19 +878,11 @@ registerSuite(function() {
 							return element.getSpecAttribute('value');
 						})
 						.then(function(value) {
-							if (session.capabilities.isWebDriver) {
-								assert.strictEqual(
-									value,
-									'default',
-									'Initial value of input should be returned'
-								);
-							} else {
-								assert.strictEqual(
-									value,
-									'defaultfoo',
-									'Current value of input should be returned'
-								);
-							}
+							assert.strictEqual(
+								value,
+								'defaultfoo',
+								'Current value of input should be returned'
+							);
 							return element.getSpecAttribute('defaultValue');
 						})
 						.then(function(defaultValue) {
@@ -939,24 +931,16 @@ registerSuite(function() {
 					return element.getSpecAttribute('href');
 				})
 				.then(function(href) {
-					if (session.capabilities.isWebDriver) {
+					return session.getCurrentUrl().then(function(baseUrl) {
+						const expected =
+							baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1) +
+							'default.html';
 						assert.strictEqual(
 							href,
-							'default.html',
-							'Unexpected link href value'
+							expected,
+							'Link href value should be absolute'
 						);
-					} else {
-						return session.getCurrentUrl().then(function(baseUrl) {
-							const expected =
-								baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1) +
-								'default.html';
-							assert.strictEqual(
-								href,
-								expected,
-								'Link href value should be absolute'
-							);
-						});
-					}
+					});
 				});
 		},
 

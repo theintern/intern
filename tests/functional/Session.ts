@@ -837,6 +837,8 @@ registerSuite(function() {
 			}
 
 			let originalPosition: Position;
+			let offset = 10;
+
 			return session
 				.getWindowPosition()
 				.then(function(position: Position) {
@@ -853,15 +855,15 @@ registerSuite(function() {
 					originalPosition = position;
 
 					return session.setWindowPosition(
-						position.x + 2,
-						position.y + 2
+						position.x + offset,
+						position.y + offset
 					);
 				})
 				.then(() => session.getWindowPosition())
 				.then((position: Position) => {
 					assert.deepEqual(position, {
-						x: originalPosition.x + 2,
-						y: originalPosition.y + 2
+						x: originalPosition.x + offset,
+						y: originalPosition.y + offset
 					});
 				});
 		},
@@ -2188,14 +2190,14 @@ registerSuite(function() {
 				})
 				.then(function(location: Geolocation) {
 					assert.isObject(location);
-					assert.strictEqual(location.latitude, 12.0);
-					assert.strictEqual(location.longitude, -22.334455);
+					assert.closeTo(location.latitude!, 12.0, 0.2);
+					assert.closeTo(location.longitude!, -22.33, 0.01);
 
 					// Geolocation implementations that cannot provide altitude
 					// information shall return `null`,
 					// http://dev.w3.org/geo/api/spec-source.html#altitude
-					if (location.altitude !== null) {
-						assert.strictEqual(location.altitude, 1000.0);
+					if (location.altitude != null) {
+						assert.closeTo(location.altitude, 1000.0, 1);
 					}
 				});
 		},

@@ -147,11 +147,17 @@ registerSuite(function() {
 		},
 
 		'#getSessionCapabilities'(this: Test) {
-			// Intern 2 has remote.session; Intern 1 does not
-			const sessionId = this.remote.session.sessionId;
 			const desiredCapabilities = this.remote.session.capabilities;
+			if (
+				(<Capabilities>desiredCapabilities).supportsSessionCommands ===
+				false
+			) {
+				this.skip('Server does not support session commands');
+			}
+
+			const sessionId = this.remote.session.sessionId;
 			const platforms: { [key: string]: string[] } = {
-				WINDOWS: ['Windows NT', 'WINDOWS']
+				WINDOWS: ['Windows NT', 'WINDOWS', 'WIN8_1', 'XP']
 			};
 
 			return server
