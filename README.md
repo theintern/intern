@@ -15,6 +15,31 @@ Dig Dug is a library for downloading and managing WebDriver service tunnels, alo
 
 ## Configuration
 
+Dig Dug can connect to an existing local WebDriver or Selenium server, manage a local Selenium server, or connect to various remote cloud testing systems.
+
+### Local server
+
+Use [NullTunnel] to connect to an already-running server such as Selenium or a standalone ChromeDriver instance. NullTunnel, as its name suggests, essentially nulls out most of the default functionality in Tunnel, such as the `download` method (used to download a service tunnel binary). For example, calling `start` on any of the other tunnel classes would download the necessary tunnel binaries and spawn a child process, but calling `start` on a NullTunnel does nothing (with the assumption that the tunnel has already been started).
+
+### Managed Selenium server
+
+Dig Dug can manage a local Selenium server with its [SeleniumTunnel]. By default the tunnel will download a recent version of Selenium and ChromeDriver. The most commonly used options for the Selenium tunnel are `version` and `drivers`. The version option simply sets the version of Selenium to use, such as `'3.4.0'`. The `drivers` option tells SeleniumTunnel which drivers to download, and optionally which versions to use. For example, to configure SeleniumTunnel to use geckodriver 0.18.0 and the default version of ChromeDriver with Selenium 3.5.2:
+
+```js
+const tunnel = new SeleniumTunnel({
+	version: '3.5.2',
+    drivers: [
+	    'chrome',
+		{
+		    name: 'firefox',
+			version: '0.18.0'
+		}
+	]
+});
+```
+
+### Cloud testing services
+
 Dig Dug supports the following cloud testing services:
 
 * [BrowserStack](http://www.browserstack.com)
@@ -22,7 +47,7 @@ Dig Dug supports the following cloud testing services:
 * [Sauce Labs](http://www.saucelabs.com)
 * [TestingBot](http://www.testingbot.com)
 
-In many cases, the only configuration you'll need to do to create a tunnel is provide authentication data. This can be provided via options to a Tunnel constructor or via environment variables. The service tunnels use the following environment variables:
+In many cases, the only configuration you’ll need to do to create a tunnel is provide authentication data. This can be provided via options to a Tunnel constructor or via environment variables. The service tunnels use the following environment variables:
 
 Tunnel class                | Environment variables
 ----------------------------|----------------------------------------------------
@@ -31,21 +56,21 @@ Tunnel class                | Environment variables
 `SauceLabsTunnel`           | `SAUCE_USERNAME`, `SAUCE_ACCESS_KEY`
 `TestingBotTunnel`          | `TESTINGBOT_KEY`, `TESTINGBOT_SECRET`
 
-Other properties, such as the local port the tunnel should serve on or the URL of a proxy server the tunnel should go through, can be passed to a tunnel constructor or set on a tunnel instance. See the API docs for [Tunnel](https://theintern.github.io/digdug/module-digdug_Tunnel.html) and the tunnel subclasses for available properties.
+Other properties, such as the local port the tunnel should serve on or the URL of a proxy server the tunnel should go through, can be passed to a tunnel constructor or set on a tunnel instance. See the API docs for [Tunnel] and its subclasses for available properties.
 
 ## Usage
 
 To create a new tunnel, import the desired tunnel class, create a new instance, and call its `start` method. `start` returns a Promise that resolves when the tunnel has successfully started. For example, to create a new Sauce Labs tunnel:
 
 ```js
-import SauceLabsTunnel from 'digdug/SauceLabsTunnel';
+import SauceLabsTunnel from '@theintern/digdug/SauceLabsTunnel';
 const tunnel = new SauceLabsTunnel();
-tunnel.start().then(function () {
+tunnel.start().then(() => {
 	// interact with the WebDriver server at tunnel.clientUrl
 });
 ```
 
-Once a tunnel has been started, a test runner can interact with it as described in the service's documentation. For example, the Sauce Labs and TestingBot executables start a WebDriver server on localhost that the test client communicates with, while a test client will connect to `hub.browserstack.com` after the tunnel has started to use BrowserStack.
+Once a tunnel has been started, a test runner can interact with it as described in the service’s documentation. For example, the Sauce Labs and TestingBot executables start a WebDriver server on localhost that the test client communicates with, while a test client will connect to `hub.browserstack.com` after the tunnel has started to use BrowserStack.
 
 The tunnel classes also provide a `sendJobState` convenience method to let the remote service know whether a test session passed or failed. This method accepts a session ID and an object containing service-specific data, and it returns a Promise that resolves if the job state was successfully updated.
 
@@ -56,7 +81,7 @@ tunnel.sendJobState(sessionId, { success: true });
 When testing is finished, call the tunnel’s `stop` method to cleanly shut it down. This method returns a Promise that is resolved when the service tunnel executable has exited.
 
 ```js
-tunnel.stop().then(function () {
+tunnel.stop().then(() => {
 	// the tunnel has been shut down
 });
 ```
@@ -77,13 +102,13 @@ $ ./node_modules/.bin/digdugEnvironments SauceLabsTunnel
 ...
 ```
 
-Note that BrowserStackTunnel requires that the `BROWSERSTACK_ACCESS_KEY` and `BROWSERSTACK_USERNAME` environment variables exist and are set to a user's account access key and username. The other tunnels do not (currently) require authentication to request an environment list.
+Note that BrowserStackTunnel requires that the `BROWSERSTACK_ACCESS_KEY` and `BROWSERSTACK_USERNAME` environment variables exist and are set to a user’s account access key and username. The other tunnels do not (currently) require authentication to request an environment list.
+
+## More information
+
+* [API documentation](https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel)
 
 <!-- start-github-only -->
-## API documentation
-
-[View API documentation](https://theintern.github.io/digdug/)
-
 ## License
 
 Dig Dug is a JS Foundation project offered under the [New BSD](LICENSE) license.
@@ -96,3 +121,7 @@ Dig Dug is a JS Foundation project offered under the [New BSD](LICENSE) license.
     "api": "docs/api.json"
 }
 -->
+
+[NullTunnel]: https://theintern.io/docs.html#Dig%20Dug/2/api/NullTunnel
+[SeleniumTunnel]: https://theintern.io/docs.html#Dig%20Dug/2/api/SeleniumTunnel
+[Tunnel]: https://theintern.io/docs.html#Dig%20Dug/2/api/Tunnel
