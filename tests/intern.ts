@@ -8,24 +8,49 @@ export const environments = [
 	{ browserName: 'microsoftedge', fixSessionCapabilities: false },
 	{
 		browserName: 'internet explorer',
-		version: ['9', '10', '11'],
+		version: ['10', '11'],
 		fixSessionCapabilities: false
 	},
 	{
 		browserName: 'firefox',
-		version: ['33', 'latest'],
+		version: '33',
 		platform: ['WINDOWS', 'MAC'],
 		fixSessionCapabilities: false
+	},
+	{
+		// latest version
+		browserName: 'firefox',
+		platform: ['WINDOWS', 'MAC'],
+		fixSessionCapabilities: false,
+		supportsSessionCommands: false,
+
+		// Needed for file download support
+		// See https://github.com/mozilla/geckodriver/issues/858#issuecomment-322505259
+		'moz:firefoxOptions': {
+			prefs: { 'dom.file.createInChild': true }
+		},
+
+		// Firefox 55 needs at least Selenium 3.5.2 and geckodriver 0.18.0 for
+		// reasonable feature support
+		'browserstack.selenium_version': '3.5.2',
+		'browserstack.geckodriver': '0.18.0'
 	},
 	{
 		browserName: 'chrome',
-		version: ['38', 'latest'],
+		version: '38',
 		platform: ['WINDOWS', 'MAC'],
 		fixSessionCapabilities: false
 	},
 	{
+		// latest version
+		browserName: 'chrome',
+		platform: ['WINDOWS', 'MAC'],
+		fixSessionCapabilities: false,
+		'browserstack.selenium_version': '3.5.2'
+	},
+	{
+		// latest version
 		browserName: 'safari',
-		version: ['9', '10'],
 		fixSessionCapabilities: false
 	}
 ];
