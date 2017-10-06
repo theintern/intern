@@ -218,10 +218,11 @@ export default class Session extends Locator<
 			ms = 1;
 		}
 
-		const promise = this.serverPost<void>('timeouts', {
-			type: type,
-			ms: ms
-		}).catch(error => {
+		let data = this.capabilities.usesWebDriverTimeouts
+			? { [type]: ms }
+			: { type, ms };
+
+		const promise = this.serverPost<void>('timeouts', data).catch(error => {
 			// Appium as of April 2014 complains that `timeouts` is
 			// unsupported, so try the more specific endpoints if they exist
 			if (error.name === 'UnknownCommand') {
@@ -487,6 +488,11 @@ export default class Session extends Locator<
 	 * `<iframe>` element.
 	 */
 	switchToFrame(id: string | number | Element) {
+		if (this.capabilities.usesWebDriverFrameId && typeof id === 'string') {
+			return this.findById(id).then(element =>
+				this.serverPost<void>('frame', { id: element })
+			);
+		}
 		return this.serverPost<void>('frame', { id: id });
 	}
 
@@ -502,10 +508,12 @@ export default class Session extends Locator<
 	 * the `window.name` property of a window.
 	 */
 	switchToWindow(handle: string) {
-		return this.serverPost<void>('window', {
-			// TODO: Note that in the W3C standard, the property is 'handle'
-			name: handle
-		});
+		// const handleProperty = this.capabilities.=== 'selendroid' &&
+		let data: { [key: string]: string } = { name: handle };
+		if (this.capabilities.usesHandleParameter) {
+			data = { handle };
+		}
+		return this.serverPost<void>('window', data);
 	}
 
 	/**
@@ -603,21 +611,20 @@ export default class Session extends Locator<
 			windowHandle = null;
 		}
 
-		const data: { [key: string]: number | null } = {
-			width: width,
-			height: height
-		};
+		const data = { width, height };
 
-		const setWindowSize = () => {
-			if (this.capabilities.supportsWindowRectCommand) {
-				data.x = null;
-				data.y = null;
-				return this.serverPost<void>('window/rect', data);
-			} else {
-				return this.serverPost<void>('window/size', data);
-			}
-		};
 		if (this.capabilities.usesWebDriverWindowCommands) {
+			const setWindowSize = () =>
+				this.getWindowPosition().then(position =>
+					this.setWindowRect({
+						// At least Firefox + geckodriver 0.17.0 requires all 4 rect
+						// parameters have values
+						x: position.x,
+						y: position.y,
+						width: data.width,
+						height: data.height
+					})
+				);
 
 			if (windowHandle == null) {
 				return setWindowSize();
@@ -661,23 +668,12 @@ export default class Session extends Locator<
 	 * pixels.
 	 */
 	getWindowSize(windowHandle?: string) {
-		const getWindowSize = () => {
-			if (this.capabilities.supportsWindowRectCommand) {
-				return this.serverGet<{
-					width: number;
-					height: number;
-					x: number;
-					y: number;
-				}>('window/rect').then(rect => {
-					return { width: rect.width, height: rect.height };
-				});
-			} else {
-				return this.serverGet<{ width: number; height: number }>(
-					'window/size'
-				);
-			}
-		};
 		if (this.capabilities.usesWebDriverWindowCommands) {
+			const getWindowSize = () =>
+				this.getWindowRect().then(rect => ({
+					width: rect.width,
+					height: rect.height
+				}));
 
 			if (windowHandle == null) {
 				return getWindowSize();
@@ -708,7 +704,7 @@ export default class Session extends Locator<
 				});
 			}
 		} else {
-			if (typeof windowHandle === 'undefined') {
+			if (windowHandle == null) {
 				windowHandle = 'current';
 			}
 			return this.serverGet<{
@@ -716,6 +712,33 @@ export default class Session extends Locator<
 				height: number;
 			}>('window/$0/size', null, [windowHandle]);
 		}
+	}
+
+	/**
+	 * Return the current window's rectangle (size and position).
+	 */
+	getWindowRect() {
+		return this.serverGet<{
+			width: number;
+			height: number;
+			x: number;
+			y: number;
+		}>('window/rect');
+	}
+
+	/**
+	 * Set the current window's rectangle (size and position).
+	 *
+	 * @param rect The windows rectangle. This may contain all 4 properties, or
+	 * just x & y, or just width & height.
+	 */
+	setWindowRect(rect: {
+		x: number;
+		y: number;
+		width: number;
+		height: number;
+	}) {
+		return this.serverPost<void>('window/rect', rect);
 	}
 
 	/**
@@ -741,17 +764,54 @@ export default class Session extends Locator<
 		if (typeof y === 'undefined') {
 			y = x;
 			x = windowHandle;
-			windowHandle = 'current';
+			windowHandle = null;
 		}
 
-		return this.serverPost<void>(
-			'window/$0/position',
-			{
-				x: x,
-				y: y
-			},
-			[windowHandle]
-		);
+		if (this.capabilities.usesWebDriverWindowCommands) {
+			// At least Firefox + geckodriver 0.17.0 requires all 4 rect
+			// parameters have values
+			return this.getWindowSize().then(size => {
+				const data = { x, y, width: size.width, height: size.height };
+				console.log('setting window rect to', data);
+
+				if (windowHandle == null) {
+					return this.setWindowRect(data);
+				} else {
+					// User provided a window handle; get the current handle,
+					// switch to the new one, get the size, then switch back to the
+					// original handle.
+					let error: Error;
+					return this.getCurrentWindowHandle().then(
+						originalHandle => {
+							if (originalHandle === windowHandle) {
+								this.setWindowRect(data);
+							} else {
+								return this.switchToWindow(windowHandle)
+									.then(() => this.setWindowRect(data))
+									.catch(_error => {
+										error = _error;
+									})
+									.then(() =>
+										this.switchToWindow(originalHandle)
+									)
+									.then(() => {
+										if (error) {
+											throw error;
+										}
+									});
+							}
+						}
+					);
+				}
+			});
+		} else {
+			if (windowHandle == null) {
+				windowHandle = 'current';
+			}
+			return this.serverPost<void>('window/$0/position', { x, y }, [
+				windowHandle
+			]);
+		}
 	}
 
 	/**
@@ -769,18 +829,56 @@ export default class Session extends Locator<
 	 * will be negative.
 	 */
 	getWindowPosition(windowHandle?: string) {
-		if (typeof windowHandle === 'undefined') {
-			windowHandle = 'current';
-		}
+		if (this.capabilities.usesWebDriverWindowCommands) {
+			const getWindowPosition = () =>
+				this.getWindowRect().then(rect => {
+					return { x: rect.x, y: rect.y };
+				});
 
-		return this.serverGet<{
-			x: number;
-			y: number;
-		}>('window/$0/position', null, [windowHandle]).then(function(position) {
-			// At least InternetExplorerDriver 2.41.0 on IE9 returns an object
-			// containing extra properties
-			return { x: position.x, y: position.y };
-		});
+			if (windowHandle == null) {
+				return getWindowPosition();
+			} else {
+				// User provided a window handle; get the current handle,
+				// switch to the new one, get the position, then switch back to
+				// the original handle.
+				let error: Error;
+				let position: { x: number; y: number };
+				return this.getCurrentWindowHandle().then(originalHandle => {
+					return this.switchToWindow(windowHandle!)
+						.then(() => getWindowPosition())
+						.then(
+							_position => {
+								position = _position;
+							},
+							_error => {
+								error = _error;
+							}
+						)
+						.then(() => this.switchToWindow(originalHandle))
+						.then(() => {
+							if (error) {
+								throw error;
+							}
+							return position;
+						});
+				});
+			}
+		} else {
+			if (typeof windowHandle === 'undefined') {
+				windowHandle = 'current';
+			}
+			return this.serverGet<{
+				x: number;
+				y: number;
+			}>('window/$0/position', null, [windowHandle]).then(position => {
+				// At least Firefox + geckodriver 0.19.0 will return a full
+				// rectangle for the position command.
+				return {
+					x: position.x,
+					y: position.y
+				};
+			});
+		}
 	}
 
 	/**
@@ -791,13 +889,39 @@ export default class Session extends Locator<
 	 * Omit this argument to resize the currently focused window.
 	 */
 	maximizeWindow(windowHandle?: string) {
-		if (typeof windowHandle === 'undefined') {
-			windowHandle = 'current';
-		}
+		if (this.capabilities.usesWebDriverWindowCommands) {
+			const maximizeWindow = () =>
+				this.serverPost<void>('window/maximize');
 
-		return this.serverPost<void>('window/$0/maximize', null, [
-			windowHandle
-		]);
+			if (windowHandle == null) {
+				return maximizeWindow();
+			} else {
+				// User provided a window handle; get the current handle,
+				// switch to the new one, get the position, then switch back to
+				// the original handle.
+				let error: Error;
+				return this.getCurrentWindowHandle().then(originalHandle => {
+					return this.switchToWindow(windowHandle!)
+						.then(() => maximizeWindow())
+						.catch(_error => {
+							error = _error;
+						})
+						.then(() => this.switchToWindow(originalHandle))
+						.then(() => {
+							if (error) {
+								throw error;
+							}
+						});
+				});
+			}
+		} else {
+			if (typeof windowHandle === 'undefined') {
+				windowHandle = 'current';
+			}
+			return this.serverPost<void>('window/$0/maximize', null, [
+				windowHandle
+			]);
+		}
 	}
 
 	/**
@@ -1115,9 +1239,15 @@ export default class Session extends Locator<
 		if (this.capabilities.brokenActiveElement) {
 			return getDocumentActiveElement();
 		} else {
-			return this.serverPost<any>(
-				'element/active'
-			).then((element: ElementOrElementId) => {
+			let task: Task<ElementOrElementId>;
+
+			if (this.capabilities.usesWebDriverActiveElement) {
+				task = this.serverGet<ElementOrElementId>('element/active');
+			} else {
+				task = this.serverPost<ElementOrElementId>('element/active');
+			}
+
+			return task.then((element: ElementOrElementId) => {
 				if (element) {
 					return new Element(element, this);
 				} else {

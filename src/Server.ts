@@ -550,12 +550,13 @@ export default class Server {
 			}
 
 			// The native safaridriver reports versions like '12603.1.30.0.34'
-			if (isValidVersion(capabilities, 1000, Infinity)) {
+			if (isValidVersion(capabilities, 1000)) {
 				mixin(updates, {
 					brokenLinkTextLocator: true,
 					brokenOptionSelect: true,
 					brokenWhitespaceNormalization: true,
-					fixedLogTypes: []
+					fixedLogTypes: [],
+					usesWebDriverActiveElement: true
 				});
 			}
 
@@ -629,10 +630,6 @@ export default class Server {
 			// At least Firefox 49 + geckodriver can't POST empty data
 			updates.brokenEmptyPost = true;
 
-			// At least geckodriver 0.15.0 and Firefox 51 will stop responding
-			// to commands when performing window switches.
-			updates.brokenWindowSwitch = true;
-
 			// At least geckodriver 0.11 and Firefox 49 don't implement mouse
 			// control, so everything will need to be simulated.
 			updates.brokenMouseEvents = true;
@@ -642,9 +639,10 @@ export default class Server {
 			updates.fixedLogTypes = [];
 		}
 
-		// Firefox 53 supports the window rect command instead of window size
-		if (isFirefox(capabilities, 53, Infinity)) {
-			updates.usesWebDriverWindowCommands = true;
+		if (isFirefox(capabilities, 49, 53)) {
+			// At least geckodriver 0.15.0 and Firefox 51 will stop responding
+			// to commands when performing window switches.
+			updates.brokenWindowSwitch = true;
 		}
 
 		if (isInternetExplorer(capabilities, 11)) {
@@ -695,13 +693,14 @@ export default class Server {
 		}
 
 		updates.shortcutKey = (function() {
-			const platform = capabilities.platform!.toLowerCase();
+			const platform = (capabilities.platform ||
+				capabilities.platformName)!;
 
-			if (platform.indexOf('mac') === 0) {
+			if (/^mac/i.test(platform) || /^darwin/i.test(platform)) {
 				return keys.COMMAND;
 			}
 
-			if (platform.indexOf('ios') === 0) {
+			if (/^ios/i.test(platform)) {
 				return null;
 			}
 
@@ -864,24 +863,54 @@ export default class Server {
 				};
 			}
 
-			// The window sizing commands in the W3C standard don't use window
-			// handles, but they do under the JsonWireProtocol. By default,
-			// Session assumes handles are used. When the result of this check
-			// is added to capabilities, Session will take it into account.
-			if (capabilities.implicitWindowHandles == null) {
-				testedCapabilities.implicitWindowHandles = session
-					.getWindowSize()
-					.then(unsupported, function(error) {
-						return error.name === 'UnknownCommand';
-					});
+			if (capabilities.supportsSessionCommand == null) {
+				testedCapabilities.supportsSessionCommands = this.get(
+					'session/$0',
+					undefined,
+					[session.sessionId]
+				).then(supported, unsupported);
+			}
+
+			if (capabilities.usesWebDriverTimeouts == null) {
+				testedCapabilities.usesWebDriverTimeouts = session
+					.setFindTimeout(500)
+					.then(unsupported, error =>
+						/Missing 'type' parameter/.test(error.message)
+					);
+			}
+
+			if (capabilities.usesWebDriverWindowCommands == null) {
+				testedCapabilities.usesWebDriverWindowCommands = session
+					.serverGet('window/rect')
+					.then(supported, unsupported);
+			}
+
+			// The W3C standard says window commands should take a 'handle'
+			// parameter, while the JsonWireProtocol used a 'name' parameter.
+			if (capabilities.usesHandleParameter == null) {
+				testedCapabilities.usesHandleParameter = session
+					.switchToWindow('current')
+					.then(unsupported, error =>
+						/Missing .*handle/.test(error.message)
+					);
 			}
 
 			// Sauce Labs will not return a list of sessions at least as of May
 			// 2017
-			testedCapabilities.brokenSessionList = this.getSessions().then(
-				works,
-				broken
-			);
+			if (capabilities.brokenSessionList == null) {
+				testedCapabilities.brokenSessionList = this.getSessions().then(
+					works,
+					broken
+				);
+			}
+
+			if (capabilities.usesWebDriverFrameId == null) {
+				testedCapabilities.usesWebDriverFrameId = session
+					.switchToFrame('inlineFrame')
+					.then(unsupported, error =>
+						/frame id has unexpected type/.test(error.message)
+					);
+			}
 
 			if (capabilities.returnsFromClickImmediately == null) {
 				testedCapabilities.returnsFromClickImmediately = function() {
@@ -1465,7 +1494,7 @@ export default class Server {
 			// At least Chrome on Mac doesn't properly maximize. See
 			// https://bugs.chromium.org/p/chromedriver/issues/detail?id=985
 			if (capabilities.brokenWindowMaximize == null) {
-				testedCapabilities.brokenWindowSize = function() {
+				testedCapabilities.brokenWindowMaximize = function() {
 					let originalSize: { width: number; height: number };
 					return session
 						.getWindowSize()

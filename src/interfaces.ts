@@ -177,8 +177,8 @@ export interface Capabilities {
 	/** Whether the remote browser allows navigation via data URIs */
 	supportsNavigationDataUris?: boolean;
 
-	/** Whether the remote browser supports the WebDriver /rect endpoint */
-	supportsWindowRectCommand?: boolean;
+	/** Whether the remote supports session commands */
+	supportsSessionCommands?: boolean;
 
 	/** Whether the remote browser can take screenshots */
 	takesScreenshot?: boolean;
@@ -190,6 +190,14 @@ export interface Capabilities {
 	 * Whether the remote server requires element keys to be sent as a flat array
 	 */
 	usesFlatKeysArray?: boolean;
+
+	/** Whether window commands use 'handle' instead of 'name' */
+	usesHandleParameter?: boolean;
+
+	/**
+	 * Whether getActiveElement uses a POST or GET
+	 */
+	usesWebDriverActiveElement?: boolean;
 
 	/**
 	 * Whether find commands should use WebDriver (vs JsonWireProtocol) locators
