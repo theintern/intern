@@ -239,9 +239,7 @@ export default class Session extends Locator<
 			throw error;
 		});
 
-		this._timeouts[type] = promise
-			.then(() => ms)
-			.catch(() => 0);
+		this._timeouts[type] = promise.then(() => ms).catch(() => 0);
 
 		return promise;
 	}
@@ -630,15 +628,11 @@ export default class Session extends Locator<
 				let error: Error;
 				return this.getCurrentWindowHandle().then(originalHandle => {
 					return this.switchToWindow(windowHandle)
-						.then(() => {
-							return setWindowSize();
+						.then(() => setWindowSize())
+						.catch(_error => {
+							error = _error;
 						})
-						.catch(function(_error) {
-							error = error;
-						})
-						.then(() => {
-							return this.switchToWindow(originalHandle);
-						})
+						.then(() => this.switchToWindow(originalHandle))
 						.then(() => {
 							if (error) {
 								throw error;
@@ -650,14 +644,9 @@ export default class Session extends Locator<
 			if (windowHandle == null) {
 				windowHandle = 'current';
 			}
-			return this.serverPost<void>(
-				'window/$0/size',
-				{
-					width: width,
-					height: height
-				},
-				[windowHandle]
-			);
+			return this.serverPost<void>('window/$0/size', { width, height }, [
+				windowHandle
+			]);
 		}
 	}
 
@@ -700,9 +689,7 @@ export default class Session extends Locator<
 				let size: { width: number; height: number };
 				return this.getCurrentWindowHandle().then(originalHandle => {
 					return this.switchToWindow(windowHandle!)
-						.then(() => {
-							return getWindowSize();
-						})
+						.then(() => getWindowSize())
 						.then(
 							_size => {
 								size = _size;
@@ -711,9 +698,7 @@ export default class Session extends Locator<
 								error = _error;
 							}
 						)
-						.then(() => {
-							return this.switchToWindow(originalHandle);
-						})
+						.then(() => this.switchToWindow(originalHandle))
 						.then(() => {
 							if (error) {
 								throw error;

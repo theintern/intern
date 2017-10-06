@@ -174,9 +174,7 @@ export interface Capabilities {
 	 */
 	supportsKeysCommand?: boolean;
 
-	/**
-	 * Whether the remote browser allows navigation via data URIs
-	 */
+	/** Whether the remote browser allows navigation via data URIs */
 	supportsNavigationDataUris?: boolean;
 
 	/** Whether the remote browser supports the WebDriver /rect endpoint */

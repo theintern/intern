@@ -547,8 +547,7 @@ export default class Element extends Locator<
 							document.body.scrollTop;
 						do {
 							if (
-								window.getComputedStyle(element)
-									.opacity === '0'
+								window.getComputedStyle(element).opacity === '0'
 							) {
 								return false;
 							}

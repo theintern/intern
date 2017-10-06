@@ -119,7 +119,7 @@ registerSuite(function() {
 			const remoteCapabilities = <Capabilities>this.remote.session
 				.capabilities;
 			if (remoteCapabilities.brokenSessionList) {
-				this.skip('Server wil not provide session lists');
+				this.skip('Server will not provide session lists');
 			}
 
 			const currentSessionId = this.remote.session
@@ -167,7 +167,9 @@ registerSuite(function() {
 						desiredCapabilities.version
 					);
 					assert.include(
-						platforms[desiredCapabilities.platform] || [desiredCapabilities.platform],
+						platforms[desiredCapabilities.platform] || [
+							desiredCapabilities.platform
+						],
 						capabilities.platform
 					);
 				});

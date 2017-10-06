@@ -457,7 +457,8 @@ export default class Server {
 		mixin(session.capabilities, this._getKnownCapabilities(session));
 		return (detectCapabilities
 			? this._detectCapabilities(session)
-			: Task.resolve(session)).then(() => {
+			: Task.resolve(session)
+		).then(() => {
 			Object.defineProperty(session.capabilities, '_filled', {
 				value: true,
 				configurable: true
@@ -928,14 +929,6 @@ export default class Server {
 					.then(supported, unsupported);
 			}
 
-			// As of May 2017 this appears to cause Sauce to hang completely,
-			// so just set the flag for Firefox 53+, which is currently the
-			// only platform known to require it
-			// if (capabilities.supportsWindowRect == null) {
-			// 	testedCapabilities.supportsWindowRectCommand = session.serverGet('window/rect').then(supported,
-			// 		unsupported);
-			// }
-
 			return Task.all(
 				Object.keys(testedCapabilities).map(
 					key => testedCapabilities[key]
@@ -1097,9 +1090,9 @@ export default class Server {
 						.then(function() {
 							return session.execute(
 								/* istanbul ignore next */ function() {
-									const bbox = document
-										.getElementById('a')!
-										.getBoundingClientRect();
+									const bbox = document.getElementById(
+										'a'
+									)!.getBoundingClientRect();
 									return bbox.right - bbox.left === 4;
 								}
 							);
@@ -1896,7 +1889,9 @@ export default class Server {
 	 * Terminates a session on the server.
 	 */
 	deleteSession(sessionId: string) {
-		return this.delete<void>('session/$0', undefined, [sessionId]).then(noop);
+		return this.delete<void>('session/$0', undefined, [sessionId]).then(
+			noop
+		);
 	}
 }
 

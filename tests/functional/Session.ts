@@ -857,10 +857,8 @@ registerSuite(function() {
 						position.y + 2
 					);
 				})
-				.then(function() {
-					return session.getWindowPosition();
-				})
-				.then(function(position: Position) {
+				.then(() => session.getWindowPosition())
+				.then((position: Position) => {
 					assert.deepEqual(position, {
 						x: originalPosition.x + 2,
 						y: originalPosition.y + 2
