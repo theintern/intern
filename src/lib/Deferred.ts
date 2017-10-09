@@ -16,9 +16,10 @@ export default class Deferred<T> {
 	 * executes without throwing any Errors.
 	 */
 	callback(callback: Function): any {
-		return this.rejectOnError((...args: any[]) => {
+		const dfd = this;
+		return this.rejectOnError(function (this: any, ...args: any[]) {
 			const returnValue = callback.apply(this, args);
-			this.resolve();
+			dfd.resolve();
 			return returnValue;
 		});
 	}
@@ -27,11 +28,12 @@ export default class Deferred<T> {
 	 * Wraps a callback to reject the deferred if the callback throws an Error.
 	 */
 	rejectOnError(callback: Function): any {
-		return (...args: any[]) => {
+		const dfd = this;
+		return function (this: any, ...args: any[]) {
 			try {
 				return callback.apply(this, args);
 			} catch (error) {
-				this.reject(error);
+				dfd.reject(error);
 			}
 		};
 	}
