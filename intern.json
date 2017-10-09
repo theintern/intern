@@ -7,6 +7,7 @@
 		"_tests/tests/benchmark/example.js",
 		"_tests/tests/unit/lib/BenchmarkTest.js",
 		"_tests/tests/unit/lib/Channel.js",
+		"_tests/tests/unit/lib/Deferred.js",
 		"_tests/tests/unit/lib/Environment.js",
 		"_tests/tests/unit/lib/Suite.js",
 		"_tests/tests/unit/lib/Test.js",

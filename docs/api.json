@@ -13067,7 +13067,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Deferred.ts",
-									"line": 47,
+									"line": 49,
 									"character": 20
 								}
 							]
@@ -13165,7 +13165,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Deferred.ts",
-									"line": 43,
+									"line": 45,
 									"character": 7
 								}
 							]
@@ -13215,7 +13215,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Deferred.ts",
-									"line": 29,
+									"line": 30,
 									"character": 14
 								}
 							]
@@ -13264,7 +13264,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Deferred.ts",
-									"line": 39,
+									"line": 41,
 									"character": 8
 								}
 							]
