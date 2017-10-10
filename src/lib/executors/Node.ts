@@ -329,9 +329,10 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			suite.bail = config.bail;
 
 			if (
+				// Only start the server if there are remote environments *and*
+				// either functionalSuites or browser suites
 				(config.environments.filter(isRemoteEnvironment).length > 0 &&
 					config.functionalSuites.length +
-						config.suites.length +
 						config.browser.suites.length >
 						0) ||
 				// User can start the server without planning to run functional
@@ -572,9 +573,8 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 
 				// If browser-compatible unit tests were added to this executor,
 				// add a RemoteSuite to the session suite. The RemoteSuite will
-				// run the suites listed in config.suites and
-				// config.browser.suites.
-				if (config.suites.length + config.browser.suites.length > 0) {
+				// run the suites listed in config.browser.suites.
+				if (config.browser.suites.length > 0) {
 					suite.add(new RemoteSuite());
 				}
 
@@ -603,8 +603,12 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 	 * suites
 	 */
 	protected _loadSuites() {
-		// Don't load suites if there isn't a local environment
-		if (!this.config.environments.some(isLocalEnvironment)) {
+		// Don't load suites if there isn't a local environment, or if we're
+		// in serveOnly mode
+		if (
+			!this.config.environments.some(isLocalEnvironment) ||
+			this.config.serveOnly
+		) {
 			return Task.resolve();
 		}
 
@@ -812,12 +816,20 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			}
 
 			// Expand suite globs
-			config.suites = expandFiles(config.suites);
 			config.functionalSuites = expandFiles(config.functionalSuites);
 
-			// Expand suite globs in node, browser objects
-			config.node.suites = expandFiles(config.node.suites);
-			config.browser.suites = expandFiles(config.browser.suites);
+			// Expand suite globs into the node and browser objects
+			config.node.suites = expandFiles([
+				...config.suites,
+				...config.node.suites
+			]);
+			config.browser.suites = expandFiles([
+				...config.suites,
+				...config.browser.suites
+			]);
+
+			// Clear out the suites list after combining the suites
+			delete config.suites;
 
 			// Install the instrumenter in resolve config so it will be able to
 			// handle suites

@@ -169,9 +169,9 @@ registerSuite('lib/executors/Browser', function() {
 							request.args[0],
 							[
 								'__resolveSuites__',
-								{ query: { suites: ['**/*.js'] } }
+								{ query: { suites: ['**/*.js', 'bar.js'] } }
 							],
-							'expected suite resolution request'
+							'unexpected args to suite resolution request'
 						);
 					});
 				}

@@ -933,10 +933,9 @@ export default abstract class Executor<
 	 * Load suites
 	 */
 	protected _loadSuites() {
-		const suites = [
-			...this.config.suites,
-			...this.config[this.environment].suites
-		];
+		// _resolveSuites will expand all suites into <env>.suites for the
+		// current env
+		const suites = this.config[this.environment].suites;
 		return Task.resolve(this._loader(suites!)).then(() => {
 			this.log('Loaded suites:', suites);
 		});

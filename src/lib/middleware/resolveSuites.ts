@@ -8,8 +8,12 @@ export default function instrument(): InternRequestHandler {
 		const suites = Array.isArray(query.suites)
 			? query.suites
 			: [query.suites];
-		const resolvedSuites = JSON.stringify(
-			suites.map((pattern: string) => expandFiles(pattern))
+		const resolvedSuites = JSON.stringify(expandFiles(suites));
+		request.intern.executor.log(
+			'resolveSuites middlware expanded',
+			suites,
+			'to',
+			resolvedSuites
 		);
 		response.writeHead(200, {
 			'Content-Type': 'application/json',
