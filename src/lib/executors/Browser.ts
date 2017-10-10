@@ -83,49 +83,30 @@ export default class Browser extends Executor<Events, Config> {
 				config[key] = normalizePathEnding(<string>config[key]);
 			});
 
-			type GlobEntry = {
-				suites: string[];
-				pattern: string;
-				index: number;
-			};
+			// Combine suites and browser.suites into browser.suites
+			const suites = (config.browser.suites = [
+				...config.suites,
+				...config.browser.suites
+			]);
 
-			const globSuites: GlobEntry[] = [];
-			[config.suites, config.browser.suites].forEach(suites => {
-				suites.forEach((pattern, index) => {
-					const matcher = new Minimatch(pattern);
-					if (
-						matcher.set[0].some(entry => typeof entry !== 'string')
-					) {
-						// suite is a glob
-						globSuites.push({ suites, pattern, index });
-					}
-				});
+			// Clear out the suites list after combining the suites
+			delete config.suites;
+
+			const hasGlobs = suites.some(pattern => {
+				const matcher = new Minimatch(pattern);
+				return matcher.set[0].some(entry => typeof entry !== 'string');
 			});
 
-			if (globSuites.length > 0) {
-				return request('__resolveSuites__', {
-					query: {
-						suites: globSuites.map(entry => entry.pattern)
-					}
-				})
+			if (hasGlobs) {
+				return request('__resolveSuites__', { query: { suites } })
 					.then(response => response.json())
 					.catch(() => {
 						throw new Error(
 							'The server does not support suite glob resolution'
 						);
 					})
-					.then((data: string[][]) => {
-						// Process the data in reverse since we'll be modifying the
-						// suites lists
-						for (let i = data.length - 1; i >= 0; i--) {
-							const suites = data[i];
-							const globEntry = globSuites[i];
-							globEntry.suites.splice(
-								globEntry.index,
-								1,
-								...suites
-							);
-						}
+					.then((data: string[]) => {
+						config.browser.suites = data;
 					});
 			}
 		});

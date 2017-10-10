@@ -44,9 +44,15 @@ registerSuite('lib/middleware/resolveSuites', () => {
 		tests: {
 			resolve() {
 				const response = new MockResponse();
-				handler({ url: 'foo?suites=bar*.js' }, response);
-				assert.deepEqual(expandFiles.args[0], ['bar*.js']);
-				assert.deepEqual(<any>response.data, '[["expandedbar*.js"]]');
+				handler(
+					{
+						url: 'foo?suites=bar*.js',
+						intern: { executor: { log() {} } }
+					},
+					response
+				);
+				assert.deepEqual(expandFiles.args[0], [['bar*.js']]);
+				assert.deepEqual(<any>response.data, '["expandedbar*.js"]');
 			}
 		}
 	};
