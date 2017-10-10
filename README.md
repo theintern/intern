@@ -24,11 +24,7 @@ Intern is minimally prescriptive and enforces only a basic set of best practices
 
 If you’re into name-dropping, Intern gets used every day by teams at Twitter, Stripe, Mozilla, IBM, Marriott, Philips, Zenput, Alfresco, Esri, HSBC, ING, Intuit, and more. It’s also the testing framework of choice for [growing numbers of open-source projects](https://github.com/search?p=2&q=tests+filename%3Aintern.js&ref=searchresults&type=Code&utf8=%E2%9C%93).
 
-<!-- start-github-only -->
-
-* For Intern 3, please see [the Intern 3 README](https://github.com/theintern/intern/tree/3.4#intern).
-
-<!-- end-github-only -->
+> 💡 If you’re an Intern user who’s new to Intern 4, see the [Changes from Intern 3](docs/changes_from_3.md) document for a summary of the major differences. For Intern 3 documentation, please see [the Intern 3 README](https://github.com/theintern/intern/tree/3.4#intern).
 
 ## Quick start
 
@@ -77,6 +73,7 @@ Intern can run functional tests using WebDriver-compatible applications and serv
 ## More information
 
 * [Getting started](docs/getting_started.md) - Setting up Intern to test a project
+* [Changes from Intern 3](docs/changes_from_3.md) - Major changes from Intern 3 to Intern 4
 * [How To](docs/how_to.md) - Quick answers to common questions
 * [Concepts](docs/concepts.md) - General testing concepts and definitions
 * [Architecture](docs/architecture.md) - How Intern is organized

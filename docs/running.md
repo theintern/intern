@@ -65,6 +65,14 @@ The browser runner is a built-in HTML page for running browser-based unit tests.
 http://localhost:8080/node_modules/intern/
 ```
 
+Intern also has its own static server that can be started with the `serveOnly` config argument:
+
+```
+npx intern serveOnly
+```
+
+This command will cause Intern to start a static server on the port set by `serverPort`. The main utility offered by this server over any other static server is that it allows glob expressions in the `suites` list to be resolved.
+
 Similar to the Node runner script, the browser runner will accept a config argument, or any other config properties, as query args.
 
 ```
