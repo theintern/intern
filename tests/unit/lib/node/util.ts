@@ -238,6 +238,11 @@ registerSuite('lib/node/util', function() {
 								'loadConfig',
 								'loadConfig should have been called'
 							);
+							assert.property(
+								calls,
+								'parseArgs',
+								'parseArgs should have been called'
+							);
 							assert.equal(calls.loadConfig[0][0], 'intern.json');
 							assert.deepEqual(config, {});
 						});
@@ -256,6 +261,36 @@ registerSuite('lib/node/util', function() {
 								assert.match(error.message, /Unexpected token/);
 							}
 						);
+					},
+
+					'custom args': {
+						'invalid argv format'() {
+							return util
+								.getConfig(['suites=foo.js'])
+								.then(() => {
+									assert.notProperty(
+										calls,
+										'parseArgs',
+										'parseArgs should not have been called'
+									);
+								});
+						},
+
+						'valid argv'() {
+							return util
+								.getConfig([
+									'node',
+									'intern.js',
+									'suites=foo.js'
+								])
+								.then(() => {
+									assert.property(
+										calls,
+										'parseArgs',
+										'parseArgs should have been called'
+									);
+								});
+						}
 					}
 				},
 

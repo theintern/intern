@@ -1,28 +1,36 @@
-import { spy, stub } from 'sinon';
+import * as sinon from 'sinon';
 import _gruntTask from 'src/tasks/intern';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('tasks/intern', function() {
-	const mockDone = stub();
+	const sandbox = sinon.sandbox.create();
+
+	let mockDone: sinon.SinonSpy;
+
+	function setupDone() {
+		return new Promise(resolve => {
+			mockDone = sinon.spy(() => resolve());
+		});
+	}
 
 	const mockGrunt = {
-		registerMultiTask: spy(() => {}),
-		async: spy(() => mockDone),
-		options: spy(() => {
-			return { foo: 'bar' };
-		})
+		registerMultiTask: sandbox.stub(),
+		async: sandbox.spy(() => mockDone),
+		options: sandbox.stub()
 	};
 
-	const mockRun = stub();
+	const mockRun = sandbox.stub();
+	const mockConfigure = sandbox.stub();
 
+	const mockGetConfig = sandbox.stub();
 	class MockNode {
-		config: any;
 		run: Function;
-		constructor(config: any) {
+		configure: Function;
+		constructor() {
 			executors.push(this);
-			this.config = config;
 			this.run = mockRun;
+			this.configure = mockConfigure;
 		}
 	}
 
@@ -34,7 +42,8 @@ registerSuite('tasks/intern', function() {
 		before() {
 			return mockRequire(require, 'src/tasks/intern', {
 				'src/lib/executors/Node': { default: MockNode },
-				'@dojo/shim/global': { default: {} }
+				'@dojo/shim/global': { default: {} },
+				'src/lib/node/util': { getConfig: mockGetConfig }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				gruntTask = handle.module;
@@ -46,15 +55,15 @@ registerSuite('tasks/intern', function() {
 		},
 
 		beforeEach() {
-			mockRun.reset();
+			sandbox.reset();
 			mockRun.resolves();
-			mockDone.reset();
 			executors = [];
 		},
 
 		tests: {
 			'task registration'() {
 				gruntTask(<any>mockGrunt);
+
 				assert.equal(
 					mockGrunt.registerMultiTask.callCount,
 					1,
@@ -67,55 +76,110 @@ registerSuite('tasks/intern', function() {
 				);
 			},
 
-			'run task'() {
-				const dfd = this.async();
-				gruntTask(<any>mockGrunt);
-				const callback = mockGrunt.registerMultiTask.getCall(0).args[1];
-				callback.call(mockGrunt);
-				assert.lengthOf(
-					executors,
-					1,
-					'1 executor should have been created'
-				);
-				assert.equal(
-					mockRun.callCount,
-					1,
-					'intern should have been run'
-				);
-				assert.deepEqual(executors[0].config, { foo: 'bar' });
-				setTimeout(
-					dfd.callback(() => {
+			'run task': {
+				'config'() {
+					mockGrunt.registerMultiTask.callsArgOn(1, mockGrunt);
+					mockGrunt.options.returns({
+						config: '@coverage',
+						foo: 'bar'
+					});
+					mockGetConfig.resolves({
+						config: {
+							spam: 'ham'
+						}
+					});
+					const done = setupDone();
+
+					gruntTask(<any>mockGrunt);
+
+					return done.then(() => {
+						assert.lengthOf(
+							executors,
+							1,
+							'1 executor should have been created'
+						);
+						assert.equal(
+							mockRun.callCount,
+							1,
+							'intern should have been run'
+						);
+						assert.equal(mockGetConfig.callCount, 1);
+						assert.equal(
+							mockGetConfig.getCall(0).args[0],
+							'@coverage'
+						);
+						assert.equal(mockConfigure.callCount, 2);
+						assert.deepEqual(mockConfigure.getCall(0).args[0], {
+							spam: 'ham'
+						});
+						assert.deepEqual(mockConfigure.getCall(1).args[0], {
+							foo: 'bar'
+						});
 						assert.equal(mockDone.callCount, 1);
 						// First arg is an error, so it should be undefined here
 						assert.isUndefined(mockDone.getCall(0).args[0]);
-					})
-				);
+					});
+				},
+
+				'no config'() {
+					mockGrunt.registerMultiTask.callsArgOn(1, mockGrunt);
+					mockGrunt.options.returns({
+						foo: 'bar'
+					});
+					const done = setupDone();
+
+					gruntTask(<any>mockGrunt);
+
+					return done.then(() => {
+						assert.lengthOf(
+							executors,
+							1,
+							'1 executor should have been created'
+						);
+						assert.equal(
+							mockRun.callCount,
+							1,
+							'intern should have been run'
+						);
+						assert.equal(mockGetConfig.callCount, 0);
+						assert.equal(mockConfigure.callCount, 2);
+						assert.deepEqual(mockConfigure.getCall(0).args[0], {});
+						assert.deepEqual(mockConfigure.getCall(1).args[0], {
+							foo: 'bar'
+						});
+						assert.equal(mockDone.callCount, 1);
+						// First arg is an error, so it should be undefined here
+						assert.isUndefined(mockDone.getCall(0).args[0]);
+					});
+				}
 			},
 
 			error() {
-				const dfd = this.async();
-				gruntTask(<any>mockGrunt);
-				const callback = mockGrunt.registerMultiTask.getCall(0).args[1];
+				mockGrunt.registerMultiTask.callsArgOn(1, mockGrunt);
+				mockGrunt.options.returns({
+					foo: 'bar'
+				});
 				const error = new Error('bad');
 				mockRun.rejects(error);
-				callback.call(mockGrunt);
-				assert.lengthOf(
-					executors,
-					1,
-					'1 executor should have been created'
-				);
-				assert.equal(
-					mockRun.callCount,
-					1,
-					'intern should have been run'
-				);
-				assert.deepEqual(executors[0].config, { foo: 'bar' });
-				setTimeout(
-					dfd.callback(() => {
-						assert.equal(mockDone.callCount, 1);
-						assert.equal(mockDone.getCall(0).args[0], error);
-					})
-				);
+
+				const done = setupDone();
+
+				gruntTask(<any>mockGrunt);
+
+				return done.then(() => {
+					assert.lengthOf(
+						executors,
+						1,
+						'1 executor should have been created'
+					);
+					assert.equal(
+						mockRun.callCount,
+						1,
+						'intern should have been run'
+					);
+					assert.equal(mockDone.callCount, 1);
+					assert.equal(mockDone.getCall(0).args[0], error);
+				});
 			}
 		}
 	};
