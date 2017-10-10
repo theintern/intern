@@ -7,7 +7,7 @@
 	},
 	"children": [
 		{
-			"id": 4952,
+			"id": 4960,
 			"name": "\"bin/intern\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -18,7 +18,7 @@
 			"originalName": "src/bin/intern.ts",
 			"children": [
 				{
-					"id": 4953,
+					"id": 4961,
 					"name": "console",
 					"kind": 32,
 					"kindString": "Variable",
@@ -39,7 +39,7 @@
 					"defaultValue": " global.console"
 				},
 				{
-					"id": 4954,
+					"id": 4962,
 					"name": "printHelp",
 					"kind": 64,
 					"kindString": "Function",
@@ -48,7 +48,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4955,
+							"id": 4963,
 							"name": "printHelp",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -57,7 +57,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4956,
+									"id": 4964,
 									"name": "config",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -70,7 +70,7 @@
 									}
 								},
 								{
-									"id": 4957,
+									"id": 4965,
 									"name": "file",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -113,14 +113,14 @@
 					"title": "Variables",
 					"kind": 32,
 					"children": [
-						4953
+						4961
 					]
 				},
 				{
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						4954
+						4962
 					]
 				}
 			],
@@ -133,7 +133,7 @@
 			]
 		},
 		{
-			"id": 4948,
+			"id": 4956,
 			"name": "\"index\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -148,7 +148,7 @@
 			},
 			"children": [
 				{
-					"id": 4950,
+					"id": 4958,
 					"name": "__global",
 					"kind": 2,
 					"kindString": "Module",
@@ -158,7 +158,7 @@
 					},
 					"children": [
 						{
-							"id": 4951,
+							"id": 4959,
 							"name": "intern",
 							"kind": 32,
 							"kindString": "Variable",
@@ -188,7 +188,7 @@
 							"title": "Variables",
 							"kind": 32,
 							"children": [
-								4951
+								4959
 							]
 						}
 					],
@@ -201,7 +201,7 @@
 					]
 				},
 				{
-					"id": 4949,
+					"id": 4957,
 					"name": "intern",
 					"kind": 32,
 					"kindString": "Variable",
@@ -230,14 +230,14 @@
 					"title": "Modules",
 					"kind": 2,
 					"children": [
-						4950
+						4958
 					]
 				},
 				{
 					"title": "Variables",
 					"kind": 32,
 					"children": [
-						4949
+						4957
 					]
 				}
 			],
@@ -12607,7 +12607,7 @@
 			]
 		},
 		{
-			"id": 5080,
+			"id": 5094,
 			"name": "\"lib/Channel\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -12618,7 +12618,7 @@
 			"originalName": "src/lib/Channel.ts",
 			"children": [
 				{
-					"id": 5081,
+					"id": 5095,
 					"name": "Channel",
 					"kind": 128,
 					"kindString": "Class",
@@ -12628,7 +12628,7 @@
 					},
 					"children": [
 						{
-							"id": 5083,
+							"id": 5097,
 							"name": "constructor",
 							"kind": 512,
 							"kindString": "Constructor",
@@ -12638,7 +12638,7 @@
 							},
 							"signatures": [
 								{
-									"id": 5084,
+									"id": 5098,
 									"name": "new Channel",
 									"kind": 16384,
 									"kindString": "Constructor signature",
@@ -12647,7 +12647,7 @@
 									},
 									"parameters": [
 										{
-											"id": 5085,
+											"id": 5099,
 											"name": "options",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12664,7 +12664,7 @@
 									"type": {
 										"type": "reference",
 										"name": "Channel",
-										"id": 5081
+										"id": 5095
 									}
 								}
 							],
@@ -12677,7 +12677,7 @@
 							]
 						},
 						{
-							"id": 5082,
+							"id": 5096,
 							"name": "options",
 							"kind": 1024,
 							"kindString": "Property",
@@ -12699,7 +12699,7 @@
 							}
 						},
 						{
-							"id": 5090,
+							"id": 5104,
 							"name": "_initialize",
 							"kind": 2048,
 							"kindString": "Method",
@@ -12710,7 +12710,7 @@
 							},
 							"signatures": [
 								{
-									"id": 5091,
+									"id": 5105,
 									"name": "_initialize",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -12738,7 +12738,7 @@
 							]
 						},
 						{
-							"id": 5086,
+							"id": 5100,
 							"name": "sendMessage",
 							"kind": 2048,
 							"kindString": "Method",
@@ -12748,7 +12748,7 @@
 							},
 							"signatures": [
 								{
-									"id": 5087,
+									"id": 5101,
 									"name": "sendMessage",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -12757,7 +12757,7 @@
 									},
 									"parameters": [
 										{
-											"id": 5088,
+											"id": 5102,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12863,7 +12863,7 @@
 											}
 										},
 										{
-											"id": 5089,
+											"id": 5103,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12902,22 +12902,22 @@
 							"title": "Constructors",
 							"kind": 512,
 							"children": [
-								5083
+								5097
 							]
 						},
 						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								5082
+								5096
 							]
 						},
 						{
 							"title": "Methods",
 							"kind": 2048,
 							"children": [
-								5090,
-								5086
+								5104,
+								5100
 							]
 						}
 					],
@@ -12935,7 +12935,7 @@
 					"title": "Classes",
 					"kind": 128,
 					"children": [
-						5081
+						5095
 					]
 				}
 			],
@@ -48658,7 +48658,7 @@
 			]
 		},
 		{
-			"id": 4970,
+			"id": 4984,
 			"name": "\"lib/browser/util\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -48670,7 +48670,7 @@
 			"originalName": "src/lib/browser/util.ts",
 			"children": [
 				{
-					"id": 4986,
+					"id": 5000,
 					"name": "Url",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -48692,7 +48692,7 @@
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 4987,
+							"id": 5001,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -48701,7 +48701,7 @@
 							},
 							"children": [
 								{
-									"id": 4993,
+									"id": 5007,
 									"name": "hash",
 									"kind": 32,
 									"kindString": "Variable",
@@ -48722,7 +48722,7 @@
 									}
 								},
 								{
-									"id": 4989,
+									"id": 5003,
 									"name": "hostname",
 									"kind": 32,
 									"kindString": "Variable",
@@ -48743,7 +48743,7 @@
 									}
 								},
 								{
-									"id": 4991,
+									"id": 5005,
 									"name": "path",
 									"kind": 32,
 									"kindString": "Variable",
@@ -48764,7 +48764,7 @@
 									}
 								},
 								{
-									"id": 4990,
+									"id": 5004,
 									"name": "port",
 									"kind": 32,
 									"kindString": "Variable",
@@ -48785,7 +48785,7 @@
 									}
 								},
 								{
-									"id": 4988,
+									"id": 5002,
 									"name": "protocol",
 									"kind": 32,
 									"kindString": "Variable",
@@ -48806,7 +48806,7 @@
 									}
 								},
 								{
-									"id": 4992,
+									"id": 5006,
 									"name": "query",
 									"kind": 32,
 									"kindString": "Variable",
@@ -48832,12 +48832,12 @@
 									"title": "Variables",
 									"kind": 32,
 									"children": [
-										4993,
-										4989,
-										4991,
-										4990,
-										4988,
-										4992
+										5007,
+										5003,
+										5005,
+										5004,
+										5002,
+										5006
 									]
 								}
 							],
@@ -48852,7 +48852,7 @@
 					}
 				},
 				{
-					"id": 4971,
+					"id": 4985,
 					"name": "getConfig",
 					"kind": 64,
 					"kindString": "Function",
@@ -48863,7 +48863,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4972,
+							"id": 4986,
 							"name": "getConfig",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -48875,7 +48875,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4973,
+									"id": 4987,
 									"name": "file",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -48905,7 +48905,7 @@
 									{
 										"type": "reflection",
 										"declaration": {
-											"id": 4974,
+											"id": 4988,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -48914,7 +48914,7 @@
 											},
 											"children": [
 												{
-													"id": 4975,
+													"id": 4989,
 													"name": "config",
 													"kind": 32,
 													"kindString": "Variable",
@@ -48932,7 +48932,7 @@
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 4976,
+															"id": 4990,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
@@ -48941,7 +48941,7 @@
 															},
 															"indexSignature": [
 																{
-																	"id": 4977,
+																	"id": 4991,
 																	"name": "__index",
 																	"kind": 8192,
 																	"kindString": "Index signature",
@@ -48950,7 +48950,7 @@
 																	},
 																	"parameters": [
 																		{
-																			"id": 4978,
+																			"id": 4992,
 																			"name": "key",
 																			"kind": 32768,
 																			"kindString": "Parameter",
@@ -48973,7 +48973,7 @@
 													}
 												},
 												{
-													"id": 4979,
+													"id": 4993,
 													"name": "file",
 													"kind": 32,
 													"kindString": "Variable",
@@ -49008,8 +49008,8 @@
 													"title": "Variables",
 													"kind": 32,
 													"children": [
-														4975,
-														4979
+														4989,
+														4993
 													]
 												}
 											]
@@ -49028,7 +49028,7 @@
 					]
 				},
 				{
-					"id": 4997,
+					"id": 5011,
 					"name": "loadText",
 					"kind": 64,
 					"kindString": "Function",
@@ -49038,7 +49038,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4998,
+							"id": 5012,
 							"name": "loadText",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -49050,7 +49050,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4999,
+									"id": 5013,
 									"name": "path",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -49084,7 +49084,7 @@
 					]
 				},
 				{
-					"id": 4980,
+					"id": 4994,
 					"name": "normalizePath",
 					"kind": 64,
 					"kindString": "Function",
@@ -49095,7 +49095,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4981,
+							"id": 4995,
 							"name": "normalizePath",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -49107,7 +49107,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4982,
+									"id": 4996,
 									"name": "path",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -49135,7 +49135,7 @@
 					]
 				},
 				{
-					"id": 4983,
+					"id": 4997,
 					"name": "parseQuery",
 					"kind": 64,
 					"kindString": "Function",
@@ -49146,7 +49146,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4984,
+							"id": 4998,
 							"name": "parseQuery",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -49158,7 +49158,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4985,
+									"id": 4999,
 									"name": "query",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -49199,7 +49199,7 @@
 					]
 				},
 				{
-					"id": 4994,
+					"id": 5008,
 					"name": "parseUrl",
 					"kind": 64,
 					"kindString": "Function",
@@ -49210,7 +49210,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4995,
+							"id": 5009,
 							"name": "parseUrl",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -49219,7 +49219,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4996,
+									"id": 5010,
 									"name": "url",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -49238,7 +49238,7 @@
 									{
 										"type": "reference",
 										"name": "Url",
-										"id": 4986
+										"id": 5000
 									},
 									{
 										"type": "intrinsic",
@@ -49257,7 +49257,7 @@
 					]
 				},
 				{
-					"id": 5000,
+					"id": 5014,
 					"name": "resolvePath",
 					"kind": 64,
 					"kindString": "Function",
@@ -49267,7 +49267,7 @@
 					},
 					"signatures": [
 						{
-							"id": 5001,
+							"id": 5015,
 							"name": "resolvePath",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -49279,7 +49279,7 @@
 							},
 							"parameters": [
 								{
-									"id": 5002,
+									"id": 5016,
 									"name": "path",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -49292,7 +49292,7 @@
 									}
 								},
 								{
-									"id": 5003,
+									"id": 5017,
 									"name": "basePath",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -49325,19 +49325,19 @@
 					"title": "Type aliases",
 					"kind": 4194304,
 					"children": [
-						4986
+						5000
 					]
 				},
 				{
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						4971,
-						4997,
-						4980,
-						4983,
+						4985,
+						5011,
 						4994,
-						5000
+						4997,
+						5008,
+						5014
 					]
 				}
 			],
@@ -49827,12 +49827,12 @@
 						{
 							"type": "reference",
 							"name": "WebSocketChannel",
-							"id": 5005
+							"id": 5019
 						},
 						{
 							"type": "reference",
 							"name": "HttpChannel",
-							"id": 5043
+							"id": 5057
 						}
 					]
 				},
@@ -50013,7 +50013,7 @@
 						{
 							"type": "reference",
 							"name": "HttpChannelOptions",
-							"id": 5064
+							"id": 5078
 						}
 					]
 				},
@@ -50219,7 +50219,7 @@
 			]
 		},
 		{
-			"id": 5042,
+			"id": 5056,
 			"name": "\"lib/channels/Http\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -50231,7 +50231,7 @@
 			"originalName": "src/lib/channels/Http.ts",
 			"children": [
 				{
-					"id": 5043,
+					"id": 5057,
 					"name": "HttpChannel",
 					"kind": 128,
 					"kindString": "Class",
@@ -50242,7 +50242,7 @@
 					},
 					"children": [
 						{
-							"id": 5049,
+							"id": 5063,
 							"name": "constructor",
 							"kind": 512,
 							"kindString": "Constructor",
@@ -50253,7 +50253,7 @@
 							},
 							"signatures": [
 								{
-									"id": 5050,
+									"id": 5064,
 									"name": "new HttpChannel",
 									"kind": 16384,
 									"kindString": "Constructor signature",
@@ -50262,7 +50262,7 @@
 									},
 									"parameters": [
 										{
-											"id": 5051,
+											"id": 5065,
 											"name": "options",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -50272,14 +50272,14 @@
 											"type": {
 												"type": "reference",
 												"name": "HttpChannelOptions",
-												"id": 5064
+												"id": 5078
 											}
 										}
 									],
 									"type": {
 										"type": "reference",
 										"name": "HttpChannel",
-										"id": 5043
+										"id": 5057
 									},
 									"overwrites": {
 										"type": "reference",
@@ -50302,7 +50302,7 @@
 							}
 						},
 						{
-							"id": 5048,
+							"id": 5062,
 							"name": "_activeRequest",
 							"kind": 1024,
 							"kindString": "Property",
@@ -50340,7 +50340,7 @@
 							}
 						},
 						{
-							"id": 5044,
+							"id": 5058,
 							"name": "_lastRequest",
 							"kind": 1024,
 							"kindString": "Property",
@@ -50369,7 +50369,7 @@
 							}
 						},
 						{
-							"id": 5047,
+							"id": 5061,
 							"name": "_maxPostSize",
 							"kind": 1024,
 							"kindString": "Property",
@@ -50392,7 +50392,7 @@
 							}
 						},
 						{
-							"id": 5045,
+							"id": 5059,
 							"name": "_messageBuffer",
 							"kind": 1024,
 							"kindString": "Property",
@@ -50414,12 +50414,12 @@
 								"elementType": {
 									"type": "reference",
 									"name": "MessageEntry",
-									"id": 5070
+									"id": 5084
 								}
 							}
 						},
 						{
-							"id": 5046,
+							"id": 5060,
 							"name": "_sequence",
 							"kind": 1024,
 							"kindString": "Property",
@@ -50442,7 +50442,7 @@
 							}
 						},
 						{
-							"id": 5059,
+							"id": 5073,
 							"name": "sessionId",
 							"kind": 1024,
 							"kindString": "Property",
@@ -50469,7 +50469,7 @@
 							}
 						},
 						{
-							"id": 5058,
+							"id": 5072,
 							"name": "url",
 							"kind": 1024,
 							"kindString": "Property",
@@ -50496,7 +50496,7 @@
 							}
 						},
 						{
-							"id": 5052,
+							"id": 5066,
 							"name": "_sendData",
 							"kind": 2048,
 							"kindString": "Method",
@@ -50508,12 +50508,1548 @@
 							},
 							"signatures": [
 								{
-									"id": 5053,
+									"id": 5067,
 									"name": "_sendData",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {
 										"__visited__": true
+									},
+									"parameters": [
+										{
+											"id": 5068,
+											"name": "name",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "stringLiteral",
+														"value": "coverage"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "serverEnd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "serverStart"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "tunnelDownloadProgress"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "tunnelStart"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "tunnelStatus"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "tunnelStop"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "*"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "afterRun"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "beforeRun"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "deprecated"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "error"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "log"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "runEnd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "runStart"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "suiteAdd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "suiteEnd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "suiteStart"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "testAdd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "testEnd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "testStart"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "warning"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "remoteStatus"
+													}
+												]
+											}
+										},
+										{
+											"id": 5069,
+											"name": "data",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "Object"
+											}
+										]
+									},
+									"overwrites": {
+										"type": "reference",
+										"name": "BaseChannel._sendData",
+										"id": 1129
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "lib/channels/Http.ts",
+									"line": 22,
+									"character": 20
+								}
+							],
+							"overwrites": {
+								"type": "reference",
+								"name": "BaseChannel._sendData",
+								"id": 1129
+							}
+						},
+						{
+							"id": 5070,
+							"name": "_sendMessages",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isProtected": true,
+								"__visited__": true
+							},
+							"signatures": [
+								{
+									"id": 5071,
+									"name": "_sendMessages",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"__visited__": true
+									},
+									"comment": {
+										"shortText": "Some testing services have problems handling large message POSTs, so\nlimit the maximum size of each POST body to maxPostSize bytes. Always\nsend at least one message, even if it's more than maxPostSize bytes."
+									},
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "reference",
+												"name": "Task",
+												"typeArguments": [
+													{
+														"type": "intrinsic",
+														"name": "any"
+													}
+												]
+											},
+											{
+												"type": "intrinsic",
+												"name": "undefined"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "lib/channels/Http.ts",
+									"line": 56,
+									"character": 24
+								}
+							]
+						},
+						{
+							"id": 5074,
+							"name": "sendMessage",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"signatures": [
+								{
+									"id": 5075,
+									"name": "sendMessage",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"__visited__": true
+									},
+									"comment": {
+										"shortText": "Send a message, or schedule it to be sent. Return a promise that resolves\nwhen the message has been sent."
+									},
+									"parameters": [
+										{
+											"id": 5076,
+											"name": "name",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "stringLiteral",
+														"value": "coverage"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "serverEnd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "serverStart"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "tunnelDownloadProgress"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "tunnelStart"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "tunnelStatus"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "tunnelStop"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "*"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "afterRun"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "beforeRun"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "deprecated"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "error"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "log"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "runEnd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "runStart"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "suiteAdd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "suiteEnd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "suiteStart"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "testAdd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "testEnd"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "testStart"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "warning"
+													},
+													{
+														"type": "stringLiteral",
+														"value": "remoteStatus"
+													}
+												]
+											}
+										},
+										{
+											"id": 5077,
+											"name": "data",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									},
+									"inheritedFrom": {
+										"type": "reference",
+										"name": "BaseChannel.sendMessage",
+										"id": 1125
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "lib/channels/Base.ts",
+									"line": 17,
+									"character": 12
+								}
+							],
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "BaseChannel.sendMessage",
+								"id": 1125
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Constructors",
+							"kind": 512,
+							"children": [
+								5063
+							]
+						},
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								5062,
+								5058,
+								5061,
+								5059,
+								5060,
+								5073,
+								5072
+							]
+						},
+						{
+							"title": "Methods",
+							"kind": 2048,
+							"children": [
+								5066,
+								5070,
+								5074
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "lib/channels/Http.ts",
+							"line": 7,
+							"character": 32
+						}
+					],
+					"extendedTypes": [
+						{
+							"type": "reference",
+							"name": "BaseChannel",
+							"id": 1119
+						}
+					]
+				},
+				{
+					"id": 5078,
+					"name": "HttpChannelOptions",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {
+						"isExported": true,
+						"isExternal": true,
+						"__visited__": true
+					},
+					"children": [
+						{
+							"id": 5079,
+							"name": "maxPostSize",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isOptional": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/Http.ts",
+									"line": 103,
+									"character": 12
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "number"
+									}
+								]
+							}
+						},
+						{
+							"id": 5082,
+							"name": "port",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isOptional": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "A websocket port"
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/Base.ts",
+									"line": 42,
+									"character": 5
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "number"
+									}
+								]
+							},
+							"overwrites": {
+								"type": "reference",
+								"name": "ChannelOptions.port",
+								"id": 1136
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "ChannelOptions.port",
+								"id": 1136
+							}
+						},
+						{
+							"id": 5080,
+							"name": "sessionId",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/Base.ts",
+									"line": 36,
+									"character": 10
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							},
+							"overwrites": {
+								"type": "reference",
+								"name": "ChannelOptions.sessionId",
+								"id": 1134
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "ChannelOptions.sessionId",
+								"id": 1134
+							}
+						},
+						{
+							"id": 5083,
+							"name": "timeout",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isOptional": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "A timeout for websocket responses"
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/Base.ts",
+									"line": 45,
+									"character": 8
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "number"
+									}
+								]
+							},
+							"overwrites": {
+								"type": "reference",
+								"name": "ChannelOptions.timeout",
+								"id": 1137
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "ChannelOptions.timeout",
+								"id": 1137
+							}
+						},
+						{
+							"id": 5081,
+							"name": "url",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "An HTTP URL that the testing host can be reached at"
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/Base.ts",
+									"line": 39,
+									"character": 4
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							},
+							"overwrites": {
+								"type": "reference",
+								"name": "ChannelOptions.url",
+								"id": 1135
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "ChannelOptions.url",
+								"id": 1135
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								5079,
+								5082,
+								5080,
+								5083,
+								5081
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "lib/channels/Http.ts",
+							"line": 102,
+							"character": 35
+						}
+					],
+					"extendedTypes": [
+						{
+							"type": "reference",
+							"name": "ChannelOptions",
+							"id": 1133
+						}
+					]
+				},
+				{
+					"id": 5084,
+					"name": "MessageEntry",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {
+						"isExported": true,
+						"isExternal": true,
+						"__visited__": true
+					},
+					"children": [
+						{
+							"id": 5085,
+							"name": "message",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/Http.ts",
+									"line": 107,
+									"character": 8
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 5090,
+							"name": "reject",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/Http.ts",
+									"line": 109,
+									"character": 7
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 5091,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {
+										"__visited__": true
+									},
+									"signatures": [
+										{
+											"id": 5092,
+											"name": "__call",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {
+												"__visited__": true
+											},
+											"parameters": [
+												{
+													"id": 5093,
+													"name": "error",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {
+														"__visited__": true
+													},
+													"type": {
+														"type": "reference",
+														"name": "Error"
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									],
+									"sources": [
+										{
+											"fileName": "lib/channels/Http.ts",
+											"line": 109,
+											"character": 8
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 5086,
+							"name": "resolve",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/Http.ts",
+									"line": 108,
+									"character": 8
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 5087,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {
+										"__visited__": true
+									},
+									"signatures": [
+										{
+											"id": 5088,
+											"name": "__call",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {
+												"__visited__": true
+											},
+											"parameters": [
+												{
+													"id": 5089,
+													"name": "value",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {
+														"__visited__": true
+													},
+													"type": {
+														"type": "intrinsic",
+														"name": "any"
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									],
+									"sources": [
+										{
+											"fileName": "lib/channels/Http.ts",
+											"line": 108,
+											"character": 9
+										}
+									]
+								}
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								5085,
+								5090,
+								5086
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "lib/channels/Http.ts",
+							"line": 106,
+							"character": 29
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Classes",
+					"kind": 128,
+					"children": [
+						5057
+					]
+				},
+				{
+					"title": "Interfaces",
+					"kind": 256,
+					"children": [
+						5078,
+						5084
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "lib/channels/Http.ts",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 5018,
+			"name": "\"lib/channels/WebSocket\"",
+			"kind": 1,
+			"kindString": "External module",
+			"flags": {
+				"isExported": true,
+				"isExternal": true,
+				"__visited__": true
+			},
+			"originalName": "src/lib/channels/WebSocket.ts",
+			"children": [
+				{
+					"id": 5019,
+					"name": "WebSocketChannel",
+					"kind": 128,
+					"kindString": "Class",
+					"flags": {
+						"isExported": true,
+						"isExternal": true,
+						"__visited__": true
+					},
+					"children": [
+						{
+							"id": 5037,
+							"name": "constructor",
+							"kind": 512,
+							"kindString": "Constructor",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"signatures": [
+								{
+									"id": 5038,
+									"name": "new WebSocketChannel",
+									"kind": 16384,
+									"kindString": "Constructor signature",
+									"flags": {
+										"__visited__": true
+									},
+									"parameters": [
+										{
+											"id": 5039,
+											"name": "options",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "reference",
+												"name": "ChannelOptions",
+												"id": 1133
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "WebSocketChannel",
+										"id": 5019
+									},
+									"overwrites": {
+										"type": "reference",
+										"name": "BaseChannel.__constructor",
+										"id": 1122
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "lib/channels/WebSocket.ts",
+									"line": 18,
+									"character": 29
+								}
+							],
+							"overwrites": {
+								"type": "reference",
+								"name": "BaseChannel.__constructor",
+								"id": 1122
+							}
+						},
+						{
+							"id": 5035,
+							"name": "_ready",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isProtected": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/WebSocket.ts",
+									"line": 17,
+									"character": 17
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "Task",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "any"
+									}
+								]
+							}
+						},
+						{
+							"id": 5022,
+							"name": "_sendQueue",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isProtected": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/WebSocket.ts",
+									"line": 12,
+									"character": 21
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 5023,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {
+										"__visited__": true
+									},
+									"indexSignature": [
+										{
+											"id": 5024,
+											"name": "__index",
+											"kind": 8192,
+											"kindString": "Index signature",
+											"flags": {
+												"__visited__": true
+											},
+											"parameters": [
+												{
+													"id": 5025,
+													"name": "key",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {
+														"__visited__": true
+													},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											],
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "reflection",
+														"declaration": {
+															"id": 5026,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {
+																"__visited__": true
+															},
+															"children": [
+																{
+																	"id": 5031,
+																	"name": "reject",
+																	"kind": 32,
+																	"kindString": "Variable",
+																	"flags": {
+																		"isExternal": true,
+																		"__visited__": true
+																	},
+																	"sources": [
+																		{
+																			"fileName": "lib/channels/WebSocket.ts",
+																			"line": 14,
+																			"character": 44
+																		}
+																	],
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 5032,
+																			"name": "__type",
+																			"kind": 65536,
+																			"kindString": "Type literal",
+																			"flags": {
+																				"__visited__": true
+																			},
+																			"signatures": [
+																				{
+																					"id": 5033,
+																					"name": "__call",
+																					"kind": 4096,
+																					"kindString": "Call signature",
+																					"flags": {
+																						"__visited__": true
+																					},
+																					"parameters": [
+																						{
+																							"id": 5034,
+																							"name": "error",
+																							"kind": 32768,
+																							"kindString": "Parameter",
+																							"flags": {
+																								"__visited__": true
+																							},
+																							"type": {
+																								"type": "reference",
+																								"name": "Error"
+																							}
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "void"
+																					}
+																				}
+																			],
+																			"sources": [
+																				{
+																					"fileName": "lib/channels/WebSocket.ts",
+																					"line": 14,
+																					"character": 45
+																				}
+																			]
+																		}
+																	}
+																},
+																{
+																	"id": 5027,
+																	"name": "resolve",
+																	"kind": 32,
+																	"kindString": "Variable",
+																	"flags": {
+																		"isExternal": true,
+																		"__visited__": true
+																	},
+																	"sources": [
+																		{
+																			"fileName": "lib/channels/WebSocket.ts",
+																			"line": 14,
+																			"character": 14
+																		}
+																	],
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 5028,
+																			"name": "__type",
+																			"kind": 65536,
+																			"kindString": "Type literal",
+																			"flags": {
+																				"__visited__": true
+																			},
+																			"signatures": [
+																				{
+																					"id": 5029,
+																					"name": "__call",
+																					"kind": 4096,
+																					"kindString": "Call signature",
+																					"flags": {
+																						"__visited__": true
+																					},
+																					"parameters": [
+																						{
+																							"id": 5030,
+																							"name": "value",
+																							"kind": 32768,
+																							"kindString": "Parameter",
+																							"flags": {
+																								"__visited__": true
+																							},
+																							"type": {
+																								"type": "intrinsic",
+																								"name": "any"
+																							}
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "void"
+																					}
+																				}
+																			],
+																			"sources": [
+																				{
+																					"fileName": "lib/channels/WebSocket.ts",
+																					"line": 14,
+																					"character": 15
+																				}
+																			]
+																		}
+																	}
+																}
+															],
+															"groups": [
+																{
+																	"title": "Variables",
+																	"kind": 32,
+																	"children": [
+																		5031,
+																		5027
+																	]
+																}
+															],
+															"sources": [
+																{
+																	"fileName": "lib/channels/WebSocket.ts",
+																	"line": 14,
+																	"character": 4
+																}
+															]
+														}
+													},
+													{
+														"type": "intrinsic",
+														"name": "undefined"
+													}
+												]
+											}
+										}
+									],
+									"sources": [
+										{
+											"fileName": "lib/channels/WebSocket.ts",
+											"line": 12,
+											"character": 22
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 5036,
+							"name": "_sequence",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isProtected": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/WebSocket.ts",
+									"line": 18,
+									"character": 20
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 5021,
+							"name": "_socket",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isProtected": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/WebSocket.ts",
+									"line": 11,
+									"character": 18
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "WebSocket"
+							}
+						},
+						{
+							"id": 5051,
+							"name": "sessionId",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/Base.ts",
+									"line": 6,
+									"character": 19
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "BaseChannel.sessionId",
+								"id": 1121
+							}
+						},
+						{
+							"id": 5020,
+							"name": "timeout",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"comment": {
+								"shortText": "Time to wait for response before rejecting a send"
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/WebSocket.ts",
+									"line": 9,
+									"character": 8
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 5050,
+							"name": "url",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "lib/channels/Base.ts",
+									"line": 5,
+									"character": 13
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "BaseChannel.url",
+								"id": 1120
+							}
+						},
+						{
+							"id": 5047,
+							"name": "_handleError",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isProtected": true,
+								"__visited__": true
+							},
+							"signatures": [
+								{
+									"id": 5048,
+									"name": "_handleError",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"__visited__": true
+									},
+									"parameters": [
+										{
+											"id": 5049,
+											"name": "error",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "reference",
+												"name": "Error"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "void"
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "lib/channels/WebSocket.ts",
+									"line": 88,
+									"character": 23
+								}
+							]
+						},
+						{
+							"id": 5044,
+							"name": "_handleMessage",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isProtected": true,
+								"__visited__": true
+							},
+							"signatures": [
+								{
+									"id": 5045,
+									"name": "_handleMessage",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"__visited__": true
+									},
+									"parameters": [
+										{
+											"id": 5046,
+											"name": "message",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "void"
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "lib/channels/WebSocket.ts",
+									"line": 82,
+									"character": 25
+								}
+							]
+						},
+						{
+							"id": 5040,
+							"name": "_sendData",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"isProtected": true,
+								"__visited__": true
+							},
+							"signatures": [
+								{
+									"id": 5041,
+									"name": "_sendData",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"__visited__": true
+									},
+									"parameters": [
+										{
+											"id": 5042,
+											"name": "name",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 5043,
+											"name": "data",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Task",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									},
+									"overwrites": {
+										"type": "reference",
+										"name": "BaseChannel._sendData",
+										"id": 1129
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "lib/channels/WebSocket.ts",
+									"line": 55,
+									"character": 20
+								}
+							],
+							"overwrites": {
+								"type": "reference",
+								"name": "BaseChannel._sendData",
+								"id": 1129
+							}
+						},
+						{
+							"id": 5052,
+							"name": "sendMessage",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isExternal": true,
+								"__visited__": true
+							},
+							"signatures": [
+								{
+									"id": 5053,
+									"name": "sendMessage",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"__visited__": true
+									},
+									"comment": {
+										"shortText": "Send a message, or schedule it to be sent. Return a promise that resolves\nwhen the message has been sent."
 									},
 									"parameters": [
 										{
@@ -50642,231 +52178,6 @@
 										"typeArguments": [
 											{
 												"type": "intrinsic",
-												"name": "Object"
-											}
-										]
-									},
-									"overwrites": {
-										"type": "reference",
-										"name": "BaseChannel._sendData",
-										"id": 1129
-									}
-								}
-							],
-							"sources": [
-								{
-									"fileName": "lib/channels/Http.ts",
-									"line": 22,
-									"character": 20
-								}
-							],
-							"overwrites": {
-								"type": "reference",
-								"name": "BaseChannel._sendData",
-								"id": 1129
-							}
-						},
-						{
-							"id": 5056,
-							"name": "_sendMessages",
-							"kind": 2048,
-							"kindString": "Method",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isProtected": true,
-								"__visited__": true
-							},
-							"signatures": [
-								{
-									"id": 5057,
-									"name": "_sendMessages",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"__visited__": true
-									},
-									"comment": {
-										"shortText": "Some testing services have problems handling large message POSTs, so\nlimit the maximum size of each POST body to maxPostSize bytes. Always\nsend at least one message, even if it's more than maxPostSize bytes."
-									},
-									"type": {
-										"type": "union",
-										"types": [
-											{
-												"type": "reference",
-												"name": "Task",
-												"typeArguments": [
-													{
-														"type": "intrinsic",
-														"name": "any"
-													}
-												]
-											},
-											{
-												"type": "intrinsic",
-												"name": "undefined"
-											}
-										]
-									}
-								}
-							],
-							"sources": [
-								{
-									"fileName": "lib/channels/Http.ts",
-									"line": 56,
-									"character": 24
-								}
-							]
-						},
-						{
-							"id": 5060,
-							"name": "sendMessage",
-							"kind": 2048,
-							"kindString": "Method",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"signatures": [
-								{
-									"id": 5061,
-									"name": "sendMessage",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"__visited__": true
-									},
-									"comment": {
-										"shortText": "Send a message, or schedule it to be sent. Return a promise that resolves\nwhen the message has been sent."
-									},
-									"parameters": [
-										{
-											"id": 5062,
-											"name": "name",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "union",
-												"types": [
-													{
-														"type": "stringLiteral",
-														"value": "coverage"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "serverEnd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "serverStart"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "tunnelDownloadProgress"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "tunnelStart"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "tunnelStatus"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "tunnelStop"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "*"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "afterRun"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "beforeRun"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "deprecated"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "error"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "log"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "runEnd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "runStart"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "suiteAdd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "suiteEnd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "suiteStart"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "testAdd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "testEnd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "testStart"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "warning"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "remoteStatus"
-													}
-												]
-											}
-										},
-										{
-											"id": 5063,
-											"name": "data",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "intrinsic",
-												"name": "any"
-											}
-										}
-									],
-									"type": {
-										"type": "reference",
-										"name": "Task",
-										"typeArguments": [
-											{
-												"type": "intrinsic",
 												"name": "any"
 											}
 										]
@@ -50897,1341 +52208,30 @@
 							"title": "Constructors",
 							"kind": 512,
 							"children": [
-								5049
+								5037
 							]
 						},
 						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								5048,
-								5044,
-								5047,
-								5045,
-								5046,
-								5059,
-								5058
-							]
-						},
-						{
-							"title": "Methods",
-							"kind": 2048,
-							"children": [
-								5052,
-								5056,
-								5060
-							]
-						}
-					],
-					"sources": [
-						{
-							"fileName": "lib/channels/Http.ts",
-							"line": 7,
-							"character": 32
-						}
-					],
-					"extendedTypes": [
-						{
-							"type": "reference",
-							"name": "BaseChannel",
-							"id": 1119
-						}
-					]
-				},
-				{
-					"id": 5064,
-					"name": "HttpChannelOptions",
-					"kind": 256,
-					"kindString": "Interface",
-					"flags": {
-						"isExported": true,
-						"isExternal": true,
-						"__visited__": true
-					},
-					"children": [
-						{
-							"id": 5065,
-							"name": "maxPostSize",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isOptional": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/Http.ts",
-									"line": 103,
-									"character": 12
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "number"
-									}
-								]
-							}
-						},
-						{
-							"id": 5068,
-							"name": "port",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isOptional": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "A websocket port"
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/Base.ts",
-									"line": 42,
-									"character": 5
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "number"
-									}
-								]
-							},
-							"overwrites": {
-								"type": "reference",
-								"name": "ChannelOptions.port",
-								"id": 1136
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "ChannelOptions.port",
-								"id": 1136
-							}
-						},
-						{
-							"id": 5066,
-							"name": "sessionId",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/Base.ts",
-									"line": 36,
-									"character": 10
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							},
-							"overwrites": {
-								"type": "reference",
-								"name": "ChannelOptions.sessionId",
-								"id": 1134
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "ChannelOptions.sessionId",
-								"id": 1134
-							}
-						},
-						{
-							"id": 5069,
-							"name": "timeout",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isOptional": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "A timeout for websocket responses"
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/Base.ts",
-									"line": 45,
-									"character": 8
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "number"
-									}
-								]
-							},
-							"overwrites": {
-								"type": "reference",
-								"name": "ChannelOptions.timeout",
-								"id": 1137
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "ChannelOptions.timeout",
-								"id": 1137
-							}
-						},
-						{
-							"id": 5067,
-							"name": "url",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "An HTTP URL that the testing host can be reached at"
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/Base.ts",
-									"line": 39,
-									"character": 4
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							},
-							"overwrites": {
-								"type": "reference",
-								"name": "ChannelOptions.url",
-								"id": 1135
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "ChannelOptions.url",
-								"id": 1135
-							}
-						}
-					],
-					"groups": [
-						{
-							"title": "Properties",
-							"kind": 1024,
-							"children": [
-								5065,
-								5068,
-								5066,
-								5069,
-								5067
-							]
-						}
-					],
-					"sources": [
-						{
-							"fileName": "lib/channels/Http.ts",
-							"line": 102,
-							"character": 35
-						}
-					],
-					"extendedTypes": [
-						{
-							"type": "reference",
-							"name": "ChannelOptions",
-							"id": 1133
-						}
-					]
-				},
-				{
-					"id": 5070,
-					"name": "MessageEntry",
-					"kind": 256,
-					"kindString": "Interface",
-					"flags": {
-						"isExported": true,
-						"isExternal": true,
-						"__visited__": true
-					},
-					"children": [
-						{
-							"id": 5071,
-							"name": "message",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/Http.ts",
-									"line": 107,
-									"character": 8
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							}
-						},
-						{
-							"id": 5076,
-							"name": "reject",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/Http.ts",
-									"line": 109,
-									"character": 7
-								}
-							],
-							"type": {
-								"type": "reflection",
-								"declaration": {
-									"id": 5077,
-									"name": "__type",
-									"kind": 65536,
-									"kindString": "Type literal",
-									"flags": {
-										"__visited__": true
-									},
-									"signatures": [
-										{
-											"id": 5078,
-											"name": "__call",
-											"kind": 4096,
-											"kindString": "Call signature",
-											"flags": {
-												"__visited__": true
-											},
-											"parameters": [
-												{
-													"id": 5079,
-													"name": "error",
-													"kind": 32768,
-													"kindString": "Parameter",
-													"flags": {
-														"__visited__": true
-													},
-													"type": {
-														"type": "reference",
-														"name": "Error"
-													}
-												}
-											],
-											"type": {
-												"type": "intrinsic",
-												"name": "void"
-											}
-										}
-									],
-									"sources": [
-										{
-											"fileName": "lib/channels/Http.ts",
-											"line": 109,
-											"character": 8
-										}
-									]
-								}
-							}
-						},
-						{
-							"id": 5072,
-							"name": "resolve",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/Http.ts",
-									"line": 108,
-									"character": 8
-								}
-							],
-							"type": {
-								"type": "reflection",
-								"declaration": {
-									"id": 5073,
-									"name": "__type",
-									"kind": 65536,
-									"kindString": "Type literal",
-									"flags": {
-										"__visited__": true
-									},
-									"signatures": [
-										{
-											"id": 5074,
-											"name": "__call",
-											"kind": 4096,
-											"kindString": "Call signature",
-											"flags": {
-												"__visited__": true
-											},
-											"parameters": [
-												{
-													"id": 5075,
-													"name": "value",
-													"kind": 32768,
-													"kindString": "Parameter",
-													"flags": {
-														"__visited__": true
-													},
-													"type": {
-														"type": "intrinsic",
-														"name": "any"
-													}
-												}
-											],
-											"type": {
-												"type": "intrinsic",
-												"name": "void"
-											}
-										}
-									],
-									"sources": [
-										{
-											"fileName": "lib/channels/Http.ts",
-											"line": 108,
-											"character": 9
-										}
-									]
-								}
-							}
-						}
-					],
-					"groups": [
-						{
-							"title": "Properties",
-							"kind": 1024,
-							"children": [
-								5071,
-								5076,
-								5072
-							]
-						}
-					],
-					"sources": [
-						{
-							"fileName": "lib/channels/Http.ts",
-							"line": 106,
-							"character": 29
-						}
-					]
-				}
-			],
-			"groups": [
-				{
-					"title": "Classes",
-					"kind": 128,
-					"children": [
-						5043
-					]
-				},
-				{
-					"title": "Interfaces",
-					"kind": 256,
-					"children": [
-						5064,
-						5070
-					]
-				}
-			],
-			"sources": [
-				{
-					"fileName": "lib/channels/Http.ts",
-					"line": 1,
-					"character": 0
-				}
-			]
-		},
-		{
-			"id": 5004,
-			"name": "\"lib/channels/WebSocket\"",
-			"kind": 1,
-			"kindString": "External module",
-			"flags": {
-				"isExported": true,
-				"isExternal": true,
-				"__visited__": true
-			},
-			"originalName": "src/lib/channels/WebSocket.ts",
-			"children": [
-				{
-					"id": 5005,
-					"name": "WebSocketChannel",
-					"kind": 128,
-					"kindString": "Class",
-					"flags": {
-						"isExported": true,
-						"isExternal": true,
-						"__visited__": true
-					},
-					"children": [
-						{
-							"id": 5023,
-							"name": "constructor",
-							"kind": 512,
-							"kindString": "Constructor",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"signatures": [
-								{
-									"id": 5024,
-									"name": "new WebSocketChannel",
-									"kind": 16384,
-									"kindString": "Constructor signature",
-									"flags": {
-										"__visited__": true
-									},
-									"parameters": [
-										{
-											"id": 5025,
-											"name": "options",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "reference",
-												"name": "ChannelOptions",
-												"id": 1133
-											}
-										}
-									],
-									"type": {
-										"type": "reference",
-										"name": "WebSocketChannel",
-										"id": 5005
-									},
-									"overwrites": {
-										"type": "reference",
-										"name": "BaseChannel.__constructor",
-										"id": 1122
-									}
-								}
-							],
-							"sources": [
-								{
-									"fileName": "lib/channels/WebSocket.ts",
-									"line": 18,
-									"character": 29
-								}
-							],
-							"overwrites": {
-								"type": "reference",
-								"name": "BaseChannel.__constructor",
-								"id": 1122
-							}
-						},
-						{
-							"id": 5021,
-							"name": "_ready",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isProtected": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/WebSocket.ts",
-									"line": 17,
-									"character": 17
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "Task",
-								"typeArguments": [
-									{
-										"type": "intrinsic",
-										"name": "any"
-									}
-								]
-							}
-						},
-						{
-							"id": 5008,
-							"name": "_sendQueue",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isProtected": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/WebSocket.ts",
-									"line": 12,
-									"character": 21
-								}
-							],
-							"type": {
-								"type": "reflection",
-								"declaration": {
-									"id": 5009,
-									"name": "__type",
-									"kind": 65536,
-									"kindString": "Type literal",
-									"flags": {
-										"__visited__": true
-									},
-									"indexSignature": [
-										{
-											"id": 5010,
-											"name": "__index",
-											"kind": 8192,
-											"kindString": "Index signature",
-											"flags": {
-												"__visited__": true
-											},
-											"parameters": [
-												{
-													"id": 5011,
-													"name": "key",
-													"kind": 32768,
-													"kindString": "Parameter",
-													"flags": {
-														"__visited__": true
-													},
-													"type": {
-														"type": "intrinsic",
-														"name": "string"
-													}
-												}
-											],
-											"type": {
-												"type": "union",
-												"types": [
-													{
-														"type": "reflection",
-														"declaration": {
-															"id": 5012,
-															"name": "__type",
-															"kind": 65536,
-															"kindString": "Type literal",
-															"flags": {
-																"__visited__": true
-															},
-															"children": [
-																{
-																	"id": 5017,
-																	"name": "reject",
-																	"kind": 32,
-																	"kindString": "Variable",
-																	"flags": {
-																		"isExternal": true,
-																		"__visited__": true
-																	},
-																	"sources": [
-																		{
-																			"fileName": "lib/channels/WebSocket.ts",
-																			"line": 14,
-																			"character": 44
-																		}
-																	],
-																	"type": {
-																		"type": "reflection",
-																		"declaration": {
-																			"id": 5018,
-																			"name": "__type",
-																			"kind": 65536,
-																			"kindString": "Type literal",
-																			"flags": {
-																				"__visited__": true
-																			},
-																			"signatures": [
-																				{
-																					"id": 5019,
-																					"name": "__call",
-																					"kind": 4096,
-																					"kindString": "Call signature",
-																					"flags": {
-																						"__visited__": true
-																					},
-																					"parameters": [
-																						{
-																							"id": 5020,
-																							"name": "error",
-																							"kind": 32768,
-																							"kindString": "Parameter",
-																							"flags": {
-																								"__visited__": true
-																							},
-																							"type": {
-																								"type": "reference",
-																								"name": "Error"
-																							}
-																						}
-																					],
-																					"type": {
-																						"type": "intrinsic",
-																						"name": "void"
-																					}
-																				}
-																			],
-																			"sources": [
-																				{
-																					"fileName": "lib/channels/WebSocket.ts",
-																					"line": 14,
-																					"character": 45
-																				}
-																			]
-																		}
-																	}
-																},
-																{
-																	"id": 5013,
-																	"name": "resolve",
-																	"kind": 32,
-																	"kindString": "Variable",
-																	"flags": {
-																		"isExternal": true,
-																		"__visited__": true
-																	},
-																	"sources": [
-																		{
-																			"fileName": "lib/channels/WebSocket.ts",
-																			"line": 14,
-																			"character": 14
-																		}
-																	],
-																	"type": {
-																		"type": "reflection",
-																		"declaration": {
-																			"id": 5014,
-																			"name": "__type",
-																			"kind": 65536,
-																			"kindString": "Type literal",
-																			"flags": {
-																				"__visited__": true
-																			},
-																			"signatures": [
-																				{
-																					"id": 5015,
-																					"name": "__call",
-																					"kind": 4096,
-																					"kindString": "Call signature",
-																					"flags": {
-																						"__visited__": true
-																					},
-																					"parameters": [
-																						{
-																							"id": 5016,
-																							"name": "value",
-																							"kind": 32768,
-																							"kindString": "Parameter",
-																							"flags": {
-																								"__visited__": true
-																							},
-																							"type": {
-																								"type": "intrinsic",
-																								"name": "any"
-																							}
-																						}
-																					],
-																					"type": {
-																						"type": "intrinsic",
-																						"name": "void"
-																					}
-																				}
-																			],
-																			"sources": [
-																				{
-																					"fileName": "lib/channels/WebSocket.ts",
-																					"line": 14,
-																					"character": 15
-																				}
-																			]
-																		}
-																	}
-																}
-															],
-															"groups": [
-																{
-																	"title": "Variables",
-																	"kind": 32,
-																	"children": [
-																		5017,
-																		5013
-																	]
-																}
-															],
-															"sources": [
-																{
-																	"fileName": "lib/channels/WebSocket.ts",
-																	"line": 14,
-																	"character": 4
-																}
-															]
-														}
-													},
-													{
-														"type": "intrinsic",
-														"name": "undefined"
-													}
-												]
-											}
-										}
-									],
-									"sources": [
-										{
-											"fileName": "lib/channels/WebSocket.ts",
-											"line": 12,
-											"character": 22
-										}
-									]
-								}
-							}
-						},
-						{
-							"id": 5022,
-							"name": "_sequence",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isProtected": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/WebSocket.ts",
-									"line": 18,
-									"character": 20
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "number"
-							}
-						},
-						{
-							"id": 5007,
-							"name": "_socket",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isProtected": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/WebSocket.ts",
-									"line": 11,
-									"character": 18
-								}
-							],
-							"type": {
-								"type": "reference",
-								"name": "WebSocket"
-							}
-						},
-						{
-							"id": 5037,
-							"name": "sessionId",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/Base.ts",
-									"line": 6,
-									"character": 19
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "BaseChannel.sessionId",
-								"id": 1121
-							}
-						},
-						{
-							"id": 5006,
-							"name": "timeout",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"comment": {
-								"shortText": "Time to wait for response before rejecting a send"
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/WebSocket.ts",
-									"line": 9,
-									"character": 8
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "number"
-							}
-						},
-						{
-							"id": 5036,
-							"name": "url",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"sources": [
-								{
-									"fileName": "lib/channels/Base.ts",
-									"line": 5,
-									"character": 13
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "BaseChannel.url",
-								"id": 1120
-							}
-						},
-						{
-							"id": 5033,
-							"name": "_handleError",
-							"kind": 2048,
-							"kindString": "Method",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isProtected": true,
-								"__visited__": true
-							},
-							"signatures": [
-								{
-									"id": 5034,
-									"name": "_handleError",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"__visited__": true
-									},
-									"parameters": [
-										{
-											"id": 5035,
-											"name": "error",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "reference",
-												"name": "Error"
-											}
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "void"
-									}
-								}
-							],
-							"sources": [
-								{
-									"fileName": "lib/channels/WebSocket.ts",
-									"line": 88,
-									"character": 23
-								}
-							]
-						},
-						{
-							"id": 5030,
-							"name": "_handleMessage",
-							"kind": 2048,
-							"kindString": "Method",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isProtected": true,
-								"__visited__": true
-							},
-							"signatures": [
-								{
-									"id": 5031,
-									"name": "_handleMessage",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"__visited__": true
-									},
-									"parameters": [
-										{
-											"id": 5032,
-											"name": "message",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "intrinsic",
-												"name": "any"
-											}
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "void"
-									}
-								}
-							],
-							"sources": [
-								{
-									"fileName": "lib/channels/WebSocket.ts",
-									"line": 82,
-									"character": 25
-								}
-							]
-						},
-						{
-							"id": 5026,
-							"name": "_sendData",
-							"kind": 2048,
-							"kindString": "Method",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"isProtected": true,
-								"__visited__": true
-							},
-							"signatures": [
-								{
-									"id": 5027,
-									"name": "_sendData",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"__visited__": true
-									},
-									"parameters": [
-										{
-											"id": 5028,
-											"name": "name",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "intrinsic",
-												"name": "string"
-											}
-										},
-										{
-											"id": 5029,
-											"name": "data",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "intrinsic",
-												"name": "any"
-											}
-										}
-									],
-									"type": {
-										"type": "reference",
-										"name": "Task",
-										"typeArguments": [
-											{
-												"type": "intrinsic",
-												"name": "void"
-											}
-										]
-									},
-									"overwrites": {
-										"type": "reference",
-										"name": "BaseChannel._sendData",
-										"id": 1129
-									}
-								}
-							],
-							"sources": [
-								{
-									"fileName": "lib/channels/WebSocket.ts",
-									"line": 55,
-									"character": 20
-								}
-							],
-							"overwrites": {
-								"type": "reference",
-								"name": "BaseChannel._sendData",
-								"id": 1129
-							}
-						},
-						{
-							"id": 5038,
-							"name": "sendMessage",
-							"kind": 2048,
-							"kindString": "Method",
-							"flags": {
-								"isExported": true,
-								"isExternal": true,
-								"__visited__": true
-							},
-							"signatures": [
-								{
-									"id": 5039,
-									"name": "sendMessage",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"__visited__": true
-									},
-									"comment": {
-										"shortText": "Send a message, or schedule it to be sent. Return a promise that resolves\nwhen the message has been sent."
-									},
-									"parameters": [
-										{
-											"id": 5040,
-											"name": "name",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "union",
-												"types": [
-													{
-														"type": "stringLiteral",
-														"value": "coverage"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "serverEnd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "serverStart"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "tunnelDownloadProgress"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "tunnelStart"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "tunnelStatus"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "tunnelStop"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "*"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "afterRun"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "beforeRun"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "deprecated"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "error"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "log"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "runEnd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "runStart"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "suiteAdd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "suiteEnd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "suiteStart"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "testAdd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "testEnd"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "testStart"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "warning"
-													},
-													{
-														"type": "stringLiteral",
-														"value": "remoteStatus"
-													}
-												]
-											}
-										},
-										{
-											"id": 5041,
-											"name": "data",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "intrinsic",
-												"name": "any"
-											}
-										}
-									],
-									"type": {
-										"type": "reference",
-										"name": "Task",
-										"typeArguments": [
-											{
-												"type": "intrinsic",
-												"name": "any"
-											}
-										]
-									},
-									"inheritedFrom": {
-										"type": "reference",
-										"name": "BaseChannel.sendMessage",
-										"id": 1125
-									}
-								}
-							],
-							"sources": [
-								{
-									"fileName": "lib/channels/Base.ts",
-									"line": 17,
-									"character": 12
-								}
-							],
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "BaseChannel.sendMessage",
-								"id": 1125
-							}
-						}
-					],
-					"groups": [
-						{
-							"title": "Constructors",
-							"kind": 512,
-							"children": [
-								5023
-							]
-						},
-						{
-							"title": "Properties",
-							"kind": 1024,
-							"children": [
-								5021,
-								5008,
+								5035,
 								5022,
-								5007,
-								5037,
-								5006,
-								5036
+								5036,
+								5021,
+								5051,
+								5020,
+								5050
 							]
 						},
 						{
 							"title": "Methods",
 							"kind": 2048,
 							"children": [
-								5033,
-								5030,
-								5026,
-								5038
+								5047,
+								5044,
+								5040,
+								5052
 							]
 						}
 					],
@@ -52256,7 +52256,7 @@
 					"title": "Classes",
 					"kind": 128,
 					"children": [
-						5005
+						5019
 					]
 				}
 			],
@@ -88110,7 +88110,7 @@
 					"defaultValue": " global.process"
 				},
 				{
-					"id": 4947,
+					"id": 4955,
 					"name": "sourceMapRegEx",
 					"kind": 32,
 					"kindString": "Variable",
@@ -88121,7 +88121,7 @@
 					"sources": [
 						{
 							"fileName": "lib/node/util.ts",
-							"line": 146,
+							"line": 161,
 							"character": 20
 						}
 					],
@@ -88230,6 +88230,9 @@
 										"isOptional": true,
 										"__visited__": true
 									},
+									"comment": {
+										"text": "A config file"
+									},
 									"type": {
 										"type": "union",
 										"types": [
@@ -88272,67 +88275,30 @@
 													"sources": [
 														{
 															"fileName": "lib/node/util.ts",
-															"line": 90,
-															"character": 37
+															"line": 55,
+															"character": 55
 														}
 													],
 													"type": {
-														"type": "reflection",
-														"declaration": {
-															"id": 4933,
-															"name": "__type",
-															"kind": 65536,
-															"kindString": "Type literal",
-															"flags": {
-																"__visited__": true
-															},
-															"indexSignature": [
-																{
-																	"id": 4934,
-																	"name": "__index",
-																	"kind": 8192,
-																	"kindString": "Index signature",
-																	"flags": {
-																		"__visited__": true
-																	},
-																	"parameters": [
-																		{
-																			"id": 4935,
-																			"name": "key",
-																			"kind": 32768,
-																			"kindString": "Parameter",
-																			"flags": {
-																				"__visited__": true
-																			},
-																			"type": {
-																				"type": "intrinsic",
-																				"name": "string"
-																			}
-																		}
-																	],
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "any"
-																	}
-																}
-															]
-														}
+														"type": "intrinsic",
+														"name": "any"
 													}
 												},
 												{
-													"id": 4936,
+													"id": 4933,
 													"name": "file",
 													"kind": 32,
 													"kindString": "Variable",
 													"flags": {
 														"isExternal": true,
+														"isOptional": true,
 														"__visited__": true
 													},
 													"sources": [
 														{
 															"fileName": "lib/node/util.ts",
-															"line": 90,
-															"character": 43
+															"line": 55,
+															"character": 66
 														}
 													],
 													"type": {
@@ -88356,8 +88322,262 @@
 													"kind": 32,
 													"children": [
 														4932,
-														4936
+														4933
 													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "lib/node/util.ts",
+													"line": 55,
+													"character": 47
+												}
+											]
+										}
+									}
+								]
+							}
+						},
+						{
+							"id": 4934,
+							"name": "getConfig",
+							"kind": 4096,
+							"kindString": "Call signature",
+							"flags": {
+								"__visited__": true
+							},
+							"parameters": [
+								{
+									"id": 4935,
+									"name": "argv",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isOptional": true,
+										"__visited__": true
+									},
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "string"
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "Task",
+								"typeArguments": [
+									{
+										"type": "reflection",
+										"declaration": {
+											"id": 4936,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {
+												"__visited__": true
+											},
+											"children": [
+												{
+													"id": 4937,
+													"name": "config",
+													"kind": 32,
+													"kindString": "Variable",
+													"flags": {
+														"isExternal": true,
+														"__visited__": true
+													},
+													"sources": [
+														{
+															"fileName": "lib/node/util.ts",
+															"line": 58,
+															"character": 16
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "any"
+													}
+												},
+												{
+													"id": 4938,
+													"name": "file",
+													"kind": 32,
+													"kindString": "Variable",
+													"flags": {
+														"isExternal": true,
+														"isOptional": true,
+														"__visited__": true
+													},
+													"sources": [
+														{
+															"fileName": "lib/node/util.ts",
+															"line": 58,
+															"character": 27
+														}
+													],
+													"type": {
+														"type": "union",
+														"types": [
+															{
+																"type": "intrinsic",
+																"name": "undefined"
+															},
+															{
+																"type": "intrinsic",
+																"name": "string"
+															}
+														]
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Variables",
+													"kind": 32,
+													"children": [
+														4937,
+														4938
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "lib/node/util.ts",
+													"line": 58,
+													"character": 8
+												}
+											]
+										}
+									}
+								]
+							}
+						},
+						{
+							"id": 4939,
+							"name": "getConfig",
+							"kind": 4096,
+							"kindString": "Call signature",
+							"flags": {
+								"__visited__": true
+							},
+							"parameters": [
+								{
+									"id": 4940,
+									"name": "file",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"__visited__": true
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								},
+								{
+									"id": 4941,
+									"name": "argv",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isOptional": true,
+										"__visited__": true
+									},
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "string"
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "Task",
+								"typeArguments": [
+									{
+										"type": "reflection",
+										"declaration": {
+											"id": 4942,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {
+												"__visited__": true
+											},
+											"children": [
+												{
+													"id": 4943,
+													"name": "config",
+													"kind": 32,
+													"kindString": "Variable",
+													"flags": {
+														"isExternal": true,
+														"__visited__": true
+													},
+													"sources": [
+														{
+															"fileName": "lib/node/util.ts",
+															"line": 62,
+															"character": 16
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "any"
+													}
+												},
+												{
+													"id": 4944,
+													"name": "file",
+													"kind": 32,
+													"kindString": "Variable",
+													"flags": {
+														"isExternal": true,
+														"isOptional": true,
+														"__visited__": true
+													},
+													"sources": [
+														{
+															"fileName": "lib/node/util.ts",
+															"line": 62,
+															"character": 27
+														}
+													],
+													"type": {
+														"type": "union",
+														"types": [
+															{
+																"type": "intrinsic",
+																"name": "undefined"
+															},
+															{
+																"type": "intrinsic",
+																"name": "string"
+															}
+														]
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Variables",
+													"kind": 32,
+													"children": [
+														4943,
+														4944
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "lib/node/util.ts",
+													"line": 62,
+													"character": 8
 												}
 											]
 										}
@@ -88369,13 +88589,28 @@
 					"sources": [
 						{
 							"fileName": "lib/node/util.ts",
-							"line": 51,
+							"line": 55,
+							"character": 25
+						},
+						{
+							"fileName": "lib/node/util.ts",
+							"line": 56,
+							"character": 25
+						},
+						{
+							"fileName": "lib/node/util.ts",
+							"line": 59,
+							"character": 25
+						},
+						{
+							"fileName": "lib/node/util.ts",
+							"line": 63,
 							"character": 25
 						}
 					]
 				},
 				{
-					"id": 4944,
+					"id": 4952,
 					"name": "loadText",
 					"kind": 64,
 					"kindString": "Function",
@@ -88385,7 +88620,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4945,
+							"id": 4953,
 							"name": "loadText",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -88397,7 +88632,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4946,
+									"id": 4954,
 									"name": "path",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -88425,13 +88660,13 @@
 					"sources": [
 						{
 							"fileName": "lib/node/util.ts",
-							"line": 133,
+							"line": 148,
 							"character": 17
 						}
 					]
 				},
 				{
-					"id": 4937,
+					"id": 4945,
 					"name": "normalizePath",
 					"kind": 64,
 					"kindString": "Function",
@@ -88442,7 +88677,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4938,
+							"id": 4946,
 							"name": "normalizePath",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -88454,7 +88689,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4939,
+									"id": 4947,
 									"name": "path",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -88476,13 +88711,13 @@
 					"sources": [
 						{
 							"fileName": "lib/node/util.ts",
-							"line": 96,
+							"line": 111,
 							"character": 29
 						}
 					]
 				},
 				{
-					"id": 4940,
+					"id": 4948,
 					"name": "readSourceMap",
 					"kind": 64,
 					"kindString": "Function",
@@ -88493,7 +88728,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4941,
+							"id": 4949,
 							"name": "readSourceMap",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -88505,7 +88740,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4942,
+									"id": 4950,
 									"name": "sourceFile",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -88518,7 +88753,7 @@
 									}
 								},
 								{
-									"id": 4943,
+									"id": 4951,
 									"name": "code",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -88559,7 +88794,7 @@
 					"sources": [
 						{
 							"fileName": "lib/node/util.ts",
-							"line": 104,
+							"line": 119,
 							"character": 29
 						}
 					]
@@ -88571,7 +88806,7 @@
 					"kind": 32,
 					"children": [
 						4924,
-						4947
+						4955
 					]
 				},
 				{
@@ -88580,9 +88815,9 @@
 					"children": [
 						4925,
 						4928,
-						4944,
-						4937,
-						4940
+						4952,
+						4945,
+						4948
 					]
 				}
 			],
@@ -112404,7 +112639,7 @@
 			]
 		},
 		{
-			"id": 4958,
+			"id": 4966,
 			"name": "\"loaders/default\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -112422,7 +112657,7 @@
 			]
 		},
 		{
-			"id": 4959,
+			"id": 4967,
 			"name": "\"loaders/dojo\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -112440,7 +112675,7 @@
 			]
 		},
 		{
-			"id": 4960,
+			"id": 4968,
 			"name": "\"loaders/dojo2\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -112458,7 +112693,7 @@
 			]
 		},
 		{
-			"id": 4961,
+			"id": 4969,
 			"name": "\"loaders/esm\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -112476,7 +112711,7 @@
 			]
 		},
 		{
-			"id": 4962,
+			"id": 4970,
 			"name": "\"loaders/systemjs\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -112494,7 +112729,7 @@
 			]
 		},
 		{
-			"id": 4963,
+			"id": 4971,
 			"name": "\"tasks/intern\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -112505,7 +112740,7 @@
 			"originalName": "src/tasks/intern.ts",
 			"children": [
 				{
-					"id": 4964,
+					"id": 4972,
 					"name": "TaskOptions",
 					"kind": 256,
 					"kindString": "Interface",
@@ -112514,7 +112749,7 @@
 					},
 					"indexSignature": [
 						{
-							"id": 4965,
+							"id": 4973,
 							"name": "__index",
 							"kind": 8192,
 							"kindString": "Index signature",
@@ -112523,7 +112758,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4966,
+									"id": 4974,
 									"name": "key",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -112544,7 +112779,7 @@
 					],
 					"children": [
 						{
-							"id": 4968,
+							"id": 4976,
 							"name": "files",
 							"kind": 1024,
 							"kindString": "Property",
@@ -112569,7 +112804,7 @@
 							}
 						},
 						{
-							"id": 4967,
+							"id": 4975,
 							"name": "options",
 							"kind": 1024,
 							"kindString": "Property",
@@ -112599,15 +112834,15 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								4968,
-								4967
+								4976,
+								4975
 							]
 						}
 					],
 					"sources": [
 						{
 							"fileName": "tasks/intern.ts",
-							"line": 6,
+							"line": 32,
 							"character": 21
 						}
 					],
@@ -112619,7 +112854,7 @@
 						{
 							"type": "reflection",
 							"declaration": {
-								"id": 4969,
+								"id": 4977,
 								"name": "__type",
 								"kind": 65536,
 								"kindString": "Type literal",
@@ -112629,11 +112864,139 @@
 								"sources": [
 									{
 										"fileName": "tasks/intern.ts",
-										"line": 6,
+										"line": 32,
 										"character": 54
 									}
 								]
 							}
+						}
+					]
+				},
+				{
+					"id": 4978,
+					"name": "getConfigAndOptions",
+					"kind": 64,
+					"kindString": "Function",
+					"flags": {
+						"__visited__": true
+					},
+					"signatures": [
+						{
+							"id": 4979,
+							"name": "getConfigAndOptions",
+							"kind": 4096,
+							"kindString": "Call signature",
+							"flags": {
+								"__visited__": true
+							},
+							"parameters": [
+								{
+									"id": 4980,
+									"name": "options",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"__visited__": true
+									},
+									"type": {
+										"type": "reference",
+										"name": "TaskOptions",
+										"id": 4972
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "Promise",
+								"typeArguments": [
+									{
+										"type": "reflection",
+										"declaration": {
+											"id": 4981,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {
+												"__visited__": true
+											},
+											"children": [
+												{
+													"id": 4982,
+													"name": "config",
+													"kind": 32,
+													"kindString": "Variable",
+													"flags": {
+														"__visited__": true
+													},
+													"sources": [
+														{
+															"fileName": "tasks/intern.ts",
+															"line": 39,
+															"character": 7
+														}
+													],
+													"type": {
+														"type": "reference",
+														"name": "Partial",
+														"typeArguments": [
+															{
+																"type": "reference",
+																"name": "Config",
+																"id": 4752
+															}
+														]
+													}
+												},
+												{
+													"id": 4983,
+													"name": "options",
+													"kind": 32,
+													"kindString": "Variable",
+													"flags": {
+														"__visited__": true
+													},
+													"sources": [
+														{
+															"fileName": "tasks/intern.ts",
+															"line": 40,
+															"character": 8
+														}
+													],
+													"type": {
+														"type": "reference",
+														"name": "TaskOptions",
+														"id": 4972
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Variables",
+													"kind": 32,
+													"children": [
+														4982,
+														4983
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "tasks/intern.ts",
+													"line": 38,
+													"character": 11
+												}
+											]
+										}
+									}
+								]
+							}
+						}
+					],
+					"sources": [
+						{
+							"fileName": "tasks/intern.ts",
+							"line": 36,
+							"character": 28
 						}
 					]
 				}
@@ -112643,7 +113006,14 @@
 					"title": "Interfaces",
 					"kind": 256,
 					"children": [
-						4964
+						4972
+					]
+				},
+				{
+					"title": "Functions",
+					"kind": 64,
+					"children": [
+						4978
 					]
 				}
 			],
@@ -112661,11 +113031,11 @@
 			"title": "External modules",
 			"kind": 1,
 			"children": [
-				4952,
-				4948,
+				4960,
+				4956,
 				4421,
 				2691,
-				5080,
+				5094,
 				1,
 				506,
 				102,
@@ -112673,10 +113043,10 @@
 				1161,
 				4172,
 				4090,
-				4970,
+				4984,
 				1118,
-				5042,
-				5004,
+				5056,
+				5018,
 				32,
 				4842,
 				811,
@@ -112710,12 +113080,12 @@
 				3263,
 				523,
 				21,
-				4958,
-				4959,
-				4960,
-				4961,
-				4962,
-				4963
+				4966,
+				4967,
+				4968,
+				4969,
+				4970,
+				4971
 			]
 		}
 	]
