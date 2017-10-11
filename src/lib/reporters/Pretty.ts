@@ -10,7 +10,7 @@ import Suite from '../Suite';
 import Test from '../Test';
 import RemoteSuite from '../RemoteSuite';
 import { createEventHandler } from './Reporter';
-import Coverage, { CoverageProperties } from './Coverage';
+import TextCoverage, { TextCoverageProperties } from './TextCoverage';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import { Events, TunnelMessage } from '../executors/Node';
 
@@ -19,7 +19,7 @@ const eventHandler = createEventHandler<Events>();
 /**
  * Handles presentation of runner results to the user
  */
-export default class Pretty extends Coverage implements PrettyProperties {
+export default class Pretty extends TextCoverage implements PrettyProperties {
 	colorReplacement: { [key: string]: string };
 	dimensions: any;
 	titleWidth: number;
@@ -437,7 +437,7 @@ export default class Pretty extends Coverage implements PrettyProperties {
 	}
 }
 
-export interface PrettyProperties extends CoverageProperties {
+export interface PrettyProperties extends TextCoverageProperties {
 	colorReplacement: { [key: string]: string };
 	dimensions: any;
 	maxProgressBarWidth: number;

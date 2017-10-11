@@ -1,13 +1,13 @@
 import { CoverageMap } from 'istanbul-lib-coverage';
 import { spy, stub } from 'sinon';
-import _Coverage, { CoverageProperties } from 'src/lib/reporters/Coverage';
+import _Coverage, { CoverageOptions } from 'src/lib/reporters/Coverage';
 
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 interface FullCoverage extends _Coverage {
-	new (executor: Node, options: CoverageProperties): _Coverage;
+	new (executor: Node, options: CoverageOptions): _Coverage;
 }
 
 registerSuite('lib/reporters/Coverage', function() {
@@ -79,6 +79,7 @@ registerSuite('lib/reporters/Coverage', function() {
 
 			'#createCoverageReport': {
 				'without data'() {
+					mockExecutor.coverageMap = { files: () => [] };
 					const reporter = new Coverage(mockExecutor, <any>{});
 					reporter.createCoverageReport('text', {});
 					assert.equal(mockVisit.callCount, 1);
@@ -92,6 +93,7 @@ registerSuite('lib/reporters/Coverage', function() {
 				},
 
 				'with data'() {
+					mockExecutor.coverageMap = { files: () => [] };
 					const reporter = new Coverage(mockExecutor, <any>{});
 					reporter.createCoverageReport('json', <CoverageMap>{
 						files() {}
@@ -104,6 +106,24 @@ registerSuite('lib/reporters/Coverage', function() {
 						'json',
 						'report should be assigned value'
 					);
+				}
+			},
+
+			'#getReporterOptions': {
+				'filename included'() {
+					const reporter = new Coverage(<any>{ on() {} }, {
+						filename: 'foo'
+					});
+					assert.deepEqual(reporter.getReporterOptions(), {
+						file: 'foo'
+					});
+				},
+
+				'filename not included'() {
+					const reporter = new Coverage(<any>{ on() {} }, {});
+					assert.deepEqual(reporter.getReporterOptions(), {
+						file: undefined
+					});
 				}
 			},
 
@@ -123,7 +143,7 @@ registerSuite('lib/reporters/Coverage', function() {
 					mockExecutor.coverageMap = { files: () => ['foo.js'] };
 					reporter.runEnd();
 					assert.equal(create.callCount, 1);
-					assert.equal(create.getCall(0).args[0], 'text');
+					assert.equal(create.getCall(0).args[0], undefined);
 					assert.equal(
 						create.getCall(0).args[1],
 						mockExecutor.coverageMap
