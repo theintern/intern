@@ -1,78 +1,34 @@
-import {
-	CoverageMap,
-	CoverageMapData,
-	createCoverageMap
-} from 'istanbul-lib-coverage';
-import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
-import { create, ReportType } from 'istanbul-reports';
-import Reporter, { createEventHandler, ReporterProperties } from './Reporter';
-import Node, { Events } from '../executors/Node';
+import BaseCoverage, {
+	ReportType, BaseCoverageProperties
+} from './BaseCoverage';
+import Node from '../executors/Node';
 
-export { ReportType };
-
-const eventHandler = createEventHandler<Events>();
-
-export default abstract class Coverage extends Reporter
+export default class Coverage extends BaseCoverage
 	implements CoverageProperties {
-	readonly reportType: ReportType = 'text';
 
-	executor: Node;
-	filename: string;
-	watermarks: Watermarks;
+	readonly reportType: ReportType = 'text';
+	maxColumns: number;
 
 	constructor(executor: Node, options: CoverageOptions = {}) {
 		super(executor, options);
 
-		if (options.filename) {
-			this.filename = options.filename;
-		}
-		if (options.watermarks) {
-			this.watermarks = options.watermarks;
+		if (options.maxColumns) {
+			this.maxColumns = options.maxColumns;
 		}
 	}
 
-	createCoverageReport(
-		type: ReportType,
-		data: CoverageMapData | CoverageMap
-	) {
-		let map: CoverageMap;
+	getReporterOptions(): { [key: string]: any; } {
+		const options = super.getReporterOptions();
 
-		if (isCoverageMap(data)) {
-			map = data;
-		} else {
-			map = createCoverageMap(data);
-		}
+		options.maxColumns = this.maxColumns;
 
-		const transformed = this.executor.sourceMapStore.transformCoverage(map);
-
-		const context = createContext({
-			sourceFinder: transformed.sourceFinder,
-			watermarks: this.watermarks
-		});
-		const tree = summarizers.pkg(transformed.map);
-		const report = create(type, { file: this.filename });
-		tree.visit(report, context);
-	}
-
-	@eventHandler()
-	runEnd(): void {
-		const map = this.executor.coverageMap;
-		if (map.files().length > 0) {
-			this.createCoverageReport(this.reportType, map);
-		}
+		return options;
 	}
 }
 
-export interface CoverageProperties extends ReporterProperties {
-	/** A filename to write coverage data to */
-	filename?: string;
-
-	/** Watermarks used to check coverage */
-	watermarks?: Watermarks;
+export interface CoverageProperties extends BaseCoverageProperties {
+	/** Maximum number of columns */
+	maxColumns: number;
 }
 
 export type CoverageOptions = Partial<CoverageProperties>;
-
-function isCoverageMap(value: any): value is CoverageMap {
-	return value != null && typeof value.files === 'function';
-}

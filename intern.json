@@ -48,6 +48,7 @@
 			"_tests/tests/unit/lib/middleware/**/*.js",
 			"_tests/tests/unit/lib/node/ErrorFormatter.js",
 			"_tests/tests/unit/lib/node/util.js",
+			"_tests/tests/unit/lib/reporters/BaseCoverage.js",
 			"_tests/tests/unit/lib/reporters/Benchmark.js",
 			"_tests/tests/unit/lib/reporters/Cobertura.js",
 			"_tests/tests/unit/lib/reporters/Coverage.js",

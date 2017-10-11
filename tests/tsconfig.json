@@ -24,6 +24,7 @@
 		"./unit/lib/interfaces/tdd.ts",
 		"./unit/lib/middleware/*.ts",
 		"./unit/lib/node/*.ts",
+		"./unit/lib/reporters/BaseCoverage.ts",
 		"./unit/lib/reporters/Benchmark.ts",
 		"./unit/lib/reporters/Cobertura.ts",
 		"./unit/lib/reporters/Console.ts",
