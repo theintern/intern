@@ -60,6 +60,7 @@
 			"_tests/tests/unit/lib/reporters/Runner.js",
 			"_tests/tests/unit/lib/reporters/Simple.js",
 			"_tests/tests/unit/lib/reporters/TeamCity.js",
+			"_tests/tests/unit/lib/reporters/TextCoverage.js",
 			"_tests/tests/unit/tasks/intern.js"
 		],
 		"plugins": [

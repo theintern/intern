@@ -14,10 +14,12 @@ const eventHandler = createEventHandler<Events>();
 
 export default abstract class Coverage extends Reporter
 	implements CoverageProperties {
-	readonly reportType: ReportType = 'text';
+
+	abstract readonly reportType: ReportType;
 
 	executor: Node;
 	filename: string;
+	directory: string;
 	watermarks: Watermarks;
 
 	constructor(executor: Node, options: CoverageOptions = {}) {
@@ -26,9 +28,18 @@ export default abstract class Coverage extends Reporter
 		if (options.filename) {
 			this.filename = options.filename;
 		}
+		if (options.directory) {
+			this.directory = options.directory;
+		}
 		if (options.watermarks) {
 			this.watermarks = options.watermarks;
 		}
+	}
+
+	getReporterOptions(): { [key: string]: any; } {
+		return {
+			file: this.filename
+		};
 	}
 
 	createCoverageReport(
@@ -46,11 +57,12 @@ export default abstract class Coverage extends Reporter
 		const transformed = this.executor.sourceMapStore.transformCoverage(map);
 
 		const context = createContext({
+			dir: this.directory,
 			sourceFinder: transformed.sourceFinder,
 			watermarks: this.watermarks
 		});
 		const tree = summarizers.pkg(transformed.map);
-		const report = create(type, { file: this.filename });
+		const report = create(type, this.getReporterOptions());
 		tree.visit(report, context);
 	}
 
@@ -66,6 +78,9 @@ export default abstract class Coverage extends Reporter
 export interface CoverageProperties extends ReporterProperties {
 	/** A filename to write coverage data to */
 	filename?: string;
+
+	/** A direcotry to write coverage data to */
+	directory?: string;
 
 	/** Watermarks used to check coverage */
 	watermarks?: Watermarks;

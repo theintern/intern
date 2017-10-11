@@ -39,6 +39,7 @@
 		"./unit/lib/reporters/Runner.ts",
 		"./unit/lib/reporters/Simple.ts",
 		"./unit/lib/reporters/TeamCity.ts",
+		"./unit/lib/reporters/TextCoverage.ts",
 		"./unit/lib/*.ts",
 		"./unit/loaders/*.ts",
 		"./unit/tasks/*.ts",
