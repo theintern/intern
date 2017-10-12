@@ -1,22 +1,22 @@
-import Coverage from 'src/lib/reporters/Coverage';
+import TextCoverage from 'src/lib/reporters/TextCoverage';
 
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 
-registerSuite('lib/reporters/Coverage', {
+registerSuite('lib/reporters/TextCoverage', {
 	construct() {
-		const reporter = new Coverage(<any>{ on() {} });
+		const reporter = new TextCoverage(<any>{ on() {} });
 		assert.equal(reporter.reportType, 'text');
 	},
 
 	'#getReporterOptions': {
 		'maxColumns included'() {
-			const reporter = new Coverage(<any>{ on() {} }, { maxColumns: 80 });
+			const reporter = new TextCoverage(<any>{ on() {} }, { maxColumns: 80 });
 			assert.equal(reporter.getReporterOptions().maxColumns, 80);
 		},
 
 		'maxColumns not included'() {
-			const reporter = new Coverage(<any>{ on() {} }, {});
+			const reporter = new TextCoverage(<any>{ on() {} }, {});
 			assert.equal(reporter.getReporterOptions().maxColumns, undefined);
 		}
 	}

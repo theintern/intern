@@ -12,8 +12,8 @@ export { ReportType };
 
 const eventHandler = createEventHandler<Events>();
 
-export default abstract class BaseCoverage extends Reporter
-	implements BaseCoverageProperties {
+export default abstract class Coverage extends Reporter
+	implements CoverageProperties {
 
 	abstract readonly reportType: ReportType;
 
@@ -22,7 +22,7 @@ export default abstract class BaseCoverage extends Reporter
 	directory: string;
 	watermarks: Watermarks;
 
-	constructor(executor: Node, options: BaseCoverageOptions = {}) {
+	constructor(executor: Node, options: CoverageOptions = {}) {
 		super(executor, options);
 
 		if (options.filename) {
@@ -75,7 +75,7 @@ export default abstract class BaseCoverage extends Reporter
 	}
 }
 
-export interface BaseCoverageProperties extends ReporterProperties {
+export interface CoverageProperties extends ReporterProperties {
 	/** A filename to write coverage data to */
 	filename?: string;
 
@@ -86,7 +86,7 @@ export interface BaseCoverageProperties extends ReporterProperties {
 	watermarks?: Watermarks;
 }
 
-export type BaseCoverageOptions = Partial<BaseCoverageProperties>;
+export type CoverageOptions = Partial<CoverageProperties>;
 
 function isCoverageMap(value: any): value is CoverageMap {
 	return value != null && typeof value.files === 'function';

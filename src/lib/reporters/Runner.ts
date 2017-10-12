@@ -5,7 +5,7 @@ import { Writable } from 'stream';
 import Test from '../Test';
 import Suite from '../Suite';
 import { createEventHandler } from './Reporter';
-import Coverage, { CoverageProperties } from './Coverage';
+import TextCoverage, { TextCoverageProperties } from './TextCoverage';
 import Server from '../Server';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
 import Node, { Events, TunnelMessage } from '../executors/Node';
@@ -15,7 +15,7 @@ export type Charm = charm.CharmInstance;
 
 const eventHandler = createEventHandler<Events>();
 
-export default class Runner extends Coverage implements RunnerProperties {
+export default class Runner extends TextCoverage implements RunnerProperties {
 	sessions: {
 		[sessionId: string]: {
 			coverage?: CoverageMap;
@@ -318,7 +318,7 @@ export default class Runner extends Coverage implements RunnerProperties {
 	}
 }
 
-export interface RunnerProperties extends CoverageProperties {
+export interface RunnerProperties extends TextCoverageProperties {
 	hidePassed: boolean;
 	hideSkipped: boolean;
 }

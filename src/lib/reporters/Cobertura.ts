@@ -1,9 +1,7 @@
-import BaseCoverage, {
-	ReportType, BaseCoverageProperties
-} from './BaseCoverage';
+import Coverage, { ReportType, CoverageProperties } from './Coverage';
 import Node from '../executors/Node';
 
-export default class Cobertura extends BaseCoverage
+export default class Cobertura extends Coverage
 	implements CoberturaCoverageProperties {
 
 	readonly reportType: ReportType = 'cobertura';
@@ -26,7 +24,7 @@ export default class Cobertura extends BaseCoverage
 	}
 }
 
-export interface CoberturaCoverageProperties extends BaseCoverageProperties {
+export interface CoberturaCoverageProperties extends CoverageProperties {
 	projectRoot?: string;
 }
 

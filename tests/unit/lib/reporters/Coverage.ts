@@ -1,18 +1,16 @@
 import { CoverageMap } from 'istanbul-lib-coverage';
 import { spy, stub } from 'sinon';
-import _BaseCoverage, {
-	BaseCoverageOptions
-} from 'src/lib/reporters/BaseCoverage';
+import _Coverage, { CoverageOptions } from 'src/lib/reporters/Coverage';
 
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-interface FullCoverage extends _BaseCoverage {
-	new (executor: Node, options: BaseCoverageOptions): _BaseCoverage;
+interface FullCoverage extends _Coverage {
+	new (executor: Node, options: CoverageOptions): _Coverage;
 }
 
-registerSuite('lib/reporters/BaseCoverage', function() {
+registerSuite('lib/reporters/Coverage', function() {
 	const mockExecutor = <any>{
 		formatError: spy(),
 		on: spy(),
@@ -38,7 +36,7 @@ registerSuite('lib/reporters/BaseCoverage', function() {
 
 	return {
 		before() {
-			return mockRequire(require, 'src/lib/reporters/BaseCoverage', {
+			return mockRequire(require, 'src/lib/reporters/Coverage', {
 				'@dojo/shim/global': { default: mockGlobal },
 				'istanbul-lib-coverage': {
 					createCoverageMap: mockCreateCoverageMap
@@ -52,7 +50,7 @@ registerSuite('lib/reporters/BaseCoverage', function() {
 				'istanbul-reports': { create: mockCreate }
 			}).then(handle => {
 				removeMocks = handle.remove;
-				Coverage = <any> class extends handle.module.default { };
+				Coverage = handle.module.default;
 			});
 		},
 

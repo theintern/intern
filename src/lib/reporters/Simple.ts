@@ -1,12 +1,12 @@
 import Suite from '../Suite';
 import Test from '../Test';
-import Coverage from './Coverage';
+import TextCoverage from './TextCoverage';
 import { eventHandler } from './Reporter';
 
 /**
  * The Simple reporter outputs to the terminal console.
  */
-export default class Simple extends Coverage {
+export default class Simple extends TextCoverage {
 	@eventHandler()
 	error(error: Error) {
 		this.console.error(this.formatError(error));

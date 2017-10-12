@@ -1,9 +1,7 @@
-import BaseCoverage, {
-	ReportType, BaseCoverageProperties
-} from './BaseCoverage';
+import Coverage, { ReportType, CoverageProperties } from './Coverage';
 import Node from '../executors/Node';
 
-export default class HtmlCoverage extends BaseCoverage
+export default class HtmlCoverage extends Coverage
 	implements HtmlCoverageProperties {
 
 	readonly reportType: ReportType = 'html';
@@ -26,7 +24,7 @@ export default class HtmlCoverage extends BaseCoverage
 	}
 }
 
-export interface HtmlCoverageProperties extends BaseCoverageProperties {
+export interface HtmlCoverageProperties extends CoverageProperties {
 	verbose: boolean;
 }
 

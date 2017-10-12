@@ -1,15 +1,13 @@
-import BaseCoverage, {
-	ReportType, BaseCoverageProperties
-} from './BaseCoverage';
+import Coverage, { ReportType, CoverageProperties } from './Coverage';
 import Node from '../executors/Node';
 
-export default class Coverage extends BaseCoverage
-	implements CoverageProperties {
+export default class TextCoverage extends Coverage
+	implements TextCoverageProperties {
 
 	readonly reportType: ReportType = 'text';
 	maxColumns: number;
 
-	constructor(executor: Node, options: CoverageOptions = {}) {
+	constructor(executor: Node, options: TextCoverageOptions = {}) {
 		super(executor, options);
 
 		if (options.maxColumns) {
@@ -26,9 +24,9 @@ export default class Coverage extends BaseCoverage
 	}
 }
 
-export interface CoverageProperties extends BaseCoverageProperties {
+export interface TextCoverageProperties extends CoverageProperties {
 	/** Maximum number of columns */
 	maxColumns: number;
 }
 
-export type CoverageOptions = Partial<CoverageProperties>;
+export type TextCoverageOptions = Partial<TextCoverageProperties>;
