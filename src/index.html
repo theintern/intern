@@ -46,7 +46,7 @@
 					}
 
 					// Intern automatically reports run errors, so discard one if we get it
-					intern.run().catch(_error => {});
+					intern.run().catch(function (_error) {});
 				},
 				function (error) {
 					console.error('Error initializing Intern:', error);

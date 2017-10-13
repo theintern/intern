@@ -55,11 +55,10 @@ registerSuite('bin/intern', function() {
 				const mockExecutor = createMockNodeExecutor();
 				return mockRequire(require, 'src/bin/intern', {
 					'src/lib/node/util': mockNodeUtil,
+					'src/lib/common/console': mockConsole,
 					'src/lib/common/util': mockCommonUtil,
 					'src/index': { default: mockExecutor },
-					'@dojo/shim/global': {
-						default: { process: {}, console: mockConsole }
-					}
+					'@dojo/shim/global': { default: { process: {} } }
 				}).then(handle => {
 					removeMocks = handle.remove;
 					assert.equal(mockNodeUtil.getConfig.callCount, 1);
@@ -79,10 +78,11 @@ registerSuite('bin/intern', function() {
 
 				return mockRequire(require, 'src/bin/intern', {
 					'src/lib/node/util': mockNodeUtil,
+					'src/lib/common/console': mockConsole,
 					'src/lib/common/util': mockCommonUtil,
 					'src/index': { default: createMockNodeExecutor() },
 					'@dojo/shim/global': {
-						default: { process: {}, console: mockConsole }
+						default: { process: {} }
 					}
 				}).then(handle => {
 					removeMocks = handle.remove;
@@ -99,10 +99,11 @@ registerSuite('bin/intern', function() {
 				'intern defined'() {
 					return mockRequire(require, 'src/bin/intern', {
 						'src/lib/node/util': mockNodeUtil,
+						'src/lib/common/console': mockConsole,
 						'src/lib/common/util': mockCommonUtil,
 						'src/index': { default: createMockNodeExecutor() },
 						'@dojo/shim/global': {
-							default: { process: {}, console: mockConsole }
+							default: { process: {} }
 						}
 					}).then(handle => {
 						removeMocks = handle.remove;
@@ -120,12 +121,12 @@ registerSuite('bin/intern', function() {
 
 					return mockRequire(require, 'src/bin/intern', {
 						'src/lib/node/util': mockNodeUtil,
+						'src/lib/common/console': mockConsole,
 						'src/lib/common/util': mockCommonUtil,
 						'src/index': { default: createMockNodeExecutor() },
 						'@dojo/shim/global': {
 							default: {
-								process: { stdout: process.stdout },
-								console: mockConsole
+								process: { stdout: process.stdout }
 							}
 						}
 					})
@@ -157,10 +158,11 @@ registerSuite('bin/intern', function() {
 
 				return mockRequire(require, 'src/bin/intern', {
 					'src/lib/node/util': mockNodeUtil,
+					'src/lib/common/console': mockConsole,
 					'src/lib/common/util': mockCommonUtil,
 					'src/index': { default: mockExecutor },
 					'@dojo/shim/global': {
-						default: { process: {}, console: mockConsole }
+						default: { process: {} }
 					}
 				}).then(handle => {
 					removeMocks = handle.remove;

@@ -46,6 +46,7 @@ import Server from '../Server';
 import Suite, { isSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
 import { RuntimeEnvironment } from '../types';
+import * as console from '../common/console';
 
 // Reporters
 import Pretty from '../reporters/Pretty';
@@ -59,7 +60,6 @@ import Lcov from '../reporters/Lcov';
 import Benchmark from '../reporters/Benchmark';
 import TeamCity from '../reporters/TeamCity';
 
-const console: Console = global.console;
 const process: NodeJS.Process = global.process;
 
 export default class Node extends Executor<Events, Config, NodePlugins> {

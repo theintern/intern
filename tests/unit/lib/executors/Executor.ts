@@ -84,12 +84,10 @@ registerSuite('lib/executors/Executor', function() {
 				'src/lib/common/ErrorFormatter': {
 					default: MockErrorFormatter
 				},
+				'src/lib/common/console': mockConsole,
 				chai: mockChai,
 				'@dojo/shim/global': {
-					default: {
-						console: mockConsole,
-						__coverage__: {}
-					}
+					default: { __coverage__: {} }
 				}
 			}).then(handle => {
 				removeMocks = handle.remove;

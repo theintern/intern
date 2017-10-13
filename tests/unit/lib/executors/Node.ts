@@ -190,7 +190,6 @@ registerSuite('lib/executors/Node', function() {
 	};
 
 	const mockGlobal = {
-		console: mockConsole,
 		__coverage__: {},
 		process: {
 			cwd: () => '',
@@ -238,6 +237,7 @@ registerSuite('lib/executors/Node', function() {
 				'src/lib/common/ErrorFormatter': {
 					default: MockErrorFormatter
 				},
+				'src/lib/common/console': mockConsole,
 				'src/lib/node/util': mockNodeUtil,
 				chai: mockChai,
 				path: mockPath,

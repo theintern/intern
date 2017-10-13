@@ -10,8 +10,7 @@ import global from '@dojo/shim/global';
 import { getConfig } from '../lib/node/util';
 import { getConfigDescription } from '../lib/common/util';
 import intern from '../index';
-
-const console = global.console;
+import * as console from '../lib/common/console';
 
 getConfig()
 	.then(({ config, file }) => {

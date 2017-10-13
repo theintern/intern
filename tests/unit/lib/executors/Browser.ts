@@ -36,7 +36,6 @@ registerSuite('lib/executors/Browser', function() {
 	};
 
 	const mockGlobal = {
-		console: mockConsole,
 		location: { pathname: '/' },
 		__coverage__: {},
 		addEventListener: sandbox.spy(() => {}),
@@ -80,6 +79,7 @@ registerSuite('lib/executors/Browser', function() {
 				'src/lib/common/ErrorFormatter': {
 					default: MockErrorFormatter
 				},
+				'src/lib/common/console': mockConsole,
 				'@dojo/core/request/providers/xhr': { default: request },
 				chai: mockChai,
 				minimatch: { Minimatch: MockMiniMatch },

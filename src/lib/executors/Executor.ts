@@ -32,8 +32,7 @@ import {
 } from '../interfaces/benchmark';
 import { BenchmarkReporterOptions } from '../reporters/Benchmark';
 import { InternError, RuntimeEnvironment } from '../types';
-
-const console: Console = global.console;
+import * as console from '../common/console';
 
 /**
  * This is the base executor class.

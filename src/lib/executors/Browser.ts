@@ -3,6 +3,7 @@ import request from '@dojo/core/request/providers/xhr';
 import Task from '@dojo/core/async/Task';
 import global from '@dojo/shim/global';
 
+import * as console from '../common/console';
 import Executor, { Config, Events } from './Executor';
 import { normalizePathEnding } from '../common/util';
 import { RuntimeEnvironment } from '../types';
@@ -11,8 +12,6 @@ import { RuntimeEnvironment } from '../types';
 import Html from '../reporters/Html';
 import Dom from '../reporters/Dom';
 import ConsoleReporter from '../reporters/Console';
-
-const console: Console = global.console;
 
 /**
  * A Browser executor is used to run unit tests in a browser.
