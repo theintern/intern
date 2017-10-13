@@ -110,7 +110,7 @@
   },
   "devDependencies": {
     "@dojo/loader": "~2.0.0-beta2.2",
-    "@theintern/dev": "~0.5.10",
+    "@theintern/dev": "~0.5.11",
     "@types/body-parser": "~1.16.4",
     "@types/chalk": "~0.4.31",
     "@types/glob": "~5.0.30",
