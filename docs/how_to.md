@@ -121,9 +121,12 @@ If you’d rather not install Intern, you can load the package from a CDN, like:
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
+
         <script src="https://unpkg.com/intern@next/browser/intern.js"></script>
         <script>
             var registerSuite = intern.getInterface('object').registerSuite;
+
             registerSuite('app/module', {
                 test1: function () {
                     // ...
@@ -133,7 +136,8 @@ If you’d rather not install Intern, you can load the package from a CDN, like:
                 },
                 // ...
             });
-            intern.config({ reporters: 'html' });
+
+            intern.configure({ reporters: 'html' });
             intern.run();
         </script>
     </head>
