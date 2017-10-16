@@ -1279,6 +1279,19 @@ export interface ResourceConfig {
 
 	/**
 	 * A list of paths or glob expressions that point to suite scripts.
+	 *
+	 * ```js
+	 * {
+	 *     suites: [
+	 *         'tests/unit/**\/*.js',
+	 *         'tests/intergration/request.js'
+	 *     ]
+	 * }
+	 * ```
+	 *
+	 * Note that using globs with the browser client requires that Intern's
+	 * server be used to serve the tests. The server can be run in standalone
+	 * mode by setting the `serveOnly` option.
 	 */
 	suites: string[];
 }

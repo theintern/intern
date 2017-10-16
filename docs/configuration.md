@@ -14,6 +14,7 @@
     * [showConfigs](#showconfigs)
 * [Environment-specific config](#environment-specific-config)
 * [Properties](#properties)
+    * [Suite glob expressions](#suite-glob-expressions)
     * [extends](#extends)
 * [Configuration resolution](#configuration-resolution)
 
@@ -224,7 +225,7 @@ A number of config properties are applicable whether Intern is running in Node o
 | [loader]                 | An optional loader script and options                                                      | `{ script: 'default' }`
 | [plugins]                | A list of Intern extensions to load before tests begin                                     | `[]`
 | [reporters]              | A list of reporters to use                                                                 | `[]`
-| [suites]                 | A list of suites to load unit tests from                                                   | `[]`
+| [suites]                 | A list of suite paths or [globs](#suite-glob-expressions) to load unit tests from          | `[]`
 
 Some properties are only meaningful for Node or WebDriver tests:
 
@@ -258,6 +259,32 @@ There are also several properties that are handled by the config file processing
 | help        | Display a help message                                             |
 | showConfig  | When true, show the resolved configuration and exit                |
 | showConfigs | When true, show information about the currently loaded config file |
+
+### Suite glob expressions
+
+Suites may be specified as file paths or using glob expressions. Globbing is handled with the [glob](https://github.com/isaacs/node-glob) Node package.
+
+```js
+{
+    "suites": [
+        "tests/unit/**/*.js",
+        "tests/integration/foo.js"
+    ]
+}
+```
+
+Intern also understands glob-based exclusion using the `!` modifier:
+
+```js
+{
+    "suites": [
+        "tests/**/*.js",
+        "!tests/functional/**"
+    ]
+}
+```
+
+Note that using globs with the browser client _requires_ that Intern’s own server be used to serve test suites. This is because the browser client on its own has no way to resolve file system globs; it passes the to the Intern server running on Node, which resolves them and returns list of file paths.
 
 ### extends
 

@@ -71,7 +71,9 @@ Intern also has its own static server that can be started with the `serveOnly` c
 npx intern serveOnly
 ```
 
-This command will cause Intern to start a static server on the port set by `serverPort`. The main utility offered by this server over any other static server is that it allows glob expressions in the `suites` list to be resolved.
+This command will cause Intern to start a static server on the port set by `serverPort`.
+
+> 💡 Note that Intern’s server _must_ be used with the browser client when using [glob expressions to specify suites](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/suites-1).
 
 Similar to the Node runner script, the browser runner will accept a config argument, or any other config properties, as query args.
 
