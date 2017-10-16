@@ -349,29 +349,56 @@ registerSuite('lib/executors/Node', function() {
 					assert.deepEqual(configured.config.suites, ['foo.js']);
 				},
 
-				'unhandled rejection'() {
-					const logger = spy(() => {});
-					const handler = mockGlobal.process.on.getCall(0).args[1];
-					const reason = new Error('foo');
+				'unhandled rejection': {
+					'with reason'() {
+						const logger = spy(() => {});
+						const handler = mockGlobal.process.on.getCall(0)
+							.args[1];
+						const reason = new Error('foo');
 
-					return executor.run().then(() => {
-						handler(reason);
-						assert.equal(logger.callCount, 0);
-						assert.strictEqual(
-							mockConsole.warn.callCount,
-							1,
-							'expected warning to have been logged'
-						);
+						return executor.run().then(() => {
+							handler(reason);
+							assert.equal(logger.callCount, 0);
+							assert.strictEqual(
+								mockConsole.warn.callCount,
+								1,
+								'expected warning to have been logged'
+							);
 
-						executor.on('error', logger);
-						handler(reason);
-						assert.equal(logger.callCount, 1);
-						assert.strictEqual(
-							logger.getCall(0).args[0],
-							reason,
-							'expected emitted error to be error passed to listener'
-						);
-					});
+							executor.on('error', logger);
+							handler(reason);
+							assert.equal(logger.callCount, 1);
+							assert.strictEqual(
+								logger.getCall(0).args[0],
+								reason,
+								'expected emitted error to be error passed to listener'
+							);
+						});
+					},
+
+					'no reason'() {
+						const logger = spy(() => {});
+						const handler = mockGlobal.process.on.getCall(0)
+							.args[1];
+
+						return executor.run().then(() => {
+							handler();
+							assert.equal(logger.callCount, 0);
+							assert.strictEqual(
+								mockConsole.warn.callCount,
+								1,
+								'expected warning to have been logged'
+							);
+
+							executor.on('error', logger);
+							handler();
+							assert.equal(logger.callCount, 1);
+							assert.isUndefined(
+								logger.getCall(0).args[0],
+								'expected emitted error to be error passed to listener'
+							);
+						});
+					}
 				},
 
 				'unhandled error'() {
@@ -398,7 +425,7 @@ registerSuite('lib/executors/Node', function() {
 						assert.propertyVal(
 							logger.getCall(0).args[0],
 							'message',
-							'Uncaught exception: foo',
+							'foo',
 							'expected emitted error to be error passed to listener'
 						);
 					});
