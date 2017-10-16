@@ -15,4 +15,8 @@ declare namespace mocking {
 	export interface DocCreator {
 		(): Document;
 	}
+
+	export interface LocCreator {
+		(): Location;
+	}
 }
