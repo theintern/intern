@@ -181,6 +181,13 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 			message += ` (ws ${server.socketPort})`;
 		}
 		this.charm.write(`${message}\n`);
+
+		if (this.executor.config.serveOnly) {
+			this.charm.write(
+				`\nTo use the browser client, browse to\n\n  ${this.executor
+					.config.serverUrl}__intern/\n\n`
+			);
+		}
 	}
 
 	@eventHandler()
