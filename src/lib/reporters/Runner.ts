@@ -187,6 +187,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 				`\nTo use the browser client, browse to\n\n  ${this.executor
 					.config.serverUrl}__intern/\n\n`
 			);
+			this.charm.write('Press CTRL-C to stop serving\n\n');
 		}
 	}
 
