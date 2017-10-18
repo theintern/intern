@@ -108,6 +108,7 @@ Intern is a JS Foundation project offered under the [New BSD](LICENSE) license.
     "api": "docs/api.json",
     "pages": [
         "docs/getting_started.md",
+        "docs/changes_from_3.md",
         "docs/how_to.md",
         "docs/concepts.md",
         "docs/architecture.md",
