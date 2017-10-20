@@ -722,23 +722,22 @@ registerSuite('lib/executors/Executor', function() {
 					return assertRunFails(executor, /foo/);
 				},
 
+				'custom reporter'() {
+					executor.registerPlugin('reporter.foo', () => {
+						const CustomReporter = function() {};
+						return Promise.resolve(CustomReporter);
+					});
+					executor.configure({ reporters: <any>'foo' });
+					// Executor should run successfully
+					return executor.run();
+				},
+
 				'invalid reporter': {
 					missing() {
 						executor.configure({ reporters: <any>'foo' });
 						return assertRunFails(
 							executor,
 							/has not been registered/
-						);
-					},
-
-					invalid() {
-						executor.registerPlugin('reporter.foo', () =>
-							Promise.resolve({})
-						);
-						executor.configure({ reporters: <any>'foo' });
-						return assertRunFails(
-							executor,
-							/A plugin .* not been registered/
 						);
 					}
 				},
