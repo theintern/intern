@@ -63,7 +63,7 @@ Intern installs a global variable that tests may not be aware of if nothing impo
 
 ## Compatibility
 
-Intern can run unit tests in most browsers that support ECMAScript 5, including mobile browsers on Android and iOS, and in Node 4+. Note that Internet Explorer 9 is currently not supported. Also note that Intern requires npm 3+ to install properly, so Node 4 users may need to update npm.
+Intern can run unit tests in most browsers that support ECMAScript 5, including mobile browsers on Android and iOS, and in Node 6+. Note that Internet Explorer 9 is currently not supported.
 
 Intern’s self-tests run against IE 10 and 11, Firefox 33 and current, Chrome 38 and current, and Safari 9 and 10, as well as Node 6 and 8.
 
