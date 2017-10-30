@@ -729,17 +729,6 @@ registerSuite('lib/executors/Executor', function() {
 							executor,
 							/has not been registered/
 						);
-					},
-
-					invalid() {
-						executor.registerPlugin('reporter.foo', () =>
-							Promise.resolve({})
-						);
-						executor.configure({ reporters: <any>'foo' });
-						return assertRunFails(
-							executor,
-							/A plugin .* not been registered/
-						);
 					}
 				},
 

@@ -565,9 +565,7 @@ export default abstract class Executor<
 			let runError: Error;
 
 			try {
-				this._runTask = this._resolveConfig().then(() =>
-					this._initReporters()
-				);
+				this._runTask = this._resolveConfig();
 
 				if (this.config.showConfig) {
 					this._runTask = this._runTask
@@ -604,6 +602,7 @@ export default abstract class Executor<
 						.then(() => this._loadPlugins())
 						.then(() => this._loadLoader())
 						.then(() => this._loadPluginsWithLoader())
+						.then(() => this._initReporters())
 						.then(() => this._loadSuites())
 						.then(() => this._beforeRun())
 						.then((skipTests: boolean) => {
