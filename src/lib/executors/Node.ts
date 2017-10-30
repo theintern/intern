@@ -92,7 +92,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			runInSync: false,
 			serveOnly: false,
 			serverPort: 9000,
-			serverUrl: 'http://localhost:9000',
+			serverUrl: '',
 			socketPort: 9001,
 			tunnel: 'selenium',
 			tunnelOptions: { tunnelId: String(Date.now()) }
@@ -340,7 +340,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 						.start()
 						.then(() => {
 							this.server = server;
-							return this.emit('serverStart', server as any);
+							return this.emit('serverStart', server);
 						})
 						.then(resolve, reject);
 				});
@@ -790,6 +790,10 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				this._coverageFiles = expandFiles(config.coverage).map(path =>
 					resolve(path)
 				);
+			}
+
+			if (!config.serverUrl) {
+				config.serverUrl = `http://localhost:${config.serverPort}/`;
 			}
 
 			// Ensure URLs end with a '/'
