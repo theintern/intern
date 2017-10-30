@@ -176,18 +176,18 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 
 	@eventHandler()
 	serverStart(server: Server) {
-		let message = `Listening on localhost:${server.port}`;
-		if (server.socketPort) {
-			message += ` (ws ${server.socketPort})`;
-		}
-		this.charm.write(`${message}\n`);
-
 		if (this.executor.config.serveOnly) {
 			this.charm.write(
-				`\nTo use the browser client, browse to\n\n  ${this.executor
+				`To use the browser client, browse to\n\n  ${this.executor
 					.config.serverUrl}__intern/\n\n`
 			);
 			this.charm.write('Press CTRL-C to stop serving\n\n');
+		} else {
+			let message = `Listening on localhost:${server.port}`;
+			if (server.socketPort) {
+				message += ` (ws ${server.socketPort})`;
+			}
+			this.charm.write(`${message}\n`);
 		}
 	}
 

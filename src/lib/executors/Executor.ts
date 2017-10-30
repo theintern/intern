@@ -1310,7 +1310,10 @@ export interface Config extends ResourceConfig {
 
 	baseline: boolean;
 
-	/** The path to the project base */
+	/**
+	 * The path to the project base. This will always end with a path separator
+	 * (e.g., /).
+	 */
 	basePath: string;
 
 	/**
@@ -1361,7 +1364,9 @@ export interface Config extends ResourceConfig {
 	 */
 	grep: RegExp;
 
-	/** The path to Intern */
+	/**
+	 * The path to Intern. This will always end with a path separator (e.g., /).
+	 */
 	internPath: string;
 
 	/** A top-level name for this configuration. */

@@ -743,6 +743,10 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		return super._resolveConfig().then(() => {
 			const config = this.config;
 
+			if (config.basePath[config.basePath.length - 1] !== sep) {
+				config.basePath += sep;
+			}
+
 			if (config.environments.length === 0) {
 				this.log("Adding default 'node' environment");
 				config.environments.push({ browserName: 'node' });
@@ -750,17 +754,24 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 
 			if (!config.internPath) {
 				config.internPath = dirname(dirname(__dirname));
+
+				// If internPath isn't under cwd, intern is most likely
+				// symlinked into the project's node_modules. In that case, use
+				// the package location as resolved from the project root.
+				if (config.internPath.indexOf(process.cwd()) !== 0) {
+					// nodeResolve will resolve to index.js; we want the base
+					// intern directory
+					config.internPath = dirname(
+						nodeResolve('intern', {
+							basedir: process.cwd()
+						})
+					);
+				}
+			} else {
+				config.internPath = relative(process.cwd(), config.internPath);
 			}
 
-			config.internPath = normalizePath(
-				`${relative(process.cwd(), config.internPath)}${sep}`
-			);
-			if (/^\.\.\//.test(config.internPath)) {
-				throw new Error(
-					`Invalid internPath "${config.internPath}". If the intern package is symlinked, ` +
-						'config.internPath must be set manually.'
-				);
-			}
+			config.internPath = normalizePath(`${config.internPath}${sep}`);
 
 			if (config.benchmarkConfig) {
 				config.reporters.push({
