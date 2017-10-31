@@ -1056,6 +1056,7 @@ export interface Config extends BaseConfig {
 	 * environments: 'chrome'
 	 * environments: ['chrome', 'firefox']
 	 * environments: { browserName: 'chrome', version: '57.0' }
+	 * environments: { browserName: 'chrome', fixSessionCapabilities: false }
 	 * ```
 	 *
 	 * The syntax for browser names and other properties depends on where tests
@@ -1067,6 +1068,14 @@ export interface Config extends BaseConfig {
 	 * or [BrowserStack](https://www.browserstack.com/automate/capabilities),
 	 * browser names and other properties may have different acceptable values
 	 * (e.g., ‘googlechrome’ instead of ‘chrome’, or ‘MacOS’ vs ‘OSX’).
+	 *
+	 * The [fixSessionCapabilities](https://theintern.io/docs.html#Leadfoot/2/api/Server/fixsessioncapabilities)
+	 * property determines whether feature and defect tests will be run in the
+	 * remote browser. Setting it to `false` entirely disables feature tests
+	 * (assuming that all features are enabled), while setting it to
+	 * `'no-detect'` will set certain already-known feature and defect flags
+	 * based on the browser and platform. The current set of capabilities are
+	 * available on `this.remote.session.capabilities` in functional tests.
 	 *
 	 * > 💡Note that 'node' is an environment. If no environments are specified,
 	 * the Node executor will automatically add 'node' to the resolved config.

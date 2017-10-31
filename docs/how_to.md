@@ -2,6 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 
+* [Speed up WebDriver tests](#speed-up-webdriver-tests)
 * [Use Intern programmatically](#use-intern-programmatically)
 * [Run code before tests start](#run-code-before-tests-start)
 * [Run Intern in my own test page in a browser](#run-intern-in-my-own-test-page-in-a-browser)
@@ -15,6 +16,27 @@
 * [Use a custom profile with Firefox](#use-a-custom-profile-with-firefox)
 
 <!-- vim-markdown-toc -->
+
+## Speed up WebDriver tests
+
+Two features which can have a significant impact on test runtime are code coverage and browser feature tests. Disabling these features can make test debugging and development faster.
+
+1. Disable [code coverage](concepts.md#code-coverage)
+   * Remove or comment the `coverage` property in a config file, or set it to an empty array or `false`
+   * Manually disable coverage when running Intern
+     ```
+     $ node_modules/.bin/intern coverage=
+     ```
+2. Disable browser [feature tests](concepts.md#webdriver-feature-tests)
+   ```js
+   {
+       "environments": {
+           "browserName": "chrome",
+           "fixSessionCapabilities": "no-detect"
+       }
+   }
+
+> ⚠️  Note that disabling feature tests may lead to test failures, particularly with older or non-standard browsers.
 
 ## Use Intern programmatically
 

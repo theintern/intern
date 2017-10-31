@@ -9,6 +9,7 @@
     * [Unit tests](#unit-tests)
     * [Functional tests](#functional-tests)
 * [Code coverage](#code-coverage)
+* [WebDriver feature tests](#webdriver-feature-tests)
 * [Source maps](#source-maps)
 * [Page objects](#page-objects)
 
@@ -144,6 +145,12 @@ Note that the functional test doesn't load any application code. Instead, it use
 Code coverage is information about what parts of the application code are exercised during tests. It commonly indicates what percentages of statements, branches, and functions are executed. Code coverage information is gathered by “instrumenting” the code being tested. This instrumentation is actually code that is injected into the code being tested. It records information about the executing code and stores it in a global variable that Intern retrieves after the testing is complete.
 
 Intern uses [Istanbul](https://github.com/istanbuljs/istanbuljs) to manage code coverage. There are three config properties related to instrumentation. The mostly commonly used one is [coverage], which is used to specify which files should be instrumented. The other two are [functionalCoverage], a boolean that indicates whether coverage should be collected during functional tests, and [instrumenterOptions], which allows options to be passed directly to Istanbul.
+
+## WebDriver feature tests
+
+Although WebDriver, and the JSON wire protocol before it, provide a standard communication protocol for interacting with remote browsers, they do not completely specify how remote browsers should implement various actions. Different browsers, and the same browser on different platforms, don't always respond to WebDriver commands in the same way, and may not even implement some commands. Rather than assume every remote browser behaves according to the WebDriver standard, Intern runs a series of tests each time it opens a remote browser connection. These tests determine which features are supported and which aren’t, and also whether various behaviors are broken or work in a non-standard fashion. Intern uses the results of these tests to try to standardize behavior across browsers and platforms, so that a test writer doesn't have to customize tests for different browsers and platforms.
+
+These feature tests can be partially or fully disabled using the `fixSessionCapabilities` property in a browser [environment descriptor](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/environments). Setting this value to `false` disables feature tests, while setting it to `'no-detect'` sets properties that are known to apply to the current browser, but doesn’t run any tests.
 
 ## Source maps
 
