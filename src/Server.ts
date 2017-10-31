@@ -22,9 +22,9 @@ export default class Server {
 	sessionConstructor = Session;
 
 	/**
-	 * Whether or not to detect and/or correct environnment capabilities when
+	 * Whether or not to detect and/or correct environment capabilities when
 	 * creating a new Server. If the value is "no-detect", capabilities will be
-	 * updated with pre-known features and defects based on the platform, but
+	 * updated with already-known features and defects based on the platform, but
 	 * no tests will be run.
 	 */
 	fixSessionCapabilities: boolean | 'no-detect' = true;
