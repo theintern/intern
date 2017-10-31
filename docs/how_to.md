@@ -13,6 +13,7 @@
 * [Test non-CORS web APIs](#test-non-cors-web-apis)
     * [Option 1: Send all traffic except web services to Intern](#option-1-send-all-traffic-except-web-services-to-intern)
     * [Option 2: Only send JavaScript traffic to Intern](#option-2-only-send-javascript-traffic-to-intern)
+* [Run tests with headless Chrome](#run-tests-with-headless-chrome)
 * [Use a custom profile with Firefox](#use-a-custom-profile-with-firefox)
 
 <!-- vim-markdown-toc -->
@@ -326,6 +327,23 @@ server {
   }
 }
 ```
+
+## Run tests with headless Chrome
+
+Intern interacts with headless Chrome in the same fashion as regular Chrome, it just has to tell chromedriver to open a headless session. Do this by providing 'headless' and 'disable-gpu' arguments to chromedriver in an environment descriptor in the test config.
+
+```js
+{
+    "environments": [
+        {
+            "browserName": "chrome",
+            "chromeOptions": { "args": ["headless", "disable-gpu"] }
+        }
+    ]
+}
+```
+
+One of the main benefits of headless Chrome, aside from not having to worry about window focus, is speed. You can [speed up the testing process](#speed-up-webdriver-tests) further by setting the `fixSessionCapabilities` capability to `false` or `'no-detect'`.
 
 ## Use a custom profile with Firefox
 
