@@ -1,7 +1,13 @@
 import request from '@dojo/core/request/providers/xhr';
 import Task from '@dojo/core/async/Task';
+import global from '@dojo/shim/global';
 
-import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
+import {
+	getBasePath,
+	loadConfig,
+	parseArgs,
+	splitConfigPath
+} from '../common/util';
 
 /**
  * Resolve the user-supplied config data, which may include query args and a
@@ -9,6 +15,7 @@ import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
  */
 export function getConfig(file?: string) {
 	const args = parseArgs(parseQuery());
+	const basePath = args.basePath || getDefaultBasePath();
 	if (file) {
 		args.config = file;
 	}
@@ -19,21 +26,49 @@ export function getConfig(file?: string) {
 		// If a config parameter was provided, load it, mix in any other query
 		// params, then initialize the executor with that
 		const { configFile, childConfig } = splitConfigPath(args.config);
-		file = resolvePath(configFile || 'intern.json', args.basePath);
+		file = resolvePath(configFile || 'intern.json', basePath);
 		load = loadConfig(file, loadText, args, childConfig);
 	} else {
 		// If no config parameter was provided, try 'intern.json'. If that file
 		// doesn't exist, just return the args
-		file = resolvePath('intern.json', args.basePath);
+		file = resolvePath('intern.json', basePath);
 		load = loadConfig(file, loadText, args).catch(error => {
 			if (error.message.indexOf('Request failed') === 0) {
+				// The file wasn't found, clear the file name
+				file = undefined;
 				return args;
 			}
 			throw error;
 		});
 	}
 
-	return load.then(config => ({ config, file }));
+	return load
+		.then(config => {
+			// If a basePath wasn't set in the config or via a query arg, and we
+			// have a config file path, use that.
+			if (file) {
+				config.basePath = getBasePath(file, config.basePath, '/');
+			}
+			return config;
+		})
+		.then(config => ({ config, file }));
+}
+
+/**
+ * Return a base path based on the current location pathname
+ */
+export function getDefaultBasePath() {
+	const match = /^(.*\/)node_modules\/intern\/?/.exec(
+		global.location.pathname
+	);
+	if (match) {
+		// If the current location contains `node_modules/intern`,
+		// assume the base path is the parent of
+		// `node_modules/intern`
+		return match[1];
+	} else {
+		return '/';
+	}
 }
 
 /**
@@ -134,9 +169,24 @@ function loadText(path: string): Task<any> {
  * Resolve a path against a base path
  */
 function resolvePath(path: string, basePath: string) {
-	if (path[0] !== '/') {
-		basePath = basePath == null ? '/' : basePath;
-		path = `${basePath}${path}`;
+	if (path[0] === '/') {
+		return path;
 	}
-	return path;
+
+	const pathParts = path.split('/');
+	const basePathParts = basePath.split('/');
+
+	if (basePathParts[basePathParts.length - 1] === '') {
+		basePathParts.pop();
+	}
+
+	for (const part of pathParts) {
+		if (part === '..') {
+			basePathParts.pop();
+		} else if (part !== '.') {
+			basePathParts.push(part);
+		}
+	}
+
+	return basePathParts.join('/');
 }

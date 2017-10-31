@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'fs';
-import { dirname, normalize, relative, resolve, sep } from 'path';
+import { dirname, normalize, resolve, sep } from 'path';
 import { sync as nodeResolve } from 'resolve';
 import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
@@ -36,8 +36,9 @@ import Executor, {
 	Events as BaseEvents,
 	Plugins
 } from './Executor';
+import { normalizePathEnding } from '../common/path';
 import { parseValue, pullFromArray } from '../common/util';
-import { expandFiles, normalizePath, readSourceMap } from '../node/util';
+import { expandFiles, readSourceMap } from '../node/util';
 import ErrorFormatter from '../node/ErrorFormatter';
 import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
@@ -743,10 +744,6 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		return super._resolveConfig().then(() => {
 			const config = this.config;
 
-			if (config.basePath[config.basePath.length - 1] !== sep) {
-				config.basePath += sep;
-			}
-
 			if (config.environments.length === 0) {
 				this.log("Adding default 'node' environment");
 				config.environments.push({ browserName: 'node' });
@@ -767,11 +764,14 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 						})
 					);
 				}
-			} else {
-				config.internPath = relative(process.cwd(), config.internPath);
 			}
 
-			config.internPath = normalizePath(`${config.internPath}${sep}`);
+			['basePath', 'internPath'].forEach((key: keyof Config) => {
+				config[key] = normalizePathEnding(
+					resolve(<string>config[key]),
+					sep
+				);
+			});
 
 			if (config.benchmarkConfig) {
 				config.reporters.push({
@@ -780,9 +780,7 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				});
 			}
 
-			this._instrumentBasePath = normalizePath(
-				`${resolve(config.basePath || '')}${sep}`
-			);
+			this._instrumentBasePath = config.basePath;
 			this._coverageFiles = [];
 
 			if (config.coverage) {

@@ -114,24 +114,6 @@ registerSuite('lib/common/util', {
 			});
 	},
 
-	normalizePathEnding() {
-		assert.equal(
-			util.normalizePathEnding('foo'),
-			'foo/',
-			'path not ending in / should have /'
-		);
-		assert.equal(
-			util.normalizePathEnding('bar/'),
-			'bar/',
-			'path ending in / should be unmodified'
-		);
-		assert.equal(
-			util.normalizePathEnding(''),
-			'',
-			'empty path should be unmodified'
-		);
-	},
-
 	parseArgs() {
 		const args = util.parseArgs([
 			'foo',

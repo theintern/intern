@@ -5,7 +5,8 @@ import global from '@dojo/shim/global';
 
 import * as console from '../common/console';
 import Executor, { Config, Events } from './Executor';
-import { normalizePathEnding } from '../common/util';
+import { dirname, join, normalizePathEnding } from '../common/path';
+import { getDefaultBasePath } from '../browser/util';
 import { RuntimeEnvironment } from '../types';
 
 // Reporters
@@ -19,8 +20,8 @@ import ConsoleReporter from '../reporters/Console';
 export default class Browser extends Executor<Events, Config> {
 	constructor(options?: { [key in keyof Config]?: any }) {
 		super(<Config>{
-			basePath: '/',
-			internPath: 'node_modules/intern/'
+			basePath: '',
+			internPath: ''
 		});
 
 		// Report uncaught errors
@@ -73,9 +74,22 @@ export default class Browser extends Executor<Events, Config> {
 	protected _resolveConfig() {
 		return super._resolveConfig().then(() => {
 			const config = this.config;
+			const currentPath = global.location.pathname;
 
-			if (config.internPath[0] !== '/') {
-				config.internPath = `${config.basePath}${config.internPath}`;
+			if (!config.internPath) {
+				if (/\.html$/.test(currentPath)) {
+					config.internPath = dirname(currentPath);
+				} else {
+					config.internPath = currentPath;
+				}
+			}
+
+			if (!config.basePath) {
+				config.basePath = getDefaultBasePath();
+			} else if (/^\./.test(config.basePath)) {
+				// The user provided a relative value for basePath. Resolve it
+				// relative to the path to Intern's index.html.
+				config.basePath = join(config.internPath, config.basePath);
 			}
 
 			['basePath', 'internPath'].forEach((key: keyof Config) => {

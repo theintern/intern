@@ -73,6 +73,12 @@ registerSuite('lib/executors/Browser', function() {
 		}
 	}
 
+	const mockUtil = {
+		getDefaultBasePath() {
+			return '';
+		}
+	};
+
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/executors/Browser', {
@@ -80,6 +86,7 @@ registerSuite('lib/executors/Browser', function() {
 					default: MockErrorFormatter
 				},
 				'src/lib/common/console': mockConsole,
+				'src/lib/browser/util': mockUtil,
 				'@dojo/core/request/providers/xhr': { default: request },
 				chai: mockChai,
 				minimatch: { Minimatch: MockMiniMatch },

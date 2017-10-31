@@ -1,3 +1,5 @@
+import { dirname, join } from 'path';
+
 import * as _util from 'src/lib/node/util';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
@@ -30,6 +32,10 @@ registerSuite('lib/node/util', function() {
 	};
 
 	const mockUtil = {
+		getBasePath() {
+			return '';
+		},
+
 		loadConfig(
 			filename: string,
 			loadText: (filename: string) => Promise<string>,
@@ -69,6 +75,24 @@ registerSuite('lib/node/util', function() {
 		}
 	};
 
+	const mockPath = {
+		dirname(path: string) {
+			return dirname(path);
+		},
+
+		join(...paths: string[]) {
+			return join(...paths);
+		},
+
+		normalize(path: string) {
+			return path;
+		},
+
+		resolve(path: string) {
+			return path;
+		}
+	};
+
 	const logCall = (name: string, args: any[]) => {
 		if (!calls[name]) {
 			calls[name] = [];
@@ -96,6 +120,7 @@ registerSuite('lib/node/util', function() {
 			return mockRequire(require, 'src/lib/node/util', {
 				fs: mockFs,
 				glob: mockGlob,
+				path: mockPath,
 				'src/lib/common/util': mockUtil,
 				'@dojo/shim/global': { default: mockGlobal }
 			}).then(handle => {
@@ -217,9 +242,13 @@ registerSuite('lib/node/util', function() {
 								'parseArgs should not have been called'
 							);
 							assert.equal(calls.loadConfig[0][0], 'intern.json');
+
 							// Since we've overridden loadConfig, args shouldn't
-							// actually be mixed in
-							assert.deepEqual(config, configData);
+							// actually be mixed in. The final data will have a
+							// basePath of '', because the config file path
+							// (used to derive the basePath) has no parent path.
+							const data = { ...configData, basePath: '' };
+							assert.deepEqual(config, data);
 						});
 					},
 
@@ -313,7 +342,13 @@ registerSuite('lib/node/util', function() {
 							'loadConfig should have been called'
 						);
 						assert.equal(calls.loadConfig[0][0], 'foo.json');
-						assert.deepEqual(config, { stuff: 'happened' });
+
+						// Since we've overridden loadConfig, args shouldn't
+						// actually be mixed in. The final data will have a
+						// basePath of '', because the config file path
+						// (used to derive the basePath) has no parent path.
+						const data = { stuff: 'happened', basePath: '' };
+						assert.deepEqual(config, data);
 					});
 				}
 			},

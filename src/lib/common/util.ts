@@ -2,6 +2,7 @@ import { deepMixin, mixin } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 
 import { Config, ResourceConfig } from '../executors/Executor';
+import { getPathSep, join, normalize } from './path';
 
 const configPathSeparator = '@';
 
@@ -17,6 +18,49 @@ export function prefix(message: string, prefix: string) {
 		.split('\n')
 		.map(line => prefix + line)
 		.join('\n');
+}
+
+/**
+ * Get the base path based on a config file path and a user-supplied base path.
+ *
+ * The path separator will be normalized based on the separator used in
+ * configFile or basePath and the optional pathSep arg.
+ */
+export function getBasePath(
+	configFile: string,
+	basePath: string,
+	pathSep?: string
+) {
+	pathSep = pathSep || getPathSep(configFile, basePath);
+
+	// initialBasePath is the path containing the config file
+	const configPathParts = configFile.replace(/\\/g, '/').split('/');
+	let initialBasePath: string;
+
+	if (configFile[0] === '/' && configPathParts.length === 2) {
+		initialBasePath = '/';
+	} else {
+		initialBasePath = configPathParts.slice(0, -1).join('/');
+	}
+
+	let finalBasePath: string;
+
+	if (basePath) {
+		basePath = normalize(basePath);
+
+		if (basePath[0] !== '/') {
+			// basePath is relative, so resolve it against initialBasePath
+			finalBasePath = join(initialBasePath, basePath);
+		} else {
+			// basePath is absolute, so use it directly
+			finalBasePath = basePath;
+		}
+	} else {
+		// No basePath was provided, so use initialBasePath
+		finalBasePath = initialBasePath;
+	}
+
+	return finalBasePath.split('/').join(pathSep);
 }
 
 /**
@@ -198,16 +242,6 @@ export function getConfigDescription(config: any, prefix = '') {
 	}
 
 	return description;
-}
-
-/**
- * Normalize a path such that it ends in '/'
- */
-export function normalizePathEnding(path: string) {
-	if (path && path.length > 0 && path[path.length - 1] !== '/') {
-		return `${path}/`;
-	}
-	return path;
 }
 
 /**

@@ -7,12 +7,8 @@ import global from '@dojo/shim/global';
 import Suite from '../Suite';
 import Test from '../Test';
 import ErrorFormatter, { ErrorFormatOptions } from '../common/ErrorFormatter';
-import {
-	isTask,
-	normalizePathEnding,
-	parseValue,
-	pullFromArray
-} from '../common/util';
+import { normalizePathEnding } from '../common/path';
+import { isTask, parseValue, pullFromArray } from '../common/util';
 import Reporter, { ReporterOptions } from '../reporters/Reporter';
 import {
 	getInterface as getObjectInterface,

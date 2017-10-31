@@ -33,6 +33,8 @@ registerSuite('lib/browser/util', function() {
 	let removeMocks: () => void;
 
 	const mockUtil: { [name: string]: SinonSpy } = {
+		getBasePath: spy(() => ''),
+
 		loadConfig: spy(
 			(
 				filename: string,
@@ -60,6 +62,9 @@ registerSuite('lib/browser/util', function() {
 		before() {
 			return mockRequire(require, 'src/lib/browser/util', {
 				'@dojo/core/request/providers/xhr': { default: request },
+				'@dojo/shim/global': {
+					default: { location: { pathname: '/' } }
+				},
 				'src/lib/common/util': mockUtil
 			}).then(handle => {
 				removeMocks = handle.remove;
@@ -119,9 +124,13 @@ registerSuite('lib/browser/util', function() {
 								mockUtil.loadConfig.getCall(0).args[2],
 								{ here: '1', there: 'bar' }
 							);
+
 							// Since we've overridden loadConfig, args shouldn't
-							// actually be mixed in
-							assert.deepEqual(config, configData);
+							// actually be mixed in. The final data will have a
+							// basePath of '', because the config file path
+							// (used to derive the basePath) has no parent path.
+							const data = { ...configData, basePath: '' };
+							assert.deepEqual(config, data);
 						});
 					},
 
@@ -204,7 +213,10 @@ registerSuite('lib/browser/util', function() {
 							mockUtil.loadConfig.getCall(0).args[0],
 							'/foo.json'
 						);
-						assert.deepEqual(config, { stuff: 'happened' });
+						assert.deepEqual(config, {
+							basePath: '',
+							stuff: 'happened'
+						});
 					});
 				}
 			},

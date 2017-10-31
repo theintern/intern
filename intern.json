@@ -15,6 +15,7 @@
 		"_tests/tests/unit/lib/channels/Http.js",
 		"_tests/tests/unit/lib/channels/WebSocket.js",
 		"_tests/tests/unit/lib/common/console.js",
+		"_tests/tests/unit/lib/common/path.js",
 		"_tests/tests/unit/lib/common/util.js",
 		"_tests/tests/unit/lib/common/ErrorFormatter.js",
 		"_tests/tests/unit/lib/executors/Browser.js",

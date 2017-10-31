@@ -36,7 +36,9 @@ registerSuite('lib/RemoteSuite', {
 					config: <any>{
 						functionalTimeouts: { connectTimeout: 3456 },
 						serverUrl: 'http://foo.com/somewhere/else',
-						capabilities: { 'idle-timeout': 123 }
+						capabilities: { 'idle-timeout': 123 },
+						basePath: '',
+						internPath: ''
 					},
 
 					server: createMockServer({

@@ -1,5 +1,5 @@
 import { readFile, readFileSync } from 'fs';
-import { dirname, join, normalize, sep } from 'path';
+import { dirname, join, normalize, resolve, sep } from 'path';
 import { RawSourceMap } from 'source-map';
 import { sync as glob, hasMagic } from 'glob';
 import { parse } from 'shell-quote';
@@ -7,7 +7,12 @@ import Task from '@dojo/core/async/Task';
 import { mixin } from '@dojo/core/lang';
 import global from '@dojo/shim/global';
 
-import { loadConfig, parseArgs, splitConfigPath } from '../common/util';
+import {
+	getBasePath,
+	loadConfig,
+	parseArgs,
+	splitConfigPath
+} from '../common/util';
 
 const process = global.process;
 
@@ -84,25 +89,40 @@ export function getConfig(fileOrArgv?: string | string[], argv?: string[]) {
 		// If a config parameter was provided, load it and mix in any other
 		// command line args.
 		const { configFile, childConfig } = splitConfigPath(args.config, sep);
-		file = configFile || 'intern.json';
+		file = resolve(configFile || 'intern.json');
 		load = loadConfig(file, loadText, args, childConfig);
 	} else {
 		// If no config parameter was provided, try 'intern.json', or just
 		// resolve to the original args
-		file = 'intern.json';
+		file = resolve('intern.json');
 		load = loadConfig(
-			'intern.json',
+			file,
 			loadText,
 			args
 		).catch((error: NodeJS.ErrnoException) => {
 			if (error.code === 'ENOENT') {
+				file = undefined;
 				return args;
 			}
 			throw error;
 		});
 	}
 
-	return load.then(config => ({ config, file }));
+	return load
+		.then(config => {
+			// If a basePath wasn't set in the config or via a query arg, and we
+			// have a config file path, use that.
+			if (file) {
+				// If a basePath wasn't set in the config or via a query arg, and we
+				// have a config file path, use that.
+				if (file) {
+					config.basePath = getBasePath(file, config.basePath, '/');
+				}
+				return config;
+			}
+			return config;
+		})
+		.then(config => ({ config, file }));
 }
 
 /**

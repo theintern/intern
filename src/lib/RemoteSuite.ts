@@ -1,4 +1,5 @@
 import { parse } from 'url';
+import { relative } from 'path';
 import UrlSearchParams from '@dojo/core/UrlSearchParams';
 import { Handle, Hash } from '@dojo/interfaces/core';
 import Task from '@dojo/core/async/Task';
@@ -220,12 +221,17 @@ export default class RemoteSuite extends Suite {
 				const query = new UrlSearchParams(queryParams);
 				const harness = `${config.serverUrl}__intern/browser/remote.html`;
 
+				// Determine the relative path from basePath to internPath. This
+				// will be used to derive the internPath sent to the remote. The
+				// remote will figure out its own basePath.
+				const internPath = relative(config.basePath, config.internPath);
+
 				// These are options that will be POSTed to the remote page and
 				// used to configure intern. Stringify and parse them to ensure
 				// that the config can be properly transmitted.
 				const remoteConfig: Partial<RemoteConfig> = {
 					debug: config.debug,
-					internPath: `${serverUrl.pathname}${config.internPath}`,
+					internPath: `${serverUrl.pathname}${internPath}`,
 					name: this.id,
 					reporters: [{ name: 'dom' }]
 				};
