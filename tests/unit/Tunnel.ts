@@ -51,7 +51,7 @@ registerSuite({
 			let timeout: NodeJS.Timer;
 			const startTask = new Task(
 				resolve => {
-					timeout = setTimeout(resolve, 500);
+					timeout = global.setTimeout(resolve, 500);
 				},
 				() => {
 					clearTimeout(timeout);
