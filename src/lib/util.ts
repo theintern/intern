@@ -7,7 +7,7 @@ import { mixin } from '@dojo/core/lang';
  * @param ms Time until resolution in milliseconds.
  */
 export function sleep(ms: number): Task<void> {
-	let timer: any;
+	let timer: NodeJS.Timer;
 	return new Task<void>(
 		function(resolve) {
 			timer = setTimeout(() => {

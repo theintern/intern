@@ -831,8 +831,8 @@ export default class Session extends Locator<
 	getWindowPosition(windowHandle?: string) {
 		if (this.capabilities.usesWebDriverWindowCommands) {
 			const getWindowPosition = () =>
-				this.getWindowRect().then(rect => {
-					return { x: rect.x, y: rect.y };
+				this.getWindowRect().then(({ x, y }) => {
+					return { x, y };
 				});
 
 			if (windowHandle == null) {
@@ -1171,7 +1171,7 @@ export default class Session extends Locator<
 			});
 		}
 
-		return this.serverPost<any>('element', {
+		return this.serverPost<ElementOrElementId>('element', {
 			using: using,
 			value: value
 		}).then(element => {

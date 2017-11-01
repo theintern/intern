@@ -1,6 +1,8 @@
 import keys from './keys';
+
 import Task from '@dojo/core/async/Task';
-import request, { RequestOptions, Response } from '@dojo/core/request';
+import request, { RequestOptions } from '@dojo/core/request';
+import { Response as ResponseInterface } from '@dojo/core/request/interfaces';
 import { NodeRequestOptions } from '@dojo/core/request/providers/node';
 import Session from './Session';
 import Element from './Element';
@@ -120,7 +122,7 @@ export default class Server {
 		const trace: any = {};
 		Error.captureStackTrace(trace, this._sendRequest);
 
-		return new Task((resolve, reject) => {
+		return new Task<ResponseInterface>((resolve, reject) => {
 			request(url, kwArgs)
 				.then(resolve, reject)
 				.finally(() => {
@@ -130,8 +132,8 @@ export default class Server {
 				});
 		})
 			.then(function handleResponse(
-				response: Response
-			): Object | Task<Object> {
+				response: ResponseInterface
+			): ResponseData | Task<ResponseData> {
 				// The JsonWireProtocol specification prior to June 2013 stated
 				// that creating a new session should perform a 3xx redirect to
 				// the session capabilities URL, instead of simply returning
@@ -770,7 +772,7 @@ export default class Server {
 		): Task<void> => {
 			return Object.keys(
 				testedCapabilities
-			).reduce((previous: Task<any>, key: keyof Capabilities) => {
+			).reduce((previous: Task<void>, key: keyof Capabilities) => {
 				return previous.then(() => {
 					const value = testedCapabilities[key];
 					const task =
@@ -1592,7 +1594,7 @@ export default class Server {
 						.get('about:blank?1')
 						.then(function() {
 							let timer: NodeJS.Timer;
-							let refresh: Task<any>;
+							let refresh: Task<boolean | void>;
 
 							return new Task(
 								resolve => {
@@ -2023,6 +2025,6 @@ function returnValue(response: any): any {
 }
 
 interface ResponseData {
-	response: Response;
+	response: ResponseInterface;
 	data: any;
 }

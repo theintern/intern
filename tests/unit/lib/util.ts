@@ -43,7 +43,7 @@ registerSuite({
 
 	'.toExecuteString function'() {
 		const script = util.toExecuteString(function() {
-			__cov_abcdef++;
+			__cov_abcdef = __cov_abcdef + 1;
 			return a;
 		});
 		assert.match(

@@ -58,11 +58,7 @@ export default class Element extends Locator<
 		return this._session;
 	}
 
-	private _get<T>(
-		path: string,
-		requestData?: any,
-		pathParts?: any
-	): Task<any> {
+	private _get<T>(path: string, requestData?: any, pathParts?: any): Task<T> {
 		path = 'element/' + encodeURIComponent(this._elementId) + '/' + path;
 		return this._session.serverGet<T>(path, requestData, pathParts);
 	}
@@ -71,7 +67,7 @@ export default class Element extends Locator<
 		path: string,
 		requestData?: any,
 		pathParts?: any
-	): Task<any> {
+	): Task<T> {
 		path = 'element/' + encodeURIComponent(this._elementId) + '/' + path;
 		return this._session.serverPost<T>(path, requestData, pathParts);
 	}
@@ -110,7 +106,7 @@ export default class Element extends Locator<
 	 * and used by the server.
 	 */
 	private _uploadFile(filename: string): Task<string> {
-		return new Task(resolve => {
+		return new Task<string>(resolve => {
 			const content = fs.readFileSync(filename);
 
 			let zip = new JSZip();
@@ -150,11 +146,11 @@ export default class Element extends Locator<
 				capabilities.brokenLinkTextLocator)
 		) {
 			return session
-				.execute<any>(
+				.execute<ElementOrElementId>(
 					/* istanbul ignore next */ session['_manualFindByLinkText'],
 					[using, value, false, this]
 				)
-				.then(function(element: ElementOrElementId) {
+				.then(function(element) {
 					if (!element) {
 						const error = new Error();
 						error.name = 'NoSuchElement';
@@ -164,7 +160,7 @@ export default class Element extends Locator<
 				});
 		}
 
-		return this._post('element', {
+		return this._post<ElementOrElementId>('element', {
 			using,
 			value
 		})
@@ -206,27 +202,28 @@ export default class Element extends Locator<
 			value = locator.value;
 		}
 
+		let task: Task<ElementOrElementId[]>;
 		if (
 			using.indexOf('link text') !== -1 &&
 			(capabilities.brokenWhitespaceNormalization ||
 				capabilities.brokenLinkTextLocator)
 		) {
-			return session
-				.execute(
-					/* istanbul ignore next */ session['_manualFindByLinkText'],
-					[using, value, true, this]
-				)
-				.then(function(elements: ElementOrElementId[]) {
-					return elements.map(function(element) {
-						return new Element(element, session);
-					});
-				});
+			task = session.execute<
+				ElementOrElementId[]
+			>(/* istanbul ignore next */ session['_manualFindByLinkText'], [
+				using,
+				value,
+				true,
+				this
+			]);
+		} else {
+			task = this._post<ElementOrElementId[]>('elements', {
+				using: using,
+				value: value
+			});
 		}
 
-		return this._post('elements', {
-			using: using,
-			value: value
-		}).then(function(elements: ElementOrElementId[]) {
+		return task.then(function(elements) {
 			return elements.map(function(element) {
 				return new Element(element, session);
 			});
@@ -286,7 +283,7 @@ export default class Element extends Locator<
 	 * the usual XML/HTML whitespace normalisation rules.
 	 */
 	getVisibleText(): Task<string> {
-		const result = this._get('text');
+		const result = this._get<string>('text');
 
 		if (this.session.capabilities.brokenWhitespaceNormalization) {
 			return result.then(text => this._normalizeWhitespace(text));
@@ -353,10 +350,10 @@ export default class Element extends Locator<
 	 * always lowercase.
 	 */
 	getTagName(): Task<string> {
-		return this._get('name').then((name: string) => {
+		return this._get<string>('name').then(name => {
 			if (this.session.capabilities.brokenHtmlTagName) {
 				return this.session
-					.execute(
+					.execute<boolean>(
 						'return document.body && document.body.tagName === document.body.tagName.toUpperCase();'
 					)
 					.then(function(isHtml: boolean) {
@@ -381,14 +378,14 @@ export default class Element extends Locator<
 	 * currently checked (for checkboxes).
 	 */
 	isSelected(): Task<boolean> {
-		return this._get('selected');
+		return this._get<boolean>('selected');
 	}
 
 	/**
 	 * Returns whether or not a form element can be interacted with.
 	 */
 	isEnabled(): Task<boolean> {
-		return this._get('enabled');
+		return this._get<boolean>('enabled');
 	}
 
 	/**
@@ -426,15 +423,15 @@ export default class Element extends Locator<
 	 * @returns The value of the attribute as a string, or `null` if no such
 	 * property or attribute exists.
 	 */
-	getSpecAttribute(name: string): Task<string> {
-		return this._get('attribute/$0', null, [name])
+	getSpecAttribute(name: string): Task<string | null> {
+		return this._get<string | undefined>('attribute/$0', null, [name])
 			.then(value => {
 				if (
 					this.session.capabilities.brokenNullGetSpecAttribute &&
 					(value === '' || value === undefined)
 				) {
 					return this.session
-						.execute(
+						.execute<boolean>(
 							/* istanbul ignore next */ function(
 								element: HTMLElement,
 								name: string
@@ -444,11 +441,11 @@ export default class Element extends Locator<
 							[this, name]
 						)
 						.then(function(hasAttribute: boolean) {
-							return hasAttribute ? value : null;
+							return hasAttribute ? <string>value : null;
 						});
 				}
 
-				return value;
+				return value || null;
 			})
 			.then(function(value) {
 				// At least ios-driver 0.6.6-SNAPSHOT violates draft spec and
@@ -471,11 +468,10 @@ export default class Element extends Locator<
 	 * @returns The value of the attribute, or `null` if no such attribute
 	 * exists.
 	 */
-	getAttribute(name: string): Task<string> {
-		return this.session.execute(
-			'return arguments[0].getAttribute(arguments[1]);',
-			[this, name]
-		);
+	getAttribute(name: string): Task<string | null> {
+		return this.session.execute<
+			string | null
+		>('return arguments[0].getAttribute(arguments[1]);', [this, name]);
 	}
 
 	/**
@@ -486,8 +482,8 @@ export default class Element extends Locator<
 	 * @param name The name of the property.
 	 * @returns The value of the property.
 	 */
-	getProperty(name: string): Task<any> {
-		return this.session.execute('return arguments[0][arguments[1]];', [
+	getProperty<T = any>(name: string): Task<T> {
+		return this.session.execute<T>('return arguments[0][arguments[1]];', [
 			this,
 			name
 		]);
@@ -498,7 +494,9 @@ export default class Element extends Locator<
 	 */
 	equals(other: Element): Task<boolean> {
 		const elementId = other.elementId || other;
-		return this._get('equals/$0', null, [elementId]).catch(error => {
+		return this._get<boolean>('equals/$0', null, [
+			elementId
+		]).catch(error => {
 			// At least Selendroid 0.9.0 does not support this command;
 			// At least ios-driver 0.6.6-SNAPSHOT April 2014 fails
 			if (
@@ -506,10 +504,9 @@ export default class Element extends Locator<
 				(error.name === 'UnknownError' &&
 					error.message.indexOf('bug.For input string:') > -1)
 			) {
-				return this.session.execute(
-					'return arguments[0] === arguments[1];',
-					[this, other]
-				);
+				return this.session.execute<
+					boolean
+				>('return arguments[0] === arguments[1];', [this, other]);
 			}
 
 			throw error;
@@ -529,7 +526,7 @@ export default class Element extends Locator<
 	 * 5. Elements with no `offsetWidth` or `offsetHeight`
 	 */
 	isDisplayed(): Task<boolean> {
-		return this._get('displayed').then((isDisplayed: boolean) => {
+		return this._get<boolean>('displayed').then(isDisplayed => {
 			if (
 				isDisplayed &&
 				(this.session.capabilities.brokenElementDisplayedOpacity ||
@@ -581,7 +578,10 @@ export default class Element extends Locator<
 	getPosition(): Task<{ x: number; y: number }> {
 		if (this.session.capabilities.brokenElementPosition) {
 			/* jshint browser:true */
-			return this.session.execute(
+			return this.session.execute<{
+				x: number;
+				y: number;
+			}>(
 				/* istanbul ignore next */ function(element: HTMLElement) {
 					const bbox = element.getBoundingClientRect();
 					const scrollX =
@@ -597,13 +597,13 @@ export default class Element extends Locator<
 			);
 		}
 
-		return this._get('location').then(function(position: {
-			x: number;
-			y: number;
+		return this._get<{ x: number; y: number }>('location').then(function({
+			x,
+			y
 		}) {
 			// At least FirefoxDriver 2.41.0 incorrectly returns an object with
 			// additional `class` and `hCode` properties
-			return { x: position.x, y: position.y };
+			return { x, y };
 		});
 	}
 
@@ -632,7 +632,7 @@ export default class Element extends Locator<
 			return getUsingExecute();
 		}
 
-		return this._get('size')
+		return this._get<{ width: number; height: number }>('size')
 			.catch(function(error) {
 				// At least ios-driver 0.6.0-SNAPSHOT April 2014 does not
 				// support this command
@@ -642,10 +642,10 @@ export default class Element extends Locator<
 
 				throw error;
 			})
-			.then(function(dimensions) {
+			.then(function({ width, height }) {
 				// At least ChromeDriver 2.9 incorrectly returns an object with
 				// an additional `toString` property
-				return { width: dimensions.width, height: dimensions.height };
+				return { width, height };
 			});
 	}
 
@@ -675,9 +675,9 @@ export default class Element extends Locator<
 		if (this.session.capabilities.brokenComputedStyles) {
 			promise = manualGetStyle();
 		} else {
-			promise = this._get('css/$0', null, [propertyName]).catch(function(
-				error
-			) {
+			promise = this._get<string>('css/$0', null, [
+				propertyName
+			]).catch(function(error) {
 				// At least Selendroid 0.9.0 does not support this command
 				if (error.name === 'UnknownCommand') {
 					return manualGetStyle();

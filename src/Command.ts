@@ -201,59 +201,62 @@ export default class Command<T> extends Locator<
 				this: Command<U>,
 				...args: any[]
 			): Command<U> {
-				return new (this.constructor as typeof Command)<
-					U
-				>(this, function(this: Command<U>, setContext: Function) {
-					const parentContext = this._context;
-					const session = this._session;
-					let promise: Task<any>;
-					// The function may have come from a session object
-					// prototype but have been overridden on the actual session
-					// instance; in such a case, the overridden function should
-					// be used instead of the one from the original source
-					// object. The original source object may still be used,
-					// however, if the function is being added like a mixin and
-					// does not exist on the actual session object for this
-					// session
-					const fn = (<any>session)[key] || originalFn;
+				return new (this.constructor as typeof Command)<U>(
+					this,
+					function(this: Command<U>, setContext: Function) {
+						const parentContext = this._context;
+						const session = this._session;
+						let promise: Task<any>;
+						// The function may have come from a session object
+						// prototype but have been overridden on the actual session
+						// instance; in such a case, the overridden function should
+						// be used instead of the one from the original source
+						// object. The original source object may still be used,
+						// however, if the function is being added like a mixin and
+						// does not exist on the actual session object for this
+						// session
+						const fn = (<any>session)[key] || originalFn;
 
-					if (
-						fn.usesElement &&
-						parentContext.length &&
-						(!args[0] || !args[0].elementId)
-					) {
-						// Defer converting arguments into an array until it is
-						// necessary to avoid overhead
-						args = Array.prototype.slice.call(args, 0);
+						if (
+							fn.usesElement &&
+							parentContext.length &&
+							(!args[0] || !args[0].elementId)
+						) {
+							// Defer converting arguments into an array until it is
+							// necessary to avoid overhead
+							args = Array.prototype.slice.call(args, 0);
 
-						if (parentContext.isSingle) {
-							promise = fn.apply(
-								session,
-								[parentContext[0]].concat(args)
-							);
+							if (parentContext.isSingle) {
+								promise = fn.apply(
+									session,
+									[parentContext[0]].concat(args)
+								);
+							} else {
+								promise = Task.all(
+									parentContext.map(function(
+										element: Element
+									) {
+										return fn.apply(
+											session,
+											[element].concat(args)
+										);
+									})
+								);
+							}
 						} else {
-							promise = Task.all(
-								parentContext.map(function(element: Element) {
-									return fn.apply(
-										session,
-										[element].concat(args)
-									);
-								})
-							);
+							promise = fn.apply(session, args);
 						}
-					} else {
-						promise = fn.apply(session, args);
-					}
 
-					if (fn.createsContext) {
-						promise = promise.then(function(newContext) {
-							setContext(newContext);
-							return newContext;
-						});
-					}
+						if (fn.createsContext) {
+							promise = promise.then(function(newContext) {
+								setContext(newContext);
+								return newContext;
+							});
+						}
 
-					return <Task<U>>promise;
-				});
+						return <Task<U>>promise;
+					}
+				);
 			};
 		}
 	}
@@ -407,7 +410,8 @@ export default class Command<T> extends Locator<
 		let parentCommand = <Command<T>>parent;
 		this._task = (parentCommand
 			? parentCommand.promise
-			: Task.resolve(undefined))
+			: Task.resolve(undefined)
+		)
 			.then(
 				function(returnValue) {
 					self._context = parentCommand
@@ -556,57 +560,72 @@ export default class Command<T> extends Locator<
 	 *    `setContext` method is not called, the element context from the
 	 *    parent will be passed through unmodified.
 	 */
-	then<U = T>(
+	then<U = T, R = never>(
 		callback?:
 			| ((
+					this: Command<T>,
 					value: T,
 					setContext: SetContextMethod<U>
-				) => U | PromiseLike<U> | Command<U>)
+				) => U | PromiseLike<U>)
 			| null
 			| undefined,
 		errback?:
-			| ((error: Error) => void | U | PromiseLike<U> | Command<U>)
+			| ((this: Command<T>, error: any) => R | PromiseLike<R>)
 			| null
 			| undefined
-	) {
+	): Command<U | R> {
 		function runCallback(
 			command: Command<T>,
-			callback: (
-				value: T | Error,
-				setContext: SetContextMethod<U>
-			) => void | U | PromiseLike<U> | Command<U>,
+			callback:
+				| ((
+						this: Command<T>,
+						value: T,
+						setContext: SetContextMethod<U>
+					) => U | PromiseLike<U>)
+				| ((this: Command<T>, error: any) => R | PromiseLike<R>),
 			value: T,
 			setContext: SetContextMethod<T>
-		): T {
-			const returnValue = callback.call(command, value, setContext);
+		) {
+			const returnValue: T | U | R | Command<T | U | R> = callback.call(
+				command,
+				value,
+				setContext
+			);
 
 			// If someone returns `this` (or a chain starting from `this`) from
 			// the callback, it will cause a deadlock where the child command
 			// is waiting for the child command to resolve
 			if (returnValue instanceof Command) {
-				let maybeCommand = returnValue;
+				// maybeCommand can be a Session or a Command, both of which
+				// inherit from Locator
+				let maybeCommand:
+					| Command<any>
+					| Session
+					| undefined = returnValue;
 				do {
 					if (maybeCommand === command) {
 						throw new Error(
 							'Deadlock: do not use `return this` from a Command callback'
 						);
 					}
-				} while ((maybeCommand = <Command<T>>maybeCommand.parent));
+				} while ((maybeCommand = getParent(maybeCommand)));
 			}
 
 			return returnValue;
 		}
 
-		return <Command<U>>new (this.constructor as typeof Command)(
+		return new (this.constructor as typeof Command)(
 			this,
-			callback ?
-				function(setContext: SetContextMethod<T>, value: T) {
-					return runCallback(this, callback, value, setContext);
-				} : undefined,
-			errback ?
-				function(setContext: SetContextMethod<T>, value: any) {
-					return runCallback(this, errback, value, setContext);
-				} : undefined
+			callback
+				? function(setContext: SetContextMethod<T>, value: T) {
+						return runCallback(this, callback, value, setContext);
+					}
+				: undefined,
+			errback
+				? function(setContext: SetContextMethod<T>, value: any) {
+						return runCallback(this, errback, value, setContext);
+					}
+				: undefined
 		);
 	}
 
@@ -614,7 +633,9 @@ export default class Command<T> extends Locator<
 	 * Adds a callback to be invoked when any of the previously chained
 	 * operations have failed.
 	 */
-	catch(errback: (reason: Error) => void | T | Command<T>) {
+	catch<R = never>(
+		errback: (this: Command<T>, reason: any) => R | PromiseLike<R>
+	) {
 		return this.then(null, errback);
 	}
 
@@ -662,7 +683,10 @@ export default class Command<T> extends Locator<
 	 * elements from the parent context and uses them as the context for the
 	 * newly created Command.
 	 */
-	private _callFindElementMethod<U>(key: keyof Element, ...args: any[]) {
+	private _callFindElementMethod<U>(
+		key: keyof Element,
+		...args: any[]
+	): Command<U> {
 		return new (this.constructor as typeof Command)<U>(this, function(
 			this: Command<U>,
 			setContext: SetContextMethod<U>
@@ -671,14 +695,11 @@ export default class Command<T> extends Locator<
 			let promise: Task<U>;
 
 			if (parentContext.length && parentContext.isSingle) {
-				promise = (<any>parentContext)[0][key].apply(
-					parentContext[0],
-					args
-				);
+				promise = parentContext[0][key].apply(parentContext[0], args);
 			} else if (parentContext.length) {
 				promise = Task.all(
 					parentContext.map(function(element: Element) {
-						return (<any>element)[key].apply(element, args);
+						return (<Function>element[key]).apply(element, args);
 					})
 				).then(function(elements) {
 					// findAll against an array context will result in arrays
@@ -690,7 +711,10 @@ export default class Command<T> extends Locator<
 					return Array.prototype.concat.apply([], elements);
 				});
 			} else {
-				promise = (<any>this.session)[key].apply(this.session, args);
+				promise = (<Function>this.session[<keyof Session>key]).apply(
+					this.session,
+					args
+				);
 			}
 
 			return promise.then(function(newContext) {
@@ -700,21 +724,24 @@ export default class Command<T> extends Locator<
 		});
 	}
 
-	private _callElementMethod<U>(key: keyof Element, ...args: any[]) {
+	private _callElementMethod<U>(
+		key: keyof Element,
+		...args: any[]
+	): Command<U> {
 		return new (this.constructor as typeof Command)<U>(this, function(
 			this: Command<T>,
 			setContext: Function
 		) {
 			const parentContext = this._context;
-			let promise: Task<any>;
-			let fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
+			let promise: Task<U | U[]>;
+			let fn = parentContext[0] && parentContext[0][key];
 
 			if (parentContext.isSingle) {
 				promise = fn.apply(parentContext[0], args);
 			} else {
 				promise = Task.all(
-					parentContext.map(function(element: any) {
-						return element[key].apply(element, args);
+					parentContext.map(function(element: Element) {
+						return (<Function>element[key])(...args);
 					})
 				);
 			}
@@ -726,18 +753,21 @@ export default class Command<T> extends Locator<
 				});
 			}
 
-			return <Task<U>>promise;
+			return promise;
 		});
 	}
 
-	private _callSessionMethod<U>(key: keyof Session, ...args: any[]) {
+	private _callSessionMethod<U>(
+		key: keyof Session,
+		...args: any[]
+	): Command<U> {
 		return new (this.constructor as typeof Command)<U>(this, function(
 			this: Command<T>,
 			setContext: Function
 		) {
 			const parentContext = this._context;
 			const session = this._session;
-			let task: Task<any>;
+			let task: Task<U | U[]>;
 
 			// The function may have come from a session object prototype but
 			// have been overridden on the actual session instance; in such a
@@ -880,8 +910,8 @@ export default class Command<T> extends Locator<
 	 * @returns The value returned by the remote code. Only values that can be
 	 * serialised to JSON, plus DOM elements, can be returned.
 	 */
-	execute(script: Function | string, args?: any[]) {
-		return this._callSessionMethod<any>('execute', script, args);
+	execute<T = any>(script: Function | string, args?: any[]) {
+		return this._callSessionMethod<T>('execute', script, args);
 	}
 
 	/**
@@ -913,8 +943,8 @@ export default class Command<T> extends Locator<
 	 * @returns The value returned by the remote code. Only values that can be
 	 * serialised to JSON, plus DOM elements, can be returned.
 	 */
-	executeAsync(script: Function | string, args?: any[]) {
-		return this._callSessionMethod<any>('executeAsync', script, args);
+	executeAsync<T = any>(script: Function | string, args?: any[]) {
+		return this._callSessionMethod<T>('executeAsync', script, args);
 	}
 
 	/**
@@ -1670,8 +1700,8 @@ export default class Command<T> extends Locator<
 	 * @returns The value of the attribute, or `null` if no such attribute
 	 * exists.
 	 */
-	getAttribute(name: string) {
-		return this._callElementMethod('getAttribute', name);
+	getAttribute<T = any>(name: string) {
+		return this._callElementMethod<T>('getAttribute', name);
 	}
 
 	/**
@@ -1682,8 +1712,8 @@ export default class Command<T> extends Locator<
 	 * @param name The name of the property.
 	 * @returns The value of the property.
 	 */
-	getProperty(name: string) {
-		return this._callElementMethod('getProperty', name);
+	getProperty<T = any>(name: string) {
+		return this._callElementMethod<T>('getProperty', name);
 	}
 
 	/**
@@ -1774,4 +1804,9 @@ if (chaiAsPromised) {
 			}
 		}
 	};
+}
+
+// Return the 'parent' of a value, which is assumed to be a Command or Session
+function getParent(value: any): Command<any> | Session | undefined {
+	return value && value.parent;
 }

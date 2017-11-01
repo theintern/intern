@@ -81,7 +81,7 @@ registerSuite(function(this: Test) {
 			return command
 				.get(toUrl('../data/default.html'))
 				.then(
-					pollUntil(
+					pollUntil<number | never>(
 						function() {
 							const anyWindow = <any>window;
 							if (!anyWindow.counter) {
@@ -97,7 +97,8 @@ registerSuite(function(this: Test) {
 						25
 					)
 				)
-				.then(function(counter: number) {
+				.then(function(counter) {
+					this.findById('#foo');
 					assert.strictEqual(counter, 4);
 				});
 		}

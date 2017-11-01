@@ -14,11 +14,11 @@
     "@dojo/shim": "beta2",
     "@types/jszip": "0.0.33",
     "jszip": "~3.1.3",
-    "tslib": "~1.7.1"
+    "tslib": "~1.8.0"
   },
   "devDependencies": {
     "@dojo/loader": "beta2",
-    "@theintern/dev": "~0.5.6",
+    "@theintern/dev": "~0.6.0",
     "@types/node": "~6.0.54",
     "concurrently": "~3.5.0",
     "intern": "~3.4.2"
@@ -29,7 +29,8 @@
     "build": "intern-dev-clean && concurrently intern-dev-build intern-dev-api",
     "release": "intern-dev-release",
     "test": "intern-dev-test",
-    "watch": "intern-dev-watch"
+    "watch": "intern-dev-build watch",
+    "ci": "intern-dev-clean && intern-dev-build && intern-dev-test all"
   },
   "bugs": "https://github.com/theintern/leadfoot/issues",
   "keywords": [

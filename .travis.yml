@@ -6,4 +6,5 @@ env:
     # Please get your own free key if you want to test yourself
     - BROWSERSTACK_USERNAME: sitepenlabs1
     - BROWSERSTACK_ACCESS_KEY: 836y5xDYPeFudz5HvZyp
-script: tests/run.sh
+script:
+  - npm run ci

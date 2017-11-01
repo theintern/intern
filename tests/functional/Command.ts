@@ -6,7 +6,6 @@ import Session from 'src/Session';
 import { IRequire } from 'dojo/loader';
 import Task from '@dojo/core/async/Task';
 import Test = require('intern/lib/Test');
-import Element from 'src/Element';
 
 declare const require: IRequire;
 
@@ -100,7 +99,7 @@ registerSuite(function() {
 					.then(function() {
 						throw new Error('Boom');
 					})
-					.catch(function(this: Command<any>) {
+					.catch(function() {
 						const expected: Context = [];
 						expected.isSingle = true;
 						expected.depth = 0;
@@ -120,7 +119,7 @@ registerSuite(function() {
 			}, /A parent Command or Session must be provided to a new Command/);
 
 			const dfd = this.async();
-			const parent = new Command(session, function(setContext) {
+			const parent = new Command<string>(session, function(setContext) {
 				setContext('foo');
 				return Task.resolve('bar');
 			});
@@ -156,12 +155,12 @@ registerSuite(function() {
 			return command
 				.get(require.toUrl('tests/functional/data/default.html'))
 				.getPageTitle()
-				.then(function(pageTitle: string) {
+				.then(function(pageTitle) {
 					assert.strictEqual(pageTitle, 'Default & <b>default</b>');
 				})
 				.get(require.toUrl('tests/functional/data/form.html'))
 				.getPageTitle()
-				.then(function(pageTitle: string) {
+				.then(function(pageTitle) {
 					assert.strictEqual(pageTitle, 'Form');
 				});
 		},
@@ -173,7 +172,7 @@ registerSuite(function() {
 			const child = parent.findByTagName('p');
 
 			return child
-				.then(function(element: Element) {
+				.then(function(element) {
 					assert.notStrictEqual(
 						child,
 						parent,
@@ -185,7 +184,7 @@ registerSuite(function() {
 					);
 				})
 				.getTagName()
-				.then(function(tagName: string) {
+				.then(function(tagName) {
 					assert.strictEqual(
 						tagName,
 						'p',
@@ -205,8 +204,8 @@ registerSuite(function() {
 				.findById('input')
 				.click()
 				.type('hello')
-				.getProperty('value')
-				.then(function(value: string) {
+				.getProperty<string>('value')
+				.then(function(value) {
 					assert.strictEqual(
 						value,
 						'hello',
@@ -219,8 +218,8 @@ registerSuite(function() {
 			return new Command(session)
 				.get(require.toUrl('tests/functional/data/elements.html'))
 				.findAllByClassName('b')
-				.getAttribute('id')
-				.then(function(ids: string[]) {
+				.getAttribute<string[]>('id')
+				.then(function(ids) {
 					assert.deepEqual(ids, ['b2', 'b1', 'b3', 'b4']);
 				});
 		},
@@ -230,19 +229,19 @@ registerSuite(function() {
 				.get(require.toUrl('tests/functional/data/elements.html'))
 				.findById('c')
 				.findAllByClassName('b')
-				.getAttribute('id')
-				.then(function(ids: string[]) {
+				.getAttribute<string[]>('id')
+				.then(function(ids) {
 					assert.deepEqual(ids, ['b3', 'b4']);
 				})
 				.findAllByClassName('a')
-				.then(function(elements: Element[]) {
+				.then(function(elements) {
 					assert.lengthOf(elements, 0);
 				})
 				.end(2)
 				.end()
 				.findAllByClassName('b')
-				.getAttribute('id')
-				.then(function(ids: string[]) {
+				.getAttribute<string[]>('id')
+				.then(function(ids) {
 					assert.deepEqual(ids, ['b2', 'b1', 'b3', 'b4']);
 				});
 		},
@@ -252,8 +251,8 @@ registerSuite(function() {
 				.get(require.toUrl('tests/functional/data/elements.html'))
 				.findAllByTagName('div')
 				.findAllByCssSelector('span, a')
-				.getAttribute('id')
-				.then(function(ids: string[]) {
+				.getAttribute<string[]>('id')
+				.then(function(ids) {
 					assert.deepEqual(ids, ['f', 'g', 'j', 'i1', 'k', 'zz']);
 				});
 		},
@@ -263,7 +262,7 @@ registerSuite(function() {
 				.get(require.toUrl('tests/functional/data/visibility.html'))
 				.findDisplayedByClassName('multipleVisible')
 				.getVisibleText()
-				.then(function(text: string) {
+				.then(function(text) {
 					assert.strictEqual(
 						text,
 						'b',
@@ -288,8 +287,10 @@ registerSuite(function() {
 				.pressMouseButton()
 				.moveMouseTo(110, 50)
 				.releaseMouseButton()
-				.execute('return result;')
-				.then(function(result: any) {
+				.execute<{ mousedown: { a?: any[] }; mouseup: { b?: any[] } }>(
+					'return result;'
+				)
+				.then(function(result) {
 					assert.isTrue(
 						result.mousedown.a && result.mousedown.a.length > 0,
 						'Expected mousedown event in element a'
@@ -321,7 +322,7 @@ registerSuite(function() {
 				setContext(['a']);
 			})
 				.end(20)
-				.then(function(this: Command<any>) {
+				.then(function() {
 					assert.deepEqual(
 						this.context,
 						expected,
@@ -333,14 +334,14 @@ registerSuite(function() {
 		'#end in a long chain'() {
 			return new Command(session)
 				.then(function(_: any, setContext: Function) {
-					setContext(['a']);
+					setContext!(['a']);
 				})
 				.end()
-				.then(function(this: Command<any>) {
+				.then(function() {
 					assert.lengthOf(this.context, 0);
 				})
 				.end()
-				.then(function(this: Command<any>) {
+				.then(function() {
 					assert.lengthOf(
 						this.context,
 						0,

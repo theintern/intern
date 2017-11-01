@@ -62,25 +62,25 @@ import Task from '@dojo/core/async/Task';
  * promise that resolves to the value returned by the poller function on
  * success and rejects on failure.
  */
-export default function pollUntil(
+export default function pollUntil<T>(
 	poller: Poller | string,
 	args?: any[],
 	timeout?: number,
 	pollInterval?: number
-): () => Task<any>;
+): () => Task<T>;
 
-export default function pollUntil(
+export default function pollUntil<T>(
 	poller: Poller | string,
 	timeout?: number,
 	pollInterval?: number
-): () => Task<any>;
+): () => Task<T>;
 
-export default function pollUntil(
+export default function pollUntil<T>(
 	poller: Poller | string,
 	argsOrTimeout?: any[] | number,
 	timeout?: number,
 	pollInterval?: number
-): () => Task<any> {
+): () => Task<T> {
 	let args: any[] | undefined;
 
 	if (typeof argsOrTimeout === 'number') {
@@ -98,7 +98,7 @@ export default function pollUntil(
 		let originalTimeout: number;
 
 		return session.getExecuteAsyncTimeout().then(function(currentTimeout) {
-			let resultOrError: any;
+			let resultOrError: T | Error;
 
 			function storeResult(result: any) {
 				resultOrError = result;
