@@ -1,6 +1,6 @@
 import global from '@dojo/shim/global';
 
-import Executor, { Events, Handle } from '../executors/Executor';
+import { Events, Executor, NoDataEvents, Handle } from '../executors/Executor';
 import { ErrorFormatOptions } from '../common/ErrorFormatter';
 
 /**
@@ -101,12 +101,25 @@ export default class Reporter implements ReporterProperties {
  * Create a decorator that will add a decorated method to a class's list of
  * event handlers.
  */
-export function createEventHandler<E extends Events = Events>() {
-	return function(name?: keyof E) {
-		return function<T extends keyof E>(
+export function createEventHandler<
+	E extends Events,
+	N extends NoDataEvents = NoDataEvents
+>() {
+	return function() {
+		function decorate(
+			target: any,
+			propertyKey: N,
+			_descriptor: TypedPropertyDescriptor<() => void>
+		): void;
+		function decorate<T extends keyof E>(
 			target: any,
 			propertyKey: T,
 			_descriptor: TypedPropertyDescriptor<(data: E[T]) => void>
+		): void;
+		function decorate<T extends keyof E>(
+			target: any,
+			propertyKey: T,
+			_descriptor: TypedPropertyDescriptor<(data?: E[T]) => void>
 		) {
 			if (!target.hasOwnProperty('_eventHandlers')) {
 				if (target._eventHandlers != null) {
@@ -119,8 +132,9 @@ export function createEventHandler<E extends Events = Events>() {
 					target._eventHandlers = {};
 				}
 			}
-			target._eventHandlers[name || propertyKey] = propertyKey;
-		};
+			target._eventHandlers[propertyKey] = propertyKey;
+		}
+		return decorate;
 	};
 }
 

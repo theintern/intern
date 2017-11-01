@@ -3,7 +3,7 @@
  */ /** */
 import global from '@dojo/shim/global';
 
-import Executor from '../executors/Executor';
+import { Executor } from '../executors/Executor';
 import { createSuite, isSuiteDescriptorFactory } from './object';
 import BenchmarkTest, {
 	BenchmarkDeferredTestFunction,
@@ -19,7 +19,7 @@ export default function registerSuite(
 	descriptorOrFactory:
 		| BenchmarkSuiteDescriptor
 		| BenchmarkSuiteFactory
-		| Tests
+		| BenchmarkTests
 ) {
 	return _registerSuite(global.intern, name, descriptorOrFactory);
 }
@@ -34,7 +34,7 @@ export function getInterface(executor: Executor) {
 			descriptorOrFactory:
 				| BenchmarkSuiteDescriptor
 				| BenchmarkSuiteFactory
-				| Tests
+				| BenchmarkTests
 		) {
 			return _registerSuite(executor, name, descriptorOrFactory);
 		},
@@ -46,24 +46,32 @@ export function getInterface(executor: Executor) {
 export interface BenchmarkInterface {
 	registerSuite(
 		name: string,
-		descriptor: BenchmarkSuiteDescriptor | BenchmarkSuiteFactory | Tests
+		descriptor:
+			| BenchmarkSuiteDescriptor
+			| BenchmarkSuiteFactory
+			| BenchmarkTests
 	): void;
+
 	async: (
 		testFunction: BenchmarkDeferredTestFunction,
 		numCallsUntilResolution?: number
 	) => BenchmarkTestFunction;
 }
 
-export interface Tests {
-	[name: string]: BenchmarkSuiteDescriptor | BenchmarkTestFunction;
+export interface BenchmarkTests {
+	[name: string]:
+		| BenchmarkSuiteDescriptor
+		| BenchmarkTestFunction
+		| BenchmarkTests;
 }
 
-export type BenchmarkSuiteDescriptor = Partial<BenchmarkSuiteProperties> & {
-	tests: Tests;
-};
+export interface BenchmarkSuiteDescriptor
+	extends Partial<BenchmarkSuiteProperties> {
+	tests: BenchmarkTests;
+}
 
 export interface BenchmarkSuiteFactory {
-	(): BenchmarkSuiteDescriptor | Tests;
+	(): BenchmarkSuiteDescriptor | BenchmarkTests;
 }
 
 function _registerSuite(
@@ -72,7 +80,7 @@ function _registerSuite(
 	descriptorOrFactory:
 		| BenchmarkSuiteDescriptor
 		| BenchmarkSuiteFactory
-		| Tests
+		| BenchmarkTests
 ) {
 	// Only register benchmark suites if we're in benchmark mode
 	if (!executor.config.benchmark) {
@@ -89,7 +97,7 @@ function _registerSuite(
 		// interfaces like tdd/bdd more closely; without this, it becomes
 		// impossible to use the object interface for functional tests since
 		// there is no other way to create a closure for each main suite
-		let descriptor: BenchmarkSuiteDescriptor | Tests;
+		let descriptor: BenchmarkSuiteDescriptor | BenchmarkTests;
 
 		if (
 			isSuiteDescriptorFactory<BenchmarkSuiteFactory>(descriptorOrFactory)

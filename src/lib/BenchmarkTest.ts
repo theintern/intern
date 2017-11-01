@@ -7,7 +7,13 @@ import * as _ from 'lodash';
 import * as platform from 'platform';
 import * as Benchmark from 'benchmark';
 
-import Test, { isTest, SKIP, TestOptions, TestProperties } from './Test';
+import Test, {
+	isTest,
+	SKIP,
+	TestFunction,
+	TestOptions,
+	TestProperties
+} from './Test';
 import { InternError } from './types';
 import Deferred from './Deferred';
 
@@ -30,7 +36,8 @@ export default class BenchmarkTest extends Test {
 		// Call the superclass constructor with the set of descriptor keys not
 		// specific to BenchmarkTest
 		let args: TestOptions = <TestOptions>{};
-		Object.keys(descriptor).forEach((key: keyof BenchmarkTestOptions) => {
+		Object.keys(descriptor).forEach(descriptorKey => {
+			const key = <keyof BenchmarkTestOptions>descriptorKey;
 			switch (key) {
 				case 'options':
 					break;
@@ -51,7 +58,10 @@ export default class BenchmarkTest extends Test {
 
 		if (options.defer) {
 			this.test = (function(testFunction: BenchmarkTestFunction) {
-				return function(this: BenchmarkTest, deferred?: Deferred<any>) {
+				return <BenchmarkDeferredTestFunction>function(
+					this: BenchmarkTest,
+					deferred?: Deferred<any>
+				) {
 					// deferred is optional for compat with
 					// BenchmarkTestFunction, but it will always be defined here
 					const dfd = createDeferred(
@@ -179,12 +189,12 @@ export default class BenchmarkTest extends Test {
 	}
 }
 
-export interface BenchmarkTestFunction {
+export interface BenchmarkTestFunction extends TestFunction {
 	(this: BenchmarkTest): void | Promise<any>;
 	options?: BenchmarkOptions;
 }
 
-export interface BenchmarkDeferredTestFunction {
+export interface BenchmarkDeferredTestFunction extends BenchmarkTestFunction {
 	(this: BenchmarkTest, deferred: Deferred<void>): void | Promise<any>;
 	options?: BenchmarkOptions;
 }

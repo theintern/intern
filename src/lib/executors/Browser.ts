@@ -4,7 +4,7 @@ import Task from '@dojo/core/async/Task';
 import global from '@dojo/shim/global';
 
 import * as console from '../common/console';
-import Executor, { Config, Events } from './Executor';
+import Executor, { Config, Events, Plugins } from './Executor';
 import { dirname, join, normalizePathEnding } from '../common/path';
 import { getDefaultBasePath } from '../browser/util';
 import { RuntimeEnvironment } from '../types';
@@ -17,7 +17,7 @@ import ConsoleReporter from '../reporters/Console';
 /**
  * A Browser executor is used to run unit tests in a browser.
  */
-export default class Browser extends Executor<Events, Config> {
+export default class Browser extends Executor<Events, Config, Plugins> {
 	constructor(options?: { [key in keyof Config]?: any }) {
 		super(<Config>{
 			basePath: '',
@@ -40,9 +40,12 @@ export default class Browser extends Executor<Events, Config> {
 			this.emit('error', error);
 		});
 
-		this.registerReporter('html', Html);
-		this.registerReporter('dom', Dom);
-		this.registerReporter('console', ConsoleReporter);
+		this.registerReporter('html', options => new Html(this, options));
+		this.registerReporter('dom', options => new Dom(this, options));
+		this.registerReporter(
+			'console',
+			options => new ConsoleReporter(this, options)
+		);
 
 		if (options) {
 			this.configure(options);
@@ -92,7 +95,8 @@ export default class Browser extends Executor<Events, Config> {
 				config.basePath = join(config.internPath, config.basePath);
 			}
 
-			['basePath', 'internPath'].forEach((key: keyof Config) => {
+			['basePath', 'internPath'].forEach(property => {
+				const key = <keyof Config>property;
 				config[key] = normalizePathEnding(<string>config[key]);
 			});
 
@@ -112,7 +116,7 @@ export default class Browser extends Executor<Events, Config> {
 
 			if (hasGlobs) {
 				return request('__resolveSuites__', { query: { suites } })
-					.then(response => response.json())
+					.then(response => response.json<string[]>())
 					.catch(() => {
 						throw new Error(
 							'The server does not support suite glob resolution'

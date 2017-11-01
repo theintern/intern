@@ -59,7 +59,7 @@ import global from '@dojo/shim/global';
 
 import Suite, { SuiteOptions, SuiteProperties } from '../Suite';
 import Test, { TestFunction, isTestFunction } from '../Test';
-import Executor from '../executors/Executor';
+import { Executor } from '../executors/Executor';
 
 /**
  * Importable interface that uses the currently installed global executor

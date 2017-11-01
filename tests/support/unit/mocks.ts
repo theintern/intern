@@ -8,7 +8,7 @@ import { duplicate, mixin, assign } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 import Command from '@theintern/leadfoot/Command';
 
-import Executor, { Events } from 'src/lib/executors/Executor';
+import { Executor, Events } from 'src/lib/executors/Executor';
 import Node, { Remote } from 'src/lib/executors/Node';
 import Browser from 'src/lib/executors/Browser';
 import Server, { ServerListener } from 'src/lib/Server';
@@ -401,26 +401,17 @@ export class MockResponse extends EventHandler {
 	}
 }
 
-export function createMockInternObject(
-	objects: MockRequest | MockResponse | (MockRequest | MockResponse)[],
-	server: any,
-	handleMessage?: any
-) {
-	if (!Array.isArray(objects)) {
-		objects = [objects];
-	}
-	objects.forEach(object => {
-		object.intern = {
-			get stopped() {
-				return server.stopped;
-			},
-			get basePath() {
-				return server.basePath;
-			},
-			get executor() {
-				return server.executor;
-			},
-			handleMessage
-		};
-	});
+export function createMockServerContext(server: any, handleMessage?: any) {
+	return {
+		get stopped() {
+			return server.stopped;
+		},
+		get basePath() {
+			return server.basePath;
+		},
+		get executor() {
+			return server.executor;
+		},
+		handleMessage
+	};
 }

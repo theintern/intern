@@ -31,7 +31,7 @@ import Suite, {
 	TestLifecycleFunction
 } from '../Suite';
 import Test, { TestProperties } from '../Test';
-import Executor from '../executors/Executor';
+import { Executor } from '../executors/Executor';
 
 export interface TddInterface extends TddLifecycleInterface {
 	suite(name: string, factory: TddSuiteFactory): void;

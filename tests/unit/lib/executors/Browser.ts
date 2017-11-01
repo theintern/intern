@@ -9,8 +9,9 @@ let removeMocks: () => void;
 
 function createExecutor(config?: Partial<Config>) {
 	const executor = new Browser(config);
-	executor.registerLoader((_config: Config) => (_modules: string[]) =>
-		Promise.resolve()
+	executor.registerLoader(
+		(_config: { [key: string]: any }) => (_modules: string[]) =>
+			Promise.resolve()
 	);
 	return executor;
 }
@@ -55,8 +56,10 @@ registerSuite('lib/executors/Browser', function() {
 
 	let executor: _Browser;
 
+	type mockRequest = { json: () => Promise<any> };
+
 	const request = sandbox.spy((_path: string, _data: any) => {
-		return Promise.resolve({
+		return Promise.resolve(<mockRequest>{
 			json: () => Promise.resolve({})
 		});
 	});

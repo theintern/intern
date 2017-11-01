@@ -9,6 +9,8 @@ import {
 	createMockNodeExecutor
 } from '../../../support/unit/mocks';
 
+import { TunnelMessage } from '../../../../src/lib/executors/Node';
+
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
@@ -437,7 +439,7 @@ registerSuite('lib/reporters/Runner', function() {
 			},
 
 			tunnelStart() {
-				reporter.tunnelStart();
+				reporter.tunnelStart(<TunnelMessage>{});
 				assert.deepEqual(mockCharm.write.args, [['Tunnel started\n']]);
 			},
 

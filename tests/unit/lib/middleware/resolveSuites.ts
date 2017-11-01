@@ -3,6 +3,11 @@ import { parse } from 'url';
 
 import _resolveSuites from 'src/lib/middleware/resolveSuites';
 import { MockResponse } from '../../../support/unit/mocks';
+import {
+	createMockNodeExecutor,
+	createMockServer,
+	createMockServerContext
+} from '../../../support/unit/mocks';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
@@ -37,7 +42,10 @@ registerSuite('lib/middleware/resolveSuites', () => {
 		},
 
 		beforeEach() {
-			handler = resolveSuites();
+			const server = createMockServer({
+				executor: createMockNodeExecutor()
+			});
+			handler = resolveSuites(createMockServerContext(server));
 			sandbox.resetHistory();
 		},
 

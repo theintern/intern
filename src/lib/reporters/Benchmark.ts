@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import * as Benchmark from 'benchmark';
-import Executor from '../executors/Executor';
+import { Executor } from '../executors/Executor';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import BenchmarkTest from '../BenchmarkTest';
 import Test from '../Test';
@@ -209,22 +209,24 @@ export default class BenchmarkReporter extends Reporter
 	}
 
 	@eventHandler()
-	testEnd(test: BenchmarkTest) {
+	testEnd(test: Test) {
+		const benchmarkTest = <BenchmarkTest>test;
+
 		// Just check for the benchmark property because the test may be a
 		// deserialized object rather than an actual BenchmarkTest instance.
-		if (test.benchmark == null) {
+		if (benchmarkTest.benchmark == null) {
 			return;
 		}
 
-		if (test.error) {
-			const session = this._getSession(test);
-			const suiteInfo = session.suites[test.parentId];
+		if (benchmarkTest.error) {
+			const session = this._getSession(benchmarkTest);
+			const suiteInfo = session.suites[benchmarkTest.parentId];
 			suiteInfo.numBenchmarks++;
 			suiteInfo.numFailedBenchmarks++;
 
-			this.console.error('FAIL: ' + test.id);
+			this.console.error('FAIL: ' + benchmarkTest.id);
 			this.console.error(
-				this.executor.formatError(test.error, { space: '  ' })
+				this.executor.formatError(benchmarkTest.error, { space: '  ' })
 			);
 		} else {
 			const checkTest = (
@@ -283,31 +285,39 @@ export default class BenchmarkReporter extends Reporter
 
 				if (fail.length) {
 					this.console.error(
-						'FAIL ' + test.id + ' (' + fail.join(', ') + ')'
+						'FAIL ' +
+							benchmarkTest.id +
+							' (' +
+							fail.join(', ') +
+							')'
 					);
 					return false;
 				} else if (warn.length) {
 					this.console.warn(
-						'WARN ' + test.id + ' (' + warn.join(', ') + ')'
+						'WARN ' +
+							benchmarkTest.id +
+							' (' +
+							warn.join(', ') +
+							')'
 					);
 				} else {
-					this.console.log('PASS ' + test.id);
+					this.console.log('PASS ' + benchmarkTest.id);
 				}
 
 				return true;
 			};
 
-			const benchmark = test.benchmark;
-			const session = this._getSession(test);
+			const benchmark = benchmarkTest.benchmark;
+			const session = this._getSession(benchmarkTest);
 			const environment = session.environment;
 
-			const suiteInfo = session.suites[test.parentId];
+			const suiteInfo = session.suites[benchmarkTest.parentId];
 			suiteInfo.numBenchmarks++;
 
 			const baseline = this.baseline[environment.id]!;
 
 			if (this.mode === 'baseline') {
-				baseline.tests[test.id] = {
+				baseline.tests[benchmarkTest.id] = {
 					hz: benchmark.hz,
 					times: benchmark.times,
 					stats: {
@@ -316,7 +326,7 @@ export default class BenchmarkReporter extends Reporter
 						mean: benchmark.stats.mean
 					}
 				};
-				this.console.log('Baselined ' + test.name);
+				this.console.log('Baselined ' + benchmarkTest.name);
 				this.executor.log(
 					'Time per run:',
 					formatSeconds(benchmark.stats.mean),
@@ -326,7 +336,7 @@ export default class BenchmarkReporter extends Reporter
 				);
 			} else {
 				if (baseline) {
-					const testData = baseline.tests[test.id];
+					const testData = baseline.tests[benchmarkTest.id];
 					const result = checkTest(testData, benchmark);
 					const baselineStats = testData.stats;
 					const benchmarkStats = benchmark.stats;

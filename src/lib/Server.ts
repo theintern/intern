@@ -17,32 +17,11 @@ import finalError from './middleware/finalError';
 import resolveSuites from './middleware/resolveSuites';
 import post from './middleware/post';
 
-export interface InternObject {
+export interface Context {
 	readonly stopped: boolean;
 	readonly basePath: string;
 	readonly executor: Node;
 	handleMessage(message: Message): Promise<any>;
-}
-
-export interface InternRequest extends express.Request {
-	readonly intern: InternObject;
-}
-
-export interface InternResponse extends express.Response {
-	readonly intern: InternObject;
-}
-
-export interface InternRequestHandler {
-	(req: InternRequest, res: InternResponse, next: express.NextFunction): any;
-}
-
-export interface InternErrorRequestHandler {
-	(
-		err: any,
-		req: InternRequest,
-		res: InternResponse,
-		next: express.NextFunction
-	): any;
 }
 
 export default class Server implements ServerProperties {
@@ -98,7 +77,7 @@ export default class Server implements ServerProperties {
 				this.executor.emit('error', error);
 			});
 
-			const intern = Object.create(null, {
+			const context = Object.create(null, {
 				stopped: {
 					enumerable: true,
 					get: () => this.stopped
@@ -122,11 +101,11 @@ export default class Server implements ServerProperties {
 			// Add "intern" object to both request and response objects
 			Object.defineProperty(app.request, 'intern', {
 				enumerable: true,
-				get: () => intern
+				get: () => context
 			});
 			Object.defineProperty(app.response, 'intern', {
 				enumerable: true,
-				get: () => intern
+				get: () => context
 			});
 
 			// Handle JSON and form-encoded request bodies
@@ -149,7 +128,7 @@ export default class Server implements ServerProperties {
 					`/${internPath}__resolveSuites__`,
 					'/__intern/__resolveSuites__'
 				],
-				resolveSuites()
+				resolveSuites(context)
 			);
 
 			// Map __intern to config.internPath
@@ -161,9 +140,9 @@ export default class Server implements ServerProperties {
 			// TODO: Allow user to add middleware here
 
 			app.use(
-				instrument(),
+				instrument(context),
 				express.static(this.basePath),
-				post(),
+				post(context),
 				unhandled(),
 				finalError()
 			);

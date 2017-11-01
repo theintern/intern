@@ -6,7 +6,7 @@ import Task from '@dojo/core/async/Task';
 
 import Suite, { SuiteOptions } from './Suite';
 import { InternError } from './types';
-import Node, { Events } from './executors/Node';
+import Node, { NodeEvents } from './executors/Node';
 import Browser, { Config as BrowserConfig } from './executors/Browser';
 import { stringify } from './common/util';
 import Deferred from './Deferred';
@@ -90,7 +90,8 @@ export default class RemoteSuite extends Suite {
 				// remote session ID.
 				listenerHandle = server.subscribe(
 					sessionId,
-					(name: keyof RemoteEvents, data: any) => {
+					(eventName: string, data: any) => {
+						const name = <keyof RemoteEvents>eventName;
 						let suite: Suite;
 
 						switch (name) {
@@ -207,10 +208,12 @@ export default class RemoteSuite extends Suite {
 				// Do some pre-serialization of the options
 				const queryParams: Hash<any> = {};
 				Object.keys(queryOptions)
-					.filter((key: keyof RemoteConfig) => {
+					.filter(option => {
+						const key = <keyof RemoteConfig>option;
 						return queryOptions[key] != null;
 					})
-					.forEach((key: keyof RemoteConfig) => {
+					.forEach(option => {
+						const key = <keyof RemoteConfig>option;
 						let value = queryOptions[key];
 						if (typeof value === 'object') {
 							value = JSON.stringify(value);
@@ -250,7 +253,8 @@ export default class RemoteSuite extends Suite {
 				// Pass all non-excluded keys to the remote config
 				Object.keys(config)
 					.filter(key => !excludeKeys[key])
-					.forEach((key: keyof RemoteConfig) => {
+					.forEach(property => {
+						const key = <keyof RemoteConfig>property;
 						remoteConfig[key] = config[key];
 					});
 
@@ -303,7 +307,7 @@ export default class RemoteSuite extends Suite {
 	}
 }
 
-export interface RemoteEvents extends Events {
+export interface RemoteEvents extends NodeEvents {
 	remoteStatus: string;
 }
 

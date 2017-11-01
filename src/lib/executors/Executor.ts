@@ -31,20 +31,45 @@ import { InternError, RuntimeEnvironment } from '../types';
 import * as console from '../common/console';
 
 /**
+ * This interface represents the core functionality of an Executor
+ */
+export interface Executor {
+	readonly config: Config;
+	readonly suites: Suite[];
+
+	addSuite(factory: (parentSuite: Suite) => void): void;
+
+	configure(options: { [key: string]: any }): void;
+
+	emit<T extends NoDataEvents>(eventName: T): Task<void>;
+	emit<T extends keyof Events>(eventName: T, data: Events[T]): Task<void>;
+
+	formatError(error: Error, options?: ErrorFormatOptions): string;
+
+	log(...args: any[]): Task<void>;
+
+	on<T extends keyof Events>(
+		eventName: T,
+		listener: Listener<Events[T]>
+	): Handle;
+	on(listener: Listener<{ name: string; data?: any }>): Handle;
+}
+
+/**
  * This is the base executor class.
  *
  * Executors are the main driver of the testing process. An instance of Executor
  * is assigned to the `intern` global.
  */
-export default abstract class Executor<
-	E extends Events = Events,
-	C extends Config = Config,
-	P extends Plugins = Plugins
-> {
+export default abstract class BaseExecutor<
+	E extends Events,
+	C extends Config,
+	P extends Plugins
+> implements Executor {
 	protected _assertions: { [name: string]: any };
 	protected _config: C;
 	protected _rootSuite: Suite;
-	protected _events: Event<E>[];
+	protected _events: InternEvent<E>[];
 	protected _errorFormatter: ErrorFormatter;
 	protected _hasSuiteErrors = false;
 	protected _hasTestErrors = false;
@@ -202,7 +227,8 @@ export default abstract class Executor<
 	 */
 	configure(options: { [key in keyof C]?: any }) {
 		options = options || {};
-		Object.keys(options).forEach((key: keyof C) => {
+		Object.keys(options).forEach(option => {
+			const key = <keyof C>option;
 			const { name, addToExisting } = this._evalProperty(key);
 			this._processOption(<keyof C>name, options[key], addToExisting);
 		});
@@ -218,10 +244,7 @@ export default abstract class Executor<
 	 * @param data a data object whose type is event-dependent
 	 * @returns a Task that resolves when all listeners have processed the event
 	 */
-	emit(eventName: 'afterRun'): Task<void>;
-	emit(eventName: 'beforeRun'): Task<void>;
-	emit(eventName: 'runStart'): Task<void>;
-	emit(eventName: 'runEnd'): Task<void>;
+	emit<T extends NoDataEvents>(eventName: T): Task<void>;
 	emit<T extends keyof E>(eventName: T, data: E[T]): Task<void>;
 	emit<T extends keyof E>(eventName: T, data?: E[T]) {
 		// If reporters haven't been loaded yet, queue the event for later
@@ -545,8 +568,8 @@ export default abstract class Executor<
 	 * @param name the reporter name
 	 * @param Ctor a reporter class constructor
 	 */
-	registerReporter(name: string, Ctor: typeof Reporter) {
-		this.registerPlugin('reporter', name, () => Ctor);
+	registerReporter(name: string, init: ReporterInitializer) {
+		this.registerPlugin('reporter', name, () => init);
 	}
 
 	/**
@@ -763,18 +786,18 @@ export default abstract class Executor<
 		});
 
 		for (const reporter of [...baseReporters, ...envReporters]) {
-			const ReporterClass = this.getPlugin('reporter', reporter.name);
-			if (!ReporterClass) {
+			const initializer = this.getPlugin('reporter', reporter.name);
+			if (!initializer) {
 				throw new Error(
 					`A reporter named ${reporter.name} hasn't been registered`
 				);
 			}
-			if (typeof ReporterClass !== 'function') {
+			if (typeof initializer !== 'function') {
 				throw new Error(
-					`The reporter ${reporter.name} isn't a valid constructor`
+					`The reporter ${reporter.name} isn't a valid initializer`
 				);
 			}
-			this._reporters.push(new ReporterClass(this, reporter.options));
+			this._reporters.push(initializer(reporter.options));
 		}
 
 		this._reportersInitialized = true;
@@ -1035,7 +1058,8 @@ export default abstract class Executor<
 				const envName = name;
 				value = parseValue(name, value, 'object');
 				if (value) {
-					Object.keys(value).forEach((key: keyof ResourceConfig) => {
+					Object.keys(value).forEach(valueKey => {
+						const key = <keyof ResourceConfig>valueKey;
 						let resource = value[key];
 						let { name, addToExisting } = this._evalProperty(key);
 						switch (name) {
@@ -1201,17 +1225,9 @@ export default abstract class Executor<
 	}
 }
 
-export interface Event<E extends Events = Events> {
+export interface InternEvent<E extends Events> {
 	eventName: keyof E;
 	data?: any;
-}
-
-export interface ExecutorConstructor<
-	E extends Events,
-	C extends Config,
-	T extends Executor<E, C>
-> {
-	new (config?: Partial<C>): T;
 }
 
 export { Handle };
@@ -1289,6 +1305,11 @@ export interface ResourceConfig {
 	 * mode by setting the `serveOnly` option.
 	 */
 	suites: string[];
+
+	// Deprecated; these are only here for typing
+	require: never;
+	requires: never;
+	scripts: never;
 }
 
 /**
@@ -1434,10 +1455,10 @@ export interface Events {
 	'*': ExecutorEvent;
 
 	/** Emitted after the local executor has finished running suites */
-	afterRun: never;
+	afterRun: void;
 
 	/** Emitted before the local executor loads suites */
-	beforeRun: never;
+	beforeRun: void;
 
 	/** Coverage info has been gathered */
 	coverage: CoverageMessage;
@@ -1452,10 +1473,10 @@ export interface Events {
 	log: string;
 
 	/** All tests have finished running */
-	runEnd: never;
+	runEnd: void;
 
 	/** Emitted just before tests start running  */
-	runStart: never;
+	runStart: void;
 
 	/** A new suite has been added */
 	suiteAdd: Suite;
@@ -1479,11 +1500,14 @@ export interface Events {
 	warning: string;
 }
 
+/** A list of event names that don't have associated data */
+export type NoDataEvents = 'runStart' | 'runEnd' | 'beforeRun' | 'afterRun';
+
 /**
  * Known plugin types
  */
 export interface Plugins {
-	reporter: typeof Reporter;
+	reporter: ReporterInitializer;
 }
 
 /**
@@ -1507,6 +1531,10 @@ export interface LoaderDescriptor {
 
 export interface PluginInitializer<T extends any = any> {
 	(options?: { [key: string]: any }): Task<T> | T;
+}
+
+export interface ReporterInitializer {
+	(options?: any): Reporter;
 }
 
 export interface EvaluatedProperty<C extends Config = Config> {

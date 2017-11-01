@@ -2,17 +2,18 @@ import { stat, readFile } from 'fs';
 import * as createError from 'http-errors';
 import { lookup } from 'mime-types';
 import { join, resolve } from 'path';
+import { RequestHandler } from 'express';
 
-import { InternRequestHandler } from '../Server';
+import { Context } from '../Server';
 import { normalizePath } from '../node/util';
 
-export default function instrument(): InternRequestHandler {
+export default function instrument(context: Context): RequestHandler {
 	const codeCache: {
 		[filename: string]: { mtime: number; data: string };
 	} = Object.create(null);
 
 	return (request, response, next) => {
-		const { basePath, executor } = request.intern;
+		const { basePath, executor } = context;
 		const wholePath = normalizePath(resolve(join(basePath, request.url)));
 
 		if (
@@ -24,7 +25,7 @@ export default function instrument(): InternRequestHandler {
 
 		stat(wholePath, (error, stats) => {
 			// The server was stopped before this file was served
-			if (request.intern.stopped) {
+			if (context.stopped) {
 				return;
 			}
 
@@ -63,7 +64,7 @@ export default function instrument(): InternRequestHandler {
 			} else {
 				readFile(wholePath, 'utf8', (error, data) => {
 					// The server was stopped in the middle of the file read
-					if (request.intern.stopped) {
+					if (context.stopped) {
 						return;
 					}
 

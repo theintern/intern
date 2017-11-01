@@ -4,7 +4,6 @@ import { format } from 'util';
 import { mixin } from '@dojo/core/lang';
 import global from '@dojo/shim/global';
 
-import Node from '../executors/Node';
 import Environment from '../Environment';
 import Suite from '../Suite';
 import Test from '../Test';
@@ -12,9 +11,9 @@ import RemoteSuite from '../RemoteSuite';
 import { createEventHandler } from './Reporter';
 import TextCoverage, { TextCoverageProperties } from './TextCoverage';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
-import { Events, TunnelMessage } from '../executors/Node';
+import Node, { NodeEvents, TunnelMessage } from '../executors/Node';
 
-const eventHandler = createEventHandler<Events>();
+const eventHandler = createEventHandler<NodeEvents>();
 
 /**
  * Handles presentation of runner results to the user

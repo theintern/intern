@@ -76,7 +76,7 @@ export default class HttpChannel extends BaseChannel {
 			body: JSON.stringify(block.map(entry => entry.message))
 		})
 			.then(response => {
-				return response.json();
+				return response.json<any[]>();
 			})
 			.then((results: any[]) => {
 				block.forEach((entry, index) => {

@@ -442,7 +442,7 @@ registerSuite('lib/executors/Node', function() {
 					allowDeprecated?: boolean | string,
 					message?: string
 				) {
-					testProperty<_Node, Config>(
+					testProperty<Config>(
 						executor,
 						mockConsole,
 						name,

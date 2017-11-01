@@ -8,12 +8,12 @@ import { createEventHandler } from './Reporter';
 import TextCoverage, { TextCoverageProperties } from './TextCoverage';
 import Server from '../Server';
 import { CoverageMessage, DeprecationMessage } from '../executors/Executor';
-import Node, { Events, TunnelMessage } from '../executors/Node';
+import Node, { NodeEvents, TunnelMessage } from '../executors/Node';
 import { prefix } from '../common/util';
 
 export type Charm = charm.CharmInstance;
 
-const eventHandler = createEventHandler<Events>();
+const eventHandler = createEventHandler<NodeEvents>();
 
 export default class Runner extends TextCoverage implements RunnerProperties {
 	sessions: {
@@ -316,7 +316,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 	}
 
 	@eventHandler()
-	tunnelStart() {
+	tunnelStart(_: TunnelMessage) {
 		this.charm.write('Tunnel started\n');
 	}
 

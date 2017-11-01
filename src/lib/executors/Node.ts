@@ -31,11 +31,7 @@ import TestingBotTunnel from '@theintern/digdug/TestingBotTunnel';
 import CrossBrowserTestingTunnel from '@theintern/digdug/CrossBrowserTestingTunnel';
 import NullTunnel from '@theintern/digdug/NullTunnel';
 
-import Executor, {
-	Config as BaseConfig,
-	Events as BaseEvents,
-	Plugins
-} from './Executor';
+import Executor, { Config as BaseConfig, Events, Plugins } from './Executor';
 import { normalizePathEnding } from '../common/path';
 import { parseValue, pullFromArray } from '../common/util';
 import { expandFiles, readSourceMap } from '../node/util';
@@ -63,7 +59,7 @@ import TeamCity from '../reporters/TeamCity';
 
 const process: NodeJS.Process = global.process;
 
-export default class Node extends Executor<Events, Config, NodePlugins> {
+export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 	server: Server;
 	tunnel: Tunnel;
 
@@ -104,16 +100,31 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 		this._errorFormatter = new ErrorFormatter(this);
 		this._coverageMap = createCoverageMap();
 
-		this.registerReporter('pretty', Pretty);
-		this.registerReporter('simple', Simple);
-		this.registerReporter('runner', Runner);
-		this.registerReporter('benchmark', Benchmark);
-		this.registerReporter('junit', JUnit);
-		this.registerReporter('jsoncoverage', JsonCoverage);
-		this.registerReporter('htmlcoverage', HtmlCoverage);
-		this.registerReporter('lcov', Lcov);
-		this.registerReporter('cobertura', Cobertura);
-		this.registerReporter('teamcity', TeamCity);
+		this.registerReporter('pretty', options => new Pretty(this, options));
+		this.registerReporter('simple', options => new Simple(this, options));
+		this.registerReporter('runner', options => new Runner(this, options));
+		this.registerReporter(
+			'benchmark',
+			options => new Benchmark(this, options)
+		);
+		this.registerReporter('junit', options => new JUnit(this, options));
+		this.registerReporter(
+			'jsoncoverage',
+			options => new JsonCoverage(this, options)
+		);
+		this.registerReporter(
+			'htmlcoverage',
+			options => new HtmlCoverage(this, options)
+		);
+		this.registerReporter('lcov', options => new Lcov(this, options));
+		this.registerReporter(
+			'cobertura',
+			options => new Cobertura(this, options)
+		);
+		this.registerReporter(
+			'teamcity',
+			options => new TeamCity(this, options)
+		);
 
 		this.registerTunnel('null', NullTunnel);
 		this.registerTunnel('selenium', SeleniumTunnel);
@@ -708,9 +719,8 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				if (parsedTimeout) {
 					// If the given value was an object, mix it in to the
 					// default functionalTimeouts
-					Object.keys(
-						parsedTimeout
-					).forEach((key: keyof Config['functionalTimeouts']) => {
+					Object.keys(parsedTimeout).forEach(timeoutKey => {
+						const key = <keyof Config['functionalTimeouts']>timeoutKey;
 						this.config.functionalTimeouts[key] = parseValue(
 							`functionalTimeouts.${key}`,
 							parsedTimeout[key],
@@ -766,7 +776,8 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 				}
 			}
 
-			['basePath', 'internPath'].forEach((key: keyof Config) => {
+			['basePath', 'internPath'].forEach(property => {
+				const key = <keyof Config>property;
 				config[key] = normalizePathEnding(
 					resolve(<string>config[key]),
 					sep
@@ -795,10 +806,8 @@ export default class Node extends Executor<Events, Config, NodePlugins> {
 			}
 
 			// Ensure URLs end with a '/'
-			[
-				'serverUrl',
-				'functionalBaseUrl'
-			].forEach((property: keyof Config) => {
+			['serverUrl', 'functionalBaseUrl'].forEach(key => {
+				const property = <keyof Config>key;
 				if (config[property]) {
 					config[property] = (<string>config[property]).replace(
 						/\/*$/,
@@ -1229,7 +1238,7 @@ export interface TunnelMessage {
 	status?: string;
 }
 
-export interface Events extends BaseEvents {
+export interface NodeEvents extends Events {
 	/** A test server has stopped */
 	serverEnd: Server;
 

@@ -1,5 +1,5 @@
 import global from '@dojo/shim/global';
-import Browser from '../executors/Browser';
+import { Executor } from '../executors/Executor';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Suite from '../Suite';
 import Test from '../Test';
@@ -15,7 +15,7 @@ export default class Dom extends Reporter {
 
 	testNode: HTMLElement;
 
-	constructor(executor: Browser, options: DomOptions = {}) {
+	constructor(executor: Executor, options: DomOptions = {}) {
 		super(executor, options);
 		this.document = options.document || document;
 		this.suiteNode = options.suiteNode || this.document.body;

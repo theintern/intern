@@ -1,4 +1,9 @@
-import { BenchmarkTestFunction } from '../../src/lib/BenchmarkTest';
+import Test from '../../src/lib/Test';
+import {
+	BenchmarkTestFunction,
+	BenchmarkDeferredTestFunction
+} from '../../src/lib/BenchmarkTest';
+import Deferred from '../../src/lib/Deferred';
 
 const { registerSuite, async } = intern.getPlugin('interface.benchmark');
 
@@ -39,7 +44,9 @@ registerSuite('example benchmarks', {
 		};
 	})(),
 
-	async: async(function(deferred) {
+	async: async(<BenchmarkDeferredTestFunction>function(
+		deferred: Deferred<void>
+	) {
 		setTimeout(
 			deferred.callback(function() {
 				return 23 / 400;
@@ -48,11 +55,11 @@ registerSuite('example benchmarks', {
 		);
 	}),
 
-	skip() {
+	skip(this: Test) {
 		this.skip('this does nothing now');
 	},
 
-	'async skip'() {
+	'async skip'(this: Test) {
 		this.skip('this also does nothing now');
 	}
 });

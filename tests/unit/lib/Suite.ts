@@ -178,12 +178,8 @@ function createLifecycle(options: any = {}): _TestFunction {
 		const suite = new Suite(options);
 		const results: (string | number)[] = [];
 
-		[
-			'before',
-			'beforeEach',
-			'afterEach',
-			'after'
-		].forEach((method: lifecycleMethod) => {
+		['before', 'beforeEach', 'afterEach', 'after'].forEach(methodName => {
+			const method = <lifecycleMethod>methodName;
 			suite[method] = function() {
 				results.push(method);
 				return Task.resolve();

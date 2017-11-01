@@ -6,18 +6,17 @@ import {
 import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
 import { create, ReportType } from 'istanbul-reports';
 import Reporter, { createEventHandler, ReporterProperties } from './Reporter';
-import Node, { Events } from '../executors/Node';
+import Node, { NodeEvents } from '../executors/Node';
 
 export { ReportType };
 
-const eventHandler = createEventHandler<Events>();
+const eventHandler = createEventHandler<NodeEvents>();
 
 export default abstract class Coverage extends Reporter
 	implements CoverageProperties {
-
 	abstract readonly reportType: ReportType;
+	readonly executor: Node;
 
-	executor: Node;
 	filename: string;
 	directory: string;
 	watermarks: Watermarks;
@@ -36,7 +35,7 @@ export default abstract class Coverage extends Reporter
 		}
 	}
 
-	getReporterOptions(): { [key: string]: any; } {
+	getReporterOptions(): { [key: string]: any } {
 		return {
 			file: this.filename
 		};

@@ -5,8 +5,7 @@ import global from '@dojo/shim/global';
 import {
 	createMockConsole,
 	createMockNodeExecutor,
-	MockConsole,
-	MockNode
+	MockConsole
 } from '../../support/unit/mocks';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
@@ -24,13 +23,11 @@ registerSuite('bin/intern', function() {
 
 	let configData: any;
 	let removeMocks: (() => void) | undefined;
-	let mockNode: MockNode;
 	let mockConsole: MockConsole;
 	let mockCommonUtil: { [name: string]: SinonStub };
 
 	return {
 		beforeEach() {
-			mockNode = createMockNodeExecutor();
 			mockConsole = createMockConsole();
 			mockCommonUtil = {
 				getConfigDescription: sandbox.stub().returns('test config')

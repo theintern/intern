@@ -1,13 +1,12 @@
 import { diffJson, IDiffResult } from 'diff';
 
 import { InternError } from '../types';
-import Executor from '../executors/Executor';
+import { Executor } from '../executors/Executor';
 
-export default class ErrorFormatter<E extends Executor = Executor>
-	implements ErrorFormatterProperties<E> {
-	readonly executor: E;
+export default class ErrorFormatter implements ErrorFormatterProperties {
+	readonly executor: Executor;
 
-	constructor(executor: E) {
+	constructor(executor: Executor) {
 		this.executor = executor;
 	}
 
@@ -235,8 +234,8 @@ export default class ErrorFormatter<E extends Executor = Executor>
 	}
 }
 
-export interface ErrorFormatterProperties<E extends Executor = Executor> {
-	executor: E;
+export interface ErrorFormatterProperties {
+	executor: Executor;
 }
 
 export interface ErrorFormatOptions {

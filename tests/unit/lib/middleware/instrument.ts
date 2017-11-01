@@ -7,7 +7,7 @@ import {
 	createMockServer,
 	MockRequest,
 	MockResponse,
-	createMockInternObject
+	createMockServerContext
 } from '../../../support/unit/mocks';
 import { mockFs, mockPath, MockStats } from '../../../support/unit/nodeMocks';
 
@@ -58,10 +58,10 @@ registerSuite('lib/middleware/instrument', function() {
 				'shouldInstrumentFile'
 			);
 			instrumentCode = sandbox.stub(server.executor, 'instrumentCode');
-			handler = instrument();
+			const context = createMockServerContext(server);
+			handler = instrument(context);
 			request = new MockRequest('GET', '/foo/thing.js');
 			response = new MockResponse();
-			createMockInternObject([request, response], server);
 			next = sinon.spy();
 		},
 

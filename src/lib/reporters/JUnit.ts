@@ -4,7 +4,7 @@ import { dirname } from 'path';
 import Suite from '../Suite';
 import Test from '../Test';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
-import Executor from '../executors/Executor';
+import { Executor } from '../executors/Executor';
 
 /**
  * There is no formal spec for this format and everyone does it differently, so

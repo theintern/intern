@@ -111,6 +111,11 @@
 						"name": "sinon",
 						"location": "node_modules/sinon",
 						"main": "pkg/sinon.js"
+					},
+					{
+						"name": "tslib",
+						"location": "node_modules/tslib",
+						"main": "tslib.js"
 					}
 				]
 			}

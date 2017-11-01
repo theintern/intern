@@ -173,10 +173,9 @@ function getVersions(
 		.filter(function(availableEnvironment) {
 			// Return true if there are no mismatching keys
 			return !Object.keys(environment)
-				.filter(function(key) {
-					return key !== 'version';
-				})
-				.some(function(key: keyof NormalizedEnvironment) {
+				.filter(key => key !== 'version')
+				.some(envKey => {
+					const key = <keyof NormalizedEnvironment>envKey;
 					return (
 						key in availableEnvironment &&
 						availableEnvironment[key] !== environment[key]

@@ -4,7 +4,7 @@ import MockStream from './support/MockStream';
 
 import Suite from 'src/lib/Suite';
 import Test from 'src/lib/Test';
-import Executor from 'src/lib/executors/Executor';
+import { Executor } from 'src/lib/executors/Executor';
 import TeamCity from 'src/lib/reporters/TeamCity';
 
 const { registerSuite } = intern.getPlugin('interface.object');

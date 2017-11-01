@@ -1,7 +1,7 @@
 import { sandbox as Sandbox, spy } from 'sinon';
 import Task from '@dojo/core/async/Task';
 
-import _Executor, { Config } from 'src/lib/executors/Executor';
+import _Executor, { Config, Events, Plugins } from 'src/lib/executors/Executor';
 
 // Import isSuite from the testing source rather than the source being tested
 import { isSuite } from '../../../../src/lib/Suite';
@@ -9,9 +9,11 @@ import { testProperty } from '../../../support/unit/executor';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
+type ExecutorType = _Executor<Events, Config, Plugins>;
+
 // Create an interface to de-abstract the abstract properties in Executor
-interface FullExecutor extends _Executor {
-	new (config?: Partial<Config>): _Executor;
+interface FullExecutor extends ExecutorType {
+	new (config?: Partial<Config>): ExecutorType;
 	environment: 'browser' | 'node';
 	loadScript(_script: string | string[]): Task<void>;
 }
@@ -20,7 +22,7 @@ let Executor: FullExecutor;
 
 let removeMocks: () => void;
 
-function assertRunFails(executor: _Executor, errorMatcher: RegExp) {
+function assertRunFails(executor: ExecutorType, errorMatcher: RegExp) {
 	return executor.run().then(
 		() => {
 			throw new Error('run should have failed');
@@ -50,7 +52,7 @@ registerSuite('lib/executors/Executor', function() {
 
 	function createExecutor(config?: Partial<Config>) {
 		const executor = new Executor(config);
-		executor.registerLoader((_config: Config) =>
+		executor.registerLoader((_config: { [key: string]: any }) =>
 			Promise.resolve(testLoader)
 		);
 		(<any>executor).testLoader = testLoader;
@@ -76,7 +78,7 @@ registerSuite('lib/executors/Executor', function() {
 	});
 
 	let scripts: { [name: string]: () => void };
-	let executor: _Executor;
+	let executor: ExecutorType;
 
 	return {
 		before() {
@@ -267,7 +269,7 @@ registerSuite('lib/executors/Executor', function() {
 						error: RegExp,
 						message?: string
 					) {
-						testProperty<_Executor, Config>(
+						testProperty<Config>(
 							executor,
 							mockConsole,
 							name,

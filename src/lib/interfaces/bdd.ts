@@ -1,4 +1,4 @@
-import Executor from '../executors/Executor';
+import { Executor } from '../executors/Executor';
 import { TestProperties } from '../Test';
 import {
 	TddLifecycleInterface,

@@ -163,7 +163,6 @@ registerSuite('lib/ProxiedSession (functional)', () => {
 
 			'#setHeartbeatInterval'() {
 				let lastNumGetCalls: number;
-				let startTime: number;
 				const _session = session!;
 
 				// Set the heardbeat interval, then wait for about 5x that
@@ -173,7 +172,6 @@ registerSuite('lib/ProxiedSession (functional)', () => {
 				return _session
 					.setHeartbeatInterval(50)
 					.then(function() {
-						startTime = new Date().getTime();
 						return sleep(250);
 					})
 					.then(function() {

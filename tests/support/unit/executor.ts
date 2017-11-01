@@ -1,13 +1,10 @@
 import { SinonSpy } from 'sinon';
-import Executor, { Config } from 'src/lib/executors/Executor';
+import { Executor, Config } from 'src/lib/executors/Executor';
 
 const { assert } = intern.getPlugin('chai');
 
-export function testProperty<
-	E extends Executor = Executor,
-	C extends Config = Config
->(
-	executor: E,
+export function testProperty<C extends Config = Config>(
+	executor: Executor,
 	mockConsole: { [name: string]: SinonSpy },
 	name: keyof C,
 	badValue: any,

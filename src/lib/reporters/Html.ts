@@ -1,5 +1,5 @@
 import UrlSearchParams from '@dojo/core/UrlSearchParams';
-import Browser from '../executors/Browser';
+import { Executor } from '../executors/Executor';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Test from '../Test';
 import Suite from '../Suite';
@@ -8,8 +8,6 @@ import Suite from '../Suite';
  * The Html reporter displays an HTML report in the browser.
  */
 export default class Html extends Reporter implements HtmlProperties {
-	readonly executor: Browser;
-
 	document: Document;
 
 	location: Location;
@@ -57,7 +55,7 @@ export default class Html extends Reporter implements HtmlProperties {
 
 	protected _runningSuites: any = {};
 
-	constructor(executor: Browser, options: HtmlOptions = {}) {
+	constructor(executor: Executor, options: HtmlOptions = {}) {
 		super(executor, options);
 		this.document = options.document || window.document;
 		this.location = options.location || window.location;
@@ -107,8 +105,9 @@ export default class Html extends Reporter implements HtmlProperties {
 			failedFilter.appendChild(failedToggle);
 			failedFilter.appendChild(failedLabel);
 
-			failedToggle.onclick = function(this: HTMLInputElement) {
-				if (this.checked) {
+			failedToggle.onclick = function(this: HTMLElement) {
+				const input = <HTMLInputElement>this;
+				if (input.checked) {
 					document.body.className += ' hidePassed';
 				} else {
 					document.body.className = document.body.className.replace(

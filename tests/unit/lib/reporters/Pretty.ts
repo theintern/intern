@@ -46,6 +46,10 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 			pretty.close();
 		},
 
+		after() {
+			removeMocks();
+		},
+
 		tests: {
 			runStart() {
 				pretty.dimensions = {

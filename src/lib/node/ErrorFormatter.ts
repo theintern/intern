@@ -6,7 +6,9 @@ import ErrorFormatter from '../common/ErrorFormatter';
 import { readSourceMap } from './util';
 import Node from '../executors/Node';
 
-export default class NodeErrorFormatter extends ErrorFormatter<Node> {
+export default class NodeErrorFormatter extends ErrorFormatter {
+	readonly executor: Node;
+
 	private fileSourceMaps: { [path: string]: SourceMapConsumer } = {};
 	private fileSources: { [path: string]: string } = {};
 

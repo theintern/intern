@@ -6,7 +6,7 @@ import {
 	createMockServer,
 	MockRequest,
 	MockResponse,
-	createMockInternObject
+	createMockServerContext
 } from '../../../support/unit/mocks';
 
 registerSuite('lib/middleware/post', function() {
@@ -23,10 +23,10 @@ registerSuite('lib/middleware/post', function() {
 				executor: createMockNodeExecutor()
 			});
 			handleMessage = sinon.stub();
-			handler = post();
+			const context = createMockServerContext(server, handleMessage);
+			handler = post(context);
 			request = new MockRequest('POST', '/');
 			response = new MockResponse();
-			createMockInternObject([request, response], server, handleMessage);
 			next = sinon.spy();
 			end = sinon.spy(response, 'end');
 		},

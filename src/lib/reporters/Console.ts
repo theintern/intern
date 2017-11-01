@@ -1,4 +1,4 @@
-import Executor from '../executors/Executor';
+import { Executor } from '../executors/Executor';
 import Suite from '../Suite';
 import Test from '../Test';
 import Reporter, { eventHandler, ReporterOptions } from './Reporter';

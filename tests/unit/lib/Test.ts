@@ -1,7 +1,7 @@
 import Task, { State } from '@dojo/core/async/Task';
 import { Thenable } from '@dojo/shim/interfaces';
 
-import Executor from 'src/lib/executors/Executor';
+import { Executor } from 'src/lib/executors/Executor';
 import Test, {
 	isTest,
 	isTestFunction,
@@ -83,7 +83,8 @@ registerSuite('lib/Test', {
 			dfd.reject(
 				new Error('Test should not resolve when it throws an error')
 			);
-		}, dfd.callback((error: Error) => {
+		},
+		dfd.callback((error: Error) => {
 			assert.strictEqual<Error | undefined>(
 				test.error,
 				thrownError,
@@ -470,12 +471,10 @@ registerSuite('lib/Test', {
 		'fails if test is synchronous'() {
 			// Increase timeout for IE11
 			this.timeout = 5000;
-			let temp: any;
 			const test = createTest({
 				name: 'foo',
 				test() {
-					const remote = this.remote;
-					temp = remote;
+					this.remote;
 				}
 			});
 
@@ -496,12 +495,10 @@ registerSuite('lib/Test', {
 		'works if test returns a promise'() {
 			// Increase timeout for IE11
 			this.timeout = 5000;
-			let temp: any;
 			const test = createTest({
 				name: 'foo',
 				test() {
-					const remote = this.remote;
-					temp = remote;
+					this.remote;
 					return Promise.resolve();
 				}
 			});
@@ -512,13 +509,11 @@ registerSuite('lib/Test', {
 		'works if test resolves async dfd'() {
 			// Increase timeout for IE11
 			this.timeout = 5000;
-			let temp: any;
 			const test = createTest({
 				name: 'foo',
 				test: function() {
 					const dfd = this.async();
-					const remote = this.remote;
-					temp = remote;
+					this.remote;
 					dfd.resolve();
 				}
 			});

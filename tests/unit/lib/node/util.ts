@@ -112,7 +112,6 @@ registerSuite('lib/node/util', function() {
 	let calls: { [name: string]: any[] };
 	let parsedArgs: { [key: string]: string | string[] };
 	let fsData: { [name: string]: string };
-	let config: { [key: string]: any } | undefined;
 	let removeMocks: () => void;
 
 	return {
@@ -136,7 +135,6 @@ registerSuite('lib/node/util', function() {
 		beforeEach() {
 			hasMagic = false;
 			glob = undefined;
-			config = undefined;
 			calls = {};
 			parsedArgs = {};
 			fsData = {};

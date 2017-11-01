@@ -2,6 +2,7 @@ import Task from '@dojo/core/async/Task';
 
 import BenchmarkTest, {
 	BenchmarkTestOptions,
+	BenchmarkDeferredTestFunction,
 	BenchmarkTestFunction
 } from 'src/lib/BenchmarkTest';
 import Suite from 'src/lib/Suite';
@@ -18,7 +19,10 @@ function getTestFunction(
 ): FullBenchmarkTestFunction {
 	if (isAsync) {
 		const originalFunc = testFunc;
-		testFunc = BenchmarkTest.async(function(dfd: Deferred<any>) {
+		testFunc = BenchmarkTest.async(<BenchmarkDeferredTestFunction>function(
+			this: BenchmarkTest,
+			dfd: Deferred<void>
+		) {
 			setTimeout(dfd.callback(originalFunc.bind(this)), 200);
 		});
 	}
@@ -182,15 +186,12 @@ registerSuite('lib/BenchmarkTest', {
 
 	'BenchmarkTest#testEnd event'() {
 		let topicFired = false;
-		let executionCount = 0;
 		let actualTest: Test;
 		let actualBenchmarks: BenchmarkData;
 		const expectedTest = createTest(
 			{
 				name: 'foo',
-				test: getTestFunction(function() {
-					executionCount++;
-				}, true)
+				test: getTestFunction(function() {}, true)
 			},
 			{
 				emit(topic: string, test: BenchmarkTest) {
@@ -233,7 +234,8 @@ registerSuite('lib/BenchmarkTest', {
 	'BenchmarkTest#skip'() {
 		const test1 = createTest({
 			name: 'skip 1',
-			test: function() {
+			// TODO: should `this` for a BenchmarkTestFunction be a Test?
+			test: function(this: Test) {
 				this.skip('foo');
 			}
 		});

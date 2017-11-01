@@ -1,7 +1,7 @@
 import Task, { isThenable, State } from '@dojo/core/async/Task';
 import { mixin } from '@dojo/core/lang';
 
-import Executor from './executors/Executor';
+import { Executor } from './executors/Executor';
 import Deferred from './Deferred';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
@@ -48,7 +48,8 @@ export default class Test implements TestProperties {
 			throw new Error('A Test requires a name and a test function');
 		}
 
-		['timeElapsed', 'hasPassed'].forEach((name: keyof TestOptions) => {
+		['timeElapsed', 'hasPassed'].forEach(property => {
+			const name = <keyof TestOptions>property;
 			if (options[name] != null) {
 				(<any>this)[`_${name}`] = options[name];
 			}

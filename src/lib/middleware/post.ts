@@ -1,13 +1,15 @@
-import { InternRequestHandler } from '../Server';
+import { RequestHandler } from 'express';
+
+import { Context } from '../Server';
 import { Message } from '../channels/Base';
 
-export default function post(): InternRequestHandler {
+export default function post(context: Context): RequestHandler {
 	return (request, response, next) => {
 		if (request.method !== 'POST') {
 			return next();
 		}
 
-		const { executor, handleMessage } = request.intern;
+		const { executor, handleMessage } = context;
 
 		try {
 			let rawMessages: any = request.body;
