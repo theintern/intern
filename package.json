@@ -1,54 +1,54 @@
 {
-  "name": "@theintern/leadfoot",
-  "version": "2.1.0-pre",
-  "description": "Leadfoot. A JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/theintern/leadfoot.git"
-  },
-  "license": "BSD-3-Clause",
-  "dependencies": {
-    "@dojo/core": "beta2",
-    "@dojo/has": "beta2",
-    "@dojo/interfaces": "beta2",
-    "@dojo/shim": "beta2",
-    "@types/jszip": "0.0.33",
-    "jszip": "~3.1.3",
-    "tslib": "~1.8.0"
-  },
-  "devDependencies": {
-    "@dojo/loader": "beta2",
-    "@theintern/dev": "~0.6.0",
-    "@types/node": "~6.0.54",
-    "concurrently": "~3.5.0",
-    "intern": "~3.4.2"
-  },
-  "scripts": {
-    "clean": "intern-dev-clean",
-    "lint": "intern-dev-lint",
-    "build": "intern-dev-clean && concurrently intern-dev-build intern-dev-api",
-    "release": "intern-dev-release",
-    "test": "intern-dev-test",
-    "watch": "intern-dev-build watch",
-    "ci": "intern-dev-clean && intern-dev-build && intern-dev-test all"
-  },
-  "bugs": "https://github.com/theintern/leadfoot/issues",
-  "keywords": [
-    "javascript",
-    "test",
-    "functional",
-    "selenium",
-    "webdriver",
-    "sauce labs",
-    "browserstack",
-    "testingbot"
-  ],
-  "internDev": {
-    "resources": {
-      "_build": [
-        "tests/**/*.{txt,html}"
-      ]
-    }
-  },
-  "homepage": "http://github.com/theintern/leadfoot"
+	"name": "@theintern/leadfoot",
+	"version": "2.1.0-pre",
+	"description":
+		"Leadfoot. A JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/theintern/leadfoot.git"
+	},
+	"license": "BSD-3-Clause",
+	"dependencies": {
+		"@dojo/core": "~0.1.0",
+		"@dojo/has": "~0.1.0",
+		"@dojo/interfaces": "~0.1.0",
+		"@dojo/shim": "~0.1.0",
+		"@types/jszip": "0.0.33",
+		"jszip": "~3.1.3",
+		"tslib": "~1.8.0"
+	},
+	"devDependencies": {
+		"@dojo/loader": "~0.1.0",
+		"@theintern/dev": "~0.6.0",
+		"@types/node": "~6.0.54",
+		"concurrently": "~3.5.0",
+		"intern": "~3.4.2"
+	},
+	"scripts": {
+		"clean": "intern-dev-clean",
+		"lint": "intern-dev-lint",
+		"build":
+			"intern-dev-clean && concurrently intern-dev-build intern-dev-api",
+		"release": "intern-dev-release",
+		"test": "intern-dev-test",
+		"watch": "intern-dev-build watch",
+		"ci": "intern-dev-clean && intern-dev-build && intern-dev-test all"
+	},
+	"bugs": "https://github.com/theintern/leadfoot/issues",
+	"keywords": [
+		"javascript",
+		"test",
+		"functional",
+		"selenium",
+		"webdriver",
+		"sauce labs",
+		"browserstack",
+		"testingbot"
+	],
+	"internDev": {
+		"resources": {
+			"_build": ["tests/**/*.{txt,html}"]
+		}
+	},
+	"homepage": "http://github.com/theintern/leadfoot"
 }
