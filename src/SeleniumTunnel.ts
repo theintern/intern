@@ -134,12 +134,12 @@ export default class SeleniumTunnel extends Tunnel
 		);
 	}
 
-	download(forceDownload = false): Task<any> {
+	download(forceDownload = false): Task<void> {
 		if (!forceDownload && this.isDownloaded) {
 			return Task.resolve();
 		}
 
-		let tasks: Task<any>[];
+		let tasks: Task<void>[];
 
 		return new Task(
 			resolve => {
@@ -156,12 +156,11 @@ export default class SeleniumTunnel extends Tunnel
 					}
 
 					// TODO: progress events
-					return this._downloadFile(config.url, this.proxy, <any>{
-						executable
-					});
+					return this._downloadFile(config.url, this.proxy,
+						<SeleniumDownloadOptions>{ executable });
 				});
 
-				resolve(Promise.all(tasks));
+				resolve(Task.all(tasks).then(() => {}));
 			},
 			() => {
 				tasks &&

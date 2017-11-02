@@ -132,7 +132,7 @@ export default class TestingBotTunnel extends Tunnel
 
 		const url = `https://api.testingbot.com/v1/tests/${jobId}`;
 		const payload = params.toString();
-		return <Task<any>>request
+		return request
 			.put(url, <NodeRequestOptions>{
 				body: payload,
 				headers: {

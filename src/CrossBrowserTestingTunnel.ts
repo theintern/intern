@@ -87,7 +87,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 		);
 	}
 
-	download(forceDownload = false): Task<any> {
+	download(forceDownload = false): Task<void> {
 		if (!forceDownload && this.isDownloaded) {
 			return Task.resolve();
 		}
@@ -131,7 +131,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 		});
 
 		const url = `https://crossbrowsertesting.com/api/v3/selenium/${jobId}`;
-		return <Task<any>>request
+		return request
 			.put(url, <NodeRequestOptions>{
 				body: payload,
 				headers: {
