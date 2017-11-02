@@ -32,7 +32,7 @@ export default class NullTunnel extends Tunnel {
 
 	stop() {
 		this._state = 'stopped';
-		return Promise.resolve<number>(0);
+		return Promise.resolve(0);
 	}
 
 	sendJobState() {

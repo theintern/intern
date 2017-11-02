@@ -199,7 +199,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	 * @returns A promise that resolves once the download and extraction process
 	 * has completed.
 	 */
-	download(forceDownload = false): Task<any> {
+	download(forceDownload = false): Task<void> {
 		if (!forceDownload && this.isDownloaded) {
 			return Task.resolve();
 		}
@@ -210,14 +210,14 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 		url: string,
 		proxy: string,
 		options?: DownloadOptions
-	): Task<any> {
+	): Task<void> {
 		let request: Task<Response>;
 
 		if (!url) {
 			return Task.reject(new Error('URL is empty'));
 		}
 
-		return new Task<any>(
+		return new Task<void>(
 			(resolve, reject) => {
 				request = sendRequest(url, <NodeRequestOptions>{ proxy });
 				request
@@ -400,7 +400,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	 * @returns A promise that resolves once the job state request is complete.
 	 */
 	sendJobState(_jobId: string, _data: JobState): Task<void> {
-		return Task.reject<void>(
+		return Task.reject(
 			new Error('Job state is not supported by this tunnel.')
 		);
 	}
@@ -583,7 +583,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 			return Task.resolve([]);
 		}
 
-		return <Task<any>>sendRequest(this.environmentUrl, <NodeRequestOptions>{
+		return sendRequest(this.environmentUrl, <NodeRequestOptions>{
 			password: this.accessKey,
 			user: this.username,
 			proxy: this.proxy

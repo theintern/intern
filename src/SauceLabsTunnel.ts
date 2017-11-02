@@ -323,7 +323,7 @@ export default class SauceLabsTunnel extends Tunnel
 			tags: data.tags
 		});
 
-		return <Task<any>>request
+		return request
 			.put(formatUrl(url), <NodeRequestOptions>{
 				body: payload,
 				headers: {

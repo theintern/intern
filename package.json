@@ -13,7 +13,8 @@
     "@dojo/interfaces": "beta2",
     "@dojo/shim": "beta2",
     "decompress": "~4.2.0",
-    "semver": "~5.4.1"
+    "semver": "~5.4.1",
+    "tslib": "~1.8.0"
   },
   "devDependencies": {
     "@dojo/loader": "beta2",
