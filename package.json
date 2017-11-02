@@ -1,54 +1,54 @@
 {
-  "name": "@theintern/digdug",
-  "version": "2.1.0-pre",
-  "description": "Dig Dug. A simple abstraction library for downloading and launching WebDriver service tunnels.",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/theintern/digdug.git"
-  },
-  "license": "BSD-3-Clause",
-  "dependencies": {
-    "@dojo/core": "beta2",
-    "@dojo/has": "beta2",
-    "@dojo/interfaces": "beta2",
-    "@dojo/shim": "beta2",
-    "decompress": "~4.2.0",
-    "semver": "~5.4.1",
-    "tslib": "~1.8.0"
-  },
-  "devDependencies": {
-    "@dojo/loader": "beta2",
-    "@theintern/dev": "~0.6.0",
-    "@types/node": "~7.0.23",
-    "@types/semver": "~5.4.0",
-    "@types/shelljs": "~0.7.1",
-    "concurrently": "~3.5.0",
-    "intern": "~3.4.2",
-    "shelljs": "~0.7.7"
-  },
-  "scripts": {
-    "build": "npm run clean && concurrently intern-dev-build intern-dev-api",
-    "ci": "intern-dev-build && intern-dev-test",
-    "clean": "intern-dev-clean",
-    "devpack": "intern-dev-build && cd _build/src && npm pack && mv *.tgz ../../",
-    "lint": "intern-dev-lint",
-    "release": "intern-dev-release",
-    "test": "intern-dev-build && intern-dev-test",
-    "watch": "intern-dev-build watch"
-  },
-  "bugs": "https://github.com/theintern/digdug/issues",
-  "keywords": [
-    "javascript",
-    "test",
-    "functional",
-    "selenium",
-    "webdriver",
-    "sauce labs",
-    "browserstack",
-    "testingbot"
-  ],
-  "homepage": "https://github.com/theintern/digdug",
-  "bin": {
-    "digdugEnvironments": "./bin/digdugEnvironments.js"
-  }
+	"name": "@theintern/digdug",
+	"version": "2.1.0-pre",
+	"description": "Dig Dug. A simple abstraction library for downloading and launching WebDriver service tunnels.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/theintern/digdug.git"
+	},
+	"license": "BSD-3-Clause",
+	"dependencies": {
+		"@dojo/core": "~0.1.0",
+		"@dojo/has": "~0.1.0",
+		"@dojo/interfaces": "~0.1.0",
+		"@dojo/shim": "~0.1.0",
+		"decompress": "~4.2.0",
+		"semver": "~5.4.1",
+		"tslib": "~1.8.0"
+	},
+	"devDependencies": {
+		"@dojo/loader": "~0.1.0",
+		"@theintern/dev": "~0.6.0",
+		"@types/node": "~7.0.23",
+		"@types/semver": "~5.4.0",
+		"@types/shelljs": "~0.7.1",
+		"concurrently": "~3.5.0",
+		"intern": "~3.4.2",
+		"shelljs": "~0.7.7"
+	},
+	"scripts": {
+		"build": "npm run clean && concurrently intern-dev-build intern-dev-api",
+		"ci": "intern-dev-build && intern-dev-test",
+		"clean": "intern-dev-clean",
+		"devpack": "intern-dev-build && cd _build/src && npm pack && mv *.tgz ../../",
+		"lint": "intern-dev-lint",
+		"release": "intern-dev-release",
+		"test": "intern-dev-build && intern-dev-test",
+		"watch": "intern-dev-build watch"
+	},
+	"bugs": "https://github.com/theintern/digdug/issues",
+	"keywords": [
+		"javascript",
+		"test",
+		"functional",
+		"selenium",
+		"webdriver",
+		"sauce labs",
+		"browserstack",
+		"testingbot"
+	],
+	"homepage": "https://github.com/theintern/digdug",
+	"bin": {
+		"digdugEnvironments": "./bin/digdugEnvironments.js"
+	}
 }
