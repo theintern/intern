@@ -110,7 +110,7 @@ export default class ProxiedSession extends Session {
 				this.getCurrentUrl()
 					.then(() => {
 						if (!cancelled) {
-							timeoutId = setTimeout(
+							timeoutId = global.setTimeout(
 								sendHeartbeat,
 								delay - (Date.now() - startTime)
 							);

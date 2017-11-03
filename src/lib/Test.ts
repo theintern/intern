@@ -37,7 +37,9 @@ export default class Test implements TestProperties {
 
 	protected _timeElapsed: number;
 
-	protected _timer: NodeJS.Timer | undefined;
+	// Use type 'any' because we may be running under Node (NodeJS.Timer) or a
+	// browser (number)
+	protected _timer: any | undefined;
 
 	protected _usesRemote = false;
 

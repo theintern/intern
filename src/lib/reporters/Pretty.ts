@@ -82,7 +82,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
 		const rerender = () => {
 			this._charm.erase('screen').position(0, 0);
 			this._render();
-			this._renderTimeout = setTimeout(rerender, 200);
+			this._renderTimeout = global.setTimeout(rerender, 200);
 		};
 		rerender();
 	}

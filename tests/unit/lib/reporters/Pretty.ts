@@ -28,7 +28,8 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 								rows: stdout.rows,
 								on() {}
 							}
-						}
+						},
+						setTimeout: setTimeout
 					}
 				}
 			}).then(resource => {

@@ -78,7 +78,7 @@ export default class RemoteSuite extends Suite {
 					config.functionalTimeouts.connectTimeout != null
 						? config.functionalTimeouts.connectTimeout
 						: 30000;
-				connectTimer = setTimeout(() => {
+				connectTimer = global.setTimeout(() => {
 					const error = new Error(
 						'Timed out waiting for remote to connect'
 					);
