@@ -470,6 +470,19 @@ registerSuite('lib/executors/Node', function() {
 				};
 
 				return {
+					'capabilities (additive)'() {
+						executor.configure(<any>{
+							capabilities: { foo: 'bar' }
+						});
+						executor.configure(<any>{
+							'capabilities+': { bar: 3 }
+						});
+						assert.deepEqual(executor.config.capabilities, <any>{
+							foo: 'bar',
+							bar: 3
+						});
+					},
+
 					environments() {
 						test(
 							'environments',
@@ -488,18 +501,49 @@ registerSuite('lib/executors/Node', function() {
 						test('environments', 5, '', [], /Non-object/);
 					},
 
-					instrumenterOptions() {
-						test(
-							'instrumenterOptions',
-							5,
-							{ foo: 'bar' },
-							{ foo: 'bar' },
-							/Non-object/
-						);
+					instrumenterOptions: {
+						basic() {
+							test(
+								'instrumenterOptions',
+								5,
+								{ foo: 'bar' },
+								{ foo: 'bar' },
+								/Non-object/
+							);
+						},
+
+						additive() {
+							executor.configure(<any>{
+								instrumenterOptions: { foo: 'bar' }
+							});
+							executor.configure(<any>{
+								'instrumenterOptions+': { bar: 3 }
+							});
+							assert.deepEqual(
+								executor.config.instrumenterOptions,
+								{
+									foo: 'bar',
+									bar: 3
+								}
+							);
+						}
 					},
 
 					tunnel() {
 						test('tunnel', 5, 'null', 'null', /Non-string/);
+					},
+
+					'tunnelOptions (additive)'() {
+						executor.configure(<any>{
+							tunnelOptions: { foo: 'bar' }
+						});
+						executor.configure(<any>{
+							'tunnelOptions+': { bar: 3 }
+						});
+						assert.deepEqual(executor.config.tunnelOptions, <any>{
+							foo: 'bar',
+							bar: 3
+						});
 					},
 
 					functionalTimeouts() {

@@ -346,7 +346,7 @@ There are a few exceptions:
        "plugins": [ "tests/plugins/bar.js" ]
    }
    ```
-2. **Resource arrays in "node" or "browser" ("plugins", "reporters", "require", "suites"), are added to the corresponding resource arrays in the base config.** For example, if the base config has:
+2. **Resource arrays in "node" or "browser" ("plugins", "reporters", "suites"), are added to the corresponding resource arrays in the base config.** For example, if the base config has:
    ```js
    "suites": [ "tests/unit/foo.js" ]
    ```
@@ -355,7 +355,7 @@ There are a few exceptions:
    "suites": [ "tests/unit/bar.js" ]
    ```
    both sets of suites will be loaded when running on Node.
-3. **Resource arrays can be extended (rather than replaced) by adding a '+' to the property name.** For example, if the
+3. **Some properties can be extended (rather than replaced) by adding a '+' to the property name.** For example, if the
    base config has:
    ```js
    "suites": [ "tests/unit/foo.js" ]
@@ -368,6 +368,7 @@ There are a few exceptions:
    ```js
    "suites": [ "tests/unit/foo.js", "tests/unit/bar.js" ]
    ```
+   Extendable properties are resources (**suites**, **plugins**, **reporters**), **instrumenterOptions**, **tunnelOptions**, and **capabilities**.
 
 [bail]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/bail
 [baseline]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/baseline

@@ -640,7 +640,11 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 			case 'capabilities':
 			case 'instrumenterOptions':
 			case 'tunnelOptions':
-				this._setOption(name, parseValue(name, value, 'object'));
+				this._setOption(
+					name,
+					parseValue(name, value, 'object'),
+					addToExisting
+				);
 				break;
 
 			// Must be a string, object, or array of (string | object)

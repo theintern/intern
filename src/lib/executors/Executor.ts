@@ -1178,8 +1178,12 @@ export default abstract class BaseExecutor<
 
 		// addToExisting
 		if (addToExisting) {
-			const currentValue: any[] = config[name];
-			currentValue.push(...value);
+			const currentValue: any = config[name];
+			if (Array.isArray(currentValue)) {
+				currentValue.push(...value);
+			} else {
+				deepMixin(config[name], value);
+			}
 		} else {
 			config[name] = value;
 		}
