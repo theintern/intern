@@ -3,3 +3,4 @@ coverage-final.json
 _build/
 _publish/
 html-report/
+*.tgz
