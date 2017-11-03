@@ -121,7 +121,11 @@ registerSuite('intern/lib/reporters/Html', {
 					tests: [],
 					name: 'foo',
 					id: 'foo',
-					timeElapsed: 123
+					timeElapsed: 123,
+					numTests: 1,
+					numFailedTests: 0,
+					numPassedTests: 1,
+					numSkippedTests: 0
 				};
 
 				// Need to run runStart to setup doc for suiteStart
@@ -172,9 +176,19 @@ registerSuite('intern/lib/reporters/Html', {
 				const rootSuite: any = {
 					hasParent: false,
 					// suite with one test
-					tests: [{}],
+					tests: [],
 					name: 'foo',
 					id: 'foo',
+					get numPassedTests() {
+						return suite.numPassedTests;
+					},
+					get numFailedTests() {
+						return suite.numFailedTests;
+					},
+					get numSkippedTests() {
+						return suite.numSkippedTests;
+					},
+					numTests: 1,
 					timeElapsed: 123
 				};
 

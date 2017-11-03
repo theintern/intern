@@ -69,7 +69,8 @@ body {
 				summaryIcon($testIcon);
 			}
 
-			&.failed {
+			&.failed,
+			&.successRate.failed {
 				background: $failedColor;
 				color: #fff;
 
@@ -276,13 +277,6 @@ body {
 		&.skipped {
 			testStatusIcon(lighten($skippedColor, 80%), $skippedColor, $skippedIcon)
 			color: $skippedColor;
-		}
-
-		&.lastTest {
-			td,
-			.testStatus {
-				border-bottom:0;
-			}
 		}
 	}
 

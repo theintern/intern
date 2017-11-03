@@ -41,12 +41,6 @@ export default class Html extends Reporter implements HtmlProperties {
 	// ID's of tests that have been processed
 	protected _processedTests: any = {};
 
-	// Accumulator for total number of skipped tests
-	protected _skippedCount = 0;
-
-	// Accumulator for total number of failed tests
-	protected _failCount = 0;
-
 	protected _failedFilter: any = null;
 
 	protected _fragment: DocumentFragment;
@@ -62,6 +56,11 @@ export default class Html extends Reporter implements HtmlProperties {
 		this._fragment = this.document.createDocumentFragment();
 	}
 
+	/**
+	 * Generate the summary header at the top of the report.
+	 *
+	 * @param suite The root suite of the test session
+	 */
 	protected _generateSummary(suite: Suite): void {
 		const document = this.document;
 
@@ -69,16 +68,18 @@ export default class Html extends Reporter implements HtmlProperties {
 			return;
 		}
 
-		let duration = suite.timeElapsed;
-		let percentPassed =
-			Math.round((1 - (this._failCount / this._testCount || 0)) * 10000) /
-			100;
+		const duration = suite.timeElapsed;
+		const numSkippedTests =
+			suite.numTests - (suite.numFailedTests + suite.numPassedTests);
+		const percentPassed = Math.round(
+			(1 - suite.numFailedTests / suite.numTests) * 100
+		);
 		let rowInfo = [
 			this._suiteCount,
 			this._testCount,
 			formatDuration(duration),
-			this._skippedCount,
-			this._failCount,
+			numSkippedTests,
+			suite.numFailedTests,
 			percentPassed + '%'
 		];
 
@@ -89,7 +90,7 @@ export default class Html extends Reporter implements HtmlProperties {
 		}
 
 		// Create a toggle to only show failed tests
-		if (this._failCount) {
+		if (suite.numFailedTests > 0) {
 			let failedFilter = (this._failedFilter = document.createElement(
 				'div'
 			));
@@ -155,14 +156,20 @@ export default class Html extends Reporter implements HtmlProperties {
 	 * @param {boolean} collapsed Set the collapsed state, or toggle if
 	 * undefined
 	 */
-	protected _setCollapsed(node: Element, collapsed: boolean = false) {
+	protected _setCollapsed(node: Element, shouldCollapse?: boolean) {
 		let indentDelta: number;
 		let initialIndent = this._getIndentLevel(node);
 
+		const collapsed = containsClass(node, 'collapsed');
+		if (shouldCollapse === collapsed) {
+			// Don't do anything if the current collapse state is the the same
+			// as the requested
+			return;
+		}
+
 		// Use the given collapsed state or toggle the existing state
-		collapsed =
-			collapsed == null ? containsClass(node, 'collapsed') : collapsed;
-		if (collapsed) {
+		shouldCollapse = shouldCollapse == null ? !collapsed : shouldCollapse;
+		if (shouldCollapse) {
 			addClass(node, 'collapsed');
 		} else {
 			removeClass(node, 'collapsed');
@@ -187,7 +194,7 @@ export default class Html extends Reporter implements HtmlProperties {
 			// Only show children one level under the suite being updated when
 			// expanding
 			(<HTMLElement>node).style.display =
-				!collapsed && indentDelta === 1 ? null : 'none';
+				!shouldCollapse && indentDelta === 1 ? null : 'none';
 		}
 	}
 
@@ -344,6 +351,12 @@ export default class Html extends Reporter implements HtmlProperties {
 	suiteEnd(suite: Suite) {
 		const document = this.document;
 
+		const numTests = suite.numTests;
+		const numFailedTests = suite.numFailedTests;
+		const numPassedTests = suite.numPassedTests;
+		const numSkippedTests = numTests - (numFailedTests + numPassedTests);
+		const hasSuiteFailures = suite.numSkippedTests !== numSkippedTests;
+
 		if (!suite.hasParent) {
 			this._generateSummary(suite);
 
@@ -374,24 +387,34 @@ export default class Html extends Reporter implements HtmlProperties {
 				);
 			} else {
 				const failedNode = document.querySelector('.failed')!;
-				failedNode.className = 'summaryContent failed success';
+				addClass(failedNode, 'success');
 			}
 
-			// Skip for the top-level suite
+			if (suite.numFailedTests > 0) {
+				const successRateNode = document.querySelector('.successRate')!;
+				addClass(successRateNode, 'failed');
+			}
+
+			if (hasSuiteFailures) {
+				const skippedNode = document.querySelector(
+					'.summaryContent.skipped'
+				)!;
+				addClass(skippedNode, 'failed');
+			}
+
 			return;
 		}
 
 		const rowNode = this._runningSuites[suite.id].node;
-		const numTests = suite.numTests;
-		const numFailedTests = suite.numFailedTests;
-		const numSkippedTests = suite.numSkippedTests;
-		const numPassedTests = numTests - numFailedTests - numSkippedTests;
 
 		// Mark a suite as failed if any of its child tests failed, and
-		addClass(rowNode, numFailedTests > 0 ? 'failed' : 'passed');
+		addClass(
+			rowNode,
+			numFailedTests > 0 || hasSuiteFailures ? 'failed' : 'passed'
+		);
 
 		// Only suites with failed tests will be initially expanded
-		this._setCollapsed(rowNode, numFailedTests === 0);
+		this._setCollapsed(rowNode, numFailedTests === 0 && !hasSuiteFailures);
 
 		let cellNode = document.createElement('td');
 
@@ -418,6 +441,13 @@ export default class Html extends Reporter implements HtmlProperties {
 			cellNode.appendChild(testsSkipped);
 		}
 
+		if (suite.error) {
+			const suiteError = document.createElement('span');
+			suiteError.className = 'failed';
+			suiteError.innerHTML = 'Suite error!';
+			cellNode.appendChild(suiteError);
+		}
+
 		rowNode.addEventListener('click', (event: Event) => {
 			this._setCollapsed(<Element>event.currentTarget);
 		});
@@ -438,8 +468,6 @@ export default class Html extends Reporter implements HtmlProperties {
 		// Only update the global tracking variables for top-level suites
 		if (!this._indentLevel) {
 			this._testCount += numTests;
-			this._failCount += numFailedTests;
-			this._skippedCount += numSkippedTests;
 		}
 
 		this._runningSuites[suite.id] = null;
