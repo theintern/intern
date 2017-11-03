@@ -156,8 +156,11 @@ export default class SeleniumTunnel extends Tunnel
 					}
 
 					// TODO: progress events
-					return this._downloadFile(config.url, this.proxy,
-						<SeleniumDownloadOptions>{ executable });
+					return this._downloadFile(
+						config.url,
+						this.proxy,
+						<SeleniumDownloadOptions>{ executable }
+					);
 				});
 
 				resolve(Task.all(tasks).then(() => {}));
