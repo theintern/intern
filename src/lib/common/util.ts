@@ -441,7 +441,15 @@ export function pullFromArray<T>(haystack: T[], needle: T): T[] {
  * accesses such as ChaiAsPromised.
  */
 export function isTask<T = any>(value: any): value is Task<T> {
-	return value && 'cancel' in value && typeof value.cancel === 'function';
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+	for (const name of ['then', 'catch', 'finally', 'cancel']) {
+		if (!(name in value) || typeof value[name] !== 'function') {
+			return false;
+		}
+	}
+	return true;
 }
 
 /**
