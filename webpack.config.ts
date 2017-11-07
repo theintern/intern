@@ -15,16 +15,22 @@ const common: Configuration = {
 			},
 			{
 				test: /\.ts/,
-				use: 'ts-loader'
+				use: {
+					loader: 'ts-loader',
+					options: {
+						silent: true
+					}
+				}
 			}
 		],
 		noParse: /benchmark\/benchmark.js/
 	},
 	stats: {
 		assets: false,
+		entrypoints: true,
 		errors: true,
 		hash: false,
-		modules: true,
+		modules: false,
 		version: false,
 		warnings: true
 	},
