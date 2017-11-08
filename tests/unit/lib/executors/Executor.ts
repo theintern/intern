@@ -539,23 +539,20 @@ registerSuite('lib/executors/Executor', function() {
 				const debugExecutor = createExecutor({ debug: true });
 				return debugExecutor.run().then(() => {
 					debugExecutor.on('log', logger);
-					debugExecutor.log(
-						'testing',
-						new Error('foo'),
-						() => {},
-						/bar/,
-						5
-					);
-					assert.equal(
-						logger.callCount,
-						1,
-						'log should have been emitted'
-					);
-					assert.match(
-						logger.getCall(0).args[0],
-						/^testing .*Error.*foo.* function \(\) {[^]*} \/bar\/ 5$/,
-						'expected all args to have been serialized in log message'
-					);
+					return debugExecutor
+						.log('testing', new Error('foo'), () => {}, /bar/, 5)
+						.then(() => {
+							assert.equal(
+								logger.callCount,
+								1,
+								'log should have been emitted'
+							);
+							assert.match(
+								logger.getCall(0).args[0],
+								/^testing .*Error.*foo.* function \(\) {[^]*} \/bar\/ 5$/,
+								'expected all args to have been serialized in log message'
+							);
+						});
 				});
 			},
 
@@ -564,24 +561,29 @@ registerSuite('lib/executors/Executor', function() {
 					const logger = spy(() => {});
 					const handle = executor.on('testStart', logger);
 					return executor.run().then(() => {
-						executor.emit('testStart', <any>{});
-						assert.equal(
-							logger.callCount,
-							1,
-							'listener should have been called'
-						);
-						handle.destroy();
-						executor.emit('testStart', <any>{});
-						assert.equal(
-							logger.callCount,
-							1,
-							'listener should not have been called'
-						);
+						return executor
+							.emit('testStart', <any>{})
+							.then(() => {
+								assert.equal(
+									logger.callCount,
+									1,
+									'listener should have been called'
+								);
+								handle.destroy();
+								return executor.emit('testStart', <any>{});
+							})
+							.then(() => {
+								assert.equal(
+									logger.callCount,
+									1,
+									'listener should not have been called'
+								);
 
-						// Calling handle again should be fine
-						assert.doesNotThrow(() => {
-							handle.destroy();
-						});
+								// Calling handle again should be fine
+								assert.doesNotThrow(() => {
+									handle.destroy();
+								});
+							});
 					});
 				},
 
@@ -589,18 +591,23 @@ registerSuite('lib/executors/Executor', function() {
 					const logger = spy(() => {});
 					return executor.run().then(() => {
 						executor.on(logger);
-						executor.emit('testStart', <any>{});
-						assert.equal(
-							logger.callCount,
-							1,
-							'listener should have been called'
-						);
-						executor.emit('testEnd', <any>{});
-						assert.equal(
-							logger.callCount,
-							2,
-							'listener should have been called'
-						);
+						return executor
+							.emit('testStart', <any>{})
+							.then(() => {
+								assert.equal(
+									logger.callCount,
+									1,
+									'listener should have been called'
+								);
+								return executor.emit('testEnd', <any>{});
+							})
+							.then(() => {
+								assert.equal(
+									logger.callCount,
+									2,
+									'listener should have been called'
+								);
+							});
 					});
 				}
 			},

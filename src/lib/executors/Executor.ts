@@ -253,18 +253,28 @@ export default abstract class BaseExecutor<
 			return Task.resolve();
 		}
 
-		const notifications: Promise<any>[] = [];
+		let notifications = Task.resolve();
+		let hasNotifications = false;
 
-		(this._listeners[eventName] || []).forEach(listener => {
-			notifications.push(Task.resolve(listener(data)));
-		});
+		const listeners = this._listeners[eventName];
+		if (listeners && listeners.length > 0) {
+			hasNotifications = true;
+			for (const listener of listeners) {
+				notifications = notifications.then(() =>
+					Task.resolve(listener(data))
+				);
+			}
+		}
 
-		const starListeners = this._listeners['*'] || [];
-		if (starListeners.length > 0) {
+		const starListeners = this._listeners['*'];
+		if (starListeners && starListeners.length > 0) {
+			hasNotifications = true;
 			const starEvent = { name: eventName, data };
-			starListeners.forEach(listener => {
-				notifications.push(Task.resolve(listener(starEvent)));
-			});
+			for (const listener of starListeners) {
+				notifications = notifications.then(() =>
+					Task.resolve(listener(starEvent))
+				);
+			}
 		}
 
 		let error: InternError | undefined;
@@ -272,7 +282,7 @@ export default abstract class BaseExecutor<
 			error = <InternError>data;
 		}
 
-		if (notifications.length === 0) {
+		if (!hasNotifications) {
 			// If reporters haven't been loaded yet, cache the event
 			if (error) {
 				// Report errors, warnings, deprecation messages when no listeners are registered
@@ -290,7 +300,7 @@ export default abstract class BaseExecutor<
 			return Task.resolve();
 		}
 
-		return Task.all<void>(notifications).then(() => {
+		return notifications.then(() => {
 			if (error) {
 				error.reported = true;
 			}
