@@ -265,24 +265,17 @@ export default class Server implements ServerProperties {
 			this._handleMessage(message)
 				.catch(error => this.executor.emit('error', error))
 				.then(() => {
-					// Don't send acks for runEnd, because by the remote will
-					// hev been shut down by the time we get here.
-					if (message.name !== 'runEnd') {
-						this.executor.log('Sending ack for [', message.id, ']');
-						client.send(
-							JSON.stringify({ id: message.id }),
-							error => {
-								if (error) {
-									this.executor.emit(
-										'error',
-										new Error(
-											`Error sending ack for [ ${message.id} ]: ${error.message}`
-										)
-									);
-								}
-							}
-						);
-					}
+					this.executor.log('Sending ack for [', message.id, ']');
+					client.send(JSON.stringify({ id: message.id }), error => {
+						if (error) {
+							this.executor.emit(
+								'error',
+								new Error(
+									`Error sending ack for [ ${message.id} ]: ${error.message}`
+								)
+							);
+						}
+					});
 				});
 		});
 
@@ -321,8 +314,14 @@ const resolvedPromise = Promise.resolve();
  * acknowlegement.
  */
 function getShouldWait(waitMode: string | boolean, message: Message) {
-	let shouldWait = false;
 	let eventName = message.name;
+
+	// never wait for runEnd
+	if (eventName === 'runEnd') {
+		return false;
+	}
+
+	let shouldWait = false;
 
 	if (waitMode === 'fail') {
 		if (
