@@ -30,6 +30,11 @@ try {
 
 	// Forward all executor events back to the Intern host
 	intern.on('*', ({ name, data }) => {
+		// afterRun events aren't processed for remotes
+		if (name === 'afterRun') {
+			return;
+		}
+
 		let promise = channel.sendMessage(name, data).catch(error => {
 			displayMessage(`Error sending ${name}: ${error.message}`);
 			console.error(error);
