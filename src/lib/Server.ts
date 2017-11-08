@@ -243,15 +243,19 @@ export default class Server implements ServerProperties {
 			': ',
 			message.name
 		);
+
 		const promise = this._publish(message);
-		let shouldWait = getShouldWait(this.runInSync, message);
-		if (shouldWait) {
-			promise.catch(error => {
-				this.executor.emit('error', error);
-			});
-			return resolvedPromise;
+		if (getShouldWait(this.runInSync, message)) {
+			return promise;
 		}
-		return promise;
+
+		// If we're not returning the promise, catch any errors to avoid
+		// unhandled rejections
+		promise.catch(error => {
+			this.executor.emit('error', error);
+		});
+
+		return resolvedPromise;
 	}
 
 	private _handleWebSocket(client: WebSocket) {

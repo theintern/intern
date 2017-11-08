@@ -200,6 +200,7 @@ export default class RemoteSuite extends Suite {
 				// test harness page
 				const queryOptions: Partial<RemoteConfig> = {
 					basePath: serverUrl.pathname,
+					runInSync: config.runInSync,
 					serverUrl: serverUrl.href,
 					sessionId: sessionId,
 					socketPort: server.socketPort
