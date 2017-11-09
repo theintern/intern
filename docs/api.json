@@ -29082,6 +29082,343 @@
 			]
 		},
 		{
+			"id": 1799,
+			"name": "\"helpers/pollUntilTruthy\"",
+			"kind": 1,
+			"kindString": "External module",
+			"flags": {
+				"isExported": true,
+				"__visited__": true
+			},
+			"originalName": "src/helpers/pollUntilTruthy.ts",
+			"children": [
+				{
+					"id": 1800,
+					"name": "pollUntilTruthy",
+					"kind": 64,
+					"kindString": "Function",
+					"flags": {
+						"isExported": true,
+						"__visited__": true
+					},
+					"signatures": [
+						{
+							"id": 1801,
+							"name": "pollUntilTruthy",
+							"kind": 4096,
+							"kindString": "Call signature",
+							"flags": {
+								"__visited__": true
+							},
+							"typeParameter": [
+								{
+									"id": 1802,
+									"name": "T",
+									"kind": 131072,
+									"kindString": "Type parameter",
+									"flags": {
+										"__visited__": true
+									}
+								}
+							],
+							"parameters": [
+								{
+									"id": 1803,
+									"name": "poller",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"__visited__": true
+									},
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "reference",
+												"name": "Poller",
+												"id": 1795
+											},
+											{
+												"type": "intrinsic",
+												"name": "string"
+											}
+										]
+									}
+								},
+								{
+									"id": 1804,
+									"name": "args",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isOptional": true,
+										"__visited__": true
+									},
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "any"
+										}
+									}
+								},
+								{
+									"id": 1805,
+									"name": "timeout",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isOptional": true,
+										"__visited__": true
+									},
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "intrinsic",
+												"name": "undefined"
+											},
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									}
+								},
+								{
+									"id": 1806,
+									"name": "pollInterval",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isOptional": true,
+										"__visited__": true
+									},
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "intrinsic",
+												"name": "undefined"
+											},
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									}
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 1807,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {
+										"__visited__": true
+									},
+									"signatures": [
+										{
+											"id": 1808,
+											"name": "__call",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "reference",
+												"name": "Task",
+												"typeArguments": [
+													{
+														"type": "typeParameter",
+														"name": "T"
+													}
+												]
+											}
+										}
+									],
+									"sources": [
+										{
+											"fileName": "helpers/pollUntilTruthy.ts",
+											"line": 10,
+											"character": 2
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 1809,
+							"name": "pollUntilTruthy",
+							"kind": 4096,
+							"kindString": "Call signature",
+							"flags": {
+								"__visited__": true
+							},
+							"typeParameter": [
+								{
+									"id": 1810,
+									"name": "T",
+									"kind": 131072,
+									"kindString": "Type parameter",
+									"flags": {
+										"__visited__": true
+									}
+								}
+							],
+							"parameters": [
+								{
+									"id": 1811,
+									"name": "poller",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"__visited__": true
+									},
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "reference",
+												"name": "Poller",
+												"id": 1795
+											},
+											{
+												"type": "intrinsic",
+												"name": "string"
+											}
+										]
+									}
+								},
+								{
+									"id": 1812,
+									"name": "timeout",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isOptional": true,
+										"__visited__": true
+									},
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "intrinsic",
+												"name": "undefined"
+											},
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									}
+								},
+								{
+									"id": 1813,
+									"name": "pollInterval",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isOptional": true,
+										"__visited__": true
+									},
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "intrinsic",
+												"name": "undefined"
+											},
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									}
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 1814,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {
+										"__visited__": true
+									},
+									"signatures": [
+										{
+											"id": 1815,
+											"name": "__call",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "reference",
+												"name": "Task",
+												"typeArguments": [
+													{
+														"type": "typeParameter",
+														"name": "T"
+													}
+												]
+											}
+										}
+									],
+									"sources": [
+										{
+											"fileName": "helpers/pollUntilTruthy.ts",
+											"line": 16,
+											"character": 2
+										}
+									]
+								}
+							}
+						}
+					],
+					"sources": [
+						{
+							"fileName": "helpers/pollUntilTruthy.ts",
+							"line": 5,
+							"character": 39
+						},
+						{
+							"fileName": "helpers/pollUntilTruthy.ts",
+							"line": 12,
+							"character": 39
+						},
+						{
+							"fileName": "helpers/pollUntilTruthy.ts",
+							"line": 18,
+							"character": 39
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Functions",
+					"kind": 64,
+					"children": [
+						1800
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "helpers/pollUntilTruthy.ts",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
 			"id": 1798,
 			"name": "\"index\"",
 			"kind": 1,
@@ -40330,6 +40667,7 @@
 				282,
 				514,
 				1778,
+				1799,
 				1798,
 				161,
 				46,
