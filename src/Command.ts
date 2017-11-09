@@ -489,7 +489,7 @@ export default class Command<T> extends Locator<
 	 * @param ms Time to delay, in milliseconds.
 	 */
 	sleep(ms: number) {
-		return new (this.constructor as typeof Command)(this, function() {
+		return new (this.constructor as typeof Command)<void>(this, function() {
 			return sleep(ms);
 		});
 	}

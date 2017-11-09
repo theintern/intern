@@ -7303,8 +7303,8 @@
 										"id": 1111,
 										"typeArguments": [
 											{
-												"type": "intrinsic",
-												"name": "Object"
+												"type": "unknown",
+												"name": "T"
 											}
 										]
 									}
