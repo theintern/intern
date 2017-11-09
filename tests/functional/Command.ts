@@ -29,7 +29,7 @@ registerSuite(function() {
 
 		'error handling': {
 			'initialiser throws'() {
-				return new Command(session, function() {
+				return new Command(null, function() {
 					throw new Error('broken');
 				})
 					.then(
@@ -62,7 +62,7 @@ registerSuite(function() {
 			},
 
 			'invalid async command'() {
-				const command: any = new Command(session).sleep(100);
+				const command = new Command(session).sleep(100);
 				Command.addSessionMethod(command, 'invalid', function() {
 					return new Task((_resolve, reject) => {
 						setTimeout(function() {
@@ -71,7 +71,7 @@ registerSuite(function() {
 					});
 				});
 
-				return command.invalid().then(
+				return (<any>command).invalid().then(
 					function() {
 						throw new Error(
 							'Invalid command should have thrown error'
@@ -114,12 +114,12 @@ registerSuite(function() {
 
 		initialisation(this: Test) {
 			assert.throws(function() {
-				/*jshint nonew:false */
 				new (<any>Command)();
 			}, /A parent Command or Session must be provided to a new Command/);
 
 			const dfd = this.async();
-			const parent = new Command<string>(session, function(setContext) {
+			const remote = new Command(session);
+			const parent = new Command<string>(remote, function(setContext) {
 				setContext('foo');
 				return Task.resolve('bar');
 			});
@@ -318,7 +318,8 @@ registerSuite(function() {
 			const expected: Context = ['a'];
 			expected.depth = 0;
 
-			return new Command(session, function(setContext) {
+			const parent = new Command(session);
+			return new Command<void>(parent, function(setContext) {
 				setContext(['a']);
 			})
 				.end(20)
@@ -403,7 +404,10 @@ registerSuite(function() {
 		},
 
 		'session createsContext'() {
-			const command: any = new Command(session, function(setContext) {
+			const parent = new Command(session);
+			const command: any = new Command<void>(parent, function(
+				setContext
+			) {
 				setContext('a');
 			});
 
@@ -432,7 +436,8 @@ registerSuite(function() {
 		},
 
 		'element createsContext'() {
-			const command: any = new Command(session, function(setContext) {
+			const parent = new Command(session);
+			const command = new Command<void>(parent, function(setContext) {
 				setContext({
 					elementId: 'farts',
 					newContext: util.forCommand(
@@ -446,21 +451,26 @@ registerSuite(function() {
 
 			Command.addElementMethod(command, 'newContext');
 
-			return command.newContext().then(function(this: Command<any>) {
-				const expected: Context = ['b'];
-				expected.isSingle = true;
-				expected.depth = 1;
+			return (<any>command)
+				.newContext()
+				.then(function(this: Command<any>) {
+					const expected: Context = ['b'];
+					expected.isSingle = true;
+					expected.depth = 1;
 
-				assert.deepEqual(
-					this.context,
-					expected,
-					'Function that returns a value that has been annotated with createsContext should generate a new context'
-				);
-			});
+					assert.deepEqual(
+						this.context,
+						expected,
+						'Function that returns a value that has been annotated with createsContext should generate a new context'
+					);
+				});
 		},
 
 		'session usesElement single'() {
-			const command: any = new Command(session, function(setContext) {
+			const parent = new Command(session);
+			const command: any = new Command<void>(parent, function(
+				setContext
+			) {
 				setContext('a');
 			});
 
@@ -488,7 +498,10 @@ registerSuite(function() {
 		},
 
 		'session usesElement multiple'() {
-			const command: any = new Command(session, function(setContext) {
+			const parent = new Command(session);
+			const command: any = new Command<void>(parent, function(
+				setContext
+			) {
 				setContext(['a', 'b']);
 			});
 

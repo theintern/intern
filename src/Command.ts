@@ -157,7 +157,7 @@ import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
  * from a callback or command initialiser will deadlock the Command, as it
  * waits for itself to settle before settling.
  */
-export default class Command<T> extends Locator<
+export default class Command<T, P = any> extends Locator<
 	Command<Element>,
 	Command<Element[]>,
 	Command<void>
@@ -320,7 +320,7 @@ export default class Command<T> extends Locator<
 		}
 	}
 
-	private _parent: Command<any> | Session;
+	private _parent: Command<P> | undefined;
 	private _session: Session;
 	private _context: Context;
 	private _task: Task<any>;
@@ -342,18 +342,32 @@ export default class Command<T> extends Locator<
 	 * explicitly provided, the context from the parent command will be used.
 	 */
 	// TODO: Need to show that parent is mixed into this Command
+	constructor(session: Session);
 	constructor(
-		parent: Session | Command<any> | null,
+		parent: Command<P> | null,
 		initialiser?: (
-			this: Command<any>,
-			setContext: SetContextMethod<any>,
-			value: any
-		) => any | Task<any>,
+			this: Command<P>,
+			setContext: SetContextMethod<P>,
+			value: P
+		) => P | Task<P>,
 		errback?: (
-			this: Command<any>,
-			setContext: SetContextMethod<any>,
+			this: Command<P>,
+			setContext: SetContextMethod<P>,
 			error: Error
-		) => any | Task<any>
+		) => P | Task<P>
+	);
+	constructor(
+		parentOrSession: Session | Command<P> | null,
+		initialiser?: (
+			this: Command<P>,
+			setContext: SetContextMethod<P>,
+			value: P
+		) => P | Task<P>,
+		errback?: (
+			this: Command<P>,
+			setContext: SetContextMethod<P>,
+			error: Error
+		) => P | Task<P>
 	) {
 		super();
 
@@ -367,13 +381,13 @@ export default class Command<T> extends Locator<
 				context.isSingle = true;
 			}
 
+			const parent = <Command<P>>parentOrSession;
+
 			// If the context being set has depth, then it is coming from
 			// `Command#end`, or someone smart knows what they are doing; do
 			// not change the depth
 			if (!('depth' in context)) {
-				context.depth = parent
-					? (<Command<T>>parent).context.depth! + 1
-					: 0;
+				context.depth = parent ? parent.context.depth! + 1 : 0;
 			}
 
 			self._context = context;
@@ -384,12 +398,12 @@ export default class Command<T> extends Locator<
 			throw error;
 		}
 
-		if (parent instanceof Command) {
-			this._parent = parent;
-			session = this._session = parent.session;
-		} else if (parent instanceof Session) {
-			session = this._session = parent;
-			parent = null;
+		if (parentOrSession instanceof Command) {
+			this._parent = parentOrSession;
+			session = this._session = parentOrSession.session;
+		} else if (parentOrSession instanceof Session) {
+			session = this._session = parentOrSession;
+			parentOrSession = null;
 		} else {
 			throw new Error(
 				'A parent Command or Session must be provided to a new Command'
@@ -407,7 +421,8 @@ export default class Command<T> extends Locator<
 
 		Error.captureStackTrace(trace, Command);
 
-		let parentCommand = <Command<T>>parent;
+		// parentCommand will be null if parentOrSession was a session
+		let parentCommand = <Command<P>>parentOrSession;
 		this._task = (parentCommand
 			? parentCommand.promise
 			: Task.resolve(undefined)
@@ -488,7 +503,7 @@ export default class Command<T> extends Locator<
 	 *
 	 * @param ms Time to delay, in milliseconds.
 	 */
-	sleep(ms: number) {
+	sleep(ms: number): Command<void> {
 		return new (this.constructor as typeof Command)<void>(this, function() {
 			return sleep(ms);
 		});
@@ -514,19 +529,14 @@ export default class Command<T> extends Locator<
 	 * @param numCommandsToPop The number of element contexts to pop. Defaults
 	 * to 1.
 	 */
-	end(numCommandsToPop: number = 1) {
+	end(numCommandsToPop: number = 1): Command<void> {
 		return new (this.constructor as typeof Command)<void>(this, function(
-			this: Command<T>,
 			setContext: Function
 		) {
-			let command = this;
+			let command: Command<any> | undefined = this;
 			let depth: number | undefined = this.context.depth;
 
-			while (
-				depth &&
-				numCommandsToPop &&
-				(command = <Command<any>>command.parent)
-			) {
+			while (depth && numCommandsToPop && (command = command.parent)) {
 				if (
 					command.context.depth != null &&
 					command.context.depth < depth
@@ -536,7 +546,7 @@ export default class Command<T> extends Locator<
 				}
 			}
 
-			setContext(command.context);
+			setContext(command!.context);
 		});
 	}
 
@@ -614,7 +624,7 @@ export default class Command<T> extends Locator<
 			return returnValue;
 		}
 
-		return new (this.constructor as typeof Command)(
+		return new (this.constructor as typeof Command)<U>(
 			this,
 			callback
 				? function(setContext: SetContextMethod<T>, value: T) {
