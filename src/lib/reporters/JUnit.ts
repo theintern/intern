@@ -19,7 +19,13 @@ export default class JUnit extends Reporter {
 		if (options.filename) {
 			this.filename = options.filename;
 			if (dirname(this.filename) !== '.') {
-				mkdirSync(dirname(this.filename));
+				try {
+					mkdirSync(dirname(this.filename));
+				} catch (error) {
+					if (error.code !== 'EEXIST') {
+						throw error;
+					}
+				}
 			}
 			this.output = createWriteStream(this.filename);
 		}
