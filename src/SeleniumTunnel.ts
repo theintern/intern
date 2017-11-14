@@ -4,7 +4,7 @@ import Tunnel, {
 	ChildExecutor
 } from './Tunnel';
 import { format } from 'util';
-import { extname, join } from 'path';
+import { join } from 'path';
 import Task from '@dojo/core/async/Task';
 import { fileExists, on, writeFile } from './util';
 import { Handle } from '@dojo/interfaces/core';
@@ -152,12 +152,17 @@ export default class SeleniumTunnel extends Tunnel
 		return new Task(
 			resolve => {
 				const configs: RemoteFile[] = [
-					{ url: this.url, executable: this.artifact },
+					{
+						url: this.url,
+						executable: this.artifact,
+						dontExtract: true
+					},
 					...this._getDriverConfigs()
 				];
 
 				tasks = configs.map(config => {
 					const executable = config.executable;
+					const dontExtract = Boolean(config.dontExtract);
 
 					if (fileExists(join(this.directory, executable))) {
 						return Task.resolve();
@@ -167,7 +172,7 @@ export default class SeleniumTunnel extends Tunnel
 					return this._downloadFile(
 						config.url,
 						this.proxy,
-						<SeleniumDownloadOptions>{ executable }
+						<SeleniumDownloadOptions>{ executable, dontExtract }
 					);
 				});
 
@@ -248,8 +253,7 @@ export default class SeleniumTunnel extends Tunnel
 		options: SeleniumDownloadOptions
 	) {
 		const executable = options.executable!;
-		const ext = extname(executable);
-		if (ext === '.jar' || ext === '.exe') {
+		if (options.dontExtract) {
 			return writeFile(data, join(this.directory, executable));
 		}
 		return super._postDownloadFile(data, options);
@@ -325,6 +329,7 @@ export type SeleniumOptions = Partial<SeleniumProperties>;
 
 export interface SeleniumDownloadOptions extends DownloadOptions {
 	executable?: string;
+	dontExtract?: boolean;
 }
 
 type DriverConstructor = { new (config?: any): DriverFile };
@@ -545,6 +550,10 @@ class EdgeConfig extends Config<EdgeOptions>
 		);
 	}
 
+	get dontExtract() {
+		return true;
+	}
+
 	get url() {
 		const uuid = this.uuid || EdgeVersions[this.version];
 		const a = uuid[0];
@@ -560,6 +569,10 @@ class EdgeConfig extends Config<EdgeOptions>
 			uuid,
 			this.executable
 		);
+	}
+
+	get artifact() {
+		return 'MicrosoftWebDriver.exe';
 	}
 
 	get executable() {
