@@ -70,6 +70,7 @@ const suite = {
 			{ name: 'chrome', platform: 'darwin', version: '2.23' },
 			{ name: 'ie', arch: 'x64' },
 			{ name: 'ie', arch: 'x86' },
+			{ name: 'edge' },
 			{ name: 'firefox', platform: 'linux' },
 			{ name: 'firefox', platform: 'darwin' },
 			{ name: 'firefox', platform: 'win32' }

@@ -25,6 +25,14 @@ const IEVersion = '3.5.1';
  * determines which browsers the Selenium tunnel will support.
  *
  * Note that Java must be installed and in the system path to use this tunnel.
+ *
+ * The standard browser names (for the `browserName` selenium capability) are:
+ *
+ * * `MicrosoftEdge`
+ * * `chrome`
+ * * `firefox`
+ * * `internet explorer`
+ * * `safari`
  */
 export default class SeleniumTunnel extends Tunnel
 	implements SeleniumProperties {
@@ -237,7 +245,8 @@ export default class SeleniumTunnel extends Tunnel
 		options: SeleniumDownloadOptions
 	) {
 		const executable = options.executable!;
-		if (extname(executable) === '.jar') {
+		const ext = extname(executable);
+		if (ext === '.jar' || ext === '.exe') {
 			return writeFile(data, join(this.directory, executable));
 		}
 		return super._postDownloadFile(data, options);
@@ -502,8 +511,65 @@ class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
 	}
 }
 
+interface EdgeProperties {
+	baseUrl: string;
+	uuid: string;
+	version: string;
+}
+
+type EdgeOptions = Partial<EdgeProperties>;
+
+const EdgeVersions: { [release: string]: string } = {
+	'15063': '342316D7-EBE0-4F10-ABA2-AE8E0CDF36DD',
+	'16299': 'D417998A-58EE-4EFE-A7CC-39EF9E020768'
+};
+
+class EdgeConfig extends Config<EdgeOptions>
+	implements EdgeProperties, DriverFile {
+	baseUrl: string;
+	uuid: string;
+	version: string;
+
+	constructor(options: IEOptions) {
+		super(
+			mixin(
+				{
+					baseUrl: 'https://download.microsoft.com/download',
+					version: '15063'
+				},
+				options
+			)
+		);
+	}
+
+	get url() {
+		const uuid = this.uuid || EdgeVersions[this.version];
+		const a = uuid[0];
+		const b = uuid[1];
+		const c = uuid[2];
+
+		return format(
+			'%s/%s/%s/%s/%s/%s',
+			this.baseUrl,
+			a,
+			b,
+			c,
+			uuid,
+			this.executable
+		);
+	}
+
+	get executable() {
+		return 'MicrosoftWebDriver.exe';
+	}
+
+	get seleniumProperty() {
+		return 'webdriver.edge.driver';
+	}
+}
 const driverNameMap: { [key: string]: DriverConstructor } = {
 	chrome: ChromeConfig,
 	firefox: FirefoxConfig,
-	ie: IEConfig
+	ie: IEConfig,
+	edge: EdgeConfig
 };
