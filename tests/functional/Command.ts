@@ -29,7 +29,7 @@ registerSuite(function() {
 
 		'error handling': {
 			'initialiser throws'() {
-				return new Command(null, function() {
+				return new Command(session, function() {
 					throw new Error('broken');
 				})
 					.then(
@@ -118,9 +118,8 @@ registerSuite(function() {
 			}, /A parent Command or Session must be provided to a new Command/);
 
 			const dfd = this.async();
-			const remote = new Command(session);
-			const parent = new Command<string>(remote, function(setContext) {
-				setContext('foo');
+			const parent = new Command<string>(session, function(setContext) {
+				setContext(<any>'foo');
 				return Task.resolve('bar');
 			});
 
@@ -318,9 +317,8 @@ registerSuite(function() {
 			const expected: Context = ['a'];
 			expected.depth = 0;
 
-			const parent = new Command(session);
-			return new Command<void>(parent, function(setContext) {
-				setContext(['a']);
+			return new Command<void>(session, function(setContext) {
+				setContext(<any>['a']);
 			})
 				.end(20)
 				.then(function() {
@@ -404,11 +402,10 @@ registerSuite(function() {
 		},
 
 		'session createsContext'() {
-			const parent = new Command(session);
-			const command: any = new Command<void>(parent, function(
+			const command: any = new Command<void>(session, function(
 				setContext
 			) {
-				setContext('a');
+				setContext(<any>'a');
 			});
 
 			Command.addSessionMethod(
@@ -436,10 +433,10 @@ registerSuite(function() {
 		},
 
 		'element createsContext'() {
-			const parent = new Command(session);
-			const command = new Command<void>(parent, function(setContext) {
-				setContext({
-					elementId: 'farts',
+			const command = new Command<void>(session, function(setContext) {
+				setContext(<any>{
+					elementId: 'foo',
+					// Provide a custom element method
 					newContext: util.forCommand(
 						function() {
 							return Task.resolve('b');
@@ -467,11 +464,10 @@ registerSuite(function() {
 		},
 
 		'session usesElement single'() {
-			const parent = new Command(session);
-			const command: any = new Command<void>(parent, function(
+			const command: any = new Command<void>(session, function(
 				setContext
 			) {
-				setContext('a');
+				setContext(<any>'a');
 			});
 
 			Command.addSessionMethod(
@@ -498,11 +494,10 @@ registerSuite(function() {
 		},
 
 		'session usesElement multiple'() {
-			const parent = new Command(session);
-			const command: any = new Command<void>(parent, function(
+			const command: any = new Command<void>(session, function(
 				setContext
 			) {
-				setContext(['a', 'b']);
+				setContext(<any>['a', 'b']);
 			});
 
 			const expected = [['a', 'arg1'], ['b', 'arg1']];

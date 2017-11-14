@@ -203,7 +203,7 @@ export default class Command<T, P = any> extends Locator<
 			): Command<U> {
 				return new (this.constructor as typeof Command)<U>(
 					this,
-					function(this: Command<U>, setContext: Function) {
+					function(this: Command<U>, setContext: SetContextMethod) {
 						const parentContext = this._context;
 						const session = this._session;
 						let promise: Task<any>;
@@ -289,8 +289,7 @@ export default class Command<T, P = any> extends Locator<
 				...args: any[]
 			): Command<T> {
 				return new (this.constructor as typeof Command)(this, function(
-					this: Command<T>,
-					setContext: Function
+					setContext: SetContextMethod
 				) {
 					const parentContext = this._context;
 					let promise: Task<any>;
@@ -320,7 +319,7 @@ export default class Command<T, P = any> extends Locator<
 		}
 	}
 
-	private _parent: Command<P> | undefined;
+	private _parent: Command<P>;
 	private _session: Session;
 	private _context: Context;
 	private _task: Task<any>;
@@ -342,32 +341,18 @@ export default class Command<T, P = any> extends Locator<
 	 * explicitly provided, the context from the parent command will be used.
 	 */
 	// TODO: Need to show that parent is mixed into this Command
-	constructor(session: Session);
-	constructor(
-		parent: Command<P> | null,
-		initialiser?: (
-			this: Command<P>,
-			setContext: SetContextMethod<P>,
-			value: P
-		) => P | Task<P>,
-		errback?: (
-			this: Command<P>,
-			setContext: SetContextMethod<P>,
-			error: Error
-		) => P | Task<P>
-	);
 	constructor(
 		parentOrSession: Session | Command<P> | null,
 		initialiser?: (
-			this: Command<P>,
-			setContext: SetContextMethod<P>,
-			value: P
-		) => P | Task<P>,
+			this: Command<T>,
+			setContext: SetContextMethod,
+			value: T
+		) => T | Task<T>,
 		errback?: (
-			this: Command<P>,
-			setContext: SetContextMethod<P>,
+			this: Command<T>,
+			setContext: SetContextMethod,
 			error: Error
-		) => P | Task<P>
+		) => T | Task<T>
 	) {
 		super();
 
@@ -375,10 +360,13 @@ export default class Command<T, P = any> extends Locator<
 		let session: Session;
 		const trace: any = {};
 
-		function setContext(context: Context) {
-			if (!Array.isArray(context)) {
-				context = <Context>[context];
+		function setContext(contextValue: Element | Element[]) {
+			let context: Context;
+			if (!Array.isArray(contextValue)) {
+				context = <Context>[contextValue];
 				context.isSingle = true;
+			} else {
+				context = contextValue;
 			}
 
 			const parent = <Command<P>>parentOrSession;
@@ -575,7 +563,7 @@ export default class Command<T, P = any> extends Locator<
 			| ((
 					this: Command<T>,
 					value: T,
-					setContext: SetContextMethod<U>
+					setContext: SetContextMethod
 				) => U | PromiseLike<U>)
 			| null
 			| undefined,
@@ -585,22 +573,18 @@ export default class Command<T, P = any> extends Locator<
 			| undefined
 	): Command<U | R> {
 		function runCallback(
-			command: Command<T>,
+			command: Command<U>,
 			callback:
 				| ((
 						this: Command<T>,
 						value: T,
-						setContext: SetContextMethod<U>
+						setContext: SetContextMethod
 					) => U | PromiseLike<U>)
 				| ((this: Command<T>, error: any) => R | PromiseLike<R>),
-			value: T,
-			setContext: SetContextMethod<T>
+			value: U,
+			setContext: SetContextMethod
 		) {
-			const returnValue: T | U | R | Command<T | U | R> = callback.call(
-				command,
-				value,
-				setContext
-			);
+			const returnValue = callback.call(command, value, setContext);
 
 			// If someone returns `this` (or a chain starting from `this`) from
 			// the callback, it will cause a deadlock where the child command
@@ -627,12 +611,12 @@ export default class Command<T, P = any> extends Locator<
 		return new (this.constructor as typeof Command)<U>(
 			this,
 			callback
-				? function(setContext: SetContextMethod<T>, value: T) {
+				? function(setContext: SetContextMethod, value: U) {
 						return runCallback(this, callback, value, setContext);
 					}
 				: undefined,
 			errback
-				? function(setContext: SetContextMethod<T>, value: any) {
+				? function(setContext: SetContextMethod, value: any) {
 						return runCallback(this, errback, value, setContext);
 					}
 				: undefined
@@ -669,23 +653,15 @@ export default class Command<T, P = any> extends Locator<
 	}
 
 	find(strategy: Strategy, value: string) {
-		return this._callFindElementMethod<Element>('find', strategy, value);
+		return this._callFindElementMethod('find', strategy, value);
 	}
 
 	findAll(strategy: Strategy, value: string) {
-		return this._callFindElementMethod<Element[]>(
-			'findAll',
-			strategy,
-			value
-		);
+		return this._callFindElementMethod('findAll', strategy, value);
 	}
 
 	findDisplayed(strategy: Strategy, value: string) {
-		return this._callFindElementMethod<Element>(
-			'findDisplayed',
-			strategy,
-			value
-		);
+		return this._callFindElementMethod('findDisplayed', strategy, value);
 	}
 
 	/**
@@ -693,41 +669,46 @@ export default class Command<T, P = any> extends Locator<
 	 * elements from the parent context and uses them as the context for the
 	 * newly created Command.
 	 */
-	private _callFindElementMethod<U>(
-		key: keyof Element,
-		...args: any[]
-	): Command<U> {
-		return new (this.constructor as typeof Command)<U>(this, function(
-			this: Command<U>,
-			setContext: SetContextMethod<U>
+	private _callFindElementMethod(
+		method: 'find' | 'findDisplayed',
+		strategy: Strategy,
+		value: string
+	): Command<Element>;
+	private _callFindElementMethod(
+		method: 'findAll',
+		strategy: Strategy,
+		value: string
+	): Command<Element[]>;
+	private _callFindElementMethod(
+		method: 'find' | 'findAll' | 'findDisplayed',
+		strategy: Strategy,
+		value: string
+	): Command<Element | Element[]> {
+		return new (this.constructor as typeof Command)(this, function(
+			setContext: SetContextMethod
 		) {
 			const parentContext = this._context;
-			let promise: Task<U>;
+			let task: Task<Element | Element[]>;
 
 			if (parentContext.length && parentContext.isSingle) {
-				promise = parentContext[0][key].apply(parentContext[0], args);
+				task = parentContext[0][method](strategy, value);
 			} else if (parentContext.length) {
-				promise = Task.all(
-					parentContext.map(function(element: Element) {
-						return (<Function>element[key]).apply(element, args);
-					})
-				).then(function(elements) {
+				task = Task.all(
+					parentContext.map(element =>
+						element[method](strategy, value)
+					)
 					// findAll against an array context will result in arrays
 					// of arrays; flatten into a single array of elments. It
 					// would also be possible to resort in document order but
 					// other parallel operations could not be sorted so we just
 					// don't do it anywhere and say not to rely on a particular
 					// order for results
-					return Array.prototype.concat.apply([], elements);
-				});
+				).then(elements => Array.prototype.concat.apply([], elements));
 			} else {
-				promise = (<Function>this.session[<keyof Session>key]).apply(
-					this.session,
-					args
-				);
+				task = this.session[method](strategy, value);
 			}
 
-			return promise.then(function(newContext) {
+			return task.then(newContext => {
 				setContext(newContext);
 				return newContext;
 			});
@@ -735,49 +716,47 @@ export default class Command<T, P = any> extends Locator<
 	}
 
 	private _callElementMethod<U>(
-		key: keyof Element,
+		method: keyof Element,
 		...args: any[]
 	): Command<U> {
 		return new (this.constructor as typeof Command)<U>(this, function(
-			this: Command<T>,
-			setContext: Function
+			setContext: SetContextMethod
 		) {
 			const parentContext = this._context;
-			let promise: Task<U | U[]>;
-			let fn = parentContext[0] && parentContext[0][key];
+			let task: Task<U>;
+			let fn = parentContext[0] && parentContext[0][method];
 
 			if (parentContext.isSingle) {
-				promise = fn.apply(parentContext[0], args);
+				task = fn.apply(parentContext[0], args);
 			} else {
-				promise = Task.all(
-					parentContext.map(function(element: Element) {
-						return (<Function>element[key])(...args);
-					})
-				);
+				task = Task.all(
+					parentContext.map(element =>
+						(<Function>element[method])(...args)
+					)
+				).then(values => Array.prototype.concat.apply([], values));
 			}
 
 			if (fn && fn.createsContext) {
-				promise = promise.then(function(newContext) {
-					setContext(newContext);
+				task = task.then(function(newContext) {
+					setContext(<any>newContext);
 					return newContext;
 				});
 			}
 
-			return promise;
+			return task;
 		});
 	}
 
 	private _callSessionMethod<U>(
-		key: keyof Session,
+		method: keyof Session,
 		...args: any[]
 	): Command<U> {
 		return new (this.constructor as typeof Command)<U>(this, function(
-			this: Command<T>,
-			setContext: Function
+			setContext: SetContextMethod
 		) {
 			const parentContext = this._context;
 			const session = this._session;
-			let task: Task<U | U[]>;
+			let task: Task<U>;
 
 			// The function may have come from a session object prototype but
 			// have been overridden on the actual session instance; in such a
@@ -787,11 +766,11 @@ export default class Command<T, P = any> extends Locator<
 			// mixin and does not exist on the actual session object for this
 			// session
 			const sessionMethod = (...args: any[]) => {
-				return (<Function>session[key])(...args);
+				return (<Function>session[method])(...args);
 			};
 
 			if (
-				(<any>session[key]).usesElement &&
+				(<any>session[method]).usesElement &&
 				parentContext.length &&
 				(!args[0] || !args[0].elementId)
 			) {
@@ -799,18 +778,18 @@ export default class Command<T, P = any> extends Locator<
 					task = sessionMethod(...[parentContext[0], ...args]);
 				} else {
 					task = Task.all(
-						parentContext.map(element => {
-							return sessionMethod(...[element, ...args]);
-						})
-					);
+						parentContext.map(element =>
+							sessionMethod(...[element, ...args])
+						)
+					).then(values => Array.prototype.concat.apply([], values));
 				}
 			} else {
 				task = sessionMethod(...args);
 			}
 
-			if ((<any>session[key]).createsContext) {
-				task = task.then(function(newContext) {
-					setContext(newContext);
+			if ((<any>session[method]).createsContext) {
+				task = task.then(newContext => {
+					setContext(<any>newContext);
 					return newContext;
 				});
 			}
@@ -1782,11 +1761,17 @@ export default class Command<T, P = any> extends Locator<
 	}
 }
 
-export interface SetContextMethod<T> {
-	(context: T | T[]): void;
+/**
+ * The method passed to Command `then` callbacks that can be used to manually
+ * set the Command chain context
+ */
+export interface SetContextMethod {
+	(context: Element | Element[]): void;
 }
 
-// TODO: is this the correct type of array?
+/**
+ * The current Context of a Command
+ */
 export interface Context extends Array<any> {
 	isSingle?: boolean;
 	depth?: number;
