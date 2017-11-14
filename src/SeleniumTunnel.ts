@@ -533,7 +533,7 @@ class EdgeConfig extends Config<EdgeOptions>
 	uuid: string;
 	version: string;
 
-	constructor(options: IEOptions) {
+	constructor(options: EdgeOptions) {
 		super(
 			mixin(
 				{
