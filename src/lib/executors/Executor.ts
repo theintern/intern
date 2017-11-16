@@ -1178,7 +1178,7 @@ export default abstract class BaseExecutor<
 				break;
 
 			default:
-				console.warn(`Config has unknown option "${name}"`);
+				this.log(`Config has unknown option "${name}"`);
 				this._setOption(name, value);
 		}
 	}
