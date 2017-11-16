@@ -2,18 +2,24 @@ import global from '@dojo/shim/global';
 
 export function log(...args: any[]) {
 	if (global.console && global.console.log) {
-		global.console.log.apply(global.console, args);
+		try {
+			global.console.log.apply(global.console, args);
+		} catch (error) {}
 	}
 }
 
 export function error(...args: any[]) {
 	if (global.console && global.console.error) {
-		global.console.error.apply(global.console, args);
+		try {
+			global.console.error.apply(global.console, args);
+		} catch (error) {}
 	}
 }
 
 export function warn(...args: any[]) {
 	if (global.console && global.console.warn) {
-		global.console.warn.apply(global.console, args);
+		try {
+			global.console.warn.apply(global.console, args);
+		} catch (error) {}
 	}
 }

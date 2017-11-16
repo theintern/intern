@@ -293,7 +293,9 @@ export default abstract class BaseExecutor<
 			} else if (eventName === 'deprecated') {
 				const message = <DeprecationMessage>data;
 				console.warn(
-					`WARNING: ${message.original} is deprecated, use ${message.replacement} instead.`
+					`WARNING: ${message.original} is deprecated, use ${
+						message.replacement
+					} instead.`
 				);
 			}
 
@@ -884,7 +886,9 @@ export default abstract class BaseExecutor<
 				.then(() => {
 					if (!this._loaderInit) {
 						throw new Error(
-							`Loader script ${script} did not register a loader callback`
+							`Loader script ${
+								script
+							} did not register a loader callback`
 						);
 					}
 					return this._loaderInit;
@@ -1164,7 +1168,9 @@ export default abstract class BaseExecutor<
 								break;
 							default:
 								throw new Error(
-									`Invalid property ${key} in ${envName} config`
+									`Invalid property ${key} in ${
+										envName
+									} config`
 								);
 						}
 					});
