@@ -932,8 +932,10 @@ export default abstract class BaseExecutor<
 				if (typeof script === 'string') {
 					return previous.then(() => loader(script));
 				} else {
-					this._loadingPluginOptions = script.options;
 					return previous
+						.then(() => {
+							this._loadingPluginOptions = script.options;
+						})
 						.then(() => loader(script.script))
 						.then(() => {
 							this._loadingPluginOptions = undefined;
