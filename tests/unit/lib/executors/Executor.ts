@@ -218,15 +218,6 @@ registerSuite('lib/executors/Executor', function() {
 				'unknown property'() {
 					executor.configure(<any>{ foo: 'bar' });
 					assert.propertyVal(executor.config, 'foo', 'bar');
-					assert.equal(
-						mockConsole.warn.callCount,
-						1,
-						'a warning should have been emitted'
-					);
-					assert.match(
-						mockConsole.warn.getCall(0).args[0],
-						/has unknown option "foo"/
-					);
 				},
 
 				'environment config mixin'() {
