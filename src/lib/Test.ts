@@ -355,26 +355,24 @@ export default class Test implements TestProperties {
 					this._timer = undefined;
 				}
 			})
-			.then(
+			.then(() => {
 				// Test completed successfully -- potentially passed
-				() => {
-					if (this._usesRemote && !this.isAsync) {
-						throw new Error(
-							'Remote used in synchronous test! Tests using this.remote must ' +
-								'return a promise or resolve a this.async deferred.'
-						);
-					}
-					this._hasPassed = true;
-				},
+				if (this._usesRemote && !this.isAsync) {
+					throw new Error(
+						'Remote used in synchronous test! Tests using this.remote must ' +
+							'return a promise or resolve a this.async deferred.'
+					);
+				}
+				this._hasPassed = true;
+			})
+			.catch(error => {
 				// There was an error running the test; could be a skip, could
 				// be an assertion failure
-				error => {
-					if (error !== SKIP) {
-						this.error = error;
-						throw error;
-					}
+				if (error !== SKIP) {
+					this.error = error;
+					throw error;
 				}
-			)
+			})
 			.finally(() => this.executor.emit('testEnd', this));
 	}
 
