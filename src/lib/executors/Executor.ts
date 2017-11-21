@@ -73,6 +73,7 @@ export default abstract class BaseExecutor<
 	protected _errorFormatter: ErrorFormatter;
 	protected _hasSuiteErrors = false;
 	protected _hasTestErrors = false;
+	protected _hasEmittedErrors = false;
 	protected _interfaces: { [name: string]: any };
 	protected _loader: Loader;
 	protected _loaderOptions: any;
@@ -247,47 +248,75 @@ export default abstract class BaseExecutor<
 	emit<T extends NoDataEvents>(eventName: T): Task<void>;
 	emit<T extends keyof E>(eventName: T, data: E[T]): Task<void>;
 	emit<T extends keyof E>(eventName: T, data?: E[T]) {
+		if (eventName === 'error') {
+			this._hasEmittedErrors = true;
+		}
+
 		// If reporters haven't been loaded yet, queue the event for later
 		if (!this._reportersInitialized) {
 			this._events.push({ eventName, data });
 			return Task.resolve();
 		}
 
-		let notifications = Task.resolve();
-		let hasNotifications = false;
-
-		const listeners = this._listeners[eventName];
-		if (listeners && listeners.length > 0) {
-			hasNotifications = true;
-			for (const listener of listeners) {
-				notifications = notifications.then(() =>
-					Task.resolve(listener(data))
-				);
+		// Handle the case when an error is emitted by an event listener. If
+		// we're not already handling an error, emit a new error event. If we
+		// are, then assume the error handler is broken and just console.error
+		// the error.
+		const handleListenerError = (error: Error) => {
+			if (eventName === 'error') {
+				console.error(this.formatError(error));
+			} else {
+				return this.emit('error', error);
 			}
-		}
-
-		const starListeners = this._listeners['*'];
-		if (starListeners && starListeners.length > 0) {
-			hasNotifications = true;
-			const starEvent = { name: eventName, data };
-			for (const listener of starListeners) {
-				notifications = notifications.then(() =>
-					Task.resolve(listener(starEvent))
-				);
-			}
-		}
+		};
 
 		let error: InternError | undefined;
 		if (eventName === 'error') {
 			error = <InternError>data;
 		}
 
+		// If this is an error event, mark the error as 'reported'
+		const handleErrorEvent = () => {
+			if (error) {
+				error.reported = true;
+			}
+		};
+
+		let notifications = Task.resolve();
+		let hasNotifications = false;
+
+		// First, notify the listeners specifically listening for this event
+		const listeners = this._listeners[eventName];
+		if (listeners && listeners.length > 0) {
+			hasNotifications = true;
+			for (const listener of listeners) {
+				notifications = notifications
+					.then(() => Task.resolve(listener(data)))
+					.then(handleErrorEvent)
+					.catch(handleListenerError);
+			}
+		}
+
+		// Next, notify 'star' listeners, which listen for all events
+		const starListeners = this._listeners['*'];
+		if (starListeners && starListeners.length > 0) {
+			hasNotifications = true;
+			const starEvent = { name: eventName, data };
+			for (const listener of starListeners) {
+				notifications = notifications
+					.then(() => Task.resolve(listener(starEvent)))
+					.then(handleErrorEvent)
+					.catch(handleListenerError);
+			}
+		}
+
 		if (!hasNotifications) {
 			// If reporters haven't been loaded yet, cache the event
 			if (error) {
-				// Report errors, warnings, deprecation messages when no listeners are registered
-				error.reported = true;
+				// Report errors, warnings, deprecation messages when no
+				// listeners are registered
 				console.error(this.formatError(error));
+				error.reported = true;
 			} else if (eventName === 'warning') {
 				console.warn(`WARNING: ${data}`);
 			} else if (eventName === 'deprecated') {
@@ -302,11 +331,7 @@ export default abstract class BaseExecutor<
 			return Task.resolve();
 		}
 
-		return notifications.then(() => {
-			if (error) {
-				error.reported = true;
-			}
-		});
+		return notifications;
 	}
 
 	/**
@@ -726,6 +751,11 @@ export default abstract class BaseExecutor<
 								// failed, throw an error to reject the run
 								// task.
 								message = 'One or more tests failed';
+							} else if (this._hasEmittedErrors) {
+								// If there were no test or suite errors, but
+								// *some* error was emitted, throw an error to
+								// reject the run task.
+								message = 'An error was emitted';
 							}
 
 							if (message) {

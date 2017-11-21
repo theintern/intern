@@ -434,7 +434,7 @@ registerSuite('lib/executors/Executor', function() {
 							throw new Error('emit should have rejected');
 						},
 						error => {
-							assert.match(error.message, /foo/);
+							assert.equal(error.message, 'An error was emitted');
 						}
 					);
 				},
@@ -712,7 +712,7 @@ registerSuite('lib/executors/Executor', function() {
 					executor.on('afterRun', () =>
 						Promise.reject<void>(new Error('foo'))
 					);
-					return assertRunFails(executor, /foo/);
+					return assertRunFails(executor, /An error was emitted/);
 				},
 
 				'run start error'() {
