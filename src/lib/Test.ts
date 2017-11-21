@@ -257,7 +257,7 @@ export default class Test implements TestProperties {
 				startTime = Date.now();
 			})
 			.then<void>(() => {
-				let result: PromiseLike<void> | void = this.test(this);
+				let result: PromiseLike<any> | void = this.test(this);
 
 				// Someone called `this.async`, so this test is async; we have
 				// to prefer one or the other, so prefer the promise returned
@@ -270,10 +270,7 @@ export default class Test implements TestProperties {
 						// If the user called this.async and returned a
 						// thenable, wait for the first one to resolve or
 						// reject.
-						result = Task.race<void>([
-							this.async().promise,
-							result
-						]);
+						result = Task.race([this.async().promise, result]);
 					}
 				}
 
