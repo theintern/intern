@@ -299,7 +299,9 @@ export default class Suite implements SuiteProperties {
 		this.tests.forEach(existingSuiteOrTest => {
 			if (existingSuiteOrTest.name === suiteOrTest.name) {
 				throw new Error(
-					`A suite or test named "${suiteOrTest.name}" has already been added`
+					`A suite or test named "${
+						suiteOrTest.name
+					}" has already been added`
 				);
 			}
 		});
@@ -756,11 +758,11 @@ export function isSuite(value: any): value is Suite {
 }
 
 export interface SuiteLifecycleFunction {
-	(this: Suite, suite: Suite): void | PromiseLike<void>;
+	(this: Suite, suite: Suite): void | PromiseLike<any>;
 }
 
 export interface TestLifecycleFunction {
-	(this: Suite, test: Test, suite: Suite): void | PromiseLike<void>;
+	(this: Suite, test: Test, suite: Suite): void | PromiseLike<any>;
 }
 
 /**
