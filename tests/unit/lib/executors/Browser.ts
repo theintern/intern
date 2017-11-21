@@ -133,14 +133,20 @@ registerSuite('lib/executors/Browser', function() {
 						.args[1];
 					const reason = new Error('foo');
 					handler({ reason });
-					return executor.run().then(() => {
-						assert.equal(logger.callCount, 1);
-						assert.strictEqual(
-							logger.getCall(0).args[0],
-							reason,
-							'expected emitted error to be error passed to listener'
-						);
-					});
+					return executor.run().then(
+						() => {
+							throw new Error('run should have failed');
+						},
+						error => {
+							assert.equal(logger.callCount, 1);
+							assert.strictEqual(
+								logger.getCall(0).args[0],
+								reason,
+								'expected emitted error to be error passed to listener'
+							);
+							assert.equal(error.message, 'An error was emitted');
+						}
+					);
 				},
 
 				'unhandled error'() {
@@ -149,15 +155,21 @@ registerSuite('lib/executors/Browser', function() {
 					const handler = mockGlobal.addEventListener.getCall(1)
 						.args[1];
 					handler({ message: 'foo' });
-					return executor.run().then(() => {
-						assert.equal(logger.callCount, 1);
-						assert.propertyVal(
-							logger.getCall(0).args[0],
-							'message',
-							'foo',
-							'expected emitted error to be error passed to listener'
-						);
-					});
+					return executor.run().then(
+						() => {
+							throw new Error('run should have failed');
+						},
+						error => {
+							assert.equal(logger.callCount, 1);
+							assert.propertyVal(
+								logger.getCall(0).args[0],
+								'message',
+								'foo',
+								'expected emitted error to be error passed to listener'
+							);
+							assert.equal(error.message, 'An error was emitted');
+						}
+					);
 				},
 
 				configure() {
