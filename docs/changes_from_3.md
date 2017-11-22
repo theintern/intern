@@ -11,6 +11,7 @@
     * [QUnit interface](#qunit-interface)
     * [Loading interfaces](#loading-interfaces)
 * [Execution](#execution)
+* [Reporters](#reporters)
 
 <!-- vim-markdown-toc -->
 
@@ -144,6 +145,40 @@ Programmatically running Intern in the browser works similarly, and even support
     intern.configure({ suites: 'tests/unit/**/*.js' });
     intern.run();
 </script>
+```
+
+## Reporters
+
+Reporters in Intern 4 are simply event listeners. The running executor has an [on](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/on) method for registering listeners and an [emit](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/emit) method for sending events. A reporter simply registers for events of interest, such as 'testEnd' or 'suiteStart'. Intern 3’s architecture was similar in that a `ReporterManager` class acted as the event hub, but reporters contained methods named for the events of interest rather than explicitly registering listeners for events.
+
+From a user perspective, the main change for reporters is in how they're loaded. In Intern 3, reporters were loaded by setting a `reporters` config property to a list of module IDs or built-in reporter class names. In Intern 4, built-in reporters are still loaded using a `reporters` option, but rather than module IDs or class names, the option takes simple names. Note that most reporters only support Node or the browser, not both. Currently, the built in reporters are:
+
+* Node
+  * *benchmark* - output benchmark test results
+  * *cobertura* - output coverage data in the cobertura format
+  * *htmlcoverage* - output coverage data as an HTML report
+  * *jsoncoverage* - output coverage data in a JSON format
+  * *junit* - output results in JUnit format
+  * *lcov* - output coverage results in lcov format
+  * *pretty* - draw text results in a terminal
+  * *runner* - output test results as formatted text (default Node reporter)
+  * *simple* - output test results as simple text
+  * *teamcity* - output results in TeamCity format
+
+* Browser
+  * *console* - output to the browser console
+  * *dom* - output results as text in the DOM
+  * *html* - output a pretty HTML report (default browser reporter)
+
+Custom reporters must be loaded as [plugins](https://theintern.io/docs.html#Intern/4/docs/docs%2Farchitecture.md/plugins) (this is how Intern loads dynamic assets). Once loaded, a reporter module can either instantiate an instance of the reporter automatically, or it can install a reporter class using [registerReporter](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerreporter). The installed reporter can then be loaded and passed options using the `reporters` property in the same way as the built in reporters. In general, custom reporters can be most easily used by simply having the plugin script instantiate a reporter instance.
+
+```js
+{
+    "plugins": {
+        "script": "resources/customReporter.js",
+        "options": { "filename": "reportFile.txt" }
+    }
+}
 ```
 
 [coverage]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/coverage

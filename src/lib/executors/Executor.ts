@@ -1332,6 +1332,23 @@ export interface ResourceConfig {
 	 *     }
 	 * }
 	 * ```
+	 *
+	 * The built-in reporters under Node are:
+	 *   * benchmark - output benchmark test results
+	 *   * cobertura - output coverage data in the cobertura format
+	 *   * htmlcoverage - output coverage data as an HTML report
+	 *   * jsoncoverage - output coverage data in a JSON format
+	 *   * junit - output results in JUnit format
+	 *   * lcov - output coverage results in lcov format
+	 *   * pretty - draw text results in a terminal
+	 *   * runner - output test results as formatted text (default Node reporter)
+	 *   * simple - output test results as simple text
+	 *   * teamcity - output results in TeamCity format
+	 *
+	 * The built-in reporters available in browsers are:
+	 *   * console - output to the browser console
+	 *   * dom - output results as text in the DOM
+	 *   * html - output a pretty HTML report (default browser reporter)
 	 */
 	reporters: ReporterDescriptor[];
 
