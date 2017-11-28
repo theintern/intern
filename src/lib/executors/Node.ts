@@ -76,12 +76,12 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 	constructor(options?: { [key in keyof Config]?: any }) {
 		super({
 			basePath: process.cwd() + sep,
-			capabilities: { 'idle-timeout': 60 },
+			capabilities: {},
 			coverage: [],
 			environments: [],
 			functionalCoverage: true,
 			functionalSuites: [],
-			functionalTimeouts: { connectTimeout: 30000 },
+			functionalTimeouts: {},
 			instrumenterOptions: {},
 			maxConcurrency: Infinity,
 			name: 'node',
@@ -706,18 +706,9 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 				);
 				break;
 
-			case 'connectTimeout':
 			case 'functionalTimeouts':
 				if (!this.config.functionalTimeouts) {
 					this.config.functionalTimeouts = {};
-				}
-				if (name === 'connectTimeout') {
-					this.emit('deprecated', {
-						original: name,
-						replacement: 'functionalTimeouts.connectTimeout'
-					});
-					name = 'functionalTimeouts';
-					value = { connectTimeout: value };
 				}
 				const parsedTimeout = parseValue(name, value, 'object');
 				if (parsedTimeout) {
@@ -725,11 +716,22 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 					// default functionalTimeouts
 					Object.keys(parsedTimeout).forEach(timeoutKey => {
 						const key = <keyof Config['functionalTimeouts']>timeoutKey;
-						this.config.functionalTimeouts[key] = parseValue(
-							`functionalTimeouts.${key}`,
-							parsedTimeout[key],
-							'number'
-						);
+						if (key === 'connectTimeout') {
+							this.emit('deprecated', {
+								original: 'functionalTimeouts.connectTimeout',
+								replacement: 'connectTimeout'
+							});
+							this._setOption(
+								key,
+								parseValue(key, parsedTimeout[key], 'number')
+							);
+						} else {
+							this.config.functionalTimeouts[key] = parseValue(
+								`functionalTimeouts.${key}`,
+								parsedTimeout[key],
+								'number'
+							);
+						}
 					});
 				} else {
 					// If the given value was null/undefined, clear out
@@ -738,6 +740,8 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 				}
 				break;
 
+			case 'connectTimeout':
+			case 'heartbeatInterval':
 			case 'maxConcurrency':
 			case 'serverPort':
 			case 'socketPort':
@@ -809,6 +813,16 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 				config.serverUrl = `http://localhost:${config.serverPort}/`;
 			}
 
+			if (config.connectTimeout == null) {
+				config.connectTimeout = 30000;
+			}
+
+			if (config.heartbeatInterval == null) {
+				const idleTimeout = config.capabilities['idle-timeout'];
+				config.heartbeatInterval =
+					idleTimeout == null ? 60 : idleTimeout;
+			}
+
 			// Ensure URLs end with a '/'
 			['serverUrl', 'functionalBaseUrl'].forEach(key => {
 				const property = <keyof Config>key;
@@ -820,8 +834,15 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 				}
 			});
 
+			// Set a default name for a WebDriver session
 			if (!config.capabilities.name) {
 				config.capabilities.name = 'intern';
+			}
+
+			// idle-timeout isn't universally supported, but keep setting it by
+			// default
+			if (config.capabilities['idle-timeout'] == null) {
+				config.capabilities['idle-timeout'] = config.heartbeatInterval;
 			}
 
 			const buildId = process.env.TRAVIS_COMMIT || process.env.BUILD_TAG;
@@ -1009,33 +1030,8 @@ export interface Config extends BaseConfig {
 		[key: string]: any;
 	};
 
-	// Deprecated; this is only here for typing
-	connectTimeout: never;
-
-	/**
-	 * Timeouts that apply to functional tests.
-	 *
-	 *   * **connectTimeout** is the time to wait for contact from a remote
-	 *     server
-	 *   * **find** is the time to wait for findBy commands to find an element
-	 *   * **executeAsync** is the time to wait for executeAsync calls to
-	 *     complete
-	 *   * **pageLoad** is the time to wait for a page to finish loading
-	 *     synchronous resources
-	 */
-	functionalTimeouts: {
-		/** Time to wait for contact from a remote server */
-		connectTimeout?: number;
-
-		/** Time to wait for a findBy command to find a matching element */
-		find?: number;
-
-		/** Time to wait for an executeAsync to complete */
-		executeAsync?: number;
-
-		/** Time to wait for initial page load to complete */
-		pageLoad?: number;
-	};
+	/** Time to wait for contact from a remote server */
+	connectTimeout: number;
 
 	/**
 	 * An array of file paths or globs that should be instrumented for code
@@ -1113,6 +1109,32 @@ export interface Config extends BaseConfig {
 	 * [WebDriver tests](writing_tests.md).
 	 */
 	functionalSuites: string[];
+
+	/**
+	 * Default timeout values for functional tests
+	 *
+	 *   * **find** is the time to wait for findBy commands to find an element
+	 *   * **executeAsync** is the time to wait for executeAsync calls to
+	 *     complete
+	 *   * **pageLoad** is the time to wait for a page to finish loading
+	 *     synchronous resources
+	 */
+	functionalTimeouts: {
+		// Deprecated; this is only here for typing
+		connectTimeout?: never;
+
+		/** Time to wait for a findBy command to find a matching element */
+		find?: number;
+
+		/** Time to wait for an executeAsync to complete */
+		executeAsync?: number;
+
+		/** Time to wait for initial page load to complete */
+		pageLoad?: number;
+	};
+
+	/** How often to send a heartbeat message to a remote browser, in seconds */
+	heartbeatInterval?: number;
 
 	/**
 	 * An object containing options for the

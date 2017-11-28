@@ -34,9 +34,9 @@ registerSuite('lib/RemoteSuite', {
 
 				executor = createMockNodeExecutor({
 					config: <any>{
-						functionalTimeouts: { connectTimeout: 3456 },
+						connectTimeout: 3456,
+						heartbeatInterval: 123,
 						serverUrl: 'http://foo.com/somewhere/else',
-						capabilities: { 'idle-timeout': 123 },
 						basePath: '',
 						internPath: ''
 					},
@@ -61,9 +61,7 @@ registerSuite('lib/RemoteSuite', {
 
 			tests: {
 				'connect timeout'() {
-					remoteSuite.executor.config.functionalTimeouts = {
-						connectTimeout: 10
-					};
+					remoteSuite.executor.config.connectTimeout = 10;
 					return remoteSuite.run().then(
 						() => {
 							throw new Error('Suite should have failed');

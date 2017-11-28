@@ -572,14 +572,14 @@ registerSuite('lib/executors/Node', function() {
 							'functionalTimeouts',
 							5,
 							{ foo: 5 },
-							{ connectTimeout: 30000, foo: 5 },
+							{ foo: 5 },
 							/Non-object/
 						);
 						test(
 							'functionalTimeouts',
 							{ foo: 'bar' },
 							{ foo: 5 },
-							{ connectTimeout: 30000, foo: 5 },
+							{ foo: 5 },
 							/Non-numeric/
 						);
 					},
@@ -592,6 +592,8 @@ registerSuite('lib/executors/Node', function() {
 					coverage: stringArrayTest('coverage'),
 					functionalSuites: stringArrayTest('functionalSuites'),
 
+					connectTimeout: numberTest('connectTimeout'),
+					heartbeatInterval: numberTest('heartbeatInterval'),
 					maxConcurrency: numberTest('maxConcurrency'),
 					serverPort: numberTest('serverPort'),
 					socketPort: numberTest('socketPort'),

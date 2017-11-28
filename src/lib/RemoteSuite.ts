@@ -74,10 +74,7 @@ export default class RemoteSuite extends Suite {
 
 				// If the remote takes to long to connect, reject the connection
 				// promise
-				const connectTimeout =
-					config.functionalTimeouts.connectTimeout != null
-						? config.functionalTimeouts.connectTimeout
-						: 30000;
+				const connectTimeout = config.connectTimeout;
 				connectTimer = global.setTimeout(() => {
 					const error = new Error(
 						'Timed out waiting for remote to connect'
@@ -191,7 +188,7 @@ export default class RemoteSuite extends Suite {
 				// unit tests are complete, so we need to make sure that we
 				// periodically send no-ops through the channel to ensure the
 				// remote server does not treat the session as having timed out
-				const timeout = config.capabilities['idle-timeout'];
+				const timeout = config.heartbeatInterval!;
 				if (timeout >= 1 && timeout < Infinity) {
 					remote.setHeartbeatInterval((timeout - 1) * 1000);
 				}
@@ -223,7 +220,9 @@ export default class RemoteSuite extends Suite {
 					});
 
 				const query = new UrlSearchParams(queryParams);
-				const harness = `${config.serverUrl}__intern/browser/remote.html`;
+				const harness = `${
+					config.serverUrl
+				}__intern/browser/remote.html`;
 
 				// Determine the relative path from basePath to internPath. This
 				// will be used to derive the internPath sent to the remote. The
