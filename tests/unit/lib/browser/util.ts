@@ -32,7 +32,7 @@ registerSuite('lib/browser/util', function() {
 	let requestData: { [name: string]: string };
 	let removeMocks: () => void;
 
-	const mockUtil: { [name: string]: SinonSpy } = {
+	const mockConfig: { [name: string]: SinonSpy } = {
 		getBasePath: spy(() => ''),
 
 		loadConfig: spy(
@@ -65,7 +65,7 @@ registerSuite('lib/browser/util', function() {
 				'@dojo/shim/global': {
 					default: { location: { pathname: '/' } }
 				},
-				'src/lib/common/util': mockUtil
+				'src/lib/common/config': mockConfig
 			}).then(handle => {
 				removeMocks = handle.remove;
 				util = handle.module;
@@ -80,7 +80,7 @@ registerSuite('lib/browser/util', function() {
 			parsedArgs = {};
 			requestData = {};
 			request.reset();
-			Object.keys(mockUtil).forEach(key => mockUtil[key].reset());
+			Object.keys(mockConfig).forEach(key => mockConfig[key].reset());
 		},
 
 		tests: {
@@ -97,17 +97,17 @@ registerSuite('lib/browser/util', function() {
 						return util.getConfig().then(({ config, file }) => {
 							assert.strictEqual(file, '/intern.json');
 							assert.equal(
-								mockUtil.splitConfigPath.callCount,
+								mockConfig.splitConfigPath.callCount,
 								0,
 								'splitConfigPath should not have been called'
 							);
 							assert.equal(
-								mockUtil.loadConfig.callCount,
+								mockConfig.loadConfig.callCount,
 								1,
 								'loadConfig should have been called'
 							);
 							assert.equal(
-								mockUtil.parseArgs.callCount,
+								mockConfig.parseArgs.callCount,
 								1,
 								'parseArgs should have been called'
 							);
@@ -117,11 +117,11 @@ registerSuite('lib/browser/util', function() {
 								'request should have been called'
 							);
 							assert.equal(
-								mockUtil.loadConfig.getCall(0).args[0],
+								mockConfig.loadConfig.getCall(0).args[0],
 								'/intern.json'
 							);
 							assert.deepEqual(
-								mockUtil.loadConfig.getCall(0).args[2],
+								mockConfig.loadConfig.getCall(0).args[2],
 								{ here: '1', there: 'bar' }
 							);
 
@@ -140,17 +140,17 @@ registerSuite('lib/browser/util', function() {
 
 						return util.getConfig().then(({ config }) => {
 							assert.equal(
-								mockUtil.splitConfigPath.callCount,
+								mockConfig.splitConfigPath.callCount,
 								0,
 								'splitConfigPath should not have been called'
 							);
 							assert.equal(
-								mockUtil.loadConfig.callCount,
+								mockConfig.loadConfig.callCount,
 								1,
 								'loadConfig should have been called'
 							);
 							assert.equal(
-								mockUtil.loadConfig.getCall(0).args[0],
+								mockConfig.loadConfig.getCall(0).args[0],
 								'/intern.json'
 							);
 							assert.deepEqual(config, {
@@ -196,21 +196,21 @@ registerSuite('lib/browser/util', function() {
 							'unexpected config file name'
 						);
 						assert.equal(
-							mockUtil.splitConfigPath.callCount,
+							mockConfig.splitConfigPath.callCount,
 							1,
 							'splitConfigPath should have been called'
 						);
 						assert.deepEqual(
-							mockUtil.splitConfigPath.getCall(0).args,
+							mockConfig.splitConfigPath.getCall(0).args,
 							['foo.json']
 						);
 						assert.equal(
-							mockUtil.loadConfig.callCount,
+							mockConfig.loadConfig.callCount,
 							1,
 							'loadConfig should have been called'
 						);
 						assert.equal(
-							mockUtil.loadConfig.getCall(0).args[0],
+							mockConfig.loadConfig.getCall(0).args[0],
 							'/foo.json'
 						);
 						assert.deepEqual(config, {

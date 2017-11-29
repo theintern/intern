@@ -1,20 +1,8 @@
 import { readFile, readFileSync } from 'fs';
-import { dirname, join, normalize, resolve, sep } from 'path';
+import { dirname, join, normalize } from 'path';
 import { RawSourceMap } from 'source-map';
 import { sync as glob, hasMagic } from 'glob';
-import { parse } from 'shell-quote';
 import Task from '@dojo/core/async/Task';
-import { mixin } from '@dojo/core/lang';
-import global from '@dojo/shim/global';
-
-import {
-	getBasePath,
-	loadConfig,
-	parseArgs,
-	splitConfigPath
-} from '../common/util';
-
-const process = global.process;
 
 /**
  * Expand a list of glob patterns into a flat file list. Patterns may be simple
@@ -54,79 +42,18 @@ export function expandFiles(patterns?: string[] | string) {
 }
 
 /**
- * Get the user-supplied config data, which may include command line args and a
- * config file.
- *
- * @param file A config file
- * @param argv An array of command line arguments. This should follow the same
- * format as process.argv (where user args start at index 2).
+ * Loads a text resource.
  */
-export function getConfig(file?: string): Task<{ config: any; file?: string }>;
-export function getConfig(
-	argv?: string[]
-): Task<{ config: any; file?: string }>;
-export function getConfig(
-	file: string,
-	argv?: string[]
-): Task<{ config: any; file?: string }>;
-export function getConfig(fileOrArgv?: string | string[], argv?: string[]) {
-	let args: { [key: string]: any } = {};
-	let file = typeof fileOrArgv === 'string' ? fileOrArgv : undefined;
-	argv = Array.isArray(fileOrArgv) ? fileOrArgv : argv;
-	const userArgs = (argv || process.argv).slice(2);
-
-	if (process.env['INTERN_ARGS']) {
-		mixin(args, parseArgs(parse(process.env['INTERN_ARGS'])));
-	}
-
-	if (userArgs.length > 0) {
-		mixin(args, parseArgs(userArgs));
-	}
-
-	if (file) {
-		args.config = file;
-	}
-
-	let load: Task<{ [key: string]: any }>;
-
-	if (args.config) {
-		// If a config parameter was provided, load it and mix in any other
-		// command line args.
-		const { configFile, childConfig } = splitConfigPath(args.config, sep);
-		file = resolve(configFile || 'intern.json');
-		load = loadConfig(file, loadText, args, childConfig);
-	} else {
-		// If no config parameter was provided, try 'intern.json', or just
-		// resolve to the original args
-		file = resolve('intern.json');
-		load = loadConfig(
-			file,
-			loadText,
-			args
-		).catch((error: NodeJS.ErrnoException) => {
-			if (error.code === 'ENOENT') {
-				file = undefined;
-				return args;
+export function loadText(path: string) {
+	return new Task<string>((resolve, reject) => {
+		readFile(path, { encoding: 'utf8' }, (error, data) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve(data);
 			}
-			throw error;
 		});
-	}
-
-	return load
-		.then(config => {
-			// If a basePath wasn't set in the config or via a query arg, and we
-			// have a config file path, use that.
-			if (file) {
-				// If a basePath wasn't set in the config or via a query arg, and we
-				// have a config file path, use that.
-				if (file) {
-					config.basePath = getBasePath(file, config.basePath, '/');
-				}
-				return config;
-			}
-			return config;
-		})
-		.then(config => ({ config, file }));
+	});
 }
 
 /**
@@ -164,21 +91,6 @@ export function readSourceMap(
 			return JSON.parse(readFileSync(mapFile, { encoding: 'utf8' }));
 		}
 	}
-}
-
-/**
- * Loads a text resource.
- */
-function loadText(path: string) {
-	return new Task<string>((resolve, reject) => {
-		readFile(path, { encoding: 'utf8' }, (error, data) => {
-			if (error) {
-				reject(error);
-			} else {
-				resolve(data);
-			}
-		});
-	});
 }
 
 // Regex for matching sourceMappingUrl comments
