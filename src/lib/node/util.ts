@@ -44,9 +44,13 @@ export function expandFiles(patterns?: string[] | string) {
 		}
 	}
 
-	return includes
+	const allPaths = includes
 		.map(pattern => glob(pattern, { ignore: excludes }))
 		.reduce((allFiles, files) => allFiles.concat(files), paths);
+	const uniquePaths: { [name: string]: boolean } = {};
+	allPaths.forEach(path => (uniquePaths[path] = true));
+
+	return Object.keys(uniquePaths);
 }
 
 /**
