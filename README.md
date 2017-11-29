@@ -100,7 +100,7 @@ Intern is a JS Foundation project offered under the [New BSD](LICENSE) license.
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/intern/graphs/contributors)
 
 <p align="center">Intern’s self-tests run on<br>
-<a href="https://browserstack.com"><img alt="BrowserStack logo" src="https://theintern.github.io/images/browserstack.svg" height="32" align="middle"></a></p>
+<a href="https://browserstack.com"><img alt="BrowserStack logo" src="https://theintern.io/images/browserstack-logo.svg" height="32" align="middle"></a></p>
 <!-- end-github-only -->
 
 <!-- doc-viewer-config
