@@ -8,7 +8,8 @@ import Suite from '../Suite';
 import Test from '../Test';
 import ErrorFormatter, { ErrorFormatOptions } from '../common/ErrorFormatter';
 import { normalizePathEnding } from '../common/path';
-import { isTask, parseValue, pullFromArray } from '../common/util';
+import { isTask, pullFromArray } from '../common/util';
+import { processOption } from '../common/config';
 import Reporter, { ReporterOptions } from '../reporters/Reporter';
 import {
 	getInterface as getObjectInterface,
@@ -227,11 +228,9 @@ export default abstract class BaseExecutor<
 	 * [[lib/executors/Executor.Config]] properties.
 	 */
 	configure(options: { [key in keyof C]?: any }) {
-		options = options || {};
 		Object.keys(options).forEach(option => {
 			const key = <keyof C>option;
-			const { name, addToExisting } = this._evalProperty(key);
-			this._processOption(<keyof C>name, options[key], addToExisting);
+			this._processOption(key, options[key]);
 		});
 	}
 
@@ -874,17 +873,6 @@ export default abstract class BaseExecutor<
 	}
 
 	/**
-	 * Evaluate a config property key
-	 */
-	protected _evalProperty(key: string): EvaluatedProperty<C> {
-		const addToExisting = key[key.length - 1] === '+';
-		const name = <keyof C>(addToExisting
-			? <keyof C>key.slice(0, key.length - 1)
-			: key);
-		return { name, addToExisting };
-	}
-
-	/**
 	 * Load a loader
 	 */
 	protected _loadLoader() {
@@ -1005,236 +993,10 @@ export default abstract class BaseExecutor<
 	}
 
 	/**
-	 * Process an arbitrary config value. Subclasses can override this method to
-	 * pre-process arguments or handle them instead of allowing Executor to.
+	 * Process an option
 	 */
-	protected _processOption(
-		name: keyof C,
-		value: any,
-		addToExisting: boolean
-	) {
-		switch (name) {
-			case 'loader':
-				this._setOption(
-					name,
-					parseValue(name, value, 'object', 'script')
-				);
-				break;
-
-			case 'bail':
-			case 'baseline':
-			case 'benchmark':
-			case 'debug':
-			case 'filterErrorStack':
-			case 'showConfig':
-				this._setOption(name, parseValue(name, value, 'boolean'));
-				break;
-
-			case 'basePath':
-			case 'coverageVariable':
-			case 'description':
-			case 'internPath':
-			case 'name':
-			case 'sessionId':
-				this._setOption(name, parseValue(name, value, 'string'));
-				break;
-
-			case 'defaultTimeout':
-				this._setOption(name, parseValue(name, value, 'number'));
-				break;
-
-			case 'grep':
-				this._setOption(name, parseValue(name, value, 'regexp'));
-				break;
-
-			case 'reporters':
-				this._setOption(
-					name,
-					parseValue(name, value, 'object[]', 'name'),
-					addToExisting
-				);
-				break;
-
-			case 'plugins':
-			case 'requires':
-			case 'require':
-			case 'scripts':
-				let useLoader = false;
-				if (name === 'scripts') {
-					this.emit('deprecated', {
-						original: 'scripts',
-						replacement: 'plugins'
-					});
-					name = 'plugins';
-				} else if (name === 'require') {
-					this.emit('deprecated', {
-						original: 'require',
-						replacement: 'plugins'
-					});
-					name = 'plugins';
-				} else if (name === 'requires') {
-					this.emit('deprecated', {
-						original: 'require',
-						replacement: 'plugins',
-						message: 'Set `useLoader: true`'
-					});
-					name = 'plugins';
-					useLoader = true;
-				}
-				const parsed = parseValue(name, value, 'object[]', 'script');
-				if (useLoader) {
-					parsed.forEach((entry: PluginDescriptor) => {
-						entry.useLoader = true;
-					});
-				}
-				this._setOption(name, parsed, addToExisting);
-				break;
-
-			case 'suites':
-				this._setOption(
-					name,
-					parseValue(name, value, 'string[]'),
-					addToExisting
-				);
-				break;
-
-			case 'node':
-			case 'browser':
-				const envConfig: ResourceConfig = this.config[name];
-				const envName = name;
-				value = parseValue(name, value, 'object');
-				if (value) {
-					Object.keys(value).forEach(valueKey => {
-						const key = <keyof ResourceConfig>valueKey;
-						let resource = value[key];
-						let { name, addToExisting } = this._evalProperty(key);
-						switch (name) {
-							case 'loader':
-								resource = parseValue(
-									name,
-									resource,
-									'object',
-									'script'
-								);
-								this._setOption(
-									name,
-									resource,
-									false,
-									<C>envConfig
-								);
-								break;
-							case 'reporters':
-								resource = parseValue(
-									'reporters',
-									resource,
-									'object[]',
-									'name'
-								);
-								this._setOption(
-									name,
-									resource,
-									addToExisting,
-									<C>envConfig
-								);
-								break;
-							case 'plugins':
-							case 'require':
-							case 'requires':
-							case 'scripts':
-								let useLoader = false;
-								if (name === 'scripts') {
-									this.emit('deprecated', {
-										original: 'scripts',
-										replacement: 'plugins'
-									});
-									name = 'plugins';
-								} else if (name === 'require') {
-									this.emit('deprecated', {
-										original: 'require',
-										replacement: 'plugins'
-									});
-									name = 'plugins';
-								} else if (name === 'requires') {
-									this.emit('deprecated', {
-										original: 'requires',
-										replacement: 'plugins',
-										message: 'Set `useLoader: true`'
-									});
-									name = 'plugins';
-									useLoader = true;
-								}
-								resource = parseValue(
-									name,
-									resource,
-									'object[]',
-									'script'
-								);
-								if (useLoader) {
-									resource.forEach(
-										(entry: PluginDescriptor) => {
-											entry.useLoader = true;
-										}
-									);
-								}
-								this._setOption(
-									name,
-									resource,
-									addToExisting,
-									<C>envConfig
-								);
-								break;
-							case 'suites':
-								resource = parseValue(
-									name,
-									resource,
-									'string[]'
-								);
-								this._setOption(
-									name,
-									resource,
-									addToExisting,
-									<C>envConfig
-								);
-								break;
-							default:
-								throw new Error(
-									`Invalid property ${key} in ${
-										envName
-									} config`
-								);
-						}
-					});
-				}
-				break;
-
-			default:
-				this.log(`Config has unknown option "${name}"`);
-				this._setOption(name, value);
-		}
-	}
-
-	/**
-	 * Set an option value.
-	 */
-	protected _setOption(
-		name: keyof C,
-		value: any,
-		addToExisting = false,
-		config?: C
-	) {
-		config = config || this.config;
-
-		// addToExisting
-		if (addToExisting) {
-			const currentValue: any = config[name];
-			if (Array.isArray(currentValue)) {
-				currentValue.push(...value);
-			} else {
-				deepMixin(config[name], value);
-			}
-		} else {
-			config[name] = value;
-		}
+	protected _processOption(key: keyof C, value: any) {
+		processOption(key, value, this.config, this);
 	}
 
 	/**
@@ -1604,9 +1366,4 @@ export interface PluginInitializer<T extends any = any> {
 
 export interface ReporterInitializer {
 	(options?: any): Reporter;
-}
-
-export interface EvaluatedProperty<C extends Config = Config> {
-	name: keyof C;
-	addToExisting: boolean;
 }

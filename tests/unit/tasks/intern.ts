@@ -43,7 +43,7 @@ registerSuite('tasks/intern', function() {
 			return mockRequire(require, 'src/tasks/intern', {
 				'src/lib/executors/Node': { default: MockNode },
 				'@dojo/shim/global': { default: {} },
-				'src/lib/node/util': { getConfig: mockGetConfig }
+				'src/lib/node/config': { getConfig: mockGetConfig }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				gruntTask = handle.module;
@@ -77,7 +77,7 @@ registerSuite('tasks/intern', function() {
 			},
 
 			'run task': {
-				'config'() {
+				config() {
 					mockGrunt.registerMultiTask.callsArgOn(1, mockGrunt);
 					mockGrunt.options.returns({
 						config: '@coverage',

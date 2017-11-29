@@ -7,7 +7,7 @@ import {
 	loadConfig,
 	parseArgs,
 	splitConfigPath
-} from '../common/util';
+} from '../common/config';
 
 /**
  * Resolve the user-supplied config data, which may include query args and a
