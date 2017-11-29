@@ -4,7 +4,8 @@
 
 Software testing for humans
 
-[![Build Status](https://travis-ci.org/theintern/intern.svg?branch=master)](https://travis-ci.org/theintern/intern)
+<!--[![Build Status](https://travis-ci.org/theintern/intern.svg?branch=master)](https://travis-ci.org/theintern/intern)-->
+[![BrowserStack Status](https://www.browserstack.com/automate/badge.svg?badge_key=c2RQQ3Z3R3pxZWVEMVZDODN1eVkyQT09LS0rQ3dLaHRrV1FKSFNkbk80bHRIek53PT0=--3193e1deba91e0d9f748f87e2e0acc3166aa7535)](https://www.browserstack.com/automate/public-build/c2RQQ3Z3R3pxZWVEMVZDODN1eVkyQT09LS0rQ3dLaHRrV1FKSFNkbk80bHRIek53PT0=--3193e1deba91e0d9f748f87e2e0acc3166aa7535)
 [![codecov](https://codecov.io/gh/theintern/intern/branch/master/graph/badge.svg)](https://codecov.io/gh/theintern/intern)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/intern.svg)](http://isitmaintained.com/project/theintern/intern "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/intern.svg)](http://isitmaintained.com/project/theintern/intern "Percentage of issues still open")
