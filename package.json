@@ -168,7 +168,11 @@
 		"useTabs": true
 	},
 	"lint-staged": {
-		"*.{js,json,css}": ["prettier --write", "git add"]
+		"src/**/*.{ts,json,css}": ["prettier --write", "git add"],
+		"tests/**/*.{ts,json,css}": ["prettier --write", "git add"],
+		"tests/**/*.{ts,json,css}": ["prettier --write", "git add"],
+		"*.ts": ["prettier --write", "git add"],
+		"{intern,tsconfig}.json": ["prettier --write", "git add"]
 	},
 	"pre-commit": "precommit"
 }
