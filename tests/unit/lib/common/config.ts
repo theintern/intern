@@ -102,6 +102,48 @@ registerSuite('lib/common/config', {
 		}
 	},
 
+	getBasePath() {
+		// posix path with absolute base
+		const basePath1 = _config.getBasePath(
+			'intern.json',
+			'/',
+			path => path[0] === '/'
+		);
+		assert.equal(basePath1, '/');
+
+		// posix path with absolute base
+		const basePath2 = _config.getBasePath(
+			'/foo/bar/intern.json',
+			'/baz',
+			path => path[0] === '/'
+		);
+		assert.equal(basePath2, '/baz');
+
+		// posix path with relative base
+		const basePath3 = _config.getBasePath(
+			'/foo/bar/intern.json',
+			'..',
+			path => path[0] === '/'
+		);
+		assert.equal(basePath3, '/foo');
+
+		// Windows path with absolute base
+		const basePath4 = _config.getBasePath(
+			'C:\\foo\\bar\\intern.json',
+			'C:\\baz',
+			_path => true
+		);
+		assert.equal(basePath4, 'C:\\baz');
+
+		// Windows path with relative base
+		const basePath5 = _config.getBasePath(
+			'C:\\foo\\bar\\intern.json',
+			'..',
+			_path => false
+		);
+		assert.equal(basePath5, 'C:\\foo');
+	},
+
 	getConfigDescription() {
 		return _config
 			.loadConfig('described', loadText, { showConfigs: true })

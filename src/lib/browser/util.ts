@@ -47,7 +47,12 @@ export function getConfig(file?: string) {
 			// If a basePath wasn't set in the config or via a query arg, and we
 			// have a config file path, use that.
 			if (file) {
-				config.basePath = getBasePath(file, config.basePath, '/');
+				config.basePath = getBasePath(
+					file,
+					config.basePath,
+					path => path[0] === '/',
+					'/'
+				);
 			}
 			return config;
 		})

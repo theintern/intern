@@ -33,8 +33,6 @@ registerSuite('lib/browser/util', function() {
 	let removeMocks: () => void;
 
 	const mockConfig: { [name: string]: SinonSpy } = {
-		getBasePath: spy(() => ''),
-
 		loadConfig: spy(
 			(
 				filename: string,
