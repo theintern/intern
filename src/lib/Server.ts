@@ -5,7 +5,7 @@ import { Socket } from 'net';
 import * as WebSocket from 'ws';
 import { after } from '@dojo/core/aspect';
 import { mixin } from '@dojo/core/lang';
-import { Handle } from '@dojo/interfaces/core';
+import { Handle } from '@dojo/core/interfaces';
 
 import { pullFromArray } from './common/util';
 import Node from './executors/Node';

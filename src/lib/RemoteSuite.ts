@@ -1,7 +1,7 @@
 import { parse } from 'url';
 import { relative } from 'path';
 import UrlSearchParams from '@dojo/core/UrlSearchParams';
-import { Handle, Hash } from '@dojo/interfaces/core';
+import { Handle, Hash } from '@dojo/core/interfaces';
 import Task from '@dojo/core/async/Task';
 
 import Suite, { SuiteOptions } from './Suite';
