@@ -1,9 +1,8 @@
-import Evented, { BaseEventedEvents } from '@dojo/core/Evented';
+import Evented from '@dojo/core/Evented';
 import {
 	EventObject,
-	EventTargettedObject,
 	Handle
-} from '@dojo/interfaces/core';
+} from '@dojo/core/interfaces';
 import { createCompositeHandle, mixin } from '@dojo/core/lang';
 import Task, { State } from '@dojo/core/async/Task';
 import sendRequest from '@dojo/core/request';
@@ -22,7 +21,7 @@ import decompress = require('decompress');
  * securely exposes local services for testing within the service provider’s
  * network.
  */
-export default class Tunnel extends Evented implements TunnelProperties, Url {
+export default class Tunnel extends Evented<TunnelEvents, string> implements TunnelProperties, Url {
 	constructor(options?: TunnelOptions) {
 		super();
 		mixin(
@@ -39,9 +38,6 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 			options || {}
 		);
 	}
-
-	/** Register an event listener */
-	on: RegisterListener;
 
 	/**
 	 * The URL of a service that provides a list of environments supported by
@@ -228,7 +224,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 
 						response.download.subscribe({
 							next: received => {
-								this.emit<DownloadProgressEvent>({
+								this.emit({
 									type: 'downloadprogress',
 									target: this,
 									url,
@@ -439,7 +435,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 			.then(() => {
 				this._startTask = undefined;
 				this._state = 'running';
-				this.emit<StatusEvent>({
+				this.emit({
 					type: 'status',
 					target: this,
 					status: 'Ready'
@@ -448,7 +444,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 			.catch(error => {
 				this._startTask = undefined;
 				this._state = 'stopped';
-				this.emit<StatusEvent>({
+				this.emit({
 					type: 'status',
 					target: this,
 					status:
@@ -508,7 +504,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 
 		this._state = 'stopping';
 
-		this.emit<StatusEvent>({
+		this.emit({
 			type: 'status',
 			target: this,
 			status: 'Stopping'
@@ -521,7 +517,7 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 				}
 				this._process = this._handle = undefined;
 				this._state = 'stopped';
-				this.emit<StatusEvent>({
+				this.emit({
 					type: 'status',
 					target: this,
 					status: 'Stopped'
@@ -629,11 +625,22 @@ export default class Tunnel extends Evented implements TunnelProperties, Url {
 	}
 }
 
+export interface TunnelEventObject<T> extends EventObject<string> {
+	readonly target: T;
+}
+
+export interface TunnelEvents {
+	stdout: IOEvent;
+	stderr: IOEvent;
+	status: StatusEvent;
+	downloadprogress: DownloadProgressEvent;
+}
+
 /**
  * A chunk of raw string data output by the tunnel software to stdout or stderr.
  */
 // tslint:disable-next-line:interface-name
-export interface IOEvent extends EventTargettedObject<Tunnel> {
+export interface IOEvent extends TunnelEventObject<Tunnel> {
 	readonly type: 'stdout' | 'stderr';
 	readonly data: string;
 }
@@ -642,7 +649,7 @@ export interface IOEvent extends EventTargettedObject<Tunnel> {
  * An event containing information about the status of the tunnel setup process
  * that is suitable for presentation to end-users.
  */
-export interface StatusEvent extends EventTargettedObject<Tunnel> {
+export interface StatusEvent extends TunnelEventObject<Tunnel> {
 	readonly type: 'status';
 	readonly status: string;
 }
@@ -651,7 +658,7 @@ export interface StatusEvent extends EventTargettedObject<Tunnel> {
  * An event indicating that part of a tunnel binary has been downloaded from the
  * server.
  */
-export interface DownloadProgressEvent extends EventTargettedObject<Tunnel> {
+export interface DownloadProgressEvent extends TunnelEventObject<Tunnel> {
 	/** The event type */
 	readonly type: 'downloadprogress';
 	/** The URL being downloaded from */
@@ -723,20 +730,9 @@ export interface TunnelProperties extends DownloadOptions {
 /** Options used to configure a tunnel */
 export type TunnelOptions = Partial<TunnelProperties>;
 
-/** Event registration call signatures */
-export interface RegisterListener extends BaseEventedEvents {
-	(type: 'stderr' | 'stdout', listener: (event: IOEvent) => void): Handle;
-	(type: 'status', listener: (event: StatusEvent) => void): Handle;
-	(
-		type: 'downloadprogress',
-		listener: (event: DownloadProgressEvent) => void
-	): Handle;
-	(type: string, listener: (event: EventObject) => void): Handle;
-}
-
 function proxyIOEvent(target: Tunnel, type: 'stdout' | 'stderr') {
 	return function(data: any) {
-		target.emit<IOEvent>({
+		target.emit({
 			type,
 			target,
 			data: String(data)

@@ -1,8 +1,7 @@
 import Tunnel, {
 	TunnelProperties,
 	ChildExecutor,
-	NormalizedEnvironment,
-	StatusEvent
+	NormalizedEnvironment
 } from './Tunnel';
 import { existsSync, watchFile, unlinkSync, unwatchFile } from 'fs';
 import UrlSearchParams from '@dojo/core/UrlSearchParams';
@@ -213,7 +212,7 @@ export default class TestingBotTunnel extends Tunnel
 							message.indexOf('>> [') === -1 &&
 							message.indexOf('<< [') === -1
 						) {
-							this.emit<StatusEvent>({
+							this.emit({
 								type: 'status',
 								target: this,
 								status: message

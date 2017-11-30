@@ -2,8 +2,7 @@ import Tunnel, {
 	TunnelProperties,
 	DownloadOptions,
 	ChildExecutor,
-	NormalizedEnvironment,
-	StatusEvent
+	NormalizedEnvironment
 } from './Tunnel';
 import { JobState } from './interfaces';
 import { chmodSync, watchFile, unwatchFile } from 'fs';
@@ -429,7 +428,7 @@ export default class SauceLabsTunnel extends Tunnel
 					// Sauce Connect 3
 					message.indexOf('You may start your tests') === -1
 				) {
-					this.emit<StatusEvent>({
+					this.emit({
 						type: 'status',
 						target: this,
 						status: message

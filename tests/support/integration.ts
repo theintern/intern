@@ -6,7 +6,7 @@ import Test = require('intern/lib/Test');
 
 import Tunnel, { IOEvent, NormalizedEnvironment } from 'src/Tunnel';
 import { createCompositeHandle } from '@dojo/core/lang';
-import { Handle } from '@dojo/interfaces/core';
+import { Handle } from '@dojo/core/interfaces';
 
 function writeIOEvent(event: IOEvent) {
 	process.stdout.write(event.data);
