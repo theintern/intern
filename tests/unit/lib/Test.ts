@@ -1,5 +1,4 @@
 import Task, { State } from '@dojo/core/async/Task';
-import { Thenable } from '@dojo/shim/interfaces';
 
 import { Executor } from 'src/lib/executors/Executor';
 import Test, {
@@ -79,23 +78,25 @@ registerSuite('lib/Test', {
 			}
 		});
 
-		test.run().then(() => {
-			dfd.reject(
-				new Error('Test should not resolve when it throws an error')
-			);
-		},
-		dfd.callback((error: Error) => {
-			assert.strictEqual<Error | undefined>(
-				test.error,
-				thrownError,
-				'Error thrown by test should be the error set on test'
-			);
-			assert.strictEqual(
-				error,
-				thrownError,
-				'Error thrown by test should be the error used by the promise'
-			);
-		}));
+		test.run().then(
+			() => {
+				dfd.reject(
+					new Error('Test should not resolve when it throws an error')
+				);
+			},
+			dfd.callback((error: Error) => {
+				assert.strictEqual<Error | undefined>(
+					test.error,
+					thrownError,
+					'Error thrown by test should be the error set on test'
+				);
+				assert.strictEqual(
+					error,
+					thrownError,
+					'Error thrown by test should be the error used by the promise'
+				);
+			})
+		);
 	},
 
 	'#async': {
@@ -547,7 +548,7 @@ registerSuite('lib/Test', {
 			name: 'foo',
 			test() {
 				this.timeout = 1;
-				return <Thenable<any>>{ then() {} };
+				return <PromiseLike<any>>{ then() {} };
 			}
 		});
 

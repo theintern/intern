@@ -1,6 +1,6 @@
 import * as chai from 'chai';
 import { deepMixin, duplicate } from '@dojo/core/lang';
-import { Handle } from '@dojo/interfaces/core';
+import { Handle } from '@dojo/core/interfaces';
 import Task, { isThenable, State } from '@dojo/core/async/Task';
 import global from '@dojo/shim/global';
 
