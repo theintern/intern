@@ -251,6 +251,11 @@ export default abstract class BaseExecutor<
 			this._hasEmittedErrors = true;
 		}
 
+		// Ignore log messages if not in debug mode
+		if (eventName === 'log' && !this.config.debug) {
+			return Task.resolve();
+		}
+
 		// If reporters haven't been loaded yet, queue the event for later
 		if (!this._reportersInitialized) {
 			this._events.push({ eventName, data });
