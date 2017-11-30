@@ -7,7 +7,7 @@ import { format } from 'util';
 import { join } from 'path';
 import Task from '@dojo/core/async/Task';
 import { fileExists, on, writeFile } from './util';
-import { Handle } from '@dojo/interfaces/core';
+import { Handle } from '@dojo/core/interfaces';
 import { mixin } from '@dojo/core/lang';
 import { satisfies } from 'semver';
 

@@ -7,8 +7,7 @@ import Tunnel, {
 	TunnelProperties,
 	DownloadOptions,
 	ChildExecutor,
-	NormalizedEnvironment,
-	StatusEvent
+	NormalizedEnvironment
 } from './Tunnel';
 import { parse as parseUrl, Url } from 'url';
 import { mixin } from '@dojo/core/lang';
@@ -230,7 +229,7 @@ export default class BrowserStackTunnel extends Tunnel {
 						/^Connecting to BrowserStack/.test(line) ||
 						/^Connected/.test(line)
 					) {
-						this.emit<StatusEvent>({
+						this.emit({
 							type: 'status',
 							target: this,
 							status: line

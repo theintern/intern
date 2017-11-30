@@ -1,5 +1,5 @@
 import { createHandle } from '@dojo/core/lang';
-import { Handle } from '@dojo/interfaces/core';
+import { Handle } from '@dojo/core/interfaces';
 import { mkdirSync, statSync, writeFile as fsWriteFile } from 'fs';
 import { dirname } from 'path';
 
