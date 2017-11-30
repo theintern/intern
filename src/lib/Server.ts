@@ -68,7 +68,11 @@ export default class Server implements ServerProperties {
 			const app = (this._app = express());
 			this._sessions = {};
 
-			this._wsServer = new WebSocket.Server({ port: this.port + 1 });
+			this.executor.log(
+				'Listening for WebSocket connections on port',
+				this.socketPort
+			);
+			this._wsServer = new WebSocket.Server({ port: this.socketPort });
 			this._wsServer.on('connection', client => {
 				this.executor.log('WebSocket connection opened:', client);
 				this._handleWebSocket(client);
@@ -271,7 +275,9 @@ export default class Server implements ServerProperties {
 							this.executor.emit(
 								'error',
 								new Error(
-									`Error sending ack for [ ${message.id} ]: ${error.message}`
+									`Error sending ack for [ ${message.id} ]: ${
+										error.message
+									}`
 								)
 							);
 						}
