@@ -1,5 +1,4 @@
 import Task, { isThenable, State } from '@dojo/core/async/Task';
-import { Thenable } from '@dojo/shim/interfaces';
 
 import { isTask } from './common/util';
 import Deferred from './Deferred';
@@ -351,7 +350,7 @@ export default class Suite implements SuiteProperties {
 			name: keyof Suite,
 			test?: Test
 		) => {
-			let result: Thenable<void> | undefined;
+			let result: PromiseLike<void> | undefined;
 
 			return new Task<void>(
 				(resolve, reject) => {
