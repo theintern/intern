@@ -354,6 +354,53 @@ registerSuite('lib/common/config', {
 		};
 	})(),
 
+	setOption() {
+		const cfg: any = {};
+
+		// Set a property to an array value
+		_config.setOption(cfg, 'foo', ['bar']);
+		assert.deepEqual(cfg, { foo: ['bar'] });
+
+		// Overwrite an array property
+		_config.setOption(cfg, 'foo', ['baz']);
+		assert.deepEqual(cfg, { foo: ['baz'] });
+
+		// Add to an array property
+		_config.setOption(cfg, 'foo', ['bif'], true);
+		assert.deepEqual(cfg, { foo: ['baz', 'bif'] });
+
+		// Set a different property
+		_config.setOption(cfg, 'bar', 23);
+		assert.deepEqual(cfg, { foo: ['baz', 'bif'], bar: 23 });
+
+		// Add to a non-array, non-object property
+		assert.throws(() => {
+			_config.setOption(cfg, 'bar', 25, true);
+		}, /Only array or object/);
+
+		// Add to a property with no existing value
+		_config.setOption(cfg, 'baz', ['bif'], true);
+		assert.deepEqual(cfg, { foo: ['baz', 'bif'], bar: 23, baz: ['bif'] });
+
+		// Set a property to an object value
+		_config.setOption(cfg, 'bif', { one: '2' });
+		assert.deepEqual(cfg, {
+			foo: ['baz', 'bif'],
+			bar: 23,
+			baz: ['bif'],
+			bif: { one: '2' }
+		});
+
+		// Add to an object value
+		_config.setOption(cfg, 'bif', { two: '3' }, true);
+		assert.deepEqual(cfg, {
+			foo: ['baz', 'bif'],
+			bar: 23,
+			baz: ['bif'],
+			bif: { one: '2', two: '3' }
+		});
+	},
+
 	splitConfigPath() {
 		assert.deepEqual(_config.splitConfigPath('foo'), {
 			configFile: 'foo'

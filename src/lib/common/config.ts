@@ -618,13 +618,16 @@ export function setOption<C extends Config>(
 	value: any,
 	addToExisting = false
 ) {
-	// addToExisting
 	if (addToExisting) {
 		const currentValue: any = config[name];
-		if (Array.isArray(currentValue)) {
+		if (currentValue == null) {
+			config[name] = value;
+		} else if (Array.isArray(currentValue)) {
 			currentValue.push(...value);
+		} else if (typeof config[name] === 'object') {
+			config[name] = deepMixin({}, config[name], value);
 		} else {
-			deepMixin(config[name], value);
+			throw new Error('Only array or object options may be added');
 		}
 	} else {
 		config[name] = value;
