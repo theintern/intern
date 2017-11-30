@@ -55,6 +55,7 @@ export function evalProperty<C extends Config>(
 export function getBasePath(
 	configFile: string,
 	basePath: string,
+	isAbsolute: (path: string) => boolean,
 	pathSep?: string
 ) {
 	pathSep = pathSep || getPathSep(configFile, basePath);
@@ -74,12 +75,12 @@ export function getBasePath(
 	if (basePath) {
 		basePath = normalize(basePath);
 
-		if (basePath[0] !== '/') {
-			// basePath is relative, so resolve it against initialBasePath
-			finalBasePath = join(initialBasePath, basePath);
-		} else {
+		if (isAbsolute(basePath)) {
 			// basePath is absolute, so use it directly
 			finalBasePath = basePath;
+		} else {
+			// basePath is relative, so resolve it against initialBasePath
+			finalBasePath = join(initialBasePath, basePath);
 		}
 	} else {
 		// No basePath was provided, so use initialBasePath

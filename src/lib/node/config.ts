@@ -1,5 +1,5 @@
 import Task from '@dojo/core/async/Task';
-import { resolve, sep } from 'path';
+import { isAbsolute, resolve, sep } from 'path';
 import { parse } from 'shell-quote';
 import { mixin } from '@dojo/core/lang';
 import global from '@dojo/shim/global';
@@ -80,12 +80,12 @@ export function getConfig(fileOrArgv?: string | string[], argv?: string[]) {
 			// If a basePath wasn't set in the config or via a query arg, and we
 			// have a config file path, use that.
 			if (file) {
-				// If a basePath wasn't set in the config or via a query arg, and we
-				// have a config file path, use that.
-				if (file) {
-					config.basePath = getBasePath(file, config.basePath, '/');
-				}
-				return config;
+				config.basePath = getBasePath(
+					file,
+					config.basePath,
+					isAbsolute,
+					sep
+				);
 			}
 			return config;
 		})

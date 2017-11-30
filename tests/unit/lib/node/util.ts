@@ -32,10 +32,6 @@ registerSuite('lib/node/util', function() {
 	};
 
 	const mockUtil = {
-		getBasePath() {
-			return '';
-		},
-
 		loadConfig(
 			filename: string,
 			loadText: (filename: string) => Promise<string>,
