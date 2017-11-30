@@ -1,17 +1,18 @@
 {
 	"name": "@theintern/leadfoot",
 	"version": "2.1.0-pre",
-	"description": "Leadfoot. A JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.",
+	"description":
+		"Leadfoot. A JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/theintern/leadfoot.git"
 	},
 	"license": "BSD-3-Clause",
 	"dependencies": {
-		"@dojo/core": "~0.1.0",
-		"@dojo/has": "~0.1.0",
-		"@dojo/interfaces": "~0.1.0",
-		"@dojo/shim": "~0.1.0",
+		"@dojo/core": "~0.3.0",
+		"@dojo/has": "~0.1.1",
+		"@dojo/interfaces": "~0.2.0",
+		"@dojo/shim": "~0.2.3",
 		"@types/jszip": "0.0.33",
 		"jszip": "~3.1.3",
 		"tslib": "~1.8.0"
@@ -26,7 +27,9 @@
 	"scripts": {
 		"clean": "intern-dev-clean",
 		"lint": "intern-dev-lint",
-		"build": "intern-dev-clean && concurrently intern-dev-build intern-dev-api",
+		"build":
+			"intern-dev-clean && concurrently intern-dev-build intern-dev-api",
+		"devpack": "intern-dev-build && npm pack ./_build/src",
 		"release": "intern-dev-release",
 		"test": "intern-dev-test",
 		"watch": "intern-dev-build watch",
@@ -45,9 +48,7 @@
 	],
 	"internDev": {
 		"resources": {
-			"_build": [
-				"tests/**/*.{txt,html}"
-			]
+			"_build": ["tests/**/*.{txt,html}"]
 		}
 	},
 	"homepage": "http://github.com/theintern/leadfoot"
