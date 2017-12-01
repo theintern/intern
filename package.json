@@ -1,8 +1,7 @@
 {
 	"name": "intern",
 	"version": "4.2.0-pre",
-	"description":
-		"Intern. A next-generation code testing stack for JavaScript.",
+	"description": "Intern. A next-generation code testing stack for JavaScript.",
 	"homepage": "http://theintern.io/",
 	"license": "BSD-3-Clause",
 	"bugs": "https://github.com/theintern/intern/issues",
@@ -48,10 +47,8 @@
 		"intern": "./bin/intern.js"
 	},
 	"scripts": {
-		"build":
-			"intern-dev-clean && concurrently intern-dev-build intern-dev-api",
-		"devpack":
-			"intern-dev-build && cd _build/src && npm pack && cp *.tgz ../../",
+		"build": "intern-dev-clean && concurrently intern-dev-build intern-dev-api",
+		"devpack": "intern-dev-build && cd _build/src && npm pack && cp *.tgz ../../",
 		"clean": "intern-dev-clean",
 		"lint": "intern-dev-lint",
 		"release": "INTERN_BUILD=release intern-dev-release",
@@ -63,12 +60,12 @@
 		"precommit": "lint-staged"
 	},
 	"dependencies": {
-		"@dojo/core": "~0.1.0",
-		"@dojo/has": "~0.1.0",
-		"@dojo/interfaces": "~0.1.0",
-		"@dojo/shim": "~0.1.0",
-		"@theintern/digdug": "~2.0.3",
-		"@theintern/leadfoot": "~2.0.2",
+		"@dojo/core": "~0.3.0",
+		"@dojo/has": "~0.1.1",
+		"@dojo/interfaces": "~0.2.0",
+		"@dojo/shim": "~0.2.3",
+		"@theintern/digdug": "./tarballs/theintern-digdug-2.1.0-pre.tgz",
+		"@theintern/leadfoot": "./tarballs/theintern-leadfoot-2.1.0-pre.tgz",
 		"@types/benchmark": "~1.0.30",
 		"@types/chai": "~4.0.1",
 		"@types/charm": "~1.0.0",
@@ -115,7 +112,7 @@
 		"ws": "~2.3.1"
 	},
 	"devDependencies": {
-		"@dojo/loader": "~0.1.0",
+		"@dojo/loader": "~0.1.1",
 		"@theintern/dev": "~0.6.1",
 		"@types/body-parser": "~1.16.4",
 		"@types/chalk": "~0.4.31",
@@ -155,7 +152,10 @@
 				"src/**/*.{styl,d.ts,html,js,png}",
 				"src/**/!(tsconfig).json"
 			],
-			"_build/src": ["types/**", "bin/**"],
+			"_build/src": [
+				"types/**",
+				"bin/**"
+			],
 			"_tests": [
 				"tests/**/*.{xml,d.ts,js}",
 				"src/**/*.{styl,d.ts,html,js,png}"
@@ -168,11 +168,22 @@
 		"useTabs": true
 	},
 	"lint-staged": {
-		"src/**/*.{ts,json,css}": ["prettier --write", "git add"],
-		"tests/**/*.{ts,json,css}": ["prettier --write", "git add"],
-		"tests/**/*.{ts,json,css}": ["prettier --write", "git add"],
-		"*.ts": ["prettier --write", "git add"],
-		"{intern,tsconfig}.json": ["prettier --write", "git add"]
+		"src/**/*.{ts,json,css}": [
+			"prettier --write",
+			"git add"
+		],
+		"tests/**/*.{ts,json,css}": [
+			"prettier --write",
+			"git add"
+		],
+		"*.ts": [
+			"prettier --write",
+			"git add"
+		],
+		"{intern,tsconfig}.json": [
+			"prettier --write",
+			"git add"
+		]
 	},
 	"pre-commit": "precommit"
 }

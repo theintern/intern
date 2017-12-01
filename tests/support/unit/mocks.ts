@@ -3,7 +3,7 @@
  * classes and interfaces (as far as TypeScript is concerned).
  */
 import { sandbox as Sandbox, spy, SinonSpy } from 'sinon';
-import { Handle } from '@dojo/interfaces/core';
+import { Handle } from '@dojo/core/interfaces';
 import { duplicate, mixin, assign } from '@dojo/core/lang';
 import Task from '@dojo/core/async/Task';
 import Command from '@theintern/leadfoot/Command';
