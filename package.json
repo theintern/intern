@@ -1,7 +1,8 @@
 {
 	"name": "@theintern/digdug",
 	"version": "2.1.0-pre",
-	"description": "Dig Dug. A simple abstraction library for downloading and launching WebDriver service tunnels.",
+	"description":
+		"Dig Dug. A simple abstraction library for downloading and launching WebDriver service tunnels.",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/theintern/digdug.git"
@@ -27,13 +28,14 @@
 		"shelljs": "~0.7.7"
 	},
 	"scripts": {
-		"build": "npm run clean && concurrently intern-dev-build intern-dev-api",
+		"build":
+			"npm run clean && concurrently intern-dev-build intern-dev-api",
 		"ci": "intern-dev-build && intern-dev-test",
 		"clean": "intern-dev-clean",
 		"devpack": "intern-dev-build && npm pack ./_build/src",
 		"lint": "intern-dev-lint",
 		"release": "intern-dev-release",
-		"test": "intern-dev-build && intern-dev-test",
+		"test": "intern-dev-test",
 		"watch": "intern-dev-build watch"
 	},
 	"bugs": "https://github.com/theintern/digdug/issues",
