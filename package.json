@@ -1,8 +1,7 @@
 {
 	"name": "intern",
 	"version": "4.2.0-pre",
-	"description":
-		"Intern. A next-generation code testing stack for JavaScript.",
+	"description": "Intern. A next-generation code testing stack for JavaScript.",
 	"homepage": "http://theintern.io/",
 	"license": "BSD-3-Clause",
 	"bugs": "https://github.com/theintern/intern/issues",
@@ -48,10 +47,8 @@
 		"intern": "./bin/intern.js"
 	},
 	"scripts": {
-		"build":
-			"intern-dev-clean && concurrently intern-dev-build intern-dev-api",
-		"devpack":
-			"intern-dev-build && cd _build/src && npm pack && cp *.tgz ../../",
+		"build": "intern-dev-clean && concurrently intern-dev-build intern-dev-api",
+		"devpack": "intern-dev-build && cd _build/src && npm pack && cp *.tgz ../../",
 		"clean": "intern-dev-clean",
 		"lint": "intern-dev-lint",
 		"release": "INTERN_BUILD=release intern-dev-release",
@@ -70,7 +67,7 @@
 		"@theintern/digdug": "~2.0.3",
 		"@theintern/leadfoot": "~2.0.2",
 		"@types/benchmark": "~1.0.30",
-		"@types/chai": "~4.0.1",
+		"@types/chai": "~4.0.7",
 		"@types/charm": "~1.0.0",
 		"@types/diff": "~3.2.0",
 		"@types/express": "~4.0.39",
@@ -155,7 +152,10 @@
 				"src/**/*.{styl,d.ts,html,js,png}",
 				"src/**/!(tsconfig).json"
 			],
-			"_build/src": ["types/**", "bin/**"],
+			"_build/src": [
+				"types/**",
+				"bin/**"
+			],
 			"_tests": [
 				"tests/**/*.{xml,d.ts,js}",
 				"src/**/*.{styl,d.ts,html,js,png}"
@@ -168,11 +168,22 @@
 		"useTabs": true
 	},
 	"lint-staged": {
-		"src/**/*.{ts,json,css}": ["prettier --write", "git add"],
-		"tests/**/*.{ts,json,css}": ["prettier --write", "git add"],
-		"tests/**/*.{ts,json,css}": ["prettier --write", "git add"],
-		"*.ts": ["prettier --write", "git add"],
-		"{intern,tsconfig}.json": ["prettier --write", "git add"]
+		"src/**/*.{ts,json,css}": [
+			"prettier --write",
+			"git add"
+		],
+		"tests/**/*.{ts,json,css}": [
+			"prettier --write",
+			"git add"
+		],
+		"*.ts": [
+			"prettier --write",
+			"git add"
+		],
+		"{intern,tsconfig}.json": [
+			"prettier --write",
+			"git add"
+		]
 	},
 	"pre-commit": "precommit"
 }

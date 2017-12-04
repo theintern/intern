@@ -364,7 +364,7 @@ export default abstract class BaseExecutor<
 	 * if no such plugin was registered.
 	 */
 	getPlugin<Y extends keyof P>(type: Y, name: string): P[Y];
-	getPlugin(name: 'chai'): Chai.ChaiStatic;
+	getPlugin(name: 'chai'): typeof chai;
 	getPlugin(name: 'interface.object'): ObjectInterface;
 	getPlugin(name: 'interface.tdd'): TddInterface;
 	getPlugin(name: 'interface.bdd'): BddInterface;
