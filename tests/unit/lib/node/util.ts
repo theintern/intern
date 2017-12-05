@@ -1,4 +1,5 @@
 import { dirname, join } from 'path';
+import Task from '@dojo/core/async/Task';
 
 import * as _util from 'src/lib/node/util';
 
@@ -32,6 +33,10 @@ registerSuite('lib/node/util', function() {
 	};
 
 	const mockUtil = {
+		getBasePath() {
+			return '';
+		},
+
 		loadConfig(
 			filename: string,
 			loadText: (filename: string) => Promise<string>,
@@ -42,6 +47,15 @@ registerSuite('lib/node/util', function() {
 			return loadText(filename).then(text => {
 				return JSON.parse(text);
 			});
+		},
+
+		loadText(filename: string) {
+			if (fsData[filename]) {
+				return Task.resolve(fsData[filename]);
+			}
+			const error = new Error('Not found');
+			(<any>error).code = 'ENOENT';
+			return Task.reject(error);
 		},
 
 		parseArgs(...args: any[]) {
@@ -96,11 +110,9 @@ registerSuite('lib/node/util', function() {
 		calls[name].push(args);
 	};
 
-	const mockGlobal = {
-		process: {
-			argv: ['node', 'intern.js'],
-			env: {}
-		}
+	const mockProcess = {
+		argv: ['node', 'intern.js'],
+		env: {}
 	};
 
 	let hasMagic: boolean;
@@ -117,7 +129,7 @@ registerSuite('lib/node/util', function() {
 				glob: mockGlob,
 				path: mockPath,
 				'src/lib/common/util': mockUtil,
-				'@dojo/shim/global': { default: mockGlobal }
+				'src/lib/node/process': { default: mockProcess }
 			}).then(handle => {
 				removeMocks = handle.remove;
 				util = handle.module;
@@ -134,8 +146,8 @@ registerSuite('lib/node/util', function() {
 			calls = {};
 			parsedArgs = {};
 			fsData = {};
-			mockGlobal.process.argv = ['node', 'intern.js'];
-			mockGlobal.process.env = {};
+			mockProcess.argv = ['node', 'intern.js'];
+			mockProcess.env = {};
 		},
 
 		tests: {
@@ -205,6 +217,145 @@ registerSuite('lib/node/util', function() {
 					]);
 					assert.deepEqual(calls.hasMagic, [['foo'], ['baz']]);
 					assert.deepEqual(files, ['globby']);
+				}
+			},
+
+			getConfig: {
+				'default config': {
+					exists() {
+						const configData = { suites: ['bar.js'] };
+						fsData['intern.json'] = JSON.stringify(configData);
+
+						return util.getConfig().then(({ config, file }) => {
+							assert.strictEqual(
+								file,
+								'intern.json',
+								'unexpected config file name'
+							);
+							assert.notProperty(
+								calls,
+								'splitConfigPath',
+								'splitConfigPath should not have been called'
+							);
+							assert.property(
+								calls,
+								'loadConfig',
+								'loadConfig should have been called'
+							);
+							assert.notProperty(
+								calls,
+								'parseArgs',
+								'parseArgs should not have been called'
+							);
+							assert.equal(calls.loadConfig[0][0], 'intern.json');
+
+							// Since we've overridden loadConfig, args shouldn't
+							// actually be mixed in. The final data will have a
+							// basePath of '', because the config file path
+							// (used to derive the basePath) has no parent path.
+							const data = { ...configData, basePath: '' };
+							assert.deepEqual(config, data);
+						});
+					},
+
+					'does not exist'() {
+						// Push an argument so parseArgs will be called
+						mockProcess.argv.push('foo');
+
+						return util.getConfig().then(({ config }) => {
+							assert.notProperty(
+								calls,
+								'splitConfigPath',
+								'splitConfigPath should not have been called'
+							);
+							assert.property(
+								calls,
+								'loadConfig',
+								'loadConfig should have been called'
+							);
+							assert.property(
+								calls,
+								'parseArgs',
+								'parseArgs should have been called'
+							);
+							assert.equal(calls.loadConfig[0][0], 'intern.json');
+							assert.deepEqual(config, {});
+						});
+					},
+
+					invalid() {
+						fsData['intern.json'] = 'foo';
+
+						return util.getConfig().then(
+							_config => {
+								throw new Error(
+									'getConfig should not have passed'
+								);
+							},
+							error => {
+								assert.match(error.message, /Unexpected token/);
+							}
+						);
+					},
+
+					'custom args': {
+						'invalid argv format'() {
+							return util
+								.getConfig(['suites=foo.js'])
+								.then(() => {
+									assert.notProperty(
+										calls,
+										'parseArgs',
+										'parseArgs should not have been called'
+									);
+								});
+						},
+
+						'valid argv'() {
+							return util
+								.getConfig([
+									'node',
+									'intern.js',
+									'suites=foo.js'
+								])
+								.then(() => {
+									assert.property(
+										calls,
+										'parseArgs',
+										'parseArgs should have been called'
+									);
+								});
+						}
+					}
+				},
+
+				'custom config'() {
+					// Push a dummy arg to get Intern to call parseArgs
+					mockProcess.argv.push('foo');
+					parsedArgs.config = 'foo.json';
+					fsData['foo.json'] = JSON.stringify({ stuff: 'happened' });
+
+					return util.getConfig().then(({ config }) => {
+						assert.property(
+							calls,
+							'splitConfigPath',
+							'splitConfigPath should have been called'
+						);
+						assert.deepEqual(calls.splitConfigPath, [['foo.json']]);
+						assert.property(
+							calls,
+							'loadConfig',
+							'loadConfig should have been called'
+						);
+						assert.equal(calls.loadConfig[0][0], 'foo.json');
+
+						// Since we've overridden loadConfig, args shouldn't
+						// actually be mixed in. The final data will have a
+						// basePath of '', because the config file path
+						// (used to derive the basePath) has no parent path.
+						const data = { stuff: 'happened', basePath: '' };
+						assert.deepEqual(config, data);
+					});
 				}
 			},
 

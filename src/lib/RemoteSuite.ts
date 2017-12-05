@@ -7,7 +7,8 @@ import Task from '@dojo/core/async/Task';
 import Suite, { SuiteOptions } from './Suite';
 import { InternError } from './types';
 import Node, { NodeEvents } from './executors/Node';
-import Browser, { Config as BrowserConfig } from './executors/Browser';
+import { Config } from './common/config';
+import Browser from './executors/Browser';
 import { stringify } from './common/util';
 import Deferred from './Deferred';
 
@@ -200,7 +201,7 @@ export default class RemoteSuite extends Suite {
 				// test harness page
 				const queryOptions: Partial<RemoteConfig> = {
 					basePath: serverUrl.pathname,
-					runInSync: config.runInSync,
+					runInSync: config.runInSync || false,
 					serverUrl: serverUrl.href,
 					sessionId: sessionId,
 					socketPort: server.socketPort
@@ -223,7 +224,9 @@ export default class RemoteSuite extends Suite {
 					});
 
 				const query = new UrlSearchParams(queryParams);
-				const harness = `${config.serverUrl}__intern/browser/remote.html`;
+				const harness = `${
+					config.serverUrl
+				}__intern/browser/remote.html`;
 
 				// Determine the relative path from basePath to internPath. This
 				// will be used to derive the internPath sent to the remote. The
@@ -312,9 +315,9 @@ export interface RemoteEvents extends NodeEvents {
 	remoteStatus: string;
 }
 
-export interface RemoteConfig extends BrowserConfig {
+export interface RemoteConfig extends Config {
 	serverUrl: string;
 	sessionId: string;
-	runInSync?: boolean;
+	runInSync: boolean;
 	socketPort?: number;
 }

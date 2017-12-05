@@ -13,7 +13,7 @@ const originalIntern = global.intern;
 
 registerSuite('bin/intern', function() {
 	const sandbox = Sandbox.create();
-	const mockNodeConfig: { [name: string]: SinonSpy } = {
+	const mockNodeUtil: { [name: string]: SinonSpy } = {
 		getConfig: sandbox.spy(() => {
 			return Task.resolve({ config: configData, file: 'intern.json' });
 		})
@@ -24,12 +24,12 @@ registerSuite('bin/intern', function() {
 	let configData: any;
 	let removeMocks: (() => void) | undefined;
 	let mockConsole: MockConsole;
-	let mockCommonConfig: { [name: string]: SinonStub };
+	let mockCommonUtil: { [name: string]: SinonStub };
 
 	return {
 		beforeEach() {
 			mockConsole = createMockConsole();
-			mockCommonConfig = {
+			mockCommonUtil = {
 				getConfigDescription: sandbox.stub().returns('test config')
 			};
 
@@ -51,16 +51,16 @@ registerSuite('bin/intern', function() {
 			'basic run'() {
 				const mockExecutor = createMockNodeExecutor();
 				return mockRequire(require, 'src/bin/intern', {
-					'src/lib/node/config': mockNodeConfig,
+					'src/lib/node/util': mockNodeUtil,
 					'src/lib/common/console': mockConsole,
-					'src/lib/common/config': mockCommonConfig,
+					'src/lib/common/util': mockCommonUtil,
 					'src/index': { default: mockExecutor },
 					'@dojo/shim/global': { default: { process: {} } }
 				}).then(handle => {
 					removeMocks = handle.remove;
-					assert.equal(mockNodeConfig.getConfig.callCount, 1);
+					assert.equal(mockNodeUtil.getConfig.callCount, 1);
 					assert.equal(
-						mockCommonConfig.getConfigDescription.callCount,
+						mockCommonUtil.getConfigDescription.callCount,
 						0
 					);
 					assert.isTrue(
@@ -74,18 +74,18 @@ registerSuite('bin/intern', function() {
 				configData = { showConfigs: true };
 
 				return mockRequire(require, 'src/bin/intern', {
-					'src/lib/node/config': mockNodeConfig,
+					'src/lib/node/util': mockNodeUtil,
 					'src/lib/common/console': mockConsole,
-					'src/lib/common/config': mockCommonConfig,
+					'src/lib/common/util': mockCommonUtil,
 					'src/index': { default: createMockNodeExecutor() },
 					'@dojo/shim/global': {
 						default: { process: {} }
 					}
 				}).then(handle => {
 					removeMocks = handle.remove;
-					assert.equal(mockNodeConfig.getConfig.callCount, 1);
+					assert.equal(mockNodeUtil.getConfig.callCount, 1);
 					assert.equal(
-						mockCommonConfig.getConfigDescription.callCount,
+						mockCommonUtil.getConfigDescription.callCount,
 						1
 					);
 					assert.deepEqual(mockConsole.log.args, [['test config']]);
@@ -95,9 +95,9 @@ registerSuite('bin/intern', function() {
 			'bad run': {
 				'intern defined'() {
 					return mockRequire(require, 'src/bin/intern', {
-						'src/lib/node/config': mockNodeConfig,
+						'src/lib/node/util': mockNodeUtil,
 						'src/lib/common/console': mockConsole,
-						'src/lib/common/config': mockCommonConfig,
+						'src/lib/common/util': mockCommonUtil,
 						'src/index': { default: createMockNodeExecutor() },
 						'@dojo/shim/global': {
 							default: { process: {} }
@@ -114,12 +114,12 @@ registerSuite('bin/intern', function() {
 
 				'intern not defined'() {
 					configData = { showConfigs: true };
-					mockCommonConfig.getConfigDescription.throws();
+					mockCommonUtil.getConfigDescription.throws();
 
 					return mockRequire(require, 'src/bin/intern', {
-						'src/lib/node/config': mockNodeConfig,
+						'src/lib/node/util': mockNodeUtil,
 						'src/lib/common/console': mockConsole,
-						'src/lib/common/config': mockCommonConfig,
+						'src/lib/common/util': mockCommonUtil,
 						'src/index': { default: createMockNodeExecutor() },
 						'@dojo/shim/global': {
 							default: {
@@ -154,9 +154,9 @@ registerSuite('bin/intern', function() {
 				configData = { help: true };
 
 				return mockRequire(require, 'src/bin/intern', {
-					'src/lib/node/config': mockNodeConfig,
+					'src/lib/node/util': mockNodeUtil,
 					'src/lib/common/console': mockConsole,
-					'src/lib/common/config': mockCommonConfig,
+					'src/lib/common/util': mockCommonUtil,
 					'src/index': { default: mockExecutor },
 					'@dojo/shim/global': {
 						default: { process: {} }
