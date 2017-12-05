@@ -1,7 +1,8 @@
 import global from '@dojo/shim/global';
 
-import Node, { Config } from '../lib/executors/Node';
-import { getConfig } from '../lib/node/config';
+import Node from '../lib/executors/Node';
+import { Config } from '../lib/common/config';
+import { getConfig } from '../lib/node/util';
 
 export = function(grunt: IGrunt) {
 	grunt.registerMultiTask('intern', function() {

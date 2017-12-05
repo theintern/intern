@@ -1,7 +1,8 @@
 import { spy, SinonSpy, stub } from 'sinon';
 import Task, { State } from '@dojo/core/async/Task';
 
-import _Node, { Config } from 'src/lib/executors/Node';
+import { Config } from 'src/lib/common/config';
+import _Node from 'src/lib/executors/Node';
 import Suite from 'src/lib/Suite';
 
 import { testProperty } from '../../../support/unit/executor';

@@ -7,8 +7,8 @@
 import { execSync } from 'child_process';
 import global from '@dojo/shim/global';
 
-import { getConfig } from '../lib/node/config';
-import { getConfigDescription } from '../lib/common/config';
+import { getConfig } from '../lib/node/util';
+import { getConfigDescription } from '../lib/common/util';
 import intern from '../index';
 import * as console from '../lib/common/console';
 

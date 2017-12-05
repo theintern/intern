@@ -1,8 +1,19 @@
 import { readFile, readFileSync } from 'fs';
-import { dirname, join, normalize } from 'path';
+import { dirname, isAbsolute, join, normalize, resolve, sep } from 'path';
+import { parse } from 'shell-quote';
 import { RawSourceMap } from 'source-map';
 import { sync as glob, hasMagic } from 'glob';
+
 import Task from '@dojo/core/async/Task';
+import { mixin } from '@dojo/core/lang';
+
+import process from './process';
+import {
+	getBasePath,
+	loadConfig,
+	parseArgs,
+	splitConfigPath
+} from '../common/util';
 
 /**
  * Expand a list of glob patterns into a flat file list. Patterns may be simple
@@ -39,6 +50,80 @@ export function expandFiles(patterns?: string[] | string) {
 	allPaths.forEach(path => (uniquePaths[path] = true));
 
 	return Object.keys(uniquePaths);
+}
+
+/**
+ * Get the user-supplied config data, which may include command line args and a
+ * config file.
+ *
+ * @param file A config file
+ * @param argv An array of command line arguments. This should follow the same
+ * format as process.argv (where user args start at index 2).
+ */
+export function getConfig(file?: string): Task<{ config: any; file?: string }>;
+export function getConfig(
+	argv?: string[]
+): Task<{ config: any; file?: string }>;
+export function getConfig(
+	file: string,
+	argv?: string[]
+): Task<{ config: any; file?: string }>;
+export function getConfig(fileOrArgv?: string | string[], argv?: string[]) {
+	let args: { [key: string]: any } = {};
+	let file = typeof fileOrArgv === 'string' ? fileOrArgv : undefined;
+	argv = Array.isArray(fileOrArgv) ? fileOrArgv : argv;
+	const userArgs = (argv || process.argv).slice(2);
+
+	if (process.env['INTERN_ARGS']) {
+		mixin(args, parseArgs(parse(process.env['INTERN_ARGS'] || '')));
+	}
+
+	if (userArgs.length > 0) {
+		mixin(args, parseArgs(userArgs));
+	}
+
+	if (file) {
+		args.config = file;
+	}
+
+	let load: Task<{ [key: string]: any }>;
+
+	if (args.config) {
+		// If a config parameter was provided, load it and mix in any other
+		// command line args.
+		const { configFile, childConfig } = splitConfigPath(args.config, sep);
+		file = resolve(configFile || 'intern.json');
+		load = loadConfig(file, loadText, args, childConfig);
+	} else {
+		// If no config parameter was provided, try 'intern.json', or just
+		// resolve to the original args
+		file = resolve('intern.json');
+		load = loadConfig(file, loadText, args, undefined).catch(
+			(error: NodeJS.ErrnoException) => {
+				if (error.code === 'ENOENT') {
+					file = undefined;
+					return args;
+				}
+				throw error;
+			}
+		);
+	}
+
+	return load
+		.then(config => {
+			// If a basePath wasn't set in the config or via a query arg, and we
+			// have a config file path, use that.
+			if (file) {
+				config.basePath = getBasePath(
+					file,
+					config.basePath,
+					isAbsolute,
+					sep
+				);
+			}
+			return config;
+		})
+		.then(config => ({ config, file }));
 }
 
 /**

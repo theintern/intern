@@ -3,7 +3,7 @@ import global from '@dojo/shim/global';
 import Browser from '../lib/executors/Browser';
 import { RemoteConfig } from '../lib/RemoteSuite';
 import { parseQuery } from '../lib/browser/util';
-import { parseArgs } from '../lib/common/config';
+import { parseArgs } from '../lib/common/util';
 import Channel from '../lib/Channel';
 
 // A Benchmark global needs to be defined for benchmark.js to work properly when
