@@ -787,12 +787,6 @@ function _loadConfig(
 	args?: { [key: string]: any },
 	childConfig?: string | string[]
 ): Task<any> {
-	const _setOption = (option: keyof Config, value: any, target: any) => {
-		if (!processOption(option, value, target)) {
-			processOption(option, value, target);
-		}
-	};
-
 	return loadText(configPath)
 		.then(text => {
 			const preConfig = parseJson(text);
@@ -819,7 +813,7 @@ function _loadConfig(
 					Object.keys(preConfig)
 						.filter(key => key !== 'configs')
 						.forEach(key => {
-							_setOption(
+							processOption(
 								<keyof Config>key,
 								preConfig[key],
 								extension
@@ -841,7 +835,7 @@ function _loadConfig(
 			} else {
 				const config: any = {};
 				Object.keys(preConfig).forEach(key => {
-					_setOption(<keyof Config>key, preConfig[key], config);
+					processOption(<keyof Config>key, preConfig[key], config);
 				});
 				return config;
 			}
@@ -876,7 +870,10 @@ function _loadConfig(
 						Object.keys(child)
 							.filter(key => key !== 'node' && key !== 'browser')
 							.forEach(key => {
-								_setOption(
+								console.log(
+									'setting option from child: ' + key
+								);
+								processOption(
 									<keyof Config>key,
 									child[key],
 									config
@@ -890,14 +887,14 @@ function _loadConfig(
 									// setOption, then mix it into the main
 									// config
 									const envConfig: any = {};
-									_setOption(
+									processOption(
 										<keyof Config>key,
 										child[key],
 										envConfig
 									);
 									mixin(config[key], envConfig[key]);
 								} else {
-									_setOption(
+									processOption(
 										<keyof Config>key,
 										child[key],
 										config
@@ -937,7 +934,7 @@ function _loadConfig(
 					});
 
 				Object.keys(args).forEach(key => {
-					_setOption(<keyof Config>key, args[key], config);
+					processOption(<keyof Config>key, args[key], config);
 				});
 			}
 			return config;
