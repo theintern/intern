@@ -72,7 +72,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 	constructor(options?: { [key in keyof Config]?: any }) {
 		super({
 			basePath: process.cwd() + sep,
-			capabilities: { 'idle-timeout': 60 },
+			capabilities: {},
 			coverage: [],
 			environments: [],
 			functionalCoverage: true,
@@ -685,6 +685,10 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 					);
 				}
 			});
+
+			if (config.capabilities['idle-timeout'] == null) {
+				config.capabilities['idle-timeout'] = 60;
+			}
 
 			if (!config.capabilities.name) {
 				config.capabilities.name = 'intern';
