@@ -870,9 +870,6 @@ function _loadConfig(
 						Object.keys(child)
 							.filter(key => key !== 'node' && key !== 'browser')
 							.forEach(key => {
-								console.log(
-									'setting option from child: ' + key
-								);
 								processOption(
 									<keyof Config>key,
 									child[key],
