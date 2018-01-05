@@ -253,35 +253,43 @@ function createThrowsTest(
 
 		suite.tests.push(test);
 
-		suite.run().then(() => {
-			finished = true;
-			dfd.reject(
-				new Error(
-					`Suite should never resolve after a fatal error in ${method}`
-				)
-			);
-		},
-		dfd.callback((error: InternError) => {
-			finished = true;
-			assert.strictEqual<Error | undefined>(
-				suite.error,
-				thrownError,
-				`Error thrown in ${method} should be the error set on suite`
-			);
-			assert.strictEqual(
-				error,
-				thrownError,
-				`Error thrown in  ${method} should be the error used by the promise`
-			);
-
-			if (method === 'beforeEach' || method === 'afterEach') {
-				assert.strictEqual(
-					error.relatedTest,
-					test,
-					`Error thrown in ${method} should have the related test in the error`
+		suite.run().then(
+			() => {
+				finished = true;
+				dfd.reject(
+					new Error(
+						`Suite should never resolve after a fatal error in ${
+							method
+						}`
+					)
 				);
-			}
-		}));
+			},
+			dfd.callback((error: InternError) => {
+				finished = true;
+				assert.strictEqual<Error | undefined>(
+					suite.error,
+					thrownError,
+					`Error thrown in ${method} should be the error set on suite`
+				);
+				assert.strictEqual(
+					error,
+					thrownError,
+					`Error thrown in  ${
+						method
+					} should be the error used by the promise`
+				);
+
+				if (method === 'beforeEach' || method === 'afterEach') {
+					assert.strictEqual(
+						error.relatedTest,
+						test,
+						`Error thrown in ${
+							method
+						} should have the related test in the error`
+					);
+				}
+			})
+		);
 
 		assert.isFalse(
 			finished,
@@ -306,32 +314,34 @@ function createTimeoutTest(method: lifecycleMethod): _TestFunction {
 
 		suite.tests.push(test);
 
-		suite.run().then(function() {
-			finished = true;
-			dfd.reject(
-				new Error(
-					'Suite should never resolve after a fatal error in ' +
-						method
-				)
-			);
-		},
-		dfd.callback(function() {
-			finished = true;
-			assert.match(
-				suite.error!.message,
-				new RegExp('Timeout reached .*' + method + '$'),
-				'Error should have been a timeout error for ' + method
-			);
-			if (method === 'beforeEach' || method === 'afterEach') {
-				assert.strictEqual(
-					suite.error!.relatedTest,
-					test,
-					'Error thrown in ' +
-						method +
-						' should have the related test in the error'
+		suite.run().then(
+			function() {
+				finished = true;
+				dfd.reject(
+					new Error(
+						'Suite should never resolve after a fatal error in ' +
+							method
+					)
 				);
-			}
-		}));
+			},
+			dfd.callback(function() {
+				finished = true;
+				assert.match(
+					suite.error!.message,
+					new RegExp('Timeout reached .*' + method + '$'),
+					'Error should have been a timeout error for ' + method
+				);
+				if (method === 'beforeEach' || method === 'afterEach') {
+					assert.strictEqual(
+						suite.error!.relatedTest,
+						test,
+						'Error thrown in ' +
+							method +
+							' should have the related test in the error'
+					);
+				}
+			})
+		);
 
 		assert.isFalse(
 			finished,
@@ -367,7 +377,7 @@ function createLifecycleTests(
 	tests: { [name: string]: _TestFunction }
 ) {
 	return {
-		tests: {
+		tests: <{ [key: string]: _TestFunction }>{
 			promise: createPromiseTest(asyncTest),
 			async: createAsyncTest(asyncTest),
 			'async with promise': createAsyncAndPromiseTest(asyncTest),
@@ -743,7 +753,7 @@ registerSuite('lib/Suite', {
 			};
 		}
 
-		return createLifecycleTests('beforeEach', asyncTest, {
+		const tests = createLifecycleTests('beforeEach', asyncTest, {
 			synchronous: function() {
 				const dfd = this.async(1000);
 				const suite = createSuite();
@@ -785,6 +795,36 @@ registerSuite('lib/Suite', {
 				);
 			}
 		});
+
+		tests.tests['skip in beforeEach'] = test => {
+			const dfd = test.async();
+			const suite = createSuite();
+			const testToSkip = new Test({
+				name: 'foo',
+				test: () => {
+					tested = true;
+				},
+				parent: suite
+			});
+			let tested = false;
+			suite.tests.push(testToSkip);
+
+			suite.beforeEach = test => {
+				test.skip('skipper');
+			};
+
+			suite.run().then(
+				dfd.callback(function() {
+					assert.isFalse(tested);
+					assert.equal(testToSkip.skipped, 'skipper');
+				}),
+				error => {
+					dfd.reject(error);
+				}
+			);
+		};
+
+		return tests;
 	})(),
 
 	'#afterEach': (function(): _ObjectSuiteDescriptor {
@@ -992,18 +1032,20 @@ registerSuite('lib/Suite', {
 		const actualLifecycle: string[] = [];
 
 		suite.tests.push(childSuite);
-		suite.run().then(dfd.callback(function() {
-			assert.deepEqual(
-				actualLifecycle,
-				expectedLifecycle,
-				'Nested beforeEach and afterEach should execute in a pyramid, ' +
-					'with the test passed to beforeEach and afterEach'
-			);
-		}),
-		function(error) {
-			console.log('suite failed with', error);
-			dfd.reject(new Error('Suite should not fail'));
-		});
+		suite.run().then(
+			dfd.callback(function() {
+				assert.deepEqual(
+					actualLifecycle,
+					expectedLifecycle,
+					'Nested beforeEach and afterEach should execute in a pyramid, ' +
+						'with the test passed to beforeEach and afterEach'
+				);
+			}),
+			function(error) {
+				console.log('suite failed with', error);
+				dfd.reject(new Error('Suite should not fail'));
+			}
+		);
 	},
 
 	'#afterEach nesting with errors'() {
@@ -1034,21 +1076,23 @@ registerSuite('lib/Suite', {
 		const actualLifecycle: string[] = [];
 
 		suite.tests.push(childSuite);
-		suite.run().then(dfd.callback(function() {
-			assert.deepEqual(
-				actualLifecycle,
-				expectedLifecycle,
-				'Outer afterEach should execute even though inner afterEach threw an error'
-			);
-			assert.strictEqual(
-				childSuite.error!.message,
-				'Oops',
-				'Suite with afterEach failure should hold the last error from afterEach'
-			);
-		}),
-		function() {
-			dfd.reject(new Error('Suite should not fail'));
-		});
+		suite.run().then(
+			dfd.callback(function() {
+				assert.deepEqual(
+					actualLifecycle,
+					expectedLifecycle,
+					'Outer afterEach should execute even though inner afterEach threw an error'
+				);
+				assert.strictEqual(
+					childSuite.error!.message,
+					'Oops',
+					'Suite with afterEach failure should hold the last error from afterEach'
+				);
+			}),
+			function() {
+				dfd.reject(new Error('Suite should not fail'));
+			}
+		);
 	},
 
 	'#run': <Tests>{
@@ -1095,16 +1139,18 @@ registerSuite('lib/Suite', {
 			suite.tests.push(barSuite);
 			suite.tests.push(foodTest);
 
-			suite.run().then(dfd.callback(function() {
-				assert.deepEqual(
-					testsRun,
-					[fooTest, barSuite.tests[0], foodTest],
-					'Only test matching grep regex should have run'
-				);
-			}),
-			function() {
-				dfd.reject(new Error('Suite should not fail'));
-			});
+			suite.run().then(
+				dfd.callback(function() {
+					assert.deepEqual(
+						testsRun,
+						[fooTest, barSuite.tests[0], foodTest],
+						'Only test matching grep regex should have run'
+					);
+				}),
+				function() {
+					dfd.reject(new Error('Suite should not fail'));
+				}
+			);
 		},
 
 		bail() {
@@ -1156,20 +1202,22 @@ registerSuite('lib/Suite', {
 			suite.tests.push(barSuite);
 			suite.tests.push(foodTest);
 
-			suite.run().then(dfd.callback(function() {
-				assert.deepEqual(
-					testsRun,
-					[fooTest, barSuite.tests[0]],
-					'Only tests before failing test should have run'
-				);
-				assert.isTrue(
-					afterRan,
-					'after should have run for bailing suite'
-				);
-			}),
-			function() {
-				dfd.reject(new Error('Suite should not fail'));
-			});
+			suite.run().then(
+				dfd.callback(function() {
+					assert.deepEqual(
+						testsRun,
+						[fooTest, barSuite.tests[0]],
+						'Only tests before failing test should have run'
+					);
+					assert.isTrue(
+						afterRan,
+						'after should have run for bailing suite'
+					);
+				}),
+				function() {
+					dfd.reject(new Error('Suite should not fail'));
+				}
+			);
 		},
 
 		skip() {
@@ -1239,16 +1287,18 @@ registerSuite('lib/Suite', {
 			// bazSuite will run because the second test skips itself and the
 			// remainder of the suite.
 
-			suite.run().then(<any>dfd.callback(function() {
-				assert.deepEqual(
-					testsRun,
-					[fooTest, bazSuite.tests[0]],
-					'Skipped suite should not have run'
-				);
-			}),
-			function() {
-				dfd.reject(new Error('Suite should not fail'));
-			});
+			suite.run().then(
+				<any>dfd.callback(function() {
+					assert.deepEqual(
+						testsRun,
+						[fooTest, bazSuite.tests[0]],
+						'Skipped suite should not have run'
+					);
+				}),
+				function() {
+					dfd.reject(new Error('Suite should not fail'));
+				}
+			);
 		},
 
 		cancel() {

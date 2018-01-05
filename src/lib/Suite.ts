@@ -440,7 +440,7 @@ export default class Suite implements SuiteProperties {
 					suite.async = undefined;
 				})
 				.catch((error: InternError) => {
-					if (error.name !== 'Skipped') {
+					if (error !== SKIP) {
 						if (!this.error) {
 							this.executor.log(
 								'Suite errored with non-skip error',
@@ -506,6 +506,10 @@ export default class Suite implements SuiteProperties {
 							let firstError: Error;
 
 							const handleError = (error: Error) => {
+								// Note that a SKIP error will only be treated
+								// as a 'skip' when thrown from beforeEach. If
+								// thrown from afterEach it will be a suite
+								// error.
 								if (name === 'afterEach') {
 									firstError = firstError || error;
 									next();
@@ -607,14 +611,20 @@ export default class Suite implements SuiteProperties {
 								if (test.skipped != null) {
 									current = this.executor.emit(
 										'testEnd',
-										<Test>test
+										test
 									);
 								} else {
 									current = runTestLifecycle(
 										'beforeEach',
 										test
 									)
-										.then(runTest)
+										.then(() => {
+											// A test may have been skipped in a
+											// beforeEach call
+											if (test.skipped == null) {
+												return runTest();
+											}
+										})
 										.finally(() => {
 											if (
 												testTask &&
