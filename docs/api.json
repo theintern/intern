@@ -6956,7 +6956,7 @@
 													],
 													"type": {
 														"type": "reference",
-														"name": "Benchmark"
+														"name": "Suite"
 													}
 												},
 												{
@@ -6987,7 +6987,7 @@
 													],
 													"type": {
 														"type": "reference",
-														"name": "Benchmark"
+														"name": "Suite"
 													}
 												}
 											],
@@ -7063,7 +7063,7 @@
 													],
 													"type": {
 														"type": "reference",
-														"name": "Benchmark"
+														"name": "Suite"
 													}
 												},
 												{
@@ -7094,7 +7094,7 @@
 													],
 													"type": {
 														"type": "reference",
-														"name": "Benchmark"
+														"name": "Suite"
 													}
 												}
 											],
@@ -40001,7 +40001,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 944,
+							"line": 941,
 							"character": 25
 						}
 					],
@@ -41282,7 +41282,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 949,
+							"line": 946,
 							"character": 26
 						}
 					]
