@@ -15,7 +15,7 @@ import {
  */
 export function getConfig(file?: string) {
 	const args = parseArgs(parseQuery());
-	const basePath = args.basePath || getDefaultBasePath();
+	const configBase = getDefaultBasePath();
 	if (file) {
 		args.config = file;
 	}
@@ -26,12 +26,12 @@ export function getConfig(file?: string) {
 		// If a config parameter was provided, load it, mix in any other query
 		// params, then initialize the executor with that
 		const { configFile, childConfig } = splitConfigPath(args.config);
-		file = resolvePath(configFile || 'intern.json', basePath);
+		file = resolvePath(configFile || 'intern.json', configBase);
 		load = loadConfig(file, loadText, args, childConfig);
 	} else {
 		// If no config parameter was provided, try 'intern.json'. If that file
 		// doesn't exist, just return the args
-		file = resolvePath('intern.json', basePath);
+		file = resolvePath('intern.json', configBase);
 		load = loadConfig(file, loadText, args).catch(error => {
 			if (error.message.indexOf('Request failed') === 0) {
 				// The file wasn't found, clear the file name
