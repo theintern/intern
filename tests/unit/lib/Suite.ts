@@ -817,6 +817,19 @@ registerSuite('lib/Suite', {
 				dfd.callback(function() {
 					assert.isFalse(tested);
 					assert.equal(testToSkip.skipped, 'skipper');
+
+					// Verify that a testEnd was emitted for the skipped test
+					const events: {
+						name: string;
+						data: any;
+					}[] = (<any>suite.executor).events;
+					assert.isTrue(
+						events.some(
+							({ name, data }) =>
+								name === 'testEnd' && data === testToSkip
+						),
+						'expected testEnd event to have been emitted'
+					);
 				}),
 				error => {
 					dfd.reject(error);

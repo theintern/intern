@@ -621,7 +621,12 @@ export default class Suite implements SuiteProperties {
 										.then(() => {
 											// A test may have been skipped in a
 											// beforeEach call
-											if (test.skipped == null) {
+											if (test.skipped != null) {
+												return this.executor.emit(
+													'testEnd',
+													test
+												);
+											} else {
 												return runTest();
 											}
 										})
