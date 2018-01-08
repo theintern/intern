@@ -18,7 +18,7 @@ intern.registerLoader(options => {
 			});
 	} else {
 		// Use globalObj to get to require to improve testability
-		const SystemJS = globalObj.require('systemjs');
+		const SystemJS = (globalObj.require || require)('systemjs');
 		return configAndLoad(SystemJS);
 	}
 
