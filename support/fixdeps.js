@@ -11,7 +11,7 @@ if (!fs.existsSync(expected)) {
 
 // AMD-loaded dependencies need to exist in Intern's node_modules directory,
 // regardless of whether or not they were deduped by npm
-[ 'dojo', 'chai', 'diff' ].forEach(function (dependency) {
+['@theintern/dojo', 'chai', 'diff'].forEach(function(dependency) {
 	var expectedPath = path.join(expected, dependency);
 
 	// Reset any existing dependency symlinks in case the location of the
@@ -20,8 +20,7 @@ if (!fs.existsSync(expected)) {
 		if (fs.lstatSync(expectedPath).isSymbolicLink()) {
 			fs.unlinkSync(expectedPath);
 		}
-	}
-	catch (error) {
+	} catch (error) {
 		if (error.code !== 'ENOENT') {
 			throw error;
 		}
@@ -30,6 +29,11 @@ if (!fs.existsSync(expected)) {
 	var actualPath = path.dirname(require.resolve(dependency));
 
 	if (actualPath.indexOf(expectedPath) !== 0) {
-		fs.symlinkSync(actualPath, expectedPath, 'dir');
+		if (dependency.indexOf('/') === -1) {
+			fs.symlinkSync(actualPath, expectedPath, 'dir');
+		} else {
+			var parts = dependency.split('/');
+			fs.symlinkSync(actualPath, path.join(expected, parts[1]), 'dir');
+		}
 	}
 });

@@ -13,7 +13,7 @@
 	"dependencies": {
 		"istanbul": "0.2.16",
 		"source-map": "0.1.33",
-		"dojo": "https://github.com/csnover/dojo2-core/archive/ebfa11ba3972944218623a4bd9d124cb8108d70c.tar.gz",
+		"@theintern/dojo": "2.0.0-alpha.1",
 		"chai": "1.9.1",
 		"leadfoot": "1.2.1",
 		"digdug": "1.2.1",
