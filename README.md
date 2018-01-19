@@ -50,4 +50,4 @@ portions of the `assert.js` library and tests in the geezer branch, is developed
 [Dojo Foundation CLA](http://dojofoundation.org/about/cla).
 
 © 2012–2013 Colin Snover http://zetafleet.com<br>
-© 2013–2014 SitePen, Inc. http://sitepen.com
+© 2013–2018 SitePen, Inc. http://sitepen.com
