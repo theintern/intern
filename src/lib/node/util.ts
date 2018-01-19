@@ -178,5 +178,12 @@ export function readSourceMap(
 	}
 }
 
+/**
+ * Indicate whether a value is an ErrnoException
+ */
+export function isErrnoException(value: any): value is NodeJS.ErrnoException {
+	return value.errno !== null;
+}
+
 // Regex for matching sourceMappingUrl comments
 const sourceMapRegEx = /^(?:\/{2}[#@]{1,2}|\/\*)\s+sourceMappingURL\s*=\s*(data:(?:[^;]+;)+base64,)?(\S+)/;

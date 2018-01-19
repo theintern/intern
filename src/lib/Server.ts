@@ -8,6 +8,7 @@ import { mixin } from '@dojo/core/lang';
 import { Handle } from '@dojo/core/interfaces';
 
 import { pullFromArray } from './common/util';
+import { isErrnoException } from './node/util';
 import Node from './executors/Node';
 import { Message } from './channels/Base';
 
@@ -64,7 +65,9 @@ export default class Server implements ServerProperties {
 	}
 
 	start() {
-		return new Promise<void>(resolve => {
+		let startupError: Error;
+
+		return new Promise<void>((resolve, reject) => {
 			const app = (this._app = express());
 			this._sessions = {};
 
@@ -72,13 +75,25 @@ export default class Server implements ServerProperties {
 				'Listening for WebSocket connections on port',
 				this.socketPort
 			);
+
 			this._wsServer = new WebSocket.Server({ port: this.socketPort });
 			this._wsServer.on('connection', client => {
 				this.executor.log('WebSocket connection opened:', client);
 				this._handleWebSocket(client);
 			});
 			this._wsServer.on('error', error => {
-				this.executor.emit('error', error);
+				if (isErrnoException(error) && error.code === 'EADDRINUSE') {
+					const err: NodeJS.ErrnoException = new Error(
+						`Something is already listening on the websocket server port (${
+							this.socketPort
+						})`
+					);
+					err.code = error.code;
+					err.errno = error.errno;
+					reject(err);
+				} else {
+					reject(error);
+				}
 			});
 
 			const context = Object.create(null, {
@@ -151,9 +166,21 @@ export default class Server implements ServerProperties {
 				finalError()
 			);
 
-			const server = (this._httpServer = app.listen(this.port, () => {
-				resolve();
-			}));
+			const server = (this._httpServer = app.listen(this.port, resolve));
+			server.on('error', error => {
+				if (isErrnoException(error) && error.code === 'EADDRINUSE') {
+					const err: NodeJS.ErrnoException = new Error(
+						`Something is already listening on the server port (${
+							this.port
+						})`
+					);
+					err.code = error.code;
+					err.errno = error.errno;
+					reject(err);
+				} else {
+					reject(error);
+				}
+			});
 
 			const sockets: Socket[] = [];
 
@@ -184,7 +211,16 @@ export default class Server implements ServerProperties {
 					);
 				});
 			});
-		});
+		})
+			.catch(error => {
+				startupError = error;
+				return this.stop().catch(() => {});
+			})
+			.then(() => {
+				if (startupError) {
+					throw startupError;
+				}
+			});
 	}
 
 	stop() {
