@@ -1,6 +1,6 @@
 {
 	"name": "intern",
-	"version": "2.2.4-pre",
+	"version": "2.2.4",
 	"main": "main",
 	"description": "Intern. A next-generation code testing stack for JavaScript.",
 	"repository": {
