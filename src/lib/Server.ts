@@ -66,6 +66,8 @@ export default class Server implements ServerProperties {
 
 	start() {
 		let startupError: Error;
+		let wsServer: WebSocket.Server;
+		let httpServer: HttpServer;
 
 		return new Promise<void>((resolve, reject) => {
 			const app = (this._app = express());
@@ -76,12 +78,12 @@ export default class Server implements ServerProperties {
 				this.socketPort
 			);
 
-			this._wsServer = new WebSocket.Server({ port: this.socketPort });
-			this._wsServer.on('connection', client => {
+			wsServer = new WebSocket.Server({ port: this.socketPort });
+			wsServer.on('connection', client => {
 				this.executor.log('WebSocket connection opened:', client);
 				this._handleWebSocket(client);
 			});
-			this._wsServer.on('error', error => {
+			wsServer.on('error', error => {
 				if (isErrnoException(error) && error.code === 'EADDRINUSE') {
 					const err: NodeJS.ErrnoException = new Error(
 						`Something is already listening on the websocket server port (${
@@ -91,8 +93,10 @@ export default class Server implements ServerProperties {
 					err.code = error.code;
 					err.errno = error.errno;
 					reject(err);
-				} else {
+				} else if (!this._wsServer) {
 					reject(error);
+				} else {
+					this.executor.emit('error', error);
 				}
 			});
 
@@ -166,8 +170,8 @@ export default class Server implements ServerProperties {
 				finalError()
 			);
 
-			const server = (this._httpServer = app.listen(this.port, resolve));
-			server.on('error', error => {
+			httpServer = app.listen(this.port, resolve);
+			httpServer.on('error', error => {
 				if (isErrnoException(error) && error.code === 'EADDRINUSE') {
 					const err: NodeJS.ErrnoException = new Error(
 						`Something is already listening on the server port (${
@@ -177,8 +181,10 @@ export default class Server implements ServerProperties {
 					err.code = error.code;
 					err.errno = error.errno;
 					reject(err);
-				} else {
+				} else if (!this._httpServer) {
 					reject(error);
+				} else {
+					this.executor.emit('error', error);
 				}
 			});
 
@@ -186,14 +192,14 @@ export default class Server implements ServerProperties {
 
 			// If sockets are not manually destroyed then Node.js will keep
 			// itself running until they all expire
-			after(server, 'close', function() {
+			after(httpServer, 'close', function() {
 				let socket: Socket | undefined;
 				while ((socket = sockets.pop())) {
 					socket.destroy();
 				}
 			});
 
-			server.on('connection', socket => {
+			httpServer.on('connection', socket => {
 				sockets.push(socket);
 				this.executor.log(
 					'HTTP connection opened,',
@@ -212,9 +218,18 @@ export default class Server implements ServerProperties {
 				});
 			});
 		})
+			.then(() => {
+				this._wsServer = wsServer;
+				this._httpServer = httpServer;
+			})
 			.catch(error => {
 				startupError = error;
-				return this.stop().catch(() => {});
+				try {
+					wsServer.close();
+				} catch (_error) {}
+				try {
+					httpServer.close();
+				} catch (_error) {}
 			})
 			.then(() => {
 				if (startupError) {

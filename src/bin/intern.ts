@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 //
-//This is the runner script used to start Intern in a Node environment.
+// This is the runner script used to start Intern in a Node environment.
 //
 
 import { execSync } from 'child_process';
