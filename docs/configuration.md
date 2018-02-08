@@ -16,6 +16,8 @@
 * [Properties](#properties)
     * [Suite glob expressions](#suite-glob-expressions)
     * [extends](#extends)
+* [Configuring loaders](#configuring-loaders)
+* [Configuring plugins](#configuring-plugins)
 * [Configuration resolution](#configuration-resolution)
 
 <!-- vim-markdown-toc -->
@@ -312,6 +314,65 @@ Given the config above, and assuming child config “d” is selected, the follo
 2. Child “d” will be mixed into the result of 1
 3. The result of 2 will be mixed into the base config
 4. The result of 3 will be the resolved config
+
+## Configuring loaders
+
+A loader is a script used by Intern to load suites into the testing environment. Only a single loader may be specified per
+ environment (Node or browser). Intern has a number of [loaders](https://github.com/theintern/intern/tree/master/src/loaders)
+ available. If no loader is defined, then the default loaders are used per environment.
+
+The Intern's internal loaders may be used simply by specifying their name or location.
+
+```js
+{
+    "browser": {
+        "loader": "dojo"
+    }
+}
+``` 
+ 
+Additional options may be provided through the options parameter. These options are passed through to the registered loader.
+
+```js
+{
+    "browser": {
+        "loader": { 
+            "script": "dojo",
+            "options": { "basePath": '_build' } 
+        }
+    }
+}
+```
+
+It's useful to think of Intern's loaders as glue code that Intern uses to load configured suites within the environment.
+ Consequently, most of the provided Intern loaders also require the loader package to be installed in `node_modules` 
+ using NPM. Look at the [loader code](https://github.com/theintern/intern/tree/master/src/loaders) for more options and
+ requirements.
+
+## Configuring plugins
+
+Plugins are standalone scripts that are loaded by Intern. Any number of them may be loaded in-order following a similar 
+ format to the loader configuration.
+ 
+```js
+{
+    "plugins": [
+		"node_modules/babel-register/lib/node.js",
+        {
+            "script": "tests/support/mongodbAccess.js",
+            "options": { "dbUrl": "https://testdb.local" }
+        },
+        {
+            "script": "tests/support/dojoMocking.js",
+            "useLoader": true
+        }
+    ]
+}
+```
+
+Plugin configurations with `options` are passed to the plugin when it is registered with Intern. By default, plugins are 
+ loaded before an external loader is available. Plugins with the `useLoader` option set will be loaded later after a 
+ loader becomes available.
 
 ## Configuration resolution
 
