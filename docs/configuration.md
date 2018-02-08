@@ -317,11 +317,13 @@ Given the config above, and assuming child config “d” is selected, the follo
 
 ## Configuring loaders
 
-A loader is a script used by Intern to load suites into the testing environment. Only a single loader may be specified per
- environment (Node or browser). Intern has a number of [loaders](https://github.com/theintern/intern/tree/master/src/loaders)
- available. If no loader is defined, then the default loaders are used per environment.
+Intern uses loader scripts to communicate with various loaders so test suites of any module format may be used. Loader
+ scripts are simply standalone scripts (like plugins) that connect Intern with a loader. Intern has a number of 
+ [loader scripts] available to help it work with popular loaders and formats. If no loader script is defined, then Intern
+ will use the default loader script for the environment (CommonJS in Node and &lt;script> tag injection in the browser).
 
-The Intern's internal loaders may be used simply by specifying their name or location.
+To use one of Intern's pre-defined loader scripts, simply specify it's name. The loader script will expect the loader
+package to be installed in `node_modules` using NPM.
 
 ```js
 {
@@ -331,28 +333,32 @@ The Intern's internal loaders may be used simply by specifying their name or loc
 }
 ``` 
  
-Additional options may be provided through the options parameter. These options are passed through to the registered loader.
+Additional options may be provided through the options parameter. These options are passed through to the registered 
+ loader script.
 
 ```js
 {
     "browser": {
         "loader": { 
-            "script": "dojo",
+            "script": "./support/my/custom/loader.js",
             "options": { "basePath": '_build' } 
         }
     }
 }
 ```
 
-It's useful to think of Intern's loaders as glue code that Intern uses to load configured suites within the environment.
- Consequently, most of the provided Intern loaders also require the loader package to be installed in `node_modules` 
- using NPM. Look at the [loader code](https://github.com/theintern/intern/tree/master/src/loaders) for more options and
- requirements.
+It's useful to think of Intern's loader scriptss as glue code that Intern uses to load configured suites within the 
+ environment. When Intern needs to load a module (i.e. a test suite) it hands off a list of these modules to the loader
+ script and waits for the loading process to be handled by the loader. For more information and options look at the 
+ [loader scripts] in the Intern repository.
 
 ## Configuring plugins
 
-Plugins are standalone scripts that are loaded by Intern. Any number of them may be loaded in-order following a similar 
- format to the loader configuration.
+Plugins are standalone scripts or modules that are loaded by Intern. Standalone plugins (ones that do not require a 
+ loader) are ran in-order early in the Intern lifecycle before practically anything else. This is to allow plugins a
+ chance to listen to Intern events and augment the environment as early as possible. Module plugins have a `useLoader`
+ property and are loaded later in Intern's lifecycle with the configured loader. Any number of plugins may be added to 
+ Intern.
  
 ```js
 {
@@ -370,9 +376,8 @@ Plugins are standalone scripts that are loaded by Intern. Any number of them may
 }
 ```
 
-Plugin configurations with `options` are passed to the plugin when it is registered with Intern. By default, plugins are 
- loaded before an external loader is available. Plugins with the `useLoader` option set will be loaded later after a 
- loader becomes available.
+Similar to loader scripts, plugin configurations with `options` are passed to the plugin when it is registered with 
+ Intern.
 
 ## Configuration resolution
 
@@ -445,6 +450,7 @@ There are a few exceptions:
 [functionalTimeouts]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/functionaltimeouts
 [grep]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/grep
 [leaveRemoteOpen]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/leaveremoteopen
+[loader scripts]: https://github.com/theintern/intern/tree/master/src/loaders
 [loader]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/loader
 [plugins]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/plugins
 [reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/reporters
