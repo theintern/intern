@@ -16,6 +16,8 @@
 * [Properties](#properties)
     * [Suite glob expressions](#suite-glob-expressions)
     * [extends](#extends)
+* [Configuring loaders](#configuring-loaders)
+* [Configuring plugins](#configuring-plugins)
 * [Configuration resolution](#configuration-resolution)
 
 <!-- vim-markdown-toc -->
@@ -313,6 +315,70 @@ Given the config above, and assuming child config “d” is selected, the follo
 3. The result of 2 will be mixed into the base config
 4. The result of 3 will be the resolved config
 
+## Configuring loaders
+
+Intern uses loader scripts to communicate with various loaders so test suites of any module format may be used. Loader
+ scripts are simply standalone scripts (like plugins) that connect Intern with a loader. Intern has a number of 
+ [loader scripts] available to help it work with popular loaders and formats. If no loader script is defined, then Intern
+ will use the default loader script for the environment (CommonJS in Node and &lt;script> tag injection in the browser).
+
+To use one of Intern's pre-defined loader scripts, simply specify it's name. The loader script will expect the loader
+package to be installed in `node_modules` using NPM.
+
+```js
+{
+    "browser": {
+        "loader": "dojo"
+    }
+}
+``` 
+ 
+Additional options may be provided through the options parameter. These options are passed through to the registered 
+ loader script.
+
+```js
+{
+    "browser": {
+        "loader": { 
+            "script": "./support/my/custom/loader.js",
+            "options": { "basePath": '_build' } 
+        }
+    }
+}
+```
+
+It's useful to think of Intern's loader scriptss as glue code that Intern uses to load configured suites within the 
+ environment. When Intern needs to load a module (i.e. a test suite) it hands off a list of these modules to the loader
+ script and waits for the loading process to be handled by the loader. For more information and options look at the 
+ [loader scripts] in the Intern repository.
+
+## Configuring plugins
+
+Plugins are standalone scripts or modules that are loaded by Intern. Standalone plugins (ones that do not require a 
+ loader) are ran in-order early in the Intern lifecycle before practically anything else. This is to allow plugins a
+ chance to listen to Intern events and augment the environment as early as possible. Module plugins have a `useLoader`
+ property and are loaded later in Intern's lifecycle with the configured loader. Any number of plugins may be added to 
+ Intern.
+ 
+```js
+{
+    "plugins": [
+		"node_modules/babel-register/lib/node.js",
+        {
+            "script": "tests/support/mongodbAccess.js",
+            "options": { "dbUrl": "https://testdb.local" }
+        },
+        {
+            "script": "tests/support/dojoMocking.js",
+            "useLoader": true
+        }
+    ]
+}
+```
+
+Similar to loader scripts, plugin configurations with `options` are passed to the plugin when it is registered with 
+ Intern.
+
 ## Configuration resolution
 
 At runtime, the environment-specific resources and any [active child configs](#config-file) will be mixed into the resolved config. In general, properties from from more specific sources will override properties from lower precedence sources. The order of precedence, from lowest to highest, is:
@@ -384,6 +450,7 @@ There are a few exceptions:
 [functionalTimeouts]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/functionaltimeouts
 [grep]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/grep
 [leaveRemoteOpen]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/leaveremoteopen
+[loader scripts]: https://github.com/theintern/intern/tree/master/src/loaders
 [loader]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/loader
 [plugins]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/plugins
 [reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/reporters
