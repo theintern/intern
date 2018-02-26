@@ -56,9 +56,11 @@ If you’re into name-dropping, Intern gets used every day by teams at Twitter, 
 
 Intern installs a global variable that tests may not be aware of if nothing imports the base `intern` package. To ensure Intern’s types are loaded, add the following to your `tsconfig.json`:
 
-```js
+```json
 {
-    "types": ["intern"]
+    "compilerOptions": {
+        "types" : ["intern"]
+    }
 }
 ```
 
