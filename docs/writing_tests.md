@@ -389,7 +389,7 @@ The benchmark interface is an extension of the [object interface](#object) used 
 const { registerSuite, async } = intern.getInterface('benchmark');
 let component: Component;
 
-registerSuite('Component performance',
+registerSuite('Component performance', {
     beforeEach() {
         component = new Component();
     },
