@@ -481,7 +481,7 @@ Chai provides three assertion interfaces: [assert](http://chaijs.com/api/assert/
 This is the interface used by most of the examples in this documentation.
 
 ```js
-const { assert} = intern.getPlugin('chai');
+const { assert } = intern.getPlugin('chai');
 // ...
 assert.strictEqual(count, 5, 'unexpected value for count');
 ```
