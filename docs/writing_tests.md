@@ -491,7 +491,7 @@ assert.strictEqual(count, 5, 'unexpected value for count');
 ### expect
 
 ```js
-const { expect} = intern.getPlugin('chai');
+const { expect } = intern.getPlugin('chai');
 // ...
 expect(count).to.equal(5, 'unexpected value for count');
 ```
