@@ -252,7 +252,7 @@ The environment-specific properties come into play when Intern is running in tha
 | browser                  | Resources (loader, plugins, reporters, require, suites) that only apply to browser tests   | `{}`
 | node                     | Resources (loader, plugins, reporters, require, suites) that only apply to Node tests      | `{}`
 
-There are also several properties that are handled by the config file processing system system aren’t directly involved in the testing process. These properties are ignored if set programmatically.
+There are also several properties that are handled by the config file processing system aren’t directly involved in the testing process. These properties are ignored if set programmatically.
 
 | Property    | Description                                                        |
 | :-------    | :----------                                                        |
