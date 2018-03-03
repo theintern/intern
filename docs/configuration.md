@@ -55,7 +55,7 @@ The config structure is a simple JSON object, so all of its property values must
         // Child configs have the same structure as the main config
         "ci": {
             "bail": true,
-            "suites": [ "tests/unit/other.js" ]
+            "suites+": [ "tests/unit/other.js" ]
         }
     }
 }
