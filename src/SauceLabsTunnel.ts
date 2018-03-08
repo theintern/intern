@@ -59,6 +59,13 @@ export default class SauceLabsTunnel extends Tunnel
 	/** A filename where additional logs from the tunnel should be output. */
 	logFile: string;
 
+	/**
+	 * The absolute filepath (or URL) of a file which Sauce Connect should use
+	 * for additional proxy configuration. Sauce Connect suggests using either
+	 * this or `proxy`, but not both.
+	 */
+	pacFile: string;
+
 	/** A filename where Sauce Connect stores its process information. */
 	pidFile: string;
 
@@ -297,6 +304,7 @@ export default class SauceLabsTunnel extends Tunnel
 			args.push('-F', this.fastFailDomains.join(','));
 		this.isSharedTunnel && args.push('-s');
 		this.logFile && args.push('-l', this.logFile);
+		this.pacFile && args.push('--pac', this.pacFile);
 		this.pidFile && args.push('--pidfile', this.pidFile);
 		this.restUrl && args.push('-x', this.restUrl);
 		this.skipSslDomains.length &&
@@ -569,6 +577,7 @@ export interface SauceLabsProperties extends TunnelProperties {
 	fastFailDomains: string[];
 	isSharedTunnel: boolean;
 	logFile: string;
+	pacFile: string;
 	pidFile: string;
 	logFileSize: number;
 	logTrafficStats: number;
