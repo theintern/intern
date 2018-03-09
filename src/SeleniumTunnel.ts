@@ -11,10 +11,10 @@ import { Handle } from '@dojo/core/interfaces';
 import { mixin } from '@dojo/core/lang';
 import { satisfies } from 'semver';
 
-const SeleniumVersion = '3.5.2';
-const ChromeVersion = '2.33';
-const FirefoxVersion = '0.18.0';
-const IEVersion = '3.5.1';
+const SeleniumVersion = '3.10.0';
+const ChromeVersion = '2.36';
+const FirefoxVersion = '0.19.1';
+const IEVersion = '3.10.0';
 
 /**
  * A Selenium tunnel. This tunnel downloads the
@@ -377,7 +377,7 @@ class ChromeConfig extends Config<ChromeOptions>
 	get artifact() {
 		let platform = this.platform;
 		if (platform === 'linux') {
-			platform = 'linux' + (this.arch === 'x64' ? '64' : '32');
+			platform = 'linux' + (this.arch === 'x86' ? '32' : '64');
 		} else if (platform === 'darwin') {
 			const parts = String(this.version)
 				.split('.')

@@ -65,9 +65,8 @@ const suite = {
 		[
 			{ name: 'chrome', platform: 'win32' },
 			{ name: 'chrome', platform: 'linux', arch: 'x64' },
-			{ name: 'chrome', platform: 'linux', arch: 'x86' },
-			{ name: 'chrome', platform: 'darwin', version: '2.22' },
-			{ name: 'chrome', platform: 'darwin', version: '2.23' },
+			{ name: 'chrome', platform: 'darwin', version: '2.35' },
+			{ name: 'chrome', platform: 'darwin', version: '2.36' },
 			{ name: 'ie', arch: 'x64' },
 			{ name: 'ie', arch: 'x86' },
 			{ name: 'edge' },
