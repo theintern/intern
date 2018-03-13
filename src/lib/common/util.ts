@@ -803,7 +803,13 @@ function _loadConfig(
 ): Task<any> {
 	return loadText(configPath)
 		.then(text => {
-			const preConfig = parseJson(text);
+			let preConfig: { [key: string]: any };
+
+			try {
+				preConfig = parseJson(text);
+			} catch (error) {
+				throw new Error(`Invalid JSON in ${configPath}`);
+			}
 
 			// extends paths are assumed to be relative and use '/'
 			if (preConfig.extends) {
