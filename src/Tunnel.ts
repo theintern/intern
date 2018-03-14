@@ -11,6 +11,7 @@ import { format as formatUrl, Url } from 'url';
 import { fileExists, on } from './util';
 import { JobState } from './interfaces';
 import decompress = require('decompress');
+import * as kill from 'tree-kill';
 
 // TODO: Spawned processes are not getting cleaned up if there is a crash
 
@@ -558,7 +559,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 				resolve(code);
 			});
 
-			childProcess.kill('SIGINT');
+			kill(childProcess.pid);
 		});
 	}
 
