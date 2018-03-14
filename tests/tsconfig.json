@@ -9,8 +9,7 @@
 		}
 	},
 	"files": [
-		"../node_modules/intern/typings/intern/intern.d.ts",
-		"../src/types/decompress/decompress.d.ts"
+		"../node_modules/intern/typings/intern/intern.d.ts"
 	],
 	"include": ["./**/*.ts"]
 }

@@ -12,7 +12,8 @@
 			"dom"
 		],
 		"outDir": "./_build",
-		"rootDir": "."
+		"rootDir": ".",
+		"typeRoots": ["./node_modules/@types", "./types"]
 	},
 	"include": ["./src/**/*.ts"]
 }
