@@ -1,13 +1,12 @@
 import intern = require('intern');
 import assert = require('intern/chai!assert');
 import registerSuite = require('intern!object');
-import { readdirSync } from 'fs';
+import { mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import SeleniumTunnel, { DriverFile } from 'src/SeleniumTunnel';
 import { addStartStopTest } from '../support/integration';
 import { cleanup, deleteTunnelFiles } from '../support/util';
-import { mkdirSync } from 'fs';
 import Test = require('intern/lib/Test');
 
 function createDownloadTest(config: any) {
@@ -37,8 +36,12 @@ function createDownloadTest(config: any) {
 		});
 
 		return tunnel.download().then(function() {
-			const files = readdirSync(tunnel.directory);
-			assert.includeMembers(files, expected);
+			for (const file of expected) {
+				assert.isTrue(
+					existsSync(join(tunnel.directory, file)),
+					`expected ${file} to exist`
+				);
+			}
 			assert.isTrue(progressed, 'expected to have seen progress');
 		});
 	};
@@ -112,7 +115,7 @@ const suite = {
 			drivers: [{ name: 'chrome', version }]
 		});
 		return tunnel.download().then(() => {
-			const driver = join(tunnel.directory, 'chromedriver');
+			const driver = join(tunnel.directory, version, 'chromedriver');
 			const result = execSync(`"${driver}" --version`).toString('utf-8');
 			assert.match(
 				result,

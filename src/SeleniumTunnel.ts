@@ -163,6 +163,7 @@ export default class SeleniumTunnel extends Tunnel
 				tasks = configs.map(config => {
 					const executable = config.executable;
 					const dontExtract = Boolean(config.dontExtract);
+					const directory = config.directory;
 
 					if (fileExists(join(this.directory, executable))) {
 						return Task.resolve();
@@ -172,7 +173,11 @@ export default class SeleniumTunnel extends Tunnel
 					return this._downloadFile(
 						config.url,
 						this.proxy,
-						<SeleniumDownloadOptions>{ executable, dontExtract }
+						<SeleniumDownloadOptions>{
+							executable,
+							dontExtract,
+							directory
+						}
 					);
 				});
 
@@ -306,6 +311,7 @@ export interface DriverFile extends RemoteFile {
 
 export interface RemoteFile {
 	dontExtract?: boolean;
+	directory?: string;
 	executable: string;
 	url: string;
 }
@@ -390,12 +396,19 @@ class ChromeConfig extends Config<ChromeOptions>
 		return format('chromedriver_%s.zip', platform);
 	}
 
+	get directory() {
+		return this.version;
+	}
+
 	get url() {
 		return format('%s/%s/%s', this.baseUrl, this.version, this.artifact);
 	}
 
 	get executable() {
-		return this.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
+		return join(
+			this.directory,
+			this.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver'
+		);
 	}
 
 	get seleniumProperty() {
@@ -456,8 +469,15 @@ class FirefoxConfig extends Config<FirefoxOptions>
 		return format('%s/v%s/%s', this.baseUrl, this.version, this.artifact);
 	}
 
+	get directory() {
+		return this.version;
+	}
+
 	get executable() {
-		return this.platform === 'win32' ? 'geckodriver.exe' : 'geckodriver';
+		return join(
+			this.directory,
+			this.platform === 'win32' ? 'geckodriver.exe' : 'geckodriver'
+		);
 	}
 
 	get seleniumProperty() {
@@ -510,8 +530,12 @@ class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
 		);
 	}
 
+	get directory() {
+		return this.version;
+	}
+
 	get executable() {
-		return 'IEDriverServer.exe';
+		return join(this.directory, 'IEDriverServer.exe');
 	}
 
 	get seleniumProperty() {
@@ -567,7 +591,7 @@ class EdgeConfig extends Config<EdgeOptions>
 			b,
 			c,
 			uuid,
-			this.executable
+			this.artifact
 		);
 	}
 
@@ -575,8 +599,12 @@ class EdgeConfig extends Config<EdgeOptions>
 		return 'MicrosoftWebDriver.exe';
 	}
 
+	get directory() {
+		return this.version;
+	}
+
 	get executable() {
-		return 'MicrosoftWebDriver.exe';
+		return join(this.version, 'MicrosoftWebDriver.exe');
 	}
 
 	get seleniumProperty() {

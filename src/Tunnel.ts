@@ -1,14 +1,12 @@
 import Evented from '@dojo/core/Evented';
-import {
-	EventObject,
-	Handle
-} from '@dojo/core/interfaces';
+import { EventObject, Handle } from '@dojo/core/interfaces';
 import { createCompositeHandle, mixin } from '@dojo/core/lang';
 import Task, { State } from '@dojo/core/async/Task';
 import sendRequest from '@dojo/core/request';
 import { Response } from '@dojo/core/request/interfaces';
 import { NodeRequestOptions } from '@dojo/core/request/providers/node';
 import { spawn, ChildProcess } from 'child_process';
+import { join } from 'path';
 import { format as formatUrl, Url } from 'url';
 import { fileExists, on } from './util';
 import { JobState } from './interfaces';
@@ -21,7 +19,8 @@ import decompress = require('decompress');
  * securely exposes local services for testing within the service provider’s
  * network.
  */
-export default class Tunnel extends Evented<TunnelEvents, string> implements TunnelProperties, Url {
+export default class Tunnel extends Evented<TunnelEvents, string>
+	implements TunnelProperties, Url {
 	constructor(options?: TunnelOptions) {
 		super();
 		mixin(
@@ -236,7 +235,9 @@ export default class Tunnel extends Evented<TunnelEvents, string> implements Tun
 
 						if (response.status >= 400) {
 							throw new Error(
-								`Download server returned status code ${response.status} for ${url}`
+								`Download server returned status code ${
+									response.status
+								} for ${url}`
 							);
 						} else {
 							response.arrayBuffer().then(data => {
@@ -264,10 +265,14 @@ export default class Tunnel extends Evented<TunnelEvents, string> implements Tun
 	 */
 	protected _postDownloadFile(
 		data: Buffer,
-		_options?: DownloadOptions
+		options?: DownloadOptions
 	): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
-			decompress(data, this.directory)
+			let directory = this.directory;
+			if (options && options.directory) {
+				directory = join(directory, options.directory);
+			}
+			decompress(data, directory)
 				.then(() => resolve())
 				.catch(reject);
 		});
