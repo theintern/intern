@@ -42,19 +42,30 @@ registerSuite('lib/channels/Http', function() {
 			'#sendMessage'() {
 				const http = new Http({ sessionId: 'foo', url: 'bar' });
 
+				// Alternate between 200 and 204 status codes
+				let count = 0;
+
 				requestHandler = spy((_path: string, data: any) => {
 					return new Task<any>(resolve => {
 						// Auto-respond to a request after a short timeout
 						setTimeout(() => {
 							const items = JSON.parse(data.body).map(JSON.parse);
-							const responses: any[] = [];
-							for (const item of items) {
-								responses.push({
-									id: item.id,
-									data: item.data.toUpperCase()
+							if (count % 2 === 0) {
+								const responses: any[] = [];
+								for (const item of items) {
+									responses.push({
+										id: item.id,
+										data: item.data.toUpperCase()
+									});
+								}
+								resolve({
+									status: 200,
+									json: () => Task.resolve(responses)
 								});
+							} else {
+								resolve({ status: 204, json: () => '' });
 							}
-							resolve({ json: () => Task.resolve(responses) });
+							count++;
 						}, 100);
 					});
 				});
@@ -68,11 +79,43 @@ registerSuite('lib/channels/Http', function() {
 					// and be be sent together in a second request
 					assert.equal(requestHandler!.callCount, 2);
 
+					assert.lengthOf(results, 3, 'expected 3 results');
+
 					// Each message should have its own response
 					assert.deepEqual(results[0], { id: '1', data: 'FOO' });
-					assert.deepEqual(results[1], { id: '2', data: 'BAR' });
-					assert.deepEqual(results[2], { id: '3', data: 'BAZ' });
+					// The second and third requests don't come back with any
+					// data, just a 204 status code
+					assert.deepEqual(results[1], undefined);
+					assert.deepEqual(results[2], undefined);
 				});
+			},
+
+			'#sendMessage error'() {
+				const http = new Http({ sessionId: 'foo', url: 'bar' });
+
+				requestHandler = spy((_path: string, _data: any) => {
+					return new Task<any>(resolve => {
+						// Auto-respond to a request after a short timeout
+						setTimeout(() => {
+							resolve({ status: 500, statusText: 'badness' });
+						}, 100);
+					});
+				});
+
+				const send1 = http.sendMessage('remoteStatus', 'foo');
+
+				return send1.then(
+					() => {
+						throw new Error('expected send to fail');
+					},
+					error => {
+						assert.match(
+							error.message,
+							/badness/,
+							'unexpected error response'
+						);
+					}
+				);
 			}
 		}
 	};
