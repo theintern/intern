@@ -381,7 +381,7 @@ Similar to loader scripts, plugin configurations with `options` are passed to th
 
 ## Configuration resolution
 
-At runtime, the environment-specific resources and any [active child configs](#config-file) will be mixed into the resolved config. In general, properties from from more specific sources will override properties from lower precedence sources. The order of precedence, from lowest to highest, is:
+At runtime, the environment-specific resources and any [active child configs](#config-file) will be mixed into the resolved config. In general, properties from more specific sources will override properties from lower precedence sources. The order of precedence, from lowest to highest, is:
 
 1. A config being extended by the current config
 2. The current config
