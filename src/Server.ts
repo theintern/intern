@@ -413,16 +413,31 @@ export default class Server {
 			desiredCapabilities,
 			requiredCapabilities
 		}).then(response => {
-			// At least geckodriver 0.15.0 returns the response data in a
-			// 'value' property, whereas Selenium does not.
-			if (response.value && response.value.sessionId) {
-				response = response.value;
+			let responseData: object;
+			let sessionId: string;
+
+			if (response.value.sessionId && response.value.capabilities) {
+				// At least geckodriver 0.16 - 0.19 return the sessionId and
+				// capabilities as value.sessionId and value.capabilities.
+				responseData = response.value.capabilities;
+				sessionId = response.value.sessionId;
+			} else if (response.value.value && response.value.sessionId) {
+				// At least geckodriver 0.15.0 returns the sessionId and
+				// capabilities as value.sessionId and value.value.
+				responseData = response.value.value;
+				sessionId = response.value.sessionId;
+			} else {
+				// Selenium and chromedriver return the sessionId as a top
+				// level property in the response, and the capabilities in a
+				// 'value' property.
+				responseData = response.value;
+				sessionId = response.sessionId;
 			}
 
 			const session = new this.sessionConstructor(
-				response.sessionId,
+				sessionId,
 				this,
-				response.value
+				responseData
 			);
 
 			if (fixSessionCapabilities) {
@@ -770,20 +785,21 @@ export default class Server {
 		const addCapabilities = (
 			testedCapabilities: Capabilities
 		): Task<void> => {
-			return Object.keys(
-				testedCapabilities
-			).reduce((previous: Task<void>, key: keyof Capabilities) => {
-				return previous.then(() => {
-					const value = testedCapabilities[key];
-					const task =
-						typeof value === 'function'
-							? value()
-							: Task.resolve(value);
-					return task.then((value: any) => {
-						capabilities[key] = value;
+			return Object.keys(testedCapabilities).reduce(
+				(previous: Task<void>, key: keyof Capabilities) => {
+					return previous.then(() => {
+						const value = testedCapabilities[key];
+						const task =
+							typeof value === 'function'
+								? value()
+								: Task.resolve(value);
+						return task.then((value: any) => {
+							capabilities[key] = value;
+						});
 					});
-				});
-			}, Task.resolve());
+				},
+				Task.resolve()
+			);
 		};
 
 		const get = (page: string) => {
@@ -822,16 +838,17 @@ export default class Server {
 				}
 
 				return session.get(initialUrl).then(function() {
-					return session.execute<
-						void
-					>('document.body.innerHTML = arguments[0];', [
-						// The DOCTYPE does not apply, for obvious reasons, but
-						// also old IE will discard invisible elements like
-						// `<script>` and `<style>` if they are the first
-						// elements injected with `innerHTML`, so an extra text
-						// node is added before the rest of the content instead
-						page.replace('<!DOCTYPE html>', 'x')
-					]);
+					return session.execute<void>(
+						'document.body.innerHTML = arguments[0];',
+						[
+							// The DOCTYPE does not apply, for obvious reasons, but
+							// also old IE will discard invisible elements like
+							// `<script>` and `<style>` if they are the first
+							// elements injected with `innerHTML`, so an extra text
+							// node is added before the rest of the content instead
+							page.replace('<!DOCTYPE html>', 'x')
+						]
+					);
 				});
 			}
 
@@ -1121,9 +1138,9 @@ export default class Server {
 						.then(function() {
 							return session.execute(
 								/* istanbul ignore next */ function() {
-									const bbox = document.getElementById(
-										'a'
-									)!.getBoundingClientRect();
+									const bbox = document
+										.getElementById('a')!
+										.getBoundingClientRect();
 									return bbox.right - bbox.left === 4;
 								}
 							);
