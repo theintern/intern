@@ -53,9 +53,11 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 
 			// Assertion errors may have showDiff, actual, and expected properties
 			if (
-				anyError.showDiff &&
-				typeof anyError.actual === 'object' &&
-				typeof anyError.expected === 'object'
+				(anyError.showDiff &&
+					(typeof anyError.actual === 'object' &&
+						typeof anyError.expected === 'object')) ||
+				(typeof anyError.actual === 'string' &&
+					typeof anyError.expected === 'string')
 			) {
 				const diff = this._createDiff(
 					anyError.actual,
@@ -118,7 +120,12 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
 	 * @returns A unified diff formatted string representing the difference
 	 * between the two objects.
 	 */
-	protected _createDiff(actual: Object, expected: Object): string {
+	protected _createDiff(actual: string, expected: string): string;
+	protected _createDiff(actual: object, expected: object): string;
+	protected _createDiff(
+		actual: string | object,
+		expected: string | object
+	): string {
 		// TODO: Remove the casts when the diffJson typings are updated (the
 		// current typings are missing the options argument).
 		let diff = <IDiffResult[]>(<any>diffJson)(actual, expected, {
