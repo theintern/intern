@@ -15,8 +15,8 @@ export = function(grunt: IGrunt) {
 		getConfigAndOptions(options)
 			.then(({ config, options }) => {
 				const intern = (global.intern = new Node());
-				intern.configure(config);
 				intern.configure(options);
+				intern.configure(config);
 
 				return intern.run();
 			})
