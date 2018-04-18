@@ -373,6 +373,7 @@ export default class SauceLabsTunnel extends Tunnel
 		let readMessage: ((message: string) => boolean) | undefined;
 		let readStartupMessage: (message: string) => boolean;
 		let readRunningMessage: (message: string) => boolean;
+		let readStatus: (message: string) => boolean;
 
 		const task = this._makeChild((child, resolve, reject) => {
 			readStartupMessage = (message: string) => {
@@ -409,6 +410,18 @@ export default class SauceLabsTunnel extends Tunnel
 					return fail(message.slice('Error: '.length));
 				}
 
+				// At least Sauce Connect 4.4.12 on macOS 10.10.13 doesn't
+				// update the readyfile when the tunnel is ready. Use the
+				// 'Selenium listener' message as an alternate startup
+				// indicator.
+				if (
+					task.state === State.Pending &&
+					message.indexOf('Selenium listener started on port ') === 0
+				) {
+					resolve();
+					return true;
+				}
+
 				return readStatus(message);
 			};
 
@@ -427,7 +440,7 @@ export default class SauceLabsTunnel extends Tunnel
 				return readStatus(message);
 			};
 
-			const readStatus = (message: string) => {
+			readStatus = (message: string) => {
 				if (
 					message &&
 					message.indexOf('Please wait for') === -1 &&
@@ -443,6 +456,7 @@ export default class SauceLabsTunnel extends Tunnel
 						status: message
 					});
 				}
+
 				return false;
 			};
 
@@ -459,13 +473,6 @@ export default class SauceLabsTunnel extends Tunnel
 						// readyFile hasn't been modified, so ignore the event
 						return;
 					}
-
-					unwatchFile(readyFile);
-
-					// We have to watch for errors until the tunnel has started
-					// successfully at which point we only want to watch for
-					// status messages to emit
-					readMessage = readStatus;
 
 					resolve();
 				}
@@ -495,6 +502,13 @@ export default class SauceLabsTunnel extends Tunnel
 
 		task
 			.then(() => {
+				unwatchFile(readyFile);
+
+				// We have to watch for errors until the tunnel has started
+				// successfully at which point we only want to watch for
+				// status messages to emit
+				readMessage = readStatus;
+
 				readRunningMessage('');
 				readMessage = undefined;
 			})
