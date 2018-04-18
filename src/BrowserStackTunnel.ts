@@ -13,6 +13,7 @@ import { parse as parseUrl, Url } from 'url';
 import { mixin } from '@dojo/core/lang';
 import { JobState } from './interfaces';
 import { on } from './util';
+import * as kill from 'tree-kill';
 
 /**
  * A BrowserStack tunnel.
@@ -256,7 +257,7 @@ export default class BrowserStackTunnel extends Tunnel {
 				exited = true;
 				resolve(code);
 			});
-			childProcess.kill('SIGINT');
+			kill(childProcess.pid);
 
 			// As of at least version 5.1, BrowserStackLocal spawns a secondary
 			// process. This is the one that needs to receive the CTRL-C, but
@@ -265,7 +266,7 @@ export default class BrowserStackTunnel extends Tunnel {
 			// if it hasn't ended cleanly.
 			setTimeout(function() {
 				if (!exited) {
-					childProcess.kill('SIGTERM');
+					kill(childProcess.pid);
 				}
 			}, 5000);
 		});

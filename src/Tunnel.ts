@@ -362,7 +362,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 			},
 			() => {
 				canceled = true;
-				child.kill('SIGINT');
+				kill(child.pid);
 			}
 		);
 

@@ -286,7 +286,7 @@ export default class SeleniumTunnel extends Tunnel
 					reject(new Error('Address is already in use'));
 
 					// Kill the child since we're reporting that startup failed
-					child.kill('SIGINT');
+					kill(child.pid);
 				}
 			});
 

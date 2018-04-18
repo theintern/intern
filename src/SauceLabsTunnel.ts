@@ -14,6 +14,7 @@ import { NodeRequestOptions } from '@dojo/core/request/providers/node';
 import { format as formatUrl, parse as parseUrl, Url } from 'url';
 import { mixin } from '@dojo/core/lang';
 import { fileExists, on } from './util';
+import * as kill from 'tree-kill';
 
 const scVersion = '4.4.7';
 
@@ -420,7 +421,7 @@ export default class SauceLabsTunnel extends Tunnel
 				) {
 					// It will just keep trying and trying and trying for a
 					// while, but it is a failure, so force it to stop
-					child.kill('SIGTERM');
+					kill(child.pid);
 				}
 
 				return readStatus(message);
