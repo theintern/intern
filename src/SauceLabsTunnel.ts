@@ -492,10 +492,14 @@ export default class SauceLabsTunnel extends Tunnel
 			executor(child, resolve, reject);
 		}, readyFile);
 
-		task.then(function() {
-			readRunningMessage('');
-			readMessage = undefined;
-		});
+		task
+			.then(() => {
+				readRunningMessage('');
+				readMessage = undefined;
+			})
+			.catch(() => {
+				// Ignore errors here; they're handled elsewhere
+			});
 
 		return task;
 	}
