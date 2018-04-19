@@ -128,9 +128,11 @@ export default class Session extends Locator<
 					return;
 				}
 
-				const response = this._server
-					[method]<WebDriverResponse>(path, requestData, pathParts)
-					.then(response => response.value);
+				const response = this._server[method]<WebDriverResponse>(
+					path,
+					requestData,
+					pathParts
+				).then(response => response.value);
 
 				// safePromise is simply a promise based on the response that
 				// is guaranteed to resolve -- it is only used for promise
@@ -272,17 +274,17 @@ export default class Session extends Locator<
 	 * Gets a list of identifiers for all currently open windows.
 	 */
 	getAllWindowHandles() {
-		return this.serverGet<string[]>(
-			'window_handles'
-		).then((handles: string[]) => {
-			if (this.capabilities.brokenDeleteWindow) {
-				return handles.filter(handle => {
-					return !this._closedWindows[handle];
-				});
-			}
+		return this.serverGet<string[]>('window_handles').then(
+			(handles: string[]) => {
+				if (this.capabilities.brokenDeleteWindow) {
+					return handles.filter(handle => {
+						return !this._closedWindows[handle];
+					});
+				}
 
-			return handles;
-		});
+				return handles;
+			}
+		);
 	}
 
 	/**
@@ -1030,9 +1032,7 @@ export default class Session extends Locator<
 					pushCookieProperties(expiredCookie, cookie);
 
 					return promise.then(() => {
-						return this.execute<
-							void
-						>(
+						return this.execute<void>(
 							/* istanbul ignore next */ function(
 								expiredCookie: string
 							) {
@@ -1078,9 +1078,7 @@ export default class Session extends Locator<
 
 					pushCookieProperties(expiredCookie, cookie);
 
-					return this.execute<
-						void
-					>(
+					return this.execute<void>(
 						/* istanbul ignore next */ function(
 							expiredCookie: any
 						) {
@@ -1297,11 +1295,11 @@ export default class Session extends Locator<
 	 * @returns Either 'portrait' or 'landscape'.
 	 */
 	getOrientation() {
-		return this.serverGet<'portrait' | 'landscape'>(
-			'orientation'
-		).then(function(orientation) {
-			return orientation.toLowerCase();
-		});
+		return this.serverGet<'portrait' | 'landscape'>('orientation').then(
+			function(orientation) {
+				return orientation.toLowerCase();
+			}
+		);
 	}
 
 	/**
@@ -1418,19 +1416,19 @@ export default class Session extends Locator<
 			// just assume that the mouse position defaults to the top-left
 			// corner of the document
 			if (this.capabilities.brokenHtmlMouseMove) {
-				return this.execute<Element>(
-					'return document.body;'
-				).then(element => {
-					return element
-						.getPosition()
-						.then((position: { x: number; y: number }) => {
-							return this.moveMouseTo(
-								element,
-								xOffset - position.x,
-								yOffset - position.y
-							);
-						});
-				});
+				return this.execute<Element>('return document.body;').then(
+					element => {
+						return element
+							.getPosition()
+							.then((position: { x: number; y: number }) => {
+								return this.moveMouseTo(
+									element,
+									xOffset - position.x,
+									yOffset - position.y
+								);
+							});
+					}
+				);
 			} else {
 				return this.execute<Element>(
 					'return document.documentElement;'
@@ -1881,10 +1879,12 @@ export default class Session extends Locator<
 			using === 'link text'
 				? function(linkText: string, text: string) {
 						return linkText === text;
-					}
+						// tslint:disable-next-line:indent
+				  }
 				: function(linkText: string, text: string) {
 						return linkText.indexOf(text) !== -1;
-					};
+						// tslint:disable-next-line:indent
+				  };
 
 		const links = (element || document).getElementsByTagName('a');
 		let linkText: string;

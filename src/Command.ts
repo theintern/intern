@@ -157,11 +157,9 @@ import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
  * from a callback or command initialiser will deadlock the Command, as it
  * waits for itself to settle before settling.
  */
-export default class Command<T, P = any> extends Locator<
-	Command<Element>,
-	Command<Element[]>,
-	Command<void>
-> implements PromiseLike<T> {
+export default class Command<T, P = any>
+	extends Locator<Command<Element>, Command<Element[]>, Command<void>>
+	implements PromiseLike<T> {
 	/**
 	 * Augments `target` with a conversion of the `originalFn` method that
 	 * enables its use with a Command object. This can be used to easily add
@@ -319,9 +317,9 @@ export default class Command<T, P = any> extends Locator<
 		}
 	}
 
-	private _parent: Command<P>;
+	private _parent: Command<P> | undefined;
 	private _session: Session;
-	private _context: Context;
+	private _context!: Context;
 	private _task: Task<any>;
 
 	/**
@@ -446,10 +444,12 @@ export default class Command<T, P = any> extends Locator<
 	}
 
 	/**
-	 * The parent Command of the Command, if one exists.
+	 * The parent Command of the Command, if one exists. This will be defined
+	 * for all commands but the top-level Session command (i.e., in most
+	 * contexts user code will call it).
 	 */
 	get parent() {
-		return this._parent;
+		return this._parent!;
 	}
 
 	/**
@@ -559,12 +559,13 @@ export default class Command<T, P = any> extends Locator<
 	 *    parent will be passed through unmodified.
 	 */
 	then<U = T, R = never>(
+		// tslint:disable:indent
 		callback?:
 			| ((
 					this: Command<T>,
 					value: T,
 					setContext: SetContextMethod
-				) => U | PromiseLike<U>)
+			  ) => U | PromiseLike<U>)
 			| null
 			| undefined,
 		errback?:
@@ -579,7 +580,7 @@ export default class Command<T, P = any> extends Locator<
 						this: Command<T>,
 						value: T,
 						setContext: SetContextMethod
-					) => U | PromiseLike<U>)
+				  ) => U | PromiseLike<U>)
 				| ((this: Command<T>, error: any) => R | PromiseLike<R>),
 			value: U,
 			setContext: SetContextMethod
@@ -613,12 +614,12 @@ export default class Command<T, P = any> extends Locator<
 			callback
 				? function(setContext: SetContextMethod, value: U) {
 						return runCallback(this, callback, value, setContext);
-					}
+				  }
 				: undefined,
 			errback
 				? function(setContext: SetContextMethod, value: any) {
 						return runCallback(this, errback, value, setContext);
-					}
+				  }
 				: undefined
 		);
 	}
