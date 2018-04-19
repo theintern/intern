@@ -98,7 +98,6 @@ registerSuite(function(this: Test) {
 					)
 				)
 				.then(function(counter) {
-					this.findById('#foo');
 					assert.strictEqual(counter, 4);
 				});
 		}
