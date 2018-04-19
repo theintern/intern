@@ -19,7 +19,7 @@
 	},
 	"devDependencies": {
 		"@dojo/loader": "~0.1.1",
-		"@theintern/dev": "~0.6.6",
+		"@theintern/dev": "~0.7.0",
 		"@types/node": "~9.6.5",
 		"@types/semver": "~5.5.0",
 		"@types/shelljs": "~0.7.1",

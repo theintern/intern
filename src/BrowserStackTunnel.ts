@@ -26,28 +26,28 @@ export default class BrowserStackTunnel extends Tunnel {
 	 * Whether or not to start the tunnel with only WebDriver support. Setting
 	 * this value to `false` is not supported.
 	 */
-	automateOnly: boolean;
+	automateOnly: true | undefined;
 
 	/**
 	 * If true, any other tunnels running on the account will be killed when
 	 * the tunnel is started.
 	 */
-	killOtherTunnels: boolean;
+	killOtherTunnels: boolean | undefined;
 
 	/**
 	 * A list of server URLs that should be proxied by the tunnel. Only the
 	 * hostname, port, and protocol are used.
 	 */
-	servers: (Url | string)[];
+	servers!: (Url | string)[];
 
 	/**
 	 * Skip verification that the proxied servers are online and responding at
 	 * the time the tunnel starts.
 	 */
-	skipServerValidation: boolean;
+	skipServerValidation: boolean | undefined;
 
 	/** If true, route all traffic via the local machine. */
-	forceLocal: boolean;
+	forceLocal: boolean | undefined;
 
 	constructor(options?: BrowserStackOptions) {
 		super(
@@ -201,7 +201,9 @@ export default class BrowserStackTunnel extends Tunnel {
 					return response.text().then(text => {
 						throw new Error(
 							text ||
-								`Server reported ${response.status} with no other data.`
+								`Server reported ${
+									response.status
+								} with no other data.`
 						);
 					});
 				}

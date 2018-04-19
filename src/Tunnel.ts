@@ -22,6 +22,102 @@ import * as kill from 'tree-kill';
  */
 export default class Tunnel extends Evented<TunnelEvents, string>
 	implements TunnelProperties, Url {
+	/**
+	 * The URL of a service that provides a list of environments supported by
+	 * the tunnel.
+	 */
+	environmentUrl: string | undefined;
+
+	/**
+	 * The tunnel access key. This will be initialized with a tunnel-specific
+	 * environment variable if not specified.
+	 */
+	accessKey: string | undefined;
+
+	/**
+	 * The tunnel username. This will be initialized with a tunnel-specific
+	 * environment variable if not specified.
+	 */
+	username: string | undefined;
+
+	/**
+	 * The architecture the tunnel will run against. This information is
+	 * automatically retrieved for the current system at runtime.
+	 */
+	architecture!: string;
+
+	/**
+	 * An HTTP authorization string to use when initiating connections to the
+	 * tunnel. This value of this property is defined by Tunnel subclasses.
+	 */
+	auth: string | undefined;
+
+	/**
+	 * The directory where the tunnel software will be extracted. If the
+	 * directory does not exist, it will be created. This value is set by the
+	 * tunnel subclasses.
+	 */
+	directory!: string;
+
+	/**
+	 * The executable to spawn in order to create a tunnel. This value is set
+	 * by the tunnel subclasses.
+	 */
+	executable!: string;
+
+	/**
+	 * The host on which a WebDriver client can access the service provided by
+	 * the tunnel. This may or may not be the host where the tunnel application
+	 * is running.
+	 */
+	hostname!: string;
+
+	/**
+	 * The path that a WebDriver client should use to access the service
+	 * provided by the tunnel.
+	 */
+	pathname!: string;
+
+	/**
+	 * The operating system the tunnel will run on. This information is
+	 * automatically retrieved for the current system at runtime.
+	 */
+	platform!: string;
+
+	/**
+	 * The local port where the WebDriver server should be exposed by the
+	 * tunnel. This is typed as a string for Url compatibility, but should be a
+	 * number.
+	 */
+	port!: string;
+
+	/**
+	 * The protocol (e.g., 'http') that a WebDriver client should use to access
+	 * the service provided by the tunnel.
+	 */
+	protocol!: string;
+
+	/**
+	 * The URL of a proxy server for the tunnel to go through. Only the
+	 * hostname, port, and auth are used.
+	 */
+	proxy: string | undefined;
+
+	/** A unique identifier for the newly created tunnel. */
+	tunnelId: string | undefined;
+
+	/** The URL where the tunnel software can be downloaded. */
+	url!: string;
+
+	/** Whether or not to tell the tunnel to provide verbose logging output. */
+	verbose!: boolean;
+
+	protected _startTask: Task<any> | undefined;
+	protected _stopTask: Promise<number> | undefined;
+	protected _handle: Handle | undefined;
+	protected _process: ChildProcess | undefined;
+	protected _state!: 'stopped' | 'starting' | 'running' | 'stopping';
+
 	constructor(options?: TunnelOptions) {
 		super();
 		mixin(
@@ -33,110 +129,12 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 				platform: process.platform,
 				port: 4444,
 				protocol: 'http',
-				verbose: false
+				verbose: false,
+				state: 'stopped'
 			},
 			options || {}
 		);
 	}
-
-	/**
-	 * The URL of a service that provides a list of environments supported by
-	 * the tunnel.
-	 */
-	environmentUrl: string;
-
-	/**
-	 * The tunnel access key. This will be initialized with a tunnel-specific
-	 * environment variable if not specified.
-	 */
-	accessKey: string;
-
-	/**
-	 * The tunnel username. This will be initialized with a tunnel-specific
-	 * environment variable if not specified.
-	 */
-	username: string;
-
-	/**
-	 * The architecture the tunnel will run against. This information is
-	 * automatically retrieved for the current system at runtime.
-	 */
-	architecture: string;
-
-	/**
-	 * An HTTP authorization string to use when initiating connections to the
-	 * tunnel. This value of this property is defined by Tunnel subclasses.
-	 */
-	auth: string;
-
-	/**
-	 * The directory where the tunnel software will be extracted. If the
-	 * directory does not exist, it will be created. This value is set by the
-	 * tunnel subclasses.
-	 */
-	directory: string;
-
-	/**
-	 * The executable to spawn in order to create a tunnel. This value is set
-	 * by the tunnel subclasses.
-	 */
-	executable: string;
-
-	/**
-	 * The host on which a WebDriver client can access the service provided by
-	 * the tunnel. This may or may not be the host where the tunnel application
-	 * is running.
-	 */
-	hostname: string;
-
-	/**
-	 * The path that a WebDriver client should use to access the service
-	 * provided by the tunnel.
-	 */
-	pathname: string;
-
-	/**
-	 * The operating system the tunnel will run on. This information is
-	 * automatically retrieved for the current system at runtime.
-	 */
-	platform: string;
-
-	/**
-	 * The local port where the WebDriver server should be exposed by the
-	 * tunnel.
-	 */
-	port: string;
-
-	/**
-	 * The protocol (e.g., 'http') that a WebDriver client should use to access
-	 * the service provided by the tunnel.
-	 */
-	protocol: string;
-
-	/**
-	 * The URL of a proxy server for the tunnel to go through. Only the
-	 * hostname, port, and auth are used.
-	 */
-	proxy: string;
-
-	/** A unique identifier for the newly created tunnel. */
-	tunnelId: string;
-
-	/** The URL where the tunnel software can be downloaded. */
-	url: string;
-
-	/** Whether or not to tell the tunnel to provide verbose logging output. */
-	verbose: boolean;
-
-	protected _startTask: Task<any> | undefined;
-	protected _stopTask: Promise<number> | undefined;
-	protected _handle: Handle | undefined;
-	protected _process: ChildProcess | undefined;
-	protected _state:
-		| 'stopped'
-		| 'starting'
-		| 'running'
-		| 'stopping' = 'stopped';
 
 	/**
 	 * The URL that a WebDriver client should used to interact with this
@@ -203,8 +201,8 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 	}
 
 	protected _downloadFile(
-		url: string,
-		proxy: string,
+		url: string | undefined,
+		proxy: string | undefined,
 		options?: DownloadOptions
 	): Task<void> {
 		let request: Task<Response>;
@@ -322,6 +320,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 				let errorMessage = '';
 				let exitCode: number | undefined;
 				let stderrClosed = false;
+				let exitted = false;
 
 				function handleChildExit() {
 					if (task.state === State.Pending) {
@@ -333,23 +332,27 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 						);
 					}
 				}
+
 				handle = createCompositeHandle(
 					on(child, 'error', reject),
+
 					on(child.stderr, 'data', (data: string) => {
 						errorMessage += data;
 					}),
-					on(child, 'exit', (code: number) => {
-						exitCode = code;
+
+					on(child, 'exit', () => {
+						exitted = true;
 						if (stderrClosed) {
 							handleChildExit();
 						}
 					}),
+
 					// stderr might still have data in buffer at the time the
 					// exit event is sent, so we have to store data from stderr
 					// and the exit code and reject only once stderr closes
 					on(child.stderr, 'close', () => {
 						stderrClosed = true;
-						if (exitCode !== null) {
+						if (exitted) {
 							handleChildExit();
 						}
 					})
@@ -487,7 +490,11 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 				})
 			);
 
-			executor(child, resolve, reject);
+			try {
+				executor(child, resolve, reject);
+			} catch (error) {
+				reject(error);
+			}
 
 			return handle;
 		});
@@ -640,6 +647,7 @@ export interface TunnelEvents {
 	stderr: IOEvent;
 	status: StatusEvent;
 	downloadprogress: DownloadProgressEvent;
+	[index: string]: any;
 }
 
 /**
@@ -689,8 +697,8 @@ export interface ChildExecutor {
 
 /** Options for file downloads */
 export interface DownloadOptions {
-	directory: string;
-	proxy: string;
+	directory: string | undefined;
+	proxy: string | undefined;
 	url: string;
 }
 
@@ -720,16 +728,22 @@ export interface NormalizedEnvironment {
 /** Properties of a tunnel */
 export interface TunnelProperties extends DownloadOptions {
 	architecture: string;
-	auth: string;
-	accessKey: string;
-	executable: string;
+	auth: string | undefined;
+	accessKey: string | undefined;
+	executable: string | undefined;
 	hostname: string;
 	pathname: string;
 	platform: string;
+
+	/**
+	 * Port should be a number, but the property is typed as a string for
+	 * compatibility with Url
+	 */
 	port: string;
+
 	protocol: string;
-	tunnelId: string;
-	username: string;
+	tunnelId: string | undefined;
+	username: string | undefined;
 	verbose: boolean;
 }
 

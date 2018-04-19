@@ -41,7 +41,7 @@ function checkCredentials(tunnel: Tunnel, options: any) {
 	if (options.checkCredentials) {
 		return options.checkCredentials(tunnel);
 	}
-	return /\S+:\S+/.test(tunnel.auth);
+	return /\S+:\S+/.test(tunnel.auth!);
 }
 
 function getCleanup(tunnel: Tunnel, handle?: Handle) {
@@ -126,7 +126,8 @@ export function addStartStopTest(
 		}
 
 		const cleanup = getCleanup(tunnel, handle);
-		return tunnel.start()!
+		return tunnel
+			.start()!
 			.then(function() {
 				return tunnel.stop();
 			})

@@ -16,7 +16,7 @@ import { mixin } from '@dojo/core/lang';
 import { fileExists, on } from './util';
 import * as kill from 'tree-kill';
 
-const scVersion = '4.4.7';
+const scVersion = '4.4.12';
 
 /**
  * A Sauce Labs tunnel. This tunnel uses Sauce Connect 4 on platforms where it
@@ -27,92 +27,99 @@ const scVersion = '4.4.7';
  */
 export default class SauceLabsTunnel extends Tunnel
 	implements SauceLabsProperties {
+	accessKey!: string;
+
 	/**
 	 * A list of domains that should not be proxied by the tunnel on the remote
 	 * VM.
 	 */
-	directDomains: string[];
+	directDomains!: string[];
 
 	/**
 	 * A list of domains that will be proxied by the tunnel on the remote VM.
 	 */
-	tunnelDomains: string[];
+	tunnelDomains!: string[];
 
 	/**
 	 * A list of URLs that require additional HTTP authentication. Only the
 	 * hostname, port, and auth are used. This property is only supported by
 	 * Sauce Connect 4 tunnels.
 	 */
-	domainAuthentication: string[];
+	domainAuthentication!: string[];
 
 	/**
 	 * A list of regular expressions corresponding to domains whose connections
 	 * should fail immediately if the VM attempts to make a connection to them.
 	 */
-	fastFailDomains: string[];
+	fastFailDomains!: string[];
 
 	/**
 	 * Allows the tunnel to also be used by sub-accounts of the user that
 	 * started the tunnel.
 	 */
-	isSharedTunnel: boolean;
+	isSharedTunnel!: boolean;
 
 	/** A filename where additional logs from the tunnel should be output. */
-	logFile: string;
+	logFile: string | undefined;
 
 	/**
 	 * The absolute filepath (or URL) of a file which Sauce Connect should use
 	 * for additional proxy configuration. Sauce Connect suggests using either
 	 * this or `proxy`, but not both.
 	 */
-	pacFile: string;
+	pacFile: string | undefined;
 
 	/** A filename where Sauce Connect stores its process information. */
-	pidFile: string;
+	pidFile: string | undefined;
 
 	/**
 	 * Specifies the maximum log filesize before rotation, in bytes. This
 	 * property is only supported by Sauce Connect 3 tunnels.
 	 */
-	logFileSize: number;
+	logFileSize: number | undefined;
 
 	/**
 	 * Log statistics about HTTP traffic every `logTrafficStats` milliseconds.
 	 * This property is only supported by Sauce Connect 4 tunnels.
 	 */
-	logTrafficStats: number;
+	logTrafficStats!: number;
 
 	/**
 	 * An alternative URL for the Sauce REST API. This property is only
 	 * supported by Sauce Connect 3 tunnels.
 	 */
-	restUrl: string;
+	restUrl: string | undefined;
 
 	/**
 	 * A list of domains that should not have their SSL connections re-encrypted
 	 * when going through the tunnel.
 	 */
-	skipSslDomains: string[];
+	skipSslDomains!: string[];
 
 	/**
 	 * An additional set of options to use with the Squid proxy for the remote
 	 * VM. This property is only supported by Sauce Connect 3 tunnels.
 	 */
-	squidOptions: string;
+	squidOptions: string | undefined;
 
 	/**
 	 * Whether or not to use the proxy defined at [[Tunnel.proxy]] for the
 	 * tunnel connection itself.
 	 */
-	useProxyForTunnel: boolean;
+	useProxyForTunnel!: boolean;
 
 	/**
 	 * Overrides the version of the VM created on Sauce Labs. This property is
 	 * only supported by Sauce Connect 3 tunnels.
 	 */
-	vmVersion: string;
+	vmVersion: string | undefined;
 
-	scVersion: string;
+	/**
+	 * The version of Sauce Connect that should be used
+	 */
+	scVersion!: string;
+
+	username!: string;
 
 	constructor(options?: SauceLabsOptions) {
 		super(
@@ -355,12 +362,16 @@ export default class SauceLabsTunnel extends Tunnel
 
 						if (response.status !== 200) {
 							throw new Error(
-								`Server reported ${response.status} with: ${text}`
+								`Server reported ${
+									response.status
+								} with: ${text}`
 							);
 						}
 					} else {
 						throw new Error(
-							`Server reported ${response.status} with no other data.`
+							`Server reported ${
+								response.status
+							} with no other data.`
 						);
 					}
 				});
@@ -485,9 +496,10 @@ export default class SauceLabsTunnel extends Tunnel
 				if (!readMessage) {
 					return;
 				}
+
 				String(data)
 					.split('\n')
-					.some(function(message) {
+					.some(message => {
 						// Get rid of the date/time prefix on each message
 						const delimiter = message.indexOf(' - ');
 						if (delimiter > -1) {
@@ -595,16 +607,16 @@ export interface SauceLabsProperties extends TunnelProperties {
 	domainAuthentication: string[];
 	fastFailDomains: string[];
 	isSharedTunnel: boolean;
-	logFile: string;
-	pacFile: string;
-	pidFile: string;
-	logFileSize: number;
+	logFile: string | undefined;
+	pacFile: string | undefined;
+	pidFile: string | undefined;
+	logFileSize: number | undefined;
 	logTrafficStats: number;
-	restUrl: string;
+	restUrl: string | undefined;
 	skipSslDomains: string[];
-	squidOptions: string;
+	squidOptions: string | undefined;
 	useProxyForTunnel: boolean;
-	vmVersion: string;
+	vmVersion: string | undefined;
 }
 
 export type SauceLabsOptions = Partial<SauceLabsProperties>;

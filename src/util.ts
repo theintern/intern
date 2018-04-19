@@ -16,7 +16,7 @@ import { dirname } from 'path';
 export function on(
 	emitter: NodeJS.EventEmitter,
 	event: string | symbol,
-	listener: Function
+	listener: (...args: any[]) => void
 ): Handle {
 	emitter.on(event, listener);
 	return createHandle(() => emitter.removeListener(event, listener));

@@ -23,28 +23,30 @@ import Task from '@dojo/core/async/Task';
  */
 export default class TestingBotTunnel extends Tunnel
 	implements TunnelProperties {
+	directory!: string;
+
 	/**
 	 * A list of regular expressions corresponding to domains whose connections
 	 * should fail immediately if the VM attempts to make a connection to them.
 	 */
-	fastFailDomains: string[];
+	fastFailDomains!: string[];
 
 	/** A filename where additional logs from the tunnel should be output. */
-	logFile: string;
+	logFile!: string | null;
 
 	/** Whether or not to use rabbIT compression for the tunnel connection. */
-	useCompression: boolean;
+	useCompression!: boolean;
 
 	/** Whether or not to use the default local Jetty proxy for the tunnel. */
-	useJettyProxy: boolean;
+	useJettyProxy!: boolean;
 
 	/** Whether or not to use the default remote Squid proxy for the VM. */
-	useSquidProxy: boolean;
+	useSquidProxy!: boolean;
 
 	/**
 	 * Whether or not to re-encrypt data encrypted by self-signed certificates.
 	 */
-	useSsl: boolean;
+	useSsl!: boolean;
 
 	constructor(options?: TestingBotOptions) {
 		super(
@@ -155,12 +157,16 @@ export default class TestingBotTunnel extends Tunnel
 							throw new Error('Job data failed to save.');
 						} else if (response.status !== 200) {
 							throw new Error(
-								`Server reported ${response.status} with: ${text}`
+								`Server reported ${
+									response.status
+								} with: ${text}`
 							);
 						}
 					} else {
 						throw new Error(
-							`Server reported ${response.status} with no other data.`
+							`Server reported ${
+								response.status
+							} with no other data.`
 						);
 					}
 				});

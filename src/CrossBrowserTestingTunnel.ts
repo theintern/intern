@@ -14,7 +14,7 @@ import Task from '@dojo/core/async/Task';
 import { createCompositeHandle, mixin } from '@dojo/core/lang';
 import { exec } from 'child_process';
 
-const cbtVersion = '0.1.0';
+const cbtVersion = '0.9.3';
 
 /**
  * A CrossBrowserTesting tunnel.
@@ -47,7 +47,25 @@ const cbtVersion = '0.1.0';
  * and CBT_APIKEY.
  */
 export default class CrossBrowserTestingTunnel extends Tunnel {
-	cbtVersion: string;
+	cbtVersion!: string;
+
+	constructor(options?: TunnelProperties) {
+		super(
+			mixin(
+				{
+					accessKey: process.env.CBT_APIKEY,
+					cbtVersion,
+					environmentUrl:
+						'https://crossbrowsertesting.com/api/v3/selenium/browsers?format=json',
+					executable: 'node',
+					hostname: 'hub.crossbrowsertesting.com',
+					port: '80',
+					username: process.env.CBT_USERNAME
+				},
+				options || {}
+			)
+		);
+	}
 
 	get auth() {
 		return `${this.username || ''}:${this.accessKey || ''}`;
@@ -67,24 +85,6 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 		} catch (error) {
 			return false;
 		}
-	}
-
-	constructor(options?: TunnelProperties) {
-		super(
-			mixin(
-				{
-					accessKey: process.env.CBT_APIKEY,
-					cbtVersion,
-					environmentUrl:
-						'https://crossbrowsertesting.com/api/v3/selenium/browsers?format=json',
-					executable: 'node',
-					hostname: 'hub.crossbrowsertesting.com',
-					port: '80',
-					username: process.env.CBT_USERNAME
-				},
-				options || {}
-			)
-		);
 	}
 
 	download(forceDownload = false): Task<void> {
@@ -152,16 +152,22 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 
 							if (data.status) {
 								throw new Error(
-									`Could not save test status (${data.message})`
+									`Could not save test status (${
+										data.message
+									})`
 								);
 							}
 
 							throw new Error(
-								`Server reported ${response.status} with: ${text}`
+								`Server reported ${
+									response.status
+								} with: ${text}`
 							);
 						} else {
 							throw new Error(
-								`Server reported ${response.status} with no other data.`
+								`Server reported ${
+									response.status
+								} with no other data.`
 							);
 						}
 					});

@@ -10,11 +10,12 @@ import { fileExists, on, writeFile } from './util';
 import { Handle } from '@dojo/core/interfaces';
 import { mixin } from '@dojo/core/lang';
 import { satisfies } from 'semver';
+import * as kill from 'tree-kill';
 
-const SeleniumVersion = '3.10.0';
-const ChromeVersion = '2.36';
-const FirefoxVersion = '0.19.1';
-const IEVersion = '3.10.0';
+const SeleniumVersion = '3.11.0';
+const ChromeVersion = '2.37';
+const FirefoxVersion = '0.20.1';
+const IEVersion = '3.11.0';
 
 /**
  * A Selenium tunnel. This tunnel downloads the
@@ -37,7 +38,7 @@ const IEVersion = '3.10.0';
 export default class SeleniumTunnel extends Tunnel
 	implements SeleniumProperties {
 	/** Additional arguments to send to the Selenium server at startup */
-	seleniumArgs: string[];
+	seleniumArgs!: string[];
 
 	/**
 	 * The desired Selenium drivers to install. Each entry may be a string or an
@@ -69,34 +70,34 @@ export default class SeleniumTunnel extends Tunnel
 	 *
 	 * @default [ 'chrome' ]
 	 */
-	drivers: DriverDescriptor[];
+	drivers!: DriverDescriptor[];
 
 	/**
 	 * The base address where Selenium artifacts may be found.
 	 *
 	 * @default https://selenium-release.storage.googleapis.com
 	 */
-	baseUrl: string;
+	baseUrl!: string;
 
 	/**
 	 * The desired version of selenium to install.
 	 *
 	 * @default 3.3.1
 	 */
-	version: string;
+	version!: string;
 
 	/**
 	 * Timeout in milliseconds for communicating with the Selenium server
 	 *
 	 * @default 5000
 	 */
-	seleniumTimeout: number;
+	seleniumTimeout!: number;
 
 	constructor(options?: SeleniumOptions) {
 		super(
 			mixin(
 				{
-					seleniumArgs: null,
+					seleniumArgs: [],
 					drivers: ['chrome'],
 					baseUrl: 'https://selenium-release.storage.googleapis.com',
 					version: SeleniumVersion,
@@ -361,10 +362,10 @@ type ChromeOptions = Partial<ChromeProperties>;
 
 class ChromeConfig extends Config<ChromeOptions>
 	implements ChromeProperties, DriverFile {
-	arch: string;
-	baseUrl: string;
-	platform: string;
-	version: string;
+	arch!: string;
+	baseUrl!: string;
+	platform!: string;
+	version!: string;
 
 	constructor(options: ChromeOptions) {
 		super(
@@ -427,10 +428,10 @@ type FirefoxOptions = Partial<FirefoxProperties>;
 
 class FirefoxConfig extends Config<FirefoxOptions>
 	implements FirefoxProperties, DriverFile {
-	arch: string;
-	baseUrl: string;
-	platform: string;
-	version: string;
+	arch!: string;
+	baseUrl!: string;
+	platform!: string;
+	version!: string;
 
 	constructor(options: FirefoxOptions) {
 		super(
@@ -495,9 +496,9 @@ interface IEProperties {
 type IEOptions = Partial<IEProperties>;
 
 class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
-	arch: string;
-	baseUrl: string;
-	version: string;
+	arch!: string;
+	baseUrl!: string;
+	version!: string;
 
 	constructor(options: IEOptions) {
 		super(
@@ -545,7 +546,7 @@ class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
 
 interface EdgeProperties {
 	baseUrl: string;
-	uuid: string;
+	uuid: string | undefined;
 	version: string;
 }
 
@@ -558,9 +559,9 @@ const EdgeVersions: { [release: string]: string } = {
 
 class EdgeConfig extends Config<EdgeOptions>
 	implements EdgeProperties, DriverFile {
-	baseUrl: string;
-	uuid: string;
-	version: string;
+	baseUrl!: string;
+	uuid: string | undefined;
+	version!: string;
 
 	constructor(options: EdgeOptions) {
 		super(
