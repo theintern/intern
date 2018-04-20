@@ -7,7 +7,7 @@ env:
   global:
     # Please get your own free key if you want to test yourself
     - BROWSERSTACK_USERNAME=sitepenlabs1
-    - BROWSERSTACK_ACCESS_KEY=836y5xDYPeFudz5HvZyp
+    - BROWSERSTACK_ACCESS_KEY=xm1uYrJuV3gZMJqCyZJX
   matrix:
     - INTERN_ARGS="environments="
     - INTERN_ARGS=""
