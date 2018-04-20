@@ -71,24 +71,22 @@ export default abstract class BaseExecutor<
 	C extends Config,
 	P extends Plugins
 > implements Executor {
-	protected _assertions: { [name: string]: any };
 	protected _config: C;
 	protected _rootSuite: Suite;
 	protected _events: InternEvent<E>[];
-	protected _errorFormatter: ErrorFormatter;
+	protected _errorFormatter: ErrorFormatter | undefined;
 	protected _hasSuiteErrors = false;
 	protected _hasTestErrors = false;
 	protected _hasEmittedErrors = false;
-	protected _interfaces: { [name: string]: any };
-	protected _loader: Loader;
+	protected _loader!: Loader;
 	protected _loaderOptions: any;
-	protected _loaderInit: Promise<Loader>;
+	protected _loaderInit: Promise<Loader> | undefined;
 	protected _loadingPlugins: { name: string; init: Task<void> }[];
 	protected _loadingPluginOptions: any | undefined;
 	protected _listeners: { [event: string]: Listener<any>[] };
 	protected _plugins: { [name: string]: any };
 	protected _reporters: Reporter[];
-	protected _runTask: Task<void>;
+	protected _runTask: Task<void> | undefined;
 	protected _reportersInitialized: boolean;
 
 	constructor(options?: { [key in keyof C]?: any }) {
@@ -181,7 +179,7 @@ export default abstract class BaseExecutor<
 	 * Format an error, normalizing the stack trace and resolving source map
 	 * references
 	 */
-	formatError(error: Error, options?: ErrorFormatOptions) {
+	formatError(error: Error, options?: ErrorFormatOptions): string {
 		if (!this._errorFormatter) {
 			this._errorFormatter = new ErrorFormatter(this);
 		}
@@ -280,7 +278,7 @@ export default abstract class BaseExecutor<
 
 		let error: InternError | undefined;
 		if (eventName === 'error') {
-			error = <InternError>data;
+			error = <any>data;
 		}
 
 		// If this is an error event, mark the error as 'reported'
@@ -328,7 +326,7 @@ export default abstract class BaseExecutor<
 			} else if (eventName === 'warning') {
 				console.warn(`WARNING: ${data}`);
 			} else if (eventName === 'deprecated') {
-				const message = <DeprecationMessage>data;
+				const message = data!;
 				console.warn(
 					`WARNING: ${message.original} is deprecated, use ${
 						message.replacement
@@ -913,9 +911,7 @@ export default abstract class BaseExecutor<
 				.then(() => {
 					if (!this._loaderInit) {
 						throw new Error(
-							`Loader script ${
-								script
-							} did not register a loader callback`
+							`Loader script ${script} did not register a loader callback`
 						);
 					}
 					return this._loaderInit;

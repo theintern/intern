@@ -12,12 +12,12 @@ import BenchmarkTest from './BenchmarkTest';
 export default class BenchmarkSuite extends Suite
 	implements BenchmarkSuiteProperties {
 	/** A function that is run after each test call by benchmark.js */
-	afterEachLoop: TestLifecycleFunction;
+	afterEachLoop: TestLifecycleFunction | undefined;
 
 	/** A function that is run before each test call by benchmark.js */
-	beforeEachLoop: TestLifecycleFunction;
+	beforeEachLoop: TestLifecycleFunction | undefined;
 
-	tests: (BenchmarkSuite | BenchmarkTest)[];
+	tests!: (BenchmarkSuite | BenchmarkTest)[];
 
 	constructor(options: BenchmarkSuiteOptions) {
 		super(<SuiteOptions>options);
@@ -25,8 +25,8 @@ export default class BenchmarkSuite extends Suite
 }
 
 export interface BenchmarkSuiteProperties extends SuiteProperties {
-	beforeEachLoop: TestLifecycleFunction;
-	afterEachLoop: TestLifecycleFunction;
+	beforeEachLoop: TestLifecycleFunction | undefined;
+	afterEachLoop: TestLifecycleFunction | undefined;
 }
 
 export type BenchmarkSuiteOptions = Partial<BenchmarkSuiteProperties> & {

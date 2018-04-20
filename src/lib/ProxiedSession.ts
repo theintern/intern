@@ -31,9 +31,9 @@ export default class ProxiedSession extends Session {
 	/**
 	 * The Executor hosting this session.
 	 */
-	executor: Node;
+	executor!: Node;
 
-	private _heartbeatIntervalHandle: { remove: Function };
+	private _heartbeatIntervalHandle: { remove: Function } | undefined;
 
 	get coverageEnabled() {
 		return this.executor.config.coverage !== false;

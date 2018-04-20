@@ -3,9 +3,8 @@ import Node from '../executors/Node';
 
 export default class Cobertura extends Coverage
 	implements CoberturaCoverageProperties {
-
 	readonly reportType: ReportType = 'cobertura';
-	projectRoot: string;
+	projectRoot: string | undefined;
 
 	constructor(executor: Node, options: CoberturaCoverageOptions = {}) {
 		super(executor, options);
@@ -15,7 +14,7 @@ export default class Cobertura extends Coverage
 		}
 	}
 
-	getReporterOptions(): { [key: string]: any; } {
+	getReporterOptions(): { [key: string]: any } {
 		const options = super.getReporterOptions();
 
 		options.projectRoot = this.projectRoot;

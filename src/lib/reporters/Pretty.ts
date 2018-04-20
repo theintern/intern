@@ -30,8 +30,8 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
 	protected _reports: any;
 	protected _spinnerOffset: number;
 	protected _total: Report;
-	protected _charm: charm.CharmInstance;
-	protected _renderTimeout: NodeJS.Timer;
+	protected _charm: charm.CharmInstance | undefined;
+	protected _renderTimeout: NodeJS.Timer | undefined;
 
 	constructor(executor: Node, options: PrettyOptions = {}) {
 		super(executor, options);
@@ -80,7 +80,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
 		global.process.stdout.on('resize', resize);
 
 		const rerender = () => {
-			this._charm.erase('screen').position(0, 0);
+			this._charm!.erase('screen').position(0, 0);
 			this._render();
 			this._renderTimeout = global.setTimeout(rerender, 200);
 		};
@@ -89,8 +89,8 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
 
 	@eventHandler()
 	runEnd() {
-		const charm = this._charm;
-		clearTimeout(this._renderTimeout);
+		const charm = this._charm!;
+		global.clearTimeout(this._renderTimeout);
 		charm.erase('screen').position(0, 0);
 
 		// write a full log of errors
@@ -200,7 +200,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
 		const message = '! ' + error.message;
 		this._log.push(message + '\n' + this.formatError(error));
 		// stop the render timeout on a fatal error so Intern can exit
-		clearTimeout(this._renderTimeout);
+		global.clearTimeout(this._renderTimeout);
 	}
 
 	@eventHandler()
@@ -271,7 +271,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
 	 */
 	private _drawProgressBar(report: Report, width: number) {
 		const spinnerCharacter = SPINNER_STATES[this._spinnerOffset];
-		const charm = this._charm;
+		const charm = this._charm!;
 		if (!report.numTotal) {
 			charm.write('Pending');
 			return;
@@ -313,7 +313,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
 	 * title, OS and code coverage and the progress bar on the second
 	 */
 	private _drawSessionReport(report: Report) {
-		const charm = this._charm;
+		const charm = this._charm!;
 		const titleWidth = this.titleWidth;
 		const leftOfBar = fit(
 			this._abbreviateEnvironment(report.environment).slice(
@@ -360,7 +360,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
 	}
 
 	private _render(omitLogs: boolean = false) {
-		const charm = this._charm;
+		const charm = this._charm!;
 		const numReports = Object.keys(this._reports).length;
 		const logLength =
 			this.dimensions.height -
@@ -412,7 +412,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
 	}
 
 	private _drawTotalReport(report: Report) {
-		const charm = this._charm;
+		const charm = this._charm!;
 		const title = 'Total: ';
 		const totalTextSize = String(report.numTotal).length;
 

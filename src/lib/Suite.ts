@@ -14,12 +14,12 @@ export default class Suite implements SuiteProperties {
 	/**
 	 * An optional method that is run after all the suite's tests have completed
 	 */
-	after: SuiteLifecycleFunction;
+	after: SuiteLifecycleFunction | undefined;
 
 	/**
 	 * An optional method that is run after each test has completed
 	 */
-	afterEach: TestLifecycleFunction;
+	afterEach: TestLifecycleFunction | undefined;
 
 	/**
 	 * A convenience function that generates and returns a special
@@ -31,21 +31,21 @@ export default class Suite implements SuiteProperties {
 	 * An optional method that is run before any of this suite's tests are
 	 * started
 	 */
-	before: SuiteLifecycleFunction;
+	before: SuiteLifecycleFunction | undefined;
 
 	/**
 	 * An optional method that is run before each test
 	 */
-	beforeEach: TestLifecycleFunction;
+	beforeEach: TestLifecycleFunction | undefined;
 
 	/** The error that caused this suite to fail */
 	error: InternError | undefined;
 
 	/** This suite's name */
-	name: string;
+	name: string | undefined;
 
 	/** This suite's parent Suite */
-	parent: Suite;
+	parent: Suite | undefined;
 
 	/**
 	 * If true, the suite will emit a suiteStart event after the `before`
@@ -55,20 +55,20 @@ export default class Suite implements SuiteProperties {
 	publishAfterSetup = false;
 
 	/** The reason why this suite was skipped */
-	skipped: string;
+	skipped: string | undefined;
 
 	/** The tests or other suites managed by this suite */
 	tests: (Suite | Test)[];
 
 	/** The time required to run all the tests in this suite */
-	timeElapsed: number;
+	timeElapsed: number | undefined;
 
-	private _bail: boolean;
-	private _executor: Executor;
-	private _grep: RegExp;
-	private _remote: Remote;
-	private _sessionId: string;
-	private _timeout: number;
+	private _bail: boolean | undefined;
+	private _executor: Executor | undefined;
+	private _grep: RegExp | undefined;
+	private _remote: Remote | undefined;
+	private _sessionId: string | undefined;
+	private _timeout: number | undefined;
 
 	/**
 	 * @param options an object with default property values
@@ -95,11 +95,11 @@ export default class Suite implements SuiteProperties {
 	}
 
 	/**
-	 * A flag used to indicate whether a test run shoudl stop after a failed
+	 * A flag used to indicate whether a test run should stop after a failed
 	 * test.
 	 */
 	get bail() {
-		return this._bail || (this.parent && this.parent.bail);
+		return this._bail || (this.parent && this.parent.bail)!;
 	}
 
 	set bail(value: boolean) {
@@ -111,7 +111,7 @@ export default class Suite implements SuiteProperties {
 	 */
 	get executor(): Executor {
 		// Prefer the parent's executor
-		return (this.parent && this.parent.executor) || this._executor;
+		return (this.parent && this.parent.executor) || this._executor!;
 	}
 
 	set executor(value: Executor) {
@@ -146,7 +146,7 @@ export default class Suite implements SuiteProperties {
 
 		do {
 			suite.name != null && name.unshift(suite.name);
-		} while ((suite = suite.parent));
+		} while ((suite = suite.parent!));
 
 		return name.join(' - ');
 	}
@@ -170,7 +170,7 @@ export default class Suite implements SuiteProperties {
 	get remote() {
 		return this.parent && this.parent.remote
 			? this.parent.remote
-			: this._remote;
+			: this._remote!;
 	}
 
 	set remote(value: Remote) {
@@ -497,7 +497,7 @@ export default class Suite implements SuiteProperties {
 							// afterEach executes in order child -> parent
 							methodQueue.unshift(suite);
 						}
-					} while ((suite = suite.parent));
+					} while ((suite = suite.parent!));
 
 					let currentMethod: Task<any>;
 
@@ -786,13 +786,13 @@ export interface TestLifecycleFunction {
  * interface, can use a different definition for it.
  */
 export interface SuiteProperties {
-	after: SuiteLifecycleFunction;
-	afterEach: TestLifecycleFunction;
-	bail: boolean;
-	before: SuiteLifecycleFunction;
-	beforeEach: TestLifecycleFunction;
+	after: SuiteLifecycleFunction | undefined;
+	afterEach: TestLifecycleFunction | undefined;
+	bail: boolean | undefined;
+	before: SuiteLifecycleFunction | undefined;
+	beforeEach: TestLifecycleFunction | undefined;
 	grep: RegExp;
-	name: string;
+	name: string | undefined;
 	publishAfterSetup: boolean;
 	timeout: number;
 }

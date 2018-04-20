@@ -62,10 +62,13 @@ registerSuite('lib/executors/Node', function() {
 	}
 
 	class MockInstrumenter {
-		private fileCoverage: {
-			code: string;
-			filename: string;
-		};
+		private fileCoverage:
+			| {
+					code: string;
+					filename: string;
+					// tslint:disable-next-line:indent
+			  }
+			| undefined;
 
 		instrumentSync(code: string, filename: string) {
 			this.fileCoverage = { code, filename };
@@ -839,7 +842,7 @@ registerSuite('lib/executors/Node', function() {
 						functionalTimeouts: { pageLoad: 10 }
 					});
 					return executor.run().then(() => {
-						const suite = executor['_sessionSuites'][0];
+						const suite = executor['_sessionSuites']![0];
 						assert.equal(
 							(<any>suite.remote.setPageLoadTimeout).callCount,
 							1,

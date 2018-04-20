@@ -10,17 +10,17 @@ import { ErrorFormatOptions } from '../common/ErrorFormatter';
 export default class Reporter implements ReporterProperties {
 	readonly executor: Executor;
 
-	protected _console: Console;
-	protected _executor: Executor;
-	protected _handles: Handle[];
-	protected _output: ReporterOutput;
+	protected _console: Console | undefined;
+	protected _executor: Executor | undefined;
+	protected _handles: Handle[] | undefined;
+	protected _output: ReporterOutput | undefined;
 
 	/**
 	 * A mapping from event names to the names of methods on this object. This
 	 * property should be defined on the class prototype. It is automatically
 	 * created by the @eventHandler decorator.
 	 */
-	protected _eventHandlers: { [eventName: string]: string };
+	protected _eventHandlers: { [eventName: string]: string } | undefined;
 
 	constructor(executor: Executor, options: ReporterOptions = {}) {
 		if (options.output) {
@@ -90,7 +90,7 @@ export default class Reporter implements ReporterProperties {
 		// Use a for..in loop because _eventHandlers may inherit from a parent
 		for (let name in this._eventHandlers) {
 			this.executor.on(<keyof Events>name, (...args: any[]) => {
-				const handler = this._eventHandlers[name];
+				const handler = this._eventHandlers![name];
 				return (<any>this)[handler](...args);
 			});
 		}

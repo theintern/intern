@@ -1,6 +1,6 @@
 export default class Deferred<T> {
-	private _resolver: (value?: T) => void;
-	private _rejector: (error?: Error) => void;
+	private _resolver!: (value?: T) => void;
+	private _rejector!: (error?: Error) => void;
 	readonly promise: Promise<T>;
 
 	constructor() {
@@ -17,7 +17,7 @@ export default class Deferred<T> {
 	 */
 	callback(callback: Function): any {
 		const dfd = this;
-		return this.rejectOnError(function (this: any, ...args: any[]) {
+		return this.rejectOnError(function(this: any, ...args: any[]) {
 			const returnValue = callback.apply(this, args);
 			dfd.resolve();
 			return returnValue;
@@ -29,7 +29,7 @@ export default class Deferred<T> {
 	 */
 	rejectOnError(callback: Function): any {
 		const dfd = this;
-		return function (this: any, ...args: any[]) {
+		return function(this: any, ...args: any[]) {
 			try {
 				return callback.apply(this, args);
 			} catch (error) {

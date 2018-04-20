@@ -123,8 +123,8 @@ export function mockPath(
 					return path.basename(base, ...args);
 				},
 
-				normalize(base: string, ...args: any[]) {
-					return path.normalize(base, ...args);
+				normalize(pth: string) {
+					return path.normalize(pth);
 				}
 			},
 			properties

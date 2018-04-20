@@ -6,7 +6,7 @@ import { parseUrl } from '../browser/util';
 
 export default class WebSocketChannel extends BaseChannel {
 	/** Time to wait for response before rejecting a send */
-	timeout: number;
+	timeout!: number;
 
 	protected _socket: WebSocket;
 	protected _sendQueue: {

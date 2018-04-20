@@ -12,7 +12,7 @@ import { Executor } from '../executors/Executor';
  * XSDs as possible into one reporter.
  */
 export default class JUnit extends Reporter {
-	readonly filename: string;
+	readonly filename: string | undefined;
 
 	constructor(executor: Executor, options: Partial<JUnitProperties> = {}) {
 		super(executor, options);
@@ -142,7 +142,7 @@ function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
 		failures: suite.numFailedTests,
 		skipped: suite.numSkippedTests,
 		tests: suite.numTests,
-		time: suite.timeElapsed / 1000,
+		time: suite.timeElapsed! / 1000,
 		childNodes: suite.tests.map(test => createTestNode(test, reporter))
 	});
 }
@@ -154,7 +154,7 @@ function createTestNode(test: Suite | Test, reporter: JUnit) {
 
 	const node = new XmlNode('testcase', {
 		name: test.name,
-		time: test.timeElapsed / 1000,
+		time: test.timeElapsed! / 1000,
 		status: test.error ? 1 : 0
 	});
 

@@ -13,16 +13,16 @@ import { isTask } from './common/util';
  */
 export default class Test implements TestProperties {
 	/** The name of this test */
-	name: string;
+	name!: string;
 
 	/** This test's parent Suite */
-	parent: Suite;
+	parent!: Suite;
 
 	/** If this test was skipped, this will contain a message indicating why */
 	skipped: string | undefined;
 
 	/** The test function that is run by this Test */
-	test: TestFunction;
+	test!: TestFunction;
 
 	/** The error that caused this Test to fail */
 	error: InternError | undefined;
@@ -31,11 +31,11 @@ export default class Test implements TestProperties {
 
 	protected _isAsync = false;
 
-	protected _timeout: number;
+	protected _timeout: number | undefined;
 
 	protected _runTask: Task<any> | undefined;
 
-	protected _timeElapsed: number;
+	protected _timeElapsed: number | undefined;
 
 	// Use type 'any' because we may be running under Node (NodeJS.Timer) or a
 	// browser (number)

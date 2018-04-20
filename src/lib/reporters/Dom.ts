@@ -13,7 +13,7 @@ export default class Dom extends Reporter {
 
 	suiteNode: HTMLElement;
 
-	testNode: HTMLElement;
+	testNode: HTMLElement | undefined;
 
 	constructor(executor: Executor, options: DomOptions = {}) {
 		super(executor, options);
@@ -61,7 +61,7 @@ export default class Dom extends Reporter {
 			const outerSuiteNode = this.document.createElement('li');
 			const headerNode = this.document.createElement('div');
 
-			headerNode.appendChild(this.document.createTextNode(suite.name));
+			headerNode.appendChild(this.document.createTextNode(suite.name!));
 			outerSuiteNode.appendChild(headerNode);
 			outerSuiteNode.appendChild(this.suiteNode);
 			oldSuiteNode.appendChild(outerSuiteNode);
@@ -86,25 +86,27 @@ export default class Dom extends Reporter {
 			testNode.style.color = 'gray';
 			this.suiteNode.appendChild(testNode);
 		} else if (test.error) {
-			this.testNode.appendChild(
+			const testNode = this.testNode!;
+			testNode.appendChild(
 				this.document.createTextNode(
 					' failed (' + test.timeElapsed + 'ms)'
 				)
 			);
-			this.testNode.style.color = 'red';
+			testNode.style.color = 'red';
 
 			const errorNode = this.document.createElement('pre');
 			errorNode.appendChild(
 				this.document.createTextNode(this.formatError(test.error))
 			);
-			this.testNode.appendChild(errorNode);
+			testNode.appendChild(errorNode);
 		} else {
-			this.testNode.appendChild(
+			const testNode = this.testNode!;
+			testNode.appendChild(
 				this.document.createTextNode(
 					' passed (' + test.timeElapsed + 'ms)'
 				)
 			);
-			this.testNode.style.color = 'green';
+			testNode.style.color = 'green';
 		}
 		this._scroll();
 	}

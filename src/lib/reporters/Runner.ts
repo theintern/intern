@@ -62,7 +62,9 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 	@eventHandler()
 	deprecated(message: DeprecationMessage) {
 		// Keep track of deprecation messages we've seen before
-		const key = `${message.original}|${message.replacement}|${message.message}`;
+		const key = `${message.original}|${message.replacement}|${
+			message.message
+		}`;
 		if (this._deprecationMessages[key]) {
 			return;
 		}
@@ -178,8 +180,9 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 	serverStart(server: Server) {
 		if (this.executor.config.serveOnly) {
 			this.charm.write(
-				`To use the browser client, browse to\n\n  ${this.executor
-					.config.serverUrl}__intern/\n\n`
+				`To use the browser client, browse to\n\n  ${
+					this.executor.config.serverUrl
+				}__intern/\n\n`
 			);
 			this.charm.write('Press CTRL-C to stop serving\n\n');
 		} else {
@@ -280,7 +283,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 		if (test.error) {
 			charm.foreground('red');
 			charm.write('× ' + test.id);
-			charm.write(' (' + test.timeElapsed / 1000 + 's)');
+			charm.write(' (' + test.timeElapsed! / 1000 + 's)');
 			charm.write('\n');
 			charm.write(prefix(this.formatError(test.error), '    '));
 			charm.display('reset');
@@ -298,7 +301,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 				charm.foreground('green');
 				charm.write('✓ ' + test.id);
 				charm.display('reset');
-				charm.write(' (' + test.timeElapsed / 1000 + 's)');
+				charm.write(' (' + test.timeElapsed! / 1000 + 's)');
 				charm.display('reset');
 				charm.write('\n');
 			}

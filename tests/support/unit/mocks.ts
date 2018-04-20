@@ -341,9 +341,9 @@ export class MockRequest extends EventHandler {
 	method: MethodType;
 	url: string | undefined;
 	headers: { [key: string]: string } = Object.create(null);
-	body: string | string[];
+	body: string | string[] | undefined;
 
-	intern: MockInternObject;
+	intern: MockInternObject | undefined;
 
 	constructor(method: MethodType, url?: string) {
 		super();
@@ -361,9 +361,9 @@ export type MockResponseOptions = {
 export class MockResponse extends EventHandler {
 	data: string;
 	headers: { [key: string]: string } = Object.create(null);
-	statusCode: number;
+	statusCode: number | undefined;
 
-	intern: MockInternObject;
+	intern: MockInternObject | undefined;
 
 	constructor(options?: MockResponseOptions) {
 		super();

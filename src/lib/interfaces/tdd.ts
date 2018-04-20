@@ -64,7 +64,7 @@ export function before(fn: SuiteProperties['before']) {
 			'A suite lifecycle method must be declared within a suite'
 		);
 	}
-	aspect(currentSuite, 'before', fn);
+	aspect(currentSuite, 'before', fn!);
 }
 
 export function after(fn: SuiteProperties['after']) {
@@ -73,7 +73,7 @@ export function after(fn: SuiteProperties['after']) {
 			'A suite lifecycle method must be declared within a suite'
 		);
 	}
-	aspect(currentSuite, 'after', fn);
+	aspect(currentSuite, 'after', fn!);
 }
 
 export function beforeEach(fn: SuiteProperties['beforeEach']) {
@@ -82,7 +82,7 @@ export function beforeEach(fn: SuiteProperties['beforeEach']) {
 			'A suite lifecycle method must be declared within a suite'
 		);
 	}
-	aspect(currentSuite, 'beforeEach', fn);
+	aspect(currentSuite, 'beforeEach', fn!);
 }
 
 export function afterEach(fn: SuiteProperties['afterEach']) {
@@ -91,7 +91,7 @@ export function afterEach(fn: SuiteProperties['afterEach']) {
 			'A suite lifecycle method must be declared within a suite'
 		);
 	}
-	aspect(currentSuite, 'afterEach', fn);
+	aspect(currentSuite, 'afterEach', fn!);
 }
 
 export function getInterface(executor: Executor): TddInterface {

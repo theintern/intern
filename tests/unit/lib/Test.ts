@@ -299,7 +299,7 @@ registerSuite('lib/Test', {
 				'Test time elapsed should be a number'
 			);
 			assert(
-				test.timeElapsed > 0,
+				test.timeElapsed! > 0,
 				'Test time elapsed for 100ms async test should be greater than zero milliseconds'
 			);
 		});

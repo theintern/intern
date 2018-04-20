@@ -8,8 +8,8 @@ export { ChannelOptions };
 export default class Channel {
 	readonly options: ChannelOptions;
 
-	private _channel: BaseChannel;
-	private _initialized: Promise<void>;
+	private _channel!: BaseChannel;
+	private _initialized!: Promise<void>;
 
 	constructor(options: ChannelOptions) {
 		this.options = options;

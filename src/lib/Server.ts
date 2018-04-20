@@ -27,31 +27,33 @@ export interface Context {
 
 export default class Server implements ServerProperties {
 	/** Executor managing this Server */
-	readonly executor: Node;
+	readonly executor!: Node;
 
 	/** Base path to resolve file requests against */
-	basePath: string;
+	basePath!: string;
 
 	/** Port to use for HTTP connections */
-	port: number;
+	port!: number;
 
 	/**
 	 * If true, wait for emit handlers to complete before responding to a
 	 * message
 	 */
-	runInSync: boolean;
+	runInSync!: boolean;
 
 	/** Port to use for WebSocket connections */
-	socketPort: number;
+	socketPort!: number;
 
 	get stopped() {
 		return !this._httpServer;
 	}
 
-	protected _app: express.Express | null;
-	protected _httpServer: HttpServer | null;
-	protected _sessions: { [id: string]: { listeners: ServerListener[] } };
-	protected _wsServer: WebSocket.Server | null;
+	protected _app: express.Express | undefined;
+	protected _httpServer: HttpServer | undefined;
+	protected _sessions:
+		| { [id: string]: { listeners: ServerListener[] } }
+		| undefined;
+	protected _wsServer: WebSocket.Server | undefined;
 
 	constructor(options: ServerOptions) {
 		mixin(
@@ -248,7 +250,7 @@ export default class Server implements ServerProperties {
 					this._httpServer!.close(resolve);
 				}).then(() => {
 					this.executor.log('Stopped http server');
-					this._app = this._httpServer = null;
+					this._app = this._httpServer = undefined;
 				})
 			);
 		}
@@ -259,7 +261,7 @@ export default class Server implements ServerProperties {
 					this._wsServer!.close(resolve);
 				}).then(() => {
 					this.executor.log('Stopped ws server');
-					this._wsServer = null;
+					this._wsServer = undefined;
 				})
 			);
 		}
@@ -282,9 +284,9 @@ export default class Server implements ServerProperties {
 	}
 
 	private _getSession(sessionId: string) {
-		let session = this._sessions[sessionId];
+		let session = this._sessions![sessionId];
 		if (!session) {
-			session = this._sessions[sessionId] = { listeners: [] };
+			session = this._sessions![sessionId] = { listeners: [] };
 		}
 		return session;
 	}
@@ -316,7 +318,7 @@ export default class Server implements ServerProperties {
 	private _handleWebSocket(client: WebSocket) {
 		client.on('message', data => {
 			this.executor.log('Received WebSocket message');
-			const message: Message = JSON.parse(data);
+			const message: Message = JSON.parse(data.toString());
 			this._handleMessage(message)
 				.catch(error => this.executor.emit('error', error))
 				.then(() => {

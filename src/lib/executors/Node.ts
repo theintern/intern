@@ -56,18 +56,18 @@ import TeamCity from '../reporters/TeamCity';
 const process: NodeJS.Process = global.process;
 
 export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
-	server: Server;
-	tunnel: Tunnel;
+	server: Server | undefined;
+	tunnel: Tunnel | undefined;
 
 	protected _coverageMap: CoverageMap;
-	protected _coverageFiles: string[];
-	protected _loadingFunctionalSuites: boolean;
-	protected _instrumentBasePath: string;
-	protected _instrumenter: Instrumenter;
+	protected _coverageFiles: string[] | undefined;
+	protected _loadingFunctionalSuites: boolean | undefined;
+	protected _instrumentBasePath: string | undefined;
+	protected _instrumenter: Instrumenter | undefined;
 	protected _sourceMaps: MapStore;
 	protected _instrumentedMaps: MapStore;
-	protected _unhookRequire: null | (() => void);
-	protected _sessionSuites: Suite[];
+	protected _unhookRequire: (() => void) | undefined;
+	protected _sessionSuites: Suite[] | undefined;
 
 	constructor(options?: { [key in keyof Config]?: any }) {
 		super({
@@ -195,7 +195,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 	 */
 	addSuite(factory: (parentSuite: Suite) => void) {
 		if (this._loadingFunctionalSuites) {
-			this._sessionSuites.forEach(factory);
+			this._sessionSuites!.forEach(factory);
 		} else {
 			super.addSuite(factory);
 		}
@@ -219,18 +219,17 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 		}
 
 		try {
-			const newCode = this._instrumenter.instrumentSync(
+			const instrumenter = this._instrumenter!;
+			const newCode = instrumenter.instrumentSync(
 				code,
 				normalize(filename),
 				sourceMap
 			);
 
-			this._coverageMap.addFileCoverage(
-				this._instrumenter.lastFileCoverage()
-			);
+			this._coverageMap.addFileCoverage(instrumenter.lastFileCoverage());
 			this._instrumentedMaps.registerMap(
 				filename,
-				this._instrumenter.lastSourceMap()
+				instrumenter.lastSourceMap()
 			);
 
 			return newCode;
@@ -280,9 +279,9 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 	 * config
 	 */
 	shouldInstrumentFile(filename: string) {
-		return (
-			this._coverageFiles && this._coverageFiles.indexOf(filename) !== -1
-		);
+		return this._coverageFiles
+			? this._coverageFiles.indexOf(filename) !== -1
+			: false;
 	}
 
 	protected _afterRun() {
@@ -298,12 +297,11 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 				);
 			}
 			if (this.tunnel) {
+				const tunnel = this.tunnel;
 				promises.push(
-					this.tunnel
+					tunnel
 						.stop()
-						.then(() =>
-							this.emit('tunnelStop', { tunnel: this.tunnel })
-						)
+						.then(() => this.emit('tunnelStop', { tunnel }))
 				);
 			}
 			// We do not want to actually return an array of values, so chain a
@@ -428,7 +426,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 	 * run.
 	 */
 	protected _createSessionSuites() {
-		const tunnel = this.tunnel;
+		const tunnel = this.tunnel!;
 		const config = this.config;
 
 		const leadfootServer = new LeadfootServer(tunnel.clientUrl, {
@@ -778,7 +776,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 			// read the file and instrument the code (adding it to the overall
 			// coverage map)
 			const coveredFiles = this._coverageMap.files();
-			const uncoveredFiles = this._coverageFiles.filter(filename => {
+			const uncoveredFiles = this._coverageFiles!.filter(filename => {
 				return coveredFiles.indexOf(filename) === -1;
 			});
 			uncoveredFiles.forEach(filename => {
@@ -792,7 +790,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
 	protected _runRemoteTests() {
 		const config = this.config;
-		const sessionSuites = this._sessionSuites;
+		const sessionSuites = this._sessionSuites!;
 		const queue = new FunctionQueue(config.maxConcurrency || Infinity);
 
 		this.log(
@@ -850,7 +848,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 		unhookRunInThisContext();
 		if (this._unhookRequire) {
 			this._unhookRequire();
-			this._unhookRequire = null;
+			this._unhookRequire = undefined;
 		}
 	}
 }

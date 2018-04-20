@@ -15,11 +15,11 @@ const eventHandler = createEventHandler<NodeEvents>();
 export default abstract class Coverage extends Reporter
 	implements CoverageProperties {
 	abstract readonly reportType: ReportType;
-	readonly executor: Node;
+	readonly executor!: Node;
 
-	filename: string;
-	directory: string;
-	watermarks: Watermarks;
+	filename?: string;
+	directory?: string;
+	watermarks?: Watermarks;
 
 	constructor(executor: Node, options: CoverageOptions = {}) {
 		super(executor, options);

@@ -172,7 +172,7 @@ registerSuite('intern/lib/reporters/Dom', {
 				reporter.testEnd(test);
 
 				assert.equal(
-					reporter.testNode.textContent,
+					reporter.testNode!.textContent,
 					`${test.name} skipped (yes)`
 				);
 			}

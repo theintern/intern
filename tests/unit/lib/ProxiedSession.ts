@@ -6,7 +6,7 @@ let ProxiedSession: typeof _ProxiedSession;
 let removeMocks: () => void;
 
 class MockSession {
-	_lastUrl: string;
+	_lastUrl: string | undefined;
 
 	capabilities: { [key: string]: any } = {};
 

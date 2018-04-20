@@ -11,7 +11,9 @@ import Suite, { isSuite } from '../Suite';
  * https://github.com/pifantastic/teamcity-service-messages.
  */
 export default class TeamCity extends Reporter {
-	_ignoredTestIds: { [sessionId: string]: { [testId: string]: boolean } };
+	_ignoredTestIds:
+		| { [sessionId: string]: { [testId: string]: boolean } }
+		| undefined;
 
 	@eventHandler()
 	runStart() {
@@ -121,9 +123,10 @@ export default class TeamCity extends Reporter {
 		// session. This prevents the reporter from emitting duplicate
 		// testIgnored messages for unrun tests in nested suites as parent
 		// suites are finished.
-		let ignoredTests = this._ignoredTestIds[suite.sessionId];
+		const ignoredTestIds = this._ignoredTestIds!;
+		let ignoredTests = ignoredTestIds![suite.sessionId];
 		if (!ignoredTests) {
-			ignoredTests = this._ignoredTestIds[suite.sessionId] = {};
+			ignoredTests = ignoredTestIds![suite.sessionId] = {};
 		}
 
 		suite.tests.forEach(test => {

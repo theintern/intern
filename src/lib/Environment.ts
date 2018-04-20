@@ -1,10 +1,10 @@
 export default class Environment {
 	browser?: string;
-	browserName: string;
-	version: string;
-	platform: string;
+	browserName?: string;
+	version?: string;
+	platform?: string;
 	platformName?: string;
-	platformVersion: string;
+	platformVersion?: string;
 	device?: string;
 
 	constructor(kwArgs: { [key: string]: any }) {

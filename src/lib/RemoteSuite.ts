@@ -20,7 +20,7 @@ declare const intern: Browser;
  * suites being run in a remote browser.
  */
 export default class RemoteSuite extends Suite {
-	executor: Node;
+	executor!: Node;
 
 	constructor(options?: Partial<SuiteOptions>) {
 		options = options || {};
@@ -41,11 +41,11 @@ export default class RemoteSuite extends Suite {
 	 */
 	get id() {
 		let name: string[] = [];
-		let suite: Suite = this.parent;
+		let suite: Suite = this.parent!;
 
 		do {
 			suite.name != null && name.unshift(suite.name);
-		} while ((suite = suite.parent));
+		} while ((suite = suite.parent!));
 
 		return name.join(' - ');
 	}
@@ -56,7 +56,7 @@ export default class RemoteSuite extends Suite {
 	run(): Task<any> {
 		const remote = this.remote;
 		const sessionId = remote.session.sessionId;
-		const server = this.executor.server;
+		const server = this.executor.server!;
 		let listenerHandle: Handle;
 		let connectTimer: NodeJS.Timer;
 

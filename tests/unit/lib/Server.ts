@@ -72,7 +72,7 @@ registerSuite('lib/Server', function() {
 	}
 
 	class MockHttpServer extends MockServer {
-		port: number;
+		port: number | undefined;
 		responder: (request: any, response: any) => void;
 
 		constructor(responder: (request: any, response: any) => void) {
@@ -136,9 +136,10 @@ registerSuite('lib/Server', function() {
 	function mockMiddleware(error = false) {
 		const handler = sandbox.stub();
 		const wrapper = error
-			? function(this: any, _: any, __: any, ___: any, ____: any) {
+			? function(this: any, _req: any, _res: any, _next: any, _err: any) {
 					return handler.apply(this, arguments);
-				}
+					// tslint:disable-next-line:indent
+			  }
 			: handler;
 		const middleware = sandbox.spy(() => wrapper);
 
@@ -401,11 +402,11 @@ registerSuite('lib/Server', function() {
 							assert.isOk(response.intern);
 							assert.strictEqual(request.intern, response.intern);
 							assert.strictEqual(
-								request.intern.executor,
+								request.intern!.executor,
 								server.executor as any
 							);
 							assert.strictEqual(
-								request.intern.basePath,
+								request.intern!.basePath,
 								server.basePath
 							);
 						});

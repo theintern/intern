@@ -3,6 +3,7 @@ import { optimize, Configuration } from 'webpack';
 
 const common: Configuration = {
 	devtool: 'source-map',
+	mode: 'development',
 	module: {
 		rules: [
 			{
@@ -25,6 +26,10 @@ const common: Configuration = {
 		],
 		noParse: /benchmark\/benchmark.js/
 	},
+	performance: {
+		// Hides a warning about large bundles.
+		hints: false
+	},
 	stats: {
 		assets: false,
 		entrypoints: true,
@@ -43,7 +48,9 @@ if (
 	process.env['NODE_ENV'] === 'production' ||
 	process.env['INTERN_BUILD'] === 'release'
 ) {
+	// If we're building for production, minify
 	common.plugins = [new optimize.UglifyJsPlugin()];
+	common.mode = 'production';
 }
 
 module.exports = [

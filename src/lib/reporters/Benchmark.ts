@@ -32,7 +32,7 @@ import Suite from '../Suite';
  */
 export default class BenchmarkReporter extends Reporter
 	implements BenchmarkReporterProperties {
-	baseline: BenchmarkBaseline;
+	baseline!: BenchmarkBaseline;
 
 	filename: string;
 
@@ -85,9 +85,9 @@ export default class BenchmarkReporter extends Reporter
 
 			if (testOrSuite.sessionId) {
 				const environmentType = testOrSuite.remote.environmentType!;
-				client = environmentType.browserName;
-				version = environmentType.version;
-				platform = environmentType.platform;
+				client = environmentType.browserName!;
+				version = environmentType.version!;
+				platform = environmentType.platform!;
 			} else {
 				client = process.title;
 				version = process.version;

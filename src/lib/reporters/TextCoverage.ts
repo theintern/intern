@@ -3,9 +3,8 @@ import Node from '../executors/Node';
 
 export default class TextCoverage extends Coverage
 	implements TextCoverageProperties {
-
 	readonly reportType: ReportType = 'text';
-	maxColumns: number;
+	maxColumns: number | undefined;
 
 	constructor(executor: Node, options: TextCoverageOptions = {}) {
 		super(executor, options);
@@ -15,7 +14,7 @@ export default class TextCoverage extends Coverage
 		}
 	}
 
-	getReporterOptions(): { [key: string]: any; } {
+	getReporterOptions(): { [key: string]: any } {
 		const options = super.getReporterOptions();
 
 		options.maxColumns = this.maxColumns;
@@ -26,7 +25,7 @@ export default class TextCoverage extends Coverage
 
 export interface TextCoverageProperties extends CoverageProperties {
 	/** Maximum number of columns */
-	maxColumns: number;
+	maxColumns?: number;
 }
 
 export type TextCoverageOptions = Partial<TextCoverageProperties>;

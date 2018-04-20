@@ -27,7 +27,7 @@ import Deferred from './Deferred';
  */
 export default class BenchmarkTest extends Test {
 	/** The test function managed by this test */
-	test: BenchmarkTestFunction;
+	test!: BenchmarkTestFunction;
 
 	/** The Benchmark.js test that actually performs benchmarking */
 	benchmark: InternBenchmark;
