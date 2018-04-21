@@ -1,9 +1,14 @@
 import { join } from 'path';
-import { optimize, Configuration } from 'webpack';
+import { Configuration } from 'webpack';
+
+const mode =
+	process.env['NODE_ENV'] === 'production' ||
+	process.env['INTERN_BUILD'] === 'release'
+		? 'production'
+		: 'development';
 
 const common: Configuration = {
-	devtool: 'source-map',
-	mode: 'development',
+	mode,
 	module: {
 		rules: [
 			{
@@ -43,15 +48,6 @@ const common: Configuration = {
 		extensions: ['.ts', '.js']
 	}
 };
-
-if (
-	process.env['NODE_ENV'] === 'production' ||
-	process.env['INTERN_BUILD'] === 'release'
-) {
-	// If we're building for production, minify
-	common.plugins = [new optimize.UglifyJsPlugin()];
-	common.mode = 'production';
-}
 
 module.exports = [
 	{
