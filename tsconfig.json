@@ -1,5 +1,5 @@
 {
-    "extends": "./node_modules/@theintern/dev/tsconfig-base.json",
+	"extends": "./node_modules/@theintern/dev/tsconfig-base.json",
 	"compilerOptions": {
 		"declaration": true,
 		"importHelpers": true,

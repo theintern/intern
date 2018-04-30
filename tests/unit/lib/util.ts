@@ -1,14 +1,10 @@
-import registerSuite = require('intern!object');
-import Test = require('intern/lib/Test');
-import * as assert from 'intern/chai!assert';
-import * as util from 'src/lib/util';
+import Test from 'intern/lib/Test';
+import * as util from '../../../src/lib/util';
 
 declare let __cov_abcdef: number;
 declare let a: any;
 
-registerSuite({
-	name: 'lib/leadfoot/util',
-
+registerSuite('lib/leadfoot/util', {
 	'.sleep'() {
 		const startTime = Date.now();
 		return util.sleep(250).then(function() {

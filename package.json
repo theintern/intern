@@ -21,7 +21,7 @@
     "@theintern/dev": "~0.7.0",
     "@types/node": "~9.6.5",
     "concurrently": "~3.5.0",
-    "intern": "~3.4.2"
+    "intern": "~4.2.0"
   },
   "scripts": {
     "clean": "intern-dev-clean",
@@ -29,7 +29,7 @@
     "build": "intern-dev-clean && concurrently intern-dev-build intern-dev-api",
     "devpack": "intern-dev-build && npm pack ./_build/src",
     "release": "intern-dev-release",
-    "test": "intern-dev-test",
+    "test": "intern",
     "watch": "intern-dev-build watch",
     "ci": "intern-dev-clean && intern-dev-build && intern-dev-test all"
   },

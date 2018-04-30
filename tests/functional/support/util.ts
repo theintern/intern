@@ -1,9 +1,10 @@
-import Server from 'src/Server';
-import Session from 'src/Session';
-import Command from 'src/Command';
-import { LeadfootURL } from 'src/interfaces';
+import Server from '../../../src/Server';
+import Session from '../../../src/Session';
+import { LeadfootURL } from '../../../src/interfaces';
+import { Remote } from 'intern/lib/executors/Node';
+import ProxiedSession from 'intern/lib/ProxiedSession';
 
-export * from 'src/lib/util';
+export * from '../../../src/lib/util';
 
 export function createServer(config: LeadfootURL | string) {
 	return new Server(config);
@@ -18,7 +19,7 @@ export function createServerFromRemote(remote: any) {
 }
 
 export function createSessionFromRemote(
-	remote: Command<any>,
+	remote: Remote,
 	SessionCtor: any = Session
 ): Promise<Session> {
 	const server = createServerFromRemote(remote);
@@ -47,10 +48,7 @@ export function createSessionFromRemote(
 	throw new Error('Unsupported remote');
 }
 
-export function convertPathToUrl(session: any, url: string) {
-	if (session.session) {
-		session = session.session;
-	}
-
-	return session.proxyUrl + url.slice(session.proxyBasePathLength);
+export function convertPathToUrl(remote: Remote, url: string) {
+	const session: ProxiedSession = <ProxiedSession>remote.session;
+	return `${session.baseUrl}${url}`;
 }

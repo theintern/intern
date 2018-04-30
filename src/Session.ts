@@ -774,7 +774,6 @@ export default class Session extends Locator<
 			// parameters have values
 			return this.getWindowSize().then(size => {
 				const data = { x, y, width: size.width, height: size.height };
-				console.log('setting window rect to', data);
 
 				if (windowHandle == null) {
 					return this.setWindowRect(data);

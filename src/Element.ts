@@ -208,14 +208,10 @@ export default class Element extends Locator<
 			(capabilities.brokenWhitespaceNormalization ||
 				capabilities.brokenLinkTextLocator)
 		) {
-			task = session.execute<
-				ElementOrElementId[]
-			>(/* istanbul ignore next */ session['_manualFindByLinkText'], [
-				using,
-				value,
-				true,
-				this
-			]);
+			task = session.execute<ElementOrElementId[]>(
+				/* istanbul ignore next */ session['_manualFindByLinkText'],
+				[using, value, true, this]
+			);
 		} else {
 			task = this._post<ElementOrElementId[]>('elements', {
 				using: using,
@@ -469,9 +465,10 @@ export default class Element extends Locator<
 	 * exists.
 	 */
 	getAttribute(name: string): Task<string | null> {
-		return this.session.execute<
-			string | null
-		>('return arguments[0].getAttribute(arguments[1]);', [this, name]);
+		return this.session.execute<string | null>(
+			'return arguments[0].getAttribute(arguments[1]);',
+			[this, name]
+		);
 	}
 
 	/**
@@ -494,23 +491,24 @@ export default class Element extends Locator<
 	 */
 	equals(other: Element): Task<boolean> {
 		const elementId = other.elementId || other;
-		return this._get<boolean>('equals/$0', null, [
-			elementId
-		]).catch(error => {
-			// At least Selendroid 0.9.0 does not support this command;
-			// At least ios-driver 0.6.6-SNAPSHOT April 2014 fails
-			if (
-				error.name === 'UnknownCommand' ||
-				(error.name === 'UnknownError' &&
-					error.message.indexOf('bug.For input string:') > -1)
-			) {
-				return this.session.execute<
-					boolean
-				>('return arguments[0] === arguments[1];', [this, other]);
-			}
+		return this._get<boolean>('equals/$0', null, [elementId]).catch(
+			error => {
+				// At least Selendroid 0.9.0 does not support this command;
+				// At least ios-driver 0.6.6-SNAPSHOT April 2014 fails
+				if (
+					error.name === 'UnknownCommand' ||
+					(error.name === 'UnknownError' &&
+						error.message.indexOf('bug.For input string:') > -1)
+				) {
+					return this.session.execute<boolean>(
+						'return arguments[0] === arguments[1];',
+						[this, other]
+					);
+				}
 
-			throw error;
-		});
+				throw error;
+			}
+		);
 	}
 
 	/**
@@ -532,9 +530,7 @@ export default class Element extends Locator<
 				(this.session.capabilities.brokenElementDisplayedOpacity ||
 					this.session.capabilities.brokenElementDisplayedOffscreen)
 			) {
-				return this.session.execute<
-					boolean
-				>(
+				return this.session.execute<boolean>(
 					/* istanbul ignore next */ (element: HTMLElement) => {
 						const scrollX =
 							document.documentElement.scrollLeft ||
@@ -675,23 +671,23 @@ export default class Element extends Locator<
 		if (this.session.capabilities.brokenComputedStyles) {
 			promise = manualGetStyle();
 		} else {
-			promise = this._get<string>('css/$0', null, [
-				propertyName
-			]).catch(function(error) {
-				// At least Selendroid 0.9.0 does not support this command
-				if (error.name === 'UnknownCommand') {
-					return manualGetStyle();
-				} else if (
-					error.name === 'UnknownError' &&
-					error.message.indexOf('failed to parse value') > -1
-				) {
-					// At least ChromeDriver 2.9 incorrectly returns an error
-					// for property names it does not understand
-					return '';
-				}
+			promise = this._get<string>('css/$0', null, [propertyName]).catch(
+				function(error) {
+					// At least Selendroid 0.9.0 does not support this command
+					if (error.name === 'UnknownCommand') {
+						return manualGetStyle();
+					} else if (
+						error.name === 'UnknownError' &&
+						error.message.indexOf('failed to parse value') > -1
+					) {
+						// At least ChromeDriver 2.9 incorrectly returns an error
+						// for property names it does not understand
+						return '';
+					}
 
-				throw error;
-			});
+					throw error;
+				}
+			);
 		}
 
 		return promise.then(function(value) {
