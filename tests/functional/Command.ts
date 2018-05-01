@@ -152,7 +152,7 @@ registerSuite('Command', () => {
 			'basic chaining'() {
 				const command = new Command(session);
 				return command
-					.get('/tests/functional/data/default.html')
+					.get('tests/functional/data/default.html')
 					.getPageTitle()
 					.then(function(pageTitle) {
 						assert.strictEqual(
@@ -160,7 +160,7 @@ registerSuite('Command', () => {
 							'Default & <b>default</b>'
 						);
 					})
-					.get('/tests/functional/data/form.html')
+					.get('tests/functional/data/form.html')
 					.getPageTitle()
 					.then(function(pageTitle) {
 						assert.strictEqual(pageTitle, 'Form');
@@ -202,7 +202,7 @@ registerSuite('Command', () => {
 
 				const command = new Command(session);
 				return command
-					.get('/tests/functional/data/form.html')
+					.get('tests/functional/data/form.html')
 					.findById('input')
 					.click()
 					.type('hello')
@@ -218,7 +218,7 @@ registerSuite('Command', () => {
 
 			'#findAll'() {
 				return new Command(session)
-					.get('/tests/functional/data/elements.html')
+					.get('tests/functional/data/elements.html')
 					.findAllByClassName('b')
 					.getAttribute<string[]>('id')
 					.then(function(ids) {
@@ -228,7 +228,7 @@ registerSuite('Command', () => {
 
 			'#findAll chain'() {
 				return new Command(session)
-					.get('/tests/functional/data/elements.html')
+					.get('tests/functional/data/elements.html')
 					.findById('c')
 					.findAllByClassName('b')
 					.getAttribute<string[]>('id')
@@ -250,7 +250,7 @@ registerSuite('Command', () => {
 
 			'#findAll + #findAll'() {
 				return new Command(session)
-					.get('/tests/functional/data/elements.html')
+					.get('tests/functional/data/elements.html')
 					.findAllByTagName('div')
 					.findAllByCssSelector('span, a')
 					.getAttribute<string[]>('id')
@@ -261,7 +261,7 @@ registerSuite('Command', () => {
 
 			'#findDisplayed'() {
 				return new Command(session)
-					.get('/tests/functional/data/visibility.html')
+					.get('tests/functional/data/visibility.html')
 					.findDisplayedByClassName('multipleVisible')
 					.getVisibleText()
 					.then(function(text) {
@@ -283,7 +283,7 @@ registerSuite('Command', () => {
 				}
 
 				return new Command(session)
-					.get('/tests/functional/data/pointer.html')
+					.get('tests/functional/data/pointer.html')
 					.findById('a')
 					.moveMouseTo()
 					.pressMouseButton()

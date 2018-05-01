@@ -303,7 +303,7 @@ registerSuite('Session', () => {
 			'#getCurrentUrl'(this: Test) {
 				const expectedUrl = util.convertPathToUrl(
 					this.remote,
-					'data/default.html'
+					'tests/functional/data/default.html'
 				);
 
 				return session
@@ -323,11 +323,11 @@ registerSuite('Session', () => {
 
 				const expectedUrl = util.convertPathToUrl(
 					this.remote,
-					'data/default.html?second'
+					'tests/functional/data/default.html?second'
 				);
 				const expectedBackUrl = util.convertPathToUrl(
 					this.remote,
-					'data/default.html?first'
+					'tests/functional/data/default.html?first'
 				);
 
 				return session
