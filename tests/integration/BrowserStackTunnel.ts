@@ -1,7 +1,5 @@
-import * as registerSuite from 'intern!object';
-import * as assert from 'intern/chai!assert';
 import { addEnvironmentTest, addStartStopTest } from '../support/integration';
-import BrowserStackTunnel from 'src/BrowserStackTunnel';
+import BrowserStackTunnel from '../../src/BrowserStackTunnel';
 
 function checkEnvironment(environment: any) {
 	assert.property(environment, 'os_version');
@@ -11,13 +9,10 @@ function checkEnvironment(environment: any) {
 	assert.property(environment, 'browser_version');
 }
 
-const suite = {
-	name: 'integration/BrowserStackTunnel'
-};
-
-addEnvironmentTest(suite, BrowserStackTunnel, checkEnvironment, {
+let suite = {};
+suite = addEnvironmentTest(suite, BrowserStackTunnel, checkEnvironment, {
 	needsAuthData: true
 });
-addStartStopTest(suite, BrowserStackTunnel);
+suite = addStartStopTest(suite, BrowserStackTunnel);
 
-registerSuite(suite);
+registerSuite('integration/BrowesrStackTunnel', suite);

@@ -1,19 +1,19 @@
-import TestingBotTunnel from 'src/TestingBotTunnel';
-import * as registerSuite from 'intern!object';
-import * as assert from 'intern/chai!assert';
+import TestingBotTunnel from '../../src/TestingBotTunnel';
 
-let tunnel: TestingBotTunnel;
+registerSuite('unit/TestingBotTunnel', () => {
+	let tunnel: TestingBotTunnel;
 
-registerSuite({
-	name: 'unit/TestingBotTunnel',
+	return {
+		beforeEach() {
+			tunnel = new TestingBotTunnel();
+		},
 
-	beforeEach: function() {
-		tunnel = new TestingBotTunnel();
-	},
-
-	'#auth': function() {
-		tunnel.username = 'foo';
-		tunnel.accessKey = 'bar';
-		assert.equal(tunnel.auth, 'foo:bar');
-	}
+		tests: {
+			'#auth'() {
+				tunnel.username = 'foo';
+				tunnel.accessKey = 'bar';
+				assert.equal(tunnel.auth, 'foo:bar');
+			}
+		}
+	};
 });

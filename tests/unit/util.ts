@@ -1,9 +1,7 @@
-import * as util from 'src/util';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as registerSuite from 'intern!object';
-import * as assert from 'intern/chai!assert';
 import { EventEmitter } from 'events';
+import * as util from '../../src/util';
 
 function rmFileAndDir(filename: string) {
 	fs.unlinkSync(filename);
@@ -12,9 +10,7 @@ function rmFileAndDir(filename: string) {
 	}
 }
 
-registerSuite({
-	name: 'unit/Tunnel',
-
+registerSuite('unit/util', {
 	'.fileExists': function() {
 		assert.isTrue(util.fileExists('src/Tunnel.ts'));
 		assert.isFalse(util.fileExists('src/Tunnel.jsx'));

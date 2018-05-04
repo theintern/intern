@@ -1,10 +1,6 @@
-import SeleniumTunnel from 'src/SeleniumTunnel';
-import * as registerSuite from 'intern!object';
-import * as assert from 'intern/chai!assert';
+import SeleniumTunnel from '../../src/SeleniumTunnel';
 
-registerSuite({
-	name: 'unit/SeleniumTunnel',
-
+registerSuite('unit/SeleniumTunnel', {
 	config: {
 		'name only': function() {
 			const tunnel = new SeleniumTunnel({ drivers: ['chrome'] });

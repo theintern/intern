@@ -24,7 +24,7 @@
     "@types/semver": "~5.5.0",
     "@types/shelljs": "~0.7.1",
     "concurrently": "~3.5.0",
-    "intern": "~3.4.2",
+    "intern": "~4.2.0",
     "shelljs": "~0.8.1"
   },
   "scripts": {
@@ -34,7 +34,7 @@
     "devpack": "intern-dev-build && npm pack ./_build/src",
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
-    "test": "intern-dev-test",
+    "test": "intern",
     "watch": "intern-dev-build watch"
   },
   "bugs": "https://github.com/theintern/digdug/issues",

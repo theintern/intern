@@ -3,13 +3,18 @@
 	"compilerOptions": {
 		"baseUrl": "..",
 		"declaration": false,
-		"module": "umd",
-		"paths": {
-			"src/*": ["./_build/src/*", "./src/*"]
-		}
+		"importHelpers": false,
+		"module": "commonjs",
+
+		// This file intentionally doesn't use paths to prevent re-building
+		// files in ../src. Instead, source files will be rebuilt using the
+		// settings here, particularly `removeComments: false`, which keeps
+		// the istanbul ignore comments in the built source.
+
+		// needed for istanbul directives
+		"removeComments": false,
+
+		"types": ["intern"]
 	},
-	"files": [
-		"../node_modules/intern/typings/intern/intern.d.ts"
-	],
 	"include": ["./**/*.ts"]
 }

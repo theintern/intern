@@ -1,8 +1,6 @@
-import * as intern from 'intern';
-import * as assert from 'intern/chai!assert';
 import * as nodeUtil from 'util';
 import * as util from './util';
-import Test = require('intern/lib/Test');
+import { Tests } from 'intern/lib/interfaces/object';
 
 import Tunnel, { IOEvent, NormalizedEnvironment } from 'src/Tunnel';
 import { createCompositeHandle } from '@dojo/core/lang';
@@ -45,7 +43,7 @@ function checkCredentials(tunnel: Tunnel, options: any) {
 }
 
 function getCleanup(tunnel: Tunnel, handle?: Handle) {
-	return function() {
+	return () => {
 		if (handle) {
 			handle.destroy();
 		}
@@ -54,89 +52,96 @@ function getCleanup(tunnel: Tunnel, handle?: Handle) {
 }
 
 export function addEnvironmentTest(
-	suite: any,
+	suite: Tests,
 	TunnelClass: typeof Tunnel,
 	checkEnvironment: Function,
 	options?: any
-) {
+): Tests {
 	options = options || {};
 
-	suite.getEnvironments = function(this: Test) {
-		const tunnel = new TunnelClass();
+	return {
+		...suite,
+		getEnvironments() {
+			const tunnel = new TunnelClass();
 
-		if (options.needsAuthData && !checkCredentials(tunnel, options)) {
-			this.skip('missing auth data');
+			if (options.needsAuthData && !checkCredentials(tunnel, options)) {
+				this.skip('missing auth data');
+			}
+
+			let handle: Handle | undefined;
+			if (intern.config.debug) {
+				handle = addVerboseListeners(tunnel);
+			}
+
+			const cleanup = getCleanup(tunnel, handle);
+			return tunnel
+				.getEnvironments()
+				.then(function(environments) {
+					assert.isArray(environments);
+					assert.isAbove(
+						environments.length,
+						0,
+						'Expected at least 1 environment'
+					);
+					environments.forEach(function(environment) {
+						assertNormalizedProperties(environment);
+						assert.property(environment, 'descriptor');
+						checkEnvironment(environment.descriptor);
+					});
+				})
+				.then(cleanup)
+				.catch(reason => {
+					return cleanup().then(() => {
+						throw reason;
+					});
+				})
+				.finally(cleanup);
 		}
-
-		let handle: Handle | undefined;
-		if (intern.args.verbose) {
-			handle = addVerboseListeners(tunnel);
-		}
-
-		const cleanup = getCleanup(tunnel, handle);
-		return tunnel
-			.getEnvironments()
-			.then(function(environments) {
-				assert.isArray(environments);
-				assert.isAbove(
-					environments.length,
-					0,
-					'Expected at least 1 environment'
-				);
-				environments.forEach(function(environment) {
-					assertNormalizedProperties(environment);
-					assert.property(environment, 'descriptor');
-					checkEnvironment(environment.descriptor);
-				});
-			})
-			.then(cleanup)
-			.catch(reason => {
-				return cleanup().then(() => {
-					throw reason;
-				});
-			})
-			.finally(cleanup);
 	};
 }
 
 export function addStartStopTest(
-	suite: any,
+	suite: Tests,
 	TunnelClass: typeof Tunnel,
 	options?: any
-) {
+): Tests {
 	options = options || {};
 
-	suite['start and stop'] = function(this: Test) {
-		const tunnel = new TunnelClass();
+	return {
+		...suite,
 
-		if (
-			options.needsAuthData !== false &&
-			!checkCredentials(tunnel, options)
-		) {
-			this.skip('missing auth data');
+		'start and stop'() {
+			const tunnel = new TunnelClass();
+
+			if (
+				options.needsAuthData !== false &&
+				!checkCredentials(tunnel, options)
+			) {
+				this.skip('missing auth data');
+			}
+
+			let handle: Handle | undefined;
+			if (intern.config.debug) {
+				handle = addVerboseListeners(tunnel);
+			}
+
+			if (options.timeout) {
+				this.async(options.timeout);
+			}
+
+			const cleanup = getCleanup(tunnel, handle);
+			return tunnel
+				.start()!
+				.then(function() {
+					return tunnel.stop();
+				})
+				.then(cleanup)
+				.catch(reason => {
+					return cleanup().then(() => {
+						throw reason;
+					});
+				})
+				.finally(cleanup);
 		}
-
-		let handle: Handle | undefined;
-		if (intern.args.verbose) {
-			handle = addVerboseListeners(tunnel);
-		}
-
-		if (options.timeout) {
-			this.async(options.timeout);
-		}
-
-		const cleanup = getCleanup(tunnel, handle);
-		return tunnel
-			.start()!
-			.then(function() {
-				return tunnel.stop();
-			})
-			.then(cleanup)
-			.catch(reason => {
-				return cleanup().then(() => {
-					throw reason;
-				});
-			})
-			.finally(cleanup);
 	};
 }

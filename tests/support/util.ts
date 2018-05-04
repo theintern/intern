@@ -1,7 +1,5 @@
-import * as intern from 'intern';
 import { rm } from 'shelljs';
-
-import Tunnel from 'src/Tunnel';
+import Tunnel from '../../src/Tunnel';
 
 /**
  * Cleans up a tunnel by stopping it if the tunnel is running and deleting its target install directory
@@ -16,13 +14,12 @@ export function cleanup(tunnel: Tunnel) {
 
 	if (tunnel.isRunning) {
 		return new Promise<void>((resolve, reject) => {
-			tunnel.stop()
+			tunnel
+				.stop()
 				.then(() => resolve())
-				.catch(reject)
-			;
+				.catch(reject);
 		});
-	}
-	else {
+	} else {
 		deleteTunnelFiles(tunnel);
 		return Promise.resolve();
 	}
@@ -32,9 +29,19 @@ export function cleanup(tunnel: Tunnel) {
  * Deletes a tunnel's target install directory
  */
 export function deleteTunnelFiles(tunnel: Tunnel) {
-	if (!tunnel || !tunnel.directory || intern.args.noClean) {
+	const args = getDigdugArgs();
+	if (!tunnel || !tunnel.directory || args.noClean) {
 		return;
 	}
 
 	rm('-rf', tunnel.directory);
+}
+
+/**
+ * Return command line args specific to digdug
+ */
+export function getDigdugArgs() {
+	return {
+		noClean: (<any>intern.config).noClean
+	};
 }

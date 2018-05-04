@@ -1,7 +1,5 @@
-import * as registerSuite from 'intern!object';
-import * as assert from 'intern/chai!assert';
 import { addEnvironmentTest, addStartStopTest } from '../support/integration';
-import SauceLabsTunnel from 'src/SauceLabsTunnel';
+import SauceLabsTunnel from '../../src/SauceLabsTunnel';
 
 function checkEnvironment(environment: any) {
 	assert.property(environment, 'short_version');
@@ -9,13 +7,10 @@ function checkEnvironment(environment: any) {
 	assert.property(environment, 'os');
 }
 
-const suite = {
-	name: 'integration/SauceLabsTunnel'
-};
-
-addEnvironmentTest(suite, SauceLabsTunnel, checkEnvironment);
-addStartStopTest(suite, SauceLabsTunnel, {
+let suite = {};
+suite = addEnvironmentTest(suite, SauceLabsTunnel, checkEnvironment);
+suite = addStartStopTest(suite, SauceLabsTunnel, {
 	timeout: 120000
 });
 
-registerSuite(suite);
+registerSuite('integration/SauceLabsTunnel', suite);
