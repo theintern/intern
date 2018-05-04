@@ -109,7 +109,10 @@ export interface Config extends ResourceConfig {
 	 * * [TestingBot capabilities](https://testingbot.com/support/other/test-options) and [environments](https://testingbot.com/support/getting-started/browsers.html)
 	 *
 	 * [Chrome-specific options](https://sites.google.com/a/chromium.org/chromedriver/capabilities)
-	 * may be passed using a `chromeOptions` capability.
+	 * may be passed using a `goog:chromeOptions` capability.
+	 *
+	 * [Firefox-specific options](https://github.com/mozilla/geckodriver#firefox-capabilities)
+	 * may be passed using a `moz:firefoxOptions` capability.
 	 *
 	 * Intern will automatically provide certain capabilities to provide better
 	 * feedback with cloud service dashboards:
