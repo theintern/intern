@@ -1,28 +1,28 @@
-import CrossBrowserTestingTunnel from 'src/CrossBrowserTestingTunnel';
-import * as registerSuite from 'intern!object';
-import * as assert from 'intern/chai!assert';
+import CrossBrowserTestingTunnel from '../../src/CrossBrowserTestingTunnel';
 
-let tunnel: CrossBrowserTestingTunnel;
+registerSuite('unit/CrossBrowserTestingTunnel', () => {
+	let tunnel: CrossBrowserTestingTunnel;
 
-registerSuite({
-	name: 'unit/CrossBrowserTestingTunnel',
+	return {
+		beforeEach() {
+			tunnel = new CrossBrowserTestingTunnel();
+		},
 
-	beforeEach: function() {
-		tunnel = new CrossBrowserTestingTunnel();
-	},
+		tests: {
+			'#auth'() {
+				tunnel.username = 'foo';
+				tunnel.accessKey = 'bar';
+				assert.equal(tunnel.auth, 'foo:bar');
+			},
 
-	'#auth': function() {
-		tunnel.username = 'foo';
-		tunnel.accessKey = 'bar';
-		assert.equal(tunnel.auth, 'foo:bar');
-	},
+			'#executable'() {
+				assert.equal(tunnel.executable, 'node');
+			},
 
-	'#executable': function() {
-		assert.equal(tunnel.executable, 'node');
-	},
-
-	'#extraCapabilities': function() {
-		assert.property(tunnel.extraCapabilities, 'username');
-		assert.property(tunnel.extraCapabilities, 'password');
-	}
+			'#extraCapabilities'() {
+				assert.property(tunnel.extraCapabilities, 'username');
+				assert.property(tunnel.extraCapabilities, 'password');
+			}
+		}
+	};
 });

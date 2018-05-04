@@ -1,7 +1,5 @@
-import * as registerSuite from 'intern!object';
-import * as assert from 'intern/chai!assert';
 import { addEnvironmentTest, addStartStopTest } from '../support/integration';
-import TestingBotTunnel from 'src/TestingBotTunnel';
+import TestingBotTunnel from '../../src/TestingBotTunnel';
 
 function checkEnvironment(environment: any) {
 	assert.property(environment, 'selenium_name');
@@ -10,11 +8,8 @@ function checkEnvironment(environment: any) {
 	assert.property(environment, 'version');
 }
 
-const suite = {
-	name: 'integration/TestingBotTunnel'
-};
+let suite = {};
+suite = addEnvironmentTest(suite, TestingBotTunnel, checkEnvironment);
+suite = addStartStopTest(suite, TestingBotTunnel, { timeout: 30000 });
 
-addEnvironmentTest(suite, TestingBotTunnel, checkEnvironment);
-addStartStopTest(suite, TestingBotTunnel, { timeout: 30000 });
-
-registerSuite(suite);
+registerSuite('integration/TestingBotTunnel', suite);

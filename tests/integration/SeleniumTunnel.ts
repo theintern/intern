@@ -1,16 +1,14 @@
-import intern = require('intern');
-import assert = require('intern/chai!assert');
-import registerSuite = require('intern!object');
 import { mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
-import SeleniumTunnel, { DriverFile } from 'src/SeleniumTunnel';
+import { ObjectSuiteDescriptor, Tests } from 'intern/lib/interfaces/object';
+
+import SeleniumTunnel, { DriverFile } from '../../src/SeleniumTunnel';
 import { addStartStopTest } from '../support/integration';
-import { cleanup, deleteTunnelFiles } from '../support/util';
-import Test = require('intern/lib/Test');
+import { cleanup, deleteTunnelFiles, getDigdugArgs } from '../support/util';
 
 function createDownloadTest(config: any) {
-	return function() {
+	return () => {
 		tunnel = new SeleniumTunnel();
 		Object.keys(config).forEach(key => {
 			Object.defineProperty(tunnel, key, { value: config[key] });
@@ -49,17 +47,7 @@ function createDownloadTest(config: any) {
 
 let tunnel: SeleniumTunnel;
 
-const suite = {
-	name: 'integration/SeleniumTunnel',
-
-	beforeEach: function(test: Test) {
-		test.timeout = 10 * 60 * 1000; // ten minutes
-	},
-
-	afterEach: function() {
-		return cleanup(tunnel);
-	},
-
+let tests: Tests = {
 	download: (function() {
 		const tests: any = {
 			'selenium standalone': createDownloadTest({ drivers: [] })
@@ -99,10 +87,12 @@ const suite = {
 		return tests;
 	})(),
 
-	isDownloaded: function(this: Test) {
-		if (intern.args.noClean) {
+	isDownloaded() {
+		const args = getDigdugArgs();
+		if (args.noClean) {
 			return this.skip('Cleanup is disabled');
 		}
+
 		tunnel = new SeleniumTunnel();
 		deleteTunnelFiles(tunnel);
 
@@ -126,8 +116,20 @@ const suite = {
 	}
 };
 
-addStartStopTest(suite, SeleniumTunnel, {
+tests = addStartStopTest(tests, SeleniumTunnel, {
 	needsAuthData: false
 });
 
-registerSuite(suite);
+const suite: ObjectSuiteDescriptor = {
+	beforeEach() {
+		this.timeout = 10 * 60 * 1000; // ten minutes
+	},
+
+	afterEach() {
+		return cleanup(tunnel);
+	},
+
+	tests
+};
+
+registerSuite('integration/SeleniumTunnel', suite);

@@ -10,10 +10,8 @@ import { join } from 'path';
 import { format as formatUrl, Url } from 'url';
 import { fileExists, on } from './util';
 import { JobState } from './interfaces';
-import decompress = require('decompress');
+import * as decompress from 'decompress';
 import * as kill from 'tree-kill';
-
-// TODO: Spawned processes are not getting cleaned up if there is a crash
 
 /**
  * A Tunnel is a mechanism for connecting to a WebDriver service provider that

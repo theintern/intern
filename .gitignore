@@ -7,3 +7,4 @@ _build
 build_doc
 _publish
 *.tgz
+coverage/

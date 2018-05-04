@@ -1,20 +1,24 @@
-import * as registerSuite from 'intern!object';
-import * as assert from 'intern/chai!assert';
+import { rm } from 'shelljs';
 import { addEnvironmentTest, addStartStopTest } from '../support/integration';
-import CrossBrowserTestingTunnel from 'src/CrossBrowserTestingTunnel';
+import CrossBrowserTestingTunnel from '../../src/CrossBrowserTestingTunnel';
 
 function checkEnvironment(environment: any) {
 	assert.property(environment, 'api_name');
-	assert.deepProperty(environment, 'browsers.0.api_name');
+	assert.nestedProperty(environment, 'browsers.0.api_name');
 }
 
-const suite = {
-	name: 'integration/CrossBrowserTestingTunnel'
-};
-
-addEnvironmentTest(suite, CrossBrowserTestingTunnel, checkEnvironment, {
+let tests = {};
+tests = addEnvironmentTest(tests, CrossBrowserTestingTunnel, checkEnvironment, {
 	needsAuthData: true
 });
-addStartStopTest(suite, CrossBrowserTestingTunnel);
+tests = addStartStopTest(tests, CrossBrowserTestingTunnel);
 
-registerSuite(suite);
+const suite = {
+	before() {
+		rm('-rf', 'node_modules/cbt_tunnels');
+	},
+
+	tests
+};
+
+registerSuite('integration/CrossBrowserTestingTunnel', suite);
