@@ -19,7 +19,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 	sessions: {
 		[sessionId: string]: {
 			coverage?: CoverageMap;
-			suite: Suite;
+			suite?: Suite;
 			[key: string]: any;
 		};
 	};
@@ -54,7 +54,15 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 
 	@eventHandler()
 	coverage(message: CoverageMessage) {
-		const session = this.sessions[message.sessionId || ''];
+		const sessionId = message.sessionId || '';
+
+		// If coverage is emitted for functional suites but unit test suites
+		// weren't run, there won't be an existing session for session ID ''
+		// (the one used for unit tests and local functional tests)
+		if (!this.sessions[sessionId]) {
+			this.sessions[sessionId] = {};
+		}
+		const session = this.sessions[sessionId];
 		session.coverage = session.coverage || createCoverageMap();
 		session.coverage.merge(message.coverage);
 	}
@@ -129,13 +137,17 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 		const sessionIds = Object.keys(this.sessions);
 		const numEnvironments = sessionIds.length;
 
-		sessionIds.forEach(sessionId => {
-			const session = this.sessions[sessionId];
-			numTests += session.suite.numTests;
-			numPassedTests += session.suite.numPassedTests;
-			numFailedTests += session.suite.numFailedTests;
-			numSkippedTests += session.suite.numSkippedTests;
-		});
+		// A session may contain only coverage data, so ensure that only those
+		// with suites are considered
+		sessionIds
+			.filter(sessionId => this.sessions[sessionId].suite)
+			.forEach(sessionId => {
+				const suite = this.sessions[sessionId].suite!;
+				numTests += suite.numTests;
+				numPassedTests += suite.numPassedTests;
+				numFailedTests += suite.numFailedTests;
+				numSkippedTests += suite.numSkippedTests;
+			});
 
 		const charm = this.charm;
 
