@@ -109,17 +109,21 @@ export function createEventHandler<
 		function decorate(
 			target: any,
 			propertyKey: N,
-			_descriptor: TypedPropertyDescriptor<() => void>
+			_descriptor: TypedPropertyDescriptor<() => void | Promise<any>>
 		): void;
 		function decorate<T extends keyof E>(
 			target: any,
 			propertyKey: T,
-			_descriptor: TypedPropertyDescriptor<(data: E[T]) => void>
+			_descriptor: TypedPropertyDescriptor<
+				(data: E[T]) => void | Promise<any>
+			>
 		): void;
 		function decorate<T extends keyof E>(
 			target: any,
 			propertyKey: T,
-			_descriptor: TypedPropertyDescriptor<(data?: E[T]) => void>
+			_descriptor: TypedPropertyDescriptor<
+				(data?: E[T]) => void | Promise<any>
+			>
 		) {
 			if (!target.hasOwnProperty('_eventHandlers')) {
 				if (target._eventHandlers != null) {
