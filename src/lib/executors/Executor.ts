@@ -15,7 +15,6 @@ import {
 } from '../common/config';
 import { normalizePathEnding } from '../common/path';
 import { isTask, processOption, pullFromArray } from '../common/util';
-import Reporter from '../reporters/Reporter';
 import {
 	getInterface as getObjectInterface,
 	ObjectInterface
@@ -1057,7 +1056,7 @@ export { Handle };
  * A generic event listener
  */
 export interface Listener<T> {
-	(arg: T): void | Promise<void>;
+	(arg: T): void | Promise<any>;
 }
 
 /**
@@ -1164,3 +1163,9 @@ export interface PluginInitializer<T extends any = any> {
 export interface ReporterInitializer {
 	(options?: any): Reporter;
 }
+
+/**
+ * A 'reporter' as far as Executor is concerned. There is currently no
+ * pre-defined functionality required for reporters.
+ */
+export interface Reporter {}
