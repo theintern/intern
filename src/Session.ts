@@ -489,7 +489,7 @@ export default class Session extends Locator<
 	 * used. If an Element is provided, it must correspond to a `<frame>` or
 	 * `<iframe>` element.
 	 */
-	switchToFrame(id: string | number | Element) {
+	switchToFrame(id: string | number | Element | null) {
 		if (this.capabilities.usesWebDriverFrameId && typeof id === 'string') {
 			return this.findById(id).then(element =>
 				this.serverPost<void>('frame', { id: element })

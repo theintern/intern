@@ -997,7 +997,7 @@ export default class Command<T, P = any>
 	 * used. If an Element is provided, it must correspond to a `<frame>` or
 	 * `<iframe>` element.
 	 */
-	switchToFrame(id: string | number | Element) {
+	switchToFrame(id: string | number | Element | null) {
 		return this._callSessionMethod<void>('switchToFrame', id);
 	}
 
