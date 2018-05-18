@@ -12,6 +12,7 @@
     "@dojo/has": "~2.0.0",
     "@dojo/interfaces": "~0.2.0",
     "@dojo/shim": "~2.0.0",
+    "command-exists": "~1.2.6",
     "decompress": "~4.2.0",
     "semver": "~5.5.0",
     "tree-kill": "~1.2.0",

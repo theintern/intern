@@ -12,6 +12,8 @@ import { mixin } from '@dojo/core/lang';
 import { satisfies } from 'semver';
 import * as kill from 'tree-kill';
 
+const { sync: commandExistsSync } = require('command-exists');
+
 const SeleniumVersion = '3.11.0';
 const ChromeVersion = '2.37';
 const FirefoxVersion = '0.20.1';
@@ -106,6 +108,11 @@ export default class SeleniumTunnel extends Tunnel
 				options || {}
 			)
 		);
+
+		// Emit a meaningful error if Java isn't available
+		if (!commandExistsSync('java')) {
+			throw new Error('Java must be installed to use SeleniumTunnel');
+		}
 	}
 
 	get artifact() {
