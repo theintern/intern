@@ -35,6 +35,29 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
 					});
 			},
 
+			'with args'() {
+				return command
+					.get('tests/functional/data/elements.html')
+					.findById('makeD')
+					.click()
+					.then(
+						pollUntil(
+							id => {
+								return document.getElementById(id);
+							},
+							['d'],
+							1000
+						)
+					)
+					.then(function(result: any) {
+						assert.property(
+							result,
+							'elementId',
+							'Returned value should be an element'
+						);
+					});
+			},
+
 			'without args'() {
 				return command
 					.get('tests/functional/data/elements.html')

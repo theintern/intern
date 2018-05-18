@@ -64,19 +64,68 @@ import Task from '@dojo/core/async/Task';
  */
 export default function pollUntil<T>(
 	poller: Poller | string,
+	timeout?: number,
+	pollInterval?: number
+): () => Task<T>;
+
+export default function pollUntil<T>(
+	poller: string,
 	args?: any[],
 	timeout?: number,
 	pollInterval?: number
 ): () => Task<T>;
 
 export default function pollUntil<T>(
-	poller: Poller | string,
+	poller: Poller,
+	args?: never[],
 	timeout?: number,
 	pollInterval?: number
 ): () => Task<T>;
 
-export default function pollUntil<T>(
-	poller: Poller | string,
+export default function pollUntil<T, U>(
+	poller: Poller1<U>,
+	args?: [U],
+	timeout?: number,
+	pollInterval?: number
+): () => Task<T>;
+
+export default function pollUntil<T, U, V>(
+	poller: Poller2<U, V>,
+	args?: [U, V],
+	timeout?: number,
+	pollInterval?: number
+): () => Task<T>;
+
+export default function pollUntil<T, U, V, W>(
+	poller: Poller3<U, V, W>,
+	args?: [U, V, W],
+	timeout?: number,
+	pollInterval?: number
+): () => Task<T>;
+
+export default function pollUntil<T, U, V, W, X>(
+	poller: Poller4<U, V, W, X>,
+	args?: [U, V, W, X],
+	timeout?: number,
+	pollInterval?: number
+): () => Task<T>;
+
+export default function pollUntil<T, U, V, W, X, Y>(
+	poller: Poller5<U, V, W, X, Y>,
+	args?: [U, V, W, X, Y],
+	timeout?: number,
+	pollInterval?: number
+): () => Task<T>;
+
+export default function pollUntil<T, U, V, W, X, Y>(
+	poller:
+		| Poller
+		| Poller1<U>
+		| Poller2<U, V>
+		| Poller3<U, V, W>
+		| Poller4<U, V, W, X>
+		| Poller5<U, V, W, X, Y>
+		| string,
 	argsOrTimeout?: any[] | number,
 	timeout?: number,
 	pollInterval?: number
@@ -176,3 +225,8 @@ export default function pollUntil<T>(
 }
 
 export type Poller = () => any;
+export type Poller1<U> = (u: U) => any;
+export type Poller2<U, V> = (u: U, v: V) => any;
+export type Poller3<U, V, W> = (u: U, v: V, w: W) => any;
+export type Poller4<U, V, W, X> = (u: U, v: V, w: W, x: X) => any;
+export type Poller5<U, V, W, X, Y> = (u: U, v: V, w: W, x: X, y: Y) => any;
