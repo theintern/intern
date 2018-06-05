@@ -246,7 +246,7 @@ If tests need to share variables, it’s good practice to initialize the suite w
 
 ```js
 registerSuite('foo', () => {
-    let count = 0;
+    let counter = 0;
     let app;
 
     return {
@@ -266,7 +266,7 @@ registerSuite('foo', () => {
 instead of this:
 
 ```js
-let count = 0;
+let counter = 0;
 let app;
 
 registerSuite('foo', {
