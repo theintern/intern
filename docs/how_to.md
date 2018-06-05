@@ -60,8 +60,8 @@ debugging and development faster.
 2.  Configure Intern
     ```js
     intern.configure({
-    	suites: ['tests/unit/a.js', 'tests/unit/b.js'],
-    	reporters: 'runner'
+        suites: ['tests/unit/a.js', 'tests/unit/b.js'],
+        reporters: 'runner'
     });
     ```
 3.  Run Intern
@@ -91,9 +91,9 @@ There several ways to accomplish this:
     ```js
     // setup.js
     intern.on('beforeRun', function() {
-    	return new Promise(function(resolve) {
-    		// async code
-    	});
+        return new Promise(function(resolve) {
+            // async code
+        });
     });
     ```
 *   If your startup code needs to load modules using your test loader (one
@@ -104,9 +104,9 @@ There several ways to accomplish this:
     // setup.js
     const bar = require('./bar');
     intern.registerPlugin('foo', function() {
-    	return bar.getSomething().then(function(something) {
-    		// more async code
-    	});
+        return bar.getSomething().then(function(something) {
+            // more async code
+        });
     });
     ```
     ```js
@@ -362,16 +362,16 @@ just has to tell chromedriver to open a headless session. Do this by providing
 'headless' and 'disable-gpu' arguments to chromedriver in an environment
 descriptor in the test config.
 
-```js
+```json
 {
-  "environments": [
-    {
-      "browserName": "chrome",
-      "goog:chromeOptions": {
-        "args": ["headless", "disable-gpu"]
-      }
-    }
-  ]
+    "environments": [
+        {
+            "browserName": "chrome",
+            "goog:chromeOptions": {
+                "args": ["headless", "disable-gpu"]
+            }
+        }
+    ]
 }
 ```
 
@@ -388,14 +388,14 @@ argument to geckodriver in an environment descriptor in the test config.
 
 ```json
 {
-	"environments": [
-		{
-			"browserName": "chrome",
-			"moz:firefoxOptions": {
-				"args": ["-headless"]
-			}
-		}
-	]
+    "environments": [
+        {
+            "browserName": "firefox",
+            "moz:firefoxOptions": {
+                "args": ["-headless"]
+            }
+        }
+    ]
 }
 ```
 
@@ -408,16 +408,16 @@ session. Do this by providing a 'mobileEmulation' property in
 
 ```json
 {
-	"environments": [
-		{
-			"browserName": "chrome",
-			"goog:chromeOptions": {
-				"mobileEmulation": {
-					"deviceName": "Pixel 2"
-				}
-			}
-		}
-	]
+    "environments": [
+        {
+            "browserName": "chrome",
+            "goog:chromeOptions": {
+                "mobileEmulation": {
+                    "deviceName": "Pixel 2"
+                }
+            }
+        }
+    ]
 }
 ```
 
@@ -435,25 +435,25 @@ Mobile emulation mode may be combined with
     *   For older versions of Firefox, set a `firefox_profile` property:
     ```json
     {
-    	"environments": [
-    		{
-    			"browserName": "firefox",
-    			"firefox_profile": "UEsDBBQACAAIACynEk..."
-    		}
-    	]
+        "environments": [
+            {
+                "browserName": "firefox",
+                "firefox_profile": "UEsDBBQACAAIACynEk..."
+            }
+        ]
     }
     ```
     *   Starting with geckodriver 0.19, use a `moz:firefoxOptions` property:
     ```json
     {
-    	"environments": [
-    		{
-    			"browserName": "firefox",
-    			"moz:firefoxOptions": {
-    				"profile": "UEsDBBQACAAIACynEk..."
-    			}
-    		}
-    	]
+        "environments": [
+            {
+                "browserName": "firefox",
+                "moz:firefoxOptions": {
+                    "profile": "UEsDBBQACAAIACynEk..."
+                }
+            }
+        ]
     }
     ```
 
