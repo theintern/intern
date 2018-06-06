@@ -571,7 +571,8 @@ type EdgeOptions = Partial<EdgeProperties>;
 
 const EdgeVersions: { [release: string]: string } = {
 	'15063': '342316D7-EBE0-4F10-ABA2-AE8E0CDF36DD',
-	'16299': 'D417998A-58EE-4EFE-A7CC-39EF9E020768'
+	'16299': 'D417998A-58EE-4EFE-A7CC-39EF9E020768',
+	'17134': 'F8AF50AB-3C3A-4BC4-8773-DC27B32988DD'
 };
 
 class EdgeConfig extends Config<EdgeOptions>
