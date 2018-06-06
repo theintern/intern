@@ -19,7 +19,7 @@ import * as kill from 'tree-kill';
  * network.
  */
 export default class Tunnel extends Evented<TunnelEvents, string>
-	implements TunnelProperties, Url {
+	implements TunnelProperties, DownloadOptions, Url {
 	/**
 	 * The URL of a service that provides a list of environments supported by
 	 * the tunnel.
@@ -116,7 +116,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 	protected _process: ChildProcess | undefined;
 	protected _state!: 'stopped' | 'starting' | 'running' | 'stopping';
 
-	constructor(options?: TunnelOptions) {
+	constructor(options?: Partial<TunnelProperties & DownloadOptions>) {
 		super();
 		mixin(
 			this,
@@ -724,29 +724,43 @@ export interface NormalizedEnvironment {
 }
 
 /** Properties of a tunnel */
-export interface TunnelProperties extends DownloadOptions {
+export interface TunnelProperties {
+	/** [[Tunnel.Tunnel.architecture|More info]] */
 	architecture: string;
+
+	/** [[Tunnel.Tunnel.auth|More info]] */
 	auth: string | undefined;
+
+	/** [[Tunnel.Tunnel.accessKey|More info]] */
 	accessKey: string | undefined;
+
+	/** [[Tunnel.Tunnel.executable|More info]] */
 	executable: string | undefined;
+
+	/** [[Tunnel.Tunnel.hostname|More info]] */
 	hostname: string;
+
+	/** [[Tunnel.Tunnel.pathname|More info]] */
 	pathname: string;
+
+	/** [[Tunnel.Tunnel.platform|More info]] */
 	platform: string;
 
-	/**
-	 * Port should be a number, but the property is typed as a string for
-	 * compatibility with Url
-	 */
+	/** [[Tunnel.Tunnel.port|More info]] */
 	port: string;
 
+	/** [[Tunnel.Tunnel.protocol|More info]] */
 	protocol: string;
+
+	/** [[Tunnel.Tunnel.tunnelId|More info]] */
 	tunnelId: string | undefined;
+
+	/** [[Tunnel.Tunnel.username|More info]] */
 	username: string | undefined;
+
+	/** [[Tunnel.Tunnel.verbose|More info]] */
 	verbose: boolean;
 }
-
-/** Options used to configure a tunnel */
-export type TunnelOptions = Partial<TunnelProperties>;
 
 function proxyIOEvent(target: Tunnel, type: 'stdout' | 'stderr') {
 	return function(data: any) {

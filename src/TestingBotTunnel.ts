@@ -48,7 +48,7 @@ export default class TestingBotTunnel extends Tunnel
 	 */
 	useSsl!: boolean;
 
-	constructor(options?: TestingBotOptions) {
+	constructor(options?: Partial<TestingBotProperties & TunnelProperties>) {
 		super(
 			mixin(
 				{
@@ -278,13 +278,25 @@ export default class TestingBotTunnel extends Tunnel
 	}
 }
 
-export interface TestingBotProperties extends TunnelProperties {
+/**
+ * Options specific to TestingBotTunnel
+ */
+export interface TestingBotProperties {
+	/** [[TestingBotTunnel.TestingBotTunnel.fastFailDomains|More info]] */
 	fastFailDomains: string[];
+
+	/** [[TestingBotTunnel.TestingBotTunnel.logFile|More info]] */
 	logFile: string;
+
+	/** [[TestingBotTunnel.TestingBotTunnel.useCompression|More info]] */
 	useCompression: boolean;
+
+	/** [[TestingBotTunnel.TestingBotTunnel.useJettyProxy|More info]] */
 	useJettyProxy: boolean;
+
+	/** [[TestingBotTunnel.TestingBotTunnel.useSquidProxy|More info]] */
 	useSquidProxy: boolean;
+
+	/** [[TestingBotTunnel.TestingBotTunnel.useSsl|More info]] */
 	useSsl: boolean;
 }
-
-export type TestingBotOptions = Partial<TestingBotProperties>;

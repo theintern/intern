@@ -24,6 +24,9 @@ const scVersion = '4.4.12';
  *
  * The accessKey and username properties will be initialized using
  * SAUCE_ACCESS_KEY and SAUCE_USERNAME.
+ *
+ * See [[SauceLabsTunnel.SauceLabsProperties]] for a list of options specific to
+ * this tunnel class.
  */
 export default class SauceLabsTunnel extends Tunnel
 	implements SauceLabsProperties {
@@ -121,7 +124,7 @@ export default class SauceLabsTunnel extends Tunnel
 
 	username!: string;
 
-	constructor(options?: SauceLabsOptions) {
+	constructor(options?: Partial<SauceLabsProperties & TunnelProperties>) {
 		super(
 			mixin(
 				{
@@ -601,22 +604,52 @@ export default class SauceLabsTunnel extends Tunnel
 	}
 }
 
-export interface SauceLabsProperties extends TunnelProperties {
+/**
+ * Options specific to the SauceLabsTunnel
+ */
+export interface SauceLabsProperties {
+	/** [[SauceLabsTunnel.SauceLabsTunnel.directDomains|More info]] */
 	directDomains: string[];
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.tunnelDomains|More info]] */
 	tunnelDomains: string[];
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.domainAuthentication|More info]] */
 	domainAuthentication: string[];
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.fastFailDomains|More info]] */
 	fastFailDomains: string[];
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.isSharedTunnel|More info]] */
 	isSharedTunnel: boolean;
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.logFile|More info]] */
 	logFile: string | undefined;
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.pacFile|More info]] */
 	pacFile: string | undefined;
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.pidFile|More info]] */
 	pidFile: string | undefined;
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.logFileSize|More info]] */
 	logFileSize: number | undefined;
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.logTrafficStats|More info]] */
 	logTrafficStats: number;
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.restUrl|More info]] */
 	restUrl: string | undefined;
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.skipSslDomains|More info]] */
 	skipSslDomains: string[];
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.squidOptions|More info]] */
 	squidOptions: string | undefined;
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.useProxyForTunnel|More info]] */
 	useProxyForTunnel: boolean;
+
+	/** [[SauceLabsTunnel.SauceLabsTunnel.vmVersion|More info]] */
 	vmVersion: string | undefined;
 }
-
-export type SauceLabsOptions = Partial<SauceLabsProperties>;

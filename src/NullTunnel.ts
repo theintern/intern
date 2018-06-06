@@ -1,12 +1,12 @@
 import Task from '@dojo/core/async/Task';
-import Tunnel, { TunnelOptions } from './Tunnel';
+import Tunnel, { TunnelProperties } from './Tunnel';
 import { mixin } from '@dojo/core/lang';
 
 /**
  * A no-op tunnel.
  */
 export default class NullTunnel extends Tunnel {
-	constructor(options?: TunnelOptions) {
+	constructor(options?: Partial<TunnelProperties>) {
 		super(
 			mixin(
 				{

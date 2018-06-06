@@ -49,7 +49,7 @@ export default class BrowserStackTunnel extends Tunnel {
 	/** If true, route all traffic via the local machine. */
 	forceLocal: boolean | undefined;
 
-	constructor(options?: BrowserStackOptions) {
+	constructor(options?: Partial<BrowserStackProperties & TunnelProperties>) {
 		super(
 			mixin(
 				{
@@ -338,13 +338,22 @@ export default class BrowserStackTunnel extends Tunnel {
 	}
 }
 
-export interface BrowserStackProperties extends TunnelProperties {
+export interface BrowserStackProperties {
+	/** [[BrowserStackTunnel.BrowserStackTunnel.automateOnly|More info]] */
 	automateOnly: boolean;
+
+	/** [[BrowserStackTunnel.BrowserStackTunnel.killOtherTunnels|More info]] */
 	killOtherTunnels: boolean;
+
+	/** [[BrowserStackTunnel.BrowserStackTunnel.servers|More info]] */
 	servers: (Url | string)[];
+
+	/** [[BrowserStackTunnel.BrowserStackTunnel.skipServerValidation|More info]] */
 	skipServerValidation: boolean;
+
+	/** [[BrowserStackTunnel.BrowserStackTunnel.forceLocal|More info]] */
 	forceLocal: boolean;
+
+	/** [[BrowserStackTunnel.BrowserStackTunnel.environmentUrl|More info]] */
 	environmentUrl: string;
 }
-
-export type BrowserStackOptions = Partial<BrowserStackProperties>;

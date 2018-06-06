@@ -95,7 +95,7 @@ export default class SeleniumTunnel extends Tunnel
 	 */
 	seleniumTimeout!: number;
 
-	constructor(options?: SeleniumOptions) {
+	constructor(options?: Partial<SeleniumProperties & TunnelProperties>) {
 		super(
 			mixin(
 				{
@@ -331,15 +331,25 @@ export type DriverDescriptor =
 	| DriverFile
 	| { name: string; version?: string };
 
-export interface SeleniumProperties extends TunnelProperties {
+/**
+ * Options specific to SeleniumTunnel
+ */
+export interface SeleniumProperties {
+	/** [[SeleniumTunnel.SeleniumTunnel.seleniumArgs|More info]] */
 	seleniumArgs: string[];
+
+	/** [[SeleniumTunnel.SeleniumTunnel.drivers|More info]] */
 	drivers: DriverDescriptor[];
+
+	/** [[SeleniumTunnel.SeleniumTunnel.baseUrl|More info]] */
 	baseUrl: string;
+
+	/** [[SeleniumTunnel.SeleniumTunnel.version|More info]] */
 	version: string;
+
+	/** [[SeleniumTunnel.SeleniumTunnel.seleniumTimeout|More info]] */
 	seleniumTimeout: number;
 }
-
-export type SeleniumOptions = Partial<SeleniumProperties>;
 
 export interface SeleniumDownloadOptions extends DownloadOptions {
 	executable?: string;
@@ -619,6 +629,7 @@ class EdgeConfig extends Config<EdgeOptions>
 		return 'webdriver.edge.driver';
 	}
 }
+
 const driverNameMap: { [key: string]: DriverConstructor } = {
 	chrome: ChromeConfig,
 	firefox: FirefoxConfig,

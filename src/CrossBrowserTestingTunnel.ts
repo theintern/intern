@@ -46,10 +46,14 @@ const cbtVersion = '0.9.3';
  * The username and accessKey properties will be initialized using CBT_USERNAME
  * and CBT_APIKEY.
  */
-export default class CrossBrowserTestingTunnel extends Tunnel {
+export default class CrossBrowserTestingTunnel extends Tunnel
+	implements CrossBrowserTestingProperties {
+	/** The version of the cbt_tunnels package to use */
 	cbtVersion!: string;
 
-	constructor(options?: TunnelProperties) {
+	constructor(
+		options?: Partial<TunnelProperties & CrossBrowserTestingProperties>
+	) {
 		super(
 			mixin(
 				{
@@ -255,4 +259,12 @@ export default class CrossBrowserTestingTunnel extends Tunnel {
 			};
 		});
 	}
+}
+
+/**
+ * Options specific to the CrossBrowserTestingTunnel
+ */
+export interface CrossBrowserTestingProperties {
+	/** [[CrossBrowserTestingTunnel.CrossBrowserTestingTunnel.cbtVersion|More info]] */
+	cbtVersion: string;
 }
