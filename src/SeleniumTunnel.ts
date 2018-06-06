@@ -14,10 +14,11 @@ import * as kill from 'tree-kill';
 
 const { sync: commandExistsSync } = require('command-exists');
 
-const SeleniumVersion = '3.11.0';
-const ChromeVersion = '2.37';
+const SeleniumVersion = '3.12.0';
+const ChromeVersion = '2.39';
 const FirefoxVersion = '0.20.1';
-const IEVersion = '3.11.0';
+const IEVersion = '3.12.0';
+const EdgeVersion = '17134';
 
 /**
  * A Selenium tunnel. This tunnel downloads the
@@ -178,15 +179,13 @@ export default class SeleniumTunnel extends Tunnel
 					}
 
 					// TODO: progress events
-					return this._downloadFile(
-						config.url,
-						this.proxy,
-						<SeleniumDownloadOptions>{
-							executable,
-							dontExtract,
-							directory
-						}
-					);
+					return this._downloadFile(config.url, this.proxy, <
+						SeleniumDownloadOptions
+					>{
+						executable,
+						dontExtract,
+						directory
+					});
 				});
 
 				resolve(Task.all(tasks).then(() => {}));
@@ -586,7 +585,7 @@ class EdgeConfig extends Config<EdgeOptions>
 			mixin(
 				{
 					baseUrl: 'https://download.microsoft.com/download',
-					version: '15063'
+					version: EdgeVersion
 				},
 				options
 			)
