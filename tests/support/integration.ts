@@ -125,21 +125,19 @@ export function addStartStopTest(
 				handle = addVerboseListeners(tunnel);
 			}
 
-			if (options.timeout) {
-				this.async(options.timeout);
-			}
+			const timeout = options.timeout || 30000;
+			this.async(timeout);
 
 			const cleanup = getCleanup(tunnel, handle);
+			const cleanupTimer = setTimeout(() => {
+				cleanup();
+			}, timeout - 5000);
+
 			return tunnel
 				.start()!
 				.then(function() {
+					clearTimeout(cleanupTimer);
 					return tunnel.stop();
-				})
-				.then(cleanup)
-				.catch(reason => {
-					return cleanup().then(() => {
-						throw reason;
-					});
 				})
 				.finally(cleanup);
 		}

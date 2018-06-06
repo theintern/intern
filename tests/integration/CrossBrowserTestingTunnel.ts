@@ -11,7 +11,9 @@ let tests = {};
 tests = addEnvironmentTest(tests, CrossBrowserTestingTunnel, checkEnvironment, {
 	needsAuthData: true
 });
-tests = addStartStopTest(tests, CrossBrowserTestingTunnel);
+tests = addStartStopTest(tests, CrossBrowserTestingTunnel, {
+	timeout: 120000
+});
 
 const suite = {
 	before() {

@@ -12,17 +12,19 @@ export function cleanup(tunnel: Tunnel) {
 		return Promise.resolve();
 	}
 
-	if (tunnel.isRunning) {
-		return new Promise<void>((resolve, reject) => {
-			tunnel
-				.stop()
-				.then(() => resolve())
-				.catch(reject);
+	let error: Error | undefined;
+
+	return tunnel
+		.stop()
+		.catch(err => {
+			error = err;
+		})
+		.then(() => {
+			deleteTunnelFiles(tunnel);
+			if (error) {
+				throw error;
+			}
 		});
-	} else {
-		deleteTunnelFiles(tunnel);
-		return Promise.resolve();
-	}
 }
 
 /**
