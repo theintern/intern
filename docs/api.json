@@ -13809,7 +13809,7 @@
 											"type": {
 												"type": "reference",
 												"name": "ChromeOptions",
-												"id": 963
+												"id": 964
 											}
 										}
 									],
@@ -13828,7 +13828,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 375,
+									"line": 374,
 									"character": 18
 								}
 							],
@@ -13849,7 +13849,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 372,
+									"line": 371,
 									"character": 5
 								}
 							],
@@ -13874,7 +13874,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 373,
+									"line": 372,
 									"character": 8
 								}
 							],
@@ -13899,7 +13899,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 374,
+									"line": 373,
 									"character": 9
 								}
 							],
@@ -13924,7 +13924,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 375,
+									"line": 374,
 									"character": 8
 								}
 							],
@@ -13964,7 +13964,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 391,
+									"line": 390,
 									"character": 13
 								}
 							]
@@ -13995,7 +13995,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 407,
+									"line": 406,
 									"character": 14
 								}
 							],
@@ -14036,7 +14036,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 415,
+									"line": 414,
 									"character": 15
 								}
 							],
@@ -14082,7 +14082,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 422,
+									"line": 421,
 									"character": 21
 								}
 							],
@@ -14128,7 +14128,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 411,
+									"line": 410,
 									"character": 8
 								}
 							],
@@ -14177,7 +14177,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 370,
+							"line": 369,
 							"character": 18
 						}
 					],
@@ -14190,7 +14190,7 @@
 								{
 									"type": "reference",
 									"name": "ChromeOptions",
-									"id": 963
+									"id": 964
 								}
 							]
 						}
@@ -14271,7 +14271,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 351,
+									"line": 350,
 									"character": 26
 								}
 							]
@@ -14288,7 +14288,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 356,
+									"line": 355,
 									"character": 29
 								}
 							],
@@ -14310,7 +14310,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 358,
+									"line": 357,
 									"character": 35
 								}
 							],
@@ -14340,7 +14340,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 357,
+									"line": 356,
 									"character": 22
 								}
 							],
@@ -14371,7 +14371,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 351,
+							"line": 350,
 							"character": 21
 						}
 					],
@@ -14436,7 +14436,7 @@
 											"type": {
 												"type": "reference",
 												"name": "EdgeOptions",
-												"id": 966
+												"id": 967
 											}
 										}
 									],
@@ -14837,7 +14837,7 @@
 								{
 									"type": "reference",
 									"name": "EdgeOptions",
-									"id": 966
+									"id": 967
 								}
 							]
 						}
@@ -14893,7 +14893,7 @@
 											"type": {
 												"type": "reference",
 												"name": "FirefoxOptions",
-												"id": 964
+												"id": 965
 											}
 										}
 									],
@@ -14912,7 +14912,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 441,
+									"line": 440,
 									"character": 18
 								}
 							],
@@ -14933,7 +14933,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 438,
+									"line": 437,
 									"character": 5
 								}
 							],
@@ -14958,7 +14958,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 439,
+									"line": 438,
 									"character": 8
 								}
 							],
@@ -14983,7 +14983,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 440,
+									"line": 439,
 									"character": 9
 								}
 							],
@@ -15008,7 +15008,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 441,
+									"line": 440,
 									"character": 8
 								}
 							],
@@ -15048,7 +15048,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 458,
+									"line": 457,
 									"character": 13
 								}
 							]
@@ -15079,7 +15079,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 480,
+									"line": 479,
 									"character": 14
 								}
 							],
@@ -15120,7 +15120,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 484,
+									"line": 483,
 									"character": 15
 								}
 							],
@@ -15166,7 +15166,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 491,
+									"line": 490,
 									"character": 21
 								}
 							],
@@ -15212,7 +15212,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 476,
+									"line": 475,
 									"character": 8
 								}
 							],
@@ -15261,7 +15261,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 436,
+							"line": 435,
 							"character": 19
 						}
 					],
@@ -15274,7 +15274,7 @@
 								{
 									"type": "reference",
 									"name": "FirefoxOptions",
-									"id": 964
+									"id": 965
 								}
 							]
 						}
@@ -15330,7 +15330,7 @@
 											"type": {
 												"type": "reference",
 												"name": "IEOptions",
-												"id": 965
+												"id": 966
 											}
 										}
 									],
@@ -15349,7 +15349,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 508,
+									"line": 507,
 									"character": 18
 								}
 							],
@@ -15370,7 +15370,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 506,
+									"line": 505,
 									"character": 5
 								}
 							],
@@ -15395,7 +15395,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 507,
+									"line": 506,
 									"character": 8
 								}
 							],
@@ -15420,7 +15420,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 508,
+									"line": 507,
 									"character": 8
 								}
 							],
@@ -15460,7 +15460,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 523,
+									"line": 522,
 									"character": 13
 								}
 							]
@@ -15491,7 +15491,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 541,
+									"line": 540,
 									"character": 14
 								}
 							],
@@ -15532,7 +15532,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 545,
+									"line": 544,
 									"character": 15
 								}
 							],
@@ -15578,7 +15578,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 549,
+									"line": 548,
 									"character": 21
 								}
 							],
@@ -15624,7 +15624,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 528,
+									"line": 527,
 									"character": 8
 								}
 							],
@@ -15672,7 +15672,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 505,
+							"line": 504,
 							"character": 14
 						}
 					],
@@ -15685,7 +15685,7 @@
 								{
 									"type": "reference",
 									"name": "IEOptions",
-									"id": 965
+									"id": 966
 								}
 							]
 						}
@@ -15769,7 +15769,7 @@
 											"type": {
 												"type": "reference",
 												"name": "SeleniumOptions",
-												"id": 957
+												"id": 958
 											}
 										}
 									],
@@ -15788,7 +15788,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 96,
+									"line": 97,
 									"character": 26
 								}
 							],
@@ -16166,7 +16166,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 82,
+									"line": 83,
 									"character": 8
 								}
 							],
@@ -16196,7 +16196,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 75,
+									"line": 76,
 									"character": 8
 								}
 							],
@@ -16205,7 +16205,7 @@
 								"elementType": {
 									"type": "reference",
 									"name": "DriverDescriptor",
-									"id": 953
+									"id": 954
 								}
 							},
 							"implementationOf": {
@@ -16555,7 +16555,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 43,
+									"line": 44,
 									"character": 13
 								}
 							],
@@ -16593,7 +16593,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 96,
+									"line": 97,
 									"character": 16
 								}
 							],
@@ -16748,7 +16748,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 89,
+									"line": 90,
 									"character": 8
 								}
 							],
@@ -16789,7 +16789,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 118,
+									"line": 119,
 									"character": 13
 								}
 							]
@@ -16874,7 +16874,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 122,
+									"line": 123,
 									"character": 14
 								}
 							],
@@ -16921,7 +16921,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 126,
+									"line": 127,
 									"character": 15
 								}
 							],
@@ -17016,7 +17016,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 130,
+									"line": 131,
 									"character": 17
 								}
 							],
@@ -17202,7 +17202,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 140,
+									"line": 141,
 									"character": 8
 								}
 							],
@@ -17359,7 +17359,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 208,
+									"line": 207,
 									"character": 28
 								}
 							]
@@ -17400,7 +17400,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 231,
+									"line": 230,
 									"character": 20
 								}
 							],
@@ -17738,7 +17738,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 264,
+									"line": 263,
 									"character": 28
 								}
 							],
@@ -17803,7 +17803,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 275,
+									"line": 274,
 									"character": 17
 								}
 							],
@@ -17971,7 +17971,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 153,
+									"line": 154,
 									"character": 9
 								}
 							],
@@ -18467,7 +18467,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 203,
+									"line": 202,
 									"character": 13
 								}
 							],
@@ -18665,7 +18665,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 40,
+							"line": 41,
 							"character": 35
 						}
 					],
@@ -18713,7 +18713,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 362,
+									"line": 361,
 									"character": 5
 								}
 							],
@@ -18733,7 +18733,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 363,
+									"line": 362,
 									"character": 8
 								}
 							],
@@ -18753,7 +18753,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 364,
+									"line": 363,
 									"character": 9
 								}
 							],
@@ -18773,7 +18773,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 365,
+									"line": 364,
 									"character": 8
 								}
 							],
@@ -18798,7 +18798,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 361,
+							"line": 360,
 							"character": 26
 						}
 					],
@@ -18833,7 +18833,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 322,
+									"line": 321,
 									"character": 10
 								}
 							],
@@ -18869,7 +18869,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 321,
+									"line": 320,
 									"character": 12
 								}
 							],
@@ -18908,7 +18908,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 323,
+									"line": 322,
 									"character": 11
 								}
 							],
@@ -18934,7 +18934,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 317,
+									"line": 316,
 									"character": 17
 								}
 							],
@@ -18955,7 +18955,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 324,
+									"line": 323,
 									"character": 4
 								}
 							],
@@ -18986,7 +18986,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 316,
+							"line": 315,
 							"character": 27
 						}
 					],
@@ -19040,7 +19040,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 555,
+									"line": 554,
 									"character": 8
 								}
 							],
@@ -19060,7 +19060,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 556,
+									"line": 555,
 									"character": 5
 								}
 							],
@@ -19089,7 +19089,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 557,
+									"line": 556,
 									"character": 8
 								}
 							],
@@ -19113,7 +19113,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 554,
+							"line": 553,
 							"character": 24
 						}
 					],
@@ -19145,7 +19145,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 428,
+									"line": 427,
 									"character": 5
 								}
 							],
@@ -19165,7 +19165,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 429,
+									"line": 428,
 									"character": 8
 								}
 							],
@@ -19185,7 +19185,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 430,
+									"line": 429,
 									"character": 9
 								}
 							],
@@ -19205,7 +19205,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 431,
+									"line": 430,
 									"character": 8
 								}
 							],
@@ -19230,7 +19230,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 427,
+							"line": 426,
 							"character": 27
 						}
 					],
@@ -19262,7 +19262,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 498,
+									"line": 497,
 									"character": 5
 								}
 							],
@@ -19282,7 +19282,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 499,
+									"line": 498,
 									"character": 8
 								}
 							],
@@ -19302,7 +19302,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 500,
+									"line": 499,
 									"character": 8
 								}
 							],
@@ -19326,7 +19326,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 497,
+							"line": 496,
 							"character": 22
 						}
 					],
@@ -19361,7 +19361,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 322,
+									"line": 321,
 									"character": 10
 								}
 							],
@@ -19392,7 +19392,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 321,
+									"line": 320,
 									"character": 12
 								}
 							],
@@ -19426,7 +19426,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 323,
+									"line": 322,
 									"character": 11
 								}
 							],
@@ -19447,7 +19447,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 324,
+									"line": 323,
 									"character": 4
 								}
 							],
@@ -19472,7 +19472,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 320,
+							"line": 319,
 							"character": 27
 						}
 					],
@@ -19542,7 +19542,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 346,
+									"line": 345,
 									"character": 12
 								}
 							],
@@ -19577,7 +19577,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 345,
+									"line": 344,
 									"character": 11
 								}
 							],
@@ -19673,7 +19673,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 344,
+							"line": 343,
 							"character": 40
 						}
 					],
@@ -19803,7 +19803,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 337,
+									"line": 336,
 									"character": 8
 								}
 							],
@@ -19859,7 +19859,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 336,
+									"line": 335,
 									"character": 8
 								}
 							],
@@ -19868,7 +19868,7 @@
 								"elementType": {
 									"type": "reference",
 									"name": "DriverDescriptor",
-									"id": 953
+									"id": 954
 								}
 							}
 						},
@@ -20087,7 +20087,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 335,
+									"line": 334,
 									"character": 13
 								}
 							],
@@ -20111,7 +20111,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 339,
+									"line": 338,
 									"character": 16
 								}
 							],
@@ -20254,7 +20254,7 @@
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 338,
+									"line": 337,
 									"character": 8
 								}
 							],
@@ -20295,7 +20295,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 334,
+							"line": 333,
 							"character": 35
 						}
 					],
@@ -20315,7 +20315,7 @@
 					]
 				},
 				{
-					"id": 963,
+					"id": 964,
 					"name": "ChromeOptions",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -20325,7 +20325,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 368,
+							"line": 367,
 							"character": 18
 						}
 					],
@@ -20342,7 +20342,7 @@
 					}
 				},
 				{
-					"id": 958,
+					"id": 959,
 					"name": "DriverConstructor",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -20352,14 +20352,14 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 349,
+							"line": 348,
 							"character": 22
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 959,
+							"id": 960,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -20368,7 +20368,7 @@
 							},
 							"children": [
 								{
-									"id": 960,
+									"id": 961,
 									"name": "constructor",
 									"kind": 512,
 									"kindString": "Constructor",
@@ -20377,7 +20377,7 @@
 									},
 									"signatures": [
 										{
-											"id": 961,
+											"id": 962,
 											"name": "new __type",
 											"kind": 16384,
 											"kindString": "Constructor signature",
@@ -20386,7 +20386,7 @@
 											},
 											"parameters": [
 												{
-													"id": 962,
+													"id": 963,
 													"name": "config",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -20410,7 +20410,7 @@
 									"sources": [
 										{
 											"fileName": "SeleniumTunnel.ts",
-											"line": 349,
+											"line": 348,
 											"character": 26
 										}
 									]
@@ -20421,14 +20421,14 @@
 									"title": "Constructors",
 									"kind": 512,
 									"children": [
-										960
+										961
 									]
 								}
 							],
 							"sources": [
 								{
 									"fileName": "SeleniumTunnel.ts",
-									"line": 349,
+									"line": 348,
 									"character": 24
 								}
 							]
@@ -20436,7 +20436,7 @@
 					}
 				},
 				{
-					"id": 953,
+					"id": 954,
 					"name": "DriverDescriptor",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -20447,7 +20447,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 327,
+							"line": 326,
 							"character": 28
 						}
 					],
@@ -20474,7 +20474,7 @@
 							{
 								"type": "reflection",
 								"declaration": {
-									"id": 954,
+									"id": 955,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -20483,7 +20483,7 @@
 									},
 									"children": [
 										{
-											"id": 955,
+											"id": 956,
 											"name": "name",
 											"kind": 32,
 											"kindString": "Variable",
@@ -20493,7 +20493,7 @@
 											"sources": [
 												{
 													"fileName": "SeleniumTunnel.ts",
-													"line": 332,
+													"line": 331,
 													"character": 9
 												}
 											],
@@ -20503,7 +20503,7 @@
 											}
 										},
 										{
-											"id": 956,
+											"id": 957,
 											"name": "version",
 											"kind": 32,
 											"kindString": "Variable",
@@ -20514,7 +20514,7 @@
 											"sources": [
 												{
 													"fileName": "SeleniumTunnel.ts",
-													"line": 332,
+													"line": 331,
 													"character": 26
 												}
 											],
@@ -20538,15 +20538,15 @@
 											"title": "Variables",
 											"kind": 32,
 											"children": [
-												955,
-												956
+												956,
+												957
 											]
 										}
 									],
 									"sources": [
 										{
 											"fileName": "SeleniumTunnel.ts",
-											"line": 332,
+											"line": 331,
 											"character": 2
 										}
 									]
@@ -20556,7 +20556,7 @@
 					}
 				},
 				{
-					"id": 966,
+					"id": 967,
 					"name": "EdgeOptions",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -20566,7 +20566,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 560,
+							"line": 559,
 							"character": 16
 						}
 					],
@@ -20583,7 +20583,7 @@
 					}
 				},
 				{
-					"id": 964,
+					"id": 965,
 					"name": "FirefoxOptions",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -20593,7 +20593,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 434,
+							"line": 433,
 							"character": 19
 						}
 					],
@@ -20610,7 +20610,7 @@
 					}
 				},
 				{
-					"id": 965,
+					"id": 966,
 					"name": "IEOptions",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -20620,7 +20620,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 503,
+							"line": 502,
 							"character": 14
 						}
 					],
@@ -20637,7 +20637,7 @@
 					}
 				},
 				{
-					"id": 957,
+					"id": 958,
 					"name": "SeleniumOptions",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -20648,7 +20648,7 @@
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 342,
+							"line": 341,
 							"character": 27
 						}
 					],
@@ -20682,9 +20682,31 @@
 					],
 					"type": {
 						"type": "stringLiteral",
-						"value": "2.37"
+						"value": "2.39"
 					},
-					"defaultValue": "\"2.37\""
+					"defaultValue": "\"2.39\""
+				},
+				{
+					"id": 953,
+					"name": "EdgeVersion",
+					"kind": 32,
+					"kindString": "Variable",
+					"flags": {
+						"isConst": true,
+						"__visited__": true
+					},
+					"sources": [
+						{
+							"fileName": "SeleniumTunnel.ts",
+							"line": 21,
+							"character": 17
+						}
+					],
+					"type": {
+						"type": "stringLiteral",
+						"value": "17134"
+					},
+					"defaultValue": "\"17134\""
 				},
 				{
 					"id": 951,
@@ -20726,9 +20748,9 @@
 					],
 					"type": {
 						"type": "stringLiteral",
-						"value": "3.11.0"
+						"value": "3.12.0"
 					},
-					"defaultValue": "\"3.11.0\""
+					"defaultValue": "\"3.12.0\""
 				},
 				{
 					"id": 949,
@@ -20748,9 +20770,9 @@
 					],
 					"type": {
 						"type": "stringLiteral",
-						"value": "3.11.0"
+						"value": "3.12.0"
 					},
-					"defaultValue": "\"3.11.0\""
+					"defaultValue": "\"3.12.0\""
 				},
 				{
 					"id": 948,
@@ -20773,7 +20795,7 @@
 					}
 				},
 				{
-					"id": 967,
+					"id": 968,
 					"name": "EdgeVersions",
 					"kind": 2097152,
 					"kindString": "Object literal",
@@ -20783,8 +20805,29 @@
 					},
 					"children": [
 						{
-							"id": 968,
+							"id": 969,
 							"name": "15063",
+							"kind": 32,
+							"kindString": "Variable",
+							"flags": {
+								"__visited__": true
+							},
+							"sources": [
+								{
+									"fileName": "SeleniumTunnel.ts",
+									"line": 562,
+									"character": 8
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							},
+							"defaultValue": "\"342316D7-EBE0-4F10-ABA2-AE8E0CDF36DD\""
+						},
+						{
+							"id": 970,
+							"name": "16299",
 							"kind": 32,
 							"kindString": "Variable",
 							"flags": {
@@ -20801,11 +20844,11 @@
 								"type": "intrinsic",
 								"name": "string"
 							},
-							"defaultValue": "\"342316D7-EBE0-4F10-ABA2-AE8E0CDF36DD\""
+							"defaultValue": "\"D417998A-58EE-4EFE-A7CC-39EF9E020768\""
 						},
 						{
-							"id": 969,
-							"name": "16299",
+							"id": 971,
+							"name": "17134",
 							"kind": 32,
 							"kindString": "Variable",
 							"flags": {
@@ -20822,7 +20865,7 @@
 								"type": "intrinsic",
 								"name": "string"
 							},
-							"defaultValue": "\"D417998A-58EE-4EFE-A7CC-39EF9E020768\""
+							"defaultValue": "\"F8AF50AB-3C3A-4BC4-8773-DC27B32988DD\""
 						}
 					],
 					"groups": [
@@ -20830,15 +20873,16 @@
 							"title": "Variables",
 							"kind": 32,
 							"children": [
-								968,
-								969
+								969,
+								970,
+								971
 							]
 						}
 					],
 					"sources": [
 						{
 							"fileName": "SeleniumTunnel.ts",
-							"line": 562,
+							"line": 561,
 							"character": 18
 						}
 					],
@@ -20848,7 +20892,7 @@
 					}
 				},
 				{
-					"id": 970,
+					"id": 972,
 					"name": "driverNameMap",
 					"kind": 2097152,
 					"kindString": "Object literal",
@@ -20858,7 +20902,7 @@
 					},
 					"children": [
 						{
-							"id": 971,
+							"id": 973,
 							"name": "chrome",
 							"kind": 32,
 							"kindString": "Variable",
@@ -20880,7 +20924,7 @@
 							"defaultValue": " ChromeConfig"
 						},
 						{
-							"id": 974,
+							"id": 976,
 							"name": "edge",
 							"kind": 32,
 							"kindString": "Variable",
@@ -20902,7 +20946,7 @@
 							"defaultValue": " EdgeConfig"
 						},
 						{
-							"id": 972,
+							"id": 974,
 							"name": "firefox",
 							"kind": 32,
 							"kindString": "Variable",
@@ -20924,7 +20968,7 @@
 							"defaultValue": " FirefoxConfig"
 						},
 						{
-							"id": 973,
+							"id": 975,
 							"name": "ie",
 							"kind": 32,
 							"kindString": "Variable",
@@ -20951,10 +20995,10 @@
 							"title": "Variables",
 							"kind": 32,
 							"children": [
-								971,
+								973,
+								976,
 								974,
-								972,
-								973
+								975
 							]
 						}
 					],
@@ -21002,13 +21046,13 @@
 					"title": "Type aliases",
 					"kind": 4194304,
 					"children": [
-						963,
-						958,
-						953,
-						966,
 						964,
+						959,
+						954,
+						967,
 						965,
-						957
+						966,
+						958
 					]
 				},
 				{
@@ -21016,6 +21060,7 @@
 					"kind": 32,
 					"children": [
 						950,
+						953,
 						951,
 						952,
 						949,
@@ -21026,8 +21071,8 @@
 					"title": "Object literals",
 					"kind": 2097152,
 					"children": [
-						967,
-						970
+						968,
+						972
 					]
 				}
 			],
@@ -21040,7 +21085,7 @@
 			]
 		},
 		{
-			"id": 975,
+			"id": 977,
 			"name": "\"TestingBotTunnel\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -21051,7 +21096,7 @@
 			"originalName": "src/TestingBotTunnel.ts",
 			"children": [
 				{
-					"id": 976,
+					"id": 978,
 					"name": "TestingBotTunnel",
 					"kind": 128,
 					"kindString": "Class",
@@ -21065,7 +21110,7 @@
 					},
 					"typeParameter": [
 						{
-							"id": 1062,
+							"id": 1064,
 							"name": "O",
 							"kind": 131072,
 							"kindString": "Type parameter",
@@ -21086,7 +21131,7 @@
 					],
 					"children": [
 						{
-							"id": 984,
+							"id": 986,
 							"name": "constructor",
 							"kind": 512,
 							"kindString": "Constructor",
@@ -21096,7 +21141,7 @@
 							},
 							"signatures": [
 								{
-									"id": 985,
+									"id": 987,
 									"name": "new TestingBotTunnel",
 									"kind": 16384,
 									"kindString": "Constructor signature",
@@ -21105,7 +21150,7 @@
 									},
 									"parameters": [
 										{
-											"id": 986,
+											"id": 988,
 											"name": "options",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -21116,14 +21161,14 @@
 											"type": {
 												"type": "reference",
 												"name": "TestingBotOptions",
-												"id": 1106
+												"id": 1108
 											}
 										}
 									],
 									"type": {
 										"type": "reference",
 										"name": "TestingBotTunnel",
-										"id": 976
+										"id": 978
 									},
 									"overwrites": {
 										"type": "reference",
@@ -21146,7 +21191,7 @@
 							}
 						},
 						{
-							"id": 1063,
+							"id": 1065,
 							"name": "__typeMap__",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21173,7 +21218,7 @@
 							}
 						},
 						{
-							"id": 1020,
+							"id": 1022,
 							"name": "_handle",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21209,7 +21254,7 @@
 							}
 						},
 						{
-							"id": 1021,
+							"id": 1023,
 							"name": "_process",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21245,7 +21290,7 @@
 							}
 						},
 						{
-							"id": 1018,
+							"id": 1020,
 							"name": "_startTask",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21287,7 +21332,7 @@
 							}
 						},
 						{
-							"id": 1022,
+							"id": 1024,
 							"name": "_state",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21331,7 +21376,7 @@
 							}
 						},
 						{
-							"id": 1019,
+							"id": 1021,
 							"name": "_stopTask",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21373,7 +21418,7 @@
 							}
 						},
 						{
-							"id": 1005,
+							"id": 1007,
 							"name": "accessKey",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21416,7 +21461,7 @@
 							}
 						},
 						{
-							"id": 1007,
+							"id": 1009,
 							"name": "architecture",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21450,7 +21495,7 @@
 							}
 						},
 						{
-							"id": 977,
+							"id": 979,
 							"name": "directory",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21481,7 +21526,7 @@
 							}
 						},
 						{
-							"id": 1004,
+							"id": 1006,
 							"name": "environmentUrl",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21519,7 +21564,7 @@
 							}
 						},
 						{
-							"id": 1008,
+							"id": 1010,
 							"name": "executable",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21553,7 +21598,7 @@
 							}
 						},
 						{
-							"id": 978,
+							"id": 980,
 							"name": "fastFailDomains",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21580,7 +21625,7 @@
 							}
 						},
 						{
-							"id": 1009,
+							"id": 1011,
 							"name": "hostname",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21614,7 +21659,7 @@
 							}
 						},
 						{
-							"id": 1064,
+							"id": 1066,
 							"name": "listenersMap",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21689,7 +21734,7 @@
 							}
 						},
 						{
-							"id": 979,
+							"id": 981,
 							"name": "logFile",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21722,7 +21767,7 @@
 							}
 						},
 						{
-							"id": 1010,
+							"id": 1012,
 							"name": "pathname",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21756,7 +21801,7 @@
 							}
 						},
 						{
-							"id": 1011,
+							"id": 1013,
 							"name": "platform",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21790,7 +21835,7 @@
 							}
 						},
 						{
-							"id": 1012,
+							"id": 1014,
 							"name": "port",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21824,7 +21869,7 @@
 							}
 						},
 						{
-							"id": 1013,
+							"id": 1015,
 							"name": "protocol",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21858,7 +21903,7 @@
 							}
 						},
 						{
-							"id": 1014,
+							"id": 1016,
 							"name": "proxy",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21901,7 +21946,7 @@
 							}
 						},
 						{
-							"id": 1015,
+							"id": 1017,
 							"name": "tunnelId",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21944,7 +21989,7 @@
 							}
 						},
 						{
-							"id": 1016,
+							"id": 1018,
 							"name": "url",
 							"kind": 1024,
 							"kindString": "Property",
@@ -21978,7 +22023,7 @@
 							}
 						},
 						{
-							"id": 980,
+							"id": 982,
 							"name": "useCompression",
 							"kind": 1024,
 							"kindString": "Property",
@@ -22002,7 +22047,7 @@
 							}
 						},
 						{
-							"id": 981,
+							"id": 983,
 							"name": "useJettyProxy",
 							"kind": 1024,
 							"kindString": "Property",
@@ -22026,7 +22071,7 @@
 							}
 						},
 						{
-							"id": 982,
+							"id": 984,
 							"name": "useSquidProxy",
 							"kind": 1024,
 							"kindString": "Property",
@@ -22050,7 +22095,7 @@
 							}
 						},
 						{
-							"id": 983,
+							"id": 985,
 							"name": "useSsl",
 							"kind": 1024,
 							"kindString": "Property",
@@ -22074,7 +22119,7 @@
 							}
 						},
 						{
-							"id": 1006,
+							"id": 1008,
 							"name": "username",
 							"kind": 1024,
 							"kindString": "Property",
@@ -22117,7 +22162,7 @@
 							}
 						},
 						{
-							"id": 1017,
+							"id": 1019,
 							"name": "verbose",
 							"kind": 1024,
 							"kindString": "Property",
@@ -22151,7 +22196,7 @@
 							}
 						},
 						{
-							"id": 987,
+							"id": 989,
 							"name": "auth",
 							"kind": 262144,
 							"kindString": "Accessor",
@@ -22161,7 +22206,7 @@
 							},
 							"getSignature": [
 								{
-									"id": 988,
+									"id": 990,
 									"name": "__get",
 									"kind": 524288,
 									"kindString": "Get signature",
@@ -22198,7 +22243,7 @@
 							}
 						},
 						{
-							"id": 1023,
+							"id": 1025,
 							"name": "clientUrl",
 							"kind": 262144,
 							"kindString": "Accessor",
@@ -22211,7 +22256,7 @@
 							},
 							"getSignature": [
 								{
-									"id": 1024,
+									"id": 1026,
 									"name": "__get",
 									"kind": 524288,
 									"kindString": "Get signature",
@@ -22246,7 +22291,7 @@
 							}
 						},
 						{
-							"id": 1025,
+							"id": 1027,
 							"name": "extraCapabilities",
 							"kind": 262144,
 							"kindString": "Accessor",
@@ -22259,7 +22304,7 @@
 							},
 							"getSignature": [
 								{
-									"id": 1026,
+									"id": 1028,
 									"name": "__get",
 									"kind": 524288,
 									"kindString": "Get signature",
@@ -22294,7 +22339,7 @@
 							}
 						},
 						{
-							"id": 989,
+							"id": 991,
 							"name": "isDownloaded",
 							"kind": 262144,
 							"kindString": "Accessor",
@@ -22304,7 +22349,7 @@
 							},
 							"getSignature": [
 								{
-									"id": 990,
+									"id": 992,
 									"name": "__get",
 									"kind": 524288,
 									"kindString": "Get signature",
@@ -22336,7 +22381,7 @@
 							}
 						},
 						{
-							"id": 1027,
+							"id": 1029,
 							"name": "isRunning",
 							"kind": 262144,
 							"kindString": "Accessor",
@@ -22349,7 +22394,7 @@
 							},
 							"getSignature": [
 								{
-									"id": 1028,
+									"id": 1030,
 									"name": "__get",
 									"kind": 524288,
 									"kindString": "Get signature",
@@ -22384,7 +22429,7 @@
 							}
 						},
 						{
-							"id": 1029,
+							"id": 1031,
 							"name": "isStarting",
 							"kind": 262144,
 							"kindString": "Accessor",
@@ -22397,7 +22442,7 @@
 							},
 							"getSignature": [
 								{
-									"id": 1030,
+									"id": 1032,
 									"name": "__get",
 									"kind": 524288,
 									"kindString": "Get signature",
@@ -22432,7 +22477,7 @@
 							}
 						},
 						{
-							"id": 1031,
+							"id": 1033,
 							"name": "isStopping",
 							"kind": 262144,
 							"kindString": "Accessor",
@@ -22445,7 +22490,7 @@
 							},
 							"getSignature": [
 								{
-									"id": 1032,
+									"id": 1034,
 									"name": "__get",
 									"kind": 524288,
 									"kindString": "Get signature",
@@ -22480,7 +22525,7 @@
 							}
 						},
 						{
-							"id": 1036,
+							"id": 1038,
 							"name": "_downloadFile",
 							"kind": 2048,
 							"kindString": "Method",
@@ -22491,7 +22536,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1037,
+									"id": 1039,
 									"name": "_downloadFile",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -22500,7 +22545,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1038,
+											"id": 1040,
 											"name": "url",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -22522,7 +22567,7 @@
 											}
 										},
 										{
-											"id": 1039,
+											"id": 1041,
 											"name": "proxy",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -22544,7 +22589,7 @@
 											}
 										},
 										{
-											"id": 1040,
+											"id": 1042,
 											"name": "options",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -22590,7 +22635,7 @@
 							}
 						},
 						{
-							"id": 991,
+							"id": 993,
 							"name": "_makeArgs",
 							"kind": 2048,
 							"kindString": "Method",
@@ -22601,7 +22646,7 @@
 							},
 							"signatures": [
 								{
-									"id": 992,
+									"id": 994,
 									"name": "_makeArgs",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -22610,7 +22655,7 @@
 									},
 									"parameters": [
 										{
-											"id": 993,
+											"id": 995,
 											"name": "readyFile",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -22651,7 +22696,7 @@
 							}
 						},
 						{
-							"id": 1045,
+							"id": 1047,
 							"name": "_makeChild",
 							"kind": 2048,
 							"kindString": "Method",
@@ -22662,7 +22707,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1046,
+									"id": 1048,
 									"name": "_makeChild",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -22676,7 +22721,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1047,
+											"id": 1049,
 											"name": "executor",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -22690,7 +22735,7 @@
 											}
 										},
 										{
-											"id": 1048,
+											"id": 1050,
 											"name": "values",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -22738,7 +22783,7 @@
 							}
 						},
 						{
-							"id": 1049,
+							"id": 1051,
 							"name": "_makeOptions",
 							"kind": 2048,
 							"kindString": "Method",
@@ -22749,7 +22794,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1050,
+									"id": 1052,
 									"name": "_makeOptions",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -22763,7 +22808,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1051,
+											"id": 1053,
 											"name": "_values",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -22783,7 +22828,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1052,
+											"id": 1054,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -22792,7 +22837,7 @@
 											},
 											"children": [
 												{
-													"id": 1053,
+													"id": 1055,
 													"name": "env",
 													"kind": 32,
 													"kindString": "Variable",
@@ -22818,7 +22863,7 @@
 													"title": "Variables",
 													"kind": 32,
 													"children": [
-														1053
+														1055
 													]
 												}
 											]
@@ -22845,7 +22890,7 @@
 							}
 						},
 						{
-							"id": 1001,
+							"id": 1003,
 							"name": "_normalizeEnvironment",
 							"kind": 2048,
 							"kindString": "Method",
@@ -22856,7 +22901,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1002,
+									"id": 1004,
 									"name": "_normalizeEnvironment",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -22870,7 +22915,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1003,
+											"id": 1005,
 											"name": "environment",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -22912,7 +22957,7 @@
 							}
 						},
 						{
-							"id": 1041,
+							"id": 1043,
 							"name": "_postDownloadFile",
 							"kind": 2048,
 							"kindString": "Method",
@@ -22923,7 +22968,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1042,
+									"id": 1044,
 									"name": "_postDownloadFile",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -22935,7 +22980,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1043,
+											"id": 1045,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -22948,7 +22993,7 @@
 											}
 										},
 										{
-											"id": 1044,
+											"id": 1046,
 											"name": "options",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -22994,7 +23039,7 @@
 							}
 						},
 						{
-							"id": 998,
+							"id": 1000,
 							"name": "_start",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23005,7 +23050,7 @@
 							},
 							"signatures": [
 								{
-									"id": 999,
+									"id": 1001,
 									"name": "_start",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23014,7 +23059,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1000,
+											"id": 1002,
 											"name": "executor",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23059,7 +23104,7 @@
 							}
 						},
 						{
-							"id": 1058,
+							"id": 1060,
 							"name": "_stop",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23070,7 +23115,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1059,
+									"id": 1061,
 									"name": "_stop",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23113,7 +23158,7 @@
 							}
 						},
 						{
-							"id": 1082,
+							"id": 1084,
 							"name": "destroy",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23123,7 +23168,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1083,
+									"id": 1085,
 									"name": "destroy",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23163,7 +23208,7 @@
 							}
 						},
 						{
-							"id": 1033,
+							"id": 1035,
 							"name": "download",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23173,7 +23218,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1034,
+									"id": 1036,
 									"name": "download",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23187,7 +23232,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1035,
+											"id": 1037,
 											"name": "forceDownload",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23235,7 +23280,7 @@
 							}
 						},
 						{
-							"id": 1065,
+							"id": 1067,
 							"name": "emit",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23245,7 +23290,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1066,
+									"id": 1068,
 									"name": "emit",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23257,7 +23302,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 1067,
+											"id": 1069,
 											"name": "K",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -23276,7 +23321,7 @@
 									],
 									"parameters": [
 										{
-											"id": 1068,
+											"id": 1070,
 											"name": "event",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23302,7 +23347,7 @@
 									}
 								},
 								{
-									"id": 1069,
+									"id": 1071,
 									"name": "emit",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23311,7 +23356,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1070,
+											"id": 1072,
 											"name": "event",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23362,7 +23407,7 @@
 							}
 						},
 						{
-							"id": 1060,
+							"id": 1062,
 							"name": "getEnvironments",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23372,7 +23417,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1061,
+									"id": 1063,
 									"name": "getEnvironments",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23419,7 +23464,7 @@
 							}
 						},
 						{
-							"id": 1071,
+							"id": 1073,
 							"name": "on",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23429,7 +23474,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1072,
+									"id": 1074,
 									"name": "on",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23448,7 +23493,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 1073,
+											"id": 1075,
 											"name": "K",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -23467,7 +23512,7 @@
 									],
 									"parameters": [
 										{
-											"id": 1074,
+											"id": 1076,
 											"name": "type",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23488,7 +23533,7 @@
 											}
 										},
 										{
-											"id": 1075,
+											"id": 1077,
 											"name": "listener",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23529,7 +23574,7 @@
 									}
 								},
 								{
-									"id": 1076,
+									"id": 1078,
 									"name": "on",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23538,7 +23583,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1077,
+											"id": 1079,
 											"name": "type",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23551,7 +23596,7 @@
 											}
 										},
 										{
-											"id": 1078,
+											"id": 1080,
 											"name": "listener",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23612,7 +23657,7 @@
 							}
 						},
 						{
-							"id": 1079,
+							"id": 1081,
 							"name": "own",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23622,7 +23667,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1080,
+									"id": 1082,
 									"name": "own",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23635,7 +23680,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1081,
+											"id": 1083,
 											"name": "handles",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23683,7 +23728,7 @@
 							}
 						},
 						{
-							"id": 994,
+							"id": 996,
 							"name": "sendJobState",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23693,7 +23738,7 @@
 							},
 							"signatures": [
 								{
-									"id": 995,
+									"id": 997,
 									"name": "sendJobState",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23702,7 +23747,7 @@
 									},
 									"parameters": [
 										{
-											"id": 996,
+											"id": 998,
 											"name": "jobId",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23715,7 +23760,7 @@
 											}
 										},
 										{
-											"id": 997,
+											"id": 999,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -23760,7 +23805,7 @@
 							}
 						},
 						{
-							"id": 1054,
+							"id": 1056,
 							"name": "start",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23770,7 +23815,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1055,
+									"id": 1057,
 									"name": "start",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23812,7 +23857,7 @@
 							}
 						},
 						{
-							"id": 1056,
+							"id": 1058,
 							"name": "stop",
 							"kind": 2048,
 							"kindString": "Method",
@@ -23822,7 +23867,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1057,
+									"id": 1059,
 									"name": "stop",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -23869,77 +23914,77 @@
 							"title": "Constructors",
 							"kind": 512,
 							"children": [
-								984
+								986
 							]
 						},
 						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								1063,
-								1020,
-								1021,
-								1018,
+								1065,
 								1022,
-								1019,
-								1005,
+								1023,
+								1020,
+								1024,
+								1021,
 								1007,
-								977,
-								1004,
-								1008,
-								978,
 								1009,
-								1064,
 								979,
+								1006,
 								1010,
+								980,
 								1011,
+								1066,
+								981,
 								1012,
 								1013,
 								1014,
 								1015,
 								1016,
-								980,
-								981,
+								1017,
+								1018,
 								982,
 								983,
-								1006,
-								1017
+								984,
+								985,
+								1008,
+								1019
 							]
 						},
 						{
 							"title": "Accessors",
 							"kind": 262144,
 							"children": [
-								987,
-								1023,
-								1025,
 								989,
+								1025,
 								1027,
+								991,
 								1029,
-								1031
+								1031,
+								1033
 							]
 						},
 						{
 							"title": "Methods",
 							"kind": 2048,
 							"children": [
-								1036,
-								991,
-								1045,
-								1049,
-								1001,
-								1041,
-								998,
-								1058,
-								1082,
-								1033,
-								1065,
+								1038,
+								993,
+								1047,
+								1051,
+								1003,
+								1043,
+								1000,
 								1060,
-								1071,
-								1079,
-								994,
-								1054,
-								1056
+								1084,
+								1035,
+								1067,
+								1062,
+								1073,
+								1081,
+								996,
+								1056,
+								1058
 							]
 						}
 					],
@@ -23975,7 +24020,7 @@
 					]
 				},
 				{
-					"id": 1084,
+					"id": 1086,
 					"name": "TestingBotProperties",
 					"kind": 256,
 					"kindString": "Interface",
@@ -23985,7 +24030,7 @@
 					},
 					"children": [
 						{
-							"id": 1093,
+							"id": 1095,
 							"name": "accessKey",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24020,7 +24065,7 @@
 							}
 						},
 						{
-							"id": 1091,
+							"id": 1093,
 							"name": "architecture",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24046,7 +24091,7 @@
 							}
 						},
 						{
-							"id": 1092,
+							"id": 1094,
 							"name": "auth",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24081,7 +24126,7 @@
 							}
 						},
 						{
-							"id": 1103,
+							"id": 1105,
 							"name": "directory",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24116,7 +24161,7 @@
 							}
 						},
 						{
-							"id": 1094,
+							"id": 1096,
 							"name": "executable",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24151,7 +24196,7 @@
 							}
 						},
 						{
-							"id": 1085,
+							"id": 1087,
 							"name": "fastFailDomains",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24175,7 +24220,7 @@
 							}
 						},
 						{
-							"id": 1095,
+							"id": 1097,
 							"name": "hostname",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24201,7 +24246,7 @@
 							}
 						},
 						{
-							"id": 1086,
+							"id": 1088,
 							"name": "logFile",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24222,7 +24267,7 @@
 							}
 						},
 						{
-							"id": 1096,
+							"id": 1098,
 							"name": "pathname",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24248,7 +24293,7 @@
 							}
 						},
 						{
-							"id": 1097,
+							"id": 1099,
 							"name": "platform",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24274,7 +24319,7 @@
 							}
 						},
 						{
-							"id": 1098,
+							"id": 1100,
 							"name": "port",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24303,7 +24348,7 @@
 							}
 						},
 						{
-							"id": 1099,
+							"id": 1101,
 							"name": "protocol",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24329,7 +24374,7 @@
 							}
 						},
 						{
-							"id": 1104,
+							"id": 1106,
 							"name": "proxy",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24364,7 +24409,7 @@
 							}
 						},
 						{
-							"id": 1100,
+							"id": 1102,
 							"name": "tunnelId",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24399,7 +24444,7 @@
 							}
 						},
 						{
-							"id": 1105,
+							"id": 1107,
 							"name": "url",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24425,7 +24470,7 @@
 							}
 						},
 						{
-							"id": 1087,
+							"id": 1089,
 							"name": "useCompression",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24446,7 +24491,7 @@
 							}
 						},
 						{
-							"id": 1088,
+							"id": 1090,
 							"name": "useJettyProxy",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24467,7 +24512,7 @@
 							}
 						},
 						{
-							"id": 1089,
+							"id": 1091,
 							"name": "useSquidProxy",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24488,7 +24533,7 @@
 							}
 						},
 						{
-							"id": 1090,
+							"id": 1092,
 							"name": "useSsl",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24509,7 +24554,7 @@
 							}
 						},
 						{
-							"id": 1101,
+							"id": 1103,
 							"name": "username",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24544,7 +24589,7 @@
 							}
 						},
 						{
-							"id": 1102,
+							"id": 1104,
 							"name": "verbose",
 							"kind": 1024,
 							"kindString": "Property",
@@ -24575,27 +24620,27 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
+								1095,
 								1093,
+								1094,
+								1105,
+								1096,
+								1087,
+								1097,
+								1088,
+								1098,
+								1099,
+								1100,
+								1101,
+								1106,
+								1102,
+								1107,
+								1089,
+								1090,
 								1091,
 								1092,
 								1103,
-								1094,
-								1085,
-								1095,
-								1086,
-								1096,
-								1097,
-								1098,
-								1099,
-								1104,
-								1100,
-								1105,
-								1087,
-								1088,
-								1089,
-								1090,
-								1101,
-								1102
+								1104
 							]
 						}
 					],
@@ -24615,7 +24660,7 @@
 					]
 				},
 				{
-					"id": 1106,
+					"id": 1108,
 					"name": "TestingBotOptions",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -24637,7 +24682,7 @@
 							{
 								"type": "reference",
 								"name": "TestingBotProperties",
-								"id": 1084
+								"id": 1086
 							}
 						]
 					}
@@ -24648,21 +24693,21 @@
 					"title": "Classes",
 					"kind": 128,
 					"children": [
-						976
+						978
 					]
 				},
 				{
 					"title": "Interfaces",
 					"kind": 256,
 					"children": [
-						1084
+						1086
 					]
 				},
 				{
 					"title": "Type aliases",
 					"kind": 4194304,
 					"children": [
-						1106
+						1108
 					]
 				}
 			],
@@ -27193,7 +27238,7 @@
 						{
 							"type": "reference",
 							"name": "TestingBotTunnel",
-							"id": 976
+							"id": 978
 						}
 					],
 					"implementedTypes": [
@@ -28981,7 +29026,7 @@
 						{
 							"type": "reference",
 							"name": "TestingBotProperties",
-							"id": 1084
+							"id": 1086
 						}
 					],
 					"implementedBy": [
@@ -29013,12 +29058,12 @@
 						{
 							"type": "reference",
 							"name": "TestingBotTunnel",
-							"id": 976
+							"id": 978
 						},
 						{
 							"type": "reference",
 							"name": "TestingBotTunnel",
-							"id": 976
+							"id": 978
 						},
 						{
 							"type": "reference",
@@ -29175,7 +29220,7 @@
 			]
 		},
 		{
-			"id": 1107,
+			"id": 1109,
 			"name": "\"bin/digdugEnvironments\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -29186,7 +29231,7 @@
 			"originalName": "src/bin/digdugEnvironments.ts",
 			"children": [
 				{
-					"id": 1111,
+					"id": 1113,
 					"name": "TunnelCtor",
 					"kind": 32,
 					"kindString": "Variable",
@@ -29209,7 +29254,7 @@
 					"defaultValue": " require('../' + tunnelName).default"
 				},
 				{
-					"id": 1108,
+					"id": 1110,
 					"name": "digdugPath",
 					"kind": 32,
 					"kindString": "Variable",
@@ -29231,7 +29276,7 @@
 					"defaultValue": " path.dirname(__dirname)"
 				},
 				{
-					"id": 1112,
+					"id": 1114,
 					"name": "tunnel",
 					"kind": 32,
 					"kindString": "Variable",
@@ -29254,7 +29299,7 @@
 					"defaultValue": " new TunnelCtor()"
 				},
 				{
-					"id": 1110,
+					"id": 1112,
 					"name": "tunnelName",
 					"kind": 32,
 					"kindString": "Variable",
@@ -29276,7 +29321,7 @@
 					"defaultValue": " process.argv[2]"
 				},
 				{
-					"id": 1109,
+					"id": 1111,
 					"name": "tunnels",
 					"kind": 32,
 					"kindString": "Variable",
@@ -29306,11 +29351,11 @@
 					"title": "Variables",
 					"kind": 32,
 					"children": [
-						1111,
-						1108,
-						1112,
+						1113,
 						1110,
-						1109
+						1114,
+						1112,
+						1111
 					]
 				}
 			],
@@ -29918,9 +29963,9 @@
 				442,
 				541,
 				701,
-				975,
+				977,
 				26,
-				1107,
+				1109,
 				17,
 				1
 			]
