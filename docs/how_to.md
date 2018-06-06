@@ -275,7 +275,7 @@ option is to use SystemJS configured with babel support:
 
 Browser code that doesn’t support any module system and expects to be loaded
 along with other dependencies in a specific order can be loaded using the
-`require` config option.
+`plugins` config option.
 
 ```js
 // intern.json
