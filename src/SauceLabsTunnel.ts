@@ -13,8 +13,7 @@ import request from '@dojo/core/request';
 import { NodeRequestOptions } from '@dojo/core/request/providers/node';
 import { format as formatUrl, parse as parseUrl, Url } from 'url';
 import { mixin } from '@dojo/core/lang';
-import { fileExists, on } from './util';
-import * as kill from 'tree-kill';
+import { fileExists, kill, on } from './util';
 
 const scVersion = '4.4.12';
 
@@ -515,21 +514,19 @@ export default class SauceLabsTunnel extends Tunnel
 			executor(child, resolve, reject);
 		}, readyFile);
 
-		task
-			.then(() => {
-				unwatchFile(readyFile);
+		task.then(() => {
+			unwatchFile(readyFile);
 
-				// We have to watch for errors until the tunnel has started
-				// successfully at which point we only want to watch for
-				// status messages to emit
-				readMessage = readStatus;
+			// We have to watch for errors until the tunnel has started
+			// successfully at which point we only want to watch for
+			// status messages to emit
+			readMessage = readStatus;
 
-				readRunningMessage('');
-				readMessage = undefined;
-			})
-			.catch(() => {
-				// Ignore errors here; they're handled elsewhere
-			});
+			readRunningMessage('');
+			readMessage = undefined;
+		}).catch(() => {
+			// Ignore errors here; they're handled elsewhere
+		});
 
 		return task;
 	}

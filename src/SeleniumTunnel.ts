@@ -6,11 +6,10 @@ import Tunnel, {
 import { format } from 'util';
 import { join } from 'path';
 import Task from '@dojo/core/async/Task';
-import { fileExists, on, writeFile } from './util';
+import { fileExists, kill, on, writeFile } from './util';
 import { Handle } from '@dojo/core/interfaces';
 import { mixin } from '@dojo/core/lang';
 import { satisfies } from 'semver';
-import * as kill from 'tree-kill';
 
 const { sync: commandExistsSync } = require('command-exists');
 

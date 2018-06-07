@@ -12,8 +12,7 @@ import Tunnel, {
 import { parse as parseUrl, Url } from 'url';
 import { mixin } from '@dojo/core/lang';
 import { JobState } from './interfaces';
-import { on } from './util';
-import * as kill from 'tree-kill';
+import { kill, on } from './util';
 
 /**
  * A BrowserStack tunnel.
