@@ -8,10 +8,9 @@ import { NodeRequestOptions } from '@dojo/core/request/providers/node';
 import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
 import { format as formatUrl, Url } from 'url';
-import { fileExists, on } from './util';
+import { fileExists, kill, on } from './util';
 import { JobState } from './interfaces';
 import * as decompress from 'decompress';
-import * as kill from 'tree-kill';
 
 /**
  * A Tunnel is a mechanism for connecting to a WebDriver service provider that

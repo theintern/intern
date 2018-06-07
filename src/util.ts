@@ -2,6 +2,7 @@ import { createHandle } from '@dojo/core/lang';
 import { Handle } from '@dojo/core/interfaces';
 import { mkdirSync, statSync, writeFile as fsWriteFile } from 'fs';
 import { dirname } from 'path';
+import { execSync } from 'child_process';
 
 /**
  * Attaches an event to a Node.js EventEmitter and returns a handle for removing
@@ -35,6 +36,16 @@ export function fileExists(filename: string): boolean {
 	} catch (error) {
 		return false;
 	}
+}
+
+/**
+ * Kill a process and its immediate children
+ */
+export function kill(pid: number) {
+	getChildProcesses(pid).forEach(childPid => {
+		process.kill(childPid);
+	});
+	process.kill(pid);
 }
 
 /**
@@ -77,4 +88,24 @@ export function writeFile(data: any, filename: string) {
 			}
 		});
 	});
+}
+
+/**
+ * Get the children of a process
+ */
+function getChildProcesses(pid: number) {
+	const command =
+		process.platform === 'win32'
+			? 'wmic PROCESS GET ParentProcessId,ProcessId'
+			: 'ps -A -o ppid,pid';
+
+	return execSync(command, { encoding: 'utf8' })
+		.trim()
+		.split('\n')
+		.slice(1)
+		.map(line => line.trim())
+		.map(line => line.split(/\s+/).map(word => word.trim()))
+		.map(words => ({ parent: Number(words[0]), child: Number(words[1]) }))
+		.filter(entry => entry.parent === pid)
+		.map(entry => entry.child);
 }
