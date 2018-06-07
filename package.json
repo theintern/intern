@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "npm run clean && concurrently intern-dev-build intern-dev-api",
-    "ci": "intern-dev-build && intern-dev-test",
+    "ci": "intern-dev-build && intern",
     "clean": "intern-dev-clean",
     "devpack": "intern-dev-build && npm pack ./_build/src",
     "lint": "intern-dev-lint",
