@@ -134,7 +134,7 @@ module.exports = function (grunt) {
             node: {
                 options: {
                     suites: 'tests/unit/**/*.js',
-                    plugins: 'tests/pre.js'
+                    plugins: 'tests/pre.js',
                     loader: {
                         script: 'dojo',
                         config: {
