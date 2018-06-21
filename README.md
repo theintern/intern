@@ -1,12 +1,14 @@
 # Dig Dug
 
 <!-- start-github-only -->
+
 [![Build Status](https://travis-ci.org/theintern/digdug.svg?branch=master)](https://travis-ci.org/theintern/digdug)
 [![npm version](https://badge.fury.io/js/digdug.svg)](https://badge.fury.io/js/digdug)
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug "Percentage of issues still open")
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug 'Average time to resolve an issue')
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/digdug.svg)](http://isitmaintained.com/project/theintern/digdug 'Percentage of issues still open')
 
 <br><p align="center"><img src="https://cdn.rawgit.com/theintern/digdug/master/docs/logo.svg" alt="Dig Dug logo" height="90"></p><br>
+
 <!-- end-github-only -->
 
 Dig Dug is a library for downloading and managing WebDriver service tunnels, along with Selenium and individual WebDrivers.
@@ -28,10 +30,10 @@ Dig Dug can manage a local Selenium server with its [SeleniumTunnel]. By default
 ```js
 const tunnel = new SeleniumTunnel({
 	version: '3.5.2',
-    drivers: [
-	    'chrome',
+	drivers: [
+		'chrome',
 		{
-		    name: 'firefox',
+			name: 'firefox',
 			version: '0.18.0'
 		}
 	]
@@ -42,21 +44,33 @@ const tunnel = new SeleniumTunnel({
 
 Dig Dug supports the following cloud testing services:
 
-* [BrowserStack](http://www.browserstack.com)
-* [CrossBrowserTesting](http://www.crossbrowsertesting.com)
-* [Sauce Labs](http://www.saucelabs.com)
-* [TestingBot](http://www.testingbot.com)
+-   [BrowserStack](http://www.browserstack.com)
+-   [CrossBrowserTesting](http://www.crossbrowsertesting.com)
+-   [Sauce Labs](http://www.saucelabs.com)
+-   [TestingBot](http://www.testingbot.com)
 
-In many cases, the only configuration you’ll need to do to create a tunnel is provide authentication data. This can be provided via options to a Tunnel constructor or via environment variables. The service tunnels use the following environment variables:
+In many cases, the only configuration you’ll need to do to create a tunnel is
+provide authentication data. This can be provided via options to a Tunnel
+constructor or via environment variables. The service tunnels use the following
+environment variables:
 
-Tunnel class                | Environment variables
-----------------------------|----------------------------------------------------
-`BrowserStackTunnel`        | `BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`
-`CrossBrowserTestingTunnel` | `CBT_USERNAME`, `CBT_APIKEY`
-`SauceLabsTunnel`           | `SAUCE_USERNAME`, `SAUCE_ACCESS_KEY`
-`TestingBotTunnel`          | `TESTINGBOT_KEY`, `TESTINGBOT_SECRET`
+| Tunnel class                | Environment variables                              |
+| --------------------------- | -------------------------------------------------- |
+| `BrowserStackTunnel`        | `BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY` |
+| `CrossBrowserTestingTunnel` | `CBT_USERNAME`, `CBT_APIKEY`                       |
+| `SauceLabsTunnel`           | `SAUCE_USERNAME`, `SAUCE_ACCESS_KEY`               |
+| `TestingBotTunnel`          | `TESTINGBOT_KEY`, `TESTINGBOT_SECRET`              |
 
-Other properties, such as the local port the tunnel should serve on or the URL of a proxy server the tunnel should go through, can be passed to a tunnel constructor or set on a tunnel instance. See the API docs for [Tunnel] and its subclasses for available properties.
+Other properties, such as the local port the tunnel should serve on or the URL
+of a proxy server the tunnel should go through, can be passed to a tunnel
+constructor or set on a tunnel instance. See the API docs for [Tunnel] and its
+subclasses for available properties:
+
+-   [BrowserStackTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel/browserstackproperties)
+-   [CrossBrowserTestingTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/CrossBrowserTestingTunnel/crossbrowsertestingproperties)
+-   [SauceLabsTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/SauceLabsTunnel/saucelabsproperties)
+-   [SeleniumTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/SeleniumTunnel/seleniumproperties)
+-   [TestingBotTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/TestingBotTunnel/testingbotproperties)
 
 ## Usage
 
@@ -106,14 +120,16 @@ Note that BrowserStackTunnel requires that the `BROWSERSTACK_ACCESS_KEY` and `BR
 
 ## More information
 
-* [API documentation](https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel)
+-   [API documentation](https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel)
 
 <!-- start-github-only -->
+
 ## License
 
 Dig Dug is a JS Foundation project offered under the [New BSD](LICENSE) license.
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/digdug/graphs/contributors)
+
 <!-- end-github-only -->
 
 <!-- doc-viewer-config
@@ -122,6 +138,6 @@ Dig Dug is a JS Foundation project offered under the [New BSD](LICENSE) license.
 }
 -->
 
-[NullTunnel]: https://theintern.io/docs.html#Dig%20Dug/2/api/NullTunnel
-[SeleniumTunnel]: https://theintern.io/docs.html#Dig%20Dug/2/api/SeleniumTunnel
-[Tunnel]: https://theintern.io/docs.html#Dig%20Dug/2/api/Tunnel
+[nulltunnel]: https://theintern.io/docs.html#Dig%20Dug/2/api/NullTunnel
+[seleniumtunnel]: https://theintern.io/docs.html#Dig%20Dug/2/api/SeleniumTunnel
+[tunnel]: https://theintern.io/docs.html#Dig%20Dug/2/api/Tunnel
