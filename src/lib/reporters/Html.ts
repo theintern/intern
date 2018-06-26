@@ -194,7 +194,7 @@ export default class Html extends Reporter implements HtmlProperties {
 			// Only show children one level under the suite being updated when
 			// expanding
 			(<HTMLElement>node).style.display =
-				!shouldCollapse && indentDelta === 1 ? null : 'none';
+				!shouldCollapse && indentDelta === 1 ? '' : 'none';
 		}
 	}
 
