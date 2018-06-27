@@ -288,7 +288,10 @@ export default class SeleniumTunnel extends Tunnel
 				data = String(data);
 				if (data.indexOf('Selenium Server is up and running') > -1) {
 					resolve();
-				} else if (data.indexOf('Address already in use') !== -1) {
+				} else if (
+					/Address already in use/.test(data) ||
+					/Port \d+ is busy/.test(data)
+				) {
 					reject(new Error('Address is already in use'));
 
 					// Kill the child since we're reporting that startup failed
