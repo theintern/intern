@@ -76,6 +76,7 @@ export function getDefaultBasePath() {
 	}
 }
 
+// TODO: Remove in the next version
 /**
  * Normalize a path (e.g., resolve '..')
  */

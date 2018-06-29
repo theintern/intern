@@ -24874,7 +24874,7 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](https://github.com/theintern/intern/docs/writing_tests.md#testing-asynchronous-code)\nto complete before timing out. A timed out test is considered to have\nfailed."
+								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](https://github.com/theintern/intern/blob/master/docs/writing_tests.md#testing-asynchronous-code)\nto complete before timing out. A timed out test is considered to have\nfailed."
 							},
 							"sources": [
 								{
@@ -32645,7 +32645,7 @@
 					"sources": [
 						{
 							"fileName": "lib/browser/util.ts",
-							"line": 135,
+							"line": 136,
 							"character": 15
 						}
 					],
@@ -32672,7 +32672,7 @@
 									"sources": [
 										{
 											"fileName": "lib/browser/util.ts",
-											"line": 141,
+											"line": 142,
 											"character": 5
 										}
 									],
@@ -32693,7 +32693,7 @@
 									"sources": [
 										{
 											"fileName": "lib/browser/util.ts",
-											"line": 137,
+											"line": 138,
 											"character": 9
 										}
 									],
@@ -32714,7 +32714,7 @@
 									"sources": [
 										{
 											"fileName": "lib/browser/util.ts",
-											"line": 139,
+											"line": 140,
 											"character": 5
 										}
 									],
@@ -32735,7 +32735,7 @@
 									"sources": [
 										{
 											"fileName": "lib/browser/util.ts",
-											"line": 138,
+											"line": 139,
 											"character": 5
 										}
 									],
@@ -32756,7 +32756,7 @@
 									"sources": [
 										{
 											"fileName": "lib/browser/util.ts",
-											"line": 136,
+											"line": 137,
 											"character": 9
 										}
 									],
@@ -32777,7 +32777,7 @@
 									"sources": [
 										{
 											"fileName": "lib/browser/util.ts",
-											"line": 140,
+											"line": 141,
 											"character": 6
 										}
 									],
@@ -32804,7 +32804,7 @@
 							"sources": [
 								{
 									"fileName": "lib/browser/util.ts",
-									"line": 135,
+									"line": 136,
 									"character": 17
 								}
 							]
@@ -33074,7 +33074,7 @@
 					"sources": [
 						{
 							"fileName": "lib/browser/util.ts",
-							"line": 164,
+							"line": 165,
 							"character": 17
 						}
 					]
@@ -33125,7 +33125,7 @@
 					"sources": [
 						{
 							"fileName": "lib/browser/util.ts",
-							"line": 82,
+							"line": 83,
 							"character": 29
 						}
 					]
@@ -33189,7 +33189,7 @@
 					"sources": [
 						{
 							"fileName": "lib/browser/util.ts",
-							"line": 113,
+							"line": 114,
 							"character": 26
 						}
 					]
@@ -33247,7 +33247,7 @@
 					"sources": [
 						{
 							"fileName": "lib/browser/util.ts",
-							"line": 143,
+							"line": 144,
 							"character": 24
 						}
 					]
@@ -33310,7 +33310,7 @@
 					"sources": [
 						{
 							"fileName": "lib/browser/util.ts",
-							"line": 176,
+							"line": 177,
 							"character": 20
 						}
 					]
@@ -37194,7 +37194,7 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](https://github.com/theintern/intern/docs/writing_tests.md#testing-asynchronous-code)\nto complete before timing out. A timed out test is considered to have\nfailed."
+								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](https://github.com/theintern/intern/blob/master/docs/writing_tests.md#testing-asynchronous-code)\nto complete before timing out. A timed out test is considered to have\nfailed."
 							},
 							"sources": [
 								{
@@ -71404,7 +71404,7 @@
 					"sources": [
 						{
 							"fileName": "lib/middleware/instrument.ts",
-							"line": 10,
+							"line": 9,
 							"character": 34
 						}
 					]
@@ -72513,7 +72513,7 @@
 					"sources": [
 						{
 							"fileName": "lib/node/util.ts",
-							"line": 189,
+							"line": 190,
 							"character": 20
 						}
 					],
@@ -73047,7 +73047,7 @@
 					"sources": [
 						{
 							"fileName": "lib/node/util.ts",
-							"line": 184,
+							"line": 185,
 							"character": 32
 						}
 					]
@@ -73155,7 +73155,7 @@
 					"sources": [
 						{
 							"fileName": "lib/node/util.ts",
-							"line": 147,
+							"line": 148,
 							"character": 29
 						}
 					]
@@ -73238,7 +73238,7 @@
 					"sources": [
 						{
 							"fileName": "lib/node/util.ts",
-							"line": 155,
+							"line": 156,
 							"character": 29
 						}
 					]

@@ -141,6 +141,7 @@ export function loadText(path: string) {
 	});
 }
 
+// TODO: Remove in the next version
 /**
  * Normalize a path (e.g., resolve '..')
  */
