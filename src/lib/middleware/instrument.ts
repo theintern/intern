@@ -14,14 +14,16 @@ export default function instrument(context: Context): RequestHandler {
 
 	return (request, response, next) => {
 		const { basePath, executor } = context;
-		const wholePath = normalizePath(resolve(join(basePath, request.url)));
+		const filePath = resolve(join(basePath, request.url));
 
 		if (
 			!(request.method === 'HEAD' || request.method === 'GET') ||
-			!executor.shouldInstrumentFile(wholePath)
+			!executor.shouldInstrumentFile(filePath)
 		) {
 			return next();
 		}
+
+		const wholePath = normalizePath(filePath);
 
 		stat(wholePath, (error, stats) => {
 			// The server was stopped before this file was served
