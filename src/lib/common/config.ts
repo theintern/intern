@@ -50,7 +50,7 @@ export interface Config extends ResourceConfig {
 
 	/**
 	 * This is the number of milliseconds that Intern will wait for an
-	 * [asynchronous test](https://github.com/theintern/intern/docs/writing_tests.md#testing-asynchronous-code)
+	 * [asynchronous test](https://github.com/theintern/intern/blob/master/docs/writing_tests.md#testing-asynchronous-code)
 	 * to complete before timing out. A timed out test is considered to have
 	 * failed.
 	 */
