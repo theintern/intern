@@ -1036,7 +1036,7 @@ export default class Session extends Locator<
 								expiredCookie: string
 							) {
 								// Assume the cookie was created by Selenium,
-								// so it's path is '/'; at least MS Edge
+								// so its path is '/'; at least MS Edge
 								// requires a path to delete a cookie
 								document.cookie = `${expiredCookie}; domain=${encodeURIComponent(
 									document.domain
@@ -1082,7 +1082,7 @@ export default class Session extends Locator<
 							expiredCookie: any
 						) {
 							// Assume the cookie was created by Selenium, so
-							// it's path is '/'; at least MS Edge requires a
+							// its path is '/'; at least MS Edge requires a
 							// path to delete a cookie
 							document.cookie = `${expiredCookie}; domain=${encodeURIComponent(
 								document.domain
