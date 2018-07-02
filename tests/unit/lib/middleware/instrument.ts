@@ -10,7 +10,6 @@ import {
 	createMockServerContext
 } from '../../../support/unit/mocks';
 import { mockFs, mockPath, MockStats } from '../../../support/unit/nodeMocks';
-import { win32 } from 'path';
 
 const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 
@@ -88,29 +87,6 @@ registerSuite('lib/middleware/instrument', function() {
 							200,
 							'expected success status for good file'
 						);
-					},
-
-					'handles windows paths'() {
-						const { join } = path;
-
-						path.join = (...args: any[]) => win32.join(...args);
-
-						handler(request, response, next);
-
-						assert.isFalse(next.called);
-						assert.isTrue(
-							shouldInstrumentFile.alwaysCalledWith(
-								'\\base\\foo\\thing.js'
-							)
-						);
-						assert.equal(response.data, 'what a fun time');
-						assert.strictEqual(
-							response.statusCode,
-							200,
-							'expected success status for good file'
-						);
-
-						path.join = join;
 					},
 
 					'caches code'() {

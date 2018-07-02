@@ -5,7 +5,6 @@ import { join, resolve } from 'path';
 import { RequestHandler } from 'express';
 
 import { Context } from '../Server';
-import { normalizePath } from '../node/util';
 
 export default function instrument(context: Context): RequestHandler {
 	const codeCache: {
@@ -14,16 +13,14 @@ export default function instrument(context: Context): RequestHandler {
 
 	return (request, response, next) => {
 		const { basePath, executor } = context;
-		const filePath = resolve(join(basePath, request.url));
+		const wholePath = resolve(join(basePath, request.url));
 
 		if (
 			!(request.method === 'HEAD' || request.method === 'GET') ||
-			!executor.shouldInstrumentFile(filePath)
+			!executor.shouldInstrumentFile(wholePath)
 		) {
 			return next();
 		}
-
-		const wholePath = normalizePath(filePath);
 
 		stat(wholePath, (error, stats) => {
 			// The server was stopped before this file was served
