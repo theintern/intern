@@ -10,8 +10,10 @@ import {
 	createMockServerContext
 } from '../../../support/unit/mocks';
 import { mockFs, mockPath, MockStats } from '../../../support/unit/nodeMocks';
+import { normalize } from 'path';
 
 const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
+const testPath = normalize('/base/foo/thing.js');
 
 registerSuite('lib/middleware/instrument', function() {
 	let instrument: typeof _instrument;
@@ -47,7 +49,10 @@ registerSuite('lib/middleware/instrument', function() {
 
 		beforeEach() {
 			fs.__fileData = {
-				'/base/foo/thing.js': { type: 'file', data: 'what a fun time' }
+				[testPath]: {
+					type: 'file',
+					data: 'what a fun time'
+				}
 			};
 			server = createMockServer({
 				basePath: '/base',
@@ -107,7 +112,7 @@ registerSuite('lib/middleware/instrument', function() {
 					},
 
 					directory() {
-						fs.__fileData['/base/foo/thing.js']!.type = 'directory';
+						fs.__fileData[testPath]!.type = 'directory';
 
 						handler(request, response, next);
 
@@ -120,9 +125,8 @@ registerSuite('lib/middleware/instrument', function() {
 						sandbox
 							.stub(fs, 'stat')
 							.callsFake((path: string, callback: any) => {
-								const data =
-									fs.__fileData['/base/foo/thing.js'];
-								fs.__fileData['/base/foo/thing.js'] = undefined;
+								const data = fs.__fileData[testPath];
+								fs.__fileData[testPath] = undefined;
 								callback(
 									undefined,
 									new MockStats(path, data!.type)
