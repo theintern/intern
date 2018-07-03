@@ -24874,7 +24874,7 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](https://github.com/theintern/intern/blob/master/docs/writing_tests.md#testing-asynchronous-code)\nto complete before timing out. A timed out test is considered to have\nfailed."
+								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](https://github.com/theintern/intern/docs/writing_tests.md#testing-asynchronous-code)\nto complete before timing out. A timed out test is considered to have\nfailed."
 							},
 							"sources": [
 								{
@@ -37194,7 +37194,7 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](https://github.com/theintern/intern/blob/master/docs/writing_tests.md#testing-asynchronous-code)\nto complete before timing out. A timed out test is considered to have\nfailed."
+								"shortText": "This is the number of milliseconds that Intern will wait for an\n[asynchronous test](https://github.com/theintern/intern/docs/writing_tests.md#testing-asynchronous-code)\nto complete before timing out. A timed out test is considered to have\nfailed."
 							},
 							"sources": [
 								{
@@ -74881,7 +74881,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -74953,7 +74953,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],
@@ -76993,7 +76993,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -77100,7 +77100,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],
@@ -79370,7 +79370,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -79467,7 +79467,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],
@@ -80882,7 +80882,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -80931,7 +80931,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],
@@ -82767,7 +82767,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -82838,7 +82838,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],
@@ -84429,7 +84429,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -84536,7 +84536,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],
@@ -85959,7 +85959,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -86018,7 +86018,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],
@@ -91367,7 +91367,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -91558,7 +91558,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],
@@ -93011,7 +93011,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 158,
+									"line": 162,
 									"character": 4
 								}
 							]
@@ -93105,7 +93105,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 157,
+									"line": 161,
 									"character": 6
 								}
 							]
@@ -93124,7 +93124,7 @@
 					"sources": [
 						{
 							"fileName": "lib/reporters/Reporter.ts",
-							"line": 156,
+							"line": 160,
 							"character": 31
 						}
 					]
@@ -93153,7 +93153,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -93175,7 +93175,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],
@@ -93199,7 +93199,7 @@
 					"sources": [
 						{
 							"fileName": "lib/reporters/Reporter.ts",
-							"line": 146,
+							"line": 150,
 							"character": 35
 						}
 					],
@@ -93326,7 +93326,7 @@
 					"sources": [
 						{
 							"fileName": "lib/reporters/Reporter.ts",
-							"line": 151,
+							"line": 155,
 							"character": 27
 						}
 					],
@@ -93359,7 +93359,7 @@
 					"sources": [
 						{
 							"fileName": "lib/reporters/Reporter.ts",
-							"line": 144,
+							"line": 148,
 							"character": 25
 						}
 					],
@@ -93462,7 +93462,7 @@
 					"sources": [
 						{
 							"fileName": "lib/reporters/Reporter.ts",
-							"line": 161,
+							"line": 165,
 							"character": 19
 						}
 					]
@@ -93494,7 +93494,7 @@
 					"sources": [
 						{
 							"fileName": "lib/reporters/Reporter.ts",
-							"line": 182,
+							"line": 186,
 							"character": 13
 						}
 					]
@@ -94346,6 +94346,7 @@
 															"kindString": "Variable",
 															"flags": {
 																"isExternal": true,
+																"isOptional": true,
 																"__visited__": true
 															},
 															"sources": [
@@ -94358,7 +94359,7 @@
 															"type": {
 																"type": "reference",
 																"name": "Suite",
-																"id": 3348
+																"id": 2275
 															}
 														}
 													],
@@ -94848,7 +94849,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 63,
+									"line": 71,
 									"character": 11
 								}
 							]
@@ -94908,7 +94909,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 95,
+									"line": 103,
 									"character": 6
 								}
 							]
@@ -95139,7 +95140,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 115,
+									"line": 123,
 									"character": 4
 								}
 							]
@@ -95189,7 +95190,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 122,
+									"line": 130,
 									"character": 7
 								}
 							],
@@ -95255,7 +95256,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 180,
+									"line": 192,
 									"character": 12
 								}
 							]
@@ -95316,7 +95317,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 198,
+									"line": 210,
 									"character": 9
 								}
 							]
@@ -95377,7 +95378,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 264,
+									"line": 276,
 									"character": 11
 								}
 							]
@@ -95438,7 +95439,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 281,
+									"line": 293,
 									"character": 8
 								}
 							]
@@ -95499,7 +95500,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 312,
+									"line": 324,
 									"character": 23
 								}
 							]
@@ -95560,7 +95561,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 322,
+									"line": 334,
 									"character": 12
 								}
 							]
@@ -95621,7 +95622,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 327,
+									"line": 339,
 									"character": 13
 								}
 							]
@@ -95690,7 +95691,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 105,
+									"line": 113,
 									"character": 8
 								}
 							]
@@ -95821,7 +95822,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -95928,7 +95929,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 333,
+									"line": 345,
 									"character": 11
 								}
 							],
@@ -95950,7 +95951,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Runner.ts",
-									"line": 334,
+									"line": 346,
 									"character": 12
 								}
 							],
@@ -96012,7 +96013,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],
@@ -96078,7 +96079,7 @@
 					"sources": [
 						{
 							"fileName": "lib/reporters/Runner.ts",
-							"line": 332,
+							"line": 344,
 							"character": 33
 						}
 					],
@@ -99977,7 +99978,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 148,
+									"line": 152,
 									"character": 8
 								}
 							],
@@ -100119,7 +100120,7 @@
 							"sources": [
 								{
 									"fileName": "lib/reporters/Reporter.ts",
-									"line": 147,
+									"line": 151,
 									"character": 7
 								}
 							],

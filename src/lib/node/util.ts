@@ -170,7 +170,7 @@ export function readSourceMap(
 
 	if ((match = sourceMapRegEx.exec(lastLine))) {
 		if (match[1]) {
-			return JSON.parse(new Buffer(match[2], 'base64').toString('utf8'));
+			return JSON.parse(Buffer.from(match[2], 'base64').toString('utf8'));
 		} else {
 			// Treat map file path as relative to the source file
 			const mapFile = join(dirname(sourceFile), match[2]);
