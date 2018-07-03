@@ -12,7 +12,7 @@ const common: Configuration = {
 	module: {
 		rules: [
 			{
-				test: /@dojo\//,
+				test: /@dojo[\\\/]/,
 				use: 'umd-compat-loader'
 			},
 			{
@@ -29,7 +29,7 @@ const common: Configuration = {
 				}
 			}
 		],
-		noParse: /benchmark\/benchmark.js/
+		noParse: /benchmark[\\\/]benchmark.js/
 	},
 	performance: {
 		// Hides a warning about large bundles.
