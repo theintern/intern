@@ -40,12 +40,42 @@ export function fileExists(filename: string): boolean {
 
 /**
  * Kill a process and its immediate children
+ *
+ * This function will attempt to kill all processes that it should, and will
+ * report an error at the end if any process could not be killed.
  */
 export function kill(pid: number) {
+	let error: Error | undefined;
+
 	getChildProcesses(pid).forEach(childPid => {
-		process.kill(childPid);
+		try {
+			killProcess(childPid);
+		} catch (err) {
+			error = err;
+		}
 	});
-	process.kill(pid);
+
+	try {
+		killProcess(pid);
+	} catch (err) {
+		error = err;
+	}
+
+	if (error) {
+		throw new Error(`Failed to kill ${pid} or one of its children`);
+	}
+}
+
+function killProcess(pid: number) {
+	try {
+		process.kill(pid);
+	} catch (error) {
+		// Ignore the error if the process couldn't be found since that means
+		// it's already dead
+		if (error.code !== 'ESRCH') {
+			throw error;
+		}
+	}
 }
 
 /**
