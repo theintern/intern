@@ -636,5 +636,7 @@ const driverNameMap: { [key: string]: DriverConstructor } = {
 	chrome: ChromeConfig,
 	firefox: FirefoxConfig,
 	ie: IEConfig,
-	edge: EdgeConfig
+	'internet explorer': IEConfig,
+	edge: EdgeConfig,
+	MicrosoftEdge: EdgeConfig
 };
