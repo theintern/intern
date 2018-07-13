@@ -362,7 +362,12 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 			},
 			() => {
 				canceled = true;
-				kill(child.pid);
+
+				// Make a best effort to kill the process, but don't throw
+				// exceptions
+				try {
+					kill(child.pid);
+				} catch (error) {}
 			}
 		);
 
@@ -552,7 +557,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 	 * @returns A promise that resolves once the tunnel has shut down.
 	 */
 	protected _stop(): Promise<number> {
-		return new Promise(resolve => {
+		return new Promise((resolve, reject) => {
 			const childProcess = this._process;
 			if (!childProcess) {
 				resolve();
@@ -563,7 +568,11 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 				resolve(code);
 			});
 
-			kill(childProcess.pid);
+			try {
+				kill(childProcess.pid);
+			} catch (error) {
+				reject(error);
+			}
 		});
 	}
 
