@@ -62,7 +62,9 @@ export function kill(pid: number) {
 	}
 
 	if (error) {
-		throw new Error(`Failed to kill ${pid} or one of its children`);
+		throw new Error(
+			`Failed to kill ${pid} or one of its children: ${error.message}`
+		);
 	}
 }
 
