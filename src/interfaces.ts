@@ -194,6 +194,9 @@ export interface Capabilities {
 	/** Whether window commands use 'handle' instead of 'name' */
 	usesHandleParameter?: boolean;
 
+	/** Whether the Element '/value' endpoint uses a 'text' property */
+	usesWebDriverElementValue?: boolean;
+
 	/**
 	 * Whether getActiveElement uses a POST or GET
 	 */

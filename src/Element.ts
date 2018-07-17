@@ -305,13 +305,32 @@ export default class Element extends Locator<
 	 * [[Session.Session.pressKeys]] for more information.
 	 */
 	type(value: string | string[]): Task<void> {
-		const getPostData = (value: string[]): { value: string[] } => {
+		const getPostData = (
+			value: string[]
+		): { value?: string[]; text?: string } => {
 			if (this.session.capabilities.usesFlatKeysArray) {
-				// At least Firefox 49+ requires the keys value to be a flat
-				// array of characters
+				// At least Firefox 49+ via Selenium requires the keys value to
+				// be a flat array of characters
 				return { value: value.join('').split('') };
+			} else if (this.session.capabilities.usesWebDriverElementValue) {
+				// At least geckodriver 0.21+ and the WebDriver standard
+				// require the `/value` endpoint to take a `text` parameter
+				// that is a string.
+				return { text: value.join('') };
+			} else {
+				return { value };
 			}
-			return { value };
+		};
+
+		const handleError = (reason: any) => {
+			if (
+				reason.detail.error === 'invalid argument' &&
+				!this.session.capabilities.usesWebDriverElementValue
+			) {
+				this.session.capabilities.usesWebDriverElementValue = true;
+				return this.type(value);
+			}
+			throw reason;
 		};
 
 		if (!Array.isArray(value)) {
@@ -329,7 +348,9 @@ export default class Element extends Locator<
 						return this._post(
 							'value',
 							getPostData([uploadedFilename])
-						).then(noop);
+						)
+							.then(noop)
+							.catch(handleError);
 					});
 				}
 			} catch (error) {
@@ -338,7 +359,9 @@ export default class Element extends Locator<
 		}
 
 		// If the input isn't a filename, just post the value directly
-		return this._post('value', getPostData(value)).then(noop);
+		return this._post('value', getPostData(value))
+			.then(noop)
+			.catch(handleError);
 	}
 
 	/**
