@@ -367,10 +367,25 @@ export default class Session extends Locator<
 			throw new Error('Arguments passed to execute must be an array');
 		}
 
-		let result = this.serverPost<T>('execute', {
+		const endpoint = this.capabilities.usesWebDriverExecuteSync
+			? 'execute/sync'
+			: 'execute';
+
+		let result = this.serverPost<T>(endpoint, {
 			script: toExecuteString(script),
 			args: args || []
-		}).then(value => convertToElements(this, value), fixExecuteError);
+		})
+			.then(value => convertToElements(this, value), fixExecuteError)
+			.catch(error => {
+				if (
+					error.detail.error === 'unknown command' &&
+					!this.capabilities.usesWebDriverExecuteSync
+				) {
+					this.capabilities.usesWebDriverExecuteSync = true;
+					return this.execute(script, args);
+				}
+				throw error;
+			});
 
 		if (this.capabilities.brokenExecuteUndefinedReturn) {
 			result = result.then(value => (value == null ? null : value));
@@ -2404,9 +2419,8 @@ function simulateMouse(kwArgs: any) {
 			position.x += xOffset || 0;
 			position.y += yOffset || 0;
 
-			newElement = <HTMLElement>document.elementFromPoint(
-				position.x,
-				position.y
+			newElement = <HTMLElement>(
+				document.elementFromPoint(position.x, position.y)
 			);
 		}
 
@@ -2440,9 +2454,8 @@ function simulateMouse(kwArgs: any) {
 		return position;
 	}
 
-	const target = <HTMLElement>document.elementFromPoint(
-		position.x,
-		position.y
+	const target = <HTMLElement>(
+		document.elementFromPoint(position.x, position.y)
 	);
 
 	if (kwArgs.action === 'mousemove') {

@@ -203,6 +203,12 @@ export interface Capabilities {
 	usesWebDriverActiveElement?: boolean;
 
 	/**
+	 * Whether the remote uses `/execute/sync` rathern than `/execute` for
+	 * synchronous execution
+	 */
+	usesWebDriverExecuteSync?: boolean;
+
+	/**
 	 * Whether find commands should use WebDriver (vs JsonWireProtocol) locators
 	 */
 	usesWebDriverLocators?: boolean;
