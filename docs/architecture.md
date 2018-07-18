@@ -24,6 +24,28 @@ In typical usage a user will not directly load an executor. Instead, a runner
 script will load the executor and any configuration data provided by the user,
 configure the executor, and start the testing process.
 
+Executors are event emitters, and listening for events is the primary way to
+interact with the testing process. Intern provides a number of events that user
+code, such as custom reporters, can listen for. The
+[full list](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/events)
+is available in the generated API docs, but some of the more commonly used
+events include:
+
+| Event        | Description                                                                                    | Payload |
+| :----------- | :--------------------------------------------------------------------------------------------- | ------- |
+| `error`      | An error (not a test failure) has occurred while running tests.                                | error   |
+| `runStart`   | Emitted when testing begins.                                                                   | none    |
+| `runEnd`     | Emitted when testing ends.                                                                     | none    |
+| `suiteStart` | Emitted when a suite starts. A suite with no parent indicates the start of a new session.      | suite   |
+| `suiteEnd`   | Emitted when a suite ends.                                                                     | suite   |
+| `testStart`  | Emitted when a test starts.                                                                    | test    |
+| `testEnd`    | Emitted when a test ends. Check the `error`, `skipped`, and `hasPassed` properties for status. | test    |
+
+Note that the payloads passed to event listeners may not be instances of a
+particular class. For example, the `testEnd` listener may be passed a Test-like
+object rather than an actual instance of
+[Test](https://theintern.io/docs.html#Intern/4/api/lib%2FTest).
+
 ## Runners
 
 A runner is a script that instantiates an executor, configures it, and starts
@@ -37,55 +59,9 @@ many/most cases.
 A loader is an optional script that is used by Intern to load and configure a
 module loader such as SystemJS or @dojo/loader. Only a single loader script may
 be specified per environment (Node or browser). The script should load and setup
-a loader, and return a function that can be used to load modules.
-
-Loader scripts will generally be very simple; the main requirement is that the
-script is standalone (i.e., not a module itself). For example, the built-in
-‘dojo’ loader script looks like the following:
-
-```ts
-intern.registerLoader(options => {
-    const globalObj: any = typeof window !== 'undefined' ? window : global;
-
-    options.baseUrl = options.baseUrl || intern.config.basePath;
-    if (!('async' in options)) {
-        options.async = true;
-    }
-
-    // Setup the loader config
-    globalObj.dojoConfig = loaderConfig;
-
-    // Load the loader using intern.loadScript, which loads simple scripts via injection
-    return intern.loadScript('node_modules/dojo/dojo.js').then(() => {
-        const require = globalObj.require;
-
-        // Return a function that can be used to load modules with the loader
-        return (modules: string[]) => {
-            let handle: { remove(): void };
-
-            return new Promise<void>((resolve, reject) => {
-                handle = require.on('error', (error: Error) => {
-                    intern.emit('error', error);
-                    reject(new Error(`Dojo loader error: ${error.message}`));
-                });
-
-                // The module loader function doesn't return modules, it just loads them
-                require(modules, () => {
-                    resolve();
-                });
-            }).then(
-                () => {
-                    handle.remove();
-                },
-                error => {
-                    handle && handle.remove();
-                    throw error;
-                }
-            );
-        };
-    });
-});
-```
+a loader, and return a function that can be used to load modules. Intern
+includes several built-in loader scripts, and also supports
+[custom loader scripts](extending.md#loaders).
 
 If a loader isn’t specified, ‘default’ will be used. This loader uses an
 environment-specific default method for loading scripts/modules. This means
@@ -105,48 +81,8 @@ intern.on('beforeRun', function() {
 });
 ```
 
-Plugins can register resources for use in tests with the `registerPlugin`
-method. Intern will resolve and store the return value of `registerPlugin`;
-tests can retrieve it by calling `intern.getPlugin('foo')`. The `registerPlugin`
-method will wait for a returned Promise to resolve, allowing for asynchronous
-plugin initialization.
-
-```ts
-// tests/plugin.js
-intern.registerPlugin('postData', function () {
-    return (name: string, value: any) => {
-        // post data to a remote database
-    });
-});
-```
-
-When loading a plugin without a module loader, the call to `registerPlugin` must
-be made synchronously. In other words, a plugin generally shouldn’t do this:
-
-```ts
-// tests/plugin.js
-System.import('some_module').then(function(module) {
-    intern.registerPlugin('foo', function() {
-        return module;
-    });
-});
-```
-
-Instead, do this:
-
-```ts
-// tests/plugin.js
-intern.registerPlugin('foo', function() {
-    return System.import('some_module');
-});
-```
-
-Plugins can be accessed in suites or other user code using the `getPlugin`
-method.
-
-```ts
-const { registerSuite } = intern.getPlugin('interface.object');
-```
+For more details about creating and using plugins, see
+[Extending: Plugins](extending.md#plugins).
 
 ## Interfaces
 
@@ -179,13 +115,7 @@ registerSuite({
 
 Reporters are used to display or output test results and coverage information.
 Since Intern is an event emitter, anything that registers for Intern events can
-be a “reporter”.
-
-Intern includes a number of built-in reporters that can be enabled using the
-[reporters] config option.
-
-User reporters can simply be loaded as plugins; there is no need to use the
-`reporters` option. A reporter can be as simple as:
+be a “reporter”. A reporter can be as simple as:
 
 ```ts
 // myReporter.ts
@@ -201,5 +131,9 @@ intern.on('testEnd', test => {
     }
 });
 ```
+
+Intern includes a number of built-in reporters that can be enabled using the
+[reporters] config option. User reporters should be loaded as normal plugins;
+there is no need to use the `reporters` option.
 
 [reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/reporters

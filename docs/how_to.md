@@ -2,6 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 
+* [Write a custom reporter](#write-a-custom-reporter)
 * [Use TypeScript modules directly](#use-typescript-modules-directly)
 * [Speed up WebDriver tests](#speed-up-webdriver-tests)
 * [Use Intern programmatically](#use-intern-programmatically)
@@ -20,6 +21,10 @@
 * [Use a custom profile with Firefox](#use-a-custom-profile-with-firefox)
 
 <!-- vim-markdown-toc -->
+
+## Write a custom reporter
+
+See [Reporters](extending.md#reporters)
 
 ## Use TypeScript modules directly
 
@@ -110,8 +115,8 @@ There several ways to accomplish this:
     `beforeRun` callback to handle the async code:
     ```js
     // setup.js
-    intern.on('beforeRun', function() {
-        return new Promise(function(resolve) {
+    intern.on('beforeRun', () => {
+        return new Promise(resolve => {
             // async code
         });
     });
@@ -123,8 +128,8 @@ There several ways to accomplish this:
     ```js
     // setup.js
     const bar = require('./bar');
-    intern.registerPlugin('foo', function() {
-        return bar.getSomething().then(function(something) {
+    intern.registerPlugin('foo', () {
+        return bar.getSomething().then(something => {
             // more async code
         });
     });
@@ -132,7 +137,10 @@ There several ways to accomplish this:
     ```json5
     // intern.json
     {
-        "plugins": "setup.js"
+        "plugins": {
+            "script": "setup.js",
+            "useLoader": true
+        }
     }
     ```
 

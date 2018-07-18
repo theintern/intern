@@ -2,23 +2,33 @@
 
 <!-- vim-markdown-toc GFM -->
 
-* [Plugins](#plugins)
-    * [Reporters](#reporters)
-    * [Interfaces](#interfaces)
-    * [Pre- and post-test code](#pre--and-post-test-code)
-* [Loading extensions](#loading-extensions)
+* [The plugin mechanism](#the-plugin-mechanism)
+* [Pre- and post-test code](#pre--and-post-test-code)
+* [Reporters](#reporters)
+* [Interfaces](#interfaces)
+* [Loaders](#loaders)
 
 <!-- vim-markdown-toc -->
 
 Intern‘s functionality can be extended using user scripts and third party
 libraries.
 
-## Plugins
+## The plugin mechanism
 
-Plugins are the standard cross-environment way to add functionality to Intern. A
-plugin registers resources with Intern, and suites may request and use these
-resources. For example, a plugin that provided tests with access to a MongoDB
-database might look like:
+The “plugin” mechanism is a cross-environment method for adding functionality to
+Intern. [Plugins](architecture.md#plugins) are registered using the
+[plugins](configuration.md#configuring-plugins) config property and loaded by
+Intern using an environment’s native code loading mechanism: `require` in Node
+and script injection in the browser. If an external loader has been configured
+using the `loader` property, plugins can be marked to use the loader with a
+`useLoader` property.
+
+A plugin can register resources with Intern that may be used in tests and
+suites, or it can also alter Intern’s functionality in some way, or even modify
+the environment itself.
+
+For example, a plugin that provided tests with access to a MongoDB database
+might look like:
 
 ```ts
 intern.registerPlugin('dbaccess', async options => {
@@ -34,20 +44,78 @@ Within a suite, the plugin would be accessed like:
 const { db } = intern.getPlugin('dbaccess');
 ```
 
-The main benefit to the plugin mechanism is that it is universal — it works in
-both Node and the browser. If Intern is only being used in a Node environment,
-extension code can be written as Node modules and loaded in suites using
-`import` or `require`.
+A third party script such as `ts-node/register` may also be loaded as a plugin.
+For example, loading `ts-node/register` as a plugin will allow Intern to load
+TypeScript modules directly (in Node only):
 
-The plugin mechanism may be used to implement a variety of Intern extensions.
+```json5
+{
+    "plugins": "node_modules/ts-node/register/index.js"
+}
+```
 
-### Reporters
+> 💡The plugin registration mechanism (`registerPlugin`) isn’t necessary in
+> environments with modules loaders since tests may load extension code using
+> standard loader mechanisms (e.g., `require`). It is most useful for
+> environments where a module loader may not be present, such as when testing
+> legacy code in a browser.
 
-Reporters are simply plugins that register for Intern [events]. For example, a
-reporter that displays test results to the console could be as simple as:
+> ⚠️When loading a plugin without a module loader, the call to `registerPlugin`
+> must be synchronous.
+
+Note that when loading a plugin without a module loader, the call to
+`registerPlugin` must be made synchronously. In other words, a plugin generally
+shouldn’t do this:
 
 ```ts
-// myReporter.ts
+// tests/plugin.js
+System.import('some_module').then(function(module) {
+    intern.registerPlugin('foo', function() {
+        return module;
+    });
+});
+```
+
+Instead, do this:
+
+```ts
+// tests/plugin.js
+intern.registerPlugin('foo', function() {
+    return System.import('some_module');
+});
+```
+
+## Pre- and post-test code
+
+Code that needs to run before or after the testing process can run in
+[beforeRun] or [afterRun] event listeners:
+
+```ts
+// tests/setup.ts
+intern.on('beforeRun', () => {
+    // code
+});
+```
+
+To load this module using ts-node:
+
+```json5
+{
+    "plugins": ["node_modules/ts-node/register/index.js", "tests/setup.ts"]
+}
+```
+
+As with all Intern event listeners the callback may run asynchronous code. Async
+callbacks should return a Promise that resolves when the async code has
+completed.
+
+## Reporters
+
+Reporters are code that registers for Intern [events]. For example, a reporter
+that displays test results to the console could be as simple as:
+
+```ts
+// tests/myReporter.ts
 intern.on('testEnd', test => {
     if (test.skipped) {
         console.log(`${test.id} skipped`);
@@ -59,11 +127,32 @@ intern.on('testEnd', test => {
 });
 ```
 
+Load the reporter as a plugin:
+
+```json5
+{
+    "plugins": "_build/tests/myReporter.js"
+}
+```
+
+If a reporter takes options, they can be passed through the `plugins` property:
+
+```json5
+{
+    "plugins": {
+        "script": "_build/tests/myReporter.js",
+        "options": {
+            "filename": "report.txt"
+        }
+    }
+}
+```
+
 Intern provides several built-in reporters that can be enabled via the
 [reporters] config option. User/custom reporters can simply register for Intern
 events; they do not need to use the `reporters` config property.
 
-### Interfaces
+## Interfaces
 
 An interface is an API for registering test suites. Intern has several built in
 interfaces, such as [object](writing_tests.md#object) and
@@ -132,46 +221,61 @@ suite('foo', () => {
 });
 ```
 
-### Pre- and post-test code
+## Loaders
 
-Code that needs to run before or after the testing process can run in
-'beforeRun' or 'afterRun' event listeners:
+Loader scripts will generally be very simple; the main requirement is that the
+script is standalone (i.e., not a module itself). For example, the built-in
+‘dojo’ loader script looks like the following:
 
 ```ts
-intern.on('beforeRun', () => {
-    // code
+intern.registerLoader(options => {
+    const globalObj: any = typeof window !== 'undefined' ? window : global;
+
+    options.baseUrl = options.baseUrl || intern.config.basePath;
+    if (!('async' in options)) {
+        options.async = true;
+    }
+
+    // Setup the loader config
+    globalObj.dojoConfig = loaderConfig;
+
+    // Load the loader using intern.loadScript, which loads simple scripts via injection
+    return intern.loadScript('node_modules/dojo/dojo.js').then(() => {
+        const require = globalObj.require;
+
+        // Return a function that can be used to load modules with the loader
+        return (modules: string[]) => {
+            let handle: { remove(): void };
+
+            return new Promise<void>((resolve, reject) => {
+                handle = require.on('error', (error: Error) => {
+                    intern.emit('error', error);
+                    reject(new Error(`Dojo loader error: ${error.message}`));
+                });
+
+                // The module loader function doesn't return modules, it just loads them
+                require(modules, () => {
+                    resolve();
+                });
+            }).then(
+                () => {
+                    handle.remove();
+                },
+                error => {
+                    handle && handle.remove();
+                    throw error;
+                }
+            );
+        };
+    });
 });
 ```
 
-As with all Intern event listeners the callback may run asynchronous code. Async
-callbacks should return a Promise that resolves when the async code has
-completed.
+See [configuring loaders](configuration.md#configuring-loaders) for more
+information about how to load and pass options to a custom loader.
 
-## Loading extensions
-
-Extensions are loaded using the [plugins] config property. Both user scripts and
-standalone third-party scripts, like `babel-register`, may be loaded this way.
-By default, scripts listed in `plugins` will be loaded before an external
-loader, using the platform native loading mechanism. Plugins can be marked as
-requiring the external loader with a `useLoader` property.
-
-```json5
-{
-    "loader": "dojo2",
-    "plugins": [
-        "node_modules/babel-register/lib/node.js",
-        {
-            "script": "tests/support/dojoMocking.js",
-            "useLoader": true
-        },
-        {
-            "script": "tests/support/mongodbAccess.js",
-            "options": { "dbUrl": "https://testdb.local" }
-        }
-    ]
-}
-```
-
+[afterrun]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/afterrun
+[beforerun]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/beforerun
 [events]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/events
 [plugins]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/plugins
 [reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/reporters

@@ -1084,9 +1084,13 @@ export interface ExecutorEvent {
  * associated message type. A few (e.g., afterRun) don't have messages.
  */
 export interface Events {
+	/** A listener can listen for this event to be notified of all events */
 	'*': ExecutorEvent;
 
-	/** Emitted after the local executor has finished running suites */
+	/**
+	 * Emitted after the local executor has finished running suites. This is
+	 * functionally the same as runEnd.
+	 */
 	afterRun: void;
 
 	/** Emitted before the local executor loads suites */
@@ -1104,7 +1108,10 @@ export interface Events {
 	/** A debug log event */
 	log: string;
 
-	/** All tests have finished running */
+	/**
+	 * All tests have finished running. This is functionally the same as
+	 * afterRun.
+	 */
 	runEnd: void;
 
 	/** Emitted just before tests start running  */

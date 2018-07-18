@@ -9,7 +9,7 @@
  * It may also be imported as a module, like
  *
  * ```js
- * import { registerSuite } from 'intern/lib/interfaces/object';
+ * import registerSuite from 'intern/lib/interfaces/object';
  * ```
  *
  * Suites are described using objects. The object structure is a subset of suite
