@@ -2,6 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 
+* [Use TypeScript modules directly](#use-typescript-modules-directly)
 * [Speed up WebDriver tests](#speed-up-webdriver-tests)
 * [Use Intern programmatically](#use-intern-programmatically)
 * [Run code before tests start](#run-code-before-tests-start)
@@ -20,6 +21,25 @@
 
 <!-- vim-markdown-toc -->
 
+## Use TypeScript modules directly
+
+In a Node environment, you can use
+[ts-node](https://www.npmjs.com/package/ts-node) to load TypeScript tests and
+application modules directly. With `ts-node` installed, a test config might look
+like:
+
+```json5
+{
+    "plugins": "node_modules/ts-node/register/index.js",
+    "suites": "tests/**/*.ts"
+}
+```
+
+Declaring `ts-node/register/index.js` as a plugin ensures it’s loaded before any
+suites. Once `ts-node` is loaded, Intern can load TypeScript modules directly.
+
+> ⚠️This method does not work in browsers.
+
 ## Speed up WebDriver tests
 
 Two features which can have a significant impact on test runtime are code
@@ -34,7 +54,7 @@ debugging and development faster.
         $ node_modules/.bin/intern coverage=
         ```
 2.  Disable browser [feature tests](concepts.md#webdriver-feature-tests)
-    ```js
+    ```json5
     {
         "environments": {
             "browserName": "chrome",
@@ -50,7 +70,7 @@ debugging and development faster.
 
 1.  Load Intern
     *   In node:
-        ```js
+        ```ts
         import intern from 'intern';
         ```
     *   In the browser, load the 'browser/intern.js' script
@@ -58,14 +78,14 @@ debugging and development faster.
         <script src="node_modules/intern/browser/intern.js"></script>
         ```
 2.  Configure Intern
-    ```js
+    ```ts
     intern.configure({
         suites: ['tests/unit/a.js', 'tests/unit/b.js'],
         reporters: 'runner'
     });
     ```
 3.  Run Intern
-    ```js
+    ```ts
     intern.run();
     ```
 
@@ -79,7 +99,7 @@ There several ways to accomplish this:
     // setup.js
     intern.config.suites.push('./some/other/suite.js');
     ```
-    ```js
+    ```json5
     // intern.json
     {
         "plugins": "setup.js"
@@ -109,7 +129,7 @@ There several ways to accomplish this:
         });
     });
     ```
-    ```js
+    ```json5
     // intern.json
     {
         "plugins": "setup.js"
@@ -186,7 +206,7 @@ as a plugin. This will let Intern load ES modules transparently, without
 requiring a build step. Also set the `esModules` instrumenter option if code
 coverage is desired.
 
-```js
+```json5
 // intern.json
 {
     "node": {
@@ -198,10 +218,11 @@ coverage is desired.
 }
 ```
 
-To work with ES modules in the browser, you’ll need to setup a loader. One
-option is to use SystemJS configured with babel support:
+The most common way to work with ES modules in the browser is to use a loader
+that understands ES modules. One option is to use SystemJS configured with babel
+support:
 
-```js
+```json5
 // intern.json
 {
     "browser": {
@@ -209,8 +230,10 @@ option is to use SystemJS configured with babel support:
             "script": "systemjs",
             "options": {
                 "map": {
-                    "plugin-babel": "node_modules/systemjs-plugin-babel/plugin-babel.js",
-                    "systemjs-babel-build": "node_modules/systemjs-plugin-babel/systemjs-babel-browser.js"
+                    "plugin-babel":
+                        "node_modules/systemjs-plugin-babel/plugin-babel.js",
+                    "systemjs-babel-build":
+                        "node_modules/systemjs-plugin-babel/systemjs-babel-browser.js"
                 },
                 "transpiler": "plugin-babel"
             }
@@ -222,20 +245,28 @@ option is to use SystemJS configured with babel support:
 }
 ```
 
+Intern also provides an `esm` loader that uses a browser’s native module
+support. Internally, modules are loaded using script tags, like:
+
+```html
+<script src="myscript.js" type="module"></script>
+```
+
+Note that the `esm` loader requires that _all_ modules in a dependecy tree be
+ESMs, so its utility is currently somewhat limited.
+
 ## Use Intern with a remote service like BrowserStack
 
 1.  Write some unit and/or functional test suites and add them to your
     `intern.json`
-    ```js
-    // intern.json
+    ```json5
     {
         "suites": "tests/unit/*.js",
         "functionalSuites": "tests/functional/*.js"
     }
     ```
 2.  Select the desired [tunnel] in your `intern.json`
-    ```js
-    // intern.json
+    ```json5
     {
         "tunnel": "browserstack"
     }
@@ -247,8 +278,7 @@ option is to use SystemJS configured with babel support:
     $ export BROWSERSTACK_ACCESS_KEY=123-456-789
     ```
     _or_
-    ```js
-    // intern.json
+    ```json5
     {
         "tunnelOptions": {
             "username": "someone@somedomain.com",
@@ -258,8 +288,7 @@ option is to use SystemJS configured with babel support:
     ```
 4.  Select some [environments]. Be sure to use the cloud service’s naming
     conventions.
-    ```js
-    // intern.json
+    ```json5
     {
         "environments": [
             { "browserName": "chrome", "version": "latest", "platform": "MAC" }
@@ -277,14 +306,10 @@ Browser code that doesn’t support any module system and expects to be loaded
 along with other dependencies in a specific order can be loaded using the
 `plugins` config option.
 
-```js
-// intern.json
+```json5
 {
     "browser": {
-        "plugins": [
-            "lib/jquery.js",
-            "lib/plugin.jquery.js"
-        ]
+        "plugins": ["lib/jquery.js", "lib/plugin.jquery.js"]
     }
 }
 ```
@@ -295,7 +320,7 @@ order specified.
 ## Test non-CORS web APIs
 
 When writing unit tests with Intern, occasionally you will need to interact with
-a Web service. However, because the Intern serves code at
+a web service. However, because the Intern serves code at
 `http://localhost:9000` by default, any cross-origin requests will fail. In
 order to test Ajax requests wihtout using CORS of JSONP, setup a reverse proxy
 to Intern and tell the in-browser test runner to load from that URL by setting
@@ -359,16 +384,17 @@ server {
 
 Intern interacts with headless Chrome in the same fashion as regular Chrome, it
 just has to tell chromedriver to open a headless session. Do this by providing
-'headless' and 'disable-gpu' arguments to chromedriver in an environment
-descriptor in the test config.
+`headless` and `disable-gpu` arguments to chromedriver in an environment
+descriptor in the test config. You may also want to set the `window-size` option
+to ensure the browser is large enough to properly render your interface.
 
-```json
+```json5
 {
     "environments": [
         {
             "browserName": "chrome",
             "goog:chromeOptions": {
-                "args": ["headless", "disable-gpu"]
+                "args": ["headless", "disable-gpu", "window-size=1024,768"]
             }
         }
     ]
@@ -386,13 +412,13 @@ Setting up Intern to use Firefox in headless mode is much like setting it up for
 [headless Chrome](#run-tests-with-headless-chrome). Simply provide a 'headless'
 argument to geckodriver in an environment descriptor in the test config.
 
-```json
+```json5
 {
     "environments": [
         {
             "browserName": "firefox",
             "moz:firefoxOptions": {
-                "args": ["-headless"]
+                "args": ["-headless", "--window-size=1024,768"]
             }
         }
     ]
@@ -406,7 +432,7 @@ regular Chrome, it just has to tell chromedriver to open a mobile emulation
 session. Do this by providing a 'mobileEmulation' property in
 `goog:chromeOptions` in an environment descriptor.
 
-```json
+```json5
 {
     "environments": [
         {
@@ -433,7 +459,7 @@ Mobile emulation mode may be combined with
 2.  Add the profile to the Firefox entry in your `environments` config property.
     How this is done depends on the version of Firefox in use.
     *   For older versions of Firefox, set a `firefox_profile` property:
-    ```json
+    ```json5
     {
         "environments": [
             {
@@ -444,7 +470,7 @@ Mobile emulation mode may be combined with
     }
     ```
     *   Starting with geckodriver 0.19, use a `moz:firefoxOptions` property:
-    ```json
+    ```json5
     {
         "environments": [
             {

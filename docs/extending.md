@@ -2,8 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 
-* [Types of extension](#types-of-extension)
-    * [Plugins](#plugins)
+* [Plugins](#plugins)
     * [Reporters](#reporters)
     * [Interfaces](#interfaces)
     * [Pre- and post-test code](#pre--and-post-test-code)
@@ -11,18 +10,18 @@
 
 <!-- vim-markdown-toc -->
 
-Intern provides several extension points.
+Intern‘s functionality can be extended using user scripts and third party
+libraries.
 
-## Types of extension
+## Plugins
 
-There are a few general classes of Intern extension.
+Plugins are the standard cross-environment way to add functionality to Intern. A
+plugin registers resources with Intern, and suites may request and use these
+resources. For example, a plugin that provided tests with access to a MongoDB
+database might look like:
 
-### Plugins
-
-Plugins are extensions that provide some type of reusable functionality. For example, a plugin that provided tests with access to a MongoDB database might look like:
-
-```js
-intern.registerPlugin('dbaccess', async (options) => {
+```ts
+intern.registerPlugin('dbaccess', async options => {
     const connect = promisify(MongoClient.connect);
     const db = await connect(options.dbUrl);
     return { db };
@@ -31,37 +30,50 @@ intern.registerPlugin('dbaccess', async (options) => {
 
 Within a suite, the plugin would be accessed like:
 
-```js
+```ts
 const { db } = intern.getPlugin('dbaccess');
 ```
 
-As the example above indicates, plugin initialization code may be asynchronous.
+The main benefit to the plugin mechanism is that it is universal — it works in
+both Node and the browser. If Intern is only being used in a Node environment,
+extension code can be written as Node modules and loaded in suites using
+`import` or `require`.
+
+The plugin mechanism may be used to implement a variety of Intern extensions.
 
 ### Reporters
 
-Reporters are simply event listeners that register for Intern [events]. For example, a reporter that displays test results to the console could be as simple as:
+Reporters are simply plugins that register for Intern [events]. For example, a
+reporter that displays test results to the console could be as simple as:
 
-```js
+```ts
+// myReporter.ts
 intern.on('testEnd', test => {
     if (test.skipped) {
         console.log(`${test.id} skipped`);
-    }
-    else if (test.error) {
+    } else if (test.error) {
         console.log(`${test.id} failed`);
-    }
-    else {
+    } else {
         console.log(`${test.id} passed`);
     }
 });
 ```
 
-Intern provides several built-in reporters that can be enabled via the [reporters] config option.
+Intern provides several built-in reporters that can be enabled via the
+[reporters] config option. User/custom reporters can simply register for Intern
+events; they do not need to use the `reporters` config property.
 
 ### Interfaces
 
-An interface is an API for registering test suites. Intern has several built in interfaces, such as [object](./writing_tests.md#object) and [bdd](./writing_tests.md#bdd). These interfaces all work by creating [Suite] and [Test] objects and registering them with Intern’s root suite(s). New interfaces should follow the same pattern. For example, below is an excerpt from the [tdd] interface, which allows suites to be registered using `suite` and `test` functions:
+An interface is an API for registering test suites. Intern has several built in
+interfaces, such as [object](writing_tests.md#object) and
+[bdd](writing_tests.md#bdd). These interfaces all work by creating [Suite] and
+[Test] objects and registering them with Intern’s root suite(s). New interfaces
+should follow the same pattern. For example, below is an excerpt from the [tdd]
+interface, which allows suites to be registered using `suite` and `test`
+functions:
 
-```js
+```ts
 import Suite from '../Suite';
 import Test from '../Test';
 import intern from '../../intern';
@@ -75,8 +87,7 @@ export function suite(name, factory) {
             registerSuite(name, factory);
             currentSuite = null;
         });
-    }
-    else {
+    } else {
         registerSuite(name, factory);
     }
 }
@@ -97,23 +108,54 @@ function registerSuite(name, factory) {
 }
 ```
 
+An interface plugin would define and register its interface methods:
+
+```ts
+// myInterface.ts
+intern.registerPlugin('myInterface', async options => {
+    function suite(...) {
+    }
+
+    function test(...) {
+    }
+
+    return { suite, test };
+});
+
+// someSuite.ts
+const { suite, test } = intern.getPlugin('myInterface');
+
+suite('foo', () => {
+    test('test1', () => {
+        ...
+    });
+});
+```
+
 ### Pre- and post-test code
 
-Code that needs to run before or after the testing process can run in 'beforeRun' or 'afterRun' event listeners:
+Code that needs to run before or after the testing process can run in
+'beforeRun' or 'afterRun' event listeners:
 
-```js
+```ts
 intern.on('beforeRun', () => {
     // code
 });
 ```
 
-As with all Intern event listeners the callback may run asynchronous code. Async callbacks should return a Promise that resolves when the async code has completed.
+As with all Intern event listeners the callback may run asynchronous code. Async
+callbacks should return a Promise that resolves when the async code has
+completed.
 
 ## Loading extensions
 
-Extensions are loaded using the [plugins] config property. Plugins may provide actual Intern plugins by calling `registerPlugin`, or they may be standalone scripts that affect the JavaScript environment, like `babel-register`. By default, scripts listed in `plugins` will be loaded before an external loader, using the platform native loading mechanism. Plugins can be marked as requiring the external loader with a `useLoader` property.
+Extensions are loaded using the [plugins] config property. Both user scripts and
+standalone third-party scripts, like `babel-register`, may be loaded this way.
+By default, scripts listed in `plugins` will be loaded before an external
+loader, using the platform native loading mechanism. Plugins can be marked as
+requiring the external loader with a `useLoader` property.
 
-```js
+```json5
 {
     "loader": "dojo2",
     "plugins": [
@@ -133,6 +175,6 @@ Extensions are loaded using the [plugins] config property. Plugins may provide a
 [events]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/events
 [plugins]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/plugins
 [reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/reporters
-[Suite]: https://theintern.io/docs.html#Intern/4/api/lib%2FSuite
-[Test]: https://theintern.io/docs.html#Intern/4/api/lib%2FTest
+[suite]: https://theintern.io/docs.html#Intern/4/api/lib%2FSuite
+[test]: https://theintern.io/docs.html#Intern/4/api/lib%2FTest
 [tdd]: https://theintern.io/docs.html#Intern/4/api/lib%2Finterfaces%2Ftdd

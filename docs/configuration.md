@@ -27,10 +27,9 @@ properties applicable to either environment that Intern can run in (Node or
 browser). Config properties may be set via a file, the command line, browser
 query args, or an environment variable. All of these methods use the same basic
 syntax and provide the same capabilities. Assuming Intern is being run with the
-default [Node runner](./running.md#node) or
-[browser runner](./running.md#browser) and without a `config` argument, Intern
-will attempt to load configuration informatioon from an `intern.json` file in
-the project root.
+default [Node runner](running.md#node) or [browser runner](running.md#browser)
+and without a `config` argument, Intern will attempt to load configuration
+informatioon from an `intern.json` file in the project root.
 
 Wherever config property values come from, the executor will validate and
 normalize them into a canonical format ("resolve" them) when the testing process
@@ -38,7 +37,7 @@ starts. This allows the executor’s constructor or `configure` method to be
 flexible in what data it accepts. For example, the canonical form of the
 `environments` property is an array of objects:
 
-```js
+```ts
 environments: [{ browserName: 'chrome' }];
 ```
 
@@ -108,10 +107,10 @@ Some properties are only meaningful for Node or WebDriver tests:
 The environment-specific properties come into play when Intern is running in
 that environment:
 
-| Property | Description                                                                              | Default |
-| :------- | :--------------------------------------------------------------------------------------- | :------ |
-| browser  | Resources (loader, plugins, reporters, require, suites) that only apply to browser tests | `{}`    |
-| node     | Resources (loader, plugins, reporters, require, suites) that only apply to Node tests    | `{}`    |
+| Property | Description                                                                     | Default |
+| :------- | :------------------------------------------------------------------------------ | :------ |
+| browser  | Resources (loader, plugins, reporters, suites) that only apply to browser tests | `{}`    |
+| node     | Resources (loader, plugins, reporters, suites) that only apply to Node tests    | `{}`    |
 
 There are also several properties that are handled by the config file processing
 system that aren’t directly involved in the testing process. These properties
@@ -130,23 +129,17 @@ are ignored if set programmatically.
 Suites may be specified as file paths or using glob expressions. Globbing is
 handled with the [glob](https://github.com/isaacs/node-glob) Node package.
 
-```js
+```json5
 {
-    "suites": [
-        "tests/unit/**/*.js",
-        "tests/integration/foo.js"
-    ]
+    "suites": ["tests/unit/**/*.js", "tests/integration/foo.js"]
 }
 ```
 
 Intern also understands glob-based exclusion using the `!` modifier:
 
-```js
+```json5
 {
-    "suites": [
-        "tests/**/*.js",
-        "!tests/functional/**"
-    ]
+    "suites": ["tests/**/*.js", "!tests/functional/**"]
 }
 ```
 
@@ -168,14 +161,20 @@ When a child config extends multiple other child configs, properties from the
 right-most config being extended will override properties from configs to the
 left.
 
-```js
+```json5
 {
     "configs": {
-        "a": { /* ... */ },
-        "b": { /* ... */ },
-        "c": { /* ... */ },
+        "a": {
+            /* ... */
+        },
+        "b": {
+            /* ... */
+        },
+        "c": {
+            /* ... */
+        },
         "d": {
-            "extends": ["a", "c"],
+            "extends": ["a", "c"]
             /* ... */
         }
     }
@@ -201,7 +200,7 @@ Setting the `showConfig` property to `true` will cause Intern to dump the
 resolved configuration to the current environment’s console.
 
 ```
-$ node_modules/.bin/intern showConfig
+$ npx intern showConfig
 {
     "bail": false,
     "baseline": false,
@@ -222,7 +221,7 @@ current config file’s `description` property, and then list all child configs
 contained in the config file. For example, with a config file containing the
 following data:
 
-```js
+```json5
 {
     "description": "Default test suite",
     "configs": {
@@ -240,7 +239,7 @@ running Intern with the `showConfigs` property set would display the following
 text:
 
 ```
-$ node_modules/.bin/intern showConfigs
+$ npx intern showConfigs
 Default test suite
 
 Configs:
@@ -253,26 +252,26 @@ Configs:
 The config structure is a simple JSON object, so all of its property values must
 be serializable (RegExp objects are serialized to strings).
 
-```js
+```json5
 {
     // General properties
     "bail": false,
     "baseline": false,
-    "suites": [ "tests/unit/*.js" ],
+    "suites": ["tests/unit/*.js"],
 
     // Browser and node specific resources
     "browser": {
-        "suites": [ "tests/unit/dom_stuff.js" ]
+        "suites": ["tests/unit/dom_stuff.js"]
     },
     "node": {
-        "suites": [ "tests/unit/dom_stuff.js" ]
+        "suites": ["tests/unit/dom_stuff.js"]
     },
 
     "configs": {
         // Child configs have the same structure as the main config
         "ci": {
             "bail": true,
-            "suites+": [ "tests/unit/other.js" ]
+            "suites+": ["tests/unit/other.js"]
         }
     }
 }
@@ -307,12 +306,10 @@ configuration will be fully resolved before tests are executed.
 
 An Intern config file is a JSON file specifying config properties, for example:
 
-```js
+```json5
 {
-    "environments": [
-        { "browserName": "chrome" }
-    ],
-    "suites": [ "tests/unit/all.js" ]
+    "environments": [{ "browserName": "chrome" }],
+    "suites": ["tests/unit/all.js"]
 }
 ```
 
@@ -325,14 +322,14 @@ example, to load a child config named “ci” from the default config file, you
 could run:
 
 ```sh
-$ node_modules/.bin/intern config=@ci
+$ npx intern config=@ci
 ```
 
 To load a config named “remote” from a config file named “intern-local.json”,
 run:
 
 ```sh
-$ node_modules/.bin/intern config=intern-local.json@remote
+$ npx intern config=intern-local.json@remote
 ```
 
 ### Environment variable
@@ -342,12 +339,12 @@ environment variable. This variable is treated just like a string of command
 line arguments. For example, these two executions of Intern are equivalent:
 
 ```sh
-$ node_modules/.bin/intern grep='run.*' suites=
+$ npx intern grep='run.*' suites=
 ```
 
 ```sh
 export INTERN_ARGS="grep=run.* suites="
-$ node_modules/.bin/intern
+$ npx intern
 ```
 
 ### Command line
@@ -356,7 +353,7 @@ Config properties may be provided directly on the command line when starting
 Intern. Properties must be specified using `property=value` syntax. For example,
 
 ```sh
-$ node_modules/.bin/intern grep='run.*' suites=
+$ npx intern grep='run.*' suites=
 ```
 
 Object values may be input as serialized strings (e.g.,
@@ -378,13 +375,13 @@ http://localhost:8080/node_modules/intern/?grep=run.*&suites=
 When creating an executor programmatically it may be configured via its
 constructor, and/or via its `configure` method.
 
-```js
+```ts
 const intern = new Node({ grep: /run.*/, suites: [] });
 ```
 
 _or_
 
-```js
+```ts
 intern.configure({ grep: /run.*/, suites: [] });
 ```
 
@@ -404,7 +401,7 @@ To use one of Intern's pre-defined loader scripts, simply specify it's name. The
 loader script will expect the loader package to be installed in `node_modules`
 using NPM.
 
-```js
+```json5
 {
     "browser": {
         "loader": "dojo"
@@ -415,12 +412,12 @@ using NPM.
 Additional options may be provided through the options parameter. These options
 are passed through to the registered loader script.
 
-```js
+```json5
 {
     "browser": {
         "loader": {
             "script": "./support/my/custom/loader.js",
-            "options": { "basePath": '_build' }
+            "options": { "basePath": "_build" }
         }
     }
 }
@@ -441,10 +438,10 @@ listen to Intern events and augment the environment as early as possible. Module
 plugins have a `useLoader` property and are loaded later in Intern's lifecycle
 with the configured loader. Any number of plugins may be added to Intern.
 
-```js
+```json5
 {
     "plugins": [
-		"node_modules/babel-register/lib/node.js",
+        "node_modules/babel-register/lib/node.js",
         {
             "script": "tests/support/mongodbAccess.js",
             "options": { "dbUrl": "https://testdb.local" }
@@ -476,21 +473,21 @@ There are a few exceptions:
 1.  **The "node" and "browser" properties in a child config are shallowly mixed
     into "node" and "browser" in the base config.** For example, if "node" in
     the base config looks like:
-    ```js
+    ```json5
     "node": {
         "suites": [ "tests/unit/foo.js" ],
         "plugins": [ "tests/plugins/bar.js" ]
     }
     ```
     and "node" in a child config looks like:
-    ```js
+    ```json5
     "node": {
         "suites": [ "tests/unit/baz.js" ],
     }
     ```
     then the value of node in the resolved config (assuming the child config is
     active) will be:
-    ```js
+    ```json5
     "node": {
         // node.suites from the child overrides node.suites from the base config
         "suites": [ "tests/unit/baz.js" ],
@@ -501,25 +498,25 @@ There are a few exceptions:
 2.  **Resource arrays in "node" or "browser" ("plugins", "reporters", "suites"),
     are added to the corresponding resource arrays in the base config.** For
     example, if the base config has:
-    ```js
+    ```json5
     "suites": [ "tests/unit/foo.js" ]
     ```
     and the "node" section has:
-    ```js
+    ```json5
     "suites": [ "tests/unit/bar.js" ]
     ```
     both sets of suites will be loaded when running on Node.
 3.  **Some properties can be extended (rather than replaced) by adding a '+' to
     the property name.** For example, if the base config has:
-    ```js
+    ```json5
     "suites": [ "tests/unit/foo.js" ]
     ```
     and a child config has:
-    ```js
+    ```json5
     "suites+": [ "tests/unit/bar.js" ]
     ```
     the resolved value of suites will be:
-    ```js
+    ```json5
     "suites": [ "tests/unit/foo.js", "tests/unit/bar.js" ]
     ```
     Extendable properties are resources (**suites**, **plugins**,
