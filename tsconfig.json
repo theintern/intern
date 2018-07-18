@@ -1,19 +1,11 @@
 {
-	"extends": "./node_modules/@theintern/dev/tsconfig-base.json",
-	"compilerOptions": {
-		"declaration": true,
-		"importHelpers": true,
-		"lib": [
-			"es5",
-			"es2015.symbol",
-			"es2015.symbol.wellknown",
-			"es2015.iterable",
-			"es2015.promise",
-			"dom"
-		],
-		"outDir": "./_build",
-		"rootDir": ".",
-		"typeRoots": ["./node_modules/@types", "./types"]
-	},
-	"include": ["./src/**/*.ts"]
+  "extends": "./node_modules/@theintern/dev/tsconfig-base.json",
+  "compilerOptions": {
+    "declaration": true,
+    "lib": ["dom", "es2015"],
+    "outDir": "./_build",
+    "rootDir": ".",
+    "typeRoots": ["./node_modules/@types", "./types"]
+  },
+  "include": ["./src/**/*.ts"]
 }

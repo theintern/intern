@@ -1,16 +1,16 @@
 {
-	"capabilities": {
-		"fixSessionCapabilities": false
-	},
-	"coverage": ["_build/src/**/*.js"],
-	"filterErrorStack": true,
-	"plugins": "_build/tests/globalUi.js",
-	"reporters": [
-		{
-			"name": "runner",
-			"options": { "hideSkipped": false, "hidePassed": true }
-		},
-		"htmlcoverage"
-	],
-	"suites": "_build/tests/**/*.js"
+  "capabilities": {
+    "fixSessionCapabilities": false
+  },
+  "coverage": ["_build/src/**/*.js"],
+  "filterErrorStack": true,
+  "plugins": "_build/tests/globalUi.js",
+  "reporters": [
+    {
+      "name": "runner",
+      "options": { "hideSkipped": false, "hidePassed": true }
+    },
+    "htmlcoverage"
+  ],
+  "suites": "_build/tests/**/*.js"
 }

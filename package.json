@@ -15,17 +15,19 @@
     "command-exists": "~1.2.6",
     "decompress": "~4.2.0",
     "semver": "~5.5.0",
-    "tslib": "~1.9.0"
+    "tslib": "~1.9.3"
   },
   "devDependencies": {
-    "@dojo/loader": "~2.0.0",
-    "@theintern/dev": "~0.7.3",
+    "@theintern/dev": "~0.8.0",
     "@types/decompress": "~4.2.2",
     "@types/node": "~9.6.11",
     "@types/semver": "~5.5.0",
     "@types/shelljs": "~0.7.9",
     "concurrently": "~3.5.0",
     "intern": "~4.2.0",
+    "lint-staged": "~7.2.0",
+    "pre-commit": "~1.2.2",
+    "prettier": "~1.13.7",
     "shelljs": "~0.8.1"
   },
   "scripts": {
@@ -36,7 +38,8 @@
     "lint": "intern-dev-lint",
     "release": "intern-dev-release",
     "test": "intern",
-    "watch": "intern-dev-build watch"
+    "watch": "intern-dev-build watch",
+    "precommit": "lint-staged"
   },
   "bugs": "https://github.com/theintern/digdug/issues",
   "keywords": [
@@ -52,5 +55,24 @@
   "homepage": "https://github.com/theintern/digdug",
   "bin": {
     "digdugEnvironments": "./bin/digdugEnvironments.js"
-  }
+  },
+  "lint-staged": {
+    "src/**/*.{ts,json,css}": [
+      "prettier --write",
+      "git add"
+    ],
+    "tests/**/*.{ts,json,css}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ],
+    "{intern,tsconfig}.json": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "pre-commit": "precommit"
 }
