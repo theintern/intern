@@ -119,6 +119,7 @@ cloud testing services from [BrowserStack](https://browserstack.com),
 *   [Running](docs/running.md) - How to run Intern
 *   [Extending](docs/extending.md) - Extending Intern with reporters and other
     plugins
+*   [API](docs/api.md) - Summary API documentation
 *   [Continuous integration](docs/ci.md) - Using Intern with CI systems
 *   [Developing](docs/developing.md) - For Intern developers
 *   [Contributing](CONTRIBUTING.md) - How to contribute to Intern development

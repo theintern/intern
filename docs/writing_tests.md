@@ -48,7 +48,7 @@ used to load suites, an individual suite file would be an AMD or UMD module:
 ```js
 define(['app/Component'], function(Component) {
     const { assert } = intern.getPlugin('chai');
-    const { registerSuite } = intern.getInterface('object');
+    const { registerSuite } = intern.getPlugin('interface.object');
 
     registerSuite('Component', {
         'create new'() {
@@ -65,7 +65,7 @@ file could be an ESM module:
 import Component from '../app/Component';
 
 const { assert } = intern.getPlugin('chai');
-const { registerSuite } = intern.getInterface('object');
+const { registerSuite } = intern.getPlugin('interface.object');
 
 registerSuite('Component', {
     'create new'() {
@@ -95,7 +95,7 @@ lifecycle methods are run in the reverse order; first the suite’s own
 Given the following test module...
 
 ```ts
-const { registerSuite } = intern.getInterface('object');
+const { registerSuite } = intern.getPlugin('interface.object');
 
 registerSuite({
     before() {
@@ -174,7 +174,7 @@ There are several ways to write tests. The most common will be to use one of
 Intern’s built-in interfaces, such as the object interface. Another possibility
 is to register tests or suites directly on the Intern executor.
 
-Interfaces may be accessed using the `getInterface('xyz')` method, or by
+Interfaces may be accessed using the `getPlugin('interface.xyz')` method, or by
 importing an interface directly if a module loader is in use. Note that since
 interfaces are independent from the rest of the testing system, multiple
 interfaces may be used at the same time (e.g., some suites could be written with
@@ -187,7 +187,7 @@ suite is a simple object, and tests are functions on that object.
 
 ```ts
 // tests/unit/component.ts
-const { registerSuite } = intern.getInterface('object');
+const { registerSuite } = intern.getPlugin('interface.object');
 
 registerSuite('Component', {
     'create new'() {
@@ -345,7 +345,7 @@ Registering suites and tests using the TDD interface is more procedural than the
 [object interface](#object).
 
 ```ts
-const { suite, test } = intern.getInterface('tdd');
+const { suite, test } = intern.getPlugin('interface.tdd');
 const { assert } = intern.getPlugin('chai');
 
 suite('Component', () => {
@@ -399,7 +399,7 @@ the names of its test and suite registration functions (`describe` and `it`
 rather than `suite` and `test`).
 
 ```ts
-const { describe, it } = intern.getInterface('bdd');
+const { describe, it } = intern.getPlugin('interface.bdd');
 const { assert } = intern.getPlugin('chai');
 
 describe('Component', () => {
@@ -423,7 +423,7 @@ concerned with code _performance_ rather than code _correctness_. The interface
 looks very similar to the object interface.
 
 ```ts
-const { registerSuite, async } = intern.getInterface('benchmark');
+const { registerSuite, async } = intern.getPlugin('interface.benchmark');
 let component: Component;
 
 registerSuite('Component performance', {

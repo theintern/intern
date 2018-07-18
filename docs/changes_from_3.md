@@ -138,10 +138,10 @@ define([ 'intern!object' ], function (registerSuite) { ... });
 
 Intern 4 provides two ways to load an interface. The method that will work in
 all environments, whether or not an external loader is available, is to use the
-`getInterface` method on the global Intern object:
+`getPlugin` method on the global Intern object:
 
 ```ts
-const { registerSuite } = intern.getInterface('object');
+const { registerSuite } = intern.getPlugin('interface.object');
 ```
 
 The other method, which requires a loader (so will not work in the browser by

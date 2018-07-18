@@ -110,7 +110,7 @@ A unit test might look like:
 
 ```ts
 import Component from 'app/Component';
-const { registerSuite } = intern.getInterface('object');
+const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 registerSuite('Component', {
     '#add'() {
@@ -149,7 +149,7 @@ Functional tests in Intern typically use the
 remote browsers. A functional test might look like:
 
 ```ts
-const { registerSuite } = intern.getInterface('object');
+const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 registerSuite('home page', {
     login() {

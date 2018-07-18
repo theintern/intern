@@ -82,14 +82,20 @@ debugging and development faster.
         ```html
         <script src="node_modules/intern/browser/intern.js"></script>
         ```
-2.  Configure Intern
+2.  [Configure](configuration.md) Intern
     ```ts
     intern.configure({
         suites: ['tests/unit/a.js', 'tests/unit/b.js'],
         reporters: 'runner'
     });
     ```
-3.  Run Intern
+3.  Register for [events](architecture.md#executors)
+    ```ts
+    intern.on('testStart', test => {
+        console.log(`${test.id} has started`);
+    });
+    ```
+4.  Run Intern
     ```ts
     intern.run();
     ```
@@ -186,7 +192,7 @@ If you’d rather not install Intern, you can load the package from a CDN, like:
 
         <script src="https://unpkg.com/intern@next/browser/intern.js"></script>
         <script>
-            var registerSuite = intern.getInterface('object').registerSuite;
+            var registerSuite = intern.getPlugin('interface.object').registerSuite;
 
             registerSuite('app/module', {
                 test1: function () {

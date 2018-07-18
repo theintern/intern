@@ -24,27 +24,11 @@ In typical usage a user will not directly load an executor. Instead, a runner
 script will load the executor and any configuration data provided by the user,
 configure the executor, and start the testing process.
 
-Executors are event emitters, and listening for events is the primary way to
-interact with the testing process. Intern provides a number of events that user
-code, such as custom reporters, can listen for. The
+Executors are event emitters, and [listening for events](api.md#on) is the
+primary way to interact with the testing process. Intern provides a number of
+events that user code, such as custom reporters, can listen for. The
 [full list](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/events)
-is available in the generated API docs, but some of the more commonly used
-events include:
-
-| Event        | Description                                                                                    | Payload |
-| :----------- | :--------------------------------------------------------------------------------------------- | ------- |
-| `error`      | An error (not a test failure) has occurred while running tests.                                | error   |
-| `runStart`   | Emitted when testing begins.                                                                   | none    |
-| `runEnd`     | Emitted when testing ends.                                                                     | none    |
-| `suiteStart` | Emitted when a suite starts. A suite with no parent indicates the start of a new session.      | suite   |
-| `suiteEnd`   | Emitted when a suite ends.                                                                     | suite   |
-| `testStart`  | Emitted when a test starts.                                                                    | test    |
-| `testEnd`    | Emitted when a test ends. Check the `error`, `skipped`, and `hasPassed` properties for status. | test    |
-
-Note that the payloads passed to event listeners may not be instances of a
-particular class. For example, the `testEnd` listener may be passed a Test-like
-object rather than an actual instance of
-[Test](https://theintern.io/docs.html#Intern/4/api/lib%2FTest).
+is available in the generated API docs.
 
 ## Runners
 
@@ -105,7 +89,7 @@ In situations where a module loader isn’t present, Intern also makes registere
 interfaces available through its plugin system:
 
 ```ts
-const { registerSuite } = intern.getInterface('object');
+const { registerSuite } = intern.getPlugin('interface.object');
 registerSuite({
     // ...
 });
