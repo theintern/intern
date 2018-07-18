@@ -3,5 +3,5 @@
  */
 import _Browser from '../lib/executors/Browser';
 declare global {
-	type Browser = _Browser;
+  type Browser = _Browser;
 }

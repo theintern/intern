@@ -4,5 +4,5 @@
 import { JSDOM } from 'jsdom';
 
 intern.registerPlugin('createDocument', () => {
-	return () => new JSDOM().window.document;
+  return () => new JSDOM().window.document;
 });

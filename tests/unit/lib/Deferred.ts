@@ -1,36 +1,36 @@
 import Deferred from 'src/lib/Deferred';
 
 registerSuite('lib/Deferred', {
-	'#rejectOnError': {
-		'preserves context'() {
-			const dfd = new Deferred();
+  '#rejectOnError': {
+    'preserves context'() {
+      const dfd = new Deferred();
 
-			const foo = {
-				bar: dfd.rejectOnError(function (this: any) {
-					assert.strictEqual(this, foo);
-					dfd.resolve();
-				})
-			};
+      const foo = {
+        bar: dfd.rejectOnError(function(this: any) {
+          assert.strictEqual(this, foo);
+          dfd.resolve();
+        })
+      };
 
-			foo.bar();
+      foo.bar();
 
-			return dfd.promise;
-		}
-	},
+      return dfd.promise;
+    }
+  },
 
-	'#callback': {
-		'preserves context'() {
-			const dfd = new Deferred();
+  '#callback': {
+    'preserves context'() {
+      const dfd = new Deferred();
 
-			const foo = {
-				bar: dfd.callback(function (this: any) {
-					assert.strictEqual(this, foo);
-				})
-			};
+      const foo = {
+        bar: dfd.callback(function(this: any) {
+          assert.strictEqual(this, foo);
+        })
+      };
 
-			foo.bar();
+      foo.bar();
 
-			return dfd.promise;
-		}
-	}
+      return dfd.promise;
+    }
+  }
 });

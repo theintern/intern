@@ -13,69 +13,69 @@ import Environment from './Environment';
  * @returns a list of flattened service environments
  */
 export default function resolveEnvironments(
-	capabilities: { [key: string]: any },
-	environments: EnvironmentOptions[],
-	available?: NormalizedEnvironment[]
+  capabilities: { [key: string]: any },
+  environments: EnvironmentOptions[],
+  available?: NormalizedEnvironment[]
 ) {
-	// Pre-process the environments list to resolve any uses of {pwd} and do any
-	// top-level substitutions
-	environments = environments.map(environment => {
-		const serialized = JSON.stringify(environment);
-		return JSON.parse(serialized.replace(/{pwd}/g, process.cwd()));
-	});
+  // Pre-process the environments list to resolve any uses of {pwd} and do any
+  // top-level substitutions
+  environments = environments.map(environment => {
+    const serialized = JSON.stringify(environment);
+    return JSON.parse(serialized.replace(/{pwd}/g, process.cwd()));
+  });
 
-	// flatEnviroments will have non-array versions
-	const flatEnvironments = createPermutations(capabilities, environments);
+  // flatEnviroments will have non-array versions
+  const flatEnvironments = createPermutations(capabilities, environments);
 
-	// Expand any version ranges or aliases in the environments.
-	const expandedEnvironments = flatEnvironments.map(function(environment) {
-		const version = resolveVersions(environment, available);
-		if (version == null) {
-			return environment;
-		}
-		return mixin({}, environment, { version });
-	});
+  // Expand any version ranges or aliases in the environments.
+  const expandedEnvironments = flatEnvironments.map(function(environment) {
+    const version = resolveVersions(environment, available);
+    if (version == null) {
+      return environment;
+    }
+    return mixin({}, environment, { version });
+  });
 
-	// Perform a second round of permuting to handle any expanded version ranges
-	return createPermutations({}, expandedEnvironments).map(function(
-		environment
-	) {
-		// After permuting, environment.version will be singular again
-		return new Environment(environment);
-	});
+  // Perform a second round of permuting to handle any expanded version ranges
+  return createPermutations({}, expandedEnvironments).map(function(
+    environment
+  ) {
+    // After permuting, environment.version will be singular again
+    return new Environment(environment);
+  });
 }
 
 export interface EnvironmentOptions {
-	browserName: string | string[];
-	version?: string | string[] | number | number[];
-	[key: string]: any;
+  browserName: string | string[];
+  version?: string | string[] | number | number[];
+  [key: string]: any;
 }
 
 export interface FlatEnvironment {
-	browserName: string;
-	version?: string;
-	[key: string]: any;
+  browserName: string;
+  version?: string;
+  [key: string]: any;
 }
 
 /**
  * Expands a range of versions using available environments
  */
 function expandVersionRange(
-	left: string,
-	right: string,
-	availableVersions: string[]
+  left: string,
+  right: string,
+  availableVersions: string[]
 ) {
-	if (
-		availableVersions.indexOf(left) === -1 ||
-		availableVersions.indexOf(right) === -1
-	) {
-		throw new Error(
-			'The version range ' + left + '..' + right + ' is unavailable'
-		);
-	}
-	return availableVersions.filter(function(version) {
-		return version >= left && version <= right;
-	});
+  if (
+    availableVersions.indexOf(left) === -1 ||
+    availableVersions.indexOf(right) === -1
+  ) {
+    throw new Error(
+      'The version range ' + left + '..' + right + ' is unavailable'
+    );
+  }
+  return availableVersions.filter(function(version) {
+    return version >= left && version <= right;
+  });
 }
 
 /**
@@ -89,52 +89,46 @@ function expandVersionRange(
  * * 'latest-{number}'
  */
 function resolveVersionAlias(version: string, availableVersions: string[]) {
-	let pieces = version.split('-');
-	if (pieces.length > 2) {
-		throw new Error('Invalid alias syntax "' + version + '"');
-	}
+  let pieces = version.split('-');
+  if (pieces.length > 2) {
+    throw new Error('Invalid alias syntax "' + version + '"');
+  }
 
-	pieces = pieces.map(function(piece) {
-		return piece.trim();
-	});
+  pieces = pieces.map(function(piece) {
+    return piece.trim();
+  });
 
-	if (
-		(pieces.length === 2 &&
-			(pieces[0] !== 'latest' || isNaN(Number(pieces[1])))) ||
-		(pieces.length === 1 &&
-			isNaN(Number(pieces[0])) &&
-			pieces[0] !== 'latest')
-	) {
-		throw new Error('Invalid alias syntax "' + version + '"');
-	}
+  if (
+    (pieces.length === 2 &&
+      (pieces[0] !== 'latest' || isNaN(Number(pieces[1])))) ||
+    (pieces.length === 1 && isNaN(Number(pieces[0])) && pieces[0] !== 'latest')
+  ) {
+    throw new Error('Invalid alias syntax "' + version + '"');
+  }
 
-	if (pieces[0] === 'latest') {
-		// Only consider numeric versions; we don't want 'beta' or 'dev'
-		const numericVersions = availableVersions
-			.filter(version => {
-				return !isNaN(parseFloat(version));
-			})
-			.sort((a, b) => {
-				return parseFloat(a) - parseFloat(b);
-			});
+  if (pieces[0] === 'latest') {
+    // Only consider numeric versions; we don't want 'beta' or 'dev'
+    const numericVersions = availableVersions
+      .filter(version => {
+        return !isNaN(parseFloat(version));
+      })
+      .sort((a, b) => {
+        return parseFloat(a) - parseFloat(b);
+      });
 
-		let offset = pieces.length === 2 ? Number(pieces[1]) : 0;
-		if (offset > numericVersions.length) {
-			let message =
-				"Can't get " +
-				version +
-				'; ' +
-				numericVersions.length +
-				' version';
-			message +=
-				(numericVersions.length !== 1 ? 's are' : ' is') + ' available';
-			throw new Error(message);
-		}
+    let offset = pieces.length === 2 ? Number(pieces[1]) : 0;
+    if (offset > numericVersions.length) {
+      let message =
+        "Can't get " + version + '; ' + numericVersions.length + ' version';
+      message +=
+        (numericVersions.length !== 1 ? 's are' : ' is') + ' available';
+      throw new Error(message);
+    }
 
-		return numericVersions[numericVersions.length - 1 - offset];
-	} else {
-		return pieces[0];
-	}
+    return numericVersions[numericVersions.length - 1 - offset];
+  } else {
+    return pieces[0];
+  }
 }
 
 /**
@@ -143,15 +137,15 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
  * @returns {string[]}
  */
 function splitVersions(versionSpec: string) {
-	const versions = versionSpec.split('..');
+  const versions = versionSpec.split('..');
 
-	if (versions.length > 2) {
-		throw new Error('Invalid version syntax');
-	}
+  if (versions.length > 2) {
+    throw new Error('Invalid version syntax');
+  }
 
-	return versions.map(function(version) {
-		return version.trim();
-	});
+  return versions.map(function(version) {
+    return version.trim();
+  });
 }
 
 /**
@@ -164,42 +158,42 @@ function splitVersions(versionSpec: string) {
  * environment
  */
 function getVersions(
-	environment: EnvironmentOptions,
-	available: NormalizedEnvironment[]
+  environment: EnvironmentOptions,
+  available: NormalizedEnvironment[]
 ): string[] {
-	let versions: { [key: string]: boolean } = {};
+  let versions: { [key: string]: boolean } = {};
 
-	available
-		.filter(function(availableEnvironment) {
-			// Return true if there are no mismatching keys
-			return !Object.keys(environment)
-				.filter(key => key !== 'version')
-				.some(envKey => {
-					const key = <keyof NormalizedEnvironment>envKey;
-					return (
-						key in availableEnvironment &&
-						availableEnvironment[key] !== environment[key]
-					);
-				});
-		})
-		.forEach(function(availableEnvironment) {
-			versions[availableEnvironment.version] = true;
-		});
+  available
+    .filter(function(availableEnvironment) {
+      // Return true if there are no mismatching keys
+      return !Object.keys(environment)
+        .filter(key => key !== 'version')
+        .some(envKey => {
+          const key = <keyof NormalizedEnvironment>envKey;
+          return (
+            key in availableEnvironment &&
+            availableEnvironment[key] !== environment[key]
+          );
+        });
+    })
+    .forEach(function(availableEnvironment) {
+      versions[availableEnvironment.version] = true;
+    });
 
-	return Object.keys(versions).sort((a, b) => {
-		const na = Number(a);
-		const nb = Number(b);
-		if (!isNaN(na) && !isNaN(nb)) {
-			return na - nb;
-		}
-		if (a < b) {
-			return -1;
-		}
-		if (a > b) {
-			return 1;
-		}
-		return 0;
-	});
+  return Object.keys(versions).sort((a, b) => {
+    const na = Number(a);
+    const nb = Number(b);
+    if (!isNaN(na) && !isNaN(nb)) {
+      return na - nb;
+    }
+    if (a < b) {
+      return -1;
+    }
+    if (a > b) {
+      return 1;
+    }
+    return 0;
+  });
 }
 
 /**
@@ -212,47 +206,47 @@ function getVersions(
  * @returns the environment with resolved version aliases
  */
 function resolveVersions(
-	environment: FlatEnvironment,
-	available?: NormalizedEnvironment[]
+  environment: FlatEnvironment,
+  available?: NormalizedEnvironment[]
 ): string | string[] | undefined {
-	let versionSpec = environment.version;
-	let versions: string[];
-	available = available || [];
+  let versionSpec = environment.version;
+  let versions: string[];
+  available = available || [];
 
-	if (versionSpec && isNaN(Number(versionSpec))) {
-		let availableVersions = getVersions(environment, available);
+  if (versionSpec && isNaN(Number(versionSpec))) {
+    let availableVersions = getVersions(environment, available);
 
-		versions = splitVersions(versionSpec).map(function(version) {
-			const resolved = resolveVersionAlias(version, availableVersions);
-			if (resolved == null) {
-				throw new Error(
-					`Unable to resolve version "${version}" for ${environment.browserName}. Are you using the ` +
-						'proper browser and platform names for the tunnel?'
-				);
-			}
-			return resolved;
-		});
+    versions = splitVersions(versionSpec).map(function(version) {
+      const resolved = resolveVersionAlias(version, availableVersions);
+      if (resolved == null) {
+        throw new Error(
+          `Unable to resolve version "${version}" for ${
+            environment.browserName
+          }. Are you using the ` +
+            'proper browser and platform names for the tunnel?'
+        );
+      }
+      return resolved;
+    });
 
-		if (versions.length === 2) {
-			if (versions[0] > versions[1]) {
-				throw new Error(
-					'Invalid range [' +
-						versions +
-						'], must be in ascending order'
-				);
-			}
+    if (versions.length === 2) {
+      if (versions[0] > versions[1]) {
+        throw new Error(
+          'Invalid range [' + versions + '], must be in ascending order'
+        );
+      }
 
-			versions = expandVersionRange(
-				versions[0],
-				versions[1],
-				availableVersions
-			);
-		}
+      versions = expandVersionRange(
+        versions[0],
+        versions[1],
+        availableVersions
+      );
+    }
 
-		return versions;
-	}
+    return versions;
+  }
 
-	return versionSpec;
+  return versionSpec;
 }
 
 /**
@@ -265,56 +259,51 @@ function resolveVersions(
  * @return a flattened collection of sources
  */
 function createPermutations(
-	base: { [key: string]: string },
-	sources?: EnvironmentOptions[]
+  base: { [key: string]: string },
+  sources?: EnvironmentOptions[]
 ): FlatEnvironment[] {
-	// If no expansion sources were given, the set of permutations consists of
-	// just the base
-	if (!sources || sources.length === 0) {
-		return [<FlatEnvironment>mixin({}, base)];
-	}
+  // If no expansion sources were given, the set of permutations consists of
+  // just the base
+  if (!sources || sources.length === 0) {
+    return [<FlatEnvironment>mixin({}, base)];
+  }
 
-	// Expand the permutation set for each source
-	return sources
-		.map(function(source) {
-			return Object.keys(source).reduce(
-				(permutations: FlatEnvironment[], key: string) => {
-					if (Array.isArray(source[key])) {
-						// For array values, create a copy of the permutation
-						// set for each array item, then use the combination of
-						// these copies as the new value of `permutations`
-						permutations = source[key]
-							.map((value: any) => {
-								return permutations.map(permutation =>
-									mixin({}, permutation, { [key]: value })
-								);
-							})
-							.reduce(
-								(
-									newPermutations: object[],
-									keyPermutations: object[]
-								) => {
-									return newPermutations.concat(
-										keyPermutations
-									);
-								},
-								[]
-							);
-					} else {
-						// For simple values, add the value to all current
-						// permutations
-						permutations.forEach(permutation => {
-							permutation[key] = source[key];
-						});
-					}
-					return permutations;
-				},
-				[<FlatEnvironment>mixin({}, base)]
-			);
-		})
-		.reduce(
-			(newPermutations, sourcePermutations) =>
-				newPermutations.concat(sourcePermutations),
-			[]
-		);
+  // Expand the permutation set for each source
+  return sources
+    .map(function(source) {
+      return Object.keys(source).reduce(
+        (permutations: FlatEnvironment[], key: string) => {
+          if (Array.isArray(source[key])) {
+            // For array values, create a copy of the permutation
+            // set for each array item, then use the combination of
+            // these copies as the new value of `permutations`
+            permutations = source[key]
+              .map((value: any) => {
+                return permutations.map(permutation =>
+                  mixin({}, permutation, { [key]: value })
+                );
+              })
+              .reduce(
+                (newPermutations: object[], keyPermutations: object[]) => {
+                  return newPermutations.concat(keyPermutations);
+                },
+                []
+              );
+          } else {
+            // For simple values, add the value to all current
+            // permutations
+            permutations.forEach(permutation => {
+              permutation[key] = source[key];
+            });
+          }
+          return permutations;
+        },
+        [<FlatEnvironment>mixin({}, base)]
+      );
+    })
+    .reduce(
+      (newPermutations, sourcePermutations) =>
+        newPermutations.concat(sourcePermutations),
+      []
+    );
 }

@@ -13,44 +13,44 @@ global.Benchmark = {};
 
 const config = <RemoteConfig>parseArgs(parseQuery());
 const channel = new Channel({
-	url: config.serverUrl,
-	sessionId: config.sessionId,
-	port: config.socketPort
+  url: config.serverUrl,
+  sessionId: config.sessionId,
+  port: config.socketPort
 });
 
 function displayMessage(message: string) {
-	const pre = document.createElement('pre');
-	pre.textContent = message;
-	document.body.appendChild(pre);
-	window.scrollTo(0, pre.offsetTop);
+  const pre = document.createElement('pre');
+  pre.textContent = message;
+  document.body.appendChild(pre);
+  window.scrollTo(0, pre.offsetTop);
 }
 
 try {
-	const intern = (global.intern = new Browser(config));
+  const intern = (global.intern = new Browser(config));
 
-	// Forward all executor events back to the Intern host
-	intern.on('*', ({ name, data }) => {
-		// afterRun events aren't processed for remotes
-		if (name === 'afterRun') {
-			return;
-		}
+  // Forward all executor events back to the Intern host
+  intern.on('*', ({ name, data }) => {
+    // afterRun events aren't processed for remotes
+    if (name === 'afterRun') {
+      return;
+    }
 
-		let promise = channel.sendMessage(name, data).catch(error => {
-			displayMessage(`Error sending ${name}: ${error.message}`);
-			console.error(error);
-		});
+    let promise = channel.sendMessage(name, data).catch(error => {
+      displayMessage(`Error sending ${name}: ${error.message}`);
+      console.error(error);
+    });
 
-		// If config.runInSync is true, return the message promise so that
-		// Intern will wait for acknowledgement before continuing testing
-		if (config.runInSync) {
-			return promise;
-		}
-	});
+    // If config.runInSync is true, return the message promise so that
+    // Intern will wait for acknowledgement before continuing testing
+    if (config.runInSync) {
+      return promise;
+    }
+  });
 
-	channel.sendMessage('remoteStatus', 'initialized');
-	// Intern will be further configured and started via an execute command from
-	// RemoteSuite
+  channel.sendMessage('remoteStatus', 'initialized');
+  // Intern will be further configured and started via an execute command from
+  // RemoteSuite
 } catch (error) {
-	displayMessage(error.message);
-	channel.sendMessage('error', error);
+  displayMessage(error.message);
+  channel.sendMessage('error', error);
 }

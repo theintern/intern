@@ -4,64 +4,64 @@ import { parse } from 'url';
 import _resolveSuites from 'src/lib/middleware/resolveSuites';
 import { MockResponse } from '../../../support/unit/mocks';
 import {
-	createMockNodeExecutor,
-	createMockServer,
-	createMockServerContext
+  createMockNodeExecutor,
+  createMockServer,
+  createMockServerContext
 } from '../../../support/unit/mocks';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/middleware/resolveSuites', () => {
-	let removeMocks: () => void;
-	let resolveSuites: typeof _resolveSuites;
-	let handler: (request: any, response: any, next?: any) => any;
+  let removeMocks: () => void;
+  let resolveSuites: typeof _resolveSuites;
+  let handler: (request: any, response: any, next?: any) => any;
 
-	const sandbox = Sandbox.create();
-	const expandFiles = sandbox.spy((pattern: string) => {
-		return [`expanded${pattern}`];
-	});
-	const url = {
-		parse: sandbox.spy((url: string, parseQuery: boolean) => {
-			return parse(url, parseQuery);
-		})
-	};
+  const sandbox = Sandbox.create();
+  const expandFiles = sandbox.spy((pattern: string) => {
+    return [`expanded${pattern}`];
+  });
+  const url = {
+    parse: sandbox.spy((url: string, parseQuery: boolean) => {
+      return parse(url, parseQuery);
+    })
+  };
 
-	return {
-		before() {
-			return mockRequire(require, 'src/lib/middleware/resolveSuites', {
-				'src/lib/node/util': { expandFiles },
-				url
-			}).then(resource => {
-				removeMocks = resource.remove;
-				resolveSuites = resource.module.default;
-			});
-		},
+  return {
+    before() {
+      return mockRequire(require, 'src/lib/middleware/resolveSuites', {
+        'src/lib/node/util': { expandFiles },
+        url
+      }).then(resource => {
+        removeMocks = resource.remove;
+        resolveSuites = resource.module.default;
+      });
+    },
 
-		after() {
-			removeMocks();
-		},
+    after() {
+      removeMocks();
+    },
 
-		beforeEach() {
-			const server = createMockServer({
-				executor: createMockNodeExecutor()
-			});
-			handler = resolveSuites(createMockServerContext(server));
-			sandbox.resetHistory();
-		},
+    beforeEach() {
+      const server = createMockServer({
+        executor: createMockNodeExecutor()
+      });
+      handler = resolveSuites(createMockServerContext(server));
+      sandbox.resetHistory();
+    },
 
-		tests: {
-			resolve() {
-				const response = new MockResponse();
-				handler(
-					{
-						url: 'foo?suites=bar*.js',
-						intern: { executor: { log() {} } }
-					},
-					response
-				);
-				assert.deepEqual(expandFiles.args[0], [['bar*.js']]);
-				assert.deepEqual(<any>response.data, '["expandedbar*.js"]');
-			}
-		}
-	};
+    tests: {
+      resolve() {
+        const response = new MockResponse();
+        handler(
+          {
+            url: 'foo?suites=bar*.js',
+            intern: { executor: { log() {} } }
+          },
+          response
+        );
+        assert.deepEqual(expandFiles.args[0], [['bar*.js']]);
+        assert.deepEqual(<any>response.data, '["expandedbar*.js"]');
+      }
+    }
+  };
 });

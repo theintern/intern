@@ -9,10 +9,10 @@ import { mixin } from '@dojo/core/lang';
 
 import process from './process';
 import {
-	getBasePath,
-	loadConfig,
-	parseArgs,
-	splitConfigPath
+  getBasePath,
+  loadConfig,
+  parseArgs,
+  splitConfigPath
 } from '../common/util';
 
 /**
@@ -21,35 +21,35 @@ import {
  * Note that exclusion rules will not apply to simple paths.
  */
 export function expandFiles(patterns?: string[] | string) {
-	if (!patterns) {
-		patterns = [];
-	} else if (!Array.isArray(patterns)) {
-		patterns = [patterns];
-	}
+  if (!patterns) {
+    patterns = [];
+  } else if (!Array.isArray(patterns)) {
+    patterns = [patterns];
+  }
 
-	const excludes: string[] = [];
-	const includes: string[] = [];
-	const paths: string[] = [];
+  const excludes: string[] = [];
+  const includes: string[] = [];
+  const paths: string[] = [];
 
-	for (let pattern of patterns) {
-		if (pattern[0] === '!') {
-			excludes.push(pattern.slice(1));
-		} else {
-			if (hasMagic(pattern)) {
-				includes.push(pattern);
-			} else {
-				paths.push(pattern);
-			}
-		}
-	}
+  for (let pattern of patterns) {
+    if (pattern[0] === '!') {
+      excludes.push(pattern.slice(1));
+    } else {
+      if (hasMagic(pattern)) {
+        includes.push(pattern);
+      } else {
+        paths.push(pattern);
+      }
+    }
+  }
 
-	const allPaths = includes
-		.map(pattern => glob(pattern, { ignore: excludes }))
-		.reduce((allFiles, files) => allFiles.concat(files), paths);
-	const uniquePaths: { [name: string]: boolean } = {};
-	allPaths.forEach(path => (uniquePaths[path] = true));
+  const allPaths = includes
+    .map(pattern => glob(pattern, { ignore: excludes }))
+    .reduce((allFiles, files) => allFiles.concat(files), paths);
+  const uniquePaths: { [name: string]: boolean } = {};
+  allPaths.forEach(path => (uniquePaths[path] = true));
 
-	return Object.keys(uniquePaths);
+  return Object.keys(uniquePaths);
 }
 
 /**
@@ -62,83 +62,78 @@ export function expandFiles(patterns?: string[] | string) {
  */
 export function getConfig(file?: string): Task<{ config: any; file?: string }>;
 export function getConfig(
-	argv?: string[]
+  argv?: string[]
 ): Task<{ config: any; file?: string }>;
 export function getConfig(
-	file: string,
-	argv?: string[]
+  file: string,
+  argv?: string[]
 ): Task<{ config: any; file?: string }>;
 export function getConfig(fileOrArgv?: string | string[], argv?: string[]) {
-	let args: { [key: string]: any } = {};
-	let file = typeof fileOrArgv === 'string' ? fileOrArgv : undefined;
-	argv = Array.isArray(fileOrArgv) ? fileOrArgv : argv;
-	const userArgs = (argv || process.argv).slice(2);
+  let args: { [key: string]: any } = {};
+  let file = typeof fileOrArgv === 'string' ? fileOrArgv : undefined;
+  argv = Array.isArray(fileOrArgv) ? fileOrArgv : argv;
+  const userArgs = (argv || process.argv).slice(2);
 
-	if (process.env['INTERN_ARGS']) {
-		mixin(args, parseArgs(parse(process.env['INTERN_ARGS'] || '')));
-	}
+  if (process.env['INTERN_ARGS']) {
+    mixin(args, parseArgs(parse(process.env['INTERN_ARGS'] || '')));
+  }
 
-	if (userArgs.length > 0) {
-		mixin(args, parseArgs(userArgs));
-	}
+  if (userArgs.length > 0) {
+    mixin(args, parseArgs(userArgs));
+  }
 
-	if (file) {
-		args.config = file;
-	}
+  if (file) {
+    args.config = file;
+  }
 
-	let load: Task<{ [key: string]: any }>;
+  let load: Task<{ [key: string]: any }>;
 
-	if (args.config) {
-		// If a config parameter was provided, load it and mix in any other
-		// command line args.
-		const { configFile, childConfig } = splitConfigPath(args.config, sep);
-		file = resolve(configFile || 'intern.json');
-		load = loadConfig(file, loadText, args, childConfig);
-	} else {
-		// If no config parameter was provided, try 'intern.json', or just
-		// resolve to the original args
-		file = resolve('intern.json');
-		load = loadConfig(file, loadText, args, undefined).catch(
-			(error: NodeJS.ErrnoException) => {
-				if (error.code === 'ENOENT') {
-					file = undefined;
-					return args;
-				}
-				throw error;
-			}
-		);
-	}
+  if (args.config) {
+    // If a config parameter was provided, load it and mix in any other
+    // command line args.
+    const { configFile, childConfig } = splitConfigPath(args.config, sep);
+    file = resolve(configFile || 'intern.json');
+    load = loadConfig(file, loadText, args, childConfig);
+  } else {
+    // If no config parameter was provided, try 'intern.json', or just
+    // resolve to the original args
+    file = resolve('intern.json');
+    load = loadConfig(file, loadText, args, undefined).catch(
+      (error: NodeJS.ErrnoException) => {
+        if (error.code === 'ENOENT') {
+          file = undefined;
+          return args;
+        }
+        throw error;
+      }
+    );
+  }
 
-	return load
-		.then(config => {
-			// If a basePath wasn't set in the config or via a query arg, and we
-			// have a config file path, use that.
-			if (file) {
-				config.basePath = getBasePath(
-					file,
-					config.basePath,
-					isAbsolute,
-					sep
-				);
-			}
-			return config;
-		})
-		.then(config => ({ config, file }));
+  return load
+    .then(config => {
+      // If a basePath wasn't set in the config or via a query arg, and we
+      // have a config file path, use that.
+      if (file) {
+        config.basePath = getBasePath(file, config.basePath, isAbsolute, sep);
+      }
+      return config;
+    })
+    .then(config => ({ config, file }));
 }
 
 /**
  * Loads a text resource.
  */
 export function loadText(path: string) {
-	return new Task<string>((resolve, reject) => {
-		readFile(path, { encoding: 'utf8' }, (error, data) => {
-			if (error) {
-				reject(error);
-			} else {
-				resolve(data);
-			}
-		});
-	});
+  return new Task<string>((resolve, reject) => {
+    readFile(path, { encoding: 'utf8' }, (error, data) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(data);
+      }
+    });
+  });
 }
 
 // TODO: Remove in the next version
@@ -146,7 +141,7 @@ export function loadText(path: string) {
  * Normalize a path (e.g., resolve '..')
  */
 export function normalizePath(path: string) {
-	return normalize(path).replace(/\\/g, '/');
+  return normalize(path).replace(/\\/g, '/');
 }
 
 /**
@@ -154,36 +149,36 @@ export function normalizePath(path: string) {
  * one exists.
  */
 export function readSourceMap(
-	sourceFile: string,
-	code?: string
+  sourceFile: string,
+  code?: string
 ): RawSourceMap | undefined {
-	if (!code) {
-		code = readFileSync(sourceFile, { encoding: 'utf8' });
-	}
+  if (!code) {
+    code = readFileSync(sourceFile, { encoding: 'utf8' });
+  }
 
-	let match: RegExpMatchArray | null;
+  let match: RegExpMatchArray | null;
 
-	// sourceMappingUrl must be on last line of source file; search for last
-	// newline from code.length - 2 in case the file ends with a newline
-	const lastNewline = code.lastIndexOf('\n', code.length - 2);
-	const lastLine = code.slice(lastNewline + 1);
+  // sourceMappingUrl must be on last line of source file; search for last
+  // newline from code.length - 2 in case the file ends with a newline
+  const lastNewline = code.lastIndexOf('\n', code.length - 2);
+  const lastLine = code.slice(lastNewline + 1);
 
-	if ((match = sourceMapRegEx.exec(lastLine))) {
-		if (match[1]) {
-			return JSON.parse(Buffer.from(match[2], 'base64').toString('utf8'));
-		} else {
-			// Treat map file path as relative to the source file
-			const mapFile = join(dirname(sourceFile), match[2]);
-			return JSON.parse(readFileSync(mapFile, { encoding: 'utf8' }));
-		}
-	}
+  if ((match = sourceMapRegEx.exec(lastLine))) {
+    if (match[1]) {
+      return JSON.parse(Buffer.from(match[2], 'base64').toString('utf8'));
+    } else {
+      // Treat map file path as relative to the source file
+      const mapFile = join(dirname(sourceFile), match[2]);
+      return JSON.parse(readFileSync(mapFile, { encoding: 'utf8' }));
+    }
+  }
 }
 
 /**
  * Indicate whether a value is an ErrnoException
  */
 export function isErrnoException(value: any): value is NodeJS.ErrnoException {
-	return value.errno !== null;
+  return value.errno !== null;
 }
 
 // Regex for matching sourceMappingUrl comments

@@ -1,29 +1,29 @@
 {
-	"extends": "./node_modules/@theintern/dev/tsconfig-base.json",
-	"compilerOptions": {
-		"declaration": true,
-		"importHelpers": true,
-		"lib": [
-			"es5",
-			"es2015.collection",
-			"es2015.promise",
-			"es2015.symbol",
-			"es2015.symbol.wellknown",
-			"es2015.iterable",
-			"dom"
-		],
-		// Build as UMD for compatibility with AMD loaders
-		"module": "umd",
-		"outDir": "./_build",
-		"rootDir": "."
-	},
-	"include": [
-		"src/bin/*.ts",
-		"src/loaders/*.ts",
-		"src/tasks/*.ts",
+  "extends": "./node_modules/@theintern/dev/tsconfig-base.json",
+  "compilerOptions": {
+    "declaration": true,
+    "lib": [
+      "es5",
+      "es2015.collection",
+      "es2015.promise",
+      "es2015.symbol",
+      "es2015.symbol.wellknown",
+      "es2015.iterable",
+      "dom"
+    ],
+    // Build as UMD for compatibility with AMD loaders
+    "module": "umd",
+    "outDir": "./_build",
+    "rootDir": ".",
+    "target": "es5"
+  },
+  "include": [
+    "src/bin/*.ts",
+    "src/loaders/*.ts",
+    "src/tasks/*.ts",
 
-		// Build everything in lib (vs just relying on the bin entry point) so
-		// it'll be available for testing
-		"src/lib/*.ts"
-	]
+    // Build everything in lib (vs just relying on the bin entry point) so
+    // it'll be available for testing
+    "src/lib/*.ts"
+  ]
 }
