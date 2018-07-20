@@ -1,73 +1,70 @@
 {
-	"capabilities": {
-		"fixSessionCapabilities": false
-	},
+  "capabilities": {
+    "fixSessionCapabilities": false
+  },
 
-	"configs": {
-		"ci": {
-			"environments": [
-				"node",
-				"microsoftedge",
-				"safari",
-				{
-					"browserName": "internet explorer",
-					"version": ["10", "11"]
-				},
-				{
-					"browserName": "firefox",
-					"version": "33",
-					"platform": ["WINDOWS", "MAC"]
-				},
-				{
-					// latest version
-					"browserName": "firefox",
-					"platform": ["WINDOWS", "MAC"],
-					"supportsSessionCommands": false,
+  "configs": {
+    "ci": {
+      "environments": [
+        "node",
+        "microsoftedge",
+        "safari",
+        {
+          "browserName": "internet explorer",
+          "version": ["10", "11"]
+        },
+        {
+          "browserName": "firefox",
+          "version": "33",
+          "platform": ["WINDOWS", "MAC"]
+        },
+        {
+          // latest version
+          "browserName": "firefox",
+          "platform": ["WINDOWS", "MAC"],
+          "supportsSessionCommands": false,
 
-					// Needed for file download support
-					// See https://github.com/mozilla/geckodriver/issues/858#issuecomment-322505259
-					"moz:firefoxOptions": {
-						"prefs": { "dom.file.createInChild": true }
-					}
-				},
-				{
-					"browserName": "chrome",
-					"version": "38",
-					"platform": ["WINDOWS", "MAC"]
-				},
-				{
-					// latest version
-					"browserName": "chrome",
-					"platform": ["WINDOWS", "MAC"]
-				}
-			],
+          // Needed for file download support
+          // See https://github.com/mozilla/geckodriver/issues/858#issuecomment-322505259
+          "moz:firefoxOptions": {
+            "prefs": { "dom.file.createInChild": true }
+          }
+        },
+        {
+          "browserName": "chrome",
+          "version": "38",
+          "platform": ["WINDOWS", "MAC"]
+        },
+        {
+          // latest version
+          "browserName": "chrome",
+          "platform": ["WINDOWS", "MAC"]
+        }
+      ],
 
-			"tunnel": "browserstack"
-		},
-		
-		"wd": {
-			"environments": [
-				"node",
-				"chrome"
-			]
-		}
-	},
+      "tunnel": "browserstack"
+    },
 
-	"coverage": ["_build/src/**/*.js"],
+    "wd": {
+      "environments": ["node", "chrome"]
+    }
+  },
 
-	"filterErrorStack": true,
+  "coverage": ["_build/src/**/*.js"],
 
-	"functionalSuites": "_build/tests/functional/**/*.js",
+  "filterErrorStack": true,
 
-	"maxConcurrency": 2,
+  "functionalSuites": "_build/tests/functional/**/*.js",
 
-	"node": {
-		"reporters": {
-			"name": "runner",
-			"options": { "hideSkipped": true, "hidePassed": true }
-		},
-		"suites": "_build/tests/unit/lib/util.js"
-	},
+  "maxConcurrency": 2,
 
-	"plugins": "_build/tests/globalUi.js"
+  "node": {
+    "reporters": {
+      "name": "runner",
+      "options": { "hideSkipped": true, "hidePassed": true }
+    },
+    "suites": "_build/tests/unit/lib/util.js"
+  },
+
+  "plugins": "_build/tests/globalUi.js"
 }

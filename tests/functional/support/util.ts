@@ -7,48 +7,48 @@ import ProxiedSession from 'intern/lib/ProxiedSession';
 export * from '../../../src/lib/util';
 
 export function createServer(config: LeadfootURL | string) {
-	return new Server(config);
+  return new Server(config);
 }
 
 export function createServerFromRemote(remote: any) {
-	if (remote.session && remote.session.server) {
-		return new Server(remote.session.server.url);
-	}
+  if (remote.session && remote.session.server) {
+    return new Server(remote.session.server.url);
+  }
 
-	throw new Error('Unsupported remote');
+  throw new Error('Unsupported remote');
 }
 
 export function createSessionFromRemote(
-	remote: Remote,
-	SessionCtor: any = Session
+  remote: Remote,
+  SessionCtor: any = Session
 ): Promise<Session> {
-	const server = createServerFromRemote(remote);
+  const server = createServerFromRemote(remote);
 
-	function fixGet(session: any) {
-		const oldGet = session.get;
-		session.get = function(this: Session, url: string) {
-			if (!/^[A-Za-z][A-Za-z0-9+.-]+:/.test(url)) {
-				url = convertPathToUrl(remote, url);
-			}
+  function fixGet(session: any) {
+    const oldGet = session.get;
+    session.get = function(this: Session, url: string) {
+      if (!/^[A-Za-z][A-Za-z0-9+.-]+:/.test(url)) {
+        url = convertPathToUrl(remote, url);
+      }
 
-			return oldGet.call(this, url);
-		};
-	}
+      return oldGet.call(this, url);
+    };
+  }
 
-	if (remote.session) {
-		const session = new SessionCtor(
-			remote.session.sessionId,
-			server,
-			remote.session.capabilities
-		);
-		fixGet(session);
-		return server['_fillCapabilities'](session);
-	}
+  if (remote.session) {
+    const session = new SessionCtor(
+      remote.session.sessionId,
+      server,
+      remote.session.capabilities
+    );
+    fixGet(session);
+    return server['_fillCapabilities'](session);
+  }
 
-	throw new Error('Unsupported remote');
+  throw new Error('Unsupported remote');
 }
 
 export function convertPathToUrl(remote: Remote, url: string) {
-	const session: ProxiedSession = <ProxiedSession>remote.session;
-	return `${session.baseUrl}${url}`;
+  const session: ProxiedSession = <ProxiedSession>remote.session;
+  return `${session.baseUrl}${url}`;
 }

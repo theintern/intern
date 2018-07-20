@@ -14,11 +14,10 @@
     "@dojo/shim": "~0.2.7",
     "@types/jszip": "~3.1.3",
     "jszip": "~3.1.3",
-    "tslib": "~1.9.0"
+    "tslib": "~1.9.3"
   },
   "devDependencies": {
-    "@dojo/loader": "~0.1.1",
-    "@theintern/dev": "~0.7.0",
+    "@theintern/dev": "~0.8.0",
     "@types/node": "~9.6.5",
     "concurrently": "~3.5.0",
     "intern": "~4.2.0"
@@ -31,7 +30,8 @@
     "release": "intern-dev-release",
     "test": "intern",
     "watch": "intern-dev-build watch",
-    "ci": "intern-dev-clean && intern-dev-build && intern-dev-test all"
+    "ci": "intern-dev-clean && intern-dev-build && intern-dev-test all",
+    "precommit": "lint-staged"
   },
   "bugs": "https://github.com/theintern/leadfoot/issues",
   "keywords": [
@@ -51,5 +51,24 @@
       ]
     }
   },
-  "homepage": "http://github.com/theintern/leadfoot"
+  "homepage": "http://github.com/theintern/leadfoot",
+  "lint-staged": {
+    "src/**/*.{ts,json,css}": [
+      "prettier --write",
+      "git add"
+    ],
+    "tests/**/*.{ts,json,css}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ],
+    "{intern,tsconfig}.json": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "pre-commit": "precommit"
 }

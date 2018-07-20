@@ -63,165 +63,158 @@ import Task from '@dojo/core/async/Task';
  * success and rejects on failure.
  */
 export default function pollUntil<T>(
-	poller: Poller | string,
-	timeout?: number,
-	pollInterval?: number
+  poller: Poller | string,
+  timeout?: number,
+  pollInterval?: number
 ): () => Task<T>;
 
 export default function pollUntil<T>(
-	poller: string,
-	args?: any[],
-	timeout?: number,
-	pollInterval?: number
+  poller: string,
+  args?: any[],
+  timeout?: number,
+  pollInterval?: number
 ): () => Task<T>;
 
 export default function pollUntil<T>(
-	poller: Poller,
-	args?: never[],
-	timeout?: number,
-	pollInterval?: number
+  poller: Poller,
+  args?: never[],
+  timeout?: number,
+  pollInterval?: number
 ): () => Task<T>;
 
 export default function pollUntil<T, U>(
-	poller: Poller1<U>,
-	args?: [U],
-	timeout?: number,
-	pollInterval?: number
+  poller: Poller1<U>,
+  args?: [U],
+  timeout?: number,
+  pollInterval?: number
 ): () => Task<T>;
 
 export default function pollUntil<T, U, V>(
-	poller: Poller2<U, V>,
-	args?: [U, V],
-	timeout?: number,
-	pollInterval?: number
+  poller: Poller2<U, V>,
+  args?: [U, V],
+  timeout?: number,
+  pollInterval?: number
 ): () => Task<T>;
 
 export default function pollUntil<T, U, V, W>(
-	poller: Poller3<U, V, W>,
-	args?: [U, V, W],
-	timeout?: number,
-	pollInterval?: number
+  poller: Poller3<U, V, W>,
+  args?: [U, V, W],
+  timeout?: number,
+  pollInterval?: number
 ): () => Task<T>;
 
 export default function pollUntil<T, U, V, W, X>(
-	poller: Poller4<U, V, W, X>,
-	args?: [U, V, W, X],
-	timeout?: number,
-	pollInterval?: number
+  poller: Poller4<U, V, W, X>,
+  args?: [U, V, W, X],
+  timeout?: number,
+  pollInterval?: number
 ): () => Task<T>;
 
 export default function pollUntil<T, U, V, W, X, Y>(
-	poller: Poller5<U, V, W, X, Y>,
-	args?: [U, V, W, X, Y],
-	timeout?: number,
-	pollInterval?: number
+  poller: Poller5<U, V, W, X, Y>,
+  args?: [U, V, W, X, Y],
+  timeout?: number,
+  pollInterval?: number
 ): () => Task<T>;
 
 export default function pollUntil<T, U, V, W, X, Y>(
-	poller:
-		| Poller
-		| Poller1<U>
-		| Poller2<U, V>
-		| Poller3<U, V, W>
-		| Poller4<U, V, W, X>
-		| Poller5<U, V, W, X, Y>
-		| string,
-	argsOrTimeout?: any[] | number,
-	timeout?: number,
-	pollInterval?: number
+  poller:
+    | Poller
+    | Poller1<U>
+    | Poller2<U, V>
+    | Poller3<U, V, W>
+    | Poller4<U, V, W, X>
+    | Poller5<U, V, W, X, Y>
+    | string,
+  argsOrTimeout?: any[] | number,
+  timeout?: number,
+  pollInterval?: number
 ): () => Task<T> {
-	let args: any[] | undefined;
+  let args: any[] | undefined;
 
-	if (typeof argsOrTimeout === 'number') {
-		pollInterval = timeout;
-		timeout = argsOrTimeout;
-	} else {
-		args = argsOrTimeout;
-	}
+  if (typeof argsOrTimeout === 'number') {
+    pollInterval = timeout;
+    timeout = argsOrTimeout;
+  } else {
+    args = argsOrTimeout;
+  }
 
-	args = args || [];
-	pollInterval = pollInterval || 67;
+  args = args || [];
+  pollInterval = pollInterval || 67;
 
-	return function(this: Command<any>) {
-		const session = this.session;
-		let originalTimeout: number;
+  return function(this: Command<any>) {
+    const session = this.session;
+    let originalTimeout: number;
 
-		return session.getExecuteAsyncTimeout().then(function(currentTimeout) {
-			let resultOrError: T | Error;
+    return session.getExecuteAsyncTimeout().then(function(currentTimeout) {
+      let resultOrError: T | Error;
 
-			function storeResult(result: any) {
-				resultOrError = result;
-			}
+      function storeResult(result: any) {
+        resultOrError = result;
+      }
 
-			function finish() {
-				if (resultOrError instanceof Error) {
-					throw resultOrError;
-				}
-				if (resultOrError == null) {
-					const error = new Error('Polling timed out with no result');
-					error.name = 'ScriptTimeout';
-					throw error;
-				}
-				return resultOrError;
-			}
+      function finish() {
+        if (resultOrError instanceof Error) {
+          throw resultOrError;
+        }
+        if (resultOrError == null) {
+          const error = new Error('Polling timed out with no result');
+          error.name = 'ScriptTimeout';
+          throw error;
+        }
+        return resultOrError;
+      }
 
-			function cleanup() {
-				if (!isNaN(originalTimeout)) {
-					return session
-						.setExecuteAsyncTimeout(originalTimeout)
-						.then(finish);
-				}
-				return finish();
-			}
+      function cleanup() {
+        if (!isNaN(originalTimeout)) {
+          return session.setExecuteAsyncTimeout(originalTimeout).then(finish);
+        }
+        return finish();
+      }
 
-			if (!isNaN(<number>timeout)) {
-				originalTimeout = currentTimeout;
-			} else {
-				timeout = currentTimeout;
-			}
+      if (!isNaN(<number>timeout)) {
+        originalTimeout = currentTimeout;
+      } else {
+        timeout = currentTimeout;
+      }
 
-			return session
-				.setExecuteAsyncTimeout(timeout!)
-				.then(function() {
-					/* jshint maxlen:140 */
-					return session.executeAsync(
-						/* istanbul ignore next */ function(
-							poller: string | Function,
-							args: any[],
-							timeout: number,
-							pollInterval: number,
-							done: Function
-						): void {
-							/* jshint evil:true */
-							poller = <Function>new Function(<string>poller);
+      return session
+        .setExecuteAsyncTimeout(timeout!)
+        .then(function() {
+          /* jshint maxlen:140 */
+          return session.executeAsync(
+            /* istanbul ignore next */ function(
+              poller: string | Function,
+              args: any[],
+              timeout: number,
+              pollInterval: number,
+              done: Function
+            ): void {
+              /* jshint evil:true */
+              poller = <Function>new Function(<string>poller);
 
-							const endTime = Number(new Date()) + timeout;
+              const endTime = Number(new Date()) + timeout;
 
-							(function poll(this: any) {
-								const result = poller.apply(this, args);
+              (function poll(this: any) {
+                const result = poller.apply(this, args);
 
-								/*jshint evil:true */
-								if (result != null) {
-									done(result);
-								} else if (Number(new Date()) < endTime) {
-									setTimeout(poll, pollInterval);
-								} else {
-									done(null);
-								}
-							})();
-						},
-						[
-							util.toExecuteString(poller),
-							args,
-							timeout,
-							pollInterval
-						]
-					);
-				})
-				.then(storeResult, storeResult)
-				.then(cleanup, cleanup);
-		});
-	};
+                /*jshint evil:true */
+                if (result != null) {
+                  done(result);
+                } else if (Number(new Date()) < endTime) {
+                  setTimeout(poll, pollInterval);
+                } else {
+                  done(null);
+                }
+              })();
+            },
+            [util.toExecuteString(poller), args, timeout, pollInterval]
+          );
+        })
+        .then(storeResult, storeResult)
+        .then(cleanup, cleanup);
+    });
+  };
 }
 
 export type Poller = () => any;

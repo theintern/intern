@@ -7,15 +7,15 @@ import { mixin } from '@dojo/core/lang';
  * @param ms Time until resolution in milliseconds.
  */
 export function sleep(ms: number): Task<void> {
-	let timer: NodeJS.Timer;
-	return new Task<void>(
-		function(resolve) {
-			timer = setTimeout(() => {
-				resolve();
-			}, ms);
-		},
-		() => clearTimeout(timer)
-	);
+  let timer: NodeJS.Timer;
+  return new Task<void>(
+    function(resolve) {
+      timer = setTimeout(() => {
+        resolve();
+      }, ms);
+    },
+    () => clearTimeout(timer)
+  );
 }
 
 /**
@@ -23,10 +23,10 @@ export function sleep(ms: number): Task<void> {
  * [[Command]] about how the method interacts with stored context elements.
  */
 export function forCommand(
-	fn: Function,
-	properties: { usesElement?: boolean; createsContext?: boolean }
+  fn: Function,
+  properties: { usesElement?: boolean; createsContext?: boolean }
 ): Function {
-	return mixin(fn, properties);
+  return mixin(fn, properties);
 }
 
 /**
@@ -34,17 +34,17 @@ export function forCommand(
  * `execute` API endpoint.
  */
 export function toExecuteString(fn: Function | string): string {
-	if (typeof fn === 'function') {
-		// If someone runs code through Istanbul in the test runner, inline
-		// functions that are supposed to execute on the client will contain
-		// code coverage variables that will cause script execution failure.
-		// These statements are very simple and are generated in a consistent
-		// manner, so we can get rid of them easily with a regular expression
-		fn = fn.toString().replace(/\b__cov_[^,;]+[,;]/g, '');
-		fn = 'return (' + fn + ').apply(this, arguments);';
-	}
+  if (typeof fn === 'function') {
+    // If someone runs code through Istanbul in the test runner, inline
+    // functions that are supposed to execute on the client will contain
+    // code coverage variables that will cause script execution failure.
+    // These statements are very simple and are generated in a consistent
+    // manner, so we can get rid of them easily with a regular expression
+    fn = fn.toString().replace(/\b__cov_[^,;]+[,;]/g, '');
+    fn = 'return (' + fn + ').apply(this, arguments);';
+  }
 
-	return fn;
+  return fn;
 }
 
 /**
@@ -53,5 +53,5 @@ export function toExecuteString(fn: Function | string): string {
  * captured stack traces).
  */
 export function trimStack(stack: string): string {
-	return stack.replace(/^[^\n]+/, '');
+  return stack.replace(/^[^\n]+/, '');
 }
