@@ -60,12 +60,12 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
-    "@dojo/core": "~0.5.0",
-    "@dojo/has": "~0.1.2",
+    "@dojo/core": "~2.0.0",
+    "@dojo/has": "~2.0.0",
     "@dojo/interfaces": "~0.2.1",
-    "@dojo/shim": "~0.2.7",
-    "@theintern/digdug": "~2.1.0",
-    "@theintern/leadfoot": "~2.1.0",
+    "@dojo/shim": "~2.0.0",
+    "@theintern/digdug": "~2.1.2",
+    "@theintern/leadfoot": "~2.1.1",
     "@types/benchmark": "~1.0.30",
     "@types/chai": "~4.1.2",
     "@types/charm": "~1.0.0",
