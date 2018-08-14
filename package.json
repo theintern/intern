@@ -1,0 +1,69 @@
+{
+  "name": "@theintern/common",
+  "version": "0.1.0-pre",
+  "description": "Common modules used by @theintern projects",
+  "homepage": "http://theintern.io/",
+  "license": "BSD-3-Clause",
+  "bugs": "https://github.com/theintern/common/issues",
+  "keywords": [
+    "javascript",
+    "test",
+    "testing",
+    "intern",
+    "leadfoot",
+    "digdug"
+  ],
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/common.git"
+  },
+  "scripts": {
+    "build": "intern-dev-clean && webpack",
+    "clean": "intern-dev-clean",
+    "release": "intern-dev-release",
+    "test": "intern",
+    "precommit": "lint-staged",
+    "watch": "webpack --watch"
+  },
+  "dependencies": {
+    "axios": "~0.18.0",
+    "tslib": "~1.9.3"
+  },
+  "devDependencies": {
+    "@theintern/dev": "~0.8.1",
+    "@theintern/istanbul-loader": "~1.0.0-beta.2",
+    "@types/copy-webpack-plugin": "~4.4.2",
+    "@types/glob": "~5.0.35",
+    "@types/moxios": "~0.4.8",
+    "@types/sinon": "~5.0.1",
+    "@types/webpack": "~4.4.10",
+    "@types/webpack-node-externals": "~1.6.3",
+    "copy-webpack-plugin": "~4.5.2",
+    "glob": "~7.1.2",
+    "intern": "~4.2.2",
+    "lint-staged": "~7.2.0",
+    "moxios": "~0.4.0",
+    "pre-commit": "~1.2.2",
+    "prettier": "~1.13.7",
+    "sinon": "~6.1.5",
+    "ts-loader": "~4.4.2",
+    "ts-node": "~7.0.1",
+    "umd-compat-loader": "~2.1.1",
+    "webpack": "~4.16.5",
+    "webpack-cli": "~3.1.0",
+    "webpack-node-externals": "~1.7.2"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ],
+    "{intern,tsconfig}.json": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "pre-commit": "precommit"
+}
