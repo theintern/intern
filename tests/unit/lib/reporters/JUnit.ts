@@ -24,6 +24,23 @@ registerSuite('lib/reporters/JUnit', function() {
 	let JUnit: typeof _JUnit;
 	let removeMocks: () => void;
 
+	const getReportOutput = () => {
+		const text: string[] = [];
+		const mockConsole = {
+			write(data: string) {
+				text.push(data);
+			},
+			end(data: string) {
+				text.push(data);
+			}
+		};
+
+		const junit = new JUnit(mockExecutor, { output: mockConsole });
+		junit.runEnd();
+
+		return text.join('');
+	};
+
 	return {
 		before() {
 			return mockRequire(require, 'src/lib/reporters/JUnit', {
@@ -39,6 +56,7 @@ registerSuite('lib/reporters/JUnit', function() {
 		},
 
 		beforeEach() {
+			mockExecutor.suites = [];
 			mockExecutor.on.reset();
 			mockFs.createWriteStream.reset();
 			mockFs.mkdirSync.reset();
@@ -114,15 +132,6 @@ registerSuite('lib/reporters/JUnit', function() {
 					})
 				);
 
-				const text: string[] = [];
-				const mockConsole = {
-					write(data: string) {
-						text.push(data);
-					},
-					end(data: string) {
-						text.push(data);
-					}
-				};
 				const expected =
 					'<?xml version="1.0" encoding="UTF-8" ?><testsuites>' +
 					'<testsuite name="chrome 32 on Mac" failures="2" skipped="1" tests="5" time="1.234">' +
@@ -134,12 +143,52 @@ registerSuite('lib/reporters/JUnit', function() {
 					'</testcase><testcase name="test4" time="0.045" status="0"><skipped>No time for that</skipped>' +
 					'</testcase><testsuite name="suite5" failures="0" skipped="0" tests="1" time="0.045">' +
 					'<testcase name="test5.1" time="0.04" status="0"/></testsuite></testsuite></testsuite></testsuites>\n';
-				const junit = new JUnit(mockExecutor, { output: mockConsole });
-				junit.runEnd();
+
 				assert.equal(
+					getReportOutput(),
 					expected,
-					text.join(''),
 					'report should exactly match expected output'
+				);
+			},
+
+			serializedNestedSuitesReported() {
+				const nestedTest = 'test2.1';
+
+				const suiteJSON = new Suite(<any>{
+					sessionId: 'foo',
+					name: 'chrome 32 on Mac',
+					executor: mockExecutor,
+					timeElapsed: 1234,
+					tests: [
+						new Suite(<any>{
+							name: 'suite1',
+							executor: mockExecutor,
+							timeElapsed: 1234,
+							tests: [
+								new Suite(<any>{
+									name: 'suite5',
+									executor: mockExecutor,
+									timeElapsed: 45,
+									tests: [
+										new Test(<any>{
+											name: nestedTest,
+											test() {},
+											hasPassed: true,
+											timeElapsed: 40
+										})
+									]
+								})
+							]
+						})
+					]
+				}).toJSON();
+
+				mockExecutor.suites.push(suiteJSON);
+
+				assert.include(
+					getReportOutput(),
+					nestedTest,
+					'report does not contain nested test'
 				);
 			}
 		}
