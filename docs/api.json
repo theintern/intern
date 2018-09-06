@@ -26197,10 +26197,13 @@
 								"isExported": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "A listener can listen for this event to be notified of all events"
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1087,
+									"line": 1088,
 									"character": 4
 								}
 							],
@@ -26225,12 +26228,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "Emitted after the local executor has finished running suites"
+								"shortText": "Emitted after the local executor has finished running suites. This is\nfunctionally the same as runEnd."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1090,
+									"line": 1094,
 									"character": 9
 								}
 							],
@@ -26259,7 +26262,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1093,
+									"line": 1097,
 									"character": 10
 								}
 							],
@@ -26288,7 +26291,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1096,
+									"line": 1100,
 									"character": 9
 								}
 							],
@@ -26318,7 +26321,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1099,
+									"line": 1103,
 									"character": 11
 								}
 							],
@@ -26348,7 +26351,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1102,
+									"line": 1106,
 									"character": 6
 								}
 							],
@@ -26377,7 +26380,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1105,
+									"line": 1109,
 									"character": 4
 								}
 							],
@@ -26422,12 +26425,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "All tests have finished running"
+								"shortText": "All tests have finished running. This is functionally the same as\nafterRun."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1108,
+									"line": 1115,
 									"character": 7
 								}
 							],
@@ -26456,7 +26459,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1111,
+									"line": 1118,
 									"character": 9
 								}
 							],
@@ -26545,7 +26548,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1114,
+									"line": 1121,
 									"character": 9
 								}
 							],
@@ -26575,7 +26578,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1117,
+									"line": 1124,
 									"character": 9
 								}
 							],
@@ -26605,7 +26608,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1120,
+									"line": 1127,
 									"character": 11
 								}
 							],
@@ -26635,7 +26638,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1123,
+									"line": 1130,
 									"character": 8
 								}
 							],
@@ -26665,7 +26668,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1126,
+									"line": 1133,
 									"character": 8
 								}
 							],
@@ -26695,7 +26698,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1129,
+									"line": 1136,
 									"character": 10
 								}
 							],
@@ -26845,7 +26848,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1132,
+									"line": 1139,
 									"character": 8
 								}
 							],
@@ -49398,10 +49401,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "A listener can listen for this event to be notified of all events"
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1087,
+									"line": 1088,
 									"character": 4
 								}
 							],
@@ -49422,12 +49428,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "Emitted after the local executor has finished running suites"
+								"shortText": "Emitted after the local executor has finished running suites. This is\nfunctionally the same as runEnd."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1090,
+									"line": 1094,
 									"character": 9
 								}
 							],
@@ -49452,7 +49458,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1093,
+									"line": 1097,
 									"character": 10
 								}
 							],
@@ -49477,7 +49483,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1096,
+									"line": 1100,
 									"character": 9
 								}
 							],
@@ -49503,7 +49509,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1099,
+									"line": 1103,
 									"character": 11
 								}
 							],
@@ -49529,7 +49535,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1102,
+									"line": 1106,
 									"character": 6
 								}
 							],
@@ -49554,7 +49560,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1105,
+									"line": 1109,
 									"character": 4
 								}
 							],
@@ -49574,12 +49580,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "All tests have finished running"
+								"shortText": "All tests have finished running. This is functionally the same as\nafterRun."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1108,
+									"line": 1115,
 									"character": 7
 								}
 							],
@@ -49604,7 +49610,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1111,
+									"line": 1118,
 									"character": 9
 								}
 							],
@@ -49629,7 +49635,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1114,
+									"line": 1121,
 									"character": 9
 								}
 							],
@@ -49655,7 +49661,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1117,
+									"line": 1124,
 									"character": 9
 								}
 							],
@@ -49681,7 +49687,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1120,
+									"line": 1127,
 									"character": 11
 								}
 							],
@@ -49707,7 +49713,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1123,
+									"line": 1130,
 									"character": 8
 								}
 							],
@@ -49733,7 +49739,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1126,
+									"line": 1133,
 									"character": 8
 								}
 							],
@@ -49759,7 +49765,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1129,
+									"line": 1136,
 									"character": 10
 								}
 							],
@@ -49785,7 +49791,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1132,
+									"line": 1139,
 									"character": 8
 								}
 							],
@@ -50928,7 +50934,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1148,
+							"line": 1155,
 							"character": 23
 						}
 					]
@@ -51010,7 +51016,7 @@
 											"sources": [
 												{
 													"fileName": "lib/executors/Executor.ts",
-													"line": 1156,
+													"line": 1163,
 													"character": 10
 												}
 											]
@@ -51044,7 +51050,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1155,
+							"line": 1162,
 							"character": 27
 						}
 					]
@@ -51178,7 +51184,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1159,
+							"line": 1166,
 							"character": 34
 						}
 					]
@@ -51210,7 +51216,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1142,
+									"line": 1149,
 									"character": 9
 								}
 							],
@@ -51233,7 +51239,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1141,
+							"line": 1148,
 							"character": 24
 						}
 					],
@@ -51261,7 +51267,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1171,
+							"line": 1178,
 							"character": 25
 						}
 					]
@@ -51311,7 +51317,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1163,
+							"line": 1170,
 							"character": 36
 						}
 					]
@@ -51332,7 +51338,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Executor.ts",
-							"line": 1136,
+							"line": 1143,
 							"character": 24
 						}
 					],
@@ -56615,10 +56621,13 @@
 								"isExternal": true,
 								"__visited__": true
 							},
+							"comment": {
+								"shortText": "A listener can listen for this event to be notified of all events"
+							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1087,
+									"line": 1088,
 									"character": 4
 								}
 							],
@@ -56644,12 +56653,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "Emitted after the local executor has finished running suites"
+								"shortText": "Emitted after the local executor has finished running suites. This is\nfunctionally the same as runEnd."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1090,
+									"line": 1094,
 									"character": 9
 								}
 							],
@@ -56679,7 +56688,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1093,
+									"line": 1097,
 									"character": 10
 								}
 							],
@@ -56709,7 +56718,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1096,
+									"line": 1100,
 									"character": 9
 								}
 							],
@@ -56740,7 +56749,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1099,
+									"line": 1103,
 									"character": 11
 								}
 							],
@@ -56771,7 +56780,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1102,
+									"line": 1106,
 									"character": 6
 								}
 							],
@@ -56801,7 +56810,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1105,
+									"line": 1109,
 									"character": 4
 								}
 							],
@@ -56826,12 +56835,12 @@
 								"__visited__": true
 							},
 							"comment": {
-								"shortText": "All tests have finished running"
+								"shortText": "All tests have finished running. This is functionally the same as\nafterRun."
 							},
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1108,
+									"line": 1115,
 									"character": 7
 								}
 							],
@@ -56861,7 +56870,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1111,
+									"line": 1118,
 									"character": 9
 								}
 							],
@@ -56943,7 +56952,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1114,
+									"line": 1121,
 									"character": 9
 								}
 							],
@@ -56974,7 +56983,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1117,
+									"line": 1124,
 									"character": 9
 								}
 							],
@@ -57005,7 +57014,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1120,
+									"line": 1127,
 									"character": 11
 								}
 							],
@@ -57036,7 +57045,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1123,
+									"line": 1130,
 									"character": 8
 								}
 							],
@@ -57067,7 +57076,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1126,
+									"line": 1133,
 									"character": 8
 								}
 							],
@@ -57098,7 +57107,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1129,
+									"line": 1136,
 									"character": 10
 								}
 							],
@@ -57233,7 +57242,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1132,
+									"line": 1139,
 									"character": 8
 								}
 							],
@@ -57324,7 +57333,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Executor.ts",
-									"line": 1142,
+									"line": 1149,
 									"character": 9
 								}
 							],
@@ -68881,7 +68890,7 @@
 			"originalName": "src/lib/interfaces/object.ts",
 			"comment": {
 				"shortText": "This is the object interface for registering suites. Typically it will be\naccessed using [[lib/executors/Executor.Executor.getInterface]], like:",
-				"text": "```js\nconst { registerSuite } = intern.getInterface('object');\n```\n\nIt may also be imported as a module, like\n\n```js\nimport { registerSuite } from 'intern/lib/interfaces/object';\n```\n\nSuites are described using objects. The object structure is a subset of suite\nproperties, specifically name, the lifecycle methods, and tests.\n\n```js\nregisterSuite('foo', {\n    before() {},\n    afterEach() {},\n    tests: {\n        bar() {},\n        baz() {}\n    }\n});\n```\n\nTests may also describe sub-suites:\n\n```js\nregisterSuite('foo', {\n    tests: {\n        fooStuff {\n            tests: {\n                bar() {},\n                baz() {}\n            }\n        }\n    }\n});\n```\n\nSub-suites don't need name properties, and may also omit the 'tests' nesting\nif no lifecycle functions are in use. The rule is that if a 'tests' property\nisn't in the sub-suite object, then every property is assumed to refer to a\ntest.\n\n```js\nregisterSuite('foo', {\n    fooStuff {\n        bar() {},\n        baz() {}\n    }\n});\n```\n"
+				"text": "```js\nconst { registerSuite } = intern.getInterface('object');\n```\n\nIt may also be imported as a module, like\n\n```js\nimport registerSuite from 'intern/lib/interfaces/object';\n```\n\nSuites are described using objects. The object structure is a subset of suite\nproperties, specifically name, the lifecycle methods, and tests.\n\n```js\nregisterSuite('foo', {\n    before() {},\n    afterEach() {},\n    tests: {\n        bar() {},\n        baz() {}\n    }\n});\n```\n\nTests may also describe sub-suites:\n\n```js\nregisterSuite('foo', {\n    tests: {\n        fooStuff {\n            tests: {\n                bar() {},\n                baz() {}\n            }\n        }\n    }\n});\n```\n\nSub-suites don't need name properties, and may also omit the 'tests' nesting\nif no lifecycle functions are in use. The rule is that if a 'tests' property\nisn't in the sub-suite object, then every property is assumed to refer to a\ntest.\n\n```js\nregisterSuite('foo', {\n    fooStuff {\n        bar() {},\n        baz() {}\n    }\n});\n```\n"
 			},
 			"children": [
 				{
