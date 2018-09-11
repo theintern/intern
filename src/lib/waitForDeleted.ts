@@ -1,4 +1,4 @@
-import Task from '@dojo/core/async/Task';
+import { Task, CancellablePromise } from '@theintern/common';
 import statusCodes from './statusCodes';
 import Session from '../Session';
 import Element from '../Element';
@@ -27,7 +27,7 @@ export default function waitForDeleted(
   locator: Session | Element,
   using: Strategy,
   value: string
-) {
+): CancellablePromise<void> {
   let originalTimeout: number;
 
   return session

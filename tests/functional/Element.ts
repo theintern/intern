@@ -2,7 +2,7 @@ import * as util from './support/util';
 import { strategies } from '../../src/lib/Locator';
 import Element from '../../src/Element';
 import Session from '../../src/Session';
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 import Test, { TestFunction } from 'intern/lib/Test';
 
 const strategyNames = Object.keys(strategies);

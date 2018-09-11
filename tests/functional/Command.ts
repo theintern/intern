@@ -1,7 +1,7 @@
 import * as util from './support/util';
 import Command, { Context } from '../../src/Command';
 import Session from '../../src/Session';
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 import Test from 'intern/lib/Test';
 
 registerSuite('Command', () => {
@@ -37,7 +37,7 @@ registerSuite('Command', () => {
                 assert.strictEqual(error.message, 'broken');
                 assert.include(
                   error.stack!,
-                  'tests/functional/Command.js:34',
+                  'tests/functional/Command.js:24',
                   'Stack trace should point back to the error'
                 );
                 error.message += ' 2';
@@ -80,7 +80,7 @@ registerSuite('Command', () => {
               );
               assert.include(
                 stack,
-                'tests/functional/Command.js:55',
+                'tests/functional/Command.js:45',
                 'Stack trace should point back to the async method call that eventually threw the error'
               );
             }
@@ -385,9 +385,8 @@ registerSuite('Command', () => {
         const startTime = Date.now();
 
         sleepCommand.finally(function() {
-          assert.operator(
+          assert.isBelow(
             Date.now() - startTime,
-            '<',
             4000,
             'Cancel should not wait for sleep to complete'
           );

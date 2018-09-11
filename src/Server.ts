@@ -1,15 +1,18 @@
 import keys from './keys';
 
-import Task from '@dojo/core/async/Task';
-import request, { RequestOptions } from '@dojo/core/request';
-import { Response as ResponseInterface } from '@dojo/core/request/interfaces';
-import { NodeRequestOptions } from '@dojo/core/request/providers/node';
+import {
+  Task,
+  CancellablePromise,
+  request,
+  RequestOptions,
+  RequestMethod,
+  Response
+} from '@theintern/common';
 import Session from './Session';
 import Element from './Element';
 import statusCodes from './lib/statusCodes';
 import { format, parse, resolve, Url } from 'url';
 import { sleep, trimStack } from './lib/util';
-import { create, mixin } from '@dojo/core/lang';
 import { Capabilities, LeadfootURL, LeadfootError } from './interfaces';
 
 export default class Server {
@@ -44,9 +47,9 @@ export default class Server {
    * server.
    */
   // TODO: NodeRequestOptions doesn't take a type in dojo-core alpha 20
-  constructor(url: string | LeadfootURL, options?: NodeRequestOptions) {
+  constructor(url: string | LeadfootURL, options?: RequestOptions) {
     if (typeof url === 'object') {
-      url = <URL>Object.create(url);
+      url = <URL>{ ...url };
       if (url.username || url.password || url.accessKey) {
         url.auth =
           encodeURIComponent(url.username || '') +
@@ -75,11 +78,11 @@ export default class Server {
    * the URL.
    */
   private _sendRequest<T>(
-    method: string,
+    method: RequestMethod,
     path: string,
     requestData: any,
     pathParts?: string[]
-  ): Task<T> {
+  ): CancellablePromise<T> {
     const url =
       this.url +
       path.replace(/\$(\d)/, function(_, index) {
@@ -94,21 +97,24 @@ export default class Server {
       Accept: 'application/json,text/plain;q=0.9'
     };
 
-    const kwArgs = create(this.requestOptions, {
+    const headers = { ...defaultRequestHeaders };
+
+    const kwArgs: RequestOptions = {
+      ...this.requestOptions,
       followRedirects: false,
       handleAs: 'text',
-      headers: { ...defaultRequestHeaders },
-      method: method
-    });
+      headers,
+      method
+    };
 
     if (requestData) {
-      kwArgs.body = JSON.stringify(requestData);
-      kwArgs.headers['Content-Type'] = 'application/json;charset=UTF-8';
+      kwArgs.data = JSON.stringify(requestData);
+      headers['Content-Type'] = 'application/json;charset=UTF-8';
       // At least ChromeDriver 2.9.248307 will not process request data
       // if the length of the data is not provided. (It is a good idea to
       // provide one anyway)
-      kwArgs.headers['Content-Length'] = String(
-        Buffer.byteLength(kwArgs.body, 'utf8')
+      headers['Content-Length'] = String(
+        Buffer.byteLength(kwArgs.data, 'utf8')
       );
     } else {
       // At least Selenium 2.41.0 - 2.42.2 running as a grid hub will
@@ -116,13 +122,13 @@ export default class Server {
       // Content-Length header is not provided with a DELETE or POST
       // request, regardless of whether the request actually contains any
       // request data.
-      kwArgs.headers['Content-Length'] = '0';
+      headers['Content-Length'] = '0';
     }
 
     const trace: any = {};
     Error.captureStackTrace(trace, this._sendRequest);
 
-    return new Task<ResponseInterface>((resolve, reject) => {
+    return new Task((resolve, reject) => {
       request(url, kwArgs)
         .then(resolve, reject)
         .finally(() => {
@@ -132,8 +138,8 @@ export default class Server {
         });
     })
       .then(function handleResponse(
-        response: ResponseInterface
-      ): ResponseData | Task<ResponseData> {
+        response: Response
+      ): ResponseData | CancellablePromise<ResponseData> {
         // The JsonWireProtocol specification prior to June 2013 stated
         // that creating a new session should perform a 3xx redirect to
         // the session capabilities URL, instead of simply returning
@@ -153,7 +159,6 @@ export default class Server {
           }
 
           return request(redirectUrl, {
-            method: 'GET',
             headers: defaultRequestHeaders
           }).then(handleResponse);
         }
@@ -300,7 +305,7 @@ export default class Server {
           }
 
           if (data.value && data.value.screen) {
-            data.value.screen = new Buffer(data.value.screen, 'base64');
+            data.value.screen = Buffer.from(data.value.screen, 'base64');
           }
 
           error.status = data.status;
@@ -322,13 +327,9 @@ export default class Server {
           })();
 
           error.message =
-            '[' +
-            method +
-            ' ' +
-            sanitizedUrl +
-            (requestData ? ' / ' + JSON.stringify(requestData) : '') +
-            '] ' +
-            error.message;
+            `[${method} ${sanitizedUrl}` +
+            (requestData ? ` / ${JSON.stringify(requestData)}` : '') +
+            `] ${error.message}`;
           error.stack = error.message + trimStack(trace.stack);
 
           throw error;
@@ -342,15 +343,27 @@ export default class Server {
       });
   }
 
-  get<T>(path: string, requestData?: Object, pathParts?: string[]): Task<T> {
+  get<T>(
+    path: string,
+    requestData?: Object,
+    pathParts?: string[]
+  ): CancellablePromise<T> {
     return this._sendRequest<T>('GET', path, requestData, pathParts);
   }
 
-  post<T>(path: string, requestData?: Object, pathParts?: string[]): Task<T> {
+  post<T>(
+    path: string,
+    requestData?: Object,
+    pathParts?: string[]
+  ): CancellablePromise<T> {
     return this._sendRequest<T>('POST', path, requestData, pathParts);
   }
 
-  delete<T>(path: string, requestData?: Object, pathParts?: string[]): Task<T> {
+  delete<T>(
+    path: string,
+    requestData?: Object,
+    pathParts?: string[]
+  ): CancellablePromise<T> {
     return this._sendRequest<T>('DELETE', path, requestData, pathParts);
   }
 
@@ -378,7 +391,7 @@ export default class Server {
   createSession<S extends Session = Session>(
     desiredCapabilities: Capabilities,
     requiredCapabilities?: Capabilities
-  ): Task<S> {
+  ): CancellablePromise<S> {
     let fixSessionCapabilities = this.fixSessionCapabilities;
     if (desiredCapabilities.fixSessionCapabilities != null) {
       fixSessionCapabilities = desiredCapabilities.fixSessionCapabilities;
@@ -449,8 +462,8 @@ export default class Server {
   private _fillCapabilities<S extends Session>(
     session: S,
     detectCapabilities = true
-  ): Task<S> {
-    mixin(session.capabilities, this._getKnownCapabilities(session));
+  ): CancellablePromise<S> {
+    Object.assign(session.capabilities, this._getKnownCapabilities(session));
     return (detectCapabilities
       ? this._detectCapabilities(session)
       : Task.resolve(session)
@@ -483,7 +496,7 @@ export default class Server {
     // testing because it does not inject user scripts for URLs that are
     // not http/https
     if (isSafari(capabilities) && isMac(capabilities)) {
-      mixin(updates, {
+      Object.assign(updates, {
         nativeEvents: false,
         rotatable: false,
         locationContextEnabled: false,
@@ -520,7 +533,7 @@ export default class Server {
       // SafariDriver, which shows versions up to 10.x, doesn't support
       // file uploads
       if (isValidVersion(capabilities, 0, 100)) {
-        mixin(updates, {
+        Object.assign(updates, {
           remoteFiles: false,
 
           brokenActiveElement: true,
@@ -537,7 +550,7 @@ export default class Server {
         });
 
         if (isValidVersion(capabilities, 10, 11)) {
-          mixin(updates, {
+          Object.assign(updates, {
             // Safari 10 using SafariDriver does not appear to
             // support executeAsync at least as of May 2017
             supportsExecuteAsync: false
@@ -547,7 +560,7 @@ export default class Server {
 
       // The native safaridriver reports versions like '12603.1.30.0.34'
       if (isValidVersion(capabilities, 1000)) {
-        mixin(updates, {
+        Object.assign(updates, {
           brokenLinkTextLocator: true,
           brokenOptionSelect: true,
           brokenWhitespaceNormalization: true,
@@ -737,7 +750,9 @@ export default class Server {
   /**
    * Run tests to detect capabilities/defects
    */
-  private _detectCapabilities(session: Session): Task<void | Session> {
+  private _detectCapabilities(
+    session: Session
+  ): CancellablePromise<void | Session> {
     const capabilities = session.capabilities;
     const supported = () => true;
     const unsupported = () => false;
@@ -760,9 +775,11 @@ export default class Server {
      * be executed serially in order to resolve the correct value of that
      * particular capability.
      */
-    const addCapabilities = (testedCapabilities: Capabilities): Task<void> => {
+    const addCapabilities = (
+      testedCapabilities: Capabilities
+    ): CancellablePromise<void> => {
       return Object.keys(testedCapabilities).reduce(
-        (previous: Task<void>, key: keyof Capabilities) => {
+        (previous: CancellablePromise<void>, key: keyof Capabilities) => {
           return previous.then(() => {
             const value = testedCapabilities[key];
             const task =
@@ -837,7 +854,13 @@ export default class Server {
           return session
             .serverPost<string>('file', {
               file:
-                'UEsDBAoAAAAAAD0etkYAAAAAAAAAAAAAAAAIABwAdGVzdC50eHRVVAkAA2WnXlVlp15VdXgLAAEE8gMAAATyAwAAUEsBAh4DCgAAAAAAPR62RgAAAAAAAAAAAAAAAAgAGAAAAAAAAAAAAKSBAAAAAHRlc3QudHh0VVQFAANlp15VdXgLAAEE8gMAAATyAwAAUEsFBgAAAAABAAEATgAAAEIAAAAAAA=='
+                'UEsDBAoAAAAAAD0etkYAAAAAAAAAAAAA' +
+                'AAAIABwAdGVzdC50eHRVVAkAA2WnXlVl' +
+                'p15VdXgLAAEE8gMAAATyAwAAUEsBAh4D' +
+                'CgAAAAAAPR62RgAAAAAAAAAAAAAAAAgA' +
+                'GAAAAAAAAAAAAKSBAAAAAHRlc3QudHh0' +
+                'VVQFAANlp15VdXgLAAEE8gMAAATyAwAA' +
+                'UEsFBgAAAAABAAEATgAAAEIAAAAAAA=='
             })
             .then(function(filename) {
               return filename && filename.indexOf('test.txt') > -1;
@@ -1081,7 +1104,10 @@ export default class Server {
       if (capabilities.supportsCssTransforms == null) {
         testedCapabilities.supportsCssTransforms = function() {
           return get(
-            '<!DOCTYPE html><style>#a{width:8px;height:8px;-ms-transform:scale(0.5);-moz-transform:scale(0.5);-webkit-transform:scale(0.5);transform:scale(0.5);}</style><div id="a"></div>'
+            '<!DOCTYPE html><style>' +
+              '#a{width:8px;height:8px;-ms-transform:scale(0.5);' +
+              '-moz-transform:scale(0.5);-webkit-transform:scale(0.5);' +
+              'transform:scale(0.5);}</style><div id="a"></div>'
           )
             .then(function() {
               return session.execute(
@@ -1102,7 +1128,7 @@ export default class Server {
       ).then(() => testedCapabilities);
     };
 
-    const discoverDefects = (): Task<Capabilities> => {
+    const discoverDefects = (): CancellablePromise<Capabilities> => {
       const testedCapabilities: any = {};
 
       // At least SafariDriver 2.41.0 fails to allow stand-alone feature
@@ -1333,7 +1359,8 @@ export default class Server {
       if (capabilities.brokenLinkTextLocator == null) {
         testedCapabilities.brokenLinkTextLocator = function() {
           return get(
-            '<!DOCTYPE html><a id="d">What a cute<span style="display:none">, yellow</span> backpack</a><a id="e">What a cute, yellow backpack</a>'
+            '<!DOCTYPE html><a id="d">What a cute<span style="display:none">,' +
+              'yellow</span> backpack</a><a id="e">What a cute, yellow backpack</a>'
           )
             .then(function() {
               return session
@@ -1541,7 +1568,7 @@ export default class Server {
             .get('about:blank?1')
             .then(function() {
               let timer: NodeJS.Timer;
-              let refresh: Task<boolean | void>;
+              let refresh: CancellablePromise<boolean | void>;
 
               return new Task(
                 resolve => {
@@ -1625,7 +1652,9 @@ export default class Server {
         // entire sequence of events that would normally occur during a
         // double-click
         if (capabilities.brokenDoubleClick == null) {
-          testedCapabilities.brokenDoubleClick = function retry(): Task<any> {
+          testedCapabilities.brokenDoubleClick = function retry(): CancellablePromise<
+            any
+          > {
             // InternetExplorerDriver is not buggy, but IE9 in
             // quirks-mode is; since we cannot do feature tests in
             // standards-mode in IE<10, force the value to false
@@ -1638,7 +1667,10 @@ export default class Server {
             }
 
             return get(
-              '<!DOCTYPE html><script>window.counter = 0; var d = document; d.onclick = d.onmousedown = d.onmouseup = function () { window.counter++; };</script>'
+              '<!DOCTYPE html><script>' +
+                'window.counter = 0; var d = document; d.onclick = ' +
+                'd.onmousedown = d.onmouseup = function () { window.counter++; };' +
+                '</script>'
             )
               .then(function() {
                 return session.findByTagName('html');
@@ -1750,7 +1782,10 @@ export default class Server {
       ) {
         testedCapabilities.brokenCssTransformedSize = function() {
           return get(
-            '<!DOCTYPE html><style>#a{width:8px;height:8px;-ms-transform:scale(0.5);-moz-transform:scale(0.5);-webkit-transform:scale(0.5);transform:scale(0.5);}</style><div id="a"></div>'
+            '<!DOCTYPE html><style>#a{width:8px;height:8px;' +
+              '-ms-transform:scale(0.5);-moz-transform:scale(0.5);' +
+              '-webkit-transform:scale(0.5);transform:scale(0.5);}' +
+              '</style><div id="a"></div>'
           )
             .then(function() {
               return session
@@ -1777,7 +1812,11 @@ export default class Server {
 
     // At least geckodriver 0.11 and Firefox 49+ may hang when getting
     // 'about:blank' in the first request
-    const promise: Task<Session | void> = isFirefox(capabilities, 49, Infinity)
+    const promise: CancellablePromise<Session | void> = isFirefox(
+      capabilities,
+      49,
+      Infinity
+    )
       ? Task.resolve(session)
       : session.get('about:blank');
 
@@ -1797,7 +1836,7 @@ export default class Server {
    * Gets a list of all currently active remote control sessions on this
    * server.
    */
-  getSessions(): Task<Session[]> {
+  getSessions(): CancellablePromise<Session[]> {
     return this.get('sessions').then(function(sessions: any) {
       // At least BrowserStack is now returning an array for the sessions
       // response
@@ -1823,7 +1862,7 @@ export default class Server {
    * of the extra session capabilities detected by Leadfoot and may be
    * inaccurate.
    */
-  getSessionCapabilities(sessionId: string): Task<Capabilities> {
+  getSessionCapabilities(sessionId: string): CancellablePromise<Capabilities> {
     return this.get('session/$0', undefined, [sessionId]).then(returnValue);
   }
 
@@ -1834,8 +1873,6 @@ export default class Server {
     return this.delete<void>('session/$0', undefined, [sessionId]).then(noop);
   }
 }
-
-export type Method = 'post' | 'get' | 'delete';
 
 function isMac(capabilities: Capabilities) {
   return capabilities.platform === 'MAC' && capabilities.platformName !== 'ios';
@@ -1932,6 +1969,6 @@ function returnValue(response: any): any {
 }
 
 interface ResponseData {
-  response: ResponseInterface;
+  response: Response;
   data: any;
 }

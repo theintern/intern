@@ -1,6 +1,6 @@
-import { sleep, trimStack } from './lib/util';
+import { getMethods, sleep, trimStack } from './lib/util';
 import Element from './Element';
-import Task from '@dojo/core/async/Task';
+import { Task, CancellablePromise } from '@theintern/common';
 import Session from './Session';
 import Locator, { Strategy } from './lib/Locator';
 import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
@@ -200,12 +200,12 @@ export default class Command<T, P = any>
         ...args: any[]
       ): Command<U> {
         return new (this.constructor as typeof Command)<U>(this, function(
-          this: Command<U>,
+          this,
           setContext: SetContextMethod
         ) {
           const parentContext = this._context;
           const session = this._session;
-          let promise: Task<any>;
+          let promise: CancellablePromise<any>;
           // The function may have come from a session object
           // prototype but have been overridden on the actual session
           // instance; in such a case, the overridden function should
@@ -229,9 +229,9 @@ export default class Command<T, P = any>
               promise = fn.apply(session, [parentContext[0]].concat(args));
             } else {
               promise = Task.all(
-                parentContext.map(function(element: Element) {
-                  return fn.apply(session, [element].concat(args));
-                })
+                parentContext.map((element: Element) =>
+                  fn.apply(session, [element].concat(args))
+                )
               );
             }
           } else {
@@ -245,7 +245,7 @@ export default class Command<T, P = any>
             });
           }
 
-          return <Task<U>>promise;
+          return <CancellablePromise<U>>promise;
         });
       };
     }
@@ -282,7 +282,7 @@ export default class Command<T, P = any>
           setContext: SetContextMethod
         ) {
           const parentContext = this._context;
-          let promise: Task<any>;
+          let promise: CancellablePromise<any>;
           let fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
 
           if (parentContext.isSingle) {
@@ -302,7 +302,7 @@ export default class Command<T, P = any>
             });
           }
 
-          return <Task<T>>promise;
+          return <CancellablePromise<T>>promise;
         });
       };
     }
@@ -311,7 +311,7 @@ export default class Command<T, P = any>
   private _parent: Command<P> | undefined;
   private _session: Session;
   private _context!: Context;
-  private _task: Task<any>;
+  private _task: CancellablePromise<any>;
 
   /**
    * @param parent The parent command that this command is chained to, or a
@@ -336,12 +336,12 @@ export default class Command<T, P = any>
       this: Command<T>,
       setContext: SetContextMethod,
       value: T
-    ) => T | Task<T>,
+    ) => T | CancellablePromise<T>,
     errback?: (
       this: Command<T>,
       setContext: SetContextMethod,
       error: Error
-    ) => T | Task<T>
+    ) => T | CancellablePromise<T>
   ) {
     super();
 
@@ -390,11 +390,12 @@ export default class Command<T, P = any>
     // Add any custom functions from the session to this command object so
     // they can be accessed automatically using the fluid interfaces
     // TODO: Test
-    for (let key in session) {
-      if ((<any>session)[key] !== (<any>Session.prototype)[key]) {
+    getMethods(session).forEach(name => {
+      const key = <keyof Session>name;
+      if (session[key] !== Session.prototype[key]) {
         Command.addSessionMethod(this, key, (<any>session)[key]);
       }
-    }
+    });
 
     Error.captureStackTrace(trace, Command);
 
@@ -670,7 +671,7 @@ export default class Command<T, P = any>
       setContext: SetContextMethod
     ) {
       const parentContext = this._context;
-      let task: Task<Element | Element[]>;
+      let task: CancellablePromise<Element | Element[]>;
 
       if (parentContext.length && parentContext.isSingle) {
         task = parentContext[0][method](strategy, value);
@@ -703,7 +704,7 @@ export default class Command<T, P = any>
       setContext: SetContextMethod
     ) {
       const parentContext = this._context;
-      let task: Task<U>;
+      let task: CancellablePromise<U>;
       let fn = parentContext[0] && parentContext[0][method];
 
       if (parentContext.isSingle) {
@@ -734,7 +735,7 @@ export default class Command<T, P = any>
     ) {
       const parentContext = this._context;
       const session = this._session;
-      let task: Task<U>;
+      let task: CancellablePromise<U>;
 
       // The function may have come from a session object prototype but
       // have been overridden on the actual session instance; in such a

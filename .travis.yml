@@ -1,6 +1,8 @@
+sudo: false
 language: node_js
 node_js:
-  - 6
+  - 'lts/*'
+  - 'node'
 env:
   global:
     # Please get your own free key if you want to test yourself

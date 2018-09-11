@@ -21,7 +21,7 @@ export function createServerFromRemote(remote: any) {
 export function createSessionFromRemote(
   remote: Remote,
   SessionCtor: any = Session
-): Promise<Session> {
+): PromiseLike<Session> {
   const server = createServerFromRemote(remote);
 
   function fixGet(session: any) {

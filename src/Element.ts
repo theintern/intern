@@ -2,10 +2,10 @@ import findDisplayed from './lib/findDisplayed';
 import * as fs from 'fs';
 import Locator, { Strategy, toW3cLocator } from './lib/Locator';
 import waitForDeleted from './lib/waitForDeleted';
-import { sleep } from './lib/util';
-import Task from '@dojo/core/async/Task';
+import { manualFindByLinkText, sleep } from './lib/util';
+import { Task, CancellablePromise } from '@theintern/common';
 import Session from './Session';
-import JSZip = require('jszip');
+import * as JSZip from 'jszip';
 import { basename } from 'path';
 
 /**
@@ -13,9 +13,9 @@ import { basename } from 'path';
  * environment.
  */
 export default class Element extends Locator<
-  Task<Element>,
-  Task<Element[]>,
-  Task<void>
+  CancellablePromise<Element>,
+  CancellablePromise<Element[]>,
+  CancellablePromise<void>
 > {
   private _elementId: string;
   private _session: Session;
@@ -58,12 +58,20 @@ export default class Element extends Locator<
     return this._session;
   }
 
-  private _get<T>(path: string, requestData?: any, pathParts?: any): Task<T> {
+  private _get<T>(
+    path: string,
+    requestData?: any,
+    pathParts?: any
+  ): CancellablePromise<T> {
     path = 'element/' + encodeURIComponent(this._elementId) + '/' + path;
     return this._session.serverGet<T>(path, requestData, pathParts);
   }
 
-  private _post<T>(path: string, requestData?: any, pathParts?: any): Task<T> {
+  private _post<T>(
+    path: string,
+    requestData?: any,
+    pathParts?: any
+  ): CancellablePromise<T> {
     path = 'element/' + encodeURIComponent(this._elementId) + '/' + path;
     return this._session.serverPost<T>(path, requestData, pathParts);
   }
@@ -101,7 +109,7 @@ export default class Element extends Locator<
    * into a file input field and the file will be transparently transmitted
    * and used by the server.
    */
-  private _uploadFile(filename: string): Task<string> {
+  private _uploadFile(filename: string): CancellablePromise<string> {
     return new Task<string>(resolve => {
       const content = fs.readFileSync(filename);
 
@@ -126,7 +134,7 @@ export default class Element extends Locator<
    * @param value The strategy-specific value to search for. See
    * [[Session.Session.find]] for details.
    */
-  find(using: Strategy, value: string): Task<Element> {
+  find(using: Strategy, value: string): CancellablePromise<Element> {
     const session = this._session;
     const capabilities = session.capabilities;
 
@@ -142,10 +150,12 @@ export default class Element extends Locator<
         capabilities.brokenLinkTextLocator)
     ) {
       return session
-        .execute<ElementOrElementId>(
-          /* istanbul ignore next */ session['_manualFindByLinkText'],
-          [using, value, false, this]
-        )
+        .execute<ElementOrElementId>(manualFindByLinkText, [
+          using,
+          value,
+          false,
+          this
+        ])
         .then(function(element) {
           if (!element) {
             const error = new Error();
@@ -188,7 +198,7 @@ export default class Element extends Locator<
    * @param value The strategy-specific value to search for. See
    * [[Session.Session.find]] for details.
    */
-  findAll(using: Strategy, value: string): Task<Element[]> {
+  findAll(using: Strategy, value: string): CancellablePromise<Element[]> {
     const session = this._session;
     const capabilities = session.capabilities;
 
@@ -198,16 +208,18 @@ export default class Element extends Locator<
       value = locator.value;
     }
 
-    let task: Task<ElementOrElementId[]>;
+    let task: CancellablePromise<ElementOrElementId[]>;
     if (
       using.indexOf('link text') !== -1 &&
       (capabilities.brokenWhitespaceNormalization ||
         capabilities.brokenLinkTextLocator)
     ) {
-      task = session.execute<ElementOrElementId[]>(
-        /* istanbul ignore next */ session['_manualFindByLinkText'],
-        [using, value, true, this]
-      );
+      task = session.execute<ElementOrElementId[]>(manualFindByLinkText, [
+        using,
+        value,
+        true,
+        this
+      ]);
     } else {
       task = this._post<ElementOrElementId[]>('elements', {
         using: using,
@@ -228,7 +240,7 @@ export default class Element extends Locator<
   click() {
     if (this.session.capabilities.brokenClick) {
       return this.session.execute<void>(
-        (element: HTMLElement) => {
+        /* istanbul ignore next */ (element: HTMLElement) => {
           element.click();
         },
         [this]
@@ -274,7 +286,7 @@ export default class Element extends Locator<
    * to line breaks in the returned text, and whitespace is normalised per
    * the usual XML/HTML whitespace normalisation rules.
    */
-  getVisibleText(): Task<string> {
+  getVisibleText(): CancellablePromise<string> {
     const result = this._get<string>('text');
 
     if (this.session.capabilities.brokenWhitespaceNormalization) {
@@ -300,7 +312,7 @@ export default class Element extends Locator<
    * @param value The text to type in the remote environment. See
    * [[Session.Session.pressKeys]] for more information.
    */
-  type(value: string | string[]): Task<void> {
+  type(value: string | string[]): CancellablePromise<void> {
     const getPostData = (
       value: string[]
     ): { value?: string[]; text?: string } => {
@@ -361,7 +373,7 @@ export default class Element extends Locator<
    * Gets the tag name of the element. For HTML documents, the value is
    * always lowercase.
    */
-  getTagName(): Task<string> {
+  getTagName(): CancellablePromise<string> {
     return this._get<string>('name').then(name => {
       if (this.session.capabilities.brokenHtmlTagName) {
         return this.session
@@ -380,7 +392,7 @@ export default class Element extends Locator<
   /**
    * Clears the value of a form element.
    */
-  clearValue(): Task<void> {
+  clearValue(): CancellablePromise<void> {
     return this._post('clear').then(noop);
   }
 
@@ -389,14 +401,14 @@ export default class Element extends Locator<
    * drop-down options and radio buttons), or whether or not the element is
    * currently checked (for checkboxes).
    */
-  isSelected(): Task<boolean> {
+  isSelected(): CancellablePromise<boolean> {
     return this._get<boolean>('selected');
   }
 
   /**
    * Returns whether or not a form element can be interacted with.
    */
-  isEnabled(): Task<boolean> {
+  isEnabled(): CancellablePromise<boolean> {
     return this._get<boolean>('enabled');
   }
 
@@ -435,7 +447,7 @@ export default class Element extends Locator<
    * @returns The value of the attribute as a string, or `null` if no such
    * property or attribute exists.
    */
-  getSpecAttribute(name: string): Task<string | null> {
+  getSpecAttribute(name: string): CancellablePromise<string | null> {
     return this._get<string | undefined>('attribute/$0', null, [name])
       .then(value => {
         if (
@@ -480,7 +492,7 @@ export default class Element extends Locator<
    * @returns The value of the attribute, or `null` if no such attribute
    * exists.
    */
-  getAttribute(name: string): Task<string | null> {
+  getAttribute(name: string): CancellablePromise<string | null> {
     return this.session.execute<string | null>(
       'return arguments[0].getAttribute(arguments[1]);',
       [this, name]
@@ -495,7 +507,7 @@ export default class Element extends Locator<
    * @param name The name of the property.
    * @returns The value of the property.
    */
-  getProperty<T = any>(name: string): Task<T> {
+  getProperty<T = any>(name: string): CancellablePromise<T> {
     return this.session.execute<T>('return arguments[0][arguments[1]];', [
       this,
       name
@@ -505,7 +517,7 @@ export default class Element extends Locator<
   /**
    * Determines if this element is equal to another element.
    */
-  equals(other: Element): Task<boolean> {
+  equals(other: Element): CancellablePromise<boolean> {
     const elementId = other.elementId || other;
     return this._get<boolean>('equals/$0', null, [elementId]).catch(error => {
       // At least Selendroid 0.9.0 does not support this command;
@@ -537,7 +549,7 @@ export default class Element extends Locator<
    * 4. Elements with `opacity: 0`
    * 5. Elements with no `offsetWidth` or `offsetHeight`
    */
-  isDisplayed(): Task<boolean> {
+  isDisplayed(): CancellablePromise<boolean> {
     return this._get<boolean>('displayed').then(isDisplayed => {
       if (
         isDisplayed &&
@@ -578,7 +590,7 @@ export default class Element extends Locator<
    * document, taking into account scrolling and CSS transformations (if they
    * are supported).
    */
-  getPosition(): Task<{ x: number; y: number }> {
+  getPosition(): CancellablePromise<{ x: number; y: number }> {
     if (this.session.capabilities.brokenElementPosition) {
       /* jshint browser:true */
       return this.session.execute<{
@@ -612,7 +624,7 @@ export default class Element extends Locator<
    * Gets the size of the element, taking into account CSS transformations
    * (if they are supported).
    */
-  getSize(): Task<{ width: number; height: number }> {
+  getSize(): CancellablePromise<{ width: number; height: number }> {
     const getUsingExecute = () => {
       return this.session.execute<{
         width: number;
@@ -656,7 +668,7 @@ export default class Element extends Locator<
    * @param propertyName The CSS property to retrieve. This argument must be
    * hyphenated, *not* camel-case.
    */
-  getComputedStyle(propertyName: string): Task<string> {
+  getComputedStyle(propertyName: string): CancellablePromise<string> {
     const manualGetStyle = () => {
       return this.session.execute<string>(
         /* istanbul ignore next */ (element: any, propertyName: string) => {
@@ -666,7 +678,7 @@ export default class Element extends Locator<
       );
     };
 
-    let promise: Task<string>;
+    let promise: CancellablePromise<string>;
 
     if (this.session.capabilities.brokenComputedStyles) {
       promise = manualGetStyle();
@@ -724,7 +736,7 @@ export default class Element extends Locator<
    * @param value The strategy-specific value to search for. See
    * [[Session.Session.find]] for details.
    */
-  findDisplayed(using: Strategy, value: string): Task<Element> {
+  findDisplayed(using: Strategy, value: string): CancellablePromise<Element> {
     return findDisplayed(this.session, this, using, value);
   }
 

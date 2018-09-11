@@ -1,12 +1,12 @@
 import Element, { ElementOrElementId } from './Element';
-import Server, { Method } from './Server';
+import Server from './Server';
 import findDisplayed from './lib/findDisplayed';
-import { partial } from '@dojo/core/lang';
-import Task from '@dojo/core/async/Task';
+import { Task, CancellablePromise, partial } from '@theintern/common';
 import statusCodes from './lib/statusCodes';
 import Locator, { toW3cLocator, Strategy } from './lib/Locator';
 import {
   forCommand as utilForCommand,
+  manualFindByLinkText,
   sleep,
   toExecuteString
 } from './lib/util';
@@ -24,9 +24,9 @@ import {
  * programmatically.
  */
 export default class Session extends Locator<
-  Task<Element>,
-  Task<Element[]>,
-  Task<void>
+  CancellablePromise<Element>,
+  CancellablePromise<Element[]>,
+  CancellablePromise<void>
 > {
   private _sessionId: string;
   private _server: Server;
@@ -35,11 +35,11 @@ export default class Session extends Locator<
   // TODO: Timeouts are held so that we can fiddle with the implicit wait
   // timeout to add efficient `waitFor` and `waitForDeleted` convenience
   // methods. Technically only the implicit timeout is necessary.
-  private _timeouts: { [key: string]: Task<number> } = {};
+  private _timeouts: { [key: string]: CancellablePromise<number> } = {};
   private _movedToElement = false;
   private _lastMousePosition: any = null;
   private _lastAltitude: any = null;
-  private _nextRequest: Task<any> | undefined;
+  private _nextRequest: CancellablePromise<any> | undefined;
 
   /**
    * A Session represents a connection to a remote environment that can be
@@ -91,11 +91,11 @@ export default class Session extends Locator<
    * [[Server.Server]] object.
    */
   private _delegateToServer<T>(
-    method: Method,
+    method: 'post' | 'get' | 'delete',
     path: string,
     requestData: any,
     pathParts?: string[]
-  ) {
+  ): CancellablePromise<T> {
     path = 'session/' + this._sessionId + (path ? '/' + path : '');
 
     if (
@@ -111,7 +111,7 @@ export default class Session extends Locator<
       // The promise is cleared from `_nextRequest` once it has been
       // resolved in order to avoid infinitely long chains of promises
       // retaining values that are not used any more
-      let thisRequest: Task<any> | undefined;
+      let thisRequest: CancellablePromise<any> | undefined;
       const clearNextRequest = () => {
         if (this._nextRequest === thisRequest) {
           this._nextRequest = undefined;
@@ -185,7 +185,7 @@ export default class Session extends Locator<
    * 'implicit', or 'page load'.
    * @returns The timeout, in milliseconds.
    */
-  getTimeout(type: Timeout): Task<number> {
+  getTimeout(type: Timeout): CancellablePromise<number> {
     return this._timeouts[type];
   }
 
@@ -349,7 +349,7 @@ export default class Session extends Locator<
    * @returns The value returned by the remote code. Only values that can be
    * serialised to JSON, plus DOM elements, can be returned.
    */
-  execute<T>(script: Function | string, args?: any[]): Task<T> {
+  execute<T>(script: Function | string, args?: any[]): CancellablePromise<T> {
     // At least FirefoxDriver 2.40.0 will throw a confusing
     // NullPointerException if args is not an array; provide a friendlier
     // error message to users that accidentally pass a non-array
@@ -434,8 +434,8 @@ export default class Session extends Locator<
    * @returns A buffer containing a PNG image.
    */
   takeScreenshot() {
-    return this.serverGet<string>('screenshot').then(
-      data => new Buffer(data, 'base64')
+    return this.serverGet<string>('screenshot').then(data =>
+      Buffer.from(data, 'base64')
     );
   }
 
@@ -601,12 +601,12 @@ export default class Session extends Locator<
    *
    * @param height The new height of the window, in CSS pixels.
    */
-  setWindowSize(width: number, height: number): Task<void>;
+  setWindowSize(width: number, height: number): CancellablePromise<void>;
   setWindowSize(
     windowHandle: string,
     width: number,
     height: number
-  ): Task<void>;
+  ): CancellablePromise<void>;
   setWindowSize(...args: any[]) {
     let [windowHandle, width, height] = args;
 
@@ -756,8 +756,12 @@ export default class Session extends Locator<
    * @param y The screen y-coordinate to move to, in CSS pixels, relative to
    * the top edge of the primary monitor.
    */
-  setWindowPosition(x: number, y: number): Task<void>;
-  setWindowPosition(windowHandle: string, x: number, y: number): Task<void>;
+  setWindowPosition(x: number, y: number): CancellablePromise<void>;
+  setWindowPosition(
+    windowHandle: string,
+    x: number,
+    y: number
+  ): CancellablePromise<void>;
   setWindowPosition(...args: any[]) {
     let [windowHandle, x, y] = args;
 
@@ -1142,17 +1146,16 @@ export default class Session extends Locator<
       (this.capabilities.brokenWhitespaceNormalization ||
         this.capabilities.brokenLinkTextLocator)
     ) {
-      return this.execute<Element>(
-        /* istanbul ignore next */ this._manualFindByLinkText,
-        [using, value]
-      ).then(element => {
-        if (!element) {
-          const error = new Error();
-          error.name = 'NoSuchElement';
-          throw error;
+      return this.execute<Element>(manualFindByLinkText, [using, value]).then(
+        element => {
+          if (!element) {
+            const error = new Error();
+            error.name = 'NoSuchElement';
+            throw error;
+          }
+          return new Element(element, this);
         }
-        return new Element(element, this);
-      });
+      );
     }
 
     return this.serverPost<ElementOrElementId>('element', {
@@ -1191,10 +1194,11 @@ export default class Session extends Locator<
       (this.capabilities.brokenWhitespaceNormalization ||
         this.capabilities.brokenLinkTextLocator)
     ) {
-      return this.execute<Element[]>(
-        /* istanbul ignore next */ this._manualFindByLinkText,
-        [using, value, true]
-      ).then(elements => {
+      return this.execute<Element[]>(manualFindByLinkText, [
+        using,
+        value,
+        true
+      ]).then(elements => {
         return elements.map((element: ElementOrElementId) => {
           return new Element(element, this);
         });
@@ -1223,7 +1227,7 @@ export default class Session extends Locator<
     if (this.capabilities.brokenActiveElement) {
       return getDocumentActiveElement();
     } else {
-      let task: Task<ElementOrElementId>;
+      let task: CancellablePromise<ElementOrElementId>;
 
       if (this.capabilities.usesWebDriverActiveElement) {
         task = this.serverGet<ElementOrElementId>('element/active');
@@ -1361,13 +1365,13 @@ export default class Session extends Locator<
    * of the mouse, or to the top edge of the page’s root element if the mouse
    * was never moved before.
    */
-  moveMouseTo(): Task<void>;
-  moveMouseTo(xOffset?: number, yOffset?: number): Task<void>;
+  moveMouseTo(): CancellablePromise<void>;
+  moveMouseTo(xOffset?: number, yOffset?: number): CancellablePromise<void>;
   moveMouseTo(
     element?: Element,
     xOffset?: number,
     yOffset?: number
-  ): Task<void>;
+  ): CancellablePromise<void>;
   @forCommand({ usesElement: true })
   moveMouseTo(...args: any[]) {
     let [element, xOffset, yOffset] = args;
@@ -1598,12 +1602,12 @@ export default class Session extends Locator<
    * element, in CSS pixels. If no element is specified, the offset is
    * relative to the previous scroll position of the window.
    */
-  touchScroll(xOffset: number, yOffset: number): Task<void>;
+  touchScroll(xOffset: number, yOffset: number): CancellablePromise<void>;
   touchScroll(
     element?: Element,
     xOffset?: number,
     yOffset?: number
-  ): Task<void>;
+  ): CancellablePromise<void>;
   @forCommand({ usesElement: true })
   touchScroll(...args: any[]) {
     let [element, xOffset, yOffset] = args;
@@ -1685,8 +1689,12 @@ export default class Session extends Locator<
     xOffset: number,
     yOffset: number,
     speed?: number
-  ): Task<void>;
-  flickFinger(xOffset: number, yOffset: number, speed?: number): Task<void>;
+  ): CancellablePromise<void>;
+  flickFinger(
+    xOffset: number,
+    yOffset: number,
+    speed?: number
+  ): CancellablePromise<void>;
   @forCommand({ usesElement: true })
   flickFinger(...args: any[]) {
     let [element, xOffset, yOffset, speed] = args;
@@ -1832,65 +1840,6 @@ export default class Session extends Locator<
    */
   quit() {
     return this._server.deleteSession(this._sessionId);
-  }
-
-  /**
-   * Searches a document or element subtree for links with the given
-   * normalized text. This method works for 'link text' and 'partial link
-   * text' search strategies.
-   *
-   * Note that this method should be passed to an `execute` call, not called
-   * directly.
-   *
-   * @param using The strategy in use ('link text' or 'partial link text')
-   * @param value The link text to search for
-   * @param multiple If true, return all matching links
-   * @param element A context element
-   * @returns The found element or elements
-   */
-  private _manualFindByLinkText(
-    using: string,
-    value: string,
-    multiple: boolean,
-    element?: HTMLElement
-  ) {
-    const check =
-      using === 'link text'
-        ? function(linkText: string, text: string) {
-            return linkText === text;
-            // tslint:disable-next-line:indent
-          }
-        : function(linkText: string, text: string) {
-            return linkText.indexOf(text) !== -1;
-            // tslint:disable-next-line:indent
-          };
-
-    const links = (element || document).getElementsByTagName('a');
-    let linkText: string;
-    const found: HTMLElement[] = [];
-
-    // if (multiple) {
-    // 	var found = [];
-    // }
-
-    for (let i = 0; i < links.length; i++) {
-      // Normalize the link text whitespace
-      linkText = links[i].innerText
-        .replace(/^\s+/, '')
-        .replace(/\s+$/, '')
-        .replace(/\s*\r\n\s*/g, '\n')
-        .replace(/ +/g, ' ');
-      if (check(linkText, value)) {
-        if (!multiple) {
-          return links[i];
-        }
-        found.push(links[i]);
-      }
-    }
-
-    if (multiple) {
-      return found;
-    }
   }
 
   /**
@@ -2076,11 +2025,11 @@ export default class Session extends Locator<
   }
 }
 
-export interface SessionError extends Error {
+interface SessionError extends Error {
   status?: keyof typeof statusCodes;
 }
 
-export type Timeout = 'script' | 'implicit' | 'page load';
+type Timeout = 'script' | 'implicit' | 'page load';
 
 /**
  * Decorator for the [[util.forCommand]] method

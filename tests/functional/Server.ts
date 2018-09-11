@@ -1,5 +1,5 @@
 import * as util from './support/util';
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 import Server from '../../src/Server';
 import Session from '../../src/Session';
 import * as urlUtil from 'url';

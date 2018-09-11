@@ -1,6 +1,6 @@
 import * as util from '../lib/util';
 import Command from '../Command';
-import Task from '@dojo/core/async/Task';
+import { CancellablePromise } from '@theintern/common';
 
 /**
  * A [[Command]] helper that polls for a value within the client environment
@@ -63,73 +63,73 @@ import Task from '@dojo/core/async/Task';
  * success and rejects on failure.
  */
 export default function pollUntil<T>(
-  poller: Poller | string,
+  poller: (() => any) | string,
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntil<T>(
   poller: string,
   args?: any[],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntil<T>(
-  poller: Poller,
+  poller: () => any,
   args?: never[],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntil<T, U>(
-  poller: Poller1<U>,
+  poller: (u: U) => any,
   args?: [U],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntil<T, U, V>(
-  poller: Poller2<U, V>,
+  poller: (u: U, v: V) => any,
   args?: [U, V],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntil<T, U, V, W>(
-  poller: Poller3<U, V, W>,
+  poller: (u: U, v: V, w: W) => any,
   args?: [U, V, W],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntil<T, U, V, W, X>(
-  poller: Poller4<U, V, W, X>,
+  poller: (u: U, v: V, w: W, x: X) => any,
   args?: [U, V, W, X],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntil<T, U, V, W, X, Y>(
-  poller: Poller5<U, V, W, X, Y>,
+  poller: (u: U, v: V, w: W, x: X, y: Y) => any,
   args?: [U, V, W, X, Y],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntil<T, U, V, W, X, Y>(
   poller:
-    | Poller
-    | Poller1<U>
-    | Poller2<U, V>
-    | Poller3<U, V, W>
-    | Poller4<U, V, W, X>
-    | Poller5<U, V, W, X, Y>
+    | (() => any)
+    | ((u: U) => any)
+    | ((u: U, v: V) => any)
+    | ((u: U, v: V, w: W) => any)
+    | ((u: U, v: V, w: W, x: X) => any)
+    | ((u: U, v: V, w: W, x: X, y: Y) => any)
     | string,
   argsOrTimeout?: any[] | number,
   timeout?: number,
   pollInterval?: number
-): () => Task<T> {
+): () => CancellablePromise<T> {
   let args: any[] | undefined;
 
   if (typeof argsOrTimeout === 'number') {
@@ -216,10 +216,3 @@ export default function pollUntil<T, U, V, W, X, Y>(
     });
   };
 }
-
-export type Poller = () => any;
-export type Poller1<U> = (u: U) => any;
-export type Poller2<U, V> = (u: U, v: V) => any;
-export type Poller3<U, V, W> = (u: U, v: V, w: W) => any;
-export type Poller4<U, V, W, X> = (u: U, v: V, w: W, x: X) => any;
-export type Poller5<U, V, W, X, Y> = (u: U, v: V, w: W, x: X, y: Y) => any;

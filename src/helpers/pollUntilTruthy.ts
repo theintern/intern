@@ -1,82 +1,75 @@
-import pollUntil, {
-  Poller,
-  Poller1,
-  Poller2,
-  Poller3,
-  Poller4,
-  Poller5
-} from './pollUntil';
+import pollUntil from './pollUntil';
 import { toExecuteString } from '../lib/util';
-import Task from '@dojo/core/async/Task';
+import { CancellablePromise } from '@theintern/common';
 
 export default function pollUntilTruthy<T>(
-  poller: Poller | string,
+  poller: (() => any) | string,
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntilTruthy<T>(
   poller: string,
   args?: any[],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntilTruthy<T>(
-  poller: Poller,
+  poller: () => any,
   args?: never[],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntilTruthy<T, U>(
-  poller: Poller1<U>,
+  poller: (u: U) => any,
   args?: [U],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntilTruthy<T, U, V>(
-  poller: Poller2<U, V>,
+  poller: (u: U, v: V) => any,
   args?: [U, V],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntilTruthy<T, U, V, W>(
-  poller: Poller3<U, V, W>,
+  poller: (u: U, v: V, w: W) => any,
   args?: [U, V, W],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntilTruthy<T, U, V, W, X>(
-  poller: Poller4<U, V, W, X>,
+  poller: (u: U, v: V, w: W, x: X) => any,
   args?: [U, V, W, X],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntilTruthy<T, U, V, W, X, Y>(
-  poller: Poller5<U, V, W, X, Y>,
+  poller: (u: U, v: V, w: W, x: X, y: Y) => any,
   args?: [U, V, W, X, Y],
   timeout?: number,
   pollInterval?: number
-): () => Task<T>;
+): () => CancellablePromise<T>;
 
 export default function pollUntilTruthy<T, U, V, W, X, Y>(
   poller:
-    | Poller
-    | Poller1<U>
-    | Poller2<U, V>
-    | Poller3<U, V, W>
-    | Poller4<U, V, W, X>
-    | Poller5<U, V, W, X, Y>
+    | (() => any)
+    | ((u: U) => any)
+    | ((u: U, v: V) => any)
+    | ((u: U, v: V, w: W) => any)
+    | ((u: U, v: V, w: W, x: X) => any)
+    | ((u: U, v: V, w: W, x: X, y: Y) => any)
     | string,
   argsOrTimeout?: any[] | number,
   timeout?: number,
   pollInterval?: number
-): () => Task<T> {
+): () => CancellablePromise<T> {
   const args: any[] = [];
 
   if (typeof argsOrTimeout === 'number') {
@@ -88,7 +81,7 @@ export default function pollUntilTruthy<T, U, V, W, X, Y>(
 
   args.unshift(toExecuteString(poller));
 
-  const _poller = /* istanbul ignore next */ <Poller>function(poller: string) {
+  const _poller = /* istanbul ignore next */ function(poller: string) {
     const args: any[] = Array.prototype.slice.apply(arguments).slice(1);
     const result = new Function(poller).apply(null, args);
     // If result is truthy, return it. Otherwise return `undefined`, which

@@ -1,4 +1,4 @@
-import Task from '@dojo/core/async/Task';
+import { Task, CancellablePromise } from '@theintern/common';
 import statusCodes from './statusCodes';
 import Element from '../Element';
 import Session from '../Session';
@@ -19,7 +19,7 @@ export default function findDisplayed(
   return session.getTimeout('implicit').then(originalTimeout => {
     const startTime = Date.now();
 
-    function poll(): Task<Element> {
+    function poll(): CancellablePromise<Element> {
       return locator.findAll(strategy, value).then(elements => {
         // Due to concurrency issues with at least ChromeDriver
         // 2.16, each element must be tested one at a time instead
