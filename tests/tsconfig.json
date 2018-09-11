@@ -4,6 +4,7 @@
     "baseUrl": "..",
     "declaration": false,
     "importHelpers": false,
+    "lib": ["dom", "es2015"],
     "module": "commonjs",
 
     // This file intentionally doesn't use paths to prevent re-building
@@ -12,9 +13,7 @@
     // the istanbul ignore comments in the built source.
 
     // needed for istanbul directives
-    "removeComments": false,
-
-    "types": ["intern"]
+    "removeComments": false
   },
   "include": ["./**/*.ts"]
 }

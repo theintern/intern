@@ -1,5 +1,4 @@
-import { createHandle } from '@dojo/core/lang';
-import { Handle } from '@dojo/core/interfaces';
+import { createHandle, Handle } from '@theintern/common';
 import { mkdirSync, statSync, writeFile as fsWriteFile } from 'fs';
 import { dirname } from 'path';
 import { execSync } from 'child_process';

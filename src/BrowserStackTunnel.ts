@@ -1,8 +1,6 @@
 import { chmodSync } from 'fs';
 import { join } from 'path';
-import Task from '@dojo/core/async/Task';
-import request from '@dojo/core/request';
-import { NodeRequestOptions } from '@dojo/core/request/providers/node';
+import { CancellablePromise, request } from '@theintern/common';
 import Tunnel, {
   TunnelProperties,
   DownloadOptions,
@@ -10,7 +8,6 @@ import Tunnel, {
   NormalizedEnvironment
 } from './Tunnel';
 import { parse as parseUrl, Url } from 'url';
-import { mixin } from '@dojo/core/lang';
 import { JobState } from './interfaces';
 import { kill, on } from './util';
 
@@ -20,18 +17,25 @@ import { kill, on } from './util';
  * The accessKey and username properties will be initialized using
  * BROWSERSTACK_ACCESS_KEY and BROWSERSTACK_USERNAME.
  */
-export default class BrowserStackTunnel extends Tunnel {
+export default class BrowserStackTunnel extends Tunnel
+  implements BrowserStackProperties {
   /**
    * Whether or not to start the tunnel with only WebDriver support. Setting
    * this value to `false` is not supported.
    */
-  automateOnly: true | undefined;
+  automateOnly!: true;
+
+  /**
+   * The URL of a service that provides a list of environments supported by
+   * the tunnel.
+   */
+  environmentUrl!: string;
 
   /**
    * If true, any other tunnels running on the account will be killed when
    * the tunnel is started.
    */
-  killOtherTunnels: boolean | undefined;
+  killOtherTunnels!: boolean;
 
   /**
    * A list of server URLs that should be proxied by the tunnel. Only the
@@ -43,14 +47,14 @@ export default class BrowserStackTunnel extends Tunnel {
    * Skip verification that the proxied servers are online and responding at
    * the time the tunnel starts.
    */
-  skipServerValidation: boolean | undefined;
+  skipServerValidation!: boolean;
 
   /** If true, route all traffic via the local machine. */
-  forceLocal: boolean | undefined;
+  forceLocal!: boolean;
 
-  constructor(options?: Partial<BrowserStackProperties & TunnelProperties>) {
+  constructor(options?: BrowserStackOptions) {
     super(
-      mixin(
+      Object.assign(
         {
           accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
           automateOnly: true,
@@ -171,32 +175,31 @@ export default class BrowserStackTunnel extends Tunnel {
     return args;
   }
 
-  sendJobState(jobId: string, data: JobState): Task<void> {
+  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
     const payload = JSON.stringify({
       status: data.status || data.success ? 'completed' : 'error'
     });
 
     const url = `https://www.browserstack.com/automate/sessions/${jobId}.json`;
-    return request
-      .put(url, <NodeRequestOptions>{
-        body: payload,
-        headers: {
-          'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
-          'Content-Type': 'application/json'
-        },
-        password: this.accessKey,
-        user: this.username,
-        proxy: this.proxy
-      })
-      .then<void>(response => {
-        if (response.status < 200 || response.status >= 300) {
-          return response.text().then(text => {
-            throw new Error(
-              text || `Server reported ${response.status} with no other data.`
-            );
-          });
-        }
-      });
+    return request(url, {
+      method: 'put',
+      data: payload,
+      headers: {
+        'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
+        'Content-Type': 'application/json'
+      },
+      password: this.accessKey,
+      username: this.username,
+      proxy: this.proxy
+    }).then<void>(response => {
+      if (response.status < 200 || response.status >= 300) {
+        return response.text().then(text => {
+          throw new Error(
+            text || `Server reported ${response.status} with no other data.`
+          );
+        });
+      }
+    });
   }
 
   protected _start(executor: ChildExecutor) {
@@ -326,9 +329,9 @@ export default class BrowserStackTunnel extends Tunnel {
   }
 }
 
-export interface BrowserStackProperties {
+export interface BrowserStackProperties extends TunnelProperties {
   /** [[BrowserStackTunnel.BrowserStackTunnel.automateOnly|More info]] */
-  automateOnly: boolean;
+  automateOnly: true;
 
   /** [[BrowserStackTunnel.BrowserStackTunnel.killOtherTunnels|More info]] */
   killOtherTunnels: boolean;
@@ -345,3 +348,5 @@ export interface BrowserStackProperties {
   /** [[BrowserStackTunnel.BrowserStackTunnel.environmentUrl|More info]] */
   environmentUrl: string;
 }
+
+export type BrowserStackOptions = Partial<BrowserStackProperties>;

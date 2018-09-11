@@ -1,6 +1,5 @@
-import Task from '@dojo/core/async/Task';
+import { Task, CancellablePromise } from '@theintern/common';
 import Tunnel, { TunnelProperties } from './Tunnel';
-import { mixin } from '@dojo/core/lang';
 
 /**
  * A no-op tunnel.
@@ -8,7 +7,7 @@ import { mixin } from '@dojo/core/lang';
 export default class NullTunnel extends Tunnel {
   constructor(options?: Partial<TunnelProperties>) {
     super(
-      mixin(
+      Object.assign(
         {
           auth: ''
         },
@@ -21,11 +20,11 @@ export default class NullTunnel extends Tunnel {
     return true;
   }
 
-  download() {
+  download(): CancellablePromise<void> {
     return Task.resolve();
   }
 
-  start() {
+  start(): CancellablePromise<void> {
     this._state = 'running';
     return Task.resolve();
   }
@@ -35,7 +34,7 @@ export default class NullTunnel extends Tunnel {
     return Promise.resolve(0);
   }
 
-  sendJobState() {
+  sendJobState(): CancellablePromise<void> {
     return Task.resolve();
   }
 }

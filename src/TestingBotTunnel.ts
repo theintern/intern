@@ -4,16 +4,13 @@ import Tunnel, {
   NormalizedEnvironment
 } from './Tunnel';
 import { existsSync, watchFile, unlinkSync, unwatchFile } from 'fs';
-import UrlSearchParams from '@dojo/core/UrlSearchParams';
+import { stringify } from 'querystring';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import request from '@dojo/core/request';
-import { NodeRequestOptions } from '@dojo/core/request/providers/node';
+import { request, CancellablePromise } from '@theintern/common';
 import { parse } from 'url';
 import { fileExists, on } from './util';
-import { mixin } from '@dojo/core/lang';
 import { JobState } from './interfaces';
-import Task from '@dojo/core/async/Task';
 
 /**
  * A TestingBot tunnel.
@@ -22,7 +19,7 @@ import Task from '@dojo/core/async/Task';
  * TESTINGBOT_API_KEY and TESTINGBOT_API_SECRET.
  */
 export default class TestingBotTunnel extends Tunnel
-  implements TunnelProperties {
+  implements TestingBotProperties {
   directory!: string;
 
   /**
@@ -48,9 +45,9 @@ export default class TestingBotTunnel extends Tunnel
    */
   useSsl!: boolean;
 
-  constructor(options?: Partial<TestingBotProperties & TunnelProperties>) {
+  constructor(options?: TestingBotOptions) {
     super(
-      mixin(
+      Object.assign(
         {
           username: process.env.TESTINGBOT_KEY,
           accessKey: process.env.TESTINGBOT_SECRET,
@@ -116,50 +113,56 @@ export default class TestingBotTunnel extends Tunnel
     return args;
   }
 
-  sendJobState(jobId: string, data: JobState): Task<void> {
-    const params = new UrlSearchParams();
+  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
+    const params: { [key: string]: string | number } = {};
 
-    data.success != null &&
-      params.set('test[success]', String(data.success ? 1 : 0));
-    data.status && params.set('test[status_message]', data.status);
-    data.name && params.set('test[name]', data.name);
-    data.extra && params.set('test[extra]', JSON.stringify(data.extra));
-    data.tags && data.tags.length && params.set('groups', data.tags.join(','));
+    if (data.success != null) {
+      params['test[success]'] = String(data.success ? 1 : 0);
+    }
+    if (data.status) {
+      params['test[status_message]'] = data.status;
+    }
+    if (data.name) {
+      params['test[name]'] = data.name;
+    }
+    if (data.extra) {
+      params['test[extra]'] = JSON.stringify(data.extra);
+    }
+    if (data.tags && data.tags.length) {
+      params['groups'] = data.tags.join(',');
+    }
 
     const url = `https://api.testingbot.com/v1/tests/${jobId}`;
-    const payload = params.toString();
-    return request
-      .put(url, <NodeRequestOptions>{
-        body: payload,
-        headers: {
-          'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        password: this.accessKey,
-        user: this.username,
-        proxy: this.proxy
-      })
-      .then(function(response) {
-        return response.text().then(text => {
-          if (text) {
-            const data = JSON.parse(text);
+    const payload = stringify(params);
+    return request(url, {
+      method: 'put',
+      data: payload,
+      headers: {
+        'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      password: this.accessKey,
+      username: this.username,
+      proxy: this.proxy
+    }).then(function(response) {
+      return response.text().then(text => {
+        if (text) {
+          const data = JSON.parse(text);
 
-            if (data.error) {
-              throw new Error(data.error);
-            } else if (!data.success) {
-              throw new Error('Job data failed to save.');
-            } else if (response.status !== 200) {
-              throw new Error(
-                `Server reported ${response.status} with: ${text}`
-              );
-            }
-          } else {
-            throw new Error(
-              `Server reported ${response.status} with no other data.`
-            );
+          if (data.error) {
+            throw new Error(data.error);
+          } else if (!data.success) {
+            throw new Error('Job data failed to save.');
+          } else if (response.status !== 200) {
+            throw new Error(`Server reported ${response.status} with: ${text}`);
           }
-        });
+        } else {
+          throw new Error(
+            `Server reported ${response.status} with no other data.`
+          );
+        }
       });
+    });
   }
 
   protected _start(executor: ChildExecutor) {
@@ -269,12 +272,12 @@ export default class TestingBotTunnel extends Tunnel
 /**
  * Options specific to TestingBotTunnel
  */
-export interface TestingBotProperties {
+export interface TestingBotProperties extends TunnelProperties {
   /** [[TestingBotTunnel.TestingBotTunnel.fastFailDomains|More info]] */
   fastFailDomains: string[];
 
   /** [[TestingBotTunnel.TestingBotTunnel.logFile|More info]] */
-  logFile: string;
+  logFile: string | null;
 
   /** [[TestingBotTunnel.TestingBotTunnel.useCompression|More info]] */
   useCompression: boolean;
@@ -288,3 +291,5 @@ export interface TestingBotProperties {
   /** [[TestingBotTunnel.TestingBotTunnel.useSsl|More info]] */
   useSsl: boolean;
 }
+
+export type TestingBotOptions = Partial<TestingBotProperties>;

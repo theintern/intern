@@ -1,3 +1,4 @@
+/// <reference types="intern"/>
 /**
  * Install some commonly used test functionals globally
  */

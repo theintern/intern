@@ -5,18 +5,16 @@ import Tunnel, {
 } from './Tunnel';
 import { format } from 'util';
 import { join } from 'path';
-import Task from '@dojo/core/async/Task';
+import { Handle, Task, CancellablePromise } from '@theintern/common';
 import { fileExists, kill, on, writeFile } from './util';
-import { Handle } from '@dojo/core/interfaces';
-import { mixin } from '@dojo/core/lang';
 import { satisfies } from 'semver';
 
 const { sync: commandExistsSync } = require('command-exists');
 
-const SeleniumVersion = '3.13.0';
-const ChromeVersion = '2.40';
+const SeleniumVersion = '3.14.0';
+const ChromeVersion = '2.41';
 const FirefoxVersion = '0.21.0';
-const IEVersion = '3.13.0';
+const IEVersion = '3.14.0';
 const EdgeVersion = '17134';
 
 /**
@@ -95,9 +93,9 @@ export default class SeleniumTunnel extends Tunnel
    */
   seleniumTimeout!: number;
 
-  constructor(options?: Partial<SeleniumProperties & TunnelProperties>) {
+  constructor(options?: SeleniumOptions) {
     super(
-      mixin(
+      Object.assign(
         {
           seleniumArgs: [],
           drivers: ['chrome'],
@@ -145,12 +143,12 @@ export default class SeleniumTunnel extends Tunnel
     return format('%s/%s/%s', this.baseUrl, majorMinorVersion, this.artifact);
   }
 
-  download(forceDownload = false): Task<void> {
+  download(forceDownload = false): CancellablePromise<void> {
     if (!forceDownload && this.isDownloaded) {
       return Task.resolve();
     }
 
-    let tasks: Task<void>[];
+    let tasks: CancellablePromise<void>[];
 
     return new Task(
       resolve => {
@@ -193,7 +191,7 @@ export default class SeleniumTunnel extends Tunnel
     );
   }
 
-  sendJobState() {
+  sendJobState(): CancellablePromise<void> {
     // This is a noop for Selenium
     return Task.resolve();
   }
@@ -322,7 +320,7 @@ export type DriverDescriptor =
 /**
  * Options specific to SeleniumTunnel
  */
-export interface SeleniumProperties {
+export interface SeleniumProperties extends TunnelProperties {
   /** [[SeleniumTunnel.SeleniumTunnel.seleniumArgs|More info]] */
   seleniumArgs: string[];
 
@@ -339,6 +337,8 @@ export interface SeleniumProperties {
   seleniumTimeout: number;
 }
 
+export type SeleniumOptions = Partial<SeleniumProperties>;
+
 export interface SeleniumDownloadOptions extends DownloadOptions {
   executable?: string;
   dontExtract?: boolean;
@@ -346,9 +346,9 @@ export interface SeleniumDownloadOptions extends DownloadOptions {
 
 type DriverConstructor = { new (config?: any): DriverFile };
 
-abstract class Config<T> {
+abstract class Config<T extends object> {
   constructor(config: T) {
-    mixin(this, config);
+    Object.assign(this, config);
   }
 
   abstract readonly executable: string;
@@ -374,7 +374,7 @@ class ChromeConfig extends Config<ChromeOptions>
 
   constructor(options: ChromeOptions) {
     super(
-      mixin(
+      Object.assign(
         {
           arch: process.arch,
           baseUrl: 'https://chromedriver.storage.googleapis.com',
@@ -440,7 +440,7 @@ class FirefoxConfig extends Config<FirefoxOptions>
 
   constructor(options: FirefoxOptions) {
     super(
-      mixin(
+      Object.assign(
         {
           arch: process.arch,
           baseUrl: 'https://github.com/mozilla/geckodriver/releases/download',
@@ -501,7 +501,7 @@ class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
 
   constructor(options: IEOptions) {
     super(
-      mixin(
+      Object.assign(
         {
           arch: process.arch,
           baseUrl: 'https://selenium-release.storage.googleapis.com',
@@ -560,7 +560,7 @@ class EdgeConfig extends Config<EdgeOptions>
 
   constructor(options: EdgeOptions) {
     super(
-      mixin(
+      Object.assign(
         {
           baseUrl: 'https://download.microsoft.com/download',
           version: EdgeVersion

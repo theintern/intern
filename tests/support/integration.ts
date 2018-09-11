@@ -3,8 +3,7 @@ import * as util from './util';
 import { Tests } from 'intern/lib/interfaces/object';
 
 import Tunnel, { IOEvent, NormalizedEnvironment } from 'src/Tunnel';
-import { createCompositeHandle } from '@dojo/core/lang';
-import { Handle } from '@dojo/core/interfaces';
+import { createCompositeHandle, Handle } from '@theintern/common';
 
 function writeIOEvent(event: IOEvent) {
   process.stdout.write(event.data);

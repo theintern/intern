@@ -1,8 +1,12 @@
 import { watchFile, unwatchFile } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import request from '@dojo/core/request';
-import { NodeRequestOptions } from '@dojo/core/request/providers/node';
+import {
+  Task,
+  CancellablePromise,
+  createCompositeHandle,
+  request
+} from '@theintern/common';
 import Tunnel, {
   ChildExecutor,
   NormalizedEnvironment,
@@ -10,8 +14,6 @@ import Tunnel, {
 } from './Tunnel';
 import { JobState } from './interfaces';
 import { on } from './util';
-import Task from '@dojo/core/async/Task';
-import { createCompositeHandle, mixin } from '@dojo/core/lang';
 import { exec } from 'child_process';
 
 const cbtVersion = '0.9.3';
@@ -51,11 +53,9 @@ export default class CrossBrowserTestingTunnel extends Tunnel
   /** The version of the cbt_tunnels package to use */
   cbtVersion!: string;
 
-  constructor(
-    options?: Partial<TunnelProperties & CrossBrowserTestingProperties>
-  ) {
+  constructor(options?: CrossBrowserTestingOptions) {
     super(
-      mixin(
+      Object.assign(
         {
           accessKey: process.env.CBT_APIKEY,
           cbtVersion,
@@ -91,7 +91,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
     }
   }
 
-  download(forceDownload = false): Task<void> {
+  download(forceDownload = false): CancellablePromise<void> {
     if (!forceDownload && this.isDownloaded) {
       return Task.resolve();
     }
@@ -128,48 +128,45 @@ export default class CrossBrowserTestingTunnel extends Tunnel
     ];
   }
 
-  sendJobState(jobId: string, data: JobState): Task<void> {
+  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
     const payload = JSON.stringify({
       action: 'set_score',
       score: data.status || data.success ? 'pass' : 'fail'
     });
 
     const url = `https://crossbrowsertesting.com/api/v3/selenium/${jobId}`;
-    return request
-      .put(url, <NodeRequestOptions>{
-        body: payload,
-        headers: {
-          'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
-          'Content-Type': 'application/json'
-        },
-        user: this.username,
-        password: this.accessKey,
-        proxy: this.proxy
-      })
-      .then<void>(response => {
-        if (response.status !== 200) {
-          return response.text().then(text => {
-            if (text) {
-              const data = JSON.parse(text);
+    return request(url, {
+      method: 'put',
+      data: payload,
+      headers: {
+        'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
+        'Content-Type': 'application/json'
+      },
+      username: this.username,
+      password: this.accessKey,
+      proxy: this.proxy
+    }).then<void>(response => {
+      if (response.status !== 200) {
+        return response.text().then(text => {
+          if (text) {
+            const data = JSON.parse(text);
 
-              if (data.status) {
-                throw new Error(`Could not save test status (${data.message})`);
-              }
-
-              throw new Error(
-                `Server reported ${response.status} with: ${text}`
-              );
-            } else {
-              throw new Error(
-                `Server reported ${response.status} with no other data.`
-              );
+            if (data.status) {
+              throw new Error(`Could not save test status (${data.message})`);
             }
-          });
-        }
-      });
+
+            throw new Error(`Server reported ${response.status} with: ${text}`);
+          } else {
+            throw new Error(
+              `Server reported ${response.status} with no other data.`
+            );
+          }
+        });
+      }
+    });
   }
 
-  protected _start(executor: ChildExecutor) {
+  protected _start(executor: ChildExecutor): CancellablePromise<any> {
     const readyFile = join(tmpdir(), 'CrossBrowserTesting-' + Date.now());
 
     return this._makeChild((child, resolve, reject) => {
@@ -253,7 +250,9 @@ export default class CrossBrowserTestingTunnel extends Tunnel
 /**
  * Options specific to the CrossBrowserTestingTunnel
  */
-export interface CrossBrowserTestingProperties {
+export interface CrossBrowserTestingProperties extends TunnelProperties {
   /** [[CrossBrowserTestingTunnel.CrossBrowserTestingTunnel.cbtVersion|More info]] */
   cbtVersion: string;
 }
+
+export type CrossBrowserTestingOptions = Partial<CrossBrowserTestingProperties>;

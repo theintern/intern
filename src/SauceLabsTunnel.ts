@@ -8,11 +8,8 @@ import { JobState } from './interfaces';
 import { chmodSync, watchFile, unwatchFile } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import Task, { State } from '@dojo/core/async/Task';
-import request from '@dojo/core/request';
-import { NodeRequestOptions } from '@dojo/core/request/providers/node';
+import { CancellablePromise, request } from '@theintern/common';
 import { format as formatUrl, parse as parseUrl, Url } from 'url';
-import { mixin } from '@dojo/core/lang';
 import { fileExists, kill, on } from './util';
 
 const scVersion = '4.4.12';
@@ -123,9 +120,9 @@ export default class SauceLabsTunnel extends Tunnel
 
   username!: string;
 
-  constructor(options?: Partial<SauceLabsProperties & TunnelProperties>) {
+  constructor(options?: SauceLabsOptions) {
     super(
-      mixin(
+      Object.assign(
         {
           accessKey: process.env.SAUCE_ACCESS_KEY,
           directDomains: [],
@@ -314,7 +311,7 @@ export default class SauceLabsTunnel extends Tunnel
     return args;
   }
 
-  sendJobState(jobId: string, data: JobState): Task<void> {
+  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
     let url = parseUrl(this.restUrl || 'https://saucelabs.com/rest/v1/');
     url.auth = this.username + ':' + this.accessKey;
     url.pathname += this.username + '/jobs/' + jobId;
@@ -328,38 +325,35 @@ export default class SauceLabsTunnel extends Tunnel
       tags: data.tags
     });
 
-    return request
-      .put(formatUrl(url), <NodeRequestOptions>{
-        body: payload,
-        headers: {
-          'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        password: this.accessKey,
-        user: this.username,
-        proxy: this.proxy
-      })
-      .then(function(response) {
-        return response.text().then(text => {
-          if (text) {
-            const data = JSON.parse(text);
+    return request(formatUrl(url), {
+      method: 'put',
+      data: payload,
+      headers: {
+        'Content-Length': String(Buffer.byteLength(payload, 'utf8')),
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      password: this.accessKey,
+      username: this.username,
+      proxy: this.proxy
+    }).then(function(response) {
+      return response.text().then(text => {
+        if (text) {
+          const data = JSON.parse(text);
 
-            if (data.error) {
-              throw new Error(data.error);
-            }
-
-            if (response.status !== 200) {
-              throw new Error(
-                `Server reported ${response.status} with: ${text}`
-              );
-            }
-          } else {
-            throw new Error(
-              `Server reported ${response.status} with no other data.`
-            );
+          if (data.error) {
+            throw new Error(data.error);
           }
-        });
+
+          if (response.status !== 200) {
+            throw new Error(`Server reported ${response.status} with: ${text}`);
+          }
+        } else {
+          throw new Error(
+            `Server reported ${response.status} with no other data.`
+          );
+        }
       });
+    });
   }
 
   protected _start(executor: ChildExecutor) {
@@ -373,9 +367,7 @@ export default class SauceLabsTunnel extends Tunnel
     const task = this._makeChild((child, resolve, reject) => {
       readStartupMessage = (message: string) => {
         function fail(message: string) {
-          if (task.state === State.Pending) {
-            reject(new Error(message));
-          }
+          reject(new Error(message));
           return true;
         }
 
@@ -409,10 +401,7 @@ export default class SauceLabsTunnel extends Tunnel
         // update the readyfile when the tunnel is ready. Use the
         // 'Selenium listener' message as an alternate startup
         // indicator.
-        if (
-          task.state === State.Pending &&
-          message.indexOf('Selenium listener started on port ') === 0
-        ) {
+        if (message.indexOf('Selenium listener started on port ') === 0) {
           resolve();
           return true;
         }
@@ -583,7 +572,7 @@ export default class SauceLabsTunnel extends Tunnel
 /**
  * Options specific to the SauceLabsTunnel
  */
-export interface SauceLabsProperties {
+export interface SauceLabsProperties extends TunnelProperties {
   /** [[SauceLabsTunnel.SauceLabsTunnel.directDomains|More info]] */
   directDomains: string[];
 
@@ -629,3 +618,5 @@ export interface SauceLabsProperties {
   /** [[SauceLabsTunnel.SauceLabsTunnel.vmVersion|More info]] */
   vmVersion: string | undefined;
 }
+
+export type SauceLabsOptions = Partial<SauceLabsProperties>;

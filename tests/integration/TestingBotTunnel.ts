@@ -10,6 +10,6 @@ function checkEnvironment(environment: any) {
 
 let suite = {};
 suite = addEnvironmentTest(suite, TestingBotTunnel, checkEnvironment);
-suite = addStartStopTest(suite, TestingBotTunnel, { timeout: 30000 });
+suite = addStartStopTest(suite, TestingBotTunnel, { timeout: 60000 });
 
 registerSuite('integration/TestingBotTunnel', suite);

@@ -1,16 +1,19 @@
-import Evented from '@dojo/core/Evented';
-import { EventObject, Handle } from '@dojo/core/interfaces';
-import { createCompositeHandle, mixin } from '@dojo/core/lang';
-import Task, { State } from '@dojo/core/async/Task';
-import sendRequest from '@dojo/core/request';
-import { Response } from '@dojo/core/request/interfaces';
-import { NodeRequestOptions } from '@dojo/core/request/providers/node';
+import {
+  Evented,
+  EventObject,
+  Handle,
+  createCompositeHandle,
+  Task,
+  CancellablePromise,
+  request,
+  Response
+} from '@theintern/common';
 import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
 import { format as formatUrl, Url } from 'url';
 import { fileExists, kill, on } from './util';
 import { JobState } from './interfaces';
-import decompress from 'decompress';
+import * as decompress from 'decompress';
 
 /**
  * A Tunnel is a mechanism for connecting to a WebDriver service provider that
@@ -18,7 +21,7 @@ import decompress from 'decompress';
  * network.
  */
 export default class Tunnel extends Evented<TunnelEvents, string>
-  implements TunnelProperties, DownloadOptions, Url {
+  implements TunnelProperties, Url {
   /**
    * The URL of a service that provides a list of environments supported by
    * the tunnel.
@@ -109,15 +112,15 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   /** Whether or not to tell the tunnel to provide verbose logging output. */
   verbose!: boolean;
 
-  protected _startTask: Task<any> | undefined;
-  protected _stopTask: Promise<number> | undefined;
+  protected _startTask: CancellablePromise<any> | undefined;
+  protected _stopTask: Promise<number | void> | undefined;
   protected _handle: Handle | undefined;
   protected _process: ChildProcess | undefined;
   protected _state!: 'stopped' | 'starting' | 'running' | 'stopping';
 
-  constructor(options?: Partial<TunnelProperties & DownloadOptions>) {
+  constructor(options?: TunnelOptions) {
     super();
-    mixin(
+    Object.assign(
       this,
       {
         architecture: process.arch,
@@ -145,7 +148,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    * A map of additional capabilities that need to be sent to the provider
    * when a new session is being created.
    */
-  get extraCapabilities(): Object {
+  get extraCapabilities(): object {
     return {};
   }
 
@@ -190,19 +193,178 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    * @returns A promise that resolves once the download and extraction process
    * has completed.
    */
-  download(forceDownload = false): Task<void> {
+  download(forceDownload = false): CancellablePromise<void> {
     if (!forceDownload && this.isDownloaded) {
       return Task.resolve();
     }
     return this._downloadFile(this.url, this.proxy);
   }
 
+  /**
+   * Get a list of environments available on the service.
+   *
+   * This method should be overridden and use a specific implementation that
+   * returns normalized environments from the service. E.g.
+   *
+   * ```js
+   * {
+   *     browserName: 'firefox',
+   *     version: '12',
+   *     platform: 'windows',
+   *     descriptor: { <original returned environment> }
+   * }
+   * ```
+   *
+   * @returns An object containing the response and helper functions
+   */
+  getEnvironments(): CancellablePromise<NormalizedEnvironment[]> {
+    if (!this.environmentUrl) {
+      return Task.resolve([]);
+    }
+
+    return request(this.environmentUrl, {
+      password: this.accessKey,
+      username: this.username,
+      proxy: this.proxy
+    }).then(response => {
+      if (response.status >= 200 && response.status < 400) {
+        return response.json<any[]>().then(data => {
+          return data.reduce(
+            (environments: NormalizedEnvironment[], environment: any) => {
+              return environments.concat(
+                this._normalizeEnvironment(environment)
+              );
+            },
+            []
+          );
+        });
+      } else {
+        if (response.status === 401) {
+          throw new Error('Missing or invalid username and access key');
+        }
+        throw new Error(`Server replied with a status of ${response.status}`);
+      }
+    });
+  }
+
+  /**
+   * Sends information about a job to the tunnel provider.
+   *
+   * @param jobId The job to send data about. This is usually a session ID.
+   * @param data Data to send to the tunnel provider about the job.
+   * @returns A promise that resolves once the job state request is complete.
+   */
+  sendJobState(_jobId: string, _data: JobState): CancellablePromise<void> {
+    return Task.reject(new Error('Job state is not supported by this tunnel.'));
+  }
+
+  /**
+   * Starts the tunnel, automatically downloading dependencies if necessary.
+   *
+   * @returns A promise that resolves once the tunnel has been established.
+   */
+  start(): CancellablePromise<void> {
+    switch (this._state) {
+      case 'stopping':
+        throw new Error('Previous tunnel is still terminating');
+      case 'running':
+      case 'starting':
+        return this._startTask!;
+    }
+
+    this._state = 'starting';
+
+    this._startTask = this.download().then(() => {
+      return this._start(child => {
+        this._process = child;
+        this._handle = createCompositeHandle(
+          this._handle || { destroy: function() {} },
+          on(child.stdout, 'data', proxyIOEvent(this, 'stdout')),
+          on(child.stderr, 'data', proxyIOEvent(this, 'stderr')),
+          on(child, 'exit', () => {
+            this._state = 'stopped';
+          })
+        );
+      });
+    });
+
+    this._startTask
+      .then(() => {
+        this._startTask = undefined;
+        this._state = 'running';
+        this.emit({
+          type: 'status',
+          target: this,
+          status: 'Ready'
+        });
+      })
+      .catch(error => {
+        this._startTask = undefined;
+        this._state = 'stopped';
+        this.emit({
+          type: 'status',
+          target: this,
+          status:
+            error.name === 'CancelError'
+              ? 'Start cancelled'
+              : 'Failed to start tunnel'
+        });
+      });
+
+    return this._startTask!;
+  }
+
+  /**
+   * Stops the tunnel.
+   *
+   * @returns A promise that resolves to the exit code for the tunnel once it
+   * has been terminated.
+   */
+  stop(): Promise<number | void> {
+    switch (this._state) {
+      case 'starting':
+        this._startTask!.cancel();
+        return this._startTask!.finally(() => null);
+      case 'stopping':
+        return this._stopTask!;
+    }
+
+    this._state = 'stopping';
+
+    this.emit({
+      type: 'status',
+      target: this,
+      status: 'Stopping'
+    });
+
+    this._stopTask = this._stop()
+      .then(returnValue => {
+        if (this._handle) {
+          this._handle.destroy();
+        }
+        this._process = this._handle = undefined;
+        this._state = 'stopped';
+        this.emit({
+          type: 'status',
+          target: this,
+          status: 'Stopped'
+        });
+        return returnValue;
+      })
+      .catch(error => {
+        this._state = 'running';
+        throw error;
+      });
+
+    return this._stopTask;
+  }
+
   protected _downloadFile(
     url: string | undefined,
     proxy: string | undefined,
     options?: DownloadOptions
-  ): Task<void> {
-    let request: Task<Response>;
+  ): CancellablePromise<void> {
+    let req: CancellablePromise<Response>;
 
     if (!url) {
       return Task.reject(new Error('URL is empty'));
@@ -210,23 +372,21 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 
     return new Task<void>(
       (resolve, reject) => {
-        request = sendRequest(url, <NodeRequestOptions>{ proxy });
-        request
-          .then(response => {
-            const total = Number(response.headers.get('content-length'));
-
-            response.download.subscribe({
-              next: received => {
-                this.emit({
-                  type: 'downloadprogress',
-                  target: this,
-                  url,
-                  total,
-                  received
-                });
-              }
+        req = request(url, {
+          proxy,
+          onDownloadProgress: event => {
+            this.emit({
+              type: 'downloadprogress',
+              target: this,
+              url,
+              total: event.total,
+              received: event.received
             });
+          }
+        });
 
+        req
+          .then(response => {
             if (response.status >= 400) {
               throw new Error(
                 `Download server returned status code ${
@@ -244,27 +404,9 @@ export default class Tunnel extends Evented<TunnelEvents, string>
           });
       },
       () => {
-        request && request.cancel();
+        req && req.cancel();
       }
     );
-  }
-
-  /**
-   * Called with the response after a file download has completed
-   */
-  protected _postDownloadFile(
-    data: Buffer,
-    options?: DownloadOptions
-  ): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      let directory = this.directory;
-      if (options && options.directory) {
-        directory = join(directory, options.directory);
-      }
-      decompress(data, directory)
-        .then(() => resolve())
-        .catch(reject);
-    });
   }
 
   /**
@@ -294,7 +436,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   protected _makeChild(
     executor: ChildExecutor,
     ...values: string[]
-  ): Task<any> {
+  ): CancellablePromise {
     const command = this.executable;
     const args = this._makeArgs(...values);
     const options = this._makeOptions(...values);
@@ -313,14 +455,12 @@ export default class Tunnel extends Evented<TunnelEvents, string>
         let exitted = false;
 
         function handleChildExit() {
-          if (task.state === State.Pending) {
-            reject(
-              new Error(
-                `Tunnel failed to start: ${errorMessage ||
-                  `Exit code: ${exitCode}`}`
-              )
-            );
-          }
+          reject(
+            new Error(
+              `Tunnel failed to start: ${errorMessage ||
+                `Exit code: ${exitCode}`}`
+            )
+          );
         }
 
         handle = createCompositeHandle(
@@ -393,70 +533,32 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   }
 
   /**
-   * Sends information about a job to the tunnel provider.
+   * Normalizes a specific Tunnel environment descriptor to a general form. To
+   * be overriden by a child implementation.
    *
-   * @param jobId The job to send data about. This is usually a session ID.
-   * @param data Data to send to the tunnel provider about the job.
-   * @returns A promise that resolves once the job state request is complete.
+   * @param environment an environment descriptor specific to the Tunnel
+   * @returns a normalized environment
    */
-  sendJobState(_jobId: string, _data: JobState): Task<void> {
-    return Task.reject(new Error('Job state is not supported by this tunnel.'));
+  protected _normalizeEnvironment(environment: Object): NormalizedEnvironment {
+    return <any>environment;
   }
 
   /**
-   * Starts the tunnel, automatically downloading dependencies if necessary.
-   *
-   * @returns A promise that resolves once the tunnel has been established.
+   * Called with the response after a file download has completed
    */
-  start() {
-    switch (this._state) {
-      case 'stopping':
-        throw new Error('Previous tunnel is still terminating');
-      case 'running':
-      case 'starting':
-        return this._startTask!;
-    }
-
-    this._state = 'starting';
-
-    this._startTask = this.download().then(() => {
-      return this._start(child => {
-        this._process = child;
-        this._handle = createCompositeHandle(
-          this._handle || { destroy: function() {} },
-          on(child.stdout, 'data', proxyIOEvent(this, 'stdout')),
-          on(child.stderr, 'data', proxyIOEvent(this, 'stderr')),
-          on(child, 'exit', () => {
-            this._state = 'stopped';
-          })
-        );
-      });
+  protected _postDownloadFile(
+    data: Buffer,
+    options?: DownloadOptions
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      let directory = this.directory;
+      if (options && options.directory) {
+        directory = join(directory, options.directory);
+      }
+      decompress(data, directory)
+        .then(() => resolve())
+        .catch(reject);
     });
-
-    this._startTask
-      .then(() => {
-        this._startTask = undefined;
-        this._state = 'running';
-        this.emit({
-          type: 'status',
-          target: this,
-          status: 'Ready'
-        });
-      })
-      .catch(error => {
-        this._startTask = undefined;
-        this._state = 'stopped';
-        this.emit({
-          type: 'status',
-          target: this,
-          status:
-            error.name === 'CancelError'
-              ? 'Start cancelled'
-              : 'Failed to start tunnel'
-        });
-      });
-
-    return this._startTask!;
   }
 
   /**
@@ -494,51 +596,6 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   }
 
   /**
-   * Stops the tunnel.
-   *
-   * @returns A promise that resolves to the exit code for the tunnel once it
-   * has been terminated.
-   */
-  stop(): Promise<number> {
-    switch (this._state) {
-      case 'starting':
-        this._startTask!.cancel();
-        return this._startTask!.finally(() => null);
-      case 'stopping':
-        return this._stopTask!;
-    }
-
-    this._state = 'stopping';
-
-    this.emit({
-      type: 'status',
-      target: this,
-      status: 'Stopping'
-    });
-
-    this._stopTask = this._stop()
-      .then(returnValue => {
-        if (this._handle) {
-          this._handle.destroy();
-        }
-        this._process = this._handle = undefined;
-        this._state = 'stopped';
-        this.emit({
-          type: 'status',
-          target: this,
-          status: 'Stopped'
-        });
-        return returnValue;
-      })
-      .catch(error => {
-        this._state = 'running';
-        throw error;
-      });
-
-    return this._stopTask;
-  }
-
-  /**
    * This method provides the implementation that actually stops the tunnel.
    *
    * The default implementation that assumes the tunnel has been closed once
@@ -547,8 +604,8 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    *
    * @returns A promise that resolves once the tunnel has shut down.
    */
-  protected _stop(): Promise<number> {
-    return new Promise((resolve, reject) => {
+  protected _stop() {
+    return new Promise<number | void>((resolve, reject) => {
       const childProcess = this._process;
       if (!childProcess) {
         resolve();
@@ -565,64 +622,6 @@ export default class Tunnel extends Evented<TunnelEvents, string>
         reject(error);
       }
     });
-  }
-
-  /**
-   * Get a list of environments available on the service.
-   *
-   * This method should be overridden and use a specific implementation that
-   * returns normalized environments from the service. E.g.
-   *
-   * ```js
-   * {
-   *     browserName: 'firefox',
-   *     version: '12',
-   *     platform: 'windows',
-   *     descriptor: { <original returned environment> }
-   * }
-   * ```
-   *
-   * @returns An object containing the response and helper functions
-   */
-  getEnvironments(): Task<NormalizedEnvironment[]> {
-    if (!this.environmentUrl) {
-      return Task.resolve([]);
-    }
-
-    return sendRequest(this.environmentUrl, <NodeRequestOptions>{
-      password: this.accessKey,
-      user: this.username,
-      proxy: this.proxy
-    }).then(response => {
-      if (response.status >= 200 && response.status < 400) {
-        return response.json<any[]>().then(data => {
-          return data.reduce(
-            (environments: NormalizedEnvironment[], environment: any) => {
-              return environments.concat(
-                this._normalizeEnvironment(environment)
-              );
-            },
-            []
-          );
-        });
-      } else {
-        if (response.status === 401) {
-          throw new Error('Missing or invalid username and access key');
-        }
-        throw new Error(`Server replied with a status of ${response.status}`);
-      }
-    });
-  }
-
-  /**
-   * Normalizes a specific Tunnel environment descriptor to a general form. To
-   * be overriden by a child implementation.
-   *
-   * @param environment an environment descriptor specific to the Tunnel
-   * @returns a normalized environment
-   */
-  protected _normalizeEnvironment(environment: Object): NormalizedEnvironment {
-    return <any>environment;
   }
 }
 
@@ -684,11 +683,13 @@ export interface ChildExecutor {
 }
 
 /** Options for file downloads */
-export interface DownloadOptions {
+export interface DownloadProperties {
   directory: string | undefined;
   proxy: string | undefined;
   url: string;
 }
+
+export type DownloadOptions = Partial<DownloadProperties>;
 
 /**
  * A normalized environment descriptor.
@@ -714,7 +715,7 @@ export interface NormalizedEnvironment {
 }
 
 /** Properties of a tunnel */
-export interface TunnelProperties {
+export interface TunnelProperties extends DownloadProperties {
   /** [[Tunnel.Tunnel.architecture|More info]] */
   architecture: string;
 
@@ -751,6 +752,8 @@ export interface TunnelProperties {
   /** [[Tunnel.Tunnel.verbose|More info]] */
   verbose: boolean;
 }
+
+export type TunnelOptions = Partial<TunnelProperties>;
 
 function proxyIOEvent(target: Tunnel, type: 'stdout' | 'stderr') {
   return function(data: any) {

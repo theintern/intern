@@ -8,17 +8,14 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@dojo/core": "~2.0.0",
-    "@dojo/has": "~2.0.0",
-    "@dojo/interfaces": "~0.2.0",
-    "@dojo/shim": "~2.0.0",
+    "@theintern/common": "~0.1.0",
     "command-exists": "~1.2.6",
     "decompress": "~4.2.0",
     "semver": "~5.5.0",
     "tslib": "~1.9.3"
   },
   "devDependencies": {
-    "@theintern/dev": "~0.8.0",
+    "@theintern/dev": "~0.8.1",
     "@types/decompress": "~4.2.2",
     "@types/node": "~9.6.11",
     "@types/semver": "~5.5.0",
