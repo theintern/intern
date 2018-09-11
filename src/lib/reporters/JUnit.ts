@@ -1,7 +1,7 @@
 import { mkdirSync, createWriteStream } from 'fs';
 import { dirname } from 'path';
 
-import Suite from '../Suite';
+import Suite, { isSuite } from '../Suite';
 import Test from '../Test';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import { Executor } from '../executors/Executor';
@@ -148,7 +148,7 @@ function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
 }
 
 function createTestNode(test: Suite | Test, reporter: JUnit) {
-	if (test instanceof Suite) {
+	if (isSuite(test)) {
 		return createSuiteNode(test, reporter);
 	}
 
