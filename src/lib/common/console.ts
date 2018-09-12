@@ -1,4 +1,4 @@
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 export function log(...args: any[]) {
   if (global.console && global.console.log) {

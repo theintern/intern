@@ -1,8 +1,9 @@
-import UrlSearchParams from '@dojo/core/UrlSearchParams';
 import { Executor } from '../executors/Executor';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Test from '../Test';
 import Suite from '../Suite';
+
+// Needs a URLSearchParams polyfill
 
 /**
  * The Html reporter displays an HTML report in the browser.
@@ -599,7 +600,7 @@ export default class Html extends Reporter implements HtmlProperties {
     const document = this.document;
     const location = this.location;
 
-    const params = new UrlSearchParams(location.search.slice(1) || undefined);
+    const params = new URLSearchParams(location.search.slice(1) || undefined);
     params.delete('grep');
     params.append('grep', obj.id);
 

@@ -1,8 +1,7 @@
 import { parse } from 'url';
 import { relative } from 'path';
-import UrlSearchParams from '@dojo/core/UrlSearchParams';
-import { Handle, Hash } from '@dojo/core/interfaces';
-import Task from '@dojo/core/async/Task';
+import { stringify as stringifyQuery } from 'querystring';
+import { Handle, Task, CancellablePromise } from '@theintern/common';
 
 import Suite, { SuiteOptions } from './Suite';
 import { InternError } from './types';
@@ -53,7 +52,7 @@ export default class RemoteSuite extends Suite {
   /**
    * Run a suite in a remote browser.
    */
-  run(): Task<any> {
+  run(): CancellablePromise<any> {
     const remote = this.remote;
     const sessionId = remote.session.sessionId;
     const server = this.executor.server!;
@@ -196,7 +195,7 @@ export default class RemoteSuite extends Suite {
         };
 
         // Do some pre-serialization of the options
-        const queryParams: Hash<any> = {};
+        const queryParams: { [key: string]: any } = {};
         Object.keys(queryOptions)
           .filter(option => {
             const key = <keyof RemoteConfig>option;
@@ -211,7 +210,7 @@ export default class RemoteSuite extends Suite {
             queryParams[key] = value;
           });
 
-        const query = new UrlSearchParams(queryParams);
+        const query = stringifyQuery(queryParams);
         const harness = `${config.serverUrl}__intern/browser/remote.html`;
 
         // Determine the relative path from basePath to internPath. This

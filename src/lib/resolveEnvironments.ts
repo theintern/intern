@@ -1,4 +1,3 @@
-import { mixin } from '@dojo/core/lang';
 import { NormalizedEnvironment } from '@theintern/digdug/Tunnel';
 
 import Environment from './Environment';
@@ -33,7 +32,7 @@ export default function resolveEnvironments(
     if (version == null) {
       return environment;
     }
-    return mixin({}, environment, { version });
+    return Object.assign({}, environment, { version });
   });
 
   // Perform a second round of permuting to handle any expanded version ranges
@@ -265,7 +264,7 @@ function createPermutations(
   // If no expansion sources were given, the set of permutations consists of
   // just the base
   if (!sources || sources.length === 0) {
-    return [<FlatEnvironment>mixin({}, base)];
+    return [<FlatEnvironment>Object.assign({}, base)];
   }
 
   // Expand the permutation set for each source
@@ -280,7 +279,7 @@ function createPermutations(
             permutations = source[key]
               .map((value: any) => {
                 return permutations.map(permutation =>
-                  mixin({}, permutation, { [key]: value })
+                  Object.assign({}, permutation, { [key]: value })
                 );
               })
               .reduce(
@@ -298,7 +297,7 @@ function createPermutations(
           }
           return permutations;
         },
-        [<FlatEnvironment>mixin({}, base)]
+        [<FlatEnvironment>Object.assign({}, base)]
       );
     })
     .reduce(

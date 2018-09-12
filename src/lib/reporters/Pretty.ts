@@ -1,8 +1,7 @@
-import charm from 'charm';
+import * as charm from 'charm';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { format } from 'util';
-import { mixin } from '@dojo/core/lang';
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 import Environment from '../Environment';
 import Suite from '../Suite';
@@ -40,7 +39,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
     this.dimensions = options.dimensions || {};
     this.titleWidth = options.titleWidth || 12;
     this.maxProgressBarWidth = options.maxProgressBarWidth || 40;
-    this.colorReplacement = mixin(
+    this.colorReplacement = Object.assign(
       {
         0: 'green',
         1: 'magenta',

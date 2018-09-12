@@ -1,5 +1,5 @@
 import { spy } from 'sinon';
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 import _Reporter, {
   createEventHandler,
@@ -26,7 +26,7 @@ registerSuite('lib/reporters/Reporter', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/reporters/Reporter', {
-        '@dojo/shim/global': { default: mockGlobal }
+        '@theintern/common': { global: mockGlobal }
       }).then(handle => {
         removeMocks = handle.remove;
         Reporter = handle.module.default;

@@ -1,4 +1,3 @@
-import { after } from '@dojo/core/aspect';
 import _Html from 'src/lib/reporters/Html';
 import { createMockBrowserExecutor } from '../../../support/unit/mocks';
 import { createLocation } from './support/mocks';
@@ -74,16 +73,14 @@ registerSuite('intern/lib/reporters/Html', {
 
       'regular suite'() {
         const links: HTMLElement[] = [];
-        const handler = after(
-          reporter.document,
-          'createElement',
-          returnValue => {
-            if (returnValue.tagName === 'A') {
-              links.push(returnValue);
-            }
-            return returnValue;
+        const origCreateElement = reporter.document.createElement;
+        reporter.document.createElement = function() {
+          const retVal = origCreateElement.apply(reporter.document, arguments);
+          if (retVal.tagName === 'A') {
+            links.push(retVal);
           }
-        );
+          return retVal;
+        };
 
         const suite: any = {
           hasParent: true,
@@ -96,7 +93,7 @@ registerSuite('intern/lib/reporters/Html', {
         // Need to run runStart to setup doc for suiteStart
         reporter.runStart();
         reporter.suiteStart(suite);
-        handler.destroy();
+        reporter.document.createElement = origCreateElement;
 
         assert.lengthOf(links, 1);
         const link = links[0];
@@ -276,7 +273,7 @@ registerSuite('intern/lib/reporters/Html', {
             {
               id: 'foo - test 1',
               name: 'test 1',
-              expectedLink: '?grep=foo%20-%20test%201',
+              expectedLink: '?grep=foo+-+test+1',
               timeElapsed: 123
             }
           ]);
@@ -287,7 +284,7 @@ registerSuite('intern/lib/reporters/Html', {
             {
               id: 'foo - test 2',
               name: 'test 2',
-              expectedLink: '?grep=foo%20-%20test%202',
+              expectedLink: '?grep=foo+-+test+2',
               timeElapsed: 123,
               error: new Error('failed')
             }
@@ -299,7 +296,7 @@ registerSuite('intern/lib/reporters/Html', {
             {
               id: 'foo - test 3',
               name: 'test 3',
-              expectedLink: '?grep=foo%20-%20test%203',
+              expectedLink: '?grep=foo+-+test+3',
               timeElapsed: 123,
               skipped: 'yes'
             }

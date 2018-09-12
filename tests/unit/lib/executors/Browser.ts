@@ -1,4 +1,5 @@
 import { spy, sandbox as Sandbox } from 'sinon';
+import { Task, isPromiseLike, deepMixin } from '@theintern/common';
 import _Browser, { Config } from 'src/lib/executors/Browser';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
@@ -85,15 +86,18 @@ registerSuite('lib/executors/Browser', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/executors/Browser', {
-        'src/lib/common/ErrorFormatter': {
-          default: MockErrorFormatter
-        },
+        'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
         'src/lib/common/console': mockConsole,
         'src/lib/browser/util': mockUtil,
-        '@dojo/core/request/providers/xhr': { default: request },
         chai: mockChai,
         minimatch: { Minimatch: MockMiniMatch },
-        '@dojo/shim/global': { default: mockGlobal }
+        '@theintern/common': {
+          request,
+          global: mockGlobal,
+          isPromiseLike,
+          Task,
+          deepMixin
+        }
       }).then(handle => {
         removeMocks = handle.remove;
         Browser = handle.module.default;

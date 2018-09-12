@@ -1,4 +1,4 @@
-import createError from 'http-errors';
+import * as createError from 'http-errors';
 import { RequestHandler } from 'express';
 
 export default function unhandled(): RequestHandler {

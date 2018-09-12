@@ -1,5 +1,5 @@
 import { spy, SinonSpy, stub } from 'sinon';
-import Task, { State } from '@dojo/core/async/Task';
+import { Task, deepMixin, isPromiseLike } from '@theintern/common';
 
 import { Config } from 'src/lib/common/config';
 import _Node from 'src/lib/executors/Node';
@@ -238,15 +238,18 @@ registerSuite('lib/executors/Node', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/executors/Node', {
-        'src/lib/common/ErrorFormatter': {
-          default: MockErrorFormatter
-        },
+        'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
         'src/lib/common/console': mockConsole,
         'src/lib/node/util': mockNodeUtil,
         chai: mockChai,
         path: mockPath,
         fs: mockFs,
-        '@dojo/shim/global': { default: mockGlobal },
+        '@theintern/common': {
+          global: mockGlobal,
+          isPromiseLike,
+          Task,
+          deepMixin
+        },
         'src/lib/reporters/Pretty': { default: MockReporter },
         'src/lib/reporters/Runner': { default: MockReporter },
         'src/lib/reporters/Simple': { default: MockReporter },
@@ -295,8 +298,7 @@ registerSuite('lib/executors/Node', function() {
         '@theintern/digdug/NullTunnel': { default: MockTunnel },
         '@theintern/digdug/BrowserStackTunnel': { default: MockTunnel },
         'src/lib/ProxiedSession': { default: MockSession },
-        'src/lib/RemoteSuite': { default: MockRemoteSuite },
-        'src/lib/executors/Executor': null
+        'src/lib/RemoteSuite': { default: MockRemoteSuite }
       }).then(handle => {
         removeMocks = handle.remove;
         Node = handle.module.default;
@@ -942,6 +944,9 @@ registerSuite('lib/executors/Node', function() {
             tunnel: 'null',
             functionalSuites: ['foo.js']
           });
+
+          let settled = false;
+
           executor.registerLoader((_options: any) => (modules: string[]) => {
             if (modules[0] === 'foo.js') {
               executor.addSuite((parent: Suite) => {
@@ -961,6 +966,14 @@ registerSuite('lib/executors/Node', function() {
           });
 
           const runTask = executor.run();
+          runTask.then(
+            () => {
+              settled = true;
+            },
+            () => {
+              settled = true;
+            }
+          );
 
           setTimeout(() => {
             runTask.cancel();
@@ -968,11 +981,7 @@ registerSuite('lib/executors/Node', function() {
 
           runTask.finally(
             dfd.callback(() => {
-              assert.equal(
-                suiteTask.state,
-                State.Canceled,
-                'expected test task to be canceled'
-              );
+              assert.isFalse(settled, 'expected test task to not be settled');
             })
           );
         },

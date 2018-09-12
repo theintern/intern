@@ -38,7 +38,9 @@
     "plugins": [
       "_tests/tests/support/nodeMocking.js",
       "_tests/tests/support/nodeDom.js",
-      "source-map-support/register"
+      "source-map-support/register",
+      // The URLSearchParams polyfill is needed for unit tests in Node 8
+      "url-search-params-polyfill"
     ],
     "reporters": {
       "name": "runner",
@@ -86,6 +88,16 @@
             "name": "tslib",
             "location": "node_modules/tslib",
             "main": "tslib.js"
+          },
+          {
+            "name": "@theintern/common",
+            "location": "node_modules/@theintern/common",
+            "main": "index.js"
+          },
+          {
+            "name": "axios",
+            "location": "node_modules/axios",
+            "main": "dist/axios.js"
           }
         ]
       }

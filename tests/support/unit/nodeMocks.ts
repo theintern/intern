@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { mixin, assign } from '@dojo/core/lang';
 
 import { createMock } from './mocks';
 
@@ -52,7 +51,7 @@ export function mockFs(
   properties: MockFsProperties = {}
 ) {
   function missingFile(path: string) {
-    return assign(
+    return Object.assign(
       new Error(
         `Error: ENOENT: no such file or directory stat '${path}' errno -2`
       ),
@@ -66,7 +65,7 @@ export function mockFs(
   }
 
   const mock = createMock<MockFs>(
-    mixin(
+    Object.assign(
       {
         __fileData: fileData,
 
@@ -98,7 +97,7 @@ export function mockPath(
   properties: { [P in keyof typeof path]?: typeof path[P] } = {}
 ) {
   return createMock<typeof path>(
-    mixin(
+    Object.assign(
       {
         resolve(path: string) {
           // Normalize fake directory names by adding a trailing '/'

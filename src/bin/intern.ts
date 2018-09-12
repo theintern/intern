@@ -5,7 +5,7 @@
 //
 
 import { execSync } from 'child_process';
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 import { getConfig } from '../lib/node/util';
 import { getConfigDescription } from '../lib/common/util';

@@ -1,5 +1,5 @@
 import Session from '@theintern/leadfoot/Session';
-import Task from '@dojo/core/async/Task';
+import { Task, CancellablePromise } from '@theintern/common';
 
 import Node from './executors/Node';
 
@@ -87,7 +87,7 @@ export default class ProxiedSession extends Session {
    * @param delay Amount of time to wait between heartbeats. Setting the delay
    * to 0 will disable heartbeats.
    */
-  setHeartbeatInterval(delay: number) {
+  setHeartbeatInterval(delay: number): CancellablePromise<void> {
     this._heartbeatIntervalHandle && this._heartbeatIntervalHandle.remove();
 
     if (delay) {
@@ -126,7 +126,7 @@ export default class ProxiedSession extends Session {
   }
 
   protected _getCoverage() {
-    let shouldGetPromise: Task<boolean>;
+    let shouldGetPromise: CancellablePromise<boolean>;
 
     // At least Safari 9 will not inject user scripts for non http/https
     // URLs, so we can't get coverage data.

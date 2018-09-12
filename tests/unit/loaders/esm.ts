@@ -1,5 +1,5 @@
 import { sandbox as Sandbox } from 'sinon';
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 import { LoaderInit } from 'src/lib/executors/Executor';
 

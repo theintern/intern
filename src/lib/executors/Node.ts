@@ -9,9 +9,7 @@ import {
   hookRequire,
   unhookRunInThisContext
 } from 'istanbul-lib-hook';
-import global from '@dojo/shim/global';
-import Task, { State } from '@dojo/core/async/Task';
-import { deepMixin, mixin } from '@dojo/core/lang';
+import { global, Task, CancellablePromise, deepMixin } from '@theintern/common';
 import Command from '@theintern/leadfoot/Command';
 import LeadfootServer from '@theintern/leadfoot/Server';
 import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/Tunnel';
@@ -230,7 +228,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   /**
    * Load scripts using Node's require
    */
-  loadScript(script: string | string[]) {
+  loadScript(script: string | string[]): CancellablePromise<void> {
     const scripts = Array.isArray(script) ? script : [script];
 
     try {
@@ -314,23 +312,25 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         // tests
         config.serveOnly
       ) {
-        const serverTask = new Task<void>((resolve, reject) => {
-          const server: Server = new Server({
-            basePath: config.basePath,
-            executor: this,
-            port: config.serverPort,
-            runInSync: config.runInSync,
-            socketPort: config.socketPort
-          });
+        const serverTask: CancellablePromise<void> = new Task<void>(
+          (resolve, reject) => {
+            const server: Server = new Server({
+              basePath: config.basePath,
+              executor: this,
+              port: config.serverPort,
+              runInSync: config.runInSync,
+              socketPort: config.socketPort
+            });
 
-          server
-            .start()
-            .then(() => {
-              this.server = server;
-              return this.emit('serverStart', server);
-            })
-            .then(resolve, reject);
-        });
+            server
+              .start()
+              .then(() => {
+                this.server = server;
+                return this.emit('serverStart', server);
+              })
+              .then(resolve, reject);
+          }
+        );
 
         // If we're in serveOnly mode, just start the server server.
         // Don't create session suites or start a tunnel.
@@ -541,7 +541,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   /**
    * Load functional test suites
    */
-  protected _loadFunctionalSuites() {
+  protected _loadFunctionalSuites(): CancellablePromise<void> {
     this._loadingFunctionalSuites = true;
     const suites = this.config.functionalSuites;
 
@@ -567,7 +567,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    * Override Executor#_loadSuites to set instrumentetion hooks before loading
    * suites
    */
-  protected _loadSuites() {
+  protected _loadSuites(): CancellablePromise<void> {
     // Don't load suites if there isn't a local environment, or if we're
     // in serveOnly mode
     if (
@@ -694,7 +694,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // Install the instrumenter in resolve config so it will be able to
       // handle suites
       this._instrumenter = createInstrumenter(
-        mixin(
+        Object.assign(
           {},
           {
             coverageVariable: config.coverageVariable,
@@ -709,8 +709,8 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     });
   }
 
-  protected _runTests() {
-    let testTask: Task<void>;
+  protected _runTests(): CancellablePromise<void> {
+    let testTask: CancellablePromise<void>;
 
     return new Task<void>(
       (resolve, reject) => {
@@ -732,7 +732,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           .then(resolve, reject);
       },
       () => {
-        if (testTask && testTask.state === State.Pending) {
+        if (testTask) {
           testTask.cancel();
         }
       }
@@ -753,7 +753,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     });
   }
 
-  protected _runRemoteTests() {
+  protected _runRemoteTests(): CancellablePromise<void> {
     const config = this.config;
     const sessionSuites = this._sessionSuites!;
     const queue = new FunctionQueue(config.maxConcurrency || Infinity);
@@ -862,8 +862,8 @@ export interface NodeEvents extends Events {
 class FunctionQueue {
   readonly maxConcurrency: number;
   queue: QueueEntry[];
-  activeTasks: Task<any>[];
-  funcTasks: Task<any>[];
+  activeTasks: CancellablePromise<any>[];
+  funcTasks: CancellablePromise<any>[];
 
   constructor(maxConcurrency: number) {
     this.maxConcurrency = maxConcurrency;
@@ -872,7 +872,7 @@ class FunctionQueue {
     this.funcTasks = [];
   }
 
-  enqueue(func: () => Task<any>) {
+  enqueue(func: () => CancellablePromise<any>) {
     const funcTask = new Task((resolve, reject) => {
       this.queue.push({ func, resolve, reject });
     });
@@ -910,7 +910,7 @@ class FunctionQueue {
 }
 
 interface QueueEntry {
-  func: () => Task<any>;
+  func: () => CancellablePromise<any>;
   resolve: () => void;
   reject: () => void;
 }

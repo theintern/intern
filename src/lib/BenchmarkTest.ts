@@ -1,11 +1,10 @@
-import Task from '@dojo/core/async/Task';
-import { mixin } from '@dojo/core/lang';
+import { Task, CancellablePromise } from '@theintern/common';
 
 // Explicitly require benchmark dependencies and attach Benchmark to them to
 // improve WebPack compatibility
 import * as _ from 'lodash';
 import * as platform from 'platform';
-import Benchmark from 'benchmark';
+import * as Benchmark from 'benchmark';
 
 import Test, {
   isTest,
@@ -50,11 +49,15 @@ export default class BenchmarkTest extends Test {
 
     super(args);
 
-    const options: BenchmarkOptions = mixin({}, this.test.options || {}, {
-      async: true,
-      setup: createLifecycle(true),
-      teardown: createLifecycle(false)
-    });
+    const options: BenchmarkOptions = Object.assign(
+      {},
+      this.test.options || {},
+      {
+        async: true,
+        setup: createLifecycle(true),
+        teardown: createLifecycle(false)
+      }
+    );
 
     if (options.defer) {
       this.test = (function(testFunction: BenchmarkTestFunction) {
@@ -114,7 +117,7 @@ export default class BenchmarkTest extends Test {
     );
   }
 
-  run(): Task<void> {
+  run(): CancellablePromise<void> {
     this._hasPassed = false;
     this._usesRemote = false;
 
@@ -179,7 +182,7 @@ export default class BenchmarkTest extends Test {
     testFunction: BenchmarkDeferredTestFunction,
     numCallsUntilResolution?: number
   ) {
-    testFunction.options = mixin({}, testFunction.options || {}, {
+    testFunction.options = Object.assign({}, testFunction.options || {}, {
       defer: true,
       numCallsUntilResolution: numCallsUntilResolution
     });

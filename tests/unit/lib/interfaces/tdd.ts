@@ -1,5 +1,5 @@
 import { sandbox as Sandbox } from 'sinon';
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 
 import * as _tddInt from 'src/lib/interfaces/tdd';
 import Test, { isTest } from 'src/lib/Test';
@@ -31,7 +31,7 @@ registerSuite('lib/interfaces/tdd', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/interfaces/tdd', {
-        '@dojo/shim/global': { default: mockGlobal }
+        '@theintern/common': { global: mockGlobal }
       }).then(handle => {
         removeMocks = handle.remove;
         tddInt = handle.module;

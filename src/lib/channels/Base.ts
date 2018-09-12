@@ -1,4 +1,4 @@
-import Task from '@dojo/core/async/Task';
+import { CancellablePromise } from '@theintern/common';
 import { RemoteEvents } from '../RemoteSuite';
 
 export default abstract class BaseChannel {
@@ -26,7 +26,10 @@ export default abstract class BaseChannel {
     return this._sendData(name, data);
   }
 
-  protected abstract _sendData(name: keyof RemoteEvents, data: any): Task<any>;
+  protected abstract _sendData(
+    name: keyof RemoteEvents,
+    data: any
+  ): CancellablePromise<any>;
 }
 
 export interface ChannelOptions {

@@ -1,5 +1,4 @@
-import Task from '@dojo/core/async/Task';
-import global from '@dojo/shim/global';
+import { Task, CancellablePromise, global } from '@theintern/common';
 
 import BaseChannel, { ChannelOptions, Message } from './Base';
 import { parseUrl } from '../browser/util';
@@ -14,7 +13,7 @@ export default class WebSocketChannel extends BaseChannel {
       | { resolve: (value: any) => void; reject: (error: Error) => void }
       | undefined;
   };
-  protected _ready: Task<any>;
+  protected _ready: CancellablePromise<any>;
   protected _sequence: number;
 
   constructor(options: ChannelOptions) {

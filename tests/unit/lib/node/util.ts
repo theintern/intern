@@ -1,5 +1,5 @@
 import { dirname, join } from 'path';
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 
 import * as _util from 'src/lib/node/util';
 

@@ -1,5 +1,5 @@
 import * as sinon from 'sinon';
-import _gruntTask from 'src/tasks/intern';
+import * as _gruntTask from 'src/tasks/intern';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
@@ -42,7 +42,7 @@ registerSuite('tasks/intern', function() {
     before() {
       return mockRequire(require, 'src/tasks/intern', {
         'src/lib/executors/Node': { default: MockNode },
-        '@dojo/shim/global': { default: {} },
+        '@theintern/common': { global: {} },
         'src/lib/node/util': { getConfig: mockGetConfig }
       }).then(handle => {
         removeMocks = handle.remove;

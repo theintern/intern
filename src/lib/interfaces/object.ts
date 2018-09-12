@@ -55,7 +55,7 @@
  * });
  * ```
  */ /** */
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 import Suite, { SuiteOptions, SuiteProperties } from '../Suite';
 import Test, { TestFunction, isTestFunction } from '../Test';

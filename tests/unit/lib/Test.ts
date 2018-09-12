@@ -1,4 +1,4 @@
-import Task, { State } from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 
 import { Executor } from 'src/lib/executors/Executor';
 import Test, {
@@ -528,15 +528,16 @@ registerSuite('lib/Test', {
       name: 'foo',
       test() {
         // Set a short timeout -- test will fail if restartTimeout isn't called
-        this.timeout = 100;
+        this.timeout = 400;
         return new Promise(resolve => {
-          setTimeout(resolve, 200);
+          setTimeout(resolve, 800);
         });
       }
     });
 
     const run = test.run();
-    // Cal restartTimeout in a setTimeout so it isn't called until the test has actually started
+    // Call restartTimeout in a setTimeout so it isn't called until the test has
+    // actually started
     setTimeout(() => test.restartTimeout(1000));
     return run.catch(function() {
       assert(false, 'Test should not timeout before it is resolved');
@@ -590,6 +591,7 @@ registerSuite('lib/Test', {
 
   cancel() {
     const dfd = this.async();
+    let settled = false;
     const task = new Task<void>(() => {});
     const test = createTest({
       name: 'foo',
@@ -599,6 +601,14 @@ registerSuite('lib/Test', {
     });
 
     const runTask = test.run();
+    runTask.then(
+      () => {
+        settled = true;
+      },
+      () => {
+        settled = true;
+      }
+    );
 
     setTimeout(() => {
       runTask.cancel();
@@ -607,11 +617,7 @@ registerSuite('lib/Test', {
     runTask.finally(() => {
       setTimeout(
         dfd.callback(() => {
-          assert.equal(
-            task.state,
-            State.Canceled,
-            'expected test task to have been canceled'
-          );
+          assert.isFalse(settled, 'expected test task not to have settled');
           assert.equal(test.skipped, 'Canceled');
         })
       );

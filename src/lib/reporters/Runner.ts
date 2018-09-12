@@ -1,4 +1,4 @@
-import charm from 'charm';
+import * as charm from 'charm';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { Writable } from 'stream';
 

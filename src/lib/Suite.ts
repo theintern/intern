@@ -1,6 +1,10 @@
-import Task, { isThenable, State } from '@dojo/core/async/Task';
+import {
+  Task,
+  CancellablePromise,
+  isPromiseLike,
+  isTask
+} from '@theintern/common';
 
-import { isTask } from './common/util';
 import Deferred from './Deferred';
 import { Executor } from './executors/Executor';
 import Test, { isTest, SKIP } from './Test';
@@ -320,7 +324,7 @@ export default class Suite implements SuiteProperties {
    * If before, beforeEach, afterEach, or after throw, the suite itself will
    * be marked as failed and no further tests in the suite will be executed.
    */
-  run(): Task<void> {
+  run(): CancellablePromise<void> {
     let startTime: number;
 
     // Run when the suite starts
@@ -341,7 +345,7 @@ export default class Suite implements SuiteProperties {
       suite: Suite,
       name: keyof Suite,
       test?: Test
-    ) => {
+    ): CancellablePromise<void> => {
       let result: PromiseLike<void> | undefined;
 
       return new Task<void>(
@@ -403,7 +407,7 @@ export default class Suite implements SuiteProperties {
 
             // If the return value looks like a promise, resolve the
             // dfd if the return value resolves
-            if (isThenable(result)) {
+            if (isPromiseLike(result)) {
               result.then(() => _dfd.resolve(), error => _dfd.reject(error));
             }
 
@@ -411,7 +415,7 @@ export default class Suite implements SuiteProperties {
             result = dfd.promise;
           }
 
-          if (isThenable(result)) {
+          if (isPromiseLike(result)) {
             result.then(() => resolve(), reject);
           } else {
             resolve();
@@ -455,8 +459,8 @@ export default class Suite implements SuiteProperties {
     this.error = undefined;
     this.timeElapsed = 0;
 
-    let task: Task<void>;
-    let runTask: Task<void>;
+    let task: CancellablePromise<void>;
+    let runTask: CancellablePromise<void>;
 
     try {
       task = this.publishAfterSetup
@@ -471,7 +475,10 @@ export default class Suite implements SuiteProperties {
       .then(() => {
         // Run the beforeEach or afterEach methods for a given test in
         // the proper order based on the current nested Suite structure
-        const runTestLifecycle = (name: keyof Suite, test: Test) => {
+        const runTestLifecycle = (
+          name: keyof Suite,
+          test: Test
+        ): CancellablePromise<void> => {
           let methodQueue: Suite[] = [];
           let suite: Suite = this;
 
@@ -485,7 +492,7 @@ export default class Suite implements SuiteProperties {
             }
           } while ((suite = suite.parent!));
 
-          let currentMethod: Task<any>;
+          let currentMethod: CancellablePromise<any>;
 
           return new Task(
             (resolve, reject) => {
@@ -531,13 +538,13 @@ export default class Suite implements SuiteProperties {
 
         let i = 0;
         let tests = this.tests;
-        let current: Task<void>;
+        let current: CancellablePromise<void>;
 
         // Run each of the tests in this suite
         runTask = new Task<void>(
           (resolve, reject) => {
             let firstError: Error;
-            let testTask: Task<void> | undefined;
+            let testTask: CancellablePromise<void> | undefined;
 
             const next = () => {
               const test = tests[i++];
@@ -607,7 +614,7 @@ export default class Suite implements SuiteProperties {
                       }
                     })
                     .finally(() => {
-                      if (testTask && testTask.state === State.Pending) {
+                      if (testTask) {
                         testTask.cancel();
                       }
                       testTask = undefined;
@@ -655,7 +662,7 @@ export default class Suite implements SuiteProperties {
         return runTask;
       })
       .finally(() => {
-        if (runTask && runTask.state === State.Pending) {
+        if (runTask) {
           runTask.cancel();
         }
       })

@@ -1,5 +1,5 @@
 import { spy, SinonSpy } from 'sinon';
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 
 import * as _util from 'src/lib/browser/util';
 
@@ -63,9 +63,14 @@ registerSuite('lib/browser/util', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/browser/util', {
-        '@dojo/core/request/providers/xhr': { default: request },
-        '@dojo/shim/global': {
-          default: { location: { pathname: '/' } }
+        '@theintern/common': {
+          request,
+          global: {
+            location: {
+              pathname: '/',
+              search: ''
+            }
+          }
         },
         'src/lib/common/util': mockUtil
       }).then(handle => {

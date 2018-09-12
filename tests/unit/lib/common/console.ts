@@ -14,10 +14,6 @@ let console: typeof _console;
 let removeMocks: () => void;
 
 registerSuite('lib/common/console', {
-  after() {
-    removeMocks();
-  },
-
   afterEach() {
     sandbox.resetHistory();
   },
@@ -26,8 +22,8 @@ registerSuite('lib/common/console', {
     'console exists': {
       before() {
         return mockRequire(require, 'src/lib/common/console', {
-          '@dojo/shim/global': {
-            default: {
+          '@theintern/common': {
+            global: {
               console: mockConsole
             }
           }
@@ -35,6 +31,10 @@ registerSuite('lib/common/console', {
           removeMocks = handle.remove;
           console = handle.module;
         });
+      },
+
+      after() {
+        removeMocks();
       },
 
       tests: {
@@ -58,15 +58,17 @@ registerSuite('lib/common/console', {
     'console does not exist': {
       before() {
         return mockRequire(require, 'src/lib/common/console', {
-          '@dojo/shim/global': {
-            default: {
-              console: undefined
-            }
+          '@theintern/common': {
+            global: { console: undefined }
           }
         }).then(handle => {
           removeMocks = handle.remove;
           console = handle.module;
         });
+      },
+
+      after() {
+        removeMocks();
       },
 
       tests: {

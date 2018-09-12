@@ -1,5 +1,5 @@
 import { useFakeTimers, SinonFakeTimers } from 'sinon';
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 import _WebSocket from 'src/lib/channels/WebSocket';
 import { parseUrl } from '../../../../src/lib/browser/util';
 
@@ -29,9 +29,8 @@ registerSuite('lib/channels/WebSocket', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/channels/WebSocket', {
-        '@dojo/shim/global': { default: { WebSocket: MockWebSocket } },
         'src/lib/browser/util': { parseUrl },
-        '@dojo/core/async/Task': { default: Task }
+        '@theintern/common': { global: { WebSocket: MockWebSocket }, Task }
       }).then(handle => {
         removeMocks = handle.remove;
         WebSocket = handle.module.default;

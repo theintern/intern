@@ -1,8 +1,14 @@
 import * as chai from 'chai';
-import { deepMixin, duplicate } from '@dojo/core/lang';
-import { Handle } from '@dojo/core/interfaces';
-import Task, { isThenable, State } from '@dojo/core/async/Task';
-import global from '@dojo/shim/global';
+import {
+  Handle,
+  deepMixin,
+  duplicate,
+  Task,
+  CancellablePromise,
+  isPromiseLike,
+  isTask,
+  global
+} from '@theintern/common';
 
 import Suite from '../Suite';
 import Test from '../Test';
@@ -14,7 +20,7 @@ import {
   ReporterDescriptor
 } from '../common/config';
 import { normalizePathEnding } from '../common/path';
-import { isTask, processOption, pullFromArray } from '../common/util';
+import { processOption, pullFromArray } from '../common/util';
 import {
   getInterface as getObjectInterface,
   ObjectInterface
@@ -45,12 +51,15 @@ export interface Executor {
 
   configure(options: { [key: string]: any }): void;
 
-  emit<T extends NoDataEvents>(eventName: T): Task<void>;
-  emit<T extends keyof Events>(eventName: T, data: Events[T]): Task<void>;
+  emit<T extends NoDataEvents>(eventName: T): CancellablePromise<void>;
+  emit<T extends keyof Events>(
+    eventName: T,
+    data: Events[T]
+  ): CancellablePromise<void>;
 
   formatError(error: Error, options?: ErrorFormatOptions): string;
 
-  log(...args: any[]): Task<void>;
+  log(...args: any[]): CancellablePromise<void>;
 
   on<T extends keyof Events>(
     eventName: T,
@@ -80,12 +89,12 @@ export default abstract class BaseExecutor<
   protected _loader!: Loader;
   protected _loaderOptions: any;
   protected _loaderInit: Promise<Loader> | undefined;
-  protected _loadingPlugins: { name: string; init: Task<void> }[];
+  protected _loadingPlugins: { name: string; init: CancellablePromise<void> }[];
   protected _loadingPluginOptions: any | undefined;
   protected _listeners: { [event: string]: Listener<any>[] };
   protected _plugins: { [name: string]: any };
   protected _reporters: Reporter[];
-  protected _runTask: Task<void> | undefined;
+  protected _runTask: CancellablePromise<void> | undefined;
   protected _reportersInitialized: boolean;
 
   constructor(options?: { [key in keyof C]?: any }) {
@@ -193,7 +202,7 @@ export default abstract class BaseExecutor<
    *
    * @param script a path to a script
    */
-  abstract loadScript(script: string | string[]): Task<void>;
+  abstract loadScript(script: string | string[]): CancellablePromise<void>;
 
   /**
    * Add a suite to the set of suites that will be run when `run` is called.
@@ -243,11 +252,11 @@ export default abstract class BaseExecutor<
    *
    * @param eventName the name of the event to emit
    * @param data a data object whose type is event-dependent
-   * @returns a Task that resolves when all listeners have processed the event
+   * @returns a CancellablePromise that resolves when all listeners have processed the event
    */
-  emit<T extends NoDataEvents>(eventName: T): Task<void>;
-  emit<T extends keyof E>(eventName: T, data: E[T]): Task<void>;
-  emit<T extends keyof E>(eventName: T, data?: E[T]) {
+  emit<T extends NoDataEvents>(eventName: T): CancellablePromise<void>;
+  emit<T extends keyof E>(eventName: T, data: E[T]): CancellablePromise<void>;
+  emit<T extends keyof E>(eventName: T, data?: E[T]): CancellablePromise<void> {
     if (eventName === 'error') {
       this._hasEmittedErrors = true;
     }
@@ -389,10 +398,10 @@ export default abstract class BaseExecutor<
    *
    * @param args A list of arguments that will be stringified and combined
    * into a space-separated message.
-   * @returns a Task that resolves when all listeners have finished processing
+   * @returns a CancellablePromise that resolves when all listeners have finished processing
    * the event.
    */
-  log(...args: any[]) {
+  log(...args: any[]): CancellablePromise<void> {
     if (this.config.debug) {
       const message = args
         .map(arg => {
@@ -575,7 +584,7 @@ export default abstract class BaseExecutor<
       typeof init === 'undefined' ? <PluginInitializer>name : init;
     const options = this._loadingPluginOptions;
     const result = options ? pluginInit(duplicate(options)) : pluginInit();
-    if (isThenable(result)) {
+    if (isPromiseLike(result)) {
       // If the result is thenable, push it on the loading queue
       this._loadingPlugins.push({
         name: pluginName,
@@ -613,7 +622,7 @@ export default abstract class BaseExecutor<
    * This method sets up the environment for test execution, runs the tests,
    * and runs any finalization code afterwards.
    */
-  run() {
+  run(): CancellablePromise<void> {
     // Only allow the executor to be started once
     if (!this._runTask) {
       let runError: Error;
@@ -648,7 +657,7 @@ export default abstract class BaseExecutor<
               throw error;
             });
         } else {
-          let currentTask: Task<void>;
+          let currentTask: CancellablePromise<void>;
 
           this._runTask = this._runTask
             .then(() => this._loadPlugins())
@@ -664,8 +673,8 @@ export default abstract class BaseExecutor<
 
               // Keep track of distinct tasks to allow them to be
               // cancelled
-              let outerTask: Task<void>;
-              let testingTask: Task<void>;
+              let outerTask: CancellablePromise<void>;
+              let testingTask: CancellablePromise<void>;
 
               currentTask = new Task<void>(
                 (resolve, reject) => {
@@ -683,9 +692,10 @@ export default abstract class BaseExecutor<
                     .then(resolve, reject);
                 },
                 () => {
-                  if (testingTask && testingTask.state === State.Pending) {
+                  if (testingTask) {
                     testingTask.cancel();
-                  } else if (outerTask && outerTask.state === State.Pending) {
+                  }
+                  if (outerTask) {
                     outerTask.cancel();
                   }
                 }
@@ -699,7 +709,7 @@ export default abstract class BaseExecutor<
             })
             .finally(() => this._afterRun())
             .finally(() => {
-              if (currentTask && currentTask.state === State.Pending) {
+              if (currentTask) {
                 currentTask.cancel();
               }
             })
@@ -756,9 +766,10 @@ export default abstract class BaseExecutor<
   }
 
   /**
-   * Code to execute after the main test run has finished to shut down the test system.
+   * Code to execute after the main test run has finished to shut down the test
+   * system.
    */
-  protected _afterRun() {
+  protected _afterRun(): CancellablePromise<void> {
     return Task.resolve();
   }
 
@@ -777,10 +788,11 @@ export default abstract class BaseExecutor<
    * system. This is where Executors can do any last-minute configuration
    * before the testing process begins.
    *
-   * This method returns a Task that resolves to a boolean. A value of true
-   * indicates that Intern should skip running tests and exit normally.
+   * This method returns a CancellablePromise that resolves to a boolean. A
+   * value of true indicates that Intern should skip running tests and exit
+   * normally.
    */
-  protected _beforeRun() {
+  protected _beforeRun(): CancellablePromise<boolean> {
     const { bail, grep, name, sessionId, defaultTimeout } = this.config;
     this._rootSuite.bail = bail;
     this._rootSuite.grep = grep;
@@ -829,7 +841,7 @@ export default abstract class BaseExecutor<
    * Emit any queued events. The event queue will be empty after this method
    * runs.
    */
-  protected _drainEventQueue() {
+  protected _drainEventQueue(): CancellablePromise<void> {
     let task = Task.resolve();
     while (this._events.length > 0) {
       const event = this._events.shift()!;
@@ -925,7 +937,7 @@ export default abstract class BaseExecutor<
   protected _loadScripts(
     scripts: PluginDescriptor[],
     loader: (script: string) => Promise<void>
-  ) {
+  ): CancellablePromise<void> {
     return scripts
       .reduce((previous, script) => {
         if (typeof script === 'string') {
@@ -957,7 +969,7 @@ export default abstract class BaseExecutor<
   /**
    * Load suites
    */
-  protected _loadSuites() {
+  protected _loadSuites(): CancellablePromise<void> {
     // _resolveSuites will expand all suites into <env>.suites for the
     // current env
     const suites = this.config[this.environment].suites;
@@ -976,7 +988,7 @@ export default abstract class BaseExecutor<
   /**
    * Resolve the config object.
    */
-  protected _resolveConfig() {
+  protected _resolveConfig(): CancellablePromise<void> {
     const config = this.config;
 
     if (config.internPath != null) {
@@ -1008,7 +1020,7 @@ export default abstract class BaseExecutor<
    * Runs each of the root suites, limited to a certain number of suites at
    * the same time by `maxConcurrency`.
    */
-  protected _runTests() {
+  protected _runTests(): CancellablePromise<void> {
     return this._rootSuite.run();
   }
 }
@@ -1134,7 +1146,7 @@ export interface LoaderInit {
 }
 
 export interface PluginInitializer<T extends any = any> {
-  (options?: { [key: string]: any }): Task<T> | T;
+  (options?: { [key: string]: any }): CancellablePromise<T> | T;
 }
 
 export interface ReporterInitializer {

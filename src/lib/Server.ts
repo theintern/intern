@@ -1,11 +1,9 @@
 import { json, urlencoded } from 'body-parser';
-import express from 'express';
+import * as express from 'express';
 import { Server as HttpServer } from 'http';
 import { Socket } from 'net';
-import WebSocket from 'ws';
-import { after } from '@dojo/core/aspect';
-import { mixin } from '@dojo/core/lang';
-import { Handle } from '@dojo/core/interfaces';
+import * as WebSocket from 'ws';
+import { Handle } from '@theintern/common';
 
 import { pullFromArray } from './common/util';
 import { isErrnoException } from './node/util';
@@ -56,7 +54,7 @@ export default class Server implements ServerProperties {
   protected _wsServer: WebSocket.Server | undefined;
 
   constructor(options: ServerOptions) {
-    mixin(
+    Object.assign(
       this,
       {
         basePath: '.',
@@ -184,7 +182,7 @@ export default class Server implements ServerProperties {
 
       // If sockets are not manually destroyed then Node.js will keep
       // itself running until they all expire
-      after(httpServer, 'close', function() {
+      httpServer.on('close', () => {
         let socket: Socket | undefined;
         while ((socket = sockets.pop())) {
           socket.destroy();

@@ -5,7 +5,7 @@
  */ /** */
 
 import NodeExecutor from './lib/executors/Node';
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 const intern = (global.intern = new NodeExecutor());
 export default intern;

@@ -1,4 +1,4 @@
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 import Browser from '../lib/executors/Browser';
 import { RemoteConfig } from '../lib/RemoteSuite';

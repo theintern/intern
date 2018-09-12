@@ -1,4 +1,4 @@
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 import { Executor } from '../executors/Executor';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Suite from '../Suite';

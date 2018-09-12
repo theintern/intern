@@ -1,6 +1,5 @@
 import { sandbox as Sandbox, SinonStub, SinonSpy } from 'sinon';
-import Task from '@dojo/core/async/Task';
-import global from '@dojo/shim/global';
+import { Task, global } from '@theintern/common';
 
 import {
   createMockConsole,
@@ -55,7 +54,7 @@ registerSuite('bin/intern', function() {
           'src/lib/common/console': mockConsole,
           'src/lib/common/util': mockCommonUtil,
           'src/index': { default: mockExecutor },
-          '@dojo/shim/global': { default: { process: {} } }
+          '@theintern/common': { global: { process: {} } }
         }).then(handle => {
           removeMocks = handle.remove;
           assert.equal(mockNodeUtil.getConfig.callCount, 1);
@@ -72,9 +71,7 @@ registerSuite('bin/intern', function() {
           'src/lib/common/console': mockConsole,
           'src/lib/common/util': mockCommonUtil,
           'src/index': { default: createMockNodeExecutor() },
-          '@dojo/shim/global': {
-            default: { process: {} }
-          }
+          '@theintern/common': { global: { process: {} } }
         }).then(handle => {
           removeMocks = handle.remove;
           assert.equal(mockNodeUtil.getConfig.callCount, 1);
@@ -90,9 +87,7 @@ registerSuite('bin/intern', function() {
             'src/lib/common/console': mockConsole,
             'src/lib/common/util': mockCommonUtil,
             'src/index': { default: createMockNodeExecutor() },
-            '@dojo/shim/global': {
-              default: { process: {} }
-            }
+            '@theintern/common': { global: { process: {} } }
           }).then(handle => {
             removeMocks = handle.remove;
             assert.equal(
@@ -112,10 +107,8 @@ registerSuite('bin/intern', function() {
             'src/lib/common/console': mockConsole,
             'src/lib/common/util': mockCommonUtil,
             'src/index': { default: createMockNodeExecutor() },
-            '@dojo/shim/global': {
-              default: {
-                process: { stdout: process.stdout }
-              }
+            '@theintern/common': {
+              global: { process: { stdout: process.stdout } }
             }
           })
             .then(handle => {
@@ -147,9 +140,7 @@ registerSuite('bin/intern', function() {
           'src/lib/common/console': mockConsole,
           'src/lib/common/util': mockCommonUtil,
           'src/index': { default: mockExecutor },
-          '@dojo/shim/global': {
-            default: { process: {} }
-          }
+          '@theintern/common': { global: { process: {} } }
         }).then(handle => {
           removeMocks = handle.remove;
           assert.match(mockConsole.log.args[0][0], /intern version \d/);

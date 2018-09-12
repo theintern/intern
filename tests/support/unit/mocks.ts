@@ -3,9 +3,7 @@
  * classes and interfaces (as far as TypeScript is concerned).
  */
 import { sandbox as Sandbox, spy, SinonSpy } from 'sinon';
-import { Handle } from '@dojo/core/interfaces';
-import { duplicate, mixin, assign } from '@dojo/core/lang';
-import Task from '@dojo/core/async/Task';
+import { Handle, duplicate, Task } from '@theintern/common';
 import Command from '@theintern/leadfoot/Command';
 
 import { Executor, Events } from 'src/lib/executors/Executor';
@@ -21,7 +19,7 @@ import ProxiedSession from 'src/lib/ProxiedSession';
 export function createMock<T>(properties?: { [P in keyof T]?: T[P] }) {
   const obj = <T>{};
   if (properties) {
-    mixin(obj, properties);
+    Object.assign(obj, properties);
   }
   return obj;
 }
@@ -67,7 +65,7 @@ export function createMockExecutor(
     delete _properties.testConfig;
   }
   return createMock<MockExecutor>(
-    mixin(
+    Object.assign(
       {
         _ran: false,
 
@@ -124,7 +122,7 @@ export function createMockBrowserExecutor(
   properties?: { [P in keyof Browser]?: Browser[P] }
 ) {
   const executor = createMockExecutor(
-    mixin(
+    Object.assign(
       {
         config: <any>{
           basePath: '/path/to/base/path/',
@@ -158,7 +156,7 @@ export function createMockNodeExecutor(
   properties?: { [P in keyof Node]?: Node[P] }
 ) {
   const executor = createMockExecutor(
-    mixin(
+    Object.assign(
       {
         config: <any>{
           basePath: '/path/to/base/path/',
@@ -240,7 +238,7 @@ export function createMockServer(
   properties?: { [P in keyof Server]?: Server[P] }
 ) {
   return createMock<Server>(
-    mixin(
+    Object.assign(
       {
         start() {
           return Promise.resolve();
@@ -295,7 +293,7 @@ export function createMockRemote(
   }
 ) {
   const remote = MockRemote.resolve();
-  mixin(remote, <any>properties);
+  Object.assign(remote, <any>properties);
   return <Remote>(<any>remote);
 }
 
@@ -366,7 +364,7 @@ export class MockResponse extends EventHandler {
     super();
     this.data = '';
     if (options) {
-      mixin(this, options);
+      Object.assign(this, options);
     }
   }
 
@@ -386,7 +384,7 @@ export class MockResponse extends EventHandler {
 
   writeHead(status: number, head: { [key: string]: string }) {
     this.statusCode = status;
-    assign(this.headers, head);
+    Object.assign(this.headers, head);
   }
 
   getHeader(name: string) {

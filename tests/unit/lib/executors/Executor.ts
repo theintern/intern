@@ -1,5 +1,5 @@
 import { sandbox as Sandbox, spy } from 'sinon';
-import Task from '@dojo/core/async/Task';
+import { Task, deepMixin, isPromiseLike } from '@theintern/common';
 
 import _Executor, { Config, Events, Plugins } from 'src/lib/executors/Executor';
 
@@ -83,13 +83,14 @@ registerSuite('lib/executors/Executor', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/executors/Executor', {
-        'src/lib/common/ErrorFormatter': {
-          default: MockErrorFormatter
-        },
+        'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
         'src/lib/common/console': mockConsole,
         chai: mockChai,
-        '@dojo/shim/global': {
-          default: { __coverage__: {} }
+        '@theintern/common': {
+          global: { __coverage__: {} },
+          isPromiseLike,
+          Task,
+          deepMixin
         }
       }).then(handle => {
         removeMocks = handle.remove;

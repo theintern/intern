@@ -14,7 +14,7 @@ let Dom: typeof _Dom;
 registerSuite('intern/lib/reporters/Dom', {
   before() {
     return mockRequire(require, 'src/lib/reporters/Dom', {
-      '@dojo/shim/global': { default: { scrollTo() {} } }
+      '@theintern/common': { global: { scrollTo() {} } }
     }).then(resource => {
       removeMocks = resource.remove;
       Dom = resource.module.default;

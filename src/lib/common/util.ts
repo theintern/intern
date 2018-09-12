@@ -1,5 +1,4 @@
-import Task from '@dojo/core/async/Task';
-import { deepMixin, mixin } from '@dojo/core/lang';
+import { CancellablePromise, deepMixin } from '@theintern/common';
 
 import { Config, ResourceConfig } from './config';
 import { Events, Executor, PluginDescriptor } from '../executors/Executor';
@@ -12,7 +11,7 @@ export interface EvaluatedProperty {
 }
 
 export interface TextLoader {
-  (path: string): Task<string>;
+  (path: string): CancellablePromise<string>;
 }
 
 export type TypeName =
@@ -116,25 +115,6 @@ export function getConfigDescription(config: any, prefix = '') {
 }
 
 /**
- * Check if a value is a Task without directly accessing any non-existent
- * properties.
- *
- * Checking in this way is necessary when using libraries that validate property
- * accesses such as ChaiAsPromised.
- */
-export function isTask<T = any>(value: any): value is Task<T> {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-  for (const name of ['then', 'catch', 'finally', 'cancel']) {
-    if (!(name in value) || typeof value[name] !== 'function') {
-      return false;
-    }
-  }
-  return true;
-}
-
-/**
  * Load config data from a given path, using a given text loader, and mixing
  * args and/or a childConfig into the final config value if provided.
  */
@@ -143,7 +123,7 @@ export function loadConfig(
   loadText: TextLoader,
   args?: { [key: string]: any },
   childConfig?: string | string[]
-): Task<any> {
+): CancellablePromise<any> {
   return _loadConfig(configPath, loadText, args, childConfig).then(config => {
     // 'config' and 'extends' are only applicable to the config loader, not
     // the Executors
@@ -694,7 +674,7 @@ export function setOption(
     } else if (Array.isArray(currentValue)) {
       currentValue.push(...value);
     } else if (typeof config[name] === 'object') {
-      config[name] = deepMixin({}, config[name]!, value);
+      config[name] = deepMixin({}, <object>config[name]!, value);
     } else {
       throw new Error('Only array or object options may be added');
     }
@@ -750,7 +730,7 @@ function _loadConfig(
   loadText: TextLoader,
   args?: { [key: string]: any },
   childConfig?: string | string[]
-): Task<any> {
+): CancellablePromise<any> {
   return loadText(configPath)
     .then(text => {
       let preConfig: { [key: string]: any };
@@ -843,7 +823,7 @@ function _loadConfig(
                   // config
                   const envConfig: any = {};
                   processOption(<keyof Config>key, child[key], envConfig);
-                  mixin(config[key], envConfig[key]);
+                  Object.assign(config[key], envConfig[key]);
                 } else {
                   processOption(<keyof Config>key, child[key], config);
                 }

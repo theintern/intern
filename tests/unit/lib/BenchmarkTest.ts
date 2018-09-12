@@ -1,4 +1,4 @@
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 
 import BenchmarkTest, {
   BenchmarkTestOptions,

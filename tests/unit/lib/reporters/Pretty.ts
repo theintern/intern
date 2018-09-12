@@ -20,8 +20,8 @@ registerSuite('intern/lib/reporters/Pretty', () => {
         'istanbul-lib-coverage': {
           createCoverageMap: createMockCoverageMap
         },
-        '@dojo/shim/global': {
-          default: {
+        '@theintern/common': {
+          global: {
             process: {
               stdout: {
                 columns: stdout.columns,

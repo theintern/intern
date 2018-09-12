@@ -34,7 +34,7 @@ registerSuite('lib/interfaces/object', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/interfaces/object', {
-        '@dojo/shim/global': { default: mockGlobal }
+        '@theintern/common': { global: mockGlobal }
       }).then(handle => {
         removeMocks = handle.remove;
         objInt = handle.module;

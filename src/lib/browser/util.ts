@@ -1,6 +1,4 @@
-import request from '@dojo/core/request/providers/xhr';
-import Task from '@dojo/core/async/Task';
-import global from '@dojo/shim/global';
+import { request, CancellablePromise, global } from '@theintern/common';
 
 import {
   getBasePath,
@@ -20,7 +18,7 @@ export function getConfig(file?: string) {
     args.config = file;
   }
 
-  let load: Task<{ [key: string]: any }>;
+  let load: CancellablePromise<{ [key: string]: any }>;
 
   if (args.config) {
     // If a config parameter was provided, load it, mix in any other query
@@ -110,8 +108,8 @@ export function normalizePath(path: string) {
  * Parse a query string and return a set of decoded name=value pairs
  */
 export function parseQuery(query?: string) {
-  query = query || location.search.slice(1);
-  return query
+  query = query || global.location.search.slice(1);
+  return query!
     .split('&')
     .filter(arg => {
       return arg !== '' && arg[0] !== '=';
@@ -160,7 +158,7 @@ export function parseUrl(url: string): Url | undefined {
 /**
  * Load a text resource
  */
-function loadText(path: string): Task<any> {
+function loadText(path: string): CancellablePromise<any> {
   return request(path).then(response => {
     if (!response.ok) {
       throw new Error('Request failed: ' + response.status);

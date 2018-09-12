@@ -1,5 +1,5 @@
 import { STATUS_CODES } from 'http';
-import createError from 'http-errors';
+import * as createError from 'http-errors';
 import * as sinon from 'sinon';
 
 import _Server from 'src/lib/Server';
@@ -45,6 +45,9 @@ class MockServer extends EventHandler {
     this.closed = true;
     if (callback) {
       callback();
+    }
+    if (this.handlers.close) {
+      this.handlers.close.forEach(handler => handler());
     }
   }
 }

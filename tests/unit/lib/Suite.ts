@@ -1,4 +1,4 @@
-import Task, { State } from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 
 import Suite, { SuiteOptions } from 'src/lib/Suite';
 import Test from 'src/lib/Test';
@@ -1313,6 +1313,26 @@ registerSuite('lib/Suite', {
       suite.tests.push(hangTest);
 
       const runTask = suite.run();
+      let suiteSettled = false;
+      let testSettled = false;
+
+      testTask.then(
+        () => {
+          testSettled = true;
+        },
+        () => {
+          testSettled = true;
+        }
+      );
+
+      runTask.then(
+        () => {
+          suiteSettled = true;
+        },
+        () => {
+          suiteSettled = true;
+        }
+      );
 
       setTimeout(() => {
         runTask.cancel();
@@ -1322,16 +1342,11 @@ registerSuite('lib/Suite', {
         setTimeout(
           dfd.callback(() => {
             assert.isTrue(testStarted, 'expected test to have started');
-            assert.equal(
-              runTask.state,
-              State.Canceled,
-              'expected suite task to have been canceled'
+            assert.isFalse(
+              suiteSettled,
+              'expected suite task to not be settled'
             );
-            assert.equal(
-              testTask.state,
-              State.Canceled,
-              'expected test to have been canceled'
-            );
+            assert.isFalse(testSettled, 'expected test task to not be settled');
           })
         );
       });

@@ -23,8 +23,7 @@
  *     test('baz', () => { ... });
  * });
  */ /** */
-import { after as _after } from '@dojo/core/aspect';
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 import Suite, {
   SuiteProperties,
   SuiteLifecycleFunction,
@@ -127,12 +126,17 @@ function _suite(executor: Executor, name: string, factory: TddSuiteFactory) {
 
 function aspect(
   suite: Suite,
-  method: string,
+  method: 'before' | 'after' | 'beforeEach' | 'afterEach',
   callback: SuiteLifecycleFunction | TestLifecycleFunction
 ) {
-  _after(suite, method, (originalReturn: any, args: IArguments) => {
-    return Promise.resolve(originalReturn).then(() => {
-      return callback.apply(currentSuite, args);
-    });
-  });
+  const originalMethod = suite[method];
+  suite[method] = function() {
+    const args = Array.prototype.slice.call(arguments);
+    const originalReturn = originalMethod
+      ? originalMethod.apply(suite, args)
+      : undefined;
+    return Promise.resolve(originalReturn).then(() =>
+      callback.apply(currentSuite, args)
+    );
+  };
 }

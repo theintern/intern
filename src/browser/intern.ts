@@ -2,7 +2,7 @@
  * This is the browser runner for end users. It simply loads and initializes a
  * Browser executor.
  */
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 import Browser from '../lib/executors/Browser';
 
 // A Benchmark global needs to be defined for benchmark.js to work properly when

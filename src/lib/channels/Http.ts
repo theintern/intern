@@ -1,15 +1,14 @@
-import request from '@dojo/core/request/providers/xhr';
-import Task from '@dojo/core/async/Task';
+import { request, Task, CancellablePromise } from '@theintern/common';
 
 import { RemoteEvents } from '../RemoteSuite';
 import BaseChannel, { ChannelOptions, Message } from './Base';
 
 export default class HttpChannel extends BaseChannel {
-  protected _lastRequest: Task<void>;
+  protected _lastRequest: CancellablePromise<void>;
   protected _messageBuffer: MessageEntry[];
   protected _sequence: number;
   protected _maxPostSize: number;
-  protected _activeRequest: Task<any> | undefined;
+  protected _activeRequest: CancellablePromise<any> | undefined;
 
   constructor(options: HttpChannelOptions) {
     super(options);
@@ -19,7 +18,7 @@ export default class HttpChannel extends BaseChannel {
     this._lastRequest = Task.resolve();
   }
 
-  protected _sendData(name: keyof RemoteEvents, data: any) {
+  protected _sendData(name: keyof RemoteEvents, data: any): CancellablePromise {
     const id = String(this._sequence++);
     const sessionId = this.sessionId;
     const message: Message = { id, sessionId, name, data };
@@ -53,7 +52,7 @@ export default class HttpChannel extends BaseChannel {
    * limit the maximum size of each POST body to maxPostSize bytes. Always
    * send at least one message, even if it's more than maxPostSize bytes.
    */
-  protected _sendMessages(): Task<any> | undefined {
+  protected _sendMessages(): CancellablePromise<any> | undefined {
     const messages = this._messageBuffer;
     if (messages.length === 0) {
       return;
@@ -71,9 +70,9 @@ export default class HttpChannel extends BaseChannel {
     }
 
     this._activeRequest = request(this.url, {
-      method: 'POST',
+      method: 'post',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(block.map(entry => entry.message))
+      data: block.map(entry => entry.message)
     })
       .then(response => {
         if (response.status === 200) {

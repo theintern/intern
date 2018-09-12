@@ -1,4 +1,4 @@
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 import Server from '@theintern/leadfoot/Server';
 
 import ProxiedSession from 'src/lib/ProxiedSession';

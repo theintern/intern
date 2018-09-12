@@ -1,4 +1,4 @@
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 
 import Base, { isChannel } from 'src/lib/channels/Base';
 import { RemoteEvents } from 'src/lib/RemoteSuite';

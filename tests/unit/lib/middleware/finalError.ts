@@ -1,4 +1,4 @@
-import createError from 'http-errors';
+import * as createError from 'http-errors';
 import { spy, SinonSpy } from 'sinon';
 
 import finalError from 'src/lib/middleware/finalError';

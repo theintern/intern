@@ -1,5 +1,5 @@
 import { spy, SinonSpy } from 'sinon';
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 
 import _Http from 'src/lib/channels/Http';
 
@@ -23,7 +23,10 @@ registerSuite('lib/channels/Http', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/channels/Http', {
-        '@dojo/core/request/providers/xhr': { default: request }
+        '@theintern/common': {
+          request,
+          Task
+        }
       }).then(handle => {
         removeMocks = handle.remove;
         Http = handle.module.default;
@@ -45,30 +48,36 @@ registerSuite('lib/channels/Http', function() {
         // Alternate between 200 and 204 status codes
         let count = 0;
 
-        requestHandler = spy((_path: string, data: any) => {
-          return new Task<any>(resolve => {
-            // Auto-respond to a request after a short timeout
-            setTimeout(() => {
-              const items = JSON.parse(data.body).map(JSON.parse);
-              if (count % 2 === 0) {
-                const responses: any[] = [];
-                for (const item of items) {
-                  responses.push({
-                    id: item.id,
-                    data: item.data.toUpperCase()
-                  });
+        requestHandler = spy(
+          (_path: string, data: any) =>
+            new Task<any>((resolve, reject) => {
+              // Auto-respond to a request after a short timeout
+              setTimeout(() => {
+                try {
+                  const items = data.data.map(JSON.parse);
+                  if (count % 2 === 0) {
+                    const responses: any[] = [];
+                    for (const item of items) {
+                      responses.push({
+                        id: item.id,
+                        data: item.data.toUpperCase()
+                      });
+                    }
+                    resolve({
+                      status: 200,
+                      json: () => Task.resolve(responses)
+                    });
+                  } else {
+                    resolve({ status: 204, json: () => '' });
+                  }
+                  count++;
+                } catch (error) {
+                  reject(error);
+                  console.log('data body:', data.body);
                 }
-                resolve({
-                  status: 200,
-                  json: () => Task.resolve(responses)
-                });
-              } else {
-                resolve({ status: 204, json: () => '' });
-              }
-              count++;
-            }, 100);
-          });
-        });
+              }, 100);
+            })
+        );
 
         const send1 = http.sendMessage('remoteStatus', 'foo');
         const send2 = http.sendMessage('remoteStatus', 'bar');

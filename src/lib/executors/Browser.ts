@@ -1,7 +1,5 @@
 import { Minimatch } from 'minimatch';
-import request from '@dojo/core/request/providers/xhr';
-import Task from '@dojo/core/async/Task';
-import global from '@dojo/shim/global';
+import { request, Task, CancellablePromise, global } from '@theintern/common';
 
 import * as console from '../common/console';
 import Executor, { Config, Events, Plugins } from './Executor';
@@ -61,7 +59,10 @@ export default class Browser extends Executor<Events, Config, Plugins> {
    *
    * @param script a path to a script
    */
-  loadScript(script: string | string[], isEsm = false) {
+  loadScript(
+    script: string | string[],
+    isEsm = false
+  ): CancellablePromise<void> {
     if (typeof script === 'string') {
       script = [script];
     }
@@ -132,7 +133,7 @@ export default class Browser extends Executor<Events, Config, Plugins> {
 
 export { Events, Config };
 
-function injectScript(path: string, isEsm: boolean) {
+function injectScript(path: string, isEsm: boolean): CancellablePromise<void> {
   return new Task<void>((resolve, reject) => {
     const doc: Document = global.document;
     const scriptTag = doc.createElement('script');

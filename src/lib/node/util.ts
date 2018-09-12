@@ -4,8 +4,7 @@ import { parse } from 'shell-quote';
 import { RawSourceMap } from 'source-map';
 import { sync as glob, hasMagic } from 'glob';
 
-import Task from '@dojo/core/async/Task';
-import { mixin } from '@dojo/core/lang';
+import { Task, CancellablePromise } from '@theintern/common';
 
 import process from './process';
 import {
@@ -60,33 +59,38 @@ export function expandFiles(patterns?: string[] | string) {
  * @param argv An array of command line arguments. This should follow the same
  * format as process.argv (where user args start at index 2).
  */
-export function getConfig(file?: string): Task<{ config: any; file?: string }>;
+export function getConfig(
+  file?: string
+): CancellablePromise<{ config: any; file?: string }>;
 export function getConfig(
   argv?: string[]
-): Task<{ config: any; file?: string }>;
+): CancellablePromise<{ config: any; file?: string }>;
 export function getConfig(
   file: string,
   argv?: string[]
-): Task<{ config: any; file?: string }>;
-export function getConfig(fileOrArgv?: string | string[], argv?: string[]) {
+): CancellablePromise<{ config: any; file?: string }>;
+export function getConfig(
+  fileOrArgv?: string | string[],
+  argv?: string[]
+): CancellablePromise<{ config: any; file?: string }> {
   let args: { [key: string]: any } = {};
   let file = typeof fileOrArgv === 'string' ? fileOrArgv : undefined;
   argv = Array.isArray(fileOrArgv) ? fileOrArgv : argv;
   const userArgs = (argv || process.argv).slice(2);
 
   if (process.env['INTERN_ARGS']) {
-    mixin(args, parseArgs(parse(process.env['INTERN_ARGS'] || '')));
+    Object.assign(args, parseArgs(parse(process.env['INTERN_ARGS'] || '')));
   }
 
   if (userArgs.length > 0) {
-    mixin(args, parseArgs(userArgs));
+    Object.assign(args, parseArgs(userArgs));
   }
 
   if (file) {
     args.config = file;
   }
 
-  let load: Task<{ [key: string]: any }>;
+  let load: CancellablePromise<{ [key: string]: any }>;
 
   if (args.config) {
     // If a config parameter was provided, load it and mix in any other
@@ -124,7 +128,7 @@ export function getConfig(fileOrArgv?: string | string[], argv?: string[]) {
 /**
  * Loads a text resource.
  */
-export function loadText(path: string) {
+export function loadText(path: string): CancellablePromise<string> {
   return new Task<string>((resolve, reject) => {
     readFile(path, { encoding: 'utf8' }, (error, data) => {
       if (error) {

@@ -1,4 +1,4 @@
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 import { Events, Executor, NoDataEvents, Handle } from '../executors/Executor';
 import { ErrorFormatOptions } from '../common/ErrorFormatter';

@@ -12,7 +12,7 @@ const common: Configuration = {
   module: {
     rules: [
       {
-        test: /@dojo[\\\/]/,
+        test: /@theintern\/common/,
         use: 'umd-compat-loader'
       },
       {
@@ -35,6 +35,9 @@ const common: Configuration = {
     // Hides a warning about large bundles.
     hints: false
   },
+  resolve: {
+    extensions: ['.ts', '.js']
+  },
   stats: {
     assets: false,
     entrypoints: true,
@@ -43,20 +46,13 @@ const common: Configuration = {
     modules: false,
     version: false,
     warnings: true
-  },
-  resolve: {
-    extensions: ['.ts', '.js']
   }
 };
 
 module.exports = [
   {
     ...common,
-    entry: {
-      intern: './src/browser/intern.ts',
-      remote: './src/browser/remote.ts',
-      config: './src/browser/config.ts'
-    },
+    entry: getEntries(),
     output: {
       filename: '[name].js',
       path: join(__dirname, '_build/src/browser')
@@ -64,14 +60,30 @@ module.exports = [
   },
   {
     ...common,
-    entry: {
-      intern: './src/browser/intern.ts',
-      remote: './src/browser/remote.ts',
-      config: './src/browser/config.ts'
-    },
+    entry: getEntries(),
     output: {
       filename: '[name].js',
       path: join(__dirname, '_tests/src/browser')
     }
   }
 ];
+
+function getEntries() {
+  return {
+    intern: [
+      'url-search-params-polyfill',
+      'core-js/fn/map',
+      'core-js/fn/object/assign',
+      'core-js/fn/promise',
+      './src/browser/intern.ts'
+    ],
+    remote: [
+      'url-search-params-polyfill',
+      'core-js/fn/map',
+      'core-js/fn/object/assign',
+      'core-js/fn/promise',
+      './src/browser/remote.ts'
+    ],
+    config: './src/browser/config.ts'
+  };
+}

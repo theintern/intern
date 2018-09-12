@@ -1,7 +1,7 @@
 /**
  * Interface for registering benchmark suites
  */ /** */
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 import { Executor } from '../executors/Executor';
 import { createSuite, isSuiteDescriptorFactory } from './object';

@@ -1,5 +1,4 @@
 import { join } from 'path';
-import { duplicate } from '@dojo/core/lang';
 
 import _ErrorFormatter from 'src/lib/node/ErrorFormatter';
 import { InternError } from 'src/lib/types';
@@ -21,7 +20,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
       column: number;
       source?: string;
     }) {
-      position = duplicate(position);
+      position = { ...position };
       position.source = this.map.file;
       if (position.line > 20) {
         delete position.line;

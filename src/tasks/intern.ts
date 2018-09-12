@@ -1,4 +1,4 @@
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 import Node from '../lib/executors/Node';
 import { Config } from '../lib/common/config';
