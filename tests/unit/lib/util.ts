@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { EventEmitter } from 'events';
-import * as util from '../../src/util';
+import * as util from '../../../src/lib/util';
 
 function rmFileAndDir(filename: string) {
   fs.unlinkSync(filename);
@@ -10,7 +10,7 @@ function rmFileAndDir(filename: string) {
   }
 }
 
-registerSuite('unit/util', {
+registerSuite('unit/lib/util', {
   '.fileExists': function() {
     assert.isTrue(util.fileExists('src/Tunnel.ts'));
     assert.isFalse(util.fileExists('src/Tunnel.jsx'));

@@ -9,7 +9,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { request, CancellablePromise } from '@theintern/common';
 import { parse } from 'url';
-import { fileExists, on } from './util';
+import { fileExists, on } from './lib/util';
 import { JobState } from './interfaces';
 
 /**

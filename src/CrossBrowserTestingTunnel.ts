@@ -13,7 +13,7 @@ import Tunnel, {
   TunnelProperties
 } from './Tunnel';
 import { JobState } from './interfaces';
-import { on } from './util';
+import { on } from './lib/util';
 import { exec } from 'child_process';
 
 const cbtVersion = '0.9.3';

@@ -10,7 +10,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { CancellablePromise, request } from '@theintern/common';
 import { format as formatUrl, parse as parseUrl, Url } from 'url';
-import { fileExists, kill, on } from './util';
+import { fileExists, kill, on } from './lib/util';
 
 const scVersion = '4.4.12';
 

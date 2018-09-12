@@ -9,7 +9,7 @@ import Tunnel, {
 } from './Tunnel';
 import { parse as parseUrl, Url } from 'url';
 import { JobState } from './interfaces';
-import { kill, on } from './util';
+import { kill, on } from './lib/util';
 
 /**
  * A BrowserStack tunnel.

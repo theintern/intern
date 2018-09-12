@@ -11,7 +11,7 @@ import {
 import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
 import { format as formatUrl, Url } from 'url';
-import { fileExists, kill, on } from './util';
+import { fileExists, kill, on } from './lib/util';
 import { JobState } from './interfaces';
 import * as decompress from 'decompress';
 

@@ -6,7 +6,7 @@ import Tunnel, {
 import { format } from 'util';
 import { join } from 'path';
 import { Handle, Task, CancellablePromise } from '@theintern/common';
-import { fileExists, kill, on, writeFile } from './util';
+import { fileExists, kill, on, writeFile } from './lib/util';
 import { satisfies } from 'semver';
 
 const { sync: commandExistsSync } = require('command-exists');
