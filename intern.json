@@ -4,7 +4,7 @@
   },
 
   "configs": {
-    "ci": {
+    "all": {
       "environments": [
         "node",
         "microsoftedge",
@@ -42,6 +42,11 @@
         }
       ],
 
+      "tunnel": "browserstack"
+    },
+
+    "ci": {
+      "environments": ["node", "chrome"],
       "tunnel": "browserstack"
     },
 

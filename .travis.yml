@@ -6,7 +6,20 @@ node_js:
 env:
   global:
     # Please get your own free key if you want to test yourself
-    - BROWSERSTACK_USERNAME: sitepenlabs1
-    - BROWSERSTACK_ACCESS_KEY: 836y5xDYPeFudz5HvZyp
+    - BROWSERSTACK_USERNAME=sitepenlabs1
+    - BROWSERSTACK_ACCESS_KEY=xm1uYrJuV3gZMJqCyZJX
+  matrix:
+    - INTERN_ARGS="environments="
+    - INTERN_ARGS=""
+matrix:
+  exclude:
+    # Exlude the matrix run with current node && INTERN_ARGS="" (which means
+    # only include the one that does *not* run tests on remote environments)
+    - node_js: 'node'
+      env: INTERN_ARGS=""
+    # Exlude the matrix run with LTS node && INTERN_ARGS="environments=" (which
+    # means only include the one that *does* run remote tests)
+    - node_js: 'lts/*'
+      env: INTERN_ARGS="environments="
 script:
   - npm run ci
