@@ -1,5 +1,7 @@
 import { NormalizedEnvironment } from '@theintern/digdug/Tunnel';
+import { normalize } from 'path';
 
+import process from './node/process';
 import Environment from './Environment';
 
 /**
@@ -18,10 +20,7 @@ export default function resolveEnvironments(
 ) {
   // Pre-process the environments list to resolve any uses of {pwd} and do any
   // top-level substitutions
-  environments = environments.map(environment => {
-    const serialized = JSON.stringify(environment);
-    return JSON.parse(serialized.replace(/{pwd}/g, process.cwd()));
-  });
+  environments = environments.map(expandPwd);
 
   // flatEnviroments will have non-array versions
   const flatEnvironments = createPermutations(capabilities, environments);
@@ -54,6 +53,36 @@ export interface FlatEnvironment {
   browserName: string;
   version?: string;
   [key: string]: any;
+}
+
+/**
+ * Expands {pwd} placeholders in a value. The value is assumed to be a string,
+ * simple object, or array of strings or simple objects.
+ */
+function expandPwd<T>(value: T): T {
+  if (value == null) {
+    return value;
+  }
+
+  if (typeof value === 'string' && /{pwd}/.test(value)) {
+    return <any>normalize(value.replace(/{pwd}/g, process.cwd()));
+  }
+
+  if (Array.isArray(value)) {
+    return <any>value.map(expandPwd);
+  }
+
+  if (typeof value === 'object') {
+    return <any>Object.keys(value).reduce(
+      (newObj, key) => ({
+        ...newObj,
+        [key]: expandPwd((<any>value)[key])
+      }),
+      {}
+    );
+  }
+
+  return value;
 }
 
 /**
