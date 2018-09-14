@@ -79,6 +79,8 @@ export default function request(
     ...opts,
     url,
     validateStatus: noValidation,
+    // Always get response as raw data
+    responseType: 'arraybuffer',
     transformResponse: undefined
   };
 
@@ -95,11 +97,6 @@ export default function request(
 
   if (handleAs) {
     req.responseType = handleAs;
-  }
-
-  if (!req.responseType) {
-    // Always get response as raw data
-    req.responseType = 'arraybuffer';
   }
 
   if (proxy) {
@@ -156,6 +153,7 @@ class ResponseClass<T = any> extends Evented<ProgressEvent>
   implements Response {
   private response: AxiosResponse;
   private headersAccessor: Headers;
+  private stringValue: string | PromiseLike<string> | undefined;
 
   constructor(response: AxiosResponse<T>) {
     super();
@@ -183,7 +181,21 @@ class ResponseClass<T = any> extends Evented<ProgressEvent>
 
   arrayBuffer(): CancellablePromise<ArrayBuffer> {
     const { data } = this.response;
-    return Task.resolve<ArrayBuffer>(data ? data : new ArrayBuffer(0));
+    let value: ArrayBuffer | PromiseLike<ArrayBuffer>;
+
+    if (!data) {
+      value = new ArrayBuffer(0);
+    } else if (typeof data === 'string') {
+      value = getArrayBufferFromText(data);
+    } else if (isBlob(data)) {
+      value = getArrayBufferFromBlob(data);
+    } else if (isBuffer(data)) {
+      value = data.buffer;
+    } else {
+      value = data;
+    }
+
+    return Task.resolve(value);
   }
 
   json<R = object>() {
@@ -191,11 +203,85 @@ class ResponseClass<T = any> extends Evented<ProgressEvent>
   }
 
   text(): CancellablePromise<string> {
-    const { data } = this.response;
-    return Task.resolve<string>(data ? data.toString('utf8') : '');
+    if (typeof this.stringValue === 'undefined') {
+      const { data } = this.response;
+
+      if (!data) {
+        this.stringValue = '';
+      } else if (typeof data === 'string') {
+        this.stringValue = data;
+      } else if (isArrayBuffer(data)) {
+        this.stringValue = getTextFromArrayBuffer(data);
+      } else if (isBuffer(data)) {
+        this.stringValue = data.toString('utf8');
+      } else if (isBlob(data)) {
+        this.stringValue = getTextFromBlob(data);
+      } else {
+        this.stringValue = JSON.stringify(data);
+      }
+    }
+
+    return Task.resolve(this.stringValue!);
   }
 }
 
 function noValidation() {
   return true;
+}
+
+function getFileReaderPromise<T>(reader: FileReader): Promise<T> {
+  return new Promise((resolve, reject) => {
+    reader.onload = function() {
+      resolve(reader.result);
+    };
+    reader.onerror = function() {
+      reject(reader.error);
+    };
+  });
+}
+
+function getTextFromBlob(blob: Blob) {
+  const reader = new FileReader();
+  const promise = getFileReaderPromise<string>(reader);
+  reader.readAsText(blob);
+  return promise;
+}
+
+function getArrayBufferFromBlob(blob: Blob) {
+  const reader = new FileReader();
+  const promise = getFileReaderPromise<ArrayBuffer>(reader);
+  reader.readAsArrayBuffer(blob);
+  return promise;
+}
+
+function getArrayBufferFromText(text: string) {
+  return getArrayBufferFromBlob(new Blob([text], { type: 'text/plain' }));
+}
+
+function getTextFromArrayBuffer(buffer: ArrayBuffer) {
+  const view = new Uint8Array(buffer);
+  const chars: string[] = [];
+
+  view.forEach((charCode, index) => {
+    chars[index] = String.fromCharCode(charCode);
+  });
+
+  return chars.join('');
+}
+
+function isArrayBuffer(value: any): value is ArrayBuffer {
+  return (
+    value instanceof ArrayBuffer || value.toString() === '[object ArrayBuffer]'
+  );
+}
+
+function isBlob(value: any): value is Blob {
+  return (
+    typeof Blob !== 'undefined' &&
+    (value instanceof Blob || value.toString() === '[object Blob]')
+  );
+}
+
+function isBuffer(value: any): value is Buffer {
+  return typeof Buffer !== 'undefined' && Buffer.isBuffer(value);
 }
