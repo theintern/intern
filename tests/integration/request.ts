@@ -10,11 +10,14 @@ registerSuite('integration/request', () => {
   const port = 14493;
   let server!: Server;
   let receivedData: string;
+  let url: string;
 
   return {
     before() {
       server = createServer((request, response) => {
         request.setEncoding('utf8');
+        url = request.url!;
+
         request.on('data', (chunk: string) => {
           receivedData += chunk;
         });
@@ -56,6 +59,18 @@ registerSuite('integration/request', () => {
         }).then(response => {
           assert.equal(response.status, 200);
           assert.equal(receivedData, 'testing');
+        });
+      },
+
+      'query params'() {
+        return request(`http://localhost:${port}`, {
+          method: 'get',
+          query: {
+            suites: ['one', 'two']
+          }
+        }).then(() => {
+          const query = url.split('?')[1];
+          assert.match(query, /suites=.*&suites=/, 'Expected suites params');
         });
       }
     }

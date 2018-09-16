@@ -8,6 +8,7 @@ import axios, {
   AxiosProxyConfig,
   AxiosResponse
 } from 'axios';
+import * as qs from 'qs';
 import Task, { CancellablePromise } from './Task';
 import Evented from './Evented';
 
@@ -81,6 +82,7 @@ export default function request(
     validateStatus: noValidation,
     // Always get response as raw data
     responseType: 'arraybuffer',
+    paramsSerializer: serializeParams,
     transformResponse: undefined
   };
 
@@ -284,4 +286,8 @@ function isBlob(value: any): value is Blob {
 
 function isBuffer(value: any): value is Buffer {
   return typeof Buffer !== 'undefined' && Buffer.isBuffer(value);
+}
+
+function serializeParams(params: { [key: string]: any }) {
+  return qs.stringify(params, { arrayFormat: 'repeat' });
 }
