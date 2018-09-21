@@ -8,7 +8,7 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@theintern/common": "~0.1.0",
+    "@theintern/common": "~0.1.2",
     "command-exists": "~1.2.6",
     "decompress": "~4.2.0",
     "semver": "~5.5.0",
