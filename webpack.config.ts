@@ -5,6 +5,7 @@ import * as nodeExternals from 'webpack-node-externals';
 import * as CopyWebpackPlugin from 'copy-webpack-plugin';
 
 const common: Configuration = {
+  node: false,
   performance: {
     // Hides a warning about large bundles.
     hints: false
