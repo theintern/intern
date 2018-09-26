@@ -393,7 +393,10 @@ export default class SauceLabsTunnel extends Tunnel
         // update the readyfile when the tunnel is ready. Use the
         // 'Selenium listener' message as an alternate startup
         // indicator.
-        if (message.indexOf('Selenium listener started on port ') === 0) {
+        if (
+          message.indexOf('Sauce Connect is up, you may start your tests.') ===
+          0
+        ) {
           resolve();
           return true;
         }
