@@ -287,10 +287,7 @@ export default class SauceLabsTunnel extends Tunnel
       '-P',
       this.port,
       '-f',
-      readyFile,
-      // Required for websocket support
-      '--vm-version',
-      'dev-varnish'
+      readyFile
     );
 
     this.directDomains.length && args.push('-D', this.directDomains.join(','));
