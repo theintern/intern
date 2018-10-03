@@ -74,14 +74,14 @@ function getEntries() {
       'url-search-params-polyfill',
       'core-js/fn/map',
       'core-js/fn/object/assign',
-      'core-js/fn/promise',
+      'promise-polyfill',
       './src/browser/intern.ts'
     ],
     remote: [
       'url-search-params-polyfill',
       'core-js/fn/map',
       'core-js/fn/object/assign',
-      'core-js/fn/promise',
+      'promise-polyfill',
       './src/browser/remote.ts'
     ],
     config: './src/browser/config.ts'

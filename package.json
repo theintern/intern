@@ -129,6 +129,7 @@
     "lint-staged": "~7.2.0",
     "pre-commit": "~1.2.2",
     "prettier": "~1.13.7",
+    "promise-polyfill": "~8.1.0",
     "sinon": "~2.3.6",
     "source-map-support": "~0.5.6",
     "style-loader": "~0.20.3",
