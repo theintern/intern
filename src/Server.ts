@@ -777,21 +777,19 @@ export default class Server {
      */
     const addCapabilities = (
       testedCapabilities: Capabilities
-    ): CancellablePromise<void> => {
-      return Object.keys(testedCapabilities).reduce(
-        (previous: CancellablePromise<void>, key: keyof Capabilities) => {
-          return previous.then(() => {
+    ): CancellablePromise<void> =>
+      Object.keys(testedCapabilities).reduce(
+        (previous: CancellablePromise<void>, key: keyof Capabilities) =>
+          previous.then(() => {
             const value = testedCapabilities[key];
             const task =
               typeof value === 'function' ? value() : Task.resolve(value);
             return task.then((value: any) => {
               capabilities[key] = value;
             });
-          });
-        },
+          }),
         Task.resolve()
       );
-    };
 
     const get = (page: string) => {
       if (capabilities.supportsNavigationDataUris !== false) {
@@ -849,9 +847,9 @@ export default class Server {
       // a secondary test in discoverDefects that checks whether the
       // server allows typing into file inputs.
       if (capabilities.remoteFiles == null) {
-        testedCapabilities.remoteFiles = function() {
+        testedCapabilities.remoteFiles = () =>
           // TODO: _post probably shouldn't be private
-          return session
+          session
             .serverPost<string>('file', {
               file:
                 'UEsDBAoAAAAAAD0etkYAAAAAAAAAAAAA' +
@@ -862,62 +860,63 @@ export default class Server {
                 'VVQFAANlp15VdXgLAAEE8gMAAATyAwAA' +
                 'UEsFBgAAAAABAAEATgAAAEIAAAAAAA=='
             })
-            .then(function(filename) {
-              return filename && filename.indexOf('test.txt') > -1;
-            })
+            .then(filename => filename && filename.indexOf('test.txt') > -1)
             .catch(unsupported);
-        };
       }
 
       if (capabilities.supportsSessionCommand == null) {
-        testedCapabilities.supportsSessionCommands = this.get(
-          'session/$0',
-          undefined,
-          [session.sessionId]
-        ).then(supported, unsupported);
-      }
-
-      if (capabilities.usesWebDriverTimeouts == null) {
-        testedCapabilities.usesWebDriverTimeouts = session
-          .setFindTimeout(500)
-          .then(unsupported, error =>
-            /Missing 'type' parameter/.test(error.message)
+        testedCapabilities.supportsSessionCommands = () =>
+          this.get('session/$0', undefined, [session.sessionId]).then(
+            supported,
+            unsupported
           );
       }
 
+      if (capabilities.usesWebDriverTimeouts == null) {
+        testedCapabilities.usesWebDriverTimeouts = () => {
+          return session
+            .setFindTimeout(500)
+            .then(
+              unsupported,
+              error =>
+                /Missing 'type' parameter/.test(error.message) ||
+                /Invalid timeout type specified/.test(error.message)
+            );
+        };
+      }
+
       if (capabilities.usesWebDriverWindowCommands == null) {
-        testedCapabilities.usesWebDriverWindowCommands = session
-          .serverGet('window/rect')
-          .then(supported, unsupported);
+        testedCapabilities.usesWebDriverWindowCommands = () =>
+          session.serverGet('window/rect').then(supported, unsupported);
       }
 
       // The W3C standard says window commands should take a 'handle'
       // parameter, while the JsonWireProtocol used a 'name' parameter.
       if (capabilities.usesHandleParameter == null) {
-        testedCapabilities.usesHandleParameter = session
-          .switchToWindow('current')
-          .then(unsupported, error => /Missing .*handle/.test(error.message));
+        testedCapabilities.usesHandleParameter = () =>
+          session
+            .switchToWindow('current')
+            .then(unsupported, error => /Missing .*handle/.test(error.message));
       }
 
       // Sauce Labs will not return a list of sessions at least as of May
       // 2017
       if (capabilities.brokenSessionList == null) {
-        testedCapabilities.brokenSessionList = this.getSessions().then(
-          works,
-          broken
-        );
+        testedCapabilities.brokenSessionList = () =>
+          this.getSessions().then(works, broken);
       }
 
       if (capabilities.usesWebDriverFrameId == null) {
-        testedCapabilities.usesWebDriverFrameId = session
-          .switchToFrame('inlineFrame')
-          .then(unsupported, error =>
-            /frame id has unexpected type/.test(error.message)
-          );
+        testedCapabilities.usesWebDriverFrameId = () =>
+          session
+            .switchToFrame('inlineFrame')
+            .then(unsupported, error =>
+              /frame id has unexpected type/.test(error.message)
+            );
       }
 
       if (capabilities.returnsFromClickImmediately == null) {
-        testedCapabilities.returnsFromClickImmediately = function() {
+        testedCapabilities.returnsFromClickImmediately = () => {
           function assertSelected(expected: any) {
             return function(actual: any) {
               if (expected !== actual) {
@@ -927,29 +926,17 @@ export default class Server {
           }
 
           return get('<!DOCTYPE html><input type="checkbox" id="c">')
-            .then(function() {
-              return session.findById('c');
-            })
-            .then(function(element) {
-              return element
+            .then(() => session.findById('c'))
+            .then(element =>
+              element
                 .click()
-                .then(function() {
-                  return element.isSelected();
-                })
+                .then(() => element.isSelected())
                 .then(assertSelected(true))
-                .then(function() {
-                  return element.click().then(function() {
-                    return element.isSelected();
-                  });
-                })
+                .then(() => element.click().then(() => element.isSelected()))
                 .then(assertSelected(false))
-                .then(function() {
-                  return element.click().then(function() {
-                    return element.isSelected();
-                  });
-                })
-                .then(assertSelected(true));
-            })
+                .then(() => element.click().then(() => element.isSelected()))
+                .then(assertSelected(true))
+            )
             .then(works, broken);
         };
       }
@@ -957,9 +944,10 @@ export default class Server {
       // The W3C WebDriver standard does not support the session-level
       // /keys command, but JsonWireProtocol does.
       if (capabilities.supportsKeysCommand == null) {
-        testedCapabilities.supportsKeysCommand = session
-          .serverPost('keys', { value: ['a'] })
-          .then(supported, unsupported);
+        testedCapabilities.supportsKeysCommand = () =>
+          session
+            .serverPost('keys', { value: ['a'] })
+            .then(supported, unsupported);
       }
 
       return Task.all(
@@ -980,15 +968,13 @@ export default class Server {
       // Appium iOS as of April 2014 supports rotation but does not
       // specify the capability
       if (capabilities.rotatable == null) {
-        testedCapabilities.rotatable = session
-          .getOrientation()
-          .then(supported, unsupported);
+        testedCapabilities.rotatable = () =>
+          session.getOrientation().then(supported, unsupported);
       }
 
       if (capabilities.locationContextEnabled) {
-        testedCapabilities.locationContextEnabled = session
-          .getGeolocation()
-          .then(supported, function(error) {
+        testedCapabilities.locationContextEnabled = () =>
+          session.getGeolocation().then(supported, function(error) {
             // At least FirefoxDriver 2.40.0 and ios-driver 0.6.0
             // claim they support geolocation in their returned
             // capabilities map, when they do not
@@ -1018,34 +1004,30 @@ export default class Server {
       // At least FirefoxDriver 2.40.0 claims it supports web storage in
       // the returned capabilities map, when it does not
       if (capabilities.webStorageEnabled) {
-        testedCapabilities.webStorageEnabled = session
-          .getLocalStorageLength()
-          .then(supported, maybeSupported);
+        testedCapabilities.webStorageEnabled = () =>
+          session.getLocalStorageLength().then(supported, maybeSupported);
       }
 
       // At least FirefoxDriver 2.40.0 claims it supports application
       // cache in the returned capabilities map, when it does not
       if (capabilities.applicationCacheEnabled) {
-        testedCapabilities.applicationCacheEnabled = session
-          .getApplicationCacheStatus()
-          .then(supported, maybeSupported);
+        testedCapabilities.applicationCacheEnabled = () =>
+          session.getApplicationCacheStatus().then(supported, maybeSupported);
       }
 
       if (capabilities.takesScreenshot == null) {
         // At least Selendroid 0.9.0 will fail to take screenshots in
         // certain device configurations, usually emulators with
         // hardware acceleration enabled
-        testedCapabilities.takesScreenshot = session
-          .takeScreenshot()
-          .then(supported, unsupported);
+        testedCapabilities.takesScreenshot = () =>
+          session.takeScreenshot().then(supported, unsupported);
       }
 
       // At least ios-driver 0.6.6-SNAPSHOT April 2014 does not support
       // execute_async
       if (capabilities.supportsExecuteAsync == null) {
-        testedCapabilities.supportsExecuteAsync = session
-          .executeAsync('arguments[0](true);')
-          .catch(unsupported);
+        testedCapabilities.supportsExecuteAsync = () =>
+          session.executeAsync('arguments[0](true);').catch(unsupported);
       }
 
       // Using mouse services such as doubleclick will hang Firefox 49+
@@ -1054,73 +1036,64 @@ export default class Server {
         capabilities.mouseEnabled == null &&
         !(isFirefox(capabilities, 49, Infinity) && isMac(capabilities))
       ) {
-        testedCapabilities.mouseEnabled = function() {
-          return session.doubleClick().then(supported, maybeSupported);
-        };
+        testedCapabilities.mouseEnabled = () =>
+          session.doubleClick().then(supported, maybeSupported);
       }
 
       if (capabilities.touchEnabled == null) {
-        testedCapabilities.touchEnabled = function() {
-          return get('<!DOCTYPE html><button id="clicker">Click me</button>')
-            .then(function() {
-              return session.findById('clicker');
-            })
-            .then(function(button) {
-              return session.doubleTap(button).then(supported, maybeSupported);
-            })
+        testedCapabilities.touchEnabled = () =>
+          get('<!DOCTYPE html><button id="clicker">Click me</button>')
+            .then(() => session.findById('clicker'))
+            .then(button =>
+              session.doubleTap(button).then(supported, maybeSupported)
+            )
             .catch(unsupported);
-        };
       }
 
       if (capabilities.dynamicViewport == null) {
-        testedCapabilities.dynamicViewport = session
-          .getWindowSize()
-          .then(function(originalSize) {
-            // At least Firefox 53 will hang if the target size is
-            // the same as the current size
-            return session.setWindowSize(
-              originalSize.width - 2,
-              originalSize.height - 2
-            );
-          })
-          .then(supported, unsupported);
+        testedCapabilities.dynamicViewport = () =>
+          session
+            .getWindowSize()
+            .then(originalSize =>
+              // At least Firefox 53 will hang if the target size is
+              // the same as the current size
+              session.setWindowSize(
+                originalSize.width - 2,
+                originalSize.height - 2
+              )
+            )
+            .then(supported, unsupported);
       }
 
       // At least Internet Explorer 11 and earlier do not allow data URIs
       // to be used for navigation
       if (capabilities.supportsNavigationDataUris == null) {
-        testedCapabilities.supportsNavigationDataUris = function() {
-          return get('<!DOCTYPE html><title>a</title>')
-            .then(function() {
-              return session.getPageTitle();
-            })
-            .then(function(pageTitle) {
-              return pageTitle === 'a';
-            })
+        testedCapabilities.supportsNavigationDataUris = () =>
+          get('<!DOCTYPE html><title>a</title>')
+            .then(() => session.getPageTitle())
+            .then(pageTitle => pageTitle === 'a')
             .catch(unsupported);
-        };
       }
 
       if (capabilities.supportsCssTransforms == null) {
-        testedCapabilities.supportsCssTransforms = function() {
-          return get(
+        testedCapabilities.supportsCssTransforms = () =>
+          get(
             '<!DOCTYPE html><style>' +
               '#a{width:8px;height:8px;-ms-transform:scale(0.5);' +
               '-moz-transform:scale(0.5);-webkit-transform:scale(0.5);' +
               'transform:scale(0.5);}</style><div id="a"></div>'
           )
-            .then(function() {
-              return session.execute(
-                /* istanbul ignore next */ function() {
+            .then(() =>
+              session.execute(
+                /* istanbul ignore next */ () => {
                   const bbox = document
                     .getElementById('a')!
                     .getBoundingClientRect();
                   return bbox.right - bbox.left === 4;
                 }
-              );
-            })
+              )
+            )
             .catch(unsupported);
-        };
       }
 
       return Task.all(
@@ -1141,11 +1114,10 @@ export default class Server {
       // At least ChromeDriver 2.9 and MS Edge 10240 does not implement
       // /element/active
       if (capabilities.brokenActiveElement == null) {
-        testedCapabilities.brokenActiveElement = session
-          .getActiveElement()
-          .then(works, function(error) {
-            return error.name === 'UnknownCommand';
-          });
+        testedCapabilities.brokenActiveElement = () =>
+          session
+            .getActiveElement()
+            .then(works, error => error.name === 'UnknownCommand');
       }
 
       // At least Selendroid 0.9.0 has broken cookie deletion.
@@ -1155,158 +1127,120 @@ export default class Server {
       ) {
         // This test is very hard to get working properly in other
         // environments so only test when Selendroid is the browser
-        testedCapabilities.brokenDeleteCookie = function() {
-          return session
+        testedCapabilities.brokenDeleteCookie = () =>
+          session
             .get('about:blank')
-            .then(function() {
-              return session.clearCookies();
-            })
-            .then(function() {
-              return session.setCookie({
+            .then(() => session.clearCookies())
+            .then(() =>
+              session.setCookie({
                 name: 'foo',
                 value: 'foo'
-              });
-            })
-            .then(function() {
-              return session.deleteCookie('foo');
-            })
-            .then(function() {
-              return session.getCookies();
-            })
-            .then(function(cookies) {
-              return cookies.length > 0;
-            })
-            .catch(function() {
-              return true;
-            })
-            .then(function(isBroken) {
-              return session
-                .clearCookies()
-                .then(() => isBroken, () => isBroken);
-            });
-        };
+              })
+            )
+            .then(() => session.deleteCookie('foo'))
+            .then(() => session.getCookies())
+            .then(cookies => cookies.length > 0)
+            .catch(() => true)
+            .then(isBroken =>
+              session.clearCookies().then(() => isBroken, () => isBroken)
+            );
       }
 
       // At least Selendroid 0.9.0 incorrectly returns HTML tag names in
       // uppercase, which is a violation of the JsonWireProtocol spec
       if (capabilities.brokenHtmlTagName == null) {
-        testedCapabilities.brokenHtmlTagName = session
-          .findByTagName('html')
-          .then(function(element) {
-            return element.getTagName();
-          })
-          .then(function(tagName) {
-            return tagName !== 'html';
-          })
-          .catch(broken);
+        testedCapabilities.brokenHtmlTagName = () =>
+          session
+            .findByTagName('html')
+            .then(element => element.getTagName())
+            .then(tagName => tagName !== 'html')
+            .catch(broken);
       }
 
       // At least ios-driver 0.6.6-SNAPSHOT incorrectly returns empty
       // string instead of null for attributes that do not exist
       if (capabilities.brokenNullGetSpecAttribute == null) {
-        testedCapabilities.brokenNullGetSpecAttribute = session
-          .findByTagName('html')
-          .then(function(element) {
-            return element.getSpecAttribute('nonexisting');
-          })
-          .then(function(value) {
-            return value !== null;
-          })
-          .catch(broken);
+        testedCapabilities.brokenNullGetSpecAttribute = () =>
+          session
+            .findByTagName('html')
+            .then(element => element.getSpecAttribute('nonexisting'))
+            .then(value => value !== null)
+            .catch(broken);
       }
 
       // At least MS Edge 10240 doesn't properly deserialize web elements
       // passed as `execute` arguments
       if (capabilities.brokenElementSerialization == null) {
-        testedCapabilities.brokenElementSerialization = function() {
-          return get('<!DOCTYPE html><div id="a"></div>')
-            .then(function() {
-              return session.findById('a');
-            })
-            .then(function(element) {
-              return session.execute(
-                function(element: Element) {
-                  return element.getAttribute('id');
-                },
+        testedCapabilities.brokenElementSerialization = () =>
+          get('<!DOCTYPE html><div id="a"></div>')
+            .then(() => session.findById('a'))
+            .then(element =>
+              session.execute(
+                /* istanbul ignore next */
+                (element: Element) => element.getAttribute('id'),
                 [element]
-              );
-            })
-            .then(function(attribute) {
-              return attribute !== 'a';
-            })
+              )
+            )
+            .then(attribute => attribute !== 'a')
             .catch(broken);
-        };
       }
 
       // At least Selendroid 0.16.0 incorrectly returns `undefined`
       // instead of `null` when an undefined value is returned by an
       // `execute` call
       if (capabilities.brokenExecuteUndefinedReturn == null) {
-        testedCapabilities.brokenExecuteUndefinedReturn = session
-          .execute('return undefined;')
-          .then(function(value) {
-            return value !== null;
-          }, broken);
+        testedCapabilities.brokenExecuteUndefinedReturn = () =>
+          session
+            .execute('return undefined;')
+            .then(value => value !== null, broken);
       }
 
       // At least Selendroid 0.9.0 always returns invalid element handles
       // from JavaScript
       if (capabilities.brokenExecuteElementReturn == null) {
-        testedCapabilities.brokenExecuteElementReturn = function() {
-          return get('<!DOCTYPE html><div id="a"></div>')
-            .then(function() {
-              return session.execute<Element>(
-                'return document.getElementById("a");'
-              );
-            })
+        testedCapabilities.brokenExecuteElementReturn = () =>
+          get('<!DOCTYPE html><div id="a"></div>')
+            .then(() =>
+              session.execute<Element>('return document.getElementById("a");')
+            )
             .then(element => element && element.getTagName())
             .then(works, broken);
-        };
       }
 
       // At least Selendroid 0.9.0 treats fully transparent elements as
       // displayed, but all others do not
       if (capabilities.brokenElementDisplayedOpacity == null) {
-        testedCapabilities.brokenElementDisplayedOpacity = function() {
-          return get('<!DOCTYPE html><div id="a" style="opacity: .1;">a</div>')
-            .then(function() {
+        testedCapabilities.brokenElementDisplayedOpacity = () =>
+          get('<!DOCTYPE html><div id="a" style="opacity: .1;">a</div>')
+            .then(() =>
               // IE<9 do not support CSS opacity so should not be
               // involved in this test
-              return session.execute(
+              session.execute(
                 'var o = document.getElementById("a").style.opacity; return o && o.charAt(0) === "0";'
-              );
-            })
-            .then(function(supportsOpacity) {
+              )
+            )
+            .then(supportsOpacity => {
               if (!supportsOpacity) {
                 return works();
               } else {
                 return session
                   .execute('document.getElementById("a").style.opacity = "0";')
-                  .then(function() {
-                    return session.findById('a');
-                  })
-                  .then(function(element) {
-                    return element.isDisplayed();
-                  });
+                  .then(() => session.findById('a'))
+                  .then(element => element.isDisplayed());
               }
             })
             .catch(broken);
-        };
       }
 
       // At least ChromeDriver 2.9 treats elements that are offscreen as
       // displayed, but others do not
       if (capabilities.brokenElementDisplayedOffscreen == null) {
-        testedCapabilities.brokenElementDisplayedOffscreen = function() {
+        testedCapabilities.brokenElementDisplayedOffscreen = () => {
           const pageText =
             '<!DOCTYPE html><div id="a" style="left: 0; position: absolute; top: -1000px;">a</div>';
           return get(pageText)
-            .then(function() {
-              return session.findById('a');
-            })
-            .then(function(element) {
-              return element.isDisplayed();
-            })
+            .then(() => session.findById('a'))
+            .then(element => element.isDisplayed())
             .catch(broken);
         };
       }
@@ -1336,62 +1270,52 @@ export default class Server {
       // rather than "\n", and there may be extraneous whitespace
       // adjacent to "\r\n" pairs and at the start and end of the text.
       if (capabilities.brokenWhitespaceNormalization == null) {
-        testedCapabilities.brokenWhitespaceNormalization = function() {
-          return get('<!DOCTYPE html><div id="d">This is\n<br>a test\n</div>')
-            .then(function() {
-              return session
+        testedCapabilities.brokenWhitespaceNormalization = () =>
+          get('<!DOCTYPE html><div id="d">This is\n<br>a test\n</div>')
+            .then(() =>
+              session
                 .findById('d')
-                .then(function(element) {
-                  return element.getVisibleText();
-                })
-                .then(function(text) {
+                .then(element => element.getVisibleText())
+                .then(text => {
                   if (/\r\n/.test(text) || /\s+$/.test(text)) {
                     throw new Error('invalid whitespace');
                   }
-                });
-            })
+                })
+            )
             .then(works, broken);
-        };
       }
 
       // At least geckodriver 0.15.0 and Firefox 51.0.1 don't properly
       // normalize link text when using the 'link text' locator strategy.
       if (capabilities.brokenLinkTextLocator == null) {
-        testedCapabilities.brokenLinkTextLocator = function() {
-          return get(
+        testedCapabilities.brokenLinkTextLocator = () =>
+          get(
             '<!DOCTYPE html><a id="d">What a cute<span style="display:none">,' +
               'yellow</span> backpack</a><a id="e">What a cute, yellow backpack</a>'
           )
-            .then(function() {
-              return session
+            .then(() =>
+              session
                 .findByLinkText('What a cute, yellow backpack')
-                .then(function(element) {
-                  return element.getVisibleText();
-                })
-                .then(function(text) {
+                .then(element => element.getVisibleText())
+                .then(text => {
                   if (text !== 'What a cute, yellow backpack') {
                     throw new Error('incorrect link was found');
                   }
-                });
-            })
+                })
+            )
             .then(works, broken);
-        };
       }
 
       // At least MS Edge Driver 14316 doesn't return elements' computed
       // styles
       if (capabilities.brokenComputedStyles == null) {
-        testedCapabilities.brokenComputedStyles = function() {
+        testedCapabilities.brokenComputedStyles = () => {
           const pageText =
             '<!DOCTYPE html><style>a { background: purple }</style><a id="a1">foo</a>';
           return get(pageText)
-            .then(function() {
-              return session.findById('a1');
-            })
-            .then(function(element) {
-              return element.getComputedStyle('background-color');
-            })
-            .then(function(value) {
+            .then(() => session.findById('a1'))
+            .then(element => element.getComputedStyle('background-color'))
+            .then(value => {
               if (!value) {
                 throw new Error('empty style');
               }
@@ -1404,34 +1328,24 @@ export default class Server {
         if (capabilities.brokenOptionSelect == null) {
           // At least MS Edge Driver 14316 doesn't allow selection
           // option elements to be clicked.
-          testedCapabilities.brokenOptionSelect = function() {
-            return get(
+          testedCapabilities.brokenOptionSelect = () =>
+            get(
               '<!DOCTYPE html><select id="d"><option id="o1" value="foo">foo</option>' +
                 '<option id="o2" value="bar" selected>bar</option></select>'
             )
-              .then(function() {
-                return session.findById('d');
-              })
-              .then(function(element) {
-                return element.click();
-              })
-              .then(function() {
-                return session.findById('o1');
-              })
-              .then(function(element) {
-                return element.click();
-              })
+              .then(() => session.findById('d'))
+              .then(element => element.click())
+              .then(() => session.findById('o1'))
+              .then(element => element.click())
               .then(works, broken);
-          };
         }
       }
 
       // At least MS Edge driver 10240 doesn't support getting the page
       // source
       if (capabilities.brokenPageSource == null) {
-        testedCapabilities.brokenPageSource = session
-          .getPageSource()
-          .then(works, broken);
+        testedCapabilities.brokenPageSource = () =>
+          session.getPageSource().then(works, broken);
       }
 
       if (capabilities.brokenSubmitElement == null) {
@@ -1441,39 +1355,29 @@ export default class Server {
         // likely that tests do want the specified button to act as
         // though someone clicked it when it is submitted, so the
         // behaviour needs to be normalised
-        testedCapabilities.brokenSubmitElement = function() {
-          return get(
+        testedCapabilities.brokenSubmitElement = () =>
+          get(
             '<!DOCTYPE html><form method="get" action="about:blank">' +
               '<input id="a" type="submit" name="a" value="a"></form>'
           )
-            .then(function() {
-              return session.findById('a');
-            })
-            .then(function(element) {
-              return element.submit();
-            })
-            .then(function() {
-              return session.getCurrentUrl();
-            })
-            .then(function(url) {
-              return url.indexOf('a=a') === -1;
-            })
+            .then(() => session.findById('a'))
+            .then(element => element.submit())
+            .then(() => session.getCurrentUrl())
+            .then(url => url.indexOf('a=a') === -1)
             .catch(broken);
-        };
       }
 
       // At least MS Edge driver 10240 doesn't support window sizing
       // commands
       if (capabilities.brokenWindowSize == null) {
-        testedCapabilities.brokenWindowSize = session
-          .getWindowSize()
-          .then(works, broken);
+        testedCapabilities.brokenWindowSize = () =>
+          session.getWindowSize().then(works, broken);
       }
 
       // At least Chrome on Mac doesn't properly maximize. See
       // https://bugs.chromium.org/p/chromedriver/issues/detail?id=985
       if (capabilities.brokenWindowMaximize == null) {
-        testedCapabilities.brokenWindowMaximize = function() {
+        testedCapabilities.brokenWindowMaximize = () => {
           let originalSize: { width: number; height: number };
           return session
             .getWindowSize()
@@ -1501,41 +1405,39 @@ export default class Server {
       // types. Firefox 49+ (via geckodriver) doesn't support retrieving
       // logs or log types, and may hang the session.
       if (capabilities.fixedLogTypes == null) {
-        testedCapabilities.fixedLogTypes = session
-          .getAvailableLogTypes()
-          .then(unsupported, function(error: LeadfootError) {
-            if (
-              capabilities.browserName === 'selendroid' &&
-              error.response!.text.length === 0
-            ) {
-              return ['logcat'];
-            }
+        testedCapabilities.fixedLogTypes = () =>
+          session
+            .getAvailableLogTypes()
+            .then(unsupported, (error: LeadfootError) => {
+              if (
+                capabilities.browserName === 'selendroid' &&
+                error.response!.text.length === 0
+              ) {
+                return ['logcat'];
+              }
 
-            return [];
-          });
+              return [];
+            });
       }
 
       // At least Microsoft Edge 10240 doesn't support timeout values of
       // 0.
       if (capabilities.brokenZeroTimeout == null) {
-        testedCapabilities.brokenZeroTimeout = session
-          .setTimeout('implicit', 0)
-          .then(works, broken);
+        testedCapabilities.brokenZeroTimeout = () =>
+          session.setTimeout('implicit', 0).then(works, broken);
       }
 
       if (capabilities.brokenWindowSwitch == null) {
-        testedCapabilities.brokenWindowSwitch = session
-          .getCurrentWindowHandle()
-          .then(function(handle) {
-            return session.switchToWindow(handle);
-          })
-          .then(works, broken);
+        testedCapabilities.brokenWindowSwitch = () =>
+          session
+            .getCurrentWindowHandle()
+            .then(handle => session.switchToWindow(handle))
+            .then(works, broken);
       }
 
       if (capabilities.brokenParentFrameSwitch == null) {
-        testedCapabilities.brokenParentFrameSwitch = session
-          .switchToParentFrame()
-          .then(works, broken);
+        testedCapabilities.brokenParentFrameSwitch = () =>
+          session.switchToParentFrame().then(works, broken);
       }
 
       // This URL is used by several tests below
@@ -1545,28 +1447,21 @@ export default class Server {
       // ios-driver 0.6.6-SNAPSHOT April 2014 calculates position based
       // on a bogus origin and does not account for scrolling
       if (capabilities.brokenElementPosition == null) {
-        testedCapabilities.brokenElementPosition = function() {
-          return get(scrollTestUrl)
-            .then(function() {
-              return session.findById('a');
-            })
-            .then(function(element) {
-              return element.getPosition();
-            })
-            .then(function(position) {
-              return position.x !== 3000 || position.y !== 3000;
-            })
+        testedCapabilities.brokenElementPosition = () =>
+          get(scrollTestUrl)
+            .then(() => session.findById('a'))
+            .then(element => element.getPosition())
+            .then(position => position.x !== 3000 || position.y !== 3000)
             .catch(broken);
-        };
       }
 
       // At least ios-driver 0.6.6-SNAPSHOT April 2014 will never
       // complete a refresh call
       if (capabilities.brokenRefresh == null) {
-        testedCapabilities.brokenRefresh = function() {
-          return session
+        testedCapabilities.brokenRefresh = () =>
+          session
             .get('about:blank?1')
-            .then(function() {
+            .then(() => {
               let timer: NodeJS.Timer;
               let refresh: CancellablePromise<boolean | void>;
 
@@ -1605,174 +1500,139 @@ export default class Server {
               );
             })
             .catch(broken);
-        };
       }
 
       if (capabilities.brokenMouseEvents == null && capabilities.mouseEnabled) {
         // At least IE 10 and 11 on SauceLabs don't fire native mouse
         // events consistently even though they support moveMouseTo
-        testedCapabilities.brokenMouseEvents = function() {
-          return get(
+        testedCapabilities.brokenMouseEvents = () =>
+          get(
             '<!DOCTYPE html><div id="foo">foo</div>' +
               '<script>window.counter = 0; var d = document; d.onmousemove = function () { window.counter++; };</script>'
           )
-            .then(function() {
-              return session.findById('foo');
-            })
-            .then(function(element) {
-              return session.moveMouseTo(element, 20, 20);
-            })
-            .then(function() {
-              return sleep(100);
-            })
-            .then(function() {
-              return session.execute('return window.counter;');
-            })
-            .then(function(counter) {
-              return counter > 0 ? works() : broken();
-            }, broken);
-        };
+            .then(() => session.findById('foo'))
+            .then(element => session.moveMouseTo(element, 20, 20))
+            .then(() => sleep(100))
+            .then(() => session.execute('return window.counter;'))
+            .then(counter => (counter > 0 ? works() : broken()), broken);
 
         // At least ChromeDriver 2.12 through 2.19 will throw an error
         // if mouse movement relative to the <html> element is
         // attempted
         if (capabilities.brokenHtmlMouseMove == null) {
-          testedCapabilities.brokenHtmlMouseMove = function() {
-            return get('<!DOCTYPE html><html></html>')
-              .then(function() {
-                return session.findByTagName('html').then(function(element) {
-                  return session.moveMouseTo(element, 0, 0);
-                });
-              })
+          testedCapabilities.brokenHtmlMouseMove = () =>
+            get('<!DOCTYPE html><html></html>')
+              .then(() =>
+                session
+                  .findByTagName('html')
+                  .then(element => session.moveMouseTo(element, 0, 0))
+              )
               .then(works, broken);
-          };
         }
+      }
 
-        // At least ChromeDriver 2.9.248307 does not correctly emit the
-        // entire sequence of events that would normally occur during a
-        // double-click
-        if (capabilities.brokenDoubleClick == null) {
-          testedCapabilities.brokenDoubleClick = function retry(): CancellablePromise<
-            any
-          > {
-            // InternetExplorerDriver is not buggy, but IE9 in
-            // quirks-mode is; since we cannot do feature tests in
-            // standards-mode in IE<10, force the value to false
-            // since it is not broken in this browser
-            if (
-              capabilities.browserName === 'internet explorer' &&
-              capabilities.browserVersion === '9'
-            ) {
-              return Task.resolve(false);
-            }
+      // At least ChromeDriver 2.9.248307 does not correctly emit the
+      // entire sequence of events that would normally occur during a
+      // double-click
+      if (capabilities.brokenDoubleClick == null) {
+        testedCapabilities.brokenDoubleClick = function retry(): CancellablePromise<
+          any
+        > {
+          // InternetExplorerDriver is not buggy, but IE9 in
+          // quirks-mode is; since we cannot do feature tests in
+          // standards-mode in IE<10, force the value to false
+          // since it is not broken in this browser
+          if (
+            capabilities.browserName === 'internet explorer' &&
+            capabilities.browserVersion === '9'
+          ) {
+            return Task.resolve(false);
+          }
 
-            return get(
-              '<!DOCTYPE html><script>' +
-                'window.counter = 0; var d = document; d.onclick = ' +
-                'd.onmousedown = d.onmouseup = function () { window.counter++; };' +
-                '</script>'
-            )
-              .then(function() {
-                return session.findByTagName('html');
-              })
-              .then(function(element) {
-                return session.moveMouseTo(element);
-              })
-              .then(function() {
-                return sleep(100);
-              })
-              .then(function() {
-                return session.doubleClick();
-              })
-              .then(function() {
-                return session.execute('return window.counter;');
-              })
-              .then(function(counter) {
-                // InternetExplorerDriver 2.41.0 has a race
-                // condition that makes this test sometimes
-                // fail
-                /* istanbul ignore if: inconsistent race condition */
-                if (counter === 0) {
-                  return retry();
-                }
+          return get(
+            '<!DOCTYPE html><script>' +
+              'window.counter = 0; var d = document; d.onclick = ' +
+              'd.onmousedown = d.onmouseup = function () { window.counter++; };' +
+              '</script>'
+          )
+            .then(() => session.findByTagName('html'))
+            .then(element => session.moveMouseTo(element))
+            .then(() => sleep(100))
+            .then(() => session.doubleClick())
+            .then(() => session.execute('return window.counter;'))
+            .then(counter => {
+              // InternetExplorerDriver 2.41.0 has a race
+              // condition that makes this test sometimes
+              // fail
+              /* istanbul ignore if: inconsistent race condition */
+              if (counter === 0) {
+                return retry();
+              }
 
-                return counter !== 6;
-              })
-              .catch(broken);
-          };
-        }
+              return counter !== 6;
+            })
+            .catch(broken);
+        };
       }
 
       if (capabilities.touchEnabled) {
         // At least Selendroid 0.9.0 fails to perform a long tap due to
         // an INJECT_EVENTS permission failure
         if (capabilities.brokenLongTap == null) {
-          testedCapabilities.brokenLongTap = session
-            .findByTagName('body')
-            .then(function(element) {
-              return session.longTap(element);
-            })
-            .then(works, broken);
-        }
+          testedCapabilities.brokenLongTap = () =>
+            session
+              .findByTagName('body')
+              .then(element => session.longTap(element))
+              .then(works, broken);
 
-        // At least ios-driver 0.6.6-SNAPSHOT April 2014 claims to
-        // support touch press/move/release but actually fails when you
-        // try to use the commands
-        if (capabilities.brokenMoveFinger == null) {
-          testedCapabilities.brokenMoveFinger = session
-            .pressFinger(0, 0)
-            .then(works, function(error) {
-              return (
-                error.name === 'UnknownCommand' ||
-                error.message.indexOf('need to specify the JS') > -1
-              );
-            });
-        }
+          // At least ios-driver 0.6.6-SNAPSHOT April 2014 claims to
+          // support touch press/move/release but actually fails when you
+          // try to use the commands
+          if (capabilities.brokenMoveFinger == null) {
+            testedCapabilities.brokenMoveFinger = () =>
+              session
+                .pressFinger(0, 0)
+                .then(
+                  works,
+                  error =>
+                    error.name === 'UnknownCommand' ||
+                    error.message.indexOf('need to specify the JS') > -1
+                );
+          }
 
-        // Touch scroll in ios-driver 0.6.6-SNAPSHOT is broken, does
-        // not scroll at all; in selendroid 0.9.0 it ignores the
-        // element argument
-        if (capabilities.brokenTouchScroll == null) {
-          testedCapabilities.brokenTouchScroll = function() {
-            return get(scrollTestUrl)
-              .then(function() {
-                return session.touchScroll(0, 20);
-              })
-              .then(function() {
-                return session.execute('return window.scrollY !== 20;');
-              })
-              .then(function(isBroken) {
-                if (isBroken) {
-                  return true;
-                }
+          // Touch scroll in ios-driver 0.6.6-SNAPSHOT is broken, does
+          // not scroll at all; in selendroid 0.9.0 it ignores the
+          // element argument
+          if (capabilities.brokenTouchScroll == null) {
+            testedCapabilities.brokenTouchScroll = () =>
+              get(scrollTestUrl)
+                .then(() => session.touchScroll(0, 20))
+                .then(() => session.execute('return window.scrollY !== 20;'))
+                .then(isBroken => {
+                  if (isBroken) {
+                    return true;
+                  }
 
-                return session
-                  .findById('a')
-                  .then(function(element) {
-                    return session.touchScroll(element, 0, 0);
-                  })
-                  .then(function() {
-                    return session.execute('return window.scrollY !== 3000;');
-                  });
-              })
-              .catch(broken);
-          };
+                  return session
+                    .findById('a')
+                    .then(element => session.touchScroll(element, 0, 0))
+                    .then(() =>
+                      session.execute('return window.scrollY !== 3000;')
+                    );
+                })
+                .catch(broken);
+          }
         }
 
         // Touch flick in ios-driver 0.6.6-SNAPSHOT is broken, does not
         // scroll at all except in very broken ways if very tiny speeds
         // are provided and the flick goes in the wrong direction
         if (capabilities.brokenFlickFinger == null) {
-          testedCapabilities.brokenFlickFinger = function() {
-            return get(scrollTestUrl)
-              .then(function() {
-                return session.flickFinger(0, 400);
-              })
-              .then(function() {
-                return session.execute('return window.scrollY === 0;');
-              })
+          testedCapabilities.brokenFlickFinger = () =>
+            get(scrollTestUrl)
+              .then(() => session.flickFinger(0, 400))
+              .then(() => session.execute('return window.scrollY === 0;'))
               .catch(broken);
-          };
         }
       }
 
@@ -1780,25 +1640,23 @@ export default class Server {
         capabilities.supportsCssTransforms &&
         capabilities.brokenCssTransformedSize == null
       ) {
-        testedCapabilities.brokenCssTransformedSize = function() {
-          return get(
+        testedCapabilities.brokenCssTransformedSize = () =>
+          get(
             '<!DOCTYPE html><style>#a{width:8px;height:8px;' +
               '-ms-transform:scale(0.5);-moz-transform:scale(0.5);' +
               '-webkit-transform:scale(0.5);transform:scale(0.5);}' +
               '</style><div id="a"></div>'
           )
-            .then(function() {
-              return session
+            .then(() =>
+              session
                 .execute<Element>('return document.getElementById("a");')
-                .then(function(element) {
-                  return element.getSize();
-                })
-                .then(function(dimensions) {
-                  return dimensions.width !== 4 || dimensions.height !== 4;
-                });
-            })
+                .then(element => element.getSize())
+                .then(
+                  dimensions =>
+                    dimensions.width !== 4 || dimensions.height !== 4
+                )
+            )
             .catch(broken);
-        };
       }
 
       return Task.all(
