@@ -277,7 +277,9 @@ registerSuite('Command', () => {
           .findById('a')
           .moveMouseTo()
           .pressMouseButton()
-          .moveMouseTo(110, 50)
+          .end()
+          .findById('b')
+          .moveMouseTo()
           .releaseMouseButton()
           .execute<{
             mousedown: { a?: any[] };
