@@ -7199,9 +7199,9 @@
 					],
 					"type": {
 						"type": "stringLiteral",
-						"value": "0.9.3"
+						"value": "~0.9.7"
 					},
-					"defaultValue": "\"0.9.3\""
+					"defaultValue": "\"~0.9.7\""
 				}
 			],
 			"groups": [
@@ -12315,7 +12315,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 521,
+									"line": 513,
 									"character": 33
 								}
 							],
@@ -12459,7 +12459,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 359,
+									"line": 351,
 									"character": 18
 								}
 							],
@@ -13145,7 +13145,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 314,
+									"line": 306,
 									"character": 14
 								}
 							],
@@ -13524,7 +13524,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 577,
+									"line": 569,
 									"character": 15
 								}
 							],
@@ -13586,7 +13586,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 583,
+									"line": 575,
 									"character": 22
 								}
 							],
@@ -13651,7 +13651,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 586,
+									"line": 578,
 									"character": 17
 								}
 							],
@@ -13707,7 +13707,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 589,
+									"line": 581,
 									"character": 16
 								}
 							],
@@ -13731,7 +13731,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 592,
+									"line": 584,
 									"character": 9
 								}
 							],
@@ -13764,7 +13764,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 601,
+									"line": 593,
 									"character": 13
 								}
 							],
@@ -13797,7 +13797,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 604,
+									"line": 596,
 									"character": 17
 								}
 							],
@@ -13821,7 +13821,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 595,
+									"line": 587,
 									"character": 9
 								}
 							],
@@ -13883,7 +13883,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 598,
+									"line": 590,
 									"character": 9
 								}
 							],
@@ -14038,7 +14038,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 607,
+									"line": 599,
 									"character": 9
 								}
 							],
@@ -14071,7 +14071,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 610,
+									"line": 602,
 									"character": 16
 								}
 							],
@@ -14098,7 +14098,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 613,
+									"line": 605,
 									"character": 14
 								}
 							],
@@ -14131,7 +14131,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 580,
+									"line": 572,
 									"character": 15
 								}
 							],
@@ -14222,7 +14222,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 616,
+									"line": 608,
 									"character": 19
 								}
 							],
@@ -14313,7 +14313,7 @@
 							"sources": [
 								{
 									"fileName": "SauceLabsTunnel.ts",
-									"line": 619,
+									"line": 611,
 									"character": 11
 								}
 							],
@@ -14373,7 +14373,7 @@
 					"sources": [
 						{
 							"fileName": "SauceLabsTunnel.ts",
-							"line": 575,
+							"line": 567,
 							"character": 36
 						}
 					],
@@ -14404,7 +14404,7 @@
 					"sources": [
 						{
 							"fileName": "SauceLabsTunnel.ts",
-							"line": 622,
+							"line": 614,
 							"character": 28
 						}
 					],
@@ -14438,9 +14438,9 @@
 					],
 					"type": {
 						"type": "stringLiteral",
-						"value": "4.4.12"
+						"value": "4.5.1"
 					},
-					"defaultValue": "\"4.4.12\""
+					"defaultValue": "\"4.5.1\""
 				}
 			],
 			"groups": [
