@@ -12,7 +12,7 @@ import { CancellablePromise, request } from '@theintern/common';
 import { format as formatUrl, parse as parseUrl, Url } from 'url';
 import { fileExists, kill, on } from './lib/util';
 
-const scVersion = '4.4.12';
+const scVersion = '4.5.1';
 
 /**
  * A Sauce Labs tunnel. This tunnel uses Sauce Connect 4 on platforms where it
@@ -283,12 +283,7 @@ export default class SauceLabsTunnel extends Tunnel
         ? this._makeJavaArgs(proxy)
         : this._makeNativeArgs(proxy);
 
-    args.push(
-      '-P',
-      this.port,
-      '-f',
-      readyFile
-    );
+    args.push('-P', this.port, '-f', readyFile);
 
     this.directDomains.length && args.push('-D', this.directDomains.join(','));
     this.tunnelDomains.length && args.push('-t', this.tunnelDomains.join(','));
