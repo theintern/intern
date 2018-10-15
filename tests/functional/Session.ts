@@ -215,7 +215,8 @@ registerSuite('Session', () => {
         return session.getTimeout('script').then(function(value: number) {
           assert.strictEqual(
             value,
-            0,
+            // set to 10000 in createSessionFromRemote
+            10000,
             'Async execution timeout should be default value'
           );
         });
@@ -225,6 +226,7 @@ registerSuite('Session', () => {
         return session.getTimeout('implicit').then(function(value: number) {
           assert.strictEqual(
             value,
+            // set to 0 in beforeEach
             0,
             'Implicit timeout should be default value'
           );
@@ -235,7 +237,8 @@ registerSuite('Session', () => {
         return session.getTimeout('page load').then(function(value: number) {
           assert.strictEqual(
             value,
-            Infinity,
+            // set to 30000 in createSessionFromRemote
+            30000,
             'Page load timeout should be default value'
           );
         });

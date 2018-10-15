@@ -42,7 +42,14 @@ export function createSessionFromRemote(
       remote.session.capabilities
     );
     fixGet(session);
-    return server['_fillCapabilities'](session);
+    return (
+      server['_fillCapabilities'](session)
+        // Ensure the session has default timeouts
+        .then(() => session.setFindTimeout(5000))
+        .then(() => session.setExecuteAsyncTimeout(10000))
+        .then(() => session.setPageLoadTimeout(30000))
+        .then(() => session)
+    );
   }
 
   throw new Error('Unsupported remote');

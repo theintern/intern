@@ -186,7 +186,13 @@ export default class Session extends Locator<
    * @returns The timeout, in milliseconds.
    */
   getTimeout(type: Timeout): CancellablePromise<number> {
-    return this._timeouts[type];
+    if (this.capabilities.usesWebDriverTimeouts) {
+      return this.serverGet<WebDriverTimeouts>('timeouts').then(
+        timeouts => (type === 'page load' ? timeouts.pageLoad : timeouts[type])
+      );
+    } else {
+      return this._timeouts[type];
+    }
   }
 
   /**
@@ -2399,4 +2405,10 @@ function simulateMouse(kwArgs: any) {
 
 function isStringArray(value: any): value is string[] {
   return Array.isArray(value) && typeof value[0] === 'string';
+}
+
+interface WebDriverTimeouts {
+  script: number;
+  pageLoad: number;
+  implicit: number;
 }

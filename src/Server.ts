@@ -874,14 +874,18 @@ export default class Server {
 
       if (capabilities.usesWebDriverTimeouts == null) {
         testedCapabilities.usesWebDriverTimeouts = () => {
-          return session
-            .setFindTimeout(500)
-            .then(
-              unsupported,
-              error =>
-                /Missing 'type' parameter/.test(error.message) ||
-                /Invalid timeout type specified/.test(error.message)
-            );
+          // setFindTimeout uses JSON wire protocol by default, and will fail
+          // if the server is using W3C WebDriver
+          return session.setFindTimeout(500).then(
+            unsupported,
+            error =>
+              // At least Chrome 60+
+              /Missing 'type' parameter/.test(error.message) ||
+              // At least Safari 10+
+              /Unknown timeout type/.test(error.message) ||
+              // IE11
+              /Invalid timeout type specified/.test(error.message)
+          );
         };
       }
 
