@@ -186,7 +186,7 @@ export default class Session extends Locator<
    * @returns The timeout, in milliseconds.
    */
   getTimeout(type: Timeout): CancellablePromise<number> {
-    if (this.capabilities.usesWebDriverTimeouts) {
+    if (this.capabilities.supportsGetTimeouts) {
       return this.serverGet<WebDriverTimeouts>('timeouts').then(
         timeouts => (type === 'page load' ? timeouts.pageLoad : timeouts[type])
       );

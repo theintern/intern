@@ -889,6 +889,12 @@ export default class Server {
         };
       }
 
+      if (capabilities.supportsGetTimeouts == null) {
+        testedCapabilities.supportsGetTimeouts = () => {
+          return session.serverGet('timeouts').then(supported, unsupported);
+        };
+      }
+
       if (capabilities.usesWebDriverWindowCommands == null) {
         testedCapabilities.usesWebDriverWindowCommands = () =>
           session.serverGet('window/rect').then(supported, unsupported);

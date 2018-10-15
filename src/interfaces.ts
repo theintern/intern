@@ -171,6 +171,9 @@ export interface Capabilities {
   /** Whether scripts can be executed asynchronously in the remote browser */
   supportsExecuteAsync?: boolean;
 
+  /** Whether the server supports the GET /timeouts endpoint */
+  supportsGetTimeouts?: boolean;
+
   /**
    * Whether the remote browser supports the JsonWireProtocol 'keys' command
    */
