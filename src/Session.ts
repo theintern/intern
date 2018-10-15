@@ -220,7 +220,7 @@ export default class Session extends Locator<
     }
 
     let data = this.capabilities.usesWebDriverTimeouts
-      ? { [type]: ms }
+      ? { [type === 'page load' ? 'pageLoad' : type]: ms }
       : { type, ms };
 
     const promise = this.serverPost<void>('timeouts', data).catch(error => {
@@ -2070,7 +2070,7 @@ function convertToElements(session: Session, value: any) {
     if (Array.isArray(value)) {
       value = value.map(convert);
     } else if (typeof value === 'object' && value !== null) {
-      if (value.ELEMENT) {
+      if (value.ELEMENT || value['element-6066-11e4-a52e-4f735466cecf']) {
         value = new Element(value, session);
       } else {
         for (let k in value) {
