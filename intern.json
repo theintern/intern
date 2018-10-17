@@ -46,7 +46,10 @@
     },
 
     "ci": {
-      "environments": ["node", "chrome"],
+      "environments": [
+        "node",
+        { "browserName": "chrome", "version": "latest" }
+      ],
       "tunnel": "browserstack"
     },
 
