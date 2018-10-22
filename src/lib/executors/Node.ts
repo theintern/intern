@@ -27,7 +27,7 @@ import NullTunnel from '@theintern/digdug/NullTunnel';
 import { Config, EnvironmentSpec } from '../common/config';
 import Executor, { Events, Plugins } from './Executor';
 import { normalizePathEnding } from '../common/path';
-import { processOption, pullFromArray } from '../common/util';
+import { pullFromArray } from '../common/util';
 import { expandFiles, readSourceMap } from '../node/util';
 import ErrorFormatter from '../node/ErrorFormatter';
 import ProxiedSession from '../ProxiedSession';
@@ -582,12 +582,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     }
 
     return super._loadSuites();
-  }
-
-  protected _processOption(key: keyof Config, value: any) {
-    if (!processOption(key, value, this.config, this)) {
-      super._processOption(key, value);
-    }
   }
 
   protected _resolveConfig() {
