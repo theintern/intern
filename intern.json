@@ -150,7 +150,7 @@
         { "browser": "internet explorer", "version": ["10", "11"] },
         {
           "browser": "firefox",
-          "version": ["33", "latest"],
+          "version": ["36", "latest"],
           "platform": ["WINDOWS", "MAC"]
         },
         {
