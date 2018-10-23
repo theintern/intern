@@ -456,6 +456,10 @@ export default class Tunnel extends Evented<TunnelEvents, string>
 
     let handle: Handle;
     let canceled = false;
+	
+    process.on('exit', ()=> kill(child.pid));
+    process.on('SIGINT', () => kill(child.pid));
+
     const task = new Task(
       (resolve, reject) => {
         let errorMessage = '';
