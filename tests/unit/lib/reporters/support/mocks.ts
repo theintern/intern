@@ -34,8 +34,8 @@ export function createMockDocument() {
   return doc;
 }
 
-export function createLocation() {
-  return {
+export function createLocation(): Location {
+  return <any>{
     hash: '',
     host: '',
     hostname: '',

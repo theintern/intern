@@ -117,7 +117,7 @@ export default class Dom extends Reporter {
   private _scroll() {
     global.scrollTo(
       0,
-      this.document.documentElement.scrollHeight ||
+      this.document.documentElement!.scrollHeight ||
         this.document.body.scrollHeight
     );
   }

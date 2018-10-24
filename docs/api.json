@@ -4576,11 +4576,11 @@
 									},
 									{
 										"type": "intrinsic",
-										"name": "true"
+										"name": "false"
 									},
 									{
 										"type": "intrinsic",
-										"name": "false"
+										"name": "true"
 									}
 								]
 							},
@@ -4615,11 +4615,11 @@
 									},
 									{
 										"type": "intrinsic",
-										"name": "true"
+										"name": "false"
 									},
 									{
 										"type": "intrinsic",
-										"name": "false"
+										"name": "true"
 									}
 								]
 							},
@@ -5121,11 +5121,11 @@
 									},
 									{
 										"type": "intrinsic",
-										"name": "true"
+										"name": "false"
 									},
 									{
 										"type": "intrinsic",
-										"name": "false"
+										"name": "true"
 									}
 								]
 							},
@@ -7910,11 +7910,11 @@
 													},
 													{
 														"type": "intrinsic",
-														"name": "true"
+														"name": "false"
 													},
 													{
 														"type": "intrinsic",
-														"name": "false"
+														"name": "true"
 													}
 												]
 											}
@@ -7945,11 +7945,11 @@
 													},
 													{
 														"type": "intrinsic",
-														"name": "true"
+														"name": "false"
 													},
 													{
 														"type": "intrinsic",
-														"name": "false"
+														"name": "true"
 													}
 												]
 											}
@@ -8360,11 +8360,11 @@
 													},
 													{
 														"type": "intrinsic",
-														"name": "true"
+														"name": "false"
 													},
 													{
 														"type": "intrinsic",
-														"name": "false"
+														"name": "true"
 													}
 												]
 											}
@@ -26492,7 +26492,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 840,
+									"line": 834,
 									"character": 11
 								}
 							],
@@ -26522,7 +26522,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 843,
+									"line": 837,
 									"character": 13
 								}
 							],
@@ -26732,7 +26732,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 846,
+									"line": 840,
 									"character": 24
 								}
 							],
@@ -26762,7 +26762,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 849,
+									"line": 843,
 									"character": 13
 								}
 							],
@@ -26792,7 +26792,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 852,
+									"line": 846,
 									"character": 14
 								}
 							],
@@ -26822,7 +26822,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 855,
+									"line": 849,
 									"character": 12
 								}
 							],
@@ -30780,11 +30780,11 @@
 																			},
 																			{
 																				"type": "intrinsic",
-																				"name": "true"
+																				"name": "false"
 																			},
 																			{
 																				"type": "intrinsic",
-																				"name": "false"
+																				"name": "true"
 																			}
 																		]
 																	}
@@ -38789,11 +38789,11 @@
 									},
 									{
 										"type": "intrinsic",
-										"name": "true"
+										"name": "false"
 									},
 									{
 										"type": "intrinsic",
-										"name": "false"
+										"name": "true"
 									}
 								]
 							}
@@ -51425,7 +51425,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 866,
+									"line": 860,
 									"character": 39
 								}
 							]
@@ -51442,7 +51442,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 865,
+									"line": 859,
 									"character": 13
 								}
 							],
@@ -51472,7 +51472,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 866,
+									"line": 860,
 									"character": 11
 								}
 							],
@@ -51502,7 +51502,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 863,
+									"line": 857,
 									"character": 25
 								}
 							],
@@ -51523,7 +51523,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 864,
+									"line": 858,
 									"character": 7
 								}
 							],
@@ -51563,7 +51563,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 888,
+									"line": 882,
 									"character": 7
 								}
 							]
@@ -51629,7 +51629,7 @@
 													"sources": [
 														{
 															"fileName": "lib/executors/Node.ts",
-															"line": 875,
+															"line": 869,
 															"character": 15
 														}
 													]
@@ -51652,7 +51652,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 875,
+									"line": 869,
 									"character": 9
 								}
 							]
@@ -51684,7 +51684,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 896,
+									"line": 890,
 									"character": 6
 								}
 							]
@@ -51721,7 +51721,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 862,
+							"line": 856,
 							"character": 19
 						}
 					]
@@ -51815,7 +51815,7 @@
 							}
 						},
 						{
-							"id": 2642,
+							"id": 2638,
 							"name": "_config",
 							"kind": 1024,
 							"kindString": "Property",
@@ -51902,7 +51902,7 @@
 							}
 						},
 						{
-							"id": 2645,
+							"id": 2641,
 							"name": "_errorFormatter",
 							"kind": 1024,
 							"kindString": "Property",
@@ -51940,7 +51940,7 @@
 							}
 						},
 						{
-							"id": 2644,
+							"id": 2640,
 							"name": "_events",
 							"kind": 1024,
 							"kindString": "Property",
@@ -51979,7 +51979,7 @@
 							}
 						},
 						{
-							"id": 2648,
+							"id": 2644,
 							"name": "_hasEmittedErrors",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52008,7 +52008,7 @@
 							}
 						},
 						{
-							"id": 2646,
+							"id": 2642,
 							"name": "_hasSuiteErrors",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52037,7 +52037,7 @@
 							}
 						},
 						{
-							"id": 2647,
+							"id": 2643,
 							"name": "_hasTestErrors",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52153,7 +52153,7 @@
 							}
 						},
 						{
-							"id": 2657,
+							"id": 2653,
 							"name": "_listeners",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52173,7 +52173,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2658,
+									"id": 2654,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -52182,7 +52182,7 @@
 									},
 									"indexSignature": [
 										{
-											"id": 2659,
+											"id": 2655,
 											"name": "__index",
 											"kind": 8192,
 											"kindString": "Index signature",
@@ -52191,7 +52191,7 @@
 											},
 											"parameters": [
 												{
-													"id": 2660,
+													"id": 2656,
 													"name": "event",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -52236,7 +52236,7 @@
 							}
 						},
 						{
-							"id": 2649,
+							"id": 2645,
 							"name": "_loader",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52265,7 +52265,7 @@
 							}
 						},
 						{
-							"id": 2651,
+							"id": 2647,
 							"name": "_loaderInit",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52309,7 +52309,7 @@
 							}
 						},
 						{
-							"id": 2650,
+							"id": 2646,
 							"name": "_loaderOptions",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52369,7 +52369,7 @@
 							}
 						},
 						{
-							"id": 2656,
+							"id": 2652,
 							"name": "_loadingPluginOptions",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52406,7 +52406,7 @@
 							}
 						},
 						{
-							"id": 2652,
+							"id": 2648,
 							"name": "_loadingPlugins",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52428,7 +52428,7 @@
 								"elementType": {
 									"type": "reflection",
 									"declaration": {
-										"id": 2653,
+										"id": 2649,
 										"name": "__type",
 										"kind": 65536,
 										"kindString": "Type literal",
@@ -52437,7 +52437,7 @@
 										},
 										"children": [
 											{
-												"id": 2655,
+												"id": 2651,
 												"name": "init",
 												"kind": 32,
 												"kindString": "Variable",
@@ -52464,7 +52464,7 @@
 												}
 											},
 											{
-												"id": 2654,
+												"id": 2650,
 												"name": "name",
 												"kind": 32,
 												"kindString": "Variable",
@@ -52490,8 +52490,8 @@
 												"title": "Variables",
 												"kind": 32,
 												"children": [
-													2655,
-													2654
+													2651,
+													2650
 												]
 											}
 										],
@@ -52512,7 +52512,7 @@
 							}
 						},
 						{
-							"id": 2661,
+							"id": 2657,
 							"name": "_plugins",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52532,7 +52532,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2662,
+									"id": 2658,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -52541,7 +52541,7 @@
 									},
 									"indexSignature": [
 										{
-											"id": 2663,
+											"id": 2659,
 											"name": "__index",
 											"kind": 8192,
 											"kindString": "Index signature",
@@ -52550,7 +52550,7 @@
 											},
 											"parameters": [
 												{
-													"id": 2664,
+													"id": 2660,
 													"name": "name",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -52585,7 +52585,7 @@
 							}
 						},
 						{
-							"id": 2665,
+							"id": 2661,
 							"name": "_reporters",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52617,7 +52617,7 @@
 							}
 						},
 						{
-							"id": 2667,
+							"id": 2663,
 							"name": "_reportersInitialized",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52645,7 +52645,7 @@
 							}
 						},
 						{
-							"id": 2643,
+							"id": 2639,
 							"name": "_rootSuite",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52674,7 +52674,7 @@
 							}
 						},
 						{
-							"id": 2666,
+							"id": 2662,
 							"name": "_runTask",
 							"kind": 1024,
 							"kindString": "Property",
@@ -52901,7 +52901,7 @@
 							}
 						},
 						{
-							"id": 2668,
+							"id": 2664,
 							"name": "config",
 							"kind": 262144,
 							"kindString": "Accessor",
@@ -52915,7 +52915,7 @@
 							},
 							"getSignature": [
 								{
-									"id": 2669,
+									"id": 2665,
 									"name": "__get",
 									"kind": 524288,
 									"kindString": "Get signature",
@@ -53059,11 +53059,11 @@
 											},
 											{
 												"type": "intrinsic",
-												"name": "true"
+												"name": "false"
 											},
 											{
 												"type": "intrinsic",
-												"name": "false"
+												"name": "true"
 											}
 										]
 									}
@@ -53252,7 +53252,7 @@
 							}
 						},
 						{
-							"id": 2748,
+							"id": 2744,
 							"name": "_assignPlugin",
 							"kind": 2048,
 							"kindString": "Method",
@@ -53264,7 +53264,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2749,
+									"id": 2745,
 									"name": "_assignPlugin",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -53276,7 +53276,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2750,
+											"id": 2746,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -53289,7 +53289,7 @@
 											}
 										},
 										{
-											"id": 2751,
+											"id": 2747,
 											"name": "plugin",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -53420,7 +53420,7 @@
 							]
 						},
 						{
-							"id": 2754,
+							"id": 2750,
 							"name": "_drainEventQueue",
 							"kind": 2048,
 							"kindString": "Method",
@@ -53432,7 +53432,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2755,
+									"id": 2751,
 									"name": "_drainEventQueue",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -53473,7 +53473,7 @@
 							}
 						},
 						{
-							"id": 2756,
+							"id": 2752,
 							"name": "_emitCoverage",
 							"kind": 2048,
 							"kindString": "Method",
@@ -53485,7 +53485,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2757,
+									"id": 2753,
 									"name": "_emitCoverage",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -53494,7 +53494,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2758,
+											"id": 2754,
 											"name": "source",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -53557,7 +53557,7 @@
 							}
 						},
 						{
-							"id": 2752,
+							"id": 2748,
 							"name": "_initReporters",
 							"kind": 2048,
 							"kindString": "Method",
@@ -53569,7 +53569,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2753,
+									"id": 2749,
 									"name": "_initReporters",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -53653,7 +53653,7 @@
 							]
 						},
 						{
-							"id": 2759,
+							"id": 2755,
 							"name": "_loadLoader",
 							"kind": 2048,
 							"kindString": "Method",
@@ -53665,7 +53665,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2760,
+									"id": 2756,
 									"name": "_loadLoader",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -53706,7 +53706,7 @@
 							}
 						},
 						{
-							"id": 2763,
+							"id": 2759,
 							"name": "_loadPlugins",
 							"kind": 2048,
 							"kindString": "Method",
@@ -53718,7 +53718,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2764,
+									"id": 2760,
 									"name": "_loadPlugins",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -53759,7 +53759,7 @@
 							}
 						},
 						{
-							"id": 2761,
+							"id": 2757,
 							"name": "_loadPluginsWithLoader",
 							"kind": 2048,
 							"kindString": "Method",
@@ -53771,7 +53771,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2762,
+									"id": 2758,
 									"name": "_loadPluginsWithLoader",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -53812,7 +53812,7 @@
 							}
 						},
 						{
-							"id": 2765,
+							"id": 2761,
 							"name": "_loadScripts",
 							"kind": 2048,
 							"kindString": "Method",
@@ -53824,7 +53824,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2766,
+									"id": 2762,
 									"name": "_loadScripts",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -53836,7 +53836,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2767,
+											"id": 2763,
 											"name": "scripts",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -53853,7 +53853,7 @@
 											}
 										},
 										{
-											"id": 2768,
+											"id": 2764,
 											"name": "loader",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -53863,7 +53863,7 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 2769,
+													"id": 2765,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -53872,7 +53872,7 @@
 													},
 													"signatures": [
 														{
-															"id": 2770,
+															"id": 2766,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -53881,7 +53881,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 2771,
+																	"id": 2767,
 																	"name": "script",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -54001,7 +54001,7 @@
 							}
 						},
 						{
-							"id": 2628,
+							"id": 2768,
 							"name": "_processOption",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54013,16 +54013,19 @@
 							},
 							"signatures": [
 								{
-									"id": 2629,
+									"id": 2769,
 									"name": "_processOption",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {
 										"__visited__": true
 									},
+									"comment": {
+										"shortText": "Process an option"
+									},
 									"parameters": [
 										{
-											"id": 2630,
+											"id": 2770,
 											"name": "key",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54039,7 +54042,7 @@
 											}
 										},
 										{
-											"id": 2631,
+											"id": 2771,
 											"name": "value",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54056,7 +54059,7 @@
 										"type": "intrinsic",
 										"name": "void"
 									},
-									"overwrites": {
+									"inheritedFrom": {
 										"type": "reference",
 										"name": "BaseExecutor._processOption",
 										"id": 3922
@@ -54065,19 +54068,19 @@
 							],
 							"sources": [
 								{
-									"fileName": "lib/executors/Node.ts",
-									"line": 587,
+									"fileName": "lib/executors/Executor.ts",
+									"line": 984,
 									"character": 26
 								}
 							],
-							"overwrites": {
+							"inheritedFrom": {
 								"type": "reference",
 								"name": "BaseExecutor._processOption",
 								"id": 3922
 							}
 						},
 						{
-							"id": 2640,
+							"id": 2636,
 							"name": "_removeInstrumentationHooks",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54089,7 +54092,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2641,
+									"id": 2637,
 									"name": "_removeInstrumentationHooks",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54108,13 +54111,13 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 812,
+									"line": 806,
 									"character": 39
 								}
 							]
 						},
 						{
-							"id": 2632,
+							"id": 2628,
 							"name": "_resolveConfig",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54126,7 +54129,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2633,
+									"id": 2629,
 									"name": "_resolveConfig",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54153,7 +54156,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 593,
+									"line": 587,
 									"character": 26
 								}
 							],
@@ -54164,7 +54167,7 @@
 							}
 						},
 						{
-							"id": 2636,
+							"id": 2632,
 							"name": "_runRemoteTests",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54176,7 +54179,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2637,
+									"id": 2633,
 									"name": "_runRemoteTests",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54198,13 +54201,13 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 756,
+									"line": 750,
 									"character": 27
 								}
 							]
 						},
 						{
-							"id": 2634,
+							"id": 2630,
 							"name": "_runTests",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54216,7 +54219,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2635,
+									"id": 2631,
 									"name": "_runTests",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54243,7 +54246,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 712,
+									"line": 706,
 									"character": 21
 								}
 							],
@@ -54254,7 +54257,7 @@
 							}
 						},
 						{
-							"id": 2638,
+							"id": 2634,
 							"name": "_setInstrumentationHooks",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54266,7 +54269,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2639,
+									"id": 2635,
 									"name": "_setInstrumentationHooks",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54285,7 +54288,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 798,
+									"line": 792,
 									"character": 36
 								}
 							]
@@ -54403,7 +54406,7 @@
 							}
 						},
 						{
-							"id": 2674,
+							"id": 2670,
 							"name": "configure",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54414,7 +54417,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2675,
+									"id": 2671,
 									"name": "configure",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54426,7 +54429,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2676,
+											"id": 2672,
 											"name": "options",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54436,7 +54439,7 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 2677,
+													"id": 2673,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -54484,7 +54487,7 @@
 							}
 						},
 						{
-							"id": 2678,
+							"id": 2674,
 							"name": "emit",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54495,7 +54498,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2679,
+									"id": 2675,
 									"name": "emit",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54509,7 +54512,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 2680,
+											"id": 2676,
 											"name": "T",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -54525,7 +54528,7 @@
 									],
 									"parameters": [
 										{
-											"id": 2681,
+											"id": 2677,
 											"name": "eventName",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54568,7 +54571,7 @@
 									}
 								},
 								{
-									"id": 2682,
+									"id": 2678,
 									"name": "emit",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54577,7 +54580,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 2683,
+											"id": 2679,
 											"name": "T",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -54596,7 +54599,7 @@
 									],
 									"parameters": [
 										{
-											"id": 2684,
+											"id": 2680,
 											"name": "eventName",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54617,7 +54620,7 @@
 											}
 										},
 										{
-											"id": 2685,
+											"id": 2681,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54676,7 +54679,7 @@
 							}
 						},
 						{
-							"id": 2670,
+							"id": 2666,
 							"name": "formatError",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54687,7 +54690,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2671,
+									"id": 2667,
 									"name": "formatError",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54699,7 +54702,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2672,
+											"id": 2668,
 											"name": "error",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54712,7 +54715,7 @@
 											}
 										},
 										{
-											"id": 2673,
+											"id": 2669,
 											"name": "options",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54762,7 +54765,7 @@
 							}
 						},
 						{
-							"id": 2686,
+							"id": 2682,
 							"name": "getInterface",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54773,7 +54776,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2687,
+									"id": 2683,
 									"name": "getInterface",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54787,7 +54790,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2688,
+											"id": 2684,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54815,7 +54818,7 @@
 									}
 								},
 								{
-									"id": 2689,
+									"id": 2685,
 									"name": "getInterface",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54824,7 +54827,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2690,
+											"id": 2686,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54849,7 +54852,7 @@
 									}
 								},
 								{
-									"id": 2691,
+									"id": 2687,
 									"name": "getInterface",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54858,7 +54861,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2692,
+											"id": 2688,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54883,7 +54886,7 @@
 									}
 								},
 								{
-									"id": 2693,
+									"id": 2689,
 									"name": "getInterface",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54892,7 +54895,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2694,
+											"id": 2690,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -54951,7 +54954,7 @@
 							}
 						},
 						{
-							"id": 2695,
+							"id": 2691,
 							"name": "getPlugin",
 							"kind": 2048,
 							"kindString": "Method",
@@ -54962,7 +54965,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2696,
+									"id": 2692,
 									"name": "getPlugin",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -54975,7 +54978,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 2697,
+											"id": 2693,
 											"name": "Y",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -54994,7 +54997,7 @@
 									],
 									"parameters": [
 										{
-											"id": 2698,
+											"id": 2694,
 											"name": "type",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -55018,7 +55021,7 @@
 											}
 										},
 										{
-											"id": 2699,
+											"id": 2695,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -55045,6 +55048,73 @@
 									}
 								},
 								{
+									"id": 2696,
+									"name": "getPlugin",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"__visited__": true
+									},
+									"parameters": [
+										{
+											"id": 2697,
+											"name": "name",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "stringLiteral",
+												"value": "chai"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "ChaiStatic"
+									},
+									"inheritedFrom": {
+										"type": "reference",
+										"name": "BaseExecutor.getPlugin",
+										"id": 3839
+									}
+								},
+								{
+									"id": 2698,
+									"name": "getPlugin",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"__visited__": true
+									},
+									"parameters": [
+										{
+											"id": 2699,
+											"name": "name",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"__visited__": true
+											},
+											"type": {
+												"type": "stringLiteral",
+												"value": "interface.object"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "ObjectInterface",
+										"id": 3452
+									},
+									"inheritedFrom": {
+										"type": "reference",
+										"name": "BaseExecutor.getPlugin",
+										"id": 3839
+									}
+								},
+								{
 									"id": 2700,
 									"name": "getPlugin",
 									"kind": 4096,
@@ -55063,13 +55133,14 @@
 											},
 											"type": {
 												"type": "stringLiteral",
-												"value": "chai"
+												"value": "interface.tdd"
 											}
 										}
 									],
 									"type": {
 										"type": "reference",
-										"name": "ChaiStatic"
+										"name": "TddInterface",
+										"id": 3499
 									},
 									"inheritedFrom": {
 										"type": "reference",
@@ -55096,14 +55167,14 @@
 											},
 											"type": {
 												"type": "stringLiteral",
-												"value": "interface.object"
+												"value": "interface.bdd"
 											}
 										}
 									],
 									"type": {
 										"type": "reference",
-										"name": "ObjectInterface",
-										"id": 3452
+										"name": "BddInterface",
+										"id": 3576
 									},
 									"inheritedFrom": {
 										"type": "reference",
@@ -55130,74 +55201,6 @@
 											},
 											"type": {
 												"type": "stringLiteral",
-												"value": "interface.tdd"
-											}
-										}
-									],
-									"type": {
-										"type": "reference",
-										"name": "TddInterface",
-										"id": 3499
-									},
-									"inheritedFrom": {
-										"type": "reference",
-										"name": "BaseExecutor.getPlugin",
-										"id": 3839
-									}
-								},
-								{
-									"id": 2706,
-									"name": "getPlugin",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"__visited__": true
-									},
-									"parameters": [
-										{
-											"id": 2707,
-											"name": "name",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "stringLiteral",
-												"value": "interface.bdd"
-											}
-										}
-									],
-									"type": {
-										"type": "reference",
-										"name": "BddInterface",
-										"id": 3576
-									},
-									"inheritedFrom": {
-										"type": "reference",
-										"name": "BaseExecutor.getPlugin",
-										"id": 3839
-									}
-								},
-								{
-									"id": 2708,
-									"name": "getPlugin",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"__visited__": true
-									},
-									"parameters": [
-										{
-											"id": 2709,
-											"name": "name",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"__visited__": true
-											},
-											"type": {
-												"type": "stringLiteral",
 												"value": "interface.benchmark"
 											}
 										}
@@ -55214,7 +55217,7 @@
 									}
 								},
 								{
-									"id": 2710,
+									"id": 2706,
 									"name": "getPlugin",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -55223,7 +55226,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 2711,
+											"id": 2707,
 											"name": "T",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -55234,7 +55237,7 @@
 									],
 									"parameters": [
 										{
-											"id": 2712,
+											"id": 2708,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -55501,7 +55504,7 @@
 							}
 						},
 						{
-							"id": 2713,
+							"id": 2709,
 							"name": "log",
 							"kind": 2048,
 							"kindString": "Method",
@@ -55512,7 +55515,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2714,
+									"id": 2710,
 									"name": "log",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -55526,7 +55529,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2715,
+											"id": 2711,
 											"name": "args",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -55587,7 +55590,7 @@
 							}
 						},
 						{
-							"id": 2716,
+							"id": 2712,
 							"name": "on",
 							"kind": 2048,
 							"kindString": "Method",
@@ -55598,7 +55601,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2717,
+									"id": 2713,
 									"name": "on",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -55612,7 +55615,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 2718,
+											"id": 2714,
 											"name": "T",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -55631,7 +55634,7 @@
 									],
 									"parameters": [
 										{
-											"id": 2719,
+											"id": 2715,
 											"name": "eventName",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -55655,7 +55658,7 @@
 											}
 										},
 										{
-											"id": 2720,
+											"id": 2716,
 											"name": "listener",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -55694,7 +55697,7 @@
 									}
 								},
 								{
-									"id": 2721,
+									"id": 2717,
 									"name": "on",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -55703,7 +55706,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2722,
+											"id": 2718,
 											"name": "listener",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -55718,7 +55721,7 @@
 													{
 														"type": "reflection",
 														"declaration": {
-															"id": 2723,
+															"id": 2719,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
@@ -55727,7 +55730,7 @@
 															},
 															"children": [
 																{
-																	"id": 2725,
+																	"id": 2721,
 																	"name": "data",
 																	"kind": 32,
 																	"kindString": "Variable",
@@ -55749,7 +55752,7 @@
 																	}
 																},
 																{
-																	"id": 2724,
+																	"id": 2720,
 																	"name": "name",
 																	"kind": 32,
 																	"kindString": "Variable",
@@ -55775,8 +55778,8 @@
 																	"title": "Variables",
 																	"kind": 32,
 																	"children": [
-																		2725,
-																		2724
+																		2721,
+																		2720
 																	]
 																}
 															],
@@ -55838,7 +55841,7 @@
 							}
 						},
 						{
-							"id": 2726,
+							"id": 2722,
 							"name": "registerInterface",
 							"kind": 2048,
 							"kindString": "Method",
@@ -55849,7 +55852,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2727,
+									"id": 2723,
 									"name": "registerInterface",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -55862,7 +55865,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2728,
+											"id": 2724,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -55875,7 +55878,7 @@
 											}
 										},
 										{
-											"id": 2729,
+											"id": 2725,
 											"name": "iface",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -55913,7 +55916,7 @@
 							}
 						},
 						{
-							"id": 2730,
+							"id": 2726,
 							"name": "registerLoader",
 							"kind": 2048,
 							"kindString": "Method",
@@ -55924,7 +55927,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2731,
+									"id": 2727,
 									"name": "registerLoader",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -55937,7 +55940,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2732,
+											"id": 2728,
 											"name": "init",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -55979,7 +55982,7 @@
 							}
 						},
 						{
-							"id": 2733,
+							"id": 2729,
 							"name": "registerPlugin",
 							"kind": 2048,
 							"kindString": "Method",
@@ -55990,7 +55993,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2734,
+									"id": 2730,
 									"name": "registerPlugin",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -56003,7 +56006,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 2735,
+											"id": 2731,
 											"name": "T",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -56022,7 +56025,7 @@
 									],
 									"parameters": [
 										{
-											"id": 2736,
+											"id": 2732,
 											"name": "type",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -56043,7 +56046,7 @@
 											}
 										},
 										{
-											"id": 2737,
+											"id": 2733,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -56059,7 +56062,7 @@
 											}
 										},
 										{
-											"id": 2738,
+											"id": 2734,
 											"name": "init",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -56093,7 +56096,7 @@
 									}
 								},
 								{
-									"id": 2739,
+									"id": 2735,
 									"name": "registerPlugin",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -56102,7 +56105,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2740,
+											"id": 2736,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -56115,7 +56118,7 @@
 											}
 										},
 										{
-											"id": 2741,
+											"id": 2737,
 											"name": "init",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -56164,7 +56167,7 @@
 							}
 						},
 						{
-							"id": 2742,
+							"id": 2738,
 							"name": "registerReporter",
 							"kind": 2048,
 							"kindString": "Method",
@@ -56175,7 +56178,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2743,
+									"id": 2739,
 									"name": "registerReporter",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -56188,7 +56191,7 @@
 									},
 									"parameters": [
 										{
-											"id": 2744,
+											"id": 2740,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -56204,7 +56207,7 @@
 											}
 										},
 										{
-											"id": 2745,
+											"id": 2741,
 											"name": "init",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -56307,7 +56310,7 @@
 							]
 						},
 						{
-							"id": 2746,
+							"id": 2742,
 							"name": "run",
 							"kind": 2048,
 							"kindString": "Method",
@@ -56318,7 +56321,7 @@
 							},
 							"signatures": [
 								{
-									"id": 2747,
+									"id": 2743,
 									"name": "run",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -56423,29 +56426,29 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								2642,
+								2638,
 								2569,
 								2568,
-								2645,
+								2641,
+								2640,
 								2644,
-								2648,
-								2646,
-								2647,
+								2642,
+								2643,
 								2571,
 								2574,
 								2572,
-								2657,
-								2649,
-								2651,
-								2650,
+								2653,
+								2645,
+								2647,
+								2646,
 								2570,
-								2656,
 								2652,
+								2648,
+								2657,
 								2661,
-								2665,
-								2667,
-								2643,
-								2666,
+								2663,
+								2639,
+								2662,
 								2578,
 								2573,
 								2575,
@@ -56457,7 +56460,7 @@
 							"title": "Accessors",
 							"kind": 262144,
 							"children": [
-								2668,
+								2664,
 								2583,
 								2585,
 								2591,
@@ -56471,41 +56474,41 @@
 							"kind": 2048,
 							"children": [
 								2618,
-								2748,
+								2744,
 								2620,
 								2622,
-								2754,
-								2756,
+								2750,
 								2752,
+								2748,
 								2624,
+								2755,
 								2759,
-								2763,
+								2757,
 								2761,
-								2765,
 								2626,
-								2628,
-								2640,
-								2632,
+								2768,
 								2636,
+								2628,
+								2632,
+								2630,
 								2634,
-								2638,
 								2595,
-								2674,
-								2678,
 								2670,
-								2686,
-								2695,
+								2674,
+								2666,
+								2682,
+								2691,
 								2601,
 								2604,
 								2608,
-								2713,
-								2716,
+								2709,
+								2712,
+								2722,
 								2726,
-								2730,
-								2733,
-								2742,
+								2729,
+								2738,
 								2611,
-								2746,
+								2742,
 								2615
 							]
 						}
@@ -56849,7 +56852,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 840,
+									"line": 834,
 									"character": 11
 								}
 							],
@@ -56875,7 +56878,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 843,
+									"line": 837,
 									"character": 13
 								}
 							],
@@ -57087,7 +57090,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 846,
+									"line": 840,
 									"character": 24
 								}
 							],
@@ -57113,7 +57116,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 849,
+									"line": 843,
 									"character": 13
 								}
 							],
@@ -57139,7 +57142,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 852,
+									"line": 846,
 									"character": 14
 								}
 							],
@@ -57165,7 +57168,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 855,
+									"line": 849,
 									"character": 12
 								}
 							],
@@ -57239,7 +57242,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 838,
+							"line": 832,
 							"character": 27
 						}
 					],
@@ -57310,7 +57313,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 824,
+									"line": 818,
 									"character": 8
 								}
 							],
@@ -57333,7 +57336,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 823,
+							"line": 817,
 							"character": 28
 						}
 					],
@@ -57367,7 +57370,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 913,
+									"line": 907,
 									"character": 6
 								}
 							],
@@ -57405,7 +57408,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 913,
+											"line": 907,
 											"character": 7
 										}
 									]
@@ -57424,7 +57427,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 915,
+									"line": 909,
 									"character": 8
 								}
 							],
@@ -57456,7 +57459,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 915,
+											"line": 909,
 											"character": 9
 										}
 									]
@@ -57475,7 +57478,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 914,
+									"line": 908,
 									"character": 9
 								}
 							],
@@ -57507,7 +57510,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 914,
+											"line": 908,
 											"character": 10
 										}
 									]
@@ -57529,7 +57532,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 912,
+							"line": 906,
 							"character": 20
 						}
 					]
@@ -57888,7 +57891,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 828,
+									"line": 822,
 									"character": 17
 								}
 							],
@@ -62193,11 +62196,11 @@
 												"types": [
 													{
 														"type": "stringLiteral",
-														"value": "portrait"
+														"value": "landscape"
 													},
 													{
 														"type": "stringLiteral",
-														"value": "landscape"
+														"value": "portrait"
 													}
 												]
 											},
@@ -64735,7 +64738,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 829,
+									"line": 823,
 									"character": 22
 								}
 							]
@@ -67227,7 +67230,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 827,
+							"line": 821,
 							"character": 23
 						}
 					],
@@ -67281,7 +67284,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 834,
+									"line": 828,
 									"character": 10
 								}
 							],
@@ -67304,7 +67307,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 835,
+									"line": 829,
 									"character": 8
 								}
 							],
@@ -67335,7 +67338,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 833,
+									"line": 827,
 									"character": 8
 								}
 							],
@@ -67359,7 +67362,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 832,
+							"line": 826,
 							"character": 30
 						}
 					]
@@ -67430,7 +67433,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 922,
+							"line": 916,
 							"character": 27
 						}
 					]
@@ -67478,7 +67481,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 918,
+							"line": 912,
 							"character": 28
 						}
 					]
@@ -82269,11 +82272,11 @@
 													},
 													{
 														"type": "intrinsic",
-														"name": "true"
+														"name": "false"
 													},
 													{
 														"type": "intrinsic",
-														"name": "false"
+														"name": "true"
 													}
 												]
 											}
@@ -101432,11 +101435,11 @@
 									},
 									{
 										"type": "intrinsic",
-										"name": "true"
+										"name": "false"
 									},
 									{
 										"type": "intrinsic",
-										"name": "false"
+										"name": "true"
 									}
 								]
 							}
@@ -101467,11 +101470,11 @@
 									},
 									{
 										"type": "intrinsic",
-										"name": "true"
+										"name": "false"
 									},
 									{
 										"type": "intrinsic",
-										"name": "false"
+										"name": "true"
 									}
 								]
 							}

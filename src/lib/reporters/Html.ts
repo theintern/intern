@@ -105,7 +105,7 @@ export default class Html extends Reporter implements HtmlProperties {
       failedFilter.appendChild(failedToggle);
       failedFilter.appendChild(failedLabel);
 
-      failedToggle.onclick = function(this: HTMLElement) {
+      failedToggle.onclick = function(this: GlobalEventHandlers) {
         const input = <HTMLInputElement>this;
         if (input.checked) {
           document.body.className += ' hidePassed';
@@ -129,8 +129,8 @@ export default class Html extends Reporter implements HtmlProperties {
     link.rel = 'stylesheet';
     link.href = this.executor.config.internPath + 'lib/reporters/html/html.css';
 
-    document.head.appendChild(style);
-    document.head.appendChild(link);
+    document.head!.appendChild(style);
+    document.head!.appendChild(link);
   }
 
   protected _getIndentLevel(node: Element) {
