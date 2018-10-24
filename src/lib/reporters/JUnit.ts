@@ -5,6 +5,7 @@ import Suite, { isSuite } from '../Suite';
 import Test from '../Test';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import { Executor } from '../executors/Executor';
+import { InternError } from '../types';
 
 /**
  * There is no formal spec for this format and everyone does it differently, so
@@ -132,29 +133,53 @@ class XmlNode {
   }
 }
 
-function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
+function createSuiteNode(
+  suite: Suite,
+  reporter: JUnit,
+  parentError?: InternError
+): XmlNode {
+  const suiteError = parentError || suite.error;
+
   return new XmlNode('testsuite', {
     name: suite.name || 'Node.js',
     failures: suite.numFailedTests,
     skipped: suite.numSkippedTests,
     tests: suite.numTests,
     time: suite.timeElapsed! / 1000,
-    childNodes: suite.tests.map(test => createTestNode(test, reporter))
+    childNodes: suite.tests.map(test =>
+      createTestNode(test, reporter, suiteError)
+    )
   });
 }
 
-function createTestNode(test: Suite | Test, reporter: JUnit) {
+function createTestNode(
+  test: Suite | Test,
+  reporter: JUnit,
+  suiteError?: InternError
+) {
   if (isSuite(test)) {
-    return createSuiteNode(test, reporter);
+    return createSuiteNode(test, reporter, suiteError);
   }
+
+  const skipped = test.skipped !== undefined;
 
   const node = new XmlNode('testcase', {
     name: test.name,
     time: test.timeElapsed! / 1000,
-    status: test.error ? 1 : 0
+    status: !skipped && (suiteError || test.error) ? 1 : 0
   });
 
-  if (test.error) {
+  if (skipped) {
+    node.createNode('skipped', {
+      childNodes: [test.skipped]
+    });
+  } else if (suiteError) {
+    node.createNode('error', {
+      childNodes: [reporter.formatError(suiteError)],
+      message: suiteError.message,
+      type: 'SuiteError'
+    });
+  } else if (test.error) {
     node.createNode(
       test.error.name === 'AssertionError' ? 'failure' : 'error',
       {
@@ -163,10 +188,6 @@ function createTestNode(test: Suite | Test, reporter: JUnit) {
         type: test.error.name
       }
     );
-  } else if (test.skipped != null) {
-    node.createNode('skipped', {
-      childNodes: [test.skipped]
-    });
   }
 
   return node;

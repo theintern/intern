@@ -41,6 +41,31 @@ registerSuite('lib/reporters/JUnit', function() {
     return text.join('');
   };
 
+  const generateTestCaseSkippedXmlSnippet = (
+    testName: string,
+    time: string,
+    skippedMessage: string
+  ) => {
+    return (
+      `<testcase name="${testName}" time="${time}" status="0">` +
+      `<skipped>${skippedMessage}</skipped>` +
+      '</testcase>'
+    );
+  };
+
+  const generateTestCaseErrorXmlSnippet = (
+    testName: string,
+    message: string,
+    type: string,
+    time: string
+  ) => {
+    return (
+      `<testcase name="${testName}" time="${time}" status="1">` +
+      `<error message="${message}" type="${type}">${message}</error>` +
+      '</testcase>'
+    );
+  };
+
   return {
     before() {
       return mockRequire(require, 'src/lib/reporters/JUnit', {
@@ -190,6 +215,77 @@ registerSuite('lib/reporters/JUnit', function() {
             getReportOutput(),
             `name="${nestedTest}"`,
             'report does not contain nested test'
+          );
+        },
+
+        'suite errors '() {
+          const suiteError = new Error('Suite setup failed');
+          const passingTestName = 'passing test name';
+          const skippedTestName = 'skipped test';
+          const skippedMessage = 'skipped test within a failing suite';
+
+          const suite = new Suite(<any>{
+            sessionId: 'foo',
+            name: 'chrome 32 on Mac',
+            executor: mockExecutor,
+            timeElapsed: 1234,
+            tests: [
+              new Suite(<any>{
+                name: '1',
+                executor: mockExecutor,
+                timeElapsed: 1234,
+                error: suiteError,
+                tests: [
+                  new Suite(<any>{
+                    name: '1.1',
+                    executor: mockExecutor,
+                    timeElapsed: 45,
+                    tests: [
+                      new Test(<any>{
+                        name: passingTestName,
+                        test() {},
+                        hasPassed: true,
+                        timeElapsed: 40
+                      }),
+                      new Test(<any>{
+                        name: skippedTestName,
+                        test() {},
+                        skipped: skippedMessage,
+                        hasPassed: false,
+                        timeElapsed: 0
+                      })
+                    ]
+                  })
+                ]
+              })
+            ]
+          });
+
+          mockExecutor.suites.push(suite);
+
+          const expectedError = generateTestCaseErrorXmlSnippet(
+            passingTestName,
+            suiteError.message,
+            'SuiteError',
+            '0.04'
+          );
+
+          assert.include(
+            getReportOutput(),
+            expectedError,
+            'descendant test should be failing with suite error'
+          );
+
+          const expectedSkipped = generateTestCaseSkippedXmlSnippet(
+            skippedTestName,
+            '0',
+            skippedMessage
+          );
+
+          assert.include(
+            getReportOutput(),
+            expectedSkipped,
+            'descendant skipped test should not report error'
           );
         }
       }
