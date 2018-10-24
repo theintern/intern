@@ -559,9 +559,9 @@ export default class Element extends Locator<
         return this.session.execute<boolean>(
           /* istanbul ignore next */ (element: HTMLElement) => {
             const scrollX =
-              document.documentElement.scrollLeft || document.body.scrollLeft;
+              document.documentElement!.scrollLeft || document.body.scrollLeft;
             const scrollY =
-              document.documentElement.scrollTop || document.body.scrollTop;
+              document.documentElement!.scrollTop || document.body.scrollTop;
             do {
               if (window.getComputedStyle(element).opacity === '0') {
                 return false;
@@ -600,9 +600,9 @@ export default class Element extends Locator<
         /* istanbul ignore next */ function(element: HTMLElement) {
           const bbox = element.getBoundingClientRect();
           const scrollX =
-            document.documentElement.scrollLeft || document.body.scrollLeft;
+            document.documentElement!.scrollLeft || document.body.scrollLeft;
           const scrollY =
-            document.documentElement.scrollTop || document.body.scrollTop;
+            document.documentElement!.scrollTop || document.body.scrollTop;
 
           return { x: scrollX + bbox.left, y: scrollY + bbox.top };
         },

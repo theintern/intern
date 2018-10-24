@@ -175,7 +175,7 @@ registerSuite('Session', () => {
     return session.execute(
       function(element?: HTMLElement) {
         if (!element) {
-          element = document.documentElement;
+          element = document.documentElement!;
           if (!element.scrollLeft && !element.scrollTop) {
             element = document.body;
           }

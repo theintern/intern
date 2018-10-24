@@ -1103,7 +1103,7 @@ export default class Session extends Locator<
     if (this.capabilities.brokenPageSource) {
       return this.execute<string>(
         /* istanbul ignore next */ function() {
-          return document.documentElement.outerHTML;
+          return document.documentElement!.outerHTML;
         }
       );
     } else {
