@@ -25,7 +25,7 @@ registerSuite('unit/Tunnel', () => {
       '#start'() {
         const task = Task.resolve();
         tunnel['_startTask'] = task;
-        tunnel['_state'] = 'stopping';
+        tunnel['_state'] = <Tunnel['_state']>'stopping';
         assert.throws(() => {
           tunnel.start();
         });
