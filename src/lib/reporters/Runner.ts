@@ -28,6 +28,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
   hasSuiteErrors: boolean;
   hidePassed: boolean;
   hideSkipped: boolean;
+  hideTunnelDownloadProgress: boolean;
   serveOnly: boolean;
 
   private _deprecationMessages: { [message: string]: boolean };
@@ -39,6 +40,8 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 
     this.hidePassed = options.hidePassed || false;
     this.hideSkipped = options.hideSkipped || false;
+    this.hideTunnelDownloadProgress =
+      options.hideTunnelDownloadProgress || false;
 
     this.sessions = {};
     this.hasRunErrors = false;
@@ -319,6 +322,10 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 
   @eventHandler()
   tunnelDownloadProgress(message: TunnelMessage) {
+    if (this.hideTunnelDownloadProgress) {
+      return;
+    }
+
     const progress = message.progress!;
     this.charm.write(
       'Tunnel download: ' +
@@ -341,4 +348,5 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 export interface RunnerProperties extends TextCoverageProperties {
   hidePassed: boolean;
   hideSkipped: boolean;
+  hideTunnelDownloadProgress: boolean;
 }
