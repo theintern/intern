@@ -57,6 +57,7 @@ registerSuite('lib/reporters/Runner', function() {
         assert.isDefined(reporter);
         assert.isFalse(reporter.serveOnly);
         assert.isTrue(reporter.hidePassed);
+        assert.isFalse(reporter.hideTunnelDownloadProgress);
       },
 
       coverage() {
@@ -419,6 +420,14 @@ registerSuite('lib/reporters/Runner', function() {
             ).toFixed(3)}%\r`
           ]
         ]);
+      },
+
+      hideTunnelDownloadProgress() {
+        reporter.hideTunnelDownloadProgress = true;
+        const progress = { received: 10, total: 50 };
+        reporter.tunnelDownloadProgress(<any>{ progress });
+
+        assert.equal(mockCharm.write.callCount, 0);
       },
 
       tunnelStart() {
