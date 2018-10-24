@@ -70,20 +70,8 @@ module.exports = [
 
 function getEntries() {
   return {
-    intern: [
-      'url-search-params-polyfill',
-      'core-js/fn/map',
-      'core-js/fn/object/assign',
-      'promise-polyfill',
-      './src/browser/intern.ts'
-    ],
-    remote: [
-      'url-search-params-polyfill',
-      'core-js/fn/map',
-      'core-js/fn/object/assign',
-      'promise-polyfill',
-      './src/browser/remote.ts'
-    ],
+    intern: './src/browser/intern.ts',
+    remote: './src/browser/remote.ts',
     config: './src/browser/config.ts'
   };
 }

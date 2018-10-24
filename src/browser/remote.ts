@@ -1,5 +1,6 @@
-import { global } from '@theintern/common';
+import '../lib/browser/shim';
 
+import { global } from '@theintern/common';
 import Browser from '../lib/executors/Browser';
 import { RemoteConfig } from '../lib/RemoteSuite';
 import { parseQuery } from '../lib/browser/util';
