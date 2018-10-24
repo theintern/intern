@@ -231,10 +231,12 @@ function noValidation() {
   return true;
 }
 
-function getFileReaderPromise<T>(reader: FileReader): Promise<T> {
+function getFileReaderPromise<T extends string | ArrayBuffer>(
+  reader: FileReader
+): Promise<T> {
   return new Promise((resolve, reject) => {
     reader.onload = function() {
-      resolve(reader.result);
+      resolve(<T>reader.result);
     };
     reader.onerror = function() {
       reject(reader.error);

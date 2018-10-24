@@ -32,7 +32,7 @@
     "tslib": "~1.9.3"
   },
   "devDependencies": {
-    "@theintern/dev": "~0.8.1",
+    "@theintern/dev": "~0.9.0",
     "@theintern/istanbul-loader": "~1.0.0-beta.2",
     "@types/copy-webpack-plugin": "~4.4.2",
     "@types/glob": "~5.0.35",
