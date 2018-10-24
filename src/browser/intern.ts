@@ -2,6 +2,8 @@
  * This is the browser runner for end users. It simply loads and initializes a
  * Browser executor.
  */
+import '../lib/browser/shim';
+
 import { global } from '@theintern/common';
 import Browser from '../lib/executors/Browser';
 
