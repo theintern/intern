@@ -614,7 +614,7 @@ registerSuite('Element', () => {
           .then(function(file) {
             assert.deepEqual(file, {
               name: 'upload.txt',
-              size: 19
+              size: 18
             });
           });
       },

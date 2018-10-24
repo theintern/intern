@@ -1,3 +1,4 @@
+import * as path from 'path';
 import * as util from './support/util';
 import Command, { Context } from '../../src/Command';
 import Session from '../../src/Session';
@@ -37,7 +38,7 @@ registerSuite('Command', () => {
                 assert.strictEqual(error.message, 'broken');
                 assert.include(
                   error.stack!,
-                  'tests/functional/Command.js:24',
+                  path.join('tests', 'functional', 'Command.js') + ':24',
                   'Stack trace should point back to the error'
                 );
                 error.message += ' 2';
@@ -80,7 +81,7 @@ registerSuite('Command', () => {
               );
               assert.include(
                 stack,
-                'tests/functional/Command.js:45',
+                path.join('tests', 'functional', 'Command.js') + ':46',
                 'Stack trace should point back to the async method call that eventually threw the error'
               );
             }
