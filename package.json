@@ -60,9 +60,9 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
-    "@theintern/common": "~0.1.2",
-    "@theintern/digdug": "~2.2.1",
-    "@theintern/leadfoot": "~2.2.1",
+    "@theintern/common": "~0.1.3",
+    "@theintern/digdug": "~2.2.3",
+    "@theintern/leadfoot": "~2.2.3",
     "@types/benchmark": "~1.0.30",
     "@types/chai": "~4.1.4",
     "@types/charm": "~1.0.0",
@@ -109,7 +109,7 @@
   },
   "devDependencies": {
     "@dojo/loader": "~0.1.1",
-    "@theintern/dev": "~0.8.1",
+    "@theintern/dev": "~0.9.0",
     "@types/body-parser": "~1.16.4",
     "@types/glob": "~5.0.35",
     "@types/grunt": "~0.4.23",
