@@ -135,9 +135,10 @@ body {
 	}
 }
 
-.failedFilter {
+.toggleFilter {
 	color: $reportTextColor;
 	input {
+		margin-left: 0.5em;
 		margin-right: 0.5em;
 	}
 }
@@ -233,6 +234,16 @@ body {
 				}
 			}
 		}
+
+		&.skipped {
+			testStatusIcon(lighten($skippedColor, 80%), $skippedColor, $skippedIcon)
+			color: $skippedColor;
+			background-color: #fff;
+
+			td {
+				border: 1px solid $cellBorderColor;
+			}
+		}
 	}
 
 	.testResult {
@@ -298,12 +309,21 @@ body {
 	}
 }
 
+.hideSkipped .report {
+	.skipped {
+		display: none;
+	}
+}
+
 .reportControls {
 	margin-bottom: 0.75em;
 	color: $summaryTextColor;
 
 	> * {
 		width: 50%;
+	}
+	
+	* {
 		display: inline-block;
 	}
 

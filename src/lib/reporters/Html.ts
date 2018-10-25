@@ -43,6 +43,7 @@ export default class Html extends Reporter implements HtmlProperties {
   protected _processedTests: any = {};
 
   protected _failedFilter: any = null;
+  protected _skippedFilter: any = null;
 
   protected _fragment: DocumentFragment;
 
@@ -92,31 +93,53 @@ export default class Html extends Reporter implements HtmlProperties {
 
     // Create a toggle to only show failed tests
     if (suite.numFailedTests > 0) {
-      let failedFilter = (this._failedFilter = document.createElement('div'));
-      failedFilter.className = 'failedFilter';
-      let failedToggle = document.createElement('input');
-      failedToggle.id = 'failedToggle';
-      failedToggle.type = 'checkbox';
-
-      let failedLabel = document.createElement('label');
-      failedLabel.htmlFor = 'failedToggle';
-      failedLabel.innerHTML = 'Show only failed tests';
-
-      failedFilter.appendChild(failedToggle);
-      failedFilter.appendChild(failedLabel);
-
-      failedToggle.onclick = function(this: GlobalEventHandlers) {
-        const input = <HTMLInputElement>this;
-        if (input.checked) {
-          document.body.className += ' hidePassed';
-        } else {
-          document.body.className = document.body.className.replace(
-            /\bhidePassed\b/,
-            ' '
-          );
-        }
-      };
+      this._failedFilter = this._createToggleFilter(
+        'hidePassed',
+        'Show only failed tests'
+      );
     }
+
+    // Create a toggle to hide skipped tests
+    if (suite.numSkippedTests > 0) {
+      this._skippedFilter = this._createToggleFilter(
+        'hideSkipped',
+        'Hide skipped tests'
+      );
+    }
+  }
+
+  private _toggleInstance = 0;
+  private _createToggleFilter(className: string, label: string) {
+    const document = this.document;
+
+    const toggleFilter = document.createElement('div');
+    toggleFilter.className = `toggleFilter`;
+
+    const toggle = document.createElement('input');
+    const id = `toggle-${++this._toggleInstance}`;
+    toggle.id = id;
+    toggle.type = 'checkbox';
+
+    const toggleLabel = document.createElement('label');
+    toggleLabel.htmlFor = id;
+    toggleLabel.innerHTML = label;
+
+    toggleFilter.appendChild(toggle);
+    toggleFilter.appendChild(toggleLabel);
+
+    toggle.onclick = function(this: GlobalEventHandlers) {
+      const input = <HTMLInputElement>this;
+      if (input.checked) {
+        document.body.className += ` ${className}`;
+      } else {
+        document.body.className = document.body.className.replace(
+          new RegExp(`\\b${className}\\b`),
+          ' '
+        );
+      }
+    };
+
+    return toggleFilter;
   }
 
   protected _injectCSS() {
@@ -423,6 +446,7 @@ export default class Html extends Reporter implements HtmlProperties {
     const numPassedTests = suite.numPassedTests;
     const numSkippedTests = numTests - (numFailedTests + numPassedTests);
     const hasSuiteFailures = suite.numSkippedTests !== numSkippedTests;
+    const allTestsSkipped = numTests === numSkippedTests;
 
     if (!suite.hasParent) {
       this._generateSummary(suite);
@@ -457,6 +481,10 @@ export default class Html extends Reporter implements HtmlProperties {
         addClass(failedNode, 'success');
       }
 
+      if (this._skippedFilter) {
+        reportControls.lastElementChild!.appendChild(this._skippedFilter);
+      }
+
       if (suite.numFailedTests > 0) {
         const successRateNode = document.querySelector('.successRate')!;
         addClass(successRateNode, 'failed');
@@ -475,7 +503,11 @@ export default class Html extends Reporter implements HtmlProperties {
     // Mark a suite as failed if any of its child tests failed, and
     addClass(
       rowNode,
-      numFailedTests > 0 || hasSuiteFailures ? 'failed' : 'passed'
+      allTestsSkipped
+        ? 'skipped'
+        : numFailedTests > 0 || hasSuiteFailures
+          ? 'failed'
+          : 'passed'
     );
 
     // Only suites with failed tests will be initially expanded
