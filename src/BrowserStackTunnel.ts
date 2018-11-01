@@ -155,10 +155,11 @@ export default class BrowserStackTunnel extends Tunnel
     this.skipServerValidation && args.push('-skipCheck');
     this.tunnelId && args.push('-localIdentifier', this.tunnelId);
     this.verbose && args.push('-v');
+    const aProxy =
+      this.tunnelProxy !== undefined ? this.tunnelProxy : this.proxy;
 
-    if (this.proxy) {
-      const proxy = parseUrl(this.proxy);
-
+    if (aProxy) {
+      const proxy = parseUrl(aProxy);
       proxy.hostname && args.push('-proxyHost', proxy.hostname);
       proxy.port && args.push('-proxyPort', proxy.port);
 

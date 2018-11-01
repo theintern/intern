@@ -103,6 +103,15 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    */
   proxy: string | undefined;
 
+  /**
+   * The URL of a proxy server for the tunnel to go through. Only the
+   * hostname, port, and auth are used.
+   *
+   * This overrides the `proxy` configuration allowing independent
+   * configuration for the Tunnel binary process only.
+   */
+  tunnelProxy!: string | undefined;
+
   /** A unique identifier for the newly created tunnel. */
   tunnelId: string | undefined;
 
@@ -742,6 +751,9 @@ export interface TunnelProperties extends DownloadProperties {
 
   /** [[Tunnel.Tunnel.protocol|More info]] */
   protocol: string;
+
+  /** [[Tunnel.Tunnel.tunnelProxy|More info]] */
+  tunnelProxy: string | undefined;
 
   /** [[Tunnel.Tunnel.tunnelId|More info]] */
   tunnelId: string | undefined;
