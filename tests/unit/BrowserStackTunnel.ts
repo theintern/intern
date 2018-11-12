@@ -54,6 +54,20 @@ registerSuite('unit/BrowserStackTunnel', () => {
 
         tunnel.architecture = 'ia32';
         assert.equal(tunnel.url, url + 'linux-ia32.zip');
+      },
+
+      '#tunnelProxy'() {
+        tunnel.proxy = 'http://localhost:2345';
+        tunnel.tunnelProxy = 'http://localhost:5678';
+        tunnel.username = 'foo';
+        tunnel.accessKey = 'bar';
+        const args = tunnel['_makeArgs']();
+        assert.includeMembers(args, [
+          '-proxyHost',
+          'localhost',
+          '-proxyPort',
+          '5678'
+        ]);
       }
     }
   };

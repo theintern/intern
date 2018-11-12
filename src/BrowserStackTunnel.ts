@@ -156,7 +156,7 @@ export default class BrowserStackTunnel extends Tunnel
     this.tunnelId && args.push('-localIdentifier', this.tunnelId);
     this.verbose && args.push('-v');
     const aProxy =
-      this.tunnelProxy !== undefined ? this.tunnelProxy : this.proxy;
+      typeof this.tunnelProxy !== 'undefined' ? this.tunnelProxy : this.proxy;
 
     if (aProxy) {
       const proxy = parseUrl(aProxy);
@@ -167,10 +167,6 @@ export default class BrowserStackTunnel extends Tunnel
         const auth = proxy.auth.split(':');
         args.push('-proxyUser', auth[0], '-proxyPass', auth[1]);
       }
-      /*else {
-				proxy.username && args.push('-proxyUser', proxy.username);
-				proxy.password && args.push('-proxyPass', proxy.password);
-			}*/
     }
 
     return args;
