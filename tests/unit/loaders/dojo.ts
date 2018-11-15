@@ -67,6 +67,17 @@ registerSuite('loaders/dojo', function() {
         const init = mockIntern.registerLoader.getCall(0).args[0];
         return init({}).then(() => {
           assert.equal(mockIntern.loadScript.callCount, 1);
+          assert.deepEqual(
+            global.dojoConfig,
+            {
+              async: true,
+              baseUrl: '/',
+              has: {
+                'dojo-timeout-api': true
+              }
+            },
+            'Did not have expected default config'
+          );
         });
       },
 

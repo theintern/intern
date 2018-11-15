@@ -11,6 +11,11 @@ intern.registerLoader(options => {
     options.async = true;
   }
 
+  options.has = {
+    'dojo-timeout-api': true,
+    ...options.has
+  };
+
   intern.log('Configuring Dojo loader with:', options);
   globalObj.dojoConfig = options;
 
