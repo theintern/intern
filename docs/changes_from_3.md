@@ -7,9 +7,9 @@
 * [Configuration](#configuration)
 * [Code coverage](#code-coverage)
 * [Interfaces](#interfaces)
-    * [Object interface](#object-interface)
-    * [QUnit interface](#qunit-interface)
-    * [Loading interfaces](#loading-interfaces)
+  * [Object interface](#object-interface)
+  * [QUnit interface](#qunit-interface)
+  * [Loading interfaces](#loading-interfaces)
 * [Execution](#execution)
 * [Reporters](#reporters)
 
@@ -52,7 +52,7 @@ Intern 3, but they will often accept a wider range of values. For example, while
 
 ```json5
 {
-    "environments": "chrome"
+  environments: 'chrome'
 }
 ```
 
@@ -79,19 +79,19 @@ interface takes a single object that contains both Suite properties and tests:
 
 ```ts
 registerSuite({
-    name: 'lib/Server',
+  name: 'lib/Server',
 
-    beforeEach() {
-        // Test setup
-    },
+  beforeEach() {
+    // Test setup
+  },
 
-    test1() {
-        // Test code
-    },
+  test1() {
+    // Test code
+  },
 
-    test2() {
-        // Test code
-    }
+  test2() {
+    // Test code
+  }
 });
 ```
 
@@ -106,20 +106,20 @@ presence of a `tests` property.
 ```ts
 // Only suite properties
 registerSuite('lib/Server', {
-    beforeEach() {},
+  beforeEach() {},
 
-    tests: {
-        test1() {},
+  tests: {
+    test1() {},
 
-        test2() {}
-    }
+    test2() {}
+  }
 });
 
 // Only tests
 registerSuite('lib/Server', {
-    test1() {},
+  test1() {},
 
-    test2() {}
+  test2() {}
 });
 ```
 
@@ -209,24 +209,23 @@ reporters are still loaded using a `reporters` option, but rather than module
 IDs or class names, the option takes simple names. Note that most reporters only
 support Node or the browser, not both. Currently, the built in reporters are:
 
-*   Node
-    *   _benchmark_ - output benchmark test results
-    *   _cobertura_ - output coverage data in the cobertura format
-    *   _htmlcoverage_ - output coverage data as an HTML report
-    *   _jsoncoverage_ - output coverage data in a JSON format
-    *   _junit_ - output results in JUnit format
-    *   _lcov_ - output coverage results in lcov format
-    *   _pretty_ - draw text results in a terminal
-    *   _runner_ - output test results as formatted text (default Node reporter)
-    *   _simple_ - output test results as simple text
-    *   _teamcity_ - output results in TeamCity format
-*   Browser
-    *   _console_ - output to the browser console (used by default with browser
-        client)
-    *   _dom_ - output results as text in the DOM (used by default in remote
-        browsers)
-    *   _html_ - output a pretty HTML report (used by default with browser
-        client))
+- Node
+  - _benchmark_ - output benchmark test results
+  - _cobertura_ - output coverage data in the cobertura format
+  - _htmlcoverage_ - output coverage data as an HTML report
+  - _jsoncoverage_ - output coverage data in a JSON format
+  - _junit_ - output results in JUnit format
+  - _lcov_ - output coverage results in lcov format
+  - _pretty_ - draw text results in a terminal
+  - _runner_ - output test results as formatted text (default Node reporter)
+  - _simple_ - output test results as simple text
+  - _teamcity_ - output results in TeamCity format
+- Browser
+  - _console_ - output to the browser console (used by default with browser
+    client)
+  - _dom_ - output results as text in the DOM (used by default in remote
+    browsers)
+  - _html_ - output a pretty HTML report (used by default with browser client))
 
 Custom reporters should be loaded as
 [plugins](https://theintern.io/docs.html#Intern/4/docs/docs%2Farchitecture.md/plugins)
@@ -234,12 +233,14 @@ Custom reporters should be loaded as
 
 ```json5
 {
-    "plugins": {
-        "script": "resources/customReporter.js",
-        "options": { "filename": "reportFile.txt" }
-    }
+  plugins: {
+    script: 'resources/customReporter.js',
+    options: { filename: 'reportFile.txt' }
+  }
 }
 ```
 
-[coverage]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/coverage
-[loader]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/loader
+[coverage]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/coverage
+[loader]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/loader

@@ -56,10 +56,10 @@ mirror the main src directory structure. For example, unit tests for
 
 There are a couple of techniques that can make writing unit tests faster.
 
-*   Intern includes a `watch` script that will rebuild source and test files
-    when they're updated.
-*   Disable coverage with a `coverage=` command line option.
-*   Only run the suite that’s being edited.
+- Intern includes a `watch` script that will rebuild source and test files when
+  they're updated.
+- Disable coverage with a `coverage=` command line option.
+- Only run the suite that’s being edited.
 
 Say you’re working on tests in `tests/unit/lib/Environment.ts`. Start the
 watcher with `npm run watch`. Whenever you write a new test in Environment.ts,

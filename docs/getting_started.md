@@ -58,10 +58,10 @@ const { describe, it } = intern.getPlugin('interface.bdd');
 const { expect } = intern.getPlugin('chai');
 
 describe('MyClass', () => {
-    it('should have a name property when instantiated', () => {
-        const obj = new MyClass('foo');
-        expect(obj).to.have.property('name', 'foo');
-    });
+  it('should have a name property when instantiated', () => {
+    const obj = new MyClass('foo');
+    expect(obj).to.have.property('name', 'foo');
+  });
 });
 ```
 
@@ -73,13 +73,13 @@ const { describe, it } = intern.getPlugin('interface.bdd');
 const { expect } = intern.getPlugin('chai');
 
 describe('app', () => {
-    it('should show a welcome heading', async test => {
-        const { remote } = test;
-        // Load the page
-        await remote.get('index.html');
-        // Search for an h1 element with the text "Welcome"
-        await remote.findByXpath('//h1[.="Welcome"]');
-    });
+  it('should show a welcome heading', async test => {
+    const { remote } = test;
+    // Load the page
+    await remote.get('index.html');
+    // Search for an h1 element with the text "Welcome"
+    await remote.findByXpath('//h1[.="Welcome"]');
+  });
 });
 ```
 
@@ -93,9 +93,9 @@ running unit and functional tests is:
 
 ```json5
 {
-    "suites": "tests/unit/**/*.js",
-    "functionalSuites": "tests/functional/**/*.js",
-    "environments": ["node", "chrome"]
+  suites: 'tests/unit/**/*.js',
+  functionalSuites: 'tests/functional/**/*.js',
+  environments: ['node', 'chrome']
 }
 ```
 

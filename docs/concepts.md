@@ -3,11 +3,11 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Test organization](#test-organization)
-    * [Assertions](#assertions)
-    * [Test interface](#test-interface)
+  * [Assertions](#assertions)
+  * [Test interface](#test-interface)
 * [Test types](#test-types)
-    * [Unit tests](#unit-tests)
-    * [Functional tests](#functional-tests)
+  * [Unit tests](#unit-tests)
+  * [Functional tests](#functional-tests)
 * [Code coverage](#code-coverage)
 * [WebDriver feature tests](#webdriver-feature-tests)
 * [Source maps](#source-maps)
@@ -20,33 +20,33 @@
 Intern organizes tests into suites and modules, and allows them to be registered
 with various test interfaces.
 
-*   **Test module** - A JavaScript module (AMD, CJS, ESM, ...) containing test
-    suites
-*   **Test suite** - A group of related tests. There is typically one top-level
-    suite per module.
-*   **Test case**, or **test** - An individual test
-*   **[Assertion](#assertions)** - A check for a condition that throws an error
-    if the condition isn’t met
-*   **[Test interface](#test-interface)** - An API used to register test suites
+- **Test module** - A JavaScript module (AMD, CJS, ESM, ...) containing test
+  suites
+- **Test suite** - A group of related tests. There is typically one top-level
+  suite per module.
+- **Test case**, or **test** - An individual test
+- **[Assertion](#assertions)** - A check for a condition that throws an error if
+  the condition isn’t met
+- **[Test interface](#test-interface)** - An API used to register test suites
 
 These terms can be visualized in a hierarchy:
 
-*   test module
-    *   test suite
-        *   test suite
-            *   test case
-                *   assertion
-                *   assertion
-                *   ...
-            *   test case
-                *   assertion
-                *   ...
-            *   ...
-        *   ...
-    *   test suite
-    *   ...
-*   test module
-*   ...
+- test module
+  - test suite
+    - test suite
+      - test case
+        - assertion
+        - assertion
+        - ...
+      - test case
+        - assertion
+        - ...
+      - ...
+    - ...
+  - test suite
+  - ...
+- test module
+- ...
 
 ### Assertions
 
@@ -54,7 +54,7 @@ An assertion is simply a check that throws an error if the check fails, like:
 
 ```ts
 if (value !== 5) {
-    throw new Error(`Expected ${value} to be 5`);
+  throw new Error(`Expected ${value} to be 5`);
 }
 ```
 
@@ -77,11 +77,11 @@ frameworks use a "BDD" interface, with `describe` and `it` functions, where
 `describe` creates a suite and `it` creates an individual test. Intern includes
 several interfaces:
 
-*   **BDD**
-*   **TDD**, which uses `suite` and `test` functions in place of `describe` and
-    `it`
-*   **Object**, which allows suites to be defined using objects
-*   **Benchmark**, an object-like interface for registering benchmark tests
+- **BDD**
+- **TDD**, which uses `suite` and `test` functions in place of `describe` and
+  `it`
+- **Object**, which allows suites to be defined using objects
+- **Benchmark**, an object-like interface for registering benchmark tests
 
 <!-- TODO: Add a link ot the QUnit plugin -->
 
@@ -129,7 +129,7 @@ check itself:
 
 ```ts
 if (comp.get('foo') !== 'bar') {
-    throw new Error('not equal');
+  throw new Error('not equal');
 }
 ```
 
@@ -152,23 +152,23 @@ remote browsers. A functional test might look like:
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 registerSuite('home page', {
-    login() {
-        return (
-            this.remote
-                .get('http://mysite.local/page.html')
-                .findById('username')
-                .type('bob')
-                .end()
-                .findById('password')
-                .type('12345')
-                .end()
-                .findById('submit')
-                .click()
-                .sleep(1000)
-                // Assume the logged in site has a '#banner' element
-                .findById('banner')
-        );
-    }
+  login() {
+    return (
+      this.remote
+        .get('http://mysite.local/page.html')
+        .findById('username')
+        .type('bob')
+        .end()
+        .findById('password')
+        .type('12345')
+        .end()
+        .findById('submit')
+        .click()
+        .sleep(1000)
+        // Assume the logged in site has a '#banner' element
+        .findById('banner')
+    );
+  }
 });
 ```
 
@@ -235,37 +235,37 @@ example, functional tests may need to login to a site:
 ```ts
 // productPage.ts
 registerSuite('product page', {
-    'buy product'() {
-        return (
-            this.remote
-                .get('https://mysite.local')
+  'buy product'() {
+    return (
+      this.remote
+        .get('https://mysite.local')
 
-                // Login to the site, using the specified username and password, then look for a
-                // specific element to verify that the login succeeded
-                .findById('login')
-                .click()
-                .type(username)
-                .end()
-                .findById('password')
-                .click()
-                .type(password)
-                .end()
-                .findById('loginButton')
-                .click()
-                .end()
-                .setFindTimeout(5000)
-                .findById('loginSuccess')
-                .end()
+        // Login to the site, using the specified username and password, then look for a
+        // specific element to verify that the login succeeded
+        .findById('login')
+        .click()
+        .type(username)
+        .end()
+        .findById('password')
+        .click()
+        .type(password)
+        .end()
+        .findById('loginButton')
+        .click()
+        .end()
+        .setFindTimeout(5000)
+        .findById('loginSuccess')
+        .end()
 
-                // now buy the product
-                .findById('product-1')
-                .click()
-                .end()
-        );
-        // ...
-    }
-
+        // now buy the product
+        .findById('product-1')
+        .click()
+        .end()
+    );
     // ...
+  }
+
+  // ...
 });
 ```
 
@@ -277,24 +277,27 @@ test:
 import { login } from './pages/loginPage.ts';
 
 registerSuite('product page', {
-    'buy product'() {
-        return (
-            this.remote
-                .get('https://mysite.local')
-                .then(login(username, password))
+  'buy product'() {
+    return (
+      this.remote
+        .get('https://mysite.local')
+        .then(login(username, password))
 
-                // now buy the product
-                .findById('product-1')
-                .click()
-                .end()
-        );
-        // ...
-    }
-
+        // now buy the product
+        .findById('product-1')
+        .click()
+        .end()
+    );
     // ...
+  }
+
+  // ...
 });
 ```
 
-[coverage]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/coverage
-[functionalcoverage]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/functionalcoverage
-[instrumenteroptions]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/instrumenteroptions
+[coverage]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/coverage
+[functionalcoverage]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/functionalcoverage
+[instrumenteroptions]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/instrumenteroptions

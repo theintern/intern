@@ -3,19 +3,19 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Built-in runners](#built-in-runners)
-    * [Node](#node)
-    * [Browser](#browser)
-    * [Grunt](#grunt)
+  * [Node](#node)
+  * [Browser](#browser)
+  * [Grunt](#grunt)
 * [Custom Node Script](#custom-node-script)
 * [Custom HTML Page](#custom-html-page)
 * [WebDriver servers](#webdriver-servers)
-    * [Bare WebDriver server](#bare-webdriver-server)
-    * [Selenium](#selenium)
-    * [Cloud service](#cloud-service)
-        * [BrowserStack](#browserstack)
-        * [CrossBrowserTesting](#crossbrowsertesting)
-        * [Sauce Labs](#sauce-labs)
-        * [TestingBot](#testingbot)
+  * [Bare WebDriver server](#bare-webdriver-server)
+  * [Selenium](#selenium)
+  * [Cloud service](#cloud-service)
+    * [BrowserStack](#browserstack)
+    * [CrossBrowserTesting](#crossbrowsertesting)
+    * [Sauce Labs](#sauce-labs)
+    * [TestingBot](#testingbot)
 
 <!-- vim-markdown-toc -->
 
@@ -39,9 +39,9 @@ It can also be run using the "test" script property from a `package.json`:
 
 ```json5
 {
-    "scripts": {
-        "test": "intern"
-    }
+  scripts: {
+    test: 'intern'
+  }
 }
 ```
 
@@ -112,14 +112,14 @@ The task may be configured using the same options as are used in an
 
 ```json5
 {
-    "suites": "tests/unit/**/*.js",
-    "plugins": "tests/pre.js",
-    "loader": {
-        "script": "dojo",
-        "config": {
-            "packages": [{ "name": "app", "location": "." }]
-        }
+  suites: 'tests/unit/**/*.js',
+  plugins: 'tests/pre.js',
+  loader: {
+    script: 'dojo',
+    config: {
+      packages: [{ name: 'app', location: '.' }]
     }
+  }
 }
 ```
 
@@ -127,25 +127,25 @@ An equivalent Grunt config that used the Node executor would look like:
 
 ```js
 module.exports = function(grunt) {
-    grunt.initConfig({
-        intern: {
-            node: {
-                options: {
-                    suites: 'tests/unit/**/*.js',
-                    plugins: 'tests/pre.js',
-                    loader: {
-                        script: 'dojo',
-                        config: {
-                            packages: [{ name: 'app', location: '.' }]
-                        }
-                    }
-                }
+  grunt.initConfig({
+    intern: {
+      node: {
+        options: {
+          suites: 'tests/unit/**/*.js',
+          plugins: 'tests/pre.js',
+          loader: {
+            script: 'dojo',
+            config: {
+              packages: [{ name: 'app', location: '.' }]
             }
+          }
         }
-    });
+      }
+    }
+  });
 
-    // Loading using a local git copy
-    grunt.loadNpmTasks('intern');
+  // Loading using a local git copy
+  grunt.loadNpmTasks('intern');
 };
 ```
 
@@ -164,8 +164,8 @@ script must perform are:
     least one suite and a reporter.
     ```js
     intern.configure({
-        suites: 'tests/unit/a.js',
-        reporters: 'runner'
+      suites: 'tests/unit/a.js',
+      reporters: 'runner'
     });
     ```
 3.  Call `intern.run()`
@@ -195,8 +195,8 @@ steps are similar to those for a custom Node script:
     least one suite and a reporter.
     ```js
     intern.configure({
-        suites: 'tests/unit/a.js',
-        reporters: 'html'
+      suites: 'tests/unit/a.js',
+      reporters: 'html'
     });
     ```
 3.  Call `intern.run()`
@@ -238,9 +238,9 @@ simpler than for a bare WebDriver.
     the [tunnelOptions] config property:
     ```json5
     {
-        "tunnelOptions": {
-            "drivers": ["firefox"]
-        }
+      tunnelOptions: {
+        drivers: ['firefox']
+      }
     }
     ```
 3.  Run Intern
@@ -255,15 +255,15 @@ simpler than for a bare WebDriver.
 
 ```json5
 {
-    "tunnelOptions": {
-        // Selenium version
-        "version": "3.4.1",
-        "drivers": [
-            // WebDriver verisons
-            { "name": "chrome", "version": "2.33" },
-            { "name": "firefox", "version": "0.17.0" }
-        ]
-    }
+  tunnelOptions: {
+    // Selenium version
+    version: '3.4.1',
+    drivers: [
+      // WebDriver verisons
+      { name: 'chrome', version: '2.33' },
+      { name: 'firefox', version: '0.17.0' }
+    ]
+  }
 }
 ```
 
@@ -285,12 +285,12 @@ is provided in the following sections.
     [Automate account settings page](https://www.browserstack.com/accounts/automate)
 3.  Set the [tunnel] config property to `'browserstack'`
 4.  Set your username and access key in one of these ways:
-    *   Define `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` environment
-        variables
-    *   Set `browserstackUsername` and `browserstackAccessKey` in your
-        [Gruntfile’s](#grunt) intern task options
-    *   Set `username` and `accessKey` on your [tunnelOptions] configuration
-        option
+    - Define `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` environment
+      variables
+    - Set `browserstackUsername` and `browserstackAccessKey` in your
+      [Gruntfile’s](#grunt) intern task options
+    - Set `username` and `accessKey` on your [tunnelOptions] configuration
+      option
 5.  Run Intern
 
 #### CrossBrowserTesting
@@ -299,11 +299,11 @@ is provided in the following sections.
 2.  Get your authkey from your account settings page
 3.  Set the [tunnel] config property to `'cbt'`
 4.  Set your username and access key in one of these ways:
-    *   Define `CBT_USERNAME` and `CBT_APIKEY` environment variables
-    *   Set `cbtUsername` and `cbtApikey` in your [Gruntfile’s](#grunt) intern
-        task options
-    *   Set `username` and `accessKey` on your [tunnelOptions] configuration
-        option
+    - Define `CBT_USERNAME` and `CBT_APIKEY` environment variables
+    - Set `cbtUsername` and `cbtApikey` in your [Gruntfile’s](#grunt) intern
+      task options
+    - Set `username` and `accessKey` on your [tunnelOptions] configuration
+      option
 5.  Run Intern
 
 #### Sauce Labs
@@ -315,11 +315,11 @@ is provided in the following sections.
     and get a username and access key from there
 3.  Set the [tunnel] config property to `'saucelabs'`
 4.  Set your username and access key in one of these ways:
-    *   Define `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` environment variables
-    *   Set `sauceUsername` and `sauceAccessKey` in your [Gruntfile’s](#grunt)
-        intern task options
-    *   Set `username` and `accessKey` on your [tunnelOptions] configuration
-        option
+    - Define `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` environment variables
+    - Set `sauceUsername` and `sauceAccessKey` in your [Gruntfile’s](#grunt)
+      intern task options
+    - Set `username` and `accessKey` on your [tunnelOptions] configuration
+      option
 5.  Run Intern
 
 #### TestingBot
@@ -329,14 +329,18 @@ is provided in the following sections.
     [Account settings page](https://testingbot.com/members/user/edit)
 3.  Set the [tunnel] config property to `'testingbot'`
 4.  Set your API key and secret in one of these ways:
-    *   Define `TESTINGBOT_KEY` and `TESTINGBOT_SECRET` environment variables
-    *   Set `testingbotKey` and `testingbotSecret` in your Gruntfile’s intern
-        task options
-    *   Set `username` and `accessKey` on your [tunnelOptions] configuration
-        option
+    - Define `TESTINGBOT_KEY` and `TESTINGBOT_SECRET` environment variables
+    - Set `testingbotKey` and `testingbotSecret` in your Gruntfile’s intern task
+      options
+    - Set `username` and `accessKey` on your [tunnelOptions] configuration
+      option
 5.  Run Intern
 
-[capabilities]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/capabilities
-[environments]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/environments
-[tunnel]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunnel-1
-[tunneloptions]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunneloptions
+[capabilities]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/capabilities
+[environments]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/environments
+[tunnel]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunnel-1
+[tunneloptions]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunneloptions

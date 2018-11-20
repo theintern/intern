@@ -13,8 +13,8 @@
 * [Use Intern with a remote service like BrowserStack](#use-intern-with-a-remote-service-like-browserstack)
 * [Test non-modular code](#test-non-modular-code)
 * [Test non-CORS web APIs](#test-non-cors-web-apis)
-    * [Option 1: Send all traffic except web services to Intern](#option-1-send-all-traffic-except-web-services-to-intern)
-    * [Option 2: Only send JavaScript traffic to Intern](#option-2-only-send-javascript-traffic-to-intern)
+  * [Option 1: Send all traffic except web services to Intern](#option-1-send-all-traffic-except-web-services-to-intern)
+  * [Option 2: Only send JavaScript traffic to Intern](#option-2-only-send-javascript-traffic-to-intern)
 * [Run tests with headless Chrome](#run-tests-with-headless-chrome)
 * [Run tests with headless Firefox](#run-tests-with-headless-firefox)
 * [Run tests with Chrome in mobile emulation mode](#run-tests-with-chrome-in-mobile-emulation-mode)
@@ -35,8 +35,8 @@ like:
 
 ```json5
 {
-    "plugins": "node_modules/ts-node/register/index.js",
-    "suites": "tests/**/*.ts"
+  plugins: 'node_modules/ts-node/register/index.js',
+  suites: 'tests/**/*.ts'
 }
 ```
 
@@ -52,19 +52,19 @@ coverage and browser feature tests. Disabling these features can make test
 debugging and development faster.
 
 1.  Disable [code coverage](concepts.md#code-coverage)
-    *   Remove or comment the `coverage` property in a config file, or set it to
-        an empty array or `false`
-    *   Manually disable coverage when running Intern
-        ```
-        $ node_modules/.bin/intern coverage=
-        ```
+    - Remove or comment the `coverage` property in a config file, or set it to
+      an empty array or `false`
+    - Manually disable coverage when running Intern
+      ```
+      $ node_modules/.bin/intern coverage=
+      ```
 2.  Disable browser [feature tests](concepts.md#webdriver-feature-tests)
     ```json5
     {
-        "environments": {
-            "browserName": "chrome",
-            "fixSessionCapabilities": "no-detect"
-        }
+      environments: {
+        browserName: 'chrome',
+        fixSessionCapabilities: 'no-detect'
+      }
     }
     ```
 
@@ -74,25 +74,25 @@ debugging and development faster.
 ## Use Intern programmatically
 
 1.  Load Intern
-    *   In node:
-        ```ts
-        import intern from 'intern';
-        ```
-    *   In the browser, load the 'browser/intern.js' script
-        ```html
-        <script src="node_modules/intern/browser/intern.js"></script>
-        ```
+    - In node:
+      ```ts
+      import intern from 'intern';
+      ```
+    - In the browser, load the 'browser/intern.js' script
+      ```html
+      <script src="node_modules/intern/browser/intern.js"></script>
+      ```
 2.  [Configure](configuration.md) Intern
     ```ts
     intern.configure({
-        suites: ['tests/unit/a.js', 'tests/unit/b.js'],
-        reporters: 'runner'
+      suites: ['tests/unit/a.js', 'tests/unit/b.js'],
+      reporters: 'runner'
     });
     ```
 3.  Register for [events](architecture.md#executors)
     ```ts
     intern.on('testStart', test => {
-        console.log(`${test.id} has started`);
+      console.log(`${test.id} has started`);
     });
     ```
 4.  Run Intern
@@ -104,51 +104,51 @@ debugging and development faster.
 
 There several ways to accomplish this:
 
-*   If you just need to run some self-contained, synchronous setup code before
-    testing starts, use a `plugins` script.
-    ```js
-    // setup.js
-    intern.config.suites.push('./some/other/suite.js');
-    ```
-    ```json5
-    // intern.json
-    {
-        "plugins": "setup.js"
-    }
-    ```
-*   If your setup code is still self-contained but needs to do something
-    asynchronous, you can still load it as a `plugins` script, but use a
-    `beforeRun` callback to handle the async code:
-    ```js
-    // setup.js
-    intern.on('beforeRun', () => {
-        return new Promise(resolve => {
-            // async code
-        });
+- If you just need to run some self-contained, synchronous setup code before
+  testing starts, use a `plugins` script.
+  ```js
+  // setup.js
+  intern.config.suites.push('./some/other/suite.js');
+  ```
+  ```json5
+  // intern.json
+  {
+    plugins: 'setup.js'
+  }
+  ```
+- If your setup code is still self-contained but needs to do something
+  asynchronous, you can still load it as a `plugins` script, but use a
+  `beforeRun` callback to handle the async code:
+  ```js
+  // setup.js
+  intern.on('beforeRun', () => {
+    return new Promise(resolve => {
+      // async code
     });
-    ```
-*   If your startup code needs to load modules using your test loader (one
-    configured with the [loader] option), register it as a plugin. These can run
-    async initialization code in the [registerPlugin] method, and also have
-    access to any module loader configured for the tests.
-    ```js
-    // setup.js
-    const bar = require('./bar');
-    intern.registerPlugin('foo', () {
-        return bar.getSomething().then(something => {
-            // more async code
-        });
-    });
-    ```
-    ```json5
-    // intern.json
-    {
-        "plugins": {
-            "script": "setup.js",
-            "useLoader": true
-        }
+  });
+  ```
+- If your startup code needs to load modules using your test loader (one
+  configured with the [loader] option), register it as a plugin. These can run
+  async initialization code in the [registerPlugin] method, and also have access
+  to any module loader configured for the tests.
+  ```js
+  // setup.js
+  const bar = require('./bar');
+  intern.registerPlugin('foo', () {
+      return bar.getSomething().then(something => {
+          // more async code
+      });
+  });
+  ```
+  ```json5
+  // intern.json
+  {
+    plugins: {
+      script: 'setup.js',
+      useLoader: true
     }
-    ```
+  }
+  ```
 
 ## Run Intern in my own test page in a browser
 
@@ -223,12 +223,12 @@ coverage is desired.
 ```json5
 // intern.json
 {
-    "node": {
-        "plugins": "node_modules/babel-register/lib/node.js"
-    },
-    "instrumenterOptions": {
-        "esModules": true
-    }
+  node: {
+    plugins: 'node_modules/babel-register/lib/node.js'
+  },
+  instrumenterOptions: {
+    esModules: true
+  }
 }
 ```
 
@@ -239,23 +239,22 @@ support:
 ```json5
 // intern.json
 {
-    "browser": {
-        "loader": {
-            "script": "systemjs",
-            "options": {
-                "map": {
-                    "plugin-babel":
-                        "node_modules/systemjs-plugin-babel/plugin-babel.js",
-                    "systemjs-babel-build":
-                        "node_modules/systemjs-plugin-babel/systemjs-babel-browser.js"
-                },
-                "transpiler": "plugin-babel"
-            }
-        }
-    },
-    "instrumenterOptions": {
-        "esModules": true
+  browser: {
+    loader: {
+      script: 'systemjs',
+      options: {
+        map: {
+          'plugin-babel': 'node_modules/systemjs-plugin-babel/plugin-babel.js',
+          'systemjs-babel-build':
+            'node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
+        },
+        transpiler: 'plugin-babel'
+      }
     }
+  },
+  instrumenterOptions: {
+    esModules: true
+  }
 }
 ```
 
@@ -266,8 +265,8 @@ support. Internally, modules are loaded using script tags, like:
 <script src="myscript.js" type="module"></script>
 ```
 
-Note that the `esm` loader requires that _all_ modules in a dependecy tree be
-ESMs, so its utility is currently somewhat limited.
+> ⚠️ Note that the `esm` loader requires that _all_ modules in a dependecy tree
+> be ESMs, so its utility is currently somewhat limited.
 
 ## Use Intern with a remote service like BrowserStack
 
@@ -275,14 +274,14 @@ ESMs, so its utility is currently somewhat limited.
     `intern.json`
     ```json5
     {
-        "suites": "tests/unit/*.js",
-        "functionalSuites": "tests/functional/*.js"
+      suites: 'tests/unit/*.js',
+      functionalSuites: 'tests/functional/*.js'
     }
     ```
 2.  Select the desired [tunnel] in your `intern.json`
     ```json5
     {
-        "tunnel": "browserstack"
+      tunnel: 'browserstack'
     }
     ```
 3.  Provide your auth credentials using environment variables or in your
@@ -294,19 +293,19 @@ ESMs, so its utility is currently somewhat limited.
     _or_
     ```json5
     {
-        "tunnelOptions": {
-            "username": "someone@somedomain.com",
-            "accessKey": "123-456-789"
-        }
+      tunnelOptions: {
+        username: 'someone@somedomain.com',
+        accessKey: '123-456-789'
+      }
     }
     ```
 4.  Select some [environments]. Be sure to use the cloud service’s naming
     conventions.
     ```json5
     {
-        "environments": [
-            { "browserName": "chrome", "version": "latest", "platform": "MAC" }
-        ]
+      environments: [
+        { browserName: 'chrome', version: 'latest', platform: 'MAC' }
+      ]
     }
     ```
 5.  Run Intern
@@ -322,9 +321,9 @@ along with other dependencies in a specific order can be loaded using the
 
 ```json5
 {
-    "browser": {
-        "plugins": ["lib/jquery.js", "lib/plugin.jquery.js"]
-    }
+  browser: {
+    plugins: ['lib/jquery.js', 'lib/plugin.jquery.js']
+  }
 }
 ```
 
@@ -404,14 +403,14 @@ to ensure the browser is large enough to properly render your interface.
 
 ```json5
 {
-    "environments": [
-        {
-            "browserName": "chrome",
-            "goog:chromeOptions": {
-                "args": ["headless", "disable-gpu", "window-size=1024,768"]
-            }
-        }
-    ]
+  environments: [
+    {
+      browserName: 'chrome',
+      'goog:chromeOptions': {
+        args: ['headless', 'disable-gpu', 'window-size=1024,768']
+      }
+    }
+  ]
 }
 ```
 
@@ -428,14 +427,14 @@ argument to geckodriver in an environment descriptor in the test config.
 
 ```json5
 {
-    "environments": [
-        {
-            "browserName": "firefox",
-            "moz:firefoxOptions": {
-                "args": ["-headless", "--window-size=1024,768"]
-            }
-        }
-    ]
+  environments: [
+    {
+      browserName: 'firefox',
+      'moz:firefoxOptions': {
+        args: ['-headless', '--window-size=1024,768']
+      }
+    }
+  ]
 }
 ```
 
@@ -448,16 +447,16 @@ session. Do this by providing a 'mobileEmulation' property in
 
 ```json5
 {
-    "environments": [
-        {
-            "browserName": "chrome",
-            "goog:chromeOptions": {
-                "mobileEmulation": {
-                    "deviceName": "Pixel 2"
-                }
-            }
+  environments: [
+    {
+      browserName: 'chrome',
+      'goog:chromeOptions': {
+        mobileEmulation: {
+          deviceName: 'Pixel 2'
         }
-    ]
+      }
+    }
+  ]
 }
 ```
 
@@ -472,32 +471,36 @@ Mobile emulation mode may be combined with
     help with this.
 2.  Add the profile to the Firefox entry in your `environments` config property.
     How this is done depends on the version of Firefox in use.
-    *   For older versions of Firefox, set a `firefox_profile` property:
+    - For older versions of Firefox, set a `firefox_profile` property:
     ```json5
     {
-        "environments": [
-            {
-                "browserName": "firefox",
-                "firefox_profile": "UEsDBBQACAAIACynEk..."
-            }
-        ]
+      environments: [
+        {
+          browserName: 'firefox',
+          firefox_profile: 'UEsDBBQACAAIACynEk...'
+        }
+      ]
     }
     ```
-    *   Starting with geckodriver 0.19, use a `moz:firefoxOptions` property:
+    - Starting with geckodriver 0.19, use a `moz:firefoxOptions` property:
     ```json5
     {
-        "environments": [
-            {
-                "browserName": "firefox",
-                "moz:firefoxOptions": {
-                    "profile": "UEsDBBQACAAIACynEk..."
-                }
-            }
-        ]
+      environments: [
+        {
+          browserName: 'firefox',
+          'moz:firefoxOptions': {
+            profile: 'UEsDBBQACAAIACynEk...'
+          }
+        }
+      ]
     }
     ```
 
-[environments]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/environments
-[loader]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/loader
-[registerplugin]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/registerplugin
-[tunnel]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunnel-1
+[environments]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/environments
+[loader]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/loader
+[registerplugin]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/registerplugin
+[tunnel]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunnel-1

@@ -4,18 +4,18 @@
 
 * [Environment-specific config](#environment-specific-config)
 * [Properties](#properties)
-    * [Suite glob expressions](#suite-glob-expressions)
-    * [extends](#extends)
+  * [Suite glob expressions](#suite-glob-expressions)
+  * [extends](#extends)
 * [Displaying config information](#displaying-config-information)
-    * [showConfig](#showconfig)
-    * [showConfigs](#showconfigs)
+  * [showConfig](#showconfig)
+  * [showConfigs](#showconfigs)
 * [Config structure](#config-structure)
 * [Sources of configuration information](#sources-of-configuration-information)
-    * [Config File](#config-file)
-    * [Environment variable](#environment-variable)
-    * [Command line](#command-line)
-    * [Query args](#query-args)
-    * [Programmatically](#programmatically)
+  * [Config File](#config-file)
+  * [Environment variable](#environment-variable)
+  * [Command line](#command-line)
+  * [Query args](#query-args)
+  * [Programmatically](#programmatically)
 * [Configuring loaders](#configuring-loaders)
 * [Configuring plugins](#configuring-plugins)
 * [Configuration resolution](#configuration-resolution)
@@ -131,7 +131,7 @@ handled with the [glob](https://github.com/isaacs/node-glob) Node package.
 
 ```json5
 {
-    "suites": ["tests/unit/**/*.js", "tests/integration/foo.js"]
+  suites: ['tests/unit/**/*.js', 'tests/integration/foo.js']
 }
 ```
 
@@ -139,7 +139,7 @@ Intern also understands glob-based exclusion using the `!` modifier:
 
 ```json5
 {
-    "suites": ["tests/**/*.js", "!tests/functional/**"]
+  suites: ['tests/**/*.js', '!tests/functional/**']
 }
 ```
 
@@ -163,21 +163,21 @@ left.
 
 ```json5
 {
-    "configs": {
-        "a": {
-            /* ... */
-        },
-        "b": {
-            /* ... */
-        },
-        "c": {
-            /* ... */
-        },
-        "d": {
-            "extends": ["a", "c"]
-            /* ... */
-        }
+  configs: {
+    a: {
+      /* ... */
+    },
+    b: {
+      /* ... */
+    },
+    c: {
+      /* ... */
+    },
+    d: {
+      extends: ['a', 'c']
+      /* ... */
     }
+  }
 }
 ```
 
@@ -223,15 +223,15 @@ following data:
 
 ```json5
 {
-    "description": "Default test suite",
-    "configs": {
-        "webdriver": {
-            "description": "Run webdriver tests"
-        },
-        "ci": {
-            "description": "Run tests on a CI server"
-        }
+  description: 'Default test suite',
+  configs: {
+    webdriver: {
+      description: 'Run webdriver tests'
+    },
+    ci: {
+      description: 'Run tests on a CI server'
     }
+  }
 }
 ```
 
@@ -254,40 +254,40 @@ be serializable (RegExp objects are serialized to strings).
 
 ```json5
 {
-    // General properties
-    "bail": false,
-    "baseline": false,
-    "suites": ["tests/unit/*.js"],
+  // General properties
+  bail: false,
+  baseline: false,
+  suites: ['tests/unit/*.js'],
 
-    // Browser and node specific resources
-    "browser": {
-        "suites": ["tests/unit/dom_stuff.js"]
-    },
-    "node": {
-        "suites": ["tests/unit/dom_stuff.js"]
-    },
+  // Browser and node specific resources
+  browser: {
+    suites: ['tests/unit/dom_stuff.js']
+  },
+  node: {
+    suites: ['tests/unit/dom_stuff.js']
+  },
 
-    "configs": {
-        // Child configs have the same structure as the main config
-        "ci": {
-            "bail": true,
-            "suites+": ["tests/unit/other.js"]
-        }
+  configs: {
+    // Child configs have the same structure as the main config
+    ci: {
+      bail: true,
+      'suites+': ['tests/unit/other.js']
     }
+  }
 }
 ```
 
 There are four general sections to a config:
 
-*   **General properties**: this includes everything but "browser", "configs",
-    and "node"
-*   **Node-specific resources**: resource properties ("loader", "plugins",
-    "reporters", "suites") that apply only to Node environments.
-*   **Browser-specific resources**: resource properties ("loader", "plugins",
-    "reporters", "suites") that apply only to browser environments.
-*   **Child configs**: named configs in the "configs" object; each of these can
-    have any config properties except "configs" (i.e., general properties, Node
-    resources, and browser resources).
+- **General properties**: this includes everything but "browser", "configs", and
+  "node"
+- **Node-specific resources**: resource properties ("loader", "plugins",
+  "reporters", "suites") that apply only to Node environments.
+- **Browser-specific resources**: resource properties ("loader", "plugins",
+  "reporters", "suites") that apply only to browser environments.
+- **Child configs**: named configs in the "configs" object; each of these can
+  have any config properties except "configs" (i.e., general properties, Node
+  resources, and browser resources).
 
 ## Sources of configuration information
 
@@ -308,8 +308,8 @@ An Intern config file is a JSON file specifying config properties, for example:
 
 ```json5
 {
-    "environments": [{ "browserName": "chrome" }],
-    "suites": ["tests/unit/all.js"]
+  environments: [{ browserName: 'chrome' }],
+  suites: ['tests/unit/all.js']
 }
 ```
 
@@ -403,9 +403,9 @@ using NPM.
 
 ```json5
 {
-    "browser": {
-        "loader": "dojo"
-    }
+  browser: {
+    loader: 'dojo'
+  }
 }
 ```
 
@@ -414,12 +414,12 @@ are passed through to the registered loader script.
 
 ```json5
 {
-    "browser": {
-        "loader": {
-            "script": "./support/my/custom/loader.js",
-            "options": { "basePath": "_build" }
-        }
+  browser: {
+    loader: {
+      script: './support/my/custom/loader.js',
+      options: { basePath: '_build' }
     }
+  }
 }
 ```
 
@@ -440,17 +440,17 @@ with the configured loader. Any number of plugins may be added to Intern.
 
 ```json5
 {
-    "plugins": [
-        "node_modules/babel-register/lib/node.js",
-        {
-            "script": "tests/support/mongodbAccess.js",
-            "options": { "dbUrl": "https://testdb.local" }
-        },
-        {
-            "script": "tests/support/dojoMocking.js",
-            "useLoader": true
-        }
-    ]
+  plugins: [
+    'node_modules/babel-register/lib/node.js',
+    {
+      script: 'tests/support/mongodbAccess.js',
+      options: { dbUrl: 'https://testdb.local' }
+    },
+    {
+      script: 'tests/support/dojoMocking.js',
+      useLoader: true
+    }
+  ]
 }
 ```
 
@@ -524,27 +524,47 @@ There are a few exceptions:
     **capabilities**.
 
 [bail]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/bail
-[baseline]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/baseline
-[benchmark]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/benchmark
-[capabilities]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/capabilities
-[coverage]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/coverage
+[baseline]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/baseline
+[benchmark]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/benchmark
+[capabilities]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/capabilities
+[coverage]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/coverage
 [debug]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/debug
-[defaulttimeout]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/defaulttimeout
-[environments]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/environments
+[defaulttimeout]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/defaulttimeout
+[environments]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/environments
 [extends]: #extends
-[filtererrorstack]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/filtererrorstack
-[functionalsuites]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/functionalsuites
-[functionaltimeouts]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/functionaltimeouts
+[filtererrorstack]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/filtererrorstack
+[functionalsuites]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/functionalsuites
+[functionaltimeouts]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/functionaltimeouts
 [grep]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/grep
-[leaveremoteopen]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/leaveremoteopen
+[leaveremoteopen]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/leaveremoteopen
 [loader scripts]: https://github.com/theintern/intern/tree/master/src/loaders
-[loader]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/loader
-[maxconcurrency]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/maxconcurrency
-[plugins]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/plugins
-[reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/reporters
-[serveonly]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/serveonly
-[serverport]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/serverport
-[serverurl]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/serverurl
-[suites]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/suites
-[tunnel]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/tunnel
-[tunneloptions]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/tunneloptions
+[loader]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/loader
+[maxconcurrency]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/maxconcurrency
+[plugins]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/plugins
+[reporters]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/reporters
+[serveonly]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/serveonly
+[serverport]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/serverport
+[serverurl]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/serverurl
+[suites]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/suites
+[tunnel]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/tunnel
+[tunneloptions]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/tunneloptions

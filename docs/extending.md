@@ -32,9 +32,9 @@ might look like:
 
 ```ts
 intern.registerPlugin('dbaccess', async options => {
-    const connect = promisify(MongoClient.connect);
-    const db = await connect(options.dbUrl);
-    return { db };
+  const connect = promisify(MongoClient.connect);
+  const db = await connect(options.dbUrl);
+  return { db };
 });
 ```
 
@@ -50,7 +50,7 @@ TypeScript modules directly (in Node only):
 
 ```json5
 {
-    "plugins": "node_modules/ts-node/register/index.js"
+  plugins: 'node_modules/ts-node/register/index.js'
 }
 ```
 
@@ -70,9 +70,9 @@ shouldn’t do this:
 ```ts
 // tests/plugin.js
 System.import('some_module').then(function(module) {
-    intern.registerPlugin('foo', function() {
-        return module;
-    });
+  intern.registerPlugin('foo', function() {
+    return module;
+  });
 });
 ```
 
@@ -81,7 +81,7 @@ Instead, do this:
 ```ts
 // tests/plugin.js
 intern.registerPlugin('foo', function() {
-    return System.import('some_module');
+  return System.import('some_module');
 });
 ```
 
@@ -93,7 +93,7 @@ Code that needs to run before or after the testing process can run in
 ```ts
 // tests/setup.ts
 intern.on('beforeRun', () => {
-    // code
+  // code
 });
 ```
 
@@ -101,7 +101,7 @@ To load this module using ts-node:
 
 ```json5
 {
-    "plugins": ["node_modules/ts-node/register/index.js", "tests/setup.ts"]
+  plugins: ['node_modules/ts-node/register/index.js', 'tests/setup.ts']
 }
 ```
 
@@ -117,13 +117,33 @@ that displays test results to the console could be as simple as:
 ```ts
 // tests/myReporter.ts
 intern.on('testEnd', test => {
-    if (test.skipped) {
-        console.log(`${test.id} skipped`);
-    } else if (test.error) {
-        console.log(`${test.id} failed`);
-    } else {
-        console.log(`${test.id} passed`);
-    }
+  if (test.skipped) {
+    console.log(`${test.id} skipped`);
+  } else if (test.error) {
+    console.log(`${test.id} failed`);
+  } else {
+    console.log(`${test.id} passed`);
+  }
+});
+```
+
+If the reporter needs a bit more config, or needs to take some async action
+during initialization, it can use the `registerPlugin` mechanism:
+
+```ts
+intern.registerPlugin('myReporter', options => {
+  return fetch(options.template).then(templateSource => {
+    const template = JSON.parse(templateSource);
+    intern.on('testEnd', test => {
+      if (test.skipped) {
+        console.log(template.skipped.replace(/{test}/, test.id));
+      } else if (test.error) {
+        console.log(template.error.replace(/{test}/, test.id));
+      } else {
+        console.log(template.passed.replace(/{test}/, test.id));
+      }
+    });
+  });
 });
 ```
 
@@ -131,20 +151,21 @@ Load the reporter as a plugin:
 
 ```json5
 {
-    "plugins": "_build/tests/myReporter.js"
+  plugins: '_build/tests/myReporter.js'
 }
 ```
 
-If a reporter takes options, they can be passed through the `plugins` property:
+If a reporter takes options, they can be passed through an `options` property on
+a plugin descriptor:
 
 ```json5
 {
-    "plugins": {
-        "script": "_build/tests/myReporter.js",
-        "options": {
-            "filename": "report.txt"
-        }
+  plugins: {
+    script: '_build/tests/myReporter.js',
+    options: {
+      filename: 'report.txt'
     }
+  }
 }
 ```
 
@@ -170,30 +191,30 @@ import intern from '../../intern';
 let currentSuite;
 
 export function suite(name, factory) {
-    if (!currentSuite) {
-        executor.addSuite(parent => {
-            currentSuite = parent;
-            registerSuite(name, factory);
-            currentSuite = null;
-        });
-    } else {
-        registerSuite(name, factory);
-    }
+  if (!currentSuite) {
+    executor.addSuite(parent => {
+      currentSuite = parent;
+      registerSuite(name, factory);
+      currentSuite = null;
+    });
+  } else {
+    registerSuite(name, factory);
+  }
 }
 
 export function test(name, test) {
-    if (!currentSuite) {
-        throw new Error('A test must be declared within a suite');
-    }
-    currentSuite.add(new Test({ name, test }));
+  if (!currentSuite) {
+    throw new Error('A test must be declared within a suite');
+  }
+  currentSuite.add(new Test({ name, test }));
 }
 
 function registerSuite(name, factory) {
-    const parent = currentSuite!;
-    currentSuite = new Suite({ name, parent });
-    parent.add(currentSuite);
-    factory(currentSuite);
-    currentSuite = parent;
+  const parent = currentSuite!;
+  currentSuite = new Suite({ name, parent });
+  parent.add(currentSuite);
+  factory(currentSuite);
+  currentSuite = parent;
 }
 ```
 
@@ -229,56 +250,61 @@ script is standalone (i.e., not a module itself). For example, the built-in
 
 ```ts
 intern.registerLoader(options => {
-    const globalObj: any = typeof window !== 'undefined' ? window : global;
+  const globalObj: any = typeof window !== 'undefined' ? window : global;
 
-    options.baseUrl = options.baseUrl || intern.config.basePath;
-    if (!('async' in options)) {
-        options.async = true;
-    }
+  options.baseUrl = options.baseUrl || intern.config.basePath;
+  if (!('async' in options)) {
+    options.async = true;
+  }
 
-    // Setup the loader config
-    globalObj.dojoConfig = loaderConfig;
+  // Setup the loader config
+  globalObj.dojoConfig = loaderConfig;
 
-    // Load the loader using intern.loadScript, which loads simple scripts via injection
-    return intern.loadScript('node_modules/dojo/dojo.js').then(() => {
-        const require = globalObj.require;
+  // Load the loader using intern.loadScript, which loads simple scripts via injection
+  return intern.loadScript('node_modules/dojo/dojo.js').then(() => {
+    const require = globalObj.require;
 
-        // Return a function that can be used to load modules with the loader
-        return (modules: string[]) => {
-            let handle: { remove(): void };
+    // Return a function that can be used to load modules with the loader
+    return (modules: string[]) => {
+      let handle: { remove(): void };
 
-            return new Promise<void>((resolve, reject) => {
-                handle = require.on('error', (error: Error) => {
-                    intern.emit('error', error);
-                    reject(new Error(`Dojo loader error: ${error.message}`));
-                });
+      return new Promise<void>((resolve, reject) => {
+        handle = require.on('error', (error: Error) => {
+          intern.emit('error', error);
+          reject(new Error(`Dojo loader error: ${error.message}`));
+        });
 
-                // The module loader function doesn't return modules, it just loads them
-                require(modules, () => {
-                    resolve();
-                });
-            }).then(
-                () => {
-                    handle.remove();
-                },
-                error => {
-                    handle && handle.remove();
-                    throw error;
-                }
-            );
-        };
-    });
+        // The module loader function doesn't return modules, it just loads them
+        require(modules, () => {
+          resolve();
+        });
+      }).then(
+        () => {
+          handle.remove();
+        },
+        error => {
+          handle && handle.remove();
+          throw error;
+        }
+      );
+    };
+  });
 });
 ```
 
 See [configuring loaders](configuration.md#configuring-loaders) for more
 information about how to load and pass options to a custom loader.
 
-[afterrun]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/afterrun
-[beforerun]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/beforerun
-[events]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/events
-[plugins]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/plugins
-[reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/reporters
+[afterrun]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/afterrun
+[beforerun]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/beforerun
+[events]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/events
+[plugins]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/plugins
+[reporters]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/reporters
 [suite]: https://theintern.io/docs.html#Intern/4/api/lib%2FSuite
 [test]: https://theintern.io/docs.html#Intern/4/api/lib%2FTest
 [tdd]: https://theintern.io/docs.html#Intern/4/api/lib%2Finterfaces%2Ftdd

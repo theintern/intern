@@ -16,9 +16,8 @@
 Executors are the core of Intern. They manage the testing process, including
 emitting events for test lifecycle events. There are two executors:
 
-*   **Node**: Runs unit tests in Node and WebDriver tests against remote
-    browsers
-*   **Browser**: Runs unit tests in a browser
+- **Node**: Runs unit tests in Node and WebDriver tests against remote browsers
+- **Browser**: Runs unit tests in a browser
 
 In typical usage a user will not directly load an executor. Instead, a runner
 script will load the executor and any configuration data provided by the user,
@@ -61,7 +60,7 @@ environment in some way (e.g., `babel-register`).
 ```ts
 // tests/plugin.js
 intern.on('beforeRun', function() {
-    // ...
+  // ...
 });
 ```
 
@@ -81,7 +80,7 @@ other module:
 ```ts
 const { registerSuite } = require('intern/lib/interfaces/object');
 registerSuite({
-    // ...
+  // ...
 });
 ```
 
@@ -91,7 +90,7 @@ interfaces available through its plugin system:
 ```ts
 const { registerSuite } = intern.getPlugin('interface.object');
 registerSuite({
-    // ...
+  // ...
 });
 ```
 
@@ -104,15 +103,15 @@ be a “reporter”. A reporter can be as simple as:
 ```ts
 // myReporter.ts
 intern.on('testEnd', test => {
-    if (test.error) {
-        console.error(`FAIL: ${test.id}`);
-    } else if (test.skip) {
-        console.log(`SKIP: ${test.id}`);
-    } else if (test.hasPassed) {
-        console.log(`PASS: ${test.id}`);
-    } else {
-        console.log(`NOT RUN: ${test.id}`);
-    }
+  if (test.error) {
+    console.error(`FAIL: ${test.id}`);
+  } else if (test.skip) {
+    console.log(`SKIP: ${test.id}`);
+  } else if (test.hasPassed) {
+    console.log(`PASS: ${test.id}`);
+  } else {
+    console.log(`NOT RUN: ${test.id}`);
+  }
 });
 ```
 
@@ -120,4 +119,5 @@ Intern includes a number of built-in reporters that can be enabled using the
 [reporters] config option. User reporters should be loaded as normal plugins;
 there is no need to use the `reporters` option.
 
-[reporters]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/reporters
+[reporters]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/reporters

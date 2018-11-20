@@ -11,30 +11,30 @@ between types of tests in more detail.
 * [Organization](#organization)
 * [The test lifecycle](#the-test-lifecycle)
 * [Interfaces](#interfaces)
-    * [Object](#object)
-        * [Nesting suites](#nesting-suites)
-        * [Shared data](#shared-data)
-    * [TDD](#tdd)
-    * [BDD](#bdd)
-    * [Benchmark](#benchmark)
-    * [Native](#native)
+  * [Object](#object)
+    * [Nesting suites](#nesting-suites)
+    * [Shared data](#shared-data)
+  * [TDD](#tdd)
+  * [BDD](#bdd)
+  * [Benchmark](#benchmark)
+  * [Native](#native)
 * [Assertions](#assertions)
-    * [assert](#assert)
-    * [expect](#expect)
-    * [should](#should)
+  * [assert](#assert)
+  * [expect](#expect)
+  * [should](#should)
 * [Unit tests](#unit-tests)
-    * [Testing asynchronous code](#testing-asynchronous-code)
-    * [Skipping tests at runtime](#skipping-tests-at-runtime)
-    * [Test and suite context](#test-and-suite-context)
-    * [Environment](#environment)
+  * [Testing asynchronous code](#testing-asynchronous-code)
+  * [Skipping tests at runtime](#skipping-tests-at-runtime)
+  * [Test and suite context](#test-and-suite-context)
+  * [Environment](#environment)
 * [Benchmark tests](#benchmark-tests)
 * [Functional tests](#functional-tests)
-    * [Page objects](#page-objects)
-    * [Testing native apps](#testing-native-apps)
-        * [Appium](#appium)
-        * [ios-driver](#ios-driver)
-        * [Selendroid](#selendroid)
-    * [Debugging](#debugging)
+  * [Page objects](#page-objects)
+  * [Testing native apps](#testing-native-apps)
+    * [Appium](#appium)
+    * [ios-driver](#ios-driver)
+    * [Selendroid](#selendroid)
+  * [Debugging](#debugging)
 
 <!-- vim-markdown-toc -->
 
@@ -47,14 +47,14 @@ used to load suites, an individual suite file would be an AMD or UMD module:
 
 ```js
 define(['app/Component'], function(Component) {
-    const { assert } = intern.getPlugin('chai');
-    const { registerSuite } = intern.getPlugin('interface.object');
+  const { assert } = intern.getPlugin('chai');
+  const { registerSuite } = intern.getPlugin('interface.object');
 
-    registerSuite('Component', {
-        'create new'() {
-            assert.doesNotThrow(() => new Component());
-        }
-    });
+  registerSuite('Component', {
+    'create new'() {
+      assert.doesNotThrow(() => new Component());
+    }
+  });
 });
 ```
 
@@ -68,9 +68,9 @@ const { assert } = intern.getPlugin('chai');
 const { registerSuite } = intern.getPlugin('interface.object');
 
 registerSuite('Component', {
-    'create new'() {
-        assert.doesNotThrow(() => new Component());
-    }
+  'create new'() {
+    assert.doesNotThrow(() => new Component());
+  }
 });
 ```
 
@@ -78,13 +78,13 @@ registerSuite('Component', {
 
 When tests are executed, the test system follows a specific lifecycle:
 
-*   For each registered root suite...
-    *   The suite’s `before` method is called, if it exists
-    *   For each test within the suite...
-        *   The suite’s `beforeEach` method is called, if it exists
-        *   The test function is called
-        *   The suite’s `afterEach` method is called, if it exists
-    *   The suite’s `after` method is called, if it exists
+- For each registered root suite...
+  - The suite’s `before` method is called, if it exists
+  - For each test within the suite...
+    - The suite’s `beforeEach` method is called, if it exists
+    - The test function is called
+    - The suite’s `afterEach` method is called, if it exists
+  - The suite’s `after` method is called, if it exists
 
 For nested suites, `beforeEach` lifecycle methods are run from the outside in;
 first the outermost parent’s `beforeEach` is run, then the next level in, and so
@@ -98,51 +98,51 @@ Given the following test module...
 const { registerSuite } = intern.getPlugin('interface.object');
 
 registerSuite({
-    before() {
-        console.log('outer before');
-    },
+  before() {
+    console.log('outer before');
+  },
 
-    beforeEach() {
-        console.log('outer beforeEach');
-    },
+  beforeEach() {
+    console.log('outer beforeEach');
+  },
 
-    afterEach() {
-        console.log('outer afterEach');
-    },
+  afterEach() {
+    console.log('outer afterEach');
+  },
 
-    after() {
-        console.log('outer after');
-    },
+  after() {
+    console.log('outer after');
+  },
 
-    tests: {
-        'inner suite': {
-            before() {
-                console.log('inner before');
-            },
-            beforeEach() {
-                console.log('inner beforeEach');
-            },
-            afterEach() {
-                console.log('inner afterEach');
-            },
-            after() {
-                console.log('inner after');
-            },
+  tests: {
+    'inner suite': {
+      before() {
+        console.log('inner before');
+      },
+      beforeEach() {
+        console.log('inner beforeEach');
+      },
+      afterEach() {
+        console.log('inner afterEach');
+      },
+      after() {
+        console.log('inner after');
+      },
 
-            tests: {
-                'test A'() {
-                    console.log('inner test A');
-                },
-                'test B'() {
-                    console.log('inner test B');
-                }
-            }
+      tests: {
+        'test A'() {
+          console.log('inner test A');
         },
-
-        'test C': function() {
-            console.log('outer test C');
+        'test B'() {
+          console.log('inner test B');
         }
+      }
+    },
+
+    'test C': function() {
+      console.log('outer test C');
     }
+  }
 });
 ```
 
@@ -190,15 +190,15 @@ suite is a simple object, and tests are functions on that object.
 const { registerSuite } = intern.getPlugin('interface.object');
 
 registerSuite('Component', {
-    'create new'() {
-        assert.doesNotThrow(() => new Component());
-    },
+  'create new'() {
+    assert.doesNotThrow(() => new Component());
+  },
 
-    'update values'() {
-        const component = new Component();
-        component.update({ value: 20 });
-        assert.equal(component.children[0].value, 20);
-    }
+  'update values'() {
+    const component = new Component();
+    component.update({ value: 20 });
+    assert.equal(component.children[0].value, 20);
+  }
 });
 ```
 
@@ -273,20 +273,20 @@ of the shared variables. Do this:
 
 ```ts
 registerSuite('foo', () => {
-    let counter = 0;
-    let app;
+  let counter = 0;
+  let app;
 
-    return {
-        before() {
-            app = new App(counter++);
-        },
+  return {
+    before() {
+      app = new App(counter++);
+    },
 
-        tests: {
-            'validate counter'() {
-                assert.strictEqual(app.id, counter - 1);
-            }
-        }
-    };
+    tests: {
+      'validate counter'() {
+        assert.strictEqual(app.id, counter - 1);
+      }
+    }
+  };
 });
 ```
 
@@ -297,15 +297,15 @@ let counter = 0;
 let app;
 
 registerSuite('foo', {
-    before() {
-        app = new App(counter++);
-    },
+  before() {
+    app = new App(counter++);
+  },
 
-    tests: {
-        'validate counter'() {
-            assert.strictEqual(app.id, counter - 1);
-        }
+  tests: {
+    'validate counter'() {
+      assert.strictEqual(app.id, counter - 1);
     }
+  }
 });
 ```
 
@@ -349,15 +349,15 @@ const { suite, test } = intern.getPlugin('interface.tdd');
 const { assert } = intern.getPlugin('chai');
 
 suite('Component', () => {
-    test('create new', () => {
-        assert.doesNotThrow(() => new Component());
-    });
+  test('create new', () => {
+    assert.doesNotThrow(() => new Component());
+  });
 
-    test('update values', () => {
-        const component = new Component();
-        component.update({ value: 20 });
-        assert.equal(component.children[0].value, 20);
-    });
+  test('update values', () => {
+    const component = new Component();
+    component.update({ value: 20 });
+    assert.equal(component.children[0].value, 20);
+  });
 });
 ```
 
@@ -366,11 +366,11 @@ calling `suite` within a test function isn't supported.
 
 ```ts
 suite('Component', () => {
-    test('create new', () => {});
+  test('create new', () => {});
 
-    suite('sub suite', () => {
-        test('test1', () => {});
-    });
+  suite('sub suite', () => {
+    test('test1', () => {});
+  });
 });
 ```
 
@@ -380,15 +380,15 @@ lifecycle method to be added to a single suite. For example, a suite may call
 
 ```ts
 suite('Component', () => {
-    before(() => {
-        // Setup code
-    });
+  before(() => {
+    // Setup code
+  });
 
-    before(() => {
-        // Additional setup code
-    });
+  before(() => {
+    // Additional setup code
+  });
 
-    // ...
+  // ...
 });
 ```
 
@@ -403,15 +403,15 @@ const { describe, it } = intern.getPlugin('interface.bdd');
 const { assert } = intern.getPlugin('chai');
 
 describe('Component', () => {
-    it('should not throw when created', () => {
-        assert.doesNotThrow(() => new Component());
-    });
+  it('should not throw when created', () => {
+    assert.doesNotThrow(() => new Component());
+  });
 
-    it('should render updated values', () => {
-        const component = new Component();
-        component.update({ value: 20 });
-        assert.equal(component.children[0].value, 20);
-    });
+  it('should render updated values', () => {
+    const component = new Component();
+    component.update({ value: 20 });
+    assert.equal(component.children[0].value, 20);
+  });
 });
 ```
 
@@ -510,16 +510,16 @@ the given suite using the suite’s `add` method.
 
 ```ts
 intern.addSuite(parent => {
-    const suite = new Suite({
-        name: 'create new',
-        tests: [
-            new Test({
-                name: 'new test',
-                test: () => assert.doesNotThrow(() => new Component())
-            })
-        ]
-    });
-    parent.add(suite);
+  const suite = new Suite({
+    name: 'create new',
+    tests: [
+      new Test({
+        name: 'new test',
+        test: () => assert.doesNotThrow(() => new Component())
+      })
+    ]
+  });
+  parent.add(suite);
 });
 ```
 
@@ -640,33 +640,33 @@ import { promisify } from 'util';
 const get = promisify(_get);
 
 registerSuite('async demo', {
-    'async test'() {
-        const dfd = this.async();
-        get(
-            'http://example.com/test.txt',
-            dfd.callback((error, data) => {
-                if (error) {
-                    throw error;
-                }
-                assert.strictEqual(data, 'Hello world!');
-            })
-        );
-    },
+  'async test'() {
+    const dfd = this.async();
+    get(
+      'http://example.com/test.txt',
+      dfd.callback((error, data) => {
+        if (error) {
+          throw error;
+        }
+        assert.strictEqual(data, 'Hello world!');
+      })
+    );
+  },
 
-    'Promise test'() {
-        return get('http://example.com/test.txt').then(data =>
-            assert.strictEqual(data, 'Hello world!')
-        );
-    }
+  'Promise test'() {
+    return get('http://example.com/test.txt').then(data =>
+      assert.strictEqual(data, 'Hello world!')
+    );
+  }
 });
 ```
 
 If the Deferred or Promise takes too long to resolve, the test will timeout
 (which is considered a failure). The timeout can be adjusted by
 
-*   passing a new timeout value to `async`
-*   by setting the test’s `timeout` property
-*   by changing [defaultTimeout] in the test config
+- passing a new timeout value to `async`
+- by setting the test’s `timeout` property
+- by changing [defaultTimeout] in the test config
 
 All are values in milliseconds.
 
@@ -688,13 +688,13 @@ reason.
 
 ```ts
 registerSuite('skip demo', {
-    'skip test'() {
-        if (typeof window === 'undefined') {
-            this.skip('browser-only test');
-        }
-
-        // ...
+  'skip test'() {
+    if (typeof window === 'undefined') {
+      this.skip('browser-only test');
     }
+
+    // ...
+  }
 });
 ```
 
@@ -713,9 +713,9 @@ tests and suites by ID.
 ```json5
 // intern.json
 {
-    "suites": "tests/unit/*.js",
-    // Only tests with "skip demo" in their ID will be run
-    "grep": "skip demo"
+  suites: 'tests/unit/*.js',
+  // Only tests with "skip demo" in their ID will be run
+  grep: 'skip demo'
 }
 ```
 
@@ -730,14 +730,14 @@ Consider the following case that uses the TDD interface:
 
 ```ts
 test('update values', function() {
-    const dfd = this.async();
-    const component = new Component();
-    component.update(
-        { value: 20 },
-        dfd.callback(error => {
-            assert.equal(component.children[0].value, 20);
-        })
-    );
+  const dfd = this.async();
+  const component = new Component();
+  component.update(
+    { value: 20 },
+    dfd.callback(error => {
+      assert.equal(component.children[0].value, 20);
+    })
+  );
 });
 ```
 
@@ -751,8 +751,8 @@ This manner of calling test methods doesn’t work so well with arrow functions:
 
 ```ts
 test('update values', () => {
-    const dfd = this.async(); // <--- Problem -- this isn't bound to the Test!
-    // ...
+  const dfd = this.async(); // <--- Problem -- this isn't bound to the Test!
+  // ...
 });
 ```
 
@@ -764,8 +764,8 @@ callback functions, and as the second argument to `beforeEach` and `afterEach`.
 
 ```ts
 test('update values', test => {
-    const dfd = test.async();
-    // ...
+  const dfd = test.async();
+  // ...
 });
 ```
 
@@ -800,17 +800,17 @@ benchmark suites will be ignored.
 
 The benchmark test lifecycle is very similar to the standard test lifecycle:
 
-*   For each registered root suite...
-    *   The suite’s `before` method is called, if it exists
-    *   For each test within the suite...
-        *   The suite’s `beforeEach` method is called, if it exists
-        *   The benchmark is started. The test function will be called many
-            times in a “test loop”. For each execution of the test loop...
-            *   The beforeEachLoop method of the suite is called, if it exists
-            *   The test function is called
-            *   The afterEachLoop method of the suite is called, if it exists
-        *   The suite’s `afterEach` method is called, if it exists
-    *   The suite’s `after` method is called, if it exists
+- For each registered root suite...
+  - The suite’s `before` method is called, if it exists
+  - For each test within the suite...
+    - The suite’s `beforeEach` method is called, if it exists
+    - The benchmark is started. The test function will be called many times in a
+      “test loop”. For each execution of the test loop...
+      - The beforeEachLoop method of the suite is called, if it exists
+      - The test function is called
+      - The afterEachLoop method of the suite is called, if it exists
+    - The suite’s `afterEach` method is called, if it exists
+  - The suite’s `after` method is called, if it exists
 
 ## Functional tests
 
@@ -889,23 +889,23 @@ functions that return callback functions, like the following:
 ```ts
 // loginPage.ts
 export function login(username: string, password: string) {
-    return function() {
-        return this.parent
-            .findById('login')
-            .click()
-            .type(username)
-            .end()
-            .findById('password')
-            .click()
-            .type(password)
-            .end()
-            .findById('loginButton')
-            .click()
-            .end()
-            .setFindTimeout(5000)
-            .findById('loginSuccess')
-            .end();
-    };
+  return function() {
+    return this.parent
+      .findById('login')
+      .click()
+      .type(username)
+      .end()
+      .findById('password')
+      .click()
+      .type(password)
+      .end()
+      .findById('loginButton')
+      .click()
+      .end()
+      .setFindTimeout(5000)
+      .findById('loginSuccess')
+      .end();
+  };
 }
 ```
 
@@ -918,21 +918,21 @@ and use the return value for a `then` callback:
 import { login } from './pages/loginPage.ts';
 
 registerSuite('product page', {
-    'buy product'() {
-        return (
-            this.remote
-                .get('https://mysite.local')
-                .then(login(username, password))
+  'buy product'() {
+    return (
+      this.remote
+        .get('https://mysite.local')
+        .then(login(username, password))
 
-                // now buy the product
-                .findById('product-1')
-                .click()
-                .end()
-        );
-        // ...
-    }
-
+        // now buy the product
+        .findById('product-1')
+        .click()
+        .end()
+    );
     // ...
+  }
+
+  // ...
 });
 ```
 
@@ -956,13 +956,13 @@ or APK using the app key in your [environments] configuration:
 
 ```json5
 {
-    "environments": [
-        {
-            "platformName": "iOS",
-            "app": "testapp.ipa",
-            "fixSessionCapabilities": false
-        }
-    ]
+  environments: [
+    {
+      platformName: 'iOS',
+      app: 'testapp.ipa',
+      fixSessionCapabilities: false
+    }
+  ]
 }
 ```
 
@@ -972,20 +972,20 @@ device:
 
 ```json5
 {
-    "environments": [
-        {
-            "platformName": "iOS",
-            "bundleId": "com.example.TestApp",
-            "udid": "da39a3ee5e...",
-            "fixSessionCapabilities": false
-        },
-        {
-            "platformName": "Android",
-            "appActivity": "MainActivity",
-            "appPackage": "com.example.TestApp",
-            "fixSessionCapabilities": false
-        }
-    ]
+  environments: [
+    {
+      platformName: 'iOS',
+      bundleId: 'com.example.TestApp',
+      udid: 'da39a3ee5e...',
+      fixSessionCapabilities: false
+    },
+    {
+      platformName: 'Android',
+      appActivity: 'MainActivity',
+      appPackage: 'com.example.TestApp',
+      fixSessionCapabilities: false
+    }
+  ]
 }
 ```
 
@@ -1011,16 +1011,16 @@ Then, pass the bundle ID and version using the `CFBundleName` and
 
 ```json5
 {
-    "environments": [
-        {
-            "device": "iphone",
-            "CFBundleName": "TestApp",
-            "CFBundleVersion": "1.0.0",
-            // required for ios-driver to use iOS Simulator
-            "simulator": true,
-            "fixSessionCapabilities": false
-        }
-    ]
+  environments: [
+    {
+      device: 'iphone',
+      CFBundleName: 'TestApp',
+      CFBundleVersion: '1.0.0',
+      // required for ios-driver to use iOS Simulator
+      simulator: true,
+      fixSessionCapabilities: false
+    }
+  ]
 }
 ```
 
@@ -1042,13 +1042,13 @@ Then, pass the Android app ID of the application using the `aut` key in your
 
 ```json5
 {
-    "environments": [
-        {
-            "automationName": "selendroid",
-            "aut": "com.example.testapp:1.0.0",
-            "fixSessionCapabilities": false
-        }
-    ]
+  environments: [
+    {
+      automationName: 'selendroid',
+      aut: 'com.example.testapp:1.0.0',
+      fixSessionCapabilities: false
+    }
+  ]
 }
 ```
 
@@ -1072,12 +1072,16 @@ options.
 4.  Continue execution (F8). The tests will run to the debugger statement.
 5.  Debug!
 
-[benchmark]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/benchmark
+[benchmark]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/benchmark
 [benchmark.js]: https://benchmarkjs.com
-[defaulttimeout]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/defaulttimeout
+[defaulttimeout]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/defaulttimeout
 [environments]: ./configuration.md#environments
-[functionalsuites]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/functionalsuites
-[grep]: https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/grep
+[functionalsuites]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/functionalsuites
+[grep]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/grep
 [this.async]: https://theintern.io/docs.html#Intern/4/api/lib%2FTest/async
 [suite]: https://theintern.io/docs.html#Intern/4/api/lib%2FSuite
 [test]: https://theintern.io/docs.html#Intern/4/api/lib%2FTest

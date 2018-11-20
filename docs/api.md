@@ -3,34 +3,36 @@
 <!-- vim-markdown-toc GFM -->
 
 * [intern](#intern)
-	* [configure](#configure)
-	* [on](#on)
-	* [run](#run)
+  * [configure](#configure)
+  * [getPlugin](#getplugin)
+  * [on](#on)
+  * [registerPlugin](#registerplugin)
+  * [run](#run)
 * [Interfaces](#interfaces)
-	* [object](#object)
-	* [tdd](#tdd)
-	* [bdd](#bdd)
-	* [benchmark](#benchmark)
+  * [object](#object)
+  * [tdd](#tdd)
+  * [bdd](#bdd)
+  * [benchmark](#benchmark)
 * [Assertions](#assertions)
 * [Suite](#suite)
-	* [error](#error)
-	* [id](#id)
-	* [name](#name)
-	* [remote](#remote)
-	* [skip](#skip)
-	* [skipped](#skipped)
-	* [timeElapsed](#timeelapsed)
+  * [error](#error)
+  * [id](#id)
+  * [name](#name)
+  * [remote](#remote)
+  * [skip](#skip)
+  * [skipped](#skipped)
+  * [timeElapsed](#timeelapsed)
 * [Test](#test)
-	* [async](#async)
-	* [error](#error-1)
-	* [hasPassed](#haspassed)
-	* [id](#id-1)
-	* [name](#name-1)
-	* [remote](#remote-1)
-	* [skip](#skip-1)
-	* [skipped](#skipped-1)
-	* [timeElapsed](#timeelapsed-1)
-	* [timeout](#timeout)
+  * [async](#async)
+  * [error](#error-1)
+  * [hasPassed](#haspassed)
+  * [id](#id-1)
+  * [name](#name-1)
+  * [remote](#remote-1)
+  * [skip](#skip-1)
+  * [skipped](#skipped-1)
+  * [timeElapsed](#timeelapsed-1)
+  * [timeout](#timeout)
 
 <!-- vim-markdown-toc -->
 
@@ -55,8 +57,8 @@ containing
 
 ```ts
 intern.configure({
-    suites: 'build/tests/**/*.js',
-    environments: 'chrome'
+  suites: 'build/tests/**/*.js',
+  environments: 'chrome'
 });
 ```
 
@@ -64,6 +66,36 @@ intern.configure({
 configuration will be
 [resolved](http://localhost:6419/docs/configuration.md#configuration-resolution)
 before any plugins or suites are loaded.
+
+### getPlugin
+
+The
+[getPlugin](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/getPlugin)
+method returns any resources exported by a registered plugin. The main purpose
+of this method is to allow resources to be accessed in environments without a
+loader. For example, importing an interface with
+
+```ts
+import { suite, test } from 'intern/lib/interfaces/tdd';
+```
+
+will not work in a browser environment where a module loader is not available,
+but `getPlugin` will work in any environment since it doesn't depend on a
+loader.
+
+```ts
+const { suite, test } = intern.getPlugin('interfaces.tdd');
+```
+
+`getPlugin` is a generic function, so custom plugins can be typed:
+
+```ts
+import { PluginType } from 'tests/support/myPlugin';
+const { foo, bar } = intern.getPlugin<PluginType>('myPlugin');
+```
+
+In the above example, the `PluginType` type is imported from a plugin and used
+for typing when retrieving plugin resources from Intern.
 
 ### on
 
@@ -73,7 +105,7 @@ method is used to register listeners for Intern events.
 
 ```ts
 intern.on('testStart', test => {
-    console.log(`${test.id} has started`);
+  console.log(`${test.id} has started`);
 });
 ```
 
@@ -93,27 +125,68 @@ Intern provides a number of events that code can listen for:
 | testStart  | A test starts                                                                     | test     |
 | testEnd    | A test ends. Check the `error`, `skipped`, and `hasPassed` properties for status. | test     |
 
-> 💡That the payloads passed to event listeners may not be instances of a
-> particular class. For example, the `testEnd` listener may be passed a
-> Test-like object rather than an actual instance of
+> 💡That the payloads passed to event listeners may or may not be actual
+> instances of a particular class. For example, the `testEnd` listener may be
+> passed a Test-like object rather than an actual instance of
 > [Test](https://theintern.io/docs.html#Intern/4/api/lib%2FTest).
 
 Event listeners may be asynchronous.
 
 ```ts
 intern.on('testStart', test => {
-    return new Promise(resolve => {
-        const db = openDbConnection();
-        // An async method to write to a db
-        db.put(test, () => {
-            resolve();
-        });
+  return new Promise(resolve => {
+    const db = openDbConnection();
+    // An async method to write to a db
+    db.put(test, () => {
+      resolve();
     });
+  });
 });
 ```
 
 Multiple listeners may register for an event. They will be called sequentially
 in the order in which they were registered.
+
+### registerPlugin
+
+[registerPlugin](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/registerplugin),
+as it's name suggests, is used to register an extension with Intern. It's
+signature is
+
+```ts
+registerPlugin(name: string, init: PluginInitializer): void;
+```
+
+A
+[PluginInitializer](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/plugininitializer)
+is just a callback that takes an optional `options` argument and returns any
+exported resources, or a Promise that resolves to resources.
+
+```ts
+intern.registerPlugin('foo', options => {
+  return {
+    doSomething() {
+      // ...
+    },
+    doSomethingElse() {
+      // ...
+    }
+  };
+});
+```
+
+Since an initializer may return a promise, it can also be used to initialize
+asynchronous code during Intern's initialization process;
+
+```ts
+intern.registerPlugin(
+  'myplugin',
+  () =>
+    new Promise(resolve => {
+      asyncFunction.then(resolve);
+    })
+);
+```
 
 ### run
 
@@ -121,19 +194,19 @@ The
 [run](https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FExecutor/run)
 method initiates the testing process. It returns a promise that resolves when
 testing is complete. It will reject if there is an error during the testing
-process or any tests fail.
+process or if any tests fail.
 
 ## Interfaces
 
 Interfaces are the primary way that test writers interact with Intern. Intern
-provides 4 interfaces: object, bdd, tdd, and benchmark.
+provides 4 interfaces: **object**, **bdd**, **tdd**, and **benchmark**.
 
 All interfaces support the same set of lifecycle methods:
 
-*   **before** - Run before any tests
-*   **after** - Run after all tests
-*   **beforeEach** - Run before each test
-*   **afterEach** - Run after each test
+- **before** - Run before any tests
+- **after** - Run after all tests
+- **beforeEach** - Run before each test
+- **afterEach** - Run after each test
 
 ### object
 
@@ -143,39 +216,39 @@ const { registerSuite } = intern.getPlugin('interface.object');
 
 The
 [object](https://theintern.io/docs.html#Intern/4/api/lib%2Finterfaces%2Fobject)
-interface is so name because the suite may be described with an object. Simple
-suites can just contain an object of test functions:
+interface allows test suites to be created declaratively using a plain
+JavaScript object. Simple suites can just contain an object of test functions:
 
 ```ts
 registerSuite('Suite name', {
-    test1() {
-        // do something
-    },
+  test1() {
+    // do something
+  },
 
-    test2() {
-        // do somthing
-    }
+  test2() {
+    // do somthing
+  }
 });
 ```
 
 Suites may also register lifecycle callbacks (`beforeEach`, `afterEach`, etc.).
-When these are used, tests must be contained in a `tests` object.
+When these are used, tests must be contained under a `tests` property.
 
 ```ts
 registerSuite('Suite name', {
-    beforeEach() {
-        // test setup
+  beforeEach() {
+    // test setup
+  },
+
+  tests: {
+    test1() {
+      // do something
     },
 
-    tests: {
-        test1() {
-            // do something
-        },
-
-        test2() {
-            // do somthing
-        }
+    test2() {
+      // do somthing
     }
+  }
 });
 ```
 
@@ -214,17 +287,49 @@ interface is callback-driven.
 
 ```ts
 suite('Suite name', () => {
-    beforeEach(() => {
-        // test setup
-    });
+  beforeEach(() => {
+    // test setup
+  });
 
-    test('test1', () => {
-        // do something
-    });
+  test('test1', () => {
+    // do something
+  });
 
-    test('test2', () => {
-        // do something
-    });
+  test('test2', () => {
+    // do something
+  });
+});
+```
+
+This interface is a bit more flexible than the object interface. For example, it
+allows multiple instances of a given lifecycle method to be registered. This can
+be useful when setting up shared functionality between suites:
+
+```ts
+function initSuite() {
+  beforeEach(() => {
+    // do common init
+  });
+}
+
+suite('Suite', () => {
+  initSuite();
+
+  beforeEach(() => {
+    // suite init
+  });
+
+  test('test1', () => {
+    // ...
+  });
+});
+
+suite('Other suite', () => {
+  initSuite();
+
+  test('test1', () => {
+    // ...
+  });
 });
 ```
 
@@ -234,23 +339,23 @@ suite('Suite name', () => {
 const { describe, it, beforeEach } = intern.getPlugin('interface.bdd');
 ```
 
-Other than different terminology, the
-[bdd](https://theintern.io/docs.html#Intern/4/api/lib%2Finterfaces%2Fbdd)
-interface is identical to the tdd interface.
+The [bdd](https://theintern.io/docs.html#Intern/4/api/lib%2Finterfaces%2Fbdd)
+interface is identical to the tdd interface, it just renames the `suite` and
+`test` methods to `describe` and `it`.
 
 ```ts
 describe('Thing', () => {
-    beforeEach(() => {
-        // test setup
-    });
+  beforeEach(() => {
+    // test setup
+  });
 
-    it('should do A', () => {
-        // do something
-    });
+  it('should do A', () => {
+    // do something
+  });
 
-    it('should do b', () => {
-        // do something
-    });
+  it('should do b', () => {
+    // do something
+  });
 });
 ```
 
@@ -265,33 +370,34 @@ The
 interface is modified version of the object interface used to run performance
 benchmark tests. The two differences from object are:
 
-*   Async tests must be wrapped in an `async` function as the standard
-    mechanisms for handling async code don't work with benchmark tests.
-*   Two additional lifecycle methods are supported: `beforeEachLoop` and
-    `afterEachLoop`. A benchmark suite will call each test function many times
-    in a row to evaluate average performance. The standard `beforeEach` and
-    `afterEach` run before and after a benchmark begins. The `*Loop` variations
-    are run before and after each call of the test function.
+- Async tests must be wrapped in an `async` function as the standard mechanisms
+  for handling async code don't work with benchmark tests. Note that this is
+  _not_ the same as the `async` keyword.
+- Two additional lifecycle methods are supported: `beforeEachLoop` and
+  `afterEachLoop`. A benchmark suite will call each test function many times in
+  a row to evaluate average performance. The standard `beforeEach` and
+  `afterEach` run before and after a benchmark begins. The `*Loop` variations
+  are run before and after each call of the test function.
 
 ```ts
 registerSuite('Suite name', {
-    beforeEach() {
-        // test setup
+  beforeEach() {
+    // test setup
+  },
+
+  beforeEachLoop() {
+    // test function call setup
+  },
+
+  tests: {
+    test1() {
+      // do something
     },
 
-    beforeEachLoop() {
-        // test function call setup
-    },
-
-    tests: {
-        test1() {
-            // do something
-        },
-
-        test2: async(dfd => {
-            // do somthing
-        })
-    }
+    test2: async(dfd => {
+      // do somthing
+    })
+  }
 });
 ```
 
@@ -304,9 +410,9 @@ suites as the 'chai' plugin.
 const { assert } = intern.getPlugin('chai');
 
 registerSuite('Suite name', {
-    test1() {
-        assert.isNotNull(someValue);
-    }
+  test1() {
+    assert.isNotNull(someValue);
+  }
 });
 ```
 
@@ -327,9 +433,9 @@ to determine whether a suite has failed.
 
 ```ts
 intern.on('suiteEnd', suite => {
-    if (suite.error) {
-        console.log(`${suite.id} failed: ${suite.error}`);
-    }
+  if (suite.error) {
+    console.log(`${suite.id} failed: ${suite.error}`);
+  }
 });
 ```
 
@@ -340,7 +446,7 @@ the complete ID of a suite.
 
 ```ts
 intern.on('suiteEnd', suite => {
-    console.log(`${suite.id} finished`);
+  console.log(`${suite.id} finished`);
 });
 ```
 
@@ -353,7 +459,7 @@ complete ID.
 
 ```ts
 intern.on('suiteEnd', suite => {
-    console.log(`${suite.name} finished`);
+  console.log(`${suite.name} finished`);
 });
 ```
 
@@ -366,10 +472,10 @@ used to access a remote browser in functional test suites.
 
 ```ts
 registerSuite('Suite', {
-    before() {
-        // Load a page before any tests start
-        return this.remote.get('page.html');
-    }
+  before() {
+    // Load a page before any tests start
+    return this.remote.get('page.html');
+  }
 });
 ```
 
@@ -381,11 +487,11 @@ skipped.
 
 ```ts
 registerSuite({
-    before() {
-        if (condition) {
-            this.skip('Skipping because ...');
-        }
+  before() {
+    if (condition) {
+      this.skip('Skipping because ...');
     }
+  }
 });
 ```
 
@@ -397,9 +503,9 @@ determine whether a suite has been skipped.
 
 ```ts
 intern.on('suiteEnd', suite => {
-    if (suite.skipped) {
-        console.log(`${suite.id} was skipped: ${suite.skipped}`);
-    }
+  if (suite.skipped) {
+    console.log(`${suite.id} was skipped: ${suite.skipped}`);
+  }
 });
 ```
 
@@ -411,7 +517,7 @@ property indicates the time required for the test to run in ms.
 
 ```ts
 intern.on('suiteEnd', suite => {
-    console.log(`${suite.id} ran in ${suite.timeElapsed} ms`);
+  console.log(`${suite.id} ran in ${suite.timeElapsed} ms`);
 });
 ```
 
@@ -449,9 +555,9 @@ determine whether a test has failed.
 
 ```ts
 intern.on('testEnd', test => {
-    if (test.error) {
-        console.log(`${test.id} failed: ${test.error}`);
-    }
+  if (test.error) {
+    console.log(`${test.id} failed: ${test.error}`);
+  }
 });
 ```
 
@@ -464,9 +570,9 @@ whether a test was run successfully.
 
 ```ts
 intern.on('testEnd', test => {
-    if (test.hasPassed) {
-        console.log(`${test.id} passed`);
-    }
+  if (test.hasPassed) {
+    console.log(`${test.id} passed`);
+  }
 });
 ```
 
@@ -477,7 +583,7 @@ the complete ID of a test.
 
 ```ts
 intern.on('testEnd', test => {
-    console.log(`${test.id} finished`);
+  console.log(`${test.id} finished`);
 });
 ```
 
@@ -490,7 +596,7 @@ ID.
 
 ```ts
 intern.on('testEnd', test => {
-    console.log(`${test.name} finished`);
+  console.log(`${test.name} finished`);
 });
 ```
 
@@ -503,12 +609,12 @@ used to access a remote browser in functional tests.
 
 ```ts
 registertest('test', {
-    test1() {
-        return this.remote
-            .get('page.html')
-            .findByCssSelector('.button')
-            .click();
-    }
+  test1() {
+    return this.remote
+      .get('page.html')
+      .findByCssSelector('.button')
+      .click();
+  }
 });
 ```
 
@@ -519,11 +625,11 @@ is called to skip a test.
 
 ```ts
 registertest({
-    test1() {
-        if (condition) {
-            this.skip('Skipping because ...');
-        }
+  test1() {
+    if (condition) {
+      this.skip('Skipping because ...');
     }
+  }
 });
 ```
 
@@ -535,9 +641,9 @@ determine whether a test has been skipped.
 
 ```ts
 intern.on('testEnd', test => {
-    if (test.skipped) {
-        console.log(`${test.id} was skipped: ${test.skipped}`);
-    }
+  if (test.skipped) {
+    console.log(`${test.id} was skipped: ${test.skipped}`);
+  }
 });
 ```
 
@@ -549,7 +655,7 @@ property indicates the time required for the test to run in ms.
 
 ```ts
 intern.on('testEnd', test => {
-    console.log(`${test.id} ran in ${test.timeElapsed} ms`);
+  console.log(`${test.id} ran in ${test.timeElapsed} ms`);
 });
 ```
 
@@ -565,4 +671,10 @@ test1() {
 	this.timeout = 500;
 	// test
 }
+```
+
+}
+
+```
+
 ```
