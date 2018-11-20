@@ -304,7 +304,7 @@ body {
 }
 
 .hidePassed .report {
-	.passed, .skipped {
+	.passed {
 		display: none;
 	}
 }
@@ -322,13 +322,16 @@ body {
 	> * {
 		width: 50%;
 	}
-	
+
 	* {
 		display: inline-block;
 	}
 
 	> :last-child {
 		text-align: right;
+    > * {
+      margin-left: 1em;
+    }
 	}
 }
 

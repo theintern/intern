@@ -42,7 +42,7 @@ export default class Html extends Reporter implements HtmlProperties {
   // ID's of tests that have been processed
   protected _processedTests: any = {};
 
-  protected _failedFilter: any = null;
+  protected _passedFilter: any = null;
   protected _skippedFilter: any = null;
 
   protected _fragment: DocumentFragment;
@@ -93,9 +93,9 @@ export default class Html extends Reporter implements HtmlProperties {
 
     // Create a toggle to only show failed tests
     if (suite.numFailedTests > 0) {
-      this._failedFilter = this._createToggleFilter(
+      this._passedFilter = this._createToggleFilter(
         'hidePassed',
-        'Show only failed tests'
+        'Hide passed tests'
       );
     }
 
@@ -108,7 +108,6 @@ export default class Html extends Reporter implements HtmlProperties {
     }
   }
 
-  private _toggleInstance = 0;
   private _createToggleFilter(className: string, label: string) {
     const document = this.document;
 
@@ -116,20 +115,16 @@ export default class Html extends Reporter implements HtmlProperties {
     toggleFilter.className = `toggleFilter`;
 
     const toggle = document.createElement('input');
-    const id = `toggle-${++this._toggleInstance}`;
-    toggle.id = id;
     toggle.type = 'checkbox';
 
     const toggleLabel = document.createElement('label');
-    toggleLabel.htmlFor = id;
-    toggleLabel.innerHTML = label;
+    toggleLabel.appendChild(toggle);
+    toggleLabel.appendChild(document.createTextNode(label));
 
-    toggleFilter.appendChild(toggle);
     toggleFilter.appendChild(toggleLabel);
 
-    toggle.onclick = function(this: GlobalEventHandlers) {
-      const input = <HTMLInputElement>this;
-      if (input.checked) {
+    toggle.onclick = () => {
+      if (toggle.checked) {
         document.body.className += ` ${className}`;
       } else {
         document.body.className = document.body.className.replace(
@@ -474,8 +469,8 @@ export default class Html extends Reporter implements HtmlProperties {
         }
       });
 
-      if (this._failedFilter) {
-        reportControls.lastElementChild!.appendChild(this._failedFilter);
+      if (this._passedFilter) {
+        reportControls.lastElementChild!.appendChild(this._passedFilter);
       } else {
         const failedNode = document.querySelector('.failed')!;
         addClass(failedNode, 'success');
