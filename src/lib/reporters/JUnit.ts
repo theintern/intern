@@ -136,7 +136,9 @@ class XmlNode {
 function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
   const suiteError = suite.error;
 
-  let childNodes = suite.tests.map(test => createTestNode(test, reporter));
+  const childNodesProvider = () =>
+    suite.tests.map(test => createTestNode(test, reporter));
+  let childNodes: XmlNode[] | undefined;
 
   if (suiteError) {
     const lifecycleMethod = suiteError.lifecycleMethod;
@@ -164,7 +166,7 @@ function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
         break;
       case 'after':
       case 'afterEach':
-        childNodes.push(createLifecycleTestCase());
+        childNodes = [...childNodesProvider(), createLifecycleTestCase()];
         break;
     }
   }
@@ -175,7 +177,7 @@ function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
     skipped: suite.numSkippedTests,
     tests: suite.numTests,
     time: suite.timeElapsed! / 1000,
-    childNodes
+    childNodes: childNodes || childNodesProvider()
   });
 }
 
