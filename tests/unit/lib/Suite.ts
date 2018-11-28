@@ -1,6 +1,6 @@
 import { Task } from '@theintern/common';
 
-import Suite, { SuiteOptions } from 'src/lib/Suite';
+import Suite, { SuiteOptions, LifecycleMethod } from 'src/lib/Suite';
 import Test from 'src/lib/Test';
 import { InternError } from 'src/lib/types';
 
@@ -14,8 +14,6 @@ import {
   ObjectSuiteDescriptor as _ObjectSuiteDescriptor,
   Tests
 } from '../../../src/lib/interfaces/object';
-
-type lifecycleMethod = 'before' | 'beforeEach' | 'afterEach' | 'after';
 
 interface TestWrapper {
   (func: (done: Function) => _TestFunction): _TestFunction;
@@ -55,7 +53,7 @@ function createSuite(options?: Partial<Suite> & { tests?: (Suite | Test)[] }) {
   return new Suite(<SuiteOptions>options);
 }
 
-function createAsyncRejectOnErrorTest(method: lifecycleMethod): _TestFunction {
+function createAsyncRejectOnErrorTest(method: LifecycleMethod): _TestFunction {
   return function() {
     const dfd = this.async(1000);
     const suite = createSuite();
@@ -178,8 +176,14 @@ function createLifecycle(options: any = {}): _TestFunction {
     const suite = new Suite(options);
     const results: (string | number)[] = [];
 
-    ['before', 'beforeEach', 'afterEach', 'after'].forEach(methodName => {
-      const method = <lifecycleMethod>methodName;
+    const lifeCycleMethods: LifecycleMethod[] = [
+      'before',
+      'beforeEach',
+      'afterEach',
+      'after'
+    ];
+
+    lifeCycleMethods.forEach(method => {
       suite[method] = function() {
         results.push(method);
         return Task.resolve();
@@ -225,7 +229,7 @@ function createPromiseTest(testWrapper: TestWrapper) {
 }
 
 function createThrowsTest(
-  method: lifecycleMethod,
+  method: LifecycleMethod,
   options: any = {}
 ): _TestFunction {
   return function() {
@@ -269,6 +273,13 @@ function createThrowsTest(
           thrownError,
           `Error thrown in ${method} should be the error set on suite`
         );
+
+        assert.strictEqual(
+          suite.error!.lifecycleMethod,
+          method,
+          `Error thrown in ${method} should contain the life cycle name`
+        );
+
         assert.strictEqual(
           error,
           thrownError,
@@ -289,7 +300,7 @@ function createThrowsTest(
   };
 }
 
-function createTimeoutTest(method: lifecycleMethod): _TestFunction {
+function createTimeoutTest(method: LifecycleMethod): _TestFunction {
   return function() {
     const dfd = this.async(1000);
     const suite = createSuite();
@@ -340,7 +351,7 @@ function createTimeoutTest(method: lifecycleMethod): _TestFunction {
 /**
  * Verify that lifecycle methods are called with the expected arguments
  */
-function createArgsTest(method: lifecycleMethod): _TestFunction {
+function createArgsTest(method: LifecycleMethod): _TestFunction {
   return function() {
     const suite = createSuite({
       [method]: (...args: any[]) => {
@@ -359,7 +370,7 @@ function createArgsTest(method: lifecycleMethod): _TestFunction {
 }
 
 function createLifecycleTests(
-  name: lifecycleMethod,
+  name: LifecycleMethod,
   asyncTest: TestWrapper,
   tests: { [name: string]: _TestFunction }
 ) {
@@ -1354,51 +1365,41 @@ registerSuite('lib/Suite', {
   },
 
   '#toJSON'() {
+    const test = new Test({ name: 'bar', test() {}, hasPassed: true });
+
     const suite = new Suite({
       name: 'foo',
       executor: createMockExecutor(),
-      tests: [new Test({ name: 'bar', test() {}, hasPassed: true })]
+      tests: [test]
     });
     suite.error = {
       name: 'bad',
       message: 'failed',
-      stack: '',
-      relatedTest: <Test>suite.tests[0]
+      stack: 'some stack',
+      relatedTest: test,
+      lifecycleMethod: 'afterEach'
     };
 
+    const testJSON = test.toJSON();
     const expected = {
       name: 'foo',
       error: {
         name: 'bad',
         message: 'failed',
-        stack: '',
-        relatedTest: {
-          id: 'foo - bar',
-          parentId: 'foo',
-          name: 'bar',
-          sessionId: '',
-          timeout: 30000,
-          hasPassed: true
-        }
+        stack: 'some stack',
+        lifecycleMethod: 'afterEach',
+        relatedTest: testJSON
       },
       id: 'foo',
       sessionId: '',
       hasParent: false,
-      tests: [
-        {
-          id: 'foo - bar',
-          parentId: 'foo',
-          name: 'bar',
-          sessionId: '',
-          timeout: 30000,
-          hasPassed: true
-        }
-      ],
+      tests: [testJSON],
       numTests: 1,
       numFailedTests: 0,
       numPassedTests: 1,
       numSkippedTests: 0
     };
+
     assert.deepEqual(suite.toJSON(), expected, 'Unexpected value');
   }
 });

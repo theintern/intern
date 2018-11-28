@@ -133,12 +133,41 @@ class XmlNode {
   }
 }
 
-function createSuiteNode(
-  suite: Suite,
-  reporter: JUnit,
-  parentError?: InternError
-): XmlNode {
-  const suiteError = parentError || suite.error;
+function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
+  const suiteError = suite.error;
+
+  let childNodes = suite.tests.map(test => createTestNode(test, reporter));
+
+  if (suiteError) {
+    const lifecycleMethod = suiteError.lifecycleMethod;
+
+    const createLifecycleTestCase = () => {
+      const relatedTest = suiteError.relatedTest;
+      const relatedTestSuffix = relatedTest
+        ? ` - related test name: '${relatedTest.name}'`
+        : '';
+
+      return createTestCaseNode(
+        {
+          name: `SuiteError#${lifecycleMethod}${relatedTestSuffix}`,
+          timeElapsed: suite.timeElapsed || 0,
+          error: suiteError
+        },
+        reporter
+      );
+    };
+
+    switch (lifecycleMethod) {
+      case 'before':
+      case 'beforeEach':
+        childNodes = [createLifecycleTestCase()];
+        break;
+      case 'after':
+      case 'afterEach':
+        childNodes.push(createLifecycleTestCase());
+        break;
+    }
+  }
 
   return new XmlNode('testsuite', {
     name: suite.name || 'Node.js',
@@ -146,38 +175,28 @@ function createSuiteNode(
     skipped: suite.numSkippedTests,
     tests: suite.numTests,
     time: suite.timeElapsed! / 1000,
-    childNodes: suite.tests.map(test =>
-      createTestNode(test, reporter, suiteError)
-    )
+    childNodes
   });
 }
 
-function createTestNode(
-  test: Suite | Test,
-  reporter: JUnit,
-  suiteError?: InternError
-) {
-  if (isSuite(test)) {
-    return createSuiteNode(test, reporter, suiteError);
-  }
-
-  const skipped = test.skipped !== undefined;
-
+function createTestCaseNode(
+  test: {
+    name: string;
+    timeElapsed: number | undefined;
+    error: InternError | undefined;
+    skipped?: string;
+  },
+  reporter: JUnit
+): XmlNode {
   const node = new XmlNode('testcase', {
     name: test.name,
     time: test.timeElapsed! / 1000,
-    status: !skipped && (suiteError || test.error) ? 1 : 0
+    status: test.error ? 1 : 0
   });
 
-  if (skipped) {
+  if (test.skipped) {
     node.createNode('skipped', {
       childNodes: [test.skipped]
-    });
-  } else if (suiteError) {
-    node.createNode('error', {
-      childNodes: [reporter.formatError(suiteError)],
-      message: suiteError.message,
-      type: 'SuiteError'
     });
   } else if (test.error) {
     node.createNode(
@@ -191,4 +210,12 @@ function createTestNode(
   }
 
   return node;
+}
+
+function createTestNode(test: Suite | Test, reporter: JUnit) {
+  if (isSuite(test)) {
+    return createSuiteNode(test, reporter);
+  }
+
+  return createTestCaseNode(test, reporter);
 }

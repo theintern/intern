@@ -2,7 +2,7 @@ import { spy, stub } from 'sinon';
 
 import _JUnit from 'src/lib/reporters/JUnit';
 import Test from 'src/lib/Test';
-import Suite from 'src/lib/Suite';
+import Suite, { SuiteError } from 'src/lib/Suite';
 
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
@@ -41,27 +41,53 @@ registerSuite('lib/reporters/JUnit', function() {
     return text.join('');
   };
 
-  const generateTestCaseSkippedXmlSnippet = (
-    testName: string,
-    time: string,
-    skippedMessage: string
-  ) => {
-    return (
-      `<testcase name="${testName}" time="${time}" status="0">` +
-      `<skipped>${skippedMessage}</skipped>` +
-      '</testcase>'
-    );
+  const innerTestName = 'Inner test';
+  const createSuiteWithError = (errorFactory: (test: Test) => SuiteError) => {
+    const test = new Test(<any>{
+      name: innerTestName,
+      test() {},
+      hasPassed: true,
+      timeElapsed: 0
+    });
+
+    const suiteError = errorFactory(test);
+
+    const suite = new Suite(<any>{
+      sessionId: 'foo',
+      name: 'chrome 32 on Mac',
+      executor: mockExecutor,
+      timeElapsed: 666,
+      tests: [
+        new Suite(<any>{
+          name: '1',
+          executor: mockExecutor,
+          timeElapsed: 12,
+          error: suiteError,
+          tests: [test]
+        })
+      ]
+    });
+
+    mockExecutor.suites.push(suite);
+
+    return getReportOutput();
   };
 
-  const generateTestCaseErrorXmlSnippet = (
-    testName: string,
-    message: string,
-    type: string,
-    time: string
+  const generateSuiteErrorTestCaseXmlSnippet = (
+    suiteError: SuiteError,
+    time = '0.012'
   ) => {
+    const relatedTest = suiteError.relatedTest;
+    const context = relatedTest
+      ? `${suiteError.lifecycleMethod} - related test name: '${
+          relatedTest.name
+        }'`
+      : `${suiteError.lifecycleMethod}`;
+    const errorMessage = suiteError.message;
+
     return (
-      `<testcase name="${testName}" time="${time}" status="1">` +
-      `<error message="${message}" type="${type}">${message}</error>` +
+      `<testcase name="SuiteError#${context}" time="${time}" status="1">` +
+      `<error message="${errorMessage}" type="Error">${errorMessage}</error>` +
       '</testcase>'
     );
   };
@@ -218,75 +244,88 @@ registerSuite('lib/reporters/JUnit', function() {
           );
         },
 
-        'suite errors '() {
-          const suiteError = new Error('Suite setup failed');
-          const passingTestName = 'passing test name';
-          const skippedTestName = 'skipped test';
-          const skippedMessage = 'skipped test within a failing suite';
+        'suite errors': {
+          'error in before is reported and no tests are reported'() {
+            const suiteError: SuiteError = new Error('Suite has failed');
+            suiteError.lifecycleMethod = 'before';
 
-          const suite = new Suite(<any>{
-            sessionId: 'foo',
-            name: 'chrome 32 on Mac',
-            executor: mockExecutor,
-            timeElapsed: 1234,
-            tests: [
-              new Suite(<any>{
-                name: '1',
-                executor: mockExecutor,
-                timeElapsed: 1234,
-                error: suiteError,
-                tests: [
-                  new Suite(<any>{
-                    name: '1.1',
-                    executor: mockExecutor,
-                    timeElapsed: 45,
-                    tests: [
-                      new Test(<any>{
-                        name: passingTestName,
-                        test() {},
-                        hasPassed: true,
-                        timeElapsed: 40
-                      }),
-                      new Test(<any>{
-                        name: skippedTestName,
-                        test() {},
-                        skipped: skippedMessage,
-                        hasPassed: false,
-                        timeElapsed: 0
-                      })
-                    ]
-                  })
-                ]
-              })
-            ]
-          });
+            const report = createSuiteWithError(() => suiteError);
 
-          mockExecutor.suites.push(suite);
+            assert.notInclude(
+              report,
+              innerTestName,
+              'test within errored suite should not be reported'
+            );
 
-          const expectedError = generateTestCaseErrorXmlSnippet(
-            passingTestName,
-            suiteError.message,
-            'SuiteError',
-            '0.04'
-          );
+            assert.include(
+              report,
+              generateSuiteErrorTestCaseXmlSnippet(suiteError),
+              'suite error should be included in the report'
+            );
+          },
 
-          assert.include(
-            getReportOutput(),
-            expectedError,
-            'descendant test should be failing with suite error'
-          );
+          'error in after is reported along with test results'() {
+            const suiteError: SuiteError = new Error('Suite has failed');
+            suiteError.lifecycleMethod = 'after';
 
-          const expectedSkipped = generateTestCaseSkippedXmlSnippet(
-            skippedTestName,
-            '0',
-            skippedMessage
-          );
+            const report = createSuiteWithError(() => suiteError);
 
-          assert.include(
-            getReportOutput(),
-            expectedSkipped,
-            'descendant skipped test should not report error'
-          );
+            assert.include(
+              report,
+              innerTestName,
+              'test within errored suite should be reported'
+            );
+
+            assert.include(
+              report,
+              generateSuiteErrorTestCaseXmlSnippet(suiteError),
+              'suite error should be included in the report'
+            );
+          },
+
+          'error in beforeEach is reported including the related test and no tests are reported'() {
+            const suiteError: SuiteError = new Error('Suite has failed');
+            suiteError.lifecycleMethod = 'beforeEach';
+
+            const report = createSuiteWithError(relatedTest => {
+              suiteError.relatedTest = relatedTest;
+              return suiteError;
+            });
+
+            assert.notInclude(
+              report,
+              `<testcase name="${innerTestName}"`,
+              'test within errored suite should not be reported'
+            );
+
+            assert.include(
+              report,
+              generateSuiteErrorTestCaseXmlSnippet(suiteError),
+              'suite error should be included in the report'
+            );
+          },
+
+          'error in afterEach is reported including the related test along with test results'() {
+            const suiteError: SuiteError = new Error('Suite has failed');
+            suiteError.lifecycleMethod = 'afterEach';
+
+            const report = createSuiteWithError(relatedTest => {
+              suiteError.relatedTest = relatedTest;
+              return suiteError;
+            });
+
+            assert.include(
+              report,
+              `<testcase name="${innerTestName}"`,
+              'test within errored suite should be reported'
+            );
+
+            assert.include(
+              report,
+              generateSuiteErrorTestCaseXmlSnippet(suiteError),
+              'suite error should be included in the report'
+            );
+          }
         }
       }
     }

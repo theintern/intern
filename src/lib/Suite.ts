@@ -11,6 +11,10 @@ import Test, { isTest, SKIP } from './Test';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
 
+export interface SuiteError extends InternError {
+  lifecycleMethod?: LifecycleMethod;
+}
+
 /**
  * The Suite class manages a group of tests.
  */
@@ -43,7 +47,7 @@ export default class Suite implements SuiteProperties {
   beforeEach: TestLifecycleFunction | undefined;
 
   /** The error that caused this suite to fail */
-  error: InternError | undefined;
+  error: SuiteError | undefined;
 
   /** This suite's name */
   name: string | undefined;
@@ -343,7 +347,7 @@ export default class Suite implements SuiteProperties {
     // Run the before and after suite lifecycle methods
     const runLifecycleMethod = (
       suite: Suite,
-      name: keyof Suite,
+      name: LifecycleMethod,
       test?: Test
     ): CancellablePromise<void> => {
       let result: PromiseLike<void> | undefined;
@@ -436,6 +440,7 @@ export default class Suite implements SuiteProperties {
           if (error !== SKIP) {
             if (!this.error) {
               this.executor.log('Suite errored with non-skip error', error);
+              (error as SuiteError).lifecycleMethod = name;
               this.error = error;
             }
             throw error;
@@ -476,7 +481,7 @@ export default class Suite implements SuiteProperties {
         // Run the beforeEach or afterEach methods for a given test in
         // the proper order based on the current nested Suite structure
         const runTestLifecycle = (
-          name: keyof Suite,
+          name: LifecycleMethod,
           test: Test
         ): CancellablePromise<void> => {
           let methodQueue: Suite[] = [];
@@ -560,8 +565,8 @@ export default class Suite implements SuiteProperties {
                 // An error may be associated with a deeper test
                 // already, in which case we do not want to
                 // reassociate it with a more generic parent
-                if (error && error.relatedTest == null) {
-                  error.relatedTest = <Test>test;
+                if (error && error.relatedTest == null && isTest(test)) {
+                  error.relatedTest = test;
                 }
               };
 
@@ -715,20 +720,22 @@ export default class Suite implements SuiteProperties {
       }
     });
 
-    if (this.error) {
+    const error = this.error;
+    if (error) {
       json.error = {
-        name: this.error.name,
-        message: this.error.message,
-        stack: this.error.stack
+        name: error.name,
+        message: error.message,
+        stack: error.stack
       };
 
-      if (this.error.relatedTest && this.error.relatedTest !== <any>this) {
-        // relatedTest can be the Suite itself in the case of nested
-        // suites (a nested Suite's error is caught by a parent Suite,
-        // which assigns the nested Suite as the relatedTest, resulting
-        // in nestedSuite.relatedTest === nestedSuite); in that case,
-        // don't serialize it
-        json.error.relatedTest = this.error.relatedTest.toJSON();
+      const lifecycleMethod = error.lifecycleMethod;
+      if (lifecycleMethod) {
+        json.error.lifecycleMethod = lifecycleMethod;
+      }
+
+      const relatedTest = error.relatedTest;
+      if (relatedTest) {
+        json.error.relatedTest = relatedTest.toJSON();
       }
     }
 
@@ -748,18 +755,23 @@ export interface TestLifecycleFunction {
   (this: Suite, test: Test, suite: Suite): void | PromiseLike<any>;
 }
 
+interface SuiteLifecycleMethods {
+  after: SuiteLifecycleFunction | undefined;
+  afterEach: TestLifecycleFunction | undefined;
+  before: SuiteLifecycleFunction | undefined;
+  beforeEach: TestLifecycleFunction | undefined;
+}
+
+export type LifecycleMethod = keyof SuiteLifecycleMethods;
+
 /**
  * Properties that can be set on a Suite.
  *
  * Note that 'tests' isn't included so that other interfaces, such as the object
  * interface, can use a different definition for it.
  */
-export interface SuiteProperties {
-  after: SuiteLifecycleFunction | undefined;
-  afterEach: TestLifecycleFunction | undefined;
+export interface SuiteProperties extends SuiteLifecycleMethods {
   bail: boolean | undefined;
-  before: SuiteLifecycleFunction | undefined;
-  beforeEach: TestLifecycleFunction | undefined;
   grep: RegExp;
   name: string | undefined;
   publishAfterSetup: boolean;
