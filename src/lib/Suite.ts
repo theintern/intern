@@ -62,7 +62,7 @@ export default class Suite implements SuiteProperties {
   skipped: string | undefined;
 
   /** The tests or other suites managed by this suite */
-  tests: (Suite | Test)[];
+  tests: (Suite | Test)[] = [];
 
   /** The time required to run all the tests in this suite */
   timeElapsed: number | undefined;
@@ -86,8 +86,6 @@ export default class Suite implements SuiteProperties {
         const key = <keyof (SuiteOptions | RootSuiteOptions)>option;
         this[key] = options[key]!;
       });
-
-    this.tests = [];
 
     if (options.tests) {
       options.tests.forEach(suiteOrTest => this.add(suiteOrTest));
@@ -136,6 +134,7 @@ export default class Suite implements SuiteProperties {
 
   set grep(value: RegExp) {
     this._grep = value;
+    this._applyGrepToChildren();
   }
 
   /**
@@ -302,13 +301,29 @@ export default class Suite implements SuiteProperties {
     });
 
     suiteOrTest.parent = this;
+
     this.tests.push(suiteOrTest);
+    this._applyGrepToSuiteOrTest(suiteOrTest);
 
     if (isTest(suiteOrTest)) {
       this.executor.emit('testAdd', suiteOrTest);
     } else {
       this.executor.emit('suiteAdd', suiteOrTest);
     }
+  }
+
+  private _applyGrepToSuiteOrTest(suiteOrTest: Suite | Test) {
+    if (suiteOrTest instanceof Suite) {
+      suiteOrTest._applyGrepToChildren();
+    } else if (!this.grep.test(suiteOrTest.id)) {
+      suiteOrTest.skipped = 'grep';
+    }
+  }
+
+  private _applyGrepToChildren() {
+    this.tests.forEach(suiteOrTest =>
+      this._applyGrepToSuiteOrTest(suiteOrTest)
+    );
   }
 
   /**
@@ -347,6 +362,11 @@ export default class Suite implements SuiteProperties {
       test?: Test
     ): CancellablePromise<void> => {
       let result: PromiseLike<void> | undefined;
+
+      if (this.numTests === this.numSkippedTests) {
+        // If all descendant tests are skipped then do not run the suite lifecycles
+        return Task.resolve();
+      }
 
       return new Task<void>(
         (resolve, reject) => {
@@ -595,11 +615,6 @@ export default class Suite implements SuiteProperties {
               if (isSuite(test)) {
                 current = runTest();
               } else {
-                // test is a single test
-                if (!this.grep.test(test.id)) {
-                  test.skipped = 'grep';
-                }
-
                 if (test.skipped != null) {
                   current = this.executor.emit('testEnd', test);
                 } else {
