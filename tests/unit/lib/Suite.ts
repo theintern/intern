@@ -1300,7 +1300,43 @@ registerSuite('lib/Suite', {
           }
         );
       },
-      ...createGrepLifecycleTests()
+      ...createGrepLifecycleTests(),
+
+      'executes the after and afterEach if the only test is skipped'() {
+        const dfd = this.async(5000);
+        const testsRun: any[] = [];
+        let afterExecuted = false;
+        let afterEachExecuted = false;
+        const test = new Test({
+          name: 'foo',
+          test() {
+            testsRun.push(this);
+            this.skip('skipped test');
+          }
+        });
+
+        const suite = createSuite({
+          name: 'my suite',
+          bail: true,
+          tests: [test],
+          after() {
+            afterExecuted = true;
+          },
+          afterEach() {
+            afterEachExecuted = true;
+          }
+        });
+
+        suite.run().then(
+          dfd.callback(function() {
+            assert.isTrue(afterExecuted, 'after should have run');
+            assert.isTrue(afterEachExecuted, 'afterEach should have run');
+          }),
+          function() {
+            dfd.reject(new Error('Suite should not fail'));
+          }
+        );
+      }
     },
 
     bail() {
