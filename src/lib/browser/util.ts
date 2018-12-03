@@ -118,7 +118,7 @@ export function parseQuery(query?: string) {
       const parts = arg.split('=');
       const name = decodeURIComponent(parts[0]);
       if (parts[1]) {
-        return `${name}=${decodeURIComponent(parts[1])}`;
+        return `${name}=${decodeURIComponent(parts[1].replace(/\+/g, '%20'))}`;
       } else if (parts.length > 1) {
         return `${name}=`;
       }
