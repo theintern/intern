@@ -45,9 +45,6 @@ export default class Suite implements SuiteProperties {
   /** The error that caused this suite to fail */
   error: InternError | undefined;
 
-  /** This suite's name */
-  name: string | undefined;
-
   /** This suite's parent Suite */
   parent: Suite | undefined;
 
@@ -69,6 +66,7 @@ export default class Suite implements SuiteProperties {
 
   private _bail: boolean | undefined;
   private _executor: Executor | undefined;
+  private _name: string | undefined;
   private _grep: RegExp | undefined;
   private _remote: Remote | undefined;
   private _sessionId: string | undefined;
@@ -134,6 +132,18 @@ export default class Suite implements SuiteProperties {
 
   set grep(value: RegExp) {
     this._grep = value;
+    this._applyGrepToChildren();
+  }
+
+  /** This suite's name */
+  get name() {
+    return this._name;
+  }
+
+  set name(value: string | undefined) {
+    this._name = value;
+
+    // If the name of the suite is set then we need to re-run the grep
     this._applyGrepToChildren();
   }
 
@@ -315,8 +325,16 @@ export default class Suite implements SuiteProperties {
   private _applyGrepToSuiteOrTest(suiteOrTest: Suite | Test) {
     if (suiteOrTest instanceof Suite) {
       suiteOrTest._applyGrepToChildren();
-    } else if (!this.grep.test(suiteOrTest.id)) {
-      suiteOrTest.skipped = 'grep';
+    } else {
+      const grepSkipReason = 'grep';
+      if (suiteOrTest.skipped === grepSkipReason) {
+        // If the test was previously skipped with a grep clear that it was skipped
+        suiteOrTest.skipped = undefined;
+      }
+
+      if (!this.grep.test(suiteOrTest.id)) {
+        suiteOrTest.skipped = grepSkipReason;
+      }
     }
   }
 

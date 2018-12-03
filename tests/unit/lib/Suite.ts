@@ -1304,13 +1304,11 @@ registerSuite('lib/Suite', {
 
       'executes the after and afterEach if the only test is skipped'() {
         const dfd = this.async(5000);
-        const testsRun: any[] = [];
         let afterExecuted = false;
         let afterEachExecuted = false;
         const test = new Test({
           name: 'foo',
           test() {
-            testsRun.push(this);
             this.skip('skipped test');
           }
         });
@@ -1331,6 +1329,43 @@ registerSuite('lib/Suite', {
           dfd.callback(function() {
             assert.isTrue(afterExecuted, 'after should have run');
             assert.isTrue(afterEachExecuted, 'afterEach should have run');
+          }),
+          function() {
+            dfd.reject(new Error('Suite should not fail'));
+          }
+        );
+      },
+
+      'changing a suite name should apply grep'() {
+        const dfd = this.async(5000);
+        const testsRun: Test[] = [];
+
+        const fooTest = new Test({
+          name: 'foo',
+          test() {
+            testsRun.push(this);
+          }
+        });
+
+        const barTest = new Test({
+          name: 'bar',
+          test() {
+            testsRun.push(this);
+          }
+        });
+
+        const suite = createSuite({
+          name: 'suite',
+          grep: /intern - bar/,
+          bail: true,
+          tests: [fooTest, barTest]
+        });
+
+        suite.name = 'intern';
+
+        suite.run().then(
+          dfd.callback(function() {
+            assert.sameMembers(testsRun, [barTest], 'only bar should have run');
           }),
           function() {
             dfd.reject(new Error('Suite should not fail'));
