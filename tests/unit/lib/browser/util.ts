@@ -227,7 +227,7 @@ registerSuite('lib/browser/util', function() {
       },
 
       parseQuery() {
-        const rawArgs = util.parseQuery('foo&bar=5&baz=6&baz=7&baz=foo+bar');
+        const rawArgs = util.parseQuery('?foo&bar=5&baz=6&baz=7&baz=foo+bar');
         const expected = ['foo', 'bar=5', 'baz=6', 'baz=7', 'baz=foo bar'];
         assert.deepEqual(rawArgs, expected);
       },
