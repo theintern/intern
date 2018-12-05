@@ -108,22 +108,15 @@ export function normalizePath(path: string) {
  * Parse a query string and return a set of decoded name=value pairs
  */
 export function parseQuery(query?: string) {
-  query = query || global.location.search.slice(1);
-  return query!
-    .split('&')
-    .filter(arg => {
-      return arg !== '' && arg[0] !== '=';
-    })
-    .map(arg => {
-      const parts = arg.split('=');
-      const name = decodeURIComponent(parts[0]);
-      if (parts[1]) {
-        return `${name}=${decodeURIComponent(parts[1].replace(/\+/g, '%20'))}`;
-      } else if (parts.length > 1) {
-        return `${name}=`;
-      }
-      return name;
-    });
+  query = query || global.location.search;
+
+  const parsed: string[] = [];
+  const params = new URLSearchParams(query);
+  params.forEach((value, key) => {
+    parsed.push(value ? `${key}=${value}` : key);
+  });
+
+  return parsed;
 }
 
 /**
