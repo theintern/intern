@@ -373,6 +373,7 @@ export default class Suite implements SuiteProperties {
       return this.executor.emit('suiteEnd', this);
     };
 
+    // Important to check this outside of the lifecycle as skip may have been called within a child
     const allTestsSkipped = this.numTests === this.numSkippedTests;
 
     // Run the before and after suite lifecycle methods
@@ -383,7 +384,9 @@ export default class Suite implements SuiteProperties {
     ): CancellablePromise<void> => {
       let result: PromiseLike<void> | undefined;
 
-      if (allTestsSkipped) {
+      // If we are the root suite with our own executor then we want to run life cycle functions regardless of
+      // whether all tests are skipped
+      if (!this._executor && allTestsSkipped) {
         // If all descendant tests are skipped then do not run the suite lifecycles
         return Task.resolve();
       }
