@@ -138,10 +138,10 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
     // Only consider numeric versions; we don't want 'beta' or 'dev'
     const numericVersions = availableVersions
       .filter(version => {
-        return !isNaN(parseFloat(version));
+        return !isNaN(Number(version));
       })
       .sort((a, b) => {
-        return parseFloat(a) - parseFloat(b);
+        return Number(a) - Number(b);
       });
 
     let offset = pieces.length === 2 ? Number(pieces[1]) : 0;
