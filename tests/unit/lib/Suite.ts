@@ -47,12 +47,24 @@ function createAsyncCallbackTest(testWrapper: TestWrapper) {
   });
 }
 
-function createSuite(options?: Partial<Suite> & { tests?: (Suite | Test)[] }) {
+type TestSuiteOptions = Partial<Suite> & { tests?: (Suite | Test)[] };
+function createSuite(options?: TestSuiteOptions) {
   options = options || {};
   if (!options.executor && !(options.parent && options.parent.executor)) {
     options.executor = createMockExecutor();
   }
   return new Suite(<SuiteOptions>options);
+}
+
+function createSuiteWithTest() {
+  return createSuite({
+    tests: [
+      new Test({
+        name: 'foo',
+        test() {}
+      })
+    ]
+  });
 }
 
 function createAsyncRejectOnErrorTest(method: lifecycleMethod): _TestFunction {
@@ -380,6 +392,158 @@ function createLifecycleTests(
   };
 }
 
+function createGrepLifecycleTests() {
+  function generate(method: lifecycleMethod): _TestFunction {
+    return function() {
+      const dfd = this.async(5000);
+      const testsRun: Test[] = [];
+
+      const suitesWithLifecycleExecuted: Suite[] = [];
+
+      const expectedTestsExecuted: Test[] = [];
+      const expectedSuitesWithLifecycleExecuted: Suite[] = [];
+
+      function createTrackedTest(name: string, testShouldRun: boolean) {
+        const test = new Test({
+          name,
+          test() {
+            testsRun.push(this);
+          }
+        });
+
+        if (testShouldRun) {
+          expectedTestsExecuted.push(test);
+        }
+
+        return test;
+      }
+
+      function createLifecycleTrackedSuite(
+        options: TestSuiteOptions,
+        lifeCycleMethodShouldRun: boolean
+      ) {
+        const suite = createSuite({
+          ...options,
+          [method]() {
+            if (!suitesWithLifecycleExecuted.some(x => x === this)) {
+              suitesWithLifecycleExecuted.push(this as Suite);
+            }
+          }
+        });
+
+        const parent = options.parent;
+        if (parent) {
+          parent.add(suite);
+        }
+
+        if (lifeCycleMethodShouldRun) {
+          expectedSuitesWithLifecycleExecuted.push(suite);
+        }
+
+        return suite;
+      }
+
+      const rootSuite = createLifecycleTrackedSuite(
+        {
+          name: 'root',
+          grep: /foo/,
+          executor: createMockExecutor()
+        },
+        true
+      );
+
+      const foobarTest = createTrackedTest('foobar', true);
+      const firstLevelSuite = createLifecycleTrackedSuite(
+        {
+          name: 'first level',
+          tests: [foobarTest],
+          parent: rootSuite
+        },
+        true
+      );
+
+      // Set up some tests and suites with nesting
+      const fooTest = createTrackedTest('matching test foo', true);
+      const foodTest = createTrackedTest('matching tests food', true);
+      createLifecycleTrackedSuite(
+        {
+          name: 'tests matching grep',
+          tests: [fooTest, foodTest],
+          parent: firstLevelSuite
+        },
+        true
+      );
+
+      const nonMatchingTest = createTrackedTest('no match', false);
+      createLifecycleTrackedSuite(
+        {
+          name: 'suite with no grep matches',
+          tests: [nonMatchingTest],
+          parent: rootSuite
+        },
+        false
+      );
+
+      const testMatchingSuite1 = createTrackedTest(
+        'test within matching suite',
+        true
+      );
+      const testMatchingSuite2 = createTrackedTest(
+        'second test within matching suite',
+        true
+      );
+
+      createLifecycleTrackedSuite(
+        {
+          name: 'suite matching foo',
+          tests: [testMatchingSuite1, testMatchingSuite2],
+          parent: firstLevelSuite
+        },
+        true
+      );
+
+      createLifecycleTrackedSuite(
+        { name: 'foo with no tests', tests: [], parent: firstLevelSuite },
+        false
+      );
+
+      rootSuite.run().then(
+        dfd.callback(function() {
+          assert.sameMembers(
+            testsRun,
+            expectedTestsExecuted,
+            'Only tests with a matching grep regex should have run'
+          );
+
+          assert.sameMembers(
+            suitesWithLifecycleExecuted,
+            expectedSuitesWithLifecycleExecuted,
+            'Only life cycle functions within suites containing tests which match grep regex should have run'
+          );
+        }),
+        function() {
+          dfd.reject(new Error('Suite should not fail'));
+        }
+      );
+    };
+  }
+
+  const result = <{ [name: string]: _TestFunction }>{};
+
+  const lifeCycleMethods: lifecycleMethod[] = [
+    'before',
+    'beforeEach',
+    'after',
+    'afterEach'
+  ];
+
+  lifeCycleMethods.forEach(m => {
+    result[`${m} is not executed when all children are skipped`] = generate(m);
+  });
+
+  return result;
+}
+
 registerSuite('lib/Suite', {
   '#constructor required parameters'() {
     assert.throws(() => {
@@ -662,7 +826,7 @@ registerSuite('lib/Suite', {
     function asyncTest(createSetup: Function): _TestFunction {
       return function() {
         const dfd = this.async();
-        const suite = createSuite();
+        const suite = createSuiteWithTest();
         let waited = false;
 
         suite.before = createSetup(function() {
@@ -683,7 +847,7 @@ registerSuite('lib/Suite', {
     return createLifecycleTests('before', asyncTest, {
       synchronous() {
         const dfd = this.async(1000);
-        const suite = createSuite();
+        const suite = createSuiteWithTest();
         let called = false;
 
         suite.before = function() {
@@ -912,7 +1076,7 @@ registerSuite('lib/Suite', {
     function asyncTest(createAfter: Function): _TestFunction {
       return function() {
         const dfd = this.async();
-        const suite = createSuite();
+        const suite = createSuiteWithTest();
         let waited = false;
 
         suite.after = createAfter(function() {
@@ -933,7 +1097,7 @@ registerSuite('lib/Suite', {
     return createLifecycleTests('after', asyncTest, {
       synchronous() {
         const dfd = this.async(1000);
-        const suite = createSuite();
+        const suite = createSuiteWithTest();
         let called = false;
 
         suite.after = function() {
@@ -1095,56 +1259,157 @@ registerSuite('lib/Suite', {
   },
 
   '#run': <Tests>{
-    grep() {
-      const dfd = this.async(5000);
-      const grep = /foo/;
-      const suite = createSuite({ name: 'grepSuite', grep });
-      const testsRun: Test[] = [];
-      const fooTest = new Test({
-        name: 'foo',
-        parent: suite,
-        test() {
-          testsRun.push(this);
-        }
-      });
-      const barSuite = createSuite({
-        name: 'bar',
-        parent: suite,
-        grep,
-        tests: [
-          new Test({
-            name: 'foo',
-            test() {
-              testsRun.push(this);
-            }
-          }),
-          new Test({
-            name: 'baz',
-            test() {
-              testsRun.push(this);
-            }
-          })
-        ]
-      });
-      const foodTest = new Test({
-        name: 'food',
-        parent: suite,
-        test() {
-          testsRun.push(this);
-        }
-      });
+    grep: <Tests>{
+      'only tests matching grep execute'() {
+        const dfd = this.async(5000);
+        const grep = /foo/;
+        const testsRun: Test[] = [];
+        const fooTest = new Test({
+          name: 'foo',
+          test() {
+            testsRun.push(this);
+          }
+        });
+        const barSuite = createSuite({
+          name: 'bar',
+          grep,
+          tests: [
+            new Test({
+              name: 'foo',
+              test() {
+                testsRun.push(this);
+              }
+            }),
+            new Test({
+              name: 'baz',
+              test() {
+                testsRun.push(this);
+              }
+            })
+          ]
+        });
+        const foodTest = new Test({
+          name: 'food',
+          test() {
+            testsRun.push(this);
+          }
+        });
 
-      suite.tests.push(fooTest);
-      suite.tests.push(barSuite);
-      suite.tests.push(foodTest);
+        const suite = createSuite({
+          name: 'grepSuite',
+          grep,
+          tests: [fooTest, barSuite, foodTest]
+        });
+
+        suite.run().then(
+          dfd.callback(function() {
+            assert.deepEqual(
+              testsRun,
+              [fooTest, barSuite.tests[0], foodTest],
+              'Only test matching grep regex should have run'
+            );
+          }),
+          function() {
+            dfd.reject(new Error('Suite should not fail'));
+          }
+        );
+      },
+      ...createGrepLifecycleTests(),
+
+      'executes the after and afterEach if the only test is skipped'() {
+        const dfd = this.async(5000);
+        let afterExecuted = false;
+        let afterEachExecuted = false;
+        const test = new Test({
+          name: 'foo',
+          test() {
+            this.skip('skipped test');
+          }
+        });
+
+        const suite = createSuite({
+          name: 'my suite',
+          bail: true,
+          tests: [test],
+          after() {
+            afterExecuted = true;
+          },
+          afterEach() {
+            afterEachExecuted = true;
+          }
+        });
+
+        suite.run().then(
+          dfd.callback(function() {
+            assert.isTrue(afterExecuted, 'after should have run');
+            assert.isTrue(afterEachExecuted, 'afterEach should have run');
+          }),
+          function() {
+            dfd.reject(new Error('Suite should not fail'));
+          }
+        );
+      },
+
+      'changing a suite name should apply grep'() {
+        const dfd = this.async(5000);
+        const testsRun: Test[] = [];
+
+        const fooTest = new Test({
+          name: 'foo',
+          test() {
+            testsRun.push(this);
+          }
+        });
+
+        const barTest = new Test({
+          name: 'bar',
+          test() {
+            testsRun.push(this);
+          }
+        });
+
+        const suite = createSuite({
+          name: 'suite',
+          grep: /intern - bar/,
+          bail: true,
+          tests: [fooTest, barTest]
+        });
+
+        suite.name = 'intern';
+
+        suite.run().then(
+          dfd.callback(function() {
+            assert.sameMembers(testsRun, [barTest], 'only bar should have run');
+          }),
+          function() {
+            dfd.reject(new Error('Suite should not fail'));
+          }
+        );
+      }
+    },
+
+    'executes lifecycle functions for root suites'() {
+      const dfd = this.async(5000);
+
+      let beforeExecuted = false;
+      let afterExecuted = false;
+
+      const suite = createSuite({
+        name: 'root suite',
+        tests: [],
+        executor: createMockExecutor(),
+        before() {
+          beforeExecuted = true;
+        },
+        after() {
+          afterExecuted = true;
+        }
+      });
 
       suite.run().then(
         dfd.callback(function() {
-          assert.deepEqual(
-            testsRun,
-            [fooTest, barSuite.tests[0], foodTest],
-            'Only test matching grep regex should have run'
-          );
+          assert.isTrue(beforeExecuted, 'before should have run');
+          assert.isTrue(afterExecuted, 'after should have run');
         }),
         function() {
           dfd.reject(new Error('Suite should not fail'));

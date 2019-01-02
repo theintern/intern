@@ -45,9 +45,6 @@ export default class Suite implements SuiteProperties {
   /** The error that caused this suite to fail */
   error: InternError | undefined;
 
-  /** This suite's name */
-  name: string | undefined;
-
   /** This suite's parent Suite */
   parent: Suite | undefined;
 
@@ -62,13 +59,14 @@ export default class Suite implements SuiteProperties {
   skipped: string | undefined;
 
   /** The tests or other suites managed by this suite */
-  tests: (Suite | Test)[];
+  tests: (Suite | Test)[] = [];
 
   /** The time required to run all the tests in this suite */
   timeElapsed: number | undefined;
 
   private _bail: boolean | undefined;
   private _executor: Executor | undefined;
+  private _name: string | undefined;
   private _grep: RegExp | undefined;
   private _remote: Remote | undefined;
   private _sessionId: string | undefined;
@@ -86,8 +84,6 @@ export default class Suite implements SuiteProperties {
         const key = <keyof (SuiteOptions | RootSuiteOptions)>option;
         this[key] = options[key]!;
       });
-
-    this.tests = [];
 
     if (options.tests) {
       options.tests.forEach(suiteOrTest => this.add(suiteOrTest));
@@ -136,6 +132,19 @@ export default class Suite implements SuiteProperties {
 
   set grep(value: RegExp) {
     this._grep = value;
+    this._applyGrepToChildren();
+  }
+
+  /** This suite's name */
+  get name() {
+    return this._name;
+  }
+
+  set name(value: string | undefined) {
+    this._name = value;
+
+    // If the name of the suite is set then we need to re-run the grep
+    this._applyGrepToChildren();
   }
 
   /**
@@ -302,13 +311,37 @@ export default class Suite implements SuiteProperties {
     });
 
     suiteOrTest.parent = this;
+
     this.tests.push(suiteOrTest);
+    this._applyGrepToSuiteOrTest(suiteOrTest);
 
     if (isTest(suiteOrTest)) {
       this.executor.emit('testAdd', suiteOrTest);
     } else {
       this.executor.emit('suiteAdd', suiteOrTest);
     }
+  }
+
+  private _applyGrepToSuiteOrTest(suiteOrTest: Suite | Test) {
+    if (suiteOrTest instanceof Suite) {
+      suiteOrTest._applyGrepToChildren();
+    } else {
+      const grepSkipReason = 'grep';
+      if (suiteOrTest.skipped === grepSkipReason) {
+        // If the test was previously skipped with a grep clear that it was skipped
+        suiteOrTest.skipped = undefined;
+      }
+
+      if (!this.grep.test(suiteOrTest.id)) {
+        suiteOrTest.skipped = grepSkipReason;
+      }
+    }
+  }
+
+  private _applyGrepToChildren() {
+    this.tests.forEach(suiteOrTest =>
+      this._applyGrepToSuiteOrTest(suiteOrTest)
+    );
   }
 
   /**
@@ -340,6 +373,9 @@ export default class Suite implements SuiteProperties {
       return this.executor.emit('suiteEnd', this);
     };
 
+    // Important to check this outside of the lifecycle as skip may have been called within a child
+    const allTestsSkipped = this.numTests === this.numSkippedTests;
+
     // Run the before and after suite lifecycle methods
     const runLifecycleMethod = (
       suite: Suite,
@@ -347,6 +383,13 @@ export default class Suite implements SuiteProperties {
       test?: Test
     ): CancellablePromise<void> => {
       let result: PromiseLike<void> | undefined;
+
+      // If we are the root suite with our own executor then we want to run life cycle functions regardless of
+      // whether all tests are skipped
+      if (!this._executor && allTestsSkipped) {
+        // If all descendant tests are skipped then do not run the suite lifecycles
+        return Task.resolve();
+      }
 
       return new Task<void>(
         (resolve, reject) => {
@@ -595,11 +638,6 @@ export default class Suite implements SuiteProperties {
               if (isSuite(test)) {
                 current = runTest();
               } else {
-                // test is a single test
-                if (!this.grep.test(test.id)) {
-                  test.skipped = 'grep';
-                }
-
                 if (test.skipped != null) {
                   current = this.executor.emit('testEnd', test);
                 } else {
