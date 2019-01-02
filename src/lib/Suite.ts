@@ -135,7 +135,9 @@ export default class Suite implements SuiteProperties {
     this._applyGrepToChildren();
   }
 
-  /** This suite's name */
+  /**
+   * This suite's name
+   */
   get name() {
     return this._name;
   }
@@ -373,7 +375,8 @@ export default class Suite implements SuiteProperties {
       return this.executor.emit('suiteEnd', this);
     };
 
-    // Important to check this outside of the lifecycle as skip may have been called within a child
+    // Important to check this outside of the lifecycle as skip may have been
+    // called within a child
     const allTestsSkipped = this.numTests === this.numSkippedTests;
 
     // Run the before and after suite lifecycle methods
@@ -384,10 +387,11 @@ export default class Suite implements SuiteProperties {
     ): CancellablePromise<void> => {
       let result: PromiseLike<void> | undefined;
 
-      // If we are the root suite with our own executor then we want to run life cycle functions regardless of
-      // whether all tests are skipped
+      // If we are the root suite with our own executor then we want to run life
+      // cycle functions regardless of whether all tests are skipped
       if (!this._executor && allTestsSkipped) {
-        // If all descendant tests are skipped then do not run the suite lifecycles
+        // If all descendant tests are skipped then do not run the suite
+        // lifecycles
         return Task.resolve();
       }
 
@@ -719,7 +723,8 @@ export default class Suite implements SuiteProperties {
    * the test will be immediately halted, just as if the test’s own skip
    * method were called.
    *
-   * @param message If provided, will be stored in this suite's `skipped` property.
+   * @param message If provided, will be stored in this suite's `skipped`
+   * property.
    */
   skip(message: string = 'suite skipped') {
     this.skipped = message;
