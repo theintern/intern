@@ -219,9 +219,12 @@ export default class Session extends Locator<
       ms = 1;
     }
 
-    let data = this.capabilities.usesWebDriverTimeouts
-      ? { [type === 'page load' ? 'pageLoad' : type]: ms }
-      : { type, ms };
+    // Set both JSONWireProtocol and WebDriver properties in the data object
+    let data = {
+      type,
+      ms,
+      [type === 'page load' ? 'pageLoad' : type]: ms
+    };
 
     const promise = this.serverPost<void>('timeouts', data).catch(error => {
       // Appium as of April 2014 complains that `timeouts` is
@@ -252,26 +255,45 @@ export default class Session extends Locator<
    * @returns A window handle identifier that can be used with other window
    * handling functions.
    */
-  getCurrentWindowHandle() {
-    return this.serverGet<string>('window_handle').then(handle => {
-      if (this.capabilities.brokenDeleteWindow && this._closedWindows[handle]) {
-        const error: SessionError = new Error();
-        error.status = '23';
-        error.name = statusCodes[error.status][0];
-        error.message = statusCodes[error.status][1];
-        throw error;
-      }
+  getCurrentWindowHandle(): CancellablePromise<string> {
+    const endpoint = this.capabilities.usesWebDriverWindowCommands
+      ? 'window'
+      : 'window_handle';
 
-      return handle;
-    });
+    return this.serverGet<string>(endpoint)
+      .then(handle => {
+        if (
+          this.capabilities.brokenDeleteWindow &&
+          this._closedWindows[handle]
+        ) {
+          const error: SessionError = new Error();
+          error.status = '23';
+          error.name = statusCodes[error.status][0];
+          error.message = statusCodes[error.status][1];
+          throw error;
+        }
+
+        return handle;
+      })
+      .catch(error => {
+        if (error.name === 'UnknownCommand') {
+          this.capabilities.usesWebDriverWindowCommands = true;
+          return this.getCurrentWindowHandle();
+        }
+        throw error;
+      });
   }
 
   /**
    * Gets a list of identifiers for all currently open windows.
    */
-  getAllWindowHandles() {
-    return this.serverGet<string[]>('window_handles').then(
-      (handles: string[]) => {
+  getAllWindowHandles(): CancellablePromise<string[]> {
+    const endpoint = this.capabilities.usesWebDriverWindowCommands
+      ? 'window/handles'
+      : 'window_handles';
+
+    return this.serverGet<string[]>(endpoint)
+      .then((handles: string[]) => {
         if (this.capabilities.brokenDeleteWindow) {
           return handles.filter(handle => {
             return !this._closedWindows[handle];
@@ -279,8 +301,14 @@ export default class Session extends Locator<
         }
 
         return handles;
-      }
-    );
+      })
+      .catch(error => {
+        if (error.name === 'UnknownCommand') {
+          this.capabilities.usesWebDriverWindowCommands = true;
+          return this.getAllWindowHandles();
+        }
+        throw error;
+      });
   }
 
   /**
@@ -420,7 +448,10 @@ export default class Session extends Locator<
    * @returns The value returned by the remote code. Only values that can be
    * serialised to JSON, plus DOM elements, can be returned.
    */
-  executeAsync<T>(script: Function | string, args?: any[]) {
+  executeAsync<T>(
+    script: Function | string,
+    args?: any[]
+  ): CancellablePromise<T> {
     // At least FirefoxDriver 2.40.0 will throw a confusing
     // NullPointerException if args is not an array; provide a friendlier
     // error message to users that accidentally pass a non-array
@@ -428,10 +459,25 @@ export default class Session extends Locator<
       throw new Error('Arguments passed to executeAsync must be an array');
     }
 
-    return this.serverPost<T>('execute_async', {
+    const endpoint = this.capabilities.usesWebDriverExecuteAsync
+      ? 'execute/async'
+      : 'execute_async';
+
+    return this.serverPost<T>(endpoint, {
       script: toExecuteString(script),
       args: args || []
-    }).then(partial(convertToElements, this), fixExecuteError);
+    })
+      .then(partial(convertToElements, this), fixExecuteError)
+      .catch(error => {
+        if (
+          error.detail.error === 'unknown command' &&
+          !this.capabilities.usesWebDriverExecuteAsync
+        ) {
+          this.capabilities.usesWebDriverExecuteAsync = true;
+          return this.executeAsync<T>(script, args);
+        }
+        throw error;
+      });
   }
 
   /**

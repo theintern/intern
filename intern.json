@@ -48,7 +48,9 @@
     "ci": {
       "environments": [
         "node",
-        { "browserName": "chrome", "version": "latest" }
+        { "browserName": "chrome", "version": "latest" },
+        { "browserName": "firefox", "version": "latest" },
+        { "browserName": "internet explorer", "version": "latest" }
       ],
       "tunnel": "browserstack"
     },

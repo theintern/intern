@@ -48,6 +48,7 @@ export interface Capabilities {
   brokenElementDisplayedOffscreen?: boolean;
   brokenElementDisplayedOpacity?: boolean;
   brokenElementPosition?: boolean;
+  brokenElementProperty?: boolean;
   brokenElementSerialization?: boolean;
   brokenEmptyPost?: boolean;
   brokenExecuteElementReturn?: boolean;
@@ -199,6 +200,9 @@ export interface Capabilities {
   /** Whether window commands use 'handle' instead of 'name' */
   usesHandleParameter?: boolean;
 
+  /** Whether the Element '/attribute' endpoint uses W3C semantics */
+  usesWebDriverElementAttribute?: boolean;
+
   /** Whether the Element '/value' endpoint uses a 'text' property */
   usesWebDriverElementValue?: boolean;
 
@@ -206,6 +210,12 @@ export interface Capabilities {
    * Whether getActiveElement uses a POST or GET
    */
   usesWebDriverActiveElement?: boolean;
+
+  /**
+   * Whether the remote uses `/execute/async` rathern than `/execute_async` for
+   * asynchronous execution
+   */
+  usesWebDriverExecuteASync?: boolean;
 
   /**
    * Whether the remote uses `/execute/sync` rathern than `/execute` for

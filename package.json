@@ -17,7 +17,7 @@
     "@types/jszip": "~3.1.4",
     "@types/node": "~9.6.5",
     "concurrently": "~3.5.0",
-    "intern": "~4.2.3"
+    "intern": "~4.3.3"
   },
   "scripts": {
     "clean": "intern-dev-clean",

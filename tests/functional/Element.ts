@@ -88,7 +88,10 @@ registerSuite('Element', () => {
     tests: {
       '#toJSON'() {
         const element = new Element('test', <Session>{});
-        assert.deepEqual(element.toJSON(), { ELEMENT: 'test' });
+        assert.deepEqual(element.toJSON(), {
+          ELEMENT: 'test',
+          'element-6066-11e4-a52e-4f735466cecf': 'test'
+        });
       },
 
       '#find': (function() {
@@ -214,7 +217,11 @@ registerSuite('Element', () => {
                   );
                 },
                 function(error) {
-                  assert.strictEqual(error.name, 'NoSuchElement');
+                  if (error.detail && error.detail.error) {
+                    assert.strictEqual(error.detail.error, 'no such element');
+                  } else {
+                    assert.strictEqual(error.name, 'NoSuchElement');
+                  }
                 }
               );
             }
@@ -590,6 +597,16 @@ registerSuite('Element', () => {
       },
 
       '#type -> file upload'(this: Test) {
+        // See https://github.com/mozilla/geckodriver/issues/858; in theory
+        // this was fixed with FF 55 and geckodriver 0.18.0, but it still seems
+        // to be broken as of at least FF 64 and geckodriver 0.21.0.
+        if (
+          session.capabilities.browserName === 'firefox' &&
+          Number(session.capabilities.browserVersion) >= 55
+        ) {
+          this.skip('Temporarily disabled');
+        }
+
         if (
           !session.capabilities.remoteFiles ||
           session.capabilities.brokenFileSendKeys
@@ -852,6 +869,13 @@ registerSuite('Element', () => {
       },
 
       '#getSpecAttribute'() {
+        // If the element/<id>/property endpoint is available, the remote is
+        // using W3C semantics, and getSpecAttribute likely won't work as
+        // expected
+        if (!session.capabilities.brokenElementProperty) {
+          this.skip('Not supported when W3C support is available');
+        }
+
         /*jshint maxlen:140 */
         return session
           .get('tests/functional/data/form.html')

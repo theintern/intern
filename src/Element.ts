@@ -77,7 +77,11 @@ export default class Element extends Locator<
   }
 
   toJSON() {
-    return { ELEMENT: this._elementId };
+    // Include both the JSONWireProtocol and W3C element properties
+    return {
+      ELEMENT: this._elementId,
+      'element-6066-11e4-a52e-4f735466cecf': this._elementId
+    };
   }
 
   /**
@@ -316,15 +320,15 @@ export default class Element extends Locator<
     const getPostData = (
       value: string[]
     ): { value?: string[]; text?: string } => {
-      if (this.session.capabilities.usesFlatKeysArray) {
-        // At least Firefox 49+ via Selenium requires the keys value to
-        // be a flat array of characters
-        return { value: value.join('').split('') };
-      } else if (this.session.capabilities.usesWebDriverElementValue) {
+      if (this.session.capabilities.usesWebDriverElementValue) {
         // At least geckodriver 0.21+ and the WebDriver standard
         // require the `/value` endpoint to take a `text` parameter
         // that is a string.
         return { text: value.join('') };
+      } else if (this.session.capabilities.usesFlatKeysArray) {
+        // At least Firefox 49+ via Selenium requires the keys value to
+        // be a flat array of characters
+        return { value: value.join('').split('') };
       } else {
         return { value };
       }
@@ -493,6 +497,10 @@ export default class Element extends Locator<
    * exists.
    */
   getAttribute(name: string): CancellablePromise<string | null> {
+    if (this.session.capabilities.usesWebDriverElementAttribute) {
+      return this._get<string | null>('attribute/$0', null, [name]);
+    }
+
     return this.session.execute<string | null>(
       'return arguments[0].getAttribute(arguments[1]);',
       [this, name]
@@ -508,10 +516,17 @@ export default class Element extends Locator<
    * @returns The value of the property.
    */
   getProperty<T = any>(name: string): CancellablePromise<T> {
-    return this.session.execute<T>('return arguments[0][arguments[1]];', [
-      this,
-      name
-    ]);
+    if (this.session.capabilities.brokenElementProperty) {
+      return this.session.execute<T>('return arguments[0][arguments[1]];', [
+        this,
+        name
+      ]);
+    }
+
+    return this._get<T>('property/$0', null, [name]).catch(() => {
+      this.session.capabilities.brokenElementProperty = true;
+      return this.getProperty<T>(name);
+    });
   }
 
   /**
@@ -760,4 +775,8 @@ function noop() {
   // supposed to return no value at all, which is not correct
 }
 
-export type ElementOrElementId = { ELEMENT: string } | Element | string;
+export type ElementOrElementId =
+  | { ELEMENT: string }
+  | { 'element-6066-11e4-a52e-4f735466cecf': string }
+  | Element
+  | string;

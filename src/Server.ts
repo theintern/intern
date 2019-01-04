@@ -310,6 +310,8 @@ export default class Server {
 
           error.status = data.status;
           error.detail = data.value;
+          error.name = getErrorName(error);
+
           error.request = {
             url: url,
             method: method,
@@ -580,6 +582,12 @@ export default class Server {
       updates.usesWebDriverWindowCommands = true;
     }
 
+    // At least Firefox 58+ with geckodriver 0.21.0+ uses webdriver semantics
+    // for `element/<id>/attribute`
+    if (isFirefox(capabilities, 59, Infinity)) {
+      updates.usesWebDriverElementAttribute = true;
+    }
+
     if (isMsEdge(capabilities)) {
       // At least MS Edge 14316 returns immediately from a click request
       // immediately rather than waiting for default action to occur.
@@ -632,7 +640,7 @@ export default class Server {
       // strategies
       updates.usesWebDriverLocators = true;
 
-      // Firefox 49+ (via geckodriver) requires keys sent to an element
+      // Non-W3C Firefox 49+ (via geckodriver) requires keys sent to an element
       // to be a flat array
       updates.usesFlatKeysArray = true;
 
@@ -1740,6 +1748,27 @@ export default class Server {
   deleteSession(sessionId: string) {
     return this.delete<void>('session/$0', undefined, [sessionId]).then(noop);
   }
+}
+
+function getErrorName(error: { name: string; detail: { error: string } }) {
+  if (error.name !== 'Error' || !error.detail || !error.detail.error) {
+    return error.name;
+  }
+
+  // desc will be something like 'javascript error' or 'no such window'
+  const desc = error.detail.error;
+
+  // 'javascript error' is a special case because of...case
+  if (desc === 'javascript error') {
+    return 'JavaScriptError';
+  }
+
+  // For other error descriptions, just combine the description words into a
+  // Pascal case name
+  return desc
+    .split(' ')
+    .map(word => `${word[0].toUpperCase()}${word.slice(1)}`)
+    .join('');
 }
 
 function isMac(capabilities: Capabilities) {
