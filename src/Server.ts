@@ -1308,15 +1308,15 @@ export default class Server {
       if (capabilities.brokenLinkTextLocator == null) {
         testedCapabilities.brokenLinkTextLocator = () =>
           get(
-            '<!DOCTYPE html><a id="d">What a cute<span style="display:none">,' +
+            '<!DOCTYPE html><a id="d">What a cute<span style="display:none">, ' +
               'yellow</span> backpack</a><a id="e">What a cute, yellow backpack</a>'
           )
             .then(() =>
               session
                 .findByLinkText('What a cute, yellow backpack')
-                .then(element => element.getVisibleText())
-                .then(text => {
-                  if (text !== 'What a cute, yellow backpack') {
+                .then(element => element.getAttribute('id'))
+                .then(attr => {
+                  if (attr !== 'e') {
                     throw new Error('incorrect link was found');
                   }
                 })
