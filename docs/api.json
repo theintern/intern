@@ -37708,7 +37708,7 @@
 					},
 					"comment": {
 						"shortText": "A list of special keys that can be used with the `pressKeys` and `type`\nfunctions.",
-						"text": "See [[Session.pressKeys]] for usage details.\n"
+						"text": "See [[Session.Session.pressKeys]] for usage details.\n"
 					},
 					"children": [
 						{
