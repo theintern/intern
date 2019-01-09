@@ -5,7 +5,7 @@
  * A list of special keys that can be used with the `pressKeys` and `type`
  * functions.
  *
- * See [[Session.pressKeys]] for usage details.
+ * See [[Session.Session.pressKeys]] for usage details.
  */
 const keys = {
   /** Releases all held modifier keys. */
