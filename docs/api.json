@@ -15310,8 +15310,8 @@
 										"name": "CancellablePromise",
 										"typeArguments": [
 											{
-												"type": "intrinsic",
-												"name": "any"
+												"type": "typeParameter",
+												"name": "T"
 											}
 										]
 									},

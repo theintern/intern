@@ -54,7 +54,8 @@ registerSuite('lib/ProxiedSession (functional)', () => {
       if (path === 'url') {
         lastUrl = data.url;
       } else if (
-        path === 'execute' &&
+        // Path will be `execute/sync` for W3C, or just `execute` for JWP
+        /execute\/?/.test(path) &&
         data.args &&
         data.args[0] === '__testCoverage'
       ) {
