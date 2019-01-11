@@ -257,7 +257,7 @@ registerSuite('lib/reporters/Runner', function() {
             error: new Error('failed')
           });
           assert.deepEqual(mockCharm.write.args, [
-            ['Suite foo FAILED\n'],
+            ['Suite foo ERROR\n'],
             ['Error: failed'],
             ['\n']
           ]);

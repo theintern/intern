@@ -483,8 +483,12 @@ export default class Suite implements SuiteProperties {
         })
         .catch((error: InternError) => {
           if (error !== SKIP) {
+            if (test) {
+              test.suiteError = error;
+            }
             if (!this.error) {
               this.executor.log('Suite errored with non-skip error', error);
+              error.lifecycleMethod = name;
               this.error = error;
             }
             throw error;

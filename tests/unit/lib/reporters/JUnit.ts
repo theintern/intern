@@ -11,7 +11,7 @@ const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 registerSuite('lib/reporters/JUnit', function() {
   const mockExecutor = <any>{
     suites: [],
-    on: spy(),
+    on: stub(),
     emit: stub().resolves(),
     formatError: spy((error: Error) => error.message)
   };
@@ -64,6 +64,14 @@ registerSuite('lib/reporters/JUnit', function() {
 
     tests: {
       construct() {
+        let callCount = 0;
+        (mockFs as any).existsSync = (dir: string) => {
+          if (dir === 'somewhere' && callCount === 0) {
+            callCount++;
+            return false;
+          }
+          return true;
+        };
         new JUnit(mockExecutor, { filename: 'somewhere/foo.js' });
         assert.equal(mockFs.mkdirSync.callCount, 1);
         assert.equal(mockFs.mkdirSync.getCall(0).args[0], 'somewhere');
@@ -190,6 +198,106 @@ registerSuite('lib/reporters/JUnit', function() {
             getReportOutput(),
             `name="${nestedTest}"`,
             'report does not contain nested test'
+          );
+        },
+
+        'suite error in before'() {
+          const assertionError = new Error('Expected 1 + 1 to equal 3');
+          assertionError.name = 'AssertionError';
+          const suiteError = new Error('Suite failed');
+          (suiteError as any).lifecycleMethod = 'after';
+
+          mockExecutor.suites.push(
+            new Suite(<any>{
+              sessionId: 'foo',
+              name: 'chrome 32 on Mac',
+              executor: mockExecutor,
+              timeElapsed: 1234,
+              tests: [
+                new Suite(<any>{
+                  name: 'suite1',
+                  executor: mockExecutor,
+                  timeElapsed: 1234,
+                  error: suiteError,
+                  tests: []
+                })
+              ]
+            })
+          );
+
+          const expected =
+            '<?xml version="1.0" encoding="UTF-8" ?><testsuites>' +
+            '<testsuite name="chrome 32 on Mac" failures="0" skipped="0" tests="0" time="1.234">' +
+            '<testsuite name="suite1" failures="0" skipped="0" tests="0" time="1.234">' +
+            '<error message="Suite failed" type="Error">Suite failed</error>' +
+            '</testsuite></testsuite></testsuites>\n';
+
+          assert.equal(
+            getReportOutput(),
+            expected,
+            'report should exactly match expected output'
+          );
+        },
+
+        'suite error in beforeEach'() {
+          const assertionError = new Error('Expected 1 + 1 to equal 3');
+          assertionError.name = 'AssertionError';
+          const suiteError = new Error('Suite failed');
+          (suiteError as any).lifecycleMethod = 'beforeEach';
+
+          mockExecutor.suites.push(
+            new Suite(<any>{
+              sessionId: 'foo',
+              name: 'chrome 32 on Mac',
+              executor: mockExecutor,
+              error: suiteError,
+              timeElapsed: 1234,
+              tests: [
+                new Test(<any>{
+                  name: 'test1',
+                  test() {},
+                  suiteError
+                }),
+                new Test(<any>{
+                  name: 'test2',
+                  test() {},
+                  suiteError
+                }),
+                new Test(<any>{
+                  name: 'test3',
+                  test() {},
+                  suiteError
+                }),
+                new Test(<any>{
+                  name: 'test4',
+                  test() {},
+                  suiteError
+                })
+              ]
+            })
+          );
+
+          const expected =
+            '<?xml version="1.0" encoding="UTF-8" ?><testsuites>' +
+            '<testsuite name="chrome 32 on Mac" failures="0" skipped="0" tests="4" time="1.234">' +
+            '<testcase name="test1" time="NaN" status="0">' +
+            '<error message="Suite failed" type="Error">Suite failed</error>' +
+            '</testcase>' +
+            '<testcase name="test2" time="NaN" status="0">' +
+            '<error message="Suite failed" type="Error">Suite failed</error>' +
+            '</testcase>' +
+            '<testcase name="test3" time="NaN" status="0">' +
+            '<error message="Suite failed" type="Error">Suite failed</error>' +
+            '</testcase>' +
+            '<testcase name="test4" time="NaN" status="0">' +
+            '<error message="Suite failed" type="Error">Suite failed</error>' +
+            '</testcase>' +
+            '</testsuite></testsuites>\n';
+
+          assert.equal(
+            getReportOutput(),
+            expected,
+            'report should exactly match expected output'
           );
         }
       }

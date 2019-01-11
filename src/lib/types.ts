@@ -7,6 +7,7 @@ export interface InternError {
   showDiff?: boolean;
   actual?: any;
   expected?: any;
+  lifecycleMethod?: string;
   relatedTest?: Test;
   reported?: boolean;
 }

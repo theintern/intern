@@ -128,13 +128,37 @@ class XmlNode {
 }
 
 function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
+  const { error } = suite;
+  let childNodes: XmlNode[] | undefined;
+  if (error && error.lifecycleMethod === 'before') {
+    childNodes = [
+      new XmlNode('error', {
+        childNodes: [reporter.formatError(error)],
+        message: error.message,
+        type: error.name
+      })
+    ];
+  } else {
+    childNodes = suite.tests.map(test => createTestNode(test, reporter));
+  }
+
+  if (error && error.lifecycleMethod === 'after') {
+    childNodes.push(
+      new XmlNode('error', {
+        childNodes: [reporter.formatError(error)],
+        message: error.message,
+        type: error.name
+      })
+    );
+  }
+
   return new XmlNode('testsuite', {
     name: suite.name || 'Node.js',
     failures: suite.numFailedTests,
     skipped: suite.numSkippedTests,
     tests: suite.numTests,
     time: suite.timeElapsed! / 1000,
-    childNodes: suite.tests.map(test => createTestNode(test, reporter))
+    childNodes
   });
 }
 
@@ -149,15 +173,13 @@ function createTestNode(test: Suite | Test, reporter: JUnit) {
     status: test.error ? 1 : 0
   });
 
-  if (test.error) {
-    node.createNode(
-      test.error.name === 'AssertionError' ? 'failure' : 'error',
-      {
-        childNodes: [reporter.formatError(test.error)],
-        message: test.error.message,
-        type: test.error.name
-      }
-    );
+  if (test.error || test.suiteError) {
+    const error = <Error>(test.error || test.suiteError);
+    node.createNode(error.name === 'AssertionError' ? 'failure' : 'error', {
+      childNodes: [reporter.formatError(error)],
+      message: error.message,
+      type: error.name
+    });
   } else if (test.skipped != null) {
     node.createNode('skipped', {
       childNodes: [test.skipped]
