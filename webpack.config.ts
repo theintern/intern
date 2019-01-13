@@ -57,14 +57,6 @@ module.exports = [
       filename: '[name].js',
       path: join(__dirname, '_build/src/browser')
     }
-  },
-  {
-    ...common,
-    entry: getEntries(),
-    output: {
-      filename: '[name].js',
-      path: join(__dirname, '_tests/src/browser')
-    }
   }
 ];
 

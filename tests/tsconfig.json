@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": "..",
     "declaration": false,
+    "module": "commonjs",
     "outDir": "../_tests",
     "paths": {
       "src/*": ["_build/src/*", "src/*"]

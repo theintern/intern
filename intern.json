@@ -53,55 +53,7 @@
     "plugins": [
       "_tests/tests/support/browserDom.js",
       "_tests/tests/support/dojoMocking.js"
-    ],
-    "loader": {
-      "script": "dojo2",
-      "options": {
-        "map": {
-          "*": {
-            "@dojo": "node_modules/@dojo"
-          }
-        },
-        "packages": [
-          { "name": "src", "location": "_build/src" },
-          {
-            "name": "benchmark",
-            "location": "node_modules/benchmark",
-            "main": "benchmark.js"
-          },
-          {
-            "name": "lodash",
-            "location": "node_modules/lodash",
-            "main": "lodash.js"
-          },
-          {
-            "name": "platform",
-            "location": "node_modules/platform",
-            "main": "platform.js"
-          },
-          {
-            "name": "sinon",
-            "location": "node_modules/sinon",
-            "main": "pkg/sinon.js"
-          },
-          {
-            "name": "tslib",
-            "location": "node_modules/tslib",
-            "main": "tslib.js"
-          },
-          {
-            "name": "@theintern/common",
-            "location": "node_modules/@theintern/common",
-            "main": "index.js"
-          },
-          {
-            "name": "axios",
-            "location": "node_modules/axios",
-            "main": "dist/axios.js"
-          }
-        ]
-      }
-    }
+    ]
   },
 
   "benchmark": false,

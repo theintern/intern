@@ -1,29 +1,44 @@
 import { Task } from '@theintern/common';
 import _Channel, { ChannelOptions } from 'src/lib/Channel';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
-let Channel: typeof _Channel;
+import rewiremock from 'rewiremock';
 
 let messages: string[];
 let websocketError: 'construct' | 'send' | null;
-let removeMocks: () => void;
+
+class MockWebSocket {
+  constructor() {
+    messages.push('constructing websocket');
+    if (websocketError === 'construct') {
+      throw new Error('Error constructing');
+    }
+  }
+
+  sendMessage(event: string) {
+    messages.push(`sending websocket ${event}`);
+    return websocketError === 'send' ? Task.reject() : Task.resolve();
+  }
+}
+
+class MockHttp {
+  constructor() {
+    messages.push('constructing http');
+  }
+
+  sendMessage(event: string) {
+    messages.push(`sending http ${event}`);
+    return Task.resolve();
+  }
+}
+
+const Channel: typeof _Channel = rewiremock.proxy(
+  () => require('src/lib/Channel'),
+  {
+    './channels/WebSocket': { default: MockWebSocket },
+    './channels/Http': { default: MockHttp }
+  }
+).default;
 
 registerSuite('lib/Channel', {
-  before() {
-    return mockRequire(require, 'src/lib/Channel', {
-      'src/lib/channels/WebSocket': { default: MockWebSocket },
-      'src/lib/channels/Http': { default: MockHttp }
-    }).then(handle => {
-      removeMocks = handle.remove;
-      Channel = handle.module.default;
-    });
-  },
-
-  after() {
-    removeMocks();
-  },
-
   beforeEach() {
     messages = [];
     websocketError = null;
@@ -81,28 +96,3 @@ registerSuite('lib/Channel', {
     }
   }
 });
-
-class MockWebSocket {
-  constructor() {
-    messages.push('constructing websocket');
-    if (websocketError === 'construct') {
-      throw new Error('Error constructing');
-    }
-  }
-
-  sendMessage(event: string) {
-    messages.push(`sending websocket ${event}`);
-    return websocketError === 'send' ? Task.reject() : Task.resolve();
-  }
-}
-
-class MockHttp {
-  constructor() {
-    messages.push('constructing http');
-  }
-
-  sendMessage(event: string) {
-    messages.push(`sending http ${event}`);
-    return Task.resolve();
-  }
-}
