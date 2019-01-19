@@ -256,7 +256,7 @@ export default class Session extends Locator<
    * handling functions.
    */
   getCurrentWindowHandle(): CancellablePromise<string> {
-    const endpoint = this.capabilities.usesWebDriverWindowCommands
+    const endpoint = this.capabilities.usesWebDriverWindowHandleCommands
       ? 'window'
       : 'window_handle';
 
@@ -276,8 +276,11 @@ export default class Session extends Locator<
         return handle;
       })
       .catch(error => {
-        if (error.name === 'UnknownCommand') {
-          this.capabilities.usesWebDriverWindowCommands = true;
+        if (
+          error.name === 'UnknownCommand' &&
+          !this.capabilities.usesWebDriverWindowHandleCommands
+        ) {
+          this.capabilities.usesWebDriverWindowHandleCommands = true;
           return this.getCurrentWindowHandle();
         }
         throw error;
@@ -288,7 +291,7 @@ export default class Session extends Locator<
    * Gets a list of identifiers for all currently open windows.
    */
   getAllWindowHandles(): CancellablePromise<string[]> {
-    const endpoint = this.capabilities.usesWebDriverWindowCommands
+    const endpoint = this.capabilities.usesWebDriverWindowHandleCommands
       ? 'window/handles'
       : 'window_handles';
 
@@ -303,8 +306,11 @@ export default class Session extends Locator<
         return handles;
       })
       .catch(error => {
-        if (error.name === 'UnknownCommand') {
-          this.capabilities.usesWebDriverWindowCommands = true;
+        if (
+          error.name === 'UnknownCommand' &&
+          !this.capabilities.usesWebDriverWindowHandleCommands
+        ) {
+          this.capabilities.usesWebDriverWindowHandleCommands = true;
           return this.getAllWindowHandles();
         }
         throw error;
@@ -633,7 +639,10 @@ export default class Session extends Locator<
     return this.serverDelete<void>('window').catch(error => {
       // ios-driver 0.6.6-SNAPSHOT April 2014 does not implement close
       // window command
-      if (error.name === 'UnknownCommand') {
+      if (
+        error.name === 'UnknownCommand' &&
+        !this.capabilities.brokenDeleteWindow
+      ) {
         this.capabilities.brokenDeleteWindow = true;
         return manualClose();
       }

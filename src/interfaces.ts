@@ -234,6 +234,11 @@ export interface Capabilities {
   usesWebDriverTimeouts?: boolean;
 
   /**
+   * Whether the remote browser uses WebDriver-style window handle command (/window)
+   */
+  usesWebDriverWindowHandleCommands?: boolean;
+
+  /**
    * Whether the remote browser uses WebDriver-style window commands (/rect, implicit handles)
    */
   usesWebDriverWindowCommands?: boolean;
