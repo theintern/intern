@@ -970,7 +970,9 @@ registerSuite('Element', () => {
             return element.getAttribute('action');
           })
           .then(function(action) {
-            assert.strictEqual(action, 'form.html');
+            // At least Firefox 64 will return an absolute URL for the action
+            // attribute.
+            assert.match(action!, /(.*\/)?form.html/);
             return session.findById('disabled');
           })
           .then(function(element) {
