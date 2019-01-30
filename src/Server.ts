@@ -880,23 +880,6 @@ export default class Server {
           );
       }
 
-      if (capabilities.usesWebDriverTimeouts == null) {
-        testedCapabilities.usesWebDriverTimeouts = () => {
-          // setFindTimeout uses JSON wire protocol by default, and will fail
-          // if the server is using W3C WebDriver
-          return session.setFindTimeout(500).then(
-            unsupported,
-            error =>
-              // At least Chrome 60+
-              /Missing 'type' parameter/.test(error.message) ||
-              // At least Safari 10+
-              /Unknown timeout type/.test(error.message) ||
-              // IE11
-              /Invalid timeout type specified/.test(error.message)
-          );
-        };
-      }
-
       if (capabilities.supportsGetTimeouts == null) {
         testedCapabilities.supportsGetTimeouts = () => {
           return session.serverGet('timeouts').then(supported, unsupported);

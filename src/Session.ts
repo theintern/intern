@@ -204,7 +204,7 @@ export default class Session extends Locator<
    * @param ms The length of time to use for the timeout, in milliseconds. A
    * value of 0 will cause operations to time out immediately.
    */
-  setTimeout(type: Timeout, ms: number) {
+  setTimeout(type: Timeout, ms: number): CancellablePromise<void> {
     // Infinity cannot be serialised by JSON
     if (ms === Infinity) {
       // It seems that at least ChromeDriver 2.10 has a limit here that
@@ -220,11 +220,14 @@ export default class Session extends Locator<
     }
 
     // Set both JSONWireProtocol and WebDriver properties in the data object
-    let data = {
-      type,
-      ms,
-      [type === 'page load' ? 'pageLoad' : type]: ms
-    };
+    let data = this.capabilities.usesWebDriverTimeouts
+      ? {
+          [type === 'page load' ? 'pageLoad' : type]: ms
+        }
+      : {
+          type,
+          ms
+        };
 
     const promise = this.serverPost<void>('timeouts', data).catch(error => {
       // Appium as of April 2014 complains that `timeouts` is
@@ -239,6 +242,17 @@ export default class Session extends Locator<
             ms: ms
           });
         }
+      } else if (
+        !this.capabilities.usesWebDriverTimeouts &&
+        // At least Chrome 60+
+        (/Missing 'type' parameter/.test(error.message) ||
+          // At least Safari 10+
+          /Unknown timeout type/.test(error.message) ||
+          // IE11
+          /Invalid timeout type specified/.test(error.message))
+      ) {
+        this.capabilities.usesWebDriverTimeouts = true;
+        return this.setTimeout(type, ms);
       }
 
       throw error;
@@ -1189,13 +1203,7 @@ export default class Session extends Locator<
    * @param value The strategy-specific value to search for. For example, if
    * `using` is 'id', `value` should be the ID of the element to retrieve.
    */
-  find(using: Strategy, value: string) {
-    if (this.capabilities.usesWebDriverLocators) {
-      const locator = toW3cLocator(using, value);
-      using = locator.using;
-      value = locator.value;
-    }
-
+  find(using: Strategy, value: string): CancellablePromise<Element> {
     if (this.capabilities.usesWebDriverLocators) {
       const locator = toW3cLocator(using, value);
       using = locator.using;
@@ -1222,9 +1230,23 @@ export default class Session extends Locator<
     return this.serverPost<ElementOrElementId>('element', {
       using: using,
       value: value
-    }).then(element => {
-      return new Element(element, this);
-    });
+    }).then(
+      element => {
+        return new Element(element, this);
+      },
+
+      error => {
+        if (
+          !this.capabilities.usesWebDriverLocators &&
+          /search strategy: 'id'/.test(error.message)
+        ) {
+          this.capabilities.usesWebDriverLocators = true;
+          return this.find(using, value);
+        }
+
+        throw error;
+      }
+    );
   }
 
   /**
@@ -1237,13 +1259,7 @@ export default class Session extends Locator<
    * @param value The strategy-specific value to search for. See
    * [[Session.Session.find]] for details.
    */
-  findAll(using: Strategy, value: string) {
-    if (this.capabilities.usesWebDriverLocators) {
-      const locator = toW3cLocator(using, value);
-      using = locator.using;
-      value = locator.value;
-    }
-
+  findAll(using: Strategy, value: string): CancellablePromise<Element[]> {
     if (this.capabilities.usesWebDriverLocators) {
       const locator = toW3cLocator(using, value);
       using = locator.using;
@@ -1269,11 +1285,25 @@ export default class Session extends Locator<
     return this.serverPost<any[]>('elements', {
       using: using,
       value: value
-    }).then(elements => {
-      return elements.map((element: ElementOrElementId) => {
-        return new Element(element, this);
-      });
-    });
+    }).then(
+      elements => {
+        return elements.map((element: ElementOrElementId) => {
+          return new Element(element, this);
+        });
+      },
+
+      error => {
+        if (
+          !this.capabilities.usesWebDriverLocators &&
+          /search strategy: 'id'/.test(error.message)
+        ) {
+          this.capabilities.usesWebDriverLocators = true;
+          return this.findAll(using, value);
+        }
+
+        throw error;
+      }
+    );
   }
 
   /**
