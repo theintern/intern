@@ -496,6 +496,13 @@ export default class Session extends Locator<
           this.capabilities.usesWebDriverExecuteAsync = true;
           return this.executeAsync<T>(script, args);
         }
+
+        // At least Safari 11, Jan 2019 will throw Timeout errors rather than
+        // ScriptTimeout errors for script timeouts
+        if (error.name === 'Timeout') {
+          error.name = 'ScriptTimeout';
+        }
+
         throw error;
       });
   }
