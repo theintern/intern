@@ -50,6 +50,7 @@
         "node",
         { "browserName": "chrome", "version": "latest" },
         { "browserName": "firefox", "version": "latest" },
+        { "browserName": "safari", "version": "latest" },
         { "browserName": "internet explorer", "version": "latest" }
       ],
       "tunnel": "browserstack"
