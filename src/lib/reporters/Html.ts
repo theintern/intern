@@ -195,7 +195,7 @@ export default class Html extends Reporter implements HtmlProperties {
 
       // Stop looping when we encounter a row that's not indented more
       // than the suite being updated
-      if (indentDelta === 0) {
+      if (indentDelta <= 0) {
         break;
       }
 
