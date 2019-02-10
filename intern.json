@@ -58,6 +58,13 @@
 
     "wd": {
       "environments": ["node", "chrome"]
+    },
+
+    "firefox": {
+      "environments": "firefox",
+      "tunnelOptions": {
+        "drivers": ["firefox"]
+      }
     }
   },
 
