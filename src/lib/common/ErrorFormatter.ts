@@ -150,9 +150,9 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
    */
   protected _formatLine(data: { func?: string; source: string }) {
     if (!data.func) {
-      return '  at <' + this._getSource(data.source) + '>';
+      return '  at < ' + this._getSource(data.source) + ' >';
     }
-    return '  at ' + data.func + '  <' + this._getSource(data.source) + '>';
+    return '  at ' + data.func + '  < ' + this._getSource(data.source) + ' >';
   }
 
   /**

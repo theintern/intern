@@ -128,7 +128,7 @@ registerSuite('lib/common/ErrorFormatter', function() {
                 };
                 assert.equal(
                   formatter.format(err),
-                  'Error: foo\n  at function  <somefile.js:10:20>'
+                  'Error: foo\n  at function  < somefile.js:10:20 >'
                 );
               },
 
@@ -142,8 +142,8 @@ registerSuite('lib/common/ErrorFormatter', function() {
                 assert.equal(
                   formatter.format(err),
                   'Error: foo\n' +
-                    '  at function  <somefile.js:10:20>\n' +
-                    '  at <http://somewhere.com/otherfile.js:10:20>'
+                    '  at function  < somefile.js:10:20 >\n' +
+                    '  at < http://somewhere.com/otherfile.js:10:20 >'
                 );
               },
 
@@ -160,9 +160,9 @@ registerSuite('lib/common/ErrorFormatter', function() {
                 };
                 assert.equal(
                   formatter.format(err),
-                  'Error: foo\n  at function  <somefile.js:10:20>\n' +
-                    '  at takeScreenshot  <node_modules/leadfoot/Session.js:10:20>\n' +
-                    '  at other  <appfile.js:10:20>'
+                  'Error: foo\n  at function  < somefile.js:10:20 >\n' +
+                    '  at takeScreenshot  < node_modules/leadfoot/Session.js:10:20 >\n' +
+                    '  at other  < appfile.js:10:20 >'
                 );
               }
             }
