@@ -1,28 +1,23 @@
 sudo: false
 language: node_js
 node_js:
-  - 'lts/*'
-  - 'node'
+- lts/*
+- node
 env:
   global:
-    # Please get your own free key if you want to test yourself
-    - BROWSERSTACK_USERNAME=sitepenlabs1
-    - BROWSERSTACK_ACCESS_KEY=xm1uYrJuV3gZMJqCyZJX
+  - BROWSERSTACK_USERNAME=sitepenlabs1
+  - BROWSERSTACK_ACCESS_KEY=xm1uYrJuV3gZMJqCyZJX
   matrix:
-    - INTERN_ARGS="environments="
-    - INTERN_ARGS=""
+  - INTERN_ARGS="environments="
+  - INTERN_ARGS=""
 matrix:
   exclude:
-    # Exlude the matrix run with current node && INTERN_ARGS="" (which means
-    # only include the one that does *not* run tests on remote environments)
-    - node_js: 'node'
-      env: INTERN_ARGS=""
-    # Exlude the matrix run with LTS node && INTERN_ARGS="environments=" (which
-    # means only include the one that *does* run remote tests)
-    - node_js: 'lts/*'
-      env: INTERN_ARGS="environments="
+  - node_js: node
+    env: INTERN_ARGS=""
+  - node_js: lts/*
+    env: INTERN_ARGS="environments="
 script:
-  - npm run ci
+- npm run ci
 notifications:
   slack:
-    secure: RvW7LoV4mBzNz481eqfhLB/QNuJYht9Fpz7F+vtVjD/RacDJfc7397/8pJcl2yP+Ft2X7yJsM6bx3Uq22CfMiZ7HTVOfb+tYQNBQ5vcluUvd3fYV72M4oWe/TTFTlAulC04vWs4/QRHqbvmsXXr8Rn8Jj2LjsxnKvP0UNr0aLxk=
+    secure: ashyQcQVPnkHFhLXUAzm+llIsEUjknS26RUdmVZQuYpd9TNKsdRB+XimPBhVgWy6y99te0gKvLPUh0Eoyy+4d5EFGGTMcj6FfnUC6UG8Mys3Ek/yyaPGKVVLTu5hjt2bkOKTzE/gjfuqwyH8eKf5JwhbahkFe1u0sVDpl3c0muU=
