@@ -47,6 +47,7 @@ export interface Capabilities {
 
   brokenElementDisplayedOffscreen?: boolean;
   brokenElementDisplayedOpacity?: boolean;
+  brokenElementEnabled?: boolean;
   brokenElementPosition?: boolean;
   brokenElementProperty?: boolean;
   brokenElementSerialization?: boolean;
@@ -72,6 +73,10 @@ export interface Capabilities {
   brokenSessionList?: boolean;
   brokenSubmitElement?: boolean;
   brokenTouchScroll?: boolean;
+
+  /** "Visible" text includes text that should be hidden */
+  brokenVisibleText?: boolean;
+
   brokenWhitespaceNormalization?: boolean;
   brokenWindowClose?: boolean;
   brokenWindowPosition?: boolean;
@@ -119,6 +124,15 @@ export interface Capabilities {
 
   /** Whether the remote browser supports native events */
   nativeEvents?: boolean;
+
+  /** If true, the remote doesn't support the JWP /displayed endpoint */
+  noElementDisplayed?: boolean;
+
+  /** If true, the remote doesn't support the JWP /equals endpoint */
+  noElementEquals?: boolean;
+
+  /** If true, the remote doesn't support the JWP /keys endpoint */
+  noKeysCommand?: boolean;
 
   /**
    * The base platform the remote browser is running on, typically one of
@@ -174,11 +188,6 @@ export interface Capabilities {
 
   /** Whether the server supports the GET /timeouts endpoint */
   supportsGetTimeouts?: boolean;
-
-  /**
-   * Whether the remote browser supports the JsonWireProtocol 'keys' command
-   */
-  supportsKeysCommand?: boolean;
 
   /** Whether the remote browser allows navigation via data URIs */
   supportsNavigationDataUris?: boolean;

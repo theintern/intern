@@ -27,7 +27,8 @@ registerSuite('Session', () => {
     stubbedMethodName: keyof Session,
     testMethodName: string,
     placeholders: string[],
-    firstArguments: any
+    firstArguments: any,
+    shouldSkip?: (test: Test) => void
   ) {
     let originalMethod: Function;
     let calledWith: any;
@@ -59,6 +60,9 @@ registerSuite('Session', () => {
       const method = testMethodName.replace('_', placeholder);
 
       suite.tests['#' + method] = function() {
+        if (shouldSkip) {
+          shouldSkip(this);
+        }
         assert.isFunction(session[method]);
         session[method].apply(session, extraArguments);
         assert.ok(calledWith);
@@ -1279,6 +1283,10 @@ registerSuite('Session', () => {
       })(),
 
       '#findDisplayed'(this: Test) {
+        if (session.capabilities.noElementDisplayed) {
+          this.skip('Remote does not support /displayed endpoint');
+        }
+
         if (session.capabilities.brokenElementSerialization) {
           this.skip('element serialization is broken');
         }
@@ -1368,7 +1376,12 @@ registerSuite('Session', () => {
         'findDisplayed',
         'findDisplayedBy_',
         suffixes,
-        strategyNames
+        strategyNames,
+        (test: Test) => {
+          if (session.capabilities.noElementDisplayed) {
+            test.skip('Remote does not support /displayed endpoint');
+          }
+        }
       ),
 
       '#waitForDeleted'() {

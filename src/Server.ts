@@ -8,7 +8,7 @@ import {
   RequestMethod,
   Response
 } from '@theintern/common';
-import Session from './Session';
+import Session, { WebDriverTimeouts } from './Session';
 import Element from './Element';
 import statusCodes from './lib/statusCodes';
 import { format, parse, resolve, Url } from 'url';
@@ -485,6 +485,23 @@ export default class Server {
     const capabilities = session.capabilities;
     const updates: Capabilities = {};
 
+    // Safari 10 and 11 report their versions on a 'version' property using
+    // non-contiguous version numbers. Versions < 10 use standard numbers on
+    // a 'version' property, while versions >= 12 use standard numbers on a
+    // browserVersion property.
+    if (
+      isSafari(session.capabilities) &&
+      !session.capabilities.browserVersion
+    ) {
+      const { version } = session.capabilities;
+      const versionNum = parseFloat(version!);
+      if (versionNum > 12000 && versionNum < 13000) {
+        session.capabilities.browserVersion = '10';
+      } else if (versionNum > 13000) {
+        session.capabilities.browserVersion = '11';
+      }
+    }
+
     // At least geckodriver 0.15.0 only returns platformName (not platform)
     // and browserVersion (not version) in its capabilities.
     if (capabilities.platform && !capabilities.platformName) {
@@ -497,95 +514,151 @@ export default class Server {
     // At least SafariDriver 2.41.0 fails to allow stand-alone feature
     // testing because it does not inject user scripts for URLs that are
     // not http/https
-    if (isSafari(capabilities) && isMac(capabilities)) {
-      Object.assign(updates, {
-        nativeEvents: false,
-        rotatable: false,
-        locationContextEnabled: false,
-        webStorageEnabled: false,
-        applicationCacheEnabled: false,
-        supportsNavigationDataUris: true,
-        supportsCssTransforms: true,
-        supportsExecuteAsync: true,
-        mouseEnabled: true,
-        touchEnabled: false,
-        dynamicViewport: true,
-        shortcutKey: keys.COMMAND,
-
-        // This must be set; running it as a server test will cause
-        // SafariDriver to emit errors with the text "undefined is not
-        // an object (evaluating 'a.postMessage')", and the session
-        // will become unresponsive
-        returnsFromClickImmediately: false,
-
-        brokenDeleteCookie: false,
-        brokenExecuteElementReturn: false,
-        brokenExecuteUndefinedReturn: false,
-        brokenElementDisplayedOpacity: false,
-        brokenElementDisplayedOffscreen: false,
-        brokenSubmitElement: true,
-        brokenWindowSwitch: true,
-        brokenDoubleClick: false,
-        brokenCssTransformedSize: true,
-        fixedLogTypes: false as false,
-        brokenHtmlTagName: false,
-        brokenNullGetSpecAttribute: false
-      });
-
-      // SafariDriver, which shows versions up to 10.x, doesn't support
-      // file uploads
-      if (isValidVersion(capabilities, 0, 100)) {
-        Object.assign(updates, {
-          remoteFiles: false,
-
-          brokenActiveElement: true,
-          brokenExecuteForNonHttpUrl: true,
-          brokenMouseEvents: true,
-          brokenNavigation: true,
-          brokenOptionSelect: false,
-          brokenSendKeys: true,
-          brokenWindowPosition: true,
-          brokenWindowSize: true,
-
-          // SafariDriver 2.41.0 cannot delete cookies, at all, ever
-          brokenCookies: true
-        });
-
-        if (isValidVersion(capabilities, 10, 11)) {
+    if (isSafari(capabilities)) {
+      if (isMac(capabilities)) {
+        if (isValidVersion(capabilities, 0, 11)) {
           Object.assign(updates, {
-            // Safari 10 using SafariDriver does not appear to
-            // support executeAsync at least as of May 2017
-            supportsExecuteAsync: false
+            nativeEvents: false,
+            rotatable: false,
+            locationContextEnabled: false,
+            webStorageEnabled: false,
+            applicationCacheEnabled: false,
+            supportsNavigationDataUris: true,
+            supportsCssTransforms: true,
+            supportsExecuteAsync: true,
+            mouseEnabled: true,
+            touchEnabled: false,
+            dynamicViewport: true,
+            shortcutKey: keys.COMMAND,
+
+            // This must be set; running it as a server test will cause
+            // SafariDriver to emit errors with the text "undefined is not
+            // an object (evaluating 'a.postMessage')", and the session
+            // will become unresponsive
+            returnsFromClickImmediately: false,
+
+            brokenDeleteCookie: false,
+            brokenExecuteElementReturn: false,
+            brokenExecuteUndefinedReturn: false,
+            brokenElementDisplayedOpacity: false,
+            brokenElementDisplayedOffscreen: false,
+            brokenSubmitElement: true,
+            brokenWindowSwitch: true,
+            brokenDoubleClick: false,
+            brokenCssTransformedSize: true,
+            fixedLogTypes: false as false,
+            brokenHtmlTagName: false,
+            brokenNullGetSpecAttribute: false
+          });
+        }
+
+        if (isValidVersion(capabilities, 0, 10)) {
+          Object.assign(updates, {
+            // SafariDriver, which shows versions up to 9.x, doesn't support file
+            // uploads
+            remoteFiles: false,
+
+            brokenActiveElement: true,
+            brokenExecuteForNonHttpUrl: true,
+            brokenMouseEvents: true,
+            brokenNavigation: true,
+            brokenOptionSelect: false,
+            brokenSendKeys: true,
+            brokenWindowPosition: true,
+            brokenWindowSize: true,
+
+            // SafariDriver 2.41.0 cannot delete cookies, at all, ever
+            brokenCookies: true
+          });
+        }
+
+        if (isValidVersion(capabilities, 10, 12)) {
+          Object.assign(updates, {
+            brokenLinkTextLocator: true,
+            // At least Safari 11 will hang on the brokenOptionSelect test
+            brokenOptionSelect: true,
+            brokenWhitespaceNormalization: true,
+            brokenMouseEvents: true,
+            brokenWindowClose: true,
+            usesWebDriverActiveElement: true
+          });
+        }
+
+        if (isValidVersion(capabilities, 12)) {
+          Object.assign(updates, {
+            // At least Safari 12 uses W3C webdriver standard, including
+            // /attribute/:attr
+            usesWebDriverElementAttribute: true
           });
         }
       }
 
-      // The native safaridriver reports versions like '12603.1.30.0.34'
-      if (isValidVersion(capabilities, 1000)) {
-        Object.assign(updates, {
-          brokenLinkTextLocator: true,
-          brokenOptionSelect: true,
-          brokenWhitespaceNormalization: true,
-          fixedLogTypes: [],
-          usesWebDriverActiveElement: true
-        });
+      // At least ios-driver 0.6.6-SNAPSHOT April 2014 corrupts its
+      // internal state when performing window switches and gets
+      // permanently stuck; we cannot feature detect, so platform
+      // sniffing it is
+      if (isIos(capabilities)) {
+        updates.brokenWindowSwitch = true;
       }
 
       return updates;
     }
 
-    // The window sizing commands in the W3C standard don't use window
-    // handles, but they do under the JsonWireProtocol. By default, Session
-    // assumes handles are used. When the result of this check is added to
-    // capabilities, Session will take it into account.
-    if (isFirefox(capabilities, 53, Infinity)) {
-      updates.usesWebDriverWindowCommands = true;
-    }
+    if (isFirefox(capabilities)) {
+      // The window sizing commands in the W3C standard don't use window
+      // handles, but they do under the JsonWireProtocol. By default, Session
+      // assumes handles are used. When the result of this check is added to
+      // capabilities, Session will take it into account.
+      if (isValidVersion(capabilities, 53, Infinity)) {
+        updates.usesWebDriverWindowCommands = true;
+      }
 
-    // At least Firefox 58+ with geckodriver 0.21.0+ uses webdriver semantics
-    // for `element/<id>/attribute`
-    if (isFirefox(capabilities, 59, Infinity)) {
-      updates.usesWebDriverElementAttribute = true;
+      // At least Firefox 58+ with geckodriver 0.21.0+ uses webdriver semantics
+      // for `element/<id>/attribute`
+      if (isValidVersion(capabilities, 59, Infinity)) {
+        updates.usesWebDriverElementAttribute = true;
+      }
+
+      if (isValidVersion(capabilities, 49, Infinity)) {
+        // The W3C WebDriver standard does not support the session-level
+        // /keys command, but JsonWireProtocol does.
+        updates.noKeysCommand = true;
+
+        // Firefox 49+ (via geckodriver) only supports W3C locator
+        // strategies
+        updates.usesWebDriverLocators = true;
+
+        // Non-W3C Firefox 49+ (via geckodriver) requires keys sent to an element
+        // to be a flat array
+        updates.usesFlatKeysArray = true;
+
+        // At least Firefox 49 + geckodriver can't POST empty data
+        updates.brokenEmptyPost = true;
+
+        // At least geckodriver 0.11 and Firefox 49 don't implement mouse
+        // control, so everything will need to be simulated.
+        updates.brokenMouseEvents = true;
+
+        // Firefox 49+ (via geckodriver) doesn't support retrieving logs or
+        // log types, and may hang the session.
+        updates.fixedLogTypes = [];
+      }
+
+      if (isValidVersion(capabilities, 49, 53)) {
+        // At least geckodriver 0.15.0 and Firefox 51 will stop responding
+        // to commands when performing window switches.
+        updates.brokenWindowSwitch = true;
+      }
+
+      // Using mouse services such as doubleclick will hang Firefox 49+
+      // session on the Mac.
+      if (
+        capabilities.mouseEnabled == null &&
+        isValidVersion(capabilities, 49, Infinity) &&
+        isMac(capabilities)
+      ) {
+        updates.mouseEnabled = true;
+      }
     }
 
     if (isMsEdge(capabilities)) {
@@ -596,159 +669,110 @@ export default class Server {
       // MS Edge has broken cookie deletion.
       updates.brokenDeleteCookie = true;
 
-      // At least MS Edge may return an 'element is obscured' error when
-      // trying to click on visible elements.
-      updates.brokenClick = true;
+      // At least MS Edge before 44.17763 may return an 'element is obscured'
+      // error when trying to click on visible elements.
+      if (isValidVersion(capabilities, 0, 44.17763)) {
+        updates.brokenClick = true;
+      }
 
       // File uploads don't work on Edge as of May 2017
       updates.remoteFiles = false;
+
+      // At least MS Edge 10586 becomes unresponsive after calling DELETE
+      // window, and window.close() requires user interaction. This
+      // capability is distinct from brokenDeleteWindow as this capability
+      // indicates that there is no way to close a Window.
+      if (isValidVersion(capabilities, 25.10586)) {
+        updates.brokenWindowClose = true;
+      }
+
+      // At least MS Edge Driver 14316 doesn't support sending keys to a file
+      // input. See
+      // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7194303/
+      //
+      // The existing feature test for this caused some browsers to hang, so
+      // just flag it for Edge for now.
+      if (isValidVersion(capabilities, 38.14366)) {
+        updates.brokenFileSendKeys = true;
+      }
+
+      // At least MS Edge 14316 supports alerts but does not specify the
+      // capability
+      if (
+        isValidVersion(capabilities, 37.14316) &&
+        !('handlesAlerts' in capabilities)
+      ) {
+        updates.handlesAlerts = true;
+      }
+
+      // MS Edge 17763+ do not support the JWP execute commands. However, they
+      // return a JavaScriptError rather than something indicating that the
+      // command isn't supported.
+      if (isValidVersion(capabilities, 44.17763)) {
+        if (capabilities.usesWebDriverExecuteSync == null) {
+          updates.usesWebDriverExecuteSync = true;
+        }
+
+        if (capabilities.usesWebDriverExecuteAsync == null) {
+          updates.usesWebDriverExecuteAsync = true;
+        }
+      }
     }
 
-    // At least MS Edge 10586 becomes unresponsive after calling DELETE
-    // window, and window.close() requires user interaction. This
-    // capability is distinct from brokenDeleteWindow as this capability
-    // indicates that there is no way to close a Window.
-    if (isMsEdge(capabilities, 25.10586)) {
-      updates.brokenWindowClose = true;
-    }
+    if (isInternetExplorer(capabilities)) {
+      if (isValidVersion(capabilities, 11)) {
+        // IE11 will take screenshots, but it's very slow
+        updates.takesScreenshot = true;
 
-    // At least MS Edge Driver 14316 doesn't support sending keys to a file
-    // input. See
-    // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7194303/
-    //
-    // The existing feature test for this caused some browsers to hang, so
-    // just flag it for Edge for now.
-    if (isMsEdge(capabilities, 38.14366)) {
-      updates.brokenFileSendKeys = true;
-    }
+        // IE11 will hang during this check if nativeEvents are enabled
+        updates.brokenSubmitElement = true;
+      }
 
-    // At least MS Edge 14316 supports alerts but does not specify the
-    // capability
-    if (
-      isMsEdge(capabilities, 37.14316) &&
-      !('handlesAlerts' in capabilities)
-    ) {
-      updates.handlesAlerts = true;
-    }
+      if (isValidVersion(capabilities, 11, Infinity)) {
+        // At least IE11 will hang during this check, although option
+        // selection does work with it
+        updates.brokenOptionSelect = false;
+      }
 
-    if (isFirefox(capabilities, 49, Infinity)) {
-      // The W3C WebDriver standard does not support the session-level
-      // /keys command, but JsonWireProtocol does.
-      updates.supportsKeysCommand = false;
+      // It is not possible to test this since the feature tests runs in
+      // quirks-mode on IE<10, but we know that IE9 supports CSS transforms
+      if (isValidVersion(capabilities, 9)) {
+        updates.supportsCssTransforms = true;
+      }
 
-      // Firefox 49+ (via geckodriver) only supports W3C locator
-      // strategies
-      updates.usesWebDriverLocators = true;
-
-      // Non-W3C Firefox 49+ (via geckodriver) requires keys sent to an element
-      // to be a flat array
-      updates.usesFlatKeysArray = true;
-
-      // At least Firefox 49 + geckodriver can't POST empty data
-      updates.brokenEmptyPost = true;
-
-      // At least geckodriver 0.11 and Firefox 49 don't implement mouse
-      // control, so everything will need to be simulated.
-      updates.brokenMouseEvents = true;
-
-      // Firefox 49+ (via geckodriver) doesn't support retrieving logs or
-      // log types, and may hang the session.
-      updates.fixedLogTypes = [];
-    }
-
-    if (isFirefox(capabilities, 49, 53)) {
-      // At least geckodriver 0.15.0 and Firefox 51 will stop responding
-      // to commands when performing window switches.
-      updates.brokenWindowSwitch = true;
-    }
-
-    if (isInternetExplorer(capabilities, 11)) {
-      // IE11 will take screenshots, but it's very slow
-      updates.takesScreenshot = true;
-
-      // IE11 will hang during this check if nativeEvents are enabled
-      updates.brokenSubmitElement = true;
-    }
-
-    if (isInternetExplorer(capabilities, 11, Infinity)) {
-      // At least IE11 will hang during this check, although option
-      // selection does work with it
-      updates.brokenOptionSelect = false;
-    }
-
-    // Using mouse services such as doubleclick will hang Firefox 49+
-    // session on the Mac.
-    if (
-      !('mouseEnabled' in capabilities) &&
-      isFirefox(capabilities, 49, Infinity) &&
-      isMac(capabilities)
-    ) {
-      updates.mouseEnabled = true;
-    }
-
-    // Don't check for touch support if the environment reports that no
-    // touchscreen is available
-    if (capabilities.hasTouchScreen === false) {
-      updates.touchEnabled = false;
+      // Internet Explorer 8 and earlier will simply crash the server if we
+      // attempt to return the parent frame via script, so never even attempt
+      // to do so
+      updates.scriptedParentFrameCrashesBrowser = isValidVersion(
+        capabilities,
+        0,
+        9
+      );
     }
 
     // Don't check for touch support if the environment reports that no
     // touchscreen is available. Also, ChromeDriver
     // 2.19 claims that it supports touch but it does not implement all of
     //   the touch endpoints from JsonWireProtocol
-    if (
-      capabilities.hasTouchScreen === false ||
-      capabilities.browserName === 'chrome'
-    ) {
+    if (capabilities.hasTouchScreen === false || isChrome(capabilities)) {
       updates.touchEnabled = false;
     }
 
-    // It is not possible to test this since the feature tests runs in
-    // quirks-mode on IE<10, but we know that IE9 supports CSS transforms
-    if (isInternetExplorer(capabilities, 9)) {
-      updates.supportsCssTransforms = true;
-    }
-
     updates.shortcutKey = (function() {
-      const platform = (capabilities.platform || capabilities.platformName)!;
-
-      if (/^mac/i.test(platform) || /^darwin/i.test(platform)) {
-        return keys.COMMAND;
+      if (isIos(capabilities)) {
+        return null;
       }
 
-      if (/^ios/i.test(platform)) {
-        return null;
+      if (isMac(capabilities)) {
+        return keys.COMMAND;
       }
 
       return keys.CONTROL;
     })();
 
-    // Internet Explorer 8 and earlier will simply crash the server if we
-    // attempt to return the parent frame via script, so never even attempt
-    // to do so
-    updates.scriptedParentFrameCrashesBrowser = isInternetExplorer(
-      capabilities,
-      0,
-      9
-    );
-
-    if (
-      // At least ios-driver 0.6.6-SNAPSHOT April 2014 corrupts its
-      // internal state when performing window switches and gets
-      // permanently stuck; we cannot feature detect, so platform
-      // sniffing it is
-      capabilities.browserName === 'Safari' &&
-      capabilities.platformName === 'IOS'
-    ) {
-      updates.brokenWindowSwitch = true;
-    }
-
     // At least selendroid 0.12.0-SNAPSHOT doesn't support switching to the
     // parent frame
-    if (
-      capabilities.browserName === 'android' &&
-      capabilities.deviceName === 'Android Emulator'
-    ) {
+    if (isAndroid(capabilities) && isAndroidEmulator(capabilities)) {
       updates.brokenParentFrameSwitch = true;
     }
 
@@ -769,6 +793,9 @@ export default class Server {
         return false;
       }
       if (/\bunimplemented command\b/.test(error.message)) {
+        return false;
+      }
+      if (/The command .* not found/.test(error.message)) {
         return false;
       }
       return true;
@@ -886,6 +913,25 @@ export default class Server {
         };
       }
 
+      if (capabilities.usesWebDriverTimeouts == null) {
+        testedCapabilities.usesWebDriverTimeouts = () => {
+          return (
+            session
+              // Try to set a timeout using W3C semantics
+              .serverPost<void>('timeouts', { implicit: 1234 })
+              .then(() => {
+                // Verify that the timeout was set
+                return session
+                  .serverGet<WebDriverTimeouts>('timeouts')
+                  .then(timeouts => {
+                    return timeouts.implicit === 1234;
+                  })
+                  .catch(unsupported);
+              }, unsupported)
+          );
+        };
+      }
+
       if (capabilities.usesWebDriverWindowCommands == null) {
         testedCapabilities.usesWebDriverWindowCommands = () =>
           session.serverGet('window/rect').then(supported, unsupported);
@@ -911,9 +957,7 @@ export default class Server {
         testedCapabilities.usesWebDriverFrameId = () =>
           session
             .switchToFrame('inlineFrame')
-            .then(unsupported, error =>
-              /frame id has unexpected type/.test(error.message)
-            );
+            .then(unsupported, error => error.name === 'NoSuchFrame');
       }
 
       if (capabilities.returnsFromClickImmediately == null) {
@@ -944,11 +988,20 @@ export default class Server {
 
       // The W3C WebDriver standard does not support the session-level
       // /keys command, but JsonWireProtocol does.
-      if (capabilities.supportsKeysCommand == null) {
-        testedCapabilities.supportsKeysCommand = () =>
+      if (capabilities.noKeysCommand == null) {
+        testedCapabilities.noKeysCommand = () =>
           session
             .serverPost('keys', { value: ['a'] })
-            .then(supported, unsupported);
+            .then(() => false, () => true);
+      }
+
+      // The W3C WebDriver standard does not support the /displayed endpoint
+      if (capabilities.noElementDisplayed == null) {
+        testedCapabilities.noElementDisplayed = () =>
+          session
+            .findByCssSelector('html')
+            .then(element => element.isDisplayed())
+            .then(() => false, () => true);
       }
 
       return Task.all(
@@ -962,7 +1015,7 @@ export default class Server {
       // At least SafariDriver 2.41.0 fails to allow stand-alone feature
       // testing because it does not inject user scripts for URLs that
       // are not http/https
-      if (isSafari(capabilities) && isMac(capabilities)) {
+      if (isSafari(capabilities, 0, 10) && isMac(capabilities)) {
         return Task.resolve({});
       }
 
@@ -1038,7 +1091,10 @@ export default class Server {
         !(isFirefox(capabilities, 49, Infinity) && isMac(capabilities))
       ) {
         testedCapabilities.mouseEnabled = () =>
-          session.doubleClick().then(supported, maybeSupported);
+          get('<!DOCTYPE html><button id="clicker">Click me</button>')
+            .then(() => session.findById('clicker'))
+            .then(button => button.click().then(supported, maybeSupported))
+            .catch(unsupported);
       }
 
       if (capabilities.touchEnabled == null) {
@@ -1108,7 +1164,7 @@ export default class Server {
       // At least SafariDriver 2.41.0 fails to allow stand-alone feature
       // testing because it does not inject user scripts for URLs that
       // are not http/https
-      if (isSafari(capabilities) && isMac(capabilities)) {
+      if (isSafari(capabilities, 0, 10) && isMac(capabilities)) {
         return Task.resolve({});
       }
 
@@ -1266,6 +1322,26 @@ export default class Server {
       // 	}).then(works, broken);
       // };
 
+      // At least Safari 11-12 include non-rendered text when retrieving
+      // "visible" text.
+      if (capabilities.brokenVisibleText == null) {
+        testedCapabilities.brokenVisibleText = () =>
+          get(
+            '<!DOCTYPE html><div id="d">This is<span style="display:none"> really</span> great</div>'
+          )
+            .then(() =>
+              session
+                .findById('d')
+                .then(element => element.getVisibleText())
+                .then(text => {
+                  if (text !== 'This is great') {
+                    throw new Error('Incorrect text');
+                  }
+                })
+            )
+            .then(works, broken);
+      }
+
       // At least MS Edge Driver 14316 doesn't normalize whitespace
       // properly when retrieving text. Text may contain "\r\n" pairs
       // rather than "\n", and there may be extraneous whitespace
@@ -1326,20 +1402,18 @@ export default class Server {
       }
 
       if (capabilities.brokenOptionSelect == null) {
-        if (capabilities.brokenOptionSelect == null) {
-          // At least MS Edge Driver 14316 doesn't allow selection
-          // option elements to be clicked.
-          testedCapabilities.brokenOptionSelect = () =>
-            get(
-              '<!DOCTYPE html><select id="d"><option id="o1" value="foo">foo</option>' +
-                '<option id="o2" value="bar" selected>bar</option></select>'
-            )
-              .then(() => session.findById('d'))
-              .then(element => element.click())
-              .then(() => session.findById('o1'))
-              .then(element => element.click())
-              .then(works, broken);
-        }
+        // At least MS Edge Driver 14316 doesn't allow selection
+        // option elements to be clicked.
+        testedCapabilities.brokenOptionSelect = () =>
+          get(
+            '<!DOCTYPE html><select id="d"><option id="o1" value="foo">foo</option>' +
+              '<option id="o2" value="bar" selected>bar</option></select>'
+          )
+            .then(() => session.findById('d'))
+            .then(element => element.click())
+            .then(() => session.findById('o1'))
+            .then(element => element.click())
+            .then(works, broken);
       }
 
       // At least MS Edge driver 10240 doesn't support getting the page
@@ -1660,6 +1734,22 @@ export default class Server {
             .catch(broken);
       }
 
+      // This test will cause at least Edge 18 (44) to hang
+      if (!isMsEdge(capabilities)) {
+        // At least Safari 12 isn't properly detecting disabled elements
+        if (capabilities.brokenElementEnabled == null) {
+          testedCapabilities.brokenElementEnabled = () =>
+            get('<!DOCTYPE html><input id="dis" type="text" disabled>').then(
+              () =>
+                session
+                  .execute<Element>('return document.getElementById("dis");')
+                  .then(element => element.isEnabled())
+                  .then(isEnabled => (isEnabled ? broken() : works()))
+                  .catch(broken)
+            );
+        }
+      }
+
       return Task.all(
         Object.keys(testedCapabilities).map(key => testedCapabilities[key])
       ).then(() => testedCapabilities);
@@ -1734,14 +1824,21 @@ export default class Server {
 }
 
 function getErrorName(error: { name: string; detail: { error: string } }) {
-  if (error.name !== 'Error' || !error.detail || !error.detail.error) {
+  if (
+    // Most browsers use 'Error' as the generic error name, but at least Safari
+    // 12 uses 'UnknownError'
+    (error.name !== 'Error' && error.name !== 'UnknownError') ||
+    !error.detail ||
+    !error.detail.error
+  ) {
     return error.name;
   }
 
   // desc will be something like 'javascript error' or 'no such window'
   const desc = error.detail.error;
 
-  // 'javascript error' is a special case because of...case
+  // 'javascript error' is a special case because of...case (javascript ->
+  // JavaScript)
   if (desc === 'javascript error') {
     return 'JavaScriptError';
   }
@@ -1754,52 +1851,88 @@ function getErrorName(error: { name: string; detail: { error: string } }) {
     .join('');
 }
 
+function isAndroid(capabilities: Capabilities) {
+  const { browserName = '' } = capabilities;
+  return browserName.toLowerCase() === 'android';
+}
+
+function isAndroidEmulator(capabilities: Capabilities) {
+  const { deviceName = '' } = capabilities;
+  return deviceName.toLowerCase() === 'android emulator';
+}
+
+function isChrome(
+  capabilities: Capabilities,
+  minOrExactVersion?: number,
+  maxVersion?: number
+) {
+  const { browserName = '' } = capabilities;
+  if (browserName.toLowerCase() !== 'chrome') {
+    return false;
+  }
+  return isValidVersion(capabilities, minOrExactVersion, maxVersion);
+}
+
+function isIos(capabilities: Capabilities) {
+  const { platform = '', platformName = '' } = capabilities;
+  return (platformName || platform).toLowerCase() === 'ios';
+}
+
 function isMac(capabilities: Capabilities) {
-  return capabilities.platform === 'MAC' && capabilities.platformName !== 'ios';
+  const { platform = '', platformName = '' } = capabilities;
+  const platformlc = platform.toLowerCase();
+  return (
+    (/mac(os)?/.test(platformlc) || /darwin/.test(platformlc)) &&
+    platformName.toLowerCase() !== 'ios'
+  );
 }
 
-function isMsEdge(
+export function isMsEdge(
   capabilities: Capabilities,
   minOrExactVersion?: number,
   maxVersion?: number
 ) {
-  if (capabilities.browserName !== 'MicrosoftEdge') {
+  const { browserName = '' } = capabilities;
+  if (browserName.toLowerCase() !== 'microsoftedge') {
     return false;
   }
 
   return isValidVersion(capabilities, minOrExactVersion, maxVersion);
 }
 
-function isInternetExplorer(
+export function isInternetExplorer(
   capabilities: Capabilities,
   minOrExactVersion?: number,
   maxVersion?: number
 ) {
-  if (capabilities.browserName !== 'internet explorer') {
+  const { browserName = '' } = capabilities;
+  if (browserName.toLowerCase() !== 'internet explorer') {
     return false;
   }
 
   return isValidVersion(capabilities, minOrExactVersion, maxVersion);
 }
 
-function isSafari(
+export function isSafari(
   capabilities: Capabilities,
   minOrExactVersion?: number,
   maxVersion?: number
 ) {
-  if (capabilities.browserName !== 'safari') {
+  const { browserName = '' } = capabilities;
+  if (browserName.toLowerCase() !== 'safari') {
     return false;
   }
 
   return isValidVersion(capabilities, minOrExactVersion, maxVersion);
 }
 
-function isFirefox(
+export function isFirefox(
   capabilities: Capabilities,
   minOrExactVersion?: number,
   maxVersion?: number
 ) {
-  if (capabilities.browserName !== 'firefox') {
+  const { browserName = '' } = capabilities;
+  if (browserName.toLowerCase() !== 'firefox') {
     return false;
   }
 
@@ -1818,7 +1951,7 @@ function isValidVersion(
 ) {
   if (minOrExactVersion != null) {
     const version = parseFloat(
-      (capabilities.version || capabilities.browserVersion)!
+      (capabilities.browserVersion || capabilities.version)!
     );
 
     if (maxVersion != null) {

@@ -291,6 +291,15 @@ export default class Element extends Locator<
    * the usual XML/HTML whitespace normalisation rules.
    */
   getVisibleText(): CancellablePromise<string> {
+    if (this.session.capabilities.brokenVisibleText) {
+      return this.session.execute<string>(
+        /* istanbul ignore next */ (element: any) => {
+          return element.innerText;
+        },
+        [this]
+      );
+    }
+
     const result = this._get<string>('text');
 
     if (this.session.capabilities.brokenWhitespaceNormalization) {
@@ -413,6 +422,14 @@ export default class Element extends Locator<
    * Returns whether or not a form element can be interacted with.
    */
   isEnabled(): CancellablePromise<boolean> {
+    if (this.session.capabilities.brokenElementEnabled) {
+      return this.session.execute<boolean>(
+        /* istanbul ignore next */ function(element: HTMLElement) {
+          return !Boolean(element.hasAttribute('disabled'));
+        },
+        [this]
+      );
+    }
     return this._get<boolean>('enabled');
   }
 
@@ -533,19 +550,23 @@ export default class Element extends Locator<
    * Determines if this element is equal to another element.
    */
   equals(other: Element): CancellablePromise<boolean> {
+    if (this.session.capabilities.noElementEquals) {
+      return this.session.execute<boolean>(
+        'return arguments[0] === arguments[1];',
+        [this, other]
+      );
+    }
+
     const elementId = other.elementId || other;
     return this._get<boolean>('equals/$0', null, [elementId]).catch(error => {
       // At least Selendroid 0.9.0 does not support this command;
       // At least ios-driver 0.6.6-SNAPSHOT April 2014 fails
       if (
-        error.name === 'UnknownCommand' ||
-        (error.name === 'UnknownError' &&
-          error.message.indexOf('bug.For input string:') > -1)
+        !this.session.capabilities.noElementEquals &&
+        (error.name === 'UnknownCommand' || error.name === 'UnknownError')
       ) {
-        return this.session.execute<boolean>(
-          'return arguments[0] === arguments[1];',
-          [this, other]
-        );
+        this.session.capabilities.noElementEquals = true;
+        return this.equals(other);
       }
 
       throw error;

@@ -2,6 +2,7 @@ import * as util from './support/util';
 import { strategies } from '../../src/lib/Locator';
 import Element from '../../src/Element';
 import Session from '../../src/Session';
+import { isSafari, isFirefox } from '../../src/Server';
 import { Task } from '@theintern/common';
 import Test, { TestFunction } from 'intern/lib/Test';
 
@@ -18,7 +19,8 @@ function createStubbedSuite(
   stubbedMethodName: string,
   testMethodName: string,
   placeholders: string[],
-  firstArguments: any[]
+  firstArguments: any[],
+  shouldSkip?: (test: Test) => void
 ) {
   let originalMethod: Function;
   let calledWith: any;
@@ -51,6 +53,9 @@ function createStubbedSuite(
     const method = testMethodName.replace('_', placeholder);
 
     suite.tests['#' + method] = function() {
+      if (shouldSkip) {
+        shouldSkip(this);
+      }
       assert.isFunction((<any>element)[method]);
       (<any>element)[method].apply(element, extraArguments);
       assert.ok(calledWith);
@@ -231,26 +236,26 @@ registerSuite('Element', () => {
 
       '#find (with implicit timeout)': (function() {
         let startTime: number;
-        return function() {
+        return () => {
           return session
             .get('tests/functional/data/elements.html')
-            .then(function() {
-              return session.setTimeout('implicit', 2000);
+            .then(() => session.setTimeout('implicit', 2000))
+            .then(() => session.getTimeout('implicit'))
+            .then(timeout => {
+              assert.equal(timeout, 2000);
             })
-            .then(function() {
-              return session.find('id', 'h');
-            })
-            .then(function(element) {
+            .then(() => session.find('id', 'h'))
+            .then(element => {
               startTime = Date.now();
               return element
                 .find('id', 'd')
                 .then(
-                  function() {
+                  () => {
                     throw new Error(
                       'Requesting non-existing element should throw error'
                     );
                   },
-                  function() {
+                  () => {
                     assert.operator(
                       Date.now(),
                       '>=',
@@ -260,17 +265,13 @@ registerSuite('Element', () => {
                     return session.find('id', 'makeD');
                   }
                 )
-                .then(function(makeElement) {
-                  return makeElement.click();
-                })
-                .then(function() {
-                  return session.setTimeout('implicit', 10000);
-                })
-                .then(function() {
+                .then(makeElement => makeElement.click())
+                .then(() => session.setTimeout('implicit', 10000))
+                .then(() => {
                   startTime = Date.now();
                   return element.find('id', 'd');
                 })
-                .then(function(child) {
+                .then(child => {
                   assert.operator(
                     Date.now(),
                     '<',
@@ -280,7 +281,7 @@ registerSuite('Element', () => {
                   assert.property(child, 'elementId');
                   return child.getAttribute('id');
                 })
-                .then(function(id) {
+                .then(id => {
                   assert.strictEqual(id, 'd');
                 });
             });
@@ -451,7 +452,12 @@ registerSuite('Element', () => {
         }),
         strategyNames.filter(function(strategy) {
           return strategy !== 'id';
-        })
+        }),
+        (test: Test) => {
+          if (session.capabilities.noElementDisplayed) {
+            test.skip('Remote does not support /displayed endpoint');
+          }
+        }
       ),
 
       // TODO: findDisplayed
@@ -600,11 +606,12 @@ registerSuite('Element', () => {
         // See https://github.com/mozilla/geckodriver/issues/858; in theory
         // this was fixed with FF 55 and geckodriver 0.18.0, but it still seems
         // to be broken as of at least FF 64 and geckodriver 0.21.0.
-        if (
-          session.capabilities.browserName === 'firefox' &&
-          Number(session.capabilities.browserVersion) >= 55
-        ) {
-          this.skip('Temporarily disabled');
+        if (isFirefox(session.capabilities, 55, 66)) {
+          this.skip('File uploading is broken in Firefox 55+');
+        }
+
+        if (isSafari(session.capabilities, 12, 13)) {
+          this.skip('File uploading is broken in Safari 12');
         }
 
         if (
@@ -620,7 +627,9 @@ registerSuite('Element', () => {
             return session.findById('file');
           })
           .then(function(element) {
-            return element.type('tests/functional/data/upload.txt');
+            return element.type(
+              '/Users/jason/Documents/Work/src/intern/leadfoot/tests/functional/data/upload.txt'
+            );
           })
           .then(function() {
             return session.execute(function() {
@@ -897,9 +906,9 @@ registerSuite('Element', () => {
                 return element.getSpecAttribute('value');
               })
               .then(function(value) {
-                assert.strictEqual(
-                  value,
-                  'defaultfoo',
+                assert.match(
+                  value!,
+                  /foo$/,
                   'Current value of input should be returned'
                 );
                 return element.getSpecAttribute('defaultValue');
@@ -1075,6 +1084,9 @@ registerSuite('Element', () => {
         for (let id in visibilities) {
           (function(id, expected) {
             suite.tests[id] = function() {
+              if (session.capabilities.noElementDisplayed) {
+                this.skip('Remote does not support /displayed endpoint');
+              }
               return session
                 .findById(id)
                 .then(function(element) {

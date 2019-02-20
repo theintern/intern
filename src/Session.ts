@@ -291,7 +291,10 @@ export default class Session extends Locator<
       })
       .catch(error => {
         if (
-          error.name === 'UnknownCommand' &&
+          // At least Edge 44.17763 returns an UnknownError when it doesn't
+          // support /window_handle, whereas most drivers return an
+          // UnknownCommand error.
+          /^Unknown/.test(error.name) &&
           !this.capabilities.usesWebDriverWindowHandleCommands
         ) {
           this.capabilities.usesWebDriverWindowHandleCommands = true;
@@ -1317,7 +1320,7 @@ export default class Session extends Locator<
    * Gets the currently focused element from the focused window/frame.
    */
   @forCommand({ createsContext: true })
-  getActiveElement() {
+  getActiveElement(): CancellablePromise<Element> {
     const getDocumentActiveElement = () => {
       return this.execute<Element>('return document.activeElement;');
     };
@@ -1333,17 +1336,29 @@ export default class Session extends Locator<
         task = this.serverPost<ElementOrElementId>('element/active');
       }
 
-      return task.then((element: ElementOrElementId) => {
-        if (element) {
-          return new Element(element, this);
-        } else {
-          // The driver will return `null` if the active element is
-          // the body element; for consistency with how the DOM
-          // `document.activeElement` property works, we’ll diverge
-          // and always return an element
-          return getDocumentActiveElement();
+      return task.then(
+        (element: ElementOrElementId) => {
+          if (element) {
+            return new Element(element, this);
+          } else {
+            // The driver will return `null` if the active element is
+            // the body element; for consistency with how the DOM
+            // `document.activeElement` property works, we’ll diverge
+            // and always return an element
+            return getDocumentActiveElement();
+          }
+        },
+        error => {
+          if (
+            error.name === 'UnknownMethod' &&
+            !this.capabilities.usesWebDriverActiveElement
+          ) {
+            this.capabilities.usesWebDriverActiveElement = true;
+            return this.getActiveElement();
+          }
+          throw error;
         }
-      });
+      );
     }
   }
 
@@ -1365,10 +1380,7 @@ export default class Session extends Locator<
       keys = [keys];
     }
 
-    if (
-      this.capabilities.brokenSendKeys ||
-      !this.capabilities.supportsKeysCommand
-    ) {
+    if (this.capabilities.brokenSendKeys || this.capabilities.noKeysCommand) {
       return this.execute(simulateKeys, [keys]);
     }
 
@@ -1524,11 +1536,18 @@ export default class Session extends Locator<
       }
     }
 
-    return this.serverPost<void>('moveto', {
-      element: element,
-      xoffset: xOffset,
-      yoffset: yOffset
-    }).then(() => {
+    const data: { element?: Element; xoffset?: number; yoffset?: number } = {};
+    if (element) {
+      data.element = element;
+    }
+    if (xOffset != null) {
+      data.xoffset = xOffset;
+    }
+    if (yOffset != null) {
+      data.yoffset = yOffset;
+    }
+
+    return this.serverPost<void>('moveto', data).then(() => {
       this._movedToElement = true;
     });
   }
@@ -1612,7 +1631,7 @@ export default class Session extends Locator<
   /**
    * Double-clicks the primary mouse button.
    */
-  doubleClick() {
+  doubleClick(): CancellablePromise<void> {
     if (this.capabilities.brokenMouseEvents) {
       return this.execute<void>(simulateMouse, [
         {
@@ -1631,7 +1650,12 @@ export default class Session extends Locator<
         .then(() => this.serverPost<void>('doubleclick'));
     }
 
-    return this.serverPost<void>('doubleclick');
+    return this.serverPost<void>('doubleclick').catch(() => {
+      if (this.capabilities.brokenDoubleClick == null) {
+        this.capabilities.brokenDoubleClick = true;
+        return this.doubleClick();
+      }
+    });
   }
 
   /**
@@ -2123,6 +2147,12 @@ export default class Session extends Locator<
   }
 }
 
+export interface WebDriverTimeouts {
+  script: number;
+  pageLoad: number;
+  implicit: number;
+}
+
 interface SessionError extends Error {
   status?: keyof typeof statusCodes;
 }
@@ -2497,10 +2527,4 @@ function simulateMouse(kwArgs: any) {
 
 function isStringArray(value: any): value is string[] {
   return Array.isArray(value) && typeof value[0] === 'string';
-}
-
-interface WebDriverTimeouts {
-  script: number;
-  pageLoad: number;
-  implicit: number;
 }

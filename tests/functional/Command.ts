@@ -251,6 +251,10 @@ registerSuite('Command', () => {
       },
 
       '#findDisplayed'() {
+        if (session.capabilities.noElementDisplayed) {
+          this.skip('Remote does not support /displayed endpoint');
+        }
+
         return new Command(session)
           .get('tests/functional/data/visibility.html')
           .findDisplayedByClassName('multipleVisible')
