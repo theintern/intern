@@ -627,9 +627,7 @@ registerSuite('Element', () => {
             return session.findById('file');
           })
           .then(function(element) {
-            return element.type(
-              '/Users/jason/Documents/Work/src/intern/leadfoot/tests/functional/data/upload.txt'
-            );
+            return element.type('tests/functional/data/upload.txt');
           })
           .then(function() {
             return session.execute(function() {
