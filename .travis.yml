@@ -1,20 +1,17 @@
 sudo: false
-# Use trusty dist for newer JDK
 dist: trusty
 language: node_js
-# Test LTS, and latest
 node_js:
-  - 'lts/*'
-  - 'node'
+- lts/*
+- node
 env:
   global:
-    # Please get your own free key if you want to test yourself
-    - BROWSERSTACK_USERNAME=sitepenlabs1
-    - BROWSERSTACK_ACCESS_KEY=xm1uYrJuV3gZMJqCyZJX
-    - SAUCE_USERNAME=dojo2-ts-ci
-    - SAUCE_ACCESS_KEY=e92610e3-834e-4bec-a3b5-6f7b9d874601
+  - BROWSERSTACK_USERNAME=sitepenlabs1
+  - BROWSERSTACK_ACCESS_KEY=xm1uYrJuV3gZMJqCyZJX
+  - SAUCE_USERNAME=dojo2-ts-ci
+  - SAUCE_ACCESS_KEY=e92610e3-834e-4bec-a3b5-6f7b9d874601
 script:
-  - npm run ci
+- npm run ci
 notifications:
-    slack:
-      secure: RvW7LoV4mBzNz481eqfhLB/QNuJYht9Fpz7F+vtVjD/RacDJfc7397/8pJcl2yP+Ft2X7yJsM6bx3Uq22CfMiZ7HTVOfb+tYQNBQ5vcluUvd3fYV72M4oWe/TTFTlAulC04vWs4/QRHqbvmsXXr8Rn8Jj2LjsxnKvP0UNr0aLxk=
+  slack:
+    secure: o1BJyRlQdbE35CKLskHD1L94VKdFbPRs8rKhY3mdGTSSfbuFO2Ss3PS4TYmpogTgo/X598zDZLtcrIziS4A1A3AWZWOU1pweyRT9bgCXJo7bjASIpvXCuEywtXqupK63F5a6zCP8fp7YswOO+x+lSr/Nmed0qkWqK2vWTM7uV9Y=
