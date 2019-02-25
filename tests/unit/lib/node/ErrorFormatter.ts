@@ -153,7 +153,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
                 };
                 assert.equal(
                   formatter.format(err),
-                  'Error: foo\n  at < anonymous >'
+                  'Error: foo\n  @ anonymous'
                 );
               },
 
@@ -164,7 +164,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
                 };
                 assert.equal(
                   formatter.format(err),
-                  'Error: foo\n  at function  < somefile.js >'
+                  'Error: foo\n  at function @ somefile.js'
                 );
               },
 
@@ -175,7 +175,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
                 };
                 assert.equal(
                   formatter.format(err),
-                  'Error: foo\n  at function  < instrumented.js:10:20 >'
+                  'Error: foo\n  at function @ instrumented.js:10:20'
                 );
               },
 
@@ -186,7 +186,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
                 };
                 assert.equal(
                   formatter.format(err),
-                  'Error: foo\n  at function1  < noninstrumented.js:10:20 >'
+                  'Error: foo\n  at function1 @ noninstrumented.js:10:20'
                 );
               },
 
@@ -197,7 +197,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
                 };
                 assert.equal(
                   formatter.format(err),
-                  'Error: foo\n  at function2  < noninstrumented.js:34:22 >',
+                  'Error: foo\n  at function2 @ noninstrumented.js:34:22',
                   'expected stack trace to use closest entry found in map'
                 );
               },
@@ -209,7 +209,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
                 };
                 assert.equal(
                   formatter.format(err),
-                  'Error: foo\n  at function2  < noninstrumented.js:40:20 >',
+                  'Error: foo\n  at function2 @ noninstrumented.js:40:20',
                   'expected stack trace to use original position'
                 );
               },
@@ -230,10 +230,10 @@ registerSuite('lib/node/ErrorFormatter', function() {
                 assert.equal(
                   formatter.format(err),
                   'Error: foo\n' +
-                    '  at function2  < hasmap.js:40:20 >\n' +
-                    '  at function2  < hasmap.js:44:21 >\n' +
-                    '  at function2  < hasnomap.js:40:20 >\n' +
-                    '  at function2  < hasnomap.js:50:30 >',
+                    '  at function2 @ hasmap.js:40:20\n' +
+                    '  at function2 @ hasmap.js:44:21\n' +
+                    '  at function2 @ hasnomap.js:40:20\n' +
+                    '  at function2 @ hasnomap.js:50:30',
                   'expected stack trace to use original position'
                 );
               }
