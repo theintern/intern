@@ -15,6 +15,7 @@ import unhandled from './middleware/unhandled';
 import finalError from './middleware/finalError';
 import resolveSuites from './middleware/resolveSuites';
 import post from './middleware/post';
+import filterUrl from './middleware/filterUrl';
 
 export interface Context {
   readonly stopped: boolean;
@@ -130,6 +131,8 @@ export default class Server implements ServerProperties {
         enumerable: true,
         get: () => context
       });
+
+      app.use(filterUrl());
 
       // Handle JSON and form-encoded request bodies
       app.use(json({ limit: '1mb' }), urlencoded({ extended: true }));
