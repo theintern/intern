@@ -1,19 +1,63 @@
-@import 'variables';
+$bodyBackground = #F7F6F5;
+$bodyTextColor = #DEDEDE;
+$cellBorderColor = #DEDEDE;
+$failedColor = #F15064;
+$headingColor = #717171;
+$passedColor = #41C645;
+$skippedColor = #b0b0b0;
+$sectionHeadingBackground = #C4E5E5;
+$summaryBorderColor = #DFDFDF;
+$summaryBottomBackground = #fff;
+$summaryTextColor = #777;
+$summaryTopBackground = #F1F0EF;
+$testsColor = #59B0C6;
+$reportTextColor = #3C3C3C;
+$lineHeight = 18px;
+
+statusColors($bg, $color) {
+	.column-status {
+		background: $bg;
+		border: 1px solid darken($bg, 10%);
+
+    .icon {
+      path {
+        fill: $color;
+      }
+    }
+	}
+}
+
+userSelect($value) {
+	user-select: $value;
+	-ms-user-select: $value;
+	-moz-user-select: $value;
+	-webkit-user-select: $value;
+}
 
 html,
 body {
 	background: $bodyBackground;
 	color: $bodyTextColor;
 	font: 14px/normal Helvetica, Arial, sans-serif;
+  line-height: $lineHeight;
 	margin: 0;
 	visibility: visible;
 	padding-bottom: 2em;
 	padding-top: 0;
 }
 
+.icon {
+  display: block;
+  margin: 0 auto;
+}
+
 .internReportContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 	margin: 0 auto;
 	width: 75%;
+  min-width: 800px;
 }
 
 .reportHeader {
@@ -43,96 +87,100 @@ body {
 	border-collapse: collapse;
 	margin-bottom: 2.5em;
 	width: 100%;
+  display: flex;
 
-	td {
-		color: $summaryTextColor;
+  .summaryContent {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: space-evenly;
+
 		font-size: 1em;
-		font-weight: normal;
-		padding: 0;
-		text-align: center;
-		text-transform: uppercase;
-		vertical-align: top;
-		width: 16.6%;
+    background: $summaryTopBackground;
+    border: 1px solid $summaryBorderColor;
+    border-radius: 6px 6px 0 0;
+    box-shadow: 0px 1px 2px 0px rgba(#000, 15%);
+    margin: 0 1em 0 auto;
+    color: $summaryTextColor;
 
-		.summaryContent {
-			background: $summaryTopBackground;
-			border: 1px solid $summaryBorderColor;
-			border-radius: 6px 6px 0 0;
-			box-shadow: 0px 1px 2px 0px rgba(#000, 15%);
-			margin: 0 1em 0 auto;
+    .icon {
+      margin-top: 10px;
+      width: 42px;
+      height: 42px;
+    }
 
-			&.suites {
-				summaryIcon($suiteIcon);
-			}
+    &.suites,
+    &.tests,
+    &.duration,
+    &.skipped {
+      svg path {
+        fill: $summaryTextColor;
+      }
+    }
 
-			&.tests {
-				summaryIcon($testIcon);
-			}
+    &.failed,
+    &.success,
+    &.successRate {
+      svg path {
+        fill: white;
+      }
+    }
 
-			&.failed,
-			&.successRate.failed {
-				background: $failedColor;
-				color: #fff;
+    &.failed,
+    &.successRate.failed {
+      background: $failedColor;
+      color: #fff;
 
-				summaryIcon($failedIcon);
+      .summaryTitle {
+        border-color: darken($failedColor, 20%);
+        color: $summaryTextColor;
+      }
 
-				.summaryTitle {
-					border-color: darken($failedColor, 20%);
-					color: $summaryTextColor;
-				}
+      &.success {
+        margin-right: 1em;
+      }
+    }
 
-				&.success {
-					margin-right: 1em;
-				}
-			}
+    &.success,
+    &.successRate {
+      background: darken($passedColor, 20%);
+      color: #fff;
+      margin-right: 0;
 
-			&.success,
-			&.successRate {
-				background: darken($passedColor, 20%);
-				color: #fff;
-				margin-right: 0;
+      .summaryTitle {
+        border-color: darken($passedColor, 20%);
+        color: $summaryTextColor;
+      }
+    }
 
-				summaryIcon($passedIcon);
+    .summaryTitle {
+      flex-grow: 0;
+      background: #fff;
+      border: 1px solid $summaryBorderColor;
+      border-radius: 14px;
+      display: inline-block;
+      padding: 0.2em 1em;
+      position: relative;
+      top: 10px;
+      z-index: 1;
+    }
 
-				.summaryTitle {
-					border-color: darken($passedColor, 20%);
-					color: $summaryTextColor;
-				}
-			}
+    .summaryData {
+      flex-grow: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-			&.duration {
-				background: $summaryTopBackground;
-
-				summaryIcon($durationIcon);
-			}
-
-			&.skipped {
-				summaryIcon($skippedIcon);
-			}
-
-			.summaryTitle {
-				background: #fff;
-				border: 1px solid $summaryBorderColor;
-				border-radius: 14px;
-				display: inline-block;
-				padding: 0.2em 1em;
-				position: relative;
-				top: 10px;
-				z-index: 1;
-			}
-
-			.summaryData {
-				background: $summaryBottomBackground;
-				box-sizing: border-box;
-				color: $summaryTextColor;
-				font-size: 36px;
-				font-weight: 300;
-				height: 75px;
-				padding: 0.5em 0.25em;
-				text-align: center;
-			}
-		}
-	}
+      background: $summaryBottomBackground;
+      box-sizing: border-box;
+      color: $summaryTextColor;
+      font-size: 28px;
+      font-weight: 300;
+      padding: 26px 0 16px 0;
+    }
+  }
 }
 
 .toggleFilter {
@@ -147,7 +195,8 @@ body {
 	background-color: #fff;
 	border-collapse: collapse;
 	color: $reportTextColor;
-	width: 100%;
+  table-layout: fixed;
+  width: 100%;
 
 	a {
 		text-decoration: none;
@@ -166,21 +215,39 @@ body {
 		padding: 0.7em;
 		border-left: 1px solid $cellBorderColor;
 		border-right: 1px solid $cellBorderColor;
+    vertical-align: top;
 	}
+
+  .column-status {
+    padding: 0;
+
+    .statusContent {
+      position: relative;
+      padding: 0.7em 0;
+      text-align: center;
+    }
+  }
 
 	.suite {
 		background: $sectionHeadingBackground;
 
-		testStatusIcon(darken($sectionHeadingBackground, 20%), darken($sectionHeadingBackground, 70%), $suiteIcon);
+    .column-status {
+      .icon {
+        width: 21px;
+        height: 21px;
+      }
 
-		.testStatus:after {
-			bottom: 0;
-			content: '\25bc';
-			display: block;
-			font-size: 60%;
-			position: absolute;
-			right: 1px;
-		}
+      .statusContent:after {
+        bottom: 0;
+        content: '\25bc';
+        display: block;
+        font-size: 9px;
+        position: absolute;
+        right: 2px;
+      }
+    }
+
+		statusColors(darken($sectionHeadingBackground, 10%), darken($sectionHeadingBackground, 60%));
 
 		td {
 			border: 1px solid darken($sectionHeadingBackground, 20%);
@@ -214,40 +281,42 @@ body {
 		}
 
 		&.collapsed {
-			.testStatus:after {
+			.column-status .statusContent:after {
 				content: '\25b6';
 			}
 		}
 
 		&.indent {
-			background: lighten($sectionHeadingBackground, 60%);
+      $bgColor = lighten($sectionHeadingBackground, 60%);
+			background: $bgColor;
 
 			td {
-				border-color: darken($sectionHeadingBackground, 20%);
+				border-color: darken($bgColor, 10%);
 			}
 
-			.testStatus {
-				background: darken($sectionHeadingBackground, 10%);
-
-				&:before {
-					font-size: 17px;
-				}
-			}
+      statusColors(darken($bgColor, 15%), darken($bgColor, 60%));
 		}
 
 		&.skipped {
-			testStatusIcon(lighten($skippedColor, 80%), $skippedColor, $skippedIcon)
+			statusColors(lighten($skippedColor, 80%), $skippedColor)
+
 			color: $skippedColor;
 			background-color: #fff;
 
 			td {
-				border: 1px solid $cellBorderColor;
+				border-color: darken(#fff, 10%);
 			}
 		}
 	}
 
 	.testResult {
 		transition: background 0.3s ease;
+
+    .icon {
+      width: 21px;
+      height: 21px;
+    }
+
 
 		td {
 			border: 1px solid $cellBorderColor;
@@ -258,7 +327,7 @@ body {
 		}
 
 		&.passed {
-			testStatusIcon(lighten($passedColor, 70%), $passedColor, $passedIcon)
+			statusColors(lighten($passedColor, 70%), $passedColor)
 
 			&:hover {
 				background: lighten($passedColor, 90%);
@@ -267,8 +336,7 @@ body {
 
 		&.failed {
 			background: lighten($failedColor, 65%);
-
-			testStatusIcon(lighten($failedColor, 70%), $failedColor, $failedIcon);
+			statusColors(lighten($failedColor, 70%), $failedColor);
 
 			&:hover {
 				background:lighten(@background, 20%);
@@ -279,28 +347,49 @@ body {
 				border-bottom:0;
 			}
 
-			.testStatus {
-				border-bottom:0;
-				border-color:lighten($failedColor, 40%);
-			}
+      .testError {
+        pre {
+          margin: 0;
+        }
+      }
 		}
 
 		&.skipped {
-			testStatusIcon(lighten($skippedColor, 80%), $skippedColor, $skippedIcon)
+			statusColors(lighten($skippedColor, 80%), $skippedColor)
 			color: $skippedColor;
 		}
 	}
 
-	.indent1 { padding-left: 2em; }
-	.indent2 { padding-left: 4em; }
-	.indent3 { padding-left: 6em; }
-	.indent4 { padding-left: 8em; }
-	.indent5 { padding-left: 10em; }
+	.indent1 { padding-left: 1.5em; }
+	.indent2 { padding-left: 3em; }
+	.indent3 { padding-left: 4.5em; }
+	.indent4 { padding-left: 6em; }
+	.indent5 { padding-left: 7.5em; }
 }
 
-.testStatus {
-	border-bottom: 0;
-	width: 20px;
+.truncateText {
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+
+.scrollText {
+  overflow: auto;
+}
+
+.column-status {
+	width: 40px;
+}
+
+.column-id {
+  width: 20%;
+}
+
+.column-info {
+  width: 60%;
+}
+
+.column-time {
+  width: 70px;
 }
 
 .hidePassed .report {

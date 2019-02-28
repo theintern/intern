@@ -3,6 +3,13 @@ import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Test from '../Test';
 import Suite from '../Suite';
 
+const suitesIcon = require('./html/icons/albums.svg');
+const passIcon = require('./html/icons/check.svg');
+const failIcon = require('./html/icons/close-circle.svg');
+const testsIcon = require('./html/icons/gleam.svg');
+const skipIcon = require('./html/icons/less.svg');
+const timeIcon = require('./html/icons/stopwatch.svg');
+
 // Needs a URLSearchParams polyfill
 
 /**
@@ -125,12 +132,9 @@ export default class Html extends Reporter implements HtmlProperties {
 
     toggle.onclick = () => {
       if (toggle.checked) {
-        document.body.className += ` ${className}`;
+        addClass(document.body, className);
       } else {
-        document.body.className = document.body.className.replace(
-          new RegExp(`\\b${className}\\b`),
-          ' '
-        );
+        removeClass(document.body, className);
       }
     };
 
@@ -145,7 +149,7 @@ export default class Html extends Reporter implements HtmlProperties {
 
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = this.executor.config.internPath + 'lib/reporters/html/html.css';
+    link.href = `${this.executor.config.internPath}lib/reporters/html/html.css`;
 
     document.head!.appendChild(style);
     document.head!.appendChild(link);
@@ -218,7 +222,7 @@ export default class Html extends Reporter implements HtmlProperties {
     let htmlError = this.formatError(error)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;');
-    let errorNode = document.createElement('div');
+    let errorNode = document.createElement('pre');
     errorNode.style.cssText = 'color: red; font-family: sans-serif;';
     errorNode.innerHTML =
       '<h1>Fatal error</h1>' +
@@ -233,10 +237,6 @@ export default class Html extends Reporter implements HtmlProperties {
     const document = this.document;
     this._reportContainer = document.createElement('div');
     const headerNode = document.createElement('h1');
-    let tableNode: Element;
-    let tmpNode: Element;
-    let rowNode: Element;
-    let cellNode: Element;
     const summaryHeaders = [
       'Suites',
       'Tests',
@@ -245,6 +245,13 @@ export default class Html extends Reporter implements HtmlProperties {
       'Failed',
       'Success Rate'
     ];
+    const summaryIcons: { [key: string]: string } = {
+      suites: suitesIcon,
+      tests: testsIcon,
+      duration: timeIcon,
+      skipped: skipIcon,
+      failed: failIcon
+    };
 
     const fragment = this._fragment;
 
@@ -341,21 +348,22 @@ export default class Html extends Reporter implements HtmlProperties {
     this._fragment.appendChild(this._reportContainer);
 
     // Summary table
-    tableNode = document.createElement('table');
-    tableNode.className = 'summary';
+    const summaryTableNode = document.createElement('div');
+    summaryTableNode.className = 'summary';
     this._summaryNode = document.createElement('div');
 
-    tmpNode = document.createElement('thead');
-    rowNode = document.createElement('tr');
     for (let i = 0; i < summaryHeaders.length; i++) {
-      cellNode = document.createElement('td');
+      const cellNode = document.createElement('div');
+      const cellName = summaryHeaders[i]
+        .toLowerCase()
+        .replace(/\s(.)/g, (_, char) => char.toUpperCase());
+      cellNode.className = 'summaryContent';
+      addClass(cellNode, cellName);
 
-      const cellContent = document.createElement('div');
-      cellContent.className =
-        'summaryContent ' +
-        summaryHeaders[i].toLowerCase().replace(/\s(.)/g, function(_, char) {
-          return char.toUpperCase();
-        });
+      if (summaryIcons[cellName]) {
+        const cellIcon = createSvgNode(summaryIcons[cellName], cellName);
+        cellNode.appendChild(cellIcon);
+      }
 
       const cellTitle = document.createElement('span');
       cellTitle.className = 'summaryTitle';
@@ -368,15 +376,12 @@ export default class Html extends Reporter implements HtmlProperties {
       this._summaryNode.appendChild(this._summaryNodes[i]);
 
       cellData.appendChild(this._summaryNodes[i]);
-      cellContent.appendChild(cellTitle);
-      cellContent.appendChild(cellData);
-      cellNode.appendChild(cellContent);
-      rowNode.appendChild(cellNode);
+      cellNode.appendChild(cellTitle);
+      cellNode.appendChild(cellData);
+      summaryTableNode.appendChild(cellNode);
     }
 
-    tmpNode.appendChild(rowNode);
-    tableNode.appendChild(tmpNode);
-    this._reportContainer.appendChild(tableNode);
+    this._reportContainer.appendChild(summaryTableNode);
 
     // Controls
     this._reportControls = document.createElement('div');
@@ -386,11 +391,26 @@ export default class Html extends Reporter implements HtmlProperties {
     this._reportContainer.appendChild(this._reportControls);
 
     // Report table
-    tableNode = document.createElement('table');
-    tableNode.className = 'report';
+    const reportTableNode = document.createElement('table');
+    reportTableNode.className = 'report';
     this._reportNode = document.createElement('tbody');
-    tableNode.appendChild(this._reportNode);
-    this._reportContainer.appendChild(tableNode);
+    reportTableNode.appendChild(this._reportNode);
+    this._reportContainer.appendChild(reportTableNode);
+
+    // Handle clicks on table rows, which will expand or collapse rows
+    this._reportNode.addEventListener('click', event => {
+      let target: Element | null = <Element>event.target;
+      if (!target || target.tagName === 'A') {
+        return;
+      }
+
+      while (target && target!.tagName !== 'TR') {
+        target = target!.parentElement;
+      }
+      if (target) {
+        this._setCollapsed(target);
+      }
+    });
   }
 
   @eventHandler()
@@ -404,28 +424,34 @@ export default class Html extends Reporter implements HtmlProperties {
     this._testsInSuite = suite.tests.length;
     this._testIndex = 0;
     this._processedTests = {};
+    this._suiteCount++;
 
     const document = this.document;
     const rowNode = document.createElement('tr');
-
-    // Status cell
-    let cellNode = document.createElement('td');
-    cellNode.className = 'testStatus';
-    rowNode.appendChild(cellNode);
-
-    cellNode = document.createElement('td');
-
-    this._suiteCount++;
-
-    cellNode.className = 'title';
-    cellNode.appendChild(this.createLinkNode(suite));
     rowNode.className = 'suite';
-    rowNode.appendChild(cellNode);
+
+    const statusCell = document.createElement('td');
+    addClass(statusCell, 'column-status');
+    const statusContent = document.createElement('div');
+    addClass(statusContent, 'statusContent');
+    statusCell.appendChild(statusContent);
+    rowNode.appendChild(statusCell);
+
+    const idCell = document.createElement('td');
+    idCell.className = 'column-id';
+    addClass(idCell, 'title');
+
+    const idText = document.createElement('div');
+    idText.className = 'truncateText';
+    idText.appendChild(this.createLinkNode(suite));
+    idCell.appendChild(idText);
+    rowNode.appendChild(idCell);
+
     this._reportNode!.appendChild(rowNode);
 
     if (this._indentLevel) {
-      cellNode.className += ' indent' + Math.min(this._indentLevel, 5);
-      rowNode.className += ' indent';
+      addClass(idCell, `indent${Math.min(this._indentLevel, 5)}`);
+      addClass(rowNode, 'indent');
     }
 
     this._runningSuites[suite.id] = { node: rowNode };
@@ -480,9 +506,15 @@ export default class Html extends Reporter implements HtmlProperties {
         reportControls.lastElementChild!.appendChild(this._skippedFilter);
       }
 
+      const successRateNode = document.querySelector('.successRate')!;
+
       if (suite.numFailedTests > 0) {
-        const successRateNode = document.querySelector('.successRate')!;
+        const icon = createSvgNode(failIcon);
+        successRateNode.insertBefore(icon, successRateNode.firstChild);
         addClass(successRateNode, 'failed');
+      } else {
+        const icon = createSvgNode(passIcon);
+        successRateNode.insertBefore(icon, successRateNode.firstChild);
       }
 
       if (hasSuiteFailures) {
@@ -494,16 +526,19 @@ export default class Html extends Reporter implements HtmlProperties {
     }
 
     const rowNode = this._runningSuites[suite.id].node;
+    const rowStatus = allTestsSkipped
+      ? 'skipped'
+      : numFailedTests > 0 || hasSuiteFailures
+        ? 'failed'
+        : 'passed';
 
     // Mark a suite as failed if any of its child tests failed, and
-    addClass(
-      rowNode,
-      allTestsSkipped
-        ? 'skipped'
-        : numFailedTests > 0 || hasSuiteFailures
-          ? 'failed'
-          : 'passed'
-    );
+    addClass(rowNode, rowStatus);
+
+    const icon = createSvgNode(rowStatus === 'skipped' ? skipIcon : suitesIcon);
+    const statusCell = rowNode.querySelector('.column-status');
+    const statusContent = statusCell.firstElementChild;
+    statusContent.appendChild(icon);
 
     // Only suites with failed tests will be initially expanded
     this._setCollapsed(rowNode, numFailedTests === 0 && !hasSuiteFailures);
@@ -540,16 +575,12 @@ export default class Html extends Reporter implements HtmlProperties {
       cellNode.appendChild(suiteError);
     }
 
-    rowNode.addEventListener('click', (event: Event) => {
-      this._setCollapsed(<Element>event.currentTarget);
-    });
-
     cellNode.className = 'column-info';
     rowNode.appendChild(cellNode);
 
     // Duration cell
     cellNode = document.createElement('td');
-    cellNode.className = 'numeric duration';
+    cellNode.className = 'column-time numeric duration';
     cellNode.appendChild(
       document.createTextNode(formatDuration(suite.timeElapsed!))
     );
@@ -577,48 +608,70 @@ export default class Html extends Reporter implements HtmlProperties {
 
     const document = this.document;
     const rowNode = document.createElement('tr');
+    rowNode.className = 'testResult';
 
-    // Status cell
-    let cellNode = document.createElement('td');
-    cellNode.className = 'testStatus';
-    rowNode.appendChild(cellNode);
+    const statusCell = document.createElement('td');
+    statusCell.className = 'column-status';
+    const statusContent = document.createElement('div');
+    statusContent.className = 'statusContent';
+    statusCell.appendChild(statusContent);
+    rowNode.appendChild(statusCell);
 
-    cellNode = document.createElement('td');
-
+    const idCell = document.createElement('td');
+    idCell.className = 'column-id';
     if (this._indentLevel) {
-      cellNode.className += ' indent' + this._indentLevel;
+      addClass(idCell, `indent${this._indentLevel}`);
     }
 
-    cellNode.appendChild(this.createLinkNode(test));
-    rowNode.appendChild(cellNode);
+    const idText = document.createElement('div');
+    idText.className = 'truncateText';
+    idText.appendChild(this.createLinkNode(test));
+    idCell.appendChild(idText);
+    rowNode.appendChild(idCell);
 
-    cellNode = document.createElement('td');
-    cellNode.className = 'column-info';
+    const infoCell = document.createElement('td');
+    infoCell.className = 'column-info';
+
+    let statusIcon: Element;
 
     if (test.error) {
-      rowNode.className = 'testResult failed';
-      cellNode.appendChild(document.createTextNode(test.error.message));
+      addClass(rowNode, 'failed');
+
+      const errorNode = document.createElement('div');
+      errorNode.className = 'testError';
+      const errorText = document.createElement('pre');
+      addClass(errorText, 'scrollText');
+      errorText.textContent = this.formatError(test.error);
+      errorNode.appendChild(errorText);
+      infoCell.appendChild(errorNode);
+
+      statusIcon = createSvgNode(failIcon);
     } else if (test.skipped != null) {
-      rowNode.className = 'testResult skipped';
-      cellNode.appendChild(document.createTextNode(test.skipped || ''));
+      addClass(rowNode, 'skipped');
+      infoCell.appendChild(document.createTextNode(test.skipped || ''));
+      statusIcon = createSvgNode(skipIcon);
     } else {
-      rowNode.className = 'testResult passed';
+      addClass(rowNode, 'passed');
+      statusIcon = createSvgNode(passIcon);
     }
+
+    statusContent.appendChild(statusIcon);
 
     if (this._testIndex === this._testsInSuite) {
-      rowNode.className = rowNode.className + ' lastTest';
+      addClass(rowNode, 'lastTest');
     }
 
-    rowNode.appendChild(cellNode);
+    rowNode.appendChild(infoCell);
 
-    cellNode = document.createElement('td');
-    cellNode.className = 'numeric duration';
-    cellNode.appendChild(
+    const timeNode = document.createElement('td');
+    timeNode.className = 'numeric';
+    addClass(timeNode, 'duration');
+    timeNode.appendChild(
       document.createTextNode(
         test.skipped ? 'Skipped' : formatDuration(test.timeElapsed!)
       )
     );
-    rowNode.appendChild(cellNode);
+    rowNode.appendChild(timeNode);
 
     this._reportNode!.appendChild(rowNode);
   }
@@ -633,6 +686,7 @@ export default class Html extends Reporter implements HtmlProperties {
 
     const a = document.createElement('a');
     a.href = location.origin + location.pathname + `?${params.toString()}`;
+    a.title = obj.name!;
     a.appendChild(document.createTextNode(obj.name!));
 
     return a;
@@ -652,24 +706,40 @@ function containsClass(node: Element, cls: string) {
 }
 
 function addClass(node: Element, cls: string) {
-  const classes = node.className.split(/\s+/);
-  if (classes.indexOf(cls) !== -1) {
-    return;
-  }
+  if (node.classList) {
+    node.classList.add(cls);
+  } else {
+    const classes = getClassName(node).split(/\s+/);
+    if (classes.indexOf(cls) !== -1) {
+      return;
+    }
 
-  classes.push(cls);
-  node.className = classes.join(' ');
+    classes.push(cls);
+    setClassName(node, classes.join(' '));
+  }
 }
 
 function removeClass(node: Element, cls: string) {
-  const classes = node.className.split(/\s+/);
-  const index = classes.indexOf(cls);
-  if (index === -1) {
-    return;
-  }
+  if (node.classList) {
+    node.classList.remove(cls);
+  } else {
+    const classes = getClassName(node).split(/\s+/);
+    const index = classes.indexOf(cls);
+    if (index === -1) {
+      return;
+    }
 
-  classes.splice(index, 1);
-  node.className = classes.join(' ');
+    classes.splice(index, 1);
+    setClassName(node, classes.join(' '));
+  }
+}
+
+function getClassName(node: Element) {
+  return node.getAttribute('class') || '';
+}
+
+function setClassName(node: Element, cls: string) {
+  node.setAttribute('class', cls);
 }
 
 function pad(value: string | number, size: number): string {
@@ -702,4 +772,16 @@ function formatDuration(duration: number): string {
     minutes + ':' + pad(seconds, 2) + '.' + pad(milliseconds, 3);
 
   return formattedValue;
+}
+
+function createSvgNode(svg: string, extraClass?: string) {
+  const div = document.createElement('div');
+  div.className = 'icon';
+  div.innerHTML = svg;
+  const icon = div.firstElementChild!;
+  addClass(icon, 'icon');
+  if (extraClass) {
+    addClass(icon, extraClass);
+  }
+  return icon;
 }

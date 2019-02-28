@@ -20,6 +20,10 @@ const common: Configuration = {
         use: ['style-loader', 'css-loader', 'stylus-loader']
       },
       {
+        test: /\.svg$/,
+        use: 'svg-inline-loader?classPrefix'
+      },
+      {
         test: /\.ts/,
         use: {
           loader: 'ts-loader',
