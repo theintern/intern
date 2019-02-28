@@ -580,7 +580,12 @@ registerSuite('lib/executors/Node', function() {
           },
 
           functionalCoverage: booleanTest('functionalCoverage'),
-          leaveRemoteOpen: booleanTest('leaveRemoteOpen'),
+
+          leaveRemoteOpen() {
+            test('leaveRemoteOpen', 'foo', 'fail', 'fail', /Invalid value/);
+            test('leaveRemoteOpen', 'foo', 'true', true, /Invalid value/);
+          },
+
           serveOnly: booleanTest('serveOnly'),
           runInSync: booleanTest('runInSync'),
 
