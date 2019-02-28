@@ -13,12 +13,9 @@
     "_tests/tests/unit/lib/Test.js",
     "_tests/tests/unit/lib/channels/**/*.js",
     "_tests/tests/unit/lib/common/**/*.js",
-    "_tests/tests/unit/lib/executors/Browser.js",
     "_tests/tests/unit/lib/executors/Executor.js",
     "_tests/tests/unit/lib/interfaces/**/*.js",
     "_tests/tests/unit/lib/reporters/Console.js",
-    "_tests/tests/unit/lib/reporters/Dom.js",
-    "_tests/tests/unit/lib/reporters/Html.js",
     "_tests/tests/unit/loaders/**/*.js"
   ],
 
@@ -30,9 +27,7 @@
     "suites": [
       "_tests/tests/unit/index.js",
       "_tests/tests/unit/bin/intern.js",
-      "_tests/tests/unit/lib/**/*.js",
-      "!_tests/tests/unit/lib/browser/**/*.js",
-      "!_tests/tests/unit/lib/executors/Browser.s",
+      "_tests/tests/unit/lib/node/**/*.js",
       "_tests/tests/unit/tasks/**/*.js"
     ],
     "plugins": [
@@ -49,7 +44,12 @@
   },
 
   "browser": {
-    "suites": ["_tests/tests/unit/lib/browser/util.js"],
+    "suites": [
+      "_tests/tests/unit/lib/executors/Browser.js",
+      "_tests/tests/unit/lib/browser/util.js",
+      "_tests/tests/unit/lib/reporters/Dom.js",
+      "_tests/tests/unit/lib/reporters/Html.js"
+    ],
     "plugins": [
       "_tests/tests/support/browserDom.js",
       "_tests/tests/support/dojoMocking.js"
