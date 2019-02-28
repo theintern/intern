@@ -509,11 +509,21 @@ export function processOption<C extends Config>(
     setOption(config, name, parseValue(name, value, 'string'));
   } else if (
     name === 'functionalCoverage' ||
-    name === 'leaveRemoteOpen' ||
     name === 'serveOnly' ||
     name === 'runInSync'
   ) {
     setOption(config, name, parseValue(name, value, 'boolean'));
+  } else if (name === 'leaveRemoteOpen') {
+    let parsed: boolean | 'fail';
+    try {
+      parsed = parseValue(name, value, 'boolean');
+    } catch (error) {
+      parsed = parseValue(name, value, 'string');
+      if (parsed !== 'fail') {
+        throw new Error(`Invalid value '${parsed}' for leaveRemoteOpen`);
+      }
+    }
+    setOption(config, name, parsed);
   } else if (name === 'coverage') {
     let parsed: boolean | string[];
     try {
