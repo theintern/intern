@@ -133,12 +133,12 @@ registerSuite('intern/lib/reporters/Html', {
         assert.isDefined(header, 'expected header element to exist');
         assert.equal(header.textContent, 'Intern Test Report');
 
-        const summaryTable = doc.body.getElementsByTagName('table')[0];
-        assert.isDefined(summaryTable, 'expected result table to exist');
+        const summaryTable = doc.body.querySelector('.summary');
+        assert.isNotNull(summaryTable, 'expected result table to exist');
 
         // Verify that the header was generated
         assert.equal(
-          summaryTable.textContent,
+          summaryTable!.textContent!.replace(/\n+/g, ''),
           'Suites0Tests0Duration0:00.123Skipped0Failed0Success Rate100%'
         );
       },
@@ -221,23 +221,25 @@ registerSuite('intern/lib/reporters/Html', {
         reporter.suiteEnd(rootSuite);
 
         // Verify that the header was generated
-        const summaryTable = doc.body.getElementsByTagName('table')[0];
+        const summaryTable = doc.body.querySelector('.summary');
+        assert.isNotNull(summaryTable, 'expected result table to exist');
+
         const rate =
           100 - Math.round((suite.numFailedTests / suite.numTests) * 100);
         assert.equal(
-          summaryTable.textContent,
+          summaryTable!.textContent!.replace(/\n+/g, ''),
           `Suites1Tests${tests.length}Duration0:00.${suite.timeElapsed}` +
             `Skipped${suite.numSkippedTests}Failed${
               suite.numFailedTests
             }Success Rate${rate}%`
         );
 
-        const reportTable = doc.body.getElementsByTagName('table')[1];
-        assert.isDefined(reportTable, 'expected report table to exist');
-        const tbody = reportTable.getElementsByTagName('tbody')[0];
-        assert.isDefined(tbody, 'expected table body');
+        const reportTable = doc.body.querySelector('table');
+        assert.isNotNull(reportTable, 'expected report table to exist');
+        const tbody = reportTable!.querySelector('tbody');
+        assert.isNotNull(tbody, 'expected table body');
 
-        const rows = tbody.getElementsByTagName('tr');
+        const rows = tbody!.querySelectorAll('tr');
         assert.lengthOf(
           rows,
           1 + tests.length,
