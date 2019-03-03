@@ -2,13 +2,14 @@ import { Executor } from '../executors/Executor';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import Test from '../Test';
 import Suite from '../Suite';
-
-const suitesIcon = require('./html/icons/albums.svg');
-const passIcon = require('./html/icons/check.svg');
-const failIcon = require('./html/icons/close-circle.svg');
-const testsIcon = require('./html/icons/gleam.svg');
-const skipIcon = require('./html/icons/less.svg');
-const timeIcon = require('./html/icons/stopwatch.svg');
+import {
+  suitesIcon,
+  passIcon,
+  failIcon,
+  testsIcon,
+  skipIcon,
+  timeIcon
+} from './html/icons';
 
 // Needs a URLSearchParams polyfill
 
