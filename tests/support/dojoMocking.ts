@@ -1,7 +1,5 @@
 /// <reference types="@dojo/loader"/>
 
-const notDefined = {};
-
 class RequireHelpers {
   require: DojoLoader.RootRequire;
   registeredMocks: { id: string; original?: any }[];
@@ -34,11 +32,12 @@ class RequireHelpers {
     try {
       return this.require(mid);
     } catch (error) {
-      return notDefined;
+      return undefined;
     }
   }
 
   registerMock(mid: string) {
+    console.log('registering a mock for', mid);
     this.registeredMocks.push({ id: mid, original: this.getOriginal(mid) });
   }
 
@@ -47,7 +46,7 @@ class RequireHelpers {
     // the loader without restoring them.
     while (this.registeredMocks.length > 0) {
       const { id, original } = this.registeredMocks.pop()!;
-      if (original !== notDefined) {
+      if (typeof original !== 'undefined') {
         this.redefine(id, original);
       } else {
         this.undefine(id);
