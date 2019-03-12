@@ -452,6 +452,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
                 let remote: Remote = <Remote>new Command(session);
                 remote.environmentType = new Environment(session.capabilities);
+                remote.requestedEnvironment = environmentType;
                 this.remote = remote;
                 this.sessionId = remote.session.sessionId;
 
@@ -820,6 +821,7 @@ export interface NodePlugins extends Plugins {
 
 export interface Remote extends Command<any> {
   environmentType?: Environment;
+  requestedEnvironment?: Environment;
   setHeartbeatInterval(delay: number): Command<any>;
 }
 
