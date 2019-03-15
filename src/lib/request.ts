@@ -47,6 +47,7 @@ export interface ProgressEvent {
 }
 
 export interface Headers {
+  all: { [key: string]: string };
   get(key: string): string;
 }
 
@@ -140,10 +141,21 @@ export default function request(
 }
 
 class HeadersClass {
-  private data: any;
+  private data: { [key: string]: string };
 
-  constructor(headers: any) {
+  constructor(headers: { [key: string]: string }) {
     this.data = headers;
+  }
+
+  get all() {
+    const { data } = this;
+    return Object.keys(data).reduce(
+      (headers: { [key: string]: string }, key) => {
+        headers[key.toLowerCase()] = data[key];
+        return headers;
+      },
+      {}
+    );
   }
 
   get(key: string) {

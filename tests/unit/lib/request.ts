@@ -1,5 +1,5 @@
 import * as moxios from 'moxios';
-import request from '../../../src/lib/request';
+import request, { Response } from '../../../src/lib/request';
 
 const { registerSuite } = intern.getInterface('object');
 const { assert } = intern.getPlugin('chai');
@@ -26,7 +26,8 @@ registerSuite('lib/request', {
             statusText: 'OK',
             response: 'foo',
             headers: {
-              'Content-Type': 'text/plain'
+              'Content-Type': 'text/plain',
+              'A-Test-Header': 'Some Value'
             }
           });
         })
@@ -52,6 +53,16 @@ registerSuite('lib/request', {
               response.headers.get('content-type'),
               'text/plain',
               'Unexpected content type'
+            );
+            assert.equal(
+              response.headers.all['content-type'],
+              'text/plain',
+              'Unexpected content type for content-type'
+            );
+            assert.equal(
+              response.headers.all['a-test-header'],
+              'Some Value',
+              'Unexpected content type for a-test-header'
             );
             return response.text();
           })
