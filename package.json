@@ -25,7 +25,9 @@
     "release": "intern-dev-release",
     "test": "intern",
     "precommit": "lint-staged",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch",
+    "ci": "npm run test",
+    "preci": "npm run build"
   },
   "dependencies": {
     "axios": "~0.18.0",
