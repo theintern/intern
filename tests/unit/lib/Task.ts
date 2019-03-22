@@ -1,6 +1,3 @@
-import Promise from '@dojo/shim/Promise';
-import { Thenable } from '@dojo/shim/interfaces';
-import { ShimIterator } from '@dojo/shim/iterator';
 import Task, {
   isTask,
   DictionaryOfPromises,
@@ -60,15 +57,7 @@ registerSuite('lib/Task', {
 
     'iterable argument'() {
       const dfd = this.async();
-      Task.all({
-        [Symbol.iterator]() {
-          return new ShimIterator<number | Thenable<number>>([
-            0,
-            Task.resolve(1),
-            Task.resolve(2)
-          ]);
-        }
-      }).then(
+      Task.all([0, Task.resolve(1), Task.resolve(2)]).then(
         dfd.callback((value: number[]) => {
           assert.isArray(value);
           assert.deepEqual(value, [0, 1, 2]);
@@ -236,15 +225,7 @@ registerSuite('lib/Task', {
 
     'iterable argument'() {
       const dfd = this.async();
-      Task.race({
-        [Symbol.iterator]() {
-          return new ShimIterator<number | Thenable<number>>([
-            0,
-            Task.resolve(1),
-            Task.resolve(2)
-          ]);
-        }
-      }).then(
+      Task.race([0, Task.resolve(1), Task.resolve(2)]).then(
         dfd.callback((value: number) => {
           assert.strictEqual(value, 0);
         })
