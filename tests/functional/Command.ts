@@ -211,7 +211,7 @@ registerSuite('Command', () => {
         return new Command(session)
           .get('tests/functional/data/elements.html')
           .findAllByClassName('b')
-          .getAttribute<string[]>('id')
+          .getAttribute('id')
           .then(function(ids) {
             assert.deepEqual(ids, ['b2', 'b1', 'b3', 'b4']);
           });
@@ -222,7 +222,7 @@ registerSuite('Command', () => {
           .get('tests/functional/data/elements.html')
           .findById('c')
           .findAllByClassName('b')
-          .getAttribute<string[]>('id')
+          .getAttribute('id')
           .then(function(ids) {
             assert.deepEqual(ids, ['b3', 'b4']);
           })
@@ -233,7 +233,7 @@ registerSuite('Command', () => {
           .end(2)
           .end()
           .findAllByClassName('b')
-          .getAttribute<string[]>('id')
+          .getAttribute('id')
           .then(function(ids) {
             assert.deepEqual(ids, ['b2', 'b1', 'b3', 'b4']);
           });
@@ -244,7 +244,7 @@ registerSuite('Command', () => {
           .get('tests/functional/data/elements.html')
           .findAllByTagName('div')
           .findAllByCssSelector('span, a')
-          .getAttribute<string[]>('id')
+          .getAttribute('id')
           .then(function(ids) {
             assert.deepEqual(ids, ['f', 'g', 'j', 'i1', 'k', 'zz']);
           });

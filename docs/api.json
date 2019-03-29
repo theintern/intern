@@ -4038,7 +4038,7 @@
 									"typeParameter": [
 										{
 											"id": 1518,
-											"name": "T",
+											"name": "S",
 											"kind": 131072,
 											"kindString": "Type parameter",
 											"flags": {
@@ -4071,7 +4071,7 @@
 										"typeArguments": [
 											{
 												"type": "unknown",
-												"name": "T"
+												"name": "S"
 											},
 											{
 												"type": "intrinsic",
@@ -4232,8 +4232,8 @@
 										"id": 1201,
 										"typeArguments": [
 											{
-												"type": "intrinsic",
-												"name": "string"
+												"type": "unknown",
+												"name": "StringResult<T>"
 											},
 											{
 												"type": "intrinsic",
@@ -5132,8 +5132,8 @@
 										"id": 1201,
 										"typeArguments": [
 											{
-												"type": "intrinsic",
-												"name": "string"
+												"type": "unknown",
+												"name": "StringResult<T>"
 											},
 											{
 												"type": "intrinsic",
@@ -5178,8 +5178,8 @@
 										"id": 1201,
 										"typeArguments": [
 											{
-												"type": "intrinsic",
-												"name": "string"
+												"type": "unknown",
+												"name": "StringResult<T>"
 											},
 											{
 												"type": "intrinsic",
@@ -5289,8 +5289,8 @@
 										"id": 1201,
 										"typeArguments": [
 											{
-												"type": "intrinsic",
-												"name": "string"
+												"type": "unknown",
+												"name": "StringResult<T>"
 											},
 											{
 												"type": "intrinsic",
@@ -9628,7 +9628,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1741,
+									"line": 1744,
 									"character": 7
 								}
 							],
@@ -9659,7 +9659,7 @@
 							"sources": [
 								{
 									"fileName": "Command.ts",
-									"line": 1740,
+									"line": 1743,
 									"character": 10
 								}
 							],
@@ -13837,7 +13837,7 @@
 					"sources": [
 						{
 							"fileName": "Command.ts",
-							"line": 1739,
+							"line": 1742,
 							"character": 24
 						}
 					],
@@ -13916,10 +13916,41 @@
 					"sources": [
 						{
 							"fileName": "Command.ts",
-							"line": 1732,
+							"line": 1735,
 							"character": 33
 						}
 					]
+				},
+				{
+					"id": 1868,
+					"name": "StringResult",
+					"kind": 4194304,
+					"kindString": "Type alias",
+					"flags": {
+						"__visited__": true
+					},
+					"typeParameter": [
+						{
+							"id": 1869,
+							"name": "E",
+							"kind": 131072,
+							"kindString": "Type parameter",
+							"flags": {
+								"__visited__": true
+							}
+						}
+					],
+					"sources": [
+						{
+							"fileName": "Command.ts",
+							"line": 1776,
+							"character": 17
+						}
+					],
+					"type": {
+						"type": "unknown",
+						"name": "StringResult<E>"
+					}
 				},
 				{
 					"id": 1863,
@@ -13933,7 +13964,7 @@
 					"sources": [
 						{
 							"fileName": "Command.ts",
-							"line": 1744,
+							"line": 1747,
 							"character": 17
 						}
 					],
@@ -13956,7 +13987,7 @@
 					"sources": [
 						{
 							"fileName": "Command.ts",
-							"line": 1748,
+							"line": 1751,
 							"character": 18
 						}
 					],
@@ -14028,7 +14059,7 @@
 					"sources": [
 						{
 							"fileName": "Command.ts",
-							"line": 1769,
+							"line": 1772,
 							"character": 18
 						}
 					]
@@ -14048,6 +14079,13 @@
 					"children": [
 						1638,
 						1635
+					]
+				},
+				{
+					"title": "Type aliases",
+					"kind": 4194304,
+					"children": [
+						1868
 					]
 				},
 				{
@@ -29877,7 +29915,7 @@
 			]
 		},
 		{
-			"id": 1868,
+			"id": 1870,
 			"name": "\"helpers/pollUntil\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -29888,7 +29926,7 @@
 			"originalName": "src/helpers/pollUntil.ts",
 			"children": [
 				{
-					"id": 1869,
+					"id": 1871,
 					"name": "pollUntil",
 					"kind": 64,
 					"kindString": "Function",
@@ -29898,7 +29936,7 @@
 					},
 					"signatures": [
 						{
-							"id": 1870,
+							"id": 1872,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -29912,7 +29950,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1871,
+									"id": 1873,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -29923,7 +29961,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1872,
+									"id": 1874,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -29939,7 +29977,7 @@
 											{
 												"type": "reflection",
 												"declaration": {
-													"id": 1873,
+													"id": 1875,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -29948,7 +29986,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1874,
+															"id": 1876,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -29978,7 +30016,7 @@
 									}
 								},
 								{
-									"id": 1875,
+									"id": 1877,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30004,7 +30042,7 @@
 									}
 								},
 								{
-									"id": 1876,
+									"id": 1878,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30033,7 +30071,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1877,
+									"id": 1879,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -30042,7 +30080,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1878,
+											"id": 1880,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -30072,7 +30110,7 @@
 							}
 						},
 						{
-							"id": 1879,
+							"id": 1881,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -30081,7 +30119,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1880,
+									"id": 1882,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30092,7 +30130,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1881,
+									"id": 1883,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30105,7 +30143,7 @@
 									}
 								},
 								{
-									"id": 1882,
+									"id": 1884,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30122,7 +30160,7 @@
 									}
 								},
 								{
-									"id": 1883,
+									"id": 1885,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30145,7 +30183,7 @@
 									}
 								},
 								{
-									"id": 1884,
+									"id": 1886,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30171,7 +30209,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1885,
+									"id": 1887,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -30180,7 +30218,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1886,
+											"id": 1888,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -30210,7 +30248,7 @@
 							}
 						},
 						{
-							"id": 1887,
+							"id": 1889,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -30219,7 +30257,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1888,
+									"id": 1890,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30230,7 +30268,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1889,
+									"id": 1891,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30240,7 +30278,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1890,
+											"id": 1892,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -30249,7 +30287,7 @@
 											},
 											"signatures": [
 												{
-													"id": 1891,
+													"id": 1893,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -30273,7 +30311,7 @@
 									}
 								},
 								{
-									"id": 1892,
+									"id": 1894,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30290,7 +30328,7 @@
 									}
 								},
 								{
-									"id": 1893,
+									"id": 1895,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30313,7 +30351,7 @@
 									}
 								},
 								{
-									"id": 1894,
+									"id": 1896,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30339,7 +30377,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1895,
+									"id": 1897,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -30348,7 +30386,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1896,
+											"id": 1898,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -30378,7 +30416,7 @@
 							}
 						},
 						{
-							"id": 1897,
+							"id": 1899,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -30387,7 +30425,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1898,
+									"id": 1900,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30396,7 +30434,7 @@
 									}
 								},
 								{
-									"id": 1899,
+									"id": 1901,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30407,7 +30445,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1900,
+									"id": 1902,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30417,7 +30455,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1901,
+											"id": 1903,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -30426,7 +30464,7 @@
 											},
 											"signatures": [
 												{
-													"id": 1902,
+													"id": 1904,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -30435,7 +30473,7 @@
 													},
 													"parameters": [
 														{
-															"id": 1903,
+															"id": 1905,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -30465,7 +30503,7 @@
 									}
 								},
 								{
-									"id": 1904,
+									"id": 1906,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30484,7 +30522,7 @@
 									}
 								},
 								{
-									"id": 1905,
+									"id": 1907,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30507,7 +30545,7 @@
 									}
 								},
 								{
-									"id": 1906,
+									"id": 1908,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30533,7 +30571,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1907,
+									"id": 1909,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -30542,7 +30580,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1908,
+											"id": 1910,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -30572,7 +30610,7 @@
 							}
 						},
 						{
-							"id": 1909,
+							"id": 1911,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -30581,7 +30619,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1910,
+									"id": 1912,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30590,7 +30628,7 @@
 									}
 								},
 								{
-									"id": 1911,
+									"id": 1913,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30599,7 +30637,7 @@
 									}
 								},
 								{
-									"id": 1912,
+									"id": 1914,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30610,7 +30648,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1913,
+									"id": 1915,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30620,7 +30658,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1914,
+											"id": 1916,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -30629,7 +30667,7 @@
 											},
 											"signatures": [
 												{
-													"id": 1915,
+													"id": 1917,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -30638,7 +30676,7 @@
 													},
 													"parameters": [
 														{
-															"id": 1916,
+															"id": 1918,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -30651,7 +30689,7 @@
 															}
 														},
 														{
-															"id": 1917,
+															"id": 1919,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -30681,7 +30719,7 @@
 									}
 								},
 								{
-									"id": 1918,
+									"id": 1920,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30704,7 +30742,7 @@
 									}
 								},
 								{
-									"id": 1919,
+									"id": 1921,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30727,7 +30765,7 @@
 									}
 								},
 								{
-									"id": 1920,
+									"id": 1922,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30753,7 +30791,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1921,
+									"id": 1923,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -30762,7 +30800,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1922,
+											"id": 1924,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -30792,7 +30830,7 @@
 							}
 						},
 						{
-							"id": 1923,
+							"id": 1925,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -30801,7 +30839,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1924,
+									"id": 1926,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30810,7 +30848,7 @@
 									}
 								},
 								{
-									"id": 1925,
+									"id": 1927,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30819,7 +30857,7 @@
 									}
 								},
 								{
-									"id": 1926,
+									"id": 1928,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30828,7 +30866,7 @@
 									}
 								},
 								{
-									"id": 1927,
+									"id": 1929,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30839,7 +30877,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1928,
+									"id": 1930,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30849,7 +30887,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1929,
+											"id": 1931,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -30858,7 +30896,7 @@
 											},
 											"signatures": [
 												{
-													"id": 1930,
+													"id": 1932,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -30867,7 +30905,7 @@
 													},
 													"parameters": [
 														{
-															"id": 1931,
+															"id": 1933,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -30880,7 +30918,7 @@
 															}
 														},
 														{
-															"id": 1932,
+															"id": 1934,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -30893,7 +30931,7 @@
 															}
 														},
 														{
-															"id": 1933,
+															"id": 1935,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -30923,7 +30961,7 @@
 									}
 								},
 								{
-									"id": 1934,
+									"id": 1936,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30950,7 +30988,7 @@
 									}
 								},
 								{
-									"id": 1935,
+									"id": 1937,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30973,7 +31011,7 @@
 									}
 								},
 								{
-									"id": 1936,
+									"id": 1938,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30999,7 +31037,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1937,
+									"id": 1939,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -31008,7 +31046,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1938,
+											"id": 1940,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -31038,7 +31076,7 @@
 							}
 						},
 						{
-							"id": 1939,
+							"id": 1941,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -31047,7 +31085,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1940,
+									"id": 1942,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31056,7 +31094,7 @@
 									}
 								},
 								{
-									"id": 1941,
+									"id": 1943,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31065,7 +31103,7 @@
 									}
 								},
 								{
-									"id": 1942,
+									"id": 1944,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31074,7 +31112,7 @@
 									}
 								},
 								{
-									"id": 1943,
+									"id": 1945,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31083,7 +31121,7 @@
 									}
 								},
 								{
-									"id": 1944,
+									"id": 1946,
 									"name": "X",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31094,7 +31132,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1945,
+									"id": 1947,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31104,7 +31142,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1946,
+											"id": 1948,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -31113,7 +31151,7 @@
 											},
 											"signatures": [
 												{
-													"id": 1947,
+													"id": 1949,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -31122,7 +31160,7 @@
 													},
 													"parameters": [
 														{
-															"id": 1948,
+															"id": 1950,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31135,7 +31173,7 @@
 															}
 														},
 														{
-															"id": 1949,
+															"id": 1951,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31148,7 +31186,7 @@
 															}
 														},
 														{
-															"id": 1950,
+															"id": 1952,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31161,7 +31199,7 @@
 															}
 														},
 														{
-															"id": 1951,
+															"id": 1953,
 															"name": "x",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31191,7 +31229,7 @@
 									}
 								},
 								{
-									"id": 1952,
+									"id": 1954,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31222,7 +31260,7 @@
 									}
 								},
 								{
-									"id": 1953,
+									"id": 1955,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31245,7 +31283,7 @@
 									}
 								},
 								{
-									"id": 1954,
+									"id": 1956,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31271,7 +31309,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1955,
+									"id": 1957,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -31280,7 +31318,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1956,
+											"id": 1958,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -31310,7 +31348,7 @@
 							}
 						},
 						{
-							"id": 1957,
+							"id": 1959,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -31319,7 +31357,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1958,
+									"id": 1960,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31328,7 +31366,7 @@
 									}
 								},
 								{
-									"id": 1959,
+									"id": 1961,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31337,7 +31375,7 @@
 									}
 								},
 								{
-									"id": 1960,
+									"id": 1962,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31346,7 +31384,7 @@
 									}
 								},
 								{
-									"id": 1961,
+									"id": 1963,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31355,7 +31393,7 @@
 									}
 								},
 								{
-									"id": 1962,
+									"id": 1964,
 									"name": "X",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31364,7 +31402,7 @@
 									}
 								},
 								{
-									"id": 1963,
+									"id": 1965,
 									"name": "Y",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31375,7 +31413,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1964,
+									"id": 1966,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31385,7 +31423,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1965,
+											"id": 1967,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -31394,7 +31432,7 @@
 											},
 											"signatures": [
 												{
-													"id": 1966,
+													"id": 1968,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -31403,7 +31441,7 @@
 													},
 													"parameters": [
 														{
-															"id": 1967,
+															"id": 1969,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31416,7 +31454,7 @@
 															}
 														},
 														{
-															"id": 1968,
+															"id": 1970,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31429,7 +31467,7 @@
 															}
 														},
 														{
-															"id": 1969,
+															"id": 1971,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31442,7 +31480,7 @@
 															}
 														},
 														{
-															"id": 1970,
+															"id": 1972,
 															"name": "x",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31455,7 +31493,7 @@
 															}
 														},
 														{
-															"id": 1971,
+															"id": 1973,
 															"name": "y",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31485,7 +31523,7 @@
 									}
 								},
 								{
-									"id": 1972,
+									"id": 1974,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31520,7 +31558,7 @@
 									}
 								},
 								{
-									"id": 1973,
+									"id": 1975,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31543,7 +31581,7 @@
 									}
 								},
 								{
-									"id": 1974,
+									"id": 1976,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31569,7 +31607,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1975,
+									"id": 1977,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -31578,7 +31616,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1976,
+											"id": 1978,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -31662,7 +31700,7 @@
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						1869
+						1871
 					]
 				}
 			],
@@ -31675,7 +31713,7 @@
 			]
 		},
 		{
-			"id": 1977,
+			"id": 1979,
 			"name": "\"helpers/pollUntilTruthy\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -31686,7 +31724,7 @@
 			"originalName": "src/helpers/pollUntilTruthy.ts",
 			"children": [
 				{
-					"id": 1978,
+					"id": 1980,
 					"name": "pollUntilTruthy",
 					"kind": 64,
 					"kindString": "Function",
@@ -31696,7 +31734,7 @@
 					},
 					"signatures": [
 						{
-							"id": 1979,
+							"id": 1981,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -31705,7 +31743,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1980,
+									"id": 1982,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31716,7 +31754,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1981,
+									"id": 1983,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31729,7 +31767,7 @@
 											{
 												"type": "reflection",
 												"declaration": {
-													"id": 1982,
+													"id": 1984,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -31738,7 +31776,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1983,
+															"id": 1985,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -31768,7 +31806,7 @@
 									}
 								},
 								{
-									"id": 1984,
+									"id": 1986,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31791,7 +31829,7 @@
 									}
 								},
 								{
-									"id": 1985,
+									"id": 1987,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31817,7 +31855,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1986,
+									"id": 1988,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -31826,7 +31864,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1987,
+											"id": 1989,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -31856,7 +31894,7 @@
 							}
 						},
 						{
-							"id": 1988,
+							"id": 1990,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -31865,7 +31903,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1989,
+									"id": 1991,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31876,7 +31914,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1990,
+									"id": 1992,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31889,7 +31927,7 @@
 									}
 								},
 								{
-									"id": 1991,
+									"id": 1993,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31906,7 +31944,7 @@
 									}
 								},
 								{
-									"id": 1992,
+									"id": 1994,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31929,7 +31967,7 @@
 									}
 								},
 								{
-									"id": 1993,
+									"id": 1995,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31955,7 +31993,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1994,
+									"id": 1996,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -31964,7 +32002,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1995,
+											"id": 1997,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -31994,7 +32032,7 @@
 							}
 						},
 						{
-							"id": 1996,
+							"id": 1998,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -32003,7 +32041,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1997,
+									"id": 1999,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32014,7 +32052,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1998,
+									"id": 2000,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32024,7 +32062,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1999,
+											"id": 2001,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -32033,7 +32071,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2000,
+													"id": 2002,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -32057,7 +32095,7 @@
 									}
 								},
 								{
-									"id": 2001,
+									"id": 2003,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32074,7 +32112,7 @@
 									}
 								},
 								{
-									"id": 2002,
+									"id": 2004,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32097,7 +32135,7 @@
 									}
 								},
 								{
-									"id": 2003,
+									"id": 2005,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32123,7 +32161,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2004,
+									"id": 2006,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -32132,7 +32170,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2005,
+											"id": 2007,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -32162,7 +32200,7 @@
 							}
 						},
 						{
-							"id": 2006,
+							"id": 2008,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -32171,7 +32209,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2007,
+									"id": 2009,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32180,7 +32218,7 @@
 									}
 								},
 								{
-									"id": 2008,
+									"id": 2010,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32191,7 +32229,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2009,
+									"id": 2011,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32201,7 +32239,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2010,
+											"id": 2012,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -32210,7 +32248,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2011,
+													"id": 2013,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -32219,7 +32257,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2012,
+															"id": 2014,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32249,7 +32287,7 @@
 									}
 								},
 								{
-									"id": 2013,
+									"id": 2015,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32268,7 +32306,7 @@
 									}
 								},
 								{
-									"id": 2014,
+									"id": 2016,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32291,7 +32329,7 @@
 									}
 								},
 								{
-									"id": 2015,
+									"id": 2017,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32317,7 +32355,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2016,
+									"id": 2018,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -32326,7 +32364,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2017,
+											"id": 2019,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -32356,7 +32394,7 @@
 							}
 						},
 						{
-							"id": 2018,
+							"id": 2020,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -32365,7 +32403,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2019,
+									"id": 2021,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32374,7 +32412,7 @@
 									}
 								},
 								{
-									"id": 2020,
+									"id": 2022,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32383,7 +32421,7 @@
 									}
 								},
 								{
-									"id": 2021,
+									"id": 2023,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32394,7 +32432,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2022,
+									"id": 2024,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32404,7 +32442,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2023,
+											"id": 2025,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -32413,7 +32451,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2024,
+													"id": 2026,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -32422,7 +32460,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2025,
+															"id": 2027,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32435,7 +32473,7 @@
 															}
 														},
 														{
-															"id": 2026,
+															"id": 2028,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32465,7 +32503,7 @@
 									}
 								},
 								{
-									"id": 2027,
+									"id": 2029,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32488,7 +32526,7 @@
 									}
 								},
 								{
-									"id": 2028,
+									"id": 2030,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32511,7 +32549,7 @@
 									}
 								},
 								{
-									"id": 2029,
+									"id": 2031,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32537,7 +32575,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2030,
+									"id": 2032,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -32546,7 +32584,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2031,
+											"id": 2033,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -32576,7 +32614,7 @@
 							}
 						},
 						{
-							"id": 2032,
+							"id": 2034,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -32585,7 +32623,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2033,
+									"id": 2035,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32594,7 +32632,7 @@
 									}
 								},
 								{
-									"id": 2034,
+									"id": 2036,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32603,7 +32641,7 @@
 									}
 								},
 								{
-									"id": 2035,
+									"id": 2037,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32612,7 +32650,7 @@
 									}
 								},
 								{
-									"id": 2036,
+									"id": 2038,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32623,7 +32661,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2037,
+									"id": 2039,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32633,7 +32671,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2038,
+											"id": 2040,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -32642,7 +32680,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2039,
+													"id": 2041,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -32651,7 +32689,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2040,
+															"id": 2042,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32664,7 +32702,7 @@
 															}
 														},
 														{
-															"id": 2041,
+															"id": 2043,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32677,7 +32715,7 @@
 															}
 														},
 														{
-															"id": 2042,
+															"id": 2044,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32707,7 +32745,7 @@
 									}
 								},
 								{
-									"id": 2043,
+									"id": 2045,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32734,7 +32772,7 @@
 									}
 								},
 								{
-									"id": 2044,
+									"id": 2046,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32757,7 +32795,7 @@
 									}
 								},
 								{
-									"id": 2045,
+									"id": 2047,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32783,7 +32821,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2046,
+									"id": 2048,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -32792,7 +32830,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2047,
+											"id": 2049,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -32822,7 +32860,7 @@
 							}
 						},
 						{
-							"id": 2048,
+							"id": 2050,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -32831,7 +32869,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2049,
+									"id": 2051,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32840,7 +32878,7 @@
 									}
 								},
 								{
-									"id": 2050,
+									"id": 2052,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32849,7 +32887,7 @@
 									}
 								},
 								{
-									"id": 2051,
+									"id": 2053,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32858,7 +32896,7 @@
 									}
 								},
 								{
-									"id": 2052,
+									"id": 2054,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32867,7 +32905,7 @@
 									}
 								},
 								{
-									"id": 2053,
+									"id": 2055,
 									"name": "X",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32878,7 +32916,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2054,
+									"id": 2056,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32888,7 +32926,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2055,
+											"id": 2057,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -32897,7 +32935,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2056,
+													"id": 2058,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -32906,7 +32944,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2057,
+															"id": 2059,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32919,7 +32957,7 @@
 															}
 														},
 														{
-															"id": 2058,
+															"id": 2060,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32932,7 +32970,7 @@
 															}
 														},
 														{
-															"id": 2059,
+															"id": 2061,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32945,7 +32983,7 @@
 															}
 														},
 														{
-															"id": 2060,
+															"id": 2062,
 															"name": "x",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32975,7 +33013,7 @@
 									}
 								},
 								{
-									"id": 2061,
+									"id": 2063,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33006,7 +33044,7 @@
 									}
 								},
 								{
-									"id": 2062,
+									"id": 2064,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33029,7 +33067,7 @@
 									}
 								},
 								{
-									"id": 2063,
+									"id": 2065,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33055,7 +33093,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2064,
+									"id": 2066,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -33064,7 +33102,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2065,
+											"id": 2067,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -33094,7 +33132,7 @@
 							}
 						},
 						{
-							"id": 2066,
+							"id": 2068,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -33103,7 +33141,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2067,
+									"id": 2069,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33112,7 +33150,7 @@
 									}
 								},
 								{
-									"id": 2068,
+									"id": 2070,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33121,7 +33159,7 @@
 									}
 								},
 								{
-									"id": 2069,
+									"id": 2071,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33130,7 +33168,7 @@
 									}
 								},
 								{
-									"id": 2070,
+									"id": 2072,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33139,7 +33177,7 @@
 									}
 								},
 								{
-									"id": 2071,
+									"id": 2073,
 									"name": "X",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33148,7 +33186,7 @@
 									}
 								},
 								{
-									"id": 2072,
+									"id": 2074,
 									"name": "Y",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33159,7 +33197,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2073,
+									"id": 2075,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33169,7 +33207,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2074,
+											"id": 2076,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -33178,7 +33216,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2075,
+													"id": 2077,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -33187,7 +33225,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2076,
+															"id": 2078,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33200,7 +33238,7 @@
 															}
 														},
 														{
-															"id": 2077,
+															"id": 2079,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33213,7 +33251,7 @@
 															}
 														},
 														{
-															"id": 2078,
+															"id": 2080,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33226,7 +33264,7 @@
 															}
 														},
 														{
-															"id": 2079,
+															"id": 2081,
 															"name": "x",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33239,7 +33277,7 @@
 															}
 														},
 														{
-															"id": 2080,
+															"id": 2082,
 															"name": "y",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33269,7 +33307,7 @@
 									}
 								},
 								{
-									"id": 2081,
+									"id": 2083,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33304,7 +33342,7 @@
 									}
 								},
 								{
-									"id": 2082,
+									"id": 2084,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33327,7 +33365,7 @@
 									}
 								},
 								{
-									"id": 2083,
+									"id": 2085,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33353,7 +33391,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2084,
+									"id": 2086,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -33362,7 +33400,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2085,
+											"id": 2087,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -33446,7 +33484,7 @@
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						1978
+						1980
 					]
 				}
 			],
@@ -33459,7 +33497,7 @@
 			]
 		},
 		{
-			"id": 2086,
+			"id": 2088,
 			"name": "\"index\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -45397,9 +45435,9 @@
 				1024,
 				306,
 				559,
-				1868,
-				1977,
-				2086,
+				1870,
+				1979,
+				2088,
 				173,
 				58,
 				407,
