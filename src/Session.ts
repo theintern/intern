@@ -574,13 +574,29 @@ export default class Session extends Locator<
    * used. If an Element is provided, it must correspond to a `<frame>` or
    * `<iframe>` element.
    */
-  switchToFrame(id: string | number | Element | null) {
+  switchToFrame(
+    id: string | number | Element | null
+  ): CancellablePromise<void> {
     if (this.capabilities.usesWebDriverFrameId && typeof id === 'string') {
       return this.findById(id).then(element =>
         this.serverPost<void>('frame', { id: element })
       );
     }
-    return this.serverPost<void>('frame', { id: id });
+
+    return this.serverPost<void>('frame', { id: id }).catch(error => {
+      if (
+        this.capabilities.usesWebDriverFrameId == null &&
+        (error.name === 'NoSuchFrame' ||
+          // At least geckodriver 0.24.0 throws an Unknown Command error
+          // with a message about an invalid tag name rather than a NoSuchFrame error
+          // (see https://github.com/mozilla/geckodriver/issues/1456)
+          /any variant of untagged/.test(error.detail.message))
+      ) {
+        this.capabilities.usesWebDriverFrameId = true;
+        return this.switchToFrame(id);
+      }
+      throw error;
+    });
   }
 
   /**

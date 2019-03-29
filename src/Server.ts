@@ -941,9 +941,19 @@ export default class Server {
 
       if (capabilities.usesWebDriverFrameId == null) {
         testedCapabilities.usesWebDriverFrameId = () =>
-          session
-            .switchToFrame('inlineFrame')
-            .then(unsupported, error => error.name === 'NoSuchFrame');
+          get(
+            '<!DOCTYPE html><html><body><iframe id="inlineFrame"></iframe></body></html>'
+          ).then(() =>
+            session.serverPost<void>('frame', { id: 'inlineFrame' }).then(
+              unsupported,
+              error =>
+                error.name === 'NoSuchFrame' ||
+                // At least geckodriver 0.24.0 throws an Unknown Command error
+                // with a message about an invalid tag name rather than a NoSuchFrame error
+                // (see https://github.com/mozilla/geckodriver/issues/1456)
+                /any variant of untagged/.test(error.message)
+            )
+          );
       }
 
       if (capabilities.returnsFromClickImmediately == null) {
