@@ -68,7 +68,7 @@ export default class Browser extends Executor<Events, Config, Plugins> {
     }
 
     return script.reduce((previous, script) => {
-      if (script[0] !== '/') {
+      if (script[0] !== '/' && !/https?:\/\//.test(script)) {
         script = `${this.config.basePath}${script}`;
       }
       return previous.then(() => injectScript(script, isEsm));
@@ -78,13 +78,19 @@ export default class Browser extends Executor<Events, Config, Plugins> {
   protected _resolveConfig() {
     return super._resolveConfig().then(() => {
       const config = this.config;
-      const currentPath = global.location.pathname;
+      // const currentPath = global.location.pathname;
 
       if (!config.internPath) {
-        if (/\.html$/.test(currentPath)) {
-          config.internPath = dirname(currentPath);
-        } else {
-          config.internPath = currentPath;
+        const scripts = document.scripts;
+        for (let i = 0; i < scripts.length; i++) {
+          const scriptPath = scripts[i].src;
+          if (/browser\/intern.js/.test(scriptPath)) {
+            config.internPath = dirname(dirname(scriptPath));
+          }
+        }
+
+        if (!config.internPath) {
+          config.internPath = '/';
         }
       }
 
@@ -148,6 +154,8 @@ function injectScript(path: string, isEsm: boolean): CancellablePromise<void> {
       scriptTag.type = 'module';
     }
     scriptTag.src = path;
-    doc.body.appendChild(scriptTag);
+    scriptTag.defer = true;
+    const scriptTarget = document.head || document.body;
+    scriptTarget.appendChild(scriptTag);
   });
 }
