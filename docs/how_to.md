@@ -179,7 +179,7 @@ create an `intern` global that can be used to configure Intern and start tests.
 If you’d rather not install Intern, you can load the package from a CDN, like:
 
 ```html
-<script src="https://unpkg.com/intern@next/browser/intern.js"></script>
+<script src="https://unpkg.com/intern@latest/browser/intern.js"></script>
 ```
 
 ## Write tests in an HTML page
@@ -190,7 +190,7 @@ If you’d rather not install Intern, you can load the package from a CDN, like:
     <head>
         <meta charset="UTF-8">
 
-        <script src="https://unpkg.com/intern@next/browser/intern.js"></script>
+        <script src="https://unpkg.com/intern@latest/browser/intern.js"></script>
         <script>
             var registerSuite = intern.getPlugin('interface.object').registerSuite;
 
