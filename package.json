@@ -87,7 +87,7 @@
     "istanbul-lib-report": "~1.1.5",
     "istanbul-lib-source-maps": "~1.2.6",
     "istanbul-reports": "~1.5.1",
-    "lodash": "~4.17.10",
+    "lodash": "~4.17.11",
     "mime-types": "~2.1.19",
     "minimatch": "~3.0.4",
     "platform": "~1.3.5",
@@ -100,7 +100,7 @@
   },
   "devDependencies": {
     "@dojo/loader": "~0.1.1",
-    "@theintern/dev": "~0.9.0",
+    "@theintern/dev": "~0.9.1",
     "@types/body-parser": "~1.16.4",
     "@types/diff": "~3.5.1",
     "@types/glob": "~5.0.35",
