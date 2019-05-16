@@ -1,4 +1,4 @@
-import { readFile, readFileSync } from 'fs';
+import { readFile, readFileSync, mkdirSync, existsSync } from 'fs';
 import { dirname, isAbsolute, join, normalize, resolve, sep } from 'path';
 import { parse } from 'shell-quote';
 import { RawSourceMap } from 'source-map';
@@ -183,6 +183,19 @@ export function readSourceMap(
  */
 export function isErrnoException(value: any): value is NodeJS.ErrnoException {
   return value.errno !== null;
+}
+
+/**
+ * Recursively create directories
+ */
+export function mkdirp(dir: string) {
+  const parent = dirname(dir);
+  if (parent && !existsSync(parent)) {
+    mkdirp(parent);
+  }
+  if (!existsSync(dir)) {
+    mkdirSync(dir);
+  }
 }
 
 // Regex for matching sourceMappingUrl comments

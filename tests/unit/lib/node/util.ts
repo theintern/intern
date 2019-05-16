@@ -1,4 +1,5 @@
 import { dirname, join } from 'path';
+import { rmdirSync } from 'fs';
 import { Task } from '@theintern/common';
 
 import * as _util from 'src/lib/node/util';
@@ -371,6 +372,14 @@ registerSuite('lib/node/util', function() {
             `function () { console.log("hi"); }\n//# sourceMappingURL=${mapUrl}`
           );
         }
+      },
+
+      mkdirp() {
+        _util.mkdirp('_test_tmp/dir1/dir2/dir3');
+        rmdirSync('_test_tmp/dir1/dir2/dir3');
+        rmdirSync('_test_tmp/dir1/dir2');
+        rmdirSync('_test_tmp/dir1');
+        rmdirSync('_test_tmp');
       }
     }
   };
