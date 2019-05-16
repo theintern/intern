@@ -73,19 +73,21 @@ or directly in a browser. Some of the more common ones are listed below.
 > [the API docs](https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/config)
 > for a complete list of the available config properties.
 
-| Property           | Description                                                                       | Default                 |
-| :----------------- | :-------------------------------------------------------------------------------- | :---------------------- |
-| [bail]             | When true, stop testing after the first failure                                   | `false`                 |
-| [baseline]         | When true, run benchmark tests in baseline mode                                   | `false`                 |
-| [benchmark]        | When true, run benchmark tests (if loaded)                                        | `false`                 |
-| [debug]            | If true, display runtime messages to the console                                  | `false`                 |
-| [defaultTimeout]   | The time, in ms, before an async test times out                                   | 30000                   |
-| [filterErrorStack] | If true, filter non-application code lines out of stack traces                    | `false`                 |
-| [grep]             | Regular expression used to filter which suites and tests are run                  | `/.*/`                  |
-| [loader]           | An optional loader script and options                                             | `{ script: 'default' }` |
-| [plugins]          | A list of Intern extensions to load before tests begin                            | `[]`                    |
-| [reporters]        | A list of reporters to use                                                        | `[]`                    |
-| [suites]           | A list of suite paths or [globs](#suite-glob-expressions) to load unit tests from | `[]`                    |
+| Property                   | Description                                                                             | Default                 |
+| :------------------------- | :-------------------------------------------------------------------------------------- | :---------------------- |
+| [bail]                     | When true, stop testing after the first failure                                         | `false`                 |
+| [baseline]                 | When true, run benchmark tests in baseline mode                                         | `false`                 |
+| [benchmark]                | When true, run benchmark tests (if loaded)                                              | `false`                 |
+| [debug]                    | If true, display runtime messages to the console                                        | `false`                 |
+| [defaultTimeout]           | The time, in ms, before an async test times out                                         | 30000                   |
+| [filterErrorStack]         | If true, filter non-application code lines out of stack traces                          | `false`                 |
+| [grep]                     | Regular expression used to filter which suites and tests are run                        | `/.*/`                  |
+| [loader]                   | An optional loader script and options                                                   | `{ script: 'default' }` |
+| [plugins]                  | A list of Intern extensions to load before tests begin                                  | `[]`                    |
+| [reporters]                | A list of reporters to use                                                              | `[]`                    |
+| [suites]                   | A list of suite paths or [globs](#suite-glob-expressions) to load unit tests from       | `[]`                    |
+| [warnOnUnhandledRejection] | If `true` or a regex matching a unhandled rejection, emit a warning instead of an error | `undefined`             |
+| [warnOnUncaughtException]  | If `true` or a regex matching an uncaught error, emit a warning instead of an error     | `undefined`             |
 
 Some properties are only meaningful for Node or WebDriver tests:
 
@@ -568,3 +570,7 @@ There are a few exceptions:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/tunnel
 [tunneloptions]:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/tunneloptions
+[warnOnUnhandledRejection]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/warnOnUnhandledRejection
+[warnOnUncaughtException]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/warnOnUncaughtException

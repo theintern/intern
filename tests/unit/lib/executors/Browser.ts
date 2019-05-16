@@ -127,48 +127,189 @@ registerSuite('lib/executors/Browser', function() {
           assert.equal(mockGlobal.addEventListener.getCall(1).args[0], 'error');
         },
 
-        'unhandled rejection'() {
+        async 'unhandled rejection'() {
           const logger = spy(() => {});
           executor.on('error', logger);
+
           const handler = mockGlobal.addEventListener.getCall(0).args[1];
           const reason = new Error('foo');
           handler({ reason });
-          return executor.run().then(
-            () => {
-              throw new Error('run should have failed');
-            },
-            error => {
-              assert.equal(logger.callCount, 1);
-              assert.strictEqual(
-                logger.getCall(0).args[0],
-                reason,
-                'expected emitted error to be error passed to listener'
-              );
-              assert.equal(error.message, 'An error was emitted');
-            }
+
+          let caughtError: Error | undefined;
+          try {
+            await executor.run();
+          } catch (error) {
+            caughtError = error;
+          }
+
+          assert.isDefined(caughtError, 'Run should have errored');
+
+          assert.equal(logger.callCount, 1);
+          assert.strictEqual(
+            logger.getCall(0).args[0],
+            reason,
+            'expected emitted error to be error passed to listener'
+          );
+          assert.equal(caughtError!.message, 'An error was emitted');
+        },
+
+        async 'unhandled rejection warning'() {
+          const warningLogger = spy(() => {});
+          executor.on('warning', warningLogger);
+          const errorLogger = spy(() => {});
+          executor.on('error', errorLogger);
+          executor.configure({ warnOnUnhandledRejection: true });
+
+          const handler = mockGlobal.addEventListener.getCall(0).args[1];
+          const reason1 = `${new Error('foo')}`;
+          handler({ reason: reason1 });
+          const reason2 = `${new Error('bar')}`;
+          handler({ reason: reason2 });
+
+          await executor.run();
+
+          assert.equal(warningLogger.callCount, 2);
+          assert.strictEqual(
+            warningLogger.getCall(0).args[0],
+            `${reason1}`,
+            'expected emitted error to be error passed to warning listener'
+          );
+          assert.strictEqual(
+            warningLogger.getCall(1).args[0],
+            `${reason2}`,
+            'expected emitted error to be error passed to warning listener'
           );
         },
 
-        'unhandled error'() {
+        async 'unhandled rejection warning filter'() {
+          const warningLogger = spy(() => {});
+          executor.on('warning', warningLogger);
+          const errorLogger = spy(() => {});
+          executor.on('error', errorLogger);
+          executor.configure({ warnOnUnhandledRejection: 'foo' });
+
+          const handler = mockGlobal.addEventListener.getCall(0).args[1];
+          const reason1 = `${new Error('foo')}`;
+          handler({ reason: reason1 });
+          const reason2 = `${new Error('bar')}`;
+          handler({ reason: reason2 });
+
+          let succeeded = false;
+          try {
+            await executor.run();
+            succeeded = true;
+          } catch (error) {
+            // do nothing
+          }
+
+          assert.isFalse(succeeded, 'Run should have errored');
+
+          assert.equal(warningLogger.callCount, 1);
+          assert.strictEqual(
+            warningLogger.getCall(0).args[0],
+            `${reason1}`,
+            'expected emitted error to be reason passed to warning listener'
+          );
+
+          assert.equal(errorLogger.callCount, 1);
+          assert.strictEqual(
+            errorLogger.getCall(0).args[0],
+            reason2,
+            'expected emitted error to be error passed to error listener'
+          );
+        },
+
+        async 'unhandled error'() {
           const logger = spy(() => {});
           executor.on('error', logger);
+
           const handler = mockGlobal.addEventListener.getCall(1).args[1];
           handler({ message: 'foo' });
-          return executor.run().then(
-            () => {
-              throw new Error('run should have failed');
-            },
-            error => {
-              assert.equal(logger.callCount, 1);
-              assert.propertyVal(
-                logger.getCall(0).args[0],
-                'message',
-                'foo',
-                'expected emitted error to be error passed to listener'
-              );
-              assert.equal(error.message, 'An error was emitted');
-            }
+
+          let caughtError: Error | undefined;
+          try {
+            await executor.run();
+          } catch (error) {
+            caughtError = error;
+          }
+
+          assert.isDefined(caughtError, 'Run should have errored');
+
+          assert.equal(logger.callCount, 1);
+          assert.propertyVal(
+            logger.getCall(0).args[0],
+            'message',
+            'foo',
+            'expected emitted error to be error passed to listener'
           );
+          assert.equal(caughtError!.message, 'An error was emitted');
+        },
+
+        async 'unhandled error warning'() {
+          const warningLogger = spy(() => {});
+          executor.on('warning', warningLogger);
+          const errorLogger = spy(() => {});
+          executor.on('error', errorLogger);
+          executor.configure({ warnOnUncaughtException: true });
+
+          const handler = mockGlobal.addEventListener.getCall(1).args[1];
+          const reason1 = 'foo';
+          handler({ message: reason1 });
+          const reason2 = 'bar';
+          handler({ message: reason2 });
+
+          await executor.run();
+
+          assert.equal(warningLogger.callCount, 2);
+          assert.strictEqual(
+            warningLogger.getCall(0).args[0],
+            `${new Error(reason1)}`,
+            'expected emitted error to be error passed to warning listener'
+          );
+          assert.strictEqual(
+            warningLogger.getCall(1).args[0],
+            `${new Error(reason2)}`,
+            'expected emitted error to be error passed to warning listener'
+          );
+        },
+
+        async 'unhandled error warning filter'() {
+          const warningLogger = spy(() => {});
+          executor.on('warning', warningLogger);
+          const errorLogger = spy(() => {});
+          executor.on('error', errorLogger);
+          executor.configure({ warnOnUncaughtException: 'foo' });
+
+          const handler = mockGlobal.addEventListener.getCall(1).args[1];
+          const reason1 = 'foo';
+          handler({ message: reason1 });
+          const reason2 = 'bar';
+          handler({ message: reason2 });
+
+          let caughtError: Error | undefined;
+          try {
+            await executor.run();
+          } catch (error) {
+            caughtError = error;
+          }
+
+          assert.isDefined(caughtError, 'Run should have errored');
+
+          assert.equal(warningLogger.callCount, 1, 'Expected 1 warning');
+          assert.strictEqual(
+            warningLogger.getCall(0).args[0],
+            `${new Error(reason1)}`,
+            'expected emitted error to be reason passed to warning listener'
+          );
+
+          assert.equal(errorLogger.callCount, 1, 'Expected 1 error');
+          assert.propertyVal(
+            errorLogger.getCall(0).args[0],
+            'message',
+            'bar',
+            'expected emitted error to be error passed to listener'
+          );
+          assert.equal(caughtError!.message, 'An error was emitted');
         },
 
         configure() {

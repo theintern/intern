@@ -125,12 +125,29 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     // Report uncaught errors
     process.on('unhandledRejection', (reason: Error, promise: Promise<any>) => {
       console.warn('Unhandled rejection:', reason, promise);
-      this.emit('error', reason);
+      const { warnOnUnhandledRejection } = this.config;
+      if (
+        warnOnUnhandledRejection &&
+        (warnOnUnhandledRejection === true ||
+          warnOnUnhandledRejection.test(`${reason}`))
+      ) {
+        this.emit('warning', `${reason}`);
+      } else {
+        this.emit('error', reason);
+      }
     });
 
     process.on('uncaughtException', (reason: Error) => {
       console.warn('Unhandled error:', reason);
-      this.emit('error', reason);
+      if (
+        this.config.warnOnUncaughtException &&
+        (this.config.warnOnUncaughtException === true ||
+          this.config.warnOnUncaughtException.test(`${reason}`))
+      ) {
+        this.emit('warning', `${reason}`);
+      } else {
+        this.emit('error', reason);
+      }
     });
 
     this.on('coverage', message => {

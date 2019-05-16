@@ -356,104 +356,216 @@ registerSuite('lib/executors/Node', function() {
         },
 
         'unhandled rejection': {
-          'with reason'() {
+          async 'with reason'() {
+            const logger = spy(() => {});
+            executor.on('error', logger);
             const handler = mockGlobal.process.on.getCall(0).args[1];
             const reason = new Error('foo');
+            handler({ reason });
 
-            return executor.run().then(() => {
-              handler(reason);
-              assert.strictEqual(
-                mockConsole.warn.callCount,
-                1,
-                'expected warning to have been logged'
-              );
+            let caughtError: Error | undefined;
+            try {
+              await executor.run();
+            } catch (error) {
+              caughtError = error;
+            }
 
-              const promise = new Promise((resolve, reject) => {
-                executor.on('error', error => {
-                  try {
-                    assert.strictEqual(
-                      error,
-                      reason,
-                      'expected emitted error to be error passed to listener'
-                    );
-                    resolve();
-                  } catch (err) {
-                    reject(err);
-                  }
-                });
-              });
+            assert.isDefined(caughtError, 'run should have failed');
 
-              handler(reason);
-              return promise;
-            });
+            assert.equal(logger.callCount, 1);
+            assert.propertyVal(
+              logger.getCall(0).args[0],
+              'reason',
+              reason,
+              'expected emitted error to be error passed to listener'
+            );
+            assert.equal(caughtError!.message, 'An error was emitted');
           },
 
-          'no reason'() {
+          async 'no reason'() {
+            const logger = spy(() => {});
+            executor.on('error', logger);
             const handler = mockGlobal.process.on.getCall(0).args[1];
+            handler();
 
-            return executor.run().then(() => {
-              handler();
-              assert.strictEqual(
-                mockConsole.warn.callCount,
-                1,
-                'expected warning to have been logged'
-              );
+            let caughtError: Error | undefined;
+            try {
+              await executor.run();
+            } catch (error) {
+              caughtError = error;
+            }
 
-              const promise = new Promise((resolve, reject) => {
-                executor.on('error', error => {
-                  try {
-                    assert.isUndefined(
-                      error,
-                      'expected emitted error to be error passed to listener'
-                    );
-                    resolve();
-                  } catch (err) {
-                    reject(err);
-                  }
-                });
-              });
+            assert.isDefined(caughtError, 'run should have failed');
 
-              handler();
-              return promise;
-            });
+            assert.equal(logger.callCount, 1);
+            assert.isUndefined(
+              logger.getCall(0).args[0],
+              'expected emitted error to be error passed to listener'
+            );
+            assert.equal(caughtError!.message, 'An error was emitted');
+          },
+
+          async warning() {
+            const warningLogger = spy(() => {});
+            executor.on('warning', warningLogger);
+            const errorLogger = spy(() => {});
+            executor.on('error', errorLogger);
+            executor.configure({ warnOnUnhandledRejection: true });
+
+            const handler = mockGlobal.process.on.getCall(0).args[1];
+            const reason1 = new Error('foo');
+            handler(reason1);
+            const reason2 = new Error('bar');
+            handler(reason2);
+
+            await executor.run();
+
+            assert.equal(warningLogger.callCount, 2);
+            assert.strictEqual(
+              warningLogger.getCall(0).args[0],
+              `${reason1}`,
+              'expected emitted error to be error passed to warning listener'
+            );
+            assert.strictEqual(
+              warningLogger.getCall(1).args[0],
+              `${reason2}`,
+              'expected emitted error to be error passed to warning listener'
+            );
+          },
+
+          async 'warning (filtered)'() {
+            const warningLogger = spy(() => {});
+            executor.on('warning', warningLogger);
+            const errorLogger = spy(() => {});
+            executor.on('error', errorLogger);
+            executor.configure({ warnOnUnhandledRejection: 'foo' });
+
+            const handler = mockGlobal.process.on.getCall(0).args[1];
+            const reason1 = new Error('foo');
+            handler(reason1);
+            const reason2 = new Error('bar');
+            handler(reason2);
+
+            let succeeded = false;
+            try {
+              await executor.run();
+              succeeded = true;
+            } catch (error) {
+              // do nothing
+            }
+
+            assert.isFalse(succeeded, 'Run should have errored');
+
+            assert.equal(warningLogger.callCount, 1);
+            assert.strictEqual(
+              warningLogger.getCall(0).args[0],
+              `${reason1}`,
+              'expected emitted error to be error passed to warning listener'
+            );
+
+            assert.equal(errorLogger.callCount, 1);
+            assert.strictEqual(
+              errorLogger.getCall(0).args[0],
+              reason2,
+              'expected emitted error to be error passed to error listener'
+            );
           }
         },
 
-        'unhandled error'() {
-          const handler = mockGlobal.process.on.getCall(1).args[1];
-          assert.strictEqual(
-            mockConsole.warn.callCount,
-            0,
-            'no warning should have been logged yet'
-          );
-
-          return executor.run().then(() => {
+        'unhandled error': {
+          async default() {
+            const logger = spy(() => {});
+            executor.on('error', logger);
+            const handler = mockGlobal.process.on.getCall(1).args[1];
             handler({ message: 'foo' });
+
+            let caughtError: Error | undefined;
+            try {
+              await executor.run();
+            } catch (error) {
+              caughtError = error;
+            }
+
+            assert.isDefined(caughtError, 'run should have failed');
+
+            assert.equal(logger.callCount, 1);
+            assert.propertyVal(
+              logger.getCall(0).args[0],
+              'message',
+              'foo',
+              'expected emitted error to be error passed to listener'
+            );
+            assert.equal(caughtError!.message, 'An error was emitted');
+          },
+
+          async warning() {
+            const warningLogger = spy(() => {});
+            executor.on('warning', warningLogger);
+            const errorLogger = spy(() => {});
+            executor.on('error', errorLogger);
+            executor.configure({ warnOnUncaughtException: true });
+
+            const handler = mockGlobal.process.on.getCall(1).args[1];
+            const reason1 = new Error('foo');
+            handler(reason1);
+            const reason2 = new Error('bar');
+            handler(reason2);
+
+            await executor.run();
+
+            assert.equal(warningLogger.callCount, 2);
             assert.strictEqual(
-              mockConsole.warn.callCount,
-              1,
-              'expected warning to have been logged'
+              warningLogger.getCall(0).args[0],
+              `${reason1}`,
+              'expected emitted error to be error passed to warning listener'
+            );
+            assert.strictEqual(
+              warningLogger.getCall(1).args[0],
+              `${reason2}`,
+              'expected emitted error to be error passed to warning listener'
+            );
+          },
+
+          async 'warning (filtered)'() {
+            const warningLogger = spy(() => {});
+            executor.on('warning', warningLogger);
+            const errorLogger = spy(() => {});
+            executor.on('error', errorLogger);
+            executor.configure({ warnOnUncaughtException: 'foo' });
+
+            const handler = mockGlobal.process.on.getCall(1).args[1];
+            const reason1 = new Error('foo');
+            handler(reason1);
+            const reason2 = new Error('bar');
+            handler(reason2);
+
+            let succeeded = false;
+            let caughtError: Error | undefined;
+            try {
+              await executor.run();
+              succeeded = true;
+            } catch (error) {
+              caughtError = error;
+            }
+
+            assert.isFalse(succeeded, 'Run should have errored');
+
+            assert.equal(warningLogger.callCount, 1, 'Expected 1 warning');
+            assert.strictEqual(
+              warningLogger.getCall(0).args[0],
+              `${reason1}`,
+              'expected emitted error to be reason passed to warning listener'
             );
 
-            const promise = new Promise((resolve, reject) => {
-              executor.on('error', error => {
-                try {
-                  assert.propertyVal(
-                    error,
-                    'message',
-                    'foo',
-                    'expected emitted error to be error passed to listener'
-                  );
-                  resolve();
-                } catch (err) {
-                  reject(err);
-                }
-              });
-            });
-
-            handler({ message: 'foo' });
-            return promise;
-          });
+            assert.equal(errorLogger.callCount, 1, 'Expected 1 error');
+            assert.propertyVal(
+              errorLogger.getCall(0).args[0],
+              'message',
+              'bar',
+              'expected emitted error to be error passed to listener'
+            );
+            assert.equal(caughtError!.message, 'An error was emitted');
+          }
         }
       },
 

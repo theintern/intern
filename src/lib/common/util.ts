@@ -328,255 +328,330 @@ export function processOption<C extends Config>(
       }
     : (..._args: any[]) => {};
 
-  if (name === 'loader') {
-    setOption(config, name, parseValue(name, value, 'object', 'script'));
-  } else if (
-    name === 'bail' ||
-    name === 'baseline' ||
-    name === 'benchmark' ||
-    name === 'debug' ||
-    name === 'filterErrorStack' ||
-    name === 'showConfig'
-  ) {
-    setOption(config, name, parseValue(name, value, 'boolean'));
-  } else if (
-    name === 'basePath' ||
-    name === 'coverageVariable' ||
-    name === 'description' ||
-    name === 'internPath' ||
-    name === 'name' ||
-    name === 'sessionId'
-  ) {
-    setOption(config, name, parseValue(name, value, 'string'));
-  } else if (name === 'defaultTimeout') {
-    setOption(config, name, parseValue(name, value, 'number'));
-  } else if (name === 'grep') {
-    setOption(config, name, parseValue(name, value, 'regexp'));
-  } else if (name === 'reporters') {
-    setOption(
-      config,
-      name,
-      parseValue(name, value, 'object[]', 'name'),
-      addToExisting
-    );
-  } else if (
-    name === 'plugins' ||
-    name === 'requires' ||
-    name === 'require' ||
-    name === 'scripts'
-  ) {
-    let useLoader = false;
-    let _name = name;
-    if (name === 'scripts') {
-      emit('deprecated', {
-        original: 'scripts',
-        replacement: 'plugins'
-      });
-      _name = 'plugins';
-    } else if (name === 'require') {
-      emit('deprecated', {
-        original: 'require',
-        replacement: 'plugins'
-      });
-      _name = 'plugins';
-    } else if (name === 'requires') {
-      emit('deprecated', {
-        original: 'require',
-        replacement: 'plugins',
-        message: 'Set `useLoader: true`'
-      });
-      _name = 'plugins';
-      useLoader = true;
+  switch (name) {
+    case 'loader': {
+      setOption(config, name, parseValue(name, value, 'object', 'script'));
+      break;
     }
-    const parsed = parseValue(_name, value, 'object[]', 'script');
-    if (useLoader) {
-      parsed.forEach((entry: PluginDescriptor) => {
-        entry.useLoader = true;
-      });
+    case 'bail':
+    case 'baseline':
+    case 'benchmark':
+    case 'debug':
+    case 'filterErrorStack':
+    case 'showConfig': {
+      setOption(config, name, parseValue(name, value, 'boolean'));
+      break;
     }
-    setOption(config, _name, parsed, addToExisting);
-  } else if (name === 'suites') {
-    setOption(config, name, parseValue(name, value, 'string[]'), addToExisting);
-  } else if (name === 'node' || name === 'browser') {
-    const envConfig: ResourceConfig = config[name] || {};
-    if (!config[name]) {
-      config[name] = envConfig;
-    }
-    const envName = name;
-    const _value = parseValue(name, value, 'object');
-    if (_value) {
-      Object.keys(_value).forEach(valueKey => {
-        const key = <keyof ResourceConfig>valueKey;
-        let resource = _value[key];
-        let { name, addToExisting } = evalProperty(key);
-        switch (name) {
-          case 'loader':
-            resource = parseValue(name, resource, 'object', 'script');
-            setOption(<Config>envConfig, name, resource, false);
-            break;
-          case 'reporters':
-            resource = parseValue('reporters', resource, 'object[]', 'name');
-            setOption(<Config>envConfig, name, resource, addToExisting);
-            break;
-          case 'plugins':
-          case 'require':
-          case 'requires':
-          case 'scripts':
-            let useLoader = false;
-            if (name === 'scripts') {
-              emit('deprecated', {
-                original: 'scripts',
-                replacement: 'plugins'
-              });
-              name = 'plugins';
-            } else if (name === 'require') {
-              emit('deprecated', {
-                original: 'require',
-                replacement: 'plugins'
-              });
-              name = 'plugins';
-            } else if (name === 'requires') {
-              emit('deprecated', {
-                original: 'requires',
-                replacement: 'plugins',
-                message: 'Set `useLoader: true`'
-              });
-              name = 'plugins';
-              useLoader = true;
-            }
-            resource = parseValue(name, resource, 'object[]', 'script');
-            if (useLoader) {
-              resource.forEach((entry: PluginDescriptor) => {
-                entry.useLoader = true;
-              });
-            }
-            setOption(
-              <Config>envConfig,
-              <keyof Config>name,
-              resource,
-              addToExisting
-            );
-            break;
-          case 'suites':
-            resource = parseValue(name, resource, 'string[]');
-            setOption(<Config>envConfig, name, resource, addToExisting);
-            break;
-          default:
-            throw new Error(`Invalid property ${key} in ${envName} config`);
-        }
-      });
-    }
-  } else if (name === 'functionalBaseUrl' || name === 'serverUrl') {
-    setOption(config, name, parseValue(name, value, 'string'));
-  } else if (name === 'proxy') {
-    if (value == null) {
-      setOption(config, name, undefined);
-    } else {
+    case 'basePath':
+    case 'coverageVariable':
+    case 'description':
+    case 'internPath':
+    case 'name':
+    case 'sessionId': {
       setOption(config, name, parseValue(name, value, 'string'));
+      break;
     }
-  } else if (
-    name === 'capabilities' ||
-    name === 'instrumenterOptions' ||
-    name === 'tunnelOptions'
-  ) {
-    setOption(config, name, parseValue(name, value, 'object'), addToExisting);
-  } else if (name === 'environments') {
-    // Must be a string, object, or array of (string | object)
-    let _value = value;
-    if (!_value) {
-      _value = [];
-    } else if (!Array.isArray(_value)) {
-      _value = [_value];
+    case 'defaultTimeout': {
+      setOption(config, name, parseValue(name, value, 'number'));
+      break;
     }
-    _value = _value.map((val: any) => {
-      if (typeof val === 'object' && val.browserName == null) {
-        val.browserName = val.browser;
-      }
-      return val;
-    });
-    setOption(
-      config,
-      name,
-      parseValue(name, _value, 'object[]', 'browserName'),
-      addToExisting
-    );
-  } else if (name === 'excludeInstrumentation') {
-    emit('deprecated', {
-      original: 'excludeInstrumentation',
-      replacement: 'coverage'
-    });
-  } else if (name === 'tunnel') {
-    setOption(config, name, parseValue(name, value, 'string'));
-  } else if (
-    name === 'functionalCoverage' ||
-    name === 'serveOnly' ||
-    name === 'runInSync'
-  ) {
-    setOption(config, name, parseValue(name, value, 'boolean'));
-  } else if (name === 'leaveRemoteOpen') {
-    let parsed: boolean | 'fail';
-    try {
-      parsed = parseValue(name, value, 'boolean');
-    } catch (error) {
-      parsed = parseValue(name, value, 'string');
-      if (parsed !== 'fail') {
-        throw new Error(`Invalid value '${parsed}' for leaveRemoteOpen`);
-      }
+    case 'grep': {
+      setOption(config, name, parseValue(name, value, 'regexp'));
+      break;
     }
-    setOption(config, name, parsed);
-  } else if (name === 'coverage') {
-    let parsed: boolean | string[];
-    try {
-      parsed = parseValue(name, value, 'boolean');
-    } catch (error) {
-      parsed = parseValue(name, value, 'string[]');
+    case 'reporters': {
+      setOption(
+        config,
+        name,
+        parseValue(name, value, 'object[]', 'name'),
+        addToExisting
+      );
+      break;
     }
-    if (typeof parsed === 'boolean' && parsed !== false) {
-      throw new Error("Non-false boolean for 'coverage'");
-    }
-    setOption(config, name, parsed);
-  } else if (name === 'functionalSuites') {
-    setOption(config, name, parseValue(name, value, 'string[]'), addToExisting);
-  } else if (name === 'functionalTimeouts') {
-    if (!config.functionalTimeouts) {
-      config.functionalTimeouts = {};
-    }
-    const parsedTimeout = parseValue(name, value, 'object');
-    if (parsedTimeout) {
-      // If the given value was an object, mix it in to the
-      // default functionalTimeouts
-      Object.keys(parsedTimeout).forEach(timeoutKey => {
-        const key = <keyof Config['functionalTimeouts']>timeoutKey;
-        if (key === 'connectTimeout') {
+    case 'plugins':
+    case 'requires':
+    case 'require':
+    case 'scripts': {
+      let useLoader = false;
+      let _name = name;
+      switch (name) {
+        case 'scripts':
           emit('deprecated', {
-            original: 'functionalTimeouts.connectTimeout',
-            replacement: 'connectTimeout'
+            original: 'scripts',
+            replacement: 'plugins'
           });
-          setOption(config, key, parseValue(key, parsedTimeout[key], 'number'));
-        } else {
-          config.functionalTimeouts[key] = parseValue(
-            `functionalTimeouts.${key}`,
-            parsedTimeout[key],
-            'number'
-          );
-        }
-      });
-    } else {
-      // If the given value was null/undefined, clear out
-      // functionalTimeouts
-      setOption(config, name, {});
+          _name = 'plugins';
+          break;
+        case 'require':
+          emit('deprecated', {
+            original: 'require',
+            replacement: 'plugins'
+          });
+          _name = 'plugins';
+          break;
+        case 'requires':
+          emit('deprecated', {
+            original: 'require',
+            replacement: 'plugins',
+            message: 'Set `useLoader: true`'
+          });
+          _name = 'plugins';
+          useLoader = true;
+          break;
+      }
+      const parsed = parseValue(_name, value, 'object[]', 'script');
+      if (useLoader) {
+        parsed.forEach((entry: PluginDescriptor) => {
+          entry.useLoader = true;
+        });
+      }
+      setOption(config, _name, parsed, addToExisting);
+      break;
     }
-  } else if (
-    name === 'connectTimeout' ||
-    name === 'heartbeatInterval' ||
-    name === 'maxConcurrency' ||
-    name === 'serverPort' ||
-    name === 'socketPort'
-  ) {
-    setOption(config, name, parseValue(name, value, 'number'));
-  } else {
-    emit('log', `Config has unknown option "${name}"`);
-    setOption(config, name, value);
+    case 'suites': {
+      setOption(
+        config,
+        name,
+        parseValue(name, value, 'string[]'),
+        addToExisting
+      );
+      break;
+    }
+    case 'node':
+    case 'browser': {
+      const envConfig: ResourceConfig = config[name] || {};
+      if (!config[name]) {
+        config[name] = envConfig;
+      }
+      const envName = name;
+      const _value = parseValue(name, value, 'object');
+      if (_value) {
+        Object.keys(_value).forEach(valueKey => {
+          const key = <keyof ResourceConfig>valueKey;
+          let resource = _value[key];
+          let { name, addToExisting } = evalProperty(key);
+          switch (name) {
+            case 'loader': {
+              resource = parseValue(name, resource, 'object', 'script');
+              setOption(<Config>envConfig, name, resource, false);
+              break;
+            }
+            case 'reporters': {
+              resource = parseValue('reporters', resource, 'object[]', 'name');
+              setOption(<Config>envConfig, name, resource, addToExisting);
+              break;
+            }
+            case 'plugins':
+            case 'require':
+            case 'requires':
+            case 'scripts': {
+              let useLoader = false;
+              switch (name) {
+                case 'scripts': {
+                  emit('deprecated', {
+                    original: 'scripts',
+                    replacement: 'plugins'
+                  });
+                  name = 'plugins';
+                  break;
+                }
+                case 'require': {
+                  emit('deprecated', {
+                    original: 'require',
+                    replacement: 'plugins'
+                  });
+                  name = 'plugins';
+                  break;
+                }
+                case 'requires': {
+                  emit('deprecated', {
+                    original: 'requires',
+                    replacement: 'plugins',
+                    message: 'Set `useLoader: true`'
+                  });
+                  name = 'plugins';
+                  useLoader = true;
+                  break;
+                }
+              }
+              resource = parseValue(name, resource, 'object[]', 'script');
+              if (useLoader) {
+                resource.forEach((entry: PluginDescriptor) => {
+                  entry.useLoader = true;
+                });
+              }
+              setOption(
+                <Config>envConfig,
+                <keyof Config>name,
+                resource,
+                addToExisting
+              );
+              break;
+            }
+            case 'suites': {
+              resource = parseValue(name, resource, 'string[]');
+              setOption(<Config>envConfig, name, resource, addToExisting);
+              break;
+            }
+            default: {
+              throw new Error(`Invalid property ${key} in ${envName} config`);
+            }
+          }
+        });
+      }
+      break;
+    }
+    case 'functionalBaseUrl':
+    case 'serverUrl': {
+      setOption(config, name, parseValue(name, value, 'string'));
+      break;
+    }
+    case 'proxy': {
+      if (value == null) {
+        setOption(config, name, undefined);
+      } else {
+        setOption(config, name, parseValue(name, value, 'string'));
+      }
+      break;
+    }
+    case 'capabilities':
+    case 'instrumenterOptions':
+    case 'tunnelOptions': {
+      setOption(config, name, parseValue(name, value, 'object'), addToExisting);
+      break;
+    }
+    case 'environments': {
+      // Must be a string, object, or array of (string | object)
+      let _value = value;
+      if (!_value) {
+        _value = [];
+      } else if (!Array.isArray(_value)) {
+        _value = [_value];
+      }
+      _value = _value.map((val: any) => {
+        if (typeof val === 'object' && val.browserName == null) {
+          val.browserName = val.browser;
+        }
+        return val;
+      });
+      setOption(
+        config,
+        name,
+        parseValue(name, _value, 'object[]', 'browserName'),
+        addToExisting
+      );
+      break;
+    }
+    case 'excludeInstrumentation': {
+      emit('deprecated', {
+        original: 'excludeInstrumentation',
+        replacement: 'coverage'
+      });
+      break;
+    }
+    case 'tunnel': {
+      setOption(config, name, parseValue(name, value, 'string'));
+      break;
+    }
+    case 'functionalCoverage':
+    case 'serveOnly':
+    case 'runInSync': {
+      setOption(config, name, parseValue(name, value, 'boolean'));
+      break;
+    }
+    case 'leaveRemoteOpen': {
+      let parsed: boolean | 'fail';
+      try {
+        parsed = parseValue(name, value, 'boolean');
+      } catch (error) {
+        parsed = parseValue(name, value, 'string');
+        if (parsed !== 'fail') {
+          throw new Error(`Invalid value '${parsed}' for leaveRemoteOpen`);
+        }
+      }
+      setOption(config, name, parsed);
+      break;
+    }
+    case 'coverage': {
+      let parsed: boolean | string[];
+      try {
+        parsed = parseValue(name, value, 'boolean');
+      } catch (error) {
+        parsed = parseValue(name, value, 'string[]');
+      }
+      if (typeof parsed === 'boolean' && parsed !== false) {
+        throw new Error("Non-false boolean for 'coverage'");
+      }
+      setOption(config, name, parsed);
+      break;
+    }
+    case 'functionalSuites': {
+      setOption(
+        config,
+        name,
+        parseValue(name, value, 'string[]'),
+        addToExisting
+      );
+      break;
+    }
+    case 'functionalTimeouts': {
+      if (!config.functionalTimeouts) {
+        config.functionalTimeouts = {};
+      }
+      const parsedTimeout = parseValue(name, value, 'object');
+      if (parsedTimeout) {
+        // If the given value was an object, mix it in to the
+        // default functionalTimeouts
+        Object.keys(parsedTimeout).forEach(timeoutKey => {
+          const key = <keyof Config['functionalTimeouts']>timeoutKey;
+          if (key === 'connectTimeout') {
+            emit('deprecated', {
+              original: 'functionalTimeouts.connectTimeout',
+              replacement: 'connectTimeout'
+            });
+            setOption(
+              config,
+              key,
+              parseValue(key, parsedTimeout[key], 'number')
+            );
+          } else {
+            config.functionalTimeouts[key] = parseValue(
+              `functionalTimeouts.${key}`,
+              parsedTimeout[key],
+              'number'
+            );
+          }
+        });
+      } else {
+        // If the given value was null/undefined, clear out
+        // functionalTimeouts
+        setOption(config, name, {});
+      }
+      break;
+    }
+    case 'connectTimeout':
+    case 'heartbeatInterval':
+    case 'maxConcurrency':
+    case 'serverPort':
+    case 'socketPort': {
+      setOption(config, name, parseValue(name, value, 'number'));
+      break;
+    }
+    case 'warnOnUncaughtException':
+    case 'warnOnUnhandledRejection': {
+      let parsed: boolean | RegExp;
+      try {
+        parsed = parseValue(name, value, 'boolean');
+      } catch (error) {
+        parsed = parseValue(name, value, 'regexp');
+      }
+      setOption(config, name, parsed);
+      break;
+    }
+    default: {
+      emit('log', `Config has unknown option "${name}"`);
+      setOption(config, name, value);
+    }
   }
 }
 

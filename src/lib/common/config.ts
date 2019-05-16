@@ -343,6 +343,24 @@ export interface Config extends ResourceConfig {
    * * [[https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel/browserstackproperties|BrowserStackTunnel]]
    */
   tunnelOptions: TunnelOptions | BrowserStackOptions | SeleniumOptions;
+
+  /**
+   * By default, an Intern session will fail if the Executor catches a
+   * browser-level unhandled Promise rejection. This setting allows unhandled
+   * rejections to be treated as warnings instead of failing errors. If this
+   * setting is true or set to a RegExp that matches the reason for an unhandled
+   * rejection, Intern will emit a warning rather than failing the test run.
+   */
+  warnOnUnhandledRejection: boolean | RegExp;
+
+  /**
+   * By default, an Intern session will fail if the Executor catches a
+   * browser-level unhandled error. This setting allows unhandled errors to be
+   * treated as warnings instead of failing errors. If this setting is true or
+   * set to a RegExp that matches an unhandled error, Intern will emit a warning
+   * rather than failing the test run.
+   */
+  warnOnUncaughtException: boolean | RegExp;
 }
 
 /**

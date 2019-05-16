@@ -19,6 +19,7 @@
 * [Run tests with headless Firefox](#run-tests-with-headless-firefox)
 * [Run tests with Chrome in mobile emulation mode](#run-tests-with-chrome-in-mobile-emulation-mode)
 * [Use a custom profile with Firefox](#use-a-custom-profile-with-firefox)
+* [Ignore global errors or Promise rejections](#ignore-global-errors-or-promise-rejections)
 
 <!-- vim-markdown-toc -->
 
@@ -496,6 +497,17 @@ Mobile emulation mode may be combined with
     }
     ```
 
+## Ignore global errors or Promise rejections
+
+Intern installs global handlers to catch unhandled exceptions and Promise
+rejections. If either of these occur, they're treated as errors and the test run
+will fail. However, in some cases these errors may be benign. To treat uncaught
+exceptions and unhandled Promise rejections as warnings rather than errors, use
+the [warnOnUncaughtException] and/or [warnOnUnhandledRejection] config options.
+These can be set to `true` to ignore all unhandled errors, or to a regular
+expression that will be matched against the unhandled rejection reason or error
+message.
+
 [environments]:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/environments
 [loader]:
@@ -504,3 +516,7 @@ Mobile emulation mode may be combined with
   https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/registerplugin
 [tunnel]:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fexecutors%2FNode/tunnel-1
+[warnonunhandledrejection]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/warnOnUnhandledRejection
+[warnonuncaughtexception]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/warnOnUncaughtException

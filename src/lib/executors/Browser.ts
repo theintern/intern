@@ -27,15 +27,32 @@ export default class Browser extends Executor<Events, Config, Plugins> {
       'unhandledRejection',
       (event: PromiseRejectionEvent) => {
         console.warn('Unhandled rejection:', event);
-        this.emit('error', event.reason);
+        const { warnOnUnhandledRejection } = this.config;
+        if (
+          warnOnUnhandledRejection &&
+          (warnOnUnhandledRejection === true ||
+            warnOnUnhandledRejection.test(`${event.reason}`))
+        ) {
+          this.emit('warning', `${event.reason}`);
+        } else {
+          this.emit('error', event.reason);
+        }
       }
     );
 
     global.addEventListener('error', (event: ErrorEvent) => {
       console.warn('Unhandled error:', event);
       const error = new Error(event.message);
-      error.stack = `${event.filename}:${event.lineno}:${event.colno}`;
-      this.emit('error', error);
+      if (
+        this.config.warnOnUncaughtException &&
+        (this.config.warnOnUncaughtException === true ||
+          this.config.warnOnUncaughtException.test(`${error}`))
+      ) {
+        this.emit('warning', `${error}`);
+      } else {
+        error.stack = `${event.filename}:${event.lineno}:${event.colno}`;
+        this.emit('error', error);
+      }
     });
 
     this.registerReporter('html', options => new Html(this, options));
