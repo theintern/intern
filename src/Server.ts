@@ -605,20 +605,6 @@ export default class Server {
     }
 
     if (isFirefox(capabilities)) {
-      // The window sizing commands in the W3C standard don't use window
-      // handles, but they do under the JsonWireProtocol. By default, Session
-      // assumes handles are used. When the result of this check is added to
-      // capabilities, Session will take it into account.
-      if (isValidVersion(capabilities, 53, Infinity)) {
-        updates.usesWebDriverWindowCommands = true;
-      }
-
-      // At least Firefox 58+ with geckodriver 0.21.0+ uses webdriver semantics
-      // for `element/<id>/attribute`
-      if (isValidVersion(capabilities, 59, Infinity)) {
-        updates.usesWebDriverElementAttribute = true;
-      }
-
       if (isValidVersion(capabilities, 49, Infinity)) {
         // The W3C WebDriver standard does not support the session-level
         // /keys command, but JsonWireProtocol does.
