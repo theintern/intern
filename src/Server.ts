@@ -1625,12 +1625,12 @@ export default class Server {
           }
 
           return get(
-            '<!DOCTYPE html><script>' +
+            '<!DOCTYPE html><html><body><button id="clicker">Clicker</button><script>' +
               'window.counter = 0; var d = document; d.onclick = ' +
               'd.onmousedown = d.onmouseup = function () { window.counter++; };' +
-              '</script>'
+              '</script></body></html>'
           )
-            .then(() => session.findByTagName('html'))
+            .then(() => session.findById('clicker'))
             .then(element => session.moveMouseTo(element))
             .then(() => sleep(100))
             .then(() => session.doubleClick())
