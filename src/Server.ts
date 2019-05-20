@@ -1876,10 +1876,10 @@ function isIos(capabilities: Capabilities) {
 
 function isMac(capabilities: Capabilities) {
   const { platform = '', platformName = '' } = capabilities;
-  const platformlc = platform.toLowerCase();
+  const _platform = platform || platformName;
   return (
-    (/mac(os)?/.test(platformlc) || /darwin/.test(platformlc)) &&
-    platformName.toLowerCase() !== 'ios'
+    (/mac(os)?/i.test(_platform) || /darwin/i.test(_platform)) &&
+    _platform.toLowerCase() !== 'ios'
   );
 }
 
