@@ -588,7 +588,11 @@ export default class Server {
           Object.assign(updates, {
             // At least Safari 12 uses W3C webdriver standard, including
             // /attribute/:attr
-            usesWebDriverElementAttribute: true
+            usesWebDriverElementAttribute: true,
+            // At least Safari 12 will sometimes close a tab or window other
+            // than the current top-level browsing context when using DELETE
+            // /window
+            brokenDeleteWindow: true
           });
         }
       }
