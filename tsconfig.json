@@ -4,6 +4,7 @@
     "declaration": true,
     "lib": ["es2015"],
     "outDir": "./_build",
+    "resolveJsonModule": true,
     "rootDir": ".",
     // Don't implicitly load any types
     "types": [],

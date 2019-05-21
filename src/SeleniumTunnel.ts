@@ -8,14 +8,30 @@ import { join } from 'path';
 import { Handle, Task, CancellablePromise } from '@theintern/common';
 import { fileExists, kill, on, writeFile } from './lib/util';
 import { satisfies } from 'semver';
+import { sync as commandExistsSync } from 'command-exists';
 
-const { sync: commandExistsSync } = require('command-exists');
+const driverInfo = {
+  SeleniumVersion: '3.141.59',
+  ChromeVersion: '74.0.3729.6',
+  FirefoxVersion: '0.24.0',
+  IEVersion: '3.141.59',
 
-const SeleniumVersion = '3.14.0';
-const ChromeVersion = '2.41';
-const FirefoxVersion = '0.21.0';
-const IEVersion = '3.14.0';
-const EdgeVersion = '17134';
+  EdgeVersion: '17134',
+  EdgeUrls: {
+    '15063':
+      'https://download.microsoft.com/download/3/4/2/342316D7-EBE0-4F10-ABA2-AE8E0CDF36DD/MicrosoftWebDriver.exe',
+    '16299':
+      'https://download.microsoft.com/download/D/4/1/D417998A-58EE-4EFE-A7CC-39EF9E020768/MicrosoftWebDriver.exe',
+    '17134':
+      'https://download.microsoft.com/download/F/8/A/F8AF50AB-3C3A-4BC4-8773-DC27B32988DD/MicrosoftWebDriver.exe',
+    '75.0.137.0': {
+      x86:
+        'https://az813057.vo.msecnd.net/webdriver/msedgedriver_x86/msedgedriver.exe',
+      x64:
+        'https://az813057.vo.msecnd.net/webdriver/msedgedriver_x64/msedgedriver.exe'
+    }
+  }
+};
 
 /**
  * A Selenium tunnel. This tunnel downloads the
@@ -100,7 +116,7 @@ export default class SeleniumTunnel extends Tunnel
           seleniumArgs: [],
           drivers: ['chrome'],
           baseUrl: 'https://selenium-release.storage.googleapis.com',
-          version: SeleniumVersion,
+          version: driverInfo.SeleniumVersion,
           seleniumTimeout: 5000
         },
         options || {}
@@ -379,7 +395,7 @@ class ChromeConfig extends Config<ChromeOptions>
           arch: process.arch,
           baseUrl: 'https://chromedriver.storage.googleapis.com',
           platform: process.platform,
-          version: ChromeVersion
+          version: driverInfo.ChromeVersion
         },
         options
       )
@@ -445,7 +461,7 @@ class FirefoxConfig extends Config<FirefoxOptions>
           arch: process.arch,
           baseUrl: 'https://github.com/mozilla/geckodriver/releases/download',
           platform: process.platform,
-          version: FirefoxVersion
+          version: driverInfo.FirefoxVersion
         },
         options
       )
@@ -505,7 +521,7 @@ class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
         {
           arch: process.arch,
           baseUrl: 'https://selenium-release.storage.googleapis.com',
-          version: IEVersion
+          version: driverInfo.IEVersion
         },
         options
       )
@@ -546,24 +562,20 @@ interface EdgeProperties {
 
 type EdgeOptions = Partial<EdgeProperties>;
 
-const EdgeVersions: { [release: string]: string } = {
-  '15063': '342316D7-EBE0-4F10-ABA2-AE8E0CDF36DD',
-  '16299': 'D417998A-58EE-4EFE-A7CC-39EF9E020768',
-  '17134': 'F8AF50AB-3C3A-4BC4-8773-DC27B32988DD'
-};
-
 class EdgeConfig extends Config<EdgeOptions>
   implements EdgeProperties, DriverFile {
+  arch!: string;
   baseUrl!: string;
   uuid: string | undefined;
-  version!: string;
+  version!: keyof typeof driverInfo.EdgeUrls;
 
   constructor(options: EdgeOptions) {
     super(
       Object.assign(
         {
+          arch: process.arch,
           baseUrl: 'https://download.microsoft.com/download',
-          version: EdgeVersion
+          version: driverInfo.EdgeVersion
         },
         options
       )
@@ -575,20 +587,30 @@ class EdgeConfig extends Config<EdgeOptions>
   }
 
   get url() {
-    const uuid = this.uuid || EdgeVersions[this.version];
-    const a = uuid[0];
-    const b = uuid[1];
-    const c = uuid[2];
+    const { uuid } = this;
 
-    return format(
-      '%s/%s/%s/%s/%s/%s',
-      this.baseUrl,
-      a,
-      b,
-      c,
-      uuid,
-      this.artifact
-    );
+    if (uuid) {
+      const a = uuid[0];
+      const b = uuid[1];
+      const c = uuid[2];
+
+      return format(
+        '%s/%s/%s/%s/%s/%s',
+        this.baseUrl,
+        a,
+        b,
+        c,
+        uuid,
+        this.artifact
+      );
+    }
+
+    const urlOrObj = driverInfo.EdgeUrls[this.version];
+    if (typeof urlOrObj === 'string') {
+      return urlOrObj;
+    }
+
+    return urlOrObj[this.arch as keyof typeof urlOrObj];
   }
 
   get artifact() {
