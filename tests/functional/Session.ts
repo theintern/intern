@@ -1116,9 +1116,9 @@ registerSuite('Session', () => {
                 },
                 function() {
                   assert.operator(
-                    Date.now(),
+                    Date.now() - startTime,
                     '>=',
-                    startTime + 2000,
+                    2000,
                     'Driver should wait for implicit timeout before continuing'
                   );
                 }
@@ -1139,9 +1139,9 @@ registerSuite('Session', () => {
             })
             .then(function(element: Element) {
               assert.operator(
-                Date.now(),
+                Date.now() - startTime,
                 '<',
-                startTime + 9000,
+                10000,
                 'Driver should not wait until end of implicit timeout once element is available'
               );
               assert.property(element, 'elementId');
@@ -1692,7 +1692,6 @@ registerSuite('Session', () => {
       },
 
       '#moveMouseTo'(this: Test) {
-        /*jshint maxlen:140 */
         if (!session.capabilities.mouseEnabled) {
           this.skip('mouse not enabled');
         }

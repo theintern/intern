@@ -256,10 +256,10 @@ registerSuite('Element', () => {
                     );
                   },
                   () => {
-                    assert.closeTo(
-                      Date.now(),
-                      startTime + 2000,
-                      50,
+                    assert.operator(
+                      Date.now() - startTime,
+                      '>=',
+                      2000,
                       'Driver should wait for implicit timeout before continuing'
                     );
                     return session.find('id', 'makeD');
@@ -273,9 +273,9 @@ registerSuite('Element', () => {
                 })
                 .then(child => {
                   assert.operator(
-                    Date.now(),
+                    Date.now() - startTime,
                     '<',
-                    startTime + 9000,
+                    9000,
                     'Driver should not wait until end of implicit timeout once element is available'
                   );
                   assert.property(child, 'elementId');
