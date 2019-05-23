@@ -43,13 +43,13 @@ const driverInfo = {
  *
  * Note that Java must be installed and in the system path to use this tunnel.
  *
- * The standard browser names (for the `browserName` selenium capability) are:
+ * The standard browser names (for the `browserName` WebDriver capability) are:
  *
- * * `MicrosoftEdge`
- * * `chrome`
- * * `firefox`
- * * `internet explorer`
- * * `safari`
+ * - `MicrosoftEdge`
+ * - `chrome`
+ * - `firefox`
+ * - `internet explorer`
+ * - `safari`
  */
 export default class SeleniumTunnel extends Tunnel
   implements SeleniumProperties {
@@ -57,17 +57,17 @@ export default class SeleniumTunnel extends Tunnel
   seleniumArgs!: string[];
 
   /**
-   * The desired Selenium drivers to install. Each entry may be a string or an
-   * object. Strings must be the names of existing drivers in SeleniumTunnel.
-   * An object with a 'name' property is a configuration object -- the name
-   * must be the name of an existing driver in SeleniumTunnel, and the
+   * The desired Selenium drivers to download. Each entry may be a string or an
+   * object. Strings must be the names of existing drivers in SeleniumTunnel
+   * (see below). An object with a 'name' property is a configuration object --
+   * the name must be the name of an existing driver in SeleniumTunnel, and the
    * remaining properties will be used to configure that driver. An object
    * without a 'name' property is a driver definition. It must contain three
    * properties:
    *
-   * - executable - the name of the driver executable
-   * - url - the URL where the driver can be downloaded from
-   * - seleniumProperty - the name of the Java property used to tell
+   * - `executable` - the name of the driver executable, one of:
+   * - `url` - the URL where the driver can be downloaded from
+   * - `seleniumProperty` - the name of the Java property used to tell
    *   Selenium where the driver is
    *
    * ```js
@@ -83,6 +83,16 @@ export default class SeleniumTunnel extends Tunnel
    *         seleniumProperty: 'webdriver.opera.driver'
    *     }
    * ]
+   * ```
+   *
+   * The built-in SeleniumTunnel drivers are:
+   *
+   * - 'chrome'
+   * - 'firefox'
+   * - 'internet explorer'
+   * - 'ie' (alias for 'internet explorer')
+   * - 'MicrosoftEdge'
+   * - 'edge' (alias for 'MicrosoftEdge')
    *
    * @default [ 'chrome' ]
    */
