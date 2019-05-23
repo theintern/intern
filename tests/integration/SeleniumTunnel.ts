@@ -103,11 +103,12 @@ let tests: Tests = {
 
   'version check': function() {
     const version = '2.25';
+    const { arch } = process;
     tunnel = new SeleniumTunnel({
       drivers: [{ name: 'chrome', version }]
     });
     return tunnel.download().then(() => {
-      const driver = join(tunnel.directory, version, 'chromedriver');
+      const driver = join(tunnel.directory, version, arch, 'chromedriver');
       const result = execSync(`"${driver}" --version`).toString('utf-8');
       assert.match(
         result,

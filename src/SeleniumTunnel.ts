@@ -419,7 +419,7 @@ class ChromeConfig extends Config<ChromeOptions>
   }
 
   get directory() {
-    return this.version;
+    return join(this.version, this.arch);
   }
 
   get url() {
@@ -486,7 +486,7 @@ class FirefoxConfig extends Config<FirefoxOptions>
   }
 
   get directory() {
-    return this.version;
+    return join(this.version, this.arch);
   }
 
   get executable() {
@@ -542,7 +542,7 @@ class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
   }
 
   get directory() {
-    return this.version;
+    return join(this.version, this.arch);
   }
 
   get executable() {
