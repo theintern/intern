@@ -342,7 +342,7 @@ export interface Config extends ResourceConfig {
    * * [[https://theintern.io/docs.html#Dig%20Dug/2/api/SeleniumTunnel/seleniumproperties|SeleniumTunnel]]
    * * [[https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel/browserstackproperties|BrowserStackTunnel]]
    */
-  tunnelOptions: TunnelOptions | BrowserStackOptions | SeleniumOptions;
+  tunnelOptions: TunnelOptions & BrowserStackOptions & SeleniumOptions;
 
   /**
    * By default, an Intern session will fail if the Executor catches a

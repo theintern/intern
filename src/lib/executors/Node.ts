@@ -718,7 +718,69 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           }
         )
       );
+
+      // If we're using the Selenium tunnel and the user hasn't specified any
+      // drivers, try to figure out what they might need.
+      if (config.tunnel === 'selenium') {
+        const driverNames = this._getSeleniumDriverNames();
+
+        const { tunnelOptions } = config;
+        if (tunnelOptions.drivers) {
+          // Remove all the driver names from driverNames that are already
+          // specified in tunnelOptions.drivers
+          tunnelOptions.drivers
+            .map(driver => {
+              if (typeof driver === 'string') {
+                return driver;
+              }
+              return (driver as any).name;
+            })
+            .filter(name => name)
+            .forEach(name => {
+              const index = driverNames.indexOf(name);
+              if (index !== -1) {
+                driverNames.splice(index, 1);
+              }
+            });
+          // Mix the required driverNames into the drivers already in the config
+          tunnelOptions.drivers = [
+            ...tunnelOptions.drivers,
+            ...driverNames.map(name => ({ name }))
+          ];
+        } else {
+          tunnelOptions.drivers = driverNames.map(name => ({ name }));
+        }
+      }
     });
+  }
+
+  /**
+   * Return the names of all the selenium drivers that should be needed based
+   * on the environments specified in the config.
+   */
+  protected _getSeleniumDriverNames() {
+    const { config } = this;
+    const browserNames = config.environments
+      .map(env => env.browserName)
+      .filter(
+        name =>
+          name === 'chrome' ||
+          name === 'firefox' ||
+          name === 'ie' ||
+          name === 'internet explorer' ||
+          name === 'edge' ||
+          name === 'MicrosoftEdge'
+      );
+
+    return Object.keys(
+      browserNames.reduce(
+        (allNames, name) => ({
+          ...allNames,
+          [name]: true
+        }),
+        {}
+      )
+    );
   }
 
   protected _runTests(): CancellablePromise<void> {
