@@ -1152,6 +1152,41 @@ registerSuite('lib/executors/Node', function() {
               );
             });
           }
+        },
+
+        'selenium tunnelOptions': {
+          'no existing drivers'() {
+            executor.configure(<any>{
+              environments: ['chrome', 'firefox', 'ie'],
+              tunnel: 'selenium',
+              suites: 'foo2.js'
+            });
+            return executor.run().then(() => {
+              assert.sameDeepMembers(
+                (<any>executor.config.tunnelOptions!).drivers,
+                [{ name: 'chrome' }, { name: 'firefox' }, { name: 'ie' }],
+                'unexpected value for tunnelOptions.drivers'
+              );
+            });
+          },
+
+          'existing drivers'() {
+            executor.configure(<any>{
+              environments: ['chrome', 'firefox', 'ie'],
+              tunnel: 'selenium',
+              tunnelOptions: {
+                drivers: ['chrome', { name: 'ie', options: {} }]
+              },
+              suites: 'foo2.js'
+            });
+            return executor.run().then(() => {
+              assert.sameDeepMembers(
+                (<any>executor.config.tunnelOptions!).drivers,
+                ['chrome', { name: 'firefox' }, { name: 'ie', options: {} }],
+                'unexpected value for tunnelOptions.drivers'
+              );
+            });
+          }
         }
       }
     }
