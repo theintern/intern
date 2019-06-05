@@ -79,7 +79,10 @@ export function getConfig(
   const userArgs = (argv || process.argv).slice(2);
 
   if (process.env['INTERN_ARGS']) {
-    Object.assign(args, parseArgs(parse(process.env['INTERN_ARGS'] || '')));
+    Object.assign(
+      args,
+      parseArgs(parse(process.env['INTERN_ARGS'] || '') as string[])
+    );
   }
 
   if (userArgs.length > 0) {
@@ -156,6 +159,9 @@ export function readSourceMap(
   sourceFile: string,
   code?: string
 ): RawSourceMap | undefined {
+  if (typeof sourceFile !== 'string') {
+    console.trace('object sourcefile:', sourceFile);
+  }
   if (!code) {
     code = readFileSync(sourceFile, { encoding: 'utf8' });
   }

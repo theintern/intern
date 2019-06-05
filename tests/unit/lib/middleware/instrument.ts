@@ -11,6 +11,7 @@ import {
 } from '../../../support/unit/mocks';
 import { mockFs, mockPath, MockStats } from '../../../support/unit/nodeMocks';
 import { normalize } from 'path';
+import { Stats } from 'fs';
 
 const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 const testPath = normalize('/base/foo/thing.js');
@@ -20,8 +21,8 @@ registerSuite('lib/middleware/instrument', function() {
   let removeMocks: () => void;
 
   let server: Server;
-  let shouldInstrumentFile: sinon.SinonStub;
-  let instrumentCode: sinon.SinonStub;
+  let shouldInstrumentFile: sinon.SinonStub<[string]>;
+  let instrumentCode: sinon.SinonStub<[string, string]>;
   let handler: (request: any, response: any, next: any) => any;
   let request: MockRequest;
   let response: MockResponse;
@@ -30,7 +31,7 @@ registerSuite('lib/middleware/instrument', function() {
   const fs = mockFs();
   const path = mockPath();
 
-  const sandbox = sinon.sandbox.create();
+  const sandbox = sinon.createSandbox();
 
   return {
     before() {
@@ -122,13 +123,14 @@ registerSuite('lib/middleware/instrument', function() {
           },
 
           'read error'() {
-            sandbox
-              .stub(fs, 'stat')
-              .callsFake((path: string, callback: any) => {
-                const data = fs.__fileData[testPath];
-                fs.__fileData[testPath] = undefined;
-                callback(undefined, new MockStats(path, data!.type));
-              });
+            sandbox.stub(fs, 'stat').callsFake((path, callback) => {
+              const data = fs.__fileData[testPath];
+              fs.__fileData[testPath] = undefined;
+              callback(null, (new MockStats(
+                path,
+                data!.type
+              ) as unknown) as Stats);
+            });
             handler(request, response, next);
 
             assert.isTrue(next.calledOnce);
@@ -151,14 +153,14 @@ registerSuite('lib/middleware/instrument', function() {
                 const { readFile } = fs;
                 const end = sinon.spy(response, 'end');
 
-                sandbox
-                  .stub(fs, 'readFile')
-                  .callsFake(
-                    (path: string, encoding: string, callback: any) => {
-                      (server as any).stopped = true;
-                      readFile(path, encoding, callback);
-                    }
-                  );
+                sandbox.stub(fs, 'readFile').callsFake(((
+                  path: string,
+                  options: string,
+                  callback: any
+                ) => {
+                  (server as any).stopped = true;
+                  readFile(path, options, callback);
+                }) as typeof fs.readFile);
                 handler(request, response, next);
 
                 assert.isFalse(next.called);

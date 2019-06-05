@@ -244,7 +244,7 @@ export default class RemoteSuite extends Suite {
           .filter(key => !excludeKeys[key])
           .forEach(property => {
             const key = <keyof RemoteConfig>property;
-            remoteConfig[key] = config[key];
+            (remoteConfig as any)[key] = config[key];
           });
 
         this.executor.log(

@@ -59,7 +59,9 @@ registerSuite('lib/middleware/resolveSuites', () => {
           },
           response
         );
-        assert.deepEqual(expandFiles.args[0], [['bar*.js']]);
+        assert.deepEqual((expandFiles.args[0] as unknown) as string[][], [
+          ['bar*.js']
+        ]);
         assert.deepEqual(<any>response.data, '["expandedbar*.js"]');
       }
     }

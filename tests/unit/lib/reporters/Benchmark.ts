@@ -10,7 +10,10 @@ const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 let removeMocks: () => void;
 let Benchmark: typeof _Benchmark;
 let sandbox: SinonSandbox;
-let fs: { [key: string]: SinonSpy };
+let fs: {
+  readFileSync: SinonSpy<[string]>;
+  writeFileSync: SinonSpy<[string, string]>;
+};
 let fileData: { [filename: string]: string };
 
 registerSuite('intern/lib/reporters/Benchmark', {
@@ -99,8 +102,8 @@ registerSuite('intern/lib/reporters/Benchmark', {
           filename: 'benchmark.json'
         });
 
-        fs.readFileSync.reset();
-        fs.writeFileSync.reset();
+        fs.readFileSync.resetHistory();
+        fs.writeFileSync.resetHistory();
 
         // Set some baseline data so runEnd will have some data to copy
         reporter.baseline = <any>{ node: { stats: {} } };
@@ -136,8 +139,8 @@ registerSuite('intern/lib/reporters/Benchmark', {
           filename: 'benchmark.json'
         });
 
-        fs.readFileSync.reset();
-        fs.writeFileSync.reset();
+        fs.readFileSync.resetHistory();
+        fs.writeFileSync.resetHistory();
 
         reporter.runEnd();
 
@@ -164,8 +167,8 @@ registerSuite('intern/lib/reporters/Benchmark', {
           filename: 'benchmark.json'
         });
 
-        fs.readFileSync.reset();
-        fs.writeFileSync.reset();
+        fs.readFileSync.resetHistory();
+        fs.writeFileSync.resetHistory();
 
         // Ensure we're in test mode
         reporter.mode = 'test';
@@ -348,7 +351,7 @@ registerSuite('intern/lib/reporters/Benchmark', {
           numFailedBenchmarks: 0
         };
 
-        mockConsole.log.reset();
+        mockConsole.log.resetHistory();
         reporter.testEnd(test);
 
         assert.equal(mockConsole.log.callCount, 1);
@@ -407,10 +410,10 @@ registerSuite('intern/lib/reporters/Benchmark', {
             }
           };
 
-          mockConsole.warn.reset();
-          mockConsole.error.reset();
+          mockConsole.warn.resetHistory();
+          mockConsole.error.resetHistory();
 
-          mockConsole.log.reset();
+          mockConsole.log.resetHistory();
           reporter.testEnd(test);
 
           if (failureType) {

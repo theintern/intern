@@ -14,7 +14,7 @@ registerSuite('lib/middleware/post', function() {
   let request: MockRequest;
   let response: MockResponse;
   let next: sinon.SinonSpy;
-  let end: sinon.SinonSpy;
+  let end: sinon.SinonSpy<[any, any?]>;
   let handleMessage: sinon.SinonStub;
 
   return {

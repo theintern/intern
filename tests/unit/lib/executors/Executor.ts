@@ -60,9 +60,9 @@ registerSuite('lib/executors/Executor', function() {
   }
 
   const mockConsole = {
-    log: sandbox.spy(() => {}),
-    warn: sandbox.spy(() => {}),
-    error: sandbox.spy(() => {})
+    log: sandbox.spy((..._args: any[]) => {}),
+    warn: sandbox.spy((..._args: any[]) => {}),
+    error: sandbox.spy((..._args: any[]) => {})
   };
 
   const mockChai = {
@@ -480,7 +480,7 @@ registerSuite('lib/executors/Executor', function() {
       },
 
       '#log'() {
-        let logger = spy(() => {});
+        let logger = spy((..._args: any[]) => {});
         executor.on('log', logger);
         executor.log('testing');
         assert.equal(logger.callCount, 0, 'log should not have been emitted');
@@ -599,7 +599,7 @@ registerSuite('lib/executors/Executor', function() {
         'invalid reporter'() {
           const pluginInit = spy(() => 'bar');
           assert.throws(() => {
-            executor.registerPlugin('reporter', 'foo', pluginInit);
+            executor.registerPlugin('reporter', 'foo', pluginInit as any);
           }, /must be a constructor/);
         }
       },
@@ -717,7 +717,7 @@ registerSuite('lib/executors/Executor', function() {
             .then(() => {
               const data = JSON.parse(mockConsole.log.getCall(0).args[0]);
               assert.notProperty(data, 'benchmarkConfig');
-              mockConsole.log.reset();
+              mockConsole.log.resetHistory();
             })
             .then(() => executor2.run())
             .then(() => {
@@ -725,7 +725,7 @@ registerSuite('lib/executors/Executor', function() {
               assert.property(data, 'benchmarkConfig');
               assert.propertyVal(data.benchmarkConfig, 'id', 'Benchmark');
               assert.propertyVal(data.benchmarkConfig, 'mode', 'test');
-              mockConsole.log.reset();
+              mockConsole.log.resetHistory();
             })
             .then(() => executor3.run())
             .then(() => {

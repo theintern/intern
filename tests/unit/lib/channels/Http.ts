@@ -18,7 +18,7 @@ registerSuite('lib/channels/Http', function() {
 
   let requestData: { [name: string]: string };
   let removeMocks: () => void;
-  let requestHandler: SinonSpy | undefined;
+  let requestHandler: SinonSpy<[string, any]> | undefined;
 
   return {
     before() {

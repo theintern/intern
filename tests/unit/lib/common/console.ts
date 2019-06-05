@@ -1,9 +1,9 @@
-import { sandbox as Sandbox } from 'sinon';
+import { createSandbox } from 'sinon';
 import * as _console from 'src/lib/common/console';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-const sandbox = Sandbox.create();
+const sandbox = createSandbox();
 const mockConsole = {
   log: sandbox.spy(() => {}),
   warn: sandbox.spy(() => {}),

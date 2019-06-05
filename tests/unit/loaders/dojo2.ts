@@ -51,11 +51,11 @@ registerSuite('loaders/dojo2', function() {
     beforeEach() {
       global.intern = mockIntern;
       global.require = fakeRequire;
-      mockIntern.emit.reset();
-      mockIntern.loadScript.reset();
-      fakeRequire.reset();
-      fakeRequire.on.reset();
-      fakeRequire.config.reset();
+      mockIntern.emit.resetHistory();
+      mockIntern.loadScript.resetHistory();
+      fakeRequire.resetHistory();
+      fakeRequire.on.resetHistory();
+      fakeRequire.config.resetHistory();
     },
 
     afterEach() {
@@ -67,7 +67,7 @@ registerSuite('loaders/dojo2', function() {
     tests: {
       init() {
         const init = mockIntern.registerLoader.getCall(0).args[0];
-        return init({}).then(() => {
+        return (init({}) as Promise<any>).then(() => {
           assert.equal(mockIntern.loadScript.callCount, 1);
         });
       },

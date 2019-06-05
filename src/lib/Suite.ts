@@ -82,7 +82,7 @@ export default class Suite implements SuiteProperties {
       })
       .forEach(option => {
         const key = <keyof (SuiteOptions | RootSuiteOptions)>option;
-        this[key] = options[key]!;
+        (this as any)[key] = options[key]!;
       });
 
     if (options.tests) {
@@ -385,7 +385,7 @@ export default class Suite implements SuiteProperties {
       name: keyof Suite,
       test?: Test
     ): CancellablePromise<void> => {
-      let result: PromiseLike<void> | undefined;
+      let result: PromiseLike<any> | void;
 
       // If we are the root suite with our own executor then we want to run life
       // cycle functions regardless of whether all tests are skipped
@@ -416,7 +416,9 @@ export default class Suite implements SuiteProperties {
             return _dfd;
           };
 
-          const suiteFunc: SuiteLifecycleFunction = <any>suite[name];
+          const suiteFunc = suite[name] as
+            | SuiteLifecycleFunction
+            | TestLifecycleFunction;
 
           // Call the lifecycle function. The suite.async method above
           // may be called within this function call. If `test` is
@@ -427,8 +429,8 @@ export default class Suite implements SuiteProperties {
           result =
             suiteFunc &&
             (test
-              ? suiteFunc.call(suite, test, suite)
-              : suiteFunc.call(suite, suite));
+              ? (suiteFunc as TestLifecycleFunction).call(suite, test, suite)
+              : (suiteFunc as SuiteLifecycleFunction).call(suite, suite));
 
           // If dfd is set, it means the async method was called
           if (dfd) {

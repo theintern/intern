@@ -34,20 +34,18 @@ export default class BenchmarkTest extends Test {
   constructor(descriptor: BenchmarkTestOptions) {
     // Call the superclass constructor with the set of descriptor keys not
     // specific to BenchmarkTest
-    let args: TestOptions = <TestOptions>{};
+    let args: { [key: string]: any } = {};
     Object.keys(descriptor).forEach(descriptorKey => {
       const key = <keyof BenchmarkTestOptions>descriptorKey;
-      switch (key) {
-        case 'options':
-          break;
-        default:
-          args[<keyof TestOptions>key] = descriptor[key];
+      if (key !== 'options') {
+        args[key] = descriptor[key];
       }
     });
 
-    args.test = args.test || /* istanbul ignore next */ function() {};
+    const testArgs = args as TestOptions;
+    testArgs.test = testArgs.test || /* istanbul ignore next */ function() {};
 
-    super(args);
+    super(testArgs);
 
     const options: BenchmarkOptions = Object.assign(
       {},
@@ -70,7 +68,7 @@ export default class BenchmarkTest extends Test {
               deferred!,
               options.numCallsUntilResolution
             );
-            testFunction.call(this, dfd);
+            testFunction.call<BenchmarkTest, Deferred<void>[], void>(this, dfd);
           }
         );
       })(this.test);
@@ -293,5 +291,5 @@ function createDeferred(
         return returnValue;
       });
     }
-  };
+  } as Deferred<void>;
 }

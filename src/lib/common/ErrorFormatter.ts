@@ -1,4 +1,4 @@
-import { diffJson, IDiffResult } from 'diff';
+import { diffJson, Change } from 'diff';
 
 import { InternError } from '../types';
 import { Executor } from '../executors/Executor';
@@ -123,7 +123,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
   ): string {
     // TODO: Remove the casts when the diffJson typings are updated (the
     // current typings are missing the options argument).
-    let diff = <IDiffResult[]>(<any>diffJson)(actual, expected, {
+    let diff = <Change[]>(<any>diffJson)(actual, expected, {
       undefinedReplacement: null
     });
     if (diff.length === 1 && !diff[0].added && !diff[0].removed) {

@@ -163,7 +163,9 @@ registerSuite('lib/interfaces/tdd', function() {
 
         const suite = <Suite>parent.tests[0];
         const beforeEach = suite.beforeEach!;
-        const result = beforeEach.call(suite, <any>{}, <any>{});
+        const result = beforeEach.call(suite, <any>{}, <any>{}) as
+          | Promise<string>
+          | string;
         Promise.resolve<string>(result).then(
           dfd.callback((result: string) => {
             assert.equal(result, 'bar');

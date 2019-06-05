@@ -140,7 +140,8 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
         optionsKey = 'after';
       }
 
-      options[optionsKey] = <any>descriptor[<keyof ObjectSuiteDescriptor>key];
+      (options as any)[optionsKey] =
+        descriptor[<keyof ObjectSuiteDescriptor>key];
     }
 
     tests = descriptor.tests;

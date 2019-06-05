@@ -1,4 +1,4 @@
-import { sandbox as Sandbox, SinonStub, SinonSpy } from 'sinon';
+import { createSandbox, SinonStub, SinonSpy } from 'sinon';
 import { Task, global } from '@theintern/common';
 
 import {
@@ -11,9 +11,9 @@ const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 const originalIntern = global.intern;
 
 registerSuite('bin/intern', function() {
-  const sandbox = Sandbox.create();
+  const sandbox = createSandbox();
   const mockNodeUtil: { [name: string]: SinonSpy } = {
-    getConfig: sandbox.spy(() => {
+    getConfig: sandbox.spy((..._args: any[]) => {
       return Task.resolve({ config: configData, file: 'intern.json' });
     })
   };

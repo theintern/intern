@@ -2,7 +2,7 @@
  * Mocks are completely artificial entities that have the types of actual
  * classes and interfaces (as far as TypeScript is concerned).
  */
-import { sandbox as Sandbox, spy, SinonSpy } from 'sinon';
+import { createSandbox, spy, SinonSpy } from 'sinon';
 import { Handle, duplicate, Task } from '@theintern/common';
 import Command from '@theintern/leadfoot/Command';
 
@@ -28,14 +28,22 @@ export function createMock<T>(properties?: { [P in keyof T]?: T[P] }) {
  * Create a mock Charm
  */
 export function createMockCharm() {
-  const sandbox = Sandbox.create();
-  const mockCharm = {
-    write: sandbox.spy(() => {}),
-    erase: sandbox.spy(() => mockCharm),
-    position: sandbox.spy(() => mockCharm),
-    foreground: sandbox.spy(() => mockCharm),
-    display: sandbox.spy(() => mockCharm),
-    pipe: sandbox.spy(() => {}),
+  const sandbox = createSandbox();
+  type SpyKeys =
+    | 'write'
+    | 'erase'
+    | 'position'
+    | 'foreground'
+    | 'display'
+    | 'pipe';
+  type MockCharm = { [K in SpyKeys]: SinonSpy } & { _reset: () => void };
+  const mockCharm: MockCharm = {
+    write: sandbox.spy((..._args: any[]) => {}),
+    erase: sandbox.spy((..._args: any[]) => mockCharm),
+    position: sandbox.spy((..._args: any[]) => mockCharm),
+    foreground: sandbox.spy((..._args: any[]) => mockCharm),
+    display: sandbox.spy((..._args: any[]) => mockCharm),
+    pipe: sandbox.spy((..._args: any[]) => {}),
     _reset() {
       sandbox.resetHistory();
     }
@@ -185,8 +193,8 @@ export function createMockNodeExecutor(
 export interface MockCoverageMap {
   _files: string[];
   data: { [key: string]: any };
-  files: SinonSpy;
-  merge: SinonSpy;
+  files: SinonSpy<[]>;
+  merge: SinonSpy<[any]>;
 }
 
 /**
@@ -218,14 +226,14 @@ export interface MockConsole {
  */
 export function createMockConsole(hasGrouping = false) {
   const console: MockConsole = {
-    error: spy(() => {}),
-    info: spy(() => {}),
-    log: spy(() => {}),
-    warn: spy(() => {})
+    error: spy((..._args: any[]) => {}),
+    info: spy((..._args: any[]) => {}),
+    log: spy((..._args: any[]) => {}),
+    warn: spy((..._args: any[]) => {})
   };
   if (hasGrouping) {
-    console.group = spy(() => {});
-    console.groupEnd = spy(() => {});
+    console.group = spy((..._args: any[]) => {});
+    console.groupEnd = spy((..._args: any[]) => {});
   }
   return console;
 }

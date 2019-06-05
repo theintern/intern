@@ -4,13 +4,13 @@ import * as _gruntTask from 'src/tasks/intern';
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('tasks/intern', function() {
-  const sandbox = sinon.sandbox.create();
+  const sandbox = sinon.createSandbox();
 
-  let mockDone: sinon.SinonSpy;
+  let mockDone: sinon.SinonSpy<any[], void>;
 
   function setupDone() {
     return new Promise(resolve => {
-      mockDone = sinon.spy(() => resolve());
+      mockDone = sinon.spy((..._args: any[]) => resolve());
     });
   }
 
