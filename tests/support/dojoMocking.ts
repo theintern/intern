@@ -1,4 +1,4 @@
-/// <reference types="@dojo/loader"/>
+/// <reference types="@dojo/loader/interfaces"/>
 
 class RequireHelpers {
   require: DojoLoader.RootRequire;

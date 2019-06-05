@@ -36,7 +36,7 @@ registerSuite('lib/interfaces/benchmark', function() {
     },
 
     beforeEach() {
-      getIntern.reset();
+      getIntern.resetHistory();
       executor = {
         config: { benchmark: true },
         addSuite: spy((callback: (suite: Suite) => void) => {

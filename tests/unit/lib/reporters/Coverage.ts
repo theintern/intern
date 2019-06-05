@@ -61,8 +61,8 @@ registerSuite('lib/reporters/Coverage', function() {
     beforeEach() {
       mockExecutor.formatError.reset();
       mockExecutor.on.reset();
-      mockCreate.reset();
-      mockVisit.reset();
+      mockCreate.resetHistory();
+      mockVisit.resetHistory();
       mockCreateCoverageMap.reset();
     },
 

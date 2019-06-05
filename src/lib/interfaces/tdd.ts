@@ -129,14 +129,16 @@ function aspect(
   method: 'before' | 'after' | 'beforeEach' | 'afterEach',
   callback: SuiteLifecycleFunction | TestLifecycleFunction
 ) {
-  const originalMethod = suite[method];
-  suite[method] = function() {
-    const args = Array.prototype.slice.call(arguments);
+  const originalMethod = suite[method] as (
+    this: Suite,
+    firstArg: Suite | Test
+  ) => void;
+  suite[method] = function(...args: [Suite | Test]) {
     const originalReturn = originalMethod
       ? originalMethod.apply(suite, args)
       : undefined;
     return Promise.resolve(originalReturn).then(() =>
-      callback.apply(currentSuite, args)
+      (callback as typeof originalMethod).apply(currentSuite as Suite, args)
     );
   };
 }

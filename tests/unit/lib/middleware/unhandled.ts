@@ -9,7 +9,7 @@ registerSuite('lib/middleware/unhandled', function() {
   let handler: (request: any, response: any, next: any) => void;
   let response: MockResponse;
   let next: SinonSpy;
-  let end: SinonSpy;
+  let end: SinonSpy<[any, any?]>;
 
   return {
     beforeEach() {

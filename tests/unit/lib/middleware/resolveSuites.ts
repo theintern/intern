@@ -1,4 +1,4 @@
-import { sandbox as Sandbox } from 'sinon';
+import { createSandbox } from 'sinon';
 import { parse } from 'url';
 
 import _resolveSuites from 'src/lib/middleware/resolveSuites';
@@ -16,7 +16,7 @@ registerSuite('lib/middleware/resolveSuites', () => {
   let resolveSuites: typeof _resolveSuites;
   let handler: (request: any, response: any, next?: any) => any;
 
-  const sandbox = Sandbox.create();
+  const sandbox = createSandbox();
   const expandFiles = sandbox.spy((pattern: string) => {
     return [`expanded${pattern}`];
   });
@@ -59,7 +59,9 @@ registerSuite('lib/middleware/resolveSuites', () => {
           },
           response
         );
-        assert.deepEqual(expandFiles.args[0], [['bar*.js']]);
+        assert.deepEqual((expandFiles.args[0] as unknown) as string[][], [
+          ['bar*.js']
+        ]);
         assert.deepEqual(<any>response.data, '["expandedbar*.js"]');
       }
     }

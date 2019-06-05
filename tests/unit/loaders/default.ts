@@ -35,7 +35,7 @@ registerSuite('loaders/default', function() {
 
     beforeEach() {
       global.intern = mockIntern;
-      mockIntern.emit.reset();
+      mockIntern.emit.resetHistory();
       mockIntern.loadScript.reset();
       mockIntern.loadScript.resolves();
     },

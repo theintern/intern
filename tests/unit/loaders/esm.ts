@@ -1,4 +1,4 @@
-import { sandbox as Sandbox } from 'sinon';
+import { createSandbox } from 'sinon';
 import { global } from '@theintern/common';
 
 import { LoaderInit } from 'src/lib/executors/Executor';
@@ -8,7 +8,7 @@ const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 const originalIntern = global.intern;
 
 registerSuite('loaders/esm', () => {
-  const sandbox = Sandbox.create();
+  const sandbox = createSandbox();
   let removeMocks: () => void;
   let init: LoaderInit;
 

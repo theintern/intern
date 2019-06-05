@@ -7,7 +7,9 @@ import { Remote } from 'src/lib/executors/Node';
 // Bring in Test and TestFunction from testing src rather than the src being
 // tested
 import Test, { TestFunction } from '../../../src/lib/Test';
-import registerSuite from '../../../src/lib/interfaces/object';
+import registerSuite, {
+  ObjectSuiteDescriptor
+} from '../../../src/lib/interfaces/object';
 import { assert } from 'chai';
 
 registerSuite('lib/ProxiedSession (functional)', () => {
@@ -194,5 +196,5 @@ registerSuite('lib/ProxiedSession (functional)', () => {
           });
       }
     }
-  };
+  } as ObjectSuiteDescriptor;
 });

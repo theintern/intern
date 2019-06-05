@@ -44,7 +44,7 @@ registerSuite('lib/executors/Node', function() {
   }
 
   class MockCoverageMap {
-    addFileCoverage: SinonSpy;
+    addFileCoverage: SinonSpy<[any]>;
     mockName = 'coverageMap';
 
     private _files: string[] = [];
@@ -151,9 +151,9 @@ registerSuite('lib/executors/Node', function() {
   }
 
   const mockConsole = {
-    log: spy(() => {}),
-    warn: spy(() => {}),
-    error: spy(() => {})
+    log: spy((..._args: any[]) => {}),
+    warn: spy((..._args: any[]) => {}),
+    error: spy((..._args: any[]) => {})
   };
 
   const mockChai = {
@@ -198,8 +198,8 @@ registerSuite('lib/executors/Node', function() {
     process: {
       cwd: () => '',
       env: {},
-      exit: spy(() => {}),
-      on: spy(() => {}),
+      exit: spy((..._args: any[]) => {}),
+      on: spy((..._args: any[]) => {}),
       stdout: process.stdout
     }
   };
@@ -213,7 +213,7 @@ registerSuite('lib/executors/Node', function() {
   }
 
   const mockNodeUtil = {
-    expandFiles(files: string) {
+    expandFiles(files: string | string[]) {
       return files || [];
     },
     normalizePath(path: string) {
@@ -321,10 +321,10 @@ registerSuite('lib/executors/Node', function() {
     },
 
     afterEach() {
-      mockConsole.log.reset();
-      mockConsole.warn.reset();
-      mockConsole.error.reset();
-      mockGlobal.process.on.reset();
+      mockConsole.log.resetHistory();
+      mockConsole.warn.resetHistory();
+      mockConsole.error.resetHistory();
+      mockGlobal.process.on.resetHistory();
     },
 
     tests: {
@@ -357,7 +357,7 @@ registerSuite('lib/executors/Node', function() {
 
         'unhandled rejection': {
           async 'with reason'() {
-            const logger = spy(() => {});
+            const logger = spy((..._args: any[]) => {});
             executor.on('error', logger);
             const handler = mockGlobal.process.on.getCall(0).args[1];
             const reason = new Error('foo');
@@ -383,7 +383,7 @@ registerSuite('lib/executors/Node', function() {
           },
 
           async 'no reason'() {
-            const logger = spy(() => {});
+            const logger = spy((..._args: any[]) => {});
             executor.on('error', logger);
             const handler = mockGlobal.process.on.getCall(0).args[1];
             handler();
@@ -406,9 +406,9 @@ registerSuite('lib/executors/Node', function() {
           },
 
           async warning() {
-            const warningLogger = spy(() => {});
+            const warningLogger = spy((..._args: any[]) => {});
             executor.on('warning', warningLogger);
-            const errorLogger = spy(() => {});
+            const errorLogger = spy((..._args: any[]) => {});
             executor.on('error', errorLogger);
             executor.configure({ warnOnUnhandledRejection: true });
 
@@ -434,9 +434,9 @@ registerSuite('lib/executors/Node', function() {
           },
 
           async 'warning (filtered)'() {
-            const warningLogger = spy(() => {});
+            const warningLogger = spy((..._args: any[]) => {});
             executor.on('warning', warningLogger);
-            const errorLogger = spy(() => {});
+            const errorLogger = spy((..._args: any[]) => {});
             executor.on('error', errorLogger);
             executor.configure({ warnOnUnhandledRejection: 'foo' });
 
@@ -474,7 +474,7 @@ registerSuite('lib/executors/Node', function() {
 
         'unhandled error': {
           async default() {
-            const logger = spy(() => {});
+            const logger = spy((..._args: any[]) => {});
             executor.on('error', logger);
             const handler = mockGlobal.process.on.getCall(1).args[1];
             handler({ message: 'foo' });
@@ -499,9 +499,9 @@ registerSuite('lib/executors/Node', function() {
           },
 
           async warning() {
-            const warningLogger = spy(() => {});
+            const warningLogger = spy((..._args: any[]) => {});
             executor.on('warning', warningLogger);
-            const errorLogger = spy(() => {});
+            const errorLogger = spy((..._args: any[]) => {});
             executor.on('error', errorLogger);
             executor.configure({ warnOnUncaughtException: true });
 
@@ -527,9 +527,9 @@ registerSuite('lib/executors/Node', function() {
           },
 
           async 'warning (filtered)'() {
-            const warningLogger = spy(() => {});
+            const warningLogger = spy((..._args: any[]) => {});
             executor.on('warning', warningLogger);
-            const errorLogger = spy(() => {});
+            const errorLogger = spy((..._args: any[]) => {});
             executor.on('error', errorLogger);
             executor.configure({ warnOnUncaughtException: 'foo' });
 

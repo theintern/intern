@@ -1,4 +1,4 @@
-import { sandbox as Sandbox } from 'sinon';
+import { createSandbox } from 'sinon';
 import { Task } from '@theintern/common';
 
 import * as _tddInt from 'src/lib/interfaces/tdd';
@@ -11,7 +11,7 @@ registerSuite('lib/interfaces/tdd', function() {
   let tddInt: typeof _tddInt;
   let removeMocks: () => void;
   let parent: Suite;
-  const sandbox = Sandbox.create();
+  const sandbox = createSandbox();
 
   const executor = {
     addSuite: sandbox.spy((callback: (suite: Suite) => void) => {
@@ -163,7 +163,9 @@ registerSuite('lib/interfaces/tdd', function() {
 
         const suite = <Suite>parent.tests[0];
         const beforeEach = suite.beforeEach!;
-        const result = beforeEach.call(suite, <any>{}, <any>{});
+        const result = beforeEach.call(suite, <any>{}, <any>{}) as
+          | Promise<string>
+          | string;
         Promise.resolve<string>(result).then(
           dfd.callback((result: string) => {
             assert.equal(result, 'bar');

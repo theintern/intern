@@ -88,7 +88,7 @@ export default class Test implements TestProperties {
 
     do {
       suiteOrTest.name != null && name.unshift(suiteOrTest.name);
-    } while ((suiteOrTest = suiteOrTest.parent));
+    } while ((suiteOrTest = suiteOrTest.parent as Suite | Test));
 
     return name.join(' - ');
   }
@@ -185,10 +185,10 @@ export default class Test implements TestProperties {
      * many times as specified by the `numCallsUntilResolution` parameter of
      * the original `async` call.
      */
-    dfd.resolve = function(this: any) {
+    dfd.resolve = function<T>(this: any, value?: T) {
       --remainingCalls;
       if (remainingCalls === 0) {
-        oldResolve.apply(this, arguments);
+        oldResolve.call(this, value);
       } else if (remainingCalls < 0) {
         throw new Error('resolve called too many times');
       }

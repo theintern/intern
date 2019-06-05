@@ -30,7 +30,7 @@ export default function instrument(context: Context): RequestHandler {
 
       if (error || !stats.isFile()) {
         executor.log('Unable to serve', wholePath, '(unreadable)');
-        return next(createError(404, error, { expose: false }));
+        return next(createError(404, error as Error, { expose: false }));
       }
 
       executor.log('Serving', wholePath);

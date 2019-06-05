@@ -49,9 +49,9 @@ registerSuite('loaders/systemjs', function() {
       global.intern = mockIntern;
       global.require = fakeRequire;
       global.SystemJS = mockSystemJS;
-      mockIntern.emit.reset();
-      mockIntern.loadScript.reset();
-      fakeRequire.reset();
+      mockIntern.emit.resetHistory();
+      mockIntern.loadScript.resetHistory();
+      fakeRequire.resetHistory();
     },
 
     afterEach() {

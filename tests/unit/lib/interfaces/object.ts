@@ -1,4 +1,4 @@
-import { sandbox as Sandbox } from 'sinon';
+import { createSandbox } from 'sinon';
 
 import * as _objInt from 'src/lib/interfaces/object';
 import Test from 'src/lib/Test';
@@ -11,14 +11,14 @@ registerSuite('lib/interfaces/object', function() {
   let removeMocks: () => void;
   let parent: Suite;
 
-  const sandbox = Sandbox.create();
+  const sandbox = createSandbox();
 
   const executor = {
     addSuite: sandbox.spy((callback: (suite: Suite) => void) => {
       callback(parent);
     }),
-    emit: sandbox.spy(() => {}),
-    log: sandbox.spy(() => {})
+    emit: sandbox.spy((..._args: any[]) => {}),
+    log: sandbox.spy((..._args: any[]) => {})
   };
 
   const getIntern = sandbox.spy(() => {

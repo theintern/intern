@@ -755,16 +755,16 @@ export function setOption(
   if (addToExisting) {
     const currentValue: any = config[name];
     if (currentValue == null) {
-      config[name] = value;
+      (config as any)[name] = value;
     } else if (Array.isArray(currentValue)) {
       currentValue.push(...value);
     } else if (typeof config[name] === 'object') {
-      config[name] = deepMixin({}, <object>config[name]!, value);
+      (config as any)[name] = deepMixin({}, <object>config[name]!, value);
     } else {
       throw new Error('Only array or object options may be added');
     }
   } else {
-    config[name] = value;
+    (config as any)[name] = value;
   }
 }
 
@@ -931,14 +931,16 @@ function _loadConfig(
           'reporters',
           'suites'
         ];
-        resources.filter(resource => resource in args).forEach(resource => {
-          const environments: (keyof Config)[] = ['node', 'browser'];
-          environments
-            .filter(environment => config[environment])
-            .forEach(environment => {
-              delete config[environment][resource];
-            });
-        });
+        resources
+          .filter(resource => resource in args)
+          .forEach(resource => {
+            const environments: (keyof Config)[] = ['node', 'browser'];
+            environments
+              .filter(environment => config[environment])
+              .forEach(environment => {
+                delete config[environment][resource];
+              });
+          });
 
         Object.keys(args).forEach(key => {
           processOption(<keyof Config>key, args[key], config);

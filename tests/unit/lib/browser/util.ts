@@ -1,4 +1,4 @@
-import { spy, SinonSpy } from 'sinon';
+import { spy } from 'sinon';
 import { Task } from '@theintern/common';
 
 import * as _util from 'src/lib/browser/util';
@@ -32,7 +32,7 @@ registerSuite('lib/browser/util', function() {
   let requestData: { [name: string]: string };
   let removeMocks: () => void;
 
-  const mockUtil: { [name: string]: SinonSpy } = {
+  const mockUtil = {
     getBasePath: spy((_path: string) => {
       return '';
     }),
@@ -86,8 +86,10 @@ registerSuite('lib/browser/util', function() {
     beforeEach() {
       parsedArgs = {};
       requestData = {};
-      request.reset();
-      Object.keys(mockUtil).forEach(key => mockUtil[key].reset());
+      request.resetHistory();
+      Object.keys(mockUtil).forEach(key =>
+        mockUtil[key as keyof typeof mockUtil].resetHistory()
+      );
     },
 
     tests: {
@@ -125,7 +127,7 @@ registerSuite('lib/browser/util', function() {
                 mockUtil.loadConfig.getCall(0).args[0],
                 '/intern.json'
               );
-              assert.deepEqual(mockUtil.loadConfig.getCall(0).args[2], {
+              assert.deepEqual(mockUtil.loadConfig.getCall(0).args[2] as {}, {
                 here: '1',
                 there: 'bar'
               });

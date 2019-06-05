@@ -7,14 +7,14 @@ export type StatType = 'file' | 'directory';
 export type StatCallback = (error: Error | undefined, stats: MockStats) => void;
 
 export class MockStats {
-  path: string;
+  path: fs.PathLike;
   type: StatType | undefined;
   mtime: {
     getTime: () => number;
     toUTCString: () => string;
   };
 
-  constructor(path: string, type?: StatType) {
+  constructor(path: fs.PathLike, type?: StatType) {
     this.path = path;
     this.type = type;
     this.mtime = {

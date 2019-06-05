@@ -58,8 +58,8 @@ registerSuite('lib/reporters/JUnit', function() {
     beforeEach() {
       mockExecutor.suites = [];
       mockExecutor.on.reset();
-      mockFs.createWriteStream.reset();
-      mockFs.mkdirSync.reset();
+      mockFs.createWriteStream.resetHistory();
+      mockFs.mkdirSync.resetHistory();
     },
 
     tests: {

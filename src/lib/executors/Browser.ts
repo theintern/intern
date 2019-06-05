@@ -119,10 +119,11 @@ export default class Browser extends Executor<Events, Config, Plugins> {
         config.basePath = join(config.internPath, config.basePath);
       }
 
-      ['basePath', 'internPath'].forEach(property => {
-        const key = <keyof Config>property;
-        config[key] = normalizePathEnding(<string>config[key]);
-      });
+      (['basePath', 'internPath'] as ('basePath' | 'internPath')[]).forEach(
+        property => {
+          config[property] = normalizePathEnding(config[property]);
+        }
+      );
 
       // Combine suites and browser.suites into browser.suites
       const suites = (config.browser.suites = [

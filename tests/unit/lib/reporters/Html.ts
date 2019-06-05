@@ -74,8 +74,15 @@ registerSuite('intern/lib/reporters/Html', {
       'regular suite'() {
         const links: HTMLElement[] = [];
         const origCreateElement = reporter.document.createElement;
-        reporter.document.createElement = function() {
-          const retVal = origCreateElement.apply(reporter.document, arguments);
+        reporter.document.createElement = function(
+          tagName: string,
+          options?: ElementCreationOptions
+        ) {
+          const retVal = origCreateElement.call(
+            reporter.document,
+            tagName,
+            options
+          );
           if (retVal.tagName === 'A') {
             links.push(retVal);
           }

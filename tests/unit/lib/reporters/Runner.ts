@@ -1,4 +1,4 @@
-import { sandbox as Sandbox, spy } from 'sinon';
+import { createSandbox, spy } from 'sinon';
 import _Runner from 'src/lib/reporters/Runner';
 import {
   MockConsole,
@@ -16,7 +16,7 @@ const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/reporters/Runner', function() {
-  const sandbox = Sandbox.create();
+  const sandbox = createSandbox();
   const mockCharm = createMockCharm();
   const mockExecutor = createMockNodeExecutor();
 

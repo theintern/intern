@@ -1,4 +1,4 @@
-import { spy, sandbox as Sandbox } from 'sinon';
+import { spy, createSandbox } from 'sinon';
 import { Task, isPromiseLike, deepMixin } from '@theintern/common';
 import _Browser, { Config } from 'src/lib/executors/Browser';
 
@@ -24,7 +24,7 @@ registerSuite('lib/executors/Browser', function() {
     }
   }
 
-  const sandbox = Sandbox.create();
+  const sandbox = createSandbox();
 
   const mockConsole = {
     log: sandbox.spy(() => {}),
@@ -40,9 +40,9 @@ registerSuite('lib/executors/Browser', function() {
   const mockGlobal = {
     location: { pathname: '/' },
     __coverage__: {},
-    addEventListener: sandbox.spy(() => {}),
+    addEventListener: sandbox.spy((..._args: any[]) => {}),
     document: {
-      createElement: sandbox.spy(() => {
+      createElement: sandbox.spy((..._args: any[]) => {
         return {
           addEventListener(_name: string, callback: () => void) {
             callback();
@@ -128,7 +128,7 @@ registerSuite('lib/executors/Browser', function() {
         },
 
         async 'unhandled rejection'() {
-          const logger = spy(() => {});
+          const logger = spy((..._args: any[]) => {});
           executor.on('error', logger);
 
           const handler = mockGlobal.addEventListener.getCall(0).args[1];
@@ -154,7 +154,7 @@ registerSuite('lib/executors/Browser', function() {
         },
 
         async 'unhandled rejection warning'() {
-          const warningLogger = spy(() => {});
+          const warningLogger = spy((..._args: any[]) => {});
           executor.on('warning', warningLogger);
           const errorLogger = spy(() => {});
           executor.on('error', errorLogger);
@@ -182,9 +182,9 @@ registerSuite('lib/executors/Browser', function() {
         },
 
         async 'unhandled rejection warning filter'() {
-          const warningLogger = spy(() => {});
+          const warningLogger = spy((..._args: any[]) => {});
           executor.on('warning', warningLogger);
-          const errorLogger = spy(() => {});
+          const errorLogger = spy((..._args: any[]) => {});
           executor.on('error', errorLogger);
           executor.configure({ warnOnUnhandledRejection: 'foo' });
 
@@ -220,7 +220,7 @@ registerSuite('lib/executors/Browser', function() {
         },
 
         async 'unhandled error'() {
-          const logger = spy(() => {});
+          const logger = spy((..._args: any[]) => {});
           executor.on('error', logger);
 
           const handler = mockGlobal.addEventListener.getCall(1).args[1];
@@ -246,9 +246,9 @@ registerSuite('lib/executors/Browser', function() {
         },
 
         async 'unhandled error warning'() {
-          const warningLogger = spy(() => {});
+          const warningLogger = spy((..._args: any[]) => {});
           executor.on('warning', warningLogger);
-          const errorLogger = spy(() => {});
+          const errorLogger = spy((..._args: any[]) => {});
           executor.on('error', errorLogger);
           executor.configure({ warnOnUncaughtException: true });
 
@@ -274,9 +274,9 @@ registerSuite('lib/executors/Browser', function() {
         },
 
         async 'unhandled error warning filter'() {
-          const warningLogger = spy(() => {});
+          const warningLogger = spy((..._args: any[]) => {});
           executor.on('warning', warningLogger);
-          const errorLogger = spy(() => {});
+          const errorLogger = spy((..._args: any[]) => {});
           executor.on('error', errorLogger);
           executor.configure({ warnOnUncaughtException: 'foo' });
 

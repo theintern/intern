@@ -1,4 +1,4 @@
-/// <reference types="@dojo/loader"/>
+/// <reference types="@dojo/loader/interfaces"/>
 
 /**
  * A loader script for setting up the Dojo loader.

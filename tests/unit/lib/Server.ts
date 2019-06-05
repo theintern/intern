@@ -106,7 +106,7 @@ registerSuite('lib/Server', function() {
     Server: MockWebSocketServer
   };
 
-  const sandbox = sinon.sandbox.create();
+  const sandbox = sinon.createSandbox();
 
   function passthroughMiddleware(_: any, __: any, callback: () => void) {
     callback();
@@ -115,8 +115,8 @@ registerSuite('lib/Server', function() {
   const jsonHandler = sandbox.spy(passthroughMiddleware);
   const urlEncodedHandler = sandbox.spy(passthroughMiddleware);
   const mockBodyParser = {
-    json: sandbox.spy(() => jsonHandler),
-    urlencoded: sandbox.spy(() => urlEncodedHandler)
+    json: sandbox.spy((..._args: any[]) => jsonHandler),
+    urlencoded: sandbox.spy((..._args: any[]) => urlEncodedHandler)
   };
 
   let fs = mockFs();
@@ -139,8 +139,8 @@ registerSuite('lib/Server', function() {
   function mockMiddleware(error = false) {
     const handler = sandbox.stub();
     const wrapper = error
-      ? function(this: any, _req: any, _res: any, _next: any, _err: any) {
-          return handler.apply(this, arguments);
+      ? function(this: any, req: any, res: any, next: any, err: any) {
+          return handler.call(this, req, res, next, err);
           // tslint:disable-next-line:indent
         }
       : handler;
