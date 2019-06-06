@@ -51,7 +51,7 @@ export default class Task<T = any> implements CancellablePromise<T> {
     iterable: Iterable<T | PromiseLike<T>> | (T | PromiseLike<T>)[]
   ): Task<T> {
     return new this((resolve, reject) => {
-      Promise.race(this.unwrapPromises(iterable)).then(resolve, reject);
+      Promise.race<T>(this.unwrapPromises(iterable)).then(resolve, reject);
     });
   }
 
