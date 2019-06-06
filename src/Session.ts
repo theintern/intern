@@ -1030,7 +1030,7 @@ export default class Session extends Locator<
     ) {
       // At least SafariDriver 2.41.0 returns cookies with extra class
       // and hCode properties that should not exist
-      return cookies.map(function(badCookie) {
+      return (cookies || []).map(function(badCookie) {
         let cookie: any = {};
         for (let key in badCookie) {
           if (

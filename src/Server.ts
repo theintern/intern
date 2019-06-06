@@ -656,9 +656,6 @@ export default class Server {
       // immediately rather than waiting for default action to occur.
       updates.returnsFromClickImmediately = true;
 
-      // MS Edge has broken cookie deletion.
-      updates.brokenDeleteCookie = true;
-
       // At least MS Edge before 44.17763 may return an 'element is obscured'
       // error when trying to click on visible elements.
       if (isValidVersion(capabilities, 0, 44.17763)) {
@@ -706,6 +703,11 @@ export default class Server {
         if (capabilities.usesWebDriverExecuteAsync == null) {
           updates.usesWebDriverExecuteAsync = true;
         }
+      }
+
+      // MS Edge < 18 (44.17763) doesn't properly support cookie deletion
+      if (isValidVersion(capabilities, 0, 43)) {
+        updates.brokenDeleteCookie = true;
       }
     }
 
@@ -1177,30 +1179,36 @@ export default class Server {
             .then(works, error => error.name === 'UnknownCommand');
       }
 
-      // At least Selendroid 0.9.0 has broken cookie deletion.
-      if (
-        capabilities.brokenDeleteCookie == null &&
-        capabilities.browserName === 'selendroid'
-      ) {
-        // This test is very hard to get working properly in other
-        // environments so only test when Selendroid is the browser
-        testedCapabilities.brokenDeleteCookie = () =>
-          session
-            .get('about:blank')
-            .then(() => session.clearCookies())
-            .then(() =>
-              session.setCookie({
-                name: 'foo',
-                value: 'foo'
-              })
-            )
-            .then(() => session.deleteCookie('foo'))
-            .then(() => session.getCookies())
-            .then(cookies => cookies.length > 0)
-            .catch(() => true)
-            .then(isBroken =>
-              session.clearCookies().then(() => isBroken, () => isBroken)
-            );
+      if (capabilities.brokenDeleteCookie == null) {
+        if (capabilities.browserName === 'selendroid') {
+          // At least Selendroid 0.9.0 has broken cookie deletion.
+          // This test is very hard to get working properly in other
+          // environments so only test when Selendroid is the browser
+          testedCapabilities.brokenDeleteCookie = () =>
+            session
+              .get('about:blank')
+              .then(() => session.clearCookies())
+              .then(() =>
+                session.setCookie({
+                  name: 'foo',
+                  value: 'foo'
+                })
+              )
+              .then(() => session.deleteCookie('foo'))
+              .then(() => session.getCookies())
+              .then(cookies => cookies.length > 0)
+              .catch(() => true)
+              .then(isBroken =>
+                session.clearCookies().then(() => isBroken, () => isBroken)
+              );
+        } else {
+          // At least MS Edge < 18 doesn't support cookie deletion
+          testedCapabilities.brokenDeleteCookie = () =>
+            session
+              .get('about:blank')
+              .then(() => session.clearCookies())
+              .then(works, broken);
+        }
       }
 
       // At least Selendroid 0.9.0 incorrectly returns HTML tag names in

@@ -846,97 +846,131 @@ registerSuite('Session', () => {
           });
       },
 
-      'cookies (#getCookies, #setCookie, #clearCookies, #deleteCookie)'(
-        this: Test
-      ) {
-        if (session.capabilities.brokenCookies) {
-          this.skip('cookies are broken');
-        }
+      cookie: {
+        '#getCookies, #setCookie'() {
+          if (session.capabilities.brokenCookies) {
+            this.skip('cookies are broken');
+          }
 
-        return session
-          .get('tests/functional/data/default.html')
-          .then(function() {
-            return session.setCookie({ name: 'foo', value: '1=3' });
-          })
-          .then(function() {
-            return session.clearCookies();
-          })
-          .then(function() {
-            return session.getCookies();
-          })
-          .then(function(cookies: WebDriverCookie[]) {
-            assert.lengthOf(
-              cookies,
-              0,
-              'Clearing cookies should cause no cookies to exist'
-            );
-            return session.setCookie({ name: 'foo', value: '1=3' });
-          })
-          .then(function() {
-            return session.setCookie({ name: 'bar', value: '2=4' });
-          })
-          .then(function() {
-            return session.setCookie({ name: 'baz', value: '3=5' });
-          })
-          .then(function() {
-            return session.getCookies();
-          })
-          .then(function(cookies: WebDriverCookie[]) {
-            assert.lengthOf(
-              cookies,
-              3,
-              'Setting cookies with unique names should create new cookies'
-            );
+          return session
+            .get('tests/functional/data/default.html')
+            .then(function() {
+              return session.setCookie({ name: 'foo', value: '1=3' });
+            })
+            .then(function() {
+              return session.getCookies();
+            })
+            .then(function(cookies: WebDriverCookie[]) {
+              assert.lengthOf(
+                cookies,
+                1,
+                'Clearing cookies should cause no cookies to exist'
+              );
+              return session.setCookie({ name: 'foo', value: '1=3' });
+            })
+            .then(function() {
+              return session.setCookie({ name: 'bar', value: '2=4' });
+            })
+            .then(function() {
+              return session.setCookie({ name: 'baz', value: '3=5' });
+            })
+            .then(function() {
+              return session.getCookies();
+            })
+            .then(function(cookies: WebDriverCookie[]) {
+              assert.lengthOf(
+                cookies,
+                3,
+                'Setting cookies with unique names should create new cookies'
+              );
 
-            return session.setCookie({ name: 'baz', value: '4=6' });
-          })
-          .then(function() {
-            return session.getCookies();
-          })
-          .then(function(cookies: WebDriverCookie[]) {
-            assert.lengthOf(
-              cookies,
-              3,
-              'Overwriting cookies should not cause new cookies to be created'
-            );
-            return session.deleteCookie('bar');
-          })
-          .then(function() {
-            return session.getCookies();
-          })
-          .then(function(cookies: WebDriverCookie[]) {
-            assert.lengthOf(
-              cookies,
-              2,
-              'Deleting a cookie should reduce the number of cookies'
-            );
-
-            // Different browsers return cookies in different orders;
-            // some return the last modified cookie first, others
-            // return the first created cookie first
-            const fooCookie =
-              cookies[0].name === 'foo' ? cookies[0] : cookies[1];
-            const bazCookie =
-              cookies[0].name === 'baz' ? cookies[0] : cookies[1];
-
-            assert.strictEqual(bazCookie.name, 'baz');
-            assert.strictEqual(bazCookie.value, '4=6');
-            assert.strictEqual(fooCookie.name, 'foo');
-            assert.strictEqual(fooCookie.value, '1=3');
-            return session.clearCookies();
-          })
-          .then(function() {
-            return session.getCookies();
-          })
-          .then(function(cookies: WebDriverCookie[]) {
-            assert.lengthOf(cookies, 0);
-            return session.clearCookies();
-          })
-          .catch(function(error: Error) {
-            return session.clearCookies().then(function() {
-              throw error;
+              return session.setCookie({ name: 'baz', value: '4=6' });
+            })
+            .then(function() {
+              return session.getCookies();
+            })
+            .then(function(cookies: WebDriverCookie[]) {
+              assert.lengthOf(
+                cookies,
+                3,
+                'Overwriting cookies should not cause new cookies to be created'
+              );
+            })
+            .catch(function(error: Error) {
+              if (!session.capabilities.brokenDeleteCookie) {
+                return session.clearCookies().then(function() {
+                  throw error;
+                });
+              }
             });
-          });
+        },
+
+        '#clearCookies, #deleteCookie'() {
+          if (session.capabilities.brokenCookies) {
+            this.skip('cookies are broken');
+          }
+
+          if (session.capabilities.brokenDeleteCookie) {
+            this.skip('cookie deletion is broken');
+          }
+
+          return session
+            .get('tests/functional/data/default.html')
+            .then(function() {
+              return session.setCookie({ name: 'foo', value: '1=3' });
+            })
+            .then(function() {
+              return session.setCookie({ name: 'bar', value: '2=4' });
+            })
+            .then(function() {
+              return session.setCookie({ name: 'baz', value: '3=5' });
+            })
+            .then(function() {
+              return session.getCookies();
+            })
+            .then(function(cookies: WebDriverCookie[]) {
+              assert.lengthOf(
+                cookies,
+                3,
+                'Overwriting cookies should not cause new cookies to be created'
+              );
+              return session.deleteCookie('bar');
+            })
+            .then(function() {
+              return session.getCookies();
+            })
+            .then(function(cookies: WebDriverCookie[]) {
+              assert.lengthOf(
+                cookies,
+                2,
+                'Deleting a cookie should reduce the number of cookies'
+              );
+
+              // Different browsers return cookies in different orders;
+              // some return the last modified cookie first, others
+              // return the first created cookie first
+              const fooCookie =
+                cookies[0].name === 'foo' ? cookies[0] : cookies[1];
+              const bazCookie =
+                cookies[0].name === 'baz' ? cookies[0] : cookies[1];
+
+              assert.strictEqual(bazCookie.name, 'baz');
+              assert.strictEqual(fooCookie.name, 'foo');
+              return session.clearCookies();
+            })
+            .then(function() {
+              return session.getCookies();
+            })
+            .then(function(cookies: WebDriverCookie[]) {
+              assert.lengthOf(cookies, 0);
+              return session.clearCookies();
+            })
+            .catch(function(error: Error) {
+              return session.clearCookies().then(function() {
+                throw error;
+              });
+            });
+        }
       },
 
       '#getPageSource'() {
