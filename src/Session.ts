@@ -107,63 +107,68 @@ export default class Session extends Locator<
     }
 
     let cancelled = false;
-    return new Task<T>(resolve => {
-      // The promise is cleared from `_nextRequest` once it has been
-      // resolved in order to avoid infinitely long chains of promises
-      // retaining values that are not used any more
-      let thisRequest: CancellablePromise<any> | undefined;
-      const clearNextRequest = () => {
-        if (this._nextRequest === thisRequest) {
-          this._nextRequest = undefined;
+    return new Task<T>(
+      resolve => {
+        // The promise is cleared from `_nextRequest` once it has been
+        // resolved in order to avoid infinitely long chains of promises
+        // retaining values that are not used any more
+        let thisRequest: CancellablePromise<any> | undefined;
+        const clearNextRequest = () => {
+          if (this._nextRequest === thisRequest) {
+            this._nextRequest = undefined;
+          }
+        };
+
+        const runRequest = () => {
+          // `runRequest` is normally called once the previous request is
+          // finished. If this request is cancelled before the previous
+          // request is finished, then it should simply never run. (This
+          // Task will have been rejected already by the cancellation.)
+          if (cancelled) {
+            clearNextRequest();
+            return;
+          }
+
+          const response = this._server[method]<WebDriverResponse>(
+            path,
+            requestData,
+            pathParts
+          ).then(response => response.value);
+
+          // safePromise is simply a promise based on the response that
+          // is guaranteed to resolve -- it is only used for promise
+          // chain management
+          const safePromise = response.catch(_error => {});
+          safePromise.then(clearNextRequest);
+
+          // The value of the response always needs to be taken directly
+          // from the server call rather than from the chained
+          // `_nextRequest` promise, since if an undefined value is
+          // returned by the server call and that value is returned
+          // through `finally(runRequest)`, the *previous* Task’s
+          // resolved value will be used as the resolved value, which is
+          // wrong
+          resolve(response);
+
+          return safePromise;
+        };
+
+        // At least ChromeDriver 2.19 will just hard close connections if
+        // parallel requests are made to the server, so any request sent to
+        // the server for a given session must be serialised. Other servers
+        // like Selendroid have been known to have issues with parallel
+        // requests as well, so serialisation is applied universally, even
+        // though it has negative performance implications
+        if (this._nextRequest) {
+          thisRequest = this._nextRequest = this._nextRequest.finally(
+            runRequest
+          );
+        } else {
+          thisRequest = this._nextRequest = runRequest();
         }
-      };
-
-      const runRequest = () => {
-        // `runRequest` is normally called once the previous request is
-        // finished. If this request is cancelled before the previous
-        // request is finished, then it should simply never run. (This
-        // Task will have been rejected already by the cancellation.)
-        if (cancelled) {
-          clearNextRequest();
-          return;
-        }
-
-        const response = this._server[method]<WebDriverResponse>(
-          path,
-          requestData,
-          pathParts
-        ).then(response => response.value);
-
-        // safePromise is simply a promise based on the response that
-        // is guaranteed to resolve -- it is only used for promise
-        // chain management
-        const safePromise = response.catch(_error => {});
-        safePromise.then(clearNextRequest);
-
-        // The value of the response always needs to be taken directly
-        // from the server call rather than from the chained
-        // `_nextRequest` promise, since if an undefined value is
-        // returned by the server call and that value is returned
-        // through `finally(runRequest)`, the *previous* Task’s
-        // resolved value will be used as the resolved value, which is
-        // wrong
-        resolve(response);
-
-        return safePromise;
-      };
-
-      // At least ChromeDriver 2.19 will just hard close connections if
-      // parallel requests are made to the server, so any request sent to
-      // the server for a given session must be serialised. Other servers
-      // like Selendroid have been known to have issues with parallel
-      // requests as well, so serialisation is applied universally, even
-      // though it has negative performance implications
-      if (this._nextRequest) {
-        thisRequest = this._nextRequest = this._nextRequest.finally(runRequest);
-      } else {
-        thisRequest = this._nextRequest = runRequest();
-      }
-    }, () => (cancelled = true));
+      },
+      () => (cancelled = true)
+    );
   }
 
   serverGet<T>(path: string, requestData?: any, pathParts?: string[]) {
@@ -187,8 +192,8 @@ export default class Session extends Locator<
    */
   getTimeout(type: Timeout): CancellablePromise<number> {
     if (this.capabilities.supportsGetTimeouts) {
-      return this.serverGet<WebDriverTimeouts>('timeouts').then(
-        timeouts => (type === 'page load' ? timeouts.pageLoad : timeouts[type])
+      return this.serverGet<WebDriverTimeouts>('timeouts').then(timeouts =>
+        type === 'page load' ? timeouts.pageLoad : timeouts[type]
       );
     } else {
       return this._timeouts[type];
@@ -2352,7 +2357,7 @@ function simulateKeys(keys: string[]) {
         dispatchInput();
       } else if (target.isContentEditable) {
         let node = document.createTextNode(key);
-        let selection = window.getSelection();
+        let selection = window.getSelection()!;
         let range = selection.getRangeAt(0);
         range.deleteContents();
         range.insertNode(node);

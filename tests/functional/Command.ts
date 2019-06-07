@@ -4,13 +4,14 @@ import Command, { Context } from '../../src/Command';
 import Session from '../../src/Session';
 import { Task } from '@theintern/common';
 import Test from 'intern/lib/Test';
+import { ObjectSuiteDescriptor } from 'intern/lib/interfaces/object';
 
 registerSuite('Command', () => {
   let session: Session;
 
   return {
     before() {
-      const remote = <any>this.remote;
+      const remote = this.remote;
       return util.createSessionFromRemote(remote).then(function() {
         session = arguments[0];
       });
@@ -38,7 +39,7 @@ registerSuite('Command', () => {
                 assert.strictEqual(error.message, 'broken');
                 assert.include(
                   error.stack!,
-                  path.join('tests', 'functional', 'Command.js') + ':24',
+                  path.join('tests', 'functional', 'Command.js') + ':25',
                   'Stack trace should point back to the error'
                 );
                 error.message += ' 2';
@@ -519,5 +520,5 @@ registerSuite('Command', () => {
         return command.useElement('arg1');
       }
     }
-  };
+  } as ObjectSuiteDescriptor;
 });

@@ -1,13 +1,14 @@
 import Command from '../../../src/Command';
 import pollUntilTruthy from '../../../src/helpers/pollUntilTruthy';
 import { createSessionFromRemote } from '../support/util';
+import { ObjectSuiteDescriptor } from 'intern/lib/interfaces/object';
 
 registerSuite('helpers/pollUntilTruthy', () => {
   let command: Command<any>;
 
   return {
     before() {
-      const remote = <any>this.remote;
+      const remote = this.remote;
       return createSessionFromRemote(remote).then(session => {
         command = new Command<void>(session);
       });
@@ -95,5 +96,5 @@ registerSuite('helpers/pollUntilTruthy', () => {
           });
       }
     }
-  };
+  } as ObjectSuiteDescriptor;
 });

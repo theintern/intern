@@ -1,13 +1,14 @@
 import Command from '../../../src/Command';
 import pollUntil from '../../../src/helpers/pollUntil';
 import { createSessionFromRemote } from '../support/util';
+import { ObjectSuiteDescriptor } from 'intern/lib/interfaces/object';
 
 registerSuite('leadfoot/helpers/pollUntil', () => {
   let command: Command<any>;
 
   return {
     before() {
-      const remote = <any>this.remote;
+      const remote = this.remote;
       return createSessionFromRemote(remote).then(session => {
         command = new Command<void>(session);
       });
@@ -108,5 +109,5 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
           });
       }
     }
-  };
+  } as ObjectSuiteDescriptor;
 });

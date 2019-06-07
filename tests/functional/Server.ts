@@ -5,6 +5,7 @@ import Session from '../../src/Session';
 import * as urlUtil from 'url';
 import { Capabilities } from '../../src/interfaces';
 import Test from 'intern/lib/Test';
+import { ObjectSuiteDescriptor } from 'intern/lib/interfaces/object';
 
 registerSuite('Server', () => {
   let server: Server;
@@ -265,5 +266,5 @@ registerSuite('Server', () => {
         }
       }
     }
-  };
+  } as ObjectSuiteDescriptor;
 });

@@ -1611,7 +1611,7 @@ export default class Server {
             .then(() => session.findById('foo'))
             .then(element => session.moveMouseTo(element, 20, 20))
             .then(() => sleep(100))
-            .then(() => session.execute('return window.counter;'))
+            .then(() => session.execute<number>('return window.counter;'))
             .then(counter => (counter > 0 ? works() : broken()), broken);
 
         // At least ChromeDriver 2.12 through 2.19 will throw an error

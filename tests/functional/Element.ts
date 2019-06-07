@@ -5,6 +5,7 @@ import Session from '../../src/Session';
 import { isSafari, isFirefox } from '../../src/Server';
 import { Task } from '@theintern/common';
 import Test, { TestFunction } from 'intern/lib/Test';
+import { ObjectSuiteDescriptor } from 'intern/lib/interfaces/object';
 
 const strategyNames = Object.keys(strategies);
 
@@ -76,7 +77,7 @@ registerSuite('Element', () => {
 
   return {
     before() {
-      const remote = <any>this.remote;
+      const remote = this.remote;
       return util.createSessionFromRemote(remote).then(function() {
         session = arguments[0];
       });
@@ -1262,5 +1263,5 @@ registerSuite('Element', () => {
           });
       }
     }
-  };
+  } as ObjectSuiteDescriptor;
 });

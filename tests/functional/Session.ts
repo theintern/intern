@@ -5,6 +5,7 @@ import { WebDriverCookie, Geolocation } from '../../src/interfaces';
 import Session from '../../src/Session';
 import { Task } from '@theintern/common';
 import Test, { TestFunction } from 'intern/lib/Test';
+import Suite from 'intern/lib/Suite';
 
 declare let interns: any;
 
@@ -195,9 +196,8 @@ registerSuite('Session', () => {
   }
 
   return {
-    before() {
-      const remote = <any>this.remote;
-      return util.createSessionFromRemote(remote).then(function() {
+    before(suite: Suite) {
+      return util.createSessionFromRemote(suite.remote).then(function() {
         session = arguments[0];
       });
     },

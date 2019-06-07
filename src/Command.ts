@@ -570,7 +570,7 @@ export default class Command<T, P = any>
       value: U,
       setContext: SetContextMethod
     ) {
-      const returnValue = callback.call(command, value, setContext);
+      const returnValue = (callback as any).call(command, value, setContext);
 
       // If someone returns `this` (or a chain starting from `this`) from
       // the callback, it will cause a deadlock where the child command
@@ -710,9 +710,11 @@ export default class Command<T, P = any>
       if (parentContext.isSingle) {
         task = fn.apply(parentContext[0], args);
       } else {
-        task = Task.all(
-          parentContext.map(element => (<Function>element[method])(...args))
-        ).then(values => Array.prototype.concat.apply([], values));
+        task = (Task.all(
+          parentContext.map(element => element[method](...args))
+        ).then(values =>
+          Array.prototype.concat.apply([], values)
+        ) as unknown) as CancellablePromise<U>;
       }
 
       if (fn && fn.createsContext) {
@@ -756,9 +758,11 @@ export default class Command<T, P = any>
         if (parentContext.isSingle) {
           task = sessionMethod(...[parentContext[0], ...args]);
         } else {
-          task = Task.all(
+          task = (Task.all(
             parentContext.map(element => sessionMethod(...[element, ...args]))
-          ).then(values => Array.prototype.concat.apply([], values));
+          ).then(values =>
+            Array.prototype.concat.apply([], values)
+          ) as unknown) as CancellablePromise<U>;
         }
       } else {
         task = sessionMethod(...args);
