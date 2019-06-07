@@ -935,7 +935,12 @@ export default class Server {
         testedCapabilities.usesHandleParameter = () =>
           session
             .switchToWindow('current')
-            .then(unsupported, error => /Missing .*handle/.test(error.message));
+            .then(
+              unsupported,
+              error =>
+                error.name === 'InvalidArgument' ||
+                /missing .*handle/i.test(error.message)
+            );
       }
 
       // Sauce Labs will not return a list of sessions at least as of May
