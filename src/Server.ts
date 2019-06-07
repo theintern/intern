@@ -434,6 +434,16 @@ export default class Server {
         responseData
       );
 
+      // Add any desired capabilities that were originally specified but aren't
+      // present in the capabilities returned by the server. This will allow
+      // for feature flags to be manually set.
+      const userKeys = Object.keys(desiredCapabilities).filter(
+        key => !(key in session.capabilities)
+      );
+      for (const key of userKeys) {
+        session.capabilities[key] = desiredCapabilities[key];
+      }
+
       if (fixSessionCapabilities) {
         return this._fillCapabilities(
           <S>session,

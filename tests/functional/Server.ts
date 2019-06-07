@@ -200,7 +200,7 @@ registerSuite('Server', () => {
         let mockCapabilities = {
           isMockCapabilities: true
         };
-        let desiredCapabilities: Capabilities = {};
+        let desiredCapabilities: Capabilities = { fooCapability: true };
         let requiredCapabilities: Capabilities = {};
 
         return {
@@ -238,7 +238,10 @@ registerSuite('Server', () => {
                   assert.instanceOf(session, CustomSession);
                   assert.strictEqual(session.sessionId, 'test');
                   assert.strictEqual(session.server, server);
-                  assert.isTrue((<any>session.capabilities).isMockCapabilities);
+                  assert.deepEqual(session.capabilities, {
+                    ...mockCapabilities,
+                    ...desiredCapabilities
+                  });
                 });
             }
           }
