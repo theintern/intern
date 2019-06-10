@@ -8,7 +8,7 @@ import {
   request,
   Response
 } from '@theintern/common';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { join } from 'path';
 import { format as formatUrl, Url } from 'url';
 import { fileExists, kill, on } from './lib/util';
@@ -124,7 +124,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   protected _startTask: CancellablePromise<any> | undefined;
   protected _stopTask: Promise<number | void> | undefined;
   protected _handle: Handle | undefined;
-  protected _process: ChildProcess | undefined;
+  protected _process: ChildProcessWithoutNullStreams | undefined;
   protected _state!: 'stopped' | 'starting' | 'running' | 'stopping';
 
   constructor(options?: TunnelOptions) {
@@ -627,7 +627,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
       }
 
       childProcess.once('exit', code => {
-        resolve(code);
+        resolve(code == null ? undefined : code);
       });
 
       try {
@@ -690,7 +690,7 @@ export interface DownloadProgressEvent extends TunnelEventObject<Tunnel> {
  */
 export interface ChildExecutor {
   (
-    child: ChildProcess,
+    child: ChildProcessWithoutNullStreams,
     resolve: () => void,
     reject: (reason?: any) => void
   ): Handle | void;

@@ -201,7 +201,7 @@ export default class BrowserStackTunnel extends Tunnel
 
   protected _start(executor: ChildExecutor) {
     return this._makeChild((child, resolve, reject) => {
-      let handle = on(child.stdout, 'data', (data: any) => {
+      let handle = on(child.stdout!, 'data', (data: any) => {
         data = String(data);
         const error = /\s*\*\*\* Error: (.*)$/m.exec(data);
         if (error) {
@@ -246,7 +246,7 @@ export default class BrowserStackTunnel extends Tunnel
 
       childProcess.once('exit', function(code) {
         exited = true;
-        resolve(code);
+        resolve(code == null ? undefined : code);
       });
       kill(childProcess.pid);
 
