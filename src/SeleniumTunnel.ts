@@ -284,7 +284,7 @@ export default class SeleniumTunnel extends Tunnel
   protected _start(executor: ChildExecutor) {
     let handle: Handle;
     const task = this._makeChild((child, resolve, reject) => {
-      handle = on(child.stderr, 'data', (data: string) => {
+      handle = on(child.stderr!, 'data', (data: string) => {
         // Selenium recommends that we poll the hub looking for a status
         // response
         // https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/7957
@@ -311,7 +311,7 @@ export default class SeleniumTunnel extends Tunnel
       });
 
       if (this.verbose) {
-        on(child.stderr, 'data', (data: string) => {
+        on(child.stderr!, 'data', (data: string) => {
           process.stderr.write(data);
         });
       }

@@ -455,7 +455,7 @@ export default class SauceLabsTunnel extends Tunnel
       // Sauce Connect exits with a zero status code when there is a
       // failure, and outputs error messages to stdout, like a boss. Even
       // better, it uses the "Error:" tag for warnings.
-      this._handle = on(child.stdout, 'data', function(data: string) {
+      this._handle = on(child.stdout!, 'data', function(data: string) {
         if (!readMessage) {
           return;
         }

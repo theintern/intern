@@ -8,7 +8,7 @@ import {
   request,
   Response
 } from '@theintern/common';
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
 import { format as formatUrl, Url } from 'url';
 import { fileExists, kill, on } from './lib/util';
@@ -124,7 +124,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   protected _startTask: CancellablePromise<any> | undefined;
   protected _stopTask: Promise<number | void> | undefined;
   protected _handle: Handle | undefined;
-  protected _process: ChildProcessWithoutNullStreams | undefined;
+  protected _process: ChildProcess | undefined;
   protected _state!: 'stopped' | 'starting' | 'running' | 'stopping';
 
   constructor(options?: TunnelOptions) {
@@ -288,8 +288,8 @@ export default class Tunnel extends Evented<TunnelEvents, string>
         this._process = child;
         this._handle = createCompositeHandle(
           this._handle || { destroy: function() {} },
-          on(child.stdout, 'data', proxyIOEvent(this, 'stdout')),
-          on(child.stderr, 'data', proxyIOEvent(this, 'stderr')),
+          on(child.stdout!, 'data', proxyIOEvent(this, 'stdout')),
+          on(child.stderr!, 'data', proxyIOEvent(this, 'stderr')),
           on(child, 'exit', () => {
             this._state = 'stopped';
           })
@@ -592,8 +592,8 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   protected _start(executor: ChildExecutor) {
     return this._makeChild((child, resolve, reject) => {
       const handle = createCompositeHandle(
-        on(child.stdout, 'data', resolve),
-        on(child.stderr, 'data', resolve),
+        on(child.stdout!, 'data', resolve),
+        on(child.stderr!, 'data', resolve),
         on(child, 'error', (error: Error) => {
           reject(error);
         })
@@ -690,7 +690,7 @@ export interface DownloadProgressEvent extends TunnelEventObject<Tunnel> {
  */
 export interface ChildExecutor {
   (
-    child: ChildProcessWithoutNullStreams,
+    child: ChildProcess,
     resolve: () => void,
     reject: (reason?: any) => void
   ): Handle | void;

@@ -194,7 +194,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
       // The cbt tunnel outputs its startup error messages on stdout.
       // Capture any data on stdout and display it if the process exits
       // early.
-      const readHandle = on(child.stdout, 'data', (data: any) => {
+      const readHandle = on(child.stdout!, 'data', (data: any) => {
         stdout!.push(String(data));
       });
       const exitHandle = on(child, 'exit', function() {

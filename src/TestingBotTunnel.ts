@@ -196,7 +196,7 @@ export default class TestingBotTunnel extends Tunnel
       });
 
       let lastMessage: string;
-      this._handle = on(child.stderr, 'data', (data: string) => {
+      this._handle = on(child.stderr!, 'data', (data: string) => {
         data = String(data);
         data.split('\n').forEach(message => {
           if (message.indexOf('INFO: ') === 0) {
