@@ -594,7 +594,7 @@ export default class Server {
           });
         }
 
-        if (isValidVersion(capabilities, 12)) {
+        if (isValidVersion(capabilities, 12, 13)) {
           Object.assign(updates, {
             // At least Safari 12 uses W3C webdriver standard, including
             // /attribute/:attr
