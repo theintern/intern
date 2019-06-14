@@ -1,4 +1,6 @@
 {
+  "$schema": "./src/config/schema.json",
+
   "description": "Run tests on Node, excluding the benchmark tests",
 
   "coverage": ["_build/src/**/*.js", "!_build/src/browser/**/*.js"],

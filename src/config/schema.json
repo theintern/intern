@@ -1,0 +1,501 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://theintern.io/schemas/v4/schema.json",
+  "title": "Intern",
+  "description": "Intern v4 config schema",
+  "type": "object",
+
+  "allOf": [
+    { "$ref": "#/definitions/config" },
+    {
+      "type": "object",
+      "properties": {
+        "configs": {
+          "type": "object",
+          "patternProperties": {
+            ".*": { "$ref": "#/definitions/config" }
+          }
+        }
+      }
+    }
+  ],
+
+  "definitions": {
+    "browserStackOptions": {
+      "type": "object",
+      "properties": {
+        "automateOnly": { "const": true },
+        "environmentUrl": { "type": "string" },
+        "forceLocal": { "type": "boolean" },
+        "killOtherTunnels": { "type": "boolean" },
+        "servers": { "type": "array", "items": { "type": "string" } },
+        "skipServerValidation": { "type": "boolean" }
+      }
+    },
+
+    "browserVersion": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/definitions/positiveNumber" }
+            ]
+          }
+        },
+        { "type": "string" },
+        { "$ref": "#/definitions/positiveNumber" }
+      ]
+    },
+
+    "config": {
+      "type": "object",
+      "properties": {
+        "bail": {
+          "description":
+            "If set to true, Intern will stop running tests after the first failure",
+          "type": "boolean"
+        },
+
+        "baseline": {
+          "description": "If true, benchmark tests will run in baseline mode",
+          "type": "boolean"
+        },
+
+        "basePath": {
+          "description": "The path to the project base",
+          "type": "string"
+        },
+
+        "benchmark": {
+          "description":
+            "Benchmark tests will only run when this property is true",
+          "type": "boolean"
+        },
+
+        "benchmarkConfig": {
+          "description": "Config for benchmark tests",
+          "type": "object",
+          "properties": {
+            "filename": { "type": "string" },
+            "id": { "type": "string" },
+            "mode": { "type": "string", "enum": ["baseline", "test"] },
+            "thresholds": {
+              "type": "object",
+              "properties": {
+                "warn": {
+                  "type": "object",
+                  "properties": {
+                    "rme": { "type": "number" },
+                    "hz": { "type": "number" },
+                    "mean": { "type": "number" }
+                  }
+                },
+                "fail": {
+                  "type": "object",
+                  "properties": {
+                    "rme": { "type": "number" },
+                    "hz": { "type": "number" },
+                    "mean": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "required": ["id"]
+        },
+
+        "browser": { "$ref": "#/definitions/resourceConfig" },
+
+        "capabilities": {
+          "description":
+            "WebDriver capabilities that will be applied to all environments",
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "build": { "type": "string" }
+          }
+        },
+
+        "connectTimeout": {
+          "description":
+            "Time, in milliseconds, to wait for contact from a remote server",
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "coverage": {
+          "description":
+            "An array of file paths or globs that should be instrumented for code coverage, or false to completely disable coverage",
+          "oneOf": [
+            { "const": false },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+
+        "coverageVariable": {
+          "description":
+            "The global variable that will be used to store coverage data",
+          "type": "string"
+        },
+
+        "debug": {
+          "description": "If true, intern will emit internal log events",
+          "type": "boolean"
+        },
+
+        "defaultTimeout": {
+          "description":
+            "The number of milliseconds that Intern will wait for an asynchronous test to complete before timing out",
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "description": {
+          "description": "A description for this test run",
+          "type": "string"
+        },
+
+        "environments": {
+          "description": "The environments to run tests in",
+          "oneOf": [
+            { "type": "string", "description": "A browser name or 'node'" },
+            {
+              "$ref": "#/definitions/environmentSpec",
+              "description": "An environment specifier"
+            },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "description": "A browser name or 'node'"
+                  },
+                  { "$ref": "#/definitions/environmentSpec" }
+                ]
+              },
+              "description": "An array of browser names"
+            }
+          ]
+        },
+
+        "filterErrorStack": {
+          "type": "boolean",
+          "description":
+            "If true, filter external library calls and runtime calls out of error stacks"
+        },
+
+        "functionalBaseUrl": {
+          "description":
+            "The base URL to use for relative addresses in functional tests",
+          "type": "string"
+        },
+
+        "functionalCoverage": {
+          "description": "If true, collect coverage data from functional tests",
+          "type": "boolean"
+        },
+
+        "functionalSuites": { "$ref": "#/definitions/suitesProperty" },
+
+        "functionalTimeouts": {
+          "description": "Default timeout values for functional tests",
+          "type": "object",
+          "properties": {
+            "find": { "type": "integer", "minimum": 0 },
+            "executeAsync": { "type": "integer", "minimum": 0 },
+            "pageLoad": { "type": "integer", "minimum": 0 }
+          }
+        },
+
+        "grep": {
+          "type": "string",
+          "description":
+            "A regular expression that is used to filter which tests are run based on test IDs"
+        },
+
+        "heartbeatInterval": {
+          "description":
+            "How often to send a heartbeat to a remote browser, in seconds",
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "instrumenterOptions": {
+          "description":
+            "An object containing optios for the Istanbul instrumenter",
+          "type": "object"
+        },
+
+        "internPath": {
+          "type": "string",
+          "description": "The path to Intern"
+        },
+
+        "leaveRemoteOpen": {
+          "description":
+            "Leave the remote browser open after testing is finished",
+          "oneOf": [{ "type": "boolean" }, { "const": "fail" }]
+        },
+
+        "loader": { "$ref": "#/definitions/loaderProperty" },
+
+        "maxConcurrency": {
+          "description":
+            "The number of concurrent remote test sessions to run at once",
+          "type": "integer",
+          "minimum": 1
+        },
+
+        "name": {
+          "description": "A top-level name for this configuration",
+          "type": "string"
+        },
+
+        "node": { "$ref": "#/definitions/resourceConfig" },
+
+        "plugins": { "$ref": "#/definitions/pluginsProperty" },
+
+        "proxy": {
+          "description":
+            "A proxy that should be used for outgoing web connections",
+          "type": "string"
+        },
+
+        "reporters": { "$ref": "#/definitions/reportersProperty" },
+
+        "runInSync": {
+          "description":
+            "If true, a remote will wait for responses from Intern for any executor events",
+          "type": "boolean"
+        },
+
+        "serveOnly": {
+          "description":
+            "If true, start Intern's static test server but do not run any tests",
+          "type": "boolean"
+        },
+
+        "serverPort": {
+          "description":
+            "The port Intern's static server will listen on during testing",
+          "type": "integer",
+          "minimum": 1025
+        },
+
+        "serverUrl": {
+          "description":
+            "The URL a remote should use to access Intern's static server",
+          "type": "string"
+        },
+
+        "sessionId": {
+          "description": "An identifier for this test session",
+          "type": "string"
+        },
+
+        "showConfig": {
+          "description": "If true, display the resolved config and exit",
+          "type": "boolean"
+        },
+
+        "socketPort": {
+          "description":
+            "The port Intern's websocket server will listen on during testing",
+          "type": "integer",
+          "minimum": 1025
+        },
+
+        "suites": { "$ref": "#/definitions/suitesProperty" },
+
+        "tunnel": {
+          "description":
+            "The Dig Dug tunnel class to use for WebDriver testing",
+          "type": "string",
+          "enum": [
+            "null",
+            "selenium",
+            "browserstack",
+            "cbt",
+            "saucelabs",
+            "testingbot"
+          ]
+        },
+
+        "tunnelOptions": {
+          "description": "Options for the current selected tunnel",
+          "anyOf": [
+            { "$ref": "#/definitions/tunnelOptions" },
+            { "$ref": "#/definitions/browserStackOptions" },
+            { "$ref": "#/definitions/seleniumOptions" }
+          ]
+        },
+
+        "warnOnUncaughtException": {
+          "description":
+            "If true or set to a RegExp that matches the reason for an uncaught exception, Intern will treat the exception as a warning",
+          "oneOf": [{ "type": "boolean" }, { "type": "string" }]
+        },
+
+        "warnOnUnhandledRejection": {
+          "description":
+            "If true or set to a RegExp that matches the reason for an unhandled rejection, Intern will treat the rejection as a warning",
+          "oneOf": [{ "type": "boolean" }, { "type": "string" }]
+        }
+      }
+    },
+
+    "environmentSpec": {
+      "type": "object",
+      "properties": {
+        "browser": { "type": "string" },
+        "browserName": { "type": "string" },
+        "browserVersion": { "$ref": "#/definitions/browserVersion" },
+        "version": { "$ref": "#/definitions/browserVersion" },
+        "fixSessionCapabilities": {
+          "oneOf": [{ "const": "no-detect" }, { "type": "boolean" }]
+        }
+      }
+    },
+
+    "loaderProperty": {
+      "description":
+        "The loader used to load test suites and application modules",
+      "oneOf": [
+        { "type": "string", "description": "The name of a built-in loader" },
+        {
+          "type": "object",
+          "properties": {
+            "script": {
+              "type": "string"
+            },
+            "options": {
+              "type": "object"
+            }
+          },
+          "required": ["script"],
+          "description": "A loader specifier"
+        }
+      ]
+    },
+
+    "pluginSpec": {
+      "type": "object",
+      "properties": {
+        "script": { "type": "string" },
+        "useLoader": { "type": "boolean" },
+        "options": { "type": "object" }
+      },
+      "required": ["script"]
+    },
+
+    "pluginsProperty": {
+      "description": "Scripts or modules to load before suites are loaded",
+      "oneOf": [
+        { "type": "string", "description": "An import path for a script" },
+        { "$ref": "#/definitions/pluginSpec" },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/definitions/pluginSpec" }
+            ]
+          }
+        }
+      ]
+    },
+
+    "positiveNumber": {
+      "type": "number",
+      "minimum": 0
+    },
+
+    "reportersProperty": {
+      "description": "A list of reporter names or descriptors",
+      "oneOf": [
+        {
+          "description": "The name of a built-in reporter",
+          "type": "string",
+          "enum": [
+            "benchmark",
+            "cobertura",
+            "console",
+            "dom",
+            "html",
+            "htmlcoverage",
+            "jsoncoverage",
+            "jsunit",
+            "lcov",
+            "pretty",
+            "runner",
+            "simple",
+            "teamcity"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "options": {
+              "type": "object"
+            }
+          }
+        }
+      ]
+    },
+
+    "resourceConfig": {
+      "loader": { "$ref": "#/definitions/loaderProperty" },
+      "plugins": { "$ref": "#/definitions/pluginsProperty" },
+      "reporters": { "$ref": "#/definitions/reportersProperty" },
+      "suites": { "$ref": "#/definitions/suitesProperty" }
+    },
+
+    "seleniumOptions": {
+      "type": "object",
+      "properties": {
+        "baseUrl": { "type": "string" },
+        "drivers": {},
+        "seleniumArgs": { "type": "array", "items": { "type": "string" } },
+        "seleniumTimeout": { "type": "integer", "minimum": 0 },
+        "version": { "type": "string" }
+      }
+    },
+
+    "suitesProperty": {
+      "description":
+        "A list of paths or glob expressions that point to suite scripts",
+      "oneOf": [
+        { "description": "A suite path or glob", "type": "string" },
+        {
+          "description": "An array of suite paths or globs",
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      ]
+    },
+
+    "tunnelOptions": {
+      "type": "object",
+      "properties": {
+        "architecture": { "type": "string" },
+        "auth": { "type": "string" },
+        "accessKey": { "type": "string" },
+        "executable": { "type": "string" },
+        "hostname": { "type": "string" },
+        "pathname": { "type": "string" },
+        "platform": { "type": "string" },
+        "port": { "type": "string" },
+        "protocol": { "type": "string" },
+        "tunnelId": { "type": "string" },
+        "username": { "type": "string" },
+        "verbose": { "type": "boolean" }
+      }
+    }
+  }
+}
