@@ -17,6 +17,7 @@
     "browser/remote.js",
     "lib",
     "loaders",
+    "schemas",
     "tasks",
     "tests",
     "types"
@@ -153,7 +154,8 @@
       ],
       "_build/src": [
         "types/**",
-        "bin/**"
+        "bin/**",
+        "schemas/**"
       ],
       "_tests": [
         "tests/**/*.{xml,d.ts,js}",

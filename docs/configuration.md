@@ -45,6 +45,18 @@ However, Intern will accept a simple string for the `environments` property and
 will expand it into an array of a single object where the `browserName` property
 is the given string.
 
+## Schema
+
+Intern includes a [JSON schema](https://json-schema.org/understanding-json-schema/index.html) for its config format. This schema describes all the properties that might be included in an `intern.json` config file, and includes help text for each property.
+
+To use the schema with an editor such as VS Code, add a `$schema` property to your `intern.json` file that points to the schema, like:
+
+```json
+{
+  "$schema": "./node_modules/intern/schemas/config.json"
+}
+```
+
 ## Environment-specific config
 
 Tests can run in two basic environments: Node and browsers. By default,

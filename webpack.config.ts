@@ -24,7 +24,8 @@ const common: Configuration = {
         use: {
           loader: 'ts-loader',
           options: {
-            silent: true
+            silent: true,
+            configFile: 'src/browser/tsconfig.json'
           }
         }
       }
