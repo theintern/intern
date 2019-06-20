@@ -184,7 +184,7 @@
 								"types": [
 									{
 										"type": "reference",
-										"name": "ChildProcessWithoutNullStreams"
+										"name": "ChildProcess"
 									},
 									{
 										"type": "intrinsic",
@@ -2057,8 +2057,8 @@
 										"name": "Promise",
 										"typeArguments": [
 											{
-												"type": "reference",
-												"name": "__type"
+												"type": "intrinsic",
+												"name": "boolean"
 											}
 										]
 									},
@@ -3791,7 +3791,7 @@
 								"types": [
 									{
 										"type": "reference",
-										"name": "ChildProcessWithoutNullStreams"
+										"name": "ChildProcess"
 									},
 									{
 										"type": "intrinsic",
@@ -5602,8 +5602,8 @@
 										"name": "Promise",
 										"typeArguments": [
 											{
-												"type": "reference",
-												"name": "__type"
+												"type": "intrinsic",
+												"name": "boolean"
 											}
 										]
 									},
@@ -7228,7 +7228,7 @@
 								"types": [
 									{
 										"type": "reference",
-										"name": "ChildProcessWithoutNullStreams"
+										"name": "ChildProcess"
 									},
 									{
 										"type": "intrinsic",
@@ -8955,8 +8955,8 @@
 										"name": "Promise",
 										"typeArguments": [
 											{
-												"type": "reference",
-												"name": "__type"
+												"type": "intrinsic",
+												"name": "boolean"
 											}
 										]
 									},
@@ -9851,7 +9851,7 @@
 								"types": [
 									{
 										"type": "reference",
-										"name": "ChildProcessWithoutNullStreams"
+										"name": "ChildProcess"
 									},
 									{
 										"type": "intrinsic",
@@ -12172,8 +12172,8 @@
 										"name": "Promise",
 										"typeArguments": [
 											{
-												"type": "reference",
-												"name": "__type"
+												"type": "intrinsic",
+												"name": "boolean"
 											}
 										]
 									},
@@ -16214,7 +16214,7 @@
 								"types": [
 									{
 										"type": "reference",
-										"name": "ChildProcessWithoutNullStreams"
+										"name": "ChildProcess"
 									},
 									{
 										"type": "intrinsic",
@@ -18176,8 +18176,8 @@
 										"name": "Promise",
 										"typeArguments": [
 											{
-												"type": "reference",
-												"name": "__type"
+												"type": "intrinsic",
+												"name": "boolean"
 											}
 										]
 									},
@@ -21489,7 +21489,7 @@
 								"types": [
 									{
 										"type": "reference",
-										"name": "ChildProcessWithoutNullStreams"
+										"name": "ChildProcess"
 									},
 									{
 										"type": "intrinsic",
@@ -23381,8 +23381,8 @@
 										"name": "Promise",
 										"typeArguments": [
 											{
-												"type": "reference",
-												"name": "__type"
+												"type": "intrinsic",
+												"name": "boolean"
 											}
 										]
 									},
@@ -25111,7 +25111,7 @@
 								"types": [
 									{
 										"type": "reference",
-										"name": "ChildProcessWithoutNullStreams"
+										"name": "ChildProcess"
 									},
 									{
 										"type": "intrinsic",
@@ -26599,8 +26599,8 @@
 										"name": "Promise",
 										"typeArguments": [
 											{
-												"type": "reference",
-												"name": "__type"
+												"type": "intrinsic",
+												"name": "boolean"
 											}
 										]
 									},
@@ -27387,7 +27387,7 @@
 									"flags": {},
 									"type": {
 										"type": "reference",
-										"name": "ChildProcessWithoutNullStreams"
+										"name": "ChildProcess"
 									}
 								},
 								{
