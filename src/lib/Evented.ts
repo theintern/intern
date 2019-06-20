@@ -111,7 +111,7 @@ export default class Evented<
    * Returns a promise that resolves once all handles have been destroyed
    */
   destroy() {
-    return new Promise(resolve => {
+    return new Promise<boolean>(resolve => {
       this.handles.forEach(handle => {
         handle && handle.destroy && handle.destroy();
       });
