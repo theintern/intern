@@ -8,7 +8,7 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@theintern/common": "~0.2.2",
+    "@theintern/common": "~0.2.3",
     "jszip": "~3.2.1",
     "tslib": "~1.9.3"
   },

@@ -157,8 +157,20 @@ import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
  * from a callback or command initialiser will deadlock the Command, as it
  * waits for itself to settle before settling.
  */
-export default class Command<T, P = any>
-  extends Locator<Command<Element>, Command<Element[]>, Command<void>>
+export default class Command<
+  T,
+  P = any,
+  StringResult extends string | string[] = string
+>
+  // T is the type this Command resolves to
+  // P is the type its parent Command resolves to
+  // StringResult is the type that any string-returning operations will resolve
+  // to
+  extends Locator<
+    Command<Element, P, string>,
+    Command<Element[], P, string[]>,
+    Command<void, P, StringResult>
+  >
   implements PromiseLike<T> {
   /**
    * Augments `target` with a conversion of the `originalFn` method that
@@ -181,8 +193,8 @@ export default class Command<T, P = any>
    * @param {string} key
    * @param {Function} originalFn
    */
-  static addSessionMethod<U>(
-    target: Command<U>,
+  static addSessionMethod<Us, Ps, Ss extends string | string[]>(
+    target: Command<Us, Ps, Ss>,
     key: string,
     originalFn: Function
   ) {
@@ -195,58 +207,61 @@ export default class Command<T, P = any>
       !(<any>target)[key] &&
       typeof originalFn === 'function'
     ) {
+      // Regarding typing, <U, P, S> is the generic type of the Command that
+      // will be created. <P, any, S> is the type of *this* command, which will
+      // be the parent of the created Command.
       (<any>target)[key] = function(
-        this: Command<U>,
+        this: Command<Ps, any, Ss>,
         ...args: any[]
-      ): Command<U> {
-        return new (this.constructor as typeof Command)<U>(this, function(
+      ): Command<Us, Ps, Ss> {
+        return new (this.constructor as typeof Command)<Us, Ps, Ss>(
           this,
-          setContext: SetContextMethod
-        ) {
-          const parentContext = this._context;
-          const session = this._session;
-          let promise: CancellablePromise<any>;
-          // The function may have come from a session object
-          // prototype but have been overridden on the actual session
-          // instance; in such a case, the overridden function should
-          // be used instead of the one from the original source
-          // object. The original source object may still be used,
-          // however, if the function is being added like a mixin and
-          // does not exist on the actual session object for this
-          // session
-          const fn = (<any>session)[key] || originalFn;
+          function(this, setContext: SetContextMethod) {
+            const parentContext = this._context;
+            const session = this._session;
+            let promise: CancellablePromise<any>;
+            // The function may have come from a session object
+            // prototype but have been overridden on the actual session
+            // instance; in such a case, the overridden function should
+            // be used instead of the one from the original source
+            // object. The original source object may still be used,
+            // however, if the function is being added like a mixin and
+            // does not exist on the actual session object for this
+            // session
+            const fn = (<any>session)[key] || originalFn;
 
-          if (
-            fn.usesElement &&
-            parentContext.length &&
-            (!args[0] || !args[0].elementId)
-          ) {
-            // Defer converting arguments into an array until it is
-            // necessary to avoid overhead
-            args = Array.prototype.slice.call(args, 0);
+            if (
+              fn.usesElement &&
+              parentContext.length &&
+              (!args[0] || !args[0].elementId)
+            ) {
+              // Defer converting arguments into an array until it is
+              // necessary to avoid overhead
+              args = Array.prototype.slice.call(args, 0);
 
-            if (parentContext.isSingle) {
-              promise = fn.apply(session, [parentContext[0]].concat(args));
+              if (parentContext.isSingle) {
+                promise = fn.apply(session, [parentContext[0]].concat(args));
+              } else {
+                promise = Task.all(
+                  parentContext.map((element: Element) =>
+                    fn.apply(session, [element].concat(args))
+                  )
+                );
+              }
             } else {
-              promise = Task.all(
-                parentContext.map((element: Element) =>
-                  fn.apply(session, [element].concat(args))
-                )
-              );
+              promise = fn.apply(session, args);
             }
-          } else {
-            promise = fn.apply(session, args);
-          }
 
-          if (fn.createsContext) {
-            promise = promise.then(function(newContext) {
-              setContext(newContext);
-              return newContext;
-            });
-          }
+            if (fn.createsContext) {
+              promise = promise.then(function(newContext) {
+                setContext(newContext);
+                return newContext;
+              });
+            }
 
-          return <CancellablePromise<U>>promise;
-        });
+            return <CancellablePromise<Us>>promise;
+          }
+        );
       };
     }
   }
@@ -267,7 +282,10 @@ export default class Command<T, P = any>
    * @param {module:leadfoot/Command} target
    * @param {string} key
    */
-  static addElementMethod<T>(target: Command<T>, key: string) {
+  static addElementMethod<Us, Ps, Ss extends string | string[]>(
+    target: Command<Us, Ps, Ss>,
+    key: string
+  ) {
     const anyTarget = <any>target;
     if (key.charAt(0) !== '_') {
       // some methods, like `click`, exist on both Session and Element;
@@ -275,40 +293,41 @@ export default class Command<T, P = any>
       // 'Element'
       const targetKey = key + (anyTarget[key] ? 'Element' : '');
       anyTarget[targetKey] = function(
-        this: Command<T>,
+        this: Command<Ps, any, Ss>,
         ...args: any[]
-      ): Command<T> {
-        return new (this.constructor as typeof Command)(this, function(
-          setContext: SetContextMethod
-        ) {
-          const parentContext = this._context;
-          let promise: CancellablePromise<any>;
-          let fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
+      ): Command<Us, Ps, Ss> {
+        return new (this.constructor as typeof Command)<Us, Ps, Ss>(
+          this,
+          function(setContext: SetContextMethod) {
+            const parentContext = this._context;
+            let promise: CancellablePromise<any>;
+            let fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
 
-          if (parentContext.isSingle) {
-            promise = fn.apply(parentContext[0], args);
-          } else {
-            promise = Task.all(
-              parentContext.map(function(element: any) {
-                return element[key].apply(element, args);
-              })
-            );
+            if (parentContext.isSingle) {
+              promise = fn.apply(parentContext[0], args);
+            } else {
+              promise = Task.all(
+                parentContext.map(function(element: any) {
+                  return element[key].apply(element, args);
+                })
+              );
+            }
+
+            if (fn && fn.createsContext) {
+              promise = promise.then(function(newContext) {
+                setContext(newContext);
+                return newContext;
+              });
+            }
+
+            return <CancellablePromise<Us>>promise;
           }
-
-          if (fn && fn.createsContext) {
-            promise = promise.then(function(newContext) {
-              setContext(newContext);
-              return newContext;
-            });
-          }
-
-          return <CancellablePromise<T>>promise;
-        });
+        );
       };
     }
   }
 
-  private _parent: Command<P> | undefined;
+  private _parent: Command<P, any, StringResult> | undefined;
   private _session: Session;
   private _context!: Context;
   private _task: CancellablePromise<any>;
@@ -331,17 +350,17 @@ export default class Command<T, P = any>
    */
   // TODO: Need to show that parent is mixed into this Command
   constructor(
-    parentOrSession: Session | Command<P> | null,
+    parentOrSession: Session | Command<P, any, StringResult> | null,
     initialiser?: (
-      this: Command<T>,
+      this: Command<T, P, StringResult>,
       setContext: SetContextMethod,
       value: T
-    ) => T | CancellablePromise<T>,
+    ) => T | PromiseLike<T>,
     errback?: (
-      this: Command<T>,
+      this: Command<T, P, StringResult>,
       setContext: SetContextMethod,
-      error: Error
-    ) => T | CancellablePromise<T>
+      error: any
+    ) => T | PromiseLike<T>
   ) {
     super();
 
@@ -358,7 +377,7 @@ export default class Command<T, P = any>
         context = contextValue;
       }
 
-      const parent = <Command<P>>parentOrSession;
+      const parent = <Command<P, any, StringResult>>parentOrSession;
 
       // If the context being set has depth, then it is coming from
       // `Command#end`, or someone smart knows what they are doing; do
@@ -400,7 +419,7 @@ export default class Command<T, P = any>
     Error.captureStackTrace(trace, Command);
 
     // parentCommand will be null if parentOrSession was a session
-    let parentCommand = <Command<P>>parentOrSession;
+    let parentCommand = <Command<P, any, StringResult>>parentOrSession;
     this._task = (parentCommand
       ? parentCommand.promise
       : Task.resolve(undefined)
@@ -479,10 +498,13 @@ export default class Command<T, P = any>
    *
    * @param ms Time to delay, in milliseconds.
    */
-  sleep(ms: number): Command<void> {
-    return new (this.constructor as typeof Command)<void>(this, function() {
-      return sleep(ms);
-    });
+  sleep(ms: number): Command<void, P, StringResult> {
+    return new (this.constructor as typeof Command)<void, any, StringResult>(
+      this,
+      function() {
+        return sleep(ms);
+      }
+    );
   }
 
   /**
@@ -505,22 +527,23 @@ export default class Command<T, P = any>
    * @param numCommandsToPop The number of element contexts to pop. Defaults
    * to 1.
    */
-  end(numCommandsToPop: number = 1): Command<void> {
-    return new (this.constructor as typeof Command)<void>(this, function(
-      setContext: Function
-    ) {
-      let command: Command<any> | undefined = this;
-      let depth: number | undefined = this.context.depth;
+  end(numCommandsToPop: number = 1): Command<void, P, StringResult> {
+    return new (this.constructor as typeof Command)<void, any, StringResult>(
+      this,
+      function(setContext: Function) {
+        let command: Command<any, any, StringResult> | undefined = this;
+        let depth: number | undefined = this.context.depth;
 
-      while (depth && numCommandsToPop && (command = command.parent)) {
-        if (command.context.depth != null && command.context.depth < depth) {
-          --numCommandsToPop;
-          depth = command.context.depth;
+        while (depth && numCommandsToPop && (command = command.parent)) {
+          if (command.context.depth != null && command.context.depth < depth) {
+            --numCommandsToPop;
+            depth = command.context.depth;
+          }
         }
-      }
 
-      setContext(command!.context);
-    });
+        setContext(command!.context);
+      }
+    );
   }
 
   /**
@@ -544,33 +567,66 @@ export default class Command<T, P = any>
    *    parent will be passed through unmodified.
    */
   then<U = T, R = never>(
-    // tslint:disable:indent
     callback?:
       | ((
-          this: Command<T>,
+          this: Command<T, P, StringResult>,
           value: T,
           setContext: SetContextMethod
         ) => U | PromiseLike<U>)
       | null
       | undefined,
     errback?:
-      | ((this: Command<T>, error: any) => R | PromiseLike<R>)
+      | ((this: Command<T, P, StringResult>, error: any) => R | PromiseLike<R>)
       | null
       | undefined
-  ): Command<U | R> {
+  ): Command<U | R, T, StringResult> {
     function runCallback(
-      command: Command<U>,
-      callback:
-        | ((
-            this: Command<T>,
-            value: T,
-            setContext: SetContextMethod
-          ) => U | PromiseLike<U>)
-        | ((this: Command<T>, error: any) => R | PromiseLike<R>),
+      newCommand: Command<T, P, StringResult>,
+      callback: (
+        this: Command<T, P, StringResult>,
+        value: T,
+        setContext: SetContextMethod
+      ) => U | PromiseLike<U>,
+      errback: undefined,
       value: U,
       setContext: SetContextMethod
+    ): U | PromiseLike<U>;
+    // PromiseLike#then says its error callback can return a different type
+    // than the success callback, whereas the Command constructor says its
+    // error callback will return the same type as the success callback. To
+    // make Command happy, say the errback version of runCallback will return
+    // something of type U | PromiseLike<U>.
+    function runCallback(
+      newCommand: Command<T, P, StringResult>,
+      callback: undefined,
+      errback: (
+        this: Command<T, P, StringResult>,
+        error: any
+      ) => R | PromiseLike<R>,
+      value: any,
+      setContext: SetContextMethod
+    ): R | PromiseLike<R>;
+    function runCallback(
+      newCommand: Command<T, P, StringResult>,
+      callback:
+        | undefined
+        | ((
+            this: Command<T, P, StringResult>,
+            value: T,
+            setContext: SetContextMethod
+          ) => U | PromiseLike<U>),
+      errback:
+        | undefined
+        | ((
+            this: Command<T, P, StringResult>,
+            error: any
+          ) => R | PromiseLike<R>),
+      value: any,
+      setContext: SetContextMethod
     ) {
-      const returnValue = (callback as any).call(command, value, setContext);
+      const returnValue = callback
+        ? callback.call(newCommand, (value as unknown) as T, setContext)
+        : errback!.call(newCommand, value);
 
       // If someone returns `this` (or a chain starting from `this`) from
       // the callback, it will cause a deadlock where the child command
@@ -578,29 +634,44 @@ export default class Command<T, P = any>
       if (returnValue instanceof Command) {
         // maybeCommand can be a Session or a Command, both of which
         // inherit from Locator
-        let maybeCommand: Command<any> | Session | undefined = returnValue;
+        let maybeCommand:
+          | Command<any, any, StringResult>
+          | Session
+          | undefined = returnValue;
         do {
-          if (maybeCommand === command) {
+          if (maybeCommand === newCommand) {
             throw new Error(
               'Deadlock: do not use `return this` from a Command callback'
             );
           }
-        } while ((maybeCommand = getParent(maybeCommand)));
+        } while ((maybeCommand = getParent<StringResult>(maybeCommand)));
       }
 
       return returnValue;
     }
 
-    return new (this.constructor as typeof Command)<U>(
+    return new (this.constructor as typeof Command)(
       this,
       callback
         ? function(setContext: SetContextMethod, value: U) {
-            return runCallback(this, callback, value, setContext);
+            return runCallback(
+              (this as unknown) as Command<T, P, StringResult>,
+              callback,
+              undefined,
+              value,
+              setContext
+            );
           }
         : undefined,
       errback
         ? function(setContext: SetContextMethod, value: any) {
-            return runCallback(this, errback, value, setContext);
+            return (runCallback(
+              (this as unknown) as Command<T, P, StringResult>,
+              undefined,
+              errback,
+              value,
+              setContext
+            ) as unknown) as U | PromiseLike<U>;
           }
         : undefined
     );
@@ -611,7 +682,10 @@ export default class Command<T, P = any>
    * operations have failed.
    */
   catch<R = never>(
-    errback: (this: Command<T>, reason: any) => R | PromiseLike<R>
+    errback: (
+      this: Command<T, P, StringResult>,
+      reason: any
+    ) => R | PromiseLike<R>
   ) {
     return this.then(null, errback);
   }
@@ -656,127 +730,130 @@ export default class Command<T, P = any>
     method: 'find' | 'findDisplayed',
     strategy: Strategy,
     value: string
-  ): Command<Element>;
+  ): Command<Element, P, string>;
   private _callFindElementMethod(
     method: 'findAll',
     strategy: Strategy,
     value: string
-  ): Command<Element[]>;
+  ): Command<Element[], P, string[]>;
   private _callFindElementMethod(
     method: 'find' | 'findAll' | 'findDisplayed',
     strategy: Strategy,
     value: string
-  ): Command<Element | Element[]> {
-    return new (this.constructor as typeof Command)(this, function(
-      setContext: SetContextMethod
-    ) {
-      const parentContext = this._context;
-      let task: CancellablePromise<Element | Element[]>;
+  ): Command<Element, P, string> | Command<Element[], P, string[]> {
+    return new (this.constructor as typeof Command)<any, any, any>(
+      this,
+      function(setContext: SetContextMethod) {
+        const parentContext = this._context;
+        let task: CancellablePromise<Element | Element[]>;
 
-      if (parentContext.length && parentContext.isSingle) {
-        task = parentContext[0][method](strategy, value);
-      } else if (parentContext.length) {
-        task = Task.all(
-          parentContext.map(element => element[method](strategy, value))
-          // findAll against an array context will result in arrays
-          // of arrays; flatten into a single array of elments. It
-          // would also be possible to resort in document order but
-          // other parallel operations could not be sorted so we just
-          // don't do it anywhere and say not to rely on a particular
-          // order for results
-        ).then(elements => Array.prototype.concat.apply([], elements));
-      } else {
-        task = this.session[method](strategy, value);
+        if (parentContext.length && parentContext.isSingle) {
+          task = parentContext[0][method](strategy, value);
+        } else if (parentContext.length) {
+          task = Task.all(
+            parentContext.map(element => element[method](strategy, value))
+            // findAll against an array context will result in arrays
+            // of arrays; flatten into a single array of elments. It
+            // would also be possible to resort in document order but
+            // other parallel operations could not be sorted so we just
+            // don't do it anywhere and say not to rely on a particular
+            // order for results
+          ).then(elements => Array.prototype.concat.apply([], elements));
+        } else {
+          task = this.session[method](strategy, value);
+        }
+
+        return task.then(newContext => {
+          setContext(newContext);
+          return newContext;
+        });
       }
-
-      return task.then(newContext => {
-        setContext(newContext);
-        return newContext;
-      });
-    });
+    );
   }
 
   private _callElementMethod<U>(
     method: keyof Element,
     ...args: any[]
-  ): Command<U> {
-    return new (this.constructor as typeof Command)<U>(this, function(
-      setContext: SetContextMethod
-    ) {
-      const parentContext = this._context;
-      let task: CancellablePromise<U>;
-      let fn = parentContext[0] && parentContext[0][method];
+  ): Command<U, P, StringResult> {
+    return new (this.constructor as typeof Command)<U, any, StringResult>(
+      this,
+      function(setContext: SetContextMethod) {
+        const parentContext = this._context;
+        let task: CancellablePromise<U>;
+        let fn = parentContext[0] && parentContext[0][method];
 
-      if (parentContext.isSingle) {
-        task = fn.apply(parentContext[0], args);
-      } else {
-        task = (Task.all(
-          parentContext.map(element => element[method](...args))
-        ).then(values =>
-          Array.prototype.concat.apply([], values)
-        ) as unknown) as CancellablePromise<U>;
+        if (parentContext.isSingle) {
+          task = fn.apply(parentContext[0], args);
+        } else {
+          task = (Task.all(
+            parentContext.map(element => (element[method] as Function)(...args))
+          ).then(values =>
+            Array.prototype.concat.apply([], values)
+          ) as unknown) as CancellablePromise<U>;
+        }
+
+        if (fn && fn.createsContext) {
+          task = task.then(function(newContext) {
+            setContext(<any>newContext);
+            return newContext;
+          });
+        }
+
+        return task;
       }
-
-      if (fn && fn.createsContext) {
-        task = task.then(function(newContext) {
-          setContext(<any>newContext);
-          return newContext;
-        });
-      }
-
-      return task;
-    });
+    );
   }
 
   private _callSessionMethod<U>(
     method: keyof Session,
     ...args: any[]
-  ): Command<U> {
-    return new (this.constructor as typeof Command)<U>(this, function(
-      setContext: SetContextMethod
-    ) {
-      const parentContext = this._context;
-      const session = this._session;
-      let task: CancellablePromise<U>;
+  ): Command<U, P, StringResult> {
+    return new (this.constructor as typeof Command)<U, any, StringResult>(
+      this,
+      function(setContext: SetContextMethod) {
+        const parentContext = this._context;
+        const session = this._session;
+        let task: CancellablePromise<U>;
 
-      // The function may have come from a session object prototype but
-      // have been overridden on the actual session instance; in such a
-      // case, the overridden function should be used instead of the one
-      // from the original source object. The original source object may
-      // still be used, however, if the function is being added like a
-      // mixin and does not exist on the actual session object for this
-      // session
-      const sessionMethod = (...args: any[]) => {
-        return (<Function>session[method])(...args);
-      };
+        // The function may have come from a session object prototype but
+        // have been overridden on the actual session instance; in such a
+        // case, the overridden function should be used instead of the one
+        // from the original source object. The original source object may
+        // still be used, however, if the function is being added like a
+        // mixin and does not exist on the actual session object for this
+        // session
+        const sessionMethod = (...args: any[]) => {
+          return (<Function>session[method])(...args);
+        };
 
-      if (
-        (<any>session[method]).usesElement &&
-        parentContext.length &&
-        (!args[0] || !args[0].elementId)
-      ) {
-        if (parentContext.isSingle) {
-          task = sessionMethod(...[parentContext[0], ...args]);
+        if (
+          (<any>session[method]).usesElement &&
+          parentContext.length &&
+          (!args[0] || !args[0].elementId)
+        ) {
+          if (parentContext.isSingle) {
+            task = sessionMethod(...[parentContext[0], ...args]);
+          } else {
+            task = (Task.all(
+              parentContext.map(element => sessionMethod(...[element, ...args]))
+            ).then(values =>
+              Array.prototype.concat.apply([], values)
+            ) as unknown) as CancellablePromise<U>;
+          }
         } else {
-          task = (Task.all(
-            parentContext.map(element => sessionMethod(...[element, ...args]))
-          ).then(values =>
-            Array.prototype.concat.apply([], values)
-          ) as unknown) as CancellablePromise<U>;
+          task = sessionMethod(...args);
         }
-      } else {
-        task = sessionMethod(...args);
-      }
 
-      if ((<any>session[method]).createsContext) {
-        task = task.then(newContext => {
-          setContext(<any>newContext);
-          return newContext;
-        });
-      }
+        if ((<any>session[method]).createsContext) {
+          task = task.then(newContext => {
+            setContext(<any>newContext);
+            return newContext;
+          });
+        }
 
-      return task;
-    });
+        return task;
+      }
+    );
   }
 
   // Session methods
@@ -1024,12 +1101,12 @@ export default class Command<T, P = any>
    *
    * @param height The new height of the window, in CSS pixels.
    */
-  setWindowSize(width: number, height: number): Command<void>;
+  setWindowSize(width: number, height: number): Command<void, P, StringResult>;
   setWindowSize(
     windowHandle: string,
     width: number,
     height: number
-  ): Command<void>;
+  ): Command<void, P, StringResult>;
   setWindowSize(...args: any[]) {
     return this._callSessionMethod<void>('setWindowSize', ...args);
   }
@@ -1065,8 +1142,12 @@ export default class Command<T, P = any>
    * @param y The screen y-coordinate to move to, in CSS pixels, relative to
    * the top edge of the primary monitor.
    */
-  setWindowPosition(x: number, y: number): Command<void>;
-  setWindowPosition(windowHandle: string, x: number, y: number): Command<void>;
+  setWindowPosition(x: number, y: number): Command<void, P, StringResult>;
+  setWindowPosition(
+    windowHandle: string,
+    x: number,
+    y: number
+  ): Command<void, P, StringResult>;
   setWindowPosition(...args: any[]) {
     return this._callSessionMethod<void>('setWindowPosition', ...args);
   }
@@ -1248,8 +1329,11 @@ export default class Command<T, P = any>
     element?: Element,
     xOffset?: number,
     yOffset?: number
-  ): Command<void>;
-  moveMouseTo(xOffset?: number, yOffset?: number): Command<void>;
+  ): Command<void, P, StringResult>;
+  moveMouseTo(
+    xOffset?: number,
+    yOffset?: number
+  ): Command<void, P, StringResult>;
   moveMouseTo(...args: any[]) {
     return this._callSessionMethod<void>('moveMouseTo', ...args);
   }
@@ -1355,12 +1439,12 @@ export default class Command<T, P = any>
    * element, in CSS pixels. If no element is specified, the offset is
    * relative to the previous scroll position of the window.
    */
-  touchScroll(xOffset: number, yOffset: number): Command<void>;
+  touchScroll(xOffset: number, yOffset: number): Command<void, P, StringResult>;
   touchScroll(
     element?: Element,
     xOffset?: number,
     yOffset?: number
-  ): Command<void>;
+  ): Command<void, P, StringResult>;
   touchScroll(...args: any[]) {
     return this._callSessionMethod<void>('touchScroll', ...args);
   }
@@ -1400,8 +1484,12 @@ export default class Command<T, P = any>
     xOffset: number,
     yOffset: number,
     speed?: number
-  ): Command<void>;
-  flickFinger(xOffset: number, yOffset: number, speed?: number): Command<void>;
+  ): Command<void, P, StringResult>;
+  flickFinger(
+    xOffset: number,
+    yOffset: number,
+    speed?: number
+  ): Command<void, P, StringResult>;
   flickFinger(...args: any[]) {
     return this._callSessionMethod<void>('flickFinger', ...args);
   }
@@ -1558,7 +1646,7 @@ export default class Command<T, P = any>
    * the usual XML/HTML whitespace normalisation rules.
    */
   getVisibleText() {
-    return this._callElementMethod<StringResult<T>>('getVisibleText');
+    return this._callElementMethod<StringResult>('getVisibleText');
   }
 
   /**
@@ -1586,7 +1674,7 @@ export default class Command<T, P = any>
    * always lowercase.
    */
   getTagName() {
-    return this._callElementMethod<StringResult<T>>('getTagName');
+    return this._callElementMethod<StringResult>('getTagName');
   }
 
   /**
@@ -1648,7 +1736,7 @@ export default class Command<T, P = any>
    * property or attribute exists.
    */
   getSpecAttribute(name: string) {
-    return this._callElementMethod<StringResult<T>>('getSpecAttribute', name);
+    return this._callElementMethod<StringResult>('getSpecAttribute', name);
   }
 
   /**
@@ -1660,7 +1748,7 @@ export default class Command<T, P = any>
    * @returns The value of the attribute, or `null` if no such attribute
    * exists.
    */
-  getAttribute<S = StringResult<T>>(name: string) {
+  getAttribute<S = StringResult>(name: string) {
     return this._callElementMethod<S>('getAttribute', name);
   }
 
@@ -1725,7 +1813,7 @@ export default class Command<T, P = any>
    * hyphenated, *not* camel-case.
    */
   getComputedStyle(propertyName: string) {
-    return this._callElementMethod<StringResult<T>>(
+    return this._callElementMethod<StringResult>(
       'getComputedStyle',
       propertyName
     );
@@ -1773,8 +1861,8 @@ if (chaiAsPromised) {
 }
 
 // Return the 'parent' of a value, which is assumed to be a Command or Session
-function getParent(value: any): Command<any> | Session | undefined {
+function getParent<S extends string | string[]>(
+  value: any
+): Command<any, any, S> | Session | undefined {
   return value && value.parent;
 }
-
-type StringResult<E> = E extends Element[] ? string[] : string;

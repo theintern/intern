@@ -1402,7 +1402,7 @@ export default class Session extends Locator<
     }
 
     if (this.capabilities.brokenSendKeys || this.capabilities.noKeysCommand) {
-      return this.execute(simulateKeys, [keys]);
+      return this.execute<void>(simulateKeys, [keys]);
     }
 
     return this.serverPost<void>('keys', {
