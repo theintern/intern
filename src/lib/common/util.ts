@@ -1,9 +1,11 @@
 import { CancellablePromise, deepMixin } from '@theintern/common';
+import * as Ajv from 'ajv';
 
 import { Config, ResourceConfig } from './config';
 import { Events, Executor, PluginDescriptor } from '../executors/Executor';
 import { TextLoader } from './util';
 import { getPathSep, join, normalize } from './path';
+import * as configSchema from '../../schemas/config.json';
 
 export interface EvaluatedProperty {
   name: keyof Config;
@@ -824,6 +826,48 @@ function _loadConfig(
         preConfig = parseJson(text);
       } catch (error) {
         throw new Error(`Invalid JSON in ${configPath}`);
+      }
+
+      const ajv = new Ajv();
+      const validate = ajv.compile(configSchema);
+
+      if (!validate(preConfig)) {
+        const errorsByPath: { [key: string]: any } = {};
+        for (const err of validate.errors!) {
+          const { dataPath } = err;
+          if (!errorsByPath[dataPath]) {
+            errorsByPath[dataPath] = [];
+          }
+          errorsByPath[dataPath].push(err.message);
+        }
+
+        const paths = Object.keys(errorsByPath);
+        for (let i = 0; i < paths.length; i++) {
+          const pathi = paths[i];
+          for (let j = i + 1; j < paths.length; j++) {
+            const pathj = paths[j];
+            if (pathj.indexOf(pathi) !== -1 && pathj[pathi.length] === '.') {
+              delete errorsByPath[pathi];
+            }
+          }
+        }
+
+        const errorMessages: string[] = [];
+        for (const path in errorsByPath) {
+          errorMessages.push(`${path}\n  ${errorsByPath[path].join('\n  ')}`);
+        }
+
+        throw new Error(
+          'Invalid config\n' +
+            errorMessages
+              .map(msg =>
+                msg
+                  .split('\n')
+                  .map(m => `  ${m}`)
+                  .join('  \n')
+              )
+              .join('\n')
+        );
       }
 
       // extends paths are assumed to be relative and use '/'

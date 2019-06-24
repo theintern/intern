@@ -45,6 +45,7 @@
     "./unit/tasks/*.ts",
     "./functional/lib/*.ts",
     "../src/bin/*.ts",
-    "../src/loaders/*.ts"
+    "../src/loaders/*.ts",
+    "../src/lib/typings.d.ts"
   ]
 }

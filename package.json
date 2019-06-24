@@ -73,6 +73,7 @@
     "@types/istanbul-lib-source-maps": "1.2.1",
     "@types/istanbul-reports": "1.1.0",
     "@types/ws": "6.0.1",
+    "ajv": "~6.4.0",
     "benchmark": "~2.1.4",
     "body-parser": "~1.18.3",
     "chai": "~4.1.2",
@@ -117,7 +118,6 @@
     "@types/sinon": "~2.3.2",
     "@types/systemjs": "~0.20.2",
     "@types/webpack": "~4.1.7",
-    "ajv": "~6.4.0",
     "concurrently": "~3.5.0",
     "core-js": "~3.0.0-beta.3",
     "core-js-pure": "~3.0.0-beta.3",
@@ -152,7 +152,8 @@
       ],
       "_build/src": [
         "types/**",
-        "bin/**"
+        "bin/**",
+        "schemas/**"
       ],
       "_tests": [
         "tests/**/*.{xml,d.ts,js}",

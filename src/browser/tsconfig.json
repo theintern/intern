@@ -3,5 +3,5 @@
   "compilerOptions": {
     "module": "commonjs"
   },
-  "include": ["./*.ts"]
+  "include": ["./*.ts", "../lib/typings.d.ts"]
 }
