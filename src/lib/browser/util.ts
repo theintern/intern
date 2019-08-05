@@ -113,7 +113,13 @@ export function parseQuery(query?: string) {
   const parsed: string[] = [];
   const params = new URLSearchParams(query);
   params.forEach((value, key) => {
-    parsed.push(value ? `${key}=${value}` : key);
+    // If the param in the raw query string is bare, push a bare key,
+    // otherwise, push key=value.
+    if (new RegExp(`\\b${key}=`).test(query!)) {
+      parsed.push(`${key}=${value}`);
+    } else {
+      parsed.push(key);
+    }
   });
 
   return parsed;
