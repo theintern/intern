@@ -15,7 +15,9 @@ import LeadfootServer from '@theintern/leadfoot/Server';
 import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/Tunnel';
 
 // Dig Dug tunnels
-import SeleniumTunnel from '@theintern/digdug/SeleniumTunnel';
+import SeleniumTunnel, {
+  DriverDescriptor
+} from '@theintern/digdug/SeleniumTunnel';
 import BrowserStackTunnel, {
   BrowserStackOptions
 } from '@theintern/digdug/BrowserStackTunnel';
@@ -614,6 +616,46 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         config.environments.push({ browserName: 'node' });
       }
 
+      // Normalize browser names
+      config.environments.forEach(env => {
+        const { browserName } = env;
+        const newName = getNormalizedBrowserName(browserName)!;
+        env.browserName = newName;
+        if (env.browser) {
+          env.browser = newName;
+        }
+      });
+
+      // Normalize tunnel driver names
+      if (config.tunnelOptions.drivers) {
+        config.tunnelOptions.drivers = config.tunnelOptions.drivers.map(
+          driver => {
+            let driverName: string | undefined;
+
+            if (typeof driver === 'string') {
+              driverName = driver;
+            } else if ('name' in driver) {
+              driverName = driver.name;
+            }
+
+            const newName = getNormalizedBrowserName(driverName);
+
+            if (typeof driver === 'string') {
+              return newName! as DriverDescriptor;
+            }
+
+            if ('name' in driver) {
+              return {
+                ...driver,
+                name: newName!
+              };
+            }
+
+            return driver;
+          }
+        );
+      }
+
       if (!config.internPath) {
         config.internPath = dirname(dirname(__dirname));
 
@@ -766,29 +808,34 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    * Return the names of all the selenium drivers that should be needed based
    * on the environments specified in the config.
    */
-  protected _getSeleniumDriverNames() {
+  protected _getSeleniumDriverNames(): string[] {
     const { config } = this;
-    const browserNames = config.environments
-      .map(env => env.browserName)
-      .filter(
-        name =>
-          name === 'chrome' ||
-          name === 'firefox' ||
-          name === 'ie' ||
-          name === 'internet explorer' ||
-          name === 'edge' ||
-          name === 'MicrosoftEdge'
-      );
+    const driverNames = new Set<string>();
 
-    return Object.keys(
-      browserNames.reduce(
-        (allNames, name) => ({
-          ...allNames,
-          [name]: true
-        }),
-        {}
-      )
-    );
+    for (const env of config.environments) {
+      const { browserName } = env;
+      if (
+        browserName === 'chrome' ||
+        browserName === 'firefox' ||
+        browserName === 'internet explorer'
+      ) {
+        driverNames.add(browserName);
+      } else if (browserName === 'MicrosoftEdge') {
+        const { browserVersion } = env;
+        if (
+          (!isNaN(browserVersion) && Number(browserVersion) < 1000) ||
+          // 'insider preview' may be used to specify Edge Chromium before it is
+          // official released
+          (isNaN(browserVersion) && browserVersion === 'insider preview')
+        ) {
+          driverNames.add('MicrosoftEdgeChromium');
+        } else {
+          driverNames.add('MicrosoftEdge');
+        }
+      }
+    }
+
+    return Array.from<string>(driverNames);
   }
 
   protected _runTests(): CancellablePromise<void> {
@@ -1006,4 +1053,14 @@ function isRemoteEnvironment(environment: EnvironmentSpec) {
 
 function isLocalEnvironment(environment: EnvironmentSpec) {
   return !isRemoteEnvironment(environment);
+}
+
+function getNormalizedBrowserName(name: string | undefined) {
+  if (name === 'ie') {
+    return 'internet explorer';
+  }
+  if (name && /^edge/.test(name)) {
+    return name.replace(/^edge/, 'MicrosoftEdge');
+  }
+  return name;
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://theintern.io/schemas/config-4.5.json",
+  "$id": "https://theintern.io/schemas/intern/config-4.5.json",
 
   "title": "Intern",
   "description": "Intern v4.5 config schema",
@@ -27,8 +27,7 @@
       "type": "object",
       "properties": {
         "filename": {
-          "description":
-            "File to write benchmark baseline results to, or to read them from",
+          "description": "File to write benchmark baseline results to, or to read them from",
           "type": "string"
         },
         "id": {
@@ -98,8 +97,7 @@
     },
 
     "browserVersion": {
-      "description":
-        "A browser version, a list of browser versions, or a version range",
+      "description": "A browser version, a list of browser versions, or a version range",
       "oneOf": [
         {
           "type": "array",
@@ -125,8 +123,7 @@
     },
 
     "capabilities": {
-      "description":
-        "WebDriver capabilities that will apply to all WebDriver environments",
+      "description": "WebDriver capabilities that will apply to all WebDriver environments",
       "type": "object",
       "properties": {
         "name": {
@@ -144,8 +141,7 @@
       "type": "object",
       "properties": {
         "bail": {
-          "description":
-            "If true, Intern will stop running tests after the first failure.",
+          "description": "If true, Intern will stop running tests after the first failure.",
           "type": "boolean",
           "default": true
         },
@@ -157,15 +153,13 @@
         },
 
         "basePath": {
-          "description":
-            "The path to the project root. This will be resolved to an absolute path before testing starts.",
+          "description": "The path to the project root. This will be resolved to an absolute path before testing starts.",
           "type": "string",
           "examples": ["node_modules/intern"]
         },
 
         "benchmark": {
-          "description":
-            "Benchmark tests will only run when this property is true",
+          "description": "Benchmark tests will only run when this property is true",
           "type": "boolean",
           "default": true
         },
@@ -187,15 +181,13 @@
         },
 
         "connectTimeout": {
-          "description":
-            "Time, in milliseconds, to wait for contact from a remote server",
+          "description": "Time, in milliseconds, to wait for contact from a remote server",
           "$ref": "#/definitions/positiveNumber",
           "examples": [30000]
         },
 
         "coverage": {
-          "description":
-            "An array of file paths or globs that should be instrumented for code coverage, or false to completely disable coverage. Globs starting with ! are exclusions.",
+          "description": "An array of file paths or globs that should be instrumented for code coverage, or false to completely disable coverage. Globs starting with ! are exclusions.",
           "oneOf": [
             { "const": false },
             { "type": "array", "items": { "type": "string" } },
@@ -209,8 +201,7 @@
         },
 
         "coverageVariable": {
-          "description":
-            "The global variable that will be used to store coverage data",
+          "description": "The global variable that will be used to store coverage data",
           "type": "string",
           "examples": ["__coverage__"]
         },
@@ -222,8 +213,7 @@
         },
 
         "defaultTimeout": {
-          "description":
-            "The number of milliseconds that Intern will wait for an asynchronous test to complete before timing out",
+          "description": "The number of milliseconds that Intern will wait for an asynchronous test to complete before timing out",
           "$ref": "#/definitions/positiveNumber",
           "examples": [30000]
         },
@@ -240,20 +230,17 @@
         },
 
         "filterErrorStack": {
-          "description":
-            "If true, filter external library calls and runtime calls out of error stacks.",
+          "description": "If true, filter external library calls and runtime calls out of error stacks.",
           "type": "boolean"
         },
 
         "functionalBaseUrl": {
-          "description":
-            "The base URL to use for relative addresses in functional tests",
+          "description": "The base URL to use for relative addresses in functional tests",
           "type": "string"
         },
 
         "functionalCoverage": {
-          "description":
-            "If true, collect coverage data from functional tests.",
+          "description": "If true, collect coverage data from functional tests.",
           "type": "boolean"
         },
 
@@ -286,14 +273,12 @@
         },
 
         "grep": {
-          "description":
-            "A regular expression that is used to filter which tests are run based on test IDs",
+          "description": "A regular expression that is used to filter which tests are run based on test IDs",
           "type": "string"
         },
 
         "heartbeatInterval": {
-          "description":
-            "How often to send a heartbeat to a remote browser, in seconds",
+          "description": "How often to send a heartbeat to a remote browser, in seconds",
           "$ref": "#/definitions/positiveNumber"
         },
 
@@ -309,16 +294,14 @@
         },
 
         "leaveRemoteOpen": {
-          "description":
-            "Leave the remote browser open after testing is finished. If true, always leave the remote open. If 'fail', only leave open for test failures.",
+          "description": "Leave the remote browser open after testing is finished. If true, always leave the remote open. If 'fail', only leave open for test failures.",
           "oneOf": [{ "type": "boolean" }, { "const": "fail" }]
         },
 
         "loader": { "$ref": "#/definitions/loaderProperty" },
 
         "maxConcurrency": {
-          "description":
-            "The number of concurrent remote test sessions to run at once",
+          "description": "The number of concurrent remote test sessions to run at once",
           "type": "integer",
           "minimum": 1
         },
@@ -337,8 +320,7 @@
         "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
 
         "proxy": {
-          "description":
-            "A proxy that should be used for outgoing web connections",
+          "description": "A proxy that should be used for outgoing web connections",
           "type": "string",
           "examples": [
             "http://localhost:8888",
@@ -350,28 +332,24 @@
         "reporters+": { "$ref": "#/definitions/reportersProperty+" },
 
         "runInSync": {
-          "description":
-            "If true, a remote will wait for responses from Intern for any executor events.",
+          "description": "If true, a remote will wait for responses from Intern for any executor events.",
           "type": "boolean"
         },
 
         "serveOnly": {
-          "description":
-            "If true, start Intern's static test server but do not run any tests",
+          "description": "If true, start Intern's static test server but do not run any tests",
           "type": "boolean"
         },
 
         "serverPort": {
-          "description":
-            "The port Intern's static server will listen on during testing",
+          "description": "The port Intern's static server will listen on during testing",
           "type": "integer",
           "minimum": 1025,
           "examples": [9000]
         },
 
         "serverUrl": {
-          "description":
-            "The URL a remote should use to access Intern's static server",
+          "description": "The URL a remote should use to access Intern's static server",
           "type": "string",
           "examples": ["http://localhost:9000"]
         },
@@ -387,8 +365,7 @@
         },
 
         "socketPort": {
-          "description":
-            "The port Intern's websocket server will listen on during testing",
+          "description": "The port Intern's websocket server will listen on during testing",
           "type": "integer",
           "minimum": 1025,
           "examples": [9001]
@@ -398,8 +375,7 @@
         "suites+": { "$ref": "#/definitions/suitesProperty+" },
 
         "tunnel": {
-          "description":
-            "The Dig Dug tunnel class to use for WebDriver testing",
+          "description": "The Dig Dug tunnel class to use for WebDriver testing",
           "type": "string",
           "enum": [
             "null",
@@ -418,14 +394,12 @@
         },
 
         "warnOnUncaughtException": {
-          "description":
-            "If true or set to a RegExp that matches the reason for an uncaught exception, Intern will treat the exception as a warning.",
+          "description": "If true or set to a RegExp that matches the reason for an uncaught exception, Intern will treat the exception as a warning.",
           "oneOf": [{ "type": "boolean" }, { "type": "string" }]
         },
 
         "warnOnUnhandledRejection": {
-          "description":
-            "If true or set to a RegExp that matches the reason for an unhandled rejection, Intern will treat the rejection as a warning.",
+          "description": "If true or set to a RegExp that matches the reason for an unhandled rejection, Intern will treat the rejection as a warning.",
           "oneOf": [{ "type": "boolean" }, { "type": "string" }]
         }
       }
@@ -449,8 +423,7 @@
     },
 
     "environments": {
-      "description":
-        "The environments (node or particular browsers) to run tests in",
+      "description": "The environments (node or particular browsers) to run tests in",
       "oneOf": [
         {
           "description": "A browser name or 'node'",
@@ -462,8 +435,7 @@
           "$ref": "#/definitions/environmentSpec"
         },
         {
-          "description":
-            "A list of browser names and/or environment specifiers",
+          "description": "A list of browser names and/or environment specifiers",
           "type": "array",
           "items": {
             "anyOf": [
@@ -518,14 +490,12 @@
     },
 
     "instrumenterOptions": {
-      "description":
-        "An object containing options for the Istanbul instrumenter",
+      "description": "An object containing options for the Istanbul instrumenter",
       "type": "object"
     },
 
     "loaderProperty": {
-      "description":
-        "A module loader used to load test suites and application modules",
+      "description": "A module loader used to load test suites and application modules",
       "oneOf": [
         { "$ref": "#/definitions/loaderName" },
         {
@@ -857,8 +827,7 @@
     },
 
     "suitesProperty": {
-      "description":
-        "A list of paths or glob expressions that point to suite scripts",
+      "description": "A list of paths or glob expressions that point to suite scripts",
       "oneOf": [
         { "description": "A suite path or glob", "type": "string" },
         {

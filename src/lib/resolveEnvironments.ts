@@ -22,6 +22,13 @@ export default function resolveEnvironments(
   // top-level substitutions
   environments = environments.map(expandPwd).map(normalizeVersion);
 
+  if (available) {
+    environments = normalizeBrowserNames(environments, available);
+  }
+
+  // Update the browserName to match the target environment (only relevant for
+  // edge / MicrosoftEdge)
+
   // flatEnviroments will have non-array versions
   const flatEnvironments = createPermutations(capabilities, environments);
 
@@ -131,6 +138,21 @@ function expandVersionRange(
  * * 'latest-{number}'
  */
 function resolveVersionAlias(version: string, availableVersions: string[]) {
+  // The version 'insider preview' is used for Edge Chromium (at least until
+  // it's officially released).
+  if (version === 'insider preview') {
+    // If there are available versions and 'insider preview' isn't one of them,
+    // throw an error. If there are no available versions, assume we're running
+    // on a local Selenium server so the version doesn't matter.
+    if (
+      availableVersions.length > 0 &&
+      availableVersions.indexOf(version) === -1
+    ) {
+      throw new Error(`"${version}" is not available`);
+    }
+    return version;
+  }
+
   let pieces = version.split('-');
   if (pieces.length > 2) {
     throw new Error('Invalid alias syntax "' + version + '"');
@@ -156,11 +178,11 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
 
     let offset = pieces.length === 2 ? Number(pieces[1]) : 0;
     if (offset > numericVersions.length) {
-      let message =
-        "Can't get " + version + '; ' + numericVersions.length + ' version';
-      message +=
-        (numericVersions.length !== 1 ? 's are' : ' is') + ' available';
-      throw new Error(message);
+      throw new Error(
+        `Can't get ${version}; ${numericVersions.length} version${
+          numericVersions.length !== 1 ? 's are' : ' is'
+        } available`
+      );
     }
 
     return numericVersions[numericVersions.length - 1 - offset];
@@ -206,14 +228,30 @@ function getVersions(
       // Return true if there are no mismatching keys
       return !Object.keys(environment)
         // Don't match on version since we want all the available versions where
-        // all the other keys match
-        .filter(key => key !== 'browserVersion' && key !== 'version')
+        // all the other keys match. Don't match 'browser' since we'll always
+        // have 'browserName'.
+        .filter(
+          key =>
+            key !== 'browserVersion' && key !== 'version' && key !== 'browser'
+        )
         .some(envKey => {
           const key = <keyof NormalizedEnvironment>envKey;
-          return (
-            key in availableEnvironment &&
-            availableEnvironment[key] !== environment[key]
-          );
+          if (!(key in availableEnvironment)) {
+            return false;
+          }
+
+          const value = environment[key];
+
+          // At least BrowserStack uses 'edge' for MicrosoftEdge, while everyone
+          // else + the Edge webdrivers use 'MicrosoftEdge'.
+          if (key === 'browserName' && value === 'MicrosoftEdge') {
+            return (
+              availableEnvironment[key] !== 'MicrosoftEdge' ||
+              availableEnvironment[key] !== 'edge'
+            );
+          }
+
+          return availableEnvironment[key] !== value;
         });
     })
     .forEach(function(availableEnvironment) {
@@ -262,14 +300,20 @@ function resolveVersions(
         throw new Error(
           `Unable to resolve version "${version}" for ${
             environment.browserName
-          }. Are you using the ` +
-            'proper browser and platform names for the tunnel?'
+          }. Are you using the proper browser and platform names for the tunnel?`
         );
       }
       return resolved;
     });
 
     if (versions.length === 2) {
+      if (
+        versions[0] === 'insider preview' ||
+        versions[1] === 'insider preview'
+      ) {
+        throw new Error('"insider preview" cannot be used in a version range');
+      }
+
       if (versions[0] > versions[1]) {
         throw new Error(
           'Invalid range [' + versions + '], must be in ascending order'
@@ -346,4 +390,22 @@ function createPermutations(
         newPermutations.concat(sourcePermutations),
       []
     );
+}
+
+function normalizeBrowserNames(
+  environments: EnvironmentOptions[],
+  available: NormalizedEnvironment[]
+) {
+  return environments.map(env => {
+    if (env.browserName === 'MicrosoftEdge') {
+      if (available.some(ae => ae.browserName === 'edge')) {
+        return {
+          ...env,
+          browserName: 'edge',
+          browser: 'edge'
+        };
+      }
+    }
+    return env;
+  });
 }

@@ -2,6 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 
+* [Run tests with Microsoft Edge Chromium locally](#run-tests-with-microsoft-edge-chromium-locally)
 * [Write a custom reporter](#write-a-custom-reporter)
 * [Use TypeScript modules directly](#use-typescript-modules-directly)
 * [Speed up WebDriver tests](#speed-up-webdriver-tests)
@@ -22,6 +23,20 @@
 * [Ignore global errors or Promise rejections](#ignore-global-errors-or-promise-rejections)
 
 <!-- vim-markdown-toc -->
+
+## Run tests with Microsoft Edge Chromium locally
+
+Microsoft‘s new Chromium-based version of Edge is currently in beta (as of October 2019), but you can still use it with Intern. Use a `browserName` of `"MicrosftEdge"` and a `browserVersion` of .`"insider preview"`. Intern will automatically download the latest webdriver for the current beta version of Edge. If your version of Edge is different (each version of Edge has a corresponding version of webdriver), you may need to specify a custom driver version using `tunnelOptions` in your `intern.json`:
+
+```json5
+"tunnelOptions": {
+  "drivers": [
+    { "name": "MicrosoftEdgeChromium", "version": "79.0.294.0" }
+  ]
+}
+```
+
+Note that the driver name for the Chromium version of Edge is “MicrosoftEdgeChromium”, even though the `browserName` is “MicrosoftEdge”.
 
 ## Write a custom reporter
 
