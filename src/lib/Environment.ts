@@ -1,6 +1,7 @@
 export default class Environment {
   browser?: string;
   browserName?: string;
+  browserVersion?: string;
   version?: string;
   platform?: string;
   platformName?: string;

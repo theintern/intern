@@ -532,6 +532,9 @@ export function processOption<C extends Config>(
         if (typeof val === 'object' && val.browserName == null) {
           val.browserName = val.browser;
         }
+        if (typeof val === 'object' && val.version == null) {
+          val.version = val.browserVersion;
+        }
         return val;
       });
       setOption(

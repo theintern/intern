@@ -20,27 +20,28 @@ export default function resolveEnvironments(
 ) {
   // Pre-process the environments list to resolve any uses of {pwd} and do any
   // top-level substitutions
-  environments = environments.map(expandPwd);
+  environments = environments.map(expandPwd).map(normalizeVersion);
 
   // flatEnviroments will have non-array versions
   const flatEnvironments = createPermutations(capabilities, environments);
 
   // Expand any version ranges or aliases in the environments.
   const expandedEnvironments = flatEnvironments.map(function(environment) {
-    const version = resolveVersions(environment, available);
-    if (version == null) {
+    const browserVersion = resolveVersions(environment, available);
+    if (browserVersion == null) {
       return environment;
     }
-    return Object.assign({}, environment, { version });
+    return {
+      ...environment,
+      browserVersion,
+      version: browserVersion
+    };
   });
 
   // Perform a second round of permuting to handle any expanded version ranges
-  return createPermutations({}, expandedEnvironments).map(function(
-    environment
-  ) {
-    // After permuting, environment.version will be singular again
-    return new Environment(environment);
-  });
+  return createPermutations({}, expandedEnvironments).map(
+    environment => new Environment(environment)
+  );
 }
 
 export interface EnvironmentOptions {
@@ -83,6 +84,19 @@ function expandPwd<T>(value: T): T {
   }
 
   return value;
+}
+
+/**
+ * Ensure environment has both `version` and `browserVersion` properties with
+ * the same value
+ */
+function normalizeVersion(env: EnvironmentOptions) {
+  const browserVersion = env.browserVersion || env.version;
+  return {
+    ...env,
+    browserVersion,
+    version: browserVersion
+  };
 }
 
 /**
@@ -137,12 +151,8 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
   if (pieces[0] === 'latest') {
     // Only consider numeric versions; we don't want 'beta' or 'dev'
     const numericVersions = availableVersions
-      .filter(version => {
-        return !isNaN(Number(version));
-      })
-      .sort((a, b) => {
-        return Number(a) - Number(b);
-      });
+      .filter(version => !isNaN(Number(version)))
+      .sort((a, b) => Number(a) - Number(b));
 
     let offset = pieces.length === 2 ? Number(pieces[1]) : 0;
     if (offset > numericVersions.length) {
@@ -195,7 +205,9 @@ function getVersions(
     .filter(function(availableEnvironment) {
       // Return true if there are no mismatching keys
       return !Object.keys(environment)
-        .filter(key => key !== 'version')
+        // Don't match on version since we want all the available versions where
+        // all the other keys match
+        .filter(key => key !== 'browserVersion' && key !== 'version')
         .some(envKey => {
           const key = <keyof NormalizedEnvironment>envKey;
           return (
@@ -293,7 +305,7 @@ function createPermutations(
   // If no expansion sources were given, the set of permutations consists of
   // just the base
   if (!sources || sources.length === 0) {
-    return [<FlatEnvironment>Object.assign({}, base)];
+    return [<FlatEnvironment>{ ...base }];
   }
 
   // Expand the permutation set for each source
@@ -306,15 +318,15 @@ function createPermutations(
             // set for each array item, then use the combination of
             // these copies as the new value of `permutations`
             permutations = source[key]
-              .map((value: any) => {
-                return permutations.map(permutation =>
-                  Object.assign({}, permutation, { [key]: value })
-                );
-              })
+              .map((value: any) =>
+                permutations.map(permutation => ({
+                  ...permutation,
+                  [key]: value
+                }))
+              )
               .reduce(
-                (newPermutations: object[], keyPermutations: object[]) => {
-                  return newPermutations.concat(keyPermutations);
-                },
+                (newPermutations: object[], keyPermutations: object[]) =>
+                  newPermutations.concat(keyPermutations),
                 []
               );
           } else {
@@ -326,7 +338,7 @@ function createPermutations(
           }
           return permutations;
         },
-        [<FlatEnvironment>Object.assign({}, base)]
+        [<FlatEnvironment>{ ...base }]
       );
     })
     .reduce(
