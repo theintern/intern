@@ -766,29 +766,35 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    * Return the names of all the selenium drivers that should be needed based
    * on the environments specified in the config.
    */
-  protected _getSeleniumDriverNames() {
+  protected _getSeleniumDriverNames(): string[] {
     const { config } = this;
-    const browserNames = config.environments
-      .map(env => env.browserName)
-      .filter(
-        name =>
-          name === 'chrome' ||
-          name === 'firefox' ||
-          name === 'ie' ||
-          name === 'internet explorer' ||
-          name === 'edge' ||
-          name === 'MicrosoftEdge'
-      );
+    const driverNames = new Set<string>();
 
-    return Object.keys(
-      browserNames.reduce(
-        (allNames, name) => ({
-          ...allNames,
-          [name]: true
-        }),
-        {}
-      )
-    );
+    for (const env of config.environments) {
+      const { browserName } = env;
+      if (
+        browserName === 'chrome' ||
+        browserName === 'firefox' ||
+        browserName === 'ie' ||
+        browserName === 'internet explorer'
+      ) {
+        driverNames.add(browserName);
+      } else if (browserName === 'edge' || browserName === 'MicrosoftEdge') {
+        const { browserVersion } = env;
+        if (
+          (!isNaN(browserVersion) && Number(browserVersion) < 1000) ||
+          // 'insider preview' may be used to specify Edge Chromium before it is
+          // official released
+          (isNaN(browserVersion) && browserVersion === 'insider preview')
+        ) {
+          driverNames.add(`${browserName}Chromium`);
+        } else {
+          driverNames.add(browserName);
+        }
+      }
+    }
+
+    return Array.from<string>(driverNames);
   }
 
   protected _runTests(): CancellablePromise<void> {

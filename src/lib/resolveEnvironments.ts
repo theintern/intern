@@ -131,6 +131,11 @@ function expandVersionRange(
  * * 'latest-{number}'
  */
 function resolveVersionAlias(version: string, availableVersions: string[]) {
+  // Used for Edge Chromium
+  if (version === 'insider preview') {
+    return version;
+  }
+
   let pieces = version.split('-');
   if (pieces.length > 2) {
     throw new Error('Invalid alias syntax "' + version + '"');
