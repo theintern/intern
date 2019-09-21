@@ -9,6 +9,7 @@ import {
   hookRequire,
   unhookRunInThisContext
 } from 'istanbul-lib-hook';
+import 'ts-node/register';
 import { global, Task, CancellablePromise, deepMixin } from '@theintern/common';
 import Command from '@theintern/leadfoot/Command';
 import LeadfootServer from '@theintern/leadfoot/Server';
@@ -757,7 +758,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // handle suites
       this._instrumenter = createInstrumenter(
         Object.assign(
-          {},
+          { esModules: true },
           {
             coverageVariable: config.coverageVariable,
             ...config.instrumenterOptions
