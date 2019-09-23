@@ -212,6 +212,8 @@ registerSuite('lib/executors/Node', function() {
     }
   }
 
+  const mockTsNodeRegister = spy();
+
   const mockNodeUtil = {
     expandFiles(files: string | string[]) {
       return files || [];
@@ -287,6 +289,9 @@ registerSuite('lib/executors/Node', function() {
             return new MockMapStore();
           }
         },
+        'ts-node': {
+          register: mockTsNodeRegister
+        },
         'src/lib/Server': { default: MockServer },
         'src/lib/resolveEnvironments': {
           default: () => {
@@ -321,6 +326,7 @@ registerSuite('lib/executors/Node', function() {
     },
 
     afterEach() {
+      mockTsNodeRegister.resetHistory();
       mockConsole.log.resetHistory();
       mockConsole.warn.resetHistory();
       mockConsole.error.resetHistory();
@@ -1193,6 +1199,56 @@ registerSuite('lib/executors/Node', function() {
                 ],
                 'unexpected value for tunnelOptions.drivers'
               );
+            });
+          }
+        },
+
+        'tsconfig option': {
+          'none specified'() {
+            fsData['foo.ts'] = 'foo';
+            fsData['bar.d.ts'] = 'bar';
+            executor.configure(<any>{
+              environments: 'chrome',
+              tunnel: 'null',
+              suites: 'foo.ts',
+              coverage: ['foo.ts', 'bar.d.ts']
+            });
+
+            return executor.run().then(() => {
+              const map: MockCoverageMap = executor.coverageMap as any;
+              assert.isTrue(map.addFileCoverage.calledOnce);
+              assert.deepEqual(map.addFileCoverage.args[0][0], {
+                code: 'foo',
+                filename: 'foo.ts'
+              });
+              assert.isTrue(mockTsNodeRegister.called);
+              assert.deepEqual(mockTsNodeRegister.args[0], []);
+            });
+          },
+          'custom specified'() {
+            fsData['foo.ts'] = 'foo';
+            fsData['bar.ts'] = 'bar';
+            executor.configure(<any>{
+              environments: 'chrome',
+              tunnel: 'null',
+              suites: 'foo.ts',
+              node: {
+                tsconfig: './test/tsconfig.json'
+              },
+              coverage: ['foo.ts', 'bar.d.ts']
+            });
+
+            return executor.run().then(() => {
+              const map: MockCoverageMap = executor.coverageMap as any;
+              assert.isTrue(map.addFileCoverage.calledOnce);
+              assert.deepEqual(map.addFileCoverage.args[0][0], {
+                code: 'foo',
+                filename: 'foo.ts'
+              });
+              assert.isTrue(mockTsNodeRegister.calledOnce);
+              assert.deepEqual(mockTsNodeRegister.args[0][0], {
+                project: './test/tsconfig.json'
+              });
             });
           }
         }

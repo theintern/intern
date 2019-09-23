@@ -361,11 +361,24 @@ registerSuite('lib/executors/Executor', function() {
               test(
                 'node',
                 5,
+                { tsconfig: './test/tsconfig.json' },
+                {
+                  plugins: [],
+                  reporters: [],
+                  suites: [],
+                  tsconfig: './test/tsconfig.json'
+                },
+                /Non-object/
+              );
+              test(
+                'node',
+                5,
                 { suites: 'foo' },
                 {
                   plugins: [],
                   reporters: [],
-                  suites: ['foo']
+                  suites: ['foo'],
+                  tsconfig: './test/tsconfig.json'
                 },
                 /Non-object/
               );

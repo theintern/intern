@@ -9,7 +9,7 @@ import {
   hookRequire,
   unhookRunInThisContext
 } from 'istanbul-lib-hook';
-import 'ts-node/register';
+import { register } from 'ts-node';
 import { global, Task, CancellablePromise, deepMixin } from '@theintern/common';
 import Command from '@theintern/leadfoot/Command';
 import LeadfootServer from '@theintern/leadfoot/Server';
@@ -227,25 +227,30 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       this._sourceMaps.registerMap(filename, sourceMap);
     }
 
-    try {
-      const instrumenter = this._instrumenter!;
-      const newCode = instrumenter.instrumentSync(
-        code,
-        normalize(filename),
-        sourceMap
-      );
+    if (!filename.endsWith('.d.ts')) {
+      try {
+        const instrumenter = this._instrumenter!;
+        const newCode = instrumenter.instrumentSync(
+          code,
+          normalize(filename),
+          sourceMap
+        );
 
-      this._coverageMap.addFileCoverage(instrumenter.lastFileCoverage());
-      this._instrumentedMaps.registerMap(
-        filename,
-        instrumenter.lastSourceMap()
-      );
+        this._coverageMap.addFileCoverage(instrumenter.lastFileCoverage());
+        this._instrumentedMaps.registerMap(
+          filename,
+          instrumenter.lastSourceMap()
+        );
 
-      return newCode;
-    } catch (error) {
-      this.emit('warning', `Error instrumenting ${filename}: ${error.message}`);
-      return code;
+        return newCode;
+      } catch (error) {
+        this.emit(
+          'warning',
+          `Error instrumenting ${filename}: ${error.message}`
+        );
+      }
     }
+    return code;
   }
 
   /**
@@ -674,6 +679,10 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         }
       }
 
+      this.config.node.tsconfig
+        ? register({ project: this.config.node.tsconfig })
+        : register();
+
       (['basePath', 'internPath'] as ('basePath' | 'internPath')[]).forEach(
         property => {
           config[property] = normalizePathEnding(
@@ -934,7 +943,8 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     );
     this._unhookRequire = hookRequire(
       filename => this.shouldInstrumentFile(filename),
-      (code, { filename }) => this.instrumentCode(code, filename)
+      (code, { filename }) => this.instrumentCode(code, filename),
+      { extensions: ['.js', '.jsx', '.ts', 'tsx'] }
     );
   }
 

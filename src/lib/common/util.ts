@@ -493,6 +493,11 @@ export function processOption<C extends Config>(
               setOption(<Config>envConfig, name, resource, addToExisting);
               break;
             }
+            case 'tsconfig': {
+              resource = parseValue(name, resource, 'string');
+              setOption(<Config>envConfig, name, resource);
+              break;
+            }
             default: {
               throw new Error(`Invalid property ${key} in ${envName} config`);
             }

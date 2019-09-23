@@ -13,7 +13,6 @@ import {
   parseArgs,
   splitConfigPath
 } from '../common/util';
-import * as path from 'path';
 
 /**
  * Expand a list of glob patterns into a flat file list. Patterns may be simple
@@ -152,21 +151,6 @@ export function normalizePath(path: string) {
   return normalize(path).replace(/\\/g, '/');
 }
 
-function getTranspiledSource(sourceFile: string): string {
-  const ext = path.extname(sourceFile);
-  let source;
-  (require.extensions[ext] || require.extensions['.js'])(
-    {
-      _compile(content: string) {
-        source = content;
-      }
-    } as any,
-    sourceFile
-  );
-  console.log(`Source for ${sourceFile}:\n${source || ''}`);
-
-  return source || readFileSync(sourceFile, { encoding: 'utf8' });
-}
 /**
  * Given a source filename, and optionally code, return the file's source map if
  * one exists.
@@ -176,7 +160,7 @@ export function readSourceMap(
   code?: string
 ): RawSourceMap | undefined {
   if (!code) {
-    code = getTranspiledSource(sourceFile);
+    code = readFileSync(sourceFile, { encoding: 'utf8' });
   }
 
   let match: RegExpMatchArray | null;
