@@ -97,7 +97,8 @@
     "shell-quote": "~1.6.1",
     "source-map": "~0.6.1",
     "tslib": "~1.9.3",
-    "ws": "~7.0.0"
+    "ws": "~7.0.0",
+    "ts-node": "^8.2.0"
   },
   "devDependencies": {
     "@dojo/loader": "~2.0.0",
@@ -136,7 +137,6 @@
     "stylus": "~0.54.5",
     "stylus-loader": "~3.0.2",
     "ts-loader": "~6.0.2",
-    "ts-node": "^8.2.0",
     "umd-compat-loader": "~2.1.2",
     "url-search-params-polyfill": "~6.0.0",
     "webpack": "~4.33.0",

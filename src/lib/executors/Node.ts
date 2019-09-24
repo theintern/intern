@@ -31,7 +31,7 @@ import { Config, EnvironmentSpec } from '../common/config';
 import Executor, { Events, Plugins } from './Executor';
 import { normalizePathEnding } from '../common/path';
 import { pullFromArray } from '../common/util';
-import { expandFiles, readSourceMap } from '../node/util';
+import { expandFiles, readSourceMap, transpileSource } from '../node/util';
 import ErrorFormatter from '../node/ErrorFormatter';
 import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
@@ -220,35 +220,42 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   /**
    * Insert coverage instrumentation into a given code string
    */
-  instrumentCode(code: string, filename: string): string {
+  instrumentCode(
+    code: string,
+    filename: string,
+    shouldCompile?: boolean
+  ): string {
     this.log('Instrumenting', filename);
+    if (filename.endsWith('.d.ts')) {
+      return code;
+    }
+
+    if (shouldCompile) {
+      return transpileSource(filename, code);
+    }
+
     const sourceMap = readSourceMap(filename, code);
     if (sourceMap) {
       this._sourceMaps.registerMap(filename, sourceMap);
     }
 
-    if (!filename.endsWith('.d.ts')) {
-      try {
-        const instrumenter = this._instrumenter!;
-        const newCode = instrumenter.instrumentSync(
-          code,
-          normalize(filename),
-          sourceMap
-        );
+    try {
+      const instrumenter = this._instrumenter!;
+      const newCode = instrumenter.instrumentSync(
+        code,
+        normalize(filename),
+        sourceMap
+      );
 
-        this._coverageMap.addFileCoverage(instrumenter.lastFileCoverage());
-        this._instrumentedMaps.registerMap(
-          filename,
-          instrumenter.lastSourceMap()
-        );
+      this._coverageMap.addFileCoverage(instrumenter.lastFileCoverage());
+      this._instrumentedMaps.registerMap(
+        filename,
+        instrumenter.lastSourceMap()
+      );
 
-        return newCode;
-      } catch (error) {
-        this.emit(
-          'warning',
-          `Error instrumenting ${filename}: ${error.message}`
-        );
-      }
+      return newCode;
+    } catch (error) {
+      this.emit('warning', `Error instrumenting ${filename}: ${error.message}`);
     }
     return code;
   }
@@ -886,7 +893,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       uncoveredFiles.forEach(filename => {
         try {
           const code = readFileSync(filename, { encoding: 'utf8' });
-          this.instrumentCode(code, filename);
+          this.instrumentCode(code, filename, true);
         } catch (_error) {}
       });
     });

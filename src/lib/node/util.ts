@@ -13,6 +13,7 @@ import {
   parseArgs,
   splitConfigPath
 } from '../common/util';
+import * as path from 'path';
 
 /**
  * Expand a list of glob patterns into a flat file list. Patterns may be simple
@@ -199,6 +200,19 @@ export function mkdirp(dir: string) {
   if (!existsSync(dir)) {
     mkdirSync(dir);
   }
+}
+
+export function transpileSource(filename: string, code: string) {
+  require.extensions[path.extname(filename)](
+    {
+      _compile(source: string) {
+        code = source;
+      }
+    } as any,
+    filename
+  );
+
+  return code;
 }
 
 // Regex for matching sourceMappingUrl comments

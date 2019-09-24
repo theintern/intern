@@ -223,7 +223,8 @@ registerSuite('lib/executors/Node', function() {
     },
     readSourceMap() {
       return {};
-    }
+    },
+    transpileSource: spy()
   };
 
   let executor: _Node;
@@ -331,6 +332,7 @@ registerSuite('lib/executors/Node', function() {
       mockConsole.warn.resetHistory();
       mockConsole.error.resetHistory();
       mockGlobal.process.on.resetHistory();
+      mockNodeUtil.transpileSource.resetHistory();
     },
 
     tests: {
@@ -1044,16 +1046,15 @@ registerSuite('lib/executors/Node', function() {
           });
 
           return executor.run().then(() => {
-            const map: MockCoverageMap = executor.coverageMap as any;
-            assert.isTrue(map.addFileCoverage.calledTwice);
-            assert.deepEqual(map.addFileCoverage.args[0][0], {
-              code: 'foo',
-              filename: 'foo.js'
-            });
-            assert.deepEqual(map.addFileCoverage.args[1][0], {
-              code: 'bar',
-              filename: 'bar.js'
-            });
+            assert.isTrue(mockNodeUtil.transpileSource.calledTwice);
+            assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
+              'foo.js',
+              'foo'
+            ]);
+            assert.deepEqual(mockNodeUtil.transpileSource.args[1], [
+              'bar.js',
+              'bar'
+            ]);
           });
         },
 
@@ -1215,19 +1216,18 @@ registerSuite('lib/executors/Node', function() {
             });
 
             return executor.run().then(() => {
-              const map: MockCoverageMap = executor.coverageMap as any;
-              assert.isTrue(map.addFileCoverage.calledOnce);
-              assert.deepEqual(map.addFileCoverage.args[0][0], {
-                code: 'foo',
-                filename: 'foo.ts'
-              });
+              assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
+              assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
+                'foo.ts',
+                'foo'
+              ]);
               assert.isTrue(mockTsNodeRegister.called);
               assert.deepEqual(mockTsNodeRegister.args[0], []);
             });
           },
           'custom specified'() {
             fsData['foo.ts'] = 'foo';
-            fsData['bar.ts'] = 'bar';
+            fsData['bar.d.ts'] = 'bar';
             executor.configure(<any>{
               environments: 'chrome',
               tunnel: 'null',
@@ -1239,12 +1239,11 @@ registerSuite('lib/executors/Node', function() {
             });
 
             return executor.run().then(() => {
-              const map: MockCoverageMap = executor.coverageMap as any;
-              assert.isTrue(map.addFileCoverage.calledOnce);
-              assert.deepEqual(map.addFileCoverage.args[0][0], {
-                code: 'foo',
-                filename: 'foo.ts'
-              });
+              assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
+              assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
+                'foo.ts',
+                'foo'
+              ]);
               assert.isTrue(mockTsNodeRegister.calledOnce);
               assert.deepEqual(mockTsNodeRegister.args[0][0], {
                 project: './test/tsconfig.json'

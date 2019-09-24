@@ -101,6 +101,9 @@ registerSuite('lib/node/util', function() {
 
     resolve(path: string) {
       return path;
+    },
+    extname(path: string) {
+      return `.${path.split('.').pop()}`;
     }
   };
 
