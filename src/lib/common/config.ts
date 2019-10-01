@@ -477,10 +477,11 @@ export interface ResourceConfig {
   suites: string[];
 
   /**
-   * An optional path to a tsconfig for ts-node. This options can be used
-   * if tests need to use a different tsconfig than the project uses normally.
+   * An optional path to a tsconfig for ts-node, or false if TypeScript
+   * support is not needed. This option can be used if tests need to use a
+   * different tsconfig than the project uses normally.
    */
-  tsconfig?: string;
+  tsconfig?: string | false;
   // Deprecated; these are only here for typing
   require: never;
   requires: never;

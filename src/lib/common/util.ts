@@ -494,7 +494,22 @@ export function processOption<C extends Config>(
               break;
             }
             case 'tsconfig': {
-              resource = parseValue(name, resource, 'string');
+              resource = parseValue(name, resource, tsconfig => {
+                let value;
+
+                if (tsconfig === false || tsconfig === 'false') {
+                  value = false;
+                }
+
+                if (typeof tsconfig === 'string') {
+                  value = tsconfig;
+                }
+                if (typeof value === 'undefined') {
+                  throw new Error('"tsconfig" must be a string or `false`');
+                }
+
+                return value;
+              });
               setOption(<Config>envConfig, name, resource);
               break;
             }

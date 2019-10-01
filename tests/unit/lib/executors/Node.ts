@@ -1225,6 +1225,7 @@ registerSuite('lib/executors/Node', function() {
               assert.deepEqual(mockTsNodeRegister.args[0], []);
             });
           },
+
           'custom specified'() {
             fsData['foo.ts'] = 'foo';
             fsData['bar.d.ts'] = 'bar';
@@ -1248,6 +1249,50 @@ registerSuite('lib/executors/Node', function() {
               assert.deepEqual(mockTsNodeRegister.args[0][0], {
                 project: './test/tsconfig.json'
               });
+            });
+          },
+
+          'specified as false'() {
+            fsData['foo.js'] = 'foo';
+            executor.configure(<any>{
+              environments: 'chrome',
+              tunnel: 'null',
+              suites: 'foo.js',
+              node: {
+                tsconfig: false
+              },
+              coverage: ['foo.js']
+            });
+
+            return executor.run().then(() => {
+              assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
+              assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
+                'foo.js',
+                'foo'
+              ]);
+              assert.isFalse(mockTsNodeRegister.called);
+            });
+          },
+
+          'specified as "false"'() {
+            fsData['foo.js'] = 'foo';
+            executor.configure(<any>{
+              environments: 'chrome',
+              tunnel: 'null',
+              suites: 'foo.js',
+              node: {
+                tsconfig: 'false'
+              },
+              coverage: ['foo.js']
+            });
+
+            return executor.run().then(() => {
+              assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
+              assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
+                'foo.js',
+                'foo'
+              ]);
+              assert.isFalse(mockTsNodeRegister.called);
             });
           }
         }

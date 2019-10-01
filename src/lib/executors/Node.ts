@@ -686,9 +686,11 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         }
       }
 
-      this.config.node.tsconfig
-        ? register({ project: this.config.node.tsconfig })
-        : register();
+      if (typeof this.config.node.tsconfig === 'undefined') {
+        register();
+      } else if (this.config.node.tsconfig) {
+        register({ project: this.config.node.tsconfig });
+      }
 
       (['basePath', 'internPath'] as ('basePath' | 'internPath')[]).forEach(
         property => {
@@ -774,7 +776,11 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // handle suites
       this._instrumenter = createInstrumenter(
         Object.assign(
-          { esModules: true },
+          {
+            esModules: Boolean(
+              typeof config.tsconfig === 'undefined' || config.tsconfig
+            )
+          },
           {
             coverageVariable: config.coverageVariable,
             ...config.instrumenterOptions
