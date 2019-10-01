@@ -22,7 +22,7 @@ registerSuite('lib/middleware/instrument', function() {
 
   let server: Server;
   let shouldInstrumentFile: sinon.SinonStub<[string]>;
-  let instrumentCode: sinon.SinonStub<[string, string, (boolean | undefined)?]>;
+  let instrumentCode: sinon.SinonStub<[string, string, boolean?]>;
   let handler: (request: any, response: any, next: any) => any;
   let request: MockRequest;
   let response: MockResponse;

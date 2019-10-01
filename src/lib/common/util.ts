@@ -499,11 +499,10 @@ export function processOption<C extends Config>(
 
                 if (tsconfig === false || tsconfig === 'false') {
                   value = false;
-                }
-
-                if (typeof tsconfig === 'string') {
+                } else if (typeof tsconfig === 'string') {
                   value = tsconfig;
                 }
+
                 if (typeof value === 'undefined') {
                   throw new Error('"tsconfig" must be a string or `false`');
                 }
