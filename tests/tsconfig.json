@@ -6,6 +6,7 @@
     "importHelpers": false,
     "lib": ["dom", "es2015"],
     "module": "commonjs",
+    "outDir": "../_tests",
 
     // This file intentionally doesn't use paths to prevent re-building
     // files in ../src. Instead, source files will be rebuilt using the

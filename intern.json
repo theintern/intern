@@ -2,9 +2,9 @@
   "capabilities": {
     "fixSessionCapabilities": false
   },
-  "coverage": ["_build/src/**/*.js"],
+  "coverage": ["_tests/src/**/*.js"],
   "filterErrorStack": true,
-  "plugins": "_build/tests/globalUi.js",
+  "plugins": "_tests/tests/globalUi.js",
   "reporters": [
     {
       "name": "runner",
@@ -12,5 +12,5 @@
     },
     "htmlcoverage"
   ],
-  "suites": "_build/tests/**/*.js"
+  "suites": "_tests/tests/**/*.js"
 }
