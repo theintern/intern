@@ -63,6 +63,9 @@ let tests: Tests = {
       { name: 'internet explorer' },
       { name: 'edge' },
       { name: 'MicrosoftEdge' },
+      { name: 'MicrosoftEdgeChromium', platform: 'win32', arch: 'x64' },
+      { name: 'MicrosoftEdgeChromium', platform: 'win32', arch: 'x86' },
+      { name: 'MicrosoftEdgeChromium', platform: 'darwin' },
       { name: 'firefox', platform: 'linux' },
       { name: 'firefox', platform: 'darwin' },
       { name: 'firefox', platform: 'win32' }

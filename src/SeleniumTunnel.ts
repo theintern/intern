@@ -625,11 +625,73 @@ class EdgeConfig extends Config<EdgeOptions>
   }
 }
 
+interface EdgeChromiumProperties {
+  arch: string;
+  baseUrl: string;
+  platform: string;
+  version: string;
+}
+
+class EdgeChromiumConfig extends Config<EdgeOptions>
+  implements EdgeChromiumProperties, DriverFile {
+  arch!: string;
+  baseUrl!: string;
+  platform!: string;
+  version!: string;
+
+  constructor(options: ChromeOptions) {
+    super(
+      Object.assign(
+        {
+          arch: process.arch,
+          baseUrl: drivers.edgeChromium.baseUrl,
+          platform: edgePlatformNames[process.platform] || process.platform,
+          version: drivers.edgeChromium.latest
+        },
+        options
+      )
+    );
+  }
+
+  get artifact() {
+    const platform = edgePlatformNames[this.platform] || this.platform;
+    const arch = this.arch === 'x86' ? '32' : '64';
+    return format('edgedriver_%s%s.zip', platform, arch);
+  }
+
+  get directory() {
+    return join(this.version, this.arch);
+  }
+
+  get url() {
+    return format('%s/%s/%s', this.baseUrl, this.version, this.artifact);
+  }
+
+  get executable() {
+    return join(
+      this.directory,
+      this.platform === 'win32' ? 'msedgedriver.exe' : 'msedgedriver'
+    );
+  }
+
+  get seleniumProperty() {
+    return 'webdriver.edge.driver';
+  }
+}
+
+const edgePlatformNames: { [key: string]: string } = {
+  darwin: 'mac',
+  win32: 'win',
+  win64: 'win'
+};
+
 const driverNameMap: { [key: string]: DriverConstructor } = {
   chrome: ChromeConfig,
   firefox: FirefoxConfig,
   ie: IEConfig,
   'internet explorer': IEConfig,
   edge: EdgeConfig,
-  MicrosoftEdge: EdgeConfig
+  MicrosoftEdge: EdgeConfig,
+  edgeChromium: EdgeChromiumConfig,
+  MicrosoftEdgeChromium: EdgeChromiumConfig
 };
