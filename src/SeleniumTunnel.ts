@@ -9,29 +9,7 @@ import { Handle, Task, CancellablePromise } from '@theintern/common';
 import { fileExists, kill, on, writeFile } from './lib/util';
 import { satisfies } from 'semver';
 import { sync as commandExistsSync } from 'command-exists';
-
-const driverInfo = {
-  SeleniumVersion: '3.141.59',
-  ChromeVersion: '74.0.3729.6',
-  FirefoxVersion: '0.24.0',
-  IEVersion: '3.141.59',
-
-  EdgeVersion: '17134',
-  EdgeUrls: {
-    '15063':
-      'https://download.microsoft.com/download/3/4/2/342316D7-EBE0-4F10-ABA2-AE8E0CDF36DD/MicrosoftWebDriver.exe',
-    '16299':
-      'https://download.microsoft.com/download/D/4/1/D417998A-58EE-4EFE-A7CC-39EF9E020768/MicrosoftWebDriver.exe',
-    '17134':
-      'https://download.microsoft.com/download/F/8/A/F8AF50AB-3C3A-4BC4-8773-DC27B32988DD/MicrosoftWebDriver.exe',
-    '75.0.137.0': {
-      x86:
-        'https://az813057.vo.msecnd.net/webdriver/msedgedriver_x86/msedgedriver.exe',
-      x64:
-        'https://az813057.vo.msecnd.net/webdriver/msedgedriver_x64/msedgedriver.exe'
-    }
-  }
-};
+import { drivers } from './webdrivers.json';
 
 /**
  * A Selenium tunnel. This tunnel downloads the
@@ -125,8 +103,8 @@ export default class SeleniumTunnel extends Tunnel
         {
           seleniumArgs: [],
           drivers: ['chrome'],
-          baseUrl: 'https://selenium-release.storage.googleapis.com',
-          version: driverInfo.SeleniumVersion,
+          baseUrl: drivers.selenium.baseUrl,
+          version: drivers.selenium.latest,
           seleniumTimeout: 5000
         },
         options || {}
@@ -403,9 +381,9 @@ class ChromeConfig extends Config<ChromeOptions>
       Object.assign(
         {
           arch: process.arch,
-          baseUrl: 'https://chromedriver.storage.googleapis.com',
+          baseUrl: drivers.chrome.baseUrl,
           platform: process.platform,
-          version: driverInfo.ChromeVersion
+          version: drivers.chrome.latest
         },
         options
       )
@@ -469,9 +447,9 @@ class FirefoxConfig extends Config<FirefoxOptions>
       Object.assign(
         {
           arch: process.arch,
-          baseUrl: 'https://github.com/mozilla/geckodriver/releases/download',
+          baseUrl: drivers.firefox.baseUrl,
           platform: process.platform,
-          version: driverInfo.FirefoxVersion
+          version: drivers.firefox.latest
         },
         options
       )
@@ -530,8 +508,8 @@ class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
       Object.assign(
         {
           arch: process.arch,
-          baseUrl: 'https://selenium-release.storage.googleapis.com',
-          version: driverInfo.IEVersion
+          baseUrl: drivers.ie.baseUrl,
+          version: drivers.ie.latest
         },
         options
       )
@@ -568,6 +546,11 @@ interface EdgeProperties {
   baseUrl: string;
   uuid: string | undefined;
   version: string;
+  versions: EdgeVersions;
+}
+
+interface EdgeVersions {
+  [version: string]: { url: string };
 }
 
 type EdgeOptions = Partial<EdgeProperties>;
@@ -577,15 +560,17 @@ class EdgeConfig extends Config<EdgeOptions>
   arch!: string;
   baseUrl!: string;
   uuid: string | undefined;
-  version!: keyof typeof driverInfo.EdgeUrls;
+  version!: keyof typeof drivers.edge.versions;
+  versions!: EdgeVersions;
 
   constructor(options: EdgeOptions) {
     super(
       Object.assign(
         {
           arch: process.arch,
-          baseUrl: 'https://download.microsoft.com/download',
-          version: driverInfo.EdgeVersion
+          baseUrl: drivers.edge.baseUrl,
+          version: drivers.edge.latest,
+          versions: drivers.edge.versions
         },
         options
       )
@@ -615,7 +600,7 @@ class EdgeConfig extends Config<EdgeOptions>
       );
     }
 
-    const urlOrObj = driverInfo.EdgeUrls[this.version];
+    const urlOrObj = drivers.edge.versions[this.version].url;
     if (typeof urlOrObj === 'string') {
       return urlOrObj;
     }

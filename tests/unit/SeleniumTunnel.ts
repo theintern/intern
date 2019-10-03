@@ -75,13 +75,9 @@ registerSuite('unit/SeleniumTunnel', {
           console.log = oldLog;
         },
         '3.0.0': createTest('3.0.0', false),
-        '3.0.1': createTest('3.0.1', false),
-        '3.1.0': createTest('3.1.0', true),
-        '3.2.0': createTest('3.2.2', true),
-        '3.3.0': createTest('3.3.0', true),
-        '3.4.0': createTest('3.4.0', true),
-        '3.4.9': createTest('3.4.9', true),
-        '3.5.0': createTest('3.5.0', false)
+        '3.5.0': createTest('3.5.0', false),
+        '3.14.0': createTest('3.14.0', false),
+        '3.141.59': createTest('3.141.59', false)
       };
     })()
   }

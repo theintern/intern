@@ -55,6 +55,14 @@ const tunnel = new SeleniumTunnel({
 });
 ```
 
+To determine what are the most recent versions of Selenium and the various webdrivers,
+Dig Dug will first attempt to download a version manifest from
+`https://theintern.github.io`. If this fails, Dig Dug will fall back to the
+manifest contained in the package. The actual location used to download the
+manifest can be controlled via the `webDriverConfigUrl` property on
+SeleniumTunnel. Set the property to `false` to prevent SeleniumTunnel from
+trying to download the manifest.
+
 ### Cloud testing services
 
 Dig Dug supports the following cloud testing services:

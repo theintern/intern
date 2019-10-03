@@ -72,5 +72,13 @@
       "git add"
     ]
   },
-  "pre-commit": "precommit"
+  "pre-commit": "precommit",
+  "internDev": {
+    "resources": {
+      "_build": [
+        "src/schemas/**"
+      ]
+    }
+  }
 }
+
