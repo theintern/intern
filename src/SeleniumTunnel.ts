@@ -315,9 +315,7 @@ export interface RemoteFile {
 }
 
 export type DriverDescriptor =
-  | 'chrome'
-  | 'ie'
-  | 'firefox'
+  | string
   | DriverFile
   | { name: string; version?: string };
 
