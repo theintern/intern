@@ -16,7 +16,9 @@ import { JobState } from './interfaces';
 import { on } from './lib/util';
 import { exec } from 'child_process';
 
-const cbtVersion = '^0.9.9';
+// cbt_tunnels 0.9.11 has a bug in which it references a package that isn't
+// dependency
+const cbtVersion = '0.9.10 || > 0.9.11';
 
 /**
  * A CrossBrowserTesting tunnel.
@@ -97,7 +99,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
     }
     return new Task((resolve, reject) => {
       exec(
-        `npm install --no-save cbt_tunnels@${this.cbtVersion}`,
+        `npm install --no-save cbt_tunnels@'${this.cbtVersion}'`,
         (error, _stdout, stderr) => {
           if (error) {
             console.error(stderr);
