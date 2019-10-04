@@ -16,9 +16,7 @@ import { JobState } from './interfaces';
 import { on } from './lib/util';
 import { exec } from 'child_process';
 
-// cbt_tunnels 0.9.11 has a bug in which it references a package that isn't
-// dependency
-const cbtVersion = '0.9.10 || > 0.9.11';
+const cbtVersion = '0.9.12';
 
 /**
  * A CrossBrowserTesting tunnel.
