@@ -1164,7 +1164,11 @@ registerSuite('lib/executors/Node', function() {
             return executor.run().then(() => {
               assert.sameDeepMembers(
                 (<any>executor.config.tunnelOptions!).drivers,
-                [{ name: 'chrome' }, { name: 'firefox' }, { name: 'ie' }],
+                [
+                  { name: 'chrome' },
+                  { name: 'firefox' },
+                  { name: 'internet explorer' }
+                ],
                 'unexpected value for tunnelOptions.drivers'
               );
             });
@@ -1182,7 +1186,11 @@ registerSuite('lib/executors/Node', function() {
             return executor.run().then(() => {
               assert.sameDeepMembers(
                 (<any>executor.config.tunnelOptions!).drivers,
-                ['chrome', { name: 'firefox' }, { name: 'ie', options: {} }],
+                [
+                  'chrome',
+                  { name: 'firefox' },
+                  { name: 'internet explorer', options: {} }
+                ],
                 'unexpected value for tunnelOptions.drivers'
               );
             });

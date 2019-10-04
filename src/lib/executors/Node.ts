@@ -614,6 +614,46 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         config.environments.push({ browserName: 'node' });
       }
 
+      // Normalize browser names
+      config.environments.forEach(env => {
+        const { browserName } = env;
+        const newName = getNormalizedBrowserName(browserName)!;
+        env.browserName = newName;
+        if (env.browser) {
+          env.browser = newName;
+        }
+      });
+
+      // Normalize tunnel driver names
+      if (config.tunnelOptions.drivers) {
+        config.tunnelOptions.drivers = config.tunnelOptions.drivers.map(
+          driver => {
+            let driverName: string | undefined;
+
+            if (typeof driver === 'string') {
+              driverName = driver;
+            } else if ('name' in driver) {
+              driverName = driver.name;
+            }
+
+            const newName = getNormalizedBrowserName(driverName);
+
+            if (typeof driver === 'string') {
+              return newName!;
+            }
+
+            if ('name' in driver) {
+              return {
+                ...driver,
+                name: newName!
+              };
+            }
+
+            return driver;
+          }
+        );
+      }
+
       if (!config.internPath) {
         config.internPath = dirname(dirname(__dirname));
 
@@ -775,11 +815,10 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       if (
         browserName === 'chrome' ||
         browserName === 'firefox' ||
-        browserName === 'ie' ||
         browserName === 'internet explorer'
       ) {
         driverNames.add(browserName);
-      } else if (browserName === 'edge' || browserName === 'MicrosoftEdge') {
+      } else if (browserName === 'MicrosoftEdge') {
         const { browserVersion } = env;
         if (
           (!isNaN(browserVersion) && Number(browserVersion) < 1000) ||
@@ -787,9 +826,9 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           // official released
           (isNaN(browserVersion) && browserVersion === 'insider preview')
         ) {
-          driverNames.add(`${browserName}Chromium`);
+          driverNames.add('MicrosoftEdgeChromium');
         } else {
-          driverNames.add(browserName);
+          driverNames.add('MicrosoftEdge');
         }
       }
     }
@@ -1012,4 +1051,14 @@ function isRemoteEnvironment(environment: EnvironmentSpec) {
 
 function isLocalEnvironment(environment: EnvironmentSpec) {
   return !isRemoteEnvironment(environment);
+}
+
+function getNormalizedBrowserName(name: string | undefined) {
+  if (name === 'ie') {
+    return 'internet explorer';
+  }
+  if (name && /^edge/.test(name)) {
+    return name.replace(/^edge/, 'MicrosoftEdge');
+  }
+  return name;
 }
