@@ -15,7 +15,9 @@ import LeadfootServer from '@theintern/leadfoot/Server';
 import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/Tunnel';
 
 // Dig Dug tunnels
-import SeleniumTunnel from '@theintern/digdug/SeleniumTunnel';
+import SeleniumTunnel, {
+  DriverDescriptor
+} from '@theintern/digdug/SeleniumTunnel';
 import BrowserStackTunnel, {
   BrowserStackOptions
 } from '@theintern/digdug/BrowserStackTunnel';
@@ -639,7 +641,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
             const newName = getNormalizedBrowserName(driverName);
 
             if (typeof driver === 'string') {
-              return newName!;
+              return newName! as DriverDescriptor;
             }
 
             if ('name' in driver) {
