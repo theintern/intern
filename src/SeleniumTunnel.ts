@@ -643,7 +643,7 @@ class EdgeChromiumConfig extends Config<EdgeOptions>
         {
           arch: process.arch,
           baseUrl: drivers.edgeChromium.baseUrl,
-          platform: edgePlatformNames[process.platform] || process.platform,
+          platform: process.platform,
           version: drivers.edgeChromium.latest
         },
         options
