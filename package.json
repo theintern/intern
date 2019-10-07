@@ -62,7 +62,7 @@
   },
   "dependencies": {
     "@theintern/common": "~0.2.3",
-    "@theintern/digdug": "~2.3.0",
+    "@theintern/digdug": "~2.4.0",
     "@theintern/leadfoot": "~2.3.0",
     "@types/benchmark": "1.0.31",
     "@types/chai": "4.1.7",
