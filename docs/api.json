@@ -9839,9 +9839,9 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1368,
-									"character": 19
+									"character": 17
 								}
 							],
 							"type": {
@@ -9926,7 +9926,7 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1209,
 									"character": 10
 								}
@@ -9976,7 +9976,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2015.iterable.d.ts",
 									"line": 52,
 									"character": 21
 								}
@@ -10021,7 +10021,7 @@
 													"flags": {},
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 95,
 															"character": 18
 														}
@@ -10039,7 +10039,7 @@
 													"flags": {},
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 96,
 															"character": 15
 														}
@@ -10057,7 +10057,7 @@
 													"flags": {},
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 97,
 															"character": 12
 														}
@@ -10075,7 +10075,7 @@
 													"flags": {},
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 98,
 															"character": 12
 														}
@@ -10093,7 +10093,7 @@
 													"flags": {},
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 99,
 															"character": 17
 														}
@@ -10111,7 +10111,7 @@
 													"flags": {},
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 100,
 															"character": 12
 														}
@@ -10129,7 +10129,7 @@
 													"flags": {},
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 101,
 															"character": 14
 														}
@@ -10157,7 +10157,7 @@
 											],
 											"sources": [
 												{
-													"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+													"fileName": "node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 													"line": 94,
 													"character": 27
 												}
@@ -10172,7 +10172,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 									"line": 94,
 									"character": 24
 								}
@@ -10299,12 +10299,12 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1231,
 									"character": 10
 								},
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1236,
 									"character": 10
 								}
@@ -10399,7 +10399,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2015.core.d.ts",
 									"line": 64,
 									"character": 14
 								}
@@ -10454,7 +10454,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2015.iterable.d.ts",
 									"line": 57,
 									"character": 11
 								}
@@ -10547,13 +10547,13 @@
 															],
 															"type": {
 																"type": "intrinsic",
-																"name": "boolean"
+																"name": "unknown"
 															}
 														}
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1296,
 															"character": 21
 														}
@@ -10590,7 +10590,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1296,
 									"character": 9
 								}
@@ -10696,7 +10696,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2015.core.d.ts",
 									"line": 53,
 									"character": 8
 								}
@@ -10808,7 +10808,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1320,
 															"character": 35
 														}
@@ -10923,13 +10923,13 @@
 															],
 															"type": {
 																"type": "intrinsic",
-																"name": "any"
+																"name": "unknown"
 															}
 														}
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1326,
 															"character": 22
 														}
@@ -10969,12 +10969,12 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1320,
 									"character": 10
 								},
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1326,
 									"character": 10
 								}
@@ -11097,7 +11097,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es2015.core.d.ts",
 															"line": 31,
 															"character": 32
 														}
@@ -11212,13 +11212,13 @@
 															],
 															"type": {
 																"type": "intrinsic",
-																"name": "boolean"
+																"name": "unknown"
 															}
 														}
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es2015.core.d.ts",
 															"line": 32,
 															"character": 19
 														}
@@ -11261,12 +11261,12 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2015.core.d.ts",
 									"line": 31,
 									"character": 8
 								},
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2015.core.d.ts",
 									"line": 32,
 									"character": 8
 								}
@@ -11359,13 +11359,13 @@
 															],
 															"type": {
 																"type": "intrinsic",
-																"name": "boolean"
+																"name": "unknown"
 															}
 														}
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es2015.core.d.ts",
 															"line": 43,
 															"character": 24
 														}
@@ -11402,7 +11402,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2015.core.d.ts",
 									"line": 43,
 									"character": 13
 								}
@@ -11501,7 +11501,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1308,
 															"character": 23
 														}
@@ -11538,7 +11538,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1308,
 									"character": 11
 								}
@@ -11619,7 +11619,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2016.array.include.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2016.array.include.d.ts",
 									"line": 27,
 									"character": 12
 								}
@@ -11700,7 +11700,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1284,
 									"character": 11
 								}
@@ -11767,7 +11767,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1241,
 									"character": 8
 								}
@@ -11813,7 +11813,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2015.iterable.d.ts",
 									"line": 62,
 									"character": 8
 								}
@@ -11894,7 +11894,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1290,
 									"character": 15
 								}
@@ -12002,7 +12002,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1314,
 															"character": 22
 														}
@@ -12042,7 +12042,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1314,
 									"character": 7
 								}
@@ -12091,7 +12091,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1221,
 									"character": 7
 								}
@@ -12152,7 +12152,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1226,
 									"character": 8
 								}
@@ -12262,7 +12262,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1332,
 															"character": 22
 														}
@@ -12365,7 +12365,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1333,
 															"character": 22
 														}
@@ -12494,7 +12494,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1339,
 															"character": 25
 														}
@@ -12529,17 +12529,17 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1332,
 									"character": 10
 								},
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1333,
 									"character": 10
 								},
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1339,
 									"character": 10
 								}
@@ -12649,7 +12649,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1345,
 															"character": 27
 														}
@@ -12752,7 +12752,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1346,
 															"character": 27
 														}
@@ -12881,7 +12881,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1352,
 															"character": 30
 														}
@@ -12916,17 +12916,17 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1345,
 									"character": 15
 								},
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1346,
 									"character": 15
 								},
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1352,
 									"character": 15
 								}
@@ -12969,7 +12969,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1245,
 									"character": 11
 								}
@@ -13018,7 +13018,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1249,
 									"character": 9
 								}
@@ -13113,7 +13113,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1255,
 									"character": 9
 								}
@@ -13206,13 +13206,13 @@
 															],
 															"type": {
 																"type": "intrinsic",
-																"name": "boolean"
+																"name": "unknown"
 															}
 														}
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+															"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 															"line": 1302,
 															"character": 20
 														}
@@ -13249,7 +13249,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1302,
 									"character": 8
 								}
@@ -13359,7 +13359,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1260,
 									"character": 8
 								}
@@ -13513,12 +13513,12 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1266,
 									"character": 10
 								},
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1273,
 									"character": 10
 								}
@@ -13558,7 +13558,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1217,
 									"character": 18
 								}
@@ -13598,7 +13598,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1213,
 									"character": 12
 								}
@@ -13659,7 +13659,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 1278,
 									"character": 11
 								}
@@ -13705,7 +13705,7 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es2015.iterable.d.ts",
 									"line": 67,
 									"character": 10
 								}
@@ -27220,9 +27220,9 @@
 							"flags": {},
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 984,
-									"character": 19
+									"character": 17
 								}
 							],
 							"type": {
@@ -27238,7 +27238,7 @@
 							"flags": {},
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 974,
 									"character": 11
 								}
@@ -27260,7 +27260,7 @@
 							"flags": {},
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 973,
 									"character": 8
 								}
@@ -27284,7 +27284,7 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 975,
 									"character": 9
 								}
@@ -35240,9 +35240,9 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 984,
-									"character": 19
+									"character": 17
 								}
 							],
 							"type": {
@@ -35260,7 +35260,7 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 974,
 									"character": 11
 								}
@@ -35284,7 +35284,7 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 973,
 									"character": 8
 								}
@@ -35374,7 +35374,7 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 975,
 									"character": 9
 								}
