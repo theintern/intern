@@ -66,7 +66,8 @@ registerSuite('bin/intern', function() {
 
       'ts in node'() {
         configData = {
-          suites: ['foo.ts']
+          suites: ['foo.ts'],
+          plugins: ['bar.ts']
         };
         const mockExecutor = createMockNodeExecutor({
           environment: 'node'
@@ -146,9 +147,33 @@ registerSuite('bin/intern', function() {
             });
         },
 
-        'ts in the browser'() {
+        'ts in suites in the browser'() {
           configData = {
             suites: ['foo.ts']
+          };
+          const mockExecutor = createMockBrowserExecutor({
+            environment: 'browser'
+          } as any);
+          return mockRequire(require, 'src/bin/intern', {
+            'src/lib/node/util': mockNodeUtil,
+            'src/lib/common/console': mockConsole,
+            'src/lib/common/util': mockCommonUtil,
+            'src/index': { default: mockExecutor },
+            '@theintern/common': { global: { process: {} } }
+          }).then(handle => {
+            removeMocks = handle.remove;
+            assert.equal(mockNodeUtil.getConfig.callCount, 1);
+            assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
+            assert.isFalse(
+              mockExecutor._ran,
+              'expected executor not to have run'
+            );
+          });
+        },
+
+        'ts in plugins in the browser'() {
+          configData = {
+            plugins: ['foo.ts']
           };
           const mockExecutor = createMockBrowserExecutor({
             environment: 'browser'

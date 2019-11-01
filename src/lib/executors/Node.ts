@@ -777,11 +777,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       this._instrumenter = createInstrumenter(
         Object.assign(
           {
-            esModules: Boolean(
-              typeof config.tsconfig === 'undefined' || config.tsconfig
-            )
-          },
-          {
             coverageVariable: config.coverageVariable,
             ...config.instrumenterOptions
           },
@@ -899,7 +894,11 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       uncoveredFiles.forEach(filename => {
         try {
           const code = readFileSync(filename, { encoding: 'utf8' });
-          this.instrumentCode(code, filename, true);
+          this.instrumentCode(
+            code,
+            filename,
+            filename.endsWith('.ts') || filename.endsWith('.tsx')
+          );
         } catch (_error) {}
       });
     });

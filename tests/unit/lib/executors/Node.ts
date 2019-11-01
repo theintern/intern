@@ -1046,15 +1046,16 @@ registerSuite('lib/executors/Node', function() {
           });
 
           return executor.run().then(() => {
-            assert.isTrue(mockNodeUtil.transpileSource.calledTwice);
-            assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
-              'foo.js',
-              'foo'
-            ]);
-            assert.deepEqual(mockNodeUtil.transpileSource.args[1], [
-              'bar.js',
-              'bar'
-            ]);
+            const map: MockCoverageMap = executor.coverageMap as any;
+            assert.isTrue(map.addFileCoverage.calledTwice);
+            assert.deepEqual(map.addFileCoverage.args[0][0], {
+              code: 'foo',
+              filename: 'foo.js'
+            });
+            assert.deepEqual(map.addFileCoverage.args[1][0], {
+              code: 'bar',
+              filename: 'bar.js'
+            });
           });
         },
 
@@ -1265,11 +1266,12 @@ registerSuite('lib/executors/Node', function() {
             });
 
             return executor.run().then(() => {
-              assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
-              assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
-                'foo.js',
-                'foo'
-              ]);
+              const map: MockCoverageMap = executor.coverageMap as any;
+              assert.isTrue(map.addFileCoverage.calledOnce);
+              assert.deepEqual(map.addFileCoverage.args[0][0], {
+                code: 'foo',
+                filename: 'foo.js'
+              });
               assert.isFalse(mockTsNodeRegister.called);
             });
           },
@@ -1287,11 +1289,12 @@ registerSuite('lib/executors/Node', function() {
             });
 
             return executor.run().then(() => {
-              assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
-              assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
-                'foo.js',
-                'foo'
-              ]);
+              const map: MockCoverageMap = executor.coverageMap as any;
+              assert.isTrue(map.addFileCoverage.calledOnce);
+              assert.deepEqual(map.addFileCoverage.args[0][0], {
+                code: 'foo',
+                filename: 'foo.js'
+              });
               assert.isFalse(mockTsNodeRegister.called);
             });
           }
