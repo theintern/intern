@@ -686,12 +686,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         }
       }
 
-      if (typeof this.config.node.tsconfig === 'undefined') {
-        register();
-      } else if (this.config.node.tsconfig) {
-        register({ project: this.config.node.tsconfig });
-      }
-
       (['basePath', 'internPath'] as ('basePath' | 'internPath')[]).forEach(
         property => {
           config[property] = normalizePathEnding(
@@ -772,11 +766,24 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // Clear out the suites list after combining the suites
       delete config.suites;
 
+      if (
+        ((config.node &&
+          config.node.suites.some(pattern => pattern.endsWith('.ts'))) ||
+          (config.plugins &&
+            config.plugins.some(plugin => plugin.script.endsWith('.ts')))) &&
+        typeof this.config.node.tsconfig === 'undefined'
+      ) {
+        register();
+      } else if (this.config.node.tsconfig) {
+        register({ project: this.config.node.tsconfig });
+      }
+
       // Install the instrumenter in resolve config so it will be able to
       // handle suites
       this._instrumenter = createInstrumenter(
         Object.assign(
           {
+            esModules: true,
             coverageVariable: config.coverageVariable,
             ...config.instrumenterOptions
           },

@@ -115,7 +115,7 @@ Some properties are only meaningful for Node or WebDriver tests:
 | [serveOnly]          | When true, Intern will start its instrumenting web server but not run tests | `false`                     |
 | [serverPort]         | The port the instrumenting server should listen on                          | `9000`                      |
 | [serverUrl]          | A URL a remote executor can use to reach the local Intern                   | `http://localhost:9000`     |
-| [tsConfig]           | Optional path to a tsconfig.json for ts-node. Uses the project's by default | ``                          |
+| [tsConfig]           | Optional path to a tsconfig.json for ts-node. Uses the project's by default. Set to `false` to explicitly prevent registering tsnode in projects with TypeScript | ``                          |
 | [tunnel]             | The name of a tunnel to use for WebDriver tests                             | `selenium`                  |
 | [tunnelOptions]      | Options to use for the WebDriver tunnel                                     | `{ tunnelId: Date.now() }`  |
 
