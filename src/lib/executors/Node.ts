@@ -9,6 +9,7 @@ import {
   hookRequire,
   unhookRunInThisContext
 } from 'istanbul-lib-hook';
+import { register } from 'ts-node';
 import { global, Task, CancellablePromise, deepMixin } from '@theintern/common';
 import Command from '@theintern/leadfoot/Command';
 import LeadfootServer from '@theintern/leadfoot/Server';
@@ -30,7 +31,7 @@ import { Config, EnvironmentSpec } from '../common/config';
 import Executor, { Events, Plugins } from './Executor';
 import { normalizePathEnding } from '../common/path';
 import { pullFromArray } from '../common/util';
-import { expandFiles, readSourceMap } from '../node/util';
+import { expandFiles, readSourceMap, transpileSource } from '../node/util';
 import ErrorFormatter from '../node/ErrorFormatter';
 import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
@@ -219,8 +220,20 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   /**
    * Insert coverage instrumentation into a given code string
    */
-  instrumentCode(code: string, filename: string): string {
+  instrumentCode(
+    code: string,
+    filename: string,
+    shouldCompile?: boolean
+  ): string {
     this.log('Instrumenting', filename);
+    if (filename.endsWith('.d.ts')) {
+      return code;
+    }
+
+    if (shouldCompile) {
+      return transpileSource(filename, code);
+    }
+
     const sourceMap = readSourceMap(filename, code);
     if (sourceMap) {
       this._sourceMaps.registerMap(filename, sourceMap);
@@ -243,8 +256,8 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       return newCode;
     } catch (error) {
       this.emit('warning', `Error instrumenting ${filename}: ${error.message}`);
-      return code;
     }
+    return code;
   }
 
   /**
@@ -753,12 +766,24 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // Clear out the suites list after combining the suites
       delete config.suites;
 
+      if (
+        ((config.node &&
+          config.node.suites.some(pattern => pattern.endsWith('.ts'))) ||
+          (config.plugins &&
+            config.plugins.some(plugin => plugin.script.endsWith('.ts')))) &&
+        typeof this.config.node.tsconfig === 'undefined'
+      ) {
+        register();
+      } else if (this.config.node.tsconfig) {
+        register({ project: this.config.node.tsconfig });
+      }
+
       // Install the instrumenter in resolve config so it will be able to
       // handle suites
       this._instrumenter = createInstrumenter(
         Object.assign(
-          {},
           {
+            esModules: true,
             coverageVariable: config.coverageVariable,
             ...config.instrumenterOptions
           },
@@ -876,7 +901,11 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       uncoveredFiles.forEach(filename => {
         try {
           const code = readFileSync(filename, { encoding: 'utf8' });
-          this.instrumentCode(code, filename);
+          this.instrumentCode(
+            code,
+            filename,
+            filename.endsWith('.ts') || filename.endsWith('.tsx')
+          );
         } catch (_error) {}
       });
     });
@@ -933,7 +962,8 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     );
     this._unhookRequire = hookRequire(
       filename => this.shouldInstrumentFile(filename),
-      (code, { filename }) => this.instrumentCode(code, filename)
+      (code, { filename }) => this.instrumentCode(code, filename),
+      { extensions: ['.js', '.jsx', '.ts', 'tsx'] }
     );
   }
 

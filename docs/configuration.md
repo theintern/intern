@@ -115,16 +115,17 @@ Some properties are only meaningful for Node or WebDriver tests:
 | [serveOnly]          | When true, Intern will start its instrumenting web server but not run tests | `false`                     |
 | [serverPort]         | The port the instrumenting server should listen on                          | `9000`                      |
 | [serverUrl]          | A URL a remote executor can use to reach the local Intern                   | `http://localhost:9000`     |
+| [tsConfig]           | Optional path to a tsconfig.json for ts-node. Uses the project's by default. Set to `false` to explicitly prevent registering tsnode in projects with TypeScript | ``                          |
 | [tunnel]             | The name of a tunnel to use for WebDriver tests                             | `selenium`                  |
 | [tunnelOptions]      | Options to use for the WebDriver tunnel                                     | `{ tunnelId: Date.now() }`  |
 
 The environment-specific properties come into play when Intern is running in
 that environment:
 
-| Property | Description                                                                     | Default |
-| :------- | :------------------------------------------------------------------------------ | :------ |
-| browser  | Resources (loader, plugins, reporters, suites) that only apply to browser tests | `{}`    |
-| node     | Resources (loader, plugins, reporters, suites) that only apply to Node tests    | `{}`    |
+| Property | Description                                                                               | Default |
+| :------- | :---------------------------------------------------------------------------------------- | :------ |
+| browser  | Resources (loader, plugins, reporters, suites) that only apply to browser tests           | `{}`    |
+| node     | Resources (loader, plugins, reporters, suites, tsconfig) that only apply to Node tests    | `{}`    |
 
 There are also several properties that are handled by the config file processing
 system that aren’t directly involved in the testing process. These properties

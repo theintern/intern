@@ -25,6 +25,20 @@ getConfig()
 
       intern.configure({ reporters: 'runner' });
       intern.configure(config);
+
+      if (
+        intern.environment === 'browser' &&
+        ((intern.config.suites &&
+          intern.config.suites.some(pattern => pattern.endsWith('.ts'))) ||
+          (intern.config.plugins &&
+            intern.config.plugins.some(plugin =>
+              plugin.script.endsWith('.ts')
+            )))
+      ) {
+        throw new Error(
+          'Loading TypeScript files is not supported in the browser'
+        );
+      }
       return intern.run();
     }
   })

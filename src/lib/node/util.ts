@@ -1,5 +1,13 @@
 import { readFile, readFileSync, mkdirSync, existsSync } from 'fs';
-import { dirname, isAbsolute, join, normalize, resolve, sep } from 'path';
+import {
+  dirname,
+  extname,
+  isAbsolute,
+  join,
+  normalize,
+  resolve,
+  sep
+} from 'path';
 import { parse } from 'shell-quote';
 import { RawSourceMap } from 'source-map';
 import { sync as glob, hasMagic } from 'glob';
@@ -13,7 +21,6 @@ import {
   parseArgs,
   splitConfigPath
 } from '../common/util';
-
 /**
  * Expand a list of glob patterns into a flat file list. Patterns may be simple
  * file paths or glob patterns. Patterns starting with '!' denote exclusions.
@@ -199,6 +206,19 @@ export function mkdirp(dir: string) {
   if (!existsSync(dir)) {
     mkdirSync(dir);
   }
+}
+
+export function transpileSource(filename: string, code: string) {
+  require.extensions[extname(filename)](
+    {
+      _compile(source: string) {
+        code = source;
+      }
+    } as any,
+    filename
+  );
+
+  return code;
 }
 
 // Regex for matching sourceMappingUrl comments

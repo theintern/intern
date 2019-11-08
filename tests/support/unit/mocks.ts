@@ -121,6 +121,7 @@ export function createMockExecutor(
  */
 export interface MockBrowser extends Browser {
   events: { name: string; data: any }[];
+  _ran: boolean;
 }
 
 /**
