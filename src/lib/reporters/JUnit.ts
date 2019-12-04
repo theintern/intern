@@ -127,29 +127,25 @@ class XmlNode {
   }
 }
 
+function createChildErrorNode(error: Error, reporter: JUnit) {
+  return new XmlNode('error', {
+    childNodes: [reporter.formatError(error)],
+    message: error.message,
+    type: error.name
+  });
+}
+
 function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
   const { error } = suite;
   let childNodes: XmlNode[] | undefined;
   if (error && error.lifecycleMethod === 'before') {
-    childNodes = [
-      new XmlNode('error', {
-        childNodes: [reporter.formatError(error)],
-        message: error.message,
-        type: error.name
-      })
-    ];
+    childNodes = [createChildErrorNode(error, reporter)];
   } else {
     childNodes = suite.tests.map(test => createTestNode(test, reporter));
   }
 
   if (error && error.lifecycleMethod === 'after') {
-    childNodes.push(
-      new XmlNode('error', {
-        childNodes: [reporter.formatError(error)],
-        message: error.message,
-        type: error.name
-      })
-    );
+    childNodes.push(createChildErrorNode(error, reporter));
   }
 
   return new XmlNode('testsuite', {

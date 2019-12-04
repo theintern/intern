@@ -1,4 +1,5 @@
 import Test from './Test';
+import { LifecycleMethod } from './Suite';
 
 export interface InternError {
   name: string;
@@ -7,7 +8,7 @@ export interface InternError {
   showDiff?: boolean;
   actual?: any;
   expected?: any;
-  lifecycleMethod?: string;
+  lifecycleMethod?: LifecycleMethod;
   relatedTest?: Test;
   reported?: boolean;
 }
