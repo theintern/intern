@@ -1,8 +1,7 @@
-import { global } from '@theintern/common';
-
-import Node from '../lib/executors/Node';
-import { Config } from '../lib/common/config';
-import { getConfig } from '../lib/node/util';
+import { global } from '../common';
+import Node from '../core/lib/executors/Node';
+import { Config } from '../core/lib/common/config';
+import { getConfig } from '../core/lib/node/util';
 
 export = function(grunt: IGrunt) {
   grunt.registerMultiTask('intern', function() {

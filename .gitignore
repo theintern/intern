@@ -12,6 +12,7 @@ _examples/
 _tests/
 _publish/
 src/**/*.js
+selenium-standalone/
 benchmark.json
 baselines.json
 baseline.json

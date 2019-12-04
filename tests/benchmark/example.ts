@@ -1,9 +1,9 @@
-import Test from '../../src/lib/Test';
+import Test from '../../src/core/lib/Test';
 import {
   BenchmarkTestFunction,
   BenchmarkDeferredTestFunction
-} from '../../src/lib/BenchmarkTest';
-import Deferred from '../../src/lib/Deferred';
+} from '../../src/core/lib/BenchmarkTest';
+import Deferred from '../../src/core/lib/Deferred';
 
 const { registerSuite, async } = intern.getPlugin('interface.benchmark');
 

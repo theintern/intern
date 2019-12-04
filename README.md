@@ -16,6 +16,10 @@ Software testing for humans
 
 <!-- end-github-only -->
 
+> ⚠️ This documentation is for the development version of Intern. For the
+> current release version, go
+> [here](//https://github.com/theintern/intern/tree/4.7).
+
 Intern is a complete test system for JavaScript designed to help you write and
 run consistent, high-quality test cases for your JavaScript libraries and
 applications. It can be used to test _any_ JavaScript code.

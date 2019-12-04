@@ -3,15 +3,15 @@
  * classes and interfaces (as far as TypeScript is concerned).
  */
 import { createSandbox, spy, SinonSpy } from 'sinon';
-import { Handle, duplicate, Task } from '@theintern/common';
-import Command from '@theintern/leadfoot/Command';
+import { Handle, duplicate, Task } from 'src/common';
+import Command from 'src/webdriver/Command';
 
-import { Executor, Events } from 'src/lib/executors/Executor';
-import Node, { Remote } from 'src/lib/executors/Node';
-import Browser from 'src/lib/executors/Browser';
-import Server, { ServerListener } from 'src/lib/Server';
-import { Message } from 'src/lib/channels/Base';
-import ProxiedSession from 'src/lib/ProxiedSession';
+import { Executor, Events } from 'src/core/lib/executors/Executor';
+import Node, { Remote } from 'src/core/lib/executors/Node';
+import Browser from 'src/core/lib/executors/Browser';
+import Server, { ServerListener } from 'src/core/lib/Server';
+import { Message } from 'src/core/lib/channels/Base';
+import ProxiedSession from 'src/core/lib/ProxiedSession';
 
 /**
  * Create a mock entity
@@ -298,7 +298,8 @@ export function createMockRemote(
   properties?: {
     [P in keyof (Remote | Command<ProxiedSession>)]?: (
       | Remote
-      | Command<ProxiedSession>)[P]
+      | Command<ProxiedSession>
+    )[P];
   }
 ) {
   const remote = MockRemote.resolve();
@@ -359,7 +360,7 @@ export class MockRequest extends EventHandler {
 }
 
 export type MockResponseOptions = {
-  [P in keyof MockResponse]?: MockResponse[P]
+  [P in keyof MockResponse]?: MockResponse[P];
 };
 
 export class MockResponse extends EventHandler {

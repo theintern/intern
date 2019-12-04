@@ -1,3 +1,5 @@
+/// <reference path="./mocking.d.ts" />
+
 intern.registerPlugin('mockRequire', () => {
   function mockRequire(
     require: NodeRequire,
@@ -24,7 +26,7 @@ intern.registerPlugin('mockRequire', () => {
           filename: id,
           loaded: true,
           exports: mocks[name]
-        };
+        } as NodeModule;
       }
     });
 

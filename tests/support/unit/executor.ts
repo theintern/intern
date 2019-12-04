@@ -1,5 +1,5 @@
 import { SinonSpy } from 'sinon';
-import { Executor, Config } from 'src/lib/executors/Executor';
+import { Executor, Config } from 'src/core/lib/executors/Executor';
 
 const { assert } = intern.getPlugin('chai');
 

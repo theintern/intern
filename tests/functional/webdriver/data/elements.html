@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Find elements</title>
+	</head>
+	<body>
+		<a href="about:blank" id="z">What a cute, red cap.</a>
+
+		<div id="a" class="a">a</div>
+		<!-- in reverse order to ensure no false positives caused by any weird lexicographic ordering -->
+		<div id="b2" class="b">b2</div>
+		<div id="b1" class="b">b1</div>
+		<a href="default.html" id="c">What a cute, yellow
+			<span id="b3" class="b">back</span><span id="b4" class="b">pack</span>.</a>
+		<a href="about:blank" id="c2">What a <!-- ensure comments do not break link strategies --> cute, yellow backpack.</a>
+		<a href="about:blank" id="c3">What a cute<div style="display: none;">, yellow</div> backpack.</a>
+
+		<button id="makeD" name="makeD" type="button">Make d in 250ms</button>
+		<button id="makeDSlowly" name="makeDSlowly" type="button">Make d in 2500ms</button>
+		<button id="killE" name="makeD" type="button">Destroy e in 250ms</button>
+
+		<div id="e">
+			<span id="f">f</span>
+			<span id="g">g</span>
+		</div>
+
+		<div id="h">
+			<a href="about:blank" id="j">What a <b id="i2" class="i">cute, </b><b id="i3" class="i">red cap</b>.</a>
+			<a href="about:blank" id="i1" class="i">What a cute,
+				red cap.</a>
+			<a href="about:blank" id="k">What a <b id="l" style="display: none;">cute, red</b> cap.</a>
+			<a href="about:blank" id="zz">What a cute, striped shirt.</a>
+			<button id="nothing1" name="nothing" type="button">Do nothing quickly</button>
+			<button id="nothing2" name="nothing" type="button">Do nothing fast</button>
+		</div>
+
+		<p id="i4" class="i">I've come up with another wacky invention that I think has real potential.<br>
+			Maybe you won't, but anyway...<br>
+			it's called the “Gourmet Yogurt Machine.”<br>
+			It makes many different flavors of yogurt.<br>
+			The only problem is, right now,
+			it can only make trout-flavored yogurt...<br>
+			So, I'm having the machine delivered to you via Escargo Express.<br>
+			It's coming “Neglected Class.”</p>
+
+		<script>
+(function () {
+	function makeD() {
+		var element = document.createElement('div');
+		element.id = 'd';
+		element.appendChild(document.createTextNode('d'));
+		document.getElementById('h').appendChild(element);
+	}
+
+	document.getElementById('makeD').onclick = function () {
+		this.onclick = null;
+		setTimeout(makeD, 250);
+	};
+	document.getElementById('makeDSlowly').onclick = function () {
+		this.onclick = null;
+		setTimeout(makeD, 5000);
+	};
+	document.getElementById('killE').onclick = function () {
+		this.onclick = null;
+		setTimeout(function () {
+			var element = document.getElementById('e');
+			element.parentNode.removeChild(element);
+		}, 250);
+	};
+})();
+		</script>
+	</body>
+</html>

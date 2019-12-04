@@ -1,15 +1,15 @@
-import { Task } from '@theintern/common';
-import Server from '@theintern/leadfoot/Server';
+import { Task } from 'src/common';
+import Server from 'src/webdriver/Server';
 
-import ProxiedSession from 'src/lib/ProxiedSession';
-import { Remote } from 'src/lib/executors/Node';
+import ProxiedSession from 'src/core/lib/ProxiedSession';
+import { Remote } from 'src/core/lib/executors/Node';
 
 // Bring in Test and TestFunction from testing src rather than the src being
 // tested
-import Test, { TestFunction } from '../../../src/lib/Test';
+import Test, { TestFunction } from 'src/core/lib/Test';
 import registerSuite, {
   ObjectSuiteDescriptor
-} from '../../../src/lib/interfaces/object';
+} from 'src/core/lib/interfaces/object';
 import { assert } from 'chai';
 
 registerSuite('lib/ProxiedSession (functional)', () => {

@@ -1,1 +1,42 @@
-{ "extends": "@theintern/dev/tslint.json" }
+{
+  "extends": "tslint-config-prettier",
+  "rules": {
+    "class-name": true,
+    "comment-format": [true, "check-space"],
+    "curly": true,
+    "interface-name": [true, "never-prefix"],
+    "jsdoc-format": true,
+    "label-position": true,
+    "member-access": false,
+    "member-ordering": false,
+    "no-any": false,
+    "no-arg": true,
+    "no-bitwise": false,
+    "no-console": false,
+    "no-construct": false,
+    "no-debugger": true,
+    "no-duplicate-variable": true,
+    "no-empty": false,
+    "no-eval": true,
+    "no-inferrable-types": [true, "ignore-params"],
+    "no-parameter-properties": true,
+    "no-shadowed-variable": false,
+    "no-string-literal": false,
+    "no-switch-case-fall-through": false,
+    "no-unused-expression": false,
+    "no-use-before-declare": false,
+    "no-var-keyword": true,
+    "no-var-requires": false,
+    "object-literal-sort-keys": false,
+    "radix": true,
+    "triple-equals": [true, "allow-null-check"],
+    "typedef": false,
+    "variable-name": [
+      true,
+      "check-format",
+      "allow-leading-underscore",
+      "ban-keywords",
+      "allow-pascal-case"
+    ]
+  }
+}

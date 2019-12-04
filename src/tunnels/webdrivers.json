@@ -1,0 +1,41 @@
+{
+  "$schema": "./schemas/webdrivers.json",
+
+  "drivers": {
+    "selenium": {
+      "baseUrl": "https://selenium-release.storage.googleapis.com",
+      "latest": "3.141.59"
+    },
+    "chrome": {
+      "baseUrl": "https://chromedriver.storage.googleapis.com",
+      "latest": "78.0.3904.70"
+    },
+    "firefox": {
+      "baseUrl": "https://github.com/mozilla/geckodriver/releases/download",
+      "latest": "0.26.0"
+    },
+    "ie": {
+      "baseUrl": "https://selenium-release.storage.googleapis.com",
+      "latest": "3.141.59"
+    },
+    "edge": {
+      "latest": "17134",
+      "baseUrl": "https://download.microsoft.com/download",
+      "versions": {
+        "17134": {
+          "url": "https://download.microsoft.com/download/F/8/A/F8AF50AB-3C3A-4BC4-8773-DC27B32988DD/MicrosoftWebDriver.exe"
+        },
+        "16299": {
+          "url": "https://download.microsoft.com/download/D/4/1/D417998A-58EE-4EFE-A7CC-39EF9E020768/MicrosoftWebDriver.exe"
+        },
+        "15063": {
+          "url": "https://download.microsoft.com/download/3/4/2/342316D7-EBE0-4F10-ABA2-AE8E0CDF36DD/MicrosoftWebDriver.exe"
+        }
+      }
+    },
+    "edgeChromium": {
+      "baseUrl": "https://msedgedriver.azureedge.net",
+      "latest": "79.0.309.15"
+    }
+  }
+}
