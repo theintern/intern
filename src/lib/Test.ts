@@ -30,6 +30,9 @@ export default class Test implements TestProperties {
   /** The error that caused this Test to fail */
   error: InternError | undefined;
 
+  /** A site lifecycle error that occurred after executing this Test */
+  suiteError: Error | undefined;
+
   protected _hasPassed = false;
 
   protected _isAsync = false;

@@ -230,7 +230,11 @@ export default class Runner extends TextCoverage implements RunnerProperties {
       const charm = this.charm;
 
       charm.foreground('red');
-      charm.write('Suite ' + suite.id + ' FAILED\n');
+      charm.write(
+        `Suite ${suite.id} ERROR${
+          error.lifecycleMethod ? ` in ${error.lifecycleMethod}` : ''
+        }\n`
+      );
       charm.write(this.formatError(error));
       charm.display('reset');
       charm.write('\n');

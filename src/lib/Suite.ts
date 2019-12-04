@@ -382,7 +382,7 @@ export default class Suite implements SuiteProperties {
     // Run the before and after suite lifecycle methods
     const runLifecycleMethod = (
       suite: Suite,
-      name: keyof Suite,
+      name: LifecycleMethod,
       test?: Test
     ): CancellablePromise<void> => {
       let result: PromiseLike<any> | void;
@@ -483,8 +483,12 @@ export default class Suite implements SuiteProperties {
         })
         .catch((error: InternError) => {
           if (error !== SKIP) {
+            if (test) {
+              test.suiteError = error;
+            }
             if (!this.error) {
               this.executor.log('Suite errored with non-skip error', error);
+              error.lifecycleMethod = name;
               this.error = error;
             }
             throw error;
@@ -525,7 +529,7 @@ export default class Suite implements SuiteProperties {
         // Run the beforeEach or afterEach methods for a given test in
         // the proper order based on the current nested Suite structure
         const runTestLifecycle = (
-          name: keyof Suite,
+          name: LifecycleMethod,
           test: Test
         ): CancellablePromise<void> => {
           let methodQueue: Suite[] = [];
@@ -832,3 +836,11 @@ export type RootSuiteOptions = Partial<SuiteProperties> & {
 // BAIL_REASON needs to be a string so that Intern can tell when a remote has
 // bailed during unit tests so that it can skip functional tests.
 const BAIL_REASON = 'bailed';
+
+/**
+ * A suite lifecycle method
+ */
+export type LifecycleMethod = keyof Pick<
+  Suite,
+  'before' | 'after' | 'beforeEach' | 'afterEach'
+>;
