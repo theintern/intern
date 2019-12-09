@@ -2820,10 +2820,6 @@
 						},
 						{
 							"type": "reference",
-							"name": "Url"
-						},
-						{
-							"type": "reference",
 							"name": "BrowserStackProperties",
 							"id": 324
 						}
@@ -6353,10 +6349,6 @@
 						},
 						{
 							"type": "reference",
-							"name": "Url"
-						},
-						{
-							"type": "reference",
 							"name": "CrossBrowserTestingProperties",
 							"id": 456
 						}
@@ -9646,10 +9638,6 @@
 							"type": "reference",
 							"name": "TunnelProperties",
 							"id": 190
-						},
-						{
-							"type": "reference",
-							"name": "Url"
 						}
 					]
 				}
@@ -12945,10 +12933,6 @@
 							"type": "reference",
 							"name": "TunnelProperties",
 							"id": 190
-						},
-						{
-							"type": "reference",
-							"name": "Url"
 						},
 						{
 							"type": "reference",
@@ -19347,10 +19331,6 @@
 						},
 						{
 							"type": "reference",
-							"name": "Url"
-						},
-						{
-							"type": "reference",
 							"name": "SeleniumProperties",
 							"id": 862
 						}
@@ -24625,10 +24605,6 @@
 						},
 						{
 							"type": "reference",
-							"name": "Url"
-						},
-						{
-							"type": "reference",
 							"name": "TestingBotProperties",
 							"id": 1161
 						}
@@ -27830,10 +27806,6 @@
 							"type": "reference",
 							"name": "TunnelProperties",
 							"id": 190
-						},
-						{
-							"type": "reference",
-							"name": "Url"
 						}
 					]
 				},

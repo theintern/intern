@@ -10,7 +10,7 @@ import {
 } from '@theintern/common';
 import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
-import { format as formatUrl, Url } from 'url';
+import { format as formatUrl } from 'url';
 import { fileExists, kill, on } from './lib/util';
 import { JobState } from './interfaces';
 import * as decompress from 'decompress';
@@ -21,7 +21,7 @@ import * as decompress from 'decompress';
  * network.
  */
 export default class Tunnel extends Evented<TunnelEvents, string>
-  implements TunnelProperties, Url {
+  implements TunnelProperties {
   /**
    * The URL of a service that provides a list of environments supported by
    * the tunnel.
