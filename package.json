@@ -1,6 +1,6 @@
 {
   "name": "@theintern/digdug",
-  "version": "2.4.2",
+  "version": "2.4.3-pre",
   "description": "Dig Dug. A simple abstraction library for downloading and launching WebDriver service tunnels.",
   "repository": {
     "type": "git",
