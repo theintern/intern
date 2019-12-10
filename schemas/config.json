@@ -140,6 +140,10 @@
     "config": {
       "type": "object",
       "properties": {
+        "$schema": {
+          "type": "string"
+        },
+
         "bail": {
           "description": "If true, Intern will stop running tests after the first failure.",
           "type": "boolean",
@@ -313,7 +317,17 @@
 
         "node": {
           "description": "Resources that will only be loaded/used in Node",
-          "$ref": "#/definitions/resourceConfig"
+          "anyOf": [
+            { "$ref": "#/definitions/resourceConfig" },
+            {
+              "type": "object",
+              "properties": {
+                "tsconfig": {
+                  "oneOf": [{ "type": "string" }, { "const": false }]
+                }
+              }
+            }
+          ]
         },
 
         "plugins": { "$ref": "#/definitions/pluginsProperty" },
@@ -375,10 +389,6 @@
 
         "suites": { "$ref": "#/definitions/suitesProperty" },
         "suites+": { "$ref": "#/definitions/suitesProperty+" },
-
-        "tsconfig": {
-          "oneOf": [{ "type": "string" }, { "const": false }]
-        },
 
         "tunnel": {
           "description": "The Dig Dug tunnel class to use for WebDriver testing",
