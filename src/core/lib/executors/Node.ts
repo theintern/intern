@@ -77,6 +77,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       coverage: [],
       environments: [],
       functionalCoverage: true,
+      functionalRetries: 0,
       functionalSuites: [],
       functionalTimeouts: {},
       instrumenterOptions: {},
