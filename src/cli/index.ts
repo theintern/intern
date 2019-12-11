@@ -266,6 +266,8 @@ program
     'specify a suite to run (can be used multiple times)',
     collect
   )
+  .option('--no-suites', 'clear any configured suites')
+  .option('--no-fsuites', 'clear any configured functional suites')
   .option('-n, --node', 'only run Node-based unit tests')
   .on('--help', () => {
     print('\n');
