@@ -2,6 +2,7 @@
 
 <!-- vim-markdown-toc GFM -->
 
+* [Schema](#schema)
 * [Environment-specific config](#environment-specific-config)
 * [Properties](#properties)
   * [Suite glob expressions](#suite-glob-expressions)
@@ -47,9 +48,14 @@ is the given string.
 
 ## Schema
 
-Intern includes a [JSON schema](https://json-schema.org/understanding-json-schema/index.html) for its config format. This schema describes all the properties that might be included in an `intern.json` config file, and includes help text for each property.
+Intern includes a
+[JSON schema](https://json-schema.org/understanding-json-schema/index.html) for
+its config format. This schema describes all the properties that might be
+included in an `intern.json` config file, and includes help text for each
+property.
 
-To use the schema with an editor such as VS Code, add a `$schema` property to your `intern.json` file that points to the schema, like:
+To use the schema with an editor such as VS Code, add a `$schema` property to
+your `intern.json` file that points to the schema, like:
 
 ```json
 {
@@ -103,29 +109,29 @@ or directly in a browser. Some of the more common ones are listed below.
 
 Some properties are only meaningful for Node or WebDriver tests:
 
-| Property             | Description                                                                 | Default                     |
-| :------------------- | :-------------------------------------------------------------------------- | :-------------------------- |
-| [capabilities]       | Default capabilities to be used for WebDriver sessions                      | `{ 'idle-timeout': 60 }`    |
-| [coverage]           | An array of paths or globs to collect coverage data for                     | `[]`                        |
-| [environments]       | Browser + OS combinations to be tested using WebDriver                      | `[]`                        |
-| [functionalSuites]   | Suites to run in WebDriver mode                                             | `[]`                        |
-| [functionalTimeouts] | Timeouts used in functional tests                                           | `{ connectTimeout: 30000 }` |
-| [leaveRemoteOpen]    | If true, leave remote browsers open after testing has finished              | `false`                     |
-| [maxConcurrency]     | The maximum number of sessions to drive concurrently                        | `Infinity`                  |
-| [serveOnly]          | When true, Intern will start its instrumenting web server but not run tests | `false`                     |
-| [serverPort]         | The port the instrumenting server should listen on                          | `9000`                      |
-| [serverUrl]          | A URL a remote executor can use to reach the local Intern                   | `http://localhost:9000`     |
-| [tsConfig]           | Optional path to a tsconfig.json for ts-node. Uses the project's by default. Set to `false` to explicitly prevent registering tsnode in projects with TypeScript | ``                          |
-| [tunnel]             | The name of a tunnel to use for WebDriver tests                             | `selenium`                  |
-| [tunnelOptions]      | Options to use for the WebDriver tunnel                                     | `{ tunnelId: Date.now() }`  |
+| Property             | Description                                                                                                                                                      | Default                     |
+| :------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------- |
+| [capabilities]       | Default capabilities to be used for WebDriver sessions                                                                                                           | `{ 'idle-timeout': 60 }`    |
+| [coverage]           | An array of paths or globs to collect coverage data for                                                                                                          | `[]`                        |
+| [environments]       | Browser + OS combinations to be tested using WebDriver                                                                                                           | `[]`                        |
+| [functionalSuites]   | Suites to run in WebDriver mode                                                                                                                                  | `[]`                        |
+| [functionalTimeouts] | Timeouts used in functional tests                                                                                                                                | `{ connectTimeout: 30000 }` |
+| [leaveRemoteOpen]    | If true, leave remote browsers open after testing has finished                                                                                                   | `false`                     |
+| [maxConcurrency]     | The maximum number of sessions to drive concurrently                                                                                                             | `Infinity`                  |
+| [serveOnly]          | When true, Intern will start its instrumenting web server but not run tests                                                                                      | `false`                     |
+| [serverPort]         | The port the instrumenting server should listen on                                                                                                               | `9000`                      |
+| [serverUrl]          | A URL a remote executor can use to reach the local Intern                                                                                                        | `http://localhost:9000`     |
+| [tsconfig]           | Optional path to a tsconfig.json for ts-node. Uses the project's by default. Set to `false` to explicitly prevent registering tsnode in projects with TypeScript | ``                          |
+| [tunnel]             | The name of a tunnel to use for WebDriver tests                                                                                                                  | `selenium`                  |
+| [tunnelOptions]      | Options to use for the WebDriver tunnel                                                                                                                          | `{ tunnelId: Date.now() }`  |
 
 The environment-specific properties come into play when Intern is running in
 that environment:
 
-| Property | Description                                                                               | Default |
-| :------- | :---------------------------------------------------------------------------------------- | :------ |
-| browser  | Resources (loader, plugins, reporters, suites) that only apply to browser tests           | `{}`    |
-| node     | Resources (loader, plugins, reporters, suites, tsconfig) that only apply to Node tests    | `{}`    |
+| Property | Description                                                                            | Default |
+| :------- | :------------------------------------------------------------------------------------- | :------ |
+| browser  | Resources (loader, plugins, reporters, suites) that only apply to browser tests        | `{}`    |
+| node     | Resources (loader, plugins, reporters, suites, tsconfig) that only apply to Node tests | `{}`    |
 
 There are also several properties that are handled by the config file processing
 system that aren’t directly involved in the testing process. These properties
@@ -579,11 +585,13 @@ There are a few exceptions:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/serverurl
 [suites]:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/suites
+[tsconfig]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/tsconfig
 [tunnel]:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/tunnel
 [tunneloptions]:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/tunneloptions
-[warnOnUnhandledRejection]:
+[warnonunhandledrejection]:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/warnOnUnhandledRejection
-[warnOnUncaughtException]:
+[warnonuncaughtexception]:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/warnOnUncaughtException
