@@ -116,7 +116,7 @@ registerSuite('Element', () => {
           before() {
             resetBrowserState = false;
             return session
-              .get('tests/functional/data/elements.html')
+              .get('tests/functional/webdriver/data/elements.html')
               .then(function() {
                 return session.find('id', 'h');
               })
@@ -239,7 +239,7 @@ registerSuite('Element', () => {
         let startTime: number;
         return () => {
           return session
-            .get('tests/functional/data/elements.html')
+            .get('tests/functional/webdriver/data/elements.html')
             .then(() => session.setTimeout('implicit', 2000))
             .then(() => session.getTimeout('implicit'))
             .then(timeout => {
@@ -312,7 +312,7 @@ registerSuite('Element', () => {
           before() {
             resetBrowserState = false;
             return session
-              .get('tests/functional/data/elements.html')
+              .get('tests/functional/webdriver/data/elements.html')
               .then(function() {
                 return session.find('id', 'h');
               })
@@ -477,7 +477,7 @@ registerSuite('Element', () => {
         }
 
         return session
-          .get('tests/functional/data/pointer.html')
+          .get('tests/functional/webdriver/data/pointer.html')
           .then(function() {
             return session.findById('a');
           })
@@ -499,7 +499,7 @@ registerSuite('Element', () => {
 
       '#submit (submit button)'() {
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.getCurrentUrl();
           })
@@ -508,7 +508,7 @@ registerSuite('Element', () => {
               .findById('input')
               .then(element => element.type('hello'))
               .then(() => session.findById('submit2'))
-              .then(element => element.submit())
+              .then(element => element.click())
               .then(
                 // Give the browser time to update the URL
                 // after the submit (this is necessary for at
@@ -525,7 +525,7 @@ registerSuite('Element', () => {
 
       '#submit (form)'() {
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.getCurrentUrl();
           })
@@ -551,7 +551,7 @@ registerSuite('Element', () => {
 
       '#getVisibleText'() {
         return session
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .then(function() {
             return session.findById('c3');
           })
@@ -565,7 +565,7 @@ registerSuite('Element', () => {
 
       '#getVisibleText (multi-line)'() {
         return session
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .then(function() {
             return session.findById('i4');
           })
@@ -589,7 +589,7 @@ registerSuite('Element', () => {
       '#type'() {
         // TODO: Complex characters, tabs and arrows, copy and paste
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.findById('input');
           })
@@ -623,12 +623,12 @@ registerSuite('Element', () => {
         }
 
         return session
-          .get('tests/functional/data/upload.html')
+          .get('tests/functional/webdriver/data/upload.html')
           .then(function() {
             return session.findById('file');
           })
           .then(function(element) {
-            return element.type('tests/functional/data/upload.txt');
+            return element.type('tests/functional/webdriver/data/upload.txt');
           })
           .then(function() {
             return session.execute(function() {
@@ -646,7 +646,7 @@ registerSuite('Element', () => {
 
       '#getTagName'() {
         return session
-          .get('tests/functional/data/default.html')
+          .get('tests/functional/webdriver/data/default.html')
           .then(function() {
             return session.findByTagName('body');
           })
@@ -660,7 +660,7 @@ registerSuite('Element', () => {
 
       '#clearValue'() {
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.findById('input2');
           })
@@ -682,7 +682,7 @@ registerSuite('Element', () => {
 
       '#isSelected (radio button)'() {
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.findById('radio1');
           })
@@ -726,7 +726,7 @@ registerSuite('Element', () => {
       '#isSelected (checkbox)': {
         before() {
           resetBrowserState = false;
-          return session.get('tests/functional/data/form.html');
+          return session.get('tests/functional/webdriver/data/form.html');
         },
 
         after() {
@@ -779,7 +779,7 @@ registerSuite('Element', () => {
       '#isSelected (drop-down)': {
         before() {
           resetBrowserState = false;
-          return session.get('tests/functional/data/form.html');
+          return session.get('tests/functional/webdriver/data/form.html');
         },
 
         after() {
@@ -857,7 +857,7 @@ registerSuite('Element', () => {
 
       '#isEnabled'() {
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.findById('input');
           })
@@ -886,7 +886,7 @@ registerSuite('Element', () => {
 
         /*jshint maxlen:140 */
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.findById('input2');
           })
@@ -947,7 +947,7 @@ registerSuite('Element', () => {
               'true',
               'True boolean attributes must return string value per the spec'
             );
-            return session.get('tests/functional/data/elements.html');
+            return session.get('tests/functional/webdriver/data/elements.html');
           })
           .then(function() {
             return session.findById('c');
@@ -970,7 +970,7 @@ registerSuite('Element', () => {
 
       '#getAttribute'() {
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.findById('form');
           })
@@ -997,7 +997,7 @@ registerSuite('Element', () => {
 
       '#getProperty'() {
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.findById('form');
           })
@@ -1022,7 +1022,7 @@ registerSuite('Element', () => {
 
       '#equals'() {
         return session
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .then(function() {
             return session.findById('a');
           })
@@ -1072,7 +1072,9 @@ registerSuite('Element', () => {
         const suite = {
           before() {
             resetBrowserState = false;
-            return session.get('tests/functional/data/visibility.html');
+            return session.get(
+              'tests/functional/webdriver/data/visibility.html'
+            );
           },
           after() {
             resetBrowserState = true;
@@ -1116,7 +1118,9 @@ registerSuite('Element', () => {
         const suite = {
           before() {
             resetBrowserState = false;
-            return session.get('tests/functional/data/dimensions.html');
+            return session.get(
+              'tests/functional/webdriver/data/dimensions.html'
+            );
           },
           after() {
             resetBrowserState = true;
@@ -1156,7 +1160,7 @@ registerSuite('Element', () => {
           before() {
             resetBrowserState = false;
             return session
-              .get('tests/functional/data/dimensions.html')
+              .get('tests/functional/webdriver/data/dimensions.html')
               .then(function() {
                 return session.execute<number>(
                   'return document.body.offsetWidth;'
@@ -1204,7 +1208,7 @@ registerSuite('Element', () => {
 
         // TODO: Spec: pseudo-elements?
         return session
-          .get('tests/functional/data/dimensions.html')
+          .get('tests/functional/webdriver/data/dimensions.html')
           .then(function() {
             return session.findById('a');
           })

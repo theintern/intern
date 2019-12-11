@@ -17,7 +17,7 @@ registerSuite('helpers/pollUntilTruthy', () => {
     tests: {
       'basic test'() {
         return command
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .findById('makeD')
           .click()
           .then(
@@ -34,7 +34,7 @@ registerSuite('helpers/pollUntilTruthy', () => {
 
       'without args'() {
         return command
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .findById('makeD')
           .click()
           .then(
@@ -50,7 +50,7 @@ registerSuite('helpers/pollUntilTruthy', () => {
 
       'early timeout'() {
         return command
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .findById('makeDSlowly')
           .click()
           .then(
@@ -73,7 +73,7 @@ registerSuite('helpers/pollUntilTruthy', () => {
 
       'iteration check'() {
         return command
-          .get('tests/functional/data/default.html')
+          .get('tests/functional/webdriver/data/default.html')
           .then(
             pollUntilTruthy<number | never>(
               function() {

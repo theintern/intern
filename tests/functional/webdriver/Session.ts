@@ -92,7 +92,7 @@ registerSuite('Session', () => {
       }
 
       return session
-        .get('tests/functional/data/default.html')
+        .get('tests/functional/webdriver/data/default.html')
         .then(function() {
           return session[set]('foo', 'foo');
         })
@@ -294,17 +294,17 @@ registerSuite('Session', () => {
       },
 
       '#get'() {
-        return session.get('tests/functional/data/default.html');
+        return session.get('tests/functional/webdriver/data/default.html');
       },
 
       '#get 404'() {
-        return session.get('tests/functional/data/404.html');
+        return session.get('tests/functional/webdriver/data/404.html');
       },
 
       '#getCurrentUrl'(this: Test) {
         const expectedUrl = util.convertPathToUrl(
           this.remote,
-          'tests/functional/data/default.html'
+          'tests/functional/webdriver/data/default.html'
         );
 
         return session
@@ -324,11 +324,11 @@ registerSuite('Session', () => {
 
         const expectedUrl = util.convertPathToUrl(
           this.remote,
-          'tests/functional/data/default.html?second'
+          'tests/functional/webdriver/data/default.html?second'
         );
         const expectedBackUrl = util.convertPathToUrl(
           this.remote,
-          'tests/functional/data/default.html?first'
+          'tests/functional/webdriver/data/default.html?first'
         );
 
         return session
@@ -367,7 +367,7 @@ registerSuite('Session', () => {
 
       '#execute string'() {
         return session
-          .get('tests/functional/data/scripting.html')
+          .get('tests/functional/webdriver/data/scripting.html')
           .then(function() {
             return session.execute(
               'return interns[arguments[0]] + interns[arguments[1]];',
@@ -381,7 +381,7 @@ registerSuite('Session', () => {
 
       '#execute function'() {
         return session
-          .get('tests/functional/data/scripting.html')
+          .get('tests/functional/webdriver/data/scripting.html')
           .then(function() {
             return session.execute(
               function(first: string, second: string) {
@@ -402,7 +402,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/scripting.html')
+          .get('tests/functional/webdriver/data/scripting.html')
           .then(function() {
             return session.execute(function() {
               return document.getElementById('child');
@@ -427,7 +427,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/scripting.html')
+          .get('tests/functional/webdriver/data/scripting.html')
           .then(function() {
             return session.execute(function() {
               return [interns.poo, document.getElementById('child')];
@@ -454,7 +454,7 @@ registerSuite('Session', () => {
 
       '#execute -> error'() {
         return session
-          .get('tests/functional/data/scripting.html')
+          .get('tests/functional/webdriver/data/scripting.html')
           .then(function() {
             return session.execute(function() {
               /*global interns:false */
@@ -477,7 +477,7 @@ registerSuite('Session', () => {
 
       '#execute -> undefined'() {
         return session
-          .get('tests/functional/data/scripting.html')
+          .get('tests/functional/webdriver/data/scripting.html')
           .then(function() {
             return Task.all([
               session.execute('return "not undefined";'),
@@ -535,7 +535,7 @@ registerSuite('Session', () => {
               }
 
               return session
-                .get('tests/functional/data/scripting.html')
+                .get('tests/functional/webdriver/data/scripting.html')
                 .then(function() {
                   /*jshint maxlen:140 */
                   return session.executeAsync(
@@ -555,7 +555,7 @@ registerSuite('Session', () => {
               }
 
               return session
-                .get('tests/functional/data/scripting.html')
+                .get('tests/functional/webdriver/data/scripting.html')
                 .then(function() {
                   return session.executeAsync(
                     function(first: string, second: string, done: Function) {
@@ -577,7 +577,7 @@ registerSuite('Session', () => {
               }
 
               return session
-                .get('tests/functional/data/scripting.html')
+                .get('tests/functional/webdriver/data/scripting.html')
                 .then(function() {
                   return session.executeAsync(function(done: Function) {
                     /*global interns:false */
@@ -635,7 +635,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/window.html')
+          .get('tests/functional/webdriver/data/window.html')
           .then(function() {
             return session.findById('child');
           })
@@ -686,7 +686,7 @@ registerSuite('Session', () => {
         let allHandles: string[];
 
         return session
-          .get('tests/functional/data/window.html')
+          .get('tests/functional/webdriver/data/window.html')
           .then(function() {
             return session.getAllWindowHandles();
           })
@@ -853,7 +853,7 @@ registerSuite('Session', () => {
           }
 
           return session
-            .get('tests/functional/data/default.html')
+            .get('tests/functional/webdriver/data/default.html')
             .then(function() {
               return session.setCookie({ name: 'foo', value: '1=3' });
             })
@@ -915,7 +915,7 @@ registerSuite('Session', () => {
           }
 
           return session
-            .get('tests/functional/data/default.html')
+            .get('tests/functional/webdriver/data/default.html')
             .then(function() {
               return session.setCookie({ name: 'foo', value: '1=3' });
             })
@@ -977,7 +977,7 @@ registerSuite('Session', () => {
         // Page source is serialised from the current DOM, so will not
         // match the original source on file
         return session
-          .get('tests/functional/data/default.html')
+          .get('tests/functional/webdriver/data/default.html')
           .then(function() {
             return session.getPageSource();
           })
@@ -990,7 +990,7 @@ registerSuite('Session', () => {
 
       '#getPageTitle'() {
         return session
-          .get('tests/functional/data/default.html')
+          .get('tests/functional/webdriver/data/default.html')
           .then(function() {
             return session.getPageTitle();
           })
@@ -1012,7 +1012,7 @@ registerSuite('Session', () => {
         return {
           before() {
             resetBrowserState = false;
-            return session.get('tests/functional/data/elements.html');
+            return session.get('tests/functional/webdriver/data/elements.html');
           },
 
           after() {
@@ -1136,7 +1136,7 @@ registerSuite('Session', () => {
         let startTime: number;
         return function() {
           return session
-            .get('tests/functional/data/elements.html')
+            .get('tests/functional/webdriver/data/elements.html')
             .then(function() {
               return session.setTimeout('implicit', 2000);
             })
@@ -1207,7 +1207,7 @@ registerSuite('Session', () => {
         return {
           before() {
             resetBrowserState = false;
-            return session.get('tests/functional/data/elements.html');
+            return session.get('tests/functional/webdriver/data/elements.html');
           },
 
           after() {
@@ -1326,7 +1326,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/visibility.html')
+          .get('tests/functional/webdriver/data/visibility.html')
           .then(function() {
             return session.findDisplayed('id', 'does-not-exist').then(
               function() {
@@ -1422,7 +1422,7 @@ registerSuite('Session', () => {
         let startTime: number;
 
         return session
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .then(function() {
             // Verifies element to be deleted exists at the start of
             // the test
@@ -1462,7 +1462,7 @@ registerSuite('Session', () => {
         let startTime: number;
 
         return session
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .then(function() {
             // Verifies element to be deleted exists at the start of
             // the test
@@ -1505,7 +1505,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.getActiveElement();
           })
@@ -1534,7 +1534,7 @@ registerSuite('Session', () => {
 
         // TODO: Complex characters, tabs and arrows, copy and paste
         return session
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .then(function() {
             return session.findById('input');
           })
@@ -1579,7 +1579,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/prompts.html')
+          .get('tests/functional/webdriver/data/prompts.html')
           .then(function() {
             return session.findById('alert');
           })
@@ -1607,7 +1607,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/prompts.html')
+          .get('tests/functional/webdriver/data/prompts.html')
           .then(function() {
             return session.findById('prompt');
           })
@@ -1641,7 +1641,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/prompts.html')
+          .get('tests/functional/webdriver/data/prompts.html')
           .then(function() {
             return session.findById('prompt');
           })
@@ -1675,7 +1675,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/prompts.html')
+          .get('tests/functional/webdriver/data/prompts.html')
           .then(function() {
             return session.findById('confirm');
           })
@@ -1703,7 +1703,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/prompts.html')
+          .get('tests/functional/webdriver/data/prompts.html')
           .then(function() {
             return session.findById('confirm');
           })
@@ -1731,7 +1731,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/pointer.html')
+          .get('tests/functional/webdriver/data/pointer.html')
           .then(function() {
             return session.moveMouseTo(100, 12);
           })
@@ -1837,7 +1837,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/pointer.html')
+          .get('tests/functional/webdriver/data/pointer.html')
           .then(function() {
             return session.findById('a');
           })
@@ -1856,7 +1856,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/pointer.html')
+          .get('tests/functional/webdriver/data/pointer.html')
           .then(function() {
             return session.findById('a');
           })
@@ -1893,7 +1893,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/pointer.html')
+          .get('tests/functional/webdriver/data/pointer.html')
           .then(function() {
             return session.findById('a');
           })
@@ -1959,7 +1959,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/pointer.html')
+          .get('tests/functional/webdriver/data/pointer.html')
           .then(function() {
             return session.findById('a');
           })
@@ -1990,7 +1990,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/pointer.html')
+          .get('tests/functional/webdriver/data/pointer.html')
           .then(function() {
             return session.pressFinger(5, 5);
           })
@@ -2017,7 +2017,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/scrollable.html')
+          .get('tests/functional/webdriver/data/scrollable.html')
           .then(getScrollPosition)
           .then(function(position: Position) {
             assert.deepEqual(position, { x: 0, y: 0 });
@@ -2043,7 +2043,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/pointer.html')
+          .get('tests/functional/webdriver/data/pointer.html')
           .then(function() {
             return session.findById('a');
           })
@@ -2068,7 +2068,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/pointer.html')
+          .get('tests/functional/webdriver/data/pointer.html')
           .then(function() {
             return session.findById('a');
           })
@@ -2098,7 +2098,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/scrollable.html')
+          .get('tests/functional/webdriver/data/scrollable.html')
           .then(getScrollPosition)
           .then(function(originalPosition: Position) {
             assert.deepEqual(originalPosition, { x: 0, y: 0 });
@@ -2142,7 +2142,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/scrollable.html')
+          .get('tests/functional/webdriver/data/scrollable.html')
           .then(function() {
             return session.flickFinger(400, 400);
           })
@@ -2159,7 +2159,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/default.html')
+          .get('tests/functional/webdriver/data/default.html')
           .then(function() {
             return session.setGeolocation({
               latitude: 12.1,
@@ -2186,7 +2186,7 @@ registerSuite('Session', () => {
 
       '#getLogsFor'() {
         return session
-          .get('tests/functional/data/default.html')
+          .get('tests/functional/webdriver/data/default.html')
           .then(function() {
             return session.getAvailableLogTypes();
           })
@@ -2215,7 +2215,7 @@ registerSuite('Session', () => {
 
       '#getAvailableLogTypes'() {
         return session
-          .get('tests/functional/data/default.html')
+          .get('tests/functional/webdriver/data/default.html')
           .then(function() {
             return session.getAvailableLogTypes();
           })
@@ -2230,7 +2230,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/default.html')
+          .get('tests/functional/webdriver/data/default.html')
           .then(function() {
             return session.getApplicationCacheStatus();
           })

@@ -632,34 +632,34 @@ registerSuite('core/lib/executors/Executor', function() {
         showConfig() {
           const expected =
             '{\n' +
-            '    "bail": false,\n' +
-            '    "baseline": false,\n' +
-            '    "benchmark": false,\n' +
-            '    "browser": {\n' +
-            '        "plugins": [],\n' +
-            '        "reporters": [],\n' +
-            '        "suites": []\n' +
-            '    },\n' +
-            '    "coverageVariable": "__coverage__",\n' +
-            '    "debug": false,\n' +
-            '    "defaultTimeout": 30000,\n' +
-            '    "filterErrorStack": false,\n' +
-            '    "grep": {},\n' +
-            '    "internPath": "",\n' +
-            '    "loader": {\n' +
-            '        "script": "default"\n' +
-            '    },\n' +
-            '    "name": "intern",\n' +
-            '    "node": {\n' +
-            '        "plugins": [],\n' +
-            '        "reporters": [],\n' +
-            '        "suites": []\n' +
-            '    },\n' +
+            '  "bail": false,\n' +
+            '  "baseline": false,\n' +
+            '  "benchmark": false,\n' +
+            '  "browser": {\n' +
             '    "plugins": [],\n' +
             '    "reporters": [],\n' +
-            '    "sessionId": "",\n' +
-            '    "showConfig": true,\n' +
             '    "suites": []\n' +
+            '  },\n' +
+            '  "coverageVariable": "__coverage__",\n' +
+            '  "debug": false,\n' +
+            '  "defaultTimeout": 30000,\n' +
+            '  "filterErrorStack": false,\n' +
+            '  "grep": "/(?:)/",\n' +
+            '  "internPath": "",\n' +
+            '  "loader": {\n' +
+            '    "script": "default"\n' +
+            '  },\n' +
+            '  "name": "intern",\n' +
+            '  "node": {\n' +
+            '    "plugins": [],\n' +
+            '    "reporters": [],\n' +
+            '    "suites": []\n' +
+            '  },\n' +
+            '  "plugins": [],\n' +
+            '  "reporters": [],\n' +
+            '  "sessionId": "",\n' +
+            '  "showConfig": true,\n' +
+            '  "suites": []\n' +
             '}';
           executor.configure({ showConfig: true });
 

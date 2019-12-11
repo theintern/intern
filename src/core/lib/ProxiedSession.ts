@@ -1,5 +1,5 @@
 import Session from '../../webdriver/Session';
-import { Task, CancellablePromise } from '../..//common';
+import { Task, CancellablePromise } from '../../common';
 import Node from './executors/Node';
 
 /* istanbul ignore next: client-side code */

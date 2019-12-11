@@ -17,7 +17,7 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
     tests: {
       'basic test'() {
         return command
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .findById('makeD')
           .click()
           .then(pollUntil('return document.getElementById("d");', [], 1000))
@@ -32,7 +32,7 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
 
       'with args'() {
         return command
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .findById('makeD')
           .click()
           .then(
@@ -55,7 +55,7 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
 
       'without args'() {
         return command
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .findById('makeD')
           .click()
           .then(pollUntil('return document.getElementById("d");', 1000))
@@ -70,7 +70,7 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
 
       'early timeout'() {
         return command
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .findById('makeDSlowly')
           .click()
           .then(pollUntil('return document.getElementById("d");', [], 100, 25))
@@ -86,7 +86,7 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
 
       'iteration check'() {
         return command
-          .get('tests/functional/data/default.html')
+          .get('tests/functional/webdriver/data/default.html')
           .then(
             pollUntil<number | never>(
               function() {
