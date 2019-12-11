@@ -294,17 +294,17 @@ registerSuite('Session', () => {
       },
 
       '#get'() {
-        return session.get('tests/functional/data/default.html');
+        return session.get('tests/functional/webdriver/data/default.html');
       },
 
       '#get 404'() {
-        return session.get('tests/functional/data/404.html');
+        return session.get('tests/functional/webdriver/data/404.html');
       },
 
       '#getCurrentUrl'(this: Test) {
         const expectedUrl = util.convertPathToUrl(
           this.remote,
-          'tests/functional/data/default.html'
+          'tests/functional/webdriver/data/default.html'
         );
 
         return session
@@ -324,11 +324,11 @@ registerSuite('Session', () => {
 
         const expectedUrl = util.convertPathToUrl(
           this.remote,
-          'tests/functional/data/default.html?second'
+          'tests/functional/webdriver/data/default.html?second'
         );
         const expectedBackUrl = util.convertPathToUrl(
           this.remote,
-          'tests/functional/data/default.html?first'
+          'tests/functional/webdriver/data/default.html?first'
         );
 
         return session
@@ -1014,7 +1014,7 @@ registerSuite('Session', () => {
         return {
           before() {
             resetBrowserState = false;
-            return session.get('tests/functional/data/elements.html');
+            return session.get('tests/functional/webdriver/data/elements.html');
           },
 
           after() {
@@ -1209,7 +1209,7 @@ registerSuite('Session', () => {
         return {
           before() {
             resetBrowserState = false;
-            return session.get('tests/functional/data/elements.html');
+            return session.get('tests/functional/webdriver/data/elements.html');
           },
 
           after() {
@@ -2021,7 +2021,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/scrollable.html')
+          .get('tests/functional/webdriver/data/scrollable.html')
           .then(getScrollPosition)
           .then(function (position: Position) {
             assert.deepEqual(position, { x: 0, y: 0 });
@@ -2102,7 +2102,7 @@ registerSuite('Session', () => {
         }
 
         return session
-          .get('tests/functional/data/scrollable.html')
+          .get('tests/functional/webdriver/data/scrollable.html')
           .then(getScrollPosition)
           .then(function (originalPosition: Position) {
             assert.deepEqual(originalPosition, { x: 0, y: 0 });

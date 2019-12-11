@@ -1,4 +1,3 @@
-import * as path from 'path';
 import * as util from './support/util';
 import Command, { Context } from '../../src/Command';
 import Session from '../../src/Session';
@@ -37,9 +36,9 @@ registerSuite('Command', () => {
               },
               function (error: Error) {
                 assert.strictEqual(error.message, 'broken');
-                assert.include(
+                assert.match(
                   error.stack!,
-                  path.join('tests', 'functional', 'Command.js') + ':47',
+                  /broken.*tests\/functional\/Command\.[tj]s:\d+/s,
                   'Stack trace should point back to the error'
                 );
                 error.message += ' 2';
@@ -53,6 +52,9 @@ registerSuite('Command', () => {
                 );
               },
               function (error: Error) {
+                if (error.name === 'AssertionError') {
+                  throw error;
+                }
                 assert.strictEqual(error.message, 'broken 2');
               }
             );
@@ -80,9 +82,9 @@ registerSuite('Command', () => {
                 error.message,
                 'Original error message should be provided on the first line of the stack trace'
               );
-              assert.include(
+              assert.match(
                 stack,
-                path.join('tests', 'functional', 'Command.js') + ':68',
+                /Invalid call.*tests\/functional\/Command\.[tj]s:\d+/s,
                 'Stack trace should point back to the async method call that eventually threw the error'
               );
             }
@@ -147,12 +149,12 @@ registerSuite('Command', () => {
       'basic chaining'() {
         const command = new Command(session);
         return command
-          .get('tests/functional/data/default.html')
+          .get('tests/functional/webdriver/data/default.html')
           .getPageTitle()
           .then(function (pageTitle) {
             assert.strictEqual(pageTitle, 'Default & <b>default</b>');
           })
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .getPageTitle()
           .then(function (pageTitle) {
             assert.strictEqual(pageTitle, 'Form');
@@ -161,7 +163,7 @@ registerSuite('Command', () => {
 
       'child is a separate command'() {
         const parent = new Command(session).get(
-          'tests/functional/data/default.html'
+          'tests/functional/webdriver/data/default.html'
         );
         const child = parent.findByTagName('p');
 
@@ -194,7 +196,7 @@ registerSuite('Command', () => {
 
         const command = new Command(session);
         return command
-          .get('tests/functional/data/form.html')
+          .get('tests/functional/webdriver/data/form.html')
           .findById('input')
           .click()
           .type('hello')
@@ -210,7 +212,7 @@ registerSuite('Command', () => {
 
       '#findAll'() {
         return new Command(session)
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .findAllByClassName('b')
           .getAttribute('id')
           .then(function (ids) {
@@ -220,7 +222,7 @@ registerSuite('Command', () => {
 
       '#findAll chain'() {
         return new Command(session)
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .findById('c')
           .findAllByClassName('b')
           .getAttribute('id')
@@ -242,7 +244,7 @@ registerSuite('Command', () => {
 
       '#findAll + #findAll'() {
         return new Command(session)
-          .get('tests/functional/data/elements.html')
+          .get('tests/functional/webdriver/data/elements.html')
           .findAllByTagName('div')
           .findAllByCssSelector('span, a')
           .getAttribute('id')
@@ -257,7 +259,7 @@ registerSuite('Command', () => {
         }
 
         return new Command(session)
-          .get('tests/functional/data/visibility.html')
+          .get('tests/functional/webdriver/data/visibility.html')
           .findDisplayedByClassName('multipleVisible')
           .getVisibleText()
           .then(function (text) {
@@ -279,7 +281,7 @@ registerSuite('Command', () => {
         }
 
         return new Command(session)
-          .get('tests/functional/data/pointer.html')
+          .get('tests/functional/webdriver/data/pointer.html')
           .findById('a')
           .moveMouseTo()
           .pressMouseButton()
