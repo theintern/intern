@@ -212,6 +212,15 @@ export default class Suite implements SuiteProperties {
     this._sessionId = value;
   }
 
+  get failed(): boolean {
+    return this.tests.some(suiteOrTest => {
+      return (
+        !!this.error ||
+        (isSuite(suiteOrTest) ? suiteOrTest.failed : suiteOrTest.error)
+      );
+    });
+  }
+
   /**
    * The total number of tests in this suite and any sub-suites. To get only
    * the number of tests for this suite, look at `this.tests.length`.

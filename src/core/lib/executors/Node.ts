@@ -927,13 +927,29 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         }
 
         testTask
-          .then(() => {
-            if (!this._sessionSuites) {
-              return;
+          .then(async () => {
+            let remainingAttempts = 1 + (this.config.functionalRetries || 0);
+            let suites = this._sessionSuites || [];
+
+            while (remainingAttempts && suites.length) {
+              remainingAttempts--;
+              if (suites.length !== this._sessionSuites!.length) {
+                this.log(
+                  'reattempting',
+                  suites.length,
+                  'of',
+                  this._sessionSuites!.length,
+                  'environments'
+                );
+              }
+              testTask = this._runRemoteTests(suites);
+              await testTask.catch(remainingAttempts ? () => {} : undefined);
+              suites = suites.filter(suite => suite.failed);
+              if (suites.length === this._sessionSuites!.length) {
+                // Do not reattempt if no top-level suite has passed
+                remainingAttempts = 0;
+              }
             }
-            return this._loadFunctionalSuites().then(
-              () => (testTask = this._runRemoteTests())
-            );
           })
           .then(resolve, reject);
       },
@@ -968,7 +984,9 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     });
   }
 
-  protected _runRemoteTests(): CancellablePromise<void> {
+  protected _runRemoteTests(
+    sessions: Suite[] = this._sessionSuites!
+  ): CancellablePromise<void> {
     const config = this.config;
     const queue = new FunctionQueue(config.maxConcurrency || Infinity);
 
@@ -980,7 +998,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
     this.log(
       'Running',
-      sessionSuites.length,
+      sessions.length,
       'suites with maxConcurrency',
       config.maxConcurrency
     );
@@ -988,7 +1006,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     const runTask = new Task(
       (resolve, reject) => {
         Task.all(
-          sessionSuites.map(suite => {
+          sessions.map(suite => {
             this.log('Queueing suite', suite.name);
             return queue.enqueue(() => {
               this.log('Running suite', suite.name);
