@@ -768,7 +768,8 @@ export default class Suite implements SuiteProperties {
       json.error = {
         name: this.error.name,
         message: this.error.message,
-        stack: this.error.stack
+        stack: this.error.stack,
+        lifecycleMethod: this.error.lifecycleMethod
       };
 
       if (this.error.relatedTest && this.error.relatedTest !== <any>this) {
