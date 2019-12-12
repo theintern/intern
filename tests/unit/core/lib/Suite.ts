@@ -744,6 +744,41 @@ registerSuite('core/lib/Suite', {
     })()
   },
 
+  '#failed': {
+    'due to error'() {
+      const suite = createSuite({
+        name: 'test',
+        tests: []
+      });
+      suite.error = new Error();
+
+      assert.isTrue(suite.failed);
+    },
+
+    'due to failed test'() {
+      const test = new Test({
+        name: 'bif',
+        test() {}
+      });
+      const suite = createSuite({
+        name: 'foo',
+        tests: [test]
+      });
+      test.error = new Error();
+
+      assert.isTrue(suite.failed);
+    },
+
+    'no failure'() {
+      const suite = createSuite({
+        name: 'test',
+        tests: []
+      });
+
+      assert.isFalse(suite.failed);
+    }
+  },
+
   '#add': {
     invalid() {
       const suite = createSuite({ name: 'foo' });
