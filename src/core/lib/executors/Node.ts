@@ -928,9 +928,14 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
         testTask
           .then(async () => {
-            let remainingAttempts = 1 + (this.config.functionalRetries || 0);
-            let suites = this._sessionSuites || [];
+            if (!this._sessionSuites) {
+              return;
+            }
 
+            let remainingAttempts = 1 + (this.config.functionalRetries || 0);
+            let suites = this._sessionSuites;
+
+            await this._loadFunctionalSuites();
             while (remainingAttempts && suites.length) {
               remainingAttempts--;
               if (suites.length !== this._sessionSuites!.length) {
