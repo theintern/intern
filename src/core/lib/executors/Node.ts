@@ -938,22 +938,26 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
             await this._loadFunctionalSuites();
             while (remainingAttempts && suites.length) {
               remainingAttempts--;
-              if (suites.length !== this._sessionSuites!.length) {
+              if (suites.length !== this._sessionSuites.length) {
                 this.log(
                   'reattempting',
                   suites.length,
                   'of',
-                  this._sessionSuites!.length,
+                  this._sessionSuites.length,
                   'environments'
                 );
               }
               testTask = this._runRemoteTests(suites);
               await testTask.catch(remainingAttempts ? () => {} : undefined);
               suites = suites.filter(suite => suite.failed);
-              if (suites.length === this._sessionSuites!.length) {
+              if (suites.length === this._sessionSuites.length) {
                 // Do not reattempt if no top-level suite has passed
                 remainingAttempts = 0;
               }
+            }
+
+            if (suites.length) {
+              throw new Error();
             }
           })
           .then(resolve, reject);

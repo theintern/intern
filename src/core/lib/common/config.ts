@@ -199,7 +199,7 @@ export interface Config extends ResourceConfig {
   /** Whether to collect coverage data from functional tests */
   functionalCoverage: boolean;
 
-  /** The number of times to rerun a session when a session fails when another one succeeds */
+  /** The number of times to rerun failed sessions when at least one other session succeeds */
   functionalRetries?: number;
 
   /**

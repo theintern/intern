@@ -213,12 +213,7 @@ export default class Suite implements SuiteProperties {
   }
 
   get failed(): boolean {
-    return this.tests.some(suiteOrTest => {
-      return (
-        !!this.error ||
-        (isSuite(suiteOrTest) ? suiteOrTest.failed : suiteOrTest.error)
-      );
-    });
+    return Boolean(this.error) || this.numFailedTests > 0;
   }
 
   /**
