@@ -187,7 +187,7 @@ export default class RemoteSuite extends Suite {
         // These are options that will be passed as query params to the
         // test harness page
         const queryOptions: Partial<RemoteConfig> = {
-          basePath: serverUrl.pathname,
+          basePath: serverUrl.pathname || undefined,
           runInSync: config.runInSync || false,
           serverUrl: serverUrl.href,
           sessionId: sessionId,

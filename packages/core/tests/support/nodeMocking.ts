@@ -24,7 +24,7 @@ intern.registerPlugin('mockRequire', () => {
           filename: id,
           loaded: true,
           exports: mocks[name]
-        };
+        } as NodeModule;
       }
     });
 

@@ -126,7 +126,7 @@ registerSuite('lib/middleware/instrument', function () {
             sandbox.stub(fs, 'stat').callsFake((path, callback) => {
               const data = fs.__fileData[testPath];
               fs.__fileData[testPath] = undefined;
-              callback(
+              ((callback as unknown) as (...args: unknown[]) => void)(
                 null,
                 (new MockStats(path, data!.type) as unknown) as Stats
               );
