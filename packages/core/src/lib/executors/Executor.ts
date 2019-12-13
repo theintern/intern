@@ -631,11 +631,15 @@ export default abstract class BaseExecutor<
         if (this.config.showConfig) {
           this._runTask = this._runTask
             .then(() => {
-              // Emit the config as JSON deeply sorted by key
+              // Emit the config as JSON deeply sorted by key. Don't try to sort
+              // non-simple objects.
               const sort = (value: any) => {
                 if (Array.isArray(value)) {
                   value = value.map(sort).sort();
-                } else if (typeof value === 'object') {
+                } else if (
+                  typeof value === 'object' &&
+                  value.constructor === Object
+                ) {
                   const newObj: { [key: string]: any } = {};
                   Object.keys(value)
                     .sort()
@@ -646,7 +650,19 @@ export default abstract class BaseExecutor<
                 }
                 return value;
               };
-              console.log(JSON.stringify(sort(this.config), null, '    '));
+
+              console.log(
+                JSON.stringify(
+                  sort(this.config),
+                  (_key, value) => {
+                    if (value instanceof RegExp) {
+                      return value.toString();
+                    }
+                    return value;
+                  },
+                  '  '
+                )
+              );
             })
             .catch(error => {
               // Display resolution errors because reporters
