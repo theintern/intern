@@ -90,7 +90,7 @@ registerSuite('Server', () => {
           function(error: Error) {
             assert.notInclude(
               error.message,
-              url.auth,
+              url.auth!,
               'HTTP auth credentials should not be displayed in errors'
             );
 
