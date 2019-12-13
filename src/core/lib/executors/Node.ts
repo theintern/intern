@@ -993,9 +993,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     });
   }
 
-  protected _runRemoteTests(
-    sessions: Suite[] = this._sessionSuites!
-  ): CancellablePromise<void> {
+  protected _runRemoteTests(sessions: Suite[]): CancellablePromise<void> {
     const config = this.config;
     const queue = new FunctionQueue(config.maxConcurrency || Infinity);
 

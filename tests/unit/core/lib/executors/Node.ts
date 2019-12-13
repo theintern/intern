@@ -253,6 +253,32 @@ registerSuite('core/lib/executors/Node', function() {
   let fsData: { [name: string]: string };
   let tsExtension: any;
 
+  function setFunctionalSuites(...suites: Suite[]) {
+    executor.configure(<any>{
+      name: 'foo executor',
+      environments: ['chrome'],
+      tunnel: 'null',
+      functionalSuites: suites.map((_, index) => `${index}.js`)
+    });
+
+    executor.registerLoader((_options: any) => (modules: string[]) => {
+      modules.forEach(name => {
+        const index = parseInt(name.substring(0, name.indexOf('.')), 10);
+        const suite = suites[index];
+        suite &&
+          executor.addSuite((parent: Suite) => {
+            parent.add({
+              name,
+              hasParent: true,
+              parent,
+              ...suites[index]
+            } as any);
+          });
+      });
+      return Promise.resolve();
+    });
+  }
+
   return {
     async before() {
       ({ default: Node } = await mockImport(
@@ -1140,35 +1166,16 @@ registerSuite('core/lib/executors/Node', function() {
           const dfd = this.async();
           let suiteTask: Task<void>;
 
-          executor.configure(<any>{
-            name: 'foo executor',
-            environments: 'chrome',
-            tunnel: 'null',
-            functionalSuites: ['foo.js']
-          });
-
           let settled = false;
 
-          executor.registerLoader((_options: any) => (modules: string[]) => {
-            if (modules[0] === 'foo.js') {
-              executor.addSuite((parent: Suite) => {
-                parent.add(<any>{
-                  name: 'hang suite',
-                  hasParent: true,
-                  tests: [],
-                  parent,
-                  run() {
-                    suiteTask = new Task<void>(
-                      () => {},
-                      () => {}
-                    );
-                    return suiteTask;
-                  }
-                });
-              });
+          setFunctionalSuites({
+            name: 'hang suite',
+            tests: [],
+            run() {
+              suiteTask = new Task<void>(() => {}, () => {});
+              return suiteTask;
             }
-            return Promise.resolve();
-          });
+          } as any);
 
           const runTask = executor.run();
           runTask.then(
@@ -1189,6 +1196,79 @@ registerSuite('core/lib/executors/Node', function() {
               assert.isFalse(settled, 'expected test task to not be settled');
             })
           );
+        },
+
+        async 'failed suites'() {
+          let rejected = false;
+          const suite = {
+            name: 'failing suite',
+            tests: [],
+            failed: true,
+            run: stub().returns(Promise.reject())
+          } as any;
+          setFunctionalSuites(suite);
+
+          try {
+            await executor.run();
+          } catch (e) {
+            rejected = true;
+          }
+          assert.strictEqual(suite.run.callCount, 1);
+          assert.isTrue(rejected);
+        },
+
+        async retries() {
+          let rejected = false;
+          const suite = {
+            name: 'initially failing suite',
+            tests: [],
+            failed: true,
+            run: stub()
+              .returns(Promise.reject(new Error('failed')))
+              .callsFake(() => {
+                suite.failed = false;
+                return Promise.resolve();
+              })
+          } as any;
+          setFunctionalSuites(suite, {
+            name: 'passing suite',
+            tests: [],
+            failed: false,
+            run: () => Promise.resolve()
+          } as any);
+          executor.configure({
+            functionalRetries: 3
+          });
+
+          try {
+            await executor.run();
+          } catch (e) {
+            rejected = true;
+          }
+          assert.isFalse(rejected);
+          assert.strictEqual(suite.run.callCount, 2);
+        },
+
+        async 'does not retry sessions without a successful session'() {
+          let rejected = false;
+          const suite = {
+            name: 'failing suite',
+            tests: [],
+            run: stub().returns(Promise.reject(new Error())),
+            failed: true
+          } as any;
+          setFunctionalSuites(suite);
+          executor.configure({
+            functionalRetries: 10
+          });
+
+          try {
+            await executor.run();
+          } catch (e) {
+            rejected = true;
+          }
+          assert.strictEqual(suite.run.callCount, 1);
+          assert.isTrue(rejected);
         },
 
         proxies: {
