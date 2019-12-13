@@ -1628,6 +1628,7 @@ registerSuite('lib/Suite', {
       name: 'bad',
       message: 'failed',
       stack: '',
+      lifecycleMethod: 'afterEach',
       relatedTest: <Test>suite.tests[0]
     };
 
@@ -1637,6 +1638,7 @@ registerSuite('lib/Suite', {
         name: 'bad',
         message: 'failed',
         stack: '',
+        lifecycleMethod: 'afterEach',
         relatedTest: {
           id: 'foo - bar',
           parentId: 'foo',
