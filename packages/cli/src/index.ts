@@ -241,13 +241,13 @@ program
   .command('run [args...]')
   .description('Run tests in Node or in a browser using WebDriver')
   .option('-b, --bail', 'quit after the first failing test')
+  .option('-C, --no-coverage', 'disable code coverage')
   .option('-g, --grep <regex>', 'filter tests by ID')
   .option(
     '-l, --leave-remote-open',
     'leave the remote browser open after tests finish'
   )
   .option('-p, --port <port>', 'port that test proxy should serve on', intArg)
-  .option('-I, --no-instrument', 'disable instrumentation')
   .option('--debug', 'enable the Node debugger')
   .option('--serve-only', "start Intern's test server, but don't run any tests")
   .option('--show-config', 'display the resolved config and exit')
@@ -290,7 +290,9 @@ program
     print();
   })
   .action(async (_args, command) => {
-    const { config } = await getConfig(configName);
+    // Use getConfig's argv form so that it won't try to parse the actual argv,
+    // which we're handling here
+    const { config } = await getConfig(['', '', `config=${configName}`]);
 
     if (command.showConfig) {
       config.showConfig = true;
@@ -336,7 +338,7 @@ program
       config.tunnel = command.tunnel;
     }
 
-    if (command.instrument === false) {
+    if (command.coverage === false) {
       config.coverage = false;
     }
 
@@ -399,9 +401,9 @@ program
     'Start a simple web server for running unit tests in a browser on ' +
       'your system'
   )
+  .option('-C, --no-coverage', 'disable code coverage')
   .option('-o, --open', 'open the test runner URL when the server starts')
   .option('-p, --port <port>', 'port to serve on', intArg)
-  .option('-I, --no-instrument', 'disable instrumentation')
   .on('--help', () => {
     print('\n');
     print([
@@ -425,7 +427,7 @@ program
       internConfig.serverPort = command.port;
     }
 
-    if (command.instrument === false) {
+    if (command.coverage === false) {
       internConfig.coverage = false;
     }
 
