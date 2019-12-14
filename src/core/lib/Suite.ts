@@ -212,10 +212,6 @@ export default class Suite implements SuiteProperties {
     this._sessionId = value;
   }
 
-  get failed(): boolean {
-    return Boolean(this.error) || this.numFailedTests > 0;
-  }
-
   /**
    * The total number of tests in this suite and any sub-suites. To get only
    * the number of tests for this suite, look at `this.tests.length`.
@@ -793,6 +789,10 @@ export default class Suite implements SuiteProperties {
 
 export function isSuite(value: any): value is Suite {
   return Array.isArray(value.tests) && typeof value.hasParent === 'boolean';
+}
+
+export function isFailedSuite(suite: Suite): boolean {
+  return suite.error != null || suite.numFailedTests > 0;
 }
 
 export interface SuiteLifecycleFunction {

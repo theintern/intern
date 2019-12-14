@@ -14,6 +14,7 @@ import {
   ObjectSuiteDescriptor as _ObjectSuiteDescriptor,
   Tests
 } from 'src/core/lib/interfaces/object';
+import { isFailedSuite } from 'src/core/lib/Suite';
 
 type lifecycleMethod = 'before' | 'beforeEach' | 'afterEach' | 'after';
 
@@ -742,41 +743,6 @@ registerSuite('core/lib/Suite', {
         }
       };
     })()
-  },
-
-  '#failed': {
-    'due to error'() {
-      const suite = createSuite({
-        name: 'test',
-        tests: []
-      });
-      suite.error = new Error();
-
-      assert.isTrue(suite.failed);
-    },
-
-    'due to failed test'() {
-      const test = new Test({
-        name: 'bif',
-        test() {}
-      });
-      const suite = createSuite({
-        name: 'foo',
-        tests: [test]
-      });
-      test.error = new Error();
-
-      assert.isTrue(suite.failed);
-    },
-
-    'no failure'() {
-      const suite = createSuite({
-        name: 'test',
-        tests: []
-      });
-
-      assert.isFalse(suite.failed);
-    }
   },
 
   '#add': {
@@ -1703,5 +1669,40 @@ registerSuite('core/lib/Suite', {
       numSkippedTests: 0
     };
     assert.deepEqual(suite.toJSON(), expected, 'Unexpected value');
+  },
+
+  'isFailedSuite()': {
+    'due to error'() {
+      const suite = createSuite({
+        name: 'test',
+        tests: []
+      });
+      suite.error = new Error();
+
+      assert.isTrue(isFailedSuite(suite));
+    },
+
+    'due to failed test'() {
+      const test = new Test({
+        name: 'bif',
+        test() {}
+      });
+      const suite = createSuite({
+        name: 'foo',
+        tests: [test]
+      });
+      test.error = new Error();
+
+      assert.isTrue(isFailedSuite(suite));
+    },
+
+    'no failure'() {
+      const suite = createSuite({
+        name: 'test',
+        tests: []
+      });
+
+      assert.isFalse(isFailedSuite(suite));
+    }
   }
 });

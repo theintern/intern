@@ -37,7 +37,7 @@ import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
 import resolveEnvironments from '../resolveEnvironments';
 import Server from '../Server';
-import Suite, { isSuite } from '../Suite';
+import Suite, { isSuite, isFailedSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
 import { RuntimeEnvironment } from '../types';
 import * as console from '../common/console';
@@ -556,7 +556,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
                 // failed tests since sub-suites may have
                 // failures that don't result in failed tests.
                 function hasError(suite: Suite): boolean {
-                  if (suite.error != null || suite.numFailedTests > 0) {
+                  if (isFailedSuite(suite)) {
                     return true;
                   }
                   return suite.tests.filter(isSuite).some(hasError);
@@ -932,32 +932,33 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
               return;
             }
 
+            const allSessions = this._sessionSuites;
+            let suites = allSessions;
             let remainingAttempts = 1 + (this.config.functionalRetries || 0);
-            let suites = this._sessionSuites;
 
             await this._loadFunctionalSuites();
             while (remainingAttempts && suites.length) {
               remainingAttempts--;
-              if (suites.length !== this._sessionSuites.length) {
+              if (suites.length !== allSessions.length) {
                 this.log(
                   'reattempting',
                   suites.length,
                   'of',
-                  this._sessionSuites.length,
+                  allSessions.length,
                   'environments'
                 );
               }
-              testTask = this._runRemoteTests(suites);
-              await testTask.catch(remainingAttempts ? () => {} : undefined);
-              suites = suites.filter(suite => suite.failed);
-              if (suites.length === this._sessionSuites.length) {
-                // Do not reattempt if no top-level suite has passed
+              try {
+                testTask = this._runRemoteTests(suites);
+                await testTask;
+              } catch (e) {}
+              const failedSuites = (suites = suites.filter(suite =>
+                isFailedSuite(suite)
+              ));
+              if (failedSuites.length === allSessions.length) {
+                // Do not reattempt if no session has passed
                 remainingAttempts = 0;
               }
-            }
-
-            if (suites.length) {
-              throw new Error();
             }
           })
           .then(resolve, reject);

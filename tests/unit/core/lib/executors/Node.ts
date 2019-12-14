@@ -226,6 +226,8 @@ registerSuite('core/lib/executors/Node', function() {
 
   const mockTsNodeRegister = spy();
 
+  const mockResolveEnvironments = stub().returns(['foo env']);
+
   const mockNodeUtil = {
     expandFiles(patterns?: string | string[]) {
       if (typeof patterns === 'string') {
@@ -253,27 +255,24 @@ registerSuite('core/lib/executors/Node', function() {
   let fsData: { [name: string]: string };
   let tsExtension: any;
 
-  function setFunctionalSuites(...suites: Suite[]) {
+  function setFunctionalSuites(
+    loader: (options: { name: string; parent: Suite }) => void,
+    functionalSuites: string[] = ['one.js']
+  ) {
     executor.configure(<any>{
       name: 'foo executor',
       environments: ['chrome'],
       tunnel: 'null',
-      functionalSuites: suites.map((_, index) => `${index}.js`)
+      functionalSuites
     });
 
     executor.registerLoader((_options: any) => (modules: string[]) => {
       modules.forEach(name => {
-        const index = parseInt(name.substring(0, name.indexOf('.')), 10);
-        const suite = suites[index];
-        suite &&
+        if (functionalSuites.indexOf(name) >= 0) {
           executor.addSuite((parent: Suite) => {
-            parent.add({
-              name,
-              hasParent: true,
-              parent,
-              ...suites[index]
-            } as any);
+            loader({ name, parent });
           });
+        }
       });
       return Promise.resolve();
     });
@@ -430,6 +429,7 @@ registerSuite('core/lib/executors/Node', function() {
       mockConsole.error.resetHistory();
       mockGlobal.process.on.resetHistory();
       mockNodeUtil.transpileSource.resetHistory();
+      mockResolveEnvironments.resetHistory();
     },
 
     tests: {
@@ -1167,15 +1167,18 @@ registerSuite('core/lib/executors/Node', function() {
           let suiteTask: Task<void>;
 
           let settled = false;
-
-          setFunctionalSuites({
-            name: 'hang suite',
-            tests: [],
-            run() {
-              suiteTask = new Task<void>(() => {}, () => {});
-              return suiteTask;
-            }
-          } as any);
+          setFunctionalSuites(({ parent }) => {
+            parent.add({
+              name: 'hang suite',
+              tests: [],
+              parent,
+              hasParent: true,
+              run() {
+                suiteTask = new Task<void>(() => {}, () => {});
+                return suiteTask;
+              }
+            } as any);
+          });
 
           const runTask = executor.run();
           runTask.then(
@@ -1199,76 +1202,81 @@ registerSuite('core/lib/executors/Node', function() {
         },
 
         async 'failed suites'() {
-          let rejected = false;
-          const suite = {
-            name: 'failing suite',
-            tests: [],
-            failed: true,
-            run: stub().returns(Promise.reject())
-          } as any;
-          setFunctionalSuites(suite);
-
-          try {
-            await executor.run();
-          } catch (e) {
-            rejected = true;
-          }
-          assert.strictEqual(suite.run.callCount, 1);
-          assert.isTrue(rejected);
-        },
-
-        async retries() {
-          let rejected = false;
-          const suite = {
-            name: 'initially failing suite',
-            tests: [],
-            failed: true,
-            run: stub()
-              .returns(Promise.reject(new Error('failed')))
-              .callsFake(() => {
-                suite.failed = false;
-                return Promise.resolve();
-              })
-          } as any;
-          setFunctionalSuites(suite, {
-            name: 'passing suite',
-            tests: [],
-            failed: false,
-            run: () => Promise.resolve()
-          } as any);
-          executor.configure({
-            functionalRetries: 3
+          const runStub = stub().returns(Promise.resolve());
+          setFunctionalSuites(({ parent }) => {
+            parent.add({
+              name: 'failing suite',
+              tests: [],
+              parent,
+              hasParent: true,
+              numFailedTests: 1,
+              run: runStub
+            } as any);
           });
 
-          try {
-            await executor.run();
-          } catch (e) {
-            rejected = true;
-          }
-          assert.isFalse(rejected);
-          assert.strictEqual(suite.run.callCount, 2);
+          await executor.run();
+          assert.strictEqual(runStub.callCount, 1);
         },
 
         async 'does not retry sessions without a successful session'() {
-          let rejected = false;
-          const suite = {
-            name: 'failing suite',
-            tests: [],
-            run: stub().returns(Promise.reject(new Error())),
-            failed: true
-          } as any;
-          setFunctionalSuites(suite);
+          const runStub = stub().returns(Promise.resolve());
+          setFunctionalSuites(({ parent }) => {
+            parent.add({
+              name: 'failing suite',
+              tests: [],
+              parent,
+              hasParent: true,
+              numFailedTests: 1,
+              run: runStub
+            } as any);
+          });
           executor.configure({
             functionalRetries: 10
           });
 
-          try {
-            await executor.run();
-          } catch (e) {
-            rejected = true;
-          }
-          assert.strictEqual(suite.run.callCount, 1);
-          assert.isTrue(rejected);
+          await executor.run();
+          assert.strictEqual(runStub.callCount, 1);
+        },
+
+        async retries() {
+          mockResolveEnvironments.returns(['env1', 'env2']);
+          executor.configure({
+            environments: ['chrome', 'firefox']
+          });
+          let numFailedTests = 2;
+          const runStub = stub().callsFake(() => {
+            numFailedTests--;
+            return Promise.resolve();
+          });
+          setFunctionalSuites(({ parent }) => {
+            if (parent.name === 'env1') {
+              parent.add({
+                name: 'initially failing suite',
+                tests: [],
+                parent,
+                hasParent: true,
+                get numFailedTests() {
+                  return numFailedTests;
+                },
+                run: runStub
+              } as any);
+            } else if (parent.name === 'env2') {
+              parent.add({
+                name: 'initially failing suite',
+                tests: [],
+                parent,
+                hasParent: true,
+                numFailedTests: 0,
+                run: stub().returns(Promise.resolve())
+              } as any);
+            }
+          });
+          executor.configure({
+            functionalRetries: 10
+          });
+
+          await executor.run();
+          assert.strictEqual(runStub.callCount, 2);
         },
 
         proxies: {
