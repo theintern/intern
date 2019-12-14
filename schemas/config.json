@@ -248,6 +248,11 @@
           "type": "boolean"
         },
 
+        "functionalRetries": {
+          "description": "The number of times to rerun failed sessions when at least one other session succeeds",
+          "type": "number"
+        },
+
         "functionalSuites": {
           "description": "Suites to run as functional (WebDriver) tests",
           "$ref": "#/definitions/suitesProperty"
