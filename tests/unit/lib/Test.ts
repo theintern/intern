@@ -343,6 +343,15 @@ registerSuite('lib/Test', {
         stack: 'stack',
         showDiff: false
       };
+
+      test.suiteError = expected.suiteError = {
+        name: 'Suite error',
+        message: 'message',
+        stack: 'stack',
+        lifecycleMethod: 'afterEach' as const,
+        showDiff: false
+      };
+
       assert.deepEqual(
         test.toJSON(),
         expected,
