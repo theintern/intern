@@ -1,196 +1,241 @@
-import { sandbox as Sandbox, SinonStub, SinonSpy } from 'sinon';
-import Task from '@dojo/core/async/Task';
-import global from '@dojo/shim/global';
+import { createSandbox, SinonStub, SinonSpy } from 'sinon';
+import { Task, global } from '@theintern/common';
 
 import {
-	createMockConsole,
-	createMockNodeExecutor,
-	MockConsole
+  createMockBrowserExecutor,
+  createMockConsole,
+  createMockNodeExecutor,
+  MockConsole
 } from '../../support/unit/mocks';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 const originalIntern = global.intern;
 
 registerSuite('bin/intern', function() {
-	const sandbox = Sandbox.create();
-	const mockNodeUtil: { [name: string]: SinonSpy } = {
-		getConfig: sandbox.spy(() => {
-			return Task.resolve({ config: configData, file: 'intern.json' });
-		})
-	};
+  const sandbox = createSandbox();
+  const mockNodeUtil: { [name: string]: SinonSpy } = {
+    getConfig: sandbox.spy((..._args: any[]) => {
+      return Task.resolve({ config: configData, file: 'intern.json' });
+    })
+  };
 
-	const originalExitCode = process.exitCode;
+  const originalExitCode = process.exitCode;
 
-	let configData: any;
-	let removeMocks: (() => void) | undefined;
-	let mockConsole: MockConsole;
-	let mockCommonUtil: { [name: string]: SinonStub };
+  let configData: any;
+  let removeMocks: (() => void) | undefined;
+  let mockConsole: MockConsole;
+  let mockCommonUtil: { [name: string]: SinonStub };
 
-	return {
-		beforeEach() {
-			mockConsole = createMockConsole();
-			mockCommonUtil = {
-				getConfigDescription: sandbox.stub().returns('test config')
-			};
+  return {
+    beforeEach() {
+      mockConsole = createMockConsole();
+      mockCommonUtil = {
+        getConfigDescription: sandbox.stub().returns('test config')
+      };
 
-			sandbox.resetHistory();
-			configData = {};
-		},
+      sandbox.resetHistory();
+      configData = {};
+    },
 
-		afterEach() {
-			if (removeMocks) {
-				removeMocks();
-				removeMocks = undefined;
-			}
+    afterEach() {
+      if (removeMocks) {
+        removeMocks();
+        removeMocks = undefined;
+      }
 
-			process.exitCode = originalExitCode;
-			global.intern = originalIntern;
-		},
+      process.exitCode = originalExitCode;
+      global.intern = originalIntern;
+    },
 
-		tests: {
-			'basic run'() {
-				const mockExecutor = createMockNodeExecutor();
-				return mockRequire(require, 'src/bin/intern', {
-					'src/lib/node/util': mockNodeUtil,
-					'src/lib/common/console': mockConsole,
-					'src/lib/common/util': mockCommonUtil,
-					'src/index': { default: mockExecutor },
-					'@dojo/shim/global': { default: { process: {} } }
-				}).then(handle => {
-					removeMocks = handle.remove;
-					assert.equal(mockNodeUtil.getConfig.callCount, 1);
-					assert.equal(
-						mockCommonUtil.getConfigDescription.callCount,
-						0
-					);
-					assert.isTrue(
-						mockExecutor._ran,
-						'expected executor to have run'
-					);
-				});
-			},
+    tests: {
+      'basic run'() {
+        const mockExecutor = createMockNodeExecutor();
+        return mockRequire(require, 'src/bin/intern', {
+          'src/lib/node/util': mockNodeUtil,
+          'src/lib/common/console': mockConsole,
+          'src/lib/common/util': mockCommonUtil,
+          'src/index': { default: mockExecutor },
+          '@theintern/common': { global: { process: {} } }
+        }).then(handle => {
+          removeMocks = handle.remove;
+          assert.equal(mockNodeUtil.getConfig.callCount, 1);
+          assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
+          assert.isTrue(mockExecutor._ran, 'expected executor to have run');
+        });
+      },
 
-			'show configs'() {
-				configData = { showConfigs: true };
+      'ts in node'() {
+        configData = {
+          suites: ['foo.ts'],
+          plugins: ['bar.ts']
+        };
+        const mockExecutor = createMockNodeExecutor({
+          environment: 'node'
+        } as any);
+        return mockRequire(require, 'src/bin/intern', {
+          'src/lib/node/util': mockNodeUtil,
+          'src/lib/common/console': mockConsole,
+          'src/lib/common/util': mockCommonUtil,
+          'src/index': { default: mockExecutor },
+          '@theintern/common': { global: { process: {} } }
+        }).then(handle => {
+          removeMocks = handle.remove;
+          assert.equal(mockNodeUtil.getConfig.callCount, 1);
+          assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
+          assert.isTrue(mockExecutor._ran, 'expected executor to have run');
+        });
+      },
 
-				return mockRequire(require, 'src/bin/intern', {
-					'src/lib/node/util': mockNodeUtil,
-					'src/lib/common/console': mockConsole,
-					'src/lib/common/util': mockCommonUtil,
-					'src/index': { default: createMockNodeExecutor() },
-					'@dojo/shim/global': {
-						default: { process: {} }
-					}
-				}).then(handle => {
-					removeMocks = handle.remove;
-					assert.equal(mockNodeUtil.getConfig.callCount, 1);
-					assert.equal(
-						mockCommonUtil.getConfigDescription.callCount,
-						1
-					);
-					assert.deepEqual(mockConsole.log.args, [['test config']]);
-				});
-			},
+      'show configs'() {
+        configData = { showConfigs: true };
 
-			'bad run': {
-				'intern defined'() {
-					return mockRequire(require, 'src/bin/intern', {
-						'src/lib/node/util': mockNodeUtil,
-						'src/lib/common/console': mockConsole,
-						'src/lib/common/util': mockCommonUtil,
-						'src/index': { default: createMockNodeExecutor() },
-						'@dojo/shim/global': {
-							default: { process: {} }
-						}
-					}).then(handle => {
-						removeMocks = handle.remove;
-						assert.equal(
-							mockConsole.error.callCount,
-							0,
-							'expected error not to be called'
-						);
-					});
-				},
+        return mockRequire(require, 'src/bin/intern', {
+          'src/lib/node/util': mockNodeUtil,
+          'src/lib/common/console': mockConsole,
+          'src/lib/common/util': mockCommonUtil,
+          'src/index': { default: createMockNodeExecutor() },
+          '@theintern/common': { global: { process: {} } }
+        }).then(handle => {
+          removeMocks = handle.remove;
+          assert.equal(mockNodeUtil.getConfig.callCount, 1);
+          assert.equal(mockCommonUtil.getConfigDescription.callCount, 1);
+          assert.deepEqual(mockConsole.log.args, [['test config']]);
+        });
+      },
 
-				'intern not defined'() {
-					configData = { showConfigs: true };
-					mockCommonUtil.getConfigDescription.throws();
+      'bad run': {
+        'intern defined'() {
+          return mockRequire(require, 'src/bin/intern', {
+            'src/lib/node/util': mockNodeUtil,
+            'src/lib/common/console': mockConsole,
+            'src/lib/common/util': mockCommonUtil,
+            'src/index': { default: createMockNodeExecutor() },
+            '@theintern/common': { global: { process: {} } }
+          }).then(handle => {
+            removeMocks = handle.remove;
+            assert.equal(
+              mockConsole.error.callCount,
+              0,
+              'expected error not to be called'
+            );
+          });
+        },
 
-					return mockRequire(require, 'src/bin/intern', {
-						'src/lib/node/util': mockNodeUtil,
-						'src/lib/common/console': mockConsole,
-						'src/lib/common/util': mockCommonUtil,
-						'src/index': { default: createMockNodeExecutor() },
-						'@dojo/shim/global': {
-							default: {
-								process: { stdout: process.stdout }
-							}
-						}
-					})
-						.then(handle => {
-							removeMocks = handle.remove;
-							return new Promise(resolve =>
-								setTimeout(resolve, 10)
-							);
-						})
-						.then(() => {
-							assert.equal(
-								mockConsole.error.callCount,
-								1,
-								'expected error to be called once'
-							);
-						});
-				}
-			},
+        'intern not defined'() {
+          configData = { showConfigs: true };
+          mockCommonUtil.getConfigDescription.throws();
 
-			help() {
-				const mockExecutor = createMockNodeExecutor(<any>{
-					_config: {
-						foo: 'one',
-						bar: [2, 3],
-						baz: { value: false }
-					}
-				});
-				configData = { help: true };
+          return mockRequire(require, 'src/bin/intern', {
+            'src/lib/node/util': mockNodeUtil,
+            'src/lib/common/console': mockConsole,
+            'src/lib/common/util': mockCommonUtil,
+            'src/index': { default: createMockNodeExecutor() },
+            '@theintern/common': {
+              global: { process: { stdout: process.stdout } }
+            }
+          })
+            .then(handle => {
+              removeMocks = handle.remove;
+              return new Promise(resolve => setTimeout(resolve, 10));
+            })
+            .then(() => {
+              assert.equal(
+                mockConsole.error.callCount,
+                1,
+                'expected error to be called once'
+              );
+            });
+        },
 
-				return mockRequire(require, 'src/bin/intern', {
-					'src/lib/node/util': mockNodeUtil,
-					'src/lib/common/console': mockConsole,
-					'src/lib/common/util': mockCommonUtil,
-					'src/index': { default: mockExecutor },
-					'@dojo/shim/global': {
-						default: { process: {} }
-					}
-				}).then(handle => {
-					removeMocks = handle.remove;
-					assert.match(
-						mockConsole.log.args[0][0],
-						/intern version \d/
-					);
-					assert.match(mockConsole.log.args[1][0], /npm version \d/);
-					assert.match(
-						mockConsole.log.args[2][0],
-						/node version v\d/
-					);
-					assert.deepEqual(mockConsole.log.args.slice(4), [
-						[
-							'Usage: intern [config=<file>] [showConfig|showConfigs] [options]'
-						],
-						[],
-						['  config      - path to a config file'],
-						['  showConfig  - show the resolved config'],
-						['  showConfigs - show information about configFile'],
-						[],
-						["Options (set with 'option=value' or 'option'):\n"],
-						['  bar - [2,3]'],
-						['  baz - {"value":false}'],
-						['  foo - "one"'],
-						[],
-						["Using config file 'intern.json':\n"],
-						['test config']
-					]);
-				});
-			}
-		}
-	};
+        'ts in suites in the browser'() {
+          configData = {
+            suites: ['foo.ts']
+          };
+          const mockExecutor = createMockBrowserExecutor({
+            environment: 'browser'
+          } as any);
+          return mockRequire(require, 'src/bin/intern', {
+            'src/lib/node/util': mockNodeUtil,
+            'src/lib/common/console': mockConsole,
+            'src/lib/common/util': mockCommonUtil,
+            'src/index': { default: mockExecutor },
+            '@theintern/common': { global: { process: {} } }
+          }).then(handle => {
+            removeMocks = handle.remove;
+            assert.equal(mockNodeUtil.getConfig.callCount, 1);
+            assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
+            assert.isFalse(
+              mockExecutor._ran,
+              'expected executor not to have run'
+            );
+          });
+        },
+
+        'ts in plugins in the browser'() {
+          configData = {
+            plugins: ['foo.ts']
+          };
+          const mockExecutor = createMockBrowserExecutor({
+            environment: 'browser'
+          } as any);
+          return mockRequire(require, 'src/bin/intern', {
+            'src/lib/node/util': mockNodeUtil,
+            'src/lib/common/console': mockConsole,
+            'src/lib/common/util': mockCommonUtil,
+            'src/index': { default: mockExecutor },
+            '@theintern/common': { global: { process: {} } }
+          }).then(handle => {
+            removeMocks = handle.remove;
+            assert.equal(mockNodeUtil.getConfig.callCount, 1);
+            assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
+            assert.isFalse(
+              mockExecutor._ran,
+              'expected executor not to have run'
+            );
+          });
+        }
+      },
+
+      help() {
+        const mockExecutor = createMockNodeExecutor(<any>{
+          _config: {
+            foo: 'one',
+            bar: [2, 3],
+            baz: { value: false }
+          }
+        });
+        configData = { help: true };
+
+        return mockRequire(require, 'src/bin/intern', {
+          'src/lib/node/util': mockNodeUtil,
+          'src/lib/common/console': mockConsole,
+          'src/lib/common/util': mockCommonUtil,
+          'src/index': { default: mockExecutor },
+          '@theintern/common': { global: { process: {} } }
+        }).then(handle => {
+          removeMocks = handle.remove;
+          assert.match(mockConsole.log.args[0][0], /intern version \d/);
+          assert.match(mockConsole.log.args[1][0], /npm version \d/);
+          assert.match(mockConsole.log.args[2][0], /node version v\d/);
+          assert.deepEqual(mockConsole.log.args.slice(4), [
+            [
+              'Usage: intern [config=<file>] [showConfig|showConfigs] [options]'
+            ],
+            [],
+            ['  config      - path to a config file'],
+            ['  showConfig  - show the resolved config'],
+            ['  showConfigs - show information about configFile'],
+            [],
+            ["Options (set with 'option=value' or 'option'):\n"],
+            ['  bar - [2,3]'],
+            ['  baz - {"value":false}'],
+            ['  foo - "one"'],
+            [],
+            ["Using config file 'intern.json':\n"],
+            ['test config']
+          ]);
+        });
+      }
+    }
+  };
 });

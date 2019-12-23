@@ -1,0 +1,855 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://theintern.io/schemas/intern/config-4.5.json",
+
+  "title": "Intern",
+  "description": "Intern v4.5 config schema",
+
+  "type": "object",
+  "allOf": [
+    { "$ref": "#/definitions/config" },
+    {
+      "type": "object",
+      "properties": {
+        "configs": {
+          "description": "An object of named config objects",
+          "type": "object",
+          "patternProperties": {
+            ".*": { "$ref": "#/definitions/config" }
+          }
+        }
+      }
+    }
+  ],
+
+  "definitions": {
+    "benchmarkOptions": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "description": "File to write benchmark baseline results to, or to read them from",
+          "type": "string"
+        },
+        "id": {
+          "description": "An optional descriptive ID for the benchark run",
+          "type": "string"
+        },
+        "mode": {
+          "description": "Mode to run benchmark tests in",
+          "type": "string",
+          "enum": ["baseline", "test"]
+        },
+        "thresholds": {
+          "description": "Thresholds to treat as warnings or failures",
+          "type": "object",
+          "properties": {
+            "warn": {
+              "description": "Warning thresholds",
+              "type": "object",
+              "properties": {
+                "rme": {
+                  "description": "Relative mean error",
+                  "type": "number"
+                },
+                "hz": {
+                  "description": "Number of executions per second",
+                  "type": "number"
+                },
+                "mean": {
+                  "description": "Sample arithmetic mean",
+                  "type": "number"
+                }
+              }
+            },
+            "fail": {
+              "description": "Error thresholds",
+              "type": "object",
+              "properties": {
+                "rme": {
+                  "description": "Relative mean error",
+                  "type": "number"
+                },
+                "hz": {
+                  "description": "Number of executions per second",
+                  "type": "number"
+                },
+                "mean": {
+                  "description": "Sample arithmetic mean",
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "browserStackOptions": {
+      "type": "object",
+      "properties": {
+        "automateOnly": { "const": true },
+        "environmentUrl": { "type": "string" },
+        "forceLocal": { "type": "boolean" },
+        "killOtherTunnels": { "type": "boolean" },
+        "servers": { "type": "array", "items": { "type": "string" } },
+        "skipServerValidation": { "type": "boolean" }
+      }
+    },
+
+    "browserVersion": {
+      "description": "A browser version, a list of browser versions, or a version range",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/definitions/positiveNumber" }
+            ]
+          }
+        },
+        { "type": "string" },
+        { "$ref": "#/definitions/positiveNumber" }
+      ],
+      "examples": [
+        "1",
+        "latest",
+        "latest-1",
+        "1..3",
+        "1..latest",
+        ["1", "2", "3"],
+        ["1", "2", "latest"]
+      ]
+    },
+
+    "capabilities": {
+      "description": "WebDriver capabilities that will apply to all WebDriver environments",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "A name for the session",
+          "type": "string"
+        },
+        "build": {
+          "description": "A build identifier used by some services",
+          "type": "string"
+        }
+      }
+    },
+
+    "config": {
+      "type": "object",
+      "properties": {
+        "bail": {
+          "description": "If true, Intern will stop running tests after the first failure.",
+          "type": "boolean",
+          "default": true
+        },
+
+        "baseline": {
+          "description": "If true, benchmark tests will run in baseline mode.",
+          "type": "boolean",
+          "default": true
+        },
+
+        "basePath": {
+          "description": "The path to the project root. This will be resolved to an absolute path before testing starts.",
+          "type": "string",
+          "examples": ["node_modules/intern"]
+        },
+
+        "benchmark": {
+          "description": "Benchmark tests will only run when this property is true",
+          "type": "boolean",
+          "default": true
+        },
+
+        "benchmarkConfig": {
+          "description": "Options for benchmark tests",
+          "$ref": "#/definitions/benchmarkOptions"
+        },
+
+        "browser": {
+          "description": "Resources that will only be loaded/used in browsers",
+          "$ref": "#/definitions/resourceConfig"
+        },
+
+        "capabilities": { "$ref": "#/definitions/capabilities" },
+        "capabilities+": {
+          "description": "Additional capabilities",
+          "$ref": "#/definitions/capabilities"
+        },
+
+        "connectTimeout": {
+          "description": "Time, in milliseconds, to wait for contact from a remote server",
+          "$ref": "#/definitions/positiveNumber",
+          "examples": [30000]
+        },
+
+        "coverage": {
+          "description": "An array of file paths or globs that should be instrumented for code coverage, or false to completely disable coverage. Globs starting with ! are exclusions.",
+          "oneOf": [
+            { "const": false },
+            { "type": "array", "items": { "type": "string" } },
+            { "type": "string" }
+          ],
+          "examples": [
+            false,
+            "_build/**/*.js",
+            ["_build/**/*.js", "!_build/src/browser.js"]
+          ]
+        },
+
+        "coverageVariable": {
+          "description": "The global variable that will be used to store coverage data",
+          "type": "string",
+          "examples": ["__coverage__"]
+        },
+
+        "debug": {
+          "description": "If true, intern will emit internal log events",
+          "type": "boolean",
+          "default": true
+        },
+
+        "defaultTimeout": {
+          "description": "The number of milliseconds that Intern will wait for an asynchronous test to complete before timing out",
+          "$ref": "#/definitions/positiveNumber",
+          "examples": [30000]
+        },
+
+        "description": {
+          "description": "A description for this test run",
+          "type": "string"
+        },
+
+        "environments": { "$ref": "#/definitions/environments" },
+        "environments+": {
+          "description": "Additional environments",
+          "$ref": "#/definitions/environments"
+        },
+
+        "filterErrorStack": {
+          "description": "If true, filter external library calls and runtime calls out of error stacks.",
+          "type": "boolean"
+        },
+
+        "functionalBaseUrl": {
+          "description": "The base URL to use for relative addresses in functional tests",
+          "type": "string"
+        },
+
+        "functionalCoverage": {
+          "description": "If true, collect coverage data from functional tests.",
+          "type": "boolean"
+        },
+
+        "functionalSuites": {
+          "description": "Suites to run as functional (WebDriver) tests",
+          "$ref": "#/definitions/suitesProperty"
+        },
+        "functionalSuites+": {
+          "description": "Additional functional suites",
+          "$ref": "#/definitions/suitesProperty"
+        },
+
+        "functionalTimeouts": {
+          "description": "Default timeout values for functional tests",
+          "type": "object",
+          "properties": {
+            "find": {
+              "description": "Timeout for find() or findAll() calls",
+              "$ref": "#/definitions/positiveNumber"
+            },
+            "executeAsync": {
+              "description": "Timeout for executeAsync() calls",
+              "$ref": "#/definitions/positiveNumber"
+            },
+            "pageLoad": {
+              "description": "Time to wait for get() calls",
+              "$ref": "#/definitions/positiveNumber"
+            }
+          }
+        },
+
+        "grep": {
+          "description": "A regular expression that is used to filter which tests are run based on test IDs",
+          "type": "string"
+        },
+
+        "heartbeatInterval": {
+          "description": "How often to send a heartbeat to a remote browser, in seconds",
+          "$ref": "#/definitions/positiveNumber"
+        },
+
+        "instrumenterOptions": { "$ref": "#/definitions/instrumenterOptions" },
+        "instrumenterOptions+": {
+          "description": "Additional instrumenter options",
+          "$ref": "#/definitions/instrumenterOptions"
+        },
+
+        "internPath": {
+          "type": "string",
+          "description": "The path to Intern"
+        },
+
+        "leaveRemoteOpen": {
+          "description": "Leave the remote browser open after testing is finished. If true, always leave the remote open. If 'fail', only leave open for test failures.",
+          "oneOf": [{ "type": "boolean" }, { "const": "fail" }]
+        },
+
+        "loader": { "$ref": "#/definitions/loaderProperty" },
+
+        "maxConcurrency": {
+          "description": "The number of concurrent remote test sessions to run at once",
+          "type": "integer",
+          "minimum": 1
+        },
+
+        "name": {
+          "description": "A top-level name for this configuration",
+          "type": "string"
+        },
+
+        "node": {
+          "description": "Resources that will only be loaded/used in Node",
+          "$ref": "#/definitions/resourceConfig"
+        },
+
+        "plugins": { "$ref": "#/definitions/pluginsProperty" },
+        "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
+
+        "proxy": {
+          "description": "A proxy that should be used for outgoing web connections",
+          "type": "string",
+          "examples": [
+            "http://localhost:8888",
+            "http://bob:abc123@localhost:8888"
+          ]
+        },
+
+        "reporters": { "$ref": "#/definitions/reportersProperty" },
+        "reporters+": { "$ref": "#/definitions/reportersProperty+" },
+
+        "runInSync": {
+          "description": "If true, a remote will wait for responses from Intern for any executor events.",
+          "type": "boolean"
+        },
+
+        "serveOnly": {
+          "description": "If true, start Intern's static test server but do not run any tests",
+          "type": "boolean"
+        },
+
+        "serverPort": {
+          "description": "The port Intern's static server will listen on during testing",
+          "type": "integer",
+          "minimum": 1025,
+          "examples": [9000]
+        },
+
+        "serverUrl": {
+          "description": "The URL a remote should use to access Intern's static server",
+          "type": "string",
+          "examples": ["http://localhost:9000"]
+        },
+
+        "sessionId": {
+          "description": "An identifier for this test session",
+          "type": "string"
+        },
+
+        "showConfig": {
+          "description": "If true, display the resolved config and exit",
+          "type": "boolean"
+        },
+
+        "socketPort": {
+          "description": "The port Intern's websocket server will listen on during testing",
+          "type": "integer",
+          "minimum": 1025,
+          "examples": [9001]
+        },
+
+        "suites": { "$ref": "#/definitions/suitesProperty" },
+        "suites+": { "$ref": "#/definitions/suitesProperty+" },
+
+        "tunnel": {
+          "description": "The Dig Dug tunnel class to use for WebDriver testing",
+          "type": "string",
+          "enum": [
+            "null",
+            "selenium",
+            "browserstack",
+            "cbt",
+            "saucelabs",
+            "testingbot"
+          ]
+        },
+
+        "tunnelOptions": { "$ref": "#/definitions/tunnelOptions" },
+        "tunnelOptions+": {
+          "description": "Additional tunnel options",
+          "$ref": "#/definitions/tunnelOptions"
+        },
+
+        "warnOnUncaughtException": {
+          "description": "If true or set to a RegExp that matches the reason for an uncaught exception, Intern will treat the exception as a warning.",
+          "oneOf": [{ "type": "boolean" }, { "type": "string" }]
+        },
+
+        "warnOnUnhandledRejection": {
+          "description": "If true or set to a RegExp that matches the reason for an unhandled rejection, Intern will treat the rejection as a warning.",
+          "oneOf": [{ "type": "boolean" }, { "type": "string" }]
+        }
+      }
+    },
+
+    "coverageReporterOptions": {
+      "type": "object",
+      "properties": {
+        "filename": { "type": "string" },
+        "directory": { "type": "string" },
+        "watermarks": {
+          "typee": "object",
+          "properties": {
+            "statements": { "type": "array", "items": { "type": "number" } },
+            "functions": { "type": "array", "items": { "type": "number" } },
+            "branches": { "type": "array", "items": { "type": "number" } },
+            "lines": { "type": "array", "items": { "type": "number" } }
+          }
+        }
+      }
+    },
+
+    "environments": {
+      "description": "The environments (node or particular browsers) to run tests in",
+      "oneOf": [
+        {
+          "description": "A browser name or 'node'",
+          "type": "string",
+          "examples": ["node", "chrome"]
+        },
+        {
+          "description": "An environment specifier",
+          "$ref": "#/definitions/environmentSpec"
+        },
+        {
+          "description": "A list of browser names and/or environment specifiers",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string",
+                "description": "A browser name or 'node' for Node.js"
+              },
+              { "$ref": "#/definitions/environmentSpec" }
+            ]
+          },
+          "examples": [
+            ["chrome", { "browserName": "firefox", "version": "65" }]
+          ]
+        }
+      ]
+    },
+
+    "environmentSpec": {
+      "type": "object",
+      "properties": {
+        "browser": { "type": "string" },
+        "browserName": { "type": "string" },
+        "browserVersion": { "$ref": "#/definitions/browserVersion" },
+        "version": { "$ref": "#/definitions/browserVersion" },
+        "fixSessionCapabilities": {
+          "oneOf": [{ "const": "no-detect" }, { "type": "boolean" }]
+        }
+      },
+      "examples": [
+        { "browserName": "chrome" },
+        { "browserName": "chrome", "browerVersion": "74" },
+        { "browserName": "chrome", "fixSessionCapabilities": false }
+      ]
+    },
+
+    "genericTunnelOptions": {
+      "type": "object",
+      "properties": {
+        "architecture": { "type": "string" },
+        "auth": { "type": "string" },
+        "accessKey": { "type": "string" },
+        "executable": { "type": "string" },
+        "hostname": { "type": "string" },
+        "pathname": { "type": "string" },
+        "platform": { "type": "string" },
+        "port": { "type": "string" },
+        "protocol": { "type": "string" },
+        "tunnelId": { "type": "string" },
+        "username": { "type": "string" },
+        "verbose": { "type": "boolean" }
+      }
+    },
+
+    "instrumenterOptions": {
+      "description": "An object containing options for the Istanbul instrumenter",
+      "type": "object"
+    },
+
+    "loaderProperty": {
+      "description": "A module loader used to load test suites and application modules",
+      "oneOf": [
+        { "$ref": "#/definitions/loaderName" },
+        {
+          "description": "A loader specifier",
+          "type": "object",
+          "properties": {
+            "script": { "$ref": "#/definitions/loaderName" },
+            "options": {
+              "type": "object"
+            }
+          },
+          "required": ["script"],
+          "examples": [
+            {
+              "script": "dojo",
+              "options": {
+                "packages": [
+                  { "name": "dojo", "location": "node_modules/dojo/dojo.js" }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    "loaderName": {
+      "description": "The name of a built-in loader",
+      "type": "string",
+      "enum": ["dojo", "dojo2", "esm", "systemjs"]
+    },
+
+    "pluginSpec": {
+      "type": "object",
+      "properties": {
+        "script": { "type": "string" },
+        "useLoader": { "type": "boolean" },
+        "options": { "type": "object" }
+      },
+      "required": ["script"],
+      "examples": [{ "script": "src/helpers.js", "useLoader": true }]
+    },
+
+    "pluginsProperty": {
+      "description": "Scripts or modules to load before suites are loaded",
+      "oneOf": [
+        {
+          "description": "An import path for a script",
+          "type": "string",
+          "examples": ["ts-node/register"]
+        },
+        { "$ref": "#/definitions/pluginSpec" },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "#/definitions/pluginSpec" }
+            ]
+          },
+          "examples": [
+            [
+              "ts-node/register",
+              { "script": "src/helpers.js", "useLoader": true }
+            ]
+          ]
+        }
+      ]
+    },
+
+    "pluginsProperty+": {
+      "description": "Additional plugins",
+      "#ref": "#/definitions/pluginsProperty"
+    },
+
+    "positiveNumber": {
+      "type": "number",
+      "minimum": 0
+    },
+
+    "reporterName": {
+      "description": "The name of a built-in reporter",
+      "type": "string",
+      "enum": [
+        "benchmark",
+        "cobertura",
+        "console",
+        "dom",
+        "html",
+        "htmlcoverage",
+        "jsoncoverage",
+        "jsunit",
+        "lcov",
+        "pretty",
+        "runner",
+        "simple",
+        "teamcity"
+      ]
+    },
+
+    "reporterSpec": {
+      "type": "object",
+      "properties": {
+        "name": { "$ref": "#/definitions/reporterName" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "name": { "const": "benchmark" }
+            }
+          },
+          "then": {
+            "properties": {
+              "options": {
+                "$ref": "#/definitions/benchmarkOptions"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": { "const": "cobertura" }
+            }
+          },
+          "then": {
+            "properties": {
+              "options": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "projectRoot": { "type": "string" }
+                    }
+                  },
+                  { "$ref": "#/definitions/coverageReporterOptions" }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": { "const": "htmlcoverage" }
+            }
+          },
+          "then": {
+            "properties": {
+              "options": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "verbose": { "type": "boolean" }
+                    }
+                  },
+                  { "$ref": "#/definitions/coverageReporterOptions" }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": { "const": "jsoncoverage" }
+            }
+          },
+          "then": {
+            "properties": {
+              "options": { "$ref": "#/definitions/coverageReporterOptions" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": { "const": "junit" }
+            }
+          },
+          "then": {
+            "properties": {
+              "options": {
+                "type": "object",
+                "properties": {
+                  "filename": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": { "const": "lcov" }
+            }
+          },
+          "then": {
+            "properties": {
+              "options": { "$ref": "#/definitions/coverageReporterOptions" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": { "const": "pretty" }
+            }
+          },
+          "then": {
+            "properties": {
+              "options": {
+                "type": "object",
+                "properties": {
+                  "dimensions": {},
+                  "titleWidth": { "$ref": "#/definitions/positiveNumber" },
+                  "maxProgressBarWidth": {
+                    "$ref": "#/definitions/positiveNumber"
+                  },
+                  "colorReplacement": {
+                    "type": "object",
+                    "properties": {
+                      "0": { "type": "string" },
+                      "1": { "type": "string" },
+                      "2": { "type": "string" },
+                      "✓": { "type": "string" },
+                      "!": { "type": "string" },
+                      "×": { "type": "string" },
+                      "~": { "type": "string" },
+                      "⚠": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": { "const": "runner" }
+            }
+          },
+          "then": {
+            "properties": {
+              "options": {
+                "type": "object",
+                "properties": {
+                  "hidePassed": { "type": "boolean" },
+                  "hideSkipped": { "type": "boolean" },
+                  "hideTunnelDownloadProgress": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": { "const": "textcoverage" }
+            }
+          },
+          "then": {
+            "properties": {
+              "options": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "maxColumns": { "$ref": "#/definitions/positiveNumber" }
+                    }
+                  },
+                  { "$ref": "#/definitions/coverageReporterOptions" }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+
+    "reportersProperty": {
+      "description": "A list of reporter names or descriptors",
+      "oneOf": [
+        { "$ref": "#/definitions/reporterName" },
+        { "$ref": "#/definitions/reporterSpec" },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "#/definitions/reporterName" },
+              { "$ref": "#/definitions/reporterSpec" }
+            ]
+          }
+        }
+      ]
+    },
+
+    "reportersProperty+": {
+      "description": "Additional reporters",
+      "$ref": "#/definitions/reportersProperty"
+    },
+
+    "resourceConfig": {
+      "type": "object",
+      "properties": {
+        "loader": { "$ref": "#/definitions/loaderProperty" },
+        "plugins": { "$ref": "#/definitions/pluginsProperty" },
+        "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
+        "reporters": { "$ref": "#/definitions/reportersProperty" },
+        "reporters+": { "$ref": "#/definitions/reportersProperty+" },
+        "suites": { "$ref": "#/definitions/suitesProperty" },
+        "suites+": { "$ref": "#/definitions/suitesProperty+" }
+      },
+      "additionalProperties": false
+    },
+
+    "seleniumOptions": {
+      "type": "object",
+      "properties": {
+        "baseUrl": { "type": "string" },
+        "drivers": {},
+        "seleniumArgs": { "type": "array", "items": { "type": "string" } },
+        "seleniumTimeout": { "$ref": "#/definitions/positiveNumber" },
+        "version": { "type": "string" }
+      }
+    },
+
+    "suitesProperty": {
+      "description": "A list of paths or glob expressions that point to suite scripts",
+      "oneOf": [
+        { "description": "A suite path or glob", "type": "string" },
+        {
+          "description": "An array of suite paths or globs",
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      ]
+    },
+
+    "suitesProperty+": {
+      "description": "Additional suites",
+      "$ref": "#/definitions/suitesProperty"
+    },
+
+    "tunnelOptions": {
+      "description": "Options for the current selected tunnel",
+      "anyOf": [
+        { "$ref": "#/definitions/genericTunnelOptions" },
+        { "$ref": "#/definitions/browserStackOptions" },
+        { "$ref": "#/definitions/seleniumOptions" }
+      ]
+    }
+  }
+}

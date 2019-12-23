@@ -1,5 +1,5 @@
 import { useFakeTimers, SinonFakeTimers } from 'sinon';
-import Task from '@dojo/core/async/Task';
+import { Task } from '@theintern/common';
 import _WebSocket from 'src/lib/channels/WebSocket';
 import { parseUrl } from '../../../../src/lib/browser/util';
 
@@ -8,146 +8,141 @@ const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 let WebSocket: typeof _WebSocket;
 
 registerSuite('lib/channels/WebSocket', function() {
-	class MockWebSocket {
-		addEventListener(name: string, callback: (event: any) => void) {
-			if (!eventListeners[name]) {
-				eventListeners[name] = [];
-			}
-			eventListeners[name].push(callback);
-		}
+  class MockWebSocket {
+    addEventListener(name: string, callback: (event: any) => void) {
+      if (!eventListeners[name]) {
+        eventListeners[name] = [];
+      }
+      eventListeners[name].push(callback);
+    }
 
-		send(data: string) {
-			sentData.push(data);
-		}
-	}
+    send(data: string) {
+      sentData.push(data);
+    }
+  }
 
-	let removeMocks: () => void;
-	let eventListeners: { [name: string]: ((event: any) => void)[] };
-	let sentData: string[];
-	let clock: SinonFakeTimers;
+  let removeMocks: () => void;
+  let eventListeners: { [name: string]: ((event: any) => void)[] };
+  let sentData: string[];
+  let clock: SinonFakeTimers;
 
-	return {
-		before() {
-			return mockRequire(require, 'src/lib/channels/WebSocket', {
-				'@dojo/shim/global': { default: { WebSocket: MockWebSocket } },
-				'src/lib/browser/util': { parseUrl },
-				'@dojo/core/async/Task': { default: Task }
-			}).then(handle => {
-				removeMocks = handle.remove;
-				WebSocket = handle.module.default;
-			});
-		},
+  return {
+    before() {
+      return mockRequire(require, 'src/lib/channels/WebSocket', {
+        'src/lib/browser/util': { parseUrl },
+        '@theintern/common': { global: { WebSocket: MockWebSocket }, Task }
+      }).then(handle => {
+        removeMocks = handle.remove;
+        WebSocket = handle.module.default;
+      });
+    },
 
-		after() {
-			removeMocks();
-		},
+    after() {
+      removeMocks();
+    },
 
-		beforeEach() {
-			eventListeners = {};
-			sentData = [];
-			clock = useFakeTimers();
-		},
+    beforeEach() {
+      eventListeners = {};
+      sentData = [];
+      clock = useFakeTimers();
+    },
 
-		afterEach() {
-			clock.restore();
-		},
+    afterEach() {
+      clock.restore();
+    },
 
-		tests: {
-			'required args'() {
-				assert.throws(() => {
-					new WebSocket({ sessionId: 'foo', url: 'bar' });
-				}, /port is required/);
-			},
+    tests: {
+      'required args'() {
+        assert.throws(() => {
+          new WebSocket({ sessionId: 'foo', url: 'bar' });
+        }, /port is required/);
+      },
 
-			'#sendMessage': {
-				good() {
-					const ws = new WebSocket({
-						sessionId: 'foo',
-						url: 'bar',
-						port: 12345
-					});
-					assert.lengthOf(eventListeners['message'], 1);
-					assert.lengthOf(eventListeners['open'], 1);
-					// There are 2 error handlers, one for the initial
-					// connection and one for later errors
-					assert.lengthOf(eventListeners['error'], 2);
+      '#sendMessage': {
+        good() {
+          const ws = new WebSocket({
+            sessionId: 'foo',
+            url: 'bar',
+            port: 12345
+          });
+          assert.lengthOf(eventListeners['message'], 1);
+          assert.lengthOf(eventListeners['open'], 1);
+          // There are 2 error handlers, one for the initial
+          // connection and one for later errors
+          assert.lengthOf(eventListeners['error'], 2);
 
-					// Send an open event to the socket so sendMessage will
-					// proceed
-					eventListeners['open'][0]({});
+          // Send an open event to the socket so sendMessage will
+          // proceed
+          eventListeners['open'][0]({});
 
-					const sent = ws.sendMessage('remoteStatus', 'foo');
-					let messageId: string;
+          const sent = ws.sendMessage('remoteStatus', 'foo');
+          let messageId: string;
 
-					return Promise.resolve()
-						.then(() => {
-							assert.lengthOf(sentData, 1);
-							const message = JSON.parse(sentData[0]);
-							messageId = message.id;
+          return Promise.resolve()
+            .then(() => {
+              assert.lengthOf(sentData, 1);
+              const message = JSON.parse(sentData[0]);
+              messageId = message.id;
 
-							// Send a response
-							eventListeners['message'][0]({
-								data: JSON.stringify({
-									id: messageId,
-									data: 'bar'
-								})
-							});
+              // Send a response
+              eventListeners['message'][0]({
+                data: JSON.stringify({
+                  id: messageId,
+                  data: 'bar'
+                })
+              });
 
-							return sent;
-						})
-						.then(response => {
-							assert.deepEqual(response, {
-								id: messageId,
-								data: 'bar'
-							});
-						});
-				},
+              return sent;
+            })
+            .then(response => {
+              assert.deepEqual(response, {
+                id: messageId,
+                data: 'bar'
+              });
+            });
+        },
 
-				error() {
-					const ws = new WebSocket({
-						sessionId: 'foo',
-						url: 'bar',
-						port: 12345
-					});
-					eventListeners['open'][0]({});
+        error() {
+          const ws = new WebSocket({
+            sessionId: 'foo',
+            url: 'bar',
+            port: 12345
+          });
+          eventListeners['open'][0]({});
 
-					const sent = ws.sendMessage('remoteStatus', 'foo');
+          const sent = ws.sendMessage('remoteStatus', 'foo');
 
-					return Promise.resolve()
-						.then(() => {
-							assert.lengthOf(sentData, 1);
+          return Promise.resolve()
+            .then(() => {
+              assert.lengthOf(sentData, 1);
 
-							// Call the second error handler
-							eventListeners['error'][1]({});
+              // Call the second error handler
+              eventListeners['error'][1]({});
 
-							return sent;
-						})
-						.then(
-							() => {
-								throw new Error(
-									'Send should not have succeeded'
-								);
-							},
-							error => {
-								assert.match(error.message, /WebSocket error/);
-							}
-						)
-						.then(() => {
-							// A subsequent send should automatically fail
-							return ws.sendMessage('remoteStatus', 'foo');
-						})
-						.then(
-							() => {
-								throw new Error(
-									'Send should not have succeeded'
-								);
-							},
-							error => {
-								assert.match(error.message, /WebSocket error/);
-							}
-						);
-				}
-			}
-		}
-	};
+              return sent;
+            })
+            .then(
+              () => {
+                throw new Error('Send should not have succeeded');
+              },
+              error => {
+                assert.match(error.message, /WebSocket error/);
+              }
+            )
+            .then(() => {
+              // A subsequent send should automatically fail
+              return ws.sendMessage('remoteStatus', 'foo');
+            })
+            .then(
+              () => {
+                throw new Error('Send should not have succeeded');
+              },
+              error => {
+                assert.match(error.message, /WebSocket error/);
+              }
+            );
+        }
+      }
+    }
+  };
 });

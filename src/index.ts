@@ -5,15 +5,15 @@
  */ /** */
 
 import NodeExecutor from './lib/executors/Node';
-import global from '@dojo/shim/global';
+import { global } from '@theintern/common';
 
 const intern = (global.intern = new NodeExecutor());
 export default intern;
 
 declare global {
-	/**
-	 * Intern installs an instance of an Executor subclass (Node in Node.js, or
-	 * Browser in a browser environment) on a global `intern` constant.
-	 */
-	export const intern: NodeExecutor;
+  /**
+   * Intern installs an instance of an Executor subclass (Node in Node.js, or
+   * Browser in a browser environment) on a global `intern` constant.
+   */
+  export const intern: NodeExecutor;
 }

@@ -16,317 +16,341 @@ export type Charm = charm.CharmInstance;
 const eventHandler = createEventHandler<NodeEvents>();
 
 export default class Runner extends TextCoverage implements RunnerProperties {
-	sessions: {
-		[sessionId: string]: {
-			coverage?: CoverageMap;
-			suite: Suite;
-			[key: string]: any;
-		};
-	};
+  sessions: {
+    [sessionId: string]: {
+      coverage?: CoverageMap;
+      suite?: Suite;
+      [key: string]: any;
+    };
+  };
 
-	hasRunErrors: boolean;
-	hasSuiteErrors: boolean;
-	hidePassed: boolean;
-	hideSkipped: boolean;
-	serveOnly: boolean;
+  hasRunErrors: boolean;
+  hasSuiteErrors: boolean;
+  hidePassed: boolean;
+  hideSkipped: boolean;
+  hideTunnelDownloadProgress: boolean;
+  serveOnly: boolean;
 
-	private _deprecationMessages: { [message: string]: boolean };
+  private _deprecationMessages: { [message: string]: boolean };
 
-	protected charm: Charm;
+  protected charm: Charm;
 
-	constructor(executor: Node, options: Partial<RunnerProperties> = {}) {
-		super(executor, options);
+  constructor(executor: Node, options: Partial<RunnerProperties> = {}) {
+    super(executor, options);
 
-		this.hidePassed = options.hidePassed || false;
-		this.hideSkipped = options.hideSkipped || false;
+    this.hidePassed = options.hidePassed || false;
+    this.hideSkipped = options.hideSkipped || false;
+    this.hideTunnelDownloadProgress =
+      options.hideTunnelDownloadProgress || false;
 
-		this.sessions = {};
-		this.hasRunErrors = false;
-		this.hasSuiteErrors = false;
-		this.serveOnly = executor.config.serveOnly;
+    this.sessions = {};
+    this.hasRunErrors = false;
+    this.hasSuiteErrors = false;
+    this.serveOnly = executor.config.serveOnly;
 
-		this.charm = charm();
-		this.charm.pipe(<Writable>this.output);
-		this.charm.display('reset');
+    this.charm = charm();
+    this.charm.pipe(<Writable>this.output);
+    this.charm.display('reset');
 
-		this._deprecationMessages = {};
-	}
+    this._deprecationMessages = {};
+  }
 
-	@eventHandler()
-	coverage(message: CoverageMessage) {
-		const session = this.sessions[message.sessionId || ''];
-		session.coverage = session.coverage || createCoverageMap();
-		session.coverage.merge(message.coverage);
-	}
+  @eventHandler()
+  coverage(message: CoverageMessage) {
+    const sessionId = message.sessionId || '';
 
-	@eventHandler()
-	deprecated(message: DeprecationMessage) {
-		// Keep track of deprecation messages we've seen before
-		const key = `${message.original}|${message.replacement}|${message.message}`;
-		if (this._deprecationMessages[key]) {
-			return;
-		}
-		this._deprecationMessages[key] = true;
+    // If coverage is emitted for functional suites but unit test suites
+    // weren't run, there won't be an existing session for session ID ''
+    // (the one used for unit tests and local functional tests)
+    if (!this.sessions[sessionId]) {
+      this.sessions[sessionId] = {};
+    }
+    const session = this.sessions[sessionId];
+    session.coverage = session.coverage || createCoverageMap();
+    session.coverage.merge(message.coverage);
+  }
 
-		this.charm
-			.foreground('yellow')
-			.write('⚠︎ ' + message.original + ' is deprecated. ');
+  @eventHandler()
+  deprecated(message: DeprecationMessage) {
+    // Keep track of deprecation messages we've seen before
+    const key = `${message.original}|${message.replacement}|${message.message}`;
+    if (this._deprecationMessages[key]) {
+      return;
+    }
+    this._deprecationMessages[key] = true;
 
-		if (message.replacement) {
-			this.charm.write('Use ' + message.replacement + ' instead.');
-		} else {
-			this.charm.write(
-				'Please open a ticket at https://github.com/theintern/intern/issues if you still ' +
-					'require access to this function.'
-			);
-		}
+    this.charm
+      .foreground('yellow')
+      .write('⚠︎ ' + message.original + ' is deprecated. ');
 
-		if (message.message) {
-			this.charm.write(' ' + message.message);
-		}
+    if (message.replacement) {
+      this.charm.write('Use ' + message.replacement + ' instead.');
+    } else {
+      this.charm.write(
+        'Please open a ticket at https://github.com/theintern/intern/issues if you still ' +
+          'require access to this function.'
+      );
+    }
 
-		this.charm.write('\n');
-		this.charm.display('reset');
-	}
+    if (message.message) {
+      this.charm.write(' ' + message.message);
+    }
 
-	@eventHandler()
-	error(error: Error) {
-		this.charm.foreground('red');
-		this.charm.write('(ノಠ益ಠ)ノ彡┻━┻\n');
-		this.charm.write(this.formatError(error));
-		this.charm.display('reset');
-		this.charm.write('\n\n');
-		this.hasRunErrors = true;
-	}
+    this.charm.write('\n');
+    this.charm.display('reset');
+  }
 
-	@eventHandler()
-	warning(warning: string | Error) {
-		this.charm.foreground('yellow');
-		const message =
-			typeof warning === 'string' ? warning : this.formatError(warning);
-		this.charm.write(`WARNING: ${message.replace(/^Error:\s+/, '')}`);
-		this.charm.display('reset');
-		this.charm.write('\n\n');
-	}
+  @eventHandler()
+  error(error: Error) {
+    this.charm.foreground('red');
+    this.charm.write('(ノಠ益ಠ)ノ彡┻━┻\n');
+    this.charm.write(this.formatError(error));
+    this.charm.display('reset');
+    this.charm.write('\n\n');
+    this.hasRunErrors = true;
+  }
 
-	@eventHandler()
-	log(message: string) {
-		message.split('\n').forEach(line => {
-			this.console.log(`DEBUG: ${line}`);
-		});
-	}
+  @eventHandler()
+  warning(warning: string | Error) {
+    this.charm.foreground('yellow');
+    const message =
+      typeof warning === 'string' ? warning : this.formatError(warning);
+    this.charm.write(`WARNING: ${message.replace(/^Error:\s+/, '')}`);
+    this.charm.display('reset');
+    this.charm.write('\n\n');
+  }
 
-	@eventHandler()
-	runEnd() {
-		const map = this.executor.coverageMap;
-		let numTests = 0;
-		let numPassedTests = 0;
-		let numFailedTests = 0;
-		let numSkippedTests = 0;
+  @eventHandler()
+  log(message: string) {
+    message.split('\n').forEach(line => {
+      this.console.log(`DEBUG: ${line}`);
+    });
+  }
 
-		const sessionIds = Object.keys(this.sessions);
-		const numEnvironments = sessionIds.length;
+  @eventHandler()
+  runEnd() {
+    const map = this.executor.coverageMap;
+    let numTests = 0;
+    let numPassedTests = 0;
+    let numFailedTests = 0;
+    let numSkippedTests = 0;
 
-		sessionIds.forEach(sessionId => {
-			const session = this.sessions[sessionId];
-			numTests += session.suite.numTests;
-			numPassedTests += session.suite.numPassedTests;
-			numFailedTests += session.suite.numFailedTests;
-			numSkippedTests += session.suite.numSkippedTests;
-		});
+    const sessionIds = Object.keys(this.sessions);
+    const numEnvironments = sessionIds.length;
 
-		const charm = this.charm;
+    // A session may contain only coverage data, so ensure that only those
+    // with suites are considered
+    sessionIds
+      .filter(sessionId => this.sessions[sessionId].suite)
+      .forEach(sessionId => {
+        const suite = this.sessions[sessionId].suite!;
+        numTests += suite.numTests;
+        numPassedTests += suite.numPassedTests;
+        numFailedTests += suite.numFailedTests;
+        numSkippedTests += suite.numSkippedTests;
+      });
 
-		if (map.files().length > 0) {
-			charm.write('\n');
-			charm.display('bright');
-			charm.write('Total coverage\n');
-			charm.display('reset');
-			this.createCoverageReport(this.reportType, map);
-		}
+    const charm = this.charm;
 
-		let message = `TOTAL: tested ${numEnvironments} platforms, ${numPassedTests} passed, ${numFailedTests} failed`;
+    if (map.files().length > 0) {
+      charm.write('\n');
+      charm.display('bright');
+      charm.write('Total coverage\n');
+      charm.display('reset');
+      this.createCoverageReport(this.reportType, map);
+    }
 
-		if (numSkippedTests) {
-			message += `, ${numSkippedTests} skipped`;
-		}
+    let message = `TOTAL: tested ${numEnvironments} platforms, ${numPassedTests} passed, ${numFailedTests} failed`;
 
-		const numUnrunTests =
-			numTests - (numPassedTests + numFailedTests + numSkippedTests);
-		if (numUnrunTests) {
-			message += `, ${numUnrunTests} not run`;
-		}
+    if (numSkippedTests) {
+      message += `, ${numSkippedTests} skipped`;
+    }
 
-		if (this.hasRunErrors) {
-			message += '; fatal error occurred';
-		} else if (this.hasSuiteErrors) {
-			message += '; suite error occurred';
-		}
+    const numUnrunTests =
+      numTests - (numPassedTests + numFailedTests + numSkippedTests);
+    if (numUnrunTests) {
+      message += `, ${numUnrunTests} not run`;
+    }
 
-		charm.display('bright');
-		charm.foreground(
-			numFailedTests > 0 || this.hasRunErrors || this.hasSuiteErrors
-				? 'red'
-				: 'green'
-		);
-		charm.write(message);
-		charm.display('reset');
-		charm.write('\n');
-	}
+    if (this.hasRunErrors) {
+      message += '; fatal error occurred';
+    } else if (this.hasSuiteErrors) {
+      message += '; suite error occurred';
+    }
 
-	@eventHandler()
-	serverStart(server: Server) {
-		if (this.executor.config.serveOnly) {
-			this.charm.write(
-				`To use the browser client, browse to\n\n  ${this.executor
-					.config.serverUrl}__intern/\n\n`
-			);
-			this.charm.write('Press CTRL-C to stop serving\n\n');
-		} else {
-			let message = `Listening on localhost:${server.port}`;
-			if (server.socketPort) {
-				message += ` (ws ${server.socketPort})`;
-			}
-			this.charm.write(`${message}\n`);
-		}
-	}
+    charm.display('bright');
+    charm.foreground(
+      numFailedTests > 0 || this.hasRunErrors || this.hasSuiteErrors
+        ? 'red'
+        : 'green'
+    );
+    charm.write(message);
+    charm.display('reset');
+    charm.write('\n');
+  }
 
-	@eventHandler()
-	suiteEnd(suite: Suite) {
-		const session = this.sessions[suite.sessionId || ''];
-		if (!session) {
-			if (!this.serveOnly) {
-				const charm = this.charm;
-				charm.display('bright');
-				charm.foreground('yellow');
-				charm.write(
-					'BUG: suiteEnd was received for invalid session ' +
-						suite.sessionId
-				);
-				charm.display('reset');
-				charm.write('\n');
-			}
+  @eventHandler()
+  serverStart(server: Server) {
+    if (this.executor.config.serveOnly) {
+      this.charm.write(
+        `To use the browser client, browse to\n\n  ${
+          this.executor.config.serverUrl
+        }__intern/\n\n`
+      );
+      this.charm.write('Press CTRL-C to stop serving\n\n');
+    } else {
+      let message = `Listening on localhost:${server.port}`;
+      if (server.socketPort) {
+        message += ` (ws ${server.socketPort})`;
+      }
+      this.charm.write(`${message}\n`);
+    }
+  }
 
-			return;
-		}
+  @eventHandler()
+  suiteEnd(suite: Suite) {
+    const session = this.sessions[suite.sessionId || ''];
+    if (!session) {
+      if (!this.serveOnly) {
+        const charm = this.charm;
+        charm.display('bright');
+        charm.foreground('yellow');
+        charm.write(
+          'BUG: suiteEnd was received for invalid session ' + suite.sessionId
+        );
+        charm.display('reset');
+        charm.write('\n');
+      }
 
-		if (suite.error) {
-			const error = suite.error;
-			const charm = this.charm;
+      return;
+    }
 
-			charm.foreground('red');
-			charm.write('Suite ' + suite.id + ' FAILED\n');
-			charm.write(this.formatError(error));
-			charm.display('reset');
-			charm.write('\n');
+    if (suite.error) {
+      const error = suite.error;
+      const charm = this.charm;
 
-			this.hasSuiteErrors = session.hasSuiteErrors = true;
-		} else if (!suite.hasParent && this.executor.suites.length > 1) {
-			if (session.coverage) {
-				this.charm.write('\n');
-				this.createCoverageReport(this.reportType, session.coverage);
-			} else {
-				const charm = this.charm;
-				charm.write('No unit test coverage for ' + suite.name);
-				charm.display('reset');
-				charm.write('\n');
-			}
+      charm.foreground('red');
+      charm.write(
+        `Suite ${suite.id} ERROR${
+          error.lifecycleMethod ? ` in ${error.lifecycleMethod}` : ''
+        }\n`
+      );
+      charm.write(this.formatError(error));
+      charm.display('reset');
+      charm.write('\n');
 
-			const name = suite.name;
-			const hasError = suite.error || session.hasSuiteErrors;
-			const numTests = suite.numTests;
-			const numFailedTests = suite.numFailedTests;
-			const numSkippedTests = suite.numSkippedTests;
-			const numPassedTests = numTests - numFailedTests - numSkippedTests;
+      this.hasSuiteErrors = session.hasSuiteErrors = true;
+    } else if (!suite.hasParent && this.executor.suites.length > 1) {
+      if (session.coverage) {
+        this.charm.write('\n');
+        this.createCoverageReport(this.reportType, session.coverage);
+      } else {
+        const charm = this.charm;
+        charm.write('No unit test coverage for ' + suite.name);
+        charm.display('reset');
+        charm.write('\n');
+      }
 
-			let summary = `${name}: ${numPassedTests} passed, ${numFailedTests} failed`;
-			if (numSkippedTests) {
-				summary += `, ${numSkippedTests} skipped`;
-			}
+      const name = suite.name;
+      const hasError = suite.error || session.hasSuiteErrors;
+      const numTests = suite.numTests;
+      const numFailedTests = suite.numFailedTests;
+      const numSkippedTests = suite.numSkippedTests;
+      const numPassedTests = numTests - numFailedTests - numSkippedTests;
 
-			if (hasError) {
-				summary += '; suite error occurred';
-			}
+      let summary = `${name}: ${numPassedTests} passed, ${numFailedTests} failed`;
+      if (numSkippedTests) {
+        summary += `, ${numSkippedTests} skipped`;
+      }
 
-			const charm = this.charm;
-			charm.display('bright');
-			charm.foreground(numFailedTests || hasError > 0 ? 'red' : 'green');
-			charm.write(summary);
-			charm.display('reset');
-			charm.write('\n');
-		}
-	}
+      if (hasError) {
+        summary += '; suite error occurred';
+      }
 
-	@eventHandler()
-	suiteStart(suite: Suite) {
-		if (!suite.hasParent) {
-			this.sessions[suite.sessionId || ''] = { suite: suite };
-			if (suite.sessionId) {
-				this.charm.write('\n');
-				this.charm.write(
-					'‣ Created remote session ' +
-						suite.name +
-						' (' +
-						suite.sessionId +
-						')\n'
-				);
-			}
-		}
-	}
+      const charm = this.charm;
+      charm.display('bright');
+      charm.foreground(numFailedTests || hasError > 0 ? 'red' : 'green');
+      charm.write(summary);
+      charm.display('reset');
+      charm.write('\n');
+    }
+  }
 
-	@eventHandler()
-	testEnd(test: Test) {
-		const charm = this.charm;
-		if (test.error) {
-			charm.foreground('red');
-			charm.write('× ' + test.id);
-			charm.write(' (' + test.timeElapsed / 1000 + 's)');
-			charm.write('\n');
-			charm.write(prefix(this.formatError(test.error), '    '));
-			charm.display('reset');
-			charm.write('\n\n');
-		} else if (test.skipped) {
-			if (!this.hideSkipped) {
-				charm.write('~ ' + test.id);
-				charm.display('reset');
-				charm.write(' (' + (test.skipped || 'skipped') + ')');
-				charm.display('reset');
-				charm.write('\n');
-			}
-		} else {
-			if (!this.hidePassed) {
-				charm.foreground('green');
-				charm.write('✓ ' + test.id);
-				charm.display('reset');
-				charm.write(' (' + test.timeElapsed / 1000 + 's)');
-				charm.display('reset');
-				charm.write('\n');
-			}
-		}
-	}
+  @eventHandler()
+  suiteStart(suite: Suite) {
+    if (!suite.hasParent) {
+      this.sessions[suite.sessionId || ''] = { suite: suite };
+      if (suite.sessionId) {
+        this.charm.write('\n');
+        this.charm.write(
+          '‣ Created remote session ' +
+            suite.name +
+            ' (' +
+            suite.sessionId +
+            ')\n'
+        );
+      }
+    }
+  }
 
-	@eventHandler()
-	tunnelDownloadProgress(message: TunnelMessage) {
-		const progress = message.progress!;
-		this.charm.write(
-			'Tunnel download: ' +
-				(progress.received / progress.total * 100).toFixed(3) +
-				'%\r'
-		);
-	}
+  @eventHandler()
+  testEnd(test: Test) {
+    const charm = this.charm;
+    if (test.error) {
+      charm.foreground('red');
+      charm.write('× ' + test.id);
+      charm.write(' (' + test.timeElapsed! / 1000 + 's)');
+      charm.write('\n');
+      charm.write(prefix(this.formatError(test.error), '    '));
+      charm.display('reset');
+      charm.write('\n\n');
+    } else if (test.skipped) {
+      if (!this.hideSkipped) {
+        charm.write('~ ' + test.id);
+        charm.display('reset');
+        charm.write(' (' + (test.skipped || 'skipped') + ')');
+        charm.display('reset');
+        charm.write('\n');
+      }
+    } else {
+      if (!this.hidePassed) {
+        charm.foreground('green');
+        charm.write('✓ ' + test.id);
+        charm.display('reset');
+        charm.write(' (' + test.timeElapsed! / 1000 + 's)');
+        charm.display('reset');
+        charm.write('\n');
+      }
+    }
+  }
 
-	@eventHandler()
-	tunnelStart(_: TunnelMessage) {
-		this.charm.write('Tunnel started\n');
-	}
+  @eventHandler()
+  tunnelDownloadProgress(message: TunnelMessage) {
+    if (this.hideTunnelDownloadProgress) {
+      return;
+    }
 
-	@eventHandler()
-	tunnelStatus(message: TunnelMessage) {
-		this.charm.write(message.status + '\x1b[K\r');
-	}
+    const progress = message.progress!;
+    this.charm.write(
+      'Tunnel download: ' +
+        ((progress.received / progress.total) * 100).toFixed(3) +
+        '%\r'
+    );
+  }
+
+  @eventHandler()
+  tunnelStart(_: TunnelMessage) {
+    this.charm.write('Tunnel started\n');
+  }
+
+  @eventHandler()
+  tunnelStatus(message: TunnelMessage) {
+    this.charm.write(message.status + '\x1b[K\r');
+  }
 }
 
 export interface RunnerProperties extends TextCoverageProperties {
-	hidePassed: boolean;
-	hideSkipped: boolean;
+  hidePassed: boolean;
+  hideSkipped: boolean;
+  hideTunnelDownloadProgress: boolean;
 }

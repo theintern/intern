@@ -2,8 +2,6 @@
  * Factories are convenience functions for creating instances of normal classes
  * (not mocks).
  */
-import { mixin } from '@dojo/core/lang';
-
 import Test from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
 import { createMockExecutor } from './mocks';
@@ -13,15 +11,15 @@ import { createMockExecutor } from './mocks';
  * replaced
  */
 export function createSuite(properties?: { [P in keyof Suite]?: Suite[P] }) {
-	let suite = new Suite({
-		name: 'suite',
-		executor: createMockExecutor()
-	});
-	if (properties) {
-		suite = Object.create(suite);
-		mixin(suite, properties || {});
-	}
-	return suite;
+  let suite = new Suite({
+    name: 'suite',
+    executor: createMockExecutor()
+  });
+  if (properties) {
+    suite = Object.create(suite);
+    Object.assign(suite, properties || {});
+  }
+  return suite;
 }
 
 /**
@@ -29,13 +27,13 @@ export function createSuite(properties?: { [P in keyof Suite]?: Suite[P] }) {
  * replaced
  */
 export function createTest(properties?: { [P in keyof Test]?: Test[P] }) {
-	let test = new Test({
-		name: 'test',
-		test() {}
-	});
-	if (properties) {
-		test = Object.create(test);
-		mixin(test, properties || {});
-	}
-	return test;
+  let test = new Test({
+    name: 'test',
+    test() {}
+  });
+  if (properties) {
+    test = Object.create(test);
+    Object.assign(test, properties || {});
+  }
+  return test;
 }

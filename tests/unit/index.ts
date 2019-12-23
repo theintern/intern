@@ -6,25 +6,25 @@ let mockGlobal = Object.create(null);
 class MockNode {}
 
 registerSuite('index', {
-	before() {
-		return mockRequire(require, 'src/index', {
-			'src/lib/executors/Node': { default: MockNode },
-			'@dojo/shim/global': { default: mockGlobal }
-		}).then(resource => {
-			removeMocks = resource.remove;
-		});
-	},
+  before() {
+    return mockRequire(require, 'src/index', {
+      'src/lib/executors/Node': { default: MockNode },
+      '@theintern/common': { global: mockGlobal }
+    }).then(resource => {
+      removeMocks = resource.remove;
+    });
+  },
 
-	after() {
-		removeMocks();
-	},
+  after() {
+    removeMocks();
+  },
 
-	tests: {
-		'global defined'() {
-			assert.isDefined(
-				mockGlobal.intern,
-				'expected intern global to have been defined'
-			);
-		}
-	}
+  tests: {
+    'global defined'() {
+      assert.isDefined(
+        mockGlobal.intern,
+        'expected intern global to have been defined'
+      );
+    }
+  }
 });

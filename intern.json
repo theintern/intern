@@ -1,175 +1,189 @@
 {
-	"description": "Run tests on Node, excluding the benchmark tests",
+  "$schema": "./src/schemas/config.json",
 
-	"coverage": ["_build/src/**/*.js", "!_build/src/browser/**/*.js"],
+  "description": "Run tests on Node, excluding the benchmark tests",
 
-	"suites": [
-		"_tests/tests/benchmark/example.js",
-		"_tests/tests/unit/lib/BenchmarkTest.js",
-		"_tests/tests/unit/lib/Channel.js",
-		"_tests/tests/unit/lib/Deferred.js",
-		"_tests/tests/unit/lib/Environment.js",
-		"_tests/tests/unit/lib/Suite.js",
-		"_tests/tests/unit/lib/Test.js",
-		"_tests/tests/unit/lib/channels/**/*.js",
-		"_tests/tests/unit/lib/common/**/*.js",
-		"_tests/tests/unit/lib/executors/Browser.js",
-		"_tests/tests/unit/lib/executors/Executor.js",
-		"_tests/tests/unit/lib/interfaces/**/*.js",
-		"_tests/tests/unit/lib/reporters/Console.js",
-		"_tests/tests/unit/lib/reporters/Dom.js",
-		"_tests/tests/unit/lib/reporters/Html.js",
-		"_tests/tests/unit/loaders/**/*.js"
-	],
+  "coverage": ["_build/src/**/*.js", "!_build/src/browser/**/*.js"],
 
-	"functionalSuites": "_tests/tests/functional/**/*.js",
+  "suites": [
+    "_tests/tests/benchmark/example.js",
+    "_tests/tests/unit/lib/BenchmarkTest.js",
+    "_tests/tests/unit/lib/Channel.js",
+    "_tests/tests/unit/lib/Deferred.js",
+    "_tests/tests/unit/lib/Environment.js",
+    "_tests/tests/unit/lib/Suite.js",
+    "_tests/tests/unit/lib/Test.js",
+    "_tests/tests/unit/lib/channels/**/*.js",
+    "_tests/tests/unit/lib/common/**/*.js",
+    "_tests/tests/unit/lib/executors/Executor.js",
+    "_tests/tests/unit/lib/interfaces/**/*.js",
+    "_tests/tests/unit/lib/reporters/Console.js",
+    "_tests/tests/unit/loaders/**/*.js"
+  ],
 
-	"plugins": "_tests/tests/support/globalUi.js",
+  "functionalSuites": "_tests/tests/functional/**/*.js",
 
-	"node": {
-		"suites": [
-			"_tests/tests/unit/index.js",
-			"_tests/tests/unit/bin/intern.js",
-			"_tests/tests/unit/lib/**/*.js",
-			"!_tests/tests/unit/lib/browser/**/*.js",
-			"!_tests/tests/unit/lib/executors/Browser.s",
-			"_tests/tests/unit/tasks/**/*.js"
-		],
-		"plugins": [
-			"_tests/tests/support/nodeMocking.js",
-			"_tests/tests/support/nodeDom.js",
-			"source-map-support/register"
-		],
-		"reporters": {
-			"name": "runner",
-			"options": { "hideSkipped": true, "hidePassed": true }
-		}
-	},
+  "plugins": "_tests/tests/support/globalUi.js",
 
-	"browser": {
-		"suites": ["_tests/tests/unit/lib/browser/util.js"],
-		"plugins": [
-			"_tests/tests/support/browserDom.js",
-			"_tests/tests/support/dojoMocking.js"
-		],
-		"loader": {
-			"script": "dojo2",
-			"options": {
-				"map": {
-					"*": {
-						"@dojo": "node_modules/@dojo"
-					}
-				},
-				"packages": [
-					{ "name": "src", "location": "_build/src" },
-					{
-						"name": "benchmark",
-						"location": "node_modules/benchmark",
-						"main": "benchmark.js"
-					},
-					{
-						"name": "lodash",
-						"location": "node_modules/lodash",
-						"main": "lodash.js"
-					},
-					{
-						"name": "platform",
-						"location": "node_modules/platform",
-						"main": "platform.js"
-					},
-					{
-						"name": "sinon",
-						"location": "node_modules/sinon",
-						"main": "pkg/sinon.js"
-					},
-					{
-						"name": "tslib",
-						"location": "node_modules/tslib",
-						"main": "tslib.js"
-					}
-				]
-			}
-		}
-	},
+  "node": {
+    "suites": [
+      "_tests/tests/unit/index.js",
+      "_tests/tests/unit/bin/intern.js",
+      "_tests/tests/unit/lib/executors/Node.js",
+      "_tests/tests/unit/lib/node/**/*.js",
+      "_tests/tests/unit/tasks/**/*.js"
+    ],
+    "plugins": [
+      "_tests/tests/support/nodeMocking.js",
+      "_tests/tests/support/nodeDom.js",
+      "source-map-support/register",
+      // The URLSearchParams polyfill is needed for unit tests in Node 8
+      "url-search-params-polyfill"
+    ],
+    "reporters": {
+      "name": "runner",
+      "options": { "hideSkipped": true, "hidePassed": false }
+    }
+  },
 
-	"benchmark": false,
-	"filterErrorStack": true,
-	"internPath": "_tests/src",
+  "browser": {
+    "suites": [
+      "_tests/tests/unit/lib/executors/Browser.js",
+      "_tests/tests/unit/lib/browser/util.js",
+      "_tests/tests/unit/lib/reporters/Dom.js",
+      "_tests/tests/unit/lib/reporters/Html.js"
+    ],
+    "plugins": [
+      "_tests/tests/support/browserDom.js",
+      "_tests/tests/support/dojoMocking.js"
+    ],
+    "loader": {
+      "script": "dojo2",
+      "options": {
+        "map": {
+          "*": {
+            "@dojo": "node_modules/@dojo"
+          }
+        },
+        "packages": [
+          { "name": "src", "location": "_build/src" },
+          {
+            "name": "benchmark",
+            "location": "node_modules/benchmark",
+            "main": "benchmark.js"
+          },
+          {
+            "name": "lodash",
+            "location": "node_modules/lodash",
+            "main": "lodash.js"
+          },
+          {
+            "name": "platform",
+            "location": "node_modules/platform",
+            "main": "platform.js"
+          },
+          {
+            "name": "sinon",
+            "location": "node_modules/sinon",
+            "main": "pkg/sinon.js"
+          },
+          {
+            "name": "tslib",
+            "location": "node_modules/tslib",
+            "main": "tslib.js"
+          },
+          {
+            "name": "@theintern/common",
+            "location": "node_modules/@theintern/common",
+            "main": "index.js"
+          },
+          {
+            "name": "axios",
+            "location": "node_modules/axios",
+            "main": "dist/axios.js"
+          }
+        ]
+      }
+    }
+  },
 
-	"configs": {
-		"progress": {
-			"description": "For showing test progress",
-			"node": {
-				"reporters": {
-					"name": "runner",
-					"options": { "hideSkipped": true, "hidePassed": false }
-				}
-			}
-		},
+  "benchmark": false,
+  "filterErrorStack": true,
+  "internPath": "_tests/src",
 
-		"wd": {
-			"description": "Run tests in Chrome using Selenium",
-			"tunnel": "selenium",
-			"environments": [
-				{ "browserName": "node" },
-				{
-					"browserName": "chrome",
-					"fixSessionCapabilities": "no-detect"
-				}
-			]
-		},
+  "configs": {
+    "progress": {
+      "description": "For showing test progress",
+      "node": {
+        "reporters": {
+          "name": "runner",
+          "options": { "hideSkipped": true, "hidePassed": false }
+        }
+      }
+    },
 
-		"ci": {
-			"description":
-				"Run CI tests on the default cloud service (BrowserStack)",
-			"reporters+": {
-				"name": "jsoncoverage",
-				"options": {
-					"filename": "coverage.json"
-				}
-			},
-			"tunnel": "browserstack",
-			"maxConcurrency": 2,
-			"capabilities": {
-				"idle-timeout": 60,
-				"fixSessionCapabilities": "no-detect"
-			},
-			"environments": [
-				{ "browser": "node" },
-				{ "browser": "internet explorer", "version": ["10", "11"] },
-				{
-					"browser": "firefox",
-					"version": ["33", "latest"],
-					"platform": ["WINDOWS", "MAC"]
-				},
-				{
-					"browser": "chrome",
-					"version": ["38", "latest"],
-					"platform": ["WINDOWS", "MAC"]
-				},
-				{ "browser": "safari", "version": ["9", "10"] }
-			]
-		},
+    "wd": {
+      "description": "Run tests in Chrome using Selenium",
+      "tunnel": "selenium",
+      "environments": [
+        { "browserName": "node" },
+        {
+          "browserName": "chrome",
+          "fixSessionCapabilities": "no-detect"
+        }
+      ]
+    },
 
-		"sauce": {
-			"description": "Run CI tests on Sauce Labs",
-			"extends": "ci",
-			"tunnel": "saucelabs",
-			"environments": [
-				{ "browser": "node" },
-				{ "browser": "internet explorer", "version": ["10", "11"] },
-				{
-					"browser": "firefox",
-					"version": ["33", "latest"],
-					"platform": ["Windows 10", "OS X 10.12"]
-				},
-				{
-					"browser": "chrome",
-					"version": ["38", "latest"],
-					"platform": ["Windows 10", "OS X 10.12"]
-				},
-				{ "browser": "safari", "version": ["9", "10"] }
-			]
-		}
-	}
+    "ci": {
+      "description": "Run CI tests on the default cloud service (BrowserStack)",
+      "reporters+": {
+        "name": "jsoncoverage",
+        "options": {
+          "filename": "coverage.json"
+        }
+      },
+      "tunnel": "browserstack",
+      "maxConcurrency": 2,
+      "capabilities": {
+        "idle-timeout": 60,
+        "fixSessionCapabilities": "no-detect"
+      },
+      "environments": [
+        { "browser": "node" },
+        { "browser": "internet explorer", "version": ["10", "11"] },
+        {
+          "browser": "firefox",
+          "version": ["57", "latest"],
+          "platform": ["WINDOWS", "MAC"]
+        },
+        {
+          "browser": "chrome",
+          "version": ["62", "latest"],
+          "platform": ["WINDOWS", "MAC"]
+        },
+        { "browser": "safari", "version": ["10"] }
+      ]
+    },
+
+    "sauce": {
+      "description": "Run CI tests on Sauce Labs",
+      "extends": "ci",
+      "tunnel": "saucelabs",
+      "environments": [
+        { "browser": "node" },
+        { "browser": "internet explorer", "version": ["10", "11"] },
+        {
+          "browser": "firefox",
+          "version": ["57", "latest"],
+          "platform": ["Windows 10", "OS X 10.12"]
+        },
+        {
+          "browser": "chrome",
+          "version": ["62", "latest"],
+          "platform": ["Windows 10", "OS X 10.12"]
+        },
+        { "browser": "safari", "version": ["10"] }
+      ]
+    }
+  }
 }
