@@ -328,6 +328,8 @@
           ]
         },
 
+        "remoteOptions": { "$ref": "#/definitions/remoteOptions" },
+
         "reporters": { "$ref": "#/definitions/reportersProperty" },
         "reporters+": { "$ref": "#/definitions/reportersProperty+" },
 
@@ -574,6 +576,14 @@
     "positiveNumber": {
       "type": "number",
       "minimum": 0
+    },
+
+    "remoteOptions": {
+      "description": "Options to pass to the remote runner",
+      "type": "object",
+      "properties": {
+        "disableDomUpdates": { "type": "boolean" }
+      }
     },
 
     "reporterName": {
