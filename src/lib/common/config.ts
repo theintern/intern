@@ -386,7 +386,7 @@ export interface PluginDescriptor {
  * A generic event listener
  */
 export interface Listener<T> {
-  (arg: T): void | Promise<void>;
+  (arg: T): void | PromiseLike<void>;
 }
 
 export interface ResourceConfig {
