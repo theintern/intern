@@ -3,7 +3,7 @@ import { HttpError } from 'http-errors';
 import { STATUS_CODES } from 'http';
 
 export default function finalError(): ErrorRequestHandler {
-  return (error: HttpError, request, response, _) => {
+  return (error: HttpError, request, response) => {
     const message = error.expose
       ? error.message
       : STATUS_CODES[error.statusCode];

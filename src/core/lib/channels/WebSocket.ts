@@ -43,7 +43,7 @@ export default class WebSocketChannel extends BaseChannel {
       this._handleMessage(JSON.parse(event.data));
     });
 
-    this._socket.addEventListener('error', _event => {
+    this._socket.addEventListener('error', () => {
       this._handleError(new Error('WebSocket error'));
     });
 

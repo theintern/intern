@@ -482,7 +482,7 @@ export default abstract class BaseExecutor<
 
     const handle: Handle = {
       destroy(this: any) {
-        this.destroy = function() {};
+        this.destroy = () => undefined;
         pullFromArray(listeners, listener);
       }
     };
@@ -587,7 +587,9 @@ export default abstract class BaseExecutor<
       this._loadingPlugins.push({
         name: pluginName,
         init: new Task<any>(
-          (resolve, reject) => result.then(value => resolve(value), reject),
+          (resolve, reject) => {
+            result.then(value => resolve(value), reject);
+          },
           () => {
             isTask(result) && result.cancel();
           }
@@ -706,10 +708,10 @@ export default abstract class BaseExecutor<
                     .then(resolve, reject);
                 },
                 () => {
-                  if (testingTask) {
+                  if (testingTask != null) {
                     testingTask.cancel();
                   }
-                  if (outerTask) {
+                  if (outerTask != null) {
                     outerTask.cancel();
                   }
                 }
@@ -723,7 +725,7 @@ export default abstract class BaseExecutor<
             })
             .finally(() => this._afterRun())
             .finally(() => {
-              if (currentTask) {
+              if (currentTask != null) {
                 currentTask.cancel();
               }
             })
@@ -987,7 +989,7 @@ export default abstract class BaseExecutor<
     // _resolveSuites will expand all suites into <env>.suites for the
     // current env
     const suites = this.config[this.environment].suites;
-    return Task.resolve(this._loader(suites!)).then(() => {
+    return Task.resolve(this._loader(suites || [])).then(() => {
       this.log('Loaded suites:', suites);
     });
   }
@@ -1171,4 +1173,5 @@ export interface ReporterInitializer {
  * A 'reporter' as far as Executor is concerned. There is currently no
  * pre-defined functionality required for reporters.
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Reporter {}

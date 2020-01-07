@@ -36,7 +36,7 @@ try {
       return;
     }
 
-    let promise = channel.sendMessage(name, data).catch(error => {
+    const promise = channel.sendMessage(name, data).catch(error => {
       displayMessage(`Error sending ${name}: ${error.message}`);
       console.error(error);
     });

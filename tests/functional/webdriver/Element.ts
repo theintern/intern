@@ -25,13 +25,13 @@ function createStubbedSuite(
 ) {
   let originalMethod: Function;
   let calledWith: any;
-  let extraArguments: any[] = [];
-  let element = new Element('test', <Session>{});
+  const extraArguments: any[] = [];
+  const element = new Element('test', <Session>{});
   const suite = {
     before() {
       originalMethod = (<any>element)[stubbedMethodName];
-      (<any>element)[stubbedMethodName] = function() {
-        calledWith = arguments;
+      (<any>element)[stubbedMethodName] = function(...args: any[]) {
+        calledWith = args;
       };
 
       for (let i = 0, j = originalMethod.length - 1; i < j; ++i) {
@@ -78,9 +78,11 @@ registerSuite('Element', () => {
   return {
     before() {
       const remote = this.remote;
-      return util.createSessionFromRemote(remote).then(function() {
-        session = arguments[0];
-      });
+      return util
+        .createSessionFromRemote(remote)
+        .then(function(...args: any[]) {
+          session = args[0];
+        });
     },
 
     beforeEach() {
@@ -1082,7 +1084,7 @@ registerSuite('Element', () => {
           tests: <{ [name: string]: TestFunction }>{}
         };
 
-        for (let id in visibilities) {
+        for (const id in visibilities) {
           (function(id, expected) {
             suite.tests[id] = function() {
               if (session.capabilities.noElementDisplayed) {
@@ -1128,7 +1130,7 @@ registerSuite('Element', () => {
           tests: <{ [name: string]: TestFunction }>{}
         };
 
-        for (let id in positions) {
+        for (const id in positions) {
           (function(id: string, expected: any) {
             suite.tests[id] = function() {
               return session
@@ -1148,7 +1150,7 @@ registerSuite('Element', () => {
 
       '#getSize': (function() {
         let documentWidth: number;
-        let dimensions: any = {};
+        const dimensions: any = {};
         dimensions.a = { width: 222, height: 222 };
         dimensions.b = { width: 10, height: 10 };
         dimensions.c = { width: -1, height: 0 };
@@ -1176,7 +1178,7 @@ registerSuite('Element', () => {
           tests: <{ [name: string]: TestFunction }>{}
         };
 
-        for (let id in dimensions) {
+        for (const id in dimensions) {
           (function(id, expected) {
             suite.tests[id] = function() {
               return session

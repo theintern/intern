@@ -5,6 +5,7 @@
 //
 
 import { execSync } from 'child_process';
+import { readFileSync } from 'fs';
 import { join } from 'path';
 import { global } from '../../common';
 
@@ -59,7 +60,9 @@ getConfig()
 function printHelp(config: any, file?: string) {
   const $ = (cmd: string) => execSync(cmd, { encoding: 'utf8' }).trim();
   const pkgPath = getPackagePath();
-  const pkg = require(join(pkgPath, 'package.json'));
+  const pkg = JSON.parse(
+    readFileSync(join(pkgPath, 'package.json'), { encoding: 'utf8' })
+  );
   const npmVersion = $('npm -v');
   const nodeVersion = $('node -v');
   console.log(`intern version ${pkg.version}`);

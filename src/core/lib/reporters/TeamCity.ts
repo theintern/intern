@@ -97,7 +97,7 @@ export default class TeamCity extends Reporter {
    * Based on Message.prototype.escape from teamcity-service-messages
    */
   private _escapeString(str: string): string {
-    const replacer = /['\n\r\|\[\]\u0100-\uffff]/g;
+    const replacer = /['\n\r|[\]\u0100-\uffff]/g;
     const map = {
       "'": "|'",
       '|': '||',
@@ -111,6 +111,7 @@ export default class TeamCity extends Reporter {
       if (character in map) {
         return (<{ [key: string]: any }>map)[character];
       }
+      // eslint-disable-next-line no-control-regex
       if (/[^\u0000-\u00ff]/.test(character)) {
         return '|0x' + character.charCodeAt(0).toString(16);
       }
@@ -124,9 +125,9 @@ export default class TeamCity extends Reporter {
     // testIgnored messages for unrun tests in nested suites as parent
     // suites are finished.
     const ignoredTestIds = this._ignoredTestIds!;
-    let ignoredTests = ignoredTestIds![suite.sessionId];
+    let ignoredTests = ignoredTestIds[suite.sessionId];
     if (!ignoredTests) {
-      ignoredTests = ignoredTestIds![suite.sessionId] = {};
+      ignoredTests = ignoredTestIds[suite.sessionId] = {};
     }
 
     suite.tests.forEach(test => {

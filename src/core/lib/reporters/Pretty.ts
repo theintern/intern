@@ -71,8 +71,8 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
     this._charm = this._charm || this._newCharm();
 
     const resize = () => {
-      this.dimensions.width = (<any>global.process.stdout).columns || 80;
-      this.dimensions.height = (<any>global.process.stdout).rows || 24;
+      this.dimensions.width = global.process.stdout.columns || 80;
+      this.dimensions.height = global.process.stdout.rows || 24;
     };
 
     resize();
@@ -224,7 +224,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
     const id = suiteOrTest.sessionId || '';
     if (!this._reports[id]) {
       this._reports[id] = new Report(
-        suiteOrTest.remote && suiteOrTest.remote.environmentType
+        suiteOrTest.remote != null && suiteOrTest.remote.environmentType
       );
     }
     return this._reports[id];
@@ -356,7 +356,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
     return result.join(' ');
   }
 
-  private _render(omitLogs: boolean = false) {
+  private _render(omitLogs = false) {
     const charm = this._charm!;
     const numReports = Object.keys(this._reports).length;
     const logLength =
@@ -381,7 +381,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
     // active ones or only the total with less space
     if (numReports) {
       charm.write('\n');
-      for (let key in this._reports) {
+      for (const key in this._reports) {
         this._drawSessionReport(this._reports[key]);
       }
     }
@@ -531,11 +531,7 @@ function pad(width: number): string {
   return PAD.slice(0, Math.max(width, 0));
 }
 
-function fit(
-  text: string | number,
-  width: number,
-  padLeft: boolean = false
-): string {
+function fit(text: string | number, width: number, padLeft = false): string {
   text = String(text);
   if (text.length < width) {
     if (padLeft) {

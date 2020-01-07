@@ -263,6 +263,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    * @param data Data to send to the tunnel provider about the job.
    * @returns A promise that resolves once the job state request is complete.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   sendJobState(_jobId: string, _data: JobState): CancellablePromise<void> {
     return Task.reject(new Error('Job state is not supported by this tunnel.'));
   }
@@ -287,7 +288,11 @@ export default class Tunnel extends Evented<TunnelEvents, string>
       return this._start(child => {
         this._process = child;
         this._handle = createCompositeHandle(
-          this._handle || { destroy: function() {} },
+          this._handle || {
+            destroy: () => {
+              // do nothing
+            }
+          },
           on(child.stdout!, 'data', proxyIOEvent(this, 'stdout')),
           on(child.stderr!, 'data', proxyIOEvent(this, 'stderr')),
           on(child, 'exit', () => {
@@ -320,7 +325,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
         });
       });
 
-    return this._startTask!;
+    return this._startTask;
   }
 
   /**
@@ -333,7 +338,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
     switch (this._state) {
       case 'starting':
         this._startTask!.cancel();
-        return this._startTask!.finally(() => null);
+        return this._startTask!.finally(() => undefined);
       case 'stopping':
         return this._stopTask!;
     }
@@ -411,7 +416,9 @@ export default class Tunnel extends Evented<TunnelEvents, string>
           });
       },
       () => {
-        req && req.cancel();
+        if (req != null) {
+          req.cancel();
+        }
       }
     );
   }
@@ -426,6 +433,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    *
    * @returns A list of command-line arguments.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected _makeArgs(..._values: string[]): string[] {
     return [];
   }
@@ -512,7 +520,9 @@ export default class Tunnel extends Evented<TunnelEvents, string>
         // exceptions
         try {
           kill(child.pid);
-        } catch (error) {}
+        } catch {
+          // ignored
+        }
       }
     );
 
@@ -540,6 +550,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    * @returns A set of options matching those provided to Node.js
    * `child_process.spawn`.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected _makeOptions(..._values: string[]) {
     return { env: process.env };
   }
@@ -551,7 +562,9 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    * @param environment an environment descriptor specific to the Tunnel
    * @returns a normalized environment
    */
-  protected _normalizeEnvironment(environment: Object): NormalizedEnvironment {
+  protected _normalizeEnvironment(
+    environment: Record<string, any>
+  ): NormalizedEnvironment {
     return <any>environment;
   }
 
@@ -652,7 +665,7 @@ export interface TunnelEvents {
 /**
  * A chunk of raw string data output by the tunnel software to stdout or stderr.
  */
-// tslint:disable-next-line:interface-name
+// eslint-disable-next-line @typescript-eslint/interface-name-prefix
 export interface IOEvent extends TunnelEventObject<Tunnel> {
   readonly type: 'stdout' | 'stderr';
   readonly data: string;
@@ -713,7 +726,7 @@ export type DownloadOptions = Partial<DownloadProperties>;
 export interface NormalizedEnvironment {
   browserName: string;
   browserVersion?: string;
-  descriptor: Object;
+  descriptor: Record<string, any>;
   platform: string;
   platformName?: string;
   platformVersion?: string;
@@ -780,4 +793,5 @@ function proxyIOEvent(target: Tunnel, type: 'stdout' | 'stderr') {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/unbound-method
 delete Tunnel.prototype.on;

@@ -508,7 +508,7 @@ registerSuite('core/lib/executors/Executor', function() {
       },
 
       '#log'() {
-        let logger = spy((..._args: any[]) => {});
+        const logger = spy((..._args: any[]) => {});
         executor.on('log', logger);
         executor.log('testing');
         assert.equal(logger.callCount, 0, 'log should not have been emitted');

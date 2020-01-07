@@ -221,12 +221,13 @@ export function parseValue(
       }
       throw new Error(`Non-boolean value "${value}" for ${name}`);
 
-    case 'number':
+    case 'number': {
       const numValue = Number(value);
       if (!isNaN(numValue)) {
         return numValue;
       }
       throw new Error(`Non-numeric value "${value}" for ${name}`);
+    }
 
     case 'regexp':
       if (typeof value === 'string') {
@@ -328,7 +329,9 @@ export function processOption<C extends Config>(
     ? (eventName: keyof Events, data?: any) => {
         executor.emit(eventName, data);
       }
-    : (..._args: any[]) => {};
+    : () => {
+        // do nothing
+      };
 
   switch (name) {
     case 'loader': {
@@ -431,7 +434,8 @@ export function processOption<C extends Config>(
         Object.keys(_value).forEach(valueKey => {
           const key = <keyof ResourceConfig>valueKey;
           let resource = _value[key];
-          let { name, addToExisting } = evalProperty(key);
+          let { name } = evalProperty(key);
+          const { addToExisting } = evalProperty(key);
           switch (name) {
             case 'loader': {
               resource = parseValue(name, resource, 'object', 'script');
@@ -693,7 +697,7 @@ export function processOption<C extends Config>(
  * instances.
  */
 export function pullFromArray<T>(haystack: T[], needle: T): T[] {
-  let removed: T[] = [];
+  const removed: T[] = [];
   let i = 0;
 
   while ((i = haystack.indexOf(needle, i)) > -1) {
@@ -836,7 +840,7 @@ export function splitConfigPath(
  * @param object The object to serialise.
  * @returns A JSON string
  */
-export function stringify(object: Object, indent?: string) {
+export function stringify(object: any, indent?: string) {
   return JSON.stringify(object, serializeReplacer, indent);
 }
 

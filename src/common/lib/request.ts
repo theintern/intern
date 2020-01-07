@@ -8,7 +8,7 @@ import axios, {
   AxiosProxyConfig,
   AxiosResponse
 } from 'axios';
-import * as qs from 'qs';
+import qs from 'qs';
 import Task, { CancellablePromise } from './Task';
 import Evented from './Evented';
 
@@ -213,7 +213,7 @@ class ResponseClass<T = any> extends Evented<ProgressEvent>
   }
 
   json<R = object>() {
-    return this.text().then<R>(JSON.parse);
+    return this.text().then<R>(value => JSON.parse(value));
   }
 
   text(): CancellablePromise<string> {
@@ -235,7 +235,7 @@ class ResponseClass<T = any> extends Evented<ProgressEvent>
       }
     }
 
-    return Task.resolve(this.stringValue!);
+    return Task.resolve(this.stringValue);
   }
 }
 

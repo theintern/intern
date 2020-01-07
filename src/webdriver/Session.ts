@@ -138,7 +138,9 @@ export default class Session extends Locator<
           // safePromise is simply a promise based on the response that
           // is guaranteed to resolve -- it is only used for promise
           // chain management
-          const safePromise = response.catch(_error => {});
+          const safePromise = response.catch(() => {
+            // consume error
+          });
           safePromise.then(clearNextRequest);
 
           // The value of the response always needs to be taken directly
@@ -225,7 +227,7 @@ export default class Session extends Locator<
     }
 
     // Set both JSONWireProtocol and WebDriver properties in the data object
-    let data = this.capabilities.usesWebDriverTimeouts
+    const data = this.capabilities.usesWebDriverTimeouts
       ? {
           [type === 'page load' ? 'pageLoad' : type]: ms
         }
@@ -668,14 +670,13 @@ export default class Session extends Locator<
    * window is now focused.
    */
   closeCurrentWindow() {
-    const self = this;
-    function manualClose() {
-      return self.getCurrentWindowHandle().then(function(handle: any) {
-        return self.execute('window.close();').then(function() {
-          self._closedWindows[handle] = true;
+    const manualClose = () => {
+      return this.getCurrentWindowHandle().then((handle: any) => {
+        return this.execute('window.close();').then(() => {
+          this._closedWindows[handle] = true;
         });
       });
-    }
+    };
 
     if (this.capabilities.brokenDeleteWindow) {
       return manualClose();
@@ -1036,8 +1037,8 @@ export default class Session extends Locator<
       // At least SafariDriver 2.41.0 returns cookies with extra class
       // and hCode properties that should not exist
       return (cookies || []).map(function(badCookie) {
-        let cookie: any = {};
-        for (let key in badCookie) {
+        const cookie: any = {};
+        for (const key in badCookie) {
           if (
             key === 'name' ||
             key === 'value' ||
@@ -1071,7 +1072,6 @@ export default class Session extends Locator<
     if (cookie.expiry instanceof Date) {
       cookie.expiry = cookie.expiry.valueOf() / 1000;
     }
-    const self = this;
 
     return this.serverPost<void>('cookie', {
       cookie: cookie
@@ -1106,7 +1106,7 @@ export default class Session extends Locator<
 
         pushCookieProperties(cookieToSet, cookie);
 
-        return self.execute<void>(
+        return this.execute<void>(
           /* istanbul ignore next */ function(cookie: any) {
             document.cookie = cookie;
           },
@@ -1203,7 +1203,7 @@ export default class Session extends Locator<
     if (this.capabilities.brokenPageSource) {
       return this.execute<string>(
         /* istanbul ignore next */ function() {
-          return document.documentElement!.outerHTML;
+          return document.documentElement.outerHTML;
         }
       );
     } else {
@@ -1840,7 +1840,7 @@ export default class Session extends Locator<
   ): CancellablePromise<void>;
   @forCommand({ usesElement: true })
   flickFinger(...args: any[]) {
-    let [element, xOffset, yOffset, speed] = args;
+    const [element, xOffset, yOffset, speed] = args;
     if (
       typeof speed === 'undefined' &&
       typeof yOffset === 'undefined' &&
@@ -2216,7 +2216,7 @@ function convertToElements(session: Session, value: any) {
       if (value.ELEMENT || value['element-6066-11e4-a52e-4f735466cecf']) {
         value = new Element(value, session);
       } else {
-        for (let k in value) {
+        for (const k in value) {
           value[k] = convert(value[k]);
         }
       }
@@ -2357,9 +2357,9 @@ function simulateKeys(keys: string[]) {
           target.value.slice(target.selectionEnd);
         dispatchInput();
       } else if (target.isContentEditable) {
-        let node = document.createTextNode(key);
-        let selection = window.getSelection()!;
-        let range = selection.getRangeAt(0);
+        const node = document.createTextNode(key);
+        const selection = window.getSelection()!;
+        const range = selection.getRangeAt(0);
         range.deleteContents();
         range.insertNode(node);
         range.setStartAfter(node);

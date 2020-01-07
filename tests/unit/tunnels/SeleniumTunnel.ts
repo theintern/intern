@@ -68,7 +68,7 @@ registerSuite('unit/SeleniumTunnel', {
         };
       }
 
-      let oldLog = console.log;
+      const oldLog = console.log;
 
       return {
         afterEach() {

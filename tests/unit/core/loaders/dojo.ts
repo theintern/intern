@@ -21,7 +21,7 @@ registerSuite('loaders/dojo', function() {
   };
 
   const fakeRequire: any = spy((_modules: string[], callback: () => void) => {
-    if (requirePromise) {
+    if (requirePromise != null) {
       requirePromise.then(callback);
     } else {
       callback();

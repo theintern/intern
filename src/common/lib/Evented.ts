@@ -115,8 +115,8 @@ export default class Evented<
       this.handles.forEach(handle => {
         handle && handle.destroy && handle.destroy();
       });
-      this.destroy = noop;
-      this.own = destroyed;
+      this['destroy'] = noop;
+      this['own'] = destroyed;
       resolve(true);
     });
   }
@@ -174,7 +174,7 @@ export interface EventObject<T = EventType> {
 /**
  * No op function used to replace own, once instance has been destoryed
  */
-function destroyed(_handles: Handle | Handle[]): Handle {
+function destroyed(): Handle {
   throw new Error('Call made to destroyed method');
 }
 
@@ -194,6 +194,7 @@ function isGlobMatch(
   ) {
     let regex: RegExp;
     if (regexMap.has(globString)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       regex = regexMap.get(globString)!;
     } else {
       regex = new RegExp(`^${globString.replace(/\*/g, '.*')}$`);

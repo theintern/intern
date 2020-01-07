@@ -304,7 +304,7 @@ export default class SauceLabsTunnel extends Tunnel
   }
 
   sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
-    let url = parseUrl(this.restUrl || 'https://saucelabs.com/rest/v1/');
+    const url = parseUrl(this.restUrl || 'https://saucelabs.com/rest/v1/');
     url.auth = this.username + ':' + this.accessKey;
     url.pathname += this.username + '/jobs/' + jobId;
 

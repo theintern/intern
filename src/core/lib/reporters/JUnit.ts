@@ -71,7 +71,7 @@ class XmlNode {
    * node.
    * @returns {XmlNode} A new node.
    */
-  createNode(nodeName: string, attributes: Object) {
+  createNode(nodeName: string, attributes: Record<string, any>) {
     const node = new XmlNode(nodeName, attributes);
     this.childNodes.push(node);
     return node;
@@ -88,7 +88,7 @@ class XmlNode {
     const attributes = this.attributes;
     const nodes: any[] = [];
 
-    for (let key in attributes) {
+    for (const key in attributes) {
       if (attributes[key] != null) {
         nodes.push(key + '="' + this._escape(attributes[key]) + '"');
       }

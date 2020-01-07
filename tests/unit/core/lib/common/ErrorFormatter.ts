@@ -62,7 +62,7 @@ registerSuite('lib/common/ErrorFormatter', function() {
               if (error.stack) {
                 assert.match(
                   formatter.format(error),
-                  /^Error: foo\n  at (?:\S*\.)?error /
+                  /^Error: foo\n\s{2}at (?:\S*\.)?error /
                 );
               } else {
                 assert.equal(
@@ -79,7 +79,7 @@ registerSuite('lib/common/ErrorFormatter', function() {
             },
 
             diff() {
-              let err: InternError = {
+              const err: InternError = {
                 name: 'Foo',
                 message: 'foo',
                 showDiff: true,

@@ -10,13 +10,13 @@ export default class Environment {
 
   constructor(kwArgs: { [key: string]: any }) {
     const anyThis = <any>this;
-    for (let k in kwArgs) {
+    for (const k in kwArgs) {
       anyThis[k] = kwArgs[k];
     }
   }
 
   toString() {
-    let parts: string[] = [];
+    const parts: string[] = [];
 
     parts.push(this.browserName || this.browser || 'Any browser');
     this.version && parts.push(this.version);

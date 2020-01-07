@@ -33,7 +33,7 @@ export default class BenchmarkTest extends Test {
   constructor(descriptor: BenchmarkTestOptions) {
     // Call the superclass constructor with the set of descriptor keys not
     // specific to BenchmarkTest
-    let args: { [key: string]: any } = {};
+    const args: { [key: string]: any } = {};
     Object.keys(descriptor).forEach(descriptorKey => {
       const key = <keyof BenchmarkTestOptions>descriptorKey;
       if (key !== 'options') {
@@ -42,7 +42,8 @@ export default class BenchmarkTest extends Test {
     });
 
     const testArgs = args as TestOptions;
-    testArgs.test = testArgs.test || /* istanbul ignore next */ function() {};
+    testArgs.test =
+      testArgs.test || /* istanbul ignore next */ (() => undefined);
 
     super(testArgs);
 
@@ -64,6 +65,7 @@ export default class BenchmarkTest extends Test {
             // BenchmarkTestFunction, but it will always be defined here
             const dfd = createDeferred(
               this.benchmark,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               deferred!,
               options.numCallsUntilResolution
             );
@@ -107,7 +109,7 @@ export default class BenchmarkTest extends Test {
     // ignore
   }
 
-  async(_timeout?: number, _numCallsUntilResolution?: number): Deferred<any> {
+  async(): Deferred<any> {
     throw new Error(
       'Benchmark tests must be marked as asynchronous and use the deferred ' +
         'passed to them rather than call `this.async()`.'
@@ -272,10 +274,11 @@ function createDeferred(
     },
 
     rejectOnError(this: any, callback: Function) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this;
-      return function(this: any) {
+      return function(this: any, ...args: any[]) {
         try {
-          return callback.apply(this, arguments);
+          return callback.apply(this, args);
         } catch (error) {
           self.reject(error);
         }
@@ -283,9 +286,10 @@ function createDeferred(
     },
 
     callback: function(this: any, callback: Function) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this;
-      return this.rejectOnError(function(this: any) {
-        const returnValue = callback.apply(this, arguments);
+      return this.rejectOnError(function(this: any, ...args: any[]) {
+        const returnValue = callback.apply(this, args);
         self.resolve();
         return returnValue;
       });

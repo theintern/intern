@@ -115,7 +115,7 @@ let tests: Tests = {
       const result = execSync(`"${driver}" --version`).toString('utf-8');
       assert.match(
         result,
-        new RegExp(`ChromeDriver ${version}\.`),
+        new RegExp(`ChromeDriver ${version}.`),
         'unexpected driver version'
       );
     });

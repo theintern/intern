@@ -184,7 +184,11 @@ export default class SeleniumTunnel extends Tunnel
           });
         });
 
-        resolve(Task.all(tasks).then(() => {}));
+        resolve(
+          Task.all(tasks).then(() => {
+            // consume return value
+          })
+        );
       },
       () => {
         tasks &&
@@ -490,7 +494,7 @@ class FirefoxConfig extends Config<FirefoxOptions>
   }
 }
 
-// tslint:disable-next-line:interface-name
+// eslint-disable-next-line @typescript-eslint/interface-name-prefix
 interface IEProperties {
   arch: string;
   baseUrl: string;

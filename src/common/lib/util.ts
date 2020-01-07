@@ -84,12 +84,12 @@ export function partial(
   targetFunction: (...args: any[]) => any,
   ...suppliedArgs: any[]
 ): (...args: any[]) => any {
-  return function(this: any) {
-    const args: any[] = arguments.length
-      ? suppliedArgs.concat(Array.prototype.slice.call(arguments))
+  return function(this: any, ...args: any[]) {
+    const targetArgs: any[] = args.length
+      ? suppliedArgs.concat(args)
       : suppliedArgs;
 
-    return targetFunction.apply(this, args);
+    return targetFunction.apply(this, targetArgs);
   };
 }
 
@@ -107,7 +107,7 @@ function copyArray<T>(array: T[]): T[] {
   });
 }
 
-function shouldDeepCopyObject(value: any): value is Object {
+function shouldDeepCopyObject(value: any): value is Record<string, any> {
   return Object.prototype.toString.call(value) === '[object Object]';
 }
 
@@ -126,7 +126,7 @@ function _deepMixin<T extends {}, U extends {}>(kwArgs: {
     if (source === null || source === undefined) {
       continue;
     }
-    for (let key in source) {
+    for (const key in source) {
       let value: any = source[key];
 
       if (copiedClone.indexOf(value) !== -1) {

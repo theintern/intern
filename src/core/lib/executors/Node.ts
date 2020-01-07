@@ -323,7 +323,9 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // We do not want to actually return an array of values, so chain a
       // callback that resolves to undefined
       return Promise.all(promises).then(
-        () => {},
+        () => {
+          /* do nothing */
+        },
         error => this.emit('error', error)
       );
     });
@@ -395,7 +397,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
               tunnelOptions.proxy = config.proxy;
             }
 
-            let TunnelConstructor = this.getTunnel(config.tunnel);
+            const TunnelConstructor = this.getTunnel(config.tunnel);
             const tunnel = (this.tunnel = new TunnelConstructor(
               this.config.tunnelOptions
             ));
@@ -439,20 +441,26 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    * method will only be called if there are both environments and suites to
    * run.
    */
-  protected _createSessionSuites() {
-    const tunnel = this.tunnel!;
+  protected _createSessionSuites(): CancellablePromise<void> {
+    if (!this.tunnel) {
+      this.log('No tunnel - Not creating session suites');
+      return Task.resolve();
+    }
+
+    const tunnel = this.tunnel;
     const config = this.config;
 
     const leadfootServer = new LeadfootServer(tunnel.clientUrl, {
       proxy: 'proxy' in config ? config.proxy : tunnel.proxy
     });
 
-    const executor = this;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const self = this;
 
     // Create a subclass of ProxiedSession here that will ensure the
     // executor is set
     class InitializedProxiedSession extends ProxiedSession {
-      executor = executor;
+      executor = self;
       coverageVariable = config.coverageVariable;
       baseUrl = config.functionalBaseUrl || config.serverUrl;
     }
@@ -478,14 +486,14 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           executor: this,
 
           before() {
-            executor.log('Creating session for', environmentType);
+            self.log('Creating session for', environmentType);
             return leadfootServer
               .createSession<ProxiedSession>(environmentType)
               .then(_session => {
                 session = _session;
                 this.executor.log('Created session:', session.capabilities);
 
-                let remote: Remote = <Remote>new Command(session);
+                const remote: Remote = <Remote>new Command(session);
                 remote.environmentType = new Environment(session.capabilities);
                 remote.requestedEnvironment = environmentType;
                 this.remote = remote;
@@ -532,7 +540,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           after() {
             const remote = this.remote;
 
-            if (remote) {
+            if (remote != null) {
               const endSession = () => {
                 // Check for an error in this suite or a
                 // sub-suite. This check is a bit more involved
@@ -889,7 +897,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           .then(resolve, reject);
       },
       () => {
-        if (testTask) {
+        if (testTask != null) {
           testTask.cancel();
         }
       }
@@ -898,9 +906,12 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // read the file and instrument the code (adding it to the overall
       // coverage map)
       const coveredFiles = this._coverageMap.files();
-      const uncoveredFiles = this._coverageFiles!.filter(filename => {
-        return coveredFiles.indexOf(filename) === -1;
-      });
+      let uncoveredFiles: string[] = [];
+      if (this._coverageFiles) {
+        uncoveredFiles = this._coverageFiles.filter(filename => {
+          return coveredFiles.indexOf(filename) === -1;
+        });
+      }
       uncoveredFiles.forEach(filename => {
         try {
           const code = readFileSync(filename, { encoding: 'utf8' });
@@ -909,15 +920,22 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
             filename,
             filename.endsWith('.ts') || filename.endsWith('.tsx')
           );
-        } catch (_error) {}
+        } catch {
+          // ignored
+        }
       });
     });
   }
 
   protected _runRemoteTests(): CancellablePromise<void> {
     const config = this.config;
-    const sessionSuites = this._sessionSuites!;
     const queue = new FunctionQueue(config.maxConcurrency || Infinity);
+
+    if (!this._sessionSuites) {
+      return Task.resolve();
+    }
+
+    const sessionSuites = this._sessionSuites;
 
     this.log(
       'Running',
@@ -945,7 +963,9 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     );
 
     return runTask
-      .then(() => {})
+      .then(() => {
+        // Consume any output so void is returned
+      })
       .finally(() => {
         if (config.functionalCoverage !== false) {
           // Collect any local coverage generated by functional tests

@@ -115,12 +115,12 @@ registerSuite('lib/Server', function() {
   const jsonHandler = sandbox.spy(passthroughMiddleware);
   const urlEncodedHandler = sandbox.spy(passthroughMiddleware);
   const mockBodyParser = {
-    json: sandbox.spy((..._args: any[]) => jsonHandler),
+    json: sandbox.spy(() => jsonHandler),
     urlencoded: sandbox.spy((..._args: any[]) => urlEncodedHandler)
   };
 
-  let fs = mockFs();
-  let path = mockPath();
+  const fs = mockFs();
+  const path = mockPath();
 
   const internStaticHandler = sandbox.stub();
   const baseStaticHandler = sandbox.stub();

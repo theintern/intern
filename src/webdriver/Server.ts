@@ -133,6 +133,7 @@ export default class Server {
     }
 
     const trace: any = {};
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     Error.captureStackTrace(trace, this._sendRequest);
 
     return new Task((resolve, reject) => {
@@ -354,7 +355,7 @@ export default class Server {
 
   get<T>(
     path: string,
-    requestData?: Object,
+    requestData?: Record<string, any>,
     pathParts?: string[]
   ): CancellablePromise<T> {
     return this._sendRequest<T>('GET', path, requestData, pathParts);
@@ -362,7 +363,7 @@ export default class Server {
 
   post<T>(
     path: string,
-    requestData?: Object,
+    requestData?: Record<string, any>,
     pathParts?: string[]
   ): CancellablePromise<T> {
     return this._sendRequest<T>('POST', path, requestData, pathParts);
@@ -370,7 +371,7 @@ export default class Server {
 
   delete<T>(
     path: string,
-    requestData?: Object,
+    requestData?: Record<string, any>,
     pathParts?: string[]
   ): CancellablePromise<T> {
     return this._sendRequest<T>('DELETE', path, requestData, pathParts);
@@ -2008,7 +2009,9 @@ function isValidVersion(
   return true;
 }
 
-function noop() {}
+function noop() {
+  // do nothing
+}
 
 /**
  * Returns the actual response value from the remote environment.

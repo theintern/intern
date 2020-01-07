@@ -115,7 +115,7 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
   SuiteClass: S,
   TestClass: T
 ) {
-  let options: SuiteOptions = { name: name, parent };
+  const options: SuiteOptions = { name: name, parent };
   let tests: Tests;
 
   // Initialize a new SuiteOptions object from the provided

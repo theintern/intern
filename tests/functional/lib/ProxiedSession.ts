@@ -17,7 +17,7 @@ registerSuite('lib/ProxiedSession (functional)', () => {
   let session: ProxiedSession | null;
   let numGetCalls: number;
   let lastUrl: string | null;
-  let mockCoverage = { isMockCoverage: true };
+  const mockCoverage = { isMockCoverage: true };
 
   function sleep(ms: number) {
     return new Promise(resolve => {
@@ -83,7 +83,7 @@ registerSuite('lib/ProxiedSession (functional)', () => {
       // get coverage if the browser location isn't an http/https URL.
       // This is reasonable since the typical case will be to get coverage
       // from a loaded page.
-      let task = _session.get('http://example.invalid/');
+      const task = _session.get('http://example.invalid/');
 
       return task
         .then(() => {

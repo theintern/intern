@@ -239,7 +239,9 @@ export default class CrossBrowserTestingTunnel extends Tunnel
         intern: {
           browserName,
           version: browser.version,
+          // eslint-disable-next-line @typescript-eslint/camelcase
           browser_api_name: browser.api_name,
+          // eslint-disable-next-line @typescript-eslint/camelcase
           os_api_name: platform
         }
       };

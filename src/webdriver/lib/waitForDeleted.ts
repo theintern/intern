@@ -45,7 +45,7 @@ export default function waitForDeleted(
             const always = function() {
               const error: any = new Error();
               error.status = 21;
-              const [name, message] = (<any>statusCodes)[error.status];
+              const [name, message] = (statusCodes as any)[error.status];
               error.name = name;
               error.message = message;
               reject(error);
@@ -72,5 +72,5 @@ export default function waitForDeleted(
         })();
       });
     })
-    .then(() => {});
+    .then(() => undefined);
 }

@@ -82,7 +82,9 @@ export default function pollUntilTruthy<T, U, V, W, X, Y>(
   args.unshift(toExecuteString(poller));
 
   const _poller = /* istanbul ignore next */ function(poller: string) {
+    // eslint-disable-next-line prefer-rest-params
     const args: any[] = Array.prototype.slice.apply(arguments).slice(1);
+    // eslint-disable-next-line prefer-spread
     const result = new Function(poller).apply(null, args);
     // If result is truthy, return it. Otherwise return `undefined`, which
     // will cause pollUntil to continue polling.

@@ -79,9 +79,9 @@ export function getDefaultBasePath() {
  */
 export function normalizePath(path: string) {
   const parts = path.replace(/\\/g, '/').split('/');
-  let result: string[] = [];
+  const result: string[] = [];
   for (let i = 0; i < parts.length; ++i) {
-    let part = parts[i];
+    const part = parts[i];
 
     if (!part || part === '.') {
       if (i === 0 || i === parts.length - 1) {
@@ -139,7 +139,7 @@ export type Url = {
 };
 export function parseUrl(url: string): Url | undefined {
   if (url) {
-    const match = /^(([^:\/?#]+):)?(\/\/(([^:\/?#]*)(:(\d+))?))?([^?#]*)(\?([^#]*))?(#(.*))?/.exec(
+    const match = /^(([^:/?#]+):)?(\/\/(([^:/?#]*)(:(\d+))?))?([^?#]*)(\?([^#]*))?(#(.*))?/.exec(
       url
     );
     if (match) {

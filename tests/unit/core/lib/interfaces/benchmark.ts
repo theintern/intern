@@ -52,7 +52,7 @@ registerSuite('lib/interfaces/benchmark', function() {
 
     tests: {
       getInterface() {
-        const iface = benchmarkInt.getInterface(<any>executor);
+        const iface = benchmarkInt.getInterface(executor);
         assert.property(iface, 'registerSuite');
         assert.isFunction(iface.registerSuite);
 
@@ -133,7 +133,7 @@ registerSuite('lib/interfaces/benchmark', function() {
       'register with benchmark options'() {
         benchmarkInt.default('suite 1', {
           test1: (function() {
-            let testFunction: BenchmarkTestFunction = () => {};
+            const testFunction: BenchmarkTestFunction = () => {};
             testFunction.options = {
               initCount: 5
             };

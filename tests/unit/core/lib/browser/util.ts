@@ -171,7 +171,7 @@ registerSuite('lib/browser/util', function() {
             requestData['/intern.json'] = 'foo';
 
             return util.getConfig().then(
-              _config => {
+              () => {
                 throw new Error('getConfig should not have passed');
               },
               error => {

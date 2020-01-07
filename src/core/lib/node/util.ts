@@ -39,7 +39,7 @@ export function expandFiles(patterns?: string[] | string) {
   const includes: string[] = [];
   const paths: string[] = [];
 
-  for (let pattern of patterns) {
+  for (const pattern of patterns) {
     if (pattern[0] === '!') {
       excludes.push(pattern.slice(1));
     } else {
@@ -82,7 +82,7 @@ export function getConfig(
   fileOrArgv?: string | string[],
   argv?: string[]
 ): CancellablePromise<{ config: any; file?: string }> {
-  let args: { [key: string]: any } = {};
+  const args: { [key: string]: any } = {};
   let file = typeof fileOrArgv === 'string' ? fileOrArgv : undefined;
   argv = Array.isArray(fileOrArgv) ? fileOrArgv : argv;
   const userArgs = (argv || process.argv).slice(2);

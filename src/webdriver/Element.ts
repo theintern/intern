@@ -117,7 +117,7 @@ export default class Element extends Locator<
     return new Task<string>(resolve => {
       const content = fs.readFileSync(filename);
 
-      let zip = new JSZip();
+      const zip = new JSZip();
       zip.file(basename(filename), content);
       zip.generateAsync({ type: 'base64' }).then(file => {
         resolve(this.session.serverPost('file', { file }));
@@ -425,7 +425,7 @@ export default class Element extends Locator<
     if (this.session.capabilities.brokenElementEnabled) {
       return this.session.execute<boolean>(
         /* istanbul ignore next */ function(element: HTMLElement) {
-          return !Boolean(element.hasAttribute('disabled'));
+          return element.hasAttribute('disabled');
         },
         [this]
       );
@@ -595,9 +595,9 @@ export default class Element extends Locator<
         return this.session.execute<boolean>(
           /* istanbul ignore next */ (element: HTMLElement) => {
             const scrollX =
-              document.documentElement!.scrollLeft || document.body.scrollLeft;
+              document.documentElement.scrollLeft || document.body.scrollLeft;
             const scrollY =
-              document.documentElement!.scrollTop || document.body.scrollTop;
+              document.documentElement.scrollTop || document.body.scrollTop;
             do {
               if (window.getComputedStyle(element).opacity === '0') {
                 return false;
@@ -636,9 +636,9 @@ export default class Element extends Locator<
         /* istanbul ignore next */ function(element: HTMLElement) {
           const bbox = element.getBoundingClientRect();
           const scrollX =
-            document.documentElement!.scrollLeft || document.body.scrollLeft;
+            document.documentElement.scrollLeft || document.body.scrollLeft;
           const scrollY =
-            document.documentElement!.scrollTop || document.body.scrollTop;
+            document.documentElement.scrollTop || document.body.scrollTop;
 
           return { x: scrollX + bbox.left, y: scrollY + bbox.top };
         },

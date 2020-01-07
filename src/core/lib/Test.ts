@@ -81,12 +81,14 @@ export default class Test implements TestProperties {
    * test are unique.
    */
   get id() {
-    let name: string[] = [];
-    let suiteOrTest: Suite | Test = this;
+    const name: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let suiteOrTest: Suite | Test | undefined = this;
 
-    do {
+    while (suiteOrTest != null) {
       suiteOrTest.name != null && name.unshift(suiteOrTest.name);
-    } while ((suiteOrTest = suiteOrTest.parent as Suite | Test));
+      suiteOrTest = suiteOrTest.parent;
+    }
 
     return name.join(' - ');
   }
@@ -176,6 +178,7 @@ export default class Test implements TestProperties {
 
     let remainingCalls = numCallsUntilResolution || 1;
     const dfd = new Deferred();
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const oldResolve = dfd.resolve;
 
     /**
@@ -183,6 +186,7 @@ export default class Test implements TestProperties {
      * many times as specified by the `numCallsUntilResolution` parameter of
      * the original `async` call.
      */
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     dfd.resolve = function<T>(this: any, value?: T) {
       --remainingCalls;
       if (remainingCalls === 0) {
@@ -194,6 +198,7 @@ export default class Test implements TestProperties {
 
     // A test may call this function multiple times and should always get
     // the same Deferred
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     this.async = function() {
       return dfd;
     };
@@ -248,6 +253,7 @@ export default class Test implements TestProperties {
     this._isAsync = false;
     this._timeElapsed = 0;
     this._runTask = undefined;
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     this.async = Object.getPrototypeOf(this).async;
     this.error = undefined;
     this.skipped = undefined;
@@ -317,7 +323,9 @@ export default class Test implements TestProperties {
                     })
                     // If the result rejected, consume the
                     // error; it's handled above
-                    .catch(_error => {});
+                    .catch(() => {
+                      // do nothing
+                    });
                 }
               },
               () => {
@@ -389,7 +397,7 @@ export default class Test implements TestProperties {
    * @param message If provided, will be stored in this test's `skipped`
    * property.
    */
-  skip(message: string = 'skipped') {
+  skip(message = 'skipped') {
     this.skipped = message;
     throw SKIP;
   }

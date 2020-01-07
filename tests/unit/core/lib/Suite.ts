@@ -1549,7 +1549,7 @@ registerSuite('lib/Suite', {
       // remainder of the suite.
 
       suite.run().then(
-        <any>dfd.callback(function() {
+        dfd.callback(function() {
           assert.deepEqual(
             testsRun,
             [fooTest, bazSuite.tests[0]],

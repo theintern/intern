@@ -39,12 +39,14 @@ export default class RemoteSuite extends Suite {
    * since the RemoteSuite is just a proxy for a remote suite.
    */
   get id() {
-    let name: string[] = [];
-    let suite: Suite = this.parent!;
+    const name: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    let suite: Suite | undefined = this.parent;
 
-    do {
+    while (suite) {
       suite.name != null && name.unshift(suite.name);
-    } while ((suite = suite.parent!));
+      suite = suite.parent;
+    }
 
     return name.join(' - ');
   }
@@ -55,6 +57,7 @@ export default class RemoteSuite extends Suite {
   run(): CancellablePromise<any> {
     const remote = this.remote;
     const sessionId = remote.session.sessionId;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const server = this.executor.server!;
     let listenerHandle: Handle;
     let connectTimer: NodeJS.Timer;
@@ -85,7 +88,7 @@ export default class RemoteSuite extends Suite {
         // remote session ID.
         listenerHandle = server.subscribe(
           sessionId,
-          (eventName: string, data: any) => {
+          async (eventName: string, data: any) => {
             const name = <keyof RemoteEvents>eventName;
             let suite: Suite;
 
@@ -147,16 +150,21 @@ export default class RemoteSuite extends Suite {
               case 'runEnd':
                 // Consume this event, and do some
                 // post-processing
-                let promise = remote.setHeartbeatInterval(0);
-                if (this.executor.hasCoveredFiles) {
-                  // get about:blank to always collect code
-                  // coverage data from the page in case it is
-                  // navigated away later by some other
-                  // process; this happens during self-testing
-                  // when the Leadfoot library takes over
-                  promise = promise.get('about:blank');
+                try {
+                  await remote.setHeartbeatInterval(0);
+                  if (this.executor.hasCoveredFiles) {
+                    // get about:blank to always collect code
+                    // coverage data from the page in case it is
+                    // navigated away later by some other
+                    // process; this happens during self-testing
+                    // when the Leadfoot library takes over
+                    await remote.get('about:blank');
+                  }
+                  resolve();
+                } catch (err) {
+                  reject(err);
                 }
-                return promise.then(resolve, reject);
+                break;
 
               case 'error':
                 // Ignore summary suite error messages
@@ -179,6 +187,7 @@ export default class RemoteSuite extends Suite {
         // unit tests are complete, so we need to make sure that we
         // periodically send no-ops through the channel to ensure the
         // remote server does not treat the session as having timed out
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const timeout = config.heartbeatInterval!;
         if (timeout >= 1 && timeout < Infinity) {
           remote.setHeartbeatInterval((timeout - 1) * 1000);
@@ -187,6 +196,7 @@ export default class RemoteSuite extends Suite {
         // These are options that will be passed as query params to the
         // test harness page
         const queryOptions: Partial<RemoteConfig> = {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           basePath: serverUrl.pathname!,
           runInSync: config.runInSync || false,
           serverUrl: serverUrl.href,
@@ -266,7 +276,7 @@ export default class RemoteSuite extends Suite {
             /* istanbul ignore next */ function(configString: string) {
               const options = JSON.parse(configString);
               intern.configure(options);
-              intern.run().catch(_error => {});
+              intern.run().catch(() => undefined);
             },
             [stringify(remoteConfig)]
           )
@@ -277,7 +287,9 @@ export default class RemoteSuite extends Suite {
           );
       },
       // Canceller
-      () => remote.setHeartbeatInterval(0)
+      () => {
+        remote.setHeartbeatInterval(0);
+      }
     )
       .catch(error => {
         if (!this.error) {

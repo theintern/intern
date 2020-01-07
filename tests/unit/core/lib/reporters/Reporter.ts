@@ -154,7 +154,7 @@ registerSuite('lib/reporters/Reporter', function() {
         }
         const customEventHandler = createEventHandler<SomeEvents>();
 
-        let evented: string[] = [];
+        const evented: string[] = [];
         class SomeReporter extends Reporter {
           @customEventHandler()
           goodTime(_data: string) {

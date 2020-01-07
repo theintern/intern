@@ -149,12 +149,16 @@ export default class Suite implements SuiteProperties {
    * test are unique.
    */
   get id() {
-    let name: string[] = [];
-    let suite: Suite = this;
+    const name: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let suite: Suite | undefined = this;
 
-    do {
-      suite.name != null && name.unshift(suite.name);
-    } while ((suite = suite.parent!));
+    while (suite != null) {
+      if (suite.name != null) {
+        name.unshift(suite.name);
+      }
+      suite = suite.parent;
+    }
 
     return name.join(' - ');
   }
@@ -198,7 +202,7 @@ export default class Suite implements SuiteProperties {
     if (this._sessionId) {
       return this._sessionId;
     }
-    if (this.remote) {
+    if (this.remote != null) {
       return this.remote.session.sessionId;
     }
     return '';
@@ -436,7 +440,7 @@ export default class Suite implements SuiteProperties {
             // use the dfd created by the call to manage the
             // timeout.
             if (timeout) {
-              let timer = setTimeout(function() {
+              const timer = setTimeout(function() {
                 const error = new Error(
                   `Timeout reached on ${suite.id}#${name}`
                 );
@@ -445,7 +449,9 @@ export default class Suite implements SuiteProperties {
               }, timeout);
 
               _dfd.promise
-                .catch(_error => {})
+                .catch(() => {
+                  // do nothing
+                })
                 .then(() => timer && clearTimeout(timer));
             }
 
@@ -530,10 +536,11 @@ export default class Suite implements SuiteProperties {
           name: LifecycleMethod,
           test: Test
         ): CancellablePromise<void> => {
-          let methodQueue: Suite[] = [];
-          let suite: Suite = this;
+          const methodQueue: Suite[] = [];
+          // eslint-disable-next-line @typescript-eslint/no-this-alias
+          let suite: Suite | undefined = this;
 
-          do {
+          while (suite != null) {
             if (name === 'beforeEach') {
               // beforeEach executes in order parent -> child;
               methodQueue.push(suite);
@@ -541,7 +548,8 @@ export default class Suite implements SuiteProperties {
               // afterEach executes in order child -> parent
               methodQueue.unshift(suite);
             }
-          } while ((suite = suite.parent!));
+            suite = suite.parent;
+          }
 
           let currentMethod: CancellablePromise<any>;
 
@@ -580,7 +588,7 @@ export default class Suite implements SuiteProperties {
             },
             () => {
               methodQueue.splice(0, methodQueue.length);
-              if (currentMethod) {
+              if (currentMethod != null) {
                 currentMethod.cancel();
               }
             }
@@ -588,7 +596,7 @@ export default class Suite implements SuiteProperties {
         };
 
         let i = 0;
-        let tests = this.tests;
+        const tests = this.tests;
         let current: CancellablePromise<void>;
 
         // Run each of the tests in this suite
@@ -699,7 +707,7 @@ export default class Suite implements SuiteProperties {
           () => {
             // Ensure no more tests will run
             i = Infinity;
-            if (current) {
+            if (current != null) {
               current.cancel();
             }
           }
@@ -708,7 +716,7 @@ export default class Suite implements SuiteProperties {
         return runTask;
       })
       .finally(() => {
-        if (runTask) {
+        if (runTask != null) {
           runTask.cancel();
         }
       })
@@ -730,7 +738,7 @@ export default class Suite implements SuiteProperties {
    * @param message If provided, will be stored in this suite's `skipped`
    * property.
    */
-  skip(message: string = 'suite skipped') {
+  skip(message = 'suite skipped') {
     this.skipped = message;
     // Use the SKIP constant from Test so that calling Suite#skip from a
     // test won't fail the test.

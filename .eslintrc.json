@@ -1,0 +1,31 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "prettier/@typescript-eslint"
+  ],
+  "rules": {
+    // TODO: enable this later
+    "@typescript-eslint/explicit-function-return-type": "off",
+    // TODO: enable this later
+    "@typescript-eslint/consistent-type-assertions": "off",
+    // TODO: enable this later
+    "@typescript-eslint/no-explicit-any": "off",
+    // Unwanted (for now)
+    "@typescript-eslint/no-use-before-define": "off",
+    // TODO: turn this back on if we add a polyfill or stop supporting IE
+    "@typescript-eslint/prefer-includes": "off",
+    // TODO: turn this back on if we add polyfill or stop supporting IE
+    "@typescript-eslint/prefer-string-starts-ends-with": "off",
+    // TODO: turn this back on when we're ready to fix all the usages
+    "@typescript-eslint/no-non-null-assertion": "off"
+  }
+}

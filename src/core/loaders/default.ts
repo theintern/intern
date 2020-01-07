@@ -3,7 +3,7 @@
  *
  * Note that loader scripts must be simple scripts, not modules.
  */
-intern.registerLoader(_config => {
+intern.registerLoader(() => {
   intern.log('Using default loader');
 
   return (modules: string[]) => {

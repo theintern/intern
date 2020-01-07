@@ -85,7 +85,7 @@ export default class BrowserStackTunnel extends Tunnel
     );
   }
 
-  get extraCapabilities(): Object {
+  get extraCapabilities(): Record<string, any> {
     const capabilities: any = {
       'browserstack.local': 'true'
     };
@@ -130,7 +130,7 @@ export default class BrowserStackTunnel extends Tunnel
     });
   }
 
-  protected _makeArgs(..._values: string[]): string[] {
+  protected _makeArgs(): string[] {
     if (!this.username || !this.accessKey) {
       throw new Error('BrowserStackTunnel requires a username and access key');
     }
@@ -201,7 +201,7 @@ export default class BrowserStackTunnel extends Tunnel
 
   protected _start(executor: ChildExecutor) {
     return this._makeChild((child, resolve, reject) => {
-      let handle = on(child.stdout!, 'data', (data: any) => {
+      const handle = on(child.stdout!, 'data', (data: any) => {
         data = String(data);
         const error = /\s*\*\*\* Error: (.*)$/m.exec(data);
         if (error) {

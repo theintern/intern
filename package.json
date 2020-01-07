@@ -115,15 +115,19 @@
     "@types/sinon": "^7.0.12",
     "@types/systemjs": "^0.20.7",
     "@types/webpack": "^4.4.32",
+    "@typescript-eslint/eslint-plugin": "~2.14.0",
+    "@typescript-eslint/parser": "~2.14.0",
     "ajv": "^6.10.0",
     "concurrently": "^5.0.1",
     "core-js": "^3.5.0",
     "core-js-pure": "^3.5.0",
     "cross-env": "^6.0.3",
     "css-loader": "^3.3.2",
+    "eslint": "~6.8.0",
+    "eslint-config-prettier": "~6.9.0",
+    "husky": "~4.0.0",
     "jsdom": "^15.1.1",
     "lint-staged": "^9.5.0",
-    "pre-commit": "^1.2.2",
     "prettier": "^1.17.1",
     "semver": "^6.3.0",
     "shelljs": "^0.8.3",
@@ -134,24 +138,32 @@
     "stylus-loader": "^3.0.2",
     "ts-loader": "^6.0.2",
     "tsconfig-paths": "~3.9.0",
-    "tslint": "^5.20.1",
-    "tslint-config-prettier": "^1.18.0",
     "typedoc": "^0.15.4",
     "typescript": "~3.7.3",
     "url-search-params-polyfill": "^7.0.1",
     "webpack": "^4.33.0",
     "webpack-cli": "^3.3.2"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "lint-staged": {
-    "src/**/*.{ts,json,css}": [
+    "src/**/*.{json,css}": [
       "prettier --write",
       "git add"
     ],
-    "tests/**/*.{ts,json,css}": [
+    "tests/**/*.{json,css}": [
       "prettier --write",
       "git add"
     ],
     "*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ],
+    "*.md": [
       "prettier --write",
       "git add"
     ],
@@ -159,12 +171,5 @@
       "prettier --write",
       "git add"
     ]
-  },
-  "pre-commit": "precommit",
-  "prettier": {
-    "useTabs": false,
-    "singleQuote": true,
-    "tabWidth": 2,
-    "proseWrap": "always"
   }
 }

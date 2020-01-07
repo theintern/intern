@@ -199,7 +199,7 @@ export default class Server implements ServerProperties {
         );
 
         socket.on('close', () => {
-          let index = sockets.indexOf(socket);
+          const index = sockets.indexOf(socket);
           index !== -1 && sockets.splice(index, 1);
           this.executor.log(
             'HTTP connection closed,',
@@ -217,10 +217,14 @@ export default class Server implements ServerProperties {
         startupError = error;
         try {
           wsServer.close();
-        } catch (_error) {}
+        } catch {
+          // do nothing
+        }
         try {
           httpServer.close();
-        } catch (_error) {}
+        } catch {
+          // do nothing
+        }
       })
       .then(() => {
         if (startupError) {
@@ -266,7 +270,7 @@ export default class Server implements ServerProperties {
     listeners.push(listener);
     return {
       destroy: function(this: any) {
-        this.destroy = function() {};
+        this.destroy = () => undefined;
         pullFromArray(listeners, listener);
       }
     };
@@ -348,7 +352,7 @@ export interface ServerProperties {
 }
 
 export interface ServerListener {
-  (name: string, data?: any): void;
+  (name: string, data?: any): void | PromiseLike<void>;
 }
 
 export type ServerOptions = Partial<ServerProperties> & { executor: Node };
@@ -360,7 +364,7 @@ const resolvedPromise = Promise.resolve();
  * acknowlegement.
  */
 function getShouldWait(waitMode: string | boolean, message: Message) {
-  let eventName = message.name;
+  const eventName = message.name;
 
   // never wait for runEnd
   if (eventName === 'runEnd') {

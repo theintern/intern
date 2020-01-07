@@ -301,14 +301,14 @@ export default class Command<
           function(setContext: SetContextMethod) {
             const parentContext = this._context;
             let promise: CancellablePromise<any>;
-            let fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
+            const fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
 
             if (parentContext.isSingle) {
               promise = fn.apply(parentContext[0], args);
             } else {
               promise = Task.all(
                 parentContext.map(function(element: any) {
-                  return element[key].apply(element, args);
+                  return element[key](...args);
                 })
               );
             }
@@ -364,6 +364,7 @@ export default class Command<
   ) {
     super();
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     let session: Session;
     const trace: any = {};
@@ -383,7 +384,12 @@ export default class Command<
       // `Command#end`, or someone smart knows what they are doing; do
       // not change the depth
       if (!('depth' in context)) {
-        context.depth = parent ? parent.context.depth! + 1 : 0;
+        context.depth =
+          parent != null &&
+          parent.context != null &&
+          parent.context.depth != null
+            ? parent.context.depth + 1
+            : 0;
       }
 
       self._context = context;
@@ -419,18 +425,20 @@ export default class Command<
     Error.captureStackTrace(trace, Command);
 
     // parentCommand will be null if parentOrSession was a session
-    let parentCommand = <Command<P, any, StringResult>>parentOrSession;
-    this._task = (parentCommand
+    const parentCommand = <Command<P, any, StringResult>>parentOrSession;
+    this._task = (parentCommand != null
       ? parentCommand.promise
       : Task.resolve(undefined)
     )
       .then(
         function(returnValue) {
-          self._context = parentCommand ? parentCommand.context : TOP_CONTEXT;
+          self._context =
+            parentCommand != null ? parentCommand.context : TOP_CONTEXT;
           return returnValue;
         },
         function(error) {
-          self._context = parentCommand ? parentCommand.context : TOP_CONTEXT;
+          self._context =
+            parentCommand != null ? parentCommand.context : TOP_CONTEXT;
           throw error;
         }
       )
@@ -527,10 +535,11 @@ export default class Command<
    * @param numCommandsToPop The number of element contexts to pop. Defaults
    * to 1.
    */
-  end(numCommandsToPop: number = 1): Command<void, P, StringResult> {
+  end(numCommandsToPop = 1): Command<void, P, StringResult> {
     return new (this.constructor as typeof Command)<void, any, StringResult>(
       this,
       function(setContext: Function) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let command: Command<any, any, StringResult> | undefined = this;
         let depth: number | undefined = this.context.depth;
 
@@ -541,7 +550,11 @@ export default class Command<
           }
         }
 
-        setContext(command!.context);
+        if (command == null) {
+          throw new Error('Could not find top-level command');
+        }
+
+        setContext(command.context);
       }
     );
   }
@@ -694,7 +707,7 @@ export default class Command<
    * Adds a callback to be invoked once the previously chained operations
    * have resolved.
    */
-  finally(callback: () => void) {
+  finally(callback: () => void | PromiseLike<void>) {
     this._task = this._task.finally(callback);
     return this;
   }
@@ -780,7 +793,7 @@ export default class Command<
       function(setContext: SetContextMethod) {
         const parentContext = this._context;
         let task: CancellablePromise<U>;
-        let fn = parentContext[0] && parentContext[0][method];
+        const fn = parentContext[0] && parentContext[0][method];
 
         if (parentContext.isSingle) {
           task = fn.apply(parentContext[0], args);
@@ -1121,6 +1134,7 @@ export default class Command<
    * @returns An object describing the width and height of the window, in CSS
    * pixels.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getWindowSize(_windowHandle?: string) {
     return this._callSessionMethod<{ width: number; height: number }>(
       'getWindowSize'
@@ -1843,16 +1857,15 @@ TOP_CONTEXT.depth = 0;
 let chaiAsPromised: any = null;
 try {
   chaiAsPromised = require('chai-as-promised');
-} catch (error) {}
+} catch {
+  // ignore
+}
 
 // TODO: Add unit test
 if (chaiAsPromised) {
-  (<any>chaiAsPromised).transferPromiseness = function(
-    assertion: any,
-    promise: any
-  ) {
+  chaiAsPromised.transferPromiseness = function(assertion: any, promise: any) {
     assertion.then = promise.then.bind(promise);
-    for (let method in promise) {
+    for (const method in promise) {
       if (typeof promise[method] === 'function') {
         assertion[method] = promise[method].bind(promise);
       }

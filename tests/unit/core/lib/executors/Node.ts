@@ -235,7 +235,7 @@ registerSuite('core/lib/executors/Node', function() {
   let sessions: MockSession[];
   let coverageMaps: MockCoverageMap[];
   let Node: typeof _Node;
-  let allRemoveMocks: (() => void)[] = [];
+  const allRemoveMocks: (() => void)[] = [];
   let fsData: { [name: string]: string };
   let tsExtension: any;
 
@@ -869,7 +869,7 @@ registerSuite('core/lib/executors/Node', function() {
                   1,
                   'should have been a call to console.warn'
                 );
-                for (let call of mockConsole.warn.getCalls()) {
+                for (const call of mockConsole.warn.getCalls()) {
                   assert.include(
                     call.args[0],
                     'deprecated',
@@ -982,7 +982,7 @@ registerSuite('core/lib/executors/Node', function() {
           });
           return executor.run().then(() => {
             assert.deepEqual(
-              (<any>executor.config.tunnelOptions!).servers,
+              executor.config.tunnelOptions.servers,
               [executor.config.serverUrl],
               'unexpected value for tunnelOptions.servers'
             );
@@ -1190,7 +1190,7 @@ registerSuite('core/lib/executors/Node', function() {
             });
             return executor.run().then(() => {
               assert.sameDeepMembers(
-                (<any>executor.config.tunnelOptions!).drivers,
+                executor.config.tunnelOptions.drivers!,
                 [
                   { name: 'chrome' },
                   { name: 'firefox' },
@@ -1206,18 +1206,14 @@ registerSuite('core/lib/executors/Node', function() {
               environments: ['chrome', 'firefox', 'ie'],
               tunnel: 'selenium',
               tunnelOptions: {
-                drivers: ['chrome', { name: 'ie', options: {} }]
+                drivers: ['chrome', { name: 'ie' }]
               },
               suites: 'foo2.js'
             });
             return executor.run().then(() => {
               assert.sameDeepMembers(
-                (<any>executor.config.tunnelOptions!).drivers,
-                [
-                  'chrome',
-                  { name: 'firefox' },
-                  { name: 'internet explorer', options: {} }
-                ],
+                executor.config.tunnelOptions.drivers!,
+                ['chrome', { name: 'firefox' }, { name: 'internet explorer' }],
                 'unexpected value for tunnelOptions.drivers'
               );
             });

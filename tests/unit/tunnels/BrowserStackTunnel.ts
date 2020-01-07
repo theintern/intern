@@ -39,7 +39,7 @@ registerSuite('unit/BrowserStackTunnel', () => {
           tunnel.url;
         });
 
-        let url =
+        const url =
           'https://www.browserstack.com/browserstack-local/BrowserStackLocal-';
         tunnel.platform = 'darwin';
         tunnel.architecture = 'x64';

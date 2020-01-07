@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/camelcase */
+
 import Test from 'src/core/lib/Test';
 import * as util from 'src/webdriver/lib/util';
 

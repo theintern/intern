@@ -70,7 +70,7 @@ function createTest(descriptor: BenchmarkTestOptions, options?: TestOptions) {
   }
 
   // Keep things fast
-  const test = descriptor.test!;
+  const test = descriptor.test;
   test.options = test.options || {};
   test.options.maxTime = 0.1;
 
@@ -146,7 +146,7 @@ registerSuite('lib/BenchmarkTest', {
       () => {
         throw new Error('test should not have passed');
       },
-      _error => {
+      () => {
         assert.isAbove(
           executionCount,
           0,
@@ -352,14 +352,14 @@ registerSuite('lib/BenchmarkTest', {
     ) {
       return function() {
         let count = 0;
-        let parent = <BenchmarkSuite>{
+        const parent = <BenchmarkSuite>{
           executor: <any>{
             emit() {
               return Promise.resolve();
             }
           }
         };
-        let parentAny: any = parent;
+        const parentAny: any = parent;
         parentAny[methodName] = function() {
           count++;
         };
@@ -422,7 +422,7 @@ registerSuite('lib/BenchmarkTest', {
 
           order() {
             let counter = 0;
-            let orders: { [key: string]: number } = {
+            const orders: { [key: string]: number } = {
               outerBefore: -1,
               innerBefore: -1,
               test: -1,
@@ -463,7 +463,7 @@ registerSuite('lib/BenchmarkTest', {
           },
 
           context() {
-            let contexts: { [key: string]: any } = {
+            const contexts: { [key: string]: any } = {
               outerBefore: null,
               innerBefore: null,
               test: null,

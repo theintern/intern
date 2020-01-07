@@ -72,7 +72,7 @@ export function getCommand(
   name: string,
   command: Command
 ): Command | undefined {
-  for (let cmd of command.commands) {
+  for (const cmd of command.commands) {
     if (cmd.name === name) {
       return cmd;
     }
@@ -141,7 +141,7 @@ export function getLogger(verbose?: boolean) {
       process.stderr.write(`>> ${_format(args[0], ...args.slice(1))}\n`);
     };
   }
-  return function() {};
+  return () => undefined;
 }
 
 /**
@@ -197,11 +197,15 @@ export function wrap(
     };
   };
 
-  let line = strLines.shift()!.replace(/^\s*/, '');
+  let line = strLines.shift();
+  if (line != null) {
+    line = line.replace(/^\s*/, '');
+  }
+
   while (line != null) {
     if (line.length - prefix.length <= width) {
       addLine(line);
-      line = strLines.shift()!;
+      line = strLines.shift();
     } else {
       const shortLine = line.slice(0, width - prefix.length);
       const start = shortLine.search(/\S/);
@@ -218,7 +222,7 @@ export function wrap(
         line = linePrefix + line.slice(space + 1);
       } else {
         addLine(line);
-        line = strLines.shift()!;
+        line = strLines.shift();
       }
     }
   }

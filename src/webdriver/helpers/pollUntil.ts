@@ -191,7 +191,7 @@ export default function pollUntil<T, U, V, W, X, Y>(
               done: Function
             ): void {
               /* jshint evil:true */
-              poller = <Function>new Function(<string>poller);
+              poller = new Function(<string>poller);
 
               const endTime = Number(new Date()) + timeout;
 

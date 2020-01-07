@@ -11,9 +11,11 @@ registerSuite('Command', () => {
   return {
     before() {
       const remote = this.remote;
-      return util.createSessionFromRemote(remote).then(function() {
-        session = arguments[0];
-      });
+      return util
+        .createSessionFromRemote(remote)
+        .then(function(...args: any[]) {
+          session = args[0];
+        });
     },
 
     beforeEach() {
@@ -337,7 +339,7 @@ registerSuite('Command', () => {
       '#end in a long chain'() {
         return new Command(session)
           .then(function(_: any, setContext: Function) {
-            setContext!(['a']);
+            setContext(['a']);
           })
           .end()
           .then(function() {
@@ -358,9 +360,9 @@ registerSuite('Command', () => {
         let callback: Function | undefined;
         let errback: Function | undefined;
         const expectedErrback = function() {};
-        command.then = <any>function() {
-          callback = arguments[0];
-          errback = arguments[1];
+        command.then = <any>function(...args: any[]) {
+          callback = args[0];
+          errback = args[1];
           return 'thenCalled';
         };
         const result = command.catch(expectedErrback);

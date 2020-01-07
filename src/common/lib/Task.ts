@@ -19,7 +19,9 @@ export interface CancellablePromise<T = any> extends Promise<T> {
    * Allows for cleanup actions to be performed after resolution of this
    * promise.
    */
-  finally(callback?: (() => void) | undefined | null): CancellablePromise<T>;
+  finally(
+    callback?: (() => void | PromiseLike<void>) | undefined | null
+  ): CancellablePromise<T>;
 
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -402,7 +404,7 @@ export default class Task<T = any> implements CancellablePromise<T> {
   /**
    * Allows for cleanup actions to be performed after resolution of a Promise.
    */
-  finally(callback?: (() => void) | undefined | null): Task<T> {
+  finally(callback?: (() => void | Promise<void>) | undefined | null): Task<T> {
     // If this task is already canceled, call the task
     if (this._state === State.Canceled && callback) {
       callback();
@@ -473,7 +475,7 @@ export default class Task<T = any> implements CancellablePromise<T> {
           }
         }
       );
-    }) as Task<TResult1 | TResult2>;
+    });
 
     task.canceler = () => {
       // If task's parent (this) hasn't been resolved, cancel it;

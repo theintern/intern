@@ -9,8 +9,8 @@ export default class Deferred<T> {
       this._rejector = reject;
     });
     this.promise.then(
-      () => this._finalize,
-      () => this._finalize
+      () => this._finalize(),
+      () => this._finalize()
     );
   }
 
@@ -19,6 +19,7 @@ export default class Deferred<T> {
    * executes without throwing any Errors.
    */
   callback(callback: Function): any {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const dfd = this;
     return this.rejectOnError(function(this: any, ...args: any[]) {
       const returnValue = callback.apply(this, args);
@@ -31,6 +32,7 @@ export default class Deferred<T> {
    * Wraps a callback to reject the deferred if the callback throws an Error.
    */
   rejectOnError(callback: Function): any {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const dfd = this;
     return function(this: any, ...args: any[]) {
       try {
@@ -50,7 +52,7 @@ export default class Deferred<T> {
   }
 
   protected _finalize() {
-    this._resolver = () => {};
-    this._rejector = () => {};
+    this._resolver = () => undefined;
+    this._rejector = () => undefined;
   }
 }

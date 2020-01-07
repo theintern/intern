@@ -6,7 +6,7 @@ import { expandFiles } from '../node/util';
 
 export default function resolveSuites(context: Context): RequestHandler {
   return (request, response) => {
-    const query = parse(request.url!, true).query;
+    const query = parse(request.url, true).query;
     const suites = Array.isArray(query.suites)
       ? query.suites!
       : [query.suites!];

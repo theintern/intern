@@ -5,7 +5,7 @@
     "outDir": "./_tests"
   },
   "include": [
-    "tests/**/*.ts"
+    "tests/**"
   ],
   "exclude": [
     "tests/examples/**"

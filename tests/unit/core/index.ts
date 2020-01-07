@@ -1,7 +1,7 @@
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 let removeMocks: () => void;
-let mockGlobal = Object.create(null);
+const mockGlobal = Object.create(null);
 
 class MockNode {}
 

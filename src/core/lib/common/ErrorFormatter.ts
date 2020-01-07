@@ -123,7 +123,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
   ): string {
     // TODO: Remove the casts when the diffJson typings are updated (the
     // current typings are missing the options argument).
-    let diff = <Change[]>(<any>diffJson)(actual, expected, {
+    const diff = <Change[]>(<any>diffJson)(actual, expected, {
       undefinedReplacement: null
     });
     if (diff.length === 1 && !diff[0].added && !diff[0].removed) {
@@ -160,7 +160,6 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
    */
   protected _normalizeStackTrace(stack: string) {
     let lines = stack.replace(/\s+$/, '').split('\n');
-    let firstLine = '';
 
     // strip leading blank lines
     while (/^\s*$/.test(lines[0])) {
@@ -187,7 +186,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
       });
     }
 
-    return '\n' + firstLine + stackLines.join('\n');
+    return '\n' + stackLines.join('\n');
   }
 
   /**

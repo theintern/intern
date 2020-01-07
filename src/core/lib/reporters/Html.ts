@@ -84,7 +84,7 @@ export default class Html extends Reporter implements HtmlProperties {
     const percentPassed = Math.round(
       (1 - suite.numFailedTests / suite.numTests) * 100
     );
-    let rowInfo = [
+    const rowInfo = [
       this._suiteCount,
       this._testCount,
       formatDuration(duration),
@@ -152,8 +152,8 @@ export default class Html extends Reporter implements HtmlProperties {
     link.rel = 'stylesheet';
     link.href = `${this.executor.config.internPath}lib/reporters/html/html.css`;
 
-    document.head!.appendChild(style);
-    document.head!.appendChild(link);
+    document.head.appendChild(style);
+    document.head.appendChild(link);
   }
 
   protected _getIndentLevel(node: Element) {
@@ -177,7 +177,7 @@ export default class Html extends Reporter implements HtmlProperties {
    */
   protected _setCollapsed(node: Element, shouldCollapse?: boolean) {
     let indentDelta: number;
-    let initialIndent = this._getIndentLevel(node);
+    const initialIndent = this._getIndentLevel(node);
 
     const collapsed = containsClass(node, 'collapsed');
     if (shouldCollapse === collapsed) {
@@ -220,10 +220,10 @@ export default class Html extends Reporter implements HtmlProperties {
   @eventHandler()
   error(error: Error) {
     const document = this.document;
-    let htmlError = this.formatError(error)
+    const htmlError = this.formatError(error)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;');
-    let errorNode = document.createElement('pre');
+    const errorNode = document.createElement('pre');
     errorNode.style.cssText = 'color: red; font-family: sans-serif;';
     errorNode.innerHTML =
       '<h1>Fatal error</h1>' +
@@ -405,8 +405,8 @@ export default class Html extends Reporter implements HtmlProperties {
         return;
       }
 
-      while (target && target!.tagName !== 'TR') {
-        target = target!.parentElement;
+      while (target && target.tagName !== 'TR') {
+        target = target.parentElement;
       }
       if (target) {
         this._setCollapsed(target);
@@ -757,10 +757,10 @@ function pad(value: string | number, size: number): string {
 // If duration is greater than 60 minutes, value will be HHHH:mm:ss.SSS
 // (the hours value will not be converted to days)
 function formatDuration(duration: number): string {
-  let hours = Math.floor(duration / 3600000);
+  const hours = Math.floor(duration / 3600000);
   let minutes: string | number = Math.floor(duration / 60000) - hours * 60;
-  let seconds = Math.floor(duration / 1000) - hours * 3600 - minutes * 60;
-  let milliseconds =
+  const seconds = Math.floor(duration / 1000) - hours * 3600 - minutes * 60;
+  const milliseconds =
     duration - hours * 3600000 - minutes * 60000 - seconds * 1000;
   let formattedValue = '';
 

@@ -22,7 +22,7 @@ export default class Channel {
   }
 
   protected _initialize() {
-    if (!this._initialized) {
+    if (this._initialized == null) {
       this._initialized = new Promise<void>(resolve => {
         if (this.options.port) {
           try {
@@ -31,7 +31,7 @@ export default class Channel {
               () => {
                 resolve();
               },
-              _error => {
+              () => {
                 this._channel = new HttpChannel(this.options);
                 resolve();
               }

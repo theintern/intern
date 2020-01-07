@@ -33,12 +33,12 @@ registerSuite('Session', () => {
   ) {
     let originalMethod: Function;
     let calledWith: any;
-    let extraArguments: any[] = [];
+    const extraArguments: any[] = [];
     const suite: any = {
       before() {
         originalMethod = session[stubbedMethodName];
-        session[stubbedMethodName] = function() {
-          calledWith = arguments;
+        session[stubbedMethodName] = function(...args: any[]) {
+          calledWith = args;
         };
 
         for (let i = 0, j = originalMethod.length - 1; i < j; ++i) {
@@ -65,7 +65,7 @@ registerSuite('Session', () => {
           shouldSkip(this);
         }
         assert.isFunction(session[method]);
-        session[method].apply(session, extraArguments);
+        session[method](...extraArguments);
         assert.ok(calledWith);
         assert.strictEqual(calledWith[0], firstArguments[index]);
         assert.deepEqual(
@@ -180,7 +180,7 @@ registerSuite('Session', () => {
     return session.execute(
       function(element?: HTMLElement) {
         if (!element) {
-          element = document.documentElement!;
+          element = document.documentElement;
           if (!element.scrollLeft && !element.scrollTop) {
             element = document.body;
           }
@@ -197,9 +197,11 @@ registerSuite('Session', () => {
 
   return {
     before(suite: Suite) {
-      return util.createSessionFromRemote(suite.remote).then(function() {
-        session = arguments[0];
-      });
+      return util
+        .createSessionFromRemote(suite.remote)
+        .then(function(...args: any[]) {
+          session = args[0];
+        });
     },
 
     beforeEach() {
@@ -385,7 +387,6 @@ registerSuite('Session', () => {
           .then(function() {
             return session.execute(
               function(first: string, second: string) {
-                /*global interns:false */
                 return interns[first] + interns[second];
               },
               ['ness', 'paula']
@@ -457,7 +458,6 @@ registerSuite('Session', () => {
           .get('tests/functional/webdriver/data/scripting.html')
           .then(function() {
             return session.execute(function() {
-              /*global interns:false */
               return interns();
             });
           })
@@ -580,7 +580,6 @@ registerSuite('Session', () => {
                 .get('tests/functional/webdriver/data/scripting.html')
                 .then(function() {
                   return session.executeAsync(function(done: Function) {
-                    /*global interns:false */
                     done(interns());
                   });
                 })
@@ -815,7 +814,7 @@ registerSuite('Session', () => {
         }
 
         let originalPosition: Position;
-        let offset = 10;
+        const offset = 10;
 
         return session
           .getWindowPosition()

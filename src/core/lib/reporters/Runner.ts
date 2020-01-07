@@ -337,7 +337,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
   }
 
   @eventHandler()
-  tunnelStart(_: TunnelMessage) {
+  tunnelStart() {
     this.charm.write('Tunnel started\n');
   }
 

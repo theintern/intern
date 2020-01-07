@@ -114,9 +114,7 @@ registerSuite('Server', () => {
       },
 
       '#getSessions'(this: Test) {
-        const remoteCapabilities = <Capabilities>(
-          this.remote.session.capabilities
-        );
+        const remoteCapabilities = this.remote.session.capabilities;
         if (remoteCapabilities.brokenSessionList) {
           this.skip('Server will not provide session lists');
         }
@@ -147,9 +145,7 @@ registerSuite('Server', () => {
 
       '#getSessionCapabilities'(this: Test) {
         const desiredCapabilities = this.remote.session.capabilities;
-        if (
-          (<Capabilities>desiredCapabilities).supportsSessionCommands === false
-        ) {
+        if (desiredCapabilities.supportsSessionCommands === false) {
           this.skip('Server does not support session commands');
         }
 
@@ -198,11 +194,11 @@ registerSuite('Server', () => {
 
         let oldCtor: any;
         let oldPost: any;
-        let mockCapabilities = {
+        const mockCapabilities = {
           isMockCapabilities: true
         };
-        let desiredCapabilities: Capabilities = { fooCapability: true };
-        let requiredCapabilities: Capabilities = {};
+        const desiredCapabilities: Capabilities = { fooCapability: true };
+        const requiredCapabilities: Capabilities = {};
 
         return {
           before() {

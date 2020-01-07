@@ -1,9 +1,9 @@
 class Baz {
-	hasRun: boolean = false;
+  hasRun = false;
 
-	run() {
-		throw new Error('foo');
-	}
+  run() {
+    throw new Error('foo');
+  }
 }
 
 export = Baz;

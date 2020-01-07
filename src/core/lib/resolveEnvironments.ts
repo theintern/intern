@@ -176,7 +176,7 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
       .filter(version => !isNaN(Number(version)))
       .sort((a, b) => Number(a) - Number(b));
 
-    let offset = pieces.length === 2 ? Number(pieces[1]) : 0;
+    const offset = pieces.length === 2 ? Number(pieces[1]) : 0;
     if (offset > numericVersions.length) {
       throw new Error(
         `Can't get ${version}; ${numericVersions.length} version${
@@ -221,7 +221,7 @@ function getVersions(
   environment: EnvironmentOptions,
   available: NormalizedEnvironment[]
 ): string[] {
-  let versions: { [key: string]: boolean } = {};
+  const versions: { [key: string]: boolean } = {};
 
   available
     .filter(function(availableEnvironment) {
@@ -287,12 +287,12 @@ function resolveVersions(
   environment: FlatEnvironment,
   available?: NormalizedEnvironment[]
 ): string | string[] | undefined {
-  let versionSpec = environment.version;
+  const versionSpec = environment.version;
   let versions: string[];
   available = available || [];
 
   if (versionSpec && isNaN(Number(versionSpec))) {
-    let availableVersions = getVersions(environment, available);
+    const availableVersions = getVersions(environment, available);
 
     versions = splitVersions(versionSpec).map(function(version) {
       const resolved = resolveVersionAlias(version, availableVersions);

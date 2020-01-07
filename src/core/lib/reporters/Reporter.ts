@@ -84,7 +84,7 @@ export default class Reporter implements ReporterProperties {
     }
 
     // Use a for..in loop because _eventHandlers may inherit from a parent
-    for (let name in this._eventHandlers) {
+    for (const name in this._eventHandlers) {
       this.executor.on(<keyof Events>name, (...args: any[]) => {
         const handler = this._eventHandlers![name];
         return (<any>this)[handler](...args);
@@ -102,24 +102,10 @@ export function createEventHandler<
   N extends NoDataEvents = NoDataEvents
 >() {
   return function() {
-    function decorate(
-      target: any,
-      propertyKey: N,
-      _descriptor: TypedPropertyDescriptor<() => void | Promise<any>>
-    ): void;
-    function decorate<T extends keyof E>(
-      target: any,
-      propertyKey: T,
-      _descriptor: TypedPropertyDescriptor<(data: E[T]) => void | Promise<any>>
-    ): void;
-    function decorate<T extends keyof E>(
-      target: any,
-      propertyKey: T,
-      _descriptor:
-        | TypedPropertyDescriptor<(data: E[T]) => void | Promise<any>>
-        | TypedPropertyDescriptor<() => void | Promise<any>>
-    ) {
-      if (!target.hasOwnProperty('_eventHandlers')) {
+    function decorate(target: any, propertyKey: N): void;
+    function decorate<T extends keyof E>(target: any, propertyKey: T): void;
+    function decorate<T extends keyof E>(target: any, propertyKey: T) {
+      if (!Object.prototype.hasOwnProperty.call(target, '_eventHandlers')) {
         if (target._eventHandlers != null) {
           // If there's an _eventHandlers property on a parent,
           // inherit from it

@@ -40,7 +40,7 @@ export function getMethods(obj: object) {
 /**
  * Get all property names for an object, including non-enumerable properties
  */
-export function getOwnProperties(obj: Object): string[] {
+export function getOwnProperties(obj: Record<string, any>): string[] {
   if (obj === Object.prototype) {
     return [];
   }
