@@ -1248,34 +1248,38 @@ registerSuite('core/lib/executors/Node', function() {
             numFailedTests--;
             return Promise.resolve();
           });
+
           setFunctionalSuites(({ parent }) => {
-            if (parent.name === 'env1') {
-              parent.add({
+            const mockSuites: { [key: string]: Partial<Suite> } = {
+              env1: {
                 name: 'initially failing suite',
-                tests: [],
                 parent,
                 hasParent: true,
+                tests: [],
+                numTests: 2,
+                numSkippedTests: 0,
                 get numFailedTests() {
                   return numFailedTests;
                 },
                 run: runStub
-              } as any);
-            } else if (parent.name === 'env2') {
-              parent.add({
-                name: 'initially failing suite',
-                tests: [],
+              },
+              env2: {
+                name: 'passing suite',
                 parent,
                 hasParent: true,
+                tests: [],
                 numFailedTests: 0,
                 run: stub().returns(Promise.resolve())
-              } as any);
-            }
+              }
+            };
+            parent.add(mockSuites[parent.name!] as any);
           });
           executor.configure({
             functionalRetries: 10
           });
 
           await executor.run();
+
           assert.strictEqual(runStub.callCount, 2);
         },
 

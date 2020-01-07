@@ -346,6 +346,16 @@ export default class Suite implements SuiteProperties {
   }
 
   /**
+   * Explicity reset the suite so it may run again
+   */
+  reset() {
+    this._remote = undefined;
+    // Remove implicit reset from run() (in case it's relied upon)
+    this.error = undefined;
+    this.timeElapsed = 0;
+  }
+
+  /**
    * Runs test suite in order:
    *
    * * before

@@ -6,7 +6,8 @@ import { InternError } from 'src/core/lib/types';
 
 import {
   createMockExecutor,
-  createMockRemoteAndSession
+  createMockRemoteAndSession,
+  createMockRemote
 } from 'tests/support/unit/mocks';
 import _Deferred from 'src/core/lib/Deferred';
 import { TestFunction as _TestFunction } from 'src/core/lib/Test';
@@ -1257,6 +1258,18 @@ registerSuite('core/lib/Suite', {
         dfd.reject(new Error('Suite should not fail'));
       }
     );
+  },
+
+  '#reset'() {
+    const suite = createSuite();
+    suite.remote = createMockRemote();
+    suite.error = new Error();
+    suite.timeElapsed = 100;
+
+    suite.reset();
+    assert.isUndefined(suite.remote);
+    assert.isUndefined(suite.error);
+    assert.strictEqual(suite.timeElapsed, 0);
   },
 
   '#run': <Tests>{

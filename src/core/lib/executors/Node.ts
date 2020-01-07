@@ -951,13 +951,20 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
               try {
                 testTask = this._runRemoteTests(suites);
                 await testTask;
-              } catch (e) {}
+              } catch (e) {
+                this.log(`suite error: ${e}`);
+                // recover from exceptions to allow for retries
+              }
               const failedSuites = (suites = suites.filter(suite =>
                 isFailedSuite(suite)
               ));
               if (failedSuites.length === allSessions.length) {
                 // Do not reattempt if no session has passed
                 remainingAttempts = 0;
+              } else {
+                for (let suite of failedSuites) {
+                  suite.reset();
+                }
               }
             }
           })
