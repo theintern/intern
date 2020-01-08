@@ -24848,7 +24848,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1002,
+									"line": 1004,
 									"character": 11
 								}
 							],
@@ -24877,7 +24877,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1005,
+									"line": 1007,
 									"character": 13
 								}
 							],
@@ -25080,7 +25080,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1008,
+									"line": 1010,
 									"character": 24
 								}
 							],
@@ -25109,7 +25109,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1011,
+									"line": 1013,
 									"character": 13
 								}
 							],
@@ -25138,7 +25138,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1014,
+									"line": 1016,
 									"character": 14
 								}
 							],
@@ -25167,7 +25167,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1017,
+									"line": 1019,
 									"character": 12
 								}
 							],
@@ -36466,7 +36466,7 @@
 									},
 									{
 										"type": "reference",
-										"name": "Promise",
+										"name": "PromiseLike",
 										"typeArguments": [
 											{
 												"type": "intrinsic",
@@ -48486,7 +48486,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1028,
+									"line": 1030,
 									"character": 39
 								}
 							]
@@ -48502,7 +48502,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1027,
+									"line": 1029,
 									"character": 13
 								}
 							],
@@ -48531,7 +48531,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1028,
+									"line": 1030,
 									"character": 11
 								}
 							],
@@ -48560,7 +48560,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1025,
+									"line": 1027,
 									"character": 25
 								}
 							],
@@ -48580,7 +48580,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1026,
+									"line": 1028,
 									"character": 7
 								}
 							],
@@ -48617,7 +48617,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1050,
+									"line": 1052,
 									"character": 7
 								}
 							]
@@ -48674,7 +48674,7 @@
 													"sources": [
 														{
 															"fileName": "lib/executors/Node.ts",
-															"line": 1037,
+															"line": 1039,
 															"character": 15
 														}
 													]
@@ -48697,7 +48697,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1037,
+									"line": 1039,
 									"character": 9
 								}
 							]
@@ -48726,7 +48726,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1058,
+									"line": 1060,
 									"character": 6
 								}
 							]
@@ -48763,7 +48763,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 1024,
+							"line": 1026,
 							"character": 19
 						}
 					]
@@ -50531,7 +50531,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 836,
+									"line": 838,
 									"character": 35
 								}
 							]
@@ -50917,7 +50917,7 @@
 									"kindString": "Call signature",
 									"flags": {},
 									"comment": {
-										"shortText": "Override Executor#_loadSuites to set instrumentetion hooks before loading\nsuites"
+										"shortText": "Override Executor#_loadSuites to set instrumentation hooks before loading\nsuites"
 									},
 									"type": {
 										"type": "reference",
@@ -51050,7 +51050,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 973,
+									"line": 975,
 									"character": 39
 								}
 							]
@@ -51134,7 +51134,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 914,
+									"line": 916,
 									"character": 27
 								}
 							]
@@ -51176,7 +51176,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 866,
+									"line": 868,
 									"character": 21
 								}
 							],
@@ -51215,7 +51215,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 958,
+									"line": 960,
 									"character": 36
 								}
 							]
@@ -53615,7 +53615,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1002,
+									"line": 1004,
 									"character": 11
 								}
 							],
@@ -53640,7 +53640,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1005,
+									"line": 1007,
 									"character": 13
 								}
 							],
@@ -53845,7 +53845,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1008,
+									"line": 1010,
 									"character": 24
 								}
 							],
@@ -53870,7 +53870,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1011,
+									"line": 1013,
 									"character": 13
 								}
 							],
@@ -53895,7 +53895,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1014,
+									"line": 1016,
 									"character": 14
 								}
 							],
@@ -53920,7 +53920,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1017,
+									"line": 1019,
 									"character": 12
 								}
 							],
@@ -53993,7 +53993,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 1000,
+							"line": 1002,
 							"character": 27
 						}
 					],
@@ -54061,7 +54061,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 985,
+									"line": 987,
 									"character": 8
 								}
 							],
@@ -54084,7 +54084,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 984,
+							"line": 986,
 							"character": 28
 						}
 					],
@@ -54116,7 +54116,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1075,
+									"line": 1077,
 									"character": 6
 								}
 							],
@@ -54150,7 +54150,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 1075,
+											"line": 1077,
 											"character": 7
 										}
 									]
@@ -54168,7 +54168,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1077,
+									"line": 1079,
 									"character": 8
 								}
 							],
@@ -54196,7 +54196,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 1077,
+											"line": 1079,
 											"character": 9
 										}
 									]
@@ -54214,7 +54214,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 1076,
+									"line": 1078,
 									"character": 9
 								}
 							],
@@ -54242,7 +54242,7 @@
 									"sources": [
 										{
 											"fileName": "lib/executors/Node.ts",
-											"line": 1076,
+											"line": 1078,
 											"character": 10
 										}
 									]
@@ -54264,7 +54264,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 1074,
+							"line": 1076,
 							"character": 20
 						}
 					]
@@ -54686,7 +54686,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 989,
+									"line": 991,
 									"character": 17
 								}
 							],
@@ -54795,7 +54795,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 990,
+									"line": 992,
 									"character": 22
 								}
 							],
@@ -62847,7 +62847,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 991,
+									"line": 993,
 									"character": 22
 								}
 							]
@@ -65928,7 +65928,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 988,
+							"line": 990,
 							"character": 23
 						}
 					],
@@ -65980,7 +65980,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 996,
+									"line": 998,
 									"character": 10
 								}
 							],
@@ -66002,7 +66002,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 997,
+									"line": 999,
 									"character": 8
 								}
 							],
@@ -66032,7 +66032,7 @@
 							"sources": [
 								{
 									"fileName": "lib/executors/Node.ts",
-									"line": 995,
+									"line": 997,
 									"character": 8
 								}
 							],
@@ -66056,7 +66056,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 994,
+							"line": 996,
 							"character": 30
 						}
 					]
@@ -66138,7 +66138,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 1088,
+							"line": 1090,
 							"character": 33
 						}
 					]
@@ -66181,7 +66181,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 1084,
+							"line": 1086,
 							"character": 27
 						}
 					]
@@ -66224,7 +66224,7 @@
 					"sources": [
 						{
 							"fileName": "lib/executors/Node.ts",
-							"line": 1080,
+							"line": 1082,
 							"character": 28
 						}
 					]
