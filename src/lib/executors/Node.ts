@@ -600,7 +600,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   }
 
   /**
-   * Override Executor#_loadSuites to set instrumentetion hooks before loading
+   * Override Executor#_loadSuites to set instrumentation hooks before loading
    * suites
    */
   protected _loadSuites(): CancellablePromise<void> {
@@ -766,16 +766,18 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // Clear out the suites list after combining the suites
       delete config.suites;
 
-      if (
-        ((config.node &&
-          config.node.suites.some(pattern => pattern.endsWith('.ts'))) ||
-          (config.plugins &&
-            config.plugins.some(plugin => plugin.script.endsWith('.ts')))) &&
-        typeof this.config.node.tsconfig === 'undefined'
-      ) {
-        register();
-      } else if (this.config.node.tsconfig) {
-        register({ project: this.config.node.tsconfig });
+      if (!require.extensions['.ts']) {
+        if (
+          ((config.node &&
+            config.node.suites.some(pattern => pattern.endsWith('.ts'))) ||
+            (config.plugins &&
+              config.plugins.some(plugin => plugin.script.endsWith('.ts')))) &&
+          typeof this.config.node.tsconfig === 'undefined'
+        ) {
+          register();
+        } else if (this.config.node.tsconfig) {
+          register({ project: this.config.node.tsconfig });
+        }
       }
 
       // Install the instrumenter in resolve config so it will be able to

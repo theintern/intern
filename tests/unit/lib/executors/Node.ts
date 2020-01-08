@@ -237,6 +237,7 @@ registerSuite('lib/executors/Node', function() {
   let Node: typeof _Node;
   let removeMocks: () => void;
   let fsData: { [name: string]: string };
+  let tsExtension: any;
 
   return {
     before() {
@@ -324,9 +325,12 @@ registerSuite('lib/executors/Node', function() {
       sessions = [];
       fsData = {};
       executor = createExecutor();
+      tsExtension = require.extensions['.ts'];
+      delete require.extensions['.ts'];
     },
 
     afterEach() {
+      require.extensions['.ts'] = tsExtension;
       mockTsNodeRegister.resetHistory();
       mockConsole.log.resetHistory();
       mockConsole.warn.resetHistory();
@@ -1285,6 +1289,30 @@ registerSuite('lib/executors/Node', function() {
               assert.deepEqual(mockTsNodeRegister.args[0][0], {
                 project: './test/tsconfig.json'
               });
+            });
+          },
+
+          'should not double register ts-node'() {
+            require.extensions['.ts'] = () => {};
+            fsData['foo.ts'] = 'foo';
+            fsData['bar.d.ts'] = 'bar';
+            executor.configure(<any>{
+              environments: 'chrome',
+              tunnel: 'null',
+              suites: 'foo.ts',
+              node: {
+                tsconfig: './test/tsconfig.json'
+              },
+              coverage: ['foo.ts', 'bar.d.ts']
+            });
+
+            return executor.run().then(() => {
+              assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
+              assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
+                'foo.ts',
+                'foo'
+              ]);
+              assert.isTrue(mockTsNodeRegister.notCalled);
             });
           },
 
