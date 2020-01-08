@@ -10,6 +10,7 @@ import Deferred from './Deferred';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
 import Suite from './Suite';
+import { errorToJSON } from './common/util';
 
 /**
  * A Test is a single unit or functional test.
@@ -30,8 +31,8 @@ export default class Test implements TestProperties {
   /** The error that caused this Test to fail */
   error: InternError | undefined;
 
-  /** A site lifecycle error that occurred after executing this Test */
-  suiteError: Error | undefined;
+  /** A suite lifecycle error that occurred after executing this Test */
+  suiteError: InternError | undefined;
 
   protected _hasPassed = false;
 
@@ -422,18 +423,12 @@ export default class Test implements TestProperties {
       }
     });
 
-    if (this.error) {
-      json.error = {
-        name: this.error.name,
-        message: this.error.message,
-        stack: this.error.stack,
-        showDiff: Boolean(this.error.showDiff)
-      };
+    if (this.suiteError) {
+      json.suiteError = errorToJSON(this.suiteError);
+    }
 
-      if (this.error.showDiff) {
-        json.error.actual = this.error.actual;
-        json.error.expected = this.error.expected;
-      }
+    if (this.error) {
+      json.error = errorToJSON(this.error);
     }
 
     return json;

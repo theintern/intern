@@ -5,7 +5,7 @@
 	"flags": {},
 	"children": [
 		{
-			"id": 4343,
+			"id": 4346,
 			"name": "\"bin/intern\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -15,21 +15,21 @@
 			"originalName": "src/bin/intern.ts",
 			"children": [
 				{
-					"id": 4344,
+					"id": 4347,
 					"name": "printHelp",
 					"kind": 64,
 					"kindString": "Function",
 					"flags": {},
 					"signatures": [
 						{
-							"id": 4345,
+							"id": 4348,
 							"name": "printHelp",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 4346,
+									"id": 4349,
 									"name": "config",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -40,7 +40,7 @@
 									}
 								},
 								{
-									"id": 4347,
+									"id": 4350,
 									"name": "file",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -82,7 +82,7 @@
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						4344
+						4347
 					]
 				}
 			],
@@ -95,7 +95,7 @@
 			]
 		},
 		{
-			"id": 4339,
+			"id": 4342,
 			"name": "\"index\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -109,7 +109,7 @@
 			},
 			"children": [
 				{
-					"id": 4341,
+					"id": 4344,
 					"name": "__global",
 					"kind": 2,
 					"kindString": "Module",
@@ -118,7 +118,7 @@
 					},
 					"children": [
 						{
-							"id": 4342,
+							"id": 4345,
 							"name": "intern",
 							"kind": 32,
 							"kindString": "Variable",
@@ -148,7 +148,7 @@
 							"title": "Variables",
 							"kind": 32,
 							"children": [
-								4342
+								4345
 							]
 						}
 					],
@@ -161,7 +161,7 @@
 					]
 				},
 				{
-					"id": 4340,
+					"id": 4343,
 					"name": "intern",
 					"kind": 32,
 					"kindString": "Variable",
@@ -190,14 +190,14 @@
 					"title": "Modules",
 					"kind": 2,
 					"children": [
-						4341
+						4344
 					]
 				},
 				{
 					"title": "Variables",
 					"kind": 32,
 					"children": [
-						4340
+						4343
 					]
 				}
 			],
@@ -299,7 +299,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 21,
+									"line": 22,
 									"character": 7
 								}
 							],
@@ -342,7 +342,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 26,
+									"line": 27,
 									"character": 11
 								}
 							],
@@ -423,7 +423,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 32,
+									"line": 33,
 									"character": 7
 								}
 							],
@@ -485,7 +485,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 32,
+													"line": 33,
 													"character": 8
 												}
 											]
@@ -517,7 +517,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 38,
+									"line": 39,
 									"character": 8
 								}
 							],
@@ -560,7 +560,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 43,
+									"line": 44,
 									"character": 12
 								}
 							],
@@ -641,7 +641,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 46,
+									"line": 47,
 									"character": 7
 								}
 							],
@@ -679,7 +679,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 49,
+									"line": 50,
 									"character": 8
 								}
 							],
@@ -717,7 +717,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 56,
+									"line": 57,
 									"character": 19
 								}
 							],
@@ -751,7 +751,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 59,
+									"line": 60,
 									"character": 9
 								}
 							],
@@ -827,7 +827,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 65,
+									"line": 66,
 									"character": 13
 								}
 							],
@@ -919,12 +919,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 101,
+									"line": 102,
 									"character": 10
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 105,
+									"line": 106,
 									"character": 10
 								}
 							],
@@ -1010,12 +1010,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 112,
+									"line": 113,
 									"character": 14
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 117,
+									"line": 118,
 									"character": 14
 								}
 							],
@@ -1094,12 +1094,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 129,
+									"line": 130,
 									"character": 10
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 133,
+									"line": 134,
 									"character": 10
 								}
 							],
@@ -1149,7 +1149,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 277,
+									"line": 278,
 									"character": 15
 								}
 							],
@@ -1194,7 +1194,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 156,
+									"line": 157,
 									"character": 8
 								}
 							],
@@ -1291,12 +1291,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 141,
+									"line": 142,
 									"character": 10
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 145,
+									"line": 146,
 									"character": 10
 								}
 							],
@@ -1346,7 +1346,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 247,
+									"line": 248,
 									"character": 20
 								}
 							],
@@ -1391,7 +1391,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 232,
+									"line": 233,
 									"character": 20
 								}
 							],
@@ -1436,7 +1436,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 262,
+									"line": 263,
 									"character": 21
 								}
 							],
@@ -1481,7 +1481,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 220,
+									"line": 221,
 									"character": 14
 								}
 							],
@@ -1535,7 +1535,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 170,
+									"line": 171,
 									"character": 14
 								}
 							],
@@ -1616,12 +1616,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 183,
+									"line": 184,
 									"character": 12
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 189,
+									"line": 190,
 									"character": 12
 								}
 							],
@@ -1700,12 +1700,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 199,
+									"line": 200,
 									"character": 15
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 212,
+									"line": 213,
 									"character": 15
 								}
 							],
@@ -1775,12 +1775,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 281,
+									"line": 282,
 									"character": 13
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 291,
+									"line": 292,
 									"character": 13
 								}
 							],
@@ -1851,7 +1851,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 298,
+									"line": 299,
 									"character": 5
 								}
 							],
@@ -1900,7 +1900,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 362,
+									"line": 363,
 									"character": 5
 								}
 							],
@@ -1960,7 +1960,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 735,
+									"line": 736,
 									"character": 6
 								}
 							],
@@ -1999,7 +1999,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 742,
+									"line": 743,
 									"character": 8
 								}
 							],
@@ -2115,7 +2115,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 808,
+									"line": 804,
 									"character": 7
 								}
 							],
@@ -2150,7 +2150,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 809,
+									"line": 805,
 									"character": 11
 								}
 							],
@@ -2215,7 +2215,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 810,
+									"line": 806,
 									"character": 6
 								}
 							],
@@ -2249,7 +2249,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 811,
+									"line": 807,
 									"character": 8
 								}
 							],
@@ -2284,7 +2284,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 812,
+									"line": 808,
 									"character": 12
 								}
 							],
@@ -2349,7 +2349,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 813,
+									"line": 809,
 									"character": 6
 								}
 							],
@@ -2374,7 +2374,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 814,
+									"line": 810,
 									"character": 6
 								}
 							],
@@ -2408,7 +2408,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 815,
+									"line": 811,
 									"character": 19
 								}
 							],
@@ -2433,7 +2433,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 816,
+									"line": 812,
 									"character": 9
 								}
 							],
@@ -2742,7 +2742,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 36,
+									"line": 37,
 									"character": 22
 								}
 							],
@@ -2769,7 +2769,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 38,
+									"line": 39,
 									"character": 20
 								}
 							],
@@ -2796,7 +2796,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 42,
+									"line": 43,
 									"character": 20
 								}
 							],
@@ -2837,7 +2837,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 44,
+									"line": 45,
 									"character": 24
 								}
 							],
@@ -2872,7 +2872,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 40,
+									"line": 41,
 									"character": 20
 								}
 							],
@@ -2907,7 +2907,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 48,
+									"line": 49,
 									"character": 18
 								}
 							],
@@ -2942,7 +2942,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 50,
+									"line": 51,
 									"character": 23
 								}
 							],
@@ -2995,7 +2995,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 31,
+									"line": 32,
 									"character": 7
 								}
 							],
@@ -3033,7 +3033,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 19,
+									"line": 20,
 									"character": 6
 								}
 							],
@@ -3066,7 +3066,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 22,
+									"line": 23,
 									"character": 8
 								}
 							],
@@ -3100,7 +3100,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 25,
+									"line": 26,
 									"character": 9
 								}
 							],
@@ -3137,12 +3137,12 @@
 								"isExported": true
 							},
 							"comment": {
-								"shortText": "A site lifecycle error that occurred after executing this Test"
+								"shortText": "A suite lifecycle error that occurred after executing this Test"
 							},
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 34,
+									"line": 35,
 									"character": 12
 								}
 							],
@@ -3151,7 +3151,8 @@
 								"types": [
 									{
 										"type": "reference",
-										"name": "Error"
+										"name": "InternError",
+										"id": 23
 									},
 									{
 										"type": "intrinsic",
@@ -3235,7 +3236,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 73,
+									"line": 74,
 									"character": 14
 								}
 							],
@@ -3280,7 +3281,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 80,
+									"line": 81,
 									"character": 15
 								}
 							],
@@ -3330,7 +3331,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 88,
+									"line": 89,
 									"character": 8
 								}
 							],
@@ -3375,7 +3376,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 102,
+									"line": 103,
 									"character": 13
 								}
 							],
@@ -3420,7 +3421,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 109,
+									"line": 110,
 									"character": 14
 								}
 							],
@@ -3478,7 +3479,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 117,
+									"line": 118,
 									"character": 12
 								}
 							],
@@ -3523,7 +3524,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 125,
+									"line": 126,
 									"character": 15
 								}
 							],
@@ -3686,12 +3687,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 139,
+									"line": 140,
 									"character": 13
 								},
 								{
 									"fileName": "lib/Test.ts",
-									"line": 149,
+									"line": 150,
 									"character": 13
 								}
 							],
@@ -3854,7 +3855,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 212,
+									"line": 213,
 									"character": 16
 								}
 							],
@@ -3959,7 +3960,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 397,
+									"line": 398,
 									"character": 6
 								}
 							],
@@ -5293,7 +5294,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 469,
+									"line": 464,
 									"character": 11
 								}
 							],
@@ -5318,7 +5319,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 470,
+									"line": 465,
 									"character": 6
 								}
 							],
@@ -5363,7 +5364,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 471,
+									"line": 466,
 									"character": 8
 								}
 							],
@@ -5409,7 +5410,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 472,
+									"line": 467,
 									"character": 9
 								}
 							],
@@ -5469,7 +5470,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 474,
+									"line": 469,
 									"character": 9
 								}
 							],
@@ -12003,7 +12004,7 @@
 			]
 		},
 		{
-			"id": 4442,
+			"id": 4445,
 			"name": "\"lib/Channel\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -12013,7 +12014,7 @@
 			"originalName": "src/lib/Channel.ts",
 			"children": [
 				{
-					"id": 4443,
+					"id": 4446,
 					"name": "Channel",
 					"kind": 128,
 					"kindString": "Class",
@@ -12022,7 +12023,7 @@
 					},
 					"children": [
 						{
-							"id": 4445,
+							"id": 4448,
 							"name": "constructor",
 							"kind": 512,
 							"kindString": "Constructor",
@@ -12031,14 +12032,14 @@
 							},
 							"signatures": [
 								{
-									"id": 4446,
+									"id": 4449,
 									"name": "new Channel",
 									"kind": 16384,
 									"kindString": "Constructor signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 4447,
+											"id": 4450,
 											"name": "options",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12053,7 +12054,7 @@
 									"type": {
 										"type": "reference",
 										"name": "Channel",
-										"id": 4443
+										"id": 4446
 									}
 								}
 							],
@@ -12066,7 +12067,7 @@
 							]
 						},
 						{
-							"id": 4444,
+							"id": 4447,
 							"name": "options",
 							"kind": 1024,
 							"kindString": "Property",
@@ -12087,7 +12088,7 @@
 							}
 						},
 						{
-							"id": 4452,
+							"id": 4455,
 							"name": "_initialize",
 							"kind": 2048,
 							"kindString": "Method",
@@ -12097,7 +12098,7 @@
 							},
 							"signatures": [
 								{
-									"id": 4453,
+									"id": 4456,
 									"name": "_initialize",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -12123,7 +12124,7 @@
 							]
 						},
 						{
-							"id": 4448,
+							"id": 4451,
 							"name": "sendMessage",
 							"kind": 2048,
 							"kindString": "Method",
@@ -12132,14 +12133,14 @@
 							},
 							"signatures": [
 								{
-									"id": 4449,
+									"id": 4452,
 									"name": "sendMessage",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 4450,
+											"id": 4453,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12154,7 +12155,7 @@
 											}
 										},
 										{
-											"id": 4451,
+											"id": 4454,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12191,22 +12192,22 @@
 							"title": "Constructors",
 							"kind": 512,
 							"children": [
-								4445
+								4448
 							]
 						},
 						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								4444
+								4447
 							]
 						},
 						{
 							"title": "Methods",
 							"kind": 2048,
 							"children": [
-								4452,
-								4448
+								4455,
+								4451
 							]
 						}
 					],
@@ -12224,7 +12225,7 @@
 					"title": "Classes",
 					"kind": 128,
 					"children": [
-						4443
+						4446
 					]
 				}
 			],
@@ -21076,7 +21077,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 21,
+									"line": 22,
 									"character": 7
 								}
 							],
@@ -21119,7 +21120,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 26,
+									"line": 27,
 									"character": 11
 								}
 							],
@@ -21162,7 +21163,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 32,
+									"line": 33,
 									"character": 7
 								}
 							],
@@ -21224,7 +21225,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 32,
+													"line": 33,
 													"character": 8
 												}
 											]
@@ -21256,7 +21257,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 38,
+									"line": 39,
 									"character": 8
 								}
 							],
@@ -21299,7 +21300,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 43,
+									"line": 44,
 									"character": 12
 								}
 							],
@@ -21342,7 +21343,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 46,
+									"line": 47,
 									"character": 7
 								}
 							],
@@ -21406,7 +21407,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 49,
+									"line": 50,
 									"character": 8
 								}
 							],
@@ -21444,7 +21445,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 56,
+									"line": 57,
 									"character": 19
 								}
 							],
@@ -21478,7 +21479,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 59,
+									"line": 60,
 									"character": 9
 								}
 							],
@@ -21515,7 +21516,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 62,
+									"line": 63,
 									"character": 7
 								}
 							],
@@ -21558,7 +21559,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 65,
+									"line": 66,
 									"character": 13
 								}
 							],
@@ -21650,12 +21651,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 101,
+									"line": 102,
 									"character": 10
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 105,
+									"line": 106,
 									"character": 10
 								}
 							],
@@ -21739,12 +21740,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 129,
+									"line": 130,
 									"character": 10
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 133,
+									"line": 134,
 									"character": 10
 								}
 							],
@@ -21794,7 +21795,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 277,
+									"line": 278,
 									"character": 15
 								}
 							],
@@ -21936,12 +21937,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 141,
+									"line": 142,
 									"character": 10
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 145,
+									"line": 146,
 									"character": 10
 								}
 							],
@@ -21991,7 +21992,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 247,
+									"line": 248,
 									"character": 20
 								}
 							],
@@ -22036,7 +22037,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 232,
+									"line": 233,
 									"character": 20
 								}
 							],
@@ -22081,7 +22082,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 262,
+									"line": 263,
 									"character": 21
 								}
 							],
@@ -22126,7 +22127,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 220,
+									"line": 221,
 									"character": 14
 								}
 							],
@@ -22180,7 +22181,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 170,
+									"line": 171,
 									"character": 14
 								}
 							],
@@ -22261,12 +22262,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 183,
+									"line": 184,
 									"character": 12
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 189,
+									"line": 190,
 									"character": 12
 								}
 							],
@@ -22345,12 +22346,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 199,
+									"line": 200,
 									"character": 15
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 212,
+									"line": 213,
 									"character": 15
 								}
 							],
@@ -22420,12 +22421,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 281,
+									"line": 282,
 									"character": 13
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 291,
+									"line": 292,
 									"character": 13
 								}
 							],
@@ -22496,7 +22497,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 298,
+									"line": 299,
 									"character": 5
 								}
 							],
@@ -22604,7 +22605,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 735,
+									"line": 736,
 									"character": 6
 								}
 							],
@@ -22643,7 +22644,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 742,
+									"line": 743,
 									"character": 8
 								}
 							],
@@ -26568,7 +26569,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 73,
+									"line": 74,
 									"character": 39
 								}
 							]
@@ -26587,7 +26588,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 21,
+									"line": 22,
 									"character": 7
 								}
 							],
@@ -26625,7 +26626,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 26,
+									"line": 27,
 									"character": 11
 								}
 							],
@@ -26663,7 +26664,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 32,
+									"line": 33,
 									"character": 7
 								}
 							],
@@ -26725,7 +26726,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 32,
+													"line": 33,
 													"character": 8
 												}
 											]
@@ -26752,7 +26753,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 38,
+									"line": 39,
 									"character": 8
 								}
 							],
@@ -26790,7 +26791,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 43,
+									"line": 44,
 									"character": 12
 								}
 							],
@@ -26828,7 +26829,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 46,
+									"line": 47,
 									"character": 7
 								}
 							],
@@ -26861,7 +26862,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 49,
+									"line": 50,
 									"character": 8
 								}
 							],
@@ -26894,7 +26895,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 56,
+									"line": 57,
 									"character": 19
 								}
 							],
@@ -26923,7 +26924,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 59,
+									"line": 60,
 									"character": 9
 								}
 							],
@@ -26955,7 +26956,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 62,
+									"line": 63,
 									"character": 7
 								}
 							],
@@ -26993,7 +26994,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 65,
+									"line": 66,
 									"character": 13
 								}
 							],
@@ -27070,12 +27071,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 101,
+									"line": 102,
 									"character": 10
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 105,
+									"line": 106,
 									"character": 10
 								}
 							],
@@ -27146,12 +27147,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 112,
+									"line": 113,
 									"character": 14
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 117,
+									"line": 118,
 									"character": 14
 								}
 							]
@@ -27215,12 +27216,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 129,
+									"line": 130,
 									"character": 10
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 133,
+									"line": 134,
 									"character": 10
 								}
 							],
@@ -27260,7 +27261,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 277,
+									"line": 278,
 									"character": 15
 								}
 							]
@@ -27295,7 +27296,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 156,
+									"line": 157,
 									"character": 8
 								}
 							]
@@ -27377,12 +27378,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 141,
+									"line": 142,
 									"character": 10
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 145,
+									"line": 146,
 									"character": 10
 								}
 							],
@@ -27422,7 +27423,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 247,
+									"line": 248,
 									"character": 20
 								}
 							]
@@ -27457,7 +27458,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 232,
+									"line": 233,
 									"character": 20
 								}
 							]
@@ -27492,7 +27493,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 262,
+									"line": 263,
 									"character": 21
 								}
 							]
@@ -27527,7 +27528,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 220,
+									"line": 221,
 									"character": 14
 								}
 							]
@@ -27571,7 +27572,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 170,
+									"line": 171,
 									"character": 14
 								}
 							]
@@ -27637,12 +27638,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 183,
+									"line": 184,
 									"character": 12
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 189,
+									"line": 190,
 									"character": 12
 								}
 							]
@@ -27706,12 +27707,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 199,
+									"line": 200,
 									"character": 15
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 212,
+									"line": 213,
 									"character": 15
 								}
 							]
@@ -27766,12 +27767,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 281,
+									"line": 282,
 									"character": 13
 								},
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 291,
+									"line": 292,
 									"character": 13
 								}
 							],
@@ -27832,7 +27833,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 298,
+									"line": 299,
 									"character": 5
 								}
 							]
@@ -27871,7 +27872,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 362,
+									"line": 363,
 									"character": 5
 								}
 							]
@@ -27921,7 +27922,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 735,
+									"line": 736,
 									"character": 6
 								}
 							]
@@ -27950,7 +27951,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 742,
+									"line": 743,
 									"character": 8
 								}
 							]
@@ -28015,7 +28016,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 17,
+							"line": 18,
 							"character": 26
 						}
 					],
@@ -28104,7 +28105,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 793,
+							"line": 789,
 							"character": 39
 						}
 					]
@@ -28133,7 +28134,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 808,
+									"line": 804,
 									"character": 7
 								}
 							],
@@ -28163,7 +28164,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 809,
+									"line": 805,
 									"character": 11
 								}
 							],
@@ -28193,7 +28194,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 810,
+									"line": 806,
 									"character": 6
 								}
 							],
@@ -28222,7 +28223,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 811,
+									"line": 807,
 									"character": 8
 								}
 							],
@@ -28252,7 +28253,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 812,
+									"line": 808,
 									"character": 12
 								}
 							],
@@ -28282,7 +28283,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 813,
+									"line": 809,
 									"character": 6
 								}
 							],
@@ -28302,7 +28303,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 814,
+									"line": 810,
 									"character": 6
 								}
 							],
@@ -28331,7 +28332,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 815,
+									"line": 811,
 									"character": 19
 								}
 							],
@@ -28351,7 +28352,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Suite.ts",
-									"line": 816,
+									"line": 812,
 									"character": 9
 								}
 							],
@@ -28381,7 +28382,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 807,
+							"line": 803,
 							"character": 32
 						}
 					],
@@ -28487,7 +28488,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 797,
+							"line": 793,
 							"character": 38
 						}
 					]
@@ -28506,7 +28507,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 844,
+							"line": 840,
 							"character": 27
 						}
 					],
@@ -28560,7 +28561,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 832,
+							"line": 828,
 							"character": 28
 						}
 					],
@@ -28596,7 +28597,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 833,
+													"line": 829,
 													"character": 10
 												}
 											],
@@ -28617,7 +28618,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 834,
+													"line": 830,
 													"character": 7
 												}
 											],
@@ -28654,7 +28655,7 @@
 									"sources": [
 										{
 											"fileName": "lib/Suite.ts",
-											"line": 832,
+											"line": 828,
 											"character": 57
 										}
 									]
@@ -28677,7 +28678,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 822,
+							"line": 818,
 							"character": 24
 						}
 					],
@@ -28713,7 +28714,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 823,
+													"line": 819,
 													"character": 6
 												}
 											],
@@ -28731,7 +28732,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 824,
+													"line": 820,
 													"character": 8
 												}
 											],
@@ -28752,7 +28753,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Suite.ts",
-													"line": 825,
+													"line": 821,
 													"character": 7
 												}
 											],
@@ -28790,7 +28791,7 @@
 									"sources": [
 										{
 											"fileName": "lib/Suite.ts",
-											"line": 822,
+											"line": 818,
 											"character": 53
 										}
 									]
@@ -28810,7 +28811,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 839,
+							"line": 835,
 							"character": 17
 						}
 					],
@@ -28857,7 +28858,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Suite.ts",
-							"line": 789,
+							"line": 785,
 							"character": 23
 						}
 					]
@@ -28984,7 +28985,7 @@
 																	"sources": [
 																		{
 																			"fileName": "lib/Test.ts",
-																			"line": 53,
+																			"line": 54,
 																			"character": 60
 																		}
 																	],
@@ -29017,7 +29018,7 @@
 																	"sources": [
 																		{
 																			"fileName": "lib/Test.ts",
-																			"line": 53,
+																			"line": 54,
 																			"character": 40
 																		}
 																	],
@@ -29049,7 +29050,7 @@
 															"sources": [
 																{
 																	"fileName": "lib/Test.ts",
-																	"line": 53,
+																	"line": 54,
 																	"character": 26
 																}
 															]
@@ -29069,7 +29070,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 50,
+									"line": 51,
 									"character": 32
 								}
 							]
@@ -29086,7 +29087,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 36,
+									"line": 37,
 									"character": 22
 								}
 							],
@@ -29108,7 +29109,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 38,
+									"line": 39,
 									"character": 20
 								}
 							],
@@ -29130,7 +29131,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 42,
+									"line": 43,
 									"character": 20
 								}
 							],
@@ -29166,7 +29167,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 44,
+									"line": 45,
 									"character": 24
 								}
 							],
@@ -29196,7 +29197,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 40,
+									"line": 41,
 									"character": 20
 								}
 							],
@@ -29226,7 +29227,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 48,
+									"line": 49,
 									"character": 18
 								}
 							],
@@ -29256,7 +29257,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 50,
+									"line": 51,
 									"character": 23
 								}
 							],
@@ -29280,7 +29281,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 31,
+									"line": 32,
 									"character": 7
 								}
 							],
@@ -29313,7 +29314,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 19,
+									"line": 20,
 									"character": 6
 								}
 							],
@@ -29341,7 +29342,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 22,
+									"line": 23,
 									"character": 8
 								}
 							],
@@ -29370,7 +29371,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 25,
+									"line": 26,
 									"character": 9
 								}
 							],
@@ -29402,12 +29403,12 @@
 								"isExported": true
 							},
 							"comment": {
-								"shortText": "A site lifecycle error that occurred after executing this Test"
+								"shortText": "A suite lifecycle error that occurred after executing this Test"
 							},
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 34,
+									"line": 35,
 									"character": 12
 								}
 							],
@@ -29416,7 +29417,8 @@
 								"types": [
 									{
 										"type": "reference",
-										"name": "Error"
+										"name": "InternError",
+										"id": 23
 									},
 									{
 										"type": "intrinsic",
@@ -29439,7 +29441,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 28,
+									"line": 29,
 									"character": 6
 								}
 							],
@@ -29485,7 +29487,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 73,
+									"line": 74,
 									"character": 14
 								}
 							]
@@ -29520,7 +29522,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 80,
+									"line": 81,
 									"character": 15
 								}
 							],
@@ -29560,7 +29562,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 88,
+									"line": 89,
 									"character": 8
 								}
 							]
@@ -29595,7 +29597,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 102,
+									"line": 103,
 									"character": 13
 								}
 							]
@@ -29630,7 +29632,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 109,
+									"line": 110,
 									"character": 14
 								}
 							]
@@ -29678,7 +29680,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 117,
+									"line": 118,
 									"character": 12
 								}
 							]
@@ -29713,7 +29715,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 125,
+									"line": 126,
 									"character": 15
 								}
 							]
@@ -29757,7 +29759,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 132,
+									"line": 133,
 									"character": 17
 								}
 							]
@@ -29821,12 +29823,12 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 139,
+									"line": 140,
 									"character": 13
 								},
 								{
 									"fileName": "lib/Test.ts",
-									"line": 149,
+									"line": 150,
 									"character": 13
 								}
 							],
@@ -29924,7 +29926,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 175,
+									"line": 176,
 									"character": 7
 								}
 							]
@@ -29980,7 +29982,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 212,
+									"line": 213,
 									"character": 16
 								}
 							]
@@ -30018,7 +30020,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 236,
+									"line": 237,
 									"character": 5
 								}
 							]
@@ -30068,7 +30070,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 397,
+									"line": 398,
 									"character": 6
 								}
 							]
@@ -30132,7 +30134,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 405,
+									"line": 406,
 									"character": 8
 								}
 							]
@@ -30195,7 +30197,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 17,
+							"line": 18,
 							"character": 25
 						}
 					],
@@ -30279,7 +30281,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 460,
+							"line": 455,
 							"character": 29
 						}
 					],
@@ -30311,7 +30313,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 469,
+									"line": 464,
 									"character": 11
 								}
 							],
@@ -30331,7 +30333,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 470,
+									"line": 465,
 									"character": 6
 								}
 							],
@@ -30351,7 +30353,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 471,
+									"line": 466,
 									"character": 8
 								}
 							],
@@ -30372,7 +30374,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 472,
+									"line": 467,
 									"character": 9
 								}
 							],
@@ -30401,7 +30403,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 473,
+									"line": 468,
 									"character": 6
 								}
 							],
@@ -30422,7 +30424,7 @@
 							"sources": [
 								{
 									"fileName": "lib/Test.ts",
-									"line": 474,
+									"line": 469,
 									"character": 9
 								}
 							],
@@ -30449,7 +30451,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 468,
+							"line": 463,
 							"character": 31
 						}
 					],
@@ -30484,7 +30486,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 477,
+							"line": 472,
 							"character": 23
 						}
 					],
@@ -30520,7 +30522,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Test.ts",
-													"line": 478,
+													"line": 473,
 													"character": 6
 												}
 											],
@@ -30538,7 +30540,7 @@
 											"sources": [
 												{
 													"fileName": "lib/Test.ts",
-													"line": 479,
+													"line": 474,
 													"character": 6
 												}
 											],
@@ -30562,7 +30564,7 @@
 									"sources": [
 										{
 											"fileName": "lib/Test.ts",
-											"line": 477,
+											"line": 472,
 											"character": 51
 										}
 									]
@@ -30583,7 +30585,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 482,
+							"line": 477,
 							"character": 17
 						}
 					],
@@ -30629,7 +30631,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 443,
+							"line": 438,
 							"character": 22
 						}
 					]
@@ -30671,7 +30673,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 464,
+							"line": 459,
 							"character": 30
 						}
 					]
@@ -30713,7 +30715,7 @@
 					"sources": [
 						{
 							"fileName": "lib/Test.ts",
-							"line": 451,
+							"line": 446,
 							"character": 29
 						}
 					]
@@ -31722,12 +31724,12 @@
 						{
 							"type": "reference",
 							"name": "WebSocketChannel",
-							"id": 4367
+							"id": 4370
 						},
 						{
 							"type": "reference",
 							"name": "HttpChannel",
-							"id": 4405
+							"id": 4408
 						}
 					]
 				},
@@ -31903,7 +31905,7 @@
 						{
 							"type": "reference",
 							"name": "HttpChannelOptions",
-							"id": 4426
+							"id": 4429
 						}
 					]
 				},
@@ -32099,7 +32101,7 @@
 			]
 		},
 		{
-			"id": 4404,
+			"id": 4407,
 			"name": "\"lib/channels/Http\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -32110,7 +32112,7 @@
 			"originalName": "src/lib/channels/Http.ts",
 			"children": [
 				{
-					"id": 4405,
+					"id": 4408,
 					"name": "HttpChannel",
 					"kind": 128,
 					"kindString": "Class",
@@ -32120,7 +32122,7 @@
 					},
 					"children": [
 						{
-							"id": 4411,
+							"id": 4414,
 							"name": "constructor",
 							"kind": 512,
 							"kindString": "Constructor",
@@ -32130,14 +32132,14 @@
 							},
 							"signatures": [
 								{
-									"id": 4412,
+									"id": 4415,
 									"name": "new HttpChannel",
 									"kind": 16384,
 									"kindString": "Constructor signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 4413,
+											"id": 4416,
 											"name": "options",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -32145,14 +32147,14 @@
 											"type": {
 												"type": "reference",
 												"name": "HttpChannelOptions",
-												"id": 4426
+												"id": 4429
 											}
 										}
 									],
 									"type": {
 										"type": "reference",
 										"name": "HttpChannel",
-										"id": 4405
+										"id": 4408
 									},
 									"overwrites": {
 										"type": "reference",
@@ -32175,7 +32177,7 @@
 							}
 						},
 						{
-							"id": 4410,
+							"id": 4413,
 							"name": "_activeRequest",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32212,7 +32214,7 @@
 							}
 						},
 						{
-							"id": 4406,
+							"id": 4409,
 							"name": "_lastRequest",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32240,7 +32242,7 @@
 							}
 						},
 						{
-							"id": 4409,
+							"id": 4412,
 							"name": "_maxPostSize",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32262,7 +32264,7 @@
 							}
 						},
 						{
-							"id": 4407,
+							"id": 4410,
 							"name": "_messageBuffer",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32283,12 +32285,12 @@
 								"elementType": {
 									"type": "reference",
 									"name": "MessageEntry",
-									"id": 4432
+									"id": 4435
 								}
 							}
 						},
 						{
-							"id": 4408,
+							"id": 4411,
 							"name": "_sequence",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32310,7 +32312,7 @@
 							}
 						},
 						{
-							"id": 4421,
+							"id": 4424,
 							"name": "sessionId",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32336,7 +32338,7 @@
 							}
 						},
 						{
-							"id": 4420,
+							"id": 4423,
 							"name": "url",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32362,7 +32364,7 @@
 							}
 						},
 						{
-							"id": 4414,
+							"id": 4417,
 							"name": "_sendData",
 							"kind": 2048,
 							"kindString": "Method",
@@ -32373,14 +32375,14 @@
 							},
 							"signatures": [
 								{
-									"id": 4415,
+									"id": 4418,
 									"name": "_sendData",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 4416,
+											"id": 4419,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -32395,7 +32397,7 @@
 											}
 										},
 										{
-											"id": 4417,
+											"id": 4420,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -32431,7 +32433,7 @@
 							}
 						},
 						{
-							"id": 4418,
+							"id": 4421,
 							"name": "_sendMessages",
 							"kind": 2048,
 							"kindString": "Method",
@@ -32442,7 +32444,7 @@
 							},
 							"signatures": [
 								{
-									"id": 4419,
+									"id": 4422,
 									"name": "_sendMessages",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -32480,7 +32482,7 @@
 							]
 						},
 						{
-							"id": 4422,
+							"id": 4425,
 							"name": "sendMessage",
 							"kind": 2048,
 							"kindString": "Method",
@@ -32490,7 +32492,7 @@
 							},
 							"signatures": [
 								{
-									"id": 4423,
+									"id": 4426,
 									"name": "sendMessage",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -32500,7 +32502,7 @@
 									},
 									"parameters": [
 										{
-											"id": 4424,
+											"id": 4427,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -32515,7 +32517,7 @@
 											}
 										},
 										{
-											"id": 4425,
+											"id": 4428,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -32562,29 +32564,29 @@
 							"title": "Constructors",
 							"kind": 512,
 							"children": [
-								4411
+								4414
 							]
 						},
 						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								4410,
-								4406,
+								4413,
 								4409,
-								4407,
-								4408,
-								4421,
-								4420
+								4412,
+								4410,
+								4411,
+								4424,
+								4423
 							]
 						},
 						{
 							"title": "Methods",
 							"kind": 2048,
 							"children": [
-								4414,
-								4418,
-								4422
+								4417,
+								4421,
+								4425
 							]
 						}
 					],
@@ -32604,7 +32606,7 @@
 					]
 				},
 				{
-					"id": 4426,
+					"id": 4429,
 					"name": "HttpChannelOptions",
 					"kind": 256,
 					"kindString": "Interface",
@@ -32614,7 +32616,7 @@
 					},
 					"children": [
 						{
-							"id": 4427,
+							"id": 4430,
 							"name": "maxPostSize",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32645,7 +32647,7 @@
 							}
 						},
 						{
-							"id": 4430,
+							"id": 4433,
 							"name": "port",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32689,7 +32691,7 @@
 							}
 						},
 						{
-							"id": 4428,
+							"id": 4431,
 							"name": "sessionId",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32720,7 +32722,7 @@
 							}
 						},
 						{
-							"id": 4431,
+							"id": 4434,
 							"name": "timeout",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32764,7 +32766,7 @@
 							}
 						},
 						{
-							"id": 4429,
+							"id": 4432,
 							"name": "url",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32803,11 +32805,11 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								4427,
 								4430,
-								4428,
+								4433,
 								4431,
-								4429
+								4434,
+								4432
 							]
 						}
 					],
@@ -32827,7 +32829,7 @@
 					]
 				},
 				{
-					"id": 4432,
+					"id": 4435,
 					"name": "MessageEntry",
 					"kind": 256,
 					"kindString": "Interface",
@@ -32837,7 +32839,7 @@
 					},
 					"children": [
 						{
-							"id": 4433,
+							"id": 4436,
 							"name": "message",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32858,7 +32860,7 @@
 							}
 						},
 						{
-							"id": 4438,
+							"id": 4441,
 							"name": "reject",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32876,21 +32878,21 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 4439,
+									"id": 4442,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
 									"flags": {},
 									"signatures": [
 										{
-											"id": 4440,
+											"id": 4443,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
 											"flags": {},
 											"parameters": [
 												{
-													"id": 4441,
+													"id": 4444,
 													"name": "error",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -32918,7 +32920,7 @@
 							}
 						},
 						{
-							"id": 4434,
+							"id": 4437,
 							"name": "resolve",
 							"kind": 1024,
 							"kindString": "Property",
@@ -32936,21 +32938,21 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 4435,
+									"id": 4438,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
 									"flags": {},
 									"signatures": [
 										{
-											"id": 4436,
+											"id": 4439,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
 											"flags": {},
 											"parameters": [
 												{
-													"id": 4437,
+													"id": 4440,
 													"name": "value",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -32983,9 +32985,9 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								4433,
-								4438,
-								4434
+								4436,
+								4441,
+								4437
 							]
 						}
 					],
@@ -33003,15 +33005,15 @@
 					"title": "Classes",
 					"kind": 128,
 					"children": [
-						4405
+						4408
 					]
 				},
 				{
 					"title": "Interfaces",
 					"kind": 256,
 					"children": [
-						4426,
-						4432
+						4429,
+						4435
 					]
 				}
 			],
@@ -33024,7 +33026,7 @@
 			]
 		},
 		{
-			"id": 4366,
+			"id": 4369,
 			"name": "\"lib/channels/WebSocket\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -33035,7 +33037,7 @@
 			"originalName": "src/lib/channels/WebSocket.ts",
 			"children": [
 				{
-					"id": 4367,
+					"id": 4370,
 					"name": "WebSocketChannel",
 					"kind": 128,
 					"kindString": "Class",
@@ -33045,7 +33047,7 @@
 					},
 					"children": [
 						{
-							"id": 4385,
+							"id": 4388,
 							"name": "constructor",
 							"kind": 512,
 							"kindString": "Constructor",
@@ -33055,14 +33057,14 @@
 							},
 							"signatures": [
 								{
-									"id": 4386,
+									"id": 4389,
 									"name": "new WebSocketChannel",
 									"kind": 16384,
 									"kindString": "Constructor signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 4387,
+											"id": 4390,
 											"name": "options",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -33077,7 +33079,7 @@
 									"type": {
 										"type": "reference",
 										"name": "WebSocketChannel",
-										"id": 4367
+										"id": 4370
 									},
 									"overwrites": {
 										"type": "reference",
@@ -33100,7 +33102,7 @@
 							}
 						},
 						{
-							"id": 4383,
+							"id": 4386,
 							"name": "_ready",
 							"kind": 1024,
 							"kindString": "Property",
@@ -33128,7 +33130,7 @@
 							}
 						},
 						{
-							"id": 4370,
+							"id": 4373,
 							"name": "_sendQueue",
 							"kind": 1024,
 							"kindString": "Property",
@@ -33147,21 +33149,21 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 4371,
+									"id": 4374,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
 									"flags": {},
 									"indexSignature": [
 										{
-											"id": 4372,
+											"id": 4375,
 											"name": "__index",
 											"kind": 8192,
 											"kindString": "Index signature",
 											"flags": {},
 											"parameters": [
 												{
-													"id": 4373,
+													"id": 4376,
 													"name": "key",
 													"kind": 32768,
 													"kindString": "Parameter",
@@ -33178,14 +33180,14 @@
 													{
 														"type": "reflection",
 														"declaration": {
-															"id": 4374,
+															"id": 4377,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"children": [
 																{
-																	"id": 4379,
+																	"id": 4382,
 																	"name": "reject",
 																	"kind": 32,
 																	"kindString": "Variable",
@@ -33202,21 +33204,21 @@
 																	"type": {
 																		"type": "reflection",
 																		"declaration": {
-																			"id": 4380,
+																			"id": 4383,
 																			"name": "__type",
 																			"kind": 65536,
 																			"kindString": "Type literal",
 																			"flags": {},
 																			"signatures": [
 																				{
-																					"id": 4381,
+																					"id": 4384,
 																					"name": "__call",
 																					"kind": 4096,
 																					"kindString": "Call signature",
 																					"flags": {},
 																					"parameters": [
 																						{
-																							"id": 4382,
+																							"id": 4385,
 																							"name": "error",
 																							"kind": 32768,
 																							"kindString": "Parameter",
@@ -33244,7 +33246,7 @@
 																	}
 																},
 																{
-																	"id": 4375,
+																	"id": 4378,
 																	"name": "resolve",
 																	"kind": 32,
 																	"kindString": "Variable",
@@ -33261,21 +33263,21 @@
 																	"type": {
 																		"type": "reflection",
 																		"declaration": {
-																			"id": 4376,
+																			"id": 4379,
 																			"name": "__type",
 																			"kind": 65536,
 																			"kindString": "Type literal",
 																			"flags": {},
 																			"signatures": [
 																				{
-																					"id": 4377,
+																					"id": 4380,
 																					"name": "__call",
 																					"kind": 4096,
 																					"kindString": "Call signature",
 																					"flags": {},
 																					"parameters": [
 																						{
-																							"id": 4378,
+																							"id": 4381,
 																							"name": "value",
 																							"kind": 32768,
 																							"kindString": "Parameter",
@@ -33308,8 +33310,8 @@
 																	"title": "Variables",
 																	"kind": 32,
 																	"children": [
-																		4379,
-																		4375
+																		4382,
+																		4378
 																	]
 																}
 															],
@@ -33341,7 +33343,7 @@
 							}
 						},
 						{
-							"id": 4384,
+							"id": 4387,
 							"name": "_sequence",
 							"kind": 1024,
 							"kindString": "Property",
@@ -33363,7 +33365,7 @@
 							}
 						},
 						{
-							"id": 4369,
+							"id": 4372,
 							"name": "_socket",
 							"kind": 1024,
 							"kindString": "Property",
@@ -33385,7 +33387,7 @@
 							}
 						},
 						{
-							"id": 4399,
+							"id": 4402,
 							"name": "sessionId",
 							"kind": 1024,
 							"kindString": "Property",
@@ -33411,7 +33413,7 @@
 							}
 						},
 						{
-							"id": 4368,
+							"id": 4371,
 							"name": "timeout",
 							"kind": 1024,
 							"kindString": "Property",
@@ -33435,7 +33437,7 @@
 							}
 						},
 						{
-							"id": 4398,
+							"id": 4401,
 							"name": "url",
 							"kind": 1024,
 							"kindString": "Property",
@@ -33461,7 +33463,7 @@
 							}
 						},
 						{
-							"id": 4395,
+							"id": 4398,
 							"name": "_handleError",
 							"kind": 2048,
 							"kindString": "Method",
@@ -33472,14 +33474,14 @@
 							},
 							"signatures": [
 								{
-									"id": 4396,
+									"id": 4399,
 									"name": "_handleError",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 4397,
+											"id": 4400,
 											"name": "error",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -33505,7 +33507,7 @@
 							]
 						},
 						{
-							"id": 4392,
+							"id": 4395,
 							"name": "_handleMessage",
 							"kind": 2048,
 							"kindString": "Method",
@@ -33516,14 +33518,14 @@
 							},
 							"signatures": [
 								{
-									"id": 4393,
+									"id": 4396,
 									"name": "_handleMessage",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 4394,
+											"id": 4397,
 											"name": "message",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -33549,7 +33551,7 @@
 							]
 						},
 						{
-							"id": 4388,
+							"id": 4391,
 							"name": "_sendData",
 							"kind": 2048,
 							"kindString": "Method",
@@ -33560,14 +33562,14 @@
 							},
 							"signatures": [
 								{
-									"id": 4389,
+									"id": 4392,
 									"name": "_sendData",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 4390,
+											"id": 4393,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -33578,7 +33580,7 @@
 											}
 										},
 										{
-											"id": 4391,
+											"id": 4394,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -33620,7 +33622,7 @@
 							}
 						},
 						{
-							"id": 4400,
+							"id": 4403,
 							"name": "sendMessage",
 							"kind": 2048,
 							"kindString": "Method",
@@ -33630,7 +33632,7 @@
 							},
 							"signatures": [
 								{
-									"id": 4401,
+									"id": 4404,
 									"name": "sendMessage",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -33640,7 +33642,7 @@
 									},
 									"parameters": [
 										{
-											"id": 4402,
+											"id": 4405,
 											"name": "name",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -33655,7 +33657,7 @@
 											}
 										},
 										{
-											"id": 4403,
+											"id": 4406,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -33702,30 +33704,30 @@
 							"title": "Constructors",
 							"kind": 512,
 							"children": [
-								4385
+								4388
 							]
 						},
 						{
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								4383,
-								4370,
-								4384,
-								4369,
-								4399,
-								4368,
-								4398
+								4386,
+								4373,
+								4387,
+								4372,
+								4402,
+								4371,
+								4401
 							]
 						},
 						{
 							"title": "Methods",
 							"kind": 2048,
 							"children": [
+								4398,
 								4395,
-								4392,
-								4388,
-								4400
+								4391,
+								4403
 							]
 						}
 					],
@@ -33750,7 +33752,7 @@
 					"title": "Classes",
 					"kind": 128,
 					"children": [
-						4367
+						4370
 					]
 				}
 			],
@@ -37561,7 +37563,7 @@
 							"sources": [
 								{
 									"fileName": "lib/common/util.ts",
-									"line": 10,
+									"line": 11,
 									"character": 15
 								}
 							],
@@ -37582,7 +37584,7 @@
 							"sources": [
 								{
 									"fileName": "lib/common/util.ts",
-									"line": 9,
+									"line": 10,
 									"character": 6
 								}
 							],
@@ -37609,7 +37611,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 8,
+							"line": 9,
 							"character": 34
 						}
 					]
@@ -37658,7 +37660,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 13,
+							"line": 14,
 							"character": 27
 						}
 					]
@@ -37684,7 +37686,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 26,
+							"line": 27,
 							"character": 18
 						}
 					],
@@ -37725,7 +37727,7 @@
 							"sources": [
 								{
 									"fileName": "lib/common/util.ts",
-									"line": 26,
+									"line": 27,
 									"character": 29
 								}
 							]
@@ -37744,7 +37746,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 17,
+							"line": 18,
 							"character": 20
 						}
 					],
@@ -37794,7 +37796,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 980,
+							"line": 981,
 							"character": 25
 						}
 					],
@@ -37938,8 +37940,64 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 840,
+							"line": 841,
 							"character": 20
+						}
+					]
+				},
+				{
+					"id": 4297,
+					"name": "errorToJSON",
+					"kind": 64,
+					"kindString": "Function",
+					"flags": {
+						"isExported": true,
+						"isExternal": true
+					},
+					"signatures": [
+						{
+							"id": 4298,
+							"name": "errorToJSON",
+							"kind": 4096,
+							"kindString": "Call signature",
+							"flags": {},
+							"parameters": [
+								{
+									"id": 4299,
+									"name": "error",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isOptional": true
+									},
+									"type": {
+										"type": "reference",
+										"name": "InternError",
+										"id": 23
+									}
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "InternError",
+										"id": 23
+									},
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									}
+								]
+							}
+						}
+					],
+					"sources": [
+						{
+							"fileName": "lib/common/util.ts",
+							"line": 1002,
+							"character": 27
 						}
 					]
 				},
@@ -37998,7 +38056,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 31,
+							"line": 32,
 							"character": 28
 						}
 					]
@@ -38089,7 +38147,7 @@
 											"sources": [
 												{
 													"fileName": "lib/common/util.ts",
-													"line": 49,
+													"line": 50,
 													"character": 13
 												}
 											]
@@ -38128,7 +38186,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 46,
+							"line": 47,
 							"character": 27
 						}
 					]
@@ -38186,7 +38244,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 87,
+							"line": 88,
 							"character": 36
 						}
 					]
@@ -38329,7 +38387,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 121,
+							"line": 122,
 							"character": 26
 						}
 					]
@@ -38410,7 +38468,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 145,
+							"line": 146,
 							"character": 25
 						}
 					]
@@ -38456,7 +38514,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 191,
+							"line": 192,
 							"character": 25
 						}
 					]
@@ -38569,7 +38627,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 203,
+							"line": 204,
 							"character": 26
 						}
 					]
@@ -38626,7 +38684,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 304,
+							"line": 305,
 							"character": 22
 						}
 					]
@@ -38737,7 +38795,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 318,
+							"line": 319,
 							"character": 29
 						}
 					]
@@ -38809,7 +38867,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 689,
+							"line": 690,
 							"character": 29
 						}
 					]
@@ -38854,7 +38912,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 703,
+							"line": 704,
 							"character": 23
 						}
 					]
@@ -38910,7 +38968,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 985,
+							"line": 986,
 							"character": 26
 						}
 					]
@@ -38995,7 +39053,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 776,
+							"line": 777,
 							"character": 25
 						}
 					]
@@ -39066,7 +39124,7 @@
 											"sources": [
 												{
 													"fileName": "lib/common/util.ts",
-													"line": 807,
+													"line": 808,
 													"character": 36
 												}
 											],
@@ -39095,7 +39153,7 @@
 											"sources": [
 												{
 													"fileName": "lib/common/util.ts",
-													"line": 807,
+													"line": 808,
 													"character": 15
 												}
 											],
@@ -39118,7 +39176,7 @@
 									"sources": [
 										{
 											"fileName": "lib/common/util.ts",
-											"line": 807,
+											"line": 808,
 											"character": 2
 										}
 									]
@@ -39129,7 +39187,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 804,
+							"line": 805,
 							"character": 31
 						}
 					]
@@ -39201,7 +39259,7 @@
 					"sources": [
 						{
 							"fileName": "lib/common/util.ts",
-							"line": 833,
+							"line": 834,
 							"character": 25
 						}
 					]
@@ -39236,6 +39294,7 @@
 					"kind": 64,
 					"children": [
 						4283,
+						4297,
 						4206,
 						4210,
 						4219,
@@ -70865,7 +70924,7 @@
 			]
 		},
 		{
-			"id": 4297,
+			"id": 4300,
 			"name": "\"lib/node/util\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -70876,7 +70935,7 @@
 			"originalName": "src/lib/node/util.ts",
 			"children": [
 				{
-					"id": 4338,
+					"id": 4341,
 					"name": "sourceMapRegEx",
 					"kind": 32,
 					"kindString": "Variable",
@@ -70898,7 +70957,7 @@
 					"defaultValue": " /^(?:\\/{2}[#@]{1,2}|\\/\\*)\\s+sourceMappingURL\\s*=\\s*(data:(?:[^;]+;)+base64,)?(\\S+)/"
 				},
 				{
-					"id": 4298,
+					"id": 4301,
 					"name": "expandFiles",
 					"kind": 64,
 					"kindString": "Function",
@@ -70908,7 +70967,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4299,
+							"id": 4302,
 							"name": "expandFiles",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -70918,7 +70977,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4300,
+									"id": 4303,
 									"name": "patterns",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -70961,7 +71020,7 @@
 					]
 				},
 				{
-					"id": 4301,
+					"id": 4304,
 					"name": "getConfig",
 					"kind": 64,
 					"kindString": "Function",
@@ -70971,7 +71030,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4302,
+							"id": 4305,
 							"name": "getConfig",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -70981,7 +71040,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4303,
+									"id": 4306,
 									"name": "file",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71013,14 +71072,14 @@
 									{
 										"type": "reflection",
 										"declaration": {
-											"id": 4304,
+											"id": 4307,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 4305,
+													"id": 4308,
 													"name": "config",
 													"kind": 32,
 													"kindString": "Variable",
@@ -71040,7 +71099,7 @@
 													}
 												},
 												{
-													"id": 4306,
+													"id": 4309,
 													"name": "file",
 													"kind": 32,
 													"kindString": "Variable",
@@ -71075,8 +71134,8 @@
 													"title": "Variables",
 													"kind": 32,
 													"children": [
-														4305,
-														4306
+														4308,
+														4309
 													]
 												}
 											],
@@ -71093,14 +71152,14 @@
 							}
 						},
 						{
-							"id": 4307,
+							"id": 4310,
 							"name": "getConfig",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 4308,
+									"id": 4311,
 									"name": "argv",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71123,14 +71182,14 @@
 									{
 										"type": "reflection",
 										"declaration": {
-											"id": 4309,
+											"id": 4312,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 4310,
+													"id": 4313,
 													"name": "config",
 													"kind": 32,
 													"kindString": "Variable",
@@ -71150,7 +71209,7 @@
 													}
 												},
 												{
-													"id": 4311,
+													"id": 4314,
 													"name": "file",
 													"kind": 32,
 													"kindString": "Variable",
@@ -71185,8 +71244,8 @@
 													"title": "Variables",
 													"kind": 32,
 													"children": [
-														4310,
-														4311
+														4313,
+														4314
 													]
 												}
 											],
@@ -71203,14 +71262,14 @@
 							}
 						},
 						{
-							"id": 4312,
+							"id": 4315,
 							"name": "getConfig",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 4313,
+									"id": 4316,
 									"name": "file",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71221,7 +71280,7 @@
 									}
 								},
 								{
-									"id": 4314,
+									"id": 4317,
 									"name": "argv",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71244,14 +71303,14 @@
 									{
 										"type": "reflection",
 										"declaration": {
-											"id": 4315,
+											"id": 4318,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 4316,
+													"id": 4319,
 													"name": "config",
 													"kind": 32,
 													"kindString": "Variable",
@@ -71271,7 +71330,7 @@
 													}
 												},
 												{
-													"id": 4317,
+													"id": 4320,
 													"name": "file",
 													"kind": 32,
 													"kindString": "Variable",
@@ -71306,8 +71365,8 @@
 													"title": "Variables",
 													"kind": 32,
 													"children": [
-														4316,
-														4317
+														4319,
+														4320
 													]
 												}
 											],
@@ -71348,7 +71407,7 @@
 					]
 				},
 				{
-					"id": 4328,
+					"id": 4331,
 					"name": "isErrnoException",
 					"kind": 64,
 					"kindString": "Function",
@@ -71358,7 +71417,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4329,
+							"id": 4332,
 							"name": "isErrnoException",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -71368,7 +71427,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4330,
+									"id": 4333,
 									"name": "value",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71394,7 +71453,7 @@
 					]
 				},
 				{
-					"id": 4318,
+					"id": 4321,
 					"name": "loadText",
 					"kind": 64,
 					"kindString": "Function",
@@ -71404,7 +71463,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4319,
+							"id": 4322,
 							"name": "loadText",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -71414,7 +71473,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4320,
+									"id": 4323,
 									"name": "path",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71446,7 +71505,7 @@
 					]
 				},
 				{
-					"id": 4331,
+					"id": 4334,
 					"name": "mkdirp",
 					"kind": 64,
 					"kindString": "Function",
@@ -71456,7 +71515,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4332,
+							"id": 4335,
 							"name": "mkdirp",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -71466,7 +71525,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4333,
+									"id": 4336,
 									"name": "dir",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71492,7 +71551,7 @@
 					]
 				},
 				{
-					"id": 4321,
+					"id": 4324,
 					"name": "normalizePath",
 					"kind": 64,
 					"kindString": "Function",
@@ -71502,7 +71561,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4322,
+							"id": 4325,
 							"name": "normalizePath",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -71512,7 +71571,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4323,
+									"id": 4326,
 									"name": "path",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71538,7 +71597,7 @@
 					]
 				},
 				{
-					"id": 4324,
+					"id": 4327,
 					"name": "readSourceMap",
 					"kind": 64,
 					"kindString": "Function",
@@ -71548,7 +71607,7 @@
 					},
 					"signatures": [
 						{
-							"id": 4325,
+							"id": 4328,
 							"name": "readSourceMap",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -71558,7 +71617,7 @@
 							},
 							"parameters": [
 								{
-									"id": 4326,
+									"id": 4329,
 									"name": "sourceFile",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71569,7 +71628,7 @@
 									}
 								},
 								{
-									"id": 4327,
+									"id": 4330,
 									"name": "code",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71615,7 +71674,7 @@
 					]
 				},
 				{
-					"id": 4334,
+					"id": 4337,
 					"name": "transpileSource",
 					"kind": 64,
 					"kindString": "Function",
@@ -71625,14 +71684,14 @@
 					},
 					"signatures": [
 						{
-							"id": 4335,
+							"id": 4338,
 							"name": "transpileSource",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 4336,
+									"id": 4339,
 									"name": "filename",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71643,7 +71702,7 @@
 									}
 								},
 								{
-									"id": 4337,
+									"id": 4340,
 									"name": "code",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -71674,21 +71733,21 @@
 					"title": "Variables",
 					"kind": 32,
 					"children": [
-						4338
+						4341
 					]
 				},
 				{
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						4298,
 						4301,
-						4328,
-						4318,
+						4304,
 						4331,
 						4321,
+						4334,
 						4324,
-						4334
+						4327,
+						4337
 					]
 				}
 			],
@@ -99051,7 +99110,7 @@
 			]
 		},
 		{
-			"id": 4348,
+			"id": 4351,
 			"name": "\"loaders/default\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -99068,7 +99127,7 @@
 			]
 		},
 		{
-			"id": 4349,
+			"id": 4352,
 			"name": "\"loaders/dojo\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -99085,7 +99144,7 @@
 			]
 		},
 		{
-			"id": 4350,
+			"id": 4353,
 			"name": "\"loaders/dojo2\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -99102,7 +99161,7 @@
 			]
 		},
 		{
-			"id": 4351,
+			"id": 4354,
 			"name": "\"loaders/esm\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -99119,7 +99178,7 @@
 			]
 		},
 		{
-			"id": 4352,
+			"id": 4355,
 			"name": "\"loaders/systemjs\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -99136,7 +99195,7 @@
 			]
 		},
 		{
-			"id": 4353,
+			"id": 4356,
 			"name": "\"tasks/intern\"",
 			"kind": 1,
 			"kindString": "External module",
@@ -99146,21 +99205,21 @@
 			"originalName": "src/tasks/intern.ts",
 			"children": [
 				{
-					"id": 4354,
+					"id": 4357,
 					"name": "TaskOptions",
 					"kind": 256,
 					"kindString": "Interface",
 					"flags": {},
 					"indexSignature": [
 						{
-							"id": 4355,
+							"id": 4358,
 							"name": "__index",
 							"kind": 8192,
 							"kindString": "Index signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 4356,
+									"id": 4359,
 									"name": "key",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -99179,7 +99238,7 @@
 					],
 					"children": [
 						{
-							"id": 4358,
+							"id": 4361,
 							"name": "files",
 							"kind": 1024,
 							"kindString": "Property",
@@ -99203,7 +99262,7 @@
 							}
 						},
 						{
-							"id": 4357,
+							"id": 4360,
 							"name": "options",
 							"kind": 1024,
 							"kindString": "Property",
@@ -99232,8 +99291,8 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								4358,
-								4357
+								4361,
+								4360
 							]
 						}
 					],
@@ -99252,7 +99311,7 @@
 						{
 							"type": "reflection",
 							"declaration": {
-								"id": 4359,
+								"id": 4362,
 								"name": "__type",
 								"kind": 65536,
 								"kindString": "Type literal",
@@ -99269,21 +99328,21 @@
 					]
 				},
 				{
-					"id": 4360,
+					"id": 4363,
 					"name": "getConfigAndOptions",
 					"kind": 64,
 					"kindString": "Function",
 					"flags": {},
 					"signatures": [
 						{
-							"id": 4361,
+							"id": 4364,
 							"name": "getConfigAndOptions",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 4362,
+									"id": 4365,
 									"name": "options",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -99291,7 +99350,7 @@
 									"type": {
 										"type": "reference",
 										"name": "TaskOptions",
-										"id": 4354
+										"id": 4357
 									}
 								}
 							],
@@ -99302,14 +99361,14 @@
 									{
 										"type": "reflection",
 										"declaration": {
-											"id": 4363,
+											"id": 4366,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 4364,
+													"id": 4367,
 													"name": "config",
 													"kind": 32,
 													"kindString": "Variable",
@@ -99334,7 +99393,7 @@
 													}
 												},
 												{
-													"id": 4365,
+													"id": 4368,
 													"name": "options",
 													"kind": 32,
 													"kindString": "Variable",
@@ -99349,7 +99408,7 @@
 													"type": {
 														"type": "reference",
 														"name": "TaskOptions",
-														"id": 4354
+														"id": 4357
 													}
 												}
 											],
@@ -99358,8 +99417,8 @@
 													"title": "Variables",
 													"kind": 32,
 													"children": [
-														4364,
-														4365
+														4367,
+														4368
 													]
 												}
 											],
@@ -99390,14 +99449,14 @@
 					"title": "Interfaces",
 					"kind": 256,
 					"children": [
-						4354
+						4357
 					]
 				},
 				{
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						4360
+						4363
 					]
 				}
 			],
@@ -99415,11 +99474,11 @@
 			"title": "External modules",
 			"kind": 1,
 			"children": [
-				4343,
-				4339,
+				4346,
+				4342,
 				3652,
 				1983,
-				4442,
+				4445,
 				2,
 				529,
 				125,
@@ -99429,8 +99488,8 @@
 				3316,
 				617,
 				1185,
-				4404,
-				4366,
+				4407,
+				4369,
 				51,
 				4097,
 				607,
@@ -99451,7 +99510,7 @@
 				1217,
 				90,
 				1,
-				4297,
+				4300,
 				2443,
 				1789,
 				821,
@@ -99471,12 +99530,12 @@
 				653,
 				547,
 				22,
-				4348,
-				4349,
-				4350,
 				4351,
 				4352,
-				4353
+				4353,
+				4354,
+				4355,
+				4356
 			]
 		}
 	]

@@ -10,6 +10,7 @@ import { Executor } from './executors/Executor';
 import Test, { isTest, SKIP } from './Test';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
+import { errorToJSON } from './common/util';
 
 /**
  * The Suite class manages a group of tests.
@@ -765,12 +766,7 @@ export default class Suite implements SuiteProperties {
     });
 
     if (this.error) {
-      json.error = {
-        name: this.error.name,
-        message: this.error.message,
-        stack: this.error.stack,
-        lifecycleMethod: this.error.lifecycleMethod
-      };
+      json.error = errorToJSON(this.error);
 
       if (this.error.relatedTest && this.error.relatedTest !== <any>this) {
         // relatedTest can be the Suite itself in the case of nested

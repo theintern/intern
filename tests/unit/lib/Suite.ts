@@ -1639,6 +1639,7 @@ registerSuite('lib/Suite', {
         message: 'failed',
         stack: '',
         lifecycleMethod: 'afterEach',
+        showDiff: false,
         relatedTest: {
           id: 'foo - bar',
           parentId: 'foo',

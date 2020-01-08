@@ -4,6 +4,7 @@ import { Config, ResourceConfig } from './config';
 import { Events, Executor, PluginDescriptor } from '../executors/Executor';
 import { TextLoader } from './util';
 import { getPathSep, join, normalize } from './path';
+import { InternError } from '../types';
 
 export interface EvaluatedProperty {
   name: keyof Config;
@@ -996,4 +997,28 @@ function serializeReplacer(_key: string, value: any) {
   }
 
   return value;
+}
+
+export function errorToJSON(error?: InternError): InternError | undefined {
+  if (!error) {
+    return undefined;
+  }
+  const {
+    name,
+    message,
+    stack,
+    lifecycleMethod,
+    showDiff,
+    actual,
+    expected
+  } = error;
+
+  return {
+    name,
+    message,
+    stack,
+    ...(lifecycleMethod ? { lifecycleMethod } : {}),
+    showDiff: Boolean(showDiff),
+    ...(showDiff ? { actual, expected } : {})
+  };
 }
