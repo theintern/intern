@@ -5,7 +5,7 @@ import unhandled from 'src/core/lib/middleware/unhandled';
 
 import { MockRequest, MockResponse } from 'tests/support/unit/mocks';
 
-registerSuite('lib/middleware/unhandled', function() {
+registerSuite('core/lib/middleware/unhandled', function() {
   let handler: (request: any, response: any, next: any) => void;
   let response: MockResponse;
   let next: SinonSpy;

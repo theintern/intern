@@ -10,10 +10,10 @@ function rmFileAndDir(filename: string) {
   }
 }
 
-registerSuite('unit/lib/util', {
+registerSuite('tunnels/lib/util', {
   '.fileExists': function() {
-    assert.isTrue(util.fileExists('src/Tunnel.ts'));
-    assert.isFalse(util.fileExists('src/Tunnel.jsx'));
+    assert.isTrue(util.fileExists('src/tunnels/Tunnel.ts'));
+    assert.isFalse(util.fileExists('src/tunnels/Tunnel.jsx'));
   },
 
   '.on': function() {

@@ -1,9 +1,6 @@
-import _ProxiedSession from 'src/core/lib/ProxiedSession';
+import { mockImport } from 'tests/support/mockUtil';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
-let ProxiedSession: typeof _ProxiedSession;
-let removeMocks: () => void;
+let ProxiedSession: typeof import('src/core/lib/ProxiedSession').default;
 
 class MockSession {
   _lastUrl: string | undefined;
@@ -19,18 +16,16 @@ class MockSession {
   }
 }
 
-registerSuite('lib/ProxiedSession', {
-  before() {
-    return mockRequire(require, 'src/core/lib/ProxiedSession', {
-      'src/webdriver/Session': { default: MockSession }
-    }).then(result => {
-      removeMocks = result.remove;
-      ProxiedSession = result.module.default;
-    });
-  },
-
-  after() {
-    removeMocks();
+registerSuite('core/lib/ProxiedSession', {
+  async before() {
+    ({ default: ProxiedSession } = await mockImport(
+      () => import('src/core/lib/ProxiedSession'),
+      replace => {
+        replace(() => import('src/webdriver/Session')).withDefault(
+          MockSession as any
+        );
+      }
+    ));
   },
 
   tests: {

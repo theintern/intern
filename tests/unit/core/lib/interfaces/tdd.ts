@@ -1,3 +1,4 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox } from 'sinon';
 import { Task } from 'src/common';
 
@@ -5,11 +6,8 @@ import * as _tddInt from 'src/core/lib/interfaces/tdd';
 import Test, { isTest } from 'src/core/lib/Test';
 import Suite, { isSuite } from 'src/core/lib/Suite';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
-registerSuite('lib/interfaces/tdd', function() {
+registerSuite('core/lib/interfaces/tdd', function() {
   let tddInt: typeof _tddInt;
-  let removeMocks: () => void;
   let parent: Suite;
   const sandbox = createSandbox();
 
@@ -29,17 +27,20 @@ registerSuite('lib/interfaces/tdd', function() {
   };
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/interfaces/tdd', {
-        'src/common': { global: mockGlobal }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        tddInt = handle.module;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      tddInt = await mockImport(
+        () => import('src/core/lib/interfaces/tdd'),
+        replace => {
+          replace(() => import('src/common'))
+            .transparently()
+            .with({ global: mockGlobal });
+          // Pass in our versions of Suite and Test since we'll be using
+          // instanceof in some of the tests below. Without doing this, the test
+          // tdd interface would have its own copies of Suite and Test.
+          replace(() => import('src/core/lib/Suite')).withDefault(Suite);
+          replace(() => import('src/core/lib/Test')).withDefault(Test);
+        }
+      );
     },
 
     beforeEach() {

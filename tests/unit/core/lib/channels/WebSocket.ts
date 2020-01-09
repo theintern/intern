@@ -1,13 +1,10 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { useFakeTimers, SinonFakeTimers } from 'sinon';
 import { Task } from 'src/common';
-import _WebSocket from 'src/core/lib/channels/WebSocket';
-import { parseUrl } from 'src/core/lib/browser/util';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
+let WebSocket: typeof import('src/core/lib/channels/WebSocket').default;
 
-let WebSocket: typeof _WebSocket;
-
-registerSuite('lib/channels/WebSocket', function() {
+registerSuite('core/lib/channels/WebSocket', function() {
   class MockWebSocket {
     addEventListener(name: string, callback: (event: any) => void) {
       if (!eventListeners[name]) {
@@ -21,24 +18,24 @@ registerSuite('lib/channels/WebSocket', function() {
     }
   }
 
-  let removeMocks: () => void;
   let eventListeners: { [name: string]: ((event: any) => void)[] };
   let sentData: string[];
   let clock: SinonFakeTimers;
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/channels/WebSocket', {
-        'src/core/lib/browser/util': { parseUrl },
-        'src/common': { global: { WebSocket: MockWebSocket }, Task }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        WebSocket = handle.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      ({ default: WebSocket } = await mockImport(
+        () => import('src/core/lib/channels/WebSocket'),
+        replace => {
+          replace(() => import('src/common')).with({
+            global: { WebSocket: MockWebSocket },
+            Task
+          });
+          replace(() => import('src/core/lib/browser/util')).with({
+            parseUrl: () => ({} as any)
+          });
+        }
+      ));
     },
 
     beforeEach() {

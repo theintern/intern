@@ -1,12 +1,9 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { spy, createSandbox } from 'sinon';
-import { Task, isPromiseLike, deepMixin } from 'src/common';
 import _Browser, { Config } from 'src/core/lib/executors/Browser';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
+import { isPromiseLike, Task, deepMixin } from 'src/common';
 
 let Browser: typeof _Browser;
-
-let removeMocks: () => void;
 
 function createExecutor(config?: Partial<Config>) {
   const executor = new Browser(config);
@@ -17,7 +14,7 @@ function createExecutor(config?: Partial<Config>) {
   return executor;
 }
 
-registerSuite('lib/executors/Browser', function() {
+registerSuite('core/lib/executors/Browser', function() {
   class MockErrorFormatter {
     format(error: Error) {
       return 'Foo: ' + error.message;
@@ -33,8 +30,8 @@ registerSuite('lib/executors/Browser', function() {
   };
 
   const mockChai = {
-    assert: 'assert',
-    should: sandbox.spy(() => 'should')
+    assert: ('assert' as never) as Chai.Assert,
+    should: sandbox.spy(() => ('should' as never) as Chai.Should)
   };
 
   const mockGlobal = {
@@ -84,28 +81,30 @@ registerSuite('lib/executors/Browser', function() {
   };
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/executors/Browser', {
-        'src/core/lib/common/ErrorFormatter': { default: MockErrorFormatter },
-        'src/core/lib/common/console': mockConsole,
-        'src/core/lib/browser/util': mockUtil,
-        chai: mockChai,
-        minimatch: { Minimatch: MockMiniMatch },
-        'src/common': {
-          request,
-          global: mockGlobal,
-          isPromiseLike,
-          Task,
-          deepMixin
+    async before() {
+      ({ default: Browser } = await mockImport(
+        () => import('src/core/lib/executors/Browser'),
+        replace => {
+          replace(() =>
+            import('src/core/lib/common/ErrorFormatter')
+          ).withDefault(MockErrorFormatter as any);
+          replace(() => import('src/core/lib/common/console')).with(
+            mockConsole
+          );
+          replace(() => import('src/core/lib/browser/util')).with(mockUtil);
+          replace(() => import('chai')).with(mockChai);
+          replace(() => import('minimatch')).with({
+            Minimatch: MockMiniMatch as any
+          });
+          replace(() => import('src/common')).with({
+            global: mockGlobal,
+            request: request as any,
+            isPromiseLike,
+            Task,
+            deepMixin
+          });
         }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        Browser = handle.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+      ));
     },
 
     beforeEach() {

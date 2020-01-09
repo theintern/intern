@@ -34,7 +34,7 @@ function createTest(
   return new Test(<TestOptions>options);
 }
 
-registerSuite('lib/Test', {
+registerSuite('core/lib/Test', {
   '#constructor'() {
     assert.throws(() => {
       new Test(<any>{});

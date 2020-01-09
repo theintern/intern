@@ -1,6 +1,6 @@
 import Deferred from 'src/core/lib/Deferred';
 
-registerSuite('lib/Deferred', {
+registerSuite('core/lib/Deferred', {
   '#rejectOnError': {
     'preserves context'() {
       const dfd = new Deferred();

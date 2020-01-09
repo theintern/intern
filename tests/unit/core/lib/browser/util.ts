@@ -1,11 +1,10 @@
-import { spy } from 'sinon';
-import { Task } from 'src/common';
+import { mockImport } from 'tests/support/mockUtil';
+import { createSandbox } from 'sinon';
+import { Task, CancellablePromise } from 'src/common';
 
 import * as _util from 'src/core/lib/browser/util';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
-registerSuite('lib/browser/util', function() {
+registerSuite('core/lib/browser/util', function() {
   class MockResponse {
     data: string | undefined;
     ok: boolean;
@@ -22,7 +21,9 @@ registerSuite('lib/browser/util', function() {
     }
   }
 
-  const request = spy((path: string) => {
+  const sandbox = createSandbox();
+
+  const request = sandbox.spy((path: string) => {
     const data = requestData && requestData[path];
     return Task.resolve(new MockResponse(data));
   });
@@ -30,19 +31,20 @@ registerSuite('lib/browser/util', function() {
   let util: typeof _util;
   let parsedArgs: { [key: string]: string | string[] };
   let requestData: { [name: string]: string };
-  let removeMocks: () => void;
 
   const mockUtil = {
-    getBasePath: spy((_path: string) => {
+    defaultConfig: 'intern.json' as 'intern.json',
+
+    getBasePath: sandbox.spy((_path: string) => {
       return '';
     }),
 
-    loadConfig: spy(
+    loadConfig: sandbox.spy(
       (
         filename: string,
-        loadText: (filename: string) => Promise<string>,
-        _args?: string[],
-        _childConfig?: string
+        loadText: (filename: string) => CancellablePromise<string>,
+        _args?: { [key: string]: any },
+        _childConfig?: string | string[]
       ) => {
         return loadText(filename).then(text => {
           return JSON.parse(text);
@@ -50,46 +52,39 @@ registerSuite('lib/browser/util', function() {
       }
     ),
 
-    parseArgs: spy(() => {
+    parseArgs: sandbox.spy(() => {
       return parsedArgs;
     }),
 
-    splitConfigPath: spy((path: string) => {
+    splitConfigPath: sandbox.spy((path: string) => {
       const parts = path.split('@');
       return { configFile: parts[0], childConfig: parts[1] };
     })
   };
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/browser/util', {
-        'src/common': {
-          request,
-          global: {
-            location: {
-              pathname: '/',
-              search: ''
+    async before() {
+      util = await mockImport(
+        () => import('src/core/lib/browser/util'),
+        replace => {
+          replace(() => import('src/common')).with({
+            request: request as any,
+            global: {
+              location: {
+                pathname: '/',
+                search: ''
+              }
             }
-          }
-        },
-        'src/core/lib/common/util': mockUtil
-      }).then(handle => {
-        removeMocks = handle.remove;
-        util = handle.module;
-      });
-    },
-
-    after() {
-      removeMocks();
+          });
+          replace(() => import('src/core/lib/common/util')).with(mockUtil);
+        }
+      );
     },
 
     beforeEach() {
       parsedArgs = {};
       requestData = {};
-      request.resetHistory();
-      Object.keys(mockUtil).forEach(key =>
-        mockUtil[key as keyof typeof mockUtil].resetHistory()
-      );
+      sandbox.resetHistory();
     },
 
     tests: {

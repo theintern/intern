@@ -1,6 +1,6 @@
 import * as path from 'src/core/lib/common/path';
 
-registerSuite('lib/common/path', {
+registerSuite('core/lib/common/path', {
   dirname() {
     assert.equal(
       path.dirname('foo'),

@@ -1,3 +1,4 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox, spy } from 'sinon';
 import _Runner from 'src/core/lib/reporters/Runner';
 import {
@@ -9,13 +10,10 @@ import {
   createMockNodeExecutor
 } from 'tests/support/unit/mocks';
 
-import { TunnelMessage } from 'src/core/lib/executors/Node';
-
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/reporters/Runner', function() {
+registerSuite('core/lib/reporters/Runner', function() {
   const sandbox = createSandbox();
   const mockCharm = createMockCharm();
   const mockExecutor = createMockNodeExecutor();
@@ -23,24 +21,19 @@ registerSuite('lib/reporters/Runner', function() {
   mockExecutor.config.serveOnly = false;
 
   let Runner: typeof _Runner;
-  let removeMocks: () => void;
   let reporter: _Runner;
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/reporters/Runner', {
-        'istanbul-lib-coverage': {
-          createCoverageMap: createMockCoverageMap
-        },
-        charm: () => mockCharm
-      }).then(handle => {
-        removeMocks = handle.remove;
-        Runner = handle.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      ({ default: Runner } = await mockImport(
+        () => import('src/core/lib/reporters/Runner'),
+        replace => {
+          replace(() => import('istanbul-lib-coverage')).with({
+            createCoverageMap: createMockCoverageMap as any
+          });
+          replace(() => import('charm')).withDefault(() => mockCharm as any);
+        }
+      ));
     },
 
     beforeEach() {
@@ -431,7 +424,7 @@ registerSuite('lib/reporters/Runner', function() {
       },
 
       tunnelStart() {
-        reporter.tunnelStart(<TunnelMessage>{});
+        reporter.tunnelStart();
         assert.deepEqual(mockCharm.write.args, [['Tunnel started\n']]);
       },
 

@@ -1,13 +1,12 @@
+import { mockImport } from 'tests/support/mockUtil';
 import _ErrorFormatter from 'src/core/lib/common/ErrorFormatter';
 import { InternError } from 'src/core/lib/types';
 import { createMockExecutor, MockExecutor } from 'tests/support/unit/mocks';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
 let ErrorFormatter: typeof _ErrorFormatter;
 
-registerSuite('lib/common/ErrorFormatter', function() {
-  function diffJson(_a: object, _b: object) {
+registerSuite('core/lib/common/ErrorFormatter', function() {
+  function diffJson(_a: string | object, _b: string | object) {
     return (
       diffValue || [
         { value: 'a', added: true, removed: undefined },
@@ -20,20 +19,15 @@ registerSuite('lib/common/ErrorFormatter', function() {
   let diffValue:
     | undefined
     | { value: string; added?: boolean; removed?: boolean }[];
-  let removeMocks: () => void;
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/common/ErrorFormatter', {
-        diff: { diffJson }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        ErrorFormatter = handle.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      ({ default: ErrorFormatter } = await mockImport(
+        () => import('src/core/lib/common/ErrorFormatter'),
+        replace => {
+          replace(() => import('diff')).with({ diffJson });
+        }
+      ));
     },
 
     beforeEach() {

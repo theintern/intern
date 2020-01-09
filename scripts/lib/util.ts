@@ -10,7 +10,7 @@ import {
   ExecOutputReturnValue
 } from 'shelljs';
 import { sync as glob, IOptions } from 'glob';
-import { basename, dirname, join, relative, resolve } from 'path';
+import { basename, dirname, join, resolve } from 'path';
 import { spawnSync } from 'child_process';
 
 export interface ExecReturnValue extends ExecOutputReturnValue {
@@ -54,7 +54,6 @@ export function copyAll(patterns: (string | FilePattern)[], outDir: string) {
  * Copy a file or directory to a directory
  */
 export function copy(fileOrDir: string, outDir: string, cwd = '.') {
-  log(`Copying ${join(cwd, fileOrDir)} to ${relative('.', outDir)}`);
   const dst = join(outDir, fileOrDir);
   const dstDir = dirname(dst);
   if (!test('-d', dstDir)) {
@@ -110,7 +109,7 @@ export function fixSourceMaps() {
 export function lint(tsconfigFile: string) {
   // Use the tslint file from this project if the project doesn't have one of
   // its own
-  let tslintJson = test('-f', 'tslint.json')
+  const tslintJson = test('-f', 'tslint.json')
     ? 'tslint.json'
     : resolve(join(__dirname, 'tslint.json'));
   const tslint = require.resolve('tslint/bin/tslint');

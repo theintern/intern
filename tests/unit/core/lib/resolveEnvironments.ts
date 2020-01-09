@@ -103,7 +103,7 @@ function assertResolveEnvironments(
   assertResolve({}, environments, available, expected, message);
 }
 
-registerSuite('lib/resolveEnvironments', {
+registerSuite('core/lib/resolveEnvironments', {
   before() {
     return mockRequire(require, 'src/core/lib/resolveEnvironments', {
       'src/core/lib/node/process': {

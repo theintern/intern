@@ -1,8 +1,8 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { STATUS_CODES } from 'http';
 import createError from 'http-errors';
 import sinon from 'sinon';
 
-import _Server from 'src/core/lib/Server';
 import {
   createMockNodeExecutor,
   MockExecutor,
@@ -10,9 +10,9 @@ import {
   MockResponse,
   EventHandler
 } from 'tests/support/unit/mocks';
-import { mockFs, mockPath } from 'tests/support/unit/nodeMocks';
+import { createMockFs, createMockPath } from 'tests/support/unit/nodeMocks';
 
-const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
+import _Server from 'src/core/lib/Server';
 
 let Server: typeof _Server;
 
@@ -62,9 +62,7 @@ function assertPropertyLength(
   assert.lengthOf(obj[name], length, message);
 }
 
-let removeMocks: () => void;
-
-registerSuite('lib/Server', function() {
+registerSuite('core/lib/Server', function() {
   // These classes below access closured data, so they're defined in here
 
   class MockWebSocketServer extends MockServer {
@@ -97,8 +95,8 @@ registerSuite('lib/Server', function() {
   const mockHttp = {
     STATUS_CODES,
 
-    createServer(handler: () => void) {
-      return new MockHttpServer(handler);
+    createServer(listener: () => void) {
+      return new MockHttpServer(listener);
     }
   };
 
@@ -119,8 +117,8 @@ registerSuite('lib/Server', function() {
     urlencoded: sandbox.spy((..._args: any[]) => urlEncodedHandler)
   };
 
-  const fs = mockFs();
-  const path = mockPath();
+  const mockFs = createMockFs();
+  const mockPath = createMockPath();
 
   const internStaticHandler = sandbox.stub();
   const baseStaticHandler = sandbox.stub();
@@ -160,36 +158,51 @@ registerSuite('lib/Server', function() {
   );
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/Server', {
-        fs,
-        path,
-        http: mockHttp,
-        ws: mockWebSocket,
-        'src/core/lib/middleware/instrument': instrument,
-        'src/core/lib/middleware/post': post,
-        'src/core/lib/middleware/unhandled': unhandled,
-        'src/core/lib/middleware/finalError': finalError,
-        'serve-static/index': mockServeStatic,
-        express: null,
-        'express/lib/express': null,
-        'express/lib/application': null,
-        'express/lib/request': Object.create(MockRequest.prototype),
-        'express/lib/response': Object.create(MockResponse.prototype),
-        'body-parser': mockBodyParser
-      }).then(resource => {
-        removeMocks = resource.remove;
-        Server = resource.module.default;
-      });
+    async before() {
+      ({ default: Server } = await mockImport(
+        () => import('src/core/lib/Server'),
+        replace => {
+          replace(() => import('fs')).with(mockFs);
+          replace(() => import('path')).with(mockPath);
+          replace(() => import('http')).with(mockHttp as any);
+          replace(() => import('ws')).with(mockWebSocket as any);
+          replace(() =>
+            import('src/core/lib/middleware/instrument')
+          ).withDefault(instrument as any);
+          replace(() => import('src/core/lib/middleware/post')).withDefault(
+            post as any
+          );
+          replace(() =>
+            import('src/core/lib/middleware/unhandled')
+          ).withDefault(unhandled as any);
+          replace(() =>
+            import('src/core/lib/middleware/finalError')
+          ).withDefault(finalError);
+          replace(() => import('serve-static/index')).with(
+            mockServeStatic as any
+          );
+
+          // Ensure some internal parts of express are cleared from the cache
+          replace('express/lib/application').withItself();
+          replace('express/lib/express').withItself();
+
+          replace('express/lib/request').with(
+            Object.create(MockRequest.prototype)
+          );
+          replace('express/lib/response').with(
+            Object.create(MockResponse.prototype)
+          );
+          replace(() => import('body-parser')).with(mockBodyParser);
+        }
+      ));
     },
 
     after() {
-      removeMocks();
       sandbox.restore();
     },
 
     beforeEach() {
-      fs.__fileData = {};
+      mockFs.__fileData = {};
       httpServers = [];
       webSocketServers = [];
       executor = createMockNodeExecutor();

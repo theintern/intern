@@ -5,7 +5,7 @@ import { Task } from 'src/common';
 import Test from 'src/core/lib/Test';
 import { ObjectSuiteDescriptor } from 'src/core/lib/interfaces/object';
 
-registerSuite('Command', () => {
+registerSuite('functional/webdriver/Command', () => {
   let session: Session;
 
   return {

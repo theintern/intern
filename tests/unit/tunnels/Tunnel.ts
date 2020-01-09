@@ -1,7 +1,7 @@
 import { Task } from 'src/common';
 import Tunnel from 'src/tunnels/Tunnel';
 
-registerSuite('unit/Tunnel', () => {
+registerSuite('tunnels/Tunnel', () => {
   let tunnel: Tunnel;
 
   return {

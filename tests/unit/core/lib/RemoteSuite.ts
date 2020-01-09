@@ -8,7 +8,7 @@ import {
 } from 'tests/support/unit/mocks';
 import { ObjectSuiteDescriptor } from 'src/core/lib/interfaces/object';
 
-registerSuite('lib/RemoteSuite', {
+registerSuite('core/lib/RemoteSuite', {
   'id property'() {
     const remoteSuite = new RemoteSuite({
       name: 'foo',

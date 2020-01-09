@@ -5,9 +5,9 @@
     "outDir": "./_tests"
   },
   "include": [
-    "tests/**"
+    "tests/**/*"
   ],
   "exclude": [
-    "tests/examples/**"
+    "tests/examples/**/*"
   ]
 }

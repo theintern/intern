@@ -71,7 +71,7 @@ function testTest(
   );
 }
 
-registerSuite('lib/reporters/TeamCity', function() {
+registerSuite('core/lib/reporters/TeamCity', function() {
   const mockExecutor = <any>{
     formatError: spy((error: Error) => intern.formatError(error)),
     on: spy(),

@@ -1,6 +1,6 @@
 import SeleniumTunnel from 'src/tunnels/SeleniumTunnel';
 
-registerSuite('unit/SeleniumTunnel', {
+registerSuite('tunnels/SeleniumTunnel', {
   config: {
     'name only': function() {
       const tunnel = new SeleniumTunnel({ drivers: ['chrome'] });

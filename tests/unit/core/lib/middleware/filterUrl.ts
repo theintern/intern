@@ -3,7 +3,7 @@ import { spy, SinonSpy } from 'sinon';
 import filterUrl from 'src/core/lib/middleware/filterUrl';
 import { MockRequest, MockResponse } from 'tests/support/unit/mocks';
 
-registerSuite('lib/middleware/filterUrl', function() {
+registerSuite('core/lib/middleware/filterUrl', function() {
   let handler: (request: any, response: any, next: any) => void;
   let request: MockRequest;
   let response: MockResponse;

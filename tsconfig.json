@@ -14,5 +14,5 @@
     "strict": true,
     "target": "esnext"
   },
-  "include": ["src/**/*", "scripts/**/*", "tests/**/*"]
+  "include": ["src/**/*", "scripts/**/*", "tests/**/*", "*"]
 }

@@ -8,7 +8,7 @@ import {
 let mockConsole: MockConsole;
 let reporter: Simple;
 
-registerSuite('src/core/lib/reporters/Simple', {
+registerSuite('core/lib/reporters/Simple', {
   beforeEach() {
     mockConsole = createMockConsole();
     const mockExecutor = createMockNodeExecutor();

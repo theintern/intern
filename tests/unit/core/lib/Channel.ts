@@ -1,27 +1,24 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { Task } from 'src/common';
 import _Channel, { ChannelOptions } from 'src/core/lib/Channel';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
-let Channel: typeof _Channel;
-
 let messages: string[];
 let websocketError: 'construct' | 'send' | null;
-let removeMocks: () => void;
+let Channel: typeof _Channel;
 
 registerSuite('core/lib/Channel', {
-  before() {
-    return mockRequire(require, 'src/core/lib/Channel', {
-      'src/core/lib/channels/WebSocket': MockWebSocket,
-      'src/core/lib/channels/Http': MockHttp
-    }).then(handle => {
-      removeMocks = handle.remove;
-      Channel = handle.module.default;
-    });
-  },
-
-  after() {
-    removeMocks();
+  async before() {
+    ({ default: Channel } = await mockImport(
+      () => import('src/core/lib/Channel'),
+      replace => {
+        replace(() => import('src/core/lib/channels/WebSocket')).with(
+          MockWebSocket as any
+        );
+        replace(() => import('src/core/lib/channels/Http')).with(
+          MockHttp as any
+        );
+      }
+    ));
   },
 
   beforeEach() {

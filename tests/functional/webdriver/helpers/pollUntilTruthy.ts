@@ -3,7 +3,7 @@ import pollUntilTruthy from 'src/webdriver/helpers/pollUntilTruthy';
 import { createSessionFromRemote } from '../support/util';
 import { ObjectSuiteDescriptor } from 'src/core/lib/interfaces/object';
 
-registerSuite('helpers/pollUntilTruthy', () => {
+registerSuite('functional/webdriver/helpers/pollUntilTruthy', () => {
   let command: Command<any>;
 
   return {

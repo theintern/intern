@@ -10,7 +10,7 @@ interface FullCoverage extends _Coverage {
   new (executor: Node, options: CoverageOptions): _Coverage;
 }
 
-registerSuite('lib/reporters/Coverage', function() {
+registerSuite('core/lib/reporters/Coverage', function() {
   const mockExecutor = <any>{
     formatError: spy(),
     on: spy(),

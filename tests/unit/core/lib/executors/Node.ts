@@ -1,13 +1,18 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { spy, SinonSpy, stub } from 'sinon';
-import { Task, deepMixin, isPromiseLike } from 'src/common';
+import { Task, isPromiseLike, deepMixin } from 'src/common';
+import { RawSourceMap } from 'source-map';
+import { BigIntStats, PathLike } from 'fs';
+import { sep } from 'path';
+import { CoverageMap } from 'istanbul-lib-coverage';
+import { Instrumenter } from 'istanbul-lib-instrument';
+import { MapStore } from 'istanbul-lib-source-maps';
 
 import { Config } from 'src/core/lib/common/config';
 import _Node from 'src/core/lib/executors/Node';
 import Suite from 'src/core/lib/Suite';
 
 import { testProperty } from 'tests/support/unit/executor';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('core/lib/executors/Node', function() {
   function createExecutor(config?: Partial<Config>) {
@@ -157,23 +162,27 @@ registerSuite('core/lib/executors/Node', function() {
   };
 
   const mockChai = {
-    assert: 'assert',
-    should: spy(() => 'should')
+    assert: ('assert' as never) as Chai.Assert,
+    should: spy(() => ('should' as never) as Chai.Should)
   };
 
   const mockFs = {
-    existsSync(_path: string) {
+    existsSync(_path: PathLike) {
       return true;
     },
 
-    readFileSync(path: string) {
+    readFileSync(path: any) {
       if (fsData[path]) {
-        return fsData[path];
+        return fsData[path] as any;
       }
       const error: NodeJS.ErrnoException = new Error('no such file');
       error.code = 'ENOENT';
 
       throw error;
+    },
+
+    statSync() {
+      return {} as BigIntStats;
     }
   };
 
@@ -190,7 +199,10 @@ registerSuite('core/lib/executors/Node', function() {
     normalize(path: string) {
       return path;
     },
-    sep: '/'
+    join(...parts: string[]) {
+      return parts.join('/');
+    },
+    sep: '/' as typeof sep
   };
 
   const mockGlobal = {
@@ -215,14 +227,17 @@ registerSuite('core/lib/executors/Node', function() {
   const mockTsNodeRegister = spy();
 
   const mockNodeUtil = {
-    expandFiles(files: string | string[]) {
-      return files || [];
+    expandFiles(patterns?: string | string[]) {
+      if (typeof patterns === 'string') {
+        return [patterns];
+      }
+      return patterns || [];
     },
     normalizePath(path: string) {
       return path;
     },
     readSourceMap() {
-      return {};
+      return {} as RawSourceMap;
     },
     transpileSource: spy()
   };
@@ -235,91 +250,137 @@ registerSuite('core/lib/executors/Node', function() {
   let sessions: MockSession[];
   let coverageMaps: MockCoverageMap[];
   let Node: typeof _Node;
-  const allRemoveMocks: (() => void)[] = [];
   let fsData: { [name: string]: string };
   let tsExtension: any;
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/executors/Executor', {
-        'src/core/lib/common/console': mockConsole
-      }).then(handle => {
-        allRemoveMocks.push(handle.remove);
-        const Executor = handle.module.default;
-
-        return mockRequire(require, 'src/core/lib/executors/Node', {
-          'src/core/lib/common/ErrorFormatter': MockErrorFormatter,
-          'src/core/lib/common/console': mockConsole,
-          'src/core/lib/executors/Executor': Executor,
-          'src/core/lib/node/util': mockNodeUtil,
-          chai: mockChai,
-          path: mockPath,
-          fs: mockFs,
-          'src/common': {
+    async before() {
+      ({ default: Node } = await mockImport(
+        () => import('src/core/lib/executors/Node'),
+        replace => {
+          replace(() =>
+            import('src/core/lib/common/ErrorFormatter')
+          ).withDefault(MockErrorFormatter as any);
+          replace(() => import('src/core/lib/common/console')).with(
+            mockConsole
+          );
+          replace(() => import('chai')).with(mockChai);
+          replace(() => import('src/common')).with({
             global: mockGlobal,
             isPromiseLike,
             Task,
             deepMixin
-          },
-          'src/core/lib/reporters/Pretty': MockReporter,
-          'src/core/lib/reporters/Runner': MockReporter,
-          'src/core/lib/reporters/Simple': MockReporter,
-          'src/core/lib/reporters/JsonCoverage': MockReporter,
-          'src/core/lib/reporters/HtmlCoverage': MockReporter,
-          'src/core/lib/reporters/Lcov': MockReporter,
-          'src/core/lib/reporters/Benchmark': MockReporter,
-          'istanbul-lib-coverage': {
+          });
+          replace(() => import('src/core/lib/node/util')).with(mockNodeUtil);
+          replace(() => import('path')).with(mockPath);
+          replace(() => import('fs')).with(mockFs);
+          replace(() => import('src/core/lib/reporters/Pretty')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('src/core/lib/reporters/Runner')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('src/core/lib/reporters/Simple')).withDefault(
+            MockReporter as any
+          );
+          replace(() =>
+            import('src/core/lib/reporters/JsonCoverage')
+          ).withDefault(MockReporter as any);
+          replace(() =>
+            import('src/core/lib/reporters/HtmlCoverage')
+          ).withDefault(MockReporter as any);
+          replace(() => import('src/core/lib/reporters/Lcov')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('src/core/lib/reporters/Benchmark')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('istanbul-lib-coverage')).with({
             classes: {
               FileCoverage: {
                 prototype: {
                   merge() {}
                 }
-              }
+              } as any
             },
             createCoverageMap() {
-              return new MockCoverageMap();
+              return (new MockCoverageMap() as unknown) as CoverageMap;
             }
-          },
-          'istanbul-lib-hook': {
-            hookRunInThisContext() {},
-            hookRequire() {},
-            unhookRunInThisContext() {}
-          },
-          'istanbul-lib-instrument': {
-            createInstrumenter() {
-              return new MockInstrumenter();
+          });
+          replace(() => import('istanbul-lib-hook')).with({
+            hookRunInThisContext() {
+              return {};
             },
-            readInitialCoverage(code: string) {
-              return { coverageData: `covered: ${code}` };
+            hookRequire() {
+              return () => ({});
+            },
+            unhookRunInThisContext() {
+              return {};
             }
-          },
-          'istanbul-lib-source-maps': {
-            createSourceMapStore() {
-              return new MockMapStore();
-            }
-          },
-          'ts-node': {
-            register: mockTsNodeRegister
-          },
-          'src/core/lib/Server': MockServer,
-          'src/core/lib/resolveEnvironments': () => {
-            return ['foo env'];
-          },
-          'src/webdriver/Command': MockCommand,
-          'src/webdriver/Server': MockLeadfootServer,
-          'src/tunnels/NullTunnel': MockTunnel,
-          'src/tunnels/BrowserStackTunnel': MockTunnel,
-          'src/core/lib/ProxiedSession': MockSession,
-          'src/core/lib/RemoteSuite': MockRemoteSuite
-        }).then(handle => {
-          allRemoveMocks.push(handle.remove);
-          Node = handle.module.default;
-        });
-      });
-    },
+          });
 
-    after() {
-      allRemoveMocks.forEach(remove => remove());
+          replace(() => import('istanbul-lib-instrument')).with({
+            readInitialCoverage(code: string) {
+              return {
+                coverageData: `covered: ${code}`,
+                path: '',
+                hash: '',
+                gcv: null
+              };
+            },
+            createInstrumenter() {
+              return (new MockInstrumenter() as unknown) as Instrumenter;
+            }
+          });
+
+          replace(() => import('istanbul-lib-source-maps')).with({
+            createSourceMapStore() {
+              return (new MockMapStore() as unknown) as MapStore;
+            }
+          });
+          replace(() => import('ts-node')).with({
+            register: mockTsNodeRegister
+          });
+          replace(() => import('src/core/lib/Server')).withDefault(
+            MockServer as any
+          );
+          replace(() => import('src/core/lib/resolveEnvironments')).withDefault(
+            () => {
+              return ['foo env'];
+            }
+          );
+          replace(() => import('src/webdriver/Command')).withDefault(
+            MockCommand as any
+          );
+          replace(() => import('src/webdriver/Server')).withDefault(
+            MockLeadfootServer as any
+          );
+          replace(() => import('src/tunnels/NullTunnel')).withDefault(
+            MockTunnel as any
+          );
+          replace(() => import('src/tunnels/BrowserStackTunnel')).withDefault(
+            MockTunnel as any
+          );
+          replace(() => import('src/tunnels/SeleniumTunnel')).withDefault(
+            MockTunnel as any
+          );
+          replace(() => import('src/tunnels/TestingBotTunnel')).withDefault(
+            MockTunnel as any
+          );
+          replace(() =>
+            import('src/tunnels/CrossBrowserTestingTunnel')
+          ).withDefault(MockTunnel as any);
+          replace(() => import('src/tunnels/SauceLabsTunnel')).withDefault(
+            MockTunnel as any
+          );
+          replace(() => import('src/core/lib/ProxiedSession')).withDefault(
+            MockSession as any
+          );
+          replace(() => import('src/core/lib/RemoteSuite')).withDefault(
+            MockRemoteSuite as any
+          );
+        }
+      ));
     },
 
     beforeEach() {

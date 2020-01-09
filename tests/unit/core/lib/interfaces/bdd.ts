@@ -1,7 +1,7 @@
 import * as bddInt from 'src/core/lib/interfaces/bdd';
 import * as tddInt from 'src/core/lib/interfaces/tdd';
 
-registerSuite('lib/interfaces/bdd', {
+registerSuite('core/lib/interfaces/bdd', {
   // Since this interface is the same as tdd, just check that it really is the
   // same
   'tdd equivalence'() {

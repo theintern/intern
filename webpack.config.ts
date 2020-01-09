@@ -26,7 +26,7 @@ const common: Configuration = {
         }
       }
     ],
-    noParse: /benchmark[\\\/]benchmark.js/
+    noParse: /benchmark\/benchmark.js/
   },
   performance: {
     // Hides a warning about large bundles.
@@ -53,14 +53,6 @@ module.exports = [
     output: {
       filename: '[name].js',
       path: join(__dirname, '_build/browser')
-    }
-  },
-  {
-    ...common,
-    entry: getEntries(),
-    output: {
-      filename: '[name].js',
-      path: join(__dirname, '_tests/browser')
     }
   }
 ];

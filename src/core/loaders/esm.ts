@@ -1,4 +1,5 @@
 import 'globals';
+import Browser from '../lib/executors/Browser';
 
 /**
  * A loader script for loading ES-module JavaScript suites in the browser.

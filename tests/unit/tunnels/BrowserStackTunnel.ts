@@ -1,7 +1,7 @@
 import { join } from 'path';
 import BrowserStackTunnel from 'src/tunnels/BrowserStackTunnel';
 
-registerSuite('unit/BrowserStackTunnel', () => {
+registerSuite('tunnels/BrowserStackTunnel', () => {
   let tunnel: BrowserStackTunnel;
 
   return {

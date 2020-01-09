@@ -4,7 +4,7 @@ import { spy, SinonSpy } from 'sinon';
 import finalError from 'src/core/lib/middleware/finalError';
 import { MockRequest, MockResponse } from 'tests/support/unit/mocks';
 
-registerSuite('lib/middleware/finalError', function() {
+registerSuite('core/lib/middleware/finalError', function() {
   let handler: (error: any, request: any, response: any, next: any) => void;
   let request: MockRequest;
   let response: MockResponse;

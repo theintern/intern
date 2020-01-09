@@ -1,36 +1,39 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { dirname, join } from 'path';
 import { rmdirSync } from 'fs';
-import { Task } from 'src/common';
+import { CancellablePromise } from 'src/common';
+import fs from 'fs';
+// import path from 'path';
+// import _glob from 'glob';
 
-import * as _util from 'src/core/lib/node/util';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
+import * as utilMod from 'src/core/lib/node/util';
+// import * as commonUtilMod from 'src/core/lib/common/util';
 
 registerSuite('core/lib/node/util', function() {
-  let util: typeof _util;
+  let util: typeof utilMod;
 
   const mockFs = {
-    readFile(
+    readFile: ((
       filename: string,
       _encoding: any,
       callback: (error: Error | undefined, data?: string) => {}
-    ) {
+    ) => {
       if (fsData[filename]) {
         callback(undefined, fsData[filename]);
       }
       const error = new Error('Not found');
       (<any>error).code = 'ENOENT';
       callback(error);
-    },
+    }) as typeof fs.readFile,
 
-    readFileSync(filename: string) {
+    readFileSync: ((filename: string) => {
       if (fsData[filename]) {
         return fsData[filename];
       }
       const error = new Error('Not found');
       (<any>error).code = 'ENOENT';
       throw error;
-    }
+    }) as typeof fs.readFileSync
   };
 
   const mockUtil = {
@@ -40,23 +43,14 @@ registerSuite('core/lib/node/util', function() {
 
     loadConfig(
       filename: string,
-      loadText: (filename: string) => Promise<string>,
-      args?: string[],
-      childConfig?: string
+      loadText: (filename: string) => CancellablePromise<string>,
+      args?: { [key: string]: any },
+      childConfig?: string | string[]
     ) {
       logCall('loadConfig', [filename, loadText, args, childConfig]);
       return loadText(filename).then(text => {
         return JSON.parse(text);
       });
-    },
-
-    loadText(filename: string) {
-      if (fsData[filename]) {
-        return Task.resolve(fsData[filename]);
-      }
-      const error = new Error('Not found');
-      (<any>error).code = 'ENOENT';
-      return Task.reject(error);
     },
 
     parseArgs(...args: any[]) {
@@ -70,7 +64,7 @@ registerSuite('core/lib/node/util', function() {
       return { configFile: parts[0], childConfig: parts[1] };
     },
 
-    defaultConfig: 'intern.json'
+    defaultConfig: 'intern.json' as 'intern.json'
   };
 
   const mockGlob = {
@@ -121,29 +115,30 @@ registerSuite('core/lib/node/util', function() {
     env: {}
   };
 
+  const mockGlobal = {
+    process: mockProcess
+  };
+
   let hasMagic: boolean;
   let glob: ((pattern: string, options: any) => string[]) | undefined;
   let calls: { [name: string]: any[] };
   let parsedArgs: { [key: string]: string | string[] };
   let fsData: { [name: string]: string };
-  let removeMocks: () => void;
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/node/util', {
-        fs: mockFs,
-        glob: mockGlob,
-        path: mockPath,
-        'src/core/lib/common/util': mockUtil,
-        'src/core/lib/node/process': mockProcess
-      }).then(handle => {
-        removeMocks = handle.remove;
-        util = handle.module;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      util = await mockImport(
+        () => import('src/core/lib/node/util'),
+        replace => {
+          replace(() => import('fs')).with(mockFs);
+          replace(() => import('path')).with(mockPath);
+          replace(() => import('glob')).with(mockGlob);
+          replace(() => import('src/core/lib/common/util')).with(mockUtil);
+          replace(() => import('src/common/lib/global')).withDefault(
+            mockGlobal
+          );
+        }
+      );
     },
 
     beforeEach() {
@@ -380,7 +375,7 @@ registerSuite('core/lib/node/util', function() {
       },
 
       mkdirp() {
-        _util.mkdirp('_test_tmp/dir1/dir2/dir3');
+        utilMod.mkdirp('_test_tmp/dir1/dir2/dir3');
         rmdirSync('_test_tmp/dir1/dir2/dir3');
         rmdirSync('_test_tmp/dir1/dir2');
         rmdirSync('_test_tmp/dir1');

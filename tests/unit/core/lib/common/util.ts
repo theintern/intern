@@ -3,7 +3,7 @@ import { Task } from 'src/common';
 import * as util from 'src/core/lib/common/util';
 import { Config } from 'src/core/lib/common/config';
 
-registerSuite('lib/common/util', {
+registerSuite('core/lib/common/util', {
   loadConfig: {
     'empty config'() {
       return util.loadConfig('empty', loadText).then(config => {

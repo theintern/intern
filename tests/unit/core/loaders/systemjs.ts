@@ -1,17 +1,14 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { spy, stub } from 'sinon';
 import { global } from 'src/common';
 
 import { LoaderInit } from 'src/core/lib/executors/Executor';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
 const originalIntern = global.intern;
 const originalRequire = global.require;
 const originalSystemJS = global.SystemJS;
 
-registerSuite('loaders/systemjs', function() {
-  let removeMocks: () => void;
-
+registerSuite('core/loaders/systemjs', function() {
   const mockIntern = {
     // Use whatever the local environment is
     environment: intern.environment,
@@ -32,17 +29,14 @@ registerSuite('loaders/systemjs', function() {
   };
 
   return {
-    before() {
+    async before() {
       global.intern = mockIntern;
-      return mockRequire(require, 'src/loaders/systemjs', {}).then(handle => {
-        removeMocks = handle.remove;
-        assert.equal(mockIntern.registerLoader.callCount, 1);
-      });
+      await mockImport(() => require('src/core/loaders/systemjs'));
+      assert.equal(mockIntern.registerLoader.callCount, 1);
     },
 
     after() {
       global.intern = originalIntern;
-      removeMocks();
     },
 
     beforeEach() {

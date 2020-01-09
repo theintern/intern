@@ -544,7 +544,7 @@ function createGrepLifecycleTests() {
   return result;
 }
 
-registerSuite('lib/Suite', {
+registerSuite('core/lib/Suite', {
   '#constructor required parameters'() {
     assert.throws(() => {
       new Suite(<any>{ parent: {} });

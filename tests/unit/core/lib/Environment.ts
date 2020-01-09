@@ -3,7 +3,7 @@ import Environment from 'src/core/lib/Environment';
 const { assert } = intern.getPlugin('chai');
 const { registerSuite } = intern.getInterface('object');
 
-registerSuite('lib/Environment', {
+registerSuite('core/lib/Environment', {
   'constructor with info'() {
     const type = new Environment({
       browserName: 'Browser',

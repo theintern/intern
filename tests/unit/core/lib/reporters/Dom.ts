@@ -1,28 +1,22 @@
+import { mockImport } from 'tests/support/mockUtil';
 import Suite from 'src/core/lib/Suite';
 import Test from 'src/core/lib/Test';
 import _Dom from 'src/core/lib/reporters/Dom';
+import { createDocument } from 'tests/support/browserDom';
 import { createMockBrowserExecutor } from 'tests/support/unit/mocks';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-const createDocument = intern.getPlugin<mocking.DocCreator>('createDocument');
 
 const mockExecutor = createMockBrowserExecutor();
 
-let removeMocks: () => void;
 let Dom: typeof _Dom;
 
-registerSuite('src/core/lib/reporters/Dom', {
-  before() {
-    return mockRequire(require, 'src/core/lib/reporters/Dom', {
-      'src/common': { global: { scrollTo() {} } }
-    }).then(resource => {
-      removeMocks = resource.remove;
-      Dom = resource.module.default;
-    });
-  },
-
-  after() {
-    removeMocks();
+registerSuite('core/lib/reporters/Dom', {
+  async before() {
+    ({ default: Dom } = await mockImport(
+      () => import('src/core/lib/reporters/Dom'),
+      replace => {
+        replace(() => import('src/common')).with({ global: { scrollTo() {} } });
+      }
+    ));
   },
 
   tests: {

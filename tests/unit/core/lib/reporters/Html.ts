@@ -1,30 +1,24 @@
-import _Html from 'src/core/lib/reporters/Html';
+import { mockImport } from 'tests/support/mockUtil';
 import { createMockBrowserExecutor } from 'tests/support/unit/mocks';
 import { createLocation } from './support/mocks';
-
-const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
-const createDocument = intern.getPlugin<mocking.DocCreator>('createDocument');
+import { createDocument } from 'tests/support/browserDom';
+import _Html from 'src/core/lib/reporters/Html';
 
 const mockExecutor = createMockBrowserExecutor();
 
 let Html: typeof _Html;
-let removeMocks: () => void;
 let doc: Document;
 let location: Location;
 let reporter: _Html;
 
-registerSuite('src/core/lib/reporters/Html', {
-  before() {
-    return mockRequire(require, 'src/core/lib/reporters/Html', {
-      'src/core/lib/reporters/html/html.styl': {}
-    }).then(resource => {
-      removeMocks = resource.remove;
-      Html = resource.module.default;
-    });
-  },
-
-  after() {
-    removeMocks();
+registerSuite('core/lib/reporters/Html', {
+  async before() {
+    ({ default: Html } = await mockImport(
+      () => import('src/core/lib/reporters/Html'),
+      replace => {
+        replace('src/core/lib/reporters/html/html.styl').with({});
+      }
+    ));
   },
 
   beforeEach() {

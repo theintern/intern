@@ -1,17 +1,14 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { spy } from 'sinon';
 
-import * as _benchmarkInt from 'src/core/lib/interfaces/benchmark';
 import BenchmarkTest, {
   BenchmarkTestFunction
 } from 'src/core/lib/BenchmarkTest';
 import BenchmarkSuite from 'src/core/lib/BenchmarkSuite';
 import Suite from 'src/core/lib/Suite';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
-registerSuite('lib/interfaces/benchmark', function() {
-  let benchmarkInt: typeof _benchmarkInt;
-  let removeMocks: () => void;
+registerSuite('core/lib/interfaces/benchmark', function() {
+  let benchmarkInt: typeof import('src/core/lib/interfaces/benchmark');
   let parent: Suite;
   let executor: any;
   const getIntern = spy(() => {
@@ -22,19 +19,23 @@ registerSuite('lib/interfaces/benchmark', function() {
       return getIntern();
     }
   };
-
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/interfaces/benchmark', {
-        'src/common': { global: mockGlobal }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        benchmarkInt = handle.module;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      benchmarkInt = await mockImport(
+        () => import('src/core/lib/interfaces/benchmark'),
+        replace => {
+          replace(() => import('src/common')).with({ global: mockGlobal });
+          // Pass in our versions of Suite and Test since we'll be using
+          // instanceof in some of the tests below. Without doing this, the test
+          // tdd interface would have its own copies of Suite and Test.
+          replace(() => import('src/core/lib/BenchmarkSuite')).withDefault(
+            BenchmarkSuite
+          );
+          replace(() => import('src/core/lib/BenchmarkTest')).withDefault(
+            BenchmarkTest
+          );
+        }
+      );
     },
 
     beforeEach() {

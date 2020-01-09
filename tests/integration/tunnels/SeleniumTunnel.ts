@@ -105,7 +105,7 @@ let tests: Tests = {
   },
 
   'version check': function() {
-    const version = '2.25';
+    const version = '79.0.3945.36';
     const { arch } = process;
     tunnel = new SeleniumTunnel({
       drivers: [{ name: 'chrome', version }]
@@ -123,7 +123,10 @@ let tests: Tests = {
 };
 
 tests = addStartStopTest(tests, SeleniumTunnel, {
-  needsAuthData: false
+  needsAuthData: false,
+  // Use a non-standard port to not conflict with a running tunnel in the host
+  // Intern
+  port: 39823
 });
 
 const suite: ObjectSuiteDescriptor = {
@@ -138,4 +141,4 @@ const suite: ObjectSuiteDescriptor = {
   tests
 };
 
-registerSuite('integration/SeleniumTunnel', suite);
+registerSuite('integration/tunnels/SeleniumTunnel', suite);

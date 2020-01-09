@@ -1,5 +1,6 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox, spy } from 'sinon';
-import { Task, deepMixin, isPromiseLike } from 'src/common';
+import { Task, isPromiseLike, deepMixin } from 'src/common';
 
 import _Executor, {
   Config,
@@ -11,8 +12,6 @@ import _Executor, {
 import { isSuite } from 'src/core/lib/Suite';
 import { testProperty } from 'tests/support/unit/executor';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
 type ExecutorType = _Executor<Events, Config, Plugins>;
 
 // Create an interface to de-abstract the abstract properties in Executor
@@ -23,8 +22,6 @@ interface FullExecutor extends ExecutorType {
 }
 
 let Executor: FullExecutor;
-
-let removeMocks: () => void;
 
 function assertRunFails(executor: ExecutorType, errorMatcher: RegExp) {
   return executor.run().then(
@@ -70,8 +67,8 @@ registerSuite('core/lib/executors/Executor', function() {
   };
 
   const mockChai = {
-    assert: 'assert',
-    should: sandbox.spy(() => 'should')
+    assert: ('assert' as never) as Chai.Assert,
+    should: sandbox.spy(() => ('should' as never) as Chai.Should)
   };
 
   const loadScript = sandbox.spy((script: string) => {
@@ -85,27 +82,29 @@ registerSuite('core/lib/executors/Executor', function() {
   let executor: ExecutorType;
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/executors/Executor', {
-        'src/core/lib/common/ErrorFormatter': MockErrorFormatter,
-        'src/core/lib/common/console': mockConsole,
-        chai: mockChai,
-        'src/common': {
-          global: { __coverage__: {} },
-          isPromiseLike,
-          Task,
-          deepMixin
+    async before() {
+      const { default: BaseExecutor } = await mockImport(
+        () => import('src/core/lib/executors/Executor'),
+        replace => {
+          replace(() =>
+            import('src/core/lib/common/ErrorFormatter')
+          ).withDefault(MockErrorFormatter as any);
+          replace(() => import('src/core/lib/common/console')).with(
+            mockConsole
+          );
+          replace(() => import('chai')).with(mockChai);
+          replace(() => import('src/common')).with({
+            global: { __coverage__: {} },
+            deepMixin,
+            isPromiseLike,
+            Task
+          });
         }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        Executor = handle.module.default;
-        Executor.prototype.loadScript = loadScript;
-        Executor.prototype.environment = 'node';
-      });
-    },
+      );
 
-    after() {
-      removeMocks();
+      Executor = BaseExecutor as FullExecutor;
+      Executor.prototype.loadScript = loadScript;
+      Executor.prototype.environment = 'node';
     },
 
     beforeEach() {

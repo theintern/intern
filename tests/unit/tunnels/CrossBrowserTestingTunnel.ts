@@ -1,6 +1,6 @@
 import CrossBrowserTestingTunnel from 'src/tunnels/CrossBrowserTestingTunnel';
 
-registerSuite('unit/CrossBrowserTestingTunnel', () => {
+registerSuite('tunnels/CrossBrowserTestingTunnel', () => {
   let tunnel: CrossBrowserTestingTunnel;
 
   return {

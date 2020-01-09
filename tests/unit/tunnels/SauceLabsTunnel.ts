@@ -1,6 +1,6 @@
 import SauceLabsTunnel from 'src/tunnels/SauceLabsTunnel';
 
-registerSuite('unit/SauceLabsTunnel', () => {
+registerSuite('tunnels/SauceLabsTunnel', () => {
   let tunnel: SauceLabsTunnel;
 
   return {

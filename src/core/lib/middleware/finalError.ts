@@ -3,7 +3,11 @@ import { HttpError } from 'http-errors';
 import { STATUS_CODES } from 'http';
 
 export default function finalError(): ErrorRequestHandler {
-  return (error: HttpError, request, response) => {
+  // Note that the _next parameter is required for this middleware to handle
+  // errors. Without it, Express will assume this middleware can't deal with
+  // errors and will handle errors itself.
+  // See https://expressjs.com/en/guide/using-middleware.html#middleware.error-handling
+  return (error: HttpError, request, response, _next) => {
     const message = error.expose
       ? error.message
       : STATUS_CODES[error.statusCode];

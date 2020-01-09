@@ -1,7 +1,5 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox } from 'sinon';
-import * as _console from 'src/core/lib/common/console';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 const sandbox = createSandbox();
 const mockConsole = {
@@ -10,31 +8,24 @@ const mockConsole = {
   error: sandbox.spy(() => {})
 };
 
-let console: typeof _console;
-let removeMocks: () => void;
+let console: typeof import('src/core/lib/common/console');
 
-registerSuite('lib/common/console', {
+registerSuite('core/lib/common/console', {
   afterEach() {
     sandbox.resetHistory();
   },
 
   tests: {
     'console exists': {
-      before() {
-        return mockRequire(require, 'src/core/lib/common/console', {
-          'src/common': {
-            global: {
-              console: mockConsole
-            }
+      async before() {
+        console = await mockImport(
+          () => import('src/core/lib/common/console'),
+          replace => {
+            replace(() => import('src/common')).with({
+              global: { console: mockConsole }
+            });
           }
-        }).then(handle => {
-          removeMocks = handle.remove;
-          console = handle.module;
-        });
-      },
-
-      after() {
-        removeMocks();
+        );
       },
 
       tests: {
@@ -56,19 +47,15 @@ registerSuite('lib/common/console', {
     },
 
     'console does not exist': {
-      before() {
-        return mockRequire(require, 'src/core/lib/common/console', {
-          'src/common': {
-            global: { console: undefined }
+      async before() {
+        console = await mockImport(
+          () => import('src/core/lib/common/console'),
+          replace => {
+            replace(() => import('src/common')).with({
+              global: { console: undefined }
+            });
           }
-        }).then(handle => {
-          removeMocks = handle.remove;
-          console = handle.module;
-        });
-      },
-
-      after() {
-        removeMocks();
+        );
       },
 
       tests: {

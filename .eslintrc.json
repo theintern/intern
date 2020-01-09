@@ -26,6 +26,8 @@
     // TODO: turn this back on if we add polyfill or stop supporting IE
     "@typescript-eslint/prefer-string-starts-ends-with": "off",
     // TODO: turn this back on when we're ready to fix all the usages
-    "@typescript-eslint/no-non-null-assertion": "off"
+    "@typescript-eslint/no-non-null-assertion": "off",
+    // The whole point of ts-ignore is to purposefully ignore errors...
+    "@typescript-eslint/ban-ts-ignore": "off"
   }
 }

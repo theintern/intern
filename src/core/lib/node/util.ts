@@ -14,7 +14,7 @@ import { sync as glob, hasMagic } from 'glob';
 
 import { Task, CancellablePromise } from '../../../common';
 
-import process from './process';
+import global from '../../../common/lib/global';
 import {
   defaultConfig,
   getBasePath,
@@ -22,6 +22,8 @@ import {
   parseArgs,
   splitConfigPath
 } from '../common/util';
+
+const { process } = global;
 
 /**
  * Expand a list of glob patterns into a flat file list. Patterns may be simple

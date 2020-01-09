@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig-lib.json",
   "compilerOptions": {
+    // Disable declarations and source maps for the executables
     "declaration": false,
     "sourceMap": false
   },

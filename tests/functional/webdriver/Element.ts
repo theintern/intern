@@ -71,7 +71,7 @@ function createStubbedSuite(
   return suite;
 }
 
-registerSuite('Element', () => {
+registerSuite('functional/webdriver/Element', () => {
   let session: Session;
   let resetBrowserState = true;
 

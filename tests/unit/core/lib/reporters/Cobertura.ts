@@ -3,7 +3,7 @@ import Cobertura from 'src/core/lib/reporters/Cobertura';
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 
-registerSuite('lib/reporters/Cobertura', {
+registerSuite('core/lib/reporters/Cobertura', {
   construct() {
     const reporter = new Cobertura(<any>{ on() {} });
     assert.equal(reporter.reportType, 'cobertura');

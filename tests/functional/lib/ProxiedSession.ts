@@ -12,7 +12,7 @@ import registerSuite, {
 } from 'src/core/lib/interfaces/object';
 import { assert } from 'chai';
 
-registerSuite('lib/ProxiedSession (functional)', () => {
+registerSuite('functional/lib/ProxiedSession (functional)', () => {
   const serverUrl = 'https://example.invalid/';
   let session: ProxiedSession | null;
   let numGetCalls: number;

@@ -20,7 +20,7 @@ const suffixes = strategyNames.map(name => {
   );
 });
 
-registerSuite('Session', () => {
+registerSuite('functional/webdriver/Session', () => {
   let session: any;
   let resetBrowserState = true;
 
@@ -629,6 +629,9 @@ registerSuite('Session', () => {
       // actually test IME commands
 
       'frame switching (#switchToFrame, #switchToParentFrame)'(this: Test) {
+        // TODO: inlineFrame isn't a valid W3C frame ID
+        this.skip('Disabled until W3C frame IDs are implemented');
+
         if (session.capabilities.brokenParentFrameSwitch) {
           this.skip('switch to parent frame not supported');
         }
@@ -672,6 +675,9 @@ registerSuite('Session', () => {
       },
 
       'window switching (#switchToWindow, #closeCurrentWindow)'(this: Test) {
+        // TODO: W3C window switching needs a `handle` argument
+        this.skip('Disabled until W3C window IDs are implemented');
+
         if (session.capabilities.brokenWindowSwitch) {
           this.skip('window switching is broken');
         }
@@ -1418,6 +1424,10 @@ registerSuite('Session', () => {
       ),
 
       '#waitForDeleted'() {
+        // TODO: Determine why waits are always waiting for the maximum wait
+        // time.
+        this.skip('Disabled until timer issues are resolved');
+
         let startTime: number;
 
         return session
@@ -1529,6 +1539,10 @@ registerSuite('Session', () => {
       },
 
       '#pressKeys'() {
+        // TODO: This should be disabled for browsers in W3C mode until the
+        // Actions API has been implemeneted.
+        this.skip('Disabled until W3C support is implemented');
+
         let formElement: Element;
 
         // TODO: Complex characters, tabs and arrows, copy and paste

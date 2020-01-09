@@ -6,9 +6,9 @@
 // provided, start watchers.
 
 import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { baseDir, copy, copyAll, exec, log, logError } from './lib/util';
-import { watchProcess, watchFiles } from './lib/watch';
+import { watchFiles, watchProcess } from './lib/watch';
 
 function handleError(error: Error) {
   if (error.name === 'ExecError') {
@@ -19,25 +19,41 @@ function handleError(error: Error) {
   }
 }
 
+let watchMode = false;
+let outDirOpt: string | undefined;
+
 const args = process.argv.slice(2);
-const watchMode = args[0] === 'watch';
+while (args.length > 0) {
+  const arg = args.shift();
+  if (arg === '-w' || arg == '--watch') {
+    watchMode = true;
+  } else if (arg == '--outdir' || arg == '-o') {
+    outDirOpt = args.shift();
+    if (!outDirOpt) {
+      throw new Error('-o / --outdir needs an output directory');
+    }
+  }
+}
+
+const outDir = outDirOpt;
 
 // -----------------------------------------------------------------
 // Typescript
 // -----------------------------------------------------------------
-for (const suffix of ['lib', 'bin']) {
+for (const suffix of ['bin', 'lib']) {
   try {
     const tsconfig = `${baseDir}/tsconfig-${suffix}.json`;
+    let cmd = `npx tsc -p ${tsconfig}`;
+
+    if (outDir != null) {
+      cmd += ` --outDir ${outDir}`;
+    }
 
     log(`Compiling ${suffix}...`);
     if (watchMode) {
-      watchProcess(
-        `tsc-${suffix}`,
-        `npx tsc -p ${tsconfig} --watch`,
-        /\berror TS\d+:/
-      );
+      watchProcess(`tsc-${suffix}`, `${cmd} --watch`, /\berror TS\d+:/);
     } else {
-      exec(`npx tsc -p ${tsconfig}`);
+      exec(cmd);
     }
   } catch (error) {
     handleError(error);
@@ -49,10 +65,17 @@ for (const suffix of ['lib', 'bin']) {
 // -----------------------------------------------------------------
 try {
   log('Running webpack...');
+  let cmd = 'npx webpack';
+
+  if (outDir) {
+    const webpackOut = resolve(process.cwd(), outDir);
+    cmd += ` --output-path ${join(webpackOut, 'browser')}`;
+  }
+
   if (watchMode) {
-    watchProcess('webpack', 'npx webpack --watch', /^ERROR\b/);
+    watchProcess('webpack', `${cmd} --watch`, /^ERROR\b/);
   } else {
-    exec('npx webpack');
+    exec(cmd);
   }
 } catch (error) {
   handleError(error);
@@ -62,13 +85,20 @@ try {
 // Resources
 // -----------------------------------------------------------------
 log('Copying resources...');
-const buildDir = `${baseDir}/_build`;
+const buildDir = join(baseDir, outDir || '_build');
 
 function copyFiles() {
-  copyAll([{ base: 'src', pattern: '**/*.{styl,d.ts,html,js.png}' }], buildDir);
+  copyAll([{ base: 'src', pattern: '**/*.{d.ts,js.png}' }], buildDir);
   copy('schemas', buildDir);
   copy('README.md', buildDir);
   copy('LICENSE', buildDir);
+  copy('index.html', buildDir, 'src');
+  copy('favicon.png', buildDir, 'src');
+  copy(
+    'remote.html',
+    join(buildDir, 'browser'),
+    join('src', 'core', 'browser')
+  );
 
   const pkgJson = JSON.parse(
     readFileSync(join(baseDir, 'package.json'), { encoding: 'utf8' })
