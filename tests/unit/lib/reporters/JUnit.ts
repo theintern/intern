@@ -1,6 +1,5 @@
 import { spy, stub } from 'sinon';
 
-import _JUnit from 'src/lib/reporters/JUnit';
 import Test from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
 
@@ -21,7 +20,7 @@ registerSuite('lib/reporters/JUnit', function() {
     mkdirSync: spy()
   };
 
-  let JUnit: typeof _JUnit;
+  let JUnit: typeof import('src/lib/reporters/JUnit').default;
   let removeMocks: () => void;
 
   const getReportOutput = () => {

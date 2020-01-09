@@ -10,6 +10,19 @@ import Node, { NodeEvents } from '../executors/Node';
 
 export { ReportType };
 
+export interface CoverageProperties extends ReporterProperties {
+  /** A filename provided to the coverage reporter */
+  filename?: string;
+
+  /** A directory provided to the coverage reporter */
+  directory?: string;
+
+  /** Watermarks used to check coverage */
+  watermarks?: Watermarks;
+}
+
+export type CoverageOptions = Partial<CoverageProperties>;
+
 const eventHandler = createEventHandler<NodeEvents>();
 
 export default abstract class Coverage extends Reporter
@@ -35,6 +48,10 @@ export default abstract class Coverage extends Reporter
     }
   }
 
+  /**
+   * This is a bag of data provided to the selected istanbul reporter (defined by `reportType`).
+   * by default this provides a filename (if present), though not all reporters use a filename.
+   */
   getReporterOptions(): { [key: string]: any } {
     return {
       file: this.filename
@@ -52,6 +69,7 @@ export default abstract class Coverage extends Reporter
 
     const transformed = this.executor.sourceMapStore.transformCoverage(map);
 
+    // context is a bag of data used by the report. Values will not necessarily be used (it depends on the specific reporter)
     const context = createContext({
       dir: this.directory,
       sourceFinder: transformed.sourceFinder,
@@ -70,19 +88,6 @@ export default abstract class Coverage extends Reporter
     }
   }
 }
-
-export interface CoverageProperties extends ReporterProperties {
-  /** A filename to write coverage data to */
-  filename?: string;
-
-  /** A direcotry to write coverage data to */
-  directory?: string;
-
-  /** Watermarks used to check coverage */
-  watermarks?: Watermarks;
-}
-
-export type CoverageOptions = Partial<CoverageProperties>;
 
 function isCoverageMap(value: any): value is CoverageMap {
   return value != null && typeof value.files === 'function';

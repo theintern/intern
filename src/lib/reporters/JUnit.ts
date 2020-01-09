@@ -1,11 +1,17 @@
 import { createWriteStream } from 'fs';
 import { dirname } from 'path';
 
+import { Executor } from '../executors/Executor';
+import { mkdirp } from '../node/util';
 import Suite, { isSuite } from '../Suite';
 import Test from '../Test';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
-import { Executor } from '../executors/Executor';
-import { mkdirp } from '../node/util';
+import { getPath } from './util/getPath';
+
+export interface JUnitProperties extends ReporterProperties {
+  directory: string;
+  filename?: string;
+}
 
 /**
  * There is no formal spec for this format and everyone does it differently, so
@@ -17,8 +23,9 @@ export default class JUnit extends Reporter {
 
   constructor(executor: Executor, options: Partial<JUnitProperties> = {}) {
     super(executor, options);
-    if (options.filename) {
-      this.filename = options.filename;
+    const path = getPath(options.directory, options.filename, 'junit.xml');
+    if (path) {
+      this.filename = path;
       if (dirname(this.filename) !== '.') {
         mkdirp(dirname(this.filename));
       }
@@ -36,10 +43,6 @@ export default class JUnit extends Reporter {
       '<?xml version="1.0" encoding="UTF-8" ?>' + rootNode.toString() + '\n';
     this.output.end(report);
   }
-}
-
-export interface JUnitProperties extends ReporterProperties {
-  filename?: string;
 }
 
 /**

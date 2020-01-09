@@ -31,7 +31,9 @@
       "_tests/tests/unit/bin/intern.js",
       "_tests/tests/unit/lib/executors/Node.js",
       "_tests/tests/unit/lib/node/**/*.js",
-      "_tests/tests/unit/tasks/**/*.js"
+      "_tests/tests/unit/tasks/**/*.js",
+      "_tests/tests/unit/lib/reporters/util/*.js",
+      "_tests/tests/unit/lib/reporters/JUnit.js"
     ],
     "plugins": [
       "_tests/tests/support/nodeMocking.js",
