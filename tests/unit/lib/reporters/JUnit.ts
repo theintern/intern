@@ -15,10 +15,8 @@ registerSuite('lib/reporters/JUnit', function() {
     formatError: spy((error: Error) => error.message)
   };
 
-  const mockFs = {
-    createWriteStream: spy(),
-    mkdirSync: spy()
-  };
+  const createWriteStreamMock = stub();
+  const mkdirpMock = stub();
 
   let JUnit: typeof import('src/lib/reporters/JUnit').default;
   let removeMocks: () => void;
@@ -43,7 +41,12 @@ registerSuite('lib/reporters/JUnit', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/reporters/JUnit', {
-        fs: mockFs
+        'src/lib/node/util': {
+          mkdirp: mkdirpMock
+        },
+        fs: {
+          createWriteStream: createWriteStreamMock
+        }
       }).then(handle => {
         removeMocks = handle.remove;
         JUnit = handle.module.default;
@@ -57,24 +60,16 @@ registerSuite('lib/reporters/JUnit', function() {
     beforeEach() {
       mockExecutor.suites = [];
       mockExecutor.on.reset();
-      mockFs.createWriteStream.resetHistory();
-      mockFs.mkdirSync.resetHistory();
+      createWriteStreamMock.reset();
+      mkdirpMock.reset();
     },
 
     tests: {
       construct() {
-        let callCount = 0;
-        (mockFs as any).existsSync = (dir: string) => {
-          if (dir === 'somewhere' && callCount === 0) {
-            callCount++;
-            return false;
-          }
-          return true;
-        };
         new JUnit(mockExecutor, { filename: 'somewhere/foo.js' });
-        assert.equal(mockFs.mkdirSync.callCount, 1);
-        assert.equal(mockFs.mkdirSync.getCall(0).args[0], 'somewhere');
-        assert.equal(mockFs.createWriteStream.callCount, 1);
+        assert.equal(mkdirpMock.callCount, 1);
+        assert.equal(mkdirpMock.getCall(0).args[0], 'somewhere');
+        assert.equal(createWriteStreamMock.callCount, 1);
       },
 
       '#runEnd': {
