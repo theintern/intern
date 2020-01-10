@@ -382,6 +382,17 @@ registerSuite('lib/executors/Executor', function() {
                 },
                 /Non-object/
               );
+            },
+
+            remoteOptions() {
+              test('remoteOptions', 5, {}, {}, /Non-object/);
+              test(
+                'remoteOptions',
+                5,
+                { disableDomUpdates: true },
+                { disableDomUpdates: true },
+                /Non-object/
+              );
             }
           };
         })()
