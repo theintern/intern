@@ -570,6 +570,10 @@ export function processOption<C extends Config>(
       );
       break;
     }
+    case 'remoteOptions': {
+      setOption(config, name, parseValue(name, value, 'object'));
+      break;
+    }
     case 'excludeInstrumentation': {
       emit('deprecated', {
         original: 'excludeInstrumentation',

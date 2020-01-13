@@ -221,11 +221,14 @@ export default class RemoteSuite extends Suite {
         // These are options that will be POSTed to the remote page and
         // used to configure intern. Stringify and parse them to ensure
         // that the config can be properly transmitted.
+        const disableDomUpdates =
+          config.remoteOptions && config.remoteOptions.disableDomUpdates;
+        const remoteReporters = disableDomUpdates ? [] : [{ name: 'dom' }];
         const remoteConfig: Partial<RemoteConfig> = {
           debug: config.debug,
           internPath: `${serverUrl.pathname}${internPath}`,
           name: this.id,
-          reporters: [{ name: 'dom' }]
+          reporters: remoteReporters
         };
 
         // Don't overwrite any config data we've already set
