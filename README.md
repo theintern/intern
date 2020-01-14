@@ -1,5 +1,9 @@
 # Dig Dug
 
+> ⚠️ This repository has been deprecated;. It may still receive bugfixes, but
+> development has been moved into the main
+> [Intern repository](https://github.com/theintern/intern).
+
 <!-- prettier-ignore-start -->
 <!-- start-github-only -->
 [![Build Status](https://travis-ci.org/theintern/digdug.svg?branch=master)](https://travis-ci.org/theintern/digdug)
@@ -44,19 +48,19 @@ use geckodriver 0.18.0 and the default version of ChromeDriver with Selenium
 
 ```js
 const tunnel = new SeleniumTunnel({
-	version: '3.5.2',
-	drivers: [
-		'chrome',
-		{
-			name: 'firefox',
-			version: '0.18.0'
-		}
-	]
+  version: '3.5.2',
+  drivers: [
+    'chrome',
+    {
+      name: 'firefox',
+      version: '0.18.0'
+    }
+  ]
 });
 ```
 
-To determine what are the most recent versions of Selenium and the various webdrivers,
-Dig Dug will first attempt to download a version manifest from
+To determine what are the most recent versions of Selenium and the various
+webdrivers, Dig Dug will first attempt to download a version manifest from
 `https://theintern.github.io`. If this fails, Dig Dug will fall back to the
 manifest contained in the package. The actual location used to download the
 manifest can be controlled via the `webDriverConfigUrl` property on
@@ -67,10 +71,10 @@ trying to download the manifest.
 
 Dig Dug supports the following cloud testing services:
 
--   [BrowserStack](http://www.browserstack.com)
--   [CrossBrowserTesting](http://www.crossbrowsertesting.com)
--   [Sauce Labs](http://www.saucelabs.com)
--   [TestingBot](http://www.testingbot.com)
+- [BrowserStack](http://www.browserstack.com)
+- [CrossBrowserTesting](http://www.crossbrowsertesting.com)
+- [Sauce Labs](http://www.saucelabs.com)
+- [TestingBot](http://www.testingbot.com)
 
 In many cases, the only configuration you’ll need to do to create a tunnel is
 provide authentication data. This can be provided via options to a Tunnel
@@ -89,11 +93,11 @@ of a proxy server the tunnel should go through, can be passed to a tunnel
 constructor or set on a tunnel instance. See the API docs for [Tunnel] and its
 subclasses for available properties:
 
--   [BrowserStackTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel/browserstackproperties)
--   [CrossBrowserTestingTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/CrossBrowserTestingTunnel/crossbrowsertestingproperties)
--   [SauceLabsTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/SauceLabsTunnel/saucelabsproperties)
--   [SeleniumTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/SeleniumTunnel/seleniumproperties)
--   [TestingBotTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/TestingBotTunnel/testingbotproperties)
+- [BrowserStackTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel/browserstackproperties)
+- [CrossBrowserTestingTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/CrossBrowserTestingTunnel/crossbrowsertestingproperties)
+- [SauceLabsTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/SauceLabsTunnel/saucelabsproperties)
+- [SeleniumTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/SeleniumTunnel/seleniumproperties)
+- [TestingBotTunnel](https://theintern.io/docs.html#Dig%20Dug/2/api/TestingBotTunnel/testingbotproperties)
 
 ## Usage
 
@@ -105,7 +109,7 @@ tunnel has successfully started. For example, to create a new Sauce Labs tunnel:
 import SauceLabsTunnel from '@theintern/digdug/SauceLabsTunnel';
 const tunnel = new SauceLabsTunnel();
 tunnel.start().then(() => {
-	// interact with the WebDriver server at tunnel.clientUrl
+  // interact with the WebDriver server at tunnel.clientUrl
 });
 ```
 
@@ -130,7 +134,7 @@ executable has exited.
 
 ```js
 tunnel.stop().then(() => {
-	// the tunnel has been shut down
+  // the tunnel has been shut down
 });
 ```
 
@@ -158,7 +162,7 @@ authentication to request an environment list.
 
 ## More information
 
--   [API documentation](https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel)
+- [API documentation](https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel)
 
 <!-- start-github-only -->
 
