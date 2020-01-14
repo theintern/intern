@@ -473,6 +473,10 @@ export default class Html extends Reporter implements HtmlProperties {
     if (!suite.hasParent) {
       this._generateSummary(suite);
 
+      for (let i = 0; i < document.styleSheets.length; i++) {
+        document.styleSheets[i].disabled = true;
+      }
+
       // Load styles via webpack
       require('./html/html.styl');
 
