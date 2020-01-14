@@ -46,7 +46,7 @@ export type FsCallback = (
 export type MockFsProperties = { [P in keyof typeof fs]?: typeof fs[P] };
 export type MockFs = typeof fs & { __fileData: FileData };
 
-export function mockFs(
+export function createMockFs(
   fileData: FileData = Object.create(null),
   properties: MockFsProperties = {}
 ) {
@@ -93,7 +93,7 @@ export function mockFs(
   return mock;
 }
 
-export function mockPath(
+export function createMockPath(
   properties: { [P in keyof typeof path]?: typeof path[P] } = {}
 ) {
   return createMock<typeof path>(

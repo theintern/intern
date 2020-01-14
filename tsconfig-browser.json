@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs"
+  },
+  "include": ["src/core/browser/*.ts", "src/core/lib/typings.d.ts"]
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Visibility</title>
+	</head>
+	<body>
+		<div id="normal">hi!</div>
+		<div id="empty"></div>
+		<div id="invisible" style="visibility: hidden;">
+			ghost
+			<div id="visibleChild" style="visibility: visible;">boo!</div>
+		</div>
+		<div id="noDisplay" style="display: none;">not here</div>
+
+		<button id="makeVisible" type="button">Make noDisplay visible in 500ms</button>
+		<script>
+document.getElementById('makeVisible').onclick = function () {
+	this.onclick = null;
+	setTimeout(function () {
+		document.getElementById('noDisplay').style.display = 'block';
+	}, 500);
+};
+		</script>
+
+		<div id="noOpacity" style="opacity: 0;">transparent</div>
+		<div id="offscreen" style="left: 0; position: absolute; top: -1000px;">high</div>
+		<div id="scrolledAway" style="margin-top: 4000px;">low</div>
+
+		<div>
+			<span class="multipleVisible" style="display: none;">a</span>
+			<span class="multipleVisible">b</span>
+			<span class="multipleVisible">c</span>
+		</div>
+
+		<p>Bones are great!<br>
+			Do you like bones, too?</p>
+	</body>
+</html>

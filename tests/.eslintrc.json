@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/unbound-method": "off",
+    "@typescript-eslint/triple-slash-reference": ["error", { "path": "always" }]
+  }
+}

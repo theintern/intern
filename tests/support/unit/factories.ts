@@ -2,8 +2,8 @@
  * Factories are convenience functions for creating instances of normal classes
  * (not mocks).
  */
-import Test from 'src/lib/Test';
-import Suite from 'src/lib/Suite';
+import Test from 'src/core/lib/Test';
+import Suite from 'src/core/lib/Suite';
 import { createMockExecutor } from './mocks';
 
 /**

@@ -10,8 +10,10 @@ coverage/
 _build/
 _examples/
 _tests/
+_testIntern/
 _publish/
 src/**/*.js
+selenium-standalone/
 benchmark.json
 baselines.json
 baseline.json

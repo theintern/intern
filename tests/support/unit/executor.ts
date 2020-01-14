@@ -1,5 +1,5 @@
 import { SinonSpy } from 'sinon';
-import { Executor, Config } from 'src/lib/executors/Executor';
+import { Executor, Config } from 'src/core/lib/executors/Executor';
 
 const { assert } = intern.getPlugin('chai');
 
@@ -28,7 +28,7 @@ export function testProperty<C extends Config = Config>(
   executor.configure(<any>{ [name]: goodValue });
 
   if (allowDeprecated) {
-    for (let call of mockConsole.warn.getCalls()) {
+    for (const call of mockConsole.warn.getCalls()) {
       assert.include(
         call.args[0],
         'deprecated',

@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig-lib.json",
+  "compilerOptions": {
+    // Disable declarations and source maps for the executables
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": [
+    "src/cli/*.ts",
+    "src/bin/*.ts"
+  ],
+  "exclude": [
+    "src/core/browser/**",
+    "src/core/lib/browser/**"
+  ]
+}
