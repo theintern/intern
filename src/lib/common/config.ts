@@ -269,6 +269,11 @@ export interface Config extends ResourceConfig {
   proxy?: string;
 
   /**
+   * Options to pass to the remote runner.
+   */
+  remoteOptions: RemoteOptions;
+
+  /**
    * If true, a remote will wait for reponses from Intern for any executor
    * events.
    */
@@ -500,4 +505,8 @@ export interface LoaderDescriptor {
 export interface EnvironmentSpec {
   browserName: string;
   [key: string]: any;
+}
+
+export interface RemoteOptions {
+  disableDomUpdates: boolean;
 }
