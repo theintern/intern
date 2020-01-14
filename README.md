@@ -1,5 +1,9 @@
 # Leadfoot
 
+> ⚠️ This repository has been deprecated;. It may still receive bugfixes, but
+> development has been moved into the main [Intern
+> repository](https://github.com/theintern/intern).
+
 <!-- start-github-only -->
 
 A JavaScript client library that brings cross-platform consistency to the
@@ -7,8 +11,8 @@ Selenium WebDriver API
 
 [![Build Status](https://travis-ci.org/theintern/leadfoot.svg?branch=master)](https://travis-ci.org/theintern/leadfoot)
 [![npm version](https://badge.fury.io/js/leadfoot.svg)](https://badge.fury.io/js/leadfoot)
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/leadfoot.svg)](http://isitmaintained.com/project/theintern/leadfoot 'Average time to resolve an issue')
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/leadfoot.svg)](http://isitmaintained.com/project/theintern/leadfoot 'Percentage of issues still open')
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/theintern/leadfoot.svg)](http://isitmaintained.com/project/theintern/leadfoot "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/theintern/leadfoot.svg)](http://isitmaintained.com/project/theintern/leadfoot "Percentage of issues still open")
 
 <br><p align="center"><img src="https://cdn.rawgit.com/theintern/leadfoot/master/docs/logo.svg" alt="Leadfoot logo" height="128"></p><br>
 
