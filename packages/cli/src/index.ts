@@ -242,6 +242,11 @@ program
   .description('Run tests in Node or in a browser using WebDriver')
   .option('-b, --bail', 'quit after the first failing test')
   .option('-C, --no-coverage', 'disable code coverage')
+  .option(
+    '-e, --environments <environment>',
+    'specify an environment to run tests in',
+    collect
+  )
   .option('-g, --grep <regex>', 'filter tests by ID')
   .option(
     '-l, --leave-remote-open',
@@ -324,6 +329,10 @@ program
 
     if (command.bail) {
       config.bail = true;
+    }
+
+    if (command.environments) {
+      config.environments = command.environments;
     }
 
     if (command.port != null) {
