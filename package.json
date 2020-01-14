@@ -38,7 +38,7 @@
     "devpack": "npm pack ./_build/src",
     "lint": "ts-node scripts/lint.ts",
     "release": "cross-env INTERN_BUILD=release ts-node scripts/release.ts",
-    "start": "cross-env ts-node src/bin/intern.ts serveOnly",
+    "start": "ts-node scripts/test.ts --serve-only",
     "test": "ts-node scripts/test.ts",
     "preci": "npm run build:src",
     "ci": "npm test config=@ci",
