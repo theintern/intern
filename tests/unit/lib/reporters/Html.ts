@@ -136,6 +136,8 @@ registerSuite('intern/lib/reporters/Html', {
         reporter.runStart();
         reporter.suiteEnd(suite);
 
+        // TODO: add check that existing stylesheets are disabled
+
         const header = doc.body.getElementsByTagName('h1')[0];
         assert.isDefined(header, 'expected header element to exist');
         assert.equal(header.textContent, 'Intern Test Report');
