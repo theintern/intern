@@ -377,7 +377,13 @@ export default class Test implements TestProperties {
       .catch(error => {
         // There was an error running the test; could be a skip, could
         // be an assertion failure
-        if (error !== SKIP) {
+        if (error === SKIP) {
+          if (!this.skipped) {
+            // The parent was skipped while running the test
+            const parentSkipped = this.parent && this.parent.skipped;
+            this.skipped = parentSkipped || 'suite skipped';
+          }
+        } else {
           this.error = error;
           throw error;
         }

@@ -1492,8 +1492,8 @@ registerSuite('lib/Suite', {
           testsRun.push(this);
         }
       });
-      const barSuite = createSuite({
-        name: 'bar',
+      const suiteSkippedInBefore = createSuite({
+        name: 'suiteSkippedInBefore',
         parent: suite,
         before() {
           this.skip('skip foo');
@@ -1513,8 +1513,8 @@ registerSuite('lib/Suite', {
           })
         ]
       });
-      const bazSuite = createSuite({
-        name: 'baz',
+      const partiallySkippedSuite = createSuite({
+        name: 'partiallySkippedSuite',
         parent: suite,
         tests: [
           new Test({
@@ -1526,7 +1526,7 @@ registerSuite('lib/Suite', {
           new Test({
             name: 'bar',
             test() {
-              this.parent.skip();
+              this.parent.skip('parent skipped');
               testsRun.push(this);
             }
           }),
@@ -1540,21 +1540,38 @@ registerSuite('lib/Suite', {
       });
 
       suite.tests.push(fooTest);
-      suite.tests.push(barSuite);
-      suite.tests.push(bazSuite);
+      suite.tests.push(suiteSkippedInBefore);
+      suite.tests.push(partiallySkippedSuite);
 
-      // Expected result is that fooTest will run, barSuite will not run
-      // (because the entire suite was skipped), and the first test in
-      // bazSuite will run because the second test skips itself and the
-      // remainder of the suite.
+      // Expected result is that fooTest will run, suiteSkippedInBefore will
+      // not run (because the entire suite was skipped), and the first test in
+      // partiallySkippedSuite will run because the second test skips itself
+      // and the remainder of the suite.
 
       suite.run().then(
         <any>dfd.callback(function() {
           assert.deepEqual(
             testsRun,
-            [fooTest, bazSuite.tests[0]],
+            [fooTest, partiallySkippedSuite.tests[0]],
             'Skipped suite should not have run'
           );
+
+          const testSkipStatus = (suite: Suite) =>
+            suite.tests.map(test => test.skipped);
+          assert.deepEqual(testSkipStatus(suite), [
+            undefined,
+            'skip foo',
+            'parent skipped'
+          ]);
+          assert.deepEqual(testSkipStatus(suiteSkippedInBefore), [
+            'skip foo',
+            'skip foo'
+          ]);
+          assert.deepEqual(testSkipStatus(partiallySkippedSuite), [
+            undefined,
+            'parent skipped',
+            'parent skipped'
+          ]);
         }),
         function() {
           dfd.reject(new Error('Suite should not fail'));
