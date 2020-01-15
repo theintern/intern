@@ -21,6 +21,7 @@ function handleError(error: Error) {
 
 let watchMode = false;
 let outDirOpt: string | undefined;
+let pack = false;
 
 const args = process.argv.slice(2);
 while (args.length > 0) {
@@ -32,6 +33,8 @@ while (args.length > 0) {
     if (!outDirOpt) {
       throw new Error('-o / --outdir needs an output directory');
     }
+  } else if (arg === '--pack' || arg === '-p') {
+    pack = true;
   }
 }
 
@@ -126,6 +129,14 @@ if (watchMode) {
     ],
     copyFiles
   );
+}
+
+// -----------------------------------------------------------------
+// Packaging
+// -----------------------------------------------------------------
+if (pack) {
+  log('Creating package tarball...');
+  exec(`npm pack ${buildDir}`);
 }
 
 log('Done building');

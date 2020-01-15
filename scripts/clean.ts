@@ -1,8 +1,10 @@
 import { rm } from 'shelljs';
 import { log } from './lib/util';
 
-rm('-r', `${__dirname}/../_build`);
-rm('-r', `${__dirname}/../_tests`);
-rm('-r', `${__dirname}/../_testIntern`);
+// Use -f to silence warnings when directories don't exist
+rm('-rf', `${__dirname}/../_build`);
+rm('-rf', `${__dirname}/../_examples`);
+rm('-rf', `${__dirname}/../_tests`);
+rm('-rf', `${__dirname}/../_testIntern`);
 
 log('Done cleaning');

@@ -35,15 +35,13 @@
     "build:src": "ts-node scripts/build.ts",
     "build:api": "ts-node scripts/api.ts",
     "build": "concurrently npm:build:src npm:build:api",
-    "devpack": "npm pack ./_build/src",
+    "devpack": "ts-node scripts/build.ts --pack",
     "lint": "ts-node scripts/lint.ts",
     "release": "cross-env INTERN_BUILD=release ts-node scripts/release.ts",
     "start": "ts-node scripts/test.ts --serve-only",
     "test": "ts-node scripts/test.ts",
     "preci": "npm run build:src",
-    "ci": "npm test config=@ci",
-    "watch": "npm run build:src watch",
-    "precommit": "lint-staged"
+    "ci": "ts-node scripts/test.ts --config @ci"
   },
   "dependencies": {
     "@types/benchmark": "~1.0.31",
