@@ -7,6 +7,7 @@ export default function finalError(): ErrorRequestHandler {
   // errors. Without it, Express will assume this middleware can't deal with
   // errors and will handle errors itself.
   // See https://expressjs.com/en/guide/using-middleware.html#middleware.error-handling
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return (error: HttpError, request, response, _next) => {
     const message = error.expose
       ? error.message
