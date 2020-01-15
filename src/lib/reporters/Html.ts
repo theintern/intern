@@ -473,6 +473,10 @@ export default class Html extends Reporter implements HtmlProperties {
     if (!suite.hasParent) {
       this._generateSummary(suite);
 
+      for (let i = 0; i < document.styleSheets.length; i++) {
+        document.styleSheets[i].disabled = true;
+      }
+
       // Load styles via webpack
       require('./html/html.styl');
 
@@ -530,8 +534,8 @@ export default class Html extends Reporter implements HtmlProperties {
     const rowStatus = allTestsSkipped
       ? 'skipped'
       : numFailedTests > 0 || hasSuiteFailures
-        ? 'failed'
-        : 'passed';
+      ? 'failed'
+      : 'passed';
 
     // Mark a suite as failed if any of its child tests failed, and
     addClass(rowNode, rowStatus);
