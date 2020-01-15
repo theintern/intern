@@ -1,4 +1,4 @@
-import { exec, ChildProcessWithoutNullStreams } from 'child_process';
+import execa from 'execa';
 import { watch, FSWatcher } from 'chokidar';
 import { log, logError } from './util';
 
@@ -14,7 +14,7 @@ function logProcessOutput(
   if (typeof text !== 'string') {
     text = text.toString('utf8');
   }
-  let lines = text
+  const lines = text
     .split('\n')
     .filter(line => !/^\s*$/.test(line))
     .filter(line => !/^Child$/.test(line))
@@ -64,14 +64,11 @@ export function watchFiles(
  */
 export function watchProcess(
   name: string,
-  command: string,
+  command: string[],
   errorTest?: RegExp
 ) {
-  const proc = exec(command) as ChildProcessWithoutNullStreams;
-  proc.stdout.on('data', (data: Buffer) => {
-    logProcessOutput(name, data.toString('utf8'), errorTest);
-  });
-  proc.stderr.on('data', (data: Buffer) => {
+  const proc = execa(command[0], command.slice(1), { all: true });
+  proc.all!.on('data', (data: Buffer) => {
     logProcessOutput(name, data.toString('utf8'), errorTest);
   });
   proc.on('error', () => {

@@ -1,22 +1,7 @@
 import chalk from 'chalk';
-import {
-  cp,
-  echo,
-  exec as shellExec,
-  mkdir,
-  sed,
-  test,
-  ExecOptions,
-  ExecOutputReturnValue
-} from 'shelljs';
+import { cp, echo, mkdir, sed, test } from 'shelljs';
 import { sync as glob, IOptions } from 'glob';
-import { basename, dirname, join, resolve } from 'path';
-import { spawnSync } from 'child_process';
-
-export interface ExecReturnValue extends ExecOutputReturnValue {
-  stdout: string;
-  stderr: string;
-}
+import { basename, dirname, join } from 'path';
 
 // This script assumes CWD is the project root, which will be the case if the
 // dev scripts are running via NPM
@@ -63,30 +48,6 @@ export function copy(fileOrDir: string, outDir: string, cwd = '.') {
 }
 
 /**
- * Synchronously run a command. Exit if the command fails. Otherwise return an
- * object:
- *
- *   {
- *     code: exit code
- *     stdout: content of stdout stream
- *     stderr: content of stderr stream
- *   }
- */
-export function exec(command: string, options?: ExecOptions) {
-  if (!options) {
-    options = {};
-  }
-  if (options.silent == null) {
-    options.silent = true;
-  }
-  const result = <ExecReturnValue>shellExec(command, options);
-  if (result.code) {
-    throw new ExecError(command, result.code, result.stdout, result.stderr);
-  }
-  return result;
-}
-
-/**
  * If the project has inline sources in source maps set, set the path to the
  * source file to be a sibling of the compiled file.
  */
@@ -104,19 +65,6 @@ export function fixSourceMaps() {
 }
 
 /**
- * Lint a project
- */
-export function lint(tsconfigFile: string) {
-  // Use the tslint file from this project if the project doesn't have one of
-  // its own
-  const tslintJson = test('-f', 'tslint.json')
-    ? 'tslint.json'
-    : resolve(join(__dirname, 'tslint.json'));
-  const tslint = require.resolve('tslint/bin/tslint');
-  spawnSync('node', [tslint, '-c', tslintJson, '--project', tsconfigFile]);
-}
-
-/**
  * Log a message to the console
  */
 export function log(message: string) {
@@ -128,23 +76,4 @@ export function log(message: string) {
  */
 export function logError(message: string) {
   echo(chalk.red(message));
-}
-
-export class ExecError extends Error {
-  code: number;
-  stdout: string;
-  stderr: string;
-
-  constructor(command: string, code: number, stdout: string, stderr: string) {
-    super(`Command "${command}" failed (${code})`);
-    this.name = 'ExecError';
-    this.code = code;
-    this.stdout = getText(stdout);
-    this.stderr = getText(stderr);
-  }
-}
-
-function getText(text: string) {
-  text = text || '';
-  return text.replace(/^\s+/, '').replace(/\s+$/, '');
 }
