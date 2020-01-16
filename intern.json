@@ -42,7 +42,7 @@
     ],
     "reporters": {
       "name": "runner",
-      "options": { "hideSkipped": true, "hidePassed": false }
+      "options": { "hideSkipped": false, "hidePassed": true }
     }
   },
 
