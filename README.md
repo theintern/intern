@@ -1,6 +1,6 @@
 # Dig Dug
 
-> ⚠️ This repository has been deprecated;. It may still receive bugfixes, but
+> ⚠️ This repository has been deprecated. It may still receive bugfixes, but
 > development has been moved into the main
 > [Intern repository](https://github.com/theintern/intern).
 
