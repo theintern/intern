@@ -962,7 +962,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
                 // Do not reattempt if no session has passed
                 remainingAttempts = 0;
               } else {
-                for (let suite of failedSuites) {
+                for (const suite of failedSuites) {
                   suite.reset();
                 }
               }
@@ -1008,8 +1008,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     if (!this._sessionSuites) {
       return Task.resolve();
     }
-
-    const sessionSuites = this._sessionSuites;
 
     this.log(
       'Running',

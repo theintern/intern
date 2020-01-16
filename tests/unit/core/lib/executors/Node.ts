@@ -370,9 +370,7 @@ registerSuite('core/lib/executors/Node', function() {
             MockServer as any
           );
           replace(() => import('src/core/lib/resolveEnvironments')).withDefault(
-            () => {
-              return [{ browserName: 'foo env' }];
-            }
+            mockResolveEnvironments
           );
           replace(() => import('src/webdriver/Command')).withDefault(
             MockCommand as any
@@ -1174,7 +1172,10 @@ registerSuite('core/lib/executors/Node', function() {
               parent,
               hasParent: true,
               run() {
-                suiteTask = new Task<void>(() => {}, () => {});
+                suiteTask = new Task<void>(
+                  () => {},
+                  () => {}
+                );
                 return suiteTask;
               }
             } as any);
@@ -1272,6 +1273,7 @@ registerSuite('core/lib/executors/Node', function() {
                 run: stub().returns(Promise.resolve())
               }
             };
+            console.log('parent name', parent.name);
             parent.add(mockSuites[parent.name!] as any);
           });
           executor.configure({

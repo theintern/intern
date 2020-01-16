@@ -295,6 +295,7 @@ export default class Suite implements SuiteProperties {
    * Add a test or suite to this suite.
    */
   add(suiteOrTest: Suite | Test) {
+    console.log(suiteOrTest);
     if (!isTest(suiteOrTest) && !isSuite(suiteOrTest)) {
       throw new Error('Tried to add invalid suite or test');
     }
@@ -798,7 +799,9 @@ export default class Suite implements SuiteProperties {
 }
 
 export function isSuite(value: any): value is Suite {
-  return Array.isArray(value.tests) && typeof value.hasParent === 'boolean';
+  return (
+    value && Array.isArray(value.tests) && typeof value.hasParent === 'boolean'
+  );
 }
 
 export function isFailedSuite(suite: Suite): boolean {
