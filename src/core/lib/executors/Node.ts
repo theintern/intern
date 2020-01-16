@@ -933,36 +933,36 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
             }
 
             const allSessions = this._sessionSuites;
-            let suites = allSessions;
+            let sessions = allSessions;
             let remainingAttempts = 1 + (this.config.functionalRetries || 0);
 
             await this._loadFunctionalSuites();
-            while (remainingAttempts && suites.length) {
+            while (remainingAttempts && sessions.length) {
               remainingAttempts--;
-              if (suites.length !== allSessions.length) {
+              if (sessions.length !== allSessions.length) {
                 this.log(
                   'reattempting',
-                  suites.length,
+                  sessions.length,
                   'of',
                   allSessions.length,
                   'environments'
                 );
               }
               try {
-                testTask = this._runRemoteTests(suites);
+                testTask = this._runRemoteTests(sessions);
                 await testTask;
               } catch (e) {
                 this.log(`suite error: ${e}`);
                 // recover from exceptions to allow for retries
               }
-              const failedSuites = (suites = suites.filter(suite =>
-                isFailedSuite(suite)
+              const failedSessions = (sessions = sessions.filter(
+                isFailedSuite
               ));
-              if (failedSuites.length === allSessions.length) {
+              if (failedSessions.length === allSessions.length) {
                 // Do not reattempt if no session has passed
                 remainingAttempts = 0;
               } else {
-                for (const suite of failedSuites) {
+                for (const suite of failedSessions) {
                   suite.reset();
                 }
               }

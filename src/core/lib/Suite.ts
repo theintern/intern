@@ -295,7 +295,6 @@ export default class Suite implements SuiteProperties {
    * Add a test or suite to this suite.
    */
   add(suiteOrTest: Suite | Test) {
-    console.log(suiteOrTest);
     if (!isTest(suiteOrTest) && !isSuite(suiteOrTest)) {
       throw new Error('Tried to add invalid suite or test');
     }
@@ -351,7 +350,6 @@ export default class Suite implements SuiteProperties {
    */
   reset() {
     this._remote = undefined;
-    // Remove implicit reset from run() (in case it's relied upon)
     this.error = undefined;
     this.timeElapsed = 0;
   }
@@ -520,12 +518,6 @@ export default class Suite implements SuiteProperties {
     const after = () => {
       return runLifecycleMethod(this, 'after');
     };
-
-    // Reset some state in case someone tries to re-run the same suite
-    // TODO: Cancel any previous outstanding suite run
-    // TODO: Test
-    this.error = undefined;
-    this.timeElapsed = 0;
 
     let task: CancellablePromise<void>;
     let runTask: CancellablePromise<void>;

@@ -1273,7 +1273,6 @@ registerSuite('core/lib/executors/Node', function() {
                 run: stub().returns(Promise.resolve())
               }
             };
-            console.log('parent name', parent.name);
             parent.add(mockSuites[parent.name!] as any);
           });
           executor.configure({
