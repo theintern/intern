@@ -1,8 +1,9 @@
+// Used for building the browser tests
 {
-  "extends": "./tsconfig.json",
+  "extends": "./tsconfig-browser.json",
   "compilerOptions": {
     "declaration": false,
-    "outDir": "./_tests"
+    "outDir": "./_tests",
   },
   "include": [
     "tests/**/*"

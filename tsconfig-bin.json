@@ -1,9 +1,10 @@
+// Used for building the intern executable script, which doesn't need exported
+// typings
 {
   "extends": "./tsconfig-lib.json",
   "compilerOptions": {
     // Disable declarations and source maps for the executables
-    "declaration": false,
-    "sourceMap": false
+    "declaration": false
   },
   "include": [
     "src/cli/*.ts",

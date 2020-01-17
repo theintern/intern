@@ -273,10 +273,13 @@ export default class RemoteSuite extends Suite {
           // Send the config data in an execute block to avoid sending
           // very large query strings
           .execute(
+            // This script should be IE11-compatible
             /* istanbul ignore next */ function(configString: string) {
               const options = JSON.parse(configString);
               intern.configure(options);
-              intern.run().catch(() => undefined);
+              intern.run().catch(function() {
+                return undefined;
+              });
             },
             [stringify(remoteConfig)]
           )

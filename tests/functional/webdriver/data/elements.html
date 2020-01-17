@@ -68,6 +68,15 @@
 			element.parentNode.removeChild(element);
 		}, 250);
 	};
+
+	document.body.addEventListener('click', function (event) {
+		const x = event.clientX;
+		const y = event.clientY;
+		const div = document.createElement('div');
+		div.setAttribute('style', 'position:absolute;top:' + y + 'px;left:' + x + 'px;background:red;width:20px;height:20px');
+		console.log('clicked at (' + x + ', ' + y + ')');
+		document.body.appendChild(div);
+	});
 })();
 		</script>
 	</body>

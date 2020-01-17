@@ -736,6 +736,10 @@ export default class Server {
 
         // IE11 will hang during this check if nativeEvents are enabled
         updates.brokenSubmitElement = true;
+
+        // IE11 will hang during this check, but it does support window
+        // switching
+        updates.brokenWindowSwitch = false;
       }
 
       if (isValidVersion(capabilities, 11, Infinity)) {
@@ -1173,7 +1177,7 @@ export default class Server {
           )
             .then(() =>
               session.execute(
-                /* istanbul ignore next */ () => {
+                /* istanbul ignore next */ function () {
                   const bbox = document
                     .getElementById('a')!
                     .getBoundingClientRect();
@@ -1274,7 +1278,7 @@ export default class Server {
             .then(element =>
               session.execute(
                 /* istanbul ignore next */
-                (element: Element) => element.getAttribute('id'),
+                function (element: Element) { return element.getAttribute('id'); },
                 [element]
               )
             )

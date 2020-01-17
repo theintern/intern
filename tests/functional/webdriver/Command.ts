@@ -1,4 +1,5 @@
 import * as util from './support/util';
+import { pathRe } from 'tests/support/util';
 import Command, { Context } from 'src/webdriver/Command';
 import Session from 'src/webdriver/Session';
 import { Task } from 'src/common';
@@ -40,7 +41,7 @@ registerSuite('functional/webdriver/Command', () => {
                 assert.strictEqual(error.message, 'broken');
                 assert.match(
                   error.stack!,
-                  /broken.*tests\/functional\/webdriver\/Command\.[tj]s:\d+/s,
+                  pathRe('broken.*tests/functional/webdriver/Command\\.[tj]s:\\d+', 's'),
                   'Stack trace should point back to the error'
                 );
                 error.message += ' 2';
@@ -86,7 +87,7 @@ registerSuite('functional/webdriver/Command', () => {
               );
               assert.match(
                 stack,
-                /Invalid call.*tests\/functional\/webdriver\/Command\.[tj]s:\d+/s,
+                pathRe('Invalid call.*tests/functional/webdriver/Command\\.[tj]s:\\d+', 's'),
                 'Stack trace should point back to the async method call that eventually threw the error'
               );
             }

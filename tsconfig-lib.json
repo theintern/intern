@@ -1,3 +1,4 @@
+// Used for building the main intern library
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {

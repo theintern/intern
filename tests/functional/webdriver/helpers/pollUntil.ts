@@ -37,7 +37,7 @@ registerSuite('functional/webdriver/helpers/pollUntil', () => {
           .click()
           .then(
             pollUntil(
-              id => {
+              function (id) {
                 return document.getElementById(id);
               },
               ['d'],

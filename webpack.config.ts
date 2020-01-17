@@ -26,7 +26,8 @@ const common: Configuration = {
         }
       }
     ],
-    noParse: /benchmark\/benchmark.js/
+    // benchmark's code makes webpack sad; tell webpack not to look at it
+    noParse: /benchmark\.js/
   },
   performance: {
     // Hides a warning about large bundles.
@@ -52,15 +53,16 @@ module.exports = [
     entry: getEntries(),
     output: {
       filename: '[name].js',
-      path: join(__dirname, '_build/browser')
+      path: join(__dirname, '_build', 'browser')
     }
   }
 ];
 
 function getEntries() {
+  const baseDir = join(__dirname, 'src', 'core', 'browser');
   return {
-    intern: './src/core/browser/intern.ts',
-    remote: './src/core/browser/remote.ts',
-    config: './src/core/browser/config.ts'
+    intern: join(baseDir, 'intern.ts'),
+    remote: join(baseDir, 'remote.ts'),
+    config: join(baseDir, 'config.ts')
   };
 }

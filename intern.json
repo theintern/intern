@@ -62,7 +62,7 @@
       "options": { "hideSkipped": false, "hidePassed": false }
     },
 
-    "tsconfig": "tsconfig-tests.json"
+    "tsconfig": "tsconfig.json"
   },
 
   "browser": {

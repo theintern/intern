@@ -1,5 +1,6 @@
 import { rm } from 'shelljs';
 import Tunnel from 'src/tunnels/Tunnel';
+import { sep } from 'path';
 
 /**
  * Cleans up a tunnel by stopping it if the tunnel is running and deleting its target install directory
@@ -43,4 +44,12 @@ export function getDigdugArgs() {
   return {
     noClean: (<any>intern.config).noClean
   };
+}
+
+export function pathRe(regex: string, flags?: string): RegExp {
+  if (sep !== '/') {
+    const winRegEx = regex.replace(/\//g, '\\\\');
+    return new RegExp(winRegEx, flags)
+  }
+  return new RegExp(regex, flags);
 }

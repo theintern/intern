@@ -30,15 +30,25 @@ const common: Configuration = {
         }
       }
     ],
-    noParse: /benchmark\/benchmark.js/
+    // benchmark's code makes webpack sad; tell webpack not to look at it
+    noParse: /benchmark\.js/
   },
   performance: {
     // Hides a warning about large bundles.
     hints: false
   },
-  plugins: [new HotModuleReplacementPlugin(), new RewireMockPlugin()],
+
+  plugins: [
+    // Needed for mocking
+    new HotModuleReplacementPlugin(),
+    // Needed for mocking
+    new RewireMockPlugin()
+  ],
+
   resolve: {
     extensions: ['.ts', '.js'],
+
+    // Needed to resolve 'tests/' and '/src' imports in test modules
     plugins: [new TsconfigPathsPlugin()]
   },
   stats: {
@@ -55,17 +65,9 @@ const common: Configuration = {
 module.exports = getEntries().then(entries => [
   {
     ...common,
-    entry: entries.suites,
+    entry: entries,
     output: {
-      filename: 'suites.js',
-      path: join(__dirname, '_tests')
-    }
-  },
-  {
-    ...common,
-    entry: entries.plugins,
-    output: {
-      filename: 'plugins.js',
+      filename: '[name].js',
       path: join(__dirname, '_tests')
     }
   }

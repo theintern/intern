@@ -244,7 +244,7 @@ export default class Element extends Locator<
   click() {
     if (this.session.capabilities.brokenClick) {
       return this.session.execute<void>(
-        /* istanbul ignore next */ (element: HTMLElement) => {
+        /* istanbul ignore next */ function (element: HTMLElement) {
           element.click();
         },
         [this]
@@ -271,7 +271,7 @@ export default class Element extends Locator<
   submit() {
     if (this.session.capabilities.brokenSubmitElement) {
       return this.session.execute<void>(
-        /* istanbul ignore next */ (element: any) => {
+        /* istanbul ignore next */ function (element: any) {
           if (element.submit) {
             element.submit();
           } else if (element.type === 'submit' && element.click) {
@@ -293,7 +293,7 @@ export default class Element extends Locator<
   getVisibleText(): CancellablePromise<string> {
     if (this.session.capabilities.brokenVisibleText) {
       return this.session.execute<string>(
-        /* istanbul ignore next */ (element: any) => {
+        /* istanbul ignore next */ function (element: any) {
           return element.innerText;
         },
         [this]
@@ -593,7 +593,7 @@ export default class Element extends Locator<
           this.session.capabilities.brokenElementDisplayedOffscreen)
       ) {
         return this.session.execute<boolean>(
-          /* istanbul ignore next */ (element: HTMLElement) => {
+          /* istanbul ignore next */ function (element: HTMLElement) {
             const scrollX =
               document.documentElement.scrollLeft || document.body.scrollLeft;
             const scrollY =
@@ -707,7 +707,7 @@ export default class Element extends Locator<
   getComputedStyle(propertyName: string): CancellablePromise<string> {
     const manualGetStyle = () => {
       return this.session.execute<string>(
-        /* istanbul ignore next */ (element: any, propertyName: string) => {
+        /* istanbul ignore next */ function (element: any, propertyName: string) {
           return (<any>window.getComputedStyle(element))[propertyName];
         },
         [this, propertyName]
