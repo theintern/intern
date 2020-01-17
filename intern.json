@@ -59,7 +59,7 @@
     ],
     "reporters": {
       "name": "runner",
-      "options": { "hideSkipped": false, "hidePassed": false }
+      "options": { "hideSkipped": false, "hidePassed": true }
     },
 
     "tsconfig": "tsconfig.json"
