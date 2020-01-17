@@ -388,7 +388,7 @@ program
     }
 
     // 'verbose' is a top-level option
-    if (command.parent.verbose) {
+    if (command.parent.verbose || command.debug) {
       config.debug = true;
     }
 
