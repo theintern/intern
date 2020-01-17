@@ -1,3 +1,5 @@
+import { sep } from 'path';
+
 import Server from '../../../src/Server';
 import Session from '../../../src/Session';
 import { LeadfootURL } from '../../../src/interfaces';
@@ -58,4 +60,12 @@ export function createSessionFromRemote(
 export function convertPathToUrl(remote: Remote, url: string) {
   const session: ProxiedSession = <ProxiedSession>remote.session;
   return `${session.baseUrl}${url}`;
+}
+
+export function pathRe(regex: string, flags?: string): RegExp {
+  if (sep !== '/') {
+    const winRegEx = regex.replace(/\//g, '\\\\');
+    return new RegExp(winRegEx, flags);
+  }
+  return new RegExp(regex, flags);
 }

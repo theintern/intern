@@ -100,7 +100,7 @@ export default class Server {
   ): CancellablePromise<T> {
     const url =
       this.url +
-      path.replace(/\$(\d)/, function(_, index) {
+      path.replace(/\$(\d)/, function (_, index) {
         return encodeURIComponent(pathParts![index]);
       });
 
@@ -342,7 +342,7 @@ export default class Server {
           };
           error.response = response;
 
-          const sanitizedUrl = (function() {
+          const sanitizedUrl = (function () {
             const parsedUrl = parse(url);
             if (parsedUrl.auth) {
               parsedUrl.auth = '(redacted)';
@@ -362,7 +362,7 @@ export default class Server {
 
         return data;
       })
-      .catch(function(error) {
+      .catch(function (error) {
         error.stack = error.message + trimStack(trace.stack);
         throw error;
       });
@@ -579,7 +579,7 @@ export default class Server {
             brokenWindowSwitch: true,
             brokenDoubleClick: false,
             brokenCssTransformedSize: true,
-            fixedLogTypes: false as false,
+            fixedLogTypes: false as const,
             brokenHtmlTagName: false,
             brokenNullGetSpecAttribute: false
           });
@@ -795,7 +795,7 @@ export default class Server {
       updates.touchEnabled = false;
     }
 
-    updates.shortcutKey = (function() {
+    updates.shortcutKey = (function () {
       if (isIos(capabilities)) {
         return null;
       }
@@ -892,7 +892,7 @@ export default class Server {
           initialUrl = capabilities.initialBrowserUrl;
         }
 
-        return session.get(initialUrl).then(function() {
+        return session.get(initialUrl).then(function () {
           return session.execute<void>(
             'document.body.innerHTML = arguments[0];',
             [
@@ -907,7 +907,7 @@ export default class Server {
         });
       }
 
-      return session.get('about:blank').then(function() {
+      return session.get('about:blank').then(function () {
         return session.execute<void>('document.write(arguments[0]);', [page]);
       });
     };
@@ -1000,22 +1000,24 @@ export default class Server {
           get(
             '<!DOCTYPE html><html><body><iframe id="inlineFrame"></iframe></body></html>'
           ).then(() =>
-            session.serverPost<void>('frame', { id: 'inlineFrame' }).then(
-              unsupported,
-              error =>
-                error.name === 'NoSuchFrame' ||
-                // At least geckodriver 0.24.0 throws an Unknown Command error
-                // with a message about an invalid tag name rather than a NoSuchFrame error
-                // (see https://github.com/mozilla/geckodriver/issues/1456)
-                /any variant of untagged/.test(error.message)
-            )
+            session
+              .serverPost<void>('frame', { id: 'inlineFrame' })
+              .then(
+                unsupported,
+                error =>
+                  error.name === 'NoSuchFrame' ||
+                  // At least geckodriver 0.24.0 throws an Unknown Command error
+                  // with a message about an invalid tag name rather than a NoSuchFrame error
+                  // (see https://github.com/mozilla/geckodriver/issues/1456)
+                  /any variant of untagged/.test(error.message)
+              )
           );
       }
 
       if (capabilities.returnsFromClickImmediately == null) {
         testedCapabilities.returnsFromClickImmediately = () => {
           function assertSelected(expected: any) {
-            return function(actual: any) {
+            return function (actual: any) {
               if (expected !== actual) {
                 throw new Error('unexpected selection state');
               }
@@ -1042,9 +1044,10 @@ export default class Server {
       // /keys command, but JsonWireProtocol does.
       if (capabilities.noKeysCommand == null) {
         testedCapabilities.noKeysCommand = () =>
-          session
-            .serverPost('keys', { value: ['a'] })
-            .then(() => false, () => true);
+          session.serverPost('keys', { value: ['a'] }).then(
+            () => false,
+            () => true
+          );
       }
 
       // The W3C WebDriver standard does not support the /displayed endpoint
@@ -1053,7 +1056,10 @@ export default class Server {
           session
             .findByCssSelector('html')
             .then(element => element.isDisplayed())
-            .then(() => false, () => true);
+            .then(
+              () => false,
+              () => true
+            );
       }
 
       return Task.all(
@@ -1080,7 +1086,7 @@ export default class Server {
 
       if (capabilities.locationContextEnabled) {
         testedCapabilities.locationContextEnabled = () =>
-          session.getGeolocation().then(supported, function(error) {
+          session.getGeolocation().then(supported, function (error) {
             // At least FirefoxDriver 2.40.0 and ios-driver 0.6.0
             // claim they support geolocation in their returned
             // capabilities map, when they do not
@@ -1194,7 +1200,7 @@ export default class Server {
           )
             .then(() =>
               session.execute(
-                /* istanbul ignore next */ () => {
+                /* istanbul ignore next */ function () {
                   const bbox = document
                     .getElementById('a')!
                     .getBoundingClientRect();
@@ -1249,7 +1255,10 @@ export default class Server {
               .then(cookies => cookies.length > 0)
               .catch(() => true)
               .then(isBroken =>
-                session.clearCookies().then(() => isBroken, () => isBroken)
+                session.clearCookies().then(
+                  () => isBroken,
+                  () => isBroken
+                )
               );
         } else {
           // At least MS Edge < 18 doesn't support cookie deletion
@@ -1292,7 +1301,9 @@ export default class Server {
             .then(element =>
               session.execute(
                 /* istanbul ignore next */
-                (element: Element) => element.getAttribute('id'),
+                function (element: Element) {
+                  return element.getAttribute('id');
+                },
                 [element]
               )
             )
@@ -1617,7 +1628,7 @@ export default class Server {
                       }
                     });
 
-                  timer = setTimeout(function() {
+                  timer = setTimeout(function () {
                     refresh.cancel();
                   }, 2000);
                 },
@@ -1839,7 +1850,7 @@ export default class Server {
    * server.
    */
   getSessions(): CancellablePromise<Session[]> {
-    return this.get('sessions').then(function(sessions: any) {
+    return this.get('sessions').then(function (sessions: any) {
       // At least BrowserStack is now returning an array for the sessions
       // response
       if (sessions && !Array.isArray(sessions)) {
@@ -1848,7 +1859,7 @@ export default class Server {
 
       // At least ChromeDriver 2.19 uses the wrong keys
       // https://code.google.com/p/chromedriver/issues/detail?id=1229
-      sessions.forEach(function(session: any) {
+      sessions.forEach(function (session: any) {
         if (session.sessionId && !session.id) {
           session.id = session.sessionId;
         }

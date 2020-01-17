@@ -1,7 +1,5 @@
 import SauceLabsTunnel from '../../src/SauceLabsTunnel';
-import { sep } from 'path';
-
-const reSep = sep === '\\' ? '\\\\' : sep;
+import { pathRe } from '../support/util';
 
 registerSuite('tunnels/SauceLabsTunnel', () => {
   let tunnel: SauceLabsTunnel;
@@ -24,24 +22,18 @@ registerSuite('tunnels/SauceLabsTunnel', () => {
 
         tunnel.platform = 'osx';
         tunnel.architecture = 'foo';
-        let executable = new RegExp(
-          `${reSep}sc-\\d+\\.\\d+(?:\\.\\d+)?-osx${reSep}bin${reSep}sc$`
-        );
+        let executable = pathRe(`/sc-\\d+\\.\\d+(?:\\.\\d+)?-osx/bin/sc$`);
         assert.match(tunnel.executable, executable);
 
         tunnel.platform = 'linux';
         assert.equal(tunnel.executable, 'java');
 
         tunnel.architecture = 'x64';
-        executable = new RegExp(
-          `${reSep}sc-\\d+\\.\\d+(?:\\.\\d+)?-linux${reSep}bin${reSep}sc$`
-        );
+        executable = pathRe(`/sc-\\d+\\.\\d+(?:\\.\\d+)?-linux/bin/sc$`);
         assert.match(tunnel.executable, executable);
 
         tunnel.platform = 'win32';
-        executable = new RegExp(
-          `${reSep}sc-\\d+\\.\\d+(?:\\.\\d+)?-win32${reSep}bin${reSep}sc\\.exe$`
-        );
+        executable = pathRe(`/sc-\\d+\\.\\d+(?:\\.\\d+)?-win32/bin/sc\\.exe$`);
         assert.match(tunnel.executable, executable);
       },
 

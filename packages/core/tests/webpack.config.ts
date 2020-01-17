@@ -30,13 +30,21 @@ const common: Configuration = {
         }
       }
     ],
-    noParse: /benchmark\/benchmark.js/
+    // benchmark's code makes webpack sad; tell webpack not to look at it
+    noParse: /benchmark\.js/
   },
   performance: {
     // Hides a warning about large bundles.
     hints: false
   },
-  plugins: [new HotModuleReplacementPlugin(), new RewireMockPlugin()],
+
+  plugins: [
+    // Needed for mocking
+    new HotModuleReplacementPlugin(),
+    // Needed for mocking
+    new RewireMockPlugin()
+  ],
+
   resolve: {
     extensions: ['.ts', '.js'],
     plugins: [

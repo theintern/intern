@@ -3,17 +3,18 @@
 /**
  * A loader script for setting up the SystemJS loader.
  *
- * Note that loader scripts must be simple scripts, not modules.
+ * Note that loader scripts must be simple scripts, not modules, and must use
+ * IE11 compatible code (no arrow functions).
  */
 
-intern.registerLoader(options => {
+intern.registerLoader(function (options) {
   options.baseURL = options.baseURL || intern.config.basePath;
   const globalObj: any = typeof window !== 'undefined' ? window : global;
 
   if (intern.environment === 'browser') {
     return intern
       .loadScript('node_modules/systemjs/dist/system.src.js')
-      .then(() => {
+      .then(function () {
         return configAndLoad(SystemJS);
       });
   } else {
@@ -28,11 +29,13 @@ intern.registerLoader(options => {
     intern.log('Configuring SystemJS with:', options);
     loader.config(options);
 
-    return (modules: string[]) => {
+    return function (modules: string[]) {
       intern.log('Loading modules with SystemJS:', modules);
-      return modules.reduce((previous, suite) => {
+      return modules.reduce(function (previous, suite) {
         if (previous) {
-          return previous.then(() => loader.import(suite));
+          return previous.then(function () {
+            return loader.import(suite);
+          });
         }
         return loader.import(suite);
       }, <any>null);
