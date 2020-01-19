@@ -92,6 +92,7 @@ export default abstract class BaseExecutor<
   protected _loadingPlugins: { name: string; init: CancellablePromise<void> }[];
   protected _loadingPluginOptions: any | undefined;
   protected _listeners: { [event: string]: Listener<any>[] };
+  protected _notifications: CancellablePromise<void>;
   protected _plugins: { [name: string]: any };
   protected _reporters: Reporter[];
   protected _runTask: CancellablePromise<void> | undefined;
@@ -144,6 +145,7 @@ export default abstract class BaseExecutor<
     }
 
     this._rootSuite = new Suite({ executor: this });
+    this._notifications = Task.resolve();
 
     // This is the first suiteEnd listener. When the root unit test suite
     // ends, it will emit a coverage message before any other suiteEnd
@@ -296,7 +298,6 @@ export default abstract class BaseExecutor<
       }
     };
 
-    let notifications = Task.resolve();
     let hasNotifications = false;
 
     // First, notify the listeners specifically listening for this event
@@ -304,7 +305,7 @@ export default abstract class BaseExecutor<
     if (listeners && listeners.length > 0) {
       hasNotifications = true;
       for (const listener of listeners) {
-        notifications = notifications
+        this._notifications = this._notifications
           .then(() => Task.resolve(listener(data)))
           .then(handleErrorEvent)
           .catch(handleListenerError);
@@ -317,7 +318,7 @@ export default abstract class BaseExecutor<
       hasNotifications = true;
       const starEvent = { name: eventName, data };
       for (const listener of starListeners) {
-        notifications = notifications
+        this._notifications = this._notifications
           .then(() => Task.resolve(listener(starEvent)))
           .then(handleErrorEvent)
           .catch(handleListenerError);
@@ -341,11 +342,9 @@ export default abstract class BaseExecutor<
           } instead.`
         );
       }
-
-      return Task.resolve();
     }
 
-    return notifications;
+    return this._notifications;
   }
 
   /**
