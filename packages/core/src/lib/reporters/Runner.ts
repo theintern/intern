@@ -26,12 +26,13 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 
   hasRunErrors: boolean;
   hasSuiteErrors: boolean;
-  hidePassed: boolean;
-  hideSkipped: boolean;
+  hidePassed: boolean | string;
+  hideSkipped: boolean | string;
   hideTunnelDownloadProgress: boolean;
   serveOnly: boolean;
 
   private _deprecationMessages: { [message: string]: boolean };
+  private _needsNewline = false;
 
   protected charm: Charm;
 
@@ -84,29 +85,29 @@ export default class Runner extends TextCoverage implements RunnerProperties {
       .write('⚠︎ ' + message.original + ' is deprecated. ');
 
     if (message.replacement) {
-      this.charm.write('Use ' + message.replacement + ' instead.');
+      this.charmWrite('Use ' + message.replacement + ' instead.');
     } else {
-      this.charm.write(
+      this.charmWrite(
         'Please open a ticket at https://github.com/theintern/intern/issues if you still ' +
           'require access to this function.'
       );
     }
 
     if (message.message) {
-      this.charm.write(' ' + message.message);
+      this.charmWrite(' ' + message.message);
     }
 
-    this.charm.write('\n');
+    this.charmWrite('\n');
     this.charm.display('reset');
   }
 
   @eventHandler()
   error(error: Error) {
     this.charm.foreground('red');
-    this.charm.write('(ノಠ益ಠ)ノ彡┻━┻\n');
-    this.charm.write(this.formatError(error));
+    this.charmWrite('(ノಠ益ಠ)ノ彡┻━┻\n');
+    this.charmWrite(this.formatError(error));
     this.charm.display('reset');
-    this.charm.write('\n\n');
+    this.charmWrite('\n\n');
     this.hasRunErrors = true;
   }
 
@@ -115,9 +116,9 @@ export default class Runner extends TextCoverage implements RunnerProperties {
     this.charm.foreground('yellow');
     const message =
       typeof warning === 'string' ? warning : this.formatError(warning);
-    this.charm.write(`WARNING: ${message.replace(/^Error:\s+/, '')}`);
+    this.charmWrite(`WARNING: ${message.replace(/^Error:\s+/, '')}`);
     this.charm.display('reset');
-    this.charm.write('\n\n');
+    this.charmWrite('\n\n');
   }
 
   @eventHandler()
@@ -150,13 +151,11 @@ export default class Runner extends TextCoverage implements RunnerProperties {
         numSkippedTests += suite.numSkippedTests;
       });
 
-    const charm = this.charm;
-
     if (map.files().length > 0) {
-      charm.write('\n');
-      charm.display('bright');
-      charm.write('Total coverage\n');
-      charm.display('reset');
+      this.charmWrite('\n');
+      this.charm.display('bright');
+      this.charmWrite('Total coverage\n');
+      this.charm.display('reset');
       this.createCoverageReport(this.reportType, map);
     }
 
@@ -178,30 +177,30 @@ export default class Runner extends TextCoverage implements RunnerProperties {
       message += '; suite error occurred';
     }
 
-    charm.display('bright');
-    charm.foreground(
+    this.charm.display('bright');
+    this.charm.foreground(
       numFailedTests > 0 || this.hasRunErrors || this.hasSuiteErrors
         ? 'red'
         : 'green'
     );
-    charm.write(message);
-    charm.display('reset');
-    charm.write('\n');
+    this.charmWrite(message);
+    this.charm.display('reset');
+    this.charmWrite('\n');
   }
 
   @eventHandler()
   serverStart(server: Server) {
     if (this.executor.config.serveOnly) {
-      this.charm.write(
+      this.charmWrite(
         `To use the browser client, browse to\n\n  ${this.executor.config.serverUrl}__intern/\n\n`
       );
-      this.charm.write('Press CTRL-C to stop serving\n\n');
+      this.charmWrite('Press CTRL-C to stop serving\n\n');
     } else {
       let message = `Listening on localhost:${server.port}`;
       if (server.socketPort) {
         message += ` (ws ${server.socketPort})`;
       }
-      this.charm.write(`${message}\n`);
+      this.charmWrite(`${message}\n`);
     }
   }
 
@@ -210,14 +209,13 @@ export default class Runner extends TextCoverage implements RunnerProperties {
     const session = this.sessions[suite.sessionId || ''];
     if (!session) {
       if (!this.serveOnly) {
-        const charm = this.charm;
-        charm.display('bright');
-        charm.foreground('yellow');
-        charm.write(
+        this.charm.display('bright');
+        this.charm.foreground('yellow');
+        this.charmWrite(
           'BUG: suiteEnd was received for invalid session ' + suite.sessionId
         );
-        charm.display('reset');
-        charm.write('\n');
+        this.charm.display('reset');
+        this.charmWrite('\n');
       }
 
       return;
@@ -225,28 +223,27 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 
     if (suite.error) {
       const error = suite.error;
-      const charm = this.charm;
 
-      charm.foreground('red');
-      charm.write(
+      this.charm.foreground('red');
+      this.charmWrite(
         `Suite ${suite.id} ERROR${
           error.lifecycleMethod ? ` in ${error.lifecycleMethod}` : ''
         }\n`
       );
-      charm.write(this.formatError(error));
-      charm.display('reset');
-      charm.write('\n');
+      this.charmWrite(this.formatError(error));
+      this.charm.display('reset');
+      this.charmWrite('\n');
 
       this.hasSuiteErrors = session.hasSuiteErrors = true;
     } else if (!suite.hasParent && this.executor.suites.length > 1) {
       if (session.coverage) {
-        this.charm.write('\n');
+        this.charmWrite('\n');
         this.createCoverageReport(this.reportType, session.coverage);
       } else {
         const charm = this.charm;
-        charm.write('No unit test coverage for ' + suite.name);
+        this.charmWrite('No unit test coverage for ' + suite.name);
         charm.display('reset');
-        charm.write('\n');
+        this.charmWrite('\n');
       }
 
       const name = suite.name;
@@ -265,12 +262,11 @@ export default class Runner extends TextCoverage implements RunnerProperties {
         summary += '; suite error occurred';
       }
 
-      const charm = this.charm;
-      charm.display('bright');
-      charm.foreground(numFailedTests || hasError > 0 ? 'red' : 'green');
-      charm.write(summary);
-      charm.display('reset');
-      charm.write('\n');
+      this.charm.display('bright');
+      this.charm.foreground(numFailedTests || hasError > 0 ? 'red' : 'green');
+      this.charmWrite(summary);
+      this.charm.display('reset');
+      this.charmWrite('\n');
     }
   }
 
@@ -279,8 +275,8 @@ export default class Runner extends TextCoverage implements RunnerProperties {
     if (!suite.hasParent) {
       this.sessions[suite.sessionId || ''] = { suite: suite };
       if (suite.sessionId) {
-        this.charm.write('\n');
-        this.charm.write(
+        this.charmWrite('\n');
+        this.charmWrite(
           '‣ Created remote session ' +
             suite.name +
             ' (' +
@@ -296,28 +292,32 @@ export default class Runner extends TextCoverage implements RunnerProperties {
     const charm = this.charm;
     if (test.error) {
       charm.foreground('red');
-      charm.write('× ' + test.id);
-      charm.write(' (' + test.timeElapsed! / 1000 + 's)');
-      charm.write('\n');
-      charm.write(prefix(this.formatError(test.error), '    '));
+      this.charmWrite('× ' + test.id);
+      this.charmWrite(' (' + test.timeElapsed! / 1000 + 's)');
+      this.charmWrite('\n');
+      this.charmWrite(prefix(this.formatError(test.error), '    '));
       charm.display('reset');
-      charm.write('\n\n');
+      this.charmWrite('\n\n');
     } else if (test.skipped) {
       if (!this.hideSkipped) {
-        charm.write('~ ' + test.id);
+        this.charmWrite('~ ' + test.id);
         charm.display('reset');
-        charm.write(' (' + (test.skipped || 'skipped') + ')');
+        this.charmWrite(' (' + (test.skipped || 'skipped') + ')');
         charm.display('reset');
-        charm.write('\n');
+        this.charmWrite('\n');
+      } else if (typeof this.hideSkipped === 'string') {
+        this.charmWriteInline(this.hideSkipped);
       }
     } else {
       if (!this.hidePassed) {
         charm.foreground('green');
-        charm.write('✓ ' + test.id);
+        this.charmWrite('✓ ' + test.id);
         charm.display('reset');
-        charm.write(' (' + test.timeElapsed! / 1000 + 's)');
+        this.charmWrite(' (' + test.timeElapsed! / 1000 + 's)');
         charm.display('reset');
-        charm.write('\n');
+        this.charmWrite('\n');
+      } else if (typeof this.hidePassed === 'string') {
+        this.charmWriteInline(this.hidePassed);
       }
     }
   }
@@ -329,7 +329,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
     }
 
     const progress = message.progress!;
-    this.charm.write(
+    this.charmWrite(
       'Tunnel download: ' +
         ((progress.received / progress.total) * 100).toFixed(3) +
         '%\r'
@@ -343,12 +343,32 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 
   @eventHandler()
   tunnelStatus(message: TunnelMessage) {
-    this.charm.write(message.status + '\x1b[K\r');
+    this.charmWrite(message.status + '\x1b[K\r');
+  }
+
+  /**
+   * Write to Charm, prefixing the output with a newline if necessary.
+   */
+  charmWrite(msg: string) {
+    if (this._needsNewline) {
+      this.charm.write('\n');
+      this._needsNewline = false;
+    }
+    this.charm.write(msg);
+  }
+
+  /**
+   * Write a message to Charm that doesn't end in a newline and that shouldn't
+   * be prefixed with a newline.
+   */
+  charmWriteInline(msg: string) {
+    this.charm.write(msg);
+    this._needsNewline = true;
   }
 }
 
 export interface RunnerProperties extends TextCoverageProperties {
-  hidePassed: boolean;
-  hideSkipped: boolean;
+  hidePassed: boolean | string;
+  hideSkipped: boolean | string;
   hideTunnelDownloadProgress: boolean;
 }

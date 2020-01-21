@@ -1,4 +1,5 @@
 {
+  "$schema": "../core/schemas/config.json",
   "capabilities": {
     "fixSessionCapabilities": false
   },
@@ -87,7 +88,7 @@
   "node": {
     "reporters": {
       "name": "runner",
-      "options": { "hideSkipped": true, "hidePassed": true }
+      "options": { "hideSkipped": "~", "hidePassed": "." }
     },
     "suites": "tests/unit/lib/util.ts",
     "tsconfig": "tests/tsconfig.json"

@@ -1,8 +1,13 @@
 {
+  "$schema": "../core/schemas/config.json",
   "suites": "tests/**/*.ts",
   "coverage": "src/**/*.ts",
   "node": {
     "tsconfig": "tests/tsconfig.json"
+  },
+  "reporters": {
+    "name": "runner",
+    "options": { "hideSkipped": "~", "hidePassed": "." }
   },
   "configs": {
     "ci": {
