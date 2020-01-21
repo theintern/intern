@@ -43,7 +43,6 @@ import { log } from './lib/util';
   } catch (error) {
     if (!error.isCancelled) {
       process.exitCode = 1;
-      console.log(error.message);
     }
   }
   log('Done testing');
