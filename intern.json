@@ -107,6 +107,8 @@
           "tests/unit/core/lib/executors/Executor.ts",
           "tests/unit/core/lib/interfaces/*.ts",
           "tests/unit/core/lib/reporters/Console.ts",
+          "tests/unit/core/lib/reporters/Coverage.ts",
+          "tests/unit/core/lib/resolveEnvironments.ts",
           "tests/unit/core/loaders/*.ts",
           // Top-level node suites
           "tests/integration/**/*.ts",

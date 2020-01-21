@@ -20,7 +20,7 @@ export default function resolveEnvironments(
 ) {
   // Pre-process the environments list to resolve any uses of {pwd} and do any
   // top-level substitutions
-  environments = environments.map(expandPwd).map(normalizeVersion);
+  environments = environments.map(expandPwd);
 
   if (available) {
     environments = normalizeBrowserNames(environments, available);
@@ -38,17 +38,13 @@ export default function resolveEnvironments(
     if (browserVersion == null) {
       return environment;
     }
-    return {
-      ...environment,
-      browserVersion,
-      version: browserVersion
-    };
+    return updateEnvVersion(environment, browserVersion);
   });
 
   // Perform a second round of permuting to handle any expanded version ranges
-  return createPermutations({}, expandedEnvironments).map(
-    environment => new Environment(environment)
-  );
+  return createPermutations({}, expandedEnvironments)
+    .map(environment => new Environment(environment))
+    .map(normalizeVersion);
 }
 
 export interface EnvironmentOptions {
@@ -97,8 +93,11 @@ function expandPwd<T>(value: T): T {
  * Ensure environment has both `version` and `browserVersion` properties with
  * the same value
  */
-function normalizeVersion(env: EnvironmentOptions) {
-  const browserVersion = env.browserVersion || env.version;
+function normalizeVersion(env: Environment) {
+  const browserVersion = getVersion(env);
+  if (browserVersion == null) {
+    return env;
+  }
   return {
     ...env,
     browserVersion,
@@ -253,7 +252,7 @@ function getVersions(
         });
     })
     .forEach(function(availableEnvironment) {
-      versions[availableEnvironment.version] = true;
+      versions[getVersion(availableEnvironment)] = true;
     });
 
   return Object.keys(versions).sort((a, b) => {
@@ -285,7 +284,7 @@ function resolveVersions(
   environment: FlatEnvironment,
   available?: NormalizedEnvironment[]
 ): string | string[] | undefined {
-  const versionSpec = environment.version;
+  const versionSpec = getVersion(environment);
   let versions: string[];
   available = available || [];
 
@@ -404,4 +403,20 @@ function normalizeBrowserNames(
     }
     return env;
   });
+}
+
+function getVersion(env: Environment) {
+  return env.browserVersion != null ? env.browserVersion : env.version!;
+}
+
+function getVersionKey(env: Environment): keyof Environment {
+  return env.browserVersion != null ? 'browserVersion' : 'version';
+}
+
+function updateEnvVersion(env: FlatEnvironment, version: string | string[]) {
+  const versionKey = getVersionKey(env);
+  return {
+    ...env,
+    [versionKey]: version
+  };
 }

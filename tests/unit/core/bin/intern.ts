@@ -27,7 +27,6 @@ registerSuite('core/bin/intern', function() {
   const originalExitCode = process.exitCode;
 
   let configData: any;
-  // let removeMocks: (() => void) | undefined;
   let mockConsole: MockConsole;
   let mockCommonUtil: { [name: string]: SinonStub };
 

@@ -1,10 +1,11 @@
+import { mockImport } from 'tests/support/mockUtil';
+import { Context } from 'istanbul-lib-report';
 import { CoverageMap } from 'istanbul-lib-coverage';
 import { spy, stub } from 'sinon';
 import _Coverage, { CoverageOptions } from 'src/core/lib/reporters/Coverage';
 
 const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 interface FullCoverage extends _Coverage {
   new (executor: Node, options: CoverageOptions): _Coverage;
@@ -32,30 +33,29 @@ registerSuite('core/lib/reporters/Coverage', function() {
   const mockCreateCoverageMap = stub().returns({});
 
   let Coverage: FullCoverage;
-  let removeMocks: () => void;
 
   return {
-    before() {
-      return mockRequire(require, 'src/core/lib/reporters/Coverage', {
-        'src/common': { global: mockGlobal },
-        'istanbul-lib-coverage': {
-          createCoverageMap: mockCreateCoverageMap
-        },
-        'istanbul-lib-report': {
-          createContext() {
-            return {};
-          },
-          summarizers: mockSummarizers
-        },
-        'istanbul-reports': { create: mockCreate }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        Coverage = handle.module.default;
-      });
-    },
+    async before() {
+      const coverageMod = await mockImport(
+        () => import('src/core/lib/reporters/Coverage'),
+        replace => {
+          replace(() => import('src/common')).with({ global: mockGlobal });
+          replace(() => import('istanbul-lib-coverage')).with({
+            createCoverageMap: mockCreateCoverageMap
+          });
+          replace(() => import('istanbul-lib-report')).with({
+            createContext() {
+              return {} as Context;
+            },
+            summarizers: mockSummarizers as any
+          });
+          replace(() => import('istanbul-reports')).with({
+            create: mockCreate
+          });
+        }
+      );
 
-    after() {
-      removeMocks();
+      Coverage = (coverageMod.default as unknown) as FullCoverage;
     },
 
     beforeEach() {
