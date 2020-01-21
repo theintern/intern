@@ -23,6 +23,11 @@ registerSuite('lib/reporters/Coverage', function () {
 
   const mockGlobal: { [name: string]: any } = {};
   const mockVisit = sandbox.spy();
+  const mockSummarizers = {
+    pkg: sandbox.spy(() => {
+      return { visit: mockVisit };
+    })
+  };
   const mockCreate = sandbox.spy();
   const mockCreateCoverageMap = sandbox.stub().returns({});
 
@@ -45,7 +50,8 @@ registerSuite('lib/reporters/Coverage', function () {
                 getTree: () => ({
                   visit: mockVisit
                 })
-              } as unknown) as Context)
+              } as unknown) as Context),
+            summarizers: mockSummarizers as any
           });
           replace(() => import('istanbul-reports')).with({
             create: mockCreate
@@ -57,11 +63,7 @@ registerSuite('lib/reporters/Coverage', function () {
     },
 
     beforeEach() {
-      mockExecutor.formatError.reset();
-      mockExecutor.on.reset();
-      mockCreate.resetHistory();
-      mockVisit.resetHistory();
-      mockCreateCoverageMap.reset();
+      sandbox.reset();
     },
 
     tests: {

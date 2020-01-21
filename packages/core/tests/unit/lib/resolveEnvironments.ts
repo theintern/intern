@@ -9,73 +9,39 @@ import _resolveEnvironments, {
 
 let resolveEnvironments: typeof _resolveEnvironments;
 
+const createDescriptor = (
+  browserName: string,
+  platform: string,
+  version: string
+) => ({
+  browserName,
+  descriptor: {},
+  platform,
+  version,
+  intern: { browserName, platform, version }
+});
+
 const availableChrome: NormalizedEnvironment[] = [
-  {
-    browserName: 'chrome',
-    version: 'beta',
-    platform: 'windows',
-    descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  },
-  {
-    browserName: 'chrome',
-    version: 'dev',
-    platform: 'windows',
-    descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  },
-  {
-    browserName: 'chrome',
-    version: 'alpha',
-    platform: 'windows',
-    descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  },
-  {
-    browserName: 'chrome',
-    version: '39',
-    platform: 'windows',
-    descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  },
-  {
-    browserName: 'chrome',
-    version: '38',
-    platform: 'windows',
-    descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  },
-  {
-    browserName: 'chrome',
-    version: '37',
-    platform: 'windows',
-    descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  },
-  {
-    browserName: 'chrome',
-    version: '36',
-    platform: 'windows',
-    descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  }
+  createDescriptor('chrome', 'windows', '72'),
+  createDescriptor('chrome', 'windows', '71'),
+  createDescriptor('chrome', 'windows', '70'),
+  createDescriptor('chrome', 'windows', '69'),
+  createDescriptor('chrome', 'windows', 'alpha'),
+  createDescriptor('chrome', 'windows', 'beta'),
+  createDescriptor('chrome', 'windows', 'dev'),
+  createDescriptor('chrome', 'windows', 'alpha'),
+  createDescriptor('chrome', 'mac', '72'),
+  createDescriptor('chrome', 'mac', '71'),
+  createDescriptor('chrome', 'mac', '70'),
+  createDescriptor('chrome', 'mac', '69')
 ];
+
 const availableIe: NormalizedEnvironment[] = [
-  {
-    browserName: 'ie',
-    version: '11',
-    platform: 'windows',
-    descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  },
-  {
-    browserName: 'ie',
-    version: '10',
-    platform: 'windows',
-    descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  }
+  createDescriptor('ie', 'windows', '11'),
+  createDescriptor('ie', 'windows', '10')
 ];
+
+const available: NormalizedEnvironment[] = [...availableChrome, ...availableIe];
 
 function assertResolve(
   capabilities: { [key: string]: any },
@@ -125,7 +91,12 @@ registerSuite('lib/resolveEnvironments', {
       const environments = <EnvironmentOptions[]>[
         { browserName: 'chrome', version: 39, platformVersion: '10' }
       ];
-      assertResolveEnvironments(environments, availableChrome, environments);
+      assertResolveEnvironments(environments, availableChrome, [
+        {
+          ...environments[0],
+          browserVersion: environments[0].version
+        }
+      ]);
     },
 
     permutations: (function () {
@@ -136,7 +107,7 @@ registerSuite('lib/resolveEnvironments', {
           assertResolve(
             base,
             [],
-            undefined,
+            available,
             [base],
             'Permuting only the base should return 1 result'
           );
@@ -147,15 +118,16 @@ registerSuite('lib/resolveEnvironments', {
           const expected = [
             {
               browserName: 'chrome',
-              browserVersion: 'latest',
+              browserVersion: availableChrome[0].version,
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
+              version: availableChrome[0].version
             }
           ];
           assertResolve(
             base,
             sources,
-            undefined,
+            available,
             expected,
             'their contents should be equal'
           );
@@ -173,7 +145,7 @@ registerSuite('lib/resolveEnvironments', {
           assertResolve(
             base,
             sources,
-            undefined,
+            available,
             expected,
             'their contents should be equal'
           );
@@ -189,21 +161,23 @@ registerSuite('lib/resolveEnvironments', {
           const expected = [
             {
               browserName: 'chrome',
-              browserVersion: 'latest',
+              browserVersion: availableChrome[0].version,
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
+              version: availableChrome[0].version
             },
             {
               browserName: 'chrome',
-              browserVersion: 'latest-1',
+              browserVersion: availableChrome[1].version,
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
+              version: availableChrome[1].version
             }
           ];
           assertResolve(
             base,
             sources,
-            undefined,
+            available,
             expected,
             'their contents should be equal'
           );
@@ -219,25 +193,29 @@ registerSuite('lib/resolveEnvironments', {
           const expected = [
             {
               browserName: 'chrome',
-              browserVersion: 'latest',
+              browserVersion: availableChrome[0].version,
+              version: availableChrome[0].version,
               platformName: 'windows',
               platformVersion: 8
             },
             {
               browserName: 'ie',
-              browserVersion: 'latest',
+              browserVersion: availableIe[0].version,
+              version: availableIe[0].version,
               platformName: 'windows',
               platformVersion: 8
             },
             {
               browserName: 'chrome',
-              browserVersion: 'latest-1',
+              browserVersion: availableChrome[1].version,
+              version: availableChrome[1].version,
               platformName: 'windows',
               platformVersion: 8
             },
             {
               browserName: 'ie',
-              browserVersion: 'latest-1',
+              browserVersion: availableIe[1].version,
+              version: availableIe[1].version,
               platformName: 'windows',
               platformVersion: 8
             }
@@ -245,7 +223,7 @@ registerSuite('lib/resolveEnvironments', {
           assertResolve(
             base,
             sources,
-            undefined,
+            available,
             expected,
             'their contents should be equal'
           );
@@ -265,25 +243,29 @@ registerSuite('lib/resolveEnvironments', {
           const expected = [
             {
               browserName: 'chrome',
-              browserVersion: 'latest',
+              browserVersion: availableChrome[0].version,
+              version: availableChrome[0].version,
               platformName: 'windows',
               platformVersion: 8
             },
             {
               browserName: 'chrome',
-              browserVersion: 'latest-1',
+              browserVersion: availableChrome[1].version,
+              version: availableChrome[1].version,
               platformName: 'windows',
               platformVersion: 8
             },
             {
               browserName: 'ie',
-              browserVersion: 'latest',
+              browserVersion: availableIe[0].version,
+              version: availableIe[0].version,
               platformName: 'windows',
               platformVersion: 8
             },
             {
               browserName: 'ie',
-              browserVersion: 'latest-1',
+              browserVersion: availableIe[1].version,
+              version: availableIe[1].version,
               platformName: 'windows',
               platformVersion: 8
             }
@@ -291,7 +273,7 @@ registerSuite('lib/resolveEnvironments', {
           assertResolve(
             base,
             sources,
-            undefined,
+            available,
             expected,
             'their contents should be equal'
           );
@@ -312,37 +294,43 @@ registerSuite('lib/resolveEnvironments', {
           const expected = [
             {
               browserName: 'chrome',
-              browserVersion: 'latest',
+              browserVersion: availableChrome[0].version,
+              version: availableChrome[0].version,
               platformName: 'windows',
               platformVersion: 8
             },
             {
               browserName: 'chrome',
-              browserVersion: 'latest-1',
+              browserVersion: availableChrome[1].version,
+              version: availableChrome[1].version,
               platformName: 'windows',
               platformVersion: 8
             },
             {
               browserName: 'chrome',
-              browserVersion: 'latest',
+              browserVersion: availableChrome[0].version,
+              version: availableChrome[0].version,
               platformName: 'mac',
               platformVersion: 8
             },
             {
               browserName: 'chrome',
-              browserVersion: 'latest-1',
+              browserVersion: availableChrome[1].version,
+              version: availableChrome[1].version,
               platformName: 'mac',
               platformVersion: 8
             },
             {
               browserName: 'ie',
-              browserVersion: 'latest',
+              browserVersion: availableIe[0].version,
+              version: availableIe[0].version,
               platformName: 'windows',
               platformVersion: 8
             },
             {
               browserName: 'ie',
-              browserVersion: 'latest-1',
+              browserVersion: availableIe[1].version,
+              version: availableIe[1].version,
               platformName: 'windows',
               platformVersion: 8
             }
@@ -350,7 +338,7 @@ registerSuite('lib/resolveEnvironments', {
           assertResolve(
             base,
             sources,
-            undefined,
+            available,
             expected,
             'their contents should be equal'
           );
@@ -370,6 +358,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'a',
               version: '1',
+              browserVersion: '1',
               platform: 'c',
               platformVersion: '3',
               isCapabilities: true
@@ -377,6 +366,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'b',
               version: '1',
+              browserVersion: '1',
               platform: 'c',
               platformVersion: '3',
               isCapabilities: true
@@ -385,6 +375,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'a',
               version: '2',
+              browserVersion: '2',
               platform: 'c',
               platformVersion: '3',
               isCapabilities: true
@@ -392,6 +383,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'b',
               version: '2',
+              browserVersion: '2',
               platform: 'c',
               platformVersion: '3',
               isCapabilities: true
@@ -400,6 +392,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'a',
               version: '1',
+              browserVersion: '1',
               platform: 'd',
               platformVersion: '3',
               isCapabilities: true
@@ -407,6 +400,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'b',
               version: '1',
+              browserVersion: '1',
               platform: 'd',
               platformVersion: '3',
               isCapabilities: true
@@ -415,6 +409,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'a',
               version: '2',
+              browserVersion: '2',
               platform: 'd',
               platformVersion: '3',
               isCapabilities: true
@@ -422,6 +417,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'b',
               version: '2',
+              browserVersion: '2',
               platform: 'd',
               platformVersion: '3',
               isCapabilities: true
@@ -430,6 +426,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'a',
               version: '1',
+              browserVersion: '1',
               platform: 'c',
               platformVersion: '4',
               isCapabilities: true
@@ -437,6 +434,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'b',
               version: '1',
+              browserVersion: '1',
               platform: 'c',
               platformVersion: '4',
               isCapabilities: true
@@ -445,6 +443,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'a',
               version: '2',
+              browserVersion: '2',
               platform: 'c',
               platformVersion: '4',
               isCapabilities: true
@@ -452,6 +451,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'b',
               version: '2',
+              browserVersion: '2',
               platform: 'c',
               platformVersion: '4',
               isCapabilities: true
@@ -460,6 +460,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'a',
               version: '1',
+              browserVersion: '1',
               platform: 'd',
               platformVersion: '4',
               isCapabilities: true
@@ -467,6 +468,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'b',
               version: '1',
+              browserVersion: '1',
               platform: 'd',
               platformVersion: '4',
               isCapabilities: true
@@ -475,6 +477,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'a',
               version: '2',
+              browserVersion: '2',
               platform: 'd',
               platformVersion: '4',
               isCapabilities: true
@@ -482,6 +485,7 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'b',
               version: '2',
+              browserVersion: '2',
               platform: 'd',
               platformVersion: '4',
               isCapabilities: true

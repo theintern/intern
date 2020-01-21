@@ -54,6 +54,7 @@ export default abstract class Coverage extends Reporter
 
     const context = createContext({
       dir: this.directory,
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       sourceFinder: transformed.sourceFinder,
       watermarks: this.watermarks
     });

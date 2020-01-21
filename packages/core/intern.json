@@ -36,6 +36,7 @@
       "tests/unit/lib/node/*.ts",
       "tests/unit/lib/reporters/Benchmark.ts",
       "tests/unit/lib/reporters/Cobertura.ts",
+      "tests/unit/lib/reporters/Coverage.ts",
       "tests/unit/lib/reporters/HtmlCoverage.ts",
       "tests/unit/lib/reporters/JUnit.ts",
       "tests/unit/lib/reporters/JsonCoverage.ts",
@@ -103,6 +104,8 @@
           "tests/unit/lib/executors/Executor.ts",
           "tests/unit/lib/interfaces/*.ts",
           "tests/unit/lib/reporters/Console.ts",
+          "tests/unit/lib/reporters/Coverage.ts",
+          "tests/unit/lib/resolveEnvironments.ts",
           "tests/unit/loaders/*.ts",
           // Top-level node suites
           "tests/integration/**/*.ts",
