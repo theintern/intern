@@ -59,7 +59,7 @@
     ],
     "reporters": {
       "name": "runner",
-      "options": { "hideSkipped": false, "hidePassed": true }
+      "options": { "hideSkipped": false, "hidePassed": "." }
     },
 
     "tsconfig": "tsconfig.json"
@@ -79,16 +79,6 @@
   "filterErrorStack": false,
 
   "configs": {
-    "progress": {
-      "description": "For showing test progress",
-      "node": {
-        "reporters": {
-          "name": "runner",
-          "options": { "hideSkipped": true, "hidePassed": false }
-        }
-      }
-    },
-
     "wd": {
       "description": "Run tests in Chrome using Selenium",
       "tunnel": "selenium",

@@ -770,8 +770,12 @@
               "options": {
                 "type": "object",
                 "properties": {
-                  "hidePassed": { "type": "boolean" },
-                  "hideSkipped": { "type": "boolean" },
+                  "hidePassed": {
+                    "anyOf": [{ "type": "boolean" }, { "type": "string" }]
+                  },
+                  "hideSkipped": {
+                    "anyOf": [{ "type": "boolean" }, { "type": "string" }]
+                  },
                   "hideTunnelDownloadProgress": { "type": "boolean" }
                 }
               }
