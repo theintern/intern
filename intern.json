@@ -153,8 +153,7 @@
       "tunnel": "browserstack",
       "maxConcurrency": 2,
       "capabilities": {
-        "idle-timeout": 60,
-        "fixSessionCapabilities": "no-detect"
+        "idle-timeout": 60
       },
       "environments": [
         { "browser": "node" },
