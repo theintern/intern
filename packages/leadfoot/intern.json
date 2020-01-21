@@ -1,8 +1,5 @@
 {
   "$schema": "../core/schemas/config.json",
-  "capabilities": {
-    "fixSessionCapabilities": false
-  },
 
   "configs": {
     "all": {
