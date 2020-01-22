@@ -30995,7 +30995,7 @@
 							"name": "string"
 						}
 					},
-					"defaultValue": "fs\n  .readdirSync(digdugPath)\n  .filter(function(name) {\n    return (\n      /[A-Z]\\w+Tunnel\\.js$/.test(name) &&\n      name !== 'NullTunnel.js' &&\n      name !== 'Tunnel.js' &&\n      name !== 'SeleniumTunnel.js'\n    );\n  })\n  .map(function(name) {\n    return name.slice(0, name.length - 3);\n  })"
+					"defaultValue": "fs\n  .readdirSync(digdugPath)\n  .filter(function(name) {\n    return (\n      /[A-Z]\\w+Tunnel\\.[tj]s$/.test(name) &&\n      !/^NullTunnel.[tj]s$/.test(name) &&\n      !/^Tunnel.[tj]s$/.test(name) &&\n      !/^SeleniumTunnel.[tj]s$/.test(name)\n    );\n  })\n  .map(function(name) {\n    return name.slice(0, name.length - 3);\n  })"
 				}
 			],
 			"groups": [
