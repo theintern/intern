@@ -63,7 +63,7 @@ registerSuite('lib/reporters/Coverage', function () {
     },
 
     beforeEach() {
-      sandbox.reset();
+      sandbox.resetHistory();
     },
 
     tests: {
