@@ -11,10 +11,10 @@ const tunnels = fs
   .readdirSync(digdugPath)
   .filter(function(name) {
     return (
-      /[A-Z]\w+Tunnel\.js$/.test(name) &&
-      name !== 'NullTunnel.js' &&
-      name !== 'Tunnel.js' &&
-      name !== 'SeleniumTunnel.js'
+      /[A-Z]\w+Tunnel\.[tj]s$/.test(name) &&
+      !/^NullTunnel.[tj]s$/.test(name) &&
+      !/^Tunnel.[tj]s$/.test(name) &&
+      !/^SeleniumTunnel.[tj]s$/.test(name)
     );
   })
   .map(function(name) {
