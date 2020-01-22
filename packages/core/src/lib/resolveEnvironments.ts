@@ -91,7 +91,7 @@ function expandPwd<T>(value: T): T {
 
 /**
  * Ensure environment has both `version` and `browserVersion` properties with
- * the same value, and `browser` and `browserName`.
+ * the same value.
  */
 function normalizeEnvironment(env: Environment): EnvironmentSpec {
   const normEnv = { ...env };
@@ -101,10 +101,6 @@ function normalizeEnvironment(env: Environment): EnvironmentSpec {
     normEnv.version = browserVersion;
     normEnv.browserVersion = browserVersion;
   }
-
-  const browserName = env.browserName || env.browser;
-  normEnv.browser = browserName;
-  normEnv.browserName = browserName;
 
   return normEnv as EnvironmentSpec;
 }

@@ -640,6 +640,15 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         config.environments.push({ browserName: 'node' });
       }
 
+      // Normalize browser names
+      config.environments.forEach(env => {
+        const newName = getNormalizedBrowserName(env)!;
+        env.browserName = newName;
+        if (env.browser) {
+          env.browser = newName;
+        }
+      });
+
       // Normalize tunnel driver names
       if (config.tunnelOptions.drivers) {
         config.tunnelOptions.drivers = config.tunnelOptions.drivers.map(
@@ -833,14 +842,19 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         }
       }
 
-      const tunnel = this._createTunnel();
-      return tunnel.getEnvironments().then(environments => {
-        config.environments = resolveEnvironments(
-          config.capabilities,
-          config.environments.filter(isRemoteEnvironment),
-          environments
-        );
-      });
+      const remoteEnvironments = config.environments.filter(
+        isRemoteEnvironment
+      );
+      if (remoteEnvironments.length > 0) {
+        const tunnel = this._createTunnel();
+        return tunnel.getEnvironments().then(tunnelEnvironments => {
+          config.environments = resolveEnvironments(
+            config.capabilities,
+            remoteEnvironments,
+            tunnelEnvironments
+          );
+        });
+      }
     });
   }
 
@@ -1100,12 +1114,21 @@ function isLocalEnvironment(environment: EnvironmentSpec) {
   return !isRemoteEnvironment(environment);
 }
 
-function getNormalizedBrowserName(name: string | undefined) {
+function getNormalizedBrowserName(nameOrEnv: string | undefined | Environment) {
+  if (nameOrEnv == null) {
+    return nameOrEnv;
+  }
+
+  const name =
+    typeof nameOrEnv === 'string'
+      ? nameOrEnv
+      : nameOrEnv.browserName || nameOrEnv.browser;
   if (name === 'ie') {
     return 'internet explorer';
   }
   if (name && /^edge/.test(name)) {
     return name.replace(/^edge/, 'MicrosoftEdge');
   }
+
   return name;
 }

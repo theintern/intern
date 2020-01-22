@@ -344,7 +344,7 @@ registerSuite('lib/executors/Node', function () {
           );
           replace(() => import('src/lib/resolveEnvironments')).withDefault(
             () => {
-              return ['foo env'];
+              return [{ browserName: 'foo env' }];
             }
           );
           replace(() => import('@theintern/leadfoot/dist/Command')).withDefault(
@@ -1059,7 +1059,7 @@ registerSuite('lib/executors/Node', function () {
           );
           executor.run().then(
             dfd.callback(() => {
-              assert.lengthOf(tunnels, 0, 'no tunnel should have been created');
+              assert.lengthOf(tunnels, 1, 'server should have been created');
               assert.lengthOf(servers, 1, 'server should have been created');
 
               const server: any = servers[0];
