@@ -8,6 +8,8 @@ import axios, {
   AxiosProxyConfig,
   AxiosResponse
 } from 'axios';
+import { Agent as HttpAgent } from 'http';
+import { Agent as HttpsAgent } from 'https';
 import qs from 'qs';
 import Task, { CancellablePromise } from './Task';
 import Evented from './Evented';
@@ -38,6 +40,8 @@ export interface RequestOptions {
   user?: string;
   username?: string;
   onDownloadProgress?: (progressEvent: any) => void;
+  httpAgent?: HttpAgent;
+  httpsAgent?: HttpsAgent;
 }
 
 export interface ProgressEvent {
