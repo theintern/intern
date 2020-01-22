@@ -1,7 +1,7 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { Context } from 'istanbul-lib-report';
 import { CoverageMap } from 'istanbul-lib-coverage';
-import { spy, stub } from 'sinon';
+import { createSandbox, stub } from 'sinon';
 import _Coverage, { CoverageOptions } from 'src/core/lib/reporters/Coverage';
 
 const { registerSuite } = intern.getPlugin('interface.object');
@@ -12,25 +12,27 @@ interface FullCoverage extends _Coverage {
 }
 
 registerSuite('core/lib/reporters/Coverage', function() {
+  const sandbox = createSandbox();
+
   const mockExecutor = <any>{
-    formatError: spy(),
-    on: spy(),
+    formatError: sandbox.spy(),
+    on: sandbox.spy(),
     sourceMapStore: {
-      transformCoverage: spy(() => {
+      transformCoverage: sandbox.spy(() => {
         return { map: {} };
       })
     }
   };
 
   const mockGlobal: { [name: string]: any } = {};
-  const mockVisit = spy();
+  const mockVisit = sandbox.spy();
   const mockSummarizers = {
-    pkg: spy(() => {
+    pkg: sandbox.spy(() => {
       return { visit: mockVisit };
     })
   };
-  const mockCreate = spy();
-  const mockCreateCoverageMap = stub().returns({});
+  const mockCreate = sandbox.spy();
+  const mockCreateCoverageMap = sandbox.stub().returns({});
 
   let Coverage: FullCoverage;
 
@@ -59,11 +61,7 @@ registerSuite('core/lib/reporters/Coverage', function() {
     },
 
     beforeEach() {
-      mockExecutor.formatError.reset();
-      mockExecutor.on.reset();
-      mockCreate.resetHistory();
-      mockVisit.resetHistory();
-      mockCreateCoverageMap.reset();
+      sandbox.resetHistory();
     },
 
     tests: {
