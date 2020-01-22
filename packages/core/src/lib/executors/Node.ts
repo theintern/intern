@@ -391,46 +391,19 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
         return serverTask
           .then(() => {
-            const tunnelOptions = config.tunnelOptions;
-            if (config.tunnel === 'browserstack') {
-              const options = <BrowserStackOptions>tunnelOptions;
-              options.servers = options.servers || [];
-              options.servers.push(config.serverUrl);
-            }
-
-            if ('proxy' in config && !('proxy' in tunnelOptions)) {
-              tunnelOptions.proxy = config.proxy;
-            }
-
-            let TunnelConstructor = this.getTunnel(config.tunnel);
-            const tunnel = (this.tunnel = new TunnelConstructor(
-              this.config.tunnelOptions
-            ));
-
-            tunnel.on('downloadprogress', progress => {
-              this.emit('tunnelDownloadProgress', {
-                tunnel,
-                progress
-              });
-            });
-
-            tunnel.on('status', status => {
-              this.emit('tunnelStatus', {
-                tunnel,
-                status: status.status
-              });
-            });
+            // Tunnel will have been created in resolveConfig
+            const tunnel = this.tunnel!;
 
             config.capabilities = deepMixin(
               tunnel.extraCapabilities,
               config.capabilities
             );
 
-            return this._createSessionSuites().then(() => {
-              return tunnel
-                .start()
-                .then(() => this.emit('tunnelStart', { tunnel }));
-            });
+            this._createSessionSuites();
+
+            return tunnel
+              .start()
+              .then(() => this.emit('tunnelStart', { tunnel }));
           })
           .then(() => {
             return false;
@@ -441,13 +414,52 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     });
   }
 
+  protected _createTunnel() {
+    const config = this.config;
+    const tunnelOptions = config.tunnelOptions;
+    if (config.tunnel === 'browserstack') {
+      const options = <BrowserStackOptions>tunnelOptions;
+      options.servers = options.servers || [];
+      options.servers.push(config.serverUrl);
+    }
+
+    if ('proxy' in config && !('proxy' in tunnelOptions)) {
+      tunnelOptions.proxy = config.proxy;
+    }
+
+    const TunnelConstructor = this.getTunnel(config.tunnel);
+    const tunnel = new TunnelConstructor(this.config.tunnelOptions);
+    this.tunnel = tunnel;
+
+    tunnel.on('downloadprogress', progress => {
+      this.emit('tunnelDownloadProgress', {
+        tunnel,
+        progress
+      });
+    });
+
+    tunnel.on('status', status => {
+      this.emit('tunnelStatus', {
+        tunnel,
+        status: status.status
+      });
+    });
+
+    return tunnel;
+  }
+
   /**
    * Creates suites for each environment in which tests will be executed. This
    * method will only be called if there are both environments and suites to
    * run.
    */
-  protected _createSessionSuites() {
-    const tunnel = this.tunnel!;
+  protected _createSessionSuites(): void {
+    if (!this.tunnel) {
+      this.log('No tunnel - Not creating session suites');
+      return;
+    }
+
+    const tunnel = this.tunnel;
     const config = this.config;
 
     const leadfootServer = new LeadfootServer(tunnel.clientUrl, {
@@ -466,118 +478,110 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
     leadfootServer.sessionConstructor = InitializedProxiedSession;
 
-    return tunnel.getEnvironments().then(tunnelEnvironments => {
-      this._sessionSuites = resolveEnvironments(
-        config.capabilities,
-        config.environments.filter(isRemoteEnvironment),
-        tunnelEnvironments
-      ).map(environmentType => {
-        let session: ProxiedSession;
+    // config.environments was resolved in resolveConfig
+    this._sessionSuites = this.config.environments.map(environmentType => {
+      let session: ProxiedSession;
 
-        // Create a new root suite for each environment
-        const suite = new Suite({
-          name: String(environmentType),
-          publishAfterSetup: true,
-          grep: config.grep,
-          bail: config.bail,
-          tests: [],
-          timeout: config.defaultTimeout,
-          executor: this,
+      // Create a new root suite for each environment
+      const suite = new Suite({
+        name: String(environmentType),
+        publishAfterSetup: true,
+        grep: config.grep,
+        bail: config.bail,
+        tests: [],
+        timeout: config.defaultTimeout,
+        executor: this,
 
-          before() {
-            executor.log('Creating session for', environmentType);
-            return leadfootServer
-              .createSession<ProxiedSession>(environmentType)
-              .then(_session => {
-                session = _session;
-                this.executor.log('Created session:', session.capabilities);
+        before() {
+          executor.log('Creating session for', environmentType);
+          return leadfootServer
+            .createSession<ProxiedSession>(environmentType)
+            .then(_session => {
+              session = _session;
+              this.executor.log('Created session:', session.capabilities);
 
-                let remote: Remote = <Remote>new Command(session);
-                remote.environmentType = new Environment(session.capabilities);
-                remote.requestedEnvironment = environmentType;
-                this.remote = remote;
-                this.sessionId = remote.session.sessionId;
+              const remote: Remote = <Remote>new Command(session);
+              remote.environmentType = new Environment(session.capabilities);
+              remote.requestedEnvironment = environmentType;
+              this.remote = remote;
+              this.sessionId = remote.session.sessionId;
 
-                // Update the name with details from the remote
-                // environment
-                this.name = remote.environmentType.toString();
+              // Update the name with details from the remote
+              // environment
+              this.name = remote.environmentType.toString();
 
-                const timeouts = config.functionalTimeouts;
-                let promise = Promise.resolve();
-                if (timeouts.executeAsync != null) {
-                  promise = promise.then(() =>
-                    remote.setExecuteAsyncTimeout(timeouts.executeAsync!)
-                  );
-                  this.executor.log(
-                    'Set remote executeAsync timeout to ',
-                    timeouts.executeAsync
-                  );
-                }
-                if (timeouts.find != null) {
-                  promise = promise.then(() =>
-                    remote.setFindTimeout(timeouts.find!)
-                  );
-                  this.executor.log(
-                    'Set remote find timeout to ',
-                    timeouts.find
-                  );
-                }
-                if (timeouts.pageLoad != null) {
-                  promise = promise.then(() =>
-                    remote.setPageLoadTimeout(timeouts.pageLoad!)
-                  );
-                  this.executor.log(
-                    'Set remote pageLoad timeout to ',
-                    timeouts.pageLoad
-                  );
-                }
-
-                return promise;
-              });
-          },
-
-          after() {
-            const remote = this.remote;
-
-            if (remote) {
-              const endSession = () => {
-                // Check for an error in this suite or a
-                // sub-suite. This check is a bit more involved
-                // than just checking for a local suite error or
-                // failed tests since sub-suites may have
-                // failures that don't result in failed tests.
-                function hasError(suite: Suite): boolean {
-                  if (suite.error != null || suite.numFailedTests > 0) {
-                    return true;
-                  }
-                  return suite.tests.filter(isSuite).some(hasError);
-                }
-                return tunnel.sendJobState(remote.session.sessionId, {
-                  success: !hasError(this)
-                });
-              };
-
-              if (
-                config.leaveRemoteOpen === true ||
-                (config.leaveRemoteOpen === 'fail' && this.numFailedTests > 0)
-              ) {
-                return endSession();
+              const timeouts = config.functionalTimeouts;
+              let promise = Promise.resolve();
+              if (timeouts.executeAsync != null) {
+                promise = promise.then(() =>
+                  remote.setExecuteAsyncTimeout(timeouts.executeAsync!)
+                );
+                this.executor.log(
+                  'Set remote executeAsync timeout to ',
+                  timeouts.executeAsync
+                );
+              }
+              if (timeouts.find != null) {
+                promise = promise.then(() =>
+                  remote.setFindTimeout(timeouts.find!)
+                );
+                this.executor.log('Set remote find timeout to ', timeouts.find);
+              }
+              if (timeouts.pageLoad != null) {
+                promise = promise.then(() =>
+                  remote.setPageLoadTimeout(timeouts.pageLoad!)
+                );
+                this.executor.log(
+                  'Set remote pageLoad timeout to ',
+                  timeouts.pageLoad
+                );
               }
 
-              return remote.quit().finally(endSession);
+              return promise;
+            });
+        },
+
+        after() {
+          const remote = this.remote;
+
+          if (remote != null) {
+            const endSession = () => {
+              // Check for an error in this suite or a
+              // sub-suite. This check is a bit more involved
+              // than just checking for a local suite error or
+              // failed tests since sub-suites may have
+              // failures that don't result in failed tests.
+              function hasError(suite: Suite): boolean {
+                if (suite.error != null || suite.numFailedTests > 0) {
+                  return true;
+                }
+                return suite.tests.filter(isSuite).some(hasError);
+              }
+              return tunnel.sendJobState(remote.session.sessionId, {
+                success: !hasError(this)
+              });
+            };
+
+            if (
+              config.leaveRemoteOpen === true ||
+              (config.leaveRemoteOpen === 'fail' && this.numFailedTests > 0)
+            ) {
+              return endSession();
             }
+
+            return remote.quit().finally(endSession);
           }
-        });
-
-        // If browser-compatible unit tests were added to this executor,
-        // add a RemoteSuite to the session suite. The RemoteSuite will
-        // run the suites listed in config.browser.suites.
-        if (config.browser.suites.length > 0) {
-          suite.add(new RemoteSuite());
         }
-
-        return suite;
       });
+
+      // If browser-compatible unit tests were added to this executor,
+      // add a RemoteSuite to the session suite. The RemoteSuite will
+      // run the suites listed in config.browser.suites.
+      if (config.browser.suites.length > 0) {
+        suite.add(new RemoteSuite());
+      }
+
+      return suite;
     });
   }
 
@@ -635,16 +639,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         this.log("Adding default 'node' environment");
         config.environments.push({ browserName: 'node' });
       }
-
-      // Normalize browser names
-      config.environments.forEach(env => {
-        const { browserName } = env;
-        const newName = getNormalizedBrowserName(browserName)!;
-        env.browserName = newName;
-        if (env.browser) {
-          env.browser = newName;
-        }
-      });
 
       // Normalize tunnel driver names
       if (config.tunnelOptions.drivers) {
@@ -838,6 +832,15 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           tunnelOptions.drivers = driverNames.map(name => ({ name }));
         }
       }
+
+      const tunnel = this._createTunnel();
+      return tunnel.getEnvironments().then(environments => {
+        config.environments = resolveEnvironments(
+          config.capabilities,
+          config.environments.filter(isRemoteEnvironment),
+          environments
+        );
+      });
     });
   }
 
