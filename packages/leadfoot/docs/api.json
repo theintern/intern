@@ -19249,7 +19249,7 @@
 							"sources": [
 								{
 									"fileName": "packages/leadfoot/src/Server.ts",
-									"line": 415,
+									"line": 419,
 									"character": 15
 								}
 							]
@@ -19343,7 +19343,7 @@
 							"sources": [
 								{
 									"fileName": "packages/leadfoot/src/Server.ts",
-									"line": 386,
+									"line": 390,
 									"character": 8
 								}
 							]
@@ -19398,7 +19398,7 @@
 							"sources": [
 								{
 									"fileName": "packages/leadfoot/src/Server.ts",
-									"line": 2036,
+									"line": 2040,
 									"character": 15
 								}
 							]
@@ -19492,7 +19492,7 @@
 							"sources": [
 								{
 									"fileName": "packages/leadfoot/src/Server.ts",
-									"line": 370,
+									"line": 374,
 									"character": 5
 								}
 							]
@@ -19548,7 +19548,7 @@
 							"sources": [
 								{
 									"fileName": "packages/leadfoot/src/Server.ts",
-									"line": 2029,
+									"line": 2033,
 									"character": 24
 								}
 							]
@@ -19592,7 +19592,7 @@
 							"sources": [
 								{
 									"fileName": "packages/leadfoot/src/Server.ts",
-									"line": 2003,
+									"line": 2007,
 									"character": 13
 								}
 							]
@@ -19633,7 +19633,7 @@
 							"sources": [
 								{
 									"fileName": "packages/leadfoot/src/Server.ts",
-									"line": 400,
+									"line": 404,
 									"character": 11
 								}
 							]
@@ -19727,7 +19727,7 @@
 							"sources": [
 								{
 									"fileName": "packages/leadfoot/src/Server.ts",
-									"line": 378,
+									"line": 382,
 									"character": 6
 								}
 							]
@@ -19790,7 +19790,7 @@
 							"sources": [
 								{
 									"fileName": "packages/leadfoot/src/Server.ts",
-									"line": 2201,
+									"line": 2205,
 									"character": 6
 								}
 							],
@@ -19808,7 +19808,7 @@
 							"sources": [
 								{
 									"fileName": "packages/leadfoot/src/Server.ts",
-									"line": 2200,
+									"line": 2204,
 									"character": 10
 								}
 							],
@@ -19831,7 +19831,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2199,
+							"line": 2203,
 							"character": 22
 						}
 					]
@@ -19874,7 +19874,7 @@
 													"sources": [
 														{
 															"fileName": "packages/leadfoot/src/Server.ts",
-															"line": 2041,
+															"line": 2045,
 															"character": 51
 														}
 													],
@@ -19896,7 +19896,7 @@
 																	"sources": [
 																		{
 																			"fileName": "packages/leadfoot/src/Server.ts",
-																			"line": 2041,
+																			"line": 2045,
 																			"character": 60
 																		}
 																	],
@@ -19918,7 +19918,7 @@
 															"sources": [
 																{
 																	"fileName": "packages/leadfoot/src/Server.ts",
-																	"line": 2041,
+																	"line": 2045,
 																	"character": 52
 																}
 															]
@@ -19934,7 +19934,7 @@
 													"sources": [
 														{
 															"fileName": "packages/leadfoot/src/Server.ts",
-															"line": 2041,
+															"line": 2045,
 															"character": 35
 														}
 													],
@@ -19957,7 +19957,7 @@
 											"sources": [
 												{
 													"fileName": "packages/leadfoot/src/Server.ts",
-													"line": 2041,
+													"line": 2045,
 													"character": 28
 												}
 											]
@@ -19974,7 +19974,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2041,
+							"line": 2045,
 							"character": 21
 						}
 					]
@@ -20015,7 +20015,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2069,
+							"line": 2073,
 							"character": 18
 						}
 					]
@@ -20056,7 +20056,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2074,
+							"line": 2078,
 							"character": 26
 						}
 					]
@@ -20141,7 +20141,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2079,
+							"line": 2083,
 							"character": 17
 						}
 					]
@@ -20234,7 +20234,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2144,
+							"line": 2148,
 							"character": 25
 						}
 					]
@@ -20327,7 +20327,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2118,
+							"line": 2122,
 							"character": 34
 						}
 					]
@@ -20368,7 +20368,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2091,
+							"line": 2095,
 							"character": 14
 						}
 					]
@@ -20409,7 +20409,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2096,
+							"line": 2100,
 							"character": 14
 						}
 					]
@@ -20502,7 +20502,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2105,
+							"line": 2109,
 							"character": 24
 						}
 					]
@@ -20595,7 +20595,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2131,
+							"line": 2135,
 							"character": 24
 						}
 					]
@@ -20683,7 +20683,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2162,
+							"line": 2166,
 							"character": 23
 						}
 					]
@@ -20710,7 +20710,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2187,
+							"line": 2191,
 							"character": 13
 						}
 					]
@@ -20757,7 +20757,7 @@
 					"sources": [
 						{
 							"fileName": "packages/leadfoot/src/Server.ts",
-							"line": 2195,
+							"line": 2199,
 							"character": 20
 						}
 					]

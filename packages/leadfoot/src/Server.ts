@@ -112,15 +112,17 @@ export default class Server {
     };
 
     const headers = { ...defaultRequestHeaders };
+    const httpAgent = this._httpAgent;
+    const httpsAgent = this._httpsAgent;
 
     const kwArgs = {
       ...this.requestOptions,
       followRedirects: false,
       handleAs: 'text',
-      httpAgent: this._httpAgent,
-      httpsAgent: this._httpsAgent,
       headers,
-      method
+      method,
+      httpAgent,
+      httpsAgent
     } as RequestOptions;
 
     if (requestData) {
@@ -175,7 +177,9 @@ export default class Server {
           }
 
           return request(redirectUrl, {
-            headers: defaultRequestHeaders
+            headers: defaultRequestHeaders,
+            httpAgent,
+            httpsAgent
           }).then(handleResponse);
         }
 

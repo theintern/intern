@@ -8,7 +8,9 @@ import axios, {
   AxiosProxyConfig,
   AxiosResponse
 } from 'axios';
-import * as qs from 'qs';
+import { Agent as HttpAgent } from 'http';
+import { Agent as HttpsAgent } from 'https';
+import qs from 'qs';
 import Task, { CancellablePromise } from './Task';
 import Evented from './Evented';
 
@@ -38,6 +40,8 @@ export interface RequestOptions {
   user?: string;
   username?: string;
   onDownloadProgress?: (progressEvent: any) => void;
+  httpAgent?: HttpAgent;
+  httpsAgent?: HttpsAgent;
 }
 
 export interface ProgressEvent {
@@ -238,7 +242,7 @@ class ResponseClass<T = any> extends Evented<ProgressEvent>
       }
     }
 
-    return Task.resolve(this.stringValue!);
+    return Task.resolve(this.stringValue);
   }
 }
 
@@ -250,10 +254,10 @@ function getFileReaderPromise<T extends string | ArrayBuffer>(
   reader: FileReader
 ): Promise<T> {
   return new Promise((resolve, reject) => {
-    reader.onload = function() {
+    reader.onload = function () {
       resolve(<T>reader.result);
     };
-    reader.onerror = function() {
+    reader.onerror = function () {
       reject(reader.error);
     };
   });
