@@ -1,6 +1,3 @@
-import { Agent as HttpAgent } from 'http';
-import { Agent as HttpsAgent } from 'https';
-
 import intern from '../core';
 import keys from './keys';
 
@@ -44,18 +41,6 @@ export default class Server {
    * no tests will be run.
    */
   fixSessionCapabilities: boolean | 'no-detect' = true;
-
-  // Use custom agents with keepAlive enabled to improve test efficiency,
-  // particularly with remote services such as BrowserStack. See
-  // https://github.com/browserstack/fast-selenium-scripts/blob/master/node/fast-selenium.js
-  private _httpAgent = new HttpAgent({
-    keepAlive: true,
-    keepAliveMsecs: 30000
-  });
-  private _httpsAgent = new HttpsAgent({
-    keepAlive: true,
-    keepAliveMsecs: 30000
-  });
 
   /**
    * The Server class represents a remote HTTP server implementing the
@@ -121,17 +106,13 @@ export default class Server {
     };
 
     const headers = { ...defaultRequestHeaders };
-    const httpAgent = this._httpAgent;
-    const httpsAgent = this._httpsAgent;
 
     const kwArgs: RequestOptions = {
       ...this.requestOptions,
       followRedirects: false,
       handleAs: 'text',
       headers,
-      method,
-      httpAgent,
-      httpsAgent
+      method
     };
 
     if (requestData) {
@@ -187,9 +168,7 @@ export default class Server {
           }
 
           return request(redirectUrl, {
-            headers: defaultRequestHeaders,
-            httpAgent,
-            httpsAgent
+            headers: defaultRequestHeaders
           }).then(handleResponse);
         }
 
