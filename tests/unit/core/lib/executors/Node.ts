@@ -346,7 +346,7 @@ registerSuite('core/lib/executors/Node', function() {
           );
           replace(() => import('src/core/lib/resolveEnvironments')).withDefault(
             () => {
-              return ['foo env'];
+              return [{ browserName: 'foo env' }];
             }
           );
           replace(() => import('src/webdriver/Command')).withDefault(
@@ -1066,7 +1066,7 @@ registerSuite('core/lib/executors/Node', function() {
           );
           executor.run().then(
             dfd.callback(() => {
-              assert.lengthOf(tunnels, 0, 'no tunnel should have been created');
+              assert.lengthOf(tunnels, 1, 'server should have been created');
               assert.lengthOf(servers, 1, 'server should have been created');
 
               const server: any = servers[0];
