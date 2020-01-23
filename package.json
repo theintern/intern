@@ -35,11 +35,13 @@
     "build:src": "ts-node scripts/build.ts",
     "build:api": "ts-node scripts/api.ts",
     "build": "concurrently npm:build:src npm:build:api",
+    "intern": "ts-node -r tsconfig-paths/register src/bin/intern.ts",
     "devpack": "ts-node scripts/build.ts --pack",
     "lint": "eslint src --ext .ts",
     "release": "cross-env INTERN_BUILD=release ts-node scripts/release.ts",
     "start": "ts-node scripts/test.ts --serve-only",
     "test": "ts-node scripts/test.ts",
+    "watch": "ts-node scripts/build.ts --watch",
     "ci": "ts-node scripts/test.ts --config @ci"
   },
   "dependencies": {
