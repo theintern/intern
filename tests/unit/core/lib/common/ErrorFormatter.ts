@@ -56,7 +56,7 @@ registerSuite('core/lib/common/ErrorFormatter', function() {
               if (error.stack) {
                 assert.match(
                   formatter.format(error),
-                  /^Error: foo\n\s{2}at (?:\S*\.)?error /
+                  /^Error: foo\n\s{2}at (?:\S*\.)?error\b/
                 );
               } else {
                 assert.equal(
