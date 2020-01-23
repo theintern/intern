@@ -41,6 +41,7 @@
     "release": "cross-env INTERN_BUILD=release ts-node scripts/release.ts",
     "start": "ts-node scripts/test.ts --serve-only",
     "test": "ts-node scripts/test.ts",
+    "watch:tests": "ts-node scripts/test.ts --watch",
     "watch": "ts-node scripts/build.ts --watch",
     "ci": "ts-node scripts/test.ts --config @ci"
   },
