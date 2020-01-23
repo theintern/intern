@@ -221,7 +221,7 @@ export default class RemoteSuite extends Suite {
           });
 
         const query = stringifyQuery(queryParams);
-        const harness = `${config.serverUrl}__intern/browser/remote.html`;
+        const harness = `${config.serverUrl}__intern/remote.html`;
 
         // Determine the relative path from basePath to internPath. This
         // will be used to derive the internPath sent to the remote. The

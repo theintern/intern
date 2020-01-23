@@ -151,7 +151,11 @@ export default class Server implements ServerProperties {
       );
 
       // Map __intern to config.internPath
-      app.use('/__intern', express.static(internPath, { fallthrough: false }));
+      app.use(
+        '/__intern',
+        express.static(`${internPath}/browser/`, { fallthrough: true }),
+        express.static(internPath, { fallthrough: false })
+      );
 
       // TODO: Allow user to add middleware here
 
