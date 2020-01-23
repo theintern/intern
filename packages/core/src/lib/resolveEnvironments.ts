@@ -354,14 +354,14 @@ function createPermutations(
   // If no expansion sources were given, the set of permutations consists of
   // just the base
   if (!sources || sources.length === 0) {
-    return [<FlatEnvironment>{ ...base }];
+    return [{ ...base } as FlatEnvironment];
   }
 
   // Expand the permutation set for each source
   return sources
     .map(function (source) {
       return Object.keys(source).reduce(
-        (permutations: FlatEnvironment[], key: string) => {
+        (permutations, key) => {
           if (Array.isArray(source[key])) {
             // For array values, create a copy of the permutation
             // set for each array item, then use the combination of
@@ -387,7 +387,9 @@ function createPermutations(
           }
           return permutations;
         },
-        [<FlatEnvironment>{ ...base }]
+        // Seed the permutations list with an empty object so that the reducer
+        // wil have something to initially fill in.
+        [{ ...base }] as FlatEnvironment[]
       );
     })
     .reduce(
