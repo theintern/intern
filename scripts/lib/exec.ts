@@ -10,14 +10,19 @@ process.on('SIGINT', () => {
 });
 
 /**
- * Execute a process
+ * Execute a process.
+ *
+ * Stdout and stderr will be combined by default.
  */
 export default function exec(
   cmd: string,
   args?: string[],
   options?: Options
 ): ExecaChildProcess {
-  const proc = execa(cmd, args, options);
+  const proc = execa(cmd, args, {
+    all: true,
+    ...options
+  });
   procs.push(proc);
   return proc;
 }

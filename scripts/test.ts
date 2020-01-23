@@ -19,7 +19,7 @@ import { log } from './lib/util';
   if (!existsSync(testerPath)) {
     log('Building test Intern...');
     const proc = exec('ts-node', ['scripts/build.ts', '-o', testerPath]);
-    proc.stdout!.pipe(process.stdout);
+    proc.all!.pipe(process.stdout);
     tasks.push(proc);
   }
 
@@ -38,7 +38,7 @@ import { log } from './lib/util';
   log('Running tests...');
   try {
     const proc = exec('node', cmdArgs);
-    proc.stdout!.pipe(process.stdout);
+    proc.all!.pipe(process.stdout);
     await proc;
   } catch (error) {
     if (!error.isCancelled) {
