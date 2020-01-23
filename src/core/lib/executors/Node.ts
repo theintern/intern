@@ -396,11 +396,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
             // Tunnel will have been created in resolveConfig
             const tunnel = this.tunnel!;
 
-            config.capabilities = deepMixin(
-              tunnel.extraCapabilities,
-              config.capabilities
-            );
-
             this._createSessionSuites();
 
             return tunnel
@@ -482,110 +477,115 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     leadfootServer.sessionConstructor = InitializedProxiedSession;
 
     // config.environments was resolved in resolveConfig
-    this._sessionSuites = this.config.environments.map(environmentType => {
-      let session: ProxiedSession;
+    this._sessionSuites = this.config.environments
+      .filter(isRemoteEnvironment)
+      .map(environmentType => {
+        let session: ProxiedSession;
 
-      // Create a new root suite for each environment
-      const suite = new Suite({
-        name: String(environmentType),
-        publishAfterSetup: true,
-        grep: config.grep,
-        bail: config.bail,
-        tests: [],
-        timeout: config.defaultTimeout,
-        executor: this,
+        // Create a new root suite for each environment
+        const suite = new Suite({
+          name: String(environmentType),
+          publishAfterSetup: true,
+          grep: config.grep,
+          bail: config.bail,
+          tests: [],
+          timeout: config.defaultTimeout,
+          executor: this,
 
-        before() {
-          self.log('Creating session for', environmentType);
-          return leadfootServer
-            .createSession<ProxiedSession>(environmentType)
-            .then(_session => {
-              session = _session;
-              this.executor.log('Created session:', session.capabilities);
+          before() {
+            self.log('Creating session for', environmentType);
+            return leadfootServer
+              .createSession<ProxiedSession>(environmentType)
+              .then(_session => {
+                session = _session;
+                this.executor.log('Created session:', session.capabilities);
 
-              const remote: Remote = <Remote>new Command(session);
-              remote.environmentType = new Environment(session.capabilities);
-              remote.requestedEnvironment = environmentType;
-              this.remote = remote;
-              this.sessionId = remote.session.sessionId;
+                const remote: Remote = <Remote>new Command(session);
+                remote.environmentType = new Environment(session.capabilities);
+                remote.requestedEnvironment = environmentType;
+                this.remote = remote;
+                this.sessionId = remote.session.sessionId;
 
-              // Update the name with details from the remote
-              // environment
-              this.name = remote.environmentType.toString();
+                // Update the name with details from the remote
+                // environment
+                this.name = remote.environmentType.toString();
 
-              const timeouts = config.functionalTimeouts;
-              let promise = Promise.resolve();
-              if (timeouts.executeAsync != null) {
-                promise = promise.then(() =>
-                  remote.setExecuteAsyncTimeout(timeouts.executeAsync!)
-                );
-                this.executor.log(
-                  'Set remote executeAsync timeout to ',
-                  timeouts.executeAsync
-                );
-              }
-              if (timeouts.find != null) {
-                promise = promise.then(() =>
-                  remote.setFindTimeout(timeouts.find!)
-                );
-                this.executor.log('Set remote find timeout to ', timeouts.find);
-              }
-              if (timeouts.pageLoad != null) {
-                promise = promise.then(() =>
-                  remote.setPageLoadTimeout(timeouts.pageLoad!)
-                );
-                this.executor.log(
-                  'Set remote pageLoad timeout to ',
-                  timeouts.pageLoad
-                );
-              }
-
-              return promise;
-            });
-        },
-
-        after() {
-          const remote = this.remote;
-
-          if (remote != null) {
-            const endSession = () => {
-              // Check for an error in this suite or a
-              // sub-suite. This check is a bit more involved
-              // than just checking for a local suite error or
-              // failed tests since sub-suites may have
-              // failures that don't result in failed tests.
-              function hasError(suite: Suite): boolean {
-                if (suite.error != null || suite.numFailedTests > 0) {
-                  return true;
+                const timeouts = config.functionalTimeouts;
+                let promise = Promise.resolve();
+                if (timeouts.executeAsync != null) {
+                  promise = promise.then(() =>
+                    remote.setExecuteAsyncTimeout(timeouts.executeAsync!)
+                  );
+                  this.executor.log(
+                    'Set remote executeAsync timeout to ',
+                    timeouts.executeAsync
+                  );
                 }
-                return suite.tests.filter(isSuite).some(hasError);
-              }
-              return tunnel.sendJobState(remote.session.sessionId, {
-                success: !hasError(this)
+                if (timeouts.find != null) {
+                  promise = promise.then(() =>
+                    remote.setFindTimeout(timeouts.find!)
+                  );
+                  this.executor.log(
+                    'Set remote find timeout to ',
+                    timeouts.find
+                  );
+                }
+                if (timeouts.pageLoad != null) {
+                  promise = promise.then(() =>
+                    remote.setPageLoadTimeout(timeouts.pageLoad!)
+                  );
+                  this.executor.log(
+                    'Set remote pageLoad timeout to ',
+                    timeouts.pageLoad
+                  );
+                }
+
+                return promise;
               });
-            };
+          },
 
-            if (
-              config.leaveRemoteOpen === true ||
-              (config.leaveRemoteOpen === 'fail' && this.numFailedTests > 0)
-            ) {
-              return endSession();
+          after() {
+            const remote = this.remote;
+
+            if (remote != null) {
+              const endSession = () => {
+                // Check for an error in this suite or a
+                // sub-suite. This check is a bit more involved
+                // than just checking for a local suite error or
+                // failed tests since sub-suites may have
+                // failures that don't result in failed tests.
+                function hasError(suite: Suite): boolean {
+                  if (suite.error != null || suite.numFailedTests > 0) {
+                    return true;
+                  }
+                  return suite.tests.filter(isSuite).some(hasError);
+                }
+                return tunnel.sendJobState(remote.session.sessionId, {
+                  success: !hasError(this)
+                });
+              };
+
+              if (
+                config.leaveRemoteOpen === true ||
+                (config.leaveRemoteOpen === 'fail' && this.numFailedTests > 0)
+              ) {
+                return endSession();
+              }
+
+              return remote.quit().finally(endSession);
             }
-
-            return remote.quit().finally(endSession);
           }
+        });
+
+        // If browser-compatible unit tests were added to this executor,
+        // add a RemoteSuite to the session suite. The RemoteSuite will
+        // run the suites listed in config.browser.suites.
+        if (config.browser.suites.length > 0) {
+          suite.add(new RemoteSuite());
         }
+
+        return suite;
       });
-
-      // If browser-compatible unit tests were added to this executor,
-      // add a RemoteSuite to the session suite. The RemoteSuite will
-      // run the suites listed in config.browser.suites.
-      if (config.browser.suites.length > 0) {
-        suite.add(new RemoteSuite());
-      }
-
-      return suite;
-    });
   }
 
   /**
@@ -843,17 +843,38 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         }
       }
 
+      // If there are remote environments, resolve them using environments
+      // available through the tunnel specified in the config.
       const remoteEnvironments = config.environments.filter(
         isRemoteEnvironment
       );
-      if (remoteEnvironments.length > 0) {
+      if (remoteEnvironments.length > 0 && config.tunnel) {
         const tunnel = this._createTunnel();
+
+        // Add any extra capabilites provided by the tunnel to the config's
+        // capabilities
+        config.capabilities = deepMixin(
+          tunnel.extraCapabilities,
+          config.capabilities
+        );
+
         return tunnel.getEnvironments().then(tunnelEnvironments => {
-          config.environments = resolveEnvironments(
+          // Resolve the environments, matching versions, platforms, and browser
+          // names from the config with whats available from the tunnel
+          // enviroment.
+          const resolvedEnvironments = resolveEnvironments(
             config.capabilities,
             remoteEnvironments,
             tunnelEnvironments
           );
+
+          const localEnvironments = config.environments.filter(
+            env => !isRemoteEnvironment(env)
+          );
+
+          // The full environments list is all the local environments (generally
+          // just node) with all the remote environments.
+          config.environments = [...localEnvironments, ...resolvedEnvironments];
         });
       }
     });
