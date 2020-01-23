@@ -107,6 +107,9 @@ export default function request(
     req.proxy = <AxiosProxyConfig>{
       host: proxyUrl.hostname
     };
+    if (/^https:/.test(url)) {
+      req.proxy.protocol = 'https';
+    }
     if (proxyUrl.port) {
       req.proxy.port = Number(proxyUrl.port);
     }
