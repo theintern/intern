@@ -82,6 +82,7 @@
     "diff": "~4.0.1",
     "express": "~4.17.1",
     "glob": "~7.1.4",
+    "handlebars": "~4.5.3",
     "http-errors": "~1.7.2",
     "istanbul-lib-coverage": "~2.0.5",
     "istanbul-lib-hook": "~2.0.7",
