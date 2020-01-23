@@ -13,6 +13,7 @@ import {
 import { createMockFs, createMockPath } from 'tests/support/unit/nodeMocks';
 
 import _Server from 'src/lib/Server';
+import { NextFunction } from 'express';
 
 let Server: typeof _Server;
 
@@ -121,6 +122,7 @@ registerSuite('lib/Server', function () {
   const mockPath = createMockPath();
 
   const internStaticHandler = sandbox.stub();
+  const browserStaticHandler = sandbox.stub();
   const baseStaticHandler = sandbox.stub();
 
   let server: _Server;
@@ -129,6 +131,8 @@ registerSuite('lib/Server', function () {
   const mockServeStatic = sandbox.spy((path: string) => {
     if (path === executor.config.internPath) {
       return internStaticHandler;
+    } else if (path === `${executor.config.internPath}/browser/`) {
+      return browserStaticHandler;
     } else if (path === server.basePath) {
       return baseStaticHandler;
     }
@@ -215,66 +219,68 @@ registerSuite('lib/Server', function () {
 
     tests: {
       '#start': {
-        init() {
+        async init() {
           server.port = 12345;
-          return server.start().then(() => {
-            assert.lengthOf(
-              httpServers,
-              1,
-              'unexpected number of HTTP servers were created'
-            );
-            assert.lengthOf(
-              webSocketServers,
-              1,
-              'unexpected number of websocket servers were created'
-            );
+          await server.start();
 
-            const wsServer = webSocketServers[0];
-            assertPropertyLength(
-              wsServer.handlers,
-              'error',
-              1,
-              'unexpected number of websocket error handlers'
-            );
-            assertPropertyLength(
-              wsServer.handlers,
-              'connection',
-              1,
-              'unexpected number of websocket connection handlers'
-            );
+          assert.lengthOf(
+            httpServers,
+            1,
+            'unexpected number of HTTP servers were created'
+          );
+          assert.lengthOf(
+            webSocketServers,
+            1,
+            'unexpected number of websocket servers were created'
+          );
 
-            const httpServer = httpServers[0];
-            assertPropertyLength(
-              httpServer.handlers,
-              'connection',
-              1,
-              'unexpected number of http connection handlers'
-            );
-            assert.strictEqual(
-              httpServer.port,
-              12345,
-              'HTTP server not listening on expected port'
-            );
+          const wsServer = webSocketServers[0];
+          assertPropertyLength(
+            wsServer.handlers,
+            'error',
+            1,
+            'unexpected number of websocket error handlers'
+          );
+          assertPropertyLength(
+            wsServer.handlers,
+            'connection',
+            1,
+            'unexpected number of websocket connection handlers'
+          );
 
-            // middleware tests
-            assert.isTrue(mockBodyParser.json.calledOnce);
-            assert.isTrue(mockBodyParser.urlencoded.calledOnce);
-            assert.deepEqual(mockBodyParser.urlencoded.firstCall.args[0], {
-              extended: true
-            });
-            assert.isTrue(mockServeStatic.calledTwice);
-            assert.deepEqual(mockServeStatic.firstCall.args, [
-              server.executor.config.internPath,
-              { fallthrough: false }
-            ]);
-            assert.deepEqual(mockServeStatic.secondCall.args, [
-              server.basePath
-            ]);
-            assert.isTrue(instrument.calledOnce);
-            assert.isTrue(post.calledOnce);
-            assert.isTrue(unhandled.calledOnce);
-            assert.isTrue(finalError.calledOnce);
+          const httpServer = httpServers[0];
+          assertPropertyLength(
+            httpServer.handlers,
+            'connection',
+            1,
+            'unexpected number of http connection handlers'
+          );
+          assert.strictEqual(
+            httpServer.port,
+            12345,
+            'HTTP server not listening on expected port'
+          );
+
+          // middleware tests
+          assert.isTrue(mockBodyParser.json.calledOnce);
+          assert.isTrue(mockBodyParser.urlencoded.calledOnce);
+          assert.deepEqual(mockBodyParser.urlencoded.firstCall.args[0], {
+            extended: true
           });
+          assert.strictEqual(mockServeStatic.callCount, 3);
+          assert.deepEqual(mockServeStatic.firstCall.args, [
+            `${server.executor.config.internPath}/browser/`,
+            { fallthrough: true }
+          ]);
+          assert.deepEqual(mockServeStatic.secondCall.args, [
+            server.executor.config.internPath,
+            { fallthrough: false }
+          ]);
+          assert.deepEqual(mockServeStatic.thirdCall.args, [server.basePath]);
+          assert.isTrue(instrument.calledOnce);
+          assert.isTrue(post.calledOnce);
+          assert.isTrue(unhandled.calledOnce);
+          assert.isTrue(finalError.calledOnce);
         },
 
         'http connection': {
@@ -438,6 +444,11 @@ registerSuite('lib/Server', function () {
           'intern resource'() {
             executor.config.internPath = '/modules/intern/';
             return server.start().then(() => {
+              browserStaticHandler.callsFake(
+                (_request: any, _response: any, next: NextFunction) => {
+                  next();
+                }
+              );
               internStaticHandler.callsFake((_request: any, response: any) => {
                 response.data = 'what a fun time';
               });
@@ -447,7 +458,8 @@ registerSuite('lib/Server', function () {
 
               responder(request, response);
 
-              assert.isTrue(internStaticHandler.calledOnce);
+              assert.strictEqual(browserStaticHandler.callCount, 1);
+              assert.strictEqual(internStaticHandler.callCount, 1);
               assert.equal(response.data, 'what a fun time');
               assert.isFalse(instrumentHandler.called);
               assert.isFalse(baseStaticHandler.called);
