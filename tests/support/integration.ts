@@ -90,7 +90,13 @@ export function addEnvironmentTest(
         .then(cleanup)
         .catch(reason => {
           return cleanup().then(() => {
-            throw reason;
+            // ECONREFUSED generally means TestingBot is down, which is outside
+            // of our control.
+            if (reason.code === 'ECONNREFUSED') {
+              this.skip('Service is unreachable');
+            } else {
+              throw reason;
+            }
           });
         })
         .finally(cleanup);
@@ -140,6 +146,13 @@ export function addStartStopTest(
         .then(function() {
           clearTimeout(cleanupTimer);
           return tunnel.stop();
+        })
+        .catch(reason => {
+          if (reason.code === 'ECONNREFUSED') {
+            this.skip('Service is unreachable');
+          } else {
+            throw reason;
+          }
         })
         .finally(cleanup);
     }
