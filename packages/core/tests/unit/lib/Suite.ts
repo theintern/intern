@@ -3,10 +3,12 @@ import { Task } from '@theintern/common';
 import Suite, { SuiteOptions } from 'src/lib/Suite';
 import Test from 'src/lib/Test';
 import { InternError } from 'src/lib/types';
+import { isFailedSuite } from 'src/lib/Suite';
 
 import {
   createMockExecutor,
-  createMockRemoteAndSession
+  createMockRemoteAndSession,
+  createMockRemote
 } from '../../support/unit/mocks';
 import _Deferred from '../../../src/lib/Deferred';
 import { TestFunction as _TestFunction } from '../../../src/lib/Test';
@@ -22,11 +24,11 @@ interface TestWrapper {
 }
 
 function createAsyncAndPromiseTest(testWrapper: TestWrapper) {
-  return testWrapper(function(done: Function) {
-    return function() {
+  return testWrapper(function (done: Function) {
+    return function () {
       this.async();
       return new Promise(resolve => {
-        setTimeout(function() {
+        setTimeout(function () {
           done();
           resolve();
         }, 20);
@@ -36,12 +38,12 @@ function createAsyncAndPromiseTest(testWrapper: TestWrapper) {
 }
 
 function createAsyncCallbackTest(testWrapper: TestWrapper) {
-  return testWrapper(function(done: Function) {
-    return function() {
+  return testWrapper(function (done: Function) {
+    return function () {
       const setupDfd = this.async();
-      setTimeout(function() {
+      setTimeout(function () {
         done();
-        setupDfd.callback(<any>function() {})();
+        setupDfd.callback(<any>function () {})();
       }, 20);
     };
   });
@@ -68,23 +70,23 @@ function createSuiteWithTest() {
 }
 
 function createAsyncRejectOnErrorTest(method: lifecycleMethod): _TestFunction {
-  return function() {
+  return function () {
     const dfd = this.async(1000);
     const suite = createSuite();
     const test = new Test({ name: 'foo', test() {}, parent: suite });
 
     suite.tests.push(test);
 
-    suite[method] = function(this: Suite | Test) {
+    suite[method] = function (this: Suite | Test) {
       const dfd = this.async!(20);
-      dfd.rejectOnError(function() {})();
+      dfd.rejectOnError(function () {})();
     };
 
     suite.run().then(
-      <any>function() {
+      <any>function () {
         dfd.reject(new Error('Suite should not have resolved'));
       },
-      dfd.callback(<any>function() {
+      dfd.callback(<any>function () {
         assert.match(
           suite.error!.message,
           new RegExp('Timeout reached .*' + method + '$'),
@@ -96,10 +98,10 @@ function createAsyncRejectOnErrorTest(method: lifecycleMethod): _TestFunction {
 }
 
 function createAsyncTest(testWrapper: TestWrapper) {
-  return testWrapper(function(done: Function) {
-    return function() {
+  return testWrapper(function (done: Function) {
+    return function () {
       const setupDfd = this.async();
-      setTimeout(function() {
+      setTimeout(function () {
         done();
         setupDfd.resolve();
       }, 20);
@@ -144,7 +146,7 @@ function createLifecycle(options: any = {}): _TestFunction {
     ];
   }
 
-  return function() {
+  return function () {
     const dfd = this.async(5000);
 
     options.executor = createMockExecutor({
@@ -192,13 +194,13 @@ function createLifecycle(options: any = {}): _TestFunction {
 
     ['before', 'beforeEach', 'afterEach', 'after'].forEach(methodName => {
       const method = <lifecycleMethod>methodName;
-      suite[method] = function() {
+      suite[method] = function () {
         results.push(method);
         return Task.resolve();
       };
     });
 
-    [0, 1].forEach(function(i) {
+    [0, 1].forEach(function (i) {
       suite.tests.push(
         new Test({
           name: `bar${i}`,
@@ -211,7 +213,7 @@ function createLifecycle(options: any = {}): _TestFunction {
     });
 
     suite.run().then(
-      dfd.callback(function() {
+      dfd.callback(function () {
         results.push('done');
         assert.deepEqual(
           results,
@@ -224,10 +226,10 @@ function createLifecycle(options: any = {}): _TestFunction {
 }
 
 function createPromiseTest(testWrapper: TestWrapper) {
-  return testWrapper(function(done: Function) {
-    return function() {
+  return testWrapper(function (done: Function) {
+    return function () {
       return new Promise(resolve => {
-        setTimeout(function() {
+        setTimeout(function () {
           done();
           resolve();
         }, 20);
@@ -240,18 +242,18 @@ function createThrowsTest(
   method: lifecycleMethod,
   options: any = {}
 ): _TestFunction {
-  return function() {
+  return function () {
     const dfd = this.async(1000);
     const suite = createSuite();
     const test = new Test({ name: 'foo', test() {}, parent: suite });
     const thrownError = new Error('Oops');
     let finished = false;
 
-    (<any>suite)[method] = function(this: Test) {
+    (<any>suite)[method] = function (this: Test) {
       if (options.promise || options.async) {
         const dfd = options.async ? this.async() : new _Deferred();
 
-        setTimeout(function() {
+        setTimeout(function () {
           dfd.reject(thrownError);
         }, 20);
 
@@ -302,15 +304,15 @@ function createThrowsTest(
 }
 
 function createTimeoutTest(method: lifecycleMethod): _TestFunction {
-  return function() {
+  return function () {
     const dfd = this.async(1000);
     const suite = createSuite();
     const test = new Test({ name: 'foo', test() {}, parent: suite });
     let finished = false;
 
-    (<any>suite)[method] = function(this: Test) {
+    (<any>suite)[method] = function (this: Test) {
       const dfd = this.async(10);
-      setTimeout(function() {
+      setTimeout(function () {
         dfd.resolve();
       }, 20);
     };
@@ -318,7 +320,7 @@ function createTimeoutTest(method: lifecycleMethod): _TestFunction {
     suite.tests.push(test);
 
     suite.run().then(
-      function() {
+      function () {
         finished = true;
         dfd.reject(
           new Error(
@@ -326,7 +328,7 @@ function createTimeoutTest(method: lifecycleMethod): _TestFunction {
           )
         );
       },
-      dfd.callback(function() {
+      dfd.callback(function () {
         finished = true;
         assert.match(
           suite.error!.message,
@@ -353,7 +355,7 @@ function createTimeoutTest(method: lifecycleMethod): _TestFunction {
  * Verify that lifecycle methods are called with the expected arguments
  */
 function createArgsTest(method: lifecycleMethod): _TestFunction {
-  return function() {
+  return function () {
     const suite = createSuite({
       [method]: (...args: any[]) => {
         if (/Each$/.test(method)) {
@@ -394,7 +396,7 @@ function createLifecycleTests(
 
 function createGrepLifecycleTests() {
   function generate(method: lifecycleMethod): _TestFunction {
-    return function() {
+    return function () {
       const dfd = this.async(5000);
       const testsRun: Test[] = [];
 
@@ -508,7 +510,7 @@ function createGrepLifecycleTests() {
       );
 
       rootSuite.run().then(
-        dfd.callback(function() {
+        dfd.callback(function () {
           assert.sameMembers(
             testsRun,
             expectedTestsExecuted,
@@ -521,7 +523,7 @@ function createGrepLifecycleTests() {
             'Only life cycle functions within suites containing tests which match grep regex should have run'
           );
         }),
-        function() {
+        function () {
           dfd.reject(new Error('Suite should not fail'));
         }
       );
@@ -822,19 +824,19 @@ registerSuite('lib/Suite', {
     publishAfterSetup: true
   }),
 
-  '#before': (function(): _ObjectSuiteDescriptor {
+  '#before': (function (): _ObjectSuiteDescriptor {
     function asyncTest(createSetup: Function): _TestFunction {
-      return function() {
+      return function () {
         const dfd = this.async();
         const suite = createSuiteWithTest();
         let waited = false;
 
-        suite.before = createSetup(function() {
+        suite.before = createSetup(function () {
           waited = true;
         });
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.isTrue(
               waited,
               'Asynchronous before should be called before suite finishes'
@@ -850,12 +852,12 @@ registerSuite('lib/Suite', {
         const suite = createSuiteWithTest();
         let called = false;
 
-        suite.before = function() {
+        suite.before = function () {
           called = true;
         };
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.isTrue(
               called,
               'Before should be called before suite finishes'
@@ -866,9 +868,9 @@ registerSuite('lib/Suite', {
     });
   })(),
 
-  '#beforeEach': (function(): _ObjectSuiteDescriptor {
+  '#beforeEach': (function (): _ObjectSuiteDescriptor {
     function asyncTest(createBeforeEach: Function): _TestFunction {
-      return function() {
+      return function () {
         const dfd = this.async();
         const suite = createSuite();
         const results: string[] = [];
@@ -888,12 +890,12 @@ registerSuite('lib/Suite', {
           );
         }
 
-        suite.beforeEach = createBeforeEach(function() {
+        suite.beforeEach = createBeforeEach(function () {
           results.push('b' + ++counter);
         });
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.deepEqual(
               results,
               ['b1', '1', 'b2', '2'],
@@ -905,7 +907,7 @@ registerSuite('lib/Suite', {
     }
 
     const tests = createLifecycleTests('beforeEach', asyncTest, {
-      synchronous: function() {
+      synchronous: function () {
         const dfd = this.async(1000);
         const suite = createSuite();
         const results: string[] = [];
@@ -925,12 +927,12 @@ registerSuite('lib/Suite', {
           );
         }
 
-        suite.beforeEach = function() {
+        suite.beforeEach = function () {
           results.push('b' + ++counter);
         };
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.deepEqual(
               results,
               ['b1', '1', 'b2', '2'],
@@ -965,7 +967,7 @@ registerSuite('lib/Suite', {
       };
 
       suite.run().then(
-        dfd.callback(function() {
+        dfd.callback(function () {
           assert.isFalse(tested);
           assert.equal(testToSkip.skipped, 'skipper');
 
@@ -990,9 +992,9 @@ registerSuite('lib/Suite', {
     return tests;
   })(),
 
-  '#afterEach': (function(): _ObjectSuiteDescriptor {
+  '#afterEach': (function (): _ObjectSuiteDescriptor {
     function asyncTest(createAfterEach: Function): _TestFunction {
-      return function() {
+      return function () {
         const dfd = this.async();
         const suite = createSuite();
         const results: string[] = [];
@@ -1012,12 +1014,12 @@ registerSuite('lib/Suite', {
           );
         }
 
-        suite.afterEach = createAfterEach(function() {
+        suite.afterEach = createAfterEach(function () {
           results.push('a' + counter);
         });
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.deepEqual(
               results,
               ['1', 'a1', '2', 'a2'],
@@ -1049,12 +1051,12 @@ registerSuite('lib/Suite', {
           );
         }
 
-        suite.afterEach = function() {
+        suite.afterEach = function () {
           results.push('a' + counter);
         };
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.deepEqual(
               results,
               ['1', 'a1', '2', 'a2'],
@@ -1072,19 +1074,19 @@ registerSuite('lib/Suite', {
     });
   })(),
 
-  '#after': (function(): _ObjectSuiteDescriptor {
+  '#after': (function (): _ObjectSuiteDescriptor {
     function asyncTest(createAfter: Function): _TestFunction {
-      return function() {
+      return function () {
         const dfd = this.async();
         const suite = createSuiteWithTest();
         let waited = false;
 
-        suite.after = createAfter(function() {
+        suite.after = createAfter(function () {
           waited = true;
         });
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.isTrue(
               waited,
               'Asynchronous after should be called before suite finishes'
@@ -1100,12 +1102,12 @@ registerSuite('lib/Suite', {
         const suite = createSuiteWithTest();
         let called = false;
 
-        suite.after = function() {
+        suite.after = function () {
           called = true;
         };
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.isTrue(
               called,
               'Synchronous after should be called before suite finishes'
@@ -1142,7 +1144,7 @@ registerSuite('lib/Suite', {
       },
       beforeEach(test) {
         const dfd = new _Deferred();
-        setTimeout(function() {
+        setTimeout(function () {
           actualLifecycle.push(test.name + 'OuterBeforeEach');
           dfd.resolve();
         }, 100);
@@ -1159,7 +1161,7 @@ registerSuite('lib/Suite', {
     const childSuite = createSuite({
       name: 'child',
       parent: suite,
-      before: function() {
+      before: function () {
         actualLifecycle.push('innerSetup');
       },
       beforeEach(test) {
@@ -1168,13 +1170,13 @@ registerSuite('lib/Suite', {
       tests: [innerTest],
       afterEach(test) {
         const dfd = new _Deferred();
-        setTimeout(function() {
+        setTimeout(function () {
           actualLifecycle.push(test.name + 'InnerAfterEach');
           dfd.resolve();
         }, 100);
         return dfd.promise.then(() => {});
       },
-      after: function() {
+      after: function () {
         actualLifecycle.push('innerAfter');
       }
     });
@@ -1196,7 +1198,7 @@ registerSuite('lib/Suite', {
 
     suite.tests.push(childSuite);
     suite.run().then(
-      dfd.callback(function() {
+      dfd.callback(function () {
         assert.deepEqual(
           actualLifecycle,
           expectedLifecycle,
@@ -1204,7 +1206,7 @@ registerSuite('lib/Suite', {
             'with the test passed to beforeEach and afterEach'
         );
       }),
-      function(error) {
+      function (error) {
         console.log('suite failed with', error);
         dfd.reject(new Error('Suite should not fail'));
       }
@@ -1215,7 +1217,7 @@ registerSuite('lib/Suite', {
     const dfd = this.async(1000);
     const suite = createSuite({
       name: 'foo',
-      afterEach: function() {
+      afterEach: function () {
         actualLifecycle.push('outerAfterEach');
       }
     });
@@ -1240,7 +1242,7 @@ registerSuite('lib/Suite', {
 
     suite.tests.push(childSuite);
     suite.run().then(
-      dfd.callback(function() {
+      dfd.callback(function () {
         assert.deepEqual(
           actualLifecycle,
           expectedLifecycle,
@@ -1252,10 +1254,22 @@ registerSuite('lib/Suite', {
           'Suite with afterEach failure should hold the last error from afterEach'
         );
       }),
-      function() {
+      function () {
         dfd.reject(new Error('Suite should not fail'));
       }
     );
+  },
+
+  '#reset'() {
+    const suite = createSuite();
+    suite.remote = createMockRemote();
+    suite.error = new Error();
+    suite.timeElapsed = 100;
+
+    suite.reset();
+    assert.isUndefined(suite.remote);
+    assert.isUndefined(suite.error);
+    assert.strictEqual(suite.timeElapsed, 0);
   },
 
   '#run': <Tests>{
@@ -1302,14 +1316,14 @@ registerSuite('lib/Suite', {
         });
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.deepEqual(
               testsRun,
               [fooTest, barSuite.tests[0], foodTest],
               'Only test matching grep regex should have run'
             );
           }),
-          function() {
+          function () {
             dfd.reject(new Error('Suite should not fail'));
           }
         );
@@ -1340,11 +1354,11 @@ registerSuite('lib/Suite', {
         });
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.isTrue(afterExecuted, 'after should have run');
             assert.isTrue(afterEachExecuted, 'afterEach should have run');
           }),
-          function() {
+          function () {
             dfd.reject(new Error('Suite should not fail'));
           }
         );
@@ -1378,10 +1392,10 @@ registerSuite('lib/Suite', {
         suite.name = 'intern';
 
         suite.run().then(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.sameMembers(testsRun, [barTest], 'only bar should have run');
           }),
-          function() {
+          function () {
             dfd.reject(new Error('Suite should not fail'));
           }
         );
@@ -1407,11 +1421,11 @@ registerSuite('lib/Suite', {
       });
 
       suite.run().then(
-        dfd.callback(function() {
+        dfd.callback(function () {
           assert.isTrue(beforeExecuted, 'before should have run');
           assert.isTrue(afterExecuted, 'after should have run');
         }),
-        function() {
+        function () {
           dfd.reject(new Error('Suite should not fail'));
         }
       );
@@ -1458,7 +1472,7 @@ registerSuite('lib/Suite', {
       });
 
       let afterRan = false;
-      barSuite.after = function() {
+      barSuite.after = function () {
         afterRan = true;
       };
 
@@ -1467,7 +1481,7 @@ registerSuite('lib/Suite', {
       suite.tests.push(foodTest);
 
       suite.run().then(
-        dfd.callback(function() {
+        dfd.callback(function () {
           assert.deepEqual(
             testsRun,
             [fooTest, barSuite.tests[0]],
@@ -1475,7 +1489,7 @@ registerSuite('lib/Suite', {
           );
           assert.isTrue(afterRan, 'after should have run for bailing suite');
         }),
-        function() {
+        function () {
           dfd.reject(new Error('Suite should not fail'));
         }
       );
@@ -1549,14 +1563,14 @@ registerSuite('lib/Suite', {
       // remainder of the suite.
 
       suite.run().then(
-        <any>dfd.callback(function() {
+        dfd.callback(function () {
           assert.deepEqual(
             testsRun,
             [fooTest, bazSuite.tests[0]],
             'Skipped suite should not have run'
           );
         }),
-        function() {
+        function () {
           dfd.reject(new Error('Suite should not fail'));
         }
       );
@@ -1668,5 +1682,40 @@ registerSuite('lib/Suite', {
       numSkippedTests: 0
     };
     assert.deepEqual(suite.toJSON(), expected, 'Unexpected value');
+  },
+
+  'isFailedSuite()': {
+    'due to error'() {
+      const suite = createSuite({
+        name: 'test',
+        tests: []
+      });
+      suite.error = new Error();
+
+      assert.isTrue(isFailedSuite(suite));
+    },
+
+    'due to failed test'() {
+      const test = new Test({
+        name: 'bif',
+        test() {}
+      });
+      const suite = createSuite({
+        name: 'foo',
+        tests: [test]
+      });
+      test.error = new Error();
+
+      assert.isTrue(isFailedSuite(suite));
+    },
+
+    'no failure'() {
+      const suite = createSuite({
+        name: 'test',
+        tests: []
+      });
+
+      assert.isFalse(isFailedSuite(suite));
+    }
   }
 });

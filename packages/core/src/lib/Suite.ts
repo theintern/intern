@@ -348,6 +348,15 @@ export default class Suite implements SuiteProperties {
   }
 
   /**
+   * Explicity reset the suite so it may run again
+   */
+  reset() {
+    this._remote = undefined;
+    this.error = undefined;
+    this.timeElapsed = 0;
+  }
+
+  /**
    * Runs test suite in order:
    *
    * * before
@@ -365,7 +374,7 @@ export default class Suite implements SuiteProperties {
 
     // Run when the suite starts
     const start = () => {
-      return this.executor.emit('suiteStart', this).then(function() {
+      return this.executor.emit('suiteStart', this).then(function () {
         startTime = Date.now();
       });
     };
@@ -404,13 +413,13 @@ export default class Suite implements SuiteProperties {
           // Provide a new Suite#async method for each call of a
           // lifecycle method since there's no concept of a Suite-wide
           // async deferred as there is for Tests.
-          suite.async = function(_timeout?: number) {
+          suite.async = function (_timeout?: number) {
             timeout = _timeout;
 
             const _dfd = new Deferred<any>();
             dfd = _dfd;
 
-            suite.async = function() {
+            suite.async = function () {
               return _dfd;
             };
 
@@ -442,7 +451,7 @@ export default class Suite implements SuiteProperties {
             // use the dfd created by the call to manage the
             // timeout.
             if (timeout) {
-              let timer = setTimeout(function() {
+              let timer = setTimeout(function () {
                 const error = new Error(
                   `Timeout reached on ${suite.id}#${name}`
                 );
@@ -458,7 +467,10 @@ export default class Suite implements SuiteProperties {
             // If the return value looks like a promise, resolve the
             // dfd if the return value resolves
             if (isPromiseLike(result)) {
-              result.then(() => _dfd.resolve(), error => _dfd.reject(error));
+              result.then(
+                () => _dfd.resolve(),
+                error => _dfd.reject(error)
+              );
             }
 
             // Use the dfd.promise as the final result
@@ -506,12 +518,6 @@ export default class Suite implements SuiteProperties {
     const after = () => {
       return runLifecycleMethod(this, 'after');
     };
-
-    // Reset some state in case someone tries to re-run the same suite
-    // TODO: Cancel any previous outstanding suite run
-    // TODO: Test
-    this.error = undefined;
-    this.timeElapsed = 0;
 
     let task: CancellablePromise<void>;
     let runTask: CancellablePromise<void>;
@@ -733,7 +739,7 @@ export default class Suite implements SuiteProperties {
    * @param message If provided, will be stored in this suite's `skipped`
    * property.
    */
-  skip(message: string = 'suite skipped') {
+  skip(message = 'suite skipped') {
     this.skipped = message;
     // Use the SKIP constant from Test so that calling Suite#skip from a
     // test won't fail the test.
@@ -783,7 +789,13 @@ export default class Suite implements SuiteProperties {
 }
 
 export function isSuite(value: any): value is Suite {
-  return Array.isArray(value.tests) && typeof value.hasParent === 'boolean';
+  return (
+    value && Array.isArray(value.tests) && typeof value.hasParent === 'boolean'
+  );
+}
+
+export function isFailedSuite(suite: Suite): boolean {
+  return suite.error != null || suite.numFailedTests > 0;
 }
 
 export interface SuiteLifecycleFunction {

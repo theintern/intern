@@ -199,6 +199,9 @@ export interface Config extends ResourceConfig {
   /** Whether to collect coverage data from functional tests */
   functionalCoverage: boolean;
 
+  /** The number of times to rerun failed sessions when at least one other session succeeds */
+  functionalRetries?: number;
+
   /**
    * A list of paths or glob expressions that point to functional suites.
    *

@@ -37,7 +37,7 @@ import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
 import resolveEnvironments from '../resolveEnvironments';
 import Server from '../Server';
-import Suite, { isSuite } from '../Suite';
+import Suite, { isSuite, isFailedSuite } from '../Suite';
 import RemoteSuite from '../RemoteSuite';
 import { RuntimeEnvironment } from '../types';
 import * as console from '../common/console';
@@ -77,6 +77,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       coverage: [],
       environments: [],
       functionalCoverage: true,
+      functionalRetries: 0,
       functionalSuites: [],
       functionalTimeouts: {},
       instrumenterOptions: {},
@@ -552,7 +553,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
                 // failed tests since sub-suites may have
                 // failures that don't result in failed tests.
                 function hasError(suite: Suite): boolean {
-                  if (suite.error != null || suite.numFailedTests > 0) {
+                  if (isFailedSuite(suite)) {
                     return true;
                   }
                   return suite.tests.filter(isSuite).some(hasError);
@@ -925,13 +926,46 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         }
 
         testTask
-          .then(() => {
+          .then(async () => {
             if (!this._sessionSuites) {
               return;
             }
-            return this._loadFunctionalSuites().then(
-              () => (testTask = this._runRemoteTests())
-            );
+
+            const allSessions = this._sessionSuites;
+            let sessions = allSessions;
+            let remainingAttempts = 1 + (this.config.functionalRetries || 0);
+
+            await this._loadFunctionalSuites();
+            while (remainingAttempts && sessions.length) {
+              remainingAttempts--;
+              if (sessions.length !== allSessions.length) {
+                this.log(
+                  'reattempting',
+                  sessions.length,
+                  'of',
+                  allSessions.length,
+                  'environments'
+                );
+              }
+              try {
+                testTask = this._runRemoteTests(sessions);
+                await testTask;
+              } catch (e) {
+                this.log(`suite error: ${e}`);
+                // recover from exceptions to allow for retries
+              }
+              const failedSessions = (sessions = sessions.filter(
+                isFailedSuite
+              ));
+              if (failedSessions.length === allSessions.length) {
+                // Do not reattempt if no session has passed
+                remainingAttempts = 0;
+              } else {
+                for (const suite of failedSessions) {
+                  suite.reset();
+                }
+              }
+            }
           })
           .then(resolve, reject);
       },
@@ -961,14 +995,17 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     });
   }
 
-  protected _runRemoteTests(): CancellablePromise<void> {
+  protected _runRemoteTests(sessions: Suite[]): CancellablePromise<void> {
     const config = this.config;
-    const sessionSuites = this._sessionSuites!;
     const queue = new FunctionQueue(config.maxConcurrency || Infinity);
+
+    if (!this._sessionSuites) {
+      return Task.resolve();
+    }
 
     this.log(
       'Running',
-      sessionSuites.length,
+      sessions.length,
       'suites with maxConcurrency',
       config.maxConcurrency
     );
@@ -976,7 +1013,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     const runTask = new Task(
       (resolve, reject) => {
         Task.all(
-          sessionSuites.map(suite => {
+          sessions.map(suite => {
             this.log('Queueing suite', suite.name);
             return queue.enqueue(() => {
               this.log('Running suite', suite.name);

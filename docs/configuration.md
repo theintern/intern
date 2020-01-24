@@ -2,24 +2,24 @@
 
 <!-- vim-markdown-toc GFM -->
 
-* [Schema](#schema)
-* [Environment-specific config](#environment-specific-config)
-* [Properties](#properties)
-  * [Suite glob expressions](#suite-glob-expressions)
-  * [extends](#extends)
-* [Displaying config information](#displaying-config-information)
-  * [showConfig](#showconfig)
-  * [showConfigs](#showconfigs)
-* [Config structure](#config-structure)
-* [Sources of configuration information](#sources-of-configuration-information)
-  * [Config File](#config-file)
-  * [Environment variable](#environment-variable)
-  * [Command line](#command-line)
-  * [Query args](#query-args)
-  * [Programmatically](#programmatically)
-* [Configuring loaders](#configuring-loaders)
-* [Configuring plugins](#configuring-plugins)
-* [Configuration resolution](#configuration-resolution)
+- [Schema](#schema)
+- [Environment-specific config](#environment-specific-config)
+- [Properties](#properties)
+  - [Suite glob expressions](#suite-glob-expressions)
+  - [extends](#extends)
+- [Displaying config information](#displaying-config-information)
+  - [showConfig](#showconfig)
+  - [showConfigs](#showconfigs)
+- [Config structure](#config-structure)
+- [Sources of configuration information](#sources-of-configuration-information)
+  - [Config File](#config-file)
+  - [Environment variable](#environment-variable)
+  - [Command line](#command-line)
+  - [Query args](#query-args)
+  - [Programmatically](#programmatically)
+- [Configuring loaders](#configuring-loaders)
+- [Configuring plugins](#configuring-plugins)
+- [Configuration resolution](#configuration-resolution)
 
 <!-- vim-markdown-toc -->
 
@@ -114,6 +114,7 @@ Some properties are only meaningful for Node or WebDriver tests:
 | [capabilities]       | Default capabilities to be used for WebDriver sessions                                                                                                           | `{ 'idle-timeout': 60 }`    |
 | [coverage]           | An array of paths or globs to collect coverage data for                                                                                                          | `[]`                        |
 | [environments]       | Browser + OS combinations to be tested using WebDriver                                                                                                           | `[]`                        |
+| [functionalRetries]  | rerun failed sessions when at least one other session succeeds                                                                                                   | `0`                         |
 | [functionalSuites]   | Suites to run in WebDriver mode                                                                                                                                  | `[]`                        |
 | [functionalTimeouts] | Timeouts used in functional tests                                                                                                                                | `{ connectTimeout: 30000 }` |
 | [leaveRemoteOpen]    | If true, leave remote browsers open after testing has finished                                                                                                   | `false`                     |
@@ -561,6 +562,8 @@ There are a few exceptions:
 [extends]: #extends
 [filtererrorstack]:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/filtererrorstack
+[functionalretries]:
+  https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/functionalretries
 [functionalsuites]:
   https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/functionalsuites
 [functionaltimeouts]:
