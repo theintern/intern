@@ -728,6 +728,10 @@ export default class Server {
 
         // IE11 will hang during this check if nativeEvents are enabled
         updates.brokenSubmitElement = true;
+
+        // IE11 will hang during this check, but it does support window
+        // switching
+        updates.brokenWindowSwitch = false;
       }
 
       if (isValidVersion(capabilities, 11, Infinity)) {
