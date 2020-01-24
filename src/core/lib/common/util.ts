@@ -662,6 +662,7 @@ export function processOption<C extends Config>(
       }
       break;
     }
+    case 'functionalRetries':
     case 'connectTimeout':
     case 'heartbeatInterval':
     case 'maxConcurrency':

@@ -346,6 +346,15 @@ export default class Suite implements SuiteProperties {
   }
 
   /**
+   * Explicity reset the suite so it may run again
+   */
+  reset() {
+    this._remote = undefined;
+    this.error = undefined;
+    this.timeElapsed = 0;
+  }
+
+  /**
    * Runs test suite in order:
    *
    * * before
@@ -509,12 +518,6 @@ export default class Suite implements SuiteProperties {
     const after = () => {
       return runLifecycleMethod(this, 'after');
     };
-
-    // Reset some state in case someone tries to re-run the same suite
-    // TODO: Cancel any previous outstanding suite run
-    // TODO: Test
-    this.error = undefined;
-    this.timeElapsed = 0;
 
     let task: CancellablePromise<void>;
     let runTask: CancellablePromise<void>;
@@ -788,7 +791,13 @@ export default class Suite implements SuiteProperties {
 }
 
 export function isSuite(value: any): value is Suite {
-  return Array.isArray(value.tests) && typeof value.hasParent === 'boolean';
+  return (
+    value && Array.isArray(value.tests) && typeof value.hasParent === 'boolean'
+  );
+}
+
+export function isFailedSuite(suite: Suite): boolean {
+  return suite.error != null || suite.numFailedTests > 0;
 }
 
 export interface SuiteLifecycleFunction {

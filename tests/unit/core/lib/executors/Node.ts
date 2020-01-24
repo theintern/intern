@@ -226,6 +226,8 @@ registerSuite('core/lib/executors/Node', function() {
 
   const mockTsNodeRegister = spy();
 
+  const mockResolveEnvironments = stub().returns(['foo env']);
+
   const mockNodeUtil = {
     expandFiles(patterns?: string | string[]) {
       if (typeof patterns === 'string') {
@@ -252,6 +254,29 @@ registerSuite('core/lib/executors/Node', function() {
   let Node: typeof _Node;
   let fsData: { [name: string]: string };
   let tsExtension: any;
+
+  function setFunctionalSuites(
+    loader: (options: { name: string; parent: Suite }) => void,
+    functionalSuites: string[] = ['one.js']
+  ) {
+    executor.configure(<any>{
+      name: 'foo executor',
+      environments: ['chrome'],
+      tunnel: 'null',
+      functionalSuites
+    });
+
+    executor.registerLoader((_options: any) => (modules: string[]) => {
+      modules.forEach(name => {
+        if (functionalSuites.indexOf(name) >= 0) {
+          executor.addSuite((parent: Suite) => {
+            loader({ name, parent });
+          });
+        }
+      });
+      return Promise.resolve();
+    });
+  }
 
   return {
     async before() {
@@ -345,9 +370,7 @@ registerSuite('core/lib/executors/Node', function() {
             MockServer as any
           );
           replace(() => import('src/core/lib/resolveEnvironments')).withDefault(
-            () => {
-              return [{ browserName: 'foo env' }];
-            }
+            mockResolveEnvironments
           );
           replace(() => import('src/webdriver/Command')).withDefault(
             MockCommand as any
@@ -404,6 +427,7 @@ registerSuite('core/lib/executors/Node', function() {
       mockConsole.error.resetHistory();
       mockGlobal.process.on.resetHistory();
       mockNodeUtil.transpileSource.resetHistory();
+      mockResolveEnvironments.resetHistory();
     },
 
     tests: {
@@ -1140,34 +1164,21 @@ registerSuite('core/lib/executors/Node', function() {
           const dfd = this.async();
           let suiteTask: Task<void>;
 
-          executor.configure(<any>{
-            name: 'foo executor',
-            environments: 'chrome',
-            tunnel: 'null',
-            functionalSuites: ['foo.js']
-          });
-
           let settled = false;
-
-          executor.registerLoader((_options: any) => (modules: string[]) => {
-            if (modules[0] === 'foo.js') {
-              executor.addSuite((parent: Suite) => {
-                parent.add(<any>{
-                  name: 'hang suite',
-                  hasParent: true,
-                  tests: [],
-                  parent,
-                  run() {
-                    suiteTask = new Task<void>(
-                      () => {},
-                      () => {}
-                    );
-                    return suiteTask;
-                  }
-                });
-              });
-            }
-            return Promise.resolve();
+          setFunctionalSuites(({ parent }) => {
+            parent.add({
+              name: 'hang suite',
+              tests: [],
+              parent,
+              hasParent: true,
+              run() {
+                suiteTask = new Task<void>(
+                  () => {},
+                  () => {}
+                );
+                return suiteTask;
+              }
+            } as any);
           });
 
           const runTask = executor.run();
@@ -1189,6 +1200,88 @@ registerSuite('core/lib/executors/Node', function() {
               assert.isFalse(settled, 'expected test task to not be settled');
             })
           );
+        },
+
+        async 'failed suites'() {
+          const runStub = stub().returns(Promise.resolve());
+          setFunctionalSuites(({ parent }) => {
+            parent.add({
+              name: 'failing suite',
+              tests: [],
+              parent,
+              hasParent: true,
+              numFailedTests: 1,
+              run: runStub
+            } as any);
+          });
+
+          await executor.run();
+          assert.strictEqual(runStub.callCount, 1);
+        },
+
+        async 'does not retry sessions without a successful session'() {
+          const runStub = stub().returns(Promise.resolve());
+          setFunctionalSuites(({ parent }) => {
+            parent.add({
+              name: 'failing suite',
+              tests: [],
+              parent,
+              hasParent: true,
+              numFailedTests: 1,
+              run: runStub
+            } as any);
+          });
+          executor.configure({
+            functionalRetries: 10
+          });
+
+          await executor.run();
+          assert.strictEqual(runStub.callCount, 1);
+        },
+
+        async retries() {
+          mockResolveEnvironments.returns(['env1', 'env2']);
+          executor.configure({
+            environments: ['chrome', 'firefox']
+          });
+          let numFailedTests = 2;
+          const runStub = stub().callsFake(() => {
+            numFailedTests--;
+            return Promise.resolve();
+          });
+
+          setFunctionalSuites(({ parent }) => {
+            const mockSuites: { [key: string]: Partial<Suite> } = {
+              env1: {
+                name: 'initially failing suite',
+                parent,
+                hasParent: true,
+                tests: [],
+                numTests: 2,
+                numSkippedTests: 0,
+                get numFailedTests() {
+                  return numFailedTests;
+                },
+                run: runStub
+              },
+              env2: {
+                name: 'passing suite',
+                parent,
+                hasParent: true,
+                tests: [],
+                numFailedTests: 0,
+                run: stub().returns(Promise.resolve())
+              }
+            };
+            parent.add(mockSuites[parent.name!] as any);
+          });
+          executor.configure({
+            functionalRetries: 10
+          });
+
+          await executor.run();
+
+          assert.strictEqual(runStub.callCount, 2);
         },
 
         proxies: {

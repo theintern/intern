@@ -6,7 +6,8 @@ import { InternError } from 'src/core/lib/types';
 
 import {
   createMockExecutor,
-  createMockRemoteAndSession
+  createMockRemoteAndSession,
+  createMockRemote
 } from 'tests/support/unit/mocks';
 import _Deferred from 'src/core/lib/Deferred';
 import { TestFunction as _TestFunction } from 'src/core/lib/Test';
@@ -14,6 +15,7 @@ import {
   ObjectSuiteDescriptor as _ObjectSuiteDescriptor,
   Tests
 } from 'src/core/lib/interfaces/object';
+import { isFailedSuite } from 'src/core/lib/Suite';
 
 type lifecycleMethod = 'before' | 'beforeEach' | 'afterEach' | 'after';
 
@@ -1258,6 +1260,18 @@ registerSuite('core/lib/Suite', {
     );
   },
 
+  '#reset'() {
+    const suite = createSuite();
+    suite.remote = createMockRemote();
+    suite.error = new Error();
+    suite.timeElapsed = 100;
+
+    suite.reset();
+    assert.isUndefined(suite.remote);
+    assert.isUndefined(suite.error);
+    assert.strictEqual(suite.timeElapsed, 0);
+  },
+
   '#run': <Tests>{
     grep: <Tests>{
       'only tests matching grep execute'() {
@@ -1668,5 +1682,40 @@ registerSuite('core/lib/Suite', {
       numSkippedTests: 0
     };
     assert.deepEqual(suite.toJSON(), expected, 'Unexpected value');
+  },
+
+  'isFailedSuite()': {
+    'due to error'() {
+      const suite = createSuite({
+        name: 'test',
+        tests: []
+      });
+      suite.error = new Error();
+
+      assert.isTrue(isFailedSuite(suite));
+    },
+
+    'due to failed test'() {
+      const test = new Test({
+        name: 'bif',
+        test() {}
+      });
+      const suite = createSuite({
+        name: 'foo',
+        tests: [test]
+      });
+      test.error = new Error();
+
+      assert.isTrue(isFailedSuite(suite));
+    },
+
+    'no failure'() {
+      const suite = createSuite({
+        name: 'test',
+        tests: []
+      });
+
+      assert.isFalse(isFailedSuite(suite));
+    }
   }
 });
