@@ -313,9 +313,10 @@ export default function install(context: CliContext) {
 				'util'
 			));
 			const { config, file } = await getConfig(command.config);
+			const configNodeSuites = (config.node && config.node.suites) || [];
 			const nodeSuites = [
 				...config.suites,
-				...(config.node ? config.node.suites : [])
+				...configNodeSuites
 			];
 
 			const watcher = watch(nodeSuites)
