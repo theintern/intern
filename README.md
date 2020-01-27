@@ -1,5 +1,8 @@
 # intern-cli
 
+> ⚠️ This repository has been deprecated., and development has been moved into the main
+> [Intern repository](https://github.com/theintern/intern).
+
 This module gives [Intern](https://theintern.io) a friendly command line interface that works like a typical POSIX application.
 
 [![Intern](https://theintern.io/images/intern-v3.svg)](https://github.com/theintern/intern/tree/3.4/) [![Intern](https://theintern.io/images/intern-v4.svg)](https://github.com/theintern/intern/tree/master/)
@@ -88,9 +91,11 @@ $ intern
 ```
 
 <!-- start-github-only -->
+
 ## License
 
 intern-cli is offered under the [New BSD](LICENSE) license.
 
 © [SitePen, Inc.](http://sitepen.com) and its [contributors](https://github.com/theintern/intern-cli/graphs/contributors)
+
 <!-- end-github-only -->
