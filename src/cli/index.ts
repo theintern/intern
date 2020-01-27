@@ -494,7 +494,7 @@ program
       const { config } = await getConfig(command.config);
       const nodeSuites = [
         ...config.suites,
-        ...(config.node ? config.node.suites : [])
+        ...(config.node && config.node.suites ? config.node.suites : [])
       ];
 
       const watcher = watch(nodeSuites)
