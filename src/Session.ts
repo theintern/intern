@@ -628,38 +628,27 @@ export default class Session extends Locator<
    * Switches the currently focused frame to the parent of the currently
    * focused frame.
    */
-  switchToParentFrame() {
-    return this.serverPost<void>('frame/parent').catch(error => {
-      // At least FirefoxDriver 2.40.0 does not implement this command,
-      // but we can fake it by retrieving the parent frame element using
-      // JavaScript and switching to it directly by reference At least
-      // Selendroid 0.9.0 also does not support this command, but
-      // unfortunately throws an incorrect error so it looks like a fatal
-      // error; see https://github.com/selendroid/selendroid/issues/364
-      if (
-        error.name === 'UnknownCommand' ||
-        (this.capabilities.browserName === 'selendroid' &&
-          error.message.indexOf(
-            'Error occured while communicating with selendroid server'
-          ) > -1)
-      ) {
+  switchToParentFrame(): CancellablePromise<void> {
+    if (this.capabilities.brokenParentFrameSwitch) {
+      return this.execute<Element>('return window.parent.frameElement;').then(
+        parent => {
+          // TODO: Using `null` if no parent frame was returned keeps
+          // the request from being invalid, but may be incorrect and
+          // may cause incorrect frame retargeting on certain
+          // platforms; At least Selendroid 0.9.0 fails both commands
+          return this.switchToFrame(parent || null);
+        }
+      );
+    } else {
+      return this.serverPost<void>('frame/parent').catch(error => {
         if (this.capabilities.scriptedParentFrameCrashesBrowser) {
           throw error;
         }
 
-        return this.execute<Element>('return window.parent.frameElement;').then(
-          parent => {
-            // TODO: Using `null` if no parent frame was returned keeps
-            // the request from being invalid, but may be incorrect and
-            // may cause incorrect frame retargeting on certain
-            // platforms; At least Selendroid 0.9.0 fails both commands
-            return this.switchToFrame(parent || null);
-          }
-        );
-      }
-
-      throw error;
-    });
+        this.capabilities.brokenParentFrameSwitch = true;
+        return this.switchToParentFrame();
+      });
+    }
   }
 
   /**

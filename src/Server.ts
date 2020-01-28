@@ -739,6 +739,11 @@ export default class Server {
     }
 
     if (isInternetExplorer(capabilities)) {
+      if (isValidVersion(capabilities, 10, Infinity)) {
+        // At least IE10+ don't support the /frame/parent command
+        updates.brokenParentFrameSwitch = true;
+      }
+
       if (isValidVersion(capabilities, 11)) {
         // IE11 will take screenshots, but it's very slow
         updates.takesScreenshot = true;
@@ -749,6 +754,9 @@ export default class Server {
         // IE11 will hang during this check, but it does support window
         // switching
         updates.brokenWindowSwitch = false;
+
+        // IE11 doesn't support the /frame/parent command
+        updates.brokenParentFrameSwitch = true;
       }
 
       if (isValidVersion(capabilities, 11, Infinity)) {
@@ -1552,11 +1560,6 @@ export default class Server {
             .getCurrentWindowHandle()
             .then(handle => session.switchToWindow(handle))
             .then(works, broken);
-      }
-
-      if (capabilities.brokenParentFrameSwitch == null) {
-        testedCapabilities.brokenParentFrameSwitch = () =>
-          session.switchToParentFrame().then(works, broken);
       }
 
       // This URL is used by several tests below
