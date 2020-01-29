@@ -758,6 +758,11 @@ export default class Server {
     }
 
     if (isInternetExplorer(capabilities)) {
+      if (isValidVersion(capabilities, 10, Infinity)) {
+        // At least IE10+ doesn't support the /parent/frame command
+        updates.brokenParentFrameSwitch = true;
+      }
+
       if (isValidVersion(capabilities, 11)) {
         // IE11 will take screenshots, but it's very slow
         updates.takesScreenshot = true;
@@ -1707,7 +1712,7 @@ export default class Server {
         intern.log('Checking brokenParentFrameSwitch...');
         testedCapabilities.brokenParentFrameSwitch = () =>
           session
-            .switchToParentFrame()
+            .serverPost('frame/parent')
             .then(works, broken)
             .then(logResult('brokenParentFrameSwitch'));
       }
