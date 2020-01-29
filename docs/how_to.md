@@ -2,31 +2,37 @@
 
 <!-- vim-markdown-toc GFM -->
 
-* [Run tests with Microsoft Edge Chromium locally](#run-tests-with-microsoft-edge-chromium-locally)
-* [Write a custom reporter](#write-a-custom-reporter)
-* [Use TypeScript modules directly](#use-typescript-modules-directly)
-* [Speed up WebDriver tests](#speed-up-webdriver-tests)
-* [Use Intern programmatically](#use-intern-programmatically)
-* [Run code before tests start](#run-code-before-tests-start)
-* [Run Intern in my own test page in a browser](#run-intern-in-my-own-test-page-in-a-browser)
-* [Write tests in an HTML page](#write-tests-in-an-html-page)
-* [Test ES modules](#test-es-modules)
-* [Use Intern with a remote service like BrowserStack](#use-intern-with-a-remote-service-like-browserstack)
-* [Test non-modular code](#test-non-modular-code)
-* [Test non-CORS web APIs](#test-non-cors-web-apis)
-  * [Option 1: Send all traffic except web services to Intern](#option-1-send-all-traffic-except-web-services-to-intern)
-  * [Option 2: Only send JavaScript traffic to Intern](#option-2-only-send-javascript-traffic-to-intern)
-* [Run tests with headless Chrome](#run-tests-with-headless-chrome)
-* [Run tests with headless Firefox](#run-tests-with-headless-firefox)
-* [Run tests with Chrome in mobile emulation mode](#run-tests-with-chrome-in-mobile-emulation-mode)
-* [Use a custom profile with Firefox](#use-a-custom-profile-with-firefox)
-* [Ignore global errors or Promise rejections](#ignore-global-errors-or-promise-rejections)
+- [Run tests with Microsoft Edge Chromium locally](#run-tests-with-microsoft-edge-chromium-locally)
+- [Write a custom reporter](#write-a-custom-reporter)
+- [Use TypeScript modules directly](#use-typescript-modules-directly)
+- [Speed up WebDriver tests](#speed-up-webdriver-tests)
+- [Use Intern programmatically](#use-intern-programmatically)
+- [Run code before tests start](#run-code-before-tests-start)
+- [Run Intern in my own test page in a browser](#run-intern-in-my-own-test-page-in-a-browser)
+- [Write tests in an HTML page](#write-tests-in-an-html-page)
+- [Test ES modules](#test-es-modules)
+- [Use Intern with a remote service like BrowserStack](#use-intern-with-a-remote-service-like-browserstack)
+- [Test non-modular code](#test-non-modular-code)
+- [Test non-CORS web APIs](#test-non-cors-web-apis)
+  - [Option 1: Send all traffic except web services to Intern](#option-1-send-all-traffic-except-web-services-to-intern)
+  - [Option 2: Only send JavaScript traffic to Intern](#option-2-only-send-javascript-traffic-to-intern)
+- [Run tests with headless Chrome](#run-tests-with-headless-chrome)
+- [Run tests with headless Firefox](#run-tests-with-headless-firefox)
+- [Run tests with Chrome in mobile emulation mode](#run-tests-with-chrome-in-mobile-emulation-mode)
+- [Use a custom profile with Firefox](#use-a-custom-profile-with-firefox)
+- [Ignore global errors or Promise rejections](#ignore-global-errors-or-promise-rejections)
 
 <!-- vim-markdown-toc -->
 
 ## Run tests with Microsoft Edge Chromium locally
 
-Microsoft‘s new Chromium-based version of Edge is currently in beta (as of October 2019), but you can still use it with Intern. Use a `browserName` of `"MicrosftEdge"` and a `browserVersion` of .`"insider preview"`. Intern will automatically download the latest webdriver for the current beta version of Edge. If your version of Edge is different (each version of Edge has a corresponding version of webdriver), you may need to specify a custom driver version using `tunnelOptions` in your `intern.json`:
+Microsoft‘s new Chromium-based version of Edge is currently in beta (as of
+October 2019), but you can still use it with Intern. Use a `browserName` of
+`"MicrosftEdge"` and a `browserVersion` of .`"insider preview"`. Intern will
+automatically download the latest webdriver for the current beta version of
+Edge. If your version of Edge is different (each version of Edge has a
+corresponding version of webdriver), you may need to specify a custom driver
+version using `tunnelOptions` in your `intern.json`:
 
 ```json5
 "tunnelOptions": {
@@ -36,7 +42,8 @@ Microsoft‘s new Chromium-based version of Edge is currently in beta (as of Oct
 }
 ```
 
-Note that the driver name for the Chromium version of Edge is “MicrosoftEdgeChromium”, even though the `browserName` is “MicrosoftEdge”.
+Note that the driver name for the Chromium version of Edge is
+“MicrosoftEdgeChromium”, even though the `browserName` is “MicrosoftEdge”.
 
 ## Write a custom reporter
 
@@ -174,21 +181,17 @@ create an `intern` global that can be used to configure Intern and start tests.
 ```html
 <!DOCTYPE html>
 <html>
-    <head>
-        <script src="node_modules/intern/browser/intern.js"></script>
-        <script>
-            intern.configure({
-                suites: [
-                    'tests/unit/a.js',
-                    'tests/unit/b.js'
-                ],
-                reporters: 'html'
-            });
-            intern.run();
-        </script>
-    </head>
-    <body>
-    </body>
+  <head>
+    <script src="node_modules/intern/browser/intern.js"></script>
+    <script>
+      intern.configure({
+        suites: ['tests/unit/a.js', 'tests/unit/b.js'],
+        reporters: 'html'
+      });
+      intern.run();
+    </script>
+  </head>
+  <body></body>
 </html>
 ```
 
@@ -203,29 +206,28 @@ If you’d rather not install Intern, you can load the package from a CDN, like:
 ```html
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
 
-        <script src="https://unpkg.com/intern@latest/browser/intern.js"></script>
-        <script>
-            var registerSuite = intern.getPlugin('interface.object').registerSuite;
+    <script src="https://unpkg.com/intern@latest/browser/intern.js"></script>
+    <script>
+      var registerSuite = intern.getPlugin('interface.object').registerSuite;
 
-            registerSuite('app/module', {
-                test1: function () {
-                    // ...
-                },
-                test2: function () {
-                    // ...
-                },
-                // ...
-            });
+      registerSuite('app/module', {
+        test1: function() {
+          // ...
+        },
+        test2: function() {
+          // ...
+        }
+        // ...
+      });
 
-            intern.configure({ reporters: 'html' });
-            intern.run();
-        </script>
-    </head>
-    <body>
-    </body>
+      intern.configure({ reporters: 'html' });
+      intern.run();
+    </script>
+  </head>
+  <body></body>
 </html>
 ```
 
@@ -261,8 +263,7 @@ support:
       options: {
         map: {
           'plugin-babel': 'node_modules/systemjs-plugin-babel/plugin-babel.js',
-          'systemjs-babel-build':
-            'node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
+          'systemjs-babel-build': 'node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
         },
         transpiler: 'plugin-babel'
       }
@@ -429,6 +430,9 @@ to ensure the browser is large enough to properly render your interface.
   ]
 }
 ```
+
+Note that when running chrome in a Docker container without a defined user, args
+must also include `--no-sndbox`.
 
 One of the main benefits of headless Chrome, aside from not having to worry
 about window focus, is speed. You can
