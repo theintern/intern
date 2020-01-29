@@ -630,13 +630,6 @@ registerSuite('functional/webdriver/Session', () => {
       // actually test IME commands
 
       'frame switching (#switchToFrame, #switchToParentFrame)'(this: Test) {
-        // TODO: inlineFrame isn't a valid W3C frame ID
-        this.skip('Disabled until W3C frame IDs are implemented');
-
-        if (session.capabilities.brokenParentFrameSwitch) {
-          this.skip('switch to parent frame not supported');
-        }
-
         return session
           .get('tests/functional/data/window.html')
           .then(function () {

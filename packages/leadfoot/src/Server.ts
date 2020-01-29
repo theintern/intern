@@ -1707,7 +1707,7 @@ export default class Server {
         // intern.log('Checking brokenParentFrameSwitch...');
         testedCapabilities.brokenParentFrameSwitch = () =>
           session
-            .switchToParentFrame()
+            .serverPost('frame/parent')
             .then(works, broken)
             .then(logResult('brokenParentFrameSwitch'));
       }

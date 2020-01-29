@@ -630,6 +630,12 @@ export default class Session extends Locator<
    */
   switchToParentFrame(): CancellablePromise<void> {
     if (this.capabilities.brokenParentFrameSwitch) {
+      if (this.capabilities.scriptedParentFrameCrashesBrowser) {
+        throw new Error(
+          'Cannot use a script to switch to parent frame in this browser'
+        );
+      }
+
       return this.execute<Element>('return window.parent.frameElement;').then(
         parent => {
           // TODO: Using `null` if no parent frame was returned keeps
@@ -639,16 +645,16 @@ export default class Session extends Locator<
           return this.switchToFrame(parent || null);
         }
       );
-    } else {
-      return this.serverPost<void>('frame/parent').catch(error => {
-        if (this.capabilities.scriptedParentFrameCrashesBrowser) {
-          throw error;
-        }
+    }
 
+    return this.serverPost<void>('frame/parent').catch(error => {
+      if (this.capabilities.brokenParentFrameSwitch == null) {
+        // intern.log('Error calling /frame/parent:', error);
         this.capabilities.brokenParentFrameSwitch = true;
         return this.switchToParentFrame();
-      });
-    }
+      }
+      throw error;
+    });
   }
 
   /**
