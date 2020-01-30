@@ -130,7 +130,7 @@ export default function request(
     req.auth = { username, password };
   }
 
-  let retries = options.retries ?? defaultRetries;
+  let retries = options.retries != null ? options.retries : defaultRetries;
 
   const handleError = (error: AxiosError): CancellablePromise<Response> => {
     // Sometimes a remote is flakey; retry requests a couple of times if they
