@@ -4,6 +4,7 @@
  */
 
 import axios, {
+  AxiosError,
   AxiosRequestConfig,
   AxiosProxyConfig,
   AxiosResponse
@@ -13,6 +14,8 @@ import { Agent as HttpsAgent } from 'https';
 import qs from 'qs';
 import Task, { CancellablePromise } from './Task';
 import Evented from './Evented';
+
+const defaultRetries = 2;
 
 export type RequestMethod =
   | 'delete'
@@ -42,6 +45,7 @@ export interface RequestOptions {
   onDownloadProgress?: (progressEvent: any) => void;
   httpAgent?: HttpAgent;
   httpsAgent?: HttpsAgent;
+  retries?: number;
 }
 
 export interface ProgressEvent {
@@ -129,22 +133,40 @@ export default function request(
     req.auth = { username, password };
   }
 
-  return new Task<Response>(
-    (resolve, reject) => {
-      axios(req).then(response => {
-        if (onDownloadProgress && response && response.data) {
-          onDownloadProgress({
-            total: response.data.length,
-            received: response.data.length
-          });
-        }
-        resolve(new ResponseClass(response));
-      }, reject);
-    },
-    () => {
-      cancelSource.cancel();
+  let retries = options.retries ?? defaultRetries;
+
+  const handleError = (error: AxiosError): CancellablePromise<Response> => {
+    // Sometimes a remote is flakey; retry requests a couple of times if they
+    // fail for reasons that are probably out of our control
+    if (
+      (error.code === 'ETIMEDOUT' || error.code === 'ECONNRESET') &&
+      retries > 0
+    ) {
+      retries--;
+      return makeRequest().catch(handleError);
     }
-  );
+    throw error;
+  };
+
+  const makeRequest = () =>
+    new Task<Response>(
+      (resolve, reject) => {
+        axios(req).then(response => {
+          if (onDownloadProgress && response && response.data) {
+            onDownloadProgress({
+              total: response.data.length,
+              received: response.data.length
+            });
+          }
+          resolve(new ResponseClass(response));
+        }, reject);
+      },
+      () => {
+        cancelSource.cancel();
+      }
+    );
+
+  return makeRequest().catch(handleError);
 }
 
 class HeadersClass {
