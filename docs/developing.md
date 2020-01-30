@@ -14,6 +14,8 @@ The source is formatted using [prettier](https://github.com/prettier/prettier)
 
 ## Building Intern
 
+> ⚠️ Note that running the self tests requires Intern requires Node 10.16+.
+
 Before you can do much else, you'll need to install Intern’s development
 dependencies:
 
