@@ -102,11 +102,11 @@ Alternatively, add a triple-slash directive to the top of your suite files:
 
 Intern can run unit tests in most browsers that support ECMAScript 5, including
 mobile browsers on Android and iOS, and in Node 6+. Note that Internet Explorer
-9 is not supported.
+versions below 11 are not supported.
 
-Intern’s self-tests run against IE 10 and 11, Firefox 36 and current, Chrome 38
-and current, and Safari 9 and 10, as well as the latest LTS and current versions
-of Node.
+Intern’s self-tests run against IE 11, Safari 13, and the most recent few
+vesions of Firefox, Chrome, and Chromium Edge, as well as the latest LTS and
+current versions of Node.
 
 Intern can run functional tests using WebDriver-compatible applications and
 services, including Selenium, Appium, Selendroid. It has built-in support for
