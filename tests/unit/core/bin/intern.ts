@@ -57,7 +57,7 @@ registerSuite('core/bin/intern', function() {
             replace(() => import('src/core/lib/common/util')).with(
               mockCommonUtil
             );
-            replace(() => import('src/core/index')).withDefault(mockExecutor);
+            replace(() => import('src/index')).withDefault(mockExecutor);
             replace(() => import('src/common')).with({
               global: { process: {} }
             });
@@ -85,7 +85,7 @@ registerSuite('core/bin/intern', function() {
             replace(() => import('src/core/lib/common/util')).with(
               mockCommonUtil
             );
-            replace(() => import('src/core/index')).withDefault(mockExecutor);
+            replace(() => import('src/index')).withDefault(mockExecutor);
             replace(() => import('src/common')).with({
               global: { process: {} }
             });
@@ -110,7 +110,7 @@ registerSuite('core/bin/intern', function() {
             replace(() => import('src/core/lib/common/util')).with(
               mockCommonUtil
             );
-            replace(() => import('src/core/index')).withDefault(
+            replace(() => import('src/index')).withDefault(
               createMockNodeExecutor()
             );
             replace(() => import('src/common')).with({
@@ -138,7 +138,7 @@ registerSuite('core/bin/intern', function() {
               replace(() => import('src/core/lib/common/util')).with(
                 mockCommonUtil
               );
-              replace(() => import('src/core/index')).withDefault(
+              replace(() => import('src/index')).withDefault(
                 createMockNodeExecutor()
               );
               replace(() => import('src/common')).with({
@@ -170,7 +170,7 @@ registerSuite('core/bin/intern', function() {
               replace(() => import('src/core/lib/common/util')).with(
                 mockCommonUtil
               );
-              replace(() => import('src/core/index')).withDefault(
+              replace(() => import('src/index')).withDefault(
                 createMockNodeExecutor()
               );
               replace(() => import('src/common')).with({
@@ -209,7 +209,7 @@ registerSuite('core/bin/intern', function() {
               replace(() => import('src/core/lib/common/util')).with(
                 mockCommonUtil
               );
-              replace(() => import('src/core/index')).withDefault(
+              replace(() => import('src/index')).withDefault(
                 mockExecutor as any
               );
               replace(() => import('src/common')).with({
@@ -248,7 +248,7 @@ registerSuite('core/bin/intern', function() {
               replace(() => import('src/core/lib/common/util')).with(
                 mockCommonUtil
               );
-              replace(() => import('src/core/index')).withDefault(
+              replace(() => import('src/index')).withDefault(
                 mockExecutor as any
               );
               replace(() => import('src/common')).with({
@@ -286,7 +286,7 @@ registerSuite('core/bin/intern', function() {
             replace(() => import('src/core/lib/common/util')).with(
               mockCommonUtil
             );
-            replace(() => import('src/core/index')).withDefault(mockExecutor);
+            replace(() => import('src/index')).withDefault(mockExecutor);
             replace(() => import('src/common')).with({
               global: { process: {} }
             });

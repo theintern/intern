@@ -11,7 +11,7 @@ import { global } from '../../common';
 
 import { getConfig, getPackagePath } from '../lib/node/util';
 import { getConfigDescription } from '../lib/common/util';
-import intern from '../index';
+import intern from '../../index';
 import * as console from '../lib/common/console';
 
 getConfig()

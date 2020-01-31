@@ -1,3 +1,4 @@
+import intern from '../index';
 import Element, { ElementOrElementId } from './Element';
 import Server from './Server';
 import findDisplayed from './lib/findDisplayed';

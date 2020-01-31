@@ -1,12 +1,12 @@
-import { mockImport } from '../../support/mockUtil';
+import { mockImport } from '../support/mockUtil';
 
 const mockGlobal = Object.create(null);
 class MockNode {}
 
-registerSuite('core/index', {
+registerSuite('index', {
   async before() {
     await mockImport(
-      () => import('src/core/index'),
+      () => import('src/index'),
       replace => {
         replace(() => import('src/core/lib/executors/Node')).withDefault(
           MockNode as any

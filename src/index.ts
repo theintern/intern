@@ -4,8 +4,8 @@
  * module simply exports a reference to the global executor instance.
  */ /** */
 
-import NodeExecutor from './lib/executors/Node';
-import { global } from '../common';
+import NodeExecutor from './core/lib/executors/Node';
+import { global } from './common';
 
 const intern = (global.intern = new NodeExecutor());
 export default intern;

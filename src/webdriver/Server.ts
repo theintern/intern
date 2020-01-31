@@ -1,7 +1,7 @@
 import { Agent as HttpAgent } from 'http';
 import { Agent as HttpsAgent } from 'https';
 
-import intern from '../core';
+import intern from '../index';
 import keys from './keys';
 
 import {

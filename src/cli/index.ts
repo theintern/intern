@@ -6,7 +6,7 @@ import { Command } from 'commander';
 import { createInterface } from 'readline';
 import { watch } from 'chokidar';
 
-import intern from '../core';
+import intern from '../index';
 import {
   collect,
   die,
