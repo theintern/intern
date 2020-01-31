@@ -113,7 +113,6 @@
           // Top-level node suites
           "tests/integration/**/*.ts",
           "tests/unit/cli/*.ts",
-          "tests/unit/core/index.ts",
           "tests/unit/core/bin/intern.ts",
           "tests/unit/core/lib/ProxiedSession.ts",
           "tests/unit/core/lib/Server.ts",
@@ -132,6 +131,7 @@
           "tests/unit/core/lib/reporters/Simple.ts",
           "tests/unit/core/lib/reporters/TeamCity.ts",
           "tests/unit/core/lib/reporters/TextCoverage.ts",
+          "tests/unit/index.ts",
           "tests/unit/core/tasks/*.ts",
           "tests/unit/tunnels/**/*.ts",
           "tests/unit/webdriver/**/*.ts"
