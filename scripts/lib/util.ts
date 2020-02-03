@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { promises as fsPromises } from 'fs';
 import { cp, echo, mkdir, sed, test } from 'shelljs';
 import { sync as glob, IOptions } from 'glob';
 import { basename, dirname, join } from 'path';
@@ -62,6 +63,24 @@ export function fixSourceMaps() {
       filename
     );
   });
+}
+
+/**
+ * Return the latest modification time from a directory
+ */
+export async function latestModTime(dir: string): Promise<number> {
+  const entries = await fsPromises.readdir(dir);
+  let maxModTime = 0;
+  for (const entry of entries) {
+    const path = join(dir, entry);
+    const stats = await fsPromises.stat(path);
+    if (stats.isFile()) {
+      maxModTime = Math.max(maxModTime, stats.mtimeMs);
+    } else {
+      maxModTime = Math.max(maxModTime, await latestModTime(path));
+    }
+  }
+  return maxModTime;
 }
 
 /**

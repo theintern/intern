@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 import exec from './lib/exec';
-import { log } from './lib/util';
+import { latestModTime, log } from './lib/util';
 import { watchProcess } from './lib/watch';
 
 (async function main() {
@@ -18,7 +18,13 @@ import { watchProcess } from './lib/watch';
 
   const tasks = [];
 
-  if (!existsSync(testerPath) || watchMode) {
+  const latestTestTime = await latestModTime('tests');
+  const latestSrcTime = await latestModTime('src');
+
+  const testerExists = existsSync(testerPath);
+  const latestTesterTime = testerExists ? await latestModTime(testerPath) : 0;
+
+  if (!testerExists || watchMode || latestSrcTime > latestTesterTime) {
     log('Building test Intern...');
     const cmd = ['ts-node', 'scripts/build.ts', '-o', testerPath];
     if (watchMode) {
@@ -31,7 +37,17 @@ import { watchProcess } from './lib/watch';
     }
   }
 
-  if (!existsSync(browserTestPath) || watchMode) {
+  const browserExists = existsSync(browserTestPath);
+  const latestBrowserTime = testerExists
+    ? await latestModTime(browserTestPath)
+    : 0;
+
+  if (
+    !browserExists ||
+    watchMode ||
+    latestSrcTime > latestBrowserTime ||
+    latestTestTime > latestBrowserTime
+  ) {
     log('Building browser tests...');
     const cmd = ['npx', 'webpack', '--config', 'webpack-tests.config.ts'];
     if (watchMode) {

@@ -5,6 +5,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "importHelpers": true,
+    "incremental": true,
     "lib": ["dom", "es2015"],
     "module": "commonjs",
     "moduleResolution": "node",

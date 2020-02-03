@@ -31,7 +31,6 @@
     "check": "tsc --noEmit",
     "check:watch": "tsc --noEmit --watch",
     "clean": "ts-node scripts/clean.ts",
-    "prebuild": "npm run clean",
     "build:src": "ts-node scripts/build.ts",
     "build:api": "ts-node scripts/api.ts",
     "build": "concurrently npm:build:src npm:build:api",
@@ -86,7 +85,7 @@
     "resolve": "~1.13.1",
     "shell-quote": "~1.7.2",
     "source-map": "~0.6.1",
-    "ts-node": "~8.5.4",
+    "ts-node": "~8.6.2",
     "tslib": "~1.10.0",
     "ws": "~7.2.0"
   },

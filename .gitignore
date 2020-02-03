@@ -18,3 +18,4 @@ benchmark.json
 baselines.json
 baseline.json
 *.tgz
+*.tsbuildinfo
