@@ -10,7 +10,10 @@
 - [Run code before tests start](#run-code-before-tests-start)
 - [Run Intern in my own test page in a browser](#run-intern-in-my-own-test-page-in-a-browser)
 - [Write tests in an HTML page](#write-tests-in-an-html-page)
-- [Test ES modules](#test-es-modules)
+- [Work with modern JavaScript (ES2015+) in Node](#work-with-modern-javascript-es2015-in-node)
+  - [babel](#babel)
+  - [TypeScript](#typescript)
+- [Work with modern JavaScript (ES2015+) in the browser](#work-with-modern-javascript-es2015-in-the-browser)
 - [Use Intern with a remote service like BrowserStack](#use-intern-with-a-remote-service-like-browserstack)
 - [Test non-modular code](#test-non-modular-code)
 - [Test non-CORS web APIs](#test-non-cors-web-apis)
@@ -231,24 +234,62 @@ If you’d rather not install Intern, you can load the package from a CDN, like:
 </html>
 ```
 
-## Test ES modules
+## Work with modern JavaScript (ES2015+) in Node
 
-One way to work with ES modules in Node is to install babel-register and load it
-as a plugin. This will let Intern load ES modules transparently, without
-requiring a build step. Also set the `esModules` instrumenter option if code
-coverage is desired.
+There are a couple options for working with modern JavaScript in Node: babel and
+TypeScript.
+
+### babel
+
+1. Install `@babel/core`, `@babel/register`, and `@babel/preset-env`
+2. Create a `.babelrc` file
+
+```json
+{
+  "presets": ["@babel/env"]
+}
+```
+
+3. Update `intern.json`
 
 ```json5
-// intern.json
 {
   node: {
-    plugins: 'node_modules/babel-register/lib/node.js'
+    plugins: '@babel/register'
   },
+  // Set this to allow code coverage to work for modules
   instrumenterOptions: {
     esModules: true
   }
 }
 ```
+
+### TypeScript
+
+The TypeScript compiler can handle modern JS as well as TS.
+
+1. Install `typescript`
+2. Create a `tsconfig.json` file
+
+```json
+{
+  "compilerOptions": {
+    "allowJs": true
+  }
+}
+```
+
+2. Update `intern.json`
+
+```json5
+{
+  node: {
+    tsconfig: 'tsconfig.json'
+  }
+}
+```
+
+## Work with modern JavaScript (ES2015+) in the browser
 
 The most common way to work with ES modules in the browser is to use a loader
 that understands ES modules. One option is to use SystemJS configured with babel
