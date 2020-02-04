@@ -2,7 +2,6 @@ import * as util from './support/util';
 import { pathRe } from 'tests/support/util';
 import Command, { Context } from 'src/webdriver/Command';
 import Session from 'src/webdriver/Session';
-import { Task } from 'src/common';
 import Test from 'src/core/lib/Test';
 import { ObjectSuiteDescriptor } from 'src/core/lib/interfaces/object';
 
@@ -41,7 +40,10 @@ registerSuite('functional/webdriver/Command', () => {
                 assert.strictEqual(error.message, 'broken');
                 assert.match(
                   error.stack!,
-                  pathRe('broken.*tests/functional/webdriver/Command\\.[tj]s:\\d+', 's'),
+                  pathRe(
+                    'broken.*tests/functional/webdriver/Command\\.[tj]s:\\d+',
+                    's'
+                  ),
                   'Stack trace should point back to the error'
                 );
                 error.message += ' 2';
@@ -66,7 +68,7 @@ registerSuite('functional/webdriver/Command', () => {
         'invalid async command'() {
           const command = new Command(session).sleep(100);
           Command.addSessionMethod(command, 'invalid', function() {
-            return new Task((_resolve, reject) => {
+            return new Promise((_resolve, reject) => {
               setTimeout(function() {
                 reject(new Error('Invalid call'));
               }, 0);
@@ -87,7 +89,10 @@ registerSuite('functional/webdriver/Command', () => {
               );
               assert.match(
                 stack,
-                pathRe('Invalid call.*tests/functional/webdriver/Command\\.[tj]s:\\d+', 's'),
+                pathRe(
+                  'Invalid call.*tests/functional/webdriver/Command\\.[tj]s:\\d+',
+                  's'
+                ),
                 'Stack trace should point back to the async method call that eventually threw the error'
               );
             }
@@ -120,7 +125,7 @@ registerSuite('functional/webdriver/Command', () => {
         const dfd = this.async();
         const parent = new Command<string>(session, function(setContext) {
           setContext(<any>'foo');
-          return Task.resolve('bar');
+          return Promise.resolve('bar');
         });
 
         const expectedContext: Context = ['foo'];
@@ -374,7 +379,7 @@ registerSuite('functional/webdriver/Command', () => {
 
       '#finally'() {
         const command = new Command(session);
-        const promise = command['_task'];
+        const promise = command['_promise'];
         const expected = function() {};
         let wasCalled = false;
         let result: Function | undefined;
@@ -417,7 +422,7 @@ registerSuite('functional/webdriver/Command', () => {
           'newContext',
           util.forCommand(
             function() {
-              return Task.resolve('b');
+              return Promise.resolve('b');
             },
             { createsContext: true }
           )
@@ -443,7 +448,7 @@ registerSuite('functional/webdriver/Command', () => {
             // Provide a custom element method
             newContext: util.forCommand(
               function() {
-                return Task.resolve('b');
+                return Promise.resolve('b');
               },
               { createsContext: true }
             )

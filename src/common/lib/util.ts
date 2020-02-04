@@ -72,6 +72,25 @@ export function duplicate<T extends object>(source: T): T {
 }
 
 /**
+ * Return true if the value is a Promise
+ */
+export function isPromise<T = void>(value: any): value is Promise<T> {
+  return (
+    value &&
+    typeof value === 'object' &&
+    typeof value.then === 'function' &&
+    typeof value.catch === 'function'
+  );
+}
+
+/**
+ * Return true if the value is a PromiseLike
+ */
+export function isPromiseLike<T = void>(value: any): value is PromiseLike<T> {
+  return value && typeof value === 'object' && typeof value.then === 'function';
+}
+
+/**
  * Returns a function which invokes the given function with the given arguments
  * prepended to its argument list. Like `Function.prototype.bind`, but does not
  * alter execution context.

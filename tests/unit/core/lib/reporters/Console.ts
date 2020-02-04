@@ -5,7 +5,9 @@ import { createMockConsole } from 'tests/support/unit/mocks';
 
 const mockExecutor = <any>{
   on() {},
-  emit() {},
+  emit() {
+    return Promise.resolve();
+  },
   formatError(error: Error) {
     return error.stack || error.message;
   }

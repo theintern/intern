@@ -1,4 +1,3 @@
-import { Task, CancellablePromise } from '../../common';
 import statusCodes from './statusCodes';
 import Session from '../Session';
 import Element from '../Element';
@@ -19,7 +18,7 @@ import { Strategy } from './Locator';
  * @param value The strategy-specific value to search for. See
  * [[Command.Command.find]] for details.
  *
- * @returns a Task that resolves when no matching elements can be found, or
+ * @returns a Promise that resolves when no matching elements can be found, or
  * rejects if matching elements still exist after the find timeout.
  */
 export default function waitForDeleted(
@@ -27,7 +26,7 @@ export default function waitForDeleted(
   locator: Session | Element,
   using: Strategy,
   value: string
-): CancellablePromise<void> {
+): Promise<void> {
   let originalTimeout: number;
 
   return session
@@ -37,7 +36,7 @@ export default function waitForDeleted(
       session.setTimeout('implicit', 0);
     })
     .then(function() {
-      return new Task((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const startTime = Date.now();
 
         (function poll() {

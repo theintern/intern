@@ -1,6 +1,5 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { spy, SinonSpy } from 'sinon';
-import { Task } from 'src/common';
 
 import _Http from 'src/core/lib/channels/Http';
 
@@ -12,7 +11,7 @@ registerSuite('core/lib/channels/Http', function() {
       return requestHandler(path, data);
     }
     const result = requestData && requestData[path];
-    return Task.resolve(result);
+    return Promise.resolve(result);
   });
 
   let requestData: { [name: string]: string };
@@ -24,8 +23,7 @@ registerSuite('core/lib/channels/Http', function() {
         () => import('src/core/lib/channels/Http'),
         replace => {
           replace(() => import('src/common')).with({
-            request: mockRequest,
-            Task
+            request: mockRequest
           });
         }
       ));
@@ -44,7 +42,7 @@ registerSuite('core/lib/channels/Http', function() {
 
         requestHandler = spy(
           (_path: string, data: any) =>
-            new Task<any>((resolve, reject) => {
+            new Promise<any>((resolve, reject) => {
               // Auto-respond to a request after a short timeout
               setTimeout(() => {
                 try {
@@ -59,7 +57,7 @@ registerSuite('core/lib/channels/Http', function() {
                     }
                     resolve({
                       status: 200,
-                      json: () => Task.resolve(responses)
+                      json: () => Promise.resolve(responses)
                     });
                   } else {
                     resolve({ status: 204, json: () => '' });
@@ -97,7 +95,7 @@ registerSuite('core/lib/channels/Http', function() {
         const http = new Http({ sessionId: 'foo', url: 'bar' });
 
         requestHandler = spy((_path: string, _data: any) => {
-          return new Task<any>(resolve => {
+          return new Promise<any>(resolve => {
             // Auto-respond to a request after a short timeout
             setTimeout(() => {
               resolve({ status: 500, statusText: 'badness' });

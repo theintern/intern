@@ -3,7 +3,6 @@ import { strategies } from 'src/webdriver/lib/Locator';
 import Element from 'src/webdriver/Element';
 import Session from 'src/webdriver/Session';
 import { isSafari, isFirefox } from 'src/webdriver/Server';
-import { Task } from 'src/common';
 import Test, { TestFunction } from 'src/core/lib/Test';
 import { ObjectSuiteDescriptor } from 'src/core/lib/interfaces/object';
 
@@ -301,7 +300,7 @@ registerSuite('functional/webdriver/Element', () => {
             );
           });
 
-          return Task.all(
+          return Promise.all(
             elements.map(function(element) {
               return element.getAttribute('id');
             })
@@ -986,14 +985,14 @@ registerSuite('functional/webdriver/Element', () => {
             return session.findById('disabled');
           })
           .then(function(element) {
-            return Task.all({
-              'non-existing': element.getAttribute('non-existing'),
-              disabled: element.getAttribute('disabled')
-            });
+            return Promise.all([
+              element.getAttribute('non-existing'),
+              element.getAttribute('disabled')
+            ]);
           })
-          .then(function(result: any) {
-            assert.isNotNull(result.disabled);
-            assert.isNull(result['non-existing']);
+          .then(function(results: any[]) {
+            assert.isNotNull(results[1]);
+            assert.isNull(results[0]);
           });
       },
 
@@ -1011,14 +1010,14 @@ registerSuite('functional/webdriver/Element', () => {
             return session.findById('disabled');
           })
           .then(function(element) {
-            return Task.all({
-              'non-existing': element.getProperty('non-existing'),
-              disabled: element.getProperty('disabled')
-            });
+            return Promise.all([
+              element.getProperty('non-existing'),
+              element.getProperty('disabled')
+            ]);
           })
-          .then(function(result: any) {
-            assert.isTrue(result.disabled);
-            assert.isNull(result['non-existing']);
+          .then(function(results: any[]) {
+            assert.isTrue(results[1]);
+            assert.isNull(results[0]);
           });
       },
 

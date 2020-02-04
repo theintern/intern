@@ -4,7 +4,6 @@ import _ from 'lodash';
 import * as platform from 'platform';
 import Benchmark from 'benchmark';
 
-import { Task, CancellablePromise } from '../../common';
 import Test, {
   isTest,
   SKIP,
@@ -12,6 +11,7 @@ import Test, {
   TestOptions,
   TestProperties
 } from './Test';
+import { isCancel } from '../../common';
 import { InternError } from './types';
 import Deferred from './Deferred';
 
@@ -116,38 +116,39 @@ export default class BenchmarkTest extends Test {
     );
   }
 
-  run(): CancellablePromise<void> {
+  run(): Promise<void> {
     this._hasPassed = false;
     this._usesRemote = false;
 
     const benchmark = this.benchmark;
 
-    return new Task(
-      (resolve, reject) => {
-        benchmark.on('abort', () => {
-          reject(benchmark.error);
-        });
+    return new Promise((resolve, reject) => {
+      benchmark.on('abort', () => {
+        reject(benchmark.error);
+      });
 
-        benchmark.on('error', () => {
-          if (benchmark.error === SKIP) {
-            resolve();
-          } else {
-            reject(benchmark.error);
-          }
-        });
-
-        benchmark.on('complete', () => {
+      benchmark.on('error', () => {
+        if (benchmark.error === SKIP) {
           resolve();
-        });
+        } else {
+          reject(benchmark.error);
+        }
+      });
 
-        this.executor.emit('testStart', this).then(() => {
-          benchmark.run();
-        });
-      },
-      () => {
-        benchmark.abort();
-      }
-    )
+      benchmark.on('complete', () => {
+        resolve();
+      });
+
+      this.executor.emit('testStart', this).then(() => {
+        benchmark.run();
+      });
+    })
+      .catch(reason => {
+        if (isCancel(reason)) {
+          benchmark.abort();
+        }
+        throw reason;
+      })
       .finally(() => {
         // Stop listening for benchmark events once the test is finished
         benchmark.off();

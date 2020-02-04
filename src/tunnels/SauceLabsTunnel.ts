@@ -8,7 +8,7 @@ import { JobState } from './interfaces';
 import { chmodSync, watchFile, unwatchFile } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { CancellablePromise, request } from '../common';
+import { request } from '../common';
 import { format as formatUrl, parse as parseUrl, Url } from 'url';
 import { fileExists, kill, on } from './lib/util';
 
@@ -303,7 +303,7 @@ export default class SauceLabsTunnel extends Tunnel
     return args;
   }
 
-  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
+  sendJobState(jobId: string, data: JobState): Promise<void> {
     const url = parseUrl(this.restUrl || 'https://saucelabs.com/rest/v1/');
     url.auth = this.username + ':' + this.accessKey;
     url.pathname += this.username + '/jobs/' + jobId;
@@ -356,7 +356,7 @@ export default class SauceLabsTunnel extends Tunnel
     let readRunningMessage: (message: string) => boolean;
     let readStatus: (message: string) => boolean;
 
-    const task = this._makeChild((child, resolve, reject) => {
+    const promise = this._makeChild((child, resolve, reject) => {
       readStartupMessage = (message: string) => {
         function fail(message: string) {
           reject(new Error(message));
@@ -475,7 +475,7 @@ export default class SauceLabsTunnel extends Tunnel
       executor(child, resolve, reject);
     }, readyFile);
 
-    task
+    promise
       .then(() => {
         unwatchFile(readyFile);
 
@@ -491,7 +491,7 @@ export default class SauceLabsTunnel extends Tunnel
         // Ignore errors here; they're handled elsewhere
       });
 
-    return task;
+    return promise;
   }
 
   /**

@@ -1,5 +1,4 @@
 import * as util from './support/util';
-import { Task } from 'src/common';
 import Server from 'src/webdriver/Server';
 import Session from 'src/webdriver/Session';
 import * as urlUtil from 'url';
@@ -218,7 +217,7 @@ registerSuite('functional/webdriver/Server', () => {
                 requiredCapabilities
               );
 
-              return Task.resolve<any>({
+              return Promise.resolve<any>({
                 sessionId: 'test',
                 value: mockCapabilities
               });
@@ -255,7 +254,7 @@ registerSuite('functional/webdriver/Server', () => {
           function(command: string, _data: any, pathData: string[]) {
             assert.strictEqual(command, 'session/$0');
             assert.deepEqual(pathData, ['test']);
-            return Task.resolve();
+            return Promise.resolve();
           }
         );
 

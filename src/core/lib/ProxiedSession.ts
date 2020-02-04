@@ -1,5 +1,4 @@
 import Session from '../../webdriver/Session';
-import { Task, CancellablePromise } from '../../common';
 import Node from './executors/Node';
 
 /* istanbul ignore next: client-side code */
@@ -58,9 +57,7 @@ export default class ProxiedSession extends Session {
       return super.get(url);
     }
 
-    return this._getCoverage().finally(() => {
-      return super.get(url);
-    });
+    return this._getCoverage().finally(() => super.get(url));
   }
 
   /**
@@ -86,7 +83,7 @@ export default class ProxiedSession extends Session {
    * @param delay Amount of time to wait between heartbeats. Setting the delay
    * to 0 will disable heartbeats.
    */
-  setHeartbeatInterval(delay: number): CancellablePromise<void> {
+  setHeartbeatInterval(delay: number): Promise<void> {
     this._heartbeatIntervalHandle && this._heartbeatIntervalHandle.remove();
 
     if (delay) {
@@ -121,20 +118,20 @@ export default class ProxiedSession extends Session {
       sendHeartbeat();
     }
 
-    return Task.resolve();
+    return Promise.resolve();
   }
 
   protected _getCoverage() {
-    let shouldGetPromise: CancellablePromise<boolean>;
+    let shouldGetPromise: Promise<boolean>;
 
     // At least Safari 9 will not inject user scripts for non http/https
     // URLs, so we can't get coverage data.
     if (this.capabilities.brokenExecuteForNonHttpUrl) {
-      shouldGetPromise = Task.resolve(
+      shouldGetPromise = Promise.resolve(
         this.getCurrentUrl().then(url => /^https?:/i.test(url))
       );
     } else {
-      shouldGetPromise = Task.resolve(true);
+      shouldGetPromise = Promise.resolve(true);
     }
 
     return shouldGetPromise.then(shouldGetCoverage => {

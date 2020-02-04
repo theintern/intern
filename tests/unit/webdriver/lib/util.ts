@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
+import { createCancelToken } from 'src/common';
 import Test from 'src/core/lib/Test';
 import * as util from 'src/webdriver/lib/util';
 
@@ -14,11 +15,12 @@ registerSuite('webdriver/lib/util', {
     });
   },
 
-  '.sleep canceler'(this: Test) {
+  '.sleep canceller'(this: Test) {
     const startTime = Date.now();
-    const sleep = util.sleep(10000);
+    const token = createCancelToken();
+    const sleep = util.sleep(10000, token);
+    token.cancel();
     const dfd = this.async();
-    sleep.cancel();
     sleep.finally(function() {
       assert.operator(Date.now() - startTime, '<', 500);
       dfd.resolve();

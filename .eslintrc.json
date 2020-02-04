@@ -28,6 +28,11 @@
     // TODO: turn this back on when we're ready to fix all the usages
     "@typescript-eslint/no-non-null-assertion": "off",
     // The whole point of ts-ignore is to purposefully ignore errors...
-    "@typescript-eslint/ban-ts-ignore": "off"
+    "@typescript-eslint/ban-ts-ignore": "off",
+    // It's OK to return values and ignore them
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      { "checksVoidReturn": false }
+    ]
   }
 }

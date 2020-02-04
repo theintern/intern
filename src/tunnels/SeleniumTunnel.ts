@@ -5,7 +5,7 @@ import Tunnel, {
 } from './Tunnel';
 import { format } from 'util';
 import { join } from 'path';
-import { Handle, Task, CancellablePromise } from '../common';
+import { Handle } from '../common';
 import { fileExists, kill, on, writeFile } from './lib/util';
 import { satisfies } from 'semver';
 import { sync as commandExistsSync } from 'command-exists';
@@ -105,7 +105,8 @@ export default class SeleniumTunnel extends Tunnel
           drivers: ['chrome'],
           baseUrl: drivers.selenium.baseUrl,
           version: drivers.selenium.latest,
-          seleniumTimeout: 5000
+          seleniumTimeout: 5000,
+          directory: join(__dirname, 'selenium-standalone')
         },
         options || {}
       )
@@ -119,10 +120,6 @@ export default class SeleniumTunnel extends Tunnel
 
   get artifact() {
     return `selenium-server-standalone-${this.version}.jar`;
-  }
-
-  get directory() {
-    return join(__dirname, 'selenium-standalone');
   }
 
   get executable() {
@@ -147,61 +144,45 @@ export default class SeleniumTunnel extends Tunnel
     return format('%s/%s/%s', this.baseUrl, majorMinorVersion, this.artifact);
   }
 
-  download(forceDownload = false): CancellablePromise<void> {
+  download(forceDownload = false): Promise<void> {
     if (!forceDownload && this.isDownloaded) {
-      return Task.resolve();
+      return Promise.resolve();
     }
 
-    let tasks: CancellablePromise<void>[];
-
-    return new Task(
-      resolve => {
-        const configs: RemoteFile[] = [
-          {
-            url: this.url,
-            executable: this.artifact,
-            dontExtract: true
-          },
-          ...this._getDriverConfigs()
-        ];
-
-        tasks = configs.map(config => {
-          const executable = config.executable;
-          const dontExtract = Boolean(config.dontExtract);
-          const directory = config.directory;
-
-          if (fileExists(join(this.directory, executable))) {
-            return Task.resolve();
-          }
-
-          // TODO: progress events
-          return this._downloadFile(config.url, this.proxy, <
-            SeleniumDownloadOptions
-          >{
-            executable,
-            dontExtract,
-            directory
-          });
-        });
-
-        resolve(
-          Task.all(tasks).then(() => {
-            // consume return value
-          })
-        );
+    const configs: RemoteFile[] = [
+      {
+        url: this.url,
+        executable: this.artifact,
+        dontExtract: true
       },
-      () => {
-        tasks &&
-          tasks.forEach(task => {
-            task.cancel();
-          });
-      }
-    );
+      ...this._getDriverConfigs()
+    ];
+
+    return Promise.all(
+      configs.map(config => {
+        const executable = config.executable;
+        const dontExtract = Boolean(config.dontExtract);
+        const directory = config.directory;
+
+        if (fileExists(join(this.directory, executable))) {
+          return Promise.resolve();
+        }
+
+        // TODO: progress events
+        return this._downloadFile(config.url, this.proxy, <
+          SeleniumDownloadOptions
+        >{
+          executable,
+          dontExtract,
+          directory
+        });
+      })
+    ).then(() => undefined);
   }
 
-  sendJobState(): CancellablePromise<void> {
+  sendJobState(): Promise<void> {
     // This is a noop for Selenium
-    return Task.resolve();
+    return Promise.resolve();
   }
 
   protected _getDriverConfigs(): DriverFile[] {
@@ -265,7 +246,7 @@ export default class SeleniumTunnel extends Tunnel
 
   protected _start(executor: ChildExecutor) {
     let handle: Handle;
-    const task = this._makeChild((child, resolve, reject) => {
+    const promise = this._makeChild((child, resolve, reject) => {
       handle = on(child.stderr!, 'data', (data: string) => {
         // Selenium recommends that we poll the hub looking for a status
         // response
@@ -301,12 +282,12 @@ export default class SeleniumTunnel extends Tunnel
       executor(child, resolve, reject);
     });
 
-    task.then(
+    promise.then(
       () => handle.destroy(),
       () => handle.destroy()
     );
 
-    return task;
+    return promise;
   }
 }
 

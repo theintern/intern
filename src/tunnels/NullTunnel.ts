@@ -1,4 +1,3 @@
-import { Task, CancellablePromise } from '../common';
 import Tunnel, { TunnelProperties } from './Tunnel';
 
 /**
@@ -20,13 +19,13 @@ export default class NullTunnel extends Tunnel {
     return true;
   }
 
-  download(): CancellablePromise<void> {
-    return Task.resolve();
+  download(): Promise<void> {
+    return Promise.resolve();
   }
 
-  start(): CancellablePromise<void> {
+  start(): Promise<void> {
     this._state = 'running';
-    return Task.resolve();
+    return Promise.resolve();
   }
 
   stop() {
@@ -34,7 +33,7 @@ export default class NullTunnel extends Tunnel {
     return Promise.resolve(0);
   }
 
-  sendJobState(): CancellablePromise<void> {
-    return Task.resolve();
+  sendJobState(): Promise<void> {
+    return Promise.resolve();
   }
 }
