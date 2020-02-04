@@ -3,7 +3,6 @@ import { strategies } from 'src/webdriver/lib/Locator';
 import Element from 'src/webdriver/Element';
 import { WebDriverCookie, Geolocation } from 'src/webdriver/interfaces';
 import Session from 'src/webdriver/Session';
-import { Task } from 'src/common';
 import Test, { TestFunction } from 'src/core/lib/Test';
 import Suite from 'src/core/lib/Suite';
 
@@ -479,7 +478,7 @@ registerSuite('functional/webdriver/Session', () => {
         return session
           .get('tests/functional/webdriver/data/scripting.html')
           .then(function() {
-            return Task.all([
+            return Promise.all([
               session.execute('return "not undefined";'),
               session.execute('return undefined;')
             ]);
@@ -701,7 +700,7 @@ registerSuite('functional/webdriver/Session', () => {
           })
           .then(function() {
             // Give the new window time to open
-            return new Task(function(resolve) {
+            return new Promise(function(resolve) {
               setTimeout(resolve, 1000);
             });
           })
@@ -1195,7 +1194,7 @@ registerSuite('functional/webdriver/Session', () => {
             );
           });
 
-          return Task.all(
+          return Promise.all(
             elements.map(function(element: Element) {
               return element.getAttribute('id');
             })

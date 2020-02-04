@@ -1,5 +1,3 @@
-import { Task } from 'src/common';
-
 import * as util from 'src/core/lib/common/util';
 import { Config } from 'src/core/lib/common/config';
 
@@ -487,7 +485,7 @@ registerSuite('core/lib/common/util', {
 
 function loadText(path: string) {
   if (path === 'extends') {
-    return Task.resolve(
+    return Promise.resolve(
       JSON.stringify({
         foo: 111,
         bar: 'bye',
@@ -496,7 +494,7 @@ function loadText(path: string) {
     );
   }
   if (path === 'children') {
-    return Task.resolve(
+    return Promise.resolve(
       JSON.stringify({
         baz: 'hello',
         bar: 'bye',
@@ -514,7 +512,7 @@ function loadText(path: string) {
     );
   }
   if (path === 'childEnvironment') {
-    return Task.resolve(
+    return Promise.resolve(
       JSON.stringify({
         node: {
           suites: ['foo'],
@@ -535,7 +533,7 @@ function loadText(path: string) {
     );
   }
   if (path === 'described') {
-    return Task.resolve(
+    return Promise.resolve(
       JSON.stringify({
         description: 'has children',
         configs: {
@@ -549,5 +547,5 @@ function loadText(path: string) {
       })
     );
   }
-  return Task.resolve('{}');
+  return Promise.resolve('{}');
 }

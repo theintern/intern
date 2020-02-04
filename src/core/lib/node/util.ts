@@ -12,8 +12,6 @@ import { parse } from 'shell-quote';
 import { RawSourceMap } from 'source-map';
 import { sync as glob, hasMagic } from 'glob';
 
-import { Task, CancellablePromise } from '../../../common';
-
 import global from '../../../common/lib/global';
 import {
   defaultConfig,
@@ -72,18 +70,18 @@ export function expandFiles(patterns?: string[] | string) {
  */
 export function getConfig(
   file?: string
-): CancellablePromise<{ config: any; file?: string }>;
+): Promise<{ config: any; file?: string }>;
 export function getConfig(
   argv?: string[]
-): CancellablePromise<{ config: any; file?: string }>;
+): Promise<{ config: any; file?: string }>;
 export function getConfig(
   file: string,
   argv?: string[]
-): CancellablePromise<{ config: any; file?: string }>;
+): Promise<{ config: any; file?: string }>;
 export function getConfig(
   fileOrArgv?: string | string[],
   argv?: string[]
-): CancellablePromise<{ config: any; file?: string }> {
+): Promise<{ config: any; file?: string }> {
   const args: { [key: string]: any } = {};
   let file = typeof fileOrArgv === 'string' ? fileOrArgv : undefined;
   argv = Array.isArray(fileOrArgv) ? fileOrArgv : argv;
@@ -104,7 +102,7 @@ export function getConfig(
     args.config = file;
   }
 
-  let load: CancellablePromise<{ [key: string]: any }>;
+  let load: Promise<{ [key: string]: any }>;
 
   if (args.config) {
     // If a config parameter was provided, load it and mix in any other
@@ -155,8 +153,8 @@ export function getPackagePath(dir = __dirname): string {
 /**
  * Loads a text resource.
  */
-export function loadText(path: string): CancellablePromise<string> {
-  return new Task<string>((resolve, reject) => {
+export function loadText(path: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
     readFile(path, { encoding: 'utf8' }, (error, data) => {
       if (error) {
         reject(error);

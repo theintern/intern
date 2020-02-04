@@ -12,8 +12,8 @@ import axios, {
 import { Agent as HttpAgent } from 'http';
 import { Agent as HttpsAgent } from 'https';
 import qs from 'qs';
-import Task, { CancellablePromise } from './Task';
 import Evented from './Evented';
+import { CancelToken } from './cancel';
 
 const defaultRetries = 2;
 
@@ -46,6 +46,7 @@ export interface RequestOptions {
   httpAgent?: HttpAgent;
   httpsAgent?: HttpsAgent;
   retries?: number;
+  cancelToken?: CancelToken;
 }
 
 export interface ProgressEvent {
@@ -64,15 +65,15 @@ export interface Response {
   ok: boolean;
   status: number;
   statusText: string;
-  arrayBuffer(): CancellablePromise<ArrayBuffer>;
-  json<R = object>(): CancellablePromise<R>;
-  text(): CancellablePromise<string>;
+  arrayBuffer(): Promise<ArrayBuffer>;
+  json<R = object>(): Promise<R>;
+  text(): Promise<string>;
 }
 
 export default function request(
   url: string,
   options: RequestOptions = {}
-): CancellablePromise<Response> {
+): Promise<Response> {
   const {
     followRedirects,
     handleAs,
@@ -95,8 +96,13 @@ export default function request(
     transformResponse: undefined
   };
 
-  const cancelSource = axios.CancelToken.source();
-  req.cancelToken = cancelSource.token;
+  if (options.cancelToken) {
+    const cancelSource = axios.CancelToken.source();
+    req.cancelToken = cancelSource.token;
+    options.cancelToken.promise.catch(reason =>
+      cancelSource.cancel(reason.message)
+    );
+  }
 
   if (query) {
     req.params = query;
@@ -132,7 +138,20 @@ export default function request(
 
   let retries = options.retries != null ? options.retries : defaultRetries;
 
-  const handleError = (error: AxiosError): CancellablePromise<Response> => {
+  const makeRequest = () =>
+    new Promise<Response>((resolve, reject) => {
+      axios(req).then(response => {
+        if (onDownloadProgress && response && response.data) {
+          onDownloadProgress({
+            total: response.data.length,
+            received: response.data.length
+          });
+        }
+        resolve(new ResponseClass(response));
+      }, reject);
+    });
+
+  const handleError = async (error: AxiosError): Promise<Response> => {
     // Sometimes a remote is flakey; retry requests a couple of times if they
     // fail for reasons that are probably out of our control
     if (
@@ -140,30 +159,20 @@ export default function request(
       retries > 0
     ) {
       retries--;
-      return makeRequest().catch(handleError);
+      try {
+        return makeRequest();
+      } catch (error) {
+        return handleError(error);
+      }
     }
     throw error;
   };
 
-  const makeRequest = () =>
-    new Task<Response>(
-      (resolve, reject) => {
-        axios(req).then(response => {
-          if (onDownloadProgress && response && response.data) {
-            onDownloadProgress({
-              total: response.data.length,
-              received: response.data.length
-            });
-          }
-          resolve(new ResponseClass(response));
-        }, reject);
-      },
-      () => {
-        cancelSource.cancel();
-      }
-    );
-
-  return makeRequest().catch(handleError);
+  try {
+    return makeRequest();
+  } catch (error) {
+    return handleError(error);
+  }
 }
 
 class HeadersClass {
@@ -219,7 +228,7 @@ class ResponseClass<T = any> extends Evented<ProgressEvent>
     return this.response.statusText;
   }
 
-  arrayBuffer(): CancellablePromise<ArrayBuffer> {
+  arrayBuffer(): Promise<ArrayBuffer> {
     const { data } = this.response;
     let value: ArrayBuffer | PromiseLike<ArrayBuffer>;
 
@@ -235,14 +244,14 @@ class ResponseClass<T = any> extends Evented<ProgressEvent>
       value = data;
     }
 
-    return Task.resolve(value);
+    return Promise.resolve(value);
   }
 
   json<R = object>() {
     return this.text().then<R>(value => JSON.parse(value));
   }
 
-  text(): CancellablePromise<string> {
+  text(): Promise<string> {
     if (typeof this.stringValue === 'undefined') {
       const { data } = this.response;
 
@@ -261,7 +270,7 @@ class ResponseClass<T = any> extends Evented<ProgressEvent>
       }
     }
 
-    return Task.resolve(this.stringValue);
+    return Promise.resolve(this.stringValue);
   }
 }
 

@@ -1,6 +1,6 @@
+import { CancelToken, createCancelToken } from '../common';
 import { getMethods, sleep, trimStack } from './lib/util';
 import Element from './Element';
-import { Task, CancellablePromise } from '../common';
 import Session from './Session';
 import Locator, { Strategy } from './lib/Locator';
 import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
@@ -171,7 +171,7 @@ export default class Command<
     Command<Element[], P, string[]>,
     Command<void, P, StringResult>
   >
-  implements PromiseLike<T> {
+  implements Promise<T> {
   /**
    * Augments `target` with a conversion of the `originalFn` method that
    * enables its use with a Command object. This can be used to easily add
@@ -219,7 +219,7 @@ export default class Command<
           function(this, setContext: SetContextMethod) {
             const parentContext = this._context;
             const session = this._session;
-            let promise: CancellablePromise<any>;
+            let promise: Promise<any>;
             // The function may have come from a session object
             // prototype but have been overridden on the actual session
             // instance; in such a case, the overridden function should
@@ -242,7 +242,7 @@ export default class Command<
               if (parentContext.isSingle) {
                 promise = fn.apply(session, [parentContext[0]].concat(args));
               } else {
-                promise = Task.all(
+                promise = Promise.all(
                   parentContext.map((element: Element) =>
                     fn.apply(session, [element].concat(args))
                   )
@@ -259,7 +259,7 @@ export default class Command<
               });
             }
 
-            return <CancellablePromise<Us>>promise;
+            return promise;
           }
         );
       };
@@ -300,13 +300,13 @@ export default class Command<
           this,
           function(setContext: SetContextMethod) {
             const parentContext = this._context;
-            let promise: CancellablePromise<any>;
+            let promise: Promise<any>;
             const fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
 
             if (parentContext.isSingle) {
               promise = fn.apply(parentContext[0], args);
             } else {
-              promise = Task.all(
+              promise = Promise.all(
                 parentContext.map(function(element: any) {
                   return element[key](...args);
                 })
@@ -320,7 +320,7 @@ export default class Command<
               });
             }
 
-            return <CancellablePromise<Us>>promise;
+            return promise;
           }
         );
       };
@@ -330,7 +330,10 @@ export default class Command<
   private _parent: Command<P, any, StringResult> | undefined;
   private _session: Session;
   private _context!: Context;
-  private _task: CancellablePromise<any>;
+  private _promise: Promise<any>;
+  private _cancelToken: CancelToken;
+
+  readonly [Symbol.toStringTag]: 'promise';
 
   /**
    * @param parent The parent command that this command is chained to, or a
@@ -347,6 +350,8 @@ export default class Command<
    * for the current command by calling the passed `setContext` function any
    * time prior to resolving the Promise that it returns. If no context is
    * explicitly provided, the context from the parent command will be used.
+   *
+   * @param token A cancellation token.
    */
   // TODO: Need to show that parent is mixed into this Command
   constructor(
@@ -360,9 +365,17 @@ export default class Command<
       this: Command<T, P, StringResult>,
       setContext: SetContextMethod,
       error: any
-    ) => T | PromiseLike<T>
+    ) => T | PromiseLike<T>,
+    token?: CancelToken
   ) {
     super();
+
+    const cancelToken = createCancelToken();
+    this._cancelToken = cancelToken;
+
+    if (token) {
+      token.promise.catch(() => cancelToken.cancel());
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
@@ -426,9 +439,9 @@ export default class Command<
 
     // parentCommand will be null if parentOrSession was a session
     const parentCommand = <Command<P, any, StringResult>>parentOrSession;
-    this._task = (parentCommand != null
+    this._promise = (parentCommand != null
       ? parentCommand.promise
-      : Task.resolve(undefined)
+      : cancelToken.wrap(Promise.resolve(undefined))
     )
       .then(
         function(returnValue) {
@@ -445,14 +458,25 @@ export default class Command<
       .then(
         initialiser &&
           function(returnValue) {
-            return Task.resolve(returnValue)
-              .then(initialiser.bind(self, setContext))
+            return cancelToken
+              .wrap(Promise.resolve(returnValue))
+              .then(value =>
+                cancelToken.wrap(
+                  Promise.resolve(initialiser.call(self, setContext, value))
+                )
+              )
               .catch(fixStack);
           },
         errback &&
           function(error) {
-            return Task.reject(error)
-              .catch(errback.bind(self, setContext))
+            return cancelToken
+              .wrap(Promise.reject(error))
+              .catch(error =>
+                // Don't wrap this with cancel token because a catch block or
+                // error handler shouldn't implicitly propagate a cancellation
+                // error.
+                Promise.resolve(errback.call(self, setContext, error))
+              )
               .catch(fixStack);
           }
       );
@@ -498,7 +522,7 @@ export default class Command<
    * @readonly
    */
   get promise() {
-    return this._task;
+    return this._promise;
   }
 
   /**
@@ -686,7 +710,8 @@ export default class Command<
               setContext
             ) as unknown) as U | PromiseLike<U>;
           }
-        : undefined
+        : undefined,
+      this._cancelToken
     );
   }
 
@@ -699,7 +724,7 @@ export default class Command<
       this: Command<T, P, StringResult>,
       reason: any
     ) => R | PromiseLike<R>
-  ) {
+  ): Command<R, T, StringResult> {
     return this.then(null, errback);
   }
 
@@ -708,18 +733,16 @@ export default class Command<
    * have resolved.
    */
   finally(callback: () => void | PromiseLike<void>) {
-    this._task = this._task.finally(callback);
-    return this;
+    return this._promise.finally(callback);
   }
 
   /**
    * Cancels all outstanding chained operations of the Command. Calling this
-   * method will cause this command and all subsequent chained commands to
-   * fail with a CancelError.
+   * method will cause this command, all subsequent chained commands, and all
+   * unresolved parent commands to fail with a CancelError.
    */
-  cancel() {
-    this._task.cancel();
-    return this;
+  cancel(): void {
+    this._cancelToken.cancel();
   }
 
   find(strategy: Strategy, value: string) {
@@ -758,12 +781,12 @@ export default class Command<
       this,
       function(setContext: SetContextMethod) {
         const parentContext = this._context;
-        let task: CancellablePromise<Element | Element[]>;
+        let promise: Promise<Element | Element[]>;
 
         if (parentContext.length && parentContext.isSingle) {
-          task = parentContext[0][method](strategy, value);
+          promise = parentContext[0][method](strategy, value);
         } else if (parentContext.length) {
-          task = Task.all(
+          promise = Promise.all(
             parentContext.map(element => element[method](strategy, value))
             // findAll against an array context will result in arrays
             // of arrays; flatten into a single array of elments. It
@@ -773,10 +796,10 @@ export default class Command<
             // order for results
           ).then(elements => Array.prototype.concat.apply([], elements));
         } else {
-          task = this.session[method](strategy, value);
+          promise = this.session[method](strategy, value);
         }
 
-        return task.then(newContext => {
+        return promise.then(newContext => {
           setContext(newContext);
           return newContext;
         });
@@ -792,27 +815,27 @@ export default class Command<
       this,
       function(setContext: SetContextMethod) {
         const parentContext = this._context;
-        let task: CancellablePromise<U>;
+        let promise: Promise<U>;
         const fn = parentContext[0] && parentContext[0][method];
 
         if (parentContext.isSingle) {
-          task = fn.apply(parentContext[0], args);
+          promise = fn.apply(parentContext[0], args);
         } else {
-          task = (Task.all(
+          promise = (Promise.all(
             parentContext.map(element => (element[method] as Function)(...args))
           ).then(values =>
             Array.prototype.concat.apply([], values)
-          ) as unknown) as CancellablePromise<U>;
+          ) as unknown) as Promise<U>;
         }
 
         if (fn && fn.createsContext) {
-          task = task.then(function(newContext) {
+          promise = promise.then(function(newContext) {
             setContext(<any>newContext);
             return newContext;
           });
         }
 
-        return task;
+        return promise;
       }
     );
   }
@@ -826,7 +849,7 @@ export default class Command<
       function(setContext: SetContextMethod) {
         const parentContext = this._context;
         const session = this._session;
-        let task: CancellablePromise<U>;
+        let promise: Promise<U>;
 
         // The function may have come from a session object prototype but
         // have been overridden on the actual session instance; in such a
@@ -845,26 +868,26 @@ export default class Command<
           (!args[0] || !args[0].elementId)
         ) {
           if (parentContext.isSingle) {
-            task = sessionMethod(...[parentContext[0], ...args]);
+            promise = sessionMethod(...[parentContext[0], ...args]);
           } else {
-            task = (Task.all(
+            promise = (Promise.all(
               parentContext.map(element => sessionMethod(...[element, ...args]))
             ).then(values =>
               Array.prototype.concat.apply([], values)
-            ) as unknown) as CancellablePromise<U>;
+            ) as unknown) as Promise<U>;
           }
         } else {
-          task = sessionMethod(...args);
+          promise = sessionMethod(...args);
         }
 
         if ((<any>session[method]).createsContext) {
-          task = task.then(newContext => {
+          promise = promise.then(newContext => {
             setContext(<any>newContext);
             return newContext;
           });
         }
 
-        return task;
+        return promise;
       }
     );
   }

@@ -1,4 +1,4 @@
-import intern from 'src/core';
+import intern from 'src';
 
 // Construct a new executor, assigning it to a global
 intern.configure({

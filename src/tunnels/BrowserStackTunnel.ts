@@ -1,6 +1,6 @@
 import { chmodSync } from 'fs';
 import { join } from 'path';
-import { CancellablePromise, request } from '../common';
+import { request } from '../common';
 import Tunnel, {
   TunnelProperties,
   DownloadOptions,
@@ -172,7 +172,7 @@ export default class BrowserStackTunnel extends Tunnel
     return args;
   }
 
-  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
+  sendJobState(jobId: string, data: JobState): Promise<void> {
     const payload = JSON.stringify({
       status: data.status || data.success ? 'completed' : 'error'
     });

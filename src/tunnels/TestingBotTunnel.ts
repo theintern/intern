@@ -7,7 +7,7 @@ import { existsSync, watchFile, unlinkSync, unwatchFile } from 'fs';
 import { stringify } from 'querystring';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { request, CancellablePromise } from '../common';
+import { request } from '../common';
 import { parse } from 'url';
 import { fileExists, on } from './lib/util';
 import { JobState } from './interfaces';
@@ -113,7 +113,7 @@ export default class TestingBotTunnel extends Tunnel
     return args;
   }
 
-  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
+  sendJobState(jobId: string, data: JobState): Promise<void> {
     const params: { [key: string]: string | number } = {};
 
     if (data.success != null) {

@@ -1,4 +1,3 @@
-import { Task, CancellablePromise } from '../../common';
 import statusCodes from './statusCodes';
 import Element from '../Element';
 import Session from '../Session';
@@ -19,7 +18,7 @@ export default function findDisplayed(
   return session.getTimeout('implicit').then(originalTimeout => {
     const startTime = Date.now();
 
-    function poll(): CancellablePromise<Element> {
+    function poll(): Promise<Element> {
       return locator.findAll(strategy, value).then(elements => {
         // Due to concurrency issues with at least ChromeDriver
         // 2.16, each element must be tested one at a time instead
@@ -38,7 +37,7 @@ export default function findDisplayed(
           }
         }
 
-        return Task.resolve<Element | void>(checkElement()).then(element => {
+        return Promise.resolve<Element | void>(checkElement()).then(element => {
           if (element) {
             return element;
           } else if (Date.now() - startTime > originalTimeout) {

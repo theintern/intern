@@ -1,12 +1,7 @@
 import { watchFile, unwatchFile } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import {
-  Task,
-  CancellablePromise,
-  createCompositeHandle,
-  request
-} from '../common';
+import { createCompositeHandle, request } from '../common';
 import Tunnel, {
   ChildExecutor,
   NormalizedEnvironment,
@@ -91,11 +86,11 @@ export default class CrossBrowserTestingTunnel extends Tunnel
     }
   }
 
-  download(forceDownload = false): CancellablePromise<void> {
+  download(forceDownload = false): Promise<void> {
     if (!forceDownload && this.isDownloaded) {
-      return Task.resolve();
+      return Promise.resolve();
     }
-    return new Task((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       exec(
         `npm install --no-save cbt_tunnels@'${this.cbtVersion}'`,
         (error, _stdout, stderr) => {
@@ -128,7 +123,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
     ];
   }
 
-  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
+  sendJobState(jobId: string, data: JobState): Promise<void> {
     const payload = JSON.stringify({
       action: 'set_score',
       score: data.status || data.success ? 'pass' : 'fail'
@@ -166,7 +161,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
     });
   }
 
-  protected _start(executor: ChildExecutor): CancellablePromise<any> {
+  protected _start(executor: ChildExecutor): Promise<any> {
     const readyFile = join(tmpdir(), 'CrossBrowserTesting-' + Date.now());
 
     return this._makeChild((child, resolve, reject) => {

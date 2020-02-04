@@ -1,61 +1,60 @@
 import pollUntil from './pollUntil';
 import { toExecuteString } from '../lib/util';
-import { CancellablePromise } from '../../common';
 
 export default function pollUntilTruthy<T>(
   poller: (() => any) | string,
   timeout?: number,
   pollInterval?: number
-): () => CancellablePromise<T>;
+): () => Promise<T>;
 
 export default function pollUntilTruthy<T>(
   poller: string,
   args?: any[],
   timeout?: number,
   pollInterval?: number
-): () => CancellablePromise<T>;
+): () => Promise<T>;
 
 export default function pollUntilTruthy<T>(
   poller: () => any,
   args?: never[],
   timeout?: number,
   pollInterval?: number
-): () => CancellablePromise<T>;
+): () => Promise<T>;
 
 export default function pollUntilTruthy<T, U>(
   poller: (u: U) => any,
   args?: [U],
   timeout?: number,
   pollInterval?: number
-): () => CancellablePromise<T>;
+): () => Promise<T>;
 
 export default function pollUntilTruthy<T, U, V>(
   poller: (u: U, v: V) => any,
   args?: [U, V],
   timeout?: number,
   pollInterval?: number
-): () => CancellablePromise<T>;
+): () => Promise<T>;
 
 export default function pollUntilTruthy<T, U, V, W>(
   poller: (u: U, v: V, w: W) => any,
   args?: [U, V, W],
   timeout?: number,
   pollInterval?: number
-): () => CancellablePromise<T>;
+): () => Promise<T>;
 
 export default function pollUntilTruthy<T, U, V, W, X>(
   poller: (u: U, v: V, w: W, x: X) => any,
   args?: [U, V, W, X],
   timeout?: number,
   pollInterval?: number
-): () => CancellablePromise<T>;
+): () => Promise<T>;
 
 export default function pollUntilTruthy<T, U, V, W, X, Y>(
   poller: (u: U, v: V, w: W, x: X, y: Y) => any,
   args?: [U, V, W, X, Y],
   timeout?: number,
   pollInterval?: number
-): () => CancellablePromise<T>;
+): () => Promise<T>;
 
 export default function pollUntilTruthy<T, U, V, W, X, Y>(
   poller:
@@ -69,7 +68,7 @@ export default function pollUntilTruthy<T, U, V, W, X, Y>(
   argsOrTimeout?: any[] | number,
   timeout?: number,
   pollInterval?: number
-): () => CancellablePromise<T> {
+): () => Promise<T> {
   const args: any[] = [];
 
   if (typeof argsOrTimeout === 'number') {

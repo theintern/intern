@@ -1,6 +1,6 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { spy, SinonSpy, stub } from 'sinon';
-import { Task, isPromiseLike, deepMixin } from 'src/common';
+import { isCancel, CancelToken } from 'src/common';
 import { RawSourceMap } from 'source-map';
 import { BigIntStats, PathLike } from 'fs';
 import { sep } from 'path';
@@ -44,7 +44,7 @@ registerSuite('core/lib/executors/Node', function() {
     }
 
     quit() {
-      return Task.resolve();
+      return Promise.resolve();
     }
   }
 
@@ -94,10 +94,10 @@ registerSuite('core/lib/executors/Node', function() {
       this.stop = spy(this.stop);
     }
     start() {
-      return Task.resolve();
+      return Promise.resolve();
     }
     stop() {
-      return Task.resolve();
+      return Promise.resolve();
     }
     subscribe() {
       return { destroy() {} };
@@ -220,7 +220,7 @@ registerSuite('core/lib/executors/Node', function() {
     hasParent = true;
     tests = [];
     run() {
-      return Task.resolve();
+      return Promise.resolve();
     }
   }
 
@@ -290,12 +290,9 @@ registerSuite('core/lib/executors/Node', function() {
             mockConsole
           );
           replace(() => import('chai')).with(mockChai);
-          replace(() => import('src/common')).with({
-            global: mockGlobal,
-            isPromiseLike,
-            Task,
-            deepMixin
-          });
+          replace(() => import('src/common'))
+            .transparently()
+            .with({ global: mockGlobal });
           replace(() => import('src/core/lib/node/util')).with(mockNodeUtil);
           replace(() => import('path')).with(mockPath);
           replace(() => import('fs')).with(mockFs);
@@ -1161,45 +1158,37 @@ registerSuite('core/lib/executors/Node', function() {
         },
 
         cancel() {
-          const dfd = this.async();
-          let suiteTask: Task<void>;
-
-          let settled = false;
           setFunctionalSuites(({ parent }) => {
             parent.add({
               name: 'hang suite',
               tests: [],
               parent,
               hasParent: true,
-              run() {
-                suiteTask = new Task<void>(
-                  () => {},
-                  () => {}
+              cancel() {},
+              run(token: CancelToken) {
+                return token.wrap(
+                  new Promise<void>(() => {})
                 );
-                return suiteTask;
               }
             } as any);
           });
 
-          const runTask = executor.run();
-          runTask.then(
-            () => {
-              settled = true;
-            },
-            () => {
-              settled = true;
-            }
-          );
+          const runPromise = executor.run();
 
           setTimeout(() => {
-            runTask.cancel();
+            executor.cancel();
           }, 1000);
 
-          runTask.finally(
-            dfd.callback(() => {
-              assert.isFalse(settled, 'expected test task to not be settled');
+          return runPromise
+            .then(() => {
+              throw new Error('Run should not have passed');
             })
-          );
+            .catch(error => {
+              assert.isTrue(
+                isCancel(error),
+                'expected test promise to be cancelled'
+              );
+            });
         },
 
         async 'failed suites'() {

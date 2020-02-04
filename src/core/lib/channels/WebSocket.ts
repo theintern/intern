@@ -1,4 +1,4 @@
-import { Task, CancellablePromise, global } from '../../../common';
+import { global } from '../../../common';
 
 import BaseChannel, { ChannelOptions, Message } from './Base';
 import { parseUrl } from '../browser/util';
@@ -13,7 +13,7 @@ export default class WebSocketChannel extends BaseChannel {
       | { resolve: (value: any) => void; reject: (error: Error) => void }
       | undefined;
   };
-  protected _ready: CancellablePromise<any>;
+  protected _ready: Promise<any>;
   protected _sequence: number;
 
   constructor(options: ChannelOptions) {
@@ -34,7 +34,7 @@ export default class WebSocketChannel extends BaseChannel {
       `${protocol}://${host}:${options.port}`
     );
 
-    this._ready = new Task((resolve, reject) => {
+    this._ready = new Promise((resolve, reject) => {
       this._socket.addEventListener('open', resolve);
       this._socket.addEventListener('error', reject);
     });
@@ -54,7 +54,7 @@ export default class WebSocketChannel extends BaseChannel {
   protected _sendData(name: string, data: any) {
     return this._ready.then(
       () =>
-        new Task<void>((resolve, reject) => {
+        new Promise<void>((resolve, reject) => {
           const id = String(this._sequence++);
           const sessionId = this.sessionId;
           const message: Message = { id, sessionId, name, data };
@@ -85,8 +85,8 @@ export default class WebSocketChannel extends BaseChannel {
   }
 
   protected _handleError(error: Error) {
-    // Make the _ready task a reject to reject future _sendData calls
-    this._ready = Task.reject(error);
+    // Make the _ready promise a reject to reject future _sendData calls
+    this._ready = Promise.reject(error);
 
     // Reject any open sends
     Object.keys(this._sendQueue)

@@ -1,5 +1,3 @@
-export { CancellablePromise } from '../common';
-
 export interface JobState {
   /**
    * The build number of the software being tested by the job. Supported by

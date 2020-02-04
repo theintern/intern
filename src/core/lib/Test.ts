@@ -1,4 +1,10 @@
-import { Task, CancellablePromise, isPromiseLike, isTask } from '../../common';
+import {
+  isPromise,
+  isPromiseLike,
+  isCancel,
+  CancelToken,
+  createCancelToken
+} from '../../common';
 import { Executor } from './executors/Executor';
 import Deferred from './Deferred';
 import { InternError } from './types';
@@ -34,9 +40,13 @@ export default class Test implements TestProperties {
 
   protected _timeout: number | undefined;
 
-  protected _runTask: CancellablePromise<any> | undefined;
+  protected _runPromise: Promise<any> | undefined;
+
+  protected _cancelToken: CancelToken | undefined;
 
   protected _timeElapsed: number | undefined;
+
+  private _asyncDfd: Deferred<unknown> | undefined;
 
   // Use type 'any' because we may be running under Node (NodeJS.Timer) or a
   // browser (number)
@@ -131,7 +141,7 @@ export default class Test implements TestProperties {
   }
 
   /**
-   * The number of milliseconds this test can run before it will be canceled.
+   * The number of milliseconds this test can run before it will be cancelled.
    */
   get timeout() {
     if (this._timeout != null) {
@@ -170,40 +180,32 @@ export default class Test implements TestProperties {
    * @returns a lib/Deferred that can be used to resolve the test
    */
   async(timeout?: number, numCallsUntilResolution?: number): Deferred<any> {
+    if (this._asyncDfd) {
+      return this._asyncDfd;
+    }
+
     this._isAsync = true;
 
     if (timeout != null) {
       this.timeout = timeout;
     }
 
-    let remainingCalls = numCallsUntilResolution || 1;
-    const dfd = new Deferred();
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    const oldResolve = dfd.resolve;
-
-    /**
-     * Eventually resolves the deferred, once `resolve` has been called as
-     * many times as specified by the `numCallsUntilResolution` parameter of
-     * the original `async` call.
-     */
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    dfd.resolve = function<T>(this: any, value?: T) {
-      --remainingCalls;
-      if (remainingCalls === 0) {
-        oldResolve.call(this, value);
-      } else if (remainingCalls < 0) {
-        throw new Error('resolve called too many times');
-      }
-    };
-
-    // A test may call this function multiple times and should always get
-    // the same Deferred
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    this.async = function() {
-      return dfd;
-    };
+    const dfd = new Deferred<unknown>(
+      this._cancelToken,
+      numCallsUntilResolution ?? 1
+    );
+    this._asyncDfd = dfd;
 
     return dfd;
+  }
+
+  /**
+   * Cancel this test if it's in-progress.
+   *
+   * This method has no effect if the Test has finished.
+   */
+  cancel(reason?: string) {
+    this._cancelToken?.cancel(reason);
   }
 
   /**
@@ -214,49 +216,57 @@ export default class Test implements TestProperties {
       this.timeout = timeout;
     }
 
-    if (this._runTask) {
-      if (this._timer) {
-        clearTimeout(this._timer);
-      }
-      this._timer = setTimeout(() => {
-        this._timer = undefined;
-        if (this._runTask) {
-          const error = new Error(`Timeout reached on ${this.id}#`);
-          error.name = 'TimeoutError';
-          this.error = error;
-          this._runTask.cancel();
-        }
-      }, this.timeout);
-    }
+    clearTimeout(this._timer);
+
+    this._timer = setTimeout(() => {
+      this._timer = undefined;
+      const error = new Error(`Timeout reached on ${this.id}#`);
+      error.name = 'TimeoutError';
+      this.error = error;
+
+      // The timer is cancelled at the begining and and end of a test run, so
+      // _cancelToken will be defined when this timer fires
+      this._cancelToken?.cancel(error);
+    }, this.timeout);
   }
 
   /**
    * Runs the test.
    */
-  run() {
+  run(token?: CancelToken) {
     let startTime: number;
 
-    // Cancel any currently running test
-    if (this._runTask) {
-      this._runTask.cancel();
-      this._runTask = undefined;
-    }
+    // Cancel the currnet test run if one is active
+    this._cancelToken?.cancel();
 
-    if (this._timer) {
-      clearTimeout(this._timer);
-      this._timer = undefined;
-    }
+    clearTimeout(this._timer);
+    this._timer = undefined;
 
     // Reset some state in case someone tries to re-run the same test
     this._usesRemote = false;
     this._hasPassed = false;
     this._isAsync = false;
     this._timeElapsed = 0;
-    this._runTask = undefined;
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    this.async = Object.getPrototypeOf(this).async;
+    this._runPromise = undefined;
+    this._cancelToken = undefined;
+    this._asyncDfd = undefined;
     this.error = undefined;
     this.skipped = undefined;
+
+    // Create a token that can be used to cancel the test, or use the one that
+    // was provided
+    const cancelToken = createCancelToken();
+    this._cancelToken = cancelToken;
+
+    // If the passed-in cancel token is cancelled, cancel this run's token as
+    // well.
+    if (token) {
+      // If the token is already cancelled, don't try to run the test
+      if (token.reason) {
+        return Promise.reject(token.reason);
+      }
+      token.promise.catch(() => cancelToken.cancel());
+    }
 
     return this.executor
       .emit('testStart', this)
@@ -264,7 +274,7 @@ export default class Test implements TestProperties {
         startTime = Date.now();
       })
       .then<void>(() => {
-        let result: PromiseLike<any> | void = this.test(this);
+        let result: Promise<any> | void = this.test(this);
 
         // Someone called `this.async`, so this test is async; we have
         // to prefer one or the other, so prefer the promise returned
@@ -277,94 +287,35 @@ export default class Test implements TestProperties {
             // If the user called this.async and returned a
             // thenable, wait for the first one to resolve or
             // reject.
-            result = Task.race([this.async().promise, result]);
+            result = Promise.race([this.async().promise, result]);
           }
         }
 
-        if (isPromiseLike(result)) {
+        if (isPromise(result)) {
           // Even if a user did not call `this.async`, we still mark
           // this test as asynchronous if a promise was returned
           this._isAsync = true;
 
-          // Wrap the runTask in another Task so that a canceled test
-          // can be treated like a skip.
-          return new Task((resolve, reject) => {
-            this._runTask = new Task(
-              (resolve, reject) => {
-                let settled = false;
+          this.restartTimeout();
 
-                if (isPromiseLike(result)) {
-                  result.then(
-                    () => {
-                      settled = true;
-                      resolve();
-                    },
-                    error => {
-                      settled = true;
-                      reject(error);
-                    }
-                  );
-                }
-
-                // Most promise implementations that allow
-                // cancellation don't signal that a promise was
-                // canceled. In order to ensure that a timed out
-                // test is never accidentally resolved, reject a
-                // canceled test, treating it as a skipped test.
-                if (isTask(result)) {
-                  result
-                    // Reject with SKIP in case we got here
-                    // before the promise resolved
-                    .finally(() => {
-                      if (!settled) {
-                        this.skipped = 'Canceled';
-                        reject(SKIP);
-                      }
-                    })
-                    // If the result rejected, consume the
-                    // error; it's handled above
-                    .catch(() => {
-                      // do nothing
-                    });
-                }
-              },
-              () => {
-                // Only cancel the result if it's actually a
-                // Task
-                if (isTask(result)) {
-                  result.cancel();
-                }
-                // If the test task was canceled between the
-                // time it failed and the time it resolved,
-                // reject it
-                if (this.error) {
-                  reject(this.error);
-                }
-              }
-            ).then(() => {
-              resolve();
-            }, reject);
-
-            this.restartTimeout();
+          return cancelToken.wrap(result).catch(error => {
+            // Record a cancelled test as skipped
+            if (isCancel(error)) {
+              this.skipped = 'Cancelled';
+            }
+            throw error;
           });
         }
       })
       .finally(() => {
-        // If we got here but the test task hasn't finished, the test
-        // was canceled
-        if (this._runTask) {
-          this._runTask.cancel();
-        }
-
-        this._runTask = undefined;
+        this._runPromise = undefined;
+        this._cancelToken = undefined;
         this._timeElapsed = Date.now() - startTime;
 
         // Ensure the timeout timer is cleared so the testing process
         // doesn't hang at exit
-        if (this._timer) {
-          clearTimeout(this._timer);
-          this._timer = undefined;
-        }
+        clearTimeout(this._timer);
+        this._timer = undefined;
       })
       .then(() => {
         // Test completed successfully -- potentially passed
@@ -377,10 +328,12 @@ export default class Test implements TestProperties {
         this._hasPassed = true;
       })
       .catch(error => {
-        // There was an error running the test; could be a skip, could
-        // be an assertion failure
-        if (error !== SKIP) {
-          this.error = error;
+        // There was an error running the test; if it wasn't a skip or a cancel,
+        // assocate the error with the test and rethrow it
+        if (!isSkip(error)) {
+          if (!isCancel(error)) {
+            this.error = error;
+          }
           throw error;
         }
       })
@@ -455,7 +408,7 @@ export function isTestOptions(value: any): value is TestOptions {
 }
 
 export interface TestFunction {
-  (this: Test, test: Test): void | PromiseLike<any>;
+  (this: Test, test: Test): void | Promise<any>;
 }
 
 export function isTestFunction(value: any): value is TestFunction {
@@ -477,3 +430,7 @@ export type TestOptions = Partial<TestProperties> & {
 };
 
 export const SKIP: any = {};
+
+export function isSkip(reason: any): boolean {
+  return reason === SKIP;
+}

@@ -1,5 +1,6 @@
-import { mkdirSync, existsSync } from 'fs';
+import { mkdtempSync, existsSync } from 'fs';
 import { join } from 'path';
+import { tmpdir } from 'os';
 import { execSync } from 'child_process';
 import { ObjectSuiteDescriptor, Tests } from 'src/core/lib/interfaces/object';
 
@@ -9,12 +10,12 @@ import { cleanup, deleteTunnelFiles, getDigdugArgs } from 'tests/support/util';
 
 function createDownloadTest(config: any) {
   return () => {
-    tunnel = new SeleniumTunnel();
+    tunnel = new SeleniumTunnel({
+      directory: mkdtempSync(join(tmpdir(), 'intern-test'))
+    });
     Object.keys(config).forEach(key => {
       Object.defineProperty(tunnel, key, { value: config[key] });
     });
-
-    mkdirSync(tunnel.directory);
 
     const expected = tunnel['_getDriverConfigs']()
       .map((config: DriverFile) => {

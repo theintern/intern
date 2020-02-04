@@ -15,7 +15,7 @@ registerSuite('core/lib/interfaces/object', function() {
     addSuite: sandbox.spy((callback: (suite: Suite) => void) => {
       callback(parent);
     }),
-    emit: sandbox.spy((..._args: any[]) => {}),
+    emit: sandbox.spy((..._args: any[]) => Promise.resolve()),
     log: sandbox.spy((..._args: any[]) => {})
   };
 

@@ -3,10 +3,10 @@ import {
   EventObject,
   Handle,
   createCompositeHandle,
-  Task,
-  CancellablePromise,
   request,
-  Response
+  createCancelToken,
+  CancelToken,
+  isCancel
 } from '../common';
 import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
@@ -121,11 +121,12 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   /** Whether or not to tell the tunnel to provide verbose logging output. */
   verbose!: boolean;
 
-  protected _startTask: CancellablePromise<any> | undefined;
-  protected _stopTask: Promise<number | void> | undefined;
+  protected _startPromise: Promise<any> | undefined;
+  protected _stopPromise: Promise<number | void> | undefined;
   protected _handle: Handle | undefined;
   protected _process: ChildProcess | undefined;
   protected _state!: 'stopped' | 'starting' | 'running' | 'stopping';
+  protected _cancelToken: CancelToken | undefined;
 
   constructor(options?: TunnelOptions) {
     super();
@@ -202,9 +203,9 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    * @returns A promise that resolves once the download and extraction process
    * has completed.
    */
-  download(forceDownload = false): CancellablePromise<void> {
+  download(forceDownload = false): Promise<void> {
     if (!forceDownload && this.isDownloaded) {
-      return Task.resolve();
+      return Promise.resolve();
     }
     return this._downloadFile(this.url, this.proxy);
   }
@@ -226,9 +227,9 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    *
    * @returns An object containing the response and helper functions
    */
-  getEnvironments(): CancellablePromise<NormalizedEnvironment[]> {
+  getEnvironments(): Promise<NormalizedEnvironment[]> {
     if (!this.environmentUrl) {
-      return Task.resolve([]);
+      return Promise.resolve([]);
     }
 
     return request(this.environmentUrl, {
@@ -264,8 +265,10 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    * @returns A promise that resolves once the job state request is complete.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  sendJobState(_jobId: string, _data: JobState): CancellablePromise<void> {
-    return Task.reject(new Error('Job state is not supported by this tunnel.'));
+  sendJobState(_jobId: string, _data: JobState): Promise<void> {
+    return Promise.reject(
+      new Error('Job state is not supported by this tunnel.')
+    );
   }
 
   /**
@@ -273,18 +276,28 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    *
    * @returns A promise that resolves once the tunnel has been established.
    */
-  start(): CancellablePromise<void> {
+  start(token?: CancelToken): Promise<void> {
     switch (this._state) {
       case 'stopping':
         throw new Error('Previous tunnel is still terminating');
       case 'running':
       case 'starting':
-        return this._startTask!;
+        return this._startPromise!;
+    }
+
+    const cancelToken = createCancelToken();
+    this._cancelToken = cancelToken;
+
+    if (token) {
+      if (token.reason) {
+        return Promise.reject(token.reason);
+      }
+      token.promise.catch(() => cancelToken.cancel());
     }
 
     this._state = 'starting';
 
-    this._startTask = this.download().then(() => {
+    this._startPromise = this.download().then(() => {
       return this._start(child => {
         this._process = child;
         this._handle = createCompositeHandle(
@@ -302,30 +315,46 @@ export default class Tunnel extends Evented<TunnelEvents, string>
       });
     });
 
-    this._startTask
+    return this._cancelToken
+      .wrap(this._startPromise)
+      .catch(error => {
+        if (isCancel(error) && this._process) {
+          const proc = this._process;
+          try {
+            kill(this._process.pid);
+
+            // Wait for child to stop
+            return new Promise<void>(resolve => proc.once('exit', resolve))
+              .catch(() => undefined)
+              .then(() => {
+                throw error;
+              });
+          } catch {
+            // ignore
+          }
+        }
+
+        throw error;
+      })
       .then(() => {
-        this._startTask = undefined;
+        this._startPromise = undefined;
         this._state = 'running';
-        this.emit({
+        return this.emit({
           type: 'status',
           target: this,
           status: 'Ready'
         });
       })
       .catch(error => {
-        this._startTask = undefined;
+        this._startPromise = undefined;
         this._state = 'stopped';
         this.emit({
           type: 'status',
           target: this,
-          status:
-            error.name === 'CancelError'
-              ? 'Start cancelled'
-              : 'Failed to start tunnel'
+          status: isCancel(error) ? 'Start cancelled' : 'Failed to start tunnel'
         });
+        throw error;
       });
-
-    return this._startTask;
   }
 
   /**
@@ -337,10 +366,10 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   stop(): Promise<number | void> {
     switch (this._state) {
       case 'starting':
-        this._startTask!.cancel();
-        return this._startTask!.finally(() => undefined);
+        this._cancelToken!.cancel();
+        return this._startPromise!;
       case 'stopping':
-        return this._stopTask!;
+        return this._stopPromise!;
     }
 
     this._state = 'stopping';
@@ -351,7 +380,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
       status: 'Stopping'
     });
 
-    this._stopTask = this._stop()
+    this._stopPromise = this._stop()
       .then(returnValue => {
         if (this._handle) {
           this._handle.destroy();
@@ -370,57 +399,41 @@ export default class Tunnel extends Evented<TunnelEvents, string>
         throw error;
       });
 
-    return this._stopTask;
+    return this._stopPromise;
   }
 
   protected _downloadFile(
     url: string | undefined,
     proxy: string | undefined,
     options?: DownloadOptions
-  ): CancellablePromise<void> {
-    let req: CancellablePromise<Response>;
-
+  ): Promise<void> {
     if (!url) {
-      return Task.reject(new Error('URL is empty'));
+      return Promise.reject(new Error('URL is empty'));
     }
 
-    return new Task<void>(
-      (resolve, reject) => {
-        req = request(url, {
-          proxy,
-          onDownloadProgress: event => {
-            this.emit({
-              type: 'downloadprogress',
-              target: this,
-              url,
-              total: event.total,
-              received: event.received
-            });
-          }
+    return request(url, {
+      proxy,
+      cancelToken: this._cancelToken,
+      onDownloadProgress: event => {
+        this.emit({
+          type: 'downloadprogress',
+          target: this,
+          url,
+          total: event.total,
+          received: event.received
         });
-
-        req
-          .then(response => {
-            if (response.status >= 400) {
-              throw new Error(
-                `Download server returned status code ${response.status} for ${url}`
-              );
-            } else {
-              response.arrayBuffer().then(data => {
-                resolve(this._postDownloadFile(Buffer.from(data), options));
-              });
-            }
-          })
-          .catch(error => {
-            reject(error);
-          });
-      },
-      () => {
-        if (req != null) {
-          req.cancel();
-        }
       }
-    );
+    }).then(response => {
+      if (response.status >= 400) {
+        throw new Error(
+          `Download server returned status code ${response.status} for ${url}`
+        );
+      }
+
+      return response
+        .arrayBuffer()
+        .then(data => this._postDownloadFile(Buffer.from(data), options));
+    });
   }
 
   /**
@@ -451,7 +464,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   protected _makeChild(
     executor: ChildExecutor,
     ...values: string[]
-  ): CancellablePromise {
+  ): Promise<void> {
     const command = this.executable;
     const args = this._makeArgs(...values);
     const options = this._makeOptions(...values);
@@ -461,82 +474,56 @@ export default class Tunnel extends Evented<TunnelEvents, string>
     child.stderr.setEncoding('utf8');
 
     let handle: Handle;
-    let canceled = false;
 
     // Ensure child process is killed when parent exits
     process.on('exit', () => kill(child.pid));
     process.on('SIGINT', () => kill(child.pid));
 
-    const task = new Task(
-      (resolve, reject) => {
-        let errorMessage = '';
-        let exitCode: number | undefined;
-        let stderrClosed = false;
-        let exitted = false;
+    return new Promise<void>((resolve, reject) => {
+      let errorMessage = '';
+      let exitCode: number | undefined;
+      let stderrClosed = false;
+      let exitted = false;
 
-        function handleChildExit() {
-          reject(
-            new Error(
-              `Tunnel failed to start: ${errorMessage ||
-                `Exit code: ${exitCode}`}`
-            )
-          );
-        }
-
-        handle = createCompositeHandle(
-          on(child, 'error', reject),
-
-          on(child.stderr, 'data', (data: string) => {
-            errorMessage += data;
-          }),
-
-          on(child, 'exit', () => {
-            exitted = true;
-            if (stderrClosed) {
-              handleChildExit();
-            }
-          }),
-
-          // stderr might still have data in buffer at the time the
-          // exit event is sent, so we have to store data from stderr
-          // and the exit code and reject only once stderr closes
-          on(child.stderr, 'close', () => {
-            stderrClosed = true;
-            if (exitted) {
-              handleChildExit();
-            }
-          })
+      function handleChildExit() {
+        reject(
+          new Error(
+            `Tunnel failed to start: ${errorMessage ||
+              `Exit code: ${exitCode}`}`
+          )
         );
-
-        const result = executor(child, resolve, reject);
-        if (result) {
-          handle = createCompositeHandle(handle, result);
-        }
-      },
-      () => {
-        canceled = true;
-
-        // Make a best effort to kill the process, but don't throw
-        // exceptions
-        try {
-          kill(child.pid);
-        } catch {
-          // ignored
-        }
       }
-    );
 
-    return task.finally(() => {
-      handle.destroy();
-      if (canceled) {
-        // We only want this to run when cancelation has occurred
-        return new Promise(resolve => {
-          child.once('exit', () => {
-            resolve();
-          });
-        });
+      handle = createCompositeHandle(
+        on(child, 'error', reject),
+
+        on(child.stderr, 'data', (data: string) => {
+          errorMessage += data;
+        }),
+
+        on(child, 'exit', () => {
+          exitted = true;
+          if (stderrClosed) {
+            handleChildExit();
+          }
+        }),
+
+        // stderr might still have data in buffer at the time the
+        // exit event is sent, so we have to store data from stderr
+        // and the exit code and reject only once stderr closes
+        on(child.stderr, 'close', () => {
+          stderrClosed = true;
+          if (exitted) {
+            handleChildExit();
+          }
+        })
+      );
+
+      const result = executor(child, resolve, reject);
+      if (result) {
+        handle = createCompositeHandle(handle, result);
       }
-    });
+    }).finally(() => handle.destroy());
   }
 
   /**
@@ -575,15 +562,16 @@ export default class Tunnel extends Evented<TunnelEvents, string>
     data: Buffer,
     options?: DownloadOptions
   ): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      let directory = this.directory;
-      if (options && options.directory) {
-        directory = join(directory, options.directory);
-      }
-      decompress(data, directory)
-        .then(() => resolve())
-        .catch(reject);
-    });
+    if (this._cancelToken?.reason) {
+      return Promise.reject(this._cancelToken.reason);
+    }
+
+    let directory = this.directory;
+    if (options && options.directory) {
+      directory = join(directory, options.directory);
+    }
+
+    return decompress(data, directory).then(() => undefined);
   }
 
   /**
@@ -602,6 +590,8 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    */
   protected _start(executor: ChildExecutor) {
     return this._makeChild((child, resolve, reject) => {
+      this._cancelToken?.throwIfCancelled();
+
       const handle = createCompositeHandle(
         on(child.stdout!, 'data', resolve),
         on(child.stderr!, 'data', resolve),

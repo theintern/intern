@@ -1,20 +1,21 @@
-import { Task, CancellablePromise } from '../../common';
+import { CancelToken } from '../../common';
 
 /**
  * Creates a promise that resolves itself after `ms` milliseconds.
  *
  * @param ms Time until resolution in milliseconds.
  */
-export function sleep(ms: number): CancellablePromise<void> {
+export function sleep(ms: number, token?: CancelToken): Promise<void> {
   let timer: NodeJS.Timer;
-  return new Task<void>(
-    function(resolve) {
-      timer = setTimeout(() => {
-        resolve();
-      }, ms);
-    },
-    () => clearTimeout(timer)
-  );
+  let promise = new Promise<void>(resolve => {
+    timer = global.setTimeout(resolve, ms);
+  });
+  if (token) {
+    promise = token.wrap(promise).catch(() => {
+      clearTimeout(timer);
+    });
+  }
+  return promise;
 }
 
 /**

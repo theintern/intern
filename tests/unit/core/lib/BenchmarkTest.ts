@@ -1,5 +1,3 @@
-import { Task } from 'src/common';
-
 import BenchmarkTest, {
   BenchmarkTestOptions,
   BenchmarkDeferredTestFunction,
@@ -46,10 +44,10 @@ function createSuite(options: Partial<BenchmarkSuite> = <any>{}) {
   if (!options.parent && !options.executor) {
     options.executor = <any>{
       emit() {
-        return Task.resolve();
+        return Promise.resolve();
       },
       log() {
-        return Task.resolve();
+        return Promise.resolve();
       }
     };
   }
