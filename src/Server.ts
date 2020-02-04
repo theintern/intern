@@ -241,6 +241,12 @@ export default class Server {
             };
           }
 
+          // At least InternetExplorerDriver 3.141.59 includes `status` and
+          // `value` fields but uses HTTP status codes
+          if (data.status === 404 || data.status === 501) {
+            data.status = 9;
+          }
+
           // At least Appium April 2014 responds with the HTTP status
           // Not Implemented but a Selenium status UnknownError for
           // commands that are not implemented; these errors are more
