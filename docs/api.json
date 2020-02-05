@@ -21596,7 +21596,7 @@
 								"type": "intrinsic",
 								"name": "string"
 							},
-							"defaultValue": "\"74.0.3729.6\""
+							"defaultValue": "\"79.0.3945.36\""
 						},
 						{
 							"id": 987,
@@ -21638,7 +21638,7 @@
 								"type": "intrinsic",
 								"name": "string"
 							},
-							"defaultValue": "\"0.24.0\""
+							"defaultValue": "\"0.26.0\""
 						},
 						{
 							"id": 986,
