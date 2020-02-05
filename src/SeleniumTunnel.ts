@@ -12,8 +12,8 @@ import { sync as commandExistsSync } from 'command-exists';
 
 const driverInfo = {
   SeleniumVersion: '3.141.59',
-  ChromeVersion: '74.0.3729.6',
-  FirefoxVersion: '0.24.0',
+  ChromeVersion: '79.0.3945.36',
+  FirefoxVersion: '0.26.0',
   IEVersion: '3.141.59',
 
   EdgeVersion: '17134',
