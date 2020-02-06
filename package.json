@@ -90,6 +90,8 @@
     "ws": "~7.2.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "~8.3.5",
+    "@commitlint/config-conventional": "~8.3.4",
     "@dojo/loader": "^2.0.0",
     "@types/body-parser": "^1.17.0",
     "@types/command-exists": "^1.2.0",
@@ -148,7 +150,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "lint-staged": {
