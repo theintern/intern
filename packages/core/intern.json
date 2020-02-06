@@ -5,6 +5,8 @@
 
   "coverage": ["dist/**/*.js", "!dist/browser/**/*.js"],
 
+  "functionalRetries": 1,
+
   "suites": [
     "tests/benchmark/example.ts",
     "tests/unit/lib/BenchmarkTest.ts",

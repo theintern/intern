@@ -2,6 +2,7 @@
   "$schema": "../core/schemas/config.json",
   "coverage": ["src/**/*.ts"],
   "filterErrorStack": true,
+  "functionalRetries": 1,
   "plugins": "tests/globalUi.ts",
   "node": {
     "tsconfig": "tests/tsconfig.json"
