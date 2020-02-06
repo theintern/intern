@@ -31,8 +31,7 @@ import { watchProcess } from './lib/watch';
       cmd.push('--watch');
       watchProcess('testIntern', cmd);
     } else {
-      const proc = exec(cmd[0], cmd.slice(1));
-      proc.all!.pipe(process.stdout);
+      const proc = exec(cmd[0], cmd.slice(1), { stdio: 'inherit' });
       tasks.push(proc);
     }
   }
@@ -54,7 +53,7 @@ import { watchProcess } from './lib/watch';
       cmd.push('--watch');
       watchProcess('tests', cmd);
     } else {
-      const proc = exec(cmd[0], cmd.slice(1));
+      const proc = exec(cmd[0], cmd.slice(1), { stdio: 'inherit' });
       tasks.push(proc);
     }
   }
@@ -72,8 +71,7 @@ import { watchProcess } from './lib/watch';
 
     log('Running tests...');
     try {
-      const proc = exec('node', cmdArgs);
-      proc.all!.pipe(process.stdout);
+      const proc = exec('node', cmdArgs, { stdio: 'inherit' });
       await proc;
     } catch (error) {
       if (!error.isCancelled) {

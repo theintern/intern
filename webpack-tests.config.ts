@@ -51,15 +51,7 @@ const common: Configuration = {
     // Needed to resolve 'tests/' and '/src' imports in test modules
     plugins: [new TsconfigPathsPlugin()]
   },
-  stats: {
-    assets: false,
-    entrypoints: true,
-    errors: true,
-    hash: false,
-    modules: false,
-    version: false,
-    warnings: true
-  }
+  stats: 'errors-warnings'
 };
 
 module.exports = getEntries().then(entries => [
