@@ -47,7 +47,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
     beforeEach() {
       pretty = new Pretty(createMockNodeExecutor());
-      pretty.createCoverageReport = spy(() => {});
+      pretty.createCoverageReport = spy(() => Promise.resolve());
     },
 
     afterEach() {

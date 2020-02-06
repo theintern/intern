@@ -3,7 +3,7 @@ import {
   CoverageMapData,
   createCoverageMap
 } from 'istanbul-lib-coverage';
-import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
+import { createContext, Watermarks } from 'istanbul-lib-report';
 import { create, ReportType } from 'istanbul-reports';
 import Reporter, { createEventHandler, ReporterProperties } from './Reporter';
 import Node, { NodeEvents } from '../executors/Node';
@@ -41,7 +41,10 @@ export default abstract class Coverage extends Reporter
     };
   }
 
-  createCoverageReport(type: ReportType, data: CoverageMapData | CoverageMap) {
+  async createCoverageReport(
+    type: ReportType,
+    data: CoverageMapData | CoverageMap
+  ) {
     let map: CoverageMap;
 
     if (isCoverageMap(data)) {
@@ -50,24 +53,29 @@ export default abstract class Coverage extends Reporter
       map = createCoverageMap(data);
     }
 
-    const transformed = this.executor.sourceMapStore.transformCoverage(map);
+    const mapStore = (this.executor.sourceMapStore as unknown) as AsyncMapStore;
+
+    const transformed = await mapStore.transformCoverage(map);
 
     const context = createContext({
       dir: this.directory,
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      sourceFinder: transformed.sourceFinder,
-      watermarks: this.watermarks
+      sourceFinder: mapStore.sourceFinder,
+      watermarks: this.watermarks,
+      coverageMap: transformed
     });
-    const tree = summarizers.pkg(transformed.map);
+    const tree = context.getTree('pkg');
     const report = create(type, this.getReporterOptions());
     tree.visit(report, context);
   }
 
   @eventHandler()
-  runEnd(): void {
+  runEnd() {
     const map = this.executor.coverageMap;
     if (map.files().length > 0) {
-      this.createCoverageReport(this.reportType, map);
+      this.createCoverageReport(this.reportType, map).catch(error => {
+        this.executor.emit('error', error);
+      });
     }
   }
 }
@@ -87,4 +95,15 @@ export type CoverageOptions = Partial<CoverageProperties>;
 
 function isCoverageMap(value: any): value is CoverageMap {
   return value != null && typeof value.files === 'function';
+}
+
+/**
+ * This is needed since the typings for istanbul-lib-source-maps are out of
+ * date.
+ *
+ * TODO: remove this when @types/istanbul-lib-source-maps is updated to >= 3.
+ */
+interface AsyncMapStore {
+  transformCoverage(coverageMap: CoverageMap): Promise<CoverageMap>;
+  sourceFinder(path: string): string;
 }
