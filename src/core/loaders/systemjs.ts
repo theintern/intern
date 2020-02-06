@@ -19,7 +19,7 @@ intern.registerLoader(function(options) {
       });
   } else {
     // Use globalObj to get to require to improve testability
-    const SystemJS = (globalObj.require || require)('systemjs');
+    const SystemJS = globalObj.require('systemjs');
     return configAndLoad(SystemJS);
   }
 
