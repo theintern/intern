@@ -26,11 +26,6 @@ registerSuite('core/lib/reporters/Coverage', function() {
 
   const mockGlobal: { [name: string]: any } = {};
   const mockVisit = sandbox.spy();
-  const mockSummarizers = {
-    pkg: sandbox.spy(() => {
-      return { visit: mockVisit };
-    })
-  };
   const mockCreate = sandbox.spy();
   const mockCreateCoverageMap = sandbox.stub().returns({});
 
@@ -46,10 +41,12 @@ registerSuite('core/lib/reporters/Coverage', function() {
             createCoverageMap: mockCreateCoverageMap
           });
           replace(() => import('istanbul-lib-report')).with({
-            createContext() {
-              return {} as Context;
-            },
-            summarizers: mockSummarizers as any
+            createContext: () =>
+              (({
+                getTree: () => ({
+                  visit: mockVisit
+                })
+              } as unknown) as Context)
           });
           replace(() => import('istanbul-reports')).with({
             create: mockCreate
@@ -76,10 +73,10 @@ registerSuite('core/lib/reporters/Coverage', function() {
       },
 
       '#createCoverageReport': {
-        'without data'() {
+        async 'without data'() {
           mockExecutor.coverageMap = { files: () => [] };
           const reporter = new Coverage(mockExecutor, <any>{});
-          reporter.createCoverageReport('text', {});
+          await reporter.createCoverageReport('text', {});
           assert.equal(mockVisit.callCount, 1);
           assert.equal(mockCreateCoverageMap.callCount, 1);
           assert.equal(mockCreate.callCount, 1);
@@ -90,10 +87,10 @@ registerSuite('core/lib/reporters/Coverage', function() {
           );
         },
 
-        'with data'() {
+        async 'with data'() {
           mockExecutor.coverageMap = { files: () => [] };
           const reporter = new Coverage(mockExecutor, <any>{});
-          reporter.createCoverageReport('json', <CoverageMap>{
+          await reporter.createCoverageReport('json', <CoverageMap>{
             files() {}
           });
           assert.equal(mockVisit.callCount, 1);
@@ -137,7 +134,7 @@ registerSuite('core/lib/reporters/Coverage', function() {
         'with data'() {
           mockExecutor.coverageMap = {};
           const reporter = new Coverage(mockExecutor, <any>{});
-          const create = stub(reporter, 'createCoverageReport');
+          const create = stub(reporter, 'createCoverageReport').resolves();
           mockExecutor.coverageMap = { files: () => ['foo.js'] };
           reporter.runEnd();
           assert.equal(create.callCount, 1);

@@ -129,7 +129,7 @@ registerSuite('core/lib/reporters/Runner', function() {
               numSkippedTests: 1
             }
           };
-          reporter.createCoverageReport = spy(() => {});
+          reporter.createCoverageReport = spy(() => Promise.resolve());
           coverageMap._files = ['foo.js'];
           reporter.runEnd();
 
@@ -160,7 +160,7 @@ registerSuite('core/lib/reporters/Runner', function() {
             }
           };
           reporter.hasRunErrors = true;
-          reporter.createCoverageReport = spy(() => {});
+          reporter.createCoverageReport = spy(() => Promise.resolve());
           coverageMap._files = ['foo.js'];
           reporter.runEnd();
 
@@ -193,7 +193,7 @@ registerSuite('core/lib/reporters/Runner', function() {
             }
           };
           reporter.hasSuiteErrors = true;
-          reporter.createCoverageReport = spy(() => {});
+          reporter.createCoverageReport = spy(() => Promise.resolve());
           coverageMap._files = ['foo.js'];
           reporter.runEnd();
 
@@ -281,7 +281,7 @@ registerSuite('core/lib/reporters/Runner', function() {
             tests: {
               coverage() {
                 session.coverage = {};
-                const createCoverageReport = spy(() => {});
+                const createCoverageReport = spy(() => Promise.resolve());
                 reporter.createCoverageReport = createCoverageReport;
                 reporter.suiteEnd(suite);
                 assert.equal(createCoverageReport.callCount, 1);
