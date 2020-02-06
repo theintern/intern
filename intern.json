@@ -5,6 +5,8 @@
 
   "coverage": ["src/**/*.ts", "!src/browser/**/*.ts"],
 
+  "functionalRetries": 1,
+
   "suites": [
     "tests/benchmark/example.ts",
     "tests/unit/core/lib/BenchmarkTest.ts",
