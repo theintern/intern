@@ -53,15 +53,7 @@ const common: Configuration = {
       })
     ]
   },
-  stats: {
-    assets: false,
-    entrypoints: true,
-    errors: true,
-    hash: false,
-    modules: false,
-    version: false,
-    warnings: true
-  }
+  stats: 'errors-warnings'
 };
 
 module.exports = getEntries().then(entries =>

@@ -40,15 +40,7 @@ const common: Configuration = {
   resolve: {
     extensions: ['.ts', '.js']
   },
-  stats: {
-    assets: false,
-    entrypoints: true,
-    errors: true,
-    hash: false,
-    modules: false,
-    version: false,
-    warnings: true
-  }
+  stats: 'errors-warnings'
 };
 
 module.exports = [
