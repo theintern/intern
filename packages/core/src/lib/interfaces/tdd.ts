@@ -34,7 +34,9 @@ import { Executor } from '../executors/Executor';
 
 export interface TddInterface extends TddLifecycleInterface {
   suite(name: string, factory: TddSuiteFactory): void;
+  xsuite(name: string, factory: TddSuiteFactory): void;
   test(name: string, test: TestProperties['test']): void;
+  xtest(name: string, test?: TestProperties['test']): void;
 }
 
 export interface TddLifecycleInterface {
@@ -50,11 +52,33 @@ export function suite(name: string, factory: TddSuiteFactory) {
   return _suite(global.intern, name, factory);
 }
 
+export function xsuite(name: string, factory: TddSuiteFactory) {
+  return suite(name, function(suiteRef) {
+    before(function() {
+      suiteRef.skip();
+    });
+    factory(suiteRef);
+  });
+}
+
 export function test(name: string, test: TestProperties['test']) {
   if (!currentSuite) {
     throw new Error('A test must be declared within a suite');
   }
   currentSuite.add(new Test({ name, test }));
+}
+
+export function xtest(
+  name: string,
+  testImplementation?: TestProperties['test']
+) {
+  test(name, function() {
+    if (testImplementation) {
+      this.skip();
+    } else {
+      this.skip('not implemented');
+    }
+  });
 }
 
 export function before(fn: SuiteProperties['before']) {
@@ -90,8 +114,10 @@ export function getInterface(executor: Executor): TddInterface {
     suite(name: string, factory: TddSuiteFactory) {
       return _suite(executor, name, factory);
     },
+    xsuite,
 
     test,
+    xtest,
     before,
     after,
     beforeEach,

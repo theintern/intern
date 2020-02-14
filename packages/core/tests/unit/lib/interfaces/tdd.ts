@@ -83,6 +83,68 @@ registerSuite('lib/interfaces/tdd', function () {
         }, /must be declared/);
       },
 
+      xsuite() {
+        tddInt.xsuite('suite name', () => {
+          tddInt.test('contained tests do not run', () => {
+            assert.fail('Tests inside a skipped suite should not run');
+          });
+        });
+
+        const suite = <Suite>parent.tests[0];
+        assert.equal(suite.name, 'suite name');
+        assert.equal(suite.tests[0].name, 'contained tests do not run');
+
+        return suite.run().then(() => {
+          assert.equal(
+            suite.skipped,
+            'suite skipped',
+            'suite should be skipped'
+          );
+          assert.equal(
+            suite.tests[0].skipped,
+            'suite skipped',
+            'child should be skipped'
+          );
+        });
+      },
+
+      xtest() {
+        let testRan = false;
+
+        tddInt.suite('parent suite', () => {
+          tddInt.xtest('skip test with factory', () => {
+            assert.fail('Skipped tests should not run');
+          });
+          tddInt.xtest('skip test stub');
+          tddInt.test('still runs other tests', () => {
+            testRan = true;
+          });
+        });
+
+        const suite = <Suite>parent.tests[0];
+        assert.equal(suite.tests[0].name, 'skip test with factory');
+        assert.equal(suite.tests[1].name, 'skip test stub');
+        assert.equal(suite.tests[2].name, 'still runs other tests');
+
+        suite.run().then(() => {
+          assert.isTrue(testRan, 'the non-skipped test should have run');
+          assert.equal(
+            suite.tests[0].skipped,
+            'skipped',
+            'first test should be skipped'
+          );
+          assert.equal(
+            suite.tests[1].skipped,
+            'not implemented',
+            'second test should be skipped'
+          );
+          assert.isUndefined(
+            suite.tests[2].skipped,
+            'last test should not be skipped'
+          );
+        });
+      },
+
       'lifecycle methods': (() => {
         type lifecycle = 'before' | 'beforeEach' | 'after' | 'afterEach';
         function createTest(name: lifecycle, hasTestArg: boolean) {
