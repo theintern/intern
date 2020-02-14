@@ -16,6 +16,16 @@ registerSuite('core/lib/interfaces/bdd', {
       'expected bdd it to alias tdd test'
     );
     assert.strictEqual(
+      bddInt.xdescribe,
+      tddInt.xsuite,
+      'expected bdd xdescribe to alias tdd suite'
+    );
+    assert.strictEqual(
+      bddInt.xit,
+      tddInt.xtest,
+      'expected bdd xit to alias tdd test'
+    );
+    assert.strictEqual(
       bddInt.before,
       tddInt.before,
       'expected bdd before to alias tdd before'
@@ -52,7 +62,12 @@ registerSuite('core/lib/interfaces/bdd', {
       iface.describe,
       'expected describe to exist on interface'
     );
+    assert.isFunction(
+      iface.xdescribe,
+      'expected xdescribe to exist on interface'
+    );
     assert.isFunction(iface.it, 'expected it to exist on interface');
+    assert.isFunction(iface.xit, 'expected xit to exist on interface');
     assert.isFunction(iface.before, 'expected before to exist on interface');
     assert.isFunction(iface.after, 'expected after to exist on interface');
     assert.isFunction(
