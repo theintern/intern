@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'fs';
-import { dirname, normalize, resolve, sep } from 'path';
+import { dirname, normalize, resolve, sep, join } from 'path';
 import { sync as nodeResolve } from 'resolve';
 import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
@@ -798,16 +798,25 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       delete config.suites;
 
       if (!require.extensions['.ts']) {
-        if (
-          ((config.node &&
-            config.node.suites.some(pattern => pattern.endsWith('.ts'))) ||
+        if (config.node.tsconfig) {
+          register({ project: config.node.tsconfig });
+        } else if (typeof config.node.tsconfig === 'undefined') {
+          // auto-configure typescript support if we detect its presence
+          if (
+            (config.node &&
+              config.node.suites.some(pattern => pattern.endsWith('.ts'))) ||
+            config.functionalSuites.some(pattern => pattern.endsWith('.ts')) ||
             (config.plugins &&
-              config.plugins.some(plugin => plugin.script.endsWith('.ts')))) &&
-          typeof this.config.node.tsconfig === 'undefined'
-        ) {
-          register();
-        } else if (this.config.node.tsconfig) {
-          register({ project: this.config.node.tsconfig });
+              config.plugins.some(plugin => plugin.script.endsWith('.ts')))
+          ) {
+            register();
+          } else {
+            const tsconfigPath = join(config.basePath, 'tsconfig.json');
+            if (existsSync(tsconfigPath)) {
+              const tsconfig = readFileSync(tsconfigPath, { encoding: 'utf8' });
+              register({ project: JSON.parse(tsconfig) });
+            }
+          }
         }
       }
 
