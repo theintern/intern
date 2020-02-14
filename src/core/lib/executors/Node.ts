@@ -129,8 +129,8 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     // Report uncaught errors
     process.on(
       'unhandledRejection',
-      (reason: {} | null | undefined, promise: PromiseLike<any>) => {
-        console.warn('Unhandled rejection:', reason, promise);
+      (reason: {} | null | undefined, promise: Promise<any>) => {
+        console.warn('Unhandled rejection:', promise);
         const { warnOnUnhandledRejection } = this.config;
         if (
           warnOnUnhandledRejection &&
