@@ -945,11 +945,14 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           const allSessions = this._sessionSuites;
           let sessions = allSessions;
           let remainingAttempts = 1 + (this.config.functionalRetries || 0);
+          let suiteError: Error | undefined;
 
           await this._loadFunctionalSuites();
 
           while (remainingAttempts && sessions.length) {
             remainingAttempts--;
+            suiteError = undefined;
+
             if (sessions.length !== allSessions.length) {
               this.log(
                 'reattempting',
@@ -959,14 +962,18 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
                 'environments'
               );
             }
+
             try {
               testPromise = this._runRemoteTests(sessions);
               await testPromise;
             } catch (e) {
               this.log(`suite error: ${e}`);
+              suiteError = e;
               // recover from exceptions to allow for retries
             }
+
             const failedSessions = (sessions = sessions.filter(isFailedSuite));
+
             if (failedSessions.length === allSessions.length) {
               // Do not reattempt if no session has passed
               remainingAttempts = 0;
@@ -975,6 +982,12 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
                 suite.reset();
               }
             }
+          }
+
+          // If a suite error occured in the final retry attempt, the suite
+          // definitely failed, so throw the error to indicate that.
+          if (suiteError) {
+            throw suiteError;
           }
         })
         .then(resolve, reject);
