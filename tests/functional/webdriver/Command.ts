@@ -1,5 +1,6 @@
 import * as util from './support/util';
 import { pathRe } from 'tests/support/util';
+import { isCancel } from 'src/common';
 import Command, { Context } from 'src/webdriver/Command';
 import Session from 'src/webdriver/Session';
 import Test from 'src/core/lib/Test';
@@ -397,19 +398,24 @@ registerSuite('functional/webdriver/Command', () => {
       '#cancel'(this: Test) {
         const command = new Command(session);
         const sleepCommand = command.sleep(5000);
-        const dfd = this.async();
         sleepCommand.cancel();
 
         const startTime = Date.now();
 
-        sleepCommand.finally(function() {
-          assert.isBelow(
-            Date.now() - startTime,
-            4000,
-            'Cancel should not wait for sleep to complete'
-          );
-          dfd.resolve();
-        });
+        return sleepCommand
+          .catch(error => {
+            assert.isTrue(
+              isCancel(error),
+              'command should have been cancelled'
+            );
+          })
+          .finally(function() {
+            assert.isBelow(
+              Date.now() - startTime,
+              4000,
+              'Cancel should not wait for sleep to complete'
+            );
+          });
       },
 
       'session createsContext'() {

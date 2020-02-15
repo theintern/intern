@@ -277,17 +277,21 @@ export function createMockSession(
   return createMock<ProxiedSession>(properties);
 }
 
-export class MockRemote extends Promise<MockRemote> {
+export class MockRemote {
+  static resolve() {
+    return Promise.resolve();
+  }
+
   execute(_script: string | Function) {
-    return this.then();
+    return Promise.resolve();
   }
 
   get(_url: string) {
-    return this.then();
+    return Promise.resolve();
   }
 
   setHeartbeatInterval(_delay: number) {
-    return this.then();
+    return Promise.resolve();
   }
 }
 

@@ -1,7 +1,6 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { spy, createSandbox } from 'sinon';
 import _Browser, { Config } from 'src/core/lib/executors/Browser';
-import { isPromiseLike, deepMixin } from 'src/common';
 
 let Browser: typeof _Browser;
 
@@ -96,12 +95,12 @@ registerSuite('core/lib/executors/Browser', function() {
           replace(() => import('minimatch')).with({
             Minimatch: MockMiniMatch as any
           });
-          replace(() => import('src/common')).with({
-            global: mockGlobal,
-            request: request as any,
-            isPromiseLike,
-            deepMixin
-          });
+          replace(() => import('src/common'))
+            .transparently()
+            .with({
+              global: mockGlobal,
+              request: request as any
+            });
         }
       ));
     },
