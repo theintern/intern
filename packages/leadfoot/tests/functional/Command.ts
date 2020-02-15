@@ -1,4 +1,5 @@
 import * as util from './support/util';
+import { isCancel } from '@theintern/common';
 import Command, { Context } from '../../src/Command';
 import Session from '../../src/Session';
 import Test from '@theintern/core/dist/lib/Test';
@@ -10,9 +11,11 @@ registerSuite('functional/Command', () => {
   return {
     before() {
       const remote = this.remote;
-      return util.createSessionFromRemote(remote).then(function () {
-        session = arguments[0];
-      });
+      return util
+        .createSessionFromRemote(remote)
+        .then(function (...args: any[]) {
+          session = args[0];
+        });
     },
 
     beforeEach() {
@@ -362,10 +365,12 @@ registerSuite('functional/Command', () => {
         const command = new Command(session);
         let callback: Function | undefined;
         let errback: Function | undefined;
-        const expectedErrback = function () { return undefined; };
-        command.then = <any>function () {
-          callback = arguments[0];
-          errback = arguments[1];
+        const expectedErrback = function () {
+          return undefined;
+        };
+        command.then = <any>function (...args: any[]) {
+          callback = args[0];
+          errback = args[1];
           return 'thenCalled';
         };
         const result = command.catch(expectedErrback);
@@ -377,7 +382,9 @@ registerSuite('functional/Command', () => {
       '#finally'() {
         const command = new Command(session);
         const promise = command['_promise'];
-        const expected = function () { return undefined; };
+        const expected = function () {
+          return undefined;
+        };
         let wasCalled = false;
         let result: Function | undefined;
 
@@ -394,19 +401,24 @@ registerSuite('functional/Command', () => {
       '#cancel'(this: Test) {
         const command = new Command(session);
         const sleepCommand = command.sleep(5000);
-        const dfd = this.async();
         sleepCommand.cancel();
 
         const startTime = Date.now();
 
-        sleepCommand.finally(function () {
-          assert.isBelow(
-            Date.now() - startTime,
-            4000,
-            'Cancel should not wait for sleep to complete'
-          );
-          dfd.resolve();
-        });
+        return sleepCommand
+          .catch(error => {
+            assert.isTrue(
+              isCancel(error),
+              'command should have been cancelled'
+            );
+          })
+          .finally(function () {
+            assert.isBelow(
+              Date.now() - startTime,
+              4000,
+              'Cancel should not wait for sleep to complete'
+            );
+          });
       },
 
       'session createsContext'() {
