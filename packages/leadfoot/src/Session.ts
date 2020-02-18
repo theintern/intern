@@ -1550,11 +1550,9 @@ export default class Session extends Locator<
             });
         });
       } else {
-        return this.execute<Element>('return document.documentElement;').then(
-          element => {
-            return this.moveMouseTo(element, xOffset, yOffset);
-          }
-        );
+        return this.execute<Element>('return document.body;').then(element => {
+          return this.moveMouseTo(element, xOffset, yOffset);
+        });
       }
     }
 
