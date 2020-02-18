@@ -1267,6 +1267,39 @@ export default class Server {
             .then(logResult('supportsCssTransforms'));
       }
 
+      if (capabilities.usesWebDriverMoveBase == null) {
+        testedCapabilities.usesWebDriverMoveBase = () => {
+          return get(
+            `<!DOCTYPE html><html><body style="width:100%;height:100px;">
+              <script>
+                var events = [];
+                document.onmousemove = function (event) {
+                  events.push({
+                    x: event.clientX,
+                    y: event.clientY
+                  });
+                };
+              </script>
+            </body></html>
+            `
+          )
+            .then(() => session.moveMouseTo(100, 50))
+            .then(() =>
+              session.execute<{ x: number; y: number }[]>('return events')
+            )
+            .then(events => {
+              if (!events) {
+                return undefined;
+              }
+              const event = events[0];
+              // Webdriver's move base is the element center, whereas JWP uses
+              // the top left corner. Here the element is the document body, so
+              // if x == 100, it's JWP, otherwise it's probably webdriver.
+              return event.x !== 100;
+            });
+        };
+      }
+
       return Promise.all(
         Object.keys(testedCapabilities).map(key => testedCapabilities[key])
       ).then(() => testedCapabilities);

@@ -1735,6 +1735,10 @@ registerSuite('functional/webdriver/Session', () => {
           this.skip('mouse not enabled');
         }
 
+        if (session.capabilities.usesWebDriverMoveBase) {
+          this.skip('webdriver movement not yet supported');
+        }
+
         return session
           .get('tests/functional/webdriver/data/pointer.html')
           .then(function() {
