@@ -1621,6 +1621,7 @@ export default class Server {
         intern.log('Checking brokenWindowMaximize...');
         testedCapabilities.brokenWindowMaximize = () => {
           let originalSize: { width: number; height: number };
+          let newSize: { width: number; height: number };
           return session
             .getWindowSize()
             .then(size => {
@@ -1630,11 +1631,19 @@ export default class Server {
             .then(() => session.maximizeWindow())
             .then(() => session.getWindowSize())
             .then(size => {
-              return (
-                size.width > originalSize.width &&
-                size.height > originalSize.height
+              newSize = size;
+            })
+            .then(() => {
+              return session.setWindowSize(
+                originalSize.width,
+                originalSize.height
               );
             })
+            .then(
+              () =>
+                newSize.width > originalSize.width &&
+                newSize.height > originalSize.height
+            )
             .catch(broken)
             .then(logResult('brokenWindowMaximize'));
         };
