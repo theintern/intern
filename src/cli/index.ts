@@ -301,7 +301,15 @@ program
     ) => {
       // Use getConfig's argv form so that it won't try to parse the actual argv,
       // which we're handling here
-      const { config } = await getConfig(['', '', `config=${configName}`]);
+      let config: Record<string, any>;
+
+      try {
+        ({ config } = await getConfig(['', '', `config=${configName}`]));
+      } catch (error) {
+        console.error(error);
+        global.process.exitCode = 1;
+        return;
+      }
 
       if (command.showConfig) {
         config.showConfig = true;
