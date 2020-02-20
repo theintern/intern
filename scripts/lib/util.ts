@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { ExecaError } from 'execa';
 import { promises as fsPromises } from 'fs';
 import { cp, echo, mkdir, sed, test } from 'shelljs';
 import { sync as glob, IOptions } from 'glob';
@@ -93,6 +94,18 @@ export function log(message: string) {
 /**
  * Log an error to the console
  */
-export function logError(message: string) {
-  echo(chalk.red(message));
+export function logError(message: string | Error | ExecaError) {
+  if (typeof message === 'string') {
+    echo(`\n${chalk.red(message)}`);
+  } else {
+    if (isExecaError(message)) {
+      echo(`\n${chalk.red(message.message)}`);
+    } else {
+      echo(`\n${chalk.red(message.stack!)}`);
+    }
+  }
+}
+
+function isExecaError(error: any): error is ExecaError {
+  return error != null && typeof error === 'object' && 'isCanceled' in error;
 }
