@@ -130,6 +130,8 @@ function copyFiles(buildDir: string) {
     log('Done building Intern');
   } catch (error) {
     logError(error);
-    process.exitCode = 1;
+    if (!error.isCanceled) {
+      process.exitCode = 1;
+    }
   }
 })();
