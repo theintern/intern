@@ -6,6 +6,9 @@
     "type": "git",
     "url": "https://github.com/theintern/intern.git"
   },
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "files": [
     "dist/**/*",
     "bin/*",

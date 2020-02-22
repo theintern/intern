@@ -5,6 +5,9 @@
   "homepage": "http://theintern.io/",
   "license": "BSD-3-Clause",
   "bugs": "https://github.com/theintern/intern/issues",
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "files": [
     "bin/*",
     "dist/*",
