@@ -61,7 +61,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   tunnel: Tunnel | undefined;
 
   protected _coverageMap: CoverageMap;
-  protected _coverageFiles: string[] | undefined;
+  protected _coverageFiles: { [filename: string]: boolean } | undefined;
   protected _loadingFunctionalSuites: boolean | undefined;
   protected _instrumentBasePath: string | undefined;
   protected _instrumenter: Instrumenter | undefined;
@@ -179,7 +179,9 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   }
 
   get hasCoveredFiles() {
-    return this._coverageFiles && this._coverageFiles.length > 0;
+    return (
+      this._coverageFiles && Object.entries(this._coverageFiles).length > 0
+    );
   }
 
   /**
@@ -226,7 +228,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     filename: string,
     shouldCompile?: boolean
   ): string {
-    this.log('Instrumenting', filename);
     if (filename.endsWith('.d.ts')) {
       return code;
     }
@@ -234,6 +235,8 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     if (shouldCompile) {
       return transpileSource(filename, code);
     }
+
+    this.log('Instrumenting', filename);
 
     const sourceMap = readSourceMap(filename, code);
     if (sourceMap) {
@@ -258,6 +261,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     } catch (error) {
       this.emit('warning', `Error instrumenting ${filename}: ${error.message}`);
     }
+
     return code;
   }
 
@@ -305,9 +309,12 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    * config
    */
   shouldInstrumentFile(filename: string) {
-    return this._coverageFiles
-      ? this._coverageFiles.indexOf(filename) !== -1
-      : false;
+    if (!this._coverageFiles || !(filename in this._coverageFiles)) {
+      return false;
+    }
+    // Entries in this._coverageFiles are true if a file has already been
+    // instrumented
+    return !this._coverageFiles[filename];
   }
 
   protected _afterRun() {
@@ -723,13 +730,16 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       }
 
       this._instrumentBasePath = config.basePath;
-      this._coverageFiles = [];
+      this._coverageFiles = {};
 
       if (config.coverage) {
         // Coverage file entries should be absolute paths
-        this._coverageFiles = expandFiles(config.coverage).map(path =>
+        const coverageFiles = expandFiles(config.coverage).map(path =>
           resolve(path)
         );
+        for (const file of coverageFiles) {
+          this._coverageFiles[file] = false;
+        }
       }
 
       if (!config.serverUrl) {
@@ -995,12 +1005,13 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // For all files that are marked for coverage that weren't read,
       // read the file and instrument the code (adding it to the overall
       // coverage map)
-      const coveredFiles = this._coverageMap.files();
-      let uncoveredFiles: string[] = [];
+      const uncoveredFiles: string[] = [];
       if (this._coverageFiles) {
-        uncoveredFiles = this._coverageFiles.filter(filename => {
-          return coveredFiles.indexOf(filename) === -1;
-        });
+        for (const file in this._coverageFiles) {
+          if (!this._coverageFiles[file]) {
+            uncoveredFiles.push(file);
+          }
+        }
       }
       uncoveredFiles.forEach(filename => {
         try {
@@ -1059,11 +1070,18 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   protected _setInstrumentationHooks() {
     hookRunInThisContext(
       filename => this.shouldInstrumentFile(filename),
-      (code, { filename }) => this.instrumentCode(code, filename)
+      (code, { filename }) => {
+        this._coverageFiles![filename] = true;
+        return this.instrumentCode(code, filename);
+      }
     );
+
     this._unhookRequire = hookRequire(
       filename => this.shouldInstrumentFile(filename),
-      (code, { filename }) => this.instrumentCode(code, filename),
+      (code, { filename }) => {
+        this._coverageFiles![filename] = true;
+        return this.instrumentCode(code, filename);
+      },
       { extensions: ['.js', '.jsx', '.ts', 'tsx'] }
     );
   }
