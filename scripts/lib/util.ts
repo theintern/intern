@@ -1,14 +1,18 @@
 import chalk from 'chalk';
 import { ExecaError } from 'execa';
-import { promises as fsPromises } from 'fs';
+import { readdir as fsReaddir, stat as fsStat } from 'fs';
 import { cp, echo, mkdir, sed, test } from 'shelljs';
 import { sync as glob, IOptions } from 'glob';
 import { basename, dirname, join } from 'path';
+import { promisify } from 'util';
 
 // This script assumes CWD is the project root, which will be the case if the
 // dev scripts are running via NPM
 
 export const baseDir = dirname(dirname(__dirname));
+
+const readdir = promisify(fsReaddir);
+const stat = promisify(fsStat);
 
 export interface FilePattern {
   base: string;
@@ -70,11 +74,11 @@ export function fixSourceMaps() {
  * Return the latest modification time from a directory
  */
 export async function latestModTime(dir: string): Promise<number> {
-  const entries = await fsPromises.readdir(dir);
+  const entries = await readdir(dir);
   let maxModTime = 0;
   for (const entry of entries) {
     const path = join(dir, entry);
-    const stats = await fsPromises.stat(path);
+    const stats = await stat(path);
     if (stats.isFile()) {
       maxModTime = Math.max(maxModTime, stats.mtimeMs);
     } else {
