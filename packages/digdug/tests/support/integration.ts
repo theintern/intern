@@ -142,12 +142,13 @@ export function addStartStopTest(
       }
 
       return tunnel
-        .start()!
+        .start()
         .then(function () {
           clearTimeout(cleanupTimer);
           return tunnel.stop();
         })
         .catch(reason => {
+          clearTimeout(cleanupTimer);
           if (reason.code === 'ECONNREFUSED') {
             this.skip('Service is unreachable');
           } else {
