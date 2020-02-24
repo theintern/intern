@@ -66,10 +66,26 @@
       }
     },
 
+    "chrome": {
+      "extends": "wd",
+      "environments": "chrome"
+    },
+
     "firefox": {
-      "environments": "firefox",
-      "tunnelOptions": {
-        "drivers": ["firefox"]
+      "extends": "wd",
+      "environments": "firefox"
+    },
+
+    "safari": {
+      "extends": "wd",
+      "environments": "safari"
+    },
+
+    "edge": {
+      "extends": "wd",
+      "environments": {
+        "browserName": "MicrosoftEdge",
+        "browserVersion": "insider preview"
       }
     }
   },

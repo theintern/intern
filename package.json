@@ -8,6 +8,9 @@
     "ci": "pnpm run build && pnpm run --stream -r ci",
     "test": "pnpm run --stream -r test",
     "test:chrome": "pnpm run --stream -r test:chrome",
+    "test:edge": "pnpm run --stream -r test:edge",
+    "test:firefox": "pnpm run --stream -r test:firefox",
+    "test:safari": "pnpm run --stream -r test:safari",
     "watch": "pnpm run --stream -r watch",
     "release": "cross-env INTERN_BUILD=release pnpm run build"
   },

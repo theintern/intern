@@ -46,7 +46,10 @@
     "clean": "shx rm -rf dist _tests *.tsbuildinfo",
     "pretest": "webpack --config tests/webpack.config.ts",
     "test": "intern",
-    "test:chrome": "intern --config @wd",
+    "test:chrome": "intern --config @chrome",
+    "test:edge": "intern --config @edge",
+    "test:firefox": "intern --config @firefox",
+    "test:safari": "intern --config @safari",
     "preci": "webpack --config tests/webpack.config.ts",
     "ci": "intern --config @ci"
   },

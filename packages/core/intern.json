@@ -142,6 +142,29 @@
       }
     },
 
+    "chrome": {
+      "extends": "wd",
+      "environments": "chrome"
+    },
+
+    "firefox": {
+      "extends": "wd",
+      "environments": "firefox"
+    },
+
+    "safari": {
+      "extends": "wd",
+      "environments": "safari"
+    },
+
+    "edge": {
+      "extends": "wd",
+      "environments": {
+        "browserName": "MicrosoftEdge",
+        "browserVersion": "insider preview"
+      }
+    },
+
     "ci": {
       "description": "Run CI tests on the default cloud service (BrowserStack)",
       "extends": "wd",

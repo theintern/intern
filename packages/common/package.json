@@ -31,7 +31,10 @@
     "clean": "shx rm -rf dist _tests amd *.tsbuildinfo",
     "pretest": "tsc -b tests && webpack --config tests/webpack.config.ts",
     "test": "intern",
-    "test:chrome": "intern --config @wd"
+    "test:chrome": "intern --config @chrome",
+    "test:edge": "intern --config @edge",
+    "test:firefox": "intern --config @firefox",
+    "test:safari": "intern --config @safari"
   },
   "dependencies": {
     "axios": "~0.19.0",

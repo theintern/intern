@@ -19,6 +19,29 @@
       "tunnelOptions": {
         "drivers": [{ "name": "chrome", "version": "83.0.4103.39" }]
       }
+    },
+
+    "chrome": {
+      "extends": "wd",
+      "environments": "chrome"
+    },
+
+    "firefox": {
+      "extends": "wd",
+      "environments": "firefox"
+    },
+
+    "safari": {
+      "extends": "wd",
+      "environments": "safari"
+    },
+
+    "edge": {
+      "extends": "wd",
+      "environments": {
+        "browserName": "MicrosoftEdge",
+        "browserVersion": "insider preview"
+      }
     }
   }
 }

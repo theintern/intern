@@ -31,8 +31,11 @@
     "clean": "shx rm -rf dist _tests *.tsbuildinfo",
     "build": "tsc -b",
     "test": "intern",
-    "test:chrome": "intern config=@wd",
-    "ci": "intern config=@ci"
+    "test:chrome": "intern --config @chrome",
+    "test:edge": "intern --config @edge",
+    "test:firefox": "intern --config @firefox",
+    "test:safari": "intern --config @safari",
+    "ci": "intern --config @ci"
   },
   "bugs": "https://github.com/theintern/intern/issues",
   "keywords": [
