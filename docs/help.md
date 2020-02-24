@@ -12,17 +12,7 @@ and general guidance. There are three primary ways to get community support:
 # Commercial support
 
 Some problems are too complicated, specific, time-sensitive, or confidential to
-be solved through free community support. In these cases, the creators of
-Intern, [SitePen](https://sitepen.com), offer commercial support services for
-you or your company. Commercial support has several advantages over community
-support:
-
-- Guaranteed response
-- 24 hours maximum response time
-- Priority bug fix and enhancement requests
-- Total confidentiality for your next big idea
-- Provides direct financial support for ongoing development of Intern
-
-If you aren’t sure if commercial support is right for you, we’re happy to take a
-few minutes to talk through your needs in greater detail.
-[Get in touch](https://www.sitepen.com/site/contact.html) to schedule a time!
+be solved through free community support. In these cases,
+[SitePen’s](https://sitepen.com) commercial development services may be a good
+fit for you or your company.
+[Get in touch](https://www.sitepen.com/site/contact.html) to learn more!
