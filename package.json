@@ -31,12 +31,9 @@
     "intern": "./bin/intern.js"
   },
   "scripts": {
-    "check": "tsc --noEmit",
-    "check:watch": "tsc --noEmit --watch",
     "clean": "ts-node scripts/clean.ts",
-    "build:src": "ts-node scripts/build.ts",
     "build:api": "ts-node scripts/api.ts",
-    "build": "concurrently npm:build:src npm:build:api",
+    "build": "ts-node scripts/build.ts",
     "intern": "ts-node -r tsconfig-paths/register src/bin/intern.ts",
     "devpack": "ts-node scripts/build.ts --pack",
     "lint": "eslint src --ext .ts",
@@ -136,7 +133,7 @@
     "execa": "~4.0.0",
     "husky": "~4.0.0",
     "jsdom": "^15.1.1",
-    "lint-staged": "^9.5.0",
+    "lint-staged": "~10.0.7",
     "prettier": "^1.17.1",
     "rewiremock": "~3.13.9",
     "semver": "^6.3.0",
@@ -163,25 +160,23 @@
   },
   "lint-staged": {
     "src/**/*.{json,css}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "tests/**/*.{json,css}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.ts": [
       "eslint --fix",
-      "prettier --write",
-      "git add"
+      "prettier --write"
+    ],
+    "src/**/*.ts": [
+      "npm run build:api"
     ],
     "*.md": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "{intern,tsconfig}.json": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   }
 }
