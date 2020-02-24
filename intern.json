@@ -85,13 +85,7 @@
     "wd": {
       "description": "Run tests in Chrome using Selenium",
       "tunnel": "selenium",
-      "environments": [
-        { "browserName": "node" },
-        {
-          "browserName": "chrome",
-          "fixSessionCapabilities": "no-detect"
-        }
-      ],
+      "environments": [{ "browserName": "node" }, { "browserName": "chrome" }],
       // Clear out the general suites list so the browser won't try to load
       // them.
       "suites": [],
@@ -142,6 +136,29 @@
       "browser": {
         "suites": "_tests/suites.js",
         "plugins": "_tests/plugins.js"
+      }
+    },
+
+    "chrome": {
+      "extends": "wd",
+      "environments": "chrome"
+    },
+
+    "firefox": {
+      "extends": "chrome",
+      "environments": "firefox"
+    },
+
+    "safari": {
+      "extends": "chrome",
+      "environments": "safari"
+    },
+
+    "edge": {
+      "extends": "chrome",
+      "environments": {
+        "browserName": "MicrosoftEdge",
+        "browserVersion": "insider preview"
       }
     },
 

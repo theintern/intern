@@ -43,6 +43,10 @@
     "release": "cross-env INTERN_BUILD=release ts-node scripts/release.ts",
     "start": "ts-node scripts/test.ts --serve-only",
     "test": "ts-node scripts/test.ts",
+    "test:chrome": "ts-node scripts/test.ts --config @chrome",
+    "test:edge": "ts-node scripts/test.ts --config @edge",
+    "test:firefox": "ts-node scripts/test.ts --config @firefox",
+    "test:safari": "ts-node scripts/test.ts --config @safari",
     "watch:tests": "ts-node scripts/test.ts --watch",
     "watch": "ts-node scripts/build.ts --watch",
     "ci": "ts-node scripts/test.ts --config @ci"
