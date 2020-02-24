@@ -21,8 +21,14 @@ const cwd = process.cwd();
 const args = process.argv.slice(2);
 let verbose = false;
 
+// Clear out any command line arguments so they won't be processed by
+// CliApplication
+process.argv = process.argv.slice(0, 2);
+
 if (args[0] === '-v' || args[0] === '--verbose') {
   verbose = true;
+  // Allow -v to be passed to CliApplication
+  process.argv.push('-v');
 }
 
 print('Generating API data...');

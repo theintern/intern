@@ -54,6 +54,9 @@
       "eslint --fix",
       "prettier --write"
     ],
+    "packages/*/src/**/*.ts": [
+      "pnpm run apidoc"
+    ],
     "*.md": [
       "prettier --write"
     ],
