@@ -138,8 +138,8 @@ export default function request(
 
   let retries = options.retries != null ? options.retries : defaultRetries;
 
-  const makeRequest = () =>
-    new Promise<Response>((resolve, reject) => {
+  function makeRequest(): Promise<Response> {
+    return new Promise<Response>((resolve, reject) => {
       axios(req).then(response => {
         if (onDownloadProgress && response && response.data) {
           onDownloadProgress({
@@ -150,8 +150,9 @@ export default function request(
         resolve(new ResponseClass(response));
       }, reject);
     });
+  }
 
-  const handleError = async (error: AxiosError): Promise<Response> => {
+  async function handleError(error: AxiosError): Promise<Response> {
     // Sometimes a remote is flakey; retry requests a couple of times if they
     // fail for reasons that are probably out of our control
     if (
@@ -164,15 +165,14 @@ export default function request(
       } catch (error) {
         return handleError(error);
       }
+    } else if (axios.isCancel(error)) {
+      return Promise.reject(options.cancelToken?.reason);
     }
-    throw error;
-  };
 
-  try {
-    return makeRequest();
-  } catch (error) {
-    return handleError(error);
+    return Promise.reject(error);
   }
+
+  return makeRequest().catch(handleError);
 }
 
 class HeadersClass {
