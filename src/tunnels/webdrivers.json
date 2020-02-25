@@ -35,7 +35,7 @@
     },
     "edgeChromium": {
       "baseUrl": "https://msedgedriver.azureedge.net",
-      "latest": "80.0.361.50"
+      "latest": "80.0.361.62"
     }
   }
 }
