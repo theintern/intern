@@ -1,7 +1,6 @@
 import * as moxios from 'moxios';
-import axios from 'axios';
 import request, { Response } from '../../../src/lib/request';
-import { createCancelToken } from '../../../src/lib/cancel';
+import { createCancelToken, isCancel } from '../../../src/lib/cancel';
 
 const { registerSuite } = intern.getInterface('object');
 const { assert } = intern.getPlugin('chai');
@@ -130,7 +129,7 @@ registerSuite('lib/request', {
           })
         )
         .catch(
-          dfd.callback((reason: Error) => assert.isTrue(axios.isCancel(reason)))
+          dfd.callback((reason: Error) => assert.isTrue(isCancel(reason)))
         );
 
       token.cancel();
