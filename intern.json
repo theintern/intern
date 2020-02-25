@@ -9,6 +9,7 @@
 
   "suites": [
     "tests/benchmark/example.ts",
+    "tests/unit/common/lib/*.ts",
     "tests/unit/core/lib/BenchmarkTest.ts",
     "tests/unit/core/lib/Channel.ts",
     "tests/unit/core/lib/Deferred.ts",
