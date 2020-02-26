@@ -645,6 +645,22 @@ export default class Server {
             brokenDeleteWindow: true
           });
         }
+
+        if (isValidVersion(capabilities, 13)) {
+          Object.assign(updates, {
+            // At least Safari 13 clicks in the wrong location when clicking an
+            // element.
+            // See https://github.com/SeleniumHQ/selenium/issues/7649
+            brokenClick: true,
+            // At least Safari 13 on BrowserStack can become unresponsive when
+            // the `buttonup` call is used.
+            brokenMouseEvents: true,
+            // Simulated events in Safari 13 do not change select values
+            brokenOptionSelect: true,
+            // Trying to close a window in Safari 13 will cause Safari to exit
+            brokenWindowClose: true
+          });
+        }
       }
 
       // At least ios-driver 0.6.6-SNAPSHOT April 2014 corrupts its
