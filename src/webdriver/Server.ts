@@ -863,6 +863,11 @@ export default class Server {
       if (/The command .* not found/.test(error.message)) {
         return false;
       }
+      // At least Firefox 73 returns an error with the message "HTTP method not
+      // allowed" when POSTing to touch endpoints
+      if (/HTTP method not allowed/.test(error.message)) {
+        return false;
+      }
       return true;
     };
     const broken = supported;
