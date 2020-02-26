@@ -1146,10 +1146,10 @@ registerSuite('functional/webdriver/Session', () => {
                   );
                 },
                 function() {
-                  assert.operator(
+                  assert.closeTo(
                     Date.now() - startTime,
-                    '>=',
                     2000,
+                    50,
                     'Driver should wait for implicit timeout before continuing'
                   );
                 }
