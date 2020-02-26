@@ -187,8 +187,8 @@
           "browser": "chrome",
           "version": ["latest-3", "latest"],
           "platform": ["WINDOWS", "MAC"]
-        }
-        // { "browser": "safari", "version": "latest" }
+        },
+        { "browser": "safari", "version": "latest" }
       ]
     },
 
