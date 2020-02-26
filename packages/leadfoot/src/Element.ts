@@ -242,11 +242,23 @@ export default class Element extends Locator<
    */
   click() {
     if (this.session.capabilities.brokenClick) {
-      return this.session.execute<void>(
-        /* istanbul ignore next */ function (element: HTMLElement) {
-          element.click();
-        },
-        [this]
+      return (
+        this.session
+          .moveMouseTo(this)
+          // Simulate press and release events to accompany the click
+          .then(() => this.session.pressMouseButton(1))
+          .then(() => this.session.releaseMouseButton(1))
+          .then(() =>
+            // At least in Safari 13, calling an element's click() method will not
+            // focus it.
+            this.session.execute<void>(
+              /* istanbul ignore next */ function (element: HTMLElement) {
+                element.click();
+                element.focus();
+              },
+              [this]
+            )
+          )
       );
     }
 
