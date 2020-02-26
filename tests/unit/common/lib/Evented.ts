@@ -38,6 +38,10 @@ registerSuite('common/lib/Evented', {
     },
 
     'on() with Symbol type'() {
+      if (typeof Symbol === 'undefined') {
+        this.skip('Symbol is not available in this environment');
+      }
+
       const foo = Symbol();
       const bar = Symbol();
       const eventStack: symbol[] = [];
