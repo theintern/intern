@@ -57,9 +57,7 @@
     "plugins": [
       "tests/support/globalUi.ts",
       "tests/support/nodeDom.ts",
-      "source-map-support/register",
-      // The URLSearchParams polyfill is needed for unit tests in Node 8
-      "url-search-params-polyfill"
+      "source-map-support/register"
     ],
     "reporters": {
       "name": "runner",
