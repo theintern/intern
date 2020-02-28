@@ -71,7 +71,7 @@ registerSuite('tunnels/SeleniumTunnel', {
       const oldLog = console.log;
 
       return {
-        afterEach() {
+        afterEachSeleniumTunnelTest() {
           console.log = oldLog;
         },
         '3.0.0': createTest('3.0.0', false),
