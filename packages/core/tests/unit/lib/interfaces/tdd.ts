@@ -185,10 +185,12 @@ registerSuite('lib/interfaces/tdd', function () {
         }
 
         return {
-          before: createTest('before', false),
-          after: createTest('after', false),
-          beforeEach: createTest('beforeEach', true),
-          afterEach: createTest('afterEach', true)
+          tests: {
+            beforeMethod: createTest('before', false),
+            afterMethod: createTest('after', false),
+            beforeEachMethod: createTest('beforeEach', true),
+            afterEachMethod: createTest('afterEach', true)
+          }
         };
       })(),
 

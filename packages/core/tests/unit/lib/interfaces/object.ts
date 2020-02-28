@@ -220,14 +220,12 @@ registerSuite('lib/interfaces/object', function () {
             Suite,
             Test
           );
-          assert.isTrue(
-            executor.log.calledOnce,
-            'expected a log message to have been emitted'
-          );
+          assert.equal(executor.emit.callCount, 3);
           // Suite should emit a log message
+          assert.equal(executor.emit.args[0][0], 'warning');
           assert.match(
-            executor.log.args[0][0],
-            /created test with lifecycle method name/,
+            executor.emit.args[0][1],
+            /Created test with lifecycle method name/,
             'expected log message to mention test name'
           );
         },

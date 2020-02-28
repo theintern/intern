@@ -161,8 +161,8 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
         name === 'beforeEach' ||
         name === 'afterEach'
       ) {
-        parent.executor.log(
-          `Warning: created test with lifecycle method name "${name}"`
+        parent.executor.emit('warning',
+          `Created test with lifecycle method name "${name}"`
         );
       }
 
