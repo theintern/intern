@@ -919,12 +919,14 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       ) {
         driverNames.add(browserName);
       } else if (browserName === 'MicrosoftEdge') {
-        const { browserVersion } = env;
+        const { browserVersion, version } = env;
         if (
           (!isNaN(browserVersion) && Number(browserVersion) < 1000) ||
+          (!isNaN(version) && Number(version) < 1000) ||
           // 'insider preview' may be used to specify Edge Chromium before it is
           // official released
-          (isNaN(browserVersion) && browserVersion === 'insider preview')
+          (isNaN(browserVersion) && browserVersion === 'insider preview') ||
+          (isNaN(version) && version === 'insider preview')
         ) {
           driverNames.add('MicrosoftEdgeChromium');
         } else {
