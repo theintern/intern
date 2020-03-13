@@ -303,6 +303,7 @@ export default abstract class BaseExecutor<
       'error',
       'log'
     ].includes(<string>eventName);
+
     let notifications = needsSeparateNotificationChain
       ? Task.resolve()
       : this._notifications;
