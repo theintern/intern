@@ -223,7 +223,7 @@ registerSuite('core/lib/interfaces/object', function() {
           assert.equal(executor.emit.args[0][0], 'warning');
           assert.match(
             executor.emit.args[0][1],
-            /created test with lifecycle method name/,
+            /Created test with lifecycle method name/,
             'expected log message to mention test name'
           );
         },
