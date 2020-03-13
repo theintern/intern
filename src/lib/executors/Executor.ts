@@ -286,6 +286,15 @@ export default abstract class BaseExecutor<
       }
     };
 
+    const needsSeparateNotificationChain = [
+      'coverage',
+      'error',
+      'log'
+    ].includes(eventName);
+    const notifications = needsSeparateNotificationChain
+      ? Task.resolve()
+      : this._notifications;
+
     let error: InternError | undefined;
     if (eventName === 'error') {
       error = <any>data;
@@ -305,7 +314,7 @@ export default abstract class BaseExecutor<
     if (listeners && listeners.length > 0) {
       hasNotifications = true;
       for (const listener of listeners) {
-        this._notifications = this._notifications
+        notifications = notifications
           .then(() => Task.resolve(listener(data)))
           .then(handleErrorEvent)
           .catch(handleListenerError);
@@ -318,7 +327,7 @@ export default abstract class BaseExecutor<
       hasNotifications = true;
       const starEvent = { name: eventName, data };
       for (const listener of starListeners) {
-        this._notifications = this._notifications
+        notifications = notifications
           .then(() => Task.resolve(listener(starEvent)))
           .then(handleErrorEvent)
           .catch(handleListenerError);
@@ -344,7 +353,10 @@ export default abstract class BaseExecutor<
       }
     }
 
-    return this._notifications;
+    if (!needsSeparateNotificationChain) {
+      this._notifications = notifications;
+    }
+    return notifications;
   }
 
   /**
