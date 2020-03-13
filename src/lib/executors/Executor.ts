@@ -286,15 +286,6 @@ export default abstract class BaseExecutor<
       }
     };
 
-    const needsSeparateNotificationChain = [
-      'coverage',
-      'error',
-      'log'
-    ].includes(eventName);
-    const notifications = needsSeparateNotificationChain
-      ? Task.resolve()
-      : this._notifications;
-
     let error: InternError | undefined;
     if (eventName === 'error') {
       error = <any>data;
@@ -307,6 +298,14 @@ export default abstract class BaseExecutor<
       }
     };
 
+    const needsSeparateNotificationChain = [
+      'coverage',
+      'error',
+      'log'
+    ].includes(eventName);
+    let notifications = needsSeparateNotificationChain
+      ? Task.resolve()
+      : this._notifications;
     let hasNotifications = false;
 
     // First, notify the listeners specifically listening for this event
