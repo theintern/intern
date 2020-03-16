@@ -298,11 +298,8 @@ export default abstract class BaseExecutor<
       }
     };
 
-    const needsSeparateNotificationChain = [
-      'coverage',
-      'error',
-      'log'
-    ].includes(<string>eventName);
+    const needsSeparateNotificationChain =
+      ['coverage', 'error', 'log'].indexOf(<string>eventName) > -1;
 
     let notifications = needsSeparateNotificationChain
       ? Task.resolve()
