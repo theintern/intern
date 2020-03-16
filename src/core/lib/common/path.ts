@@ -62,3 +62,10 @@ export function normalizePathEnding(path: string, pathSep = '/') {
   }
   return path;
 }
+
+/**
+ * @returns if the path has a TypeScript file extension
+ */
+export function isTypeScriptFile(path: string) {
+  return path.endsWith('.ts') || path.endsWith('.tsx');
+}

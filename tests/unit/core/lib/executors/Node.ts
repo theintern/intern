@@ -1425,10 +1425,10 @@ registerSuite('core/lib/executors/Node', function() {
 
             'tsconfig exists'() {
               const basePath = '/test';
-              const expected = {};
+              const expected = `${basePath}//tsconfig.json`;
               fsData['foo.js'] = 'foo';
               fsData['foo.ts'] = 'foo';
-              fsData[`${basePath}//tsconfig.json`] = JSON.stringify(expected);
+              fsData[expected] = JSON.stringify({});
 
               (executor as any).loadScript = () => Promise.resolve();
               executor.configure(<any>{

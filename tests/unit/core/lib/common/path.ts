@@ -55,5 +55,13 @@ registerSuite('core/lib/common/path', {
       '',
       'empty path should be unmodified'
     );
+  },
+
+  isTypeScriptFile() {
+    assert.isTrue(path.isTypeScriptFile('directory/file.ts'));
+    assert.isTrue(path.isTypeScriptFile('file.tsx'));
+    assert.isTrue(path.isTypeScriptFile('./interfaces.d.ts'));
+    assert.isTrue(path.isTypeScriptFile('directory/file.spec.ts'));
+    assert.isFalse(path.isTypeScriptFile('directory/directory.ts/file.js'));
   }
 });
