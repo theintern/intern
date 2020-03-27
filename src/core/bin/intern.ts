@@ -9,11 +9,10 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { global } from '../../common';
 
-import { getConfig, getPackagePath } from '../lib/node/util';
+import { getConfig, getPackagePath, isTypeScriptFile } from '../lib/node/util';
 import { getConfigDescription } from '../lib/common/util';
 import intern from '../../index';
 import * as console from '../lib/common/console';
-import { isTypeScriptFile } from '../lib/common/path';
 
 getConfig()
   .then(({ config, file }) => {

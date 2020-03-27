@@ -239,7 +239,10 @@ registerSuite('core/lib/executors/Node', function() {
     readSourceMap() {
       return {} as RawSourceMap;
     },
-    transpileSource: spy()
+    transpileSource: spy(),
+    isTypeScriptFile: stub((file: string) => {
+      return file.endsWith('.ts') || file.endsWith('tsx');
+    })
   };
 
   let executor: _Node;
@@ -437,7 +440,10 @@ registerSuite('core/lib/executors/Node', function() {
               'jsoncoverage',
               'htmlcoverage',
               'lcov'
-            ]
+            ],
+            node: {
+              tsconfig: false
+            }
           });
           return executor.run().then(() => {
             assert.lengthOf(

@@ -27,11 +27,16 @@ import Command from '../../../webdriver/Command';
 import LeadfootServer from '../../../webdriver/Server';
 import { Config, EnvironmentSpec } from '../common/config';
 import * as console from '../common/console';
-import { normalizePathEnding, isTypeScriptFile } from '../common/path';
+import { normalizePathEnding } from '../common/path';
 import { pullFromArray } from '../common/util';
 import Environment from '../Environment';
 import ErrorFormatter from '../node/ErrorFormatter';
-import { expandFiles, readSourceMap, transpileSource } from '../node/util';
+import {
+  expandFiles,
+  readSourceMap,
+  transpileSource,
+  isTypeScriptFile
+} from '../node/util';
 import ProxiedSession from '../ProxiedSession';
 import RemoteSuite from '../RemoteSuite';
 import Benchmark from '../reporters/Benchmark';
@@ -793,7 +798,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
       // Clear out the suites list after combining the suites
       delete config.suites;
-
       if (!require.extensions['.ts']) {
         if (config.node.tsconfig) {
           register({ project: config.node.tsconfig });
