@@ -1,58 +1,60 @@
-import { existsSync, readFileSync } from 'fs';
-import { dirname, normalize, resolve, sep } from 'path';
-import { sync as nodeResolve } from 'resolve';
-import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
-import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
-import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
-import {
-  hookRunInThisContext,
-  hookRequire,
-  unhookRunInThisContext
-} from 'istanbul-lib-hook';
-import { register } from 'ts-node';
-import { global, deepMixin } from '@theintern/common';
-import Command from '@theintern/leadfoot/dist/Command';
-import LeadfootServer from '@theintern/leadfoot/dist/Server';
-import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/dist/Tunnel';
-
+import { deepMixin, global } from '@theintern/common';
 // Dig Dug tunnels
-import SeleniumTunnel, {
-  DriverDescriptor
-} from '@theintern/digdug/dist/SeleniumTunnel';
 import BrowserStackTunnel, {
   BrowserStackOptions
 } from '@theintern/digdug/dist/BrowserStackTunnel';
-import SauceLabsTunnel from '@theintern/digdug/dist/SauceLabsTunnel';
-import TestingBotTunnel from '@theintern/digdug/dist/TestingBotTunnel';
 import CrossBrowserTestingTunnel from '@theintern/digdug/dist/CrossBrowserTestingTunnel';
 import NullTunnel from '@theintern/digdug/dist/NullTunnel';
-
+import SauceLabsTunnel from '@theintern/digdug/dist/SauceLabsTunnel';
+import SeleniumTunnel, {
+  DriverDescriptor
+} from '@theintern/digdug/dist/SeleniumTunnel';
+import TestingBotTunnel from '@theintern/digdug/dist/TestingBotTunnel';
+import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/dist/Tunnel';
+import Command from '@theintern/leadfoot/dist/Command';
+import LeadfootServer from '@theintern/leadfoot/dist/Server';
+import { existsSync, readFileSync } from 'fs';
+import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
+import {
+  hookRequire,
+  hookRunInThisContext,
+  unhookRunInThisContext
+} from 'istanbul-lib-hook';
+import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
+import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
+import { dirname, join, normalize, resolve, sep } from 'path';
+import { sync as nodeResolve } from 'resolve';
+import { register } from 'ts-node';
 import { Config, EnvironmentSpec } from '../common/config';
-import Executor, { Events, Plugins } from './Executor';
+import * as console from '../common/console';
 import { normalizePathEnding } from '../common/path';
 import { pullFromArray } from '../common/util';
-import { expandFiles, readSourceMap, transpileSource } from '../node/util';
-import ErrorFormatter from '../node/ErrorFormatter';
-import ProxiedSession from '../ProxiedSession';
 import Environment from '../Environment';
-import resolveEnvironments from '../resolveEnvironments';
-import Server from '../Server';
-import Suite, { isSuite, isFailedSuite } from '../Suite';
+import ErrorFormatter from '../node/ErrorFormatter';
+import {
+  expandFiles,
+  isTypeScriptFile,
+  readSourceMap,
+  transpileSource
+} from '../node/util';
+import ProxiedSession from '../ProxiedSession';
 import RemoteSuite from '../RemoteSuite';
-import { RuntimeEnvironment } from '../types';
-import * as console from '../common/console';
-
 // Reporters
+import Benchmark from '../reporters/Benchmark';
+import Cobertura from '../reporters/Cobertura';
+import HtmlCoverage from '../reporters/HtmlCoverage';
+import JsonCoverage from '../reporters/JsonCoverage';
+import JUnit from '../reporters/JUnit';
+import Lcov from '../reporters/Lcov';
 import Pretty from '../reporters/Pretty';
 import Runner from '../reporters/Runner';
 import Simple from '../reporters/Simple';
-import JUnit from '../reporters/JUnit';
-import Cobertura from '../reporters/Cobertura';
-import JsonCoverage from '../reporters/JsonCoverage';
-import HtmlCoverage from '../reporters/HtmlCoverage';
-import Lcov from '../reporters/Lcov';
-import Benchmark from '../reporters/Benchmark';
 import TeamCity from '../reporters/TeamCity';
+import resolveEnvironments from '../resolveEnvironments';
+import Server from '../Server';
+import Suite, { isFailedSuite, isSuite } from '../Suite';
+import { RuntimeEnvironment } from '../types';
+import Executor, { Events, Plugins } from './Executor';
 
 const process: NodeJS.Process = global.process;
 
@@ -795,18 +797,23 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
       // Clear out the suites list after combining the suites
       delete config.suites;
-
       if (!require.extensions['.ts']) {
-        if (
-          ((config.node &&
-            config.node.suites.some(pattern => pattern.endsWith('.ts'))) ||
-            (config.plugins &&
-              config.plugins.some(plugin => plugin.script.endsWith('.ts')))) &&
-          typeof this.config.node.tsconfig === 'undefined'
-        ) {
-          register();
-        } else if (this.config.node.tsconfig) {
-          register({ project: this.config.node.tsconfig });
+        if (config.node.tsconfig) {
+          register({ project: config.node.tsconfig });
+        } else if (typeof config.node.tsconfig === 'undefined') {
+          // auto-configure typescript support if we detect its presence
+          if (
+            config.node.suites.some(isTypeScriptFile) ||
+            config.functionalSuites.some(isTypeScriptFile) ||
+            config.plugins.some(({ script }) => isTypeScriptFile(script))
+          ) {
+            register();
+          } else {
+            const tsconfigPath = join(config.basePath, 'tsconfig.json');
+            if (existsSync(tsconfigPath)) {
+              register({ project: tsconfigPath });
+            }
+          }
         }
       }
 
@@ -1015,12 +1022,10 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       uncoveredFiles.forEach(filename => {
         try {
           const code = readFileSync(filename, { encoding: 'utf8' });
-          this.instrumentCode(
-            code,
-            filename,
-            filename.endsWith('.ts') || filename.endsWith('.tsx')
-          );
-        } catch (_error) {}
+          this.instrumentCode(code, filename, isTypeScriptFile(filename));
+        } catch {
+          // ignored
+        }
       });
     });
   }

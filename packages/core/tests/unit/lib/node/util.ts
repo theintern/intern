@@ -380,6 +380,16 @@ registerSuite('lib/node/util', function () {
         rmdirSync('_test_tmp/dir1');
         rmdirSync('_test_tmp');
       }
+    },
+
+    isTypeScriptFile() {
+      assert.isTrue(utilMod.isTypeScriptFile('directory/file.ts'));
+      assert.isTrue(utilMod.isTypeScriptFile('file.tsx'));
+      assert.isTrue(utilMod.isTypeScriptFile('./interfaces.d.ts'));
+      assert.isTrue(utilMod.isTypeScriptFile('directory/file.spec.ts'));
+      assert.isFalse(
+        utilMod.isTypeScriptFile('directory/directory.ts/file.js')
+      );
     }
   };
 });
