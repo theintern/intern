@@ -9,7 +9,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { global } from '../../common';
 
-import { getConfig, getPackagePath } from '../lib/node/util';
+import { getConfig, getPackagePath, isTypeScriptFile } from '../lib/node/util';
 import { getConfigDescription } from '../lib/common/util';
 import intern from '../../index';
 import * as console from '../lib/common/console';
@@ -30,12 +30,8 @@ getConfig()
 
       if (
         intern.environment === 'browser' &&
-        ((intern.config.suites &&
-          intern.config.suites.some(pattern => pattern.endsWith('.ts'))) ||
-          (intern.config.plugins &&
-            intern.config.plugins.some(plugin =>
-              plugin.script.endsWith('.ts')
-            )))
+        (intern.config.suites.some(isTypeScriptFile) ||
+          intern.config.plugins.some(({ script }) => isTypeScriptFile(script)))
       ) {
         throw new Error(
           'Loading TypeScript files is not supported in the browser'

@@ -1,17 +1,15 @@
-import { mockImport } from 'tests/support/mockUtil';
-import { spy, SinonSpy, stub } from 'sinon';
-import { isCancel, CancelToken } from 'src/common';
-import { RawSourceMap } from 'source-map';
-import { BigIntStats, PathLike } from 'fs';
-import { sep } from 'path';
+import { BigIntStats } from 'fs';
 import { CoverageMap } from 'istanbul-lib-coverage';
 import { Instrumenter } from 'istanbul-lib-instrument';
 import { MapStore } from 'istanbul-lib-source-maps';
-
+import { sep } from 'path';
+import { SinonSpy, spy, stub } from 'sinon';
+import { RawSourceMap } from 'source-map';
+import { CancelToken, isCancel } from 'src/common';
 import { Config } from 'src/core/lib/common/config';
 import _Node from 'src/core/lib/executors/Node';
 import Suite from 'src/core/lib/Suite';
-
+import { mockImport } from 'tests/support/mockUtil';
 import { testProperty } from 'tests/support/unit/executor';
 
 registerSuite('core/lib/executors/Node', function() {
@@ -167,8 +165,8 @@ registerSuite('core/lib/executors/Node', function() {
   };
 
   const mockFs = {
-    existsSync(_path: PathLike) {
-      return true;
+    existsSync(path: any) {
+      return Boolean(fsData[path]);
     },
 
     readFileSync(path: any) {
@@ -241,7 +239,10 @@ registerSuite('core/lib/executors/Node', function() {
     readSourceMap() {
       return {} as RawSourceMap;
     },
-    transpileSource: spy()
+    transpileSource: spy(),
+    isTypeScriptFile: stub((file: string) => {
+      return file.endsWith('.ts') || file.endsWith('tsx');
+    })
   };
 
   let executor: _Node;
@@ -439,7 +440,10 @@ registerSuite('core/lib/executors/Node', function() {
               'jsoncoverage',
               'htmlcoverage',
               'lcov'
-            ]
+            ],
+            node: {
+              tsconfig: false
+            }
           });
           return executor.run().then(() => {
             assert.lengthOf(
@@ -1364,86 +1368,132 @@ registerSuite('core/lib/executors/Node', function() {
         },
 
         'tsconfig option': {
-          'none specified and ts in suites'() {
-            fsData['foo.ts'] = 'foo';
-            fsData['bar.d.ts'] = 'bar';
-            executor.configure(<any>{
-              environments: 'chrome',
-              tunnel: 'null',
-              suites: 'foo.ts',
-              coverage: ['foo.ts', 'bar.d.ts']
-            });
-
-            return executor.run().then(() => {
-              assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
-              assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
-                'foo.ts',
-                'foo'
-              ]);
-              assert.isTrue(mockTsNodeRegister.called);
-              assert.deepEqual(mockTsNodeRegister.args[0], []);
-            });
-          },
-
-          'none specified and ts in plugins'() {
-            fsData['foo.js'] = 'foo';
-            fsData['foo.ts'] = 'foo';
-
-            (executor as any).loadScript = () => Promise.resolve();
-            executor.configure(<any>{
-              environments: 'chrome',
-              tunnel: 'null',
-              suites: 'foo.js',
-              plugins: 'foo.ts',
-              coverage: ['foo.js']
-            });
-
-            return executor.run().then(() => {
-              assert.isTrue(mockNodeUtil.transpileSource.notCalled);
-              assert.isTrue(mockTsNodeRegister.called);
-              assert.deepEqual(mockTsNodeRegister.args[0], []);
-            });
-          },
-
-          'none specified and no ts'() {
-            fsData['foo.js'] = 'foo';
-            executor.configure(<any>{
-              environments: 'chrome',
-              tunnel: 'null',
-              suites: 'foo.js',
-              coverage: ['foo.js']
-            });
-
-            return executor.run().then(() => {
-              assert.isTrue(mockNodeUtil.transpileSource.notCalled);
-              assert.isTrue(mockTsNodeRegister.notCalled);
-            });
-          },
-
-          'custom specified'() {
-            fsData['foo.ts'] = 'foo';
-            fsData['bar.d.ts'] = 'bar';
-            executor.configure(<any>{
-              environments: 'chrome',
-              tunnel: 'null',
-              suites: 'foo.ts',
-              node: {
-                tsconfig: './test/tsconfig.json'
-              },
-              coverage: ['foo.ts', 'bar.d.ts']
-            });
-
-            return executor.run().then(() => {
-              assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
-              assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
-                'foo.ts',
-                'foo'
-              ]);
-              assert.isTrue(mockTsNodeRegister.calledOnce);
-              assert.deepEqual(mockTsNodeRegister.args[0][0], {
-                project: './test/tsconfig.json'
+          'no tsConfig option specified': {
+            'ts file in suites'() {
+              fsData['foo.ts'] = 'foo';
+              fsData['bar.d.ts'] = 'bar';
+              executor.configure(<any>{
+                environments: 'chrome',
+                tunnel: 'null',
+                suites: 'foo.ts',
+                coverage: ['foo.ts', 'bar.d.ts']
               });
-            });
+
+              return executor.run().then(() => {
+                assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
+                assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
+                  'foo.ts',
+                  'foo'
+                ]);
+                assert.isTrue(mockTsNodeRegister.called);
+                assert.deepEqual(mockTsNodeRegister.args[0], []);
+              });
+            },
+
+            'ts file in plugins'() {
+              fsData['foo.js'] = 'foo';
+              fsData['foo.ts'] = 'foo';
+
+              (executor as any).loadScript = () => Promise.resolve();
+              executor.configure(<any>{
+                environments: 'chrome',
+                tunnel: 'null',
+                suites: 'foo.js',
+                plugins: 'foo.ts',
+                coverage: ['foo.js']
+              });
+
+              return executor.run().then(() => {
+                assert.isTrue(mockNodeUtil.transpileSource.notCalled);
+                assert.isTrue(mockTsNodeRegister.called);
+                assert.deepEqual(mockTsNodeRegister.args[0], []);
+              });
+            },
+
+            'ts file in functionalSuites'() {
+              fsData['foo.js'] = 'foo';
+              fsData['foo.ts'] = 'foo';
+
+              (executor as any).loadScript = () => Promise.resolve();
+              executor.configure(<any>{
+                environments: 'chrome',
+                tunnel: 'null',
+                functionalSuites: 'foo.ts',
+                coverage: ['foo.js']
+              });
+
+              return executor.run().then(() => {
+                assert.isTrue(mockNodeUtil.transpileSource.notCalled);
+                assert.isTrue(mockTsNodeRegister.called);
+                assert.deepEqual(mockTsNodeRegister.args[0], []);
+              });
+            },
+
+            'tsconfig exists'() {
+              const basePath = '/test';
+              const expected = `${basePath}//tsconfig.json`;
+              fsData['foo.js'] = 'foo';
+              fsData['foo.ts'] = 'foo';
+              fsData[expected] = JSON.stringify({});
+
+              (executor as any).loadScript = () => Promise.resolve();
+              executor.configure(<any>{
+                basePath,
+                environments: 'chrome',
+                tunnel: 'null',
+                functionalSuites: 'foo.js',
+                coverage: ['foo.js']
+              });
+
+              return executor.run().then(() => {
+                assert.isTrue(mockNodeUtil.transpileSource.notCalled);
+                assert.isTrue(mockTsNodeRegister.called);
+                assert.deepEqual(mockTsNodeRegister.args[0], [
+                  { project: expected }
+                ]);
+              });
+            },
+
+            'no ts; then tsnode is not loaded'() {
+              fsData['foo.js'] = 'foo';
+              executor.configure(<any>{
+                environments: 'chrome',
+                tunnel: 'null',
+                suites: 'foo.js',
+                coverage: ['foo.js']
+              });
+
+              return executor.run().then(() => {
+                assert.isTrue(mockNodeUtil.transpileSource.notCalled);
+                assert.isTrue(mockTsNodeRegister.notCalled);
+              });
+            },
+
+            'custom ts file'() {
+              fsData['foo.ts'] = 'foo';
+              fsData['bar.d.ts'] = 'bar';
+              executor.configure(<any>{
+                environments: 'chrome',
+                tunnel: 'null',
+                suites: 'foo.ts',
+                node: {
+                  tsconfig: './test/tsconfig.json'
+                },
+                coverage: ['foo.ts', 'bar.d.ts']
+              });
+
+              return executor.run().then(() => {
+                assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
+                assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
+                  'foo.ts',
+                  'foo'
+                ]);
+                assert.isTrue(mockTsNodeRegister.calledOnce);
+                assert.deepEqual(mockTsNodeRegister.args[0][0], {
+                  project: './test/tsconfig.json'
+                });
+              });
+            }
           },
 
           'should not double register ts-node'() {
@@ -1470,7 +1520,7 @@ registerSuite('core/lib/executors/Node', function() {
             });
           },
 
-          'specified as false'() {
+          'tsConfig option specified as false'() {
             fsData['foo.ts'] = 'foo';
             executor.configure(<any>{
               environments: 'chrome',
@@ -1487,7 +1537,7 @@ registerSuite('core/lib/executors/Node', function() {
             });
           },
 
-          'specified as "false"'() {
+          'tsConfig option specified as "false"'() {
             fsData['foo.ts'] = 'foo';
             executor.configure(<any>{
               environments: 'chrome',
