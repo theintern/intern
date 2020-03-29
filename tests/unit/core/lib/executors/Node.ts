@@ -240,7 +240,7 @@ registerSuite('core/lib/executors/Node', function() {
       return {} as RawSourceMap;
     },
     transpileSource: spy(),
-    isTypeScriptFile: stub((file: string) => {
+    isTypeScriptFile: spy((file: string) => {
       return file.endsWith('.ts') || file.endsWith('tsx');
     })
   };
