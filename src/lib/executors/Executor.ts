@@ -296,7 +296,7 @@ export default abstract class BaseExecutor<
       }
     };
 
-    let notifications = Task.resolve();
+    const notifications: CancellablePromise<void>[] = [];
     let hasNotifications = false;
 
     // First, notify the listeners specifically listening for this event
@@ -304,10 +304,11 @@ export default abstract class BaseExecutor<
     if (listeners && listeners.length > 0) {
       hasNotifications = true;
       for (const listener of listeners) {
-        notifications = notifications
-          .then(() => Task.resolve(listener(data)))
-          .then(handleErrorEvent)
-          .catch(handleListenerError);
+        notifications.push(
+          Task.resolve(listener(data))
+            .then(handleErrorEvent)
+            .catch(handleListenerError)
+        );
       }
     }
 
@@ -317,10 +318,11 @@ export default abstract class BaseExecutor<
       hasNotifications = true;
       const starEvent = { name: eventName, data };
       for (const listener of starListeners) {
-        notifications = notifications
-          .then(() => Task.resolve(listener(starEvent)))
-          .then(handleErrorEvent)
-          .catch(handleListenerError);
+        notifications.push(
+          Task.resolve(listener(starEvent))
+            .then(handleErrorEvent)
+            .catch(handleListenerError)
+        );
       }
     }
 
@@ -345,7 +347,7 @@ export default abstract class BaseExecutor<
       return Task.resolve();
     }
 
-    return notifications;
+    return Task.all(notifications).then(() => undefined);
   }
 
   /**
