@@ -10,6 +10,7 @@ import Test, { isSkip, isTest, SKIP } from './Test';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
 import { errorToJSON } from './common/util';
+import { setTimeout, clearTimeout, now } from './common/time';
 
 /**
  * The Suite class manages a group of tests.
@@ -385,13 +386,13 @@ export default class Suite implements SuiteProperties {
     // Run when the suite starts
     const start = () => {
       return this.executor.emit('suiteStart', this).then(function () {
-        startTime = Date.now();
+        startTime = now();
       });
     };
 
     // Run when the suite has ended
     const end = () => {
-      this.timeElapsed = Date.now() - startTime;
+      this.timeElapsed = now() - startTime;
       return this.executor.emit('suiteEnd', this);
     };
 

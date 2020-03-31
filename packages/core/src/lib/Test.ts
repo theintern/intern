@@ -11,6 +11,7 @@ import { InternError } from './types';
 import { Remote } from './executors/Node';
 import Suite from './Suite';
 import { errorToJSON } from './common/util';
+import { setTimeout, clearTimeout, now } from './common/time';
 
 /**
  * A Test is a single unit or functional test.
@@ -269,7 +270,7 @@ export default class Test implements TestProperties {
     return this.executor
       .emit('testStart', this)
       .then(() => {
-        startTime = Date.now();
+        startTime = now();
       })
       .then<void>(() => {
         let result: Promise<any> | void = this.test(this);
@@ -308,7 +309,7 @@ export default class Test implements TestProperties {
       .finally(() => {
         this._runPromise = undefined;
         this._cancelToken = undefined;
-        this._timeElapsed = Date.now() - startTime;
+        this._timeElapsed = now() - startTime;
 
         // Ensure the timeout timer is cleared so the testing process
         // doesn't hang at exit
