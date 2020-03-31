@@ -1171,7 +1171,8 @@ registerSuite('lib/executors/Node', function() {
             executor.configure(<any>{
               environments: ['chrome', 'firefox', 'ie'],
               tunnel: 'selenium',
-              suites: 'foo2.js'
+              suites: 'foo2.js',
+              showConfig: true
             });
             return executor.run().then(() => {
               assert.sameDeepMembers(
@@ -1193,7 +1194,8 @@ registerSuite('lib/executors/Node', function() {
               tunnelOptions: {
                 drivers: ['chrome', { name: 'ie', options: {} }]
               },
-              suites: 'foo2.js'
+              suites: 'foo2.js',
+              showConfig: true
             });
             return executor.run().then(() => {
               assert.sameDeepMembers(
