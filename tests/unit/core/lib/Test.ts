@@ -16,6 +16,7 @@ import {
 } from 'tests/support/unit/mocks';
 import { mockImport } from 'tests/support/mockUtil';
 import { createSuite } from 'tests/support/unit/factories';
+import sinon from 'sinon';
 
 let Test: typeof _Test;
 
@@ -36,9 +37,19 @@ function createTest(
   return new Test(<TestOptions>options);
 }
 
+let sandbox: sinon.SinonSandbox;
+
 registerSuite('core/lib/Test', {
   async before() {
     Test = (await mockImport(() => import('src/core/lib/Test'))).default;
+  },
+
+  beforeEach() {
+    sandbox = sinon.createSandbox();
+  },
+
+  afterEach() {
+    sandbox.restore();
   },
 
   tests: {
@@ -214,6 +225,50 @@ registerSuite('core/lib/Test', {
         const test = createTest({
           name: 'timeout test',
           test() {
+            this.async(100);
+          }
+        });
+
+        test.run().then(
+          () => {
+            dfd.reject(
+              new Error(
+                'Test should timeout if async and the promise is never resolved'
+              )
+            );
+          },
+          error => {
+            assert.ok(error, 'Timeout error thrown in async test');
+            dfd.resolve();
+          }
+        );
+      },
+
+      async 'timeElapsed is reported accurately when using stubbed timers'() {
+        const test = createTest({
+          name: 'test',
+          test() {
+            const clock = sandbox.useFakeTimers();
+            clock.setSystemTime(1);
+          }
+        });
+
+        await test.run();
+
+        assert.isAtLeast(
+          test.timeElapsed!,
+          0,
+          'Time elapsed should not be negative'
+        );
+      },
+
+      'timeout is unaffected when using stubbed timers'() {
+        const dfd = this.async(500);
+        const test = createTest({
+          name: 'timeout test',
+          test() {
+            const clock = sandbox.useFakeTimers();
+            clock.setSystemTime(1);
             this.async(100);
           }
         });
