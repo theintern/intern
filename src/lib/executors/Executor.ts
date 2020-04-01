@@ -284,30 +284,19 @@ export default abstract class BaseExecutor<
       }
     };
 
-    let error: InternError | undefined;
+    let error: unknown | undefined;
     if (eventName === 'error') {
-      error = <any>data;
+      error = data;
     }
 
-    // If this is an error event, mark the error as 'reported'
-    const handleErrorEvent = () => {
-      if (error) {
-        error.reported = true;
-      }
-    };
-
     const notifications: CancellablePromise<void>[] = [];
-    let hasNotifications = false;
 
-    // First, notify the listeners specifically listening for this event
+    // Notify any listeners specifically listening for this event
     const listeners = this._listeners[<string>eventName];
     if (listeners && listeners.length > 0) {
-      hasNotifications = true;
       for (const listener of listeners) {
         notifications.push(
-          Task.resolve(listener(data))
-            .then(handleErrorEvent)
-            .catch(handleListenerError)
+          Task.resolve(listener(data)).catch(handleListenerError)
         );
       }
     }
@@ -315,24 +304,20 @@ export default abstract class BaseExecutor<
     // Next, notify 'star' listeners, which listen for all events
     const starListeners = this._listeners['*'];
     if (starListeners && starListeners.length > 0) {
-      hasNotifications = true;
       const starEvent = { name: eventName, data };
       for (const listener of starListeners) {
         notifications.push(
-          Task.resolve(listener(starEvent))
-            .then(handleErrorEvent)
-            .catch(handleListenerError)
+          Task.resolve(listener(starEvent)).catch(handleListenerError)
         );
       }
     }
 
-    if (!hasNotifications) {
-      // If reporters haven't been loaded yet, cache the event
-      if (error) {
-        // Report errors, warnings, deprecation messages when no
-        // listeners are registered
+    if (notifications.length === 0) {
+      // Report errors, warnings, deprecation messages when no listeners are
+      // registered
+      if (error && error instanceof Error) {
         console.error(this.formatError(error));
-        error.reported = true;
+        (error as InternError).reported = true;
       } else if (eventName === 'warning') {
         console.warn(`WARNING: ${data}`);
       } else if (eventName === 'deprecated') {
@@ -347,7 +332,14 @@ export default abstract class BaseExecutor<
       return Task.resolve();
     }
 
-    return Task.all(notifications).then(() => undefined);
+    return Task.all(notifications)
+      .then(() => undefined)
+      .finally(() => {
+        // If this is an error event, mark the error as 'reported'
+        if (error && error instanceof Error) {
+          (error as InternError).reported = true;
+        }
+      });
   }
 
   /**
