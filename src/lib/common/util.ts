@@ -550,12 +550,11 @@ export function processOption<C extends Config>(
       }
       _value = _value.map((val: any) => {
         if (typeof val === 'object') {
-          if (val.browserName == null) {
+          // Use browserName instead of browser
+          if (val.browserName == null && typeof val.browser !== 'undefined') {
             val.browserName = val.browser;
           }
-          if (val.browserVersion == null) {
-            val.browserVersion = val.version;
-          }
+          delete val.browser;
         }
         if (typeof val === 'object' && val.version == null) {
           val.version = val.browserVersion;

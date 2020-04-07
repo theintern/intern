@@ -384,46 +384,14 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
         return serverTask
           .then(() => {
-            const tunnelOptions = config.tunnelOptions;
-            if (config.tunnel === 'browserstack') {
-              const options = <BrowserStackOptions>tunnelOptions;
-              options.servers = options.servers || [];
-              options.servers.push(config.serverUrl);
-            }
+            // Tunnel will have been created in resolveConfig
+            const tunnel = this.tunnel!;
 
-            if ('proxy' in config && !('proxy' in tunnelOptions)) {
-              tunnelOptions.proxy = config.proxy;
-            }
+            this._createSessionSuites();
 
-            let TunnelConstructor = this.getTunnel(config.tunnel);
-            const tunnel = (this.tunnel = new TunnelConstructor(
-              this.config.tunnelOptions
-            ));
-
-            tunnel.on('downloadprogress', progress => {
-              this.emit('tunnelDownloadProgress', {
-                tunnel,
-                progress
-              });
-            });
-
-            tunnel.on('status', status => {
-              this.emit('tunnelStatus', {
-                tunnel,
-                status: status.status
-              });
-            });
-
-            config.capabilities = deepMixin(
-              tunnel.extraCapabilities,
-              config.capabilities
-            );
-
-            return this._createSessionSuites().then(() => {
-              return tunnel
-                .start()
-                .then(() => this.emit('tunnelStart', { tunnel }));
-            });
+            return tunnel
+              .start()
+              .then(() => this.emit('tunnelStart', { tunnel }));
           })
           .then(() => {
             return false;
@@ -434,13 +402,52 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     });
   }
 
+  protected _createTunnel() {
+    const config = this.config;
+    const tunnelOptions = config.tunnelOptions;
+    if (config.tunnel === 'browserstack') {
+      const options = <BrowserStackOptions>tunnelOptions;
+      options.servers = options.servers || [];
+      options.servers.push(config.serverUrl);
+    }
+
+    if ('proxy' in config && !('proxy' in tunnelOptions)) {
+      tunnelOptions.proxy = config.proxy;
+    }
+
+    const TunnelConstructor = this.getTunnel(config.tunnel);
+    const tunnel = new TunnelConstructor(this.config.tunnelOptions);
+    this.tunnel = tunnel;
+
+    tunnel.on('downloadprogress', progress => {
+      this.emit('tunnelDownloadProgress', {
+        tunnel,
+        progress
+      });
+    });
+
+    tunnel.on('status', status => {
+      this.emit('tunnelStatus', {
+        tunnel,
+        status: status.status
+      });
+    });
+
+    return tunnel;
+  }
+
   /**
    * Creates suites for each environment in which tests will be executed. This
    * method will only be called if there are both environments and suites to
    * run.
    */
-  protected _createSessionSuites() {
-    const tunnel = this.tunnel!;
+  protected _createSessionSuites(): void {
+    if (!this.tunnel) {
+      this.log('No tunnel - Not creating session suites');
+      return;
+    }
+
+    const tunnel = this.tunnel;
     const config = this.config;
 
     const leadfootServer = new LeadfootServer(tunnel.clientUrl, {
@@ -459,12 +466,10 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
     leadfootServer.sessionConstructor = InitializedProxiedSession;
 
-    return tunnel.getEnvironments().then(tunnelEnvironments => {
-      this._sessionSuites = resolveEnvironments(
-        config.capabilities,
-        config.environments.filter(isRemoteEnvironment),
-        tunnelEnvironments
-      ).map(environmentType => {
+    // config.environments was resolved in resolveConfig
+    this._sessionSuites = this.config.environments
+      .filter(isRemoteEnvironment)
+      .map(environmentType => {
         let session: ProxiedSession;
 
         // Create a new root suite for each environment
@@ -485,7 +490,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
                 session = _session;
                 this.executor.log('Created session:', session.capabilities);
 
-                let remote: Remote = <Remote>new Command(session);
+                const remote: Remote = <Remote>new Command(session);
                 remote.environmentType = new Environment(session.capabilities);
                 remote.requestedEnvironment = environmentType;
                 this.remote = remote;
@@ -532,7 +537,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           after() {
             const remote = this.remote;
 
-            if (remote) {
+            if (remote != null) {
               const endSession = () => {
                 // Check for an error in this suite or a
                 // sub-suite. This check is a bit more involved
@@ -571,7 +576,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
         return suite;
       });
-    });
   }
 
   /**
@@ -827,6 +831,41 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         } else {
           tunnelOptions.drivers = driverNames.map(name => ({ name }));
         }
+      }
+
+      // If there are remote environments, resolve them using environments
+      // available through the tunnel specified in the config.
+      const remoteEnvironments = config.environments.filter(
+        isRemoteEnvironment
+      );
+      if (remoteEnvironments.length > 0 && config.tunnel && !config.serveOnly) {
+        const tunnel = this._createTunnel();
+
+        // Add any extra capabilites provided by the tunnel to the config's
+        // capabilities
+        config.capabilities = deepMixin(
+          tunnel.extraCapabilities,
+          config.capabilities
+        );
+
+        return tunnel.getEnvironments().then(tunnelEnvironments => {
+          // Resolve the environments, matching versions, platforms, and browser
+          // names from the config with whats available from the tunnel
+          // enviroment.
+          const resolvedEnvironments = resolveEnvironments(
+            config.capabilities,
+            remoteEnvironments,
+            tunnelEnvironments
+          );
+
+          const localEnvironments = config.environments.filter(
+            env => !isRemoteEnvironment(env)
+          );
+
+          // The full environments list is all the local environments (generally
+          // just node) with all the remote environments.
+          config.environments = [...localEnvironments, ...resolvedEnvironments];
+        });
       }
     });
   }

@@ -1,8 +1,8 @@
+import { EnvironmentSpec } from './common/config';
 import { NormalizedEnvironment } from '@theintern/digdug/Tunnel';
 import { normalize } from 'path';
 
 import process from './node/process';
-import Environment from './Environment';
 
 /**
  * Resolves a collection of Intern test environments to a list of service
@@ -17,17 +17,16 @@ export default function resolveEnvironments(
   capabilities: { [key: string]: any },
   environments: EnvironmentOptions[],
   available?: NormalizedEnvironment[]
-) {
+): EnvironmentSpec[] {
   // Pre-process the environments list to resolve any uses of {pwd} and do any
   // top-level substitutions
-  environments = environments.map(expandPwd).map(normalizeVersion);
-
-  if (available) {
-    environments = normalizeBrowserNames(environments, available);
-  }
+  environments = environments.map(expandPwd);
 
   // Update the browserName to match the target environment (only relevant for
   // edge / MicrosoftEdge)
+  if (available) {
+    environments = normalizeBrowserNames(environments, available);
+  }
 
   // flatEnviroments will have non-array versions
   const flatEnvironments = createPermutations(capabilities, environments);
@@ -46,9 +45,7 @@ export default function resolveEnvironments(
   });
 
   // Perform a second round of permuting to handle any expanded version ranges
-  return createPermutations({}, expandedEnvironments).map(
-    environment => new Environment(environment)
-  );
+  return createPermutations({}, expandedEnvironments).map(normalizeEnvironment);
 }
 
 export interface EnvironmentOptions {
@@ -97,13 +94,20 @@ function expandPwd<T>(value: T): T {
  * Ensure environment has both `version` and `browserVersion` properties with
  * the same value
  */
-function normalizeVersion(env: EnvironmentOptions) {
+function normalizeEnvironment(env: EnvironmentOptions) {
+  const normEnv = { ...env };
   const browserVersion = env.browserVersion || env.version;
-  return {
-    ...env,
-    browserVersion,
-    version: browserVersion
-  };
+
+  if (browserVersion != null) {
+    normEnv.version = browserVersion;
+    normEnv.browserVersion = browserVersion;
+  }
+
+  const browserName = env.browserName || env.browser;
+  normEnv.browser = browserName;
+  normEnv.browserName = browserName;
+
+  return normEnv as EnvironmentSpec;
 }
 
 /**
@@ -232,7 +236,10 @@ function getVersions(
         // have 'browserName'.
         .filter(
           key =>
-            key !== 'browserVersion' && key !== 'version' && key !== 'browser'
+            key === 'browserName' ||
+            key === 'platformName' ||
+            key === 'platform' ||
+            key === 'platformVersion'
         )
         .some(envKey => {
           const key = <keyof NormalizedEnvironment>envKey;
@@ -240,18 +247,25 @@ function getVersions(
             return false;
           }
 
-          const value = environment[key];
+          let value = environment[key];
+          if (typeof value === 'string') {
+            value = value.toLowerCase();
+          }
+
+          let availableValue = availableEnvironment[key];
+          if (typeof availableValue === 'string') {
+            availableValue = availableValue.toLowerCase();
+          }
 
           // At least BrowserStack uses 'edge' for MicrosoftEdge, while everyone
           // else + the Edge webdrivers use 'MicrosoftEdge'.
-          if (key === 'browserName' && value === 'MicrosoftEdge') {
+          if (key === 'browserName' && value === 'microsoftedge') {
             return (
-              availableEnvironment[key] !== 'MicrosoftEdge' ||
-              availableEnvironment[key] !== 'edge'
+              availableValue !== 'microsoftedge' || availableValue !== 'edge'
             );
           }
 
-          return availableEnvironment[key] !== value;
+          return availableValue !== value;
         });
     })
     .forEach(function(availableEnvironment) {
@@ -401,8 +415,7 @@ function normalizeBrowserNames(
       if (available.some(ae => ae.browserName === 'edge')) {
         return {
           ...env,
-          browserName: 'edge',
-          browser: 'edge'
+          browserName: 'edge'
         };
       }
     }
