@@ -2,7 +2,8 @@ name: Update issue
 
 on:
   issues:
-  pull_request: [opened, closed, reopened]
+  pull_request:
+    types: [opened, closed, reopened]
 
 jobs:
   update-issue:
