@@ -1,0 +1,27 @@
+name: Update issue
+
+on:
+  issues:
+  pull_request: [opened, closed, reopened]
+
+jobs:
+  update-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: theintern/action-project-manager@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          project: Development
+          auto-add: true
+          triage-column: Triage
+          triage-label: needs-verification
+          todo-column: To do
+          working-column: In progress
+          done-column: Done
+      - uses: theintern/action-project-manager@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          project: Intern 5
+          todo-column: To do
+          working-column: In progress
+          done-column: Done
