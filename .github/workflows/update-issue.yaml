@@ -16,6 +16,7 @@ jobs:
           auto-add: true
           triage-column: Triage
           triage-label: needs-verification
+          triaged-labels: effort-low, effort-medium, effort-high, priority-low, priority-medium, priority-high
           todo-column: To do
           working-column: In progress
           done-column: Done
