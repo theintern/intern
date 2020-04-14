@@ -611,7 +611,7 @@
         "html",
         "htmlcoverage",
         "jsoncoverage",
-        "jsunit",
+        "junit",
         "lcov",
         "pretty",
         "runner",
