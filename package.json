@@ -1,6 +1,6 @@
 {
   "name": "intern",
-  "version": "4.8.3-pre",
+  "version": "4.8.3",
   "description": "Intern. A next-generation code testing stack for JavaScript.",
   "homepage": "http://theintern.io/",
   "license": "BSD-3-Clause",
