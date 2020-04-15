@@ -3,7 +3,7 @@ import express from 'express';
 import { Server as HttpServer } from 'http';
 import { Socket } from 'net';
 import WebSocket from 'ws';
-import { Handle } from '@theintern/common';
+import { Handle, global } from '@theintern/common';
 
 import { pullFromArray } from './common/util';
 import { isErrnoException } from './node/util';
@@ -43,6 +43,9 @@ export default class Server implements ServerProperties {
   /** Port to use for WebSocket connections */
   socketPort!: number;
 
+  /** Time in ms between websocket keepalive pings */
+  socketPingInterval!: number;
+
   get stopped() {
     return !this._httpServer;
   }
@@ -53,13 +56,15 @@ export default class Server implements ServerProperties {
     | { [id: string]: { listeners: ServerListener[] } }
     | undefined;
   protected _wsServer: WebSocket.Server | undefined;
+  protected _wsPingTimers: NodeJS.Timer[] | undefined;
 
   constructor(options: ServerOptions) {
     Object.assign(
       this,
       {
         basePath: '.',
-        runInSync: false
+        runInSync: false,
+        socketPingInterval: 30000
       },
       options
     );
@@ -79,10 +84,14 @@ export default class Server implements ServerProperties {
         this.socketPort
       );
 
+      this._wsPingTimers = [];
+      let wsClientCount = 0;
+
       wsServer = new WebSocket.Server({ port: this.socketPort });
       wsServer.on('connection', client => {
-        this.executor.log('WebSocket connection opened:', client);
-        this._handleWebSocket(client);
+        wsClientCount++;
+        this.executor.log('WebSocket connection opened for', wsClientCount);
+        this._handleWebSocket(client, wsClientCount);
       });
       wsServer.on('error', error => {
         if (isErrnoException(error) && error.code === 'EADDRINUSE') {
@@ -249,6 +258,10 @@ export default class Server implements ServerProperties {
     }
 
     if (this._wsServer) {
+      for (const timer of this._wsPingTimers!) {
+        clearInterval(timer);
+      }
+
       promises.push(
         new Promise(resolve => {
           this._wsServer!.close(resolve);
@@ -308,20 +321,49 @@ export default class Server implements ServerProperties {
     return resolvedPromise;
   }
 
-  private _handleWebSocket(client: WebSocket) {
+  private _handleWebSocket(client: WebSocket, id: number) {
+    let isAlive = true;
+
+    // Send a ping every 30 seconds to check that the client is alive, and to
+    // keep the connection alive
+    const timer = global.setInterval(() => {
+      if (!isAlive) {
+        client.terminate();
+        clearInterval(timer);
+      } else {
+        isAlive = false;
+        this.executor.log('Sending ping to remote', id);
+        try {
+          client.ping();
+        } catch (error) {
+          console.error('Error calling ping on', client);
+        }
+      }
+    }, this.socketPingInterval);
+
+    // Keep track of the ping timer so it can be cleared if the server is
+    // stopped.
+    this._wsPingTimers!.push(timer);
+
+    // When a response is received from the client, flag it as still alive
+    client.on('pong', () => {
+      this.executor.log('Received pong from remote', id);
+      isAlive = true;
+    });
+
     client.on('message', data => {
-      this.executor.log('Received WebSocket message');
+      this.executor.log('Received WebSocket message from', id);
       const message: Message = JSON.parse(data.toString());
       this._handleMessage(message)
         .catch(error => this.executor.emit('error', error))
         .then(() => {
-          this.executor.log('Sending ack for [', message.id, ']');
+          this.executor.log('Sending ack for [', message.id, '] to', id);
           client.send(JSON.stringify({ id: message.id }), error => {
             if (error) {
               this.executor.emit(
                 'error',
                 new Error(
-                  `Error sending ack for [ ${message.id} ]: ${error.message}`
+                  `Error sending ack for [ ${message.id} ] to ${id}: ${error.message}`
                 )
               );
             }
@@ -330,8 +372,9 @@ export default class Server implements ServerProperties {
     });
 
     client.on('error', error => {
-      this.executor.log('WebSocket client error:', error);
+      this.executor.log('WebSocket client error for', id, ':', error);
       this.executor.emit('error', error);
+      clearInterval(timer);
     });
   }
 

@@ -66,9 +66,10 @@
     "@types/istanbul-lib-report": "~3.0.0",
     "@types/istanbul-lib-source-maps": "~1.2.2",
     "@types/istanbul-reports": "~1.1.1",
-    "@types/ws": "~6.0.4",
+    "@types/ws": "~7.2.4",
     "benchmark": "~2.1.4",
     "body-parser": "~1.19.0",
+    "bufferutil": "~4.0.1",
     "chai": "~4.2.0",
     "charm": "~1.0.2",
     "diff": "~4.0.1",
@@ -90,6 +91,7 @@
     "source-map": "~0.6.1",
     "ts-node": "~8.5.4",
     "tslib": "~1.9.3",
+    "utf-8-validate": "~5.0.2",
     "ws": "~7.2.0"
   },
   "devDependencies": {
@@ -116,6 +118,7 @@
     "@types/systemjs": "~0.20.7",
     "@types/webpack": "~4.4.32",
     "ajv": "~6.10.0",
+    "canvas": "~2.6.1",
     "core-js": "~3.5.0",
     "core-js-pure": "~3.5.0",
     "cross-env": "~6.0.3",
