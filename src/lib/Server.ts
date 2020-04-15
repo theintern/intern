@@ -53,6 +53,7 @@ export default class Server implements ServerProperties {
     | { [id: string]: { listeners: ServerListener[] } }
     | undefined;
   protected _wsServer: WebSocket.Server | undefined;
+  protected _wsPingTimers: NodeJS.Timer[];
 
   constructor(options: ServerOptions) {
     Object.assign(
@@ -63,6 +64,7 @@ export default class Server implements ServerProperties {
       },
       options
     );
+    this._wsPingTimers = [];
   }
 
   start() {
@@ -79,10 +81,12 @@ export default class Server implements ServerProperties {
         this.socketPort
       );
 
+      let clientCount = 0;
       wsServer = new WebSocket.Server({ port: this.socketPort });
       wsServer.on('connection', client => {
-        this.executor.log('WebSocket connection opened:', client);
-        this._handleWebSocket(client);
+        clientCount++;
+        this.executor.log(`WebSocket client ${clientCount} connected`);
+        this._handleWebSocket(client, clientCount);
       });
       wsServer.on('error', error => {
         if (isErrnoException(error) && error.code === 'EADDRINUSE') {
@@ -98,6 +102,11 @@ export default class Server implements ServerProperties {
           reject(error);
         } else {
           this.executor.emit('error', error);
+        }
+      });
+      wsServer.on('close', () => {
+        for (const timer of this._wsPingTimers) {
+          clearInterval(timer);
         }
       });
 
@@ -286,9 +295,9 @@ export default class Server implements ServerProperties {
     this.executor.log(
       'Processing message [',
       message.id,
-      '] for ',
+      '] for',
       message.sessionId,
-      ': ',
+      ':',
       message.name
     );
 
@@ -306,20 +315,46 @@ export default class Server implements ServerProperties {
     return resolvedPromise;
   }
 
-  private _handleWebSocket(client: WebSocket) {
+  private _handleWebSocket(client: WebSocket, id: number) {
+    let isAlive = true;
+
+    // Send a ping every 30 seconds to check that the client is alive, and to
+    // keep the connection alive
+    const timer = setInterval(() => {
+      if (!isAlive) {
+        client.terminate();
+        clearInterval(timer);
+      }
+      isAlive = false;
+      this.executor.log('Sending ping to remote', id);
+      client.ping();
+    }, 30000);
+
+    // Keep track of the heartbeat timer so it can be cleared if the server is
+    // stopped.
+    this._wsPingTimers.push(timer);
+
+    // When a response is received from the client, flag it as still alive
+    client.on('pong', () => {
+      this.executor.log('Received pong from remote', id);
+      isAlive = true;
+    });
+
     client.on('message', data => {
-      this.executor.log('Received WebSocket message');
+      this.executor.log('Received WebSocket message from', id);
       const message: Message = JSON.parse(data.toString());
       this._handleMessage(message)
         .catch(error => this.executor.emit('error', error))
         .then(() => {
-          this.executor.log('Sending ack for [', message.id, ']');
+          this.executor.log('Sending ack for [', message.id, '] to', id);
           client.send(JSON.stringify({ id: message.id }), error => {
             if (error) {
               this.executor.emit(
                 'error',
                 new Error(
-                  `Error sending ack for [ ${message.id} ]: ${error.message}`
+                  `Error sending ack for [ ${message.id} ] to ${id}: ${
+                    error.message
+                  }`
                 )
               );
             }
@@ -328,8 +363,9 @@ export default class Server implements ServerProperties {
     });
 
     client.on('error', error => {
-      this.executor.log('WebSocket client error:', error);
+      this.executor.log(`WebSocket client error for ${id}:`, error);
       this.executor.emit('error', error);
+      clearInterval(timer);
     });
   }
 
