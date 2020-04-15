@@ -333,7 +333,15 @@ export class EventHandler {
   }
 
   once() {}
-  emit() {}
+
+  emit(event: string) {
+    if (this.handlers[event]) {
+      for (const handler of this.handlers[event]) {
+        handler(event);
+      }
+    }
+  }
+
   prependListener() {}
 }
 

@@ -29,9 +29,13 @@ class MockSocket extends EventHandler {
     this.destroyed = true;
   }
 
-  setNoDelay() {}
+  ping() {
+    setTimeout(() => this.emit('pong'));
+  }
 
+  setNoDelay() {}
   send() {}
+  terminate() {}
 }
 
 class MockServer extends EventHandler {
@@ -107,6 +111,12 @@ registerSuite('core/lib/Server', function() {
 
   const sandbox = sinon.createSandbox();
 
+  const mockCommon = {
+    global: {
+      setInterval: sandbox.stub()
+    }
+  };
+
   function passthroughMiddleware(_: any, __: any, callback: () => void) {
     callback();
   }
@@ -170,6 +180,7 @@ registerSuite('core/lib/Server', function() {
           replace(() => import('path')).with(mockPath);
           replace(() => import('http')).with(mockHttp as any);
           replace(() => import('ws')).with(mockWebSocket as any);
+          replace(() => import('src/common')).with(mockCommon);
           replace(() =>
             import('src/core/lib/middleware/instrument')
           ).withDefault(instrument as any);
