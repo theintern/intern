@@ -210,6 +210,7 @@ importers:
       '@types/webpack': 4.4.35
       ajv: 6.10.2
       canvas: 2.6.1
+      chai-exclude: 2.0.2
       core-js: 3.5.0
       core-js-pure: 3.5.0
       cross-env: 6.0.3
@@ -272,6 +273,7 @@ importers:
       bufferutil: ~4.0.1
       canvas: ~2.6.1
       chai: ~4.2.0
+      chai-exclude: ~2.0.2
       charm: ~1.0.2
       core-js: ~3.5.0
       core-js-pure: ~3.5.0
@@ -2288,6 +2290,14 @@ packages:
     dev: true
     resolution:
       integrity: sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
+  /chai-exclude/2.0.2:
+    dependencies:
+      fclone: 1.0.11
+    dev: true
+    peerDependencies:
+      chai: '>= 4.0.0 < 5'
+    resolution:
+      integrity: sha512-QmNVnvdSw8Huccdjm49mKu3HtoHxvjdavgYkY0KPQ5MI5UWfbc9sX1YqRgaMPf2GGtDXPoF2ram3AeNS4945Xw==
   /chai/4.2.0:
     dependencies:
       assertion-error: 1.1.0
@@ -3675,6 +3685,10 @@ packages:
     dev: true
     resolution:
       integrity: sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
+  /fclone/1.0.11:
+    dev: true
+    resolution:
+      integrity: sha1-EOhdo4v+p/xZk0HClu4ddyZu5kA=
   /fd-slicer/1.1.0:
     dependencies:
       pend: 1.2.0
