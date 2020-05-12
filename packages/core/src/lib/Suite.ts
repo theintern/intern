@@ -328,7 +328,7 @@ export default class Suite implements SuiteProperties {
   }
 
   private _applyGrepToSuiteOrTest(suiteOrTest: Suite | Test) {
-    if (suiteOrTest instanceof Suite) {
+    if (isSuite(suiteOrTest)) {
       suiteOrTest._applyGrepToChildren();
     } else {
       const grepSkipReason = 'grep';
@@ -777,8 +777,15 @@ export default class Suite implements SuiteProperties {
 }
 
 export function isSuite(value: any): value is Suite {
+  // This is more complex than a simple instanceof check
   return (
-    value && Array.isArray(value.tests) && typeof value.hasParent === 'boolean'
+    value &&
+    typeof value === 'object' &&
+    // Check properties that will be on both live and serialized Suites (so they
+    // should be properties that toJSON emits)
+    Array.isArray(value.tests) &&
+    typeof value.hasParent === 'boolean' &&
+    typeof value.numTests === 'number'
   );
 }
 
