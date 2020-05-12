@@ -1,8 +1,8 @@
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { Configuration, HotModuleReplacementPlugin } from 'webpack';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { sync as glob } from 'glob';
-import { getConfig } from './src/core/lib/node/util';
+import { createConfigurator } from './src/core/lib/node';
 // @ts-ignore
 import RewireMockPlugin from 'rewiremock/webpack/plugin';
 
@@ -28,6 +28,22 @@ const common: Configuration = {
             onlyCompileBundledFiles: true,
             transpileOnly: true,
             experimentalWatchApi: true
+          }
+        }
+      },
+      // chai-exclude needs to be ES5 for IE11 compatibility, so run it through
+      // the TS compiler. The tsconfig-tests.json config enables JS compilation
+      // with allowJs.
+      {
+        test: /\.js/,
+        include: [resolve(__dirname, 'node_modules', 'chai-exclude')],
+        use: {
+          loader: 'ts-loader',
+          options: {
+            silent: true,
+            configFile: 'tsconfig-tests.json',
+            onlyCompileBundledFiles: true,
+            transpileOnly: true
           }
         }
       }
@@ -68,7 +84,7 @@ module.exports = getEntries().then(entries => [
 ]);
 
 async function getEntries() {
-  const { config } = await getConfig();
+  const config = await createConfigurator().loadConfig();
   const configSuites: string[] = config.suites || [];
   if (config.browser && config.browser.suites) {
     configSuites.push(...config.browser.suites);

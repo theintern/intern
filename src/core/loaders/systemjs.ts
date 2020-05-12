@@ -15,7 +15,7 @@ intern.registerLoader(function(options) {
     return intern
       .loadScript('node_modules/systemjs/dist/system.src.js')
       .then(function() {
-        return configAndLoad(SystemJS);
+        return configAndLoad(globalObj.SystemJS);
       });
   } else {
     // Use globalObj to get to require to improve testability

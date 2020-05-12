@@ -1,7 +1,7 @@
 import { global } from '../common';
 import Node from '../core/lib/executors/Node';
-import { Config } from '../core/lib/common/config';
-import { getConfig } from '../core/lib/node/util';
+import { Config } from '../core/lib/config';
+import { createConfigurator } from '../core/lib/node';
 
 export = function(grunt: IGrunt) {
   grunt.registerMultiTask('intern', function() {
@@ -32,18 +32,18 @@ interface TaskOptions extends grunt.task.ITaskOptions, Partial<Config> {
   [key: string]: any;
 }
 
-function getConfigAndOptions(
+async function getConfigAndOptions(
   options: TaskOptions
 ): Promise<{
   config: Partial<Config>;
   options: TaskOptions;
 }> {
   if (options.config) {
-    return getConfig(options.config, []).then(({ config }) => {
-      const opts = { ...options };
-      delete opts.config;
-      return { config, options: opts };
-    });
+    const configurator = createConfigurator();
+    const config = await configurator.loadConfig(options.config);
+    const opts = { ...options };
+    delete opts.config;
+    return { config, options: opts };
   }
 
   return Promise.resolve({ config: {}, options });

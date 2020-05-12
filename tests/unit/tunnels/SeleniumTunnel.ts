@@ -1,9 +1,12 @@
 import SeleniumTunnel from 'src/tunnels/SeleniumTunnel';
+import { BrowserName, isWebDriver } from 'src/tunnels/types';
 
 registerSuite('tunnels/SeleniumTunnel', {
   config: {
     'name only': function() {
-      const tunnel = new SeleniumTunnel({ drivers: ['chrome'] });
+      const tunnel = new SeleniumTunnel({
+        drivers: [{ browserName: 'chrome' }]
+      });
       assert.isFalse(tunnel.isDownloaded);
     },
 
@@ -28,7 +31,7 @@ registerSuite('tunnels/SeleniumTunnel', {
     'config object with invalid name': function() {
       assert.throws(function() {
         const tunnel = new SeleniumTunnel({
-          drivers: [{ name: 'foo' }]
+          drivers: [{ browserName: 'foo' as BrowserName }]
         });
         Object.defineProperty(tunnel, 'artifact', { value: '.' });
         Object.defineProperty(tunnel, 'directory', { value: '.' });
@@ -82,5 +85,13 @@ registerSuite('tunnels/SeleniumTunnel', {
         }
       };
     })()
+  },
+
+  isWebDriver() {
+    assert.isTrue(isWebDriver({ browserName: 'chrome' }));
+    assert.isFalse(isWebDriver({ browser: 'chrome' } as any));
+    assert.isFalse(isWebDriver('chrome' as any));
+    assert.isFalse(isWebDriver(5 as any));
+    assert.isFalse(isWebDriver(undefined as any));
   }
 });

@@ -54,7 +54,6 @@ function getEntries() {
   const baseDir = join(__dirname, 'src', 'core', 'browser');
   return {
     intern: join(baseDir, 'intern.ts'),
-    remote: join(baseDir, 'remote.ts'),
-    config: join(baseDir, 'config.ts')
+    remote: join(baseDir, 'remote.ts')
   };
 }

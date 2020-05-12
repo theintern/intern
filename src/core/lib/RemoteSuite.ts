@@ -6,7 +6,7 @@ import { Handle, createCancelToken } from '../../common';
 import Suite, { SuiteOptions } from './Suite';
 import { InternError } from './types';
 import Node, { NodeEvents } from './executors/Node';
-import { Config } from './common/config';
+import { Config } from './config';
 import Browser from './executors/Browser';
 import { stringify } from './common/util';
 
@@ -325,5 +325,5 @@ export interface RemoteConfig extends Config {
   serverUrl: string;
   sessionId: string;
   runInSync: boolean;
-  socketPort?: number;
+  socketPort: number;
 }

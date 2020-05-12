@@ -1,8 +1,4 @@
-import Tunnel, {
-  TunnelProperties,
-  ChildExecutor,
-  NormalizedEnvironment
-} from './Tunnel';
+import Tunnel, { TunnelProperties, ChildExecutor } from './Tunnel';
 import { existsSync, watchFile, unlinkSync, unwatchFile } from 'fs';
 import { stringify } from 'querystring';
 import { tmpdir } from 'os';
@@ -10,7 +6,7 @@ import { join } from 'path';
 import { request } from '../common';
 import { parse } from 'url';
 import { fileExists, on } from './lib/util';
-import { JobState } from './interfaces';
+import { JobState, NormalizedEnvironment } from './types';
 
 /**
  * A TestingBot tunnel.
@@ -45,7 +41,7 @@ export default class TestingBotTunnel extends Tunnel
    */
   useSsl!: boolean;
 
-  constructor(options?: TestingBotOptions) {
+  constructor(options?: Partial<TestingBotProperties>) {
     super(
       Object.assign(
         {
@@ -291,5 +287,3 @@ export interface TestingBotProperties extends TunnelProperties {
   /** [[TestingBotTunnel.TestingBotTunnel.useSsl|More info]] */
   useSsl: boolean;
 }
-
-export type TestingBotOptions = Partial<TestingBotProperties>;

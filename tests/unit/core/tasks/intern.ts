@@ -21,7 +21,19 @@ registerSuite('core/tasks/intern', function() {
   const mockRun = sandbox.stub();
   const mockConfigure = sandbox.stub();
 
-  const mockGetConfig = sandbox.stub();
+  const mockLoadConfig = sandbox.stub().resolves({});
+  const mockCreateConfigurator = sandbox.spy((_props?: object) => ({
+    addToConfig(_args: object, _config?: object) {
+      return {};
+    },
+
+    describeConfig(_file: string, _prefix?: string): Promise<string> {
+      return Promise.resolve('');
+    },
+
+    loadConfig: mockLoadConfig
+  }));
+
   class MockNode {
     run: Function;
     configure: Function;
@@ -45,8 +57,8 @@ registerSuite('core/tasks/intern', function() {
             MockNode as any
           ),
             replace(() => import('src/common')).with({ global: {} });
-          replace(() => import('src/core/lib/node/util')).with({
-            getConfig: mockGetConfig
+          replace(() => import('src/core/lib/node/config')).with({
+            createConfigurator: mockCreateConfigurator
           });
         }
       );
@@ -81,10 +93,8 @@ registerSuite('core/tasks/intern', function() {
             config: '@coverage',
             foo: 'bar'
           });
-          mockGetConfig.resolves({
-            config: {
-              spam: 'ham'
-            }
+          mockLoadConfig.resolves({
+            spam: 'ham'
           });
           const done = setupDone();
 
@@ -97,8 +107,8 @@ registerSuite('core/tasks/intern', function() {
               '1 executor should have been created'
             );
             assert.equal(mockRun.callCount, 1, 'intern should have been run');
-            assert.equal(mockGetConfig.callCount, 1);
-            assert.equal(mockGetConfig.getCall(0).args[0], '@coverage');
+            assert.equal(mockLoadConfig.callCount, 1);
+            assert.equal(mockLoadConfig.getCall(0).args[0], '@coverage');
             assert.equal(mockConfigure.callCount, 2);
             assert.deepEqual(mockConfigure.getCall(0).args[0], {
               spam: 'ham'
@@ -128,7 +138,7 @@ registerSuite('core/tasks/intern', function() {
               '1 executor should have been created'
             );
             assert.equal(mockRun.callCount, 1, 'intern should have been run');
-            assert.equal(mockGetConfig.callCount, 0);
+            assert.equal(mockLoadConfig.callCount, 0);
             assert.equal(mockConfigure.callCount, 2);
             assert.deepEqual(mockConfigure.getCall(0).args[0], {});
             assert.deepEqual(mockConfigure.getCall(1).args[0], {

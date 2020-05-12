@@ -20,6 +20,16 @@ export function error(...args: any[]) {
   }
 }
 
+export function trace(...args: any[]) {
+  if (global.console && global.console.trace) {
+    try {
+      global.console.trace(...args);
+    } catch {
+      // ignore
+    }
+  }
+}
+
 export function warn(...args: any[]) {
   if (global.console && global.console.warn) {
     try {

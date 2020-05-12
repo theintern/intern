@@ -1,6 +1,7 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { spy, createSandbox } from 'sinon';
 import _Browser, { Config } from 'src/core/lib/executors/Browser';
+import { createConfigurator } from 'src/core/lib/browser';
 
 let Browser: typeof _Browser;
 
@@ -74,9 +75,10 @@ registerSuite('core/lib/executors/Browser', function() {
   }
 
   const mockUtil = {
-    getDefaultBasePath() {
-      return '';
-    }
+    createConfigurator,
+    getDefaultBasePath: () => '/',
+    getDefaultInternPath: () => '/__intern',
+    isAbsolute: (path: string) => (path ? path[0] === '/' : false)
   };
 
   return {
@@ -90,7 +92,7 @@ registerSuite('core/lib/executors/Browser', function() {
           replace(() => import('src/core/lib/common/console')).with(
             mockConsole
           );
-          replace(() => import('src/core/lib/browser/util')).with(mockUtil);
+          replace(() => import('src/core/lib/browser')).with(mockUtil);
           replace(() => import('chai')).with(mockChai);
           replace(() => import('minimatch')).with({
             Minimatch: MockMiniMatch as any
@@ -125,7 +127,9 @@ registerSuite('core/lib/executors/Browser', function() {
         },
 
         async 'unhandled rejection'() {
-          const logger = spy((..._args: any[]) => {});
+          const logger = spy((..._args: any[]) => {
+            console.log(..._args);
+          });
           executor.on('error', logger);
 
           const handler = mockGlobal.addEventListener.getCall(0).args[1];

@@ -1,3 +1,5 @@
+import { Minimatch } from 'minimatch';
+
 /**
  * Get the parent directory name of a path
  */
@@ -16,6 +18,13 @@ export function dirname(path: string) {
  */
 export function getPathSep(...paths: string[]) {
   return paths.some(path => /\\/.test(path)) ? '\\' : '/';
+}
+
+export function hasGlobs(patterns: string[]) {
+  return patterns.some(pattern => {
+    const matcher = new Minimatch(pattern);
+    return matcher.set[0].some(entry => typeof entry !== 'string');
+  });
 }
 
 /**

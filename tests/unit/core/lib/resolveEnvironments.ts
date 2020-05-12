@@ -1,5 +1,5 @@
 import { mockImport } from 'tests/support/mockUtil';
-import { NormalizedEnvironment } from 'src/tunnels/Tunnel';
+import { NormalizedEnvironment } from 'src/tunnels/types';
 import { sep } from 'path';
 
 import Environment from 'src/core/lib/Environment';

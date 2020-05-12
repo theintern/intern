@@ -62,6 +62,8 @@ export default class Test implements TestProperties {
       throw new Error('A Test requires a name and a test function');
     }
 
+    // TODO: remove the special treatment for timeElapsed and hasPassed if it's
+    // just for testing
     ['timeElapsed', 'hasPassed'].forEach(property => {
       const name = <keyof TestOptions>property;
       if (options[name] != null) {

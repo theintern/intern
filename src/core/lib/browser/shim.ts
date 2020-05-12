@@ -10,18 +10,14 @@ import 'core-js/features/url-search-params';
 // The requests module uses URL objects
 import 'core-js/features/url';
 
-// We can't use @theintern/common's global here because loading
-// @theintern/common also loads common/Evented, which requires Map
-const global = <any>window;
-
 // Polyfill promise if no global Promise is defined. Manage polyfill
 // installation manually to ensure native Promises aren't replaced
 // unintentionallyo
-if (typeof global.Promise === 'undefined') {
-  global.Promise = require('core-js-pure/features/promise');
+if (typeof window.Promise === 'undefined') {
+  require('core-js/features/promise');
 }
 
-// Polyfill map if no global Map is defined.
-if (typeof global.Map === 'undefined') {
-  global.Map = require('core-js-pure/features/map');
+// Polyfill Map if no global Map is defined.
+if (typeof window.Map === 'undefined') {
+  require('core-js/features/map');
 }

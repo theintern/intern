@@ -4,11 +4,10 @@ import { request } from '../common';
 import Tunnel, {
   TunnelProperties,
   DownloadOptions,
-  ChildExecutor,
-  NormalizedEnvironment
+  ChildExecutor
 } from './Tunnel';
 import { parse as parseUrl, Url } from 'url';
-import { JobState } from './interfaces';
+import { JobState, NormalizedEnvironment } from './types';
 import { kill, on } from './lib/util';
 
 /**
@@ -52,7 +51,7 @@ export default class BrowserStackTunnel extends Tunnel
   /** If true, route all traffic via the local machine. */
   forceLocal!: boolean;
 
-  constructor(options?: BrowserStackOptions) {
+  constructor(options?: Partial<BrowserStackProperties>) {
     super(
       Object.assign(
         {
@@ -345,5 +344,3 @@ export interface BrowserStackProperties extends TunnelProperties {
   /** [[BrowserStackTunnel.BrowserStackTunnel.environmentUrl|More info]] */
   environmentUrl: string;
 }
-
-export type BrowserStackOptions = Partial<BrowserStackProperties>;

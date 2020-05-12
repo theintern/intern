@@ -2,9 +2,8 @@ import '../lib/browser/shim';
 
 import { global } from '../../common';
 import Browser from '../lib/executors/Browser';
-import { RemoteConfig } from '../lib/RemoteSuite';
-import { parseQuery } from '../lib/browser/util';
-import { parseArgs } from '../lib/common/util';
+import { parseQuery } from '../lib/browser';
+import { parseArgs } from '../lib/config';
 import Channel from '../lib/Channel';
 
 // A Benchmark global needs to be defined for benchmark.js to work properly when
@@ -12,11 +11,11 @@ import Channel from '../lib/Channel';
 // an AMD define will be present.
 global.Benchmark = {};
 
-const config = <RemoteConfig>parseArgs(parseQuery());
+const config = parseArgs(parseQuery());
 const channel = new Channel({
-  url: config.serverUrl,
-  sessionId: config.sessionId,
-  port: config.socketPort
+  url: config.serverUrl as string,
+  sessionId: config.sessionId as string,
+  port: Number(config.socketPort)
 });
 
 function displayMessage(message: string) {
@@ -27,7 +26,8 @@ function displayMessage(message: string) {
 }
 
 try {
-  const intern = (global.intern = new Browser(config));
+  const intern = (global.intern = new Browser());
+  intern.configure(config);
 
   // Forward all executor events back to the Intern host
   intern.on('*', ({ name, data }) => {
