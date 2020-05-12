@@ -539,6 +539,7 @@ export function processOption<C extends Config>(
       }
       break;
     }
+    case 'benchmarkConfig':
     case 'capabilities':
     case 'instrumenterOptions':
     case 'tunnelOptions': {
