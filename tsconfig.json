@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "declaration": false,
+    "downlevelIteration": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "importHelpers": true,
@@ -11,9 +12,11 @@
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "preserveConstEnums": true,
     "resolveJsonModule": true,
+    "rootDir": "./src",
     "strict": true,
-    "target": "es2018"
+    "target": "es2015"
   },
   "include": ["src/**/*", "scripts/**/*", "tests/**/*", "*"]
 }

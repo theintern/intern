@@ -3,15 +3,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "declaration": true,
-    "downlevelIteration": true,
-    "lib": ["dom", "es2015"],
-    "module": "commonjs",
     "outDir": "./_build",
-    "preserveConstEnums": true,
     "removeComments": true,
-    "rootDir": "./src",
     "sourceMap": true,
-    "target": "es2015"
   },
   "include": [
     "src/**/*.ts"
