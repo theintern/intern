@@ -26,11 +26,11 @@ export interface HasDefault {
   default: any;
 }
 
-export class BasicMocker {
-  protected _mock: BasicMock;
+export class BasicMocker<M extends BasicMock = BasicMock> {
+  protected _mock: M;
   protected _modId: string;
 
-  constructor(mock: BasicMock, modId: string) {
+  constructor(mock: M, modId: string) {
     this._mock = mock;
     this._modId = modId;
   }
@@ -60,39 +60,48 @@ export class BasicMocker {
   }
 }
 
-export class Mocker extends BasicMocker {
+export class TypedMocker<
+  T,
+  M extends TypedMock<T> = TypedMock<T>
+> extends BasicMocker<M> {
+  constructor(mock: M) {
+    super(mock, '');
+  }
+
+  with(replacement: Partial<T>): BasicMocker {
+    this._mock.with(replacement);
+    if ('default' in replacement) {
+      this._mock.es6();
+    }
+    return new BasicMocker(this._mock, this._modId);
+  }
+}
+
+export class HasDefaultMocker<T extends HasDefault> extends TypedMocker<
+  T,
+  HasDefaultMock<T>
+> {
+  withDefault(replacement: T['default']): BasicMocker {
+    this._mock.withDefault(replacement);
+    return new BasicMocker(this._mock, this._modId);
+  }
+}
+
+export class AnyMocker extends BasicMocker<HasDefaultMock<any>> {
   /**
    * Replace this module with an object.
    */
-  with(replacement: any) {
-    (this._mock as Mock).with(replacement);
-    return this;
+  with(replacement: any): BasicMocker {
+    this._mock.with(replacement);
+    return new BasicMocker(this._mock, this._modId);
   }
 
   /**
    * Replace this module's default export with an object.
    */
-  withDefault(replacement: any) {
-    (this._mock as Mock).withDefault(replacement);
-    return this;
-  }
-}
-
-export class TypedMocker<M> extends BasicMocker {
-  constructor(mock: TypedMock<M>) {
-    super((mock as unknown) as BasicMock, '');
-  }
-
-  with(replacement: Partial<M>) {
-    ((this._mock as unknown) as TypedMock<M>).with(replacement);
-    return this;
-  }
-}
-
-export class HasDefaultMocker<M extends HasDefault> extends TypedMocker<M> {
-  withDefault(replacement: M['default']) {
-    ((this._mock as unknown) as HasDefaultMock<M>).withDefault(replacement);
-    return this;
+  withDefault(replacement: any): BasicMocker {
+    this._mock.withDefault(replacement);
+    return new BasicMocker(this._mock, this._modId);
   }
 }
 
@@ -103,7 +112,7 @@ export class HasDefaultMocker<M extends HasDefault> extends TypedMocker<M> {
 export interface Replacer {
   // Note that the HasDefault version has to go above the fully generic one to
   // be detected by TS
-  (id: string): Mocker;
+  (id: string): AnyMocker;
   <M extends HasDefault>(importer: Importer<M>): HasDefaultMocker<M>;
   <M>(importer: Importer<M>): TypedMocker<M>;
 }
@@ -111,7 +120,7 @@ export interface Replacer {
 function createReplacer(r: typeof rewiremock) {
   return function replacer<M>(idOrImporter: string | Importer<M>) {
     if (typeof idOrImporter === 'string') {
-      return new Mocker(r(idOrImporter), idOrImporter);
+      return new AnyMocker(r(idOrImporter), idOrImporter);
     } else {
       const mock = r(idOrImporter);
       if (isDefaultMock(mock)) {
@@ -141,29 +150,21 @@ function toCreator(config?: (replace: Replacer) => void | Promise<void>) {
  * The most basic type of Mock from rewiremock. It's untyped.
  */
 interface BasicMock {
-  by(modId: string): this;
-  callThrough(): this;
-}
-
-/**
- * An untyped mock supporting replacment.
- */
-interface Mock extends BasicMock {
-  by(modId: string): this;
-  with(replacements: any): this;
-  withDefault(replacements: any): this;
+  by(modId: string): BasicMock;
+  callThrough(): BasicMock;
+  es6(): BasicMock;
 }
 
 /**
  * A typed mock supporting replacement.
  */
-interface TypedMock<M> {
-  with(replacements: Partial<M>): this;
+interface TypedMock<T> extends BasicMock {
+  with(replacements: Partial<T>): BasicMock;
 }
 
 /**
  * A typed mock for a module with a default export.
  */
-interface HasDefaultMock<M extends HasDefault> extends TypedMock<M> {
-  withDefault(def: M['default']): this;
+interface HasDefaultMock<T extends HasDefault> extends TypedMock<T> {
+  withDefault(def: T['default']): BasicMock;
 }
