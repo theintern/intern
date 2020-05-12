@@ -3,10 +3,13 @@
 /**
  * Install some commonly used test functionals globally
  */
-intern.registerPlugin('globalUI', () => {
-  const globalObj = typeof process === 'undefined' ? window : global;
-  (globalObj as any).registerSuite = intern.getPlugin(
-    'interface.object'
-  ).registerSuite;
-  (globalObj as any).assert = intern.getPlugin('chai').assert;
-});
+
+import { global } from 'src/common';
+import chaiExclude from 'chai-exclude';
+
+const chai = intern.getPlugin('chai');
+chai.use(chaiExclude);
+global.assert = chai.assert;
+
+const { registerSuite } = intern.getPlugin('interface.object');
+global.registerSuite = registerSuite;
