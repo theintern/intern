@@ -36,8 +36,10 @@ const commonTest: Configuration = {
           loader: 'ts-loader',
           options: {
             instance: 'tests',
+            configFile: join(__dirname, 'tsconfig.json'),
+            onlyCompileBundledFiles: true,
             transpileOnly: true,
-            configFile: join(__dirname, 'tsconfig.json')
+            experimentalWatchApi: true
           }
         }
       }
