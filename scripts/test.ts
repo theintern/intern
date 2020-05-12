@@ -1,4 +1,5 @@
 import { existsSync } from 'fs';
+import { sync as glob } from 'glob';
 import { join } from 'path';
 import exec from './lib/exec';
 import { latestModTime, log, logError } from './lib/util';
@@ -20,11 +21,15 @@ import { watchProcess } from './lib/watch';
 
     const tasks = [];
 
-    const latestUnitTestTime = await latestModTime(join('tests', 'unit'));
-    const latestSrcTime = await latestModTime('src');
+    const latestUnitTestTime = await latestModTime(
+      glob(join('tests', 'unit', '**', '*.ts'))
+    );
+    const latestSrcTime = await latestModTime(glob(join('src', '**', '*.ts')));
 
     const testerExists = existsSync(testerPath);
-    const latestTesterTime = testerExists ? await latestModTime(testerPath) : 0;
+    const latestTesterTime = testerExists
+      ? await latestModTime(glob(join(testerPath, '**', '*.js')))
+      : 0;
 
     if (!testerExists || watchMode || latestSrcTime > latestTesterTime) {
       log('Building test Intern...');
@@ -39,21 +44,24 @@ import { watchProcess } from './lib/watch';
     }
 
     const browserExists = existsSync(browserTestPath);
-    const latestBrowserTime = testerExists
-      ? await latestModTime(browserTestPath)
+    const latestBrowserTime = browserExists
+      ? await latestModTime(glob(join(browserTestPath, '**', '*.js')))
       : 0;
+    const latestBrowserSrcTime = await latestModTime(
+      glob(join('src', 'core', '**', '*.ts'))
+    );
 
     if (
       !browserExists ||
       watchMode ||
-      latestSrcTime > latestBrowserTime ||
+      latestBrowserSrcTime > latestBrowserTime ||
       latestUnitTestTime > latestBrowserTime
     ) {
       log('Building browser tests...');
       const cmd = ['npx', 'webpack', '--config', 'webpack-tests.config.ts'];
       if (watchMode) {
         cmd.push('--watch');
-        watchProcess('tests', cmd);
+        watchProcess('browserTests', cmd);
       } else {
         const proc = exec(cmd[0], cmd.slice(1), { stdio: 'inherit' });
         tasks.push(proc);
@@ -66,10 +74,13 @@ import { watchProcess } from './lib/watch';
       const cmdArgs = [
         '-r',
         'tsconfig-paths/register',
-        `${testerPath}/bin/intern.js`,
-        'run'
+        `${testerPath}/bin/intern.js`
       ];
       cmdArgs.push(...process.argv.slice(2));
+
+      if (process.env.DEBUG) {
+        cmdArgs.unshift('--inspect-brk');
+      }
 
       log('Running tests...');
       try {

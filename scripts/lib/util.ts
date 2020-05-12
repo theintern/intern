@@ -1,6 +1,7 @@
 import chalk from 'chalk';
+import randomColor from 'randomcolor';
 import { ExecaError } from 'execa';
-import { readdir as fsReaddir, stat as fsStat } from 'fs';
+import { stat as fsStat } from 'fs';
 import { cp, echo, mkdir, sed, test } from 'shelljs';
 import { sync as glob, IOptions } from 'glob';
 import { basename, dirname, join } from 'path';
@@ -11,12 +12,21 @@ import { promisify } from 'util';
 
 export const baseDir = dirname(dirname(__dirname));
 
-const readdir = promisify(fsReaddir);
 const stat = promisify(fsStat);
+const colorizedNames: Record<string, string> = {};
 
 export interface FilePattern {
   base: string;
   pattern: string;
+}
+
+export function colorizeName(name: string) {
+  if (!colorizedNames[name]) {
+    colorizedNames[name] = chalk.hex(
+      randomColor({ luminosity: 'light', hue: 'blue' })
+    )(name);
+  }
+  return colorizedNames[name];
 }
 
 /**
@@ -71,19 +81,13 @@ export function fixSourceMaps() {
 }
 
 /**
- * Return the latest modification time from a directory
+ * Return the latest source modification time from a directory
  */
-export async function latestModTime(dir: string): Promise<number> {
-  const entries = await readdir(dir);
+export async function latestModTime(files: string[]): Promise<number> {
   let maxModTime = 0;
-  for (const entry of entries) {
-    const path = join(dir, entry);
-    const stats = await stat(path);
-    if (stats.isFile()) {
-      maxModTime = Math.max(maxModTime, stats.mtimeMs);
-    } else {
-      maxModTime = Math.max(maxModTime, await latestModTime(path));
-    }
+  for (const file of files) {
+    const stats = await stat(file);
+    maxModTime = Math.max(maxModTime, stats.mtimeMs);
   }
   return maxModTime;
 }
