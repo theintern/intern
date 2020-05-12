@@ -128,6 +128,7 @@
     "@typescript-eslint/parser": "~2.14.0",
     "ajv": "^6.10.0",
     "canvas": "~2.6.1",
+    "chai-exclude": "~2.0.2",
     "concurrently": "^5.0.1",
     "core-js": "^3.5.0",
     "core-js-pure": "^3.5.0",
