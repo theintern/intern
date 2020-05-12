@@ -33,6 +33,19 @@
     "@typescript-eslint/no-misused-promises": [
       "error",
       { "checksVoidReturn": false }
+    ],
+    // Allow for property deletion through destructuring
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "ignoreRestSiblings": true }
+    ],
+    // Don't allow bare uses of 'name'
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "name",
+        "message": "Did you mean to use the 'name' global here?"
+      }
     ]
   }
 }
