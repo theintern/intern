@@ -1,6 +1,6 @@
 import execa from 'execa';
 import { watch, FSWatcher } from 'chokidar';
-import { log, logError } from './util';
+import { colorizeName, log, logError } from './util';
 
 function logProcessOutput(
   name: string,
@@ -10,6 +10,8 @@ function logProcessOutput(
   if (!text) {
     return;
   }
+
+  const nameStr = colorizeName(name);
 
   if (typeof text !== 'string') {
     text = text.toString('utf8');
@@ -28,13 +30,13 @@ function logProcessOutput(
   if (errorTest) {
     lines.forEach(line => {
       if (errorTest.test(line)) {
-        logError(`[${name}] ${line}`);
+        logError(`[${nameStr}] ${line}`);
       } else {
-        log(`[${name}] ${line}`);
+        log(`[${nameStr}] ${line}`);
       }
     });
   } else {
-    lines.forEach(line => log(`[${name}] ${line}`));
+    lines.forEach(line => log(`[${nameStr}] ${line}`));
   }
 }
 
