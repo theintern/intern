@@ -67,6 +67,18 @@ export function deepMixin(target: object, ...sources: object[]): object {
  * @param source the object to duplicate
  */
 export function duplicate<T extends object>(source: T): T {
+  if (source == null || typeof source !== 'object') {
+    return source;
+  }
+
+  if (Array.isArray(source)) {
+    return copyArray(source) as T;
+  }
+
+  if (!isSimpleObject(source)) {
+    return source;
+  }
+
   const target = Object.create(Object.getPrototypeOf(source));
   return deepMixin(target, source);
 }
@@ -115,19 +127,36 @@ export function partial(
 // support functions ----------------------------------------------------------
 
 function copyArray<T>(array: T[]): T[] {
-  return array.map(function(item: T): T {
+  return array.map(item => {
     if (Array.isArray(item)) {
-      return <any>copyArray(<any>item);
+      return (copyArray(item) as unknown) as T;
     }
 
-    return !shouldDeepCopyObject(item)
+    return !isSimpleObject(item)
       ? item
       : _deepMixin({ sources: [item], target: {} });
   });
 }
 
-function shouldDeepCopyObject(value: any): value is Record<string, any> {
-  return Object.prototype.toString.call(value) === '[object Object]';
+function isSimpleObject(value: any) {
+  if (
+    value == null ||
+    Object.prototype.toString.call(value) !== '[object Object]'
+  ) {
+    return false;
+  }
+
+  const proto = Object.getPrototypeOf(value);
+  if (!proto) {
+    return true;
+  }
+
+  const { constructor } = proto;
+  if (typeof constructor !== 'function') {
+    return false;
+  }
+
+  return constructor.toString() === Object.prototype.constructor.toString();
 }
 
 function _deepMixin<T extends {}, U extends {}>(kwArgs: {
@@ -135,7 +164,7 @@ function _deepMixin<T extends {}, U extends {}>(kwArgs: {
   target: T;
   copied?: any[];
 }): T & U {
-  const target: any = kwArgs.target;
+  const target = kwArgs.target as T & U;
   const copied = kwArgs.copied || [];
   const copiedClone = [...copied];
 
@@ -145,28 +174,29 @@ function _deepMixin<T extends {}, U extends {}>(kwArgs: {
     if (source === null || source === undefined) {
       continue;
     }
+
     for (const key in source) {
-      let value: any = source[key];
+      let value = source[key];
 
       if (copiedClone.indexOf(value) !== -1) {
         continue;
       }
 
       if (Array.isArray(value)) {
-        value = copyArray(value);
-      } else if (shouldDeepCopyObject(value)) {
-        const targetValue: any = target[key] || {};
+        value = copyArray(value) as typeof value;
+      } else if (isSimpleObject(value)) {
+        const targetValue = target[key] || {};
         copied.push(source);
         value = _deepMixin({
           sources: [value],
           target: targetValue,
           copied
-        });
+        }) as typeof value;
       }
 
-      target[key] = value;
+      target[key] = value as (T & U)[typeof key];
     }
   }
 
-  return <T & U>target;
+  return target;
 }
