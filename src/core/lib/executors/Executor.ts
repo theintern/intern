@@ -78,7 +78,6 @@ export default abstract class BaseExecutor<
 > implements Executor {
   protected _config: C;
   protected _rootSuite: Suite;
-  protected _events: InternEvent<E>[];
   protected _errorFormatter: ErrorFormatter | undefined;
   protected _hasSuiteErrors = false;
   protected _hasTestErrors = false;
@@ -92,7 +91,6 @@ export default abstract class BaseExecutor<
   protected _plugins: { [name: string]: any };
   protected _reporters: Reporter[];
   protected _runPromise: Promise<void> | undefined;
-  protected _reportersInitialized: boolean;
 
   // This is assigned when run is called
   protected _cancelToken!: CancelToken;
@@ -125,8 +123,6 @@ export default abstract class BaseExecutor<
       suites: <string[]>[]
     };
 
-    this._reportersInitialized = false;
-    this._events = [];
     this._listeners = {};
     this._reporters = [];
     this._plugins = {};
@@ -275,12 +271,6 @@ export default abstract class BaseExecutor<
 
     // Ignore log messages if not in debug mode
     if (eventName === 'log' && !this.config.debug) {
-      return Promise.resolve();
-    }
-
-    // If reporters haven't been loaded yet, queue the event for later
-    if (!this._reportersInitialized) {
-      this._events.push({ eventName, data });
       return Promise.resolve();
     }
 
@@ -714,11 +704,6 @@ export default abstract class BaseExecutor<
                 })
                 .finally(() => this.emit('afterRun'));
             })
-            .finally(() => {
-              // Ensure any queued events have been emitted.
-              this._reportersInitialized = true;
-              return this._drainEventQueue();
-            })
             .finally(() => this._afterRun())
             .catch(error => {
               return this.emit('error', error).finally(() => {
@@ -838,25 +823,6 @@ export default abstract class BaseExecutor<
       }
       this._reporters.push(initializer(reporter.options));
     }
-
-    this._reportersInitialized = true;
-
-    return this._drainEventQueue();
-  }
-
-  /**
-   * Emit any queued events. The event queue will be empty after this method
-   * runs.
-   */
-  protected _drainEventQueue(): Promise<void> {
-    let promise = Promise.resolve();
-    while (this._events.length > 0) {
-      const event = this._events.shift()!;
-      promise = promise.then(() => {
-        return this.emit(event.eventName, event.data);
-      });
-    }
-    return promise;
   }
 
   protected _emitCoverage(source?: string) {
@@ -1040,12 +1006,6 @@ export default abstract class BaseExecutor<
 }
 
 export { BenchmarkConfig, Config, PluginDescriptor, ReporterDescriptor };
-
-export interface InternEvent<E extends Events> {
-  eventName: keyof E;
-  data?: any;
-}
-
 export { Handle };
 
 /**
