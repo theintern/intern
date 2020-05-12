@@ -25,7 +25,9 @@ const common: Configuration = {
           options: {
             silent: true,
             configFile: 'tsconfig-tests.json',
-            onlyCompileBundledFiles: true
+            onlyCompileBundledFiles: true,
+            transpileOnly: true,
+            experimentalWatchApi: true
           }
         }
       }
