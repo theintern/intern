@@ -1,27 +1,8 @@
-import { readFile, readdirSync, readFileSync, mkdirSync, existsSync } from 'fs';
-import {
-  dirname,
-  extname,
-  isAbsolute,
-  join,
-  normalize,
-  resolve,
-  sep
-} from 'path';
-import { parse } from 'shell-quote';
+import { existsSync, mkdirSync, readFileSync } from 'fs';
+import { hasMagic, sync as glob } from 'glob';
+import { dirname, extname, join, normalize, sep } from 'path';
 import { RawSourceMap } from 'source-map';
-import { sync as glob, hasMagic } from 'glob';
-
-import global from '../../../common/lib/global';
-import {
-  defaultConfig,
-  getBasePath,
-  loadConfig,
-  parseArgs,
-  splitConfigPath
-} from '../common/util';
-
-const { process } = global;
+import { sync as nodeResolve } from 'resolve';
 
 /**
  * Expand a list of glob patterns into a flat file list. Patterns may be simple
@@ -61,108 +42,32 @@ export function expandFiles(patterns?: string[] | string) {
 }
 
 /**
- * Get the user-supplied config data, which may include command line args and a
- * config file.
- *
- * @param file A config file
- * @param argv An array of command line arguments. This should follow the same
- * format as process.argv (where user args start at index 2).
+ * Return the default base path
  */
-export function getConfig(
-  file?: string
-): Promise<{ config: any; file?: string }>;
-export function getConfig(
-  argv?: string[]
-): Promise<{ config: any; file?: string }>;
-export function getConfig(
-  file: string,
-  argv?: string[]
-): Promise<{ config: any; file?: string }>;
-export function getConfig(
-  fileOrArgv?: string | string[],
-  argv?: string[]
-): Promise<{ config: any; file?: string }> {
-  const args: { [key: string]: any } = {};
-  let file = typeof fileOrArgv === 'string' ? fileOrArgv : undefined;
-  argv = Array.isArray(fileOrArgv) ? fileOrArgv : argv;
-  const userArgs = (argv || process.argv).slice(2);
-
-  if (process.env['INTERN_ARGS']) {
-    Object.assign(
-      args,
-      parseArgs(parse(process.env['INTERN_ARGS'] || '') as string[])
-    );
-  }
-
-  if (userArgs.length > 0) {
-    Object.assign(args, parseArgs(userArgs));
-  }
-
-  if (file) {
-    args.config = file;
-  }
-
-  let load: Promise<{ [key: string]: any }>;
-
-  if (args.config) {
-    // If a config parameter was provided, load it and mix in any other
-    // command line args.
-    const { configFile, childConfig } = splitConfigPath(args.config, sep);
-    file = resolve(configFile || defaultConfig);
-    load = loadConfig(file, loadText, args, childConfig);
-  } else {
-    // If no config parameter was provided, try 'intern.json', or just
-    // resolve to the original args
-    file = resolve(defaultConfig);
-    load = loadConfig(file, loadText, args, undefined).catch(
-      (error: NodeJS.ErrnoException) => {
-        if (error.code === 'ENOENT') {
-          file = undefined;
-          return args;
-        }
-        throw error;
-      }
-    );
-  }
-
-  return load
-    .then(config => {
-      // If a basePath wasn't set in the config or via a query arg, and we
-      // have a config file path, use that.
-      if (file) {
-        config.basePath = getBasePath(file, config.basePath, isAbsolute, sep);
-      }
-      return config;
-    })
-    .then(config => ({ config, file }));
+export function getDefaultBasePath() {
+  return process.cwd() + sep;
 }
 
 /**
- * Return the absolute path to Intern's package
+ * Return the default internPath
  */
-export function getPackagePath(dir = __dirname): string {
-  if (dirname(dir) === dir) {
-    throw new Error("Couldn't find package.json");
-  }
-  if (readdirSync(dir).includes('package.json')) {
-    return dir;
-  }
-  return getPackagePath(dirname(dir));
-}
+export function getDefaultInternPath() {
+  let internPath = dirname(dirname(dirname(__dirname)));
 
-/**
- * Loads a text resource.
- */
-export function loadText(path: string): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    readFile(path, { encoding: 'utf8' }, (error, data) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(data);
-      }
-    });
-  });
+  // If internPath isn't under cwd, intern is most likely
+  // symlinked into the project's node_modules. In that case, use
+  // the package location as resolved from the project root.
+  if (internPath.indexOf(process.cwd()) !== 0) {
+    // nodeResolve will resolve to index.js; we want the base
+    // intern directory
+    internPath = dirname(
+      nodeResolve('intern', {
+        basedir: process.cwd()
+      })
+    );
+  }
+
+  return internPath;
 }
 
 // TODO: Remove in the next version

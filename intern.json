@@ -5,6 +5,9 @@
 
   "coverage": ["src/**/*.ts", "!src/browser/**/*.ts"],
 
+  // Included to allow child config capabilities to merge into the defaults
+  "capabilities+": {},
+
   "functionalRetries": 1,
 
   "suites": [
@@ -18,6 +21,7 @@
     "tests/unit/core/lib/Test.ts",
     "tests/unit/core/lib/channels/*.ts",
     "tests/unit/core/lib/common/*.ts",
+    "tests/unit/core/lib/config.ts",
     "tests/unit/core/lib/executors/Executor.ts",
     "tests/unit/core/lib/interfaces/*.ts",
     "tests/unit/core/lib/reporters/Console.ts",
@@ -30,7 +34,6 @@
     "suites": [
       "tests/integration/**/*.ts",
       "tests/unit/cli/*.ts",
-      "tests/unit/core/bin/intern.ts",
       "tests/unit/core/lib/ProxiedSession.ts",
       "tests/unit/core/lib/Server.ts",
       "tests/unit/core/lib/executors/Node.ts",
@@ -49,6 +52,7 @@
       "tests/unit/core/lib/reporters/Simple.ts",
       "tests/unit/core/lib/reporters/TeamCity.ts",
       "tests/unit/core/lib/reporters/TextCoverage.ts",
+      "tests/unit/core/lib/resolveEnvironments.ts",
       "tests/unit/core/tasks/*.ts",
       "tests/unit/index.ts",
       "tests/unit/tunnels/**/*.ts",
@@ -83,12 +87,14 @@
   "configs": {
     "wd": {
       "description": "Run tests in Chrome using Selenium",
+      // Included to allow inheriting configs to merge down
+      "capabilities+": {},
       "tunnel": "selenium",
       "environments": [{ "browserName": "node" }, { "browserName": "chrome" }],
       // Clear out the general suites list so the browser won't try to load
       // them.
       "suites": [],
-      "node": {
+      "node+": {
         "suites": [
           // Top-level suites
           "tests/benchmark/example.ts",
@@ -103,12 +109,10 @@
           "tests/unit/core/lib/executors/Executor.ts",
           "tests/unit/core/lib/interfaces/*.ts",
           "tests/unit/core/lib/reporters/Console.ts",
-          "tests/unit/core/lib/resolveEnvironments.ts",
           "tests/unit/core/loaders/*.ts",
           // Top-level node suites
           "tests/integration/**/*.ts",
           "tests/unit/cli/*.ts",
-          "tests/unit/core/bin/intern.ts",
           "tests/unit/core/lib/ProxiedSession.ts",
           "tests/unit/core/lib/Server.ts",
           "tests/unit/core/lib/executors/Node.ts",
@@ -126,8 +130,9 @@
           "tests/unit/core/lib/reporters/Simple.ts",
           "tests/unit/core/lib/reporters/TeamCity.ts",
           "tests/unit/core/lib/reporters/TextCoverage.ts",
-          "tests/unit/index.ts",
+          "tests/unit/core/lib/resolveEnvironments.ts",
           "tests/unit/core/tasks/*.ts",
+          "tests/unit/index.ts",
           "tests/unit/tunnels/**/*.ts",
           "tests/unit/webdriver/**/*.ts"
         ]
@@ -161,6 +166,13 @@
       }
     },
 
+    "ie": {
+      "extends": "chrome",
+      "environments": {
+        "browserName": "internet explorer"
+      }
+    },
+
     "ci": {
       "description": "Run CI tests on the default cloud service (BrowserStack)",
       "extends": "wd",
@@ -172,7 +184,7 @@
       },
       "tunnel": "browserstack",
       "maxConcurrency": 2,
-      "capabilities": {
+      "capabilities+": {
         "idle-timeout": 60
       },
       "environments": [
@@ -211,6 +223,14 @@
         },
         { "browser": "safari", "version": "latest" }
       ]
+    },
+
+    "browser": {
+      "extends": "wd",
+      "suites": "_tests/suites.js",
+      "plugins": "_tests/plugins.js",
+      "browser": {},
+      "node": {}
     }
   }
 }

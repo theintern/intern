@@ -1,6 +1,6 @@
 import * as util from 'src/common/lib/util';
 
-registerSuite('lib/util', {
+registerSuite('common/lib/util', {
   createHandle() {
     let count = 0;
     const handle = util.createHandle(() => {
@@ -193,20 +193,8 @@ registerSuite('lib/util', {
   },
 
   duplicate() {
-    const prototype = {
-      a: 1
-    };
-    const source: {
-      a: number;
-      b: {
-        value: number;
-      };
-      c: {
-        d: number;
-      };
-    } = Object.create(prototype, {
-      b: { value: 2 }
-    });
+    const prototype = { a: 1 };
+    const source = Object.create(prototype, { b: { value: 2 } });
     source.c = { d: 4 };
 
     const copyOfObject: typeof source = util.duplicate(source);

@@ -1,10 +1,9 @@
 import Tunnel, {
   TunnelProperties,
   DownloadOptions,
-  ChildExecutor,
-  NormalizedEnvironment
+  ChildExecutor
 } from './Tunnel';
-import { JobState } from './interfaces';
+import { JobState, NormalizedEnvironment } from './types';
 import { chmodSync, watchFile, unwatchFile } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -120,7 +119,7 @@ export default class SauceLabsTunnel extends Tunnel
 
   username!: string;
 
-  constructor(options?: SauceLabsOptions) {
+  constructor(options?: Partial<SauceLabsProperties>) {
     super(
       Object.assign(
         {
@@ -613,5 +612,3 @@ export interface SauceLabsProperties extends TunnelProperties {
   /** [[SauceLabsTunnel.SauceLabsTunnel.vmVersion|More info]] */
   vmVersion: string | undefined;
 }
-
-export type SauceLabsOptions = Partial<SauceLabsProperties>;

@@ -301,6 +301,9 @@ export default class Suite implements SuiteProperties {
 
   /**
    * Add a test or suite to this suite.
+   *
+   * TODO: This should accept an interface rather than a full Suite or Test
+   * object
    */
   add(suiteOrTest: Suite | Test) {
     if (!isTest(suiteOrTest) && !isSuite(suiteOrTest)) {

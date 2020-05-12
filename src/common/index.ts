@@ -1,3 +1,7 @@
+/**
+ * These are common modules shared between core, tunnels, webdriver, etc.
+ */
+
 export * from './lib/cancel';
 
 export { default as Evented } from './lib/Evented';

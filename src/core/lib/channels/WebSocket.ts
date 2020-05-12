@@ -1,7 +1,7 @@
 import { global } from '../../../common';
 
 import BaseChannel, { ChannelOptions, Message } from './Base';
-import { parseUrl } from '../browser/util';
+import { parseUrl } from '../browser';
 
 export default class WebSocketChannel extends BaseChannel {
   /** Time to wait for response before rejecting a send */

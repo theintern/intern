@@ -2,6 +2,7 @@
 {
   "extends": "./tsconfig-browser.json",
   "compilerOptions": {
+    "allowJs": true,
     "declaration": false,
     "outDir": "./_tests",
     "rootDir": "."

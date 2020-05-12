@@ -1,7 +1,7 @@
-import { NormalizedEnvironment } from '../../tunnels/Tunnel';
+import { NormalizedEnvironment } from '../../tunnels/types';
 import { normalize } from 'path';
 
-import { EnvironmentSpec } from './common/config';
+import { EnvironmentSpec } from './config';
 import process from './node/process';
 import Environment from './Environment';
 

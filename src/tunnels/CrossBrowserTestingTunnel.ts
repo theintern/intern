@@ -2,12 +2,8 @@ import { watchFile, unwatchFile } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { createCompositeHandle, request } from '../common';
-import Tunnel, {
-  ChildExecutor,
-  NormalizedEnvironment,
-  TunnelProperties
-} from './Tunnel';
-import { JobState } from './interfaces';
+import Tunnel, { ChildExecutor, TunnelProperties } from './Tunnel';
+import { JobState, NormalizedEnvironment } from './types';
 import { on } from './lib/util';
 import { exec } from 'child_process';
 
@@ -48,7 +44,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
   /** The version of the cbt_tunnels package to use */
   cbtVersion!: string;
 
-  constructor(options?: CrossBrowserTestingOptions) {
+  constructor(options?: Partial<CrossBrowserTestingProperties>) {
     super(
       Object.assign(
         {
@@ -251,5 +247,3 @@ export interface CrossBrowserTestingProperties extends TunnelProperties {
   /** [[CrossBrowserTestingTunnel.CrossBrowserTestingTunnel.cbtVersion|More info]] */
   cbtVersion: string;
 }
-
-export type CrossBrowserTestingOptions = Partial<CrossBrowserTestingProperties>;
