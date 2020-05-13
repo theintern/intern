@@ -24,7 +24,9 @@ import { watchProcess } from './lib/watch';
     const latestUnitTestTime = await latestModTime(
       glob(join('tests', 'unit', '**', '*.ts'))
     );
-    const latestSrcTime = await latestModTime(glob(join('src', '**', '*.ts')));
+    const latestSrcTime = await latestModTime(
+      glob(join('src', '**', '*.{html,ts}'))
+    );
 
     const testerExists = existsSync(testerPath);
     const latestTesterTime = testerExists
