@@ -10,7 +10,10 @@ function checkEnvironment(environment: any) {
 let suite = {};
 suite = addEnvironmentTest(suite, SauceLabsTunnel, checkEnvironment);
 suite = addStartStopTest(suite, SauceLabsTunnel, {
-  timeout: 120000
+  timeout: 120000,
+  // Use a non-standard port to not conflict with a running tunnel in the
+  // host Intern
+  port: 39823
 });
 
 registerSuite('integration/SauceLabsTunnel', suite);
