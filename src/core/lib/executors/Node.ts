@@ -404,7 +404,7 @@ export default class Node extends Executor<NodeEvents, NodePlugins> {
 
       // Add any extra capabilites provided by the tunnel to the config's
       // capabilities
-      deepMixin(tunnel.extraCapabilities, config.capabilities);
+      deepMixin(config.capabilities, tunnel.extraCapabilities);
 
       const tunnelEnvironments = await tunnel.getEnvironments();
 
