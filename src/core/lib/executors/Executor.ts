@@ -659,19 +659,18 @@ export default abstract class BaseExecutor<E extends Events, P extends Plugins>
     }
 
     if (config.benchmark) {
-      config.benchmarkConfig = deepMixin(
-        <BenchmarkConfig>{
-          mode: config.baseline ? 'baseline' : 'test',
-          id: 'Benchmark',
-          filename: 'baseline.json',
-          thresholds: {
-            warn: { rme: 3, mean: 5 },
-            fail: { rme: 6, mean: 10 }
-          },
-          verbosity: 0
+      config.benchmarkConfig = deepMixin(config.benchmarkConfig || {}, {
+        mode: config.baseline
+          ? 'baseline'
+          : ('test' as BenchmarkConfig['mode']),
+        id: 'Benchmark',
+        filename: 'baseline.json',
+        thresholds: {
+          warn: { rme: 3, mean: 5 },
+          fail: { rme: 6, mean: 10 }
         },
-        config.benchmarkConfig || {}
-      );
+        verbosity: 0
+      });
     }
 
     return Promise.resolve();
