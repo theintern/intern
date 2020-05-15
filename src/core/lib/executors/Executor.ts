@@ -596,13 +596,14 @@ export default abstract class BaseExecutor<E extends Events, P extends Plugins>
   ): void;
   registerPlugin(name: string, init: PluginInitializer): void;
   registerPlugin(
-    type: string,
-    name: string | PluginInitializer,
+    typeOrName: string,
+    nameOrInit: string | PluginInitializer,
     init?: PluginInitializer
   ) {
-    const pluginName = typeof init === 'undefined' ? type : `${type}.${name}`;
+    const pluginName =
+      typeof init === 'undefined' ? typeOrName : `${typeOrName}.${nameOrInit}`;
     const pluginInit =
-      typeof init === 'undefined' ? <PluginInitializer>name : init;
+      typeof init === 'undefined' ? <PluginInitializer>nameOrInit : init;
     const options = this._loadingPluginOptions;
     const result = options ? pluginInit(duplicate(options)) : pluginInit();
 
@@ -694,7 +695,7 @@ export default abstract class BaseExecutor<E extends Events, P extends Plugins>
       try {
         this._runPromise = this.resolveConfig()
           .then(() => this._preLoad())
-          .then(() => this._loadPlugins())
+          .then(() => this._loadPluginsWithoutLoader())
           .then(() => this._loadLoader())
           .then(() => this._loadPluginsWithLoader())
           .then(() => this._initReporters())
@@ -901,64 +902,70 @@ export default abstract class BaseExecutor<E extends Events, P extends Plugins>
   }
 
   /**
-   * Load scripts in the `requires` list using an external loader, if
-   * configured, or the platform's native loading mechanism
+   * Load plugins the need an external loader, if configured.
    */
-  protected _loadPluginsWithLoader() {
-    const scripts = [
+  protected async _loadPluginsWithLoader() {
+    const allPlugins = [
       ...this.config.plugins,
       ...(this.config[this.environment].plugins || [])
     ];
-    return this._loadScripts(scripts, script => this._loader([script]));
+    const plugins = allPlugins.filter(plugin => plugin.useLoader);
+    if (plugins.length > 0) {
+      await this._loadPlugins({
+        plugins,
+        loader: script => this._loader([script])
+      });
+    }
+    this.log('Loaded plugins with loader');
   }
 
   /**
    * Load scripts in the `plugins` list using the platform's native loading
    * mechanism
    */
-  protected _loadPlugins() {
-    const scripts = [
+  protected async _loadPluginsWithoutLoader() {
+    const allPlugins = [
       ...this.config.plugins,
       ...(this.config[this.environment].plugins || [])
     ];
-    return this._loadScripts(scripts, script => this.loadScript(script));
+    const plugins = allPlugins.filter(plugin => !plugin.useLoader);
+    if (plugins.length > 0) {
+      await this._loadPlugins({
+        plugins,
+        loader: script => this.loadScript(script)
+      });
+    }
+    this.log('Loaded plugins');
   }
 
   /**
-   * Load a list of scripts using a given loader. These will be loaded
-   * sequentially in order.
+   * Load a list of plugins using a given loader.
+   *
+   * These will be loaded sequentially.
    */
-  protected _loadScripts(
-    scripts: PluginDescriptor[],
-    loader: (script: string) => Promise<void>
-  ): Promise<void> {
-    return scripts
-      .reduce((previous, script) => {
-        const wrappedPrevious = this._cancelToken.wrap(previous);
-        if (typeof script === 'string') {
-          return wrappedPrevious.then(() => loader(script));
-        } else {
-          return wrappedPrevious
-            .then(() => {
-              this._loadingPluginOptions = script.options;
-            })
-            .then(() => loader(script.script))
-            .then(() => {
-              this._loadingPluginOptions = undefined;
-            });
-        }
-      }, Promise.resolve())
-      .then(() => {
-        // Wait for all plugin registrations, both configured ones and
-        // any that were manually registered, to resolve
-        return Promise.all(
-          this._loadingPlugins.map(entry => this._cancelToken.wrap(entry.init))
-        ).then(plugins => {
-          plugins.forEach((plugin, index) => {
-            this._assignPlugin(this._loadingPlugins[index].name, plugin);
-          });
-        });
-      });
+  protected async _loadPlugins({
+    plugins,
+    loader
+  }: {
+    plugins: PluginDescriptor[];
+    loader: (script: string) => Promise<void>;
+  }): Promise<void> {
+    for (const plugin of plugins) {
+      this._cancelToken?.throwIfCancelled();
+      this._loadingPluginOptions = plugin.options;
+      await loader(plugin.script);
+      this._loadingPluginOptions = undefined;
+    }
+
+    // Wait for all plugin registrations, both configured ones and
+    // any that were manually registered, to resolve
+    const loadedPlugins = await Promise.all(
+      this._loadingPlugins.map(entry => entry.init)
+    );
+
+    loadedPlugins.forEach((plugin, index) => {
+      this._assignPlugin(this._loadingPlugins[index].name, plugin);
+    });
   }
 
   /**
@@ -969,9 +976,10 @@ export default abstract class BaseExecutor<E extends Events, P extends Plugins>
       ...this.config.suites,
       ...(this.config[this.environment].suites || [])
     ];
-    this.log('Loading suites:', suites);
-    await this._loader(suites);
-    this.log('Loaded suites:', suites);
+    if (suites.length > 0) {
+      await this._loader(suites);
+    }
+    this.log('Loaded suites');
   }
 
   /**
