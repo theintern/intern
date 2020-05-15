@@ -62,10 +62,9 @@ registerSuite('core/lib/executors/Executor', function() {
 
   function createExecutor(config?: Partial<Config>) {
     const executor = new Executor(mockCreateConfigurator, config);
-    executor.registerLoader((_config: { [key: string]: any }) =>
-      Promise.resolve(testLoader)
-    );
-    (<any>executor).testLoader = testLoader;
+    const loader = (_config: { [key: string]: any }) =>
+      Promise.resolve(testLoader);
+    executor.registerLoader(loader);
     return executor;
   }
 
@@ -407,7 +406,7 @@ registerSuite('core/lib/executors/Executor', function() {
       },
 
       '#registerPlugin': {
-        config() {
+        async config() {
           executor.configure({
             plugins: { script: 'foo.js', useLoader: true }
           });
@@ -416,19 +415,34 @@ registerSuite('core/lib/executors/Executor', function() {
             executor.registerPlugin('foo', pluginInit);
           });
           scripts['foo.js'] = pluginScript;
-          return executor.run().then(() => {
-            // One load for the plugin, and one for the suites
-            const loader = (<any>executor).testLoader;
-            assert.equal(loader.callCount, 2);
-            assert.equal(loader.getCall(0).args[0], 'foo.js');
-            assert.equal(pluginScript.callCount, 1);
-            assert.equal(pluginInit.callCount, 1);
-            assert.equal(
-              executor.getPlugin('foo'),
-              'bar',
-              'expected plugin to have resolved value of init function'
-            );
-          });
+
+          await executor.run();
+
+          assert.equal(
+            testLoader.callCount,
+            1,
+            'loader should have been used once'
+          );
+          assert.equal(
+            testLoader.getCall(0).args[0][0],
+            'foo.js',
+            'unexpected script was loaded'
+          );
+          assert.equal(
+            pluginScript.callCount,
+            1,
+            'plugin script should have been evaluated once'
+          );
+          assert.equal(
+            pluginInit.callCount,
+            1,
+            'plugin initializer should have been called'
+          );
+          assert.equal(
+            executor.getPlugin('foo'),
+            'bar',
+            'expected plugin to have resolved value of init function'
+          );
         },
 
         direct() {
@@ -476,9 +490,9 @@ registerSuite('core/lib/executors/Executor', function() {
         'custom reporter'() {
           executor.registerPlugin('reporter.foo', () => {
             const CustomReporter = function() {};
-            return Promise.resolve(CustomReporter);
+            return CustomReporter;
           });
-          executor.configure({ reporters: <any>'foo' });
+          executor.configure({ reporters: 'foo' });
           // Executor should run successfully
           return executor.run();
         },
@@ -590,6 +604,48 @@ registerSuite('core/lib/executors/Executor', function() {
               );
               assert.isDefined(suite.skip, 'suite should have been skipped');
             }
+          );
+        },
+
+        async 'plugin loading'() {
+          executor.configure({
+            plugins: [
+              { script: 'foo.js', useLoader: false },
+              { script: 'bar.js', useLoader: true }
+            ]
+          });
+          const fooInit = spy(() => 'bar');
+          const fooScript = spy(() => {
+            executor.registerPlugin('foo', fooInit);
+          });
+          scripts['foo.js'] = fooScript;
+          const barInit = spy(() => 'bar');
+          const barScript = spy(() => {
+            executor.registerPlugin('bar', barInit);
+          });
+          scripts['bar.js'] = barScript;
+
+          await executor.run();
+
+          assert.equal(
+            testLoader.callCount,
+            1,
+            'loader should have been used once'
+          );
+          assert.equal(
+            testLoader.getCall(0).args[0][0],
+            'bar.js',
+            'unexpected script was loaded'
+          );
+          assert.equal(
+            fooInit.callCount,
+            1,
+            'expected plugin to be initialized once'
+          );
+          assert.equal(
+            barInit.callCount,
+            1,
+            'expected plugin to be initialized once'
           );
         }
       }
