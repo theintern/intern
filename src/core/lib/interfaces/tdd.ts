@@ -23,7 +23,7 @@
  *     test('baz', () => { ... });
  * });
  */ /** */
-import { global } from '../../../common';
+import { global, isPromise } from '../../../common';
 import Suite, {
   SuiteProperties,
   SuiteLifecycleFunction,
@@ -46,7 +46,7 @@ export interface TddLifecycleInterface {
   afterEach(fn: SuiteProperties['afterEach']): void;
 }
 
-export type TddSuiteFactory = (suite: Suite) => void;
+export type TddSuiteFactory = (suite: Suite) => undefined | void;
 
 export function suite(name: string, factory: TddSuiteFactory) {
   return _suite(global.intern, name, factory);
@@ -133,7 +133,12 @@ function registerSuite(name: string, factory: TddSuiteFactory) {
   currentSuite = new Suite({ name, parent });
   parent.add(currentSuite);
 
-  factory(currentSuite);
+  const returnValue = factory(currentSuite);
+  if (isPromise(returnValue)) {
+    throw new Error(
+      `Suite functions may not be asynchronous: ${currentSuite.id}`
+    );
+  }
 
   currentSuite = parent;
 }

@@ -26,7 +26,9 @@ registerSuite('core/lib/interfaces/tdd', function() {
   };
 
   return {
-    async before() {
+    async beforeEach() {
+      // Re-import tdd before each test to ensure the module-level variables are
+      // reset
       tddInt = await mockImport(
         () => import('src/core/lib/interfaces/tdd'),
         replace => {
@@ -40,9 +42,6 @@ registerSuite('core/lib/interfaces/tdd', function() {
           replace(() => import('src/core/lib/Test')).withDefault(Test);
         }
       );
-    },
-
-    beforeEach() {
       sandbox.resetHistory();
       parent = new Suite(<any>{ name: 'parent', executor });
     },
@@ -62,11 +61,22 @@ registerSuite('core/lib/interfaces/tdd', function() {
         assert.equal(parent.tests[0].name, 'fooSuite');
       },
 
-      suite() {
-        tddInt.suite('foo', () => {});
-        assert.lengthOf(parent.tests, 1);
-        assert.instanceOf(parent.tests[0], Suite);
-        assert.equal(parent.tests[0].name, 'foo');
+      suite: {
+        normal() {
+          tddInt.suite('foo', () => {});
+          assert.lengthOf(parent.tests, 1);
+          assert.instanceOf(parent.tests[0], Suite);
+          assert.equal(parent.tests[0].name, 'foo');
+        },
+
+        async() {
+          assert.throws(
+            // @ts-ignore
+            () => tddInt.suite('foo', async () => {}),
+            /async/,
+            'using an async suite function should throw'
+          );
+        }
       },
 
       test() {
