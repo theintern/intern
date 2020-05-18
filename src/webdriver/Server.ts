@@ -646,7 +646,7 @@ export default class Server {
           });
         }
 
-        if (isValidVersion(capabilities, 13)) {
+        if (isValidVersion(capabilities, 13, Infinity)) {
           Object.assign(updates, {
             // At least Safari 13 clicks in the wrong location when clicking an
             // element.
