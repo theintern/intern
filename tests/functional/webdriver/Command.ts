@@ -21,7 +21,7 @@ registerSuite('functional/webdriver/Command', () => {
 
     beforeEach() {
       return session.get('about:blank').then(function() {
-        return session.setTimeout('implicit', 0);
+        return session.setTimeout('implicit', 100);
       });
     },
 
