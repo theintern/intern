@@ -82908,8 +82908,17 @@
 										}
 									],
 									"type": {
-										"type": "intrinsic",
-										"name": "void"
+										"type": "union",
+										"types": [
+											{
+												"type": "intrinsic",
+												"name": "undefined"
+											},
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
 									}
 								}
 							],
@@ -83012,7 +83021,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/interfaces/tdd.ts",
-							"line": 141,
+							"line": 146,
 							"character": 15
 						}
 					]
@@ -83209,7 +83218,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/interfaces/tdd.ts",
-							"line": 153,
+							"line": 158,
 							"character": 15
 						}
 					]

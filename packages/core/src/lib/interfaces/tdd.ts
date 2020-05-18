@@ -23,7 +23,7 @@
  *     test('baz', () => { ... });
  * });
  */ /** */
-import { global } from '@theintern/common';
+import { global, isPromise } from '@theintern/common';
 import Suite, {
   SuiteProperties,
   SuiteLifecycleFunction,
@@ -46,15 +46,15 @@ export interface TddLifecycleInterface {
   afterEach(fn: SuiteProperties['afterEach']): void;
 }
 
-export type TddSuiteFactory = (suite: Suite) => void;
+export type TddSuiteFactory = (suite: Suite) => undefined | void;
 
 export function suite(name: string, factory: TddSuiteFactory) {
   return _suite(global.intern, name, factory);
 }
 
 export function xsuite(name: string, factory: TddSuiteFactory) {
-  return suite(name, function(suiteRef) {
-    before(function() {
+  return suite(name, function (suiteRef) {
+    before(function () {
       suiteRef.skip();
     });
     factory(suiteRef);
@@ -72,7 +72,7 @@ export function xtest(
   name: string,
   testImplementation?: TestProperties['test']
 ) {
-  test(name, function() {
+  test(name, function () {
     if (testImplementation) {
       this.skip();
     } else {
@@ -133,7 +133,12 @@ function registerSuite(name: string, factory: TddSuiteFactory) {
   currentSuite = new Suite({ name, parent });
   parent.add(currentSuite);
 
-  factory(currentSuite);
+  const returnValue = factory(currentSuite);
+  if (isPromise(returnValue)) {
+    throw new Error(
+      `Suite functions may not be asynchronous: ${currentSuite.id}`
+    );
+  }
 
   currentSuite = parent;
 }
@@ -159,7 +164,7 @@ function aspect(
     this: Suite,
     firstArg: Suite | Test
   ) => void;
-  suite[method] = function(...args: [Suite | Test]) {
+  suite[method] = function (...args: [Suite | Test]) {
     const originalReturn = originalMethod
       ? originalMethod.apply(suite, args)
       : undefined;
