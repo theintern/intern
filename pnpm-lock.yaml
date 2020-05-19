@@ -6,6 +6,7 @@ importers:
       '@theintern-dev/eslint-config': 'link:devPackages/eslint-config'
       '@theintern-dev/scripts': 'link:devPackages/scripts'
       '@types/node': 14.0.11
+      '@types/shelljs': 0.8.8
       '@typescript-eslint/eslint-plugin': 3.0.2_7fbd1f45de470c4dba6f43707631de4a
       '@typescript-eslint/parser': 3.0.2_eslint@7.1.0+typescript@3.9.5
       cross-env: 7.0.2
@@ -15,6 +16,7 @@ importers:
       intern: 'link:packages/intern'
       lint-staged: 10.2.9
       prettier: 2.0.5
+      shelljs: 0.8.4
       shx: 0.3.2
       ts-node: 8.10.2_typescript@3.9.5
       typescript: 3.9.5
@@ -24,6 +26,7 @@ importers:
       '@theintern-dev/eslint-config': 'workspace:*'
       '@theintern-dev/scripts': 'workspace:*'
       '@types/node': ~14.0.9
+      '@types/shelljs': ~0.8.8
       '@typescript-eslint/eslint-plugin': ~3.0.1
       '@typescript-eslint/parser': ~3.0.1
       cross-env: ~7.0.2
@@ -33,6 +36,7 @@ importers:
       intern: 'workspace:*'
       lint-staged: ~10.2.6
       prettier: ~2.0.5
+      shelljs: ~0.8.4
       shx: ~0.3.2
       ts-node: ~8.10.2
       typescript: ~3.9.3
@@ -46,10 +50,12 @@ importers:
       typedoc: 0.17.7
     devDependencies:
       '@theintern-dev/tsconfig': 'link:../tsconfig'
+      '@theintern/digdug': 'link:../../packages/digdug'
       '@types/glob': 7.1.2
       '@types/semver': 7.2.0
     specifiers:
       '@theintern-dev/tsconfig': 'workspace:*'
+      '@theintern/digdug': 'workspace:*'
       '@types/glob': ~7.1.1
       '@types/semver': ~7.2.0
       glob: ~7.1.6
@@ -341,11 +347,9 @@ importers:
       '@types/glob': 7.1.3
       '@types/node': 12.0.12
       '@types/semver': 6.0.2
-      '@types/shelljs': 0.8.8
       concurrently: 4.1.2
       glob: 7.1.6
       semver: 6.1.3
-      shelljs: 0.8.4
     specifiers:
       '@theintern-dev/test-util': 'workspace:*'
       '@theintern-dev/tsconfig': 'workspace:*'
@@ -356,13 +360,11 @@ importers:
       '@types/glob': ~7.1.3
       '@types/node': ~12.0.5
       '@types/semver': ~6.0.0
-      '@types/shelljs': ~0.8.5
       command-exists: ~1.2.6
       concurrently: ~4.1.0
       decompress: ~4.2.0
       glob: ~7.1.6
       semver: ~6.1.1
-      shelljs: ~0.8.1
       tslib: ~1.9.3
   packages/intern:
     dependencies:
@@ -873,7 +875,7 @@ packages:
   /@types/glob/7.1.3:
     dependencies:
       '@types/minimatch': 3.0.3
-      '@types/node': 14.0.11
+      '@types/node': 14.0.23
     dev: true
     resolution:
       integrity: sha512-SEYeGAIQIQX8NN6LDKprLjbrd5dARM5EXsd8GI/A5l0apYI1fGMWgPHSe4ZKL4eozlAyI+doUE9XbYS4xCkQ1w==
@@ -992,6 +994,10 @@ packages:
   /@types/node/14.0.11:
     resolution:
       integrity: sha512-lCvvI24L21ZVeIiyIUHZ5Oflv1hhHQ5E1S25IRlKIXaRkVgmXpJMI3wUJkmym2bTbCe+WoIibQnMVAU3FguaOg==
+  /@types/node/14.0.23:
+    dev: true
+    resolution:
+      integrity: sha512-Z4U8yDAl5TFkmYsZdFPdjeMa57NOvnaf1tljHzhouaPEp7LCj2JKkejpI1ODviIAQuW4CcQmxkQ77rnLsOOoKw==
   /@types/normalize-package-data/2.4.0:
     dev: true
     resolution:
@@ -1065,8 +1071,8 @@ packages:
       integrity: sha512-M5TzVuMwWzRtBqwa/edfiC5xOzuJHjrWVLrPishrLWCN83tTdDxjgMYWJG+anqP01ofPemijD2iWHzPqgkQ+wA==
   /@types/shelljs/0.8.8:
     dependencies:
-      '@types/glob': 7.1.2
-      '@types/node': 14.0.11
+      '@types/glob': 7.1.3
+      '@types/node': 14.0.23
     dev: true
     resolution:
       integrity: sha512-lD3LWdg6j8r0VRBFahJVaxoW0SIcswxKaFUrmKl33RJVeeoNYQAz4uqCJ5Z6v4oIBOsC5GozX+I5SorIKiTcQA==

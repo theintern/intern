@@ -10,7 +10,9 @@
   },
   "bin": {
     "dev-apidoc": "bin/dev-apidoc.js",
-    "dev-version": "bin/dev-version.js"
+    "dev-ghpages": "bin/dev-ghpages.js",
+    "dev-version": "bin/dev-version.js",
+    "dev-webdriver": "bin/dev-webdriver.js"
   },
   "dependencies": {
     "glob": "~7.1.6",
@@ -19,6 +21,7 @@
     "typedoc": "~0.17.7"
   },
   "devDependencies": {
+    "@theintern/digdug": "workspace:*",
     "@theintern-dev/tsconfig": "workspace:*",
     "@types/glob": "~7.1.1",
     "@types/semver": "~7.2.0"

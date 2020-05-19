@@ -6,5 +6,6 @@
     "rootDir": "src",
     "target": "ES2015"
   },
+  "references": [{ "path": "../../packages/digdug" }],
   "include": ["src/**/*.ts"]
 }

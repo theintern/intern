@@ -9,6 +9,7 @@ coverage-final.json
 coverage/
 _build/
 _examples/
+_ghpages/
 _tests/
 _testIntern/
 _publish/

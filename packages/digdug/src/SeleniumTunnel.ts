@@ -172,7 +172,7 @@ export default class SeleniumTunnel extends Tunnel
           const dontExtract = Boolean(config.dontExtract);
           const directory = config.directory;
 
-          if (fileExists(join(this.directory, executable))) {
+          if (fileExists(join(this.directory, executable)) && !forceDownload) {
             return undefined;
           }
 
