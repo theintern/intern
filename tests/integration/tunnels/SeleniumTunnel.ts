@@ -6,6 +6,7 @@ import { execSync } from 'child_process';
 import { ObjectSuiteDescriptor } from 'src/core/lib/interfaces/object';
 import { TestFunction } from 'src/core/lib/Test';
 import { mockImport } from 'tests/support/mockUtil';
+import webdrivers from 'src/tunnels/webdrivers.json';
 
 import _SeleniumTunnel from 'src/tunnels/SeleniumTunnel';
 import { BrowserName } from 'src/tunnels/types';
@@ -69,17 +70,19 @@ async function downloadTest(
 
 // artifact is a glob pattern that should match the downloaded file, relative to
 // the base tunnel directory
+// TODO: use the built in current driver versions -- just change the platform
+// and arch
 const testConfigs: DownloadTestOptions[] = [
   {
     driver: { browserName: 'chrome' },
     platform: 'win32',
-    artifact: '*/*/chromedriver.exe'
+    artifact: `${webdrivers.drivers.chrome.latest}/*/chromedriver.exe`
   },
   {
     driver: { browserName: 'chrome' },
     platform: 'linux',
     arch: 'x64',
-    artifact: '*/*/chromedriver'
+    artifact: `${webdrivers.drivers.chrome.latest}/*/chromedriver`
   },
   {
     driver: {
@@ -90,34 +93,26 @@ const testConfigs: DownloadTestOptions[] = [
     artifact: '2.35/*/chromedriver'
   },
   {
-    driver: {
-      browserName: 'chrome',
-      version: '2.36'
-    },
-    platform: 'darwin',
-    artifact: '2.36/*/chromedriver'
-  },
-  {
     driver: { browserName: 'ie' },
     arch: 'x64',
-    artifact: '*/x64/IEDriverServer.exe'
+    artifact: `${webdrivers.drivers.ie.latest}/x64/IEDriverServer.exe`
   },
   {
     driver: { browserName: 'ie' },
     arch: 'x86',
-    artifact: '*/x86/IEDriverServer.exe'
+    artifact: `${webdrivers.drivers.ie.latest}/x86/IEDriverServer.exe`
   },
   {
     driver: { browserName: 'internet explorer' },
-    artifact: '*/*/IEDriverServer.exe'
+    artifact: `${webdrivers.drivers.ie.latest}/*/IEDriverServer.exe`
   },
   {
     driver: { browserName: 'edge' },
-    artifact: '*/MicrosoftWebDriver.exe'
+    artifact: `${webdrivers.drivers.edge.latest}/MicrosoftWebDriver.exe`
   },
   {
     driver: { browserName: 'MicrosoftEdge' },
-    artifact: '*/MicrosoftWebDriver.exe'
+    artifact: `${webdrivers.drivers.edge.latest}/MicrosoftWebDriver.exe`
   },
   {
     driver: {
@@ -125,7 +120,7 @@ const testConfigs: DownloadTestOptions[] = [
     },
     platform: 'win32',
     arch: 'x64',
-    artifact: '*/x64/msedgedriver.exe'
+    artifact: `${webdrivers.drivers.edgeChromium.latest}/x64/msedgedriver.exe`
   },
   {
     driver: {
@@ -133,29 +128,29 @@ const testConfigs: DownloadTestOptions[] = [
     },
     platform: 'win32',
     arch: 'x86',
-    artifact: '*/x86/msedgedriver.exe'
+    artifact: `${webdrivers.drivers.edgeChromium.latest}/x86/msedgedriver.exe`
   },
   {
     driver: {
       browserName: 'MicrosoftEdgeChromium'
     },
     platform: 'darwin',
-    artifact: '*/*/msedgedriver'
+    artifact: `${webdrivers.drivers.edgeChromium.latest}/*/msedgedriver`
   },
   {
     driver: { browserName: 'firefox' },
     platform: 'linux',
-    artifact: '*/*/geckodriver'
+    artifact: `${webdrivers.drivers.firefox.latest}/*/geckodriver`
   },
   {
     driver: { browserName: 'firefox' },
     platform: 'darwin',
-    artifact: '*/*/geckodriver'
+    artifact: `${webdrivers.drivers.firefox.latest}/*/geckodriver`
   },
   {
     driver: { browserName: 'firefox' },
     platform: 'win32',
-    artifact: '*/*/geckodriver.exe'
+    artifact: `${webdrivers.drivers.firefox.latest}/*/geckodriver.exe`
   }
 ];
 
@@ -235,7 +230,7 @@ const suite: ObjectSuiteDescriptor = {
     },
 
     'version check': async function() {
-      const version = '79.0.3945.36';
+      const version = webdrivers.drivers.chrome.latest;
       const { arch } = process;
       tunnel = new SeleniumTunnel({
         directory: mkdtempSync(join(tmpdir(), 'intern-test')),
