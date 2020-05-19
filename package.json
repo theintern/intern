@@ -46,7 +46,9 @@
     "test:safari": "ts-node scripts/test.ts --config @safari",
     "watch:tests": "ts-node scripts/test.ts --watch",
     "watch": "ts-node scripts/build.ts --watch",
-    "ci": "ts-node scripts/test.ts --config @ci"
+    "ci": "ts-node scripts/test.ts --config @ci",
+    "ghpages": "ts-node scripts/ghpages.ts",
+    "webdriver": "ts-node scripts/webdriver.ts"
   },
   "dependencies": {
     "@types/benchmark": "~1.0.31",
