@@ -1,6 +1,6 @@
 // Build, and optionally continue watching and rebuilding a project
 
-// Use native tsc, webpack, and stylus watchers.
+// Use native tsc and webpack watchers.
 // Use chokidar to create file watchers to copy changed files.
 // When the script is first run, do a complete build. If a 'watch' argument is
 // provided, start watchers.
