@@ -46,6 +46,7 @@ export interface RequestOptions {
   httpAgent?: HttpAgent;
   httpsAgent?: HttpsAgent;
   retries?: number;
+  timeout?: number;
   cancelToken?: CancelToken;
 }
 

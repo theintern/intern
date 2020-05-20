@@ -11,10 +11,7 @@ const projectRoot = resolve(__dirname, '..');
 process.chdir(projectRoot);
 
 function getInternVersion() {
-  return packageJson.version
-    .split('.')
-    .slice(0, 2)
-    .join('.');
+  return packageJson.version.split('.')[0];
 }
 
 async function updateGhPages() {
