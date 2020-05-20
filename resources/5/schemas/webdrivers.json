@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://theintern.io/schemas/digdug/webdrivers-2.3.json",
+
+  "title": "Webdrivers",
+  "description": "Dig Dug 2.3 webdriver information schema",
+
+  "type": "object",
+
+  "properties": {
+    "drivers": {
+      "type": "object",
+      "patternProperties": {
+        ".*": { "$ref": "#/definitions/webdriver" }
+      }
+    }
+  },
+
+  "definitions": {
+    "webdriver": {
+      "type": "object",
+      "properties": {
+        "baseUrl": { "type": "string" },
+        "latest": { "type": "string" },
+        "versions": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "url": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
