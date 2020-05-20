@@ -64,6 +64,9 @@ your `intern.json` file that points to the schema, like:
 }
 ```
 
+The schema is also available at
+`https://theintern.io/intern/resources/5/schemas/config.json`.
+
 ## Environment-specific config
 
 Tests can run in two basic environments: Node and browsers. By default,
