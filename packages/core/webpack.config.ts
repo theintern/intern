@@ -12,12 +12,8 @@ const common: Configuration = {
   module: {
     rules: [
       {
-        test: /@theintern\/common/,
-        use: 'umd-compat-loader'
-      },
-      {
-        test: /\.styl$/,
-        use: ['style-loader', 'css-loader', 'stylus-loader']
+        test: /\.scss/,
+        use: ['style-loader', 'css-loader', 'sass-loader']
       },
       {
         test: /\.ts/,

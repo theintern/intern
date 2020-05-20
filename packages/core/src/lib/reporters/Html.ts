@@ -152,8 +152,8 @@ export default class Html extends Reporter implements HtmlProperties {
     link.rel = 'stylesheet';
     link.href = `${this.executor.config.internPath}lib/reporters/html/html.css`;
 
-    document.head!.appendChild(style);
-    document.head!.appendChild(link);
+    document.head.appendChild(style);
+    document.head.appendChild(link);
   }
 
   protected _getIndentLevel(node: Element) {
@@ -161,7 +161,7 @@ export default class Html extends Reporter implements HtmlProperties {
     const child: Element = node.children[1];
 
     // get the indentN class
-    const indent = child.className.split(' ').filter(function(name: string) {
+    const indent = child.className.split(' ').filter(function (name: string) {
       return name.indexOf('indent') >= 0;
     })[0];
 
@@ -405,8 +405,8 @@ export default class Html extends Reporter implements HtmlProperties {
         return;
       }
 
-      while (target && target!.tagName !== 'TR') {
-        target = target!.parentElement;
+      while (target && target.tagName !== 'TR') {
+        target = target.parentElement;
       }
       if (target) {
         this._setCollapsed(target);
@@ -474,7 +474,7 @@ export default class Html extends Reporter implements HtmlProperties {
       this._generateSummary(suite);
 
       // Load styles via webpack
-      require('./html/html.styl');
+      require('./html/html.scss');
 
       document.body.innerHTML = '';
       document.body.className = '';
@@ -530,8 +530,8 @@ export default class Html extends Reporter implements HtmlProperties {
     const rowStatus = allTestsSkipped
       ? 'skipped'
       : numFailedTests > 0 || hasSuiteFailures
-        ? 'failed'
-        : 'passed';
+      ? 'failed'
+      : 'passed';
 
     // Mark a suite as failed if any of its child tests failed, and
     addClass(rowNode, rowStatus);
