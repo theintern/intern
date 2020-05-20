@@ -23,8 +23,7 @@ import {
   intArg,
   print,
   readJsonFile,
-  sortObjectKeys,
-  stringify
+  showConfig
 } from './lib/util';
 
 function getConfigFile(cfg: string) {
@@ -268,7 +267,7 @@ program
     'leave the remote browser open after tests finish'
   )
   .option('-p, --port <port>', 'port that test proxy should serve on', intArg)
-  .option('--debug', 'enable the Node debugger')
+  .option('--debug', 'enable debug logging')
   .option('--serve-only', "start Intern's test server, but don't run any tests")
   .option('--show-config [property]', 'display the resolved config and exit')
   .option('--timeout <int>', 'set the default timeout for async tests', intArg)
@@ -416,21 +415,7 @@ program
 
     try {
       if (command.showConfig) {
-        let sorted: any;
-        await intern.resolveConfig();
-
-        if (typeof command.showConfig === 'string') {
-          const value = intern.config[command.showConfig as keyof Config];
-          if (value && typeof value === 'object') {
-            sorted = sortObjectKeys(value);
-          } else {
-            sorted = value;
-          }
-        } else {
-          sorted = sortObjectKeys(intern.config);
-        }
-
-        console.log(stringify(sorted));
+        showConfig(command.showConfig);
       } else {
         await intern.run();
       }
@@ -453,8 +438,15 @@ program
       'your system'
   )
   .option('-C, --no-coverage', 'disable code coverage')
+  .option('--debug', 'enable debug logging')
   .option('-o, --open', 'open the test runner URL when the server starts')
   .option('-p, --port <port>', 'port to serve on', intArg)
+  .option(
+    '-s, --socket-port <port>',
+    'port to serve WebSocket connections on',
+    intArg
+  )
+  .option('--show-config [property]', 'display the resolved config and exit')
   .on('--help', () => {
     print('\n');
     print([
@@ -479,8 +471,17 @@ program
 
     const config: Args = { serveOnly: true };
 
+    // 'verbose' is a top-level option
+    if (command.parent.verbose || command.debug) {
+      config.debug = true;
+    }
+
     if (command.port) {
       config.serverPort = command.port;
+    }
+
+    if (command.socketPort) {
+      config.socketPort = command.socketPort;
     }
 
     if (command.coverage === false) {
@@ -489,7 +490,11 @@ program
 
     intern.configure(config);
 
-    await intern.run();
+    if (command.showConfig) {
+      showConfig(command.showConfig);
+    } else {
+      await intern.run();
+    }
   });
 
 // Handle any unknown commands

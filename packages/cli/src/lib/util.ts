@@ -10,6 +10,7 @@ import {
 import { dirname, join } from 'path';
 import { format as _format } from 'util';
 import commander from 'commander';
+import { Config } from '@theintern/core/dist/lib/config';
 
 export let screenWidth = 80;
 
@@ -175,6 +176,27 @@ export function readJsonFile(file: string) {
 }
 
 /**
+ * Display Intern's config
+ */
+export async function showConfig(showConfigArg: string | boolean) {
+  let sorted: any;
+  await intern.resolveConfig();
+
+  if (typeof showConfigArg === 'string') {
+    const value = intern.config[showConfigArg as keyof Config];
+    if (value && typeof value === 'object') {
+      sorted = sortObjectKeys(value);
+    } else {
+      sorted = value;
+    }
+  } else {
+    sorted = sortObjectKeys(intern.config);
+  }
+
+  console.log(stringify(sorted));
+}
+
+/**
  * Wraps a string to a certain line length, maintaining the indent of the first
  * line.
  */
@@ -261,7 +283,7 @@ function format(...args: any[]) {
  * Deeply sort the keys of an object. Don't try to sort
  * non-simple objects.
  */
-export function sortObjectKeys(obj: object) {
+function sortObjectKeys(obj: object) {
   if (Array.isArray(obj)) {
     obj = obj.map(sortObjectKeys).sort();
   } else if (typeof obj === 'object' && obj.constructor === Object) {
@@ -279,7 +301,7 @@ export function sortObjectKeys(obj: object) {
 /**
  * Stringify an object
  */
-export function stringify(obj: object) {
+function stringify(obj: object) {
   return JSON.stringify(
     obj,
     (_key, value) => {
