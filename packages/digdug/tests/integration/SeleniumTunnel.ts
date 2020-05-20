@@ -4,14 +4,15 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { execSync } from 'child_process';
 import { ObjectSuiteDescriptor } from '@theintern/core/dist/lib/interfaces/object';
+import { request } from '@theintern/common';
 import { TestFunction } from '@theintern/core/dist/lib/Test';
 import { mockImport } from '@theintern-dev/test-util';
-import webdrivers from '../../src/webdrivers.json';
+import webdriversJson from '../../src/webdrivers.json';
 
 import _SeleniumTunnel from '../../src/SeleniumTunnel';
 import { BrowserName } from '../../src/types';
 import { startStopTest } from '../support/integration';
-import { /*cleanup,*/ deleteTunnelFiles, getDigdugArgs } from '../support/util';
+import { cleanup, deleteTunnelFiles, getDigdugArgs } from '../support/util';
 
 let SeleniumTunnel: typeof _SeleniumTunnel;
 let tunnel: _SeleniumTunnel;
@@ -49,6 +50,9 @@ async function downloadTest(
     drivers
   });
 
+  // Disable webdriver data updates
+  tunnel.webDriverDataUrl = null;
+
   // Check that the progress callback is called
   let progressed = false;
 
@@ -67,19 +71,17 @@ async function downloadTest(
 
 // artifact is a glob pattern that should match the downloaded file, relative to
 // the base tunnel directory
-// TODO: use the built in current driver versions -- just change the platform
-// and arch
 const testConfigs: DownloadTestOptions[] = [
   {
     driver: { browserName: 'chrome' },
     platform: 'win32',
-    artifact: `${webdrivers.drivers.chrome.latest}/*/chromedriver.exe`
+    artifact: `${webdriversJson.drivers.chrome.latest}/*/chromedriver.exe`
   },
   {
     driver: { browserName: 'chrome' },
     platform: 'linux',
     arch: 'x64',
-    artifact: `${webdrivers.drivers.chrome.latest}/*/chromedriver`
+    artifact: `${webdriversJson.drivers.chrome.latest}/*/chromedriver`
   },
   {
     driver: {
@@ -92,24 +94,24 @@ const testConfigs: DownloadTestOptions[] = [
   {
     driver: { browserName: 'ie' },
     arch: 'x64',
-    artifact: `${webdrivers.drivers.ie.latest}/x64/IEDriverServer.exe`
+    artifact: `${webdriversJson.drivers.ie.latest}/x64/IEDriverServer.exe`
   },
   {
     driver: { browserName: 'ie' },
     arch: 'x86',
-    artifact: `${webdrivers.drivers.ie.latest}/x86/IEDriverServer.exe`
+    artifact: `${webdriversJson.drivers.ie.latest}/x86/IEDriverServer.exe`
   },
   {
     driver: { browserName: 'internet explorer' },
-    artifact: `${webdrivers.drivers.ie.latest}/*/IEDriverServer.exe`
+    artifact: `${webdriversJson.drivers.ie.latest}/*/IEDriverServer.exe`
   },
   {
     driver: { browserName: 'edge' },
-    artifact: `${webdrivers.drivers.edge.latest}/MicrosoftWebDriver.exe`
+    artifact: `${webdriversJson.drivers.edge.latest}/MicrosoftWebDriver.exe`
   },
   {
     driver: { browserName: 'MicrosoftEdge' },
-    artifact: `${webdrivers.drivers.edge.latest}/MicrosoftWebDriver.exe`
+    artifact: `${webdriversJson.drivers.edge.latest}/MicrosoftWebDriver.exe`
   },
   {
     driver: {
@@ -117,7 +119,7 @@ const testConfigs: DownloadTestOptions[] = [
     },
     platform: 'win32',
     arch: 'x64',
-    artifact: `${webdrivers.drivers.edgeChromium.latest}/x64/msedgedriver.exe`
+    artifact: `${webdriversJson.drivers.edgeChromium.latest}/x64/msedgedriver.exe`
   },
   {
     driver: {
@@ -125,29 +127,29 @@ const testConfigs: DownloadTestOptions[] = [
     },
     platform: 'win32',
     arch: 'x86',
-    artifact: `${webdrivers.drivers.edgeChromium.latest}/x86/msedgedriver.exe`
+    artifact: `${webdriversJson.drivers.edgeChromium.latest}/x86/msedgedriver.exe`
   },
   {
     driver: {
       browserName: 'MicrosoftEdgeChromium'
     },
     platform: 'darwin',
-    artifact: `${webdrivers.drivers.edgeChromium.latest}/*/msedgedriver`
+    artifact: `${webdriversJson.drivers.edgeChromium.latest}/*/msedgedriver`
   },
   {
     driver: { browserName: 'firefox' },
     platform: 'linux',
-    artifact: `${webdrivers.drivers.firefox.latest}/*/geckodriver`
+    artifact: `${webdriversJson.drivers.firefox.latest}/*/geckodriver`
   },
   {
     driver: { browserName: 'firefox' },
     platform: 'darwin',
-    artifact: `${webdrivers.drivers.firefox.latest}/*/geckodriver`
+    artifact: `${webdriversJson.drivers.firefox.latest}/*/geckodriver`
   },
   {
     driver: { browserName: 'firefox' },
     platform: 'win32',
-    artifact: `${webdrivers.drivers.firefox.latest}/*/geckodriver.exe`
+    artifact: `${webdriversJson.drivers.firefox.latest}/*/geckodriver.exe`
   }
 ];
 
@@ -195,7 +197,7 @@ const suite: ObjectSuiteDescriptor = {
   },
 
   afterEach() {
-    // return cleanup(tunnel);
+    return cleanup(tunnel);
   },
 
   tests: {
@@ -227,7 +229,7 @@ const suite: ObjectSuiteDescriptor = {
     },
 
     'version check': async function () {
-      const version = webdrivers.drivers.chrome.latest;
+      const version = webdriversJson.drivers.chrome.latest;
       const { arch } = process;
       tunnel = new SeleniumTunnel({
         directory: mkdtempSync(join(tmpdir(), 'intern-test')),
@@ -243,7 +245,125 @@ const suite: ObjectSuiteDescriptor = {
         new RegExp(`ChromeDriver ${version}.`),
         'unexpected driver version'
       );
-    }
+    },
+
+    'webdrivers.json download': (() => {
+      let SeleniumTunnel: typeof _SeleniumTunnel;
+      const mockData: typeof webdriversJson = JSON.parse(
+        JSON.stringify(webdriversJson)
+      );
+      mockData.drivers.selenium.latest = '3.14.0';
+      mockData.drivers.chrome.latest = '2.46';
+
+      return {
+        async before() {
+          ({ default: SeleniumTunnel } = await mockImport(
+            () => import('../../src/SeleniumTunnel'),
+            replace => {
+              replace(() => import('@theintern/common'))
+                .transparently()
+                .with({
+                  global: {
+                    process: mockProcess
+                  }
+                });
+              replace(() => import('../../src/webdrivers.json')).with(mockData);
+            }
+          ));
+        },
+
+        tests: {
+          async 'bad url'() {
+            tunnel = new SeleniumTunnel({
+              directory: mkdtempSync(join(tmpdir(), 'intern-test')),
+              drivers: [{ browserName: 'chrome' }, { browserName: 'firefox' }]
+            });
+
+            const resp = await request(tunnel.webDriverDataUrl!);
+            const data = await resp.json<typeof webdriversJson>();
+
+            tunnel.webDriverDataUrl = '/foo';
+            await tunnel.download();
+
+            const chromedriverVersion = mockData.drivers.chrome.latest;
+            const chromdriver = join(
+              tunnel.directory,
+              chromedriverVersion,
+              process.arch,
+              'chromedriver'
+            );
+            const cdResult = execSync(`"${chromdriver}" --version`).toString(
+              'utf-8'
+            );
+            assert.match(
+              cdResult,
+              new RegExp(`ChromeDriver ${chromedriverVersion}.`),
+              'unexpected driver version'
+            );
+
+            const geckodriverVersion = data.drivers.firefox.latest;
+            const geckodriver = join(
+              tunnel.directory,
+              geckodriverVersion,
+              process.arch,
+              'geckodriver'
+            );
+            const result = execSync(`"${geckodriver}" --version`).toString(
+              'utf-8'
+            );
+            assert.match(
+              result,
+              new RegExp(geckodriverVersion),
+              'unexpected driver version'
+            );
+          },
+
+          async 'good url'() {
+            tunnel = new SeleniumTunnel({
+              directory: mkdtempSync(join(tmpdir(), 'intern-test')),
+              drivers: [{ browserName: 'chrome' }, { browserName: 'firefox' }]
+            });
+
+            const resp = await request(tunnel.webDriverDataUrl!);
+            const data = await resp.json<typeof webdriversJson>();
+
+            await tunnel.download();
+
+            const chromedriverVersion = mockData.drivers.chrome.latest;
+            const chromdriver = join(
+              tunnel.directory,
+              chromedriverVersion,
+              process.arch,
+              'chromedriver'
+            );
+            const cdResult = execSync(`"${chromdriver}" --version`).toString(
+              'utf-8'
+            );
+            assert.match(
+              cdResult,
+              new RegExp(`ChromeDriver ${chromedriverVersion}.`),
+              'unexpected driver version'
+            );
+
+            const geckodriverVersion = data.drivers.firefox.latest;
+            const geckodriver = join(
+              tunnel.directory,
+              geckodriverVersion,
+              process.arch,
+              'geckodriver'
+            );
+            const result = execSync(`"${geckodriver}" --version`).toString(
+              'utf-8'
+            );
+            assert.match(
+              result,
+              new RegExp(geckodriverVersion),
+              'unexpected driver version'
+            );
+          }
+        }
+      };
+    })()
   }
 };
 

@@ -17,7 +17,7 @@ function getInternVersion() {
     { encoding: 'utf8' }
   );
   const packageJson = JSON.parse(packageData);
-  return packageJson.version.split('.').slice(0, 2).join('.');
+  return packageJson.version.split('.')[0];
 }
 
 function updateGhPages() {

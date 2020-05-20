@@ -41,13 +41,12 @@
     "tslib": "~1.9.3"
   },
   "devDependencies": {
-    "@theintern/core": "workspace:*",
     "@theintern-dev/tsconfig": "workspace:*",
+    "@theintern/core": "workspace:*",
     "@types/copy-webpack-plugin": "~5.0.0",
     "@types/glob": "~7.1.1",
     "@types/moxios": "~0.4.8",
     "@types/qs": "~6.5.3",
-    "@types/sinon": "~7.0.12",
     "@types/webpack": "~4.4.32",
     "@types/webpack-node-externals": "~1.6.3",
     "copy-webpack-plugin": "~5.0.3",
@@ -55,7 +54,6 @@
     "istanbul-instrumenter-loader": "~3.0.1",
     "moxios": "~0.4.0",
     "qs": "~6.7.0",
-    "sinon": "~7.3.2",
     "ts-loader": "~6.0.2",
     "ts-node": "~8.2.0",
     "typescript": "~3.9.5",
