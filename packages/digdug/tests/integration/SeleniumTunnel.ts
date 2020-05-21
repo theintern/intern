@@ -1,4 +1,4 @@
-import { mkdtempSync } from 'fs';
+import { existsSync, mkdtempSync } from 'fs';
 import { sync as glob } from 'glob';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -316,6 +316,12 @@ const suite: ObjectSuiteDescriptor = {
               new RegExp(geckodriverVersion),
               'unexpected driver version'
             );
+
+            const dataFile = join(tunnel.directory, 'webdrivers.json');
+            assert.isFalse(
+              existsSync(dataFile),
+              `did not expect ${dataFile} to exist`
+            );
           },
 
           async 'good url'() {
@@ -359,6 +365,12 @@ const suite: ObjectSuiteDescriptor = {
               result,
               new RegExp(geckodriverVersion),
               'unexpected driver version'
+            );
+
+            const dataFile = join(tunnel.directory, 'webdrivers.json');
+            assert.isTrue(
+              existsSync(dataFile),
+              `expected ${dataFile} to exist`
             );
           }
         }

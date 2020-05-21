@@ -4,6 +4,7 @@ import Tunnel, {
   DownloadOptions,
   ChildExecutor
 } from './Tunnel';
+import { readFileSync, writeFileSync } from 'fs';
 import { format } from 'util';
 import { join } from 'path';
 import {
@@ -20,7 +21,7 @@ import webdriversJson from './webdrivers.json';
 
 // This is the webdriver verison data that will be used when initializing the
 // driver config objects.
-const webdrivers = webdriversJson.drivers;
+const webDrivers = webdriversJson.drivers;
 
 /**
  * A Selenium tunnel. This tunnel downloads the
@@ -115,7 +116,7 @@ export default class SeleniumTunnel extends Tunnel
   webDriverDataUrl: string | null =
     'https://theintern.io/intern/resources/5/webdrivers.json';
 
-  private _webdriverDataLoaded = false;
+  private _webDriverDataLoaded = false;
 
   constructor(options?: Partial<SeleniumProperties>) {
     super(
@@ -123,8 +124,8 @@ export default class SeleniumTunnel extends Tunnel
         {
           seleniumArgs: [],
           drivers: ['chrome'],
-          baseUrl: webdrivers.selenium.baseUrl,
-          version: webdrivers.selenium.latest,
+          baseUrl: webDrivers.selenium.baseUrl,
+          version: webDrivers.selenium.latest,
           seleniumTimeout: 5000,
           directory: join(__dirname, 'selenium-standalone')
         },
@@ -165,7 +166,7 @@ export default class SeleniumTunnel extends Tunnel
   }
 
   async download(forceDownload = false): Promise<void> {
-    await this.updateWebdDriverData();
+    await this._updateWebDriverData();
 
     if (!forceDownload && this.isDownloaded) {
       return Promise.resolve();
@@ -230,12 +231,17 @@ export default class SeleniumTunnel extends Tunnel
    * This method updates the data used to configure the various webdriver config
    * classes.
    */
-  async updateWebdDriverData(): Promise<typeof webdrivers | undefined> {
+  protected async _updateWebDriverData(): Promise<
+    typeof webDrivers | undefined
+  > {
     // Don't try to retrieve new data if we've already done it or if the URL is
     // cleared
-    if (this._webdriverDataLoaded || !this.webDriverDataUrl) {
+    if (this._webDriverDataLoaded || !this.webDriverDataUrl) {
       return;
     }
+
+    const updatedDataFile = join(this.directory, 'webdrivers.json');
+    let updatedData: typeof webdriversJson | undefined;
 
     try {
       const resp = await request(this.webDriverDataUrl, {
@@ -244,16 +250,27 @@ export default class SeleniumTunnel extends Tunnel
       });
 
       if (resp.status === 200) {
-        const data = await resp.json<typeof webdriversJson>();
-        this._webdriverDataLoaded = true;
-        // Always mix in downloaded data. The assumption is that any downloaded
-        // webdriver data will be newer that whatever's included with Intern
-        deepMixin(webdrivers, data.drivers);
+        updatedData = await resp.json<typeof webdriversJson>();
+        this._webDriverDataLoaded = true;
+        // Save the downloaded data for use if a download fails in a future
+        // session
+        writeFileSync(updatedDataFile, JSON.stringify(updatedData));
       }
     } catch (error) {
       if (this.verbose) {
         console.warn(error);
       }
+
+      try {
+        const data = readFileSync(updatedDataFile, { encoding: 'utf8' });
+        updatedData = JSON.parse(data);
+      } catch {
+        // ignored
+      }
+    }
+
+    if (updatedData) {
+      deepMixin(webDrivers, updatedData.drivers);
     }
   }
 
@@ -456,9 +473,9 @@ class ChromeConfig extends Config<Partial<ChromeProperties>>
       Object.assign(
         {
           arch: global.process.arch,
-          baseUrl: webdrivers.chrome.baseUrl,
+          baseUrl: webDrivers.chrome.baseUrl,
           platform: global.process.platform,
-          version: webdrivers.chrome.latest
+          version: webDrivers.chrome.latest
         },
         options
       )
@@ -516,9 +533,9 @@ class FirefoxConfig extends Config<Partial<FirefoxProperties>>
       Object.assign(
         {
           arch: global.process.arch,
-          baseUrl: webdrivers.firefox.baseUrl,
+          baseUrl: webDrivers.firefox.baseUrl,
           platform: global.process.platform,
-          version: webdrivers.firefox.latest
+          version: webDrivers.firefox.latest
         },
         options
       )
@@ -573,8 +590,8 @@ class IEConfig extends Config<Partial<IEProperties>>
       Object.assign(
         {
           arch: global.process.arch,
-          baseUrl: webdrivers.ie.baseUrl,
-          version: webdrivers.ie.latest
+          baseUrl: webDrivers.ie.baseUrl,
+          version: webDrivers.ie.latest
         },
         options
       )
@@ -621,7 +638,7 @@ class EdgeConfig extends Config<Partial<EdgeProperties>>
   arch!: string;
   baseUrl!: string;
   uuid: string | undefined;
-  version!: keyof typeof webdrivers.edge.versions;
+  version!: keyof typeof webDrivers.edge.versions;
   versions!: EdgeVersions;
 
   constructor(options: Partial<EdgeProperties>) {
@@ -629,9 +646,9 @@ class EdgeConfig extends Config<Partial<EdgeProperties>>
       Object.assign(
         {
           arch: global.process.arch,
-          baseUrl: webdrivers.edge.baseUrl,
-          version: webdrivers.edge.latest,
-          versions: webdrivers.edge.versions
+          baseUrl: webDrivers.edge.baseUrl,
+          version: webDrivers.edge.latest,
+          versions: webDrivers.edge.versions
         },
         options
       )
@@ -661,7 +678,7 @@ class EdgeConfig extends Config<Partial<EdgeProperties>>
       );
     }
 
-    const urlOrObj = webdrivers.edge.versions[this.version].url;
+    const urlOrObj = webDrivers.edge.versions[this.version].url;
     if (typeof urlOrObj === 'string') {
       return urlOrObj;
     }
@@ -705,9 +722,9 @@ class EdgeChromiumConfig extends Config<Partial<EdgeProperties>>
       Object.assign(
         {
           arch: global.process.arch,
-          baseUrl: webdrivers.edgeChromium.baseUrl,
+          baseUrl: webDrivers.edgeChromium.baseUrl,
           platform: global.process.platform,
-          version: webdrivers.edgeChromium.latest
+          version: webDrivers.edgeChromium.latest
         },
         options
       )
