@@ -6,8 +6,6 @@
     "outDir": "./_build",
     "resolveJsonModule": true,
     "rootDir": ".",
-    // Don't implicitly load any types
-    "types": [],
     "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": ["./src/**/*.ts"]

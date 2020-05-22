@@ -1,3 +1,4 @@
+import { deepMixin, request } from '@theintern/common';
 import { mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
@@ -6,6 +7,9 @@ import { ObjectSuiteDescriptor, Tests } from 'intern/lib/interfaces/object';
 import SeleniumTunnel, { DriverFile } from '../../src/SeleniumTunnel';
 import { addStartStopTest } from '../support/integration';
 import { cleanup, deleteTunnelFiles, getDigdugArgs } from '../support/util';
+import * as webdriversJson from '../../src/webdrivers.json';
+
+const origWebdriversJson = JSON.parse(JSON.stringify(webdriversJson));
 
 function createDownloadTest(config: any) {
   return () => {
@@ -119,6 +123,109 @@ let tests: Tests = {
         'unexpected driver version'
       );
     });
+  },
+
+  'webdrivers.json download': {
+    afterEach() {
+      // reset webdriversJson
+      deepMixin(webdriversJson, origWebdriversJson);
+    },
+
+    tests: {
+      async 'bad url'() {
+        tunnel = new SeleniumTunnel({
+          drivers: [{ name: 'chrome' }, { name: 'firefox' }]
+        });
+
+        webdriversJson.drivers.chrome.latest = '2.46';
+
+        const resp = await request(tunnel.webDriverDataUrl!);
+        const data = await resp.json<typeof webdriversJson>();
+
+        tunnel.webDriverDataUrl = '/foo';
+        await tunnel.download();
+
+        const chromedriverVersion = webdriversJson.drivers.chrome.latest;
+        const chromdriver = join(
+          tunnel.directory,
+          chromedriverVersion,
+          process.arch,
+          'chromedriver'
+        );
+        const cdResult = execSync(`"${chromdriver}" --version`).toString(
+          'utf-8'
+        );
+        assert.match(
+          cdResult,
+          new RegExp(`ChromeDriver ${chromedriverVersion}.`),
+          'unexpected driver version'
+        );
+
+        const geckodriverVersion = data.drivers.firefox.latest;
+        const geckodriver = join(
+          tunnel.directory,
+          geckodriverVersion,
+          process.arch,
+          'geckodriver'
+        );
+        const result = execSync(`"${geckodriver}" --version`).toString('utf-8');
+        assert.match(
+          result,
+          new RegExp(geckodriverVersion),
+          'unexpected driver version'
+        );
+
+        const dataFile = join(tunnel.directory, 'webdrivers.json');
+        assert.isFalse(
+          existsSync(dataFile),
+          `did not expect ${dataFile} to exist`
+        );
+      },
+
+      async 'good url'() {
+        tunnel = new SeleniumTunnel({
+          drivers: [{ name: 'chrome' }, { name: 'firefox' }]
+        });
+
+        const resp = await request(tunnel.webDriverDataUrl!);
+        const data = await resp.json<typeof webdriversJson>();
+
+        await tunnel.download();
+
+        const chromedriverVersion = webdriversJson.drivers.chrome.latest;
+        const chromdriver = join(
+          tunnel.directory,
+          chromedriverVersion,
+          process.arch,
+          'chromedriver'
+        );
+        const cdResult = execSync(`"${chromdriver}" --version`).toString(
+          'utf-8'
+        );
+        assert.match(
+          cdResult,
+          new RegExp(`ChromeDriver ${chromedriverVersion}.`),
+          'unexpected driver version'
+        );
+
+        const geckodriverVersion = data.drivers.firefox.latest;
+        const geckodriver = join(
+          tunnel.directory,
+          geckodriverVersion,
+          process.arch,
+          'geckodriver'
+        );
+        const result = execSync(`"${geckodriver}" --version`).toString('utf-8');
+        assert.match(
+          result,
+          new RegExp(geckodriverVersion),
+          'unexpected driver version'
+        );
+
+        const dataFile = join(tunnel.directory, 'webdrivers.json');
+        assert.isTrue(existsSync(dataFile), `expected ${dataFile} to exist`);
+      }
+    }
   }
 };
 

@@ -7,5 +7,6 @@ _build
 _tests
 build_doc
 _publish
+_ghpages
 *.tgz
 coverage/

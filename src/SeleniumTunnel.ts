@@ -3,13 +3,25 @@ import Tunnel, {
   DownloadOptions,
   ChildExecutor
 } from './Tunnel';
+import { readFileSync } from 'fs';
 import { format } from 'util';
 import { join } from 'path';
-import { Handle, Task, CancellablePromise } from '@theintern/common';
+import {
+  Handle,
+  Task,
+  CancellablePromise,
+  RequestOptions,
+  deepMixin,
+  request
+} from '@theintern/common';
 import { fileExists, kill, on, writeFile } from './lib/util';
 import { satisfies } from 'semver';
 import { sync as commandExistsSync } from 'command-exists';
-import { drivers } from './webdrivers.json';
+import * as webdriversJson from './webdrivers.json';
+
+// This is the webdriver verison data that will be used when initializing the
+// driver config objects.
+const webdrivers = webdriversJson.drivers;
 
 /**
  * A Selenium tunnel. This tunnel downloads the
@@ -97,14 +109,23 @@ export default class SeleniumTunnel extends Tunnel
    */
   seleniumTimeout!: number;
 
+  /**
+   * The URL that the tunnel will attempt to download updated webdriver data
+   * from.
+   */
+  webDriverDataUrl: string | null =
+    'https://theintern.io/digdug/resources/2/webdrivers.json';
+
+  private _webDriverDataLoaded = false;
+
   constructor(options?: SeleniumOptions) {
     super(
       Object.assign(
         {
           seleniumArgs: [],
           drivers: ['chrome'],
-          baseUrl: drivers.selenium.baseUrl,
-          version: drivers.selenium.latest,
+          baseUrl: webdrivers.selenium.baseUrl,
+          version: webdrivers.selenium.latest,
           seleniumTimeout: 5000
         },
         options || {}
@@ -148,56 +169,108 @@ export default class SeleniumTunnel extends Tunnel
   }
 
   download(forceDownload = false): CancellablePromise<void> {
-    if (!forceDownload && this.isDownloaded) {
-      return Task.resolve();
-    }
-
-    let tasks: CancellablePromise<void>[];
-
-    return new Task(
-      resolve => {
-        const configs: RemoteFile[] = [
-          {
-            url: this.url,
-            executable: this.artifact,
-            dontExtract: true
-          },
-          ...this._getDriverConfigs()
-        ];
-
-        tasks = configs.map(config => {
-          const executable = config.executable;
-          const dontExtract = Boolean(config.dontExtract);
-          const directory = config.directory;
-
-          if (fileExists(join(this.directory, executable))) {
-            return Task.resolve();
-          }
-
-          // TODO: progress events
-          return this._downloadFile(config.url, this.proxy, <
-            SeleniumDownloadOptions
-          >{
-            executable,
-            dontExtract,
-            directory
-          });
-        });
-
-        resolve(Task.all(tasks).then(() => {}));
-      },
-      () => {
-        tasks &&
-          tasks.forEach(task => {
-            task.cancel();
-          });
+    return this._updateWebDriverData().then(() => {
+      if (!forceDownload && this.isDownloaded) {
+        return Task.resolve();
       }
-    );
+
+      let tasks: CancellablePromise<void>[];
+
+      return new Task(
+        resolve => {
+          const configs: RemoteFile[] = [
+            {
+              url: this.url,
+              executable: this.artifact,
+              dontExtract: true
+            },
+            ...this._getDriverConfigs()
+          ];
+
+          tasks = configs.map(config => {
+            const executable = config.executable;
+            const dontExtract = Boolean(config.dontExtract);
+            const directory = config.directory;
+
+            if (fileExists(join(this.directory, executable))) {
+              return Task.resolve();
+            }
+
+            // TODO: progress events
+            return this._downloadFile(config.url, this.proxy, <
+              SeleniumDownloadOptions
+            >{
+              executable,
+              dontExtract,
+              directory
+            });
+          });
+
+          resolve(Task.all(tasks).then(() => {}));
+        },
+        () => {
+          tasks &&
+            tasks.forEach(task => {
+              task.cancel();
+            });
+        }
+      );
+    });
   }
 
   sendJobState(): CancellablePromise<void> {
     // This is a noop for Selenium
     return Task.resolve();
+  }
+
+  /**
+   * Load updated webdriver data.
+   *
+   * This method updates the data used to configure the various webdriver config
+   * classes.
+   */
+  protected _updateWebDriverData(): CancellablePromise<void> {
+    // Don't try to retrieve new data if we've already done it or if the URL is
+    // cleared
+    if (this._webDriverDataLoaded || !this.webDriverDataUrl) {
+      return Task.resolve();
+    }
+
+    const updatedDataFile = join(this.directory, 'webdrivers.json');
+    let updatedData: typeof webdriversJson | undefined;
+
+    return request(this.webDriverDataUrl, {
+      proxy: this.proxy,
+      timeout: 3000
+    } as RequestOptions)
+      .then(resp => {
+        if (resp.status === 200) {
+          return resp.json<typeof webdriversJson>().then(data => {
+            updatedData = data;
+            this._webDriverDataLoaded = true;
+            // Save the downloaded data for use if a download fails in a future
+            // session
+            return writeFile(JSON.stringify(updatedData), updatedDataFile);
+          });
+        }
+      })
+      .catch(error => {
+        if (this.verbose) {
+          console.warn(error);
+        }
+
+        try {
+          const data = readFileSync(updatedDataFile, { encoding: 'utf8' });
+          updatedData = JSON.parse(data);
+        } catch {
+          // ignored
+        }
+      })
+      .finally(() => {
+        if (updatedData) {
+          deepMixin(webdrivers, updatedData.drivers);
+        }
+      });
   }
 
   protected _getDriverConfigs(): DriverFile[] {
@@ -379,9 +452,9 @@ class ChromeConfig extends Config<ChromeOptions>
       Object.assign(
         {
           arch: process.arch,
-          baseUrl: drivers.chrome.baseUrl,
+          baseUrl: webdrivers.chrome.baseUrl,
           platform: process.platform,
-          version: drivers.chrome.latest
+          version: webdrivers.chrome.latest
         },
         options
       )
@@ -445,9 +518,9 @@ class FirefoxConfig extends Config<FirefoxOptions>
       Object.assign(
         {
           arch: process.arch,
-          baseUrl: drivers.firefox.baseUrl,
+          baseUrl: webdrivers.firefox.baseUrl,
           platform: process.platform,
-          version: drivers.firefox.latest
+          version: webdrivers.firefox.latest
         },
         options
       )
@@ -506,8 +579,8 @@ class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
       Object.assign(
         {
           arch: process.arch,
-          baseUrl: drivers.ie.baseUrl,
-          version: drivers.ie.latest
+          baseUrl: webdrivers.ie.baseUrl,
+          version: webdrivers.ie.latest
         },
         options
       )
@@ -558,7 +631,7 @@ class EdgeConfig extends Config<EdgeOptions>
   arch!: string;
   baseUrl!: string;
   uuid: string | undefined;
-  version!: keyof typeof drivers.edge.versions;
+  version!: keyof typeof webdrivers.edge.versions;
   versions!: EdgeVersions;
 
   constructor(options: EdgeOptions) {
@@ -566,9 +639,9 @@ class EdgeConfig extends Config<EdgeOptions>
       Object.assign(
         {
           arch: process.arch,
-          baseUrl: drivers.edge.baseUrl,
-          version: drivers.edge.latest,
-          versions: drivers.edge.versions
+          baseUrl: webdrivers.edge.baseUrl,
+          version: webdrivers.edge.latest,
+          versions: webdrivers.edge.versions
         },
         options
       )
@@ -598,7 +671,7 @@ class EdgeConfig extends Config<EdgeOptions>
       );
     }
 
-    const urlOrObj = drivers.edge.versions[this.version].url;
+    const urlOrObj = webdrivers.edge.versions[this.version].url;
     if (typeof urlOrObj === 'string') {
       return urlOrObj;
     }
@@ -642,9 +715,9 @@ class EdgeChromiumConfig extends Config<EdgeOptions>
       Object.assign(
         {
           arch: process.arch,
-          baseUrl: drivers.edgeChromium.baseUrl,
+          baseUrl: webdrivers.edgeChromium.baseUrl,
           platform: process.platform,
-          version: drivers.edgeChromium.latest
+          version: webdrivers.edgeChromium.latest
         },
         options
       )
