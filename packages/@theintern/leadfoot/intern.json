@@ -1,0 +1,9 @@
+{
+  "extends": "./node_modules/@theintern-dev/config/intern.json",
+  "suites": "tests/unit/**/*.ts",
+  "functionalSuites": "tests/functional/**/*.ts",
+  "node+": {
+    "tsconfig": "tests/tsconfig.json"
+  },
+  "environments": ["node", "chrome"]
+}

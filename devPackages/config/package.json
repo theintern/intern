@@ -1,0 +1,14 @@
+{
+  "name": "@theintern-dev/config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TS config for Intern projects",
+  "homepage": "http://theintern.io/",
+  "license": "BSD-3-Clause",
+  "bugs": "https://github.com/theintern/intern/issues",
+  "main": "tsconfig.json",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/intern.git"
+  }
+}

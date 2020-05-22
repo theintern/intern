@@ -13,6 +13,7 @@ _tests/
 _testIntern/
 _publish/
 _ghpages/
+dist/
 src/**/*.js
 selenium-standalone/
 benchmark.json

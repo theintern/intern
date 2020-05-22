@@ -1,0 +1,10 @@
+{
+  "extends": "@theintern-dev/config",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [{ "path": "../common" }],
+  "include": ["src/**/*.ts", "src/webdrivers.json"]
+}

@@ -1,0 +1,8 @@
+{
+  "extends": "./node_modules/@theintern-dev/config/intern.json",
+  "coverage": "src/**/*.ts",
+  "suites": ["tests/unit/**/*.ts", "tests/integration/**/*.ts"],
+  "node+": {
+    "tsconfig": "tests/tsconfig.json"
+  }
+}

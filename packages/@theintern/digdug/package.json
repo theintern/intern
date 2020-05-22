@@ -1,0 +1,62 @@
+{
+  "name": "@theintern/digdug",
+  "version": "5.0.0-pre",
+  "description": "Dig Dug. A simple abstraction library for downloading and launching WebDriver service tunnels.",
+  "homepage": "http://theintern.io/",
+  "license": "BSD-3-Clause",
+  "bugs": "https://github.com/theintern/intern/issues",
+  "files": [
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo",
+    "test": "intern",
+    "ci": "intern"
+  },
+  "typings": "dist/index.d.ts",
+  "keywords": [
+    "javascript",
+    "test",
+    "functional",
+    "selenium",
+    "webdriver",
+    "sauce labs",
+    "browserstack",
+    "testingbot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/intern.git"
+  },
+  "bin": {
+    "digdugEnvironments": "./bin/digdugEnvironments.js"
+  },
+  "dependencies": {
+    "@theintern/common": "workspace:^5.0.0-pre",
+    "@types/command-exists": "~1.2.0",
+    "@types/decompress": "~4.2.3",
+    "@types/semver": "~7.2.0",
+    "command-exists": "~1.2.9",
+    "decompress": "~4.2.1",
+    "semver": "~7.3.2",
+    "tslib": "~2.0.0"
+  },
+  "devDependencies": {
+    "@theintern-dev/config": "workspace:*",
+    "@theintern-dev/test": "workspace:*",
+    "@theintern/core": "workspace:*",
+    "@types/glob": "~7.1.1",
+    "@types/node": "~14.0.5",
+    "@types/shelljs": "~0.8.8",
+    "@types/sinon": "~9.0.4",
+    "glob": "~7.1.6",
+    "intern": "workspace:*",
+    "shelljs": "~0.8.4",
+    "sinon": "~9.0.2"
+  }
+}

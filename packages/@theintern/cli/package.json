@@ -1,0 +1,49 @@
+{
+  "name": "@theintern/cli",
+  "version": "5.0.0-pre",
+  "description": "Intern's command line interface",
+  "homepage": "http://theintern.io/",
+  "license": "BSD-3-Clause",
+  "bugs": "https://github.com/theintern/intern/issues",
+  "files": [
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo",
+    "test": "intern",
+    "ci": "intern"
+  },
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "keywords": [
+    "javascript",
+    "test",
+    "testing",
+    "intern",
+    "leadfoot",
+    "digdug"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/intern.git"
+  },
+  "dependencies": {
+    "@theintern/core": "workspace:^5.0.0-pre",
+    "@types/semver": "~7.2.0",
+    "@types/shell-quote": "~1.6.2",
+    "chokidar": "~3.4.0",
+    "commander": "~5.1.0",
+    "semver": "~7.3.2",
+    "shell-quote": "~1.7.2",
+    "tslib": "~2.0.0"
+  },
+  "devDependencies": {
+    "@theintern-dev/config": "workspace:*",
+    "@types/node": "~14.0.5",
+    "intern": "workspace:*"
+  }
+}

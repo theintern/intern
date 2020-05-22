@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "declaration": false,
+    "incremental": true,
+    "module": "CommonJS",
+    "outDir": "dist",
+    "rootDir": "src",
+    "target": "ES2015"
+  },
+  "include": ["src/version.ts"]
+}

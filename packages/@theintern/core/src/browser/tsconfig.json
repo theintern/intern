@@ -1,0 +1,34 @@
+// Use for the browser version of Intern, which targets ES5 for IE
+// compatibility
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "downlevelIteration": true,
+    "module": "commonjs",
+    "target": "ES5"
+  },
+  "include": [
+    "./**/*",
+    "../lib/RemoteEvents.ts",
+    "../lib/Message.ts",
+    "../lib/Environment.ts",
+    "../lib/Deferred.ts",
+    "../lib/Remote.ts",
+    "../lib/Suite.ts",
+    "../lib/BenchmarkSuite.ts",
+    "../lib/BenchmarkTest.ts",
+    "../lib/Test.ts",
+    "../lib/types.ts",
+    "../lib/executors/Executor.ts",
+    "../lib/interfaces/**/*",
+    "../lib/reporters/Dom.ts",
+    "../lib/reporters/Html.ts",
+    "../lib/reporters/html/**/*",
+    "../lib/reporters/Console.ts",
+    "../lib/reporters/Reporter.ts",
+    "../lib/reporters/Benchmark.ts",
+    "../lib/common/**/*",
+    "../lib/config/**/*"
+  ],
+  "exclude": []
+}

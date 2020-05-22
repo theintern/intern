@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "downlevelIteration": true,
+
+    // Don't use esModuleInterop -- it would require downstream users to enable
+    // it as well
+    "esModuleInterop": false,
+
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "incremental": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "preserveConstEnums": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2015"
+  }
+}

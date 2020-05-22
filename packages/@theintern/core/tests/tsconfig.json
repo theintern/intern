@@ -1,0 +1,16 @@
+// Used for building the browser tests
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "baseUrl": "..",
+    "outDir": "./_tests",
+    "paths": {
+      "src": ["./src"],
+      "tests": ["./tests"]
+    },
+    "rootDir": ".."
+  },
+  "include": ["./**/*", "../src/**/*"],
+  "exclude": ["./examples/**/*"]
+}

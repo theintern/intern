@@ -2,7 +2,10 @@
   "root": true,
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": ["./tsconfig.json"]
+    "project": [
+      "./packages/**/tsconfig.json",
+      "./tsconfig.json"
+    ]
   },
   "plugins": ["@typescript-eslint"],
   "extends": [
@@ -37,7 +40,10 @@
     // Allow for property deletion through destructuring
     "@typescript-eslint/no-unused-vars": [
       "error",
-      { "ignoreRestSiblings": true }
+      {
+        "ignoreRestSiblings": true,
+        "argsIgnorePattern": "^_"
+      }
     ],
     // Don't allow bare uses of 'name'
     "no-restricted-globals": [
@@ -46,6 +52,16 @@
         "name": "name",
         "message": "Did you mean to use the 'name' global here?"
       }
-    ]
+    ],
+
+    // Added with monorepo
+    "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/restrict-plus-operands": "off"
   }
 }

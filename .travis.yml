@@ -25,11 +25,15 @@ matrix:
 cache:
   directories:
     - node_modules
+    - "~/.pnpm-store"
+before_install:
+  - curl -L https://unpkg.com/@pnpm/self-installer | node
+  - pnpm config set store-dir ~/.pnpm-store
 install:
-  - npm install
-  - npm install -g codecov
+  - pnpm install
+  - pnpm install -g codecov
 script:
-  - npm run ci && codecov
+  - pnpm test && codecov
 notifications:
   slack:
     secure: C/WcvljPsSP1xYcV+YplPdHzzKDu1YmFvcHkWrkY/pNoTt1N+mqOM6sDjvD8VCyYtoC5+QaVZUKAXSb8j1J3gtNiRsaoSauikHhN8t1z1ENulrqxBpYbQ1MatxxFM7zDeVaRGlqu3vnEGZqsrJX5mwS8+N8Gy0T8deMNCdnJTAg=

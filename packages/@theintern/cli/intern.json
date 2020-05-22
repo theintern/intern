@@ -1,0 +1,7 @@
+{
+  "extends": "./node_modules/@theintern-dev/config/intern.json",
+  "suites": ["tests/unit/**/*.ts"],
+  "node+": {
+    "tsconfig": "tests/tsconfig.json"
+  }
+}

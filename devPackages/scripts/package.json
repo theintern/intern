@@ -1,0 +1,20 @@
+{
+  "name": "@theintern-dev/scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Development scripts for intern projects",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "bin": {
+    "dev-version": "bin/dev-version.js"
+  },
+  "dependencies": {
+    "@types/glob": "~7.1.1",
+    "@types/node": "~14.0.9",
+    "@types/semver": "~7.2.0",
+    "glob": "~7.1.6",
+    "semver": "~7.3.2"
+  }
+}

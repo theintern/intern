@@ -1,0 +1,9 @@
+{
+  "extends": "@theintern-dev/config",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [{ "path": "../core" }],
+  "include": ["src/**/*"]
+}

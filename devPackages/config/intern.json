@@ -1,0 +1,9 @@
+{
+  "$schema": "./schemas/config.json",
+  "node": {
+    "reporters": {
+      "name": "runner",
+      "options": { "hideSkipped": "~", "hidePassed": "." }
+    }
+  }
+}

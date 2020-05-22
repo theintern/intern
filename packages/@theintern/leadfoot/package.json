@@ -1,0 +1,49 @@
+{
+  "name": "@theintern/leadfoot",
+  "version": "5.0.0-pre",
+  "description": "Leadfoot. A JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.",
+  "homepage": "http://theintern.io/",
+  "license": "BSD-3-Clause",
+  "bugs": "https://github.com/theintern/intern/issues",
+  "files": [
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo",
+    "test": "intern",
+    "ci": "intern"
+  },
+  "typings": "dist/index.d.ts",
+  "keywords": [
+    "javascript",
+    "test",
+    "functional",
+    "selenium",
+    "webdriver",
+    "sauce labs",
+    "browserstack",
+    "testingbot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/intern.git"
+  },
+  "dependencies": {
+    "@theintern/common": "workspace:^5.0.0-pre",
+    "jszip": "~3.2.2",
+    "tslib": "~2.0.0"
+  },
+  "devDependencies": {
+    "@theintern-dev/config": "workspace:*",
+    "@theintern-dev/test": "workspace:*",
+    "@theintern/core": "workspace:*",
+    "@types/jszip": "~3.1.6",
+    "@types/node": "~14.0.5",
+    "intern": "workspace:*"
+  }
+}
