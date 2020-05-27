@@ -147,6 +147,7 @@ registerSuite('lib/executors/Node', function() {
 
   class MockMapStore {
     mockName = 'mapStore';
+    data = {};
     registerMap() {}
   }
 

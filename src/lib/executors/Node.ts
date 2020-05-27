@@ -61,7 +61,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   tunnel: Tunnel | undefined;
 
   protected _coverageMap: CoverageMap;
-  protected _coverageFiles: string[] | undefined;
+  protected _coverageFiles: string[];
   protected _loadingFunctionalSuites: boolean | undefined;
   protected _instrumentBasePath: string | undefined;
   protected _instrumenter: Instrumenter | undefined;
@@ -92,6 +92,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       tunnelOptions: { tunnelId: String(Date.now()) }
     });
 
+    this._coverageFiles = [];
     this._sourceMaps = createSourceMapStore();
     this._instrumentedMaps = createSourceMapStore();
     this._errorFormatter = new ErrorFormatter(this);
@@ -178,7 +179,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   }
 
   get hasCoveredFiles() {
-    return this._coverageFiles && this._coverageFiles.length > 0;
+    return this._coverageFiles.length > 0;
   }
 
   /**
@@ -296,10 +297,11 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    * Return true if a given file should be instrumented based on the current
    * config
    */
-  shouldInstrumentFile(filename: string) {
-    return this._coverageFiles
-      ? this._coverageFiles.indexOf(filename) !== -1
-      : false;
+  shouldInstrumentFile(filename: string): boolean {
+    if (this._coverageFiles.indexOf(filename) !== -1) {
+      return !(filename in this._instrumentedMaps.data);
+    }
+    return false;
   }
 
   protected _afterRun() {
@@ -707,7 +709,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       }
 
       this._instrumentBasePath = config.basePath;
-      this._coverageFiles = [];
 
       if (config.coverage) {
         // Coverage file entries should be absolute paths
@@ -936,7 +937,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // read the file and instrument the code (adding it to the overall
       // coverage map)
       const coveredFiles = this._coverageMap.files();
-      const uncoveredFiles = this._coverageFiles!.filter(filename => {
+      const uncoveredFiles = this._coverageFiles.filter(filename => {
         return coveredFiles.indexOf(filename) === -1;
       });
       uncoveredFiles.forEach(filename => {
