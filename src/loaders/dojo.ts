@@ -5,6 +5,11 @@
  */
 intern.registerLoader(options => {
   const globalObj: any = typeof window !== 'undefined' ? window : global;
+  const loaderPath = options.internLoaderPath || 'node_modules/dojo/dojo.js';
+
+  if ('internLoaderPath' in options) {
+    delete options.internLoaderPath;
+  }
 
   options.baseUrl = options.baseUrl || intern.config.basePath;
   if (!('async' in options)) {
@@ -19,7 +24,7 @@ intern.registerLoader(options => {
   intern.log('Configuring Dojo loader with:', options);
   globalObj.dojoConfig = options;
 
-  return intern.loadScript('node_modules/dojo/dojo.js').then(() => {
+  return intern.loadScript(loaderPath).then(() => {
     const require = globalObj.require;
     intern.log('Using Dojo loader');
 

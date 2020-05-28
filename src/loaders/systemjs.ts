@@ -9,10 +9,15 @@
 intern.registerLoader(options => {
   options.baseURL = options.baseURL || intern.config.basePath;
   const globalObj: any = typeof window !== 'undefined' ? window : global;
+  const loaderPath = options.internLoaderPath || 'node_modules/systemjs/dist/system.src.js';
+
+  if ('internLoaderPath' in options) {
+    delete options.internLoaderPath;
+  }
 
   if (intern.environment === 'browser') {
     return intern
-      .loadScript('node_modules/systemjs/dist/system.src.js')
+      .loadScript(loaderPath)
       .then(() => {
         return configAndLoad(SystemJS);
       });
