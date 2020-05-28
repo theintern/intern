@@ -1,4 +1,4 @@
-import { spy, SinonSpy, stub } from 'sinon';
+import { createSandbox, spy, stub, SinonSpy } from 'sinon';
 import { Task, deepMixin, isPromiseLike } from '@theintern/common';
 
 import { Config } from 'src/lib/common/config';
@@ -10,10 +10,15 @@ import { testProperty } from '../../../support/unit/executor';
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/executors/Node', function() {
-  function createExecutor(config?: Partial<Config>) {
+  const sandbox = createSandbox();
+
+  function createExecutor(
+    config?: Partial<Config>,
+    loader?: (mods: string[]) => Promise<void>
+  ) {
     const executor = new Node(config);
-    executor.registerLoader((_options: any) => (_modules: string[]) =>
-      Promise.resolve()
+    executor.registerLoader(
+      (_options: any) => loader || (() => Promise.resolve())
     );
     return executor;
   }
@@ -61,26 +66,16 @@ registerSuite('lib/executors/Node', function() {
     }
   }
 
-  class MockInstrumenter {
-    private fileCoverage:
-      | {
-          code: string;
-          filename: string;
-          // tslint:disable-next-line:indent
-        }
-      | undefined;
-
-    instrumentSync(code: string, filename: string) {
-      this.fileCoverage = { code, filename };
+  const mockInstrumenter = {
+    instrumentSync: sandbox.spy((code: string, filename: string) => {
+      mockInstrumenter.lastFileCoverage.returns({ code, filename });
       return `instrumented: ${code}`;
-    }
+    }),
 
-    lastSourceMap() {}
+    lastSourceMap: () => {},
 
-    lastFileCoverage() {
-      return this.fileCoverage;
-    }
-  }
+    lastFileCoverage: sandbox.stub().returns(undefined)
+  };
 
   class MockServer {
     constructor() {
@@ -147,19 +142,21 @@ registerSuite('lib/executors/Node', function() {
 
   class MockMapStore {
     mockName = 'mapStore';
-    data = {};
-    registerMap() {}
+    data: Record<string, unknown> = {};
+    registerMap(filename: string, data: unknown) {
+      this.data[filename] = data;
+    }
   }
 
   const mockConsole = {
-    log: spy((..._args: any[]) => {}),
-    warn: spy((..._args: any[]) => {}),
-    error: spy((..._args: any[]) => {})
+    log: sandbox.spy((..._args: any[]) => {}),
+    warn: sandbox.spy((..._args: any[]) => {}),
+    error: sandbox.spy((..._args: any[]) => {})
   };
 
   const mockChai = {
     assert: 'assert',
-    should: spy(() => 'should')
+    should: sandbox.spy(() => 'should')
   };
 
   const mockFs = {
@@ -199,8 +196,8 @@ registerSuite('lib/executors/Node', function() {
     process: {
       cwd: () => '',
       env: {},
-      exit: spy((..._args: any[]) => {}),
-      on: spy((..._args: any[]) => {}),
+      exit: sandbox.spy((..._args: any[]) => {}),
+      on: sandbox.spy((..._args: any[]) => {}),
       stdout: process.stdout
     }
   };
@@ -213,7 +210,7 @@ registerSuite('lib/executors/Node', function() {
     }
   }
 
-  const mockTsNodeRegister = spy();
+  const mockTsNodeRegister = sandbox.spy();
 
   const mockNodeUtil = {
     expandFiles(files: string | string[]) {
@@ -225,7 +222,20 @@ registerSuite('lib/executors/Node', function() {
     readSourceMap() {
       return {};
     },
-    transpileSource: spy()
+    transpileSource: sandbox.spy()
+  };
+
+  type IstanbulMatcher = (filename: string) => boolean;
+  type IstanbulHook = (code: string, opts: { filename: string }) => boolean;
+
+  const mockIstanbulHook = {
+    hookRunInThisContext: sandbox.spy(
+      (_matcher: IstanbulMatcher, _hook: IstanbulHook) => undefined
+    ),
+    hookRequire: sandbox.spy(
+      (_matcher: IstanbulMatcher, _hook: IstanbulHook) => undefined
+    ),
+    unhookRunInThisContext: sandbox.spy()
   };
 
   let executor: _Node;
@@ -274,14 +284,10 @@ registerSuite('lib/executors/Node', function() {
             return new MockCoverageMap();
           }
         },
-        'istanbul-lib-hook': {
-          hookRunInThisContext() {},
-          hookRequire() {},
-          unhookRunInThisContext() {}
-        },
+        'istanbul-lib-hook': mockIstanbulHook,
         'istanbul-lib-instrument': {
           createInstrumenter() {
-            return new MockInstrumenter();
+            return mockInstrumenter;
           },
           readInitialCoverage(code: string) {
             return { coverageData: `covered: ${code}` };
@@ -332,12 +338,7 @@ registerSuite('lib/executors/Node', function() {
 
     afterEach() {
       require.extensions['.ts'] = tsExtension;
-      mockTsNodeRegister.resetHistory();
-      mockConsole.log.resetHistory();
-      mockConsole.warn.resetHistory();
-      mockConsole.error.resetHistory();
-      mockGlobal.process.on.resetHistory();
-      mockNodeUtil.transpileSource.resetHistory();
+      sandbox.resetHistory();
     },
 
     tests: {
@@ -1040,7 +1041,7 @@ registerSuite('lib/executors/Node', function() {
           });
         },
 
-        'full coverage'() {
+        async 'full coverage'() {
           fsData['foo.js'] = 'foo';
           fsData['bar.js'] = 'bar';
           executor.configure(<any>{
@@ -1050,18 +1051,127 @@ registerSuite('lib/executors/Node', function() {
             coverage: ['foo.js', 'bar.js']
           });
 
-          return executor.run().then(() => {
-            const map: MockCoverageMap = executor.coverageMap as any;
-            assert.isTrue(map.addFileCoverage.calledTwice);
-            assert.deepEqual(map.addFileCoverage.args[0][0], {
-              code: 'foo',
-              filename: 'foo.js'
-            });
-            assert.deepEqual(map.addFileCoverage.args[1][0], {
-              code: 'bar',
-              filename: 'bar.js'
-            });
+          await executor.run();
+
+          const map: MockCoverageMap = executor.coverageMap as any;
+          assert.equal(map.addFileCoverage.callCount, 2);
+          assert.deepEqual(map.addFileCoverage.args[0][0], {
+            code: 'foo',
+            filename: 'foo.js'
           });
+          assert.deepEqual(map.addFileCoverage.args[1][0], {
+            code: 'bar',
+            filename: 'bar.js'
+          });
+
+          assert.equal(
+            mockIstanbulHook.hookRequire.callCount,
+            1,
+            'expected require hook to be setup'
+          );
+          assert.equal(
+            mockIstanbulHook.hookRunInThisContext.callCount,
+            1,
+            'expected runInThisContext hook to be setup'
+          );
+        },
+
+        async instrumentation() {
+          fsData['foo.js'] = 'if (foo) {}';
+          fsData['bar.js'] = 'if (bar) {}';
+          let loadResolver: () => void;
+          let loadRejector: (reason: Error) => void;
+          const loadPromise = new Promise((resolve, reject) => {
+            loadResolver = resolve;
+            loadRejector = reject;
+          });
+
+          const exec = createExecutor(
+            {
+              suites: ['foo.js'],
+              coverage: ['foo.js', 'bar.js']
+            },
+            (modules: string[]) => {
+              try {
+                const mod = modules[0];
+
+                // Check that the hook matchers both say to instrument the
+                // module
+                const requireMatcher = mockIstanbulHook.hookRequire.getCall(0)
+                  .args[0];
+                const runInContextMatcher = mockIstanbulHook.hookRequire.getCall(
+                  0
+                ).args[0];
+                assert(
+                  requireMatcher(mod),
+                  'expected matcher for un-required file to return true'
+                );
+                assert(
+                  runInContextMatcher(mod),
+                  'expected matcher for un-required file to return true'
+                );
+
+                // Run the require hook, which should instrument the module
+                const requireHook = mockIstanbulHook.hookRequire.getCall(0)
+                  .args[1];
+                requireHook(fsData[mod], { filename: mod });
+
+                // The require hook should instrument the module
+                assert.equal(
+                  mockInstrumenter.instrumentSync.callCount,
+                  1,
+                  'instrumenter should only have been called once'
+                );
+
+                // Once the file is instrumented, both hook matchers shoudl
+                // return false so that we don't try to instrument the file
+                // again
+                assert(
+                  !requireMatcher(mod),
+                  'expected matcher for required file to return false'
+                );
+                assert(
+                  !runInContextMatcher(mod),
+                  'expected matcher for required file to return false'
+                );
+
+                loadResolver();
+              } catch (error) {
+                loadRejector(error);
+              }
+
+              return Promise.resolve();
+            }
+          );
+
+          // Nothing should have been instrumented before the executor is run
+          assert.equal(
+            mockInstrumenter.instrumentSync.callCount,
+            0,
+            'instrumenter should not have been called yet'
+          );
+
+          await exec.run();
+          await loadPromise;
+
+          assert.equal(
+            mockIstanbulHook.hookRequire.callCount,
+            1,
+            'expected require hook to be setup'
+          );
+          assert.equal(
+            mockIstanbulHook.hookRunInThisContext.callCount,
+            1,
+            'expected runInThisContext hook to be setup'
+          );
+
+          // At the end of testing, any covered but unloaded modules should be
+          // instrumented, so we should see another call to instrumentSync
+          assert.equal(
+            mockInstrumenter.instrumentSync.callCount,
+            2,
+            'instrumenter should have been called for uncovered file'
+          );
         },
 
         cancel() {
