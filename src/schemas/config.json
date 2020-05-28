@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://theintern.io/schemas/intern/config-4.5.json",
+  "$id": "https://theintern.io/intern/resources/4/schemas/config.json",
 
   "title": "Intern",
-  "description": "Intern v4.5 config schema",
+  "description": "Intern v4 config schema",
 
   "type": "object",
   "allOf": [
