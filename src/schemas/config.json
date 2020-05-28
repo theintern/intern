@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://theintern.io/intern/resources/4/schemas/config.json",
+  "$id": "https://theintern.io/intern/resources/4/schemas/config-4.6.json",
 
   "title": "Intern",
   "description": "Intern v4 config schema",
@@ -175,7 +175,16 @@
 
         "browser": {
           "description": "Resources that will only be loaded/used in browsers",
-          "$ref": "#/definitions/resourceConfig"
+          "type": "object",
+          "properties": {
+            "loader": { "$ref": "#/definitions/loaderProperty" },
+            "plugins": { "$ref": "#/definitions/pluginsProperty" },
+            "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
+            "reporters": { "$ref": "#/definitions/reportersProperty" },
+            "reporters+": { "$ref": "#/definitions/reportersProperty+" },
+            "suites": { "$ref": "#/definitions/suitesProperty" },
+            "suites+": { "$ref": "#/definitions/suitesProperty+" }
+          }
         },
 
         "capabilities": { "$ref": "#/definitions/capabilities" },
@@ -317,17 +326,20 @@
 
         "node": {
           "description": "Resources that will only be loaded/used in Node",
-          "anyOf": [
-            { "$ref": "#/definitions/resourceConfig" },
-            {
-              "type": "object",
-              "properties": {
-                "tsconfig": {
-                  "oneOf": [{ "type": "string" }, { "const": false }]
-                }
-              }
+          "type": "object",
+          "properties": {
+            "loader": { "$ref": "#/definitions/loaderProperty" },
+            "plugins": { "$ref": "#/definitions/pluginsProperty" },
+            "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
+            "reporters": { "$ref": "#/definitions/reportersProperty" },
+            "reporters+": { "$ref": "#/definitions/reportersProperty+" },
+            "suites": { "$ref": "#/definitions/suitesProperty" },
+            "suites+": { "$ref": "#/definitions/suitesProperty+" },
+            "tsconfig": {
+              "oneOf": [{ "type": "string" }, { "const": false }]
             }
-          ]
+          },
+          "additionalProperties": false
         },
 
         "plugins": { "$ref": "#/definitions/pluginsProperty" },
@@ -823,20 +835,6 @@
     "reportersProperty+": {
       "description": "Additional reporters",
       "$ref": "#/definitions/reportersProperty"
-    },
-
-    "resourceConfig": {
-      "type": "object",
-      "properties": {
-        "loader": { "$ref": "#/definitions/loaderProperty" },
-        "plugins": { "$ref": "#/definitions/pluginsProperty" },
-        "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
-        "reporters": { "$ref": "#/definitions/reportersProperty" },
-        "reporters+": { "$ref": "#/definitions/reportersProperty+" },
-        "suites": { "$ref": "#/definitions/suitesProperty" },
-        "suites+": { "$ref": "#/definitions/suitesProperty+" }
-      },
-      "additionalProperties": false
     },
 
     "seleniumOptions": {
