@@ -504,7 +504,7 @@ export interface LoaderDescriptor {
      * An optional file path for the loader. If unspecified Intern will assume the loader's package is
      * installed in `node_modules`. This property is prefixed with "intern" to distinguish it from
      * other properties which will be passed to the loader. If present, Intern will read this property
-     * and then remove it before passing the options to the loader.
+     * and then filter it out of the config passed to the loader.
      */
     internLoaderPath?: string;
     [key: string]: any;
