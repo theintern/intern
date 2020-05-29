@@ -49,6 +49,7 @@ registerSuite('loaders/systemjs', function() {
       global.intern = mockIntern;
       global.require = fakeRequire;
       global.SystemJS = mockSystemJS;
+      mockIntern.environment = intern.environment;
       mockIntern.emit.resetHistory();
       mockIntern.loadScript.resetHistory();
       fakeRequire.resetHistory();
@@ -104,23 +105,21 @@ registerSuite('loaders/systemjs', function() {
       },
 
       internLoaderPath() {
+        // the SystemJS loader only calls `loadScript` in the browser
         mockIntern.environment = 'browser';
+
         const init: LoaderInit = mockIntern.registerLoader.getCall(0).args[0];
         const loaderOptions = {
           internLoaderPath: 'foo/bar'
         };
 
-        return Promise.resolve(init(loaderOptions))
-          .then(() => {
-            assert.equal(mockIntern.loadScript.callCount, 1);
-            assert.equal(
-              mockIntern.loadScript.lastCall.args[0],
-              loaderOptions.internLoaderPath
-            );
-          })
-          .finally(function() {
-            mockIntern.environment = intern.environment;
-          });
+        return Promise.resolve(init(loaderOptions)).then(() => {
+          assert.equal(mockIntern.loadScript.callCount, 1);
+          assert.equal(
+            mockIntern.loadScript.lastCall.args[0],
+            loaderOptions.internLoaderPath
+          );
+        });
       }
     }
   };
