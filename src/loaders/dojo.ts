@@ -5,26 +5,25 @@
  */
 intern.registerLoader(options => {
   const globalObj: any = typeof window !== 'undefined' ? window : global;
-  const loaderPath = options.internLoaderPath || 'node_modules/dojo/dojo.js';
+  const {
+    internLoaderPath = 'node_modules/dojo/dojo.js',
+    ...loaderConfig
+  } = options;
 
-  if ('internLoaderPath' in options) {
-    delete options.internLoaderPath;
+  loaderConfig.baseUrl = loaderConfig.baseUrl || intern.config.basePath;
+  if (!('async' in loaderConfig)) {
+    loaderConfig.async = true;
   }
 
-  options.baseUrl = options.baseUrl || intern.config.basePath;
-  if (!('async' in options)) {
-    options.async = true;
-  }
-
-  options.has = {
+  loaderConfig.has = {
     'dojo-timeout-api': true,
-    ...options.has
+    ...loaderConfig.has
   };
 
-  intern.log('Configuring Dojo loader with:', options);
-  globalObj.dojoConfig = options;
+  intern.log('Configuring Dojo loader with:', loaderConfig);
+  globalObj.dojoConfig = loaderConfig;
 
-  return intern.loadScript(loaderPath).then(() => {
+  return intern.loadScript(internLoaderPath).then(() => {
     const require = globalObj.require;
     intern.log('Using Dojo loader');
 

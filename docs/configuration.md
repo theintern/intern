@@ -420,12 +420,27 @@ environment (CommonJS in Node and &lt;script> tag injection in the browser).
 
 To use one of Intern's pre-defined loader scripts, simply specify it's name. The
 loader script will expect the loader package to be installed in `node_modules`
-using NPM.
+using NPM. The loader file location can be customized with the `internLoaderPath`
+option, which although it is specified on the `options` object passed to the
+loader, it will be consumed by Intern and not passed to the loader config.
 
 ```json5
 {
   browser: {
     loader: 'dojo'
+  }
+}
+```
+
+Custom loader path with `internLoaderPath`:
+
+```json5
+{
+  browser: {
+    loader: 'dojo',
+    options: {
+      internLoaderPath: '../path/to/dojo/dojo.js'
+    }
   }
 }
 ```
@@ -449,6 +464,10 @@ to load configured suites within the environment. When Intern needs to load a
 module (i.e. a test suite) it hands off a list of these modules to the loader
 script and waits for the loading process to be handled by the loader. For more
 information and options look at the [loader scripts] in the Intern repository.
+
+### Configuring the loader file path
+
+
 
 ## Configuring plugins
 

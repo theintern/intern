@@ -7,20 +7,18 @@
  */
 
 intern.registerLoader(options => {
-  options.baseURL = options.baseURL || intern.config.basePath;
   const globalObj: any = typeof window !== 'undefined' ? window : global;
-  const loaderPath = options.internLoaderPath || 'node_modules/systemjs/dist/system.src.js';
+  const {
+    internLoaderPath = 'node_modules/systemjs/dist/system.src.js',
+    ...loaderConfig
+  } = options;
 
-  if ('internLoaderPath' in options) {
-    delete options.internLoaderPath;
-  }
+  loaderConfig.baseURL = loaderConfig.baseURL || intern.config.basePath;
 
   if (intern.environment === 'browser') {
-    return intern
-      .loadScript(loaderPath)
-      .then(() => {
-        return configAndLoad(SystemJS);
-      });
+    return intern.loadScript(internLoaderPath).then(() => {
+      return configAndLoad(SystemJS);
+    });
   } else {
     // Use globalObj to get to require to improve testability
     const SystemJS = (globalObj.require || require)('systemjs');
@@ -30,8 +28,8 @@ intern.registerLoader(options => {
   function configAndLoad(loader: typeof SystemJS) {
     intern.log('Using SystemJS loader');
 
-    intern.log('Configuring SystemJS with:', options);
-    loader.config(options);
+    intern.log('Configuring SystemJS with:', loaderConfig);
+    loader.config(loaderConfig);
 
     return (modules: string[]) => {
       intern.log('Loading modules with SystemJS:', modules);

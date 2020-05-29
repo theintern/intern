@@ -7,19 +7,18 @@
  */
 intern.registerLoader(options => {
   const globalObj: any = typeof window !== 'undefined' ? window : global;
-  const loaderPath = options.internLoaderPath || 'node_modules/@dojo/loader/loader.js';
+  const {
+    internLoaderPath = 'node_modules/@dojo/loader/loader.js',
+    ...loaderConfig
+  } = options;
 
-  if ('internLoaderPath' in options) {
-    delete options.internLoaderPath;
-  }
-
-  return intern.loadScript(loaderPath).then(() => {
+  return intern.loadScript(internLoaderPath).then(() => {
     const require: DojoLoader.RootRequire = globalObj.require;
     intern.log('Using Dojo 2 loader');
 
-    options.baseUrl = options.baseUrl || intern.config.basePath;
-    intern.log('Configuring loader with:', options);
-    require.config(options);
+    loaderConfig.baseUrl = loaderConfig.baseUrl || intern.config.basePath;
+    intern.log('Configuring loader with:', loaderConfig);
+    require.config(loaderConfig);
 
     return (modules: string[]) => {
       let handle: { remove(): void };
