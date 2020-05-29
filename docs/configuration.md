@@ -465,10 +465,6 @@ module (i.e. a test suite) it hands off a list of these modules to the loader
 script and waits for the loading process to be handled by the loader. For more
 information and options look at the [loader scripts] in the Intern repository.
 
-### Configuring the loader file path
-
-
-
 ## Configuring plugins
 
 Plugins are standalone scripts or modules that are loaded by Intern. Standalone
