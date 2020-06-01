@@ -8,7 +8,7 @@
     },
     "chrome": {
       "baseUrl": "https://chromedriver.storage.googleapis.com",
-      "latest": "81.0.4044.138"
+      "latest": "83.0.4103.39"
     },
     "firefox": {
       "baseUrl": "https://github.com/mozilla/geckodriver/releases/download",

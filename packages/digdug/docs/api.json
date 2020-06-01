@@ -22353,7 +22353,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 9,
+													"line": 10,
 													"character": 15
 												}
 											],
@@ -22372,7 +22372,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 10,
+													"line": 11,
 													"character": 14
 												}
 											],
@@ -22380,7 +22380,7 @@
 												"type": "intrinsic",
 												"name": "string"
 											},
-											"defaultValue": "\"81.0.4044.138\""
+											"defaultValue": "\"83.0.4103.39\""
 										}
 									],
 									"groups": [
@@ -22396,7 +22396,7 @@
 									"sources": [
 										{
 											"fileName": "digdug/src/webdrivers.json",
-											"line": 8,
+											"line": 9,
 											"character": 12
 										}
 									],
@@ -22421,7 +22421,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 22,
+													"line": 23,
 													"character": 15
 												}
 											],
@@ -22440,7 +22440,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 21,
+													"line": 22,
 													"character": 14
 												}
 											],
@@ -22473,7 +22473,7 @@
 															"sources": [
 																{
 																	"fileName": "digdug/src/webdrivers.json",
-																	"line": 25,
+																	"line": 26,
 																	"character": 15
 																}
 															],
@@ -22496,7 +22496,7 @@
 													"sources": [
 														{
 															"fileName": "digdug/src/webdrivers.json",
-															"line": 24,
+															"line": 25,
 															"character": 15
 														}
 													],
@@ -22521,7 +22521,7 @@
 															"sources": [
 																{
 																	"fileName": "digdug/src/webdrivers.json",
-																	"line": 28,
+																	"line": 29,
 																	"character": 15
 																}
 															],
@@ -22544,7 +22544,7 @@
 													"sources": [
 														{
 															"fileName": "digdug/src/webdrivers.json",
-															"line": 27,
+															"line": 28,
 															"character": 15
 														}
 													],
@@ -22569,7 +22569,7 @@
 															"sources": [
 																{
 																	"fileName": "digdug/src/webdrivers.json",
-																	"line": 31,
+																	"line": 32,
 																	"character": 15
 																}
 															],
@@ -22592,7 +22592,7 @@
 													"sources": [
 														{
 															"fileName": "digdug/src/webdrivers.json",
-															"line": 30,
+															"line": 31,
 															"character": 15
 														}
 													],
@@ -22616,7 +22616,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 23,
+													"line": 24,
 													"character": 16
 												}
 											],
@@ -22646,7 +22646,7 @@
 									"sources": [
 										{
 											"fileName": "digdug/src/webdrivers.json",
-											"line": 20,
+											"line": 21,
 											"character": 10
 										}
 									],
@@ -22671,7 +22671,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 36,
+													"line": 37,
 													"character": 15
 												}
 											],
@@ -22690,7 +22690,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 37,
+													"line": 38,
 													"character": 14
 												}
 											],
@@ -22714,7 +22714,7 @@
 									"sources": [
 										{
 											"fileName": "digdug/src/webdrivers.json",
-											"line": 35,
+											"line": 36,
 											"character": 18
 										}
 									],
@@ -22739,7 +22739,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 13,
+													"line": 14,
 													"character": 15
 												}
 											],
@@ -22758,7 +22758,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 14,
+													"line": 15,
 													"character": 14
 												}
 											],
@@ -22782,7 +22782,7 @@
 									"sources": [
 										{
 											"fileName": "digdug/src/webdrivers.json",
-											"line": 12,
+											"line": 13,
 											"character": 13
 										}
 									],
@@ -22807,7 +22807,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 17,
+													"line": 18,
 													"character": 15
 												}
 											],
@@ -22826,7 +22826,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 18,
+													"line": 19,
 													"character": 14
 												}
 											],
@@ -22850,7 +22850,7 @@
 									"sources": [
 										{
 											"fileName": "digdug/src/webdrivers.json",
-											"line": 16,
+											"line": 17,
 											"character": 8
 										}
 									],
@@ -22875,7 +22875,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 5,
+													"line": 6,
 													"character": 15
 												}
 											],
@@ -22894,7 +22894,7 @@
 											"sources": [
 												{
 													"fileName": "digdug/src/webdrivers.json",
-													"line": 6,
+													"line": 7,
 													"character": 14
 												}
 											],
@@ -22918,7 +22918,7 @@
 									"sources": [
 										{
 											"fileName": "digdug/src/webdrivers.json",
-											"line": 4,
+											"line": 5,
 											"character": 14
 										}
 									],
