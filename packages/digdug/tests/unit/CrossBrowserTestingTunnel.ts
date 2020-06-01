@@ -1,4 +1,5 @@
 import CrossBrowserTestingTunnel from '../../src/CrossBrowserTestingTunnel';
+import { join } from 'path';
 
 registerSuite('CrossBrowserTestingTunnel', () => {
   let tunnel: CrossBrowserTestingTunnel;
@@ -16,7 +17,18 @@ registerSuite('CrossBrowserTestingTunnel', () => {
       },
 
       '#executable'() {
-        assert.equal(tunnel.executable, 'node');
+        let platform = process.platform as string;
+        switch (platform) {
+          case 'win32':
+            platform = 'win';
+            break;
+          case 'darwin':
+            platform = 'macos';
+            break;
+        }
+        const ext = process.platform === 'win32' ? '.exe' : '';
+        const executable = `cbt_tunnel-${platform}-${process.arch}${ext}`;
+        assert.equal(tunnel.executable, join(tunnel.directory, executable));
       },
 
       '#extraCapabilities'() {

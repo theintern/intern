@@ -3,6 +3,7 @@ saucelabs
 testingbot
 browserstack
 selenium-standalone
+cbt_tunnel
 _build
 _tests
 build_doc

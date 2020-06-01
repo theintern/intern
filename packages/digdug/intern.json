@@ -14,10 +14,5 @@
     },
     "htmlcoverage"
   ],
-  "suites": [
-    "tests/unit/**/*.ts",
-    "tests/integration/**/*.ts",
-    // disabled while using npm for CBT
-    "!tests/integration/CrossBrowserTesting*.ts"
-  ]
+  "suites": ["tests/unit/**/*.ts", "tests/integration/**/*.ts"]
 }
