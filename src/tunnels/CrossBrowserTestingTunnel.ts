@@ -1,13 +1,14 @@
 import { watchFile, unwatchFile } from 'fs';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import { basename, join } from 'path';
 import { createCompositeHandle, request } from '../common';
 import Tunnel, { ChildExecutor, TunnelProperties } from './Tunnel';
 import { JobState, NormalizedEnvironment } from './types';
-import { on } from './lib/util';
-import { exec } from 'child_process';
+import { fileExists, on } from './lib/util';
 
-const cbtVersion = '0.9.12';
+const cbtVersion = '1.2.2';
+const baseAssetUrl =
+  'https://github.com/crossbrowsertesting/cbt-tunnel-nodejs/releases/download';
 
 /**
  * A CrossBrowserTesting tunnel.
@@ -52,18 +53,30 @@ export default class CrossBrowserTestingTunnel extends Tunnel
           cbtVersion,
           environmentUrl:
             'https://crossbrowsertesting.com/api/v3/selenium/browsers?format=json',
-          executable: 'node',
           hostname: 'hub.crossbrowsertesting.com',
           port: '80',
-          username: process.env.CBT_USERNAME
+          username: process.env.CBT_USERNAME,
+          directory: join(__dirname, 'cbt_tunnel')
         },
         options || {}
       )
     );
   }
 
+  get artifact() {
+    return this.executable;
+  }
+
   get auth() {
     return `${this.username || ''}:${this.accessKey || ''}`;
+  }
+
+  get executable() {
+    const extension = process.platform === 'win32' ? '.exe' : '';
+    return join(
+      this.directory,
+      `cbt_tunnel-${getCbtPlatform()}-${process.arch}${extension}`
+    );
   }
 
   get extraCapabilities() {
@@ -74,31 +87,18 @@ export default class CrossBrowserTestingTunnel extends Tunnel
   }
 
   get isDownloaded() {
-    try {
-      require('cbt_tunnels');
-      return true;
-    } catch (error) {
-      return false;
-    }
+    return fileExists(this.executable);
   }
 
   download(forceDownload = false): Promise<void> {
     if (!forceDownload && this.isDownloaded) {
       return Promise.resolve();
     }
-    return new Promise((resolve, reject) => {
-      exec(
-        `npm install --no-save cbt_tunnels@'${this.cbtVersion}'`,
-        (error, _stdout, stderr) => {
-          if (error) {
-            console.error(stderr);
-            reject(error);
-          } else {
-            resolve();
-          }
-        }
-      );
-    });
+
+    const base = basename(this.artifact, '.exe');
+    const url = `${baseAssetUrl}/v${cbtVersion}/${base}.zip`;
+
+    return this._downloadFile(url, this.proxy);
   }
 
   protected _makeArgs(readyFile: string): string[] {
@@ -109,7 +109,6 @@ export default class CrossBrowserTestingTunnel extends Tunnel
     }
 
     return [
-      'node_modules/.bin/cbt_tunnels',
       '--authkey',
       this.accessKey,
       '--username',
@@ -246,4 +245,16 @@ export default class CrossBrowserTestingTunnel extends Tunnel
 export interface CrossBrowserTestingProperties extends TunnelProperties {
   /** [[CrossBrowserTestingTunnel.CrossBrowserTestingTunnel.cbtVersion|More info]] */
   cbtVersion: string;
+}
+
+function getCbtPlatform() {
+  const { platform } = process;
+  switch (platform) {
+    case 'win32':
+      return 'win';
+    case 'darwin':
+      return 'macos';
+    default:
+      return platform;
+  }
 }
