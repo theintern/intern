@@ -1,9 +1,9 @@
 /**
  * This is the TDD interface for registering suites. Typically it will be
- * accessed using [[lib/executors/Executor.Executor.getInterface]], like:
+ * accessed using [[lib/executors/Executor.Executor.getPlugin]], like:
  *
  * ```js
- * const { suite, test } = intern.getInterface('tdd');
+ * const { suite, test } = intern.getPlugin('interface.tdd');
  * ```
  *
  * It may also be imported as a module, like
