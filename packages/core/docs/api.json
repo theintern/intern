@@ -79739,6 +79739,10 @@
 				"isExported": true
 			},
 			"originalName": "src/lib/interfaces/bdd.ts",
+			"comment": {
+				"shortText": "This is the BDD interface for registering suites. Typically it will be\naccessed using [[lib/executors/Executor.Executor.getPlugin]], like:",
+				"text": "```js\nconst { describe, it } = intern.getPlugin('interface.bdd');\n```\n\nIt may also be imported as a module, like\n\n```js\nimport { describe, it } from 'intern/lib/interfaces/bdd';\n```\n\nSuites (`describe`) are registered using callback functions, and tests (`it`) can be registered\nwithin the suite callbacks.\n\n```js\ndescribe('foo', () => {\n    before(() => { ... });\n    afterEach(() => { ... });\n    it('should bar', () => { ... });\n    it('should baz', () => { ... });\n});\n"
+			},
 			"children": [
 				{
 					"id": 1555,
@@ -80096,7 +80100,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/interfaces/bdd.ts",
-									"line": 18,
+									"line": 43,
 									"character": 10
 								}
 							]
@@ -80162,7 +80166,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/interfaces/bdd.ts",
-									"line": 20,
+									"line": 45,
 									"character": 4
 								}
 							]
@@ -80222,7 +80226,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/interfaces/bdd.ts",
-									"line": 19,
+									"line": 44,
 									"character": 11
 								}
 							]
@@ -80289,7 +80293,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/interfaces/bdd.ts",
-									"line": 21,
+									"line": 46,
 									"character": 5
 								}
 							]
@@ -80314,7 +80318,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/interfaces/bdd.ts",
-							"line": 17,
+							"line": 42,
 							"character": 29
 						}
 					],
@@ -80369,7 +80373,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/interfaces/bdd.ts",
-							"line": 30,
+							"line": 55,
 							"character": 28
 						}
 					]
@@ -81164,8 +81168,8 @@
 			},
 			"originalName": "src/lib/interfaces/object.ts",
 			"comment": {
-				"shortText": "This is the object interface for registering suites. Typically it will be\naccessed using [[lib/executors/Executor.Executor.getInterface]], like:",
-				"text": "```js\nconst { registerSuite } = intern.getInterface('object');\n```\n\nIt may also be imported as a module, like\n\n```js\nimport registerSuite from 'intern/lib/interfaces/object';\n```\n\nSuites are described using objects. The object structure is a subset of suite\nproperties, specifically name, the lifecycle methods, and tests.\n\n```js\nregisterSuite('foo', {\n    before() {},\n    afterEach() {},\n    tests: {\n        bar() {},\n        baz() {}\n    }\n});\n```\n\nTests may also describe sub-suites:\n\n```js\nregisterSuite('foo', {\n    tests: {\n        fooStuff {\n            tests: {\n                bar() {},\n                baz() {}\n            }\n        }\n    }\n});\n```\n\nSub-suites don't need name properties, and may also omit the 'tests' nesting\nif no lifecycle functions are in use. The rule is that if a 'tests' property\nisn't in the sub-suite object, then every property is assumed to refer to a\ntest.\n\n```js\nregisterSuite('foo', {\n    fooStuff {\n        bar() {},\n        baz() {}\n    }\n});\n```\n"
+				"shortText": "This is the object interface for registering suites. Typically it will be\naccessed using [[lib/executors/Executor.Executor.getPlugin]], like:",
+				"text": "```js\nconst { registerSuite } = intern.getPlugin('interface.object');\n```\n\nIt may also be imported as a module, like\n\n```js\nimport registerSuite from 'intern/lib/interfaces/object';\n```\n\nSuites are described using objects. The object structure is a subset of suite\nproperties, specifically name, the lifecycle methods, and tests.\n\n```js\nregisterSuite('foo', {\n    before() {},\n    afterEach() {},\n    tests: {\n        bar() {},\n        baz() {}\n    }\n});\n```\n\nTests may also describe sub-suites:\n\n```js\nregisterSuite('foo', {\n    tests: {\n        fooStuff {\n            tests: {\n                bar() {},\n                baz() {}\n            }\n        }\n    }\n});\n```\n\nSub-suites don't need name properties, and may also omit the 'tests' nesting\nif no lifecycle functions are in use. The rule is that if a 'tests' property\nisn't in the sub-suite object, then every property is assumed to refer to a\ntest.\n\n```js\nregisterSuite('foo', {\n    fooStuff {\n        bar() {},\n        baz() {}\n    }\n});\n```\n"
 			},
 			"children": [
 				{
@@ -81517,7 +81521,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/interfaces/object.ts",
-							"line": 186,
+							"line": 187,
 							"character": 23
 						}
 					]
@@ -81865,7 +81869,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/interfaces/object.ts",
-							"line": 182,
+							"line": 183,
 							"character": 32
 						}
 					]
@@ -82053,8 +82057,8 @@
 			},
 			"originalName": "src/lib/interfaces/tdd.ts",
 			"comment": {
-				"shortText": "This is the TDD interface for registering suites. Typically it will be\naccessed using [[lib/executors/Executor.Executor.getInterface]], like:",
-				"text": "```js\nconst { suite, test } = intern.getInterface('tdd');\n```\n\nIt may also be imported as a module, like\n\n```js\nimport { suite, test } from 'intern/lib/interfaces/tdd';\n```\n\nSuites are registered using callback functions, and tests can be registered\nwithin the suite callbacks.\n\n```js\nsuite('foo', () => {\n    before(() => { ... });\n    afterEach(() => { ... });\n    test('bar', () => { ... });\n    test('baz', () => { ... });\n});\n"
+				"shortText": "This is the TDD interface for registering suites. Typically it will be\naccessed using [[lib/executors/Executor.Executor.getPlugin]], like:",
+				"text": "```js\nconst { suite, test } = intern.getPlugin('interface.tdd');\n```\n\nIt may also be imported as a module, like\n\n```js\nimport { suite, test } from 'intern/lib/interfaces/tdd';\n```\n\nSuites are registered using callback functions, and tests can be registered\nwithin the suite callbacks.\n\n```js\nsuite('foo', () => {\n    before(() => { ... });\n    afterEach(() => { ... });\n    test('bar', () => { ... });\n    test('baz', () => { ... });\n});\n"
 			},
 			"children": [
 				{

@@ -1,9 +1,9 @@
 /**
  * This is the object interface for registering suites. Typically it will be
- * accessed using [[lib/executors/Executor.Executor.getInterface]], like:
+ * accessed using [[lib/executors/Executor.Executor.getPlugin]], like:
  *
  * ```js
- * const { registerSuite } = intern.getInterface('object');
+ * const { registerSuite } = intern.getPlugin('interface.object');
  * ```
  *
  * It may also be imported as a module, like
@@ -161,7 +161,8 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
         name === 'beforeEach' ||
         name === 'afterEach'
       ) {
-        parent.executor.emit('warning',
+        parent.executor.emit(
+          'warning',
           `Created test with lifecycle method name "${name}"`
         );
       }
