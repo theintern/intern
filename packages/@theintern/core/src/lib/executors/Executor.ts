@@ -1,4 +1,4 @@
-import * as chai from 'chai';
+import chai from 'chai';
 import {
   CancelToken,
   Logger,

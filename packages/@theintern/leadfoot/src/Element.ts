@@ -4,7 +4,7 @@ import Locator, { Strategy, toW3cLocator } from './lib/Locator';
 import waitForDeleted from './lib/waitForDeleted';
 import { manualFindByLinkText, sleep } from './lib/util';
 import Session from './Session';
-import * as JSZip from 'jszip';
+import JSZip from 'jszip';
 import { basename } from 'path';
 
 /**

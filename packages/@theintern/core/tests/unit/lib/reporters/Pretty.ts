@@ -1,6 +1,6 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { spy, SinonSpy } from 'sinon';
-import * as tty from 'tty';
+import tty from 'tty';
 
 import RemoteSuite from 'src/lib/RemoteSuite';
 import Suite from 'src/lib/Suite';

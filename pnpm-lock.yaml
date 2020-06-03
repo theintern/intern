@@ -48,11 +48,13 @@ importers:
   devPackages/test:
     dependencies:
       rewiremock: 3.14.2
+      tslib: 2.0.0
     devDependencies:
       '@types/node': 14.0.6
     specifiers:
       '@types/node': ~14.0.6
       rewiremock: ~3.14.2
+      tslib: ~2.0.0
   devPackages/util:
     devDependencies:
       '@types/glob': 7.1.1
@@ -111,18 +113,22 @@ importers:
       '@theintern/core': 'link:../core'
       '@types/moxios': 0.4.9
       '@types/node': 14.0.5
+      '@types/sinon': 9.0.4
       intern: 'link:../../intern'
       moxios: 0.4.0_axios@0.19.2
+      sinon: 9.0.2
     specifiers:
       '@theintern-dev/config': 'workspace:*'
       '@theintern/core': 'workspace:*'
       '@types/moxios': ~0.4.9
       '@types/node': ~14.0.5
       '@types/qs': ~6.9.3
+      '@types/sinon': ~9.0.4
       axios: ~0.19.2
       intern: 'workspace:*'
       moxios: ~0.4.0
       qs: ~6.9.4
+      sinon: ~9.0.2
       tslib: ~2.0.0
   packages/@theintern/core:
     dependencies:

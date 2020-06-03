@@ -13,7 +13,7 @@ import { join } from 'path';
 import { format as formatUrl } from 'url';
 import { fileExists, kill, on } from './lib/util';
 import { JobState, NormalizedEnvironment } from './types';
-import * as decompress from 'decompress';
+import decompress from 'decompress';
 
 /**
  * A Tunnel is a mechanism for connecting to a WebDriver service provider that

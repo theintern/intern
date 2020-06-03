@@ -17,7 +17,7 @@ import {
 import { fileExists, kill, on, writeFile } from './lib/util';
 import { satisfies } from 'semver';
 import { sync as commandExistsSync } from 'command-exists';
-import * as webdriversJson from './webdrivers.json';
+import webdriversJson from './webdrivers.json';
 
 // This is the webdriver verison data that will be used when initializing the
 // driver config objects.

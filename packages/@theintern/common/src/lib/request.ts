@@ -11,7 +11,7 @@ import axios, {
 } from 'axios';
 import { Agent as HttpAgent } from 'http';
 import { Agent as HttpsAgent } from 'https';
-import * as qs from 'qs';
+import qs from 'qs';
 import Evented from './Evented';
 import { CancelToken } from './cancel';
 

@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs';
-import * as Benchmark from 'benchmark';
+import Benchmark from 'benchmark';
 import { Executor } from '../executors/Executor';
 import Reporter, { eventHandler, ReporterProperties } from './Reporter';
 import BenchmarkTest from '../BenchmarkTest';

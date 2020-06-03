@@ -4,11 +4,7 @@
     "declaration": true,
     "declarationMap": true,
     "downlevelIteration": true,
-
-    // Don't use esModuleInterop -- it would require downstream users to enable
-    // it as well
-    "esModuleInterop": false,
-
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "importHelpers": true,
     "incremental": true,

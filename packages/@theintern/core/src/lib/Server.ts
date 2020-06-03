@@ -1,8 +1,8 @@
 import { json, urlencoded } from 'body-parser';
-import * as express from 'express';
+import express from 'express';
 import { Server as HttpServer } from 'http';
 import { Socket } from 'net';
-import * as WebSocket from 'ws';
+import WebSocket from 'ws';
 
 import { Handle, global } from '@theintern/common';
 import { pullFromArray } from './common/util';

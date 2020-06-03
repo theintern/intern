@@ -9,7 +9,7 @@ import {
 } from 'fs';
 import { dirname, join } from 'path';
 import { format as _format } from 'util';
-import * as commander from 'commander';
+import commander from 'commander';
 import intern, { Config } from '@theintern/core';
 
 export let screenWidth = 80;

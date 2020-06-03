@@ -33,7 +33,7 @@ install:
   - pnpm install
   - pnpm install -g codecov
 script:
-  - pnpm run build && pnpm test && codecov
+  - pnpm run ci && codecov
 notifications:
   slack:
     secure: C/WcvljPsSP1xYcV+YplPdHzzKDu1YmFvcHkWrkY/pNoTt1N+mqOM6sDjvD8VCyYtoC5+QaVZUKAXSb8j1J3gtNiRsaoSauikHhN8t1z1ENulrqxBpYbQ1MatxxFM7zDeVaRGlqu3vnEGZqsrJX5mwS8+N8Gy0T8deMNCdnJTAg=

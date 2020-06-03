@@ -4,9 +4,8 @@
     "preinstall": "npx only-allow pnpm",
     "build": "pnpm run -r build",
     "clean": "pnpm run -r clean",
-    "watch": "pnpm run -r watch --filter intern --filter '@theintern/*'",
-    "test": "pnpm run -r test --filter '@theintern/*'",
-    "ci": "pnpm run -r ci --filter '@theintern/*'",
+    "ci": "pnpm run build && pnpm run -r ci",
+    "test": "pnpm run -r test",
     "release": "cross-env INTERN_BUILD=release pnpm run build"
   },
   "engines": {

@@ -1,8 +1,8 @@
 // Explicitly require benchmark dependencies and attach Benchmark to them to
 // improve WebPack compatibility
-import * as _ from 'lodash';
-import * as platform from 'platform';
-import * as Benchmark from 'benchmark';
+import _ from 'lodash';
+import platform from 'platform';
+import Benchmark from 'benchmark';
 
 import Test, {
   isTest,
