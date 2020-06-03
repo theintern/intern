@@ -96,6 +96,9 @@
           "tests/unit/loaders/*.ts"
         ]
       }
+    },
+    "ci": {
+      "extends": ["baseCi", "all"]
     }
   }
 }

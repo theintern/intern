@@ -37,12 +37,14 @@ importers:
       '@types/glob': 7.1.1
       '@types/node': 14.0.9
       '@types/semver': 7.2.0
+      execa: 4.0.2
       glob: 7.1.6
       semver: 7.3.2
     specifiers:
       '@types/glob': ~7.1.1
       '@types/node': ~14.0.9
       '@types/semver': ~7.2.0
+      execa: ~4.0.2
       glob: ~7.1.6
       semver: ~7.3.2
   devPackages/test:
@@ -55,27 +57,6 @@ importers:
       '@types/node': ~14.0.6
       rewiremock: ~3.14.2
       tslib: ~2.0.0
-  devPackages/util:
-    devDependencies:
-      '@types/glob': 7.1.1
-      '@types/randomcolor': 0.5.5
-      '@types/shelljs': 0.8.8
-      chalk: 4.0.0
-      chokidar: 3.4.0
-      execa: 4.0.2
-      glob: 7.1.6
-      randomcolor: 0.5.4
-      shelljs: 0.8.4
-    specifiers:
-      '@types/glob': ~7.1.1
-      '@types/randomcolor': ~0.5.5
-      '@types/shelljs': ~0.8.8
-      chalk: ~4.0.0
-      chokidar: ~3.4.0
-      execa: ~4.0.2
-      glob: ~7.1.6
-      randomcolor: ~0.5.4
-      shelljs: ~0.8.4
   packages/@theintern/cli:
     dependencies:
       '@theintern/core': 'link:../core'
@@ -179,7 +160,6 @@ importers:
     devDependencies:
       '@dojo/loader': 2.0.0
       '@theintern-dev/config': 'link:../../../devPackages/config'
-      '@theintern-dev/util': 'link:../../../devPackages/util'
       '@types/body-parser': 1.19.0
       '@types/decompress': 4.2.3
       '@types/diff': 4.0.2
@@ -238,7 +218,6 @@ importers:
     specifiers:
       '@dojo/loader': ^2.0.0
       '@theintern-dev/config': 'workspace:*'
-      '@theintern-dev/util': 'workspace:*'
       '@theintern/common': 'workspace:^5.0.0-pre'
       '@theintern/digdug': 'workspace:^5.0.0-pre'
       '@theintern/leadfoot': 'workspace:^5.0.0-pre'
@@ -2566,7 +2545,6 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
-    dev: true
     engines:
       node: '>= 8'
     resolution:
@@ -3228,7 +3206,6 @@ packages:
       onetime: 5.1.0
       signal-exit: 3.0.3
       strip-final-newline: 2.0.0
-    dev: true
     engines:
       node: '>=10'
     resolution:
@@ -3725,7 +3702,6 @@ packages:
   /get-stream/5.1.0:
     dependencies:
       pump: 3.0.0
-    dev: true
     engines:
       node: '>=8'
     resolution:
@@ -4037,7 +4013,6 @@ packages:
     resolution:
       integrity: sha1-7AbBDgo0wPL68Zn3/X/Hj//QPHM=
   /human-signals/1.1.1:
-    dev: true
     engines:
       node: '>=8.12.0'
     resolution:
@@ -4427,7 +4402,6 @@ packages:
     resolution:
       integrity: sha1-EtSj3U5o4Lec6428hBc66A2RykQ=
   /is-stream/2.0.0:
-    dev: true
     engines:
       node: '>=8'
     resolution:
@@ -4476,7 +4450,6 @@ packages:
     resolution:
       integrity: sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=
   /isexe/2.0.0:
-    dev: true
     resolution:
       integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
   /isobject/2.1.0:
@@ -5138,7 +5111,6 @@ packages:
     resolution:
       integrity: sha1-sAqqVW3YtEVoFQ7J0blT8/kMu2E=
   /merge-stream/2.0.0:
-    dev: true
     resolution:
       integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==
   /methods/1.1.2:
@@ -5202,7 +5174,6 @@ packages:
     resolution:
       integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==
   /mimic-fn/2.1.0:
-    dev: true
     engines:
       node: '>=6'
     resolution:
@@ -5561,7 +5532,6 @@ packages:
   /npm-run-path/4.0.1:
     dependencies:
       path-key: 3.1.1
-    dev: true
     engines:
       node: '>=8'
     resolution:
@@ -5635,7 +5605,6 @@ packages:
   /onetime/5.1.0:
     dependencies:
       mimic-fn: 2.1.0
-    dev: true
     engines:
       node: '>=6'
     resolution:
@@ -5920,7 +5889,6 @@ packages:
     resolution:
       integrity: sha1-QRyttXTFoUDTpLGRDUDYDMn0C0A=
   /path-key/3.1.1:
-    dev: true
     engines:
       node: '>=8'
     resolution:
@@ -6191,7 +6159,6 @@ packages:
     dependencies:
       end-of-stream: 1.4.4
       once: 1.4.0
-    dev: true
     resolution:
       integrity: sha512-LwZy+p3SFs1Pytd/jYct4wpv49HiYCqd9Rlc5ZVdk0V+8Yzv6jR5Blk3TRmPL1ft69TxP0IMZGJ+WPFU2BFhww==
   /pumpify/1.5.1:
@@ -6920,7 +6887,6 @@ packages:
   /shebang-command/2.0.0:
     dependencies:
       shebang-regex: 3.0.0
-    dev: true
     engines:
       node: '>=8'
     resolution:
@@ -6932,7 +6898,6 @@ packages:
     resolution:
       integrity: sha1-2kL0l0DAtC2yypcoVxyxkMmO/qM=
   /shebang-regex/3.0.0:
-    dev: true
     engines:
       node: '>=8'
     resolution:
@@ -6953,7 +6918,6 @@ packages:
     resolution:
       integrity: sha512-7gk3UZ9kOfPLIAbslLzyWeGiEqx9e3rxwZM0KE6EL8GlGwjym9Mrlx5/p33bWTu9YG6vcS4MBxYZDHYr5lr8BQ==
   /signal-exit/3.0.3:
-    dev: true
     resolution:
       integrity: sha512-VUJ49FC8U1OxwZLxIbTTrDvLnf/6TDgxZcK8wxR8zs13xpx7xbG60ndBlhNrFi2EMuFRoeDoJO7wthSLq42EjA==
   /simple-concat/1.0.0:
@@ -7335,7 +7299,6 @@ packages:
     resolution:
       integrity: sha1-u0P/VZim6wXYm1n80SnJgzE2Br8=
   /strip-final-newline/2.0.0:
-    dev: true
     engines:
       node: '>=6'
     resolution:
@@ -8148,7 +8111,6 @@ packages:
   /which/2.0.2:
     dependencies:
       isexe: 2.0.0
-    dev: true
     engines:
       node: '>= 8'
     hasBin: true

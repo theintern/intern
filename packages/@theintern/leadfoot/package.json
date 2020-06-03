@@ -16,7 +16,7 @@
     "build": "tsc -b",
     "clean": "rimraf dist *.tsbuildinfo",
     "test": "intern",
-    "ci": "intern"
+    "ci": "intern --config @ci"
   },
   "typings": "dist/index.d.ts",
   "keywords": [

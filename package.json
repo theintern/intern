@@ -6,6 +6,7 @@
     "clean": "pnpm run -r clean",
     "ci": "pnpm run build && pnpm run -r ci",
     "test": "pnpm run -r test",
+    "watch": "pnpm run -r watch",
     "release": "cross-env INTERN_BUILD=release pnpm run build"
   },
   "engines": {

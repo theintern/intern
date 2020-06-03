@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "declaration": false,
+    "esModuleInterop": true,
     "incremental": true,
     "module": "CommonJS",
     "outDir": "dist",
     "rootDir": "src",
     "target": "ES2015"
   },
-  "include": ["src/version.ts"]
+  "include": ["src/version.ts", "src/ci.ts", "src/lib/exec.ts"]
 }

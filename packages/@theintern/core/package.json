@@ -39,7 +39,7 @@
     "clean": "rimraf dist _tests *.tsbuildinfo",
     "build": "concurrently \"tsc -b\" \"webpack\"",
     "test": "webpack --config tests/webpack.config.ts && intern",
-    "ci": "intern --config @all"
+    "ci": "intern --config @ci"
   },
   "dependencies": {
     "@theintern/common": "workspace:^5.0.0-pre",
@@ -90,7 +90,6 @@
   "devDependencies": {
     "@dojo/loader": "^2.0.0",
     "@theintern-dev/config": "workspace:*",
-    "@theintern-dev/util": "workspace:*",
     "@types/body-parser": "^1.17.0",
     "@types/decompress": "^4.2.3",
     "@types/diff": "^4.0.2",

@@ -368,6 +368,7 @@ class ConfiguratorImpl implements Configurator {
 
       delete preConfig.extends;
 
+      this._emit('log', `Loading extended config file "${extendedPath}"`);
       config = await this._loadConfigFile(extendedPath);
     } else {
       // If preConfig doesn't extend anything, initialize the output config with
@@ -378,8 +379,9 @@ class ConfiguratorImpl implements Configurator {
     // 3. Process all the keys in preConfig into the output config
     this._addToConfig({ args: preConfig, config, preserveFlags: true });
 
-    // 3. If config has any child configs, process their extends properties
+    // 4. If config has any child configs, process their extends properties
     if (config.configs) {
+      this._emit('log', 'Adding child configs to base config');
       for (const child of Object.keys(config.configs)) {
         config.configs[child] = this._resolveChildConfig({
           name: child,
@@ -387,6 +389,8 @@ class ConfiguratorImpl implements Configurator {
         });
       }
     }
+
+    this._emit('log', `Finished loading config file "${configFile}"`);
 
     return config;
   }
@@ -990,6 +994,11 @@ class ConfiguratorImpl implements Configurator {
     name: string;
     config: { configs: NonNullable<LoadedConfig['configs']> };
   }): Omit<LoadedChildConfig, 'extends'> {
+    this._emit(
+      'log',
+      `Resolving child config ${name} in ${JSON.stringify(config, null, '  ')}`
+    );
+
     const child = config.configs[name];
     if (!child) {
       throw new InvalidChildConfigError(child);

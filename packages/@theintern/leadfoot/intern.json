@@ -5,5 +5,10 @@
   "node+": {
     "tsconfig": "tests/tsconfig.json"
   },
-  "environments": ["node", "chrome"]
+  "environments": ["node", "chrome"],
+  "configs+": {
+    "ci": {
+      "extends": "baseCi"
+    }
+  }
 }

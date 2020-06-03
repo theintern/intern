@@ -34,7 +34,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf dist *.tsbuildinfo",
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "watch": "tsc -b --watch"
   },
   "dependencies": {
     "@theintern/cli": "workspace:^5.0.0-pre",
