@@ -255,7 +255,8 @@ registerSuite('lib/executors/Node', function () {
     createConfigurator: libNode.createConfigurator,
 
     getDefaultBasePath: sandbox.spy(() => {
-      return '/';
+      // Use resolve here to end up with a valid base path on Windows
+      return resolve('/');
     }),
 
     getDefaultInternPath: sandbox.spy(() => {
@@ -1423,7 +1424,7 @@ registerSuite('lib/executors/Node', function () {
                 tunnel: 'null',
                 suites: 'foo.ts',
                 node: {
-                  tsconfig: './test/tsconfig.json',
+                  tsconfig: join('.', 'test', 'tsconfig.json'),
                 },
                 coverage: ['foo.ts', 'bar.d.ts'],
               });
@@ -1446,9 +1447,11 @@ registerSuite('lib/executors/Node', function () {
               assert.deepEqual(
                 mockTsNodeRegister.args[0][0],
                 {
-                  // Project will be at /test because our mock process.cwd is
-                  // '', making the default base path in the executor '/'
-                  project: '/test/tsconfig.json',
+                  project: join(
+                    executor.config.basePath,
+                    'test',
+                    'tsconfig.json'
+                  ),
                 },
                 'expected ts-node/register to be called with a config file'
               );
