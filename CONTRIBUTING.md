@@ -130,7 +130,7 @@ new tests should use the “tdd” interface (`suite` and `test`). Suite names
 should generally indicate what module is being tested.
 
 ```ts
-import { describe, it } from 'src/core/lib/interfaces/bdd';
+import { suite, test } from 'src/core/lib/interfaces/tdd';
 
 suite('core/lib/someModule', () => {
   test('feature 1', () => { ... };
