@@ -4,7 +4,7 @@
   "compilerOptions": {
     "allowJs": true,
     "baseUrl": "..",
-    "outDir": "./_tests",
+    "outDir": "../_tests",
     "paths": {
       "src": ["./src"],
       "tests": ["./tests"]

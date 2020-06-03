@@ -18,7 +18,7 @@ Software testing for humans
 
 > ⚠️ This documentation is for the development version of Intern. For the
 > current release version, go
-> [here](https://github.com/theintern/intern/tree/4.7).
+> [here](https://github.com/theintern/intern/tree/4.8).
 
 Intern is a complete test system for JavaScript designed to help you write and
 run consistent, high-quality test cases for your JavaScript libraries and
@@ -40,7 +40,7 @@ with popular continuous integration services like Jenkins and Travis CI.
 If you’re into name-dropping, Intern gets used every day by teams at Twitter,
 Stripe, Mozilla, IBM, Marriott, Philips, Zenput, Alfresco, Esri, HSBC, ING,
 Intuit, and more. It’s also the testing framework of choice for
-[growing numbers of open-source projects](https://github.com/search?p=2&q=tests+filename%3Aintern.js&ref=searchresults&type=Code&utf8=%E2%9C%93).
+[a variety of open-source projects](https://github.com/search?p=2&q=tests+filename%3Aintern.js&ref=searchresults&type=Code&utf8=%E2%9C%93).
 
 <!-- prettier-ignore-start -->
 > 💡 If you’re an Intern user who’s new to Intern 4, see the

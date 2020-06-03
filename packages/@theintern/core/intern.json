@@ -97,8 +97,17 @@
         ]
       }
     },
+
     "ci": {
       "extends": ["baseCi", "all"]
+    },
+
+    "edge": {
+      "extends": "all",
+      "environments": {
+        "browserName": "MicrosoftEdge",
+        "browserVersion": "insider preview"
+      }
     }
   }
 }

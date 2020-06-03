@@ -74,13 +74,15 @@ you with them!)
 ### Getting started
 
 The first step in creating an update is making sure you can build Intern and run
-the self tests. All of Intern’s build and test processes are handled through
-`npm` scripts.
+the self tests. All of Intern’s build and test processes are handled by `pnpm`
+through `pnpm` scripts.
 
+0. Install Node 10+ and `pnpm`
 1. Fork this repository and clone your fork
-2. In the repo, run `npm ci` to install development packages
-3. Run `npm test` to run the Node-based self-tests
-4. Run `npm run test:chrome` to run the self-tests in Chrome (“edge”, “firefox”,
+2. In the repo, run `pnpm install` to install development packages
+3. Run `pnpm run build` to build all the packages
+4. Run `pnpm test` to run the self-tests locally
+5. Run `npm run test:chrome` to run the self-tests in Chrome (“edge”, “firefox”,
    and “safari” are also available)
 
 > 💡 Intern requires at least Node 10.0.0 to build and run.
@@ -90,12 +92,11 @@ This is what you’ll eventually use to open a PR.
 
 ### Dev scripts
 
-Intern uses a number of `npm` scripts to manage the development process. The
+Intern uses a number of `pnpm` scripts to manage the development process. The
 most commonly used ones are:
 
 - `clean` - clean up build artifacts
 - `build` - build the Intern package and the API documentation data
-- `start` - start an Intern test server for use with the browser client
 - `test` - build Intern and run Node-based unit tests
 - `test:<browser>` - run unit and functional tests in `<browser>` (chrome, edge,
   firefox, safari)
@@ -115,23 +116,25 @@ may require manual intervention (and will cause a commit to fail).
 
 ### Writing self-tests
 
+Within each package:
+
 Tests are in the `tests` directory, and the test config is the `intern.json`
-file in the project root. Tests are organized by type in `unit/`, `functional/`,
-`integreation/`, and `benchmark/` directories. The directory structure within
-each type should mirror the main `src/` directory structure. For example, unit
-tests for `src/core/lib/executors/Executor` should go in
-`tests/unit/core/lib/executors/Executor`.
+file in the package root. Tests are organized by type in `unit/`, `functional/`,
+`integration/`, and `benchmark/` directories. The directory structure within
+each type should mirror the main `src/` directory structure. For example, in
+`@theintern/core`, unit tests for `src/lib/executors/Executor` should go in
+`tests/unit/lib/executors/Executor`.
 
 While most of the existing tests use the “object” interface (`registerSuite`),
-new tests should use the “bdd” interface (`describe` and `it`). Suite names
+new tests should use the “tdd” interface (`suite` and `test`). Suite names
 should generally indicate what module is being tested.
 
 ```ts
 import { describe, it } from 'src/core/lib/interfaces/bdd';
 
-describe('core/lib/someModule', () => {
-  it('should do something', () => { ... };
-  it('should do something else', () => { ... };
+suite('core/lib/someModule', () => {
+  test('feature 1', () => { ... };
+  test('feature 2', () => { ... };
 });
 ```
 
@@ -215,5 +218,7 @@ open a draft PR before your work is done if you’d like early reviews.)
 - Clean up PRs (or encourage the contributor to do so) before merging. PRs
   should contain a few meaningful commits. Streams of WIP commit messages should
   be squashed.
+- When squashing PRs, make sure you end up with a properly formatted commit
+  message.
 - Put `[ci skip]` at the end of commit messages for commits that do not modify
   any code (README changes, etc.).

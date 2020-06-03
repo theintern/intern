@@ -9,6 +9,8 @@
   "configs": {
     "baseCi": {
       "description": "Run CI tests on the default cloud service (BrowserStack)",
+      // Include an empty node+ to allow passthrough extension
+      "node+": {},
       "reporters+": {
         "name": "jsoncoverage",
         "options": {

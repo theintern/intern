@@ -37,8 +37,12 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf dist _tests *.tsbuildinfo",
-    "build": "concurrently \"tsc -b\" \"webpack\"",
-    "test": "webpack --config tests/webpack.config.ts && intern",
+    "build": "concurrently \"tsc -b\" \"webpack\" \"webpack --config tests/webpack.config.ts\"",
+    "test": "intern",
+    "test:chrome": "intern --config @all --environments chrome",
+    "test:safari": "intern --config @all --environments safari",
+    "test:firefox": "intern --config @all --environments firefox",
+    "test:edge": "intern --config @edge",
     "ci": "intern --config @ci"
   },
   "dependencies": {

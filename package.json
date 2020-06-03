@@ -2,11 +2,15 @@
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "build": "pnpm run -r build",
-    "clean": "pnpm run -r clean",
-    "ci": "pnpm run build && pnpm run -r ci",
-    "test": "pnpm run -r test",
-    "watch": "pnpm run -r watch",
+    "build": "pnpm run --stream -r build",
+    "clean": "pnpm run --stream -r clean",
+    "ci": "pnpm run build && pnpm run --stream -r ci",
+    "test": "pnpm run --stream -r test",
+    "test:chrome": "pnpm run --stream -r test:chrome",
+    "test:safari": "pnpm run --stream -r test:safari",
+    "test:firefox": "pnpm run --stream -r test:firefox",
+    "test:edge": "pnpm run --stream -r test:edge",
+    "watch": "pnpm run --stream -r watch",
     "release": "cross-env INTERN_BUILD=release pnpm run build"
   },
   "engines": {
