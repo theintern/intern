@@ -37,7 +37,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf dist _tests *.tsbuildinfo",
-    "build": "concurrently 'tsc -b' webpack",
+    "build": "concurrently \"tsc -b\" \"webpack\"",
     "test": "webpack --config tests/webpack.config.ts && intern",
     "ci": "intern --config @all"
   },
