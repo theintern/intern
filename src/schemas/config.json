@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://theintern.io/intern/resources/4/schemas/config-4.6.json",
+  "$id": "https://theintern.io/intern/resources/4/schemas/config-4.8.json",
 
   "title": "Intern",
   "description": "Intern v4 config schema",
@@ -532,7 +532,10 @@
           "properties": {
             "script": { "$ref": "#/definitions/loaderName" },
             "options": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "internLoaderPath": { "type": "string" }
+              }
             }
           },
           "required": ["script"],

@@ -36646,7 +36646,7 @@
 														"isOptional": true
 													},
 													"comment": {
-														"shortText": "An optional file path for the loader. If unspecified Intern will assume the loader's package is\ninstalled in `node_modules`. This property is prefixed with \"intern\" to distinguish it from\nother properties which will be passed to the loader. If present, Intern will read this property\nand then remove it before passing the options to the loader."
+														"shortText": "An optional file path for the loader. If unspecified Intern will assume the loader's package is\ninstalled in `node_modules`. This property is prefixed with \"intern\" to distinguish it from\nother properties which will be passed to the loader. If present, Intern will read this property\nand then filter it out of the config passed to the loader."
 													},
 													"sources": [
 														{
