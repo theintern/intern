@@ -15,7 +15,7 @@ registerSuite('loaders/dojo2', function() {
   const mockIntern = {
     config: { basePath: '/' },
     emit: spy(() => {}),
-    loadScript: spy(() => Promise.resolve()),
+    loadScript: spy((_path: string) => Promise.resolve()),
     registerLoader: spy((_init: LoaderInit) => {}),
     log: spy(() => {})
   };
@@ -67,8 +67,14 @@ registerSuite('loaders/dojo2', function() {
     tests: {
       init() {
         const init = mockIntern.registerLoader.getCall(0).args[0];
+        const defaultLoaderPath = 'node_modules/@dojo/loader/loader.js';
+
         return (init({}) as Promise<any>).then(() => {
           assert.equal(mockIntern.loadScript.callCount, 1);
+          assert.equal(
+            mockIntern.loadScript.getCall(0).args[0],
+            defaultLoaderPath
+          );
         });
       },
 
@@ -101,6 +107,20 @@ registerSuite('loaders/dojo2', function() {
             error => {
               assert.match(error.message, /fail/);
             }
+          );
+        });
+      },
+
+      internLoaderPath() {
+        const init: LoaderInit = mockIntern.registerLoader.getCall(0).args[0];
+        const loaderOptions = {
+          internLoaderPath: 'foo/bar'
+        };
+
+        return Promise.resolve(init(loaderOptions)).then(() => {
+          assert.equal(
+            mockIntern.loadScript.lastCall.args[0],
+            loaderOptions.internLoaderPath
           );
         });
       }
