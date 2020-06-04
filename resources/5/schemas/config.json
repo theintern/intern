@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://theintern.io/schemas/intern/config-5.0.json",
+  "$id": "https://theintern.io/intern/resources/5/schemas/config.json",
 
   "title": "Intern",
   "description": "Intern v5.0 config schema",
@@ -169,25 +169,33 @@
         },
 
         "benchmarkConfig": {
+          "description": "Options for benchmark tests",
           "$ref": "#/definitions/benchmarkOptions"
         },
         "benchmarkConfig+": {
-          "description": "Options for benchmark tests",
-          "$ref": "#/definitions/benchmarkOptions"
+          "description": "Additional options for benchmark tests",
+          "$ref": "#/definitions/config/properties/benchmarkConfig"
         },
 
         "browser": {
           "description": "Resources that will only be loaded/used in browsers",
-          "$ref": "#/definitions/resourceConfig"
+          "type": "object",
+          "properties": {
+            "loader": { "$ref": "#/definitions/loaderProperty" },
+            "plugins": { "$ref": "#/definitions/pluginsProperty" },
+            "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
+            "reporters": { "$ref": "#/definitions/reportersProperty" },
+            "reporters+": { "$ref": "#/definitions/reportersProperty+" },
+            "suites": { "$ref": "#/definitions/suitesProperty" },
+            "suites+": { "$ref": "#/definitions/suitesProperty+" }
+          }
         },
         "browser+": {
           "description": "Additional resources that will only be loaded/used in browsers",
-          "$ref": "#/definitions/resourceConfig"
+          "$ref": "#/definitions/config/properties/browser"
         },
 
-        "capabilities": {
-          "$ref": "#/definitions/capabilities"
-        },
+        "capabilities": { "$ref": "#/definitions/capabilities" },
         "capabilities+": {
           "description": "Additional capabilities",
           "$ref": "#/definitions/capabilities"
@@ -339,17 +347,20 @@
 
         "node": {
           "description": "Resources that will only be loaded/used in Node",
-          "anyOf": [
-            { "$ref": "#/definitions/resourceConfig" },
-            {
-              "type": "object",
-              "properties": {
-                "tsconfig": {
-                  "oneOf": [{ "type": "string" }, { "const": false }]
-                }
-              }
+          "type": "object",
+          "properties": {
+            "loader": { "$ref": "#/definitions/loaderProperty" },
+            "plugins": { "$ref": "#/definitions/pluginsProperty" },
+            "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
+            "reporters": { "$ref": "#/definitions/reportersProperty" },
+            "reporters+": { "$ref": "#/definitions/reportersProperty+" },
+            "suites": { "$ref": "#/definitions/suitesProperty" },
+            "suites+": { "$ref": "#/definitions/suitesProperty+" },
+            "tsconfig": {
+              "oneOf": [{ "type": "string" }, { "const": false }]
             }
-          ]
+          },
+          "additionalProperties": false
         },
         "node+": {
           "description": "Resources that will only be loaded/used in Node",
@@ -853,20 +864,6 @@
     "reportersProperty+": {
       "description": "Additional reporters",
       "$ref": "#/definitions/reportersProperty"
-    },
-
-    "resourceConfig": {
-      "type": "object",
-      "properties": {
-        "loader": { "$ref": "#/definitions/loaderProperty" },
-        "plugins": { "$ref": "#/definitions/pluginsProperty" },
-        "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
-        "reporters": { "$ref": "#/definitions/reportersProperty" },
-        "reporters+": { "$ref": "#/definitions/reportersProperty+" },
-        "suites": { "$ref": "#/definitions/suitesProperty" },
-        "suites+": { "$ref": "#/definitions/suitesProperty+" }
-      },
-      "additionalProperties": false
     },
 
     "seleniumOptions": {
