@@ -225,7 +225,7 @@ export default class Session extends Locator<
     }
 
     // Set both JSONWireProtocol and WebDriver properties in the data object
-    let data = this.capabilities.usesWebDriverTimeouts
+    const data = this.capabilities.usesWebDriverTimeouts
       ? {
           [type === 'page load' ? 'pageLoad' : type]: ms
         }
@@ -659,8 +659,8 @@ export default class Session extends Locator<
   closeCurrentWindow() {
     const self = this;
     function manualClose() {
-      return self.getCurrentWindowHandle().then(function(handle: any) {
-        return self.execute('window.close();').then(function() {
+      return self.getCurrentWindowHandle().then(function (handle: any) {
+        return self.execute('window.close();').then(function () {
           self._closedWindows[handle] = true;
         });
       });
@@ -1019,14 +1019,14 @@ export default class Session extends Locator<
    * Gets all cookies set on the current page.
    */
   getCookies() {
-    return this.serverGet<WebDriverCookie[]>('cookie').then(function(
+    return this.serverGet<WebDriverCookie[]>('cookie').then(function (
       cookies: WebDriverCookie[]
     ) {
       // At least SafariDriver 2.41.0 returns cookies with extra class
       // and hCode properties that should not exist
-      return (cookies || []).map(function(badCookie) {
-        let cookie: any = {};
-        for (let key in badCookie) {
+      return (cookies || []).map(function (badCookie) {
+        const cookie: any = {};
+        for (const key in badCookie) {
           if (
             key === 'name' ||
             key === 'value' ||
@@ -1096,7 +1096,7 @@ export default class Session extends Locator<
         pushCookieProperties(cookieToSet, cookie);
 
         return self.execute<void>(
-          /* istanbul ignore next */ function(cookie: any) {
+          /* istanbul ignore next */ function (cookie: any) {
             document.cookie = cookie;
           },
           [cookieToSet.join(';')]
@@ -1122,7 +1122,7 @@ export default class Session extends Locator<
 
           return promise.then(() => {
             return this.execute<void>(
-              /* istanbul ignore next */ function(expiredCookie: string) {
+              /* istanbul ignore next */ function (expiredCookie: string) {
                 // Assume the cookie was created by Selenium,
                 // so its path is '/'; at least MS Edge
                 // requires a path to delete a cookie
@@ -1166,7 +1166,7 @@ export default class Session extends Locator<
           pushCookieProperties(expiredCookie, cookie);
 
           return this.execute<void>(
-            /* istanbul ignore next */ function(expiredCookie: any) {
+            /* istanbul ignore next */ function (expiredCookie: any) {
               // Assume the cookie was created by Selenium, so
               // its path is '/'; at least MS Edge requires a
               // path to delete a cookie
@@ -1191,8 +1191,8 @@ export default class Session extends Locator<
   getPageSource() {
     if (this.capabilities.brokenPageSource) {
       return this.execute<string>(
-        /* istanbul ignore next */ function() {
-          return document.documentElement!.outerHTML;
+        /* istanbul ignore next */ function () {
+          return document.documentElement.outerHTML;
         }
       );
     } else {
@@ -1406,7 +1406,7 @@ export default class Session extends Locator<
    */
   getOrientation() {
     return this.serverGet<'portrait' | 'landscape'>('orientation').then(
-      function(orientation) {
+      function (orientation) {
         return orientation.toLowerCase();
       }
     );
@@ -1751,7 +1751,7 @@ export default class Session extends Locator<
 
     if (this.capabilities.brokenTouchScroll) {
       return this.execute<void>(
-        /* istanbul ignore next */ function(
+        /* istanbul ignore next */ function (
           element: HTMLElement,
           x: number,
           y: number
@@ -1829,7 +1829,7 @@ export default class Session extends Locator<
   ): CancellablePromise<void>;
   @forCommand({ usesElement: true })
   flickFinger(...args: any[]) {
-    let [element, xOffset, yOffset, speed] = args;
+    const [element, xOffset, yOffset, speed] = args;
     if (
       typeof speed === 'undefined' &&
       typeof yOffset === 'undefined' &&
@@ -1908,7 +1908,7 @@ export default class Session extends Locator<
   getLogsFor(type: string) {
     return this.serverPost<string[] | LogEntry[]>('log', {
       type: type
-    }).then(function(logs) {
+    }).then(function (logs) {
       // At least Selendroid 0.9.0 returns logs as an array of strings
       // instead of an array of log objects, which is a spec violation;
       // see https://github.com/selendroid/selendroid/issues/366
@@ -2176,7 +2176,7 @@ function forCommand(properties: {
   usesElement?: boolean;
   createsContext?: boolean;
 }) {
-  return function(
+  return function (
     target: any,
     property: string,
     descriptor: PropertyDescriptor
@@ -2205,7 +2205,7 @@ function convertToElements(session: Session, value: any) {
       if (value.ELEMENT || value['element-6066-11e4-a52e-4f735466cecf']) {
         value = new Element(value, session);
       } else {
-        for (let k in value) {
+        for (const k in value) {
           value[k] = convert(value[k]);
         }
       }
@@ -2242,7 +2242,7 @@ function fixExecuteError(error: SessionError) {
  * properly escaped key-value strings.
  */
 function pushCookieProperties(target: any[], source: any) {
-  Object.keys(source).forEach(function(key) {
+  Object.keys(source).forEach(function (key) {
     let value = source[key];
 
     if (
@@ -2295,7 +2295,7 @@ function simulateKeys(keys: string[]) {
       });
     } else {
       event = document.createEvent('KeyboardEvent');
-      event.initKeyboardEvent(
+      (event as any).initKeyboardEvent(
         kwArgs.type,
         true,
         kwArgs.cancelable || false,
@@ -2345,9 +2345,9 @@ function simulateKeys(keys: string[]) {
           target.value.slice(target.selectionEnd);
         dispatchInput();
       } else if (target.isContentEditable) {
-        let node = document.createTextNode(key);
-        let selection = window.getSelection()!;
-        let range = selection.getRangeAt(0);
+        const node = document.createTextNode(key);
+        const selection = window.getSelection()!;
+        const range = selection.getRangeAt(0);
         range.deleteContents();
         range.insertNode(node);
         range.setStartAfter(node);

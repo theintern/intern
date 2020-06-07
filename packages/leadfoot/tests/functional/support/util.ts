@@ -1,8 +1,8 @@
 import Server from '../../../src/Server';
 import Session from '../../../src/Session';
 import { LeadfootURL } from '../../../src/interfaces';
-import { Remote } from 'intern/lib/executors/Node';
-import ProxiedSession from 'intern/lib/ProxiedSession';
+import { Remote } from '@theintern/core/dist/lib/executors/Node';
+import ProxiedSession from '@theintern/core/dist/lib/ProxiedSession';
 
 export * from '../../../src/lib/util';
 
@@ -26,7 +26,7 @@ export function createSessionFromRemote(
 
   function fixGet(session: any) {
     const oldGet = session.get;
-    session.get = function(this: Session, url: string) {
+    session.get = function (this: Session, url: string) {
       if (!/^[A-Za-z][A-Za-z0-9+.-]+:/.test(url)) {
         url = convertPathToUrl(remote, url);
       }

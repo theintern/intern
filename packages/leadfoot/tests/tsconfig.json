@@ -2,7 +2,6 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "..",
-    "declaration": false,
     "module": "commonjs",
     "importHelpers": false,
 
@@ -14,7 +13,7 @@
     // needed for istanbul directives
     "removeComments": false,
 
-    "types": ["intern"]
+    "types": ["@theintern/core"]
   },
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts", "../src/**/*.ts"]
 }

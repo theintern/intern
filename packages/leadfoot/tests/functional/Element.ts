@@ -4,8 +4,8 @@ import Element from '../../src/Element';
 import Session from '../../src/Session';
 import { isSafari, isFirefox } from '../../src/Server';
 import { Task } from '@theintern/common';
-import Test, { TestFunction } from 'intern/lib/Test';
-import { ObjectSuiteDescriptor } from 'intern/lib/interfaces/object';
+import Test, { TestFunction } from '@theintern/core/dist/lib/Test';
+import { ObjectSuiteDescriptor } from '@theintern/core/dist/lib/interfaces/object';
 
 const strategyNames = Object.keys(strategies);
 
@@ -25,12 +25,12 @@ function createStubbedSuite(
 ) {
   let originalMethod: Function;
   let calledWith: any;
-  let extraArguments: any[] = [];
-  let element = new Element('test', <Session>{});
+  const extraArguments: any[] = [];
+  const element = new Element('test', <Session>{});
   const suite = {
     before() {
       originalMethod = (<any>element)[stubbedMethodName];
-      (<any>element)[stubbedMethodName] = function() {
+      (<any>element)[stubbedMethodName] = function () {
         calledWith = arguments;
       };
 
@@ -50,10 +50,10 @@ function createStubbedSuite(
     tests: <{ [name: string]: TestFunction }>{}
   };
 
-  placeholders.forEach(function(placeholder: string, index: number) {
+  placeholders.forEach(function (placeholder: string, index: number) {
     const method = testMethodName.replace('_', placeholder);
 
-    suite.tests['#' + method] = function() {
+    suite.tests['#' + method] = function () {
       if (shouldSkip) {
         shouldSkip(this);
       }
@@ -78,14 +78,14 @@ registerSuite('Element', () => {
   return {
     before() {
       const remote = this.remote;
-      return util.createSessionFromRemote(remote).then(function() {
+      return util.createSessionFromRemote(remote).then(function () {
         session = arguments[0];
       });
     },
 
     beforeEach() {
       if (resetBrowserState) {
-        return session.get('about:blank').then(function() {
+        return session.get('about:blank').then(function () {
           return session.setTimeout('implicit', 0);
         });
       }
@@ -100,7 +100,7 @@ registerSuite('Element', () => {
         });
       },
 
-      '#find': (function() {
+      '#find': (function () {
         function getId(element: Element) {
           assert.property(
             element,
@@ -117,10 +117,10 @@ registerSuite('Element', () => {
             resetBrowserState = false;
             return session
               .get('tests/functional/data/elements.html')
-              .then(function() {
+              .then(function () {
                 return session.find('id', 'h');
               })
-              .then(function(_element) {
+              .then(function (_element) {
                 element = _element;
               });
           },
@@ -134,7 +134,7 @@ registerSuite('Element', () => {
               return element
                 .find('class name', 'i')
                 .then(getId)
-                .then(function(id) {
+                .then(function (id) {
                   assert.strictEqual(
                     id,
                     'i2',
@@ -147,7 +147,7 @@ registerSuite('Element', () => {
               return element
                 .find('css selector', '#j b.i')
                 .then(getId)
-                .then(function(id) {
+                .then(function (id) {
                   assert.strictEqual(id, 'i2');
                 });
             },
@@ -156,7 +156,7 @@ registerSuite('Element', () => {
               return element
                 .find('name', 'nothing')
                 .then(getId)
-                .then(function(id) {
+                .then(function (id) {
                   assert.strictEqual(id, 'nothing1');
                 });
             },
@@ -165,7 +165,7 @@ registerSuite('Element', () => {
               return element
                 .find('link text', 'What a cute, red cap.')
                 .then(getId)
-                .then(function(id) {
+                .then(function (id) {
                   assert.strictEqual(id, 'j');
                 });
             },
@@ -174,7 +174,7 @@ registerSuite('Element', () => {
               return element
                 .find('partial link text', 'cute, red')
                 .then(getId)
-                .then(function(id) {
+                .then(function (id) {
                   assert.strictEqual(id, 'j');
                 });
             },
@@ -183,7 +183,7 @@ registerSuite('Element', () => {
               return element
                 .find('link text', 'What a cap.')
                 .then(getId)
-                .then(function(id) {
+                .then(function (id) {
                   assert.strictEqual(id, 'k');
                 });
             },
@@ -192,7 +192,7 @@ registerSuite('Element', () => {
               return element
                 .find('partial link text', 'a cap')
                 .then(getId)
-                .then(function(id) {
+                .then(function (id) {
                   assert.strictEqual(id, 'k');
                 });
             },
@@ -201,7 +201,7 @@ registerSuite('Element', () => {
               return element
                 .find('tag name', 'b')
                 .then(getId)
-                .then(function(id) {
+                .then(function (id) {
                   assert.strictEqual(id, 'i2');
                 });
             },
@@ -210,19 +210,19 @@ registerSuite('Element', () => {
               return element
                 .find('xpath', 'id("h")/a[2]')
                 .then(getId)
-                .then(function(id) {
+                .then(function (id) {
                   assert.strictEqual(id, 'i1');
                 });
             },
 
             'non-existent'() {
               return element.find('id', 'does-not-exist').then(
-                function() {
+                function () {
                   throw new Error(
                     'Requesting non-existing element should throw error'
                   );
                 },
-                function(error) {
+                function (error) {
                   if (error.detail && error.detail.error) {
                     assert.strictEqual(error.detail.error, 'no such element');
                   } else {
@@ -235,7 +235,7 @@ registerSuite('Element', () => {
         };
       })(),
 
-      '#find (with implicit timeout)': (function() {
+      '#find (with implicit timeout)': (function () {
         let startTime: number;
         return () => {
           return session
@@ -289,9 +289,9 @@ registerSuite('Element', () => {
         };
       })(),
 
-      '#findAll': (function() {
+      '#findAll': (function () {
         function getIds(elements: Element[]) {
-          elements.forEach(function(element, index) {
+          elements.forEach(function (element, index) {
             assert.property(
               element,
               'elementId',
@@ -300,7 +300,7 @@ registerSuite('Element', () => {
           });
 
           return Task.all(
-            elements.map(function(element) {
+            elements.map(function (element) {
               return element.getAttribute('id');
             })
           );
@@ -313,10 +313,10 @@ registerSuite('Element', () => {
             resetBrowserState = false;
             return session
               .get('tests/functional/data/elements.html')
-              .then(function() {
+              .then(function () {
                 return session.find('id', 'h');
               })
-              .then(function(_element) {
+              .then(function (_element) {
                 element = _element;
               });
           },
@@ -330,7 +330,7 @@ registerSuite('Element', () => {
               return element
                 .findAll('id', 'j')
                 .then(getIds)
-                .then(function(ids) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['j']);
                 });
             },
@@ -339,7 +339,7 @@ registerSuite('Element', () => {
               return element
                 .findAll('class name', 'i')
                 .then(getIds)
-                .then(function(ids) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['i2', 'i3', 'i1']);
                 });
             },
@@ -348,7 +348,7 @@ registerSuite('Element', () => {
               return element
                 .findAll('css selector', '#j b.i')
                 .then(getIds)
-                .then(function(ids) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['i2', 'i3']);
                 });
             },
@@ -357,7 +357,7 @@ registerSuite('Element', () => {
               return element
                 .findAll('name', 'nothing')
                 .then(getIds)
-                .then(function(ids) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['nothing1', 'nothing2']);
                 });
             },
@@ -366,7 +366,7 @@ registerSuite('Element', () => {
               return element
                 .findAll('link text', 'What a cute, red cap.')
                 .then(getIds)
-                .then(function(ids) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['j', 'i1']);
                 });
             },
@@ -375,7 +375,7 @@ registerSuite('Element', () => {
               return element
                 .findAll('partial link text', 'cute, red')
                 .then(getIds)
-                .then(function(ids) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['j', 'i1']);
                 });
             },
@@ -384,7 +384,7 @@ registerSuite('Element', () => {
               return element
                 .findAll('link text', 'What a cap.')
                 .then(getIds)
-                .then(function(ids) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['k']);
                 });
             },
@@ -393,7 +393,7 @@ registerSuite('Element', () => {
               return element
                 .findAll('partial link text', 'a cap')
                 .then(getIds)
-                .then(function(ids) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['k']);
                 });
             },
@@ -402,7 +402,7 @@ registerSuite('Element', () => {
               return element
                 .findAll('tag name', 'b')
                 .then(getIds)
-                .then(function(ids) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['i2', 'i3', 'l']);
                 });
             },
@@ -411,7 +411,7 @@ registerSuite('Element', () => {
               return element
                 .findAll('xpath', 'id("j")/b')
                 .then(getIds)
-                .then(function(ids) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['i2', 'i3']);
                 });
             },
@@ -419,7 +419,7 @@ registerSuite('Element', () => {
             'non-existent'() {
               return element
                 .findAll('id', 'does-not-exist')
-                .then(function(elements) {
+                .then(function (elements) {
                   assert.deepEqual(elements, []);
                 });
             }
@@ -437,10 +437,10 @@ registerSuite('Element', () => {
       '#findAll convenience methods': createStubbedSuite(
         'findAll',
         'findAllBy_',
-        suffixes.filter(function(suffix) {
+        suffixes.filter(function (suffix) {
           return suffix !== 'Id';
         }),
-        strategyNames.filter(function(strategy) {
+        strategyNames.filter(function (strategy) {
           return strategy !== 'id';
         })
       ),
@@ -448,10 +448,10 @@ registerSuite('Element', () => {
       '#findDisplayed convenience methods': createStubbedSuite(
         'findDisplayed',
         'findDisplayedBy_',
-        suffixes.filter(function(suffix) {
+        suffixes.filter(function (suffix) {
           return suffix !== 'Id';
         }),
-        strategyNames.filter(function(strategy) {
+        strategyNames.filter(function (strategy) {
           return strategy !== 'id';
         }),
         (test: Test) => {
@@ -478,16 +478,16 @@ registerSuite('Element', () => {
 
         return session
           .get('tests/functional/data/pointer.html')
-          .then(function() {
+          .then(function () {
             return session.findById('a');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.click();
           })
-          .then(function() {
+          .then(function () {
             return session.execute<any>('return result;');
           })
-          .then(function(result) {
+          .then(function (result) {
             assert.isArray(result.mousedown.a);
             assert.isArray(result.mouseup.a);
             assert.isArray(result.click.a);
@@ -500,10 +500,10 @@ registerSuite('Element', () => {
       '#submit (submit button)'() {
         return session
           .get('tests/functional/data/form.html')
-          .then(function() {
+          .then(function () {
             return session.getCurrentUrl();
           })
-          .then(function(expectedUrl) {
+          .then(function (expectedUrl) {
             return session
               .findById('input')
               .then(element => element.type('hello'))
@@ -526,10 +526,10 @@ registerSuite('Element', () => {
       '#submit (form)'() {
         return session
           .get('tests/functional/data/form.html')
-          .then(function() {
+          .then(function () {
             return session.getCurrentUrl();
           })
-          .then(function(expectedUrl) {
+          .then(function (expectedUrl) {
             return session
               .findById('input')
               .then(element => element.type('hello'))
@@ -552,13 +552,13 @@ registerSuite('Element', () => {
       '#getVisibleText'() {
         return session
           .get('tests/functional/data/elements.html')
-          .then(function() {
+          .then(function () {
             return session.findById('c3');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.getVisibleText();
           })
-          .then(function(text) {
+          .then(function (text) {
             assert.strictEqual(text, 'What a cute backpack.');
           });
       },
@@ -566,13 +566,13 @@ registerSuite('Element', () => {
       '#getVisibleText (multi-line)'() {
         return session
           .get('tests/functional/data/elements.html')
-          .then(function() {
+          .then(function () {
             return session.findById('i4');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.getVisibleText();
           })
-          .then(function(text) {
+          .then(function (text) {
             const expectedText = [
               "I've come up with another wacky invention that I think has real potential.",
               "Maybe you won't, but anyway...",
@@ -590,15 +590,15 @@ registerSuite('Element', () => {
         // TODO: Complex characters, tabs and arrows, copy and paste
         return session
           .get('tests/functional/data/form.html')
-          .then(function() {
+          .then(function () {
             return session.findById('input');
           })
-          .then(function(element) {
-            return element.type('hello, world').then(function() {
+          .then(function (element) {
+            return element.type('hello, world').then(function () {
               return element.getProperty('value');
             });
           })
-          .then(function(value) {
+          .then(function (value) {
             assert.strictEqual(value, 'hello, world');
           });
       },
@@ -624,19 +624,19 @@ registerSuite('Element', () => {
 
         return session
           .get('tests/functional/data/upload.html')
-          .then(function() {
+          .then(function () {
             return session.findById('file');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.type('tests/functional/data/upload.txt');
           })
-          .then(function() {
-            return session.execute(function() {
+          .then(function () {
+            return session.execute(function () {
               const file = (<any>document.getElementById('file')).files[0];
               return { name: file.name, size: file.size };
             });
           })
-          .then(function(file) {
+          .then(function (file) {
             assert.deepEqual(file, {
               name: 'upload.txt',
               size: 18
@@ -647,13 +647,13 @@ registerSuite('Element', () => {
       '#getTagName'() {
         return session
           .get('tests/functional/data/default.html')
-          .then(function() {
+          .then(function () {
             return session.findByTagName('body');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.getTagName();
           })
-          .then(function(tagName) {
+          .then(function (tagName) {
             assert.strictEqual(tagName, 'body');
           });
       },
@@ -661,21 +661,21 @@ registerSuite('Element', () => {
       '#clearValue'() {
         return session
           .get('tests/functional/data/form.html')
-          .then(function() {
+          .then(function () {
             return session.findById('input2');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element
               .getProperty('value')
-              .then(function(value) {
+              .then(function (value) {
                 assert.strictEqual(value, 'default');
                 return element.clearValue();
               })
-              .then(function() {
+              .then(function () {
                 return element.getProperty('value');
               });
           })
-          .then(function(value) {
+          .then(function (value) {
             assert.strictEqual(value, '');
           });
       },
@@ -683,36 +683,36 @@ registerSuite('Element', () => {
       '#isSelected (radio button)'() {
         return session
           .get('tests/functional/data/form.html')
-          .then(function() {
+          .then(function () {
             return session.findById('radio1');
           })
-          .then(function(element) {
-            return element.isSelected().then(function(isSelected) {
+          .then(function (element) {
+            return element.isSelected().then(function (isSelected) {
               assert.isTrue(
                 isSelected,
                 'Default checked element should be selected'
               );
-              return session.findById('radio2').then(function(element2) {
+              return session.findById('radio2').then(function (element2) {
                 return element2
                   .isSelected()
-                  .then(function(isSelected) {
+                  .then(function (isSelected) {
                     assert.isFalse(
                       isSelected,
                       'Default unchecked element should not be selected'
                     );
                     return element2.click();
                   })
-                  .then(function() {
+                  .then(function () {
                     return element.isSelected();
                   })
-                  .then(function(isSelected) {
+                  .then(function (isSelected) {
                     assert.isFalse(
                       isSelected,
                       'Newly unchecked element should not be selected'
                     );
                     return element2.isSelected();
                   })
-                  .then(function(isSelected) {
+                  .then(function (isSelected) {
                     assert.isTrue(
                       isSelected,
                       'Newly checked element should be selected'
@@ -737,10 +737,10 @@ registerSuite('Element', () => {
           'initial selection'() {
             return session
               .findById('checkbox')
-              .then(function(element) {
+              .then(function (element) {
                 return element.isSelected();
               })
-              .then(function(isSelected) {
+              .then(function (isSelected) {
                 assert.isFalse(
                   isSelected,
                   'Default unchecked element should not be selected'
@@ -749,23 +749,23 @@ registerSuite('Element', () => {
           },
 
           'change selection'() {
-            return session.findById('checkbox').then(function(element) {
+            return session.findById('checkbox').then(function (element) {
               return element
                 .click()
-                .then(function() {
+                .then(function () {
                   return element.isSelected();
                 })
-                .then(function(isSelected) {
+                .then(function (isSelected) {
                   assert.isTrue(
                     isSelected,
                     'Newly checked element should be selected'
                   );
                   return element.click();
                 })
-                .then(function() {
+                .then(function () {
                   return element.isSelected();
                 })
-                .then(function(isSelected) {
+                .then(function (isSelected) {
                   assert.isFalse(
                     isSelected,
                     'Newly unchecked element should not be selected'
@@ -790,22 +790,22 @@ registerSuite('Element', () => {
           'initial selection'() {
             return session
               .findById('option2')
-              .then(function(element) {
+              .then(function (element) {
                 return element.isSelected();
               })
-              .then(function(isSelected) {
+              .then(function (isSelected) {
                 assert.isTrue(
                   isSelected,
                   'Default selected element should be selected'
                 );
               })
-              .then(function() {
+              .then(function () {
                 return session.findById('option1');
               })
-              .then(function(element) {
+              .then(function (element) {
                 return element.isSelected();
               })
-              .then(function(isSelected) {
+              .then(function (isSelected) {
                 assert.isFalse(
                   isSelected,
                   'Default unselected element should not be selected'
@@ -820,32 +820,32 @@ registerSuite('Element', () => {
 
             return session
               .findById('select')
-              .then(function(select) {
+              .then(function (select) {
                 return select.click();
               })
-              .then(function() {
+              .then(function () {
                 return session.findById('option1');
               })
-              .then(function(element) {
+              .then(function (element) {
                 return element
                   .click()
-                  .then(function() {
+                  .then(function () {
                     return element.isSelected();
                   })
-                  .then(function(isSelected) {
+                  .then(function (isSelected) {
                     assert.isTrue(
                       isSelected,
                       'Newly selected element should be selected'
                     );
                   });
               })
-              .then(function() {
+              .then(function () {
                 return session.findById('option2');
               })
-              .then(function(element) {
+              .then(function (element) {
                 return element.isSelected();
               })
-              .then(function(isSelected) {
+              .then(function (isSelected) {
                 assert.isFalse(
                   isSelected,
                   'Newly unselected element should not be selected'
@@ -858,20 +858,20 @@ registerSuite('Element', () => {
       '#isEnabled'() {
         return session
           .get('tests/functional/data/form.html')
-          .then(function() {
+          .then(function () {
             return session.findById('input');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.isEnabled();
           })
-          .then(function(isEnabled) {
+          .then(function (isEnabled) {
             assert.isTrue(isEnabled);
             return session.findById('disabled');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.isEnabled();
           })
-          .then(function(isEnabled) {
+          .then(function (isEnabled) {
             assert.isFalse(isEnabled);
           });
       },
@@ -887,13 +887,13 @@ registerSuite('Element', () => {
         /*jshint maxlen:140 */
         return session
           .get('tests/functional/data/form.html')
-          .then(function() {
+          .then(function () {
             return session.findById('input2');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element
               .getSpecAttribute('value')
-              .then(function(value) {
+              .then(function (value) {
                 assert.strictEqual(
                   value,
                   'default',
@@ -901,10 +901,10 @@ registerSuite('Element', () => {
                 );
                 return element.type('foo');
               })
-              .then(function() {
+              .then(function () {
                 return element.getSpecAttribute('value');
               })
-              .then(function(value) {
+              .then(function (value) {
                 assert.match(
                   value!,
                   /foo$/,
@@ -912,7 +912,7 @@ registerSuite('Element', () => {
                 );
                 return element.getSpecAttribute('defaultValue');
               })
-              .then(function(defaultValue) {
+              .then(function (defaultValue) {
                 assert.strictEqual(
                   defaultValue,
                   'default',
@@ -920,7 +920,7 @@ registerSuite('Element', () => {
                 );
                 return element.getSpecAttribute('data-html5');
               })
-              .then(function(value) {
+              .then(function (value) {
                 assert.strictEqual(
                   value,
                   'true',
@@ -928,20 +928,20 @@ registerSuite('Element', () => {
                 );
                 return element.getSpecAttribute('nonexisting');
               })
-              .then(function(value) {
+              .then(function (value) {
                 assert.isNull(
                   value,
                   'Non-existing attributes should not return a value'
                 );
               });
           })
-          .then(function() {
+          .then(function () {
             return session.findById('disabled');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.getSpecAttribute('disabled');
           })
-          .then(function(isDisabled) {
+          .then(function (isDisabled) {
             assert.strictEqual(
               isDisabled,
               'true',
@@ -949,14 +949,14 @@ registerSuite('Element', () => {
             );
             return session.get('tests/functional/data/elements.html');
           })
-          .then(function() {
+          .then(function () {
             return session.findById('c');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.getSpecAttribute('href');
           })
-          .then(function(href) {
-            return session.getCurrentUrl().then(function(baseUrl) {
+          .then(function (href) {
+            return session.getCurrentUrl().then(function (baseUrl) {
               const expected =
                 baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1) + 'default.html';
               assert.strictEqual(
@@ -971,25 +971,25 @@ registerSuite('Element', () => {
       '#getAttribute'() {
         return session
           .get('tests/functional/data/form.html')
-          .then(function() {
+          .then(function () {
             return session.findById('form');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.getAttribute('action');
           })
-          .then(function(action) {
+          .then(function (action) {
             // At least Firefox 64 will return an absolute URL for the action
             // attribute.
             assert.match(action!, /(.*\/)?form.html/);
             return session.findById('disabled');
           })
-          .then(function(element) {
+          .then(function (element) {
             return Task.all({
               'non-existing': element.getAttribute('non-existing'),
               disabled: element.getAttribute('disabled')
             });
           })
-          .then(function(result: any) {
+          .then(function (result: any) {
             assert.isNotNull(result.disabled);
             assert.isNull(result['non-existing']);
           });
@@ -998,23 +998,23 @@ registerSuite('Element', () => {
       '#getProperty'() {
         return session
           .get('tests/functional/data/form.html')
-          .then(function() {
+          .then(function () {
             return session.findById('form');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element.getProperty<string>('action');
           })
-          .then(function(action) {
+          .then(function (action) {
             assert.operator(action.indexOf('http'), '===', 0);
             return session.findById('disabled');
           })
-          .then(function(element) {
+          .then(function (element) {
             return Task.all({
               'non-existing': element.getProperty('non-existing'),
               disabled: element.getProperty('disabled')
             });
           })
-          .then(function(result: any) {
+          .then(function (result: any) {
             assert.isTrue(result.disabled);
             assert.isNull(result['non-existing']);
           });
@@ -1023,41 +1023,41 @@ registerSuite('Element', () => {
       '#equals'() {
         return session
           .get('tests/functional/data/elements.html')
-          .then(function() {
+          .then(function () {
             return session.findById('a');
           })
-          .then(function(element) {
+          .then(function (element) {
             return session
               .findById('z')
-              .then(function(element2) {
+              .then(function (element2) {
                 return element
                   .equals(element2)
-                  .then(function(isEqual) {
+                  .then(function (isEqual) {
                     assert.isFalse(isEqual);
                     return element2.equals(element);
                   })
-                  .then(function(isEqual) {
+                  .then(function (isEqual) {
                     assert.isFalse(isEqual);
                   });
               })
-              .then(function() {
+              .then(function () {
                 return session.findById('a');
               })
-              .then(function(element2) {
+              .then(function (element2) {
                 return element
                   .equals(element2)
-                  .then(function(isEqual) {
+                  .then(function (isEqual) {
                     assert.isTrue(isEqual);
                     return element2.equals(element);
                   })
-                  .then(function(isEqual) {
+                  .then(function (isEqual) {
                     assert.isTrue(isEqual);
                   });
               });
           });
       },
 
-      '#isDisplayed': (function() {
+      '#isDisplayed': (function () {
         const visibilities = {
           normal: true,
           empty: false,
@@ -1080,18 +1080,18 @@ registerSuite('Element', () => {
           tests: <{ [name: string]: TestFunction }>{}
         };
 
-        for (let id in visibilities) {
-          (function(id, expected) {
-            suite.tests[id] = function() {
+        for (const id in visibilities) {
+          (function (id, expected) {
+            suite.tests[id] = function () {
               if (session.capabilities.noElementDisplayed) {
                 this.skip('Remote does not support /displayed endpoint');
               }
               return session
                 .findById(id)
-                .then(function(element) {
+                .then(function (element) {
                   return element.isDisplayed();
                 })
-                .then(function(isDisplayed) {
+                .then(function (isDisplayed) {
                   assert.strictEqual(isDisplayed, expected);
                 });
             };
@@ -1101,7 +1101,7 @@ registerSuite('Element', () => {
         return suite;
       })(),
 
-      '#getPosition': (function() {
+      '#getPosition': (function () {
         // TODO: Inside scrolled viewport
         // TODO: Fix transforms for platforms without transforms
 
@@ -1124,15 +1124,15 @@ registerSuite('Element', () => {
           tests: <{ [name: string]: TestFunction }>{}
         };
 
-        for (let id in positions) {
-          (function(id: string, expected: any) {
-            suite.tests[id] = function() {
+        for (const id in positions) {
+          (function (id: string, expected: any) {
+            suite.tests[id] = function () {
               return session
                 .findById(id)
-                .then(function(element) {
+                .then(function (element) {
                   return element.getPosition();
                 })
-                .then(function(position) {
+                .then(function (position) {
                   assert.deepEqual(position, expected);
                 });
             };
@@ -1142,9 +1142,9 @@ registerSuite('Element', () => {
         return suite;
       })(),
 
-      '#getSize': (function() {
+      '#getSize': (function () {
         let documentWidth: number;
-        let dimensions: any = {};
+        const dimensions: any = {};
         dimensions.a = { width: 222, height: 222 };
         dimensions.b = { width: 10, height: 10 };
         dimensions.c = { width: -1, height: 0 };
@@ -1157,7 +1157,7 @@ registerSuite('Element', () => {
             resetBrowserState = false;
             return session
               .get('tests/functional/data/dimensions.html')
-              .then(function() {
+              .then(function () {
                 return session.execute<number>(
                   'return document.body.offsetWidth;'
                 );
@@ -1172,15 +1172,15 @@ registerSuite('Element', () => {
           tests: <{ [name: string]: TestFunction }>{}
         };
 
-        for (let id in dimensions) {
-          (function(id, expected) {
-            suite.tests[id] = function() {
+        for (const id in dimensions) {
+          (function (id, expected) {
+            suite.tests[id] = function () {
               return session
                 .findById(id)
-                .then(function(element) {
+                .then(function (element) {
                   return element.getSize();
                 })
-                .then(function(dimensions) {
+                .then(function (dimensions) {
                   if (expected.width === -1) {
                     expected.width = documentWidth;
                   } else if (
@@ -1205,13 +1205,13 @@ registerSuite('Element', () => {
         // TODO: Spec: pseudo-elements?
         return session
           .get('tests/functional/data/dimensions.html')
-          .then(function() {
+          .then(function () {
             return session.findById('a');
           })
-          .then(function(element) {
+          .then(function (element) {
             return element
               .getComputedStyle('background-color')
-              .then(function(style) {
+              .then(function (style) {
                 assert.strictEqual(
                   style,
                   'rgba(128, 0, 128, 1)',
@@ -1219,7 +1219,7 @@ registerSuite('Element', () => {
                 );
                 return element.getComputedStyle('border-left-width');
               })
-              .then(function(style) {
+              .then(function (style) {
                 assert.strictEqual(
                   style,
                   '1px',
@@ -1227,7 +1227,7 @@ registerSuite('Element', () => {
                 );
                 return element.getComputedStyle('display');
               })
-              .then(function(style) {
+              .then(function (style) {
                 assert.strictEqual(
                   style,
                   'block',
@@ -1235,7 +1235,7 @@ registerSuite('Element', () => {
                 );
                 return element.getComputedStyle('not-a-property');
               })
-              .then(function(style) {
+              .then(function (style) {
                 // Empty string is used by necessity since this is what FirefoxDriver returns and we cannot
                 // list all possible invalid style names
                 assert.strictEqual(

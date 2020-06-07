@@ -3,8 +3,8 @@ import * as util from './support/util';
 import Command, { Context } from '../../src/Command';
 import Session from '../../src/Session';
 import { Task } from '@theintern/common';
-import Test from 'intern/lib/Test';
-import { ObjectSuiteDescriptor } from 'intern/lib/interfaces/object';
+import Test from '@theintern/core/dist/lib/Test';
+import { ObjectSuiteDescriptor } from '@theintern/core/dist/lib/interfaces/object';
 
 registerSuite('Command', () => {
   let session: Session;
@@ -12,13 +12,13 @@ registerSuite('Command', () => {
   return {
     before() {
       const remote = this.remote;
-      return util.createSessionFromRemote(remote).then(function() {
+      return util.createSessionFromRemote(remote).then(function () {
         session = arguments[0];
       });
     },
 
     beforeEach() {
-      return session.get('about:blank').then(function() {
+      return session.get('about:blank').then(function () {
         return session.setTimeout('implicit', 0);
       });
     },
@@ -26,20 +26,20 @@ registerSuite('Command', () => {
     tests: {
       'error handling': {
         'initialiser throws'() {
-          return new Command(session, function() {
+          return new Command(session, function () {
             throw new Error('broken');
           })
             .then(
-              function() {
+              function () {
                 throw new Error(
                   'Error thrown in initialiser should reject the Command'
                 );
               },
-              function(error: Error) {
+              function (error: Error) {
                 assert.strictEqual(error.message, 'broken');
                 assert.include(
                   error.stack!,
-                  path.join('tests', 'functional', 'Command.js') + ':25',
+                  path.join('tests', 'functional', 'Command.js') + ':47',
                   'Stack trace should point back to the error'
                 );
                 error.message += ' 2';
@@ -47,12 +47,12 @@ registerSuite('Command', () => {
               }
             )
             .then(
-              function() {
+              function () {
                 throw new Error(
                   'Error thrown in parent Command should reject child Command'
                 );
               },
-              function(error: Error) {
+              function (error: Error) {
                 assert.strictEqual(error.message, 'broken 2');
               }
             );
@@ -60,19 +60,19 @@ registerSuite('Command', () => {
 
         'invalid async command'() {
           const command = new Command(session).sleep(100);
-          Command.addSessionMethod(command, 'invalid', function() {
+          Command.addSessionMethod(command, 'invalid', function () {
             return new Task((_resolve, reject) => {
-              setTimeout(function() {
+              setTimeout(function () {
                 reject(new Error('Invalid call'));
               }, 0);
             });
           });
 
           return (<any>command).invalid().then(
-            function() {
+            function () {
               throw new Error('Invalid command should have thrown error');
             },
-            function(error: Error) {
+            function (error: Error) {
               assert.strictEqual(error.message, 'Invalid call');
               const stack = error.stack!;
               assert.include(
@@ -82,7 +82,7 @@ registerSuite('Command', () => {
               );
               assert.include(
                 stack,
-                path.join('tests', 'functional', 'Command.js') + ':46',
+                path.join('tests', 'functional', 'Command.js') + ':68',
                 'Stack trace should point back to the async method call that eventually threw the error'
               );
             }
@@ -91,10 +91,10 @@ registerSuite('Command', () => {
 
         'catch recovery'() {
           return new Command(session)
-            .then(function() {
+            .then(function () {
               throw new Error('Boom');
             })
-            .catch(function() {
+            .catch(function () {
               const expected: Context = [];
               expected.isSingle = true;
               expected.depth = 0;
@@ -108,12 +108,12 @@ registerSuite('Command', () => {
       },
 
       initialisation(this: Test) {
-        assert.throws(function() {
+        assert.throws(function () {
           new (<any>Command)();
         }, /A parent Command or Session must be provided to a new Command/);
 
         const dfd = this.async();
-        const parent = new Command<string>(session, function(setContext) {
+        const parent = new Command<string>(session, function (setContext) {
           setContext(<any>'foo');
           return Task.resolve('bar');
         });
@@ -123,7 +123,7 @@ registerSuite('Command', () => {
         expectedContext.depth = 0;
 
         const command = parent.then(
-          dfd.callback(function(this: Command<any>, returnValue: string) {
+          dfd.callback(function (this: Command<any>, returnValue: string) {
             assert.isTrue(
               this === command,
               'The `this` object in callbacks should be the Command object'
@@ -149,12 +149,12 @@ registerSuite('Command', () => {
         return command
           .get('tests/functional/data/default.html')
           .getPageTitle()
-          .then(function(pageTitle) {
+          .then(function (pageTitle) {
             assert.strictEqual(pageTitle, 'Default & <b>default</b>');
           })
           .get('tests/functional/data/form.html')
           .getPageTitle()
-          .then(function(pageTitle) {
+          .then(function (pageTitle) {
             assert.strictEqual(pageTitle, 'Form');
           });
       },
@@ -166,7 +166,7 @@ registerSuite('Command', () => {
         const child = parent.findByTagName('p');
 
         return child
-          .then(function(element) {
+          .then(function (element) {
             assert.notStrictEqual(
               child,
               <any>parent,
@@ -178,7 +178,7 @@ registerSuite('Command', () => {
             );
           })
           .getTagName()
-          .then(function(tagName) {
+          .then(function (tagName) {
             assert.strictEqual(
               tagName,
               'p',
@@ -199,7 +199,7 @@ registerSuite('Command', () => {
           .click()
           .type('hello')
           .getProperty<string>('value')
-          .then(function(value) {
+          .then(function (value) {
             assert.strictEqual(
               value,
               'hello',
@@ -213,7 +213,7 @@ registerSuite('Command', () => {
           .get('tests/functional/data/elements.html')
           .findAllByClassName('b')
           .getAttribute('id')
-          .then(function(ids) {
+          .then(function (ids) {
             assert.deepEqual(ids, ['b2', 'b1', 'b3', 'b4']);
           });
       },
@@ -224,18 +224,18 @@ registerSuite('Command', () => {
           .findById('c')
           .findAllByClassName('b')
           .getAttribute('id')
-          .then(function(ids) {
+          .then(function (ids) {
             assert.deepEqual(ids, ['b3', 'b4']);
           })
           .findAllByClassName('a')
-          .then(function(elements) {
+          .then(function (elements) {
             assert.lengthOf(elements, 0);
           })
           .end(2)
           .end()
           .findAllByClassName('b')
           .getAttribute('id')
-          .then(function(ids) {
+          .then(function (ids) {
             assert.deepEqual(ids, ['b2', 'b1', 'b3', 'b4']);
           });
       },
@@ -246,7 +246,7 @@ registerSuite('Command', () => {
           .findAllByTagName('div')
           .findAllByCssSelector('span, a')
           .getAttribute('id')
-          .then(function(ids) {
+          .then(function (ids) {
             assert.deepEqual(ids, ['f', 'g', 'j', 'i1', 'k', 'zz']);
           });
       },
@@ -260,7 +260,7 @@ registerSuite('Command', () => {
           .get('tests/functional/data/visibility.html')
           .findDisplayedByClassName('multipleVisible')
           .getVisibleText()
-          .then(function(text) {
+          .then(function (text) {
             assert.strictEqual(
               text,
               'b',
@@ -291,7 +291,7 @@ registerSuite('Command', () => {
             mousedown: { a?: any[] };
             mouseup: { b?: any[] };
           }>('return result;')
-          .then(function(result) {
+          .then(function (result) {
             assert.isTrue(
               result.mousedown.a && result.mousedown.a.length > 0,
               'Expected mousedown event in element a'
@@ -305,7 +305,7 @@ registerSuite('Command', () => {
 
       '#sleep'() {
         const startTime = Date.now();
-        return new Command(session).sleep(2000).then(function() {
+        return new Command(session).sleep(2000).then(function () {
           assert.closeTo(
             Date.now() - startTime,
             2000,
@@ -319,11 +319,11 @@ registerSuite('Command', () => {
         const expected: Context = ['a'];
         expected.depth = 0;
 
-        return new Command<void>(session, function(setContext) {
+        return new Command<void>(session, function (setContext) {
           setContext(<any>['a']);
         })
           .end(20)
-          .then(function() {
+          .then(function () {
             assert.deepEqual(
               this.context,
               expected,
@@ -334,15 +334,15 @@ registerSuite('Command', () => {
 
       '#end in a long chain'() {
         return new Command(session)
-          .then(function(_: any, setContext: Function) {
-            setContext!(['a']);
+          .then(function (_: any, setContext: Function) {
+            setContext(['a']);
           })
           .end()
-          .then(function() {
+          .then(function () {
             assert.lengthOf(this.context, 0);
           })
           .end()
-          .then(function() {
+          .then(function () {
             assert.lengthOf(
               this.context,
               0,
@@ -355,8 +355,8 @@ registerSuite('Command', () => {
         const command = new Command(session);
         let callback: Function | undefined;
         let errback: Function | undefined;
-        const expectedErrback = function() {};
-        command.then = <any>function() {
+        const expectedErrback = function () {};
+        command.then = <any>function () {
           callback = arguments[0];
           errback = arguments[1];
           return 'thenCalled';
@@ -370,11 +370,11 @@ registerSuite('Command', () => {
       '#finally'() {
         const command = new Command(session);
         const promise = command['_task'];
-        const expected = function() {};
+        const expected = function () {};
         let wasCalled = false;
         let result: Function | undefined;
 
-        promise.finally = <any>function(cb: Function) {
+        promise.finally = <any>function (cb: Function) {
           wasCalled = true;
           result = cb;
         };
@@ -392,7 +392,7 @@ registerSuite('Command', () => {
 
         const startTime = Date.now();
 
-        sleepCommand.finally(function() {
+        sleepCommand.finally(function () {
           assert.isBelow(
             Date.now() - startTime,
             4000,
@@ -403,7 +403,7 @@ registerSuite('Command', () => {
       },
 
       'session createsContext'() {
-        const command: any = new Command<void>(session, function(setContext) {
+        const command: any = new Command<void>(session, function (setContext) {
           setContext(<any>'a');
         });
 
@@ -411,14 +411,14 @@ registerSuite('Command', () => {
           command,
           'newContext',
           util.forCommand(
-            function() {
+            function () {
               return Task.resolve('b');
             },
             { createsContext: true }
           )
         );
 
-        return command.newContext().then(function(this: Command<any>) {
+        return command.newContext().then(function (this: Command<any>) {
           const expected: Context = ['b'];
           expected.isSingle = true;
           expected.depth = 1;
@@ -432,12 +432,12 @@ registerSuite('Command', () => {
       },
 
       'element createsContext'() {
-        const command = new Command<void>(session, function(setContext) {
+        const command = new Command<void>(session, function (setContext) {
           setContext(<any>{
             elementId: 'foo',
             // Provide a custom element method
             newContext: util.forCommand(
-              function() {
+              function () {
                 return Task.resolve('b');
               },
               { createsContext: true }
@@ -447,7 +447,7 @@ registerSuite('Command', () => {
 
         Command.addElementMethod(command, 'newContext');
 
-        return (<any>command).newContext().then(function(this: Command<any>) {
+        return (<any>command).newContext().then(function (this: Command<any>) {
           const expected: Context = ['b'];
           expected.isSingle = true;
           expected.depth = 1;
@@ -461,7 +461,7 @@ registerSuite('Command', () => {
       },
 
       'session usesElement single'() {
-        const command: any = new Command<void>(session, function(setContext) {
+        const command: any = new Command<void>(session, function (setContext) {
           setContext(<any>'a');
         });
 
@@ -469,7 +469,7 @@ registerSuite('Command', () => {
           command,
           'useElement',
           util.forCommand(
-            function(context: string, arg: string) {
+            function (context: string, arg: string) {
               assert.strictEqual(
                 context,
                 'a',
@@ -489,17 +489,20 @@ registerSuite('Command', () => {
       },
 
       'session usesElement multiple'() {
-        const command: any = new Command<void>(session, function(setContext) {
+        const command: any = new Command<void>(session, function (setContext) {
           setContext(<any>['a', 'b']);
         });
 
-        const expected = [['a', 'arg1'], ['b', 'arg1']];
+        const expected = [
+          ['a', 'arg1'],
+          ['b', 'arg1']
+        ];
 
         Command.addSessionMethod(
           command,
           'useElement',
           util.forCommand(
-            function(context: any, arg: any) {
+            function (context: any, arg: any) {
               const _expected = expected.shift()!;
 
               assert.strictEqual(

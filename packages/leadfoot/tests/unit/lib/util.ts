@@ -1,4 +1,4 @@
-import Test from 'intern/lib/Test';
+import Test from '@theintern/core/dist/lib/Test';
 import * as util from '../../../src/lib/util';
 
 declare let __cov_abcdef: number;
@@ -7,7 +7,7 @@ declare let a: any;
 registerSuite('lib/leadfoot/util', {
   '.sleep'() {
     const startTime = Date.now();
-    return util.sleep(250).then(function() {
+    return util.sleep(250).then(function () {
       assert.closeTo(Date.now() - startTime, 250, 50);
     });
   },
@@ -17,14 +17,14 @@ registerSuite('lib/leadfoot/util', {
     const sleep = util.sleep(10000);
     const dfd = this.async();
     sleep.cancel();
-    sleep.finally(function() {
+    sleep.finally(function () {
       assert.operator(Date.now() - startTime, '<', 500);
       dfd.resolve();
     });
   },
 
   '.forCommand'() {
-    const commandFn: any = util.forCommand(function() {}, {
+    const commandFn: any = util.forCommand(function () {}, {
       createsContext: false,
       usesElement: true
     });
@@ -38,7 +38,7 @@ registerSuite('lib/leadfoot/util', {
   },
 
   '.toExecuteString function'() {
-    const script = util.toExecuteString(function() {
+    const script = util.toExecuteString(function () {
       __cov_abcdef = __cov_abcdef + 1;
       return a;
     });

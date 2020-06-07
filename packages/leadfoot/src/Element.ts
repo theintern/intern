@@ -5,7 +5,7 @@ import waitForDeleted from './lib/waitForDeleted';
 import { manualFindByLinkText, sleep } from './lib/util';
 import { Task, CancellablePromise } from '@theintern/common';
 import Session from './Session';
-import * as JSZip from 'jszip';
+import JSZip from 'jszip';
 import { basename } from 'path';
 
 /**
@@ -117,7 +117,7 @@ export default class Element extends Locator<
     return new Task<string>(resolve => {
       const content = fs.readFileSync(filename);
 
-      let zip = new JSZip();
+      const zip = new JSZip();
       zip.file(basename(filename), content);
       zip.generateAsync({ type: 'base64' }).then(file => {
         resolve(this.session.serverPost('file', { file }));
@@ -160,7 +160,7 @@ export default class Element extends Locator<
           false,
           this
         ])
-        .then(function(element) {
+        .then(function (element) {
           if (!element) {
             const error = new Error();
             error.name = 'NoSuchElement';
@@ -174,10 +174,10 @@ export default class Element extends Locator<
       using,
       value
     })
-      .then(function(element) {
+      .then(function (element) {
         return new Element(element, session);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         // At least Firefox 49 + geckodriver returns an UnknownCommand
         // error when unable to find elements.
         if (
@@ -231,8 +231,8 @@ export default class Element extends Locator<
       });
     }
 
-    return task.then(function(elements) {
-      return elements.map(function(element) {
+    return task.then(function (elements) {
+      return elements.map(function (element) {
         return new Element(element, session);
       });
     });
@@ -393,7 +393,7 @@ export default class Element extends Locator<
           .execute<boolean>(
             'return document.body && document.body.tagName === document.body.tagName.toUpperCase();'
           )
-          .then(function(isHtml: boolean) {
+          .then(function (isHtml: boolean) {
             return isHtml ? name.toLowerCase() : name;
           });
       }
@@ -424,8 +424,8 @@ export default class Element extends Locator<
   isEnabled(): CancellablePromise<boolean> {
     if (this.session.capabilities.brokenElementEnabled) {
       return this.session.execute<boolean>(
-        /* istanbul ignore next */ function(element: HTMLElement) {
-          return !Boolean(element.hasAttribute('disabled'));
+        /* istanbul ignore next */ function (element: HTMLElement) {
+          return !element.hasAttribute('disabled');
         },
         [this]
       );
@@ -477,7 +477,7 @@ export default class Element extends Locator<
         ) {
           return this.session
             .execute<boolean>(
-              /* istanbul ignore next */ function(
+              /* istanbul ignore next */ function (
                 element: HTMLElement,
                 name: string
               ) {
@@ -485,14 +485,14 @@ export default class Element extends Locator<
               },
               [this, name]
             )
-            .then(function(hasAttribute: boolean) {
+            .then(function (hasAttribute: boolean) {
               return hasAttribute ? <string>value : null;
             });
         }
 
         return value || null;
       })
-      .then(function(value) {
+      .then(function (value) {
         // At least ios-driver 0.6.6-SNAPSHOT violates draft spec and
         // returns boolean attributes as booleans instead of the string
         // "true" or null
@@ -595,9 +595,9 @@ export default class Element extends Locator<
         return this.session.execute<boolean>(
           /* istanbul ignore next */ (element: HTMLElement) => {
             const scrollX =
-              document.documentElement!.scrollLeft || document.body.scrollLeft;
+              document.documentElement.scrollLeft || document.body.scrollLeft;
             const scrollY =
-              document.documentElement!.scrollTop || document.body.scrollTop;
+              document.documentElement.scrollTop || document.body.scrollTop;
             do {
               if (window.getComputedStyle(element).opacity === '0') {
                 return false;
@@ -633,12 +633,12 @@ export default class Element extends Locator<
         x: number;
         y: number;
       }>(
-        /* istanbul ignore next */ function(element: HTMLElement) {
+        /* istanbul ignore next */ function (element: HTMLElement) {
           const bbox = element.getBoundingClientRect();
           const scrollX =
-            document.documentElement!.scrollLeft || document.body.scrollLeft;
+            document.documentElement.scrollLeft || document.body.scrollLeft;
           const scrollY =
-            document.documentElement!.scrollTop || document.body.scrollTop;
+            document.documentElement.scrollTop || document.body.scrollTop;
 
           return { x: scrollX + bbox.left, y: scrollY + bbox.top };
         },
@@ -646,7 +646,7 @@ export default class Element extends Locator<
       );
     }
 
-    return this._get<{ x: number; y: number }>('location').then(function({
+    return this._get<{ x: number; y: number }>('location').then(function ({
       x,
       y
     }) {
@@ -666,7 +666,7 @@ export default class Element extends Locator<
         width: number;
         height: number;
       }>(
-        /* istanbul ignore next */ function(element: HTMLElement) {
+        /* istanbul ignore next */ function (element: HTMLElement) {
           const bbox = element.getBoundingClientRect();
           return {
             width: bbox.right - bbox.left,
@@ -682,7 +682,7 @@ export default class Element extends Locator<
     }
 
     return this._get<{ width: number; height: number }>('size')
-      .catch(function(error) {
+      .catch(function (error) {
         // At least ios-driver 0.6.0-SNAPSHOT April 2014 does not
         // support this command
         if (error.name === 'UnknownCommand') {
@@ -691,7 +691,7 @@ export default class Element extends Locator<
 
         throw error;
       })
-      .then(function({ width, height }) {
+      .then(function ({ width, height }) {
         // At least ChromeDriver 2.9 incorrectly returns an object with
         // an additional `toString` property
         return { width, height };
@@ -720,7 +720,7 @@ export default class Element extends Locator<
       promise = manualGetStyle();
     } else {
       promise = this._get<string>('css/$0', null, [propertyName]).catch(
-        function(error) {
+        function (error) {
           // At least Selendroid 0.9.0 does not support this command
           if (error.name === 'UnknownCommand') {
             return manualGetStyle();
@@ -738,18 +738,16 @@ export default class Element extends Locator<
       );
     }
 
-    return promise.then(function(value) {
+    return promise.then(function (value) {
       // At least ChromeDriver 2.9 and Selendroid 0.9.0 returns colour
       // values as rgb instead of rgba
       if (value) {
-        value = value.replace(/(.*\b)rgb\((\d+,\s*\d+,\s*\d+)\)(.*)/g, function(
-          _,
-          prefix,
-          rgb,
-          suffix
-        ) {
-          return prefix + 'rgba(' + rgb + ', 1)' + suffix;
-        });
+        value = value.replace(
+          /(.*\b)rgb\((\d+,\s*\d+,\s*\d+)\)(.*)/g,
+          function (_, prefix, rgb, suffix) {
+            return prefix + 'rgba(' + rgb + ', 1)' + suffix;
+          }
+        );
       }
 
       // For consistency with Firefox, missing values are always returned

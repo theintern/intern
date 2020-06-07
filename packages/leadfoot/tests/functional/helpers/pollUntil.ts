@@ -1,7 +1,7 @@
 import Command from '../../../src/Command';
 import pollUntil from '../../../src/helpers/pollUntil';
 import { createSessionFromRemote } from '../support/util';
-import { ObjectSuiteDescriptor } from 'intern/lib/interfaces/object';
+import { ObjectSuiteDescriptor } from '@theintern/core/dist/lib/interfaces/object';
 
 registerSuite('leadfoot/helpers/pollUntil', () => {
   let command: Command<any>;
@@ -21,7 +21,7 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
           .findById('makeD')
           .click()
           .then(pollUntil('return document.getElementById("d");', [], 1000))
-          .then(function(result: any) {
+          .then(function (result: any) {
             assert.property(
               result,
               'elementId',
@@ -44,7 +44,7 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
               1000
             )
           )
-          .then(function(result: any) {
+          .then(function (result: any) {
             assert.property(
               result,
               'elementId',
@@ -59,7 +59,7 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
           .findById('makeD')
           .click()
           .then(pollUntil('return document.getElementById("d");', 1000))
-          .then(function(result: any) {
+          .then(function (result: any) {
             assert.property(
               result,
               'elementId',
@@ -75,10 +75,10 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
           .click()
           .then(pollUntil('return document.getElementById("d");', [], 100, 25))
           .then(
-            function() {
+            function () {
               throw new Error('Polling should fail after a timeout');
             },
-            function(error: Error) {
+            function (error: Error) {
               assert.strictEqual(error.name, 'ScriptTimeout');
             }
           );
@@ -89,7 +89,7 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
           .get('tests/functional/data/default.html')
           .then(
             pollUntil<number | never>(
-              function() {
+              function () {
                 const anyWindow = <any>window;
                 if (!anyWindow.counter) {
                   anyWindow.counter = 0;
@@ -104,7 +104,7 @@ registerSuite('leadfoot/helpers/pollUntil', () => {
               25
             )
           )
-          .then(function(counter) {
+          .then(function (counter) {
             assert.strictEqual(counter, 4);
           });
       }

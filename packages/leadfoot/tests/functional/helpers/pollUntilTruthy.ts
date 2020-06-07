@@ -1,7 +1,7 @@
 import Command from '../../../src/Command';
 import pollUntilTruthy from '../../../src/helpers/pollUntilTruthy';
 import { createSessionFromRemote } from '../support/util';
-import { ObjectSuiteDescriptor } from 'intern/lib/interfaces/object';
+import { ObjectSuiteDescriptor } from '@theintern/core/dist/lib/interfaces/object';
 
 registerSuite('helpers/pollUntilTruthy', () => {
   let command: Command<any>;
@@ -27,7 +27,7 @@ registerSuite('helpers/pollUntilTruthy', () => {
               1000
             )
           )
-          .then(function(result) {
+          .then(function (result) {
             assert.isTrue(result, 'Expected poll result to be true');
           });
       },
@@ -43,7 +43,7 @@ registerSuite('helpers/pollUntilTruthy', () => {
               1000
             )
           )
-          .then(function(result) {
+          .then(function (result) {
             assert.isTrue(result, 'Expected poll result to be true');
           });
       },
@@ -62,10 +62,10 @@ registerSuite('helpers/pollUntilTruthy', () => {
             )
           )
           .then(
-            function() {
+            function () {
               throw new Error('Polling should fail after a timeout');
             },
-            function(error: Error) {
+            function (error: Error) {
               assert.strictEqual(error.name, 'ScriptTimeout');
             }
           );
@@ -76,7 +76,7 @@ registerSuite('helpers/pollUntilTruthy', () => {
           .get('tests/functional/data/default.html')
           .then(
             pollUntilTruthy<number | never>(
-              function() {
+              function () {
                 const anyWindow = <any>window;
                 if (!anyWindow.counter) {
                   anyWindow.counter = 0;
@@ -91,7 +91,7 @@ registerSuite('helpers/pollUntilTruthy', () => {
               25
             )
           )
-          .then(function(counter) {
+          .then(function (counter) {
             assert.strictEqual(counter, 4);
           });
       }
