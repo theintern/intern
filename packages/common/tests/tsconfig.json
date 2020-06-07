@@ -1,8 +1,9 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "declaration": false,
-    "types": ["intern"]
+    "outDir": "../_tests",
+    "types": ["@theintern/core"]
   },
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts", "../src/**/*.ts"],
+  "exclude": ["./webpack.config.ts"]
 }

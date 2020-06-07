@@ -1,13 +1,28 @@
 {
   "browser": {
-    "suites": "_build/tests/browserUnit.js"
+    "suites": "_tests/unit.js"
   },
   "node": {
-    "suites": "_build/tests/node*.js",
-    "plugins": "node_modules/ts-node/register/index.js",
+    "suites": "_tests/tests/**/*.js",
     "reporters": {
       "name": "runner",
       "options": { "hideSkipped": true, "hidePassed": false }
+    }
+  },
+  "configs": {
+    "wd": {
+      "description": "Run tests in Chrome using Selenium",
+      "tunnel": "selenium",
+      "environments": [
+        { "browserName": "node" },
+        {
+          "browserName": "chrome",
+          "fixSessionCapabilities": "no-detect"
+        }
+      ],
+      "tunnelOptions": {
+        "drivers": [{ "name": "chrome", "version": "83.0.4103.39" }]
+      }
     }
   }
 }

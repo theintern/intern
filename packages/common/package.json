@@ -4,7 +4,7 @@
   "description": "Common modules used by @theintern projects",
   "homepage": "http://theintern.io/",
   "license": "BSD-3-Clause",
-  "bugs": "https://github.com/theintern/common/issues",
+  "bugs": "https://github.com/theintern/intern/issues",
   "keywords": [
     "javascript",
     "test",
@@ -17,26 +17,22 @@
   "types": "./index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/theintern/common.git"
+    "url": "https://github.com/theintern/intern.git"
   },
   "scripts": {
-    "build": "intern-dev-clean && webpack",
-    "clean": "intern-dev-clean",
-    "release": "intern-dev-release",
+    "build": "tsc -b",
+    "clean": "shx rm -rf _build _tests",
+    "pretest": "tsc -b tests && webpack --config tests/webpack.config.ts",
     "test": "intern",
-    "precommit": "lint-staged",
-    "watch": "webpack --watch",
-    "ci": "npm run test",
-    "preci": "npm run build",
-    "devpack": "npm run build && npm pack ./_build/src"
+    "test:chrome": "intern --config @wd"
   },
   "dependencies": {
     "axios": "~0.19.0",
     "tslib": "~1.9.3"
   },
   "devDependencies": {
-    "@theintern/dev": "~0.10.2",
-    "@theintern/istanbul-loader": "~1.0.0-beta.2",
+    "@theintern-dev/tsconfig": "workspace:*",
+    "@theintern/core": "workspace:*",
     "@types/copy-webpack-plugin": "~5.0.0",
     "@types/glob": "~7.1.1",
     "@types/moxios": "~0.4.8",
@@ -46,29 +42,16 @@
     "@types/webpack-node-externals": "~1.6.3",
     "copy-webpack-plugin": "~5.0.3",
     "glob": "~7.1.4",
-    "intern": "~4.4.3",
-    "lint-staged": "~8.2.0",
+    "istanbul-instrumenter-loader": "~3.0.1",
     "moxios": "~0.4.0",
-    "pre-commit": "~1.2.2",
-    "prettier": "~1.17.1",
     "qs": "~6.7.0",
     "sinon": "~7.3.2",
     "ts-loader": "~6.0.2",
     "ts-node": "~8.2.0",
+    "typescript": "~3.9.5",
     "umd-compat-loader": "~2.1.2",
     "webpack": "~4.33.0",
     "webpack-cli": "~3.3.2",
     "webpack-node-externals": "~1.7.2"
-  },
-  "lint-staged": {
-    "*.ts": [
-      "prettier --write",
-      "git add"
-    ],
-    "{intern,tsconfig}.json": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "pre-commit": "precommit"
+  }
 }

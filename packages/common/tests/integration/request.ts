@@ -1,4 +1,4 @@
-/// <reference types="intern" />
+/// <reference types="@theintern/core" />
 
 import { createServer, Server } from 'http';
 import request, { Response } from '../../src/lib/request';
