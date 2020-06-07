@@ -8,7 +8,7 @@
   "reporters": [
     {
       "name": "runner",
-      "options": { "hideSkipped": false, "hidePassed": true }
+      "options": { "hideSkipped": false, "hidePassed": false }
     },
     "htmlcoverage"
   ],

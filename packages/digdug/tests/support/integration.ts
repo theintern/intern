@@ -1,6 +1,6 @@
 import * as nodeUtil from 'util';
 import * as util from './util';
-import { Tests } from 'intern/lib/interfaces/object';
+import { Tests } from '@theintern/core/dist/lib/interfaces/object';
 
 import Tunnel, { IOEvent, NormalizedEnvironment } from 'src/Tunnel';
 import { createCompositeHandle, Handle } from '@theintern/common';
@@ -74,14 +74,14 @@ export function addEnvironmentTest(
       const cleanup = getCleanup(tunnel, handle);
       return tunnel
         .getEnvironments()
-        .then(function(environments) {
+        .then(function (environments) {
           assert.isArray(environments);
           assert.isAbove(
             environments.length,
             0,
             'Expected at least 1 environment'
           );
-          environments.forEach(function(environment) {
+          environments.forEach(function (environment) {
             assertNormalizedProperties(environment);
             assert.property(environment, 'descriptor');
             checkEnvironment(environment.descriptor);
@@ -133,7 +133,7 @@ export function addStartStopTest(
 
       return tunnel
         .start()!
-        .then(function() {
+        .then(function () {
           clearTimeout(cleanupTimer);
           return tunnel.stop();
         })

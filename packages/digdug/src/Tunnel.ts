@@ -13,7 +13,7 @@ import { join } from 'path';
 import { format as formatUrl } from 'url';
 import { fileExists, kill, on } from './lib/util';
 import { JobState } from './interfaces';
-import * as decompress from 'decompress';
+import decompress from 'decompress';
 
 /**
  * A Tunnel is a mechanism for connecting to a WebDriver service provider that
@@ -287,7 +287,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
       return this._start(child => {
         this._process = child;
         this._handle = createCompositeHandle(
-          this._handle || { destroy: function() {} },
+          this._handle || { destroy: function () {} },
           on(child.stdout!, 'data', proxyIOEvent(this, 'stdout')),
           on(child.stderr!, 'data', proxyIOEvent(this, 'stderr')),
           on(child, 'exit', () => {
@@ -320,7 +320,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
         });
       });
 
-    return this._startTask!;
+    return this._startTask;
   }
 
   /**
@@ -398,9 +398,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
           .then(response => {
             if (response.status >= 400) {
               throw new Error(
-                `Download server returned status code ${
-                  response.status
-                } for ${url}`
+                `Download server returned status code ${response.status} for ${url}`
               );
             } else {
               response.arrayBuffer().then(data => {
@@ -471,8 +469,9 @@ export default class Tunnel extends Evented<TunnelEvents, string>
         function handleChildExit() {
           reject(
             new Error(
-              `Tunnel failed to start: ${errorMessage ||
-                `Exit code: ${exitCode}`}`
+              `Tunnel failed to start: ${
+                errorMessage || `Exit code: ${exitCode}`
+              }`
             )
           );
         }
@@ -773,7 +772,7 @@ export interface TunnelProperties extends DownloadProperties {
 export type TunnelOptions = Partial<TunnelProperties>;
 
 function proxyIOEvent(target: Tunnel, type: 'stdout' | 'stderr') {
-  return function(data: any) {
+  return function (data: any) {
     target.emit({
       type,
       target,

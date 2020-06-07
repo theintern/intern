@@ -2,8 +2,6 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "..",
-    "declaration": false,
-    "importHelpers": false,
     "lib": ["dom", "es2015"],
     "module": "commonjs",
     "outDir": "../_tests",
@@ -14,7 +12,9 @@
     // the istanbul ignore comments in the built source.
 
     // needed for istanbul directives
-    "removeComments": false
+    "removeComments": false,
+    "rootDir": "..",
+    "types": ["@theintern/core"]
   },
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts", "../src/**/*.ts", "../src/webdrivers.json"]
 }

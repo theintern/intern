@@ -1,0 +1,12 @@
+{
+  "extends": "@theintern-dev/eslint-config",
+  "rules": {
+    // These rules are temporarily disabled until the monorepo conversion is
+    // complete
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/unbound-method": "off",
+    "no-useless-escape": "off",
+    "no-empty": "off"
+  }
+}

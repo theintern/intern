@@ -1,7 +1,10 @@
 import { mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
-import { ObjectSuiteDescriptor, Tests } from 'intern/lib/interfaces/object';
+import {
+  ObjectSuiteDescriptor,
+  Tests
+} from '@theintern/core/dist/lib/interfaces/object';
 
 import SeleniumTunnel, { DriverFile } from '../../src/SeleniumTunnel';
 import { addStartStopTest } from '../support/integration';
@@ -33,7 +36,7 @@ function createDownloadTest(config: any) {
       progressed = true;
     });
 
-    return tunnel.download().then(function() {
+    return tunnel.download().then(function () {
       for (const file of expected) {
         assert.isTrue(
           existsSync(join(tunnel.directory, file)),
@@ -48,7 +51,7 @@ function createDownloadTest(config: any) {
 let tunnel: SeleniumTunnel;
 
 let tests: Tests = {
-  download: (function() {
+  download: (function () {
     const tests: any = {
       'selenium standalone': createDownloadTest({ drivers: [] })
     };
@@ -69,7 +72,7 @@ let tests: Tests = {
       { name: 'firefox', platform: 'linux' },
       { name: 'firefox', platform: 'darwin' },
       { name: 'firefox', platform: 'win32' }
-    ].forEach(function(config: any) {
+    ].forEach(function (config: any) {
       let testName = config.name;
       if (config.platform) {
         testName += '-' + config.platform;
@@ -104,7 +107,7 @@ let tests: Tests = {
     assert.isFalse(tunnel.isDownloaded);
   },
 
-  'version check': function() {
+  'version check': function () {
     const version = '2.25';
     const { arch } = process;
     tunnel = new SeleniumTunnel({

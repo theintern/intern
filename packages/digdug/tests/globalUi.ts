@@ -1,4 +1,4 @@
-/// <reference types="intern"/>
+/// <reference types="@theintern/core"/>
 /**
  * Install some commonly used test functionals globally
  */
