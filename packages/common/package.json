@@ -13,18 +13,22 @@
     "leadfoot",
     "digdug"
   ],
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "files": [
+    "dist/*",
+    "amd/*"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/theintern/intern.git"
   },
   "scripts": {
-    "build": "tsc -b",
-    "clean": "shx rm -rf _build _tests",
+    "build": "tsc -b && tsc -b tsconfig.amd.json",
+    "clean": "shx rm -rf dist _tests amd *.tsbuildinfo",
     "pretest": "tsc -b tests && webpack --config tests/webpack.config.ts",
     "test": "intern",
-    "test:chrome": "intern --config @wd"
+    "test:chrome": "intern config=@wd"
   },
   "dependencies": {
     "axios": "~0.19.0",

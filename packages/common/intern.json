@@ -3,11 +3,12 @@
     "suites": "_tests/unit.js"
   },
   "node": {
-    "suites": "_tests/tests/**/*.js",
+    "suites": "tests/**/*.ts",
     "reporters": {
       "name": "runner",
       "options": { "hideSkipped": true, "hidePassed": false }
-    }
+    },
+    "tsconfig": "tests/tsconfig.json"
   },
   "configs": {
     "wd": {

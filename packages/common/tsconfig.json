@@ -2,9 +2,8 @@
   "extends": "@theintern-dev/tsconfig",
   "compilerOptions": {
     "lib": ["es2015", "dom"],
-    "outDir": "./_build",
-    "rootDir": "."
+    "outDir": "./dist",
+    "rootDir": "src"
   },
-  "references": [{ "path": "../core" }],
   "include": ["src/**/*.ts"]
 }

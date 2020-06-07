@@ -96,11 +96,16 @@
           {
             "name": "@theintern/common",
             "location": "node_modules/@theintern/common",
-            "main": "index.js"
+            "main": "amd/index.js"
+          },
+          {
+            "name": "qs",
+            "location": "node_modules/@theintern/common/node_modules/qs",
+            "main": "dist/qs.js"
           },
           {
             "name": "axios",
-            "location": "node_modules/axios",
+            "location": "node_modules/@theintern/common/node_modules/axios",
             "main": "dist/axios.js"
           }
         ]

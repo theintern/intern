@@ -110,7 +110,7 @@ importers:
       webpack-node-externals: ~1.7.2
   packages/core:
     dependencies:
-      '@theintern/common': 0.2.3
+      '@theintern/common': 'link:../common'
       '@theintern/digdug': 2.4.6
       '@theintern/leadfoot': 2.3.2
       '@types/benchmark': 1.0.31
@@ -171,7 +171,6 @@ importers:
       '@types/systemjs': 0.20.7
       '@types/webpack': 4.4.35
       ajv: 6.10.2
-      axios: 0.19.2
       concurrently: 3.5.1
       core-js: 3.1.4
       core-js-pure: 3.1.4
@@ -194,7 +193,7 @@ importers:
       '@dojo/loader': ~2.0.0
       '@theintern-dev/eslint-config': 'workspace:*'
       '@theintern-dev/tsconfig': 'workspace:*'
-      '@theintern/common': ~0.2.3
+      '@theintern/common': 'workspace:*'
       '@theintern/digdug': ~2.4.0
       '@theintern/leadfoot': ~2.3.0
       '@types/benchmark': 1.0.31
@@ -227,7 +226,6 @@ importers:
       '@types/webpack': ~4.4.32
       '@types/ws': 6.0.1
       ajv: ~6.10.0
-      axios: ~0.19.2
       benchmark: ~2.1.4
       body-parser: ~1.19.0
       chai: ~4.2.0

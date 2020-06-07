@@ -7,6 +7,7 @@
     "resolveJsonModule": false,
     "rootDir": "src"
   },
+  "references": [{ "path": "../common" }],
   "include": [
     "src/index.ts",
     "src/bin/*.ts",
