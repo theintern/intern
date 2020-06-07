@@ -1,9 +1,9 @@
-import * as sinon from 'sinon';
-import * as _gruntTask from 'src/tasks/intern';
+import sinon from 'sinon';
+import _gruntTask from 'src/tasks/intern';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('tasks/intern', function() {
+registerSuite('tasks/intern', function () {
   const sandbox = sinon.createSandbox();
 
   let mockDone: sinon.SinonSpy<any[], void>;
@@ -41,7 +41,7 @@ registerSuite('tasks/intern', function() {
   return {
     before() {
       return mockRequire(require, 'src/tasks/intern', {
-        'src/lib/executors/Node': { default: MockNode },
+        'src/lib/executors/Node': MockNode,
         '@theintern/common': { global: {} },
         'src/lib/node/util': { getConfig: mockGetConfig }
       }).then(handle => {

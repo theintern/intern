@@ -107,9 +107,7 @@ registerSuite('lib/resolveEnvironments', {
   before() {
     return mockRequire(require, 'src/lib/resolveEnvironments', {
       'src/lib/node/process': {
-        default: {
-          cwd: () => (sep === '/' ? '/foo' : 'C:\\foo')
-        }
+        cwd: () => (sep === '/' ? '/foo' : 'C:\\foo')
       }
     }).then(handle => {
       removeMocks = handle.remove;
@@ -136,7 +134,7 @@ registerSuite('lib/resolveEnvironments', {
       assertResolveEnvironments(environments, availableChrome, environments);
     },
 
-    permutations: (function() {
+    permutations: (function () {
       const base = { platformName: 'windows', platformVersion: 8 };
 
       return {
@@ -590,7 +588,7 @@ registerSuite('lib/resolveEnvironments', {
 
       'ranged math out of bounds; throws'() {
         const environments = [{ browserName: 'ie', version: '3..latest' }];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableIe);
         });
       }
@@ -623,14 +621,14 @@ registerSuite('lib/resolveEnvironments', {
         const environments = [
           { browserName: 'ie', version: 'latest-2..latest-1..latest' }
         ];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableIe);
         }, /Invalid version syntax/);
       },
 
       'non-numeric offset'() {
         const environments = [{ browserName: 'ie', version: '10..latest-a' }];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableIe);
         }, /Invalid alias syntax/);
       },
@@ -639,28 +637,28 @@ registerSuite('lib/resolveEnvironments', {
         const environments = [
           { browserName: 'chrome', version: 'latest..latest-2' }
         ];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableChrome);
         }, /Invalid range/);
       },
 
       'offset too large'() {
         const environments = [{ browserName: 'chrome', version: 'latest-12' }];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableChrome);
         }, /versions are available/);
       },
 
       'range unavailable'() {
         const environments = [{ browserName: 'chrome', version: '1..3' }];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableChrome);
         }, /The version range .* is unavailable/);
       },
 
       'extra minuses'() {
         const environments = [{ browserName: 'chrome', version: 'latest-2-3' }];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableChrome);
         }, /Invalid alias syntax/);
       }

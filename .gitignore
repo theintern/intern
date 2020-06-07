@@ -11,8 +11,10 @@ _build/
 _examples/
 _tests/
 _publish/
+dist/
 src/**/*.js
 benchmark.json
 baselines.json
 baseline.json
 *.tgz
+*.tsbuildinfo

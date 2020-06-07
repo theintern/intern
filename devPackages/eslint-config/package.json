@@ -1,0 +1,7 @@
+{
+  "name": "@theintern-dev/eslint-config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "eslint config for Intern projects",
+  "main": "index.js"
+}

@@ -1,5 +1,5 @@
 import { stat, readFile } from 'fs';
-import * as createError from 'http-errors';
+import createError from 'http-errors';
 import { lookup } from 'mime-types';
 import { join, resolve } from 'path';
 import { RequestHandler } from 'express';

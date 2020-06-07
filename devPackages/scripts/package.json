@@ -1,0 +1,26 @@
+{
+  "name": "@theintern-dev/scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Development scripts for intern projects",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "shx rm -rf dist *.tsbuildinfo",
+    "watch": "tsc -b --watch"
+  },
+  "bin": {
+    "dev-apidoc": "bin/dev-apidoc.js",
+    "dev-version": "bin/dev-version.js"
+  },
+  "dependencies": {
+    "glob": "~7.1.6",
+    "semver": "~7.3.2",
+    "tslib": "~2.0.0",
+    "typedoc": "~0.17.7"
+  },
+  "devDependencies": {
+    "@theintern-dev/tsconfig": "workspace:*",
+    "@types/glob": "~7.1.1",
+    "@types/semver": "~7.2.0"
+  }
+}

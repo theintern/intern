@@ -1,20 +1,20 @@
 {
-  "extends": "./node_modules/@theintern/dev/tsconfig-base.json",
+  "extends": "@theintern-dev/tsconfig",
   "compilerOptions": {
-    "declaration": true,
     "lib": ["dom", "es2015"],
-    // Build as UMD for compatibility with AMD loaders
     "module": "umd",
     "outDir": "./_build",
+    "resolveJsonModule": false,
     "rootDir": "."
   },
   "include": [
+    "src/index.ts",
     "src/bin/*.ts",
     "src/loaders/*.ts",
     "src/tasks/*.ts",
 
     // Build everything in lib (vs just relying on the bin entry point) so
     // it'll be available for testing
-    "src/lib/*.ts"
+    "src/lib/**/*.ts"
   ]
 }

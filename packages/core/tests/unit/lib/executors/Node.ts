@@ -9,7 +9,7 @@ import { testProperty } from '../../../support/unit/executor';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/executors/Node', function() {
+registerSuite('lib/executors/Node', function () {
   function createExecutor(config?: Partial<Config>) {
     const executor = new Node(config);
     executor.registerLoader((_options: any) => (_modules: string[]) =>
@@ -242,7 +242,7 @@ registerSuite('lib/executors/Node', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/executors/Node', {
-        'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
+        'src/lib/common/ErrorFormatter': MockErrorFormatter,
         'src/lib/common/console': mockConsole,
         'src/lib/node/util': mockNodeUtil,
         chai: mockChai,
@@ -254,13 +254,13 @@ registerSuite('lib/executors/Node', function() {
           Task,
           deepMixin
         },
-        'src/lib/reporters/Pretty': { default: MockReporter },
-        'src/lib/reporters/Runner': { default: MockReporter },
-        'src/lib/reporters/Simple': { default: MockReporter },
-        'src/lib/reporters/JsonCoverage': { default: MockReporter },
-        'src/lib/reporters/HtmlCoverage': { default: MockReporter },
-        'src/lib/reporters/Lcov': { default: MockReporter },
-        'src/lib/reporters/Benchmark': { default: MockReporter },
+        'src/lib/reporters/Pretty': MockReporter,
+        'src/lib/reporters/Runner': MockReporter,
+        'src/lib/reporters/Simple': MockReporter,
+        'src/lib/reporters/JsonCoverage': MockReporter,
+        'src/lib/reporters/HtmlCoverage': MockReporter,
+        'src/lib/reporters/Lcov': MockReporter,
+        'src/lib/reporters/Benchmark': MockReporter,
         'istanbul-lib-coverage': {
           classes: {
             FileCoverage: {
@@ -294,18 +294,17 @@ registerSuite('lib/executors/Node', function() {
         'ts-node': {
           register: mockTsNodeRegister
         },
-        'src/lib/Server': { default: MockServer },
-        'src/lib/resolveEnvironments': {
-          default: () => {
-            return ['foo env'];
-          }
+        'src/lib/Server': MockServer,
+        'src/lib/resolveEnvironments': () => {
+          return ['foo env'];
         },
-        '@theintern/leadfoot/Command': { default: MockCommand },
-        '@theintern/leadfoot/Server': { default: MockLeadfootServer },
-        '@theintern/digdug/NullTunnel': { default: MockTunnel },
-        '@theintern/digdug/BrowserStackTunnel': { default: MockTunnel },
-        'src/lib/ProxiedSession': { default: MockSession },
-        'src/lib/RemoteSuite': { default: MockRemoteSuite }
+        '@theintern/leadfoot/Command': MockCommand,
+        '@theintern/leadfoot/Server': MockLeadfootServer,
+        '@theintern/digdug/NullTunnel': MockTunnel,
+        '@theintern/digdug/BrowserStackTunnel': MockTunnel,
+        '@theintern/digdug/SeleniumTunnel': MockTunnel,
+        'src/lib/ProxiedSession': MockSession,
+        'src/lib/RemoteSuite': MockRemoteSuite
       }).then(handle => {
         removeMocks = handle.remove;
         Node = handle.module.default;
@@ -793,8 +792,9 @@ registerSuite('lib/executors/Node', function() {
 
           tests: {
             'good script'() {
+              // will be run from project/_tests
               const module = require.resolve(
-                '../../data/lib/executors/intern.js'
+                '../../../../../tests/unit/data/lib/executors/intern.js'
               );
               assert.isUndefined(
                 require.cache[module],
@@ -808,12 +808,12 @@ registerSuite('lib/executors/Node', function() {
             },
 
             'good node_module'() {
-              const module = require.resolve('commander');
+              const module = require.resolve('ajv');
               assert.isUndefined(
                 require.cache[module],
                 'expected test module not to be loaded already'
               );
-              executor.loadScript('commander');
+              executor.loadScript('ajv');
               assert.isDefined(
                 require.cache[module],
                 'expected module to have been loaded'
@@ -857,7 +857,7 @@ registerSuite('lib/executors/Node', function() {
             executor.on(
               'beforeRun',
               dfd.callback(() => {
-                for (let call of mockConsole.warn.getCalls()) {
+                for (const call of mockConsole.warn.getCalls()) {
                   assert.include(
                     call.args[0],
                     'deprecated',
@@ -970,7 +970,7 @@ registerSuite('lib/executors/Node', function() {
           });
           return executor.run().then(() => {
             assert.deepEqual(
-              (<any>executor.config.tunnelOptions!).servers,
+              executor.config.tunnelOptions.servers,
               [executor.config.serverUrl],
               'unexpected value for tunnelOptions.servers'
             );
@@ -1085,7 +1085,10 @@ registerSuite('lib/executors/Node', function() {
                   tests: [],
                   parent,
                   run() {
-                    suiteTask = new Task<void>(() => {}, () => {});
+                    suiteTask = new Task<void>(
+                      () => {},
+                      () => {}
+                    );
                     return suiteTask;
                   }
                 });
@@ -1175,7 +1178,7 @@ registerSuite('lib/executors/Node', function() {
             });
             return executor.run().then(() => {
               assert.sameDeepMembers(
-                (<any>executor.config.tunnelOptions!).drivers,
+                executor.config.tunnelOptions.drivers!,
                 [
                   { name: 'chrome' },
                   { name: 'firefox' },
@@ -1197,11 +1200,11 @@ registerSuite('lib/executors/Node', function() {
             });
             return executor.run().then(() => {
               assert.sameDeepMembers(
-                (<any>executor.config.tunnelOptions!).drivers,
+                executor.config.tunnelOptions.drivers!,
                 [
                   'chrome',
                   { name: 'firefox' },
-                  { name: 'internet explorer', options: {} }
+                  { name: 'internet explorer', options: {} } as any
                 ],
                 'unexpected value for tunnelOptions.drivers'
               );

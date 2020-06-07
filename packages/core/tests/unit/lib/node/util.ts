@@ -6,7 +6,7 @@ import * as _util from 'src/lib/node/util';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/node/util', function() {
+registerSuite('lib/node/util', function () {
   let util: typeof _util;
 
   const mockFs = {
@@ -133,7 +133,7 @@ registerSuite('lib/node/util', function() {
         glob: mockGlob,
         path: mockPath,
         'src/lib/common/util': mockUtil,
-        'src/lib/node/process': { default: mockProcess }
+        'src/lib/node/process': mockProcess
       }).then(handle => {
         removeMocks = handle.remove;
         util = handle.module;

@@ -1,13 +1,15 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "..",
-    "declaration": false,
+    "module": "umd",
     "outDir": "../_tests",
     "paths": {
-      "src/*": ["_build/src/*", "src/*"]
-    }
+      "src": ["src/*"]
+    },
+    "resolveJsonModule": false,
+    "rootDir": ".."
   },
-  "extends": "../tsconfig.json",
   "include": [
     "./globals.d.ts",
     "./benchmark/example.ts",
@@ -40,12 +42,12 @@
     "./unit/lib/reporters/Simple.ts",
     "./unit/lib/reporters/TeamCity.ts",
     "./unit/lib/reporters/TextCoverage.ts",
+    "./unit/lib/reporters/support/*.ts",
     "./unit/lib/*.ts",
     "./unit/loaders/*.ts",
     "./unit/tasks/*.ts",
     "./functional/lib/*.ts",
-    "../src/bin/*.ts",
-    "../src/loaders/*.ts",
-    "../src/lib/typings.d.ts"
-  ]
+    "../src/**/*.ts"
+  ],
+  "exclude": ["../src/browser/**/*.ts"]
 }

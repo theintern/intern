@@ -1,6 +1,6 @@
 import { STATUS_CODES } from 'http';
-import * as createError from 'http-errors';
-import * as sinon from 'sinon';
+import createError from 'http-errors';
+import sinon from 'sinon';
 
 import _Server from 'src/lib/Server';
 import {
@@ -64,7 +64,7 @@ function assertPropertyLength(
 
 let removeMocks: () => void;
 
-registerSuite('lib/Server', function() {
+registerSuite('lib/Server', function () {
   // These classes below access closured data, so they're defined in here
 
   class MockWebSocketServer extends MockServer {
@@ -119,8 +119,8 @@ registerSuite('lib/Server', function() {
     urlencoded: sandbox.spy((..._args: any[]) => urlEncodedHandler)
   };
 
-  let fs = mockFs();
-  let path = mockPath();
+  const fs = mockFs();
+  const path = mockPath();
 
   const internStaticHandler = sandbox.stub();
   const baseStaticHandler = sandbox.stub();
@@ -139,7 +139,7 @@ registerSuite('lib/Server', function() {
   function mockMiddleware(error = false) {
     const handler = sandbox.stub();
     const wrapper = error
-      ? function(this: any, req: any, res: any, next: any, err: any) {
+      ? function (this: any, req: any, res: any, next: any, err: any) {
           return handler.call(this, req, res, next, err);
           // tslint:disable-next-line:indent
         }
@@ -166,10 +166,10 @@ registerSuite('lib/Server', function() {
         path,
         http: mockHttp,
         ws: mockWebSocket,
-        'src/lib/middleware/instrument': { default: instrument },
-        'src/lib/middleware/post': { default: post },
-        'src/lib/middleware/unhandled': { default: unhandled },
-        'src/lib/middleware/finalError': { default: finalError },
+        'src/lib/middleware/instrument': instrument,
+        'src/lib/middleware/post': post,
+        'src/lib/middleware/unhandled': unhandled,
+        'src/lib/middleware/finalError': finalError,
         'serve-static/index': mockServeStatic,
         express: null,
         'express/lib/express': null,

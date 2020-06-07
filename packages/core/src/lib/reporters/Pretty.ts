@@ -1,4 +1,4 @@
-import * as charm from 'charm';
+import charm from 'charm';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { format } from 'util';
 import { global } from '@theintern/common';
@@ -71,8 +71,8 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
     this._charm = this._charm || this._newCharm();
 
     const resize = () => {
-      this.dimensions.width = (<any>global.process.stdout).columns || 80;
-      this.dimensions.height = (<any>global.process.stdout).rows || 24;
+      this.dimensions.width = global.process.stdout.columns || 80;
+      this.dimensions.height = global.process.stdout.rows || 24;
     };
 
     resize();
@@ -356,7 +356,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
     return result.join(' ');
   }
 
-  private _render(omitLogs: boolean = false) {
+  private _render(omitLogs = false) {
     const charm = this._charm!;
     const numReports = Object.keys(this._reports).length;
     const logLength =
@@ -531,11 +531,7 @@ function pad(width: number): string {
   return PAD.slice(0, Math.max(width, 0));
 }
 
-function fit(
-  text: string | number,
-  width: number,
-  padLeft: boolean = false
-): string {
+function fit(text: string | number, width: number, padLeft = false): string {
   text = String(text);
   if (text.length < width) {
     if (padLeft) {

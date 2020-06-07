@@ -17,7 +17,7 @@ function createExecutor(config?: Partial<Config>) {
   return executor;
 }
 
-registerSuite('lib/executors/Browser', function() {
+registerSuite('lib/executors/Browser', function () {
   class MockErrorFormatter {
     format(error: Error) {
       return 'Foo: ' + error.message;
@@ -86,7 +86,7 @@ registerSuite('lib/executors/Browser', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/executors/Browser', {
-        'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
+        'src/lib/common/ErrorFormatter': MockErrorFormatter,
         'src/lib/common/console': mockConsole,
         'src/lib/browser/util': mockUtil,
         chai: mockChai,

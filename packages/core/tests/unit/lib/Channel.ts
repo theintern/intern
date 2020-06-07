@@ -12,8 +12,8 @@ let removeMocks: () => void;
 registerSuite('lib/Channel', {
   before() {
     return mockRequire(require, 'src/lib/Channel', {
-      'src/lib/channels/WebSocket': { default: MockWebSocket },
-      'src/lib/channels/Http': { default: MockHttp }
+      'src/lib/channels/WebSocket': MockWebSocket,
+      'src/lib/channels/Http': MockHttp
     }).then(handle => {
       removeMocks = handle.remove;
       Channel = handle.module.default;

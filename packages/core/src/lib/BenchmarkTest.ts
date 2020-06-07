@@ -2,9 +2,9 @@ import { Task, CancellablePromise } from '@theintern/common';
 
 // Explicitly require benchmark dependencies and attach Benchmark to them to
 // improve WebPack compatibility
-import * as _ from 'lodash';
-import * as platform from 'platform';
-import * as Benchmark from 'benchmark';
+import _ from 'lodash';
+import platform from 'platform';
+import Benchmark from 'benchmark';
 
 import Test, {
   isTest,
@@ -43,7 +43,7 @@ export default class BenchmarkTest extends Test {
     });
 
     const testArgs = args as TestOptions;
-    testArgs.test = testArgs.test || /* istanbul ignore next */ function() {};
+    testArgs.test = testArgs.test || /* istanbul ignore next */ function () {};
 
     super(testArgs);
 
@@ -58,9 +58,9 @@ export default class BenchmarkTest extends Test {
     );
 
     if (options.defer) {
-      this.test = (function(testFunction: BenchmarkTestFunction) {
+      this.test = (function (testFunction: BenchmarkTestFunction) {
         return <BenchmarkDeferredTestFunction>(
-          function(this: BenchmarkTest, deferred?: Deferred<any>) {
+          function (this: BenchmarkTest, deferred?: Deferred<any>) {
             // deferred is optional for compat with
             // BenchmarkTestFunction, but it will always be defined here
             const dfd = createDeferred(
@@ -274,7 +274,7 @@ function createDeferred(
 
     rejectOnError(this: any, callback: Function) {
       const self = this;
-      return function(this: any) {
+      return function (this: any) {
         try {
           return callback.apply(this, arguments);
         } catch (error) {
@@ -283,9 +283,9 @@ function createDeferred(
       };
     },
 
-    callback: function(this: any, callback: Function) {
+    callback: function (this: any, callback: Function) {
       const self = this;
-      return this.rejectOnError(function(this: any) {
+      return this.rejectOnError(function (this: any) {
         const returnValue = callback.apply(this, arguments);
         self.resolve();
         return returnValue;

@@ -1,0 +1,7 @@
+{
+  "name": "@theintern-dev/tsconfig",
+  "version": "1.0.0",
+  "private": true,
+  "description": "tsconfig for Intern projects",
+  "main": "tsconfig.json"
+}

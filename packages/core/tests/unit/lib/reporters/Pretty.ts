@@ -1,8 +1,10 @@
 import { spy, SinonSpy } from 'sinon';
 import * as tty from 'tty';
+import { CoverageMapData } from 'istanbul-lib-coverage';
 
 import RemoteSuite from 'src/lib/RemoteSuite';
-import _Pretty, { Result } from 'src/lib/reporters/Pretty';
+import _Pretty, { Report, Result } from 'src/lib/reporters/Pretty';
+import Suite from 'src/lib/Suite';
 
 import {
   createMockCharm,
@@ -179,19 +181,19 @@ registerSuite('intern/lib/reporters/Pretty', () => {
       },
 
       coverage() {
-        const report = pretty['_getReport']({ sessionId: 'foo' });
+        const report = pretty['_getReport']({ sessionId: 'foo' } as Suite);
         pretty.coverage({
           sessionId: 'foo',
           coverage: { functions: 5 }
         });
         assert.equal(
-          report.coverageMap.merge.callCount,
+          (report.coverageMap.merge as SinonSpy).callCount,
           1,
           'coverage data should have been merged into report'
         );
         assert.deepEqual(
           report.coverageMap.data,
-          { functions: 5 },
+          ({ functions: 5 } as unknown) as CoverageMapData,
           'expected coverage data to have been merged into sourcemap'
         );
       },
@@ -306,14 +308,14 @@ registerSuite('intern/lib/reporters/Pretty', () => {
           }
 
           assert.equal(
-            fooReport[testType],
+            fooReport[testType as keyof Report],
             1,
             'expected suite report to include suite test count'
           );
 
           const totalReport: typeof fooReport = pretty['_total'];
           assert.equal(
-            totalReport[testType],
+            totalReport[testType as keyof Report],
             1,
             'expected total report to include suite test count'
           );
@@ -411,7 +413,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
               platform: 'MAC'
             }
           }
-        });
+        } as Suite);
 
         // Set a total value so the progress bar will draw
         report.numTotal = 3;

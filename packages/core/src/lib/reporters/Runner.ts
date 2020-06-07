@@ -1,4 +1,4 @@
-import * as charm from 'charm';
+import charm from 'charm';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { Writable } from 'stream';
 
@@ -193,9 +193,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
   serverStart(server: Server) {
     if (this.executor.config.serveOnly) {
       this.charm.write(
-        `To use the browser client, browse to\n\n  ${
-          this.executor.config.serverUrl
-        }__intern/\n\n`
+        `To use the browser client, browse to\n\n  ${this.executor.config.serverUrl}__intern/\n\n`
       );
       this.charm.write('Press CTRL-C to stop serving\n\n');
     } else {

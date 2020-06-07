@@ -1,8 +1,8 @@
 import { json, urlencoded } from 'body-parser';
-import * as express from 'express';
+import express from 'express';
 import { Server as HttpServer } from 'http';
 import { Socket } from 'net';
-import * as WebSocket from 'ws';
+import WebSocket from 'ws';
 import { Handle } from '@theintern/common';
 
 import { pullFromArray } from './common/util';
@@ -87,9 +87,7 @@ export default class Server implements ServerProperties {
       wsServer.on('error', error => {
         if (isErrnoException(error) && error.code === 'EADDRINUSE') {
           const err: NodeJS.ErrnoException = new Error(
-            `Something is already listening on the websocket server port (${
-              this.socketPort
-            })`
+            `Something is already listening on the websocket server port (${this.socketPort})`
           );
           err.code = error.code;
           err.errno = error.errno;
@@ -267,8 +265,8 @@ export default class Server implements ServerProperties {
     const listeners = this._getSession(sessionId).listeners;
     listeners.push(listener);
     return {
-      destroy: function(this: any) {
-        this.destroy = function() {};
+      destroy: function (this: any) {
+        this.destroy = function () {};
         pullFromArray(listeners, listener);
       }
     };

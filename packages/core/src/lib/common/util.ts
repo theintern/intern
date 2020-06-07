@@ -2,7 +2,6 @@ import { CancellablePromise, deepMixin } from '@theintern/common';
 
 import { Config, ResourceConfig } from './config';
 import { Events, Executor, PluginDescriptor } from '../executors/Executor';
-import { TextLoader } from './util';
 import { getPathSep, join, normalize } from './path';
 import { InternError } from '../types';
 

@@ -33,7 +33,7 @@ function assertRunFails(executor: ExecutorType, errorMatcher: RegExp) {
   );
 }
 
-registerSuite('lib/executors/Executor', function() {
+registerSuite('lib/executors/Executor', function () {
   class MockErrorFormatter {
     format(error: Error) {
       return 'Foo: ' + error.message;
@@ -83,7 +83,7 @@ registerSuite('lib/executors/Executor', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/executors/Executor', {
-        'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
+        'src/lib/common/ErrorFormatter': MockErrorFormatter,
         'src/lib/common/console': mockConsole,
         chai: mockChai,
         '@theintern/common': {
@@ -504,7 +504,7 @@ registerSuite('lib/executors/Executor', function() {
       },
 
       '#log'() {
-        let logger = spy((..._args: any[]) => {});
+        const logger = spy((..._args: any[]) => {});
         executor.on('log', logger);
         executor.log('testing');
         assert.equal(logger.callCount, 0, 'log should not have been emitted');
@@ -518,7 +518,7 @@ registerSuite('lib/executors/Executor', function() {
               assert.equal(logger.callCount, 1, 'log should have been emitted');
               assert.match(
                 logger.getCall(0).args[0],
-                /^testing .*Error.*foo.* function \(\) {[^]*} \/bar\/ 5$/,
+                /^testing .*Error.*foo.* \/bar\/ 5$/,
                 'expected all args to have been serialized in log message'
               );
             });
@@ -696,7 +696,7 @@ registerSuite('lib/executors/Executor', function() {
 
         'custom reporter'() {
           executor.registerPlugin('reporter.foo', () => {
-            const CustomReporter = function() {};
+            const CustomReporter = function () {};
             return Promise.resolve(CustomReporter);
           });
           executor.configure({ reporters: <any>'foo' });

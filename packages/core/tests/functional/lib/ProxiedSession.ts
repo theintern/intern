@@ -7,17 +7,14 @@ import { Remote } from 'src/lib/executors/Node';
 // Bring in Test and TestFunction from testing src rather than the src being
 // tested
 import Test, { TestFunction } from '../../../src/lib/Test';
-import registerSuite, {
-  ObjectSuiteDescriptor
-} from '../../../src/lib/interfaces/object';
-import { assert } from 'chai';
+import { ObjectSuiteDescriptor } from '../../../src/lib/interfaces/object';
 
 registerSuite('lib/ProxiedSession (functional)', () => {
   const serverUrl = 'https://example.invalid/';
   let session: ProxiedSession | null;
   let numGetCalls: number;
   let lastUrl: string | null;
-  let mockCoverage = { isMockCoverage: true };
+  const mockCoverage = { isMockCoverage: true };
 
   function sleep(ms: number) {
     return new Promise(resolve => {
@@ -47,12 +44,12 @@ registerSuite('lib/ProxiedSession (functional)', () => {
 
     session.baseUrl = serverUrl;
 
-    session.serverGet = <any>function() {
+    session.serverGet = <any>function () {
       ++numGetCalls;
       return Task.resolve(lastUrl);
     };
 
-    session.serverPost = <any>function(path: string, data: any) {
+    session.serverPost = <any>function (path: string, data: any) {
       if (path === 'url') {
         lastUrl = data.url;
       } else if (
@@ -67,7 +64,7 @@ registerSuite('lib/ProxiedSession (functional)', () => {
       return Task.resolve();
     };
 
-    session.server.deleteSession = function() {
+    session.server.deleteSession = function () {
       return Task.resolve();
     };
 
@@ -75,7 +72,7 @@ registerSuite('lib/ProxiedSession (functional)', () => {
   }
 
   function createCoverageTest(method: 'get' | 'quit'): TestFunction {
-    return function(this: Test) {
+    return function (this: Test) {
       let coverage: any;
       const _session = session!;
 
@@ -83,13 +80,13 @@ registerSuite('lib/ProxiedSession (functional)', () => {
       // get coverage if the browser location isn't an http/https URL.
       // This is reasonable since the typical case will be to get coverage
       // from a loaded page.
-      let task = _session.get('http://example.invalid/');
+      const task = _session.get('http://example.invalid/');
 
       return task
         .then(() => {
           _session.coverageVariable = '__testCoverage';
           _session.executor.emit = <any>(
-            function(eventName: string, value: any) {
+            function (eventName: string, value: any) {
               if (eventName === 'coverage') {
                 coverage = value;
               }
@@ -125,7 +122,7 @@ registerSuite('lib/ProxiedSession (functional)', () => {
     },
 
     beforeEach() {
-      return session!.setHeartbeatInterval(0).then(function() {
+      return session!.setHeartbeatInterval(0).then(function () {
         numGetCalls = 0;
         lastUrl = null;
       });
@@ -137,7 +134,7 @@ registerSuite('lib/ProxiedSession (functional)', () => {
 
     tests: {
       '#get URL'() {
-        return session!.get('http://example.invalid/').then(function() {
+        return session!.get('http://example.invalid/').then(function () {
           assert.strictEqual(
             lastUrl,
             'http://example.invalid/',
@@ -147,7 +144,7 @@ registerSuite('lib/ProxiedSession (functional)', () => {
       },
 
       '#get local file'() {
-        return session!.get('test').then(function() {
+        return session!.get('test').then(function () {
           assert.strictEqual(
             lastUrl,
             serverUrl + 'test',
@@ -170,10 +167,10 @@ registerSuite('lib/ProxiedSession (functional)', () => {
         // method)
         return _session
           .setHeartbeatInterval(50)
-          .then(function() {
+          .then(function () {
             return sleep(250);
           })
-          .then(function() {
+          .then(function () {
             // Should be about 5 calls in 250ms
             assert.closeTo(
               numGetCalls,
@@ -183,11 +180,11 @@ registerSuite('lib/ProxiedSession (functional)', () => {
             );
             return _session.setHeartbeatInterval(0);
           })
-          .then(function() {
+          .then(function () {
             lastNumGetCalls = numGetCalls;
             return sleep(100);
           })
-          .then(function() {
+          .then(function () {
             assert.strictEqual(
               numGetCalls,
               lastNumGetCalls,
