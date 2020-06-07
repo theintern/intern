@@ -25,7 +25,11 @@ const common: Configuration = {
           loader: 'ts-loader',
           options: {
             silent: true,
-            configFile: 'tsconfig.json'
+            onlyCompileBundledFiles: true,
+            configFile: join(__dirname, 'tsconfig.json'),
+            compilerOptions: {
+              module: 'esnext'
+            }
           }
         }
       }
@@ -56,15 +60,15 @@ module.exports = [
     entry: getEntries(),
     output: {
       filename: '[name].js',
-      path: join(__dirname, 'dist/browser')
+      path: join(__dirname, '..', '_tests', 'src', 'browser')
     }
   }
 ];
 
 function getEntries() {
   return {
-    intern: './src/browser/intern.ts',
-    remote: './src/browser/remote.ts',
-    config: './src/browser/config.ts'
+    intern: join(__dirname, '..', 'src', 'browser', 'intern.ts'),
+    remote: join(__dirname, '..', 'src', 'browser', 'remote.ts'),
+    config: join(__dirname, '..', 'src', 'browser', 'config.ts')
   };
 }

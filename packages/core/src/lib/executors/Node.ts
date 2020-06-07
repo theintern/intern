@@ -670,7 +670,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       }
 
       if (!config.internPath) {
-        config.internPath = dirname(dirname(__dirname));
+        config.internPath = dirname(dirname(dirname(__dirname)));
 
         // If internPath isn't under cwd, intern is most likely
         // symlinked into the project's node_modules. In that case, use
@@ -679,9 +679,11 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           // nodeResolve will resolve to index.js; we want the base
           // intern directory
           config.internPath = dirname(
-            nodeResolve('intern', {
-              basedir: process.cwd()
-            })
+            dirname(
+              nodeResolve('@theintern/core', {
+                basedir: process.cwd()
+              })
+            )
           );
         }
       }
@@ -728,7 +730,8 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // Ensure URLs end with a '/'
       (['serverUrl', 'functionalBaseUrl'] as (
         | 'serverUrl'
-        | 'functionalBaseUrl')[]).forEach(property => {
+        | 'functionalBaseUrl'
+      )[]).forEach(property => {
         if (config[property]) {
           config[property] = config[property]!.replace(/\/*$/, '/');
         }

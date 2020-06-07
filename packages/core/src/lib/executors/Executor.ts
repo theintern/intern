@@ -336,9 +336,7 @@ export default abstract class BaseExecutor<
       } else if (eventName === 'deprecated') {
         const message: Events['deprecated'] = <any>data!;
         console.warn(
-          `WARNING: ${message.original} is deprecated, use ${
-            message.replacement
-          } instead.`
+          `WARNING: ${message.original} is deprecated, use ${message.replacement} instead.`
         );
       }
 
@@ -484,7 +482,7 @@ export default abstract class BaseExecutor<
 
     const handle: Handle = {
       destroy(this: any) {
-        this.destroy = function() {};
+        this.destroy = function () {};
         pullFromArray(listeners, listener);
       }
     };
@@ -887,7 +885,7 @@ export default abstract class BaseExecutor<
         case 'dojo2':
         case 'esm':
         case 'systemjs':
-          script = `${config.internPath}loaders/${script}.js`;
+          script = `${config.internPath}dist/loaders/${script}.js`;
       }
 
       this._loaderOptions = loader.options || {};
@@ -973,7 +971,7 @@ export default abstract class BaseExecutor<
     // _resolveSuites will expand all suites into <env>.suites for the
     // current env
     const suites = this.config[this.environment].suites;
-    return Task.resolve(this._loader(suites!)).then(() => {
+    return Task.resolve(this._loader(suites)).then(() => {
       this.log('Loaded suites:', suites);
     });
   }

@@ -1,4 +1,4 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 
 import post from 'src/lib/middleware/post';
 import {
@@ -9,7 +9,7 @@ import {
   createMockServerContext
 } from '../../../support/unit/mocks';
 
-registerSuite('lib/middleware/post', function() {
+registerSuite('lib/middleware/post', function () {
   let handler: (request: any, response: any, next: any) => void;
   let request: MockRequest;
   let response: MockResponse;

@@ -102,7 +102,7 @@ export default class Browser extends Executor<Events, Config, Plugins> {
         for (let i = 0; i < scripts.length; i++) {
           const scriptPath = scripts[i].src;
           if (/browser\/intern.js/.test(scriptPath)) {
-            config.internPath = dirname(dirname(scriptPath));
+            config.internPath = dirname(dirname(dirname(scriptPath)));
           }
         }
 

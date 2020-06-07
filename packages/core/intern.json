@@ -1,9 +1,9 @@
 {
-  "$schema": "./src/schemas/config.json",
+  "$schema": "./schemas/config.json",
 
   "description": "Run tests on Node, excluding the benchmark tests",
 
-  "coverage": ["_build/src/**/*.js", "!_build/src/browser/**/*.js"],
+  "coverage": ["dist/**/*.js", "!dist/browser/**/*.js"],
 
   "suites": [
     "_tests/tests/benchmark/example.js",
@@ -34,6 +34,7 @@
       "_tests/tests/unit/tasks/**/*.js"
     ],
     "plugins": [
+      "_tests/tests/support/nodeAlias.js",
       "_tests/tests/support/nodeMocking.js",
       "_tests/tests/support/nodeDom.js",
       "source-map-support/register",
@@ -66,7 +67,7 @@
           }
         },
         "packages": [
-          { "name": "src", "location": "_build/src" },
+          { "name": "src", "location": "dist" },
           {
             "name": "benchmark",
             "location": "node_modules/benchmark",
@@ -109,7 +110,7 @@
 
   "benchmark": false,
   "filterErrorStack": true,
-  "internPath": "_tests/src",
+  "internPath": ".",
 
   "configs": {
     "progress": {

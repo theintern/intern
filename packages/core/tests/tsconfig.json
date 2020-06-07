@@ -5,7 +5,7 @@
     "module": "umd",
     "outDir": "../_tests",
     "paths": {
-      "src": ["src/*"]
+      "src": ["./src"]
     },
     "resolveJsonModule": false,
     "rootDir": ".."

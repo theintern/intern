@@ -1,4 +1,4 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 
 import _instrument from 'src/lib/middleware/instrument';
 import Server from 'src/lib/Server';
@@ -16,7 +16,7 @@ import { Stats } from 'fs';
 const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 const testPath = normalize('/base/foo/thing.js');
 
-registerSuite('lib/middleware/instrument', function() {
+registerSuite('lib/middleware/instrument', function () {
   let instrument: typeof _instrument;
   let removeMocks: () => void;
 
@@ -126,10 +126,10 @@ registerSuite('lib/middleware/instrument', function() {
             sandbox.stub(fs, 'stat').callsFake((path, callback) => {
               const data = fs.__fileData[testPath];
               fs.__fileData[testPath] = undefined;
-              callback(null, (new MockStats(
-                path,
-                data!.type
-              ) as unknown) as Stats);
+              callback(
+                null,
+                (new MockStats(path, data!.type) as unknown) as Stats
+              );
             });
             handler(request, response, next);
 

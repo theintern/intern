@@ -6,8 +6,8 @@ import { Remote } from 'src/lib/executors/Node';
 
 // Bring in Test and TestFunction from testing src rather than the src being
 // tested
-import Test, { TestFunction } from '../../../src/lib/Test';
-import { ObjectSuiteDescriptor } from '../../../src/lib/interfaces/object';
+import Test, { TestFunction } from 'src/lib/Test';
+import { ObjectSuiteDescriptor } from 'src/lib/interfaces/object';
 
 registerSuite('lib/ProxiedSession (functional)', () => {
   const serverUrl = 'https://example.invalid/';

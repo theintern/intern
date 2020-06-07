@@ -3,9 +3,9 @@
   "compilerOptions": {
     "lib": ["dom", "es2015"],
     "module": "umd",
-    "outDir": "./_build",
+    "outDir": "./dist",
     "resolveJsonModule": false,
-    "rootDir": "."
+    "rootDir": "src"
   },
   "include": [
     "src/index.ts",

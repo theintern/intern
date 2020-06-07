@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Intern</title>
-		<link rel="shortcut icon" type="image/png" href="../favicon.png"/>
+		<link rel="shortcut icon" type="image/png" href="favicon.png"/>
 
 		<!-- Hey you, listen up:
 	    ____             _  __     __                   __
@@ -20,6 +20,38 @@
 	</head>
 	<body>
 		<!-- Load intern code in the body because Html reporter needs a DOM -->
-		<script src="remote.js"></script>
+		<script src="dist/browser/intern.js"></script>
+		<script src="dist/browser/config.js"></script>
+		<script>
+		internConfig.getConfig()
+			.then(function (result) {
+				var config = result.config;
+				if (config.showConfigs) {
+					console.log(getConfigDescription(config));
+					return true;
+				}
+
+				if (!result.file) {
+					console.warn('No config file was found');
+				}
+
+				// Add the HTML and console reporters to the default
+				intern.configure({ reporters: ['html', 'console'] });
+				intern.configure(config);
+			})
+			.then(
+				function (skipTests) {
+					if (skipTests) {
+						return;
+					}
+
+					// Intern automatically reports run errors, so discard one if we get it
+					intern.run().catch(function (_error) {});
+				},
+				function (error) {
+					console.error('Error initializing Intern:', error);
+				}
+			);
+		</script>
 	</body>
 </html>
