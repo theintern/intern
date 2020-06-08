@@ -11,8 +11,8 @@ import {
 } from 'istanbul-lib-hook';
 import { register } from 'ts-node';
 import { global, Task, CancellablePromise, deepMixin } from '@theintern/common';
-import Command from '@theintern/leadfoot/Command';
-import LeadfootServer from '@theintern/leadfoot/Server';
+import Command from '@theintern/leadfoot/dist/Command';
+import LeadfootServer from '@theintern/leadfoot/dist/Server';
 import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/dist/Tunnel';
 
 // Dig Dug tunnels
@@ -440,7 +440,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    * run.
    */
   protected _createSessionSuites() {
-    const tunnel = this.tunnel;
+    const tunnel = this.tunnel!;
     const config = this.config;
 
     const leadfootServer = new LeadfootServer(tunnel.clientUrl, {
@@ -813,7 +813,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
               if (typeof driver === 'string') {
                 return driver;
               }
-              return driver.name;
+              return (driver as { name: string }).name;
             })
             .filter(name => name)
             .forEach(name => {

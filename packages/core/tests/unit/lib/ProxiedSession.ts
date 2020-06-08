@@ -22,7 +22,7 @@ class MockSession {
 registerSuite('lib/ProxiedSession', {
   before() {
     return mockRequire(require, 'src/lib/ProxiedSession', {
-      '@theintern/leadfoot/Session': MockSession
+      '@theintern/leadfoot/dist/Session': MockSession
     }).then(result => {
       removeMocks = result.remove;
       ProxiedSession = result.module.default;

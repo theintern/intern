@@ -76,11 +76,11 @@
     }
   },
 
-  "coverage": ["_build/src/**/*.js"],
+  "coverage": ["src/**/*.ts"],
 
   "filterErrorStack": true,
 
-  "functionalSuites": "_build/tests/functional/**/*.js",
+  "functionalSuites": "tests/functional/**/*.ts",
 
   "maxConcurrency": 2,
 
@@ -89,8 +89,9 @@
       "name": "runner",
       "options": { "hideSkipped": true, "hidePassed": true }
     },
-    "suites": "_build/tests/unit/lib/util.js"
+    "suites": "tests/unit/lib/util.ts",
+    "tsconfig": "tests/tsconfig.json"
   },
 
-  "plugins": "_build/tests/globalUi.js"
+  "plugins": "tests/globalUi.ts"
 }

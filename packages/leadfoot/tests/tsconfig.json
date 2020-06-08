@@ -4,6 +4,7 @@
     "baseUrl": "..",
     "module": "commonjs",
     "importHelpers": false,
+    "outDir": "../_tests",
 
     // This file intentionally doesn't use paths to prevent re-building
     // files in ../src. Instead, source files will be rebuilt using the
@@ -13,6 +14,7 @@
     // needed for istanbul directives
     "removeComments": false,
 
+    "rootDir": "..",
     "types": ["@theintern/core"]
   },
   "include": ["./**/*.ts", "../src/**/*.ts"]

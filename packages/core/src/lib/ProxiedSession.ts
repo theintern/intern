@@ -1,11 +1,11 @@
-import Session from '@theintern/leadfoot/Session';
+import Session from '@theintern/leadfoot/dist/Session';
 import { Task, CancellablePromise } from '@theintern/common';
 
 import Node from './executors/Node';
 
 /* istanbul ignore next: client-side code */
 function getCoverageData(coverageVariable: string) {
-  let coverageData = (function(this: any) {
+  let coverageData = (function (this: any) {
     return this;
   })()[coverageVariable];
   return coverageData && JSON.stringify(coverageData);
@@ -101,7 +101,7 @@ export default class ProxiedSession extends Session {
         let startTime = Date.now();
 
         this._heartbeatIntervalHandle = {
-          remove: function() {
+          remove: function () {
             cancelled = true;
             clearTimeout(timeoutId);
           }

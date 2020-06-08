@@ -298,8 +298,8 @@ registerSuite('lib/executors/Node', function () {
         'src/lib/resolveEnvironments': () => {
           return ['foo env'];
         },
-        '@theintern/leadfoot/Command': MockCommand,
-        '@theintern/leadfoot/Server': MockLeadfootServer,
+        '@theintern/leadfoot/dist/Command': MockCommand,
+        '@theintern/leadfoot/dist/Server': MockLeadfootServer,
         '@theintern/digdug/dist/NullTunnel': MockTunnel,
         '@theintern/digdug/dist/BrowserStackTunnel': MockTunnel,
         '@theintern/digdug/dist/SeleniumTunnel': MockTunnel,

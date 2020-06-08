@@ -1,3 +1,4 @@
+/// <reference path="./globals.d.ts"/>
 /**
  * Install some commonly used test functionals globally
  */

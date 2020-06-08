@@ -112,7 +112,7 @@ importers:
     dependencies:
       '@theintern/common': 'link:../common'
       '@theintern/digdug': 'link:../digdug'
-      '@theintern/leadfoot': 2.3.2
+      '@theintern/leadfoot': 'link:../leadfoot'
       '@types/benchmark': 1.0.31
       '@types/chai': 4.1.7
       '@types/charm': 1.0.1
@@ -195,7 +195,7 @@ importers:
       '@theintern-dev/tsconfig': 'workspace:*'
       '@theintern/common': 'workspace:*'
       '@theintern/digdug': 'workspace:*'
-      '@theintern/leadfoot': ~2.3.0
+      '@theintern/leadfoot': 'workspace:*'
       '@types/benchmark': 1.0.31
       '@types/body-parser': ~1.17.0
       '@types/chai': 4.1.7
@@ -584,21 +584,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-+iTbntw2IZPb/anVDbypzfQa+ay64MW0Zo8aJ8gZPWMMK6/OubMVb6lUPMagqjOPnmtauXnFCACVl3O7ogjeqQ==
-  /@theintern/common/0.2.3:
-    dependencies:
-      axios: 0.19.2
-      tslib: 1.9.3
-    dev: false
-    resolution:
-      integrity: sha512-91kL3C6USiNfumAm5m07HjGdc40IJaNzEczhcdW5T8fjsHVNg8ttVSXCzy5C9BM57WLevVjR5eHUNjEl4foGMQ==
-  /@theintern/leadfoot/2.3.2:
-    dependencies:
-      '@theintern/common': 0.2.3
-      jszip: 3.2.2
-      tslib: 1.9.3
-    dev: false
-    resolution:
-      integrity: sha512-NskDofysJMJad5uEYUc7Y3AlP3IdhY3t+H6XyiTDPur/p4pzVvKGGoCygE5FsN/K26i0XOmhNEIOwJtOMh47Hg==
   /@types/anymatch/1.3.1:
     dev: true
     resolution:

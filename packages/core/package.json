@@ -52,7 +52,7 @@
   "dependencies": {
     "@theintern/common": "workspace:*",
     "@theintern/digdug": "workspace:*",
-    "@theintern/leadfoot": "~2.3.0",
+    "@theintern/leadfoot": "workspace:*",
     "@types/benchmark": "1.0.31",
     "@types/chai": "4.1.7",
     "@types/charm": "1.0.1",

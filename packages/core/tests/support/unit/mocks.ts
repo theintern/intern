@@ -4,7 +4,7 @@
  */
 import { createSandbox, spy, SinonSpy } from 'sinon';
 import { Handle, duplicate, Task } from '@theintern/common';
-import Command from '@theintern/leadfoot/Command';
+import Command from '@theintern/leadfoot/dist/Command';
 
 import { Executor, Events } from 'src/lib/executors/Executor';
 import Node, { Remote } from 'src/lib/executors/Node';
@@ -298,7 +298,8 @@ export function createMockRemote(
   properties?: {
     [P in keyof (Remote | Command<ProxiedSession>)]?: (
       | Remote
-      | Command<ProxiedSession>)[P]
+      | Command<ProxiedSession>
+    )[P];
   }
 ) {
   const remote = MockRemote.resolve();
@@ -359,7 +360,7 @@ export class MockRequest extends EventHandler {
 }
 
 export type MockResponseOptions = {
-  [P in keyof MockResponse]?: MockResponse[P]
+  [P in keyof MockResponse]?: MockResponse[P];
 };
 
 export class MockResponse extends EventHandler {

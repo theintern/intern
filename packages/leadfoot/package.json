@@ -6,6 +6,11 @@
     "type": "git",
     "url": "https://github.com/theintern/intern.git"
   },
+  "files": [
+    "dist/**/*"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "BSD-3-Clause",
   "dependencies": {
     "@theintern/common": "workspace:*",
@@ -19,12 +24,11 @@
     "@types/node": "~12.0.5"
   },
   "scripts": {
-    "clean": "shx rm -rf _build _tests",
+    "apidoc": "dev-apidoc",
+    "clean": "shx rm -rf dist _tests *.tsbuildinfo",
     "build": "tsc -b",
-    "pretest": "tsc -b tests",
     "test": "intern",
     "test:chrome": "intern config=@wd",
-    "preci": "tsc -b tests",
     "ci": "intern config=@ci"
   },
   "bugs": "https://github.com/theintern/intern/issues",

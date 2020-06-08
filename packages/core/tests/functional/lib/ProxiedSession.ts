@@ -1,5 +1,5 @@
 import { Task } from '@theintern/common';
-import Server from '@theintern/leadfoot/Server';
+import Server from '@theintern/leadfoot/dist/Server';
 
 import ProxiedSession from 'src/lib/ProxiedSession';
 import { Remote } from 'src/lib/executors/Node';

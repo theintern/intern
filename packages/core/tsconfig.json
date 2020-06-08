@@ -7,7 +7,11 @@
     "resolveJsonModule": false,
     "rootDir": "src"
   },
-  "references": [{ "path": "../common" }, { "path": "../digdug" }],
+  "references": [
+    { "path": "../common" },
+    { "path": "../digdug" },
+    { "path": "../leadfoot" }
+  ],
   "include": [
     "src/index.ts",
     "src/bin/*.ts",
