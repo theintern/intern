@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Pointer</title>
+		<style>
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+[type=button] {
+	height: 20px;
+	padding: 0;
+	margin: 0;
+	width: 200px;
+}
+#b {
+	margin: 20px 0 0 100px;
+}
+#c {
+	left: 350px;
+	position: absolute;
+	top: 80px;
+}
+:hover {
+	outline: 3px solid green;
+}
+		</style>
+	</head>
+	<body>
+		<script>
+var result = {
+	mousemove: {},
+	mousedown: {},
+	mouseup: {},
+	click: {},
+	dblclick: {},
+	touchstart: {},
+	touchmove: {},
+	touchend: {},
+	touchcancel: {}
+};
+		</script>
+		<input id="a" type="button" value="A"><br>
+		<input id="b" type="button" value="B"><br>
+		<input id="c" type="button" value="C">
+
+		<p>To tell you the truth,<br>
+			I like drinking tea and eating fresh vegetables,<br>
+			but that doesn't fit my super cool image.<br>
+			I guess I just have to accept this about myself.</p>
+
+		<script>
+(function () {
+	function value(v) {
+		return {
+			enumerable: true,
+			configurable: true,
+			writable: true,
+			value: v
+		};
+	}
+
+	for (var eventType in result) {
+		document['on' + eventType] = function (event) {
+			if (event.changedTouches) {
+				var touch = event.changedTouches[0];
+				var originalEvent = event;
+				event = Object.create(event);
+				Object.defineProperties(event, {
+					target: value(document.elementFromPoint(touch.clientX, touch.clientY)),
+					clientX: value(touch.clientX),
+					clientY: value(touch.clientY),
+					screenX: value(touch.screenX),
+					screenY: value(touch.screenY),
+					preventDefault: value(function () {
+						return originalEvent.preventDefault();
+					}),
+					stopPropagation: value(function () {
+						return originalEvent.stopPropagation();
+					})
+				});
+			}
+
+			if (event.target.id) {
+				result[event.type][event.target.id] = result[event.type][event.target.id] || [];
+				result[event.type][event.target.id].push({
+					altKey: event.altKey,
+					button: event.button,
+					buttons: event.buttons,
+					clientX: event.clientX,
+					clientY: event.clientY,
+					ctrlKey: event.ctrlKey,
+					metaKey: event.metaKey,
+					screenX: event.screenX,
+					screenY: event.screenY,
+					shiftKey: event.shiftKey,
+					// Firefox has broken event.timeStamp; see https://bugzilla.mozilla.org/show_bug.cgi?id=77992
+					timeStamp: Math.abs(+new Date() - event.timeStamp) > 4000 ? +new Date() : event.timeStamp
+				});
+
+				if (event.type === 'touchstart') {
+					event.preventDefault();
+				}
+			}
+		};
+	}
+})();
+		</script>
+	</body>
+</html>

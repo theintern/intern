@@ -1,0 +1,20 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "declaration": false,
+    "module": "commonjs",
+    "importHelpers": false,
+
+    // This file intentionally doesn't use paths to prevent re-building
+    // files in ../src. Instead, source files will be rebuilt using the
+    // settings here, particularly `removeComments: false`, which keeps
+    // the istanbul ignore comments in the built source.
+
+    // needed for istanbul directives
+    "removeComments": false,
+
+    "types": ["intern"]
+  },
+  "include": ["./**/*.ts"]
+}

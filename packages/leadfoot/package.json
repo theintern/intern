@@ -1,0 +1,71 @@
+{
+  "name": "@theintern/leadfoot",
+  "version": "2.4.0-pre",
+  "description": "Leadfoot. A JavaScript client library that brings cross-platform consistency to the Selenium WebDriver API.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/leadfoot.git"
+  },
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@theintern/common": "~0.2.3",
+    "jszip": "~3.2.1",
+    "tslib": "~1.9.3"
+  },
+  "devDependencies": {
+    "@theintern/dev": "~0.10.2",
+    "@types/jszip": "~3.1.6",
+    "@types/node": "~12.0.5",
+    "concurrently": "~4.1.0",
+    "intern": "~4.4.3"
+  },
+  "scripts": {
+    "clean": "intern-dev-clean",
+    "lint": "intern-dev-lint",
+    "build": "intern-dev-clean && concurrently intern-dev-build intern-dev-api",
+    "devpack": "intern-dev-build && npm pack ./_build/src",
+    "release": "intern-dev-release",
+    "test": "intern",
+    "watch": "intern-dev-build watch",
+    "ci": "intern-dev-clean && intern-dev-build && intern config=@ci",
+    "precommit": "lint-staged"
+  },
+  "bugs": "https://github.com/theintern/leadfoot/issues",
+  "keywords": [
+    "javascript",
+    "test",
+    "functional",
+    "selenium",
+    "webdriver",
+    "sauce labs",
+    "browserstack",
+    "testingbot"
+  ],
+  "internDev": {
+    "resources": {
+      "_build": [
+        "tests/**/*.{txt,html}"
+      ]
+    }
+  },
+  "homepage": "http://github.com/theintern/leadfoot",
+  "lint-staged": {
+    "src/**/*.{ts,json,css}": [
+      "prettier --write",
+      "git add"
+    ],
+    "tests/**/*.{ts,json,css}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ],
+    "{intern,tsconfig}.json": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "pre-commit": "precommit"
+}

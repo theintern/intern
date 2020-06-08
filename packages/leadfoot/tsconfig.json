@@ -1,0 +1,10 @@
+{
+  "extends": "./node_modules/@theintern/dev/tsconfig-base.json",
+  "compilerOptions": {
+    "declaration": true,
+    "lib": ["dom", "es2015"],
+    "outDir": "./_build",
+    "rootDir": "."
+  },
+  "include": ["./src/**/*.ts"]
+}

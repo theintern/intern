@@ -1,0 +1,23 @@
+sudo: false
+language: node_js
+node_js:
+- lts/*
+- node
+env:
+  global:
+  - BROWSERSTACK_USERNAME=sitepenlabs1
+  - BROWSERSTACK_ACCESS_KEY=xm1uYrJuV3gZMJqCyZJX
+  matrix:
+  - INTERN_ARGS="environments="
+  - INTERN_ARGS=""
+matrix:
+  exclude:
+  - node_js: node
+    env: INTERN_ARGS=""
+  - node_js: lts/*
+    env: INTERN_ARGS="environments="
+script:
+- npm run ci
+notifications:
+  slack:
+    secure: ashyQcQVPnkHFhLXUAzm+llIsEUjknS26RUdmVZQuYpd9TNKsdRB+XimPBhVgWy6y99te0gKvLPUh0Eoyy+4d5EFGGTMcj6FfnUC6UG8Mys3Ek/yyaPGKVVLTu5hjt2bkOKTzE/gjfuqwyH8eKf5JwhbahkFe1u0sVDpl3c0muU=
