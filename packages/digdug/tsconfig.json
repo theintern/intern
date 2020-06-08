@@ -1,0 +1,14 @@
+{
+  "extends": "./node_modules/@theintern/dev/tsconfig-base.json",
+  "compilerOptions": {
+    "declaration": true,
+    "lib": ["es2015"],
+    "outDir": "./_build",
+    "resolveJsonModule": true,
+    "rootDir": ".",
+    // Don't implicitly load any types
+    "types": [],
+    "typeRoots": ["./node_modules/@types", "./types"]
+  },
+  "include": ["./src/**/*.ts"]
+}

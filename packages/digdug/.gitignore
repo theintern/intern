@@ -1,0 +1,11 @@
+node_modules
+saucelabs
+testingbot
+browserstack
+selenium-standalone
+_build
+_tests
+build_doc
+_publish
+*.tgz
+coverage/

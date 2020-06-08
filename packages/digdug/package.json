@@ -1,0 +1,83 @@
+{
+  "name": "@theintern/digdug",
+  "version": "2.5.0-pre",
+  "description": "Dig Dug. A simple abstraction library for downloading and launching WebDriver service tunnels.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/digdug.git"
+  },
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@theintern/common": "~0.2.3",
+    "command-exists": "~1.2.6",
+    "decompress": "~4.2.0",
+    "tslib": "~1.9.3"
+  },
+  "devDependencies": {
+    "@theintern/dev": "~0.10.2",
+    "@types/command-exists": "~1.2.0",
+    "@types/decompress": "~4.2.2",
+    "@types/node": "~12.0.5",
+    "@types/semver": "~6.0.0",
+    "@types/shelljs": "~0.8.5",
+    "concurrently": "~4.1.0",
+    "intern": "~4.4.3",
+    "lint-staged": "~8.2.0",
+    "pre-commit": "~1.2.2",
+    "prettier": "~1.17.1",
+    "semver": "~6.1.1",
+    "shelljs": "~0.8.1"
+  },
+  "scripts": {
+    "build": "npm run clean && concurrently intern-dev-build intern-dev-api",
+    "ci": "intern-dev-build && intern",
+    "clean": "intern-dev-clean",
+    "devpack": "intern-dev-build && npm pack ./_build/src",
+    "lint": "intern-dev-lint",
+    "release": "intern-dev-release",
+    "test": "intern",
+    "watch": "intern-dev-build watch",
+    "precommit": "lint-staged"
+  },
+  "bugs": "https://github.com/theintern/digdug/issues",
+  "keywords": [
+    "javascript",
+    "test",
+    "functional",
+    "selenium",
+    "webdriver",
+    "sauce labs",
+    "browserstack",
+    "testingbot"
+  ],
+  "homepage": "https://github.com/theintern/digdug",
+  "bin": {
+    "digdugEnvironments": "./bin/digdugEnvironments.js"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,json,css}": [
+      "prettier --write",
+      "git add"
+    ],
+    "tests/**/*.{ts,json,css}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ],
+    "{intern,tsconfig}.json": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "pre-commit": "precommit",
+  "internDev": {
+    "resources": {
+      "_build": [
+        "src/schemas/**"
+      ]
+    }
+  }
+}

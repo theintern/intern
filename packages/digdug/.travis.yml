@@ -1,0 +1,17 @@
+sudo: false
+dist: trusty
+language: node_js
+node_js:
+- lts/*
+- node
+env:
+  global:
+  - BROWSERSTACK_USERNAME=sitepenlabs1
+  - BROWSERSTACK_ACCESS_KEY=xm1uYrJuV3gZMJqCyZJX
+  - SAUCE_USERNAME=dojo2-ts-ci
+  - SAUCE_ACCESS_KEY=e92610e3-834e-4bec-a3b5-6f7b9d874601
+script:
+- npm run ci
+notifications:
+  slack:
+    secure: o1BJyRlQdbE35CKLskHD1L94VKdFbPRs8rKhY3mdGTSSfbuFO2Ss3PS4TYmpogTgo/X598zDZLtcrIziS4A1A3AWZWOU1pweyRT9bgCXJo7bjASIpvXCuEywtXqupK63F5a6zCP8fp7YswOO+x+lSr/Nmed0qkWqK2vWTM7uV9Y=

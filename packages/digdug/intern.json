@@ -1,0 +1,16 @@
+{
+  "capabilities": {
+    "fixSessionCapabilities": false
+  },
+  "coverage": ["_tests/src/**/*.js"],
+  "filterErrorStack": true,
+  "plugins": "_tests/tests/globalUi.js",
+  "reporters": [
+    {
+      "name": "runner",
+      "options": { "hideSkipped": false, "hidePassed": true }
+    },
+    "htmlcoverage"
+  ],
+  "suites": "_tests/tests/**/*.js"
+}
