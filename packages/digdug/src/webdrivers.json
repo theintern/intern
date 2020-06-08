@@ -1,5 +1,5 @@
 {
-  "$schema": "./schemas/webdrivers.json",
+  "$schema": "../schemas/webdrivers.json",
 
   "drivers": {
     "selenium": {

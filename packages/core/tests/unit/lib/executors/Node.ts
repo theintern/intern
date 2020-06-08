@@ -300,9 +300,9 @@ registerSuite('lib/executors/Node', function () {
         },
         '@theintern/leadfoot/Command': MockCommand,
         '@theintern/leadfoot/Server': MockLeadfootServer,
-        '@theintern/digdug/NullTunnel': MockTunnel,
-        '@theintern/digdug/BrowserStackTunnel': MockTunnel,
-        '@theintern/digdug/SeleniumTunnel': MockTunnel,
+        '@theintern/digdug/dist/NullTunnel': MockTunnel,
+        '@theintern/digdug/dist/BrowserStackTunnel': MockTunnel,
+        '@theintern/digdug/dist/SeleniumTunnel': MockTunnel,
         'src/lib/ProxiedSession': MockSession,
         'src/lib/RemoteSuite': MockRemoteSuite
       }).then(handle => {

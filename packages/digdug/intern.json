@@ -2,9 +2,12 @@
   "capabilities": {
     "fixSessionCapabilities": false
   },
-  "coverage": ["_tests/src/**/*.js"],
+  "coverage": ["src/**/*.ts"],
   "filterErrorStack": true,
-  "plugins": "_tests/tests/globalUi.js",
+  "plugins": "tests/globalUi.ts",
+  "node": {
+    "tsconfig": "tests/tsconfig.json"
+  },
   "reporters": [
     {
       "name": "runner",
@@ -12,5 +15,10 @@
     },
     "htmlcoverage"
   ],
-  "suites": "_tests/tests/**/*.js"
+  "suites": [
+    "tests/unit/**/*.ts",
+    "tests/integration/**/*.ts",
+    // disabled while using npm for CBT
+    "!tests/integration/CrossBrowserTesting*.ts"
+  ]
 }

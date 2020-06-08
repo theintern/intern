@@ -1,4 +1,4 @@
-import { NormalizedEnvironment } from '@theintern/digdug/Tunnel';
+import { NormalizedEnvironment } from '@theintern/digdug/dist/Tunnel';
 import { sep } from 'path';
 
 import Environment from 'src/lib/Environment';

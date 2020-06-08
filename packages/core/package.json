@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@theintern/common": "workspace:*",
-    "@theintern/digdug": "~2.4.0",
+    "@theintern/digdug": "workspace:*",
     "@theintern/leadfoot": "~2.3.0",
     "@types/benchmark": "1.0.31",
     "@types/chai": "4.1.7",

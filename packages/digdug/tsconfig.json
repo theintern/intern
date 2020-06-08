@@ -2,8 +2,8 @@
   "extends": "@theintern-dev/tsconfig",
   "compilerOptions": {
     "lib": ["es2015"],
-    "outDir": "./_build",
-    "rootDir": ".",
+    "outDir": "./dist",
+    "rootDir": "src",
     "typeRoots": ["./node_modules/@types", "./types"]
   },
   "references": [{ "path": "../common" }],

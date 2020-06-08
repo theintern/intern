@@ -6,6 +6,13 @@
     "type": "git",
     "url": "https://github.com/theintern/intern.git"
   },
+  "files": [
+    "dist/**/*",
+    "bin/*",
+    "schemas/*"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "BSD-3-Clause",
   "dependencies": {
     "@theintern/common": "workspace:*",
@@ -26,11 +33,10 @@
     "shelljs": "~0.8.1"
   },
   "scripts": {
+    "apidoc": "dev-apidoc",
     "build": "tsc -b",
-    "clean": "shx rm -rf _build _tests coverage *.tsbuildinfo",
-    "pretest": "tsc -b tests",
+    "clean": "shx rm -rf dist _tests coverage *.tsbuildinfo",
     "test": "intern",
-    "preci": "tsc -b tests",
     "ci": "intern"
   },
   "bugs": "https://github.com/theintern/intern/issues",

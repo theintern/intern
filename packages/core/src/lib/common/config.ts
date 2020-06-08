@@ -1,8 +1,8 @@
 import { ReporterOptions } from '../reporters/Reporter';
 import { BenchmarkReporterOptions } from '../reporters/Benchmark';
-import { TunnelOptions } from '@theintern/digdug/Tunnel';
-import { BrowserStackOptions } from '@theintern/digdug/BrowserStackTunnel';
-import { SeleniumOptions } from '@theintern/digdug/SeleniumTunnel';
+import { TunnelOptions } from '@theintern/digdug/dist/Tunnel';
+import { BrowserStackOptions } from '@theintern/digdug/dist/BrowserStackTunnel';
+import { SeleniumOptions } from '@theintern/digdug/dist/SeleniumTunnel';
 
 /**
  * This interface describes the configuration data used by Intern. Its

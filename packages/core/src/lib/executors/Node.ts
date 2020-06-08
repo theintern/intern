@@ -13,19 +13,19 @@ import { register } from 'ts-node';
 import { global, Task, CancellablePromise, deepMixin } from '@theintern/common';
 import Command from '@theintern/leadfoot/Command';
 import LeadfootServer from '@theintern/leadfoot/Server';
-import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/Tunnel';
+import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/dist/Tunnel';
 
 // Dig Dug tunnels
 import SeleniumTunnel, {
   DriverDescriptor
-} from '@theintern/digdug/SeleniumTunnel';
+} from '@theintern/digdug/dist/SeleniumTunnel';
 import BrowserStackTunnel, {
   BrowserStackOptions
-} from '@theintern/digdug/BrowserStackTunnel';
-import SauceLabsTunnel from '@theintern/digdug/SauceLabsTunnel';
-import TestingBotTunnel from '@theintern/digdug/TestingBotTunnel';
-import CrossBrowserTestingTunnel from '@theintern/digdug/CrossBrowserTestingTunnel';
-import NullTunnel from '@theintern/digdug/NullTunnel';
+} from '@theintern/digdug/dist/BrowserStackTunnel';
+import SauceLabsTunnel from '@theintern/digdug/dist/SauceLabsTunnel';
+import TestingBotTunnel from '@theintern/digdug/dist/TestingBotTunnel';
+import CrossBrowserTestingTunnel from '@theintern/digdug/dist/CrossBrowserTestingTunnel';
+import NullTunnel from '@theintern/digdug/dist/NullTunnel';
 
 import { Config, EnvironmentSpec } from '../common/config';
 import Executor, { Events, Plugins } from './Executor';
@@ -440,7 +440,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    * run.
    */
   protected _createSessionSuites() {
-    const tunnel = this.tunnel!;
+    const tunnel = this.tunnel;
     const config = this.config;
 
     const leadfootServer = new LeadfootServer(tunnel.clientUrl, {
@@ -813,7 +813,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
               if (typeof driver === 'string') {
                 return driver;
               }
-              return (driver as any).name;
+              return driver.name;
             })
             .filter(name => name)
             .forEach(name => {

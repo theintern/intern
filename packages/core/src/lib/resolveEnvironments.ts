@@ -1,4 +1,4 @@
-import { NormalizedEnvironment } from '@theintern/digdug/Tunnel';
+import { NormalizedEnvironment } from '@theintern/digdug/dist/Tunnel';
 import { normalize } from 'path';
 
 import process from './node/process';
@@ -33,7 +33,7 @@ export default function resolveEnvironments(
   const flatEnvironments = createPermutations(capabilities, environments);
 
   // Expand any version ranges or aliases in the environments.
-  const expandedEnvironments = flatEnvironments.map(function(environment) {
+  const expandedEnvironments = flatEnvironments.map(function (environment) {
     const browserVersion = resolveVersions(environment, available);
     if (browserVersion == null) {
       return environment;
@@ -122,7 +122,7 @@ function expandVersionRange(
       'The version range ' + left + '..' + right + ' is unavailable'
     );
   }
-  return availableVersions.filter(function(version) {
+  return availableVersions.filter(function (version) {
     return version >= left && version <= right;
   });
 }
@@ -158,7 +158,7 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
     throw new Error('Invalid alias syntax "' + version + '"');
   }
 
-  pieces = pieces.map(function(piece) {
+  pieces = pieces.map(function (piece) {
     return piece.trim();
   });
 
@@ -203,7 +203,7 @@ function splitVersions(versionSpec: string) {
     throw new Error('Invalid version syntax');
   }
 
-  return versions.map(function(version) {
+  return versions.map(function (version) {
     return version.trim();
   });
 }
@@ -224,7 +224,7 @@ function getVersions(
   let versions: { [key: string]: boolean } = {};
 
   available
-    .filter(function(availableEnvironment) {
+    .filter(function (availableEnvironment) {
       // Return true if there are no mismatching keys
       return !Object.keys(environment)
         // Don't match on version since we want all the available versions where
@@ -254,7 +254,7 @@ function getVersions(
           return availableEnvironment[key] !== value;
         });
     })
-    .forEach(function(availableEnvironment) {
+    .forEach(function (availableEnvironment) {
       versions[availableEnvironment.version] = true;
     });
 
@@ -294,13 +294,11 @@ function resolveVersions(
   if (versionSpec && isNaN(Number(versionSpec))) {
     let availableVersions = getVersions(environment, available);
 
-    versions = splitVersions(versionSpec).map(function(version) {
+    versions = splitVersions(versionSpec).map(function (version) {
       const resolved = resolveVersionAlias(version, availableVersions);
       if (resolved == null) {
         throw new Error(
-          `Unable to resolve version "${version}" for ${
-            environment.browserName
-          }. Are you using the proper browser and platform names for the tunnel?`
+          `Unable to resolve version "${version}" for ${environment.browserName}. Are you using the proper browser and platform names for the tunnel?`
         );
       }
       return resolved;
@@ -354,7 +352,7 @@ function createPermutations(
 
   // Expand the permutation set for each source
   return sources
-    .map(function(source) {
+    .map(function (source) {
       return Object.keys(source).reduce(
         (permutations: FlatEnvironment[], key: string) => {
           if (Array.isArray(source[key])) {

@@ -111,7 +111,7 @@ importers:
   packages/core:
     dependencies:
       '@theintern/common': 'link:../common'
-      '@theintern/digdug': 2.4.6
+      '@theintern/digdug': 'link:../digdug'
       '@theintern/leadfoot': 2.3.2
       '@types/benchmark': 1.0.31
       '@types/chai': 4.1.7
@@ -194,7 +194,7 @@ importers:
       '@theintern-dev/eslint-config': 'workspace:*'
       '@theintern-dev/tsconfig': 'workspace:*'
       '@theintern/common': 'workspace:*'
-      '@theintern/digdug': ~2.4.0
+      '@theintern/digdug': 'workspace:*'
       '@theintern/leadfoot': ~2.3.0
       '@types/benchmark': 1.0.31
       '@types/body-parser': ~1.17.0
@@ -573,16 +573,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-91kL3C6USiNfumAm5m07HjGdc40IJaNzEczhcdW5T8fjsHVNg8ttVSXCzy5C9BM57WLevVjR5eHUNjEl4foGMQ==
-  /@theintern/digdug/2.4.6:
-    dependencies:
-      '@theintern/common': 0.2.3
-      command-exists: 1.2.9
-      decompress: 4.2.1
-      tslib: 1.9.3
-    dev: false
-    hasBin: true
-    resolution:
-      integrity: sha512-Fe4TtkMgG/5bi88Vi4E60zvFcZ1901Oev7mzKHJaIc6sQO4X+DcbFUEEp7u+2ueexV2/cHn5akRny+lgsmIftg==
   /@theintern/leadfoot/2.3.2:
     dependencies:
       '@theintern/common': 0.2.3

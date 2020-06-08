@@ -1,0 +1,7 @@
+{
+  "extends": ["@theintern-dev/eslint-config"],
+  "rules": {
+    "@typescript-eslint/triple-slash-reference": "off",
+    "@typescript-eslint/unbound-method": "off"
+  }
+}
