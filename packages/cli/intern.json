@@ -1,0 +1,9 @@
+{
+    "suites": "_build/tests/**/*.js",
+    "coverage": "_build/src/**/*.js",
+    "configs": {
+        "ci": {
+            "reporters+": "lcov"
+        }
+    }
+}

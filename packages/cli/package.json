@@ -1,0 +1,53 @@
+{
+  "name": "@theintern/cli",
+  "version": "1.0.0-pre",
+  "description": "The command line interface for Intern",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/cli.git"
+  },
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "chokidar": "~1.7.0",
+    "commander": "~2.11.0",
+    "glob": "~7.1.2",
+    "opn": "~5.1.0",
+    "resolve": "~1.4.0",
+    "semver": "~5.4.1"
+  },
+  "bugs": "https://github.com/theintern/cli/issues",
+  "keywords": [
+    "javascript",
+    "test",
+    "unit",
+    "testing",
+    "intern"
+  ],
+  "homepage": "http://theintern.io/",
+  "preferGlobal": true,
+  "bin": {
+    "intern": "./bin/intern.js"
+  },
+  "scripts": {
+    "build": "intern-dev-build",
+    "clean": "intern-dev-clean",
+    "test": "NODE_PATH=_build intern",
+    "ci": "intern-dev-build && NODE_PATH=_build intern config=@ci",
+    "lint": "intern-dev-lint",
+    "release": "intern-dev-release",
+    "watch": "intern-dev-build watch"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "devDependencies": {
+    "@theintern/dev": "~0.5.7",
+    "@types/chokidar": "~1.7.2",
+    "@types/commander": "~2.3.31",
+    "@types/glob": "~5.0.32",
+    "@types/opn": "~3.0.28",
+    "@types/resolve": "0.0.4",
+    "@types/semver": "~5.3.30",
+    "intern": "~4.0.0-alpha.16"
+  }
+}
