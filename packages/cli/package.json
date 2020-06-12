@@ -4,7 +4,7 @@
   "description": "The command line interface for Intern",
   "repository": {
     "type": "git",
-    "url": "https://github.com/theintern/cli.git"
+    "url": "https://github.com/theintern/intern.git"
   },
   "license": "BSD-3-Clause",
   "dependencies": {
@@ -13,9 +13,10 @@
     "glob": "~7.1.2",
     "opn": "~5.1.0",
     "resolve": "~1.4.0",
-    "semver": "~5.4.1"
+    "semver": "~5.4.1",
+    "tslib": "~2.0.0"
   },
-  "bugs": "https://github.com/theintern/cli/issues",
+  "bugs": "https://github.com/theintern/intern/issues",
   "keywords": [
     "javascript",
     "test",
@@ -29,25 +30,25 @@
     "intern": "./bin/intern.js"
   },
   "scripts": {
-    "build": "intern-dev-build",
-    "clean": "intern-dev-clean",
-    "test": "NODE_PATH=_build intern",
-    "ci": "intern-dev-build && NODE_PATH=_build intern config=@ci",
-    "lint": "intern-dev-lint",
-    "release": "intern-dev-release",
-    "watch": "intern-dev-build watch"
+    "build": "tsc -b",
+    "clean": "shx rm -rf _build _tests",
+    "pretest": "tsc -b tests",
+    "test": "intern",
+    "preci": "tsc -b tests",
+    "ci": "intern --config @ci"
   },
   "engines": {
     "node": ">=4.0.0"
   },
   "devDependencies": {
-    "@theintern/dev": "~0.5.7",
+    "@theintern-dev/eslint-config": "workspace:*",
+    "@theintern-dev/tsconfig": "workspace:*",
+    "@theintern/core": "workspace:*",
     "@types/chokidar": "~1.7.2",
     "@types/commander": "~2.3.31",
     "@types/glob": "~5.0.32",
     "@types/opn": "~3.0.28",
     "@types/resolve": "0.0.4",
-    "@types/semver": "~5.3.30",
-    "intern": "~4.0.0-alpha.16"
+    "@types/semver": "~5.3.30"
   }
 }
