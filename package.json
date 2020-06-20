@@ -26,6 +26,7 @@
     "eslint": "~7.1.0",
     "eslint-config-prettier": "~6.11.0",
     "husky": "~4.2.5",
+    "intern": "workspace:*",
     "lint-staged": "~10.2.6",
     "prettier": "~2.0.5",
     "shx": "~0.3.2",

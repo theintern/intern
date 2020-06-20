@@ -5,6 +5,8 @@ import { Events, Executor, PluginDescriptor } from '../executors/Executor';
 import { getPathSep, join, normalize } from './path';
 import { InternError } from '../types';
 
+export const defaultConfig = 'intern.json';
+
 export interface EvaluatedProperty {
   name: keyof Config;
   addToExisting: boolean;

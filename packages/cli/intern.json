@@ -1,6 +1,9 @@
 {
-  "suites": "_tests/tests/**/*.js",
-  "coverage": "_tests/src/**/*.js",
+  "suites": "tests/**/*.ts",
+  "coverage": "src/**/*.ts",
+  "node": {
+    "tsconfig": "tests/tsconfig.json"
+  },
   "configs": {
     "ci": {
       "reporters+": "lcov"

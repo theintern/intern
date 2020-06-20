@@ -28,15 +28,15 @@
     "clean": "shx rm -rf dist _tests amd *.tsbuildinfo",
     "pretest": "tsc -b tests && webpack --config tests/webpack.config.ts",
     "test": "intern",
-    "test:chrome": "intern config=@wd"
+    "test:chrome": "intern --config @wd"
   },
   "dependencies": {
     "axios": "~0.19.0",
     "tslib": "~1.9.3"
   },
   "devDependencies": {
-    "@theintern-dev/tsconfig": "workspace:*",
     "@theintern/core": "workspace:*",
+    "@theintern-dev/tsconfig": "workspace:*",
     "@types/copy-webpack-plugin": "~5.0.0",
     "@types/glob": "~7.1.1",
     "@types/moxios": "~0.4.8",

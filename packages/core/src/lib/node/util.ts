@@ -1,4 +1,4 @@
-import { readFile, readFileSync, mkdirSync, existsSync } from 'fs';
+import { readFile, readdirSync, readFileSync, mkdirSync, existsSync } from 'fs';
 import {
   dirname,
   extname,
@@ -16,11 +16,13 @@ import { Task, CancellablePromise } from '@theintern/common';
 
 import process from './process';
 import {
+  defaultConfig,
   getBasePath,
   loadConfig,
   parseArgs,
   splitConfigPath
 } from '../common/util';
+
 /**
  * Expand a list of glob patterns into a flat file list. Patterns may be simple
  * file paths or glob patterns. Patterns starting with '!' denote exclusions.
@@ -106,12 +108,12 @@ export function getConfig(
     // If a config parameter was provided, load it and mix in any other
     // command line args.
     const { configFile, childConfig } = splitConfigPath(args.config, sep);
-    file = resolve(configFile || 'intern.json');
+    file = resolve(configFile || defaultConfig);
     load = loadConfig(file, loadText, args, childConfig);
   } else {
     // If no config parameter was provided, try 'intern.json', or just
     // resolve to the original args
-    file = resolve('intern.json');
+    file = resolve(defaultConfig);
     load = loadConfig(file, loadText, args, undefined).catch(
       (error: NodeJS.ErrnoException) => {
         if (error.code === 'ENOENT') {
@@ -133,6 +135,19 @@ export function getConfig(
       return config;
     })
     .then(config => ({ config, file }));
+}
+
+/**
+ * Return the absolute path to Intern's package
+ */
+export function getPackagePath(dir = __dirname): string {
+  if (dirname(dir) === dir) {
+    throw new Error("Couldn't find package.json");
+  }
+  if (readdirSync(dir).includes('package.json')) {
+    return dir;
+  }
+  return getPackagePath(dirname(dir));
 }
 
 /**

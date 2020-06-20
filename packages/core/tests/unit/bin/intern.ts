@@ -1,5 +1,6 @@
 import { createSandbox, SinonStub, SinonSpy } from 'sinon';
 import { Task, global } from '@theintern/common';
+import { getPackagePath } from 'src/lib/node/util';
 
 import {
   createMockBrowserExecutor,
@@ -16,7 +17,8 @@ registerSuite('bin/intern', function () {
   const mockNodeUtil: { [name: string]: SinonSpy } = {
     getConfig: sandbox.spy((..._args: any[]) => {
       return Task.resolve({ config: configData, file: 'intern.json' });
-    })
+    }),
+    getPackagePath: sandbox.spy(() => getPackagePath())
   };
 
   const originalExitCode = process.exitCode;

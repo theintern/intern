@@ -1,0 +1,9 @@
+{
+  "extends": "@theintern-dev/tsconfig",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [{ "path": "../core" }, { "path": "../cli" }],
+  "include": ["src/*"]
+}

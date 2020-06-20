@@ -5,9 +5,10 @@
 //
 
 import { execSync } from 'child_process';
+import { join } from 'path';
 import { global } from '@theintern/common';
 
-import { getConfig } from '../lib/node/util';
+import { getConfig, getPackagePath } from '../lib/node/util';
 import { getConfigDescription } from '../lib/common/util';
 import intern from '../index';
 import * as console from '../lib/common/console';
@@ -57,7 +58,8 @@ getConfig()
 
 function printHelp(config: any, file?: string) {
   const $ = (cmd: string) => execSync(cmd, { encoding: 'utf8' }).trim();
-  const pkg = require('../package.json');
+  const pkgPath = getPackagePath();
+  const pkg = require(join(pkgPath, 'package.json'));
   const npmVersion = $('npm -v');
   const nodeVersion = $('node -v');
   console.log(`intern version ${pkg.version}`);

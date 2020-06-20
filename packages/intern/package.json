@@ -1,0 +1,52 @@
+{
+  "name": "intern",
+  "version": "5.0.0-pre",
+  "description": "Intern. A next-generation code testing stack for JavaScript.",
+  "homepage": "http://theintern.io/",
+  "license": "BSD-3-Clause",
+  "bugs": "https://github.com/theintern/intern/issues",
+  "files": [
+    "bin/**/*",
+    "dist/**/*"
+  ],
+  "bin": {
+    "intern": "bin/intern.js"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "keywords": [
+    "bdd",
+    "browserstack",
+    "ci",
+    "code coverage",
+    "continuous integration",
+    "javascript",
+    "sauce labs",
+    "selenium",
+    "tdd",
+    "test",
+    "testing",
+    "unit",
+    "webdriver"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theintern/intern.git"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "shx rm -rf dist *.tsbuildinfo",
+    "build": "tsc -b",
+    "watch": "tsc -b --watch"
+  },
+  "dependencies": {
+    "@theintern/cli": "workspace:^5.0.0-pre",
+    "@theintern/core": "workspace:^5.0.0-pre",
+    "tslib": "~2.0.0"
+  },
+  "devDependencies": {
+    "@theintern-dev/tsconfig": "workspace:*"
+  }
+}

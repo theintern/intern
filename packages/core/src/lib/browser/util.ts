@@ -1,6 +1,7 @@
 import { request, CancellablePromise, global } from '@theintern/common';
 
 import {
+  defaultConfig,
   getBasePath,
   loadConfig,
   parseArgs,
@@ -24,12 +25,12 @@ export function getConfig(file?: string) {
     // If a config parameter was provided, load it, mix in any other query
     // params, then initialize the executor with that
     const { configFile, childConfig } = splitConfigPath(args.config);
-    file = resolvePath(configFile || 'intern.json', configBase);
+    file = resolvePath(configFile || defaultConfig, configBase);
     load = loadConfig(file, loadText, args, childConfig);
   } else {
     // If no config parameter was provided, try 'intern.json'. If that file
     // doesn't exist, just return the args
-    file = resolvePath('intern.json', configBase);
+    file = resolvePath(defaultConfig, configBase);
     load = loadConfig(file, loadText, args).catch(error => {
       if (error.message.indexOf('Request failed') === 0) {
         // The file wasn't found, clear the file name

@@ -9,7 +9,7 @@ import {
 } from 'fs';
 import { join } from 'path';
 import { format as _format } from 'util';
-import { ICommand, IExportedCommand } from 'commander';
+import { Command } from 'commander';
 
 export let screenWidth = 80;
 
@@ -36,8 +36,11 @@ export function acceptVersion(
  * Collects values into an array
  */
 export function collect(val: any, arr: any[]) {
-  arr.push(val);
-  return arr;
+  if (arr) {
+    arr.push(val);
+    return arr;
+  }
+  return [val];
 }
 
 /**
@@ -67,8 +70,8 @@ export function copy(src: string, dst: string) {
  */
 export function getCommand(
   name: string,
-  command: IExportedCommand
-): ICommand | undefined {
+  command: Command
+): Command | undefined {
   for (const cmd of command.commands) {
     if (cmd.name === name) {
       return cmd;
@@ -111,7 +114,7 @@ export type Die = (...args: any[]) => void;
 /**
  * Logs an error message and exits
  */
-export let die = function (...args: any[]): void {
+export let die: Die = function (...args: any[]) {
   console.error();
 
   if (args.length === 1 && Array.isArray(args[0])) {

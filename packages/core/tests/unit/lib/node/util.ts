@@ -68,7 +68,9 @@ registerSuite('lib/node/util', function () {
       logCall('splitConfigPath', [path]);
       const parts = path.split('@');
       return { configFile: parts[0], childConfig: parts[1] };
-    }
+    },
+
+    defaultConfig: 'intern.json'
   };
 
   const mockGlob = {

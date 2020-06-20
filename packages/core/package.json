@@ -37,9 +37,6 @@
     "type": "git",
     "url": "https://github.com/theintern/intern.git"
   },
-  "bin": {
-    "intern": "bin/intern.js"
-  },
   "scripts": {
     "apidoc": "dev-apidoc",
     "build": "tsc -b && webpack",

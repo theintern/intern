@@ -60,13 +60,13 @@ registerSuite('lib/util', {
 
       tests: {
         'copy file'() {
-          copy('./tests/util.ts', join(tempdir, 'util.js'));
+          copy('./tests/lib/util.ts', join(tempdir, 'util.js'));
           assert.isTrue(statSync(join(tempdir, 'util.js')).isFile());
         },
 
         'copy dir'() {
           copy('./tests', tempdir);
-          assert.isTrue(statSync(join(tempdir, 'util.ts')).isFile());
+          assert.isTrue(statSync(join(tempdir, 'lib', 'util.ts')).isFile());
         }
       }
     };

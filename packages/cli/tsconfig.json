@@ -1,8 +1,9 @@
 {
   "extends": "@theintern-dev/tsconfig",
   "compilerOptions": {
-    "outDir": "./_build",
-    "rootDir": "."
+    "outDir": "./dist",
+    "rootDir": "src"
   },
+  "references": [{ "path": "../core" }],
   "include": ["./src/**/*.ts"]
 }

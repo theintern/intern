@@ -12,6 +12,7 @@ importers:
       eslint: 7.1.0
       eslint-config-prettier: 6.11.0_eslint@7.1.0
       husky: 4.2.5
+      intern: 'link:packages/intern'
       lint-staged: 10.2.9
       prettier: 2.0.5
       shx: 0.3.2
@@ -29,6 +30,7 @@ importers:
       eslint: ~7.1.0
       eslint-config-prettier: ~6.11.0
       husky: ~4.2.5
+      intern: 'workspace:*'
       lint-staged: ~10.2.6
       prettier: ~2.0.5
       shx: ~0.3.2
@@ -58,8 +60,9 @@ importers:
     specifiers: {}
   packages/cli:
     dependencies:
+      '@theintern/core': 'link:../core'
       chokidar: 1.7.0
-      commander: 2.11.0
+      commander: 4.0.1
       glob: 7.1.6
       opn: 5.1.0
       resolve: 1.4.0
@@ -68,9 +71,7 @@ importers:
     devDependencies:
       '@theintern-dev/eslint-config': 'link:../../devPackages/eslint-config'
       '@theintern-dev/tsconfig': 'link:../../devPackages/tsconfig'
-      '@theintern/core': 'link:../core'
       '@types/chokidar': 1.7.5
-      '@types/commander': 2.3.31
       '@types/glob': 5.0.36
       '@types/opn': 3.0.28
       '@types/resolve': 0.0.4
@@ -80,13 +81,12 @@ importers:
       '@theintern-dev/tsconfig': 'workspace:*'
       '@theintern/core': 'workspace:*'
       '@types/chokidar': ~1.7.2
-      '@types/commander': ~2.3.31
       '@types/glob': ~5.0.32
       '@types/opn': ~3.0.28
       '@types/resolve': 0.0.4
       '@types/semver': ~5.3.30
       chokidar: ~1.7.0
-      commander: ~2.11.0
+      commander: ~4.0.1
       glob: ~7.1.2
       opn: ~5.1.0
       resolve: ~1.4.0
@@ -336,6 +336,18 @@ importers:
       semver: ~6.1.1
       shelljs: ~0.8.1
       tslib: ~1.9.3
+  packages/intern:
+    dependencies:
+      '@theintern/cli': 'link:../cli'
+      '@theintern/core': 'link:../core'
+      tslib: 2.0.0
+    devDependencies:
+      '@theintern-dev/tsconfig': 'link:../../devPackages/tsconfig'
+    specifiers:
+      '@theintern-dev/tsconfig': 'workspace:*'
+      '@theintern/cli': 'workspace:^5.0.0-pre'
+      '@theintern/core': 'workspace:^5.0.0-pre'
+      tslib: ~2.0.0
   packages/leadfoot:
     dependencies:
       '@theintern/common': 'link:../common'
@@ -663,12 +675,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-ugsxEJfsCuqMLSuCD4PIJkp5Uk2z6TCMRCgYVuhRo5cYQY3+1xXTQkSlPtkpGHuvWMjS2KTeVQXxkXRACMbM6A==
-  /@types/commander/2.3.31:
-    dependencies:
-      '@types/node': 14.0.11
-    dev: true
-    resolution:
-      integrity: sha1-xg5VFwkfniIApeIGOoMO3axKcDY=
   /@types/connect/3.4.33:
     dependencies:
       '@types/node': 14.0.11
@@ -2396,10 +2402,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-LTQ/SGc+s0Xc0Fu5WaKnR0YiygZkm9eKFvyS+fRsU7/ZWFF8ykFM6Pc9aCVf1+xasOOZpO3BAVgVrKvsqKHV7w==
-  /commander/2.11.0:
-    dev: false
-    resolution:
-      integrity: sha512-b0553uYA5YAEGgyYIGYROzKQ7X5RAqedkfjiZxwi0kL1g3bOaBNNZfYkzt/CL0umgD5wc9Jec2FbB98CjkMRvQ==
   /commander/2.20.3:
     resolution:
       integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
@@ -2417,6 +2419,12 @@ packages:
       node: '>= 0.6.x'
     resolution:
       integrity: sha1-Br42f+v9oMMwqh4qBy09yXYkJdQ=
+  /commander/4.0.1:
+    dev: false
+    engines:
+      node: '>= 6'
+    resolution:
+      integrity: sha512-IPF4ouhCP+qdlcmCedhxX4xiGBPyigb8v5NeUp+0LyhwLgxMqyp3S0vl7TAPfS/hiP7FC3caI/PB9lTmP8r1NA==
   /commander/5.1.0:
     dev: true
     engines:

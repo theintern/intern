@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": "..",
     "outDir": "../_tests",
+    "rootDir": "../",
     "types": ["@theintern/core"]
   },
   "include": ["./**/*.ts", "../src/**/*.ts"]
