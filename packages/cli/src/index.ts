@@ -330,6 +330,10 @@ program
       config.port = command.port;
     }
 
+    if (command.serveOnly != null) {
+      config.serveOnly = true;
+    }
+
     if (command.timeout != null) {
       config.timeout = command.timeout;
     }

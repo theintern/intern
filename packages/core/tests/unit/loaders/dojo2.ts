@@ -1,17 +1,14 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { spy } from 'sinon';
 import { global } from '@theintern/common';
 
 import { LoaderInit } from 'src/lib/executors/Executor';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
 const originalIntern = global.intern;
 const originalDojoConfig = global.dojoConfig;
 const originalRequire = global.require;
 
-registerSuite('loaders/dojo2', function() {
-  let removeMocks: () => void;
-
+registerSuite('loaders/dojo2', function () {
   const mockIntern = {
     config: { basePath: '/' },
     emit: spy(() => {}),
@@ -35,17 +32,14 @@ registerSuite('loaders/dojo2', function() {
   let requirePromise: Promise<void>;
 
   return {
-    before() {
+    async before() {
       global.intern = mockIntern;
-      return mockRequire(require, 'src/loaders/dojo2', {}).then(handle => {
-        removeMocks = handle.remove;
-        assert.equal(mockIntern.registerLoader.callCount, 1);
-      });
+      await mockImport(() => require('src/loaders/dojo2'));
+      assert.equal(mockIntern.registerLoader.callCount, 1);
     },
 
     after() {
       global.intern = originalIntern;
-      removeMocks();
     },
 
     beforeEach() {

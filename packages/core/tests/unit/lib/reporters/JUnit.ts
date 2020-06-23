@@ -1,28 +1,30 @@
-import { spy, stub } from 'sinon';
+import { mockImport } from 'tests/support/mockUtil';
+import { createSandbox } from 'sinon';
 
-import _JUnit from 'src/lib/reporters/JUnit';
 import Test from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
+import Executor from 'src/lib/executors/Executor';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
+registerSuite('lib/reporters/JUnit', function () {
+  const sandbox = createSandbox();
 
-registerSuite('lib/reporters/JUnit', function() {
-  const mockExecutor = <any>{
-    suites: [],
-    on: stub(),
-    emit: stub().resolves(),
-    formatError: spy((error: Error) => error.message)
+  const _mockExecutor = {
+    suites: [] as any[],
+    on: sandbox.spy(),
+    emit: sandbox.stub().resolves(),
+    formatError: sandbox.spy((error: Error) => error.message)
   };
+  const mockExecutor = (_mockExecutor as unknown) as Executor<any, any, any>;
 
   const mockFs = {
-    createWriteStream: spy(),
-    mkdirSync: spy()
+    createWriteStream: sandbox.spy()
   };
 
-  let JUnit: typeof _JUnit;
-  let removeMocks: () => void;
+  const mockNodeUtil = {
+    mkdirp: sandbox.spy()
+  };
+
+  let JUnit: typeof import('src/lib/reporters/JUnit').default;
 
   const getReportOutput = () => {
     const text: string[] = [];
@@ -42,24 +44,19 @@ registerSuite('lib/reporters/JUnit', function() {
   };
 
   return {
-    before() {
-      return mockRequire(require, 'src/lib/reporters/JUnit', {
-        fs: mockFs
-      }).then(handle => {
-        removeMocks = handle.remove;
-        JUnit = handle.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      ({ default: JUnit } = await mockImport(
+        () => import('src/lib/reporters/JUnit'),
+        replace => {
+          replace(() => import('fs')).with(mockFs);
+          replace(() => import('src/lib/node/util')).with(mockNodeUtil);
+        }
+      ));
     },
 
     beforeEach() {
-      mockExecutor.suites = [];
-      mockExecutor.on.reset();
-      mockFs.createWriteStream.resetHistory();
-      mockFs.mkdirSync.resetHistory();
+      _mockExecutor.suites = [];
+      sandbox.resetHistory();
     },
 
     tests: {
@@ -73,8 +70,8 @@ registerSuite('lib/reporters/JUnit', function() {
           return true;
         };
         new JUnit(mockExecutor, { filename: 'somewhere/foo.js' });
-        assert.equal(mockFs.mkdirSync.callCount, 1);
-        assert.equal(mockFs.mkdirSync.getCall(0).args[0], 'somewhere');
+        assert.equal(mockNodeUtil.mkdirp.callCount, 1);
+        assert.equal(mockNodeUtil.mkdirp.getCall(0).args[0], 'somewhere');
         assert.equal(mockFs.createWriteStream.callCount, 1);
       },
 
@@ -192,7 +189,7 @@ registerSuite('lib/reporters/JUnit', function() {
             ]
           });
 
-          mockExecutor.suites.push(suite.toJSON());
+          _mockExecutor.suites.push(suite.toJSON());
 
           assert.include(
             getReportOutput(),

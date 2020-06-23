@@ -1,15 +1,12 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { spy } from 'sinon';
 
-import * as _benchmarkInt from 'src/lib/interfaces/benchmark';
 import BenchmarkTest, { BenchmarkTestFunction } from 'src/lib/BenchmarkTest';
 import BenchmarkSuite from 'src/lib/BenchmarkSuite';
 import Suite from 'src/lib/Suite';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
-registerSuite('lib/interfaces/benchmark', function() {
-  let benchmarkInt: typeof _benchmarkInt;
-  let removeMocks: () => void;
+registerSuite('lib/interfaces/benchmark', function () {
+  let benchmarkInt: typeof import('src/lib/interfaces/benchmark');
   let parent: Suite;
   let executor: any;
   const getIntern = spy(() => {
@@ -20,19 +17,25 @@ registerSuite('lib/interfaces/benchmark', function() {
       return getIntern();
     }
   };
-
   return {
-    before() {
-      return mockRequire(require, 'src/lib/interfaces/benchmark', {
-        '@theintern/common': { global: mockGlobal }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        benchmarkInt = handle.module;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      benchmarkInt = await mockImport(
+        () => import('src/lib/interfaces/benchmark'),
+        replace => {
+          replace(() => import('@theintern/common')).with({
+            global: mockGlobal
+          });
+          // Pass in our versions of Suite and Test since we'll be using
+          // instanceof in some of the tests below. Without doing this, the test
+          // tdd interface would have its own copies of Suite and Test.
+          replace(() => import('src/lib/BenchmarkSuite')).withDefault(
+            BenchmarkSuite
+          );
+          replace(() => import('src/lib/BenchmarkTest')).withDefault(
+            BenchmarkTest
+          );
+        }
+      );
     },
 
     beforeEach() {
@@ -50,7 +53,7 @@ registerSuite('lib/interfaces/benchmark', function() {
 
     tests: {
       getInterface() {
-        const iface = benchmarkInt.getInterface(<any>executor);
+        const iface = benchmarkInt.getInterface(executor);
         assert.property(iface, 'registerSuite');
         assert.isFunction(iface.registerSuite);
 
@@ -113,7 +116,7 @@ registerSuite('lib/interfaces/benchmark', function() {
 
           factory() {
             parent = new Suite(<any>{ name: 'parent', executor });
-            benchmarkInt.default('fooSuite', function() {
+            benchmarkInt.default('fooSuite', function () {
               return {
                 beforeEach() {},
                 tests: {
@@ -130,8 +133,8 @@ registerSuite('lib/interfaces/benchmark', function() {
 
       'register with benchmark options'() {
         benchmarkInt.default('suite 1', {
-          test1: (function() {
-            let testFunction: BenchmarkTestFunction = () => {};
+          test1: (function () {
+            const testFunction: BenchmarkTestFunction = () => {};
             testFunction.options = {
               initCount: 5
             };

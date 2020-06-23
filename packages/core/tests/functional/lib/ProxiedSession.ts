@@ -9,7 +9,7 @@ import { Remote } from 'src/lib/executors/Node';
 import Test, { TestFunction } from 'src/lib/Test';
 import { ObjectSuiteDescriptor } from 'src/lib/interfaces/object';
 
-registerSuite('lib/ProxiedSession (functional)', () => {
+registerSuite('functional/lib/ProxiedSession (functional)', () => {
   const serverUrl = 'https://example.invalid/';
   let session: ProxiedSession | null;
   let numGetCalls: number;

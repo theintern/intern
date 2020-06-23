@@ -4,7 +4,7 @@ import * as util from '../../../src/lib/util';
 declare let __cov_abcdef: number;
 declare let a: any;
 
-registerSuite('lib/leadfoot/util', {
+registerSuite('webdriver/lib/util', {
   '.sleep'() {
     const startTime = Date.now();
     return util.sleep(250).then(function () {

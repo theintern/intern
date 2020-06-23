@@ -1,8 +1,12 @@
+/// <reference path="../globals.d.ts" />
+
 /**
  * Install some commonly used test functionals globally
  */
-intern.registerPlugin('globalUI', () => {
-  const globalObj: any = typeof process === 'undefined' ? window : global;
-  globalObj.registerSuite = intern.getPlugin('interface.object').registerSuite;
-  globalObj.assert = intern.getPlugin('chai').assert;
-});
+import { global } from '@theintern/common';
+
+const chai = intern.getPlugin('chai');
+global.assert = chai.assert;
+
+const { registerSuite } = intern.getPlugin('interface.object');
+global.registerSuite = registerSuite;

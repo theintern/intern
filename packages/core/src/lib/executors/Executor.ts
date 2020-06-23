@@ -901,7 +901,11 @@ export default abstract class BaseExecutor<
         case 'dojo2':
         case 'esm':
         case 'systemjs':
-          script = `${config.internPath}dist/loaders/${script}.js`;
+          // Use a .? extension to let loadScript know the extension is
+          // dependent on how Intern is being executed (as compiled JS or
+          // directly as TS). The environment-specific executors figure out
+          // which extension to use in their loadScript methods.
+          script = `${config.internPath}dist/loaders/${script}.?`;
       }
 
       this._loaderOptions = loader.options || {};

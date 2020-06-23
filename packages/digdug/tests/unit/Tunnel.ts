@@ -1,7 +1,7 @@
 import { Task } from '@theintern/common';
 import Tunnel from '../../src/Tunnel';
 
-registerSuite('unit/Tunnel', () => {
+registerSuite('tunnels/Tunnel', () => {
   let tunnel: Tunnel;
 
   return {
@@ -75,7 +75,7 @@ registerSuite('unit/Tunnel', () => {
 
       '#sendJobState'() {
         const dfd = this.async();
-        tunnel.sendJobState('0', { success: true }).catch(function() {
+        tunnel.sendJobState('0', { success: true }).catch(function () {
           dfd.resolve();
         });
       }

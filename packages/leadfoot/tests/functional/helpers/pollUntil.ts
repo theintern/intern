@@ -3,7 +3,7 @@ import pollUntil from '../../../src/helpers/pollUntil';
 import { createSessionFromRemote } from '../support/util';
 import { ObjectSuiteDescriptor } from '@theintern/core/dist/lib/interfaces/object';
 
-registerSuite('leadfoot/helpers/pollUntil', () => {
+registerSuite('functional/webdriver/helpers/pollUntil', () => {
   let command: Command<any>;
 
   return {

@@ -1,13 +1,13 @@
 import SeleniumTunnel from '../../src/SeleniumTunnel';
 
-registerSuite('unit/SeleniumTunnel', {
+registerSuite('tunnels/SeleniumTunnel', {
   config: {
-    'name only': function() {
+    'name only': function () {
       const tunnel = new SeleniumTunnel({ drivers: ['chrome'] });
       assert.isFalse(tunnel.isDownloaded);
     },
 
-    'config object': function() {
+    'config object': function () {
       const tunnel = new SeleniumTunnel({
         drivers: [{ executable: 'README.md', url: '', seleniumProperty: '' }]
       });
@@ -16,8 +16,8 @@ registerSuite('unit/SeleniumTunnel', {
       assert.isTrue(tunnel.isDownloaded);
     },
 
-    'invalid name': function() {
-      assert.throws(function() {
+    'invalid name': function () {
+      assert.throws(function () {
         const tunnel = new SeleniumTunnel({ drivers: <any>['foo'] });
         Object.defineProperty(tunnel, 'artifact', { value: '.' });
         Object.defineProperty(tunnel, 'directory', { value: '.' });
@@ -25,8 +25,8 @@ registerSuite('unit/SeleniumTunnel', {
       }, /Invalid driver/);
     },
 
-    'config object with invalid name': function() {
-      assert.throws(function() {
+    'config object with invalid name': function () {
+      assert.throws(function () {
         const tunnel = new SeleniumTunnel({
           drivers: [{ name: 'foo' }]
         });
@@ -36,9 +36,9 @@ registerSuite('unit/SeleniumTunnel', {
       }, /Invalid driver/);
     },
 
-    'debug args': (function() {
+    'debug args': (function () {
       function createTest(version: string, hasDebugArg: boolean) {
-        return function() {
+        return function () {
           const tunnel = new SeleniumTunnel({
             version,
             verbose: true
@@ -68,7 +68,7 @@ registerSuite('unit/SeleniumTunnel', {
         };
       }
 
-      let oldLog = console.log;
+      const oldLog = console.log;
 
       return {
         afterEach() {

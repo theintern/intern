@@ -1,14 +1,14 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { join } from 'path';
+import { RawSourceMap } from 'source-map';
 
 import _ErrorFormatter from 'src/lib/node/ErrorFormatter';
 import { InternError } from 'src/lib/types';
-import { createMockNodeExecutor, MockNode } from '../../../support/unit/mocks';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
+import { createMockNodeExecutor, MockNode } from 'tests/support/unit/mocks';
 
 let ErrorFormatter: typeof _ErrorFormatter;
 
-registerSuite('lib/node/ErrorFormatter', function() {
+registerSuite('lib/node/ErrorFormatter', function () {
   class SourceMapConsumer {
     map: { file: string };
     constructor(map: { file: string }) {
@@ -81,29 +81,26 @@ registerSuite('lib/node/ErrorFormatter', function() {
   const mockUtil = {
     readSourceMap(filename: string) {
       if (filename === 'hasmap.js') {
-        return {};
+        return {} as RawSourceMap;
       }
     }
   };
 
   let fsData: { [name: string]: string };
-  let removeMocks: () => void;
 
   return {
-    before() {
-      return mockRequire(require, 'src/lib/node/ErrorFormatter', {
-        'source-map': { SourceMapConsumer },
-        path: mockPath,
-        fs: mockFs,
-        'src/lib/node/util': mockUtil
-      }).then(handle => {
-        removeMocks = handle.remove;
-        ErrorFormatter = handle.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      ({ default: ErrorFormatter } = await mockImport(
+        () => import('src/lib/node/ErrorFormatter'),
+        replace => {
+          replace(() => import('path')).with(mockPath);
+          replace(() => import('fs')).with(mockFs as any);
+          replace(() => import('src/lib/node/util')).with(mockUtil);
+          replace(() => import('source-map')).with({
+            SourceMapConsumer: SourceMapConsumer as any
+          });
+        }
+      ));
     },
 
     beforeEach() {
@@ -111,7 +108,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
     },
 
     tests: {
-      '#format': (function() {
+      '#format': (function () {
         let executor: MockNode;
         let formatter: _ErrorFormatter;
 

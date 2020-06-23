@@ -18,7 +18,7 @@ intern.registerLoader(options => {
       });
   } else {
     // Use globalObj to get to require to improve testability
-    const SystemJS = (globalObj.require || require)('systemjs');
+    const SystemJS = globalObj.require('systemjs');
     return configAndLoad(SystemJS);
   }
 
@@ -30,15 +30,12 @@ intern.registerLoader(options => {
 
     return (modules: string[]) => {
       intern.log('Loading modules with SystemJS:', modules);
-      return modules.reduce(
-        (previous, suite) => {
-          if (previous) {
-            return previous.then(() => loader.import(suite));
-          }
-          return loader.import(suite);
-        },
-        <any>null
-      );
+      return modules.reduce((previous, suite) => {
+        if (previous) {
+          return previous.then(() => loader.import(suite));
+        }
+        return loader.import(suite);
+      }, <any>null);
     };
   }
 });

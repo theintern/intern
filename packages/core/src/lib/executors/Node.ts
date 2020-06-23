@@ -267,7 +267,14 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     const scripts = Array.isArray(script) ? script : [script];
 
     try {
-      for (const script of scripts) {
+      for (let script of scripts) {
+        if (/\.\?$/.test(script)) {
+          if (/\.ts$/i.test(__filename)) {
+            script = script.replace(/\?$/, 'ts');
+          } else {
+            script = script.replace(/\?$/, 'js');
+          }
+        }
         const file = resolve(script);
         if (existsSync(file)) {
           require(file);

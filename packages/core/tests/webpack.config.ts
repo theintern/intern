@@ -1,20 +1,19 @@
-import { join } from 'path';
-import { Configuration } from 'webpack';
-
-const mode =
-  process.env['NODE_ENV'] === 'production' ||
-  process.env['INTERN_BUILD'] === 'release'
-    ? 'production'
-    : 'development';
+import { resolve } from 'path';
+import { Configuration, HotModuleReplacementPlugin } from 'webpack';
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import { sync as glob } from 'glob';
+import { getConfig } from '../src/lib/node/util';
+// @ts-ignore
+import RewireMockPlugin from 'rewiremock/webpack/plugin';
 
 const common: Configuration = {
-  mode,
+  externals: {
+    intern: 'intern'
+  },
+  // Needed for rewiremock
+  mode: 'development',
   module: {
     rules: [
-      {
-        test: /@theintern\/common/,
-        use: 'umd-compat-loader'
-      },
       {
         test: /\.styl$/,
         use: ['style-loader', 'css-loader', 'stylus-loader']
@@ -25,23 +24,26 @@ const common: Configuration = {
           loader: 'ts-loader',
           options: {
             silent: true,
-            onlyCompileBundledFiles: true,
-            configFile: join(__dirname, 'tsconfig.json'),
-            compilerOptions: {
-              module: 'esnext'
-            }
+            configFile: resolve(__dirname, 'tsconfig.json'),
+            onlyCompileBundledFiles: true
           }
         }
       }
     ],
-    noParse: /benchmark[\\\/]benchmark.js/
+    noParse: /benchmark\/benchmark.js/
   },
   performance: {
     // Hides a warning about large bundles.
     hints: false
   },
+  plugins: [new HotModuleReplacementPlugin(), new RewireMockPlugin()],
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    plugins: [
+      new TsconfigPathsPlugin({
+        configFile: resolve(__dirname, 'tsconfig.json')
+      })
+    ]
   },
   stats: {
     assets: false,
@@ -54,21 +56,38 @@ const common: Configuration = {
   }
 };
 
-module.exports = [
-  {
+module.exports = getEntries().then(entries =>
+  Object.keys(entries).map(name => ({
     ...common,
-    entry: getEntries(),
+    entry: entries[name as keyof typeof entries],
     output: {
-      filename: '[name].js',
-      path: join(__dirname, '..', '_tests', 'src', 'browser')
+      filename: `${name}.js`,
+      path: resolve(__dirname, '..', '_tests')
     }
-  }
-];
+  }))
+);
 
-function getEntries() {
-  return {
-    intern: join(__dirname, '..', 'src', 'browser', 'intern.ts'),
-    remote: join(__dirname, '..', 'src', 'browser', 'remote.ts'),
-    config: join(__dirname, '..', 'src', 'browser', 'config.ts')
-  };
+async function getEntries() {
+  const { config } = await getConfig();
+  const configSuites: string[] = config.suites || [];
+  if (config.browser && config.browser.suites) {
+    configSuites.push(...config.browser.suites);
+  }
+
+  const suites = configSuites.reduce(
+    (files, pattern) => [
+      ...files,
+      ...glob(pattern).map(file => resolve('.', file))
+    ],
+    [] as string[]
+  );
+
+  const configPlugins: { script: string }[] = config.plugins || [];
+  if (config.browser && config.browser.plugins) {
+    configPlugins.push(...config.browser.plugins);
+  }
+
+  const plugins = configPlugins.map(plugin => plugin.script);
+
+  return { suites, plugins };
 }

@@ -1,6 +1,6 @@
 /**
- * Provide a function for creating a new Document in the browser
+ * A function for creating a new Document in the browser
  */
-intern.registerPlugin('createDocument', () => {
-  return () => document.implementation.createHTMLDocument('Mock document');
-});
+export function createDocument() {
+  return document.implementation.createHTMLDocument('Mock document');
+}

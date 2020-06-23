@@ -7,9 +7,6 @@ import Test from 'src/lib/Test';
 import { Executor } from 'src/lib/executors/Executor';
 import TeamCity from 'src/lib/reporters/TeamCity';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-
 const messagePatterns: any = {
   suiteStart: "^##teamcity\\[testSuiteStarted name='{name}'",
   suiteEnd: "^##teamcity\\[testSuiteFinished name='{name}' duration='\\d+'",
@@ -71,7 +68,7 @@ function testTest(
   );
 }
 
-registerSuite('lib/reporters/TeamCity', function() {
+registerSuite('lib/reporters/TeamCity', function () {
   const mockExecutor = <any>{
     formatError: spy((error: Error) => intern.formatError(error)),
     on: spy(),

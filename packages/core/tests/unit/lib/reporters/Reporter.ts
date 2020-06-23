@@ -1,45 +1,41 @@
-import { spy } from 'sinon';
+import { mockImport } from 'tests/support/mockUtil';
+import { createSandbox, spy } from 'sinon';
 import { global } from '@theintern/common';
 
 import _Reporter, {
   createEventHandler,
   eventHandler
 } from 'src/lib/reporters/Reporter';
-import { Events } from 'src/lib/executors/Executor';
+import Executor, { Events } from 'src/lib/executors/Executor';
 import Test from 'src/lib/Test';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
+registerSuite('lib/reporters/Reporter', function () {
+  const sandbox = createSandbox();
 
-registerSuite('lib/reporters/Reporter', function() {
-  const mockExecutor = <any>{
-    formatError: spy(() => {}),
-    on: spy(() => {})
+  const _mockExecutor = {
+    formatError: sandbox.spy((_error: Error) => {}),
+    on: sandbox.spy((_event: string, _listener: () => void) => {})
   };
+  const mockExecutor = (_mockExecutor as unknown) as Executor<any, any, any>;
 
   const mockGlobal: { [name: string]: any } = {};
 
   let Reporter: typeof _Reporter;
-  let removeMocks: () => void;
 
   return {
-    before() {
-      return mockRequire(require, 'src/lib/reporters/Reporter', {
-        '@theintern/common': { global: mockGlobal }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        Reporter = handle.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      ({ default: Reporter } = await mockImport(
+        () => import('src/lib/reporters/Reporter'),
+        replace => {
+          replace(() => import('@theintern/common')).with({
+            global: mockGlobal
+          });
+        }
+      ));
     },
 
     beforeEach() {
-      mockExecutor.formatError.reset();
-      mockExecutor.on.reset();
+      sandbox.resetHistory();
       if (global.process != null) {
         mockGlobal.process = global.process;
       }
@@ -123,11 +119,11 @@ registerSuite('lib/reporters/Reporter', function() {
         const error = new Error('foo');
         reporter.formatError(error);
         assert.equal(
-          mockExecutor.formatError.callCount,
+          _mockExecutor.formatError.callCount,
           1,
           'expected executor error formatter to be called'
         );
-        assert.strictEqual(mockExecutor.formatError.getCall(0).args[0], error);
+        assert.strictEqual(_mockExecutor.formatError.getCall(0).args[0], error);
       },
 
       'event handlers'() {
@@ -139,10 +135,10 @@ registerSuite('lib/reporters/Reporter', function() {
           }
         }
         new AReporter(mockExecutor);
-        assert.equal(mockExecutor.on.callCount, 1);
-        assert.equal(mockExecutor.on.getCall(0).args[0], 'testStart');
+        assert.equal(_mockExecutor.on.callCount, 1);
+        assert.equal(_mockExecutor.on.getCall(0).args[0], 'testStart');
 
-        const listener = mockExecutor.on.getCall(0).args[1];
+        const listener = _mockExecutor.on.getCall(0).args[1];
         listener();
         assert.isTrue(started, 'testStart event should have been handled');
       },
@@ -154,7 +150,7 @@ registerSuite('lib/reporters/Reporter', function() {
         }
         const customEventHandler = createEventHandler<SomeEvents>();
 
-        let evented: string[] = [];
+        const evented: string[] = [];
         class SomeReporter extends Reporter {
           @customEventHandler()
           goodTime(_data: string) {
@@ -167,13 +163,13 @@ registerSuite('lib/reporters/Reporter', function() {
           }
         }
         new SomeReporter(mockExecutor);
-        assert.equal(mockExecutor.on.callCount, 2);
-        assert.equal(mockExecutor.on.getCall(0).args[0], 'goodTime');
-        assert.equal(mockExecutor.on.getCall(1).args[0], 'badTime');
+        assert.equal(_mockExecutor.on.callCount, 2);
+        assert.equal(_mockExecutor.on.getCall(0).args[0], 'goodTime');
+        assert.equal(_mockExecutor.on.getCall(1).args[0], 'badTime');
 
-        const goodListener = mockExecutor.on.getCall(0).args[1];
+        const goodListener = _mockExecutor.on.getCall(0).args[1];
         goodListener();
-        const badListener = mockExecutor.on.getCall(1).args[1];
+        const badListener = _mockExecutor.on.getCall(1).args[1];
         badListener();
         assert.deepEqual(
           evented,

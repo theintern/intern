@@ -1,7 +1,5 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox } from 'sinon';
-import * as _console from 'src/lib/common/console';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 const sandbox = createSandbox();
 const mockConsole = {
@@ -10,8 +8,7 @@ const mockConsole = {
   error: sandbox.spy(() => {})
 };
 
-let console: typeof _console;
-let removeMocks: () => void;
+let console: typeof import('src/lib/common/console');
 
 registerSuite('lib/common/console', {
   afterEach() {
@@ -20,21 +17,15 @@ registerSuite('lib/common/console', {
 
   tests: {
     'console exists': {
-      before() {
-        return mockRequire(require, 'src/lib/common/console', {
-          '@theintern/common': {
-            global: {
-              console: mockConsole
-            }
+      async before() {
+        console = await mockImport(
+          () => import('src/lib/common/console'),
+          replace => {
+            replace(() => import('@theintern/common')).with({
+              global: { console: mockConsole }
+            });
           }
-        }).then(handle => {
-          removeMocks = handle.remove;
-          console = handle.module;
-        });
-      },
-
-      after() {
-        removeMocks();
+        );
       },
 
       tests: {
@@ -56,19 +47,15 @@ registerSuite('lib/common/console', {
     },
 
     'console does not exist': {
-      before() {
-        return mockRequire(require, 'src/lib/common/console', {
-          '@theintern/common': {
-            global: { console: undefined }
+      async before() {
+        console = await mockImport(
+          () => import('src/lib/common/console'),
+          replace => {
+            replace(() => import('@theintern/common')).with({
+              global: { console: undefined }
+            });
           }
-        }).then(handle => {
-          removeMocks = handle.remove;
-          console = handle.module;
-        });
-      },
-
-      after() {
-        removeMocks();
+        );
       },
 
       tests: {

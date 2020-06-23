@@ -1,3 +1,4 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { spy, SinonSpy } from 'sinon';
 import * as tty from 'tty';
 import { CoverageMapData } from 'istanbul-lib-coverage';
@@ -12,33 +13,36 @@ import {
   createMockNodeExecutor
 } from '../../../support/unit/mocks';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
 registerSuite('intern/lib/reporters/Pretty', () => {
+  const mockCharm = createMockCharm();
+
   return {
-    before() {
-      return mockRequire(require, 'src/lib/reporters/Pretty', {
-        charm: createMockCharm,
-        'istanbul-lib-coverage': {
-          createCoverageMap: createMockCoverageMap
-        },
-        '@theintern/common': {
-          global: {
-            process: {
-              stdout: {
-                columns: stdout.columns,
-                rows: stdout.rows,
-                on() {}
-              }
-            },
-            setTimeout,
-            clearTimeout
-          }
+    async before() {
+      ({ default: Pretty } = await mockImport(
+        () => import('src/lib/reporters/Pretty'),
+        replace => {
+          replace(() => import('charm')).withDefault(() => mockCharm as any);
+          replace(() => import('istanbul-lib-coverage')).with({
+            createCoverageMap: createMockCoverageMap as any
+          });
+          replace(() => import('@theintern/common')).with({
+            global: {
+              process: {
+                stdout: {
+                  columns: stdout.columns,
+                  rows: stdout.rows,
+                  on() {}
+                }
+              },
+              setTimeout,
+              clearTimeout
+            }
+          });
+          // Replace Pretty's import of RemoteSuite with our RemoteSuite so that
+          // instanceof checks in Pretty will work.
+          replace(() => import('src/lib/RemoteSuite')).withDefault(RemoteSuite);
         }
-      }).then(resource => {
-        removeMocks = resource.remove;
-        Pretty = resource.module.default;
-      });
+      ));
     },
 
     beforeEach() {
@@ -48,10 +52,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
     afterEach() {
       pretty.close();
-    },
-
-    after() {
-      removeMocks();
+      mockCharm._reset();
     },
 
     tests: {
@@ -62,7 +63,6 @@ registerSuite('intern/lib/reporters/Pretty', () => {
         };
 
         pretty.runStart();
-        const mockCharm = <any>pretty['_charm'];
 
         assert.equal(
           pretty.dimensions.width,
@@ -115,8 +115,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
       runEnd: {
         'no tests'() {
           pretty.runStart();
-          const mockCharm = <any>pretty['_charm'];
-          mockCharm.write.reset();
+          mockCharm.write.resetHistory();
 
           pretty.runEnd();
           pretty.close();
@@ -132,7 +131,6 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
         'some tests'() {
           pretty.runStart();
-          const mockCharm = <any>pretty['_charm'];
 
           pretty.testEnd(<any>{
             id: 'foo - skipped',
@@ -145,7 +143,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
           pretty.testEnd(<any>{
             id: 'foo - passed'
           });
-          mockCharm.write.reset();
+          mockCharm.write.resetHistory();
 
           // Add a file to the total report so the reporter will try
           // to create a coverage report
@@ -367,8 +365,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
       error() {
         pretty.runStart();
-        const mockCharm = <any>pretty['_charm'];
-        mockCharm.erase.reset();
+        mockCharm.erase.resetHistory();
 
         pretty.error(new Error('failed'));
 
@@ -401,7 +398,6 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
       rendering() {
         pretty.runStart();
-        const mockCharm = <any>pretty['_charm'];
 
         // Get/create a report so the renderer will do something
         const report = pretty['_getReport']({
@@ -453,7 +449,6 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
 let pretty: _Pretty;
 let Pretty: typeof _Pretty;
-let removeMocks: () => void;
 
 const stdout = <tty.WriteStream>process.stdout;
 

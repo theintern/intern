@@ -7,7 +7,7 @@ import { Capabilities } from '../../src/interfaces';
 import Test from '@theintern/core/dist/lib/Test';
 import { ObjectSuiteDescriptor } from '@theintern/core/dist/lib/interfaces/object';
 
-registerSuite('Server', () => {
+registerSuite('functional/webdriver/Server', () => {
   let server: Server;
 
   return {
@@ -146,6 +146,10 @@ registerSuite('Server', () => {
       },
 
       '#getSessionCapabilities'(this: Test) {
+        // TODO: This should be skipped if W3C mode is detected. First, we'll
+        // need a way to do that...
+        this.skip('Disabled until support for W3C mode is implemented');
+
         const desiredCapabilities = this.remote.session.capabilities;
         if (
           (<Capabilities>desiredCapabilities).supportsSessionCommands === false

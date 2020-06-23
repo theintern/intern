@@ -1,12 +1,9 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { spy, createSandbox } from 'sinon';
-import { Task, isPromiseLike, deepMixin } from '@theintern/common';
 import _Browser, { Config } from 'src/lib/executors/Browser';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
+import { isPromiseLike, Task, deepMixin } from '@theintern/common';
 
 let Browser: typeof _Browser;
-
-let removeMocks: () => void;
 
 function createExecutor(config?: Partial<Config>) {
   const executor = new Browser(config);
@@ -33,8 +30,8 @@ registerSuite('lib/executors/Browser', function () {
   };
 
   const mockChai = {
-    assert: 'assert',
-    should: sandbox.spy(() => 'should')
+    assert: ('assert' as never) as Chai.Assert,
+    should: sandbox.spy(() => ('should' as never) as Chai.Should)
   };
 
   const mockGlobal = {
@@ -84,28 +81,28 @@ registerSuite('lib/executors/Browser', function () {
   };
 
   return {
-    before() {
-      return mockRequire(require, 'src/lib/executors/Browser', {
-        'src/lib/common/ErrorFormatter': MockErrorFormatter,
-        'src/lib/common/console': mockConsole,
-        'src/lib/browser/util': mockUtil,
-        chai: mockChai,
-        minimatch: { Minimatch: MockMiniMatch },
-        '@theintern/common': {
-          request,
-          global: mockGlobal,
-          isPromiseLike,
-          Task,
-          deepMixin
+    async before() {
+      ({ default: Browser } = await mockImport(
+        () => import('src/lib/executors/Browser'),
+        replace => {
+          replace(() => import('src/lib/common/ErrorFormatter')).withDefault(
+            MockErrorFormatter as any
+          );
+          replace(() => import('src/lib/common/console')).with(mockConsole);
+          replace(() => import('src/lib/browser/util')).with(mockUtil);
+          replace(() => import('chai')).with(mockChai);
+          replace(() => import('minimatch')).with({
+            Minimatch: MockMiniMatch as any
+          });
+          replace(() => import('@theintern/common')).with({
+            global: mockGlobal,
+            request: request as any,
+            isPromiseLike,
+            Task,
+            deepMixin
+          });
         }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        Browser = handle.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+      ));
     },
 
     beforeEach() {

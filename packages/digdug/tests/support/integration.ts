@@ -131,6 +131,10 @@ export function addStartStopTest(
         cleanup();
       }, timeout - 5000);
 
+      if (typeof options.port !== 'undefined') {
+        tunnel.port = options.port;
+      }
+
       return tunnel
         .start()!
         .then(function () {

@@ -1,10 +1,13 @@
 {
   "extends": ["@theintern-dev/eslint-config"],
   "rules": {
+    "@typescript-eslint/triple-slash-reference": "off",
+
     // These rules are temporarily disabled until the monorepo conversion is
     // complete
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-implied-eval": "off",
-    "@typescript-eslint/unbound-method": "off"
+    "@typescript-eslint/unbound-method": "off",
+    "@typescript-eslint/no-misused-promises": "off"
   }
 }

@@ -1,7 +1,7 @@
 import { join } from 'path';
 import BrowserStackTunnel from '../../src/BrowserStackTunnel';
 
-registerSuite('unit/BrowserStackTunnel', () => {
+registerSuite('tunnels/BrowserStackTunnel', () => {
   let tunnel: BrowserStackTunnel;
 
   return {
@@ -35,11 +35,11 @@ registerSuite('unit/BrowserStackTunnel', () => {
 
       '#url'() {
         tunnel.platform = 'foo';
-        assert.throws(function() {
+        assert.throws(function () {
           tunnel.url;
         });
 
-        let url =
+        const url =
           'https://www.browserstack.com/browserstack-local/BrowserStackLocal-';
         tunnel.platform = 'darwin';
         tunnel.architecture = 'x64';

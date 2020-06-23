@@ -1,3 +1,4 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox, SinonSandbox, SinonSpy } from 'sinon';
 import _Benchmark from 'src/lib/reporters/Benchmark';
 import {
@@ -5,9 +6,6 @@ import {
   createMockExecutor
 } from '../../../support/unit/mocks';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
-let removeMocks: () => void;
 let Benchmark: typeof _Benchmark;
 let sandbox: SinonSandbox;
 let fs: {
@@ -17,7 +15,7 @@ let fs: {
 let fileData: { [filename: string]: string };
 
 registerSuite('intern/lib/reporters/Benchmark', {
-  before() {
+  async before() {
     sandbox = createSandbox();
     fs = {
       readFileSync: sandbox.spy((name: string) => {
@@ -28,16 +26,12 @@ registerSuite('intern/lib/reporters/Benchmark', {
       })
     };
 
-    return mockRequire(require, 'src/lib/reporters/Benchmark', {
-      fs
-    }).then(resource => {
-      removeMocks = resource.remove;
-      Benchmark = resource.module.default;
-    });
-  },
-
-  after() {
-    removeMocks();
+    ({ default: Benchmark } = await mockImport(
+      () => import('src/lib/reporters/Benchmark'),
+      replace => {
+        replace(() => import('fs')).with(fs as any);
+      }
+    ));
   },
 
   beforeEach() {

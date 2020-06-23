@@ -1,7 +1,5 @@
+import { mockImport } from 'tests/support/mockUtil';
 import sinon from 'sinon';
-import _gruntTask from 'src/tasks/intern';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('tasks/intern', function () {
   const sandbox = sinon.createSandbox();
@@ -34,24 +32,24 @@ registerSuite('tasks/intern', function () {
     }
   }
 
-  let gruntTask: typeof _gruntTask;
+  let gruntTask: typeof import('src/tasks/intern');
   let executors: MockNode[];
-  let removeMocks: () => void;
 
   return {
-    before() {
-      return mockRequire(require, 'src/tasks/intern', {
-        'src/lib/executors/Node': MockNode,
-        '@theintern/common': { global: {} },
-        'src/lib/node/util': { getConfig: mockGetConfig }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        gruntTask = handle.module;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      gruntTask = await mockImport(
+        // The intern Grunt task uses commonJS export semantics
+        () => require('src/tasks/intern'),
+        replace => {
+          replace(() => import('src/lib/executors/Node')).withDefault(
+            MockNode as any
+          ),
+            replace(() => import('@theintern/common')).with({ global: {} });
+          replace(() => import('src/lib/node/util')).with({
+            getConfig: mockGetConfig
+          });
+        }
+      );
     },
 
     beforeEach() {

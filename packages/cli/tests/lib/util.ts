@@ -12,7 +12,7 @@ import { join } from 'path';
 const { registerSuite } = intern.getInterface('object');
 const { assert } = intern.getPlugin('chai');
 
-registerSuite('lib/util', {
+registerSuite('cli/lib/util', {
   acceptVersion() {
     assert.isTrue(acceptVersion('3.3.0-pre', '3.0.0'));
     assert.isTrue(acceptVersion('3.3.2', '3.0.0'));

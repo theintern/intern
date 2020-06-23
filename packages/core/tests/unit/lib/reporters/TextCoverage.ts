@@ -1,8 +1,5 @@
 import TextCoverage from 'src/lib/reporters/TextCoverage';
 
-const { registerSuite } = intern.getPlugin('interface.object');
-const { assert } = intern.getPlugin('chai');
-
 registerSuite('lib/reporters/TextCoverage', {
   construct() {
     const reporter = new TextCoverage(<any>{ on() {} });

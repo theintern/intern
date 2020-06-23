@@ -1,30 +1,24 @@
-import _Html from 'src/lib/reporters/Html';
-import { createMockBrowserExecutor } from '../../../support/unit/mocks';
+import { mockImport } from 'tests/support/mockUtil';
+import { createMockBrowserExecutor } from 'tests/support/unit/mocks';
 import { createLocation } from './support/mocks';
-
-const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
-const createDocument = intern.getPlugin<mocking.DocCreator>('createDocument');
+import { createDocument } from 'tests/support/browserDom';
+import _Html from 'src/lib/reporters/Html';
 
 const mockExecutor = createMockBrowserExecutor();
 
 let Html: typeof _Html;
-let removeMocks: () => void;
 let doc: Document;
 let location: Location;
 let reporter: _Html;
 
 registerSuite('intern/lib/reporters/Html', {
-  before() {
-    return mockRequire(require, 'src/lib/reporters/Html', {
-      'src/lib/reporters/html/html.styl': {}
-    }).then(resource => {
-      removeMocks = resource.remove;
-      Html = resource.module.default;
-    });
-  },
-
-  after() {
-    removeMocks();
+  async before() {
+    ({ default: Html } = await mockImport(
+      () => import('src/lib/reporters/Html'),
+      replace => {
+        replace('src/lib/reporters/html/html.styl').with({});
+      }
+    ));
   },
 
   beforeEach() {
@@ -74,7 +68,7 @@ registerSuite('intern/lib/reporters/Html', {
       'regular suite'() {
         const links: HTMLElement[] = [];
         const origCreateElement = reporter.document.createElement;
-        reporter.document.createElement = function(
+        reporter.document.createElement = function (
           tagName: string,
           options?: ElementCreationOptions
         ) {
@@ -236,9 +230,7 @@ registerSuite('intern/lib/reporters/Html', {
         assert.equal(
           summaryTable!.textContent!.replace(/\n+/g, ''),
           `Suites1Tests${tests.length}Duration0:00.${suite.timeElapsed}` +
-            `Skipped${suite.numSkippedTests}Failed${
-              suite.numFailedTests
-            }Success Rate${rate}%`
+            `Skipped${suite.numSkippedTests}Failed${suite.numFailedTests}Success Rate${rate}%`
         );
 
         const reportTable = doc.body.querySelector('table');

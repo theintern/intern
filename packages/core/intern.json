@@ -6,116 +6,76 @@
   "coverage": ["dist/**/*.js", "!dist/browser/**/*.js"],
 
   "suites": [
-    "_tests/tests/benchmark/example.js",
-    "_tests/tests/unit/lib/BenchmarkTest.js",
-    "_tests/tests/unit/lib/Channel.js",
-    "_tests/tests/unit/lib/Deferred.js",
-    "_tests/tests/unit/lib/Environment.js",
-    "_tests/tests/unit/lib/Suite.js",
-    "_tests/tests/unit/lib/Test.js",
-    "_tests/tests/unit/lib/channels/**/*.js",
-    "_tests/tests/unit/lib/common/**/*.js",
-    "_tests/tests/unit/lib/executors/Executor.js",
-    "_tests/tests/unit/lib/interfaces/**/*.js",
-    "_tests/tests/unit/lib/reporters/Console.js",
-    "_tests/tests/unit/loaders/**/*.js"
+    "tests/benchmark/example.ts",
+    "tests/unit/lib/BenchmarkTest.ts",
+    "tests/unit/lib/Channel.ts",
+    "tests/unit/lib/Deferred.ts",
+    "tests/unit/lib/Environment.ts",
+    "tests/unit/lib/Suite.ts",
+    "tests/unit/lib/Test.ts",
+    "tests/unit/lib/channels/*.ts",
+    "tests/unit/lib/common/*.ts",
+    "tests/unit/lib/executors/Executor.ts",
+    "tests/unit/lib/interfaces/*.ts",
+    "tests/unit/lib/reporters/Console.ts",
+    "tests/unit/loaders/*.ts"
   ],
 
   "functionalSuites": "_tests/tests/functional/**/*.js",
 
-  "plugins": "_tests/tests/support/globalUi.js",
-
   "node": {
     "suites": [
-      "_tests/tests/unit/index.js",
-      "_tests/tests/unit/bin/intern.js",
-      "_tests/tests/unit/lib/executors/Node.js",
-      "_tests/tests/unit/lib/node/**/*.js",
-      "_tests/tests/unit/tasks/**/*.js"
+      "tests/integration/**/*.ts",
+      "tests/unit/cli/*.ts",
+      "tests/unit/index.ts",
+      "tests/unit/bin/intern.ts",
+      "tests/unit/lib/ProxiedSession.ts",
+      "tests/unit/lib/Server.ts",
+      "tests/unit/lib/executors/Node.ts",
+      "tests/unit/lib/middleware/*.ts",
+      "tests/unit/lib/node/*.ts",
+      "tests/unit/lib/reporters/Benchmark.ts",
+      "tests/unit/lib/reporters/Cobertura.ts",
+      "tests/unit/lib/reporters/HtmlCoverage.ts",
+      "tests/unit/lib/reporters/JUnit.ts",
+      "tests/unit/lib/reporters/JsonCoverage.ts",
+      "tests/unit/lib/reporters/Lcov.ts",
+      "tests/unit/lib/reporters/Pretty.ts",
+      "tests/unit/lib/reporters/Reporter.ts",
+      "tests/unit/lib/reporters/Runner.ts",
+      "tests/unit/lib/reporters/Simple.ts",
+      "tests/unit/lib/reporters/TeamCity.ts",
+      "tests/unit/lib/reporters/TextCoverage.ts",
+      "tests/unit/tasks/*.ts",
+      "tests/unit/tunnels/**/*.ts",
+      "tests/unit/webdriver/**/*.ts"
     ],
     "plugins": [
-      "_tests/tests/support/nodeAlias.js",
-      "_tests/tests/support/nodeMocking.js",
-      "_tests/tests/support/nodeDom.js",
+      "tests/support/globalUi.ts",
+      "tests/support/nodeDom.ts",
       "source-map-support/register",
-      // The URLSearchParams polyfill is needed for unit tests in Node 8
-      "url-search-params-polyfill"
+      "tests/support/tsconfig-paths.ts"
     ],
     "reporters": {
       "name": "runner",
-      "options": { "hideSkipped": true, "hidePassed": false }
-    }
+      "options": { "hideSkipped": false, "hidePassed": false }
+    },
+
+    "tsconfig": "tests/tsconfig.json"
   },
 
   "browser": {
     "suites": [
-      "_tests/tests/unit/lib/executors/Browser.js",
-      "_tests/tests/unit/lib/browser/util.js",
-      "_tests/tests/unit/lib/reporters/Dom.js",
-      "_tests/tests/unit/lib/reporters/Html.js"
+      "tests/unit/lib/executors/Browser.ts",
+      "tests/unit/lib/browser/*.ts",
+      "tests/unit/lib/reporters/Dom.ts",
+      "tests/unit/lib/reporters/Html.ts"
     ],
-    "plugins": [
-      "_tests/tests/support/browserDom.js",
-      "_tests/tests/support/dojoMocking.js"
-    ],
-    "loader": {
-      "script": "dojo2",
-      "options": {
-        "map": {
-          "*": {
-            "@dojo": "node_modules/@dojo"
-          }
-        },
-        "packages": [
-          { "name": "src", "location": "dist" },
-          {
-            "name": "benchmark",
-            "location": "node_modules/benchmark",
-            "main": "benchmark.js"
-          },
-          {
-            "name": "lodash",
-            "location": "node_modules/lodash",
-            "main": "lodash.js"
-          },
-          {
-            "name": "platform",
-            "location": "node_modules/platform",
-            "main": "platform.js"
-          },
-          {
-            "name": "sinon",
-            "location": "node_modules/sinon",
-            "main": "pkg/sinon.js"
-          },
-          {
-            "name": "tslib",
-            "location": "node_modules/tslib",
-            "main": "tslib.js"
-          },
-          {
-            "name": "@theintern/common",
-            "location": "node_modules/@theintern/common",
-            "main": "amd/index.js"
-          },
-          {
-            "name": "qs",
-            "location": "node_modules/@theintern/common/node_modules/qs",
-            "main": "dist/qs.js"
-          },
-          {
-            "name": "axios",
-            "location": "node_modules/@theintern/common/node_modules/axios",
-            "main": "dist/axios.js"
-          }
-        ]
-      }
-    }
+    "plugins": ["tests/support/globalUi.ts", "tests/support/browserDom.ts"]
   },
 
   "benchmark": false,
-  "filterErrorStack": true,
-  "internPath": ".",
+  "filterErrorStack": false,
 
   "configs": {
     "progress": {
@@ -140,11 +100,62 @@
       ],
       "tunnelOptions": {
         "drivers": [{ "name": "chrome", "version": "83.0.4103.39" }]
+      },
+      // Clear out the general suites list so the browser won't try to load
+      // them.
+      "suites": [],
+      "node": {
+        "suites": [
+          // Top-level suites
+          "tests/benchmark/example.ts",
+          "tests/unit/lib/BenchmarkTest.ts",
+          "tests/unit/lib/Channel.ts",
+          "tests/unit/lib/Deferred.ts",
+          "tests/unit/lib/Environment.ts",
+          "tests/unit/lib/Suite.ts",
+          "tests/unit/lib/Test.ts",
+          "tests/unit/lib/channels/*.ts",
+          "tests/unit/lib/common/*.ts",
+          "tests/unit/lib/executors/Executor.ts",
+          "tests/unit/lib/interfaces/*.ts",
+          "tests/unit/lib/reporters/Console.ts",
+          "tests/unit/loaders/*.ts",
+          // Top-level node suites
+          "tests/integration/**/*.ts",
+          "tests/unit/cli/*.ts",
+          "tests/unit/index.ts",
+          "tests/unit/bin/intern.ts",
+          "tests/unit/lib/ProxiedSession.ts",
+          "tests/unit/lib/Server.ts",
+          "tests/unit/lib/executors/Node.ts",
+          "tests/unit/lib/middleware/*.ts",
+          "tests/unit/lib/node/*.ts",
+          "tests/unit/lib/reporters/Benchmark.ts",
+          "tests/unit/lib/reporters/Cobertura.ts",
+          "tests/unit/lib/reporters/HtmlCoverage.ts",
+          "tests/unit/lib/reporters/JUnit.ts",
+          "tests/unit/lib/reporters/JsonCoverage.ts",
+          "tests/unit/lib/reporters/Lcov.ts",
+          "tests/unit/lib/reporters/Pretty.ts",
+          "tests/unit/lib/reporters/Reporter.ts",
+          "tests/unit/lib/reporters/Runner.ts",
+          "tests/unit/lib/reporters/Simple.ts",
+          "tests/unit/lib/reporters/TeamCity.ts",
+          "tests/unit/lib/reporters/TextCoverage.ts",
+          "tests/unit/tasks/*.ts",
+          "tests/unit/tunnels/**/*.ts",
+          "tests/unit/webdriver/**/*.ts"
+        ]
+      },
+      "browser": {
+        "suites": "_tests/suites.js",
+        "plugins": "_tests/plugins.js"
       }
     },
 
     "ci": {
       "description": "Run CI tests on the default cloud service (BrowserStack)",
+      "extends": "wd",
       "reporters+": {
         "name": "jsoncoverage",
         "options": {

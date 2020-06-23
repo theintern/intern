@@ -1,7 +1,7 @@
 import Suite from 'src/lib/Suite';
 import Test from 'src/lib/Test';
 import ConsoleReporter from 'src/lib/reporters/Console';
-import { createMockConsole } from '../../../support/unit/mocks';
+import { createMockConsole } from 'tests/support/unit/mocks';
 
 const mockExecutor = <any>{
   on() {},
@@ -11,7 +11,7 @@ const mockExecutor = <any>{
   }
 };
 
-registerSuite('intern/lib/reporters/Console', {
+registerSuite('lib/reporters/Console', {
   tests: {
     error() {
       const mockConsole = createMockConsole();

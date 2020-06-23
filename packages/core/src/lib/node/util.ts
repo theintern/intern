@@ -12,9 +12,8 @@ import { parse } from 'shell-quote';
 import { RawSourceMap } from 'source-map';
 import { sync as glob, hasMagic } from 'glob';
 
-import { Task, CancellablePromise } from '@theintern/common';
+import { Task, CancellablePromise, global } from '@theintern/common';
 
-import process from './process';
 import {
   defaultConfig,
   getBasePath,
@@ -22,6 +21,8 @@ import {
   parseArgs,
   splitConfigPath
 } from '../common/util';
+
+const { process } = global;
 
 /**
  * Expand a list of glob patterns into a flat file list. Patterns may be simple

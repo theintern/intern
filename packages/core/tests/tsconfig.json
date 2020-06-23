@@ -2,12 +2,11 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "..",
-    "module": "umd",
     "outDir": "../_tests",
     "paths": {
-      "src": ["./src"]
+      "src": ["./src"],
+      "tests": ["./tests"]
     },
-    "resolveJsonModule": false,
     "rootDir": ".."
   },
   "include": [

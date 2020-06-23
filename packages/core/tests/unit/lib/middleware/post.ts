@@ -7,7 +7,7 @@ import {
   MockRequest,
   MockResponse,
   createMockServerContext
-} from '../../../support/unit/mocks';
+} from 'tests/support/unit/mocks';
 
 registerSuite('lib/middleware/post', function () {
   let handler: (request: any, response: any, next: any) => void;

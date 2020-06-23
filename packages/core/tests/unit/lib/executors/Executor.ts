@@ -1,13 +1,12 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox, spy } from 'sinon';
-import { Task, deepMixin, isPromiseLike } from '@theintern/common';
+import { Task, isPromiseLike, deepMixin } from '@theintern/common';
 
 import _Executor, { Config, Events, Plugins } from 'src/lib/executors/Executor';
 
 // Import isSuite from the testing source rather than the source being tested
 import { isSuite } from '../../../../src/lib/Suite';
 import { testProperty } from '../../../support/unit/executor';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 type ExecutorType = _Executor<Events, Config, Plugins>;
 
@@ -19,8 +18,6 @@ interface FullExecutor extends ExecutorType {
 }
 
 let Executor: FullExecutor;
-
-let removeMocks: () => void;
 
 function assertRunFails(executor: ExecutorType, errorMatcher: RegExp) {
   return executor.run().then(
@@ -66,8 +63,8 @@ registerSuite('lib/executors/Executor', function () {
   };
 
   const mockChai = {
-    assert: 'assert',
-    should: sandbox.spy(() => 'should')
+    assert: ('assert' as never) as Chai.Assert,
+    should: sandbox.spy(() => ('should' as never) as Chai.Should)
   };
 
   const loadScript = sandbox.spy((script: string) => {
@@ -81,27 +78,27 @@ registerSuite('lib/executors/Executor', function () {
   let executor: ExecutorType;
 
   return {
-    before() {
-      return mockRequire(require, 'src/lib/executors/Executor', {
-        'src/lib/common/ErrorFormatter': MockErrorFormatter,
-        'src/lib/common/console': mockConsole,
-        chai: mockChai,
-        '@theintern/common': {
-          global: { __coverage__: {} },
-          isPromiseLike,
-          Task,
-          deepMixin
+    async before() {
+      const { default: BaseExecutor } = await mockImport(
+        () => import('src/lib/executors/Executor'),
+        replace => {
+          replace(() => import('src/lib/common/ErrorFormatter')).withDefault(
+            MockErrorFormatter as any
+          );
+          replace(() => import('src/lib/common/console')).with(mockConsole);
+          replace(() => import('chai')).with(mockChai);
+          replace(() => import('@theintern/common')).with({
+            global: { __coverage__: {} },
+            deepMixin,
+            isPromiseLike,
+            Task
+          });
         }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        Executor = handle.module.default;
-        Executor.prototype.loadScript = loadScript;
-        Executor.prototype.environment = 'node';
-      });
-    },
+      );
 
-    after() {
-      removeMocks();
+      Executor = BaseExecutor as FullExecutor;
+      Executor.prototype.loadScript = loadScript;
+      Executor.prototype.environment = 'node';
     },
 
     beforeEach() {
@@ -632,34 +629,34 @@ registerSuite('lib/executors/Executor', function () {
         showConfig() {
           const expected =
             '{\n' +
-            '    "bail": false,\n' +
-            '    "baseline": false,\n' +
-            '    "benchmark": false,\n' +
-            '    "browser": {\n' +
-            '        "plugins": [],\n' +
-            '        "reporters": [],\n' +
-            '        "suites": []\n' +
-            '    },\n' +
-            '    "coverageVariable": "__coverage__",\n' +
-            '    "debug": false,\n' +
-            '    "defaultTimeout": 30000,\n' +
-            '    "filterErrorStack": false,\n' +
-            '    "grep": {},\n' +
-            '    "internPath": "",\n' +
-            '    "loader": {\n' +
-            '        "script": "default"\n' +
-            '    },\n' +
-            '    "name": "intern",\n' +
-            '    "node": {\n' +
-            '        "plugins": [],\n' +
-            '        "reporters": [],\n' +
-            '        "suites": []\n' +
-            '    },\n' +
+            '  "bail": false,\n' +
+            '  "baseline": false,\n' +
+            '  "benchmark": false,\n' +
+            '  "browser": {\n' +
             '    "plugins": [],\n' +
             '    "reporters": [],\n' +
-            '    "sessionId": "",\n' +
-            '    "showConfig": true,\n' +
             '    "suites": []\n' +
+            '  },\n' +
+            '  "coverageVariable": "__coverage__",\n' +
+            '  "debug": false,\n' +
+            '  "defaultTimeout": 30000,\n' +
+            '  "filterErrorStack": false,\n' +
+            '  "grep": "/(?:)/",\n' +
+            '  "internPath": "",\n' +
+            '  "loader": {\n' +
+            '    "script": "default"\n' +
+            '  },\n' +
+            '  "name": "intern",\n' +
+            '  "node": {\n' +
+            '    "plugins": [],\n' +
+            '    "reporters": [],\n' +
+            '    "suites": []\n' +
+            '  },\n' +
+            '  "plugins": [],\n' +
+            '  "reporters": [],\n' +
+            '  "sessionId": "",\n' +
+            '  "showConfig": true,\n' +
+            '  "suites": []\n' +
             '}';
           executor.configure({ showConfig: true });
 

@@ -1,11 +1,12 @@
 import { global } from '@theintern/common';
+import Grunt from 'grunt';
 
 import Node from '../lib/executors/Node';
 import { Config } from '../lib/common/config';
 import { getConfig } from '../lib/node/util';
 
-export = function(grunt: IGrunt) {
-  grunt.registerMultiTask('intern', function() {
+export = function (grunt: typeof Grunt) {
+  grunt.registerMultiTask('intern', function () {
     const done = this.async();
     const options = this.options<TaskOptions>({});
 

@@ -1,14 +1,13 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { spy, SinonSpy } from 'sinon';
 import { Task } from '@theintern/common';
 
 import _Http from 'src/lib/channels/Http';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
 let Http: typeof _Http;
 
-registerSuite('lib/channels/Http', function() {
-  const request = spy((path: string, data: any) => {
+registerSuite('lib/channels/Http', function () {
+  const mockRequest = spy((path: string, data: any) => {
     if (requestHandler) {
       return requestHandler(path, data);
     }
@@ -17,24 +16,19 @@ registerSuite('lib/channels/Http', function() {
   });
 
   let requestData: { [name: string]: string };
-  let removeMocks: () => void;
   let requestHandler: SinonSpy<[string, any]> | undefined;
 
   return {
-    before() {
-      return mockRequire(require, 'src/lib/channels/Http', {
-        '@theintern/common': {
-          request,
-          Task
+    async before() {
+      ({ default: Http } = await mockImport(
+        () => import('src/lib/channels/Http'),
+        replace => {
+          replace(() => import('@theintern/common')).with({
+            request: mockRequest,
+            Task
+          });
         }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        Http = handle.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+      ));
     },
 
     beforeEach() {

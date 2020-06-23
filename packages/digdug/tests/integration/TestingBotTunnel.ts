@@ -9,7 +9,9 @@ function checkEnvironment(environment: any) {
 }
 
 let suite = {};
-suite = addEnvironmentTest(suite, TestingBotTunnel, checkEnvironment);
+suite = addEnvironmentTest(suite, TestingBotTunnel, checkEnvironment, {
+  needsAuthData: true
+});
 suite = addStartStopTest(suite, TestingBotTunnel, { timeout: 60000 });
 
-registerSuite('integration/TestingBotTunnel', suite);
+registerSuite('integration/tunnels/TestingBotTunnel', suite);

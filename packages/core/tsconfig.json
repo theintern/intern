@@ -2,7 +2,7 @@
   "extends": "@theintern-dev/tsconfig",
   "compilerOptions": {
     "lib": ["dom", "es2015"],
-    "module": "umd",
+    "module": "commonjs",
     "outDir": "./dist",
     "resolveJsonModule": false,
     "rootDir": "src"

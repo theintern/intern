@@ -193,8 +193,6 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
 
 /**
  * Splits a version into one or two version strings using the '..' delimiter
- *
- * @returns {string[]}
  */
 function splitVersions(versionSpec: string) {
   const versions = versionSpec.split('..');

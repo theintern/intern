@@ -65,11 +65,11 @@ class XmlNode {
 
   /**
    * Creates a new XML node and pushes it to the end of the current node.
-   * @param {string} nodeName The node name for the new node.
-   * @param {Object?} attributes Optional attributes for the new node.
-   * @param {(XmlNode|string)[]?} childNodes Optional child nodes for the new
+   * @param nodeName The node name for the new node.
+   * @param attributes Optional attributes for the new node.
+   * @param childNodes Optional child nodes for the new
    * node.
-   * @returns {XmlNode} A new node.
+   * @returns A new node.
    */
   createNode(nodeName: string, attributes: Object) {
     const node = new XmlNode(nodeName, attributes);
@@ -113,7 +113,6 @@ class XmlNode {
 
   /**
    * Outputs the node as a serialised XML string.
-   * @returns {string}
    */
   toString() {
     const children = this._serializeContent();

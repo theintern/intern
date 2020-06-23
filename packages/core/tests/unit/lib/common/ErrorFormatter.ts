@@ -1,13 +1,12 @@
+import { mockImport } from 'tests/support/mockUtil';
 import _ErrorFormatter from 'src/lib/common/ErrorFormatter';
 import { InternError } from 'src/lib/types';
-import { createMockExecutor, MockExecutor } from '../../../support/unit/mocks';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
+import { createMockExecutor, MockExecutor } from 'tests/support/unit/mocks';
 
 let ErrorFormatter: typeof _ErrorFormatter;
 
-registerSuite('lib/common/ErrorFormatter', function() {
-  function diffJson(_a: object, _b: object) {
+registerSuite('lib/common/ErrorFormatter', function () {
+  function diffJson(_a: string | object, _b: string | object) {
     return (
       diffValue || [
         { value: 'a', added: true, removed: undefined },
@@ -20,20 +19,15 @@ registerSuite('lib/common/ErrorFormatter', function() {
   let diffValue:
     | undefined
     | { value: string; added?: boolean; removed?: boolean }[];
-  let removeMocks: () => void;
 
   return {
-    before() {
-      return mockRequire(require, 'src/lib/common/ErrorFormatter', {
-        diff: { diffJson }
-      }).then(handle => {
-        removeMocks = handle.remove;
-        ErrorFormatter = handle.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      ({ default: ErrorFormatter } = await mockImport(
+        () => import('src/lib/common/ErrorFormatter'),
+        replace => {
+          replace(() => import('diff')).with({ diffJson });
+        }
+      ));
     },
 
     beforeEach() {
@@ -41,7 +35,7 @@ registerSuite('lib/common/ErrorFormatter', function() {
     },
 
     tests: {
-      '#format': (function() {
+      '#format': (function () {
         let executor: MockExecutor;
         let formatter: _ErrorFormatter;
 
@@ -62,7 +56,7 @@ registerSuite('lib/common/ErrorFormatter', function() {
               if (error.stack) {
                 assert.match(
                   formatter.format(error),
-                  /^Error: foo\n  at (?:\S*\.)?error /
+                  /^Error: foo\n {2}at (?:\S*\.)?error /
                 );
               } else {
                 assert.equal(
@@ -79,7 +73,7 @@ registerSuite('lib/common/ErrorFormatter', function() {
             },
 
             diff() {
-              let err: InternError = {
+              const err: InternError = {
                 name: 'Foo',
                 message: 'foo',
                 showDiff: true,

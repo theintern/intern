@@ -1,13 +1,18 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { spy, SinonSpy, stub } from 'sinon';
-import { Task, deepMixin, isPromiseLike } from '@theintern/common';
+import { Task, isPromiseLike, deepMixin } from '@theintern/common';
+import { RawSourceMap } from 'source-map';
+import { BigIntStats, PathLike, statSync } from 'fs';
+import { sep } from 'path';
+import { CoverageMap } from 'istanbul-lib-coverage';
+import { Instrumenter } from 'istanbul-lib-instrument';
+import { MapStore } from 'istanbul-lib-source-maps';
 
 import { Config } from 'src/lib/common/config';
 import _Node from 'src/lib/executors/Node';
 import Suite from 'src/lib/Suite';
 
 import { testProperty } from '../../../support/unit/executor';
-
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 registerSuite('lib/executors/Node', function () {
   function createExecutor(config?: Partial<Config>) {
@@ -157,24 +162,28 @@ registerSuite('lib/executors/Node', function () {
   };
 
   const mockChai = {
-    assert: 'assert',
-    should: spy(() => 'should')
+    assert: ('assert' as never) as Chai.Assert,
+    should: spy(() => ('should' as never) as Chai.Should)
   };
 
   const mockFs = {
-    existsSync(_path: string) {
+    existsSync(_path: PathLike) {
       return true;
     },
 
-    readFileSync(path: string) {
+    readFileSync(path: any) {
       if (fsData[path]) {
-        return fsData[path];
+        return fsData[path] as any;
       }
       const error: NodeJS.ErrnoException = new Error('no such file');
       error.code = 'ENOENT';
 
       throw error;
-    }
+    },
+
+    statSync: ((() => {
+      return {} as BigIntStats;
+    }) as unknown) as typeof statSync
   };
 
   const mockPath = {
@@ -190,7 +199,10 @@ registerSuite('lib/executors/Node', function () {
     normalize(path: string) {
       return path;
     },
-    sep: '/'
+    join(...parts: string[]) {
+      return parts.join('/');
+    },
+    sep: '/' as typeof sep
   };
 
   const mockGlobal = {
@@ -215,14 +227,17 @@ registerSuite('lib/executors/Node', function () {
   const mockTsNodeRegister = spy();
 
   const mockNodeUtil = {
-    expandFiles(files: string | string[]) {
-      return files || [];
+    expandFiles(patterns?: string | string[]) {
+      if (typeof patterns === 'string') {
+        return [patterns];
+      }
+      return patterns || [];
     },
     normalizePath(path: string) {
       return path;
     },
     readSourceMap() {
-      return {};
+      return {} as RawSourceMap;
     },
     transpileSource: spy()
   };
@@ -235,84 +250,135 @@ registerSuite('lib/executors/Node', function () {
   let sessions: MockSession[];
   let coverageMaps: MockCoverageMap[];
   let Node: typeof _Node;
-  let removeMocks: () => void;
   let fsData: { [name: string]: string };
   let tsExtension: any;
 
   return {
-    before() {
-      return mockRequire(require, 'src/lib/executors/Node', {
-        'src/lib/common/ErrorFormatter': MockErrorFormatter,
-        'src/lib/common/console': mockConsole,
-        'src/lib/node/util': mockNodeUtil,
-        chai: mockChai,
-        path: mockPath,
-        fs: mockFs,
-        '@theintern/common': {
-          global: mockGlobal,
-          isPromiseLike,
-          Task,
-          deepMixin
-        },
-        'src/lib/reporters/Pretty': MockReporter,
-        'src/lib/reporters/Runner': MockReporter,
-        'src/lib/reporters/Simple': MockReporter,
-        'src/lib/reporters/JsonCoverage': MockReporter,
-        'src/lib/reporters/HtmlCoverage': MockReporter,
-        'src/lib/reporters/Lcov': MockReporter,
-        'src/lib/reporters/Benchmark': MockReporter,
-        'istanbul-lib-coverage': {
-          classes: {
-            FileCoverage: {
-              prototype: {
-                merge() {}
-              }
+    async before() {
+      ({ default: Node } = await mockImport(
+        () => import('src/lib/executors/Node'),
+        replace => {
+          replace(() => import('src/lib/common/ErrorFormatter')).withDefault(
+            MockErrorFormatter as any
+          );
+          replace(() => import('src/lib/common/console')).with(mockConsole);
+          replace(() => import('chai')).with(mockChai);
+          replace(() => import('@theintern/common')).with({
+            global: mockGlobal,
+            isPromiseLike,
+            Task,
+            deepMixin
+          });
+          replace(() => import('src/lib/node/util')).with(mockNodeUtil);
+          replace(() => import('path')).with(mockPath);
+          replace(() => import('fs')).with(mockFs);
+          replace(() => import('src/lib/reporters/Pretty')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('src/lib/reporters/Runner')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('src/lib/reporters/Simple')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('src/lib/reporters/JsonCoverage')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('src/lib/reporters/HtmlCoverage')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('src/lib/reporters/Lcov')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('src/lib/reporters/Benchmark')).withDefault(
+            MockReporter as any
+          );
+          replace(() => import('istanbul-lib-coverage')).with({
+            classes: {
+              FileCoverage: {
+                prototype: {
+                  merge() {}
+                }
+              } as any
+            },
+            createCoverageMap() {
+              return (new MockCoverageMap() as unknown) as CoverageMap;
             }
-          },
-          createCoverageMap() {
-            return new MockCoverageMap();
-          }
-        },
-        'istanbul-lib-hook': {
-          hookRunInThisContext() {},
-          hookRequire() {},
-          unhookRunInThisContext() {}
-        },
-        'istanbul-lib-instrument': {
-          createInstrumenter() {
-            return new MockInstrumenter();
-          },
-          readInitialCoverage(code: string) {
-            return { coverageData: `covered: ${code}` };
-          }
-        },
-        'istanbul-lib-source-maps': {
-          createSourceMapStore() {
-            return new MockMapStore();
-          }
-        },
-        'ts-node': {
-          register: mockTsNodeRegister
-        },
-        'src/lib/Server': MockServer,
-        'src/lib/resolveEnvironments': () => {
-          return ['foo env'];
-        },
-        '@theintern/leadfoot/dist/Command': MockCommand,
-        '@theintern/leadfoot/dist/Server': MockLeadfootServer,
-        '@theintern/digdug/dist/NullTunnel': MockTunnel,
-        '@theintern/digdug/dist/BrowserStackTunnel': MockTunnel,
-        '@theintern/digdug/dist/SeleniumTunnel': MockTunnel,
-        'src/lib/ProxiedSession': MockSession,
-        'src/lib/RemoteSuite': MockRemoteSuite
-      }).then(handle => {
-        removeMocks = handle.remove;
-        Node = handle.module.default;
-      });
-    },
+          });
+          replace(() => import('istanbul-lib-hook')).with({
+            hookRunInThisContext() {
+              return {};
+            },
+            hookRequire() {
+              return () => ({});
+            },
+            unhookRunInThisContext() {
+              return {};
+            }
+          });
 
-    after() {
-      removeMocks();
+          replace(() => import('istanbul-lib-instrument')).with({
+            readInitialCoverage(code: string) {
+              return {
+                coverageData: `covered: ${code}`,
+                path: '',
+                hash: '',
+                gcv: null
+              };
+            },
+            createInstrumenter() {
+              return (new MockInstrumenter() as unknown) as Instrumenter;
+            }
+          });
+
+          replace(() => import('istanbul-lib-source-maps')).with({
+            createSourceMapStore() {
+              return (new MockMapStore() as unknown) as MapStore;
+            }
+          });
+          replace(() => import('ts-node')).with({
+            register: mockTsNodeRegister
+          });
+          replace(() => import('src/lib/Server')).withDefault(
+            MockServer as any
+          );
+          replace(() => import('src/lib/resolveEnvironments')).withDefault(
+            () => {
+              return ['foo env'];
+            }
+          );
+          replace(() => import('@theintern/leadfoot/dist/Command')).withDefault(
+            MockCommand as any
+          );
+          replace(() => import('@theintern/leadfoot/dist/Server')).withDefault(
+            MockLeadfootServer as any
+          );
+          replace(() =>
+            import('@theintern/digdug/dist/NullTunnel')
+          ).withDefault(MockTunnel as any);
+          replace(() =>
+            import('@theintern/digdug/dist/BrowserStackTunnel')
+          ).withDefault(MockTunnel as any);
+          replace(() =>
+            import('@theintern/digdug/dist/SeleniumTunnel')
+          ).withDefault(MockTunnel as any);
+          replace(() =>
+            import('@theintern/digdug/dist/TestingBotTunnel')
+          ).withDefault(MockTunnel as any);
+          replace(() =>
+            import('@theintern/digdug/dist/CrossBrowserTestingTunnel')
+          ).withDefault(MockTunnel as any);
+          replace(() =>
+            import('@theintern/digdug/dist/SauceLabsTunnel')
+          ).withDefault(MockTunnel as any);
+          replace(() => import('src/lib/ProxiedSession')).withDefault(
+            MockSession as any
+          );
+          replace(() => import('src/lib/RemoteSuite')).withDefault(
+            MockRemoteSuite as any
+          );
+        }
+      ));
     },
 
     beforeEach() {
@@ -794,7 +860,7 @@ registerSuite('lib/executors/Node', function () {
             'good script'() {
               // will be run from project/_tests
               const module = require.resolve(
-                '../../../../../tests/unit/data/lib/executors/intern.js'
+                '../../data/lib/executors/intern.js'
               );
               assert.isUndefined(
                 require.cache[module],

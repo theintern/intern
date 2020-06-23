@@ -88,6 +88,9 @@ export default class Browser extends Executor<Events, Config, Plugins> {
       if (script[0] !== '/' && !/https?:\/\//.test(script)) {
         script = `${this.config.basePath}${script}`;
       }
+      if (/\.\?$/.test(script)) {
+        script = script.replace(/\?$/, 'js');
+      }
       return previous.then(() => injectScript(script, isEsm));
     }, Task.resolve());
   }

@@ -23,4 +23,4 @@ const suite = {
   tests
 };
 
-registerSuite('integration/CrossBrowserTestingTunnel', suite);
+registerSuite('integration/tunnels/CrossBrowserTestingTunnel', suite);

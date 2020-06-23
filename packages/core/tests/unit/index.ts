@@ -1,22 +1,21 @@
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
+import { mockImport } from 'tests/support/mockUtil';
 
-let removeMocks: () => void;
 const mockGlobal = Object.create(null);
-
 class MockNode {}
 
 registerSuite('index', {
-  before() {
-    return mockRequire(require, 'src/index', {
-      'src/lib/executors/Node': MockNode,
-      '@theintern/common': { global: mockGlobal }
-    }).then(resource => {
-      removeMocks = resource.remove;
-    });
-  },
-
-  after() {
-    removeMocks();
+  async before() {
+    await mockImport(
+      () => import('src/index'),
+      replace => {
+        replace(() => import('src/lib/executors/Node')).withDefault(
+          MockNode as any
+        );
+        replace(() => import('@theintern/common')).with({
+          global: mockGlobal
+        });
+      }
+    );
   },
 
   tests: {

@@ -1,3 +1,4 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { NormalizedEnvironment } from '@theintern/digdug/dist/Tunnel';
 import { sep } from 'path';
 
@@ -6,10 +7,7 @@ import _resolveEnvironments, {
   EnvironmentOptions
 } from 'src/lib/resolveEnvironments';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
 let resolveEnvironments: typeof _resolveEnvironments;
-let removeMocks: () => void;
 
 const availableChrome: NormalizedEnvironment[] = [
   {
@@ -104,19 +102,15 @@ function assertResolveEnvironments(
 }
 
 registerSuite('lib/resolveEnvironments', {
-  before() {
-    return mockRequire(require, 'src/lib/resolveEnvironments', {
-      'src/lib/node/process': {
-        cwd: () => (sep === '/' ? '/foo' : 'C:\\foo')
+  async before() {
+    ({ default: resolveEnvironments } = await mockImport(
+      () => import('src/lib/resolveEnvironments'),
+      replace => {
+        replace(() => import('src/lib/node/process')).withDefault({
+          cwd: () => (sep === '/' ? '/foo' : 'C:\\foo')
+        } as NodeJS.Process);
       }
-    }).then(handle => {
-      removeMocks = handle.remove;
-      resolveEnvironments = handle.module.default;
-    });
-  },
-
-  after() {
-    removeMocks();
+    ));
   },
 
   tests: {

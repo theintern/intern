@@ -1,3 +1,4 @@
+import { mockImport } from 'tests/support/mockUtil';
 import sinon from 'sinon';
 
 import _instrument from 'src/lib/middleware/instrument';
@@ -8,17 +9,19 @@ import {
   MockRequest,
   MockResponse,
   createMockServerContext
-} from '../../../support/unit/mocks';
-import { mockFs, mockPath, MockStats } from '../../../support/unit/nodeMocks';
+} from 'tests/support/unit/mocks';
+import {
+  createMockFs,
+  createMockPath,
+  MockStats
+} from 'tests/support/unit/nodeMocks';
 import { normalize } from 'path';
-import { Stats } from 'fs';
+import { PathLike, Stats, stat } from 'fs';
 
-const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 const testPath = normalize('/base/foo/thing.js');
 
 registerSuite('lib/middleware/instrument', function () {
   let instrument: typeof _instrument;
-  let removeMocks: () => void;
 
   let server: Server;
   let shouldInstrumentFile: sinon.SinonStub<[string]>;
@@ -28,28 +31,24 @@ registerSuite('lib/middleware/instrument', function () {
   let response: MockResponse;
   let next: sinon.SinonSpy;
 
-  const fs = mockFs();
-  const path = mockPath();
+  const mockFs = createMockFs();
+  const mockPath = createMockPath();
 
   const sandbox = sinon.createSandbox();
 
   return {
-    before() {
-      return mockRequire(require, 'src/lib/middleware/instrument', {
-        fs,
-        path
-      }).then(resource => {
-        removeMocks = resource.remove;
-        instrument = resource.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      ({ default: instrument } = await mockImport(
+        () => import('src/lib/middleware/instrument'),
+        replace => {
+          replace(() => import('fs')).with(mockFs);
+          replace(() => import('path')).with(mockPath);
+        }
+      ));
     },
 
     beforeEach() {
-      fs.__fileData = {
+      mockFs.__fileData = {
         [testPath]: {
           type: 'file',
           data: 'what a fun time'
@@ -113,7 +112,7 @@ registerSuite('lib/middleware/instrument', function () {
           },
 
           directory() {
-            fs.__fileData[testPath]!.type = 'directory';
+            mockFs.__fileData[testPath]!.type = 'directory';
 
             handler(request, response, next);
 
@@ -123,14 +122,20 @@ registerSuite('lib/middleware/instrument', function () {
           },
 
           'read error'() {
-            sandbox.stub(fs, 'stat').callsFake((path, callback) => {
-              const data = fs.__fileData[testPath];
-              fs.__fileData[testPath] = undefined;
-              ((callback as unknown) as (...args: unknown[]) => void)(
+            sandbox.stub(mockFs, 'stat').callsFake(((
+              path: PathLike,
+              callback: (
+                err: NodeJS.ErrnoException | null,
+                stats: Stats
+              ) => void
+            ) => {
+              const data = mockFs.__fileData[testPath];
+              mockFs.__fileData[testPath] = undefined;
+              callback(
                 null,
                 (new MockStats(path, data!.type) as unknown) as Stats
               );
-            });
+            }) as typeof stat);
             handler(request, response, next);
 
             assert.isTrue(next.calledOnce);
@@ -150,17 +155,17 @@ registerSuite('lib/middleware/instrument', function () {
               },
 
               readFile() {
-                const { readFile } = fs;
+                const { readFile } = mockFs;
                 const end = sinon.spy(response, 'end');
 
-                sandbox.stub(fs, 'readFile').callsFake(((
+                sandbox.stub(mockFs, 'readFile').callsFake(((
                   path: string,
                   options: string,
                   callback: any
                 ) => {
                   (server as any).stopped = true;
                   readFile(path, options, callback);
-                }) as typeof fs.readFile);
+                }) as typeof mockFs.readFile);
                 handler(request, response, next);
 
                 assert.isFalse(next.called);

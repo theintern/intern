@@ -1,3 +1,4 @@
+import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox } from 'sinon';
 import { parse } from 'url';
 
@@ -9,15 +10,12 @@ import {
   createMockServerContext
 } from '../../../support/unit/mocks';
 
-const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
-
 registerSuite('lib/middleware/resolveSuites', () => {
-  let removeMocks: () => void;
   let resolveSuites: typeof _resolveSuites;
   let handler: (request: any, response: any, next?: any) => any;
 
   const sandbox = createSandbox();
-  const expandFiles = sandbox.spy((pattern: string) => {
+  const expandFiles = sandbox.spy((pattern?: string | string[]) => {
     return [`expanded${pattern}`];
   });
   const url = {
@@ -27,18 +25,14 @@ registerSuite('lib/middleware/resolveSuites', () => {
   };
 
   return {
-    before() {
-      return mockRequire(require, 'src/lib/middleware/resolveSuites', {
-        'src/lib/node/util': { expandFiles },
-        url
-      }).then(resource => {
-        removeMocks = resource.remove;
-        resolveSuites = resource.module.default;
-      });
-    },
-
-    after() {
-      removeMocks();
+    async before() {
+      ({ default: resolveSuites } = await mockImport(
+        () => import('src/lib/middleware/resolveSuites'),
+        replace => {
+          replace(() => import('src/lib/node/util')).with({ expandFiles });
+          replace(() => import('url')).with({ parse: url.parse as any });
+        }
+      ));
     },
 
     beforeEach() {
