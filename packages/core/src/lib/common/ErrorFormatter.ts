@@ -52,8 +52,8 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
       // Assertion errors may have showDiff, actual, and expected properties
       if (
         (anyError.showDiff &&
-          (typeof anyError.actual === 'object' &&
-            typeof anyError.expected === 'object')) ||
+          typeof anyError.actual === 'object' &&
+          typeof anyError.expected === 'object') ||
         (typeof anyError.actual === 'string' &&
           typeof anyError.expected === 'string')
       ) {
@@ -148,11 +148,15 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
   /**
    * Return a trace line in a standardized format.
    */
-  protected _formatLine(data: { func?: string; source: string }) {
-    if (!data.func) {
-      return '  @ ' + this._getSource(data.source);
+  protected _formatLine(data: { func?: string; source?: string }) {
+    const parts: string[] = [];
+    if (data.func) {
+      parts.push(`at ${data.func}`);
     }
-    return '  at ' + data.func + ' @ ' + this._getSource(data.source);
+    if (data.source) {
+      parts.push(`@ ${this._getSource(data.source)}`);
+    }
+    return `  ${parts.join(' ')}`;
   }
 
   /**
@@ -227,6 +231,12 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
         return this._formatLine({ func: match[1], source: match[2] });
       } else if ((match = /^(\w+:\/\/.*)/.exec(line))) {
         return this._formatLine({ source: match[1] });
+      } else if ((match = /^(\w+)$/.exec(line))) {
+        // Safari 13 stacks have sourceless lines
+        return this._formatLine({ func: match[1] });
+      } else if ((match = /^\s*$/.exec(line))) {
+        // Safari 13 stacks have blank lines for anonymous functions
+        return this._formatLine({ func: '(anonymous function)' });
       } else {
         return line;
       }

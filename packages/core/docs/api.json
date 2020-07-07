@@ -2074,7 +2074,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 739,
+									"line": 742,
 									"character": 6
 								}
 							],
@@ -2115,7 +2115,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 746,
+									"line": 749,
 									"character": 8
 								}
 							],
@@ -2232,7 +2232,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 813,
+									"line": 816,
 									"character": 7
 								}
 							],
@@ -2267,7 +2267,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 814,
+									"line": 817,
 									"character": 11
 								}
 							],
@@ -2332,7 +2332,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 815,
+									"line": 818,
 									"character": 6
 								}
 							],
@@ -2366,7 +2366,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 816,
+									"line": 819,
 									"character": 8
 								}
 							],
@@ -2401,7 +2401,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 817,
+									"line": 820,
 									"character": 12
 								}
 							],
@@ -2466,7 +2466,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 818,
+									"line": 821,
 									"character": 6
 								}
 							],
@@ -2491,7 +2491,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 819,
+									"line": 822,
 									"character": 6
 								}
 							],
@@ -2525,7 +2525,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 820,
+									"line": 823,
 									"character": 19
 								}
 							],
@@ -2550,7 +2550,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 821,
+									"line": 824,
 									"character": 9
 								}
 							],
@@ -24997,7 +24997,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 739,
+									"line": 742,
 									"character": 6
 								}
 							],
@@ -25038,7 +25038,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 746,
+									"line": 749,
 									"character": 8
 								}
 							],
@@ -30559,7 +30559,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 739,
+									"line": 742,
 									"character": 6
 								}
 							]
@@ -30590,7 +30590,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 746,
+									"line": 749,
 									"character": 8
 								}
 							]
@@ -30751,7 +30751,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/Suite.ts",
-							"line": 798,
+							"line": 801,
 							"character": 39
 						}
 					]
@@ -30780,7 +30780,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 813,
+									"line": 816,
 									"character": 7
 								}
 							],
@@ -30810,7 +30810,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 814,
+									"line": 817,
 									"character": 11
 								}
 							],
@@ -30840,7 +30840,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 815,
+									"line": 818,
 									"character": 6
 								}
 							],
@@ -30869,7 +30869,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 816,
+									"line": 819,
 									"character": 8
 								}
 							],
@@ -30899,7 +30899,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 817,
+									"line": 820,
 									"character": 12
 								}
 							],
@@ -30929,7 +30929,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 818,
+									"line": 821,
 									"character": 6
 								}
 							],
@@ -30949,7 +30949,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 819,
+									"line": 822,
 									"character": 6
 								}
 							],
@@ -30978,7 +30978,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 820,
+									"line": 823,
 									"character": 19
 								}
 							],
@@ -30998,7 +30998,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/Suite.ts",
-									"line": 821,
+									"line": 824,
 									"character": 9
 								}
 							],
@@ -31028,7 +31028,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/Suite.ts",
-							"line": 812,
+							"line": 815,
 							"character": 32
 						}
 					],
@@ -31142,7 +31142,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/Suite.ts",
-							"line": 802,
+							"line": 805,
 							"character": 38
 						}
 					]
@@ -31161,7 +31161,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/Suite.ts",
-							"line": 849,
+							"line": 852,
 							"character": 27
 						}
 					],
@@ -31216,7 +31216,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/Suite.ts",
-							"line": 837,
+							"line": 840,
 							"character": 28
 						}
 					],
@@ -31256,7 +31256,7 @@
 											"sources": [
 												{
 													"fileName": "packages/core/src/lib/Suite.ts",
-													"line": 838,
+													"line": 841,
 													"character": 10
 												}
 											],
@@ -31278,7 +31278,7 @@
 											"sources": [
 												{
 													"fileName": "packages/core/src/lib/Suite.ts",
-													"line": 839,
+													"line": 842,
 													"character": 7
 												}
 											],
@@ -31315,7 +31315,7 @@
 									"sources": [
 										{
 											"fileName": "packages/core/src/lib/Suite.ts",
-											"line": 837,
+											"line": 840,
 											"character": 57
 										}
 									]
@@ -31338,7 +31338,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/Suite.ts",
-							"line": 827,
+							"line": 830,
 							"character": 24
 						}
 					],
@@ -31378,7 +31378,7 @@
 											"sources": [
 												{
 													"fileName": "packages/core/src/lib/Suite.ts",
-													"line": 828,
+													"line": 831,
 													"character": 6
 												}
 											],
@@ -31398,7 +31398,7 @@
 											"sources": [
 												{
 													"fileName": "packages/core/src/lib/Suite.ts",
-													"line": 829,
+													"line": 832,
 													"character": 8
 												}
 											],
@@ -31420,7 +31420,7 @@
 											"sources": [
 												{
 													"fileName": "packages/core/src/lib/Suite.ts",
-													"line": 830,
+													"line": 833,
 													"character": 7
 												}
 											],
@@ -31458,7 +31458,7 @@
 									"sources": [
 										{
 											"fileName": "packages/core/src/lib/Suite.ts",
-											"line": 827,
+											"line": 830,
 											"character": 53
 										}
 									]
@@ -31478,7 +31478,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/Suite.ts",
-							"line": 844,
+							"line": 847,
 							"character": 17
 						}
 					],
@@ -31530,7 +31530,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/Suite.ts",
-							"line": 794,
+							"line": 797,
 							"character": 29
 						}
 					]
@@ -31581,7 +31581,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/Suite.ts",
-							"line": 788,
+							"line": 791,
 							"character": 23
 						}
 					]
@@ -36989,7 +36989,8 @@
 															"kind": 32,
 															"kindString": "Variable",
 															"flags": {
-																"isExported": true
+																"isExported": true,
+																"isOptional": true
 															},
 															"sources": [
 																{
@@ -36999,8 +37000,17 @@
 																}
 															],
 															"type": {
-																"type": "intrinsic",
-																"name": "string"
+																"type": "union",
+																"types": [
+																	{
+																		"type": "intrinsic",
+																		"name": "undefined"
+																	},
+																	{
+																		"type": "intrinsic",
+																		"name": "string"
+																	}
+																]
 															}
 														}
 													],
@@ -37131,7 +37141,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/common/ErrorFormatter.ts",
-									"line": 161,
+									"line": 165,
 									"character": 32
 								}
 							]
@@ -37188,7 +37198,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/common/ErrorFormatter.ts",
-									"line": 201,
+									"line": 205,
 									"character": 31
 								}
 							]
@@ -37245,7 +37255,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/common/ErrorFormatter.ts",
-									"line": 223,
+									"line": 227,
 									"character": 31
 								}
 							]
@@ -37405,7 +37415,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/common/ErrorFormatter.ts",
-									"line": 242,
+									"line": 252,
 									"character": 7
 								}
 							],
@@ -37436,7 +37446,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/common/ErrorFormatter.ts",
-							"line": 241,
+							"line": 251,
 							"character": 35
 						}
 					]
@@ -37461,7 +37471,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/common/ErrorFormatter.ts",
-									"line": 238,
+									"line": 248,
 									"character": 10
 								}
 							],
@@ -37484,7 +37494,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/common/ErrorFormatter.ts",
-							"line": 237,
+							"line": 247,
 							"character": 41
 						}
 					],
@@ -76187,7 +76197,8 @@
 															"kind": 32,
 															"kindString": "Variable",
 															"flags": {
-																"isExported": true
+																"isExported": true,
+																"isOptional": true
 															},
 															"sources": [
 																{
@@ -76197,8 +76208,17 @@
 																}
 															],
 															"type": {
-																"type": "intrinsic",
-																"name": "string"
+																"type": "union",
+																"types": [
+																	{
+																		"type": "intrinsic",
+																		"name": "undefined"
+																	},
+																	{
+																		"type": "intrinsic",
+																		"name": "string"
+																	}
+																]
 															}
 														}
 													],
@@ -76357,7 +76377,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/common/ErrorFormatter.ts",
-									"line": 161,
+									"line": 165,
 									"character": 32
 								}
 							],
@@ -76424,7 +76444,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/common/ErrorFormatter.ts",
-									"line": 201,
+									"line": 205,
 									"character": 31
 								}
 							],
@@ -76491,7 +76511,7 @@
 							"sources": [
 								{
 									"fileName": "packages/core/src/lib/common/ErrorFormatter.ts",
-									"line": 223,
+									"line": 227,
 									"character": 31
 								}
 							],
