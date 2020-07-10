@@ -15,4 +15,4 @@ suite = addEnvironmentTest(suite, BrowserStackTunnel, checkEnvironment, {
 });
 suite = addStartStopTest(suite, BrowserStackTunnel);
 
-registerSuite('integration/tunnels/BrowserStackTunnel', suite);
+registerSuite('integration/BrowserStackTunnel', suite);

@@ -1,9 +1,7 @@
-import { Task } from '@theintern/common';
-
-import Suite, { SuiteOptions } from 'src/lib/Suite';
+import Suite, { SuiteOptions, isFailedSuite } from 'src/lib/Suite';
 import Test from 'src/lib/Test';
 import { InternError } from 'src/lib/types';
-import { isFailedSuite } from 'src/lib/Suite';
+import { isCancel } from '@theintern/common';
 
 import {
   createMockExecutor,
@@ -185,7 +183,7 @@ function createLifecycle(options: any = {}): _TestFunction {
           dfd.reject(error);
         }
 
-        return Task.resolve();
+        return Promise.resolve();
       }
     });
 
@@ -196,7 +194,7 @@ function createLifecycle(options: any = {}): _TestFunction {
       const method = <lifecycleMethod>methodName;
       suite[method] = function () {
         results.push(method);
-        return Task.resolve();
+        return Promise.resolve();
       };
     });
 
@@ -765,7 +763,7 @@ registerSuite('lib/Suite', {
               topicFired = true;
               actualSuite = suite;
             }
-            return Task.resolve();
+            return Promise.resolve();
           }
         })
       });
@@ -799,7 +797,7 @@ registerSuite('lib/Suite', {
               topicFired = true;
               actualTest = test;
             }
-            return Task.resolve();
+            return Promise.resolve();
           }
         })
       });
@@ -1577,58 +1575,62 @@ registerSuite('lib/Suite', {
     },
 
     cancel() {
-      const dfd = this.async();
-      const suite = createSuite({ name: 'cancel suite' });
-      const testTask = new Task<void>(() => {});
-      let testStarted = false;
-      const hangTest = new Test({
-        name: 'hanging',
-        parent: suite,
-        test() {
-          testStarted = true;
-          return testTask;
+      let test1Started = false;
+      let test2Started = false;
+      let beforeRun = false;
+      let afterRun = false;
+
+      const suite = createSuite({
+        name: 'cancel suite',
+        before() {
+          beforeRun = true;
+        },
+
+        after() {
+          afterRun = true;
         }
       });
-      suite.tests.push(hangTest);
 
-      const runTask = suite.run();
-      let suiteSettled = false;
-      let testSettled = false;
-
-      testTask.then(
-        () => {
-          testSettled = true;
-        },
-        () => {
-          testSettled = true;
-        }
+      suite.tests.push(
+        new Test({
+          name: 'hanging',
+          parent: suite,
+          test() {
+            test1Started = true;
+            return new Promise(resolve => setTimeout(resolve, 200));
+          }
+        })
       );
 
-      runTask.then(
-        () => {
-          suiteSettled = true;
-        },
-        () => {
-          suiteSettled = true;
-        }
+      suite.tests.push(
+        new Test({
+          name: 'hanging',
+          parent: suite,
+          test() {
+            test2Started = true;
+            return new Promise(resolve => setTimeout(resolve, 200));
+          }
+        })
       );
+
+      const runPromise = suite.run();
 
       setTimeout(() => {
-        runTask.cancel();
+        suite.cancel();
       }, 100);
 
-      runTask.finally(() => {
-        setTimeout(
-          dfd.callback(() => {
-            assert.isTrue(testStarted, 'expected test to have started');
-            assert.isFalse(
-              suiteSettled,
-              'expected suite task to not be settled'
-            );
-            assert.isFalse(testSettled, 'expected test task to not be settled');
-          })
-        );
-      });
+      return runPromise.then(
+        () => {
+          throw new Error('Suite promise should not have resolved');
+        },
+        error => {
+          assert.isTrue(beforeRun, 'expected before to have been run');
+          assert.isTrue(test1Started, 'expected test 1 to have started');
+          assert.isFalse(test2Started, 'expected test 2 not to have started');
+          assert.isFalse(afterRun, 'expected after not to have run');
+          assert.isTrue(isCancel(error), 'suite should have been cancelled');
+        }
+      );
     }
   },
 

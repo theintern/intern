@@ -3,7 +3,7 @@
  * classes and interfaces (as far as TypeScript is concerned).
  */
 import { createSandbox, spy, SinonSpy } from 'sinon';
-import { Handle, duplicate, Task } from '@theintern/common';
+import { Handle, duplicate } from '@theintern/common';
 import Command from '@theintern/leadfoot/dist/Command';
 
 import { Executor, Events } from 'src/lib/executors/Executor';
@@ -94,7 +94,7 @@ export function createMockExecutor(
           if (eventName !== 'log') {
             this.events.push({ name: eventName, data });
           }
-          return Task.resolve();
+          return Promise.resolve();
         },
 
         formatError(error: Error) {
@@ -277,7 +277,7 @@ export function createMockSession(
   return createMock<ProxiedSession>(properties);
 }
 
-export class MockRemote extends Task<MockRemote> {
+export class MockRemote extends Promise<MockRemote> {
   execute(_script: string | Function) {
     return this.then();
   }

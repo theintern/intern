@@ -1,4 +1,3 @@
-import { Task } from '@theintern/common';
 import Server from '@theintern/leadfoot/dist/Server';
 
 import ProxiedSession from 'src/lib/ProxiedSession';
@@ -46,7 +45,7 @@ registerSuite('functional/lib/ProxiedSession (functional)', () => {
 
     session.serverGet = <any>function () {
       ++numGetCalls;
-      return Task.resolve(lastUrl);
+      return Promise.resolve(lastUrl);
     };
 
     session.serverPost = <any>function (path: string, data: any) {
@@ -58,14 +57,14 @@ registerSuite('functional/lib/ProxiedSession (functional)', () => {
         data.args &&
         data.args[0] === '__testCoverage'
       ) {
-        return Task.resolve(JSON.stringify(mockCoverage));
+        return Promise.resolve(JSON.stringify(mockCoverage));
       }
 
-      return Task.resolve();
+      return Promise.resolve();
     };
 
     session.server.deleteSession = function () {
-      return Task.resolve();
+      return Promise.resolve();
     };
 
     return session;
@@ -80,9 +79,9 @@ registerSuite('functional/lib/ProxiedSession (functional)', () => {
       // get coverage if the browser location isn't an http/https URL.
       // This is reasonable since the typical case will be to get coverage
       // from a loaded page.
-      const task = _session.get('http://example.invalid/');
+      const promise = _session.get('http://example.invalid/');
 
-      return task
+      return promise
         .then(() => {
           _session.coverageVariable = '__testCoverage';
           _session.executor.emit = <any>(
@@ -90,7 +89,7 @@ registerSuite('functional/lib/ProxiedSession (functional)', () => {
               if (eventName === 'coverage') {
                 coverage = value;
               }
-              return Task.resolve();
+              return Promise.resolve();
             }
           );
 

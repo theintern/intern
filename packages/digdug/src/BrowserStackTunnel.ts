@@ -1,6 +1,6 @@
 import { chmodSync } from 'fs';
 import { join } from 'path';
-import { CancellablePromise, request } from '@theintern/common';
+import { request } from '@theintern/common';
 import Tunnel, {
   TunnelProperties,
   DownloadOptions,
@@ -138,7 +138,7 @@ export default class BrowserStackTunnel extends Tunnel
     const args = [
       this.accessKey,
       this.servers
-        .map(function(server) {
+        .map(function (server) {
           const url = parseUrl(String(server));
           return [
             url.hostname,
@@ -172,7 +172,7 @@ export default class BrowserStackTunnel extends Tunnel
     return args;
   }
 
-  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
+  sendJobState(jobId: string, data: JobState): Promise<void> {
     const payload = JSON.stringify({
       status: data.status || data.success ? 'completed' : 'error'
     });
@@ -201,7 +201,7 @@ export default class BrowserStackTunnel extends Tunnel
 
   protected _start(executor: ChildExecutor) {
     return this._makeChild((child, resolve, reject) => {
-      let handle = on(child.stdout!, 'data', (data: any) => {
+      const handle = on(child.stdout!, 'data', (data: any) => {
         data = String(data);
         const error = /\s*\*\*\* Error: (.*)$/m.exec(data);
         if (error) {
@@ -244,7 +244,7 @@ export default class BrowserStackTunnel extends Tunnel
 
       let exited = false;
 
-      childProcess.once('exit', function(code) {
+      childProcess.once('exit', function (code) {
         exited = true;
         resolve(code == null ? undefined : code);
       });
@@ -255,7 +255,7 @@ export default class BrowserStackTunnel extends Tunnel
       // Node doesn't provide an easy way to get the PID of the secondary
       // process, so we'll just wait a few seconds, then kill the process
       // if it hasn't ended cleanly.
-      setTimeout(function() {
+      setTimeout(function () {
         if (!exited) {
           kill(childProcess.pid);
         }

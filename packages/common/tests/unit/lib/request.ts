@@ -1,5 +1,7 @@
 import * as moxios from 'moxios';
+import axios from 'axios';
 import request, { Response } from '../../../src/lib/request';
+import { createCancelToken } from '../../../src/lib/cancel';
 
 const { registerSuite } = intern.getInterface('object');
 const { assert } = intern.getPlugin('chai');
@@ -107,12 +109,10 @@ registerSuite('lib/request', {
 
     cancel() {
       const dfd = this.async();
-      let responded = false;
 
       moxios.wait(() => {
         const request = moxios.requests.mostRecent();
         setTimeout(() => {
-          responded = true;
           request.respondWith({
             status: 200,
             statusText: 'OK'
@@ -120,21 +120,20 @@ registerSuite('lib/request', {
         }, 1000);
       });
 
-      const req = request('test.html');
+      const token = createCancelToken();
+      const req = request('test.html', { cancelToken: token });
 
       req
         .then(
           dfd.rejectOnError(() => {
-            assert.fail("Shouldn't not have resolved");
+            assert.fail('Should not have resolved');
           })
         )
-        .finally(
-          dfd.callback(() => {
-            assert.isFalse(responded, 'Should not have responded');
-          })
+        .catch(
+          dfd.callback((reason: Error) => assert.isTrue(axios.isCancel(reason)))
         );
 
-      req.cancel();
+      token.cancel();
     },
 
     'download progress'() {
@@ -313,7 +312,7 @@ registerSuite('lib/request', {
       request('test.html', {
         method: 'post',
         data: 'some body'
-      }).then(dfd.callback(() => {}));
+      }).then(dfd.callback(() => undefined));
     },
 
     put() {
@@ -331,7 +330,7 @@ registerSuite('lib/request', {
       request('test.html', {
         method: 'put',
         data: 'some body'
-      }).then(dfd.callback(() => {}));
+      }).then(dfd.callback(() => undefined));
     }
   }
 });

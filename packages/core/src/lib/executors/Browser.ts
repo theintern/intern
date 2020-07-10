@@ -1,5 +1,5 @@
 import { Minimatch } from 'minimatch';
-import { request, Task, CancellablePromise, global } from '@theintern/common';
+import { request, global } from '@theintern/common';
 
 import * as console from '../common/console';
 import Executor, { Config, Events, Plugins } from './Executor';
@@ -76,10 +76,7 @@ export default class Browser extends Executor<Events, Config, Plugins> {
    *
    * @param script a path to a script
    */
-  loadScript(
-    script: string | string[],
-    isEsm = false
-  ): CancellablePromise<void> {
+  loadScript(script: string | string[], isEsm = false): Promise<void> {
     if (typeof script === 'string') {
       script = [script];
     }
@@ -92,7 +89,7 @@ export default class Browser extends Executor<Events, Config, Plugins> {
         script = script.replace(/\?$/, 'js');
       }
       return previous.then(() => injectScript(script, isEsm));
-    }, Task.resolve());
+    }, Promise.resolve());
   }
 
   protected _resolveConfig() {
@@ -160,8 +157,8 @@ export default class Browser extends Executor<Events, Config, Plugins> {
 
 export { Events, Config };
 
-function injectScript(path: string, isEsm: boolean): CancellablePromise<void> {
-  return new Task<void>((resolve, reject) => {
+function injectScript(path: string, isEsm: boolean): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
     const doc: Document = global.document;
     const scriptTag = doc.createElement('script');
     scriptTag.addEventListener('load', () => {

@@ -1,7 +1,6 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { dirname, join } from 'path';
 import { rmdirSync } from 'fs';
-import { CancellablePromise } from '@theintern/common';
 import fs from 'fs';
 // import path from 'path';
 // import _glob from 'glob';
@@ -43,7 +42,7 @@ registerSuite('lib/node/util', function () {
 
     loadConfig(
       filename: string,
-      loadText: (filename: string) => CancellablePromise<string>,
+      loadText: (filename: string) => Promise<string>,
       args?: { [key: string]: any },
       childConfig?: string | string[]
     ) {

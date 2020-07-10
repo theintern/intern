@@ -1,4 +1,3 @@
-import { CancellablePromise } from '@theintern/common';
 import { RemoteEvents } from '../RemoteSuite';
 
 export default abstract class BaseChannel {
@@ -29,7 +28,7 @@ export default abstract class BaseChannel {
   protected abstract _sendData(
     name: keyof RemoteEvents,
     data: any
-  ): CancellablePromise<any>;
+  ): Promise<any>;
 }
 
 export interface ChannelOptions {

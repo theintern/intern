@@ -1,7 +1,9 @@
 import { mockImport } from 'tests/support/mockUtil';
-import { createSandbox, spy } from 'sinon';
-import { Task, isPromiseLike, deepMixin } from '@theintern/common';
+import { createSandbox, spy, SinonSpy } from 'sinon';
+import { isCancel, isPromiseLike, deepMixin } from '@theintern/common';
 
+import Suite from 'src/lib/Suite';
+import Test from 'src/lib/Test';
 import _Executor, { Config, Events, Plugins } from 'src/lib/executors/Executor';
 
 // Import isSuite from the testing source rather than the source being tested
@@ -14,7 +16,7 @@ type ExecutorType = _Executor<Events, Config, Plugins>;
 interface FullExecutor extends ExecutorType {
   new (config?: Partial<Config>): ExecutorType;
   environment: 'browser' | 'node';
-  loadScript(_script: string | string[]): Task<void>;
+  loadScript(_script: string | string[]): Promise<void>;
 }
 
 let Executor: FullExecutor;
@@ -69,9 +71,9 @@ registerSuite('lib/executors/Executor', function () {
 
   const loadScript = sandbox.spy((script: string) => {
     if (scripts[script]) {
-      return Task.resolve(scripts[script]());
+      return Promise.resolve(scripts[script]());
     }
-    return Task.resolve();
+    return Promise.resolve();
   });
 
   let scripts: { [name: string]: () => void };
@@ -87,12 +89,13 @@ registerSuite('lib/executors/Executor', function () {
           );
           replace(() => import('src/lib/common/console')).with(mockConsole);
           replace(() => import('chai')).with(mockChai);
-          replace(() => import('@theintern/common')).with({
-            global: { __coverage__: {} },
-            deepMixin,
-            isPromiseLike,
-            Task
-          });
+          replace(() => import('@theintern/common'))
+            .transparently()
+            .with({
+              global: { __coverage__: {} },
+              deepMixin,
+              isPromiseLike
+            });
         }
       );
 
@@ -674,7 +677,7 @@ registerSuite('lib/executors/Executor', function () {
 
         'run error'() {
           executor.addSuite(rootSuite => {
-            rootSuite.run = () => Task.reject<void>(new Error('foo'));
+            rootSuite.run = () => Promise.reject<void>(new Error('foo'));
           });
           return assertRunFails(executor, /foo/);
         },
@@ -753,6 +756,64 @@ registerSuite('lib/executors/Executor', function () {
               const data = JSON.parse(mockConsole.log.getCall(0).args[0]);
               assert.propertyVal(data.benchmarkConfig, 'mode', 'baseline');
             });
+        },
+
+        cancellation() {
+          const test1Spy = spy(
+            () => new Promise(resolve => setTimeout(resolve, 500))
+          );
+          const test2Spy = spy(
+            () => new Promise(resolve => setTimeout(resolve, 500))
+          );
+          let suiteSpy: SinonSpy<any>;
+          let suite: Suite;
+
+          executor.addSuite(rootSuite => {
+            suite = rootSuite;
+            rootSuite.add(
+              new Test({
+                name: 'cancel test 1',
+                test: test1Spy
+              })
+            );
+            rootSuite.add(
+              new Test({
+                name: 'cancel test 2',
+                test: test2Spy
+              })
+            );
+            suiteSpy = spy(rootSuite, 'run');
+          });
+
+          const runPromise = executor.run();
+
+          setTimeout(() => {
+            executor.cancel();
+          }, 200);
+
+          return runPromise.then(
+            () => {
+              throw new Error('Run should not have passed');
+            },
+            error => {
+              assert.isTrue(isCancel(error), 'error should be a cancellation');
+              assert.equal(
+                suiteSpy.callCount,
+                1,
+                'suite should have been started'
+              );
+              assert.equal(
+                test1Spy.callCount,
+                1,
+                'test 1 should have been started'
+              );
+              assert.isFalse(
+                test2Spy.called,
+                'test 2 should not have been started'
+              );
+              assert.isDefined(suite.skip, 'suite should have been skipped');
+            }
+          );
         }
       }
     }

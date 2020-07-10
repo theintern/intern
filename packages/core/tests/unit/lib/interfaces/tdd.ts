@@ -1,6 +1,5 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox } from 'sinon';
-import { Task } from '@theintern/common';
 
 import * as _tddInt from 'src/lib/interfaces/tdd';
 import Test, { isTest } from 'src/lib/Test';
@@ -15,7 +14,7 @@ registerSuite('lib/interfaces/tdd', function () {
     addSuite: sandbox.spy((callback: (suite: Suite) => void) => {
       callback(parent);
     }),
-    emit: sandbox.spy(() => Task.resolve())
+    emit: sandbox.spy(() => Promise.resolve())
   };
   const getIntern = sandbox.spy(() => {
     return executor;

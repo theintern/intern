@@ -1,14 +1,14 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "../..",
+    "composite": false,
     "declaration": false,
-    "outDir": "../../_examples",
-    "paths": {
-      "src/*": ["_build/src/*.d.ts"]
-    },
-    "rootDir": "."
+    "declarationMap": false,
+    "incremental": false,
+    "noEmit": true,
+    "rootDir": "../.."
   },
-  "extends": "../../tsconfig.json",
-  "files": ["example.intern.ts"],
+  "files": ["example.intern.ts", "../../src/index.ts"],
   "include": []
 }

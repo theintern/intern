@@ -7,7 +7,7 @@ import { existsSync, watchFile, unlinkSync, unwatchFile } from 'fs';
 import { stringify } from 'querystring';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { request, CancellablePromise } from '@theintern/common';
+import { request } from '@theintern/common';
 import { parse } from 'url';
 import { fileExists, on } from './lib/util';
 import { JobState } from './interfaces';
@@ -113,7 +113,7 @@ export default class TestingBotTunnel extends Tunnel
     return args;
   }
 
-  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
+  sendJobState(jobId: string, data: JobState): Promise<void> {
     const params: { [key: string]: string | number } = {};
 
     if (data.success != null) {
@@ -144,7 +144,7 @@ export default class TestingBotTunnel extends Tunnel
       password: this.accessKey,
       username: this.username,
       proxy: this.proxy
-    }).then(function(response) {
+    }).then(function (response) {
       return response.text().then(text => {
         if (text) {
           const data = JSON.parse(text);
@@ -182,7 +182,7 @@ export default class TestingBotTunnel extends Tunnel
       // Polling API is used because we are only watching for one file, so
       // efficiency is not a big deal, and the `fs.watch` API has extra
       // restrictions which are best avoided
-      watchFile(readyFile, { persistent: false, interval: 1007 }, function(
+      watchFile(readyFile, { persistent: false, interval: 1007 }, function (
         current,
         previous
       ) {

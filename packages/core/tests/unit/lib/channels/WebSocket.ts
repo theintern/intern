@@ -1,6 +1,5 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { useFakeTimers, SinonFakeTimers } from 'sinon';
-import { Task } from '@theintern/common';
 
 let WebSocket: typeof import('src/lib/channels/WebSocket').default;
 
@@ -28,8 +27,7 @@ registerSuite('lib/channels/WebSocket', function () {
         () => import('src/lib/channels/WebSocket'),
         replace => {
           replace(() => import('@theintern/common')).with({
-            global: { WebSocket: MockWebSocket },
-            Task
+            global: { WebSocket: MockWebSocket }
           });
           replace(() => import('src/lib/browser/util')).with({
             parseUrl: () => ({} as any)

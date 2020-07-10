@@ -1,7 +1,7 @@
 import SauceLabsTunnel from '../../src/SauceLabsTunnel';
 import { pathRe } from '../support/util';
 
-registerSuite('tunnels/SauceLabsTunnel', () => {
+registerSuite('SauceLabsTunnel', () => {
   let tunnel: SauceLabsTunnel;
 
   return {

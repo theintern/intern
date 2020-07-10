@@ -1,7 +1,4 @@
-import { CancellablePromise } from '@theintern/common';
 import { Url } from 'url';
-
-export { CancellablePromise };
 
 /**
  * These interface describes the capabilities that may be implemented by a
@@ -105,7 +102,7 @@ export interface Capabilities {
   fixSessionCapabilities?: 'no-detect' | boolean;
 
   /** The actual log types supported by a remote */
-  fixedLogTypes?: false | string[] | CancellablePromise<string[]>;
+  fixedLogTypes?: false | string[] | Promise<string[]>;
 
   /** Whether the remote can handle modal alerts */
   handlesAlerts?: boolean;

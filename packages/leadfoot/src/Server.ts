@@ -3,8 +3,7 @@ import { Agent as HttpsAgent } from 'https';
 
 import keys from './keys';
 import {
-  Task,
-  CancellablePromise,
+  CancelToken,
   request,
   RequestOptions,
   RequestMethod,
@@ -95,8 +94,9 @@ export default class Server {
     method: RequestMethod,
     path: string,
     requestData: any,
-    pathParts?: string[]
-  ): CancellablePromise<T> {
+    pathParts?: string[],
+    token?: CancelToken
+  ): Promise<T> {
     const url =
       this.url +
       path.replace(/\$(\d)/, function (_, index) {
@@ -115,15 +115,16 @@ export default class Server {
     const httpAgent = this._httpAgent;
     const httpsAgent = this._httpsAgent;
 
-    const kwArgs = {
+    const kwArgs: RequestOptions = {
       ...this.requestOptions,
       followRedirects: false,
       handleAs: 'text',
       headers,
       method,
       httpAgent,
-      httpsAgent
-    } as RequestOptions;
+      httpsAgent,
+      cancelToken: token
+    };
 
     if (requestData) {
       kwArgs.data = JSON.stringify(requestData);
@@ -146,18 +147,18 @@ export default class Server {
     const trace: any = {};
     Error.captureStackTrace(trace, this._sendRequest);
 
-    return new Task((resolve, reject) => {
+    return new Promise<Response>((resolve, reject) => {
       request(url, kwArgs)
         .then(resolve, reject)
         .finally(() => {
-          const error = new Error('Canceled');
+          const error = new Error('Cancelled');
           error.name = 'CancelError';
           reject(error);
         });
     })
       .then(function handleResponse(
         response: Response
-      ): ResponseData | CancellablePromise<ResponseData> {
+      ): ResponseData | Promise<ResponseData> {
         // The JsonWireProtocol specification prior to June 2013 stated
         // that creating a new session should perform a 3xx redirect to
         // the session capabilities URL, instead of simply returning
@@ -373,26 +374,29 @@ export default class Server {
 
   get<T>(
     path: string,
-    requestData?: Object,
-    pathParts?: string[]
-  ): CancellablePromise<T> {
-    return this._sendRequest<T>('GET', path, requestData, pathParts);
+    requestData?: Record<string, any>,
+    pathParts?: string[],
+    token?: CancelToken
+  ): Promise<T> {
+    return this._sendRequest<T>('GET', path, requestData, pathParts, token);
   }
 
   post<T>(
     path: string,
-    requestData?: Object,
-    pathParts?: string[]
-  ): CancellablePromise<T> {
-    return this._sendRequest<T>('POST', path, requestData, pathParts);
+    requestData?: Record<string, any>,
+    pathParts?: string[],
+    token?: CancelToken
+  ): Promise<T> {
+    return this._sendRequest<T>('POST', path, requestData, pathParts, token);
   }
 
   delete<T>(
     path: string,
-    requestData?: Object,
-    pathParts?: string[]
-  ): CancellablePromise<T> {
-    return this._sendRequest<T>('DELETE', path, requestData, pathParts);
+    requestData?: Record<string, any>,
+    pathParts?: string[],
+    token?: CancelToken
+  ): Promise<T> {
+    return this._sendRequest<T>('DELETE', path, requestData, pathParts, token);
   }
 
   /**
@@ -419,7 +423,7 @@ export default class Server {
   createSession<S extends Session = Session>(
     desiredCapabilities: Capabilities,
     requiredCapabilities?: Capabilities
-  ): CancellablePromise<S> {
+  ): Promise<S> {
     let fixSessionCapabilities = this.fixSessionCapabilities;
     if (desiredCapabilities.fixSessionCapabilities != null) {
       fixSessionCapabilities = desiredCapabilities.fixSessionCapabilities;
@@ -477,7 +481,7 @@ export default class Server {
         )
           .catch(error =>
             // The session was started on the server, but we did
-            // not resolve the Task yet. If a failure occurs during
+            // not resolve the promise yet. If a failure occurs during
             // capabilities filling, we should quit the session on
             // the server too since the caller will not be aware
             // that it ever got that far and will have no access to
@@ -500,11 +504,11 @@ export default class Server {
   private _fillCapabilities<S extends Session>(
     session: S,
     detectCapabilities = true
-  ): CancellablePromise<S> {
+  ): Promise<S> {
     Object.assign(session.capabilities, this._getKnownCapabilities(session));
     return (detectCapabilities
       ? this._detectCapabilities(session)
-      : Task.resolve(session)
+      : Promise.resolve(session)
     ).then(() => {
       Object.defineProperty(session.capabilities, '_filled', {
         value: true,
@@ -822,9 +826,7 @@ export default class Server {
   /**
    * Run tests to detect capabilities/defects
    */
-  private _detectCapabilities(
-    session: Session
-  ): CancellablePromise<void | Session> {
+  private _detectCapabilities(session: Session): Promise<void | Session> {
     const capabilities = session.capabilities;
     const supported = () => true;
     const unsupported = () => false;
@@ -850,20 +852,18 @@ export default class Server {
      * be executed serially in order to resolve the correct value of that
      * particular capability.
      */
-    const addCapabilities = (
-      testedCapabilities: Capabilities
-    ): CancellablePromise<void> =>
+    const addCapabilities = (testedCapabilities: Capabilities): Promise<void> =>
       Object.keys(testedCapabilities).reduce(
-        (previous: CancellablePromise<void>, key: keyof Capabilities) =>
+        (previous, key) =>
           previous.then(() => {
             const value = testedCapabilities[key];
-            const task =
-              typeof value === 'function' ? value() : Task.resolve(value);
-            return task.then((value: any) => {
+            const promise =
+              typeof value === 'function' ? value() : Promise.resolve(value);
+            return promise.then((value: any) => {
               capabilities[key] = value;
             });
           }),
-        Task.resolve()
+        Promise.resolve()
       );
 
     const get = (page: string) => {
@@ -1100,7 +1100,7 @@ export default class Server {
             .then(logResult('noElementDisplayed'));
       }
 
-      return Task.all(
+      return Promise.all(
         Object.keys(testedCapabilities).map(key => testedCapabilities[key])
       ).then(() => testedCapabilities);
     };
@@ -1113,7 +1113,7 @@ export default class Server {
       // are not http/https
       if (isSafari(capabilities, 0, 10) && isMac(capabilities)) {
         // intern.log('Skipping feature tests for Mac Safari < 10');
-        return Task.resolve({});
+        return Promise.resolve({});
       }
 
       // Appium iOS as of April 2014 supports rotation but does not
@@ -1284,12 +1284,12 @@ export default class Server {
             .then(logResult('supportsCssTransforms'));
       }
 
-      return Task.all(
+      return Promise.all(
         Object.keys(testedCapabilities).map(key => testedCapabilities[key])
       ).then(() => testedCapabilities);
     };
 
-    const discoverDefects = (): CancellablePromise<Capabilities> => {
+    const discoverDefects = (): Promise<Capabilities> => {
       const testedCapabilities: any = {};
 
       // At least SafariDriver 2.41.0 fails to allow stand-alone feature
@@ -1297,7 +1297,7 @@ export default class Server {
       // are not http/https
       if (isSafari(capabilities, 0, 10) && isMac(capabilities)) {
         // intern.log('Skipping defect tests for Mac Safari < 10');
-        return Task.resolve({});
+        return Promise.resolve({});
       }
 
       // At least ChromeDriver 2.9 and MS Edge 10240 does not implement
@@ -1738,41 +1738,34 @@ export default class Server {
             .get('about:blank?1')
             .then(() => {
               let timer: NodeJS.Timer;
-              let refresh: CancellablePromise<boolean | void>;
+              let refresh: Promise<boolean | void>;
+              const isBroken = true;
+              const notBroken = false;
 
-              return new Task(
-                resolve => {
-                  let settled = false;
+              return new Promise(resolve => {
+                refresh = session.refresh().then(
+                  () => {
+                    clearTimeout(timer);
+                    resolve(notBroken);
+                  },
+                  () => {
+                    clearTimeout(timer);
+                    resolve(isBroken);
+                  }
+                );
 
-                  refresh = session
-                    .refresh()
-                    .then(
-                      () => {
-                        settled = true;
-                        clearTimeout(timer);
-                        resolve(false);
-                      },
-                      () => {
-                        settled = true;
-                        clearTimeout(timer);
-                        resolve(true);
-                      }
-                    )
-                    .finally(() => {
-                      if (!settled) {
-                        resolve(true);
-                      }
-                    });
+                const timeout = new Promise((_resolve, reject) => {
+                  timer = setTimeout(reject, 2000);
+                });
 
-                  timer = setTimeout(function () {
-                    refresh.cancel();
-                  }, 2000);
-                },
-                () => {
-                  clearTimeout(timer);
-                  refresh.cancel();
-                }
-              );
+                // If the timeout promise finishes first, resolve the promise
+                // as true
+                Promise.race([refresh, timeout])
+                  .then(resolve, () => {
+                    resolve(isBroken);
+                  })
+                  .then(() => clearTimeout(timer));
+              });
             })
             .catch(broken)
             .then(logResult('brokenRefresh'));
@@ -1816,9 +1809,7 @@ export default class Server {
       // double-click
       if (capabilities.brokenDoubleClick == null) {
         // intern.log('Checking brokenDoubleClick...');
-        testedCapabilities.brokenDoubleClick = function retry(): CancellablePromise<
-          any
-        > {
+        testedCapabilities.brokenDoubleClick = function retry(): Promise<any> {
           // InternetExplorerDriver is not buggy, but IE9 in
           // quirks-mode is; since we cannot do feature tests in
           // standards-mode in IE<10, force the value to false
@@ -1827,7 +1818,7 @@ export default class Server {
             capabilities.browserName === 'internet explorer' &&
             capabilities.browserVersion === '9'
           ) {
-            return Task.resolve(false);
+            return Promise.resolve(false);
           }
 
           return get(
@@ -1969,23 +1960,23 @@ export default class Server {
         }
       }
 
-      return Task.all(
+      return Promise.all(
         Object.keys(testedCapabilities).map(key => testedCapabilities[key])
       ).then(() => testedCapabilities);
     };
 
     if (capabilities._filled) {
-      return Task.resolve(session);
+      return Promise.resolve(session);
     }
 
     // At least geckodriver 0.11 and Firefox 49+ may hang when getting
     // 'about:blank' in the first request
-    const promise: CancellablePromise<Session | void> = isFirefox(
+    const promise: Promise<Session | void> = isFirefox(
       capabilities,
       49,
       Infinity
     )
-      ? Task.resolve(session)
+      ? Promise.resolve(session)
       : session.get('about:blank');
 
     return promise
@@ -2004,7 +1995,7 @@ export default class Server {
    * Gets a list of all currently active remote control sessions on this
    * server.
    */
-  getSessions(): CancellablePromise<Session[]> {
+  getSessions(): Promise<Session[]> {
     return this.get('sessions').then(function (sessions: any) {
       // At least BrowserStack is now returning an array for the sessions
       // response
@@ -2030,7 +2021,7 @@ export default class Server {
    * of the extra session capabilities detected by Leadfoot and may be
    * inaccurate.
    */
-  getSessionCapabilities(sessionId: string): CancellablePromise<Capabilities> {
+  getSessionCapabilities(sessionId: string): Promise<Capabilities> {
     return this.get('session/$0', undefined, [sessionId]).then(returnValue);
   }
 

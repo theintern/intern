@@ -1,6 +1,5 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox } from 'sinon';
-import { Task, CancellablePromise } from '@theintern/common';
 
 import * as _util from 'src/lib/browser/util';
 
@@ -17,7 +16,7 @@ registerSuite('lib/browser/util', function () {
     }
 
     text() {
-      return Task.resolve(this.data);
+      return Promise.resolve(this.data);
     }
   }
 
@@ -25,7 +24,7 @@ registerSuite('lib/browser/util', function () {
 
   const request = sandbox.spy((path: string) => {
     const data = requestData && requestData[path];
-    return Task.resolve(new MockResponse(data));
+    return Promise.resolve(new MockResponse(data));
   });
 
   let util: typeof _util;
@@ -42,7 +41,7 @@ registerSuite('lib/browser/util', function () {
     loadConfig: sandbox.spy(
       (
         filename: string,
-        loadText: (filename: string) => CancellablePromise<string>,
+        loadText: (filename: string) => Promise<string>,
         _args?: { [key: string]: any },
         _childConfig?: string | string[]
       ) => {

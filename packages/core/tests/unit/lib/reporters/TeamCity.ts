@@ -72,7 +72,7 @@ registerSuite('lib/reporters/TeamCity', function () {
   const mockExecutor = <any>{
     formatError: spy((error: Error) => intern.formatError(error)),
     on: spy(),
-    emit: spy(),
+    emit: spy(() => Promise.resolve()),
     sourceMapStore: {
       transformCoverage: spy(() => {
         return { map: {} };

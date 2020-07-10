@@ -1,6 +1,6 @@
 import TestingBotTunnel from '../../src/TestingBotTunnel';
 
-registerSuite('tunnels/TestingBotTunnel', () => {
+registerSuite('TestingBotTunnel', () => {
   let tunnel: TestingBotTunnel;
 
   return {

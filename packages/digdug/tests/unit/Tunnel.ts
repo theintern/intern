@@ -1,7 +1,8 @@
-import { Task } from '@theintern/common';
+import { createCancelToken, isCancel } from '@theintern/common';
+
 import Tunnel from '../../src/Tunnel';
 
-registerSuite('tunnels/Tunnel', () => {
+registerSuite('Tunnel', () => {
   let tunnel: Tunnel;
 
   return {
@@ -23,8 +24,8 @@ registerSuite('tunnels/Tunnel', () => {
       },
 
       '#start'() {
-        const task = Task.resolve();
-        tunnel['_startTask'] = task;
+        const promise = Promise.resolve();
+        tunnel['_startPromise'] = promise;
         tunnel['_state'] = <Tunnel['_state']>'stopping';
         assert.throws(() => {
           tunnel.start();
@@ -33,8 +34,8 @@ registerSuite('tunnels/Tunnel', () => {
         tunnel['_state'] = 'running';
         assert.strictEqual(
           tunnel.start(),
-          task,
-          'Running tunnel should have returned start task'
+          promise,
+          'Running tunnel should have returned start promise'
         );
       },
 
@@ -45,24 +46,39 @@ registerSuite('tunnels/Tunnel', () => {
         },
 
         'stop a starting tunnnel'() {
-          let timeout: NodeJS.Timer;
-          const startTask = new Task(
-            resolve => {
-              timeout = global.setTimeout(resolve, 500);
-            },
-            () => {
-              clearTimeout(timeout);
-            }
-          );
+          const cancelToken = createCancelToken();
+          let resolved = false;
+
+          const startPromise = cancelToken
+            .wrap(
+              new Promise(resolve => {
+                global.setTimeout(resolve, 500);
+              })
+            )
+            .then(() => {
+              resolved = true;
+            });
+
           tunnel['_state'] = 'starting';
-          tunnel['_startTask'] = startTask;
+          tunnel['_startPromise'] = startPromise;
           tunnel['_stop'] = () => Promise.resolve(0);
+          tunnel['_cancelToken'] = cancelToken;
+
           tunnel.stop();
 
-          const dfd = this.async();
-          startTask.finally(() => {
-            dfd.resolve();
-          });
+          return startPromise
+            .catch(error => {
+              assert.isTrue(
+                isCancel(error),
+                'Tunnel should have been cancelled'
+              );
+            })
+            .finally(() => {
+              assert.isFalse(
+                resolved,
+                'Tunnel startup promise should not have resolved'
+              );
+            });
         },
 
         'stop a tunnel that is not running; throws'() {

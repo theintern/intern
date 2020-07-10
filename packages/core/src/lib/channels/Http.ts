@@ -1,50 +1,40 @@
-import { request, Task, CancellablePromise } from '@theintern/common';
+import { request } from '@theintern/common';
 
 import { RemoteEvents } from '../RemoteSuite';
 import BaseChannel, { ChannelOptions, Message } from './Base';
 
 export default class HttpChannel extends BaseChannel {
-  protected _lastRequest: CancellablePromise<void>;
+  protected _lastRequest: Promise<void>;
   protected _messageBuffer: MessageEntry[];
   protected _sequence: number;
   protected _maxPostSize: number;
-  protected _activeRequest: CancellablePromise<any> | undefined;
+  protected _activeRequest: Promise<any> | undefined;
 
   constructor(options: HttpChannelOptions) {
     super(options);
     this._sequence = 1;
     this._maxPostSize = options.maxPostSize || 100000;
     this._messageBuffer = [];
-    this._lastRequest = Task.resolve();
+    this._lastRequest = Promise.resolve();
   }
 
-  protected _sendData(name: keyof RemoteEvents, data: any): CancellablePromise {
+  protected _sendData(name: keyof RemoteEvents, data: any): Promise<any> {
     const id = String(this._sequence++);
     const sessionId = this.sessionId;
     const message: Message = { id, sessionId, name, data };
-    const task = new Task(
-      (resolve, reject) => {
-        this._messageBuffer.push({
-          message: JSON.stringify(message),
-          resolve,
-          reject
-        });
+    return new Promise<void>((resolve, reject) => {
+      this._messageBuffer.push({
+        message: JSON.stringify(message),
+        resolve,
+        reject
+      });
 
-        if (this._activeRequest) {
-          this._activeRequest.then(() => this._sendMessages());
-        } else {
-          this._sendMessages();
-        }
-      },
-      () => {
-        if (this._activeRequest) {
-          this._activeRequest.cancel();
-        }
-        this._messageBuffer = [];
+      if (this._activeRequest) {
+        this._activeRequest.then(() => this._sendMessages());
+      } else {
+        this._sendMessages();
       }
-    );
-
-    return task;
+    });
   }
 
   /**
@@ -52,7 +42,7 @@ export default class HttpChannel extends BaseChannel {
    * limit the maximum size of each POST body to maxPostSize bytes. Always
    * send at least one message, even if it's more than maxPostSize bytes.
    */
-  protected _sendMessages(): CancellablePromise<any> | undefined {
+  protected _sendMessages(): Promise<any> | undefined {
     const messages = this._messageBuffer;
     if (messages.length === 0) {
       return;

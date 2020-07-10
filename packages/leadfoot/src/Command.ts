@@ -1,6 +1,6 @@
+import { CancelToken, createCancelToken } from '@theintern/common';
 import { getMethods, sleep, trimStack } from './lib/util';
 import Element from './Element';
-import { Task, CancellablePromise } from '@theintern/common';
 import Session from './Session';
 import Locator, { Strategy } from './lib/Locator';
 import { LogEntry, Geolocation, WebDriverCookie } from './interfaces';
@@ -171,7 +171,7 @@ export default class Command<
     Command<Element[], P, string[]>,
     Command<void, P, StringResult>
   >
-  implements PromiseLike<T> {
+  implements Promise<T> {
   /**
    * Augments `target` with a conversion of the `originalFn` method that
    * enables its use with a Command object. This can be used to easily add
@@ -210,16 +210,16 @@ export default class Command<
       // Regarding typing, <U, P, S> is the generic type of the Command that
       // will be created. <P, any, S> is the type of *this* command, which will
       // be the parent of the created Command.
-      (<any>target)[key] = function(
+      (<any>target)[key] = function (
         this: Command<Ps, any, Ss>,
         ...args: any[]
       ): Command<Us, Ps, Ss> {
         return new (this.constructor as typeof Command)<Us, Ps, Ss>(
           this,
-          function(this, setContext: SetContextMethod) {
+          function (this, setContext: SetContextMethod) {
             const parentContext = this._context;
             const session = this._session;
-            let promise: CancellablePromise<any>;
+            let promise: Promise<any>;
             // The function may have come from a session object
             // prototype but have been overridden on the actual session
             // instance; in such a case, the overridden function should
@@ -242,7 +242,7 @@ export default class Command<
               if (parentContext.isSingle) {
                 promise = fn.apply(session, [parentContext[0]].concat(args));
               } else {
-                promise = Task.all(
+                promise = Promise.all(
                   parentContext.map((element: Element) =>
                     fn.apply(session, [element].concat(args))
                   )
@@ -253,13 +253,13 @@ export default class Command<
             }
 
             if (fn.createsContext) {
-              promise = promise.then(function(newContext) {
+              promise = promise.then(function (newContext) {
                 setContext(newContext);
                 return newContext;
               });
             }
 
-            return <CancellablePromise<Us>>promise;
+            return promise;
           }
         );
       };
@@ -292,35 +292,35 @@ export default class Command<
       // deduplicate these methods by appending the element ones with
       // 'Element'
       const targetKey = key + (anyTarget[key] ? 'Element' : '');
-      anyTarget[targetKey] = function(
+      anyTarget[targetKey] = function (
         this: Command<Ps, any, Ss>,
         ...args: any[]
       ): Command<Us, Ps, Ss> {
         return new (this.constructor as typeof Command)<Us, Ps, Ss>(
           this,
-          function(setContext: SetContextMethod) {
+          function (setContext: SetContextMethod) {
             const parentContext = this._context;
-            let promise: CancellablePromise<any>;
-            let fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
+            let promise: Promise<any>;
+            const fn = (<any>parentContext)[0] && (<any>parentContext)[0][key];
 
             if (parentContext.isSingle) {
               promise = fn.apply(parentContext[0], args);
             } else {
-              promise = Task.all(
-                parentContext.map(function(element: any) {
+              promise = Promise.all(
+                parentContext.map(function (element: any) {
                   return element[key].apply(element, args);
                 })
               );
             }
 
             if (fn && fn.createsContext) {
-              promise = promise.then(function(newContext) {
+              promise = promise.then(function (newContext) {
                 setContext(newContext);
                 return newContext;
               });
             }
 
-            return <CancellablePromise<Us>>promise;
+            return promise;
           }
         );
       };
@@ -330,7 +330,10 @@ export default class Command<
   private _parent: Command<P, any, StringResult> | undefined;
   private _session: Session;
   private _context!: Context;
-  private _task: CancellablePromise<any>;
+  private _promise: Promise<any>;
+  private _cancelToken: CancelToken;
+
+  readonly [Symbol.toStringTag]: 'promise';
 
   /**
    * @param parent The parent command that this command is chained to, or a
@@ -347,6 +350,8 @@ export default class Command<
    * for the current command by calling the passed `setContext` function any
    * time prior to resolving the Promise that it returns. If no context is
    * explicitly provided, the context from the parent command will be used.
+   *
+   * @param token A cancellation token.
    */
   // TODO: Need to show that parent is mixed into this Command
   constructor(
@@ -360,10 +365,19 @@ export default class Command<
       this: Command<T, P, StringResult>,
       setContext: SetContextMethod,
       error: any
-    ) => T | PromiseLike<T>
+    ) => T | PromiseLike<T>,
+    token?: CancelToken
   ) {
     super();
 
+    const cancelToken = createCancelToken();
+    this._cancelToken = cancelToken;
+
+    if (token) {
+      token.promise.catch(() => cancelToken.cancel());
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     let session: Session;
     const trace: any = {};
@@ -383,7 +397,7 @@ export default class Command<
       // `Command#end`, or someone smart knows what they are doing; do
       // not change the depth
       if (!('depth' in context)) {
-        context.depth = parent ? parent.context.depth! + 1 : 0;
+        context.depth = parent != null ? parent.context.depth! + 1 : 0;
       }
 
       self._context = context;
@@ -419,32 +433,45 @@ export default class Command<
     Error.captureStackTrace(trace, Command);
 
     // parentCommand will be null if parentOrSession was a session
-    let parentCommand = <Command<P, any, StringResult>>parentOrSession;
-    this._task = (parentCommand
+    const parentCommand = <Command<P, any, StringResult>>parentOrSession;
+    this._promise = (parentCommand != null
       ? parentCommand.promise
-      : Task.resolve(undefined)
+      : cancelToken.wrap(Promise.resolve(undefined))
     )
       .then(
-        function(returnValue) {
-          self._context = parentCommand ? parentCommand.context : TOP_CONTEXT;
+        function (returnValue) {
+          self._context =
+            parentCommand != null ? parentCommand.context : TOP_CONTEXT;
           return returnValue;
         },
-        function(error) {
-          self._context = parentCommand ? parentCommand.context : TOP_CONTEXT;
+        function (error) {
+          self._context =
+            parentCommand != null ? parentCommand.context : TOP_CONTEXT;
           throw error;
         }
       )
       .then(
         initialiser &&
-          function(returnValue) {
-            return Task.resolve(returnValue)
-              .then(initialiser.bind(self, setContext))
+          function (returnValue) {
+            return cancelToken
+              .wrap(Promise.resolve(returnValue))
+              .then(value =>
+                cancelToken.wrap(
+                  Promise.resolve(initialiser.call(self, setContext, value))
+                )
+              )
               .catch(fixStack);
           },
         errback &&
-          function(error) {
-            return Task.reject(error)
-              .catch(errback.bind(self, setContext))
+          function (error) {
+            return cancelToken
+              .wrap(Promise.reject(error))
+              .catch(error =>
+                // Don't wrap this with cancel token because a catch block or
+                // error handler shouldn't implicitly propagate a cancellation
+                // error.
+                Promise.resolve(errback.call(self, setContext, error))
+              )
               .catch(fixStack);
           }
       );
@@ -490,7 +517,7 @@ export default class Command<
    * @readonly
    */
   get promise() {
-    return this._task;
+    return this._promise;
   }
 
   /**
@@ -501,7 +528,7 @@ export default class Command<
   sleep(ms: number): Command<void, P, StringResult> {
     return new (this.constructor as typeof Command)<void, any, StringResult>(
       this,
-      function() {
+      function () {
         return sleep(ms);
       }
     );
@@ -527,10 +554,10 @@ export default class Command<
    * @param numCommandsToPop The number of element contexts to pop. Defaults
    * to 1.
    */
-  end(numCommandsToPop: number = 1): Command<void, P, StringResult> {
+  end(numCommandsToPop = 1): Command<void, P, StringResult> {
     return new (this.constructor as typeof Command)<void, any, StringResult>(
       this,
-      function(setContext: Function) {
+      function (setContext: Function) {
         let command: Command<any, any, StringResult> | undefined = this;
         let depth: number | undefined = this.context.depth;
 
@@ -541,7 +568,7 @@ export default class Command<
           }
         }
 
-        setContext(command!.context);
+        setContext(command.context);
       }
     );
   }
@@ -653,7 +680,7 @@ export default class Command<
     return new (this.constructor as typeof Command)(
       this,
       callback
-        ? function(setContext: SetContextMethod, value: U) {
+        ? function (setContext: SetContextMethod, value: U) {
             return runCallback(
               (this as unknown) as Command<T, P, StringResult>,
               callback,
@@ -664,7 +691,7 @@ export default class Command<
           }
         : undefined,
       errback
-        ? function(setContext: SetContextMethod, value: any) {
+        ? function (setContext: SetContextMethod, value: any) {
             return (runCallback(
               (this as unknown) as Command<T, P, StringResult>,
               undefined,
@@ -673,7 +700,8 @@ export default class Command<
               setContext
             ) as unknown) as U | PromiseLike<U>;
           }
-        : undefined
+        : undefined,
+      this._cancelToken
     );
   }
 
@@ -686,7 +714,7 @@ export default class Command<
       this: Command<T, P, StringResult>,
       reason: any
     ) => R | PromiseLike<R>
-  ) {
+  ): Command<R, T, StringResult> {
     return this.then(null, errback);
   }
 
@@ -694,19 +722,17 @@ export default class Command<
    * Adds a callback to be invoked once the previously chained operations
    * have resolved.
    */
-  finally(callback: () => void) {
-    this._task = this._task.finally(callback);
-    return this;
+  finally(callback: () => void | PromiseLike<void>) {
+    return this._promise.finally(callback);
   }
 
   /**
    * Cancels all outstanding chained operations of the Command. Calling this
-   * method will cause this command and all subsequent chained commands to
-   * fail with a CancelError.
+   * method will cause this command, all subsequent chained commands, and all
+   * unresolved parent commands to fail with a CancelError.
    */
-  cancel() {
-    this._task.cancel();
-    return this;
+  cancel(): void {
+    this._cancelToken.cancel();
   }
 
   find(strategy: Strategy, value: string) {
@@ -743,14 +769,14 @@ export default class Command<
   ): Command<Element, P, string> | Command<Element[], P, string[]> {
     return new (this.constructor as typeof Command)<any, any, any>(
       this,
-      function(setContext: SetContextMethod) {
+      function (setContext: SetContextMethod) {
         const parentContext = this._context;
-        let task: CancellablePromise<Element | Element[]>;
+        let promise: Promise<Element | Element[]>;
 
         if (parentContext.length && parentContext.isSingle) {
-          task = parentContext[0][method](strategy, value);
+          promise = parentContext[0][method](strategy, value);
         } else if (parentContext.length) {
-          task = Task.all(
+          promise = Promise.all(
             parentContext.map(element => element[method](strategy, value))
             // findAll against an array context will result in arrays
             // of arrays; flatten into a single array of elments. It
@@ -760,10 +786,10 @@ export default class Command<
             // order for results
           ).then(elements => Array.prototype.concat.apply([], elements));
         } else {
-          task = this.session[method](strategy, value);
+          promise = this.session[method](strategy, value);
         }
 
-        return task.then(newContext => {
+        return promise.then(newContext => {
           setContext(newContext);
           return newContext;
         });
@@ -777,29 +803,29 @@ export default class Command<
   ): Command<U, P, StringResult> {
     return new (this.constructor as typeof Command)<U, any, StringResult>(
       this,
-      function(setContext: SetContextMethod) {
+      function (setContext: SetContextMethod) {
         const parentContext = this._context;
-        let task: CancellablePromise<U>;
-        let fn = parentContext[0] && parentContext[0][method];
+        let promise: Promise<U>;
+        const fn = parentContext[0] && parentContext[0][method];
 
         if (parentContext.isSingle) {
-          task = fn.apply(parentContext[0], args);
+          promise = fn.apply(parentContext[0], args);
         } else {
-          task = (Task.all(
+          promise = (Promise.all(
             parentContext.map(element => (element[method] as Function)(...args))
           ).then(values =>
             Array.prototype.concat.apply([], values)
-          ) as unknown) as CancellablePromise<U>;
+          ) as unknown) as Promise<U>;
         }
 
         if (fn && fn.createsContext) {
-          task = task.then(function(newContext) {
+          promise = promise.then(function (newContext) {
             setContext(<any>newContext);
             return newContext;
           });
         }
 
-        return task;
+        return promise;
       }
     );
   }
@@ -810,10 +836,10 @@ export default class Command<
   ): Command<U, P, StringResult> {
     return new (this.constructor as typeof Command)<U, any, StringResult>(
       this,
-      function(setContext: SetContextMethod) {
+      function (setContext: SetContextMethod) {
         const parentContext = this._context;
         const session = this._session;
-        let task: CancellablePromise<U>;
+        let promise: Promise<U>;
 
         // The function may have come from a session object prototype but
         // have been overridden on the actual session instance; in such a
@@ -832,26 +858,26 @@ export default class Command<
           (!args[0] || !args[0].elementId)
         ) {
           if (parentContext.isSingle) {
-            task = sessionMethod(...[parentContext[0], ...args]);
+            promise = sessionMethod(...[parentContext[0], ...args]);
           } else {
-            task = (Task.all(
+            promise = (Promise.all(
               parentContext.map(element => sessionMethod(...[element, ...args]))
             ).then(values =>
               Array.prototype.concat.apply([], values)
-            ) as unknown) as CancellablePromise<U>;
+            ) as unknown) as Promise<U>;
           }
         } else {
-          task = sessionMethod(...args);
+          promise = sessionMethod(...args);
         }
 
         if ((<any>session[method]).createsContext) {
-          task = task.then(newContext => {
+          promise = promise.then(newContext => {
             setContext(<any>newContext);
             return newContext;
           });
         }
 
-        return task;
+        return promise;
       }
     );
   }
@@ -1843,16 +1869,15 @@ TOP_CONTEXT.depth = 0;
 let chaiAsPromised: any = null;
 try {
   chaiAsPromised = require('chai-as-promised');
-} catch (error) {}
+} catch (error) {
+  // ignore
+}
 
 // TODO: Add unit test
 if (chaiAsPromised) {
-  (<any>chaiAsPromised).transferPromiseness = function(
-    assertion: any,
-    promise: any
-  ) {
+  chaiAsPromised.transferPromiseness = function (assertion: any, promise: any) {
     assertion.then = promise.then.bind(promise);
-    for (let method in promise) {
+    for (const method in promise) {
       if (typeof promise[method] === 'function') {
         assertion[method] = promise[method].bind(promise);
       }

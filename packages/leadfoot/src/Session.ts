@@ -1,7 +1,7 @@
 import Element, { ElementOrElementId } from './Element';
 import Server from './Server';
 import findDisplayed from './lib/findDisplayed';
-import { Task, CancellablePromise, partial } from '@theintern/common';
+import { partial, createCancelToken, CancelToken } from '@theintern/common';
 import statusCodes from './lib/statusCodes';
 import Locator, { toW3cLocator, Strategy } from './lib/Locator';
 import {
@@ -24,9 +24,9 @@ import {
  * programmatically.
  */
 export default class Session extends Locator<
-  CancellablePromise<Element>,
-  CancellablePromise<Element[]>,
-  CancellablePromise<void>
+  Promise<Element>,
+  Promise<Element[]>,
+  Promise<void>
 > {
   private _sessionId: string;
   private _server: Server;
@@ -35,11 +35,12 @@ export default class Session extends Locator<
   // TODO: Timeouts are held so that we can fiddle with the implicit wait
   // timeout to add efficient `waitFor` and `waitForDeleted` convenience
   // methods. Technically only the implicit timeout is necessary.
-  private _timeouts: { [key: string]: CancellablePromise<number> } = {};
+  private _timeouts: { [key: string]: Promise<number> } = {};
   private _movedToElement = false;
   private _lastMousePosition: any = null;
   private _lastAltitude: any = null;
-  private _nextRequest: CancellablePromise<any> | undefined;
+  private _nextRequest: Promise<any> | undefined;
+  private _cancelToken: CancelToken;
 
   /**
    * A Session represents a connection to a remote environment that can be
@@ -58,10 +59,11 @@ export default class Session extends Locator<
     this._capabilities = capabilities;
     this._closedWindows = {};
     this._timeouts = {
-      script: Task.resolve(0),
-      implicit: Task.resolve(0),
-      'page load': Task.resolve(Infinity)
+      script: Promise.resolve(0),
+      implicit: Promise.resolve(0),
+      'page load': Promise.resolve(Infinity)
     };
+    this._cancelToken = createCancelToken();
   }
 
   /**
@@ -95,7 +97,7 @@ export default class Session extends Locator<
     path: string,
     requestData: any,
     pathParts?: string[]
-  ): CancellablePromise<T> {
+  ): Promise<T> {
     path = 'session/' + this._sessionId + (path ? '/' + path : '');
 
     if (
@@ -106,80 +108,88 @@ export default class Session extends Locator<
       requestData = {};
     }
 
-    let cancelled = false;
-    return new Task<T>(
-      resolve => {
-        // The promise is cleared from `_nextRequest` once it has been
-        // resolved in order to avoid infinitely long chains of promises
-        // retaining values that are not used any more
-        let thisRequest: CancellablePromise<any> | undefined;
-        const clearNextRequest = () => {
-          if (this._nextRequest === thisRequest) {
-            this._nextRequest = undefined;
-          }
-        };
-
-        const runRequest = () => {
-          // `runRequest` is normally called once the previous request is
-          // finished. If this request is cancelled before the previous
-          // request is finished, then it should simply never run. (This
-          // Task will have been rejected already by the cancellation.)
-          if (cancelled) {
-            clearNextRequest();
-            return;
-          }
-
-          const response = this._server[method]<WebDriverResponse>(
-            path,
-            requestData,
-            pathParts
-          ).then(response => response.value);
-
-          // safePromise is simply a promise based on the response that
-          // is guaranteed to resolve -- it is only used for promise
-          // chain management
-          const safePromise = response.catch(_error => {});
-          safePromise.then(clearNextRequest);
-
-          // The value of the response always needs to be taken directly
-          // from the server call rather than from the chained
-          // `_nextRequest` promise, since if an undefined value is
-          // returned by the server call and that value is returned
-          // through `finally(runRequest)`, the *previous* Task’s
-          // resolved value will be used as the resolved value, which is
-          // wrong
-          resolve(response);
-
-          return safePromise;
-        };
-
-        // At least ChromeDriver 2.19 will just hard close connections if
-        // parallel requests are made to the server, so any request sent to
-        // the server for a given session must be serialised. Other servers
-        // like Selendroid have been known to have issues with parallel
-        // requests as well, so serialisation is applied universally, even
-        // though it has negative performance implications
-        if (this._nextRequest) {
-          thisRequest = this._nextRequest = this._nextRequest.finally(
-            runRequest
-          );
-        } else {
-          thisRequest = this._nextRequest = runRequest();
+    return new Promise<T>(resolve => {
+      // The promise is cleared from `_nextRequest` once it has been
+      // resolved in order to avoid infinitely long chains of promises
+      // retaining values that are not used any more
+      let thisRequest: Promise<any> | undefined;
+      const clearNextRequest = () => {
+        if (this._nextRequest === thisRequest) {
+          this._nextRequest = undefined;
         }
-      },
-      () => (cancelled = true)
-    );
+      };
+
+      const runRequest = () => {
+        const response = this._server[method]<WebDriverResponse>(
+          path,
+          requestData,
+          pathParts,
+          this._cancelToken
+        ).then(response => response.value);
+
+        // safePromise is simply a promise based on the response that
+        // is guaranteed to resolve -- it is only used for promise
+        // chain management
+        const safePromise = response.catch(() => {
+          // consume error
+        });
+        safePromise.then(clearNextRequest);
+
+        // The value of the response always needs to be taken directly
+        // from the server call rather than from the chained
+        // `_nextRequest` promise, since if an undefined value is
+        // returned by the server call and that value is returned
+        // through `finally(runRequest)`, the *previous* Promise’s
+        // resolved value will be used as the resolved value, which is
+        // wrong
+        resolve(response);
+
+        return safePromise;
+      };
+
+      // At least ChromeDriver 2.19 will just hard close connections if
+      // parallel requests are made to the server, so any request sent to
+      // the server for a given session must be serialised. Other servers
+      // like Selendroid have been known to have issues with parallel
+      // requests as well, so serialisation is applied universally, even
+      // though it has negative performance implications
+      if (this._nextRequest) {
+        thisRequest = this._nextRequest = this._nextRequest.then(runRequest);
+      } else {
+        thisRequest = this._nextRequest = runRequest();
+      }
+    });
   }
 
-  serverGet<T>(path: string, requestData?: any, pathParts?: string[]) {
+  /**
+   * Cancel the in-progress operation and any chained operations.
+   */
+  cancel() {
+    this._cancelToken.cancel();
+    this._cancelToken = createCancelToken();
+  }
+
+  serverGet<T>(
+    path: string,
+    requestData?: any,
+    pathParts?: string[]
+  ): Promise<T> {
     return this._delegateToServer<T>('get', path, requestData, pathParts);
   }
 
-  serverPost<T>(path: string, requestData?: any, pathParts?: string[]) {
+  serverPost<T>(
+    path: string,
+    requestData?: any,
+    pathParts?: string[]
+  ): Promise<T> {
     return this._delegateToServer<T>('post', path, requestData, pathParts);
   }
 
-  serverDelete<T>(path: string, requestData?: any, pathParts?: string[]) {
+  serverDelete<T>(
+    path: string,
+    requestData?: any,
+    pathParts?: string[]
+  ): Promise<T> {
     return this._delegateToServer<T>('delete', path, requestData, pathParts);
   }
 
@@ -190,7 +200,7 @@ export default class Session extends Locator<
    * 'implicit', or 'page load'.
    * @returns The timeout, in milliseconds.
    */
-  getTimeout(type: Timeout): CancellablePromise<number> {
+  getTimeout(type: Timeout): Promise<number> {
     if (this.capabilities.supportsGetTimeouts) {
       return this.serverGet<WebDriverTimeouts>('timeouts').then(timeouts =>
         type === 'page load' ? timeouts.pageLoad : timeouts[type]
@@ -209,7 +219,7 @@ export default class Session extends Locator<
    * @param ms The length of time to use for the timeout, in milliseconds. A
    * value of 0 will cause operations to time out immediately.
    */
-  setTimeout(type: Timeout, ms: number): CancellablePromise<void> {
+  setTimeout(type: Timeout, ms: number): Promise<void> {
     // Infinity cannot be serialised by JSON
     if (ms === Infinity) {
       // It seems that at least ChromeDriver 2.10 has a limit here that
@@ -274,7 +284,7 @@ export default class Session extends Locator<
    * @returns A window handle identifier that can be used with other window
    * handling functions.
    */
-  getCurrentWindowHandle(): CancellablePromise<string> {
+  getCurrentWindowHandle(): Promise<string> {
     const endpoint = this.capabilities.usesWebDriverWindowHandleCommands
       ? 'window'
       : 'window_handle';
@@ -312,7 +322,7 @@ export default class Session extends Locator<
   /**
    * Gets a list of identifiers for all currently open windows.
    */
-  getAllWindowHandles(): CancellablePromise<string[]> {
+  getAllWindowHandles(): Promise<string[]> {
     const endpoint = this.capabilities.usesWebDriverWindowHandleCommands
       ? 'window/handles'
       : 'window_handles';
@@ -411,7 +421,7 @@ export default class Session extends Locator<
    * @returns The value returned by the remote code. Only values that can be
    * serialised to JSON, plus DOM elements, can be returned.
    */
-  execute<T>(script: Function | string, args?: any[]): CancellablePromise<T> {
+  execute<T>(script: Function | string, args?: any[]): Promise<T> {
     // At least FirefoxDriver 2.40.0 will throw a confusing
     // NullPointerException if args is not an array; provide a friendlier
     // error message to users that accidentally pass a non-array
@@ -476,10 +486,7 @@ export default class Session extends Locator<
    * @returns The value returned by the remote code. Only values that can be
    * serialised to JSON, plus DOM elements, can be returned.
    */
-  executeAsync<T>(
-    script: Function | string,
-    args?: any[]
-  ): CancellablePromise<T> {
+  executeAsync<T>(script: Function | string, args?: any[]): Promise<T> {
     // At least FirefoxDriver 2.40.0 will throw a confusing
     // NullPointerException if args is not an array; provide a friendlier
     // error message to users that accidentally pass a non-array
@@ -579,9 +586,7 @@ export default class Session extends Locator<
    * used. If an Element is provided, it must correspond to a `<frame>` or
    * `<iframe>` element.
    */
-  switchToFrame(
-    id: string | number | Element | null
-  ): CancellablePromise<void> {
+  switchToFrame(id: string | number | Element | null): Promise<void> {
     if (this.capabilities.usesWebDriverFrameId && typeof id === 'string') {
       return this.findById(id).then(element =>
         this.serverPost<void>('frame', { id: element })
@@ -628,7 +633,7 @@ export default class Session extends Locator<
    * Switches the currently focused frame to the parent of the currently
    * focused frame.
    */
-  switchToParentFrame(): CancellablePromise<void> {
+  switchToParentFrame(): Promise<void> {
     if (this.capabilities.brokenParentFrameSwitch) {
       if (this.capabilities.scriptedParentFrameCrashesBrowser) {
         throw new Error(
@@ -702,12 +707,12 @@ export default class Session extends Locator<
    *
    * @param height The new height of the window, in CSS pixels.
    */
-  setWindowSize(width: number, height: number): CancellablePromise<void>;
+  setWindowSize(width: number, height: number): Promise<void>;
   setWindowSize(
     windowHandle: string,
     width: number,
     height: number
-  ): CancellablePromise<void>;
+  ): Promise<void>;
   setWindowSize(...args: any[]) {
     let [windowHandle, width, height] = args;
 
@@ -857,12 +862,8 @@ export default class Session extends Locator<
    * @param y The screen y-coordinate to move to, in CSS pixels, relative to
    * the top edge of the primary monitor.
    */
-  setWindowPosition(x: number, y: number): CancellablePromise<void>;
-  setWindowPosition(
-    windowHandle: string,
-    x: number,
-    y: number
-  ): CancellablePromise<void>;
+  setWindowPosition(x: number, y: number): Promise<void>;
+  setWindowPosition(windowHandle: string, x: number, y: number): Promise<void>;
   setWindowPosition(...args: any[]) {
     let [windowHandle, x, y] = args;
 
@@ -1139,7 +1140,7 @@ export default class Session extends Locator<
               [expiredCookie.join(';')]
             );
           });
-        }, Task.resolve());
+        }, Promise.resolve());
       });
     }
 
@@ -1229,7 +1230,7 @@ export default class Session extends Locator<
    * @param value The strategy-specific value to search for. For example, if
    * `using` is 'id', `value` should be the ID of the element to retrieve.
    */
-  find(using: Strategy, value: string): CancellablePromise<Element> {
+  find(using: Strategy, value: string): Promise<Element> {
     if (this.capabilities.usesWebDriverLocators) {
       const locator = toW3cLocator(using, value);
       using = locator.using;
@@ -1285,7 +1286,7 @@ export default class Session extends Locator<
    * @param value The strategy-specific value to search for. See
    * [[Session.Session.find]] for details.
    */
-  findAll(using: Strategy, value: string): CancellablePromise<Element[]> {
+  findAll(using: Strategy, value: string): Promise<Element[]> {
     if (this.capabilities.usesWebDriverLocators) {
       const locator = toW3cLocator(using, value);
       using = locator.using;
@@ -1336,7 +1337,7 @@ export default class Session extends Locator<
    * Gets the currently focused element from the focused window/frame.
    */
   @forCommand({ createsContext: true })
-  getActiveElement(): CancellablePromise<Element> {
+  getActiveElement(): Promise<Element> {
     const getDocumentActiveElement = () => {
       return this.execute<Element>('return document.activeElement;');
     };
@@ -1344,15 +1345,15 @@ export default class Session extends Locator<
     if (this.capabilities.brokenActiveElement) {
       return getDocumentActiveElement();
     } else {
-      let task: CancellablePromise<ElementOrElementId>;
+      let promise: Promise<ElementOrElementId>;
 
       if (this.capabilities.usesWebDriverActiveElement) {
-        task = this.serverGet<ElementOrElementId>('element/active');
+        promise = this.serverGet<ElementOrElementId>('element/active');
       } else {
-        task = this.serverPost<ElementOrElementId>('element/active');
+        promise = this.serverPost<ElementOrElementId>('element/active');
       }
 
-      return task.then(
+      return promise.then(
         (element: ElementOrElementId) => {
           if (element) {
             return new Element(element, this);
@@ -1491,13 +1492,13 @@ export default class Session extends Locator<
    * of the mouse, or to the top edge of the page’s root element if the mouse
    * was never moved before.
    */
-  moveMouseTo(): CancellablePromise<void>;
-  moveMouseTo(xOffset?: number, yOffset?: number): CancellablePromise<void>;
+  moveMouseTo(): Promise<void>;
+  moveMouseTo(xOffset?: number, yOffset?: number): Promise<void>;
   moveMouseTo(
     element?: Element,
     xOffset?: number,
     yOffset?: number
-  ): CancellablePromise<void>;
+  ): Promise<void>;
   @forCommand({ usesElement: true })
   moveMouseTo(...args: any[]) {
     let [element, xOffset, yOffset] = args;
@@ -1595,7 +1596,7 @@ export default class Session extends Locator<
       // ios-driver 0.6.6-SNAPSHOT April 2014 does not wait until the
       // default action for a click event occurs before returning
       if (this.capabilities.touchEnabled) {
-        return sleep(300);
+        return sleep(300, this._cancelToken);
       }
     });
   }
@@ -1647,7 +1648,7 @@ export default class Session extends Locator<
   /**
    * Double-clicks the primary mouse button.
    */
-  doubleClick(): CancellablePromise<void> {
+  doubleClick(): Promise<void> {
     if (this.capabilities.brokenMouseEvents) {
       return this.execute<void>(simulateMouse, [
         {
@@ -1740,12 +1741,12 @@ export default class Session extends Locator<
    * element, in CSS pixels. If no element is specified, the offset is
    * relative to the previous scroll position of the window.
    */
-  touchScroll(xOffset: number, yOffset: number): CancellablePromise<void>;
+  touchScroll(xOffset: number, yOffset: number): Promise<void>;
   touchScroll(
     element?: Element,
     xOffset?: number,
     yOffset?: number
-  ): CancellablePromise<void>;
+  ): Promise<void>;
   @forCommand({ usesElement: true })
   touchScroll(...args: any[]) {
     let [element, xOffset, yOffset] = args;
@@ -1827,12 +1828,8 @@ export default class Session extends Locator<
     xOffset: number,
     yOffset: number,
     speed?: number
-  ): CancellablePromise<void>;
-  flickFinger(
-    xOffset: number,
-    yOffset: number,
-    speed?: number
-  ): CancellablePromise<void>;
+  ): Promise<void>;
+  flickFinger(xOffset: number, yOffset: number, speed?: number): Promise<void>;
   @forCommand({ usesElement: true })
   flickFinger(...args: any[]) {
     const [element, xOffset, yOffset, speed] = args;
@@ -1955,7 +1952,7 @@ export default class Session extends Locator<
    */
   getAvailableLogTypes() {
     if (this.capabilities.fixedLogTypes) {
-      return Task.resolve<string[]>(this.capabilities.fixedLogTypes);
+      return Promise.resolve<string[]>(this.capabilities.fixedLogTypes);
     }
 
     return this.serverGet<string[]>('log/types');
@@ -2160,6 +2157,13 @@ export default class Session extends Locator<
    */
   setPageLoadTimeout(ms: number) {
     return this.setTimeout('page load', ms);
+  }
+
+  /**
+   * Returns a promise that resolves in a give number of ms
+   */
+  sleep(ms: number) {
+    return sleep(ms, this._cancelToken);
   }
 }
 

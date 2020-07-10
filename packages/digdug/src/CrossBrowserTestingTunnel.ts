@@ -1,12 +1,7 @@
 import { watchFile, unwatchFile } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import {
-  Task,
-  CancellablePromise,
-  createCompositeHandle,
-  request
-} from '@theintern/common';
+import { createCompositeHandle, request } from '@theintern/common';
 import Tunnel, {
   ChildExecutor,
   NormalizedEnvironment,
@@ -91,11 +86,11 @@ export default class CrossBrowserTestingTunnel extends Tunnel
     }
   }
 
-  download(forceDownload = false): CancellablePromise<void> {
+  download(forceDownload = false): Promise<void> {
     if (!forceDownload && this.isDownloaded) {
-      return Task.resolve();
+      return Promise.resolve();
     }
-    return new Task((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       exec(
         `npm install --no-save cbt_tunnels@'${this.cbtVersion}'`,
         (error, _stdout, stderr) => {
@@ -128,7 +123,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
     ];
   }
 
-  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
+  sendJobState(jobId: string, data: JobState): Promise<void> {
     const payload = JSON.stringify({
       action: 'set_score',
       score: data.status || data.success ? 'pass' : 'fail'
@@ -166,7 +161,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
     });
   }
 
-  protected _start(executor: ChildExecutor): CancellablePromise<any> {
+  protected _start(executor: ChildExecutor): Promise<any> {
     const readyFile = join(tmpdir(), 'CrossBrowserTesting-' + Date.now());
 
     return this._makeChild((child, resolve, reject) => {
@@ -175,7 +170,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
       // Polling API is used because we are only watching for one file, so
       // efficiency is not a big deal, and the `fs.watch` API has extra
       // restrictions which are best avoided
-      watchFile(readyFile, { persistent: false, interval: 1007 }, function(
+      watchFile(readyFile, { persistent: false, interval: 1007 }, function (
         current,
         previous
       ) {
@@ -197,7 +192,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
       const readHandle = on(child.stdout!, 'data', (data: any) => {
         stdout!.push(String(data));
       });
-      const exitHandle = on(child, 'exit', function() {
+      const exitHandle = on(child, 'exit', function () {
         process.stderr.write(stdout!.join(''));
       });
 
@@ -226,7 +221,7 @@ export default class CrossBrowserTestingTunnel extends Tunnel
   protected _normalizeEnvironment(environment: any): NormalizedEnvironment {
     const platform = environment.api_name;
 
-    return environment.browsers.map(function(browser: any) {
+    return environment.browsers.map(function (browser: any) {
       const browserName = browser.type.toLowerCase();
 
       return {

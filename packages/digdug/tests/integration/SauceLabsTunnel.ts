@@ -13,4 +13,4 @@ suite = addStartStopTest(suite, SauceLabsTunnel, {
   timeout: 120000
 });
 
-registerSuite('integration/tunnels/SauceLabsTunnel', suite);
+registerSuite('integration/SauceLabsTunnel', suite);

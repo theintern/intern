@@ -1,5 +1,3 @@
-import { Task, CancellablePromise } from '@theintern/common';
-
 // Explicitly require benchmark dependencies and attach Benchmark to them to
 // improve WebPack compatibility
 import _ from 'lodash';
@@ -13,6 +11,7 @@ import Test, {
   TestOptions,
   TestProperties
 } from './Test';
+import { isCancel } from '@theintern/common';
 import { InternError } from './types';
 import Deferred from './Deferred';
 
@@ -115,38 +114,39 @@ export default class BenchmarkTest extends Test {
     );
   }
 
-  run(): CancellablePromise<void> {
+  run(): Promise<void> {
     this._hasPassed = false;
     this._usesRemote = false;
 
     const benchmark = this.benchmark;
 
-    return new Task(
-      (resolve, reject) => {
-        benchmark.on('abort', () => {
-          reject(benchmark.error);
-        });
+    return new Promise((resolve, reject) => {
+      benchmark.on('abort', () => {
+        reject(benchmark.error);
+      });
 
-        benchmark.on('error', () => {
-          if (benchmark.error === SKIP) {
-            resolve();
-          } else {
-            reject(benchmark.error);
-          }
-        });
-
-        benchmark.on('complete', () => {
+      benchmark.on('error', () => {
+        if (benchmark.error === SKIP) {
           resolve();
-        });
+        } else {
+          reject(benchmark.error);
+        }
+      });
 
-        this.executor.emit('testStart', this).then(() => {
-          benchmark.run();
-        });
-      },
-      () => {
-        benchmark.abort();
-      }
-    )
+      benchmark.on('complete', () => {
+        resolve();
+      });
+
+      this.executor.emit('testStart', this).then(() => {
+        benchmark.run();
+      });
+    })
+      .catch(reason => {
+        if (isCancel(reason)) {
+          benchmark.abort();
+        }
+        throw reason;
+      })
       .finally(() => {
         // Stop listening for benchmark events once the test is finished
         benchmark.off();

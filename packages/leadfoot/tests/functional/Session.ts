@@ -3,7 +3,6 @@ import { strategies } from '../../src/lib/Locator';
 import Element from '../../src/Element';
 import { WebDriverCookie, Geolocation } from '../../src/interfaces';
 import Session from '../../src/Session';
-import { Task } from '@theintern/common';
 import Test, { TestFunction } from '@theintern/core/dist/lib/Test';
 import Suite from '@theintern/core/dist/lib/Suite';
 
@@ -20,7 +19,7 @@ const suffixes = strategyNames.map(name => {
   );
 });
 
-registerSuite('functional/webdriver/Session', () => {
+registerSuite('functional/Session', () => {
   let session: any;
   let resetBrowserState = true;
 
@@ -294,17 +293,17 @@ registerSuite('functional/webdriver/Session', () => {
       },
 
       '#get'() {
-        return session.get('tests/functional/webdriver/data/default.html');
+        return session.get('tests/functional/data/default.html');
       },
 
       '#get 404'() {
-        return session.get('tests/functional/webdriver/data/404.html');
+        return session.get('tests/functional/data/404.html');
       },
 
       '#getCurrentUrl'(this: Test) {
         const expectedUrl = util.convertPathToUrl(
           this.remote,
-          'tests/functional/webdriver/data/default.html'
+          'tests/functional/data/default.html'
         );
 
         return session
@@ -324,11 +323,11 @@ registerSuite('functional/webdriver/Session', () => {
 
         const expectedUrl = util.convertPathToUrl(
           this.remote,
-          'tests/functional/webdriver/data/default.html?second'
+          'tests/functional/data/default.html?second'
         );
         const expectedBackUrl = util.convertPathToUrl(
           this.remote,
-          'tests/functional/webdriver/data/default.html?first'
+          'tests/functional/data/default.html?first'
         );
 
         return session
@@ -385,7 +384,6 @@ registerSuite('functional/webdriver/Session', () => {
           .then(function () {
             return session.execute(
               function (first: string, second: string) {
-                /*global interns:false */
                 return interns[first] + interns[second];
               },
               ['ness', 'paula']
@@ -457,7 +455,6 @@ registerSuite('functional/webdriver/Session', () => {
           .get('tests/functional/data/scripting.html')
           .then(function () {
             return session.execute(function () {
-              /*global interns:false */
               return interns();
             });
           })
@@ -479,7 +476,7 @@ registerSuite('functional/webdriver/Session', () => {
         return session
           .get('tests/functional/data/scripting.html')
           .then(function () {
-            return Task.all([
+            return Promise.all([
               session.execute('return "not undefined";'),
               session.execute('return undefined;')
             ]);
@@ -580,7 +577,6 @@ registerSuite('functional/webdriver/Session', () => {
                 .get('tests/functional/data/scripting.html')
                 .then(function () {
                   return session.executeAsync(function (done: Function) {
-                    /*global interns:false */
                     done(interns());
                   });
                 })
@@ -702,7 +698,7 @@ registerSuite('functional/webdriver/Session', () => {
           })
           .then(function () {
             // Give the new window time to open
-            return new Task(function (resolve) {
+            return new Promise(function (resolve) {
               setTimeout(resolve, 1000);
             });
           })
@@ -1011,7 +1007,7 @@ registerSuite('functional/webdriver/Session', () => {
         return {
           before() {
             resetBrowserState = false;
-            return session.get('tests/functional/webdriver/data/elements.html');
+            return session.get('tests/functional/data/elements.html');
           },
 
           after() {
@@ -1196,7 +1192,7 @@ registerSuite('functional/webdriver/Session', () => {
             );
           });
 
-          return Task.all(
+          return Promise.all(
             elements.map(function (element: Element) {
               return element.getAttribute('id');
             })
@@ -1206,7 +1202,7 @@ registerSuite('functional/webdriver/Session', () => {
         return {
           before() {
             resetBrowserState = false;
-            return session.get('tests/functional/webdriver/data/elements.html');
+            return session.get('tests/functional/data/elements.html');
           },
 
           after() {
@@ -2026,7 +2022,7 @@ registerSuite('functional/webdriver/Session', () => {
         }
 
         return session
-          .get('tests/functional/webdriver/data/scrollable.html')
+          .get('tests/functional/data/scrollable.html')
           .then(getScrollPosition)
           .then(function (position: Position) {
             assert.deepEqual(position, { x: 0, y: 0 });
@@ -2107,7 +2103,7 @@ registerSuite('functional/webdriver/Session', () => {
         }
 
         return session
-          .get('tests/functional/webdriver/data/scrollable.html')
+          .get('tests/functional/data/scrollable.html')
           .then(getScrollPosition)
           .then(function (originalPosition: Position) {
             assert.deepEqual(originalPosition, { x: 0, y: 0 });

@@ -1,5 +1,4 @@
 import * as util from './support/util';
-import { Task } from '@theintern/common';
 import Server from '../../src/Server';
 import Session from '../../src/Session';
 import * as urlUtil from 'url';
@@ -7,7 +6,7 @@ import { Capabilities } from '../../src/interfaces';
 import Test from '@theintern/core/dist/lib/Test';
 import { ObjectSuiteDescriptor } from '@theintern/core/dist/lib/interfaces/object';
 
-registerSuite('functional/webdriver/Server', () => {
+registerSuite('functional/Server', () => {
   let server: Server;
 
   return {
@@ -222,7 +221,7 @@ registerSuite('functional/webdriver/Server', () => {
                 requiredCapabilities
               );
 
-              return Task.resolve<any>({
+              return Promise.resolve<any>({
                 sessionId: 'test',
                 value: mockCapabilities
               });
@@ -259,7 +258,7 @@ registerSuite('functional/webdriver/Server', () => {
           function (command: string, _data: any, pathData: string[]) {
             assert.strictEqual(command, 'session/$0');
             assert.deepEqual(pathData, ['test']);
-            return Task.resolve();
+            return Promise.resolve();
           }
         );
 

@@ -14,4 +14,4 @@ suite = addEnvironmentTest(suite, TestingBotTunnel, checkEnvironment, {
 });
 suite = addStartStopTest(suite, TestingBotTunnel, { timeout: 60000 });
 
-registerSuite('integration/tunnels/TestingBotTunnel', suite);
+registerSuite('integration/TestingBotTunnel', suite);

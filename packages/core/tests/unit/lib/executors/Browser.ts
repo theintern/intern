@@ -1,7 +1,7 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { spy, createSandbox } from 'sinon';
 import _Browser, { Config } from 'src/lib/executors/Browser';
-import { isPromiseLike, Task, deepMixin } from '@theintern/common';
+import { isPromiseLike, deepMixin } from '@theintern/common';
 
 let Browser: typeof _Browser;
 
@@ -98,7 +98,6 @@ registerSuite('lib/executors/Browser', function () {
             global: mockGlobal,
             request: request as any,
             isPromiseLike,
-            Task,
             deepMixin
           });
         }

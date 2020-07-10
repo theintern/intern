@@ -1,4 +1,4 @@
-import { request, CancellablePromise, global } from '@theintern/common';
+import { request, global } from '@theintern/common';
 
 import {
   defaultConfig,
@@ -19,7 +19,7 @@ export function getConfig(file?: string) {
     args.config = file;
   }
 
-  let load: CancellablePromise<{ [key: string]: any }>;
+  let load: Promise<{ [key: string]: any }>;
 
   if (args.config) {
     // If a config parameter was provided, load it, mix in any other query
@@ -158,7 +158,7 @@ export function parseUrl(url: string): Url | undefined {
 /**
  * Load a text resource
  */
-function loadText(path: string): CancellablePromise<any> {
+function loadText(path: string): Promise<any> {
   return request(path).then(response => {
     if (!response.ok) {
       throw new Error('Request failed: ' + response.status);

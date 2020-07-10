@@ -45,7 +45,7 @@ registerSuite('lib/interfaces/benchmark', function () {
         addSuite: spy((callback: (suite: Suite) => void) => {
           callback(parent);
         }),
-        emit: spy(() => {}),
+        emit: spy(() => Promise.resolve()),
         log: spy(() => {})
       };
       parent = new Suite(<any>{ name: 'parent', executor });

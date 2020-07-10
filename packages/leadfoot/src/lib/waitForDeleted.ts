@@ -1,4 +1,3 @@
-import { Task, CancellablePromise } from '@theintern/common';
 import statusCodes from './statusCodes';
 import Session from '../Session';
 import Element from '../Element';
@@ -19,7 +18,7 @@ import { Strategy } from './Locator';
  * @param value The strategy-specific value to search for. See
  * [[Command.Command.find]] for details.
  *
- * @returns a Task that resolves when no matching elements can be found, or
+ * @returns a Promise that resolves when no matching elements can be found, or
  * rejects if matching elements still exist after the find timeout.
  */
 export default function waitForDeleted(
@@ -27,7 +26,7 @@ export default function waitForDeleted(
   locator: Session | Element,
   using: Strategy,
   value: string
-): CancellablePromise<void> {
+): Promise<void> {
   let originalTimeout: number;
 
   return session
@@ -36,13 +35,13 @@ export default function waitForDeleted(
       originalTimeout = value;
       session.setTimeout('implicit', 0);
     })
-    .then(function() {
-      return new Task((resolve, reject) => {
+    .then(function () {
+      return new Promise((resolve, reject) => {
         const startTime = Date.now();
 
         (function poll() {
           if (Date.now() - startTime > originalTimeout) {
-            const always = function() {
+            const always = function () {
               const error: any = new Error();
               error.status = 21;
               const [name, message] = (<any>statusCodes)[error.status];
@@ -56,8 +55,8 @@ export default function waitForDeleted(
             return;
           }
 
-          locator.find(using, value).then(poll, function(error) {
-            const always = function() {
+          locator.find(using, value).then(poll, function (error) {
+            const always = function () {
               /* istanbul ignore else: other errors should never occur during normal operation */
               if (error.name === 'NoSuchElement') {
                 resolve();

@@ -10,7 +10,7 @@ import {
   unhookRunInThisContext
 } from 'istanbul-lib-hook';
 import { register } from 'ts-node';
-import { global, Task, CancellablePromise, deepMixin } from '@theintern/common';
+import { global, deepMixin } from '@theintern/common';
 import Command from '@theintern/leadfoot/dist/Command';
 import LeadfootServer from '@theintern/leadfoot/dist/Server';
 import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/dist/Tunnel';
@@ -129,7 +129,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     // Report uncaught errors
     process.on(
       'unhandledRejection',
-      (reason: {} | null | undefined, promise: Promise<any>) => {
+      (reason: {} | null | undefined, promise: PromiseLike<any>) => {
         console.warn('Unhandled rejection:', reason, promise);
         const { warnOnUnhandledRejection } = this.config;
         if (
@@ -264,7 +264,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   /**
    * Load scripts using Node's require
    */
-  loadScript(script: string | string[]): CancellablePromise<void> {
+  loadScript(script: string | string[]): Promise<void> {
     const scripts = Array.isArray(script) ? script : [script];
 
     try {
@@ -286,10 +286,10 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         }
       }
     } catch (error) {
-      return Task.reject<void>(error);
+      return Promise.reject<void>(error);
     }
 
-    return Task.resolve();
+    return Promise.resolve();
   }
 
   /**
@@ -355,34 +355,34 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         // tests
         config.serveOnly
       ) {
-        const serverTask: CancellablePromise<void> = new Task<void>(
-          (resolve, reject) => {
-            const server: Server = new Server({
-              basePath: config.basePath,
-              executor: this,
-              port: config.serverPort,
-              runInSync: config.runInSync,
-              socketPort: config.socketPort
-            });
+        const serverPromise = new Promise<void>((resolve, reject) => {
+          const server: Server = new Server({
+            basePath: config.basePath,
+            executor: this,
+            port: config.serverPort,
+            runInSync: config.runInSync,
+            socketPort: config.socketPort
+          });
 
-            server
-              .start()
-              .then(() => {
-                this.server = server;
-                return this.emit('serverStart', server);
-              })
-              .then(resolve, reject);
-          }
-        );
+          server
+            .start()
+            .then(() => {
+              this.server = server;
+              this.log('Started test server');
+              return this.emit('serverStart', server);
+            })
+            .then(resolve, reject);
+        });
 
         // If we're in serveOnly mode, just start the server server.
         // Don't create session suites or start a tunnel.
         if (config.serveOnly) {
-          return serverTask.then(() => {
+          this.log('Running in serveOnly mode');
+          return serverPromise.then(() => {
             // In serveOnly mode we just start the server to static
             // file serving and instrumentation. Return an
-            // unresolved Task to pause indefinitely until canceled.
-            return new Task<boolean>(resolve => {
+            // unresolved Promise to pause indefinitely until cancelled.
+            return new Promise<boolean>(resolve => {
               process.on('SIGINT', () => {
                 resolve(true);
               });
@@ -390,16 +390,17 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           });
         }
 
-        return serverTask
+        return serverPromise
           .then(() => {
             // Tunnel will have been created in resolveConfig
             const tunnel = this.tunnel!;
 
             this._createSessionSuites();
 
-            return tunnel
-              .start()
-              .then(() => this.emit('tunnelStart', { tunnel }));
+            return tunnel.start().then(() => {
+              this.log('Started tunnel');
+              this.emit('tunnelStart', { tunnel });
+            });
           })
           .then(() => {
             return false;
@@ -589,7 +590,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   /**
    * Load functional test suites
    */
-  protected _loadFunctionalSuites(): CancellablePromise<void> {
+  protected _loadFunctionalSuites(): Promise<void> {
     this._loadingFunctionalSuites = true;
     const suites = this.config.functionalSuites;
 
@@ -602,7 +603,8 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       this._setInstrumentationHooks();
     }
 
-    return Task.resolve(this._loader(suites))
+    return this._cancelToken
+      .wrap(Promise.resolve(this._loader(suites)))
       .then(() => {
         this.log('Loaded functional suites:', suites);
       })
@@ -615,14 +617,14 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    * Override Executor#_loadSuites to set instrumentation hooks before loading
    * suites
    */
-  protected _loadSuites(): CancellablePromise<void> {
+  protected _loadSuites(): Promise<void> {
     // Don't load suites if there isn't a local environment, or if we're
     // in serveOnly mode
     if (
       !this.config.environments.some(isLocalEnvironment) ||
       this.config.serveOnly
     ) {
-      return Task.resolve();
+      return Promise.resolve();
     }
 
     if (this.hasCoveredFiles) {
@@ -634,6 +636,10 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
   protected _resolveConfig() {
     return super._resolveConfig().then(() => {
+      this.log('resolving Node config');
+
+      this._cancelToken.throwIfCancelled();
+
       const config = this.config;
 
       if (config.environments.length === 0) {
@@ -858,24 +864,29 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           config.capabilities
         );
 
-        return tunnel.getEnvironments().then(tunnelEnvironments => {
-          // Resolve the environments, matching versions, platforms, and browser
-          // names from the config with whats available from the tunnel
-          // enviroment.
-          const resolvedEnvironments = resolveEnvironments(
-            config.capabilities,
-            remoteEnvironments,
-            tunnelEnvironments
-          );
+        return this._cancelToken
+          .wrap(tunnel.getEnvironments())
+          .then(tunnelEnvironments => {
+            // Resolve the environments, matching versions, platforms, and browser
+            // names from the config with whats available from the tunnel
+            // enviroment.
+            const resolvedEnvironments = resolveEnvironments(
+              config.capabilities,
+              remoteEnvironments,
+              tunnelEnvironments
+            );
 
-          const localEnvironments = config.environments.filter(
-            env => !isRemoteEnvironment(env)
-          );
+            const localEnvironments = config.environments.filter(
+              env => !isRemoteEnvironment(env)
+            );
 
-          // The full environments list is all the local environments (generally
-          // just node) with all the remote environments.
-          config.environments = [...localEnvironments, ...resolvedEnvironments];
-        });
+            // The full environments list is all the local environments (generally
+            // just node) with all the remote environments.
+            config.environments = [
+              ...localEnvironments,
+              ...resolvedEnvironments
+            ];
+          });
       }
     });
   }
@@ -914,67 +925,59 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     return Array.from<string>(driverNames);
   }
 
-  protected _runTests(): CancellablePromise<void> {
-    let testTask: CancellablePromise<void>;
+  protected _runTests(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      let testPromise: Promise<void>;
 
-    return new Task<void>(
-      (resolve, reject) => {
-        if (this._rootSuite.tests.length > 0) {
-          testTask = this._rootSuite.run();
-        } else {
-          testTask = Task.resolve();
-        }
-
-        testTask
-          .then(async () => {
-            if (!this._sessionSuites) {
-              return;
-            }
-
-            const allSessions = this._sessionSuites;
-            let sessions = allSessions;
-            let remainingAttempts = 1 + (this.config.functionalRetries || 0);
-
-            await this._loadFunctionalSuites();
-            while (remainingAttempts && sessions.length) {
-              remainingAttempts--;
-              if (sessions.length !== allSessions.length) {
-                this.log(
-                  'reattempting',
-                  sessions.length,
-                  'of',
-                  allSessions.length,
-                  'environments'
-                );
-              }
-              try {
-                testTask = this._runRemoteTests(sessions);
-                await testTask;
-              } catch (e) {
-                this.log(`suite error: ${e}`);
-                // recover from exceptions to allow for retries
-              }
-              const failedSessions = (sessions = sessions.filter(
-                isFailedSuite
-              ));
-              if (failedSessions.length === allSessions.length) {
-                // Do not reattempt if no session has passed
-                remainingAttempts = 0;
-              } else {
-                for (const suite of failedSessions) {
-                  suite.reset();
-                }
-              }
-            }
-          })
-          .then(resolve, reject);
-      },
-      () => {
-        if (testTask) {
-          testTask.cancel();
-        }
+      if (this._rootSuite.tests.length > 0) {
+        testPromise = this._rootSuite.run();
+      } else {
+        testPromise = Promise.resolve();
       }
-    ).finally(() => {
+
+      testPromise
+        .then(async () => {
+          if (!this._sessionSuites) {
+            return;
+          }
+
+          const allSessions = this._sessionSuites;
+          let sessions = allSessions;
+          let remainingAttempts = 1 + (this.config.functionalRetries || 0);
+
+          await this._loadFunctionalSuites();
+
+          while (remainingAttempts && sessions.length) {
+            remainingAttempts--;
+            if (sessions.length !== allSessions.length) {
+              this.log(
+                'reattempting',
+                sessions.length,
+                'of',
+                allSessions.length,
+                'environments'
+              );
+            }
+            try {
+              testPromise = this._runRemoteTests(sessions);
+              await testPromise;
+            } catch (e) {
+              this.log(`suite error: ${e}`);
+              // recover from exceptions to allow for retries
+            }
+            const failedSessions = (sessions = sessions.filter(isFailedSuite));
+            if (failedSessions.length === allSessions.length) {
+              // Do not reattempt if no session has passed
+              remainingAttempts = 0;
+            } else {
+              for (const suite of failedSessions) {
+                suite.reset();
+              }
+            }
+          }
+        })
+        .then(resolve, reject);
+    }).finally(() => {
       // For all files that are marked for coverage that weren't read,
       // read the file and instrument the code (adding it to the overall
       // coverage map)
@@ -995,12 +998,12 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     });
   }
 
-  protected _runRemoteTests(sessions: Suite[]): CancellablePromise<void> {
+  protected _runRemoteTests(sessions: Suite[]): Promise<void> {
     const config = this.config;
     const queue = new FunctionQueue(config.maxConcurrency || Infinity);
 
     if (!this._sessionSuites) {
-      return Task.resolve();
+      return Promise.resolve();
     }
 
     this.log(
@@ -1010,26 +1013,18 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       config.maxConcurrency
     );
 
-    const runTask = new Task(
-      (resolve, reject) => {
-        Task.all(
-          sessions.map(suite => {
-            this.log('Queueing suite', suite.name);
-            return queue.enqueue(() => {
-              this.log('Running suite', suite.name);
-              return suite.run();
-            });
-          })
-        ).then(resolve, reject);
-      },
-      () => {
-        this.log('Canceling remote tests');
-        queue.clear();
-      }
-    );
-
-    return runTask
-      .then(() => {})
+    return Promise.all(
+      sessions.map(suite => {
+        this.log('Queueing suite', suite.name);
+        return queue.enqueue(() => {
+          this.log('Running suite', suite.name);
+          return suite.run(this._cancelToken);
+        });
+      })
+    )
+      .then(() => {
+        // Consume any output so void is returned
+      })
       .finally(() => {
         if (config.functionalCoverage !== false) {
           // Collect any local coverage generated by functional tests
@@ -1111,55 +1106,53 @@ export interface NodeEvents extends Events {
 class FunctionQueue {
   readonly maxConcurrency: number;
   queue: QueueEntry[];
-  activeTasks: CancellablePromise<any>[];
-  funcTasks: CancellablePromise<any>[];
+  activePromises: Promise<any>[];
+  funcPromises: Promise<any>[];
 
   constructor(maxConcurrency: number) {
     this.maxConcurrency = maxConcurrency;
     this.queue = [];
-    this.activeTasks = [];
-    this.funcTasks = [];
+    this.activePromises = [];
+    this.funcPromises = [];
   }
 
-  enqueue(func: () => CancellablePromise<any>) {
-    const funcTask = new Task((resolve, reject) => {
+  enqueue(func: () => Promise<any>) {
+    const funcPromise = new Promise((resolve, reject) => {
       this.queue.push({ func, resolve, reject });
     });
-    this.funcTasks.push(funcTask);
+    this.funcPromises.push(funcPromise);
 
-    if (this.activeTasks.length < this.maxConcurrency) {
+    if (this.activePromises.length < this.maxConcurrency) {
       this.next();
     }
 
-    return funcTask;
+    return funcPromise;
   }
 
   clear() {
-    this.activeTasks.forEach(task => task.cancel());
-    this.funcTasks.forEach(task => task.cancel());
-    this.activeTasks = [];
-    this.funcTasks = [];
+    this.activePromises = [];
+    this.funcPromises = [];
     this.queue = [];
   }
 
   next() {
     if (this.queue.length > 0) {
       const { func, resolve, reject } = this.queue.shift()!;
-      const task = func()
+      const promise = func()
         .then(resolve, reject)
         .finally(() => {
-          // Remove the task from the active task list and kick off
-          // the next task
-          pullFromArray(this.activeTasks, task);
+          // Remove the promise from the active promise list and kick off
+          // the next promise
+          pullFromArray(this.activePromises, promise);
           this.next();
         });
-      this.activeTasks.push(task);
+      this.activePromises.push(promise);
     }
   }
 }
 
 interface QueueEntry {
-  func: () => CancellablePromise<any>;
+  func: () => Promise<any>;
   resolve: () => void;
   reject: () => void;
 }

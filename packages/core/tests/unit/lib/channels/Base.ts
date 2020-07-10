@@ -1,5 +1,3 @@
-import { Task } from '@theintern/common';
-
 import Base, { isChannel } from 'src/lib/channels/Base';
 import { RemoteEvents } from 'src/lib/RemoteSuite';
 
@@ -7,7 +5,7 @@ class TestBase extends Base {
   sent: any[] = [];
   _sendData(name: keyof RemoteEvents, data: any) {
     this.sent.push([name, data]);
-    return Task.resolve();
+    return Promise.resolve();
   }
 }
 

@@ -1,12 +1,10 @@
 import * as util from './support/util';
-import { pathRe } from './support/util';
 import Command, { Context } from '../../src/Command';
 import Session from '../../src/Session';
-import { Task } from '@theintern/common';
 import Test from '@theintern/core/dist/lib/Test';
 import { ObjectSuiteDescriptor } from '@theintern/core/dist/lib/interfaces/object';
 
-registerSuite('functional/webdriver/Command', () => {
+registerSuite('functional/Command', () => {
   let session: Session;
 
   return {
@@ -39,7 +37,10 @@ registerSuite('functional/webdriver/Command', () => {
                 assert.strictEqual(error.message, 'broken');
                 assert.match(
                   error.stack!,
-                  pathRe('broken.*tests/functional/Command\\.[tj]s:\\d+', 's'),
+                  util.pathRe(
+                    'broken.*tests/functional/Command\\.[tj]s:\\d+',
+                    's'
+                  ),
                   'Stack trace should point back to the error'
                 );
                 error.message += ' 2';
@@ -64,7 +65,7 @@ registerSuite('functional/webdriver/Command', () => {
         'invalid async command'() {
           const command = new Command(session).sleep(100);
           Command.addSessionMethod(command, 'invalid', function () {
-            return new Task((_resolve, reject) => {
+            return new Promise((_resolve, reject) => {
               setTimeout(function () {
                 reject(new Error('Invalid call'));
               }, 0);
@@ -85,7 +86,7 @@ registerSuite('functional/webdriver/Command', () => {
               );
               assert.match(
                 stack,
-                pathRe(
+                util.pathRe(
                   'Invalid call.*tests/functional/Command\\.[tj]s:\\d+',
                   's'
                 ),
@@ -121,7 +122,7 @@ registerSuite('functional/webdriver/Command', () => {
         const dfd = this.async();
         const parent = new Command<string>(session, function (setContext) {
           setContext(<any>'foo');
-          return Task.resolve('bar');
+          return Promise.resolve('bar');
         });
 
         const expectedContext: Context = ['foo'];
@@ -153,12 +154,12 @@ registerSuite('functional/webdriver/Command', () => {
       'basic chaining'() {
         const command = new Command(session);
         return command
-          .get('tests/functional/webdriver/data/default.html')
+          .get('tests/functional/data/default.html')
           .getPageTitle()
           .then(function (pageTitle) {
             assert.strictEqual(pageTitle, 'Default & <b>default</b>');
           })
-          .get('tests/functional/webdriver/data/form.html')
+          .get('tests/functional/data/form.html')
           .getPageTitle()
           .then(function (pageTitle) {
             assert.strictEqual(pageTitle, 'Form');
@@ -167,7 +168,7 @@ registerSuite('functional/webdriver/Command', () => {
 
       'child is a separate command'() {
         const parent = new Command(session).get(
-          'tests/functional/webdriver/data/default.html'
+          'tests/functional/data/default.html'
         );
         const child = parent.findByTagName('p');
 
@@ -200,7 +201,7 @@ registerSuite('functional/webdriver/Command', () => {
 
         const command = new Command(session);
         return command
-          .get('tests/functional/webdriver/data/form.html')
+          .get('tests/functional/data/form.html')
           .findById('input')
           .click()
           .type('hello')
@@ -216,7 +217,7 @@ registerSuite('functional/webdriver/Command', () => {
 
       '#findAll'() {
         return new Command(session)
-          .get('tests/functional/webdriver/data/elements.html')
+          .get('tests/functional/data/elements.html')
           .findAllByClassName('b')
           .getAttribute('id')
           .then(function (ids) {
@@ -226,7 +227,7 @@ registerSuite('functional/webdriver/Command', () => {
 
       '#findAll chain'() {
         return new Command(session)
-          .get('tests/functional/webdriver/data/elements.html')
+          .get('tests/functional/data/elements.html')
           .findById('c')
           .findAllByClassName('b')
           .getAttribute('id')
@@ -248,7 +249,7 @@ registerSuite('functional/webdriver/Command', () => {
 
       '#findAll + #findAll'() {
         return new Command(session)
-          .get('tests/functional/webdriver/data/elements.html')
+          .get('tests/functional/data/elements.html')
           .findAllByTagName('div')
           .findAllByCssSelector('span, a')
           .getAttribute('id')
@@ -263,7 +264,7 @@ registerSuite('functional/webdriver/Command', () => {
         }
 
         return new Command(session)
-          .get('tests/functional/webdriver/data/visibility.html')
+          .get('tests/functional/data/visibility.html')
           .findDisplayedByClassName('multipleVisible')
           .getVisibleText()
           .then(function (text) {
@@ -285,7 +286,7 @@ registerSuite('functional/webdriver/Command', () => {
         }
 
         return new Command(session)
-          .get('tests/functional/webdriver/data/pointer.html')
+          .get('tests/functional/data/pointer.html')
           .findById('a')
           .moveMouseTo()
           .pressMouseButton()
@@ -361,7 +362,7 @@ registerSuite('functional/webdriver/Command', () => {
         const command = new Command(session);
         let callback: Function | undefined;
         let errback: Function | undefined;
-        const expectedErrback = function () {};
+        const expectedErrback = function () { return undefined; };
         command.then = <any>function () {
           callback = arguments[0];
           errback = arguments[1];
@@ -375,8 +376,8 @@ registerSuite('functional/webdriver/Command', () => {
 
       '#finally'() {
         const command = new Command(session);
-        const promise = command['_task'];
-        const expected = function () {};
+        const promise = command['_promise'];
+        const expected = function () { return undefined; };
         let wasCalled = false;
         let result: Function | undefined;
 
@@ -418,7 +419,7 @@ registerSuite('functional/webdriver/Command', () => {
           'newContext',
           util.forCommand(
             function () {
-              return Task.resolve('b');
+              return Promise.resolve('b');
             },
             { createsContext: true }
           )
@@ -444,7 +445,7 @@ registerSuite('functional/webdriver/Command', () => {
             // Provide a custom element method
             newContext: util.forCommand(
               function () {
-                return Task.resolve('b');
+                return Promise.resolve('b');
               },
               { createsContext: true }
             )

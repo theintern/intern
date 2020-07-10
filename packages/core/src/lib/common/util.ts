@@ -1,4 +1,4 @@
-import { CancellablePromise, deepMixin } from '@theintern/common';
+import { deepMixin } from '@theintern/common';
 
 import { Config, ResourceConfig } from './config';
 import { Events, Executor, PluginDescriptor } from '../executors/Executor';
@@ -13,7 +13,7 @@ export interface EvaluatedProperty {
 }
 
 export interface TextLoader {
-  (path: string): CancellablePromise<string>;
+  (path: string): Promise<string>;
 }
 
 export type TypeName =
@@ -125,7 +125,7 @@ export function loadConfig(
   loadText: TextLoader,
   args?: { [key: string]: any },
   childConfig?: string | string[]
-): CancellablePromise<any> {
+): Promise<any> {
   return _loadConfig(configPath, loadText, args, childConfig).then(config => {
     // 'config' and 'extends' are only applicable to the config loader, not
     // the Executors
@@ -845,7 +845,7 @@ function _loadConfig(
   loadText: TextLoader,
   args?: { [key: string]: any },
   childConfig?: string | string[]
-): CancellablePromise<any> {
+): Promise<any> {
   return loadText(configPath)
     .then(text => {
       let preConfig: { [key: string]: any };

@@ -1,5 +1,3 @@
-import { Task } from '@theintern/common';
-
 import BenchmarkTest, {
   BenchmarkTestOptions,
   BenchmarkDeferredTestFunction,
@@ -20,7 +18,7 @@ function getTestFunction(
   if (isAsync) {
     const originalFunc = testFunc;
     testFunc = BenchmarkTest.async(<BenchmarkDeferredTestFunction>(
-      function(this: BenchmarkTest, dfd: Deferred<void>) {
+      function (this: BenchmarkTest, dfd: Deferred<void>) {
         setTimeout(dfd.callback(originalFunc.bind(this)), 200);
       }
     ));
@@ -44,10 +42,10 @@ function createSuite(options: Partial<BenchmarkSuite> = <any>{}) {
   if (!options.parent && !options.executor) {
     options.executor = <any>{
       emit() {
-        return Task.resolve();
+        return Promise.resolve();
       },
       log() {
-        return Task.resolve();
+        return Promise.resolve();
       }
     };
   }
@@ -68,7 +66,7 @@ function createTest(descriptor: BenchmarkTestOptions, options?: TestOptions) {
   }
 
   // Keep things fast
-  const test = descriptor.test!;
+  const test = descriptor.test;
   test.options = test.options || {};
   test.options.maxTime = 0.1;
 
@@ -83,7 +81,7 @@ registerSuite('lib/BenchmarkTest', {
 
     const test = createTest({
       name: 'BenchmarkTest#test',
-      test: function() {
+      test: function () {
         executionCount++;
       }
     });
@@ -91,7 +89,7 @@ registerSuite('lib/BenchmarkTest', {
     // Ensure the test runner's timeout gets reset on each cycle
     test.benchmark.on('cycle', () => this.restartTimeout());
 
-    return test.run().then(function() {
+    return test.run().then(function () {
       assert.isAbove(
         executionCount,
         1,
@@ -107,7 +105,7 @@ registerSuite('lib/BenchmarkTest', {
 
     const test = createTest({
       name: 'BenchmarkTest#test (async)',
-      test: getTestFunction(function() {
+      test: getTestFunction(function () {
         executionCount++;
       }, true)
     });
@@ -115,7 +113,7 @@ registerSuite('lib/BenchmarkTest', {
     // Ensure the test runner's timeout gets reset on each cycle
     test.benchmark.on('cycle', () => this.restartTimeout());
 
-    return test.run().then(function() {
+    return test.run().then(function () {
       assert.isAbove(
         executionCount,
         1,
@@ -131,7 +129,7 @@ registerSuite('lib/BenchmarkTest', {
 
     const test = createTest({
       name: 'BenchmarkTest#test (async, error)',
-      test: getTestFunction(function() {
+      test: getTestFunction(function () {
         executionCount++;
         throw new Error('error');
       }, true)
@@ -162,11 +160,11 @@ registerSuite('lib/BenchmarkTest', {
 
     const test = createTest({
       name: 'BenchmarkTest#constructor with benchmark options',
-      test: (function() {
-        const testFunction = getTestFunction(function() {
+      test: (function () {
+        const testFunction = getTestFunction(function () {
           runCount++;
         });
-        testFunction.options.onStart = function() {
+        testFunction.options.onStart = function () {
           onStartCalled = true;
         };
         return testFunction;
@@ -176,7 +174,7 @@ registerSuite('lib/BenchmarkTest', {
     // Ensure the test runner's timeout gets reset on each cycle
     test.benchmark.on('cycle', () => this.restartTimeout());
 
-    return test.run().then(function() {
+    return test.run().then(function () {
       assert.isAbove(runCount, 1, 'test should have run more than once');
       assert.isTrue(onStartCalled, 'Benchmark#onStart should have been called');
     });
@@ -189,7 +187,7 @@ registerSuite('lib/BenchmarkTest', {
     const expectedTest = createTest(
       {
         name: 'foo',
-        test: getTestFunction(function() {}, true)
+        test: getTestFunction(function () {}, true)
       },
       {
         emit(topic: string, test: BenchmarkTest) {
@@ -202,7 +200,7 @@ registerSuite('lib/BenchmarkTest', {
       }
     );
 
-    return expectedTest.run().then(function() {
+    return expectedTest.run().then(function () {
       assert.isTrue(
         topicFired,
         'testPass topic should fire after a test is successfully run'
@@ -233,7 +231,7 @@ registerSuite('lib/BenchmarkTest', {
     const test1 = createTest({
       name: 'skip 1',
       // TODO: should `this` for a BenchmarkTestFunction be a Test?
-      test: function(this: Test) {
+      test: function (this: Test) {
         this.skip('foo');
       }
     });
@@ -263,7 +261,7 @@ registerSuite('lib/BenchmarkTest', {
               }
             }
           },
-          test: getTestFunction(function() {})
+          test: getTestFunction(function () {})
         });
         const expected = {
           id: 'parent id - no error',
@@ -274,7 +272,7 @@ registerSuite('lib/BenchmarkTest', {
           hasPassed: true
         };
 
-        return test.run().then(function() {
+        return test.run().then(function () {
           const testJson = test.toJSON();
 
           // Elapsed time is non-deterministic, so just check that
@@ -315,7 +313,7 @@ registerSuite('lib/BenchmarkTest', {
               }
             }
           },
-          test: getTestFunction(function() {
+          test: getTestFunction(function () {
             const error = new Error('fail');
             error.stack = 'stack';
             throw error;
@@ -323,10 +321,10 @@ registerSuite('lib/BenchmarkTest', {
         });
 
         return test.run().then(
-          function() {
+          function () {
             throw new Error('test should not have passed');
           },
-          function() {
+          function () {
             const testJson = test.toJSON();
             const expected = {
               name: 'Error',
@@ -343,32 +341,32 @@ registerSuite('lib/BenchmarkTest', {
     }
   },
 
-  'Lifecycle methods': (function() {
+  'Lifecycle methods': (function () {
     function isMethodCalled(
       methodName: keyof BenchmarkSuite,
       isAsync: boolean
     ) {
-      return function() {
+      return function () {
         let count = 0;
-        let parent = <BenchmarkSuite>{
+        const parent = <BenchmarkSuite>{
           executor: <any>{
             emit() {
               return Promise.resolve();
             }
           }
         };
-        let parentAny: any = parent;
-        parentAny[methodName] = function() {
+        const parentAny: any = parent;
+        parentAny[methodName] = function () {
           count++;
         };
 
         const test = createTest({
           name: 'test',
-          test: getTestFunction(function() {}, isAsync),
+          test: getTestFunction(function () {}, isAsync),
           parent
         });
 
-        return test.run().then(function() {
+        return test.run().then(function () {
           assert.isAbove(
             count,
             0,
@@ -385,7 +383,7 @@ registerSuite('lib/BenchmarkTest', {
       return createTest({
         name: 'test',
 
-        test: getTestFunction(function(this: any) {
+        test: getTestFunction(function (this: any) {
           recorder('test', this);
         }, isAsync),
 
@@ -420,7 +418,7 @@ registerSuite('lib/BenchmarkTest', {
 
           order() {
             let counter = 0;
-            let orders: { [key: string]: number } = {
+            const orders: { [key: string]: number } = {
               outerBefore: -1,
               innerBefore: -1,
               test: -1,
@@ -436,7 +434,7 @@ registerSuite('lib/BenchmarkTest', {
 
             const test = innerOuterTest(recordOrder, isAsync);
 
-            return test.run().then(function() {
+            return test.run().then(function () {
               assert.isBelow(
                 orders.outerBefore,
                 orders.innerBefore,
@@ -461,7 +459,7 @@ registerSuite('lib/BenchmarkTest', {
           },
 
           context() {
-            let contexts: { [key: string]: any } = {
+            const contexts: { [key: string]: any } = {
               outerBefore: null,
               innerBefore: null,
               test: null,
@@ -477,7 +475,7 @@ registerSuite('lib/BenchmarkTest', {
 
             const test = innerOuterTest(recordContext, isAsync);
 
-            return test.run().then(function() {
+            return test.run().then(function () {
               assert.strictEqual(
                 contexts.test,
                 test,

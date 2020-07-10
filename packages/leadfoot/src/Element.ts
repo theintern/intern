@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import Locator, { Strategy, toW3cLocator } from './lib/Locator';
 import waitForDeleted from './lib/waitForDeleted';
 import { manualFindByLinkText, sleep } from './lib/util';
-import { Task, CancellablePromise } from '@theintern/common';
 import Session from './Session';
 import JSZip from 'jszip';
 import { basename } from 'path';
@@ -13,9 +12,9 @@ import { basename } from 'path';
  * environment.
  */
 export default class Element extends Locator<
-  CancellablePromise<Element>,
-  CancellablePromise<Element[]>,
-  CancellablePromise<void>
+  Promise<Element>,
+  Promise<Element[]>,
+  Promise<void>
 > {
   private _elementId: string;
   private _session: Session;
@@ -62,7 +61,7 @@ export default class Element extends Locator<
     path: string,
     requestData?: any,
     pathParts?: any
-  ): CancellablePromise<T> {
+  ): Promise<T> {
     path = 'element/' + encodeURIComponent(this._elementId) + '/' + path;
     return this._session.serverGet<T>(path, requestData, pathParts);
   }
@@ -71,7 +70,7 @@ export default class Element extends Locator<
     path: string,
     requestData?: any,
     pathParts?: any
-  ): CancellablePromise<T> {
+  ): Promise<T> {
     path = 'element/' + encodeURIComponent(this._elementId) + '/' + path;
     return this._session.serverPost<T>(path, requestData, pathParts);
   }
@@ -113,8 +112,8 @@ export default class Element extends Locator<
    * into a file input field and the file will be transparently transmitted
    * and used by the server.
    */
-  private _uploadFile(filename: string): CancellablePromise<string> {
-    return new Task<string>(resolve => {
+  private _uploadFile(filename: string): Promise<string> {
+    return new Promise<string>(resolve => {
       const content = fs.readFileSync(filename);
 
       const zip = new JSZip();
@@ -138,7 +137,7 @@ export default class Element extends Locator<
    * @param value The strategy-specific value to search for. See
    * [[Session.Session.find]] for details.
    */
-  find(using: Strategy, value: string): CancellablePromise<Element> {
+  find(using: Strategy, value: string): Promise<Element> {
     const session = this._session;
     const capabilities = session.capabilities;
 
@@ -202,7 +201,7 @@ export default class Element extends Locator<
    * @param value The strategy-specific value to search for. See
    * [[Session.Session.find]] for details.
    */
-  findAll(using: Strategy, value: string): CancellablePromise<Element[]> {
+  findAll(using: Strategy, value: string): Promise<Element[]> {
     const session = this._session;
     const capabilities = session.capabilities;
 
@@ -212,26 +211,26 @@ export default class Element extends Locator<
       value = locator.value;
     }
 
-    let task: CancellablePromise<ElementOrElementId[]>;
+    let promise: Promise<ElementOrElementId[]>;
     if (
       using.indexOf('link text') !== -1 &&
       (capabilities.brokenWhitespaceNormalization ||
         capabilities.brokenLinkTextLocator)
     ) {
-      task = session.execute<ElementOrElementId[]>(manualFindByLinkText, [
+      promise = session.execute<ElementOrElementId[]>(manualFindByLinkText, [
         using,
         value,
         true,
         this
       ]);
     } else {
-      task = this._post<ElementOrElementId[]>('elements', {
+      promise = this._post<ElementOrElementId[]>('elements', {
         using: using,
         value: value
       });
     }
 
-    return task.then(function (elements) {
+    return promise.then(function (elements) {
       return elements.map(function (element) {
         return new Element(element, session);
       });
@@ -290,7 +289,7 @@ export default class Element extends Locator<
    * to line breaks in the returned text, and whitespace is normalised per
    * the usual XML/HTML whitespace normalisation rules.
    */
-  getVisibleText(): CancellablePromise<string> {
+  getVisibleText(): Promise<string> {
     if (this.session.capabilities.brokenVisibleText) {
       return this.session.execute<string>(
         /* istanbul ignore next */ function (element: any) {
@@ -325,7 +324,7 @@ export default class Element extends Locator<
    * @param value The text to type in the remote environment. See
    * [[Session.Session.pressKeys]] for more information.
    */
-  type(value: string | string[]): CancellablePromise<void> {
+  type(value: string | string[]): Promise<void> {
     const getPostData = (
       value: string[]
     ): { value?: string[]; text?: string } => {
@@ -386,7 +385,7 @@ export default class Element extends Locator<
    * Gets the tag name of the element. For HTML documents, the value is
    * always lowercase.
    */
-  getTagName(): CancellablePromise<string> {
+  getTagName(): Promise<string> {
     return this._get<string>('name').then(name => {
       if (this.session.capabilities.brokenHtmlTagName) {
         return this.session
@@ -405,7 +404,7 @@ export default class Element extends Locator<
   /**
    * Clears the value of a form element.
    */
-  clearValue(): CancellablePromise<void> {
+  clearValue(): Promise<void> {
     return this._post('clear').then(noop);
   }
 
@@ -414,14 +413,14 @@ export default class Element extends Locator<
    * drop-down options and radio buttons), or whether or not the element is
    * currently checked (for checkboxes).
    */
-  isSelected(): CancellablePromise<boolean> {
+  isSelected(): Promise<boolean> {
     return this._get<boolean>('selected');
   }
 
   /**
    * Returns whether or not a form element can be interacted with.
    */
-  isEnabled(): CancellablePromise<boolean> {
+  isEnabled(): Promise<boolean> {
     if (this.session.capabilities.brokenElementEnabled) {
       return this.session.execute<boolean>(
         /* istanbul ignore next */ function (element: HTMLElement) {
@@ -468,7 +467,7 @@ export default class Element extends Locator<
    * @returns The value of the attribute as a string, or `null` if no such
    * property or attribute exists.
    */
-  getSpecAttribute(name: string): CancellablePromise<string | null> {
+  getSpecAttribute(name: string): Promise<string | null> {
     return this._get<string | undefined>('attribute/$0', null, [name])
       .then(value => {
         if (
@@ -513,7 +512,7 @@ export default class Element extends Locator<
    * @returns The value of the attribute, or `null` if no such attribute
    * exists.
    */
-  getAttribute(name: string): CancellablePromise<string | null> {
+  getAttribute(name: string): Promise<string | null> {
     if (this.session.capabilities.usesWebDriverElementAttribute) {
       return this._get<string | null>('attribute/$0', null, [name]);
     }
@@ -532,7 +531,7 @@ export default class Element extends Locator<
    * @param name The name of the property.
    * @returns The value of the property.
    */
-  getProperty<T = any>(name: string): CancellablePromise<T> {
+  getProperty<T = any>(name: string): Promise<T> {
     if (this.session.capabilities.brokenElementProperty) {
       return this.session.execute<T>('return arguments[0][arguments[1]];', [
         this,
@@ -549,7 +548,7 @@ export default class Element extends Locator<
   /**
    * Determines if this element is equal to another element.
    */
-  equals(other: Element): CancellablePromise<boolean> {
+  equals(other: Element): Promise<boolean> {
     if (this.session.capabilities.noElementEquals) {
       return this.session.execute<boolean>(
         'return arguments[0] === arguments[1];',
@@ -585,7 +584,7 @@ export default class Element extends Locator<
    * 4. Elements with `opacity: 0`
    * 5. Elements with no `offsetWidth` or `offsetHeight`
    */
-  isDisplayed(): CancellablePromise<boolean> {
+  isDisplayed(): Promise<boolean> {
     return this._get<boolean>('displayed').then(isDisplayed => {
       if (
         isDisplayed &&
@@ -626,7 +625,7 @@ export default class Element extends Locator<
    * document, taking into account scrolling and CSS transformations (if they
    * are supported).
    */
-  getPosition(): CancellablePromise<{ x: number; y: number }> {
+  getPosition(): Promise<{ x: number; y: number }> {
     if (this.session.capabilities.brokenElementPosition) {
       /* jshint browser:true */
       return this.session.execute<{
@@ -660,7 +659,7 @@ export default class Element extends Locator<
    * Gets the size of the element, taking into account CSS transformations
    * (if they are supported).
    */
-  getSize(): CancellablePromise<{ width: number; height: number }> {
+  getSize(): Promise<{ width: number; height: number }> {
     const getUsingExecute = () => {
       return this.session.execute<{
         width: number;
@@ -704,7 +703,7 @@ export default class Element extends Locator<
    * @param propertyName The CSS property to retrieve. This argument must be
    * hyphenated, *not* camel-case.
    */
-  getComputedStyle(propertyName: string): CancellablePromise<string> {
+  getComputedStyle(propertyName: string): Promise<string> {
     const manualGetStyle = () => {
       return this.session.execute<string>(
         /* istanbul ignore next */ function (
@@ -717,7 +716,7 @@ export default class Element extends Locator<
       );
     };
 
-    let promise: CancellablePromise<string>;
+    let promise: Promise<string>;
 
     if (this.session.capabilities.brokenComputedStyles) {
       promise = manualGetStyle();
@@ -773,7 +772,7 @@ export default class Element extends Locator<
    * @param value The strategy-specific value to search for. See
    * [[Session.Session.find]] for details.
    */
-  findDisplayed(using: Strategy, value: string): CancellablePromise<Element> {
+  findDisplayed(using: Strategy, value: string): Promise<Element> {
     return findDisplayed(this.session, this, using, value);
   }
 

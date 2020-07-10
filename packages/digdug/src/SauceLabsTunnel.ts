@@ -8,7 +8,7 @@ import { JobState } from './interfaces';
 import { chmodSync, watchFile, unwatchFile } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { CancellablePromise, request } from '@theintern/common';
+import { request } from '@theintern/common';
 import { format as formatUrl, parse as parseUrl, Url } from 'url';
 import { fileExists, kill, on } from './lib/util';
 
@@ -235,7 +235,7 @@ export default class SauceLabsTunnel extends Tunnel
     }
 
     if (this.domainAuthentication.length) {
-      this.domainAuthentication.forEach(function(domain) {
+      this.domainAuthentication.forEach(function (domain) {
         const url = parseUrl(domain);
         args.push('-a', `${url.hostname}:${url.port}:${url.auth}`);
       });
@@ -303,8 +303,8 @@ export default class SauceLabsTunnel extends Tunnel
     return args;
   }
 
-  sendJobState(jobId: string, data: JobState): CancellablePromise<void> {
-    let url = parseUrl(this.restUrl || 'https://saucelabs.com/rest/v1/');
+  sendJobState(jobId: string, data: JobState): Promise<void> {
+    const url = parseUrl(this.restUrl || 'https://saucelabs.com/rest/v1/');
     url.auth = this.username + ':' + this.accessKey;
     url.pathname += this.username + '/jobs/' + jobId;
 
@@ -327,7 +327,7 @@ export default class SauceLabsTunnel extends Tunnel
       password: this.accessKey,
       username: this.username,
       proxy: this.proxy
-    }).then(function(response) {
+    }).then(function (response) {
       return response.text().then(text => {
         if (text) {
           const data = JSON.parse(text);
@@ -356,7 +356,7 @@ export default class SauceLabsTunnel extends Tunnel
     let readRunningMessage: (message: string) => boolean;
     let readStatus: (message: string) => boolean;
 
-    const task = this._makeChild((child, resolve, reject) => {
+    const promise = this._makeChild((child, resolve, reject) => {
       readStartupMessage = (message: string) => {
         function fail(message: string) {
           reject(new Error(message));
@@ -404,7 +404,7 @@ export default class SauceLabsTunnel extends Tunnel
         return readStatus(message);
       };
 
-      readRunningMessage = function(message: string) {
+      readRunningMessage = function (message: string) {
         // Sauce Connect 3
         if (message.indexOf('Problem connecting to Sauce Labs REST API') > -1) {
           // It will just keep trying and trying and trying for a
@@ -440,7 +440,7 @@ export default class SauceLabsTunnel extends Tunnel
       // Polling API is used because we are only watching for one file, so
       // efficiency is not a big deal, and the `fs.watch` API has extra
       // restrictions which are best avoided
-      watchFile(readyFile, { persistent: false, interval: 1007 }, function(
+      watchFile(readyFile, { persistent: false, interval: 1007 }, function (
         current,
         previous
       ) {
@@ -455,7 +455,7 @@ export default class SauceLabsTunnel extends Tunnel
       // Sauce Connect exits with a zero status code when there is a
       // failure, and outputs error messages to stdout, like a boss. Even
       // better, it uses the "Error:" tag for warnings.
-      this._handle = on(child.stdout!, 'data', function(data: string) {
+      this._handle = on(child.stdout!, 'data', function (data: string) {
         if (!readMessage) {
           return;
         }
@@ -475,7 +475,7 @@ export default class SauceLabsTunnel extends Tunnel
       executor(child, resolve, reject);
     }, readyFile);
 
-    task
+    promise
       .then(() => {
         unwatchFile(readyFile);
 
@@ -491,7 +491,7 @@ export default class SauceLabsTunnel extends Tunnel
         // Ignore errors here; they're handled elsewhere
       });
 
-    return task;
+    return promise;
   }
 
   /**

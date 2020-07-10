@@ -3,7 +3,6 @@ import { strategies } from '../../src/lib/Locator';
 import Element from '../../src/Element';
 import Session from '../../src/Session';
 import { isSafari, isFirefox } from '../../src/Server';
-import { Task } from '@theintern/common';
 import Test, { TestFunction } from '@theintern/core/dist/lib/Test';
 import { ObjectSuiteDescriptor } from '@theintern/core/dist/lib/interfaces/object';
 
@@ -71,7 +70,7 @@ function createStubbedSuite(
   return suite;
 }
 
-registerSuite('functional/webdriver/Element', () => {
+registerSuite('functional/Element', () => {
   let session: Session;
   let resetBrowserState = true;
 
@@ -239,7 +238,7 @@ registerSuite('functional/webdriver/Element', () => {
         let startTime: number;
         return () => {
           return session
-            .get('tests/functional/webdriver/data/elements.html')
+            .get('tests/functional/data/elements.html')
             .then(() => session.setTimeout('implicit', 2000))
             .then(() => session.getTimeout('implicit'))
             .then(timeout => {
@@ -299,7 +298,7 @@ registerSuite('functional/webdriver/Element', () => {
             );
           });
 
-          return Task.all(
+          return Promise.all(
             elements.map(function (element) {
               return element.getAttribute('id');
             })
@@ -726,7 +725,7 @@ registerSuite('functional/webdriver/Element', () => {
       '#isSelected (checkbox)': {
         before() {
           resetBrowserState = false;
-          return session.get('tests/functional/webdriver/data/form.html');
+          return session.get('tests/functional/data/form.html');
         },
 
         after() {
@@ -779,7 +778,7 @@ registerSuite('functional/webdriver/Element', () => {
       '#isSelected (drop-down)': {
         before() {
           resetBrowserState = false;
-          return session.get('tests/functional/webdriver/data/form.html');
+          return session.get('tests/functional/data/form.html');
         },
 
         after() {
@@ -947,7 +946,7 @@ registerSuite('functional/webdriver/Element', () => {
               'true',
               'True boolean attributes must return string value per the spec'
             );
-            return session.get('tests/functional/webdriver/data/elements.html');
+            return session.get('tests/functional/data/elements.html');
           })
           .then(function () {
             return session.findById('c');
@@ -984,14 +983,14 @@ registerSuite('functional/webdriver/Element', () => {
             return session.findById('disabled');
           })
           .then(function (element) {
-            return Task.all({
-              'non-existing': element.getAttribute('non-existing'),
-              disabled: element.getAttribute('disabled')
-            });
+            return Promise.all([
+              element.getAttribute('non-existing'),
+              element.getAttribute('disabled')
+            ]);
           })
-          .then(function (result: any) {
-            assert.isNotNull(result.disabled);
-            assert.isNull(result['non-existing']);
+          .then(function (results: any[]) {
+            assert.isNotNull(results[1]);
+            assert.isNull(results[0]);
           });
       },
 
@@ -1009,14 +1008,14 @@ registerSuite('functional/webdriver/Element', () => {
             return session.findById('disabled');
           })
           .then(function (element) {
-            return Task.all({
-              'non-existing': element.getProperty('non-existing'),
-              disabled: element.getProperty('disabled')
-            });
+            return Promise.all([
+              element.getProperty('non-existing'),
+              element.getProperty('disabled')
+            ]);
           })
-          .then(function (result: any) {
-            assert.isTrue(result.disabled);
-            assert.isNull(result['non-existing']);
+          .then(function (results: any[]) {
+            assert.isTrue(results[1]);
+            assert.isNull(results[0]);
           });
       },
 
@@ -1072,9 +1071,7 @@ registerSuite('functional/webdriver/Element', () => {
         const suite = {
           before() {
             resetBrowserState = false;
-            return session.get(
-              'tests/functional/webdriver/data/visibility.html'
-            );
+            return session.get('tests/functional/data/visibility.html');
           },
           after() {
             resetBrowserState = true;
@@ -1118,9 +1115,7 @@ registerSuite('functional/webdriver/Element', () => {
         const suite = {
           before() {
             resetBrowserState = false;
-            return session.get(
-              'tests/functional/webdriver/data/dimensions.html'
-            );
+            return session.get('tests/functional/data/dimensions.html');
           },
           after() {
             resetBrowserState = true;

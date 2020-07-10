@@ -1,6 +1,6 @@
 import { mockImport } from 'tests/support/mockUtil';
 import { createSandbox, SinonStub, SinonSpy } from 'sinon';
-import { Task, global } from '@theintern/common';
+import { global } from '@theintern/common';
 
 import * as nodeUtil from 'src/lib/node/util';
 
@@ -18,7 +18,7 @@ registerSuite('bin/intern', function () {
   const sandbox = createSandbox();
   const mockNodeUtil: { [name: string]: SinonSpy } = {
     getConfig: sandbox.spy((..._args: any[]) => {
-      return Task.resolve({ config: configData, file: 'intern.json' });
+      return Promise.resolve({ config: configData, file: 'intern.json' });
     }),
     getPackagePath: sandbox.spy(() => originalGetPackagePath())
   };

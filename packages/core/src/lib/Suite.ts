@@ -1,13 +1,12 @@
 import {
-  Task,
-  CancellablePromise,
-  isPromiseLike,
-  isTask
+  CancelToken,
+  createCancelToken,
+  isCancel,
+  isPromiseLike
 } from '@theintern/common';
-
 import Deferred from './Deferred';
 import { Executor } from './executors/Executor';
-import Test, { isTest, SKIP } from './Test';
+import Test, { isSkip, isTest, SKIP } from './Test';
 import { InternError } from './types';
 import { Remote } from './executors/Node';
 import { errorToJSON } from './common/util';
@@ -64,6 +63,8 @@ export default class Suite implements SuiteProperties {
 
   /** The time required to run all the tests in this suite */
   timeElapsed: number | undefined;
+
+  protected _cancelToken: CancelToken | undefined;
 
   private _bail: boolean | undefined;
   private _executor: Executor | undefined;
@@ -319,9 +320,9 @@ export default class Suite implements SuiteProperties {
     this._applyGrepToSuiteOrTest(suiteOrTest);
 
     if (isTest(suiteOrTest)) {
-      this.executor.emit('testAdd', suiteOrTest);
+      this.executor.emit('testAdd', suiteOrTest).catch(() => undefined);
     } else {
-      this.executor.emit('suiteAdd', suiteOrTest);
+      this.executor.emit('suiteAdd', suiteOrTest).catch(() => undefined);
     }
   }
 
@@ -348,6 +349,15 @@ export default class Suite implements SuiteProperties {
   }
 
   /**
+   * Cancel this suite if it's in-progress.
+   *
+   * This method has no effect if the Suite has finished.
+   */
+  cancel(reason?: string) {
+    this._cancelToken?.cancel(reason);
+  }
+
+  /**
    * Explicity reset the suite so it may run again
    */
   reset() {
@@ -369,7 +379,7 @@ export default class Suite implements SuiteProperties {
    * If before, beforeEach, afterEach, or after throw, the suite itself will
    * be marked as failed and no further tests in the suite will be executed.
    */
-  run(): CancellablePromise<void> {
+  run(token?: CancelToken): Promise<void> {
     let startTime: number;
 
     // Run when the suite starts
@@ -394,108 +404,112 @@ export default class Suite implements SuiteProperties {
       suite: Suite,
       name: LifecycleMethod,
       test?: Test
-    ): CancellablePromise<void> => {
-      let result: PromiseLike<any> | void;
+    ): Promise<void> => {
+      // If this suite has been cancelled, regardless of whether it's the root
+      // or not, we don't run the lifecycle methods
+      if (this._cancelToken?.reason) {
+        return Promise.reject(this._cancelToken.reason);
+      }
 
       // If we are the root suite with our own executor then we want to run life
       // cycle functions regardless of whether all tests are skipped
       if (!this._executor && allTestsSkipped) {
         // If all descendant tests are skipped then do not run the suite
         // lifecycles
-        return Task.resolve();
+        return Promise.resolve();
       }
 
-      return new Task<void>(
-        (resolve, reject) => {
-          let dfd: Deferred<any> | undefined;
-          let timeout: number | undefined;
+      let result: Promise<any> | void;
 
-          // Provide a new Suite#async method for each call of a
-          // lifecycle method since there's no concept of a Suite-wide
-          // async deferred as there is for Tests.
-          suite.async = function (_timeout?: number) {
-            timeout = _timeout;
+      return new Promise<void>((resolve, reject) => {
+        let dfd: Deferred<any> | undefined;
+        let timeout: number | undefined;
 
-            const _dfd = new Deferred<any>();
-            dfd = _dfd;
+        // Provide a new Suite#async method for each call of a
+        // lifecycle method since there's no concept of a Suite-wide
+        // async deferred as there is for Tests.
+        suite.async = function (_timeout?: number) {
+          timeout = _timeout;
 
-            suite.async = function () {
-              return _dfd;
-            };
+          const _dfd = new Deferred<any>(this._cancelToken);
+          dfd = _dfd;
 
+          suite.async = function () {
             return _dfd;
           };
 
-          const suiteFunc = suite[name] as
-            | SuiteLifecycleFunction
-            | TestLifecycleFunction;
+          return _dfd;
+        };
 
-          // Call the lifecycle function. The suite.async method above
-          // may be called within this function call. If `test` is
-          // defined (i.e., this is beforeEach or afterEach), pass it
-          // first, followed by the suite. If `test` is not defined,
-          // just pass the suite. This ordering is maintain backwards
-          // compatibility with previous versions of Intern.
-          result =
-            suiteFunc &&
-            (test
-              ? (suiteFunc as TestLifecycleFunction).call(suite, test, suite)
-              : (suiteFunc as SuiteLifecycleFunction).call(suite, suite));
+        const suiteFunc = suite[name] as
+          | SuiteLifecycleFunction
+          | TestLifecycleFunction;
 
-          // If dfd is set, it means the async method was called
-          if (dfd) {
-            // Assign to a const so TS knows it's defined
-            const _dfd = dfd;
+        // Call the lifecycle function. The suite.async method above
+        // may be called within this function call. If `test` is
+        // defined (i.e., this is beforeEach or afterEach), pass it
+        // first, followed by the suite. If `test` is not defined,
+        // just pass the suite. This ordering is to maintain backwards
+        // compatibility with previous versions of Intern.
+        result =
+          suiteFunc &&
+          (test
+            ? (suiteFunc as TestLifecycleFunction).call(suite, test, suite)
+            : (suiteFunc as SuiteLifecycleFunction).call(suite, suite));
 
-            // If a timeout was set, async was called, so we should
-            // use the dfd created by the call to manage the
-            // timeout.
-            if (timeout) {
-              let timer = setTimeout(function () {
-                const error = new Error(
-                  `Timeout reached on ${suite.id}#${name}`
-                );
-                error.name = 'TimeoutError';
-                _dfd.reject(error);
-              }, timeout);
-
-              _dfd.promise
-                .catch(_error => {})
-                .then(() => timer && clearTimeout(timer));
-            }
-
-            // If the return value looks like a promise, resolve the
-            // dfd if the return value resolves
-            if (isPromiseLike(result)) {
-              result.then(
-                () => _dfd.resolve(),
-                error => _dfd.reject(error)
-              );
-            }
-
-            // Use the dfd.promise as the final result
-            result = dfd.promise;
-          }
-
-          if (isPromiseLike(result)) {
-            result.then(() => resolve(), reject);
-          } else {
-            resolve();
-          }
-        },
-        () => {
-          if (isTask(result)) {
-            result.cancel();
-          }
+        // If the result looks like a Promise, wrap it in with the cancel token
+        // so it can be cancelled
+        if (isPromiseLike(result)) {
+          result = cancelToken.wrap(result);
         }
-      )
+
+        // If dfd is set, it means the async method was called
+        if (dfd) {
+          // Assign to a const so TS knows it's defined
+          const _dfd = dfd;
+
+          // If a timeout was set, async was called, so we should
+          // use the dfd created by the call to manage the
+          // timeout.
+          if (timeout) {
+            const timer = setTimeout(function () {
+              const error = new Error(`Timeout reached on ${suite.id}#${name}`);
+              error.name = 'TimeoutError';
+              _dfd.reject(error);
+            }, timeout);
+
+            _dfd.promise
+              // We don't need to handle errors here; just swallow them
+              .catch(() => undefined)
+              .then(() => clearTimeout(timer));
+          }
+
+          // If the return value looks like a promise, resolve the
+          // dfd if the return value resolves
+          if (isPromiseLike(result)) {
+            result.then(
+              () => _dfd.resolve(),
+              error => _dfd.reject(error)
+            );
+          }
+
+          // Use the dfd.promise as the final result
+          result = _dfd.promise;
+        }
+
+        if (isPromiseLike(result)) {
+          result.then(() => resolve(), reject);
+        } else {
+          resolve();
+        }
+      })
         .finally(() => {
           // Remove the async method since it should only be available
           // within a lifecycle function call
           suite.async = undefined;
         })
         .catch((error: InternError) => {
-          if (error !== SKIP) {
+          if (!isSkip(error) && !isCancel(error)) {
             if (test) {
               test.suiteError = error;
             }
@@ -519,28 +533,46 @@ export default class Suite implements SuiteProperties {
       return runLifecycleMethod(this, 'after');
     };
 
-    let task: CancellablePromise<void>;
-    let runTask: CancellablePromise<void>;
+    // Create a token that can be used to cancel this suite
+    const cancelToken = createCancelToken();
+    this._cancelToken = cancelToken;
+
+    // If the passed-in cancel token is cancelled, cancel this run's token as
+    // well.
+    if (token) {
+      // If the token is already cancelled, don't even try to run the suite
+      if (token.reason) {
+        return Promise.reject(token.reason);
+      }
+      token.promise.catch(() => cancelToken.cancel());
+    }
+
+    let promise: Promise<void>;
 
     try {
-      task = this.publishAfterSetup
+      promise = this.publishAfterSetup
         ? before().then(start)
         : start().then(before);
     } catch (error) {
-      return Task.reject<void>(error);
+      return Promise.reject(error);
     }
 
-    // The task that manages running this suite's tests
-    return task
+    // The promise that manages running this suite's tests
+    return promise
       .then(() => {
         // Run the beforeEach or afterEach methods for a given test in
         // the proper order based on the current nested Suite structure
         const runTestLifecycle = (
           name: LifecycleMethod,
           test: Test
-        ): CancellablePromise<void> => {
-          let methodQueue: Suite[] = [];
-          let suite: Suite = this;
+        ): Promise<void> => {
+          if (this._cancelToken?.reason) {
+            return Promise.reject(this._cancelToken.reason);
+          }
+
+          const methodQueue: Suite[] = [];
+          // eslint-disable-next-line @typescript-eslint/no-this-alias
+          let suite: Suite | undefined = this;
 
           do {
             if (name === 'beforeEach') {
@@ -552,177 +584,132 @@ export default class Suite implements SuiteProperties {
             }
           } while ((suite = suite.parent!));
 
-          let currentMethod: CancellablePromise<any>;
-
-          return new Task(
-            (resolve, reject) => {
-              let firstError: Error;
-
-              const handleError = (error: Error) => {
-                // Note that a SKIP error will only be treated
-                // as a 'skip' when thrown from beforeEach. If
-                // thrown from afterEach it will be a suite
-                // error.
-                if (name === 'afterEach') {
-                  firstError = firstError || error;
-                  next();
-                } else {
-                  reject(error);
-                }
-              };
-
-              const next = () => {
-                const suite = methodQueue.pop();
-
-                if (!suite) {
-                  firstError ? reject(firstError) : resolve();
-                  return;
-                }
-
-                currentMethod = runLifecycleMethod(suite, name, test).then(
-                  next,
-                  handleError
-                );
-              };
-
-              next();
-            },
-            () => {
-              methodQueue.splice(0, methodQueue.length);
-              if (currentMethod) {
-                currentMethod.cancel();
-              }
-            }
-          );
-        };
-
-        let i = 0;
-        let tests = this.tests;
-        let current: CancellablePromise<void>;
-
-        // Run each of the tests in this suite
-        runTask = new Task<void>(
-          (resolve, reject) => {
+          return new Promise((resolve, reject) => {
             let firstError: Error;
-            let testTask: CancellablePromise<void> | undefined;
+
+            const handleError = (error: Error) => {
+              // Note that a SKIP error will only be treated
+              // as a 'skip' when thrown from beforeEach. If
+              // thrown from afterEach it will be a suite
+              // error. Cancellation errors will always reject.
+              if (name === 'afterEach' && !isCancel(error)) {
+                firstError = firstError || error;
+                next();
+              } else {
+                reject(error);
+              }
+            };
 
             const next = () => {
-              const test = tests[i++];
+              const suite = methodQueue.pop();
 
-              // The task is over when there are no more tests to
-              // run
-              if (!test) {
+              if (!suite) {
                 firstError ? reject(firstError) : resolve();
                 return;
               }
 
-              const handleError = (error: InternError) => {
-                // An error may be associated with a deeper test
-                // already, in which case we do not want to
-                // reassociate it with a more generic parent
-                if (error && error.relatedTest == null) {
-                  error.relatedTest = <Test>test;
-                }
-              };
-
-              const runTest = () => {
-                // Errors raised when running child tests should
-                // be reported but should not cause this suite’s
-                // run to reject, since this suite itself has
-                // not failed.
-                const result = test.run().catch(error => {
-                  handleError(error);
-                });
-                testTask = new Task<void>(
-                  resolve => {
-                    result.then(resolve);
-                  },
-                  () => {
-                    result.cancel();
-                  }
-                );
-                return testTask;
-              };
-
-              // If the suite will be skipped, mark the current
-              // test as skipped. This will skip both individual
-              // tests and nested suites.
-              if (this.skipped != null) {
-                test.skipped = this.skipped;
-              }
-
-              // test is a suite
-              if (isSuite(test)) {
-                current = runTest();
-              } else {
-                if (test.skipped != null) {
-                  current = this.executor.emit('testEnd', test);
-                } else {
-                  current = runTestLifecycle('beforeEach', test)
-                    .then(() => {
-                      // A test may have been skipped in a
-                      // beforeEach call
-                      if (test.skipped != null) {
-                        return this.executor.emit('testEnd', test);
-                      } else {
-                        return runTest();
-                      }
-                    })
-                    .finally(() => {
-                      if (testTask) {
-                        testTask.cancel();
-                      }
-                      testTask = undefined;
-                      return runTestLifecycle('afterEach', test);
-                    })
-                    .catch(error => {
-                      firstError = firstError || error;
-                      return handleError(error);
-                    });
-                }
-              }
-
-              current.then(() => {
-                const skipRestOfSuite = () => {
-                  this.skipped =
-                    this.skipped != null ? this.skipped : BAIL_REASON;
-                };
-
-                // If the test was a suite and the suite was
-                // skipped due to bailing, skip the rest of this
-                // suite
-                if (isSuite(test) && test.skipped === BAIL_REASON) {
-                  skipRestOfSuite();
-                } else if (test.error && this.bail) {
-                  // If the test errored and bail mode is
-                  // enabled, skip the rest of this suite
-                  skipRestOfSuite();
-                }
-
-                next();
-              });
+              runLifecycleMethod(suite, name, test).then(next, handleError);
             };
 
             next();
-          },
-          () => {
-            // Ensure no more tests will run
-            i = Infinity;
-            if (current) {
-              current.cancel();
-            }
-          }
-        );
+          });
+        };
 
-        return runTask;
-      })
-      .finally(() => {
-        if (runTask) {
-          runTask.cancel();
-        }
+        let i = 0;
+        const tests = this.tests;
+        let current: Promise<void>;
+
+        // Run each of the tests in this suite
+        return new Promise<void>((resolve, reject) => {
+          let firstError: Error;
+
+          const next = () => {
+            const test = tests[i++];
+
+            // The promise is over when there are no more tests to run
+            if (!test) {
+              firstError ? reject(firstError) : resolve();
+              return;
+            }
+
+            const handleError = (error: InternError) => {
+              // Cancellation and SKIP rejections are not actually errors and
+              // can be ignored here.
+              if (isCancel(error) || isSkip(error)) {
+                return;
+              }
+
+              // An error may be associated with a deeper test already, in which
+              // case we do not want to reassociate it with a more generic
+              // parent
+              if (error?.relatedTest == null) {
+                error.relatedTest = <Test>test;
+              }
+            };
+
+            const runTest = () => {
+              // Errors raised when running child tests should be reported but
+              // should not cause this suite’s run to reject, since this suite
+              // itself has not failed.
+              return test.run(cancelToken).catch(handleError);
+            };
+
+            // If the suite will be skipped, mark the current test as skipped.
+            // This will skip both individual tests and nested suites.
+            if (this.skipped != null) {
+              test.skipped = this.skipped;
+            }
+
+            if (isSuite(test)) {
+              // runTest won't reject
+              current = runTest();
+            } else {
+              if (test.skipped != null) {
+                current = this.executor.emit('testEnd', test).catch(() => {
+                  // ignore errors here
+                });
+              } else {
+                current = runTestLifecycle('beforeEach', test)
+                  .then(() => {
+                    // A test may have been skipped in a
+                    // beforeEach call
+                    if (test.skipped != null) {
+                      return this.executor.emit('testEnd', test);
+                    } else {
+                      return runTest();
+                    }
+                  })
+                  .finally(() => runTestLifecycle('afterEach', test))
+                  .catch(error => {
+                    firstError = firstError || error;
+                    return handleError(error);
+                  });
+              }
+            }
+
+            current.then(() => {
+              if (
+                // The test was a suite and the suite was skipped due to bailing
+                (isSuite(test) && test.skipped === BAIL_REASON) ||
+                // The test errored and bail mode is enabled
+                (test.error && this.bail) ||
+                // This suite was cancelled
+                cancelToken?.reason
+              ) {
+                this.skipped =
+                  this.skipped ?? cancelToken?.reason?.message ?? BAIL_REASON;
+              }
+
+              next();
+            });
+          };
+
+          next();
+        });
       })
       .finally(() => (this.publishAfterSetup ? end() : after()))
-      .finally(() => (this.publishAfterSetup ? after() : end()));
+      .finally(() => (this.publishAfterSetup ? after() : end()))
+      .finally(() => (this._cancelToken = undefined));
   }
 
   /**
@@ -799,11 +786,11 @@ export function isFailedSuite(suite: Suite): boolean {
 }
 
 export interface SuiteLifecycleFunction {
-  (this: Suite, suite: Suite): void | PromiseLike<any>;
+  (this: Suite, suite: Suite): void | Promise<any>;
 }
 
 export interface TestLifecycleFunction {
-  (this: Suite, test: Test, suite: Suite): void | PromiseLike<any>;
+  (this: Suite, test: Test, suite: Suite): void | Promise<any>;
 }
 
 /**

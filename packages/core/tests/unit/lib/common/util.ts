@@ -1,5 +1,3 @@
-import { Task } from '@theintern/common';
-
 import * as util from 'src/lib/common/util';
 import { Config } from 'src/lib/common/config';
 
@@ -243,7 +241,7 @@ registerSuite('lib/common/util', {
     }
   },
 
-  parseValue: (function() {
+  parseValue: (function () {
     function createValueAssertion(type: util.TypeName) {
       return (value: any, expected: any, requiredProperty?: string) => {
         const parsed = util.parseValue('foo', value, type, requiredProperty);
@@ -487,7 +485,7 @@ registerSuite('lib/common/util', {
 
 function loadText(path: string) {
   if (path === 'extends') {
-    return Task.resolve(
+    return Promise.resolve(
       JSON.stringify({
         foo: 111,
         bar: 'bye',
@@ -496,7 +494,7 @@ function loadText(path: string) {
     );
   }
   if (path === 'children') {
-    return Task.resolve(
+    return Promise.resolve(
       JSON.stringify({
         baz: 'hello',
         bar: 'bye',
@@ -514,7 +512,7 @@ function loadText(path: string) {
     );
   }
   if (path === 'childEnvironment') {
-    return Task.resolve(
+    return Promise.resolve(
       JSON.stringify({
         node: {
           suites: ['foo'],
@@ -535,7 +533,7 @@ function loadText(path: string) {
     );
   }
   if (path === 'described') {
-    return Task.resolve(
+    return Promise.resolve(
       JSON.stringify({
         description: 'has children',
         configs: {
@@ -549,5 +547,5 @@ function loadText(path: string) {
       })
     );
   }
-  return Task.resolve('{}');
+  return Promise.resolve('{}');
 }

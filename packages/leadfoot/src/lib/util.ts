@@ -1,20 +1,21 @@
-import { Task, CancellablePromise } from '@theintern/common';
+import { CancelToken } from '@theintern/common';
 
 /**
  * Creates a promise that resolves itself after `ms` milliseconds.
  *
  * @param ms Time until resolution in milliseconds.
  */
-export function sleep(ms: number): CancellablePromise<void> {
+export function sleep(ms: number, token?: CancelToken): Promise<void> {
   let timer: NodeJS.Timer;
-  return new Task<void>(
-    function(resolve) {
-      timer = setTimeout(() => {
-        resolve();
-      }, ms);
-    },
-    () => clearTimeout(timer)
-  );
+  let promise = new Promise<void>(resolve => {
+    timer = global.setTimeout(resolve, ms);
+  });
+  if (token) {
+    promise = token.wrap(promise).catch(() => {
+      clearTimeout(timer);
+    });
+  }
+  return promise;
 }
 
 /**
@@ -75,11 +76,11 @@ export function manualFindByLinkText(
 ) {
   const check =
     using === 'link text'
-      ? function(linkText: string, text: string) {
+      ? function (linkText: string, text: string) {
           return linkText === text;
           // tslint:disable-next-line:indent
         }
-      : function(linkText: string, text: string) {
+      : function (linkText: string, text: string) {
           return linkText.indexOf(text) !== -1;
           // tslint:disable-next-line:indent
         };

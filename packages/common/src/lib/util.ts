@@ -72,6 +72,25 @@ export function duplicate<T extends object>(source: T): T {
 }
 
 /**
+ * Return true if the value is a Promise
+ */
+export function isPromise<T = void>(value: any): value is Promise<T> {
+  return (
+    value &&
+    typeof value === 'object' &&
+    typeof value.then === 'function' &&
+    typeof value.catch === 'function'
+  );
+}
+
+/**
+ * Return true if the value is a PromiseLike
+ */
+export function isPromiseLike<T = void>(value: any): value is PromiseLike<T> {
+  return value && typeof value === 'object' && typeof value.then === 'function';
+}
+
+/**
  * Returns a function which invokes the given function with the given arguments
  * prepended to its argument list. Like `Function.prototype.bind`, but does not
  * alter execution context.
@@ -84,9 +103,10 @@ export function partial(
   targetFunction: (...args: any[]) => any,
   ...suppliedArgs: any[]
 ): (...args: any[]) => any {
-  return function(this: any) {
+  return function (this: any) {
     const args: any[] = arguments.length
-      ? suppliedArgs.concat(Array.prototype.slice.call(arguments))
+      ? // eslint-disable-next-line prefer-rest-params
+        suppliedArgs.concat(Array.prototype.slice.call(arguments))
       : suppliedArgs;
 
     return targetFunction.apply(this, args);
@@ -96,7 +116,7 @@ export function partial(
 // support functions ----------------------------------------------------------
 
 function copyArray<T>(array: T[]): T[] {
-  return array.map(function(item: T): T {
+  return array.map(function (item: T): T {
     if (Array.isArray(item)) {
       return <any>copyArray(<any>item);
     }
@@ -126,7 +146,7 @@ function _deepMixin<T extends {}, U extends {}>(kwArgs: {
     if (source === null || source === undefined) {
       continue;
     }
-    for (let key in source) {
+    for (const key in source) {
       let value: any = source[key];
 
       if (copiedClone.indexOf(value) !== -1) {

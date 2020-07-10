@@ -1,5 +1,4 @@
 import { mockImport } from 'tests/support/mockUtil';
-import { Task } from '@theintern/common';
 import _Channel, { ChannelOptions } from 'src/lib/Channel';
 
 let messages: string[];
@@ -87,7 +86,7 @@ class MockWebSocket {
 
   sendMessage(event: string) {
     messages.push(`sending websocket ${event}`);
-    return websocketError === 'send' ? Task.reject() : Task.resolve();
+    return websocketError === 'send' ? Promise.reject() : Promise.resolve();
   }
 }
 
@@ -98,6 +97,6 @@ class MockHttp {
 
   sendMessage(event: string) {
     messages.push(`sending http ${event}`);
-    return Task.resolve();
+    return Promise.resolve();
   }
 }
