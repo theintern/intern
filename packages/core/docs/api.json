@@ -34321,7 +34321,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/browser/shim.ts",
-							"line": 12,
+							"line": 15,
 							"character": 12
 						}
 					],

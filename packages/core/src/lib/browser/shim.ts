@@ -5,7 +5,10 @@ import 'core-js/features/object/assign';
 import 'core-js/features/typed-array';
 
 // The HTML reporter uses URLSearchParams
-import 'url-search-params-polyfill';
+import 'core-js/features/url-search-params';
+
+// The requests module uses URL objects
+import 'core-js/features/url';
 
 // We can't use @theintern/common's global here because loading
 // @theintern/common also loads common/Evented, which requires Map
