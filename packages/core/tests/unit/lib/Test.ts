@@ -14,7 +14,7 @@ import {
   createMockExecutor,
   createMockSession
 } from 'tests/support/unit/mocks';
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { createSuite } from 'tests/support/unit/factories';
 import sinon from 'sinon';
 

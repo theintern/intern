@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 
 let ProxiedSession: typeof import('src/lib/ProxiedSession').default;
 

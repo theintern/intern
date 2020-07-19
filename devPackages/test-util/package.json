@@ -1,0 +1,20 @@
+{
+  "name": "@theintern-dev/test-util",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test utilities for intern projects",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "shx rm -rf dist *.tsbuildinfo",
+    "watch": "tsc -b --watch"
+  },
+  "dependencies": {
+    "rewiremock": "~3.13.9",
+    "tslib": "~2.0.0"
+  },
+  "devDependencies": {
+    "@theintern-dev/tsconfig": "workspace:*"
+  }
+}

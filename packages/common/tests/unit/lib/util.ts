@@ -3,7 +3,7 @@ import * as util from '../../../src/lib/util';
 const { registerSuite } = intern.getInterface('object');
 const { assert } = intern.getPlugin('chai');
 
-registerSuite('lib/util', {
+registerSuite('common/lib/util', {
   createHandle() {
     let count = 0;
     const handle = util.createHandle(() => {
@@ -70,7 +70,7 @@ registerSuite('lib/util', {
       source.e = /abc/;
       Object.defineProperty(source, 'b', {
         enumerable: true,
-        get: function() {
+        get: function () {
           return 2;
         }
       });
@@ -196,20 +196,8 @@ registerSuite('lib/util', {
   },
 
   duplicate() {
-    const prototype = {
-      a: 1
-    };
-    const source: {
-      a: number;
-      b: {
-        value: number;
-      };
-      c: {
-        d: number;
-      };
-    } = Object.create(prototype, {
-      b: { value: 2 }
-    });
+    const prototype = { a: 1 };
+    const source = Object.create(prototype, { b: { value: 2 } });
     source.c = { d: 4 };
 
     const copyOfObject: typeof source = util.duplicate(source);
@@ -224,15 +212,15 @@ registerSuite('lib/util', {
   partial() {
     const ending = 'jumps over the lazy dog';
     const finish = util.partial(
-      function(this: any) {
+      function (this: any, ...args: unknown[]) {
         const start = this && this.start ? [this.start] : [];
-        return start.concat(Array.prototype.slice.call(arguments)).join(' ');
+        return start.concat(args).join(' ');
       },
       'jumps',
       'over'
     );
 
-    function Sentence(this: any, start: string = '') {
+    function Sentence(this: any, start = '') {
       this.start = start;
     }
     Sentence.prototype.finish = finish;

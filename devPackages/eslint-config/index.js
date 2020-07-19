@@ -8,6 +8,7 @@ module.exports = {
     "project": [
       "./packages/*/tsconfig.json",
       "./packages/*/tests/tsconfig.json",
+      "./packages/core/src/browser/tsconfig.json",
       "./packages/core/tests/examples/tsconfig.json",
       "./devPackages/*/tsconfig.json"
     ]

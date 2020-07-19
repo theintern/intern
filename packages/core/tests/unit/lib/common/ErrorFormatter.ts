@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import _ErrorFormatter from 'src/lib/common/ErrorFormatter';
 import { InternError } from 'src/lib/types';
 import { createMockExecutor, MockExecutor } from 'tests/support/unit/mocks';

@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { spy } from 'sinon';
 
 import BenchmarkTest, { BenchmarkTestFunction } from 'src/lib/BenchmarkTest';

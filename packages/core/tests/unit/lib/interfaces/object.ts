@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { createSandbox } from 'sinon';
 
 import * as _objInt from 'src/lib/interfaces/object';

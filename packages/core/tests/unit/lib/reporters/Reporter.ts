@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { createSandbox, spy } from 'sinon';
 import { global } from '@theintern/common';
 
@@ -16,7 +16,7 @@ registerSuite('lib/reporters/Reporter', function () {
     formatError: sandbox.spy((_error: Error) => {}),
     on: sandbox.spy((_event: string, _listener: () => void) => {})
   };
-  const mockExecutor = (_mockExecutor as unknown) as Executor<any, any, any>;
+  const mockExecutor = (_mockExecutor as unknown) as Executor<any, any>;
 
   const mockGlobal: { [name: string]: any } = {};
 

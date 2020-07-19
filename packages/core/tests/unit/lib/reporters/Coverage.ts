@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { Context } from 'istanbul-lib-report';
 import { CoverageMap } from 'istanbul-lib-coverage';
 import { createSandbox, stub } from 'sinon';

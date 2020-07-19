@@ -1,51 +1,50 @@
-import { SinonSpy } from 'sinon';
-import { Executor, Config } from 'src/lib/executors/Executor';
+import { Config } from 'src/lib/executors/Executor';
 
-export function testProperty<C extends Config = Config>(
-  executor: Executor,
-  mockConsole: { [name: string]: SinonSpy },
-  name: keyof C,
-  badValue: any,
-  goodValue: any,
-  expectedValue: any,
-  error: RegExp,
-  allowDeprecated?: boolean | string,
-  message?: string
-) {
-  if (typeof allowDeprecated === 'string') {
-    message = allowDeprecated;
-    allowDeprecated = undefined;
-  }
-  if (typeof allowDeprecated === 'undefined') {
-    allowDeprecated = false;
-  }
+export function createConfig(config?: Partial<Config>) {
+  const cfg: Config = {
+    basePath: '',
+    bail: false,
+    baseline: false,
+    benchmark: false,
+    browser: {},
+    capabilities: {},
+    connectTimeout: 30000,
+    coverage: [],
+    coverageVariable: '__coverage__',
+    debug: Boolean(config?.debug) || false,
+    defaultTimeout: 30000,
+    description: '',
+    environments: [{ browserName: 'node' }],
+    filterErrorStack: false,
+    functionalCoverage: false,
+    functionalRetries: 0,
+    functionalSuites: [],
+    functionalTimeouts: {},
+    grep: new RegExp(''),
+    heartbeatInterval: 60,
+    instrumenterOptions: {},
+    internPath: '',
+    leaveRemoteOpen: false,
+    loader: { script: 'default' },
+    maxConcurrency: Infinity,
+    name: 'intern',
+    node: {},
+    plugins: [],
+    remoteOptions: {},
+    reporters: [],
+    runInSync: false,
+    serveOnly: false,
+    serverPort: 9000,
+    serverUrl: '',
+    socketPort: 9001,
+    sessionId: '',
+    suites: <string[]>[],
+    tunnel: 'selenium',
+    tunnelOptions: { tunnelId: String(Date.now()) },
+    warnOnUncaughtException: false,
+    warnOnUnhandledRejection: false,
+    ...config
+  };
 
-  assert.throws(() => {
-    executor.configure(<any>{ [name]: badValue });
-  }, error);
-  executor.configure(<any>{ [name]: goodValue });
-
-  if (allowDeprecated) {
-    for (const call of mockConsole.warn.getCalls()) {
-      assert.include(
-        call.args[0],
-        'deprecated',
-        'no warning should have been emitted'
-      );
-    }
-  } else {
-    assert.equal(
-      mockConsole.warn.callCount,
-      0,
-      'no warning should have been emitted'
-    );
-  }
-
-  name = <keyof Config>(<string>name).replace(/\+$/, '');
-  const config = <C>executor.config;
-  if (typeof expectedValue === 'object') {
-    assert.deepEqual(config[name], expectedValue, message);
-  } else {
-    assert.strictEqual(config[name], expectedValue, message);
-  }
+  return cfg;
 }

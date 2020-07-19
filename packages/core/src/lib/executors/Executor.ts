@@ -1,23 +1,37 @@
 import * as chai from 'chai';
 import {
-  Handle,
+  CancelToken,
+  createCancelToken,
   deepMixin,
   duplicate,
-  isPromise,
-  global
+  global,
+  Handle,
+  isPromise
 } from '@theintern/common';
-
-import Suite from '../Suite';
-import Test from '../Test';
+import * as console from '../common/console';
 import ErrorFormatter, { ErrorFormatOptions } from '../common/ErrorFormatter';
+import { normalizePathEnding } from '../common/path';
+import { pullFromArray } from '../common/util';
 import {
+  Args,
   BenchmarkConfig,
   Config,
+  Configurator,
+  ConfiguratorFactory,
+  LoadedConfig,
+  createConfig,
+  parseArgs,
   PluginDescriptor,
   ReporterDescriptor
-} from '../common/config';
-import { normalizePathEnding } from '../common/path';
-import { processOption, pullFromArray } from '../common/util';
+} from '../config';
+import {
+  BddInterface,
+  getInterface as getBddInterface
+} from '../interfaces/bdd';
+import {
+  BenchmarkInterface,
+  getInterface as getBenchmarkInterface
+} from '../interfaces/benchmark';
 import {
   getInterface as getObjectInterface,
   ObjectInterface
@@ -26,22 +40,22 @@ import {
   getInterface as getTddInterface,
   TddInterface
 } from '../interfaces/tdd';
-import {
-  getInterface as getBddInterface,
-  BddInterface
-} from '../interfaces/bdd';
-import {
-  getInterface as getBenchmarkInterface,
-  BenchmarkInterface
-} from '../interfaces/benchmark';
+import Suite from '../Suite';
+import Test from '../Test';
 import { InternError, RuntimeEnvironment } from '../types';
-import { createCancelToken, CancelToken } from '@theintern/common';
-import * as console from '../common/console';
+
+/**
+ * Something that can emit Executor events
+ */
+export interface EventEmitter {
+  emit<T extends NoDataEvents>(eventName: T): Promise<void>;
+  emit<T extends keyof Events>(eventName: T, data: Events[T]): Promise<void>;
+}
 
 /**
  * This interface represents the core functionality of an Executor
  */
-export interface Executor {
+export interface Executor extends EventEmitter {
   readonly config: Config;
   readonly suites: Suite[];
 
@@ -49,12 +63,11 @@ export interface Executor {
 
   cancel(): void;
 
-  configure(options: { [key: string]: any }): void;
-
-  emit<T extends NoDataEvents>(eventName: T): Promise<void>;
-  emit<T extends keyof Events>(eventName: T, data: Events[T]): Promise<void>;
+  configure(args: string[] | Args | Partial<Config>): void;
 
   formatError(error: Error, options?: ErrorFormatOptions): string;
+
+  loadConfig(file?: string): Promise<void>;
 
   log(...args: any[]): Promise<void>;
 
@@ -66,17 +79,20 @@ export interface Executor {
 }
 
 /**
+ * Configuration options that can be passed to an executor constructor
+ */
+export type ExecutorConfig = Omit<LoadedConfig, 'extends'>;
+
+/**
  * This is the base executor class.
  *
  * Executors are the main driver of the testing process. An instance of Executor
  * is assigned to the `intern` global.
  */
-export default abstract class BaseExecutor<
-  E extends Events,
-  C extends Config,
-  P extends Plugins
-> implements Executor {
-  protected _config: C;
+export default abstract class BaseExecutor<E extends Events, P extends Plugins>
+  implements Executor {
+  protected _config: Config;
+  protected _configurator: Configurator;
   protected _rootSuite: Suite;
   protected _errorFormatter: ErrorFormatter | undefined;
   protected _hasSuiteErrors = false;
@@ -95,35 +111,25 @@ export default abstract class BaseExecutor<
   // This is assigned when run is called
   protected _cancelToken!: CancelToken;
 
-  constructor(options?: { [key in keyof C]?: any }) {
-    this._config = <C>{
-      bail: false,
-      baseline: false,
-      benchmark: false,
-      browser: {
-        plugins: <PluginDescriptor[]>[],
-        reporters: <ReporterDescriptor[]>[],
-        suites: <string[]>[]
-      },
-      coverageVariable: '__coverage__',
-      debug: false,
-      defaultTimeout: 30000,
-      filterErrorStack: false,
-      grep: new RegExp(''),
-      loader: { script: 'default' },
-      name: 'intern',
-      node: {
-        plugins: <PluginDescriptor[]>[],
-        reporters: <ReporterDescriptor[]>[],
-        suites: <string[]>[]
-      },
-      plugins: <PluginDescriptor[]>[],
-      reporters: <ReporterDescriptor[]>[],
-      sessionId: '',
-      suites: <string[]>[]
-    };
+  constructor(
+    createConfigurator: ConfiguratorFactory,
+    config?: ExecutorConfig
+  ) {
+    this._configurator = createConfigurator({
+      eventEmitter: this
+    });
 
+    // Default values for all required config parameters
+    this._config = createConfig();
+
+    // Initialize event listener structures; `configure` may emit events
     this._listeners = {};
+
+    // Add in any additional config options
+    if (config) {
+      this.configure(config);
+    }
+
     this._reporters = [];
     this._plugins = {};
     this._loadingPlugins = [];
@@ -134,10 +140,6 @@ export default abstract class BaseExecutor<
     this.registerInterface('benchmark', getBenchmarkInterface(this));
 
     this.registerPlugin('chai', () => chai);
-
-    if (options) {
-      this.configure(options);
-    }
 
     this._rootSuite = new Suite({ executor: this });
 
@@ -234,14 +236,24 @@ export default abstract class BaseExecutor<
   }
 
   /**
-   * Configure the executor with an object containing
-   * [[lib/executors/Executor.Config]] properties.
+   * Configure the executor.
+   *
+   * @param args an object containing [[lib/executors/Executor.Config]]
+   * properties
    */
-  configure(options: { [key in keyof C]?: any }) {
-    Object.keys(options).forEach(option => {
-      const key = <keyof C>option;
-      this._processOption(key, options[key]);
-    });
+  configure(args: string[] | Args | Partial<Config>): void {
+    this.log('configuring');
+
+    let parsedArgs: Args | Partial<Config>;
+
+    if (Array.isArray(args)) {
+      parsedArgs = parseArgs(args);
+    } else {
+      parsedArgs = args;
+    }
+
+    this._configurator.addToConfig(parsedArgs, this._config);
+    this.log('updated config:', this._config);
   }
 
   /**
@@ -386,6 +398,18 @@ export default abstract class BaseExecutor<
   }
 
   /**
+   * Load a config resource
+   *
+   * @param file a file path and/or config name (e.g. intern.json@wd or just
+   * @wd). If a config name is provided without a file, the default config file
+   * will be used.
+   */
+  async loadConfig(file?: string): Promise<void> {
+    const newConfig = await this._configurator.loadConfig(file);
+    this._configurator.addToConfig(newConfig, this._config);
+  }
+
+  /**
    * This is a convenience method for emitting log events.
    *
    * When debug mode is enabled, this method emits 'log' events using `emit`.
@@ -479,7 +503,7 @@ export default abstract class BaseExecutor<
 
     const handle: Handle = {
       destroy(this: any) {
-        this.destroy = function () {};
+        this.destroy = () => undefined;
         pullFromArray(listeners, listener);
       }
     };
@@ -521,6 +545,8 @@ export default abstract class BaseExecutor<
    *
    * @param init a loader initialzation callback that should return a loader
    * function, or a Promise that resolves to a loader function
+   *
+   * TODO: rename this to setLoader since there can only be one active loader
    */
   registerLoader(init: LoaderInit) {
     const options = this._loaderOptions ? duplicate(this._loaderOptions) : {};
@@ -616,12 +642,50 @@ export default abstract class BaseExecutor<
   }
 
   /**
+   * Resolve the config object.
+   *
+   * Return the resolved config, which is this executors config (i.e., the
+   * executor config is modified in-place).
+   */
+  async resolveConfig(): Promise<void> {
+    this.log('resolving config');
+
+    const config = this.config;
+
+    if (config.internPath != null) {
+      config.internPath = normalizePathEnding(config.internPath);
+    } else {
+      config.internPath = '';
+    }
+
+    if (config.benchmark) {
+      config.benchmarkConfig = deepMixin(
+        <BenchmarkConfig>{
+          mode: config.baseline ? 'baseline' : 'test',
+          id: 'Benchmark',
+          filename: 'baseline.json',
+          thresholds: {
+            warn: { rme: 3, mean: 5 },
+            fail: { rme: 6, mean: 10 }
+          },
+          verbosity: 0
+        },
+        config.benchmarkConfig || {}
+      );
+    }
+
+    return Promise.resolve();
+  }
+
+  /**
    * Run tests.
    *
    * This method sets up the environment for test execution, runs the tests,
    * and runs any finalization code afterwards.
    */
   run(): Promise<void> {
+    this.log('Starting run');
+
     // Only allow the executor to be started once
     if (!this._runPromise) {
       let runError: Error;
@@ -629,124 +693,77 @@ export default abstract class BaseExecutor<
       this._cancelToken = cancelToken;
 
       try {
-        this._runPromise = this._resolveConfig();
+        this._runPromise = this.resolveConfig()
+          .then(() => this._preLoad())
+          .then(() => this._loadPlugins())
+          .then(() => this._loadLoader())
+          .then(() => this._loadPluginsWithLoader())
+          .then(() => this._initReporters())
+          .then(() => this._loadSuites())
+          .then(() => this._beforeRun())
+          .then((skipTests: boolean) => {
+            cancelToken.throwIfCancelled();
 
-        if (this.config.showConfig) {
-          this._runPromise = this._runPromise
-            .then(() => {
-              cancelToken.throwIfCancelled();
+            if (skipTests) {
+              this.log('Skipping tests');
+              return;
+            }
 
-              // Emit the config as JSON deeply sorted by key. Don't try to sort
-              // non-simple objects.
-              const sort = (value: any) => {
-                if (Array.isArray(value)) {
-                  value = value.map(sort).sort();
-                } else if (
-                  typeof value === 'object' &&
-                  value.constructor === Object
-                ) {
-                  const newObj: { [key: string]: any } = {};
-                  Object.keys(value)
-                    .sort()
-                    .forEach(key => {
-                      newObj[key] = sort(value[key]);
-                    });
-                  value = newObj;
-                }
-                return value;
-              };
+            return this.emit('beforeRun')
+              .then(() => {
+                this.log('Starting tests');
+                return this.emit('runStart')
+                  .then(() => this._runTests())
+                  .catch(error => {
+                    runError = error;
+                    return this.emit('error', error);
+                  })
+                  .finally(() => this.emit('runEnd'));
+              })
+              .finally(() => this.emit('afterRun'));
+          })
+          .finally(() => this._afterRun())
+          .catch(error => {
+            return this.emit('error', error).finally(() => {
+              // A runError has priority over any cleanup
+              // errors, so rethrow one if it exists.
+              throw runError || error;
+            });
+          })
+          .then(() => {
+            // If we didn't have any cleanup errors but a
+            // runError was caught, throw it to reject the run
+            // promise
+            if (runError) {
+              throw runError;
+            }
 
-              console.log(
-                JSON.stringify(
-                  sort(this.config),
-                  (_key, value) => {
-                    if (value instanceof RegExp) {
-                      return value.toString();
-                    }
-                    return value;
-                  },
-                  '  '
-                )
-              );
-            })
-            .catch(error => {
-              // Display resolution errors because reporters
-              // haven't been installed yet
-              console.error(this.formatError(error));
+            let message = '';
+
+            // If there were no run errors but any suites had
+            // errors, throw an error to reject the run promise.
+            if (this._hasSuiteErrors) {
+              message = 'One or more suite errors occurred during testing';
+            } else if (this._hasTestErrors) {
+              // If there were no run errors but any tests
+              // failed, throw an error to reject the run
+              // promise.
+              message = 'One or more tests failed';
+            } else if (this._hasEmittedErrors) {
+              // If there were no test or suite errors, but
+              // *some* error was emitted, throw an error to
+              // reject the run promise.
+              message = 'An error was emitted';
+            }
+
+            if (message) {
+              const error: InternError = new Error(message);
+              // Mark this error as reported so that the
+              // runner script won't report it again.
+              error.reported = true;
               throw error;
-            });
-        } else {
-          this._runPromise = this._runPromise
-            .then(() => this._loadPlugins())
-            .then(() => this._loadLoader())
-            .then(() => this._loadPluginsWithLoader())
-            .then(() => this._initReporters())
-            .then(() => this._loadSuites())
-            .then(() => this._beforeRun())
-            .then((skipTests: boolean) => {
-              cancelToken.throwIfCancelled();
-
-              if (skipTests) {
-                this.log('Skipping tests');
-                return;
-              }
-
-              return this.emit('beforeRun')
-                .then(() => {
-                  this.log('Starting tests');
-                  return this.emit('runStart')
-                    .then(() => this._runTests())
-                    .catch(error => {
-                      runError = error;
-                      return this.emit('error', error);
-                    })
-                    .finally(() => this.emit('runEnd'));
-                })
-                .finally(() => this.emit('afterRun'));
-            })
-            .finally(() => this._afterRun())
-            .catch(error => {
-              return this.emit('error', error).finally(() => {
-                // A runError has priority over any cleanup
-                // errors, so rethrow one if it exists.
-                throw runError || error;
-              });
-            })
-            .then(() => {
-              // If we didn't have any cleanup errors but a
-              // runError was caught, throw it to reject the run
-              // promise
-              if (runError) {
-                throw runError;
-              }
-
-              let message = '';
-
-              // If there were no run errors but any suites had
-              // errors, throw an error to reject the run promise.
-              if (this._hasSuiteErrors) {
-                message = 'One or more suite errors occurred during testing';
-              } else if (this._hasTestErrors) {
-                // If there were no run errors but any tests
-                // failed, throw an error to reject the run
-                // promise.
-                message = 'One or more tests failed';
-              } else if (this._hasEmittedErrors) {
-                // If there were no test or suite errors, but
-                // *some* error was emitted, throw an error to
-                // reject the run promise.
-                message = 'An error was emitted';
-              }
-
-              if (message) {
-                const error: InternError = new Error(message);
-                // Mark this error as reported so that the
-                // runner script won't report it again.
-                error.reported = true;
-                throw error;
-              }
-            });
-        }
+            }
+          });
       } catch (error) {
         this._runPromise = this.emit('error', error).then(() => {
           return Promise.reject(error);
@@ -785,6 +802,7 @@ export default abstract class BaseExecutor<
    * normally.
    */
   protected _beforeRun(): Promise<boolean> {
+    this.log('_beforeRun');
     const { bail, grep, name, sessionId, defaultTimeout } = this.config;
     this._rootSuite.bail = bail;
     this._rootSuite.grep = grep;
@@ -799,7 +817,7 @@ export default abstract class BaseExecutor<
    */
   protected _initReporters() {
     const config = this.config;
-    const envReporters = config[this.environment].reporters;
+    const envReporters = config[this.environment].reporters ?? [];
 
     // Take reporters from the base config that aren't also specified in an
     // environment config
@@ -851,7 +869,7 @@ export default abstract class BaseExecutor<
       // one
       const config = this.config;
       const loader: { [key: string]: any } =
-        config[this.environment].loader || config.loader;
+        config[this.environment].loader || config.loader!;
 
       let script = loader.script;
       switch (script) {
@@ -890,8 +908,8 @@ export default abstract class BaseExecutor<
   protected _loadPluginsWithLoader() {
     const scripts = [
       ...this.config.plugins,
-      ...this.config[this.environment].plugins
-    ].filter(plugin => plugin.useLoader);
+      ...(this.config[this.environment].plugins || [])
+    ];
     return this._loadScripts(scripts, script => this._loader([script]));
   }
 
@@ -902,8 +920,8 @@ export default abstract class BaseExecutor<
   protected _loadPlugins() {
     const scripts = [
       ...this.config.plugins,
-      ...this.config[this.environment].plugins
-    ].filter(plugin => !plugin.useLoader);
+      ...(this.config[this.environment].plugins || [])
+    ];
     return this._loadScripts(scripts, script => this.loadScript(script));
   }
 
@@ -947,53 +965,22 @@ export default abstract class BaseExecutor<
   /**
    * Load suites
    */
-  protected _loadSuites(): Promise<void> {
-    // _resolveSuites will expand all suites into <env>.suites for the
-    // current env
-    const suites = this.config[this.environment].suites;
-    return this._cancelToken.wrap(this._loader(suites || [])).then(() => {
-      this.log('Loaded suites:', suites);
-    });
+  protected async _loadSuites(): Promise<void> {
+    const suites = [
+      ...this.config.suites,
+      ...(this.config[this.environment].suites || [])
+    ];
+    this.log('Loading suites:', suites);
+    await this._loader(suites);
+    this.log('Loaded suites:', suites);
   }
 
   /**
-   * Process an option
+   * Setup anything that should be ready before we start loading user code, such
+   * as a transpiler
    */
-  protected _processOption(key: keyof C, value: any) {
-    processOption(key, value, this.config, this);
-  }
-
-  /**
-   * Resolve the config object.
-   */
-  protected _resolveConfig(): Promise<void> {
-    this.log('resolving base config');
-
-    const config = this.config;
-
-    if (config.internPath != null) {
-      config.internPath = normalizePathEnding(config.internPath);
-    } else {
-      config.internPath = '';
-    }
-
-    if (config.benchmark) {
-      config.benchmarkConfig = deepMixin(
-        <BenchmarkConfig>{
-          mode: config.baseline ? 'baseline' : 'test',
-          id: 'Benchmark',
-          filename: 'baseline.json',
-          thresholds: {
-            warn: { rme: 3, mean: 5 },
-            fail: { rme: 6, mean: 10 }
-          },
-          verbosity: 0
-        },
-        config.benchmarkConfig || {}
-      );
-    }
-
-    return this._cancelToken.wrap(Promise.resolve());
+  protected _preLoad(): Promise<void> {
+    return Promise.resolve();
   }
 
   /**

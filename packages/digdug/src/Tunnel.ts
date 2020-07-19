@@ -12,7 +12,7 @@ import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
 import { format as formatUrl } from 'url';
 import { fileExists, kill, on } from './lib/util';
-import { JobState } from './interfaces';
+import { JobState, NormalizedEnvironment } from './types';
 import decompress from 'decompress';
 
 /**
@@ -128,7 +128,7 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   protected _state!: 'stopped' | 'starting' | 'running' | 'stopping';
   protected _cancelToken: CancelToken | undefined;
 
-  constructor(options?: TunnelOptions) {
+  constructor(options?: Partial<TunnelProperties>) {
     super();
     Object.assign(
       this,
@@ -301,7 +301,11 @@ export default class Tunnel extends Evented<TunnelEvents, string>
       return this._start(child => {
         this._process = child;
         this._handle = createCompositeHandle(
-          this._handle || { destroy: function () {} },
+          this._handle || {
+            destroy: function () {
+              // do nothing
+            }
+          },
           on(child.stdout!, 'data', proxyIOEvent(this, 'stdout')),
           on(child.stderr!, 'data', proxyIOEvent(this, 'stderr')),
           on(child, 'exit', () => {
@@ -544,7 +548,9 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    * @param environment an environment descriptor specific to the Tunnel
    * @returns a normalized environment
    */
-  protected _normalizeEnvironment(environment: Object): NormalizedEnvironment {
+  protected _normalizeEnvironment(
+    environment: Record<string, any>
+  ): NormalizedEnvironment {
     return <any>environment;
   }
 
@@ -648,7 +654,6 @@ export interface TunnelEvents {
 /**
  * A chunk of raw string data output by the tunnel software to stdout or stderr.
  */
-// tslint:disable-next-line:interface-name
 export interface IOEvent extends TunnelEventObject<Tunnel> {
   readonly type: 'stdout' | 'stderr';
   readonly data: string;
@@ -699,29 +704,6 @@ export interface DownloadProperties {
 
 export type DownloadOptions = Partial<DownloadProperties>;
 
-/**
- * A normalized environment descriptor.
- *
- * A NormalizedEnvironment contains a mix of W3C WebDriver and JSONWireProtocol
- * capabilities, as well as a set of standardized capabilities that can be used
- * to specify the given environment in an Intern `environments` descriptor.
- */
-export interface NormalizedEnvironment {
-  browserName: string;
-  browserVersion?: string;
-  descriptor: Object;
-  platform: string;
-  platformName?: string;
-  platformVersion?: string;
-  version: string;
-
-  intern: {
-    platform: string;
-    browserName: string;
-    version: string;
-  };
-}
-
 /** Properties of a tunnel */
 export interface TunnelProperties extends DownloadProperties {
   /** [[Tunnel.Tunnel.architecture|More info]] */
@@ -763,8 +745,6 @@ export interface TunnelProperties extends DownloadProperties {
   /** [[Tunnel.Tunnel.verbose|More info]] */
   verbose: boolean;
 }
-
-export type TunnelOptions = Partial<TunnelProperties>;
 
 function proxyIOEvent(target: Tunnel, type: 'stdout' | 'stderr') {
   return function (data: any) {

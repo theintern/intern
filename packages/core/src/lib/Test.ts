@@ -62,6 +62,8 @@ export default class Test implements TestProperties {
       throw new Error('A Test requires a name and a test function');
     }
 
+    // TODO: remove the special treatment for timeElapsed and hasPassed if it's
+    // just for testing
     ['timeElapsed', 'hasPassed'].forEach(property => {
       const name = <keyof TestOptions>property;
       if (options[name] != null) {
@@ -92,12 +94,13 @@ export default class Test implements TestProperties {
    * test are unique.
    */
   get id() {
-    let name: string[] = [];
-    let suiteOrTest: Suite | Test = this;
+    const name: string[] = [];
+    let suiteOrTest: Suite | Test | undefined = this;
 
-    do {
+    while (suiteOrTest != null) {
       suiteOrTest.name != null && name.unshift(suiteOrTest.name);
-    } while ((suiteOrTest = suiteOrTest.parent as Suite | Test));
+      suiteOrTest = suiteOrTest.parent;
+    }
 
     return name.join(' - ');
   }

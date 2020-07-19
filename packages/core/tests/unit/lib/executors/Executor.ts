@@ -1,25 +1,25 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { createSandbox, spy, SinonSpy } from 'sinon';
 import { isCancel, isPromiseLike, deepMixin } from '@theintern/common';
+import { Configurator, createConfig, createConfigurator } from 'src/lib/config';
 
 import Suite from 'src/lib/Suite';
 import Test from 'src/lib/Test';
 import _Executor, { Config, Events, Plugins } from 'src/lib/executors/Executor';
 
 // Import isSuite from the testing source rather than the source being tested
-import { isSuite } from '../../../../src/lib/Suite';
-import { testProperty } from '../../../support/unit/executor';
+import { isSuite } from 'src/lib/Suite';
 
-type ExecutorType = _Executor<Events, Config, Plugins>;
+type ExecutorType = _Executor<Events, Plugins>;
 
 // Create an interface to de-abstract the abstract properties in Executor
-interface FullExecutor extends ExecutorType {
-  new (config?: Partial<Config>): ExecutorType;
-  environment: 'browser' | 'node';
-  loadScript(_script: string | string[]): Promise<void>;
-}
+class FullExecutor extends _Executor<Events, Plugins> {
+  environment: 'browser' | 'node' = 'node';
 
-let Executor: FullExecutor;
+  loadScript(_script: string | string[]): Promise<void> {
+    return Promise.resolve();
+  }
+}
 
 function assertRunFails(executor: ExecutorType, errorMatcher: RegExp) {
   return executor.run().then(
@@ -33,6 +33,8 @@ function assertRunFails(executor: ExecutorType, errorMatcher: RegExp) {
 }
 
 registerSuite('lib/executors/Executor', function () {
+  let Executor: typeof FullExecutor;
+
   class MockErrorFormatter {
     format(error: Error) {
       return 'Foo: ' + error.message;
@@ -50,12 +52,39 @@ registerSuite('lib/executors/Executor', function () {
   });
 
   function createExecutor(config?: Partial<Config>) {
-    const executor = new Executor(config);
+    const executor = new Executor(mockCreateConfigurator, config);
     executor.registerLoader((_config: { [key: string]: any }) =>
       Promise.resolve(testLoader)
     );
     (<any>executor).testLoader = testLoader;
     return executor;
+  }
+
+  const configurator = createConfigurator({
+    loadText: () => Promise.resolve(''),
+    resolvePath: (path: string) => path,
+    dirname: (path: string) => path,
+    isAbsolute: () => false,
+    defaultBasePath: '/',
+    sep: '/'
+  });
+
+  const mockConfigurator = {
+    addToConfig: sandbox.spy(
+      (...args: Parameters<Configurator['addToConfig']>) =>
+        configurator.addToConfig(...args)
+    ),
+    describeConfig: sandbox.spy(
+      (...args: Parameters<Configurator['describeConfig']>) =>
+        configurator.describeConfig(...args)
+    ),
+    loadConfig: sandbox.spy((...args: Parameters<Configurator['loadConfig']>) =>
+      configurator.loadConfig(...args)
+    )
+  };
+
+  function mockCreateConfigurator(): Configurator {
+    return mockConfigurator;
   }
 
   const mockConsole = {
@@ -99,7 +128,7 @@ registerSuite('lib/executors/Executor', function () {
         }
       );
 
-      Executor = BaseExecutor as FullExecutor;
+      Executor = BaseExecutor as typeof FullExecutor;
       Executor.prototype.loadScript = loadScript;
       Executor.prototype.environment = 'node';
     },
@@ -149,33 +178,18 @@ registerSuite('lib/executors/Executor', function () {
       },
 
       '#config'() {
-        const expected = {
-          bail: false,
-          baseline: false,
-          benchmark: false,
-          browser: {
-            plugins: [],
-            reporters: [],
-            suites: []
-          },
-          coverageVariable: '__coverage__',
-          debug: false,
-          defaultTimeout: 30000,
-          filterErrorStack: false,
-          grep: new RegExp(''),
-          loader: { script: 'default' },
-          name: 'intern',
-          node: {
-            plugins: [],
-            reporters: [],
-            suites: []
-          },
-          plugins: [],
-          reporters: [],
-          sessionId: '',
-          suites: <string[]>[]
-        };
-        assert.deepEqual<any>(executor.config, expected);
+        const expected = createConfig();
+        const actual = executor.config;
+
+        assert.match(expected.tunnelOptions.tunnelId!, /\d+/);
+        assert.match(actual.tunnelOptions.tunnelId!, /\d+/);
+
+        assert.deepEqualExcluding(executor.config, expected, 'tunnelOptions');
+        assert.deepEqualExcluding(
+          executor.config.tunnelOptions,
+          expected.tunnelOptions,
+          'tunnelId'
+        );
       },
 
       '#formatError'() {
@@ -192,210 +206,13 @@ registerSuite('lib/executors/Executor', function () {
         assert.isTrue(isSuite(rootSuite), 'expected root suite to be a Suite');
       },
 
-      '#configure': {
-        'add to property'() {
-          executor.configure(<any>{ reporters: 'foo' });
-          assert.deepEqual(executor.config.reporters, [{ name: 'foo' }]);
-
-          executor.configure(<any>{ 'reporters+': 'bar' });
-          assert.deepEqual(executor.config.reporters, [
-            { name: 'foo' },
-            { name: 'bar' }
-          ]);
-
-          executor.configure(<any>{ 'grep+': 'bar' });
-          assert.equal(executor.config.grep.toString(), '/bar/');
-        },
-
-        'unknown property'() {
-          executor.configure(<any>{ foo: 'bar' });
-          assert.propertyVal(executor.config, 'foo', 'bar');
-        },
-
-        'environment config mixin'() {
-          executor.configure(<any>{
-            node: { suites: ['foo'], plugins: ['bar'] }
-          });
-          assert.deepEqual<any>(
-            executor.config.node,
-            {
-              suites: ['foo'],
-              reporters: [],
-              plugins: [{ script: 'bar' }]
-            },
-            'values should have been set on node'
-          );
-          executor.configure(<any>{
-            node: {
-              'suites+': ['bif'],
-              reporters: ['bof'],
-              plugins: ['buf']
-            }
-          });
-          assert.deepEqual<any>(
-            executor.config.node,
-            {
-              suites: ['foo', 'bif'],
-              reporters: [{ name: 'bof' }],
-              plugins: [{ script: 'buf' }]
-            },
-            'values should have been mixed into node'
-          );
-        },
-
-        'known properties': (() => {
-          function test(
-            name: keyof Config,
-            badValue: any,
-            goodValue: any,
-            expectedValue: any,
-            error: RegExp,
-            message?: string
-          ) {
-            testProperty<Config>(
-              executor,
-              mockConsole,
-              name,
-              badValue,
-              goodValue,
-              expectedValue,
-              error,
-              message
-            );
-          }
-
-          const booleanTest = (name: keyof Config) => () => {
-            test(name, 5, 'true', true, /Non-boolean/);
-          };
-          const stringTest = (name: keyof Config) => () => {
-            test(name, 5, 'foo', 'foo', /Non-string/);
-          };
-          const objectArrayTest = (
-            name: keyof Config,
-            requiredProperty: string
-          ) => () => {
-            test(name, 5, 'foo', [{ [requiredProperty]: 'foo' }], /Non-object/);
-          };
-
-          return {
-            loader() {
-              test(
-                'loader',
-                5,
-                { script: 'foo' },
-                { script: 'foo' },
-                /Non-object value/
-              );
-              test(
-                'loader',
-                { loader: 'foo' },
-                { script: 'foo' },
-                { script: 'foo' },
-                /Invalid value/
-              );
-            },
-
-            bail: booleanTest('bail'),
-            baseline: booleanTest('baseline'),
-            benchmark: booleanTest('benchmark'),
-            debug: booleanTest('debug'),
-            filterErrorStack: booleanTest('filterErrorStack'),
-            showConfig: booleanTest('showConfig'),
-
-            basePath: stringTest('basePath'),
-            coverageVariable: stringTest('coverageVariable'),
-            description: stringTest('description'),
-            internPath: stringTest('internPath'),
-            name: stringTest('name'),
-            sessionId: stringTest('sessionId'),
-
-            defaultTimeout() {
-              test('defaultTimeout', 'foo', 5, 5, /Non-numeric value/);
-              test('defaultTimeout', 'foo', '5', 5, /Non-numeric value/);
-            },
-
-            grep() {
-              test('grep', 5, 'foo', /foo/, /Non-regexp/);
-              test('grep', 5, /foo/, /foo/, /Non-regexp/);
-            },
-
-            reporters: objectArrayTest('reporters', 'name'),
-            plugins: objectArrayTest('plugins', 'script'),
-
-            suites() {
-              test('suites', 5, 'foo', ['foo'], /Non-string\[\]/);
-              test('suites', 5, ['bar'], ['bar'], /Non-string\[\]/);
-              test(
-                <any>'suites+',
-                5,
-                ['baz'],
-                ['bar', 'baz'],
-                /Non-string\[\]/,
-                'suite should have been added'
-              );
-            },
-
-            'environment resources'() {
-              test(
-                'node',
-                5,
-                {},
-                {
-                  plugins: [],
-                  reporters: [],
-                  suites: []
-                },
-                /Non-object/
-              );
-              test(
-                'browser',
-                5,
-                {},
-                {
-                  plugins: [],
-                  reporters: [],
-                  suites: []
-                },
-                /Non-object/
-              );
-              test(
-                'node',
-                5,
-                { tsconfig: './test/tsconfig.json' },
-                {
-                  plugins: [],
-                  reporters: [],
-                  suites: [],
-                  tsconfig: './test/tsconfig.json'
-                },
-                /Non-object/
-              );
-              test(
-                'node',
-                5,
-                { suites: 'foo' },
-                {
-                  plugins: [],
-                  reporters: [],
-                  suites: ['foo'],
-                  tsconfig: './test/tsconfig.json'
-                },
-                /Non-object/
-              );
-            },
-
-            remoteOptions() {
-              test('remoteOptions', 5, {}, {}, /Non-object/);
-              test(
-                'remoteOptions',
-                5,
-                { disableDomUpdates: true },
-                { disableDomUpdates: true },
-                /Non-object/
-              );
-            }
-          };
-        })()
+      '#configure'() {
+        executor.configure({ internPath: 'foo' });
+        assert.equal(
+          mockConfigurator.addToConfig.callCount,
+          1,
+          'Executor should have added new data to config'
+        );
       },
 
       '#emit': {
@@ -503,26 +320,23 @@ registerSuite('lib/executors/Executor', function () {
         }
       },
 
-      '#log'() {
+      async '#log'() {
         const logger = spy((..._args: any[]) => {});
         executor.on('log', logger);
         executor.log('testing');
         assert.equal(logger.callCount, 0, 'log should not have been emitted');
 
         const debugExecutor = createExecutor({ debug: true });
-        return debugExecutor.run().then(() => {
-          debugExecutor.on('log', logger);
-          return debugExecutor
-            .log('testing', new Error('foo'), () => {}, /bar/, 5)
-            .then(() => {
-              assert.equal(logger.callCount, 1, 'log should have been emitted');
-              assert.match(
-                logger.getCall(0).args[0],
-                /^testing .*Error.*foo.* \/bar\/ 5$/,
-                'expected all args to have been serialized in log message'
-              );
-            });
-        });
+        debugExecutor.on('log', logger);
+        await debugExecutor.log(
+          'testing',
+          new Error('foo'),
+          () => {},
+          /bar/,
+          5
+        );
+        assert.equal(logger.callCount, 1, 'log should have been emitted');
+        assert.match(logger.getCall(0).args[0], /Error.*foo/);
       },
 
       '#on': {
@@ -629,52 +443,6 @@ registerSuite('lib/executors/Executor', function () {
       },
 
       '#run': {
-        showConfig() {
-          const expected =
-            '{\n' +
-            '  "bail": false,\n' +
-            '  "baseline": false,\n' +
-            '  "benchmark": false,\n' +
-            '  "browser": {\n' +
-            '    "plugins": [],\n' +
-            '    "reporters": [],\n' +
-            '    "suites": []\n' +
-            '  },\n' +
-            '  "coverageVariable": "__coverage__",\n' +
-            '  "debug": false,\n' +
-            '  "defaultTimeout": 30000,\n' +
-            '  "filterErrorStack": false,\n' +
-            '  "grep": "/(?:)/",\n' +
-            '  "internPath": "",\n' +
-            '  "loader": {\n' +
-            '    "script": "default"\n' +
-            '  },\n' +
-            '  "name": "intern",\n' +
-            '  "node": {\n' +
-            '    "plugins": [],\n' +
-            '    "reporters": [],\n' +
-            '    "suites": []\n' +
-            '  },\n' +
-            '  "plugins": [],\n' +
-            '  "reporters": [],\n' +
-            '  "sessionId": "",\n' +
-            '  "showConfig": true,\n' +
-            '  "suites": []\n' +
-            '}';
-          executor.configure({ showConfig: true });
-
-          const logger = spy(() => {});
-          executor.on('beforeRun', logger);
-          return executor.run().then(() => {
-            assert.equal(mockConsole.log.getCall(0).args[0], expected);
-            assert.equal(
-              logger.callCount,
-              0,
-              'beforeRun should not have been emitted'
-            );
-          });
-        },
-
         'run error'() {
           executor.addSuite(rootSuite => {
             rootSuite.run = () => Promise.reject<void>(new Error('foo'));
@@ -688,7 +456,7 @@ registerSuite('lib/executors/Executor', function () {
         },
 
         'run start error'() {
-          executor['_resolveConfig'] = () => {
+          executor.resolveConfig = () => {
             throw new Error('foo');
           };
           return assertRunFails(executor, /foo/);
@@ -724,38 +492,36 @@ registerSuite('lib/executors/Executor', function () {
           });
         },
 
-        'benchmark config'() {
-          executor.configure({ showConfig: true });
+        async 'benchmark config'() {
+          // executor.configure({ showConfig: true });
           const executor2 = createExecutor({
-            showConfig: true,
+            // showConfig: true,
             benchmark: true
           });
           const executor3 = createExecutor({
-            showConfig: true,
+            // showConfig: true,
             benchmark: true,
             baseline: true
           });
 
-          return executor
-            .run()
-            .then(() => {
-              const data = JSON.parse(mockConsole.log.getCall(0).args[0]);
-              assert.notProperty(data, 'benchmarkConfig');
-              mockConsole.log.resetHistory();
-            })
-            .then(() => executor2.run())
-            .then(() => {
-              const data = JSON.parse(mockConsole.log.getCall(0).args[0]);
-              assert.property(data, 'benchmarkConfig');
-              assert.propertyVal(data.benchmarkConfig, 'id', 'Benchmark');
-              assert.propertyVal(data.benchmarkConfig, 'mode', 'test');
-              mockConsole.log.resetHistory();
-            })
-            .then(() => executor3.run())
-            .then(() => {
-              const data = JSON.parse(mockConsole.log.getCall(0).args[0]);
-              assert.propertyVal(data.benchmarkConfig, 'mode', 'baseline');
-            });
+          await executor.resolveConfig();
+          assert.notProperty(executor.config, 'benchmarkConfig');
+
+          await executor2.resolveConfig();
+          assert.property(executor2.config, 'benchmarkConfig');
+          assert.propertyVal(
+            executor2.config.benchmarkConfig,
+            'id',
+            'Benchmark'
+          );
+          assert.propertyVal(executor2.config.benchmarkConfig, 'mode', 'test');
+
+          await executor3.resolveConfig();
+          assert.propertyVal(
+            executor3.config.benchmarkConfig,
+            'mode',
+            'baseline'
+          );
         },
 
         cancellation() {

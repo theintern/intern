@@ -1,0 +1,10 @@
+{
+  "extends": "@theintern-dev/tsconfig",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "dist",
+    "rootDir": "src",
+    "target": "ES2018"
+  },
+  "include": ["src/**/*.ts"]
+}

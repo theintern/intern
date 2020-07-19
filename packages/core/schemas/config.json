@@ -169,6 +169,9 @@
         },
 
         "benchmarkConfig": {
+          "$ref": "#/definitions/benchmarkOptions"
+        },
+        "benchmarkConfig+": {
           "description": "Options for benchmark tests",
           "$ref": "#/definitions/benchmarkOptions"
         },
@@ -177,8 +180,14 @@
           "description": "Resources that will only be loaded/used in browsers",
           "$ref": "#/definitions/resourceConfig"
         },
+        "browser+": {
+          "description": "Additional resources that will only be loaded/used in browsers",
+          "$ref": "#/definitions/resourceConfig"
+        },
 
-        "capabilities": { "$ref": "#/definitions/capabilities" },
+        "capabilities": {
+          "$ref": "#/definitions/capabilities"
+        },
         "capabilities+": {
           "description": "Additional capabilities",
           "$ref": "#/definitions/capabilities"
@@ -202,6 +211,10 @@
             "_build/**/*.js",
             ["_build/**/*.js", "!_build/src/browser.js"]
           ]
+        },
+        "coverage+": {
+          "description": "Additional coverage files",
+          "$ref": "#/definitions/config/properties/coverage"
         },
 
         "coverageVariable": {
@@ -280,6 +293,10 @@
             }
           }
         },
+        "functionalTimeouts+": {
+          "description": "Additional default timeout values for functional tests",
+          "$ref": "#/definitions/config/properties/functionalTimeouts"
+        },
 
         "grep": {
           "description": "A regular expression that is used to filter which tests are run based on test IDs",
@@ -333,6 +350,10 @@
               }
             }
           ]
+        },
+        "node+": {
+          "description": "Resources that will only be loaded/used in Node",
+          "$ref": "#/definitions/config/properties/node"
         },
 
         "plugins": { "$ref": "#/definitions/pluginsProperty" },
@@ -546,7 +567,7 @@
     "loaderName": {
       "description": "The name of a built-in loader",
       "type": "string",
-      "enum": ["dojo", "dojo2", "esm", "systemjs"]
+      "enum": ["default", "dojo", "dojo2", "esm", "systemjs"]
     },
 
     "pluginSpec": {

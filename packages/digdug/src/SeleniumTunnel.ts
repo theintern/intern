@@ -1,3 +1,4 @@
+import { Handle, global } from '@theintern/common';
 import Tunnel, {
   TunnelProperties,
   DownloadOptions,
@@ -5,7 +6,13 @@ import Tunnel, {
 } from './Tunnel';
 import { format } from 'util';
 import { join } from 'path';
-import { Handle } from '@theintern/common';
+import {
+  BrowserName,
+  DriverDescriptor,
+  DriverFile,
+  RemoteFile,
+  isWebDriver
+} from './types';
 import { fileExists, kill, on, writeFile } from './lib/util';
 import { satisfies } from 'semver';
 import { sync as commandExistsSync } from 'command-exists';
@@ -97,7 +104,7 @@ export default class SeleniumTunnel extends Tunnel
    */
   seleniumTimeout!: number;
 
-  constructor(options?: SeleniumOptions) {
+  constructor(options?: Partial<SeleniumProperties>) {
     super(
       Object.assign(
         {
@@ -160,24 +167,41 @@ export default class SeleniumTunnel extends Tunnel
 
     return Promise.all(
       configs.map(config => {
-        const executable = config.executable;
-        const dontExtract = Boolean(config.dontExtract);
-        const directory = config.directory;
+        try {
+          const executable = config.executable;
+          const dontExtract = Boolean(config.dontExtract);
+          const directory = config.directory;
 
-        if (fileExists(join(this.directory, executable))) {
-          return Promise.resolve();
+          if (fileExists(join(this.directory, executable))) {
+            return undefined;
+          }
+
+          // TODO: progress events
+          return this._downloadFile(config.url, this.proxy, <
+            SeleniumDownloadOptions
+          >{
+            executable,
+            dontExtract,
+            directory
+          })
+            .then(() => undefined)
+            .catch(error => {
+              // Catch and return the error rather than allowing it to reject;
+              // this will end up like Promise.allSettled
+              return error;
+            });
+        } catch (error) {
+          return error;
         }
-
-        // TODO: progress events
-        return this._downloadFile(config.url, this.proxy, <
-          SeleniumDownloadOptions
-        >{
-          executable,
-          dontExtract,
-          directory
-        });
       })
-    ).then(() => undefined);
+    ).then(errors => {
+      // If one or more errors occurred, throw the first one
+      for (const err of errors) {
+        if (err) {
+          throw err;
+        }
+      }
+    });
   }
 
   sendJobState(): Promise<void> {
@@ -186,7 +210,7 @@ export default class SeleniumTunnel extends Tunnel
   }
 
   protected _getDriverConfigs(): DriverFile[] {
-    function getDriverConfig(name: string, options?: any) {
+    function getDriverConfig(name: BrowserName, options: DriverOptions = {}) {
       const Constructor = driverNameMap[name];
       if (!Constructor) {
         throw new Error('Invalid driver name "' + name + '"');
@@ -199,12 +223,12 @@ export default class SeleniumTunnel extends Tunnel
         return getDriverConfig(data);
       }
 
-      if (typeof data === 'object' && (<any>data).name) {
-        return getDriverConfig((<any>data).name, data);
+      if (isWebDriver(data)) {
+        return getDriverConfig(data.browserName, data);
       }
 
       // data is a driver definition
-      return <DriverFile>data;
+      return data;
     });
   }
 
@@ -275,7 +299,7 @@ export default class SeleniumTunnel extends Tunnel
 
       if (this.verbose) {
         on(child.stderr!, 'data', (data: string) => {
-          process.stderr.write(data);
+          global.process.stderr.write(data);
         });
       }
 
@@ -290,22 +314,6 @@ export default class SeleniumTunnel extends Tunnel
     return promise;
   }
 }
-
-export interface DriverFile extends RemoteFile {
-  seleniumProperty: string;
-}
-
-export interface RemoteFile {
-  dontExtract?: boolean;
-  directory?: string;
-  executable: string;
-  url: string;
-}
-
-export type DriverDescriptor =
-  | string
-  | DriverFile
-  | { name: string; version?: string };
 
 /**
  * Options specific to SeleniumTunnel
@@ -327,16 +335,53 @@ export interface SeleniumProperties extends TunnelProperties {
   seleniumTimeout: number;
 }
 
-export type SeleniumOptions = Partial<SeleniumProperties>;
-
 export interface SeleniumDownloadOptions extends DownloadOptions {
   executable?: string;
   dontExtract?: boolean;
 }
 
-type DriverConstructor = { new (config?: any): DriverFile };
+/**
+ * Return the names of all the selenium drivers that should be needed based
+ * on the environments specified in the config.
+ */
+export function getDriverNames(
+  environments: { browserName: string; browserVersion?: string | number }[]
+): BrowserName[] {
+  const driverNames: { [N in BrowserName]?: boolean } = {};
 
-abstract class Config<T extends object> {
+  for (const env of environments) {
+    const { browserName } = env;
+    if (
+      browserName === 'chrome' ||
+      browserName === 'firefox' ||
+      browserName === 'internet explorer'
+    ) {
+      driverNames[browserName] = true;
+    } else if (browserName === 'MicrosoftEdge') {
+      const { browserVersion } = env;
+      const version = Number(browserVersion);
+      if (
+        (!isNaN(version) && version < 1000) ||
+        // 'insider preview' may be used to specify Edge Chromium before it is
+        // official released
+        (isNaN(version) && browserVersion === 'insider preview')
+      ) {
+        driverNames['MicrosoftEdgeChromium'] = true;
+      } else {
+        driverNames['MicrosoftEdge'] = true;
+      }
+    }
+  }
+
+  return Object.keys(driverNames) as BrowserName[];
+}
+
+interface ConfigProperties {
+  baseUrl: string;
+  version: string;
+}
+
+abstract class Config<T extends Partial<ConfigProperties>> {
   constructor(config: T) {
     Object.assign(this, config);
   }
@@ -346,29 +391,25 @@ abstract class Config<T extends object> {
   abstract readonly seleniumProperty?: string;
 }
 
-interface ChromeProperties {
+export interface ChromeProperties extends ConfigProperties {
   arch: string;
-  baseUrl: string;
   platform: string;
-  version: string;
 }
 
-type ChromeOptions = Partial<ChromeProperties>;
-
-class ChromeConfig extends Config<ChromeOptions>
+class ChromeConfig extends Config<Partial<ChromeProperties>>
   implements ChromeProperties, DriverFile {
   arch!: string;
   baseUrl!: string;
   platform!: string;
   version!: string;
 
-  constructor(options: ChromeOptions) {
+  constructor(options: Partial<ChromeProperties>) {
     super(
       Object.assign(
         {
-          arch: process.arch,
+          arch: global.process.arch,
           baseUrl: drivers.chrome.baseUrl,
-          platform: process.platform,
+          platform: global.process.platform,
           version: drivers.chrome.latest
         },
         options
@@ -410,29 +451,25 @@ class ChromeConfig extends Config<ChromeOptions>
   }
 }
 
-interface FirefoxProperties {
+export interface FirefoxProperties extends ConfigProperties {
   arch: string;
-  baseUrl: string;
   platform: string;
-  version: string;
 }
 
-type FirefoxOptions = Partial<FirefoxProperties>;
-
-class FirefoxConfig extends Config<FirefoxOptions>
+class FirefoxConfig extends Config<Partial<FirefoxProperties>>
   implements FirefoxProperties, DriverFile {
   arch!: string;
   baseUrl!: string;
   platform!: string;
   version!: string;
 
-  constructor(options: FirefoxOptions) {
+  constructor(options: Partial<FirefoxProperties>) {
     super(
       Object.assign(
         {
-          arch: process.arch,
+          arch: global.process.arch,
           baseUrl: drivers.firefox.baseUrl,
-          platform: process.platform,
+          platform: global.process.platform,
           version: drivers.firefox.latest
         },
         options
@@ -473,25 +510,21 @@ class FirefoxConfig extends Config<FirefoxOptions>
   }
 }
 
-// tslint:disable-next-line:interface-name
-interface IEProperties {
+export interface IEProperties extends ConfigProperties {
   arch: string;
-  baseUrl: string;
-  version: string;
 }
 
-type IEOptions = Partial<IEProperties>;
-
-class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
+class IEConfig extends Config<Partial<IEProperties>>
+  implements IEProperties, DriverFile {
   arch!: string;
   baseUrl!: string;
   version!: string;
 
-  constructor(options: IEOptions) {
+  constructor(options: Partial<IEProperties>) {
     super(
       Object.assign(
         {
-          arch: process.arch,
+          arch: global.process.arch,
           baseUrl: drivers.ie.baseUrl,
           version: drivers.ie.latest
         },
@@ -526,10 +559,8 @@ class IEConfig extends Config<IEOptions> implements IEProperties, DriverFile {
   }
 }
 
-interface EdgeProperties {
-  baseUrl: string;
+export interface EdgeProperties extends ConfigProperties {
   uuid: string | undefined;
-  version: string;
   versions: EdgeVersions;
 }
 
@@ -537,9 +568,7 @@ interface EdgeVersions {
   [version: string]: { url: string };
 }
 
-type EdgeOptions = Partial<EdgeProperties>;
-
-class EdgeConfig extends Config<EdgeOptions>
+class EdgeConfig extends Config<Partial<EdgeProperties>>
   implements EdgeProperties, DriverFile {
   arch!: string;
   baseUrl!: string;
@@ -547,11 +576,11 @@ class EdgeConfig extends Config<EdgeOptions>
   version!: keyof typeof drivers.edge.versions;
   versions!: EdgeVersions;
 
-  constructor(options: EdgeOptions) {
+  constructor(options: Partial<EdgeProperties>) {
     super(
       Object.assign(
         {
-          arch: process.arch,
+          arch: global.process.arch,
           baseUrl: drivers.edge.baseUrl,
           version: drivers.edge.latest,
           versions: drivers.edge.versions
@@ -609,27 +638,27 @@ class EdgeConfig extends Config<EdgeOptions>
   }
 }
 
-interface EdgeChromiumProperties {
+export interface EdgeChromiumProperties {
   arch: string;
   baseUrl: string;
   platform: string;
   version: string;
 }
 
-class EdgeChromiumConfig extends Config<EdgeOptions>
+class EdgeChromiumConfig extends Config<Partial<EdgeProperties>>
   implements EdgeChromiumProperties, DriverFile {
   arch!: string;
   baseUrl!: string;
   platform!: string;
   version!: string;
 
-  constructor(options: ChromeOptions) {
+  constructor(options: Partial<EdgeChromiumProperties>) {
     super(
       Object.assign(
         {
-          arch: process.arch,
+          arch: global.process.arch,
           baseUrl: drivers.edgeChromium.baseUrl,
-          platform: process.platform,
+          platform: global.process.platform,
           version: drivers.edgeChromium.latest
         },
         options
@@ -639,7 +668,8 @@ class EdgeChromiumConfig extends Config<EdgeOptions>
 
   get artifact() {
     const platform = edgePlatformNames[this.platform] || this.platform;
-    const arch = this.arch === 'x86' ? '32' : '64';
+    // Only Windows has 32-bit arch support
+    const arch = this.platform === 'win32' && this.arch === 'x86' ? '32' : '64';
     return format('edgedriver_%s%s.zip', platform, arch);
   }
 
@@ -669,7 +699,14 @@ const edgePlatformNames: { [key: string]: string } = {
   win64: 'win'
 };
 
-const driverNameMap: { [key: string]: DriverConstructor } = {
+type DriverConstructor =
+  | typeof ChromeConfig
+  | typeof FirefoxConfig
+  | typeof IEConfig
+  | typeof EdgeConfig
+  | typeof EdgeChromiumConfig;
+
+const driverNameMap: { [P in BrowserName]?: DriverConstructor } = {
   chrome: ChromeConfig,
   firefox: FirefoxConfig,
   ie: IEConfig,
@@ -679,3 +716,9 @@ const driverNameMap: { [key: string]: DriverConstructor } = {
   edgeChromium: EdgeChromiumConfig,
   MicrosoftEdgeChromium: EdgeChromiumConfig
 };
+
+type DriverOptions = Partial<ChromeProperties> &
+  Partial<FirefoxProperties> &
+  Partial<IEProperties> &
+  Partial<EdgeProperties> &
+  Partial<EdgeChromiumProperties>;

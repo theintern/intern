@@ -1,8 +1,39 @@
-import { ReporterOptions } from '../reporters/Reporter';
-import { BenchmarkReporterOptions } from '../reporters/Benchmark';
-import { TunnelOptions } from '@theintern/digdug/dist/Tunnel';
-import { BrowserStackOptions } from '@theintern/digdug/dist/BrowserStackTunnel';
-import { SeleniumOptions } from '@theintern/digdug/dist/SeleniumTunnel';
+import { BrowserStackProperties } from '@theintern/digdug/dist/BrowserStackTunnel';
+import { SeleniumProperties } from '@theintern/digdug/dist/SeleniumTunnel';
+import { TunnelProperties } from '@theintern/digdug/dist/Tunnel';
+import { BrowserName } from '@theintern/digdug/dist/types';
+import { BenchmarkReporterOptions } from '../../reporters/Benchmark';
+import { ReporterOptions } from '../../reporters/Reporter';
+
+export type TunnelOptions = Partial<TunnelProperties> &
+  Partial<BrowserStackProperties> &
+  Partial<SeleniumProperties>;
+
+/**
+ * These are args that can be passed on the command line or via the executor
+ * `configure` method. Args must correspond to config properties, but the types
+ * of args are more flexible.
+ */
+export type Args = Omit<FileConfig, 'extends' | 'configs' | 'configs+'>;
+
+/**
+ * Types of parsed arguments
+ */
+export type ArgType =
+  | string
+  | number
+  | boolean
+  | ArgType[]
+  | { [name: string]: ArgType };
+
+/**
+ * General webdriver capabilities
+ */
+export interface Capabilities {
+  name?: string;
+  build?: string;
+  [key: string]: any;
+}
 
 /**
  * This interface describes the configuration data used by Intern. Its
@@ -17,6 +48,7 @@ export interface Config extends ResourceConfig {
    */
   bail: boolean;
 
+  /** If true, enable baseline mode for benchmarking */
   baseline: boolean;
 
   /**
@@ -32,65 +64,11 @@ export interface Config extends ResourceConfig {
    */
   benchmark: boolean;
 
+  /** Configuration options for benchmark tests */
   benchmarkConfig?: BenchmarkConfig;
 
-  browser: ResourceConfig;
-
-  /**
-   * The global variable that will be used to store coverage data
-   */
-  coverageVariable: string;
-
-  /**
-   * When set to true, Intern will emit 'log' events for many internal
-   * operations. Reporters that register for these events, such as the Runner
-   * reporter, will display them during testing.
-   */
-  debug: boolean;
-
-  /**
-   * This is the number of milliseconds that Intern will wait for an
-   * [asynchronous test](https://github.com/theintern/intern/blob/master/docs/writing_tests.md#testing-asynchronous-code)
-   * to complete before timing out. A timed out test is considered to have
-   * failed.
-   */
-  defaultTimeout: number;
-
-  /** A description for this test run */
-  description: string;
-
-  /**
-   * If true, filter external library calls and runtime calls out of error
-   * stacks.
-   */
-  filterErrorStack: boolean;
-
-  /**
-   * This property is a regular expression that is used to filter which tests
-   * are run. Grep operates on test IDs. A test ID is the concatenation of a
-   * test name with all of its parent suite names. Every test ID that matches
-   * the current grep expression will be run.
-   */
-  grep: RegExp;
-
-  /**
-   * The path to Intern. This will always end with a path separator (e.g., /).
-   */
-  internPath: string;
-
-  /** A top-level name for this configuration. */
-  name: string;
-
-  node: ResourceConfig;
-
-  /**
-   * An identifier for this test session. By default it will have the value
-   * ''.
-   */
-  sessionId: string;
-
-  /** If true, display the resolved config and exit */
-  showConfig: boolean;
+  /** Options specific to browsers */
+  browser: Partial<ResourceConfig>;
 
   /**
    * The default capabilities for all test environments.
@@ -121,11 +99,7 @@ export interface Config extends ResourceConfig {
    * * `build` will be set to the commit ID from the `TRAVIS_COMMIT` and
    *   `BUILD_TAG` environment variables, if either exists
    */
-  capabilities: {
-    name?: string;
-    build?: string;
-    [key: string]: any;
-  };
+  capabilities: Capabilities;
 
   /** Time to wait for contact from a remote server */
   connectTimeout: number;
@@ -151,6 +125,27 @@ export interface Config extends ResourceConfig {
    * inclusive list.
    */
   coverage: false | string[];
+
+  /** The global variable that will be used to store coverage data */
+  coverageVariable: string;
+
+  /**
+   * When set to true, Intern will emit 'log' events for many internal
+   * operations. Reporters that register for these events, such as the Runner
+   * reporter, will display them during testing.
+   */
+  debug: boolean;
+
+  /**
+   * This is the number of milliseconds that Intern will wait for an
+   * [asynchronous test](https://github.com/theintern/intern/blob/master/docs/writing_tests.md#testing-asynchronous-code)
+   * to complete before timing out. A timed out test is considered to have
+   * failed.
+   */
+  defaultTimeout: number;
+
+  /** A description for this test run */
+  description?: string;
 
   /**
    * The environments that will be used to run tests.
@@ -191,13 +186,19 @@ export interface Config extends ResourceConfig {
   environments: EnvironmentSpec[];
 
   // Deprecated; this is only here for typing
-  excludeInstrumentation: never;
+  excludeInstrumentation?: never;
+
+  /**
+   * If true, filter external library calls and runtime calls out of error
+   * stacks.
+   */
+  filterErrorStack?: boolean;
 
   /** The base URL to use for relative addresses in functional tests */
   functionalBaseUrl?: string;
 
   /** Whether to collect coverage data from functional tests */
-  functionalCoverage: boolean;
+  functionalCoverage?: boolean;
 
   /** The number of times to rerun failed sessions when at least one other session succeeds */
   functionalRetries?: number;
@@ -233,14 +234,30 @@ export interface Config extends ResourceConfig {
     pageLoad?: number;
   };
 
+  /**
+   * This property is a regular expression that is used to filter which tests
+   * are run. Grep operates on test IDs. A test ID is the concatenation of a
+   * test name with all of its parent suite names. Every test ID that matches
+   * the current grep expression will be run.
+   */
+  grep: RegExp;
+
   /** How often to send a heartbeat message to a remote browser, in seconds */
   heartbeatInterval?: number;
+
+  /** Deprecated; if true, display help and exit */
+  help?: never;
 
   /**
    * An object containing options for the
    * [Istanbul instrumenter](https://github.com/istanbuljs/istanbuljs/blob/master/packages/istanbul-lib-instrument/api.md#instrumenter).
    */
   instrumenterOptions: { [key: string]: any };
+
+  /**
+   * The path to Intern. This will always end with a path separator (e.g., /).
+   */
+  internPath: string;
 
   /**
    * Whether to leave the remote browser open after testing.
@@ -263,6 +280,12 @@ export interface Config extends ResourceConfig {
    * the number of concurrent sessions they will allow to 2 or 5.
    */
   maxConcurrency: number;
+
+  /** A top-level name for this configuration. */
+  name: string;
+
+  /** Options specific to Node */
+  node: Partial<ResourceConfig>;
 
   /**
    * A proxy that should be used for outgoing web connections. If specified,
@@ -298,12 +321,24 @@ export interface Config extends ResourceConfig {
   serverUrl: string;
 
   /**
+   * An identifier for this test session. By default it will have the value
+   * ''.
+   */
+  sessionId: string;
+
+  /** Deprecated; if true, display the resolved config and exit */
+  showConfig?: never;
+
+  /** Deprecated; if true, list the available configs and exist */
+  showConfigs?: never;
+
+  /**
    * The port that a remote will use to access Intern's websocket server. The
    * hostname will be the same as for serverUrl. For example, if serverPort is
    * set to 9001 and the default serverUrl is used (http://localhost:9000),
    * the full websocket URL will be ws://localhost:9001.
    */
-  socketPort?: number;
+  socketPort: number;
 
   /**
    * The Dig Dug tunnel class to use for WebDriver testing.
@@ -350,16 +385,7 @@ export interface Config extends ResourceConfig {
    * * [[https://theintern.io/docs.html#Dig%20Dug/2/api/SeleniumTunnel/seleniumproperties|SeleniumTunnel]]
    * * [[https://theintern.io/docs.html#Dig%20Dug/2/api/BrowserStackTunnel/browserstackproperties|BrowserStackTunnel]]
    */
-  tunnelOptions: TunnelOptions & BrowserStackOptions & SeleniumOptions;
-
-  /**
-   * By default, an Intern session will fail if the Executor catches a
-   * browser-level unhandled Promise rejection. This setting allows unhandled
-   * rejections to be treated as warnings instead of failing errors. If this
-   * setting is true or set to a RegExp that matches the reason for an unhandled
-   * rejection, Intern will emit a warning rather than failing the test run.
-   */
-  warnOnUnhandledRejection: boolean | RegExp;
+  tunnelOptions: TunnelOptions;
 
   /**
    * By default, an Intern session will fail if the Executor catches a
@@ -369,7 +395,44 @@ export interface Config extends ResourceConfig {
    * rather than failing the test run.
    */
   warnOnUncaughtException: boolean | RegExp;
+
+  /**
+   * By default, an Intern session will fail if the Executor catches a
+   * browser-level unhandled Promise rejection. This setting allows unhandled
+   * rejections to be treated as warnings instead of failing errors. If this
+   * setting is true or set to a RegExp that matches the reason for an unhandled
+   * rejection, Intern will emit a warning rather than failing the test run.
+   */
+  warnOnUnhandledRejection: boolean | RegExp;
 }
+
+export interface FileChildConfigs {
+  [name: string]: Omit<FileConfig, 'configs' | 'extends'> & {
+    extends?: string | string[];
+  };
+}
+
+/**
+ * This is the configuration format that Intern accepts via config files. It
+ * should mirror the JSON schema, although it is currently a bit more flexible.
+ */
+export type FileConfig = { [P in keyof Config]?: ArgType } & {
+  'benchmarkConfig+'?: ArgType;
+  'browser+'?: ArgType;
+  'capabilities+'?: ArgType;
+  configs?: FileChildConfigs;
+  'coverage+'?: ArgType;
+  'environments+'?: ArgType;
+  extends?: string;
+  'functionalSuites+'?: ArgType;
+  'functionalTimeouts+'?: ArgType;
+  'instrumenterOptions+'?: ArgType;
+  'node+'?: ArgType;
+  'plugins+'?: ArgType;
+  'reporters+'?: ArgType;
+  'suites+'?: ArgType;
+  'tunnelOptions+'?: ArgType;
+};
 
 /**
  * A descriptor object used to load a built-in reporter
@@ -420,7 +483,7 @@ export interface ResourceConfig {
    * }
    * ```
    */
-  loader: LoaderDescriptor;
+  loader?: LoaderDescriptor;
 
   /**
    * A list of reporter names or descriptors.
@@ -490,15 +553,31 @@ export interface ResourceConfig {
    * different tsconfig than the project uses normally.
    */
   tsconfig?: string | false;
+
   // Deprecated; these are only here for typing
-  require: never;
-  requires: never;
-  scripts: never;
+  require?: never;
+  requires?: never;
+  scripts?: never;
 }
 
 export interface BenchmarkConfig extends BenchmarkReporterOptions {
   id: string;
 }
+
+/**
+ * This is a loaded and normalized child config
+ */
+export type LoadedChildConfig = Exclude<LoadedConfig, 'configs'> & {
+  extends?: string | string[];
+};
+
+/**
+ * This is a config that's been normalized, but that still contains child
+ * configs.
+ */
+export type LoadedConfig = Partial<Config> & {
+  configs?: { [name: string]: LoadedChildConfig };
+};
 
 export interface LoaderDescriptor {
   script: string;
@@ -506,10 +585,10 @@ export interface LoaderDescriptor {
 }
 
 export interface EnvironmentSpec {
-  browserName: string;
+  browserName: BrowserName;
   [key: string]: any;
 }
 
 export interface RemoteOptions {
-  disableDomUpdates: boolean;
+  disableDomUpdates?: boolean;
 }

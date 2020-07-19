@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { useFakeTimers, SinonFakeTimers } from 'sinon';
 
 let WebSocket: typeof import('src/lib/channels/WebSocket').default;

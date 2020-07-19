@@ -8,13 +8,13 @@
   - [Suite glob expressions](#suite-glob-expressions)
   - [extends](#extends)
 - [Displaying config information](#displaying-config-information)
-  - [showConfig](#showconfig)
-  - [showConfigs](#showconfigs)
+  - [show-config](#show-config)
+  - [describe](#describe)
 - [Config structure](#config-structure)
 - [Sources of configuration information](#sources-of-configuration-information)
   - [Config File](#config-file)
-  - [Environment variable](#environment-variable)
   - [Command line](#command-line)
+  - [Environment variable](#environment-variable)
   - [Query args](#query-args)
   - [Programmatically](#programmatically)
 - [Configuring loaders](#configuring-loaders)
@@ -33,10 +33,11 @@ and without a `config` argument, Intern will attempt to load configuration
 informatioon from an `intern.json` file in the project root.
 
 Wherever config property values come from, the executor will validate and
-normalize them into a canonical format ("resolve" them) when the testing process
-starts. This allows the executor’s constructor or `configure` method to be
-flexible in what data it accepts. For example, the canonical form of the
-`environments` property is an array of objects:
+normalize them into a canonical format. It will perform addition "resolution"
+steps just before testing starts, such as expanding suite globs. This allows the
+executor’s constructor or `configure` method to be flexible in what data it
+accepts. For example, the canonical form of the `environments` property is an
+array of objects:
 
 ```ts
 environments: [{ browserName: 'chrome' }];
@@ -73,9 +74,10 @@ both environments. In some cases this isn’t desirable because tests may load
 application code that depends on environment-specific properties or features,
 such as the DOM. Intern’s config provides `node` and `browser` properties for
 this use case. These properties specify resources that will only be loaded in
-the given environment. The values in these properties will be
-[shallowly mixed into the base config](#configuration-resolution) rather than
-replacing it.
+the given environment. The values in these properties will be used in addition
+to any corresponding values in the base config. For example, when running in a
+Node environment, suites in the base `suites` list as well as in the
+`node.suites` list will be executed.
 
 > ⚠️ Note that this is different than the `mode` property in Intern 3, which had
 > values of “client” or “runner”. Intern 3’s mode indicated whether tests were
@@ -122,7 +124,7 @@ Some properties are only meaningful for Node or WebDriver tests:
 | [serveOnly]          | When true, Intern will start its instrumenting web server but not run tests                                                                                      | `false`                     |
 | [serverPort]         | The port the instrumenting server should listen on                                                                                                               | `9000`                      |
 | [serverUrl]          | A URL a remote executor can use to reach the local Intern                                                                                                        | `http://localhost:9000`     |
-| [tsconfig]           | Optional path to a tsconfig.json for ts-node. Uses the project's by default. Set to `false` to explicitly prevent registering tsnode in projects with TypeScript | ``                          |
+| [tsconfig]           | Optional path to a tsconfig.json for ts-node. Uses the project's by default. Set to `false` to explicitly prevent registering tsnode in projects with TypeScript |                             |
 | [tunnel]             | The name of a tunnel to use for WebDriver tests                                                                                                                  | `selenium`                  |
 | [tunnelOptions]      | Options to use for the WebDriver tunnel                                                                                                                          | `{ tunnelId: Date.now() }`  |
 
@@ -134,9 +136,9 @@ that environment:
 | browser  | Resources (loader, plugins, reporters, suites) that only apply to browser tests        | `{}`    |
 | node     | Resources (loader, plugins, reporters, suites, tsconfig) that only apply to Node tests | `{}`    |
 
-There are also several properties that are handled by the config file processing
-system that aren’t directly involved in the testing process. These properties
-are ignored if set programmatically.
+There are also several properties that are handled by the user interface that
+aren’t directly involved in the testing process. These properties are ignored if
+set programmatically.
 
 | Property    | Description                                                        |
 | :---------- | :----------------------------------------------------------------- |
@@ -178,10 +180,9 @@ different config file. At run time, the properties from the config file with the
 extended.
 
 If the `extends` property is set in a child config, it must be the name of a
-different child config within the same config file, or an array of such names.
-When a child config extends multiple other child configs, properties from the
-right-most config being extended will override properties from configs to the
-left.
+existing child config, or an array of such names. When a child config extends
+multiple other child configs, properties from the right-most config being
+extended will override properties from configs to the left.
 
 ```json5
 {
@@ -209,20 +210,27 @@ resolution process will occur:
 1.  Child “c” will be mixed into child “a”
 2.  Child “d” will be mixed into the result of 1
 3.  The result of 2 will be mixed into the base config
-4.  The result of 3 will be the resolved config
 
 ## Displaying config information
 
-Intern has two config properties that can be used to display configuration
-information: `showConfig` and `showConfigs`.
+Intern provides two ways to display information about its configuration:
+`describe` and the `--show-config` option.
 
-### showConfig
+The `describe` command will display information about a config file. It print
+the config files top-level description and a list of any child configs it
+contains, along with their descriptions.
 
-Setting the `showConfig` property to `true` will cause Intern to dump the
-resolved configuration to the current environment’s console.
+The `--show-config` option can be provided with the `run` command. It will
+display the fully resolved configuration that would be used to run tests, but it
+won't actually run any tests.
+
+### show-config
+
+Passing the `--show-config` option to Intern will cause Intern to dump the
+resolved configuration to the console.
 
 ```
-$ npx intern showConfig
+$ npx intern --show-show
 {
     "bail": false,
     "baseline": false,
@@ -235,13 +243,20 @@ $ npx intern showConfig
 }
 ```
 
-### showConfigs
+A property name can be provided to the option, in which case only that
+property’s value will be displayed:
 
-Setting the `showConfigs` property to `true` will cause Intern to show
-information about a given config file. Intern will print the value of the
-current config file’s `description` property, and then list all child configs
-contained in the config file. For example, with a config file containing the
-following data:
+```
+$ npx intern run --show-config=baseline
+false
+```
+
+### describe
+
+The `describe` command will cause Intern to show information about a given
+config file. Intern will print the value of the current config file’s
+`description` property, and then list all child configs contained in the config
+file. For example, with a config file containing the following data:
 
 ```json5
 {
@@ -257,11 +272,10 @@ following data:
 }
 ```
 
-running Intern with the `showConfigs` property set would display the following
-text:
+running Intern with the `describe` command would display the following text:
 
 ```
-$ npx intern showConfigs
+$ npx intern describe
 Default test suite
 
 Configs:
@@ -269,10 +283,13 @@ Configs:
   ci         (Run tests on a CI server)
 ```
 
+Describe may also be passed a `-c` or `--config` option to describe a specific
+file.
+
 ## Config structure
 
 The config structure is a simple JSON object, so all of its property values must
-be serializable (RegExp objects are serialized to strings).
+be serializable. (RegExp objects are serialized to strings.)
 
 ```json5
 {
@@ -313,8 +330,9 @@ There are four general sections to a config:
 
 ## Sources of configuration information
 
-Intern takes in configuration data from several sources. In order of increasing
-precedence, they are:
+When run from the command line or using the browser runner, Intern takes in
+configuration data from several sources. In order of increasing precedence, they
+are:
 
 1.  [Config file](#config-file)
 2.  [Environment variable](#environment-variable)
@@ -335,52 +353,55 @@ An Intern config file is a JSON file specifying config properties, for example:
 }
 ```
 
-By default, intern will try to load a file named `intern.json` from the project
-root directory. A different config file can be specified by passing a `config`
-property to the Node or browser runners.
+By default, intern will try to load a file named `intern.json` from the current
+working directory. A different config file can be specified by passing a
+`config` property to the Node or browser runners.
 
 A child config can be selected by adding `@<child>` to the config file name. For
 example, to load a child config named “ci” from the default config file, you
 could run:
 
 ```sh
-$ npx intern config=@ci
+$ npx intern --config @ci
 ```
 
 To load a config named “remote” from a config file named “intern-local.json”,
 run:
 
 ```sh
-$ npx intern config=intern-local.json@remote
-```
-
-### Environment variable
-
-In a Node environment, Intern may be configured using an `INTERN_ARGS`
-environment variable. This variable is treated just like a string of command
-line arguments. For example, these two executions of Intern are equivalent:
-
-```sh
-$ npx intern grep='run.*' suites=
-```
-
-```sh
-export INTERN_ARGS="grep=run.* suites="
-$ npx intern
+$ npx intern --config intern-local.json@remote
 ```
 
 ### Command line
 
-Config properties may be provided directly on the command line when starting
-Intern. Properties must be specified using `property=value` syntax. For example,
+Config properties may be provided as command line options. Option names are
+based on config property names, but camelCase property names are kebab-case.
 
 ```sh
-$ npx intern grep='run.*' suites=
+$ npx intern --grep 'run.*' --no-suites
 ```
 
 Object values may be input as serialized strings (e.g.,
-`environments='{"browserName":"chrome"}'`). Array values may be set by repeating
-a property (e.g., `suites="foo.js" suites="bar.js"`).
+`-- environments '{"browserName":"chrome"}'`). Array values may be set by
+repeating a property (e.g., `--suites "foo.js" --suites "bar.js"`). Array
+properties, such as `--suites`, may be set to an empty value with a `no` prefix:
+`--no-suites`.
+
+### Environment variable
+
+In a Node environment, Intern may also be configured using an `INTERN_ARGS`
+environment variable. This variable may contain a space-separate list of
+`<property>=<value>` pairs. For example, these two executions of Intern are
+equivalent:
+
+```sh
+$ npx intern --grep 'run.*' --leave-remote-open
+```
+
+```sh
+export INTERN_ARGS="grep=run.* leaveRemoteOpen"
+$ npx intern
+```
 
 ### Query args
 
@@ -394,21 +415,17 @@ http://localhost:8080/node_modules/intern/?grep=run.*&suites=
 
 ### Programmatically
 
-When creating an executor programmatically it may be configured via its
-constructor, and/or via its `configure` method.
-
-```ts
-const intern = new Node({ grep: /run.*/, suites: [] });
-```
-
-_or_
+When using Intern programmatically, it may be configured with its `configure`
+method.
 
 ```ts
 intern.configure({ grep: /run.*/, suites: [] });
 ```
 
 The `configure` method may be called any number of times before the testing
-process is started.
+process is started. It accepts a config-like structure -- the object should
+contain config properties, but the value types are flexible (like the values
+that can be passed on the command line).
 
 ## Configuring loaders
 
@@ -490,11 +507,16 @@ lower precedence sources. The order of precedence, from lowest to highest, is:
 2.  The current config
 3.  An active child config in the current config
 
+So if you load the config `intern-myenv.json@wd`, and `intern-myenv.json`
+extends `intern.json`, Intern will first load `intern.json`, then mix in
+properties from `intern-myenv.json`, and finally mix in properties from the `wd`
+child config.
+
 There are a few exceptions:
 
-1.  **The "node" and "browser" properties in a child config are shallowly mixed
-    into "node" and "browser" in the base config.** For example, if "node" in
-    the base config looks like:
+1.  The "node" and "browser" properties in a child config are shallowly mixed
+    into "node" and "browser" in the base config. For example, if "node" in the
+    base config looks like:
     ```json5
     "node": {
         "suites": [ "tests/unit/foo.js" ],
@@ -517,9 +539,9 @@ There are a few exceptions:
         "plugins": [ "tests/plugins/bar.js" ]
     }
     ```
-2.  **Resource arrays in "node" or "browser" ("plugins", "reporters", "suites"),
-    are added to the corresponding resource arrays in the base config.** For
-    example, if the base config has:
+2.  Resource arrays in "node" or "browser" ("plugins", "reporters", "suites"),
+    will be used in addition to the corresponding resource arrays in the base
+    config. For example, if the base config has:
     ```json5
     "suites": [ "tests/unit/foo.js" ]
     ```
@@ -528,8 +550,8 @@ There are a few exceptions:
     "suites": [ "tests/unit/bar.js" ]
     ```
     both sets of suites will be loaded when running on Node.
-3.  **Some properties can be extended (rather than replaced) by adding a '+' to
-    the property name.** For example, if the base config has:
+3.  Some properties can be extended (rather than replaced) by adding a '+' to
+    the property name. For example, if the base config has:
     ```json5
     "suites": [ "tests/unit/foo.js" ]
     ```
@@ -541,9 +563,20 @@ There are a few exceptions:
     ```json5
     "suites": [ "tests/unit/foo.js", "tests/unit/bar.js" ]
     ```
-    Extendable properties are resources (**suites**, **plugins**,
-    **reporters**), **instrumenterOptions**, **tunnelOptions**, and
-    **capabilities**.
+    In general, properties that have array or object values can be extended,
+    including:
+    - benchmarkConfig
+    - browser
+    - capabilities
+    - coverage
+    - environments
+    - functionalSuites
+    - functionalTimeouts
+    - instrumenterOptions
+    - node
+    - reporters
+    - suites
+    - tunnelOptions
 
 [bail]: https://theintern.io/docs.html#Intern/4/api/lib%2Fcommon%2Fconfig/bail
 [baseline]:

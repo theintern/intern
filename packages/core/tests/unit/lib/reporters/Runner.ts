@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { createSandbox, spy } from 'sinon';
 import _Runner from 'src/lib/reporters/Runner';
 import {

@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { STATUS_CODES } from 'http';
 import createError from 'http-errors';
 import sinon from 'sinon';
@@ -124,7 +124,7 @@ registerSuite('lib/Server', function () {
   const jsonHandler = sandbox.spy(passthroughMiddleware);
   const urlEncodedHandler = sandbox.spy(passthroughMiddleware);
   const mockBodyParser = {
-    json: sandbox.spy((..._args: any[]) => jsonHandler),
+    json: sandbox.spy(() => jsonHandler),
     urlencoded: sandbox.spy((..._args: any[]) => urlEncodedHandler)
   };
 

@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { spy } from 'sinon';
 import { global } from '@theintern/common';
 
@@ -18,7 +18,7 @@ registerSuite('loaders/dojo', function () {
   };
 
   const fakeRequire: any = spy((_modules: string[], callback: () => void) => {
-    if (requirePromise) {
+    if (requirePromise != null) {
       requirePromise.then(callback);
     } else {
       callback();

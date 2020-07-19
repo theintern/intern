@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { createMockBrowserExecutor } from 'tests/support/unit/mocks';
 import { createLocation } from './support/mocks';
 import { createDocument } from 'tests/support/browserDom';

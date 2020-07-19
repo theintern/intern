@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { createSandbox, SinonSandbox, SinonSpy } from 'sinon';
 import _Benchmark from 'src/lib/reporters/Benchmark';
 import {

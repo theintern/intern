@@ -1,7 +1,7 @@
 import { global } from '@theintern/common';
 
 import BaseChannel, { ChannelOptions, Message } from './Base';
-import { parseUrl } from '../browser/util';
+import { parseUrl } from '../browser';
 
 export default class WebSocketChannel extends BaseChannel {
   /** Time to wait for response before rejecting a send */
@@ -43,7 +43,7 @@ export default class WebSocketChannel extends BaseChannel {
       this._handleMessage(JSON.parse(event.data));
     });
 
-    this._socket.addEventListener('error', _event => {
+    this._socket.addEventListener('error', () => {
       this._handleError(new Error('WebSocket error'));
     });
 

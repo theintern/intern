@@ -6,7 +6,7 @@ import { Handle, createCancelToken } from '@theintern/common';
 import Suite, { SuiteOptions } from './Suite';
 import { InternError } from './types';
 import Node, { NodeEvents } from './executors/Node';
-import { Config } from './common/config';
+import { Config } from './config';
 import Browser from './executors/Browser';
 import { stringify } from './common/util';
 
@@ -38,12 +38,13 @@ export default class RemoteSuite extends Suite {
    * since the RemoteSuite is just a proxy for a remote suite.
    */
   get id() {
-    let name: string[] = [];
-    let suite: Suite = this.parent!;
+    const name: string[] = [];
+    let suite: Suite | undefined = this.parent;
 
-    do {
+    while (suite) {
       suite.name != null && name.unshift(suite.name);
-    } while ((suite = suite.parent!));
+      suite = suite.parent;
+    }
 
     return name.join(' - ');
   }
@@ -322,5 +323,5 @@ export interface RemoteConfig extends Config {
   serverUrl: string;
   sessionId: string;
   runInSync: boolean;
-  socketPort?: number;
+  socketPort: number;
 }

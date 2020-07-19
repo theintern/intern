@@ -1,26 +1,35 @@
-import { Minimatch } from 'minimatch';
-import { request, global } from '@theintern/common';
-
+import { global, request } from '@theintern/common';
+import {
+  createConfigurator,
+  getDefaultBasePath,
+  getDefaultInternPath,
+  isAbsolute,
+  parseQuery
+} from '../browser';
 import * as console from '../common/console';
-import Executor, { Config, Events, Plugins } from './Executor';
-import { dirname, join, normalizePathEnding } from '../common/path';
-import { getDefaultBasePath } from '../browser/util';
-import { RuntimeEnvironment } from '../types';
-
-// Reporters
-import Html from '../reporters/Html';
-import Dom from '../reporters/Dom';
+import { hasGlobs, join } from '../common/path';
+import { parseArgs } from '../config';
 import ConsoleReporter from '../reporters/Console';
+import Dom from '../reporters/Dom';
+import Html from '../reporters/Html';
+import { RuntimeEnvironment } from '../types';
+import Executor, { Config, Events, ExecutorConfig, Plugins } from './Executor';
 
 /**
  * A Browser executor is used to run unit tests in a browser.
  */
-export default class Browser extends Executor<Events, Config, Plugins> {
-  constructor(options?: { [key in keyof Config]?: any }) {
-    super(<Config>{
-      basePath: '',
-      internPath: ''
+export default class Browser extends Executor<Events, Plugins> {
+  constructor(config?: ExecutorConfig) {
+    super(createConfigurator, {
+      internPath: getDefaultInternPath(),
+      basePath: getDefaultBasePath(),
+      reporters: [{ name: 'html' }, { name: 'console' }]
     });
+
+    // Add in any additional config options
+    if (config) {
+      this.configure(config);
+    }
 
     // Report uncaught errors
     global.addEventListener(
@@ -62,9 +71,7 @@ export default class Browser extends Executor<Events, Config, Plugins> {
       options => new ConsoleReporter(this, options)
     );
 
-    if (options) {
-      this.configure(options);
-    }
+    this.log('done constructing Browser');
   }
 
   get environment(): RuntimeEnvironment {
@@ -92,66 +99,39 @@ export default class Browser extends Executor<Events, Config, Plugins> {
     }, Promise.resolve());
   }
 
-  protected _resolveConfig() {
-    return super._resolveConfig().then(() => {
-      const config = this.config;
-      // const currentPath = global.location.pathname;
+  parseQuery(query?: string) {
+    return parseArgs(parseQuery(query));
+  }
 
-      if (!config.internPath) {
-        const scripts = document.scripts;
-        for (let i = 0; i < scripts.length; i++) {
-          const scriptPath = scripts[i].src;
-          if (/browser\/intern.js/.test(scriptPath)) {
-            config.internPath = dirname(dirname(dirname(scriptPath)));
-          }
-        }
+  async resolveConfig() {
+    await super.resolveConfig();
 
-        if (!config.internPath) {
-          config.internPath = '/';
-        }
-      }
+    this.log('resolving browser config');
 
-      if (!config.basePath) {
-        config.basePath = getDefaultBasePath();
-      } else if (/^\./.test(config.basePath)) {
-        // The user provided a relative value for basePath. Resolve it
-        // relative to the path to Intern's index.html.
-        config.basePath = join(config.internPath, config.basePath);
-      }
+    const config = this.config;
 
-      (['basePath', 'internPath'] as ('basePath' | 'internPath')[]).forEach(
-        property => {
-          config[property] = normalizePathEnding(config[property]);
-        }
-      );
+    if (!isAbsolute(config.basePath)) {
+      config.basePath = join(config.internPath, config.basePath);
+    }
 
-      // Combine suites and browser.suites into browser.suites
-      const suites = (config.browser.suites = [
-        ...config.suites,
-        ...config.browser.suites
-      ]);
+    if (config.suites && hasGlobs(config.suites)) {
+      config.suites = await this._resolveSuites(config.suites);
+    }
 
-      // Clear out the suites list after combining the suites
-      delete config.suites;
+    if (config?.browser?.suites && hasGlobs(config.browser.suites)) {
+      config.browser.suites = await this._resolveSuites(config.browser.suites);
+    }
+  }
 
-      const hasGlobs = suites.some(pattern => {
-        const matcher = new Minimatch(pattern);
-        return matcher.set[0].some(entry => typeof entry !== 'string');
+  protected async _resolveSuites(suites: string[]): Promise<string[]> {
+    try {
+      const response = await request('__resolveSuites__', {
+        query: { suites }
       });
-
-      if (hasGlobs) {
-        return request('__resolveSuites__', { query: { suites } })
-          .then(response => response.json<string[]>())
-          .catch(() => {
-            throw new Error(
-              'The server does not support suite glob resolution'
-            );
-          })
-          .then((data: string[]) => {
-            config.browser.suites = data;
-          });
-      }
-    });
+      return await response.json<string[]>();
+    } catch (error) {
+      throw new Error('The server does not support suite glob resolution');
+    }
   }
 }
 

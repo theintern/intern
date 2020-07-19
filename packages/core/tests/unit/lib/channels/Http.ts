@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { spy, SinonSpy } from 'sinon';
 
 import _Http from 'src/lib/channels/Http';

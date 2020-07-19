@@ -1,5 +1,5 @@
-import { mockImport } from 'tests/support/mockUtil';
-import { NormalizedEnvironment } from '@theintern/digdug/dist/Tunnel';
+import { mockImport } from '@theintern-dev/test-util';
+import { NormalizedEnvironment } from '@theintern/digdug/dist/types';
 import { sep } from 'path';
 
 import Environment from 'src/lib/Environment';

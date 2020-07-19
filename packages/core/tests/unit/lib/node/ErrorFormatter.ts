@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { join } from 'path';
 import { RawSourceMap } from 'source-map';
 

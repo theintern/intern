@@ -12,6 +12,8 @@ import Browser from 'src/lib/executors/Browser';
 import Server, { ServerListener } from 'src/lib/Server';
 import { Message } from 'src/lib/channels/Base';
 import ProxiedSession from 'src/lib/ProxiedSession';
+import Suite, { SuiteOptions, RootSuiteOptions } from 'src/lib/Suite';
+import Test, { TestOptions } from 'src/lib/Test';
 
 /**
  * Create a mock entity
@@ -431,4 +433,33 @@ export function createMockServerContext(server: any, handleMessage?: any) {
     },
     handleMessage
   };
+}
+
+export function createSuite(
+  options: SuiteOptions | RootSuiteOptions,
+  extra?: Partial<Suite>
+): Suite {
+  const suite = new Suite(options);
+  if (extra) {
+    for (const key of Object.keys(extra)) {
+      const prop = key as keyof Suite;
+      Object.defineProperty(suite, prop, {
+        value: extra[prop]
+      });
+    }
+  }
+  return suite;
+}
+
+export function createTest(options: TestOptions, extra?: Partial<Test>): Test {
+  const test = new Test(options);
+  if (extra) {
+    for (const key of Object.keys(extra)) {
+      const prop = key as keyof Test;
+      Object.defineProperty(test, prop, {
+        value: extra[prop]
+      });
+    }
+  }
+  return test;
 }

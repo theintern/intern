@@ -30,7 +30,6 @@
       "tests/integration/**/*.ts",
       "tests/unit/cli/*.ts",
       "tests/unit/index.ts",
-      "tests/unit/bin/intern.ts",
       "tests/unit/lib/ProxiedSession.ts",
       "tests/unit/lib/Server.ts",
       "tests/unit/lib/executors/Node.ts",
@@ -91,7 +90,7 @@
       // Clear out the general suites list so the browser won't try to load
       // them.
       "suites": [],
-      "node": {
+      "node+": {
         "suites": [
           // Top-level suites
           "tests/benchmark/example.ts",
@@ -112,7 +111,6 @@
           "tests/integration/**/*.ts",
           "tests/unit/cli/*.ts",
           "tests/unit/index.ts",
-          "tests/unit/bin/intern.ts",
           "tests/unit/lib/ProxiedSession.ts",
           "tests/unit/lib/Server.ts",
           "tests/unit/lib/executors/Node.ts",

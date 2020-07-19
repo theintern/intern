@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import _Channel, { ChannelOptions } from 'src/lib/Channel';
 
 let messages: string[];

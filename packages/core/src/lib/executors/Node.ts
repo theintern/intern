@@ -1,18 +1,3 @@
-import { deepMixin, global } from '@theintern/common';
-// Dig Dug tunnels
-import BrowserStackTunnel, {
-  BrowserStackOptions
-} from '@theintern/digdug/dist/BrowserStackTunnel';
-import CrossBrowserTestingTunnel from '@theintern/digdug/dist/CrossBrowserTestingTunnel';
-import NullTunnel from '@theintern/digdug/dist/NullTunnel';
-import SauceLabsTunnel from '@theintern/digdug/dist/SauceLabsTunnel';
-import SeleniumTunnel, {
-  DriverDescriptor
-} from '@theintern/digdug/dist/SeleniumTunnel';
-import TestingBotTunnel from '@theintern/digdug/dist/TestingBotTunnel';
-import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/dist/Tunnel';
-import Command from '@theintern/leadfoot/dist/Command';
-import LeadfootServer from '@theintern/leadfoot/dist/Server';
 import { existsSync, readFileSync } from 'fs';
 import { CoverageMap, createCoverageMap } from 'istanbul-lib-coverage';
 import {
@@ -22,21 +7,39 @@ import {
 } from 'istanbul-lib-hook';
 import { createInstrumenter, Instrumenter } from 'istanbul-lib-instrument';
 import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
-import { dirname, join, normalize, resolve, sep } from 'path';
+import { join, normalize, resolve } from 'path';
 import { sync as nodeResolve } from 'resolve';
 import { register } from 'ts-node';
-import { Config, EnvironmentSpec } from '../common/config';
+import { deepMixin, global } from '@theintern/common';
+// Dig Dug tunnels
+import BrowserStackTunnel, {
+  BrowserStackProperties
+} from '@theintern/digdug/dist/BrowserStackTunnel';
+import CrossBrowserTestingTunnel from '@theintern/digdug/dist/CrossBrowserTestingTunnel';
+import NullTunnel from '@theintern/digdug/dist/NullTunnel';
+import SauceLabsTunnel from '@theintern/digdug/dist/SauceLabsTunnel';
+import SeleniumTunnel, {
+  getDriverNames
+} from '@theintern/digdug/dist/SeleniumTunnel';
+import TestingBotTunnel from '@theintern/digdug/dist/TestingBotTunnel';
+import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/dist/Tunnel';
+import { WebDriver, isWebDriver } from '@theintern/digdug/dist/types';
+import Command from '@theintern/leadfoot/dist/Command';
+import LeadfootServer from '@theintern/leadfoot/dist/Server';
 import * as console from '../common/console';
-import { normalizePathEnding } from '../common/path';
 import { pullFromArray } from '../common/util';
+import { Config, EnvironmentSpec } from '../config';
 import Environment from '../Environment';
-import ErrorFormatter from '../node/ErrorFormatter';
 import {
+  ErrorFormatter,
+  createConfigurator,
   expandFiles,
+  getDefaultBasePath,
+  getDefaultInternPath,
   isTypeScriptFile,
   readSourceMap,
   transpileSource
-} from '../node/util';
+} from '../node';
 import ProxiedSession from '../ProxiedSession';
 import RemoteSuite from '../RemoteSuite';
 // Reporters
@@ -54,51 +57,45 @@ import resolveEnvironments from '../resolveEnvironments';
 import Server from '../Server';
 import Suite, { isFailedSuite, isSuite } from '../Suite';
 import { RuntimeEnvironment } from '../types';
-import Executor, { Events, Plugins } from './Executor';
+import Executor, { Events, ExecutorConfig, Plugins } from './Executor';
 
 const process: NodeJS.Process = global.process;
 
-export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
+export default class Node extends Executor<NodeEvents, NodePlugins> {
   server: Server | undefined;
   tunnel: Tunnel | undefined;
 
   protected _coverageMap: CoverageMap;
-  protected _coverageFiles: { [filename: string]: boolean } | undefined;
+  protected _coverageFiles: { [filename: string]: boolean };
   protected _loadingFunctionalSuites: boolean | undefined;
-  protected _instrumentBasePath: string | undefined;
   protected _instrumenter: Instrumenter | undefined;
   protected _sourceMaps: MapStore;
   protected _instrumentedMaps: MapStore;
   protected _unhookRequire: (() => void) | undefined;
   protected _sessionSuites: Suite[] | undefined;
 
-  constructor(options?: { [key in keyof Config]?: any }) {
-    super({
-      basePath: process.cwd() + sep,
-      capabilities: {},
-      coverage: [],
-      environments: [],
-      functionalCoverage: true,
-      functionalRetries: 0,
-      functionalSuites: [],
-      functionalTimeouts: {},
-      instrumenterOptions: {},
-      maxConcurrency: Infinity,
-      name: 'node',
-      reporters: [],
-      runInSync: false,
-      serveOnly: false,
-      serverPort: 9000,
-      serverUrl: '',
-      socketPort: 9001,
-      tunnel: 'selenium',
-      tunnelOptions: { tunnelId: String(Date.now()) }
+  constructor(config?: ExecutorConfig) {
+    super(createConfigurator, {
+      basePath: getDefaultBasePath(),
+      capabilities: {
+        buildId: process.env.TRAVIS_COMMIT || process.env.BUILD_TAG,
+        name: 'intern'
+      },
+      connectTimeout: 30000,
+      internPath: getDefaultInternPath(),
+      name: 'node'
     });
+
+    // Add in any additional config options
+    if (config) {
+      this.configure(config);
+    }
 
     this._sourceMaps = createSourceMapStore();
     this._instrumentedMaps = createSourceMapStore();
     this._errorFormatter = new ErrorFormatter(this);
     this._coverageMap = createCoverageMap();
+    this._coverageFiles = {};
 
     this.registerReporter('pretty', options => new Pretty(this, options));
     this.registerReporter('simple', options => new Simple(this, options));
@@ -123,10 +120,6 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     this.registerTunnel('browserstack', BrowserStackTunnel);
     this.registerTunnel('testingbot', TestingBotTunnel);
     this.registerTunnel('cbt', CrossBrowserTestingTunnel);
-
-    if (options) {
-      this.configure(options);
-    }
 
     // Report uncaught errors
     process.on(
@@ -181,9 +174,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   }
 
   get hasCoveredFiles() {
-    return (
-      this._coverageFiles && Object.entries(this._coverageFiles).length > 0
-    );
+    return Object.entries(this._coverageFiles).length > 0;
   }
 
   /**
@@ -231,10 +222,12 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     shouldCompile?: boolean
   ): string {
     if (filename.endsWith('.d.ts')) {
+      this.log('Skipping instrumentation of', filename);
       return code;
     }
 
     if (shouldCompile) {
+      this.log('Transpiling rather than instrumenting', filename);
       return transpileSource(filename, code);
     }
 
@@ -282,13 +275,13 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
             script = script.replace(/\?$/, 'js');
           }
         }
-        const file = resolve(script);
+        const file = resolve(this.config.basePath, script);
         if (existsSync(file)) {
           require(file);
         } else {
           // `script` isn't a valid file path, so maybe it's a
           // Node-resolvable module
-          require(nodeResolve(script, { basedir: process.cwd() }));
+          require(nodeResolve(script, { basedir: this.config.basePath }));
         }
       }
     } catch (error) {
@@ -307,11 +300,139 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
   }
 
   /**
+   * Process any inter-property dependencies for the config
+   */
+  async resolveConfig() {
+    await super.resolveConfig();
+
+    this.log('resolving Node config');
+
+    // The cancel token will exist if `resolveConfig` is called
+    // outside of `run`
+    this._cancelToken?.throwIfCancelled();
+
+    const config = this.config;
+
+    // If benchmarking is configured, make sure the benchmark reporter is added
+    if (config.benchmark && config.benchmarkConfig) {
+      config.reporters.push({
+        name: 'benchmark',
+        options: config.benchmarkConfig
+      });
+    }
+
+    // Expand coverage globs
+    if (config.coverage) {
+      for (const path of expandFiles(config.coverage)) {
+        this._coverageFiles[resolve(path)] = false;
+      }
+    }
+
+    // If serverUrl isn't already set, create a default value based on the
+    // serverPort
+    if (!config.serverUrl) {
+      config.serverUrl = `http://localhost:${config.serverPort}/`;
+    }
+
+    if (typeof config.capabilities['idle-timeout'] === 'undefined') {
+      config.capabilities['idle-timeout'] = config.heartbeatInterval;
+    }
+
+    // Expand suite globs
+    config.functionalSuites = expandFiles(config.functionalSuites);
+    config.suites = expandFiles(config.suites);
+    if (config.node?.suites) {
+      config.node.suites = expandFiles(config.node.suites);
+    }
+    if (config.browser?.suites) {
+      config.browser.suites = expandFiles(config.browser.suites);
+    }
+
+    // If we're using the Selenium tunnel, make sure the necessary drivers are
+    // specified
+    if (config.tunnel === 'selenium') {
+      this.log('Fixing up tunnel drivers...');
+      const { tunnelOptions } = config;
+      const configuredDrivers =
+        tunnelOptions?.drivers
+          ?.filter<WebDriver>(isWebDriver)
+          .map(driver => driver.browserName) ?? [];
+      const driverNames = getDriverNames(config.environments).filter(
+        name => configuredDrivers.indexOf(name) === -1
+      );
+
+      this.log(`raw drivers: ${JSON.stringify(tunnelOptions.drivers)}`);
+      this.log(`Configured drivers: ${JSON.stringify(configuredDrivers)}`);
+      this.log(`Environments: ${JSON.stringify(config.environments)}`);
+      this.log(`Driver names: ${JSON.stringify(driverNames)}`);
+
+      // Mix the required driverNames into the drivers already in the config
+      tunnelOptions.drivers = [
+        ...(tunnelOptions.drivers ?? []),
+        ...driverNames.map(browserName => ({ browserName }))
+      ];
+
+      this.log(`Drivers: ${JSON.stringify(tunnelOptions.drivers)}`);
+    } else if (config.tunnel === 'browserstack') {
+      // When using BrowserStack, the serverUrl should be included in the
+      // tunnelOptions
+      const tunnelOptions = (config.tunnelOptions ||
+        {}) as BrowserStackProperties;
+      if (!tunnelOptions.servers) {
+        tunnelOptions.servers = [];
+      }
+      if (tunnelOptions.servers.indexOf(config.serverUrl) === -1) {
+        tunnelOptions.servers.push(config.serverUrl);
+      }
+      config.tunnelOptions = tunnelOptions;
+    }
+
+    // If a proxy is defined in the config, it should be passed to the tunnel
+    if (
+      'proxy' in config &&
+      config.tunnelOptions &&
+      !('proxy' in config.tunnelOptions)
+    ) {
+      config.tunnelOptions.proxy = config.proxy;
+    }
+
+    // If there are remote environments, resolve them using environments
+    // available through the tunnel specified in the config.
+    const remoteEnvironments = config.environments.filter(isRemoteEnvironment);
+    if (remoteEnvironments.length > 0 && config.tunnel) {
+      const tunnel = this._createTunnel();
+
+      // Add any extra capabilites provided by the tunnel to the config's
+      // capabilities
+      deepMixin(tunnel.extraCapabilities, config.capabilities);
+
+      const tunnelEnvironments = await tunnel.getEnvironments();
+
+      // Resolve the environments, matching versions, platforms, and browser
+      // names from the config with whats available from the tunnel
+      // enviroment.
+      const resolvedEnvironments = resolveEnvironments(
+        config.capabilities,
+        remoteEnvironments,
+        tunnelEnvironments
+      );
+
+      const localEnvironments = config.environments.filter(
+        env => !isRemoteEnvironment(env)
+      );
+
+      // The full environments list is all the local environments (generally
+      // just node) with all the remote environments.
+      config.environments = [...localEnvironments, ...resolvedEnvironments];
+    }
+  }
+
+  /**
    * Return true if a given file should be instrumented based on the current
    * config
    */
   shouldInstrumentFile(filename: string) {
-    if (!this._coverageFiles || !(filename in this._coverageFiles)) {
+    if (!(filename in this._coverageFiles)) {
       return false;
     }
     // Entries in this._coverageFiles are true if a file has already been
@@ -340,7 +461,9 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // We do not want to actually return an array of values, so chain a
       // callback that resolves to undefined
       return Promise.all(promises).then(
-        () => {},
+        () => {
+          /* do nothing */
+        },
         error => this.emit('error', error)
       );
     });
@@ -350,20 +473,25 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     return super._beforeRun().then(() => {
       const config = this.config;
 
-      const suite = this._rootSuite;
-      suite.grep = config.grep;
-      suite.timeout = config.defaultTimeout;
-      suite.bail = config.bail;
+      this.log('Node _beforeRun');
+      this._rootSuite.timeout = config.defaultTimeout;
+
+      this.log('environments:', config.environments);
 
       if (
         // Only start the server if there are remote environments *and*
-        // either functionalSuites or browser suites
+        // suites that would run in (or would drive) a browser
         (config.environments.filter(isRemoteEnvironment).length > 0 &&
-          config.functionalSuites.length + config.browser.suites.length > 0) ||
+          config.functionalSuites.length +
+            config.suites.length +
+            (config.browser?.suites?.length ?? 0) >
+            0) ||
         // User can start the server without planning to run functional
         // tests
         config.serveOnly
       ) {
+        this.log('Starting server');
+
         const serverPromise = new Promise<void>((resolve, reject) => {
           const server: Server = new Server({
             basePath: config.basePath,
@@ -406,6 +534,23 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
             this._createSessionSuites();
 
+            // TODO: save the listener handles so they can be destroyed when the
+            // test run is over
+
+            tunnel.on('downloadprogress', progress => {
+              this.emit('tunnelDownloadProgress', {
+                tunnel,
+                progress
+              });
+            });
+
+            tunnel.on('status', status => {
+              this.emit('tunnelStatus', {
+                tunnel,
+                status: status.status
+              });
+            });
+
             return tunnel.start().then(() => {
               this.log('Started tunnel');
               this.emit('tunnelStart', { tunnel });
@@ -422,34 +567,10 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
   protected _createTunnel() {
     const config = this.config;
-    const tunnelOptions = config.tunnelOptions;
-    if (config.tunnel === 'browserstack') {
-      const options = <BrowserStackOptions>tunnelOptions;
-      options.servers = options.servers || [];
-      options.servers.push(config.serverUrl);
-    }
-
-    if ('proxy' in config && !('proxy' in tunnelOptions)) {
-      tunnelOptions.proxy = config.proxy;
-    }
 
     const TunnelConstructor = this.getTunnel(config.tunnel);
     const tunnel = new TunnelConstructor(this.config.tunnelOptions);
     this.tunnel = tunnel;
-
-    tunnel.on('downloadprogress', progress => {
-      this.emit('tunnelDownloadProgress', {
-        tunnel,
-        progress
-      });
-    });
-
-    tunnel.on('status', status => {
-      this.emit('tunnelStatus', {
-        tunnel,
-        status: status.status
-      });
-    });
 
     return tunnel;
   }
@@ -464,6 +585,8 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       this.log('No tunnel - Not creating session suites');
       return;
     }
+
+    this.log('Creating session suites');
 
     const tunnel = this.tunnel;
     const config = this.config;
@@ -519,6 +642,9 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
                 this.name = remote.environmentType.toString();
 
                 const timeouts = config.functionalTimeouts;
+
+                this.executor.log('timeouts:', timeouts);
+
                 let promise = Promise.resolve();
                 if (timeouts.executeAsync != null) {
                   promise = promise.then(() =>
@@ -539,11 +665,15 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
                   );
                 }
                 if (timeouts.pageLoad != null) {
-                  promise = promise.then(() =>
-                    remote.setPageLoadTimeout(timeouts.pageLoad!)
-                  );
+                  promise = promise.then(() => {
+                    this.executor.log(
+                      'Actually calling setPageLoadTimeout on',
+                      remote
+                    );
+                    return remote.setPageLoadTimeout(timeouts.pageLoad!);
+                  });
                   this.executor.log(
-                    'Set remote pageLoad timeout to ',
+                    'Set remote pageLoad timeout to',
                     timeouts.pageLoad
                   );
                 }
@@ -588,7 +718,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         // If browser-compatible unit tests were added to this executor,
         // add a RemoteSuite to the session suite. The RemoteSuite will
         // run the suites listed in config.browser.suites.
-        if (config.browser.suites.length > 0) {
+        if ((config.browser?.suites?.length ?? 0) > 0) {
           suite.add(new RemoteSuite());
         }
 
@@ -643,269 +773,46 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     return super._loadSuites();
   }
 
-  protected _resolveConfig() {
-    return super._resolveConfig().then(() => {
-      this.log('resolving Node config');
+  /**
+   * Setup anything that should be ready before we start loading user code, such
+   * as a transpiler
+   */
+  protected _preLoad(): Promise<void> {
+    const config = this.config;
 
-      this._cancelToken.throwIfCancelled();
-
-      const config = this.config;
-
-      if (config.environments.length === 0) {
-        this.log("Adding default 'node' environment");
-        config.environments.push({ browserName: 'node' });
-      }
-
-      // Normalize browser names
-      config.environments.forEach(env => {
-        const newName = getNormalizedBrowserName(env)!;
-        env.browserName = newName;
-        if (env.browser) {
-          env.browser = newName;
-        }
-      });
-
-      // Normalize tunnel driver names
-      if (config.tunnelOptions.drivers) {
-        config.tunnelOptions.drivers = config.tunnelOptions.drivers.map(
-          driver => {
-            let driverName: string | undefined;
-
-            if (typeof driver === 'string') {
-              driverName = driver;
-            } else if ('name' in driver) {
-              driverName = driver.name;
-            }
-
-            const newName = getNormalizedBrowserName(driverName);
-
-            if (typeof driver === 'string') {
-              return newName! as DriverDescriptor;
-            }
-
-            if ('name' in driver) {
-              return {
-                ...driver,
-                name: newName!
-              };
-            }
-
-            return driver;
-          }
-        );
-      }
-
-      if (!config.internPath) {
-        config.internPath = dirname(dirname(dirname(__dirname)));
-
-        // If internPath isn't under cwd, intern is most likely
-        // symlinked into the project's node_modules. In that case, use
-        // the package location as resolved from the project root.
-        if (config.internPath.indexOf(process.cwd()) !== 0) {
-          // nodeResolve will resolve to index.js; we want the base
-          // intern directory
-          config.internPath = dirname(
-            dirname(
-              nodeResolve('@theintern/core', {
-                basedir: process.cwd()
-              })
-            )
-          );
-        }
-      }
-
-      (['basePath', 'internPath'] as ('basePath' | 'internPath')[]).forEach(
-        property => {
-          config[property] = normalizePathEnding(
-            resolve(config[property]),
-            sep
-          );
-        }
-      );
-
-      if (config.benchmarkConfig) {
-        config.reporters.push({
-          name: 'benchmark',
-          options: config.benchmarkConfig
-        });
-      }
-
-      this._instrumentBasePath = config.basePath;
-      this._coverageFiles = {};
-
-      if (config.coverage) {
-        // Coverage file entries should be absolute paths
-        const coverageFiles = expandFiles(config.coverage).map(path =>
-          resolve(path)
-        );
-        for (const file of coverageFiles) {
-          this._coverageFiles[file] = false;
-        }
-      }
-
-      if (!config.serverUrl) {
-        config.serverUrl = `http://localhost:${config.serverPort}/`;
-      }
-
-      if (config.connectTimeout == null) {
-        config.connectTimeout = 30000;
-      }
-
-      if (config.heartbeatInterval == null) {
-        const idleTimeout = config.capabilities['idle-timeout'];
-        config.heartbeatInterval = idleTimeout == null ? 60 : idleTimeout;
-      }
-
-      // Ensure URLs end with a '/'
-      (['serverUrl', 'functionalBaseUrl'] as (
-        | 'serverUrl'
-        | 'functionalBaseUrl'
-      )[]).forEach(property => {
-        if (config[property]) {
-          config[property] = config[property]!.replace(/\/*$/, '/');
-        }
-      });
-
-      // Set a default name for a WebDriver session
-      if (!config.capabilities.name) {
-        config.capabilities.name = 'intern';
-      }
-
-      // idle-timeout isn't universally supported, but keep setting it by
-      // default
-      if (config.capabilities['idle-timeout'] == null) {
-        config.capabilities['idle-timeout'] = config.heartbeatInterval;
-      }
-
-      const buildId = process.env.TRAVIS_COMMIT || process.env.BUILD_TAG;
-      if (buildId) {
-        config.capabilities.build = buildId;
-      }
-
-      // Expand suite globs
-      config.functionalSuites = expandFiles(config.functionalSuites);
-
-      // Expand suite globs into the node and browser objects
-      config.node.suites = expandFiles([
-        ...config.suites,
-        ...config.node.suites
-      ]);
-      config.browser.suites = expandFiles([
-        ...config.suites,
-        ...config.browser.suites
-      ]);
-
-      // Clear out the suites list after combining the suites
-      delete config.suites;
-      if (!require.extensions['.ts']) {
-        if (config.node.tsconfig) {
-          register({ project: config.node.tsconfig });
-        } else if (typeof config.node.tsconfig === 'undefined') {
-          // auto-configure typescript support if we detect its presence
-          if (
-            config.node.suites.some(isTypeScriptFile) ||
-            config.functionalSuites.some(isTypeScriptFile) ||
-            config.plugins.some(({ script }) => isTypeScriptFile(script))
-          ) {
-            register();
-          } else {
-            const tsconfigPath = join(config.basePath, 'tsconfig.json');
-            if (existsSync(tsconfigPath)) {
-              register({ project: tsconfigPath });
-            }
-          }
-        }
-      }
-
-      // Install the instrumenter in resolve config so it will be able to
-      // handle suites
-      this._instrumenter = createInstrumenter(
-        Object.assign(
-          {
-            esModules: true,
-            coverageVariable: config.coverageVariable,
-            ...config.instrumenterOptions
-          },
-          {
-            preserveComments: true,
-            produceSourceMap: true
-          }
-        )
-      );
-
-      // If we're using the Selenium tunnel and the user hasn't specified any
-      // drivers, try to figure out what they might need.
-      if (config.tunnel === 'selenium') {
-        const driverNames = this._getSeleniumDriverNames();
-
-        const { tunnelOptions } = config;
-        if (tunnelOptions.drivers) {
-          // Remove all the driver names from driverNames that are already
-          // specified in tunnelOptions.drivers
-          tunnelOptions.drivers
-            .map(driver => {
-              if (typeof driver === 'string') {
-                return driver;
-              }
-              return (driver as { name: string }).name;
-            })
-            .filter(name => name)
-            .forEach(name => {
-              const index = driverNames.indexOf(name);
-              if (index !== -1) {
-                driverNames.splice(index, 1);
-              }
-            });
-          // Mix the required driverNames into the drivers already in the config
-          tunnelOptions.drivers = [
-            ...tunnelOptions.drivers,
-            ...driverNames.map(name => ({ name }))
-          ];
+    // Enable the TypeScript loader if necessary
+    if (!isTsLoaderIsEnabled()) {
+      if (config.node.tsconfig) {
+        register({ project: resolve(config.basePath, config.node.tsconfig) });
+      } else if (typeof config.node.tsconfig === 'undefined') {
+        if (
+          config.suites.some(isTypeScriptFile) ||
+          config.node.suites?.some(isTypeScriptFile) ||
+          config.functionalSuites.some(isTypeScriptFile) ||
+          config.plugins.some(({ script }) => isTypeScriptFile(script)) ||
+          config.node.plugins?.some(({ script }) => isTypeScriptFile(script))
+        ) {
+          // Enable TS support if any configured resources need it
+          register();
         } else {
-          tunnelOptions.drivers = driverNames.map(name => ({ name }));
+          // Enable TS support if a tsconfig file exists in the project root
+          const tsconfigPath = join(config.basePath, 'tsconfig.json');
+          if (existsSync(tsconfigPath)) {
+            register({ project: tsconfigPath });
+          }
         }
       }
+    }
 
-      // If there are remote environments, resolve them using environments
-      // available through the tunnel specified in the config.
-      const remoteEnvironments = config.environments.filter(
-        isRemoteEnvironment
-      );
-      if (remoteEnvironments.length > 0 && config.tunnel) {
-        const tunnel = this._createTunnel();
-
-        // Add any extra capabilites provided by the tunnel to the config's
-        // capabilities
-        config.capabilities = deepMixin(
-          tunnel.extraCapabilities,
-          config.capabilities
-        );
-
-        return this._cancelToken
-          .wrap(tunnel.getEnvironments())
-          .then(tunnelEnvironments => {
-            // Resolve the environments, matching versions, platforms, and browser
-            // names from the config with whats available from the tunnel
-            // enviroment.
-            const resolvedEnvironments = resolveEnvironments(
-              config.capabilities,
-              remoteEnvironments,
-              tunnelEnvironments
-            );
-
-            const localEnvironments = config.environments.filter(
-              env => !isRemoteEnvironment(env)
-            );
-
-            // The full environments list is all the local environments (generally
-            // just node) with all the remote environments.
-            config.environments = [
-              ...localEnvironments,
-              ...resolvedEnvironments
-            ];
-          });
-      }
+    // Install the instrumenter
+    this._instrumenter = createInstrumenter({
+      coverageVariable: config.coverageVariable,
+      preserveComments: true,
+      produceSourceMap: true,
+      ...config.instrumenterOptions
     });
+
+    return Promise.resolve();
   }
 
   /**
@@ -914,7 +821,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    */
   protected _getSeleniumDriverNames(): string[] {
     const { config } = this;
-    const driverNames = new Set<string>();
+    const driverNames: { [name: string]: boolean } = {};
 
     for (const env of config.environments) {
       const { browserName } = env;
@@ -923,7 +830,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
         browserName === 'firefox' ||
         browserName === 'internet explorer'
       ) {
-        driverNames.add(browserName);
+        driverNames[browserName] = true;
       } else if (browserName === 'MicrosoftEdge') {
         const { browserVersion } = env;
         if (
@@ -932,14 +839,14 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           // official released
           (isNaN(browserVersion) && browserVersion === 'insider preview')
         ) {
-          driverNames.add('MicrosoftEdgeChromium');
+          driverNames['MicrosoftEdgeChromium'] = true;
         } else {
-          driverNames.add('MicrosoftEdge');
+          driverNames['MicrosoftEdge'] = true;
         }
       }
     }
 
-    return Array.from<string>(driverNames);
+    return Object.keys(driverNames);
   }
 
   protected _runTests(): Promise<void> {
@@ -1019,12 +926,13 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           }
         }
       }
+      this.log('Adding coverage for uncovered files');
       uncoveredFiles.forEach(filename => {
         try {
           const code = readFileSync(filename, { encoding: 'utf8' });
           this.instrumentCode(code, filename, isTypeScriptFile(filename));
-        } catch {
-          // ignored
+        } catch (error) {
+          this.log('Error reading', filename, '-', error);
         }
       });
     });
@@ -1073,7 +981,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     hookRunInThisContext(
       filename => this.shouldInstrumentFile(filename),
       (code, { filename }) => {
-        this._coverageFiles![filename] = true;
+        this._coverageFiles[filename] = true;
         return this.instrumentCode(code, filename);
       }
     );
@@ -1081,7 +989,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     this._unhookRequire = hookRequire(
       filename => this.shouldInstrumentFile(filename),
       (code, { filename }) => {
-        this._coverageFiles![filename] = true;
+        this._coverageFiles[filename] = true;
         return this.instrumentCode(code, filename);
       },
       { extensions: ['.js', '.jsx', '.ts', 'tsx'] }
@@ -1204,21 +1112,6 @@ function isLocalEnvironment(environment: EnvironmentSpec) {
   return !isRemoteEnvironment(environment);
 }
 
-function getNormalizedBrowserName(nameOrEnv: string | undefined | Environment) {
-  if (nameOrEnv == null) {
-    return nameOrEnv;
-  }
-
-  const name =
-    typeof nameOrEnv === 'string'
-      ? nameOrEnv
-      : nameOrEnv.browserName || nameOrEnv.browser;
-  if (name === 'ie') {
-    return 'internet explorer';
-  }
-  if (name && /^edge/.test(name)) {
-    return name.replace(/^edge/, 'MicrosoftEdge');
-  }
-
-  return name;
+function isTsLoaderIsEnabled() {
+  return typeof require.extensions['.ts'] !== 'undefined';
 }

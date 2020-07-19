@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import sinon from 'sinon';
 
 import _instrument from 'src/lib/middleware/instrument';

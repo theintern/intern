@@ -1,5 +1,5 @@
-import { mockImport } from 'tests/support/mockUtil';
-import { spy, stub } from 'sinon';
+import { mockImport } from '@theintern-dev/test-util';
+import { createSandbox, spy } from 'sinon';
 import { global } from '@theintern/common';
 
 import { LoaderInit } from 'src/lib/executors/Executor';
@@ -9,24 +9,33 @@ const originalRequire = global.require;
 const originalSystemJS = global.SystemJS;
 
 registerSuite('loaders/systemjs', function () {
+  const sandbox = createSandbox();
+
   const mockIntern = {
     // Use whatever the local environment is
     environment: intern.environment,
     config: { basePath: '/' },
-    emit: spy(() => {}),
-    loadScript: spy(() => Promise.resolve()),
-    registerLoader: spy((_init: LoaderInit) => {}),
-    log: spy(() => {})
-  };
+    emit: sandbox.spy(() => {}),
+    loadScript: sandbox.spy(() => {
+      global.SystemJS = mockSystemJS;
+      return Promise.resolve();
+    }),
+    log: sandbox.spy(() => {}),
 
-  const fakeRequire: any = spy((_module: string) => {
-    return mockSystemJS;
-  });
+    // registerLoader will be called once when the loader is imported, and isn't
+    // something that should be reset between tests, so don't use the sandbox
+    registerLoader: spy((_init: LoaderInit) => {})
+  };
 
   const mockSystemJS = {
-    config: spy(() => {}),
-    import: stub().resolves()
+    config: sandbox.spy(() => {}),
+    import: (_mod: string) => Promise.resolve()
   };
+  const mockSystemJSImport = sandbox.stub(mockSystemJS, 'import').resolves();
+
+  const fakeRequire: any = sandbox.spy((_module: string) => {
+    return mockSystemJS;
+  });
 
   return {
     async before() {
@@ -37,21 +46,14 @@ registerSuite('loaders/systemjs', function () {
 
     after() {
       global.intern = originalIntern;
+      global.require = originalRequire;
+      global.SystemJS = originalSystemJS;
     },
 
     beforeEach() {
-      global.intern = mockIntern;
       global.require = fakeRequire;
-      global.SystemJS = mockSystemJS;
-      mockIntern.emit.resetHistory();
-      mockIntern.loadScript.resetHistory();
-      fakeRequire.resetHistory();
-    },
-
-    afterEach() {
-      global.intern = originalIntern;
-      global.require = originalRequire;
-      global.SystemJS = originalSystemJS;
+      global.SystemJS = undefined;
+      sandbox.resetHistory();
     },
 
     tests: {
@@ -65,20 +67,20 @@ registerSuite('loaders/systemjs', function () {
       },
 
       'load Modules'() {
-        const init: LoaderInit = mockIntern.registerLoader.getCall(0).args[0];
+        const init = mockIntern.registerLoader.getCall(0).args[0];
         return Promise.resolve(init({})).then(loader => {
           return loader(['foo.js']).then(() => {
-            assert.equal(mockSystemJS.import.callCount, 1);
-            assert.deepEqual(mockSystemJS.import.getCall(0).args[0], 'foo.js');
+            assert.equal(mockSystemJSImport.callCount, 1);
+            assert.deepEqual(mockSystemJSImport.getCall(0).args[0], 'foo.js');
           });
         });
       },
 
       error() {
-        const init: LoaderInit = mockIntern.registerLoader.getCall(0).args[0];
+        const init = mockIntern.registerLoader.getCall(0).args[0];
         return Promise.resolve(init({})).then(loader => {
           const error = new Error('fail');
-          mockSystemJS.import.callsFake(() => Promise.reject(error));
+          mockSystemJSImport.callsFake(() => Promise.reject(error));
 
           return loader(['foo.js']).then(
             () => {

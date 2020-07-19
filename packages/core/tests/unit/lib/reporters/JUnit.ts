@@ -1,9 +1,9 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
+import { createSuite, createTest } from 'tests/support/unit/mocks';
 import { createSandbox } from 'sinon';
 
-import Test from 'src/lib/Test';
-import Suite from 'src/lib/Suite';
-import Executor from 'src/lib/executors/Executor';
+import { Executor } from 'src/lib/executors/Executor';
+import { Config } from 'src/lib/config';
 
 registerSuite('lib/reporters/JUnit', function () {
   const sandbox = createSandbox();
@@ -12,9 +12,15 @@ registerSuite('lib/reporters/JUnit', function () {
     suites: [] as any[],
     on: sandbox.spy(),
     emit: sandbox.stub().resolves(),
-    formatError: sandbox.spy((error: Error) => error.message)
+    formatError: sandbox.spy((error: Error) => error.message),
+    config: {} as Config,
+    addSuite: () => undefined,
+    cancel: () => undefined,
+    configure: () => undefined,
+    loadConfig: () => Promise.resolve(),
+    log: () => Promise.resolve()
   };
-  const mockExecutor = (_mockExecutor as unknown) as Executor<any, any, any>;
+  const mockExecutor: Executor = _mockExecutor;
 
   const mockFs = {
     createWriteStream: sandbox.spy()
@@ -81,61 +87,93 @@ registerSuite('lib/reporters/JUnit', function () {
           assertionError.name = 'AssertionError';
 
           mockExecutor.suites.push(
-            new Suite(<any>{
-              sessionId: 'foo',
-              name: 'chrome 32 on Mac',
-              executor: mockExecutor,
-              timeElapsed: 1234,
-              tests: [
-                new Suite(<any>{
-                  name: 'suite1',
-                  executor: mockExecutor,
-                  timeElapsed: 1234,
-                  tests: [
-                    new Test(<any>{
-                      name: 'test1',
-                      test() {},
-                      hasPassed: true,
-                      timeElapsed: 45
-                    }),
-                    new Test(<any>{
-                      name: 'test2',
-                      test() {},
-                      hasPassed: false,
-                      error: new Error('Oops'),
-                      timeElapsed: 45
-                    }),
-                    new Test(<any>{
-                      name: 'test3',
-                      test() {},
-                      hasPassed: false,
-                      error: assertionError,
-                      timeElapsed: 45
-                    }),
-                    new Test(<any>{
-                      name: 'test4',
-                      test() {},
-                      hasPassed: false,
-                      skipped: 'No time for that',
-                      timeElapsed: 45
-                    }),
-                    new Suite(<any>{
-                      name: 'suite5',
+            createSuite(
+              {
+                name: 'chrome 32 on Mac',
+                executor: mockExecutor,
+                tests: [
+                  createSuite(
+                    {
+                      name: 'suite1',
                       executor: mockExecutor,
-                      timeElapsed: 45,
                       tests: [
-                        new Test(<any>{
-                          name: 'test5.1',
-                          test() {},
-                          hasPassed: true,
-                          timeElapsed: 40
-                        })
+                        createTest(
+                          {
+                            name: 'test1',
+                            test() {},
+                            hasPassed: true
+                          },
+                          {
+                            timeElapsed: 45
+                          }
+                        ),
+                        createTest(
+                          {
+                            name: 'test2',
+                            test() {},
+                            hasPassed: false
+                          },
+                          {
+                            error: new Error('Oops'),
+                            timeElapsed: 45
+                          }
+                        ),
+                        createTest(
+                          {
+                            name: 'test3',
+                            test() {},
+                            hasPassed: false
+                          },
+                          {
+                            error: assertionError,
+                            timeElapsed: 45
+                          }
+                        ),
+                        createTest(
+                          {
+                            name: 'test4',
+                            test() {},
+                            hasPassed: false,
+                            skipped: 'No time for that'
+                          },
+                          {
+                            timeElapsed: 45
+                          }
+                        ),
+                        createSuite(
+                          {
+                            name: 'suite5',
+                            executor: mockExecutor,
+                            tests: [
+                              createTest(
+                                {
+                                  name: 'test5.1',
+                                  test() {},
+                                  hasPassed: true
+                                },
+                                {
+                                  timeElapsed: 40
+                                }
+                              )
+                            ]
+                          },
+                          {
+                            timeElapsed: 45
+                          }
+                        )
                       ]
-                    })
-                  ]
-                })
-              ]
-            })
+                    },
+                    {
+                      timeElapsed: 1234
+                    }
+                  )
+                ]
+              },
+              {
+                sessionId: 'foo',
+                timeElapsed: 1234
+              }
+            )
           );
 
           const expected =
@@ -160,34 +198,50 @@ registerSuite('lib/reporters/JUnit', function () {
         'serialized suites'() {
           const nestedTest = 'test2.1';
 
-          const suite = new Suite(<any>{
-            sessionId: 'foo',
-            name: 'chrome 32 on Mac',
-            executor: mockExecutor,
-            timeElapsed: 1234,
-            tests: [
-              new Suite(<any>{
-                name: 'suite1',
-                executor: mockExecutor,
-                timeElapsed: 1234,
-                tests: [
-                  new Suite(<any>{
-                    name: 'suite5',
+          const suite = createSuite(
+            {
+              name: 'chrome 32 on Mac',
+              executor: mockExecutor,
+              tests: [
+                createSuite(
+                  {
+                    name: 'suite1',
                     executor: mockExecutor,
-                    timeElapsed: 45,
                     tests: [
-                      new Test(<any>{
-                        name: nestedTest,
-                        test() {},
-                        hasPassed: true,
-                        timeElapsed: 40
-                      })
+                      createSuite(
+                        {
+                          name: 'suite5',
+                          executor: mockExecutor,
+                          tests: [
+                            createTest(
+                              {
+                                name: nestedTest,
+                                test() {},
+                                hasPassed: true
+                              },
+                              {
+                                timeElapsed: 40
+                              }
+                            )
+                          ]
+                        },
+                        {
+                          timeElapsed: 45
+                        }
+                      )
                     ]
-                  })
-                ]
-              })
-            ]
-          });
+                  },
+                  {
+                    timeElapsed: 1234
+                  }
+                )
+              ]
+            },
+            {
+              sessionId: 'foo',
+              timeElapsed: 1234
+            }
+          );
 
           _mockExecutor.suites.push(suite.toJSON());
 
@@ -205,21 +259,29 @@ registerSuite('lib/reporters/JUnit', function () {
           (suiteError as any).lifecycleMethod = 'after';
 
           mockExecutor.suites.push(
-            new Suite(<any>{
-              sessionId: 'foo',
-              name: 'chrome 32 on Mac',
-              executor: mockExecutor,
-              timeElapsed: 1234,
-              tests: [
-                new Suite(<any>{
-                  name: 'suite1',
-                  executor: mockExecutor,
-                  timeElapsed: 1234,
-                  error: suiteError,
-                  tests: []
-                })
-              ]
-            })
+            createSuite(
+              {
+                name: 'chrome 32 on Mac',
+                executor: mockExecutor,
+                tests: [
+                  createSuite(
+                    {
+                      name: 'suite1',
+                      executor: mockExecutor,
+                      tests: []
+                    },
+                    {
+                      timeElapsed: 1234,
+                      error: suiteError
+                    }
+                  )
+                ]
+              },
+              {
+                sessionId: 'foo',
+                timeElapsed: 1234
+              }
+            )
           );
 
           const expected =
@@ -243,35 +305,55 @@ registerSuite('lib/reporters/JUnit', function () {
           (suiteError as any).lifecycleMethod = 'beforeEach';
 
           mockExecutor.suites.push(
-            new Suite(<any>{
-              sessionId: 'foo',
-              name: 'chrome 32 on Mac',
-              executor: mockExecutor,
-              error: suiteError,
-              timeElapsed: 1234,
-              tests: [
-                new Test(<any>{
-                  name: 'test1',
-                  test() {},
-                  suiteError
-                }),
-                new Test(<any>{
-                  name: 'test2',
-                  test() {},
-                  suiteError
-                }),
-                new Test(<any>{
-                  name: 'test3',
-                  test() {},
-                  suiteError
-                }),
-                new Test(<any>{
-                  name: 'test4',
-                  test() {},
-                  suiteError
-                })
-              ]
-            })
+            createSuite(
+              {
+                name: 'chrome 32 on Mac',
+                executor: mockExecutor,
+                tests: [
+                  createTest(
+                    {
+                      name: 'test1',
+                      test() {}
+                    },
+                    {
+                      suiteError
+                    }
+                  ),
+                  createTest(
+                    {
+                      name: 'test2',
+                      test() {}
+                    },
+                    {
+                      suiteError
+                    }
+                  ),
+                  createTest(
+                    {
+                      name: 'test3',
+                      test() {}
+                    },
+                    {
+                      suiteError
+                    }
+                  ),
+                  createTest(
+                    {
+                      name: 'test4',
+                      test() {}
+                    },
+                    {
+                      suiteError
+                    }
+                  )
+                ]
+              },
+              {
+                error: suiteError,
+                sessionId: 'foo',
+                timeElapsed: 1234
+              }
+            )
           );
 
           const expected =

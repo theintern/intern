@@ -1,8 +1,10 @@
 import * as nodeUtil from 'util';
 import * as util from './util';
+import Test from '@theintern/core/dist/lib/Test';
 import { Tests } from '@theintern/core/dist/lib/interfaces/object';
 
-import Tunnel, { IOEvent, NormalizedEnvironment } from 'src/Tunnel';
+import Tunnel, { IOEvent } from 'src/Tunnel';
+import { NormalizedEnvironment } from 'src/types';
 import { createCompositeHandle, Handle } from '@theintern/common';
 
 function writeIOEvent(event: IOEvent) {
@@ -158,4 +160,48 @@ export function addStartStopTest(
         .finally(cleanup);
     }
   };
+}
+
+export async function startStopTest(
+  test: Test,
+  TunnelClass: typeof Tunnel,
+  options?: any
+) {
+  const tunnel = new TunnelClass();
+
+  if (options.needsAuthData !== false && !checkCredentials(tunnel, options)) {
+    test.skip('missing auth data');
+  }
+
+  let handle: Handle | undefined;
+  if (intern.config.debug) {
+    handle = addVerboseListeners(tunnel);
+  }
+
+  const timeout = options.timeout || 30000;
+  test.async(timeout);
+
+  const cleanup = getCleanup(tunnel, handle);
+  const cleanupTimer = setTimeout(() => {
+    cleanup();
+  }, timeout - 5000);
+
+  if (typeof options.port !== 'undefined') {
+    tunnel.port = options.port;
+  }
+
+  try {
+    await tunnel.start();
+    clearTimeout(cleanupTimer);
+    await tunnel.stop();
+  } catch (reason) {
+    clearTimeout(cleanupTimer);
+    if (reason.code === 'ECONNREFUSED') {
+      test.skip('Service is unreachable');
+    } else {
+      throw reason;
+    }
+  } finally {
+    cleanup();
+  }
 }

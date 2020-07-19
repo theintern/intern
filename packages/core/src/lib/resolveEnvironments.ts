@@ -1,7 +1,7 @@
-import { NormalizedEnvironment } from '@theintern/digdug/dist/Tunnel';
+import { NormalizedEnvironment } from '@theintern/digdug/dist/types';
 import { normalize } from 'path';
 
-import { EnvironmentSpec } from './common/config';
+import { EnvironmentSpec } from './config';
 import process from './node/process';
 import Environment from './Environment';
 
@@ -175,7 +175,7 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
       .filter(version => !isNaN(Number(version)))
       .sort((a, b) => Number(a) - Number(b));
 
-    let offset = pieces.length === 2 ? Number(pieces[1]) : 0;
+    const offset = pieces.length === 2 ? Number(pieces[1]) : 0;
     if (offset > numericVersions.length) {
       throw new Error(
         `Can't get ${version}; ${numericVersions.length} version${
@@ -299,7 +299,7 @@ function resolveVersions(
   available = available || [];
 
   if (versionSpec && isNaN(Number(versionSpec))) {
-    let availableVersions = getVersions(environment, available);
+    const availableVersions = getVersions(environment, available);
 
     versions = splitVersions(versionSpec).map(function (version) {
       const resolved = resolveVersionAlias(version, availableVersions);

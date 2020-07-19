@@ -1,23 +1,50 @@
-import { CancelToken, isCancel } from '@theintern/common';
 import { BigIntStats, statSync } from 'fs';
 import { CoverageMap } from 'istanbul-lib-coverage';
 import { Instrumenter } from 'istanbul-lib-instrument';
 import { MapStore } from 'istanbul-lib-source-maps';
-import { sep } from 'path';
-import { SinonSpy, spy, stub } from 'sinon';
+import { join, resolve } from 'path';
+import { SinonSpy, createSandbox } from 'sinon';
 import { RawSourceMap } from 'source-map';
-import { Config } from 'src/lib/common/config';
+import { isCancel } from '@theintern/common';
+import { Config } from 'src/lib/config';
+import * as libNode from 'src/lib/node';
 import _Node from 'src/lib/executors/Node';
 import Suite from 'src/lib/Suite';
-import { mockImport } from 'tests/support/mockUtil';
-import { testProperty } from 'tests/support/unit/executor';
+import Test from 'src/lib/Test';
+import { mockImport } from '@theintern-dev/test-util';
+import resolveEnvironments from 'src/lib/resolveEnvironments';
+import SeleniumTunnel from '@theintern/digdug/dist/SeleniumTunnel';
+import { BrowserName } from '@theintern/digdug/dist/types';
 
 registerSuite('lib/executors/Node', function () {
+  const sandbox = createSandbox();
+
+  // A default config that will enable functional tests for an executor
+  const functionalConfig = {
+    environments: ['chrome'],
+    tunnel: 'null'
+  };
+
+  // These are suites that can be loaded if present in the `suites` or
+  // `functionalSuites` list
+  let availableSuites: { [name: string]: Suite | (() => Suite) } = {};
+
+  // Create a test executor
   function createExecutor(config?: Partial<Config>) {
     const executor = new Node(config);
-    executor.registerLoader((_options: any) => (_modules: string[]) =>
-      Promise.resolve()
-    );
+
+    executor.registerLoader(() => modules => {
+      for (const mod of modules) {
+        if (availableSuites[mod]) {
+          const suite = availableSuites[mod];
+          executor.addSuite(parent => {
+            parent.add(typeof suite === 'function' ? suite() : suite);
+          });
+        }
+      }
+      return Promise.resolve();
+    });
+
     return executor;
   }
 
@@ -35,16 +62,20 @@ registerSuite('lib/executors/Node', function () {
 
   class MockCommand {
     session = {};
-    setPageLoadTimeout: SinonSpy;
-
-    constructor() {
-      this.setPageLoadTimeout = spy();
-    }
 
     quit() {
       return Promise.resolve();
     }
+
+    setPageLoadTimeout() {
+      return Promise.resolve();
+    }
   }
+
+  const mockSetPageLoadTimeout = sandbox.stub(
+    MockCommand.prototype,
+    'setPageLoadTimeout'
+  );
 
   class MockCoverageMap {
     addFileCoverage: SinonSpy<[any]>;
@@ -54,9 +85,11 @@ registerSuite('lib/executors/Node', function () {
 
     constructor() {
       coverageMaps.push(this);
-      this.addFileCoverage = spy(({ filename }: { filename: string }) => {
-        this._files.push(filename);
-      });
+      this.addFileCoverage = sandbox.spy(
+        ({ filename }: { filename: string }) => {
+          this._files.push(filename);
+        }
+      );
     }
     merge() {}
     files() {
@@ -88,8 +121,8 @@ registerSuite('lib/executors/Node', function () {
   class MockServer {
     constructor() {
       servers.push(this);
-      this.start = spy(this.start);
-      this.stop = spy(this.stop);
+      this.start = sandbox.spy(this.start);
+      this.stop = sandbox.spy(this.stop);
     }
     start() {
       return Promise.resolve();
@@ -117,21 +150,28 @@ registerSuite('lib/executors/Node', function () {
   }
 
   class MockSession {
+    capabilities: Record<string, any>;
+
     constructor() {
+      this.capabilities = {
+        'is-test': true
+      };
       sessions.push(this);
     }
   }
 
+  const mockTunnelExtraCapabilities = { someFeature: 23 };
+
   class MockTunnel {
-    extraCapabilities = {};
+    extraCapabilities = mockTunnelExtraCapabilities;
 
     constructor(options: { [key: string]: any } = {}) {
       Object.keys(options).forEach(option => {
         (<any>this)[option] = options[option];
       });
       tunnels.push(this);
-      this.start = spy(this.start);
-      this.stop = spy(this.stop);
+      this.start = sandbox.spy(this.start);
+      this.stop = sandbox.spy(this.stop);
     }
     getEnvironments() {
       return Promise.resolve([{ browserName: 'chrome', version: 53 }]);
@@ -154,14 +194,14 @@ registerSuite('lib/executors/Node', function () {
   }
 
   const mockConsole = {
-    log: spy((..._args: any[]) => {}),
-    warn: spy((..._args: any[]) => {}),
-    error: spy((..._args: any[]) => {})
+    log: sandbox.spy((..._args: any[]) => {}),
+    warn: sandbox.spy((..._args: any[]) => {}),
+    error: sandbox.spy((..._args: any[]) => {})
   };
 
   const mockChai = {
     assert: ('assert' as never) as Chai.Assert,
-    should: spy(() => ('should' as never) as Chai.Should)
+    should: sandbox.spy(() => ('should' as never) as Chai.Should)
   };
 
   const mockFs = {
@@ -184,32 +224,13 @@ registerSuite('lib/executors/Node', function () {
     }) as unknown) as typeof statSync
   };
 
-  const mockPath = {
-    resolve(path: string) {
-      return path;
-    },
-    dirname(path: string) {
-      return path;
-    },
-    relative(path: string) {
-      return path;
-    },
-    normalize(path: string) {
-      return path;
-    },
-    join(...parts: string[]) {
-      return parts.join('/');
-    },
-    sep: '/' as typeof sep
-  };
-
   const mockGlobal = {
     __coverage__: {},
     process: {
       cwd: () => '',
       env: {},
-      exit: spy((..._args: any[]) => {}),
-      on: spy((..._args: any[]) => {}),
+      exit: sandbox.spy((..._args: any[]) => {}),
+      on: sandbox.spy((..._args: any[]) => {}),
       stdout: process.stdout
     }
   };
@@ -222,27 +243,44 @@ registerSuite('lib/executors/Node', function () {
     }
   }
 
-  const mockTsNodeRegister = spy();
+  const mockTsNodeRegister = sandbox.spy();
 
-  const mockResolveEnvironments = stub().returns(['foo env']);
+  const mockResolveEnvironments = sandbox.spy(
+    (...args: Parameters<typeof resolveEnvironments>) => {
+      const envs = args[1];
+      return envs as ReturnType<typeof resolveEnvironments>;
+    }
+  );
 
-  const mockNodeUtil = {
+  const mockLibNode = {
+    createConfigurator: libNode.createConfigurator,
+
+    getDefaultBasePath: sandbox.spy(() => {
+      return '/';
+    }),
+
+    getDefaultInternPath: sandbox.spy(() => {
+      return '/intern';
+    }),
+
     expandFiles(patterns?: string | string[]) {
       if (typeof patterns === 'string') {
         return [patterns];
       }
       return patterns || [];
     },
-    normalizePath(path: string) {
-      return path;
-    },
+
     readSourceMap() {
       return {} as RawSourceMap;
     },
-    transpileSource: spy(),
-    isTypeScriptFile: spy((file: string) => {
+
+    transpileSource: sandbox.spy(),
+
+    isTypeScriptFile: sandbox.spy((file: string) => {
       return file.endsWith('.ts') || file.endsWith('tsx');
-    })
+    }),
+
+    ErrorFormatter: (MockErrorFormatter as unknown) as typeof libNode.ErrorFormatter
   };
 
   let executor: _Node;
@@ -256,44 +294,18 @@ registerSuite('lib/executors/Node', function () {
   let fsData: { [name: string]: string };
   let tsExtension: any;
 
-  function setFunctionalSuites(
-    loader: (options: { name: string; parent: Suite }) => void,
-    functionalSuites: string[] = ['one.js']
-  ) {
-    executor.configure(<any>{
-      name: 'foo executor',
-      environments: ['chrome'],
-      tunnel: 'null',
-      functionalSuites
-    });
-
-    executor.registerLoader((_options: any) => (modules: string[]) => {
-      modules.forEach(name => {
-        if (functionalSuites.indexOf(name) >= 0) {
-          executor.addSuite((parent: Suite) => {
-            loader({ name, parent });
-          });
-        }
-      });
-      return Promise.resolve();
-    });
-  }
-
   return {
     async before() {
       ({ default: Node } = await mockImport(
         () => import('src/lib/executors/Node'),
         replace => {
-          replace(() => import('src/lib/common/ErrorFormatter')).withDefault(
-            MockErrorFormatter as any
-          );
+          replace(() => import('src/lib/common/console')).with(mockConsole);
           replace(() => import('src/lib/common/console')).with(mockConsole);
           replace(() => import('chai')).with(mockChai);
           replace(() => import('@theintern/common'))
             .transparently()
             .with({ global: mockGlobal });
-          replace(() => import('src/lib/node/util')).with(mockNodeUtil);
-          replace(() => import('path')).with(mockPath);
+          replace(() => import('src/lib/node')).with(mockLibNode);
           replace(() => import('fs')).with(mockFs);
           replace(() => import('src/lib/reporters/Pretty')).withDefault(
             MockReporter as any
@@ -380,9 +392,12 @@ registerSuite('lib/executors/Node', function () {
           replace(() =>
             import('@theintern/digdug/dist/BrowserStackTunnel')
           ).withDefault(MockTunnel as any);
-          replace(() =>
-            import('@theintern/digdug/dist/SeleniumTunnel')
-          ).withDefault(MockTunnel as any);
+          replace(() => import('@theintern/digdug/dist/SeleniumTunnel')).with({
+            default: (MockTunnel as unknown) as typeof SeleniumTunnel,
+            getDriverNames(environments) {
+              return environments.map(env => env.browserName as BrowserName);
+            }
+          });
           replace(() =>
             import('@theintern/digdug/dist/TestingBotTunnel')
           ).withDefault(MockTunnel as any);
@@ -408,6 +423,7 @@ registerSuite('lib/executors/Node', function () {
       tunnels = [];
       servers = [];
       leadfootServers = [];
+      availableSuites = {};
       sessions = [];
       fsData = {};
       executor = createExecutor();
@@ -417,13 +433,7 @@ registerSuite('lib/executors/Node', function () {
 
     afterEach() {
       require.extensions['.ts'] = tsExtension;
-      mockTsNodeRegister.resetHistory();
-      mockConsole.log.resetHistory();
-      mockConsole.warn.resetHistory();
-      mockConsole.error.resetHistory();
-      mockGlobal.process.on.resetHistory();
-      mockNodeUtil.transpileSource.resetHistory();
-      mockResolveEnvironments.resetHistory();
+      sandbox.resetHistory();
     },
 
     tests: {
@@ -459,7 +469,7 @@ registerSuite('lib/executors/Node', function () {
 
         'unhandled rejection': {
           async 'with reason'() {
-            const logger = spy((..._args: any[]) => {});
+            const logger = sandbox.spy((..._args: any[]) => {});
             executor.on('error', logger);
             const handler = mockGlobal.process.on.getCall(0).args[1];
             const reason = new Error('foo');
@@ -485,7 +495,7 @@ registerSuite('lib/executors/Node', function () {
           },
 
           async 'no reason'() {
-            const logger = spy((..._args: any[]) => {});
+            const logger = sandbox.spy((..._args: any[]) => {});
             executor.on('error', logger);
             const handler = mockGlobal.process.on.getCall(0).args[1];
             handler();
@@ -508,9 +518,9 @@ registerSuite('lib/executors/Node', function () {
           },
 
           async warning() {
-            const warningLogger = spy((..._args: any[]) => {});
+            const warningLogger = sandbox.spy((..._args: any[]) => {});
             executor.on('warning', warningLogger);
-            const errorLogger = spy((..._args: any[]) => {});
+            const errorLogger = sandbox.spy((..._args: any[]) => {});
             executor.on('error', errorLogger);
             executor.configure({ warnOnUnhandledRejection: true });
 
@@ -536,9 +546,9 @@ registerSuite('lib/executors/Node', function () {
           },
 
           async 'warning (filtered)'() {
-            const warningLogger = spy((..._args: any[]) => {});
+            const warningLogger = sandbox.spy((..._args: any[]) => {});
             executor.on('warning', warningLogger);
-            const errorLogger = spy((..._args: any[]) => {});
+            const errorLogger = sandbox.spy((..._args: any[]) => {});
             executor.on('error', errorLogger);
             executor.configure({ warnOnUnhandledRejection: 'foo' });
 
@@ -576,7 +586,7 @@ registerSuite('lib/executors/Node', function () {
 
         'unhandled error': {
           async default() {
-            const logger = spy((..._args: any[]) => {});
+            const logger = sandbox.spy((..._args: any[]) => {});
             executor.on('error', logger);
             const handler = mockGlobal.process.on.getCall(1).args[1];
             handler({ message: 'foo' });
@@ -601,9 +611,9 @@ registerSuite('lib/executors/Node', function () {
           },
 
           async warning() {
-            const warningLogger = spy((..._args: any[]) => {});
+            const warningLogger = sandbox.spy((..._args: any[]) => {});
             executor.on('warning', warningLogger);
-            const errorLogger = spy((..._args: any[]) => {});
+            const errorLogger = sandbox.spy((..._args: any[]) => {});
             executor.on('error', errorLogger);
             executor.configure({ warnOnUncaughtException: true });
 
@@ -629,9 +639,9 @@ registerSuite('lib/executors/Node', function () {
           },
 
           async 'warning (filtered)'() {
-            const warningLogger = spy((..._args: any[]) => {});
+            const warningLogger = sandbox.spy((..._args: any[]) => {});
             executor.on('warning', warningLogger);
-            const errorLogger = spy((..._args: any[]) => {});
+            const errorLogger = sandbox.spy((..._args: any[]) => {});
             executor.on('error', errorLogger);
             executor.configure({ warnOnUncaughtException: 'foo' });
 
@@ -670,153 +680,6 @@ registerSuite('lib/executors/Node', function () {
           }
         }
       },
-
-      '#configure': (() => {
-        function test(
-          name: keyof Config,
-          badValue: any,
-          goodValue: any,
-          expectedValue: any,
-          error: RegExp,
-          allowDeprecated?: boolean | string,
-          message?: string
-        ) {
-          testProperty<Config>(
-            executor,
-            mockConsole,
-            name,
-            badValue,
-            goodValue,
-            expectedValue,
-            error,
-            allowDeprecated,
-            message
-          );
-        }
-
-        const booleanTest = (name: keyof Config) => () => {
-          test(name, 5, 'true', true, /Non-boolean/);
-        };
-        const stringTest = (name: keyof Config) => () => {
-          test(name, 5, 'foo', 'foo', /Non-string/);
-        };
-        const numberTest = (name: keyof Config) => () => {
-          test(name, 'foo', '5', 5, /Non-numeric/);
-          test(name, 'foo', 5, 5, /Non-numeric/);
-        };
-        const stringArrayTest = (name: keyof Config) => () => {
-          test(name, 5, 'foo', ['foo'], /Non-string/);
-        };
-
-        return {
-          'capabilities (additive)'() {
-            executor.configure(<any>{
-              capabilities: { foo: 'bar' }
-            });
-            executor.configure(<any>{
-              'capabilities+': { bar: 3 }
-            });
-            assert.deepEqual(executor.config.capabilities, <any>{
-              foo: 'bar',
-              bar: 3
-            });
-          },
-
-          environments() {
-            test(
-              'environments',
-              5,
-              'chrome',
-              [{ browserName: 'chrome' }],
-              /Non-object/
-            );
-            test(
-              'environments',
-              { name: 'chrome' },
-              'chrome',
-              [{ browserName: 'chrome' }],
-              /Invalid value.*missing/
-            );
-            test('environments', 5, '', [], /Non-object/);
-          },
-
-          instrumenterOptions: {
-            basic() {
-              test(
-                'instrumenterOptions',
-                5,
-                { foo: 'bar' },
-                { foo: 'bar' },
-                /Non-object/
-              );
-            },
-
-            additive() {
-              executor.configure(<any>{
-                instrumenterOptions: { foo: 'bar' }
-              });
-              executor.configure(<any>{
-                'instrumenterOptions+': { bar: 3 }
-              });
-              assert.deepEqual(executor.config.instrumenterOptions, {
-                foo: 'bar',
-                bar: 3
-              });
-            }
-          },
-
-          tunnel() {
-            test('tunnel', 5, 'null', 'null', /Non-string/);
-          },
-
-          'tunnelOptions (additive)'() {
-            executor.configure(<any>{
-              tunnelOptions: { foo: 'bar' }
-            });
-            executor.configure(<any>{
-              'tunnelOptions+': { bar: 3 }
-            });
-            assert.deepEqual(executor.config.tunnelOptions, <any>{
-              foo: 'bar',
-              bar: 3
-            });
-          },
-
-          functionalTimeouts() {
-            test('functionalTimeouts', 5, { foo: 5 }, { foo: 5 }, /Non-object/);
-            test(
-              'functionalTimeouts',
-              { foo: 'bar' },
-              { foo: 5 },
-              { foo: 5 },
-              /Non-numeric/
-            );
-          },
-
-          functionalCoverage: booleanTest('functionalCoverage'),
-
-          leaveRemoteOpen() {
-            test('leaveRemoteOpen', 'foo', 'fail', 'fail', /Invalid value/);
-            test('leaveRemoteOpen', 'foo', 'true', true, /Invalid value/);
-          },
-
-          serveOnly: booleanTest('serveOnly'),
-          runInSync: booleanTest('runInSync'),
-
-          coverage: stringArrayTest('coverage'),
-          functionalSuites: stringArrayTest('functionalSuites'),
-
-          connectTimeout: numberTest('connectTimeout'),
-          heartbeatInterval: numberTest('heartbeatInterval'),
-          maxConcurrency: numberTest('maxConcurrency'),
-          serverPort: numberTest('serverPort'),
-          socketPort: numberTest('socketPort'),
-
-          functionalBaseUrl: stringTest('functionalBaseUrl'),
-          proxy: stringTest('proxy'),
-          serverUrl: stringTest('serverUrl')
-        };
-      })(),
 
       '#coverageMap'() {
         assert.propertyVal(executor.coverageMap, 'mockName', 'coverageMap');
@@ -899,6 +762,11 @@ registerSuite('lib/executors/Node', function () {
             },
 
             'good node_module'() {
+              // The test module (ajv) needs to be accessible from the
+              // executor's basePath
+              executor.configure({ basePath: intern.config.basePath });
+
+              // Try loading a module that shouldn't already be loaded
               const module = require.resolve('ajv');
               assert.isUndefined(
                 require.cache[module],
@@ -948,6 +816,11 @@ registerSuite('lib/executors/Node', function () {
             executor.on(
               'beforeRun',
               dfd.callback(() => {
+                assert.equal(
+                  mockConsole.warn.callCount,
+                  1,
+                  'should have been a call to console.warn'
+                );
                 for (const call of mockConsole.warn.getCalls()) {
                   assert.include(
                     call.args[0],
@@ -988,13 +861,20 @@ registerSuite('lib/executors/Node', function () {
             'configured filter'() {
               const dfd = this.async();
               executor.configure({ coverage: ['bar/**/*.js'] });
-              const expandFilesStub = stub(mockNodeUtil, 'expandFiles');
-              expandFilesStub.returns(['bar/foo.js', 'bar/baz.js']);
+              const expandFilesStub = sandbox.stub(mockLibNode, 'expandFiles');
+              expandFilesStub.returns([
+                resolve('bar/foo.js'),
+                resolve('bar/baz.js')
+              ]);
               executor.on(
                 'beforeRun',
                 dfd.callback(() => {
-                  assert.isTrue(executor.shouldInstrumentFile('bar/foo.js'));
-                  assert.isFalse(executor.shouldInstrumentFile('bar/blah.js'));
+                  assert.isTrue(
+                    executor.shouldInstrumentFile(resolve('bar/foo.js'))
+                  );
+                  assert.isFalse(
+                    executor.shouldInstrumentFile(resolve('bar/blah.js'))
+                  );
                   expandFilesStub.restore();
                 })
               );
@@ -1004,18 +884,40 @@ registerSuite('lib/executors/Node', function () {
         }
       },
 
+      async '#resolveConfig'() {
+        executor.configure({
+          environments: 'chrome'
+        });
+
+        await executor.resolveConfig();
+
+        // Verify that the tunnel's extra capabilities are mixed into the config
+        assert.deepEqual(executor.config.capabilities, {
+          buildId: undefined,
+          name: 'intern',
+          'idle-timeout': 60,
+          ...mockTunnelExtraCapabilities
+        });
+      },
+
       '#run': {
         'with server'() {
-          executor.configure(<any>{
+          executor.configure({
             environments: 'chrome',
             tunnel: 'null',
             suites: 'foo.js',
+            functionalSuites: 'bar.js',
             functionalTimeouts: { pageLoad: 10 }
           });
+
           return executor.run().then(() => {
-            const suite = executor['_sessionSuites']![0];
+            assert.lengthOf(
+              leadfootServers,
+              1,
+              'expected a leadfoot server to be created'
+            );
             assert.equal(
-              (<any>suite.remote.setPageLoadTimeout).callCount,
+              mockSetPageLoadTimeout.callCount,
               1,
               'expected page load timeout to have been set'
             );
@@ -1053,19 +955,20 @@ registerSuite('lib/executors/Node', function () {
           });
         },
 
-        'with BrowserStack server'() {
+        async 'with BrowserStack server'() {
           executor.configure(<any>{
             environments: 'chrome',
             tunnel: 'browserstack',
             suites: 'foo2.js'
           });
-          return executor.run().then(() => {
-            assert.deepEqual(
-              executor.config.tunnelOptions.servers,
-              [executor.config.serverUrl],
-              'unexpected value for tunnelOptions.servers'
-            );
-          });
+
+          await executor.run();
+
+          assert.deepEqual(
+            executor.config.tunnelOptions.servers,
+            [executor.config.serverUrl],
+            'unexpected value for tunnelOptions.servers'
+          );
         },
 
         'serve only'() {
@@ -1130,44 +1033,48 @@ registerSuite('lib/executors/Node', function () {
           });
         },
 
-        'full coverage'() {
-          fsData['foo.js'] = 'foo';
-          fsData['bar.js'] = 'bar';
-          executor.configure(<any>{
+        async 'full coverage'() {
+          const fooFile = resolve('foo.js');
+          const barFile = resolve('bar.js');
+          fsData[fooFile] = 'foo';
+          fsData[barFile] = 'bar';
+          executor.configure({
             environments: 'chrome',
             tunnel: 'null',
             suites: 'foo.js',
             coverage: ['foo.js', 'bar.js']
           });
 
-          return executor.run().then(() => {
-            const map: MockCoverageMap = executor.coverageMap as any;
-            assert.isTrue(map.addFileCoverage.calledTwice);
-            assert.deepEqual(map.addFileCoverage.args[0][0], {
-              code: 'foo',
-              filename: 'foo.js'
-            });
-            assert.deepEqual(map.addFileCoverage.args[1][0], {
-              code: 'bar',
-              filename: 'bar.js'
-            });
+          await executor.run();
+
+          const map = coverageMaps[0];
+          assert.equal(
+            map.addFileCoverage.callCount,
+            2,
+            'expected coverage to be added to both app files'
+          );
+          assert.deepEqual(map.addFileCoverage.args[0][0], {
+            code: 'foo',
+            filename: fooFile
+          });
+          assert.deepEqual(map.addFileCoverage.args[1][0], {
+            code: 'bar',
+            filename: barFile
           });
         },
 
-        cancel() {
-          setFunctionalSuites(({ parent }) => {
-            parent.add({
-              name: 'hang suite',
-              tests: [],
-              parent,
-              hasParent: true,
-              cancel() {},
-              run(token: CancelToken) {
-                return token.wrap(
-                  new Promise<void>(() => {})
-                );
-              }
-            } as any);
+        async cancel() {
+          availableSuites['hang'] = new Suite({
+            name: 'hang suite',
+            executor,
+            tests: [
+              new Test({ name: 'hang test', test: () => new Promise(() => {}) })
+            ]
+          });
+
+          executor.configure({
+            ...functionalConfig,
+            functionalSuites: ['hang']
           });
 
           const runPromise = executor.run();
@@ -1176,115 +1083,149 @@ registerSuite('lib/executors/Node', function () {
             executor.cancel();
           }, 1000);
 
-          return runPromise
-            .then(() => {
-              throw new Error('Run should not have passed');
-            })
-            .catch(error => {
-              assert.isTrue(
-                isCancel(error),
-                'expected test promise to be cancelled'
-              );
-            });
+          try {
+            await runPromise;
+            throw new Error('Run should not have passed');
+          } catch (error) {
+            assert.isTrue(
+              isCancel(error),
+              'expected test promise to be cancelled'
+            );
+          }
         },
 
         async 'failed suites'() {
-          const runStub = stub().returns(Promise.resolve());
-          setFunctionalSuites(({ parent }) => {
-            parent.add({
-              name: 'failing suite',
-              tests: [],
-              parent,
-              hasParent: true,
-              numFailedTests: 1,
-              run: runStub
-            } as any);
+          const failingSuite = new Suite({
+            name: 'failing suite',
+            executor,
+            tests: [
+              new Test({
+                name: 'failing',
+                test: () => Promise.reject('failed')
+              })
+            ]
+          });
+          availableSuites['failing'] = failingSuite;
+
+          const runStub = sandbox.stub(failingSuite, 'run').callThrough();
+
+          executor.configure({
+            ...functionalConfig,
+            functionalSuites: ['failing']
           });
 
-          await executor.run();
+          try {
+            await executor.run();
+          } catch (error) {
+            // ignored
+          }
+
           assert.strictEqual(runStub.callCount, 1);
         },
 
         async 'does not retry sessions without a successful session'() {
-          const runStub = stub().returns(Promise.resolve());
-          setFunctionalSuites(({ parent }) => {
-            parent.add({
-              name: 'failing suite',
-              tests: [],
-              parent,
-              hasParent: true,
-              numFailedTests: 1,
-              run: runStub
-            } as any);
+          const failingSuite = new Suite({
+            name: 'failing suite',
+            executor,
+            tests: [
+              new Test({
+                name: 'failing',
+                test: () => Promise.reject('failed')
+              })
+            ]
           });
+          availableSuites['failingSuite'] = failingSuite;
+
+          const runStub = sandbox.stub(failingSuite, 'run').callThrough();
+
           executor.configure({
-            functionalRetries: 10
+            ...functionalConfig,
+            functionalRetries: 10,
+            functionalSuites: ['failingSuite']
           });
 
-          await executor.run();
+          try {
+            await executor.run();
+          } catch (error) {
+            // ignored
+          }
+
           assert.strictEqual(runStub.callCount, 1);
         },
 
         async retries() {
-          mockResolveEnvironments.returns(['env1', 'env2']);
-          executor.configure({
-            environments: ['chrome', 'firefox']
-          });
           let numFailedTests = 2;
-          const runStub = stub().callsFake(() => {
-            numFailedTests--;
-            return Promise.resolve();
-          });
 
-          setFunctionalSuites(({ parent }) => {
-            const mockSuites: { [key: string]: Partial<Suite> } = {
-              env1: {
-                name: 'initially failing suite',
-                parent,
-                hasParent: true,
-                tests: [],
-                numTests: 2,
-                numSkippedTests: 0,
-                get numFailedTests() {
-                  return numFailedTests;
-                },
-                run: runStub
-              },
-              env2: {
-                name: 'passing suite',
-                parent,
-                hasParent: true,
-                tests: [],
-                numFailedTests: 0,
-                run: stub().returns(Promise.resolve())
-              }
-            };
-            parent.add(mockSuites[parent.name!] as any);
-          });
+          // Use factories for the mock suites since they'll need to be used
+          // twice, once for each environment. Without using factory functions,
+          // Suite will complain that each of them already has a parent the
+          // second time they're used.
+
+          const initiallyFailingSuite = () => {
+            const suite = new Suite({
+              name: 'initially failing suite',
+              executor,
+              tests: [
+                new Test({ name: 'one', test: () => Promise.resolve() }),
+                new Test({ name: 'two', test: () => Promise.resolve() })
+              ]
+            });
+
+            sandbox.stub(suite, 'numFailedTests').get(() => numFailedTests);
+            sandbox.stub(suite, 'run').callsFake(() => {
+              numFailedTests--;
+              return Promise.resolve();
+            });
+
+            return suite;
+          };
+
+          const passingSuite = () =>
+            new Suite({
+              name: 'passing suite',
+              executor,
+              tests: [new Test({ name: 'one', test: () => Promise.resolve() })]
+            });
+
+          availableSuites['initiallyFailing'] = initiallyFailingSuite;
+          availableSuites['passing'] = passingSuite;
+
           executor.configure({
-            functionalRetries: 10
+            ...functionalConfig,
+            environments: ['chrome', 'firefox'],
+            functionalRetries: 10,
+            functionalSuites: ['initiallyFailing', 'passing']
           });
 
           await executor.run();
-
-          assert.strictEqual(runStub.callCount, 2);
+          assert.equal(
+            numFailedTests,
+            0,
+            'exected failing run to have been called twice'
+          );
         },
 
         proxies: {
-          tunnel() {
-            executor.configure(<any>{
-              environments: 'chrome',
+          async tunnel() {
+            executor.configure({
+              ...functionalConfig,
               tunnel: 'browserstack',
               tunnelOptions: { proxy: 'foo' },
               suites: 'foo2.js'
             });
-            return executor.run().then(() => {
-              assert.equal(
-                leadfootServers[0].args[1].proxy,
-                'foo',
-                'expected server to use tunnel proxy'
-              );
-            });
+
+            await executor.run();
+
+            assert.lengthOf(
+              leadfootServers,
+              1,
+              'expected server to be started'
+            );
+            assert.equal(
+              leadfootServers[0].args[1].proxy,
+              'foo',
+              'expected server to use tunnel proxy'
+            );
           },
 
           config() {
@@ -1322,69 +1263,85 @@ registerSuite('lib/executors/Node', function () {
         },
 
         'selenium tunnelOptions': {
-          'no existing drivers'() {
+          async 'no existing drivers'() {
             executor.configure(<any>{
               environments: ['chrome', 'firefox', 'ie'],
               tunnel: 'selenium',
               suites: 'foo2.js'
             });
-            return executor.run().then(() => {
-              assert.sameDeepMembers(
-                executor.config.tunnelOptions.drivers!,
-                [
-                  { name: 'chrome' },
-                  { name: 'firefox' },
-                  { name: 'internet explorer' }
-                ],
-                'unexpected value for tunnelOptions.drivers'
-              );
-            });
+
+            await executor.run();
+
+            assert.sameDeepMembers(
+              executor.config.tunnelOptions.drivers!,
+              [
+                { browserName: 'chrome' },
+                { browserName: 'firefox' },
+                { browserName: 'internet explorer' }
+              ],
+              'unexpected value for tunnelOptions.drivers'
+            );
           },
 
-          'existing drivers'() {
+          async 'existing drivers'() {
             executor.configure(<any>{
               environments: ['chrome', 'firefox', 'ie'],
               tunnel: 'selenium',
               tunnelOptions: {
-                drivers: ['chrome', { name: 'ie', options: {} }]
+                drivers: ['chrome', { name: 'ie' }]
               },
               suites: 'foo2.js'
             });
-            return executor.run().then(() => {
-              assert.sameDeepMembers(
-                executor.config.tunnelOptions.drivers!,
-                [
-                  'chrome',
-                  { name: 'firefox' },
-                  { name: 'internet explorer', options: {} } as any
-                ],
-                'unexpected value for tunnelOptions.drivers'
-              );
-            });
+
+            await executor.run();
+
+            assert.sameDeepMembers(
+              executor.config.tunnelOptions.drivers!,
+              [
+                { browserName: 'chrome' },
+                { browserName: 'firefox' },
+                { browserName: 'internet explorer' }
+              ],
+              'unexpected value for tunnelOptions.drivers'
+            );
           }
         },
 
         'tsconfig option': {
           'no tsConfig option specified': {
-            'ts file in suites'() {
-              fsData['foo.ts'] = 'foo';
-              fsData['bar.d.ts'] = 'bar';
-              executor.configure(<any>{
+            async 'ts file in suites'() {
+              const fooFile = resolve('foo.ts');
+              const barFile = resolve('bar.ts');
+              fsData[fooFile] = 'foo';
+              fsData[barFile] = 'bar';
+              executor.configure({
                 environments: 'chrome',
                 tunnel: 'null',
                 suites: 'foo.ts',
                 coverage: ['foo.ts', 'bar.d.ts']
               });
 
-              return executor.run().then(() => {
-                assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
-                assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
-                  'foo.ts',
-                  'foo'
-                ]);
-                assert.isTrue(mockTsNodeRegister.called);
-                assert.deepEqual(mockTsNodeRegister.args[0], []);
-              });
+              await executor.run();
+
+              assert.equal(
+                mockLibNode.transpileSource.callCount,
+                1,
+                'expected 1 source file to be transpiled'
+              );
+              assert.deepEqual(
+                mockLibNode.transpileSource.args[0],
+                [fooFile, 'foo'],
+                'expected given TS file to be transpiled'
+              );
+              assert.isTrue(
+                mockTsNodeRegister.called,
+                'expected ts-node/register to be called'
+              );
+              assert.deepEqual(
+                mockTsNodeRegister.args[0],
+                [],
+                'expected ts-node/regsiter to be called without arguments'
+              );
             },
 
             'ts file in plugins'() {
@@ -1401,7 +1358,7 @@ registerSuite('lib/executors/Node', function () {
               });
 
               return executor.run().then(() => {
-                assert.isTrue(mockNodeUtil.transpileSource.notCalled);
+                assert.isTrue(mockLibNode.transpileSource.notCalled);
                 assert.isTrue(mockTsNodeRegister.called);
                 assert.deepEqual(mockTsNodeRegister.args[0], []);
               });
@@ -1420,21 +1377,21 @@ registerSuite('lib/executors/Node', function () {
               });
 
               return executor.run().then(() => {
-                assert.isTrue(mockNodeUtil.transpileSource.notCalled);
+                assert.isTrue(mockLibNode.transpileSource.notCalled);
                 assert.isTrue(mockTsNodeRegister.called);
                 assert.deepEqual(mockTsNodeRegister.args[0], []);
               });
             },
 
-            'tsconfig exists'() {
-              const basePath = '/test';
-              const expected = `${basePath}//tsconfig.json`;
+            async 'tsconfig exists'() {
+              const basePath = resolve('/test');
+              const expected = join(basePath, 'tsconfig.json');
               fsData['foo.js'] = 'foo';
               fsData['foo.ts'] = 'foo';
               fsData[expected] = JSON.stringify({});
 
-              (executor as any).loadScript = () => Promise.resolve();
-              executor.configure(<any>{
+              executor.loadScript = () => Promise.resolve();
+              executor.configure({
                 basePath,
                 environments: 'chrome',
                 tunnel: 'null',
@@ -1442,13 +1399,19 @@ registerSuite('lib/executors/Node', function () {
                 coverage: ['foo.js']
               });
 
-              return executor.run().then(() => {
-                assert.isTrue(mockNodeUtil.transpileSource.notCalled);
-                assert.isTrue(mockTsNodeRegister.called);
-                assert.deepEqual(mockTsNodeRegister.args[0], [
-                  { project: expected }
-                ]);
-              });
+              await executor.run();
+
+              assert.isTrue(
+                mockLibNode.transpileSource.notCalled,
+                'expected transpileSource to not be called'
+              );
+              assert.isTrue(
+                mockTsNodeRegister.called,
+                'expected ts-node/register to be called'
+              );
+              assert.deepEqual(mockTsNodeRegister.args[0], [
+                { project: expected }
+              ]);
             },
 
             'no ts; then tsnode is not loaded'() {
@@ -1461,15 +1424,17 @@ registerSuite('lib/executors/Node', function () {
               });
 
               return executor.run().then(() => {
-                assert.isTrue(mockNodeUtil.transpileSource.notCalled);
+                assert.isTrue(mockLibNode.transpileSource.notCalled);
                 assert.isTrue(mockTsNodeRegister.notCalled);
               });
             },
 
-            'custom ts file'() {
-              fsData['foo.ts'] = 'foo';
-              fsData['bar.d.ts'] = 'bar';
-              executor.configure(<any>{
+            async 'custom ts file'() {
+              const fooFile = resolve('foo.ts');
+              const barFile = resolve('bar.d.ts');
+              fsData[fooFile] = 'foo';
+              fsData[barFile] = 'bar';
+              executor.configure({
                 environments: 'chrome',
                 tunnel: 'null',
                 suites: 'foo.ts',
@@ -1479,25 +1444,38 @@ registerSuite('lib/executors/Node', function () {
                 coverage: ['foo.ts', 'bar.d.ts']
               });
 
-              return executor.run().then(() => {
-                assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
-                assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
-                  'foo.ts',
-                  'foo'
-                ]);
-                assert.isTrue(mockTsNodeRegister.calledOnce);
-                assert.deepEqual(mockTsNodeRegister.args[0][0], {
-                  project: './test/tsconfig.json'
-                });
-              });
+              await executor.run();
+
+              assert.equal(
+                mockLibNode.transpileSource.callCount,
+                1,
+                'expected 1 file to be transpiled'
+              );
+              assert.deepEqual(mockLibNode.transpileSource.args[0], [
+                fooFile,
+                'foo'
+              ]);
+              assert.isTrue(
+                mockTsNodeRegister.called,
+                'expected ts-node/register to be called'
+              );
+              assert.deepEqual(
+                mockTsNodeRegister.args[0][0],
+                {
+                  project: '/test/tsconfig.json'
+                },
+                'expected ts-node/register to be called with a confgi file'
+              );
             }
           },
 
-          'should not double register ts-node'() {
+          async 'should not double register ts-node'() {
             require.extensions['.ts'] = () => {};
-            fsData['foo.ts'] = 'foo';
-            fsData['bar.d.ts'] = 'bar';
-            executor.configure(<any>{
+            const fooFile = resolve('foo.ts');
+            const barFile = resolve('bar.d.ts');
+            fsData[fooFile] = 'foo';
+            fsData[barFile] = 'bar';
+            executor.configure({
               environments: 'chrome',
               tunnel: 'null',
               suites: 'foo.ts',
@@ -1507,14 +1485,22 @@ registerSuite('lib/executors/Node', function () {
               coverage: ['foo.ts', 'bar.d.ts']
             });
 
-            return executor.run().then(() => {
-              assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
-              assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
-                'foo.ts',
-                'foo'
-              ]);
-              assert.isTrue(mockTsNodeRegister.notCalled);
-            });
+            await executor.run();
+
+            assert.equal(
+              mockLibNode.transpileSource.callCount,
+              1,
+              'expected 1 file to be transpiled'
+            );
+            assert.deepEqual(
+              mockLibNode.transpileSource.args[0],
+              [fooFile, 'foo'],
+              'unexpected file was transpiled'
+            );
+            assert.isTrue(
+              mockTsNodeRegister.notCalled,
+              'ts-node/register should not have been called'
+            );
           },
 
           'tsConfig option specified as false'() {

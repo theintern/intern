@@ -7,7 +7,7 @@ import rewiremock from './rewiremock';
  * replaced dependencies
  * @param config A configuration
  */
-export async function mockImport<M>(
+export default async function mockImport<M>(
   loader: () => Promise<M>,
   updateDeps?: (replace: Replacer) => void | Promise<void>
 ): Promise<M> {

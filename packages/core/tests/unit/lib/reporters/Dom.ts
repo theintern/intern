@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import Suite from 'src/lib/Suite';
 import Test from 'src/lib/Test';
 import _Dom from 'src/lib/reporters/Dom';

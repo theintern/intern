@@ -7,9 +7,9 @@ import {
   statSync,
   writeFileSync
 } from 'fs';
-import { join } from 'path';
+import { dirname, join } from 'path';
 import { format as _format } from 'util';
-import { Command } from 'commander';
+import commander from 'commander';
 
 export let screenWidth = 80;
 
@@ -70,13 +70,26 @@ export function copy(src: string, dst: string) {
  */
 export function getCommand(
   name: string,
-  command: Command
-): Command | undefined {
+  command: commander.Command
+): commander.Command | undefined {
   for (const cmd of command.commands) {
-    if (cmd.name === name) {
+    if (cmd.name() === name) {
       return cmd;
     }
   }
+}
+
+/**
+ * Return the absolute path to Intern's package
+ */
+export function getPackagePath(dir = __dirname): string {
+  if (dirname(dir) === dir) {
+    throw new Error("Couldn't find package.json");
+  }
+  if (readdirSync(dir).includes('package.json')) {
+    return dir;
+  }
+  return getPackagePath(dirname(dir));
 }
 
 /**
@@ -141,7 +154,7 @@ export function getLogger(verbose?: boolean) {
       process.stderr.write(`>> ${_format(args[0], ...args.slice(1))}\n`);
     };
   }
-  return function () {};
+  return () => undefined;
 }
 
 /**
@@ -197,11 +210,15 @@ export function wrap(
     };
   };
 
-  let line = strLines.shift()!.replace(/^\s*/, '');
+  let line = strLines.shift();
+  if (line != null) {
+    line = line.replace(/^\s*/, '');
+  }
+
   while (line != null) {
     if (line.length - prefix.length <= width) {
       addLine(line);
-      line = strLines.shift()!;
+      line = strLines.shift();
     } else {
       const shortLine = line.slice(0, width - prefix.length);
       const start = shortLine.search(/\S/);
@@ -218,7 +235,7 @@ export function wrap(
         line = linePrefix + line.slice(space + 1);
       } else {
         addLine(line);
-        line = strLines.shift()!;
+        line = strLines.shift();
       }
     }
   }
@@ -238,4 +255,39 @@ function format(...args: any[]) {
 
   const message = _format(args[0], ...args.slice(1));
   return wrap(message);
+}
+
+/**
+ * Deeply sort the keys of an object. Don't try to sort
+ * non-simple objects.
+ */
+export function sortObjectKeys(obj: object) {
+  if (Array.isArray(obj)) {
+    obj = obj.map(sortObjectKeys).sort();
+  } else if (typeof obj === 'object' && obj.constructor === Object) {
+    const newObj: { [key: string]: any } = {};
+    Object.keys(obj)
+      .sort()
+      .forEach(key => {
+        newObj[key] = sortObjectKeys(obj[key as keyof typeof obj]);
+      });
+    obj = newObj;
+  }
+  return obj;
+}
+
+/**
+ * Stringify an object
+ */
+export function stringify(obj: object) {
+  return JSON.stringify(
+    obj,
+    (_key, value) => {
+      if (value instanceof RegExp) {
+        return value.toString();
+      }
+      return value;
+    },
+    '  '
+  );
 }

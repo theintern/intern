@@ -158,11 +158,14 @@ export default class Suite implements SuiteProperties {
    */
   get id() {
     let name: string[] = [];
-    let suite: Suite = this;
+    let suite: Suite | undefined = this;
 
-    do {
-      suite.name != null && name.unshift(suite.name);
-    } while ((suite = suite.parent!));
+    while (suite != null) {
+      if (suite.name != null) {
+        name.unshift(suite.name);
+      }
+      suite = suite.parent;
+    }
 
     return name.join(' - ');
   }
@@ -206,7 +209,7 @@ export default class Suite implements SuiteProperties {
     if (this._sessionId) {
       return this._sessionId;
     }
-    if (this.remote) {
+    if (this.remote != null) {
       return this.remote.session.sessionId;
     }
     return '';
@@ -297,6 +300,9 @@ export default class Suite implements SuiteProperties {
 
   /**
    * Add a test or suite to this suite.
+   *
+   * TODO: This should accept an interface rather than a full Suite or Test
+   * object
    */
   add(suiteOrTest: Suite | Test) {
     if (!isTest(suiteOrTest) && !isSuite(suiteOrTest)) {
@@ -575,7 +581,7 @@ export default class Suite implements SuiteProperties {
           // eslint-disable-next-line @typescript-eslint/no-this-alias
           let suite: Suite | undefined = this;
 
-          do {
+          while (suite != null) {
             if (name === 'beforeEach') {
               // beforeEach executes in order parent -> child;
               methodQueue.push(suite);
@@ -583,7 +589,8 @@ export default class Suite implements SuiteProperties {
               // afterEach executes in order child -> parent
               methodQueue.unshift(suite);
             }
-          } while ((suite = suite.parent!));
+            suite = suite.parent;
+          }
 
           return new Promise((resolve, reject) => {
             let firstError: Error;

@@ -1,4 +1,4 @@
-import { mockImport } from 'tests/support/mockUtil';
+import { mockImport } from '@theintern-dev/test-util';
 import { spy, stub } from 'sinon';
 import { global } from '@theintern/common';
 

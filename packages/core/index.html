@@ -21,37 +21,41 @@
 	<body>
 		<!-- Load intern code in the body because Html reporter needs a DOM -->
 		<script src="dist/browser/intern.js"></script>
-		<script src="dist/browser/config.js"></script>
 		<script>
-		internConfig.getConfig()
-			.then(function (result) {
-				var config = result.config;
-				if (config.showConfigs) {
-					console.log(getConfigDescription(config));
-					return true;
-				}
+      const args = intern.parseQuery(location.search);
 
-				if (!result.file) {
-					console.warn('No config file was found');
-				}
+      if (args.debug) {
+        intern.on('log', function (data) {
+          console.log('DEBUG: ' + data);
+        });
+        intern.on('suiteStart', function (data) {
+          console.log('SUITE_START: ' + data.id);
+        });
+        intern.on('testStart', function (data) {
+          console.log('TEST_START: ' + data.id);
+        });
+        intern.on('testEnd', function (data) {
+          console.log('TEST_END: ' + data.id);
+        });
+      }
 
-				// Add the HTML and console reporters to the default
-				intern.configure({ reporters: ['html', 'console'] });
-				intern.configure(config);
-			})
-			.then(
-				function (skipTests) {
-					if (skipTests) {
-						return;
-					}
+      let promise = args.config ? intern.loadConfig(args.config) : Promise.resolve();
+      promise.then(function () {
+        delete args.config;
+        const showConfig = args.showConfig;
+        delete args.showConfig;
 
-					// Intern automatically reports run errors, so discard one if we get it
-					intern.run().catch(function (_error) {});
-				},
-				function (error) {
-					console.error('Error initializing Intern:', error);
-				}
-			);
+        intern.configure(args);
+
+        if (showConfig) {
+          return intern.resolveConfig().then(function () {
+            console.log(intern.config);
+          });
+        } else {
+          // Intern automatically reports run errors, so discard one if we get it
+          return intern.run().catch(function (_error) {});
+        }
+      });
 		</script>
 	</body>
 </html>

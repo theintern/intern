@@ -1,8 +1,12 @@
 import { resolve } from 'path';
-import { Configuration, HotModuleReplacementPlugin } from 'webpack';
+import {
+  Configuration,
+  HotModuleReplacementPlugin,
+  NormalModuleReplacementPlugin
+} from 'webpack';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { sync as glob } from 'glob';
-import { getConfig } from '../src/lib/node/util';
+import { createConfigurator } from '../src/lib/node';
 // @ts-ignore
 import RewireMockPlugin from 'rewiremock/webpack/plugin';
 
@@ -30,6 +34,22 @@ const common: Configuration = {
             experimentalWatchApi: true
           }
         }
+      },
+      // chai-exclude needs to be ES5 for IE11 compatibility, so run it through
+      // the TS compiler. The tsconfig-tests.json config enables JS compilation
+      // with allowJs.
+      {
+        test: /\.js/,
+        include: [resolve(__dirname, 'node_modules', 'chai-exclude')],
+        use: {
+          loader: 'ts-loader',
+          options: {
+            silent: true,
+            configFile: 'tsconfig-tests.json',
+            onlyCompileBundledFiles: true,
+            transpileOnly: true
+          }
+        }
       }
     ],
     // benchmark's code makes webpack sad; tell webpack not to look at it
@@ -44,7 +64,12 @@ const common: Configuration = {
     // Needed for mocking
     new HotModuleReplacementPlugin(),
     // Needed for mocking
-    new RewireMockPlugin()
+    new RewireMockPlugin(),
+    // Needed for webpack mocking
+    new NormalModuleReplacementPlugin(
+      /.\/rewiremock\.js/,
+      './rewiremock-webpack.js'
+    )
   ],
 
   resolve: {
@@ -70,7 +95,7 @@ module.exports = getEntries().then(entries =>
 );
 
 async function getEntries() {
-  const { config } = await getConfig();
+  const config = await createConfigurator().loadConfig();
   const configSuites: string[] = config.suites || [];
   if (config.browser && config.browser.suites) {
     configSuites.push(...config.browser.suites);

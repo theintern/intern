@@ -1,29 +1,34 @@
-#!/usr/bin/env node
-
+import { watch } from 'chokidar';
+import { Command } from 'commander';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { Command } from 'commander';
 import { createInterface } from 'readline';
-import { watch } from 'chokidar';
+import { parse } from 'shell-quote';
 
+import {
+  Args,
+  Config,
+  DEFAULT_CONFIG,
+  parseArgs
+} from '@theintern/core/dist/lib/config';
+import { createConfigurator } from '@theintern/core/dist/lib/node';
 import intern from '@theintern/core';
+import { Events } from '@theintern/core/dist/lib/executors/Executor';
 import {
   collect,
   die,
   enumArg,
   getLogger,
+  getPackagePath,
   intArg,
   print,
-  readJsonFile
+  readJsonFile,
+  sortObjectKeys,
+  stringify
 } from './lib/util';
-import { getConfig, getPackagePath } from '@theintern/core/dist/lib/node/util';
-import {
-  defaultConfig,
-  getConfigDescription
-} from '@theintern/core/dist/lib/common/util';
 
 function getConfigFile(cfg: string) {
-  return (/@/.test(cfg) && cfg.split('@')[0]) || defaultConfig;
+  return (/@/.test(cfg) && cfg.split('@')[0]) || DEFAULT_CONFIG;
 }
 
 const pkgPath = getPackagePath();
@@ -68,7 +73,7 @@ const browserReporters = ['html', 'dom', 'console'];
 const tunnels = ['null', 'selenium', 'saucelabs', 'browserstack', 'cbt'];
 
 let vlog = getLogger();
-let configName = defaultConfig;
+let configName = DEFAULT_CONFIG;
 
 process.on('unhandledRejection', reason => {
   console.error(reason);
@@ -82,7 +87,7 @@ program
   .description('Run JavaScript tests.')
   .option('-v, --verbose', 'show more information about what Intern is doing')
   .option(
-    '-c, --config <file>[@config]',
+    '-c, --config [file][@config]',
     `config file to use (default is ${configName})`
   );
 
@@ -100,11 +105,6 @@ program
   .action(() => {
     print(pkg.version);
   });
-
-// Add a blank line after help
-program.on('--help', () => {
-  print();
-});
 
 program
   .command('init')
@@ -145,7 +145,6 @@ program
     try {
       let data: any;
 
-      // TODO should this also deal with extended configs?
       const configFile = getConfigFile(configName);
       if (existsSync(configFile)) {
         data = readJsonFile(configFile);
@@ -238,6 +237,22 @@ program
   });
 
 program
+  .command('describe')
+  .description('Describe a config file')
+  .action(async () => {
+    try {
+      const configurator = createConfigurator();
+      const text = await configurator.describeConfig(configName);
+      print([`Using config file at ${configName}:`, '']);
+      print(`  ${text}`);
+    } catch (error) {
+      vlog(error);
+      die(`ERROR: ${error.message}`);
+    }
+    print();
+  });
+
+program
   .command('run [args...]')
   .description('Run tests in Node or in a browser using WebDriver')
   .option('-b, --bail', 'quit after the first failing test')
@@ -255,7 +270,7 @@ program
   .option('-p, --port <port>', 'port that test proxy should serve on', intArg)
   .option('--debug', 'enable the Node debugger')
   .option('--serve-only', "start Intern's test server, but don't run any tests")
-  .option('--show-config', 'display the resolved config and exit')
+  .option('--show-config [property]', 'display the resolved config and exit')
   .option('--timeout <int>', 'set the default timeout for async tests', intArg)
   .option('--tunnel <name>', 'use the given tunnel for WebDriver tests')
   .option('-w, --webdriver', 'run WebDriver tests only')
@@ -295,30 +310,45 @@ program
     print();
   })
   .action(async (_args, command) => {
-    // Use getConfig's argv form so that it won't try to parse the actual argv,
-    // which we're handling here
-    let config: Record<string, any>;
+    const config: Args = process.env['INTERN_ARGS']
+      ? parseArgs(parse(process.env['INTERN_ARGS']) as string[])
+      : {};
 
-    try {
-      ({ config } = await getConfig(['', '', `config=${configName}`]));
-    } catch (error) {
-      console.error(error);
-      global.process.exitCode = 1;
-      return;
+    if (command.showConfigs) {
+      try {
+        const configurator = createConfigurator({
+          eventEmitter: {
+            emit: (event: keyof Events, data?: any) => {
+              vlog(`${event}: ${data}`);
+              return Promise.resolve();
+            }
+          }
+        });
+        const text = await configurator.describeConfig(configName);
+        console.log(`\n${text}\n`);
+        return;
+      } catch (error) {
+        vlog(error);
+        die(`ERROR: ${error.message}`);
+      }
     }
 
-    if (command.showConfig) {
-      config.showConfig = true;
+    try {
+      // Will load a user-specified config or the default
+      await intern.loadConfig(configName);
+    } catch (error) {
+      vlog(error);
+      die(`ERROR: ${error.message}`);
     }
 
     if (command.suites != null) {
       config.suites = command.suites;
-      if (config.node) {
-        config.node.suites = null;
-      }
-      if (config.browser) {
-        config.browser.suites = null;
-      }
+      config['node+'] = {
+        suites: []
+      };
+      config['browser+'] = {
+        suites: []
+      };
     }
 
     if (command.fsuites != null) {
@@ -344,7 +374,7 @@ program
     }
 
     if (command.port != null) {
-      config.port = command.port;
+      config.serverPort = command.port;
     }
 
     if (command.serveOnly != null) {
@@ -352,7 +382,7 @@ program
     }
 
     if (command.timeout != null) {
-      config.timeout = command.timeout;
+      config.defaultTimeout = command.timeout;
     }
 
     if (command.tunnel != null) {
@@ -371,39 +401,39 @@ program
       config.environments = ['node'];
     }
 
-    if (command.webdriver) {
-      // Clear out any node or general suites
-      config.suites = [];
-      config.browser = {
-        suites: []
-      };
-
-      // If the user provided suites, apply them only to the browser
-      // environment
-      if (command.suites) {
-        config.browser.suites.push(...command.suites);
-      }
-
-      // If the config had general suites, move them to the browser
-      // environment
-      if (config.suites) {
-        config.browser.suites.push(...config.suites);
-      }
-    }
-
-    if (command.node && command.webdriver) {
-      die('Only one of --node and --webdriver may be specified');
-    }
-
     // 'verbose' is a top-level option
     if (command.parent.verbose || command.debug) {
       config.debug = true;
     }
 
-    intern.configure(config);
+    try {
+      intern.configure(config);
+    } catch (error) {
+      console.error(error);
+      global.process.exitCode = 1;
+      return;
+    }
 
     try {
-      await intern.run();
+      if (command.showConfig) {
+        let sorted: any;
+        await intern.resolveConfig();
+
+        if (typeof command.showConfig === 'string') {
+          const value = intern.config[command.showConfig as keyof Config];
+          if (value && typeof value === 'object') {
+            sorted = sortObjectKeys(value);
+          } else {
+            sorted = value;
+          }
+        } else {
+          sorted = sortObjectKeys(intern.config);
+        }
+
+        console.log(stringify(sorted));
+      } else {
+        await intern.run();
+      }
     } catch (error) {
       if (!error.reported) {
         try {
@@ -438,21 +468,27 @@ program
   .action(async (_args, command) => {
     // Allow user-specified args in the standard intern format to be passed
     // through
-    // const internArgs = args || [];
-    const internConfig: { [name: string]: any } = {
-      config: configName,
-      serveOnly: true
-    };
+
+    try {
+      // Will load a user-specified config or the default
+      await intern.loadConfig(configName);
+    } catch (error) {
+      vlog(error);
+      die(`ERROR: ${error.message}`);
+    }
+
+    const config: Args = { serveOnly: true };
 
     if (command.port) {
-      internConfig.serverPort = command.port;
+      config.serverPort = command.port;
     }
 
     if (command.coverage === false) {
-      internConfig.coverage = false;
+      config.coverage = false;
     }
 
-    intern.configure(internConfig);
+    intern.configure(config);
+
     await intern.run();
   });
 
@@ -462,22 +498,6 @@ program.command('*', { noHelp: true }).action(command => {
   program.outputHelp();
 });
 
-program.on('--help', () => {
-  try {
-    getConfig().then(({ config }) => {
-      const text = getConfigDescription(config);
-      if (text) {
-        print([`Using config file at ${defaultConfig}:`, '']);
-        print(`  ${text}`);
-      } else {
-        print(`Using config file at ${defaultConfig}`);
-      }
-    });
-  } catch (error) {
-    // ignore
-  }
-});
-
 program
   .command('watch [files]')
   .description(
@@ -485,9 +505,12 @@ program
       'unit tests when files are updated'
   )
   .action(async (_files, command) => {
-    const { config } = await getConfig(command.config);
-    const configNodeSuites = (config.node && config.node.suites) || [];
-    const nodeSuites = [...config.suites, ...configNodeSuites];
+    const configurator = createConfigurator();
+    const config = await configurator.loadConfig(command.config);
+    const nodeSuites = [
+      ...(config.suites || []),
+      ...(config.node && config.node.suites ? config.node.suites : [])
+    ];
 
     const watcher = watch(nodeSuites)
       .on('ready', () => {
@@ -499,10 +522,12 @@ program
         print('Watcher error:', error);
       });
 
-    process.on('SIGINT', () => watcher.close());
+    process.on('SIGINT', () => {
+      watcher.close();
+    });
 
     let timer: number;
-    let suites = new Set();
+    let suites = new Set<string>();
     function scheduleInternRun(suite: string) {
       suites.add(suite);
       if (timer) {
@@ -511,10 +536,10 @@ program
       timer = setTimeout(async () => {
         suites = new Set();
 
-        const internConfig = {
+        const internConfig: Partial<Config> = {
           debug: command.debug,
           environments: [],
-          suites
+          suites: Array.from(suites)
         };
 
         intern.configure(internConfig);
@@ -530,10 +555,12 @@ program
 // by default
 const parsed = program.parseOptions(process.argv);
 if (
-  parsed.args.length < 3 &&
+  parsed.operands.length < 3 &&
   !(parsed.unknown[0] === '-h' || parsed.unknown[0] === '--help')
 ) {
   process.argv.splice(2, 0, 'run');
 }
 
-program.parse(process.argv);
+(async () => {
+  await program.parseAsync(process.argv);
+})();

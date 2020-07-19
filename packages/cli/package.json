@@ -10,11 +10,12 @@
   "dependencies": {
     "@theintern/core": "workspace:*",
     "chokidar": "~1.7.0",
-    "commander": "~4.0.1",
+    "commander": "~5.1.0",
     "glob": "~7.1.2",
     "opn": "~5.1.0",
     "resolve": "~1.4.0",
     "semver": "~5.4.1",
+    "shell-quote": "~1.7.2",
     "tslib": "~2.0.0"
   },
   "bugs": "https://github.com/theintern/intern/issues",
@@ -53,6 +54,7 @@
     "@types/glob": "~5.0.32",
     "@types/opn": "~3.0.28",
     "@types/resolve": "0.0.4",
-    "@types/semver": "~5.3.30"
+    "@types/semver": "~5.3.30",
+    "@types/shell-quote": "~1.6.1"
   }
 }
