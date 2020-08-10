@@ -334,6 +334,7 @@ program
 
     try {
       // Will load a user-specified config or the default
+      intern.configure({ reporters: ['runner'] });
       await intern.loadConfig(configName);
     } catch (error) {
       vlog(error);
@@ -356,8 +357,6 @@ program
 
     if (command.reporters != null) {
       config.reporters = command.reporters;
-    } else if (!config.reporters) {
-      config.reporters = ['runner'];
     }
 
     if (command.grep != null) {
