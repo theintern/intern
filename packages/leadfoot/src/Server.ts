@@ -274,6 +274,18 @@ export default class Server {
             data.status = 9;
           }
 
+          // At least BrowserStack in Aug 2020 responds with HTTP 422
+          // and a message value of "Invalid Command" for at least
+          // some unknown commands. These errors are more properly
+          // represented to end-users using the Selenium status
+          // UnknownCommand, so we make the appropriate coercion here
+          if (
+            response.status === 422 &&
+            data.value?.message === 'Invalid Command'
+          ) {
+            data.status = 9;
+          }
+
           // At least FirefoxDriver 2.40.0 responds with HTTP status
           // codes other than Not Implemented and a Selenium status
           // UnknownError for commands that are not implemented;
@@ -792,6 +804,14 @@ export default class Server {
         // At least IE11 will hang during this check, although option
         // selection does work with it
         updates.brokenOptionSelect = false;
+
+        // At least IE11 will fail this feature test because it only supports
+        // the POST endpoint for timeouts
+        updates.usesWebDriverTimeouts = true;
+
+        // At least IE11 will fail this feature test because it only supports
+        // the POST endpoint for timeouts
+        updates.brokenZeroTimeout = true;
       }
 
       // It is not possible to test this since the feature tests runs in
