@@ -16,7 +16,7 @@ Software testing for humans
 
 <!-- end-github-only -->
 
-> ⚠️ This documentation is for the development version of Intern. For the 
+> ⚠️ This documentation is for the development version of Intern. For the
 > current release version, go
 > [here](https://github.com/theintern/intern/tree/4.7).
 
@@ -43,11 +43,6 @@ Intuit, and more. It’s also the testing framework of choice for
 [growing numbers of open-source projects](https://github.com/search?p=2&q=tests+filename%3Aintern.js&ref=searchresults&type=Code&utf8=%E2%9C%93).
 
 <!-- prettier-ignore-start -->
-> 💡 If you’re an Intern user who’s new to Intern 4, see the
-    [Changes from Intern 3](docs/changes_from_3.md) document for a summary of the
-    major differences. For Intern 3 documentation, please see
-    [the Intern 3 README](https://github.com/theintern/intern/tree/3.4#intern).
-
 > 💡 Recently updated your browser and your WebDriver tests stopped working? You
     may need to [pin your WebDriver versions](./docs/running.md#selenium).
 <!-- prettier-ignore-end -->
@@ -101,7 +96,7 @@ Alternatively, add a triple-slash directive to the top of your suite files:
 ## Compatibility
 
 Intern can run unit tests in most browsers that support ECMAScript 5, including
-mobile browsers on Android and iOS, and in Node 6+. Note that Internet Explorer
+mobile browsers on Android and iOS, and in Node 10+. Note that Internet Explorer
 versions below 11 are not supported.
 
 Intern’s self-tests run against IE 11, Safari 13, and the most recent few
@@ -118,21 +113,24 @@ cloud testing services from [BrowserStack](https://browserstack.com),
 
 ## More information
 
+### Using Intern
+
 - [Getting started](docs/getting_started.md) - Setting up Intern to test a
   project
-- [Changes from Intern 3](docs/changes_from_3.md) - Major changes from Intern 3
-  to Intern 4
 - [How To](docs/how_to.md) - Quick answers to common questions
-- [Concepts](docs/concepts.md) - General testing concepts and definitions
-- [Architecture](docs/architecture.md) - How Intern is organized
 - [Configuration](docs/configuration.md) - How to configure Intern
 - [Writing tests](docs/writing_tests.md) - The various ways of writing tests
   with Intern
 - [Running](docs/running.md) - How to run Intern
+- [Concepts](docs/concepts.md) - General testing concepts and definitions
+- [Continuous integration](docs/ci.md) - Using Intern with CI systems
+- [API](docs/api.md) - Summary API documentation
+
+### Extending Intern
+
+- [Architecture](docs/architecture.md) - How Intern is organized
 - [Extending](docs/extending.md) - Extending Intern with reporters and other
   plugins
-- [API](docs/api.md) - Summary API documentation
-- [Continuous integration](docs/ci.md) - Using Intern with CI systems
 - [Developing](docs/developing.md) - For Intern developers
 - [Contributing](CONTRIBUTING.md) - How to contribute to Intern development
   <!-- end-github-only -->
